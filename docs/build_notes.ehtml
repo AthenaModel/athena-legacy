@@ -1,0 +1,22 @@
+<html>
+<head>
+<title><<project>> <<version>>: <<longproject>></title>
+<style>
+<<standardstyle>>
+</style>
+</head>
+
+<body>
+<<banner>>
+
+<h2>Build Notes</h2>
+
+No builds yet.<p>
+<hr>
+
+<address><a href="mailto:William.H.Duquette@jpl.nasa.gov">William.H.Duquette@jpl.nasa.gov</a></address>
+</body>
+</html>
+
+
+

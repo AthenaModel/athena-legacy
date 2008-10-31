@@ -1,0 +1,23 @@
+# -*-Makefile-*-
+#---------------------------------------------------------------------
+# TITLE:
+#    MakeRules -- Standard MakeRules
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    The following rules and settings are for use by all Minerva
+#    Makefiles.
+#
+#---------------------------------------------------------------------
+
+#---------------------------------------------------------------------
+# Rules
+
+check_env:
+	@ if test ! -n "$(TOP_DIR)" ; then \
+	    echo "Makefile variable TOP_DIR is not set." ; exit 1 ; fi
+
+
+

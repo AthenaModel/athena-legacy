@@ -1,0 +1,66 @@
+<<manpage {mingui(n) mapcanvas(n)} "Map Canvas Widget">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require mingui 1.0
+namespace import ::mingui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<b>TBD</b><p>
+
+<<section COMMANDS>>
+
+This module defines the following commands.<p>
+
+<<deflist commands>>
+
+<<defitem mapcanvas {mapcanvas <i>pathName ?options...?</i>}>>
+
+Creates a new <<iref mapcanvas>> widget named <i>pathName</i>.<p>
+
+The <<iref mapcanvas>> widget may be created with the following options:<p>
+
+<<deflist mapcanvas options>>
+
+<b>TBD</b><p>
+
+<</deflist mapcanvas options>>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+mapcanvas(n) widgets have the following subcommands, in addition to
+all of the standard canvas(n) subcommands.<p>
+
+<<deflist instance>>
+
+<b>TBD</b><p>
+
+<</deflist instance>>
+
+<<section ENVIRONMENT>>
+
+mingui(n) requires Tcl 8.5 or later.
+
+To use mingui(n) in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+

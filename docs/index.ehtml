@@ -1,0 +1,59 @@
+<html>
+<head>
+<title><<project>> <<version>>: <<longproject>></title>
+<style>
+<<standardstyle>>
+</style>
+</head>
+
+<body>
+<<banner>>
+
+<h2>Start Here</h2>
+
+<ul>
+  <li> <a href="dev/install.txt">Installation Instructions</a>
+  <li> <<xref minerva(1)>>: Introduction to Minerva
+  <li> <<xref minerva_sim(1)>>: The Minerva simulation.
+  <li> <a href="build_notes.html">Build Notes</a>: Details of each
+       Minerva build.<p>
+</ul>
+
+<h2>Man Pages</h2>
+
+<ul>
+  <li> <a href="man1/index.html">Section (1): Executables</a>
+  <li> <a href="mann/index.html">Section (n): Tcl Commands</a>       
+</ul>
+
+<h2>Mars Man Pages</h2>
+
+<ul>
+  <li> <a href="../mars/man1/index.html">Section (1): Executables</a>
+  <li> <a href="../mars/mann/index.html">Section (n): Tcl Commands</a>       
+</ul>
+
+
+<h2>Copyright</h2>
+
+(C) 2008. California Institute of Technology.  ALL RIGHTS RESERVED.
+U.S. Government sponsorship acknowledged. Any commercial use must be
+negotiated with the Office of Technology Transfer at the California
+Institute of Technology.<p>
+
+
+This software is subject to U. S. export control laws and regulations
+(22 C.F.R. 120-130 and 15 C.F.R. 730-774). To the extent that the
+software is subject to U.S. export control laws and regulations, the
+recipient has the responsibility to obtain export licenses or other
+export authority as may be required before exporting such information
+to foreign countries or providing access to foreign nationals.<p>
+
+<hr>
+
+<address><a href="mailto:William.H.Duquette@jpl.nasa.gov">William.H.Duquette@jpl.nasa.gov</a></address>
+</body>
+</html>
+
+
+

@@ -1,0 +1,35 @@
+<<manpage {devtools(1) chkversion(1)} "Version Syntax Checker">>
+
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<deflist program>>
+
+<<defitem chkversion {chkversion version}>>
+
+<</deflist program>>
+
+chkversion(1) is used during the CM build process to validate the
+requested version number.  It checks that:<p>
+
+<ul>
+  <li> The version number has the form <i>x.y.z</i>.<p>
+
+  <li> <i>x</i>, <i>y</i>, and <i>z</i> are all integers.<p>
+</ul>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Modified from a similar JNEM script.
+
+<</manpage>>
+
+
+
