@@ -45,7 +45,7 @@ the option names.<p>
 <<defitem typename {<i>mapicon</i> typename}>>
 
 Returns the name by which the icon type will be known to users of the
-<<xref mapcanvas(x)>> widget.<p>
+<<xref mapcanvas(n)>> widget.<p>
 
 <<section "INSTANCE COMMAND">>
 
