@@ -1,0 +1,146 @@
+<<manpage {minlib(n) mapref(n)} "Generic map projection">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require minlib 1.0
+namespace import ::minlib::mapref
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+Instances of the <<xref mapref(n)>> type are map
+<<xref projection(i)>> objects suitable for use with
+<<xref mapcanvas(n)>>.  <<xref mapref(n)>> implements a 
+non-geographic map projection for arbitrary map images.<p>
+
+<<subsection "Map Coordinates">>
+
+Map units are defined by dividing the longer of the image's
+pixel width or height into 1000 equal segments numbered 0 to 999.  The
+longer of the shorter of the two sides is referenced with the same
+units; so a 2000x1000 map would have dimensions 999x499 in map units.<p>
+
+Map units are double-precision floating point numbers.<p>
+
+<<subsection "Map Reference Strings">>
+
+A <<xref mapref(n)>> map reference string is a six-digit alphanumeric
+string which encodes the map coordinates.  A coordinate's hundred's place
+is converted to a letter A-K (skipping I), and the decimal fraction is
+rounded.  Thus, (123.4, 567.8) is encoded as "<code>B23F68</code>".<p>
+
+<<section COMMANDS>>
+
+<<deflist commands>>
+
+<<defitem mapref {mapref <i>name ?options?</i>}>>
+
+Creates a new mapref(n) object called <i>name</i>. The object is
+represented as a new Tcl command in the caller's scope;
+<<iref mapref>> returns the fully-qualified form of the
+<i>name</i>.<p>
+
+The <<iref mapref>> may be created with the following options:<p>
+
+<<deflist mapref options>>
+
+<<defopt {-height <i>pixels</i>}>>
+
+Sets the height of the map in pixels, at a zoom factor of 1.0.<p>
+
+<<defopt {-width <i>pixels</i>}>>
+
+Sets the width of the map in pixels, at a zoom factor of 1.0.<p>
+
+<</deflist mapref options>>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+Each instance of the <<iref mapref>> object has the following subcommands:<p>
+
+<<deflist instance>>
+
+<<defitem cget {<i>obj</i> cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem configure {<i>obj</i> configure <i>option value...</i>}>>
+
+Sets the value of one or more of the object's options.<p>
+
+<<defitem box {<i>obj</i> box}>>
+
+Returns the bounding box of the map in map units.<p>
+
+<<defitem c2m {<i>obj</i> c2m <i>cx cy</i>}>>
+
+Given a canvas coordinate pair <i>cx</i> and <i>cy</i>, returns a map
+coordinate pair as a list of two coordinates <i>mx</i> and <i>my</i>.<p>
+
+<<defitem c2ref {<i>obj</i> c2ref <i>cx cy</i>}>>
+
+Given a canvas coordinate pair <i>cx</i> and <i>cy</i>, returns a map
+reference string.<p>
+
+<<defitem dim {<i>obj</i> dim}>>
+
+Returns the dimensions of the map in map units.<p>
+
+<<defitem m2c {<i>obj</i> m2c <i>mx my</i>}>>
+
+Given a map coordinate pair <i>mx</i> and <i>my</i>, returns a canvas
+coordinate pair as a list of two coordinates <i>cx</i> and <i>cy</i>.<p>
+
+<<defitem m2ref {<i>obj</i> m2ref <i>mx my</i>}>>
+
+Given a map coordinate pair <i>mx</i> and <i>my</i>, returns a
+map reference string.<p>
+
+<<defitem ref2c {<i>obj</i> ref2c <i>ref</i>}>>
+
+Given a map reference string, returns a canvas
+coordinate pair as a list of two coordinates <i>cx</i> and <i>cy</i>.<p>
+
+<<defitem ref2m {<i>obj</i> ref2m <i>ref</i>}>>
+
+Given a map reference string, returns a map
+coordinate pair as a list of two coordinates <i>mx</i> and <i>my</i>.<p>
+
+<<defitem zoom {<i>obj</i> zoom ?<i>factor</i>?}>>
+
+<b>TBD: Not yet implemented!</b> Sets/queries the zoom factor.  Use
+1.0 (the default) for a 100% zoom, 2.0 for a 200% zoom, 0.5 for a 50%
+zoom, etc.  Map units are invariant across zoom factors, but
+canvas units obviously are not.<p>
+
+<</deflist instance>>
+
+<<section "SEE ALSO">>
+
+<<xref projection(i)>>, <<xref mapcanvas(n)>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
