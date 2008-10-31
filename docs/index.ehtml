@@ -23,7 +23,8 @@
 
 <ul>
   <li> <a href="man1/index.html">Section (1): Executables</a>
-  <li> <a href="mann/index.html">Section (n): Tcl Commands</a>       
+  <li> <a href="mann/index.html">Section (n): Tcl Commands</a>
+  <li> <a href="mani/index.html">Section (i): Tcl Interfaces</a>
 </ul>
 
 <h2>Mars Man Pages</h2>
