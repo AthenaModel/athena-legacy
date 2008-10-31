@@ -125,7 +125,7 @@ snit::type ::minlib::mapref {
     # Returns the position in map units
 
     method c2m {cx cy} {
-        list [expr {$cx / $mapFactor}] [expr {$cy / $mapFactor}]
+        list [expr {round($cx / $mapFactor)}] [expr {round($cy / $mapFactor)}]
     }
 
     # m2c mx my
@@ -178,8 +178,8 @@ snit::type ::minlib::mapref {
 
     method ref2m {ref} {
         list \
-            [GetCan 1.0 [string range $ref 0 2]] \
-            [GetCan 1.0 [string range $ref 3 5]]
+            [expr {round([GetCan 1.0 [string range $ref 0 2]])}] \
+            [expr {round([GetCan 1.0 [string range $ref 3 5]])}]
     }
 
     #-------------------------------------------------------------------

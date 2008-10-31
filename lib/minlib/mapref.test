@@ -1,0 +1,211 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    mapref.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Tcltest test suite for minlib(n), mapref.tcl
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Initialize tcltest(n)
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest 2.2 
+    eval ::tcltest::configure $argv
+}
+ 
+#-----------------------------------------------------------------------
+# Load the package to be tested
+
+package require minlib 1.0
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::minlib::test {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Import the code to be tested
+    namespace import ::minlib::*
+
+    # Setup for tests
+
+    proc setup {} {
+        mapref proj -width 1500 -height 1000
+    }
+
+    proc cleanup {} {
+        proj destroy
+    }
+
+    #-------------------------------------------------------------------
+    # box
+
+    test box-1.1 {Retrieve bounding box} -setup setup -body {
+        proj box
+    } -cleanup {
+        cleanup
+    } -result {0 0 999 666}
+
+    #-------------------------------------------------------------------
+    # dim
+
+    test dim-1.1 {Retrieve dimensions box} -setup setup -body {
+        proj dim
+    } -cleanup {
+        cleanup
+    } -result {999 666}
+
+    #-------------------------------------------------------------------
+    # c2m
+
+    test c2m-1.1 {Convert origin} -setup setup -body {
+        proj c2m 0 0
+    } -cleanup {
+        cleanup
+    } -result {0 0}
+
+    test c2m-1.2 {Convert bounds} -setup setup -body {
+        proj c2m 1500 1000
+    } -cleanup {
+        cleanup
+    } -result {999 666}
+
+    test c2m-1.3 {Convert midpoint} -setup setup -body {
+        proj c2m 750 500
+    } -cleanup {
+        cleanup
+    } -result {500 333}
+
+    #-------------------------------------------------------------------
+    # c2ref
+
+    test c2ref-1.1 {Convert origin} -setup setup -body {
+        proj c2ref 0 0
+    } -cleanup {
+        cleanup
+    } -result {A00A00}
+
+    test c2ref-1.2 {Convert bounds} -setup setup -body {
+        proj c2ref 1500 1000
+    } -cleanup {
+        cleanup
+    } -result {K99G66}
+
+    test c2ref-1.3 {Convert midpoint} -setup setup -body {
+        proj c2ref 750 500
+    } -cleanup {
+        cleanup
+    } -result {F00D33}
+
+    #-------------------------------------------------------------------
+    # m2c
+
+    test m2c-1.1 {Convert origin} -setup setup -body {
+        proj m2c 0 0
+    } -cleanup {
+        cleanup
+    } -result {0.0 0.0}
+
+    test m2c-1.2 {Convert bounds} -setup setup -body {
+        proj m2c 999 666
+    } -cleanup {
+        cleanup
+    } -result {1500.0 999.9999999999999}
+
+    test m2c-1.3 {Convert midpoint} -setup setup -body {
+        proj m2c 500 333
+    } -cleanup {
+        cleanup
+    } -result {750.7507507507507 499.99999999999994}
+
+    #-------------------------------------------------------------------
+    # m2ref
+
+    test m2ref-1.1 {Convert origin} -setup setup -body {
+        proj m2ref 0 0
+    } -cleanup {
+        cleanup
+    } -result {A00A00}
+
+    test m2ref-1.2 {Convert bounds} -setup setup -body {
+        proj m2ref 999 666
+    } -cleanup {
+        cleanup
+    } -result {K99G66}
+
+    test m2ref-1.3 {Convert midpoint} -setup setup -body {
+        proj m2ref 500 333
+    } -cleanup {
+        cleanup
+    } -result {F00D33}
+
+    #-------------------------------------------------------------------
+    # ref2c
+
+    test ref2c-1.1 {Convert origin} -setup setup -body {
+        proj ref2c A00A00
+    } -cleanup {
+        cleanup
+    } -result {0.0 0.0}
+
+    test ref2c-1.2 {Convert bounds} -setup setup -body {
+        proj ref2c K99G66
+    } -cleanup {
+        cleanup
+    } -result {1500.0 999.9999999999999}
+
+    test ref2c-1.3 {Convert midpoint} -setup setup -body {
+        proj ref2c F00D33
+    } -cleanup {
+        cleanup
+    } -result {750.7507507507507 499.99999999999994}
+
+    #-------------------------------------------------------------------
+    # ref2m
+
+    test ref2m-1.1 {Convert origin} -setup setup -body {
+        proj ref2m A00A00
+    } -cleanup {
+        cleanup
+    } -result {0 0}
+
+    test ref2m-1.2 {Convert bounds} -setup setup -body {
+        proj ref2m K99G66
+    } -cleanup {
+        cleanup
+    } -result {999 666}
+
+    test ref2m-1.3 {Convert midpoint} -setup setup -body {
+        proj ref2m F00D33
+    } -cleanup {
+        cleanup
+    } -result {500 333}
+
+    #-------------------------------------------------------------------
+    # zoom
+
+    # Not implemented yet.
+
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::minlib::test
+
