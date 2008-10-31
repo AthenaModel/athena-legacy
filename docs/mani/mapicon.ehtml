@@ -1,0 +1,90 @@
+<<manpage {mapicon(i)} "Mapcanvas Icon Type Interface">>
+
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+A <<xref mapicon(i)>> is <code>snit::type</code> that implements
+a <<xref mapcanvas(n)>> icon type.  Mapcanvas icons are graphics
+symbols, possibly composed of multiple <<xref tk:canvas(n)>> items
+than can be positioned and manipulated using map coordinates and
+reference strings via the <<xref mapcanvas(n)>>
+<<xref mapcanvas(n) icon>> command.<p>
+
+A <<xref mapicon(i)>>'s primary responsibility is to draw the icon on
+the canvas to begin with; then, various aspects of the icon's
+appearance can be manipulated using the icon's options (if any).<p>
+
+When the object is destroyed, it should remove itself from the
+canvas, using <<xref tcl:catch(n)>> in case the canvas has already
+been destroyed.<p>
+
+<<section COMMANDS>>
+
+Every <<xref mapicon(i)>> module must define a command like the following:<p>
+
+<<deflist commands>>
+
+<<defitem mapicon {<i>mapicon</i> <i>name canvas cx cy</i> ?<i>options</i>?}>>
+
+Creates a new mapicon(i) object called <i>name</i>. The object is
+represented as a new Tcl command in the caller's scope;
+<<iref mapicon>> returns the fully-qualified form of the
+<i>name</i>.<p>
+
+The <i>canvas</i> is the window name of the <<xref mapcanvas(n)>> on
+which the icon will appear.  It will be drawn at canvas coordinates
+<i>cx</i>,<i>cy</i>.<p>
+
+The options may vary by icon type; some icon types will have none.
+The standard Snit <b>info options</b> method may be used to retrieve
+the option names.<p>
+
+<<defitem typename {<i>mapicon</i> typename}>>
+
+Returns the name by which the icon type will be known to users of the
+<<xref mapcanvas(x)>> widget.<p>
+
+<<section "INSTANCE COMMAND">>
+
+Each instance of a <<iref mapicon>> object has the following subcommands:<p>
+
+<<deflist instance>>
+
+<<defitem cget {<i>obj</i> cget <i>option</i>}>>
+
+<b>Only if options are defined</b>.  Returns the value of the
+specified <i>option</i>.<p>
+
+<<defitem configure {<i>obj</i> configure <i>option value...</i>}>>
+
+<b>Only if options are defined</b>.  Sets the value of one or more of
+the object's options.<p>
+
+<</deflist instance>>
+
+<<section "SEE ALSO">>
+
+<<xref mapcanvas(n)>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
