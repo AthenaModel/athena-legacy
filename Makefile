@@ -87,7 +87,7 @@ src: check_env
 # of that it's not usually needed or built during day-to-day 
 # development.
 
-BASE_KIT = $(TOP_DIR)/basekits/base-tk-thread
+BASE_KIT = $(TOP_DIR)/tools/basekits/base-tk-thread-linux-ix86
 ARCHIVE = $(MINERVA_TCL_HOME)/lib/teapot
 
 
