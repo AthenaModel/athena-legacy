@@ -279,8 +279,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
     # clear
     #
     # Clears all content from the mapcanvas and reinitializes it to
-    # display -map using -projection.  If -map is "", a text string
-    # indicating the absence of any map is shown.  If -projection
+    # display -map using -projection. If -projection
     # is not defined, a mapref(n) instance will be used.
 
     method clear {} {
@@ -311,6 +310,10 @@ snit::widgetadaptor ::mingui::mapcanvas {
         
         # NEXT, if a projection is specified, remember it; otherwise,
         # create one.
+
+        if {[llength [info command ${selfns}::proj] != 0]} {
+            ${selfns}::proj destroy
+        }
 
         if {$options(-projection) ne ""} {
             set proj $options(-projection)
@@ -569,6 +572,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
     # Methods delegated to projection
     delegate method mapdim to proj as dim
+    delegate method mapbox to proj as box
     delegate method m2ref  to proj
     delegate method ref2m  to proj
     delegate method c2m    to proj
@@ -626,7 +630,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
     method {icon create} {icontype args} {
         # FIRST, check args
         if {[llength $args] < 1} {
-            WrongNumArgs "icon create icontype mapcoords options..."
+            WrongNumArgs "icon create icontype mappoint options..."
         }
 
         if {![info exists icontypes(type-$icontype)]} {
