@@ -105,7 +105,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
         bind Mapcanvas <Enter>  {%W MapEnter}
         bind Mapcanvas <Leave>  {%W MapLeave}
 
-        # Support -maprefvariable
+        # Support -refvariable
         bind Mapcanvas <Motion> {%W MaprefSet %x %y}
 
         # NEXT, Define the bindtags for the interaction modes
@@ -202,12 +202,19 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
     option -projection
 
-    # -maprefvariable
+    # -refvariable
     #
-    # A variable name.  It is set to the current mapref, or "" if
-    # none.
+    # A variable name.  It is set to the map reference string of the
+    # location under the mouse pointer.
 
-    option -maprefvariable -default ""
+    option -refvariable -default ""
+
+    # -modevariable
+    #
+    # A variable name.  It is set to the current interaction mode, or
+    # "" if none.
+
+    option -modevariable -default ""
 
     #-------------------------------------------------------------------
     # Instance Variables
@@ -362,7 +369,11 @@ snit::widgetadaptor ::mingui::mapcanvas {
             set info(mode) $mode
 
             # NEXT, set the cursor for this mode.
-            $hull configure -cursor $cursors($mode)
+            if {[info exists cursors($mode)]} {
+                $hull configure -cursor $cursors($mode)
+            } else {
+                $hull configure -cursor left_ptr
+            }
 
             # NEXT, clear the old mode's canvas tag bindings.
             foreach tag $info(modeTags) {
@@ -374,12 +385,14 @@ snit::widgetadaptor ::mingui::mapcanvas {
             set info(modeTags) [list]
 
             # NEXT, add the new mode's canvas tag bindings
-            foreach {tag event binding} $bindings($mode) {
-                if {$tag ni $info(modeTags)} {
-                    lappend info(modeTags) $tag
-                }
+            if {[info exists bindings($mode)]} {
+                foreach {tag event binding} $bindings($mode) {
+                    if {$tag ni $info(modeTags)} {
+                        lappend info(modeTags) $tag
+                    }
 
-                $hull bind $tag $event $binding
+                    $hull bind $tag $event $binding
+                }
             }
 
             # NEXT, Find the old mode's bindtag
@@ -397,6 +410,11 @@ snit::widgetadaptor ::mingui::mapcanvas {
             
             # Install the new mode's bindtag
             bindtags $win $tags
+
+            # NEXT, set the mode variable (if any)
+            if {$options(-modevariable) ne ""} {
+                uplevel 1 [list set $options(-modevariable) $info(mode)]
+            }
         }
 
         # NEXT, return the mode
@@ -427,12 +445,12 @@ snit::widgetadaptor ::mingui::mapcanvas {
     #
     # wx,wy    Position in window units
     #
-    # Sets the -maprefvariable, if any
+    # Sets the -refvariable, if any
 
     method MaprefSet {wx wy} {
-        if {$info(gotPointer) && $options(-maprefvariable) ne ""} {
+        if {$info(gotPointer) && $options(-refvariable) ne ""} {
             set ref [$self w2ref $wx $wy]
-            uplevel \#0 [list set $options(-maprefvariable) $ref]
+            uplevel \#0 [list set $options(-refvariable) $ref]
         }
     }
 

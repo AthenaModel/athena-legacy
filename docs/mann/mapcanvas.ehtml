@@ -126,11 +126,16 @@ pseudo-projection.  If the projection is changed after the widget is
 created, the <<iref clear>> method must be called before the change
 will be visible.<p>
 
-<<defopt {-maprefvariable <i>varname</i>}>>
+<<defopt {-refvariable <i>varname</i>}>>
 
 A variable name.  As the mouse pointer moves over the mapcanvas(n),
-the mapcanvas(n) will set this variable (if defined) to the map
+the mapcanvas(n) will set this variable (if specified) to the map
 references string of the current location.<p>
+
+<<defopt {-modevariable <i>varname</i>}>>
+
+A variable name.  The mapcanvas(n) will set this variable to the name
+of the current interaction mode.<p>
 
 <</deflist options>>
 
