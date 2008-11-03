@@ -144,7 +144,7 @@ test: check_env
 	@ echo ""
 
 	cd $(TOP_DIR)/mars ; make test
-	# cd $(TOP_DIR)/test ; make
+	cd $(TOP_DIR)/test ; make
 
 #---------------------------------------------------------------------
 # Target: installdocs
@@ -238,7 +238,7 @@ clean: check_env
 	-rm $(TOP_DIR)/bin/minerva
 	cd $(TOP_DIR)/mars ; make clean
 	# cd $(TOP_DIR)/src  ; make clean
-	# cd $(TOP_DIR)/test ; make clean
+	cd $(TOP_DIR)/test ; make clean
 	cd $(TOP_DIR)/docs ; make clean
 
 #---------------------------------------------------------------------
