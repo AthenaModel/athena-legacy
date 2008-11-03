@@ -311,7 +311,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
         # NEXT, if a projection is specified, remember it; otherwise,
         # create one.
 
-        if {[llength [info command ${selfns}::proj] != 0]} {
+        if {[llength [info command ${selfns}::proj]] != 0} {
             ${selfns}::proj destroy
         }
 
