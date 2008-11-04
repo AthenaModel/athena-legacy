@@ -43,6 +43,7 @@ snit::type app {
             exit 1
         }
 
+        wm title . "Minerva [version]: Simulation"
         label .lab \
             -font "Helvetica 36" \
             -text "minerva_sim(1)"

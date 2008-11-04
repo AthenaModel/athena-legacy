@@ -33,6 +33,8 @@ namespace eval ::minlib:: {
     variable library [file dirname [info script]]
 
     namespace import ::marsutil::* 
+
+    namespace export version
 }
 
 #-------------------------------------------------------------------

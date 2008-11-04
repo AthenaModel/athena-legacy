@@ -38,12 +38,12 @@ package require marsgui
 
 # From Minerva
 
-# package require minlib
-# package require mingui
+package require minlib
+package require mingui
         
 namespace import ::marsutil::* 
-# namespace import ::minlib::*
-# namespace import ::mingui::*
+namespace import ::minlib::*
+namespace import ::mingui::*
 
 #-----------------------------------------------------------------------
 # Load app_sim(n) submodules

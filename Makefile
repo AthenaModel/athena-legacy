@@ -50,7 +50,7 @@
 # Set the root of the directory tree.
 TOP_DIR = .
 
-.PHONY: all docs test build cmbuild tag tar srctar clean
+.PHONY: all docs test src build cmbuild tag tar srctar clean
 
 #---------------------------------------------------------------------
 # Shared Definitions
@@ -76,7 +76,7 @@ src: check_env
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	@ echo ""
 	cd $(TOP_DIR)/mars ; make src
-	# cd $(TOP_DIR)/src ; make
+	cd $(TOP_DIR)/src ; make
 
 #---------------------------------------------------------------------
 # Target: bin
@@ -237,7 +237,7 @@ clean: check_env
 	@ echo ""
 	-rm $(TOP_DIR)/bin/minerva
 	cd $(TOP_DIR)/mars ; make clean
-	# cd $(TOP_DIR)/src  ; make clean
+	cd $(TOP_DIR)/src  ; make clean
 	cd $(TOP_DIR)/test ; make clean
 	cd $(TOP_DIR)/docs ; make clean
 
