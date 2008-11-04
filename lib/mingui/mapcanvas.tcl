@@ -113,6 +113,13 @@ snit::widgetadaptor ::mingui::mapcanvas {
         # Mode: point
         # No bindtags yet
 
+        # Mode: poly
+
+        bind Mapcanvas.poly <ButtonPress-1>        {%W PolyPoint %x %y}
+        bind Mapcanvas.poly <Motion>               {%W PolyMove  %x %y}
+        bind Mapcanvas.poly <Double-ButtonPress-1> {%W PolyComplete}
+        bind Mapcanvas.poly <Escape>               {%W PolyFinish}
+
         # Mode: pan
 
         bind Mapcanvas.pan <ButtonPress-1> {%W scan mark %x %y}
@@ -122,22 +129,38 @@ snit::widgetadaptor ::mingui::mapcanvas {
     #-------------------------------------------------------------------
     # Lookup Tables
 
-    # Cursors, by interaction mode
-    typevariable cursors -array {
-        point    left_ptr
-        pan      fleur
-    }
+    # Mode data, by mode name
+    #
+    #    cursor    Name of the Tk cursor for this mode
+    #    cleanup   Name of a method to call when a different mode is
+    #              selected.
+    #    bindings  A list, {tag event binding ...}, of bindings on 
+    #              canvas tags which should be used when this mode is
+    #              in effect.
 
-    # Tag bindings, by mode
-    typevariable bindings -array {
+    typevariable modes -array {
         point {
-            icon  <ButtonPress-1>    {%W Icon-1 %x %y}
-            icon  <Control-Button-1> {%W IconMark %x %y}
-            icon  <B1-Motion>        {%W IconDrag %x %y}
-            icon  <B1-ButtonRelease> {%W IconRelease %x %y}
+            cursor   left_ptr
+            cleanup  {}
+            bindings {
+                icon  <ButtonPress-1>    {%W Icon-1 %x %y}
+                icon  <Control-Button-1> {%W IconMark %x %y}
+                icon  <B1-Motion>        {%W IconDrag %x %y}
+                icon  <B1-ButtonRelease> {%W IconRelease %x %y}
+            }
         }
 
-        pan { }
+        poly {
+            cursor   crosshair
+            cleanup  PolyCleanUp
+            bindings {}
+        }
+
+        pan {
+            cursor   fleur
+            cleanup  {}
+            bindings {}
+        }
     }
 
     #-------------------------------------------------------------------
@@ -216,6 +239,22 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
     option -modevariable -default ""
 
+    # -snapradius
+    #
+    # Radius, in pixels, for snapping to points.
+
+    option -snapradius \
+        -type    {snit::integer -min 0} \
+        -default 5
+
+    # -snapmode
+    #
+    # Whether snapping is on or not.
+    
+    option -snapmode \
+        -type    snit::boolean \
+        -default yes
+
     #-------------------------------------------------------------------
     # Instance Variables
 
@@ -248,9 +287,9 @@ snit::widgetadaptor ::mingui::mapcanvas {
         ids {}
     }
 
-    # transient: Data array used during multi-event user interactions
+    # trans: Data array used during multi-event user interactions
 
-    variable transient -array {}
+    variable trans -array {}
 
     #-------------------------------------------------------------------
     # Constructor
@@ -347,12 +386,12 @@ snit::widgetadaptor ::mingui::mapcanvas {
     # by a combination of bindtags and canvas tag bindings.  First,
     # each mode is associated with a Tk bindtag called Mapcanvas.<mode>.
     # Second, each mode has a list {tag event binding ...} in the
-    # bindings array.
+    # modes array.
     #
     # The currently defined modes are as follows:
     #
     #    point      Default behavior: you can point at things.
-    #
+    #    poly       You can draw polygons.
     #    pan        Pan mode: pan the map.
 
     # mode ?mode?
@@ -363,58 +402,70 @@ snit::widgetadaptor ::mingui::mapcanvas {
     # interaction mode.
    
     method mode {{mode ""}} {
-        # FIRST, if a new mode is given, set it.
-        if {$mode ne ""} {
-            # FIRST, save the mode
-            set info(mode) $mode
+        # FIRST, if no new mode is given, return the current mode.
+        if {$mode eq ""} {
+            return $info(mode)
+        }
 
-            # NEXT, set the cursor for this mode.
-            if {[info exists cursors($mode)]} {
-                $hull configure -cursor $cursors($mode)
-            } else {
-                $hull configure -cursor left_ptr
-            }
-
-            # NEXT, clear the old mode's canvas tag bindings.
-            foreach tag $info(modeTags) {
-                foreach event [$hull bind $tag] {
-                    $hull bind $tag $event {}
-                }
-            }
-
-            set info(modeTags) [list]
-
-            # NEXT, add the new mode's canvas tag bindings
-            if {[info exists bindings($mode)]} {
-                foreach {tag event binding} $bindings($mode) {
-                    if {$tag ni $info(modeTags)} {
-                        lappend info(modeTags) $tag
-                    }
-
-                    $hull bind $tag $event $binding
-                }
-            }
-
-            # NEXT, Find the old mode's bindtag
-            set tags [bindtags $win]
-
-            set ndx [lsearch -glob $tags "Mapcanvas.*"]
-
-            if {$ndx > -1} {
-                set tags [lreplace $tags $ndx $ndx Mapcanvas.$mode]
-            } else {
-                set ndx [lsearch -exact $tags "Mapcanvas"]
-
-                set tags [linsert $tags $ndx+1 Mapcanvas.$mode]
-            }
+        # NEXT, call the old mode's cleanup method, if any.
+        if {[info exists modes($info(mode))]} {
+            set method [dict get $modes($info(mode)) cleanup]
             
-            # Install the new mode's bindtag
-            bindtags $win $tags
-
-            # NEXT, set the mode variable (if any)
-            if {$options(-modevariable) ne ""} {
-                uplevel 1 [list set $options(-modevariable) $info(mode)]
+            if {$method ne ""} {
+                $self $method
             }
+        }
+
+        # NEXT, save the mode
+        set info(mode) $mode
+
+        # NEXT, clear the old mode's canvas tag bindings.
+        foreach tag $info(modeTags) {
+            foreach event [$hull bind $tag] {
+                $hull bind $tag $event {}
+            }
+        }
+
+        set info(modeTags) [list]
+
+        # NEXT, Set up the new mode's cursor and tag bindings, if there
+        # are any.
+        if {[info exists modes($mode)]} {
+            $hull configure -cursor [dict get $modes($mode) cursor]
+        } else {
+            $hull configure -cursor left_ptr
+        }
+
+        # NEXT, add the new mode's canvas tag bindings
+        if {[info exists modes($mode)]} {
+            foreach {tag event binding} [dict get $modes($mode) bindings] {
+                if {$tag ni $info(modeTags)} {
+                    lappend info(modeTags) $tag
+                }
+
+                $hull bind $tag $event $binding
+            }
+        }
+
+        # NEXT, Find the old mode's bindtag
+        set tags [bindtags $win]
+
+        set ndx [lsearch -glob $tags "Mapcanvas.*"]
+
+        if {$ndx > -1} {
+            set tags [lreplace $tags $ndx $ndx Mapcanvas.$mode]
+        } else {
+            set ndx [lsearch -exact $tags "Mapcanvas"]
+
+            set tags [linsert $tags $ndx+1 Mapcanvas.$mode]
+        }
+        
+        # Install the new mode's bindtag
+        bindtags $win $tags
+
+        # NEXT, set the mode variable (if any)
+        if {$options(-modevariable) ne ""} {
+            uplevel 1 [list set $options(-modevariable) $info(mode)]
         }
 
         # NEXT, return the mode
@@ -486,17 +537,17 @@ snit::widgetadaptor ::mingui::mapcanvas {
         lassign [$win w2c $wx $wy] cx cy
 
         # NEXT, get the ID of the selected icon
-        set transient(dragging) 1
-        set transient(id)       [lindex [$win gettags current] 0]
-        set transient(startx)   $cx
-        set transient(starty)   $cy
-        set transient(cx)       $cx
-        set transient(cy)       $cy
-        set transient(moved)    0
+        set trans(dragging) 1
+        set trans(id)       [lindex [$win gettags current] 0]
+        set trans(startx)   $cx
+        set trans(starty)   $cy
+        set trans(cx)       $cx
+        set trans(cy)       $cy
+        set trans(moved)    0
 
         # NEXT, raise the icon, so it when moved it will be over
         # the others.
-        $win raise $transient(id)
+        $win raise $trans(id)
     }
 
     # IconDrag wx wy
@@ -507,7 +558,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
     # Continues the process of dragging an icon
 
     method IconDrag {wx wy} {
-        if {![info exists transient(dragging)]} {
+        if {![info exists trans(dragging)]} {
             return
         }
 
@@ -516,16 +567,16 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
         # NEXT, compute the delta from the last drag position,
         # and move the icon by that much.
-        set dx [expr {$cx - $transient(cx)}]
-        set dy [expr {$cy - $transient(cy)}]
+        set dx [expr {$cx - $trans(cx)}]
+        set dy [expr {$cy - $trans(cy)}]
 
-        $win move $transient(id) $dx $dy
+        $win move $trans(id) $dx $dy
 
         # NEXT, remember where it is on the canvas, and that it has
         # been moved.
-        set transient(cx) $cx
-        set transient(cy) $cy
-        set transient(moved) 1
+        set trans(cx) $cx
+        set trans(cy) $cy
+        set trans(moved) 1
     }
 
     # IconRelease
@@ -533,14 +584,14 @@ snit::widgetadaptor ::mingui::mapcanvas {
     # Finishes the process of dragging an icon.
 
     method IconRelease {wx wy} {
-        if {![info exists transient(dragging)]} {
+        if {![info exists trans(dragging)]} {
             return
         }
 
         # FIRST, if it's been moved, update its mxy, and notify the
         # user.
 
-        if {$transient(moved)} {
+        if {$trans(moved)} {
             # FIRST, is the current location within the visible bounds
             # of the window?  If so move it!
 
@@ -548,11 +599,11 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
                 # FIRST, Get the delta relative to the point we started
                 # dragging.
-                set dx [expr {$transient(cx) - $transient(startx)}]
-                set dy [expr {$transient(cy) - $transient(starty)}]
+                set dx [expr {$trans(cx) - $trans(startx)}]
+                set dy [expr {$trans(cy) - $trans(starty)}]
 
                 # NEXT, get the icon's original mxy
-                lassign [dict get $icons(icon-$transient(id)) mxy] mx1 my1
+                lassign [dict get $icons(icon-$trans(id)) mxy] mx1 my1
 
                 # NEXT, get the icon's original cxy
                 lassign [$win m2c $mx1 $my1] cx1 cy1
@@ -562,29 +613,171 @@ snit::widgetadaptor ::mingui::mapcanvas {
                 set cy2 [expr {$cy1 + $dy}]
 
                 # NEXT, get the icon's new mxy, and save it.
-                dict set icons(icon-$transient(id)) \
+                dict set icons(icon-$trans(id)) \
                     mxy [$win c2m $cx2 $cy2]
 
                 # NEXT, notify the user
                 event generate $win <<IconMoved>> \
                     -x    $wx                     \
                     -y    $wy                     \
-                    -data $transient(id)
+                    -data $trans(id)
             } else {
 
                 # Whoops!  Put the icon back where it was.
-                set dx [expr {$transient(startx) - $transient(cx)}]
-                set dy [expr {$transient(starty) - $transient(cy)}]
+                set dx [expr {$trans(startx) - $trans(cx)}]
+                set dy [expr {$trans(starty) - $trans(cy)}]
 
-                $win move $transient(id) $dx $dy
+                $win move $trans(id) $dx $dy
             }
         }
 
-        # NEXT, clear the transient array
-        array unset transient
+        # NEXT, clear the trans array
+        array unset trans
     }
 
+    # PolyPoint
+    #
+    # wx,wy    Window coordinates of a mouse-click
+    #
+    # Begins/extends a polygon in poly mode.
 
+    method PolyPoint {wx wy} {
+        # FIRST, get the current position in canvas coordinates.
+        lassign [$self PolySnap {*}[$self w2c $wx $wy]] cx cy
+
+        # NEXT, are we already drawing a polygon?  If so, save the
+        # current line.
+        if {[info exists trans(poly)]} {
+            # FIRST, if the new point is close to the first point, and
+            # we have enough points, end the line.
+            if {[$self CanSnap $cx $cy $trans(startx) $trans(starty)] &&
+                [llength $trans(coords)] >= 6
+            } {
+                $self PolyComplete
+                return
+            }
+            
+            lappend trans(coords) $cx $cy
+            
+            $hull create line $trans(cx) $trans(cy) $cx $cy \
+                -fill red -tags partial
+        } else {
+            set trans(poly) 1
+            set trans(coords) [list $cx $cy]
+            set trans(startx) $cx
+            set trans(starty) $cy
+        }
+
+        # NEXT, Create the rubber line
+        set trans(cx) $cx
+        set trans(cy) $cy
+
+        $hull delete rubberline
+
+        $hull create line $cx $cy $cx $cy \
+            -fill red -tags rubberline
+
+        # NEXT, focus on the window, so that Escape will cancel.
+        focus $win
+    }
+
+    # PolyComplete
+    #
+    # Called when a polygon has been completed.  Notifies the
+    # application.
+
+    method PolyComplete {} {
+        # FIRST, are we already drawing a polygon?  If not, or if the
+        # polygon hasn't enough points, ignore this event.
+        if {![info exists trans(poly)] ||
+            [llength $trans(coords)] < 6
+        } {
+            return
+        }
+
+        # NEXT, is it a valid polygon?  If not, ignore this event.
+        # TBD.
+
+        # NEXT, notify the application
+        event generate $win <<PolyComplete>> \
+            -data $trans(coords)
+        
+        # NEXT, we're done.
+        $self PolyFinish
+    }
+
+    # PolyMove wx wy
+    #
+    # Does rubber-banding as we're drawing a polygon.
+
+    method PolyMove {wx wy} {
+        # FIRST, if we're not drawing a polygon, we're done.
+        if {![info exists trans(poly)]} {
+            return
+        }
+
+        # NEXT, snap the current point.
+        lassign [$self PolySnap {*}[$win w2c $wx $wy]] cx cy
+
+        # NEXT, Updated the rubber line
+        set coords [$hull coords rubberline]
+        set coords [lreplace $coords 2 end $cx $cy]
+        $hull coords rubberline {*}$coords
+    }
+
+    # PolyFinish
+    #
+    # Called when we're finished with the current polygon, whether
+    # because it's complete or it's been cancelled.
+
+    method PolyFinish {} {
+        # FIRST, clean up the transient data.
+        $self PolyCleanUp
+
+        # NEXT, go back to point mode.
+        $self mode point
+    }
+
+    # PolyCleanUp
+    #
+    # Cleans up the transient data and canvas artifacts associated with
+    # drawing polygons.
+
+    method PolyCleanUp {} {
+        array unset trans
+        $hull delete rubberline
+        $hull delete partial
+    }
+
+    # PolySnap cx cy
+    #
+    # cx,cy   A point in canvas coordinates
+    #
+    # Given a point cx,cy, tries to snap to a point within a radius.
+    # If the first point in the polygon is within range, and snapping
+    # to it would yield a valid polygon, snaps to that.  Otherwise,
+    # uses SnapToPoint.
+
+    method PolySnap {cx cy} {
+        # TBD: Should validate the polygon
+
+        # FIRST, snap to the first point in the polygon, if that 
+        # makes sense.  We can do this even if -snapmode is off.
+        if {[info exists trans(poly)] &&
+            [$self CanSnap $cx $cy $trans(startx) $trans(starty)] &&
+            [llength $trans(coords)] >= 6
+        } {
+            return [list $trans(startx) $trans(starty)]
+        }
+
+        # NEXT, Use a normal snap, otherwise.
+        if {$options(-snapmode)} {
+            return [$self SnapToPoint $cx $cy]
+        } else {
+            return [list $cx $cy]
+        }
+    }
+   
     #-------------------------------------------------------------------
     # Coordinate Conversion methods
 
@@ -761,9 +954,90 @@ snit::widgetadaptor ::mingui::mapcanvas {
         return [list $mx $my]
     }
 
+    #-------------------------------------------------------------------
+    # Utility Methods
+
+    # CanSnap x1 y1 x2 y2
+    #
+    # x1,y1     A point
+    # x2,y2     Another point
+    #
+    # Returns 1 if distance between the two points is within the snap
+    # radius.
+
+    method CanSnap {x1 y1 x2 y2} {
+        expr {[Distance $x1 $y1 $x2 $y2] <= $options(-snapradius)}
+    }
+
+    # SnapToPoint cx cy
+    #
+    # cx,cy   A point in canvas coordinates
+    #
+    # Given a point cx,cy, tries to snap to a point within a radius.
+    # Candidate points are points in the "coords" list of items 
+    # tagged with "snaps".
+
+    method SnapToPoint {cx cy} {
+        set mindist [expr {2*$options(-snapradius)}]
+        set minitem ""
+        set nearest [list]
+
+        set bbox [BoxAround $options(-snapradius) $cx $cy]
+
+        foreach item [$hull find overlapping {*}$bbox] {
+            set tags [$hull gettags $item]
+
+            if {"snaps" ni $tags} {
+                continue
+            }
+            
+            foreach {sx sy} [$hull coords $item] {
+                set dist [Distance $cx $cy $sx $sy]
+
+                if {$dist < $mindist} {
+                    set nearest [list $sx $sy]
+                    set mindist $dist
+                    set minitem [lindex $tags 0]
+                }
+            }
+        }
+
+        if {[llength $nearest] == 2} {
+            return $nearest
+        } else {
+            return [list $cx $cy]
+        }
+    }
 
     #-------------------------------------------------------------------
     # Utility Procs
+
+    # Distance x1 y1 x2 y2
+    #
+    # x1,y1    A point
+    # x2,y2    Another point
+    #
+    # Computes the distance between the two points.
+
+    proc Distance {x1 y1 x2 y2} {
+        expr {sqrt(($x1-$x2)**2 + ($y1-$y2)**2)}
+    }
+
+    # BoxAround radius x y
+    #
+    # radius    a distance
+    # x,y       a point
+    #
+    # Returns a bounding box {x1 y1 x2 y2} of the given radius around
+    # the given point.
+    proc BoxAround {radius x y} {
+        set x1 [expr {$x - $radius}]
+        set y1 [expr {$y - $radius}]
+        set x2 [expr {$x + $radius}]
+        set y2 [expr {$y + $radius}]
+
+        list $x1 $y1 $x2 $y2
+    }
 
     # WrongNumArgs methodsig
     #

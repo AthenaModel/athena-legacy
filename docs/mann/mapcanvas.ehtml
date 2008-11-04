@@ -98,6 +98,13 @@ The mapcanvas(n) defines a number of user interaction modes:<p>
   <dd> In this mode, the user can point at icons and neighborhoods,
        generating events to be processed by the application.<p>
 
+  <dt> <b>poly</b>
+  <dd> In this mode, the user can draw polygons on the map.  Completed
+       polygons are reported to the application via the
+       <b>&lt;&lt;PolyComplete&gt;&gt;</b> virtual event.  It is up to
+       the application to make the new polygon permanent in some way,
+       e.g., by creating a neighborhood.<p>
+
   <dt> <b>pan</b>
   <dd> In this mode, the user can click-and-drag to pan the map from
        side-to-side and up-and-down.<p>
@@ -118,6 +125,11 @@ Specifies the map image to display, a standard Tk <<xref tk:photo(n)>>
 image.  If the map image is changed after the widget is created, the
 <<iref clear>> method must be called before the change will be visible.<p>
 
+<<defopt {-modevariable <i>varname</i>}>>
+
+A variable name.  The mapcanvas(n) will set this variable to the name
+of the current interaction mode.<p>
+
 <<defopt {-projection <i>proj</i>}>>
 
 Name of a <<xref projection(i)>> object.  If no projection is
@@ -132,10 +144,15 @@ A variable name.  As the mouse pointer moves over the mapcanvas(n),
 the mapcanvas(n) will set this variable (if specified) to the map
 references string of the current location.<p>
 
-<<defopt {-modevariable <i>varname</i>}>>
+<<defopt {-snapmode <i>boolean</i>}>>
 
-A variable name.  The mapcanvas(n) will set this variable to the name
-of the current interaction mode.<p>
+If true, then mapcanvas(n) will snap to existing points when drawing
+polygons.  If false, it won't.  Defaults to true.<p>
+
+<<defopt {-snapradius <i>radius</i>}>>
+
+Specifies the distance in pixels within which mapcanvas(n) will snap
+to existing points when drawing polygons.  Defaults to 5 pixels.<p>
 
 <</deflist options>>
 
@@ -305,7 +322,35 @@ reference string.<p>
 
 <<section EVENTS>>
 
+The mapcanvas(n) defines the following virtual events.<p>
+
+<<deflist virtual>>
+
+<<defitem Icon-1 {&lt;&lt;Icon-1&gt;&gt;}>>
+
+Sent when the user clicks button-1 on an icon in <b>point</b> mode.
+The <b>%x</b> and <b>%y</b> conversions are the window coordinates of
+the event, as usual, and <b>%d</b> is the ID of the icon.<p>
+
+<<defitem IconMoved {&lt;&lt;IconMoved&gt;&gt;}>>
+
+Sent when the user drags an icon to a new location in <b>point</b> mode.
+The <b>%x</b> and <b>%y</b> conversions are the window coordinates of
+the event, as usual, and <b>%d</b> is the ID of the icon.<p>
+
+<<defitem PolyComplete {&lt;&lt;PolyComplete&gt;&gt;}>>
+
+Sent when the user has completed a new polygon in <b>poly</b> mode.
+The <b>%d</b> conversion is replaced with the list of the new
+polygon's coordinates.  The mapcanvas(n) does not automatically save
+the new polygon; it is up to the application to do that, e.g., by
+creating a neighborhood.
+
+<</deflist virtual>>
+
 <<section BINDINGS>>
+
+TBD.<p>
 
 <<section ENVIRONMENT>>
 
