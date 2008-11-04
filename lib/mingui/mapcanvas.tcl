@@ -643,6 +643,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
     method PolyPoint {wx wy} {
         # FIRST, get the current position in canvas coordinates.
+        # TBD: Should probably snap to map units!
         lassign [$self PolySnap {*}[$self w2c $wx $wy]] cx cy
 
         # NEXT, are we already drawing a polygon?  If so, save the
@@ -656,7 +657,31 @@ snit::widgetadaptor ::mingui::mapcanvas {
                 $self PolyComplete
                 return
             }
-            
+
+            # NEXT, if this point is already on the polygon, ignore it
+            foreach {x y} $trans(coords) {
+                if {$x == $cx && $y == $cy} {
+                    return
+                }
+            }
+
+            # NEXT, If this edge intersects an earlier edge, return.
+            set n [clength $trans(coords)]
+
+            set q1 [lrange $trans(coords) end-1 end]
+            set q2 [list $cx $cy]
+
+            for {set i 0} {$i < $n - 2} {incr i} {
+                set edge [cedge $trans(coords) $i]
+                set p1 [lrange $edge 0 1]
+                set p2 [lrange $edge 2 3]
+
+                if {[intersect $p1 $p2 $q1 $q2]} {
+                    return
+                }
+            }
+
+            # NEXT, save the point
             lappend trans(coords) $cx $cy
             
             $hull create line $trans(cx) $trans(cy) $cx $cy \
@@ -694,9 +719,6 @@ snit::widgetadaptor ::mingui::mapcanvas {
         } {
             return
         }
-
-        # NEXT, is it a valid polygon?  If not, ignore this event.
-        # TBD.
 
         # NEXT, notify the application
         event generate $win <<PolyComplete>> \
