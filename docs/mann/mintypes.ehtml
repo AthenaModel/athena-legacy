@@ -1,0 +1,60 @@
+<<manpage {minlib(n) mintypes(n)} "Minerva Data Types">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require minlib 1.0
+namespace import ::minlib::mintypes
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+This module defines data types used by the Minerva code base.  Each
+type is defined as a type ensemble command.<p>
+
+<b>TBD:</b>  Just how data types are going to handled in Minerva is
+not yet clear, so this code should be regarded as provisional.<p>
+
+<<section TYPES>>
+
+<<deflist types>>
+
+<<defitem polygon {polygon <i>subcommand</i> ?<i>args</i>?}>>
+
+Polygon type.<p>
+
+<<deflist polygon>>
+
+<<defitem "polygon validate" {polygon validate <i>coords</i>}>>
+
+Validates the polygon described by the <i>coords</i>, which is a flat
+list of <i>x</i> and <i>y</i> coordinates.  It may be passed as a
+single argument, or as one argument per coordinate.<p>
+
+<</deflist polygon>>
+
+<</deflist types>>
+
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+

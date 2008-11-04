@@ -24,8 +24,6 @@ TOP_DIR = ..
 
 include $(TOP_DIR)/MakeDefs
 
-SRCLIBDIR = $(TOP_DIR)/src/lib
-
 # Subdirectories to build
 SUBS = libVersion
 
@@ -40,13 +38,6 @@ all: $(SRCLIBDIR) subs
 
 $(SUBS):
 	cd $@ ; make clean ; make
-
-#---------------------------------------------------------------------
-# Target: lib -- creates the lib directory
-
-$(SRCLIBDIR):
-	mkdir $(SRCLIBDIR)
-
 
 #---------------------------------------------------------------------
 # Standard Rules

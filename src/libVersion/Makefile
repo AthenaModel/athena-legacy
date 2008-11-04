@@ -58,7 +58,7 @@ $(TARGET): $(OBJS)
 	$(CC) -c $(DEFINES) $(CPPFLAGS) $(INCLPATH) $< -o $@
 
 clean:
-	rm -f *.o $(TARGET) MakeDepends
+	rm -f *.o $(TARGET) MakeDepends MakeDepends.log
 
 #-------------------------------------------------------------------
 # Dependency checking.
