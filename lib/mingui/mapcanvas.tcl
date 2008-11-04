@@ -649,19 +649,24 @@ snit::widgetadaptor ::mingui::mapcanvas {
         # NEXT, are we already drawing a polygon?  If so, save the
         # current line.
         if {[info exists trans(poly)]} {
-            # FIRST, if the new point is close to the first point, and
-            # we have enough points, end the line.
-            if {[$self CanSnap $cx $cy $trans(startx) $trans(starty)] &&
+            # FIRST, if the new point is the same as the first point, and
+            # we've got enough for a full polygon, we'll complete the
+            # polygon with this point.  Is this the case?
+
+            set done [expr {
+                $cx == $trans(startx) && 
+                $cy == $trans(starty) &&
                 [llength $trans(coords)] >= 6
-            } {
-                $self PolyComplete
-                return
-            }
+            }]
 
             # NEXT, if this point is already on the polygon, ignore it
-            foreach {x y} $trans(coords) {
-                if {$x == $cx && $y == $cy} {
-                    return
+            # (unless it's the first point)
+
+            if {!$done} {
+                foreach {x y} [lrange $trans(coords) 0 end] {
+                    if {$x == $cx && $y == $cy} {
+                        return
+                    }
                 }
             }
 
@@ -671,7 +676,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
             set q1 [lrange $trans(coords) end-1 end]
             set q2 [list $cx $cy]
 
-            for {set i 0} {$i < $n - 2} {incr i} {
+            for {set i $done} {$i < $n - 2} {incr i} {
                 set edge [cedge $trans(coords) $i]
                 set p1 [lrange $edge 0 1]
                 set p2 [lrange $edge 2 3]
@@ -679,6 +684,12 @@ snit::widgetadaptor ::mingui::mapcanvas {
                 if {[intersect $p1 $p2 $q1 $q2]} {
                     return
                 }
+            }
+
+            # NEXT, if done, complete the polygon
+            if {$done} {
+                $self PolyComplete
+                return
             }
 
             # NEXT, save the point
