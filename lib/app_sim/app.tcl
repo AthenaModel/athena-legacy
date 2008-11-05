@@ -182,8 +182,7 @@ snit::type app {
         # NEXT, add the mapviewer to the paner
         mapviewer .paner.viewer                             \
             -width        600                               \
-            -height       400                               \
-            -refvariable  [mytypevar info(currentPosition)]
+            -height       600
 
         set viewer .paner.viewer
         
@@ -193,9 +192,10 @@ snit::type app {
             -stretch always
 
         # NEXT, add the CLI to the paner
-        set cli [cli .paner.cli \
-                     -height 12 \
+        set cli [cli .paner.cli    \
+                     -height 8     \
                      -relief flat]
+
         .paner add .paner.cli \
             -sticky  nsew     \
             -minsize 60       \
@@ -206,6 +206,13 @@ snit::type app {
         grid .paner    -sticky nsew
         grid .sep2     -sticky ew
         grid .msgline  -sticky ew
+
+        # NEXT, add some bindings
+        bind $viewer <<Icon-1>>        {IconPoint %W %d}
+        bind $viewer <<IconMoved>>     {IconMoved %W %d}
+        bind $viewer <<PolyComplete>>  {PolyComplete %W %d}
+        
+        $viewer bind nbhood <Button-1> {NbhoodPoint %W %x %y}
     }
 
 
@@ -220,6 +227,16 @@ snit::type app {
         puts "Usage: minerva sim"
         puts ""
         puts "See minerva_sim(1) for more information."
+    }
+
+    # puts text
+    #
+    # text     A text string
+    #
+    # Writes the text to the message line
+
+    typemethod puts {text} {
+        $msgline puts $text
     }
 
     # exit

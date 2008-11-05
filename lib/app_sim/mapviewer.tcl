@@ -110,10 +110,9 @@ snit::widget mapviewer {
     #-------------------------------------------------------------------
     # Options
 
-    delegate option -refvariable  to canvas
-    delegate option -map          to canvas
+    delegate option -map to canvas
 
-    delegate option *             to hull
+    delegate option *    to hull
     
     #-------------------------------------------------------------------
     # Components
@@ -126,12 +125,12 @@ snit::widget mapviewer {
     # Info array; used for most scalars
     #
     #    mode           The current mapcanvas(n) mode
+    #    ref            The current map reference
 
     variable info -array {
         mode ""
+        ref  ""
     }
-
-
 
     #-------------------------------------------------------------------
     # Constructor
@@ -153,20 +152,42 @@ snit::widget mapviewer {
 
         # Map canvas
         install canvas using mapcanvas $win.mapsw.canvas \
-            -modevariable [myvar info(mode)]
+            -modevariable [myvar info(mode)]             \
+            -refvariable  [myvar info(ref)]
         
         $win.mapsw setwidget $canvas
 
+        # Horizontal tool bar
+        frame $win.hbar \
+            -relief flat
+
+        label $win.hbar.ref \
+            -textvariable [myvar info(ref)] \
+            -width 8
+
+        pack $win.hbar.ref -side right
+
+        # Separator
+        frame $win.sep -height 2 -relief sunken -borderwidth 2
+
         # Vertical tool bar
-        frame $win.vbar
+        frame $win.vbar -relief flat
 
         $self AddModeTool point left_ptr
         $self AddModeTool poly  draw_poly
         $self AddModeTool pan   fleur
 
         # Pack all of these components
-        pack $win.vbar  -side left   -fill y 
-        pack $win.mapsw              -fill both -expand yes
+        pack $win.hbar  -side top  -fill x
+        pack $win.sep   -side top  -fill x
+        pack $win.vbar  -side left -fill y 
+        pack $win.mapsw            -fill both -expand yes
+
+        # NEXT, replace $canvas in the bindtags with $win, so 
+        # that it will respond to bindings on the window.
+        set bindtags [bindtags $canvas]
+        set ndx [lsearch -exact $bindtags $canvas]
+        bindtags $canvas [lreplace $bindtags $ndx $ndx $win]
 
         # NEXT, process the arguments
         $self configurelist $args
@@ -189,7 +210,7 @@ snit::widget mapviewer {
             -value       $mode                     \
             -command     [list $canvas mode $mode]
 
-        pack $win.vbar.$mode -side top -fill x
+        pack $win.vbar.$mode -side top -fill x -padx 2
     }
 
     #-------------------------------------------------------------------
