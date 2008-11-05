@@ -16,9 +16,8 @@
 #
 #    The Map
 #        The map is an image file; the canvas' scroll region is precisely
-#        the extent of the map.  The map can be viewed at several
-#        zoom levels; however, all zoom levels derive from the original
-#        image file.
+#        the extent of the map.  TBD: Eventually, mapcanvas will support
+#        different zoom levels.
 #
 #    Neighborhoods
 #        Neighborhoods are represented as polygons.  By default, 
@@ -272,15 +271,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
         modeTags    {}
         iconCounter 0
         gotPointer  0
-        zoom        100
     }
-
-    # zooms array
-    #
-    #   Zoom images by zoom percentage, e.g., "100".  The entry for
-    #   "100" is just the -map.
-
-    variable zooms -array {}
 
     # icons array
     #
@@ -348,23 +339,11 @@ snit::widgetadaptor ::mingui::mapcanvas {
         array unset icons
         set icons(ids) [list]
 
-        foreach zoom [array names zooms] {
-            if {$zoom != 100} {
-                image delete $zooms($zoom)
-            }
-        }
-
-        array unset zooms
-        set info(zoom) 100
-
         # NEXT, if there's no map, handle it.
         if {$options(-map) eq ""} {
             set proj [myproc UndefinedMap]
             return
         }
-
-        # NEXT, save the map as the 100% zoom
-        set zooms(100) $options(-map)
 
         # NEXT, create the map item
         $hull create image 0 0     \
@@ -394,88 +373,10 @@ snit::widgetadaptor ::mingui::mapcanvas {
             set proj ${selfns}::proj
         }
 
-        # Set the projection to the desired zoom factor.
-        $proj zoom $info(zoom)
-
         # NEXT, set the mode back to point mode
         $self mode point
 
         return
-    }
-
-    # zoom ?factor?
-    #
-    # factor    The zoom factor as an integer percentage, e.g., 100
-    #
-    # Zooms the map to the desired zoom factor.  The default zoom factor
-    # is 100.  Returns the zoom factor.
-
-    method zoom {{factor ""}} {
-        # FIRST, if no new zoom, just return the old one.
-        if {$factor eq ""} {
-            return $info(zoom)
-        }
-
-        # NEXT, validate the zoom factor. 
-        zoomfactor validate $factor
-
-        # NEXT, we need a map
-        require {$options(-map) ne ""} "No -map specified"
-
-        # NEXT, produce the image, if needed.
-        $self ZoomMap $factor
-
-        # NEXT, replace the map.
-        $hull delete map
-
-        $hull create image 0 0      \
-            -anchor nw              \
-            -image  $zooms($factor) \
-            -tags   map
-
-        # NEXT, set the scroll region to the whole map.
-        $hull configure -scrollregion [$hull bbox map]
-
-        # NEXT, rescale the maprefs
-        $proj zoom $factor
-
-        # NEXT, move all of the icons
-        foreach id $icons(ids) {
-            $self icon moveto $id {*}[dict get $icons(icon-$id) mxy]
-        }
-    }
-
-    # ZoomMap factor
-    #
-    # factor   The zoom factor as an integer percentage, e.g., 100
-    #
-    # Ensures that there's a map image with the desired zoom factor.
-
-    method ZoomMap {factor} {
-        # FIRST, is there one already cached?
-        if {[info exists zooms($factor)]} {
-            return
-        }
-
-        # NEXT, get the zoom factor as a decimal fraction.
-        set frac [expr {$factor/100.0}]
-
-        # NEXT, get a pixane image on the base map
-        set base [pixane create -tkphoto $options(-map)]
-
-        # NEXT, create the zoom image
-        set zwid [expr {int($frac * [pixane width $base])}]
-        set zht  [expr {int($frac * [pixane height $base])}]
-
-        set img [image create photo -width $zwid -height $zht]
-        set zoom [pixane create -tkphoto $img]
-
-        pixane resize $zoom $zwid $zht
-        pixane scale $zoom $base
-
-        set zooms($factor) $img
-        pixane delete $base
-        pixange delete $zoom
     }
 
     #-------------------------------------------------------------------
