@@ -25,10 +25,10 @@
 #      independent of zoom factor.  Map units are determined as
 #      follows:
 #
-#          map units = canvas units * map factor * zoom factor
+#          map units = canvas units / (map factor * (zoom factor/100.0))
 #
-#      The zoom factor is a number, nominally 1.0, which indicates the
-#      zoom level, i.e., 200% zoom is 2.0, 50% zoom is 0.5.
+#      The zoom factor is a number, nominally 100, which indicates the
+#      zoom level, i.e., 100%, 200%, 50%, etc.
 #
 #      The map factor is computed as follows:
 #
@@ -59,11 +59,13 @@
 # Export public commands
 
 namespace eval ::minlib:: {
-    namespace export mapref
+    namespace export mapref zoomfactor
 }
 
 #-----------------------------------------------------------------------
 # mapref type
+
+snit::integer ::minlib::zoomfactor -min 1 -max 300
 
 snit::type ::minlib::mapref {
     #-------------------------------------------------------------------
@@ -94,6 +96,9 @@ snit::type ::minlib::mapref {
     # map factor: map_unit = factor*canvas_unit
     variable mapFactor
 
+    # zoomFactor: 100%, etc.
+    variable zoomFactor 100
+
     #-------------------------------------------------------------------
     # Constructor
 
@@ -101,6 +106,25 @@ snit::type ::minlib::mapref {
 
     #-------------------------------------------------------------------
     # Methods
+
+    # zoom ?factor?
+    #
+    # factor    The zoom factor as an integer percentage, e.g., 100
+    #
+    # Zooms the map to the desired zoom factor.  The default zoom factor
+    # is 100.  Returns the zoom factor.
+
+    method zoom {{factor ""}} {
+        # FIRST, if no new zoom, just return the old one.
+        if {$factor eq ""} {
+            return $zoomFactor
+        }
+
+        # NEXT, validate the zoom factor. 
+        zoomfactor validate $factor
+
+        set zoomFactor $factor
+    }
 
     # box
     #
@@ -125,7 +149,9 @@ snit::type ::minlib::mapref {
     # Returns the position in map units
 
     method c2m {cx cy} {
-        list [expr {round($cx / $mapFactor)}] [expr {round($cy / $mapFactor)}]
+        set fac [expr {$mapFactor * ($zoomFactor/100.0)}]
+
+        list [expr {round($cx / $fac)}] [expr {round($cy / $fac)}]
     }
 
     # m2c mx my
@@ -135,7 +161,9 @@ snit::type ::minlib::mapref {
     # Returns the position in canvas units
 
     method m2c {mx my} {
-        list [expr {$mx * $mapFactor}] [expr {$my * $mapFactor}]
+        set fac [expr {$mapFactor * ($zoomFactor/100.0)}]
+
+        list [expr {$mx * $fac}] [expr {$my * $fac}]
     }
 
     # c2ref cx cy
@@ -145,7 +173,9 @@ snit::type ::minlib::mapref {
     # Returns the position as a map reference
 
     method c2ref {cx cy} {
-        return [GetRef $mapFactor $cx][GetRef $mapFactor $cy]
+        set fac [expr {$mapFactor * ($zoomFactor/100.0)}]
+
+        return [GetRef $fac $cx][GetRef $fac $cy]
     }
 
     # ref2c ref
@@ -155,9 +185,11 @@ snit::type ::minlib::mapref {
     # Returns a {cx cy} pair in canvas units
 
     method ref2c {ref} {
+        set fac [expr {$mapFactor * ($zoomFactor/100.0)}]
+
         list \
-            [GetCan $mapFactor [string range $ref 0 2]] \
-            [GetCan $mapFactor [string range $ref 3 5]]
+            [GetCan $fac [string range $ref 0 2]] \
+            [GetCan $fac [string range $ref 3 5]]
     }
 
     # m2ref mx my

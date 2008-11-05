@@ -49,11 +49,11 @@ The <<iref mapref>> may be created with the following options:<p>
 
 <<defopt {-height <i>pixels</i>}>>
 
-Sets the height of the map in pixels, at a zoom factor of 1.0.<p>
+Sets the height of the map in pixels, at a zoom factor of 100%.<p>
 
 <<defopt {-width <i>pixels</i>}>>
 
-Sets the width of the map in pixels, at a zoom factor of 1.0.<p>
+Sets the width of the map in pixels, at a zoom factor of 100%.<p>
 
 <</deflist mapref options>>
 
@@ -113,10 +113,9 @@ coordinate pair as a list of two coordinates <i>mx</i> and <i>my</i>.<p>
 
 <<defitem zoom {<i>obj</i> zoom ?<i>factor</i>?}>>
 
-<b>TBD: Not yet implemented!</b> Sets/queries the zoom factor.  Use
-1.0 (the default) for a 100% zoom, 2.0 for a 200% zoom, 0.5 for a 50%
-zoom, etc.  Map units are invariant across zoom factors, but
-canvas units obviously are not.<p>
+Sets/queries the zoom factor, which is expressed as an integer
+percentage, i.e., 100, 200, 50, etc.  Map units are invariant across
+zoom factors, but canvas units obviously are not.<p>
 
 <</deflist instance>>
 
