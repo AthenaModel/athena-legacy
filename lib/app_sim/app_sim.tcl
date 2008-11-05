@@ -28,7 +28,7 @@ package provide app_sim 1.0
 #-------------------------------------------------------------------
 # Require packages
 
-# From ActiveTcl
+# From ActiveTclEE
 package require snit     2.2
 package require sqlite3  3.5
 
@@ -37,11 +37,11 @@ package require marsutil
 package require marsgui
 
 # From Minerva
-
 package require minlib
 package require mingui
         
 namespace import ::marsutil::* 
+namespace import ::marsgui::*
 namespace import ::minlib::*
 namespace import ::mingui::*
 
@@ -49,4 +49,5 @@ namespace import ::mingui::*
 # Load app_sim(n) submodules
 
 source [file join $::app_sim::library app.tcl]
+source [file join $::app_sim::library mapviewer.tcl]
 

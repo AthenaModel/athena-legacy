@@ -138,6 +138,12 @@ snit::widgetadaptor ::mingui::mapcanvas {
     #              in effect.
 
     typevariable modes -array {
+        null {
+            cursor   left_ptr
+            cleanup  {}
+            bindings {}
+        }
+
         point {
             cursor   left_ptr
             cleanup  {}
@@ -259,18 +265,19 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
     # info array
     #
+    #   gotMap       1 if -map is set and clear'd, and 0 otherwise.
+    #   gotPointer   1 if mouse pointer over widget, 0 otherwise.
+    #   iconCounter  Used to name icons
     #   mode         Current interaction mode
     #   modeTags     List of canvas tags associated with the current
     #                mode's bindings.
-    #   iconCounter  Used to name icons
-    #   gotPointer   1 if mouse pointer over widget, 0 otherwise.
-    #   zoom         Zoom percentage, e.g., 100
 
     variable info -array {
+        gotMap      0
+        gotPointer  0
+        iconCounter 0
         mode        ""
         modeTags    {}
-        iconCounter 0
-        gotPointer  0
     }
 
     # icons array
@@ -341,6 +348,8 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
         # NEXT, if there's no map, handle it.
         if {$options(-map) eq ""} {
+            set info(gotMap) 0
+            $self mode null
             set proj [myproc UndefinedMap]
             return
         }
@@ -373,7 +382,9 @@ snit::widgetadaptor ::mingui::mapcanvas {
             set proj ${selfns}::proj
         }
 
-        # NEXT, set the mode back to point mode
+        # NEXT, set the mode back to point mode and remember that
+        # we've got a map.
+        set info(gotMap) 1
         $self mode point
 
         return
@@ -390,6 +401,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
     #
     # The currently defined modes are as follows:
     #
+    #    null       No behavior
     #    point      Default behavior: you can point at things.
     #    poly       You can draw polygons.
     #    pan        Pan mode: pan the map.
@@ -405,6 +417,11 @@ snit::widgetadaptor ::mingui::mapcanvas {
         # FIRST, if no new mode is given, return the current mode.
         if {$mode eq ""} {
             return $info(mode)
+        }
+
+        # NEXT, there's no map the mode can only be null.
+        if {!$info(gotMap)} {
+            set mode null
         }
 
         # NEXT, call the old mode's cleanup method, if any.
@@ -499,8 +516,15 @@ snit::widgetadaptor ::mingui::mapcanvas {
     # Sets the -refvariable, if any
 
     method MaprefSet {wx wy} {
-        if {$info(gotPointer) && $options(-refvariable) ne ""} {
-            set ref [$self w2ref $wx $wy]
+        if {$info(gotPointer) 
+            && $options(-refvariable) ne "" 
+        } {
+            if {$info(gotMap)} {
+                set ref [$self w2ref $wx $wy]
+            } else {
+                set ref ""
+            }
+
             uplevel \#0 [list set $options(-refvariable) $ref]
         }
     }

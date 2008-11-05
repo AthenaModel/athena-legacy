@@ -63,23 +63,18 @@ set appdir  [file normalize [file dirname [info script]]]
 set libdir  [file normalize [file join $appdir .. lib]]
 set marsdir [file normalize [file join $appdir .. mars lib]]
 
-# Remove Mars from the lib path
-set ndx [lsearch -glob $auto_path "*/mars*"]
+# Add Minerva libs to the new lib path.
+set new_path [list $marsdir $libdir]
 
-if {$ndx > -1} {
-    set auto_path [lreplace $auto_path $ndx $ndx]
+# Next, add non-local libs to the lib path from auto_path
+foreach lib $auto_path {
+    if {![string match "/home*" $lib]} {
+        lappend new_path $lib
+    }
 }
 
-# Remove Minerva from the lib path
-set ndx [lsearch -glob $auto_path "*/minerva*"]
-
-if {$ndx > -1} {
-    set auto_path [lreplace $auto_path $ndx $ndx]
-}
-
-# Add the local Minerva and Mars libs to the lib path
-
-lappend auto_path $marsdir $libdir 
+# Next, use the new path
+set auto_path $new_path
 
 package require Tcl 8.5
 
