@@ -34,15 +34,19 @@ snit::type app {
     typecomponent cli                ;# The cli(n) pane
     typecomponent msgline            ;# The messageline(n)
     typecomponent viewer             ;# The mapviewer(n)
-    typecomponent rdb                ;# The scenario RDB
+    typecomponent mdb                ;# The scenario MDB
 
     #-------------------------------------------------------------------
     # Type Variables
 
     # Info Array: most scalars are stored here
+    #
+    # dbfile      Name of the current scenario file
+    # map         Current map image, or ""
 
     typevariable info -array {
-
+        dbfile ""
+        map    ""
     }
 
     #-------------------------------------------------------------------
@@ -63,7 +67,7 @@ snit::type app {
         # NEXT, create the GUI
 
         # Set the window title
-        wm title . "Minerva [version]: Simulation"
+        wm title . "Untitled - Minerva [version]"
 
         # Prepare to cleanup on exit
         wm protocol . WM_DELETE_WINDOW [mytypemethod exit]
@@ -81,6 +85,11 @@ snit::type app {
         # window.
         update idletasks
         grid propagate . off
+
+        # NEXT, open the scenario database
+        scenario ::mdb
+        mdb open :memory:
+        mdb clear
 
         # NEXT, load the map, if any
         if {[llength $argv] == 1} {
@@ -109,12 +118,36 @@ snit::type app {
         # File Menu
         set filemenu [menu $menu.file]
         $menu add cascade -label "File" -underline 0 -menu $filemenu
+
+        $filemenu add command                  \
+            -label     "Open"                  \
+            -underline 0                       \
+            -command   [mytypemethod Open]
+
+        $filemenu add command                  \
+            -label     "Save"                  \
+            -underline 0                       \
+            -command   [mytypemethod Save]
+
+        $filemenu add command                  \
+            -label     "Save As..."            \
+            -underline 5                       \
+            -command   [mytypemethod SaveAs]
+
+        $filemenu add separator
+
+        $filemenu add command                  \
+            -label     "Import Map..."         \
+            -underline 4                       \
+            -command   [mytypemethod ImportMap]
+
+        $filemenu add separator
         
-        $filemenu add command \
-            -label "Exit" \
-            -underline 1 \
-            -accelerator "Ctrl+Q" \
-            -command exit
+        $filemenu add command                \
+            -label       "Exit"              \
+            -underline   1                   \
+            -accelerator "Ctrl+Q"            \
+            -command     [mytypemethod exit]
         bind . <Control-q> [mytypemethod exit]
 
         # Edit menu
@@ -215,6 +248,210 @@ snit::type app {
         $viewer bind nbhood <Button-1> {NbhoodPoint %W %x %y}
     }
 
+    #-------------------------------------------------------------------
+    # Menu Handlers
+
+    # Open
+    #
+    # Prompts the user to open a scenario in a particular file.
+    # The contents of the file is copied into the MDB.
+    #
+    # TBD: Need to implement read-only mode for sqldocument(n),
+    # including turning off journalling!
+
+    typemethod Open {} {
+        # FIRST, query for the scenario file name.
+        set filename [tk_getOpenFile             \
+                          -parent .              \
+                          -title "Open Scenario" \
+                          -filetypes {
+                              {{Minerva Database} {.mdb} }
+                          }]
+
+        # If none, they cancelled
+        if {$filename eq ""} {
+            return
+        }
+
+        # NEXT, can we open the file?  Is it a valid file?
+        # TBD: How do we know?
+
+        # NEXT, It's a valid file.  Clear the MDB and load the data
+        mdb clear
+        mdb eval "
+            COMMIT TRANSACTION;
+            ATTACH DATABASE '$filename' AS source
+        "
+
+        # NEXT, copy the tables
+        set destTables [mdb eval {
+            SELECT name FROM sqlite_master 
+            WHERE type='table'
+            AND name NOT GLOB '*sqlite*'
+            AND name NOT glob 'sqldocument_*'
+        }]
+
+        set sourceTables [mdb eval {
+            SELECT name FROM source.sqlite_master 
+            WHERE type='table'
+            AND name NOT GLOB '*sqlite*'
+        }]
+
+        mdb transaction {
+            foreach table $destTables {
+                if {$table ni $sourceTables} {
+                    continue
+                }
+
+                mdb eval "INSERT INTO main.$table SELECT * FROM source.$table"
+            }
+        }
+
+        # NEXT, detach the saveas database.
+        mdb eval {
+            DETACH DATABASE source;
+            BEGIN IMMEDIATE TRANSACTION
+        }
+
+        # NEXT, Refresh the GUI.
+        $viewer configure -map ""
+        $viewer clear
+        if {$info(map) ne ""} {
+            image delete $info(map)
+            set info(map) ""
+        }
+        $type SetMap 100
+
+        set info(dbfile) $filename
+        wm title . "[file tail $filename] - Minerva [version]"
+    }
+
+    # SaveAs
+    #
+    # Prompts the user to save the scenario as a particular file.
+
+    typemethod SaveAs {} {
+        # FIRST, query for the scenario file name.
+        set filename [tk_getSaveFile             \
+                          -parent .              \
+                          -title "Save Scenario As" \
+                          -filetypes {
+                              {{Minerva Database} {.mdb} }
+                          }]
+
+        # If none, they cancelled
+        if {$filename eq ""} {
+            return
+        }
+
+        # TBD: Make sure we don't overwrite by accident!
+        mdb saveas $filename
+
+        set info(dbfile) $filename
+        wm title . "[file tail $filename] - Minerva [version]"
+    }
+
+    # Save
+    #
+    # Saves the scenario to the current file, making a backup
+    # copy.
+
+    typemethod Save {} {
+        # FIRST, if no file name is known, do a SaveAs.
+        if {$info(dbfile) eq ""} {
+            $type SaveAs
+            return
+        }
+
+        # NEXT, if there's an existing file, which there surely is,
+        # save it as a backup file.
+        file rename -force $info(dbfile) [file rootname $info(dbfile)].bak
+ 
+        # NEXT, save it.
+        mdb saveas $info(dbfile)
+    }
+
+    # ImportMap
+    #
+    # Asks the user to select a map file, and pulls it into the MDB.
+
+    typemethod ImportMap {} {
+        # FIRST, query for a map file.
+        set filename [tk_getOpenFile             \
+                          -parent .              \
+                          -title "Select a map image" \
+                          -filetypes {
+                              {{JPEG Images} {.jpg} }
+                              {{GIF Images}  {.gif} }
+                              {{PNG Images}  {.png} }
+                              {{Any File}    *      }
+                          }]
+
+        # If none, they cancelled
+        if {$filename eq ""} {
+            return
+        }
+
+        # NEXT, is it a real image?
+        if {[catch {
+            set map [image create photo -file $filename]
+        } result]} {
+            app error {
+                |<--
+                Could not open the specified file as a map image:
+
+                $filename
+            }
+
+            return
+        }
+        
+        # NEXT, get the image data, and save it in the MDB
+        set data [$map data -format jpeg]
+
+        mdb eval {
+            INSERT OR REPLACE
+            INTO maps(zoom, data)
+            VALUES(100,$data);
+        }
+
+        image delete $map
+
+        # NEXT, make this the displayed map
+        $type SetMap 100
+    }
+
+
+    # SetMap zoom
+    #
+    # zoom         A zoom factor
+    # 
+    # Loads the specified map into the viewer
+
+    typemethod SetMap {zoom} {
+        # FIRST, retrieve the map data from the MDB.
+        mdb eval {
+            SELECT data FROM maps
+            WHERE zoom=$zoom
+        } {
+            # Got it!
+            set newMap [image create photo -format jpeg -data $data]
+
+            $viewer configure -map $newMap
+            $viewer clear
+
+            if {$info(map) ne ""} {
+                image delete $info(map)
+            }
+
+            set info(map) $newMap
+
+            return
+        }
+
+        # NEXT, there was no map for this zoom level.
+        app error "No map at zoom \"$zoom\""
+    }
 
     #-------------------------------------------------------------------
     # Utility Type Methods
@@ -237,6 +474,23 @@ snit::type app {
 
     typemethod puts {text} {
         $msgline puts $text
+    }
+
+    # error text
+    #
+    # text       A tsubst'd text string
+    #
+    # Displays the error in a message box
+
+    typemethod error {text} {
+        set text [uplevel 1 [list tsubst $text]]
+
+        tk_messageBox \
+            -default ok \
+            -message $text \
+            -icon    error \
+            -parent  .     \
+            -type    ok
     }
 
     # exit

@@ -152,6 +152,7 @@ snit::widget mapviewer {
 
         # Map canvas
         install canvas using mapcanvas $win.mapsw.canvas \
+            -background   white                          \
             -modevariable [myvar info(mode)]             \
             -refvariable  [myvar info(ref)]
         
