@@ -34,7 +34,7 @@ snit::type app {
     typecomponent cli                ;# The cli(n) pane
     typecomponent msgline            ;# The messageline(n)
     typecomponent viewer             ;# The mapviewer(n)
-    typecomponent mdb                ;# The scenario MDB
+    typecomponent rdb                ;# The scenario RDB
 
     #-------------------------------------------------------------------
     # Type Variables
@@ -64,6 +64,18 @@ snit::type app {
             exit 1
         }
 
+        # NEXT, creating the working directory.
+        if {[catch {workdir init} result]} {
+            app exit {
+                |<--
+                Error, could not create working directory: 
+
+                    [workdir join]
+
+                Reason: $result
+            }
+        }
+
         # NEXT, create the GUI
 
         # Set the window title
@@ -87,9 +99,11 @@ snit::type app {
         grid propagate . off
 
         # NEXT, open the scenario database
-        scenario ::mdb
-        mdb open :memory:
-        mdb clear
+        scenario ::rdb
+        set rdbfile [workdir join rdb working.rdb]
+        file delete -force $rdbfile
+        rdb open $rdbfile
+        rdb clear
 
         # NEXT, load the map, if any
         if {[llength $argv] == 1} {
@@ -254,7 +268,7 @@ snit::type app {
     # Open
     #
     # Prompts the user to open a scenario in a particular file.
-    # The contents of the file is copied into the MDB.
+    # The contents of the file is copied into the RDB.
     #
     # TBD: Need to implement read-only mode for sqldocument(n),
     # including turning off journalling!
@@ -276,39 +290,39 @@ snit::type app {
         # NEXT, can we open the file?  Is it a valid file?
         # TBD: How do we know?
 
-        # NEXT, It's a valid file.  Clear the MDB and load the data
-        mdb clear
-        mdb eval "
+        # NEXT, It's a valid file.  Clear the RDB and load the data
+        rdb clear
+        rdb eval "
             COMMIT TRANSACTION;
             ATTACH DATABASE '$filename' AS source
         "
 
         # NEXT, copy the tables
-        set destTables [mdb eval {
+        set destTables [rdb eval {
             SELECT name FROM sqlite_master 
             WHERE type='table'
             AND name NOT GLOB '*sqlite*'
             AND name NOT glob 'sqldocument_*'
         }]
 
-        set sourceTables [mdb eval {
+        set sourceTables [rdb eval {
             SELECT name FROM source.sqlite_master 
             WHERE type='table'
             AND name NOT GLOB '*sqlite*'
         }]
 
-        mdb transaction {
+        rdb transaction {
             foreach table $destTables {
                 if {$table ni $sourceTables} {
                     continue
                 }
 
-                mdb eval "INSERT INTO main.$table SELECT * FROM source.$table"
+                rdb eval "INSERT INTO main.$table SELECT * FROM source.$table"
             }
         }
 
         # NEXT, detach the saveas database.
-        mdb eval {
+        rdb eval {
             DETACH DATABASE source;
             BEGIN IMMEDIATE TRANSACTION
         }
@@ -345,7 +359,7 @@ snit::type app {
         }
 
         # TBD: Make sure we don't overwrite by accident!
-        mdb saveas $filename
+        rdb saveas $filename
 
         set info(dbfile) $filename
         wm title . "[file tail $filename] - Minerva [version]"
@@ -368,12 +382,12 @@ snit::type app {
         file rename -force $info(dbfile) [file rootname $info(dbfile)].bak
  
         # NEXT, save it.
-        mdb saveas $info(dbfile)
+        rdb saveas $info(dbfile)
     }
 
     # ImportMap
     #
-    # Asks the user to select a map file, and pulls it into the MDB.
+    # Asks the user to select a map file, and pulls it into the RDB.
 
     typemethod ImportMap {} {
         # FIRST, query for a map file.
@@ -406,10 +420,10 @@ snit::type app {
             return
         }
         
-        # NEXT, get the image data, and save it in the MDB
+        # NEXT, get the image data, and save it in the RDB
         set data [$map data -format jpeg]
 
-        mdb eval {
+        rdb eval {
             INSERT OR REPLACE
             INTO maps(zoom, data)
             VALUES(100,$data);
@@ -429,8 +443,8 @@ snit::type app {
     # Loads the specified map into the viewer
 
     typemethod SetMap {zoom} {
-        # FIRST, retrieve the map data from the MDB.
-        mdb eval {
+        # FIRST, retrieve the map data from the RDB.
+        rdb eval {
             SELECT data FROM maps
             WHERE zoom=$zoom
         } {
@@ -493,11 +507,17 @@ snit::type app {
             -type    ok
     }
 
-    # exit
+    # exit ?text?
+    #
+    # Optional error message, tsubst'd
     #
     # Exits the program
 
-    typemethod exit {} {
+    typemethod exit {{text ""}} {
+        if {$text ne ""} {
+            puts [uplevel 1 [list tsubst $text]]
+        }
+
         exit
     }
 }

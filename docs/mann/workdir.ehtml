@@ -1,0 +1,81 @@
+<<manpage {minlib(n) workdir(n)} "Working Directory Finder">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require minlib 1.0
+namespace import ::minlib::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<xref workdir(n)>> is responsible for creating and locating
+Minerva working directories.  At start-up, Minerva calls
+<<iref workdir init>>, which creates the following directory
+
+<pre>    ~/.minerva/<i>version</i>/</pre>
+
+where <i>version</i> is the current version of Minerva.  This
+directory is referred to as the working directory.  Within that, it
+then creates the following subdirectories:<p>
+
+<dl>
+  <dt> <b><code><i>working</i>/log</code></b>
+  <dd> For log files.  Individual apps will put their logs in
+       subdirectories of this directory, e.g., <<xref minerva_sim(1)>>
+       will put its logs in<p>
+
+       <pre><i>working</i>/log/sim/</pre>
+
+  <dt> <b><code><i>working</i>/rdb</code></b>
+  <dd> <<xref minerva_sim(1)>> will put its run-time database (RDB) in
+       this directory.<p>
+</dl>
+
+Other working subdirectories are TBD.<p>
+
+This module defines the following commands:<p>
+
+<<deflist commands>>
+
+<<defitem "workdir init" {workdir init}>>
+
+Initializes workdir(n).  In particular, it determines and saves the
+full path to the working directory, and creates the standard
+subdirectories.  It returns the full path to the working directory.<p>
+
+<<defitem "workdir join" {workdir join ?<i>arg arg...</i>?}>>
+
+Called with no arguments, returns the name of the working directory.
+Otherwise, returns the path name resulting from joining the
+arguments to the working directory.  For example, the
+following command returns the absolute path of a file called
+"<code>working.rdb</code>" in the RDB directory.<p>
+
+<pre>
+set rdbfile [workdir join rdb working.rdb]
+</pre>
+
+<</deflist commands>>
+
+<<section ENVIRONMENT>>
+
+This package requires Tcl 8.5 or later.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
+

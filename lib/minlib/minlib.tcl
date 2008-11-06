@@ -52,4 +52,5 @@ if {[file exists $binlib]} {
 source [file join $::minlib::library mintypes.tcl ]
 source [file join $::minlib::library mapref.tcl   ]
 source [file join $::minlib::library scenario.tcl ]
+source [file join $::minlib::library workdir.tcl  ]
 
