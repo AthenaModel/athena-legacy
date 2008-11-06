@@ -11,7 +11,7 @@
 
 TOP_DIR    = ../..
 TARGETS    = man
-MANSECTION = "(i) File Formats"
+MANSECTION = "(i): File Formats"
 
 #---------------------------------------------------------------------
 # Use Standard Rules

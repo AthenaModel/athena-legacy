@@ -32,9 +32,12 @@ MAN_ROOTS = :     $(TOP_DIR)/docs/man%s/%n.html \
             tcl:n http://www.tcl.tk/man/tcl8.5/TclCmd/%n.htm \
             tk:n  http://www.tcl.tk/man/tcl8.5/TkCmd/%n.htm
 
-DOC_TOOL = $(TOP_DIR)/mars/bin/mars doc -manroots "$(MAN_ROOTS)" -version $(MINERVA_VERSION) -project Minerva -longproject "Minerva Sim"
+PROJECT = Minerva
+LONGPROJECT = "Minerva S&RO Simulation"
 
-MAN_TOOL = $(TOP_DIR)/mars/bin/mars man -manroots "$(MAN_ROOTS)" -version $(MINERVA_VERSION) -project Minerva -longproject "Minerva Sim"
+DOC_TOOL = $(TOP_DIR)/mars/bin/mars doc -manroots "$(MAN_ROOTS)" -version $(MINERVA_VERSION) -project $(PROJECT) -longproject $(LONGPROJECT)
+
+MAN_TOOL = $(TOP_DIR)/mars/bin/mars man -manroots "$(MAN_ROOTS)" -version $(MINERVA_VERSION) -project $(PROJECT) -longproject $(LONGPROJECT)
 
 TEST_TOOL = $(TCLSH) $(TOP_DIR)/tools/bin/jnem_test
 

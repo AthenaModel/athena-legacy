@@ -11,7 +11,7 @@
 
 TOP_DIR    = ../..
 TARGETS    = man
-MANSECTION = "(n) Tcl Commands"
+MANSECTION = "(n): Tcl Commands"
 
 #---------------------------------------------------------------------
 # Use Standard Rules

@@ -31,9 +31,6 @@ snit::type app {
     #-------------------------------------------------------------------
     # Type Components
 
-    typecomponent cli                ;# The cli(n) pane
-    typecomponent msgline            ;# The messageline(n)
-    typecomponent viewer             ;# The mapviewer(n)
     typecomponent rdb                ;# The scenario RDB
 
     #-------------------------------------------------------------------

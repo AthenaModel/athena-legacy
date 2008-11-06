@@ -27,7 +27,7 @@ include $(TOP_DIR)/MakeDefs
 
 # Subdirectories to build
 # SUBS     = dev man1 man5 mann
-SUBS     = man1 mann mani
+SUBS     = man1 mann mani mansim
 
 # Documents to build
 DOC_ROOT   = .

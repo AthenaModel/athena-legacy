@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------
 # TITLE:
-#    Makefile -- Man Page Section (1)
+#    Makefile -- Man Page Section (sim)
 #
 # AUTHOR:
 #    Will Duquette
@@ -11,11 +11,10 @@
 
 TOP_DIR    = ../..
 TARGETS    = man
-MANSECTION = "(1): Executables"
+MANSECTION = "(sim): minerva_sim(1) Internals"
 
 #---------------------------------------------------------------------
 # Use Standard Rules
 
 include ../MakeMan
-
 
