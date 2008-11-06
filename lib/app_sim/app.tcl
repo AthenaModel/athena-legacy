@@ -287,47 +287,16 @@ snit::type app {
             return
         }
 
-        # NEXT, can we open the file?  Is it a valid file?
-        # TBD: How do we know?
-
-        # NEXT, It's a valid file.  Clear the RDB and load the data
-        rdb clear
-        rdb eval "
-            COMMIT TRANSACTION;
-            ATTACH DATABASE '$filename' AS source
-        "
-
-        # NEXT, copy the tables
-        set destTables [rdb eval {
-            SELECT name FROM sqlite_master 
-            WHERE type='table'
-            AND name NOT GLOB '*sqlite*'
-            AND name NOT glob 'sqldocument_*'
-        }]
-
-        set sourceTables [rdb eval {
-            SELECT name FROM source.sqlite_master 
-            WHERE type='table'
-            AND name NOT GLOB '*sqlite*'
-        }]
-
-        rdb transaction {
-            foreach table $destTables {
-                if {$table ni $sourceTables} {
-                    continue
-                }
-
-                rdb eval "INSERT INTO main.$table SELECT * FROM source.$table"
-            }
-        }
-
-        # NEXT, detach the saveas database.
-        rdb eval {
-            DETACH DATABASE source;
-            BEGIN IMMEDIATE TRANSACTION
+        # NEXT, load the file.
+        if {[catch {
+            rdb load $filename
+        } result]} {
+            app error $result
+            return
         }
 
         # NEXT, Refresh the GUI.
+        # TBD: This should be done using a notifier event!
         $viewer configure -map ""
         $viewer clear
         if {$info(map) ne ""} {
@@ -338,6 +307,8 @@ snit::type app {
 
         set info(dbfile) $filename
         wm title . "[file tail $filename] - Minerva [version]"
+
+        app puts "Opened [file tail $filename]"
     }
 
     # SaveAs
@@ -345,7 +316,9 @@ snit::type app {
     # Prompts the user to save the scenario as a particular file.
 
     typemethod SaveAs {} {
-        # FIRST, query for the scenario file name.
+        # FIRST, query for the scenario file name.  If the file already
+        # exists, the dialog will automatically query whether to 
+        # overwrite it or not.
         set filename [tk_getSaveFile             \
                           -parent .              \
                           -title "Save Scenario As" \
@@ -353,16 +326,35 @@ snit::type app {
                               {{Minerva Database} {.mdb} }
                           }]
 
-        # If none, they cancelled
+        # If none, they cancelled.
         if {$filename eq ""} {
             return
         }
 
-        # TBD: Make sure we don't overwrite by accident!
-        rdb saveas $filename
+        # Save it, and check for errors.
+        if {[catch {
+            if {[file exists $filename]} {
+                file rename -force $filename [file rootname $filename].bak
+            }
+
+            rdb saveas $filename
+        } result]} {
+            app error {
+                |<--
+                Could not save as
+                
+                    $filename
+
+                $result
+            }
+            return
+        }
 
         set info(dbfile) $filename
         wm title . "[file tail $filename] - Minerva [version]"
+
+        app puts "Saved file as [file tail $filename]"
+
     }
 
     # Save
@@ -382,7 +374,21 @@ snit::type app {
         file rename -force $info(dbfile) [file rootname $info(dbfile)].bak
  
         # NEXT, save it.
-        rdb saveas $info(dbfile)
+        # Save it, and check for errors.
+        if {[catch {
+            rdb saveas $filename
+        } result]} {
+            app error {
+                |<--
+                Could not save as
+                
+                    $filename
+
+                $result
+            }
+        }
+
+        app puts "Saved file."
     }
 
     # ImportMap

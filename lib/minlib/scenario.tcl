@@ -108,8 +108,9 @@ snit::type ::minlib::scenario {
         # $self configurelist $args
 
         # NEXT, create the sqldocument, naming it so that it
-        # will be automatically destroyed.
-        set db [sqldocument ${selfns}::db]
+        # will be automatically destroyed.  We don't want
+        # automatic transaction batching.
+        set db [sqldocument ${selfns}::db -autotrans off]
     }
 
     #-------------------------------------------------------------------
@@ -118,6 +119,82 @@ snit::type ::minlib::scenario {
     # Delegated methods
     delegate method * to db
 
+    # load filename
+    #
+    # filename     An .mdb file name
+    #
+    # Loads scenario data from the specified file into the db.
+    # It's an error if the file doesn't have a scenario table,
+    # or if the user_version doesn't match.
+
+    method load {filename} {
+        # FIRST, open the database.
+        if {[catch {
+            sqlite3 dbToLoad $filename
+        } result]} {
+            error "Could not open \"$filename\", $result"
+        }
+
+        # NEXT, Verify that it's a scenario file
+        set name [dbToLoad eval {
+            SELECT name FROM sqlite_master
+            WHERE name = 'scenario'
+        }]
+
+        if {$name eq ""} {
+            dbToLoad close
+            error "Not a scenario file: \"$filename\""
+        }
+
+        # NEXT, get the user versions
+        set v1 [$db eval {PRAGMA user_version;}]
+        set v2 [dbToLoad eval {PRAGMA user_version;}]
+
+        dbToLoad close
+
+        if {$v1 != $v2} {
+            error \
+                "Scenario file mismatch: got version $v2, expected version $v1"
+        }
+
+        # NEXT, clear the db, and attach the database to load.
+        $db clear
+
+        $db eval "
+            ATTACH DATABASE '$filename' AS source;
+        "
+
+        # NEXT, copy the tables, skipping the sqlite and 
+        # sqldocument schema tables.  We'll only copy data for
+        # tables that already exist in our schema, and also exist
+        # in the dbToLoad.
+
+        set destTables [$db eval {
+            SELECT name FROM sqlite_master 
+            WHERE type='table'
+            AND name NOT GLOB '*sqlite*'
+            AND name NOT glob 'sqldocument_*'
+        }]
+
+        set sourceTables [$db eval {
+            SELECT name FROM source.sqlite_master 
+            WHERE type='table'
+            AND name NOT GLOB '*sqlite*'
+        }]
+
+        $db transaction {
+            foreach table $destTables {
+                if {$table ni $sourceTables} {
+                    continue
+                }
+
+                $db eval "INSERT INTO main.$table SELECT * FROM source.$table"
+            }
+        }
+
+        # NEXT, detach the loaded database.
+        $db eval {DETACH DATABASE source;}
+    }
 }
 
 
