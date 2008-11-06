@@ -42,11 +42,9 @@ snit::type app {
     # Info Array: most scalars are stored here
     #
     # dbfile      Name of the current scenario file
-    # map         Current map image, or ""
 
     typevariable info -array {
         dbfile ""
-        map    ""
     }
 
     #-------------------------------------------------------------------
@@ -76,262 +74,79 @@ snit::type app {
             }
         }
 
-        # NEXT, create the GUI
+        # NEXT, create the GUI.  Withdraw ., and create the new
+        # main window.
+        wm withdraw .
+        mainwin .main
 
-        # Set the window title
-        wm title . "Untitled - Minerva [version]"
-
-        # Prepare to cleanup on exit
-        wm protocol . WM_DELETE_WINDOW [mytypemethod exit]
-
-        # Construct major window components
-        ConstructMenuBar
-        ConstructMainWindow
-
-        # NEXT, allow the developer to pop up the debugger window.
-        bind . <F12> [list debugger new]
-
-        # NEXT, Allow the widget sizes to propagate to the toplevel, so
-        # the window gets its default size; then turn off propagation.
-        # From here on out, the user is in control of the size of the
-        # window.
-        update idletasks
-        grid propagate . off
-
-        # NEXT, open the scenario database
+        # NEXT, open the RDB.
         scenario ::rdb
         set rdbfile [workdir join rdb working.rdb]
         file delete -force $rdbfile
         rdb open $rdbfile
         rdb clear
 
-        # NEXT, load the map, if any
+        # NEXT, if a scenario file is specified on the command line,
+        # open it.
+
         if {[llength $argv] == 1} {
-            set mapfile [lindex $argv 0]
-            if {[catch {
-                set map [image create photo -file $mapfile]
-            } result]} {
-                puts "Could not open map file: $mapfile\n$result"
-                app exit
-            }
-
-            $viewer configure -map $map
-            $viewer clear
+            app open [file normalize [lindex $argv 0]]
         }
-    }
-
-    # ConstructMenuBar
-    #
-    # Creates the main menu bar
-
-    proc ConstructMenuBar {} {
-        # Menu Bar
-        set menu [menu .menubar -relief flat]
-        . configure -menu $menu
-        
-        # File Menu
-        set filemenu [menu $menu.file]
-        $menu add cascade -label "File" -underline 0 -menu $filemenu
-
-        $filemenu add command                  \
-            -label     "Open"                  \
-            -underline 0                       \
-            -command   [mytypemethod Open]
-
-        $filemenu add command                  \
-            -label     "Save"                  \
-            -underline 0                       \
-            -command   [mytypemethod Save]
-
-        $filemenu add command                  \
-            -label     "Save As..."            \
-            -underline 5                       \
-            -command   [mytypemethod SaveAs]
-
-        $filemenu add separator
-
-        $filemenu add command                  \
-            -label     "Import Map..."         \
-            -underline 4                       \
-            -command   [mytypemethod ImportMap]
-
-        $filemenu add separator
-        
-        $filemenu add command                \
-            -label       "Exit"              \
-            -underline   1                   \
-            -accelerator "Ctrl+Q"            \
-            -command     [mytypemethod exit]
-        bind . <Control-q> [mytypemethod exit]
-
-        # Edit menu
-        set editmenu [menu $menu.edit]
-        .menubar add cascade -label "Edit" -underline 0 -menu $editmenu
-        
-        $editmenu add command \
-            -label "Cut" \
-            -underline 2 \
-            -accelerator "Ctrl+X" \
-            -command {event generate [focus] <<Cut>>}
-
-        $editmenu add command \
-            -label "Copy" \
-            -underline 0 \
-            -accelerator "Ctrl+C" \
-            -command {event generate [focus] <<Copy>>}
-        
-        $editmenu add command \
-            -label "Paste" \
-            -underline 0 \
-            -accelerator "Ctrl+V" \
-            -command {event generate [focus] <<Paste>>}
-        
-        $editmenu add separator
-        
-        $editmenu add command \
-            -label "Select All" \
-            -underline 7 \
-            -accelerator "Ctrl+Shift+A" \
-            -command {event generate [focus] <<SelectAll>>}
-    }
-
-    # ConstructMainWindow
-    #
-    # Adds the components to the main window
-
-    proc ConstructMainWindow {} {
-        # FIRST, prepare the grid.  The scrolling log/shell paner
-        # should stretch vertically on resize; the others shouldn't.
-        # And everything should stretch horizontally.
-
-        grid rowconfigure . 0 -weight 0
-        grid rowconfigure . 1 -weight 1
-        grid rowconfigure . 2 -weight 0
-        grid rowconfigure . 3 -weight 0
-
-        grid columnconfigure . 0 -weight 1
-
-        # NEXT, put in the row widgets
-
-        # ROW 0, add a separator between the menu bar and the rest of the
-        # window.
-        frame .sep0 -height 2 -relief sunken -borderwidth 2
-
-        # ROW 1, create the paner for the map/cli
-        paner .paner -orient vertical -showhandle 1
-
-        # ROW 2, add a separator
-        frame .sep2 -height 2 -relief sunken -borderwidth 2
-
-        # ROW 3, Create the Message line.
-        set msgline [messageline .msgline]
-
-        # NEXT, add the mapviewer to the paner
-        mapviewer .paner.viewer                             \
-            -width        600                               \
-            -height       600
-
-        set viewer .paner.viewer
-        
-        .paner add .paner.viewer \
-            -sticky  nsew        \
-            -minsize 60          \
-            -stretch always
-
-        # NEXT, add the CLI to the paner
-        set cli [cli .paner.cli    \
-                     -height 8     \
-                     -relief flat]
-
-        .paner add .paner.cli \
-            -sticky  nsew     \
-            -minsize 60       \
-            -stretch never
-
-        # NEXT, manage all of the components.
-        grid .sep0     -sticky ew
-        grid .paner    -sticky nsew
-        grid .sep2     -sticky ew
-        grid .msgline  -sticky ew
-
-        # NEXT, add some bindings
-        bind $viewer <<Icon-1>>        {IconPoint %W %d}
-        bind $viewer <<IconMoved>>     {IconMoved %W %d}
-        bind $viewer <<PolyComplete>>  {PolyComplete %W %d}
-        
-        $viewer bind nbhood <Button-1> {NbhoodPoint %W %x %y}
     }
 
     #-------------------------------------------------------------------
-    # Menu Handlers
+    # Scenario Management Methods
 
-    # Open
+    # open filename
     #
-    # Prompts the user to open a scenario in a particular file.
-    # The contents of the file is copied into the RDB.
+    # filename       A .mdb scenario file
     #
-    # TBD: Need to implement read-only mode for sqldocument(n),
-    # including turning off journalling!
+    # Opens the specified file name, replacing the existing file.
+    #
+    # TBD: Should really check that there's no data that needs to
+    # be saved.
 
-    typemethod Open {} {
-        # FIRST, query for the scenario file name.
-        set filename [tk_getOpenFile             \
-                          -parent .              \
-                          -title "Open Scenario" \
-                          -filetypes {
-                              {{Minerva Database} {.mdb} }
-                          }]
-
-        # If none, they cancelled
-        if {$filename eq ""} {
-            return
-        }
-
-        # NEXT, load the file.
+    typemethod open {filename} {
+        # FIRST, load the file.
         if {[catch {
             rdb load $filename
         } result]} {
-            app error $result
+            app error {
+                |<--
+                Could not open scenario
+                
+                    $filename
+
+                $result
+            }
             return
         }
-
-        # NEXT, Refresh the GUI.
-        # TBD: This should be done using a notifier event!
-        $viewer configure -map ""
-        $viewer clear
-        if {$info(map) ne ""} {
-            image delete $info(map)
-            set info(map) ""
-        }
-        $type SetMap 100
-
+        
+        # NEXT, save the name.
         set info(dbfile) $filename
-        wm title . "[file tail $filename] - Minerva [version]"
 
-        app puts "Opened [file tail $filename]"
+        # NEXT, notify the app
+        notifier send ::app <AppOpened>
     }
 
-    # SaveAs
+    # save ?filename?
     #
-    # Prompts the user to save the scenario as a particular file.
+    # filename       Name for the new save file
+    #
+    # Saves the file, notify the application on success.  If no
+    # file name is specified, the dbfile is used.
 
-    typemethod SaveAs {} {
-        # FIRST, query for the scenario file name.  If the file already
-        # exists, the dialog will automatically query whether to 
-        # overwrite it or not.
-        set filename [tk_getSaveFile             \
-                          -parent .              \
-                          -title "Save Scenario As" \
-                          -filetypes {
-                              {{Minerva Database} {.mdb} }
-                          }]
-
-        # If none, they cancelled.
+    typemethod save {{filename ""}} {
+        # FIRST, if filename is not specified, get the dbfile
         if {$filename eq ""} {
-            return
+            if {$info(dbfile) eq ""} {
+                error "Cannot save: no file name"
+            }
+
+            set filename $info(dbfile)
         }
 
-        # Save it, and check for errors.
+        # FIRST, Save, and check for errors.
         if {[catch {
             if {[file exists $filename]} {
                 file rename -force $filename [file rootname $filename].bak
@@ -350,69 +165,21 @@ snit::type app {
             return
         }
 
+        # NEXT, save the name
         set info(dbfile) $filename
-        wm title . "[file tail $filename] - Minerva [version]"
 
-        app puts "Saved file as [file tail $filename]"
-
+        # NEXT, Notify the app
+        notifier send ::app <AppSaved>
     }
 
-    # Save
+    # importmap filename
     #
-    # Saves the scenario to the current file, making a backup
-    # copy.
-
-    typemethod Save {} {
-        # FIRST, if no file name is known, do a SaveAs.
-        if {$info(dbfile) eq ""} {
-            $type SaveAs
-            return
-        }
-
-        # NEXT, if there's an existing file, which there surely is,
-        # save it as a backup file.
-        file rename -force $info(dbfile) [file rootname $info(dbfile)].bak
- 
-        # NEXT, save it.
-        # Save it, and check for errors.
-        if {[catch {
-            rdb saveas $filename
-        } result]} {
-            app error {
-                |<--
-                Could not save as
-                
-                    $filename
-
-                $result
-            }
-        }
-
-        app puts "Saved file."
-    }
-
-    # ImportMap
+    # filename     An image file
     #
-    # Asks the user to select a map file, and pulls it into the RDB.
+    # Attempts to import the image into the RDB.
 
-    typemethod ImportMap {} {
-        # FIRST, query for a map file.
-        set filename [tk_getOpenFile             \
-                          -parent .              \
-                          -title "Select a map image" \
-                          -filetypes {
-                              {{JPEG Images} {.jpg} }
-                              {{GIF Images}  {.gif} }
-                              {{PNG Images}  {.png} }
-                              {{Any File}    *      }
-                          }]
-
-        # If none, they cancelled
-        if {$filename eq ""} {
-            return
-        }
-
-        # NEXT, is it a real image?
+    typemethod importmap {filename} {
+        # FIRST, is it a real image?
         if {[catch {
             set map [image create photo -file $filename]
         } result]} {
@@ -437,40 +204,16 @@ snit::type app {
 
         image delete $map
 
-        # NEXT, make this the displayed map
-        $type SetMap 100
+        # NEXT, Notify the application.
+        notifier send ::app <AppImportedMap> $filename
     }
 
-
-    # SetMap zoom
+    # dbfile
     #
-    # zoom         A zoom factor
-    # 
-    # Loads the specified map into the viewer
+    # Returns the name of the current scenario file
 
-    typemethod SetMap {zoom} {
-        # FIRST, retrieve the map data from the RDB.
-        rdb eval {
-            SELECT data FROM maps
-            WHERE zoom=$zoom
-        } {
-            # Got it!
-            set newMap [image create photo -format jpeg -data $data]
-
-            $viewer configure -map $newMap
-            $viewer clear
-
-            if {$info(map) ne ""} {
-                image delete $info(map)
-            }
-
-            set info(map) $newMap
-
-            return
-        }
-
-        # NEXT, there was no map for this zoom level.
-        app error "No map at zoom \"$zoom\""
+    typemethod dbfile {} {
+        return $info(dbfile)
     }
 
     #-------------------------------------------------------------------
@@ -493,7 +236,7 @@ snit::type app {
     # Writes the text to the message line
 
     typemethod puts {text} {
-        $msgline puts $text
+        .main puts $text
     }
 
     # error text
@@ -503,14 +246,7 @@ snit::type app {
     # Displays the error in a message box
 
     typemethod error {text} {
-        set text [uplevel 1 [list tsubst $text]]
-
-        tk_messageBox \
-            -default ok \
-            -message $text \
-            -icon    error \
-            -parent  .     \
-            -type    ok
+        uplevel 1 [list .main error $text]
     }
 
     # exit ?text?

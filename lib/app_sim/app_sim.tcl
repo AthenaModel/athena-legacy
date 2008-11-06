@@ -48,6 +48,7 @@ namespace import ::mingui::*
 #-----------------------------------------------------------------------
 # Load app_sim(n) submodules
 
-source [file join $::app_sim::library app.tcl]
-source [file join $::app_sim::library mapviewer.tcl]
+source [file join $::app_sim::library app.tcl       ]
+source [file join $::app_sim::library mainwin.tcl   ]
+source [file join $::app_sim::library mapviewer.tcl ]
 
