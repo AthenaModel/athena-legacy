@@ -282,6 +282,14 @@ Returns the dimensions of the map in map units.<p>
 
 Completely redraws the display at the current zoom level.<p>
 
+<<defitem see {<i>win</i> see <i>mappoint</i>}>>
+
+Scrolls the map so that the specified location is as close to the
+center as possible.  The <i>mappoint</i> may be expressed as a map
+reference string, or as a pair of map coordinates.  In the latter
+case, the pair of coordinates can be passed as either two separate
+arguments, or as a single argument, a list of two coordinates.<p>
+
 <<defitem zoom {<i>win</i> zoom ?<i>factor</i>?}>>
 
 Called with no argument, queries the current zoom factor.  Otherwise,

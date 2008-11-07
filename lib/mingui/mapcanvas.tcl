@@ -405,8 +405,14 @@ snit::widgetadaptor ::mingui::mapcanvas {
         # NEXT, set the zoom factor
         set info(zoom) $factor
 
+        # NEXT, save the center point
+        lassign [$self Center2m] mx my
+
         # NEXT, refresh the display
         $self refresh
+
+        # NEXT, center on the saved point
+        $self see $mx $my
         
         # FINALLY, return the zoom factor
         return $info(zoom)
@@ -489,6 +495,48 @@ snit::widgetadaptor ::mingui::mapcanvas {
         $self mode point
 
         return
+    }
+
+    # see mappoint
+    #
+    # mappoint    A point in map coordinates, in any of the usual forms
+    #
+    # Makes sure that the specified point is visible.
+
+    method see {args} {
+        # FIRST, check args
+        if {[llength $args] < 1 || [llength $args] > 2} {
+            WrongNumArgs "see mappoint"
+        }
+
+        # NEXT, get the map coordinates.
+        lassign [$self GetMapPoint args] mx my
+
+        # NEXT, center the display (insofar as possible) on mx,my.
+        # Begin by converting the point to canvas coordinates.
+        lassign [$self m2c $mx $my] cx cy
+
+        # NEXT, I need to determine the fx,fy that yields this
+        # cx,cy at the center.  What are the window coordinates of
+        # the center?
+        set wx [expr {[winfo width $win]/2.0}]
+        set wy [expr {[winfo height $win]/2.0}]
+
+        # NEXT, get the canvas coordinates of the desired upper left
+        # corner.
+        set cx1 [expr {$cx - $wx}]
+        set cy1 [expr {$cy - $wy}]
+
+        # NEXT, get the scroll region
+        lassign [$hull bbox map] xdummy ydummy cwidth cheight
+
+        # NEXT, compute the fractions
+        set fx [expr {min(max($cx1/$cwidth,0.0),1.0)}]
+        set fy [expr {min(max($cy1/$cheight,0.0),1.0)}]
+
+        # NEXT, scroll!
+        $hull xview moveto $fx
+        $hull yview moveto $fy
     }
 
     #-------------------------------------------------------------------
@@ -1211,6 +1259,28 @@ snit::widgetadaptor ::mingui::mapcanvas {
         } else {
             return [list $cx $cy]
         }
+    }
+
+    # Center2m
+    #
+    # Returns the map coordinate of the point at the center of the
+    # displayed map as an {mx my} pair
+
+    method Center2m {} {
+        # FIRST, get the xview/yview fractions
+        lassign [$hull xview] fx1 fx2
+        lassign [$hull yview] fy1 fy2
+
+        # NEXT, get the map bounding box in map coordinates.
+        # Note that cx1 and cy1 are both zero.
+        lassign [$hull bbox map] cx1 cy1 cx2 cy2
+
+        # NEXT, compute the center point in canvas coordinates
+        set cx [expr {0.5*($fx1 + $fx2)*$cx2}]
+        set cy [expr {0.5*($fy1 + $fy2)*$cy2}]
+
+        # NEXT, convert to mxy, and return.
+        return [$self c2m $cx $cy]
     }
 
     #-------------------------------------------------------------------
