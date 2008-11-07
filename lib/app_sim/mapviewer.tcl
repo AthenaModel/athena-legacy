@@ -126,10 +126,12 @@ snit::widget mapviewer {
     #
     #    mode           The current mapcanvas(n) mode
     #    ref            The current map reference
+    #    zoom           Current zoom factor show in the zoombox
 
     variable info -array {
-        mode ""
-        ref  ""
+        mode  ""
+        ref   ""
+        zoom  "100%"
     }
 
     #-------------------------------------------------------------------
@@ -162,11 +164,22 @@ snit::widget mapviewer {
         frame $win.hbar \
             -relief flat
 
+        ComboBox $win.hbar.zoombox \
+            -textvariable [myvar info(zoom)]                           \
+            -font          codefont                                    \
+            -editable      0                                           \
+            -width         4                                           \
+            -justify       right                                       \
+            -values        {25% 50% 75% 100% 125% 150% 200% 250% 300%} \
+            -takefocus     no                                          \
+            -modifycmd     [mymethod ZoomBoxSet]
+
         label $win.hbar.ref \
             -textvariable [myvar info(ref)] \
             -width 8
 
-        pack $win.hbar.ref -side right
+        pack $win.hbar.zoombox -side right
+        pack $win.hbar.ref     -side right
 
         # Separator
         frame $win.sep -height 2 -relief sunken -borderwidth 2
@@ -215,6 +228,18 @@ snit::widget mapviewer {
     }
 
     #-------------------------------------------------------------------
+    # Event Handlers
+
+    # ZoomBoxSet
+    #
+    # Sets the map zoom to the specified amount.
+
+    method ZoomBoxSet {} {
+        scan $info(zoom) "%d" factor
+        $canvas zoom $factor
+    }
+
+    #-------------------------------------------------------------------
     # Public Methods
 
     delegate method * to canvas
@@ -245,6 +270,8 @@ snit::widget mapviewer {
         # NEXT, there was no map.
         $canvas configure -map ""
         $self refresh
+
+        set info(zoom) "100%"
 
         return
     }
@@ -278,6 +305,8 @@ snit::widget mapviewer {
                 $canvas icon create $icontype $mx $my
             }
         }
+
+        set info(zoom) "100%"
     }
 }
 
