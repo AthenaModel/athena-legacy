@@ -257,6 +257,11 @@ snit::widget mapviewer {
         # FIRST, clear the canvas
         $canvas clear
 
+        # NEXT, if there's no map we're done.
+        if {[$canvas cget -map] eq ""} {
+            return
+        }
+
         # NEXT, add scenario features.
         # TBD: Ultimately, this will query the RDB; for now, 
         # just make some icons.
