@@ -1,0 +1,88 @@
+<<manpage mainwin(sim) "Main Window Widget">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+mainwin(sim) is a snit::widget implementing the main application
+window.  It's implemented as a widget, rather than a singleton, to
+ease the possible future transition to supporting multiple scenarios at the
+same time.<p>
+
+<<section OPTIONS>>
+
+The mainwin(sim) widget has the same options as the
+<<xref tk:toplevel(n)>> widget.<p>
+
+<<section COMMANDS>>
+
+mainwin(sim) defines the following commands:<p>
+
+<<deflist commands>>
+
+<<defitem "mainwin" {mainwin <i>win</i> ?<i>option value...</i>?}>>
+
+Creates a mainwin(sim) widget called <i>win</i>, given the
+<<xref OPTIONS options>>.  Returns <i>win</i>.<p>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+Each instance of mainwin(sim) has the following subcommands:<p>
+
+<<deflist instance>>
+
+<<defitem configure {<i>win</i> configure <i>option value...</i>}>>
+
+Sets the value of the specified options.<p>
+
+<<defitem cget {<i>win</i> cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem error {<i>win</i> error <i>text</i>}>>
+
+Displays <i>text</i> in an error dialog centered on the window.
+Variables and commands in <i>text</i> are interpolated using
+<<xref template(n) tsubst>> from <<xref template(n)>>.<p>
+
+<<defitem puts {<i>win</i> puts <i>text</i>}>>
+
+Writes <i>text</i> to the window's message line.<p>
+
+<<defitem refresh {<i>win</i> refresh}>>
+
+Asks the window to refresh its display from the RDB.<p>
+
+<<defitem zoom {<i>win</i> zoom ?<i>factor</i>?}>>
+
+Sets/queries the map display's zoom factor.  Note that setting the
+zoom factor has the side effect of refreshing the display.<p>
+
+<</deflist instance>>
+
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
