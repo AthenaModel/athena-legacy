@@ -24,13 +24,19 @@ CREATE TABLE scenario (
 );
 
 -- Maps Table: Stores data for map images.
+--
+-- At this time, there's never more than one map image in the table.
+-- The map with id=1 is the map to use.
 
 CREATE TABLE maps (
-    -- Zoom level of this map; 100 = 100% zoom, or full size.
-    zoom   INTEGER PRIMARY KEY DEFAULT 100,
+    -- ID
+    id       INTEGER PRIMARY KEY,
+
+    -- Original file name of this map
+    filename TEXT,
 
     -- Map data: a BLOB of data in "jpeg" format.
-    data   BLOB
+    data     BLOB
 );
 
 

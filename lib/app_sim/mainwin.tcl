@@ -41,11 +41,9 @@ snit::widget mainwin {
     # Info array: scalar values
     #
     #    map     The currently displayed map image.
-    #    zoom    The current zoom factor, e.g. 100 = 100% zoom
 
     variable info -array {
         map   ""
-        zoom  100
     }
 
     #-------------------------------------------------------------------
@@ -398,8 +396,8 @@ snit::widget mainwin {
         # FIRST, set the window title
         wm title $win "Untitled - Minerva [version]"
 
-        # NEXT, load the map and refresh the graphics
-        $self zoom 100
+        # NEXT, refresh the map display
+        $self showmap
 
         # NEXT, Notify the user
         app puts "New scenario created"
@@ -415,8 +413,8 @@ snit::widget mainwin {
 
         wm title $win "$tail - Minerva [version]"
 
-        # NEXT, load the map and refresh the graphics
-        $self zoom 100
+        # NEXT, load the map (if any) and refresh the graphics
+        $self showmap
 
         # NEXT, Notify the user
         app puts "Opened $tail"
@@ -440,7 +438,8 @@ snit::widget mainwin {
     # The user has imported a new map.  Update the GUI accordingly
 
     method AppImportedMap {filename} {
-        $self zoom 100
+        # Display the new map
+        $self showmap
 
         $self puts "Imported map [file tail $filename]"
     }
@@ -448,35 +447,18 @@ snit::widget mainwin {
     #-------------------------------------------------------------------
     # Utility Methods
 
-    # zoom ?factor?
+    # showmap
     #
-    # factor     The zoom factor, as an integer percentage, 
-    #            e.g., 50, 100, 200
-    #
-    # Sets/queries the zoom factor.  When the zoom is set,
-    # updates the map display.
-    #
-    # TBD: This code isn't right; mapviewer/mapcanvas should probably
-    # be responsible for the zooms, and especially for managing the
-    # Tk images.
+    # Shows the current map, if any.  This code is temporary
 
-    method zoom {{factor ""}} {
-        # FIRST, handle queries
-        if {$factor eq ""} {
-            return $info(zoom)
-        }
-
-        # NEXT, display the desired zoom.
+    method showmap {} {
+        # FIRST, display the map.
         rdb eval {
             SELECT data FROM maps
-            WHERE zoom=$factor
+            WHERE id=1
         } {
-            # Got it!
-            set info(zoom) $factor
-
-            # Create and install the new image in the viewer and
-            # refresh it.
-
+            # TBD: This is wrong; mapviewer should probably be responsible
+            # for this.
             set newMap [image create photo -format jpeg -data $data]
 
             $viewer configure -map $newMap
@@ -490,20 +472,21 @@ snit::widget mainwin {
 
             set info(map) $newMap
 
-            # Return the zoom factor.
-            return $info(zoom)
+            return
         }
 
-        # NEXT, there was no map for this zoom level.
+        # NEXT, there was no map.
         $viewer configure -map ""
-        $viewer clear
+        $self refresh
 
-        return $info(zoom)
+        return
     }
 
     # refresh
     #
     # Refreshes the data displayed by the viewer on the map.
+    #
+    # TBD: Should this be a mapviewer function?
 
     method refresh {} {
         # FIRST, clear the viewer, using the current map.

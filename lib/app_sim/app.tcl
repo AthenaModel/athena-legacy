@@ -222,12 +222,13 @@ snit::type app {
         }
         
         # NEXT, get the image data, and save it in the RDB
+        set tail [file tail $filename]
         set data [$map data -format jpeg]
 
         rdb eval {
             INSERT OR REPLACE
-            INTO maps(zoom, data)
-            VALUES(100,$data);
+            INTO maps(id, filename, data)
+            VALUES(1,$tail,$data);
         }
 
         image delete $map
