@@ -546,13 +546,8 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
         set info(modeTags) [list]
 
-        # NEXT, Set up the new mode's cursor and tag bindings, if there
-        # are any.
-        if {[info exists modes($mode)]} {
-            $hull configure -cursor [dict get $modes($mode) cursor]
-        } else {
-            $hull configure -cursor left_ptr
-        }
+        # NEXT, Set up the new mode's cursor.
+        $self SetModeCursor $mode
 
         # NEXT, add the new mode's canvas tag bindings
         if {[info exists modes($mode)]} {
@@ -1112,6 +1107,18 @@ snit::widgetadaptor ::mingui::mapcanvas {
     #-------------------------------------------------------------------
     # Utility Methods
 
+    # SetModeCursor mode
+    #
+    # Sets the appropriate cursor for the current mode
+    
+    method SetModeCursor {mode} {
+        if {[info exists modes($mode)]} {
+            $hull configure -cursor [dict get $modes($mode) cursor]
+        } else {
+            $hull configure -cursor left_ptr
+        }
+    }
+
     # ScaleMap factor
     #
     # factor    Creates a scaled copy of the the -map at the specified
@@ -1124,7 +1131,13 @@ snit::widgetadaptor ::mingui::mapcanvas {
     # * No cached image exists for this factor
 
     method ScaleMap {factor} {
-        # FIRST, get the base map
+        # FIRST, update the GUI, and set the watch cursor
+        set oldCursor [$hull cget -cursor]
+        $hull configure -cursor watch
+        update idletasks
+
+
+        # NEXT, get the base map
         set base [pixcopy $options(-map)]
 
         # NEXT, create the scaled copy
@@ -1143,6 +1156,9 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
         # NEXT, delete the pixane images
         pixane delete $base $newmap
+
+        # NEXT, restore the cursor
+        $hull configure -cursor $oldCursor
     }
 
     # CanSnap x1 y1 x2 y2
