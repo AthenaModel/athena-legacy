@@ -351,6 +351,17 @@ snit::widgetadaptor ::mingui::mapcanvas {
             set info(gotMap) 0
             $self mode null
             set proj [myproc UndefinedMap]
+
+            # Add a string saying there's no map
+            set wid [winfo width  $win]
+            set ht  [winfo height $win]
+
+            $hull configure -scrollregion [list 0 0 $wid $ht]
+
+            $hull create text 1c 1c        \
+                -anchor nw                 \
+                -text   "No map available"
+
             return
         }
 

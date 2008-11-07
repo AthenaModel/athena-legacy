@@ -56,7 +56,7 @@ snit::widget mainwin {
         wm title $win "Untitled - Minerva [version]"
 
         # NEXT, Exit the app when this window is closed.
-        wm protocol $win WM_DELETE_WINDOW [list app exit]
+        wm protocol $win WM_DELETE_WINDOW [mymethod FileExit]
 
         # NEXT, Allow the developer to pop up the debugger.
         bind $win <Control-F12> [list debugger new]
@@ -74,6 +74,7 @@ snit::widget mainwin {
         grid propagate . off
 
         # NEXT, Prepare to receive notifier events.
+        notifier bind ::app <AppNew>         $self [mymethod AppNew]
         notifier bind ::app <AppOpened>      $self [mymethod AppOpened]
         notifier bind ::app <AppSaved>       $self [mymethod AppSaved]
         notifier bind ::app <AppImportedMap> $self [mymethod AppImportedMap]
@@ -103,18 +104,23 @@ snit::widget mainwin {
         $menu add cascade -label "File" -underline 0 -menu $filemenu
 
         $filemenu add command                  \
-            -label     "Open"                  \
+            -label     "New Scenario..."       \
+            -underline 0                       \
+            -command   [mymethod FileNew]
+
+        $filemenu add command                  \
+            -label     "Open Scenario..."      \
             -underline 0                       \
             -command   [mymethod FileOpen]
 
         $filemenu add command                  \
-            -label     "Save"                  \
+            -label     "Save Scenario"         \
             -underline 0                       \
             -command   [mymethod FileSave]
 
         $filemenu add command                  \
-            -label     "Save As..."            \
-            -underline 5                       \
+            -label     "Save Scenario As..."   \
+            -underline 14                      \
             -command   [mymethod FileSaveAs]
 
         $filemenu add separator
@@ -126,12 +132,12 @@ snit::widget mainwin {
 
         $filemenu add separator
         
-        $filemenu add command                \
-            -label       "Exit"              \
-            -underline   1                   \
-            -accelerator "Ctrl+Q"            \
-            -command     [list app exit]
-        bind $win <Control-q> [list app exit]
+        $filemenu add command                  \
+            -label       "Exit"                \
+            -underline   1                     \
+            -accelerator "Ctrl+Q"              \
+            -command     [mymethod FileExit]
+        bind $win <Control-q> [mymethod FileExit]
 
         # Edit menu
         set editmenu [menu $menu.edit]
@@ -225,12 +231,31 @@ snit::widget mainwin {
     #-------------------------------------------------------------------
     # Menu Handlers
 
+    # FileNew
+    #
+    # Prompts the user to create a brand new scenario.
+
+    method FileNew {} {
+        # FIRST, Allow the user to save unsaved data.
+        if {![$self SaveUnsavedData]} {
+            return
+        }
+
+        # NEXT, create the new scenario
+        app new
+    }
+
     # FileOpen
     #
     # Prompts the user to open a scenario in a particular file.
 
     method FileOpen {} {
-        # FIRST, query for the scenario file name.
+        # FIRST, Allow the user to save unsaved data.
+        if {![$self SaveUnsavedData]} {
+            return
+        }
+
+        # NEXT, query for the scenario file name.
         set filename [tk_getOpenFile                      \
                           -parent $win                    \
                           -title "Open Scenario"          \
@@ -254,7 +279,8 @@ snit::widget mainwin {
     method FileSaveAs {} {
         # FIRST, query for the scenario file name.  If the file already
         # exists, the dialog will automatically query whether to 
-        # overwrite it or not.
+        # overwrite it or not. Returns 1 on success and 0 on failure.
+
         set filename [tk_getSaveFile                       \
                           -parent $win                     \
                           -title "Save Scenario As"        \
@@ -264,27 +290,26 @@ snit::widget mainwin {
 
         # NEXT, If none, they cancelled.
         if {$filename eq ""} {
-            return
+            return 0
         }
 
         # NEXT, Ask the app to save using this name
-        app save $filename
+        return [app save $filename]
     }
 
     # FileSave
     #
     # Saves the scenario to the current file, making a backup
-    # copy.
+    # copy.  Returns 1 on success and 0 on failure.
 
     method FileSave {} {
         # FIRST, if no file name is known, do a SaveAs.
         if {[app dbfile] eq ""} {
-            $type SaveAs
-            return
+            return [$self FileSaveAs]
         }
 
         # NEXT, Ask the app to save to the current dbfile
-        app save
+        return [app save]
     }
 
     # FileImportMap
@@ -312,8 +337,73 @@ snit::widget mainwin {
         app importmap $filename
     }
 
+    # FileExit
+    #
+    # Verifies that the user has saved data before exiting.
+
+    method FileExit {} {
+        # FIRST, Allow the user to save unsaved data.
+        if {![$self SaveUnsavedData]} {
+            return
+        }
+
+        # NEXT, the data has been saved if it's going to be; so exit.
+        app exit
+    }
+
+    # SaveUnsavedData
+    #
+    # Allows the user to save unsaved changes.  Returns 1 if the user
+    # is ready to proceed, and 0 if the current activity should be
+    # cancelled.
+
+    method SaveUnsavedData {} {
+        if {![app saved]} {
+            set name [file tail [app dbfile]]
+
+            set message [tsubst {
+                |<--
+                The scenario [tif {$name ne ""} {"$name" }]has not been saved.
+                Do you want to save your changes?
+            }]
+
+            set answer [tk_messageBox                    \
+                            -icon    warning             \
+                            -message $message            \
+                            -parent  $win                \
+                            -title   "Minerva [version]" \
+                            -type    yesnocancel]
+
+            if {$answer eq "cancel"} {
+                return 0
+            } elseif {$answer eq "yes"} {
+                # Stop exiting if the save failed
+                if {![$self FileSave]} {
+                    return 0
+                }
+            }
+        }
+
+        return 1
+    }
+
     #-------------------------------------------------------------------
     # Notifier Event Handlers
+
+    # AppNew
+    #
+    # A new scenario has been created.
+
+    method AppNew {} {
+        # FIRST, set the window title
+        wm title $win "Untitled - Minerva [version]"
+
+        # NEXT, load the map and refresh the graphics
+        $self zoom 100
+
+        # NEXT, Notify the user
+        app puts "New scenario created"
+    }
 
     # AppOpened
     #
@@ -366,8 +456,9 @@ snit::widget mainwin {
     # Sets/queries the zoom factor.  When the zoom is set,
     # updates the map display.
     #
-    # TBD: If we adopt Pixane, much of this code will move into
-    # mapviewer/mapcanvas.
+    # TBD: This code isn't right; mapviewer/mapcanvas should probably
+    # be responsible for the zooms, and especially for managing the
+    # Tk images.
 
     method zoom {{factor ""}} {
         # FIRST, handle queries
@@ -404,7 +495,8 @@ snit::widget mainwin {
         }
 
         # NEXT, there was no map for this zoom level.
-        $self error "No map at zoom \"$zoom\""
+        $viewer configure -map ""
+        $viewer clear
 
         return $info(zoom)
     }

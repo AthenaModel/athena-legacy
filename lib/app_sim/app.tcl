@@ -39,9 +39,11 @@ snit::type app {
     # Info Array: most scalars are stored here
     #
     # dbfile      Name of the current scenario file
+    # saved       1 if the current data has been saved, and 0 otherwise.
 
     typevariable info -array {
-        dbfile ""
+        dbfile  ""
+        saved   1
     }
 
     #-------------------------------------------------------------------
@@ -93,15 +95,35 @@ snit::type app {
 
     #-------------------------------------------------------------------
     # Scenario Management Methods
+    #
+    # TBD: A number of these methods explicitly display errors.  It's 
+    # likely that they should just throw relevant errors, and let the 
+    # caller display the errors.  We'd want to distinguish between
+    # environmental and programming errors.
+
+    # new
+    #
+    # Creates a new, blank scenario.
+
+    typemethod new {} {
+        # FIRST, clear the current scenario data.
+        rdb clear
+
+        # NEXT, there is no dbfile.
+        set info(dbfile) ""
+
+        # NEXT, there are no changes to save
+        set info(saved) 1
+
+        # NEXT, notify the app
+        notifier send ::app <AppNew>
+    }
 
     # open filename
     #
     # filename       A .mdb scenario file
     #
     # Opens the specified file name, replacing the existing file.
-    #
-    # TBD: Should really check that there's no data that needs to
-    # be saved.
 
     typemethod open {filename} {
         # FIRST, load the file.
@@ -122,6 +144,9 @@ snit::type app {
         # NEXT, save the name.
         set info(dbfile) $filename
 
+        # NEXT, no changes yet.
+        set info(saved)  1
+
         # NEXT, notify the app
         notifier send ::app <AppOpened>
     }
@@ -131,7 +156,8 @@ snit::type app {
     # filename       Name for the new save file
     #
     # Saves the file, notify the application on success.  If no
-    # file name is specified, the dbfile is used.
+    # file name is specified, the dbfile is used.  Returns 1 if
+    # the save is successful and 0 otherwise.
 
     typemethod save {{filename ""}} {
         # FIRST, if filename is not specified, get the dbfile
@@ -159,14 +185,19 @@ snit::type app {
 
                 $result
             }
-            return
+            return 0
         }
 
         # NEXT, save the name
         set info(dbfile) $filename
 
+        # NEXT, no changes yet.
+        set info(saved)  1
+
         # NEXT, Notify the app
         notifier send ::app <AppSaved>
+
+        return 1
     }
 
     # importmap filename
@@ -201,6 +232,9 @@ snit::type app {
 
         image delete $map
 
+        # NEXT, change has not been saved.
+        set info(saved)  0
+
         # NEXT, Notify the application.
         notifier send ::app <AppImportedMap> $filename
     }
@@ -211,6 +245,14 @@ snit::type app {
 
     typemethod dbfile {} {
         return $info(dbfile)
+    }
+
+    # saved
+    #
+    # Returns 1 if the current changes have been saved, and 0 otherwise.
+
+    typemethod saved {} {
+        return $info(saved)
     }
 
     #-------------------------------------------------------------------
