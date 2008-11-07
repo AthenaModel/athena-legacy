@@ -21,6 +21,39 @@ When the object is destroyed, it should remove itself from the
 canvas, using <<xref tcl:catch(n)>> in case the canvas has already
 been destroyed.<p>
 
+<<section "CANVAS TAGS">>
+
+Every icon should be tagged with the following canvas tags, in the
+following order:<p>
+
+<ul>
+  <li> Its <b><i>id</i></b>.  This is the final component of its command name.<p>
+
+  <li> Any tags required to identify pieces of the icon to support
+       changes to option values.  These should be called names like
+       "<b><i>id</i>.this</b>" and "<b><i>id</i>.that</b>".<p>
+
+  <li> Its <<iref typename>>.<p>
+
+  <li> The tag "<b>icon</b>".<p>
+
+  <li> Any additional tags, as specified by <code>-tags</code>.<p>
+</ul>
+
+
+<<section OPTIONS>>
+
+Every mapicon(i) should define at least the following options:<p>
+
+<<deflist options>>
+
+<<defopt {-tags <i>taglist</i>}>>
+
+This is a list of additional canvas tags that should be applied to this
+particular icon.<p>
+
+<</deflist options>>
+
 <<section COMMANDS>>
 
 Every <<xref mapicon(i)>> module must define a command like the following:<p>
@@ -38,7 +71,7 @@ The <i>canvas</i> is the window name of the <<xref mapcanvas(n)>> on
 which the icon will appear.  It will be drawn at canvas coordinates
 <i>cx</i>,<i>cy</i>.<p>
 
-The options may vary by icon type; some icon types will have none.
+The options vary by icon type.
 The standard Snit <b>info options</b> method may be used to retrieve
 the option names.<p>
 
@@ -55,13 +88,17 @@ Each instance of a <<iref mapicon>> object has the following subcommands:<p>
 
 <<defitem cget {<i>obj</i> cget <i>option</i>}>>
 
-<b>Only if options are defined</b>.  Returns the value of the
-specified <i>option</i>.<p>
+Returns the value of the specified <i>option</i>.<p>
 
 <<defitem configure {<i>obj</i> configure <i>option value...</i>}>>
 
-<b>Only if options are defined</b>.  Sets the value of one or more of
-the object's options.<p>
+Sets the value of one or more of the object's options.<p>
+
+<<defitem draw {<i>obj</i> draw <i>cx cy</i>}>>
+
+Redraws the icon at the specified coordinates, using the current
+option settings.  The previous instance of the icon (if any) is
+deleted from the canvas.<p>
 
 <</deflist instance>>
 

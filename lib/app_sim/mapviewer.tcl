@@ -219,17 +219,60 @@ snit::widget mapviewer {
 
     delegate method * to canvas
 
-
-
-    #-------------------------------------------------------------------
-    # Private Methods
-
-    # ThePrompt
+    # newmap
     #
-    # Returns the CLI prompt.
+    # Configures the viewer to show the new map.
 
-    method ThePrompt {} {
-        return "[simclock asZulu]>"
+    method newmap {} {
+        # FIRST, display the map.
+        rdb eval {
+            SELECT data FROM maps
+            WHERE id=1
+        } {
+            set oldMap [$canvas cget -map]
+            
+            if {$oldMap ne ""} {
+                image delete $oldMap
+            }
+
+            $canvas configure \
+                -map [image create photo -format jpeg -data $data]
+
+            $self refresh
+            return
+        }
+
+        # NEXT, there was no map.
+        $canvas configure -map ""
+        $self refresh
+
+        return
+    }
+
+    # refresh
+    #
+    # Clears the map; and redraws the scenario features
+
+    method refresh {} {
+        # FIRST, clear the canvas
+        $canvas clear
+
+        # NEXT, add scenario features.
+        # TBD: Ultimately, this will query the RDB; for now, 
+        # just make some icons.
+
+        # Get the bounding box, so we can position things
+        # randomly within it.
+        lassign [$canvas mapbox] x1 y1 x2 y2
+
+        foreach icontype [mapcanvas icon types] {
+            for {set i 0} {$i < 20} {incr i} {
+                set mx [expr {$x1 + rand()*($x2 - $x1)}]
+                set my [expr {$y1 + rand()*($y2 - $y1)}]
+                
+                $canvas icon create $icontype $mx $my
+            }
+        }
     }
 }
 

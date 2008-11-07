@@ -89,7 +89,6 @@ snit::type ::mingui::mapimage {
     }
 }
 
-
 #-----------------------------------------------------------------------
 # Widget Definition
 
@@ -271,6 +270,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
     #   mode         Current interaction mode
     #   modeTags     List of canvas tags associated with the current
     #                mode's bindings.
+    #   zoom         Current zoom factor.
 
     variable info -array {
         gotMap      0
@@ -278,6 +278,16 @@ snit::widgetadaptor ::mingui::mapcanvas {
         iconCounter 0
         mode        ""
         modeTags    {}
+        zoom        100
+    }
+
+    # zooms array
+    #
+    # Array of images by zoom factor.  The zoom factor is an
+    # integer percentage, e.g., 100% is full size.
+
+    variable zooms -array {
+        100 {}
     }
 
     # icons array
@@ -336,15 +346,84 @@ snit::widgetadaptor ::mingui::mapcanvas {
     # is not defined, a mapref(n) instance will be used.
 
     method clear {} {
-        # FIRST, delete everything.
-        $hull delete all
+        # FIRST, delete all content
 
+        # Icons
         foreach id $icons(ids) {
             rename [dict get $icons(icon-$id) cmd] ""
         }
 
         array unset icons
         set icons(ids) [list]
+
+        # NEXT, clear the zoom cache
+        foreach factor [array names zooms] {
+            if {$factor != 100} {
+                image delete $zooms($factor)
+            }
+        }
+        
+        array unset zooms
+
+        # NEXT, set the zoom to 100
+        set info(zoom) 100
+        set zooms(100) $options(-map)
+
+        # NEXT, refresh the screen
+        $self refresh
+    }
+
+    # zoom ?factor?
+    #
+    # factor    The zoom factor, as an integer percentage.
+    #
+    # Sets/queries the zoom factor.  Changing the zoom factor creates
+    # a new zoom image (if needed) and refreshes the screen.
+    #
+    # Always returns the current zoom factor.
+
+    method zoom {{factor ""}} {
+        # FIRST, if no new factor is specified, or if it is the
+        # same as the current, do nothing.
+        
+        if {$factor eq ""          ||
+            $factor eq $info(zoom)
+        } {
+            return $info(zoom)
+        }
+
+        # NEXT, validate the zoom factor
+        zoomfactor validate $factor
+
+        # NEXT, scale the image, if needed.
+        if {$options(-map) ne "" &&
+            ![info exists zooms($factor)]
+        } {
+            $self ScaleMap $factor
+        }
+        
+        # NEXT, set the zoom factor
+        set info(zoom) $factor
+
+        # NEXT, refresh the display
+        $self refresh
+        
+        # FINALLY, return the zoom factor
+        return $info(zoom)
+    }
+
+    # refresh
+    #
+    # Refreshes the display:
+    #
+    # * Deletes all drawn items from the canvas.
+    # * Adds the map at the current zoom level.
+    # * Redraws all icons and neighborhoods in their proper locations.
+    # * Sets the mode to "point".
+
+    method refresh {} {
+        # FIRST, delete all drawn items.
+        $hull delete all
 
         # NEXT, if there's no map, handle it.
         if {$options(-map) eq ""} {
@@ -365,10 +444,10 @@ snit::widgetadaptor ::mingui::mapcanvas {
             return
         }
 
-        # NEXT, create the map item
-        $hull create image 0 0     \
-            -anchor nw             \
-            -image  $options(-map) \
+        # NEXT, create the map item using the current zoom.
+        $hull create image 0 0          \
+            -anchor nw                  \
+            -image  $zooms($info(zoom)) \
             -tags   map
 
         # NEXT, set the scroll region to the whole map.
@@ -393,9 +472,20 @@ snit::widgetadaptor ::mingui::mapcanvas {
             set proj ${selfns}::proj
         }
 
-        # NEXT, set the mode back to point mode and remember that
-        # we've got a map.
+        # NEXT, set the projection to the current zoom factor
+        $proj zoom $info(zoom)
+
+        # NEXT, draw all neighborhoods/icons in their correct places
+        foreach id $icons(ids) {
+            dict with icons(icon-$id) {
+                $cmd draw {*}[$self m2c {*}$mxy]
+            }
+        }
+
+        # NEXT, remember that we have a map.
         set info(gotMap) 1
+
+        # NEXT, set the interaction mode back to "point".
         $self mode point
 
         return
@@ -930,9 +1020,6 @@ snit::widgetadaptor ::mingui::mapcanvas {
         # Allow option errors to propagate to the user
         $icontypes(type-$icontype) $cmd $self $cx $cy {*}$args
 
-        # NEXT, mark it as an icon
-        $hull addtag icon withtag $id
-
         # NEXT, save the icon's name and current data.
         lappend icons(ids)           $id
         lappend icons(id-$icontype)  $id
@@ -1024,6 +1111,39 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
     #-------------------------------------------------------------------
     # Utility Methods
+
+    # ScaleMap factor
+    #
+    # factor    Creates a scaled copy of the the -map at the specified
+    #           zoom factor.
+    #
+    # Creates and caches a new map image.  Assumes that:
+    # 
+    # * factor is a valid zoomfactor
+    # * There is a -map
+    # * No cached image exists for this factor
+
+    method ScaleMap {factor} {
+        # FIRST, get the base map
+        set base [pixcopy $options(-map)]
+
+        # NEXT, create the scaled copy
+        set mult [expr {$factor/100.0}]
+
+        set newmap [pixane create]
+        
+        pixane resize $newmap                           \
+            [expr {int($mult * [pixane width  $base])}] \
+            [expr {int($mult * [pixane height $base])}]
+            
+        pixane scale $newmap $base
+
+        # NEXT, save the new image
+        set zooms($factor) [pixcopy $newmap]
+
+        # NEXT, delete the pixane images
+        pixane delete $base $newmap
+    }
 
     # CanSnap x1 y1 x2 y2
     #

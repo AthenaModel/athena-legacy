@@ -78,8 +78,9 @@ snit::widget mainwin {
         notifier bind ::app <AppImportedMap> $self [mymethod AppImportedMap]
 
         # NEXT, Prepare to receive window events
+        bind $viewer <<Icon-1>> [mymethod Icon-1 %d]
+
         if 0 {
-            bind $viewer <<Icon-1>>        {IconPoint %W %d}
             bind $viewer <<IconMoved>>     {IconMoved %W %d}
             bind $viewer <<PolyComplete>>  {PolyComplete %W %d}
             
@@ -386,6 +387,19 @@ snit::widget mainwin {
     }
 
     #-------------------------------------------------------------------
+    # Mapviewer Event Handlers
+
+    # Icon-1 id
+    #
+    # id      An icon ID
+    #
+    # Called when the user clicks on an icon.
+
+    method Icon-1 {id} {
+        $self puts "Found $id at [$viewer icon ref $id]"
+    }
+
+    #-------------------------------------------------------------------
     # Notifier Event Handlers
 
     # AppNew
@@ -397,10 +411,10 @@ snit::widget mainwin {
         wm title $win "Untitled - Minerva [version]"
 
         # NEXT, refresh the map display
-        $self showmap
+        $viewer newmap
 
         # NEXT, Notify the user
-        app puts "New scenario created"
+        $self puts "New scenario created"
     }
 
     # AppOpened
@@ -414,10 +428,10 @@ snit::widget mainwin {
         wm title $win "$tail - Minerva [version]"
 
         # NEXT, load the map (if any) and refresh the graphics
-        $self showmap
+        $viewer newmap
 
         # NEXT, Notify the user
-        app puts "Opened $tail"
+        $self puts "Opened $tail"
     }
 
     # AppSaved
@@ -428,7 +442,7 @@ snit::widget mainwin {
         set tail [file tail [app dbfile]]
 
         wm title $win "$tail - Minerva [version]"
-        app puts "Saved $tail"
+        $self puts "Saved $tail"
     }
 
     # AppImportedMap filename
@@ -439,62 +453,13 @@ snit::widget mainwin {
 
     method AppImportedMap {filename} {
         # Display the new map
-        $self showmap
+        $viewer newmap
 
         $self puts "Imported map [file tail $filename]"
     }
 
     #-------------------------------------------------------------------
     # Utility Methods
-
-    # showmap
-    #
-    # Shows the current map, if any.  This code is temporary
-
-    method showmap {} {
-        # FIRST, display the map.
-        rdb eval {
-            SELECT data FROM maps
-            WHERE id=1
-        } {
-            # TBD: This is wrong; mapviewer should probably be responsible
-            # for this.
-            set newMap [image create photo -format jpeg -data $data]
-
-            $viewer configure -map $newMap
-
-            $self refresh
-
-            # Delete the old image, if any.
-            if {$info(map) ne ""} {
-                image delete $info(map)
-            }
-
-            set info(map) $newMap
-
-            return
-        }
-
-        # NEXT, there was no map.
-        $viewer configure -map ""
-        $self refresh
-
-        return
-    }
-
-    # refresh
-    #
-    # Refreshes the data displayed by the viewer on the map.
-    #
-    # TBD: Should this be a mapviewer function?
-
-    method refresh {} {
-        # FIRST, clear the viewer, using the current map.
-        $viewer clear
-
-        # NEXT, redraw neighborhoods, icons, etc.
-        # TBD
-    }
 
     # error text
     #

@@ -94,6 +94,9 @@ subcommands should be used to manipulate them.<p>
 The mapcanvas(n) defines a number of user interaction modes:<p>
 
 <dl>
+  <dt> <b>null</b>
+  <dd> In this mode, no interaction is possible.<p>
+
   <dt> <b>point</b>
   <dd> In this mode, the user can point at icons and neighborhoods,
        generating events to be processed by the application.<p>
@@ -206,10 +209,13 @@ Sets the value of one or more of the object's options.<p>
 
 Deletes all icons and neighborhoods from the mapcanvas(n), and
 displays the current <code>-map</code> using the current
-<code>-projection</code>.  If no <code>-map</code> has been selected,
-the canvas will be blank and most features will be disabled.  If no
-<code>-projection</code> has been selected, a <<xref mapref(n)>> will
-be used.  Finally, the interaction mode is set to <b>point</b>.<p>
+<code>-projection</code> at 100% zoom.  If no <code>-map</code> has
+been specified, the canvas will be blank and most features will be
+disabled.<p>
+
+Otherwise, if no <code>-projection</code> has been selected, a
+<<xref mapref(n)>> will be used.  Finally, the interaction mode is set to
+<b>point</b>.<p>
 
 <<defitem icon {<i>win</i> icon <i>subcommand</i> ?<i>args...</i>?}>>
 
@@ -271,6 +277,19 @@ Returns the bounding box of the map in map units.<p>
 <<defitem mapdim {<i>win</i> mapdim}>>
 
 Returns the dimensions of the map in map units.<p>
+
+<<defitem refresh {<i>win</i> refresh}>>
+
+Completely redraws the display at the current zoom level.<p>
+
+<<defitem zoom {<i>win</i> zoom ?<i>factor</i>?}>>
+
+Called with no argument, queries the current zoom factor.  Otherwise,
+the <i>factor</i> must be a valid zoom factor, an integer percentage,
+e.g., 100 indicates a 100% zoom, i.e., full-size.<p>
+
+If the zoom <i>factor</i> is changed, mapcanvas(n) scales the
+<code>-map</code> and caches and displays the result.<p>
 
 <<defitem c2m {<i>win</i> c2m <i>cx cy</i>}>>
 

@@ -57,15 +57,6 @@ Variables and commands in <i>text</i> are interpolated using
 
 Writes <i>text</i> to the window's message line.<p>
 
-<<defitem refresh {<i>win</i> refresh}>>
-
-Asks the window to refresh its display from the RDB.<p>
-
-<<defitem zoom {<i>win</i> zoom ?<i>factor</i>?}>>
-
-Sets/queries the map display's zoom factor.  Note that setting the
-zoom factor has the side effect of refreshing the display.<p>
-
 <</deflist instance>>
 
 
