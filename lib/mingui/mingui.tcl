@@ -15,6 +15,7 @@
 
 package require snit
 package require sqlite3
+package require pixane
 
 #-----------------------------------------------------------------------
 # Internal Package Dependencies

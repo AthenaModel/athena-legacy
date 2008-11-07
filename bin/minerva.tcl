@@ -55,26 +55,34 @@ exec tclsh8.5 "$0" "$@"
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# Set up the auto_path, so that we can find the correct libraries.
-# If there are "mars" or "minerva" directories, strip them out; we always 
-# want to find the lib directories relative to this script.
+# Set up the auto_path, so that we can find the correct libraries.  
+# In development, there might be directories loaded from TCLLIBPATH;
+# strip them out.
+
+# First, remove all TCLLIBPATH directories from the auto_path.
+
+set old_path $auto_path
+set auto_path [list]
+
+if {[info exists env(TCLLIBPATH)]} {
+    foreach dir $old_path {
+        if {$dir ni $env(TCLLIBPATH)} {
+            lappend auto_path $dir
+        }
+    }
+}
+
+# Next, get the Minerva-specific directories.
 
 set appdir  [file normalize [file dirname [info script]]]
 set libdir  [file normalize [file join $appdir .. lib]]
 set marsdir [file normalize [file join $appdir .. mars lib]]
 
 # Add Minerva libs to the new lib path.
-set new_path [list $marsdir $libdir]
+lappend auto_path $marsdir $libdir
 
-# Next, add non-local libs to the lib path from auto_path
-foreach lib $auto_path {
-    if {![string match "/home*" $lib]} {
-        lappend new_path $lib
-    }
-}
-
-# Next, use the new path
-set auto_path $new_path
+#-------------------------------------------------------------------
+# Next, require Tcl
 
 package require Tcl 8.5
 
