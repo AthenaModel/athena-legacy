@@ -73,6 +73,10 @@ snit::type scenario {
         # NEXT, there is no dbfile.
         set info(dbfile) ""
 
+        # NEXT, log it.
+        log newlog new
+        log normal scn "New Scenario: $filename"
+
         # NEXT, notify the app
         notifier send ::scenario <ScenarioNew>
     }
@@ -102,6 +106,10 @@ snit::type scenario {
         # NEXT, save the name.
         set info(dbfile) $filename
 
+        # NEXT, log it.
+        log newlog open
+        log normal scn "Open Scenario: $filename"
+
         # NEXT, notify the app
         notifier send ::scenario <ScenarioOpened>
     }
@@ -121,22 +129,24 @@ snit::type scenario {
                 error "Cannot save: no file name"
             }
 
-            set filename $info(dbfile)
+            set dbfile $info(dbfile)
+        } else {
+            set dbfile $filename
         }
 
         # FIRST, Save, and check for errors.
         if {[catch {
-            if {[file exists $filename]} {
-                file rename -force $filename [file rootname $filename].bak
+            if {[file exists $dbfile]} {
+                file rename -force $dbfile [file rootname $dbfile].bak
             }
 
-            rdb saveas $filename
+            rdb saveas $dbfile
         } result]} {
             app error {
                 |<--
                 Could not save as
                 
-                    $filename
+                    $dbfile
 
                 $result
             }
@@ -144,7 +154,15 @@ snit::type scenario {
         }
 
         # NEXT, save the name
-        set info(dbfile) $filename
+        set info(dbfile) $dbfile
+
+        # NEXT, log it.
+        if {$filename eq ""} {
+            log normal scn "Save Scenario: $filename"
+        } else {
+            log newlog saveas
+            log normal scn "Save Scenario As: $filename"
+        }
 
         # NEXT, Notify the app
         notifier send ::scenario <ScenarioSaved>

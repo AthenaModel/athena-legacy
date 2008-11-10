@@ -70,17 +70,25 @@ snit::type app {
             }
         }
 
+        # NEXT, open the debugging log.
+        logger ::log                                                  \
+            -simclock     ::simclock                                  \
+            -logdir       [workdir join log app_sim]                  \
+            -overflowcmd  [list notifier send $type <AppLogOverflow>]
+
+        # NEXT, Create the working scenario RDB
+        scenario init
+
         # NEXT, create the GUI.  Withdraw ., and create the new
         # main window.
         wm withdraw .
         mainwin .main
 
-        # NEXT, Create the working scenario RDB
-        scenario init
+        # NEXT, log that we're up.
+        log normal app "Minerva [version]"
 
         # NEXT, if a scenario file is specified on the command line,
         # open it.
-
         if {[llength $argv] == 1} {
             scenario open [file normalize [lindex $argv 0]]
         }
@@ -125,8 +133,11 @@ snit::type app {
 
         image delete $map
 
+        # NEXT, log it.
+        log normal app "Import Map: $filename"
+
         # NEXT, Notify the application.
-        notifier send ::app <AppImportedMap> $filename
+        notifier send $type <AppImportedMap> $filename
     }
 
     #-------------------------------------------------------------------
