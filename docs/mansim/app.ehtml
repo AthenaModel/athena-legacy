@@ -36,7 +36,8 @@ Variables and commands in <i>text</i> are interpolated using
 
 <<defitem "app exit" {app exit ?<i>text</i>?}>>
 
-Outputs <i>text</i>, if given, to stdout, and exits the program.
+Outputs <i>text</i>, if given, to stdout, deletes the working
+directory, and exits the program.
 Variables and commands in <i>text</i> are interpolated using
 <<xref template(n) tsubst>> from <<xref template(n)>>.<p>
 

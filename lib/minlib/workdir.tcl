@@ -11,9 +11,9 @@
 #    This object is responsible for providing access to
 #    the Minerva working directory tree, which resides at
 #    
-#      ~/.minerva/<version>/
+#      ~/.minerva/<pid>/
 #
-#    where <version> is the current version of Minerva.
+#    where <pid> is the process ID of the running instance of Minerva.
 #    Within this directory, "workdir init" will create the following
 #    directories:
 #
@@ -38,7 +38,7 @@ snit::type ::minlib::workdir {
     # Instance variables
 
     typevariable workdir ""   ;# The absolute path of the working 
-                               # directory, ~/.minerva/<version>/
+                               # directory, ~/.minerva/<version>/<pid>
 
 
     #-------------------------------------------------------------------
@@ -57,7 +57,7 @@ snit::type ::minlib::workdir {
         }
 
         # FIRST, get the absolute path of the working directory
-        set workdir [file normalize ~/.minerva/[version]]
+        set workdir [file normalize ~/.minerva/[pid]]
 
         # NEXT, create it, if it doesn't exist.
         file mkdir $workdir
@@ -76,7 +76,20 @@ snit::type ::minlib::workdir {
     # are joined to the working directory using [file join].
 
     typemethod join {args} {
+        require {$workdir ne ""} "workdir(n): Not initialized"
         eval file join [list $workdir] $args
+    }
+
+    # cleanup
+    #
+    # Removes the working directory
+
+    typemethod cleanup {} {
+        require {$workdir ne ""} "workdir(n): Not initialized"
+
+        file delete -force -- $workdir
+
+        set workdir ""
     }
 }
 

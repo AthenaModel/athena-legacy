@@ -1,4 +1,4 @@
-<<manpage {minlib(n) workdir(n)} "Working Directory Finder">>
+<<manpage {minlib(n) workdir(n)} "Working Directory Utility">>
 
 <<section SYNOPSIS>>
 
@@ -15,9 +15,9 @@ namespace import ::minlib::*
 Minerva working directories.  At start-up, Minerva calls
 <<iref workdir init>>, which creates the following directory
 
-<pre>    ~/.minerva/<i>version</i>/</pre>
+<pre>    ~/.minerva/<i>pid</i>/</pre>
 
-where <i>version</i> is the current version of Minerva.  This
+where <i>pid</i> is the process ID of the current version of Minerva.  This
 directory is referred to as the working directory.  Within that, it
 then creates the following subdirectories:<p>
 
@@ -39,6 +39,11 @@ Other working subdirectories are TBD.<p>
 This module defines the following commands:<p>
 
 <<deflist commands>>
+
+<<defitem "workdir cleanup" {workdir cleanup}>>
+
+Deletes the working directory and its contents, and "uninitializes"
+workdir(n).<p>
 
 <<defitem "workdir init" {workdir init}>>
 

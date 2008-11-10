@@ -169,10 +169,15 @@ snit::type app {
     # Exits the program
 
     typemethod exit {{text ""}} {
+        # FIRST, output the text.
         if {$text ne ""} {
             puts [uplevel 1 [list tsubst $text]]
         }
 
+        # NEXT, clean up the working files
+        workdir cleanup
+
+        # NEXT, exit
         exit
     }
 }
