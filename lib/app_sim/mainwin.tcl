@@ -72,10 +72,17 @@ snit::widget mainwin {
         grid propagate . off
 
         # NEXT, Prepare to receive notifier events.
-        notifier bind ::app <AppNew>         $self [mymethod AppNew]
-        notifier bind ::app <AppOpened>      $self [mymethod AppOpened]
-        notifier bind ::app <AppSaved>       $self [mymethod AppSaved]
-        notifier bind ::app <AppImportedMap> $self [mymethod AppImportedMap]
+        notifier bind ::scenario <ScenarioNew>    \
+            $self [mymethod ScenarioNew]
+
+        notifier bind ::scenario <ScenarioOpened> \
+            $self [mymethod ScenarioOpened]
+
+        notifier bind ::scenario <ScenarioSaved>  \
+            $self [mymethod ScenarioSaved]
+
+        notifier bind ::app      <AppImportedMap> \
+            $self [mymethod AppImportedMap]
 
         # NEXT, Prepare to receive window events
         bind $viewer <<Icon-1>> [mymethod Icon-1 %d]
@@ -241,7 +248,7 @@ snit::widget mainwin {
         }
 
         # NEXT, create the new scenario
-        app new
+        scenario new
     }
 
     # FileOpen
@@ -267,8 +274,8 @@ snit::widget mainwin {
             return
         }
 
-        # NEXT, Ask the app to open the scenario
-        app open $filename
+        # NEXT, Open the requested scenario.
+        scenario open $filename
     }
 
     # FileSaveAs
@@ -292,8 +299,8 @@ snit::widget mainwin {
             return 0
         }
 
-        # NEXT, Ask the app to save using this name
-        return [app save $filename]
+        # NEXT, Save the scenario using this name
+        return [scenario save $filename]
     }
 
     # FileSave
@@ -303,12 +310,12 @@ snit::widget mainwin {
 
     method FileSave {} {
         # FIRST, if no file name is known, do a SaveAs.
-        if {[app dbfile] eq ""} {
+        if {[scenario dbfile] eq ""} {
             return [$self FileSaveAs]
         }
 
-        # NEXT, Ask the app to save to the current dbfile
-        return [app save]
+        # NEXT, Save the scenario to the current file.
+        return [scenario save]
     }
 
     # FileImportMap
@@ -357,8 +364,8 @@ snit::widget mainwin {
     # cancelled.
 
     method SaveUnsavedData {} {
-        if {[app unsaved]} {
-            set name [file tail [app dbfile]]
+        if {[scenario unsaved]} {
+            set name [file tail [scenario dbfile]]
 
             set message [tsubst {
                 |<--
@@ -402,11 +409,11 @@ snit::widget mainwin {
     #-------------------------------------------------------------------
     # Notifier Event Handlers
 
-    # AppNew
+    # ScenarioNew
     #
     # A new scenario has been created.
 
-    method AppNew {} {
+    method ScenarioNew {} {
         # FIRST, set the window title
         wm title $win "Untitled - Minerva [version]"
 
@@ -417,13 +424,13 @@ snit::widget mainwin {
         $self puts "New scenario created"
     }
 
-    # AppOpened
+    # ScenarioOpened
     #
     # A new scenario file has been opened.
 
-    method AppOpened {} {
+    method ScenarioOpened {} {
         # FIRST, set the window title
-        set tail [file tail [app dbfile]]
+        set tail [file tail [scenario dbfile]]
 
         wm title $win "$tail - Minerva [version]"
 
@@ -434,12 +441,12 @@ snit::widget mainwin {
         $self puts "Opened $tail"
     }
 
-    # AppSaved
+    # ScenarioSaved
     #
     # The data has been saved.
 
-    method AppSaved {} {
-        set tail [file tail [app dbfile]]
+    method ScenarioSaved {} {
+        set tail [file tail [scenario dbfile]]
 
         wm title $win "$tail - Minerva [version]"
         $self puts "Saved $tail"

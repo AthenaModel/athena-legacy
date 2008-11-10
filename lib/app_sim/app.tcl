@@ -31,17 +31,16 @@ snit::type app {
     #-------------------------------------------------------------------
     # Type Components
 
-    typecomponent rdb                ;# The scenario RDB
+    # TBD
 
     #-------------------------------------------------------------------
     # Type Variables
 
     # Info Array: most scalars are stored here
     #
-    # dbfile      Name of the current scenario file
+    # TBD
 
     typevariable info -array {
-        dbfile  ""
     }
 
     #-------------------------------------------------------------------
@@ -76,118 +75,22 @@ snit::type app {
         wm withdraw .
         mainwin .main
 
-        # NEXT, open the RDB.
-        scenariodb ::rdb
-        set rdbfile [workdir join rdb working.rdb]
-        file delete -force $rdbfile
-        rdb open $rdbfile
-        rdb clear
+        # NEXT, Create the working scenario RDB
+        scenario init
 
         # NEXT, if a scenario file is specified on the command line,
         # open it.
 
         if {[llength $argv] == 1} {
-            app open [file normalize [lindex $argv 0]]
+            scenario open [file normalize [lindex $argv 0]]
         }
     }
 
     #-------------------------------------------------------------------
-    # Scenario Management Methods
+    # Map Importing
     #
-    # TBD: A number of these methods explicitly display errors.  It's 
-    # likely that they should just throw relevant errors, and let the 
-    # caller display the errors.  We'd want to distinguish between
-    # environmental and programming errors.
-
-    # new
-    #
-    # Creates a new, blank scenario.
-
-    typemethod new {} {
-        # FIRST, clear the current scenario data.
-        rdb clear
-
-        # NEXT, there is no dbfile.
-        set info(dbfile) ""
-
-        # NEXT, notify the app
-        notifier send ::app <AppNew>
-    }
-
-    # open filename
-    #
-    # filename       A .mdb scenario file
-    #
-    # Opens the specified file name, replacing the existing file.
-
-    typemethod open {filename} {
-        # FIRST, load the file.
-        if {[catch {
-            rdb load $filename
-        } result]} {
-            app error {
-                |<--
-                Could not open scenario
-                
-                    $filename
-
-                $result
-            }
-            return
-        }
-        
-        # NEXT, save the name.
-        set info(dbfile) $filename
-
-        # NEXT, notify the app
-        notifier send ::app <AppOpened>
-    }
-
-    # save ?filename?
-    #
-    # filename       Name for the new save file
-    #
-    # Saves the file, notify the application on success.  If no
-    # file name is specified, the dbfile is used.  Returns 1 if
-    # the save is successful and 0 otherwise.
-
-    typemethod save {{filename ""}} {
-        # FIRST, if filename is not specified, get the dbfile
-        if {$filename eq ""} {
-            if {$info(dbfile) eq ""} {
-                error "Cannot save: no file name"
-            }
-
-            set filename $info(dbfile)
-        }
-
-        # FIRST, Save, and check for errors.
-        if {[catch {
-            if {[file exists $filename]} {
-                file rename -force $filename [file rootname $filename].bak
-            }
-
-            rdb saveas $filename
-        } result]} {
-            app error {
-                |<--
-                Could not save as
-                
-                    $filename
-
-                $result
-            }
-            return 0
-        }
-
-        # NEXT, save the name
-        set info(dbfile) $filename
-
-        # NEXT, Notify the app
-        notifier send ::app <AppSaved>
-
-        return 1
-    }
+    # TBD: It's not clear where this should live.  Possibly in 
+    # scenario(sim), but possibly not.
 
     # importmap filename
     #
@@ -224,25 +127,6 @@ snit::type app {
 
         # NEXT, Notify the application.
         notifier send ::app <AppImportedMap> $filename
-    }
-
-    # dbfile
-    #
-    # Returns the name of the current scenario file
-
-    typemethod dbfile {} {
-        return $info(dbfile)
-    }
-
-    # unsaved
-    #
-    # Returns 1 if there are unsaved changes, and 0 otherwise.
-    #
-    # TBD: We need to handle significant in-memory changes, if any.
-    # scenariodb(n) handles the RDB chagnes.
-
-    typemethod unsaved {} {
-        return [rdb unsaved]
     }
 
     #-------------------------------------------------------------------

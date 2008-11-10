@@ -15,18 +15,13 @@ It is responsible for initializing the entire application, creating
 the other components and gluing them together as needed.<p>
 
 In addition, app(sim) provides a number of services to the application
-as a whole.  In particular, it is responsible for management of
-scenario files.<p>
+as a whole.<p>
 
 <<section "COMMANDS">>
 
 app(sim) provides the following commands for use by the application.<p>
 
 <<deflist commands>>
-
-<<defitem "app dbfile" {app dbfile}>>
-
-Returns the full path name of the open scenario file, or "" if none.<p>
 
 <<defitem "app error" {app error <i>text</i>}>>
 
@@ -58,42 +53,9 @@ Initializes the application given the command line arguments.  At
 present the application has one optional argument, a scenario file
 name.  If given, the scenario will be opened after the GUI is created.<p>
 
-<<defitem "app new" {app new}>>
-
-Creates a new, blank, scenario, replacing whatever scenario was
-previously loaded.<p>
-
-Sends <b>&lt;AppNew&gt;</b> on success.<p>
-
-<<defitem "app open" {app open <i>filename</i>}>>
-
-Opens and loads the <<xref scenario(n)>> file called <i>filename</i>,
-remembering it as the current <<iref app dbfile>>.<p>
-
-Sends <b>&lt;AppOpened&gt;</b> on success.<p>
-
 <<defitem "app puts" {app puts <i>text</i>}>>
 
 Outputs <i>text</i> to the main window's message line.<p>
-
-<<defitem "app save" {app save ?<i>filename</i>?}>>
-
-Saves the current scenario to disk.  If <i>filename</i> is given, the
-scenario will be saved under that name, which will be remembered as
-the current <<iref app dbfile>>; otherwise, the current
-<<iref app dbfile>> name is used.  It's an error if both
-<i>filename</i> and <<iref app dbfile>> are empty.<p>
-
-If there is already a file "<i>root</i><code>.mdb</code>", then it is
-copied to "<i>root</i>.bak".<p>
-
-Sends <b>&lt;AppSaved&gt;</b> and returns 1 on success; returns 0 on
-failure.<p>
-
-<<defitem "app saved" {app saved}>>
-
-Returns 1 if all changes have been saved, and 0 if exiting might
-cause changes to be lost.<p>
 
 <<defitem "app usage" {app usage}>>
 
@@ -112,16 +74,6 @@ significant changes to the scenario data.<p>
 
 Sent when new map image file <i>filename</i> has been imported into
 the current scenario.<p>
-
-<<defitem AppOpened {&lt;AppOpened&gt;}>>
-
-Sent when a scenario file has been opened and loaded.  Use
-<<iref app dbfile>> to get the file name.<p>
-
-<<defitem AppSaved {&lt;AppSaved&gt;}>>
-
-Sent when a scenario file has been saved, possibly under a new name.
-Use <<iref app dbfile>> to get the file name.<p>
 
 <</deflist events>>
 

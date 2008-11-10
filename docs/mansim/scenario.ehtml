@@ -1,0 +1,106 @@
+<<manpage scenario(sim) "Scenario Manager">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+scenario(sim) is responsible for managing the current scenario for
+<<xref minerva_sim(1)>>.  In particular, it is responsible for opening
+a scenario file, saving the scenario, keeping track of whether there
+are unsaved changes, and so forth.  As such, it is the glue between
+the rest of the application and the <<xref scenariodb(n)>> file.<p>
+
+<<section "COMMANDS">>
+
+scenario(sim) provides the following commands for use by the application.<p>
+
+<<deflist commands>>
+
+<<defitem "scenario dbfile" {scenario dbfile}>>
+
+Returns the full path name of the open scenario file, or "" if none.<p>
+
+<<defitem "scenario init" {scenario init}>>
+
+Initializes the scenario, creating a working RDB.<p>
+
+<<defitem "scenario new" {scenario new}>>
+
+Creates a new, blank, scenario, replacing whatever scenario was
+previously loaded.<p>
+
+Sends <b>&lt;ScenarioNew&gt;</b> on success.<p>
+
+<<defitem "scenario open" {scenario open <i>filename</i>}>>
+
+Opens and loads the <<xref scenario(n)>> file called <i>filename</i>,
+remembering it as the current <<iref scenario dbfile>>.<p>
+
+Sends <b>&lt;ScenarioOpened&gt;</b> on success.<p>
+
+<<defitem "scenario save" {scenario save ?<i>filename</i>?}>>
+
+Saves the current scenario to disk.  If <i>filename</i> is given, the
+scenario will be saved under that name, which will be remembered as
+the current <<iref scenario dbfile>>; otherwise, the current
+<<iref scenario dbfile>> name is used.  It's an error if both
+<i>filename</i> and <<iref scenario dbfile>> are empty.<p>
+
+If there is already a file "<i>root</i><code>.mdb</code>", then it is
+copied to "<i>root</i>.bak".<p>
+
+Sends <b>&lt;ScenarioSaved&gt;</b> and returns 1 on success; returns 0 on
+failure.<p>
+
+<<defitem "scenario unsaved" {scenario unsaved}>>
+
+Returns 1 if there are unsaved changes, and 0 otherwise.<p>
+
+<</deflist commands>>
+
+<<section "NOTIFIER EVENTS">>
+
+scenario(sim) sends the following events, primarily to notify the GUI of
+significant changes to the scenario data.<p>
+
+<<deflist events>>
+
+<<defitem ScenarioNew    {&lt;ScenarioNew&gt;}>>
+
+Sent when a new, blank scenario has been created.<p>
+
+<<defitem ScenarioOpened {&lt;ScenarioOpened&gt;}>>
+
+Sent when a scenario file has been opened and loaded.  Use
+<<iref scenario dbfile>> to get the file name.<p>
+
+<<defitem ScenarioSaved {&lt;ScenarioSaved&gt;}>>
+
+Sent when a scenario file has been saved, possibly under a new name.
+Use <<iref scenario dbfile>> to get the file name.<p>
+
+<</deflist events>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
