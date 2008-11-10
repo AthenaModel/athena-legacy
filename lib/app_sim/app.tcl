@@ -39,11 +39,9 @@ snit::type app {
     # Info Array: most scalars are stored here
     #
     # dbfile      Name of the current scenario file
-    # saved       1 if the current data has been saved, and 0 otherwise.
 
     typevariable info -array {
         dbfile  ""
-        saved   1
     }
 
     #-------------------------------------------------------------------
@@ -112,9 +110,6 @@ snit::type app {
         # NEXT, there is no dbfile.
         set info(dbfile) ""
 
-        # NEXT, there are no changes to save
-        set info(saved) 1
-
         # NEXT, notify the app
         notifier send ::app <AppNew>
     }
@@ -143,9 +138,6 @@ snit::type app {
         
         # NEXT, save the name.
         set info(dbfile) $filename
-
-        # NEXT, no changes yet.
-        set info(saved)  1
 
         # NEXT, notify the app
         notifier send ::app <AppOpened>
@@ -191,9 +183,6 @@ snit::type app {
         # NEXT, save the name
         set info(dbfile) $filename
 
-        # NEXT, no changes yet.
-        set info(saved)  1
-
         # NEXT, Notify the app
         notifier send ::app <AppSaved>
 
@@ -233,9 +222,6 @@ snit::type app {
 
         image delete $map
 
-        # NEXT, change has not been saved.
-        set info(saved)  0
-
         # NEXT, Notify the application.
         notifier send ::app <AppImportedMap> $filename
     }
@@ -248,12 +234,15 @@ snit::type app {
         return $info(dbfile)
     }
 
-    # saved
+    # unsaved
     #
-    # Returns 1 if the current changes have been saved, and 0 otherwise.
+    # Returns 1 if there are unsaved changes, and 0 otherwise.
+    #
+    # TBD: We need to handle significant in-memory changes, if any.
+    # scenariodb(n) handles the RDB chagnes.
 
-    typemethod saved {} {
-        return $info(saved)
+    typemethod unsaved {} {
+        return [rdb unsaved]
     }
 
     #-------------------------------------------------------------------

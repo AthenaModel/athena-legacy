@@ -1,0 +1,113 @@
+<<manpage {minlib(n) scenariodb(n)} "Scenario Database Object">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require minlib 1.0
+namespace import ::minlib::scenariodb
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+The scenariodb(n) type is responsible for Minerva's scenario
+database format.  It is an SQLite3 format based on
+<<xref mars:sqldocument(n)>>; as such, it automatically includes all
+<<xref mars:sqlsection(i)>>s defined by the Mars infrastructure.  It
+also includes all tables, indices, and so forth defined explicitly for
+Mars.<p>
+
+<<xref minerva_sim(1)>> uses scenariodb(n) to define its
+run-time database (RDB), and to save and load scenario data to and
+from external files.  By convention, these "scenario files" have a
+"<code>.mdb</code>" (Minerva Database) extension.<p>
+
+<<section "SCHEMA">>
+
+scenariodb(n) adds the following definitions to the database
+schema:<p>
+
+<<swallow {package require minlib}>>
+<pre>
+<<::minlib::scenariodb sqlsection schema>>
+</pre>
+
+<<section COMMANDS>>
+
+<<deflist commands>>
+
+<<defitem scenariodb {scenariodb <i>name</i>}>>
+
+Creates a new scenariodb(n) object called <i>name</i>. The object is
+represented as a new Tcl command in the caller's scope;
+<<iref scenariodb>> returns the fully-qualified form of the
+<i>name</i>.<p>
+
+Before the new scenariodb(n) can be used, a database file must be
+<<iref open>>ed, and possibly <<iref clear>>ed.<p>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+Each instance of scenariodb(n) inherits all methods
+of the <<xref mars:sqldocument(n)>> object and the underlying SQLite3
+database handle.  In addition, it has the following subcommands:<p>
+
+<<deflist instance>>
+
+<<defitem clear {<i>obj</i> clear}>>
+
+Clears the contents of the database, establishing a fresh, empty scenario.
+Also, clears the <<iref unsaved>> flag.<p>
+
+<<defitem load {<i>obj</i> load <i>filename</i>}>>
+
+Loads the scenario file called <i>filename</i> into the database, and
+clears the <<iref unsaved>> flag.<p>
+
+<<defitem open {<i>obj</i> open <i>filename</i>}>>
+
+Opens an existing scenario file, and clears the <<iref unsaved>>
+flag.  <<xref minerva_sim(1)>> will usually use this to open a working
+RDB, into which the user's scenario file will be <<iref load>>ed.
+If <i>filename</i> is "<code>:memory:</code>", the database will be
+opened in memory rather than on the disk.<p>
+
+<<defitem saveas {<i>obj</i> saveas <i>filename</i>}>>
+
+Saves the current contents of the database to the file with name
+<i>filename</i>, which conventionally should have a
+"<code>.mdb</code>" extension.  Clears the <<iref unsaved>> flag.<p>
+
+<<defitem unsaved {<i>obj</i> unsaved}>>
+
+Returns 1 if changes have been made to the database since the last
+<<iref clear>>, <<iref load>>, <<iref open>>, or <<iref saveas>>, and
+0 otherwise.  Applications can use this flag to determine whether
+there are unsaved changes, e.g., before shutting down.<p>
+
+<</deflist instance>>
+
+<<section "SEE ALSO">>
+
+<<xref mars:sqldocument(n)>>.
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+

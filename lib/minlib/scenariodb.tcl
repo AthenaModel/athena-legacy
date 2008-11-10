@@ -19,6 +19,12 @@
 #    scenario(n) is both a wrapper for sqldocument(n) and an
 #    sqlsection(i) defining new database entities.
 #
+# UNSAVED CHANGES:
+#    scenariodb(n) automatically tracks the "total_changes" for this
+#    sqlite3 database handle, saving the count of changes whenever the
+#    database is in an unchanged state.  The "unsaved" method returns
+#    1 if there are unsaved changes, and 0 otherwise.
+#
 #-----------------------------------------------------------------------
 
 namespace eval ::minlib:: {
@@ -92,8 +98,14 @@ snit::type ::minlib::scenariodb {
 
     #-------------------------------------------------------------------
     # Instance variables
-    
-    # TBD
+
+    # info array: scalar values
+    #
+    #  savedChanges     Number of "total_changes" as of last save point.
+
+    variable info -array {
+        savedChanges 0
+    }
 
     #-------------------------------------------------------------------
     # Constructor
@@ -114,6 +126,15 @@ snit::type ::minlib::scenariodb {
 
     # Delegated methods
     delegate method * to db
+
+    # unsaved
+    #
+    # Returns 1 if there are unsaved changes, as indicated by 
+    # savedChanges and the total_changes count, and 0 otherwise.
+
+    method unsaved {} {
+        expr {[$db total_changes] > $info(savedChanges)}
+    }
 
     # load filename
     #
@@ -190,6 +211,45 @@ snit::type ::minlib::scenariodb {
 
         # NEXT, detach the loaded database.
         $db eval {DETACH DATABASE source;}
+
+        # NEXT, As of this point all changes are saved.
+        set info(savedChanges) [$db total_changes]
+    }
+
+    # clear
+    #
+    # Wraps sqldocument(n) clear; sets count of saved changes
+
+    method clear {} {
+        # FIRST, clear the database
+        $db clear
+
+        # NEXT, As of this point all changes are saved.
+        set info(savedChanges) [$db total_changes]
+    }
+
+    # open ?filename?
+    #
+    # Wraps sqldocument(n) open; sets count of saved changes
+
+    method open {{filename ""}} {
+        # FIRST, open the database
+        $db open $filename
+
+        # NEXT, As of this point all changes are saved.
+        set info(savedChanges) [$db total_changes]
+    }
+
+    # saveas filename
+    #
+    # Wraps sqldocument(n) saveas; sets count of saved changes
+
+    method saveas {filename} {
+        # FIRST, save the database
+        $db saveas $filename
+
+        # NEXT, As of this point all changes are saved.
+        set info(savedChanges) [$db total_changes]
     }
 }
 

@@ -357,7 +357,7 @@ snit::widget mainwin {
     # cancelled.
 
     method SaveUnsavedData {} {
-        if {![app saved]} {
+        if {[app unsaved]} {
             set name [file tail [app dbfile]]
 
             set message [tsubst {
