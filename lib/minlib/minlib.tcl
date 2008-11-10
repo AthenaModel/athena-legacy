@@ -49,8 +49,8 @@ if {[file exists $binlib]} {
 #-----------------------------------------------------------------------
 # Load minlib(n) submodules
 
-source [file join $::minlib::library mintypes.tcl ]
-source [file join $::minlib::library mapref.tcl   ]
-source [file join $::minlib::library scenario.tcl ]
-source [file join $::minlib::library workdir.tcl  ]
+source [file join $::minlib::library mintypes.tcl   ]
+source [file join $::minlib::library mapref.tcl     ]
+source [file join $::minlib::library scenariodb.tcl ]
+source [file join $::minlib::library workdir.tcl    ]
 

@@ -1,12 +1,12 @@
 ------------------------------------------------------------------------
 -- TITLE:
---    scenario.sql
+--    scenariodb.sql
 --
 -- AUTHOR:
 --    Will Duquette
 --
 -- DESCRIPTION:
---    SQL Schema for scenario(n).
+--    SQL Schema for scenariodb(n).
 --
 ------------------------------------------------------------------------
 

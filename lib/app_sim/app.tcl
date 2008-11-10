@@ -79,7 +79,7 @@ snit::type app {
         mainwin .main
 
         # NEXT, open the RDB.
-        scenario ::rdb
+        scenariodb ::rdb
         set rdbfile [workdir join rdb working.rdb]
         file delete -force $rdbfile
         rdb open $rdbfile

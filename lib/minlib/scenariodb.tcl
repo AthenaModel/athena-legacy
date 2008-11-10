@@ -1,24 +1,20 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    scenario.tcl
+#    scenariodb.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Minerva Scenario Object
+#    Minerva Scenario Database Object
 #
-#    This module defines the scenario type.  Instances of the 
-#    scenario type manage SQLite3 database files which contain 
+#    This module defines the scenariodb type.  Instances of the 
+#    scenariodb type manage SQLite3 database files which contain 
 #    scenario data, including run-time data, for minerva_sim(1).
 #
-#    Access to the database is document-centric: open/create the 
-#    database, read and write until an appropriate save point is 
-#    reached, then commit all changes.  In other words, it's expected
-#    that any given database file has but one writer at a time, and
-#    arbitrarily many writes are batched into a single transaction.
-#    Otherwise, each write is a single transaction, and the necessary
-#    locking and unlocking causes a major performance hit.
+#    Typically the application will use scenariodb(n) to create a
+#    Run-time Database (RDB) and then load and save external *.mdb 
+#    files.
 #
 #    scenario(n) is both a wrapper for sqldocument(n) and an
 #    sqlsection(i) defining new database entities.
@@ -26,13 +22,13 @@
 #-----------------------------------------------------------------------
 
 namespace eval ::minlib:: {
-    namespace export scenario
+    namespace export scenariodb
 }
 
 #-----------------------------------------------------------------------
 # scenario
 
-snit::type ::minlib::scenario {
+snit::type ::minlib::scenariodb {
     #-------------------------------------------------------------------
     # Type Constructor
 
@@ -57,7 +53,7 @@ snit::type ::minlib::scenario {
     # Returns a human-readable title for the section
 
     typemethod {sqlsection title} {} {
-        return "scenario(n)"
+        return "scenariodb(n)"
     }
 
     # sqlsection schema
@@ -65,7 +61,7 @@ snit::type ::minlib::scenario {
     # Returns the section's persistent schema definitions, if any.
 
     typemethod {sqlsection schema} {} {
-        return [readfile [file join $::minlib::library scenario.sql]]
+        return [readfile [file join $::minlib::library scenariodb.sql]]
     }
 
     # sqlsection tempschema
