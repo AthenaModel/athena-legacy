@@ -145,12 +145,13 @@ snit::type ::minlib::scenariodb {
     # or if the user_version doesn't match.
 
     method load {filename} {
-        # FIRST, open the database.
-        if {[catch {
-            sqlite3 dbToLoad $filename
-        } result]} {
-            error "Could not open \"$filename\", $result"
+        # FIRST, verify that that the file exists.
+        if {![file exists $filename]} {
+            error "File does not exist"
         }
+
+        # NEXT, open the database.
+        sqlite3 dbToLoad $filename
 
         # NEXT, Verify that it's a scenario file
         set name [dbToLoad eval {
@@ -160,7 +161,7 @@ snit::type ::minlib::scenariodb {
 
         if {$name eq ""} {
             dbToLoad close
-            error "Not a scenario file: \"$filename\""
+            error "File is not a scenario file."
         }
 
         # NEXT, get the user versions
