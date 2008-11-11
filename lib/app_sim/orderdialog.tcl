@@ -148,6 +148,9 @@ snit::type orderdialog {
         # NEXT, the user can't resize it
         wm resizable $dialog 0 0
 
+        # NEXT, if it's closed, just cancel the order entry
+        wm protocol $win WM_DELETE_WINDOW [mytypemethod cancel]
+
         # NEXT, create the title widget
         ttk::label $dialog.title                   \
             -font          OrderTitleFont          \

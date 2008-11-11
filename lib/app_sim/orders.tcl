@@ -73,7 +73,6 @@ order define NBHOOD:CREATE {
                $parms(longname),
                $parms(refpoint),
                $parms(polygon),
-               $parms(validation),
                $parms(urbanization));
     }
 

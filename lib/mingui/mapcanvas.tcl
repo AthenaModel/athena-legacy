@@ -819,7 +819,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
     #
     # Pucks a location, resulting in <<Point-1>>.
 
-    method PointPuck {wx wy} {
+    method Point-1 {wx wy} {
         # FIRST, get the current position as a map ref.
         set ref [$self w2ref $wx $wy]
 
