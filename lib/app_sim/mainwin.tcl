@@ -72,24 +72,29 @@ snit::widget mainwin {
         grid propagate $win off
 
         # NEXT, Prepare to receive notifier events.
-        notifier bind ::scenario <ScenarioNew>    \
+        notifier bind ::scenario    <ScenarioNew>    \
             $self [mymethod ScenarioNew]
 
-        notifier bind ::scenario <ScenarioOpened> \
+        notifier bind ::scenario    <ScenarioOpened> \
             $self [mymethod ScenarioOpened]
 
-        notifier bind ::scenario <ScenarioSaved>  \
+        notifier bind ::scenario    <ScenarioSaved>  \
             $self [mymethod ScenarioSaved]
 
-        notifier bind ::app      <AppImportedMap> \
+        notifier bind ::app         <AppImportedMap> \
             $self [mymethod AppImportedMap]
 
+        notifier bind ::orderdialog <OrderEntry> \
+            $self [mymethod OrderEntry]
+
         # NEXT, Prepare to receive window events
-        bind $viewer <<Icon-1>> [mymethod Icon-1 %d]
+        bind $viewer <<Icon-1>>       [mymethod Icon-1 %d]
+        bind $viewer <<Point-1>>      [mymethod Point-1 %d]
+        bind $viewer <<PolyComplete>> [mymethod PolyComplete %d]
+        
 
         if 0 {
             bind $viewer <<IconMoved>>     {IconMoved %W %d}
-            bind $viewer <<PolyComplete>>  {PolyComplete %W %d}
             
             $viewer bind nbhood <Button-1> {NbhoodPoint %W %x %y}
         }
@@ -404,6 +409,20 @@ snit::widget mainwin {
     #-------------------------------------------------------------------
     # Mapviewer Event Handlers
 
+    # OrderEntry ptype
+    #
+    # ptype   The type of the select parameter
+    #
+    # Sets the viewer to the appropriate mode for the parameter type
+
+    method OrderEntry {ptype} {
+        switch -exact -- $ptype {
+            point   { $viewer mode point  }
+            polygon { $viewer mode poly   }
+            default { $viewer mode browse }
+        }
+    }
+
     # Icon-1 id
     #
     # id      An icon ID
@@ -413,6 +432,48 @@ snit::widget mainwin {
     method Icon-1 {id} {
         $self puts "Found $id at [$viewer icon ref $id]"
     }
+
+    # Point-1 ref
+    #
+    # ref     A map reference string
+    #
+    # The user has pucked a point in point mode.
+
+    method Point-1 {ref} {
+        # FIRST, if there's an active order dialog, and the current
+        # field type is appropriate, set the field's value to this point.
+        # Otherwise, put it into the CLI
+
+        if {[orderdialog isactive]} {
+            if {[orderdialog parm type current] eq "point"} {
+                orderdialog parm set current $ref
+            }
+        } else {
+            $cli append " $ref"
+        }
+           
+    }
+
+    # PolyComplete poly
+    #
+    # poly     A list of map references defining a polygon
+    #
+    # The user has drawn a polygon on the map.
+
+    method PolyComplete {poly} {
+        # FIRST, if there's an active order dialog, and the current
+        # field type is appropriate, set the field's value to this point.
+        # Otherwise, put it into the CLI
+
+        if {[orderdialog isactive]} {
+            if {[orderdialog parm type current] eq "polygon"} {
+                orderdialog parm set current $poly
+            }
+        } else {
+            $cli append " $poly"
+        }
+    }
+
 
     #-------------------------------------------------------------------
     # Notifier Event Handlers

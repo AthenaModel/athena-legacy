@@ -108,8 +108,11 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
         # NEXT, Define the bindtags for the interaction modes
 
-        # Mode: point
+        # Mode: browse
         # No bindtags yet
+
+        # Mode: point
+        bind Mapcanvas.point <ButtonPress-1>       {%W Point-1 %x %y}
 
         # Mode: poly
 
@@ -143,7 +146,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
             bindings {}
         }
 
-        point {
+        browse {
             cursor   left_ptr
             cleanup  {}
             bindings {
@@ -152,6 +155,12 @@ snit::widgetadaptor ::mingui::mapcanvas {
                 icon  <B1-Motion>        {%W IconDrag %x %y}
                 icon  <B1-ButtonRelease> {%W IconRelease %x %y}
             }
+        }
+
+        point {
+            cursor   crosshair
+            cleanup  {}
+            bindings {}
         }
 
         poly {
@@ -425,7 +434,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
     # * Deletes all drawn items from the canvas.
     # * Adds the map at the current zoom level.
     # * Redraws all icons and neighborhoods in their proper locations.
-    # * Sets the mode to "point".
+    # * Sets the mode to "browse".
 
     method refresh {} {
         # FIRST, delete all drawn items.
@@ -491,8 +500,8 @@ snit::widgetadaptor ::mingui::mapcanvas {
         # NEXT, remember that we have a map.
         set info(gotMap) 1
 
-        # NEXT, set the interaction mode back to "point".
-        $self mode point
+        # NEXT, set the interaction mode back to "browse".
+        $self mode browse
 
         return
     }
@@ -551,8 +560,9 @@ snit::widgetadaptor ::mingui::mapcanvas {
     # The currently defined modes are as follows:
     #
     #    null       No behavior
-    #    point      Default behavior: you can point at things.
-    #    poly       You can draw polygons.
+    #    browse     Default behavior
+    #    point      Puck map points
+    #    poly       Draw polygons.
     #    pan        Pan mode: pan the map.
 
     # mode ?mode?
@@ -803,6 +813,23 @@ snit::widgetadaptor ::mingui::mapcanvas {
         array unset trans
     }
 
+    # Point-1
+    #
+    # wx,wy    Window coordinates of a mouse-click
+    #
+    # Pucks a location, resulting in <<Point-1>>.
+
+    method PointPuck {wx wy} {
+        # FIRST, get the current position as a map ref.
+        set ref [$self w2ref $wx $wy]
+
+        # NEXT, notify the application
+        event generate $win <<Point-1>> \
+            -x    $wx  \
+            -y    $wy  \
+            -data $ref
+    }
+
     # PolyPoint
     #
     # wx,wy    Window coordinates of a mouse-click
@@ -899,9 +926,14 @@ snit::widgetadaptor ::mingui::mapcanvas {
             return
         }
 
+        # NEXT, convert the coords to a list of map reference strings
+        foreach {cx cy} $trans(coords) {
+            lappend refs [$proj c2ref $cx $cy]
+        }
+
         # NEXT, notify the application
         event generate $win <<PolyComplete>> \
-            -data $trans(coords)
+            -data $refs
         
         # NEXT, we're done.
         $self PolyFinish

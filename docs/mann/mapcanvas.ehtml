@@ -95,11 +95,18 @@ The mapcanvas(n) defines a number of user interaction modes:<p>
 
 <dl>
   <dt> <b>null</b>
-  <dd> In this mode, no interaction is possible.<p>
+  <dd> In this mode, no interaction is possible.  This is the mode
+       when no map is displayed.<p>
+
+  <dt> <b>browse</b>
+  <dd> In this mode, the user can point at icons, neighborhoods, and
+       so forth, generating events to be processed by the
+       application.  This is the default mode when a map is
+       displayed.<p>
 
   <dt> <b>point</b>
-  <dd> In this mode, the user can point at icons and neighborhoods,
-       generating events to be processed by the application.<p>
+  <dd> In this mode, the user can puck points, which are reported to
+       the application via the <b>&lt;&lt;Point-1&gt;&gt;</b> event.<p>
 
   <dt> <b>poly</b>
   <dd> In this mode, the user can draw polygons on the map.  Completed
@@ -215,7 +222,7 @@ disabled.<p>
 
 Otherwise, if no <code>-projection</code> has been selected, a
 <<xref mapref(n)>> will be used.  Finally, the interaction mode is set to
-<b>point</b>.<p>
+<b>browse</b>.<p>
 
 <<defitem icon {<i>win</i> icon <i>subcommand</i> ?<i>args...</i>?}>>
 
@@ -355,23 +362,30 @@ The mapcanvas(n) defines the following virtual events.<p>
 
 <<defitem Icon-1 {&lt;&lt;Icon-1&gt;&gt;}>>
 
-Sent when the user clicks button-1 on an icon in <b>point</b> mode.
+Sent when the user clicks button-1 on an icon in <b>browse</b> mode.
 The <b>%x</b> and <b>%y</b> conversions are the window coordinates of
 the event, as usual, and <b>%d</b> is the ID of the icon.<p>
 
 <<defitem IconMoved {&lt;&lt;IconMoved&gt;&gt;}>>
 
-Sent when the user drags an icon to a new location in <b>point</b> mode.
+Sent when the user drags an icon to a new location in <b>browse</b> mode.
 The <b>%x</b> and <b>%y</b> conversions are the window coordinates of
 the event, as usual, and <b>%d</b> is the ID of the icon.<p>
+
+<<defitem Point-1 {&lt;&lt;Point-1&gt;&gt;}>>
+
+Sent when the user clicks button-1 <b>point</b> mode.
+The <b>%x</b> and <b>%y</b> conversions are the window coordinates of
+the event, as usual, and <b>%d</b> is the corresponding map reference.<p>
+
 
 <<defitem PolyComplete {&lt;&lt;PolyComplete&gt;&gt;}>>
 
 Sent when the user has completed a new polygon in <b>poly</b> mode.
 The <b>%d</b> conversion is replaced with the list of the new
-polygon's coordinates.  The mapcanvas(n) does not automatically save
-the new polygon; it is up to the application to do that, e.g., by
-creating a neighborhood.
+polygon's vertices as map reference strings.  The mapcanvas(n) does
+not automatically save the new polygon; it is up to the application to
+do that, e.g., by creating a neighborhood.<p>
 
 <</deflist virtual>>
 

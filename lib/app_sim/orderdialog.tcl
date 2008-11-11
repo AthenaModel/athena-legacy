@@ -91,12 +91,14 @@ snit::type orderdialog {
     # info array: scalar variables
     #
     #  active      1 if dialog is visible, 0 otherwise
+    #  current     Current parameter
     #  message     message to be displayed on the dialog
     #  order       If active, name of the order to send
     #  title       If active, the order's title
 
     typevariable info -array {
         active      0
+        current     ""
         initialized 0
         order       ""
         title       ""
@@ -214,6 +216,42 @@ snit::type orderdialog {
         return $info(active)
     }
 
+    # parm type parm
+    #
+    # parm     A parm name, or "current"
+    #
+    # Returns the ptype of the named parameter.  "current" is the parm
+    # with focus.
+
+    typemethod {parm type} {parm} {
+        # FIRST, get the parm name
+        if {$parm eq "current"} {
+            set parm $info(current)
+        }
+
+        # NEXT, get the parm type
+        return [order meta $info(order) parms $parm ptype]
+    }
+
+    # parm set parm value
+    #
+    # parm     A parm name, or "current"
+    # value    A new value
+    #
+    # Sets the value of the named parameter.  "current" is the parm
+    # with focus.
+
+    typemethod {parm set} {parm value} {
+        # FIRST, get the parm name
+        if {$parm eq "current"} {
+            set parm $info(current)
+        }
+
+        # NEXT, get the parm type
+        set values($parm) $value
+    }
+
+
     # enter order parent
     #
     # order    The name of an order
@@ -315,6 +353,7 @@ snit::type orderdialog {
 
             # NEXT, we're no longer active!
             set info(active) 0
+            set info(current) ""
 
             # NEXT, notify the app that no order entry is being done.
             notifier send $type <OrderEntry> ""
@@ -366,6 +405,8 @@ snit::type orderdialog {
 
     typemethod ParmIn {parm ptype} {
         # FIRST, set the status icon
+        set info(current) $parm
+
         $icon($parm) configure -image ${type}::left_arrow
 
         # NEXT, if there's an error message, display it.

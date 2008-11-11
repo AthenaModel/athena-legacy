@@ -1,5 +1,7 @@
 <<manpage {minlib(n) mintypes(n)} "Minerva Data Types">>
 
+<<swallow {package require minlib}>>
+
 <<section SYNOPSIS>>
 
 <pre>
@@ -20,6 +22,13 @@ not yet clear, so this code should be regarded as provisional.<p>
 <<section TYPES>>
 
 <<deflist types>>
+
+<<defitem eurbanization {eurbanization <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing neighborhood urbanization
+levels.<p>
+
+<<::minlib::eurbanization html>>
 
 <<defitem polygon {polygon <i>subcommand</i> ?<i>args</i>?}>>
 
