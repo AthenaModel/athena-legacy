@@ -69,7 +69,7 @@ snit::widget mainwin {
         # size of the window.
 
         update idletasks
-        grid propagate . off
+        grid propagate $win off
 
         # NEXT, Prepare to receive notifier events.
         notifier bind ::scenario <ScenarioNew>    \
@@ -174,6 +174,14 @@ snit::widget mainwin {
             -underline 7 \
             -accelerator "Ctrl+Shift+A" \
             -command {event generate [focus] <<SelectAll>>}
+
+        # Orders menu
+        set ordersmenu [menu $menu.orders]
+        $menu add cascade -label "Orders" -underline 0 -menu $ordersmenu
+        
+        $ordersmenu add command \
+            -label "Create Neighborhood" \
+            -command [list orderdialog enter NBHOOD:CREATE $win]
     }
 
     # CreateComponents

@@ -76,13 +76,18 @@ snit::type app {
             -logdir       [workdir join log app_sim]                  \
             -overflowcmd  [list notifier send $type <AppLogOverflow>]
 
-        # NEXT, Create the working scenario RDB
+        # NEXT, Create the working scenario RDB and initialize simulation
+        # components
         scenario init
 
-        # NEXT, create the GUI.  Withdraw ., and create the new
-        # main window.
+        # NEXT, Withdraw the default toplevel window, and create 
+        # the main GUI components.
         wm withdraw .
         mainwin .main
+
+        # NEXT, prepare to handle orders
+        order       init
+        orderdialog init
 
         # NEXT, log that we're up.
         log normal app "Minerva [version]"
