@@ -89,6 +89,9 @@ snit::type app {
         order       init
         orderdialog init
 
+        orderdialog entrytype enum urbanization \
+            -values [eurbanization names]
+
         # NEXT, log that we're up.
         log normal app "Minerva [version]"
 

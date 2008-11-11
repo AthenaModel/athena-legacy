@@ -14,7 +14,16 @@
 # Export public commands
 
 namespace eval ::minlib:: {
-    namespace export polygon
+    namespace export eurbanization polygon
+}
+
+#-------------------------------------------------------------------
+# Enumerations
+
+::marsutil::enum ::minlib::eurbanization {
+    RURAL        "Rural"
+    SUBURBAN     "Suburban"
+    URBAN        "Urban"
 }
 
 #-----------------------------------------------------------------------

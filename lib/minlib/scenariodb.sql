@@ -39,4 +39,22 @@ CREATE TABLE maps (
     data     BLOB
 );
 
+-- Neighborhood definitions
+CREATE TABLE nbhoods (
+    -- Symbolic neighborhood name     
+    n              TEXT PRIMARY KEY,
+
+    -- Full neighborhood name
+    longname       TEXT,
+
+    -- Neighborhood reference point: map coordinates {mx my}
+    refpoint       TEXT,
+
+    -- Neighborhood polygon: list of map coordinates {mx my ...}
+    polygon        TEXT,
+
+    -- Urbanization: eurbanization
+    urbanization   TEXT
+);
+
 

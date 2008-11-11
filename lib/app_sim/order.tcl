@@ -224,6 +224,37 @@ snit::type order {
         set errorLevel REJECT
     }
 
+    # invalid parm
+    #
+    # parm    Parameter name
+    #
+    # Returns 1 if parm has already been flagged as invalid, and 0 
+    # otherwise.
+
+    proc invalid {parm} {
+        dict exists $errors $parm
+    }
+
+    # validate vtype parm
+    #
+    # vtype    A validation type
+    # parm     A parameter name
+    #
+    # If parm is not already known to be invalid, validates it using
+    # the validation type, and saves the result.
+
+    proc validate {vtype parm} {
+        if {[invalid $parm]} {
+            return
+        }
+
+        if {[catch {
+            set parms($parm) [{*}$vtype validate $parms($parm)]
+        } result]} {
+            reject $parm $result
+        }
+    }
+
     # returnOnError
     #
     # Handles accumulated errors.

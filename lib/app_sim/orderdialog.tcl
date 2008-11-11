@@ -392,8 +392,8 @@ snit::type orderdialog {
 
     # entrytype ptype etype options...
     #
-    # ptype    An order parameter type
     # etype    An entry type: text | enum
+    # ptype    An order parameter type
     # options  Vary by entry type.
     #
     # For all entry types:
@@ -405,7 +405,7 @@ snit::type orderdialog {
     #   -values list     List of enumerated values
     #   -valuecmd cmd    Command that returns list of enumerated values
 
-    typemethod entrytype {ptype etype args} {
+    typemethod entrytype {etype ptype args} {
         # TBD: Should do some error checking
         set etypes($ptype) [list $etype $args]
     }
