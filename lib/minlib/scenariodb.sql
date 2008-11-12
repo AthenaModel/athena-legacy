@@ -23,6 +23,13 @@ CREATE TABLE scenario (
     value TEXT DEFAULT ''
 );
 
+-- Checkpoint Table: saves saveable(i) data
+
+CREATE TABLE checkpoint (
+    saveable   TEXT PRIMARY KEY,
+    checkpoint TEXT
+);
+
 -- Maps Table: Stores data for map images.
 --
 -- At this time, there's never more than one map image in the table.

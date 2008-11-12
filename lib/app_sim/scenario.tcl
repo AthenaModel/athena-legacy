@@ -31,9 +31,11 @@ snit::type scenario {
     # Info Array: most scalars are stored here
     #
     # dbfile      Name of the current scenario file
+    # saveable    List of saveables.
 
     typevariable info -array {
-        dbfile  ""
+        dbfile    ""
+        saveables {}
     }
 
     #-------------------------------------------------------------------
@@ -102,6 +104,9 @@ snit::type scenario {
             }
             return
         }
+
+        # NEXT, restore the saveables
+        $type RestoreSaveables
         
         # NEXT, save the name.
         set info(dbfile) $filename
@@ -134,7 +139,10 @@ snit::type scenario {
             set dbfile $filename
         }
 
-        # FIRST, Save, and check for errors.
+        # NEXT, save the saveables
+        $type SaveSaveables
+
+        # NEXT, Save, and check for errors.
         if {[catch {
             if {[file exists $dbfile]} {
                 file rename -force $dbfile [file rootname $dbfile].bak
@@ -181,13 +189,70 @@ snit::type scenario {
     # unsaved
     #
     # Returns 1 if there are unsaved changes, and 0 otherwise.
-    #
-    # TBD: We need to handle significant in-memory changes, if any.
-    # scenariodb(n) handles the RDB chagnes.
 
     typemethod unsaved {} {
-        return [rdb unsaved]
+        if {[rdb unsaved]} {
+            return 1
+        }
+        
+        foreach saveable $info(saveables) {
+            if {[{*}$saveable changed]} {
+                return 1
+            }
+        }
+
+        return 0
     }
+
+    #-------------------------------------------------------------------
+    # Registration of saveable objects
+
+    # register saveable
+    #
+    # saveable     A saveable(i) command or command prefix
+    #
+    # Registers the saveable(i); its data will be included in 
+    # the scenario and restored as appropriate.
+
+    typemethod register {saveable} {
+        if {$saveable ni $info(saveables)} {
+            lappend info(saveables) $saveable
+        }
+    }
+
+    # SaveSaveables
+    #
+    # Save all saveable data to the checkpoint table
+
+    typemethod SaveSaveables {} {
+        foreach saveable $info(saveables) {
+            set checkpoint [{*}$saveable checkpoint]
+
+            rdb eval {
+                INSERT OR REPLACE 
+                INTO checkpoint(saveable,checkpoint)
+                VALUES($saveable,$checkpoint)
+            }
+        }
+    }
+
+    # RestoreSaveables
+    #
+    # Restore all saveable data from the checkpoint table
+
+    typemethod RestoreSaveables {} {
+        rdb eval {
+            SELECT saveable,checkpoint FROM checkpoint
+        } {
+            if {$saveable in $info(saveables)} {
+                {*}$saveable restore $checkpoint
+            } else {
+                log warning scn \
+                    "Unknown saveable found in checkpoint: \"$saveable\""
+            }
+        }
+    }
+
 }
 
 

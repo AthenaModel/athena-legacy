@@ -230,6 +230,10 @@ snit::widget mainwin {
             -minsize 60               \
             -stretch never
 
+        # NEXT, register the CLI, so that history is saved in the 
+        # scenario file.
+        scenario register [list $cli saveable]
+
         # NEXT, manage all of the components.
         grid $win.sep0     -sticky ew
         grid $win.paner    -sticky nsew
