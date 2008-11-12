@@ -138,8 +138,6 @@ snit::widget mapviewer {
     #-------------------------------------------------------------------
     # Options
 
-    delegate option -map to canvas
-
     delegate option *    to hull
     
     #-------------------------------------------------------------------
@@ -239,8 +237,8 @@ snit::widget mapviewer {
         # NEXT, process the arguments
         $self configurelist $args
 
-        # NEXT, clear the map.
-        $canvas clear
+        # NEXT, draw everything for the current map, whatever it is.
+        $self RefreshMap
 
         # NEXT, Forward virtual events from the canvas to the application.
         $self ForwardVirtual <<Icon-1>>
@@ -256,6 +254,10 @@ snit::widget mapviewer {
         bind $canvas <<PolyComplete>> [mymethod PolyComplete %d]
 
         # NEXT, Support model updates
+        notifier bind ::scenario <ScenarioNew>    $self [mymethod RefreshMap]
+        notifier bind ::scenario <ScenarioOpened> $self [mymethod RefreshMap]
+        notifier bind ::scenario <AppImportedMap> $self [mymethod RefreshMap]
+
         notifier bind ::order <NbhoodChanged> $self [mymethod NbhoodChanged]
     }
 
@@ -394,11 +396,11 @@ snit::widget mapviewer {
 
     delegate method * to canvas
 
-    # newmap
+    # RefreshMap
     #
     # Configures the viewer to show the new map.
 
-    method newmap {} {
+    method RefreshMap {} {
         # FIRST, display the map.
         rdb eval {
             SELECT data FROM maps

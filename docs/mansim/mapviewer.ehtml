@@ -1,0 +1,105 @@
+<<manpage mapviewer(sim) "Map Viewer Widget">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+mapviewer(sim) is a snit::widget that wraps the <<xref mapcanvas(n)>>
+widget, adding scroll bars, toolbars, and behavior.  In particular,
+mapviewer(sim) is the module responsible for displaying the content of
+the model on the <<xref mapcanvas(n)>>.<p>
+
+<<section OPTIONS>>
+
+The mapviewer(sim) widget has the same options as the
+<<xref tk:frame(n)>> widget.<p>
+
+<<section COMMANDS>>
+
+mapviewer(sim) defines the following commands:<p>
+
+<<deflist commands>>
+
+<<defitem "mapviewer" {mapviewer <i>win</i> ?<i>option value...</i>?}>>
+
+Creates a mapviewer(sim) widget called <i>win</i>, given the
+<<xref OPTIONS options>>.  Returns <i>win</i>.<p>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+The mapviewer(sim) widget exports all of the methods of the underlying
+<<xref mapcanvas(n)>>, primarily to ease debugging; most of them
+should not be used in finished code, as doing so can subvert the
+policies implemented by the widget.
+
+In addition, every instance of mapviewer(sim) has the following
+subcommands:<p>
+
+<<deflist instance>>
+
+<<defitem configure {<i>win</i> configure <i>option value...</i>}>>
+
+Sets the value of the specified options.<p>
+
+<<defitem cget {<i>win</i> cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem refresh {<i>win</i> refresh}>>
+
+Refreshes the map display, retaining the current map but redrawing all
+other content, making it consistent with the contents of
+the RDB.  Note that this should not normally be required.<p>
+
+<</deflist instance>>
+
+<<section EVENTS>>
+
+<<defitem Icon-1 {&lt;&lt;Icon-1&gt;&gt;}>>
+
+Sent when the user clicks button-1 on an icon in <b>browse</b> mode.
+The <b>%x</b> and <b>%y</b> conversions are the window coordinates of
+the event, as usual, and <b>%d</b> is the
+<<xref mapcanvas(n)>> ID of the icon.<p>
+
+<<defitem Nbhood-1 {&lt;&lt;Nbhood-1&gt;&gt;}>>
+
+Sent when the user clicks button-1 on a neighborhood in <b>browse</b>
+mode.  The <b>%d</b> is the neighborhood's RDB ID.<p>
+
+<<defitem Point-1 {&lt;&lt;Point-1&gt;&gt;}>>
+
+Sent when the user clicks button-1 <b>point</b> mode, and no order
+dialog is active.  The <b>%d</b> is the corresponding map reference.<p>
+
+<<defitem PolyComplete {&lt;&lt;PolyComplete&gt;&gt;}>>
+
+Sent when the user has completed a new polygon in <b>poly</b> mode and
+no order dialog is active. The <b>%d</b> conversion is replaced with
+the list of the new polygon's vertices as map reference strings.<p>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+

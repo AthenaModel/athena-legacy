@@ -488,9 +488,6 @@ snit::widget mainwin {
         # FIRST, set the window title
         wm title $win "Untitled - Minerva [version]"
 
-        # NEXT, refresh the map display
-        $viewer newmap
-
         # NEXT, Notify the user
         $self puts "New scenario created"
     }
@@ -504,9 +501,6 @@ snit::widget mainwin {
         set tail [file tail [scenario dbfile]]
 
         wm title $win "$tail - Minerva [version]"
-
-        # NEXT, load the map (if any) and refresh the graphics
-        $viewer newmap
 
         # NEXT, Notify the user
         $self puts "Opened $tail"
@@ -530,9 +524,6 @@ snit::widget mainwin {
     # The user has imported a new map.  Update the GUI accordingly
 
     method AppImportedMap {filename} {
-        # Display the new map
-        $viewer newmap
-
         $self puts "Imported map [file tail $filename]"
     }
 

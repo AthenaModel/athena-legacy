@@ -74,7 +74,14 @@ map <<xref projection(i)>> are available, geographic coordinates
 
 <<subsection "Neighborhoods">>
 
-TBD.<p>
+A neighborhood consists of a polygon and a reference point within it.
+The mapcanvas(n) draws neighborhoods and allows their display to be
+adjusted using the <<iref nbhood>> command.  In particular, Each
+neighborhood's background color can be changed.<p>
+
+Neighborhoods are drawn using standard <<xref tk:canvas(n)>> items;
+however, the <<iref nbhood create>>, <<iref nbhood cget>>, and
+<<iref nbhood configure>> subcommands should be used to manipulate them.<p>
 
 <<subsection "Icons">>
 
@@ -285,6 +292,37 @@ Returns the bounding box of the map in map units.<p>
 
 Returns the dimensions of the map in map units.<p>
 
+<<defitem nbhood {<i>win</i> nbhood <i>subcommand</i> ?<i>args...</i>?}>>
+
+This subcommand is used to create and manage icons on the map.<p>
+
+<<deflist nbhood>>
+
+<<defitem "nbhood create" {<i>win</i> nbhood create <i>refpoint polygon</i> ?<i>option value...</i>?}>>
+
+Creates a neighborhood with the specified <i>refpoint</i>, a map
+location, and <i>polygon</i>, a list of map locations.<p>
+
+The <i>refpoint</i> may be expressed as a map reference string, or as a
+pair of map coordinates, as either one argument or two separate
+arguments.  The <i>polygon</i> may be expressed as a list of map
+reference strings or map coordinates, and as one argument or as
+multiple arguments.<p>
+
+Returns the new nbhood's ID.<p>
+
+<<defitem "nbhood cget" {<i>win</i> nbhood cget <i>id option</i>}>>
+
+<b>Not Yet Implemented.</b>  Returns the value of the specified
+<i>option</i> for the neighborhood with ID <i>id</i>.<p>
+
+<<defitem "nbhood configure" {<i>win</i> nbhood configure <i>id option value</i> ?<i>option value...</i>?}>>
+
+<b>Not Yet Implemented.</b>  Sets the value of one or more of the
+neighborhood options.<p>
+
+<</deflist>>
+
 <<defitem refresh {<i>win</i> refresh}>>
 
 Completely redraws the display at the current zoom level.<p>
@@ -371,6 +409,12 @@ the event, as usual, and <b>%d</b> is the ID of the icon.<p>
 Sent when the user drags an icon to a new location in <b>browse</b> mode.
 The <b>%x</b> and <b>%y</b> conversions are the window coordinates of
 the event, as usual, and <b>%d</b> is the ID of the icon.<p>
+
+<<defitem Nbhood-1 {&lt;&lt;Nbhood-1&gt;&gt;}>>
+
+Sent when the user clicks button-1 on a neighborhood in <b>browse</b> mode.
+The <b>%x</b> and <b>%y</b> conversions are the window coordinates of
+the event, as usual, and <b>%d</b> is the ID of the neighborhood.<p>
 
 <<defitem Point-1 {&lt;&lt;Point-1&gt;&gt;}>>
 
