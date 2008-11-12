@@ -26,9 +26,11 @@ snit::widget mainwin {
     #-------------------------------------------------------------------
     # Components
 
-    component cli                ;# The cli(n) pane
-    component msgline            ;# The messageline(n)
-    component viewer             ;# The mapviewer(n)
+    component cli                   ;# The cli(n) pane
+    component msgline               ;# The messageline(n)
+    component content               ;# The content notebook
+    component viewer -public viewer ;# The mapviewer(n)
+    component slog                  ;# The scrolling log
  
     #-------------------------------------------------------------------
     # Options
@@ -201,7 +203,7 @@ snit::widget mainwin {
         # window.
         frame $win.sep0 -height 2 -relief sunken -borderwidth 2
 
-        # ROW 1, create the paner for the map/cli
+        # ROW 1, create the paner for the content pane/cli
         paner $win.paner -orient vertical -showhandle 1
 
         # ROW 2, add a separator
@@ -210,15 +212,41 @@ snit::widget mainwin {
         # ROW 3, Create the Message line.
         install msgline using messageline $win.msgline
 
-        # NEXT, add the mapviewer to the paner
-        install viewer using mapviewer $win.paner.viewer \
-            -width   600                                 \
+        # NEXT, add the content notebook to the paner
+        install content using ttk::notebook $win.paner.content \
+            -padding 2 
+
+        $win.paner add $content \
+            -sticky  nsew       \
+            -minsize 120        \
+            -stretch always
+
+        # NEXT, add the mapviewer to the content notebook
+        
+        install viewer using mapviewer $win.paner.content.viewer \
+            -width   600                                         \
             -height  600
 
-        $win.paner add $win.paner.viewer \
-            -sticky  nsew                \
-            -minsize 60                  \
-            -stretch always
+        $content add $viewer \
+            -sticky  nsew    \
+            -padding 2       \
+            -text    "Map"
+
+        # NEXT, add the scrolling log to the content notebook
+
+        install slog using scrollinglog $win.slog \
+            -relief     flat                      \
+            -height     14                        \
+            -logcmd     [mymethod puts]           \
+            -loglevel   "normal"
+
+        $content add $slog \
+            -sticky  nsew  \
+            -padding 2     \
+            -text    "Log"
+
+        $slog load [log cget -logfile]
+        log configure -newlogcmd [list $slog load]
 
         # NEXT, add the CLI to the paner
         install cli using cli $win.paner.cli \
