@@ -162,6 +162,16 @@ snit::widget mapviewer {
         zoom  "100%"
     }
 
+    # nbhoods array: 
+    #
+    #     $id is canvas nbhood ID
+    #     $n  is "n" column from nbhoods table.
+    #  
+    # n-$id      n, given ID
+    # id-$n      id, given n
+
+    variable nbhoods -array { }
+
     #-------------------------------------------------------------------
     # Constructor
 
@@ -234,7 +244,9 @@ snit::widget mapviewer {
 
         # NEXT, Forward virtual events from the canvas to the application.
         $self ForwardVirtual <<Icon-1>>
-        $self ForwardVirtual <<Nbhood-1>>
+
+        # NEXT, Translate events for the application
+        bind $canvas <<Nbhood-1>>     [mymethod Nbhood-1 %d]
 
         # NEXT, Support order processing.  This will set the viewer mode
         # to support the currently edited order field.
@@ -242,6 +254,9 @@ snit::widget mapviewer {
 
         bind $canvas <<Point-1>>      [mymethod Point-1 %d]
         bind $canvas <<PolyComplete>> [mymethod PolyComplete %d]
+
+        # NEXT, Support model updates
+        notifier bind ::order <NbhoodChanged> $self [mymethod NbhoodChanged]
     }
 
     # AddModeTool mode icon
@@ -275,6 +290,20 @@ snit::widget mapviewer {
     #===================================================================
     # Event Handlers
 
+    #-------------------------------------------------------------------
+    # Event Translation
+
+    # Nbhood-1 id
+    #
+    # id      A nbhood canvas ID
+    #
+    # Called when the user clicks on a nbhood.  Translate it to a
+    # neighborhood ID and forward.
+
+    method Nbhood-1 {id} {
+        event generate $win <<Nbhood-1>> -data $nbhoods(n-$id)
+    }
+    
     #-------------------------------------------------------------------
     # Order Handling
 
@@ -328,6 +357,25 @@ snit::widget mapviewer {
             event generate $win <<PolyComplete>> -data $poly
         }
     }
+
+    #-------------------------------------------------------------------
+    # Model Updates
+
+    # NbhoodChanged n
+    #
+    # n     The neighborhood ID
+    #
+    # Something changed about neighborhood n.  Update it.
+
+    method NbhoodChanged {n} {
+        # FIRST, get the nbhood data we care about
+        rdb eval {SELECT refpoint, polygon FROM nbhoods WHERE n=$n} {}
+
+        # NEXT, draw it; this will delete any previous neighborhood.
+        $self NbhoodDraw $n $refpoint $polygon
+    }
+
+
 
     #-------------------------------------------------------------------
     # Zoom Box
@@ -386,12 +434,22 @@ snit::widget mapviewer {
         # FIRST, clear the canvas
         $canvas clear
 
+        # NEXT, clear all remembered state
+        array unset nbhoods
+
         # NEXT, if there's no map we're done.
         if {[$canvas cget -map] eq ""} {
             return
         }
 
-        # NEXT, add scenario features.
+        # NEXT, add neighborhoods
+        rdb eval {
+            SELECT n, refpoint, polygon FROM nbhoods
+        } {
+            $self NbhoodDraw $n $refpoint $polygon
+        }
+
+        # NEXT, create icons
         # TBD: Ultimately, this will query the RDB; for now, 
         # just make some icons.
 
@@ -409,6 +467,28 @@ snit::widget mapviewer {
         }
 
         set info(zoom) "100%"
+    }
+
+    # NbhoodDraw n refpoint polygon
+    #
+    # n          The neighborhood ID
+    # refpoint   The neighborhood's reference point
+    # polygon    The neighborhood's polygon
+
+    method NbhoodDraw {n refpoint polygon} {
+        # FIRST, if there's an existing neighborhood called this,
+        # delete it.
+        if {[info exists nbhoods(id-$n)]} {
+            $canvas delete $nbhoods(id-$n)
+            unset nbhoods(id-$n)
+        }
+
+        # NEXT, draw it.
+        set id [$canvas nbhood create $refpoint $polygon]
+
+        # NEXT, save the name by the ID.
+        set nbhoods(n-$id) $n
+        set nbhoods(id-$n) $id
     }
 }
 

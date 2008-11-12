@@ -70,5 +70,6 @@ order define NBHOOD:CREATE {
     }
 
     # NEXT, notify the app.
+    # TBD: This should perhaps come from some other module.
     notifier send ::order <NbhoodChanged> $parms(n)
 }

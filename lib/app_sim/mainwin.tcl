@@ -410,14 +410,16 @@ snit::widget mainwin {
         $self puts "Found $id at [$viewer icon ref $id]"
     }
 
-    # Nbhood-1 id
+    # Nbhood-1 n
     #
-    # id      A nbhood ID
+    # n      A nbhood ID
     #
     # Called when the user clicks on a nbhood.
 
-    method Nbhood-1 {id} {
-        $self puts "Found $id"
+    method Nbhood-1 {n} {
+        rdb eval {SELECT longname FROM nbhoods WHERE n=$n} {}
+
+        $self puts "Found $n: $longname"
     }
 
     # Point-1 ref
