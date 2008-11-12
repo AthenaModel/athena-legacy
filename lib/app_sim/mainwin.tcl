@@ -89,14 +89,13 @@ snit::widget mainwin {
 
         # NEXT, Prepare to receive window events
         bind $viewer <<Icon-1>>       [mymethod Icon-1 %d]
+        bind $viewer <<Nbhood-1>>     [mymethod Nbhood-1 %d]
         bind $viewer <<Point-1>>      [mymethod Point-1 %d]
         bind $viewer <<PolyComplete>> [mymethod PolyComplete %d]
         
 
         if 0 {
             bind $viewer <<IconMoved>>     {IconMoved %W %d}
-            
-            $viewer bind nbhood <Button-1> {NbhoodPoint %W %x %y}
         }
 
     }
@@ -431,6 +430,16 @@ snit::widget mainwin {
 
     method Icon-1 {id} {
         $self puts "Found $id at [$viewer icon ref $id]"
+    }
+
+    # Nbhood-1 id
+    #
+    # id      A nbhood ID
+    #
+    # Called when the user clicks on a nbhood.
+
+    method Nbhood-1 {id} {
+        $self puts "Found $id"
     }
 
     # Point-1 ref

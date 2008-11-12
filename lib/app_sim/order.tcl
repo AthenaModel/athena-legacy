@@ -244,15 +244,26 @@ snit::type order {
     # the validation type, and saves the result.
 
     proc validate {vtype parm} {
+        # FIRST, if it's already invalid, do nothing
         if {[invalid $parm]} {
             return
         }
 
+        # NEXT, validate it; if there's an error, reject and return.
         if {[catch {
-            set parms($parm) [{*}$vtype validate $parms($parm)]
+            {*}$vtype validate $parms($parm)
         } result]} {
             reject $parm $result
+            return
         }
+
+        # NEXT, if the result is not "", save it as the canonical
+        # form.
+        if {$result ne ""} {
+            set parms($parm) $result
+        }
+
+        return $parms($parm)
     }
 
     # returnOnError

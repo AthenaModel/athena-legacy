@@ -150,10 +150,11 @@ snit::widgetadaptor ::mingui::mapcanvas {
             cursor   left_ptr
             cleanup  {}
             bindings {
-                icon  <ButtonPress-1>    {%W Icon-1 %x %y}
-                icon  <Control-Button-1> {%W IconMark %x %y}
-                icon  <B1-Motion>        {%W IconDrag %x %y}
-                icon  <B1-ButtonRelease> {%W IconRelease %x %y}
+                icon   <ButtonPress-1>    {%W Icon-1 %x %y}
+                icon   <Control-Button-1> {%W IconMark %x %y}
+                icon   <B1-Motion>        {%W IconDrag %x %y}
+                icon   <B1-ButtonRelease> {%W IconRelease %x %y}
+                nbhood <ButtonPress-1>    {%W Nbhood-1 %x %y}
             }
         }
 
@@ -310,6 +311,17 @@ snit::widgetadaptor ::mingui::mapcanvas {
     #      mxy          Icon location as map coordinate pair
 
     variable icons -array {
+        ids {}
+    }
+
+    # nbhoods array
+    #
+    # ids              List of nbhood ides
+    # refpoint-$id     Reference point as map coordinate pair
+    # polygon-$id      Polygon as list of map coordinates
+    # bg-$id           Polygon background
+
+    variable nbhoods -array {
         ids {}
     }
 
@@ -490,7 +502,16 @@ snit::widgetadaptor ::mingui::mapcanvas {
         # NEXT, set the projection to the current zoom factor
         $proj zoom $info(zoom)
 
-        # NEXT, draw all neighborhoods/icons in their correct places
+        # NEXT, add the layer marker, to separate nbhoods from
+        # icons.  Nbhoods will be drawn below it, icons above it.
+        $hull create line -1 -1 -2 -2 -tags marker
+
+        # NEXT, draw all neighborhoods in their correct places
+        foreach id $nbhoods(ids) {
+            $self NbhoodDraw $id
+        }
+
+        # NEXT, draw all icons in their correct places
         foreach id $icons(ids) {
             dict with icons(icon-$id) {
                 $cmd draw {*}[$self m2c {*}$mxy]
@@ -515,7 +536,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
     method see {args} {
         # FIRST, check args
         if {[llength $args] < 1 || [llength $args] > 2} {
-            WrongNumArgs "see mappoint"
+            $self WrongNumArgs "see mappoint"
         }
 
         # NEXT, get the map coordinates.
@@ -813,6 +834,40 @@ snit::widgetadaptor ::mingui::mapcanvas {
         array unset trans
     }
 
+    # Icon-1 wx wy
+    #
+    # wx    x window coordinate
+    # wy    y window coordinate
+    #
+    # Generates the <<Icon-1>> virtual event for the selected icon.
+
+    method Icon-1 {wx wy} {
+        set id [lindex [$win gettags current] 0]
+
+        $win raise $id
+
+        event generate $win <<Icon-1>> \
+            -x    $wx                  \
+            -y    $wy                  \
+            -data $id
+    }
+
+    # Nbhood-1 wx wy
+    #
+    # wx    x window coordinate
+    # wy    y window coordinate
+    #
+    # Generates the <<Nbhood-1>> virtual event for the selected nbhood.
+
+    method Nbhood-1 {wx wy} {
+        set id [lindex [$win gettags current] 0]
+
+        event generate $win <<Nbhood-1>> \
+            -x    $wx                  \
+            -y    $wy                  \
+            -data $id
+    }
+
     # Point-1
     #
     # wx,wy    Window coordinates of a mouse-click
@@ -1074,7 +1129,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
     method {icon create} {icontype args} {
         # FIRST, check args
         if {[llength $args] < 1} {
-            WrongNumArgs "icon create icontype mappoint options..."
+            $self WrongNumArgs "icon create icontype mappoint options..."
         }
 
         if {![info exists icontypes(type-$icontype)]} {
@@ -1127,13 +1182,13 @@ snit::widgetadaptor ::mingui::mapcanvas {
     method {icon moveto} {id args} {
         # FIRST, validate the arguments
         if {[llength $args] < 1} {
-            WrongNumArgs "icon moveto id mappoint"
+            $self WrongNumArgs "icon moveto id mappoint"
         }
 
         lassign [$self GetMapPoint args] mx2 my2
 
         if {[llength $args] > 0} {
-            WrongNumArgs "icon moveto id mappoint"
+            $self WrongNumArgs "icon moveto id mappoint"
         }
 
         # NEXT, move the icon to the new location.  We need to compute
@@ -1152,6 +1207,116 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
         return
     }
+
+    #-------------------------------------------------------------------
+    # Nbhood Management
+
+    # nbhood create refpoint polygon options...
+    #
+    # refpoint    Reference point location as map coords/map ref
+    # polygon     Polygon as list of map coordinates/map ref
+    # options...  
+    #
+    #    -background     Neighborhood background color
+    #
+    # Creates a neighborhood with the specified reference point and
+    # polygon.
+    #
+    # The refpoint can be specified as a mapref or as "mx my"; the
+    # latter can be passed as one or two arguments.
+    #
+    # The polygon can be specified as a one argument, a list of 
+    # map refs or map coordinates, or as individual map refs or map 
+    # coordinates.
+    #
+    # It's assumed that the refpoint is within the polygon.
+    #
+    # Returns the new nbhood's ID, which will be the first tag on the 
+    # nbhood's items.
+
+    method {nbhood create} {args} {
+        # FIRST, check args
+        if {[llength $args] < 2} {
+            $self WrongNumArgs "nbhood create refpoint polygon options..."
+        }
+
+        # NEXT, extract the valid options
+        set background [optval args -background ""]
+
+        # NEXT, get the ref point
+        lassign [$self GetMapPoint args] rx ry
+        lassign [$self m2c $rx $ry] crx cry
+
+        # NEXT, everything else is the polygon
+        if {[llength $args] == 1} {
+            set args [lindex $args 0]
+        }
+
+        set mpoly [list]
+        set cpoly [list]
+
+        while {[llength $args] > 0} {
+            lassign [$self GetMapPoint args] mx my
+            lassign [$self m2c $mx $my] cx cy
+
+            lappend mpoly $mx $my
+            lappend cpoly $cx $cy
+        }
+
+        # NEXT, Create the nbhood
+        set id "nbhood[incr info(iconCounter)]"
+
+        lappend nbhoods(ids)          $id
+        set     nbhoods(refpoint-$id) [list $rx $ry]
+        set     nbhoods(polygon-$id)  $mpoly
+        set     nbhoods(bg-$id)       $background
+
+        # NEXT, draw it
+        $self NbhoodDraw $id
+
+        # NEXT, return the neighborhood ID
+        return $id
+    }
+
+    # NbhoodDraw id
+    #
+    # id       A nbhood ID
+    #
+    # Draws the neighborhood on the canvas
+
+    method NbhoodDraw {id} {
+        # FIRST, Get the refpoint in canvas coords
+        lassign [$self m2c {*}$nbhoods(refpoint-$id)] crx cry
+
+        # NEXT, Get the polygon in canvas coords
+        set cpoly [list]
+
+        foreach {mx my} $nbhoods(polygon-$id) {
+            lappend cpoly {*}[$self m2c $mx $my]
+        }
+
+        # NEXT, Draw it
+        $hull create polygon $cpoly                 \
+            -outline black                          \
+            -fill    $nbhoods(bg-$id)               \
+            -tags    [list $id $id.poly nbhood]
+
+        $hull create oval [BoxAround 3 $crx $cry]   \
+            -outline black                          \
+            -fill    black                          \
+            -tags    [list $id $id.refpoint nbhood]
+
+        $hull create oval [BoxAround 5 $crx $cry]   \
+            -outline black                          \
+            -fill    ""                             \
+            -tags    [list $id $id.refpoint nbhood]
+
+        # NEXT, lower it below the marker
+        $hull lower $id marker
+    }
+
+    #-------------------------------------------------------------------
+    # Utility Methods
 
     # GetMapPoint argvar
     #
@@ -1183,9 +1348,6 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
         return [list $mx $my]
     }
-
-    #-------------------------------------------------------------------
-    # Utility Methods
 
     # SetModeCursor mode
     #
@@ -1315,6 +1477,16 @@ snit::widgetadaptor ::mingui::mapcanvas {
         return [$self c2m $cx $cy]
     }
 
+    # WrongNumArgs methodsig
+    #
+    # methodsig    The method name and arg spec
+    #
+    # Outputs a WrongNumArgs method
+    
+    method WrongNumArgs {methodsig} {
+        return -code error "wrong \# args: should be \"$self $methodsig\""
+    }
+
     #-------------------------------------------------------------------
     # Utility Procs
 
@@ -1343,16 +1515,6 @@ snit::widgetadaptor ::mingui::mapcanvas {
         set y2 [expr {$y + $radius}]
 
         list $x1 $y1 $x2 $y2
-    }
-
-    # WrongNumArgs methodsig
-    #
-    # methodsig    The method name and arg spec
-    #
-    # Outputs a WrongNumArgs method
-    
-    proc WrongNumArgs {methodsig} {
-        return -code error "wrong \# args: should be \"$self $methodsig\""
     }
 
     # UndefinedMap

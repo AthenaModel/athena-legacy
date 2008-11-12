@@ -41,6 +41,7 @@ order define NBHOOD:CREATE {
     # n
     set parms(n) [string toupper $parms(n)]
 
+    # TBD: identifier doesn't return the value.  This is a problem.
     validate identifier n
 
     if {![invalid n]} {

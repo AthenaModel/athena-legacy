@@ -149,7 +149,7 @@ snit::type orderdialog {
         wm resizable $dialog 0 0
 
         # NEXT, if it's closed, just cancel the order entry
-        wm protocol $win WM_DELETE_WINDOW [mytypemethod cancel]
+        wm protocol $dialog WM_DELETE_WINDOW [mytypemethod cancel]
 
         # NEXT, create the title widget
         ttk::label $dialog.title                   \
@@ -170,6 +170,7 @@ snit::type orderdialog {
 
         # NEXT, create the message text
         rotext $dialog.message                             \
+            -takefocus          0                          \
             -font               TkDefaultFont              \
             -width              40                         \
             -height             3                          \
@@ -184,10 +185,10 @@ snit::type orderdialog {
             -borderwidth 0         \
             -relief      flat
 
-        ttk::button $dialog.buttons.ok       \
-            -text    "OK"                    \
-            -width   8                       \
-            -command [mytypemethod ButtonOK]
+        ttk::button $dialog.buttons.send       \
+            -text    "Send"                    \
+            -width   8                         \
+            -command [mytypemethod ButtonSend]
 
         ttk::button $dialog.buttons.cancel   \
             -text    "Cancel"                \
@@ -195,7 +196,7 @@ snit::type orderdialog {
             -command [mytypemethod cancel]
 
         pack $dialog.buttons.cancel -side right -padx 2
-        pack $dialog.buttons.ok     -side right -padx 2
+        pack $dialog.buttons.send   -side right -padx 2
 
 
         # NEXT, pack components
@@ -366,11 +367,11 @@ snit::type orderdialog {
     #-------------------------------------------------------------------
     # Event handlers
 
-    # ButtonOK
+    # ButtonSend
     #
     # Sends the order; on error, reveals the error.
 
-    typemethod ButtonOK {} {
+    typemethod ButtonSend {} {
         # FIRST, send the order, and handle any errors
         if {[catch {
             order send "" client $info(order) [array get values]
@@ -386,6 +387,7 @@ snit::type orderdialog {
             }
 
             # NEXT, save the error text
+            array unset perrors
             array set perrors $result
 
             # NEXT, if it's not shown, show the message box
@@ -416,6 +418,8 @@ snit::type orderdialog {
         if {[info exists perrors($parm)]} {
             set label [order meta $info(order) parms $parm label]
             $type Message "$label: $perrors($parm)"
+        } else {
+            $type Message ""
         }
 
         # NEXT, tell the app what kind of parameter this is.
