@@ -438,7 +438,7 @@ snit::type orderdialog {
     #-------------------------------------------------------------------
     # Entry Type Definition
 
-    # entrytype ptype etype options...
+    # entrytype etype ptype options...
     #
     # etype    An entry type: text | enum
     # ptype    An order parameter type
