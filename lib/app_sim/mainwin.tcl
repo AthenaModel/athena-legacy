@@ -84,20 +84,11 @@ snit::widget mainwin {
         notifier bind ::app         <AppImportedMap> \
             $self [mymethod AppImportedMap]
 
-        notifier bind ::orderdialog <OrderEntry> \
-            $self [mymethod OrderEntry]
-
         # NEXT, Prepare to receive window events
         bind $viewer <<Icon-1>>       [mymethod Icon-1 %d]
         bind $viewer <<Nbhood-1>>     [mymethod Nbhood-1 %d]
         bind $viewer <<Point-1>>      [mymethod Point-1 %d]
         bind $viewer <<PolyComplete>> [mymethod PolyComplete %d]
-        
-
-        if 0 {
-            bind $viewer <<IconMoved>>     {IconMoved %W %d}
-        }
-
     }
 
     # CreateMenuBar
@@ -408,19 +399,6 @@ snit::widget mainwin {
     #-------------------------------------------------------------------
     # Mapviewer Event Handlers
 
-    # OrderEntry ptype
-    #
-    # ptype   The type of the select parameter
-    #
-    # Sets the viewer to the appropriate mode for the parameter type
-
-    method OrderEntry {ptype} {
-        switch -exact -- $ptype {
-            point   { $viewer mode point  }
-            polygon { $viewer mode poly   }
-            default { $viewer mode browse }
-        }
-    }
 
     # Icon-1 id
     #
@@ -446,41 +424,22 @@ snit::widget mainwin {
     #
     # ref     A map reference string
     #
-    # The user has pucked a point in point mode.
+    # The user has pucked a point in point mode. Append it to the
+    # CLI.
 
     method Point-1 {ref} {
-        # FIRST, if there's an active order dialog, and the current
-        # field type is appropriate, set the field's value to this point.
-        # Otherwise, put it into the CLI
-
-        if {[orderdialog isactive]} {
-            if {[orderdialog parm type current] eq "point"} {
-                orderdialog parm set current $ref
-            }
-        } else {
-            $cli append " $ref"
-        }
-           
+        $cli append " $ref"
     }
 
     # PolyComplete poly
     #
     # poly     A list of map references defining a polygon
     #
-    # The user has drawn a polygon on the map.
+    # The user has drawn a polygon on the map.  Append it to the
+    # CLI.
 
     method PolyComplete {poly} {
-        # FIRST, if there's an active order dialog, and the current
-        # field type is appropriate, set the field's value to this point.
-        # Otherwise, put it into the CLI
-
-        if {[orderdialog isactive]} {
-            if {[orderdialog parm type current] eq "polygon"} {
-                orderdialog parm set current $poly
-            }
-        } else {
-            $cli append " $poly"
-        }
+        $cli append " $poly"
     }
 
 
