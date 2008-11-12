@@ -369,6 +369,10 @@ snit::widgetadaptor ::mingui::mapcanvas {
     method clear {} {
         # FIRST, delete all content
 
+        # Nbhoods
+        array unset nbhoods
+        set nbhoods(ids) [list]
+
         # Icons
         foreach id $icons(ids) {
             rename [dict get $icons(icon-$id) cmd] ""

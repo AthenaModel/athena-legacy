@@ -77,7 +77,7 @@ snit::type scenario {
 
         # NEXT, log it.
         log newlog new
-        log normal scn "New Scenario: $filename"
+        log normal scn "New Scenario: Untitled"
 
         # NEXT, notify the app
         notifier send ::scenario <ScenarioNew>
@@ -165,12 +165,11 @@ snit::type scenario {
         set info(dbfile) $dbfile
 
         # NEXT, log it.
-        if {$filename eq ""} {
-            log normal scn "Save Scenario: $filename"
-        } else {
+        if {$filename ne ""} {
             log newlog saveas
-            log normal scn "Save Scenario As: $filename"
         }
+
+        log normal scn "Save Scenario: $info(dbfile)"
 
         # NEXT, Notify the app
         notifier send ::scenario <ScenarioSaved>

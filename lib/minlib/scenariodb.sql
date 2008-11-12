@@ -48,20 +48,24 @@ CREATE TABLE maps (
 
 -- Neighborhood definitions
 CREATE TABLE nbhoods (
+    -- Unique ID
+    uid            INTEGER PRIMARY KEY,
+
     -- Symbolic neighborhood name     
-    n              TEXT PRIMARY KEY,
+    n              TEXT UNIQUE,
 
     -- Full neighborhood name
     longname       TEXT,
+
+    -- Urbanization: eurbanization
+    urbanization   TEXT,
 
     -- Neighborhood reference point: map coordinates {mx my}
     refpoint       TEXT,
 
     -- Neighborhood polygon: list of map coordinates {mx my ...}
-    polygon        TEXT,
+    polygon        TEXT
 
-    -- Urbanization: eurbanization
-    urbanization   TEXT
 );
 
 
