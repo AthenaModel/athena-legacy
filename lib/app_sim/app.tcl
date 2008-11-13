@@ -79,6 +79,7 @@ snit::type app {
         # NEXT, Create the working scenario RDB and initialize simulation
         # components
         scenario init
+        map      init
 
         # NEXT, Withdraw the default toplevel window, and create 
         # the main GUI components.
@@ -100,52 +101,6 @@ snit::type app {
         if {[llength $argv] == 1} {
             scenario open [file normalize [lindex $argv 0]]
         }
-    }
-
-    #-------------------------------------------------------------------
-    # Map Importing
-    #
-    # TBD: It's not clear where this should live.  Possibly in 
-    # scenario(sim), but possibly not.
-
-    # importmap filename
-    #
-    # filename     An image file
-    #
-    # Attempts to import the image into the RDB.
-
-    typemethod importmap {filename} {
-        # FIRST, is it a real image?
-        if {[catch {
-            set map [image create photo -file $filename]
-        } result]} {
-            app error {
-                |<--
-                Could not open the specified file as a map image:
-
-                $filename
-            }
-
-            return
-        }
-        
-        # NEXT, get the image data, and save it in the RDB
-        set tail [file tail $filename]
-        set data [$map data -format jpeg]
-
-        rdb eval {
-            INSERT OR REPLACE
-            INTO maps(id, filename, data)
-            VALUES(1,$tail,$data);
-        }
-
-        image delete $map
-
-        # NEXT, log it.
-        log normal app "Import Map: $filename"
-
-        # NEXT, Notify the application.
-        notifier send $type <AppImportedMap> $filename
     }
 
     #-------------------------------------------------------------------

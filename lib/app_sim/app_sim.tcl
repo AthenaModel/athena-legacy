@@ -51,6 +51,7 @@ namespace import ::mingui::*
 # Non-GUI
 source [file join $::app_sim::library app.tcl         ]
 source [file join $::app_sim::library scenario.tcl    ]
+source [file join $::app_sim::library map.tcl         ]
 source [file join $::app_sim::library order.tcl       ]
 source [file join $::app_sim::library orders.tcl      ]
 

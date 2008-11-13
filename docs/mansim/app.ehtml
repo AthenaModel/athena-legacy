@@ -41,13 +41,6 @@ directory, and exits the program.
 Variables and commands in <i>text</i> are interpolated using
 <<xref template(n) tsubst>> from <<xref template(n)>>.<p>
 
-<<defitem "app importmap" {app importmap <i>filename</i>}>>
-
-Attempts to import a map image from <i>filename</i>,
-which may be a JPEG, GIF, or PNG file.<p>
-
-Sends <b>&lt;AppImportedMap&gt;</b> on success.<p>
-
 <<defitem "app init" {app init <i>argv</i>}>>
 
 Initializes the application given the command line arguments.  At
@@ -63,20 +56,6 @@ Outputs <i>text</i> to the main window's message line.<p>
 Outputs a brief usage string to stdout.<p>
 
 <</deflist commands>>
-
-<<section "NOTIFIER EVENTS">>
-
-app(sim) sends the following events, primarily to notify the GUI of
-significant changes to the scenario data.<p>
-
-<<deflist events>>
-
-<<defitem AppImportedMap {&lt;AppImportedMap&gt; <i>filename</i>}>>
-
-Sent when new map image file <i>filename</i> has been imported into
-the current scenario.<p>
-
-<</deflist events>>
 
 <<section ENVIRONMENT>>
 

@@ -238,7 +238,7 @@ snit::widget mapviewer {
         $self configurelist $args
 
         # NEXT, draw everything for the current map, whatever it is.
-        $self RefreshMap
+        $self MapLoaded
 
         # NEXT, Forward virtual events from the canvas to the application.
         $self ForwardVirtual <<Icon-1>>
@@ -254,10 +254,7 @@ snit::widget mapviewer {
         bind $canvas <<PolyComplete>> [mymethod PolyComplete %d]
 
         # NEXT, Support model updates
-        notifier bind ::scenario <ScenarioNew>    $self [mymethod RefreshMap]
-        notifier bind ::scenario <ScenarioOpened> $self [mymethod RefreshMap]
-        notifier bind ::scenario <AppImportedMap> $self [mymethod RefreshMap]
-
+        notifier bind ::map   <MapLoaded>     $self [mymethod MapLoaded]
         notifier bind ::order <NbhoodChanged> $self [mymethod NbhoodChanged]
     }
 
@@ -396,31 +393,14 @@ snit::widget mapviewer {
 
     delegate method * to canvas
 
-    # RefreshMap
+    # MapLoaded
     #
-    # Configures the viewer to show the new map.
+    # Configures the viewer to show the new map.  The args are ignored.
 
-    method RefreshMap {} {
-        # FIRST, display the map.
-        rdb eval {
-            SELECT data FROM maps
-            WHERE id=1
-        } {
-            set oldMap [$canvas cget -map]
-            
-            if {$oldMap ne ""} {
-                image delete $oldMap
-            }
+    method MapLoaded {} {
+        $canvas configure -map        [map image]
+        $canvas configure -projection [map projection]
 
-            $canvas configure \
-                -map [image create photo -format jpeg -data $data]
-
-            $self refresh
-            return
-        }
-
-        # NEXT, there was no map.
-        $canvas configure -map ""
         $self refresh
 
         set info(zoom) "100%"

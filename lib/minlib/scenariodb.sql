@@ -42,6 +42,10 @@ CREATE TABLE maps (
     -- Original file name of this map
     filename TEXT,
 
+    -- Width and Height, in pixels
+    width    INTEGER,
+    height   INTEGER,
+
     -- Map data: a BLOB of data in "jpeg" format.
     data     BLOB
 );

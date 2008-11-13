@@ -83,8 +83,8 @@ snit::widget mainwin {
         notifier bind ::scenario    <ScenarioSaved>  \
             $self [mymethod ScenarioSaved]
 
-        notifier bind ::app         <AppImportedMap> \
-            $self [mymethod AppImportedMap]
+        notifier bind ::map         <MapImported> \
+            $self [mymethod MapImported]
 
         # NEXT, Prepare to receive window events
         bind $viewer <<Icon-1>>       [mymethod Icon-1 %d]
@@ -374,8 +374,8 @@ snit::widget mainwin {
             return
         }
 
-        # NEXT, Ask the app to import the map
-        app importmap $filename
+        # NEXT, Import the map
+        map import $filename
     }
 
     # FileExit
@@ -517,13 +517,13 @@ snit::widget mainwin {
         $self puts "Saved $tail"
     }
 
-    # AppImportedMap filename
+    # MapImported filename
     #
     # filename         Map image file name
     #
     # The user has imported a new map.  Update the GUI accordingly
 
-    method AppImportedMap {filename} {
+    method MapImported {filename} {
         $self puts "Imported map [file tail $filename]"
     }
 

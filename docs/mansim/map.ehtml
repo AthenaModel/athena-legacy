@@ -1,0 +1,90 @@
+<<manpage map(sim) "Map Manager">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+map(sim) is the module responsible for importing and managing maps and
+map projections for <<xref minerva_sim(1)>>.  It provides the current
+map image and projection to the rest of the app.  Also, it validates
+map coordinates and reference strings, and converts from one to the other.<p>
+
+<<section "COMMANDS">>
+
+map(sim) provides the following commands for use by the application.<p>
+
+<<deflist commands>>
+
+<<defitem "image" {map image}>>
+
+Returns the name of a Tk image for the current map, or "" if none is
+loaded.<p>
+<<defitem "import" {map import <i>filename</i>}>>
+
+Attempts to import a map image from <i>filename</i>,
+which may be a JPEG, GIF, or PNG file.<p>
+
+On success, <<iref load>>s the new map and sends
+<b>&lt;MapImported&gt;</b>.<p>
+
+<<defitem "init" {map init}>>
+
+Initializes the module, and sets it for the case where no map is
+loaded.<p>
+
+<<defitem "load" {map load}>>
+
+Loads the current map (if any) from the RDB, sets up the image and
+projection accordingly, and sends <b>&lt;MapLoaded&gt;</b>.<p>
+
+Note that it should rarely be necessary to call this directly;
+map(sim) automatically loads the current map when relevant events
+occur.<p>
+
+<<defitem "projection" {map projection}>>
+
+Returns the <<xref projection(i)>> for the current map.<p>
+
+<</deflist commands>>
+
+<<section "NOTIFIER EVENTS">>
+
+map(sim) sends the following events, primarily to notify the GUI of
+significant changes to the map data.<p>
+
+<<deflist events>>
+
+<<defitem MapImported {&lt;MapImported&gt; <i>filename</i>}>>
+
+Sent when new map image file <i>filename</i> has been imported into
+the current scenario.<p>
+
+<<defitem MapLoaded {&lt;MapLoaded&gt;}>>
+
+Sent when a map has been loaded from the RDB and is ready for use.<p>
+
+<</deflist events>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
