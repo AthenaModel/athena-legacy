@@ -59,12 +59,16 @@ snit::type ::minlib::polygon {
 
         # NEXT, check the number of coordinates
         set len [llength $coords]
-        require {$len % 2 == 0} \
-            "expected even number of coordinates, got $len: \"$coords\""
+        if {$len % 2 != 0} {
+            return -code error -errorcode INVALID \
+                "expected even number of coordinates, got $len"
+        }
 
         let size {$len/2}
-        require {$size >= 3} \
-            "expected at least 3 point(s), got $size: \"$coords\""
+        if {$size < 3} {
+            return -code error -errorcode INVALID \
+                "expected at least 3 point(s), got $size"
+        }
 
         # NEXT, check for duplicated points
         for {set i 0} {$i < $len} {incr i 2} {
@@ -72,15 +76,17 @@ snit::type ::minlib::polygon {
                 if {$i == $j} {
                     continue
                 }
-
+                
                 lassign [lrange $coords $i $i+1] x1 y1
                 lassign [lrange $coords $j $j+1] x2 y2
-
-                require {$x1 != $x2 || $y1 != $y2} \
-                    "Point [expr {$i/2}] is identical to point [expr {$j/2}]: \"$coords\""
+                
+                if  {$x1 == $x2 && $y1 == $y2} {
+                    return -code error -errorcode INVALID \
+                     "Point [expr {$i/2}] is identical to point [expr {$j/2}]"
+                }
             }
         }
-
+        
         # NEXT, check for edge crossings.  Consecutive edges can
         # intersect at their end points.
         set n [clength $coords]
@@ -95,8 +101,10 @@ snit::type ::minlib::polygon {
                 set q1 [lrange $e2 0 1]
                 set q2 [lrange $e2 2 3]
 
-                require {![intersect $p1 $p2 $q1 $q2]} \
-                    "Edges $i and $j intersect: \"$coords\""
+                if {[intersect $p1 $p2 $q1 $q2]} {
+                    return -code error -errorcode INVALID \
+                        "Edges $i and $j intersect"
+                }
             }
         }
 
@@ -104,4 +112,8 @@ snit::type ::minlib::polygon {
         return $coords
     }
 }
+
+
+
+
 

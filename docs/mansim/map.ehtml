@@ -51,6 +51,13 @@ occur.<p>
 
 Returns the <<xref projection(i)>> for the current map.<p>
 
+<<defitem "ref2m" {map ref2m <i>ref...</i>}>>
+<<defitem "m2ref" {map m2ref <i>mx my</i>}>>
+<<defitem "ref validate" {map ref validate <i>ref...</i>}>>
+
+These commands are delegated to the map <<iref projection>> for
+convenience.<p>
+
 <</deflist commands>>
 
 <<section "NOTIFIER EVENTS">>

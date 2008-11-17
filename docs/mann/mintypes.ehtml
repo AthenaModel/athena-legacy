@@ -40,7 +40,8 @@ Polygon type.<p>
 
 Validates the polygon described by the <i>coords</i>, which is a flat
 list of <i>x</i> and <i>y</i> coordinates.  It may be passed as a
-single argument, or as one argument per coordinate.<p>
+single argument, or as one argument per coordinate.  On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
 
 <</deflist polygon>>
 

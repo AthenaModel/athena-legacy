@@ -202,16 +202,51 @@ snit::type ::minlib::mapref {
         return [GetRef 1.0 $mx][GetRef 1.0 $my]
     }
 
-    # ref2m ref
+    # ref2m ref...
+    #
+    # ref   A map reference string
+    #
+    # Returns a list  {mx my...} in map units
+
+    method ref2m {args} {
+        foreach ref $args {
+            lappend result \
+                [expr {round([GetCan 1.0 [string range $ref 0 2]])}] \
+                [expr {round([GetCan 1.0 [string range $ref 3 5]])}]
+        }
+
+        return $result
+    }
+
+    # ref validate ref....
     #
     # ref   A map reference
     #
-    # Returns an {mx my} pair in map units
+    # Validates the map reference for form and content.
 
-    method ref2m {ref} {
-        list \
-            [expr {round([GetCan 1.0 [string range $ref 0 2]])}] \
-            [expr {round([GetCan 1.0 [string range $ref 3 5]])}]
+    method {ref validate} {args} {
+        set prefix ""
+
+        foreach ref $args {
+            if {[llength $args] > 1} {
+                set prefix "point \"$ref\" is "
+            }
+
+            if {![regexp {^([A-HJK]\d\d){2}$} $ref]} {
+                return -code error -errorcode INVALID \
+                    "${prefix}not a map reference string"
+            }
+
+            lassign [$self dim]        xmax ymax
+            lassign [$self ref2m $ref] mx   my
+
+            if {$mx > $xmax || $my > $ymax} {
+                return -code error -errorcode INVALID \
+                    "${prefix}out of bounds"
+            }
+        }
+
+        return $args
     }
 
     #-------------------------------------------------------------------

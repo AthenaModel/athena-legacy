@@ -55,6 +55,10 @@ snit::type map {
     #-------------------------------------------------------------------
     # Public Typemethods
 
+    delegate typemethod ref2m to projection
+    delegate typemethod m2ref to projection
+    delegate typemethod ref   to projection
+
     # image 
     #
     # Returns the current map image, or ""

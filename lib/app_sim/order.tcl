@@ -149,8 +149,11 @@ snit::type order {
         if {$interface eq "client"} {
             if {[catch $name result opts]} {
                 if {[dict get $opts -errorcode] eq "REJECT"} {
+                    log warning order $result                    
                     return {*}$opts $result
                 } else {
+                    log error order \
+           "Unexpected error in $displayName:\n[dict get $opts -errorinfo]"
                     error \
                         "Unexpected error in $displayName:\n$result" \
                         [dict get $opts -errorinfo]
@@ -158,6 +161,9 @@ snit::type order {
             }
         } elseif {$interface eq "sim"} {
             if {[catch $name result]} {
+                log error order \
+           "Unexpected error in $displayName:\n[dict get $opts -errorinfo]"
+ 
                 error \
                     "Unexpected error in $displayName:\n$result" \
                     $::errorInfo
@@ -235,35 +241,32 @@ snit::type order {
         dict exists $errors $parm
     }
 
-    # validate vtype parm
+    # validate parm script
     #
-    # vtype    A validation type
-    # parm     A parameter name
+    # parm    A parameter to validate
+    # script  A script to validate it.
     #
-    # If parm is not already known to be invalid, validates it using
-    # the validation type, and saves the result.
+    # Executes the script in the caller's context.  If the script
+    # throws an error, and the error code is INVALID, the value
+    # is rejected.  Any other error is rethrown as an unexpected
+    # error.
+    #
+    # If the parameter is already known to be invalid, the code is skipped.
 
-    proc validate {vtype parm} {
-        # FIRST, if it's already invalid, do nothing
+    proc validate {parm script} {
         if {[invalid $parm]} {
             return
         }
 
-        # NEXT, validate it; if there's an error, reject and return.
         if {[catch {
-            {*}$vtype validate $parms($parm)
-        } result]} {
-            reject $parm $result
-            return
+            uplevel 1 $script
+        } result opts]} {
+            if {[lindex [dict get $opts -errorcode] 0] eq "INVALID"} {
+                reject $parm $result
+            } else {
+                return {*}$opts $result
+            }
         }
-
-        # NEXT, if the result is not "", save it as the canonical
-        # form.
-        if {$result ne ""} {
-            set parms($parm) $result
-        }
-
-        return $parms($parm)
     }
 
     # returnOnError

@@ -27,7 +27,6 @@ order define NBHOOD:CREATE {
     }
 } {
     # FIRST, validate the parameters
-    parray parms
     
     # longname
     set parms(longname) [string trim $parms(longname)]
@@ -41,10 +40,41 @@ order define NBHOOD:CREATE {
     }
 
     # urbanization
-    validate eurbanization urbanization
+    validate urbanization {
+        set parms(urbanization) [eurbanization validate $parms(urbanization)]
+    }
+
+    # polygon
+    #
+    # Is the point a valid map reference string?
+    # Is the resulting polygon a valid polygon?
+
+    validate polygon {
+        map ref validate {*}$parms(polygon)
+        set points [map ref2m {*}$parms(polygon)]
+        polygon validate $points
+    }
+
+    # refpoint
+    #
+    # Is the point a valid map reference string?
+    # Is the point within the polygon?
+
+    set parms(refpoint) [string toupper $parms(refpoint)]
+
+    validate refpoint {
+        map ref validate $parms(refpoint)
+    }
+
+    if {![invalid refpoint] && ![invalid polygon]} {
+        lassign [map ref2m $parms(refpoint)] mx my
+
+        if {![ptinpoly $points [list $mx $my]]} {
+            reject refpoint "not in polygon"
+        }
+    }
     
     returnOnError
-
 
     # NEXT, Put the neighborhood in the database
     rdb eval {
@@ -65,6 +95,7 @@ order define NBHOOD:CREATE {
 
     # NEXT, notify the app.
     # TBD: This should perhaps come from some other module.
+    # TBD: This should perhaps be <NbhoodCreated>.
     
     notifier send ::order <NbhoodChanged> $n
 }

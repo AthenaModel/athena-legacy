@@ -85,10 +85,17 @@ map reference string.<p>
 Given a map reference string, returns a canvas
 coordinate pair as a list of two coordinates <i>cx</i> and <i>cy</i>.<p>
 
-<<defitem ref2m {<i>object</i> ref2m <i>ref</i>}>>
+<<defitem ref2m {<i>object</i> ref2m <i>ref...</i>}>>
 
-Given a map reference string, returns a map
-coordinate pair as a list of two coordinates <i>mx</i> and <i>my</i>.<p>
+Given one or more map reference strings as arguments, returns a
+corresponding list of <i>mx</i> and <i>my</i> map coordinates.<p>
+
+<<defitem "ref validate" {<i>object</i> ref validate <i>ref...</i>}>>
+
+Given one or more map reference strings as arguments, validates
+each. Throws an error with <code>-errorcode</code> <b>INVALID</b> if
+any reference string is invalid.<p>
+
 
 <<defitem zoom {<i>object</i> zoom ?<i>factor</i>?}>>
 
