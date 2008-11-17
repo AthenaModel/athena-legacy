@@ -311,14 +311,30 @@ multiple arguments.<p>
 
 Returns the new nbhood's ID.<p>
 
+The neighborhood may be created with the following options:<p>
+
+<<deflist options>>
+
+<<defopt {-fill <i>color</i>}>>
+
+Sets the fill color for the neighborhood's polygon.  If "", the
+default, the polygon is unfilled, allowing the underlying map to be
+seen.<p>
+
+<<defopt {-pointcolor <i>color</i>}>>
+
+Sets the color of the reference point icon.  Defaults to "black".<p>
+
+<</deflist options>>
+
 <<defitem "nbhood cget" {<i>win</i> nbhood cget <i>id option</i>}>>
 
-<b>Not Yet Implemented.</b>  Returns the value of the specified
+Returns the value of the specified
 <i>option</i> for the neighborhood with ID <i>id</i>.<p>
 
 <<defitem "nbhood configure" {<i>win</i> nbhood configure <i>id option value</i> ?<i>option value...</i>?}>>
 
-<b>Not Yet Implemented.</b>  Sets the value of one or more of the
+Sets the value of one or more of the
 neighborhood options.<p>
 
 <</deflist>>

@@ -319,7 +319,8 @@ snit::widgetadaptor ::mingui::mapcanvas {
     # ids              List of nbhood ides
     # refpoint-$id     Reference point as map coordinate pair
     # polygon-$id      Polygon as list of map coordinates
-    # bg-$id           Polygon background
+    # fill-$id         Polygon fill color
+    # pointcolor-$id   Refpoint color
 
     variable nbhoods -array {
         ids {}
@@ -1245,7 +1246,8 @@ snit::widgetadaptor ::mingui::mapcanvas {
         }
 
         # NEXT, extract the valid options
-        set background [optval args -background ""]
+        set fill     [optval args -fill       ""   ]
+        set pointfg  [optval args -pointcolor black]
 
         # NEXT, get the ref point
         lassign [$self GetMapPoint args] rx ry
@@ -1270,16 +1272,65 @@ snit::widgetadaptor ::mingui::mapcanvas {
         # NEXT, Create the nbhood
         set id "nbhood[incr info(iconCounter)]"
 
-        lappend nbhoods(ids)          $id
-        set     nbhoods(refpoint-$id) [list $rx $ry]
-        set     nbhoods(polygon-$id)  $mpoly
-        set     nbhoods(bg-$id)       $background
+        lappend nbhoods(ids)            $id
+        set     nbhoods(refpoint-$id)   [list $rx $ry]
+        set     nbhoods(polygon-$id)    $mpoly
+        set     nbhoods(fill-$id)       $fill
+        set     nbhoods(pointcolor-$id) $pointfg
 
         # NEXT, draw it
         $self NbhoodDraw $id
 
         # NEXT, return the neighborhood ID
         return $id
+    }
+
+    # nbhood configure id option value...
+    #
+    # id    The neighborhood ID
+    #
+    # Configures the neighborhood's options.
+
+    method {nbhood configure} {id args} {
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+            set val [lshift args]
+            
+            switch -exact -- $opt {
+                -fill {
+                    $hull itemconfigure $id.poly -fill $val
+                    set nbhoods(fill-$id) $val
+                }
+                -pointcolor {
+                    $hull itemconfigure $id.inner \
+                        -outline $val             \
+                        -fill    $val
+
+                    $hull itemconfigure $id.output \
+                        -outline $val
+
+                    set nbhoods(pointcolor-$id) $val
+                }
+                default {
+                    error "Unrecognized option \"$opt\""
+                }
+            }
+        }
+    }
+
+    # nbhood cget id option
+    #
+    # id      The neighborhood ID
+    # option  A neighborhood option
+    #
+    # Returns the option's value
+
+    method {nbhood cget} {id option} {
+        switch -exact -- $option {
+            -fill       { return $nbhoods(fill-$id)            }
+            -pointcolor { return $nbhoods(pointcolor-$id)      }
+            default     { error "Unrecognized option \"$opt\"" }
+        }
     }
 
     # NbhoodDraw id
@@ -1300,20 +1351,20 @@ snit::widgetadaptor ::mingui::mapcanvas {
         }
 
         # NEXT, Draw it
-        $hull create polygon $cpoly                 \
-            -outline black                          \
-            -fill    $nbhoods(bg-$id)               \
+        $hull create polygon $cpoly                        \
+            -outline black                                 \
+            -fill    $nbhoods(fill-$id)                    \
             -tags    [list $id $id.poly nbhood]
 
-        $hull create oval [BoxAround 3 $crx $cry]   \
-            -outline black                          \
-            -fill    black                          \
-            -tags    [list $id $id.refpoint nbhood]
+        $hull create oval [BoxAround 3 $crx $cry]          \
+            -outline $nbhoods(pointcolor-$id)              \
+            -fill    $nbhoods(pointcolor-$id)              \
+            -tags    [list $id $id.inner refpoint nbhood]
 
-        $hull create oval [BoxAround 5 $crx $cry]   \
-            -outline black                          \
-            -fill    ""                             \
-            -tags    [list $id $id.refpoint nbhood]
+        $hull create oval [BoxAround 5 $crx $cry]          \
+            -outline $nbhoods(pointcolor-$id)              \
+            -fill    ""                                    \
+            -tags    [list $id $id.output refpoint nbhood]
 
         # NEXT, lower it below the marker
         $hull lower $id marker

@@ -374,7 +374,20 @@ snit::widget mapviewer {
         $self NbhoodDraw $n $refpoint $polygon
     }
 
+    # MapLoaded
+    #
+    # Configures the viewer to show the new map.  The args are ignored.
 
+    method MapLoaded {} {
+        $canvas configure -map        [map image]
+        $canvas configure -projection [map projection]
+
+        $self refresh
+
+        set info(zoom) "100%"
+
+        return
+    }
 
     #-------------------------------------------------------------------
     # Zoom Box
@@ -392,21 +405,6 @@ snit::widget mapviewer {
     # Public Methods
 
     delegate method * to canvas
-
-    # MapLoaded
-    #
-    # Configures the viewer to show the new map.  The args are ignored.
-
-    method MapLoaded {} {
-        $canvas configure -map        [map image]
-        $canvas configure -projection [map projection]
-
-        $self refresh
-
-        set info(zoom) "100%"
-
-        return
-    }
 
     # refresh
     #
@@ -472,6 +470,30 @@ snit::widget mapviewer {
         set nbhoods(n-$id) $n
         set nbhoods(id-$n) $id
     }
+
+    # nbhood configure n option value...
+    #
+    # n    A neighborhood name
+    #
+    # Configures the neighborhood polygon in the mapcanvas given
+    # the neighborhood name, rather than the canvas ID
+
+    method {nbhood configure} {n args} {
+        $canvas nbhood configure $nbhoods(id-$n) {*}$args
+    }
+
+    # nbhood cget n option
+    #
+    # n       A neighborhood name
+    # option  An option name
+    #
+    # Retrieves the option's value for the neighborhood given 
+    # the neighborhood name, rather than the canvas ID
+
+    method {nbhood cget} {n option} {
+        $canvas nbhood cget $nbhoods(id-$n) $option
+    }
+
 }
 
 

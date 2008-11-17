@@ -53,6 +53,18 @@ Sets the value of the specified options.<p>
 
 Returns the value of the specified <i>option</i>.<p>
 
+<<defitem "nbhood cget" {<i>win</i> nbhood cget <i>n option</i>}>>
+
+Returns the value of the specified
+<i>option</i> for the neighborhood with name <i>n</i>.<p>
+
+<<defitem "nbhood configure" {<i>win</i> nbhood configure <i>n option value</i> ?<i>option value...</i>?}>>
+
+Sets the value of one or more of the options for the neighborhood with
+name <i>n</i>.<p>
+
+See <<xref mapcanvas(n)>> for a list of the neighborhood options.<p>
+
 <<defitem refresh {<i>win</i> refresh}>>
 
 Refreshes the map display, retaining the current map but redrawing all
