@@ -1285,6 +1285,14 @@ snit::widgetadaptor ::mingui::mapcanvas {
         return $id
     }
 
+    # nbhood ids
+    #
+    # Returns a list of the neighborhood IDs.
+
+    method {nbhood ids} {} {
+        return $nbhoods(ids)
+    }
+
     # nbhood configure id option value...
     #
     # id    The neighborhood ID

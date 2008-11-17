@@ -48,6 +48,34 @@ snit::widget mapviewer {
             X  #000000
         }
 
+        mkicon ${type}::icon::fleur {
+            ...........X..........
+            ..........XXX.........
+            .........XXXXX........
+            ........XXXXXXX.......
+            .......XXXXXXXXX......
+            ...........X..........
+            .....X.....X.....X....
+            ....XX.....X.....XX...
+            ...XXX.....X.....XXX..
+            ..XXXX.....X.....XXXX.
+            .XXXXXXXXXXXXXXXXXXXXX
+            ..XXXX.....X.....XXXX.
+            ...XXX.....X.....XXX..
+            ....XX.....X.....XX...
+            .....X.....X.....X....
+            ...........X..........
+            .......XXXXXXXXX......
+            ........XXXXXXX.......
+            .........XXXXX........
+            ..........XXX.........
+            ...........X..........
+            ......................
+        } {
+            .  trans
+            X  #000000
+        }
+
         mkicon ${type}::icon::crosshair {
             ......................
             ......................
@@ -104,35 +132,34 @@ snit::widget mapviewer {
             X  #000000
         }
 
-
-        mkicon ${type}::icon::fleur {
-            ...........X..........
-            ..........XXX.........
-            .........XXXXX........
-            ........XXXXXXX.......
-            .......XXXXXXXXX......
-            ...........X..........
-            .....X.....X.....X....
-            ....XX.....X.....XX...
-            ...XXX.....X.....XXX..
-            ..XXXX.....X.....XXXX.
-            .XXXXXXXXXXXXXXXXXXXXX
-            ..XXXX.....X.....XXXX.
-            ...XXX.....X.....XXX..
-            ....XX.....X.....XX...
-            .....X.....X.....X....
-            ...........X..........
-            .......XXXXXXXXX......
-            ........XXXXXXX.......
-            .........XXXXX........
-            ..........XXX.........
-            ...........X..........
+        mkicon ${type}::icon::fill_poly {
+            ......................
+            ......................
+            .....XX...............
+            .....XaXX.............
+            .....XaaaXX...........
+            .....XaaaaaXX.........
+            ....XaaaaaaaaXX.......
+            ....XaaaaaaaaaaXX.....
+            ....XaaaaaaaaaaaX.....
+            ....XaaaaaaaaaaaX.....
+            ...XaaaaaaaaaaaaX.....
+            ...XaaaaaaaaaaaaX.....
+            ...XaaaaaaaaaaaaX.....
+            ...XaaaaaaaaaaaaX.....
+            ....XaaaaaaaaaaaX.....
+            ....XaaaaaaaaaaaX.....
+            ....XaaaaaaaaaaaX.....
+            ....XaaaaaaaaaXXX.....
+            .....XaaaaaXXX........
+            .....XaaXXX...........
+            .....XXX..............
             ......................
         } {
             .  trans
             X  #000000
+            a  #FFFFFF
         }
-
     }
 
     #-------------------------------------------------------------------
@@ -150,21 +177,31 @@ snit::widget mapviewer {
 
     # Info array; used for most scalars
     #
+    #    fillpoly       1 if polygons should be filled, and 0 otherwise.
     #    mode           The current mapcanvas(n) mode
     #    ref            The current map reference
     #    zoom           Current zoom factor show in the zoombox
 
     variable info -array {
-        mode  ""
-        ref   ""
-        zoom  "100%"
+        mode     ""
+        ref      ""
+    }
+
+    # View array; used for values that control the view
+    #
+    #    fillpoly       1 if polygons should be filled, and 0 otherwise.
+    #    zoom           Current zoom factor show in the zoombox
+
+    variable view -array {
+        fillpoly 0
+        zoom     "100%"
     }
 
     # nbhoods array: 
     #
     #     $id is canvas nbhood ID
     #     $n  is "n" column from nbhoods table.
-    #  
+    #
     # n-$id      n, given ID
     # id-$n      id, given n
 
@@ -201,7 +238,7 @@ snit::widget mapviewer {
             -relief flat
 
         ComboBox $win.hbar.zoombox \
-            -textvariable [myvar info(zoom)]                           \
+            -textvariable [myvar view(zoom)]                           \
             -font          codefont                                    \
             -editable      0                                           \
             -width         4                                           \
@@ -214,8 +251,16 @@ snit::widget mapviewer {
             -textvariable [myvar info(ref)] \
             -width 8
 
-        pack $win.hbar.zoombox -side right
-        pack $win.hbar.ref     -side right
+        checkbutton $win.hbar.fillpoly              \
+            -indicatoron no                         \
+            -offrelief   flat                       \
+            -variable    [myvar view(fillpoly)]     \
+            -image       ${type}::icon::fill_poly   \
+            -command     [mymethod ButtonFillPoly]
+
+        pack $win.hbar.zoombox  -side right
+        pack $win.hbar.ref      -side right
+        pack $win.hbar.fillpoly -side right
 
         # Separator
         frame $win.sep -height 2 -relief sunken -borderwidth 2
@@ -224,9 +269,9 @@ snit::widget mapviewer {
         frame $win.vbar -relief flat
 
         $self AddModeTool browse left_ptr
+        $self AddModeTool pan    fleur
         $self AddModeTool point  crosshair
         $self AddModeTool poly   draw_poly
-        $self AddModeTool pan    fleur
 
         # Pack all of these components
         pack $win.hbar  -side top  -fill x
@@ -384,9 +429,21 @@ snit::widget mapviewer {
 
         $self refresh
 
-        set info(zoom) "100%"
+        set view(zoom) "100%"
 
         return
+    }
+
+    #-------------------------------------------------------------------
+    # FillPoly
+    
+
+    # ButtonFillPoly
+    #
+    # Fills/unfills the neighborhood polygons
+
+    method ButtonFillPoly {} {
+        $self NbhoodFill
     }
 
     #-------------------------------------------------------------------
@@ -397,7 +454,7 @@ snit::widget mapviewer {
     # Sets the map zoom to the specified amount.
 
     method ZoomBoxSet {} {
-        scan $info(zoom) "%d" factor
+        scan $view(zoom) "%d" factor
         $canvas zoom $factor
     }
 
@@ -428,6 +485,9 @@ snit::widget mapviewer {
         } {
             $self NbhoodDraw $n $refpoint $polygon
         }
+
+        # NEXT, fill them, or not.
+        $self NbhoodFill
 
         # NEXT, create icons
         # TBD: Ultimately, this will query the RDB; for now, 
@@ -469,6 +529,23 @@ snit::widget mapviewer {
         # NEXT, save the name by the ID.
         set nbhoods(n-$id) $n
         set nbhoods(id-$n) $id
+    }
+
+    # NbhoodFill
+    #
+    # Fills the neighborhood polygons according to the current
+    # FillPoly setting
+
+    method NbhoodFill {} {
+        if {$view(fillpoly)} {
+            set fill white
+        } else {
+            set fill ""
+        }
+
+        foreach id [$canvas nbhood ids] {
+            $canvas nbhood configure $id -fill $fill
+        }
     }
 
     # nbhood configure n option value...

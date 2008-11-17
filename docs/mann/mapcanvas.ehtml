@@ -337,6 +337,10 @@ Returns the value of the specified
 Sets the value of one or more of the
 neighborhood options.<p>
 
+<<defitem "nbhood ids" {<i>win</i> nbhood ids}>>
+
+Returns a list of the neighborhood IDs.<p>
+
 <</deflist>>
 
 <<defitem refresh {<i>win</i> refresh}>>
