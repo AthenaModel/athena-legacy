@@ -1,0 +1,200 @@
+<<manpage vignettes(sim) "Vignettes">>
+
+<<section DESCRIPTION>>
+
+The modules in minerva_sim(1) make great use of event notification to
+trigger application behavior.  For example, GUI updates are generally
+triggered by <<xref notifier(n)>> events sent by the simulation; and a
+variety of application behavior is triggered by GUI events.  This man
+page describes the most important vignettes using sequence
+diagrams.<p>
+
+<<subsection "Conventions">>
+
+The names of most actors are simply the names the man pages for the
+relevant modules.  For modules within minerva_sim(1), the "(sim)"
+suffix is omitted from the man page name.  Names in ALL CAPS represent
+other entities; for example, the name "GUI" refers to user
+interactions with the GUI.<p>
+
+<<section "SCENARIO MANAGEMENT">>
+
+The vignettes in this section involve the management of scenario
+files, i.e., opening, saving, and so forth.<p>
+
+<<subsection "New Scenario">>
+
+The user wishes to begin work on a new scenario.<p>
+
+<<sequence -narration {
+actor GUI
+actor mainwin
+actor scenario
+actor map
+actor mapviewer
+
+message GUI mainwin "File/New Scenario"
+
+action mainwin "Allow user to save unsaved data."
+
+message mainwin scenario "scenario new"
+
+action scenario "Clears the scenario data."
+
+message scenario {mainwin map} <ScenarioNew>
+
+action map "Loads the empty map."
+
+message map mapviewer <MapLoaded>
+
+action mapviewer "Displays an empty map."
+
+}>>
+
+<<subsection "Open Scenario">>
+
+The user wishes to open an existing scenario.<p>
+
+<<sequence -narration {
+actor GUI
+actor mainwin
+actor scenario
+actor map
+actor mapviewer
+
+message GUI mainwin "File/Open Scenario"
+
+action mainwin "Allow user to save unsaved data."
+
+message mainwin scenario "scenario open \$filename"
+
+action scenario "Loads the scenario data."
+
+message scenario {mainwin map} <ScenarioOpened>
+
+action map "Loads the map (if any) from the scenario"
+
+message map mapviewer <MapLoaded>
+
+action mapviewer "Displays the map."
+
+}>>
+
+<<subsection "Save Scenario">>
+
+The user wishes to save the current scenario.<p>
+
+<<sequence -narration {
+actor GUI
+actor mainwin
+actor scenario
+
+message GUI mainwin "File/Save Scenario"
+
+action mainwin "Allow user to select the file name, if need be."
+
+message mainwin scenario "scenario save \$filename"
+
+action scenario "Clears the scenario data."
+
+message scenario mainwin <ScenarioSaved>
+}>>
+
+<<subsection "Exit Application">>
+
+The user wishes to exit the application.<p>
+
+<<sequence -narration {
+actor GUI
+actor mainwin
+actor app
+
+message GUI mainwin "File/Exit"
+
+action mainwin "Allow user to save unsaved data."
+
+message mainwin app "app exit"
+
+action app "Shut down the application."
+}>>
+
+<<section "ORDER PROCESSING">>
+
+<<subsection "Order Sent by Dialog">>
+
+The following vignette describes the mechanism by which
+orders are entered using an order dialog.<p>
+
+<<sequence -narration {
+actor GUI
+actor orderdialog
+actor order
+actor SIM
+
+message GUI orderdialog "orderdialog enter \$order"
+
+action orderdialog "The user enters order parameter values"
+
+message orderdialog order "order send \$order \$parmdict"
+
+action order "The order is validated."
+
+message order SIM ...
+
+action SIM "The order takes effect in the simulation."
+}>>
+
+<<subsection "Order Sent Directly">>
+
+Of course, the GUI can also send orders directly.<p>
+
+<<sequence -narration {
+actor GUI
+actor order
+actor SIM
+
+message GUI order "order send \$order \$parmdict"
+
+action order "The order is validated."
+
+message order SIM ...
+
+action SIM "The order takes effect in the simulation."
+}>>
+
+
+<<section "MISCELLANEOUS ACTIONS">>
+
+<<subsection "Import Map">>
+
+The user wishes to import a new map into the current scenario.<p>
+
+<<sequence -narration {
+actor GUI
+actor mainwin
+actor map
+actor mapviewer
+
+message GUI mainwin "File/Import Map"
+
+message mainwin map "map import \$filename"
+
+action map "Imports the map into the RDB, and loads it."
+
+message map mapviewer <MapLoaded>
+
+message map mainwin "<MapImported> \$filename"
+
+action mapviewer "Displays the map."
+
+}>>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<</manpage>>
+
+
+
+
