@@ -178,7 +178,7 @@ snit::widget mainwin {
         
         $ordersmenu add command \
             -label "Create Neighborhood" \
-            -command [list orderdialog enter NBHOOD:CREATE $win]
+            -command [list ordergui enter NBHOOD:CREATE $win]
     }
 
     # CreateComponents
@@ -557,5 +557,6 @@ snit::widget mainwin {
         $msgline puts $text
     }
 }
+
 
 

@@ -293,7 +293,7 @@ snit::widget mapviewer {
 
         # NEXT, Support order processing.  This will set the viewer mode
         # to support the currently edited order field.
-        notifier bind ::orderdialog <OrderEntry> $self [mymethod OrderEntry]
+        notifier bind ::ordergui <OrderEntry> $self [mymethod OrderEntry]
 
         bind $canvas <<Point-1>>      [mymethod Point-1 %d]
         bind $canvas <<PolyComplete>> [mymethod PolyComplete %d]
@@ -374,9 +374,9 @@ snit::widget mapviewer {
     # field's value to this point.  Otherwise, propagate the event.
 
     method Point-1 {ref} {
-        if {[orderdialog isactive]} {
-            if {[orderdialog parm type current] eq "point"} {
-                orderdialog parm set current $ref
+        if {[ordergui isactive]} {
+            if {[ordergui parm type current] eq "point"} {
+                ordergui parm set current $ref
             }
         } else {
             event generate $win <<Point-1>> -data $ref
@@ -393,9 +393,9 @@ snit::widget mapviewer {
     # the event.
 
     method PolyComplete {poly} {
-        if {[orderdialog isactive]} {
-            if {[orderdialog parm type current] eq "polygon"} {
-                orderdialog parm set current $poly
+        if {[ordergui isactive]} {
+            if {[ordergui parm type current] eq "polygon"} {
+                ordergui parm set current $poly
             }
         } else {
             event generate $win <<PolyComplete>> -data $poly
@@ -572,6 +572,7 @@ snit::widget mapviewer {
     }
 
 }
+
 
 
 

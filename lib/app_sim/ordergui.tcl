@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    orderdialog.tcl
+#    ordergui.tcl
 #
 # AUTHOR:
 #    Will Duquette
@@ -11,7 +11,7 @@
 #
 #-----------------------------------------------------------------------
 
-snit::type orderdialog {
+snit::type ordergui {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
@@ -559,3 +559,4 @@ snit::widgetadaptor textentry {
 
     delegate method * to hull
 }
+

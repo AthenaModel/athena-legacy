@@ -1,4 +1,4 @@
-<<manpage orderdialog(sim) "Order Dialog Manager">>
+<<manpage ordergui(sim) "Order Dialog Manager">>
 
 <<section SYNOPSIS>>
 
@@ -10,28 +10,28 @@ package require app_sim 1.0
 
 <<section DESCRIPTION>>
 
-orderdialog(sim) is responsible for managing the application's "Send
+ordergui(sim) is responsible for managing the application's "Send
 Order" dialog.  This dialog is designed to allow entry of the data for
 any order supported by <<xref order(sim)>>.<p>
 
 <<section "COMMANDS">>
 
-orderdialog(sim) provides the following commands for use by the application.<p>
+ordergui(sim) provides the following commands for use by the application.<p>
 
 <<deflist commands>>
 
-<<defitem cancel {orderdialog cancel}>>
+<<defitem cancel {ordergui cancel}>>
 
 Pops down the order dialog.<p>
 
-<<defitem enter {orderdialog enter <i>order parent</i>}>>
+<<defitem enter {ordergui enter <i>order parent</i>}>>
 
 Pops up the order dialog for the named <i>order</i>, which must be
 defined by <<xref order(sim)>>, over window <i>parent</i>.  The order
 dialog is now active until the dialog is popped down, other
 programmatically or by the user.<p>
 
-<<defitem entrytype {orderdialog entrytype <i>etype ptype</i> ?<i>options...</i>?}>>
+<<defitem entrytype {ordergui entrytype <i>etype ptype</i> ?<i>options...</i>?}>>
 
 Defines a new entry type for the specified parameter type,
 <i>ptype</i>.  Note that if a parameter's type has no related entry
@@ -64,28 +64,28 @@ If <code>-valuescmd</code> is specified, <code>-values</code> is ignored.<p>
 
 <</deflist options>>
 
-<<defitem init {orderdialog init}>>
+<<defitem init {ordergui init}>>
 
 Initialize the dialog.  Call this once, at application initialization.<p>
 
-<<defitem isactive {orderdialog isactive}>>
+<<defitem isactive {ordergui isactive}>>
 
 Returns 1 if the order dialog is visible and in use, and 0 otherwise.<p>
 
-<<defitem parm {orderdialog parm <i>subcommand</i> ?<i>args...</i>?}>>
+<<defitem parm {ordergui parm <i>subcommand</i> ?<i>args...</i>?}>>
 
 This subcommand is used to interact with the parameter entries in an
 active order dialog.<p>
 
 <<deflist parm>>
 
-<<defitem "parm type" {orderdialog parm type <i>parm</i>}>>
+<<defitem "parm type" {ordergui parm type <i>parm</i>}>>
 
 Returns the type of the named parameter; if <i>parm</i> is <b>current</b>, it
 returns the type of the parameter associated with the currently active
 entry.<p>
 
-<<defitem "parm set" {orderdialog parm set <i>parm value</i>}>>
+<<defitem "parm set" {ordergui parm set <i>parm value</i>}>>
 
 Sets the value shown in the entry for the named parameter; if
 <i>parm</i> is <b>current</b>, it sets the value shown in currently
@@ -97,7 +97,7 @@ active entry.<p>
 
 <<section "NOTIFIER EVENTS">>
 
-orderdialog(sim) sends the following events.<p>
+ordergui(sim) sends the following events.<p>
 
 <<deflist events>>
 
@@ -128,6 +128,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 

@@ -127,15 +127,15 @@ orders are entered using an order dialog.<p>
 
 <<sequence -narration {
 actor GUI
-actor orderdialog
+actor ordergui
 actor order
 actor SIM
 
-message GUI orderdialog "orderdialog enter \$order"
+message GUI ordergui "ordergui enter \$order"
 
-action orderdialog "The user enters order parameter values"
+action ordergui "The user enters order parameter values"
 
-message orderdialog order "order send \$order \$parmdict"
+message ordergui order "order send \$order \$parmdict"
 
 action order "The order is validated."
 
@@ -194,6 +194,7 @@ action mapviewer "Displays the map."
 Will Duquette<p>
 
 <</manpage>>
+
 
 
 

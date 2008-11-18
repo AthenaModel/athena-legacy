@@ -88,9 +88,9 @@ snit::type app {
 
         # NEXT, prepare to handle orders
         order       init
-        orderdialog init
+        ordergui init
 
-        orderdialog entrytype enum urbanization \
+        ordergui entrytype enum urbanization \
             -values [eurbanization names]
 
         # NEXT, log that we're up.
@@ -155,6 +155,7 @@ snit::type app {
         exit
     }
 }
+
 
 
 
