@@ -177,14 +177,14 @@ snit::widget mapviewer {
 
     # Info array; used for most scalars
     #
-    #    fillpoly       1 if polygons should be filled, and 0 otherwise.
     #    mode           The current mapcanvas(n) mode
+    #    orderflag      1 if an order is being entered, and 0 otherwise.
     #    ref            The current map reference
-    #    zoom           Current zoom factor show in the zoombox
 
     variable info -array {
-        mode     ""
-        ref      ""
+        mode      ""
+        orderflag 0
+        ref       ""
     }
 
     # View array; used for values that control the view
@@ -355,9 +355,28 @@ snit::widget mapviewer {
     #
     # ptype   The type of the select parameter
     #
-    # Sets the viewer to the appropriate mode for the parameter type
+    # Detects when we are in order entry mode and when we are not.
+    #
+    # On leaving order entry mode the transient graphics are deleted.
+    #
+    # In addition, in order entry mode this sets the viewer to the 
+    # appropriate mode for the parameter type. 
+    #
+    # TBD: In the long run, certain modes shouldn't be allowed in order
+    # entry mode.  But unfortunately, pan mode can't be one of them.
 
     method OrderEntry {ptype} {
+        # FIRST, handle entering and leaving order entry mode
+        if {$ptype ne "" && !$info(orderflag)} {
+            # Entering order entry mode
+            set info(orderflag) 1
+        } elseif {$ptype eq "" && $info(orderflag)} {
+            # Leaving order entry mode
+            set info(orderflag 0)
+            $canvas delete transient
+        }
+
+        # NEXT, set the mode according to the parameter type
         switch -exact -- $ptype {
             point   { $self mode point  }
             polygon { $self mode poly   }
@@ -376,6 +395,17 @@ snit::widget mapviewer {
     method Point-1 {ref} {
         if {[ordergui isactive]} {
             if {[ordergui parm type current] eq "point"} {
+                # FIRST, plot a point; mark existing points as old.
+                $canvas itemconfigure {transient&&point} -fill blue
+
+                lassign [$canvas ref2c $ref] cx cy
+                
+                $canvas create oval [boxaround 3.0 $cx $cy] \
+                    -outline blue                           \
+                    -fill    cyan                           \
+                    -tags    [list transient point]
+
+                # NEXT, save the ref into the order
                 ordergui parm set current $ref
             }
         } else {
@@ -395,6 +425,15 @@ snit::widget mapviewer {
     method PolyComplete {poly} {
         if {[ordergui isactive]} {
             if {[ordergui parm type current] eq "polygon"} {
+                # FIRST, delete existing polygons, and plot the new one.
+                $canvas itemconfigure {transient&&polygon} -outline blue
+
+                $canvas create polygon [$canvas ref2c {*}$poly] \
+                    -outline cyan                               \
+                    -fill    ""                                 \
+                    -tags    [list transient polygon]
+
+                # NEXT, save the polygon into the order.
                 ordergui parm set current $poly
             }
         } else {

@@ -259,6 +259,12 @@ namespace eval ::minlib::test {
         cleanup
     } -result {3000.0 1999.9999999999998}
 
+    test ref2c-1.5 {Convert list} -setup setup -body {
+        proj ref2c A00A00 K99G66
+    } -cleanup {
+        cleanup
+    } -result {0.0 0.0 1500.0 999.9999999999999}
+
 
     #-------------------------------------------------------------------
     # ref2m

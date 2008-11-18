@@ -16,8 +16,7 @@
 #
 #    The Map
 #        The map is an image file; the canvas' scroll region is precisely
-#        the extent of the map.  TBD: Eventually, mapcanvas will support
-#        different zoom levels.
+#        the extent of the map.
 #
 #    Neighborhoods
 #        Neighborhoods are represented as polygons.  By default, 
@@ -1052,8 +1051,6 @@ snit::widgetadaptor ::mingui::mapcanvas {
     # uses SnapToPoint.
 
     method PolySnap {cx cy} {
-        # TBD: Should validate the polygon
-
         # FIRST, snap to the first point in the polygon, if that 
         # makes sense.  We can do this even if -snapmode is off.
         if {[info exists trans(poly)] &&

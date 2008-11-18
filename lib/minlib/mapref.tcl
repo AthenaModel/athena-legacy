@@ -178,18 +178,22 @@ snit::type ::minlib::mapref {
         return [GetRef $fac $cx][GetRef $fac $cy]
     }
 
-    # ref2c ref
+    # ref2c ref...
     #
     # ref   A map reference
     #
-    # Returns a {cx cy} pair in canvas units
+    # Returns a list {cx cy} in canvas units
 
-    method ref2c {ref} {
+    method ref2c {args} {
         set fac [expr {$mapFactor * ($zoomFactor/100.0)}]
 
-        list \
-            [GetCan $fac [string range $ref 0 2]] \
-            [GetCan $fac [string range $ref 3 5]]
+        foreach ref $args {
+            lappend result \
+                [expr {[GetCan $fac [string range $ref 0 2]]}] \
+                [expr {[GetCan $fac [string range $ref 3 5]]}]
+        }
+
+        return $result
     }
 
     # m2ref mx my
@@ -206,7 +210,7 @@ snit::type ::minlib::mapref {
     #
     # ref   A map reference string
     #
-    # Returns a list  {mx my...} in map units
+    # Returns a list {mx my...} in map units
 
     method ref2m {args} {
         foreach ref $args {
