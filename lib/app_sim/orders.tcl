@@ -17,7 +17,7 @@
 #
 # Creates new neighborhoods.
 
-order define NBHOOD:CREATE {
+ordergui define NBHOOD:CREATE {
     title "Create Neighborhood"
     parms {
         longname     {ptype text          label "Long Name"       }
@@ -25,6 +25,10 @@ order define NBHOOD:CREATE {
         refpoint     {ptype point         label "Reference Point" }
         polygon      {ptype polygon       label "Polygon"         }
     }
+}
+
+order define NBHOOD:CREATE {
+    # TBD
 } {
     # FIRST, validate the parameters
     

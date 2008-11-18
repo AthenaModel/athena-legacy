@@ -53,12 +53,14 @@ source [file join $::app_sim::library app.tcl         ]
 source [file join $::app_sim::library scenario.tcl    ]
 source [file join $::app_sim::library map.tcl         ]
 source [file join $::app_sim::library order.tcl       ]
-source [file join $::app_sim::library orders.tcl      ]
 
 # GUI
-source [file join $::app_sim::library ordergui.tcl ]
+source [file join $::app_sim::library ordergui.tcl    ]
 source [file join $::app_sim::library mainwin.tcl     ]
 source [file join $::app_sim::library mapviewer.tcl   ]
 source [file join $::app_sim::library mapicons.tcl    ]
+
+# Orders
+source [file join $::app_sim::library orders.tcl      ]
 
 

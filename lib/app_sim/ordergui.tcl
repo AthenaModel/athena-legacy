@@ -86,6 +86,14 @@ snit::type ordergui {
     }
 
     #-------------------------------------------------------------------
+    # Dialog Definition data
+
+
+    # Array of meta dicts by order name.
+    typevariable meta -array {}
+
+
+    #-------------------------------------------------------------------
     # Type Variables
 
     # info array: scalar variables
@@ -103,6 +111,9 @@ snit::type ordergui {
         order       ""
         title       ""
     }
+
+    #-------------------------------------------------------------------
+    # Transient Data used while active
 
     # etypes array: Entry widget types by parameter type
     typevariable etypes -array { }
@@ -211,6 +222,28 @@ snit::type ordergui {
     #-------------------------------------------------------------------
     # Public Type Methods
 
+    # define name metadata
+    
+    # name        The name of the order
+    # metadata    A dictionary of meta-data about the order.
+    #
+    # Defines meta-data for the order that defines the order's dialog.
+
+    typemethod define {name metadata} {
+        # NEXT, save the metadata
+        set meta($name) $metadata
+    }
+
+    # meta order key ?key...?
+    #
+    # order     The name of an order
+    # key...    Keys into the meta dictionary
+    #
+    # Returns the result of "dict get" on the meta dictionary
+
+    typemethod meta {order args} {
+        return [dict get $meta($order) {*}$args]
+    }
     
     # isactive
     #
@@ -234,7 +267,7 @@ snit::type ordergui {
         }
 
         # NEXT, get the parm type
-        return [order meta $info(order) parms $parm ptype]
+        return [$type meta $info(order) parms $parm ptype]
     }
 
     # parm set parm value
@@ -270,7 +303,7 @@ snit::type ordergui {
 
         # FIRST, get the order's title
         set info(order) $order
-        set info(title) [order meta $order title]
+        set info(title) [$type meta $order title]
         array unset values
         array unset icon
         array unset perrors
@@ -278,7 +311,7 @@ snit::type ordergui {
         # NEXT, add the parameter fields
         set row -1
         
-        dict for {parm pdict} [order meta $order parms] {
+        dict for {parm pdict} [$type meta $order parms] {
             # FIRST, get the current row
             incr row
 
@@ -416,7 +449,7 @@ snit::type ordergui {
 
         # NEXT, if there's an error message, display it.
         if {[info exists perrors($parm)]} {
-            set label [order meta $info(order) parms $parm label]
+            set label [$type meta $info(order) parms $parm label]
             $type Message "$label: $perrors($parm)"
         } else {
             $type Message ""

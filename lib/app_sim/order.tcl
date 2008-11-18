@@ -203,17 +203,6 @@ snit::type order {
         set meta($name) $metadata
     }
 
-    # meta order key ?key...?
-    #
-    # order     The name of an order
-    # key...    Keys into the meta dictionary
-    #
-    # Returns the result of "dict get" on the meta dictionary
-
-    typemethod meta {order args} {
-        return [dict get $meta($order) {*}$args]
-    }
-
     #-------------------------------------------------------------------
     # Procs for use in order handlers
 
