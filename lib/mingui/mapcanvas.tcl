@@ -1359,7 +1359,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
         $hull create polygon $cpoly                        \
             -outline black                                 \
             -fill    $nbhoods(fill-$id)                    \
-            -tags    [list $id $id.poly nbhood]
+            -tags    [list $id $id.poly nbhood snaps]
 
         $hull create oval [BoxAround 3 $crx $cry]          \
             -outline $nbhoods(pointcolor-$id)              \
