@@ -273,21 +273,25 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
     # info array
     #
-    #   gotMap       1 if -map is set and clear'd, and 0 otherwise.
-    #   gotPointer   1 if mouse pointer over widget, 0 otherwise.
-    #   iconCounter  Used to name icons
-    #   mode         Current interaction mode
-    #   modeTags     List of canvas tags associated with the current
-    #                mode's bindings.
-    #   zoom         Current zoom factor.
+    #   gotPointer      1 if mouse pointer over widget, 0 otherwise.
+    #   iconCounter     Used to name icons
+    #   mode            Current interaction mode
+    #   modeTags        List of canvas tags associated with the current
+    #                   mode's bindings.
+    #   region          normal | extended
+    #   regionNormal    Normal scroll region: shrinkwrapped to map image
+    #   regionExtended  Extended scroll region: square
+    #   zoom            Current zoom factor.
 
     variable info -array {
-        gotMap      0
-        gotPointer  0
-        iconCounter 0
-        mode        ""
-        modeTags    {}
-        zoom        100
+        gotPointer     0
+        iconCounter    0
+        mode           ""
+        modeTags       {}
+        region         normal
+        regionNormal   {0 0 1000 1000}
+        regionExtended {0 0 1000 1000}
+        zoom           100
     }
 
     # zooms array
@@ -458,51 +462,27 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
         # NEXT, if there's no map, handle it.
         if {$options(-map) eq ""} {
-            set info(gotMap) 0
-            $self mode null
-            set proj [myproc UndefinedMap]
+            $self mode browse
 
-            # Add a string saying there's no map
-            set wid [winfo width  $win]
-            set ht  [winfo height $win]
+            $self GetProjection
 
-            $hull configure -scrollregion [list 0 0 $wid $ht]
-
-            $hull create text 1c 1c        \
-                -anchor nw                 \
-                -text   "No map available"
-
-            return
-        }
-
-        # NEXT, create the map item using the current zoom.
-        $hull create image 0 0          \
-            -anchor nw                  \
-            -image  $zooms($info(zoom)) \
-            -tags   map
-
-        # NEXT, set the scroll region to the whole map.
-        $hull configure -scrollregion [$hull bbox map]
-        
-        # NEXT, if a projection is specified, remember it; otherwise,
-        # create one.
-
-        if {[llength [info command ${selfns}::proj]] != 0} {
-            ${selfns}::proj destroy
-        }
-
-        if {$options(-projection) ne ""} {
-            set proj $options(-projection)
+            # Set the scroll region
+            $self region normal
         } else {
-            if {[llength [info command ${selfns}::proj]] == 0} {
-                mapref ${selfns}::proj \
-                    -width  [image width  $options(-map)] \
-                    -height [image height $options(-map)]
-            }
+            # NEXT, get the projection.
+            $self GetProjection
 
-            set proj ${selfns}::proj
+            # NEXT, create the map item using the current zoom.
+            $hull create image 0 0          \
+                -anchor nw                  \
+                -image  $zooms($info(zoom)) \
+                -tags   map
+            
+            # NEXT, get and set the scroll region
+            $self GetScrollRegions
+            $self region $info(region)
         }
-
+        
         # NEXT, set the projection to the current zoom factor
         $proj zoom $info(zoom)
 
@@ -522,13 +502,94 @@ snit::widgetadaptor ::mingui::mapcanvas {
             }
         }
 
-        # NEXT, remember that we have a map.
-        set info(gotMap) 1
-
         # NEXT, set the interaction mode back to "browse".
         $self mode browse
 
         return
+    }
+
+    # GetProjection
+    #
+    # Determines the projection to use, given the inputs, and
+    # returns it.
+
+    method GetProjection {} {
+        # FIRST, if we've been given a projection, use it; it's
+        # up the caller to get it right.  Otherwise, create and
+        # configure one.
+
+        if {$options(-projection) ne ""} {
+            set proj $options(-projection)
+        } else {
+            set proj ${selfns}::proj
+
+            # FIRST, create one if we don't have one.
+            if {[llength [info command $proj]] == 0} {
+                mapref $proj
+            }
+
+            # NEXT, if we have a map use the map dimensions; otherwise
+            # use 1000x1000
+
+            if {$options(-map) ne ""} {
+                $proj configure                           \
+                    -width  [image width  $options(-map)] \
+                    -height [image height $options(-map)]
+            } else {
+                $proj configure  \
+                    -width  1000 \
+                    -height 1000
+            }
+        }
+    }
+
+    # GetScrollRegions
+    #
+    # Determines the bounding boxes for the normal and extended
+    # scroll regions
+
+    method GetScrollRegions {} {
+        set bbox [$hull bbox map]
+
+        if {[llength $bbox] != 0} {
+            # x1,y1 = 0,0
+            lassign $bbox x1 y1 x2 y2
+        } else {
+            set zoom [$proj zoom]
+
+            set x2 [expr {$zoom*[$proj cget -width]}]
+            set y2 [expr {$zoom*[$proj cget -height]}]
+        }
+
+        set info(regionNormal) [list 0 0 $x2 $y2]
+
+        set bound [expr {max($x2,$y2)}]
+        set info(regionExtended) [list 0 0 $bound $bound]
+    }
+
+    # region ?region?
+    #
+    # region    normal | extended
+    #
+    # Sets/queries the displayed region.  If normal, only the map is shown;
+    # if extended, the full range of map coordinates are shown.
+
+    method region {{region ""}} {
+        if {$region eq ""} {
+            return $info(region)
+        }
+
+        require {$region in {normal extended}} "Invalid region: \"$region\""
+
+        set info(region) $region
+
+        if {$region eq "normal"} {
+            $hull configure -scrollregion $info(regionNormal)
+        } else {
+            $hull configure -scrollregion $info(regionExtended)
+        }
+
+        return $info(region)
     }
 
     # see mappoint
@@ -562,7 +623,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
         set cy1 [expr {$cy - $wy}]
 
         # NEXT, get the scroll region
-        lassign [$hull bbox map] xdummy ydummy cwidth cheight
+        lassign [$hull cget -scrollregion] xdummy ydummy cwidth cheight
 
         # NEXT, compute the fractions
         set fx [expr {min(max($cx1/$cwidth,0.0),1.0)}]
@@ -601,11 +662,6 @@ snit::widgetadaptor ::mingui::mapcanvas {
         # FIRST, if no new mode is given, return the current mode.
         if {$mode eq ""} {
             return $info(mode)
-        }
-
-        # NEXT, there's no map the mode can only be null.
-        if {!$info(gotMap)} {
-            set mode null
         }
 
         # NEXT, call the old mode's cleanup method, if any.
@@ -698,11 +754,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
         if {$info(gotPointer) 
             && $options(-refvariable) ne "" 
         } {
-            if {$info(gotMap)} {
-                set ref [$self w2ref $wx $wy]
-            } else {
-                set ref ""
-            }
+            set ref [$self w2ref $wx $wy]
 
             uplevel \#0 [list set $options(-refvariable) $ref]
         }
@@ -1072,8 +1124,6 @@ snit::widgetadaptor ::mingui::mapcanvas {
     # Coordinate Conversion methods
 
     # Methods delegated to projection
-    delegate method mapdim to proj as dim
-    delegate method mapbox to proj as box
     delegate method m2ref  to proj
     delegate method ref2m  to proj
     delegate method c2m    to proj
@@ -1525,9 +1575,9 @@ snit::widgetadaptor ::mingui::mapcanvas {
         lassign [$hull xview] fx1 fx2
         lassign [$hull yview] fy1 fy2
 
-        # NEXT, get the map bounding box in map coordinates.
+        # NEXT, get the scroll region in map coordinates.
         # Note that cx1 and cy1 are both zero.
-        lassign [$hull bbox map] cx1 cy1 cx2 cy2
+        lassign [$hull cget -scrollregion] cx1 cy1 cx2 cy2
 
         # NEXT, compute the center point in canvas coordinates
         set cx [expr {0.5*($fx1 + $fx2)*$cx2}]

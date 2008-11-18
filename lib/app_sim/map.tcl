@@ -23,7 +23,6 @@ snit::type map {
     # Type Components
 
     typecomponent mapimage    ;# Tk image of current map, or ""
-    typecomponent projection  ;# projection(i), or NoMap
 
     #-------------------------------------------------------------------
     # Type Variables
@@ -34,7 +33,7 @@ snit::type map {
     typemethod init {} {
         # FIRST, there's no map yet.
         set mapimage   ""
-        set projection [myproc NoMap]
+        set projection [mapref ${type}::proj]
 
         # NEXT, bind to significant events
         notifier bind ::scenario <ScenarioNew>    $type [mytypemethod load]
@@ -43,18 +42,10 @@ snit::type map {
         log normal map "Initialized"
     }
 
-
-    # NoMap ?args?
-    #
-    # No map has been loaded
-
-    proc NoMap {args} {
-        error "No map has been loaded"
-    }
-
     #-------------------------------------------------------------------
     # Public Typemethods
 
+    delegate typemethod box   to projection
     delegate typemethod ref2m to projection
     delegate typemethod m2ref to projection
     delegate typemethod ref   to projection
@@ -87,9 +78,10 @@ snit::type map {
             image delete $mapimage
             set mapimage ""
 
-            # NEXT, delete the projection
-            rename $projection ""
-            set projection [myproc NoMap]
+            # NEXT, reset the projection
+            $projection configure \
+                -width  1000      \
+                -height 1000
         }
 
         # NEXT, load the new map.
@@ -100,10 +92,10 @@ snit::type map {
             # FIRST, create the image
             set mapimage [image create photo -format jpeg -data $data]
 
-            # NEXT, create the projection
-            set projection [mapref ${type}::proj \
-                                -width  $width   \
-                                -height $height]
+            # NEXT, configure the projection
+            $projection configure \
+                -width  $width    \
+                -height $height
         }
 
         # NEXT, notify the app that the map has been loaded.

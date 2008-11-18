@@ -160,7 +160,41 @@ snit::widget mapviewer {
             X  #000000
             a  #FFFFFF
         }
+
+        mkicon ${type}::icon::extend {
+            ......................
+            .,,,,,,x-------------.
+            .,,,xxx--------------.
+            .,,x-----------^-----.
+            .,,x----------^-^----.
+            .,,,xx-------^-------.
+            .,,,,,xx----^-^--^---.
+            .,,,,,,,x-------^-^--.
+            .,,,,,,x-----^-------.
+            .,,,,,x-----^-^------.
+            .,,,,x---------------.
+            .,,,x-----------,,---.
+            .,,,,xxx-------,,,,--.
+            .,,,,,,x--------,,---.
+            .,,,,xx--------------.
+            .aaaaaaaaaaaaaaaaaaaa.
+            .aaaaaaaaaaaaaaaaaaaa.
+            .aaaaaaaaaaaaaaaaaaaa.
+            .aaaaaaaaaaaaaaaaaaaa.
+            .aaaaaaaaaaaaaaaaaaaa.
+            .aaaaaaaaaaaaaaaaaaaa.
+            ......................
+        } {
+            .  trans
+            X  #000000
+            a  #FFFFFF
+            x  #000000
+            ,  #00CCCC
+            ^  #660000
+            -  #FFCC33
+        }
     }
+
 
     #-------------------------------------------------------------------
     # Options
@@ -190,10 +224,12 @@ snit::widget mapviewer {
     # View array; used for values that control the view
     #
     #    fillpoly       1 if polygons should be filled, and 0 otherwise.
+    #    region         normal | extended
     #    zoom           Current zoom factor show in the zoombox
 
     variable view -array {
         fillpoly 0
+        region   normal
         zoom     "100%"
     }
 
@@ -227,10 +263,10 @@ snit::widget mapviewer {
 
         # Map canvas
         install canvas using mapcanvas $win.mapsw.canvas \
-            -background   white                          \
-            -modevariable [myvar info(mode)]             \
-            -refvariable  [myvar info(ref)]
-        
+            -background     white                        \
+            -modevariable   [myvar info(mode)]           \
+            -refvariable    [myvar info(ref)]
+
         $win.mapsw setwidget $canvas
 
         # Horizontal tool bar
@@ -258,9 +294,19 @@ snit::widget mapviewer {
             -image       ${type}::icon::fill_poly   \
             -command     [mymethod ButtonFillPoly]
 
+        checkbutton $win.hbar.extend                \
+            -indicatoron no                         \
+            -offrelief   flat                       \
+            -onvalue     extended                   \
+            -offvalue    normal                     \
+            -variable    [myvar view(region)]       \
+            -image       ${type}::icon::extend      \
+            -command     [mymethod ButtonExtend]
+
         pack $win.hbar.zoombox  -side right
-        pack $win.hbar.ref      -side right
         pack $win.hbar.fillpoly -side right
+        pack $win.hbar.extend   -side right
+        pack $win.hbar.ref      -side right
 
         # Separator
         frame $win.sep -height 2 -relief sunken -borderwidth 2
@@ -283,7 +329,7 @@ snit::widget mapviewer {
         $self configurelist $args
 
         # NEXT, draw everything for the current map, whatever it is.
-        $self MapLoaded
+        $self refresh
 
         # NEXT, Forward virtual events from the canvas to the application.
         $self ForwardVirtual <<Icon-1>>
@@ -299,7 +345,7 @@ snit::widget mapviewer {
         bind $canvas <<PolyComplete>> [mymethod PolyComplete %d]
 
         # NEXT, Support model updates
-        notifier bind ::map   <MapLoaded>     $self [mymethod MapLoaded]
+        notifier bind ::map   <MapLoaded>     $self [mymethod refresh]
         notifier bind ::order <NbhoodChanged> $self [mymethod NbhoodChanged]
     }
 
@@ -458,21 +504,6 @@ snit::widget mapviewer {
         $self NbhoodDraw $n $refpoint $polygon
     }
 
-    # MapLoaded
-    #
-    # Configures the viewer to show the new map.  The args are ignored.
-
-    method MapLoaded {} {
-        $canvas configure -map        [map image]
-        $canvas configure -projection [map projection]
-
-        $self refresh
-
-        set view(zoom) "100%"
-
-        return
-    }
-
     #-------------------------------------------------------------------
     # FillPoly
     
@@ -484,6 +515,19 @@ snit::widget mapviewer {
     method ButtonFillPoly {} {
         $self NbhoodFill
     }
+
+    #-------------------------------------------------------------------
+    # Extend
+
+    # ButtonExtend
+    #
+    # Sets the scrollregion to the full 1000x1000 area
+
+    method ButtonExtend {} {
+        $canvas region $view(region)
+    }
+
+
 
     #-------------------------------------------------------------------
     # Zoom Box
@@ -507,16 +551,15 @@ snit::widget mapviewer {
     # Clears the map; and redraws the scenario features
 
     method refresh {} {
-        # FIRST, clear the canvas
+        # FIRST, get the current map and projection
+        $canvas configure -map        [map image]
+        $canvas configure -projection [map projection]
+
+        # NEXT, clear the canvas
         $canvas clear
 
         # NEXT, clear all remembered state
         array unset nbhoods
-
-        # NEXT, if there's no map we're done.
-        if {[$canvas cget -map] eq ""} {
-            return
-        }
 
         # NEXT, add neighborhoods
         rdb eval {
@@ -534,7 +577,7 @@ snit::widget mapviewer {
 
         # Get the bounding box, so we can position things
         # randomly within it.
-        lassign [$canvas mapbox] x1 y1 x2 y2
+        lassign [map box] x1 y1 x2 y2
 
         foreach icontype [mapcanvas icon types] {
             for {set i 0} {$i < 20} {incr i} {
@@ -545,7 +588,8 @@ snit::widget mapviewer {
             }
         }
 
-        set info(zoom) "100%"
+        set info(zoom)   "[$canvas zoom]%"
+        set info(region) [$canvas region]
     }
 
     # NbhoodDraw n refpoint polygon

@@ -31,7 +31,11 @@ order define NBHOOD:CREATE {
     # longname
     set parms(longname) [string trim $parms(longname)]
 
-    if {[rdb exists {
+    if {$parms(longname) eq ""} {
+        reject longname "required parameter"
+    }
+
+    if {![invalid longname] && [rdb exists {
         SELECT n FROM nbhoods 
         WHERE longname=$parms(longname)
         OR    n=$parms(longname)

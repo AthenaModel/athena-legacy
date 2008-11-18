@@ -72,6 +72,19 @@ If a properly geo-referenced map and an appropriate
 map <<xref projection(i)>> are available, geographic coordinates
 (e.g., lat/lon and MGRS) may be used instead.<p>
 
+<<subsection "Visible Region">>
+
+When given a map image, mapcanvas(n) normally sets its scroll region
+to the bounds of the map.  This typically means that some valid map
+coordinates are off of the map, and can't be seen.  When the extended
+region is selected, the points corresponding to all valid map
+reference strings are visible whether they are on the map or not.<p>
+
+If no map is available, mapcanvas(n) bases the visible region on the
+current projection.  If no projection is available, either,
+mapcanvas(n) presumes a nominal 1000x1000 map, in which case the
+normal and extended regions are identical.<p>
+
 <<subsection "Neighborhoods">>
 
 A neighborhood consists of a polygon and a reference point within it.
@@ -102,8 +115,7 @@ The mapcanvas(n) defines a number of user interaction modes:<p>
 
 <dl>
   <dt> <b>null</b>
-  <dd> In this mode, no interaction is possible.  This is the mode
-       when no map is displayed.<p>
+  <dd> In this mode, no interaction is possible.<p>
 
   <dt> <b>browse</b>
   <dd> In this mode, the user can point at icons, neighborhoods, and
@@ -223,11 +235,9 @@ Sets the value of one or more of the object's options.<p>
 
 Deletes all icons and neighborhoods from the mapcanvas(n), and
 displays the current <code>-map</code> using the current
-<code>-projection</code> at 100% zoom.  If no <code>-map</code> has
-been specified, the canvas will be blank and most features will be
-disabled.<p>
+<code>-projection</code> at 100% zoom.<p>
 
-Otherwise, if no <code>-projection</code> has been selected, a
+If no <code>-projection</code> has been selected, a
 <<xref mapref(n)>> will be used.  Finally, the interaction mode is set to
 <b>browse</b>.<p>
 
@@ -284,14 +294,6 @@ If <i>mode</i> is specified, sets the current interaction mode to
 <i>mode</i>; see <<xref "Interaction Modes">>, above.  Returns the
 current interaction mode.<p>
 
-<<defitem mapbox {<i>win</i> mapbox}>>
-
-Returns the bounding box of the map in map units.<p>
-
-<<defitem mapdim {<i>win</i> mapdim}>>
-
-Returns the dimensions of the map in map units.<p>
-
 <<defitem nbhood {<i>win</i> nbhood <i>subcommand</i> ?<i>args...</i>?}>>
 
 This subcommand is used to create and manage icons on the map.<p>
@@ -346,6 +348,11 @@ Returns a list of the neighborhood IDs.<p>
 <<defitem refresh {<i>win</i> refresh}>>
 
 Completely redraws the display at the current zoom level.<p>
+
+<<defitem region {<i>win</i> region ?<i>region</i>?}>>
+
+Sets/queries the mapcanvas(n)'s visible region, which may be
+<b>normal</b> or <b>extended</b>.  See <<xref "Visible Region">>, above.<p>
 
 <<defitem see {<i>win</i> see <i>mappoint</i>}>>
 

@@ -94,7 +94,7 @@ snit::type ::minlib::mapref {
     # Instance Variables
 
     # map factor: map_unit = factor*canvas_unit
-    variable mapFactor
+    variable mapFactor 1.0
 
     # zoomFactor: 100%, etc.
     variable zoomFactor 100
@@ -213,6 +213,8 @@ snit::type ::minlib::mapref {
     # Returns a list {mx my...} in map units
 
     method ref2m {args} {
+        set result ""
+
         foreach ref $args {
             lappend result \
                 [expr {round([GetCan 1.0 [string range $ref 0 2]])}] \
