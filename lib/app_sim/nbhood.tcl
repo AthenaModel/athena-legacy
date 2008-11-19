@@ -20,7 +20,7 @@ snit::type nbhood {
     #-------------------------------------------------------------------
     # Type Components
 
-    # TBD
+    typecomponent geo   ;# A geoset, for polygon computations
 
     #-------------------------------------------------------------------
     # Type Variables
@@ -31,6 +31,13 @@ snit::type nbhood {
     # Initialization
 
     typemethod init {} {
+        # FIRST, create the geoset
+        set geo [geoset ${type}::geo]
+
+        # NEXT, subscribe to required events.
+        notifier bind ::scenario <ScenarioOpened> $type [myproc Refresh]
+        notifier bind ::scenario <ScenarioNew>    $type [myproc Refresh]
+
         log detail nbhood "Initialized"
     }
 
@@ -130,27 +137,6 @@ snit::type nbhood {
         notifier send ::nbhood <NbhoodLowered> $n
     }
 
-    # ReorderNbhoods names
-    #
-    # names      A list of all nbhood names in the desired stacking
-    #            order
-    #
-    # Sets the stacking_order according to the order of the names.
-
-    proc ReorderNbhoods {names} {
-        set i 0
-
-        foreach name $names {
-            incr i
-
-            rdb eval {
-                UPDATE nbhoods
-                SET stacking_order=$i
-                WHERE n=$name
-            }
-        }
-    }
-
     # names
     #
     # Returns the list of neighborhood names
@@ -182,5 +168,59 @@ snit::type nbhood {
         }
 
         return $n
+    }
+
+    # find mx my
+    #
+    # mx,my    A point in map coordinates
+    #
+    # Returns the short name of the neighborhood which contains the
+    # coordinates, or the empty string.
+
+    typemethod find {mx my} {
+        return [$geo find [list $mx $my] nbhood]
+    }
+
+    #-------------------------------------------------------------------
+    # Private Procs
+
+    # ReorderNbhoods names
+    #
+    # names      A list of all nbhood names in the desired stacking
+    #            order
+    #
+    # Sets the stacking_order according to the order of the names.
+
+    proc ReorderNbhoods {names} {
+        set i 0
+
+        foreach name $names {
+            incr i
+
+            rdb eval {
+                UPDATE nbhoods
+                SET stacking_order=$i
+                WHERE n=$name
+            }
+        }
+
+        Refresh
+    }
+
+    # Refresh
+    #
+    # Refreshes the geoset with the current neighborhood data.
+    
+    proc Refresh {} {
+        $geo clear
+
+        rdb eval {
+            SELECT n, polygon FROM nbhoods
+            ORDER BY stacking_order
+        } {
+            # Create the polygon with the neighborhood's name and
+            # polygon coordinates; tag it with "nbhood".
+            $geo create polygon $n $polygon nbhood
+        }
     }
 }

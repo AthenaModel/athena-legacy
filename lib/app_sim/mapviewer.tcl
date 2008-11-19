@@ -240,6 +240,7 @@ snit::widget mapviewer {
     #
     # n-$id      n, given ID
     # id-$n      id, given n
+    # trans      Transient $n, used in event bindings
 
     variable nbhoods -array { }
 
@@ -350,6 +351,19 @@ snit::widget mapviewer {
         notifier bind ::nbhood <NbhoodCreated> $self [mymethod NbhoodCreated]
         notifier bind ::nbhood <NbhoodRaised>  $self [mymethod NbhoodRaised]
         notifier bind ::nbhood <NbhoodLowered> $self [mymethod NbhoodLowered]
+
+        # NEXT, create popup menus
+        set mnu [menu $canvas.nbhoodmenu]
+
+        $mnu add command \
+            -label   "Bring to Front" \
+            -command [mymethod BringToFront]
+
+        $mnu add command \
+            -label   "Send to Back" \
+            -command [mymethod SendToBack]
+
+        bind $canvas <<Nbhood-3>> [mymethod Nbhood-3 %d %X %Y]
     }
 
     # AddModeTool mode icon
@@ -384,13 +398,14 @@ snit::widget mapviewer {
     # Event Handlers
 
     #-------------------------------------------------------------------
-    # Event Translation
+    # Neighborhood Events
 
     # Nbhood-1 id
     #
     # id      A nbhood canvas ID
     #
-    # Called when the user clicks on a nbhood.  Translate it to a
+    # Called when the user clicks on a nbhood.  First, support pucking 
+    # of neighborhoods into orders.  Next, translate it to a 
     # neighborhood ID and forward.
 
     method Nbhood-1 {id} {
@@ -404,6 +419,36 @@ snit::widget mapviewer {
         event generate $win <<Nbhood-1>> -data $nbhoods(n-$id)
     }
     
+    # Nbhood-3 id rx ry
+    #
+    # id      A nbhood canvas ID
+    # rx,ry   Root window coordinates
+    #
+    # Called when the user right-clicks on a nbhood.  Pops up the
+    # neighborhood context menu.
+
+    method Nbhood-3 {id rx ry} {
+        set nbhoods(trans) $nbhoods(n-$id)
+
+        tk_popup $canvas.nbhoodmenu $rx $ry
+    }
+
+    # BringToFront
+    #
+    # Brings the transient neighborhood to the front
+
+    method BringToFront {} {
+        order send "" client NBHOOD:RAISE [list n $nbhoods(trans)]
+    }
+
+    # SendToBack
+    #
+    # Sends the transient neighborhood to the back
+
+    method SendToBack {} {
+        order send "" client NBHOOD:LOWER [list n $nbhoods(trans)]
+    }
+
     #-------------------------------------------------------------------
     # Order Handling
 

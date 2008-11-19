@@ -153,7 +153,8 @@ snit::widgetadaptor ::mingui::mapcanvas {
                 icon   <Control-Button-1> {%W IconMark %x %y}
                 icon   <B1-Motion>        {%W IconDrag %x %y}
                 icon   <B1-ButtonRelease> {%W IconRelease %x %y}
-                nbhood <ButtonPress-1>    {%W Nbhood-1 %x %y}
+                nbhood <ButtonPress-1>    {%W Nbhood-1 %x %y %X %Y}
+                nbhood <ButtonPress-3>    {%W Nbhood-3 %x %y %X %Y}
             }
         }
 
@@ -908,20 +909,40 @@ snit::widgetadaptor ::mingui::mapcanvas {
             -data $id
     }
 
-    # Nbhood-1 wx wy
+    # Nbhood-1 wx wy rx ry
     #
-    # wx    x window coordinate
-    # wy    y window coordinate
+    # wx,wy   x,y window coordinates
+    # rx,ry   x,y root window coordinate
     #
     # Generates the <<Nbhood-1>> virtual event for the selected nbhood.
 
-    method Nbhood-1 {wx wy} {
+    method Nbhood-1 {wx wy rx ry} {
         set id [lindex [$win gettags current] 0]
 
         event generate $win <<Nbhood-1>> \
-            -x    $wx                  \
-            -y    $wy                  \
-            -data $id
+            -x     $wx                   \
+            -y     $wy                   \
+            -rootx $rx                   \
+            -rooty $ry                   \
+            -data  $id
+    }
+
+    # Nbhood-3 wx wy rx ry
+    #
+    # wx,wy   x,y window coordinates
+    # rx,ry   x,y root window coordinate
+    #
+    # Generates the <<Nbhood-3>> virtual event for the selected nbhood.
+
+    method Nbhood-3 {wx wy rx ry} {
+        set id [lindex [$win gettags current] 0]
+
+        event generate $win <<Nbhood-3>> \
+            -x     $wx                   \
+            -y     $wy                   \
+            -rootx $rx                   \
+            -rooty $ry                   \
+            -data  $id
     }
 
     # Point-1

@@ -58,6 +58,11 @@ The parameters in the dictionary are as follows:<p>
        coordinates for the vertices.<p>
 </dl><p>
 
+<<defitem find {nbhood find <i>mx my</i>}>>
+
+Given a point <i>mx,my</i> in map coordinates, returns the short name of the
+containing neighborhood, or "" if none.<p>
+
 <<defitem lower {nbhood lower <i>n</i>}>>
 
 Lowers neighborhood <i>n</i> to the bottom of the neighborhood stacking
@@ -74,9 +79,9 @@ order, and sends <b>&lt;NbhoodRaised&gt;</b>.<p>
 
 <<defitem validate {nbhood validate <i>n</i>}>>
 
-Validates and returns <i>n</i> as a neighborhood short name.  In the
-name is invalid, throws an error with <code>-errorcode</code>
-<b>INVALID</b>.<p>
+Validates and returns <i>name</i> as a neighborhood short
+name.  If the name is invalid, throws an error with
+<code>-errorcode</code> <b>INVALID</b>.<p>
 
 <</deflist commands>>
 
