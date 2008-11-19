@@ -52,6 +52,7 @@ namespace import ::mingui::*
 source [file join $::app_sim::library app.tcl         ]
 source [file join $::app_sim::library scenario.tcl    ]
 source [file join $::app_sim::library map.tcl         ]
+source [file join $::app_sim::library nbhood.tcl      ]
 source [file join $::app_sim::library order.tcl       ]
 
 # GUI

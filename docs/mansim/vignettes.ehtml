@@ -162,6 +162,46 @@ message order SIM ...
 action SIM "The order takes effect in the simulation."
 }>>
 
+<<section "NEIGHBORHOOD ORDERS">>
+
+<<subsection "NBHOOD:CREATE">>
+
+<<sequence -narration {
+actor GUI
+actor order
+actor nbhood
+actor mapviewer
+
+message GUI    order     "NBHOOD:CREATE \$parms"
+message order  nbhood    "nbhood create \$parms"
+message nbhood mapviewer "<NbhoodCreated> \$n"
+}>>
+
+<<subsection "NBHOOD:LOWER">>
+
+<<sequence -narration {
+actor GUI
+actor order
+actor nbhood
+actor mapviewer
+
+message GUI    order     "NBHOOD:LOWER \$parms"
+message order  nbhood    "nbhood lower \$parms"
+message nbhood mapviewer "<NbhoodLowered> \$n"
+}>>
+
+<<subsection "NBHOOD:RAISE">>
+
+<<sequence -narration {
+actor GUI
+actor order
+actor nbhood
+actor mapviewer
+
+message GUI    order     "NBHOOD:RAISE \$parms"
+message order  nbhood    "nbhood raise \$parms"
+message nbhood mapviewer "<NbhoodRaised> \$n"
+}>>
 
 <<section "MISCELLANEOUS ACTIONS">>
 

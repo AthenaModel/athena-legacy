@@ -61,6 +61,9 @@ CREATE TABLE nbhoods (
     -- Full neighborhood name
     longname       TEXT,
 
+    -- Stacking order: 1 is low, N is high
+    stacking_order INTEGER,
+
     -- Urbanization: eurbanization
     urbanization   TEXT,
 
@@ -69,7 +72,6 @@ CREATE TABLE nbhoods (
 
     -- Neighborhood polygon: list of map coordinates {mx my ...}
     polygon        TEXT
-
 );
 
 

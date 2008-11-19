@@ -345,8 +345,11 @@ snit::widget mapviewer {
         bind $canvas <<PolyComplete>> [mymethod PolyComplete %d]
 
         # NEXT, Support model updates
-        notifier bind ::map   <MapLoaded>     $self [mymethod refresh]
-        notifier bind ::order <NbhoodChanged> $self [mymethod NbhoodChanged]
+        notifier bind ::map    <MapLoaded>     $self [mymethod refresh]
+
+        notifier bind ::nbhood <NbhoodCreated> $self [mymethod NbhoodCreated]
+        notifier bind ::nbhood <NbhoodRaised>  $self [mymethod NbhoodRaised]
+        notifier bind ::nbhood <NbhoodLowered> $self [mymethod NbhoodLowered]
     }
 
     # AddModeTool mode icon
@@ -391,6 +394,13 @@ snit::widget mapviewer {
     # neighborhood ID and forward.
 
     method Nbhood-1 {id} {
+        if {[ordergui isactive]} {
+            if {[ordergui parm type current] eq "nbhood"} {
+                # Save the nbhood into the order
+                ordergui parm set current $nbhoods(n-$id)
+            }
+        }
+
         event generate $win <<Nbhood-1>> -data $nbhoods(n-$id)
     }
     
@@ -490,18 +500,41 @@ snit::widget mapviewer {
     #-------------------------------------------------------------------
     # Model Updates
 
-    # NbhoodChanged n
+    # NbhoodCreated n
     #
     # n     The neighborhood ID
     #
     # Something changed about neighborhood n.  Update it.
 
-    method NbhoodChanged {n} {
+    method NbhoodCreated {n} {
         # FIRST, get the nbhood data we care about
         rdb eval {SELECT refpoint, polygon FROM nbhoods WHERE n=$n} {}
 
-        # NEXT, draw it; this will delete any previous neighborhood.
+        # NEXT, draw it; this will delete any previous neighborhood
+        # with the same name.
         $self NbhoodDraw $n $refpoint $polygon
+    }
+
+    # NbhoodRaised n
+    #
+    # n     The neighborhood ID
+    #
+    # The neighborhood was raised to the top of the stacking order.
+
+    method NbhoodRaised {n} {
+        $canvas raise $nbhoods(id-$n)
+        $canvas lower $nbhoods(id-$n) marker
+    }
+
+    # NbhoodLowered n
+    #
+    # n     The neighborhood ID
+    #
+    # The neighborhood was lowered to the top bottom of the stacking order.
+
+    method NbhoodLowered {n} {
+        $canvas lower $nbhoods(id-$n)
+        $canvas raise $nbhoods(id-$n) map
     }
 
     #-------------------------------------------------------------------
@@ -563,7 +596,9 @@ snit::widget mapviewer {
 
         # NEXT, add neighborhoods
         rdb eval {
-            SELECT n, refpoint, polygon FROM nbhoods
+            SELECT n, refpoint, polygon 
+            FROM nbhoods
+            ORDER BY stacking_order
         } {
             $self NbhoodDraw $n $refpoint $polygon
         }

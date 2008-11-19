@@ -11,7 +11,9 @@
 #-----------------------------------------------------------------------
 
 #-------------------------------------------------------------------
-# Orders
+# NBHOOD:*
+
+ordergui entrytype enum nbhood -valuecmd [list nbhood names]
 
 # NBHOOD:CREATE
 #
@@ -57,8 +59,8 @@ order define NBHOOD:CREATE {
 
     validate polygon {
         map ref validate {*}$parms(polygon)
-        set points [map ref2m {*}$parms(polygon)]
-        polygon validate $points
+        set parms(polygon) [map ref2m {*}$parms(polygon)]
+        polygon validate $parms(polygon)
     }
 
     # refpoint
@@ -68,38 +70,66 @@ order define NBHOOD:CREATE {
 
     validate refpoint {
         map ref validate $parms(refpoint)
+        set parms(refpoint) [map ref2m $parms(refpoint)]
     }
 
     if {![invalid refpoint] && ![invalid polygon]} {
-        lassign [map ref2m $parms(refpoint)] mx my
-
-        if {![ptinpoly $points [list $mx $my]]} {
+        if {![ptinpoly $parms(polygon) $parms(refpoint)]} {
             reject refpoint "not in polygon"
         }
     }
     
     returnOnError
 
-    # NEXT, Put the neighborhood in the database
-    rdb eval {
-        INSERT INTO nbhoods(longname,refpoint,polygon,urbanization)
-        VALUES($parms(longname),
-               $parms(refpoint),
-               $parms(polygon),
-               $parms(urbanization));
+    # NEXT, create the neighborhood
+    nbhood create [array get parms]
+}
 
-        -- Set the "n" based on the uid.
-        UPDATE nbhoods
-        SET    n=format('N%03d',last_insert_rowid())
-        WHERE uid=last_insert_rowid();
-        
-        -- Get the "n" value
-        SELECT n FROM nbhoods WHERE uid=last_insert_rowid();
-    } {}
 
-    # NEXT, notify the app.
-    # TBD: This should perhaps come from some other module.
-    # TBD: This should perhaps be <NbhoodCreated>.
-    
-    notifier send ::order <NbhoodChanged> $n
+# NBHOOD:LOWER
+
+ordergui define NBHOOD:LOWER {
+    title "Lower Neighborhood"
+    parms {
+        n {ptype nbhood label "Neighborhood"}
+    }
+}
+
+order define NBHOOD:LOWER {
+    # FIRST, prepare the parameters
+    prepare n  -trim -toupper -required 
+
+    # Validate
+    validate n {
+        nbhood validate $parms(n)
+    }
+
+    returnOnError
+
+    # NEXT, raise the neighborhood
+    nbhood lower $parms(n)
+}
+
+# NBHOOD:RAISE
+
+ordergui define NBHOOD:RAISE {
+    title "Raise Neighborhood"
+    parms {
+        n {ptype nbhood label "Neighborhood"}
+    }
+}
+
+order define NBHOOD:RAISE {
+    # FIRST, prepare the parameters
+    prepare n  -trim -toupper -required 
+
+    # Validate
+    validate n {
+        nbhood validate $parms(n)
+    }
+
+    returnOnError
+
+    # NEXT, raise the neighborhood
+    nbhood raise $parms(n)
 }

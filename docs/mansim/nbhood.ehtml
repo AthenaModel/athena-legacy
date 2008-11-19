@@ -1,0 +1,123 @@
+<<manpage nbhood(sim) "Neighborhood Manager">>
+
+<<swallow {package require minlib}>>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+nbhood(sim) is the module responsible for creating and manipulating
+neighborhoods for <<xref minerva_sim(1)>>.  It implements the
+various NBHOOD:* orders, and provides support for order-processing.<p>
+
+Every neighborhood has a long human-readable name; but neighborhoods
+are usually identified by their short name, a unique ID.<p>
+
+<<section "COMMANDS">>
+
+nbhood(sim) provides the following commands for use by the application.<p>
+
+<<deflist commands>>
+
+<<defitem create {nbhood create <i>parmdict</i>}>>
+
+Creates a new neighborhood, given a dictionary of neighborhood
+parameters; the neighborhood is assigned a short name and inserted
+into the RDB.<p>
+
+This command is intended primarily for use by the NBHOOD:CREATE order,
+and consequently presumes that its arguments are valid.<p>
+
+Sends <b>&lt;NbhoodCreated&gt;</b>.<p>
+
+The parameters in the dictionary are as follows:<p>
+
+<dl>
+  <dt> <b>longname</b>
+  <dd> A unique, human-readable name for the neighborhood, e.g.,
+       "Baghdad".  It may contain whitespace.<p>
+
+  <dt> <b>urbanization</b>
+  <dd> The urbanization level for the neighborhood.  Valid values are
+       shown in the following table:<p>
+
+       <<::minlib::eurbanization html>><p>
+
+  <dt> <b>refpoint</b>
+  <dd> The neighborhood's reference point, expressed as a pair of map
+       coordinates.<p>
+
+  <dt> <b>stacking_order</b>
+  <dd> The neighborhood's boundary polygon, expressed as a list of map
+       coordinates for the vertices.<p>
+</dl><p>
+
+<<defitem lower {nbhood lower <i>n</i>}>>
+
+Lowers neighborhood <i>n</i> to the bottom of the neighborhood stacking
+order, and sends <b>&lt;NbhoodLowered&gt;</b>.<p>
+
+<<defitem names {nbhood names}>>
+
+Returns a list of the neighborhood short names, in order of definition.<p>
+
+<<defitem raise {nbhood raise <i>n</i>}>>
+
+Raises neighborhood <i>n</i> to the top of the neighborhood stacking
+order, and sends <b>&lt;NbhoodRaised&gt;</b>.<p>
+
+<<defitem validate {nbhood validate <i>n</i>}>>
+
+Validates and returns <i>n</i> as a neighborhood short name.  In the
+name is invalid, throws an error with <code>-errorcode</code>
+<b>INVALID</b>.<p>
+
+<</deflist commands>>
+
+<<section "NOTIFIER EVENTS">>
+
+nbhood(sim) sends the following events, primarily to notify the GUI of
+significant changes to the nbhood data.<p>
+
+<<deflist events>>
+
+<<defitem NbhoodCreated {&lt;NbhoodCreated&gt; <i>n</i>}>>
+
+Sent when a new neighborhood has been created; <i>n</i> is its short
+name.<p>
+
+<<defitem NbhoodLowered {&lt;NbhoodLowered&gt; <i>n</i>}>>
+
+Sent when a neighborhood has been lowered to the bottom of the stacking
+order; <i>n</i> is its short name.<p>
+
+<<defitem NbhoodRaised {&lt;NbhoodRaised&gt; <i>n</i>}>>
+
+Sent when a neighborhood has been raised to the top of the stackign
+order; <i>n</i> is its short name.<p>
+
+<</deflist events>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+

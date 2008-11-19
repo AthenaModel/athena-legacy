@@ -176,9 +176,22 @@ snit::widget mainwin {
         set ordersmenu [menu $menu.orders]
         $menu add cascade -label "Orders" -underline 0 -menu $ordersmenu
         
-        $ordersmenu add command \
-            -label "Create Neighborhood" \
-            -command [list ordergui enter NBHOOD:CREATE $win]
+        $self AddOrder $ordersmenu NBHOOD:CREATE
+        $self AddOrder $ordersmenu NBHOOD:LOWER
+        $self AddOrder $ordersmenu NBHOOD:RAISE
+    }
+
+    # AddOrder mnu order
+    #
+    # mnu    A pull-down menu
+    # order  An order name
+    #
+    # Adds a menu item for the order
+
+    method AddOrder {mnu order} {
+        $mnu add command \
+            -label   [ordergui meta $order title] \
+            -command [list ordergui enter $order $win]
     }
 
     # CreateComponents

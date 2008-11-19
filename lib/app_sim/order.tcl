@@ -39,10 +39,6 @@
 #-----------------------------------------------------------------------
 # order
 
-# Create the parmdef namespace ASAP
-namespace eval ::order::parmdef {}
-
-
 snit::type order {
     # Make it an ensemble
     pragma -hastypedestroy 0 -hasinstances 0
