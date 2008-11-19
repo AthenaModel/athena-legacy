@@ -1411,12 +1411,12 @@ snit::widgetadaptor ::mingui::mapcanvas {
             -fill    $nbhoods(fill-$id)                    \
             -tags    [list $id $id.poly nbhood snaps]
 
-        $hull create oval [BoxAround 3 $crx $cry]          \
+        $hull create oval [boxaround 3 $crx $cry]          \
             -outline $nbhoods(pointcolor-$id)              \
             -fill    $nbhoods(pointcolor-$id)              \
             -tags    [list $id $id.inner refpoint nbhood]
 
-        $hull create oval [BoxAround 5 $crx $cry]          \
+        $hull create oval [boxaround 5 $crx $cry]          \
             -outline $nbhoods(pointcolor-$id)              \
             -fill    ""                                    \
             -tags    [list $id $id.output refpoint nbhood]
@@ -1538,7 +1538,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
         set minitem ""
         set nearest [list]
 
-        set bbox [BoxAround $options(-snapradius) $cx $cy]
+        set bbox [boxaround $options(-snapradius) $cx $cy]
 
         foreach item [$hull find overlapping {*}$bbox] {
             set tags [$hull gettags $item]
@@ -1609,22 +1609,6 @@ snit::widgetadaptor ::mingui::mapcanvas {
 
     proc Distance {x1 y1 x2 y2} {
         expr {sqrt(($x1-$x2)**2 + ($y1-$y2)**2)}
-    }
-
-    # BoxAround radius x y
-    #
-    # radius    a distance
-    # x,y       a point
-    #
-    # Returns a bounding box {x1 y1 x2 y2} of the given radius around
-    # the given point.
-    proc BoxAround {radius x y} {
-        set x1 [expr {$x - $radius}]
-        set y1 [expr {$y - $radius}]
-        set x2 [expr {$x + $radius}]
-        set y2 [expr {$y + $radius}]
-
-        list $x1 $y1 $x2 $y2
     }
 
     # UndefinedMap
