@@ -60,16 +60,6 @@ snit::type order {
     # None
 
     #-------------------------------------------------------------------
-    # Order Definition Variables
-
-    # Array of parm definition dictionaries by order name
-    
-    typevariable meta -array {}
-
-    # Used while defining an order
-    typevariable currentOrder
-
-    #-------------------------------------------------------------------
     # Transient Variables
     #
     # The following variables are used while processing an error; they
@@ -139,19 +129,10 @@ snit::type order {
         # NEXT, save the interface.
         set currentInterface $interface
 
-        # NEXT, save the order parameters in the parms array
+        # NEXT, save the order parameters in the parms array, saving
+        # the order name.
         array unset parms
         array set parms $parmdict
-
-        # NEXT, set up the error messages and call the order handler.
-        set errors [dict create]
-        set errorLevel NONE
-
-        # NEXT, do the automated parameter processing; this might
-        # set the errorLevel.
-        CheckParameters $name
-
-        # NEXT, save the order name.
         set parms(_order) $name
 
         # NEXT, in null mode we're done.
@@ -163,7 +144,10 @@ snit::type order {
             return
         }
 
-        # NEXT, call the order handler.
+        # NEXT, set up the error messages and call the order handler.
+        set errors [dict create]
+        set errorLevel NONE
+
         if {$interface eq "client"} {
             if {[catch $name result opts]} {
                 if {[dict get $opts -errorcode] eq "REJECT"} {
@@ -196,87 +180,18 @@ snit::type order {
         return $result
     }
 
-    # CheckParameters
-    #
-    # Checks each of the parameters, and transforms them as indicated
-    # in the parameter definition.
 
-    proc CheckParameters {order} {
-        set parmlist [dict keys $meta($order)]
-
-        dict for {parm attrs} $meta($order) {
-            dict with attrs {
-                # Make sure that all parameters exist.
-                if {![info exists parms($parm)]} {
-                    set parms($parm) ""
-                }
-
-                # Next, transform the value, as required
-                if {$trim} {
-                    set parms($parm) [string trim $parms($parm)]
-                }
-
-                if {$toupper} {
-                    set parms($parm) [string toupper $parms($parm)]
-                }
-
-                if {$tolower} {
-                    set parms($parm) [string tolower $parms($parm)]
-                }
-
-                if {$normalize} {
-                    set parms($parm) [normalize $parms($parm)]
-                }
-
-                # required
-                if {$required && 
-                    $parms($parm) eq ""
-                } {
-                    reject $parm "required value"
-                }
-            }
-        }
-    }
-
-    # normalize text
-    #
-    # text    A block of text
-    #
-    # Strips leading and trailing whitespace, converts newlines to spaces,
-    # and replaces all multiple internal spaces with single spaces.
-    #
-    # TBD: Add this to a text processing module in marsutil(n).
-
-    proc normalize {text} {
-        set text [string trim $text]
-        regsub -all "\n" $text " " text
-        regsub -all { +} $text " " text
-        
-        return $text
-    }
-
-
-    # define name parms body
+    # define name body
     #
     # name        The name of the order
-    # parmdef     Parameter definition script
     # body        The body of the order
     #
     # Defines a proc within the ::order namespace in which all
     # type variables appear.  This allows orders to be defined
     # outside the order.tcl file.
 
-    typemethod define {name parmdef body} {
-        # FIRST, save the parameter definition
-        set currentOrder $name
-
-        if {[catch {
-            namespace eval ::order::parmdef:: $parmdef
-        } result]} {
-            error "Error in $name parameter definition: $result"
-        }
-
-        # NEXT, get the variables
+    typemethod define {name body} {
+        # FIRST, get the variables
         set vars [list namespace upvar $type]
         
         foreach tv [$type info typevars] {
@@ -288,39 +203,48 @@ snit::type order {
 
     }
 
-    # parmdef::parm name options...
-    #
-    # Defines the named parameter
+    #-------------------------------------------------------------------
+    # Procs for use in order handlers
 
-    proc parmdef::parm {name args} {
-        # FIRST, set defaults
-        set pdict {
-            required  0
-            normalize 0
-            trim      0
-            toupper   0
-            tolower   0
+    # prepare parm options...
+    #
+    # Prepares the parameter for processing, as determined by the
+    # options.
+
+    proc prepare {parm args} {
+        # FIRST, make sure that the parameter exists.
+        if {![info exists parms($parm)]} {
+            set parms($parm) ""
         }
 
-        # NEXT, get the options
+        # NEXT, process the options
         while {[llength $args] > 0} {
             set opt [lshift args]
             switch -exact -- $opt {
-                -required  { dict set pdict required  1}
-                -normalize { dict set pdict normalize 1}
-                -trim      { dict set pdict trim      1}
-                -toupper   { dict set pdict toupper   1}
-                -tolower   { dict set pdict tolower   1}
-                default    { error "unknown parm option: \"$opt\"" }
+                -trim {
+                    set parms($parm) [string trim $parms($parm)]
+                }
+                -toupper {
+                    set parms($parm) [string toupper $parms($parm)]
+                }
+                -tolower {
+                    set parms($parm) [string tolower $parms($parm)]
+                }
+                -normalize {
+                    set parms($parm) [normalize $parms($parm)]
+                }
+                -required { 
+                    if {$parms($parm) eq ""} {
+                        reject $parm "required value"
+                        break
+                    }
+                }
+                default { 
+                    error "unknown option: \"$opt\"" 
+                }
             }
         }
-
-        # NEXT, save this parameter for the order
-        dict set meta($currentOrder) $name $pdict
     }
-
-    #-------------------------------------------------------------------
-    # Procs for use in order handlers
 
     # reject parm msg
     #

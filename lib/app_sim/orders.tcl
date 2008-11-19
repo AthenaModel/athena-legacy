@@ -28,12 +28,13 @@ ordergui define NBHOOD:CREATE {
 }
 
 order define NBHOOD:CREATE {
-    parm longname      -required -normalize
-    parm urbanization  -required -trim -toupper
-    parm refpoint      -required -trim -toupper
-    parm polygon       -required -normalize -toupper
-} {
-    # FIRST, validate the parameters
+    # FIRST, prepare the parameters
+    prepare longname      -normalize          -required 
+    prepare urbanization  -trim      -toupper -required
+    prepare refpoint      -trim      -toupper -required
+    prepare polygon       -normalize -toupper -required
+
+    # NEXT, validate the parameters
     
     # longname
     if {![invalid longname] && [rdb exists {
