@@ -28,17 +28,14 @@ ordergui define NBHOOD:CREATE {
 }
 
 order define NBHOOD:CREATE {
-    # TBD
+    parm longname      -required -normalize
+    parm urbanization  -required -trim -toupper
+    parm refpoint      -required -trim -toupper
+    parm polygon       -required -normalize -toupper
 } {
     # FIRST, validate the parameters
     
     # longname
-    set parms(longname) [string trim $parms(longname)]
-
-    if {$parms(longname) eq ""} {
-        reject longname "required parameter"
-    }
-
     if {![invalid longname] && [rdb exists {
         SELECT n FROM nbhoods 
         WHERE longname=$parms(longname)
@@ -67,8 +64,6 @@ order define NBHOOD:CREATE {
     #
     # Is the point a valid map reference string?
     # Is the point within the polygon?
-
-    set parms(refpoint) [string toupper $parms(refpoint)]
 
     validate refpoint {
         map ref validate $parms(refpoint)
