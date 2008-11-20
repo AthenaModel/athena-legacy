@@ -1379,11 +1379,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
                 }
                 -pointcolor {
                     $hull itemconfigure $id.inner \
-                        -outline $val             \
                         -fill    $val
-
-                    $hull itemconfigure $id.output \
-                        -outline $val
 
                     set nbhoods(pointcolor-$id) $val
                 }
@@ -1433,14 +1429,14 @@ snit::widgetadaptor ::mingui::mapcanvas {
             -tags    [list $id $id.poly nbhood snaps]
 
         $hull create oval [boxaround 3 $crx $cry]          \
-            -outline $nbhoods(pointcolor-$id)              \
+            -outline black                                 \
             -fill    $nbhoods(pointcolor-$id)              \
             -tags    [list $id $id.inner refpoint nbhood]
 
         $hull create oval [boxaround 5 $crx $cry]          \
-            -outline $nbhoods(pointcolor-$id)              \
+            -outline black                                 \
             -fill    ""                                    \
-            -tags    [list $id $id.output refpoint nbhood]
+            -tags    [list $id $id.outer refpoint nbhood]
 
         # NEXT, lower it below the marker
         $hull lower $id marker
