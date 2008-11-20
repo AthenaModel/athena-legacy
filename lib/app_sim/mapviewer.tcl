@@ -284,6 +284,9 @@ snit::widget mapviewer {
             -takefocus     no                                          \
             -modifycmd     [mymethod ZoomBoxSet]
 
+        DynamicHelp::add $win.hbar.zoombox \
+            -text "Select zoom factor for the map display"
+
         label $win.hbar.ref \
             -textvariable [myvar info(ref)] \
             -width 8
@@ -295,6 +298,9 @@ snit::widget mapviewer {
             -image       ${type}::icon::fill_poly   \
             -command     [mymethod ButtonFillPoly]
 
+        DynamicHelp::add $win.hbar.fillpoly \
+            -text "Display neighborhood polygons with an opaque fill"
+
         checkbutton $win.hbar.extend                \
             -indicatoron no                         \
             -offrelief   flat                       \
@@ -303,6 +309,9 @@ snit::widget mapviewer {
             -variable    [myvar view(region)]       \
             -image       ${type}::icon::extend      \
             -command     [mymethod ButtonExtend]
+
+        DynamicHelp::add $win.hbar.extend \
+            -text "Enable the extended scroll region"
 
         pack $win.hbar.zoombox  -side right
         pack $win.hbar.fillpoly -side right
@@ -315,10 +324,10 @@ snit::widget mapviewer {
         # Vertical tool bar
         frame $win.vbar -relief flat
 
-        $self AddModeTool browse left_ptr
-        $self AddModeTool pan    fleur
-        $self AddModeTool point  crosshair
-        $self AddModeTool poly   draw_poly
+        $self AddModeTool browse left_ptr   "Browse tool"
+        $self AddModeTool pan    fleur      "Pan tool"
+        $self AddModeTool point  crosshair  "Point tool"
+        $self AddModeTool poly   draw_poly  "Draw Polygon tool"
 
         # Pack all of these components
         pack $win.hbar  -side top  -fill x
@@ -366,12 +375,13 @@ snit::widget mapviewer {
         bind $canvas <<Nbhood-3>> [mymethod Nbhood-3 %d %X %Y]
     }
 
-    # AddModeTool mode icon
+    # AddModeTool mode icon tooltip
     #
     # mode       The mapcanvas(n) mode name
     # icon       The icon to display on the button
+    # tooltip    Dynamic help string
 
-    method AddModeTool {mode icon} {
+    method AddModeTool {mode icon tooltip} {
         radiobutton $win.vbar.$mode                \
             -indicatoron no                        \
             -offrelief   flat                      \
@@ -381,6 +391,8 @@ snit::widget mapviewer {
             -command     [list $canvas mode $mode]
 
         pack $win.vbar.$mode -side top -fill x -padx 2
+
+        DynamicHelp::add $win.vbar.$mode -text $tooltip
     }
 
     # ForwardVirtual event
