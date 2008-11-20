@@ -215,9 +215,7 @@ message mainwin map "map import \$filename"
 
 action map "Imports the map into the RDB, and loads it."
 
-message map mapviewer <MapLoaded>
-
-message map mainwin "<MapImported> \$filename"
+message map mapviewer <MapChanged>
 
 action mapviewer "Displays the map."
 
