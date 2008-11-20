@@ -83,8 +83,6 @@ snit::type scenario {
 
         # NEXT, Reconfigure the app
         $type reconfigure
-
-        notifier send ::scenario <ScenarioNew>
     }
 
     # open filename
@@ -123,9 +121,6 @@ snit::type scenario {
 
         # NEXT, Reconfigure the app
         $type reconfigure
-
-        # NEXT, notify the app
-        notifier send ::scenario <ScenarioOpened>
     }
 
     # save ?filename?
@@ -181,12 +176,6 @@ snit::type scenario {
         log normal scn "Save Scenario: $info(dbfile)"
 
         app puts "Saved Scenario [file tail $info(dbfile)]"
-
-        # NEXT, Notify the app
-        notifier send ::scenario <ScenarioSaved>
-
-        # NEXT, Reconfigure the app
-        $type reconfigure
 
         return 1
     }

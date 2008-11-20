@@ -1,12 +1,12 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    orders.tcl
+#    orders_NBHOOD.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    minerva_sim(1): Simulation Orders
+#    minerva_sim(1): NBHOOD:* Orders
 #
 #-----------------------------------------------------------------------
 

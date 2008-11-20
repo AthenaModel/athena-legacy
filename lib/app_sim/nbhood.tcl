@@ -125,7 +125,7 @@ snit::type nbhood {
         ldelete names $n
         lappend names $n
 
-        ReorderNbhoods $names
+        $type ReorderNbhoods $names
 
         log detail nbhood "<NbhoodRaised> $n"
         notifier send ::nbhood <NbhoodRaised> $n
@@ -147,7 +147,7 @@ snit::type nbhood {
         ldelete names $n
         set names [linsert $names 0 $n]
 
-        ReorderNbhoods $names
+        $type ReorderNbhoods $names
 
         log detail nbhood "<NbhoodLowered> $n"
         notifier send ::nbhood <NbhoodLowered> $n
@@ -198,7 +198,7 @@ snit::type nbhood {
     }
 
     #-------------------------------------------------------------------
-    # Private Procs
+    # Private Type Methods
 
     # ReorderNbhoods names
     #
@@ -207,7 +207,7 @@ snit::type nbhood {
     #
     # Sets the stacking_order according to the order of the names.
 
-    proc ReorderNbhoods {names} {
+    typemethod ReorderNbhoods {names} {
         set i 0
 
         foreach name $names {
