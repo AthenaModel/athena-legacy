@@ -88,6 +88,8 @@ snit::type nbhood {
             }
         }
 
+        # NEXT, refresh the geoset
+        Refresh
 
         # NEXT, notify the app.
         log detail nbhood "<NbhoodCreated> $n"
