@@ -34,11 +34,25 @@ snit::type nbhood {
         # FIRST, create the geoset
         set geo [geoset ${type}::geo]
 
-        # NEXT, subscribe to required events.
-        notifier bind ::scenario <ScenarioOpened> $type [myproc Refresh]
-        notifier bind ::scenario <ScenarioNew>    $type [myproc Refresh]
-
         log detail nbhood "Initialized"
+    }
+
+    # reconfigure
+    #
+    # Refreshes the geoset with the current neighborhood data from
+    # the database.
+    
+    typemethod reconfigure {} {
+        $geo clear
+
+        rdb eval {
+            SELECT n, polygon FROM nbhoods
+            ORDER BY stacking_order
+        } {
+            # Create the polygon with the neighborhood's name and
+            # polygon coordinates; tag it with "nbhood".
+            $geo create polygon $n $polygon nbhood
+        }
     }
 
     #-------------------------------------------------------------------
@@ -54,7 +68,7 @@ snit::type nbhood {
     #    polygon        Boundary polygon, in map coordinates.
     #
     # Creates a nbhood given the parms, which are presumed to be
-    # valid.  When validatity checks are needed, use the NBHOOD:CREATE
+    # valid.  When validity checks are needed, use the NBHOOD:CREATE
     # order.
 
     typemethod create {parmdict} {
@@ -89,7 +103,7 @@ snit::type nbhood {
         }
 
         # NEXT, refresh the geoset
-        Refresh
+        $type reconfigure
 
         # NEXT, notify the app.
         log detail nbhood "<NbhoodCreated> $n"
@@ -206,23 +220,7 @@ snit::type nbhood {
             }
         }
 
-        Refresh
+        $type reconfigure
     }
 
-    # Refresh
-    #
-    # Refreshes the geoset with the current neighborhood data.
-    
-    proc Refresh {} {
-        $geo clear
-
-        rdb eval {
-            SELECT n, polygon FROM nbhoods
-            ORDER BY stacking_order
-        } {
-            # Create the polygon with the neighborhood's name and
-            # polygon coordinates; tag it with "nbhood".
-            $geo create polygon $n $polygon nbhood
-        }
-    }
 }

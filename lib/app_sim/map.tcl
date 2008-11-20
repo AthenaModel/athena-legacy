@@ -35,10 +35,6 @@ snit::type map {
         set mapimage   ""
         set projection [mapref ${type}::proj]
 
-        # NEXT, bind to significant events
-        notifier bind ::scenario <ScenarioNew>    $type [mytypemethod load]
-        notifier bind ::scenario <ScenarioOpened> $type [mytypemethod load]
-
         log normal map "Initialized"
     }
 
@@ -66,12 +62,12 @@ snit::type map {
         return $projection
     }
 
-    # load
+    # reconfigure
     #
     # Loads the current map, gets the right projection, and notifies the
     # app.
 
-    typemethod load {} {
+    typemethod reconfigure {} {
         # FIRST, delete the old map image.
         if {$mapimage ne ""} {
             # FIRST, delete the image
@@ -97,9 +93,6 @@ snit::type map {
                 -width  $width    \
                 -height $height
         }
-
-        # NEXT, notify the app that the map has been loaded.
-        notifier send $type <MapLoaded>
     }
 
     # import filename
@@ -140,13 +133,15 @@ snit::type map {
 
         pixane delete $img
 
+        # NEXT, load the new map
+        $type reconfigure
+
         # NEXT, log it.
         log normal app "Import Map: $filename"
-
-        # NEXT, load the new map
-        $type load
+        
+        app puts "Imported Map: $filename"
 
         # NEXT, Notify the application.
-        notifier send $type <MapImported> $filename
+        notifier send $type <MapChanged>
     }
 }

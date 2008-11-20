@@ -78,8 +78,12 @@ snit::type scenario {
         # NEXT, log it.
         log newlog new
         log normal scn "New Scenario: Untitled"
+        
+        app puts "New scenario created"
 
-        # NEXT, notify the app
+        # NEXT, Reconfigure the app
+        $type reconfigure
+
         notifier send ::scenario <ScenarioNew>
     }
 
@@ -114,6 +118,11 @@ snit::type scenario {
         # NEXT, log it.
         log newlog open
         log normal scn "Open Scenario: $filename"
+
+        app puts "Opened Scenario [file tail $filename]"
+
+        # NEXT, Reconfigure the app
+        $type reconfigure
 
         # NEXT, notify the app
         notifier send ::scenario <ScenarioOpened>
@@ -171,8 +180,13 @@ snit::type scenario {
 
         log normal scn "Save Scenario: $info(dbfile)"
 
+        app puts "Saved Scenario [file tail $info(dbfile)]"
+
         # NEXT, Notify the app
         notifier send ::scenario <ScenarioSaved>
+
+        # NEXT, Reconfigure the app
+        $type reconfigure
 
         return 1
     }
@@ -202,6 +216,30 @@ snit::type scenario {
 
         return 0
     }
+
+    #-------------------------------------------------------------------
+    # Simulation Reconfiguration
+
+    # reconfigure
+    #
+    # Reconfiguration occurs when a brand new scenario is created or
+    # loaded.  All application modules must re-initialize themselves
+    # at this time.
+    #
+    # * Simulation modules are reconfigured directly by this routine.
+    # * User interface modules are reconfigured on receipt of the
+    #   <Reconfigure> event.
+
+    typemethod reconfigure {} {
+        # FIRST, Reconfigure the simulation
+        map    reconfigure
+        nbhood reconfigure
+
+        # NEXT, Reconfigure the GUI
+        notifier send $type <Reconfigure>
+    }
+
+
 
     #-------------------------------------------------------------------
     # Registration of saveable objects

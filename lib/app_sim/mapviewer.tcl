@@ -355,11 +355,12 @@ snit::widget mapviewer {
         bind $canvas <<PolyComplete>> [mymethod PolyComplete %d]
 
         # NEXT, Support model updates
-        notifier bind ::map    <MapLoaded>     $self [mymethod refresh]
+        notifier bind ::scenario <Reconfigure>   $self [mymethod refresh]
+        notifier bind ::map      <MapChanged>    $self [mymethod refresh]
 
-        notifier bind ::nbhood <NbhoodCreated> $self [mymethod NbhoodCreated]
-        notifier bind ::nbhood <NbhoodRaised>  $self [mymethod NbhoodRaised]
-        notifier bind ::nbhood <NbhoodLowered> $self [mymethod NbhoodLowered]
+        notifier bind ::nbhood   <NbhoodCreated> $self [mymethod NbhoodCreated]
+        notifier bind ::nbhood   <NbhoodRaised>  $self [mymethod NbhoodRaised]
+        notifier bind ::nbhood   <NbhoodLowered> $self [mymethod NbhoodLowered]
 
         # NEXT, create popup menus
         set mnu [menu $canvas.nbhoodmenu]

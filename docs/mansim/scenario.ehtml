@@ -22,43 +22,50 @@ scenario(sim) provides the following commands for use by the application.<p>
 
 <<deflist commands>>
 
-<<defitem "scenario dbfile" {scenario dbfile}>>
+<<defitem dbfile {scenario dbfile}>>
 
 Returns the full path name of the open scenario file, or "" if none.<p>
 
-<<defitem "scenario init" {scenario init}>>
+<<defitem init {scenario init}>>
 
 Initializes the scenario, creating a working RDB.<p>
 
-<<defitem "scenario new" {scenario new}>>
+<<defitem new {scenario new}>>
 
 Creates a new, blank, scenario, replacing whatever scenario was
-previously loaded.<p>
+previously loaded.  Reconfigures the simulation modules.<p>
 
-Sends <b>&lt;ScenarioNew&gt;</b> on success.<p>
+Calls <<iref reconfigure>> on success.<p>
 
-<<defitem "scenario open" {scenario open <i>filename</i>}>>
+<<defitem open {scenario open <i>filename</i>}>>
 
 Opens and loads the <<xref scenario(n)>> file called <i>filename</i>,
-remembering it as the current <<iref scenario dbfile>>.<p>
+remembering it as the current <<iref dbfile>>, and
+reconfigures the simulation modules.<p>
 
-Sends <b>&lt;ScenarioOpened&gt;</b> on success.<p>
+Calls <<iref reconfigure>> on success.<p>
 
-<<defitem "scenario save" {scenario save ?<i>filename</i>?}>>
+<<defitem reconfigure {scenario reconfigure}>>
+
+Notifies the simulation that the RDB contains a different scenario.
+This command directly reconfigures all simulation modules, in the
+appropriate sequence, and then sends <b>&lt;Reconfigure&gt;</b>
+to notify the GUI.<p>
+
+<<defitem save {scenario save ?<i>filename</i>?}>>
 
 Saves the current scenario to disk.  If <i>filename</i> is given, the
 scenario will be saved under that name, which will be remembered as
-the current <<iref scenario dbfile>>; otherwise, the current
-<<iref scenario dbfile>> name is used.  It's an error if both
-<i>filename</i> and <<iref scenario dbfile>> are empty.<p>
+the current <<iref dbfile>>; otherwise, the current
+<<iref dbfile>> name is used.  It's an error if both
+<i>filename</i> and <<iref dbfile>> are empty.<p>
 
 If there is already a file "<i>root</i><code>.mdb</code>", then it is
 copied to "<i>root</i>.bak".<p>
 
-Sends <b>&lt;ScenarioSaved&gt;</b> and returns 1 on success; returns 0 on
-failure.<p>
+Returns 1 on success and returns 0 on failure.<p>
 
-<<defitem "scenario unsaved" {scenario unsaved}>>
+<<defitem unsaved {scenario unsaved}>>
 
 Returns 1 if there are unsaved changes, and 0 otherwise.<p>
 
@@ -71,19 +78,13 @@ significant changes to the scenario data.<p>
 
 <<deflist events>>
 
-<<defitem ScenarioNew    {&lt;ScenarioNew&gt;}>>
+<<defitem Reconfigure    {&lt;Reconfigure&gt;}>>
 
-Sent when a new, blank scenario has been created.<p>
-
-<<defitem ScenarioOpened {&lt;ScenarioOpened&gt;}>>
-
-Sent when a scenario file has been opened and loaded.  Use
-<<iref scenario dbfile>> to get the file name.<p>
-
-<<defitem ScenarioSaved {&lt;ScenarioSaved&gt;}>>
-
-Sent when a scenario file has been saved, possibly under a new name.
-Use <<iref scenario dbfile>> to get the file name.<p>
+Sent by <<iref reconfigure>> when the scenario has changed completely,
+as when a new scenario is created or opened.  Directs the user
+interface to update itself accordingly.  Simulation modules should be
+updated directly by <<iref reconfigure>> so that the sequence is
+controlled.<p>
 
 <</deflist events>>
 

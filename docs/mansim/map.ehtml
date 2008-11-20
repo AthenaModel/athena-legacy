@@ -30,22 +30,18 @@ loaded.<p>
 Attempts to import a map image from <i>filename</i>,
 which may be a JPEG, GIF, or PNG file.<p>
 
-On success, <<iref load>>s the new map and sends
-<b>&lt;MapImported&gt;</b>.<p>
+On success, loads the new map and sends
+<b>&lt;MapChanged&gt;</b>.<p>
 
 <<defitem "init" {map init}>>
 
 Initializes the module, and sets it for the case where no map is
 loaded.<p>
 
-<<defitem "load" {map load}>>
+<<defitem "reconfigure" {map reconfigure}>>
 
-Loads the current map (if any) from the RDB, sets up the image and
-projection accordingly, and sends <b>&lt;MapLoaded&gt;</b>.<p>
-
-Note that it should rarely be necessary to call this directly;
-map(sim) automatically loads the current map when relevant events
-occur.<p>
+Loads the current map (if any) from the RDB and sets up the image and
+projection accordingly.<p>
 
 <<defitem "projection" {map projection}>>
 
@@ -67,14 +63,9 @@ significant changes to the map data.<p>
 
 <<deflist events>>
 
-<<defitem MapImported {&lt;MapImported&gt; <i>filename</i>}>>
+<<defitem MapChanged {&lt;MapChanged&gt;}>>
 
-Sent when new map image file <i>filename</i> has been imported into
-the current scenario.<p>
-
-<<defitem MapLoaded {&lt;MapLoaded&gt;}>>
-
-Sent when a map has been loaded from the RDB and is ready for use.<p>
+Sent when a new map image is to be used (including no map at all).<p>
 
 <</deflist events>>
 

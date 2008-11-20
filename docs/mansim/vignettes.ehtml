@@ -30,7 +30,6 @@ The user wishes to begin work on a new scenario.<p>
 actor GUI
 actor mainwin
 actor scenario
-actor map
 actor mapviewer
 actor SIM
 
@@ -42,13 +41,11 @@ message mainwin scenario "scenario new"
 
 action scenario "Clears the scenario data."
 
-message scenario {mainwin map SIM} <ScenarioNew>
+message scenario SIM "SIM reconfigure" {
+    All relevant simulation modules are reconfigured in appropriate sequence.
+}
 
-action map "Loads the empty map."
-
-message map mapviewer <MapLoaded>
-
-action mapviewer "Displays an empty map."
+message scenario {mainwin mapviewer} <Reconfigure>
 
 }>>
 
@@ -60,7 +57,6 @@ The user wishes to open an existing scenario.<p>
 actor GUI
 actor mainwin
 actor scenario
-actor map
 actor mapviewer
 actor SIM
 
@@ -72,13 +68,11 @@ message mainwin scenario "scenario open \$filename"
 
 action scenario "Loads the scenario data."
 
-message scenario {mainwin map SIM} <ScenarioOpened>
+message scenario SIM "SIM reconfigure" {
+    All relevant simulation modules are reconfigured in appropriate sequence.
+}
 
-action map "Loads the map (if any) from the scenario"
-
-message map mapviewer <MapLoaded>
-
-action mapviewer "Displays the map."
+message scenario {mainwin mapviewer} <Reconfigure>
 
 }>>
 
@@ -97,9 +91,7 @@ action mainwin "Allow user to select the file name, if need be."
 
 message mainwin scenario "scenario save \$filename"
 
-action scenario "Clears the scenario data."
-
-message scenario mainwin <ScenarioSaved>
+action scenario "Saves the scenario data to disk."
 }>>
 
 <<subsection "Exit Application">>

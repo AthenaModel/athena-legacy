@@ -77,6 +77,11 @@ Returns a list of the neighborhood short names, in order of definition.<p>
 Raises neighborhood <i>n</i> to the top of the neighborhood stacking
 order, and sends <b>&lt;NbhoodRaised&gt;</b>.<p>
 
+<<defitem reconfigure {nbhood reconfigure}>>
+
+Updates the nbhood(sim) module when the scenario has changed.  It
+should rarely be necessary to call this directly.<p>
+
 <<defitem validate {nbhood validate <i>n</i>}>>
 
 Validates and returns <i>name</i> as a neighborhood short

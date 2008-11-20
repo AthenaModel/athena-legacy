@@ -74,17 +74,7 @@ snit::widget mainwin {
         grid propagate $win off
 
         # NEXT, Prepare to receive notifier events.
-        notifier bind ::scenario    <ScenarioNew>    \
-            $self [mymethod ScenarioNew]
-
-        notifier bind ::scenario    <ScenarioOpened> \
-            $self [mymethod ScenarioOpened]
-
-        notifier bind ::scenario    <ScenarioSaved>  \
-            $self [mymethod ScenarioSaved]
-
-        notifier bind ::map         <MapImported> \
-            $self [mymethod MapImported]
+        notifier bind ::scenario <Reconfigure> $self [mymethod Reconfigure]
 
         # NEXT, Prepare to receive window events
         bind $viewer <<Icon-1>>       [mymethod Icon-1 %d]
@@ -493,51 +483,19 @@ snit::widget mainwin {
     #-------------------------------------------------------------------
     # Notifier Event Handlers
 
-    # ScenarioNew
+    # Reconfigure
     #
-    # A new scenario has been created.
+    # Reconfigure the window given the new scenario
 
-    method ScenarioNew {} {
+    method Reconfigure {} {
         # FIRST, set the window title
-        wm title $win "Untitled - Minerva [version]"
+        set dbfile [file tail [scenario dbfile]]
 
-        # NEXT, Notify the user
-        $self puts "New scenario created"
-    }
-
-    # ScenarioOpened
-    #
-    # A new scenario file has been opened.
-
-    method ScenarioOpened {} {
-        # FIRST, set the window title
-        set tail [file tail [scenario dbfile]]
-
-        wm title $win "$tail - Minerva [version]"
-
-        # NEXT, Notify the user
-        $self puts "Opened $tail"
-    }
-
-    # ScenarioSaved
-    #
-    # The data has been saved.
-
-    method ScenarioSaved {} {
-        set tail [file tail [scenario dbfile]]
-
-        wm title $win "$tail - Minerva [version]"
-        $self puts "Saved $tail"
-    }
-
-    # MapImported filename
-    #
-    # filename         Map image file name
-    #
-    # The user has imported a new map.  Update the GUI accordingly
-
-    method MapImported {filename} {
-        $self puts "Imported map [file tail $filename]"
+        if {$dbfile ne ""} {
+            wm title $win "$dbfile - Minerva [version]"
+        } else {
+            wm title $win "Untitled - Minerva [version]"
+        }
     }
 
     #-------------------------------------------------------------------
