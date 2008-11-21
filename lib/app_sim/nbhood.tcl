@@ -114,7 +114,6 @@ snit::type nbhood {
         $type SetObscuredFlags
 
         # NEXT, notify the app.
-        log detail nbhood "<NbhoodCreated> $n"
         notifier send ::nbhood <NbhoodCreated> $n
     }
 
@@ -152,7 +151,6 @@ snit::type nbhood {
         }
 
         # NEXT, notify the app.
-        log detail nbhood "<NbhoodChanged> $n"
         notifier send ::nbhood <NbhoodChanged> $n
     }
 
@@ -178,7 +176,6 @@ snit::type nbhood {
         # have obscured some other neighborhood's refpoint.
         $type SetObscuredFlags
 
-        log detail nbhood "<NbhoodRaised> $n"
         notifier send ::nbhood <NbhoodRaised> $n
     }
    
@@ -205,7 +202,6 @@ snit::type nbhood {
         # have obscured some other neighborhood's refpoint.
         $type SetObscuredFlags
 
-        log detail nbhood "<NbhoodLowered> $n"
         notifier send ::nbhood <NbhoodLowered> $n
     }
 

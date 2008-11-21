@@ -205,7 +205,7 @@ actor order
 actor map
 actor mapviewer
 
-message GUI   order "MAP:IMPORT \$parms"
+message GUI   order MAP:IMPORT
 message order map   "map import \$filename"
 
 action map "Imports the map into the RDB, and loads it."
@@ -227,9 +227,22 @@ actor order
 actor nbhood
 actor mapviewer
 
-message GUI    order     "NBHOOD:CREATE \$parms"
+message GUI    order     NBHOOD:CREATE
 message order  nbhood    "nbhood create \$parms"
 message nbhood mapviewer "<NbhoodCreated> \$n"
+}>>
+
+<<subsection "NBHOOD:MODIFY">>
+
+<<sequence -narration {
+actor GUI
+actor order
+actor nbhood
+actor mapviewer
+
+message GUI    order     NBHOOD:MODIFY
+message order  nbhood    "nbhood modify \$n \$parmdict"
+message nbhood mapviewer "<NbhoodChanged> \$n"
 }>>
 
 <<subsection "NBHOOD:LOWER">>
@@ -240,7 +253,7 @@ actor order
 actor nbhood
 actor mapviewer
 
-message GUI    order     "NBHOOD:LOWER \$parms"
+message GUI    order     NBHOOD:LOWER
 message order  nbhood    "nbhood lower \$parms"
 message nbhood mapviewer "<NbhoodLowered> \$n"
 }>>
@@ -253,7 +266,7 @@ actor order
 actor nbhood
 actor mapviewer
 
-message GUI    order     "NBHOOD:RAISE \$parms"
+message GUI    order     NBHOOD:RAISE
 message order  nbhood    "nbhood raise \$parms"
 message nbhood mapviewer "<NbhoodRaised> \$n"
 }>>

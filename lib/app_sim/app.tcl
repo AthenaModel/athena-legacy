@@ -76,6 +76,9 @@ snit::type app {
             -logdir       [workdir join log app_sim]                  \
             -overflowcmd  [list notifier send $type <AppLogOverflow>]
 
+        # NEXT, enable notifier(n) tracing
+        notifier trace [myproc NotifierTrace]
+
         # NEXT, Create the working scenario RDB and initialize simulation
         # components
         scenario init
@@ -102,6 +105,15 @@ snit::type app {
         if {[llength $argv] == 1} {
             scenario open [file normalize [lindex $argv 0]]
         }
+    }
+
+    # NotifierTrace subject event eargs objects
+    #
+    # A notifier(n) trace command
+
+    proc NotifierTrace {subject event eargs objects} {
+        set objects [join $objects ", "]
+        log detail ntfy "send $subject $event [list $eargs] to $objects"
     }
 
     #-------------------------------------------------------------------
