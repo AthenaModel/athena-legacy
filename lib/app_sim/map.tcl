@@ -108,14 +108,9 @@ snit::type map {
         if {[catch {
             pixane load $img -file $filename
         } result]} {
-            app error {
-                |<--
-                Could not open the specified file as a map image:
-
-                $filename
-            }
-
             pixane delete $img
+
+            error "Could not open the specified file as a map image"
             return
         }
         

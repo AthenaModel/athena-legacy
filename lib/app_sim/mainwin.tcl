@@ -378,7 +378,16 @@ snit::widget mainwin {
         }
 
         # NEXT, Import the map
-        map import $filename
+        if {[catch {
+            order send "" client MAP:IMPORT [list filename $filename]
+        } result]} {
+            app error {
+                |<--
+                Import failed: [dict get $result filename]
+
+                $filename
+            }
+        }
     }
 
     # FileExit

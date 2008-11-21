@@ -62,6 +62,7 @@ source [file join $::app_sim::library mapviewer.tcl     ]
 source [file join $::app_sim::library mapicons.tcl      ]
 
 # Orders
+source [file join $::app_sim::library orders_MAP.tcl    ]
 source [file join $::app_sim::library orders_NBHOOD.tcl ]
 
 
