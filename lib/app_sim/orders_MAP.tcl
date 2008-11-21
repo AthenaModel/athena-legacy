@@ -20,7 +20,7 @@
 ordergui define MAP:IMPORT {
     title "Import Map"
     parms {
-        filename { ptype text  label "Map File" }
+        filename { ptype imagefile  label "Map File" }
     }
 }
 
