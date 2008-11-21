@@ -1322,20 +1322,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
         lassign [$self m2c $rx $ry] crx cry
 
         # NEXT, everything else is the polygon
-        if {[llength $args] == 1} {
-            set args [lindex $args 0]
-        }
-
-        set mpoly [list]
-        set cpoly [list]
-
-        while {[llength $args] > 0} {
-            lassign [$self GetMapPoint args] mx my
-            lassign [$self m2c $mx $my] cx cy
-
-            lappend mpoly $mx $my
-            lappend cpoly $cx $cy
-        }
+        set mpoly [$self GetMapPointList args]
 
         # NEXT, Create the nbhood
         set id "nbhood[incr info(iconCounter)]"
@@ -1405,6 +1392,77 @@ snit::widgetadaptor ::mingui::mapcanvas {
         }
     }
 
+    # nbhood polygon id ?polygon?
+    #
+    # polygon     Polygon as list of map coordinates/map ref
+    #
+    # Sets/queries the neighborhood polygon's coordinates.
+    #
+    # The coordinates can be specified as a one argument, a list of 
+    # map refs or map coordinates, or as individual map refs or map 
+    # coordinates.
+    #
+    # Returns the nbhood's polygon in map coordinates.
+
+    method {nbhood polygon} {id args} {
+        # FIRST, check the id
+        require {[info exists nbhoods(polygon-$id)]} \
+            "Unknown neighborhood ID: \"$id\""
+
+        # NEXT, set the coordinates, if given
+        if {[llength $args] > 0} {
+            # FIRST, save the new map coordinates
+            set mpoly [$self GetMapPointList args]
+
+            set nbhoods(polygon-$id) $mpoly
+
+            # NEXT, update the display
+            $hull coords $id.poly [$self m2c {*}$mpoly]
+        }
+
+        # NEXT, return the coords
+        return $nbhoods(polygon-$id)
+    }
+
+    # nbhood point id ?mappoint?
+    #
+    # mappoint     Reference point as map coordinates/ref string
+    #
+    # Sets/queries the neighborhood's refpoint.
+    #
+    # The coordinates can be specified as a map reference, or
+    # as a pair of map coordinates, as one argument or two.
+    #
+    # Returns the nbhood's reference point in map coordinates.
+
+    method {nbhood point} {id args} {
+        # FIRST, check the id
+        require {[info exists nbhoods(polygon-$id)]} \
+            "Unknown neighborhood ID: \"$id\""
+
+        # NEXT, set the coordinates, if given
+        if {[llength $args] > 0} {
+            # FIRST, Get the new map coordinates
+            set mxy [$self GetMapPoint args]
+
+            # NEXT, compute the delta in canvas coords
+            lassign [$self m2c {*}$nbhoods(refpoint-$id)] cx1 cy1
+            lassign [$self m2c {*}$mxy]                   cx2 cy2
+
+            set cxdelta [expr {$cx2 - $cx1}]
+            set cydelta [expr {$cy2 - $cy1}]
+
+            # NEXT, save the new refpoint
+            set nbhoods(refpoint-$id) $mxy
+
+            # NEXT, update the display
+            $hull move "$id&&refpoint" $cxdelta $cydelta
+        }
+
+        # NEXT, return the coords
+        return $nbhoods(refpoint-$id)
+    }
+
     # NbhoodDraw id
     #
     # id       A nbhood ID
@@ -1416,11 +1474,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
         lassign [$self m2c {*}$nbhoods(refpoint-$id)] crx cry
 
         # NEXT, Get the polygon in canvas coords
-        set cpoly [list]
-
-        foreach {mx my} $nbhoods(polygon-$id) {
-            lappend cpoly {*}[$self m2c $mx $my]
-        }
+        set cpoly [$self m2c {*}$nbhoods(polygon-$id)]
 
         # NEXT, Draw it
         $hull create polygon $cpoly                        \
@@ -1474,6 +1528,33 @@ snit::widgetadaptor ::mingui::mapcanvas {
         }
 
         return [list $mx $my]
+    }
+
+    # GetMapPointList argvar
+    #
+    # argvar    Argument list variable
+    #
+    # Reads a sequence of one or map points from the specified list,
+    # in any of the usual forms.
+
+    method GetMapPointList {argvar} {
+        upvar $argvar args
+
+        # FIRST, one point or many?
+        if {[llength $args] == 1} {
+            set args [lindex $args 0]
+        }
+
+        # NEXT, build up the coordinate list.
+        set coords [list]
+
+        while {[llength $args] > 0} {
+            lassign [$self GetMapPoint args] mx my
+
+            lappend coords $mx $my
+        }
+
+        return $coords
     }
 
     # SetModeCursor mode

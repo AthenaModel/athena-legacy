@@ -228,7 +228,7 @@ snit::widget mainwin {
         # NEXT, add the mapviewer to the content notebook
         
         install viewer using mapviewer $win.paner.content.viewer \
-            -width   600                                         \
+            -width   600                                        \
             -height  600
 
         $content add $viewer \
@@ -240,7 +240,7 @@ snit::widget mainwin {
 
         install slog using scrollinglog $win.slog \
             -relief     flat                      \
-            -height     14                        \
+            -height     30                        \
             -logcmd     [mymethod puts]           \
             -loglevel   "normal"
 

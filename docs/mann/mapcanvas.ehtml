@@ -300,6 +300,16 @@ This subcommand is used to create and manage icons on the map.<p>
 
 <<deflist nbhood>>
 
+<<defitem "nbhood cget" {<i>win</i> nbhood cget <i>id option</i>}>>
+
+Returns the value of the specified
+<i>option</i> for the neighborhood with ID <i>id</i>.<p>
+
+<<defitem "nbhood configure" {<i>win</i> nbhood configure <i>id option value</i> ?<i>option value...</i>?}>>
+
+Sets the value of one or more of the
+neighborhood options.<p>
+
 <<defitem "nbhood create" {<i>win</i> nbhood create <i>refpoint polygon</i> ?<i>option value...</i>?}>>
 
 Creates a neighborhood with the specified <i>refpoint</i>, a map
@@ -329,21 +339,28 @@ Sets the color of the reference point icon.  Defaults to "black".<p>
 
 <</deflist options>>
 
-<<defitem "nbhood cget" {<i>win</i> nbhood cget <i>id option</i>}>>
-
-Returns the value of the specified
-<i>option</i> for the neighborhood with ID <i>id</i>.<p>
-
-<<defitem "nbhood configure" {<i>win</i> nbhood configure <i>id option value</i> ?<i>option value...</i>?}>>
-
-Sets the value of one or more of the
-neighborhood options.<p>
-
 <<defitem "nbhood ids" {<i>win</i> nbhood ids}>>
 
 Returns a list of the neighborhood IDs.<p>
 
-<</deflist>>
+<<defitem "nbhood point" {<i>win</i> nbhood point <i>id</i> ?<i>point</i>?}>>
+
+Returns neighborhood <i>id</i>'s reference point as a pair of map
+coordinates.  If <i>point</i> is given, the neighborhood's reference point
+is updated accordingly; it may be expressed as a
+map reference string or in map coordinates, and as one argument or two.<p>
+
+<<defitem "nbhood polygon" {<i>win</i> nbhood polygon <i>id</i> ?<i>polygon</i>?}>>
+
+Returns neighborhood <i>id</i>'s polygon as a list of map
+coordinates.  If <i>polygon</i> is given, the neighborhood's polygon
+is updated accordingly; it may be expressed as a
+list of map reference strings or map coordinates, and as one argument or as
+multiple arguments.<p>
+
+
+
+<</deflist nbhood>>
 
 <<defitem refresh {<i>win</i> refresh}>>
 

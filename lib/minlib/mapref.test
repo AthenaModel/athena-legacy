@@ -202,6 +202,11 @@ namespace eval ::minlib::test {
         cleanup
     } -result {3000.0 1999.9999999999998}
 
+    test m2c-1.5 {Convert many} -setup setup -body {
+        proj m2c 0 0 999 666
+    } -cleanup {
+        cleanup
+    } -result {0.0 0.0 1500.0 999.9999999999999}
 
     #-------------------------------------------------------------------
     # m2ref

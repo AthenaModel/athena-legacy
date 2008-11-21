@@ -154,16 +154,22 @@ snit::type ::minlib::mapref {
         list [expr {round($cx / $fac)}] [expr {round($cy / $fac)}]
     }
 
-    # m2c mx my
+    # m2c mx my....
     #
-    # mx,my    Position in map units
+    # mx,my    One or points in map units
     #
-    # Returns the position in canvas units
+    # Returns the points in canvas units
 
-    method m2c {mx my} {
-        set fac [expr {$mapFactor * ($zoomFactor/100.0)}]
+    method m2c {args} {
+        set out [list]
 
-        list [expr {$mx * $fac}] [expr {$my * $fac}]
+        foreach {mx my} $args {
+            set fac [expr {$mapFactor * ($zoomFactor/100.0)}]
+
+            lappend out [expr {$mx * $fac}] [expr {$my * $fac}]
+        }
+
+        return $out
     }
 
     # c2ref cx cy
