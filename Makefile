@@ -99,8 +99,8 @@ bin: check_env src
 	@ echo ""
 	tclapp $(TOP_DIR)/bin/minerva.tcl                   \
 		$(TOP_DIR)/lib/*/*                          \
-		$(TOP_DIR)/lib/pixane/*/*                   \
 		$(TOP_DIR)/mars/lib/*/*                     \
+		$(TOP_DIR)/mars/lib/pixane/*/*              \
 		-out $(TOP_DIR)/bin/minerva                 \
 		-prefix $(BASE_KIT)                         \
 		-archive $(ARCHIVE)                         \
