@@ -24,7 +24,7 @@ ordergui(sim) provides the following commands for use by the application.<p>
 
 Pops down the order dialog.<p>
 
-<<defitem enter {ordergui enter <i>order parent</i>}>>
+<<defitem enter {ordergui enter <i>parent order</i>}>>
 
 Pops up the order dialog for the named <i>order</i>, which must be
 defined by <<xref order(sim)>>, over window <i>parent</i>.  The order

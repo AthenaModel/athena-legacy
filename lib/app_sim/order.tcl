@@ -255,15 +255,21 @@ snit::type order {
         set errorLevel REJECT
     }
 
-    # invalid parm
+    # valid parm
     #
     # parm    Parameter name
     #
-    # Returns 1 if parm has already been flagged as invalid, and 0 
-    # otherwise.
+    # Returns 1 if parm's value is not known to be invalid, and
+    # 0 otherwise.  A parm's value is invalid if it's the 
+    # empty string (a missing value) or if it's been explicitly
+    # flagged as invalid.
 
-    proc invalid {parm} {
-        dict exists $errors $parm
+    proc valid {parm} {
+        if {$parms($parm) eq "" || [dict exists $errors $parm]} {
+            return 0
+        }
+
+        return 1
     }
 
     # validate parm script
@@ -277,9 +283,11 @@ snit::type order {
     # error.
     #
     # If the parameter is already known to be invalid, the code is skipped.
+    # Further, if the parameter is the empty string, the code is skipped,
+    # as presumably it's an optional parameter.
 
     proc validate {parm script} {
-        if {[invalid $parm]} {
+        if {![valid $parm]} {
             return
         }
 

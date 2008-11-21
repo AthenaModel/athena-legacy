@@ -252,6 +252,7 @@ snit::type ::minlib::scenariodb {
         # NEXT, As of this point all changes are saved.
         set info(savedChanges) [$db total_changes]
     }
+
 }
 
 

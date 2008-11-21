@@ -56,7 +56,7 @@ snit::type nbhood {
         }
 
         # NEXT, update the obscured flags
-        $type SetObscuredFlag
+        $type SetObscuredFlags
     }
 
     #-------------------------------------------------------------------
@@ -111,11 +111,49 @@ snit::type nbhood {
 
         # NEXT, recompute the obscured flag; this nbhood might
         # have obscured some other neighborhood's refpoint.
-        $type SetObscuredFlag
+        $type SetObscuredFlags
 
         # NEXT, notify the app.
         log detail nbhood "<NbhoodCreated> $n"
         notifier send ::nbhood <NbhoodCreated> $n
+    }
+
+    # modify n parmdict
+    #
+    # n            A neighborhood short name
+    # parmdict     A dictionary of neighborhood parms
+    #
+    #    longname       A new long name, or ""
+    #    urbanization   A new eurbanization level, or ""
+    #    refpoint       A new reference point, or ""
+    #    polygon        A new polygon, or ""
+    #
+    # Modifies a nbhood given the parms, which are presumed to be
+    # valid.  When validity checks are needed, use the NBHOOD:MODIFY
+    # order.
+
+    typemethod modify {n parmdict} {
+        dict with parmdict {
+            # FIRST, Put the neighborhood in the database
+            rdb eval {
+                UPDATE nbhoods
+                SET longname     = nonempty($longname,     longname),
+                    refpoint     = nonempty($refpoint,     refpoint),
+                    polygon      = nonempty($polygon,      polygon),
+                    urbanization = nonempty($urbanization, urbanization)
+                WHERE n=$n
+            } {}
+
+            # NEXT, recompute the obscured flag if necessary; this nbhood might
+            # have obscured some other neighborhood's refpoint.
+            if {$polygon ne ""} {
+                $type SetObscuredFlags
+            }
+        }
+
+        # NEXT, notify the app.
+        log detail nbhood "<NbhoodChanged> $n"
+        notifier send ::nbhood <NbhoodChanged> $n
     }
 
     # raise n
@@ -138,7 +176,7 @@ snit::type nbhood {
 
         # NEXT, recompute the obscured flag; this nbhood might
         # have obscured some other neighborhood's refpoint.
-        $type SetObscuredFlag
+        $type SetObscuredFlags
 
         log detail nbhood "<NbhoodRaised> $n"
         notifier send ::nbhood <NbhoodRaised> $n
@@ -165,7 +203,7 @@ snit::type nbhood {
 
         # NEXT, recompute the obscured flag; this nbhood might
         # have obscured some other neighborhood's refpoint.
-        $type SetObscuredFlag
+        $type SetObscuredFlags
 
         log detail nbhood "<NbhoodLowered> $n"
         notifier send ::nbhood <NbhoodLowered> $n
@@ -241,7 +279,7 @@ snit::type nbhood {
         $type reconfigure
     }
 
-    # SetObscuredFlag
+    # SetObscuredFlags
     #
     # Checks the neighborhoods for obscured reference points, and
     # sets the obscured flag accordingly.
@@ -250,7 +288,7 @@ snit::type nbhood {
     # the neighborhood that changed and only looked at overlapping
     # neighborhoods.
 
-    typemethod SetObscuredFlag {} {
+    typemethod SetObscuredFlags {} {
         rdb eval {
             SELECT n, refpoint, obscured FROM nbhoods
         } {

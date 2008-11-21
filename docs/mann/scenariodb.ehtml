@@ -1,5 +1,81 @@
 <<manpage {minlib(n) scenariodb(n)} "Scenario Database Object">>
 
+<<swallow {
+    package require marsutil
+    package require minlib
+
+    proc sqlSectionLink {section} {
+        set title [$section sqlsection title]
+
+        if {[regexp {^\w+\([1-9in]\)$} $title]} {
+            set title [xref $title]
+        }
+
+        return $title
+    }
+
+    proc schemaDoc {} {
+        set out ""
+        foreach section [::marsutil::sqldocument sections] {
+            # FIRST, are there any schema definitions
+            set schema ""
+
+            if {[$section sqlsection schema] ne ""} {
+                lappend schema [$section sqlsection schema]
+            }
+
+            if {[$section sqlsection tempschema] ne ""} {
+                lappend schema [$section sqlsection tempschema]
+            }
+
+            if {[llength $schema] == 0} {
+                continue
+            }
+
+            # NEXT, document them.
+            set title [$section sqlsection title]
+            append out [subsection [list From $title]]
+            append out "\n\n"
+
+            # Make it a link, if appropriate
+            set title [sqlSectionLink $section]
+
+            append out \
+                "The following schema definitions are from $title.<p>\n\n"
+
+            append out "<pre>\n"
+            append out [join $schema "\n\n"]
+            append out "</pre>\n\n"
+        }
+
+        return $out
+    }
+
+    proc sqlFunctionsDoc {} {
+        set out ""
+
+        foreach section [::marsutil::sqldocument sections] {
+            # Skip functions defined by sqldatabase itself.
+            if {$section eq "::simlib::sqldatabase"} {
+                continue
+            }
+
+            set funcs [$section sqlsection functions]
+
+            if {[llength $funcs] > 0} {
+                append out "<li> From [sqlSectionLink $section]:</li>\n"
+                append out "<ul>\n"
+                foreach {func def} $funcs {
+                    append out "<li>${func}()</li>\n"
+                }
+                append out "</ul>\n"
+            }
+        }
+
+        return "<ul>\n$out</ul><p>"
+    }
+}>>
+
 <<section SYNOPSIS>>
 
 <pre>
@@ -28,10 +104,20 @@ from external files.  By convention, these "scenario files" have a
 scenariodb(n) adds the following definitions to the database
 schema:<p>
 
-<<swallow {package require minlib}>>
-<pre>
-<<::minlib::scenariodb sqlsection schema>>
-</pre>
+Every <<xref scenariodb(n)>> database will contain at least the
+following schema definitions, in addition to those from any other
+<<xref sqlsection(i)>>'s loaded explicitly by the application.<p>
+
+<<schemaDoc>>
+
+<<section "SQL FUNCTIONS">>
+
+Every <<xref scenariodb(n)>> database will support at least the
+following SQL functions, in addition to those defined by SQLite3
+and those defined by <<xref mars:sqlsection(i)>> modules explicitly
+loaded by the application.<p>
+
+<<sqlFunctionsDoc>>
 
 <<section COMMANDS>>
 

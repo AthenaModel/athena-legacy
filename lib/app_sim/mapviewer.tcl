@@ -358,9 +358,10 @@ snit::widget mapviewer {
         notifier bind ::scenario <Reconfigure>   $self [mymethod refresh]
         notifier bind ::map      <MapChanged>    $self [mymethod refresh]
 
-        notifier bind ::nbhood   <NbhoodCreated> $self [mymethod NbhoodCreated]
-        notifier bind ::nbhood   <NbhoodRaised>  $self [mymethod NbhoodRaised]
-        notifier bind ::nbhood   <NbhoodLowered> $self [mymethod NbhoodLowered]
+        notifier bind ::nbhood <NbhoodCreated> $self [mymethod NbhoodCreated]
+        notifier bind ::nbhood <NbhoodChanged> $self [mymethod NbhoodChanged]
+        notifier bind ::nbhood <NbhoodRaised>  $self [mymethod NbhoodRaised]
+        notifier bind ::nbhood <NbhoodLowered> $self [mymethod NbhoodLowered]
 
         # NEXT, create popup menus
         set mnu [menu $canvas.nbhoodmenu]
@@ -562,7 +563,7 @@ snit::widget mapviewer {
     #
     # n     The neighborhood ID
     #
-    # Something changed about neighborhood n.  Update it.
+    # There's a new neighborhood; display it.
 
     method NbhoodCreated {n} {
         # FIRST, get the nbhood data we care about
@@ -575,6 +576,25 @@ snit::widget mapviewer {
         # NEXT, show refpoints obscured by the change
         $self NbhoodShowObscured
     }
+   
+    # NbhoodChanged n
+    #
+    # n     The neighborhood ID
+    #
+    # Something changed about neighborhood n.  Update it.
+
+    method NbhoodChanged {n} {
+        # FIRST, get the nbhood data we care about
+        rdb eval {SELECT refpoint, polygon FROM nbhoods WHERE n=$n} {}
+
+        # NEXT, update the refpoint and polygon
+        $canvas nbhood point $nbhoods(id-$n)   $refpoint
+        $canvas nbhood polygon $nbhoods(id-$n) $polygon
+
+        # NEXT, show refpoints obscured by the change
+        $self NbhoodShowObscured
+    }
+
 
     # NbhoodRaised n
     #

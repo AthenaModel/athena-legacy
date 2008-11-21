@@ -168,6 +168,7 @@ snit::widget mainwin {
         $menu add cascade -label "Orders" -underline 0 -menu $ordersmenu
         
         $self AddOrder $ordersmenu NBHOOD:CREATE
+        $self AddOrder $ordersmenu NBHOOD:MODIFY
         $self AddOrder $ordersmenu NBHOOD:LOWER
         $self AddOrder $ordersmenu NBHOOD:RAISE
     }
@@ -182,7 +183,7 @@ snit::widget mainwin {
     method AddOrder {mnu order} {
         $mnu add command \
             -label   [ordergui meta $order title] \
-            -command [list ordergui enter $order $win]
+            -command [list ordergui enter $win $order]
     }
 
     # CreateComponents
