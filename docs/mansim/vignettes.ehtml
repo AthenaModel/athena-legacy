@@ -125,6 +125,10 @@ action mainwin "Allow user to select the file name, if need be."
 message mainwin scenario "scenario save \$filename"
 
 action scenario "Saves the scenario data to disk."
+
+message scenario mainwin <ScenarioSaved>
+
+action mainwin "Updates file name in window title."
 }>>
 
 <<subsection "Exit Application">>

@@ -177,6 +177,8 @@ snit::type scenario {
 
         app puts "Saved Scenario [file tail $info(dbfile)]"
 
+        notifier send $type <ScenarioSaved>
+
         return 1
     }
 

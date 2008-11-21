@@ -86,6 +86,11 @@ interface to update itself accordingly.  Simulation modules should be
 updated directly by <<iref reconfigure>> so that the sequence is
 controlled.<p>
 
+<<defitem ScenarioSaved  {&lt;ScenarioSaved&gt;}>>
+
+Sent by <<iref save>> when the scenario has been saved.  This allows
+the GUI to display the correct file name in window titles.<p>
+
 <</deflist events>>
 
 <<section ENVIRONMENT>>

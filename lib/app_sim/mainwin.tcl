@@ -74,7 +74,8 @@ snit::widget mainwin {
         grid propagate $win off
 
         # NEXT, Prepare to receive notifier events.
-        notifier bind ::scenario <Reconfigure> $self [mymethod Reconfigure]
+        notifier bind ::scenario <Reconfigure>   $self [mymethod Reconfigure]
+        notifier bind ::scenario <ScenarioSaved> $self [mymethod Reconfigure]
 
         # NEXT, Prepare to receive window events
         bind $viewer <<Icon-1>>       [mymethod Icon-1 %d]
