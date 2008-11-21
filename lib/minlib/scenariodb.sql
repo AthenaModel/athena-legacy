@@ -71,7 +71,10 @@ CREATE TABLE nbhoods (
     refpoint       TEXT,
 
     -- Neighborhood polygon: list of map coordinates {mx my ...}
-    polygon        TEXT
+    polygon        TEXT,
+
+    -- 1 if refpoint is obscured by another neighborhood, and 0 o.w.
+    obscured       INTEGER DEFAULT 0
 );
 
 

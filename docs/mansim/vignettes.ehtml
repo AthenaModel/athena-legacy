@@ -9,13 +9,46 @@ variety of application behavior is triggered by GUI events.  This man
 page describes the most important vignettes using sequence
 diagrams.<p>
 
-<<subsection "Conventions">>
+<<subsection "Actors">>
 
 The names of most actors are simply the names the man pages for the
 relevant modules.  For modules within minerva_sim(1), the "(sim)"
-suffix is omitted from the man page name.  Names in ALL CAPS represent
-other entities; for example, the name "GUI" refers to user
-interactions with the GUI.<p>
+suffix is omitted from the man page name.
+
+Names in ALL CAPS represent notional entities:
+
+<ul>
+  <li> <b>GUI</b>: The GUI in general.
+  <li> <b>SIM</b>: The simulation in general.  In specific cases,
+       might refer to some arbitrary module, or to any number of modules.
+</ul>
+
+<<subsection "Messages">>
+
+Message text follows one of the following patterns:<p>
+
+<b>Menu Items:</b> e.g., "File/Save Scenario".  Submenus are indicated
+by slashes, as shown.<p>
+
+<b>Simulation Orders:</b> E.g., NBHOOD:CREATE.  Orders are shown
+without parameters, unless it's significant for the control flow,
+since orders typicall have too many parameters to list.<p>
+
+<b>Tk and Notifier Events:</b> E.g., &lt;&lt;Nbhood-1&gt;&gt;,
+&lt;Reconfigure&gt;.  These are shown in angle brackets, as they
+appear in the code.  Parameters are shown as appropriate.  Implies
+that the receiving actor has a binding for the event.  These messages
+can be received by multiple actors.<p> 
+
+<b>Object Invocation:</b> Invocation of object methods, and indeed any
+other command, is indicated by writing the actual command, e.g.,
+"scenario open $filename".  Parameters are shown as appropriate.<p>
+
+<b>Generic Method Dispatch:</b> Some diagrams, e.g.,
+<<xref "Open Scenario">>, will indicate that the same method is called
+on multiple objects by using a generic object/actor name, e.g., "SIM
+reconfigure" indicates that the sending actor explicitly calls the
+"reconfigure" method for every simulation module that cares about it.<p>
 
 <<section "SCENARIO MANAGEMENT">>
 
@@ -156,6 +189,30 @@ message order SIM ...
 action SIM "The order takes effect in the simulation."
 }>>
 
+<<section "MAP ORDERS">>
+
+<<subsection "MAP:IMPORT">>
+
+The user wishes to import a new map into the current scenario.<p>
+
+<<sequence -narration {
+actor GUI
+actor order
+actor map
+actor mapviewer
+
+message GUI   order "MAP:IMPORT \$parms"
+message order map   "map import \$filename"
+
+action map "Imports the map into the RDB, and loads it."
+
+message map mapviewer <MapChanged>
+
+action mapviewer "Displays the map."
+
+}>>
+
+
 <<section "NEIGHBORHOOD ORDERS">>
 
 <<subsection "NBHOOD:CREATE">>
@@ -197,29 +254,6 @@ message order  nbhood    "nbhood raise \$parms"
 message nbhood mapviewer "<NbhoodRaised> \$n"
 }>>
 
-<<section "MISCELLANEOUS ACTIONS">>
-
-<<subsection "Import Map">>
-
-The user wishes to import a new map into the current scenario.<p>
-
-<<sequence -narration {
-actor GUI
-actor mainwin
-actor map
-actor mapviewer
-
-message GUI mainwin "File/Import Map"
-
-message mainwin map "map import \$filename"
-
-action map "Imports the map into the RDB, and loads it."
-
-message map mapviewer <MapChanged>
-
-action mapviewer "Displays the map."
-
-}>>
 
 <<section AUTHOR>>
 

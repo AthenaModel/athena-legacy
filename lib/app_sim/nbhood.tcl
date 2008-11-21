@@ -43,6 +43,7 @@ snit::type nbhood {
     # the database.
     
     typemethod reconfigure {} {
+        # FIRST, populate the geoset
         $geo clear
 
         rdb eval {
@@ -53,6 +54,9 @@ snit::type nbhood {
             # polygon coordinates; tag it with "nbhood".
             $geo create polygon $n $polygon nbhood
         }
+
+        # NEXT, update the obscured flags
+        $type SetObscuredFlag
     }
 
     #-------------------------------------------------------------------
@@ -100,10 +104,14 @@ snit::type nbhood {
                     WHERE n=$n;
                 }
             }
+
+            # NEXT, add the nbhood to the geoset
+            $geo create polygon $n $polygon nbhood
         }
 
-        # NEXT, refresh the geoset
-        $type reconfigure
+        # NEXT, recompute the obscured flag; this nbhood might
+        # have obscured some other neighborhood's refpoint.
+        $type SetObscuredFlag
 
         # NEXT, notify the app.
         log detail nbhood "<NbhoodCreated> $n"
@@ -117,6 +125,7 @@ snit::type nbhood {
     # Brings the neighborhood to the top of the stacking order.
 
     typemethod raise {n} {
+        # FIRST, reorder the neighborhoods
         set names [rdb eval {
             SELECT n FROM nbhoods 
             ORDER BY stacking_order
@@ -126,6 +135,10 @@ snit::type nbhood {
         lappend names $n
 
         $type ReorderNbhoods $names
+
+        # NEXT, recompute the obscured flag; this nbhood might
+        # have obscured some other neighborhood's refpoint.
+        $type SetObscuredFlag
 
         log detail nbhood "<NbhoodRaised> $n"
         notifier send ::nbhood <NbhoodRaised> $n
@@ -139,6 +152,7 @@ snit::type nbhood {
     # Sends the neighborhood to the bottom of the stacking order.
 
     typemethod lower {n} {
+        # FIRST, reorder the neighborhoods
         set names [rdb eval {
             SELECT n FROM nbhoods 
             ORDER BY stacking_order
@@ -148,6 +162,10 @@ snit::type nbhood {
         set names [linsert $names 0 $n]
 
         $type ReorderNbhoods $names
+
+        # NEXT, recompute the obscured flag; this nbhood might
+        # have obscured some other neighborhood's refpoint.
+        $type SetObscuredFlag
 
         log detail nbhood "<NbhoodLowered> $n"
         notifier send ::nbhood <NbhoodLowered> $n
@@ -221,6 +239,31 @@ snit::type nbhood {
         }
 
         $type reconfigure
+    }
+
+    # SetObscuredFlag
+    #
+    # Checks the neighborhoods for obscured reference points, and
+    # sets the obscured flag accordingly.
+    #
+    # TBD: This could be more efficient if it took into account
+    # the neighborhood that changed and only looked at overlapping
+    # neighborhoods.
+
+    typemethod SetObscuredFlag {} {
+        rdb eval {
+            SELECT n, refpoint, obscured FROM nbhoods
+        } {
+            set flag [expr {[$geo find $refpoint nbhood] ne $n}]
+
+            if {$obscured != $flag} {
+                rdb eval {
+                    UPDATE nbhoods
+                    SET obscured=$flag
+                    WHERE n=$n
+                }
+            }
+        }
     }
 
 }

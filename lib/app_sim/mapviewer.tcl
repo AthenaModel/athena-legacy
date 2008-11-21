@@ -571,6 +571,9 @@ snit::widget mapviewer {
         # NEXT, draw it; this will delete any previous neighborhood
         # with the same name.
         $self NbhoodDraw $n $refpoint $polygon
+
+        # NEXT, show refpoints obscured by the change
+        $self NbhoodShowObscured
     }
 
     # NbhoodRaised n
@@ -582,6 +585,9 @@ snit::widget mapviewer {
     method NbhoodRaised {n} {
         $canvas raise $nbhoods(id-$n)
         $canvas lower $nbhoods(id-$n) marker
+
+        # NEXT, show refpoints obscured/revealed by the change
+        $self NbhoodShowObscured
     }
 
     # NbhoodLowered n
@@ -593,6 +599,9 @@ snit::widget mapviewer {
     method NbhoodLowered {n} {
         $canvas lower $nbhoods(id-$n)
         $canvas raise $nbhoods(id-$n) map
+
+        # NEXT, show refpoints obscured/revealed by the change
+        $self NbhoodShowObscured
     }
 
     #-------------------------------------------------------------------
@@ -661,6 +670,9 @@ snit::widget mapviewer {
             $self NbhoodDraw $n $refpoint $polygon
         }
 
+        # NEXT, reveal obscured refpoints
+        $self NbhoodShowObscured
+
         # NEXT, fill them, or not.
         $self NbhoodFill
 
@@ -723,6 +735,24 @@ snit::widget mapviewer {
             $canvas nbhood configure $id -fill $fill
         }
     }
+
+    # NbhoodShowObscured
+    #
+    # Shows the obscured status of each neighborhood by lighting
+    # up the refpoint.
+
+    method NbhoodShowObscured {} {
+        rdb eval {
+            SELECT n,obscured FROM nbhoods
+        } {
+            if {$obscured} {
+                $canvas nbhood configure $nbhoods(id-$n) -pointcolor red
+            } else {
+                $canvas nbhood configure $nbhoods(id-$n) -pointcolor black
+            }
+        }
+    }
+    
 
     # nbhood configure n option value...
     #
