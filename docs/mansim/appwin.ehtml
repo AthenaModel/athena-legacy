@@ -1,4 +1,4 @@
-<<manpage appwin(sim) "Main Window Widget">>
+<<manpage appwin(sim) "Application Window Widget">>
 
 <<section SYNOPSIS>>
 
@@ -10,15 +10,27 @@ package require app_sim 1.0
 
 <<section DESCRIPTION>>
 
-appwin(sim) is a snit::widget implementing the main application
-window.  It's implemented as a widget, rather than a singleton, to
-ease the possible future transition to supporting multiple scenarios at the
-same time.<p>
+appwin(sim) is a snit::widget implementing the application
+windows.  There are two flavors: the main window, and browser
+windows.  The main window provides a command-line interface (CLI); in
+addition, closing it terminates the application.  The application
+creates a single main window and as many browsers as the user likes.<p>
 
 <<section OPTIONS>>
 
 The appwin(sim) widget has the same options as the
-<<xref tk:toplevel(n)>> widget.<p>
+<<xref tk:toplevel(n)>> widget, in addition to the following:<p>
+
+<<deflist options>>
+
+<<defopt {-main <i>flag</i>}>>
+
+If <i>flag</i> is <b>yes</b>, then the new window will be a "main"
+window, i.e., closing it will exit the application.  Otherwise, it
+will just another browser window.  Defaults to <b>no</b>.  This option
+can only be set when the widget is created.<p>
+
+<</deflist>>
 
 <<section COMMANDS>>
 
@@ -30,6 +42,12 @@ appwin(sim) defines the following commands:<p>
 
 Creates a appwin(sim) widget called <i>win</i>, given the
 <<xref OPTIONS options>>.  Returns <i>win</i>.<p>
+
+<<defitem "appwin new" {appwin new ?<i>option value...</i>?}>>
+
+Creates a new appwin(sim) widget given the
+<<xref OPTIONS options>>, generating the window name automatically.
+Returns the new window's name.<p>
 
 <</deflist commands>>
 

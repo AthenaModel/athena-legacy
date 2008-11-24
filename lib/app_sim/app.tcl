@@ -138,10 +138,10 @@ snit::type app {
     #
     # text     A text string
     #
-    # Writes the text to the message line
+    # Writes the text to the message line of the topmost appwin.
 
     typemethod puts {text} {
-        .main puts $text
+        [app topwin] puts $text
     }
 
     # error text
@@ -151,7 +151,7 @@ snit::type app {
     # Displays the error in a message box
 
     typemethod error {text} {
-        uplevel 1 [list .main error $text]
+        uplevel 1 [list [app topwin] error $text]
     }
 
     # exit ?text?
@@ -171,6 +171,20 @@ snit::type app {
 
         # NEXT, exit
         exit
+    }
+
+    # topwin
+    #
+    # Returns the name of the topmost appwin
+
+    typemethod topwin {} {
+        foreach w [lreverse [wm stackorder .]] {
+            if {[winfo class $w] eq "Appwin"} {
+                return $w
+            }
+        }
+
+        return ""
     }
 }
 

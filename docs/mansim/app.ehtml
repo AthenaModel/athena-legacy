@@ -23,35 +23,36 @@ app(sim) provides the following commands for use by the application.<p>
 
 <<deflist commands>>
 
-<<defitem "app error" {app error <i>text</i>}>>
+<<defitem error {app error <i>text</i>}>>
 
-Displays <i>text</i> in an error dialog centered on the main window.
-<b>TBD:</b> when/if other windows are added, this routine should pick the
-appropriate window.  Alternatively, windows should be responsible for
-reporting their own errors; non-GUI code should propagate errors
-normally.<p>
+Displays <i>text</i> in an error dialog centered on the
+<<iref topwin>>.  Variables and commands in <i>text</i> are
+interpolated using <<xref template(n) tsubst>> from
+<<xref template(n)>>.<p>
 
-Variables and commands in <i>text</i> are interpolated using
-<<xref template(n) tsubst>> from <<xref template(n)>>.<p>
-
-<<defitem "app exit" {app exit ?<i>text</i>?}>>
+<<defitem exit {app exit ?<i>text</i>?}>>
 
 Outputs <i>text</i>, if given, to stdout, deletes the working
 directory, and exits the program.
 Variables and commands in <i>text</i> are interpolated using
 <<xref template(n) tsubst>> from <<xref template(n)>>.<p>
 
-<<defitem "app init" {app init <i>argv</i>}>>
+<<defitem init {app init <i>argv</i>}>>
 
 Initializes the application given the command line arguments.  At
 present the application has one optional argument, a scenario file
 name.  If given, the scenario will be opened after the GUI is created.<p>
 
-<<defitem "app puts" {app puts <i>text</i>}>>
+<<defitem puts {app puts <i>text</i>}>>
 
-Outputs <i>text</i> to the main window's message line.<p>
+Outputs <i>text</i> to the <<iref topwin>>'s message line.<p>
 
-<<defitem "app usage" {app usage}>>
+<<defitem topwin {app topwin}>>
+
+Returns the name of the topmost <<xref appwin(sim)>> window, which
+will usually be the active window.<p>
+
+<<defitem usage {app usage}>>
 
 Outputs a brief usage string to stdout.<p>
 
