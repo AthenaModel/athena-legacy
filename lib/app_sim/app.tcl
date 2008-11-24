@@ -88,7 +88,7 @@ snit::type app {
         # NEXT, Withdraw the default toplevel window, and create 
         # the main GUI components.
         wm withdraw .
-        mainwin .main
+        appwin .main -main yes
 
         # NEXT, prepare to handle orders
         order       init

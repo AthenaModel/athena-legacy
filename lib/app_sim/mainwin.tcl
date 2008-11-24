@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    mainwin.tcl
+#    appwin.tcl
 #
 # AUTHOR:
 #    Will Duquette
@@ -18,9 +18,9 @@
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# mainwin
+# appwin
 
-snit::widget mainwin {
+snit::widget appwin {
     hulltype toplevel
 
     #-------------------------------------------------------------------
@@ -37,6 +37,16 @@ snit::widget mainwin {
 
     delegate option * to hull
 
+    # -main flag
+    #
+    # If "yes", this is the main application window.  Otherwise,
+    # this is just a browser window. This may affect the components, 
+    # the menus, and so forth.
+    
+    option -main      \
+        -default  no \
+        -readonly yes
+
     #-------------------------------------------------------------------
     # Instance variables
 
@@ -52,11 +62,18 @@ snit::widget mainwin {
     # Constructor
 
     constructor {args} {
-        # FIRST, set the default window title
+        # FIRST, get the options
+        $self configurelist $args
+
+        # NEXT, set the default window title
+        # TBD: Not here.
         wm title $win "Untitled - Minerva [version]"
 
-        # NEXT, Exit the app when this window is closed.
-        wm protocol $win WM_DELETE_WINDOW [mymethod FileExit]
+        # NEXT, Exit the app when this window is closed, if it's a 
+        # main window.
+        if {$options(-main)} {
+            wm protocol $win WM_DELETE_WINDOW [mymethod FileExit]
+        }
 
         # NEXT, Allow the developer to pop up the debugger.
         bind $win <Control-F12> [list debugger new]
@@ -82,6 +99,10 @@ snit::widget mainwin {
         bind $viewer <<Nbhood-1>>     [mymethod Nbhood-1 %d]
         bind $viewer <<Point-1>>      [mymethod Point-1 %d]
         bind $viewer <<PolyComplete>> [mymethod PolyComplete %d]
+    }
+
+    destructor {
+        notifier forget $self
     }
 
     # CreateMenuBar
@@ -265,7 +286,7 @@ snit::widget mainwin {
         $slog load [log cget -logfile]
         log configure -newlogcmd [list $slog load]
 
-        # NEXT, add the CLI to the paner
+        # NEXT, add the CLI to the paner.
         install cli using cli $win.paner.cli \
             -height 8                        \
             -relief flat

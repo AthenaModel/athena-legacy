@@ -377,6 +377,10 @@ snit::widget mapviewer {
         bind $canvas <<Nbhood-3>> [mymethod Nbhood-3 %d %X %Y]
     }
 
+    destructor {
+        notifier forget $self
+    }
+
     # AddModeTool mode icon tooltip
     #
     # mode       The mapcanvas(n) mode name
