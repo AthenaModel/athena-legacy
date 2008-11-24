@@ -95,12 +95,16 @@ snit::widget appwin {
         notifier bind ::scenario <ScenarioSaved> $self [mymethod Reconfigure]
 
         # NEXT, Prepare to receive window events
-        bind $win.paner.content <<NotebookTabChanged>> [mymethod Reconfigure]
+        bind $content <<NotebookTabChanged>> [mymethod Reconfigure]
 
         bind $viewer <<Icon-1>>       [mymethod Icon-1 %d]
         bind $viewer <<Nbhood-1>>     [mymethod Nbhood-1 %d]
-        bind $viewer <<Point-1>>      [mymethod Point-1 %d]
-        bind $viewer <<PolyComplete>> [mymethod PolyComplete %d]
+
+        # NEXT, prepare to append pucked points, etc., to the CLI
+        if {$options(-main)} {
+            bind $viewer <<Point-1>>      [mymethod Point-1 %d]
+            bind $viewer <<PolyComplete>> [mymethod PolyComplete %d]
+        }
 
         # NEXT, Reconfigure self on creation
         $self Reconfigure
@@ -124,6 +128,13 @@ snit::widget appwin {
         $menu add cascade -label "File" -underline 0 -menu $filemenu
 
         $filemenu add command                  \
+            -label       "New Browser"         \
+            -underline   4                     \
+            -accelerator "Ctrl+N"              \
+            -command     [list appwin new]
+        bind $win <Control-n> [list appwin new]
+        
+        $filemenu add command                  \
             -label     "New Scenario..."       \
             -underline 0                       \
             -command   [mymethod FileNew]
@@ -134,9 +145,11 @@ snit::widget appwin {
             -command   [mymethod FileOpen]
 
         $filemenu add command                  \
-            -label     "Save Scenario"         \
-            -underline 0                       \
-            -command   [mymethod FileSave]
+            -label       "Save Scenario"       \
+            -underline   0                     \
+            -accelerator "Ctrl+S"              \
+            -command     [mymethod FileSave]
+        bind $win <Control-s> [mymethod FileSave]
 
         $filemenu add command                  \
             -label     "Save Scenario As..."   \
@@ -151,13 +164,22 @@ snit::widget appwin {
             -command   [mymethod FileImportMap]
 
         $filemenu add separator
-        
-        $filemenu add command                  \
-            -label       "Exit"                \
-            -underline   1                     \
-            -accelerator "Ctrl+Q"              \
-            -command     [mymethod FileExit]
-        bind $win <Control-q> [mymethod FileExit]
+
+        if {$options(-main)} {
+            $filemenu add command                  \
+                -label       "Exit"                \
+                -underline   1                     \
+                -accelerator "Ctrl+Q"              \
+                -command     [mymethod FileExit]
+            bind $win <Control-q> [mymethod FileExit]
+        } else {
+            $filemenu add command                  \
+                -label       "Close Window"        \
+                -underline   6                     \
+                -accelerator "Ctrl+W"              \
+                -command     [list destroy $win]
+            bind $win <Control-w> [list destroy $win]
+        }
 
         # Edit menu
         set editmenu [menu $menu.edit]
@@ -234,8 +256,27 @@ snit::widget appwin {
         # window.
         frame $win.sep0 -height 2 -relief sunken -borderwidth 2
 
-        # ROW 1, create the paner for the content pane/cli
-        paner $win.paner -orient vertical -showhandle 1
+        # ROW 1, create the content widgets.  If this is a main window,
+        # then we have a paner containing the content notebook with 
+        # a CLI underneath.  Otherwise, we get just the content
+        # notebook.
+        if {$options(-main)} {
+            paner $win.paner -orient vertical -showhandle 1
+            install content using ttk::notebook $win.paner.content \
+                -padding 2 
+
+            $win.paner add $content \
+                -sticky  nsew       \
+                -minsize 120        \
+                -stretch always
+
+            set row1 $win.paner
+        } else {
+            install content using ttk::notebook $win.content \
+                -padding 2 
+
+            set row1 $win.content
+        }
 
         # ROW 2, add a separator
         frame $win.sep2 -height 2 -relief sunken -borderwidth 2
@@ -243,18 +284,9 @@ snit::widget appwin {
         # ROW 3, Create the Message line.
         install msgline using messageline $win.msgline
 
-        # NEXT, add the content notebook to the paner
-        install content using ttk::notebook $win.paner.content \
-            -padding 2 
-
-        $win.paner add $content \
-            -sticky  nsew       \
-            -minsize 120        \
-            -stretch always
-
         # NEXT, add the mapviewer to the content notebook
         
-        install viewer using mapviewer $win.paner.content.viewer \
+        install viewer using mapviewer $content.viewer \
             -width   600                                        \
             -height  600
 
@@ -265,11 +297,11 @@ snit::widget appwin {
 
         # NEXT, add the nbhood browser to the content notebook
         
-        nbhoodbrowser $win.paner.content.nbhoods \
+        nbhoodbrowser $content.nbhoods \
             -width   600                         \
             -height  600
 
-        $content add $win.paner.content.nbhoods \
+        $content add $content.nbhoods \
             -sticky  nsew                       \
             -padding 2                          \
             -text    "Nbhoods"
@@ -291,23 +323,25 @@ snit::widget appwin {
         $slog load [log cget -logfile]
         log configure -newlogcmd [list $slog load]
 
-        # NEXT, add the CLI to the paner.
-        install cli using cli $win.paner.cli \
-            -height 8                        \
-            -relief flat
+        # NEXT, add the CLI to the paner, if needed.
+        if {$options(-main)} {
+            install cli using cli $win.paner.cli \
+                -height 8                        \
+                -relief flat
+            
+            $win.paner add $win.paner.cli \
+                -sticky  nsew             \
+                -minsize 60               \
+                -stretch never
 
-        $win.paner add $win.paner.cli \
-            -sticky  nsew             \
-            -minsize 60               \
-            -stretch never
-
-        # NEXT, register the CLI, so that history is saved in the 
-        # scenario file.
-        scenario register [list $cli saveable]
+            # Register the CLI, so that history is saved in the 
+            # scenario file.
+            scenario register [list $cli saveable]
+        }
 
         # NEXT, manage all of the components.
         grid $win.sep0     -sticky ew
-        grid $win.paner    -sticky nsew
+        grid $row1         -sticky nsew
         grid $win.sep2     -sticky ew
         grid $win.msgline  -sticky ew
     }
@@ -544,14 +578,28 @@ snit::widget appwin {
             set dbfile "Untitled"
         }
 
-        set tab [$win.paner.content tab current -text]
+        set tab [$content tab current -text]
 
-        wm title $win "$dbfile, $tab - Minerva [version]"
+        if {$options(-main)} {
+            set wintype "Main"
+        } else {
+            set wintype "Browser"
+        }
+
+        wm title $win "$dbfile, $tab - Minerva [version] $wintype"
     }
 
     #-------------------------------------------------------------------
     # Utility Methods
 
+    # new ?option value...?
+    #
+    # Creates a new app window.
+
+    typemethod new {args} {
+        $type create .%AUTO% {*}$args
+    }
+    
     # error text
     #
     # text       A tsubst'd text string
