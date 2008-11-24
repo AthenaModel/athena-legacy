@@ -1,4 +1,4 @@
-<<manpage mainwin(sim) "Main Window Widget">>
+<<manpage appwin(sim) "Main Window Widget">>
 
 <<section SYNOPSIS>>
 
@@ -10,32 +10,32 @@ package require app_sim 1.0
 
 <<section DESCRIPTION>>
 
-mainwin(sim) is a snit::widget implementing the main application
+appwin(sim) is a snit::widget implementing the main application
 window.  It's implemented as a widget, rather than a singleton, to
 ease the possible future transition to supporting multiple scenarios at the
 same time.<p>
 
 <<section OPTIONS>>
 
-The mainwin(sim) widget has the same options as the
+The appwin(sim) widget has the same options as the
 <<xref tk:toplevel(n)>> widget.<p>
 
 <<section COMMANDS>>
 
-mainwin(sim) defines the following commands:<p>
+appwin(sim) defines the following commands:<p>
 
 <<deflist commands>>
 
-<<defitem "mainwin" {mainwin <i>win</i> ?<i>option value...</i>?}>>
+<<defitem "appwin" {appwin <i>win</i> ?<i>option value...</i>?}>>
 
-Creates a mainwin(sim) widget called <i>win</i>, given the
+Creates a appwin(sim) widget called <i>win</i>, given the
 <<xref OPTIONS options>>.  Returns <i>win</i>.<p>
 
 <</deflist commands>>
 
 <<section "INSTANCE COMMAND">>
 
-Each instance of mainwin(sim) has the following subcommands:<p>
+Each instance of appwin(sim) has the following subcommands:<p>
 
 <<deflist instance>>
 
@@ -73,6 +73,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 

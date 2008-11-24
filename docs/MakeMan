@@ -19,6 +19,7 @@
 #    TARGETS     The list of targets to build by default or for "make all".
 #    MANSECTION  For the "man" target, the title of the manpage
 #    section.
+#    CLEANFILES  Clean this file as well as *.html
 #
 #    This file defines the following targets:
 #
@@ -55,7 +56,7 @@ man:
 # matching .ehtml file.  But I need the GNU Make manual for that.
 
 clean:
-	rm -f *.html
+	rm -f *.html $(CLEANFILES)
 
 #---------------------------------------------------------------------
 # Standard Make Rules

@@ -57,7 +57,7 @@ source [file join $::app_sim::library order.tcl         ]
 
 # GUI
 source [file join $::app_sim::library ordergui.tcl      ]
-source [file join $::app_sim::library mainwin.tcl       ]
+source [file join $::app_sim::library appwin.tcl        ]
 source [file join $::app_sim::library mapviewer.tcl     ]
 source [file join $::app_sim::library mapicons.tcl      ]
 source [file join $::app_sim::library nbhoodbrowser.tcl ]

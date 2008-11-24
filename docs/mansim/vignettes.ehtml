@@ -61,16 +61,16 @@ The user wishes to begin work on a new scenario.<p>
 
 <<sequence -narration {
 actor GUI
-actor mainwin
+actor appwin
 actor scenario
 actor mapviewer
 actor SIM
 
-message GUI mainwin "File/New Scenario"
+message GUI appwin "File/New Scenario"
 
-action mainwin "Allow user to save unsaved data."
+action appwin "Allow user to save unsaved data."
 
-message mainwin scenario "scenario new"
+message appwin scenario "scenario new"
 
 action scenario "Clears the scenario data."
 
@@ -78,7 +78,7 @@ message scenario SIM "SIM reconfigure" {
     All relevant simulation modules are reconfigured in appropriate sequence.
 }
 
-message scenario {mainwin mapviewer} <Reconfigure>
+message scenario {appwin mapviewer} <Reconfigure>
 
 }>>
 
@@ -88,16 +88,16 @@ The user wishes to open an existing scenario.<p>
 
 <<sequence -narration {
 actor GUI
-actor mainwin
+actor appwin
 actor scenario
 actor mapviewer
 actor SIM
 
-message GUI mainwin "File/Open Scenario"
+message GUI appwin "File/Open Scenario"
 
-action mainwin "Allow user to save unsaved data."
+action appwin "Allow user to save unsaved data."
 
-message mainwin scenario "scenario open \$filename"
+message appwin scenario "scenario open \$filename"
 
 action scenario "Loads the scenario data."
 
@@ -105,7 +105,7 @@ message scenario SIM "SIM reconfigure" {
     All relevant simulation modules are reconfigured in appropriate sequence.
 }
 
-message scenario {mainwin mapviewer} <Reconfigure>
+message scenario {appwin mapviewer} <Reconfigure>
 
 }>>
 
@@ -115,20 +115,20 @@ The user wishes to save the current scenario.<p>
 
 <<sequence -narration {
 actor GUI
-actor mainwin
+actor appwin
 actor scenario
 
-message GUI mainwin "File/Save Scenario"
+message GUI appwin "File/Save Scenario"
 
-action mainwin "Allow user to select the file name, if need be."
+action appwin "Allow user to select the file name, if need be."
 
-message mainwin scenario "scenario save \$filename"
+message appwin scenario "scenario save \$filename"
 
 action scenario "Saves the scenario data to disk."
 
-message scenario mainwin <ScenarioSaved>
+message scenario appwin <ScenarioSaved>
 
-action mainwin "Updates file name in window title."
+action appwin "Updates file name in window title."
 }>>
 
 <<subsection "Exit Application">>
@@ -137,14 +137,14 @@ The user wishes to exit the application.<p>
 
 <<sequence -narration {
 actor GUI
-actor mainwin
+actor appwin
 actor app
 
-message GUI mainwin "File/Exit"
+message GUI appwin "File/Exit"
 
-action mainwin "Allow user to save unsaved data."
+action appwin "Allow user to save unsaved data."
 
-message mainwin app "app exit"
+message appwin app "app exit"
 
 action app "Shut down the application."
 }>>
@@ -277,6 +277,7 @@ message nbhood mapviewer "<NbhoodRaised> \$n"
 Will Duquette<p>
 
 <</manpage>>
+
 
 
 
