@@ -90,6 +90,11 @@ snit::type app {
         wm withdraw .
         appwin .main -main yes
 
+        # NEXT, set the icon for this and subsequent windows.
+        set icon [image create photo \
+                      -file [file join $::app_sim::library icon.png]]
+        wm iconphoto .main -default $icon
+
         # NEXT, prepare to handle orders
         order       init
         ordergui init
