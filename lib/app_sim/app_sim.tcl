@@ -60,6 +60,7 @@ source [file join $::app_sim::library ordergui.tcl      ]
 source [file join $::app_sim::library mainwin.tcl       ]
 source [file join $::app_sim::library mapviewer.tcl     ]
 source [file join $::app_sim::library mapicons.tcl      ]
+source [file join $::app_sim::library nbhoodbrowser.tcl ]
 
 # Orders
 source [file join $::app_sim::library orders_MAP.tcl    ]

@@ -236,6 +236,13 @@ namespace eval ::minlib::test {
         cleanup
     } -result {K99G66}
 
+    test m2ref-1.5 {Convert several coordinates} -setup setup -body {
+        proj m2ref 0 0 500 333 999 666
+    } -cleanup {
+        cleanup
+    } -result {A00A00 F00D33 K99G66}
+
+
     #-------------------------------------------------------------------
     # ref2c
 

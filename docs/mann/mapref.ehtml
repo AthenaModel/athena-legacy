@@ -96,10 +96,11 @@ Returns the dimensions of the map in map units.<p>
 Given one or more map coordinate pairs <i>mx</i> and <i>my</i>,
 returns a flat list of canvas coordinates <i>cx</i> and <i>cy</i>.<p>
 
-<<defitem m2ref {<i>obj</i> m2ref <i>mx my</i>}>>
+<<defitem m2ref {<i>obj</i> m2ref <i>mx my...</i>}>>
 
-Given a map coordinate pair <i>mx</i> and <i>my</i>, returns a
-map reference string.<p>
+Given one or more map coordinate pairs <i>mx</i> and <i>my</i>, returns a
+list of one or map reference strings.  Each coordinate is a separate
+argument.<p>
 
 <<defitem ref2c {<i>obj</i> ref2c <i>ref</i>}>>
 

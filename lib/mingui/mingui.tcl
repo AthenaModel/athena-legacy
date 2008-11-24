@@ -16,6 +16,7 @@
 package require snit
 package require sqlite3
 package require pixane
+package require tablelist
 
 #-----------------------------------------------------------------------
 # Internal Package Dependencies
@@ -43,6 +44,7 @@ namespace eval ::mingui:: {
 #-----------------------------------------------------------------------
 # Load mingui(n) submodules
 
-source [file join $::mingui::library mapcanvas.tcl]
+source [file join $::mingui::library mapcanvas.tcl    ]
+source [file join $::mingui::library tablebrowser.tcl ]
 
 

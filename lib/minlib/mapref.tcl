@@ -202,14 +202,20 @@ snit::type ::minlib::mapref {
         return $result
     }
 
-    # m2ref mx my
+    # m2ref mx my....
     #
     # mx,my    Position in map units
     #
-    # Returns the position as a mapref
+    # Returns the position(s) as mapref strings
 
-    method m2ref {mx my} {
-        return [GetRef 1.0 $mx][GetRef 1.0 $my]
+    method m2ref {args} {
+        set result [list]
+
+        foreach {mx my} $args {
+            lappend result [GetRef 1.0 $mx][GetRef 1.0 $my]
+        }
+        
+        return $result
     }
 
     # ref2m ref...

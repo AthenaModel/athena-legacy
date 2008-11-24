@@ -237,6 +237,18 @@ snit::widget mainwin {
             -padding 2       \
             -text    "Map"
 
+        # NEXT, add the nbhood browser to the content notebook
+        
+        nbhoodbrowser $win.paner.content.nbhoods \
+            -width   600                         \
+            -height  600
+
+        $content add $win.paner.content.nbhoods \
+            -sticky  nsew                       \
+            -padding 2                          \
+            -text    "Nbhoods"
+
+
         # NEXT, add the scrolling log to the content notebook
 
         install slog using scrollinglog $win.slog \

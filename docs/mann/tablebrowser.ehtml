@@ -1,0 +1,271 @@
+<<manpage {mingui(n) tablebrowser(n)} "Table Browser Widget">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require mingui 1.0
+namespace import ::mingui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+This module defines the <code>::mingui::tablebrowser</code>
+generic table browsing widget; it is used by other widgets to display
+the contents of an SQLite3 table or view, allowing
+searching, filtering, and sorting of the data. It provides an
+optional callback when a row in the table is double clicked.  The
+application must define a callback that formats a row of data for
+display in the tablebrowser.<p>
+
+The <<xref EXAMPLE>> shows the details of creating a tablebrowser(n) and a
+sample data display callback.<p>
+
+<<section COMMANDS>>
+
+This module defines the following command:<p>
+
+<<deflist commands>>
+
+<<defitem tablebrowser {tablebrowser <i>pathName ?options...?</i>}>>
+
+Creates a new <<iref tablebrowser>> widget named <i>pathName</i>.<p>
+
+The <<iref tablebrowser>> widget may be created with the following options:<p>
+
+<<deflist tablebrowser options>>
+
+<<defopt {-title <i>title</i>}>>
+
+Sets the title to appear at the top of the tablebrowser.<p>
+
+<<defopt {-db <i>db</i>}>>
+
+Sets the workstation database that is queried for data to be displayed.<p>
+
+<<defopt {-table <i>table</i>}>>
+
+Sets the name of the table in the workstation database that contains the data
+to be displayed.<p>
+
+<<defopt {-displaycmd <i>cmd</i>}>>
+
+Sets the callback command used to format the row of data for display in the
+tablebrowser. This command will receive the dict of data as retrieved from
+the database. This command should extract the items from the dict and format
+them into a list to be displayed via the <<iref setdata>> command. It should
+also be used to format the foreground color and the font if the tablebrowser 
+defaults need to be changed. See the <<iref setcolor>> and <<iref setfont>>
+command for more.<p>
+
+
+<<defopt {-dblclickcmd <i>cmd</i>}>>
+
+Sets the callback command to be called whenever a row in the tablebrowser is 
+double clicked. The tablebrowser returns the id and row of data as a list to
+the command.<p>
+
+<<defopt {-keycol <i>name</i>}>>
+
+Sets the name of the primary key column in the table specified in the 
+-table option.<p>
+
+<<defopt {-keycolnum <i>num</i>}>>
+
+Sets the integer number column identifier in the tablebrowser for the key
+column specified in the -keycol option. This number is a number from 0 to
+the number of columns minus 1, with 0 being the leftmost column.<p>
+
+<<defopt {-borderwidth <i>width</i>}>>
+<<defopt {-relief <i>relief</i>}>>
+
+These options apply to the widget's hull frame, and are all identical
+to the Tk frame widget options of the same name.<p>
+
+<<defopt {-hullbackground <i>color</i>}>>
+
+Sets the hull frame's background color.<p>
+
+<<defopt {-width <i>width</i>}>>
+
+Sets the width of the tablebrowser.<p>
+
+<</deflist tablebrowser options>>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+<<deflist instance>>
+
+<<defitem configure {$tablebrowser configure <i>option value...</i>}>>
+
+Sets the values of the specified <i>options</i>.<p>
+
+<<defitem cget {$tablebrowser cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem create {$tablebrowser create <i>id</i>}>>
+
+Creates a row in the tablebrowser. The table browser queries the database
+using the keycol option for the id provided and extracts the 
+corresponding row. The displaycmd option callback is called for the data
+to be formatted. The row is automatically sorted into the tablebrowser. It is
+also searched and/or filtered if those are active.<p>
+
+<<defitem update {$tablebrowser update <i>id</i>}>>
+
+Updates a row of data with the supplied id. The table browser queries the
+database using the keycol option for the id provided and extracts
+the corresponding row. The displaycmd option callback is called for the
+data to be formatted. The row is then updated in the tablebrowser.<p>
+
+<<defitem delete {$tablebrowser delete <i>id</i>}>>
+
+Deletes a row of data from the <<iref tablebrowser>> that has the 
+supplied id.<p>
+
+<<defitem insertcolumn {$tablebrowser insertcolumn <i>index width name</i>}>>
+
+Inserts a column in the tablebrowser at the position specified by index. The
+column assumes the width provided and the label at the top of the column
+displays the name provided.<p>
+
+<<defitem setbackground {$tablebrowser setbackground <i>id color</i>}>>
+
+Sets the background color of the row given the id.<p>
+
+<<defitem setcolor {$tablebrowser setcolor <i>id color</i>}>>
+
+Sets the foreground color of the row given the id.<p>
+
+<<defitem setfont {$tablebrowser setfont <i>id font</i>}>>
+
+Sets the font of the row given the id.<p>
+
+<<defitem setdata {$tablebrowser setdata <i>id data</i>}>>
+
+Sets the data to be displayed in a row in the tablebrowser. If the id already
+exists, then the data in that row is replaced with the data provided. If the
+id does not exist then it is added to the end of the table. This call is 
+normally made during the callback defined in the displaycmd option.<p>
+
+<<defitem reload {$tablebrowser reload}>>
+
+Causes the tablebrowser to clear its contents and reload all the data from the
+database for the table it is configured to show.<p>
+
+<<defitem takefocus {$tablebrowser takefocus}>>
+
+Causes the tablebrowser to take focus so that things like keyboard traversal
+work properly.<p>
+
+<<section EXAMPLE>>
+
+This shows an example of the creation of a tablebrowser(n) and an example of
+a callback to format data for display in the tablebrowser(n).
+
+<pre>
+    # Create the table browser
+    install tb using tablebrowser $win.tb        \
+        -keycol      id                          \
+        -keycolnum   2                           \
+        -title       "Pending Mission Browser"   \
+        -displaycmd  [mymethod DisplayData]      \
+        -db          ::db                        \
+        -table       "pending"
+
+    # NEXT, create the columns and labels.
+    $tb insertcolumn end 0 {Zulu Time}
+    $tb insertcolumn end 0 {State}
+    $tb insertcolumn end 0 {Mission ID}
+    $tb columnconfigure end -sortmode integer
+    $tb insertcolumn end 0 {Mission Type}
+    $tb insertcolumn end 0 {PGroup}
+    $tb insertcolumn end 0 {Unit Name}
+    $tb insertcolumn end 0 {Unit ID}
+    $tb columnconfigure end -sortmode integer
+
+    # NEXT, the last column fills extra space
+    $tb columnconfigure end -stretchable yes
+
+    # NEXT, set the default sort column and direction
+    $tb sortbycolumn 0 -increasing
+
+    # NEXT, pack the tablebrowser and let it expand
+    pack $win.tb -expand yes -fill both
+ 
+    # DisplayData dict
+    # 
+    # dict   the data dictionary that contains the mission information
+    #
+    # This method converts the hostile mission data dictionary to a list that
+    # contains just the information to be displayed in the table browser.
+
+    method DisplayData {dict} {
+        set mission [list]
+
+        # FIRST, extract the time           
+        lappend mission [simclock toZulu [dict get $dict t]]
+
+        # NEXT, set the enabled/disabled toggle
+        if {[dict get $dict toggle]} {
+            lappend mission "ON"
+        } else {
+            lappend mission "OFF"
+        }
+            
+        # NEXT, extract the remaining fields
+        set id [dict get $dict id]
+        lappend mission $id            
+        lappend mission [dict get $dict re]
+        lappend mission [dict get $dict pgroup]
+        lappend mission [dict get $dict unit_name]
+        lappend mission [dict get $dict unit_id]
+
+        # NEXT, add it to the table browser
+        $tb setdata $id $mission
+
+        # NEXT, set the correct color
+        $tb setcolor $id black
+    }
+
+</pre><p>
+
+
+<<section "BINDINGS">>
+
+The <<xref tablebrowser(n)>> widget responds to the following keystrokes:<p>
+
+<dl>
+  <dt> <b>Up</b>
+  <dd> Scrolls up one row.<p>
+
+  <dt> <b>Down</b>
+  <dd> Scrolls down one row.<p>
+
+  <dt> <b>Home</b>
+  <dd> Scrolls so the first row is visible.<p>
+
+  <dt> <b>End</b>
+  <dd> Scrolls so the last row is visible.<p>
+</dl>
+
+<<section ENVIRONMENT>>
+
+tablebrowser(n) requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Dave Hanks, Will Duquette<p>
+
+<<section HISTORY>>
+
+Derives from an original package written for JNEM.<p>
+
+<</manpage>>
+
+
+
