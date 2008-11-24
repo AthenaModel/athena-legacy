@@ -95,10 +95,15 @@ snit::widget appwin {
         notifier bind ::scenario <ScenarioSaved> $self [mymethod Reconfigure]
 
         # NEXT, Prepare to receive window events
+        bind $win.paner.content <<NotebookTabChanged>> [mymethod Reconfigure]
+
         bind $viewer <<Icon-1>>       [mymethod Icon-1 %d]
         bind $viewer <<Nbhood-1>>     [mymethod Nbhood-1 %d]
         bind $viewer <<Point-1>>      [mymethod Point-1 %d]
         bind $viewer <<PolyComplete>> [mymethod PolyComplete %d]
+
+        # NEXT, Reconfigure self on creation
+        $self Reconfigure
     }
 
     destructor {
@@ -533,13 +538,15 @@ snit::widget appwin {
 
     method Reconfigure {} {
         # FIRST, set the window title
-        set dbfile [file tail [scenario dbfile]]
 
-        if {$dbfile ne ""} {
-            wm title $win "$dbfile - Minerva [version]"
-        } else {
-            wm title $win "Untitled - Minerva [version]"
+        set dbfile [file tail [scenario dbfile]]
+        if {$dbfile eq ""} {
+            set dbfile "Untitled"
         }
+
+        set tab [$win.paner.content tab current -text]
+
+        wm title $win "$dbfile, $tab - Minerva [version]"
     }
 
     #-------------------------------------------------------------------
