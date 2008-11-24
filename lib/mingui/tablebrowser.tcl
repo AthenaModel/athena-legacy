@@ -32,14 +32,14 @@ snit::widget ::mingui::tablebrowser {
 
     typeconstructor {
         # Add defaults to the option database
-        option add *Tablebrowser.borderWidth        1
-        option add *Tablebrowser.relief             flat
-        option add *Tablebrowser.background         white
-        option add *Tablebrowser.Foreground         black
-        option add *Tablebrowser.font               codefont
-        option add *Tablebrowser.width              80
-        option add *Tablebrowser.height             24
-        option add *Tablebrowser.hullbackground     $::marsgui::defaultBackground
+        option add *Tablebrowser.borderWidth      1
+        option add *Tablebrowser.relief           flat
+        option add *Tablebrowser.background       white
+        option add *Tablebrowser.Foreground       black
+        option add *Tablebrowser.font             codefont
+        option add *Tablebrowser.width            80
+        option add *Tablebrowser.height           24
+        option add *Tablebrowser.hullbackground   $::marsgui::defaultBackground
     }
 
     #-------------------------------------------------------------------
@@ -47,8 +47,8 @@ snit::widget ::mingui::tablebrowser {
 
     component tableList   ;# The tablelist widget displaying the data.
     component bar         ;# The bar at the top of the window  
-    component toolbar     ;# The toolbar that contains browser specific widgets.
-    component db        ;# sqldatabase(n) component
+    component toolbar     ;# The toolbar for application-specific widgets.
+    component db          ;# sqldatabase(n) component
     component filter      ;# filter(n) component used to filtefilterr entries.
 
     #-------------------------------------------------------------------
