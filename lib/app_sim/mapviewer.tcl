@@ -767,9 +767,9 @@ snit::widget mapviewer {
 
     method NbhoodShowObscured {} {
         rdb eval {
-            SELECT n,obscured FROM nbhoods
+            SELECT n,obscured_by FROM nbhoods
         } {
-            if {$obscured} {
+            if {$obscured_by ne ""} {
                 $canvas nbhood configure $nbhoods(id-$n) -pointcolor red
             } else {
                 $canvas nbhood configure $nbhoods(id-$n) -pointcolor black

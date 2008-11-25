@@ -63,7 +63,7 @@ snit::widget nbhoodbrowser {
         $tb insertcolumn end 0 {Urbanization}
         $tb insertcolumn end 0 {StkOrd}
         $tb columnconfigure end -sortmode integer
-        $tb insertcolumn end 0 {Obscured}
+        $tb insertcolumn end 0 {ObscuredBy}
         $tb insertcolumn end 0 {RefPoint}
         $tb insertcolumn end 0 {Polygon}
 
@@ -124,7 +124,7 @@ snit::widget nbhoodbrowser {
                                 $longname                      \
                                 $urbanization                  \
                                 [format "%3d" $stacking_order] \
-                                $obscured                      \
+                                $obscured_by                   \
                                 [map m2ref {*}$refpoint]       \
                                 [map m2ref {*}$polygon]        ]
                                 

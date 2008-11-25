@@ -55,8 +55,8 @@ snit::type nbhood {
             $geo create polygon $n $polygon nbhood
         }
 
-        # NEXT, update the obscured flags
-        $type SetObscuredFlags
+        # NEXT, update the obscured_by fields
+        $type SetObscuredBy
     }
 
     #-------------------------------------------------------------------
@@ -109,9 +109,9 @@ snit::type nbhood {
             $geo create polygon $n $polygon nbhood
         }
 
-        # NEXT, recompute the obscured flag; this nbhood might
+        # NEXT, recompute the obscured_by field; this nbhood might
         # have obscured some other neighborhood's refpoint.
-        $type SetObscuredFlags
+        $type SetObscuredBy
 
         # NEXT, notify the app.
         notifier send ::nbhood <NbhoodCreated> $n
@@ -143,10 +143,10 @@ snit::type nbhood {
                 WHERE n=$n
             } {}
 
-            # NEXT, recompute the obscured flag if necessary; this nbhood might
-            # have obscured some other neighborhood's refpoint.
+            # NEXT, recompute the obscured_by field if necessary; this 
+            # nbhood might have obscured some other neighborhood's refpoint.
             if {$polygon ne ""} {
-                $type SetObscuredFlags
+                $type SetObscuredBy
             }
         }
 
@@ -172,9 +172,9 @@ snit::type nbhood {
 
         $type ReorderNbhoods $names
 
-        # NEXT, recompute the obscured flag; this nbhood might
+        # NEXT, recompute the obscured_by field; this nbhood might
         # have obscured some other neighborhood's refpoint.
-        $type SetObscuredFlags
+        $type SetObscuredBy
 
         notifier send ::nbhood <NbhoodRaised> $n
     }
@@ -198,9 +198,9 @@ snit::type nbhood {
 
         $type ReorderNbhoods $names
 
-        # NEXT, recompute the obscured flag; this nbhood might
+        # NEXT, recompute the obscured_by field; this nbhood might
         # have obscured some other neighborhood's refpoint.
-        $type SetObscuredFlags
+        $type SetObscuredBy
 
         notifier send ::nbhood <NbhoodLowered> $n
     }
@@ -275,25 +275,29 @@ snit::type nbhood {
         $type reconfigure
     }
 
-    # SetObscuredFlags
+    # SetObscuredBy
     #
     # Checks the neighborhoods for obscured reference points, and
-    # sets the obscured flag accordingly.
+    # sets the obscured_by field accordingly.
     #
     # TBD: This could be more efficient if it took into account
     # the neighborhood that changed and only looked at overlapping
     # neighborhoods.
 
-    typemethod SetObscuredFlags {} {
+    typemethod SetObscuredBy {} {
         rdb eval {
-            SELECT n, refpoint, obscured FROM nbhoods
+            SELECT n, refpoint, obscured_by FROM nbhoods
         } {
-            set flag [expr {[$geo find $refpoint nbhood] ne $n}]
+            set in [$geo find $refpoint nbhood]
 
-            if {$obscured != $flag} {
+            if {$in eq $n} {
+                set in ""
+            }
+
+            if {$in ne $obscured_by} {
                 rdb eval {
                     UPDATE nbhoods
-                    SET obscured=$flag
+                    SET obscured_by=$in
                     WHERE n=$n
                 }
             }
