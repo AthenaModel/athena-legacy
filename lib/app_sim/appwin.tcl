@@ -210,7 +210,7 @@ snit::widget appwin {
         $menu add cascade -label "Orders" -underline 0 -menu $ordersmenu
         
         $self AddOrder $ordersmenu NBHOOD:CREATE
-        $self AddOrder $ordersmenu NBHOOD:MODIFY
+        $self AddOrder $ordersmenu NBHOOD:UPDATE
         $self AddOrder $ordersmenu NBHOOD:LOWER
         $self AddOrder $ordersmenu NBHOOD:RAISE
     }

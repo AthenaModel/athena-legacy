@@ -77,13 +77,8 @@ snit::widget nbhoodbrowser {
         pack $win.tb -expand yes -fill both
 
         # NEXT, prepare to update on data change
-        notifier bind ::scenario <Reconfigure> $self [mymethod Refresh]
-
-        notifier bind ::nbhood <NbhoodCreated> $self [mymethod create]
-        notifier bind ::nbhood <NbhoodChanged> $self [mymethod update]
-        notifier bind ::nbhood <NbhoodDeleted> $self [mymethod delete]
-        notifier bind ::nbhood <NbhoodLowered> $self [mymethod Refresh]
-        notifier bind ::nbhood <NbhoodRaised>  $self [mymethod Refresh]
+        notifier bind ::scenario <Reconfigure> $self [mymethod reload]
+        notifier bind ::nbhood   <Entity>      $self $self
 
         # NEXT, reload on creation
         $self reload
@@ -96,18 +91,27 @@ snit::widget nbhoodbrowser {
     #-------------------------------------------------------------------
     # Private Methods
 
-    # Refresh args
+    # raise n
     #
-    # args    Dummy args; ignored
+    # n     Raised neighborhood.  Ignore
     #
-    # Reloads all data items.  Just calls "reload"; but can be used for
-    # events that include arguments.
+    # Reloads all data items when a neighborhood is raised, since the
+    # stacking order changes for all of them.
 
-    method Refresh {args} {
+    method raise {n} {
         $self reload
     }
 
-    
+    # lower n
+    #
+    # n     Lowered neighborhood.  Ignore
+    #
+    # Reloads all data items when a neighborhood is lowered, since the
+    # stacking order changes for all of them.
+
+    method lower {n} {
+        $self reload
+    }
 
     # DisplayData dict
     # 

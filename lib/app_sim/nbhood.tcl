@@ -114,44 +114,7 @@ snit::type nbhood {
         $type SetObscuredBy
 
         # NEXT, notify the app.
-        notifier send ::nbhood <NbhoodCreated> $n
-    }
-
-    # modify n parmdict
-    #
-    # n            A neighborhood short name
-    # parmdict     A dictionary of neighborhood parms
-    #
-    #    longname       A new long name, or ""
-    #    urbanization   A new eurbanization level, or ""
-    #    refpoint       A new reference point, or ""
-    #    polygon        A new polygon, or ""
-    #
-    # Modifies a nbhood given the parms, which are presumed to be
-    # valid.  When validity checks are needed, use the NBHOOD:MODIFY
-    # order.
-
-    typemethod modify {n parmdict} {
-        dict with parmdict {
-            # FIRST, Put the neighborhood in the database
-            rdb eval {
-                UPDATE nbhoods
-                SET longname     = nonempty($longname,     longname),
-                    refpoint     = nonempty($refpoint,     refpoint),
-                    polygon      = nonempty($polygon,      polygon),
-                    urbanization = nonempty($urbanization, urbanization)
-                WHERE n=$n
-            } {}
-
-            # NEXT, recompute the obscured_by field if necessary; this 
-            # nbhood might have obscured some other neighborhood's refpoint.
-            if {$polygon ne ""} {
-                $type SetObscuredBy
-            }
-        }
-
-        # NEXT, notify the app.
-        notifier send ::nbhood <NbhoodChanged> $n
+        notifier send ::nbhood <Entity> create $n
     }
 
     # raise n
@@ -176,9 +139,9 @@ snit::type nbhood {
         # have obscured some other neighborhood's refpoint.
         $type SetObscuredBy
 
-        notifier send ::nbhood <NbhoodRaised> $n
+        notifier send ::nbhood <Entity> raise $n
     }
-   
+  
 
     # lower n
     #
@@ -202,7 +165,7 @@ snit::type nbhood {
         # have obscured some other neighborhood's refpoint.
         $type SetObscuredBy
 
-        notifier send ::nbhood <NbhoodLowered> $n
+        notifier send ::nbhood <Entity> lower $n
     }
 
     # names
@@ -213,6 +176,43 @@ snit::type nbhood {
         set names [rdb eval {
             SELECT n FROM nbhoods 
         }]
+    }
+
+    # update n parmdict
+    #
+    # n            A neighborhood short name
+    # parmdict     A dictionary of neighborhood parms
+    #
+    #    longname       A new long name, or ""
+    #    urbanization   A new eurbanization level, or ""
+    #    refpoint       A new reference point, or ""
+    #    polygon        A new polygon, or ""
+    #
+    # Updates a nbhood given the parms, which are presumed to be
+    # valid.  When validity checks are needed, use the NBHOOD:UPDATE
+    # order.
+
+    typemethod update {n parmdict} {
+        dict with parmdict {
+            # FIRST, Put the neighborhood in the database
+            rdb eval {
+                UPDATE nbhoods
+                SET longname     = nonempty($longname,     longname),
+                    refpoint     = nonempty($refpoint,     refpoint),
+                    polygon      = nonempty($polygon,      polygon),
+                    urbanization = nonempty($urbanization, urbanization)
+                WHERE n=$n
+            } {}
+
+            # NEXT, recompute the obscured_by field if necessary; this 
+            # nbhood might have obscured some other neighborhood's refpoint.
+            if {$polygon ne ""} {
+                $type SetObscuredBy
+            }
+        }
+
+        # NEXT, notify the app.
+        notifier send ::nbhood <Entity> update $n
     }
 
     # validate n

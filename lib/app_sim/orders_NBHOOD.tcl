@@ -130,12 +130,12 @@ order define NBHOOD:RAISE {
     nbhood raise $parms(n)
 }
 
-# NBHOOD:MODIFY
+# NBHOOD:UPDATE
 #
 # Updates existing neighborhoods.
 
-ordergui define NBHOOD:MODIFY {
-    title "Modify Neighborhood"
+ordergui define NBHOOD:UPDATE {
+    title "Update Neighborhood"
     parms {
         n            {ptype nbhood        label "Neighborhood"    }
         longname     {ptype text          label "Long Name"       }
@@ -145,7 +145,7 @@ ordergui define NBHOOD:MODIFY {
     }
 }
 
-order define NBHOOD:MODIFY {
+order define NBHOOD:UPDATE {
     # FIRST, prepare the parameters
     prepare n             -trim      -toupper -required
     prepare longname      -normalize
@@ -222,5 +222,5 @@ order define NBHOOD:MODIFY {
     set n $parms(n)
     unset parms(n)
 
-    nbhood modify $n [array get parms]
+    nbhood update $n [array get parms]
 }

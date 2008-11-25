@@ -357,11 +357,7 @@ snit::widget mapviewer {
         # NEXT, Support model updates
         notifier bind ::scenario <Reconfigure>   $self [mymethod refresh]
         notifier bind ::map      <MapChanged>    $self [mymethod refresh]
-
-        notifier bind ::nbhood <NbhoodCreated> $self [mymethod NbhoodCreated]
-        notifier bind ::nbhood <NbhoodChanged> $self [mymethod NbhoodChanged]
-        notifier bind ::nbhood <NbhoodRaised>  $self [mymethod NbhoodRaised]
-        notifier bind ::nbhood <NbhoodLowered> $self [mymethod NbhoodLowered]
+        notifier bind ::nbhood   <Entity>        $self [mymethod Nbhood]
 
         # NEXT, create popup menus
         set mnu [menu $canvas.nbhoodmenu]
@@ -561,15 +557,15 @@ snit::widget mapviewer {
     }
 
     #-------------------------------------------------------------------
-    # Model Updates
+    # Entity Updates
 
-    # NbhoodCreated n
+    # Nbhood create n
     #
     # n     The neighborhood ID
     #
     # There's a new neighborhood; display it.
 
-    method NbhoodCreated {n} {
+    method {Nbhood create} {n} {
         # FIRST, get the nbhood data we care about
         rdb eval {SELECT refpoint, polygon FROM nbhoods WHERE n=$n} {}
 
@@ -581,13 +577,13 @@ snit::widget mapviewer {
         $self NbhoodShowObscured
     }
    
-    # NbhoodChanged n
+    # Nbhood update n
     #
     # n     The neighborhood ID
     #
     # Something changed about neighborhood n.  Update it.
 
-    method NbhoodChanged {n} {
+    method {Nbhood update} {n} {
         # FIRST, get the nbhood data we care about
         rdb eval {SELECT refpoint, polygon FROM nbhoods WHERE n=$n} {}
 
@@ -600,13 +596,13 @@ snit::widget mapviewer {
     }
 
 
-    # NbhoodRaised n
+    # Nbhood raise n
     #
     # n     The neighborhood ID
     #
     # The neighborhood was raised to the top of the stacking order.
 
-    method NbhoodRaised {n} {
+    method {Nbhood raise} {n} {
         $canvas raise $nbhoods(id-$n)
         $canvas lower $nbhoods(id-$n) marker
 
@@ -614,13 +610,13 @@ snit::widget mapviewer {
         $self NbhoodShowObscured
     }
 
-    # NbhoodLowered n
+    # Nbhood lower n
     #
     # n     The neighborhood ID
     #
     # The neighborhood was lowered to the top bottom of the stacking order.
 
-    method NbhoodLowered {n} {
+    method {Nbhood lower} {n} {
         $canvas lower $nbhoods(id-$n)
         $canvas raise $nbhoods(id-$n) map
 

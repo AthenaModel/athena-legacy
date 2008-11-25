@@ -34,7 +34,7 @@ into the RDB.<p>
 This command is intended primarily for use by the NBHOOD:CREATE order,
 and consequently presumes that its arguments are valid.<p>
 
-Sends <b>&lt;NbhoodCreated&gt;</b>.<p>
+Sends <b>&lt;Entity&gt;</b>.<p>
 
 The parameters in the dictionary are as follows:<p>
 
@@ -58,6 +58,13 @@ The parameters in the dictionary are as follows:<p>
        coordinates for the vertices.<p>
 </dl><p>
 
+<<defitem delete {nbhood delete <i>n</i>}>>
+
+Deletes neighborhood <i>n</i> from the RDB, removing all entities that
+depend on it.  <b>Be Warned.</b><p>
+
+Sends <b>&lt;Entity&gt;</b>.<p>
+
 <<defitem find {nbhood find <i>mx my</i>}>>
 
 Given a point <i>mx,my</i> in map coordinates, returns the short name of the
@@ -66,16 +73,7 @@ containing neighborhood, or "" if none.<p>
 <<defitem lower {nbhood lower <i>n</i>}>>
 
 Lowers neighborhood <i>n</i> to the bottom of the neighborhood stacking
-order, and sends <b>&lt;NbhoodLowered&gt;</b>.<p>
-
-<<defitem modify {nbhood modify <i>n parmdict</i>}>>
-
-Updates neighborhood <i>n</i> given the parameters in the
-<i>parmdict</i>.  The <i>parmdict</i> contains the same parameters as
-for <<iref create>>; however, any or all of them may be the empty
-string, which means that the value isn't to be changed.<p>
-
-Sends <b>&lt;NbhoodChanged&gt;</b>.<p>
+order, and sends <b>&lt;Entity&gt;</b>.<p>
 
 <<defitem names {nbhood names}>>
 
@@ -84,12 +82,21 @@ Returns a list of the neighborhood short names, in order of definition.<p>
 <<defitem raise {nbhood raise <i>n</i>}>>
 
 Raises neighborhood <i>n</i> to the top of the neighborhood stacking
-order, and sends <b>&lt;NbhoodRaised&gt;</b>.<p>
+order, and sends <b>&lt;Entity&gt;</b>.<p>
 
 <<defitem reconfigure {nbhood reconfigure}>>
 
 Updates the nbhood(sim) module when the scenario has changed.  It
 should rarely be necessary to call this directly.<p>
+
+<<defitem update {nbhood update <i>n parmdict</i>}>>
+
+Updates neighborhood <i>n</i> given the parameters in the
+<i>parmdict</i>.  The <i>parmdict</i> contains the same parameters as
+for <<iref create>>; however, any or all of them may be the empty
+string, which means that the value isn't to be changed.<p>
+
+Sends <b>&lt;Entity&gt;</b>.<p>
 
 <<defitem validate {nbhood validate <i>n</i>}>>
 
@@ -107,23 +114,36 @@ neighborhood's short name.<p>
 
 <<deflist events>>
 
-<<defitem NbhoodCreated {&lt;NbhoodCreated&gt; <i>n</i>}>>
+<<defitem Entity {&lt;Entity&gt; <i>operation n</i>}>>
 
-Sent when a new neighborhood has been <<iref create>>d.<p>
+Sent on change to some neighborhood <i>n</i>.  The <i>operation</i>
+indicates the kind of change; there are the following possibilities:<p>
 
-<<defitem NbhoodChanged {&lt;NbhoodChanged&gt; <i>n</i>}>>
+<<deflist entity>>
 
-Sent when a neighborhood has been <<iref modify>>'d.<p>
+<<defitem "Entity create" {&lt;Entity&gt; create <i>n</i>}>>
 
-<<defitem NbhoodLowered {&lt;NbhoodLowered&gt; <i>n</i>}>>
+The neighborhood has just been <<iref create>>d.<p>
 
-Sent when a neighborhood has been <<iref lower>>ed to the bottom of
-the stacking order.<p>
+<<defitem "Entity delete" {&lt;Entity&gt; delete <i>n</i>}>>
 
-<<defitem NbhoodRaised {&lt;NbhoodRaised&gt; <i>n</i>}>>
+The neighborhood has been <<iref delete>>d.
 
-Sent when a neighborhood has been <<iref raise>>d to the top of the
-stacking order.<p>
+<<defitem "Entity update" {&lt;Entity&gt; update <i>n</i>}>>
+
+One or more of the neighborhood's data items has been <<iref update>>d.<p>
+
+<<defitem "Entity lower" {&lt;Entity&gt; lower <i>n</i>}>>
+
+The neighborhood has been <<iref lower>>ed to the bottom of the stacking order;
+this effects the <b>stacking_order</b> for all neighborhoods.<p>
+
+<<defitem "Entity raise" {&lt;Entity&gt; raise <i>n</i>}>>
+
+The neighborhood has been <<iref raise>>d to the top of the stacking order;
+this effects the <b>stacking_order</b> for all neighborhoods.<p>
+
+<</deflist entity>>
 
 <</deflist events>>
 

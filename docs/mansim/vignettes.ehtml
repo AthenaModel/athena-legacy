@@ -226,23 +226,25 @@ actor GUI
 actor order
 actor nbhood
 actor mapviewer
+actor nbhoodbrowser
 
-message GUI    order     NBHOOD:CREATE
-message order  nbhood    "nbhood create \$parms"
-message nbhood mapviewer "<NbhoodCreated> \$n"
+message GUI    order                     NBHOOD:CREATE
+message order  nbhood                    "nbhood create \$parms"
+message nbhood {mapviewer nbhoodbrowser} "<Entity> create \$n"
 }>>
 
-<<subsection "NBHOOD:MODIFY">>
+<<subsection "NBHOOD:UPDATE">>
 
 <<sequence -narration {
 actor GUI
 actor order
 actor nbhood
 actor mapviewer
+actor nbhoodbrowser
 
-message GUI    order     NBHOOD:MODIFY
-message order  nbhood    "nbhood modify \$n \$parmdict"
-message nbhood mapviewer "<NbhoodChanged> \$n"
+message GUI    order                     NBHOOD:UPDATE
+message order  nbhood                    "nbhood update \$n \$parms"
+message nbhood {mapviewer nbhoodbrowser} "<Entity> update \$n"
 }>>
 
 <<subsection "NBHOOD:LOWER">>
@@ -252,10 +254,11 @@ actor GUI
 actor order
 actor nbhood
 actor mapviewer
+actor nbhoodbrowser
 
-message GUI    order     NBHOOD:LOWER
-message order  nbhood    "nbhood lower \$parms"
-message nbhood mapviewer "<NbhoodLowered> \$n"
+message GUI    order                     NBHOOD:LOWER
+message order  nbhood                    "nbhood lower \$n \$parms"
+message nbhood {mapviewer nbhoodbrowser} "<Entity> lower \$n"
 }>>
 
 <<subsection "NBHOOD:RAISE">>
@@ -265,10 +268,11 @@ actor GUI
 actor order
 actor nbhood
 actor mapviewer
+actor nbhoodbrowser
 
-message GUI    order     NBHOOD:RAISE
-message order  nbhood    "nbhood raise \$parms"
-message nbhood mapviewer "<NbhoodRaised> \$n"
+message GUI    order                     NBHOOD:RAISE
+message order  nbhood                    "nbhood raise \$n \$parms"
+message nbhood {mapviewer nbhoodbrowser} "<Entity> raise \$n"
 }>>
 
 
