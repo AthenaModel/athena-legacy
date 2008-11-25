@@ -576,6 +576,26 @@ snit::widget mapviewer {
         # NEXT, show refpoints obscured by the change
         $self NbhoodShowObscured
     }
+
+    # Nbhood delete n
+    #
+    # n     The neighborhood ID
+    #
+    # Delete the neighborhood from the mapcanvas.
+
+    method {Nbhood delete} {n} {
+        # FIRST, delete it from the canvas
+        $canvas nbhood delete $nbhoods(id-$n)
+
+        # NEXT, delete it from the mapviewer's data.
+        set id $nbhoods(id-$n)
+        unset nbhoods(n-$id)
+        unset nbhoods(id-$n)
+
+        # NEXT, show refpoints revealed by the change
+        $self NbhoodShowObscured
+    }
+   
    
     # Nbhood update n
     #
@@ -727,7 +747,7 @@ snit::widget mapviewer {
         # FIRST, if there's an existing neighborhood called this,
         # delete it.
         if {[info exists nbhoods(id-$n)]} {
-            $canvas delete $nbhoods(id-$n)
+            $canvas nbhood delete $nbhoods(id-$n)
             unset nbhoods(id-$n)
         }
 

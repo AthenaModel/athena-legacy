@@ -213,6 +213,7 @@ snit::widget appwin {
         $self AddOrder $ordersmenu NBHOOD:UPDATE
         $self AddOrder $ordersmenu NBHOOD:LOWER
         $self AddOrder $ordersmenu NBHOOD:RAISE
+        $self AddOrder $ordersmenu NBHOOD:DELETE
     }
 
     # AddOrder mnu order

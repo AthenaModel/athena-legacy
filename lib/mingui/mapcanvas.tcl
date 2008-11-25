@@ -1340,6 +1340,29 @@ snit::widgetadaptor ::mingui::mapcanvas {
         return $id
     }
 
+    # nbhood delete id
+    #
+    # id      The neighborhood ID
+    #
+    # Deletes the neighborhood with the specified ID.
+
+    method {nbhood delete} {id} {
+        # FIRST, check the id
+        require {[info exists nbhoods(polygon-$id)]} \
+            "Unknown neighborhood ID: \"$id\""
+
+        # NEXT, delete it.
+        $hull delete $id
+
+        ldelete nbhoods(ids) $id
+        unset nbhoods(refpoint-$id)
+        unset nbhoods(polygon-$id)
+        unset nbhoods(fill-$id)
+        unset nbhoods(pointcolor-$id)
+
+        return
+    }
+
     # nbhood ids
     #
     # Returns a list of the neighborhood IDs.

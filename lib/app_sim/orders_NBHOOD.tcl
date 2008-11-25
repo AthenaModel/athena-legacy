@@ -85,6 +85,27 @@ order define NBHOOD:CREATE {
     nbhood create [array get parms]
 }
 
+# NBHOOD:DELETE
+
+ordergui define NBHOOD:DELETE {
+    title "Delete Neighborhood"
+    parms {
+        n {ptype nbhood label "Neighborhood"}
+    }
+}
+
+order define NBHOOD:DELETE {
+    # FIRST, prepare the parameters
+    prepare n  -trim -toupper -required 
+
+    # Validate
+    validate n { nbhood validate $parms(n) }
+
+    returnOnError
+
+    # NEXT, raise the neighborhood
+    nbhood delete $parms(n)
+}
 
 # NBHOOD:LOWER
 

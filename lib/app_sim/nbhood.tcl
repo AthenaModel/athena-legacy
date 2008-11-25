@@ -117,31 +117,41 @@ snit::type nbhood {
         notifier send ::nbhood <Entity> create $n
     }
 
-    # raise n
+    # delete n
     #
     # n     A neighborhood short name
     #
-    # Brings the neighborhood to the top of the stacking order.
+    # Deletes the neighborhood, including all entities that depend
+    # on it.
+    #
+    # TBD: Alternatively, we might simply forbid deleting a 
+    # neighborhood that's "in use".
 
-    typemethod raise {n} {
-        # FIRST, reorder the neighborhoods
-        set names [rdb eval {
-            SELECT n FROM nbhoods 
-            ORDER BY stacking_order
-        }]
+    typemethod delete {n} {
+        # FIRST, delete it.
+        rdb eval {
+            DELETE FROM nbhoods WHERE n=$n
+        }
 
-        ldelete names $n
-        lappend names $n
-
-        $type ReorderNbhoods $names
+        # TBD: Delete dependent entities, or clear the nbhood field.
 
         # NEXT, recompute the obscured_by field; this nbhood might
         # have obscured some other neighborhood's refpoint.
         $type SetObscuredBy
 
-        notifier send ::nbhood <Entity> raise $n
+        notifier send ::nbhood <Entity> delete $n
     }
-  
+
+    # find mx my
+    #
+    # mx,my    A point in map coordinates
+    #
+    # Returns the short name of the neighborhood which contains the
+    # coordinates, or the empty string.
+
+    typemethod find {mx my} {
+        return [$geo find [list $mx $my] nbhood]
+    }
 
     # lower n
     #
@@ -177,6 +187,32 @@ snit::type nbhood {
             SELECT n FROM nbhoods 
         }]
     }
+
+    # raise n
+    #
+    # n     A neighborhood short name
+    #
+    # Brings the neighborhood to the top of the stacking order.
+
+    typemethod raise {n} {
+        # FIRST, reorder the neighborhoods
+        set names [rdb eval {
+            SELECT n FROM nbhoods 
+            ORDER BY stacking_order
+        }]
+
+        ldelete names $n
+        lappend names $n
+
+        $type ReorderNbhoods $names
+
+        # NEXT, recompute the obscured_by field; this nbhood might
+        # have obscured some other neighborhood's refpoint.
+        $type SetObscuredBy
+
+        notifier send ::nbhood <Entity> raise $n
+    }
+  
 
     # update n parmdict
     #
@@ -236,17 +272,6 @@ snit::type nbhood {
         }
 
         return $n
-    }
-
-    # find mx my
-    #
-    # mx,my    A point in map coordinates
-    #
-    # Returns the short name of the neighborhood which contains the
-    # coordinates, or the empty string.
-
-    typemethod find {mx my} {
-        return [$geo find [list $mx $my] nbhood]
     }
 
     #-------------------------------------------------------------------

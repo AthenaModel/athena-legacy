@@ -339,6 +339,10 @@ Sets the color of the reference point icon.  Defaults to "black".<p>
 
 <</deflist options>>
 
+<<defitem "nbhood delete" {<i>win</i> nbhood delete <i>id</i>}>>
+
+Deletes the specified neighborhood from the canvas.<p>
+
 <<defitem "nbhood ids" {<i>win</i> nbhood ids}>>
 
 Returns a list of the neighborhood IDs.<p>

@@ -233,6 +233,21 @@ message order  nbhood                    "nbhood create \$parms"
 message nbhood {mapviewer nbhoodbrowser} "<Entity> create \$n"
 }>>
 
+<<subsection "NBHOOD:DELETE">>
+
+<<sequence -narration {
+actor GUI
+actor order
+actor nbhood
+actor mapviewer
+actor nbhoodbrowser
+
+message GUI    order                     NBHOOD:DELETE
+message order  nbhood                    "nbhood delete \$n \$parms"
+message nbhood {mapviewer nbhoodbrowser} "<Entity> delete \$n"
+}>>
+
+
 <<subsection "NBHOOD:UPDATE">>
 
 <<sequence -narration {
