@@ -84,6 +84,9 @@ snit::widget nbhoodbrowser {
         notifier bind ::nbhood <NbhoodDeleted> $self [mymethod delete]
         notifier bind ::nbhood <NbhoodLowered> $self [mymethod Refresh]
         notifier bind ::nbhood <NbhoodRaised>  $self [mymethod Refresh]
+
+        # NEXT, reload on creation
+        $self reload
     }
 
     destructor {

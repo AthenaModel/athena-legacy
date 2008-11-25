@@ -50,13 +50,7 @@ snit::widget appwin {
     #-------------------------------------------------------------------
     # Instance variables
 
-    # Info array: scalar values
-    #
-    #    map     The currently displayed map image.
-
-    variable info -array {
-        map   ""
-    }
+    # TBD
 
     #-------------------------------------------------------------------
     # Constructor

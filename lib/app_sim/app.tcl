@@ -36,12 +36,7 @@ snit::type app {
     #-------------------------------------------------------------------
     # Type Variables
 
-    # Info Array: most scalars are stored here
-    #
     # TBD
-
-    typevariable info -array {
-    }
 
     #-------------------------------------------------------------------
     # Application Initializer
