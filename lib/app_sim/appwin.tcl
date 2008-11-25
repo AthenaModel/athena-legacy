@@ -309,7 +309,7 @@ snit::widget appwin {
 
         # NEXT, add the scrolling log to the content notebook
 
-        install slog using scrollinglog $win.slog \
+        install slog using scrollinglog $content.slog \
             -relief     flat                      \
             -height     30                        \
             -logcmd     [mymethod puts]           \
