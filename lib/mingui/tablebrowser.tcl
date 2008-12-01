@@ -196,6 +196,9 @@ snit::widget ::mingui::tablebrowser {
 
         # NEXT, binding for copying the contents
         bind [$tableList bodytag] <<Copy>> [mymethod TablelistCopy]
+
+        bind $tableList <<TablelistSelect>> \
+            [list event generate $win <<TablebrowserSelect>>]
     }
     
     #-------------------------------------------------------------------
@@ -215,6 +218,23 @@ snit::widget ::mingui::tablebrowser {
         pack $toolbar -in $bar -side left
     }
 
+    # curselection
+    #
+    # Returns a list of the IDs of the rows that are selected, or
+    # the empty string if none.
+
+    method curselection {} {
+        set result [list]
+
+        set keydata [$tableList getcolumns $options(-keycolnum)]
+
+        foreach row [$tableList curselection] {
+            lappend result [lindex $keydata $row]
+        }
+
+        return $result
+    }
+
     # create id
     #
     # id     The id that corresponds to -keycol
@@ -230,7 +250,7 @@ snit::widget ::mingui::tablebrowser {
     
     # update id
     #
-    # id   The id the corresponds to -keycol
+    # id   The id that corresponds to -keycol
     #
     # Extract the row with the supplied id from the db. The client tells
     # the table browser how to display the data, then the data is sorted.

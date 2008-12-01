@@ -99,68 +99,75 @@ Sets the width of the tablebrowser.<p>
 
 <<deflist instance>>
 
-<<defitem configure {$tablebrowser configure <i>option value...</i>}>>
+<<defitem configure {<i>pathName</i> configure <i>option value...</i>}>>
 
 Sets the values of the specified <i>options</i>.<p>
 
-<<defitem cget {$tablebrowser cget <i>option</i>}>>
+<<defitem cget {<i>pathName</i> cget <i>option</i>}>>
 
 Returns the value of the specified <i>option</i>.<p>
 
-<<defitem create {$tablebrowser create <i>id</i>}>>
+<<defitem create {<i>pathName</i> create <i>id</i>}>>
 
 Creates a row in the tablebrowser. The table browser queries the database
-using the keycol option for the id provided and extracts the 
+using the keycol option for the <i>id</i> provided and extracts the 
 corresponding row. The displaycmd option callback is called for the data
 to be formatted. The row is automatically sorted into the tablebrowser. It is
 also searched and/or filtered if those are active.<p>
 
-<<defitem update {$tablebrowser update <i>id</i>}>>
+<<defitem curselection {<i>pathName</i> curselection}>>
 
-Updates a row of data with the supplied id. The table browser queries the
-database using the keycol option for the id provided and extracts
+Returns a list of the IDs of the selected rows, or the empty string if
+no rows are selected.<p>
+
+<<defitem update {<i>pathName</i> update <i>id</i>}>>
+
+Updates a row of data with the supplied <i>id</i>. The table browser queries the
+database using the keycol option for the <i>id</i> provided and extracts
 the corresponding row. The displaycmd option callback is called for the
 data to be formatted. The row is then updated in the tablebrowser.<p>
 
-<<defitem delete {$tablebrowser delete <i>id</i>}>>
+<<defitem delete {<i>pathName</i> delete <i>id</i>}>>
 
 Deletes a row of data from the <<iref tablebrowser>> that has the 
-supplied id.<p>
+supplied <i>id</i>.<p>
 
-<<defitem insertcolumn {$tablebrowser insertcolumn <i>index width name</i>}>>
+<<defitem insertcolumn {<i>pathName</i> insertcolumn <i>index width name</i>}>>
 
 Inserts a column in the tablebrowser at the position specified by index. The
 column assumes the width provided and the label at the top of the column
 displays the name provided.<p>
 
-<<defitem setbackground {$tablebrowser setbackground <i>id color</i>}>>
+<<defitem setbackground {<i>pathName</i> setbackground <i>id color</i>}>>
 
-Sets the background color of the row given the id.<p>
+Sets the background color of the row given the <i>id</i>.<p>
 
-<<defitem setcolor {$tablebrowser setcolor <i>id color</i>}>>
+<<defitem setcolor {<i>pathName</i> setcolor <i>id color</i>}>>
 
-Sets the foreground color of the row given the id.<p>
+Sets the foreground color of the row given the <i>id</i>.<p>
 
-<<defitem setfont {$tablebrowser setfont <i>id font</i>}>>
+<<defitem setfont {<i>pathName</i> setfont <i>id font</i>}>>
 
-Sets the font of the row given the id.<p>
+Sets the font of the row given the <i>id</i>.<p>
 
-<<defitem setdata {$tablebrowser setdata <i>id data</i>}>>
+<<defitem setdata {<i>pathName</i> setdata <i>id data</i>}>>
 
-Sets the data to be displayed in a row in the tablebrowser. If the id already
+Sets the data to be displayed in a row in the tablebrowser. If the <i>id</i> already
 exists, then the data in that row is replaced with the data provided. If the
-id does not exist then it is added to the end of the table. This call is 
+<i>id</i> does not exist then it is added to the end of the table. This call is 
 normally made during the callback defined in the displaycmd option.<p>
 
-<<defitem reload {$tablebrowser reload}>>
+<<defitem reload {<i>pathName</i> reload}>>
 
 Causes the tablebrowser to clear its contents and reload all the data from the
 database for the table it is configured to show.<p>
 
-<<defitem takefocus {$tablebrowser takefocus}>>
+<<defitem takefocus {<i>pathName</i> takefocus}>>
 
 Causes the tablebrowser to take focus so that things like keyboard traversal
 work properly.<p>
+
+<</deflist instance>>
 
 <<section EXAMPLE>>
 
@@ -234,6 +241,20 @@ a callback to format data for display in the tablebrowser(n).
 
 </pre><p>
 
+<<section "EVENTS">>
+
+The <<xref tablebrowser(n)>> widget generates the following Tk events.<p>
+
+<<deflist events>>
+
+<<defitem TablebrowserSelect {&lt;&lt;TablebrowserSelect&gt;&gt;}>>
+
+This event is sent with no additional data when the set of selected
+items changes.  Note: it is <b>not</b> sent when the selection is
+cleared, but only when it changes to some different non-empty set of
+items.<p>
+
+<</deflist>>
 
 <<section "BINDINGS">>
 
