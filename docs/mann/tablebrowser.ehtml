@@ -36,10 +36,6 @@ The <<iref tablebrowser>> widget may be created with the following options:<p>
 
 <<deflist tablebrowser options>>
 
-<<defopt {-title <i>title</i>}>>
-
-Sets the title to appear at the top of the tablebrowser.<p>
-
 <<defopt {-db <i>db</i>}>>
 
 Sets the workstation database that is queried for data to be displayed.<p>

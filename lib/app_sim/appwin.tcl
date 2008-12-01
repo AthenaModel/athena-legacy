@@ -226,7 +226,7 @@ snit::widget appwin {
     method AddOrder {mnu order} {
         $mnu add command \
             -label   [ordergui meta $order title] \
-            -command [list ordergui enter $win $order]
+            -command [list ordergui enter $order]
     }
 
     # CreateComponents

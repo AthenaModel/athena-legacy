@@ -292,15 +292,14 @@ snit::type ordergui {
     }
 
 
-    # enter parent order
+    # enter order
     #
-    # parent   The parent window
     # order    The name of an order
     #
     # Sets up the dialog for entry of the specified order, and pops
     # up the window.
 
-    typemethod enter {parent order} {
+    typemethod enter {order} {
         require {$info(initialized)} "Order dialog is uninitialized"
         require {!$info(active)}     "Order dialog is already active"
 
@@ -361,7 +360,7 @@ snit::type ordergui {
         }
 
         # NEXT, raise the window and set the focus
-        wm transient $dialog $parent
+        wm transient $dialog [app topwin]
         wm deiconify $dialog
         raise $dialog
 

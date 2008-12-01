@@ -99,12 +99,12 @@ snit::widget nbhoodbrowser {
         install bar using frame $tb.toolbar \
             -relief flat
 
-        install editbtn using button $bar.edit \
-            -image      ${type}::icon::edit    \
-            -relief     flat                   \
-            -overrelief raised                 \
-            -state      disabled               \
-            -command    EditSelectedNbhood
+        install editbtn using button $bar.edit  \
+            -image      ${type}::icon::edit     \
+            -relief     flat                    \
+            -overrelief raised                  \
+            -state      disabled                \
+            -command    [mymethod EditSelected]
 
         DynamicHelp::add $editbtn -text "Edit Selected Neighborhood"
         
@@ -161,6 +161,20 @@ snit::widget nbhoodbrowser {
 
         # NEXT, update the tools
         $self UpdateToolbarState
+    }
+
+    # EditSelected
+    #
+    # Called when the user wants to edit the selected neighborhood.
+
+    method EditSelected {} {
+        # FIRST, there should be only one selected.
+        set id [lindex [$tb curselection] 0]
+
+        # NEXT, Pop up the dialog, and select this nbhood
+        ordergui enter NBHOOD:UPDATE
+        ordergui parm set n $id
+        
     }
 
     # delete n
@@ -227,7 +241,6 @@ snit::widget nbhoodbrowser {
     # Enables/disables toolbar controls based on the displayed data.
 
     method UpdateToolbarState {} {
-        puts "UpdateToolbarState: <[$tb curselection]>"
         # FIRST, get the number of selected nbhoods
         set num [llength [$tb curselection]]
 

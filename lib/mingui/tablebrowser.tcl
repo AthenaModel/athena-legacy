@@ -185,9 +185,6 @@ snit::widget ::mingui::tablebrowser {
         grid $win.yview -row 1 -column 1 -sticky nsew
         grid $win.xview -row 2 -column 0 -sticky nsew
 
-        #grid $tableList   $win.yview -sticky nsew
-        #grid $tableList   $win.xview -sticky nsew
-        
         grid columnconfigure $win 0 -weight 1
         grid rowconfigure    $win 1 -weight 1
     
