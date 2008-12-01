@@ -100,6 +100,8 @@ snit::type ordergui {
     #
     #  active      1 if dialog is visible, 0 otherwise
     #  current     Current parameter
+    #  geometry    Root window coords of upper-left corner of dialog,
+    #              as "+x+y"
     #  message     message to be displayed on the dialog
     #  order       If active, name of the order to send
     #  title       If active, the order's title
@@ -107,6 +109,7 @@ snit::type ordergui {
     typevariable info -array {
         active      0
         current     ""
+        geometry    ""
         initialized 0
         order       ""
         title       ""
@@ -361,6 +364,11 @@ snit::type ordergui {
         wm transient $dialog $parent
         wm deiconify $dialog
         raise $dialog
+
+        if {$info(geometry) ne ""} {
+            wm geometry $dialog $info(geometry)
+        }
+
         focus $parmf.entry0
 
 
@@ -377,7 +385,10 @@ snit::type ordergui {
 
     typemethod cancel {} {
         if {$info(active)} {
-            # FIRST, pop down the dialog
+            # FIRST, save the dialog's location
+            set info(geometry) +[winfo rootx $dialog]+[winfo rooty $dialog]
+
+            # NEXT, pop down the dialog
             wm withdraw $dialog
             
             # NEXT, delete all of the parameter children
