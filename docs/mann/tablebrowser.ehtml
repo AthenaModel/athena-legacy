@@ -55,13 +55,6 @@ also be used to format the foreground color and the font if the tablebrowser
 defaults need to be changed. See the <<iref setcolor>> and <<iref setfont>>
 command for more.<p>
 
-
-<<defopt {-dblclickcmd <i>cmd</i>}>>
-
-Sets the callback command to be called whenever a row in the tablebrowser is 
-double clicked. The tablebrowser returns the id and row of data as a list to
-the command.<p>
-
 <<defopt {-keycol <i>name</i>}>>
 
 Sets the name of the primary key column in the table specified in the 

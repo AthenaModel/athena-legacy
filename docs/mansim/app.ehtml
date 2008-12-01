@@ -23,6 +23,18 @@ app(sim) provides the following commands for use by the application.<p>
 
 <<deflist commands>>
 
+<<defitem ask {app ask <i>mode text</i>}>>
+
+Displays <i>text</i> in a question dialog centered on the
+<<iref topwin>>. Variables and commands in <i>text</i> are
+interpolated using <<xref template(n) tsubst>> from
+<<xref template(n)>>.<p>
+
+The <i>mode</i> may be <b>yesno</b> or <b>yesnocancel</b>; this
+determines whether the dialog shows two buttons or three.  Returns the
+symbolic name of the selected button, e.g., <b>yes</b>, <b>no</b>, or
+<b>cancel</b>.<p>
+
 <<defitem error {app error <i>text</i>}>>
 
 Displays <i>text</i> in an error dialog centered on the

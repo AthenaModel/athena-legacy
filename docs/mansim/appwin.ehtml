@@ -38,10 +38,10 @@ appwin(sim) defines the following commands:<p>
 
 <<deflist commands>>
 
-<<defitem "appwin" {appwin <i>win</i> ?<i>option value...</i>?}>>
+<<defitem "appwin" {appwin <i>pathName</i> ?<i>option value...</i>?}>>
 
-Creates a appwin(sim) widget called <i>win</i>, given the
-<<xref OPTIONS options>>.  Returns <i>win</i>.<p>
+Creates a appwin(sim) widget called <i>pathName</i>, given the
+<<xref OPTIONS options>>.  Returns <i>pathName</i>.<p>
 
 <<defitem "appwin new" {appwin new ?<i>option value...</i>?}>>
 
@@ -57,21 +57,32 @@ Each instance of appwin(sim) has the following subcommands:<p>
 
 <<deflist instance>>
 
-<<defitem configure {<i>win</i> configure <i>option value...</i>}>>
+<<defitem ask {<i>pathName</i> ask <i>mode text</i>}>>
+
+Displays <i>text</i> in a question dialog centered on the window.
+Variables and commands in <i>text</i> are interpolated using
+<<xref template(n) tsubst>> from <<xref template(n)>>.<p>
+
+The <i>mode</i> may be <b>yesno</b> or <b>yesnocancel</b>; this
+determines whether the dialog shows two buttons or three.  Returns the
+symbolic name of the selected button, e.g., <b>yes</b>, <b>no</b>, or
+<b>cancel</b>.<p>
+
+<<defitem configure {<i>pathName</i> configure <i>option value...</i>}>>
 
 Sets the value of the specified options.<p>
 
-<<defitem cget {<i>win</i> cget <i>option</i>}>>
+<<defitem cget {<i>pathName</i> cget <i>option</i>}>>
 
 Returns the value of the specified <i>option</i>.<p>
 
-<<defitem error {<i>win</i> error <i>text</i>}>>
+<<defitem error {<i>pathName</i> error <i>text</i>}>>
 
 Displays <i>text</i> in an error dialog centered on the window.
 Variables and commands in <i>text</i> are interpolated using
 <<xref template(n) tsubst>> from <<xref template(n)>>.<p>
 
-<<defitem puts {<i>win</i> puts <i>text</i>}>>
+<<defitem puts {<i>pathName</i> puts <i>text</i>}>>
 
 Writes <i>text</i> to the window's message line.<p>
 

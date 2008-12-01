@@ -612,6 +612,24 @@ snit::widget appwin {
             -type    ok
     }
 
+    # ask mode text
+    #
+    # mode       yesno | yesnocancel
+    # text       A tsubst'd text string
+    #
+    # Asks the question in a message box, and returns the answer,
+    # "yes", "no", or "cancel".
+
+    method ask {mode text} {
+        set text [uplevel 1 [list tsubst $text]]
+
+        tk_messageBox         \
+            -message $text    \
+            -icon    question \
+            -parent  $win     \
+            -type    $mode
+    }
+
     # puts text
     #
     # text     A text string
