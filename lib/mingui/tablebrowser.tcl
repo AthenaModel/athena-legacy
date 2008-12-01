@@ -212,7 +212,7 @@ snit::widget ::mingui::tablebrowser {
 
         # NEXT, set it as the toolbar and pack it
         set toolbar $tbar
-        pack $toolbar -in $bar -side left
+        pack $toolbar -in $bar -side left -fill x -expand yes
     }
 
     # curselection
@@ -332,6 +332,27 @@ snit::widget ::mingui::tablebrowser {
         $tableList insertcolumns $index $width $name
     }
 
+    # select ids
+    #
+    # ids    A list of ids as found in each row's key column
+    #
+    # Selects the rows with the associated IDs.  Unknown IDs
+    # are ignored.
+
+    method select {ids} {
+        $tableList selection clear 0 end
+        
+        set rows [list]
+
+        foreach id $ids {
+            if {[info exists keyMap($id)]} {
+                lappend rows $keyMap($id)
+            }
+        }
+
+        $tableList selection set $rows
+    }
+
     # setcolor id color
     #
     # id    The id for the row found in the key column
@@ -402,7 +423,10 @@ snit::widget ::mingui::tablebrowser {
     # from the table that it is meant to show
 
     method reload {} {
-        # FIRST, clear the table
+        # FIRST, save the selection.
+        set ids [$self curselection]
+
+        # NEXT, clear the table
         $self clear
 
         # NEXT, request all rows from the table
@@ -416,6 +440,9 @@ snit::widget ::mingui::tablebrowser {
      
         # NEXT, sort the contents
         $self SortData
+
+        # NEXT, select the same rows
+        $self select $ids
     } 
 
     # getselection

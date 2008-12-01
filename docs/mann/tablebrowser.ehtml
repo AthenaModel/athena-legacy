@@ -127,6 +127,11 @@ Inserts a column in the tablebrowser at the position specified by index. The
 column assumes the width provided and the label at the top of the column
 displays the name provided.<p>
 
+<<defitem select {<i>pathName</i> select <i>ids</i>}>>
+
+Selects the rows associated with a set of <code>-keycol</code>
+<i>ids</i>.  Unknown IDs are ignored.<p>
+
 <<defitem setbackground {<i>pathName</i> setbackground <i>id color</i>}>>
 
 Sets the background color of the row given the <i>id</i>.<p>

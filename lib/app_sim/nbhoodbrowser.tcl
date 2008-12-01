@@ -59,6 +59,89 @@ snit::widget nbhoodbrowser {
             w  #BDA565
         }
 
+        mkicon ${type}::icon::delete {
+            ......................
+            ......................
+            ......................
+            ...XX............XX...
+            ...XXX..........XXX...
+            ....XXX........XXX....
+            .....XXX......XXX.....
+            ......XXX....XXX......
+            .......XXX..XXX.......
+            ........XXXXXX........
+            .........XXXX.........
+            .........XXXX.........
+            ........XXXXXX........
+            .......XXX..XXX.......
+            ......XXX....XXX......
+            .....XXX......XXX.....
+            ....XXX........XXX....
+            ...XXX..........XXX...
+            ...XX............XX...
+            ......................
+            ......................
+            ......................
+        } {
+            .  trans
+            X  #000000
+        }
+
+        mkicon ${type}::icon::lower {
+            ......................
+            ......................
+            ......................
+            ......................
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ....XX....XX....XX....
+            .....XX...XX...XX.....
+            ......XX..XX..XX......
+            .......XX.XX.XX.......
+            ........XXXXXX........
+            .........XXXX.........
+            ..........XX..........
+            ...XXXXXXXXXXXXXXXX...
+            ...XXXXXXXXXXXXXXXX...
+            ......................
+            ......................
+        } {
+            .  trans
+            X  #000000
+        }
+
+        mkicon ${type}::icon::raise {
+            ......................
+            ......................
+            ...XXXXXXXXXXXXXXXX...
+            ...XXXXXXXXXXXXXXXX...
+            ..........XX..........
+            .........XXXX.........
+            ........XXXXXX........
+            .......XX.XX.XX.......
+            ......XX..XX..XX......
+            .....XX...XX...XX.....
+            ....XX....XX....XX....
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ......................
+            ......................
+            ......................
+            ......................
+        } {
+            .  trans
+            X  #000000
+        }
     }
 
     #-------------------------------------------------------------------
@@ -67,7 +150,7 @@ snit::widget nbhoodbrowser {
     # Options delegated to the hull
     delegate option * to hull
 
-    # Options delegated to the tablebrowser
+    # Methods delegated to the tablebrowser
     delegate method * to tb
 
     #-------------------------------------------------------------------
@@ -76,6 +159,9 @@ snit::widget nbhoodbrowser {
     component tb          ;# tablebrowser(n) used to browse nbhoods
     component bar         ;# Tool bar
     component editbtn     ;# The "Edit Neighborhood" button
+    component raisebtn    ;# The "Bring to Front" button
+    component lowerbtn    ;# The "Send to Back" button
+    component deletebtn   ;# The "Delete Neighborhood" button
 
     #--------------------------------------------------------------------
     # Instance Variables
@@ -110,8 +196,38 @@ snit::widget nbhoodbrowser {
             -command    [mymethod EditSelected]
 
         DynamicHelp::add $editbtn -text "Edit Selected Neighborhood"
+
+        install raisebtn using button $bar.raise  \
+            -image      ${type}::icon::raise      \
+            -relief     flat                      \
+            -overrelief raised                    \
+            -state      disabled                  \
+            -command    [mymethod RaiseSelected]
+
+        DynamicHelp::add $raisebtn -text "Bring Neighborhood to Front"
+
+        install lowerbtn using button $bar.lower  \
+            -image      ${type}::icon::lower      \
+            -relief     flat                      \
+            -overrelief raised                    \
+            -state      disabled                  \
+            -command    [mymethod LowerSelected]
+
+        DynamicHelp::add $lowerbtn -text "Send Neighborhood to Back"
+
+        install deletebtn using button $bar.delete \
+            -image      ${type}::icon::delete      \
+            -relief     flat                       \
+            -overrelief raised                     \
+            -state      disabled                   \
+            -command    [mymethod DeleteSelected]
+
+        DynamicHelp::add $deletebtn -text "Delete Selected Neighborhood"
         
-        pack $editbtn -side left
+        pack $editbtn   -side left
+        pack $raisebtn  -side left
+        pack $lowerbtn  -side left
+        pack $deletebtn -side right
 
         # NEXT, hand the toolbar to the browser.
         $tb toolbar $tb.toolbar
@@ -151,6 +267,22 @@ snit::widget nbhoodbrowser {
     }
 
     #-------------------------------------------------------------------
+    # Public Methods
+
+    # select ids
+    #
+    # ids    A list of neighborhood ids
+    #
+    # Selects the neighborhoods in the browser.
+
+    method select {ids} {
+        $tb select $ids
+        $self UpdateToolbarState
+    }
+
+
+
+    #-------------------------------------------------------------------
     # Private Methods
 
     # Reconfigure
@@ -177,7 +309,43 @@ snit::widget nbhoodbrowser {
         # NEXT, Pop up the dialog, and select this nbhood
         ordergui enter NBHOOD:UPDATE
         ordergui parm set n $id
-        
+    }
+
+    # RaiseSelected
+    #
+    # Called when the user wants to raise the selected neighborhood.
+
+    method RaiseSelected {} {
+        # FIRST, there should be only one selected.
+        set id [lindex [$tb curselection] 0]
+
+        # NEXT, bring it to the front.
+        order send "" client NBHOOD:RAISE [list n $id]
+    }
+
+    # LowerSelected
+    #
+    # Called when the user wants to lower the selected neighborhood.
+
+    method LowerSelected {} {
+        # FIRST, there should be only one selected.
+        set id [lindex [$tb curselection] 0]
+
+        # NEXT, bring it to the front.
+        order send "" client NBHOOD:LOWER [list n $id]
+    }
+
+    # DeleteSelected
+    #
+    # Called when the user wants to delete the selected neighborhood.
+
+    method DeleteSelected {} {
+        # FIRST, there should be only one selected.
+        set id [lindex [$tb curselection] 0]
+
+        # NEXT, Pop up the dialog, and select this nbhood
+        ordergui enter NBHOOD:DELETE
+        ordergui parm set n $id
     }
 
     # delete n
@@ -249,9 +417,15 @@ snit::widget nbhoodbrowser {
 
         # NEXT, update the toolbar buttons
         if {$num == 1} {
-            $editbtn configure -state normal
+            $editbtn    configure -state normal
+            $raisebtn   configure -state normal
+            $lowerbtn   configure -state normal
+            $deletebtn  configure -state normal
         } else {
-            $editbtn configure -state disabled
+            $editbtn    configure -state disabled
+            $raisebtn   configure -state disabled
+            $lowerbtn   configure -state disabled
+            $deletebtn  configure -state disabled
         }
     }
 }
