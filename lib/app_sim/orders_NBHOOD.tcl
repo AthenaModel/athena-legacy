@@ -103,7 +103,9 @@ order define NBHOOD:DELETE {
     # Validate
     validate n { nbhood validate $parms(n) }
 
-    # TBD: Verify that we can safely delete this.
+    # TBD: Verify that we can safely delete this.  We can't have
+    # any entities whose identity depends on this neighborhood, e.g.,
+    # nbhood groups.
 
     returnOnError
 

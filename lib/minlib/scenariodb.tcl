@@ -214,7 +214,7 @@ snit::type ::minlib::scenariodb {
         $db eval {DETACH DATABASE source;}
 
         # NEXT, As of this point all changes are saved.
-        set info(savedChanges) [$db total_changes]
+        $self marksaved
     }
 
     # clear
@@ -226,7 +226,7 @@ snit::type ::minlib::scenariodb {
         $db clear
 
         # NEXT, As of this point all changes are saved.
-        set info(savedChanges) [$db total_changes]
+        $self marksaved
     }
 
     # open ?filename?
@@ -238,7 +238,7 @@ snit::type ::minlib::scenariodb {
         $db open $filename
 
         # NEXT, As of this point all changes are saved.
-        set info(savedChanges) [$db total_changes]
+        $self marksaved
     }
 
     # saveas filename
@@ -250,6 +250,14 @@ snit::type ::minlib::scenariodb {
         $db saveas $filename
 
         # NEXT, As of this point all changes are saved.
+        $self marksaved
+    }
+
+    # marksaved
+    #
+    # Marks the database saved.
+
+    method marksaved {} {
         set info(savedChanges) [$db total_changes]
     }
 

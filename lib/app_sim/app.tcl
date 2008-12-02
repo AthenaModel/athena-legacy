@@ -76,8 +76,8 @@ snit::type app {
 
         # NEXT, Create the working scenario RDB and initialize simulation
         # components
-        scenario init
         map      init
+        scenario init
         nbhood   init
         cif      init
         order    init

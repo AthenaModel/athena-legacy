@@ -102,6 +102,25 @@ snit::type map {
     # Attempts to import the image into the RDB.
 
     typemethod import {filename} {
+        # FIRST, try to load it.
+        $type load $filename
+
+        # NEXT, log it.
+        log normal app "Import Map: $filename"
+        
+        app puts "Imported Map: $filename"
+
+        # NEXT, Notify the application.
+        notifier send $type <MapChanged>
+    }
+
+    # load filename
+    #
+    # filename     An image file
+    #
+    # Attempts to load the image into the RDB.
+
+    typemethod load {filename} {
         # FIRST, is it a real image?
         set img [pixane create]
 
@@ -130,13 +149,5 @@ snit::type map {
 
         # NEXT, load the new map
         $type reconfigure
-
-        # NEXT, log it.
-        log normal app "Import Map: $filename"
-        
-        app puts "Imported Map: $filename"
-
-        # NEXT, Notify the application.
-        notifier send $type <MapChanged>
     }
 }

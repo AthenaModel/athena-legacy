@@ -53,16 +53,27 @@ snit::type scenario {
 
         file delete -force $rdbfile
         rdb open $rdbfile
+        $type Clear
+    }
+
+    # Clear
+    #
+    # Clears the RDB, inserts the schema, and loads the blank map.
+
+    typemethod Clear {} {
+        # FIRST, clear the RDB
         rdb clear
+
+        # NEXT, load the blank map
+        map load [file join $::app_sim::library blank.png]
+
+        # NEXT, mark it saved; having the blank map is neither 
+        # here nor there.
+        rdb marksaved
     }
 
     #-------------------------------------------------------------------
     # Scenario Management Methods
-    #
-    # TBD: A number of these methods explicitly display errors.  It's 
-    # likely that they should just throw relevant errors, and let the 
-    # caller display the errors.  We'd want to distinguish between
-    # environmental and programming errors.
 
     # new
     #
@@ -70,7 +81,7 @@ snit::type scenario {
 
     typemethod new {} {
         # FIRST, clear the current scenario data.
-        rdb clear
+        $type Clear
 
         # NEXT, there is no dbfile.
         set info(dbfile) ""
