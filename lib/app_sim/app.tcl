@@ -197,9 +197,26 @@ snit::type app {
 }
 
 
+#-------------------------------------------------------------------
+# Miscellaneous Application Utilities
 
+# bgerror msg
+#
+# Logs background errors; the errorInfo is stored in ::bgErrorInfo
 
+proc bgerror {msg} {
+    global errorInfo
+    global bgErrorInfo
 
+    set bgErrorInfo $errorInfo
+    log error app "bgerror: $msg"
+    log error app "$bgErrorInfo"
 
+    app error {
+        |<--
+        An unexpected error has occurred;
+        please see the log for details.
+    }
+}
 
 

@@ -160,13 +160,15 @@ snit::type order {
                 }
             }
         } elseif {$interface eq "sim"} {
-            if {[catch $name result]} {
+            if {[catch $name result opts]} {
+                set einfo [dict get $opts -errorinfo]
+
                 log error order \
-           "Unexpected error in $displayName:\n[dict get $opts -errorinfo]"
+           "Unexpected error in $displayName:\n$einfo"
  
                 error \
                     "Unexpected error in $displayName:\n$result" \
-                    $::errorInfo
+                    $einfo
             }
         } else {
             error "Invalid interface type: \"$interface\""

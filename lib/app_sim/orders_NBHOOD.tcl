@@ -83,6 +83,8 @@ order define NBHOOD:CREATE {
 
     # NEXT, create the neighborhood
     nbhood create [array get parms]
+
+    setundo [nbhood lastundo]
 }
 
 # NBHOOD:DELETE

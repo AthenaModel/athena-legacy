@@ -126,7 +126,7 @@ snit::type nbhood {
         $type SetObscuredBy
 
         # NEXT, Not yet undoable; clear the undo command
-        set info(undo) {}
+        set info(undo) [list $type delete $n]
 
         # NEXT, notify the app.
         notifier send ::nbhood <Entity> create $n
@@ -148,7 +148,7 @@ snit::type nbhood {
             DELETE FROM nbhoods WHERE n=$n
         }
 
-        # TBD: Delete dependent entities, or clear the nbhood field.
+        $geo delete $n
 
         # NEXT, recompute the obscured_by field; this nbhood might
         # have obscured some other neighborhood's refpoint.
