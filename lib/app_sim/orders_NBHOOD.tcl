@@ -244,4 +244,6 @@ order define NBHOOD:UPDATE {
     unset parms(n)
 
     nbhood update $n [array get parms]
+
+    setundo [nbhood lastundo]
 }

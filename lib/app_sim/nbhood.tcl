@@ -25,7 +25,13 @@ snit::type nbhood {
     #-------------------------------------------------------------------
     # Type Variables
     
-    # TBD
+    # info -- array of scalars
+    #
+    # undo       Command to undo the last operation, or ""
+
+    typevariable info -array {
+        undo {}
+    }
 
     #-------------------------------------------------------------------
     # Initialization
@@ -57,10 +63,16 @@ snit::type nbhood {
 
         # NEXT, update the obscured_by fields
         $type SetObscuredBy
+
+        # NEXT, clear the undo command
+        set info(undo) {}
     }
 
     #-------------------------------------------------------------------
-    # Public Typemethods
+    # Mutators
+    #
+    # The following routines create or modify entity data.  Each of them
+    # must set or clear the undo command.
 
     # create parmdict
     #
@@ -113,6 +125,9 @@ snit::type nbhood {
         # have obscured some other neighborhood's refpoint.
         $type SetObscuredBy
 
+        # NEXT, Not yet undoable; clear the undo command
+        set info(undo) {}
+
         # NEXT, notify the app.
         notifier send ::nbhood <Entity> create $n
     }
@@ -139,18 +154,10 @@ snit::type nbhood {
         # have obscured some other neighborhood's refpoint.
         $type SetObscuredBy
 
+        # NEXT, Not undoable; clear the undo command
+        set info(undo) {}
+
         notifier send ::nbhood <Entity> delete $n
-    }
-
-    # find mx my
-    #
-    # mx,my    A point in map coordinates
-    #
-    # Returns the short name of the neighborhood which contains the
-    # coordinates, or the empty string.
-
-    typemethod find {mx my} {
-        return [$geo find [list $mx $my] nbhood]
     }
 
     # lower n
@@ -175,17 +182,10 @@ snit::type nbhood {
         # have obscured some other neighborhood's refpoint.
         $type SetObscuredBy
 
+        # NEXT, Not undoable; clear the undo command
+        set info(undo) {}
+
         notifier send ::nbhood <Entity> lower $n
-    }
-
-    # names
-    #
-    # Returns the list of neighborhood names
-
-    typemethod names {} {
-        set names [rdb eval {
-            SELECT n FROM nbhoods 
-        }]
     }
 
     # raise n
@@ -210,6 +210,9 @@ snit::type nbhood {
         # have obscured some other neighborhood's refpoint.
         $type SetObscuredBy
 
+        # NEXT, Not undoable; clear the undo command
+        set info(undo) {}
+
         notifier send ::nbhood <Entity> raise $n
     }
   
@@ -229,6 +232,16 @@ snit::type nbhood {
     # order.
 
     typemethod update {n parmdict} {
+        # FIRST, get the undo information
+        rdb eval {
+            SELECT longname, refpoint, polygon, urbanization 
+            FROM nbhoods
+            WHERE n=$n
+        } row {
+            unset row(*)
+        }
+
+        # NEXT, Update the neighborhood
         dict with parmdict {
             # FIRST, Put the neighborhood in the database
             rdb eval {
@@ -247,9 +260,49 @@ snit::type nbhood {
             }
         }
 
+        # NEXT, Not undoable; clear the undo command
+        set info(undo) [mytypemethod update $n [array get row]]
+
         # NEXT, notify the app.
         notifier send ::nbhood <Entity> update $n
     }
+
+    #-------------------------------------------------------------------
+    # Queries
+    #
+    # These routines query information about the entities; they are
+    # not allowed to modify them.
+
+
+    # find mx my
+    #
+    # mx,my    A point in map coordinates
+    #
+    # Returns the short name of the neighborhood which contains the
+    # coordinates, or the empty string.
+
+    typemethod find {mx my} {
+        return [$geo find [list $mx $my] nbhood]
+    }
+
+    # lastundo
+    #
+    # Returns the undo command for the last mutator, or "" if none.
+
+    typemethod lastundo {} {
+        return $info(undo)
+    }
+
+    # names
+    #
+    # Returns the list of neighborhood names
+
+    typemethod names {} {
+        set names [rdb eval {
+            SELECT n FROM nbhoods 
+        }]
+    }
+
 
     # validate n
     #

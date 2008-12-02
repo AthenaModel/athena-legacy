@@ -1,0 +1,89 @@
+<<manpage cif(sim) "Critical Input Manager">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+cif(sim) is responsible for tracking critical inputs to the simulation
+(i.e., orders) as the user enters.  Of necessity, it is also the
+manager for the application's multi-level undo/redo capability.<p>
+
+The <<xref scenariodb(n)>> <b>cif</b> table stores the orders that
+have been sent to the simulation in the order in which they were
+sent.  Undo information can be attached to each order; thus, the
+<b>cif</b> table serves as a multi-level undo stack.<p>
+
+cif(sim) maintains a stack pointer; it usually points at the unused
+slot at the top of the undo stack.  When a new order is added, it goes
+in this slot, and the stack pointer is incremented.<p>
+
+It is possible to undo if the order just below the stack pointer has
+undo information.  On undo, the stack pointer is decremented, and the
+order is undone.  An undone order will remain in place until a new
+order is added; at that time, all undone orders are replaced by the
+new order.<p>
+
+If there is an undone order at the stack pointer, then it is possible
+to redo.  The order is executed as by the "sim", and the stack pointer
+is incremented.<p>
+
+<<section "COMMANDS">>
+
+cif(sim) provides the following commands for use by the application.<p>
+
+<<deflist commands>>
+
+<<defitem init {cif init}>>
+
+Initialize the module; call this once, at application
+initialization.<p>
+
+<<defitem add {cif add <i>order parmdict</i> ?<i>undo</i>?}>>
+
+Adds an <i>order</i> to the <b>cif</b> table in the RDB given its
+parameter dictionary, <i>parmdict</i>.  If <i>undo</i> is specified,
+it must be a script that undoes the effect of the order when run in
+the global context; the order is then undoable.<p>
+
+<<defitem canredo {cif canredo}>>
+
+If there is a redoable order, returns the title of the order;
+otherwise returns the empty string.<p>
+
+<<defitem canundo {cif canundo}>>
+
+If there is an undoable order, returns the title of the order;
+otherwise, returns the empty string.<p>
+
+<<defitem redo {cif redo}>>
+
+Re-sends the first redoable order, making the order undoable again.
+Throws an error if there is no order to redo.<p>
+
+<<defitem undo {cif undo}>>
+
+Undoes the order on the top of the stack; the order can then be
+redone.  Throws an error if there is no order to undo.<p>
+
+<</deflist commands>>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

@@ -26,6 +26,7 @@ snit::widget appwin {
     #-------------------------------------------------------------------
     # Components
 
+    component editmenu              ;# The Edit menu
     component cli                   ;# The cli(n) pane
     component msgline               ;# The messageline(n)
     component content               ;# The content notebook
@@ -127,6 +128,7 @@ snit::widget appwin {
             -accelerator "Ctrl+N"              \
             -command     [list appwin new]
         bind $win <Control-n> [list appwin new]
+        bind $win <Control-N> [list appwin new]
         
         $filemenu add command                  \
             -label     "New Scenario..."       \
@@ -144,6 +146,7 @@ snit::widget appwin {
             -accelerator "Ctrl+S"              \
             -command     [mymethod FileSave]
         bind $win <Control-s> [mymethod FileSave]
+        bind $win <Control-S> [mymethod FileSave]
 
         $filemenu add command                  \
             -label     "Save Scenario As..."   \
@@ -166,6 +169,7 @@ snit::widget appwin {
                 -accelerator "Ctrl+Q"              \
                 -command     [mymethod FileExit]
             bind $win <Control-q> [mymethod FileExit]
+            bind $win <Control-Q> [mymethod FileExit]
         } else {
             $filemenu add command                  \
                 -label       "Close Window"        \
@@ -173,11 +177,33 @@ snit::widget appwin {
                 -accelerator "Ctrl+W"              \
                 -command     [list destroy $win]
             bind $win <Control-w> [list destroy $win]
+            bind $win <Control-W> [list destroy $win]
         }
 
         # Edit menu
-        set editmenu [menu $menu.edit]
+        set editmenu [menu $menu.edit \
+                          -postcommand [mymethod PostEditMenu]]
         $menu add cascade -label "Edit" -underline 0 -menu $editmenu
+
+        $editmenu add command                \
+            -label       "Undo"              \
+            -underline   0                   \
+            -accelerator "Ctrl+Z"            \
+            -command     [mymethod EditUndo]
+
+        bind $win <Control-z> [mymethod EditUndo]
+        bind $win <Control-Z> [mymethod EditUndo]
+
+        $editmenu add command                \
+            -label       "Redo"              \
+            -underline   0                   \
+            -accelerator "Ctrl+Shift+Z"      \
+            -command     [mymethod EditRedo]
+
+        bind $win <Shift-Control-z> [mymethod EditRedo]
+        bind $win <Shift-Control-Z> [mymethod EditRedo]
+
+        $editmenu add separator
         
         $editmenu add command \
             -label "Cut" \
@@ -342,7 +368,7 @@ snit::widget appwin {
     }
    
     #-------------------------------------------------------------------
-    # Menu Handlers
+    # File Menu Handlers
 
     # FileNew
     #
@@ -508,6 +534,62 @@ snit::widget appwin {
 
         return 1
     }
+
+    #-------------------------------------------------------------------
+    # Edit Menu Handlers
+
+    # PostEditMenu
+    #
+    # Enables/Disables the undo/redo menu items when the menu is posted.
+
+    method PostEditMenu {} {
+        # Undo item
+        set title [cif canundo]
+
+        if {$title ne ""} {
+            $editmenu entryconfigure 0 \
+                -state normal          \
+                -label "Undo $title"
+        } else {
+            $editmenu entryconfigure 0 \
+                -state disabled        \
+                -label "Undo"
+        }
+
+        # Redo item
+        set title [cif canredo]
+
+        if {$title ne ""} {
+            $editmenu entryconfigure 1 \
+                -state normal          \
+                -label "Redo $title"
+        } else {
+            $editmenu entryconfigure 1 \
+                -state disabled        \
+                -label "Redo"
+        }
+    }
+
+    # EditUndo
+    #
+    # Undoes the top order on the undo stack, if any.
+
+    method EditUndo {} {
+        if {[cif canundo] ne ""} {
+            cif undo
+        }
+    }
+
+    # EditRedo
+    #
+    # Redoes the last undone order if any.
+
+    method EditRedo {} {
+        if {[cif canredo] ne ""} {
+            cif redo
+        }
+    }
+
 
     #-------------------------------------------------------------------
     # Mapviewer Event Handlers
