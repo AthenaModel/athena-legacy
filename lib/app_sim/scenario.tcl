@@ -53,14 +53,14 @@ snit::type scenario {
 
         file delete -force $rdbfile
         rdb open $rdbfile
-        $type Clear
+        $type clear
     }
 
-    # Clear
+    # clear
     #
     # Clears the RDB, inserts the schema, and loads the blank map.
 
-    typemethod Clear {} {
+    typemethod clear {} {
         # FIRST, clear the RDB
         rdb clear
 
@@ -81,7 +81,7 @@ snit::type scenario {
 
     typemethod new {} {
         # FIRST, clear the current scenario data.
-        $type Clear
+        $type clear
 
         # NEXT, there is no dbfile.
         set info(dbfile) ""

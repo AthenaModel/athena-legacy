@@ -153,6 +153,11 @@ Also, clears the <<iref unsaved>> flag.<p>
 Loads the scenario file called <i>filename</i> into the database, and
 clears the <<iref unsaved>> flag.<p>
 
+<<defitem marksaved {<i>obj</i> marksaved}>>
+
+Marks the scenario saved.  This is generally useful if the application
+adds additional behavior on top of <<iref clear>>.<p>
+
 <<defitem open {<i>obj</i> open <i>filename</i>}>>
 
 Opens an existing scenario file, and clears the <<iref unsaved>>
