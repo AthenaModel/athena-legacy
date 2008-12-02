@@ -136,11 +136,7 @@ snit::type nbhood {
     #
     # n     A neighborhood short name
     #
-    # Deletes the neighborhood, including all entities that depend
-    # on it.
-    #
-    # TBD: Alternatively, we might simply forbid deleting a 
-    # neighborhood that's "in use".
+    # Deletes the neighborhood, including all references.
 
     typemethod delete {n} {
         # FIRST, delete it.
@@ -149,6 +145,11 @@ snit::type nbhood {
         }
 
         $geo delete $n
+
+        # NEXT, clear the nbhood field for entities which 
+        # refer to this nbhood (e.g., units in the nbhood).
+        
+        # TBD.
 
         # NEXT, recompute the obscured_by field; this nbhood might
         # have obscured some other neighborhood's refpoint.

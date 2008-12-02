@@ -103,10 +103,14 @@ order define NBHOOD:DELETE {
     # Validate
     validate n { nbhood validate $parms(n) }
 
+    # TBD: Verify that we can safely delete this.
+
     returnOnError
 
     # NEXT, raise the neighborhood
     nbhood delete $parms(n)
+
+    # NEXT, this order is not undoable.
 }
 
 # NBHOOD:LOWER
