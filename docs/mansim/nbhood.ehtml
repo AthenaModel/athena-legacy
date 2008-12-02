@@ -19,6 +19,11 @@ various NBHOOD:* orders, and provides support for order-processing.<p>
 Every neighborhood has a long human-readable name; but neighborhoods
 are usually identified by their short name, a unique ID.<p>
 
+The module provides two kinds of command: mutators and queries.
+Mutator commands affect the state of the simulation; each will either set
+<<iref lastundo>> to a command that will undo the change, or will
+clear it indicating that no undo is possible.<p>
+
 <<section "COMMANDS">>
 
 nbhood(sim) provides the following commands for use by the application.<p>
@@ -69,6 +74,11 @@ Sends <b>&lt;Entity&gt;</b>.<p>
 
 Given a point <i>mx,my</i> in map coordinates, returns the short name of the
 containing neighborhood, or "" if none.<p>
+
+<<defitem lastundo {nbhood lastundo}>>
+
+Returns a command that will undo the effects of the last mutator
+command.<p>
 
 <<defitem lower {nbhood lower <i>n</i>}>>
 
@@ -133,15 +143,9 @@ The neighborhood has been <<iref delete>>d.
 
 One or more of the neighborhood's data items has been <<iref update>>d.<p>
 
-<<defitem "Entity lower" {&lt;Entity&gt; lower <i>n</i>}>>
+<<defitem "Entity stack" {&lt;Entity&gt;}>>
 
-The neighborhood has been <<iref lower>>ed to the bottom of the stacking order;
-this effects the <b>stacking_order</b> for all neighborhoods.<p>
-
-<<defitem "Entity raise" {&lt;Entity&gt; raise <i>n</i>}>>
-
-The neighborhood has been <<iref raise>>d to the top of the stacking order;
-this effects the <b>stacking_order</b> for all neighborhoods.<p>
+The neighborhood stacking order has changed for some reason.<p>
 
 <</deflist entity>>
 

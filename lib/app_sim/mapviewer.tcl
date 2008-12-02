@@ -595,8 +595,7 @@ snit::widget mapviewer {
         # NEXT, show refpoints revealed by the change
         $self NbhoodShowObscured
     }
-   
-   
+      
     # Nbhood update n
     #
     # n     The neighborhood ID
@@ -615,33 +614,16 @@ snit::widget mapviewer {
         $self NbhoodShowObscured
     }
 
-
-    # Nbhood raise n
+    # Nbhood stack
     #
-    # n     The neighborhood ID
-    #
-    # The neighborhood was raised to the top of the stacking order.
+    # The neighborhood stacking order has changed; redraw all
+    # neighborhoods
 
-    method {Nbhood raise} {n} {
-        $canvas raise $nbhoods(id-$n)
-        $canvas lower $nbhoods(id-$n) marker
-
-        # NEXT, show refpoints obscured/revealed by the change
-        $self NbhoodShowObscured
-    }
-
-    # Nbhood lower n
-    #
-    # n     The neighborhood ID
-    #
-    # The neighborhood was lowered to the top bottom of the stacking order.
-
-    method {Nbhood lower} {n} {
-        $canvas lower $nbhoods(id-$n)
-        $canvas raise $nbhoods(id-$n) map
-
-        # NEXT, show refpoints obscured/revealed by the change
-        $self NbhoodShowObscured
+    method {Nbhood stack} {} {
+        # TBD: This could be optimized to just raise and lower the
+        # existing nbhoods; but this is simple and appears to be
+        # fast enough.
+        $self NbhoodDrawAll
     }
 
     #-------------------------------------------------------------------
@@ -698,23 +680,8 @@ snit::widget mapviewer {
         # NEXT, clear the canvas
         $canvas clear
 
-        # NEXT, clear all remembered state
-        array unset nbhoods
-
-        # NEXT, add neighborhoods
-        rdb eval {
-            SELECT n, refpoint, polygon 
-            FROM nbhoods
-            ORDER BY stacking_order
-        } {
-            $self NbhoodDraw $n $refpoint $polygon
-        }
-
-        # NEXT, reveal obscured refpoints
-        $self NbhoodShowObscured
-
-        # NEXT, fill them, or not.
-        $self NbhoodFill
+        # NEXT, clear all remembered state, and redraw everything
+        $self NbhoodDrawAll
 
         # NEXT, create icons
         # TBD: Ultimately, this will query the RDB; for now, 
@@ -735,6 +702,29 @@ snit::widget mapviewer {
 
         set info(zoom)   "[$canvas zoom]%"
         set info(region) [$canvas region]
+    }
+
+    # NbhoodDrawAll
+    #
+    # Clears and redraws all neighborhoods
+
+    method NbhoodDrawAll {} {
+        array unset nbhoods
+
+        # NEXT, add neighborhoods
+        rdb eval {
+            SELECT n, refpoint, polygon 
+            FROM nbhoods
+            ORDER BY stacking_order
+        } {
+            $self NbhoodDraw $n $refpoint $polygon
+        }
+
+        # NEXT, reveal obscured refpoints
+        $self NbhoodShowObscured
+
+        # NEXT, fill them, or not.
+        $self NbhoodFill
     }
 
     # NbhoodDraw n refpoint polygon

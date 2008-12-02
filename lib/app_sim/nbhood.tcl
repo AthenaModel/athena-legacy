@@ -168,24 +168,16 @@ snit::type nbhood {
 
     typemethod lower {n} {
         # FIRST, reorder the neighborhoods
-        set names [rdb eval {
+        set oldNames [rdb eval {
             SELECT n FROM nbhoods 
             ORDER BY stacking_order
         }]
 
+        set names $oldNames
         ldelete names $n
         set names [linsert $names 0 $n]
 
-        $type ReorderNbhoods $names
-
-        # NEXT, recompute the obscured_by field; this nbhood might
-        # have obscured some other neighborhood's refpoint.
-        $type SetObscuredBy
-
-        # NEXT, Not undoable; clear the undo command
-        set info(undo) {}
-
-        notifier send ::nbhood <Entity> lower $n
+        $type RestackNbhoods $names $oldNames
     }
 
     # raise n
@@ -196,24 +188,17 @@ snit::type nbhood {
 
     typemethod raise {n} {
         # FIRST, reorder the neighborhoods
-        set names [rdb eval {
+        set oldNames [rdb eval {
             SELECT n FROM nbhoods 
             ORDER BY stacking_order
         }]
 
+        set names $oldNames
+
         ldelete names $n
         lappend names $n
 
-        $type ReorderNbhoods $names
-
-        # NEXT, recompute the obscured_by field; this nbhood might
-        # have obscured some other neighborhood's refpoint.
-        $type SetObscuredBy
-
-        # NEXT, Not undoable; clear the undo command
-        set info(undo) {}
-
-        notifier send ::nbhood <Entity> raise $n
+        $type RestackNbhoods $names $oldNames
     }
   
 
@@ -330,17 +315,19 @@ snit::type nbhood {
     #-------------------------------------------------------------------
     # Private Type Methods
 
-    # ReorderNbhoods names
+    # RestackNbhoods new ?old?
     #
-    # names      A list of all nbhood names in the desired stacking
-    #            order
+    # new      A list of all nbhood names in the desired stacking
+    #          order
+    # old      The previous order
     #
     # Sets the stacking_order according to the order of the names.
 
-    typemethod ReorderNbhoods {names} {
+    typemethod RestackNbhoods {new {old ""}} {
+        # FIRST, set the stacking_order
         set i 0
 
-        foreach name $names {
+        foreach name $new {
             incr i
 
             rdb eval {
@@ -350,7 +337,17 @@ snit::type nbhood {
             }
         }
 
+        # NEXT, refresh the geoset
         $type reconfigure
+        
+        # NEXT, determine who obscures who
+        $type SetObscuredBy
+
+        # NEXT, set the undo information
+        set info(undo) [list $type RestackNbhoods $old]
+
+        # NEXT, notify the GUI of the change.
+        notifier send ::nbhood <Entity> stack
     }
 
     # SetObscuredBy

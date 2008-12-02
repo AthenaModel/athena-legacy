@@ -283,7 +283,7 @@ actor nbhoodbrowser
 
 message GUI    order                     NBHOOD:LOWER
 message order  nbhood                    "nbhood lower \$n \$parms"
-message nbhood {mapviewer nbhoodbrowser} "<Entity> lower \$n"
+message nbhood {mapviewer nbhoodbrowser} "<Entity> stack"
 }>>
 
 <<subsection "NBHOOD:RAISE">>
@@ -297,7 +297,7 @@ actor nbhoodbrowser
 
 message GUI    order                     NBHOOD:RAISE
 message order  nbhood                    "nbhood raise \$n \$parms"
-message nbhood {mapviewer nbhoodbrowser} "<Entity> raise \$n"
+message nbhood {mapviewer nbhoodbrowser} "<Entity> stack"
 }>>
 
 

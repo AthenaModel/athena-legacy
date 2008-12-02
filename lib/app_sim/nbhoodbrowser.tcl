@@ -363,25 +363,12 @@ snit::widget nbhoodbrowser {
         $self UpdateToolbarState
     }
 
-    # raise n
+    # stack
     #
-    # n     Raised neighborhood.  Ignore
-    #
-    # Reloads all data items when a neighborhood is raised, since the
-    # stacking order changes for all of them.
+    # Reloads all data items when the neighborhood stacking order
+    # changes.
 
-    method raise {n} {
-        $self reload
-    }
-
-    # lower n
-    #
-    # n     Lowered neighborhood.  Ignore
-    #
-    # Reloads all data items when a neighborhood is lowered, since the
-    # stacking order changes for all of them.
-
-    method lower {n} {
+    method stack {} {
         $self reload
     }
 

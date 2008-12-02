@@ -129,6 +129,8 @@ order define NBHOOD:LOWER {
 
     # NEXT, raise the neighborhood
     nbhood lower $parms(n)
+
+    setundo [nbhood lastundo]
 }
 
 # NBHOOD:RAISE
@@ -151,6 +153,8 @@ order define NBHOOD:RAISE {
 
     # NEXT, raise the neighborhood
     nbhood raise $parms(n)
+
+    setundo [nbhood lastundo]
 }
 
 # NBHOOD:UPDATE
