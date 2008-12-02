@@ -30,6 +30,29 @@ CREATE TABLE checkpoint (
     checkpoint TEXT
 );
 
+-- Critical Input Table: Saves user orders and (temporarily) any
+-- undo information.
+
+CREATE TABLE cif (
+    -- Unique ID; used for ordering
+    id       INTEGER UNIQUE,
+
+    -- Simulation time at which the order was entered.
+    time     INTEGER DEFAULT 0,
+
+    -- Order name
+    name     TEXT,
+
+    -- Parameter Dictionary
+    parmdict TEXT,
+
+    -- Undo Command, or ''
+    undo     TEXT DEFAULT ''
+);
+
+CREATE INDEX cif_index ON cif(time,id);
+
+
 -- Maps Table: Stores data for map images.
 --
 -- At this time, there's never more than one map image in the table.

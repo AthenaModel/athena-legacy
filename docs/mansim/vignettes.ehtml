@@ -117,12 +117,22 @@ The user wishes to save the current scenario.<p>
 actor GUI
 actor appwin
 actor scenario
+actor saveable(i)
+actor SIM
 
 message GUI appwin "File/Save Scenario"
 
 action appwin "Allow user to select the file name, if need be."
 
 message appwin scenario "scenario save \$filename"
+
+message scenario saveable(i) "checkpoint" {
+    Acquires the checkpoint data for each saveable(i) module.
+}
+
+message scenario SIM "<Saving>" {
+    Directs simulation modules to prepare for the save.
+}
 
 action scenario "Saves the scenario data to disk."
 

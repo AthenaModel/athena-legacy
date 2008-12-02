@@ -26,10 +26,10 @@ mapviewer(sim) defines the following commands:<p>
 
 <<deflist commands>>
 
-<<defitem "mapviewer" {mapviewer <i>win</i> ?<i>option value...</i>?}>>
+<<defitem "mapviewer" {mapviewer <i>pathName</i> ?<i>option value...</i>?}>>
 
-Creates a mapviewer(sim) widget called <i>win</i>, given the
-<<xref OPTIONS options>>.  Returns <i>win</i>.<p>
+Creates a mapviewer(sim) widget called <i>pathName</i>, given the
+<<xref OPTIONS options>>.  Returns <i>pathName</i>.<p>
 
 <</deflist commands>>
 
@@ -45,27 +45,27 @@ subcommands:<p>
 
 <<deflist instance>>
 
-<<defitem configure {<i>win</i> configure <i>option value...</i>}>>
+<<defitem configure {<i>pathName</i> configure <i>option value...</i>}>>
 
 Sets the value of the specified options.<p>
 
-<<defitem cget {<i>win</i> cget <i>option</i>}>>
+<<defitem cget {<i>pathName</i> cget <i>option</i>}>>
 
 Returns the value of the specified <i>option</i>.<p>
 
-<<defitem "nbhood cget" {<i>win</i> nbhood cget <i>n option</i>}>>
+<<defitem "nbhood cget" {<i>pathName</i> nbhood cget <i>n option</i>}>>
 
 Returns the value of the specified
 <i>option</i> for the neighborhood with name <i>n</i>.<p>
 
-<<defitem "nbhood configure" {<i>win</i> nbhood configure <i>n option value</i> ?<i>option value...</i>?}>>
+<<defitem "nbhood configure" {<i>pathName</i> nbhood configure <i>n option value</i> ?<i>option value...</i>?}>>
 
 Sets the value of one or more of the options for the neighborhood with
 name <i>n</i>.<p>
 
 See <<xref mapcanvas(n)>> for a list of the neighborhood options.<p>
 
-<<defitem refresh {<i>win</i> refresh}>>
+<<defitem refresh {<i>pathName</i> refresh}>>
 
 Refreshes the map display, retaining the current map but redrawing all
 other content, making it consistent with the contents of

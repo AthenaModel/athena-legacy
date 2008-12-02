@@ -146,6 +146,10 @@ snit::type scenario {
         # NEXT, save the saveables
         $type SaveSaveables
 
+        # NEXT, notify the simulation that we're saving, so other 
+        # modules can prepare.
+        notifier send ::scenario <Saving>
+
         # NEXT, Save, and check for errors.
         if {[catch {
             if {[file exists $dbfile]} {
