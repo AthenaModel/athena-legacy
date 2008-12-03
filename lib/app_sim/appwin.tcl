@@ -474,7 +474,7 @@ snit::widget appwin {
 
         # NEXT, Import the map
         if {[catch {
-            order send "" client MAP:IMPORT [list filename $filename]
+            order send "" gui MAP:IMPORT [list filename $filename]
         } result]} {
             app error {
                 |<--
@@ -515,16 +515,20 @@ snit::widget appwin {
                 Do you want to save your changes?
             }]
 
-            set answer [tk_messageBox                    \
+            set answer [messagebox popup                 \
                             -icon    warning             \
                             -message $message            \
                             -parent  $win                \
                             -title   "Minerva [version]" \
-                            -type    yesnocancel]
+                            -buttons {
+                                save    "Save"
+                                discard "Discard"
+                                cancel  "Cancel"
+                            }]
 
             if {$answer eq "cancel"} {
                 return 0
-            } elseif {$answer eq "yes"} {
+            } elseif {$answer eq "save"} {
                 # Stop exiting if the save failed
                 if {![$self FileSave]} {
                     return 0
@@ -686,30 +690,10 @@ snit::widget appwin {
     method error {text} {
         set text [uplevel 1 [list tsubst $text]]
 
-        tk_messageBox      \
-            -default ok    \
+        messagebox popup   \
             -message $text \
             -icon    error \
-            -parent  $win  \
-            -type    ok
-    }
-
-    # ask mode text
-    #
-    # mode       yesno | yesnocancel
-    # text       A tsubst'd text string
-    #
-    # Asks the question in a message box, and returns the answer,
-    # "yes", "no", or "cancel".
-
-    method ask {mode text} {
-        set text [uplevel 1 [list tsubst $text]]
-
-        tk_messageBox         \
-            -message $text    \
-            -icon    question \
-            -parent  $win     \
-            -type    $mode
+            -parent  $win
     }
 
     # puts text

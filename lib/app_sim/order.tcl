@@ -10,7 +10,7 @@
 #
 #    This is the module responsible for processing simulation orders.
 #    Orders can be received from the simulation, "sim", or
-#    from a simulation client (e.g., the GUI, "client". 
+#    from the GUI, "gui".
 #
 #    Orders are defined with sufficient information that order
 #    dialogs can be defined mostly automatically.
@@ -106,7 +106,7 @@ snit::type order {
     #
     # alias           Alternate order name to use in error messages; leave
     #                 as "" to use real order name.
-    # interface       sim|client
+    # interface       sim|gui
     # name            The order's name
     # parmdict        The order's parameter dictionary
     #
@@ -146,7 +146,7 @@ snit::type order {
         set errorLevel NONE
         set undoCmd    {}
 
-        if {$interface eq "client"} {
+        if {$interface eq "gui"} {
             if {[catch $name result opts]} {
                 if {[dict get $opts -errorcode] eq "REJECT"} {
                     log warning order $result                    

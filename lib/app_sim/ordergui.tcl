@@ -417,7 +417,7 @@ snit::type ordergui {
     typemethod ButtonSend {} {
         # FIRST, send the order, and handle any errors
         if {[catch {
-            order send "" client $info(order) [array get values]
+            order send "" gui $info(order) [array get values]
         } result opts]} {
             # FIRST, if it's unexpected let the app handle it.
             if {[dict get $opts -errorcode] ne "REJECT"} {

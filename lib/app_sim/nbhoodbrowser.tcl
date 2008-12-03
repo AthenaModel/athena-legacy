@@ -320,7 +320,7 @@ snit::widget nbhoodbrowser {
         set id [lindex [$tb curselection] 0]
 
         # NEXT, bring it to the front.
-        order send "" client NBHOOD:RAISE [list n $id]
+        order send "" gui NBHOOD:RAISE [list n $id]
     }
 
     # LowerSelected
@@ -332,7 +332,7 @@ snit::widget nbhoodbrowser {
         set id [lindex [$tb curselection] 0]
 
         # NEXT, bring it to the front.
-        order send "" client NBHOOD:LOWER [list n $id]
+        order send "" gui NBHOOD:LOWER [list n $id]
     }
 
     # DeleteSelected

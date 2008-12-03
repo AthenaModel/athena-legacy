@@ -1,0 +1,126 @@
+<<manpage {mingui(n) messagebox(n)} "Message Box">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require mingui 1.0
+namespace import ::mingui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+This module defines a replacement for the
+<<xref tk::messageBox(n) tk_messageBox(n)>> command that offers the
+following enhancements:<p>
+
+<ul>
+  <li> The icons are slightly improved.<p>
+
+  <li> The button constants and label text can be set explicitly.<p>
+
+  <li> The fonts are more in keeping with the theme.<p>
+
+  <li> If desired, the dialog will include a "Do not show this message
+       again" checkbox.  See <<xref "Ignoring Messages">> for
+       more information.
+</ul><p>
+
+<<subsection "Ignoring Messages">>
+
+messagebox(n) allows the application to define message dialogs that
+the user can choose to ignore, at least until the application is
+restarted.  The process is as follows:<p>
+
+<ul>
+  <li> The application passes an <b>-ignoretag</b> that uniquely
+       identifies this message.<p>
+
+  <li> As a result, the dialog will contain a check box labeled
+       "Do not show this message again".<p>
+
+  <li> If the user checks the check box, messagebox(n) will remember
+       that this message should be ignored in the future.<p>
+
+  <li> When the application requests the message again, messagebox(n)
+       will simply return the <b>-ignoredefault</b> value.<p>
+
+  <li> The ignore flags can be cleared using the <<iref reset>> subcommand.<p>
+</ul>
+
+<<section COMMANDS>>
+
+This module defines the following command:<p>
+
+<<deflist commands>>
+
+<<defitem popup {messagebox popup <i>?options...?</i>}>>
+
+Pops up the message box, given the following options:<p>
+
+<<deflist options>>
+
+<<defopt {-buttons <i>dict</i>}>>
+
+A dictionary of symbolic constants and label strings that defines the
+set of buttons to appear at the bottom of the message box.  Defaults
+to <b><code>{ok "OK"}</code></b>.<p>
+
+<<defopt {-default <i>symbol</i>}>>
+
+Specifies the symbolic constant of the default button. Defaults to the
+symbolic constant of the first button in <b>-buttons</b>.<p>
+
+<<defopt {-icon <i>icon</i>}>>
+
+Specifies which icon should be included in the message box:
+<b>error</b>, <b>info</b>, <b>question</b>, or <b>warning</b>.<p>
+
+<<defopt {-ignoretag <i>tag</i>}>>
+
+If given, the message box will include a "Do not show this message
+again" check box.  See <<xref "Ignoring Messages">> for more
+information.<p>
+
+<<defopt {-ignoredefault <i>symbol</i>}>>
+
+Specifies the symbolic constant to return when user has previously
+asked to ignore this message.  Defaults to the value of <b>-default</b>.<p>
+
+<<defopt {-message <i>text</i>}>>
+
+The message <i>text</i> to display.  The text will be wrapped
+automatically; newlines are honored.<p>
+
+<<defopt {-parent <i>window</i>}>>
+
+The message box will appear over the specfied window.<p>
+
+<<defopt {-title <i>string</i>}>>
+
+The dialog window will have the specified title <i>string</i>.<p>
+
+<</deflist options>>
+
+<<defitem reset {messagebox reset ?<i>tag</i>?}>>
+
+Clears the ignore flag for the specified ignore <i>tag</i>.  If no tag
+is given, clears all ignore flags.<p>
+
+<</deflist commands>>
+
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.  The icons are modified versions of the
+<<xref tk:messageBox(n) tk_messageBox(n)>> icons.<p>
+
+<</manpage>>
+
+
+

@@ -151,17 +151,6 @@ snit::type app {
         uplevel 1 [list [app topwin] error $text]
     }
 
-    # ask mode text
-    #
-    # mode       yesno| yesnocancel
-    # text       A tsubst'd text string
-    #
-    # Asks a question in a message box
-
-    typemethod ask {mode text} {
-        uplevel 1 [list [app topwin] ask $mode $text]
-    }
-
     # exit ?text?
     #
     # Optional error message, tsubst'd

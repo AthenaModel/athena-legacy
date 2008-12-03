@@ -46,5 +46,6 @@ namespace eval ::mingui:: {
 
 source [file join $::mingui::library mapcanvas.tcl    ]
 source [file join $::mingui::library tablebrowser.tcl ]
+source [file join $::mingui::library messagebox.tcl   ]
 
 

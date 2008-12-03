@@ -109,6 +109,26 @@ order define NBHOOD:DELETE {
 
     returnOnError
 
+    if {$currentInterface eq "gui"} {
+        set answer [messagebox popup \
+                        -title         "Are you sure?"                  \
+                        -icon          warning                          \
+                        -buttons       {ok "Delete it" cancel "Cancel"} \
+                        -default       cancel                           \
+                        -ignoretag     NBHOOD:DELETE                    \
+                        -ignoredefault ok                               \
+                        -parent        [app topwin]                     \
+                        -message       "This order cannot be undone.  Are you sure you really want to delete this neighborhood?"]
+
+        if {$answer eq "cancel"} {
+            # TBD: Should be a way to notify the ordergui that it was
+            # a cancel.
+            reject n "The order was cancelled by the user."
+            returnOnError
+        }
+                        
+    }
+
     # NEXT, raise the neighborhood
     nbhood delete $parms(n)
 

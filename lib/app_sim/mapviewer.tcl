@@ -452,7 +452,7 @@ snit::widget mapviewer {
     # Brings the transient neighborhood to the front
 
     method BringToFront {} {
-        order send "" client NBHOOD:RAISE [list n $nbhoods(trans)]
+        order send "" gui NBHOOD:RAISE [list n $nbhoods(trans)]
     }
 
     # SendToBack
@@ -460,7 +460,7 @@ snit::widget mapviewer {
     # Sends the transient neighborhood to the back
 
     method SendToBack {} {
-        order send "" client NBHOOD:LOWER [list n $nbhoods(trans)]
+        order send "" gui NBHOOD:LOWER [list n $nbhoods(trans)]
     }
 
     #-------------------------------------------------------------------
