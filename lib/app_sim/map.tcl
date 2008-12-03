@@ -27,6 +27,14 @@ snit::type map {
     #-------------------------------------------------------------------
     # Type Variables
 
+    # info -- array of scalars
+    #
+    # undo       Command to undo the last operation, or ""
+
+    typevariable info -array {
+        undo {}
+    }
+
     #-------------------------------------------------------------------
     # Initialization
 
@@ -99,10 +107,18 @@ snit::type map {
     #
     # filename     An image file
     #
-    # Attempts to import the image into the RDB.
+    # Attempts to import the image into the RDB.  This command is
+    # undoable.
 
     typemethod import {filename} {
-        # FIRST, try to load it.
+        # FIRST, get the undo information
+        rdb eval {
+            SELECT * FROM maps WHERE id=1
+        } row {
+            unset row(*)
+        }
+
+        # NEXT, try to load it.
         $type load $filename
 
         # NEXT, log it.
@@ -110,9 +126,53 @@ snit::type map {
         
         app puts "Imported Map: $filename"
 
+        set info(undo) [mytypemethod UndoImport [array get row]]
+
         # NEXT, Notify the application.
         notifier send $type <MapChanged>
     }
+
+    # lastundo
+    #
+    # Returns the undo command for the last mutator, or "" if none.
+    # Clears the undo information automatically.
+
+    typemethod lastundo {} {
+        set undo $info(undo)
+        unset info(undo)
+
+        return $undo
+    }
+
+    # UndoImport dict
+    #
+    # dict    A dictionary of map parameters
+    # 
+    # Undoes a previous import
+
+    typemethod UndoImport {dict} {
+        # FIRST, restore the data
+        dict for {key value} $dict {
+            rdb eval "
+                UPDATE maps
+                SET $key = \$value
+                WHERE id=1
+            "
+        }
+
+        # NEXT, load the restored image
+        $type reconfigure
+
+        # NEXT, log it
+        set filename [dict get $dict filename]
+
+        log normal app "Restored Map: $filename"
+        app puts "Restored Map: $filename"
+
+        # NEXT, Notify the application.
+        notifier send $type <MapChanged>
+    }
+    
 
     # load filename
     #

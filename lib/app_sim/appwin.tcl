@@ -478,7 +478,7 @@ snit::widget appwin {
         } result]} {
             app error {
                 |<--
-                Import failed: [dict get $result filename]
+                Import failed: $result
 
                 $filename
             }

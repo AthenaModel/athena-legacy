@@ -37,5 +37,7 @@ order define MAP:IMPORT {
     }
 
     returnOnError
+
+    setundo [map lastundo]
 }
 
