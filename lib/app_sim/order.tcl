@@ -17,7 +17,7 @@
 #
 # ERROR HANDLING
 #
-#    There are two kinds of error, of increasing severity:
+#    There are three kinds of error, of increasing severity:
 #
 #    * REJECT: the order parameters contain an out-and-out error which
 #      prevents the order from being processed.
@@ -148,9 +148,12 @@ snit::type order {
 
         if {$interface eq "gui"} {
             if {[catch $name result opts]} {
-                if {[dict get $opts -errorcode] eq "REJECT"} {
+                if {[dict get $opts -errorcode] in "REJECT"} {
                     log warning order $result                    
                     return {*}$opts $result
+                } elseif {[dict get $opts -errorcode] eq "CANCEL"} {
+                    log warning order $result                    
+                    return
                 } else {
                     log error order \
            "Unexpected error in $displayName:\n[dict get $opts -errorinfo]"
@@ -324,6 +327,16 @@ snit::type order {
         # error level; this will terminate order processing.
         
         return -code error -errorcode REJECT $errors
+    }
+
+    # cancel
+    #
+    # Use this in the rare case where the user can interactively 
+    # cancel an order that's in progress.
+
+    proc cancel {} {
+        return -code error -errorcode CANCEL \
+            "The order was cancelled by the user."
     }
 
     # setundo cmd

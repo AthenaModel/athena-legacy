@@ -121,12 +121,8 @@ order define NBHOOD:DELETE {
                         -message       "This order cannot be undone.  Are you sure you really want to delete this neighborhood?"]
 
         if {$answer eq "cancel"} {
-            # TBD: Should be a way to notify the ordergui that it was
-            # a cancel.
-            reject n "The order was cancelled by the user."
-            returnOnError
+            cancel
         }
-                        
     }
 
     # NEXT, raise the neighborhood
