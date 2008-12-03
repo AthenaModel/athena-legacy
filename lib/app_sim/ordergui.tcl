@@ -301,7 +301,14 @@ snit::type ordergui {
 
     typemethod enter {order} {
         require {$info(initialized)} "Order dialog is uninitialized"
-        require {!$info(active)}     "Order dialog is already active"
+
+        if {$info(active)} {
+            # TBD: the GUI shouldn't allow you to request the order
+            # dialog when it's already open; the menu items and other
+            # controls should be disabled. 
+            app error "The order dialog is already active."
+            return
+        }
 
         # FIRST, get the order's title
         set info(order) $order
