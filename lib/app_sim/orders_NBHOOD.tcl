@@ -201,6 +201,8 @@ order define NBHOOD:RAISE {
 
 ordergui define NBHOOD:UPDATE {
     title "Update Neighborhood"
+    table nbhoods
+    keys  n
     parms {
         n            {ptype nbhood        label "Neighborhood"    }
         longname     {ptype text          label "Long Name"       }

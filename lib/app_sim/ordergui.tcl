@@ -257,8 +257,10 @@ snit::type ordergui {
     # Defines meta-data for the order that defines the order's dialog.
 
     typemethod define {name metadata} {
-        # NEXT, save the metadata
-        set meta($name) $metadata
+        # FIRST, save the metadata, setting default values.
+        set meta($name) [dict merge             \
+                             {table "" keys ""} \
+                             $metadata]
     }
 
     # meta order key ?key...?
