@@ -216,6 +216,52 @@ N001 Here
     }
 
     #-------------------------------------------------------------------
+    # NBHOOD:DELETE
+
+    test NBHOOD:DELETE-1.1 {required parms} -body {
+        ted order -reject NBHOOD:DELETE {}
+    } -result {
+        n {required value}
+    }
+    
+    test NBHOOD:DELETE-1.2 {unknown n} -body {
+        ted order -reject NBHOOD:DELETE n NONESUCH
+    } -result {
+        n {Invalid neighborhood, none are defined}
+    }
+
+    test NBHOOD:DELETE-2.1 {Nbhood is deleted} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted order NBHOOD:DELETE n N001
+        nbhood names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test NBHOOD:DELETE-2.2 {<Entity> delete} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted notifier bind ::nbhood <Entity>
+        ted order NBHOOD:DELETE n N001
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbhood <Entity> delete N001}
+    }
+
+    test NBHOOD:DELETE-3.1 {Can't undo} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted order NBHOOD:DELETE n N001
+        cif canundo
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests

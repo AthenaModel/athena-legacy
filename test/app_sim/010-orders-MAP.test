@@ -50,7 +50,7 @@ namespace eval ::minerva_test::tests:: {
     }
 
     test MAP:IMPORT-2.1 {map loaded} -body {
-        ted order MAP:IMPORT filename map.png
+        ted order MAP:IMPORT filename [testdir map.png]
 
         rdb onecolumn {SELECT filename FROM maps WHERE id=1}
     } -cleanup {
@@ -59,7 +59,7 @@ namespace eval ::minerva_test::tests:: {
 
     test MAP:IMPORT-2.2 {<MapChanged> sent} -body {
         ted notifier bind ::map <MapChanged>
-        ted order MAP:IMPORT filename map.png
+        ted order MAP:IMPORT filename [testdir map.png]
         ted notifier received
     } -cleanup {
         cleanup
@@ -68,14 +68,14 @@ namespace eval ::minerva_test::tests:: {
     }
 
     test MAP:IMPORT:3.1 {undo resets map} -setup {
-        ted order MAP:IMPORT filename map.png
+        ted order MAP:IMPORT filename [testdir map.png]
     } -body {
         cif undo
         rdb onecolumn {SELECT filename FROM maps WHERE id=1}
     } -result {blank.png}
 
     test MAP:IMPORT:3.2 {undo sends <MapChanged>} -setup {
-        ted order MAP:IMPORT filename map.png
+        ted order MAP:IMPORT filename [testdir map.png]
     } -body {
         ted notifier bind ::map <MapChanged>
         cif undo

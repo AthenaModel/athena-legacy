@@ -57,6 +57,8 @@ set marsdir [file normalize [file join $appdir .. mars lib]]
 # Add Minerva libs to the new lib path.
 lappend auto_path $marsdir $libdir
 
+
+
 package require Tk 8.5
 
 #-----------------------------------------------------------------------
@@ -73,11 +75,16 @@ package require Tk 8.5
 # reside in the ::minerva_test:: namespace.  Test TED code resides
 # in the ::ted:: namespace.
 
+proc testdir {args} {
+    file join $::minerva_test::testDir {*}$args
+}
+
 namespace eval ::minerva_test:: {
     #-------------------------------------------------------------------
     # Test Variables
 
     variable waitFlag 0    ;# If 1, do not exit at end of run.
+    variable testDir  ""   ;# Test directory
 
 
     #-------------------------------------------------------------------
@@ -208,7 +215,7 @@ namespace eval ::minerva_test:: {
     set script [file join $topdir test app_sim $script]
 
     # NEXT, run the test script.
-    uplevel \#0 [list source $script]
+    time {uplevel \#0 [list source $script]}
 }
 
 # NEXT, remain running if so requested

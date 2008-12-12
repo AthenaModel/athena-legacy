@@ -10,7 +10,7 @@
 #
 #    This is the module responsible for processing simulation orders.
 #    Orders can be received from the simulation, "sim", or
-#    from the GUI, "gui".
+#    from the GUI, "gui", or from the test suite, "test".
 #
 #    Orders are defined with sufficient information that order
 #    dialogs can be defined mostly automatically.
@@ -146,7 +146,7 @@ snit::type order {
         set errorLevel NONE
         set undoCmd    {}
 
-        if {$interface eq "gui"} {
+        if {$interface in {"gui" "test"}} {
             if {[catch $name result opts]} {
                 if {[dict get $opts -errorcode] in "REJECT"} {
                     log warning order $result                    
