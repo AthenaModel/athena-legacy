@@ -150,7 +150,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
             cleanup  {}
             bindings {
                 icon   <ButtonPress-1>    {%W Icon-1 %x %y}
-                icon   <Control-Button-1> {%W IconMark %x %y}
+                icon   <Shift-Button-1>   {%W IconMark %x %y}
                 icon   <B1-Motion>        {%W IconDrag %x %y}
                 icon   <B1-ButtonRelease> {%W IconRelease %x %y}
                 nbhood <ButtonPress-1>    {%W Nbhood-1 %x %y %X %Y}
