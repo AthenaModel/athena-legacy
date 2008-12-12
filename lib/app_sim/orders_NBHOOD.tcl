@@ -36,6 +36,8 @@ order define NBHOOD:CREATE {
     prepare refpoint      -trim      -toupper -required
     prepare polygon       -normalize -toupper -required
 
+    returnOnError
+
     # NEXT, validate the parameters
     
     # longname

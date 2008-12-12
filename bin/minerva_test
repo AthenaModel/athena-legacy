@@ -150,6 +150,23 @@ namespace eval ::minerva_test:: {
     app init {}
     puts "app_sim(n) initialized."
 
+    # NEXT, if there's no -wait flag, then get rid of the GUI.
+    #
+    # NOTE: It's appropriate to create and delete the GUI, as it verifies
+    # that all GUI components clean up after themselves.
+    #
+    # TBD: Add API so that the main window is created and destroyed
+    # but never mapped in this case.
+
+    if {!$waitFlag} {
+        wm protocol .main WM_DELETE_WINDOW { 
+            # NOP 
+        }
+
+        destroy .main
+        update idletasks
+    }
+
     # NEXT, load and initialize tcltest(n):
     package require tcltest 2.2
 

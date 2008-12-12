@@ -139,7 +139,11 @@ snit::type app {
     # Writes the text to the message line of the topmost appwin.
 
     typemethod puts {text} {
-        [app topwin] puts $text
+        set topwin [app topwin]
+
+        if {$topwin ne ""} {
+            $topwin puts $text
+        }
     }
 
     # error text
@@ -149,7 +153,13 @@ snit::type app {
     # Displays the error in a message box
 
     typemethod error {text} {
-        uplevel 1 [list [app topwin] error $text]
+        set topwin [app topwin]
+
+        if {$topwin ne ""} {
+            uplevel 1 [list [app topwin] error $text]
+        } else {
+            error $text
+        }
     }
 
     # exit ?text?
@@ -171,18 +181,32 @@ snit::type app {
         exit
     }
 
-    # topwin
+    # topwin ?subcommand...?
     #
-    # Returns the name of the topmost appwin
+    # subcommand    A subcommand of the topwin, as one argument or many
+    #
+    # If there's no subcommand, returns the name of the topmost appwin.
+    # Otherwise, delegates the subcommand to the top win.  If there is
+    # no top win, this is a noop.
 
-    typemethod topwin {} {
+    typemethod topwin {args} {
+        # FIRST, determine the topwin
+        set topwin ""
+
         foreach w [lreverse [wm stackorder .]] {
             if {[winfo class $w] eq "Appwin"} {
-                return $w
+                set topwin $w
+                break
             }
         }
 
-        return ""
+        if {[llength $args] == 0} {
+            return $topwin
+        } elseif {[llength $args] == 1} {
+            set args [lindex $args 0]
+        }
+
+        return [$topwin {*}$args]
     }
 }
 

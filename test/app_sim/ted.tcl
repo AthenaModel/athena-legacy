@@ -140,7 +140,14 @@ snit::type ted {
 
             if {$code} {
                 if {[dict get $opts -errorcode] eq "REJECT"} {
-                    return $result
+
+                    set    results "\n"
+                    foreach {parm error} $result {
+                        append results "        $parm [list $error]\n" 
+                    }
+                    append results "    "
+                    
+                    return $results
                 } else {
                     return {*}$opts $result
                 }
@@ -151,6 +158,17 @@ snit::type ted {
             # Normal case; let nature take its course
             order send "" gui $order $parmdict
         }
+    }
+
+    # query sql
+    #
+    # sql     An SQL query
+    #
+    # Does an RDB query using the SQL text, and pretty-prints the 
+    # whitespace.
+
+    typemethod query {sql} {
+        return "\n[rdb query $sql]    "
     }
 
     #-------------------------------------------------------------------

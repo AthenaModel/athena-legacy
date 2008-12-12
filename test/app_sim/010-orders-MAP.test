@@ -19,7 +19,7 @@
 # The tests run in a namespace so as not to interfere with other
 # test suites.
 
-namespace eval ::minerva_test::map:: {
+namespace eval ::minerva_test::tests:: {
     #-------------------------------------------------------------------
     # Set up the test environment
 
@@ -39,18 +39,18 @@ namespace eval ::minerva_test::map:: {
 
     test MAP:IMPORT-1.1 {filename is required} -body {
         ted order -reject MAP:IMPORT {}
-    } -result {filename {required value}}
+    } -result {
+        filename {required value}
+    }
     
     test MAP:IMPORT-1.2 {filename is bad} -body {
-        ted order -reject MAP:IMPORT {
-            filename nosuchfile.png
-        }
-    } -result {filename {Could not open the specified file as a map image}}
+        ted order -reject MAP:IMPORT filename nosuchfile.png
+    } -result {
+        filename {Could not open the specified file as a map image}
+    }
 
     test MAP:IMPORT-2.1 {map loaded} -body {
-        ted order MAP:IMPORT {
-            filename map.png
-        }
+        ted order MAP:IMPORT filename map.png
 
         rdb onecolumn {SELECT filename FROM maps WHERE id=1}
     } -cleanup {
@@ -59,12 +59,27 @@ namespace eval ::minerva_test::map:: {
 
     test MAP:IMPORT-2.2 {<MapChanged> sent} -body {
         ted notifier bind ::map <MapChanged>
-        ted order MAP:IMPORT {
-            filename map.png
-        }
+        ted order MAP:IMPORT filename map.png
         ted notifier received
     } -cleanup {
         cleanup
+    } -result {
+        {::map <MapChanged>}
+    }
+
+    test MAP:IMPORT:3.1 {undo resets map} -setup {
+        ted order MAP:IMPORT filename map.png
+    } -body {
+        cif undo
+        rdb onecolumn {SELECT filename FROM maps WHERE id=1}
+    } -result {blank.png}
+
+    test MAP:IMPORT:3.2 {undo sends <MapChanged>} -setup {
+        ted order MAP:IMPORT filename map.png
+    } -body {
+        ted notifier bind ::map <MapChanged>
+        cif undo
+        ted notifier received
     } -result {
         {::map <MapChanged>}
     }
@@ -75,7 +90,7 @@ namespace eval ::minerva_test::map:: {
     cleanupTests
 }
 
-namespace delete ::minerva_test::map::
+namespace delete ::minerva_test::tests::
 
 
 

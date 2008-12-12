@@ -1,0 +1,227 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-order-NBHOOD.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) NBHOOD:* order tests.
+#
+#    This test suite tests the nbhood-related orders.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::minerva_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Default neighborhoods.  nb1 and nb2 do not overlap.
+    # overnb1 overlaps nb1's refpoint
+
+    set nb1 {
+        longname "Here"
+        urbanization URBAN
+        refpoint B00B00
+        polygon {A80A80 B20A80 B00B20}
+    }
+
+    set overnb1 {
+        longname "Over"
+        urbanization SUBURBAN
+        refpoint B01B01
+        polygon {A81A81 B21A81 B01B21}
+    }
+
+    set nb2 {
+        longname "There"
+        urbanization RURAL
+        refpoint D00D00
+        polygon {C80C80 D20C80 D00D20}
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        array unset parms
+        ted notifier forget
+        scenario new
+    }
+
+    #-------------------------------------------------------------------
+    # NBHOOD:CREATE
+
+    test NBHOOD:CREATE-1.1 {required parms} -body {
+        ted order -reject NBHOOD:CREATE {}
+    } -result {
+        longname {required value}
+        urbanization {required value}
+        refpoint {required value}
+        polygon {required value}
+    }
+    
+    test NBHOOD:CREATE-1.2 {Duplicate longname, polygon, refpoint} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted order -reject NBHOOD:CREATE $nb1 
+    } -cleanup {
+        cleanup
+    } -result {
+        longname {A neighborhood with this name already exists}
+        polygon {A neighborhood with this polygon already exists}
+        refpoint {A neighborhood with this reference point already exists}
+    }
+
+    test NBHOOD:CREATE-1.3 {longname duplicates n} -setup {
+        rdb eval {
+            INSERT INTO nbhoods(n) VALUES('Here')
+        }
+    } -body {
+        ted order -reject NBHOOD:CREATE $nb1
+    } -cleanup {
+        cleanup
+    } -result {
+        longname {A neighborhood with this name already exists}
+    }
+
+    test NBHOOD:CREATE-1.4 {invalid urbanization} -body {
+        ted order -reject NBHOOD:CREATE [dict merge $nb1 {
+            urbanization NONESUCH
+        }]
+    } -result {
+        urbanization {invalid value, "NONESUCH"}
+    }
+
+    test NBHOOD:CREATE-1.5 {polygon: invalid map ref} -body {
+        ted order -reject NBHOOD:CREATE [dict merge $nb1 {
+            polygon {A80A80 B20A80 Z99Z99 B00B20}
+        }]
+    } -result {
+        polygon {point "Z99Z99" is not a map reference string}
+    }
+
+    test NBHOOD:CREATE-1.6 {refpoint: invalid map ref} -body {
+        ted order -reject NBHOOD:CREATE [dict merge $nb1 {
+            refpoint X99X99
+        }]
+    } -result {
+        refpoint {not a map reference string}
+    }
+
+    test NBHOOD:CREATE-1.7 {refpoint not in polygon} -body {
+        ted order -reject NBHOOD:CREATE [dict merge $nb1 {
+            refpoint A00A00
+        }]
+    } -result {
+        refpoint {not in polygon}
+    }
+
+    test NBHOOD:CREATE-2.1 {nbhood is created} -body {
+        ted order NBHOOD:CREATE $nb1
+        set parms [join [dict keys $nb1] ","]
+        ted query "SELECT n,$parms FROM nbhoods"
+    } -cleanup {
+        cleanup
+    } -result {
+n    longname urbanization refpoint polygon              
+---- -------- ------------ -------- -------------------- 
+N001 Here     URBAN        100 100  80 80 120 80 100 120 
+    }
+
+    test NBHOOD:CREATE-2.2 {stacking_order is set} -body {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $nb2
+        ted query "SELECT n,longname,stacking_order FROM nbhoods"
+    } -cleanup {
+        cleanup
+    } -result {
+n    longname stacking_order 
+---- -------- -------------- 
+N001 Here     1              
+N002 There    2              
+    }
+
+    test NBHOOD:CREATE-2.3 {obscured_by is set} -body {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $overnb1
+        ted query "SELECT n,longname,obscured_by FROM nbhoods"
+    } -cleanup {
+        cleanup
+    } -result {
+n    longname obscured_by 
+---- -------- ----------- 
+N001 Here     N002        
+N002 Over                 
+    }
+
+    test NBHOOD:CREATE-2.4 {<Entity> create} -body {
+        ted notifier bind ::nbhood <Entity>
+        ted order NBHOOD:CREATE $nb1
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbhood <Entity> create N001}
+    }
+
+
+    test NBHOOD:CREATE-3.1 {undo deletes the nbhood} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $nb2
+    } -body {
+        cif undo
+        ted query "SELECT n,longname FROM nbhoods"
+    } -cleanup {
+        cleanup
+    } -result {
+n    longname 
+---- -------- 
+N001 Here     
+    }
+
+    test NBHOOD:CREATE-3.2 {undo updates obscured_by} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $overnb1
+    } -body {
+        cif undo
+        ted query "SELECT n,longname,obscured_by FROM nbhoods"
+    } -cleanup {
+        cleanup
+    } -result {
+n    longname obscured_by 
+---- -------- ----------- 
+N001 Here                 
+    }
+
+    test NBHOOD:CREATE-3.1 {undo deletes the nbhood} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted notifier bind ::nbhood <Entity>
+        cif undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbhood <Entity> delete N001}
+    }
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::minerva_test::tests::
+
+
+
