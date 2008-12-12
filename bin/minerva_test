@@ -1,0 +1,201 @@
+#!/bin/sh
+# -*-tcl-*-
+# The next line restarts using tclsh. \
+exec tclsh8.5 "$0" "$@"
+
+#-----------------------------------------------------------------------
+# TITLE:
+#    minerva_test(1)
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(n) test suite manager.
+#
+#    This script serves as a command-line automated test tool for
+#    minerva_sim(1).  It operates by loading app_sim(n), and then 
+#    exercising various simulation interfaces.
+#
+#    The actual tests are written using the tcltest(n) package and
+#    reside in test files, minerva/test/minerva_sim/*.test.
+#    One of these, minerva/test/minerva_sim/all.test, invokes all of the
+#    others; the user may select the desired test file on the command
+#    line.
+#
+#    See the minerva_test(1) man page for full documentation, including
+#    a specification of the utility commands defined by the Text Execution
+#    Deputy.
+#     
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Set up the auto_path, so that we can find the correct libraries.  
+# In development, there might be directories loaded from TCLLIBPATH;
+# strip them out.
+
+# First, remove all TCLLIBPATH directories from the auto_path.
+
+set old_path $auto_path
+set auto_path [list]
+
+if {[info exists env(TCLLIBPATH)]} {
+    foreach dir $old_path {
+        if {$dir ni $env(TCLLIBPATH)} {
+            lappend auto_path $dir
+        }
+    }
+}
+
+# Next, get the Minerva-specific directories.
+
+set appdir  [file normalize [file dirname [info script]]]
+set topdir  [file normalize [file join $appdir ..]]
+set libdir  [file normalize [file join $appdir .. lib]]
+set marsdir [file normalize [file join $appdir .. mars lib]]
+
+# Add Minerva libs to the new lib path.
+lappend auto_path $marsdir $libdir
+
+package require Tk 8.5
+
+#-----------------------------------------------------------------------
+# Required Packages
+
+# This script will load and initialize app_sim(n) prior to loading
+# the Test Execution Deputy; consequently the TED will have access to
+# all packages used by app_sim(n).  That *ought* to be enough. :-) 
+
+#-----------------------------------------------------------------------
+# ::minerva_test:: namespace
+#
+# To avoid corrupting the application, all minerva_test(1) code and variables
+# reside in the ::minerva_test:: namespace.  Test TED code resides
+# in the ::ted:: namespace.
+
+namespace eval ::minerva_test:: {
+    #-------------------------------------------------------------------
+    # Test Variables
+
+    variable waitFlag 0    ;# If 1, do not exit at end of run.
+
+
+    #-------------------------------------------------------------------
+    # Utility Procs
+    #
+    # Most utilities are defined by the TED and loaded by
+    # minerva/test/app_sim/ted.tcl.  This script contains only
+    # those utility procs required by the startup process.
+
+    # ShowUsage
+    #
+    # Displays the command-line syntax.
+    
+    proc ShowUsage {} {
+        puts {Usage: minerva_test file.test [options...]}
+        puts ""
+        puts "In addition to the standard tcltest(n) options, minerva_test(1)"
+        puts "accepts the following:"
+        puts ""
+        puts "-wait      Leave the application running when the tests are"
+        puts "           complete."
+    }
+    
+    #-------------------------------------------------------------------
+    # Main line code
+
+    # FIRST, log the executable names
+    puts "minerva_test(1): [info script]\n"
+
+    # NEXT, parse the command line. Clear ::argv, so that tcltest(n) 
+    # won't try to read it. 
+
+    if {[llength $::argv] == 0} {
+        ShowUsage
+        exit 0
+    }
+
+    set script [lindex $argv 0]
+    set opts [lrange $argv 1 end]
+    set ::argv [list]
+
+
+    # NEXT, extract any minerva_test(1)-specific options; the rest will be
+    # passed along to tcltest(n).
+
+    set tcltestOpts [list]
+
+    while {[llength $opts] > 0} {
+        # FIRST, extract the first token
+        set opt [lindex $opts 0]
+        set opts [lrange $opts 1 end]
+
+        # NEXT, if it's ours consume it.
+        switch -exact -- $opt {
+            -wait {
+                set waitFlag 1
+            }
+
+            default {
+                lappend tcltestOpts $opt
+            }
+        }
+    }
+
+    # NEXT, initialize app_sim(n).  It will exit if there's a problem.
+    package require app_sim
+    puts "app_sim(n):  $::app_sim::library"
+    puts ""
+
+    app init {}
+    puts "app_sim(n) initialized."
+
+    # NEXT, load and initialize tcltest(n):
+    package require tcltest 2.2
+
+    set testDir [file join $topdir test app_sim]
+    set tempDir [file join $topdir test temp]
+            
+    ::tcltest::configure       \
+        -singleproc yes        \
+        -testdir    $testDir   \
+        -tmpdir     $tempDir
+
+    if {[llength $tcltestOpts] > 0} {
+        eval ::tcltest::configure $tcltestOpts
+    }
+
+    # NEXT, instrument the "test" command, so that tests are logged.
+    rename ::tcltest::test ::tcltest::test.orig
+    proc ::tcltest::test {name desc args} {
+        log normal test [list START test $name $desc]
+            
+        uplevel 1 [linsert $args 0 ::tcltest::test.orig $name $desc]
+            
+        log normal test [list END test $name $desc]
+    }
+
+    # NEXT, load and initialize the Test Execution Deputy
+    uplevel \#0 [list source [file join $topdir test app_sim ted.tcl]]
+    ted init
+
+    # NEXT, get the test script
+    if {[file extension $script] eq ""} {
+        append script ".test"
+    }
+
+    set script [file join $topdir test app_sim $script]
+
+    # NEXT, run the test script.
+    uplevel \#0 [list source $script]
+}
+
+# NEXT, remain running if so requested
+
+if {!$::minerva_test::waitFlag} {
+    app exit
+}
+
+
+
+
