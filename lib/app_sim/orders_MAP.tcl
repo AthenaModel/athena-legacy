@@ -28,6 +28,8 @@ order define MAP:IMPORT {
     # FIRST, prepare the parameters
     prepare filename -trim -required 
 
+    returnOnError
+
     # NEXT, validate the parameters
     if {[catch {
         # In this case, simply try it.

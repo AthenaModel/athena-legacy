@@ -102,6 +102,57 @@ snit::type ted {
         }
     }
 
+    # order ?-reject? name parmdict
+    #
+    # name       A simulation order
+    # parmdict   The order's parameter dictionary, as a single
+    #            argument or as multiple arguments.
+    #
+    # Sends the order as the GUI client, and returns the result.
+    # If "-reject" is used, expects the order to be rejected.
+
+    typemethod order {args} {
+        # FIRST, is -reject specified?
+        if {[lindex $args 0] eq "-reject"} {
+            lshift args
+            set rejectFlag 1
+        } else {
+            set rejectFlag 0
+        }
+
+        # NEXT, get the order name
+        set order [lshift args]
+
+        require {$order ne ""} "No order specified!"
+
+        # NEXT, get the parm dict
+        if {[llength $args] == 1} {
+            set parmdict [lindex $args 0]
+        } else {
+            set parmdict $args
+        }
+
+        # NEXT, send the order
+        if {$rejectFlag} {
+            set code [catch {
+                order send "" gui $order $parmdict
+            } result opts]
+
+            if {$code} {
+                if {[dict get $opts -errorcode] eq "REJECT"} {
+                    return $result
+                } else {
+                    return {*}$opts $result
+                }
+            } else {
+                return -code error "Expected rejection, got ok"
+            }
+        } else {
+            # Normal case; let nature take its course
+            order send "" gui $order $parmdict
+        }
+    }
+
     #-------------------------------------------------------------------
     # Notifier events
 

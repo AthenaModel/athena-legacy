@@ -165,6 +165,10 @@ namespace eval ::minerva_test:: {
         eval ::tcltest::configure $tcltestOpts
     }
 
+    # NEXT, Set the interactive constraint, so that cleanupTests
+    # doesn't exit automatically.
+    ::tcltest::testConstraint interactive yes
+
     # NEXT, instrument the "test" command, so that tests are logged.
     rename ::tcltest::test ::tcltest::test.orig
     proc ::tcltest::test {name desc args} {
