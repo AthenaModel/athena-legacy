@@ -327,11 +327,21 @@ snit::type ordergui {
         require {$info(initialized)} "Order dialog is uninitialized"
 
         if {$info(active)} {
-            # TBD: the GUI shouldn't allow you to request the order
-            # dialog when it's already open; the menu items and other
-            # controls should be disabled. 
-            app error "The order dialog is already active."
-            return
+            set answer [messagebox popup \
+                            -buttons {
+                                yes    "Enter this Order" 
+                                cancel "Cancel"
+                            } -icon    question            \
+                            -ignoretag ordergui:active     \
+                            -parent    [app topwin]        \
+                            -title     "Minerva [version]" \
+                            -message "The order dialog is already active for another order.  Do you wish to enter this order instead of the previous?"]
+
+            if {$answer eq "cancel"} {
+                return
+            }
+
+            $type cancel
         }
 
         # FIRST, get the order's title
@@ -426,7 +436,9 @@ snit::type ordergui {
     typemethod cancel {} {
         if {$info(active)} {
             # FIRST, save the dialog's location
-            set info(geometry) +[winfo rootx $dialog]+[winfo rooty $dialog]
+            set geo [wm geometry $dialog]
+            set ndx [string first "+" $geo]
+            set info(geometry) [string range $geo $ndx end]
 
             # NEXT, pop down the dialog
             wm withdraw $dialog
