@@ -342,7 +342,7 @@ snit::widget appwin {
             -text    "Log"
 
         $slog load [log cget -logfile]
-        log configure -newlogcmd [list $slog load]
+        notifier bind ::app <AppLogNew> $self [list $slog load]
 
         # NEXT, add the CLI to the paner, if needed.
         if {$options(-main)} {

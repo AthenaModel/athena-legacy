@@ -66,10 +66,11 @@ snit::type app {
         }
 
         # NEXT, open the debugging log.
-        logger ::log                                                  \
-            -simclock     ::simclock                                  \
-            -logdir       [workdir join log app_sim]                  \
-            -overflowcmd  [list notifier send $type <AppLogOverflow>]
+        logger ::log                                           \
+            -simclock   ::simclock                             \
+            -logdir     [workdir join log app_sim]             \
+            -newlogcmd  [list notifier send $type <AppLogNew>]
+            
 
         # NEXT, enable notifier(n) tracing
         notifier trace [myproc NotifierTrace]
