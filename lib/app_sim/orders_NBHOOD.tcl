@@ -84,7 +84,8 @@ order define NBHOOD:CREATE {
         SELECT n FROM nbhoods
         WHERE refpoint = $parms(refpoint)
     }]} {
-        reject refpoint "A neighborhood with this refpoint already exists"
+        reject refpoint \
+            "A neighborhood with this reference point already exists"
     }
 
 
@@ -253,6 +254,18 @@ order define NBHOOD:UPDATE {
         polygon validate $parms(polygon)
     }
 
+    if {[valid polygon]} { 
+        rdb eval {
+            SELECT n FROM nbhoods
+            WHERE polygon = $parms(polygon)
+        } {
+            if {$n ne $parms(n)} {
+                reject polygon \
+                    "A neighborhood with this polygon already exists"
+            }
+        }
+    }
+
     # refpoint
     #
     # Is the point a valid map reference string?
@@ -261,6 +274,18 @@ order define NBHOOD:UPDATE {
     validate refpoint {
         map ref validate $parms(refpoint)
         set parms(refpoint) [map ref2m $parms(refpoint)]
+    }
+
+    if {[valid refpoint]} { 
+        rdb eval {
+            SELECT n FROM nbhoods
+            WHERE refpoint = $parms(refpoint)
+        } {
+            if {$n ne $parms(n)} {
+                reject polygon \
+                    "A neighborhood with this reference point already exists"
+            }
+        }
     }
 
     returnOnError
