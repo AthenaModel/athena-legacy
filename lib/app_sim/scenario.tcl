@@ -21,6 +21,52 @@ snit::type scenario {
     pragma -hastypedestroy 0 -hasinstances 0
 
     #-------------------------------------------------------------------
+    # Type Constructor
+
+    typeconstructor {
+        # Register self as an sqlsection(i) module
+        sqldocument register $type
+    }
+
+    #-------------------------------------------------------------------
+    # sqlsection(i)
+    #
+    # The following variables and routines implement the module's 
+    # sqlsection(i) interface.
+
+    # sqlsection title
+    #
+    # Returns a human-readable title for the section
+
+    typemethod {sqlsection title} {} {
+        return "scenariodb(sim)"
+    }
+
+    # sqlsection schema
+    #
+    # Returns the section's persistent schema definitions, if any.
+
+    typemethod {sqlsection schema} {} {
+        return ""
+    }
+
+    # sqlsection tempschema
+    #
+    # Returns the section's temporary schema definitions, if any.
+
+    typemethod {sqlsection tempschema} {} {
+        return ""
+    }
+
+    # sqlsection functions
+    #
+    # Returns a dictionary of function names and command prefixes
+
+    typemethod {sqlsection functions} {} {
+        return [list m2ref [mytypemethod M2Ref]]
+    }
+
+    #-------------------------------------------------------------------
     # Type Components
 
     typecomponent rdb                ;# The scenario RDB
@@ -243,6 +289,24 @@ snit::type scenario {
 
         # NEXT, Reconfigure the GUI
         notifier send $type <Reconfigure>
+    }
+
+    #-------------------------------------------------------------------
+    # SQL Functions
+
+    # M2Ref args
+    #
+    # args    map coordinates of one or more points as a flat list
+    #
+    # Returns a list of one or more map reference strings corrresponding
+    # to the coords
+
+    typemethod M2Ref {args} {
+        if {[llength $args] == 1} {
+            set args [lindex $args 0]
+        }
+
+        map m2ref {*}$args
     }
 
 

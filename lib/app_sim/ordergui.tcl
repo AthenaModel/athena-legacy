@@ -341,6 +341,10 @@ snit::type ordergui {
                 return
             }
 
+            # NEXT, pop down the old order, so that the dialog can be
+            # popped up for the new one.
+            #
+            # TBD: Should we retain values for same-named parameters?
             $type cancel
         }
 
@@ -424,9 +428,14 @@ snit::type ordergui {
     # Clears all parameter values
 
     typemethod clear {} {
+        # FIRST, clear the parameter values
         foreach parm [array names values] {
             set values($parm) ""
         }
+
+        # NEXT, notify the app that the dialog has been cleared; this
+        # will allow it to clear up any entry artifacts.
+        notifier send $type <OrderEntry> ""
     }
 
     # cancel
