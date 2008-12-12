@@ -262,6 +262,124 @@ N001 Here
 
 
     #-------------------------------------------------------------------
+    # NBHOOD:LOWER
+
+    test NBHOOD:LOWER-1.1 {required parms} -body {
+        ted order -reject NBHOOD:LOWER {}
+    } -result {
+        n {required value}
+    }
+    
+    test NBHOOD:LOWER-1.2 {unknown n} -body {
+        ted order -reject NBHOOD:LOWER n NONESUCH
+    } -result {
+        n {Invalid neighborhood, none are defined}
+    }
+
+    test NBHOOD:LOWER-2.1 {Nbhood is lower} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $overnb1
+    } -body {
+        ted order NBHOOD:LOWER n N002
+        ted query {SELECT n,longname,stacking_order,obscured_by FROM nbhoods}
+    } -cleanup {
+        cleanup
+    } -result {
+n    longname stacking_order obscured_by 
+---- -------- -------------- ----------- 
+N001 Here     2                          
+N002 Over     1              N001        
+    }
+
+    test NBHOOD:LOWER-2.2 {<Entity> stack} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $overnb1
+    } -body {
+        ted notifier bind ::nbhood <Entity>
+        ted order NBHOOD:LOWER n N002
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbhood <Entity> stack}
+    }
+
+    test NBHOOD:LOWER-3.1 {Undo} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $overnb1
+    } -body {
+        ted order NBHOOD:LOWER n N002
+        cif undo
+        ted query {SELECT n,longname,stacking_order,obscured_by FROM nbhoods}
+    } -cleanup {
+        cleanup
+    } -result {
+n    longname stacking_order obscured_by 
+---- -------- -------------- ----------- 
+N001 Here     1              N002        
+N002 Over     2                          
+    }
+
+    #-------------------------------------------------------------------
+    # NBHOOD:RAISE
+
+    test NBHOOD:RAISE-1.1 {required parms} -body {
+        ted order -reject NBHOOD:RAISE {}
+    } -result {
+        n {required value}
+    }
+    
+    test NBHOOD:RAISE-1.2 {unknown n} -body {
+        ted order -reject NBHOOD:RAISE n NONESUCH
+    } -result {
+        n {Invalid neighborhood, none are defined}
+    }
+
+    test NBHOOD:RAISE-2.1 {Nbhood is lower} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $overnb1
+    } -body {
+        ted order NBHOOD:RAISE n N001
+        ted query {SELECT n,longname,stacking_order,obscured_by FROM nbhoods}
+    } -cleanup {
+        cleanup
+    } -result {
+n    longname stacking_order obscured_by 
+---- -------- -------------- ----------- 
+N001 Here     2                          
+N002 Over     1              N001        
+    }
+
+    test NBHOOD:RAISE-2.2 {<Entity> stack} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $overnb1
+    } -body {
+        ted notifier bind ::nbhood <Entity>
+        ted order NBHOOD:RAISE n N001
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbhood <Entity> stack}
+    }
+
+    test NBHOOD:RAISE-3.1 {Undo} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $overnb1
+    } -body {
+        ted order NBHOOD:RAISE n N001
+        cif undo
+        ted query {SELECT n,longname,stacking_order,obscured_by FROM nbhoods}
+    } -cleanup {
+        cleanup
+    } -result {
+n    longname stacking_order obscured_by 
+---- -------- -------------- ----------- 
+N001 Here     1              N002        
+N002 Over     2                          
+    }
+
+    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests
