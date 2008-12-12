@@ -157,7 +157,7 @@ snit::type ordergui {
         wm withdraw $dialog
 
         # NEXT, set the window title
-        wm title $dialog "Send Order"
+        wm title $dialog "Minerva [version]: Send Order"
 
         # NEXT, the user can't resize it
         wm resizable $dialog 0 0
@@ -199,18 +199,42 @@ snit::type ordergui {
             -borderwidth 0         \
             -relief      flat
 
-        ttk::button $dialog.buttons.send       \
-            -text    "Send"                    \
-            -width   8                         \
-            -command [mytypemethod ButtonSend]
+        ttk::button $dialog.buttons.help               \
+            -text    "Help"                            \
+            -width   6                                 \
+            -command [mytypemethod help]
 
-        ttk::button $dialog.buttons.cancel   \
-            -text    "Cancel"                \
-            -width   8                       \
+        label $dialog.buttons.spacer                   \
+            -text "   "
+
+        ttk::button $dialog.buttons.cancel             \
+            -text    "Cancel"                          \
+            -width   6                                 \
             -command [mytypemethod cancel]
 
-        pack $dialog.buttons.cancel -side right -padx 2
-        pack $dialog.buttons.send   -side right -padx 2
+        ttk::button $dialog.buttons.clear              \
+            -text    "Clear"                           \
+            -width   6                                 \
+            -command [mytypemethod clear]
+
+        ttk::button $dialog.buttons.send               \
+            -text    "Send"                            \
+            -width   6                                 \
+            -command [mytypemethod ButtonSend]
+
+        ttk::button $dialog.buttons.sendclose          \
+            -text    "Send and Close"                  \
+            -width   14                                \
+            -command [mytypemethod ButtonSendClose]
+
+
+        pack $dialog.buttons.help      -side left  -padx 2
+        pack $dialog.buttons.spacer    -side left
+
+        pack $dialog.buttons.sendclose -side right -padx 2
+        pack $dialog.buttons.send      -side right -padx 2
+        pack $dialog.buttons.clear     -side right -padx 2
+        pack $dialog.buttons.cancel    -side right -padx 2
 
 
         # NEXT, pack components
@@ -385,6 +409,16 @@ snit::type ordergui {
         set info(active) 1
     }
 
+    # clear
+    #
+    # Clears all parameter values
+
+    typemethod clear {} {
+        foreach parm [array names values] {
+            set values($parm) ""
+        }
+    }
+
     # cancel
     #
     # Cancels an order dialog that's in progress, and pops it down.
@@ -412,6 +446,19 @@ snit::type ordergui {
             # NEXT, notify the app that no order entry is being done.
             notifier send $type <OrderEntry> ""
         }
+    }
+
+    # help
+    #
+    # Brings up the on-line help for the application
+    
+    typemethod help {} {
+        messagebox popup \
+            -buttons {ok OK}                                      \
+            -icon    info                                         \
+            -parent  [app topwin]                                 \
+            -title   "Minerva [version]"                          \
+            -message "This feature has not yet been implemented."
     }
 
     #-------------------------------------------------------------------
@@ -444,11 +491,25 @@ snit::type ordergui {
             $type Message \
           "Error in order; click in marked entry fields for error messages."
 
-            return
+            return 0
         }
 
+        # NEXT, notify the app that no order entry is being done; this
+        # will allow it to clear up any entry artifacts.
+        notifier send $type <OrderEntry> ""
+
         # NEXT, the order was accepted; we're done here.
-        $type cancel
+        return 1
+    }
+
+    # ButtonSendClose
+    #
+    # Sends the order and closes the dialog on success.
+
+    typemethod ButtonSendClose {} {
+        if {[$type ButtonSend]} {
+            $type cancel
+        }
     }
 
     # ParmIn parm ptype

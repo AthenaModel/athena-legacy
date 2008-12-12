@@ -280,8 +280,18 @@ snit::widget nbhoodbrowser {
         $self UpdateToolbarState
     }
 
-
-
+    # create id
+    #
+    # id    The ID of the created neighborhood
+    #
+    # A new neighborhood has been created.  We need to update any 
+    # neighborhoods obscured by it.  For now, just reload the whole
+    # shebang.
+    
+    method create {id} {
+        $tb reload
+    }
+    
     #-------------------------------------------------------------------
     # Private Methods
 
