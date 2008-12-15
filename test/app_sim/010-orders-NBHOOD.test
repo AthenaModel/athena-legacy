@@ -53,9 +53,13 @@ namespace eval ::minerva_test::tests:: {
     # Clean up after a test
 
     proc cleanup {} {
+        # Clean up the test environment
         array unset parms
         ted notifier forget
-        scenario new
+
+        # Delete all neighborhoods and reinitialize the module
+        rdb eval {DELETE FROM nbhoods}
+        nbhood reconfigure
     }
 
     #-------------------------------------------------------------------
