@@ -203,7 +203,7 @@ order define NBHOOD:RAISE {
 
 ordergui define NBHOOD:UPDATE {
     title "Update Neighborhood"
-    table nbhoods
+    table gui_nbhoods
     keys  n
     parms {
         n            {ptype nbhood        label "Neighborhood"    }

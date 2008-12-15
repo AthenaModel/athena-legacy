@@ -105,6 +105,8 @@ snit::type ordergui {
     #  message     message to be displayed on the dialog
     #  order       If active, name of the order to send
     #  title       If active, the order's title
+    #  table       If not "", the table associated with the order
+    #  keys        If not "", the key parameters for the table
 
     typevariable info -array {
         active      0
@@ -113,6 +115,8 @@ snit::type ordergui {
         initialized 0
         order       ""
         title       ""
+        table       ""
+        keys        ""
     }
 
     #-------------------------------------------------------------------
@@ -313,10 +317,14 @@ snit::type ordergui {
             set parm $info(current)
         }
 
-        # NEXT, get the parm type
+        # NEXT, set the parm's value
         set values($parm) $value
-    }
 
+        # NEXT, if this is a key value, refresh the content.
+        if {$parm in $info(keys)} {
+            $type RefreshNonKeyFields
+        }
+    }
 
     # enter order
     #
@@ -353,6 +361,8 @@ snit::type ordergui {
         # FIRST, get the order's title
         set info(order) $order
         set info(title) [$type meta $order title]
+        set info(table) [$type meta $order table]
+        set info(keys)  [$type meta $order keys]
         array unset values
         array unset icon
         array unset perrors
@@ -395,6 +405,13 @@ snit::type ordergui {
             bind $parmf.entry$row <FocusOut> \
                 [mytypemethod ParmOut $parm]
 
+            if {$parm in $info(keys)} {
+                assert {$etype eq "enum"}
+
+                bind $parmf.entry$row <<ComboboxSelected>> \
+                    [mytypemethod RefreshNonKeyFields]
+            }
+
             # Status Icon
             ttk::label $parmf.icon$row \
                 -image ${type}::blank10x10
@@ -423,6 +440,35 @@ snit::type ordergui {
 
         # NEXT, we're active!
         set info(active) 1
+    }
+
+    # RefreshNonKeyFields
+    #
+    # Fills in the non-key parameters with data from the database
+
+    typemethod RefreshNonKeyFields {} {
+        # FIRST, don't do this if there's no link to the database
+        if {$info(table) eq ""} {
+            return
+        }
+
+        # NEXT, build the key queries
+        foreach parm $info(keys) {
+            lappend keytests "$parm=\$values($parm)"
+        }
+
+        set keytests [join $keytests " AND "]
+
+        set query "SELECT * FROM $info(table) WHERE $keytests"
+
+        # NEXT, get the data from the table
+        rdb eval $query row {
+            foreach parm [array names values] {
+                if {$parm ni $info(keys)} {
+                    set values($parm) $row($parm)
+                }
+            }
+        }
     }
 
     # clear

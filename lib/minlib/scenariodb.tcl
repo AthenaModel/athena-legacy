@@ -83,7 +83,8 @@ snit::type ::minlib::scenariodb {
     # Returns a dictionary of function names and command prefixes
 
     typemethod {sqlsection functions} {} {
-        return ""
+        # Define placeholder functions
+        return [list m2ref [myproc Echo]]
     }
 
     #-------------------------------------------------------------------
@@ -260,6 +261,21 @@ snit::type ::minlib::scenariodb {
     method marksaved {} {
         set info(savedChanges) [$db total_changes]
     }
+
+    #-------------------------------------------------------------------
+    # SQL Function Implementations
+
+    # PassThrough args...
+    #
+    # Returns its args.  This function allows views to be defined using
+    # SQL functions whose definitions must be provided by the 
+    # application.
+
+    proc PassThrough {args} {
+        return $args
+    }
+
+
 
 }
 
