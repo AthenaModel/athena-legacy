@@ -203,18 +203,6 @@ n    longname obscured_by
 N001 Here                 
     }
 
-    test NBHOOD:CREATE-3.1 {undo deletes the nbhood} -setup {
-        ted order NBHOOD:CREATE $nb1
-    } -body {
-        ted notifier bind ::nbhood <Entity>
-        cif undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::nbhood <Entity> delete N001}
-    }
-
     #-------------------------------------------------------------------
     # NBHOOD:DELETE
 
@@ -378,6 +366,194 @@ n    longname stacking_order obscured_by
 N001 Here     1              N002        
 N002 Over     2                          
     }
+
+    #-------------------------------------------------------------------
+    # NBHOOD:UPDATE
+
+    test NBHOOD:UPDATE-1.1 {required parms} -body {
+        ted order -reject NBHOOD:UPDATE {}
+    } -result {
+        n {required value}
+    }
+    
+    test NBHOOD:UPDATE-1.2 {Duplicate longname} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $nb2
+    } -body {
+        ted order -reject NBHOOD:UPDATE n N001 longname There
+    } -cleanup {
+        cleanup
+    } -result {
+        longname {A neighborhood with this name already exists}
+    }
+
+    test NBHOOD:UPDATE-1.3 {longname duplicates n} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $nb2
+    } -body {
+        ted order -reject NBHOOD:UPDATE n N001 longname N002
+    } -cleanup {
+        cleanup
+    } -result {
+        longname {A neighborhood with this name already exists}
+    }
+
+    test NBHOOD:UPDATE-1.4 {invalid urbanization} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted order -reject NBHOOD:UPDATE n N001 urbanization NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        urbanization {invalid value, "NONESUCH"}
+    }
+
+    test NBHOOD:UPDATE-1.5 {polygon: invalid map ref} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted order -reject NBHOOD:UPDATE           \
+            n       N001                          \
+            polygon {A80A80 B20A80 Z99Z99 B00B20}
+    } -cleanup {
+        cleanup
+    } -result {
+        polygon {point "Z99Z99" is not a map reference string}
+    }
+
+    test NBHOOD:UPDATE-1.6 {polygon: duplicate polygon} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $nb2
+    } -body {
+        ted order -reject NBHOOD:UPDATE     \
+            n       N001                    \
+            polygon [dict get $nb2 polygon]
+    } -cleanup {
+        cleanup
+    } -result {
+        polygon {A neighborhood with this polygon already exists}
+    }
+
+    test NBHOOD:UPDATE-1.7 {refpoint: invalid map ref} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted order -reject NBHOOD:UPDATE \
+            n        N001               \
+            refpoint X99X99
+    } -cleanup {
+        cleanup
+    } -result {
+        refpoint {not a map reference string}
+    }
+
+    test NBHOOD:UPDATE-1.9 {refpoint: duplicate refpoint} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $nb2
+    } -body {
+        ted order -reject NBHOOD:UPDATE       \
+            n        N001                     \
+            refpoint [dict get $nb2 refpoint]
+    } -cleanup {
+        cleanup
+    } -result {
+        polygon {A neighborhood with this reference point already exists}
+    }
+
+    test NBHOOD:UPDATE-1.8 {refpoint not in polygon} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted order -reject NBHOOD:UPDATE \
+            n        N001               \
+            refpoint A00A00
+    } -cleanup {
+        cleanup
+    } -result {
+        refpoint {not in polygon}
+    }
+
+    test NBHOOD:UPDATE-2.1 {nbhood is updated} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted order NBHOOD:UPDATE {
+            n            N001
+            longname     "Not Here"
+            urbanization RURAL
+            refpoint     A05A05
+            polygon      {A00A00 A10A00 A10A10 A00A10}
+        }
+
+        set parms [join [dict keys $nb1] ","]
+        ted query "SELECT n,$parms FROM nbhoods"
+    } -cleanup {
+        cleanup
+    } -result {
+n    longname urbanization refpoint polygon             
+---- -------- ------------ -------- ------------------- 
+N001 Not Here RURAL        5 5      0 0 10 0 10 10 0 10 
+    }
+
+    test NBHOOD:UPDATE-2.2 {stacking_order,obscured_by are set} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $nb2
+    } -body {
+        # Move N002 over N001
+        ted order NBHOOD:UPDATE [dict merge $overnb1 {n N002}]
+        ted query "SELECT n,longname,stacking_order,obscured_by FROM nbhoods"
+    } -cleanup {
+        cleanup
+    } -result {
+n    longname stacking_order obscured_by 
+---- -------- -------------- ----------- 
+N001 Here     1                          
+N002 Over     2              N001        
+    }
+
+    test NBHOOD:UPDATE-2.3 {<Entity> update} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted notifier bind ::nbhood <Entity>
+        ted order NBHOOD:UPDATE n N001 longname "Not Here"
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbhood <Entity> update N001}
+    }
+
+
+    test NBHOOD:UPDATE-3.1 {undo undoes the change} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:UPDATE [dict merge $overnb1 {n N001}]
+    } -body {
+        cif undo
+        ted query {
+            SELECT n,longname,urbanization,refpoint,polygon FROM nbhoods
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+n    longname urbanization refpoint polygon              
+---- -------- ------------ -------- -------------------- 
+N001 Here     URBAN        100 100  80 80 120 80 100 120 
+    }
+
+    test NBHOOD:UPDATE-3.2 {stacking_order,obscured_by are undone} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $nb2
+
+        # Move N002 over N001
+        ted order NBHOOD:UPDATE [dict merge $overnb1 {n N002}]
+    } -body {
+        cif undo
+        ted query "SELECT n,longname,stacking_order,obscured_by FROM nbhoods"
+    } -cleanup {
+        cleanup
+    } -result {
+n    longname stacking_order obscured_by 
+---- -------- -------------- ----------- 
+N001 Here     1                          
+N002 There    2                          
+    }
+
 
     #-------------------------------------------------------------------
     # Cleanup
