@@ -1,0 +1,231 @@
+<<manpage {devtools(1) minerva_test(1)} "Minerva Test Tool">>
+
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<deflist program>>
+
+<<defitem minerva_test {minerva_test file[.test] [options....]}>>
+
+<</deflist program>>
+
+<<xref minerva_test(1)>> is a tool for running automated
+tests of the <<xref minerva_sim(1)>> application.  It operates by loading
+the <<xref index(sim) app_sim>> application package in much the
+same way that the <<xref minerva(1)>> loader does, so that test
+scripts can exercise the <<xref minerva_sim(n)>> code directly.<p>
+
+The test scripts, which are written using Tcl's tcltest(n) framework,
+reside in <code>minerva/test/app_sim</code>.  They may also use the
+<<xref "TEST EXECUTION DEPUTY">> commands defined below, and all
+commands defined in <<xref index(sim) app_sim>>.<p>
+
+By default, minerva_test(1) destroys the <<xref minerva_sim(1)>> GUI
+prior to running any tests; this is significantly faster.  In
+addition, the <<xref minerva_sim(1)>> log files and working data are
+deleted automatically at the end of the run, just as they are during a
+normal application shutdown.  Use the <b>-wait</b> option to retain
+the GUI and keep the application running when the tests are complete.<p>
+
+The following command executes the tests in
+<code>minerva/test/app_sim/mytest.test</code>:<p>
+
+<pre>
+    $ minerva_test mytest.test
+</pre>
+
+It isn't necessary to be in any particular directory.  Note also that the
+"<code>.test</code>" suffix may be omitted:<p>
+
+<pre>
+    $ minerva_test mytest
+</pre>
+
+There is a top-level test script, <code>all.test</code>; thus,
+all tests can be executed as follows:<p>
+
+<pre>
+    $ minerva_test all
+</pre>
+
+A particular test or set of tests can be requested using tcltest(n)'s
+<code>-match</code> option.  For example, this command executes only
+tests from mytest.test whose names begin with "mycase-":<p>
+
+<pre>
+    $ minerva_test mytest -match "mycase-*"
+</pre>
+
+
+<<section "OPTIONS">>
+
+minerva_test(1) defines the following options; any other options on the
+command line are passed to tcltest(n).<p>
+
+<<deflist options>>
+
+<<defopt {-wait}>>
+
+When specified, the <<xref minerva_sim(1)>> GUI remains active
+throughout the tests, and the application remains running when the
+tests are complete.<p>
+
+<</deflist options>>
+
+<<section "TEST EXECUTION DEPUTY">>
+
+The minerva_sim(1) test scripts rely on Tcl's tcltest(n) framework.  In
+addition, minerva_test(1) defines a set of utility commands for use in tests;
+collectively, these commands are called the Test Execution Deputy
+(TED).  This section documents the commands provided by the TED.<p>
+
+<<deflist test_commands>>
+
+<<defitem ted {ted <i>subcommand</i> ?<i>args...</i>?}>>
+
+Most of the TED commands are subcommands of <<iref ted>>.<p>
+
+<<deflist ted>>
+
+<<defitem "ted dictdiff" {ted dictdiff <i>a b...</i>}>>
+
+Compares two dictionaries <i>a</i> and <i>b</i> and outputs a
+pretty-printed list of differences, formatted to look nice in a test's
+<code>-result</code>.  Dictionary <i>a</i> is always specified as a
+single argument; dictionary <i>b</i> may be specified as a single
+argument or as keys and values on the command line.<p>
+
+The output, though pretty-printed, is a valid Tcl list-of-lists, with
+each entry representing a value in <i>a</i> or <i>b</i> that's
+different than what's in the other.  Each entry looks like this:<p>
+
+<pre>
+    {A|B <i>key</i> <i>value</i>}
+</pre>
+
+<<defitem "ted dictmatch" {ted dictmatch <i>a b...</i>}>>
+
+Compares a dictionary <i>a</i> with a dictionary of glob-patterns
+<i>b</i> and outputs a pretty-printed list of entries of <i>a</i> which
+do not match the entries of <i>b</i>.  Keys appearing in <i>a</i>
+but not in <i>b</i> are ignored; keys appearing in <i>b</i> but not in
+<i>a</i> appear in the output as "<i>key</i> *null*".
+
+The output is either "OK", if all patterns match, or
+a list of the keys and values that didn't match, with one key/value
+pair per line, indented so as to fit nicely in a <code>-result</code>.
+
+
+<<defitem "ted notifier" {ted notifier <i>subcommand</i> ?<i>args...</i>?}>>
+
+The deputy can bind to any number of <<xref mars:notifier(n)>> events; the
+received events are simply accumulated in a list without further
+processing.<p>
+
+<<deflist ted notifier>>
+
+<<defitem "ted notifier bind" {ted notifier bind <i>subject event</i>}>>
+
+Binds the deputy to the specified <i>subject</i> and <i>event</i>.<p>
+
+<<defitem "ted notifier diff" {ted notifier diff <i>ndx event dict...</i>}>>
+
+Used to verify that notifier events were sent as expected.
+First, verifies that the <i>ndx</i> event in the
+<<iref ted notifier received>> queue has the right <i>event</i> type.
+Next, computes and returns the <<iref ted dictdiff>> of the
+event's dictionary with <i>dict</i>, which may be specified as a single
+argument or as keys and values on the command line.  <b>Note: This
+presumes that the event has one argument, which is a dictionary!</b><p>
+
+<<defitem "ted notifier match" {ted notifier match <i>ndx event dict...</i>}>>
+
+Used to verify that notifier events were sent as expected.
+First, verifies that the <i>ndx</i> event in the
+<<iref ted notifier received>> queue has the right <i>event</i> type.
+Next, does a <<iref ted dictmatch>> of the keys and patterns in
+<i>dict</i> with the event's dictionary.  Note that <i>dict</i>
+may be specified as a single argument or as keys and values on the
+command line.  <b>Note: This presumes that the event has one argument,
+which is a dictionary!</b><p>
+
+<<defitem "ted notifier forget" {ted notifier forget}>>
+
+Causes the deputy to forget all bindings and received events.  This
+should be done in the <code>-cleanup</code> of any test that uses
+<<iref ted notifier>>.<p>
+
+<<defitem "ted notifier received" {ted notifier received}>>
+
+Returns the events received since the last
+<<iref ted notifier forget>>, each pretty-printed and indented on its
+own line, so as to look nice as a test's <code>-result</code>.  Note
+that the output is also a valid Tcl list of lists, one for each event,
+where each event list has the syntax "<i>subject event args...</i>".<p>
+
+<</deflist ted notifier>>
+
+<<defitem "ted order" {ted order ?-reject? <i>name parmdict</i>}>>
+
+Sends the order with the specified <i>name</i> and <i>parmdict</i>,
+using the <b>test</b> order interface. (The <b>test</b> interfaces
+works just like the <b>gui</b> interface, but disables interactive
+prompts.)  By default, the order is expected to be successful; if
+<b>-reject</b> is specified, the order should be rejected, i.e.,
+should have an error code of REJECT.  If so, <<iref ted order>>
+returns a pretty-printed REJECT dictionary; otherwise, the rejection
+doesn't follow the protocol.  On any other kind of error,
+<<iref ted order>> propagates the error.<p>
+
+<<defitem "ted query" {ted query <i>sql</i>}>>
+
+Does a query on the RDB given the <i>sql</i>, and pretty-prints the
+result so that it looks nice in a test <b>-result</b>.<p>
+
+<<defitem "ted sendex" {ted sendex ?-error? <i>command...</i>}>>
+
+Sends the <i>command...</i> to the Minerva executive as the "test"
+client, and returns the result.  <<iref ted sendex>> is therefore used
+when testing executive commands.  If the <code>-error</code> option
+is included, <<iref ted sendex>> expects the command to throw an
+error, and will return the error message.  If the command does not
+throw an error in this case, <<iref ted sendex>> will in turn throw an
+error.<p>
+
+A <i>command...</i> may be passed as a single argument or as
+individual arguments which are aggregated into a single command.<p>
+
+<b>TBD:</b> As yet, Minerva has no executive, and so the commands are
+sent directly to the main interpreter.<p>
+
+<</deflist ted>>
+<</deflist test_commands>>
+
+<<section "TEST CONSTRAINTS">>
+
+<b>TBD:</b> As yet, no constraints are defined.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
+
+
+
+
+
+
+
