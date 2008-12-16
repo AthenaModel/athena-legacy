@@ -21,52 +21,6 @@ snit::type scenario {
     pragma -hastypedestroy 0 -hasinstances 0
 
     #-------------------------------------------------------------------
-    # Type Constructor
-
-    typeconstructor {
-        # Register self as an sqlsection(i) module
-        sqldocument register $type
-    }
-
-    #-------------------------------------------------------------------
-    # sqlsection(i)
-    #
-    # The following variables and routines implement the module's 
-    # sqlsection(i) interface.
-
-    # sqlsection title
-    #
-    # Returns a human-readable title for the section
-
-    typemethod {sqlsection title} {} {
-        return "scenariodb(sim)"
-    }
-
-    # sqlsection schema
-    #
-    # Returns the section's persistent schema definitions, if any.
-
-    typemethod {sqlsection schema} {} {
-        return ""
-    }
-
-    # sqlsection tempschema
-    #
-    # Returns the section's temporary schema definitions, if any.
-
-    typemethod {sqlsection tempschema} {} {
-        return ""
-    }
-
-    # sqlsection functions
-    #
-    # Returns a dictionary of function names and command prefixes
-
-    typemethod {sqlsection functions} {} {
-        return [list m2ref [mytypemethod M2Ref]]
-    }
-
-    #-------------------------------------------------------------------
     # Type Components
 
     typecomponent rdb                ;# The scenario RDB
@@ -100,22 +54,6 @@ snit::type scenario {
         file delete -force $rdbfile
         rdb open $rdbfile
         $type clear
-    }
-
-    # clear
-    #
-    # Clears the RDB, inserts the schema, and loads the blank map.
-
-    typemethod clear {} {
-        # FIRST, clear the RDB
-        rdb clear
-
-        # NEXT, load the blank map
-        map load [file join $::app_sim::library blank.png]
-
-        # NEXT, mark it saved; having the blank map is neither 
-        # here nor there.
-        rdb marksaved
     }
 
     #-------------------------------------------------------------------
@@ -164,9 +102,12 @@ snit::type scenario {
             return
         }
 
+        # NEXT, define the temporary schema definitions
+        $type DefineTempSchema
+
         # NEXT, restore the saveables
         $type RestoreSaveables
-        
+
         # NEXT, save the name.
         set info(dbfile) $filename
 
@@ -214,7 +155,9 @@ snit::type scenario {
             }
 
             rdb saveas $dbfile
-        } result]} {
+        } result opts]} {
+            log warning scn "Could not save: $result"
+            log error scn [dict get $opts -errorinfo]
             app error {
                 |<--
                 Could not save as
@@ -292,6 +235,41 @@ snit::type scenario {
     }
 
     #-------------------------------------------------------------------
+    # Configure RDB
+
+    # clear
+    #
+    # Clears the RDB, inserts the schema, and loads the blank map.
+
+    typemethod clear {} {
+        # FIRST, clear the RDB
+        rdb clear
+
+        # NEXT, define the temp schema
+        $type DefineTempSchema
+
+        # NEXT, load the blank map
+        map load [file join $::app_sim::library blank.png]
+
+        # NEXT, mark it saved; having the blank map is neither 
+        # here nor there.
+        rdb marksaved
+    }
+
+    # DefineTempSchema
+    #
+    # Adds the temporary schema definitions into the RDB
+
+    typemethod DefineTempSchema {} {
+        # FIRST, define SQL functions
+        rdb function m2ref [myproc M2Ref]
+
+        # NEXT, define the GUI Views
+        rdb eval [readfile [file join $::app_sim::library gui_views.sql]]
+    }
+
+
+    #-------------------------------------------------------------------
     # SQL Functions
 
     # M2Ref args
@@ -301,7 +279,7 @@ snit::type scenario {
     # Returns a list of one or more map reference strings corrresponding
     # to the coords
 
-    typemethod M2Ref {args} {
+    proc M2Ref {args} {
         if {[llength $args] == 1} {
             set args [lindex $args 0]
         }
