@@ -93,10 +93,10 @@ snit::type app {
                       -file [file join $::app_sim::library icon.png]]
         wm iconphoto .main -default $icon
 
-        # NEXT, prepare to handle orders
-        order       init
+        # NEXT, initialize the order GUI
         ordergui init
 
+        # TBD: Should this go in ordergui itself?
         ordergui entrytype enum urbanization \
             -values [eurbanization names]
 

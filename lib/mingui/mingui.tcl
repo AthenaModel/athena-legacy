@@ -44,6 +44,7 @@ namespace eval ::mingui:: {
 #-----------------------------------------------------------------------
 # Load mingui(n) submodules
 
+source [file join $::mingui::library icons.tcl        ]
 source [file join $::mingui::library mapcanvas.tcl    ]
 source [file join $::mingui::library tablebrowser.tcl ]
 source [file join $::mingui::library messagebox.tcl   ]

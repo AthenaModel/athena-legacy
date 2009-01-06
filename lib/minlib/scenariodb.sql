@@ -101,4 +101,39 @@ CREATE TABLE nbhoods (
     obscured_by    TEXT DEFAULT ''
 );
 
+------------------------------------------------------------------------
+-- Group Tables
 
+-- Generic Group Data
+CREATE TABLE groups (
+    -- Unique ID
+    uid         INTEGER PRIMARY KEY,
+
+    -- Symbolic group name
+    g           TEXT UNIQUE,
+
+    -- Full group name
+    longname    TEXT,
+
+    -- Group type, CIV, FRC, ORG
+    gtype       TEXT 
+);
+
+-- Force Groups
+CREATE TABLE frcgroups (
+    -- Symbolic group name
+    g           TEXT PRIMARY KEY,
+
+    -- Force Type
+    forcetype   TEXT,
+
+    -- Local or foreign: 1 if local, 0 if foreign
+    local       INTEGER,
+
+    -- Member of US-led coalition: 1 if member, 0 otherwise
+    coalition   INTEGER
+);
+
+-- Force Group View: joins groups with frcgroups.
+CREATE VIEW frcgroups_view AS
+SELECT * FROM groups JOIN frcgroups USING (g);

@@ -319,14 +319,23 @@ snit::widget appwin {
         # NEXT, add the nbhood browser to the content notebook
         
         nbhoodbrowser $content.nbhoods \
-            -width   600                         \
+            -width   600               \
             -height  600
 
-        $content add $content.nbhoods \
-            -sticky  nsew                       \
-            -padding 2                          \
+        $content add $content.nbhoods  \
+            -sticky  nsew              \
+            -padding 2                 \
             -text    "Nbhoods"
 
+        # NEXT, add the FRC group browser to the content notebook
+        frcgroupbrowser $content.frcgroups \
+            -width   600                   \
+            -height  600
+
+        $content add $content.frcgroups    \
+            -sticky  nsew                  \
+            -padding 2                     \
+            -text    "ForceGrps"
 
         # NEXT, add the scrolling log to the content notebook
 

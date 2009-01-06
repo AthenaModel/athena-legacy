@@ -334,8 +334,10 @@ snit::type ordergui {
     # up the window.
 
     typemethod enter {order} {
-        require {$info(initialized)} "Order dialog is uninitialized"
+        require {$info(initialized)}         "Order dialog is uninitialized"
+        require {[info exists meta($order)]} "Undefined order: \"$order\""
 
+        # FIRST, Make sure we're not already handling an order
         if {$info(active)} {
             set answer [messagebox popup \
                             -buttons {
@@ -358,7 +360,7 @@ snit::type ordergui {
             $type cancel
         }
 
-        # FIRST, get the order's title
+        # NEXT, get the order's title
         set info(order) $order
         set info(title) [$type meta $order title]
         set info(table) [$type meta $order table]
