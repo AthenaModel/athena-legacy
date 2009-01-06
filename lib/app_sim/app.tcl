@@ -96,10 +96,6 @@ snit::type app {
         # NEXT, initialize the order GUI
         ordergui init
 
-        # TBD: Should this go in ordergui itself?
-        ordergui entrytype enum urbanization \
-            -values [eurbanization names]
-
         # NEXT, log that we're up.
         log normal app "Minerva [version]"
 

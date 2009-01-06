@@ -69,191 +69,6 @@ snit::type nbhood {
     }
 
     #-------------------------------------------------------------------
-    # Mutators
-    #
-    # The following routines create or modify entity data.  Each of them
-    # must set or clear the undo command.
-
-    # create parmdict
-    #
-    # parmdict     A dictionary of neighborhood parms
-    #
-    #    longname       The neighborhood's long name
-    #    urbanization   eurbanization level
-    #    refpoint       Reference point, map coordinates
-    #    polygon        Boundary polygon, in map coordinates.
-    #
-    # Creates a nbhood given the parms, which are presumed to be
-    # valid.  When validity checks are needed, use the NBHOOD:CREATE
-    # order.
-
-    typemethod create {parmdict} {
-        dict with parmdict {
-            # FIRST, Put the neighborhood in the database
-            rdb eval {
-                INSERT INTO nbhoods(longname,refpoint,polygon,urbanization)
-                VALUES($longname,
-                       $refpoint,
-                       $polygon,
-                       $urbanization);
-
-                -- Set the "n" based on the uid.
-                UPDATE nbhoods
-                SET    n=format('N%03d',last_insert_rowid())
-                WHERE uid=last_insert_rowid();
-        
-                -- Get the "n" value
-                SELECT n FROM nbhoods WHERE uid=last_insert_rowid();
-            } {}
-
-            # NEXT, set the stacking order
-            rdb eval {
-                SELECT COALESCE(MAX(stacking_order)+1, 1) AS top FROM nbhoods
-            } {
-                rdb eval {
-                    UPDATE nbhoods
-                    SET stacking_order=$top
-                    WHERE n=$n;
-                }
-            }
-
-            # NEXT, add the nbhood to the geoset
-            $geo create polygon $n $polygon nbhood
-        }
-
-        # NEXT, recompute the obscured_by field; this nbhood might
-        # have obscured some other neighborhood's refpoint.
-        $type SetObscuredBy
-
-        # NEXT, Not yet undoable; clear the undo command
-        set info(undo) [list $type delete $n]
-
-        # NEXT, notify the app.
-        notifier send ::nbhood <Entity> create $n
-    }
-
-    # delete n
-    #
-    # n     A neighborhood short name
-    #
-    # Deletes the neighborhood, including all references.
-
-    typemethod delete {n} {
-        # FIRST, delete it.
-        rdb eval {
-            DELETE FROM nbhoods WHERE n=$n
-        }
-
-        $geo delete $n
-
-        # NEXT, clear the nbhood field for entities which 
-        # refer to this nbhood (e.g., units in the nbhood).
-        
-        # TBD.
-
-        # NEXT, recompute the obscured_by field; this nbhood might
-        # have obscured some other neighborhood's refpoint.
-        $type SetObscuredBy
-
-        # NEXT, Not undoable; clear the undo command
-        set info(undo) {}
-
-        notifier send ::nbhood <Entity> delete $n
-    }
-
-    # lower n
-    #
-    # n     A neighborhood short name
-    #
-    # Sends the neighborhood to the bottom of the stacking order.
-
-    typemethod lower {n} {
-        # FIRST, reorder the neighborhoods
-        set oldNames [rdb eval {
-            SELECT n FROM nbhoods 
-            ORDER BY stacking_order
-        }]
-
-        set names $oldNames
-        ldelete names $n
-        set names [linsert $names 0 $n]
-
-        $type RestackNbhoods $names $oldNames
-    }
-
-    # raise n
-    #
-    # n     A neighborhood short name
-    #
-    # Brings the neighborhood to the top of the stacking order.
-
-    typemethod raise {n} {
-        # FIRST, reorder the neighborhoods
-        set oldNames [rdb eval {
-            SELECT n FROM nbhoods 
-            ORDER BY stacking_order
-        }]
-
-        set names $oldNames
-
-        ldelete names $n
-        lappend names $n
-
-        $type RestackNbhoods $names $oldNames
-    }
-  
-
-    # update n parmdict
-    #
-    # n            A neighborhood short name
-    # parmdict     A dictionary of neighborhood parms
-    #
-    #    longname       A new long name, or ""
-    #    urbanization   A new eurbanization level, or ""
-    #    refpoint       A new reference point, or ""
-    #    polygon        A new polygon, or ""
-    #
-    # Updates a nbhood given the parms, which are presumed to be
-    # valid.  When validity checks are needed, use the NBHOOD:UPDATE
-    # order.
-
-    typemethod update {n parmdict} {
-        # FIRST, get the undo information
-        rdb eval {
-            SELECT longname, refpoint, polygon, urbanization 
-            FROM nbhoods
-            WHERE n=$n
-        } row {
-            unset row(*)
-        }
-
-        # NEXT, Update the neighborhood
-        dict with parmdict {
-            # FIRST, Put the neighborhood in the database
-            rdb eval {
-                UPDATE nbhoods
-                SET longname     = nonempty($longname,     longname),
-                    refpoint     = nonempty($refpoint,     refpoint),
-                    polygon      = nonempty($polygon,      polygon),
-                    urbanization = nonempty($urbanization, urbanization)
-                WHERE n=$n
-            } {}
-
-            # NEXT, recompute the obscured_by field if necessary; this 
-            # nbhood might have obscured some other neighborhood's refpoint.
-            if {$polygon ne ""} {
-                $type SetObscuredBy
-            }
-        }
-
-        # NEXT, Not undoable; clear the undo command
-        set info(undo) [mytypemethod update $n [array get row]]
-
-        # NEXT, notify the app.
-        notifier send ::nbhood <Entity> update $n
-    }
-
-    #-------------------------------------------------------------------
     # Queries
     #
     # These routines query information about the entities; they are
@@ -269,14 +84,6 @@ snit::type nbhood {
 
     typemethod find {mx my} {
         return [$geo find [list $mx $my] nbhood]
-    }
-
-    # lastundo
-    #
-    # Returns the undo command for the last mutator, or "" if none.
-
-    typemethod lastundo {} {
-        return $info(undo)
     }
 
     # names
@@ -316,6 +123,178 @@ snit::type nbhood {
     #-------------------------------------------------------------------
     # Private Type Methods
 
+    # SetObscuredBy
+    #
+    # Checks the neighborhoods for obscured reference points, and
+    # sets the obscured_by field accordingly.
+    #
+    # TBD: This could be more efficient if it took into account
+    # the neighborhood that changed and only looked at overlapping
+    # neighborhoods.
+
+    typemethod SetObscuredBy {} {
+        rdb eval {
+            SELECT n, refpoint, obscured_by FROM nbhoods
+        } {
+            set in [$geo find $refpoint nbhood]
+
+            if {$in eq $n} {
+                set in ""
+            }
+
+            if {$in ne $obscured_by} {
+                rdb eval {
+                    UPDATE nbhoods
+                    SET obscured_by=$in
+                    WHERE n=$n
+                }
+            }
+        }
+    }
+
+
+    #-------------------------------------------------------------------
+    # Order Handling Routines
+
+    # LastUndo
+    #
+    # Returns the undo command for the last mutator, or "" if none.
+
+    typemethod LastUndo {} {
+        set undo $info(undo)
+        unset info(undo)
+
+        return $undo
+    }
+
+    # CreateNbhood parmdict
+    #
+    # parmdict     A dictionary of neighborhood parms
+    #
+    #    longname       The neighborhood's long name
+    #    urbanization   eurbanization level
+    #    refpoint       Reference point, map coordinates
+    #    polygon        Boundary polygon, in map coordinates.
+    #
+    # Creates a nbhood given the parms, which are presumed to be
+    # valid.  When validity checks are needed, use the NBHOOD:CREATE
+    # order.
+
+    typemethod CreateNbhood {parmdict} {
+        dict with parmdict {
+            # FIRST, Put the neighborhood in the database
+            rdb eval {
+                INSERT INTO nbhoods(longname,refpoint,polygon,urbanization)
+                VALUES($longname,
+                       $refpoint,
+                       $polygon,
+                       $urbanization);
+
+                -- Set the "n" based on the uid.
+                UPDATE nbhoods
+                SET    n=format('N%03d',last_insert_rowid())
+                WHERE uid=last_insert_rowid();
+        
+                -- Get the "n" value
+                SELECT n FROM nbhoods WHERE uid=last_insert_rowid();
+            } {}
+
+            # NEXT, set the stacking order
+            rdb eval {
+                SELECT COALESCE(MAX(stacking_order)+1, 1) AS top FROM nbhoods
+            } {
+                rdb eval {
+                    UPDATE nbhoods
+                    SET stacking_order=$top
+                    WHERE n=$n;
+                }
+            }
+
+            # NEXT, add the nbhood to the geoset
+            $geo create polygon $n $polygon nbhood
+        }
+
+        # NEXT, recompute the obscured_by field; this nbhood might
+        # have obscured some other neighborhood's refpoint.
+        $type SetObscuredBy
+
+        # NEXT, Not yet undoable; clear the undo command
+        set info(undo) [list $type DeleteNbhood $n]
+
+        # NEXT, notify the app.
+        notifier send ::nbhood <Entity> create $n
+    }
+
+    # DeleteNbhood n
+    #
+    # n     A neighborhood short name
+    #
+    # Deletes the neighborhood, including all references.
+
+    typemethod DeleteNbhood {n} {
+        # FIRST, delete it.
+        rdb eval {
+            DELETE FROM nbhoods WHERE n=$n
+        }
+
+        $geo delete $n
+
+        # NEXT, clear the nbhood field for entities which 
+        # refer to this nbhood (e.g., units in the nbhood).
+        
+        # TBD.
+
+        # NEXT, recompute the obscured_by field; this nbhood might
+        # have obscured some other neighborhood's refpoint.
+        $type SetObscuredBy
+
+        # NEXT, Not undoable; clear the undo command
+        set info(undo) {}
+
+        notifier send ::nbhood <Entity> delete $n
+    }
+
+    # LowerNbhood n
+    #
+    # n     A neighborhood short name
+    #
+    # Sends the neighborhood to the bottom of the stacking order.
+
+    typemethod LowerNbhood {n} {
+        # FIRST, reorder the neighborhoods
+        set oldNames [rdb eval {
+            SELECT n FROM nbhoods 
+            ORDER BY stacking_order
+        }]
+
+        set names $oldNames
+        ldelete names $n
+        set names [linsert $names 0 $n]
+
+        $type RestackNbhoods $names $oldNames
+    }
+
+    # RaiseNbhood n
+    #
+    # n     A neighborhood short name
+    #
+    # Brings the neighborhood to the top of the stacking order.
+
+    typemethod RaiseNbhood {n} {
+        # FIRST, reorder the neighborhoods
+        set oldNames [rdb eval {
+            SELECT n FROM nbhoods 
+            ORDER BY stacking_order
+        }]
+
+        set names $oldNames
+
+        ldelete names $n
+        lappend names $n
+
+        $type RestackNbhoods $names $oldNames
+    }
+  
     # RestackNbhoods new ?old?
     #
     # new      A list of all nbhood names in the desired stacking
@@ -351,33 +330,351 @@ snit::type nbhood {
         notifier send ::nbhood <Entity> stack
     }
 
-    # SetObscuredBy
+    # UpdateNbhood n parmdict
     #
-    # Checks the neighborhoods for obscured reference points, and
-    # sets the obscured_by field accordingly.
+    # n            A neighborhood short name
+    # parmdict     A dictionary of neighborhood parms
     #
-    # TBD: This could be more efficient if it took into account
-    # the neighborhood that changed and only looked at overlapping
-    # neighborhoods.
+    #    longname       A new long name, or ""
+    #    urbanization   A new eurbanization level, or ""
+    #    refpoint       A new reference point, or ""
+    #    polygon        A new polygon, or ""
+    #
+    # Updates a nbhood given the parms, which are presumed to be
+    # valid.  When validity checks are needed, use the NBHOOD:UPDATE
+    # order.
 
-    typemethod SetObscuredBy {} {
+    typemethod UpdateNbhood {n parmdict} {
+        # FIRST, get the undo information
         rdb eval {
-            SELECT n, refpoint, obscured_by FROM nbhoods
-        } {
-            set in [$geo find $refpoint nbhood]
+            SELECT longname, refpoint, polygon, urbanization 
+            FROM nbhoods
+            WHERE n=$n
+        } row {
+            unset row(*)
+        }
 
-            if {$in eq $n} {
-                set in ""
+        # NEXT, Update the neighborhood
+        dict with parmdict {
+            # FIRST, Put the neighborhood in the database
+            rdb eval {
+                UPDATE nbhoods
+                SET longname     = nonempty($longname,     longname),
+                    refpoint     = nonempty($refpoint,     refpoint),
+                    polygon      = nonempty($polygon,      polygon),
+                    urbanization = nonempty($urbanization, urbanization)
+                WHERE n=$n
+            } {}
+
+            # NEXT, recompute the obscured_by field if necessary; this 
+            # nbhood might have obscured some other neighborhood's refpoint.
+            if {$polygon ne ""} {
+                $type SetObscuredBy
             }
+        }
 
-            if {$in ne $obscured_by} {
-                rdb eval {
-                    UPDATE nbhoods
-                    SET obscured_by=$in
-                    WHERE n=$n
-                }
+        # NEXT, Not undoable; clear the undo command
+        set info(undo) [mytypemethod UpdateNbhood $n [array get row]]
+
+        # NEXT, notify the app.
+        notifier send ::nbhood <Entity> update $n
+    }
+}
+
+#-------------------------------------------------------------------
+# Orders: NBHOOD:*
+
+# NBHOOD:CREATE
+#
+# Creates new neighborhoods.
+
+order define ::nbhood NBHOOD:CREATE {
+    title "Create Neighborhood"
+    parms {
+        longname     {ptype text          label "Long Name"       }
+        urbanization {ptype urbanization  label "Urbanization"    }
+        refpoint     {ptype point         label "Reference Point" }
+        polygon      {ptype polygon       label "Polygon"         }
+    }
+} {
+    # FIRST, prepare the parameters
+    prepare longname      -normalize          -required 
+    prepare urbanization  -trim      -toupper -required
+    prepare refpoint      -trim      -toupper -required
+    prepare polygon       -normalize -toupper -required
+
+    returnOnError
+
+    # NEXT, validate the parameters
+    
+    # longname
+    if {[valid longname] && [rdb exists {
+        SELECT n FROM nbhoods 
+        WHERE longname=$parms(longname)
+        OR    n=$parms(longname)
+    }]} {
+        reject longname "A neighborhood with this name already exists"
+    }
+
+    # urbanization
+    validate urbanization {
+        set parms(urbanization) [eurbanization validate $parms(urbanization)]
+    }
+
+    # polygon
+    #
+    # Is the point a valid map reference string?
+    # Is the resulting polygon a valid polygon?
+
+    validate polygon {
+        map ref validate {*}$parms(polygon)
+        set parms(polygon) [map ref2m {*}$parms(polygon)]
+        polygon validate $parms(polygon)
+    }
+
+    if {[valid polygon] && [rdb exists {
+        SELECT n FROM nbhoods
+        WHERE polygon = $parms(polygon)
+    }]} {
+        reject polygon "A neighborhood with this polygon already exists"
+    }
+
+    # refpoint
+    #
+    # Is the point a valid map reference string?
+    # Is the point within the polygon?
+
+    validate refpoint {
+        map ref validate $parms(refpoint)
+        set parms(refpoint) [map ref2m $parms(refpoint)]
+    }
+
+    if {[valid refpoint] && [rdb exists {
+        SELECT n FROM nbhoods
+        WHERE refpoint = $parms(refpoint)
+    }]} {
+        reject refpoint \
+            "A neighborhood with this reference point already exists"
+    }
+
+
+    if {[valid refpoint] && [valid polygon]} {
+        if {![ptinpoly $parms(polygon) $parms(refpoint)]} {
+            reject refpoint "not in polygon"
+        }
+    }
+    
+    returnOnError
+
+    # NEXT, create the neighborhood
+    $type CreateNbhood [array get parms]
+
+    setundo [$type LastUndo]
+}
+
+# NBHOOD:DELETE
+
+order define ::nbhood NBHOOD:DELETE {
+    title "Delete Neighborhood"
+    parms {
+        n {ptype nbhood label "Neighborhood"}
+    }
+} {
+    # FIRST, prepare the parameters
+    prepare n  -trim -toupper -required 
+
+    # Validate
+    validate n { nbhood validate $parms(n) }
+
+    # TBD: Verify that we can safely delete this.  We can't have
+    # any entities whose identity depends on this neighborhood, e.g.,
+    # nbhood groups.
+
+    returnOnError
+
+    if {[interface] eq "gui"} {
+        set answer [messagebox popup \
+                        -title         "Are you sure?"                  \
+                        -icon          warning                          \
+                        -buttons       {ok "Delete it" cancel "Cancel"} \
+                        -default       cancel                           \
+                        -ignoretag     NBHOOD:DELETE                    \
+                        -ignoredefault ok                               \
+                        -parent        [app topwin]                     \
+                        -message       "This order cannot be undone.  Are you sure you really want to delete this neighborhood?"]
+
+        if {$answer eq "cancel"} {
+            cancel
+        }
+    }
+
+    # NEXT, raise the neighborhood
+    $type DeleteNbhood $parms(n)
+
+    # NEXT, this order is not undoable.
+}
+
+# NBHOOD:LOWER
+
+order define ::nbhood NBHOOD:LOWER {
+    title "Lower Neighborhood"
+    parms {
+        n {ptype nbhood label "Neighborhood"}
+    }
+} {
+    # FIRST, prepare the parameters
+    prepare n  -trim -toupper -required 
+
+    # Validate
+    validate n { nbhood validate $parms(n) }
+
+    returnOnError
+
+    # NEXT, raise the neighborhood
+    $type LowerNbhood $parms(n)
+
+    setundo [$type LastUndo]
+}
+
+# NBHOOD:RAISE
+
+order define ::nbhood NBHOOD:RAISE {
+    title "Raise Neighborhood"
+    parms {
+        n {ptype nbhood label "Neighborhood"}
+    }
+} {
+    # FIRST, prepare the parameters
+    prepare n  -trim -toupper -required 
+
+    # Validate
+    validate n { nbhood validate $parms(n) }
+
+    returnOnError
+
+    # NEXT, raise the neighborhood
+    $type RaiseNbhood $parms(n)
+
+    setundo [$type LastUndo]
+}
+
+# NBHOOD:UPDATE
+#
+# Updates existing neighborhoods.
+
+order define ::nbhood NBHOOD:UPDATE {
+    title "Update Neighborhood"
+    table gui_nbhoods
+    keys  n
+    parms {
+        n            {ptype nbhood        label "Neighborhood"    }
+        longname     {ptype text          label "Long Name"       }
+        urbanization {ptype urbanization  label "Urbanization"    }
+        refpoint     {ptype point         label "Reference Point" }
+        polygon      {ptype polygon       label "Polygon"         }
+    }
+} {
+    # FIRST, prepare the parameters
+    prepare n             -trim      -toupper -required
+    prepare longname      -normalize
+    prepare urbanization  -trim      -toupper
+    prepare refpoint      -trim      -toupper
+    prepare polygon       -normalize -toupper
+
+    # NEXT, validate the neighborhood
+    validate n { nbhood validate $parms(n) }
+
+    # NEXT, validate the other parameters
+
+    # longname
+    if {$parms(longname) ne ""} {
+        set n ""
+
+        rdb eval {
+            SELECT n FROM nbhoods
+            WHERE longname=$parms(longname)
+            OR    n=$parms(longname)
+        } {}
+
+        if {$n ne "" && $n ne $parms(n)} {
+            reject longname "A neighborhood with this name already exists"
+        }
+    }
+
+    # urbanization
+    validate urbanization {
+        set parms(urbanization) [eurbanization validate $parms(urbanization)]
+    }
+
+    # polygon
+    #
+    # Is the point a valid map reference string?
+    # Is the resulting polygon a valid polygon?
+
+    validate polygon {
+        map ref validate {*}$parms(polygon)
+        set parms(polygon) [map ref2m {*}$parms(polygon)]
+        polygon validate $parms(polygon)
+    }
+
+    if {[valid polygon]} { 
+        rdb eval {
+            SELECT n FROM nbhoods
+            WHERE polygon = $parms(polygon)
+        } {
+            if {$n ne $parms(n)} {
+                reject polygon \
+                    "A neighborhood with this polygon already exists"
             }
         }
     }
 
+    # refpoint
+    #
+    # Is the point a valid map reference string?
+    # Is the point within the polygon?
+
+    validate refpoint {
+        map ref validate $parms(refpoint)
+        set parms(refpoint) [map ref2m $parms(refpoint)]
+    }
+
+    if {[valid refpoint]} { 
+        rdb eval {
+            SELECT n FROM nbhoods
+            WHERE refpoint = $parms(refpoint)
+        } {
+            if {$n ne $parms(n)} {
+                reject polygon \
+                    "A neighborhood with this reference point already exists"
+            }
+        }
+    }
+
+    returnOnError
+
+    # NEXT, is the refpoint in the polygon?
+    rdb eval {SELECT refpoint, polygon FROM nbhoods WHERE n = $parms(n)} {}
+
+    if {$parms(refpoint) ne ""} {
+        set refpoint $parms(refpoint)
+    }
+
+    if {$parms(polygon) ne ""} {
+        set polygon $parms(polygon)
+    }
+
+    if {![ptinpoly $polygon $refpoint]} {
+        reject refpoint "not in polygon"
+    }
+    
+    returnOnError
+
+    # NEXT, modify the neighborhood
+    set n $parms(n)
+    unset parms(n)
+
+    $type UpdateNbhood $n [array get parms]
+
+    setundo [$type LastUndo]
 }

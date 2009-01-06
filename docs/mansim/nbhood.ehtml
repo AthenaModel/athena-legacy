@@ -30,83 +30,19 @@ nbhood(sim) provides the following commands for use by the application.<p>
 
 <<deflist commands>>
 
-<<defitem create {nbhood create <i>parmdict</i>}>>
-
-Creates a new neighborhood, given a dictionary of neighborhood
-parameters; the neighborhood is assigned a short name and inserted
-into the RDB.<p>
-
-This command is intended primarily for use by the NBHOOD:CREATE order,
-and consequently presumes that its arguments are valid.<p>
-
-Sends <b>&lt;Entity&gt;</b>.<p>
-
-The parameters in the dictionary are as follows:<p>
-
-<dl>
-  <dt> <b>longname</b>
-  <dd> A unique, human-readable name for the neighborhood, e.g.,
-       "Baghdad".  It may contain whitespace.<p>
-
-  <dt> <b>urbanization</b>
-  <dd> The urbanization level for the neighborhood.  Valid values are
-       shown in the following table:<p>
-
-       <<::minlib::eurbanization html>><p>
-
-  <dt> <b>refpoint</b>
-  <dd> The neighborhood's reference point, expressed as a pair of map
-       coordinates.<p>
-
-  <dt> <b>stacking_order</b>
-  <dd> The neighborhood's boundary polygon, expressed as a list of map
-       coordinates for the vertices.<p>
-</dl><p>
-
-<<defitem delete {nbhood delete <i>n</i>}>>
-
-Deletes neighborhood <i>n</i> from the RDB, removing all entities that
-depend on it.  <b>Be Warned.</b><p>
-
-Sends <b>&lt;Entity&gt;</b>.<p>
-
 <<defitem find {nbhood find <i>mx my</i>}>>
 
 Given a point <i>mx,my</i> in map coordinates, returns the short name of the
 containing neighborhood, or "" if none.<p>
 
-<<defitem lastundo {nbhood lastundo}>>
-
-Returns a command that will undo the effects of the last mutator
-command.<p>
-
-<<defitem lower {nbhood lower <i>n</i>}>>
-
-Lowers neighborhood <i>n</i> to the bottom of the neighborhood stacking
-order, and sends <b>&lt;Entity&gt;</b>.<p>
-
 <<defitem names {nbhood names}>>
 
 Returns a list of the neighborhood short names, in order of definition.<p>
-
-<<defitem raise {nbhood raise <i>n</i>}>>
-
-Raises neighborhood <i>n</i> to the top of the neighborhood stacking
-order, and sends <b>&lt;Entity&gt;</b>.<p>
 
 <<defitem reconfigure {nbhood reconfigure}>>
 
 Updates the nbhood(sim) module when the scenario has changed.  It
 should rarely be necessary to call this directly.<p>
-
-<<defitem update {nbhood update <i>n parmdict</i>}>>
-
-Updates neighborhood <i>n</i> given the parameters in the
-<i>parmdict</i>.  The <i>parmdict</i> contains the same parameters as
-for <<iref create>>; however, any or all of them may be the empty
-string, which means that the value isn't to be changed.<p>
-
-Sends <b>&lt;Entity&gt;</b>.<p>
 
 <<defitem validate {nbhood validate <i>n</i>}>>
 
@@ -133,15 +69,15 @@ indicates the kind of change; there are the following possibilities:<p>
 
 <<defitem "Entity create" {&lt;Entity&gt; create <i>n</i>}>>
 
-The neighborhood has just been <<iref create>>d.<p>
+The neighborhood has just been created.<p>
 
 <<defitem "Entity delete" {&lt;Entity&gt; delete <i>n</i>}>>
 
-The neighborhood has been <<iref delete>>d.
+The neighborhood has been deleted.
 
 <<defitem "Entity update" {&lt;Entity&gt; update <i>n</i>}>>
 
-One or more of the neighborhood's data items has been <<iref update>>d.<p>
+One or more of the neighborhood's data items has been updated.<p>
 
 <<defitem "Entity stack" {&lt;Entity&gt;}>>
 

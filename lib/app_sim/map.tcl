@@ -103,77 +103,6 @@ snit::type map {
         }
     }
 
-    # import filename
-    #
-    # filename     An image file
-    #
-    # Attempts to import the image into the RDB.  This command is
-    # undoable.
-
-    typemethod import {filename} {
-        # FIRST, get the undo information
-        rdb eval {
-            SELECT * FROM maps WHERE id=1
-        } row {
-            unset row(*)
-        }
-
-        # NEXT, try to load it.
-        $type load $filename
-
-        # NEXT, log it.
-        log normal app "Import Map: $filename"
-        
-        app puts "Imported Map: $filename"
-
-        set info(undo) [mytypemethod UndoImport [array get row]]
-
-        # NEXT, Notify the application.
-        notifier send $type <MapChanged>
-    }
-
-    # lastundo
-    #
-    # Returns the undo command for the last mutator, or "" if none.
-    # Clears the undo information automatically.
-
-    typemethod lastundo {} {
-        set undo $info(undo)
-        unset info(undo)
-
-        return $undo
-    }
-
-    # UndoImport dict
-    #
-    # dict    A dictionary of map parameters
-    # 
-    # Undoes a previous import
-
-    typemethod UndoImport {dict} {
-        # FIRST, restore the data
-        dict for {key value} $dict {
-            rdb eval "
-                UPDATE maps
-                SET $key = \$value
-                WHERE id=1
-            "
-        }
-
-        # NEXT, load the restored image
-        $type reconfigure
-
-        # NEXT, log it
-        set filename [dict get $dict filename]
-
-        log normal app "Restored Map: $filename"
-        app puts "Restored Map: $filename"
-
-        # NEXT, Notify the application.
-        notifier send $type <MapChanged>
-    }
-    
-
     # load filename
     #
     # filename     An image file
@@ -210,4 +139,112 @@ snit::type map {
         # NEXT, load the new map
         $type reconfigure
     }
+
+    #-------------------------------------------------------------------
+    # Order Handling Type Methods
+
+    # ImportMap filename
+    #
+    # filename     An image file
+    #
+    # Attempts to import the image into the RDB.  This command is
+    # undoable.
+    #
+    # TBD: This code could be moved into MAP::IMPORT, if desired.
+
+    typemethod ImportMap {filename} {
+        # FIRST, get the undo information
+        rdb eval {
+            SELECT * FROM maps WHERE id=1
+        } row {
+            unset row(*)
+        }
+
+        # NEXT, try to load it into the RDB
+        $type load $filename
+
+        # NEXT, save the undo information
+        set info(undo) [mytypemethod UndoImport [array get row]]
+
+        # NEXT, log it.
+        log normal app "Import Map: $filename"
+        
+        app puts "Imported Map: $filename"
+
+        # NEXT, Notify the application.
+        notifier send $type <MapChanged>
+    }
+
+    # LastUndo
+    #
+    # Returns the undo command for the last mutator, or "" if none.
+    # Clears the undo information automatically.
+
+    typemethod LastUndo {} {
+        set undo $info(undo)
+        unset info(undo)
+
+        return $undo
+    }
+
+    # UndoImport dict
+    #
+    # dict    A dictionary of map parameters
+    # 
+    # Undoes a previous import
+
+    typemethod UndoImport {dict} {
+        # FIRST, restore the data
+        dict for {key value} $dict {
+            rdb eval "
+                UPDATE maps
+                SET $key = \$value
+                WHERE id=1
+            "
+        }
+
+        # NEXT, load the restored image
+        $type reconfigure
+
+        # NEXT, log it
+        set filename [dict get $dict filename]
+
+        log normal app "Restored Map: $filename"
+        app puts "Restored Map: $filename"
+
+        # NEXT, Notify the application.
+        notifier send $type <MapChanged>
+    }
 }
+
+#-------------------------------------------------------------------
+# Orders: MAP:*
+
+# MAP:IMPORT
+#
+# Imports a map into the scenario
+
+order define ::map MAP:IMPORT {
+    title "Import Map"
+    parms {
+        filename { ptype imagefile  label "Map File" }
+    }
+} {
+    # FIRST, prepare the parameters
+    prepare filename -trim -required 
+
+    returnOnError
+
+    # NEXT, validate the parameters
+    if {[catch {
+        # In this case, simply try it.
+        $type ImportMap $parms(filename)
+    } result]} {
+        reject filename $result
+    }
+
+    returnOnError
+
+    setundo [$type LastUndo]
+}
+

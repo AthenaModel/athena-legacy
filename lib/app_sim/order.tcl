@@ -56,6 +56,16 @@ snit::type order {
     # None
 
     #-------------------------------------------------------------------
+    # Non-Checkpointed Variables
+
+    # Order handler name by order name
+    
+    typevariable handler -array {}
+
+    # Array of meta dicts by order name.
+    typevariable meta -array {}
+
+    #-------------------------------------------------------------------
     # Transient Variables
     #
     # The following variables are used while processing an error; they
@@ -123,6 +133,9 @@ snit::type order {
 
         log normal order [list $displayName from '$interface': $parmdict]
 
+        # NEXT, do we have an order handler?
+        require {[info exists handler($name)]} "Undefined order: $name"
+
         # NEXT, save the interface.
         set currentInterface $interface
 
@@ -147,7 +160,7 @@ snit::type order {
         set undoCmd    {}
 
         if {$interface in {"gui" "test"}} {
-            if {[catch $name result opts]} {
+            if {[catch $handler($name) result opts]} {
                 if {[dict get $opts -errorcode] in "REJECT"} {
                     log warning order $result                    
                     return {*}$opts $result
@@ -163,7 +176,7 @@ snit::type order {
                 }
             }
         } elseif {$interface eq "sim"} {
-            if {[catch $name result opts]} {
+            if {[catch $handler($name) result opts]} {
                 set einfo [dict get $opts -errorinfo]
 
                 log error order \
@@ -187,31 +200,80 @@ snit::type order {
         return $result
     }
 
-
-    # define name body
+    # define module name metadata body
     #
+    # module      The name of a module (a snit::type)
     # name        The name of the order
+    # metadata    The order's metadata
     # body        The body of the order
     #
-    # Defines a proc within the ::order namespace in which all
+    # Defines a proc within the module::orders namespace in which all
     # type variables appear.  This allows orders to be defined
     # outside the order.tcl file.
 
-    typemethod define {name body} {
-        # FIRST, get the variables
-        set vars [list namespace upvar $type]
-        
-        foreach tv [$type info typevars] {
-            lappend vars $tv [namespace tail $tv]
+    typemethod define {module name metadata body} {
+        # FIRST, save the metadata, setting default values.
+        set meta($name) [dict merge             \
+                             {table "" keys ""} \
+                             $metadata]
+
+        # NEXT, get the module variables
+        set modvars [list namespace upvar $module]
+
+        foreach tv [$module info typevars] {
+            lappend modvars $tv [namespace tail $tv]
         }
 
-        # NEXT, define the handler
-        proc ${type}::$name {} "$vars\n$body"
+        # NEXT, define the namespace and set up the namespace path
+        namespace eval ${module}::orders:: \
+            [list namespace path [list ${module} ::order::]]
 
+        # NEXT, save the handler name
+        set handler($name) ${module}::orders::$name
+
+        # NEXT, define the handler
+        proc $handler($name) {} [tsubst {
+        |<--
+            namespace upvar $type ${type}::parms parms
+            $modvars
+            set type $module
+
+            $body
+        }]
     }
+
+    # meta order key ?key...?
+    #
+    # order     The name of an order
+    # key...    Keys into the meta dictionary
+    #
+    # Returns the result of "dict get" on the meta dictionary
+
+    typemethod meta {order args} {
+        return [dict get $meta($order) {*}$args]
+    }
+
+    # exists name
+    #
+    # name     An order name
+    #
+    # Returns 1 if there's an order with this name, and 0 otherwise
+
+    typemethod exists {name} {
+        return [info exists handler($name)]
+    }
+
 
     #-------------------------------------------------------------------
     # Procs for use in order handlers
+
+    # interface
+    #
+    # Returns the name of the current interface
+
+    proc interface {} {
+        return $currentInterface
+    }
 
     # prepare parm options...
     #

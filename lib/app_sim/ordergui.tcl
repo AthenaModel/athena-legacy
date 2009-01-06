@@ -86,14 +86,6 @@ snit::type ordergui {
     }
 
     #-------------------------------------------------------------------
-    # Dialog Definition data
-
-
-    # Array of meta dicts by order name.
-    typevariable meta -array {}
-
-
-    #-------------------------------------------------------------------
     # Type Variables
 
     # info array: scalar variables
@@ -253,31 +245,6 @@ snit::type ordergui {
     #-------------------------------------------------------------------
     # Public Type Methods
 
-    # define name metadata
-    
-    # name        The name of the order
-    # metadata    A dictionary of meta-data about the order.
-    #
-    # Defines meta-data for the order that defines the order's dialog.
-
-    typemethod define {name metadata} {
-        # FIRST, save the metadata, setting default values.
-        set meta($name) [dict merge             \
-                             {table "" keys ""} \
-                             $metadata]
-    }
-
-    # meta order key ?key...?
-    #
-    # order     The name of an order
-    # key...    Keys into the meta dictionary
-    #
-    # Returns the result of "dict get" on the meta dictionary
-
-    typemethod meta {order args} {
-        return [dict get $meta($order) {*}$args]
-    }
-    
     # isactive
     #
     # Returns 1 if the order dialog is active, and 0 otherwise
@@ -300,7 +267,7 @@ snit::type ordergui {
         }
 
         # NEXT, get the parm type
-        return [$type meta $info(order) parms $parm ptype]
+        return [order meta $info(order) parms $parm ptype]
     }
 
     # parm set parm value
@@ -334,8 +301,8 @@ snit::type ordergui {
     # up the window.
 
     typemethod enter {order} {
-        require {$info(initialized)}         "Order dialog is uninitialized"
-        require {[info exists meta($order)]} "Undefined order: \"$order\""
+        require {$info(initialized)}    "Order dialog is uninitialized"
+        require {[order exists $order]} "Undefined order: \"$order\""
 
         # FIRST, Make sure we're not already handling an order
         if {$info(active)} {
@@ -362,9 +329,9 @@ snit::type ordergui {
 
         # NEXT, get the order's title
         set info(order) $order
-        set info(title) [$type meta $order title]
-        set info(table) [$type meta $order table]
-        set info(keys)  [$type meta $order keys]
+        set info(title) [order meta $order title]
+        set info(table) [order meta $order table]
+        set info(keys)  [order meta $order keys]
         array unset values
         array unset icon
         array unset perrors
@@ -372,7 +339,7 @@ snit::type ordergui {
         # NEXT, add the parameter fields
         set row -1
         
-        dict for {parm pdict} [$type meta $order parms] {
+        dict for {parm pdict} [order meta $order parms] {
             # FIRST, get the current row
             incr row
 
@@ -598,7 +565,7 @@ snit::type ordergui {
 
         # NEXT, if there's an error message, display it.
         if {[info exists perrors($parm)]} {
-            set label [$type meta $info(order) parms $parm label]
+            set label [order meta $info(order) parms $parm label]
             $type Message "$label: $perrors($parm)"
         } else {
             $type Message ""
@@ -741,4 +708,13 @@ snit::widgetadaptor textentry {
 
     delegate method * to hull
 }
+
+#-------------------------------------------------------------------
+# Define specific entry types
+
+ordergui entrytype enum nbhood       -valuecmd [list nbhood names]
+ordergui entrytype enum urbanization -values [eurbanization names]
+
+
+
 

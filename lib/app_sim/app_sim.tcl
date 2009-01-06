@@ -51,10 +51,10 @@ namespace import ::mingui::*
 # Non-GUI
 source [file join $::app_sim::library app.tcl             ]
 source [file join $::app_sim::library scenario.tcl        ]
-source [file join $::app_sim::library map.tcl             ]
-source [file join $::app_sim::library nbhood.tcl          ]
 source [file join $::app_sim::library cif.tcl             ]
 source [file join $::app_sim::library order.tcl           ]
+source [file join $::app_sim::library map.tcl             ]
+source [file join $::app_sim::library nbhood.tcl          ]
 
 # GUI
 source [file join $::app_sim::library ordergui.tcl        ]
@@ -64,8 +64,5 @@ source [file join $::app_sim::library mapicons.tcl        ]
 source [file join $::app_sim::library nbhoodbrowser.tcl   ]
 source [file join $::app_sim::library frcgroupbrowser.tcl ]
 
-# Orders
-source [file join $::app_sim::library orders_MAP.tcl    ]
-source [file join $::app_sim::library orders_NBHOOD.tcl ]
 
 

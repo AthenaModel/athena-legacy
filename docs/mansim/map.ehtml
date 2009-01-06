@@ -25,18 +25,17 @@ map(sim) provides the following commands for use by the application.<p>
 
 Returns the name of a Tk image for the current map, or "" if none is
 loaded.<p>
-<<defitem "import" {map import <i>filename</i>}>>
-
-Attempts to import a map image from <i>filename</i>,
-which may be a JPEG, GIF, or PNG file.<p>
-
-On success, loads the new map and sends
-<b>&lt;MapChanged&gt;</b>.<p>
 
 <<defitem "init" {map init}>>
 
 Initializes the module, and sets it for the case where no map is
 loaded.<p>
+
+<<defitem "load" {map load <i>filename</i>}>>
+
+Attempts to load the named file into the RDB as the current map.  This
+is used to load a blank image into the RDB as the initial map when a
+new scenario is created, and by MAP::IMPORT.<p>
 
 <<defitem "reconfigure" {map reconfigure}>>
 

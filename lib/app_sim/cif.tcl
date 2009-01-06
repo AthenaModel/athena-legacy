@@ -104,8 +104,7 @@ snit::type cif {
                 return ""
             }
 
-            # TBD: This should be part of the order definition
-            return [ordergui meta $name title]
+            return [order meta $name title]
         }
 
         return
@@ -149,8 +148,7 @@ snit::type cif {
             FROM cif 
             WHERE id=$info(nextid)
         } {
-            # TBD: This should be part of the order definition
-            return [ordergui meta $name title]
+            return [order meta $name title]
         }
 
         return

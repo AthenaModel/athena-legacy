@@ -180,7 +180,7 @@ snit::widget frcgroupbrowser {
 
     method AddGroup {} {
         # FIRST, Pop up the dialog
-        ordergui enter FRCGROUP:CREATE
+        ordergui enter GROUP:FORCE:CREATE
     }
 
     # EditSelected
@@ -192,7 +192,7 @@ snit::widget frcgroupbrowser {
         set id [lindex [$tb curselection] 0]
 
         # NEXT, Pop up the dialog, and select this group
-        ordergui enter FRCGROUP:UPDATE
+        ordergui enter GROUP:FORCE:UPDATE
         ordergui parm set g $id
     }
 
@@ -205,7 +205,7 @@ snit::widget frcgroupbrowser {
         set id [lindex [$tb curselection] 0]
 
         # NEXT, Pop up the dialog, and select this group
-        ordergui enter FRCGROUP:DELETE
+        ordergui enter GROUP:FORCE:DELETE
         ordergui parm set g $id
     }
 
