@@ -1,0 +1,54 @@
+<<manpage {mingui(n) icons(n)} "Mingui Icons">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require mingui 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+This module defines a number of standard icon images.  Each icon is a
+standard Tk image; all are defined in the <code>::mingui::icon</code>
+namespace.  <b>Note that it's necessary to use the fully qualified
+name!</b>.<p>
+
+Icons are generally square; each name is suffixed with the size of the
+icon in pixels, e.g., <code>::mingui::icon::pencil22</code> is a 22x22
+pixel icon.<p>
+
+<<section ICONS>>
+
+The module defines the following icons.<p>
+
+<<deflist icons>>
+
+<<defitem pencil22 {::mingui::icon::pencil22}>>
+
+A pencil, i.e., "Edit".<p>
+
+<<defitem plus22 {::mingui::icon::plus22}>>
+
+A bold plus sign, i.e., "Add".<p>
+
+<<defitem x22 {::mingui::icon::x22}>>
+
+A large "X", i.e., "Cancel" or "Delete".<p>
+
+<</deflist icons>>
+
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
