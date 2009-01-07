@@ -19,11 +19,6 @@ various NBHOOD:* orders, and provides support for order-processing.<p>
 Every neighborhood has a long human-readable name; but neighborhoods
 are usually identified by their short name, a unique ID.<p>
 
-The module provides two kinds of command: mutators and queries.
-Mutator commands affect the state of the simulation; each will either set
-<<iref lastundo>> to a command that will undo the change, or will
-clear it indicating that no undo is possible.<p>
-
 <<section "COMMANDS">>
 
 nbhood(sim) provides the following commands for use by the application.<p>

@@ -1,0 +1,165 @@
+<<manpage orders(sim) "Minerva Orders">>
+
+<<swallow {
+package require minlib
+}>>
+
+<<section DESCRIPTION>>
+
+All user inputs to the minerva_sim(1) simulation come in as simulation
+orders, which are defined by the various simulation modules.  This man
+page documents the orders and their parameters.<p>
+
+<<section "MAP:*">>
+
+The <code>MAP:*</code> orders relate to the map display, and are implemented
+by the <<xref map(sim)>> module.<p>
+
+<<deflist map>>
+
+<<defitem MAP:IMPORT {MAP:IMPORT}>>
+
+Imports a map image file into the scenario.  The parameters are as
+follows:<p>
+
+<<deflist options>>
+
+<<defopt filename>>
+
+<b>Required.</b> The name of the image file to import and use as a map.
+
+<</deflist options>>
+
+<</deflist map>>
+
+<<section "NBHOOD:*">>
+
+The <code>NBHOOD:*</code> orders are used to create and manipulate map
+regions called neighborhoods.  They are implemented
+by the <<xref nbhood(sim)>> module.<p>
+
+<<deflist nbhood>>
+
+<<defitem NBHOOD:CREATE {NBHOOD:CREATE}>>
+
+Creates a new neighborhood.  The parameters are as
+follows:<p>
+
+<<deflist options>>
+
+<<defopt longname>>
+
+<b>Required.</b> A short human-readable name for the neighborhood, e.g., "Los Angeles".<p>
+
+<<defopt urbanization>>
+
+<b>Required.</b> The neighborhood's urbanization level:<p>
+
+<<::minlib::eurbanization html>>
+
+<<defopt refpoint>>
+
+<b>Required.</b> The neighborhood's reference point, expressed as a
+<<xref mapref(n)>> mapref string.  This is a location within the
+neighborhood's polygon.<p>
+
+<<defopt polygon>>
+
+<b>Required.</b> The neighborhood's boundary polygon, expressed as a list of
+<<xref mapref(n)>> mapref strings.
+
+<</deflist options>>
+
+<<defitem NBHOOD:DELETE {NBHOOD:DELETE}>>
+
+Deletes a neighborhood.<p>
+
+TBD: Possibly, all entities depending on the neighborhood will be
+deleted as well.  Alternatively, the order might be rejected if any
+other entities depend on this neighborhood.<p>
+
+The parameters are as follows:<p>
+
+<<deflist options>>
+
+<<defopt n>>
+
+<b>Required.</b> The neighborhood's ID.<p>
+
+<</deflist options>>
+
+<<defitem NBHOOD:LOWER {NBHOOD:LOWER}>>
+
+Lowers a neighborhood to the bottom of the stacking order, below
+any neighborhoods which overlap it.  The parameters are as follows:<p>
+
+<<deflist options>>
+
+<<defopt n>>
+
+<b>Required.</b> The neighborhood's ID.<p>
+
+<</deflist options>>
+
+<<defitem NBHOOD:RAISE {NBHOOD:RAISE}>>
+
+Raises a neighborhood to the top of the stacking order, over
+any neighborhoods which it overlaps.  The parameters are as follows:<p>
+
+<<deflist options>>
+
+<<defopt n>>
+
+<b>Required.</b> The neighborhood's ID.<p>
+
+<</deflist options>>
+
+<<defitem NBHOOD:UPDATE {NBHOOD:UPDATE}>>
+
+Updates a neighborhood's data.  The parameters are as
+follows:<p>
+
+<<deflist options>>
+
+<<defopt n>>
+
+<b>Required.</b> The neighborhood's ID.<p>
+
+<<defopt longname>>
+
+<b>Optional.</b> A short human-readable name for the neighborhood,
+e.g., "Los Angeles".<p>
+
+<<defopt urbanization>>
+
+<b>Optional.</b>  The neighborhood's urbanization level:<p>
+
+<<::minlib::eurbanization html>>
+
+<<defopt refpoint>>
+
+<b>Optional.</b>  The neighborhood's reference point, expressed as a
+<<xref mapref(n)>> mapref string.  This is a location within the
+neighborhood's polygon.<p>
+
+<<defopt polygon>>
+
+<b>Optional.</b>  The neighborhood's boundary polygon, expressed as a
+list of <<xref mapref(n)>> mapref strings.<p>
+
+<</deflist options>>
+
+<</deflist nbhood>>
+
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<</manpage>>
+
+
+
+
+
+
