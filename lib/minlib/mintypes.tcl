@@ -14,16 +14,59 @@
 # Export public commands
 
 namespace eval ::minlib:: {
-    namespace export eurbanization polygon
+    namespace export  \
+        eforcetype    \
+        eurbanization \
+        eyesno        \
+        ident         \
+        polygon
 }
 
 #-------------------------------------------------------------------
 # Enumerations
 
+::marsutil::enum ::minlib::eforcetype {
+    REGULAR        "Regular Military"
+    PARAMILITARY   "Paramilitary"
+    POLICE         "Police"
+    IRREGULAR      "Irregular Military"
+    CRIMINAL       "Organized Crime"
+}
+
 ::marsutil::enum ::minlib::eurbanization {
     RURAL        "Rural"
     SUBURBAN     "Suburban"
     URBAN        "Urban"
+}
+
+::marsutil::enum ::minlib::eyesno {
+    Yes "Yes"
+    No  "No"
+}
+
+#-----------------------------------------------------------------------
+# ident type
+
+snit::type ::minlib::ident {
+    # Make it a singleton
+    pragma -hasinstances no
+
+    #-------------------------------------------------------------------
+    # Public Type Methods
+
+    # validate name
+    #
+    # name    Possibly, an identifier
+    #
+    # Identifiers should begin with a letter, and contain only letters
+    # and digits.
+
+    typemethod validate {name} {
+        if {![regexp {^[A-Z][A-Z0-9]*$} $name]} {
+            return -code error -errorcode INVALID \
+           "Identifiers should begin with a letter and contain only letters or digits"
+        }
+    }
 }
 
 #-----------------------------------------------------------------------

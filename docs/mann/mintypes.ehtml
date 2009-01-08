@@ -23,12 +23,38 @@ not yet clear, so this code should be regarded as provisional.<p>
 
 <<deflist types>>
 
+<<defitem eforcetype {eforcetype <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing force group types.<p>
+
+<<::minlib::eforcetype html>>
+
 <<defitem eurbanization {eurbanization <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing neighborhood urbanization
 levels.<p>
 
 <<::minlib::eurbanization html>>
+
+<<defitem eyesno {eyesno <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing boolean "Yes/No" values.<p>
+
+<<::minlib::eyesno html>>
+
+<<defitem ident {ident <i>subcommand</i> ?<i>args</i>?}>>
+
+Identifier type.  An identifier is a string consisting of letters and
+digits beginning with a letter.<p>
+
+<<deflist ident>>
+
+<<defitem "ident validate" {ident validate <i>name</i>}>>
+
+Validates and returns the <i>name</i>.  On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
+<</deflist ident>>
 
 <<defitem polygon {polygon <i>subcommand</i> ?<i>args</i>?}>>
 

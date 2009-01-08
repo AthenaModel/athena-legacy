@@ -234,12 +234,27 @@ snit::widget appwin {
         # Orders menu
         set ordersmenu [menu $menu.orders]
         $menu add cascade -label "Orders" -underline 0 -menu $ordersmenu
+
+        # Orders/Force Group
+        set submenu [menu $ordersmenu.frcgroup]
+        $ordersmenu add cascade -label "Force Group" \
+            -underline 0 -menu $submenu
         
-        $self AddOrder $ordersmenu NBHOOD:CREATE
-        $self AddOrder $ordersmenu NBHOOD:UPDATE
-        $self AddOrder $ordersmenu NBHOOD:LOWER
-        $self AddOrder $ordersmenu NBHOOD:RAISE
-        $self AddOrder $ordersmenu NBHOOD:DELETE
+        $self AddOrder $submenu GROUP:FORCE:CREATE
+        $self AddOrder $submenu GROUP:FORCE:UPDATE
+        $self AddOrder $submenu GROUP:FORCE:DELETE
+
+        # Orders/Neighborhood Menu
+        set submenu [menu $ordersmenu.nbhood]
+        $ordersmenu add cascade -label "Neighborhood" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu NBHOOD:CREATE
+        $self AddOrder $submenu NBHOOD:UPDATE
+        $self AddOrder $submenu NBHOOD:LOWER
+        $self AddOrder $submenu NBHOOD:RAISE
+        $self AddOrder $submenu NBHOOD:DELETE
+
     }
 
     # AddOrder mnu order
