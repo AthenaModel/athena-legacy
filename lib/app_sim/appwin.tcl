@@ -62,7 +62,7 @@ snit::widget appwin {
 
         # NEXT, set the default window title
         # TBD: Not here.
-        wm title $win "Untitled - Minerva [version]"
+        wm title $win "Untitled - Athena [version]"
 
         # NEXT, Exit the app when this window is closed, if it's a 
         # main window.
@@ -423,7 +423,7 @@ snit::widget appwin {
                           -parent $win                    \
                           -title "Open Scenario"          \
                           -filetypes {
-                              {{Minerva Database} {.mdb} }
+                              {{Athena Database} {.mdb} }
                           }]
 
         # NEXT, If none, they cancelled
@@ -448,7 +448,7 @@ snit::widget appwin {
                           -parent $win                     \
                           -title "Save Scenario As"        \
                           -filetypes {
-                              {{Minerva Database} {.mdb} }
+                              {{Athena Database} {.mdb} }
                           }]
 
         # NEXT, If none, they cancelled.
@@ -543,7 +543,7 @@ snit::widget appwin {
                             -icon    warning             \
                             -message $message            \
                             -parent  $win                \
-                            -title   "Minerva [version]" \
+                            -title   "Athena [version]" \
                             -buttons {
                                 save    "Save"
                                 discard "Discard"
@@ -691,7 +691,7 @@ snit::widget appwin {
             set wintype "Browser"
         }
 
-        wm title $win "$dbfile, $tab - Minerva [version] $wintype"
+        wm title $win "$dbfile, $tab - Athena [version] $wintype"
     }
 
     #-------------------------------------------------------------------
@@ -730,6 +730,7 @@ snit::widget appwin {
         $msgline puts $text
     }
 }
+
 
 
 

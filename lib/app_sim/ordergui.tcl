@@ -153,7 +153,7 @@ snit::type ordergui {
         wm withdraw $dialog
 
         # NEXT, set the window title
-        wm title $dialog "Minerva [version]: Send Order"
+        wm title $dialog "Athena [version]: Send Order"
 
         # NEXT, the user can't resize it
         wm resizable $dialog 0 0
@@ -313,7 +313,7 @@ snit::type ordergui {
                             } -icon    question            \
                             -ignoretag ordergui:active     \
                             -parent    [app topwin]        \
-                            -title     "Minerva [version]" \
+                            -title     "Athena [version]" \
                             -message "The order dialog is already active for another order.  Do you wish to enter this order instead of the previous?"]
 
             if {$answer eq "cancel"} {
@@ -495,7 +495,7 @@ snit::type ordergui {
             -buttons {ok OK}                                      \
             -icon    info                                         \
             -parent  [app topwin]                                 \
-            -title   "Minerva [version]"                          \
+            -title   "Athena [version]"                          \
             -message "This feature has not yet been implemented."
     }
 
@@ -717,6 +717,7 @@ ordergui entrytype enum frcgroup     -valuecmd [list frcgroup names]
 ordergui entrytype enum forcetype    -values   [eforcetype names]
 ordergui entrytype enum urbanization -values   [eurbanization names]
 ordergui entrytype enum yesno        -values   [eyesno names]
+
 
 
 

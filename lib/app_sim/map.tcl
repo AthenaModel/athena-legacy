@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    minerva_sim(1): Map Manager
+#    athena_sim(1): Map Manager
 #
 #    This module is responsible for loading the map image and creating
 #    the projection object, and making them available to the rest of the
@@ -247,4 +247,5 @@ order define ::map MAP:IMPORT {
 
     setundo [$type LastUndo]
 }
+
 

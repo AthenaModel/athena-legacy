@@ -1,12 +1,12 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    mingui.tcl
+#    athlib.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Minerva: mingui(n) main package
+#    Athena: athlib(n) main package
 #
 #-----------------------------------------------------------------------
 
@@ -14,39 +14,46 @@
 # External Package Dependencies
 
 package require snit
-package require sqlite3
-package require pixane
-package require tablelist
 
 #-----------------------------------------------------------------------
 # Internal Package Dependencies
 
 package require marsutil
-package require marsgui
-package require minlib
+package require sqlite3
 
 #-----------------------------------------------------------------------
 # Package Definition
 
-package provide mingui 1.0
+package provide athlib 1.0
 
 #-----------------------------------------------------------------------
 # Namespace definition
 
-namespace eval ::mingui:: {
+namespace eval ::athlib:: {
     variable library [file dirname [info script]]
 
     namespace import ::marsutil::* 
-    namespace import ::marsgui::*
-    namespace import ::minlib::*
+
+    namespace export version
+}
+
+#-------------------------------------------------------------------
+# Load binary extensions, if present.
+
+set binlib [file join $::athlib::library libVersion.so]
+
+if {[file exists $binlib]} {
+    load $binlib
 }
 
 #-----------------------------------------------------------------------
-# Load mingui(n) submodules
+# Load athlib(n) submodules
 
-source [file join $::mingui::library icons.tcl        ]
-source [file join $::mingui::library mapcanvas.tcl    ]
-source [file join $::mingui::library tablebrowser.tcl ]
-source [file join $::mingui::library messagebox.tcl   ]
+source [file join $::athlib::library athtypes.tcl   ]
+source [file join $::athlib::library mapref.tcl     ]
+source [file join $::athlib::library scenariodb.tcl ]
+source [file join $::athlib::library workdir.tcl    ]
+
+
 
 

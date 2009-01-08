@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    minlib(n) module: a generic projection(i) type.
+#    athlib(n) module: a generic projection(i) type.
 #
 #    Routines for conversion between canvas coordinates and map references.
 #    A map is an image file used as a map background.  Maps may be zoomed.
@@ -58,16 +58,16 @@
 #-----------------------------------------------------------------------
 # Export public commands
 
-namespace eval ::minlib:: {
+namespace eval ::athlib:: {
     namespace export mapref zoomfactor
 }
 
 #-----------------------------------------------------------------------
 # mapref type
 
-snit::integer ::minlib::zoomfactor -min 1 -max 300
+snit::integer ::athlib::zoomfactor -min 1 -max 300
 
-snit::type ::minlib::mapref {
+snit::type ::athlib::mapref {
     #-------------------------------------------------------------------
     # Options
 
@@ -306,4 +306,5 @@ snit::type ::minlib::mapref {
         return $cu
     }
 }
+
 

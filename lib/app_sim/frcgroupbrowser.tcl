@@ -69,7 +69,7 @@ snit::widget frcgroupbrowser {
             -relief flat
 
         install addbtn using button $bar.add   \
-            -image      ::mingui::icon::plus22 \
+            -image      ::athgui::icon::plus22 \
             -relief     flat                   \
             -overrelief raised                 \
             -state      normal                 \
@@ -78,7 +78,7 @@ snit::widget frcgroupbrowser {
         DynamicHelp::add $addbtn -text "Add Force Group"
 
         install editbtn using button $bar.edit   \
-            -image      ::mingui::icon::pencil22 \
+            -image      ::athgui::icon::pencil22 \
             -relief     flat                     \
             -overrelief raised                   \
             -state      disabled                 \
@@ -87,7 +87,7 @@ snit::widget frcgroupbrowser {
         DynamicHelp::add $editbtn -text "Edit Selected Group"
 
         install deletebtn using button $bar.delete \
-            -image      ::mingui::icon::x22        \
+            -image      ::athgui::icon::x22        \
             -relief     flat                       \
             -overrelief raised                     \
             -state      disabled                   \
@@ -256,4 +256,5 @@ snit::widget frcgroupbrowser {
         }
     }
 }
+
 

@@ -7,7 +7,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Tcltest test suite for minlib(n), mapref.tcl
+#    Tcltest test suite for athlib(n), mapref.tcl
 #
 #-----------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 #-----------------------------------------------------------------------
 # Load the package to be tested
 
-package require minlib 1.0
+package require athlib 1.0
 
 #-----------------------------------------------------------------------
 # Test Suite
@@ -30,7 +30,7 @@ package require minlib 1.0
 # The tests run in a namespace so as not to interfere with other
 # test suites.
 
-namespace eval ::minlib::test {
+namespace eval ::athlib::test {
     #-------------------------------------------------------------------
     # Set up the test environment
 
@@ -38,7 +38,7 @@ namespace eval ::minlib::test {
     namespace import ::tcltest::*
 
     # Import the code to be tested
-    namespace import ::minlib::*
+    namespace import ::athlib::*
 
     # Setup for tests
 
@@ -351,5 +351,6 @@ namespace eval ::minlib::test {
     cleanupTests
 }
 
-namespace delete ::minlib::test
+namespace delete ::athlib::test
+
 

@@ -141,7 +141,7 @@ snit::type ::mapicon::infantry {
     }
 }
 
-::mingui::mapcanvas icon register ::mapicon::infantry
+::athgui::mapcanvas icon register ::mapicon::infantry
 
 
 #-----------------------------------------------------------------------
@@ -249,7 +249,7 @@ snit::type ::mapicon::bomb {
 
 }
 
-::mingui::mapcanvas icon register ::mapicon::bomb
+::athgui::mapcanvas icon register ::mapicon::bomb
 
 
 #-----------------------------------------------------------------------
@@ -348,4 +348,5 @@ snit::type ::mapicon::powerplant {
     }
 }
 
-::mingui::mapcanvas icon register ::mapicon::powerplant
+::athgui::mapcanvas icon register ::mapicon::powerplant
+

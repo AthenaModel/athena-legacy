@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    mingui(n) package: Map Canvas widget
+#    athgui(n) package: Map Canvas widget
 #
 #    This is a canvas widget designed to display a map with
 #    features upon it, including neighborhood polygons and asset icons.
@@ -66,14 +66,14 @@
 #-----------------------------------------------------------------------
 # Export public commands
 
-namespace eval ::mingui:: {
+namespace eval ::athgui:: {
     namespace export mapcanvas mapimage
 }
 
 #-------------------------------------------------------------------
 # Data Types
 
-snit::type ::mingui::mapimage {
+snit::type ::athgui::mapimage {
     typemethod validate {img} {
         if {$img eq ""} {
             return
@@ -91,7 +91,7 @@ snit::type ::mingui::mapimage {
 #-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widgetadaptor ::mingui::mapcanvas {
+snit::widgetadaptor ::athgui::mapcanvas {
     #-------------------------------------------------------------------
     # Type Constructor
 
@@ -230,7 +230,7 @@ snit::widgetadaptor ::mingui::mapcanvas {
     #
     # Tk photo image of the map
     
-    option -map -type ::mingui::mapimage
+    option -map -type ::athgui::mapimage
 
     # -projection
     #
@@ -1751,3 +1751,4 @@ snit::widgetadaptor ::mingui::mapcanvas {
         expr {$x1 <= $x && $x2 >= $x && $y1 <= $y && $y2 >= $y}
     }
 }
+

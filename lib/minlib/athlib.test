@@ -1,13 +1,13 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    minlib.test
+#    athlib.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Tcltest test suite for minlib(n)
+#    Tcltest test suite for athlib(n)
 #
 #-----------------------------------------------------------------------
 
@@ -21,10 +21,11 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 
 ::tcltest::configure \
     -testdir [file dirname [file normalize [info script]]] \
-    -notfile minlib.test
+    -notfile athlib.test
 
 #-----------------------------------------------------------------------
 # Run all of the tests in this directory
 
 ::tcltest::runAllTests
+
 

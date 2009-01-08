@@ -6,11 +6,11 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Minerva Scenario Database Object
+#    Athena Scenario Database Object
 #
 #    This module defines the scenariodb type.  Instances of the 
 #    scenariodb type manage SQLite3 database files which contain 
-#    scenario data, including run-time data, for minerva_sim(1).
+#    scenario data, including run-time data, for athena_sim(1).
 #
 #    Typically the application will use scenariodb(n) to create a
 #    Run-time Database (RDB) and then load and save external *.mdb 
@@ -27,14 +27,14 @@
 #
 #-----------------------------------------------------------------------
 
-namespace eval ::minlib:: {
+namespace eval ::athlib:: {
     namespace export scenariodb
 }
 
 #-----------------------------------------------------------------------
 # scenario
 
-snit::type ::minlib::scenariodb {
+snit::type ::athlib::scenariodb {
     #-------------------------------------------------------------------
     # Type Constructor
 
@@ -67,7 +67,7 @@ snit::type ::minlib::scenariodb {
     # Returns the section's persistent schema definitions, if any.
 
     typemethod {sqlsection schema} {} {
-        return [readfile [file join $::minlib::library scenariodb.sql]]
+        return [readfile [file join $::athlib::library scenariodb.sql]]
     }
 
     # sqlsection tempschema
@@ -261,3 +261,6 @@ snit::type ::minlib::scenariodb {
         set info(savedChanges) [$db total_changes]
     }
 }
+
+
+

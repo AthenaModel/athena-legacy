@@ -6,14 +6,14 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Minerva Working Directory Access
+#    Athena Working Directory Access
 #
 #    This object is responsible for providing access to
-#    the Minerva working directory tree, which resides at
+#    the Athena working directory tree, which resides at
 #    
-#      ~/.minerva/<pid>/
+#      ~/.athena/<pid>/
 #
-#    where <pid> is the process ID of the running instance of Minerva.
+#    where <pid> is the process ID of the running instance of Athena.
 #    Within this directory, "workdir init" will create the following
 #    directories:
 #
@@ -24,21 +24,21 @@
 #
 #-----------------------------------------------------------------------
 
-namespace eval ::minlib:: {
+namespace eval ::athlib:: {
     namespace export workdir
 }
 
 #-----------------------------------------------------------------------
 # workdir
 
-snit::type ::minlib::workdir {
+snit::type ::athlib::workdir {
     pragma -hastypedestroy 0 -hasinstances 0
 
     #-------------------------------------------------------------------
     # Instance variables
 
     typevariable workdir ""   ;# The absolute path of the working 
-                               # directory, ~/.minerva/<version>/<pid>
+                               # directory, ~/.athena/<version>/<pid>
 
 
     #-------------------------------------------------------------------
@@ -57,7 +57,7 @@ snit::type ::minlib::workdir {
         }
 
         # FIRST, get the absolute path of the working directory
-        set workdir [file normalize ~/.minerva/[pid]]
+        set workdir [file normalize ~/.athena/[pid]]
 
         # NEXT, create it, if it doesn't exist.
         file mkdir $workdir
@@ -92,6 +92,9 @@ snit::type ::minlib::workdir {
         set workdir ""
     }
 }
+
+
+
 
 
 

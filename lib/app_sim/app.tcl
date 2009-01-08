@@ -9,7 +9,7 @@
 #    app_sim(n) Application Ensemble
 #
 #    This module defines app, the application ensemble.  app encapsulates 
-#    all of the functionality of minerva_sim(1), including the application's 
+#    all of the functionality of athena_sim(1), including the application's 
 #    start-up behavior.  To invoke the  application,
 #
 #        package require app_sim
@@ -97,7 +97,7 @@ snit::type app {
         ordergui init
 
         # NEXT, log that we're up.
-        log normal app "Minerva [version]"
+        log normal app "Athena [version]"
 
         # NEXT, if a scenario file is specified on the command line,
         # open it.
@@ -123,9 +123,9 @@ snit::type app {
     # Displays the application's command-line syntax
     
     typemethod usage {} {
-        puts "Usage: minerva sim"
+        puts "Usage: athena sim"
         puts ""
-        puts "See minerva_sim(1) for more information."
+        puts "See athena_sim(1) for more information."
     }
 
     # puts text
@@ -228,5 +228,7 @@ proc bgerror {msg} {
         please see the log for details.
     }
 }
+
+
 
 

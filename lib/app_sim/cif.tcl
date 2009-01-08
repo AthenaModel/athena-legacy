@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    minerva_sim(1): Critical Input File manager.  Granted, it's now a 
+#    athena_sim(1): Critical Input File manager.  Granted, it's now a 
 #    database table rather than a file, but "cif" is hallowed by time.
 #
 #    This module is responsible for adding orders to the cif table and
@@ -180,4 +180,5 @@ snit::type cif {
         error "Nothing to redo"
     }
 }
+
 

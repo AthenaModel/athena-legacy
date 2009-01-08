@@ -6,8 +6,10 @@
 #    William H. Duquette
 #
 # DESCRIPTION:
-#    Minerva: minlib(n) package index file
+#    Athena: athlib(n) package index file
 
-package ifneeded minlib 1.0 [list source [file join $dir minlib.tcl]]
+package ifneeded athlib 1.0 [list source [file join $dir athlib.tcl]]
+
+
 
 

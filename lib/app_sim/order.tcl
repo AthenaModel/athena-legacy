@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    minerva_sim(n) Order Processing Module
+#    athena_sim(n) Order Processing Module
 #
 #    This is the module responsible for processing simulation orders.
 #    Orders can be received from the simulation, "sim", or
@@ -411,5 +411,6 @@ snit::type order {
         set undoCmd $cmd
     }
 }
+
 
 

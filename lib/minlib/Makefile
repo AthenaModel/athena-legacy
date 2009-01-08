@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------
 #
-# Makefile -- Makefile for minlib(n)
+# Makefile -- Makefile for athlib(n)
 #
 # Targets supported:
 # 
@@ -16,6 +16,7 @@ include $(TOP_DIR)/MakeDefs
 
 # Target: test
 test:
-	$(TCLSH) minlib.test
+	$(TCLSH) athlib.test
 
 include $(TOP_DIR)/MakeRules
+

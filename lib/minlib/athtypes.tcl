@@ -1,19 +1,19 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    mintypes.tcl
+#    athtypes.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Minerva Data Types
+#    Athena Data Types
 #
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
 # Export public commands
 
-namespace eval ::minlib:: {
+namespace eval ::athlib:: {
     namespace export  \
         eforcetype    \
         eurbanization \
@@ -25,7 +25,7 @@ namespace eval ::minlib:: {
 #-------------------------------------------------------------------
 # Enumerations
 
-::marsutil::enum ::minlib::eforcetype {
+::marsutil::enum ::athlib::eforcetype {
     REGULAR        "Regular Military"
     PARAMILITARY   "Paramilitary"
     POLICE         "Police"
@@ -33,13 +33,13 @@ namespace eval ::minlib:: {
     CRIMINAL       "Organized Crime"
 }
 
-::marsutil::enum ::minlib::eurbanization {
+::marsutil::enum ::athlib::eurbanization {
     RURAL        "Rural"
     SUBURBAN     "Suburban"
     URBAN        "Urban"
 }
 
-::marsutil::enum ::minlib::eyesno {
+::marsutil::enum ::athlib::eyesno {
     Yes "Yes"
     No  "No"
 }
@@ -47,7 +47,7 @@ namespace eval ::minlib:: {
 #-----------------------------------------------------------------------
 # ident type
 
-snit::type ::minlib::ident {
+snit::type ::athlib::ident {
     # Make it a singleton
     pragma -hasinstances no
 
@@ -72,7 +72,7 @@ snit::type ::minlib::ident {
 #-----------------------------------------------------------------------
 # polygon type
 
-snit::type ::minlib::polygon {
+snit::type ::athlib::polygon {
     # Make it a singleton
     pragma -hasinstances no
 
@@ -155,6 +155,9 @@ snit::type ::minlib::polygon {
         return $coords
     }
 }
+
+
+
 
 
 

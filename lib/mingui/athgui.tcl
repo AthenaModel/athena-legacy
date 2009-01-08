@@ -1,12 +1,12 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    minlib.tcl
+#    athgui.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Minerva: minlib(n) main package
+#    Athena: athgui(n) main package
 #
 #-----------------------------------------------------------------------
 
@@ -14,43 +14,42 @@
 # External Package Dependencies
 
 package require snit
+package require sqlite3
+package require pixane
+package require tablelist
 
 #-----------------------------------------------------------------------
 # Internal Package Dependencies
 
 package require marsutil
-package require sqlite3
+package require marsgui
+package require athlib
 
 #-----------------------------------------------------------------------
 # Package Definition
 
-package provide minlib 1.0
+package provide athgui 1.0
 
 #-----------------------------------------------------------------------
 # Namespace definition
 
-namespace eval ::minlib:: {
+namespace eval ::athgui:: {
     variable library [file dirname [info script]]
 
     namespace import ::marsutil::* 
-
-    namespace export version
-}
-
-#-------------------------------------------------------------------
-# Load binary extensions, if present.
-
-set binlib [file join $::minlib::library libVersion.so]
-
-if {[file exists $binlib]} {
-    load $binlib
+    namespace import ::marsgui::*
+    namespace import ::athlib::*
 }
 
 #-----------------------------------------------------------------------
-# Load minlib(n) submodules
+# Load athgui(n) submodules
 
-source [file join $::minlib::library mintypes.tcl   ]
-source [file join $::minlib::library mapref.tcl     ]
-source [file join $::minlib::library scenariodb.tcl ]
-source [file join $::minlib::library workdir.tcl    ]
+source [file join $::athgui::library icons.tcl        ]
+source [file join $::athgui::library mapcanvas.tcl    ]
+source [file join $::athgui::library tablebrowser.tcl ]
+source [file join $::athgui::library messagebox.tcl   ]
+
+
+
+
 

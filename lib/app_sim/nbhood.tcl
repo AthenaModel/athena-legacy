@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    minerva_sim(1): Neighborhood Manager
+#    athena_sim(1): Neighborhood Manager
 #
 #    This module is responsible for managing neighborhoods and operations
 #    upon them.  As such, it is a type ensemble.
@@ -678,3 +678,4 @@ order define ::nbhood NBHOOD:UPDATE {
 
     setundo [$type LastUndo]
 }
+

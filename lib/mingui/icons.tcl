@@ -6,10 +6,10 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    mingui(n) package: standard icons
+#    athgui(n) package: standard icons
 #
 #    This module defines a set of standard icons for use in buttons,
-#    etc.  All icons are defined in the ::mingui::icon namespace; none
+#    etc.  All icons are defined in the ::athgui::icon namespace; none
 #    are exported.
 #
 #-----------------------------------------------------------------------
@@ -17,10 +17,10 @@
 #-----------------------------------------------------------------------
 # Icon definitions
 
-namespace eval ::mingui::icon:: {
+namespace eval ::athgui::icon:: {
     namespace import ::marsgui::mkicon
 
-    mkicon ::mingui::icon::pencil22 {
+    mkicon ::athgui::icon::pencil22 {
         ......................
         ......................
         ...............XXX....
@@ -51,7 +51,7 @@ namespace eval ::mingui::icon:: {
         w  #BDA565
     }
 
-    mkicon ::mingui::icon::plus22 {
+    mkicon ::athgui::icon::plus22 {
         ......................
         ......................
         ......................
@@ -79,7 +79,7 @@ namespace eval ::mingui::icon:: {
         X  #000000
     }
 
-    mkicon ::mingui::icon::x22 {
+    mkicon ::athgui::icon::x22 {
         ......................
         ......................
         ......................
@@ -107,3 +107,4 @@ namespace eval ::mingui::icon:: {
         X  #000000
     }
 }
+

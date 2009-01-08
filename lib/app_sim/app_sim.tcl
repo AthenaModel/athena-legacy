@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Minerva: app_sim(n) loader
+#    Athena: app_sim(n) loader
 #
 #-----------------------------------------------------------------------
 
@@ -36,14 +36,14 @@ package require sqlite3  3.5
 package require marsutil
 package require marsgui
 
-# From Minerva
-package require minlib
-package require mingui
+# From Athena
+package require athlib
+package require athgui
         
 namespace import ::marsutil::* 
 namespace import ::marsgui::*
-namespace import ::minlib::*
-namespace import ::mingui::*
+namespace import ::athlib::*
+namespace import ::athgui::*
 
 #-----------------------------------------------------------------------
 # Load app_sim(n) submodules
@@ -64,6 +64,9 @@ source [file join $::app_sim::library mapviewer.tcl       ]
 source [file join $::app_sim::library mapicons.tcl        ]
 source [file join $::app_sim::library nbhoodbrowser.tcl   ]
 source [file join $::app_sim::library frcgroupbrowser.tcl ]
+
+
+
 
 
 
