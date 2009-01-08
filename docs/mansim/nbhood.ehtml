@@ -1,6 +1,6 @@
 <<manpage nbhood(sim) "Neighborhood Manager">>
 
-<<swallow {package require minlib}>>
+<<swallow {package require athlib}>>
 
 <<section SYNOPSIS>>
 
@@ -13,7 +13,7 @@ package require app_sim 1.0
 <<section DESCRIPTION>>
 
 nbhood(sim) is the module responsible for creating and manipulating
-neighborhoods for <<xref minerva_sim(1)>>.  It implements the
+neighborhoods for <<xref athena_sim(1)>>.  It implements the
 various NBHOOD:* orders, and provides support for order-processing.<p>
 
 Every neighborhood has a long human-readable name; but neighborhoods
@@ -95,6 +95,8 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
+
 
 
 

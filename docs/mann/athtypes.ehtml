@@ -1,22 +1,22 @@
-<<manpage {minlib(n) mintypes(n)} "Minerva Data Types">>
+<<manpage {athlib(n) athtypes(n)} "Athena Data Types">>
 
-<<swallow {package require minlib}>>
+<<swallow {package require athlib}>>
 
 <<section SYNOPSIS>>
 
 <pre>
-package require minlib 1.0
-namespace import ::minlib::mintypes
+package require athlib 1.0
+namespace import ::athlib::athtypes
 </pre>
 
 <<itemlist>>
 
 <<section DESCRIPTION>>
 
-This module defines data types used by the Minerva code base.  Each
+This module defines data types used by the Athena code base.  Each
 type is defined as a type ensemble command.<p>
 
-<b>TBD:</b>  Just how data types are going to handled in Minerva is
+<b>TBD:</b>  Just how data types are going to handled in Athena is
 not yet clear, so this code should be regarded as provisional.<p>
 
 <<section TYPES>>
@@ -27,20 +27,20 @@ not yet clear, so this code should be regarded as provisional.<p>
 
 An <<xref mars:enum(n)>> type, representing force group types.<p>
 
-<<::minlib::eforcetype html>>
+<<::athlib::eforcetype html>>
 
 <<defitem eurbanization {eurbanization <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing neighborhood urbanization
 levels.<p>
 
-<<::minlib::eurbanization html>>
+<<::athlib::eurbanization html>>
 
 <<defitem eyesno {eyesno <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing boolean "Yes/No" values.<p>
 
-<<::minlib::eyesno html>>
+<<::athlib::eyesno html>>
 
 <<defitem ident {ident <i>subcommand</i> ?<i>args</i>?}>>
 
@@ -90,6 +90,9 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
+
+
 
 
 

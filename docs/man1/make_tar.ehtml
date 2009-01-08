@@ -18,20 +18,20 @@ source, docs, and installation tar files from the build tree.  The
 <b>docs</b>.<p>
 
 The tar files are created in the parent directory of the
-<code>minerva</code> directory; they are called:<p>
+<code>athena</code> directory; they are called:<p>
 
-<code>minerva_<i>x.y.z</i>.tar</code><p>
-<code>minerva_<i>x.y.z</i>_src.tar</code><p>
-<code>minerva_<i>x.y.z</i>_docs.tar</code><p>
+<code>athena_<i>x.y.z</i>.tar</code><p>
+<code>athena_<i>x.y.z</i>_src.tar</code><p>
+<code>athena_<i>x.y.z</i>_docs.tar</code><p>
 
 The installation tar file will include the following files:<p>
 
 <ul>
   <li> All documentation in .html, .doc, or .pdf format.<p>
 
-  <li> All Minerva executables from <code>minerva/bin</code>.<p>
+  <li> All Athena executables from <code>athena/bin</code>.<p>
        
-  <li> All files from <code>minerva/data</code>, etc.<p>
+  <li> All files from <code>athena/data</code>, etc.<p>
 </ul><p>
 
 The documentation tar file includes only the documentation.<p>
@@ -50,6 +50,8 @@ Will Duquette<p>
 Modified from a similar JNEM script.
 
 <</manpage>>
+
+
 
 
 

@@ -1,10 +1,10 @@
-<<manpage {mingui(n) mapcanvas(n)} "Map Canvas Widget">>
+<<manpage {athgui(n) mapcanvas(n)} "Map Canvas Widget">>
 
 <<section SYNOPSIS>>
 
 <pre>
-package require mingui 1.0
-namespace import ::mingui::*
+package require athgui 1.0
+namespace import ::athgui::*
 </pre>
 
 <<itemlist>>
@@ -492,9 +492,9 @@ TBD.<p>
 
 <<section ENVIRONMENT>>
 
-mingui(n) requires Tcl 8.5 or later.
+athgui(n) requires Tcl 8.5 or later.
 
-To use mingui(n) in a Tcl script, the environment variable
+To use athgui(n) in a Tcl script, the environment variable
 <code>TCLLIBPATH</code> must include the parent of the package
 directory.
 
@@ -507,6 +507,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 

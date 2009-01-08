@@ -23,11 +23,11 @@ LDFLAGS += -g ${LIB_PATH}
 CC = gcc
 
 # TCL Paths
-TCL_LIB_DIR  = $(MINERVA_TCL_HOME)/lib
-TCL_INC_DIR  = $(MINERVA_TCL_HOME)/include
+TCL_LIB_DIR  = $(ATHENA_TCL_HOME)/lib
+TCL_INC_DIR  = $(ATHENA_TCL_HOME)/include
 
 DEFINES  = \
-	-DMINERVA_VERSION=\"$(MINERVA_VERSION)\" \
+	-DATHENA_VERSION=\"$(ATHENA_VERSION)\" \
 	-DUSE_TCL_STUBS
 
 RLIBPATH = -Xlinker -rpath -Xlinker $(TCL_LIB_DIR)
@@ -42,7 +42,7 @@ INCLPATH = \
 	-I$(TCL_INC_DIR) 
 
 
-TARGET = $(TOP_DIR)/lib/minlib/libVersion.so
+TARGET = $(TOP_DIR)/lib/athlib/libVersion.so
 
 OBJS = \
 	version.o
@@ -84,4 +84,6 @@ include MakeDepends
 # Standard MakeRules
 
 include $(TOP_DIR)/MakeRules
+
+
 

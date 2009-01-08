@@ -2,7 +2,7 @@
 
 <<section DESCRIPTION>>
 
-The modules in minerva_sim(1) make great use of event notification to
+The modules in athena_sim(1) make great use of event notification to
 trigger application behavior.  For example, GUI updates are generally
 triggered by <<xref notifier(n)>> events sent by the simulation; and a
 variety of application behavior is triggered by GUI events.  This man
@@ -12,7 +12,7 @@ diagrams.<p>
 <<subsection "Actors">>
 
 The names of most actors are simply the names the man pages for the
-relevant modules.  For modules within minerva_sim(1), the "(sim)"
+relevant modules.  For modules within athena_sim(1), the "(sim)"
 suffix is omitted from the man page name.
 
 Names in ALL CAPS represent notional entities:
@@ -306,6 +306,7 @@ message nbhood {mapviewer nbhoodbrowser} "<Entity> stack"
 Will Duquette<p>
 
 <</manpage>>
+
 
 
 

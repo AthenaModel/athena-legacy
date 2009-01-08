@@ -7,7 +7,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    The following rules and settings are for use by all Minerva
+#    The following rules and settings are for use by all Athena
 #    Makefiles.
 #
 #---------------------------------------------------------------------
@@ -18,6 +18,7 @@
 check_env:
 	@ if test ! -n "$(TOP_DIR)" ; then \
 	    echo "Makefile variable TOP_DIR is not set." ; exit 1 ; fi
+
 
 
 

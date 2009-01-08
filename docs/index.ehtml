@@ -13,10 +13,10 @@
 
 <ul>
   <li> <a href="dev/install.txt">Installation Instructions</a>
-  <li> <<xref minerva(1)>>: Introduction to Minerva
-  <li> <<xref minerva_sim(1)>>: The Minerva simulation.
+  <li> <<xref athena(1)>>: Introduction to Athena
+  <li> <<xref athena_sim(1)>>: The Athena simulation.
   <li> <a href="build_notes.html">Build Notes</a>: Details of each
-       Minerva build.<p>
+       Athena build.<p>
 </ul>
 
 <h2>Man Pages</h2>
@@ -26,7 +26,7 @@
   <li> <a href="mann/index.html">Section (n)</a>: Tcl Commands
   <li> <a href="mani/index.html">Section (i)</a>: Tcl Interfaces
   <li> <a href="mansim/index.html">Section (sim)</a>:
-       <<xref minerva_sim(1)>> Internals
+       <<xref athena_sim(1)>> Internals
        
 </ul>
 
@@ -44,7 +44,7 @@
 
 <h2>Copyright</h2>
 
-(C) 2008. California Institute of Technology.  ALL RIGHTS RESERVED.
+(C) 2009. California Institute of Technology.  ALL RIGHTS RESERVED.
 U.S. Government sponsorship acknowledged. Any commercial use must be
 negotiated with the Office of Technology Transfer at the California
 Institute of Technology.<p>
@@ -62,6 +62,8 @@ to foreign countries or providing access to foreign nationals.<p>
 <address><a href="mailto:William.H.Duquette@jpl.nasa.gov">William.H.Duquette@jpl.nasa.gov</a></address>
 </body>
 </html>
+
+
 
 
 

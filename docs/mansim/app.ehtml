@@ -10,7 +10,7 @@ package require app_sim 1.0
 
 <<section DESCRIPTION>>
 
-app(sim) is the main application module for <<xref minerva_sim(1)>>.
+app(sim) is the main application module for <<xref athena_sim(1)>>.
 It is responsible for initializing the entire application, creating
 the other components and gluing them together as needed.<p>
 
@@ -83,6 +83,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 

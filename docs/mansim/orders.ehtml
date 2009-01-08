@@ -1,12 +1,12 @@
-<<manpage orders(sim) "Minerva Orders">>
+<<manpage orders(sim) "Athena Orders">>
 
 <<swallow {
-package require minlib
+package require athlib
 }>>
 
 <<section DESCRIPTION>>
 
-All user inputs to the minerva_sim(1) simulation come in as simulation
+All user inputs to the athena_sim(1) simulation come in as simulation
 orders, which are defined by the various simulation modules.  This man
 page documents the orders and their parameters.<p>
 
@@ -55,7 +55,7 @@ follows:<p>
 
 <b>Required.</b> The neighborhood's urbanization level:<p>
 
-<<::minlib::eurbanization html>>
+<<::athlib::eurbanization html>>
 
 <<defopt refpoint>>
 
@@ -134,7 +134,7 @@ e.g., "Los Angeles".<p>
 
 <b>Optional.</b>  The neighborhood's urbanization level:<p>
 
-<<::minlib::eurbanization html>>
+<<::athlib::eurbanization html>>
 
 <<defopt refpoint>>
 
@@ -157,6 +157,9 @@ list of <<xref mapref(n)>> mapref strings.<p>
 Will Duquette<p>
 
 <</manpage>>
+
+
+
 
 
 

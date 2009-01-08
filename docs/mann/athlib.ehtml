@@ -1,18 +1,17 @@
-<<manpage mingui(n) "Minerva GUI Library">>
+<<manpage athlib(n) "Athena Library">>
 
 <<section SYNOPSIS>>
 
 <pre>
-package require mingui 1.0
-namespace import ::mingui::*
+package require athlib 1.0
+namespace import ::athlib::*
 </pre>
 
 <<itemlist>>
 
 <<section DESCRIPTION>>
 
-mingui(n) is a package of graphical user
-interface code specifically for use in <<xref minerva_sim(1)>> and
+athlib(n) is a package of non-GUI code for use in <<xref athena_sim(1)>> and
 related tools.<p>
 
 <<section MODULES>>
@@ -36,6 +35,9 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
+
+
 
 
 

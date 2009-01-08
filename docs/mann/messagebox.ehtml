@@ -1,10 +1,10 @@
-<<manpage {mingui(n) messagebox(n)} "Message Box">>
+<<manpage {athgui(n) messagebox(n)} "Message Box">>
 
 <<section SYNOPSIS>>
 
 <pre>
-package require mingui 1.0
-namespace import ::mingui::*
+package require athgui 1.0
+namespace import ::athgui::*
 </pre>
 
 <<itemlist>>
@@ -121,6 +121,7 @@ Original package.  The icons are modified versions of the
 <<xref tk:messageBox(n) tk_messageBox(n)>> icons.<p>
 
 <</manpage>>
+
 
 
 

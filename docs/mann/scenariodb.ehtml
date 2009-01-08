@@ -1,8 +1,8 @@
-<<manpage {minlib(n) scenariodb(n)} "Scenario Database Object">>
+<<manpage {athlib(n) scenariodb(n)} "Scenario Database Object">>
 
 <<swallow {
     package require marsutil
-    package require minlib
+    package require athlib
 
     proc sqlSectionLink {section} {
         set title [$section sqlsection title]
@@ -79,25 +79,25 @@
 <<section SYNOPSIS>>
 
 <pre>
-package require minlib 1.0
-namespace import ::minlib::scenariodb
+package require athlib 1.0
+namespace import ::athlib::scenariodb
 </pre>
 
 <<itemlist>>
 
 <<section DESCRIPTION>>
 
-The scenariodb(n) type is responsible for Minerva's scenario
+The scenariodb(n) type is responsible for Athena's scenario
 database format.  It is an SQLite3 format based on
 <<xref mars:sqldocument(n)>>; as such, it automatically includes all
 <<xref mars:sqlsection(i)>>s defined by the Mars infrastructure.  It
 also includes all tables, indices, and so forth defined explicitly for
 Mars.<p>
 
-<<xref minerva_sim(1)>> uses scenariodb(n) to define its
+<<xref athena_sim(1)>> uses scenariodb(n) to define its
 run-time database (RDB), and to save and load scenario data to and
 from external files.  By convention, these "scenario files" have a
-"<code>.mdb</code>" (Minerva Database) extension.<p>
+"<code>.mdb</code>" (Athena Database) extension.<p>
 
 <<section "SCHEMA">>
 
@@ -161,7 +161,7 @@ adds additional behavior on top of <<iref clear>>.<p>
 <<defitem open {<i>obj</i> open <i>filename</i>}>>
 
 Opens an existing scenario file, and clears the <<iref unsaved>>
-flag.  <<xref minerva_sim(1)>> will usually use this to open a working
+flag.  <<xref athena_sim(1)>> will usually use this to open a working
 RDB, into which the user's scenario file will be <<iref load>>ed.
 If <i>filename</i> is "<code>:memory:</code>", the database will be
 opened in memory rather than on the disk.<p>
@@ -198,6 +198,9 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
+
+
 
 
 

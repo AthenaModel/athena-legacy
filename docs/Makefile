@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------
 # TITLE:
-#    Makefile -- Minerva Documentation Makefile
+#    Makefile -- Athena Documentation Makefile
 #
 # AUTHOR:
 #    Will Duquette
@@ -12,7 +12,7 @@
 #    clean     Deletes all build products.
 #    subs      Builds subdirectories
 #    <subdir>  Rebuilds the specific subdirectory (make clean all)
-#    install   Installs documentation in the Minerva Home Page on AFS
+#    install   Installs documentation in the Athena Home Page on AFS
 #
 #---------------------------------------------------------------------
 
@@ -76,6 +76,7 @@ include $(TOP_DIR)/MakeRules
 # file.
 
 include MakeSubs
+
 
 
 

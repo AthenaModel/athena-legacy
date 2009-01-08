@@ -11,7 +11,7 @@ package require app_sim 1.0
 <<section DESCRIPTION>>
 
 scenario(sim) is responsible for managing the current scenario for
-<<xref minerva_sim(1)>>.  In particular, it is responsible for opening
+<<xref athena_sim(1)>>.  In particular, it is responsible for opening
 a scenario file, saving the scenario, keeping track of whether there
 are unsaved changes, and so forth.  As such, it is the glue between
 the rest of the application and the <<xref scenariodb(n)>> file.<p>
@@ -123,6 +123,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 

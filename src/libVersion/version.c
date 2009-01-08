@@ -46,7 +46,7 @@ int
 Version_Init(Tcl_Interp *interp)
 {
     /* Define the commands. */
-    Tcl_CreateObjCommand(interp, "::minlib::version", 
+    Tcl_CreateObjCommand(interp, "::athlib::version", 
                          version_versionCmd, NULL, NULL);
 
     return TCL_OK;
@@ -72,10 +72,10 @@ Version_Init(Tcl_Interp *interp)
  *	none
  *
  * RETURNS:
- *	The Minerva version number.
+ *	The Athena version number.
  *
  * DESCRIPTION:
- *	The Minerva version number has the form "x.y.z", where x, y, and z
+ *	The Athena version number has the form "x.y.z", where x, y, and z
  *	are integers.  If this is the product of an engineering build
  *      rather than an official build, it will return exactly the string 
  *      the development branch, e.g., "1.0.x"
@@ -90,7 +90,10 @@ version_versionCmd(ClientData cd, Tcl_Interp *interp,
         return TCL_ERROR;
     }
 
-    Tcl_SetResult(interp, MINERVA_VERSION, TCL_STATIC);
+    Tcl_SetResult(interp, ATHENA_VERSION, TCL_STATIC);
     return TCL_OK;
 }
+
+
+
 

@@ -1,17 +1,17 @@
-<<manpage {mingui(n) tablebrowser(n)} "Table Browser Widget">>
+<<manpage {athgui(n) tablebrowser(n)} "Table Browser Widget">>
 
 <<section SYNOPSIS>>
 
 <pre>
-package require mingui 1.0
-namespace import ::mingui::*
+package require athgui 1.0
+namespace import ::athgui::*
 </pre>
 
 <<itemlist>>
 
 <<section DESCRIPTION>>
 
-This module defines the <code>::mingui::tablebrowser</code>
+This module defines the <code>::athgui::tablebrowser</code>
 generic table browsing widget; it is used by other widgets to display
 the contents of an SQLite3 table or view, allowing
 searching, filtering, and sorting of the data. It provides an
@@ -281,6 +281,7 @@ Dave Hanks, Will Duquette<p>
 Derives from an original package written for JNEM.<p>
 
 <</manpage>>
+
 
 
 

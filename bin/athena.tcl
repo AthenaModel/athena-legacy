@@ -5,23 +5,23 @@ exec tclsh8.5 "$0" "$@"
 
 #-----------------------------------------------------------------------
 # TITLE:
-#    minerva.tcl
+#    athena.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Minerva: Simulation Launcher
+#    Athena: Simulation Launcher
 #
-#    This script serves as the main entry point for the Minerva
-#    simulation and related tools. Minerva apps are invoked using 
+#    This script serves as the main entry point for the Athena
+#    simulation and related tools. Athena apps are invoked using 
 #    the following syntax:
 #
-#        $ minerva appname ?args....?
+#        $ athena appname ?args....?
 #
 #    E.g., 
 #
-#        $ minerva sim ...
+#        $ athena sim ...
 #
 #    Every tool is defined by a Tcl package called "app_<appname>", 
 #    e.g., "app_sim"; the package is assumed to define an application 
@@ -72,13 +72,13 @@ if {[info exists env(TCLLIBPATH)]} {
     }
 }
 
-# Next, get the Minerva-specific directories.
+# Next, get the Athena-specific directories.
 
 set appdir  [file normalize [file dirname [info script]]]
 set libdir  [file normalize [file join $appdir .. lib]]
 set marsdir [file normalize [file join $appdir .. mars lib]]
 
-# Add Minerva libs to the new lib path.
+# Add Athena libs to the new lib path.
 lappend auto_path $marsdir $libdir
 
 #-------------------------------------------------------------------
@@ -176,7 +176,7 @@ proc main {argv} {
 
     # NEXT, if the appname is unknown, show error and usage
     if {![info exists meta($appname)]} {
-        puts "Error, no such application: \"minerva $appname\"\n"
+        puts "Error, no such application: \"athena $appname\"\n"
 
         ShowUsage
         exit 1
@@ -253,9 +253,9 @@ proc ShowUsage {} {
     set apps [dict keys $metadata]
 
     # TBD: It would be nice to associate a version with this
-    puts "=== minerva(1) ===\n"
+    puts "=== athena(1) ===\n"
 
-    puts {Usage: minerva appname [args...]}
+    puts {Usage: athena appname [args...]}
     puts ""
 
     puts ""
@@ -266,9 +266,9 @@ proc ShowUsage {} {
     puts "------------------  ------------------  ------------------------------------"
 
     foreach app [dict keys $metadata] {
-        puts [format "minerva %-10s  %-18s  %s" \
+        puts [format "athena %-10s  %-18s  %s" \
                   $app                          \
-                  minerva_${app}(1)             \
+                  athena_${app}(1)             \
                   [dict get $metadata $app text]]
     }
 }
@@ -280,4 +280,6 @@ proc ShowUsage {} {
 
 # FIRST, run the main routine, to set everything up.
 main $argv
+
+
 

@@ -1,10 +1,10 @@
-<<manpage {minlib(n) workdir(n)} "Working Directory Utility">>
+<<manpage {athlib(n) workdir(n)} "Working Directory Utility">>
 
 <<section SYNOPSIS>>
 
 <pre>
-package require minlib 1.0
-namespace import ::minlib::*
+package require athlib 1.0
+namespace import ::athlib::*
 </pre>
 
 <<itemlist>>
@@ -12,25 +12,25 @@ namespace import ::minlib::*
 <<section DESCRIPTION>>
 
 <<xref workdir(n)>> is responsible for creating and locating
-Minerva working directories.  At start-up, Minerva calls
+Athena working directories.  At start-up, Athena calls
 <<iref workdir init>>, which creates the following directory
 
-<pre>    ~/.minerva/<i>pid</i>/</pre>
+<pre>    ~/.athena/<i>pid</i>/</pre>
 
-where <i>pid</i> is the process ID of the current version of Minerva.  This
+where <i>pid</i> is the process ID of the current version of Athena.  This
 directory is referred to as the working directory.  Within that, it
 then creates the following subdirectories:<p>
 
 <dl>
   <dt> <b><code><i>working</i>/log</code></b>
   <dd> For log files.  Individual apps will put their logs in
-       subdirectories of this directory, e.g., <<xref minerva_sim(1)>>
+       subdirectories of this directory, e.g., <<xref athena_sim(1)>>
        will put its logs in<p>
 
        <pre><i>working</i>/log/sim/</pre>
 
   <dt> <b><code><i>working</i>/rdb</code></b>
-  <dd> <<xref minerva_sim(1)>> will put its run-time database (RDB) in
+  <dd> <<xref athena_sim(1)>> will put its run-time database (RDB) in
        this directory.<p>
 </dl>
 
@@ -78,6 +78,9 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
+
+
 
 
 

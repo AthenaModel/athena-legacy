@@ -11,11 +11,12 @@
 
 TOP_DIR    = ../..
 TARGETS    = man
-MANSECTION = "(sim): minerva_sim(1) Internals"
+MANSECTION = "(sim): athena_sim(1) Internals"
 CLEANFILES = *.gif
 
 #---------------------------------------------------------------------
 # Use Standard Rules
 
 include ../MakeMan
+
 

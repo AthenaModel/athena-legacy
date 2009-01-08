@@ -1,4 +1,4 @@
-<<manpage {devtools(1) minerva_test(1)} "Minerva Test Tool">>
+<<manpage {devtools(1) athena_test(1)} "Athena Test Tool">>
 
 <<section SYNOPSIS>>
 
@@ -8,47 +8,47 @@
 
 <<deflist program>>
 
-<<defitem minerva_test {minerva_test file[.test] [options....]}>>
+<<defitem athena_test {athena_test file[.test] [options....]}>>
 
 <</deflist program>>
 
-<<xref minerva_test(1)>> is a tool for running automated
-tests of the <<xref minerva_sim(1)>> application.  It operates by loading
+<<xref athena_test(1)>> is a tool for running automated
+tests of the <<xref athena_sim(1)>> application.  It operates by loading
 the <<xref index(sim) app_sim>> application package in much the
-same way that the <<xref minerva(1)>> loader does, so that test
-scripts can exercise the <<xref minerva_sim(n)>> code directly.<p>
+same way that the <<xref athena(1)>> loader does, so that test
+scripts can exercise the <<xref athena_sim(n)>> code directly.<p>
 
 The test scripts, which are written using Tcl's tcltest(n) framework,
-reside in <code>minerva/test/app_sim</code>.  They may also use the
+reside in <code>athena/test/app_sim</code>.  They may also use the
 <<xref "TEST EXECUTION DEPUTY">> commands defined below, and all
 commands defined in <<xref index(sim) app_sim>>.<p>
 
-By default, minerva_test(1) destroys the <<xref minerva_sim(1)>> GUI
+By default, athena_test(1) destroys the <<xref athena_sim(1)>> GUI
 prior to running any tests; this is significantly faster.  In
-addition, the <<xref minerva_sim(1)>> log files and working data are
+addition, the <<xref athena_sim(1)>> log files and working data are
 deleted automatically at the end of the run, just as they are during a
 normal application shutdown.  Use the <b>-wait</b> option to retain
 the GUI and keep the application running when the tests are complete.<p>
 
 The following command executes the tests in
-<code>minerva/test/app_sim/mytest.test</code>:<p>
+<code>athena/test/app_sim/mytest.test</code>:<p>
 
 <pre>
-    $ minerva_test mytest.test
+    $ athena_test mytest.test
 </pre>
 
 It isn't necessary to be in any particular directory.  Note also that the
 "<code>.test</code>" suffix may be omitted:<p>
 
 <pre>
-    $ minerva_test mytest
+    $ athena_test mytest
 </pre>
 
 There is a top-level test script, <code>all.test</code>; thus,
 all tests can be executed as follows:<p>
 
 <pre>
-    $ minerva_test all
+    $ athena_test all
 </pre>
 
 A particular test or set of tests can be requested using tcltest(n)'s
@@ -56,20 +56,20 @@ A particular test or set of tests can be requested using tcltest(n)'s
 tests from mytest.test whose names begin with "mycase-":<p>
 
 <pre>
-    $ minerva_test mytest -match "mycase-*"
+    $ athena_test mytest -match "mycase-*"
 </pre>
 
 
 <<section "OPTIONS">>
 
-minerva_test(1) defines the following options; any other options on the
+athena_test(1) defines the following options; any other options on the
 command line are passed to tcltest(n).<p>
 
 <<deflist options>>
 
 <<defopt {-wait}>>
 
-When specified, the <<xref minerva_sim(1)>> GUI remains active
+When specified, the <<xref athena_sim(1)>> GUI remains active
 throughout the tests, and the application remains running when the
 tests are complete.<p>
 
@@ -77,8 +77,8 @@ tests are complete.<p>
 
 <<section "TEST EXECUTION DEPUTY">>
 
-The minerva_sim(1) test scripts rely on Tcl's tcltest(n) framework.  In
-addition, minerva_test(1) defines a set of utility commands for use in tests;
+The athena_sim(1) test scripts rely on Tcl's tcltest(n) framework.  In
+addition, athena_test(1) defines a set of utility commands for use in tests;
 collectively, these commands are called the Test Execution Deputy
 (TED).  This section documents the commands provided by the TED.<p>
 
@@ -187,7 +187,7 @@ result so that it looks nice in a test <b>-result</b>.<p>
 
 <<defitem "ted sendex" {ted sendex ?-error? <i>command...</i>}>>
 
-Sends the <i>command...</i> to the Minerva executive as the "test"
+Sends the <i>command...</i> to the Athena executive as the "test"
 client, and returns the result.  <<iref ted sendex>> is therefore used
 when testing executive commands.  If the <code>-error</code> option
 is included, <<iref ted sendex>> expects the command to throw an
@@ -198,7 +198,7 @@ error.<p>
 A <i>command...</i> may be passed as a single argument or as
 individual arguments which are aggregated into a single command.<p>
 
-<b>TBD:</b> As yet, Minerva has no executive, and so the commands are
+<b>TBD:</b> As yet, Athena has no executive, and so the commands are
 sent directly to the main interpreter.<p>
 
 <</deflist ted>>
@@ -217,6 +217,8 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
+
 
 
 

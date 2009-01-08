@@ -16,15 +16,15 @@
 # Settings
 
 # Location of Tcl Libraries
-export MINERVA_TCL_HOME = /usr/local/ActiveTclEE-2008Q4
+export ATHENA_TCL_HOME = /usr/local/ActiveTclEE-2008Q4
 
-# Set MINERVA_VERSION for development if it isn't set.
-ifndef MINERVA_VERSION
-    export MINERVA_VERSION = 1.0.x
+# Set ATHENA_VERSION for development if it isn't set.
+ifndef ATHENA_VERSION
+    export ATHENA_VERSION = 1.0.x
 endif
 
 # Tools
-export TCLSH      = $(MINERVA_TCL_HOME)/bin/tclsh8.5
+export TCLSH      = $(ATHENA_TCL_HOME)/bin/tclsh8.5
 export TCLLIBPATH = $(TOP_DIR)/lib $(TOP_DIR)/mars/lib
 
 MAN_ROOTS = :     $(TOP_DIR)/docs/man%s/%n.html \
@@ -32,13 +32,15 @@ MAN_ROOTS = :     $(TOP_DIR)/docs/man%s/%n.html \
             tcl:n http://www.tcl.tk/man/tcl8.5/TclCmd/%n.htm \
             tk:n  http://www.tcl.tk/man/tcl8.5/TkCmd/%n.htm
 
-PROJECT = Minerva
-LONGPROJECT = "Minerva S&RO Simulation"
+PROJECT = Athena
+LONGPROJECT = "Athena S&RO Simulation"
 
-DOC_TOOL = $(TOP_DIR)/mars/bin/mars doc -manroots "$(MAN_ROOTS)" -version $(MINERVA_VERSION) -project $(PROJECT) -longproject $(LONGPROJECT)
+DOC_TOOL = $(TOP_DIR)/mars/bin/mars doc -manroots "$(MAN_ROOTS)" -version $(ATHENA_VERSION) -project $(PROJECT) -longproject $(LONGPROJECT)
 
-MAN_TOOL = $(TOP_DIR)/mars/bin/mars man -manroots "$(MAN_ROOTS)" -version $(MINERVA_VERSION) -project $(PROJECT) -longproject $(LONGPROJECT)
+MAN_TOOL = $(TOP_DIR)/mars/bin/mars man -manroots "$(MAN_ROOTS)" -version $(ATHENA_VERSION) -project $(PROJECT) -longproject $(LONGPROJECT)
 
 TEST_TOOL = $(TCLSH) $(TOP_DIR)/tools/bin/jnem_test
+
+
 
 

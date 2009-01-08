@@ -11,7 +11,7 @@ package require app_sim 1.0
 <<section DESCRIPTION>>
 
 map(sim) is the module responsible for importing and managing maps and
-map projections for <<xref minerva_sim(1)>>.  It provides the current
+map projections for <<xref athena_sim(1)>>.  It provides the current
 map image and projection to the rest of the app.  Also, it validates
 map coordinates and reference strings, and converts from one to the other.<p>
 
@@ -81,6 +81,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 

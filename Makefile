@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------
 # TITLE:
-#    Makefile -- Minerva Makefile
+#    Makefile -- Athena Makefile
 #
 # AUTHOR:
 #    Will Duquette
@@ -8,18 +8,18 @@
 # DESCRIPTION:
 #    This Makefile defines the following targets:
 #
-#    	all          Builds Minerva code and documentation.
-#    	docs         Builds Minerva documentation
-#    	test         Runs Minerva unit tests.
+#    	all          Builds Athena code and documentation.
+#    	docs         Builds Athena documentation
+#    	test         Runs Athena unit tests.
 #    	clean        Deletes all build products
 #       build        Builds code and documentation from scratch,
 #                    and runs tests.
 #       tag          Tags the current branch or trunk.  Requires
-#                    MARS_VERSION=x.y and MINERVA_VERSION=x.y.z.
-#       cmbuild      Official build; requires MINERVA_VERSION=x.y.z
+#                    MARS_VERSION=x.y and ATHENA_VERSION=x.y.z.
+#       cmbuild      Official build; requires ATHENA_VERSION=x.y.z
 #                    on make command line.  Builds code and 
 #                    documentation from scratch.
-#    	installdocs  Installs documentation in the Minerva AFS Page
+#    	installdocs  Installs documentation in the Athena AFS Page
 #
 #    For normal development, this Makefile is usually executed as
 #    follows:
@@ -37,7 +37,7 @@
 #
 #    Resolve any problems until "make build" runs cleanly. Then,
 #
-#        make MINERVA_VERSION=x.y.z cmbuild
+#        make ATHENA_VERSION=x.y.z cmbuild
 #
 #    NOTE: Before doing the official build, docs/build.html should be
 #    updated with the build notes for the current version.
@@ -81,27 +81,27 @@ src: check_env
 #---------------------------------------------------------------------
 # Target: bin
 #
-# Build Minerva executable; C/C++ source must be built first.  Note that
+# Build Athena executable; C/C++ source must be built first.  Note that
 # the executable is always built; it really has too many dependencies
 # to try to build it only when some dependency has changed, and on top
 # of that it's not usually needed or built during day-to-day 
 # development.
 
 BASE_KIT = $(TOP_DIR)/tools/basekits/base-tk-thread-linux-ix86
-ARCHIVE = $(MINERVA_TCL_HOME)/lib/teapot
+ARCHIVE = $(ATHENA_TCL_HOME)/lib/teapot
 
 
 bin: check_env src
 	@ echo ""
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	@ echo "+              Building Minerva Executable             +"
+	@ echo "+              Building Athena Executable             +"
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	@ echo ""
-	tclapp $(TOP_DIR)/bin/minerva.tcl                   \
+	tclapp $(TOP_DIR)/bin/athena.tcl                   \
 		$(TOP_DIR)/lib/*/*                          \
 		$(TOP_DIR)/mars/lib/*/*                     \
 		$(TOP_DIR)/mars/lib/pixane/*/*              \
-		-out $(TOP_DIR)/bin/minerva                 \
+		-out $(TOP_DIR)/bin/athena                 \
 		-prefix $(BASE_KIT)                         \
 		-archive $(ARCHIVE)                         \
 		-follow                                     \
@@ -150,7 +150,7 @@ test: check_env
 #---------------------------------------------------------------------
 # Target: installdocs
 #
-# Copy documentation to the Minerva AFS page.
+# Copy documentation to the Athena AFS page.
 
 installdocs: check_env
 	cd $(TOP_DIR)/docs ; make install
@@ -166,37 +166,37 @@ build: clean src bin docs test
 #---------------------------------------------------------------------
 # Tag Build
 
-BUILD_TAG = https://oak.jpl.nasa.gov/svn/minerva/tags/minerva_$(MINERVA_VERSION)
+BUILD_TAG = https://oak.jpl.nasa.gov/svn/athena/tags/athena_$(ATHENA_VERSION)
 MARS_TAG  = https://oak.jpl.nasa.gov/svn/mars/tags/mars_$(MARS_VERSION)
 
 # The svn ls of the MARS_TAG ensures that the Mars version is defined.
 
 tag: check_cmbuild
 	svn ls $(MARS_TAG)
-	svn copy -m"Build $(MINERVA_VERSION)" . $(BUILD_TAG)
+	svn copy -m"Build $(ATHENA_VERSION)" . $(BUILD_TAG)
 	svn switch $(BUILD_TAG) .
 	$(TOP_DIR)/mars/bin/mars import $(MARS_VERSION)
 
 #---------------------------------------------------------------------
 # Target: cmbuild
 #
-# Official CM build.  Requires a valid (numeric) MINERVA_VERSION.
+# Official CM build.  Requires a valid (numeric) ATHENA_VERSION.
 
 cmbuild: check_cmbuild clean srctar src bin docs tar
 	@ echo ""
 	@ echo "*****************************************************"
-	@ echo "         CM Build: Minerva $(MINERVA_VERSION) Complete"
+	@ echo "         CM Build: Athena $(ATHENA_VERSION) Complete"
 	@ echo "*****************************************************"
 	@ echo ""
 
 check_cmbuild:
 	@ echo ""
 	@ echo "*****************************************************"
-	@ echo "                CM Build: Minerva $(MINERVA_VERSION)"
+	@ echo "                CM Build: Athena $(ATHENA_VERSION)"
 	@ echo "                CM Build: Mars $(MARS_VERSION)"
 	@ echo "*****************************************************"
 	@ echo ""
-	@ $(TOP_DIR)/tools/bin/chkversion $(MINERVA_VERSION) $(MARS_VERSION)
+	@ $(TOP_DIR)/tools/bin/chkversion $(ATHENA_VERSION) $(MARS_VERSION)
 
 #---------------------------------------------------------------------
 # Target: tar
@@ -204,13 +204,13 @@ check_cmbuild:
 tar:
 	@ echo ""
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	@ echo "+               Making ../minerva_$(MINERVA_VERSION).tar"
-	@ echo "+               Making ../minerva_$(MINERVA_VERSION)_docs.tar"
+	@ echo "+               Making ../athena_$(ATHENA_VERSION).tar"
+	@ echo "+               Making ../athena_$(ATHENA_VERSION)_docs.tar"
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	@ echo ""
 
-	$(TOP_DIR)/tools/bin/make_tar install $(MINERVA_VERSION)
-	$(TOP_DIR)/tools/bin/make_tar docs    $(MINERVA_VERSION)
+	$(TOP_DIR)/tools/bin/make_tar install $(ATHENA_VERSION)
+	$(TOP_DIR)/tools/bin/make_tar docs    $(ATHENA_VERSION)
 
 #---------------------------------------------------------------------
 # Target: srctar
@@ -218,11 +218,11 @@ tar:
 srctar:
 	@ echo ""
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	@ echo "+               Making ../minerva_$(MINERVA_VERSION)_src.tar"
+	@ echo "+               Making ../athena_$(ATHENA_VERSION)_src.tar"
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	@ echo ""
 
-	$(TOP_DIR)/tools/bin/make_tar source $(MINERVA_VERSION)
+	$(TOP_DIR)/tools/bin/make_tar source $(ATHENA_VERSION)
 
 
 #---------------------------------------------------------------------
@@ -236,7 +236,7 @@ clean: check_env
 	@ echo "+                     Cleaning                      +"
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	@ echo ""
-	-rm $(TOP_DIR)/bin/minerva
+	-rm $(TOP_DIR)/bin/athena
 	cd $(TOP_DIR)/mars ; make clean
 	cd $(TOP_DIR)/src  ; make clean
 	cd $(TOP_DIR)/test ; make clean
@@ -246,6 +246,9 @@ clean: check_env
 # Shared Rules
 
 include MakeRules
+
+
+
 
 
 
