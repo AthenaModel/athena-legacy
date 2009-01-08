@@ -12,7 +12,7 @@
 #    file.  Ultimately we might define additional modules, in which case
 #    this will become a loader script.
 #
-#    See minerva_test(1) for documentation of these utilities.
+#    See athena_test(1) for documentation of these utilities.
 #
 #-----------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ snit::type ted {
 
     typeconstructor {
         # Import all util(n) and simlib(n) routines
-        namespace import ::marsutil::* ::minlib::* ::tcltest::*
+        namespace import ::marsutil::* ::athlib::* ::tcltest::*
     }
 
     #-------------------------------------------------------------------
@@ -380,5 +380,7 @@ snit::type ted {
 
 
 }
+
+
 
 

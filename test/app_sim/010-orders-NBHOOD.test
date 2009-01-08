@@ -19,7 +19,7 @@
 # The tests run in a namespace so as not to interfere with other
 # test suites.
 
-namespace eval ::minerva_test::tests:: {
+namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # Set up the test environment
 
@@ -565,7 +565,8 @@ N002 There    2
     cleanupTests
 }
 
-namespace delete ::minerva_test::tests::
+namespace delete ::athena_test::tests::
+
 
 
 

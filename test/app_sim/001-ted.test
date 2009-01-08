@@ -21,7 +21,7 @@
 # The tests run in a namespace so as not to interfere with other
 # test suites.
 
-namespace eval ::minerva_test::ted:: {
+namespace eval ::athena_test::ted:: {
     #-------------------------------------------------------------------
     # Set up the test environment
 
@@ -237,7 +237,8 @@ should be "$dummy" or "{dummy}" or "dummy(...)" or ...}
     cleanupTests
 }
 
-namespace delete ::minerva_test::ted::
+namespace delete ::athena_test::ted::
+
 
 
 

@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------
 # TITLE:
-#    Makefile -- Minerva Test Makefile
+#    Makefile -- Athena Test Makefile
 #
 # AUTHOR:
 #    Will Duquette
@@ -9,7 +9,7 @@
 #    This Makefile defines the following targets:
 #
 #    	all          test
-#    	test         Runs all Minerva tests.
+#    	test         Runs all Athena tests.
 #       packages     Runs tests for Tcl packages
 #    	clean        Deletes all build products
 #
@@ -24,7 +24,7 @@ TOP_DIR = $(shell pwd)/..
 
 include $(TOP_DIR)/MakeDefs
 
-PACKAGES = minlib
+PACKAGES = athlib
 
 #---------------------------------------------------------------------
 # Target: all
@@ -61,6 +61,8 @@ include $(TOP_DIR)/MakeRules
 # file.
 
 include MakePackages
+
+
 
 
 
