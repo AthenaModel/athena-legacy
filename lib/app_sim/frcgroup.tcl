@@ -285,18 +285,12 @@ order define ::frcgroup GROUP:FORCE:CREATE {
 
     # local
     validate local {
-        eyesno validate $parms(local)
-
-        # Convert to integer
-        set parms(local) [expr {!!$parms(local)}]
+        set parms(local) [boolean validate $parms(local)]
     }
 
     # coalition
     validate coalition {
-        eyesno validate $parms(coalition)
-
-        # Convert to integer
-        set parms(coalition) [expr {!!$parms(coalition)}]
+        set parms(coalition) [boolean validate $parms(coalition)]
     }
     
     returnOnError

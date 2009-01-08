@@ -23,6 +23,23 @@ not yet clear, so this code should be regarded as provisional.<p>
 
 <<deflist types>>
 
+<<defitem boolean {boolean <i>subcommand</i> ?<i>args</i>?}>>
+
+Boolean flag type.  Accepts any of the standard Tcl boolean values.<p>
+
+<<deflist boolean>>
+
+<<defitem "boolean validate" {boolean validate <i>flag</i>}>>
+
+Validates the <i>flag</i>, returning either 1 for true values and 0
+for false values.  On error, throws an error with <code>-errorcode</code>
+<b>INVALID</b>.<p>
+
+This call differs from <code>snit::boolean</code> in that it converts
+the value to canonical form, and throws <b>INVALID</b> on error.<p>
+
+<</deflist hexcolor>>
+
 <<defitem eforcetype {eforcetype <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing force group types.<p>
@@ -35,12 +52,6 @@ An <<xref mars:enum(n)>> type, representing neighborhood urbanization
 levels.<p>
 
 <<::athlib::eurbanization html>>
-
-<<defitem eyesno {eyesno <i>subcommand</i> ?<i>args</i>?}>>
-
-An <<xref mars:enum(n)>> type, representing boolean "Yes/No" values.<p>
-
-<<::athlib::eyesno html>>
 
 <<defitem hexcolor {hexcolor <i>subcommand</i> ?<i>args</i>?}>>
 

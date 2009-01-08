@@ -15,9 +15,9 @@
 
 namespace eval ::athlib:: {
     namespace export  \
+        boolean       \
         eforcetype    \
         eurbanization \
-        eyesno        \
         hexcolor      \
         ident         \
         polygon
@@ -40,9 +40,35 @@ namespace eval ::athlib:: {
     URBAN        "Urban"
 }
 
-::marsutil::enum ::athlib::eyesno {
-    Yes "Yes"
-    No  "No"
+#-------------------------------------------------------------------
+# Boolean type
+#
+# This differs from the snit::boolean type in that it throws INVALID.
+
+snit::type ::athlib::boolean {
+    # Make it a singleton
+    pragma -hasinstances no
+
+    #-------------------------------------------------------------------
+    # Public Type Methods
+
+    # validate flag
+    #
+    # flag    Possibly, a boolean value
+    #
+    # Returns 1 for true and 0 for false.
+
+    typemethod validate {flag} {
+        if {[catch {snit::boolean validate $flag} result]} {
+            return -code error -errorcode INVALID $result
+        }
+
+        if {$flag} {
+            return 1
+        } else {
+            return 0
+        }
+    }
 }
 
 #-----------------------------------------------------------------------

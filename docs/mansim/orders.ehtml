@@ -4,11 +4,129 @@
 package require athlib
 }>>
 
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
 <<section DESCRIPTION>>
 
 All user inputs to the athena_sim(1) simulation come in as simulation
 orders, which are defined by the various simulation modules.  This man
 page documents the orders and their parameters.<p>
+
+<<section "GROUP:*">>
+
+The <code>GROUP:*</code> orders are used to create, modify, and
+manipulate various kinds of groups.<p>
+
+<<subsection "GROUP:FORCE:*">>
+
+These orders relate to force groups, groups which exist to project force.<p>
+
+<<deflist group force>>
+
+<<defitem GROUP:FORCE:CREATE {GROUP:FORCE:CREATE}>>
+
+Creates a new force group.  The parameters are as
+follows:<p>
+
+<<deflist options>>
+
+<<defopt g>>
+
+<b>Required.</b> A brief <<xref ident(n) identifier>> which uniquely
+identifies this group.<p>
+
+<<defopt longname>>
+
+<b>Required.</b> A short human-readable name for the neighborhood, e.g., "Los Angeles".<p>
+
+<<defopt color>>
+
+<b>Required.</b>  A color, specified as a hexadecimal RGB string,
+"<code>#<i>rrggbb</i></code>" or "<code>#<i>rrrrggggbbbb</i></code>".
+This color is used to color code the group's icons.<p>
+
+<<defopt forcetype>>
+
+<b>Required.</b> The force type, as follows:<p>
+
+<<::athlib::eforcetype html>>
+
+<<defopt local>>
+
+<b>Required.</b> The local flag, expressed as a boolean value (e.g.,
+"Yes" or "No"). Indicates whether the group is perceived as being
+local to the playbox, or as a foreign force.<p> 
+
+<<defopt coalition>>
+
+<b>Required.</b> The coalition flag, expressed as a boolean value
+(e.g., "Yes" or "No").  Indicates whether or not the group is a member
+of the U.S.-led coalition.<p>
+
+<</deflist options>>
+
+<<defitem GROUP:FORCE:DELETE {GROUP:FORCE:DELETE}>>
+
+Deletes a force group.<p>
+
+TBD: Possibly, all entities depending on the group will be
+deleted as well.  Alternatively, the order might be rejected if any
+other entities depend on this group.<p>
+
+The parameters are as follows:<p>
+
+<<deflist options>>
+
+<<defopt g>>
+
+<b>Required.</b> The group's ID.<p>
+
+<<defitem GROUP:FORCE:UPDATE {GROUP:FORCE:UPDATE}>>
+
+Updates an existing force group.  The parameters are as
+follows:<p>
+
+<<deflist options>>
+
+<<defopt g>>
+
+<b>Required.</b> The ID of the group to be updated.<p>
+
+<<defopt longname>>
+
+<b>Optional.</b> A short human-readable name for the group, e.g.,
+"U.S. Army".<p>
+
+<<defopt color>>
+
+<b>Optional.</b>  A color, specified as a hexadecimal RGB string,
+"<code>#<i>rrggbb</i></code>" or "<code>#<i>rrrrggggbbbb</i></code>".
+This color is used to color code the group's icons.<p>
+
+<<defopt forcetype>>
+
+<b>Optional.</b> The force type, as follows:<p>
+
+<<::athlib::eforcetype html>>
+
+<<defopt local>>
+
+<b>Optional.</b> The local flag, expressed as a boolean value (e.g.,
+"Yes" or "No"). Indicates whether the group is perceived as being
+local to the playbox, or as a foreign force.<p> 
+
+<<defopt coalition>>
+
+<b>Optional.</b> The coalition flag, expressed as a boolean value
+(e.g., "Yes" or "No").  Indicates whether or not the group is a member
+of the U.S.-led coalition.<p>
+
+<</deflist options>>
+
+<</deflist group force>>
+
 
 <<section "MAP:*">>
 

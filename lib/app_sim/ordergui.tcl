@@ -826,7 +826,7 @@ snit::widget editorentry {
 ordergui entrytype editor color        -editcmd  ::ordergui::colorpicker
 ordergui entrytype enum   forcetype    -values   [eforcetype names]
 ordergui entrytype enum   urbanization -values   [eurbanization names]
-ordergui entrytype enum   yesno        -values   [eyesno names]
+ordergui entrytype enum   yesno        -values   {Yes No}
 
 ordergui entrytype enum   nbhood       -valuecmd [list nbhood names]
 ordergui entrytype enum   frcgroup     -valuecmd [list frcgroup names]
