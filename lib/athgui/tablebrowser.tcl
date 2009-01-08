@@ -377,6 +377,32 @@ snit::widget ::athgui::tablebrowser {
         $tableList rowconfigure $keyMap($id) -background $color
     }
 
+    # setcellbackground id column color
+    #
+    # id      The id for the row found in the key column
+    # column  The column index
+    # color   The background color that the cell should take
+    # 
+    # This method translates row id to row number and sets the
+    # background color of the specified cell to the requested color
+
+    method setcellbackground {id column color} {
+        $tableList cellconfigure $keyMap($id),$column -background $color
+    }
+
+    # setcellforeground id column color
+    #
+    # id      The id for the row found in the key column
+    # column  The column index
+    # color   The foreground color that the cell should take
+    # 
+    # This method translates row id to row number and sets the
+    # foreground color of the specified cell to the requested color
+
+    method setcellforeground {id column color} {
+        $tableList cellconfigure $keyMap($id),$column -foreground $color
+    }
+
     # setfont id font
     #
     # id    The id for the row found in the key column    

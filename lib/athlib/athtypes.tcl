@@ -18,6 +18,7 @@ namespace eval ::athlib:: {
         eforcetype    \
         eurbanization \
         eyesno        \
+        hexcolor      \
         ident         \
         polygon
 }
@@ -45,6 +46,33 @@ namespace eval ::athlib:: {
 }
 
 #-----------------------------------------------------------------------
+# hexcolor type
+
+snit::type ::athlib::hexcolor {
+    # Make it a singleton
+    pragma -hasinstances no
+
+    #-------------------------------------------------------------------
+    # Public Type Methods
+
+    # validate color
+    #
+    # color    Possibly, a hex color
+    #
+    # Hex colors begin with a "#" followed by six hex digits.
+
+    typemethod validate {name} {
+        if {![regexp {^\#[[:xdigit:]]{6,6}$} $name]} {
+            return -code error -errorcode INVALID \
+                "Invalid hexadecimal color specifier, should be \"#RRGGBB\""
+        }
+
+        return [string toupper $name]
+    }
+}
+
+
+#-----------------------------------------------------------------------
 # ident type
 
 snit::type ::athlib::ident {
@@ -66,6 +94,8 @@ snit::type ::athlib::ident {
             return -code error -errorcode INVALID \
            "Identifiers should begin with a letter and contain only letters or digits"
         }
+
+        return $name
     }
 }
 

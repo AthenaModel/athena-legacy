@@ -115,6 +115,9 @@ CREATE TABLE groups (
     -- Full group name
     longname    TEXT,
 
+    -- Group Color, as #RRGGBB
+    color       TEXT DEFAULT '#00FFFF',
+
     -- Group type, CIV, FRC, ORG
     gtype       TEXT 
 );

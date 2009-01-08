@@ -105,6 +105,7 @@ snit::widget frcgroupbrowser {
         # NEXT, create the columns and labels.
         $tb insertcolumn end 0 {ID}
         $tb insertcolumn end 0 {Long Name}
+        $tb insertcolumn end 0 {Color}
         $tb insertcolumn end 0 {Force Type}
         $tb insertcolumn end 0 {Foreign?}
         $tb insertcolumn end 0 {Coalition?}
@@ -234,7 +235,9 @@ snit::widget frcgroupbrowser {
     method DisplayData {dict} {
         # FIRST, extract each field
         dict with dict {
-            $tb setdata $g [list $g $longname $forcetype $local $coalition]
+            $tb setdata $g \
+                [list $g $longname $color $forcetype $local $coalition]
+            $tb setcellbackground $g 2 $color
         }
     }
 

@@ -140,6 +140,16 @@ Sets the background color of the row given the <i>id</i>.<p>
 
 Sets the foreground color of the row given the <i>id</i>.<p>
 
+<<defitem setcellbackground {<i>pathName</i> setcellbackground <i>id column color</i>}>>
+
+Sets the background color of the cell with the given row <i>id</i> and
+column index..<p>
+
+<<defitem setcellforeground {<i>pathName</i> setcellforeground <i>id column color</i>}>>
+
+Sets the foreground color of the cell with the given row <i>id</i> and
+column index..<p>
+
 <<defitem setfont {<i>pathName</i> setfont <i>id font</i>}>>
 
 Sets the font of the row given the <i>id</i>.<p>

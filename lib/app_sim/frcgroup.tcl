@@ -112,6 +112,7 @@ snit::type frcgroup {
     #
     #    g              The group's ID
     #    longname       The group's long name
+    #    color          The group's color
     #    forcetype      The group's eforcetype
     #    local          The group's local flag
     #    coalition      The group's coalition flag
@@ -126,9 +127,10 @@ snit::type frcgroup {
         dict with parmdict {
             # FIRST, Put the group in the database
             rdb eval {
-                INSERT INTO groups(g,longname,gtype)
+                INSERT INTO groups(g,longname,color,gtype)
                 VALUES($g,
                        $longname,
+                       $color,
                        'FRC');
 
                 INSERT INTO frcgroups(g,forcetype,local,coalition)
@@ -177,6 +179,7 @@ snit::type frcgroup {
     # parmdict     A dictionary of group parms
     #
     #    longname       A new long name, or ""
+    #    color          A new color, or ""
     #    forcetype      A new eforcetype, or ""
     #    local          A new local flag, or ""
     #    coalition      A new coalition flag, or ""
@@ -187,7 +190,7 @@ snit::type frcgroup {
     typemethod UpdateGroup {g parmdict} {
         # FIRST, get the undo information
         rdb eval {
-            SELECT longname, forcetype, local, coalition
+            SELECT longname, color, forcetype, local, coalition
             FROM frcgroups_view
             WHERE g=$g
         } undoData {
@@ -199,7 +202,8 @@ snit::type frcgroup {
             # FIRST, Put the group in the database
             rdb eval {
                 UPDATE groups
-                SET longname  = nonempty($longname,  longname)
+                SET longname  = nonempty($longname,  longname),
+                    color     = nonempty($color,     color)
                 WHERE g=$g;
 
                 UPDATE frcgroups
@@ -230,6 +234,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
     parms {
         g            {ptype text          label "ID"                }
         longname     {ptype text          label "Long Name"         }
+        color        {ptype color         label "Color"             }
         forcetype    {ptype forcetype     label "Force Type"        }
         local        {ptype yesno         label "Local Group?"      }
         coalition    {ptype yesno         label "Coalition Member?" }
@@ -238,6 +243,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
     # FIRST, prepare the parameters
     prepare g             -trim      -toupper -required
     prepare longname      -normalize          -required 
+    prepare color         -trim      -toupper -required
     prepare forcetype     -trim      -toupper -required
     prepare local         -trim      -toupper -required
     prepare coalition     -trim      -toupper -required
@@ -265,6 +271,11 @@ order define ::frcgroup GROUP:FORCE:CREATE {
         OR    longname = $parms(longname)
     }]} {
         reject longname "A group with this name already exists"
+    }
+
+    # color
+    validate color {
+        set parms(color) [hexcolor validate $parms(color)]
     }
 
     # forcetype
@@ -347,8 +358,9 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
     table gui_frcgroups
     keys  g
     parms {
-        g            {ptype frcgroup      label "Group"    }
+        g            {ptype frcgroup      label "ID"                }
         longname     {ptype text          label "Long Name"         }
+        color        {ptype color         label "Color"             }
         forcetype    {ptype forcetype     label "Force Type"        }
         local        {ptype yesno         label "Local Group?"      }
         coalition    {ptype yesno         label "Coalition Member?" }
@@ -357,6 +369,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
     # FIRST, prepare the parameters
     prepare g             -trim      -toupper -required
     prepare longname      -normalize
+    prepare color         -trim      -toupper
     prepare forcetype     -trim      -toupper
     prepare local         -trim      -toupper
     prepare coalition     -trim      -toupper
@@ -379,6 +392,11 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
         if {$g ne "" && $g ne $parms(g)} {
             reject longname "A group with this name already exists"
         }
+    }
+
+    # color
+    validate color {
+        set parms(color) [hexcolor validate $parms(color)]
     }
 
     # forcetype

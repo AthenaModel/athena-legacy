@@ -30,6 +30,7 @@ FROM nbhoods;
 CREATE TEMPORARY VIEW gui_frcgroups AS
 SELECT g                                              AS g,
        longname                                       AS longname,
+       color                                          AS color,
        forcetype                                      AS forcetype,
        CASE local     WHEN 1 THEN 'Yes' ELSE 'No' END AS local,
        CASE coalition WHEN 1 THEN 'Yes' ELSE 'No' END AS coalition

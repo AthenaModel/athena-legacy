@@ -42,6 +42,23 @@ An <<xref mars:enum(n)>> type, representing boolean "Yes/No" values.<p>
 
 <<::athlib::eyesno html>>
 
+<<defitem hexcolor {hexcolor <i>subcommand</i> ?<i>args</i>?}>>
+
+Hex color type.  A hex color specification is a string
+"<code>#<i>rrggbb</i></code>" where <i>rr</i>, <i>gg</i>, and
+<i>bb</i> are two-digit hexadecimal numbers representing the intensity
+of the RGB color channels.<p>
+
+<<deflist hexcolor>>
+
+<<defitem "hexcolor validate" {hexcolor validate <i>color</i>}>>
+
+Validates and returns the <i>color</i>; the hex-digits are
+upper-cased.  On error, throws an error with <code>-errorcode</code>
+<b>INVALID</b>.<p>
+
+<</deflist hexcolor>>
+
 <<defitem ident {ident <i>subcommand</i> ?<i>args</i>?}>>
 
 Identifier type.  An identifier is a string consisting of letters and
