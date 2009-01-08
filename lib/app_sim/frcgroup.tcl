@@ -243,7 +243,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
     # FIRST, prepare the parameters
     prepare g             -trim      -toupper -required
     prepare longname      -normalize          -required 
-    prepare color         -trim      -toupper -required
+    prepare color         -trim      -tolower -required
     prepare forcetype     -trim      -toupper -required
     prepare local         -trim      -toupper -required
     prepare coalition     -trim      -toupper -required
@@ -369,7 +369,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
     # FIRST, prepare the parameters
     prepare g             -trim      -toupper -required
     prepare longname      -normalize
-    prepare color         -trim      -toupper
+    prepare color         -trim      -tolower
     prepare forcetype     -trim      -toupper
     prepare local         -trim      -toupper
     prepare coalition     -trim      -toupper

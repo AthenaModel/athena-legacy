@@ -37,10 +37,12 @@ Defines a new entry type for the specified parameter type,
 <i>ptype</i>.  Note that if a parameter's type has no related entry
 type, the default <b>text</b> entry is used.<p>
 
-The new entry type may be a <b>text</b> or <b>enum</b>, as indicated
+The new entry type may be a <b>text</b>, <b>enum</b>, or
+<b>editor</b>, as indicated 
 by <i>etype</i>.  A <b>text</b> is a simple text entry field, and an
-<b>enum</b> is a dropdown menu.   The valid <i>options</i> depend on
-the <i>etype</i>:<p>
+<b>enum</b> is a dropdown menu of enumerated values.  An <b>editor</b>
+is a readonly text field attached to an editor dialog.  The valid
+<i>options</i> depend on the <i>etype</i>:<p>
 
 <<deflist options>>
 
@@ -60,7 +62,15 @@ valid values for <b>enum</b> entry types.  It will be called just
 before the drop down list of choices is displayed, and thus can change
 the available choices dynamically.<p>
 
-If <code>-valuescmd</code> is specified, <code>-values</code> is ignored.<p>
+If <code>-valuescmd</code> is specified, <code>-values</code> is
+ignored.<p>
+
+<<defopt {-editcmd <i>cmd</i>}>>
+
+<b>editor only:</b>  Specifies a command to be called to edit the
+value in the entry.  Takes one argument, the current value; returns
+the edited value, or the empty string on cancel.  Typically, this
+command will pop up a modal dialog.<p>
 
 <</deflist options>>
 

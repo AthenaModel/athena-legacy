@@ -81,8 +81,9 @@ snit::type ordergui {
     # ewidget: Array of entry widget types by etype
     
     typevariable ewidget -array {
-        text ::textentry
-        enum ::enumentry
+        text   ::textentry
+        enum   ::enumentry
+        editor ::editorentry
     }
 
     #-------------------------------------------------------------------
@@ -589,7 +590,7 @@ snit::type ordergui {
 
     # entrytype etype ptype options...
     #
-    # etype    An entry type: text | enum
+    # etype    An entry type: text | enum | editor
     # ptype    An order parameter type
     # options  Vary by entry type.
     #
@@ -601,6 +602,8 @@ snit::type ordergui {
     #
     #   -values list     List of enumerated values
     #   -valuecmd cmd    Command that returns list of enumerated values
+    #
+    # For editor entry types: -editcmd
 
     typemethod entrytype {etype ptype args} {
         # TBD: Should do some error checking
@@ -629,6 +632,31 @@ snit::type ordergui {
         $message del 1.0 end
         $message ins 1.0 $text
         $message see 1.0
+    }
+
+    #-------------------------------------------------------------------
+    # Utility Procs
+
+    # colorpicker color
+    #
+    # color       A hex color value, or ""
+    #
+    # Pops up a color picker dialog, displaying the specified color,
+    # and allows the user to choose a new color.  Returns the new
+    # color, or ""
+    proc colorpicker {color} {
+        if {$color ne ""} {
+            set opts [list -color $color]
+        } else {
+            set opts ""
+        }
+
+        set out [SelectColor::dialog $dialog.colorpicker \
+                     -type   dialog                      \
+                     -parent $dialog                     \
+                     {*}$opts]
+
+        return $out
     }
 }
 
@@ -709,14 +737,99 @@ snit::widgetadaptor textentry {
     delegate method * to hull
 }
 
+snit::widget editorentry {
+    #-------------------------------------------------------------------
+    # Components
+
+    component entry    ;# ttk::entry; displays text
+
+
+    #-------------------------------------------------------------------
+    # Options
+
+    delegate option * to entry
+
+    # Command to call when the editor's button is pushed.
+    option -editcmd
+
+    #-------------------------------------------------------------------
+    # Constructor
+
+    constructor {args} {
+        # FIRST, configure the hull
+        $hull configure                \
+            -borderwidth        0      \
+            -highlightthickness 0
+
+        # NEXT, create the entry to display the text.
+        install entry using ::ttk::entry $win.entry \
+            -exportselection    yes                 \
+            -state              readonly            \
+            -justify            left                \
+            -width              20
+
+        # NEXT, create the button
+        ttk::frame $win.bframe  \
+            -borderwidth 1      \
+            -relief      sunken \
+
+        button $win.bframe.edit \
+            -font tinyfont        \
+            -text "Edit"          \
+            -command [mymethod Edit]
+
+        pack propagate $win.bframe no
+        $win.bframe configure                \
+            -width  30                       \
+            -height [winfo reqheight $entry]
+
+        pack $win.bframe.edit -fill both
+
+        grid $win.entry $win.bframe -sticky nsew
+        grid columnconfigure $win 0 -weight 1
+
+        # NEXT, configure the arguments
+        $self configurelist $args
+    }
+
+    #-------------------------------------------------------------------
+    # Private Methods
+
+    # Edit
+    #
+    # Called when the Edit button is pressed
+
+    method Edit {} {
+        # FIRST, call the editor command given the current data value
+        set value [{*}$options(-editcmd) [$entry get]]
+
+        # NEXT, if the value is not "", set it.
+        if {$value ne ""} {
+            $entry configure -state normal
+            $entry delete 0 end
+            $entry insert end $value
+            $entry configure -state readonly
+        }
+    }
+
+    #-------------------------------------------------------------------
+    # Public Methods
+
+    delegate method * to entry
+
+}
+
+
 #-------------------------------------------------------------------
 # Define specific entry types
 
-ordergui entrytype enum nbhood       -valuecmd [list nbhood names]
-ordergui entrytype enum frcgroup     -valuecmd [list frcgroup names]
-ordergui entrytype enum forcetype    -values   [eforcetype names]
-ordergui entrytype enum urbanization -values   [eurbanization names]
-ordergui entrytype enum yesno        -values   [eyesno names]
+ordergui entrytype editor color        -editcmd  ::ordergui::colorpicker
+ordergui entrytype enum   forcetype    -values   [eforcetype names]
+ordergui entrytype enum   urbanization -values   [eurbanization names]
+ordergui entrytype enum   yesno        -values   [eyesno names]
+
+ordergui entrytype enum   nbhood       -valuecmd [list nbhood names]
+ordergui entrytype enum   frcgroup     -valuecmd [list frcgroup names]
 
 
 

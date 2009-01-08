@@ -59,15 +59,15 @@ snit::type ::athlib::hexcolor {
     #
     # color    Possibly, a hex color
     #
-    # Hex colors begin with a "#" followed by six hex digits.
+    # Hex colors begin with a "#" followed by up to 12 hex digits.
 
     typemethod validate {name} {
-        if {![regexp {^\#[[:xdigit:]]{6,6}$} $name]} {
+        if {![regexp {^\#[[:xdigit:]]{1,12}$} $name]} {
             return -code error -errorcode INVALID \
                 "Invalid hexadecimal color specifier, should be \"#RRGGBB\""
         }
 
-        return [string toupper $name]
+        return [string tolower $name]
     }
 }
 
