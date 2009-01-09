@@ -1,0 +1,35 @@
+<<manpage {athena(1) athena_sim(1)} "Athena Simulation">>
+
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<deflist program>>
+
+<<defitem {athena sim} {athena sim ?<i>filename</i>.ath?}>>
+
+<</deflist program>>
+
+<<xref athena_sim(1)>> is the Athena simulation application.  Details of
+the simulation model are to be found in the <i>Athena Analyst's
+Guide</i> and related documents, rather than here; this man page
+documents simulation operation only.<p>
+
+<<xref athena_sim(1)>> is a documentic-centric application, like a
+word-processor; here, however, the documents are Athena scenario
+files, which conventionally have a "<code>.ath</code>" extension.<p>
+
+Further documentation is TBD.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
