@@ -97,7 +97,7 @@ Mars.<p>
 <<xref athena_sim(1)>> uses scenariodb(n) to define its
 run-time database (RDB), and to save and load scenario data to and
 from external files.  By convention, these "scenario files" have a
-"<code>.mdb</code>" (Athena Database) extension.<p>
+"<code>.ath</code>" (Athena Scenario) extension.<p>
 
 <<section "SCHEMA">>
 
@@ -170,7 +170,7 @@ opened in memory rather than on the disk.<p>
 
 Saves the current contents of the database to the file with name
 <i>filename</i>, which conventionally should have a
-"<code>.mdb</code>" extension.  Clears the <<iref unsaved>> flag.<p>
+"<code>.ath</code>" extension.  Clears the <<iref unsaved>> flag.<p>
 
 <<defitem unsaved {<i>obj</i> unsaved}>>
 
@@ -198,6 +198,8 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
+
 
 
 

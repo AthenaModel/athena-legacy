@@ -423,7 +423,7 @@ snit::widget appwin {
                           -parent $win                    \
                           -title "Open Scenario"          \
                           -filetypes {
-                              {{Athena Database} {.mdb} }
+                              {{Athena Scenario} {.ath} }
                           }]
 
         # NEXT, If none, they cancelled
@@ -448,7 +448,7 @@ snit::widget appwin {
                           -parent $win                     \
                           -title "Save Scenario As"        \
                           -filetypes {
-                              {{Athena Database} {.mdb} }
+                              {{Athena Scenario} {.ath} }
                           }]
 
         # NEXT, If none, they cancelled.
@@ -730,6 +730,8 @@ snit::widget appwin {
         $msgline puts $text
     }
 }
+
+
 
 
 

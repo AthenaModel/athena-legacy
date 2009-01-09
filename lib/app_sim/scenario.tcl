@@ -82,7 +82,7 @@ snit::type scenario {
 
     # open filename
     #
-    # filename       A .mdb scenario file
+    # filename       A .ath scenario file
     #
     # Opens the specified file name, replacing the existing file.
 
@@ -339,6 +339,7 @@ snit::type scenario {
     }
 
 }
+
 
 
 

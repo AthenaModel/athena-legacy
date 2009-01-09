@@ -13,7 +13,7 @@
 #    scenario data, including run-time data, for athena_sim(1).
 #
 #    Typically the application will use scenariodb(n) to create a
-#    Run-time Database (RDB) and then load and save external *.mdb 
+#    Run-time Database (RDB) and then load and save external *.ath 
 #    files.
 #
 #    scenario(n) is both a wrapper for sqldocument(n) and an
@@ -138,7 +138,7 @@ snit::type ::athlib::scenariodb {
 
     # load filename
     #
-    # filename     An .mdb file name
+    # filename     An .ath file name
     #
     # Loads scenario data from the specified file into the db.
     # It's an error if the file doesn't have a scenario table,
@@ -261,6 +261,7 @@ snit::type ::athlib::scenariodb {
         set info(savedChanges) [$db total_changes]
     }
 }
+
 
 
 

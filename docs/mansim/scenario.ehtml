@@ -60,7 +60,7 @@ the current <<iref dbfile>>; otherwise, the current
 <<iref dbfile>> name is used.  It's an error if both
 <i>filename</i> and <<iref dbfile>> are empty.<p>
 
-If there is already a file "<i>root</i><code>.mdb</code>", then it is
+If there is already a file "<i>root</i><code>.ath</code>", then it is
 copied to "<i>root</i>.bak".<p>
 
 The process of saving the scenario is as follows:<p>
@@ -123,6 +123,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 
