@@ -117,7 +117,7 @@ namespace eval ::athena_test::tests:: {
         color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
     }
 
-    test GROUP:FORCE:CREATE-1.5 {invalid forcetype} -body {
+    test GROUP:FORCE:CREATE-1.6 {invalid forcetype} -body {
         ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
             forcetype NONESUCH
         }]
@@ -125,7 +125,7 @@ namespace eval ::athena_test::tests:: {
         forcetype {invalid value, "NONESUCH"}
     }
 
-    test GROUP:FORCE:CREATE-1.6 {invalid local} -body {
+    test GROUP:FORCE:CREATE-1.7 {invalid local} -body {
         ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
             local NONESUCH
         }]
@@ -133,7 +133,7 @@ namespace eval ::athena_test::tests:: {
         local {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test GROUP:FORCE:CREATE-1.7 {invalid coalition} -body {
+    test GROUP:FORCE:CREATE-1.8 {invalid coalition} -body {
         ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
             coalition NONESUCH
         }]
