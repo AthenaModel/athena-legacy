@@ -1,0 +1,15 @@
+Athena 1.0 Installation Instructions
+-----------------------------------------------------------------
+
+1. Untar the installation tarball.  The symbol <root> refers to
+   the root of the installation directory.
+
+2. Add <root>/bin to your PATH.
+
+3. Create a bookmark to <root>/docs/index.html in your web browser;
+   this is the root of the documentation tree.
+
+4. Execute the Athena simulation application as
+
+   $ athena sim
+
