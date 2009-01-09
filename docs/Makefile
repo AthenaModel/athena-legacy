@@ -12,7 +12,6 @@
 #    clean     Deletes all build products.
 #    subs      Builds subdirectories
 #    <subdir>  Rebuilds the specific subdirectory (make clean all)
-#    install   Installs documentation in the Athena Home Page on AFS
 #
 #---------------------------------------------------------------------
 

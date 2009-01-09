@@ -152,8 +152,58 @@ test: check_env
 #
 # Copy documentation to the Athena AFS page.
 
-installdocs: check_env
-	cd $(TOP_DIR)/docs ; make install
+INSTALLDIRS = \
+	$(ATHENA_DOCS) \
+	$(ATHENA_DOCS)/docs           \
+	$(ATHENA_DOCS)/docs/man1      \
+	$(ATHENA_DOCS)/docs/man5      \
+	$(ATHENA_DOCS)/docs/mani      \
+	$(ATHENA_DOCS)/docs/mann      \
+	$(ATHENA_DOCS)/docs/mansim    \
+	$(ATHENA_DOCS)/docs/dev       \
+	$(ATHENA_DOCS)/mars           \
+	$(ATHENA_DOCS)/mars/docs      \
+	$(ATHENA_DOCS)/mars/docs/man1 \
+	$(ATHENA_DOCS)/mars/docs/man5 \
+	$(ATHENA_DOCS)/mars/docs/mani \
+	$(ATHENA_DOCS)/mars/docs/mann \
+	$(ATHENA_DOCS)/mars/docs/dev
+
+installdocs: $(INSTALLDIRS)
+	-cp docs/index.html            $(ATHENA_DOCS)/docs
+	-cp docs/developer.html        $(ATHENA_DOCS)/docs
+	-cp docs/build_notes.html      $(ATHENA_DOCS)/docs
+	-cp docs/dev/*.html            $(ATHENA_DOCS)/docs/dev
+	-cp docs/dev/*.doc             $(ATHENA_DOCS)/docs/dev
+	-cp docs/dev/*.pdf             $(ATHENA_DOCS)/docs/dev
+	-cp docs/dev/*.txt             $(ATHENA_DOCS)/docs/dev
+	-cp docs/man1/*.html           $(ATHENA_DOCS)/docs/man1
+	-cp docs/man5/*.html           $(ATHENA_DOCS)/docs/man5
+	-cp docs/mani/*.html           $(ATHENA_DOCS)/docs/mani
+	-cp docs/mann/*.html           $(ATHENA_DOCS)/docs/mann
+	-cp docs/mansim/*.html         $(ATHENA_DOCS)/docs/mansim
+	-cp docs/man1/*.gif            $(ATHENA_DOCS)/docs/man1
+	-cp docs/man5/*.gif            $(ATHENA_DOCS)/docs/man5
+	-cp docs/mani/*.gif            $(ATHENA_DOCS)/docs/mani
+	-cp docs/mann/*.gif            $(ATHENA_DOCS)/docs/mann
+	-cp docs/mansim/*.gif          $(ATHENA_DOCS)/docs/mansim
+	-cp mars/docs/index.html       $(ATHENA_DOCS)/mars/docs
+	-cp mars/docs/build_notes.html $(ATHENA_DOCS)/mars/docs
+	-cp mars/docs/dev/*.html       $(ATHENA_DOCS)/mars/docs/dev
+	-cp mars/docs/dev/*.doc        $(ATHENA_DOCS)/mars/docs/dev
+	-cp mars/docs/dev/*.pdf        $(ATHENA_DOCS)/mars/docs/dev
+	-cp mars/docs/dev/*.txt        $(ATHENA_DOCS)/mars/docs/dev
+	-cp mars/docs/man1/*.html      $(ATHENA_DOCS)/mars/docs/man1
+	-cp mars/docs/man5/*.html      $(ATHENA_DOCS)/mars/docs/man5
+	-cp mars/docs/mani/*.html      $(ATHENA_DOCS)/mars/docs/mani
+	-cp mars/docs/mann/*.html      $(ATHENA_DOCS)/mars/docs/mann
+	-cp mars/docs/man1/*.gif       $(ATHENA_DOCS)/mars/docs/man1
+	-cp mars/docs/man5/*.gif       $(ATHENA_DOCS)/mars/docs/man5
+	-cp mars/docs/mani/*.gif       $(ATHENA_DOCS)/mars/docs/mani
+	-cp mars/docs/mann/*.gif       $(ATHENA_DOCS)/mars/docs/mann
+
+$(INSTALLDIRS):
+	mkdir -p $@
 
 
 #---------------------------------------------------------------------
