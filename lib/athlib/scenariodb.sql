@@ -73,6 +73,8 @@ CREATE TABLE maps (
     data     BLOB
 );
 
+
+
 -- Neighborhood definitions
 CREATE TABLE nbhoods (
     -- Unique ID
@@ -140,3 +142,14 @@ CREATE TABLE frcgroups (
 -- Force Group View: joins groups with frcgroups.
 CREATE VIEW frcgroups_view AS
 SELECT * FROM groups JOIN frcgroups USING (g);
+
+
+------------------------------------------------------------------------
+-- Entities
+--
+-- Anything with an ID and a long name is an entity.  All IDs and 
+-- long names must be unique.  The following view is used to check this.
+
+CREATE VIEW entities AS
+SELECT n AS id, longname FROM nbhoods UNION
+SELECT g AS id, longname FROM groups;

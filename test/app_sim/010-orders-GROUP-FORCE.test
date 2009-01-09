@@ -1,0 +1,373 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-order-GROUP-FORCE.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) GROUP:FORCE:* order tests.
+#
+#    This test suite tests the frcgroup-related orders.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Standard groups
+
+    set blue {
+        g         BLUE
+        longname  "US Army"
+        color     #0000ff
+        forcetype REGULAR
+        local     no
+        coalition yes
+    }
+
+    set brit {
+        g         BRIT
+        longname  "British Forces"
+        color     #00ffff
+        forcetype REGULAR
+        local     no
+        coalition yes
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        array unset parms
+        ted notifier forget
+
+        # Delete all force groups and reinitialize the module
+        rdb eval {
+            DELETE FROM groups;
+            DELETE FROM frcgroups;
+        }
+
+        frcgroup reconfigure
+    }
+
+    #-------------------------------------------------------------------
+    # GROUP:FORCE:CREATE
+
+    test GROUP:FORCE:CREATE-1.1 {required parms} -body {
+        ted order -reject GROUP:FORCE:CREATE {}
+    } -result {
+        g {required value}
+        longname {required value}
+        color {required value}
+        forcetype {required value}
+        local {required value}
+        coalition {required value}
+    }
+    
+    test GROUP:FORCE:CREATE-1.2 {Duplicate g, longname} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted order -reject GROUP:FORCE:CREATE $blue
+    } -cleanup {
+        cleanup
+    } -result {
+        g {An entity with this ID already exists}
+        longname {An entity with this name already exists}
+    }
+
+    test GROUP:FORCE:CREATE-1.3 {longname duplicates n} -body {
+        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+            longname BLUE
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        longname {longname may not be identical to ID}
+    }
+
+    test GROUP:FORCE:CREATE-1.4 {g is not an ident} -body {
+        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+            g "BL&E"
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Identifiers should begin with a letter and contain only letters or digits}
+    }
+
+    test GROUP:FORCE:CREATE-1.5 {invalid color} -body {
+        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+            color NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+    }
+
+    test GROUP:FORCE:CREATE-1.5 {invalid forcetype} -body {
+        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+            forcetype NONESUCH
+        }]
+    } -result {
+        forcetype {invalid value, "NONESUCH"}
+    }
+
+    test GROUP:FORCE:CREATE-1.6 {invalid local} -body {
+        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+            local NONESUCH
+        }]
+    } -result {
+        local {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+    test GROUP:FORCE:CREATE-1.7 {invalid coalition} -body {
+        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+            coalition NONESUCH
+        }]
+    } -result {
+        coalition {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+    test GROUP:FORCE:CREATE-2.1 {frcgroup is created} -body {
+        ted order GROUP:FORCE:CREATE $blue
+        set parms [join [dict keys $blue] ","]
+        ted query "SELECT $parms FROM frcgroups_view"
+    } -cleanup {
+        cleanup
+    } -result {
+g    longname color   forcetype local coalition 
+---- -------- ------- --------- ----- --------- 
+BLUE US Army  #0000ff REGULAR   0     1         
+    }
+
+    test GROUP:FORCE:CREATE-2.2 {<Entity> create} -body {
+        ted notifier bind ::frcgroup <Entity>
+        ted order GROUP:FORCE:CREATE $blue
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::frcgroup <Entity> create BLUE}
+    }
+
+
+    test GROUP:FORCE:CREATE-3.1 {undo deletes the frcgroup} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+        ted order GROUP:FORCE:CREATE $brit
+    } -body {
+        cif undo
+        ted query "SELECT g,longname FROM frcgroups_view"
+    } -cleanup {
+        cleanup
+    } -result {
+g    longname 
+---- -------- 
+BLUE US Army  
+    }
+
+    #-------------------------------------------------------------------
+    # GROUP:FORCE:DELETE
+
+    test GROUP:FORCE:DELETE-1.1 {required parms} -body {
+        ted order -reject GROUP:FORCE:DELETE {}
+    } -result {
+        g {required value}
+    }
+    
+    test GROUP:FORCE:DELETE-1.2 {unknown g} -body {
+        ted order -reject GROUP:FORCE:DELETE g NONESUCH
+    } -result {
+        g {Invalid force group, none are defined}
+    }
+
+    test GROUP:FORCE:DELETE-2.1 {Group is deleted} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted order GROUP:FORCE:DELETE g BLUE
+        frcgroup names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test GROUP:FORCE:DELETE-2.2 {<Entity> delete} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted notifier bind ::frcgroup <Entity>
+        ted order GROUP:FORCE:DELETE g BLUE
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::frcgroup <Entity> delete BLUE}
+    }
+
+    test GROUP:FORCE:DELETE-3.1 {Can't undo} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted order GROUP:FORCE:DELETE g BLUE
+        cif canundo
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    #-------------------------------------------------------------------
+    # GROUP:FORCE:UPDATE
+
+    test GROUP:FORCE:UPDATE-1.1 {required parms} -body {
+        ted order -reject GROUP:FORCE:UPDATE {}
+    } -result {
+        g {required value}
+    }
+    
+    test GROUP:FORCE:UPDATE-1.2 {Duplicate longname} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+        ted order GROUP:FORCE:CREATE $brit
+    } -body {
+        ted order -reject GROUP:FORCE:UPDATE g BLUE longname "British Forces"
+    } -cleanup {
+        cleanup
+    } -result {
+        longname {An entity with this name already exists}
+    }
+
+    test GROUP:FORCE:UPDATE-1.3 {longname duplicates some g} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+        ted order GROUP:FORCE:CREATE $brit
+    } -body {
+        ted order -reject GROUP:FORCE:UPDATE g BLUE longname BRIT
+    } -cleanup {
+        cleanup
+    } -result {
+        longname {An entity with this ID already exists}
+    }
+
+    test GROUP:FORCE:UPDATE-1.4 {invalid color} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted order -reject GROUP:FORCE:UPDATE g BLUE color NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+    }
+
+    test GROUP:FORCE:UPDATE-1.5 {invalid forcetype} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted order -reject GROUP:FORCE:UPDATE g BLUE forcetype NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        forcetype {invalid value, "NONESUCH"}
+    }
+
+    test GROUP:FORCE:UPDATE-1.6 {invalid local} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted order -reject GROUP:FORCE:UPDATE g BLUE local NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        local {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+    test GROUP:FORCE:UPDATE-1.7 {invalid coalition} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted order -reject GROUP:FORCE:UPDATE g BLUE coalition NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        coalition {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+
+    test GROUP:FORCE:UPDATE-2.1 {frcgroup is updated} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted order GROUP:FORCE:UPDATE {
+            g            BLUE
+            longname     "Blue Angels"
+            color        "#ff0000"
+            forcetype    POLICE
+            local        yes
+            coalition    no
+        }
+
+        set parms [join [dict keys $blue] ","]
+        ted query "SELECT $parms FROM frcgroups_view"
+    } -cleanup {
+        cleanup
+    } -result {
+g    longname    color   forcetype local coalition 
+---- ----------- ------- --------- ----- --------- 
+BLUE Blue Angels #ff0000 POLICE    1     0         
+    }
+
+    test GROUP:FORCE:UPDATE-2.2 {<Entity> update} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted notifier bind ::frcgroup <Entity>
+        ted order GROUP:FORCE:UPDATE g BLUE longname "Blue Angels"
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::frcgroup <Entity> update BLUE}
+    }
+
+    test GROUP:FORCE:UPDATE-2.3 {identical values are OK} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted order GROUP:FORCE:UPDATE $blue 
+
+        set parms [join [dict keys $blue] ","]
+        ted query "SELECT $parms FROM frcgroups_view"
+    } -cleanup {
+        cleanup
+    } -result {
+g    longname color   forcetype local coalition 
+---- -------- ------- --------- ----- --------- 
+BLUE US Army  #0000ff REGULAR   0     1         
+    }
+
+    test GROUP:FORCE:UPDATE-3.1 {undo undoes the change} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+        ted order GROUP:FORCE:UPDATE g BLUE longname "Blue Angels" local yes
+    } -body {
+        cif undo
+        ted query {
+            SELECT g,longname,local FROM frcgroups_view
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+g    longname local 
+---- -------- ----- 
+BLUE US Army  0     
+    }
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+

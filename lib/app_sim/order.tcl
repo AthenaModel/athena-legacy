@@ -73,6 +73,7 @@ snit::type order {
 
     typevariable currentInterface  ;# The current interface
     typevariable parms             ;# Array of order parameters
+    typevariable oldparms          ;# For UPDATE orders, previous parms.
     typevariable errors            ;# List of error message components.
     typevariable errorLevel        ;# Nature of error messages.
     typevariable undoCmd           ;# Undo command for this order.
@@ -286,8 +287,10 @@ snit::type order {
             set parms($parm) ""
         }
 
-        # NEXT, process the options
-        while {[llength $args] > 0} {
+        # NEXT, process the options, so long as there's no explicit
+        # error.
+
+        while {![dict exists $errors $parm] && [llength $args] > 0} {
             set opt [lshift args]
             switch -exact -- $opt {
                 -trim {
@@ -305,7 +308,41 @@ snit::type order {
                 -required { 
                     if {$parms($parm) eq ""} {
                         reject $parm "required value"
-                        break
+                    }
+                }
+                -oldvalue {
+                    set oldvalue [lshift args]
+
+                    if {$parms($parm) eq $oldvalue} {
+                        set parms($parm) ""
+                    }
+                }
+                -unused {
+                    if {$parms($parm) eq ""} {
+                        continue
+                    }
+
+                    set name $parms($parm)
+
+                    if {[rdb exists {
+                        SELECT id FROM entities 
+                        WHERE id=$name
+                    }]} {
+                        reject $parm "An entity with this ID already exists"
+                    }
+
+                    if {[rdb exists {
+                        SELECT longname FROM entities 
+                        WHERE longname=$name
+                    }]} {
+                        reject $parm "An entity with this name already exists"
+                    }
+                }
+                -type {
+                    set parmtype [lshift args]
+
+                    validate $parm { 
+                        set parms($parm) [{*}$parmtype validate $parms($parm)]
                     }
                 }
                 default { 
@@ -313,6 +350,7 @@ snit::type order {
                 }
             }
         }
+
     }
 
     # reject parm msg

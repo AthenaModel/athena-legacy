@@ -215,7 +215,7 @@ snit::type frcgroup {
         }
 
         # NEXT, Not undoable; clear the undo command
-        set info(undo) [mytypemethod UpdateGroup $g [array get row]]
+        set info(undo) [mytypemethod UpdateGroup $g [array get undoData]]
 
         # NEXT, notify the app.
         notifier send ::frcgroup <Entity> update $g
@@ -240,59 +240,21 @@ order define ::frcgroup GROUP:FORCE:CREATE {
         coalition    {ptype yesno         label "Coalition Member?" }
     }
 } {
-    # FIRST, prepare the parameters
-    prepare g             -trim      -toupper -required
-    prepare longname      -normalize          -required 
-    prepare color         -trim      -tolower -required
-    prepare forcetype     -trim      -toupper -required
-    prepare local         -trim      -toupper -required
-    prepare coalition     -trim      -toupper -required
+    # FIRST, prepare and validate the parameters
+    prepare g          -trim -toupper -required -unused -type ident
+    prepare longname   -normalize     -required -unused
+    prepare color      -trim -tolower -required -type hexcolor
+    prepare forcetype  -trim -toupper -required -type eforcetype
+    prepare local      -trim -toupper -required -type boolean
+    prepare coalition  -trim -toupper -required -type boolean
 
     returnOnError
 
-    # NEXT, validate the parameters
-
-    if {[valid g] && [rdb exists {
-        SELECT g FROM groups 
-        WHERE g        = $parms(g)
-        OR    longname = $parms(g)
-    }]} {
-        reject g "A group with this name already exists"
+    # NEXT, do cross-validation
+    if {$parms(g) eq $parms(longname)} {
+        reject longname "longname may not be identical to ID"
     }
 
-    validate g {
-        ident validate $parms(g)
-    }
-    
-    # longname
-    if {[valid longname] && [rdb exists {
-        SELECT g FROM groups 
-        WHERE g        = $parms(longname)
-        OR    longname = $parms(longname)
-    }]} {
-        reject longname "A group with this name already exists"
-    }
-
-    # color
-    validate color {
-        set parms(color) [hexcolor validate $parms(color)]
-    }
-
-    # forcetype
-    validate forcetype {
-        set parms(forcetype) [eforcetype validate $parms(forcetype)]
-    }
-
-    # local
-    validate local {
-        set parms(local) [boolean validate $parms(local)]
-    }
-
-    # coalition
-    validate coalition {
-        set parms(coalition) [boolean validate $parms(coalition)]
-    }
-    
     returnOnError
 
     # NEXT, create the group
@@ -310,16 +272,17 @@ order define ::frcgroup GROUP:FORCE:DELETE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare g -trim -toupper -required 
-
-    # Validate
-    validate g { frcgroup validate $parms(g) }
-
-    # TBD: Verify that we can safely delete this.  We can't have
-    # any entities whose identity depends on this group.
+    prepare g -trim -toupper -required -type frcgroup
 
     returnOnError
 
+    # TBD: It isn't clear whether we will delete all entities that depend on
+    # this group, or whether all such entities must already have been
+    # deleted.  In the latter case, we must verify that we can safely 
+    # delete this group; but then, we can reasonably undo the deletion,
+    # and so we won't need to do the following verification.
+
+    # NEXT, if this is done from the GUI verify this.
     if {[interface] eq "gui"} {
         set answer [messagebox popup \
                         -title         "Are you sure?"                  \
@@ -361,58 +324,15 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare g             -trim      -toupper -required
-    prepare longname      -normalize
-    prepare color         -trim      -tolower
-    prepare forcetype     -trim      -toupper
-    prepare local         -trim      -toupper
-    prepare coalition     -trim      -toupper
+    prepare g         -trim -toupper  -required -type frcgroup
 
-    # NEXT, validate the group
-    validate g { frcgroup validate $parms(g) }
+    set oldname [rdb onecolumn {SELECT longname FROM groups WHERE g=$parms(g)}]
 
-    # NEXT, validate the other parameters
-
-    # longname
-    if {$parms(longname) ne ""} {
-        set g ""
-
-        rdb eval {
-            SELECT g FROM groups
-            WHERE g        = $parms(longname)
-            OR    longname = $parms(longname)
-        } {}
-
-        if {$g ne "" && $g ne $parms(g)} {
-            reject longname "A group with this name already exists"
-        }
-    }
-
-    # color
-    validate color {
-        set parms(color) [hexcolor validate $parms(color)]
-    }
-
-    # forcetype
-    validate forcetype {
-        set parms(forcetype) [eforcetype validate $parms(forcetype)]
-    }
-
-    # local
-    validate local {
-        eyesno validate $parms(local)
-
-        # Convert to integer
-        set parms(local) [expr {!!$parms(local)}]
-    }
-
-    # coalition
-    validate coalition {
-        eyesno validate $parms(coalition)
-
-        # Convert to integer
-        set parms(coalition) [expr {!!$parms(coalition)}]
-    }
+    prepare longname  -normalize      -oldvalue $oldname -unused
+    prepare color     -trim -tolower  -type hexcolor
+    prepare forcetype -trim -toupper  -type eforcetype
+    prepare local     -trim -toupper  -type boolean
+    prepare coalition -trim -toupper  -type boolean
 
     returnOnError
 

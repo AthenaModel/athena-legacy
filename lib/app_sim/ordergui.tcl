@@ -533,6 +533,9 @@ snit::type ordergui {
             return 0
         }
 
+        # NEXT, say that it's OK.
+        $type Message "The order was accepted."
+
         # NEXT, notify the app that no order entry is being done; this
         # will allow it to clear up any entry artifacts.
         notifier send $type <OrderEntry> ""
