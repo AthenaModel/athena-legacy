@@ -11,7 +11,21 @@
 
 <h2>Build Notes</h2>
 
-No builds yet.<p>
+<h3>Build 1.0.0, 9 January 2009</h3>
+
+This is the first official build of Athena.  It includes the initial
+version of <<xref athena_sim(1)>>, which is capable of:<p>
+
+<ul>
+  <li> Creating, saving, and opening a scenario document.
+  <li> Importing a map image.
+  <li> Creating neighborhoods and force groups.
+</ul>
+
+There are no Bugzilla packages to list; bug tracking begins with this
+build.<p>
+
+
 <hr>
 
 <address><a href="mailto:William.H.Duquette@jpl.nasa.gov">William.H.Duquette@jpl.nasa.gov</a></address>
