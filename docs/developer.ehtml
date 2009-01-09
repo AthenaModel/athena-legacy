@@ -17,6 +17,29 @@
   <li> <<xref athena_sim(1)>>: The Athena simulation.
   <li> <a href="build_notes.html">Build Notes</a>: Details of each
        Athena build.
+  <li> <a href="dev/cm.html">CM Plan</a>
+</ul>
+
+<h2>Man Pages</h2>
+
+<ul>
+  <li> <a href="man1/index.html">Section (1)</a>: Executables
+  <li> <a href="mann/index.html">Section (n)</a>: Tcl Commands
+  <li> <a href="mani/index.html">Section (i)</a>: Tcl Interfaces
+  <li> <a href="mansim/index.html">Section (sim)</a>:
+       <<xref athena_sim(1)>> Internals
+       
+</ul>
+
+<h2>Mars Man Pages</h2>
+
+<ul>
+  <li> <a href="../mars/docs/man1/index.html">Section (1): Executables</a>
+  <li> <a href="../mars/docs/man5/index.html">Section (5): File Formats</a>
+  <li> <a href="../mars/docs/mann/index.html">Section (n): Tcl
+       Commands</a>
+  <li> <a href="../mars/docs/mani/index.html">Section (i): Tcl
+       Interfaces</a>
 </ul>
 
 <h2>Copyright</h2>
