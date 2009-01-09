@@ -164,20 +164,6 @@ installdocs: check_env
 build: clean src bin docs test
 
 #---------------------------------------------------------------------
-# Tag Build
-
-BUILD_TAG = https://oak.jpl.nasa.gov/svn/athena/tags/athena_$(ATHENA_VERSION)
-MARS_TAG  = https://oak.jpl.nasa.gov/svn/mars/tags/mars_$(MARS_VERSION)
-
-# The svn ls of the MARS_TAG ensures that the Mars version is defined.
-
-tag: check_cmbuild
-	svn ls $(MARS_TAG)
-	svn copy -m"Build $(ATHENA_VERSION)" . $(BUILD_TAG)
-	svn switch $(BUILD_TAG) .
-	$(TOP_DIR)/mars/bin/mars import $(MARS_VERSION)
-
-#---------------------------------------------------------------------
 # Target: cmbuild
 #
 # Official CM build.  Requires a valid (numeric) ATHENA_VERSION.
@@ -196,7 +182,6 @@ check_cmbuild:
 	@ echo "                CM Build: Mars $(MARS_VERSION)"
 	@ echo "*****************************************************"
 	@ echo ""
-	@ $(TOP_DIR)/tools/bin/chkversion $(ATHENA_VERSION) $(MARS_VERSION)
 
 #---------------------------------------------------------------------
 # Target: tar
