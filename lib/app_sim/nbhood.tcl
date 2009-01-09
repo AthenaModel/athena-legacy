@@ -398,39 +398,18 @@ order define ::nbhood NBHOOD:CREATE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare longname      -normalize          -required 
-    prepare urbanization  -trim      -toupper -required
-    prepare refpoint      -trim      -toupper -required
-    prepare polygon       -normalize -toupper -required
+    prepare longname      -normalize          -required -unused
+    prepare urbanization  -trim -toupper      -required -type eurbanization
+    prepare refpoint      -trim -toupper      -required -type refpoint
+    prepare polygon       -normalize -toupper -required -type refpoly
 
     returnOnError
 
-    # NEXT, validate the parameters
+    # NEXT, perform custom checks
     
-    # longname
-    if {[valid longname] && [rdb exists {
-        SELECT n FROM nbhoods 
-        WHERE longname=$parms(longname)
-        OR    n=$parms(longname)
-    }]} {
-        reject longname "A neighborhood with this name already exists"
-    }
-
-    # urbanization
-    validate urbanization {
-        set parms(urbanization) [eurbanization validate $parms(urbanization)]
-    }
-
     # polygon
     #
-    # Is the point a valid map reference string?
-    # Is the resulting polygon a valid polygon?
-
-    validate polygon {
-        map ref validate {*}$parms(polygon)
-        set parms(polygon) [map ref2m {*}$parms(polygon)]
-        polygon validate $parms(polygon)
-    }
+    # Must be unique.
 
     if {[valid polygon] && [rdb exists {
         SELECT n FROM nbhoods
@@ -441,13 +420,7 @@ order define ::nbhood NBHOOD:CREATE {
 
     # refpoint
     #
-    # Is the point a valid map reference string?
-    # Is the point within the polygon?
-
-    validate refpoint {
-        map ref validate $parms(refpoint)
-        set parms(refpoint) [map ref2m $parms(refpoint)]
-    }
+    # Must be unique
 
     if {[valid refpoint] && [rdb exists {
         SELECT n FROM nbhoods
@@ -457,6 +430,7 @@ order define ::nbhood NBHOOD:CREATE {
             "A neighborhood with this reference point already exists"
     }
 
+    # NEXT, do cross-validation.
 
     if {[valid refpoint] && [valid polygon]} {
         if {![ptinpoly $parms(polygon) $parms(refpoint)]} {
@@ -481,14 +455,13 @@ order define ::nbhood NBHOOD:DELETE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare n  -trim -toupper -required 
+    prepare n  -trim -toupper -required -type nbhood
 
-    # Validate
-    validate n { nbhood validate $parms(n) }
-
-    # TBD: Verify that we can safely delete this.  We can't have
-    # any entities whose identity depends on this neighborhood, e.g.,
-    # nbhood groups.
+    # TBD: It isn't clear whether we will delete all entities that depend on
+    # this nbhood, or whether all such entities must already have been
+    # deleted.  In the latter case, we must verify that we can safely 
+    # delete this nbhood; but then, we can reasonably undo the deletion,
+    # and so we won't need to do the following verification.
 
     returnOnError
 
@@ -523,10 +496,7 @@ order define ::nbhood NBHOOD:LOWER {
     }
 } {
     # FIRST, prepare the parameters
-    prepare n  -trim -toupper -required 
-
-    # Validate
-    validate n { nbhood validate $parms(n) }
+    prepare n  -trim -toupper -required -type nbhood
 
     returnOnError
 
@@ -545,10 +515,7 @@ order define ::nbhood NBHOOD:RAISE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare n  -trim -toupper -required 
-
-    # Validate
-    validate n { nbhood validate $parms(n) }
+    prepare n  -trim -toupper -required -type nbhood
 
     returnOnError
 
@@ -575,47 +542,24 @@ order define ::nbhood NBHOOD:UPDATE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare n             -trim      -toupper -required
-    prepare longname      -normalize
-    prepare urbanization  -trim      -toupper
-    prepare refpoint      -trim      -toupper
-    prepare polygon       -normalize -toupper
+    prepare n            -trim -toupper       -required -type nbhood
 
-    # NEXT, validate the neighborhood
-    validate n { nbhood validate $parms(n) }
+    set oldname [rdb onecolumn {
+        SELECT longname FROM nbhoods WHERE n=$parms(n)
+    }]
+
+    prepare longname     -normalize           -oldvalue $oldname -unused
+    prepare urbanization -trim -toupper       -type eurbanization
+    prepare refpoint     -trim -toupper       -type refpoint
+    prepare polygon      -normalize -toupper  -type refpoly
+
+    returnOnError
 
     # NEXT, validate the other parameters
 
-    # longname
-    if {$parms(longname) ne ""} {
-        set n ""
-
-        rdb eval {
-            SELECT n FROM nbhoods
-            WHERE longname=$parms(longname)
-            OR    n=$parms(longname)
-        } {}
-
-        if {$n ne "" && $n ne $parms(n)} {
-            reject longname "A neighborhood with this name already exists"
-        }
-    }
-
-    # urbanization
-    validate urbanization {
-        set parms(urbanization) [eurbanization validate $parms(urbanization)]
-    }
-
     # polygon
     #
-    # Is the point a valid map reference string?
-    # Is the resulting polygon a valid polygon?
-
-    validate polygon {
-        map ref validate {*}$parms(polygon)
-        set parms(polygon) [map ref2m {*}$parms(polygon)]
-        polygon validate $parms(polygon)
-    }
+    # Must be unique
 
     if {[valid polygon]} { 
         rdb eval {
@@ -631,13 +575,7 @@ order define ::nbhood NBHOOD:UPDATE {
 
     # refpoint
     #
-    # Is the point a valid map reference string?
-    # Is the point within the polygon?
-
-    validate refpoint {
-        map ref validate $parms(refpoint)
-        set parms(refpoint) [map ref2m $parms(refpoint)]
-    }
+    # Must be unique
 
     if {[valid refpoint]} { 
         rdb eval {

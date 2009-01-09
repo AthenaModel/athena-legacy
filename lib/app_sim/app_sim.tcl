@@ -50,6 +50,7 @@ namespace import ::athgui::*
 
 # Non-GUI
 source [file join $::app_sim::library app.tcl             ]
+source [file join $::app_sim::library apptypes.tcl        ]
 source [file join $::app_sim::library scenario.tcl        ]
 source [file join $::app_sim::library cif.tcl             ]
 source [file join $::app_sim::library order.tcl           ]
