@@ -35,7 +35,7 @@ all: test
 # Target: clean
 
 clean:
-	rm -f packages.log
+	rm -f packages.log apps.log
 
 #---------------------------------------------------------------------
 # Target: test
@@ -46,6 +46,9 @@ test:
 	@echo "TOP_DIR = $(TOP_DIR)"
 	@echo "Testing Library Packages: $(PACKAGES)"
 	@make packages | tee packages.log | grep Failed
+	@echo "Testing Application: athena_sim"
+	@$(TEST_TOOL) all | tee app_sim.log | grep Failed
+
 
 #---------------------------------------------------------------------
 # Standard Rules
