@@ -264,14 +264,6 @@ snit::type ::athlib::mapref {
                 return -code error -errorcode INVALID \
                     "${prefix}not a map reference string"
             }
-
-            lassign [$self dim]        xmax ymax
-            lassign [$self ref2m $ref] mx   my
-
-            if {$mx > $xmax || $my > $ymax} {
-                return -code error -errorcode INVALID \
-                    "${prefix}out of bounds"
-            }
         }
 
         return $args
