@@ -88,6 +88,9 @@ snit::type ::athlib::mapref {
         set mapFactor [expr {
             max($options(-width),$options(-height))/999.0
         }]
+
+        set mwid [expr {round($options(-width)  / $mapFactor)}]
+        set mht  [expr {round($options(-height) / $mapFactor)}]
     }
 
     #-------------------------------------------------------------------
@@ -99,6 +102,13 @@ snit::type ::athlib::mapref {
     # zoomFactor: 100%, etc.
     variable zoomFactor 100
 
+    # mwid, mht
+    #
+    # Dimensions in map coordinates
+    
+    variable mwid 1000
+    variable mht  1000
+    
     #-------------------------------------------------------------------
     # Constructor
 
@@ -131,7 +141,7 @@ snit::type ::athlib::mapref {
     # Returns the bounding box of the map in map units
 
     method box {} {
-        list 0 0 {*}[$self c2m $options(-width) $options(-height)]
+        list 0 0 $mwid $mht
     }
 
     # dim
@@ -139,7 +149,7 @@ snit::type ::athlib::mapref {
     # Returns the dimensions of the map in map units
 
     method dim {} {
-        $self c2m $options(-width) $options(-height)
+        list $mwid $mht
     }
 
     # c2m cx cy

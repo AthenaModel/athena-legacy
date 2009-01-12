@@ -59,10 +59,25 @@ namespace eval ::athlib::test {
         cleanup
     } -result {0 0 999 666}
 
+    test box-1.2 {Retrieve bounding box, 200%} -setup setup -body {
+        proj zoom 200
+        proj box
+    } -cleanup {
+        cleanup
+    } -result {0 0 999 666}
+
+
     #-------------------------------------------------------------------
     # dim
 
-    test dim-1.1 {Retrieve dimensions box} -setup setup -body {
+    test dim-1.1 {Retrieve dimensions} -setup setup -body {
+        proj dim
+    } -cleanup {
+        cleanup
+    } -result {999 666}
+
+    test dim-1.2 {Retrieve dimensions, 200%} -setup setup -body {
+        proj zoom 200
         proj dim
     } -cleanup {
         cleanup
