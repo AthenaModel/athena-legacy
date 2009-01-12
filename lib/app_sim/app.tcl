@@ -79,9 +79,11 @@ snit::type app {
         # components
         map      init
         scenario init
-        nbhood   init
         cif      init
         order    init
+        nbhood   init
+        frcgroup init
+        orggroup init
 
         # NEXT, Withdraw the default toplevel window, and create 
         # the main GUI components.

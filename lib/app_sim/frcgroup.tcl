@@ -252,7 +252,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
 
     # NEXT, do cross-validation
     if {$parms(g) eq $parms(longname)} {
-        reject longname "longname may not be identical to ID"
+        reject longname "longname must not be identical to ID"
     }
 
     returnOnError

@@ -205,7 +205,7 @@ snit::type ordergui {
             -text "   "
 
         ttk::button $dialog.buttons.cancel             \
-            -text    "Cancel"                          \
+            -text    "Close"                           \
             -width   6                                 \
             -command [mytypemethod cancel]
 
@@ -388,8 +388,9 @@ snit::type ordergui {
 
             set icon($parm) $parmf.icon$row
 
-            grid $parmf.label$row -row $row -column 0 -sticky w 
-            grid $parmf.entry$row -row $row -column 1 -sticky ew -padx 2
+            grid $parmf.label$row -row $row -column 0 -sticky w
+            grid $parmf.entry$row -row $row -column 1 -sticky ew \
+                -padx 2 -pady 4
             grid $parmf.icon$row  -row $row -column 2 -sticky nsew
         }
 
@@ -828,11 +829,13 @@ snit::widget editorentry {
 
 ordergui entrytype editor color        -editcmd  ::ordergui::colorpicker
 ordergui entrytype enum   forcetype    -values   [eforcetype names]
+ordergui entrytype enum   orgtype      -values   [eorgtype names]
 ordergui entrytype enum   urbanization -values   [eurbanization names]
 ordergui entrytype enum   yesno        -values   {Yes No}
 
 ordergui entrytype enum   nbhood       -valuecmd [list nbhood names]
 ordergui entrytype enum   frcgroup     -valuecmd [list frcgroup names]
+ordergui entrytype enum   orggroup     -valuecmd [list orggroup names]
 
 
 

@@ -1,14 +1,14 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    frcgroupbrowser.tcl
+#    orggroupbrowser.tcl
 #
 # AUTHORS:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    frcgroupbrowser(sim) package: Force Group browser.
+#    orggroupbrowser(sim) package: Organization Group browser.
 #
-#    This widget displays a formatted list of force group records.
+#    This widget displays a formatted list of organization group records.
 #    Entries in the list are managed by the tablebrowser(n).  
 #
 #-----------------------------------------------------------------------
@@ -19,7 +19,7 @@
 #-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widget frcgroupbrowser {
+snit::widget orggroupbrowser {
     #-------------------------------------------------------------------
     # Type Constructor
 
@@ -39,9 +39,9 @@ snit::widget frcgroupbrowser {
 
     component tb          ;# tablebrowser(n) used to browse groups
     component bar         ;# Tool bar
-    component addbtn      ;# The "Add Frc Group" button
-    component editbtn     ;# The "Edit Frc Group" button
-    component deletebtn   ;# The "Delete Frc Group" button
+    component addbtn      ;# The "Add Org Group" button
+    component editbtn     ;# The "Edit Org Group" button
+    component deletebtn   ;# The "Delete Org Group" button
 
     #--------------------------------------------------------------------
     # Instance Variables
@@ -58,7 +58,7 @@ snit::widget frcgroupbrowser {
         # NEXT, create the table browser
         install tb using tablebrowser $win.tb   \
             -db          ::rdb                  \
-            -table       "gui_frcgroups"        \
+            -table       "gui_orggroups"        \
             -keycol      "g"                    \
             -keycolnum   0                      \
             -width       100                    \
@@ -75,7 +75,7 @@ snit::widget frcgroupbrowser {
             -state      normal                 \
             -command    [mymethod AddGroup]
 
-        DynamicHelp::add $addbtn -text "Add Force Group"
+        DynamicHelp::add $addbtn -text "Add Organization Group"
 
         install editbtn using button $bar.edit   \
             -image      ::athgui::icon::pencil22 \
@@ -106,9 +106,14 @@ snit::widget frcgroupbrowser {
         $tb insertcolumn end 0 {ID}
         $tb insertcolumn end 0 {Long Name}
         $tb insertcolumn end 0 {Color}
-        $tb insertcolumn end 0 {Force Type}
-        $tb insertcolumn end 0 {Foreign?}
-        $tb insertcolumn end 0 {Coalition?}
+        $tb insertcolumn end 0 {Org Type}
+        $tb insertcolumn end 0 {Medical?}
+        $tb insertcolumn end 0 {Engineer?}
+        $tb insertcolumn end 0 {Support?}
+        $tb insertcolumn end 0 {RollupWeight}
+        $tb columnconfigure end -sortmode real
+        $tb insertcolumn end 0 {EffectsFactor}
+        $tb columnconfigure end -sortmode real
 
         # NEXT, the last column fills extra space
         $tb columnconfigure end -stretchable yes
@@ -124,7 +129,7 @@ snit::widget frcgroupbrowser {
 
         # NEXT, prepare to update on data change
         notifier bind ::scenario <Reconfigure> $self [mymethod Reconfigure]
-        notifier bind ::frcgroup <Entity>      $self $self
+        notifier bind ::orggroup <Entity>      $self $self
 
         # NEXT, reload on creation
         $self reload
@@ -181,7 +186,7 @@ snit::widget frcgroupbrowser {
 
     method AddGroup {} {
         # FIRST, Pop up the dialog
-        ordergui enter GROUP:FORCE:CREATE
+        ordergui enter GROUP:ORGANIZATION:CREATE
     }
 
     # EditSelected
@@ -193,7 +198,7 @@ snit::widget frcgroupbrowser {
         set id [lindex [$tb curselection] 0]
 
         # NEXT, Pop up the dialog, and select this group
-        ordergui enter GROUP:FORCE:UPDATE
+        ordergui enter GROUP:ORGANIZATION:UPDATE
         ordergui parm set g $id
     }
 
@@ -206,7 +211,7 @@ snit::widget frcgroupbrowser {
         set id [lindex [$tb curselection] 0]
 
         # NEXT, Pop up the dialog, and select this group
-        ordergui enter GROUP:FORCE:DELETE
+        ordergui enter GROUP:ORGANIZATION:DELETE
         ordergui parm set g $id
     }
 
@@ -236,7 +241,8 @@ snit::widget frcgroupbrowser {
         # FIRST, extract each field
         dict with dict {
             $tb setdata $g \
-                [list $g $longname $color $forcetype $local $coalition]
+                [list $g $longname $color $orgtype $medical $engineer \
+                     $support $rollup_weight $effects_factor]
             $tb setcellbackground $g 2 $color
         }
     }

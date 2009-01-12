@@ -57,6 +57,7 @@ source [file join $::app_sim::library order.tcl           ]
 source [file join $::app_sim::library map.tcl             ]
 source [file join $::app_sim::library nbhood.tcl          ]
 source [file join $::app_sim::library frcgroup.tcl        ]
+source [file join $::app_sim::library orggroup.tcl        ]
 
 # GUI
 source [file join $::app_sim::library ordergui.tcl        ]
@@ -65,6 +66,7 @@ source [file join $::app_sim::library mapviewer.tcl       ]
 source [file join $::app_sim::library mapicons.tcl        ]
 source [file join $::app_sim::library nbhoodbrowser.tcl   ]
 source [file join $::app_sim::library frcgroupbrowser.tcl ]
+source [file join $::app_sim::library orggroupbrowser.tcl ]
 
 
 

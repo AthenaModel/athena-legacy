@@ -86,46 +86,101 @@ The parameters are as follows:<p>
 <<defitem GROUP:FORCE:UPDATE {GROUP:FORCE:UPDATE}>>
 
 Updates an existing force group.  The parameters are as
+defined for <<iref GROUP:FORCE:CREATE>>; <b>g</b> is required, and
+specifies the group to update, while the remainder are optional.<p>
+
+<</deflist group force>>
+
+<<subsection "GROUP:ORGANIZATION:*">>
+
+These orders relate to organization groups, i.e., NGOs, IGOs, and
+Contractors, working in the playbox.<p>
+
+<<deflist group organization>>
+
+<<defitem GROUP:ORGANIZATION:CREATE {GROUP:ORGANIZATION:CREATE}>>
+
+Creates a new organization group.  The parameters are as
 follows:<p>
 
 <<deflist options>>
 
 <<defopt g>>
 
-<b>Required.</b> The ID of the group to be updated.<p>
+<b>Required.</b> A brief <<xref ident(n) identifier>> which uniquely
+identifies this group.<p>
 
 <<defopt longname>>
 
-<b>Optional.</b> A short human-readable name for the group, e.g.,
-"U.S. Army".<p>
+<b>Required.</b> A short human-readable name for the neighborhood, e.g., "Los Angeles".<p>
 
 <<defopt color>>
 
-<b>Optional.</b>  A color, specified as a hexadecimal RGB string,
+<b>Required.</b>  A color, specified as a hexadecimal RGB string,
 "<code>#<i>rrggbb</i></code>" or "<code>#<i>rrrrggggbbbb</i></code>".
 This color is used to color code the group's icons.<p>
 
-<<defopt forcetype>>
+<<defopt orgtype>>
 
-<b>Optional.</b> The force type, as follows:<p>
+<b>Required.</b> The organization type, as follows:<p>
 
-<<::athlib::eforcetype html>>
+<<::athlib::eorgtype html>>
 
-<<defopt local>>
+<<defopt medical>>
 
-<b>Optional.</b> The local flag, expressed as a boolean value (e.g.,
-"Yes" or "No"). Indicates whether the group is perceived as being
-local to the playbox, or as a foreign force.<p> 
+<b>Required.</b> The medical capability flag, expressed as a boolean value (e.g.,
+"Yes" or "No"). Indicates whether the group can provide healthcare to
+local civilians.<p> 
 
-<<defopt coalition>>
+<<defopt engineer>>
 
-<b>Optional.</b> The coalition flag, expressed as a boolean value
-(e.g., "Yes" or "No").  Indicates whether or not the group is a member
-of the U.S.-led coalition.<p>
+<b>Required.</b> The engineering capability flag, expressed as a boolean value
+(e.g., "Yes" or "No").  Indicates whether or not the group can provide
+engineering services to the local civilians.<p>
+
+<<defopt support>>
+
+<b>Required.</b> The support capability flag, expressed as a boolean value
+(e.g., "Yes" or "No").  Indicates whether or not the group provides
+support (food, water, education, etc.) to the local civilians.<p>
+
+<<defopt rollup_weight>>
+
+<b>Required.</b> The rollup weight, used when rolling up the group's
+satisfaction levels to the playbox level.  A non-negative floating
+point value, nominally 1.0.<p>
+
+<<defopt effects_factor>>
+
+<b>Required.</b> The indirect effects factor, which scales indirect
+effects on other groups of satisfaction effects on this group.  A
+non-negative floating point value, nominally 1.0.<p>
 
 <</deflist options>>
 
-<</deflist group force>>
+<<defitem GROUP:ORGANIZATION:DELETE {GROUP:ORGANIZATION:DELETE}>>
+
+Deletes a organization group.<p>
+
+TBD: Possibly, all entities depending on the group will be
+deleted as well.  Alternatively, the order might be rejected if any
+other entities depend on this group.<p>
+
+The parameters are as follows:<p>
+
+<<deflist options>>
+
+<<defopt g>>
+
+<b>Required.</b> The group's ID.<p>
+
+<<defitem GROUP:ORGANIZATION:UPDATE {GROUP:ORGANIZATION:UPDATE}>>
+
+Updates an existing organization group.  The parameters are as
+defined for <<iref GROUP:ORGANIZATION:CREATE>>; <b>g</b> is required, and
+specifies the group to update, while the remainder are optional.<p>
+
+<</deflist group organization>>
 
 
 <<section "MAP:*">>

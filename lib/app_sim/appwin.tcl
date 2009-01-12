@@ -244,6 +244,15 @@ snit::widget appwin {
         $self AddOrder $submenu GROUP:FORCE:UPDATE
         $self AddOrder $submenu GROUP:FORCE:DELETE
 
+        # Orders/Org Group
+        set submenu [menu $ordersmenu.orggroup]
+        $ordersmenu add cascade -label "Org Group" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu GROUP:ORGANIZATION:CREATE
+        $self AddOrder $submenu GROUP:ORGANIZATION:UPDATE
+        $self AddOrder $submenu GROUP:ORGANIZATION:DELETE
+
         # Orders/Neighborhood Menu
         set submenu [menu $ordersmenu.nbhood]
         $ordersmenu add cascade -label "Neighborhood" \
@@ -351,6 +360,16 @@ snit::widget appwin {
             -sticky  nsew                  \
             -padding 2                     \
             -text    "ForceGrps"
+
+        # NEXT, add the ORG group browser to the content notebook
+        orggroupbrowser $content.orggroups \
+            -width   600                   \
+            -height  600
+
+        $content add $content.orggroups    \
+            -sticky  nsew                  \
+            -padding 2                     \
+            -text    "OrgGrps"
 
         # NEXT, add the scrolling log to the content notebook
 

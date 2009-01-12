@@ -144,6 +144,32 @@ CREATE VIEW frcgroups_view AS
 SELECT * FROM groups JOIN frcgroups USING (g);
 
 
+-- Org Groups
+CREATE TABLE orggroups (
+    -- Symbolic group name
+    g              TEXT PRIMARY KEY,
+
+    -- Organization type: eorgtype
+    orgtype        TEXT DEFAULT 'NGO',
+
+    -- Capability flags, 1 or 0
+    medical        INTEGER DEFAULT 0,
+    engineer       INTEGER DEFAULT 0,
+    support        INTEGER DEFAULT 0,
+
+    -- Group rollup-weight (non-negative) (JRAM input)
+    rollup_weight  DOUBLE DEFAULT 1.0,
+
+    -- Indirect effects multiplier (non-negative) (JRAM input)
+    effects_factor DOUBLE DEFAULT 1.0
+);
+
+-- Org Group View: joins groups with orggroups.
+CREATE VIEW orggroups_view AS
+SELECT * FROM groups JOIN orggroups USING (g);
+
+
+
 ------------------------------------------------------------------------
 -- Entities
 --

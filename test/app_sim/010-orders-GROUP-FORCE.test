@@ -94,7 +94,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        longname {longname may not be identical to ID}
+        longname {longname must not be identical to ID}
     }
 
     test GROUP:FORCE:CREATE-1.4 {g is not an ident} -body {
@@ -346,18 +346,24 @@ BLUE US Army  #0000ff REGULAR   0     1
 
     test GROUP:FORCE:UPDATE-3.1 {undo undoes the change} -setup {
         ted order GROUP:FORCE:CREATE $blue
-        ted order GROUP:FORCE:UPDATE g BLUE longname "Blue Angels" local yes
+        ted order GROUP:FORCE:UPDATE {
+            g            BLUE
+            longname     "Blue Angels"
+            color        "#ff0000"
+            forcetype    POLICE
+            local        yes
+            coalition    no
+        }
     } -body {
         cif undo
-        ted query {
-            SELECT g,longname,local FROM frcgroups_view
-        }
+        set parms [join [dict keys $blue] ","]
+        ted query "SELECT $parms FROM frcgroups_view"
     } -cleanup {
         cleanup
     } -result {
-g    longname local 
----- -------- ----- 
-BLUE US Army  0     
+g    longname color   forcetype local coalition 
+---- -------- ------- --------- ----- --------- 
+BLUE US Army  #0000ff REGULAR   0     1         
     }
 
     #-------------------------------------------------------------------

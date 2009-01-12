@@ -16,20 +16,13 @@ namespace import ::athlib::athtypes
 This module defines data types used by the Athena code base.  Each
 type is defined as a type ensemble command.<p>
 
-<b>TBD:</b>  Just how data types are going to handled in Athena is
-not yet clear, so this code should be regarded as provisional.<p>
-
 <<section TYPES>>
 
 <<deflist types>>
 
-<<defitem boolean {boolean <i>subcommand</i> ?<i>args</i>?}>>
+<<defitem "boolean validate" {boolean validate <i>flag</i>}>>
 
 Boolean flag type.  Accepts any of the standard Tcl boolean values.<p>
-
-<<deflist boolean>>
-
-<<defitem "boolean validate" {boolean validate <i>flag</i>}>>
 
 Validates the <i>flag</i>, returning either 1 for true values and 0
 for false values.  On error, throws an error with <code>-errorcode</code>
@@ -38,13 +31,17 @@ for false values.  On error, throws an error with <code>-errorcode</code>
 This call differs from <code>snit::boolean</code> in that it converts
 the value to canonical form, and throws <b>INVALID</b> on error.<p>
 
-<</deflist hexcolor>>
-
 <<defitem eforcetype {eforcetype <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing force group types.<p>
 
 <<::athlib::eforcetype html>>
+
+<<defitem eorgtype {eorgtype <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing organization group types.<p>
+
+<<::athlib::eorgtype html>>
 
 <<defitem eurbanization {eurbanization <i>subcommand</i> ?<i>args</i>?}>>
 
@@ -53,42 +50,24 @@ levels.<p>
 
 <<::athlib::eurbanization html>>
 
-<<defitem hexcolor {hexcolor <i>subcommand</i> ?<i>args</i>?}>>
+<<defitem "hexcolor validate" {hexcolor validate <i>color</i>}>>
 
 Hex color type.  A hex color specification is a string
 "<code>#<i>rrggbb</i></code>" where <i>rr</i>, <i>gg</i>, and
 <i>bb</i> are two-digit hexadecimal numbers representing the intensity
 of the RGB color channels.<p>
 
-<<deflist hexcolor>>
-
-<<defitem "hexcolor validate" {hexcolor validate <i>color</i>}>>
-
 Validates and returns the <i>color</i>; the hex-digits are
 upper-cased.  On error, throws an error with <code>-errorcode</code>
 <b>INVALID</b>.<p>
 
-<</deflist hexcolor>>
-
-<<defitem ident {ident <i>subcommand</i> ?<i>args</i>?}>>
+<<defitem "ident validate" {ident validate <i>name</i>}>>
 
 Identifier type.  An identifier is a string consisting of letters and
 digits beginning with a letter.<p>
 
-<<deflist ident>>
-
-<<defitem "ident validate" {ident validate <i>name</i>}>>
-
 Validates and returns the <i>name</i>.  On error, throws
 an error with <code>-errorcode</code> <b>INVALID</b>.<p>
-
-<</deflist ident>>
-
-<<defitem polygon {polygon <i>subcommand</i> ?<i>args</i>?}>>
-
-Polygon type.<p>
-
-<<deflist polygon>>
 
 <<defitem "polygon validate" {polygon validate <i>coords</i>}>>
 
@@ -97,7 +76,12 @@ list of <i>x</i> and <i>y</i> coordinates.  It may be passed as a
 single argument, or as one argument per coordinate.  On error, throws
 an error with <code>-errorcode</code> <b>INVALID</b>.<p>
 
-<</deflist polygon>>
+<<defitem "weight validate" {weight validate <i>value</i>}>>
+
+A weight is a non-negative floating-point value, used as a weighting factor.<p>
+
+Validates the <i>value</i>, returning it on success.  On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
 
 <</deflist types>>
 

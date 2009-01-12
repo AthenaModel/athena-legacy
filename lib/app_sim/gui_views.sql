@@ -35,3 +35,16 @@ SELECT g                                              AS g,
        CASE local     WHEN 1 THEN 'Yes' ELSE 'No' END AS local,
        CASE coalition WHEN 1 THEN 'Yes' ELSE 'No' END AS coalition
 FROM groups JOIN frcgroups USING (g);
+
+-- An Org Groups view for use by the GUI
+CREATE TEMPORARY VIEW gui_orggroups AS
+SELECT g                                             AS g,
+       longname                                      AS longname,
+       color                                         AS color,
+       orgtype                                       AS orgtype,
+       CASE medical  WHEN 1 THEN 'Yes' ELSE 'No' END AS medical,
+       CASE engineer WHEN 1 THEN 'Yes' ELSE 'No' END AS engineer,
+       CASE support  WHEN 1 THEN 'Yes' ELSE 'No' END AS support,
+       format('%.2f', rollup_weight)                 AS rollup_weight,
+       format('%.2f', effects_factor)                AS effects_factor
+FROM groups JOIN orggroups USING (g);

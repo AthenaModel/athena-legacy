@@ -17,10 +17,13 @@ namespace eval ::athlib:: {
     namespace export  \
         boolean       \
         eforcetype    \
+        eorgtype      \
         eurbanization \
         hexcolor      \
         ident         \
-        polygon
+        polygon       \
+        weight
+    
 }
 
 #-------------------------------------------------------------------
@@ -33,6 +36,14 @@ namespace eval ::athlib:: {
     IRREGULAR      "Irregular Military"
     CRIMINAL       "Organized Crime"
 }
+
+
+::marsutil::enum ::athlib::eorgtype {
+    NGO "Non-Governmental Organization"
+    IGO "Intergovernmental Organization"
+    CTR "Contractor"
+}
+
 
 ::marsutil::enum ::athlib::eurbanization {
     RURAL        "Rural"
@@ -211,6 +222,42 @@ snit::type ::athlib::polygon {
         return $coords
     }
 }
+
+#-------------------------------------------------------------------
+# Weight type
+#
+# A weight is a non-negative floating point number.  
+# This differs from the snit::double type in that it throws INVALID.
+
+snit::type ::athlib::weight {
+    # Make it a singleton
+    pragma -hasinstances no
+
+    #-------------------------------------------------------------------
+    # Type constructor
+
+    typeconstructor {
+        snit::double ${type}::imptype -min 0.0
+    }
+
+    #-------------------------------------------------------------------
+    # Public Type Methods
+
+    # validate value
+    #
+    # value    Possibly, a weight value
+    #
+    # Returns 1 for true and 0 for false.
+
+    typemethod validate {value} {
+        if {[catch {imptype validate $value} result]} {
+            return -code error -errorcode INVALID $result
+        }
+
+        return $value
+    }
+}
+
 
 
 
