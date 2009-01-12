@@ -1,0 +1,100 @@
+<<manpage {athlib(n) verman(n)} "Athena Version Manager">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require athlib 1.0
+namespace import ::athlib::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<xref verman(n)>> object is responsible for querying and
+managing Athena directory trees.  Multiple versions of Athena can be
+installed or developed side-by-side; one is usually established as the
+current, or "active" version.  This module provides the tools to query and set
+which version is the active version.<p>
+
+<<xref verman(n)>> presumes that installed versions of Athena reside
+on disk as<p>
+
+<pre>
+    ~/athena_pkgs/athena_<i>version/</i>
+</pre>
+
+where <i>version</i> is the version number, e.g., "1.1.2".
+Any number of versions may be installed at one time; of these, no more
+than one is active.  It is activated by creating the symlink<p>
+
+<pre>
+    ~/athena &rarr; ~/athena_pkgs/athena_<i>version/</i>
+</pre>
+
+Given that, <<xref verman(n)>> will:<p>
+
+<ul>
+  <li> Query which versions are installed
+  <li> Query which version is currently active
+  <li> Query the caller's version
+  <li> Set a particular version as the current version
+</ul>
+
+<<section COMMANDS>>
+
+This module defines the following commands:<p>
+
+<<deflist commands>>
+
+<<defitem "verman list" {verman list}>>
+
+Returns a list of the version numbers of all installed versions.  If
+no versions are installed, returns the empty list.<p>
+
+<<defitem "verman parse" {verman parse <i>dirname</i>}>>
+
+Given the directory name <i>dirname</i> of an installed version of
+Athena, e.g.,  "~/athena_pkgs/athena_1.1.2", returns the version number,
+"1.1.2".  Throws an error if it can't identify the embedded version
+number.<p>
+
+<<defitem "verman current" {verman current}>>
+
+Returns the version number of the currently active version of Athena, or
+"" if none.<p>
+
+<<defitem "verman dirname" {verman dirname <i>version</i>}>>
+
+Given the version number of an installed version of Athena, returns an
+absolute path to the version's subdirectory in <code>~/athena_pkgs</code>.<p>
+
+<<defitem "verman set" {verman set <i>version</i>}>>
+
+Makes the specified <i>version</i> the active version.  An error is
+thrown if no such version is installed.<p>
+
+<</deflist commands>>
+
+<<section ENVIRONMENT>>
+
+This package requires Tcl 8.5 or later.
+
+To use the package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Derived from the JNEM dirman(n) package.<p>
+
+<</manpage>>
+
+
+
+
+

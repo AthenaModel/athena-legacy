@@ -95,6 +95,12 @@ set metadata {
         applib   app_sim
         mode     gui
     }
+
+    version {
+        text     "Version Switcher"
+        applib   app_version
+        mode     cmdline
+    }
 }
 
 #-----------------------------------------------------------------------
@@ -262,8 +268,8 @@ proc ShowUsage {} {
     puts "The following applications are available:"
     puts ""
 
-    puts "Application         Man Page            Description"
-    puts "------------------  ------------------  ------------------------------------"
+    puts "Application        Man Page            Description"
+    puts "-----------------  ------------------  ------------------------------------"
 
     foreach app [dict keys $metadata] {
         puts [format "athena %-10s  %-18s  %s" \

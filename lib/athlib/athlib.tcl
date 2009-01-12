@@ -53,6 +53,7 @@ source [file join $::athlib::library athtypes.tcl   ]
 source [file join $::athlib::library mapref.tcl     ]
 source [file join $::athlib::library scenariodb.tcl ]
 source [file join $::athlib::library workdir.tcl    ]
+source [file join $::athlib::library verman.tcl     ]
 
 
 
