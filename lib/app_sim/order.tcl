@@ -142,8 +142,16 @@ snit::type order {
 
         # NEXT, save the order parameters in the parms array, saving
         # the order name.
+        set validParms [dict keys [$type meta $name parms]]
+
         array unset parms
-        array set parms $parmdict
+
+        dict for {parm value} $parmdict {
+            require {$parm in $validParms} "Unknown parameter: \"$parm\""
+
+            set parms($parm) $value
+        }
+
         set parms(_order) $name
 
         # NEXT, in null mode we're done.
