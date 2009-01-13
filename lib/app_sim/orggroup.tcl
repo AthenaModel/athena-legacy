@@ -250,8 +250,8 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
         medical        {ptype yesno   label "Medical?"      }
         engineer       {ptype yesno   label "Engineer?"     }
         support        {ptype yesno   label "Support?"      }
-        rollup_weight  {ptype weight  label "RollupWeight"  }
-        effects_factor {ptype weight  label "EffectsFactor" }
+        rollup_weight  {ptype weight  label "RollupWeight"  defval 1.0}
+        effects_factor {ptype weight  label "EffectsFactor" defval 1.0}
     }
 } {
     # FIRST, prepare and validate the parameters

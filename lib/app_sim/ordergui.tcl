@@ -344,8 +344,8 @@ snit::type ordergui {
             # FIRST, get the current row
             incr row
 
-            # NEXT, no value is specified initially
-            set values($parm) ""
+            # NEXT, set the default value
+            set values($parm) [dict get $pdict defval]
 
             # NEXT, get the parameter type.
             set ptype [dict get $pdict ptype]

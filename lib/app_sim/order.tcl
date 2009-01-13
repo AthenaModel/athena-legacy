@@ -226,6 +226,19 @@ snit::type order {
                              {table "" keys ""} \
                              $metadata]
 
+        # Add the "defvalue" key to each parm's defdict.
+        set parmdefs [dict get $meta($name) parms]
+
+        dict for {parm defdict} $parmdefs {
+            dict set parmdefs $parm [dict merge {
+                ptype  text
+                defval ""
+            } $defdict]
+        }
+
+        dict set meta($name) parms $parmdefs
+
+
         # NEXT, get the module variables
         set modvars [list namespace upvar $module]
 
