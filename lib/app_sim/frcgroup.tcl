@@ -190,8 +190,7 @@ snit::type frcgroup {
     typemethod UpdateGroup {g parmdict} {
         # FIRST, get the undo information
         rdb eval {
-            SELECT longname, color, forcetype, local, coalition
-            FROM frcgroups_view
+            SELECT * FROM frcgroups_view
             WHERE g=$g
         } undoData {
             unset undoData(*)
