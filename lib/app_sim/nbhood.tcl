@@ -210,7 +210,7 @@ snit::type nbhood {
             # have obscured some other neighborhood's refpoint.
             $type SetObscuredBy
 
-            # NEXT, Not yet undoable; clear the undo command
+            # NEXT, Set the undo command
             set info(undo) [list $type DeleteNbhood $n]
             
             # NEXT, notify the app.
@@ -366,7 +366,7 @@ snit::type nbhood {
             }
         }
 
-        # NEXT, Not undoable; clear the undo command
+        # NEXT, Set the undo command
         set info(undo) [mytypemethod UpdateNbhood $n [array get row]]
 
         # NEXT, notify the app.

@@ -1,19 +1,19 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    frcgroup.tcl
+#    civgroup.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): Force Group Manager
+#    athena_sim(1): Civilian Group Manager
 #
-#    This module is responsible for managing force groups and operations
+#    This module is responsible for managing civilian groups and operations
 #    upon them.  As such, it is a type ensemble.
 #
 #-----------------------------------------------------------------------
 
-snit::type frcgroup {
+snit::type civgroup {
     # Make it a singleton
     pragma -hasinstances no
 
@@ -37,7 +37,7 @@ snit::type frcgroup {
     # Initialization
 
     typemethod init {} {
-        log detail frcgroup "Initialized"
+        log detail civgroup "Initialized"
     }
 
     # reconfigure
@@ -63,20 +63,20 @@ snit::type frcgroup {
 
     typemethod names {} {
         set names [rdb eval {
-            SELECT g FROM frcgroups 
+            SELECT g FROM civgroups_view
         }]
     }
 
 
     # validate g
     #
-    # g         Possibly, a force group short name.
+    # g         Possibly, a civilian group short name.
     #
-    # Validates a force group short name
+    # Validates a civilian group short name
 
     typemethod validate {g} {
-        if {![rdb exists {SELECT g FROM frcgroups WHERE g=$g}]} {
-            set names [join [frcgroup names] ", "]
+        if {![rdb exists {SELECT g FROM civgroups_view WHERE g=$g}]} {
+            set names [join [civgroup names] ", "]
 
             if {$names ne ""} {
                 set msg "should be one of: $names"
@@ -85,7 +85,7 @@ snit::type frcgroup {
             }
 
             return -code error -errorcode INVALID \
-                "Invalid force group, $msg"
+                "Invalid civilian group, $msg"
         }
 
         return $g
@@ -113,15 +113,11 @@ snit::type frcgroup {
     #    g              The group's ID
     #    longname       The group's long name
     #    color          The group's color
-    #    forcetype      The group's eforcetype
-    #    local          The group's local flag
-    #    coalition      The group's coalition flag
     #
-    # Creates a force group given the parms, which are presumed to be
+    # Creates a civilian group given the parms, which are presumed to be
     # valid.
     #
-    # Creating a force group requires adding entries to the groups and
-    # frcgroups tables.
+    # Creating a civilian group requires adding entries to the groups table.
 
     typemethod CreateGroup {parmdict} {
         dict with parmdict {
@@ -131,20 +127,14 @@ snit::type frcgroup {
                 VALUES($g,
                        $longname,
                        $color,
-                       'FRC');
-
-                INSERT INTO frcgroups(g,forcetype,local,coalition)
-                VALUES($g,
-                       $forcetype,
-                       $local,
-                       $coalition);
+                       'CIV');
             }
 
-            # NEXT, Set the undo command
+            # NEXT, Set undo command.
             set info(undo) [list $type DeleteGroup $g]
             
             # NEXT, notify the app.
-            notifier send ::frcgroup <Entity> create $g
+            notifier send ::civgroup <Entity> create $g
         }
     }
 
@@ -158,10 +148,9 @@ snit::type frcgroup {
         # FIRST, delete it.
         rdb eval {
             DELETE FROM groups    WHERE g=$g;
-            DELETE FROM frcgroups WHERE g=$g;
         }
 
-        # NEXT, Clean up entities which refer to this force group,
+        # NEXT, Clean up entities which refer to this civilian group,
         # i.e., either clear the field, or delete the entities.
         
         # TBD.
@@ -169,7 +158,7 @@ snit::type frcgroup {
         # NEXT, Not undoable; clear the undo command
         set info(undo) {}
 
-        notifier send ::frcgroup <Entity> delete $g
+        notifier send ::civgroup <Entity> delete $g
     }
 
 
@@ -180,17 +169,14 @@ snit::type frcgroup {
     #
     #    longname       A new long name, or ""
     #    color          A new color, or ""
-    #    forcetype      A new eforcetype, or ""
-    #    local          A new local flag, or ""
-    #    coalition      A new coalition flag, or ""
     #
-    # Updates a frcgroup given the parms, which are presumed to be
+    # Updates a civgroup given the parms, which are presumed to be
     # valid.
 
     typemethod UpdateGroup {g parmdict} {
         # FIRST, get the undo information
         rdb eval {
-            SELECT * FROM frcgroups_view
+            SELECT * FROM civgroups_view
             WHERE g=$g
         } undoData {
             unset undoData(*)
@@ -204,12 +190,6 @@ snit::type frcgroup {
                 SET longname  = nonempty($longname,  longname),
                     color     = nonempty($color,     color)
                 WHERE g=$g;
-
-                UPDATE frcgroups
-                SET forcetype = nonempty($forcetype, forcetype),
-                    local     = nonempty($local,     local),
-                    coalition = nonempty($coalition, coalition)
-                WHERE g=$g
             } {}
         }
 
@@ -217,35 +197,29 @@ snit::type frcgroup {
         set info(undo) [mytypemethod UpdateGroup $g [array get undoData]]
 
         # NEXT, notify the app.
-        notifier send ::frcgroup <Entity> update $g
+        notifier send ::civgroup <Entity> update $g
     }
 }
 
 #-------------------------------------------------------------------
-# Orders: GROUP:FORCE:*
+# Orders: GROUP:CIVILIAN:*
 
-# GROUP:FORCE:CREATE
+# GROUP:CIVILIAN:CREATE
 #
-# Creates new force groups.
+# Creates new civilian groups.
 
-order define ::frcgroup GROUP:FORCE:CREATE {
-    title "Create Force Group"
+order define ::civgroup GROUP:CIVILIAN:CREATE {
+    title "Create Civilian Group"
     parms {
         g            {ptype text          label "ID"                }
         longname     {ptype text          label "Long Name"         }
         color        {ptype color         label "Color"             }
-        forcetype    {ptype forcetype     label "Force Type"        }
-        local        {ptype yesno         label "Local Group?"      }
-        coalition    {ptype yesno         label "Coalition Member?" }
     }
 } {
     # FIRST, prepare and validate the parameters
     prepare g          -trim -toupper -required -unused -type ident
     prepare longname   -normalize     -required -unused
     prepare color      -trim -tolower -required -type hexcolor
-    prepare forcetype  -trim -toupper -required -type eforcetype
-    prepare local      -trim -toupper -required -type boolean
-    prepare coalition  -trim -toupper -required -type boolean
 
     returnOnError
 
@@ -262,16 +236,16 @@ order define ::frcgroup GROUP:FORCE:CREATE {
     setundo [$type LastUndo]
 }
 
-# GROUP:FORCE:DELETE
+# GROUP:CIVILIAN:DELETE
 
-order define ::frcgroup GROUP:FORCE:DELETE {
-    title "Delete Force Group"
+order define ::civgroup GROUP:CIVILIAN:DELETE {
+    title "Delete Civilian Group"
     parms {
-        g {ptype frcgroup label "Group"}
+        g {ptype civgroup label "Group"}
     }
 } {
     # FIRST, prepare the parameters
-    prepare g -trim -toupper -required -type frcgroup
+    prepare g -trim -toupper -required -type civgroup
 
     returnOnError
 
@@ -288,7 +262,7 @@ order define ::frcgroup GROUP:FORCE:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
-                        -ignoretag     GROUP:FORCE:DELETE                    \
+                        -ignoretag     GROUP:CIVILIAN:DELETE                    \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       "This order cannot be undone.  Are you sure you really want to delete this group?"]
@@ -305,33 +279,27 @@ order define ::frcgroup GROUP:FORCE:DELETE {
 }
 
 
-# GROUP:FORCE:UPDATE
+# GROUP:CIVILIAN:UPDATE
 #
 # Updates existing groups.
 
-order define ::frcgroup GROUP:FORCE:UPDATE {
-    title "Update Force Group"
-    table gui_frcgroups
+order define ::civgroup GROUP:CIVILIAN:UPDATE {
+    title "Update Civilian Group"
+    table civgroups_view
     keys  g
     parms {
-        g            {ptype frcgroup      label "ID"                }
+        g            {ptype civgroup      label "ID"                }
         longname     {ptype text          label "Long Name"         }
         color        {ptype color         label "Color"             }
-        forcetype    {ptype forcetype     label "Force Type"        }
-        local        {ptype yesno         label "Local Group?"      }
-        coalition    {ptype yesno         label "Coalition Member?" }
     }
 } {
     # FIRST, prepare the parameters
-    prepare g         -trim -toupper  -required -type frcgroup
+    prepare g         -trim -toupper  -required -type civgroup
 
     set oldname [rdb onecolumn {SELECT longname FROM groups WHERE g=$parms(g)}]
 
     prepare longname  -normalize      -oldvalue $oldname -unused
     prepare color     -trim -tolower  -type hexcolor
-    prepare forcetype -trim -toupper  -type eforcetype
-    prepare local     -trim -toupper  -type boolean
-    prepare coalition -trim -toupper  -type boolean
 
     returnOnError
 

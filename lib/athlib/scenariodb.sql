@@ -168,7 +168,11 @@ CREATE TABLE orggroups (
 CREATE VIEW orggroups_view AS
 SELECT * FROM groups JOIN orggroups USING (g);
 
+-- Civ Group View: Limits groups to CIV groups
+-- (There's no CIV-specific group data at the top-level.)
 
+CREATE VIEW civgroups_view AS
+SELECT * FROM groups WHERE gtype='CIV';
 
 ------------------------------------------------------------------------
 -- Entities

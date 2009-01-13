@@ -115,9 +115,6 @@ snit::widget orggroupbrowser {
         $tb insertcolumn end 0 {EffectsFactor}
         $tb columnconfigure end -sortmode real
 
-        # NEXT, the last column fills extra space
-        $tb columnconfigure end -stretchable yes
-
         # NEXT, set the default sort column and direction
         $tb sortbycolumn 0 -increasing
 

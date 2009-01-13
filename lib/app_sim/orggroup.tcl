@@ -146,7 +146,7 @@ snit::type orggroup {
                        $effects_factor);
             }
 
-            # NEXT, Not yet undoable; clear the undo command
+            # NEXT, Set the undo command
             set info(undo) [list $type DeleteGroup $g]
             
             # NEXT, notify the app.
@@ -225,7 +225,7 @@ snit::type orggroup {
             } {}
         }
 
-        # NEXT, Not undoable; clear the undo command
+        # NEXT, Set the undo command
         set info(undo) [mytypemethod UpdateGroup $g [array get undoData]]
 
         # NEXT, notify the app.

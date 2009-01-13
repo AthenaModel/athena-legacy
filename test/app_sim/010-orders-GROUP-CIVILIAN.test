@@ -1,0 +1,311 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-order-GROUP-CIVILIAN.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) GROUP:CIVILIAN:* order tests.
+#
+#    This test suite tests the civgroup-related orders.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Standard groups
+
+    set shia {
+        g         SHIA
+        longname  "Shia Locals"
+        color     #ffff00
+    }
+
+    set sunn {
+        g         SUNN
+        longname  "Sunni Locals"
+        color     #ffffff
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        array unset parms
+        ted notifier forget
+
+        # Delete all civilian groups and reinitialize the module
+        rdb eval {
+            DELETE FROM groups;
+        }
+
+        civgroup reconfigure
+    }
+
+    #-------------------------------------------------------------------
+    # GROUP:CIVILIAN:CREATE
+
+    test GROUP:CIVILIAN:CREATE-1.1 {required parms} -body {
+        ted order -reject GROUP:CIVILIAN:CREATE {}
+    } -result {
+        g {required value}
+        longname {required value}
+        color {required value}
+    }
+    
+    test GROUP:CIVILIAN:CREATE-1.2 {Duplicate g, longname} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+    } -body {
+        ted order -reject GROUP:CIVILIAN:CREATE $shia
+    } -cleanup {
+        cleanup
+    } -result {
+        g {An entity with this ID already exists}
+        longname {An entity with this name already exists}
+    }
+
+    test GROUP:CIVILIAN:CREATE-1.3 {longname duplicates n} -body {
+        ted order -reject GROUP:CIVILIAN:CREATE [dict merge $shia {
+            longname SHIA
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        longname {longname must not be identical to ID}
+    }
+
+    test GROUP:CIVILIAN:CREATE-1.4 {g is not an ident} -body {
+        ted order -reject GROUP:CIVILIAN:CREATE [dict merge $shia {
+            g "BL&E"
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Identifiers should begin with a letter and contain only letters or digits}
+    }
+
+    test GROUP:CIVILIAN:CREATE-1.5 {invalid color} -body {
+        ted order -reject GROUP:CIVILIAN:CREATE [dict merge $shia {
+            color NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+    }
+
+
+    test GROUP:CIVILIAN:CREATE-2.1 {civgroup is created} -body {
+        ted order GROUP:CIVILIAN:CREATE $shia
+        set parms [join [dict keys $shia] ","]
+        ted query "SELECT $parms FROM civgroups_view"
+    } -cleanup {
+        cleanup
+    } -result {
+g    longname    color   
+---- ----------- ------- 
+SHIA Shia Locals #ffff00 
+    }
+
+    test GROUP:CIVILIAN:CREATE-2.2 {<Entity> create} -body {
+        ted notifier bind ::civgroup <Entity>
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::civgroup <Entity> create SHIA}
+    }
+
+
+    test GROUP:CIVILIAN:CREATE-3.1 {undo deletes the civgroup} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:CIVILIAN:CREATE $sunn
+    } -body {
+        cif undo
+        ted query "SELECT g,longname FROM civgroups_view"
+    } -cleanup {
+        cleanup
+    } -result {
+g    longname    
+---- ----------- 
+SHIA Shia Locals 
+    }
+
+    #-------------------------------------------------------------------
+    # GROUP:CIVILIAN:DELETE
+
+    test GROUP:CIVILIAN:DELETE-1.1 {required parms} -body {
+        ted order -reject GROUP:CIVILIAN:DELETE {}
+    } -result {
+        g {required value}
+    }
+    
+    test GROUP:CIVILIAN:DELETE-1.2 {unknown g} -body {
+        ted order -reject GROUP:CIVILIAN:DELETE g NONESUCH
+    } -result {
+        g {Invalid civilian group, none are defined}
+    }
+
+    test GROUP:CIVILIAN:DELETE-2.1 {Group is deleted} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+    } -body {
+        ted order GROUP:CIVILIAN:DELETE g SHIA
+        civgroup names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test GROUP:CIVILIAN:DELETE-2.2 {<Entity> delete} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+    } -body {
+        ted notifier bind ::civgroup <Entity>
+        ted order GROUP:CIVILIAN:DELETE g SHIA
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::civgroup <Entity> delete SHIA}
+    }
+
+    test GROUP:CIVILIAN:DELETE-3.1 {Can't undo} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+    } -body {
+        ted order GROUP:CIVILIAN:DELETE g SHIA
+        cif canundo
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    #-------------------------------------------------------------------
+    # GROUP:CIVILIAN:UPDATE
+
+    test GROUP:CIVILIAN:UPDATE-1.1 {required parms} -body {
+        ted order -reject GROUP:CIVILIAN:UPDATE {}
+    } -result {
+        g {required value}
+    }
+    
+    test GROUP:CIVILIAN:UPDATE-1.2 {Duplicate longname} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:CIVILIAN:CREATE $sunn
+    } -body {
+        ted order -reject GROUP:CIVILIAN:UPDATE g SHIA longname "Sunni
+        Locals"
+    } -cleanup {
+        cleanup
+    } -result {
+        longname {An entity with this name already exists}
+    }
+
+    test GROUP:CIVILIAN:UPDATE-1.3 {longname duplicates some g} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:CIVILIAN:CREATE $sunn
+    } -body {
+        ted order -reject GROUP:CIVILIAN:UPDATE g SHIA longname SUNN
+    } -cleanup {
+        cleanup
+    } -result {
+        longname {An entity with this ID already exists}
+    }
+
+    test GROUP:CIVILIAN:UPDATE-1.4 {invalid color} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+    } -body {
+        ted order -reject GROUP:CIVILIAN:UPDATE g SHIA color NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+    }
+
+
+    test GROUP:CIVILIAN:UPDATE-2.1 {civgroup is updated} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+    } -body {
+        ted order GROUP:CIVILIAN:UPDATE {
+            g            SHIA
+            longname     "Shia Folk"
+            color        "#ff0000"
+        }
+
+        set parms [join [dict keys $shia] ","]
+        ted query "SELECT $parms FROM civgroups_view"
+    } -cleanup {
+        cleanup
+    } -result {
+g    longname  color   
+---- --------- ------- 
+SHIA Shia Folk #ff0000 
+    }
+
+    test GROUP:CIVILIAN:UPDATE-2.2 {<Entity> update} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+    } -body {
+        ted notifier bind ::civgroup <Entity>
+        ted order GROUP:CIVILIAN:UPDATE g SHIA longname "Shia Folk"
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::civgroup <Entity> update SHIA}
+    }
+
+    test GROUP:CIVILIAN:UPDATE-2.3 {identical values are OK} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+    } -body {
+        ted order GROUP:CIVILIAN:UPDATE $shia 
+
+        set parms [join [dict keys $shia] ","]
+        ted query "SELECT $parms FROM civgroups_view"
+    } -cleanup {
+        cleanup
+    } -result {
+g    longname    color   
+---- ----------- ------- 
+SHIA Shia Locals #ffff00 
+    }
+
+    test GROUP:CIVILIAN:UPDATE-3.1 {undo undoes the change} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:CIVILIAN:UPDATE {
+            g            SHIA
+            longname     "Shia Folk"
+            color        "#ff0000"
+        }
+    } -body {
+        cif undo
+        set parms [join [dict keys $shia] ","]
+        ted query "SELECT $parms FROM civgroups_view"
+    } -cleanup {
+        cleanup
+    } -result {
+g    longname    color   
+---- ----------- ------- 
+SHIA Shia Locals #ffff00 
+    }
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+

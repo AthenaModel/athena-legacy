@@ -834,6 +834,7 @@ ordergui entrytype enum   urbanization -values   [eurbanization names]
 ordergui entrytype enum   yesno        -values   {Yes No}
 
 ordergui entrytype enum   nbhood       -valuecmd [list nbhood names]
+ordergui entrytype enum   civgroup     -valuecmd [list civgroup names]
 ordergui entrytype enum   frcgroup     -valuecmd [list frcgroup names]
 ordergui entrytype enum   orggroup     -valuecmd [list orggroup names]
 

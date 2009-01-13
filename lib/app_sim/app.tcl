@@ -84,6 +84,7 @@ snit::type app {
         nbhood   init
         frcgroup init
         orggroup init
+        civgroup init
 
         # NEXT, Withdraw the default toplevel window, and create 
         # the main GUI components.
