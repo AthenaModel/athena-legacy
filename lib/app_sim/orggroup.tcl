@@ -199,9 +199,7 @@ snit::type orggroup {
     typemethod UpdateGroup {g parmdict} {
         # FIRST, get the undo information
         rdb eval {
-            SELECT longname, color, orgtype, medical, engineer, support,
-                   rollup_weight, effects_factor
-            FROM orggroups_view
+            SELECT * FROM orggroups_view
             WHERE g=$g
         } undoData {
             unset undoData(*)
