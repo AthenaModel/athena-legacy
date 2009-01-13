@@ -1337,13 +1337,16 @@ $ svn switch <i>repository</i>/athena/tags/athena_1.0.9 .
 <<step>>
 <b>Trunk Only.</b>  Permanently link the tagged version to the
 required version of Mars.  Note that the previous step set the
-embedded version of Mars back to the Mars trunk.
+embedded version of Mars back to the Mars trunk.<p>
+
+Using <<xref mars:mars_link(1)>> is the preferred mechanism.
 <</step/>>
 <pre>
 $ cd ~/athena_pkgs/athena_1.0.9
 $ svn switch <i>repository</i>/mars/tags/mars_1.6 mars
 $ svn propset svn:externals \
     "mars <i>repository</i>/mars/tags/mars_1.6" .
+$ svn commit -m"Tagging 1.0.9" .
 </pre>
 
 or
