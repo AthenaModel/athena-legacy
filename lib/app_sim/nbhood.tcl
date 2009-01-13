@@ -184,19 +184,12 @@ snit::type nbhood {
         dict with parmdict {
             # FIRST, Put the neighborhood in the database
             rdb eval {
-                INSERT INTO nbhoods(longname,refpoint,polygon,urbanization)
-                VALUES($longname,
+                INSERT INTO nbhoods(n,longname,refpoint,polygon,urbanization)
+                VALUES($n,
+                       $longname,
                        $refpoint,
                        $polygon,
                        $urbanization);
-
-                -- Set the "n" based on the uid.
-                UPDATE nbhoods
-                SET    n=format('N%03d',last_insert_rowid())
-                WHERE uid=last_insert_rowid();
-        
-                -- Get the "n" value
-                SELECT n FROM nbhoods WHERE uid=last_insert_rowid();
             } {}
 
             # NEXT, set the stacking order
@@ -212,17 +205,17 @@ snit::type nbhood {
 
             # NEXT, add the nbhood to the geoset
             $geo create polygon $n $polygon nbhood
+
+            # NEXT, recompute the obscured_by field; this nbhood might
+            # have obscured some other neighborhood's refpoint.
+            $type SetObscuredBy
+
+            # NEXT, Not yet undoable; clear the undo command
+            set info(undo) [list $type DeleteNbhood $n]
+            
+            # NEXT, notify the app.
+            notifier send ::nbhood <Entity> create $n
         }
-
-        # NEXT, recompute the obscured_by field; this nbhood might
-        # have obscured some other neighborhood's refpoint.
-        $type SetObscuredBy
-
-        # NEXT, Not yet undoable; clear the undo command
-        set info(undo) [list $type DeleteNbhood $n]
-
-        # NEXT, notify the app.
-        notifier send ::nbhood <Entity> create $n
     }
 
     # DeleteNbhood n
@@ -391,6 +384,7 @@ snit::type nbhood {
 order define ::nbhood NBHOOD:CREATE {
     title "Create Neighborhood"
     parms {
+        n            {ptype text          label "Neighborhood"    }
         longname     {ptype text          label "Long Name"       }
         urbanization {ptype urbanization  label "Urbanization"    }
         refpoint     {ptype point         label "Reference Point" }
@@ -398,6 +392,7 @@ order define ::nbhood NBHOOD:CREATE {
     }
 } {
     # FIRST, prepare the parameters
+    prepare n             -trim -toupper      -required -unused -type ident
     prepare longname      -normalize          -required -unused
     prepare urbanization  -trim -toupper      -required -type eurbanization
     prepare refpoint      -trim -toupper      -required -type refpoint
@@ -406,6 +401,11 @@ order define ::nbhood NBHOOD:CREATE {
     returnOnError
 
     # NEXT, perform custom checks
+
+    # n vs. longname
+    if {$parms(n) eq $parms(longname)} {
+        reject longname "longname must not be identical to ID"
+    }
     
     # polygon
     #

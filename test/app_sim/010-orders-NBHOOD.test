@@ -30,24 +30,27 @@ namespace eval ::athena_test::tests:: {
     # overnb1 overlaps nb1's refpoint
 
     set nb1 {
-        longname "Here"
+        n            NB1
+        longname     "Here"
         urbanization URBAN
-        refpoint B00B00
-        polygon {A80A80 B20A80 B00B20}
+        refpoint     B00B00
+        polygon      {A80A80 B20A80 B00B20}
     }
 
     set overnb1 {
-        longname "Over"
+        n            OV1
+        longname     "Over"
         urbanization SUBURBAN
-        refpoint B01B01
-        polygon {A81A81 B21A81 B01B21}
+        refpoint     B01B01
+        polygon      {A81A81 B21A81 B01B21}
     }
 
     set nb2 {
-        longname "There"
+        n            NB2
+        longname     "There"
         urbanization RURAL
-        refpoint D00D00
-        polygon {C80C80 D20C80 D00D20}
+        refpoint     D00D00
+        polygon      {C80C80 D20C80 D00D20}
     }
 
     # Clean up after a test
@@ -68,6 +71,7 @@ namespace eval ::athena_test::tests:: {
     test NBHOOD:CREATE-1.1 {required parms} -body {
         ted order -reject NBHOOD:CREATE {}
     } -result {
+        n {required value}
         longname {required value}
         urbanization {required value}
         refpoint {required value}
@@ -75,29 +79,33 @@ namespace eval ::athena_test::tests:: {
     }
 
     
-    test NBHOOD:CREATE-1.2 {Duplicate longname} -setup {
+    test NBHOOD:CREATE-1.2 {Duplicate n, longname} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted order -reject NBHOOD:CREATE $nb1 
     } -cleanup {
         cleanup
     } -result {
+        n {An entity with this ID already exists}
         longname {An entity with this name already exists}
     }
 
 
-    test NBHOOD:CREATE-1.3 {longname duplicates n} -setup {
-        rdb eval {
-            INSERT INTO nbhoods(n) VALUES('Here')
-        }
-    } -body {
-        ted order -reject NBHOOD:CREATE $nb1
+    test NBHOOD:CREATE-1.3 {longname duplicates n} -body {
+        ted order -reject NBHOOD:CREATE [dict merge $nb1 {longname NB1}]
     } -cleanup {
         cleanup
     } -result {
-        longname {An entity with this ID already exists}
+        longname {longname must not be identical to ID}
     }
 
+    test NBHOOD:CREATE-1.4 {longname duplicates n} -body {
+        ted order -reject NBHOOD:CREATE [dict merge $nb1 {n "NONE-SUCH"}]
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Identifiers should begin with a letter and contain only letters or digits}
+    }
 
     test NBHOOD:CREATE-1.4 {invalid urbanization} -body {
         ted order -reject NBHOOD:CREATE [dict merge $nb1 {
@@ -162,13 +170,13 @@ namespace eval ::athena_test::tests:: {
     test NBHOOD:CREATE-2.1 {nbhood is created} -body {
         ted order NBHOOD:CREATE $nb1
         set parms [join [dict keys $nb1] ","]
-        ted query "SELECT n,$parms FROM nbhoods"
+        ted query "SELECT $parms FROM nbhoods"
     } -cleanup {
         cleanup
     } -result {
-n    longname urbanization refpoint polygon              
----- -------- ------------ -------- -------------------- 
-N001 Here     URBAN        100 100  80 80 120 80 100 120 
+n   longname urbanization refpoint polygon              
+--- -------- ------------ -------- -------------------- 
+NB1 Here     URBAN        100 100  80 80 120 80 100 120 
     }
 
 
@@ -179,10 +187,10 @@ N001 Here     URBAN        100 100  80 80 120 80 100 120
     } -cleanup {
         cleanup
     } -result {
-n    longname stacking_order 
----- -------- -------------- 
-N001 Here     1              
-N002 There    2              
+n   longname stacking_order 
+--- -------- -------------- 
+NB1 Here     1              
+NB2 There    2              
     }
 
 
@@ -193,10 +201,10 @@ N002 There    2
     } -cleanup {
         cleanup
     } -result {
-n    longname obscured_by 
----- -------- ----------- 
-N001 Here     N002        
-N002 Over                 
+n   longname obscured_by 
+--- -------- ----------- 
+NB1 Here     OV1         
+OV1 Over                 
     }
 
 
@@ -207,7 +215,7 @@ N002 Over
     } -cleanup {
         cleanup
     } -result {
-        {::nbhood <Entity> create N001}
+        {::nbhood <Entity> create NB1}
     }
 
 
@@ -220,9 +228,9 @@ N002 Over
     } -cleanup {
         cleanup
     } -result {
-n    longname 
----- -------- 
-N001 Here     
+n   longname 
+--- -------- 
+NB1 Here     
     }
 
 
@@ -235,9 +243,9 @@ N001 Here
     } -cleanup {
         cleanup
     } -result {
-n    longname obscured_by 
----- -------- ----------- 
-N001 Here                 
+n   longname obscured_by 
+--- -------- ----------- 
+NB1 Here                 
     }
 
     #-------------------------------------------------------------------
@@ -258,7 +266,7 @@ N001 Here
     test NBHOOD:DELETE-2.1 {Nbhood is deleted} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
-        ted order NBHOOD:DELETE n N001
+        ted order NBHOOD:DELETE n NB1
         nbhood names
     } -cleanup {
         cleanup
@@ -268,18 +276,18 @@ N001 Here
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted notifier bind ::nbhood <Entity>
-        ted order NBHOOD:DELETE n N001
+        ted order NBHOOD:DELETE n NB1
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::nbhood <Entity> delete N001}
+        {::nbhood <Entity> delete NB1}
     }
 
     test NBHOOD:DELETE-3.1 {Can't undo} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
-        ted order NBHOOD:DELETE n N001
+        ted order NBHOOD:DELETE n NB1
         cif canundo
     } -cleanup {
         cleanup
@@ -305,15 +313,15 @@ N001 Here
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $overnb1
     } -body {
-        ted order NBHOOD:LOWER n N002
+        ted order NBHOOD:LOWER n OV1
         ted query {SELECT n,longname,stacking_order,obscured_by FROM nbhoods}
     } -cleanup {
         cleanup
     } -result {
-n    longname stacking_order obscured_by 
----- -------- -------------- ----------- 
-N001 Here     2                          
-N002 Over     1              N001        
+n   longname stacking_order obscured_by 
+--- -------- -------------- ----------- 
+NB1 Here     2                          
+OV1 Over     1              NB1         
     }
 
     test NBHOOD:LOWER-2.2 {<Entity> stack} -setup {
@@ -321,7 +329,7 @@ N002 Over     1              N001
         ted order NBHOOD:CREATE $overnb1
     } -body {
         ted notifier bind ::nbhood <Entity>
-        ted order NBHOOD:LOWER n N002
+        ted order NBHOOD:LOWER n OV1
         ted notifier received
     } -cleanup {
         cleanup
@@ -333,16 +341,16 @@ N002 Over     1              N001
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $overnb1
     } -body {
-        ted order NBHOOD:LOWER n N002
+        ted order NBHOOD:LOWER n OV1
         cif undo
         ted query {SELECT n,longname,stacking_order,obscured_by FROM nbhoods}
     } -cleanup {
         cleanup
     } -result {
-n    longname stacking_order obscured_by 
----- -------- -------------- ----------- 
-N001 Here     1              N002        
-N002 Over     2                          
+n   longname stacking_order obscured_by 
+--- -------- -------------- ----------- 
+NB1 Here     1              OV1         
+OV1 Over     2                          
     }
 
     #-------------------------------------------------------------------
@@ -364,15 +372,15 @@ N002 Over     2
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $overnb1
     } -body {
-        ted order NBHOOD:RAISE n N001
+        ted order NBHOOD:RAISE n NB1
         ted query {SELECT n,longname,stacking_order,obscured_by FROM nbhoods}
     } -cleanup {
         cleanup
     } -result {
-n    longname stacking_order obscured_by 
----- -------- -------------- ----------- 
-N001 Here     2                          
-N002 Over     1              N001        
+n   longname stacking_order obscured_by 
+--- -------- -------------- ----------- 
+NB1 Here     2                          
+OV1 Over     1              NB1         
     }
 
     test NBHOOD:RAISE-2.2 {<Entity> stack} -setup {
@@ -380,7 +388,7 @@ N002 Over     1              N001
         ted order NBHOOD:CREATE $overnb1
     } -body {
         ted notifier bind ::nbhood <Entity>
-        ted order NBHOOD:RAISE n N001
+        ted order NBHOOD:RAISE n NB1
         ted notifier received
     } -cleanup {
         cleanup
@@ -392,16 +400,16 @@ N002 Over     1              N001
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $overnb1
     } -body {
-        ted order NBHOOD:RAISE n N001
+        ted order NBHOOD:RAISE n NB1
         cif undo
         ted query {SELECT n,longname,stacking_order,obscured_by FROM nbhoods}
     } -cleanup {
         cleanup
     } -result {
-n    longname stacking_order obscured_by 
----- -------- -------------- ----------- 
-N001 Here     1              N002        
-N002 Over     2                          
+n   longname stacking_order obscured_by 
+--- -------- -------------- ----------- 
+NB1 Here     1              OV1         
+OV1 Over     2                          
     }
 
     #-------------------------------------------------------------------
@@ -417,18 +425,18 @@ N002 Over     2
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $nb2
     } -body {
-        ted order -reject NBHOOD:UPDATE n N001 longname There
+        ted order -reject NBHOOD:UPDATE n NB1 longname There
     } -cleanup {
         cleanup
     } -result {
         longname {An entity with this name already exists}
     }
 
-    test NBHOOD:UPDATE-1.3 {longname duplicates n} -setup {
+    test NBHOOD:UPDATE-1.3 {longname duplicates another n} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $nb2
     } -body {
-        ted order -reject NBHOOD:UPDATE n N001 longname N002
+        ted order -reject NBHOOD:UPDATE n NB1 longname NB2
     } -cleanup {
         cleanup
     } -result {
@@ -438,7 +446,7 @@ N002 Over     2
     test NBHOOD:UPDATE-1.4 {invalid urbanization} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
-        ted order -reject NBHOOD:UPDATE n N001 urbanization NONESUCH
+        ted order -reject NBHOOD:UPDATE n NB1 urbanization NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -449,7 +457,7 @@ N002 Over     2
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted order -reject NBHOOD:UPDATE           \
-            n       N001                          \
+            n       NB1                          \
             polygon {A80A80 B20A80 Z99Z99 B00B20}
     } -cleanup {
         cleanup
@@ -462,7 +470,7 @@ N002 Over     2
         ted order NBHOOD:CREATE $nb2
     } -body {
         ted order -reject NBHOOD:UPDATE     \
-            n       N001                    \
+            n       NB1                    \
             polygon [dict get $nb2 polygon]
     } -cleanup {
         cleanup
@@ -474,7 +482,7 @@ N002 Over     2
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted order -reject NBHOOD:UPDATE \
-            n        N001               \
+            n        NB1               \
             refpoint X99X99
     } -cleanup {
         cleanup
@@ -487,7 +495,7 @@ N002 Over     2
         ted order NBHOOD:CREATE $nb2
     } -body {
         ted order -reject NBHOOD:UPDATE       \
-            n        N001                     \
+            n        NB1                     \
             refpoint [dict get $nb2 refpoint]
     } -cleanup {
         cleanup
@@ -499,7 +507,7 @@ N002 Over     2
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted order -reject NBHOOD:UPDATE \
-            n        N001               \
+            n        NB1               \
             refpoint A00A00
     } -cleanup {
         cleanup
@@ -511,7 +519,7 @@ N002 Over     2
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted order NBHOOD:UPDATE {
-            n            N001
+            n            NB1
             longname     "Not Here"
             urbanization RURAL
             refpoint     A05A05
@@ -519,47 +527,47 @@ N002 Over     2
         }
 
         set parms [join [dict keys $nb1] ","]
-        ted query "SELECT n,$parms FROM nbhoods"
+        ted query "SELECT $parms FROM nbhoods"
     } -cleanup {
         cleanup
     } -result {
-n    longname urbanization refpoint polygon             
----- -------- ------------ -------- ------------------- 
-N001 Not Here RURAL        5 5      0 0 10 0 10 10 0 10 
+n   longname urbanization refpoint polygon             
+--- -------- ------------ -------- ------------------- 
+NB1 Not Here RURAL        5 5      0 0 10 0 10 10 0 10 
     }
 
     test NBHOOD:UPDATE-2.2 {stacking_order,obscured_by are set} -setup {
         ted order NBHOOD:CREATE $nb1
-        ted order NBHOOD:CREATE $nb2
+        ted order NBHOOD:CREATE $overnb1
     } -body {
-        # Move N002 over N001
-        ted order NBHOOD:UPDATE [dict merge $overnb1 {n N002}]
+        # Move OV1 over NB1
+        ted order NBHOOD:UPDATE [dict merge $overnb1 {n OV1}]
         ted query "SELECT n,longname,stacking_order,obscured_by FROM nbhoods"
     } -cleanup {
         cleanup
     } -result {
-n    longname stacking_order obscured_by 
----- -------- -------------- ----------- 
-N001 Here     1                          
-N002 Over     2              N001        
+n   longname stacking_order obscured_by 
+--- -------- -------------- ----------- 
+NB1 Here     1              OV1         
+OV1 Over     2                          
     }
 
     test NBHOOD:UPDATE-2.3 {<Entity> update} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted notifier bind ::nbhood <Entity>
-        ted order NBHOOD:UPDATE n N001 longname "Not Here"
+        ted order NBHOOD:UPDATE n NB1 longname "Not Here"
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::nbhood <Entity> update N001}
+        {::nbhood <Entity> update NB1}
     }
 
 
     test NBHOOD:UPDATE-3.1 {undo undoes the change} -setup {
         ted order NBHOOD:CREATE $nb1
-        ted order NBHOOD:UPDATE [dict merge $overnb1 {n N001}]
+        ted order NBHOOD:UPDATE [dict merge $overnb1 {n NB1}]
     } -body {
         cif undo
         ted query {
@@ -568,27 +576,27 @@ N002 Over     2              N001
     } -cleanup {
         cleanup
     } -result {
-n    longname urbanization refpoint polygon              
----- -------- ------------ -------- -------------------- 
-N001 Here     URBAN        100 100  80 80 120 80 100 120 
+n   longname urbanization refpoint polygon              
+--- -------- ------------ -------- -------------------- 
+NB1 Here     URBAN        100 100  80 80 120 80 100 120 
     }
 
     test NBHOOD:UPDATE-3.2 {stacking_order,obscured_by are undone} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $nb2
 
-        # Move N002 over N001
-        ted order NBHOOD:UPDATE [dict merge $overnb1 {n N002}]
+        # Move OV1 over NB1
+        ted order NBHOOD:UPDATE [dict merge $overnb1 {n NB2}]
     } -body {
         cif undo
         ted query "SELECT n,longname,stacking_order,obscured_by FROM nbhoods"
     } -cleanup {
         cleanup
     } -result {
-n    longname stacking_order obscured_by 
----- -------- -------------- ----------- 
-N001 Here     1                          
-N002 There    2                          
+n   longname stacking_order obscured_by 
+--- -------- -------------- ----------- 
+NB1 Here     1                          
+NB2 There    2                          
     }
 
 
