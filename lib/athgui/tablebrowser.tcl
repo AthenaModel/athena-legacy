@@ -90,7 +90,6 @@ snit::widget ::athgui::tablebrowser {
 
     # Methods delegated to the tablelist
     delegate method columnconfigure to tableList
-    delegate method sortbycolumn to tableList
 
     #-------------------------------------------------------------------
     # Instance Variables
@@ -502,6 +501,18 @@ snit::widget ::athgui::tablebrowser {
         focus $tableList
     }
 
+    # sortbycolumn col ?direction?
+    #
+    # col        The column to sort by
+    # direction  If given, the sort direction.
+
+    method sortbycolumn {col {direction "-increasing"}} {
+        set lastSortCol $col
+        set lastSortDir($col) $direction
+
+        $self SortData
+    }
+
     #-------------------------------------------------------------------
     # Private Methods
 
@@ -535,22 +546,25 @@ snit::widget ::athgui::tablebrowser {
     # the correct direction
 
     method SortByColumn {wdgt col} {
-        # FIRST, set the last column sorted to this one
-        set lastSortCol $col
-        
-        # NEXT, determine what the new direction should be
-        if {$lastSortDir($lastSortCol) eq "-none"} {
-            # Never been selected, increasing is default 
-            set lastSortDir($lastSortCol) "-increasing"
+        # FIRST, if they have never sorted on this column, let it
+        # be increasing.
 
-        } elseif {$lastSortDir($lastSortCol) eq "-increasing"} {
-            # Switch from increasing to decreasing
-            set lastSortDir($lastSortCol) "-decreasing"
+        if {$lastSortDir($col) eq "-none"} {
+            set lastSortDir($col) "-increasing"
+        }
 
-        } elseif {$lastSortDir($lastSortCol) eq "-decreasing"} {
-            # Switch from decreasing to increasing
-            set lastSortDir($lastSortCol) "-increasing"
 
+        # NEXT, if they've clicked on the same column, toggle the
+        # sort order; otherwise, just remember the new column.
+
+        if {$col == $lastSortCol} {
+            if {$lastSortDir($col) eq "-increasing"} {
+                set lastSortDir($col) "-decreasing"
+            } else {
+                set lastSortDir($col) "-increasing"
+            }
+        } else {
+            set lastSortCol $col
         }
         
         $self SortData
