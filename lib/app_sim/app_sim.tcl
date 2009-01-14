@@ -59,6 +59,7 @@ source [file join $::app_sim::library nbhood.tcl          ]
 source [file join $::app_sim::library civgroup.tcl        ]
 source [file join $::app_sim::library frcgroup.tcl        ]
 source [file join $::app_sim::library orggroup.tcl        ]
+source [file join $::app_sim::library nbgroup.tcl         ]
 
 # GUI
 source [file join $::app_sim::library ordergui.tcl        ]
@@ -69,6 +70,7 @@ source [file join $::app_sim::library nbhoodbrowser.tcl   ]
 source [file join $::app_sim::library civgroupbrowser.tcl ]
 source [file join $::app_sim::library frcgroupbrowser.tcl ]
 source [file join $::app_sim::library orggroupbrowser.tcl ]
+source [file join $::app_sim::library nbgroupbrowser.tcl  ]
 
 
 

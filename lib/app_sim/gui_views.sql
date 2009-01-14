@@ -48,3 +48,14 @@ SELECT g                                             AS g,
        format('%.2f', rollup_weight)                 AS rollup_weight,
        format('%.2f', effects_factor)                AS effects_factor
 FROM groups JOIN orggroups USING (g);
+
+-- An NB Groups view for use by the GUI
+CREATE TEMPORARY VIEW gui_nbgroups AS
+SELECT n || ' ' || g                                 AS ng,
+       n                                             AS n,
+       g                                             AS g,
+       local_name                                    AS local_name,
+       demeanor                                      AS demeanor,
+       format('%.2f', rollup_weight)                 AS rollup_weight,
+       format('%.2f', effects_factor)                AS effects_factor
+FROM groups JOIN nbgroups USING (g);

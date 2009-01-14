@@ -187,9 +187,6 @@ snit::widget nbhoodbrowser {
         # NEXT, the last column fills extra space
         $tb columnconfigure end -stretchable yes
 
-        # NEXT, set the default sort column and direction
-        $tb sortbycolumn 0 -increasing
-
         # NEXT, pack the tablebrowser and let it expand
         pack $tb -expand yes -fill both
 

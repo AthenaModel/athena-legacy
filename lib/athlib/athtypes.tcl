@@ -16,6 +16,7 @@
 namespace eval ::athlib:: {
     namespace export  \
         boolean       \
+        edemeanor     \
         eforcetype    \
         eorgtype      \
         eurbanization \
@@ -29,6 +30,14 @@ namespace eval ::athlib:: {
 #-------------------------------------------------------------------
 # Enumerations
 
+# Civilian Group Demeanor
+::marsutil::enum ::athlib::edemeanor {
+    APATHETIC  "Apathetic"
+    AVERAGE    "Average"
+    AGGRESSIVE "Aggressive"
+}
+
+# Force Group Type
 ::marsutil::enum ::athlib::eforcetype {
     REGULAR        "Regular Military"
     PARAMILITARY   "Paramilitary"
@@ -37,14 +46,14 @@ namespace eval ::athlib:: {
     CRIMINAL       "Organized Crime"
 }
 
-
+# Org Group Type
 ::marsutil::enum ::athlib::eorgtype {
     NGO "Non-Governmental Organization"
     IGO "Intergovernmental Organization"
     CTR "Contractor"
 }
 
-
+# Urbanization Level
 ::marsutil::enum ::athlib::eurbanization {
     RURAL        "Rural"
     SUBURBAN     "Suburban"

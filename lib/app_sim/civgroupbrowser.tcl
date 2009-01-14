@@ -107,9 +107,6 @@ snit::widget civgroupbrowser {
         $tb insertcolumn end 0 {Long Name}
         $tb insertcolumn end 0 {Color}
 
-        # NEXT, set the default sort column and direction
-        $tb sortbycolumn 0 -increasing
-
         # NEXT, pack the tablebrowser and let it expand
         pack $tb -expand yes -fill both
 

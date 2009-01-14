@@ -31,6 +31,13 @@ for false values.  On error, throws an error with <code>-errorcode</code>
 This call differs from <code>snit::boolean</code> in that it converts
 the value to canonical form, and throws <b>INVALID</b> on error.<p>
 
+<<defitem edemeanor {edemeanor <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing neighborhood group
+demeanor.<p>
+
+<<::athlib::eforcetype html>>
+
 <<defitem eforcetype {eforcetype <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing force group types.<p>

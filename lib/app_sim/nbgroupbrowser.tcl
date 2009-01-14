@@ -1,14 +1,14 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    orggroupbrowser.tcl
+#    nbgroupbrowser.tcl
 #
 # AUTHORS:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    orggroupbrowser(sim) package: Organization Group browser.
+#    nbgroupbrowser(sim) package: Nbhood Group browser.
 #
-#    This widget displays a formatted list of organization group records.
+#    This widget displays a formatted list of nbhood group records.
 #    Entries in the list are managed by the tablebrowser(n).  
 #
 #-----------------------------------------------------------------------
@@ -19,7 +19,7 @@
 #-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widget orggroupbrowser {
+snit::widget nbgroupbrowser {
     #-------------------------------------------------------------------
     # Type Constructor
 
@@ -39,9 +39,9 @@ snit::widget orggroupbrowser {
 
     component tb          ;# tablebrowser(n) used to browse groups
     component bar         ;# Tool bar
-    component addbtn      ;# The "Add Org Group" button
-    component editbtn     ;# The "Edit Org Group" button
-    component deletebtn   ;# The "Delete Org Group" button
+    component addbtn      ;# The "Add Group" button
+    component editbtn     ;# The "Edit Group" button
+    component deletebtn   ;# The "Delete Group" button
 
     #--------------------------------------------------------------------
     # Instance Variables
@@ -58,8 +58,8 @@ snit::widget orggroupbrowser {
         # NEXT, create the table browser
         install tb using tablebrowser $win.tb   \
             -db          ::rdb                  \
-            -table       "gui_orggroups"        \
-            -keycol      "g"                    \
+            -table       "gui_nbgroups"         \
+            -keycol      "ng"                   \
             -keycolnum   0                      \
             -width       100                    \
             -displaycmd  [mymethod DisplayData]
@@ -75,7 +75,7 @@ snit::widget orggroupbrowser {
             -state      normal                 \
             -command    [mymethod AddGroup]
 
-        DynamicHelp::add $addbtn -text "Add Organization Group"
+        DynamicHelp::add $addbtn -text "Add Nbhood Group"
 
         install editbtn using button $bar.edit   \
             -image      ::athgui::icon::pencil22 \
@@ -102,18 +102,23 @@ snit::widget orggroupbrowser {
         # NEXT, hand the toolbar to the browser.
         $tb toolbar $tb.toolbar
 
-        # NEXT, create the columns and labels.
+        # NEXT, create the columns and labels.  Create and hide the
+        # ID column; it will be used to reference rows as "$n $g", but
+        # we don't want to display it.
+
         $tb insertcolumn end 0 {ID}
-        $tb insertcolumn end 0 {Long Name}
-        $tb insertcolumn end 0 {Color}
-        $tb insertcolumn end 0 {Org Type}
-        $tb insertcolumn end 0 {Medical?}
-        $tb insertcolumn end 0 {Engineer?}
-        $tb insertcolumn end 0 {Support?}
+        $tb columnconfigure end -hide yes
+        $tb insertcolumn end 0 {Nbhood}
+        $tb insertcolumn end 0 {CivGroup}
+        $tb insertcolumn end 0 {Local Name}
+        $tb insertcolumn end 0 {Demeanor}
         $tb insertcolumn end 0 {RollupWeight}
         $tb columnconfigure end -sortmode real
         $tb insertcolumn end 0 {EffectsFactor}
         $tb columnconfigure end -sortmode real
+
+        # NEXT, sort on column 1 by default
+        $tb sortbycolumn 1 -increasing
 
         # NEXT, pack the tablebrowser and let it expand
         pack $tb -expand yes -fill both
@@ -123,7 +128,7 @@ snit::widget orggroupbrowser {
 
         # NEXT, prepare to update on data change
         notifier bind ::scenario <Reconfigure> $self [mymethod Reconfigure]
-        notifier bind ::orggroup <Entity>      $self $self
+        notifier bind ::nbgroup <Entity>       $self $self
 
         # NEXT, reload on creation
         $self reload
@@ -147,17 +152,43 @@ snit::widget orggroupbrowser {
         $self UpdateToolbarState
     }
 
-    # create id
+    # create n g
     #
-    # id    The ID of the created group
+    # n, g    The nbhood and civ group of the created nbhood group
     #
     # A new group has been created.  We need to put it in its place.
     # For now, just reload the whole shebang
     
-    method create {id} {
+    method create {n g} {
         $tb reload
     }
-    
+
+    # update n g
+    #
+    # n, g    The nbhood and civ group of the updated nbhood group
+    #
+    # The group has been updated.
+
+    method update {n g} {
+        $tb update [list $n $g]
+    }
+
+    # delete n g
+    #
+    # n     Nbhood of deleted nbgroup
+    # g     Civgroup of deleted nbgroup
+    #
+    # When a group is deleted, we need to update the toolbar
+    # state, as it's likely that there is no longer a selection.
+
+    method delete {n g} {
+        # FIRST, update the tablebrowser
+        $tb delete [list $n $g]
+
+        # NEXT, update the state
+        $self UpdateToolbarState
+    }
+
     #-------------------------------------------------------------------
     # Private Methods
 
@@ -180,7 +211,7 @@ snit::widget orggroupbrowser {
 
     method AddGroup {} {
         # FIRST, Pop up the dialog
-        ordergui enter GROUP:ORGANIZATION:CREATE
+        ordergui enter GROUP:NBHOOD:CREATE
     }
 
     # EditSelected
@@ -189,11 +220,12 @@ snit::widget orggroupbrowser {
 
     method EditSelected {} {
         # FIRST, there should be only one selected.
-        set id [lindex [$tb curselection] 0]
+        lassign [lindex [$tb curselection] 0] n g
 
         # NEXT, Pop up the dialog, and select this group
-        ordergui enter GROUP:ORGANIZATION:UPDATE
-        ordergui parm set g $id
+        ordergui enter GROUP:NBHOOD:UPDATE
+        ordergui parm set n $n
+        ordergui parm set g $g
     }
 
     # DeleteSelected
@@ -202,26 +234,12 @@ snit::widget orggroupbrowser {
 
     method DeleteSelected {} {
         # FIRST, there should be only one selected.
-        set id [lindex [$tb curselection] 0]
+        lassign [lindex [$tb curselection] 0] n g
 
         # NEXT, Pop up the dialog, and select this group
-        ordergui enter GROUP:ORGANIZATION:DELETE
-        ordergui parm set g $id
-    }
-
-    # delete n
-    #
-    # n     Deleted group.
-    #
-    # When a group is deleted, we need to update the toolbar
-    # state, as it's likely that there is no longer a selection.
-
-    method delete {n} {
-        # FIRST, update the tablebrowser
-        $tb delete $n
-
-        # NEXT, update the state
-        $self UpdateToolbarState
+        ordergui enter GROUP:NBHOOD:DELETE
+        ordergui parm set n $n 
+        ordergui parm set g $g
     }
 
     # DisplayData dict
@@ -234,10 +252,11 @@ snit::widget orggroupbrowser {
     method DisplayData {dict} {
         # FIRST, extract each field
         dict with dict {
-            $tb setdata $g \
-                [list $g $longname $color $orgtype $medical $engineer \
-                     $support $rollup_weight $effects_factor]
-            $tb setcellbackground $g 2 $color
+            set id [list $n $g]
+
+            $tb setdata $id \
+                [list $id $n $g $local_name $demeanor \
+                     $rollup_weight $effects_factor]
         }
     }
 

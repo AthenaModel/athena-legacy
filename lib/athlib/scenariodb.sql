@@ -77,11 +77,8 @@ CREATE TABLE maps (
 
 -- Neighborhood definitions
 CREATE TABLE nbhoods (
-    -- Unique ID
-    uid            INTEGER PRIMARY KEY,
-
     -- Symbolic neighborhood name     
-    n              TEXT UNIQUE,
+    n              TEXT PRIMARY KEY,
 
     -- Full neighborhood name
     longname       TEXT,
@@ -108,11 +105,8 @@ CREATE TABLE nbhoods (
 
 -- Generic Group Data
 CREATE TABLE groups (
-    -- Unique ID
-    uid         INTEGER PRIMARY KEY,
-
     -- Symbolic group name
-    g           TEXT UNIQUE,
+    g           TEXT PRIMARY KEY,
 
     -- Full group name
     longname    TEXT,
@@ -173,6 +167,32 @@ SELECT * FROM groups JOIN orggroups USING (g);
 
 CREATE VIEW civgroups_view AS
 SELECT * FROM groups WHERE gtype='CIV';
+
+-- Neighborhood Groups: Civilian Groups in Neighborhoods
+CREATE TABLE nbgroups (
+    -- Symbolic neighborhood name
+    n              TEXT,
+
+    -- Symbolic civgroup name
+    g              TEXT,
+
+    -- Local name: human readable name
+    local_name     TEXT,
+
+    -- Group demeanor: edemeanor
+    demeanor       TEXT,
+
+    -- Group rollup-weight (non-negative) (JRAM input)
+    rollup_weight  DOUBLE DEFAULT 1.0,
+
+    -- Indirect effects multiplier (non-negative) (JRAM input)
+    effects_factor DOUBLE DEFAULT 1.0,
+
+    PRIMARY KEY (n,g)
+);
+
+CREATE VIEW nbgroups_view AS
+SELECT * FROM groups JOIN nbgroups USING (g);
 
 ------------------------------------------------------------------------
 -- Entities

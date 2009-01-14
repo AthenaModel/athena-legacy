@@ -244,6 +244,15 @@ snit::widget appwin {
         $self AddOrder $submenu GROUP:CIVILIAN:UPDATE
         $self AddOrder $submenu GROUP:CIVILIAN:DELETE
 
+        # Orders/Nbhood Group
+        set submenu [menu $ordersmenu.nbgroup]
+        $ordersmenu add cascade -label "Nbhood Group" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu GROUP:NBHOOD:CREATE
+        $self AddOrder $submenu GROUP:NBHOOD:UPDATE
+        $self AddOrder $submenu GROUP:NBHOOD:DELETE
+
         # Orders/Force Group
         set submenu [menu $ordersmenu.frcgroup]
         $ordersmenu add cascade -label "Force Group" \
@@ -369,6 +378,16 @@ snit::widget appwin {
             -sticky  nsew                  \
             -padding 2                     \
             -text    "CivGrps"
+
+        # NEXT, add the NB group browser to the content notebook
+        nbgroupbrowser $content.nbgroups \
+            -width   600                   \
+            -height  600
+
+        $content add $content.nbgroups     \
+            -sticky  nsew                  \
+            -padding 2                     \
+            -text    "NbGrps"
 
         # NEXT, add the FRC group browser to the content notebook
         frcgroupbrowser $content.frcgroups \
