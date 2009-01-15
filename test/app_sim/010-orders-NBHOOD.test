@@ -62,7 +62,12 @@ namespace eval ::athena_test::tests:: {
 
         # Delete all neighborhoods and reinitialize the module
         rdb eval {DELETE FROM nbhoods}
-        nbhood reconfigure
+        rdb eval {DELETE FROM groups}
+        rdb eval {DELETE FROM nbgroups}
+
+        nbhood   reconfigure
+        civgroup reconfigure
+        nbgroup  reconfigure
     }
 
     #-------------------------------------------------------------------
@@ -292,6 +297,31 @@ NB1 Here
     } -cleanup {
         cleanup
     } -result {}
+
+    test NBHOOD:DELETE-3.2 {Deletes nbhood groups} -setup {
+        ted order NBHOOD:CREATE $nb1
+
+        ted order GROUP:CIVILIAN:CREATE {
+            g        PASH
+            longname "Pashtuns"
+            color    #ffff00
+        }
+
+        ted order GROUP:NBHOOD:CREATE {
+            n              NB1
+            g              PASH
+            local_name     "NB1 Pashtuns"
+            demeanor       AGGRESSIVE
+            rollup_weight  1.0
+            effects_factor 1.0
+        }
+    } -body {
+        ted order NBHOOD:DELETE n NB1
+        ted query {SELECT * FROM nbgroups}
+    } -cleanup {
+        cleanup
+    } -result {
+    }
 
 
     #-------------------------------------------------------------------

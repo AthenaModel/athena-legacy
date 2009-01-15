@@ -49,10 +49,14 @@ namespace eval ::athena_test::tests:: {
 
         # Delete all civilian groups and reinitialize the module
         rdb eval {
+            DELETE FROM nbhoods;
             DELETE FROM groups;
+            DELETE FROM nbgroups;
         }
 
         civgroup reconfigure
+        nbhood   reconfigure
+        nbgroup  reconfigure
     }
 
     #-------------------------------------------------------------------
@@ -189,6 +193,33 @@ SHIA Shia Locals
     } -cleanup {
         cleanup
     } -result {}
+
+    test GROUP:CIVILIAN:DELETE-3.2 {Deletes nbhood groups} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+
+        ted order NBHOOD:CREATE {
+            n            NB1
+            longname     "Here"
+            urbanization URBAN
+            refpoint     B00B00
+            polygon      {A80A80 B20A80 B00B20}
+        }
+
+        ted order GROUP:NBHOOD:CREATE {
+            n              NB1
+            g              SHIA
+            local_name     "NB1 Shia"
+            demeanor       AGGRESSIVE
+            rollup_weight  1.0
+            effects_factor 1.0
+        }
+    } -body {
+        ted order GROUP:CIVILIAN:DELETE g SHIA
+        ted query {SELECT * FROM nbgroups}
+    } -cleanup {
+        cleanup
+    } -result {
+    }
 
     #-------------------------------------------------------------------
     # GROUP:CIVILIAN:UPDATE
