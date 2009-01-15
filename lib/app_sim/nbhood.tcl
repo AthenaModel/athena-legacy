@@ -233,9 +233,10 @@ snit::type nbhood {
         $geo delete $n
 
         # NEXT, clear the nbhood field for entities which 
-        # refer to this nbhood (e.g., units in the nbhood).
+        # refer to this nbhood (e.g., units in the nbhood) and
+        # delete entities that depend on this nbhood.
         
-        # TBD.
+        nbgroup nbhoodDeleted $n
 
         # NEXT, recompute the obscured_by field; this nbhood might
         # have obscured some other neighborhood's refpoint.
@@ -474,7 +475,11 @@ order define ::nbhood NBHOOD:DELETE {
                         -ignoretag     NBHOOD:DELETE                    \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
-                        -message       "This order cannot be undone.  Are you sure you really want to delete this neighborhood?"]
+                        -message       [normalize {
+                            This order cannot be undone.  Are you sure you
+                            really want to delete this neighborhood, along
+                            with all of the entities that depend upon it?
+                        }]]
 
         if {$answer eq "cancel"} {
             cancel

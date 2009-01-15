@@ -227,8 +227,12 @@ snit::type scenario {
 
     typemethod reconfigure {} {
         # FIRST, Reconfigure the simulation
-        map    reconfigure
-        nbhood reconfigure
+        map      reconfigure
+        nbhood   reconfigure
+        civgroup reconfigure
+        frcgroup reconfigure
+        orggroup reconfigure
+        nbgroup  reconfigure
 
         # NEXT, Reconfigure the GUI
         notifier send $type <Reconfigure>

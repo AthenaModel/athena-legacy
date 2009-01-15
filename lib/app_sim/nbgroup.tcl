@@ -65,6 +65,48 @@ snit::type nbgroup {
         }
     }
 
+    #-------------------------------------------------------------------
+    # Cleanup Routines For When Other Entities Are Deleted
+    #
+    # TBD: In my heart, I think these should be notifier event 
+    # handlers...but there are issues I can dimly foresee.  So
+    # I'm doing the simplest possible thing, expecting to change
+    # it.
+    #
+    # These are mutators, but they aren't undoable.
+    # Q: Could we *accumulate* undo information as the cleanup takes
+    # place, so that deleting an entity *could* be undoable?  Hmmmmm.
+    # That would argue against it's being an undo.  Suppose the
+    # implementation routines *returned* the undo command, and we
+    # simply made a list of them?  On undo, we do the items in the 
+    # list....
+
+
+    # nbhoodDeleted n
+    #
+    # Called *by* nbhood when nbhood n is deleted.  Deletes all 
+    # nbgroups for this nbhood.
+
+    typemethod nbhoodDeleted {n} {
+        rdb eval {
+            SELECT g FROM nbgroups WHERE n=$n
+        } {
+            $type DeleteGroup $n $g
+        }
+    }
+
+    # civgroupDeleted g
+    #
+    # Called *by* civgroup when civgroup g is deleted.  Deletes all 
+    # nbgroups for this civgroup.
+
+    typemethod civgroupDeleted {g} {
+        rdb eval {
+            SELECT n FROM nbgroups WHERE g=$g
+        } {
+            $type DeleteGroup $n $g
+        }
+    }
 
     #-------------------------------------------------------------------
     # Order Handling Routines

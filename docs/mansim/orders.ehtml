@@ -1,7 +1,33 @@
 <<manpage orders(sim) "Athena Orders">>
 
 <<swallow {
-package require athlib
+    package require athlib
+
+    # <<parmlist>>
+    # <<parm name>> Description <</parm>>
+    #    ...
+    # <</parmlist>>
+
+    template parmlist {} {
+        |<--
+        <table border="0" cellspacing="0" cellpadding="5"> 
+    }
+
+    template parm {name} {
+        |<--
+        <tr valign="baseline"><td width="95"><b><tt>$name</tt></b></td>
+        <td>
+    }
+
+    template /parm {} {
+        </td>
+        </tr>
+    }
+
+    template /parmlist {} {
+        |<--
+        </table>
+    }
 }>>
 
 <<section SYNOPSIS>>
@@ -19,6 +45,60 @@ page documents the orders and their parameters.<p>
 The <code>GROUP:*</code> orders are used to create, modify, and
 manipulate various kinds of groups.<p>
 
+<<subsection "GROUP:CIVILIAN:*">>
+
+These orders relate to top-level civilian groups, groups of the
+civilian population which can exist across multiple neighborhoods.<p>
+
+<<deflist group civilian>>
+
+<<defitem GROUP:CIVILIAN:CREATE {GROUP:CIVILIAN:CREATE}>>
+
+Creates a new civilian group.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm g>> <b>Required.</b> A brief <<xref ident(n) identifier>> which
+uniquely identifies this group.<</parm>>
+
+<<parm longname>> <b>Required.</b> A short human-readable name for the
+group, e.g., "Pashtuns".<</parm>>
+
+<<parm color>> <b>Required.</b>  A color, specified as a hexadecimal
+RGB string, "<code>#<i>rrggbb</i></code>" or
+"<code>#<i>rrrrggggbbbb</i></code>". This color is used to color code
+the group's icons.<</parm>>
+
+<</parmlist>>
+
+<<defitem GROUP:CIVILIAN:DELETE {GROUP:CIVILIAN:DELETE}>>
+
+Deletes a civilian group, cleaning up dependencies.  In particular,
+it:<p>
+
+<ul>
+  <li> Deletes all neighborhood groups which belong to this civilian
+       group.<p>
+</ul>
+
+The parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm g>> <b>Required.</b> The group's ID.<</parm>>
+
+<</parmlist>>
+
+<<defitem GROUP:CIVILIAN:UPDATE {GROUP:CIVILIAN:UPDATE}>>
+
+Updates an existing civilian group.  The parameters are as
+defined for <<iref GROUP:CIVILIAN:CREATE>>; <b>g</b> is required, and
+specifies the group to update, while the remainder are optional.<p>
+
+<</deflist group civilian>>
+
+
 <<subsection "GROUP:FORCE:*">>
 
 These orders relate to force groups, groups which exist to project force.<p>
@@ -30,58 +110,50 @@ These orders relate to force groups, groups which exist to project force.<p>
 Creates a new force group.  The parameters are as
 follows:<p>
 
-<<deflist options>>
+<<parmlist>>
 
-<<defopt g>>
+<<parm g>> <b>Required.</b> A brief <<xref ident(n) identifier>> which
+uniquely identifies this group.<</parm>>
 
-<b>Required.</b> A brief <<xref ident(n) identifier>> which uniquely
-identifies this group.<p>
+<<parm longname>> <b>Required.</b> A short human-readable name for the
+group, e.g., "U.S. Army".<</parm>>
 
-<<defopt longname>>
+<<parm color>> <b>Required.</b>  A color, specified as a hexadecimal
+RGB string, "<code>#<i>rrggbb</i></code>" or
+"<code>#<i>rrrrggggbbbb</i></code>". This color is used to color code
+the group's icons.<</parm>>
 
-<b>Required.</b> A short human-readable name for the neighborhood, e.g., "Los Angeles".<p>
-
-<<defopt color>>
-
-<b>Required.</b>  A color, specified as a hexadecimal RGB string,
-"<code>#<i>rrggbb</i></code>" or "<code>#<i>rrrrggggbbbb</i></code>".
-This color is used to color code the group's icons.<p>
-
-<<defopt forcetype>>
-
-<b>Required.</b> The force type, as follows:<p>
+<<parm forcetype>> <b>Required.</b> The force type, as follows:<p>
 
 <<::athlib::eforcetype html>>
+<</parm>>
 
-<<defopt local>>
+<<parm local>> <b>Required.</b> The local flag, expressed as a boolean
+value (e.g., "Yes" or "No"). Indicates whether the group is perceived
+as being local to the playbox, or as a foreign force.<</parm>>
 
-<b>Required.</b> The local flag, expressed as a boolean value (e.g.,
-"Yes" or "No"). Indicates whether the group is perceived as being
-local to the playbox, or as a foreign force.<p> 
+<<parm coalition>> <b>Required.</b> The coalition flag, expressed as a
+boolean value (e.g., "Yes" or "No").  Indicates whether or not the
+group is a member of the U.S.-led coalition.<</parm>>
 
-<<defopt coalition>>
-
-<b>Required.</b> The coalition flag, expressed as a boolean value
-(e.g., "Yes" or "No").  Indicates whether or not the group is a member
-of the U.S.-led coalition.<p>
-
-<</deflist options>>
+<</parmlist>>
 
 <<defitem GROUP:FORCE:DELETE {GROUP:FORCE:DELETE}>>
 
-Deletes a force group.<p>
+Deletes a force group, cleaning up dependencies.  In particular,
+it:<p>
 
-TBD: Possibly, all entities depending on the group will be
-deleted as well.  Alternatively, the order might be rejected if any
-other entities depend on this group.<p>
+<ul>
+  <li> TBD
+</ul>
 
 The parameters are as follows:<p>
 
-<<deflist options>>
+<<parmlist>>
 
-<<defopt g>>
+<<parm g>> <b>Required.</b> The group's ID.<</parm>>
 
-<b>Required.</b> The group's ID.<p>
+<</parmlist>>
 
 <<defitem GROUP:FORCE:UPDATE {GROUP:FORCE:UPDATE}>>
 
@@ -90,6 +162,75 @@ defined for <<iref GROUP:FORCE:CREATE>>; <b>g</b> is required, and
 specifies the group to update, while the remainder are optional.<p>
 
 <</deflist group force>>
+
+<<subsection "GROUP:NBHOOD:*">>
+
+These orders relate to neighborhood civilian groups, subgroups of the
+civilian groups which reside in particular neighborhoods.<p>
+
+<<deflist group nbhood>>
+
+<<defitem GROUP:NBHOOD:CREATE {GROUP:NBHOOD:CREATE}>>
+
+Creates a new neighborhood group.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm n>> <b>Required.</b>  The identifier of the neighborhood in
+which the group resides.<</parm>>
+
+<<parm g>> <b>Required.</b>  The identifier of the civilian group to
+which this group belongs.<</parm>>
+
+<<parm local_name>> <b>Required.</b> A short human-readable name for the
+group, e.g., a tribal name.<</parm>>
+
+<<parm demeanor>> <b>Required.</b>  The demeanor of the civilian
+group, e.g., its propensity to violence:<p>
+
+<<athlib::edemeanor html>><</parm>>
+
+<<parm rollup_weight>> <b>Required.</b> The rollup weight, used when
+rolling up the group's satisfaction levels to the playbox level.  A
+non-negative floating point value, nominally 1.0.<</parm>>
+
+<<parm effects_factor>> <b>Required.</b> The indirect effects factor,
+which scales indirect effects on other groups of satisfaction effects
+on this group.  A non-negative floating point value, nominally 1.0.<</parm>>
+
+
+<</parmlist>>
+
+<<defitem GROUP:NBHOOD:DELETE {GROUP:NBHOOD:DELETE}>>
+
+Deletes a neighborhood group, cleaning up dependencies.  In particular,
+it:<p>
+
+<ul>
+  <li> TBD<p>
+</ul>
+
+The parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm n>> <b>Required.</b> The neighborhood in which the group
+resides.<</parm>>
+
+<<parm g>> <b>Required.</b> The civilian group to which this group
+belongs.<</parm>>
+
+<</parmlist>>
+
+<<defitem GROUP:NBHOOD:UPDATE {GROUP:NBHOOD:UPDATE}>>
+
+Updates an existing civilian group.  The parameters are as
+defined for <<iref GROUP:NBHOOD:CREATE>>; <b>n</b> and <b>g</b> are
+required, and specifies the group to update, while the remainder are
+optional.<p>
+
+<</deflist group nbhood>>
 
 <<subsection "GROUP:ORGANIZATION:*">>
 
@@ -103,76 +244,64 @@ Contractors, working in the playbox.<p>
 Creates a new organization group.  The parameters are as
 follows:<p>
 
-<<deflist options>>
+<<parmlist>>
 
-<<defopt g>>
+<<parm g>>  <b>Required.</b> A brief <<xref ident(n) identifier>>
+which uniquely identifies this group.<</parm>>
 
-<b>Required.</b> A brief <<xref ident(n) identifier>> which uniquely
-identifies this group.<p>
+<<parm longname>> <b>Required.</b> A short human-readable name for the
+group, e.g., "Red Cross".<</parm>>
 
-<<defopt longname>>
+<<parm color>> <b>Required.</b>  A color, specified as a hexadecimal
+RGB string, "<code>#<i>rrggbb</i></code>" or
+"<code>#<i>rrrrggggbbbb</i></code>". This color is used to color code
+the group's icons.<</parm>>
 
-<b>Required.</b> A short human-readable name for the neighborhood, e.g., "Los Angeles".<p>
+<<parm orgtype>> <b>Required.</b> The organization type, as follows:<p>
 
-<<defopt color>>
+<<::athlib::eorgtype html>><</parm>>
 
-<b>Required.</b>  A color, specified as a hexadecimal RGB string,
-"<code>#<i>rrggbb</i></code>" or "<code>#<i>rrrrggggbbbb</i></code>".
-This color is used to color code the group's icons.<p>
+<<parm medical>> <b>Required.</b> The medical capability flag,
+expressed as a boolean value (e.g., "Yes" or "No"). Indicates whether
+the group can provide healthcare to local civilians.<</parm>>
 
-<<defopt orgtype>>
+<<parm engineer>> <b>Required.</b> The engineering capability flag,
+expressed as a boolean value (e.g., "Yes" or "No").  Indicates whether
+or not the group can provide engineering services to the local
+civilians.<</parm>>
 
-<b>Required.</b> The organization type, as follows:<p>
+<<parm support>> <b>Required.</b> The support capability flag,
+expressed as a boolean value (e.g., "Yes" or "No").  Indicates whether
+or not the group provides support (food, water, education, etc.) to
+the local civilians.<</parm>>
 
-<<::athlib::eorgtype html>>
+<<parm rollup_weight>> <b>Required.</b> The rollup weight, used when
+rolling up the group's satisfaction levels to the playbox level.  A
+non-negative floating point value, nominally 1.0.<</parm>>
 
-<<defopt medical>>
+<<parm effects_factor>> <b>Required.</b> The indirect effects factor,
+which scales indirect effects on other groups of satisfaction effects
+on this group.  A non-negative floating point value, nominally 1.0.<</parm>>
 
-<b>Required.</b> The medical capability flag, expressed as a boolean value (e.g.,
-"Yes" or "No"). Indicates whether the group can provide healthcare to
-local civilians.<p> 
+<</parmlist>>
 
-<<defopt engineer>>
-
-<b>Required.</b> The engineering capability flag, expressed as a boolean value
-(e.g., "Yes" or "No").  Indicates whether or not the group can provide
-engineering services to the local civilians.<p>
-
-<<defopt support>>
-
-<b>Required.</b> The support capability flag, expressed as a boolean value
-(e.g., "Yes" or "No").  Indicates whether or not the group provides
-support (food, water, education, etc.) to the local civilians.<p>
-
-<<defopt rollup_weight>>
-
-<b>Required.</b> The rollup weight, used when rolling up the group's
-satisfaction levels to the playbox level.  A non-negative floating
-point value, nominally 1.0.<p>
-
-<<defopt effects_factor>>
-
-<b>Required.</b> The indirect effects factor, which scales indirect
-effects on other groups of satisfaction effects on this group.  A
-non-negative floating point value, nominally 1.0.<p>
-
-<</deflist options>>
 
 <<defitem GROUP:ORGANIZATION:DELETE {GROUP:ORGANIZATION:DELETE}>>
 
-Deletes a organization group.<p>
+Deletes a organization group, cleaning up dependencies.  In
+particular, it:<p>
 
-TBD: Possibly, all entities depending on the group will be
-deleted as well.  Alternatively, the order might be rejected if any
-other entities depend on this group.<p>
+<ul>
+  <li> TBD
+</ul><p>
 
 The parameters are as follows:<p>
 
-<<deflist options>>
+<<parmlist>>
 
-<<defopt g>>
+<<parm g>> <b>Required.</b> The group's ID.<</parm>>
 
-<b>Required.</b> The group's ID.<p>
+<</parmlist>>
 
 <<defitem GROUP:ORGANIZATION:UPDATE {GROUP:ORGANIZATION:UPDATE}>>
 
@@ -195,15 +324,15 @@ by the <<xref map(sim)>> module.<p>
 Imports a map image file into the scenario.  The parameters are as
 follows:<p>
 
-<<deflist options>>
+<<parmlist>>
 
-<<defopt filename>>
+<<parm filename>> <b>Required.</b> The name of the image file to
+import and use as a map.<</parm>>
 
-<b>Required.</b> The name of the image file to import and use as a map.
-
-<</deflist options>>
+<</parmlist>>
 
 <</deflist map>>
+
 
 <<section "NBHOOD:*">>
 
@@ -218,109 +347,72 @@ by the <<xref nbhood(sim)>> module.<p>
 Creates a new neighborhood.  The parameters are as
 follows:<p>
 
-<<deflist options>>
+<<parmlist>>
 
-<<defopt longname>>
+<<parm n>> <b>Required.</b>  A brief <<xref ident(n) identifier>>
+which uniquely identifies this neighborhood.<</parm>>
 
-<b>Required.</b> A short human-readable name for the neighborhood, e.g., "Los Angeles".<p>
+<<parm longname>> <b>Required.</b> A short human-readable name for the
+neighborhood, e.g., "Los Angeles".<</parm>>
 
-<<defopt urbanization>>
+<<parm urbanization>> <b>Required.</b> The neighborhood's urbanization
+level:<p>
 
-<b>Required.</b> The neighborhood's urbanization level:<p>
+<<::athlib::eurbanization html>><</parm>>
 
-<<::athlib::eurbanization html>>
+<<parm refpoint>> <b>Required.</b> The neighborhood's reference point,
+expressed as a <<xref mapref(n)>> mapref string.  This is a location
+within the neighborhood's polygon.<</parm>>
 
-<<defopt refpoint>>
+<<parm polygon>> <b>Required.</b> The neighborhood's boundary polygon,
+expressed as a list of <<xref mapref(n)>> mapref strings.<</parm>>
 
-<b>Required.</b> The neighborhood's reference point, expressed as a
-<<xref mapref(n)>> mapref string.  This is a location within the
-neighborhood's polygon.<p>
-
-<<defopt polygon>>
-
-<b>Required.</b> The neighborhood's boundary polygon, expressed as a list of
-<<xref mapref(n)>> mapref strings.
-
-<</deflist options>>
+<</parmlist>>
 
 <<defitem NBHOOD:DELETE {NBHOOD:DELETE}>>
 
-Deletes a neighborhood.<p>
+Deletes a neighborhood, cleaning up dependencies.  In particular it:<p>
 
-TBD: Possibly, all entities depending on the neighborhood will be
-deleted as well.  Alternatively, the order might be rejected if any
-other entities depend on this neighborhood.<p>
+<ul>
+  <li> Deletes all neighborhood groups in this neighborhood.<p>
+</ul>
 
 The parameters are as follows:<p>
 
-<<deflist options>>
+<<parmlist>>
 
-<<defopt n>>
+<<parm n>> <b>Required.</b> The neighborhood's ID.<</parm>>
 
-<b>Required.</b> The neighborhood's ID.<p>
-
-<</deflist options>>
+<</parmlist>>
 
 <<defitem NBHOOD:LOWER {NBHOOD:LOWER}>>
 
 Lowers a neighborhood to the bottom of the stacking order, below
 any neighborhoods which overlap it.  The parameters are as follows:<p>
 
-<<deflist options>>
+<<parmlist>>
 
-<<defopt n>>
+<<parm n>> <b>Required.</b> The neighborhood's ID.<</parm>>
 
-<b>Required.</b> The neighborhood's ID.<p>
-
-<</deflist options>>
+<</parmlist>>
 
 <<defitem NBHOOD:RAISE {NBHOOD:RAISE}>>
 
 Raises a neighborhood to the top of the stacking order, over
 any neighborhoods which it overlaps.  The parameters are as follows:<p>
 
-<<deflist options>>
+<<parmlist>>
 
-<<defopt n>>
+<<parm n>> <b>Required.</b> The neighborhood's ID.<</parm>>
 
-<b>Required.</b> The neighborhood's ID.<p>
-
-<</deflist options>>
+<</parmlist>>
 
 <<defitem NBHOOD:UPDATE {NBHOOD:UPDATE}>>
 
 Updates a neighborhood's data.  The parameters are as
-follows:<p>
-
-<<deflist options>>
-
-<<defopt n>>
-
-<b>Required.</b> The neighborhood's ID.<p>
-
-<<defopt longname>>
-
-<b>Optional.</b> A short human-readable name for the neighborhood,
-e.g., "Los Angeles".<p>
-
-<<defopt urbanization>>
-
-<b>Optional.</b>  The neighborhood's urbanization level:<p>
-
-<<::athlib::eurbanization html>>
-
-<<defopt refpoint>>
-
-<b>Optional.</b>  The neighborhood's reference point, expressed as a
-<<xref mapref(n)>> mapref string.  This is a location within the
-neighborhood's polygon.<p>
-
-<<defopt polygon>>
-
-<b>Optional.</b>  The neighborhood's boundary polygon, expressed as a
-list of <<xref mapref(n)>> mapref strings.<p>
-
-<</deflist options>>
+for <<iref NBHOOD:CREATE>>; <b>n</b>, is
+required, and species the neighborhood to update; the remainder are
+optional.<p>
 
 <</deflist nbhood>>
 
@@ -330,12 +422,3 @@ list of <<xref mapref(n)>> mapref strings.<p>
 Will Duquette<p>
 
 <</manpage>>
-
-
-
-
-
-
-
-
-

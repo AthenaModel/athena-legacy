@@ -30,6 +30,10 @@ nbhood(sim) provides the following commands for use by the application.<p>
 Given a point <i>mx,my</i> in map coordinates, returns the short name of the
 containing neighborhood, or "" if none.<p>
 
+<<defitem init {nbhood init}>>
+
+Initializes the module.<p>
+
 <<defitem names {nbhood names}>>
 
 Returns a list of the neighborhood short names, in order of definition.<p>
@@ -64,19 +68,24 @@ indicates the kind of change; there are the following possibilities:<p>
 
 <<defitem "Entity create" {&lt;Entity&gt; create <i>n</i>}>>
 
-The neighborhood has just been created.<p>
+The neighborhood has just been created.  Sent on
+<<xref orders(sim) NBHOOD:CREATE>>.<p>
 
 <<defitem "Entity delete" {&lt;Entity&gt; delete <i>n</i>}>>
 
-The neighborhood has been deleted.
+The neighborhood has been deleted.  Sent on
+<<xref orders(sim) NBHOOD:DELETE>>.
 
 <<defitem "Entity update" {&lt;Entity&gt; update <i>n</i>}>>
 
-One or more of the neighborhood's data items has been updated.<p>
+One or more of the neighborhood's data items has been updated.  Sent on
+<<xref orders(sim) NBHOOD:UPDATE>><p>
 
-<<defitem "Entity stack" {&lt;Entity&gt;}>>
+<<defitem "Entity stack" {&lt;Entity&gt; stack}>>
 
-The neighborhood stacking order has changed for some reason.<p>
+The neighborhood stacking order has changed for some reason.  Sent on
+<<xref orders(sim) NBHOOD:LOWER>> and
+<<xref orders(sim) NBHOOD:RAISE>>.<p>
 
 <</deflist entity>>
 

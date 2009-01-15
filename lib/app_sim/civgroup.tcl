@@ -152,8 +152,12 @@ snit::type civgroup {
 
         # NEXT, Clean up entities which refer to this civilian group,
         # i.e., either clear the field, or delete the entities.
+
+        # NEXT, clear the group field for entities which 
+        # refer to this group (e.g., units in the group) and
+        # delete entities that depend on this group.
         
-        # TBD.
+        nbgroup civgroupDeleted $g
 
         # NEXT, Not undoable; clear the undo command
         set info(undo) {}
@@ -265,7 +269,11 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
                         -ignoretag     GROUP:CIVILIAN:DELETE                    \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
-                        -message       "This order cannot be undone.  Are you sure you really want to delete this group?"]
+                        -message       [normalize {
+                            This order cannot be undone.  Are you sure you
+                            really want to delete this group and all of the
+                            entities that depend upon it?
+                        }]]
 
         if {$answer eq "cancel"} {
             cancel
