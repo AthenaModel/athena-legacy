@@ -92,7 +92,7 @@ snit::type orggroup {
     # a script of one or more commands that will undo the change.  When
     # change cannot be undone, the mutator returns the empty string.
 
-    # CreateGroup parmdict
+    # mutate create parmdict
     #
     # parmdict     A dictionary of group parms
     #
@@ -112,7 +112,7 @@ snit::type orggroup {
     # Creating a organization group requires adding entries to the groups and
     # orggroups tables.
 
-    typemethod CreateGroup {parmdict} {
+    typemethod {mutate create} {parmdict} {
         dict with parmdict {
             # FIRST, Put the group in the database
             rdb eval {
@@ -137,18 +137,18 @@ snit::type orggroup {
             notifier send ::orggroup <Entity> create $g
 
             # NEXT, Return the undo command
-            return [mytypemethod DeleteGroup $g]
+            return [mytypemethod mutate delete $g]
         }
     }
 
 
-    # DeleteGroup g
+    # mutate delete g
     #
     # g     A group short name
     #
     # Deletes the group, including all references.
 
-    typemethod DeleteGroup {g} {
+    typemethod {mutate delete} {g} {
         # FIRST, delete it.
         rdb eval {
             DELETE FROM groups    WHERE g=$g;
@@ -168,7 +168,7 @@ snit::type orggroup {
     }
 
 
-    # UpdateGroup parmdict
+    # mutate update parmdict
     #
     # parmdict     A dictionary of group parms
     #
@@ -185,7 +185,7 @@ snit::type orggroup {
     # Updates a orggroup given the parms, which are presumed to be
     # valid.
 
-    typemethod UpdateGroup {parmdict} {
+    typemethod {mutate update} {parmdict} {
         dict with parmdict {
             # FIRST, get the undo information
             rdb eval {
@@ -216,7 +216,7 @@ snit::type orggroup {
             notifier send ::orggroup <Entity> update $g
 
             # NEXT, Return the undo command
-            return [mytypemethod UpdateGroup [array get undoData]]
+            return [mytypemethod mutate update [array get undoData]]
         }
     }
 }
@@ -263,7 +263,7 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
     returnOnError
 
     # NEXT, create the group
-    setundo [$type CreateGroup [array get parms]]
+    setundo [$type mutate create [array get parms]]
 }
 
 # GROUP:ORGANIZATION:DELETE
@@ -302,7 +302,7 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
     }
 
     # NEXT, Delete the group
-    setundo [$type DeleteGroup $parms(g)]
+    setundo [$type mutate delete $parms(g)]
 }
 
 
@@ -343,6 +343,6 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     returnOnError
 
     # NEXT, modify the group
-    setundo [$type UpdateGroup [array get parms]]
+    setundo [$type mutate update [array get parms]]
 }
 

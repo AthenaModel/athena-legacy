@@ -153,7 +153,7 @@ snit::type nbhood {
     # change cannot be undone, the mutator returns the empty string.
 
 
-    # CreateNbhood parmdict
+    # mutate create parmdict
     #
     # parmdict     A dictionary of neighborhood parms
     #
@@ -166,7 +166,7 @@ snit::type nbhood {
     # valid.  When validity checks are needed, use the NBHOOD:CREATE
     # order.
 
-    typemethod CreateNbhood {parmdict} {
+    typemethod {mutate create} {parmdict} {
         dict with parmdict {
             # FIRST, Put the neighborhood in the database
             rdb eval {
@@ -200,17 +200,17 @@ snit::type nbhood {
             notifier send ::nbhood <Entity> create $n
 
             # NEXT, Set the undo command
-            return [mytypemethod DeleteNbhood $n]
+            return [mytypemethod mutate delete $n]
         }
     }
 
-    # DeleteNbhood n
+    # mutate delete n
     #
     # n     A neighborhood short name
     #
     # Deletes the neighborhood, including all references.
 
-    typemethod DeleteNbhood {n} {
+    typemethod {mutate delete} {n} {
         # FIRST, delete it.
         rdb eval {
             DELETE FROM nbhoods WHERE n=$n
@@ -222,7 +222,7 @@ snit::type nbhood {
         # refer to this nbhood (e.g., units in the nbhood) and
         # delete entities that depend on this nbhood.
         
-        nbgroup nbhoodDeleted $n
+        nbgroup mutate nbhoodDeleted $n
 
         # NEXT, recompute the obscured_by field; this nbhood might
         # have obscured some other neighborhood's refpoint.
@@ -235,13 +235,13 @@ snit::type nbhood {
         return ""
     }
 
-    # LowerNbhood n
+    # mutate lower n
     #
     # n     A neighborhood short name
     #
     # Sends the neighborhood to the bottom of the stacking order.
 
-    typemethod LowerNbhood {n} {
+    typemethod {mutate lower} {n} {
         # FIRST, reorder the neighborhoods
         set oldNames [rdb eval {
             SELECT n FROM nbhoods 
@@ -255,13 +255,13 @@ snit::type nbhood {
         return [$type RestackNbhoods $names $oldNames]
     }
 
-    # RaiseNbhood n
+    # mutate raise n
     #
     # n     A neighborhood short name
     #
     # Brings the neighborhood to the top of the stacking order.
 
-    typemethod RaiseNbhood {n} {
+    typemethod {mutate raise} {n} {
         # FIRST, reorder the neighborhoods
         set oldNames [rdb eval {
             SELECT n FROM nbhoods 
@@ -311,7 +311,7 @@ snit::type nbhood {
         return [mytypemethod RestackNbhoods $old]
     }
 
-    # UpdateNbhood parmdict
+    # mutate update parmdict
     #
     # parmdict     A dictionary of neighborhood parms
     #
@@ -325,7 +325,7 @@ snit::type nbhood {
     # valid.  When validity checks are needed, use the NBHOOD:UPDATE
     # order.
 
-    typemethod UpdateNbhood {parmdict} {
+    typemethod {mutate update} {parmdict} {
         dict with parmdict {
             # FIRST, get the undo information
             rdb eval {
@@ -356,7 +356,7 @@ snit::type nbhood {
             notifier send ::nbhood <Entity> update $n
 
             # NEXT, Set the undo command
-            return [mytypemethod UpdateNbhood [array get row]]
+            return [mytypemethod mutate update [array get row]]
         }
     }
 }
@@ -428,7 +428,7 @@ order define ::nbhood NBHOOD:CREATE {
     returnOnError
 
     # NEXT, create the neighborhood
-    setundo [$type CreateNbhood [array get parms]]
+    setundo [$type mutate create [array get parms]]
 }
 
 # NBHOOD:DELETE
@@ -467,7 +467,7 @@ order define ::nbhood NBHOOD:DELETE {
     }
 
     # NEXT, raise the neighborhood
-    setundo [$type DeleteNbhood $parms(n)]
+    setundo [$type mutate delete $parms(n)]
 }
 
 # NBHOOD:LOWER
@@ -484,7 +484,7 @@ order define ::nbhood NBHOOD:LOWER {
     returnOnError
 
     # NEXT, raise the neighborhood
-    setundo [$type LowerNbhood $parms(n)]
+    setundo [$type mutate lower $parms(n)]
 }
 
 # NBHOOD:RAISE
@@ -501,7 +501,7 @@ order define ::nbhood NBHOOD:RAISE {
     returnOnError
 
     # NEXT, raise the neighborhood
-    setundo [$type RaiseNbhood $parms(n)]
+    setundo [$type mutate raise $parms(n)]
 }
 
 # NBHOOD:UPDATE
@@ -588,6 +588,6 @@ order define ::nbhood NBHOOD:UPDATE {
     returnOnError
 
     # NEXT, modify the neighborhood
-    setundo [$type UpdateNbhood [array get parms]]
+    setundo [$type mutate update [array get parms]]
 }
 

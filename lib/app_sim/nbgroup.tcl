@@ -64,31 +64,31 @@ snit::type nbgroup {
     # These public mutators are not undoable.
 
 
-    # nbhoodDeleted n
+    # mutate nbhoodDeleted n
     #
     # Called *by* nbhood when nbhood n is deleted.  Deletes all 
     # nbgroups for this nbhood.
 
-    typemethod nbhoodDeleted {n} {
+    typemethod {mutate nbhoodDeleted} {n} {
         rdb eval {
             SELECT g FROM nbgroups WHERE n=$n
         } {
-            $type DeleteGroup $n $g
+            $type mutate delete $n $g
         }
 
         return ""
     }
 
-    # civgroupDeleted g
+    # mutate civgroupDeleted g
     #
     # Called *by* civgroup when civgroup g is deleted.  Deletes all 
     # nbgroups for this civgroup.
 
-    typemethod civgroupDeleted {g} {
+    typemethod {mutate civgroupDeleted} {g} {
         rdb eval {
             SELECT n FROM nbgroups WHERE g=$g
         } {
-            $type DeleteGroup $n $g
+            $type mutate delete $n $g
         }
 
         return ""
@@ -103,7 +103,7 @@ snit::type nbgroup {
     # change cannot be undone, the mutator returns the empty string.
 
 
-    # CreateGroup parmdict
+    # mutate create parmdict
     #
     # parmdict     A dictionary of group parms
     #
@@ -120,7 +120,7 @@ snit::type nbgroup {
     # Creating a nbhood group requires adding entries to the nbgroups 
     # table.
 
-    typemethod CreateGroup {parmdict} {
+    typemethod {mutate create} {parmdict} {
         dict with parmdict {
             # FIRST, Put the group in the database
             rdb eval {
@@ -138,17 +138,17 @@ snit::type nbgroup {
             notifier send ::nbgroup <Entity> create $n $g
 
             # NEXT, Return the undo command
-            return [mytypemethod DeleteGroup $n $g]
+            return [mytypemethod mutate delete $n $g]
         }
     }
 
-    # DeleteGroup n g
+    # mutate delete n g
     #
     # n g     An nbgroup ID
     #
     # Deletes the group, including all references.
 
-    typemethod DeleteGroup {n g} {
+    typemethod {mutate delete} {n g} {
         # FIRST, delete it.
         rdb eval {
             DELETE FROM nbgroups WHERE n=$n AND g=$g;
@@ -166,7 +166,7 @@ snit::type nbgroup {
         return ""
     }
 
-    # UpdateGroup parmdict
+    # mutate update parmdict
     #
     # parmdict     A dictionary of group parms
     #
@@ -180,7 +180,7 @@ snit::type nbgroup {
     # Updates a nbgroup given the parms, which are presumed to be
     # valid.
 
-    typemethod UpdateGroup {parmdict} {
+    typemethod {mutate update} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
             # FIRST, get the undo information
@@ -205,7 +205,7 @@ snit::type nbgroup {
             notifier send ::nbgroup <Entity> update $n $g
 
             # NEXT, Return the undo command
-            return [mytypemethod UpdateGroup [array get undoData]]
+            return [mytypemethod mutate update [array get undoData]]
         }
     }
 }
@@ -253,7 +253,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
     }
 
     # NEXT, create the group
-    setundo [$type CreateGroup [array get parms]]
+    setundo [$type mutate create [array get parms]]
 }
 
 # GROUP:NBHOOD:DELETE
@@ -302,7 +302,7 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
     }
 
     # NEXT, delete the group
-    setundo [$type DeleteGroup $parms(n) $parms(g)]
+    setundo [$type mutate delete $parms(n) $parms(g)]
 }
 
 
@@ -341,6 +341,6 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
     returnOnError
 
     # NEXT, modify the group
-    setundo [$type UpdateGroup [array get parms]]
+    setundo [$type mutate update [array get parms]]
 }
 

@@ -92,7 +92,7 @@ snit::type civgroup {
     # a script of one or more commands that will undo the change.  When
     # change cannot be undone, the mutator returns the empty string.
 
-    # CreateGroup parmdict
+    # mutate create parmdict
     #
     # parmdict     A dictionary of group parms
     #
@@ -105,7 +105,7 @@ snit::type civgroup {
     #
     # Creating a civilian group requires adding entries to the groups table.
 
-    typemethod CreateGroup {parmdict} {
+    typemethod {mutate create} {parmdict} {
         dict with parmdict {
             # FIRST, Put the group in the database
             rdb eval {
@@ -120,17 +120,17 @@ snit::type civgroup {
             notifier send ::civgroup <Entity> create $g
 
             # NEXT, Return undo command.
-            return [list $type DeleteGroup $g]
+            return [list $type mutate delete $g]
         }
     }
 
-    # DeleteGroup g
+    # mutate delete g
     #
     # g     A group short name
     #
     # Deletes the group, including all references.
 
-    typemethod DeleteGroup {g} {
+    typemethod {mutate delete} {g} {
         # FIRST, delete it.
         rdb eval {
             DELETE FROM groups WHERE g=$g;
@@ -140,7 +140,7 @@ snit::type civgroup {
         # refer to this group (e.g., units in the group) and
         # delete entities that depend on this group.
         
-        nbgroup civgroupDeleted $g
+        nbgroup mutate civgroupDeleted $g
         
         # NEXT, notify the app
         notifier send ::civgroup <Entity> delete $g
@@ -150,7 +150,7 @@ snit::type civgroup {
     }
 
 
-    # UpdateGroup parmdict
+    # mutate update parmdict
     #
     # parmdict     A dictionary of group parms
     #
@@ -161,7 +161,7 @@ snit::type civgroup {
     # Updates a civgroup given the parms, which are presumed to be
     # valid.
 
-    typemethod UpdateGroup {parmdict} {
+    typemethod {mutate update} {parmdict} {
         dict with parmdict {
             # FIRST, get the undo information
             rdb eval {
@@ -183,7 +183,7 @@ snit::type civgroup {
             notifier send ::civgroup <Entity> update $g
 
             # NEXT, Return the undo command
-            return [mytypemethod UpdateGroup [array get undoData]]
+            return [mytypemethod mutate update [array get undoData]]
         }
     }
 }
@@ -218,7 +218,7 @@ order define ::civgroup GROUP:CIVILIAN:CREATE {
     returnOnError
 
     # NEXT, create the group
-    setundo [$type CreateGroup [array get parms]]
+    setundo [$type mutate create [array get parms]]
 }
 
 # GROUP:CIVILIAN:DELETE
@@ -257,7 +257,7 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
     }
 
     # NEXT, Delete the group
-    setundo [$type DeleteGroup $parms(g)]
+    setundo [$type mutate delete $parms(g)]
 }
 
 
@@ -286,6 +286,9 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE {
     returnOnError
 
     # NEXT, modify the group
-    setundo [$type UpdateGroup [array get parms]]
+    setundo [$type mutate update [array get parms]]
 }
+
+
+
 

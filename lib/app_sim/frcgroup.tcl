@@ -92,7 +92,7 @@ snit::type frcgroup {
     # a script of one or more commands that will undo the change.  When
     # change cannot be undone, the mutator returns the empty string.
 
-    # CreateGroup parmdict
+    # mutate create parmdict
     #
     # parmdict     A dictionary of group parms
     #
@@ -109,7 +109,7 @@ snit::type frcgroup {
     # Creating a force group requires adding entries to the groups and
     # frcgroups tables.
 
-    typemethod CreateGroup {parmdict} {
+    typemethod {mutate create} {parmdict} {
         dict with parmdict {
             # FIRST, Put the group in the database
             rdb eval {
@@ -130,17 +130,17 @@ snit::type frcgroup {
             notifier send ::frcgroup <Entity> create $g
 
             # NEXT, Return the undo command
-            return [mytypemethod DeleteGroup $g]
+            return [mytypemethod mutate delete $g]
         }
     }
 
-    # DeleteGroup g
+    # mutate delete g
     #
     # g     A group short name
     #
     # Deletes the group, including all references.
 
-    typemethod DeleteGroup {g} {
+    typemethod {mutate delete} {g} {
         # FIRST, delete it.
         rdb eval {
             DELETE FROM groups    WHERE g=$g;
@@ -159,7 +159,7 @@ snit::type frcgroup {
     }
 
 
-    # UpdateGroup parmdict
+    # mutate update parmdict
     #
     # parmdict     A dictionary of group parms
     #
@@ -173,7 +173,7 @@ snit::type frcgroup {
     # Updates a frcgroup given the parms, which are presumed to be
     # valid.
 
-    typemethod UpdateGroup {parmdict} {
+    typemethod {mutate update} {parmdict} {
         dict with parmdict {
             # FIRST, get the undo information
             rdb eval {
@@ -201,7 +201,7 @@ snit::type frcgroup {
             notifier send ::frcgroup <Entity> update $g
 
             # NEXT, Return the undo command
-            return [mytypemethod UpdateGroup [array get undoData]]
+            return [mytypemethod mutate update [array get undoData]]
         }
     }
 }
@@ -242,7 +242,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
     returnOnError
 
     # NEXT, create the group
-    setundo [$type CreateGroup [array get parms]]
+    setundo [$type mutate create [array get parms]]
 }
 
 # GROUP:FORCE:DELETE
@@ -281,7 +281,7 @@ order define ::frcgroup GROUP:FORCE:DELETE {
     }
 
     # NEXT, Delete the group
-    setundo [$type DeleteGroup $parms(g)]
+    setundo [$type mutate delete $parms(g)]
 }
 
 
@@ -316,6 +316,9 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
     returnOnError
 
     # NEXT, modify the group
-    setundo [$type UpdateGroup [array get parms]]
+    setundo [$type mutate update [array get parms]]
 }
+
+
+
 

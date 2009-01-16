@@ -142,14 +142,14 @@ snit::type map {
     # a script of one or more commands that will undo the change.  When
     # change cannot be undone, the mutator returns the empty string.
 
-    # ImportMap filename
+    # mutate import filename
     #
     # filename     An image file
     #
     # Attempts to import the image into the RDB.  This command is
     # undoable.
 
-    typemethod ImportMap {filename} {
+    typemethod {mutate import} {filename} {
         # FIRST, get the undo information
         rdb eval {
             SELECT * FROM maps WHERE id=1
@@ -223,7 +223,7 @@ order define ::map MAP:IMPORT {
     # NEXT, validate the parameters
     if {[catch {
         # In this case, simply try it.
-        setundo [$type ImportMap $parms(filename)]
+        setundo [$type mutate import $parms(filename)]
     } result]} {
         reject filename $result
     }
