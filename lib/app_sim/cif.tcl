@@ -64,7 +64,7 @@ snit::type cif {
     #
     # order      The name of the order to be saved
     # parmdict   The order's parameter dictionary
-    # undo       A command that will undo the order
+    # undo       A script that will undo the order
     #
     # Saves the order in the CIF.
 

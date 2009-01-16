@@ -27,13 +27,7 @@ snit::type map {
     #-------------------------------------------------------------------
     # Type Variables
 
-    # info -- array of scalars
-    #
-    # undo       Command to undo the last operation, or ""
-
-    typevariable info -array {
-        undo {}
-    }
+    # TBD
 
     #-------------------------------------------------------------------
     # Initialization
@@ -141,7 +135,12 @@ snit::type map {
     }
 
     #-------------------------------------------------------------------
-    # Order Handling Type Methods
+    # Mutators
+    #
+    # Mutators are used to implement orders that change the scenario in
+    # some way.  Mutators assume that their inputs are valid, and returns
+    # a script of one or more commands that will undo the change.  When
+    # change cannot be undone, the mutator returns the empty string.
 
     # ImportMap filename
     #
@@ -149,8 +148,6 @@ snit::type map {
     #
     # Attempts to import the image into the RDB.  This command is
     # undoable.
-    #
-    # TBD: This code could be moved into MAP::IMPORT, if desired.
 
     typemethod ImportMap {filename} {
         # FIRST, get the undo information
@@ -163,9 +160,6 @@ snit::type map {
         # NEXT, try to load it into the RDB
         $type load $filename
 
-        # NEXT, save the undo information
-        set info(undo) [mytypemethod UndoImport [array get row]]
-
         # NEXT, log it.
         log normal app "Import Map: $filename"
         
@@ -173,18 +167,9 @@ snit::type map {
 
         # NEXT, Notify the application.
         notifier send $type <MapChanged>
-    }
 
-    # LastUndo
-    #
-    # Returns the undo command for the last mutator, or "" if none.
-    # Clears the undo information automatically.
-
-    typemethod LastUndo {} {
-        set undo $info(undo)
-        unset info(undo)
-
-        return $undo
+        # NEXT, Return the undo script
+        return [mytypemethod UndoImport [array get row]]
     }
 
     # UndoImport dict
@@ -238,14 +223,12 @@ order define ::map MAP:IMPORT {
     # NEXT, validate the parameters
     if {[catch {
         # In this case, simply try it.
-        $type ImportMap $parms(filename)
+        setundo [$type ImportMap $parms(filename)]
     } result]} {
         reject filename $result
     }
 
     returnOnError
-
-    setundo [$type LastUndo]
 }
 
 

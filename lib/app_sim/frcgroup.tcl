@@ -24,14 +24,8 @@ snit::type frcgroup {
 
     #-------------------------------------------------------------------
     # Type Variables
-    
-    # info -- array of scalars
-    #
-    # undo       Command to undo the last operation, or ""
 
-    typevariable info -array {
-        undo {}
-    }
+    # TBD
 
     #-------------------------------------------------------------------
     # Initialization
@@ -42,12 +36,10 @@ snit::type frcgroup {
 
     # reconfigure
     #
-    # Refreshes the geoset with the current neighborhood data from
-    # the database.
+    # Reconfigures the module's in-memory data from the database.
     
     typemethod reconfigure {} {
-        # Clear the undo command
-        set info(undo) {}
+        # Nothing to do
     }
 
     #-------------------------------------------------------------------
@@ -93,18 +85,12 @@ snit::type frcgroup {
 
 
     #-------------------------------------------------------------------
-    # Order Handling Routines
-
-    # LastUndo
+    # Mutators
     #
-    # Returns the undo command for the last mutator, or "" if none.
-
-    typemethod LastUndo {} {
-        set undo $info(undo)
-        unset info(undo)
-
-        return $undo
-    }
+    # Mutators are used to implement orders that change the scenario in
+    # some way.  Mutators assume that their inputs are valid, and returns
+    # a script of one or more commands that will undo the change.  When
+    # change cannot be undone, the mutator returns the empty string.
 
     # CreateGroup parmdict
     #
@@ -140,11 +126,11 @@ snit::type frcgroup {
                        $coalition);
             }
 
-            # NEXT, Set the undo command
-            set info(undo) [list $type DeleteGroup $g]
-            
             # NEXT, notify the app.
             notifier send ::frcgroup <Entity> create $g
+
+            # NEXT, Return the undo command
+            return [mytypemethod DeleteGroup $g]
         }
     }
 
@@ -166,18 +152,18 @@ snit::type frcgroup {
         
         # TBD.
 
-        # NEXT, Not undoable; clear the undo command
-        set info(undo) {}
-
         notifier send ::frcgroup <Entity> delete $g
+
+        # NEXT, Not undoable; clear the undo command
+        return ""
     }
 
 
-    # UpdateGroup g parmdict
+    # UpdateGroup parmdict
     #
-    # g            A group short name
     # parmdict     A dictionary of group parms
     #
+    #    g              A group short name
     #    longname       A new long name, or ""
     #    color          A new color, or ""
     #    forcetype      A new eforcetype, or ""
@@ -187,18 +173,17 @@ snit::type frcgroup {
     # Updates a frcgroup given the parms, which are presumed to be
     # valid.
 
-    typemethod UpdateGroup {g parmdict} {
-        # FIRST, get the undo information
-        rdb eval {
-            SELECT * FROM frcgroups_view
-            WHERE g=$g
-        } undoData {
-            unset undoData(*)
-        }
-
-        # NEXT, Update the group
+    typemethod UpdateGroup {parmdict} {
         dict with parmdict {
-            # FIRST, Put the group in the database
+            # FIRST, get the undo information
+            rdb eval {
+                SELECT * FROM frcgroups_view
+                WHERE g=$g
+            } undoData {
+                unset undoData(*)
+            }
+
+            # NEXT, Update the group
             rdb eval {
                 UPDATE groups
                 SET longname  = nonempty($longname,  longname),
@@ -211,13 +196,13 @@ snit::type frcgroup {
                     coalition = nonempty($coalition, coalition)
                 WHERE g=$g
             } {}
+
+            # NEXT, notify the app.
+            notifier send ::frcgroup <Entity> update $g
+
+            # NEXT, Return the undo command
+            return [mytypemethod UpdateGroup [array get undoData]]
         }
-
-        # NEXT, Set the undo command
-        set info(undo) [mytypemethod UpdateGroup $g [array get undoData]]
-
-        # NEXT, notify the app.
-        notifier send ::frcgroup <Entity> update $g
     }
 }
 
@@ -257,9 +242,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
     returnOnError
 
     # NEXT, create the group
-    $type CreateGroup [array get parms]
-
-    setundo [$type LastUndo]
+    setundo [$type CreateGroup [array get parms]]
 }
 
 # GROUP:FORCE:DELETE
@@ -275,13 +258,8 @@ order define ::frcgroup GROUP:FORCE:DELETE {
 
     returnOnError
 
-    # TBD: It isn't clear whether we will delete all entities that depend on
-    # this group, or whether all such entities must already have been
-    # deleted.  In the latter case, we must verify that we can safely 
-    # delete this group; but then, we can reasonably undo the deletion,
-    # and so we won't need to do the following verification.
+    # NEXT, make sure the user knows what he is getting into.
 
-    # NEXT, if this is done from the GUI verify this.
     if {[interface] eq "gui"} {
         set answer [messagebox popup \
                         -title         "Are you sure?"                  \
@@ -291,17 +269,19 @@ order define ::frcgroup GROUP:FORCE:DELETE {
                         -ignoretag     GROUP:FORCE:DELETE                    \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
-                        -message       "This order cannot be undone.  Are you sure you really want to delete this group?"]
+                        -message       [normalize {
+                            This order cannot be undone.  Are you sure you
+                            really want to delete this group, along
+                            with all of the entities that depend upon it?
+                        }]]
 
         if {$answer eq "cancel"} {
             cancel
         }
     }
 
-    # NEXT, raise the group
-    $type DeleteGroup $parms(g)
-
-    # NEXT, this order is not undoable.
+    # NEXT, Delete the group
+    setundo [$type DeleteGroup $parms(g)]
 }
 
 
@@ -336,11 +316,6 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
     returnOnError
 
     # NEXT, modify the group
-    set g $parms(g)
-    unset parms(g)
-
-    $type UpdateGroup $g [array get parms]
-
-    setundo [$type LastUndo]
+    setundo [$type UpdateGroup [array get parms]]
 }
 

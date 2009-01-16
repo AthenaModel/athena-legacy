@@ -25,13 +25,7 @@ snit::type nbhood {
     #-------------------------------------------------------------------
     # Type Variables
     
-    # info -- array of scalars
-    #
-    # undo       Command to undo the last operation, or ""
-
-    typevariable info -array {
-        undo {}
-    }
+    # TBD
 
     #-------------------------------------------------------------------
     # Initialization
@@ -63,9 +57,6 @@ snit::type nbhood {
 
         # NEXT, update the obscured_by fields
         $type SetObscuredBy
-
-        # NEXT, clear the undo command
-        set info(undo) {}
     }
 
     #-------------------------------------------------------------------
@@ -154,18 +145,13 @@ snit::type nbhood {
 
 
     #-------------------------------------------------------------------
-    # Order Handling Routines
-
-    # LastUndo
+    # Mutators
     #
-    # Returns the undo command for the last mutator, or "" if none.
+    # Mutators are used to implement orders that change the scenario in
+    # some way.  Mutators assume that their inputs are valid, and returns
+    # a script of one or more commands that will undo the change.  When
+    # change cannot be undone, the mutator returns the empty string.
 
-    typemethod LastUndo {} {
-        set undo $info(undo)
-        unset info(undo)
-
-        return $undo
-    }
 
     # CreateNbhood parmdict
     #
@@ -210,11 +196,11 @@ snit::type nbhood {
             # have obscured some other neighborhood's refpoint.
             $type SetObscuredBy
 
-            # NEXT, Set the undo command
-            set info(undo) [list $type DeleteNbhood $n]
-            
             # NEXT, notify the app.
             notifier send ::nbhood <Entity> create $n
+
+            # NEXT, Set the undo command
+            return [mytypemethod DeleteNbhood $n]
         }
     }
 
@@ -242,10 +228,11 @@ snit::type nbhood {
         # have obscured some other neighborhood's refpoint.
         $type SetObscuredBy
 
-        # NEXT, Not undoable; clear the undo command
-        set info(undo) {}
-
+        # NEXT, notify the app
         notifier send ::nbhood <Entity> delete $n
+
+        # Cannot be undone.
+        return ""
     }
 
     # LowerNbhood n
@@ -265,7 +252,7 @@ snit::type nbhood {
         ldelete names $n
         set names [linsert $names 0 $n]
 
-        $type RestackNbhoods $names $oldNames
+        return [$type RestackNbhoods $names $oldNames]
     }
 
     # RaiseNbhood n
@@ -286,7 +273,7 @@ snit::type nbhood {
         ldelete names $n
         lappend names $n
 
-        $type RestackNbhoods $names $oldNames
+        return [$type RestackNbhoods $names $oldNames]
     }
   
     # RestackNbhoods new ?old?
@@ -317,18 +304,18 @@ snit::type nbhood {
         # NEXT, determine who obscures who
         $type SetObscuredBy
 
-        # NEXT, set the undo information
-        set info(undo) [list $type RestackNbhoods $old]
-
         # NEXT, notify the GUI of the change.
         notifier send ::nbhood <Entity> stack
+
+        # NEXT, set the undo information
+        return [mytypemethod RestackNbhoods $old]
     }
 
-    # UpdateNbhood n parmdict
+    # UpdateNbhood parmdict
     #
-    # n            A neighborhood short name
     # parmdict     A dictionary of neighborhood parms
     #
+    #    n              A neighborhood short name
     #    longname       A new long name, or ""
     #    urbanization   A new eurbanization level, or ""
     #    refpoint       A new reference point, or ""
@@ -338,19 +325,18 @@ snit::type nbhood {
     # valid.  When validity checks are needed, use the NBHOOD:UPDATE
     # order.
 
-    typemethod UpdateNbhood {n parmdict} {
-        # FIRST, get the undo information
-        rdb eval {
-            SELECT longname, refpoint, polygon, urbanization 
-            FROM nbhoods
-            WHERE n=$n
-        } row {
-            unset row(*)
-        }
-
-        # NEXT, Update the neighborhood
+    typemethod UpdateNbhood {parmdict} {
         dict with parmdict {
-            # FIRST, Put the neighborhood in the database
+            # FIRST, get the undo information
+            rdb eval {
+                SELECT n, longname, refpoint, polygon, urbanization 
+                FROM nbhoods
+                WHERE n=$n
+            } row {
+                unset row(*)
+            }
+
+            # NEXT, Put the neighborhood in the database
             rdb eval {
                 UPDATE nbhoods
                 SET longname     = nonempty($longname,     longname),
@@ -365,13 +351,13 @@ snit::type nbhood {
             if {$polygon ne ""} {
                 $type SetObscuredBy
             }
+
+            # NEXT, notify the app.
+            notifier send ::nbhood <Entity> update $n
+
+            # NEXT, Set the undo command
+            return [mytypemethod UpdateNbhood [array get row]]
         }
-
-        # NEXT, Set the undo command
-        set info(undo) [mytypemethod UpdateNbhood $n [array get row]]
-
-        # NEXT, notify the app.
-        notifier send ::nbhood <Entity> update $n
     }
 }
 
@@ -442,9 +428,7 @@ order define ::nbhood NBHOOD:CREATE {
     returnOnError
 
     # NEXT, create the neighborhood
-    $type CreateNbhood [array get parms]
-
-    setundo [$type LastUndo]
+    setundo [$type CreateNbhood [array get parms]]
 }
 
 # NBHOOD:DELETE
@@ -458,13 +442,9 @@ order define ::nbhood NBHOOD:DELETE {
     # FIRST, prepare the parameters
     prepare n  -trim -toupper -required -type nbhood
 
-    # TBD: It isn't clear whether we will delete all entities that depend on
-    # this nbhood, or whether all such entities must already have been
-    # deleted.  In the latter case, we must verify that we can safely 
-    # delete this nbhood; but then, we can reasonably undo the deletion,
-    # and so we won't need to do the following verification.
-
     returnOnError
+
+    # NEXT, make sure the user knows what he is getting into.
 
     if {[interface] eq "gui"} {
         set answer [messagebox popup \
@@ -487,9 +467,7 @@ order define ::nbhood NBHOOD:DELETE {
     }
 
     # NEXT, raise the neighborhood
-    $type DeleteNbhood $parms(n)
-
-    # NEXT, this order is not undoable.
+    setundo [$type DeleteNbhood $parms(n)]
 }
 
 # NBHOOD:LOWER
@@ -506,9 +484,7 @@ order define ::nbhood NBHOOD:LOWER {
     returnOnError
 
     # NEXT, raise the neighborhood
-    $type LowerNbhood $parms(n)
-
-    setundo [$type LastUndo]
+    setundo [$type LowerNbhood $parms(n)]
 }
 
 # NBHOOD:RAISE
@@ -525,9 +501,7 @@ order define ::nbhood NBHOOD:RAISE {
     returnOnError
 
     # NEXT, raise the neighborhood
-    $type RaiseNbhood $parms(n)
-
-    setundo [$type LastUndo]
+    setundo [$type RaiseNbhood $parms(n)]
 }
 
 # NBHOOD:UPDATE
@@ -614,11 +588,6 @@ order define ::nbhood NBHOOD:UPDATE {
     returnOnError
 
     # NEXT, modify the neighborhood
-    set n $parms(n)
-    unset parms(n)
-
-    $type UpdateNbhood $n [array get parms]
-
-    setundo [$type LastUndo]
+    setundo [$type UpdateNbhood [array get parms]]
 }
 

@@ -24,14 +24,8 @@ snit::type orggroup {
 
     #-------------------------------------------------------------------
     # Type Variables
-    
-    # info -- array of scalars
-    #
-    # undo       Command to undo the last operation, or ""
 
-    typevariable info -array {
-        undo {}
-    }
+    # TBD
 
     #-------------------------------------------------------------------
     # Initialization
@@ -42,11 +36,10 @@ snit::type orggroup {
 
     # reconfigure
     #
-    # Reconfigures the module data from the database.
+    # Reconfigures the module's in-memory data from the database.
     
     typemethod reconfigure {} {
-        # Clear the undo command
-        set info(undo) {}
+        # Nothing to do
     }
 
     #-------------------------------------------------------------------
@@ -92,18 +85,12 @@ snit::type orggroup {
 
 
     #-------------------------------------------------------------------
-    # Order Handling Routines
-
-    # LastUndo
+    # Mutators
     #
-    # Returns the undo command for the last mutator, or "" if none.
-
-    typemethod LastUndo {} {
-        set undo $info(undo)
-        unset info(undo)
-
-        return $undo
-    }
+    # Mutators are used to implement orders that change the scenario in
+    # some way.  Mutators assume that their inputs are valid, and returns
+    # a script of one or more commands that will undo the change.  When
+    # change cannot be undone, the mutator returns the empty string.
 
     # CreateGroup parmdict
     #
@@ -146,13 +133,14 @@ snit::type orggroup {
                        $effects_factor);
             }
 
-            # NEXT, Set the undo command
-            set info(undo) [list $type DeleteGroup $g]
-            
             # NEXT, notify the app.
             notifier send ::orggroup <Entity> create $g
+
+            # NEXT, Return the undo command
+            return [mytypemethod DeleteGroup $g]
         }
     }
+
 
     # DeleteGroup g
     #
@@ -172,18 +160,19 @@ snit::type orggroup {
         
         # TBD.
 
-        # NEXT, Not undoable; clear the undo command
-        set info(undo) {}
-
+        # NEXT, notify the app
         notifier send ::orggroup <Entity> delete $g
+
+        # NEXT, Not undoable
+        return ""
     }
 
 
-    # UpdateGroup g parmdict
+    # UpdateGroup parmdict
     #
-    # g            A group short name
     # parmdict     A dictionary of group parms
     #
+    #    g                A group short name
     #    longname         A new long name, or ""
     #    color            A new color, or ""
     #    orgtype          A new eorgtype, or ""
@@ -196,18 +185,17 @@ snit::type orggroup {
     # Updates a orggroup given the parms, which are presumed to be
     # valid.
 
-    typemethod UpdateGroup {g parmdict} {
-        # FIRST, get the undo information
-        rdb eval {
-            SELECT * FROM orggroups_view
-            WHERE g=$g
-        } undoData {
-            unset undoData(*)
-        }
-
-        # NEXT, Update the group
+    typemethod UpdateGroup {parmdict} {
         dict with parmdict {
-            # FIRST, Put the group in the database
+            # FIRST, get the undo information
+            rdb eval {
+                SELECT * FROM orggroups_view
+                WHERE g=$g
+            } undoData {
+                unset undoData(*)
+            }
+
+            # NEXT, Update the group
             rdb eval {
                 UPDATE groups
                 SET longname  = nonempty($longname,  longname),
@@ -223,13 +211,13 @@ snit::type orggroup {
                     effects_factor = nonempty($effects_factor, effects_factor)
                 WHERE g=$g
             } {}
+
+            # NEXT, notify the app.
+            notifier send ::orggroup <Entity> update $g
+
+            # NEXT, Return the undo command
+            return [mytypemethod UpdateGroup [array get undoData]]
         }
-
-        # NEXT, Set the undo command
-        set info(undo) [mytypemethod UpdateGroup $g [array get undoData]]
-
-        # NEXT, notify the app.
-        notifier send ::orggroup <Entity> update $g
     }
 }
 
@@ -275,9 +263,7 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
     returnOnError
 
     # NEXT, create the group
-    $type CreateGroup [array get parms]
-
-    setundo [$type LastUndo]
+    setundo [$type CreateGroup [array get parms]]
 }
 
 # GROUP:ORGANIZATION:DELETE
@@ -293,33 +279,30 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
 
     returnOnError
 
-    # TBD: It isn't clear whether we will delete all entities that depend on
-    # this group, or whether all such entities must already have been
-    # deleted.  In the latter case, we must verify that we can safely 
-    # delete this group; but then, we can reasonably undo the deletion,
-    # and so we won't need to do the following verification.
+    # NEXT, make sure the user knows what he is getting into.
 
-    # NEXT, if this is done from the GUI verify this.
     if {[interface] eq "gui"} {
         set answer [messagebox popup \
                         -title         "Are you sure?"                  \
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
-                        -ignoretag     GROUP:ORGANIZATION:DELETE                    \
+                        -ignoretag     GROUP:ORGANIZATION:DELETE        \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
-                        -message       "This order cannot be undone.  Are you sure you really want to delete this group?"]
+                        -message       [normalize {
+                            This order cannot be undone.  Are you sure you
+                            really want to delete this group, along
+                            with all of the entities that depend upon it?
+                        }]]
 
         if {$answer eq "cancel"} {
             cancel
         }
     }
 
-    # NEXT, raise the group
-    $type DeleteGroup $parms(g)
-
-    # NEXT, this order is not undoable.
+    # NEXT, Delete the group
+    setundo [$type DeleteGroup $parms(g)]
 }
 
 
@@ -360,11 +343,6 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     returnOnError
 
     # NEXT, modify the group
-    set g $parms(g)
-    unset parms(g)
-
-    $type UpdateGroup $g [array get parms]
-
-    setundo [$type LastUndo]
+    setundo [$type UpdateGroup [array get parms]]
 }
 

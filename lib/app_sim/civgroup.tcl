@@ -24,14 +24,8 @@ snit::type civgroup {
 
     #-------------------------------------------------------------------
     # Type Variables
-    
-    # info -- array of scalars
-    #
-    # undo       Command to undo the last operation, or ""
 
-    typevariable info -array {
-        undo {}
-    }
+    # TBD
 
     #-------------------------------------------------------------------
     # Initialization
@@ -42,12 +36,10 @@ snit::type civgroup {
 
     # reconfigure
     #
-    # Refreshes the geoset with the current neighborhood data from
-    # the database.
+    # Reconfigures the module's in-memory data from the database.
     
     typemethod reconfigure {} {
-        # Clear the undo command
-        set info(undo) {}
+        # Nothing to do
     }
 
     #-------------------------------------------------------------------
@@ -93,18 +85,12 @@ snit::type civgroup {
 
 
     #-------------------------------------------------------------------
-    # Order Handling Routines
-
-    # LastUndo
+    # Mutators
     #
-    # Returns the undo command for the last mutator, or "" if none.
-
-    typemethod LastUndo {} {
-        set undo $info(undo)
-        unset info(undo)
-
-        return $undo
-    }
+    # Mutators are used to implement orders that change the scenario in
+    # some way.  Mutators assume that their inputs are valid, and returns
+    # a script of one or more commands that will undo the change.  When
+    # change cannot be undone, the mutator returns the empty string.
 
     # CreateGroup parmdict
     #
@@ -130,11 +116,11 @@ snit::type civgroup {
                        'CIV');
             }
 
-            # NEXT, Set undo command.
-            set info(undo) [list $type DeleteGroup $g]
-            
             # NEXT, notify the app.
             notifier send ::civgroup <Entity> create $g
+
+            # NEXT, Return undo command.
+            return [list $type DeleteGroup $g]
         }
     }
 
@@ -147,61 +133,58 @@ snit::type civgroup {
     typemethod DeleteGroup {g} {
         # FIRST, delete it.
         rdb eval {
-            DELETE FROM groups    WHERE g=$g;
+            DELETE FROM groups WHERE g=$g;
         }
-
-        # NEXT, Clean up entities which refer to this civilian group,
-        # i.e., either clear the field, or delete the entities.
 
         # NEXT, clear the group field for entities which 
         # refer to this group (e.g., units in the group) and
         # delete entities that depend on this group.
         
         nbgroup civgroupDeleted $g
-
-        # NEXT, Not undoable; clear the undo command
-        set info(undo) {}
-
+        
+        # NEXT, notify the app
         notifier send ::civgroup <Entity> delete $g
+
+        # NEXT, this is not undoable
+        return ""
     }
 
 
-    # UpdateGroup g parmdict
+    # UpdateGroup parmdict
     #
-    # g            A group short name
     # parmdict     A dictionary of group parms
     #
+    #    g              A group short name
     #    longname       A new long name, or ""
     #    color          A new color, or ""
     #
     # Updates a civgroup given the parms, which are presumed to be
     # valid.
 
-    typemethod UpdateGroup {g parmdict} {
-        # FIRST, get the undo information
-        rdb eval {
-            SELECT * FROM civgroups_view
-            WHERE g=$g
-        } undoData {
-            unset undoData(*)
-        }
-
-        # NEXT, Update the group
+    typemethod UpdateGroup {parmdict} {
         dict with parmdict {
-            # FIRST, Put the group in the database
+            # FIRST, get the undo information
+            rdb eval {
+                SELECT * FROM civgroups_view
+                WHERE g=$g
+            } undoData {
+                unset undoData(*)
+            }
+
+            # NEXT, Update the group
             rdb eval {
                 UPDATE groups
                 SET longname  = nonempty($longname,  longname),
                     color     = nonempty($color,     color)
                 WHERE g=$g;
             } {}
+
+            # NEXT, notify the app.
+            notifier send ::civgroup <Entity> update $g
+
+            # NEXT, Return the undo command
+            return [mytypemethod UpdateGroup [array get undoData]]
         }
-
-        # NEXT, Set the undo command
-        set info(undo) [mytypemethod UpdateGroup $g [array get undoData]]
-
-        # NEXT, notify the app.
-        notifier send ::civgroup <Entity> update $g
     }
 }
 
@@ -235,9 +218,7 @@ order define ::civgroup GROUP:CIVILIAN:CREATE {
     returnOnError
 
     # NEXT, create the group
-    $type CreateGroup [array get parms]
-
-    setundo [$type LastUndo]
+    setundo [$type CreateGroup [array get parms]]
 }
 
 # GROUP:CIVILIAN:DELETE
@@ -253,20 +234,15 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
 
     returnOnError
 
-    # TBD: It isn't clear whether we will delete all entities that depend on
-    # this group, or whether all such entities must already have been
-    # deleted.  In the latter case, we must verify that we can safely 
-    # delete this group; but then, we can reasonably undo the deletion,
-    # and so we won't need to do the following verification.
+    # NEXT, make sure the user knows what he is getting into.
 
-    # NEXT, if this is done from the GUI verify this.
     if {[interface] eq "gui"} {
         set answer [messagebox popup \
                         -title         "Are you sure?"                  \
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
-                        -ignoretag     GROUP:CIVILIAN:DELETE                    \
+                        -ignoretag     GROUP:CIVILIAN:DELETE            \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {
@@ -280,10 +256,8 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
         }
     }
 
-    # NEXT, raise the group
-    $type DeleteGroup $parms(g)
-
-    # NEXT, this order is not undoable.
+    # NEXT, Delete the group
+    setundo [$type DeleteGroup $parms(g)]
 }
 
 
@@ -312,11 +286,6 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE {
     returnOnError
 
     # NEXT, modify the group
-    set g $parms(g)
-    unset parms(g)
-
-    $type UpdateGroup $g [array get parms]
-
-    setundo [$type LastUndo]
+    setundo [$type UpdateGroup [array get parms]]
 }
 

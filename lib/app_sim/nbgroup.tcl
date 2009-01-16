@@ -24,14 +24,8 @@ snit::type nbgroup {
 
     #-------------------------------------------------------------------
     # Type Variables
-    
-    # info -- array of scalars
-    #
-    # undo       Command to undo the last operation, or ""
 
-    typevariable info -array {
-        undo {}
-    }
+    # TBD
 
     #-------------------------------------------------------------------
     # Initialization
@@ -42,11 +36,10 @@ snit::type nbgroup {
 
     # reconfigure
     #
-    # Reconfigures the module data from the database.
+    # Reconfigures the module's in-memory data from the database.
     
     typemethod reconfigure {} {
-        # Clear the undo command
-        set info(undo) {}
+        # Nothing to do
     }
 
     #-------------------------------------------------------------------
@@ -68,18 +61,7 @@ snit::type nbgroup {
     #-------------------------------------------------------------------
     # Cleanup Routines For When Other Entities Are Deleted
     #
-    # TBD: In my heart, I think these should be notifier event 
-    # handlers...but there are issues I can dimly foresee.  So
-    # I'm doing the simplest possible thing, expecting to change
-    # it.
-    #
-    # These are mutators, but they aren't undoable.
-    # Q: Could we *accumulate* undo information as the cleanup takes
-    # place, so that deleting an entity *could* be undoable?  Hmmmmm.
-    # That would argue against it's being an undo.  Suppose the
-    # implementation routines *returned* the undo command, and we
-    # simply made a list of them?  On undo, we do the items in the 
-    # list....
+    # These public mutators are not undoable.
 
 
     # nbhoodDeleted n
@@ -93,6 +75,8 @@ snit::type nbgroup {
         } {
             $type DeleteGroup $n $g
         }
+
+        return ""
     }
 
     # civgroupDeleted g
@@ -106,21 +90,18 @@ snit::type nbgroup {
         } {
             $type DeleteGroup $n $g
         }
+
+        return ""
     }
 
     #-------------------------------------------------------------------
-    # Order Handling Routines
-
-    # LastUndo
+    # Mutators
     #
-    # Returns the undo command for the last mutator, or "" if none.
+    # Mutators are used to implement orders that change the scenario in
+    # some way.  Mutators assume that their inputs are valid, and returns
+    # a script of one or more commands that will undo the change.  When
+    # change cannot be undone, the mutator returns the empty string.
 
-    typemethod LastUndo {} {
-        set undo $info(undo)
-        unset info(undo)
-
-        return $undo
-    }
 
     # CreateGroup parmdict
     #
@@ -153,11 +134,11 @@ snit::type nbgroup {
                        $effects_factor);
             }
 
-            # NEXT, Set the undo command
-            set info(undo) [list $type DeleteGroup $n $g]
-            
             # NEXT, notify the app.
             notifier send ::nbgroup <Entity> create $n $g
+
+            # NEXT, Return the undo command
+            return [mytypemethod DeleteGroup $n $g]
         }
     }
 
@@ -178,12 +159,12 @@ snit::type nbgroup {
         
         # TBD.
 
-        # NEXT, Not undoable; clear the undo command
-        set info(undo) {}
-
+        # NEXT, notify the app.
         notifier send ::nbgroup <Entity> delete $n $g
-    }
 
+        # NEXT, Not undoable.
+        return ""
+    }
 
     # UpdateGroup parmdict
     #
@@ -220,11 +201,11 @@ snit::type nbgroup {
                 WHERE n=$n AND g=$g
             } {}
 
-            # NEXT, Set the undo command
-            set info(undo) [mytypemethod UpdateGroup [array get undoData]]
-
             # NEXT, notify the app.
             notifier send ::nbgroup <Entity> update $n $g
+
+            # NEXT, Return the undo command
+            return [mytypemethod UpdateGroup [array get undoData]]
         }
     }
 }
@@ -272,9 +253,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
     }
 
     # NEXT, create the group
-    $type CreateGroup [array get parms]
-
-    setundo [$type LastUndo]
+    setundo [$type CreateGroup [array get parms]]
 }
 
 # GROUP:NBHOOD:DELETE
@@ -322,10 +301,8 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
         }
     }
 
-    # NEXT, raise the group
-    $type DeleteGroup $parms(n) $parms(g)
-
-    # NEXT, this order is not undoable.
+    # NEXT, delete the group
+    setundo [$type DeleteGroup $parms(n) $parms(g)]
 }
 
 
@@ -364,8 +341,6 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
     returnOnError
 
     # NEXT, modify the group
-    $type UpdateGroup [array get parms]
-
-    setundo [$type LastUndo]
+    setundo [$type UpdateGroup [array get parms]]
 }
 
