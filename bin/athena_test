@@ -214,6 +214,11 @@ namespace eval ::athena_test:: {
 
     set script [file join $topdir test app_sim $script]
 
+    if {![file exists $script]} {
+        puts stderr "\nError, test script does not exist:\n$script"
+        exit 1
+    }
+
     # NEXT, run the test script.
     time {uplevel \#0 [list source $script]}
 }
