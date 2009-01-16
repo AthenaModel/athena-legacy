@@ -82,7 +82,7 @@ snit::type scenario {
 
     # open filename
     #
-    # filename       A .ath scenario file
+    # filename       An .adb scenario file
     #
     # Opens the specified file name, replacing the existing file.
 

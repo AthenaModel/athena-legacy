@@ -480,7 +480,7 @@ snit::widget appwin {
                           -parent $win                    \
                           -title "Open Scenario"          \
                           -filetypes {
-                              {{Athena Scenario} {.ath} }
+                              {{Athena Scenario} {.adb} }
                           }]
 
         # NEXT, If none, they cancelled
@@ -505,7 +505,7 @@ snit::widget appwin {
                           -parent $win                     \
                           -title "Save Scenario As"        \
                           -filetypes {
-                              {{Athena Scenario} {.ath} }
+                              {{Athena Scenario} {.adb} }
                           }]
 
         # NEXT, If none, they cancelled.
