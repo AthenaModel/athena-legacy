@@ -11,6 +11,34 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.1, 16 January 2009</h3>
+
+This build contains quite a few new features, including organization
+groups, top-level civilian groups, and neighborhood civilian groups.
+The full list of changes is as follows:<p>
+
+<ul>
+  <li> Bug 1839: Third-Party Software List
+  <li> Bug 1840: athena(1), athena_sim(1) man pages
+  <li> Bug 1841: Scenario file extension should be ".adb"
+  <li> Bug 1842: Toplevel Makefile: "make test" should run application tests.
+  <li> Bug 1843: athena_version(1)
+  <li> Bug 1844: orggroup(sim): Manage Organization Groups
+  <li> Bug 1845: Map ref "out of bounds" when zoom factor is 200%
+  <li> Bug 1847: Points in extended scroll region are out of bounds
+  <li> Bug 1848: order(sim): Reject unknown parameters
+  <li> Bug 1849: order(sim): Default values for order parameters
+  <li> Bug 1850: nbhood(sim): Allow user to pick nbhood ID
+  <li> Bug 1853: civgroup(sim): Manage civilian groups
+  <li> Bug 1854: mapviewer(sim): Create Neighborhood button
+  <li> Bug 1858: tablebrowser(n): column sorting
+  <li> Bug 1859: nbgroup(sim): Manage Neighborhood Groups
+  <li> Bug 1861: Generalize undo mechanism
+  <li> Bug 1862: Mutator naming convention
+  <li> Bug 1863: Undo of entity deletion
+  <li> Bug 1864: athena_test(1) stack traces on unknown test script 
+</ul><p>
+
 <h3>Build 1.0.0, 9 January 2009</h3>
 
 This is the first official build of Athena.  It includes the initial
