@@ -131,7 +131,16 @@ snit::type civgroup {
     # Deletes the group, including all references.
 
     typemethod {mutate delete} {g} {
-        # FIRST, delete it.
+        # FIRST, get the undo information
+        rdb eval {
+            SELECT * FROM civgroups_view
+            WHERE g=$g
+        } row {
+            unset row(*)
+            lappend undo [mytypemethod mutate create [array get row]]
+        }
+
+        # NEXT, delete it.
         rdb eval {
             DELETE FROM groups WHERE g=$g;
         }
@@ -140,13 +149,13 @@ snit::type civgroup {
         # refer to this group (e.g., units in the group) and
         # delete entities that depend on this group.
         
-        nbgroup mutate civgroupDeleted $g
+        lappend undo [nbgroup mutate civgroupDeleted $g]
         
         # NEXT, notify the app
         notifier send ::civgroup <Entity> delete $g
 
-        # NEXT, this is not undoable
-        return ""
+        # NEXT, return aggregate undo script.
+        return [join $undo \n]
     }
 
 
@@ -246,7 +255,7 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {
-                            This order cannot be undone.  Are you sure you
+                            Are you sure you
                             really want to delete this group and all of the
                             entities that depend upon it?
                         }]]

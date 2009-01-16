@@ -149,7 +149,15 @@ snit::type orggroup {
     # Deletes the group, including all references.
 
     typemethod {mutate delete} {g} {
-        # FIRST, delete it.
+        # FIRST, get the undo information
+        rdb eval {
+            SELECT * FROM orggroups_view
+            WHERE g=$g
+        } undoData {
+            unset undoData(*)
+        }
+
+        # NEXT, delete it.
         rdb eval {
             DELETE FROM groups    WHERE g=$g;
             DELETE FROM orggroups WHERE g=$g;
@@ -163,8 +171,8 @@ snit::type orggroup {
         # NEXT, notify the app
         notifier send ::orggroup <Entity> delete $g
 
-        # NEXT, Not undoable
-        return ""
+        # NEXT, Return the undo script
+        return [mytypemethod mutate create [array get undoData]]
     }
 
 
@@ -291,9 +299,9 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {
-                            This order cannot be undone.  Are you sure you
-                            really want to delete this group, along
-                            with all of the entities that depend upon it?
+                            Are you sure you really want to delete this 
+                            group, along with all of the entities that 
+                            depend upon it?
                         }]]
 
         if {$answer eq "cancel"} {

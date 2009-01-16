@@ -211,6 +211,16 @@ snit::type nbhood {
     # Deletes the neighborhood, including all references.
 
     typemethod {mutate delete} {n} {
+        # FIRST, get this neighborhood's undo information
+        rdb eval {
+            SELECT n, longname, refpoint, polygon, urbanization 
+            FROM nbhoods
+            WHERE n=$n
+        } row {
+            unset row(*)
+            lappend undo [mytypemethod mutate create [array get row]]
+        }
+
         # FIRST, delete it.
         rdb eval {
             DELETE FROM nbhoods WHERE n=$n
@@ -222,7 +232,7 @@ snit::type nbhood {
         # refer to this nbhood (e.g., units in the nbhood) and
         # delete entities that depend on this nbhood.
         
-        nbgroup mutate nbhoodDeleted $n
+        lappend undo [nbgroup mutate nbhoodDeleted $n]
 
         # NEXT, recompute the obscured_by field; this nbhood might
         # have obscured some other neighborhood's refpoint.
@@ -231,8 +241,8 @@ snit::type nbhood {
         # NEXT, notify the app
         notifier send ::nbhood <Entity> delete $n
 
-        # Cannot be undone.
-        return ""
+        # NEXT, return aggregate undo script.
+        return [join $undo \n]
     }
 
     # mutate lower n
@@ -456,7 +466,7 @@ order define ::nbhood NBHOOD:DELETE {
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {
-                            This order cannot be undone.  Are you sure you
+                            Are you sure you
                             really want to delete this neighborhood, along
                             with all of the entities that depend upon it?
                         }]]

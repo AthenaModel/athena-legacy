@@ -53,6 +53,23 @@ namespace eval ::athena_test::tests:: {
         polygon      {C80C80 D20C80 D00D20}
     }
 
+    # Civ Groups and nbhood groups
+    set civgrp {
+        g        PASH
+        longname "Pashtuns"
+        color    #ffff00
+    }
+
+    set nbgrp {
+        n              NB1
+        g              PASH
+        local_name     "NB1 Pashtuns"
+        demeanor       AGGRESSIVE
+        rollup_weight  1.0
+        effects_factor 1.0
+    }
+
+
     # Clean up after a test
 
     proc cleanup {} {
@@ -289,38 +306,47 @@ NB1 Here
         {::nbhood <Entity> delete NB1}
     }
 
-    test NBHOOD:DELETE-3.1 {Can't undo} -setup {
-        ted order NBHOOD:CREATE $nb1
-    } -body {
-        ted order NBHOOD:DELETE n NB1
-        cif canundo
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test NBHOOD:DELETE-3.2 {Deletes nbhood groups} -setup {
-        ted order NBHOOD:CREATE $nb1
-
-        ted order GROUP:CIVILIAN:CREATE {
-            g        PASH
-            longname "Pashtuns"
-            color    #ffff00
-        }
-
-        ted order GROUP:NBHOOD:CREATE {
-            n              NB1
-            g              PASH
-            local_name     "NB1 Pashtuns"
-            demeanor       AGGRESSIVE
-            rollup_weight  1.0
-            effects_factor 1.0
-        }
+    test NBHOOD:DELETE-2.3 {Deletes nbhood groups} -setup {
+        ted order NBHOOD:CREATE         $nb1
+        ted order GROUP:CIVILIAN:CREATE $civgrp
+        ted order GROUP:NBHOOD:CREATE   $nbgrp
     } -body {
         ted order NBHOOD:DELETE n NB1
         ted query {SELECT * FROM nbgroups}
     } -cleanup {
         cleanup
     } -result {
+    }
+
+    test NBHOOD:DELETE-3.1 {Undo restores nbhood} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:DELETE n NB1
+    } -body {
+        cif undo
+        set parms [join [dict keys $nb1] ","]
+        ted query "SELECT $parms FROM nbhoods"
+    } -cleanup {
+        cleanup
+    } -result {
+n   longname urbanization refpoint polygon              
+--- -------- ------------ -------- -------------------- 
+NB1 Here     URBAN        100 100  80 80 120 80 100 120 
+    }
+
+    test NBHOOD:DELETE-3.2 {Undo restores nbhood groups} -setup {
+        ted order NBHOOD:CREATE         $nb1
+        ted order GROUP:CIVILIAN:CREATE $civgrp
+        ted order GROUP:NBHOOD:CREATE   $nbgrp
+        ted order NBHOOD:DELETE n NB1
+    } -body {
+        cif undo
+        ted query {SELECT * FROM nbgroups}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    local_name   demeanor   rollup_weight effects_factor 
+--- ---- ------------ ---------- ------------- -------------- 
+NB1 PASH NB1 Pashtuns AGGRESSIVE 1.0           1.0            
     }
 
 

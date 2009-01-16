@@ -58,41 +58,6 @@ snit::type nbgroup {
         }
     }
 
-    #-------------------------------------------------------------------
-    # Cleanup Routines For When Other Entities Are Deleted
-    #
-    # These public mutators are not undoable.
-
-
-    # mutate nbhoodDeleted n
-    #
-    # Called *by* nbhood when nbhood n is deleted.  Deletes all 
-    # nbgroups for this nbhood.
-
-    typemethod {mutate nbhoodDeleted} {n} {
-        rdb eval {
-            SELECT g FROM nbgroups WHERE n=$n
-        } {
-            $type mutate delete $n $g
-        }
-
-        return ""
-    }
-
-    # mutate civgroupDeleted g
-    #
-    # Called *by* civgroup when civgroup g is deleted.  Deletes all 
-    # nbgroups for this civgroup.
-
-    typemethod {mutate civgroupDeleted} {g} {
-        rdb eval {
-            SELECT n FROM nbgroups WHERE g=$g
-        } {
-            $type mutate delete $n $g
-        }
-
-        return ""
-    }
 
     #-------------------------------------------------------------------
     # Mutators
@@ -142,6 +107,7 @@ snit::type nbgroup {
         }
     }
 
+
     # mutate delete n g
     #
     # n g     An nbgroup ID
@@ -149,7 +115,15 @@ snit::type nbgroup {
     # Deletes the group, including all references.
 
     typemethod {mutate delete} {n g} {
-        # FIRST, delete it.
+        # FIRST, get the undo information
+        rdb eval {
+            SELECT * FROM nbgroups
+            WHERE n=$n AND g=$g
+        } undoData {
+            unset undoData(*)
+        }
+
+        # NEXT, delete it.
         rdb eval {
             DELETE FROM nbgroups WHERE n=$n AND g=$g;
         }
@@ -162,9 +136,10 @@ snit::type nbgroup {
         # NEXT, notify the app.
         notifier send ::nbgroup <Entity> delete $n $g
 
-        # NEXT, Not undoable.
-        return ""
+        # NEXT, Return the undo script
+        return [mytypemethod mutate create [array get undoData]]
     }
+
 
     # mutate update parmdict
     #
@@ -208,6 +183,42 @@ snit::type nbgroup {
             return [mytypemethod mutate update [array get undoData]]
         }
     }
+
+    # mutate nbhoodDeleted n
+    #
+    # Called *by* nbhood when nbhood n is deleted.  Deletes all 
+    # nbgroups for this nbhood.
+
+    typemethod {mutate nbhoodDeleted} {n} {
+        set undo [list]
+
+        rdb eval {
+            SELECT g FROM nbgroups WHERE n=$n
+        } {
+            lappend undo [$type mutate delete $n $g]
+        }
+
+        return [join $undo \n]
+    }
+
+
+    # mutate civgroupDeleted g
+    #
+    # Called *by* civgroup when civgroup g is deleted.  Deletes all 
+    # nbgroups for this civgroup.
+
+    typemethod {mutate civgroupDeleted} {g} {
+        set undo [list]
+
+        rdb eval {
+            SELECT n FROM nbgroups WHERE g=$g
+        } {
+            lappend undo [$type mutate delete $n $g]
+        }
+
+        return [join $undo \n]
+    }
+
 }
 
 #-------------------------------------------------------------------

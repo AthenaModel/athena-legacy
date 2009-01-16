@@ -283,14 +283,20 @@ USAID US Aid
     }
 
 
-    test GROUP:ORGANIZATION:DELETE-3.1 {Can't undo} -setup {
+    test GROUP:ORGANIZATION:DELETE-3.1 {Undo recreates the org group} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
         ted order GROUP:ORGANIZATION:DELETE g USAID
-        cif canundo
+    } -body {
+        cif undo
+        set parms [join [dict keys $usaid] ","]
+        ted query "SELECT $parms FROM orggroups_view"
     } -cleanup {
         cleanup
-    } -result {}
+    } -result {
+g     longname color   orgtype medical engineer support rollup_weight effects_factor 
+----- -------- ------- ------- ------- -------- ------- ------------- -------------- 
+USAID US Aid   #00ff00 NGO     0       0        1       1.0           1.1            
+    }
 
     #-------------------------------------------------------------------
     # GROUP:ORGANIZATION:UPDATE

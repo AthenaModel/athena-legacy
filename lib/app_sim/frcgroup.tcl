@@ -141,7 +141,15 @@ snit::type frcgroup {
     # Deletes the group, including all references.
 
     typemethod {mutate delete} {g} {
-        # FIRST, delete it.
+        # FIRST, get the undo information
+        rdb eval {
+            SELECT * FROM frcgroups_view
+            WHERE g=$g
+        } undoData {
+            unset undoData(*)
+        }
+
+        # NEXT, delete it.
         rdb eval {
             DELETE FROM groups    WHERE g=$g;
             DELETE FROM frcgroups WHERE g=$g;
@@ -154,8 +162,8 @@ snit::type frcgroup {
 
         notifier send ::frcgroup <Entity> delete $g
 
-        # NEXT, Not undoable; clear the undo command
-        return ""
+        # NEXT, Return the undo script
+        return [mytypemethod mutate create [array get undoData]]
     }
 
 
@@ -270,7 +278,7 @@ order define ::frcgroup GROUP:FORCE:DELETE {
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {
-                            This order cannot be undone.  Are you sure you
+                            Are you sure you
                             really want to delete this group, along
                             with all of the entities that depend upon it?
                         }]]

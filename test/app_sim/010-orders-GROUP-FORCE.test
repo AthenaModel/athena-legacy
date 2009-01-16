@@ -214,14 +214,20 @@ BLUE US Army
         {::frcgroup <Entity> delete BLUE}
     }
 
-    test GROUP:FORCE:DELETE-3.1 {Can't undo} -setup {
+    test GROUP:FORCE:DELETE-3.1 {Undo recreates group} -setup {
         ted order GROUP:FORCE:CREATE $blue
-    } -body {
         ted order GROUP:FORCE:DELETE g BLUE
-        cif canundo
+    } -body {
+        cif undo
+        set parms [join [dict keys $blue] ","]
+        ted query "SELECT $parms FROM frcgroups_view"
     } -cleanup {
         cleanup
-    } -result {}
+    } -result {
+g    longname color   forcetype local coalition 
+---- -------- ------- --------- ----- --------- 
+BLUE US Army  #0000ff REGULAR   0     1         
+    }
 
     #-------------------------------------------------------------------
     # GROUP:FORCE:UPDATE

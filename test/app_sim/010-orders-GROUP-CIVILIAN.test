@@ -40,6 +40,26 @@ namespace eval ::athena_test::tests:: {
         color     #ffffff
     }
 
+    # Neighborhoods and nbgroups
+
+    set nb1 {
+        n            NB1
+        longname     "Here"
+        urbanization URBAN
+        refpoint     B00B00
+        polygon      {A80A80 B20A80 B00B20}
+    }
+
+    set nb1shia {
+        n              NB1
+        g              SHIA
+        local_name     "NB1 Shia"
+        demeanor       AGGRESSIVE
+        rollup_weight  1.0
+        effects_factor 1.0
+    }
+
+
     # Clean up after a test
 
     proc cleanup {} {
@@ -158,11 +178,13 @@ SHIA Shia Locals
         g {required value}
     }
     
+
     test GROUP:CIVILIAN:DELETE-1.2 {unknown g} -body {
         ted order -reject GROUP:CIVILIAN:DELETE g NONESUCH
     } -result {
         g {Invalid civilian group, none are defined}
     }
+
 
     test GROUP:CIVILIAN:DELETE-2.1 {Group is deleted} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
@@ -172,6 +194,7 @@ SHIA Shia Locals
     } -cleanup {
         cleanup
     } -result {}
+
 
     test GROUP:CIVILIAN:DELETE-2.2 {<Entity> delete} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
@@ -185,40 +208,48 @@ SHIA Shia Locals
         {::civgroup <Entity> delete SHIA}
     }
 
-    test GROUP:CIVILIAN:DELETE-3.1 {Can't undo} -setup {
+
+    test GROUP:CIVILIAN:DELETE-2.3 {Deletes nbhood groups} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
-    } -body {
-        ted order GROUP:CIVILIAN:DELETE g SHIA
-        cif canundo
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test GROUP:CIVILIAN:DELETE-3.2 {Deletes nbhood groups} -setup {
-        ted order GROUP:CIVILIAN:CREATE $shia
-
-        ted order NBHOOD:CREATE {
-            n            NB1
-            longname     "Here"
-            urbanization URBAN
-            refpoint     B00B00
-            polygon      {A80A80 B20A80 B00B20}
-        }
-
-        ted order GROUP:NBHOOD:CREATE {
-            n              NB1
-            g              SHIA
-            local_name     "NB1 Shia"
-            demeanor       AGGRESSIVE
-            rollup_weight  1.0
-            effects_factor 1.0
-        }
+        ted order NBHOOD:CREATE         $nb1
+        ted order GROUP:NBHOOD:CREATE   $nb1shia
     } -body {
         ted order GROUP:CIVILIAN:DELETE g SHIA
         ted query {SELECT * FROM nbgroups}
     } -cleanup {
         cleanup
     } -result {
+    }
+
+
+    test GROUP:CIVILIAN:DELETE-3.1 {Undo restores group} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:CIVILIAN:DELETE g SHIA
+    } -body {
+        cif undo
+        ted query {SELECT * FROM civgroups_view}
+    } -cleanup {
+        cleanup
+    } -result {
+g    longname    color   gtype 
+---- ----------- ------- ----- 
+SHIA Shia Locals #ffff00 CIV   
+    }
+
+    test GROUP:CIVILIAN:DELETE-3.2 {Undo restores nbgroups} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order NBHOOD:CREATE         $nb1
+        ted order GROUP:NBHOOD:CREATE   $nb1shia
+        ted order GROUP:CIVILIAN:DELETE g SHIA
+    } -body {
+        cif undo
+        ted query {SELECT * FROM nbgroups}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    local_name demeanor   rollup_weight effects_factor 
+--- ---- ---------- ---------- ------------- -------------- 
+NB1 SHIA NB1 Shia   AGGRESSIVE 1.0           1.0            
     }
 
     #-------------------------------------------------------------------
