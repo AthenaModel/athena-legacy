@@ -412,10 +412,13 @@ snit::widget appwin {
         # NEXT, add the scrolling log to the content notebook
 
         install slog using scrollinglog $content.slog \
-            -relief     flat                      \
-            -height     30                        \
-            -logcmd     [mymethod puts]           \
-            -loglevel   "normal"
+            -relief        flat                       \
+            -height        30                         \
+            -logcmd        [mymethod puts]            \
+            -loglevel      "normal"                   \
+            -showloglist   yes                        \
+            -rootdir       [workdir join log]         \
+            -defaultappdir app_sim
 
         $content add $slog \
             -sticky  nsew  \
