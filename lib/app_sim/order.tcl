@@ -104,12 +104,12 @@ snit::type order {
         set nullMode $flag
     }
 
-    # parms
+    # parmdict
     #
     # Returns a dictionary of the most recent order parms, with one
     # additional parm, _order.
 
-    typemethod parms {} {
+    typemethod parmdict {} {
         array get parms
     }
 
@@ -279,6 +279,16 @@ snit::type order {
 
     typemethod meta {order args} {
         return [dict get $meta($order) {*}$args]
+    }
+
+    # parms name
+    #
+    # name     The name of an order
+    #
+    # Returns a list of the parameter names
+
+    typemethod parms {name} {
+        return [dict keys [dict get $meta($name) parms]]
     }
 
     # exists name

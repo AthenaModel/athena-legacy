@@ -63,13 +63,28 @@ otherwise, returns the empty string.<p>
 
 <<defitem clear {cif clear}>>
 
-Empties and resets the CIF history.<p>
+Empties and resets the <b>cif</b> history.<p>
 
-<<defitem dump {cif dump ?<i>count</i>?}>>
+<<defitem dump {cif dump ?options?}>>
 
-Returns the most recent <i>count</i> entries from the CIF in
-human-readable format.  The <i>count</i> defaults to 1, yielding the
-most recent order.<p>
+By default, returns the most recent order in
+human-readable format.  If the order is undoable, the undo script is
+included.  The options are as follows:<p>
+
+<<deflist options>>
+
+<<defopt {-count <i>count</i>}>>
+
+Dumps the most recent <i>count</i> entries.<p>
+
+<<defopt {-redo}>>
+
+When an order is undone, it remains in the <b>cif</b> until such time as it
+can no longer be redone.  Normally, <<iref dump>> ignores such
+orders.  If this option is specified, they will be included.<p>
+
+<</deflist options>>
+
 
 <<defitem redo {cif redo}>>
 

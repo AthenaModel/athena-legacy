@@ -144,7 +144,7 @@ snit::type cif {
     typemethod undo {} {
         # FIRST, get the undo information
         rdb eval {
-            SELECT name, parmdict, undo
+            SELECT id, name, parmdict, undo
             FROM cif 
             WHERE id=$info(nextid) - 1
         } {
@@ -152,6 +152,12 @@ snit::type cif {
                 log normal cif "undo: $name $parmdict"
 
                 uplevel \#0 $undo
+
+                rdb eval {
+                    UPDATE cif
+                    SET   undo = ''
+                    WHERE id   = $id
+                }
 
                 incr info(nextid) -1
 
@@ -206,31 +212,89 @@ snit::type cif {
         error "Nothing to redo"
     }
 
-    # dump ?count?
+    # dump ?-count n? ?-redo"
     #
-    # count   Number of entries to dump, starting from the most recent.
+    # -count n     Number of entries to dump, starting from the most recent.
+    #              Defaults to 1
+    #
+    # -redo        Include undone orders; otherwise starts at the top of
+    #              the undo stack.
     #
     # Returns a dump of the CIF in human-readable form.  Defaults to
-    # the top of the stack.
+    # the entry on the top of the stack.
 
-    typemethod dump {{count 1}} {
-        require {$count > 0} "Count is less than 1."
+    typemethod dump {args} {
+        # FIRST, get the options
+        array set opts {
+            -count 1
+            -redo  no
+        }
+
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+
+            switch -exact -- $opt {
+                -count {
+                    set opts(-count) [lshift args]
+                }
+
+                -redo {
+                    set opts(-redo) yes
+                }
+                
+                default {
+                    error "Unrecognized option: \"$opt\""
+                }
+            }
+        }
+
+        require {$opts(-count) > 0} "-count is less than 1."
 
         set result [list]
 
-        rdb eval "
+        rdb eval [tsubst {
             SELECT * FROM cif
+            [tif {!$opts(-redo)} {WHERE id < \$info(nextid)}]
             ORDER BY id DESC
-            LIMIT $count
-        " row {
-            set out "\#$row(id) @ $row(time): $row(name)\n"
-            append out "parms: [list $row(parmdict)]\n"
-            append out "undo:  $row(undo)"
+            LIMIT $opts(-count)
+        }] row {
+            if {$row(id) == $info(nextid) - 1} {
+                set tag " *top*"
+            } elseif {$row(id) >= $info(nextid)} {
+                set tag " *redo*"
+            } else {
+                set tag ""
+            }
+
+            set out "\#$row(id)$tag $row(name) @ $row(time): \n"
+
+
+            append out "Parameters:\n"
+
+            # Get the width of the longest parameter name, plus the colon.
+            set wid [lmaxlen [dict keys $row(parmdict)]]
+            incr wid 
+
+            set parmlist [order parms $row(name)]
+
+            foreach parm [order parms $row(name)] {
+                if {[dict exists $row(parmdict) $parm]} {
+                    set value [dict get $row(parmdict) $parm]
+                    append out [format "    %-*s %s\n" $wid $parm: $value]
+                }
+            }
+
+            if {$row(undo) ne ""} {
+                append out "Undo Script:\n"
+                foreach line [split $row(undo) "\n"] {
+                    append out "    $line\n"
+                }
+            }
 
             lappend result $out
         }
 
-        return [join $result "\n\n"]
+        return [join $result "\n"]
     }
 }
 
