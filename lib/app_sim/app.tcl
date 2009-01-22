@@ -86,6 +86,7 @@ snit::type app {
         frcgroup init
         orggroup init
         nbgroup  init
+        sat      init
 
         # NEXT, Withdraw the default toplevel window, and create 
         # the main GUI components.
@@ -116,7 +117,7 @@ snit::type app {
 
     proc NotifierTrace {subject event eargs objects} {
         set objects [join $objects ", "]
-        log detail ntfy "send $subject $event [list $eargs] to $objects"
+        log detail notify "send $subject $event [list $eargs] to $objects"
     }
 
     #-------------------------------------------------------------------

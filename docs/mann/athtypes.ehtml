@@ -31,6 +31,24 @@ for false values.  On error, throws an error with <code>-errorcode</code>
 This call differs from <code>snit::boolean</code> in that it converts
 the value to canonical form, and throws <b>INVALID</b> on error.<p>
 
+
+<<defitem ecivconcern {ecivconcern <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the concerns of civilian
+groups.<p>
+
+<<::athlib::ecivconcern html>>
+
+
+<<defitem econcern {econcern <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the concerns of all kinds
+of groups for which satisfaction is tracked.  It is simply the
+concatenation of <<iref ecivconcern>> and <<iref eorgconcern>>.<p>
+
+<<::athlib::econcern html>>
+
+
 <<defitem edemeanor {edemeanor <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing neighborhood group
@@ -43,6 +61,15 @@ demeanor.<p>
 An <<xref mars:enum(n)>> type, representing force group types.<p>
 
 <<::athlib::eforcetype html>>
+
+
+<<defitem eorgconcern {eorgconcern <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the concerns of organization
+groups.<p>
+
+<<::athlib::eorgconcern html>>
+
 
 <<defitem eorgtype {eorgtype <i>subcommand</i> ?<i>args</i>?}>>
 
@@ -82,6 +109,31 @@ Validates the polygon described by the <i>coords</i>, which is a flat
 list of <i>x</i> and <i>y</i> coordinates.  It may be passed as a
 single argument, or as one argument per coordinate.  On error, throws
 an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
+
+<<defitem qsaliency {qsaliency <i>subcommand</i> ?<i>args</i>?}>>
+
+A <<xref mars:quality(n)>> type, representing the saliency of a
+concern to a group.<p>
+
+<<::athlib::qsaliency html>>
+
+
+<<defitem qsat {qsat <i>subcommand</i> ?<i>args</i>?}>>
+
+A <<xref mars:quality(n)>> type, representing a level of satisfaction
+with respect to a concern.<p>
+
+<<::athlib::qsat html>>
+
+
+<<defitem qtrend {qtrend <i>subcommand</i> ?<i>args</i>?}>>
+
+A <<xref mars:quality(n)>> type, representing a trend in a
+satisfaction curve.<p>
+
+<<::athlib::qtrend html>>
+
 
 <<defitem "weight validate" {weight validate <i>value</i>}>>
 

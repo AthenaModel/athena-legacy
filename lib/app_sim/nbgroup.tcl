@@ -99,11 +99,18 @@ snit::type nbgroup {
                        $effects_factor);
             }
 
+            # NEXT, population the sat_ngc table with satisfaction
+            # levels
+            sat mutate nbgroupCreated $n $g
+
             # NEXT, notify the app.
             notifier send ::nbgroup <Entity> create $n $g
 
+            # NEXT, finish the undo script
+            lappend undo [mytypemethod mutate delete $n $g]
+
             # NEXT, Return the undo command
-            return [mytypemethod mutate delete $n $g]
+            return [join $undo \n]
         }
     }
 
@@ -121,6 +128,7 @@ snit::type nbgroup {
             WHERE n=$n AND g=$g
         } undoData {
             unset undoData(*)
+            lappend undo [mytypemethod mutate create [array get undoData]]
         }
 
         # NEXT, delete it.
@@ -131,13 +139,13 @@ snit::type nbgroup {
         # NEXT, Clean up entities which refer to this nbhood group,
         # i.e., either clear the field, or delete the entities.
         
-        # TBD.
+        lappend undo [sat mutate nbgroupDeleted $n $g]
 
         # NEXT, notify the app.
         notifier send ::nbgroup <Entity> delete $n $g
 
         # NEXT, Return the undo script
-        return [mytypemethod mutate create [array get undoData]]
+        return [join $undo \n]
     }
 
 
@@ -302,7 +310,7 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {
-                            This order cannot be undone.  Are you sure 
+                            Are you sure 
                             you really want to delete this neighborhood 
                             group and all data that depends on it?
                         }]]

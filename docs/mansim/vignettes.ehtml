@@ -301,6 +301,61 @@ message nbhood {mapviewer nbhoodbrowser} "<Entity> stack"
 }>>
 
 
+<<section "GROUP:NBHOOD:* ORDERS">>
+
+<<subsection "GROUP:NBHOOD:CREATE">>
+
+<<sequence -narration {
+actor GUI
+actor order
+actor cif
+actor nbgroup
+actor sat
+
+comment "On send:"
+
+message GUI     order      GROUP:NBHOOD:CREATE
+message order   nbgroup    "mutate create \$parmdict"
+message nbgroup sat        "mutate nbgroupCreated \$n \$g"
+message nbgroup GUI        "<Entity> create \$n \$g"
+
+comment "On undo:"
+
+message GUI     cif        undo
+message cif     nbgroup    "mutate delete \$n \$g"
+message nbgroup sat        "mutate nbgroupDeleted \$n \$g"
+message nbgroup GUI        "<Entity> delete \$n \$g"
+}>>
+
+<<subsection "GROUP:NBHOOD:DELETE">>
+
+<<sequence -narration {
+actor GUI
+actor order
+actor cif
+actor nbgroup
+actor sat
+
+comment "On send:"
+
+message GUI     order      GROUP:NBHOOD:DELETE
+message order   nbgroup    "mutate delete \$n \$g"
+message nbgroup sat        "mutate nbgroupDeleted \$n \$g"
+message nbgroup GUI        "<Entity> delete \$n \$g"
+
+comment "On undo:"
+
+message GUI     cif        undo
+message cif     nbgroup    "mutate create \$n \$g"
+message nbgroup sat        "mutate nbgroupCreated \$n \$g" {
+    Recreates the satisfaction levels with default values.
+}
+message cif     sat        "mutate update \$n \$g \$c" {
+    Called for all valid satisfaction levels; restores old values.
+}
+message nbgroup GUI        "<Entity> create \$n \$g"
+}>>
+
 <<section AUTHOR>>
 
 Will Duquette<p>

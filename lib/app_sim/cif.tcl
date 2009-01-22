@@ -42,6 +42,20 @@ snit::type cif {
         log normal cif "Initialized"
     }
 
+    # reconfigure
+    #
+    # Reconfigures the CIF stack from the database.
+
+    typemethod reconfigure {} {
+        if {[rdb exists {SELECT * FROM cif}]} {
+            set info(nextid) [rdb onecolumn {
+                SELECT max(id) + 1 FROM cif
+            }]
+        } else {
+            set info(nextid) 0
+        }
+    }
+
     #-------------------------------------------------------------------
     # Event handlers
 
@@ -59,6 +73,18 @@ snit::type cif {
 
     #-------------------------------------------------------------------
     # Public Typemethods
+
+    # clear
+    #
+    # Deletes all history from the CIF
+
+    typemethod clear {} {
+        rdb eval {
+            DELETE FROM cif;
+        }
+
+        set info(nextid) 0
+    }
 
     # add order parmdict ?undo?
     #
@@ -178,6 +204,33 @@ snit::type cif {
         }
 
         error "Nothing to redo"
+    }
+
+    # dump ?count?
+    #
+    # count   Number of entries to dump, starting from the most recent.
+    #
+    # Returns a dump of the CIF in human-readable form.  Defaults to
+    # the top of the stack.
+
+    typemethod dump {{count 1}} {
+        require {$count > 0} "Count is less than 1."
+
+        set result [list]
+
+        rdb eval "
+            SELECT * FROM cif
+            ORDER BY id DESC
+            LIMIT $count
+        " row {
+            set out "\#$row(id) @ $row(time): $row(name)\n"
+            append out "parms: [list $row(parmdict)]\n"
+            append out "undo:  $row(undo)"
+
+            lappend result $out
+        }
+
+        return [join $result "\n\n"]
     }
 }
 

@@ -60,6 +60,7 @@ source [file join $::app_sim::library civgroup.tcl        ]
 source [file join $::app_sim::library frcgroup.tcl        ]
 source [file join $::app_sim::library orggroup.tcl        ]
 source [file join $::app_sim::library nbgroup.tcl         ]
+source [file join $::app_sim::library sat.tcl             ]
 
 # GUI
 source [file join $::app_sim::library ordergui.tcl        ]

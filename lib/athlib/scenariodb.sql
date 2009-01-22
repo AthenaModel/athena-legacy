@@ -195,6 +195,50 @@ CREATE VIEW nbgroups_view AS
 SELECT * FROM groups JOIN nbgroups USING (g);
 
 ------------------------------------------------------------------------
+-- Concerns and concern views
+
+-- Concern definitions
+CREATE TABLE concerns (
+    -- Symbolic concern name
+    c         TEXT PRIMARY KEY,
+
+    -- Full concern name
+    longname  TEXT,
+
+    -- Concern type: egrouptype
+    gtype     TEXT
+);
+
+CREATE VIEW civ_concerns AS
+SELECT * FROM concerns WHERE gtype='CIV';
+
+CREATE VIEW org_concerns AS
+SELECT * FROM concerns WHERE gtype='ORG';
+
+
+------------------------------------------------------------------------
+-- Initial Satisfaction Data
+
+
+-- Neighborhood/pgroup/concern triples (n,g,c) for both nbhood groups
+-- and org groups.  This table contains the data used to initialize
+-- JRAM.
+--
+-- TBD: The long-term trend might be a computed value, varying over
+-- time, rather than an input.
+CREATE TABLE sat_ngc (
+    n          TEXT,          -- Symbolic nbhoods name
+    g          TEXT,          -- Symbolic groups name
+    c          TEXT,          -- Symbolic concerns name
+        
+    sat0       DOUBLE,        -- Initial satisfaction
+    trend0     DOUBLE,        -- Long-term Trend
+    saliency   DOUBLE,        -- Saliency of concern c.
+
+    PRIMARY KEY (n, g, c)
+);
+
+------------------------------------------------------------------------
 -- Entities
 --
 -- Anything with an ID and a long name is an entity.  All IDs and 

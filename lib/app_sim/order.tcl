@@ -372,6 +372,13 @@ snit::type order {
                         set parms($parm) [{*}$parmtype validate $parms($parm)]
                     }
                 }
+                -xform {
+                    set cmd [lshift args]
+
+                    validate $parm {
+                        set parms($parm) [{*}$cmd $parms($parm)]
+                    }
+                }
                 default { 
                     error "unknown option: \"$opt\"" 
                 }

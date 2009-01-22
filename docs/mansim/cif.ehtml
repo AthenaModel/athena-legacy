@@ -61,6 +61,16 @@ otherwise returns the empty string.<p>
 If there is an undoable order, returns the title of the order;
 otherwise, returns the empty string.<p>
 
+<<defitem clear {cif clear}>>
+
+Empties and resets the CIF history.<p>
+
+<<defitem dump {cif dump ?<i>count</i>?}>>
+
+Returns the most recent <i>count</i> entries from the CIF in
+human-readable format.  The <i>count</i> defaults to 1, yielding the
+most recent order.<p>
+
 <<defitem redo {cif redo}>>
 
 Re-sends the first redoable order, making the order undoable again.

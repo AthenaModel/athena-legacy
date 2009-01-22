@@ -16,19 +16,41 @@
 namespace eval ::athlib:: {
     namespace export  \
         boolean       \
+        ecivconcern   \
+        econcern      \
         edemeanor     \
         eforcetype    \
+        eorgconcern   \
         eorgtype      \
         eurbanization \
         hexcolor      \
         ident         \
         polygon       \
+        qsaliency     \
+        qsat          \
+        qtrend        \
         weight
-    
 }
 
 #-------------------------------------------------------------------
 # Enumerations
+
+# Civilian Concerns
+::marsutil::enum ::athlib::ecivconcern {
+    AUT "Autonomy"
+    SFT "Physical Safety"
+    CUL "Culture"
+    QOL "Quality of Life"
+}
+
+# Organization Concerns
+::marsutil::enum ::athlib::eorgconcern {
+    CAS "Casualties"
+}
+
+# All Concerns
+::marsutil::enum ::athlib::econcern \
+    [concat [::athlib::ecivconcern deflist] [::athlib::eorgconcern deflist]]
 
 # Civilian Group Demeanor
 ::marsutil::enum ::athlib::edemeanor {
@@ -59,6 +81,37 @@ namespace eval ::athlib:: {
     SUBURBAN     "Suburban"
     URBAN        "Urban"
 }
+
+#-------------------------------------------------------------------
+# Qualities
+
+# Saliency (Of a Factor)
+::marsutil::quality ::athlib::qsaliency {
+    CR "Crucial"         1.000
+    VI "Very Important"  0.850
+    I  "Important"       0.700
+    LI "Less Important"  0.550
+    UN "Unimportant"     0.400
+    NG "Negligible"      0.000
+} -min 0.0 -max 1.0 -format {%5.3f}
+
+# Satisfaction
+::marsutil::quality ::athlib::qsat {
+    VS "Very Satisfied"     80.0
+    S  "Satisfied"          40.0
+    A  "Ambivalent"          0.0
+    D  "Dissatisfied"      -40.0
+    VD "Very Dissatisfied" -80.0
+} -min -100.0 -max 100.0 -format {%7.2f}
+
+# Satisfaction: Long-Term Trend
+::marsutil::quality ::athlib::qtrend {
+    VH "Very High"  8.0
+    H  "High"       4.0
+    N  "Neutral"   -1.0
+    L  "Low"       -4.0
+    VL "Very Low"  -8.0
+} -format {%4.1f}
 
 #-------------------------------------------------------------------
 # Boolean type

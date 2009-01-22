@@ -53,7 +53,7 @@ snit::type scenario {
 
         file delete -force $rdbfile
         rdb open $rdbfile
-        $type clear
+        InitializeRuntimeData
     }
 
     #-------------------------------------------------------------------
@@ -64,15 +64,15 @@ snit::type scenario {
     # Creates a new, blank scenario.
 
     typemethod new {} {
-        # FIRST, clear the current scenario data.
-        $type clear
+        # FIRST, initialize the runtime data
+        InitializeRuntimeData
 
         # NEXT, there is no dbfile.
         set info(dbfile) ""
 
         # NEXT, log it.
         log newlog new
-        log normal scn "New Scenario: Untitled"
+        log normal scenario "New Scenario: Untitled"
         
         app puts "New scenario created"
 
@@ -103,7 +103,7 @@ snit::type scenario {
         }
 
         # NEXT, define the temporary schema definitions
-        $type DefineTempSchema
+        DefineTempSchema
 
         # NEXT, restore the saveables
         $type RestoreSaveables
@@ -113,7 +113,7 @@ snit::type scenario {
 
         # NEXT, log it.
         log newlog open
-        log normal scn "Open Scenario: $filename"
+        log normal scenario "Open Scenario: $filename"
 
         app puts "Opened Scenario [file tail $filename]"
 
@@ -156,8 +156,8 @@ snit::type scenario {
 
             rdb saveas $dbfile
         } result opts]} {
-            log warning scn "Could not save: $result"
-            log error scn [dict get $opts -errorinfo]
+            log warning scenario "Could not save: $result"
+            log error scenario [dict get $opts -errorinfo]
             app error {
                 |<--
                 Could not save as
@@ -177,7 +177,7 @@ snit::type scenario {
             log newlog saveas
         }
 
-        log normal scn "Save Scenario: $info(dbfile)"
+        log normal scenario "Save Scenario: $info(dbfile)"
 
         app puts "Saved Scenario [file tail $info(dbfile)]"
 
@@ -227,6 +227,7 @@ snit::type scenario {
 
     typemethod reconfigure {} {
         # FIRST, Reconfigure the simulation
+        cif      reconfigure
         map      reconfigure
         nbhood   reconfigure
         civgroup reconfigure
@@ -241,19 +242,37 @@ snit::type scenario {
     #-------------------------------------------------------------------
     # Configure RDB
 
-    # clear
+    # InitializeRuntimeData
     #
-    # Clears the RDB, inserts the schema, and loads the blank map.
+    # Clears the RDB, inserts the schema, and loads initial data:
+    # 
+    # * Blank map
+    # * Concern definitions
 
-    typemethod clear {} {
+    proc InitializeRuntimeData {} {
         # FIRST, clear the RDB
         rdb clear
 
         # NEXT, define the temp schema
-        $type DefineTempSchema
+        DefineTempSchema
 
         # NEXT, load the blank map
         map load [file join $::app_sim::library blank.png]
+
+        # NEXT, insert the concern definitions
+        foreach {c longname gtype} {
+            AUT "Autonomy"        CIV
+            SFT "Physical Safety" CIV
+            CUL "Culture"         CIV
+            QOL "Quality of Life" CIV
+            CAS "Casualties"      ORG
+            SVC "Service"         ORG
+        } {
+            rdb eval {
+                INSERT INTO concerns(c,longname,gtype)
+                VALUES($c,$longname,$gtype)
+            }
+        }
 
         # NEXT, mark it saved; having the blank map is neither 
         # here nor there.
@@ -264,7 +283,7 @@ snit::type scenario {
     #
     # Adds the temporary schema definitions into the RDB
 
-    typemethod DefineTempSchema {} {
+    proc DefineTempSchema {} {
         # FIRST, define SQL functions
         rdb function m2ref [myproc M2Ref]
 
@@ -336,7 +355,7 @@ snit::type scenario {
             if {$saveable in $info(saveables)} {
                 {*}$saveable restore $checkpoint
             } else {
-                log warning scn \
+                log warning scenario \
                     "Unknown saveable found in checkpoint: \"$saveable\""
             }
         }
