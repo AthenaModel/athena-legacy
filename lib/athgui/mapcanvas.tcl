@@ -661,7 +661,7 @@ snit::widgetadaptor ::athgui::mapcanvas {
    
     method mode {{mode ""}} {
         # FIRST, if no new mode is given, return the current mode.
-        if {$mode eq ""} {
+        if {$mode eq "" || $mode eq $info(mode)} {
             return $info(mode)
         }
 
