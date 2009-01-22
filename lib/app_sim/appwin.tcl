@@ -418,7 +418,14 @@ snit::widget appwin {
             -loglevel      "normal"                   \
             -showloglist   yes                        \
             -rootdir       [workdir join log]         \
-            -defaultappdir app_sim
+            -defaultappdir app_sim                    \
+            -format        {
+                {zulu  12 yes}
+                {v      7 yes}
+                {c      9 yes}
+                {m      0 yes}
+            }
+
 
         $content add $slog \
             -sticky  nsew  \
