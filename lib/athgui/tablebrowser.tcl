@@ -162,9 +162,11 @@ snit::widget ::athgui::tablebrowser {
         set db      $options(-db)
 
         # Install the filter controls.
-        install filter using ::marsgui::filter $bar.filter  \
-            -width     15   \
-            -filtercmd [mymethod FilterData] \
+        install filter using ::marsgui::filter $bar.filter \
+            -width      15                                 \
+            -filtertype incremental                        \
+            -ignorecase yes                                \
+            -filtercmd  [mymethod FilterData]
         
         # Scrollbars
         scrollbar $win.yview   \
