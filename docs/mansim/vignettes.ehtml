@@ -203,88 +203,173 @@ message order SIM ...
 action SIM "The order takes effect in the simulation."
 }>>
 
-<<section "MAP ORDERS">>
+<<section "MAP:* ORDERS">>
 
 <<subsection "MAP:IMPORT">>
 
 The user wishes to import a new map into the current scenario.<p>
 
 <<sequence -narration {
+comment "On send: load the new map."
+
 actor GUI
 actor order
 actor map
-actor mapviewer
 
 message GUI   order MAP:IMPORT
-message order map   "map import \$filename"
+message order map   "mutate import \$filename"
 
-action map "Imports the map into the RDB, and loads it."
+message map   GUI   <MapChanged>
+}>>
 
-message map mapviewer <MapChanged>
+<<sequence -narration {
+comment "On undo: restore the previous map."
 
-action mapviewer "Displays the map."
+actor GUI
+actor cif
+actor map
+
+message GUI   cif   undo
+message cif   map   "UndoImport \$parmdict"
+action  map         "Restores the previous map data."
+message map   GUI   <MapChanged>
 
 }>>
 
 
-<<section "NEIGHBORHOOD ORDERS">>
+<<section "NBHOOD:* ORDERS">>
 
 <<subsection "NBHOOD:CREATE">>
 
 <<sequence -narration {
+comment "On send: create the new neighborhood"
+
 actor GUI
 actor order
 actor nbhood
-actor mapviewer
-actor nbhoodbrowser
 
-message GUI    order                     NBHOOD:CREATE
-message order  nbhood                    "nbhood create \$parms"
-message nbhood {mapviewer nbhoodbrowser} "<Entity> create \$n"
+message GUI    order    NBHOOD:CREATE
+message order  nbhood   "mutate create \$parmdict"
+message nbhood GUI      "<Entity> create \$n"
+}>>
+
+<<sequence -narration {
+comment "On undo: delete the neighborhood, and all dependent entities
+(but there shouldn't be any)."
+
+actor GUI
+actor cif
+actor nbhood
+actor nbgroup
+
+message GUI    cif      undo
+message cif    nbhood   "mutate delete \$n"
+message nbhood nbgroup  "mutate nbhoodDeleted \$n"
+message nbhood GUI      "<Entity> delete \$n"
 }>>
 
 <<subsection "NBHOOD:DELETE">>
 
 <<sequence -narration {
+comment "On send: delete the neighborhood, and all dependent entities."
+
 actor GUI
 actor order
 actor nbhood
-actor mapviewer
-actor nbhoodbrowser
+actor nbgroup
+actor sat
 
-message GUI    order                     NBHOOD:DELETE
-message order  nbhood                    "nbhood delete \$n \$parms"
-message nbhood {mapviewer nbhoodbrowser} "<Entity> delete \$n"
+message GUI     order    NBHOOD:DELETE
+message order   nbhood   "mutate delete \$n"
+message nbhood  nbgroup  "mutate nbhoodDeleted \$n"
+action  nbgroup          "For all groups which reside in \$n:"
+message nbgroup sat      "mutate nbgroupDeleted \$n \$g"
+message nbgroup GUI      "<Entity> delete \$n \$g"
+message nbhood  GUI      "<Entity> delete \$n"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the neighborhood, and dependent entities."
+
+actor GUI
+actor cif
+actor nbhood
+actor nbgroup
+actor sat
+
+message GUI     cif      undo
+message cif     nbhood   "mutate create \$parmdict"
+message nbhood  GUI      "<Entity> create \$n"
+action  cif              {
+    For each restored neighborhood group:
+}
+message cif     nbgroup  "mutate create \$parmdict"
+message nbgroup sat      "mutate nbgroupCreated \$n \$g"
+message nbgroup GUI      "<Entity> create \$n \$g"
+action  cif              {
+    For each restored satisfaction curve for this neighborhood group:
+}
+message cif     sat      "mutate update \$parmdict" {
+    Sets each satisfaction curve back to its previous value.
+}
+
 }>>
 
 
 <<subsection "NBHOOD:UPDATE">>
 
 <<sequence -narration {
+comment "On send: update the neighborhood data."
+
 actor GUI
 actor order
 actor nbhood
-actor mapviewer
-actor nbhoodbrowser
 
-message GUI    order                     NBHOOD:UPDATE
-message order  nbhood                    "nbhood update \$n \$parms"
-message nbhood {mapviewer nbhoodbrowser} "<Entity> update \$n"
+message GUI    order    NBHOOD:UPDATE
+message order  nbhood   "mutate update \$parmdict"
+message nbhood GUI      "<Entity> update \$n"
 }>>
+
+<<sequence -narration {
+comment "On undo: restore the previous neighborhood data."
+
+actor GUI
+actor cif
+actor nbhood
+
+message GUI    cif      undo
+message cif    nbhood   "mutate update \$parmdict"
+message nbhood GUI      "<Entity> update \$n"
+
+}>>
+
 
 <<subsection "NBHOOD:LOWER">>
 
 <<sequence -narration {
+comment "On send: lower the neighborhood to the bottom of the stacking order."
+
 actor GUI
 actor order
 actor nbhood
-actor mapviewer
-actor nbhoodbrowser
 
-message GUI    order                     NBHOOD:LOWER
-message order  nbhood                    "nbhood lower \$n \$parms"
-message nbhood {mapviewer nbhoodbrowser} "<Entity> stack"
+message GUI    order   NBHOOD:LOWER
+message order  nbhood  "mutate lower \$n"
+message nbhood GUI     "<Entity> stack"
 }>>
+
+<<sequence -narration {
+comment "On undo: restore the neighborhood to its previous position in the stacking order."
+
+actor GUI
+actor cif
+actor nbhood
+
+message GUI    cif     undo
+message cif    nbhood  "RestackNbhoods \$old"
+message nbhood GUI     "<Entity> stack"
+}>>
+
 
 <<subsection "NBHOOD:RAISE">>
 
@@ -292,12 +377,210 @@ message nbhood {mapviewer nbhoodbrowser} "<Entity> stack"
 actor GUI
 actor order
 actor nbhood
-actor mapviewer
-actor nbhoodbrowser
 
-message GUI    order                     NBHOOD:RAISE
-message order  nbhood                    "nbhood raise \$n \$parms"
-message nbhood {mapviewer nbhoodbrowser} "<Entity> stack"
+comment "On send: raise the neighborhood to the top of the stacking order."
+message GUI    order   NBHOOD:RAISE
+message order  nbhood  "mutate raise \$n"
+message nbhood GUI     "<Entity> stack"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the neighborhood to its previous position in the stacking order."
+
+actor GUI
+actor cif
+actor nbhood
+
+message GUI    cif     undo
+message cif    nbhood  "RestackNbhoods \$old"
+message nbhood GUI     "<Entity> stack"
+}>>
+
+
+<<section "GROUP:CIVILIAN:* ORDERS">>
+
+<<subsection "GROUP:CIVILIAN:CREATE">>
+
+<<sequence -narration {
+comment "On send: create the new civilian group"
+
+actor GUI
+actor order
+actor civgroup
+
+message GUI      order     GROUP:CIVILIAN:CREATE
+message order    civgroup  "mutate create \$parmdict"
+message civgroup GUI       "<Entity> create \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: delete the civilian group and all dependent entities
+(but there shouldn't be any)."
+
+actor GUI
+actor cif
+actor civgroup
+actor nbgroup
+
+message GUI      cif       undo
+message cif      civgroup  "mutate delete \$g"
+message civgroup nbgroup   "mutate civgroupDeleted \$g"
+message civgroup GUI       "<Entity> delete \$g"
+}>>
+
+
+<<subsection "GROUP:CIVILIAN:DELETE">>
+
+<<sequence -narration {
+comment "On send: delete the civilian group, and all dependent entities."
+
+actor GUI
+actor order
+actor civgroup
+actor nbgroup
+actor sat
+
+message GUI       order     GROUP:CIVILIAN:DELETE
+message order     civgroup  "mutate delete \$g"
+message civgroup  nbgroup   "mutate civgroupDeleted \$g"
+action  nbgroup             "For all neighborhoods in which \$g resides:"
+message nbgroup   sat       "mutate nbgroupDelete \$n \$g"
+message nbgroup   GUI       "<Entity> delete \$n \$g"
+message civgroup  GUI       "<Entity> delete \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the civilian group, and dependent entities."
+
+actor GUI
+actor cif
+actor civgroup
+actor nbgroup
+actor sat
+
+message GUI       cif       undo
+message cif       civgroup  "mutate create \$parmdict"
+message civgroup  GUI       "<Entity> create \$g"
+action  cif       "For each restored neighborhood group:"
+message cif       nbgroup   "mutate create \$parmdict"
+message nbgroup   sat       "mutate nbgroupCreated \$n \$g"
+message nbgroup   GUI       "<Entity> create \$n \$g"
+action  cif       {
+    For each restored satisfaction curve for this neighborhood group:
+}
+message cif       sat       "mutate update \$parmdict" {
+    Sets each satisfaction curve back to its previous value.
+}
+}>>
+
+
+<<subsection "GROUP:CIVILIAN:UPDATE">>
+
+<<sequence -narration {
+comment "On send: update the civilian group data."
+
+actor GUI
+actor order
+actor civgroup
+
+message GUI      order     GROUP:CIVILIAN:UPDATE
+message order    civgroup  "mutate update \$parmdict"
+message civgroup GUI       "<Entity> update \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous civilian group data."
+
+actor GUI
+actor cif
+actor civgroup
+
+message GUI      cif       undo
+message cif      civgroup  "mutate update \$parmdict"
+message civgroup GUI       "<Entity> update \$g"
+}>>
+
+
+<<section "GROUP:FORCE:* ORDERS">>
+
+<<subsection "GROUP:FORCE:CREATE">>
+
+<<sequence -narration {
+comment "On send: create the new force group"
+
+actor GUI
+actor order
+actor frcgroup
+
+message GUI      order     GROUP:FORCE:CREATE
+message order    frcgroup  "mutate create \$parmdict"
+message frcgroup GUI       "<Entity> create \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: delete the force group."
+
+actor GUI
+actor cif
+actor frcgroup
+
+message GUI      cif       undo
+message cif      frcgroup  "mutate delete \$g"
+message frcgroup GUI       "<Entity> delete \$g"
+}>>
+
+
+<<subsection "GROUP:FORCE:DELETE">>
+
+<<sequence -narration {
+comment "On send: delete the force group."
+
+actor GUI
+actor order
+actor frcgroup
+
+message GUI       order     GROUP:FORCE:DELETE
+message order     frcgroup  "mutate delete \$g"
+message frcgroup  GUI       "<Entity> delete \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the force group."
+
+actor GUI
+actor cif
+actor frcgroup
+
+message GUI       cif       undo
+message cif       frcgroup  "mutate create \$parmdict"
+message frcgroup  GUI       "<Entity> create \$g"
+}>>
+
+
+<<subsection "GROUP:FORCE:UPDATE">>
+
+<<sequence -narration {
+comment "On send: update the force group data."
+
+actor GUI
+actor order
+actor frcgroup
+
+message GUI      order     GROUP:FORCE:UPDATE
+message order    frcgroup  "mutate update \$parmdict"
+message frcgroup GUI       "<Entity> update \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous force group data."
+
+actor GUI
+actor cif
+actor frcgroup
+
+message GUI      cif       undo
+message cif      frcgroup  "mutate update \$parmdict"
+message frcgroup GUI       "<Entity> update \$g"
 }>>
 
 
@@ -306,20 +589,26 @@ message nbhood {mapviewer nbhoodbrowser} "<Entity> stack"
 <<subsection "GROUP:NBHOOD:CREATE">>
 
 <<sequence -narration {
+comment "On send: create the neighborhood and all dependent entities."
+
 actor GUI
 actor order
-actor cif
 actor nbgroup
 actor sat
-
-comment "On send:"
 
 message GUI     order      GROUP:NBHOOD:CREATE
 message order   nbgroup    "mutate create \$parmdict"
 message nbgroup sat        "mutate nbgroupCreated \$n \$g"
 message nbgroup GUI        "<Entity> create \$n \$g"
+}>>
 
-comment "On undo:"
+<<sequence -narration {
+comment "On undo: delete the neighborhood and all dependent entities."
+
+actor GUI
+actor cif
+actor nbgroup
+actor sat
 
 message GUI     cif        undo
 message cif     nbgroup    "mutate delete \$n \$g"
@@ -327,34 +616,183 @@ message nbgroup sat        "mutate nbgroupDeleted \$n \$g"
 message nbgroup GUI        "<Entity> delete \$n \$g"
 }>>
 
+
 <<subsection "GROUP:NBHOOD:DELETE">>
 
 <<sequence -narration {
+comment "On send: delete the neighborhood and all dependent entities."
+
 actor GUI
 actor order
-actor cif
 actor nbgroup
 actor sat
-
-comment "On send:"
 
 message GUI     order      GROUP:NBHOOD:DELETE
 message order   nbgroup    "mutate delete \$n \$g"
 message nbgroup sat        "mutate nbgroupDeleted \$n \$g"
 message nbgroup GUI        "<Entity> delete \$n \$g"
+}>>
 
-comment "On undo:"
+<<sequence -narration {
+comment "On undo: restore the neighborhood and all dependent entities."
+
+actor GUI
+actor cif
+actor nbgroup
+actor sat
 
 message GUI     cif        undo
 message cif     nbgroup    "mutate create \$n \$g"
 message nbgroup sat        "mutate nbgroupCreated \$n \$g" {
-    Recreates the satisfaction levels with default values.
+    Recreates the satisfaction curves with default values.
 }
 message cif     sat        "mutate update \$n \$g \$c" {
-    Called for all valid satisfaction levels; restores old values.
+    Restores the previous values for each recreated satisfaction curve.
 }
 message nbgroup GUI        "<Entity> create \$n \$g"
 }>>
+
+
+<<subsection "GROUP:NBHOOD:UPDATE">>
+
+<<sequence -narration {
+comment "On send: update the neighborhood group data."
+
+actor GUI
+actor order
+actor nbgroup
+
+message GUI     order    GROUP:NBHOOD:UPDATE
+message order   nbgroup  "mutate update \$parmdict"
+message nbgroup GUI      "<Entity> update \$n"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous neighborhood group data."
+
+actor GUI
+actor cif
+actor nbgroup
+
+message GUI     cif      undo
+message cif     nbgroup  "mutate update \$parmdict"
+message nbgroup GUI      "<Entity> update \$n"
+}>>
+
+
+<<section "GROUP:ORGANIZATION:* ORDERS">>
+
+<<subsection "GROUP:ORGANIZATION:CREATE">>
+
+<<sequence -narration {
+comment "On send: create the new organization group"
+
+actor GUI
+actor order
+actor orggroup
+
+message GUI      order     GROUP:ORGANIZATION:CREATE
+message order    orggroup  "mutate create \$parmdict"
+message orggroup GUI       "<Entity> create \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: delete the organization group."
+
+actor GUI
+actor cif
+actor orggroup
+
+message GUI      cif       undo
+message cif      orggroup  "mutate delete \$g"
+message orggroup GUI       "<Entity> delete \$g"
+}>>
+
+
+<<subsection "GROUP:ORGANIZATION:DELETE">>
+
+<<sequence -narration {
+comment "On send: delete the organization group."
+
+actor GUI
+actor order
+actor orggroup
+
+message GUI       order     GROUP:ORGANIZATION:DELETE
+message order     orggroup  "mutate delete \$g"
+message orggroup  GUI       "<Entity> delete \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the organization group."
+
+actor GUI
+actor cif
+actor orggroup
+
+message GUI       cif       undo
+message cif       orggroup  "mutate create \$parmdict"
+message orggroup  GUI       "<Entity> create \$g"
+}>>
+
+
+<<subsection "GROUP:ORGANIZATION:UPDATE">>
+
+<<sequence -narration {
+comment "On send: update the organization group data."
+
+actor GUI
+actor order
+actor orggroup
+
+message GUI      order     GROUP:ORGANIZATION:UPDATE
+message order    orggroup  "mutate update \$parmdict"
+message orggroup GUI       "<Entity> update \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous organization group data."
+
+actor GUI
+actor cif
+actor orggroup
+
+message GUI      cif       undo
+message cif      orggroup  "mutate update \$parmdict"
+message orggroup GUI       "<Entity> update \$g"
+}>>
+
+
+<<section "SAT:* ORDERS">>
+
+<<subsection "SAT:UPDATE">>
+
+<b>TBD:</b> Note that at present, <<xref sat(sim)>> does not send out
+any notifications.<p>
+
+<<sequence -narration {
+comment "On send: update the satisfaction curve data."
+
+actor GUI
+actor order
+actor sat
+
+message GUI     order    SAT:UPDATE
+message order   sat      "mutate update \$parmdict"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous neighborhood group data."
+
+actor GUI
+actor cif
+actor sat
+
+message GUI     cif      undo
+message cif     sat      "mutate update \$parmdict"
+}>>
+
+
 
 <<section AUTHOR>>
 
