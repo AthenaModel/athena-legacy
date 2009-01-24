@@ -225,7 +225,7 @@ proc bgerror {msg} {
 
     set bgErrorInfo $errorInfo
     log error app "bgerror: $msg"
-    log error app "$bgErrorInfo"
+    log error app "Stack Trace:\n$bgErrorInfo"
 
     app error {
         |<--

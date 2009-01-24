@@ -136,36 +136,93 @@ snit::type cif {
         return
     }
 
-    # undo
+    # undo ?-test?
+    #
+    # -test        Throw an error instead of popping up a dialog.
     #
     # Undo the previous command, if possible.  If not, throw an
     # error.
 
-    typemethod undo {} {
+    typemethod undo {{opt ""}} {
         # FIRST, get the undo information
+        set id ""
+
         rdb eval {
             SELECT id, name, parmdict, undo
             FROM cif 
             WHERE id=$info(nextid) - 1
-        } {
-            if {$undo ne ""} {
-                log normal cif "undo: $name $parmdict"
+        } {}
 
-                uplevel \#0 $undo
-
-                rdb eval {
-                    UPDATE cif
-                    SET   undo = ''
-                    WHERE id   = $id
-                }
-
-                incr info(nextid) -1
-
-                return
-            }
+        if {$id eq "" || $undo eq ""} {
+            error "Nothing to undo"
         }
 
-        error "Nothing to undo"
+        # NEXT, Undo the order
+        log normal cif "undo: $name $parmdict"
+
+        if {[catch {
+            rdb transaction {
+                uplevel \#0 $undo
+            }
+        } result opts]} {
+            # FIRST, If we're testing, rethrow the error.
+            if {$opt eq "-test"} {
+                return {*}$opts $result
+            }
+
+            # NEXT, Log all of the details
+            set einfo [dict get $opts -errorinfo]
+
+            log error cif [tsubst {
+                |<--
+                Error during undo (changes have been rolled back):
+
+                [cif dump]
+
+                Stack Trace:
+                $einfo
+            }]
+
+            # NEXT, clear all undo information; we can't undo, and
+            # we've logged the problem entry.
+            rdb eval {
+                UPDATE cif
+                SET undo = '';
+            }
+
+            # NEXT, tell the user what happened.
+            app error {
+                |<--
+                Undo $name
+
+                There was an unexpected error while undoing 
+                this order.  The scenario has been rolled back 
+                to its previous state, so the application data
+                should not be corrupted.  However:
+
+                * You should probably save the scenario under
+                a new name, just in case.
+
+                * The error has been logged in detail.  Please
+                contact JPL to get the problem fixed. 
+            }
+
+            # NEXT, Reconfigure all modules from the database: 
+            # this should clean up any problems in Tcl memory.
+            scenario reconfigure
+        } else {
+            # FIRST, no error; clear this undo information, and
+            # update the top of stack.
+            rdb eval {
+                UPDATE cif
+                SET   undo = ''
+                WHERE id   = $id
+            }
+
+            incr info(nextid) -1
+        }
+
+        return
     }
 
     # canredo

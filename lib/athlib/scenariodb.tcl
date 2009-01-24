@@ -118,7 +118,9 @@ snit::type ::athlib::scenariodb {
         # NEXT, create the sqldocument, naming it so that it
         # will be automatically destroyed.  We don't want
         # automatic transaction batching.
-        set db [sqldocument ${selfns}::db -autotrans off]
+        set db [sqldocument ${selfns}::db \
+                    -autotrans off        \
+                    -rollback  on]
     }
 
     #-------------------------------------------------------------------
