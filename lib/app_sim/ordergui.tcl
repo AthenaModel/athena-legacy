@@ -121,6 +121,9 @@ snit::type ordergui {
     # values array: entered data by parm name.
     typevariable values -array { }
 
+    # entries array: entry widgets by parm name.
+    typevariable entries -array { }
+    
     # icon array: Status icon by parm name.
     typevariable icon -array { }
 
@@ -334,6 +337,7 @@ snit::type ordergui {
         set info(table) [order meta $order table]
         set info(keys)  [order meta $order keys]
         array unset values
+        array unset entries
         array unset icon
         array unset perrors
         
@@ -367,18 +371,20 @@ snit::type ordergui {
                 -text   "[dict get $pdict label]:"
 
             # Entry
-            $ewidget($etype) $parmf.entry$row {*}$eoptions \
+            set entries($parm) $parmf.entry$row
+
+            $ewidget($etype) $entries($parm) {*}$eoptions \
                 -textvariable [mytypevar values($parm)]
 
-            bind $parmf.entry$row <FocusIn> \
+            bind $entries($parm) <FocusIn> \
                 [mytypemethod ParmIn $parm $ptype]
-            bind $parmf.entry$row <FocusOut> \
+            bind $entries($parm) <FocusOut> \
                 [mytypemethod ParmOut $parm]
 
             if {$parm in $info(keys)} {
                 assert {$etype eq "enum"}
 
-                bind $parmf.entry$row <<ComboboxSelected>> \
+                bind $entries($parm) <<ComboboxSelected>> \
                     [mytypemethod RefreshNonKeyFields]
             }
 
@@ -392,6 +398,11 @@ snit::type ordergui {
             grid $parmf.entry$row -row $row -column 1 -sticky ew \
                 -padx 2 -pady 4
             grid $parmf.icon$row  -row $row -column 2 -sticky nsew
+        }
+
+        # NEXT, if there are key fields, disable non-key fields.
+        if {[llength $info(keys)] != 0} {
+            $type SetNonKeyFields disabled
         }
 
         # NEXT, raise the window and set the focus
@@ -434,10 +445,31 @@ snit::type ordergui {
 
         # NEXT, get the data from the table
         rdb eval $query row {
+            $type SetNonKeyFields normal
+
             foreach parm [array names values] {
                 if {$parm ni $info(keys)} {
                     set values($parm) $row($parm)
                 }
+            }
+
+            return
+        }
+
+        # NEXT, there was no entity to recover.
+        $type SetNonKeyFields disabled
+    }
+
+    # SetNonKeyFields state
+    #
+    # state         normal | disabled
+    #
+    # Sets the -state of all non-key fields.
+
+    typemethod SetNonKeyFields {state} {
+        foreach parm [array names entries] {
+            if {$parm ni $info(keys)} {
+                $entries($parm) configure -state $state
             }
         }
     }
