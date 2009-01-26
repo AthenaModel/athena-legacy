@@ -84,15 +84,25 @@ snit::type sat {
     # satisfaction can be tracked.
 
     typemethod {group validate} {g} {
-        set groups [rdb eval {
-            SELECT g FROM groups
-            WHERE gtype IN ('CIV', 'ORG')
-        }]
+        set groups [$type group names]
 
         if {$g ni $groups} {
             return -code error -errorcode INVALID \
                 "Invalid group, should be one of: [join $groups {, }]"
         }
+
+        return $g
+    }
+
+    # group names
+    #
+    # Returns a list of the names of the satisfaction groups.
+
+    typemethod {group names} {} {
+        return [rdb eval {
+            SELECT g FROM groups
+            WHERE gtype IN ('CIV', 'ORG')
+        }]
 
         return $g
     }
@@ -222,7 +232,7 @@ order define ::sat SAT:UPDATE {
         n              {ptype nbhood    label "Neighborhood"  }
         g              {ptype satgroup  label "Group"         }
         c              {ptype concern   label "Concern"       }
-        sat0           {ptype sat       label "Sat0"          }
+        sat0           {ptype sat       label "Sat at T0"     }
         trend0         {ptype trend     label "Trend0"        }
         saliency       {ptype saliency  label "Saliency"      }
     }

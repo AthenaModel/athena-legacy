@@ -828,6 +828,7 @@ snit::widget editorentry {
 # Define specific entry types
 
 ordergui entrytype editor color        -editcmd  ::ordergui::colorpicker
+ordergui entrytype enum   concern      -values   [econcern names]
 ordergui entrytype enum   demeanor     -values   [edemeanor names]
 ordergui entrytype enum   forcetype    -values   [eforcetype names]
 ordergui entrytype enum   orgtype      -values   [eorgtype names]
@@ -838,6 +839,7 @@ ordergui entrytype enum   nbhood       -valuecmd [list nbhood names]
 ordergui entrytype enum   civgroup     -valuecmd [list civgroup names]
 ordergui entrytype enum   frcgroup     -valuecmd [list frcgroup names]
 ordergui entrytype enum   orggroup     -valuecmd [list orggroup names]
+ordergui entrytype enum   satgroup     -valuecmd [list sat group names]
 
 
 
