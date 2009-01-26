@@ -284,6 +284,8 @@ message order   nbhood   "mutate delete \$n"
 message nbhood  nbgroup  "mutate nbhoodDeleted \$n"
 action  nbgroup          "For all groups which reside in \$n:"
 message nbgroup sat      "mutate nbgroupDeleted \$n \$g"
+action  sat              "For all concerns:"
+message sat     GUI      "<Entity> delete \$n \$g \$c"
 message nbgroup GUI      "<Entity> delete \$n \$g"
 message nbhood  GUI      "<Entity> delete \$n"
 }>>
@@ -305,6 +307,8 @@ action  cif              {
 }
 message cif     nbgroup  "mutate create \$parmdict"
 message nbgroup sat      "mutate nbgroupCreated \$n \$g"
+action  sat              "For all concerns:"
+message sat     GUI      "<Entity> create \$n \$g \$c"
 message nbgroup GUI      "<Entity> create \$n \$g"
 action  cif              {
     For each restored satisfaction curve for this neighborhood group:
@@ -312,6 +316,7 @@ action  cif              {
 message cif     sat      "mutate update \$parmdict" {
     Sets each satisfaction curve back to its previous value.
 }
+message sat     GUI      "<Entity> update \$n \$g \$c"
 
 }>>
 
@@ -445,6 +450,8 @@ message order     civgroup  "mutate delete \$g"
 message civgroup  nbgroup   "mutate civgroupDeleted \$g"
 action  nbgroup             "For all neighborhoods in which \$g resides:"
 message nbgroup   sat       "mutate nbgroupDelete \$n \$g"
+action  sat                 "For all concerns:"
+message sat       GUI       "<Entity> delete \$n \$g \$c"
 message nbgroup   GUI       "<Entity> delete \$n \$g"
 message civgroup  GUI       "<Entity> delete \$g"
 }>>
@@ -464,6 +471,8 @@ message civgroup  GUI       "<Entity> create \$g"
 action  cif       "For each restored neighborhood group:"
 message cif       nbgroup   "mutate create \$parmdict"
 message nbgroup   sat       "mutate nbgroupCreated \$n \$g"
+action  sat                 "For all concerns:"
+message sat       GUI       "<Entity> create \$n \$g \$c"
 message nbgroup   GUI       "<Entity> create \$n \$g"
 action  cif       {
     For each restored satisfaction curve for this neighborhood group:
@@ -471,6 +480,7 @@ action  cif       {
 message cif       sat       "mutate update \$parmdict" {
     Sets each satisfaction curve back to its previous value.
 }
+message sat       GUI       "<Entity> update \$n \$g \$c"
 }>>
 
 
@@ -599,6 +609,8 @@ actor sat
 message GUI     order      GROUP:NBHOOD:CREATE
 message order   nbgroup    "mutate create \$parmdict"
 message nbgroup sat        "mutate nbgroupCreated \$n \$g"
+action  sat                "For all concerns:"
+message sat     GUI        "<Entity> create \$n \$g \$c"
 message nbgroup GUI        "<Entity> create \$n \$g"
 }>>
 
@@ -613,6 +625,8 @@ actor sat
 message GUI     cif        undo
 message cif     nbgroup    "mutate delete \$n \$g"
 message nbgroup sat        "mutate nbgroupDeleted \$n \$g"
+action  sat                "For all concerns:"
+message sat     GUI        "<Entity> delete \$n \$g \$c"
 message nbgroup GUI        "<Entity> delete \$n \$g"
 }>>
 
@@ -630,6 +644,8 @@ actor sat
 message GUI     order      GROUP:NBHOOD:DELETE
 message order   nbgroup    "mutate delete \$n \$g"
 message nbgroup sat        "mutate nbgroupDeleted \$n \$g"
+action  sat                "For all concerns:"
+message sat     GUI        "<Entity> delete \$n \$g \$c"
 message nbgroup GUI        "<Entity> delete \$n \$g"
 }>>
 
@@ -646,10 +662,13 @@ message cif     nbgroup    "mutate create \$n \$g"
 message nbgroup sat        "mutate nbgroupCreated \$n \$g" {
     Recreates the satisfaction curves with default values.
 }
+action  sat                "For all concerns:"
+message sat     GUI        "<Entity> create \$n \$g \$c"
+message nbgroup GUI        "<Entity> create \$n \$g"
 message cif     sat        "mutate update \$n \$g \$c" {
     Restores the previous values for each recreated satisfaction curve.
 }
-message nbgroup GUI        "<Entity> create \$n \$g"
+message sat     GUI        "<Entity> update \$n \$g \$c"
 }>>
 
 
@@ -664,7 +683,7 @@ actor nbgroup
 
 message GUI     order    GROUP:NBHOOD:UPDATE
 message order   nbgroup  "mutate update \$parmdict"
-message nbgroup GUI      "<Entity> update \$n"
+message nbgroup GUI      "<Entity> update \$n \$g"
 }>>
 
 <<sequence -narration {
@@ -676,7 +695,7 @@ actor nbgroup
 
 message GUI     cif      undo
 message cif     nbgroup  "mutate update \$parmdict"
-message nbgroup GUI      "<Entity> update \$n"
+message nbgroup GUI      "<Entity> update \$n \$g"
 }>>
 
 
@@ -767,9 +786,6 @@ message orggroup GUI       "<Entity> update \$g"
 
 <<subsection "SAT:UPDATE">>
 
-<b>TBD:</b> Note that at present, <<xref sat(sim)>> does not send out
-any notifications.<p>
-
 <<sequence -narration {
 comment "On send: update the satisfaction curve data."
 
@@ -779,6 +795,7 @@ actor sat
 
 message GUI     order    SAT:UPDATE
 message order   sat      "mutate update \$parmdict"
+message sat     GUI      "<Entity> update \$n \$g \$c"
 }>>
 
 <<sequence -narration {
@@ -790,6 +807,7 @@ actor sat
 
 message GUI     cif      undo
 message cif     sat      "mutate update \$parmdict"
+message sat     GUI      "<Entity> update \$n \$g \$c"
 }>>
 
 

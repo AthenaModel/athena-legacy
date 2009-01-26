@@ -120,6 +120,10 @@ snit::type sat {
             SELECT $n, $g, c, 0.0, 0.0, 1.0 FROM civ_concerns;
         }
 
+        foreach c [rdb eval {SELECT c FROM civ_concerns}] {
+            notifier send $type <Entity> create $n $g $c
+        }
+
         return [mytypemethod mutate nbgroupDeleted $n $g]
     }
 
@@ -150,6 +154,10 @@ snit::type sat {
             DELETE FROM sat_ngc
             WHERE n=$n AND g=$g;
         } {}
+
+        foreach c [rdb eval {SELECT c FROM civ_concerns}] {
+            notifier send $type <Entity> delete $n $g $c
+        }
         
         # NEXT, Return the undo script
         return [join $undo \n]

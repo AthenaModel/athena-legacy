@@ -59,3 +59,14 @@ SELECT n || ' ' || g                                 AS ng,
        format('%.2f', rollup_weight)                 AS rollup_weight,
        format('%.2f', effects_factor)                AS effects_factor
 FROM groups JOIN nbgroups USING (g);
+
+-- A sat_ngc view for use by the GUI
+CREATE TEMPORARY VIEW gui_sat_ngc AS
+SELECT n || ' ' || g || ' ' || c                     AS ngc,
+       n                                             AS n,
+       g                                             AS g,
+       c                                             AS c,
+       format('%.3f', sat0)                          AS sat0,
+       format('%.3f', trend0)                        AS trend0,
+       format('%.2f', saliency)                      AS saliency
+FROM sat_ngc;

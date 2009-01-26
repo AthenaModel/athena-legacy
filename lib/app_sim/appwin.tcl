@@ -389,6 +389,16 @@ snit::widget appwin {
             -padding 2                     \
             -text    "NbGrps"
 
+        # NEXT, add the satisfaction browser to the content notebook
+        satbrowser $content.sat            \
+            -width   600                   \
+            -height  600
+
+        $content add $content.sat          \
+            -sticky  nsew                  \
+            -padding 2                     \
+            -text    "Sat"
+
         # NEXT, add the FRC group browser to the content notebook
         frcgroupbrowser $content.frcgroups \
             -width   600                   \
