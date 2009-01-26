@@ -282,6 +282,12 @@ snit::widget appwin {
         $self AddOrder $submenu NBHOOD:RAISE
         $self AddOrder $submenu NBHOOD:DELETE
 
+        # Orders/Satisfaction Menu
+        set submenu [menu $ordersmenu.sat]
+        $ordersmenu add cascade -label "Satisfaction" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu SAT:UPDATE
     }
 
     # AddOrder mnu order

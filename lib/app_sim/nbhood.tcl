@@ -83,7 +83,7 @@ snit::type nbhood {
 
     typemethod names {} {
         set names [rdb eval {
-            SELECT n FROM nbhoods 
+            SELECT n FROM nbhoods ORDER BY n
         }]
     }
 

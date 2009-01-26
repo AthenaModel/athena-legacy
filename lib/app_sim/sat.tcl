@@ -225,7 +225,7 @@ snit::type sat {
 # Updates existing groups.
 
 order define ::sat SAT:UPDATE {
-    title "Update Satisfaction Level"
+    title "Update Satisfaction Curve"
     table sat_ngc
     keys  {n g c}
     parms {
