@@ -279,9 +279,10 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
 
 order define ::nbgroup GROUP:NBHOOD:DELETE {
     title "Delete Nbhood Group"
+    table gui_nbgroups
     parms {
-        n {ptype nbhood   label "Neighborhood" }
-        g {ptype civgroup label "Civ Group"    }
+        n {ptype key label "Neighborhood" }
+        g {ptype key label "Civ Group"    }
     }
 } {
     # FIRST, prepare the parameters
@@ -332,10 +333,9 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
 order define ::nbgroup GROUP:NBHOOD:UPDATE {
     title "Update Nbhood Group"
     table gui_nbgroups
-    keys  {n g}
     parms {
-        n              {ptype nbhood    label "Neighborhood"  }
-        g              {ptype civgroup  label "Civ Group"     }
+        n              {ptype key       label "Neighborhood"  }
+        g              {ptype key       label "Civ Group"     }
         local_name     {ptype text      label "Local Name"    }
         demeanor       {ptype demeanor  label "Demeanor"      }
         rollup_weight  {ptype weight    label "RollupWeight"  }

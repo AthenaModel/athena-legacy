@@ -282,8 +282,9 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
 
 order define ::orggroup GROUP:ORGANIZATION:DELETE {
     title "Delete Organization Group"
+    table gui_orggroups
     parms {
-        g {ptype orggroup label "Group"}
+        g {ptype key label "Group"}
     }
 } {
     # FIRST, prepare the parameters
@@ -325,9 +326,8 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
 order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     title "Update Organization Group"
     table gui_orggroups
-    keys  g
     parms {
-        g              {ptype orggroup  label "ID"            }
+        g              {ptype key       label "ID"            }
         longname       {ptype text      label "Long Name"     }
         color          {ptype color     label "Color"         }
         orgtype        {ptype orgtype   label "Org. Type"     }

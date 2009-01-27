@@ -390,11 +390,10 @@ snit::type sat {
 order define ::sat SAT:UPDATE {
     title "Update Satisfaction Curve"
     table sat_ngc
-    keys  {n g c}
     parms {
-        n              {ptype nbhood    label "Neighborhood"  }
-        g              {ptype satgroup  label "Group"         }
-        c              {ptype concern   label "Concern"       }
+        n              {ptype key       label "Neighborhood"  }
+        g              {ptype key       label "Group"         }
+        c              {ptype key       label "Concern"       }
         sat0           {ptype sat       label "Sat at T0"     }
         trend0         {ptype trend     label "Trend0"        }
         saliency       {ptype saliency  label "Saliency"      }

@@ -234,8 +234,9 @@ order define ::civgroup GROUP:CIVILIAN:CREATE {
 
 order define ::civgroup GROUP:CIVILIAN:DELETE {
     title "Delete Civilian Group"
+    table civgroups_view
     parms {
-        g {ptype civgroup label "Group"}
+        g {ptype key label "Group"}
     }
 } {
     # FIRST, prepare the parameters
@@ -277,9 +278,8 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
 order define ::civgroup GROUP:CIVILIAN:UPDATE {
     title "Update Civilian Group"
     table civgroups_view
-    keys  g
     parms {
-        g            {ptype civgroup      label "ID"                }
+        g            {ptype key           label "ID"                }
         longname     {ptype text          label "Long Name"         }
         color        {ptype color         label "Color"             }
     }

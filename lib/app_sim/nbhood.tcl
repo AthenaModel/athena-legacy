@@ -450,8 +450,9 @@ order define ::nbhood NBHOOD:CREATE {
 
 order define ::nbhood NBHOOD:DELETE {
     title "Delete Neighborhood"
+    table gui_nbhoods
     parms {
-        n {ptype nbhood label "Neighborhood"}
+        n {ptype key label "Neighborhood"}
     }
 } {
     # FIRST, prepare the parameters
@@ -489,8 +490,9 @@ order define ::nbhood NBHOOD:DELETE {
 
 order define ::nbhood NBHOOD:LOWER {
     title "Lower Neighborhood"
+    table gui_nbhoods
     parms {
-        n {ptype nbhood label "Neighborhood"}
+        n {ptype key label "Neighborhood"}
     }
 } {
     # FIRST, prepare the parameters
@@ -506,8 +508,9 @@ order define ::nbhood NBHOOD:LOWER {
 
 order define ::nbhood NBHOOD:RAISE {
     title "Raise Neighborhood"
+    table gui_nbhoods
     parms {
-        n {ptype nbhood label "Neighborhood"}
+        n {ptype key label "Neighborhood"}
     }
 } {
     # FIRST, prepare the parameters
@@ -526,9 +529,8 @@ order define ::nbhood NBHOOD:RAISE {
 order define ::nbhood NBHOOD:UPDATE {
     title "Update Neighborhood"
     table gui_nbhoods
-    keys  n
     parms {
-        n            {ptype nbhood        label "Neighborhood"    }
+        n            {ptype key           label "Neighborhood"    }
         longname     {ptype text          label "Long Name"       }
         urbanization {ptype urbanization  label "Urbanization"    }
         refpoint     {ptype point         label "Reference Point" }

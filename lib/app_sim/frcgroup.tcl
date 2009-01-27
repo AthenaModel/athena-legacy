@@ -257,8 +257,9 @@ order define ::frcgroup GROUP:FORCE:CREATE {
 
 order define ::frcgroup GROUP:FORCE:DELETE {
     title "Delete Force Group"
+    table gui_frcgroups
     parms {
-        g {ptype frcgroup label "Group"}
+        g {ptype key label "Group"}
     }
 } {
     # FIRST, prepare the parameters
@@ -300,9 +301,8 @@ order define ::frcgroup GROUP:FORCE:DELETE {
 order define ::frcgroup GROUP:FORCE:UPDATE {
     title "Update Force Group"
     table gui_frcgroups
-    keys  g
     parms {
-        g            {ptype frcgroup      label "ID"                }
+        g            {ptype key           label "ID"                }
         longname     {ptype text          label "Long Name"         }
         color        {ptype color         label "Color"             }
         forcetype    {ptype forcetype     label "Force Type"        }

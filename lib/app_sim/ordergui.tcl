@@ -81,6 +81,7 @@ snit::type ordergui {
     # ewidget: Array of entry widget types by etype
     
     typevariable ewidget -array {
+        key    ::enumentry
         text   ::textentry
         enum   ::enumentry
         editor ::editorentry
@@ -293,7 +294,7 @@ snit::type ordergui {
 
         # NEXT, if this is a key value, refresh the content.
         if {$parm in $info(keys)} {
-            $type RefreshNonKeyFields
+            $type KeyChange $parm
         }
     }
 
@@ -335,7 +336,7 @@ snit::type ordergui {
         set info(order) $order
         set info(title) [order meta $order title]
         set info(table) [order meta $order table]
-        set info(keys)  [order meta $order keys]
+        set info(keys)  [list]
         array unset values
         array unset entries
         array unset icon
@@ -356,8 +357,14 @@ snit::type ordergui {
 
             # NEXT, get the entry type and args.  If no entry type
             # is know for this parameter type, we treat it as a standard
-            # text entry.
-            if {[info exists etypes($ptype)]} {
+            # text entry.  If it's a key, add it to the list of keys.
+            if {$ptype eq "key"} {
+                assert {$info(table) ne ""}
+                lappend info(keys) $parm
+
+                set etype    enum
+                set eoptions {}
+            } elseif {[info exists etypes($ptype)]} {
                 lassign $etypes($ptype) etype eoptions
             } else {
                 set etype    text
@@ -381,11 +388,9 @@ snit::type ordergui {
             bind $entries($parm) <FocusOut> \
                 [mytypemethod ParmOut $parm]
 
-            if {$parm in $info(keys)} {
-                assert {$etype eq "enum"}
-
+            if {$ptype eq "key"} {
                 bind $entries($parm) <<ComboboxSelected>> \
-                    [mytypemethod RefreshNonKeyFields]
+                    [mytypemethod KeyChange $parm]
             }
 
             # Status Icon
@@ -402,7 +407,7 @@ snit::type ordergui {
 
         # NEXT, if there are key fields, disable non-key fields.
         if {[llength $info(keys)] != 0} {
-            $type SetNonKeyFields disabled
+            $type GetKeyValues [lindex $info(keys) 0]
         }
 
         # NEXT, raise the window and set the focus
@@ -424,17 +429,84 @@ snit::type ordergui {
         set info(active) 1
     }
 
+    # KeyChange key
+    #
+    # key    Name of a key parameter
+    #
+    # Called when the user has selected a new value for this key.
+    #
+    # If this is the last of the keys, we must refresh and enable
+    # the other fields.  Otherwise, we must refresh the next key.
+
+    typemethod KeyChange {key} {
+        set last [expr {[llength $info(keys)] - 1}]
+        set ndx  [lsearch -exact $info(keys) $key]
+
+        if {$ndx == $last} {
+            $type RefreshNonKeyFields
+        } else {
+            $type GetKeyValues [lindex $info(keys) $ndx+1]
+        }
+    }
+
+    # GetKeyValues key
+    #
+    # key    Name of a key parameter
+    # 
+    # Retrieves the list of valid values for this key, given the
+    # values of the previous keys.
+
+    typemethod GetKeyValues {key} {
+        # FIRST, build the query
+        set keytests [list]
+
+        foreach parm $info(keys) {
+            if {$parm eq $key} {
+                break
+            }
+
+            lappend keytests "$parm=\$values($parm)"
+        }
+
+        set keytests [join $keytests " AND "]
+
+        if {$keytests ne ""} {
+            set where "WHERE $keytests"
+        } else {
+            set where ""
+        }
+
+        # NEXT, get the list of values
+        set list [rdb eval "
+            SELECT DISTINCT $key 
+            FROM $info(table) 
+            $where
+            ORDER BY $key
+        "]
+
+        
+
+        # NEXT, blank the entry if the current value isn't in the list.
+        if {$values($key) ni $list} {
+            set values($key) ""
+        }
+
+        # NEXT, update the pulldown list
+        $entries($key) configure -values $list
+
+        # NEXT, the value might or might not have changed; but
+        # treat it like a key change.  The will cause the subsequent
+        # parms to get updated properly.
+        $type KeyChange $key
+
+    }
+
     # RefreshNonKeyFields
     #
     # Fills in the non-key parameters with data from the database
 
     typemethod RefreshNonKeyFields {} {
-        # FIRST, don't do this if there's no link to the database
-        if {$info(table) eq ""} {
-            return
-        }
-
-        # NEXT, build the key queries
+        # FIRST, build the key queries
         foreach parm $info(keys) {
             lappend keytests "$parm=\$values($parm)"
         }
