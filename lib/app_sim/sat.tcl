@@ -133,14 +133,21 @@ snit::type sat {
     # satisfaction levels.
 
     typemethod {mutate nbgroupCreated} {n g} {
+        set keys [list]
+
         rdb eval {
-            INSERT INTO sat_ngc
-            SELECT $n, $g, c, 'CIV', 0.0, 0.0, 1.0 FROM civ_concerns;
+            SELECT c FROM civ_concerns
+        } {
+            lappend keys $n $g $c
+
+            rdb eval {
+                INSERT INTO sat_ngc(n,g,c,gtype)
+                VALUES($n,$g,$c,'CIV')
+            }
         }
 
-        foreach c [rdb eval {SELECT c FROM civ_concerns}] {
-            notifier send $type <Entity> create $n $g $c
-        }
+        # Notify the app.
+        $type SendEntity create {*}$keys
 
         # Note: No undo script is required; undoing an nbgroup creation
         # requires an nbgroup deletion, which will call nbgroupDeleted
@@ -192,18 +199,21 @@ snit::type sat {
     # satisfaction curves for the neighborhood and all org groups.
 
     typemethod {mutate nbhoodCreated} {n} {
+        set keys [list]
+
         rdb eval {
-            INSERT INTO sat_ngc
-            SELECT $n, g, c, 'ORG', 0.0, 0.0, 1.0 
-            FROM orggroups JOIN org_concerns;
+            SELECT g, c
+            FROM orggroups JOIN org_concerns
+        } {
+            lappend keys $n $g $c
+            rdb eval {
+                INSERT INTO sat_ngc(n,g,c,gtype)
+                VALUES($n,$g,$c,'ORG')
+            }
         }
 
-        foreach {g c} [rdb eval {
-            SELECT g,c FROM sat_ngc
-            WHERE n = $n
-        }] {
-            notifier send $type <Entity> create $n $g $c
-        }
+        # Notify the app
+        $type SendEntity create {*}$keys
 
         # Note: No undo script is required; undoing a nbhood creation
         # requires a nbhood deletion, which will call nbhoodDeleted
@@ -241,9 +251,7 @@ snit::type sat {
         } {}
 
         # NEXT, notify the app.
-        foreach {n g c} $keys {
-            notifier send $type <Entity> delete $n $g $c
-        }
+        $type SendEntity delete {*}$keys
         
         # NEXT, Return the undo script
         return [join $undo \n]
@@ -257,18 +265,21 @@ snit::type sat {
     # satisfaction curves for this group in all neighborhoods.
 
     typemethod {mutate orggroupCreated} {g} {
+        set keys [list]
+
         rdb eval {
-            INSERT INTO sat_ngc
-            SELECT n, $g, c, 'ORG', 0.0, 0.0, 1.0 
-            FROM nbhoods JOIN org_concerns;
+            SELECT n, c
+            FROM nbhoods JOIN org_concerns
+        } {
+            lappend keys $n $g $c
+            rdb eval {
+                INSERT INTO sat_ngc(n,g,c,gtype)
+                VALUES($n,$g,$c,'ORG')
+            }
         }
 
-        foreach {n c} [rdb eval {
-            SELECT n,c FROM sat_ngc
-            WHERE g = $g
-        }] {
-            notifier send $type <Entity> create $n $g $c
-        }
+        # NEXT, notify the app
+        $type SendEntity create {*}$keys
 
         # Note: No undo script is required; undoing an ORG group creation
         # requires an ORG group deletion, which will call orggroupDeleted
@@ -306,14 +317,11 @@ snit::type sat {
         } {}
 
         # NEXT, notify the app.
-        foreach {n g c} $keys {
-            notifier send $type <Entity> delete $n $g $c
-        }
+        $type SendEntity delete {*}$keys
         
         # NEXT, Return the undo script
         return [join $undo \n]
     }
-
 
     # mutate update parmdict
     #
@@ -350,10 +358,23 @@ snit::type sat {
             } {}
 
             # NEXT, notify the app.
-            notifier send ::sat <Entity> update $n $g $c
+            $type SendEntity update $n $g $c
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]
+        }
+    }
+   
+    # SendEntity op n g c ?n g c...?
+    #
+    # op     create, delete, or update
+    # n,g,c  Indices of a satisfaction curve
+    #
+    # Sends the <Entity> events for a set of curves
+
+    typemethod SendEntity {op args} {
+        foreach {n g c} $args {
+            notifier send ::sat <Entity> $op $n $g $c
         }
     }
 

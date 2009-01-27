@@ -223,18 +223,28 @@ SELECT * FROM concerns WHERE gtype='ORG';
 -- Neighborhood/pgroup/concern triples (n,g,c) for both nbhood groups
 -- and org groups.  This table contains the data used to initialize
 -- JRAM.
---
--- TBD: The long-term trend might be a computed value, varying over
--- time, rather than an input.
-CREATE TABLE sat_ngc (
-    n          TEXT,          -- Symbolic nbhoods name
-    g          TEXT,          -- Symbolic groups name
-    c          TEXT,          -- Symbolic concerns name
 
-    gtype      TEXT,          -- CIV or ORG        
-    sat0       DOUBLE,        -- Initial satisfaction
-    trend0     DOUBLE,        -- Long-term Trend
-    saliency   DOUBLE,        -- Saliency of concern c.
+CREATE TABLE sat_ngc (
+    -- Symbolic nbhoods name
+    n          TEXT,
+
+    -- Symbolic groups name
+    g          TEXT,
+
+    -- Symbolic concerns name
+    c          TEXT,
+
+    -- Group type: CIV or ORG
+    gtype      TEXT,
+
+    -- Initial satisfaction value
+    sat0       DOUBLE DEFAULT 0.0,
+
+    -- Long-term Trend
+    trend0     DOUBLE DEFAULT 0.0,
+
+    -- Saliency of concern c to group g in nbhood n
+    saliency   DOUBLE DEFAULT 1.0,
 
     PRIMARY KEY (n, g, c)
 );
