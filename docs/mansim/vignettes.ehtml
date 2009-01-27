@@ -242,29 +242,38 @@ message map   GUI   <MapChanged>
 <<subsection "NBHOOD:CREATE">>
 
 <<sequence -narration {
-comment "On send: create the new neighborhood"
+comment "On send: create the new neighborhood and dependent entities."
 
 actor GUI
 actor order
 actor nbhood
+actor sat
 
 message GUI    order    NBHOOD:CREATE
 message order  nbhood   "mutate create \$parmdict"
+message nbhood sat      "mutate nbhoodCreated \$n"
+action         sat      "For each ORG group and concern:"
+message sat    GUI      "<Entity> create \$n \$g \$c"
 message nbhood GUI      "<Entity> create \$n"
 }>>
 
 <<sequence -narration {
-comment "On undo: delete the neighborhood, and all dependent entities
-(but there shouldn't be any)."
+comment "On undo: delete the neighborhood, and all dependent entities."
 
 actor GUI
 actor cif
 actor nbhood
 actor nbgroup
+actor sat
 
 message GUI    cif      undo
 message cif    nbhood   "mutate delete \$n"
-message nbhood nbgroup  "mutate nbhoodDeleted \$n"
+message nbhood nbgroup  "mutate nbhoodDeleted \$n" {
+    There should be no neighborhood groups for this neighborhood.
+}
+message nbhood sat      "mutate nbhoodDeleted \$n"
+action  sat             "For each ORG group and concern:"
+message sat    GUI      "<Entity> delete \$n \$g \$c"
 message nbhood GUI      "<Entity> delete \$n"
 }>>
 
@@ -284,9 +293,12 @@ message order   nbhood   "mutate delete \$n"
 message nbhood  nbgroup  "mutate nbhoodDeleted \$n"
 action  nbgroup          "For all groups which reside in \$n:"
 message nbgroup sat      "mutate nbgroupDeleted \$n \$g"
-action  sat              "For all concerns:"
+action  sat              "For all CIV concerns:"
 message sat     GUI      "<Entity> delete \$n \$g \$c"
 message nbgroup GUI      "<Entity> delete \$n \$g"
+message nbhood  sat      "mutate nbhoodDeleted \$n"
+action  sat              "For all ORG groups and concerns:"
+message sat     GUI      "<Entity> delete \$n \$g \$c"
 message nbhood  GUI      "<Entity> delete \$n"
 }>>
 
@@ -307,11 +319,14 @@ action  cif              {
 }
 message cif     nbgroup  "mutate create \$parmdict"
 message nbgroup sat      "mutate nbgroupCreated \$n \$g"
-action  sat              "For all concerns:"
+action  sat              "For all CIV concerns:"
 message sat     GUI      "<Entity> create \$n \$g \$c"
 message nbgroup GUI      "<Entity> create \$n \$g"
+message nbhood  sat      "mutate nbhoodCreated \$n"
+action  sat              "For all ORG groups and concerns:"
+message sat     GUI      "<Entity> create \$n \$g \$c"
 action  cif              {
-    For each restored satisfaction curve for this neighborhood group:
+    For each restored CIV and ORG satisfaction curve:
 }
 message cif     sat      "mutate update \$parmdict" {
     Sets each satisfaction curve back to its previous value.
@@ -704,26 +719,34 @@ message nbgroup GUI      "<Entity> update \$n \$g"
 <<subsection "GROUP:ORGANIZATION:CREATE">>
 
 <<sequence -narration {
-comment "On send: create the new organization group"
+comment "On send: create the new organization group and dependent entities."
 
 actor GUI
 actor order
 actor orggroup
+actor sat
 
 message GUI      order     GROUP:ORGANIZATION:CREATE
 message order    orggroup  "mutate create \$parmdict"
+message orggroup sat       "mutate orggroupCreated \$g"
+action  sat                "For all nbhoods and ORG concerns:"
+message sat      GUI       "<Entity> create \$n \$g \$c"
 message orggroup GUI       "<Entity> create \$g"
 }>>
 
 <<sequence -narration {
-comment "On undo: delete the organization group."
+comment "On undo: delete the organization group and dependent entities."
 
 actor GUI
 actor cif
 actor orggroup
+actor sat
 
 message GUI      cif       undo
 message cif      orggroup  "mutate delete \$g"
+message orggroup sat       "mutate orggroupDeleted \$g"
+action  sat                "For all nbhoods and ORG concerns:"
+message sat      GUI       "<Entity> delete \$n \$g \$c"
 message orggroup GUI       "<Entity> delete \$g"
 }>>
 
@@ -736,10 +759,14 @@ comment "On send: delete the organization group."
 actor GUI
 actor order
 actor orggroup
+actor sat
 
-message GUI       order     GROUP:ORGANIZATION:DELETE
-message order     orggroup  "mutate delete \$g"
-message orggroup  GUI       "<Entity> delete \$g"
+message GUI      order     GROUP:ORGANIZATION:DELETE
+message order    orggroup  "mutate delete \$g"
+message orggroup sat       "mutate orggroupDeleted \$g"
+action  sat                "For all nbhoods and ORG concerns:"
+message sat      GUI       "<Entity> delete \$n \$g \$c"
+message orggroup GUI       "<Entity> delete \$g"
 }>>
 
 <<sequence -narration {
@@ -748,10 +775,21 @@ comment "On undo: restore the organization group."
 actor GUI
 actor cif
 actor orggroup
+actor sat
 
-message GUI       cif       undo
-message cif       orggroup  "mutate create \$parmdict"
-message orggroup  GUI       "<Entity> create \$g"
+message GUI      cif       undo
+message cif      orggroup  "mutate create \$parmdict"
+message orggroup sat       "mutate orggroupCreated \$g"
+action  sat                "For all nbhoods and ORG concerns:"
+message sat      GUI       "<Entity> create \$n \$g \$c" {
+    Recreates satisfaction levels with default values.
+}
+message orggroup GUI       "<Entity> create \$g"
+action  cif                "For each restored ORG satisfaction curve:"
+message cif      sat       "mutate update \$parmdict" {
+    Resets each curve back to its previous values.
+}
+message sat      GUI       "<Entity> update \$n \$g \$c"
 }>>
 
 

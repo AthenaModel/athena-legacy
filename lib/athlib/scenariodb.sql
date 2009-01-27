@@ -230,7 +230,8 @@ CREATE TABLE sat_ngc (
     n          TEXT,          -- Symbolic nbhoods name
     g          TEXT,          -- Symbolic groups name
     c          TEXT,          -- Symbolic concerns name
-        
+
+    gtype      TEXT,          -- CIV or ORG        
     sat0       DOUBLE,        -- Initial satisfaction
     trend0     DOUBLE,        -- Long-term Trend
     saliency   DOUBLE,        -- Saliency of concern c.

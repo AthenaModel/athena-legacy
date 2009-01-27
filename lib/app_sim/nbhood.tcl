@@ -196,6 +196,10 @@ snit::type nbhood {
             # have obscured some other neighborhood's refpoint.
             $type SetObscuredBy
 
+            # NEXT, create satisfaction curves for pre-existing
+            # org groups
+            sat mutate nbhoodCreated $n
+
             # NEXT, notify the app.
             notifier send ::nbhood <Entity> create $n
 
@@ -233,6 +237,7 @@ snit::type nbhood {
         # delete entities that depend on this nbhood.
         
         lappend undo [nbgroup mutate nbhoodDeleted $n]
+        lappend undo [sat     mutate nbhoodDeleted $n]
 
         # NEXT, recompute the obscured_by field; this nbhood might
         # have obscured some other neighborhood's refpoint.

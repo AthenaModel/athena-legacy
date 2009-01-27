@@ -266,7 +266,6 @@ snit::type scenario {
             CUL "Culture"         CIV
             QOL "Quality of Life" CIV
             CAS "Casualties"      ORG
-            SVC "Service"         ORG
         } {
             rdb eval {
                 INSERT INTO concerns(c,longname,gtype)

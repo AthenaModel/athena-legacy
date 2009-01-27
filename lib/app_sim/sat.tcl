@@ -12,6 +12,14 @@
 #    curve inputs as groups come and ago, and for allowing the analyst
 #    to update particular satisfaction levels.
 #
+#    Civilian Satisfaction curves are created and deleted when nbgroups 
+#    are created and deleted.
+#
+#    Organization Satisfaction curves are created and deleted:
+#
+#    * For each neighborhood when an org group is created/deleted.
+#    * For each org group when a neighborhood is created/deleted.
+#
 #-----------------------------------------------------------------------
 
 snit::type sat {
@@ -127,14 +135,17 @@ snit::type sat {
     typemethod {mutate nbgroupCreated} {n g} {
         rdb eval {
             INSERT INTO sat_ngc
-            SELECT $n, $g, c, 0.0, 0.0, 1.0 FROM civ_concerns;
+            SELECT $n, $g, c, 'CIV', 0.0, 0.0, 1.0 FROM civ_concerns;
         }
 
         foreach c [rdb eval {SELECT c FROM civ_concerns}] {
             notifier send $type <Entity> create $n $g $c
         }
 
-        return [mytypemethod mutate nbgroupDeleted $n $g]
+        # Note: No undo script is required; undoing an nbgroup creation
+        # requires an nbgroup deletion, which will call nbgroupDeleted
+        # explicitly.
+        return
     }
 
     # mutate nbgroupDeleted n g
@@ -172,6 +183,137 @@ snit::type sat {
         # NEXT, Return the undo script
         return [join $undo \n]
     }
+
+    # mutate nbhoodCreated n
+    #
+    # n   Neighborhood ID
+    #
+    # When a neighborhood is created, nbhood calls this mutator to create
+    # satisfaction curves for the neighborhood and all org groups.
+
+    typemethod {mutate nbhoodCreated} {n} {
+        rdb eval {
+            INSERT INTO sat_ngc
+            SELECT $n, g, c, 'ORG', 0.0, 0.0, 1.0 
+            FROM orggroups JOIN org_concerns;
+        }
+
+        foreach {g c} [rdb eval {
+            SELECT g,c FROM sat_ngc
+            WHERE n = $n
+        }] {
+            notifier send $type <Entity> create $n $g $c
+        }
+
+        # Note: No undo script is required; undoing a nbhood creation
+        # requires a nbhood deletion, which will call nbhoodDeleted
+        # explicitly.
+        return
+    }
+
+
+    # mutate nbhoodDeleted n
+    #
+    # n   Neighborhood ID
+    #
+    # When a neighborhood is deleted, nbhood calls this mutator to delete
+    # the satisfaction curves for the neighborhood and all org groups.
+    
+    typemethod {mutate nbhoodDeleted} {n} {
+        # FIRST, get the undo information: updates to restore any
+        # non-default values.
+        set undo [list]
+        set keys [list]
+
+        rdb eval {
+            SELECT * FROM sat_ngc
+            WHERE n=$n AND gtype='ORG'
+        } row {
+            unset -nocomplain row(*)
+            lappend keys $row(n) $row(g) $row(c)
+            lappend undo [mytypemethod mutate update [array get row]]
+        }
+
+        # NEXT, Delete the satisfaction levels
+        rdb eval {
+            DELETE FROM sat_ngc
+            WHERE n=$n AND gtype='ORG';
+        } {}
+
+        # NEXT, notify the app.
+        foreach {n g c} $keys {
+            notifier send $type <Entity> delete $n $g $c
+        }
+        
+        # NEXT, Return the undo script
+        return [join $undo \n]
+    }
+
+    # mutate orggroupCreated g
+    #
+    # g   ORG Group ID
+    #
+    # When an ORG group is created, orggroup calls this mutator to create
+    # satisfaction curves for this group in all neighborhoods.
+
+    typemethod {mutate orggroupCreated} {g} {
+        rdb eval {
+            INSERT INTO sat_ngc
+            SELECT n, $g, c, 'ORG', 0.0, 0.0, 1.0 
+            FROM nbhoods JOIN org_concerns;
+        }
+
+        foreach {n c} [rdb eval {
+            SELECT n,c FROM sat_ngc
+            WHERE g = $g
+        }] {
+            notifier send $type <Entity> create $n $g $c
+        }
+
+        # Note: No undo script is required; undoing an ORG group creation
+        # requires an ORG group deletion, which will call orggroupDeleted
+        # explicitly.
+        return
+    }
+
+
+    # mutate orggroupDeleted g
+    #
+    # g   ORG Group ID
+    #
+    # When an ORG group is deleted, orggroup calls this mutator to delete
+    # the satisfaction curves for this group in all neighborhoods.
+
+    typemethod {mutate orggroupDeleted} {g} {
+        # FIRST, get the undo information: updates to restore any
+        # non-default values.
+        set undo [list]
+        set keys [list]
+
+        rdb eval {
+            SELECT * FROM sat_ngc
+            WHERE g=$g
+        } row {
+            unset -nocomplain row(*)
+            lappend keys $row(n) $row(g) $row(c)
+            lappend undo [mytypemethod mutate update [array get row]]
+        }
+
+        # NEXT, Delete the satisfaction levels
+        rdb eval {
+            DELETE FROM sat_ngc
+            WHERE g=$g;
+        } {}
+
+        # NEXT, notify the app.
+        foreach {n g c} $keys {
+            notifier send $type <Entity> delete $n $g $c
+        }
+        
+        # NEXT, Return the undo script
+        return [join $undo \n]
+    }
+
 
     # mutate update parmdict
     #

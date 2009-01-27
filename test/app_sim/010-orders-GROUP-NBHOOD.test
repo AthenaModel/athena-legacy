@@ -232,16 +232,16 @@ N1 SHIA Local Shias AVERAGE  1.0           1.1
     } -cleanup {
         cleanup
     } -result {
-n  g    c   sat0 trend0 saliency 
--- ---- --- ---- ------ -------- 
-N1 SHIA AUT 0.0  0.0    1.0      
-N1 SHIA SFT 0.0  0.0    1.0      
-N1 SHIA CUL 0.0  0.0    1.0      
-N1 SHIA QOL 0.0  0.0    1.0      
-N1 SUNN AUT 0.0  0.0    1.0      
-N1 SUNN SFT 0.0  0.0    1.0      
-N1 SUNN CUL 0.0  0.0    1.0      
-N1 SUNN QOL 0.0  0.0    1.0      
+n  g    c   gtype sat0 trend0 saliency 
+-- ---- --- ----- ---- ------ -------- 
+N1 SHIA AUT CIV   0.0  0.0    1.0      
+N1 SHIA SFT CIV   0.0  0.0    1.0      
+N1 SHIA CUL CIV   0.0  0.0    1.0      
+N1 SHIA QOL CIV   0.0  0.0    1.0      
+N1 SUNN AUT CIV   0.0  0.0    1.0      
+N1 SUNN SFT CIV   0.0  0.0    1.0      
+N1 SUNN CUL CIV   0.0  0.0    1.0      
+N1 SUNN QOL CIV   0.0  0.0    1.0      
     }
 
 
@@ -285,12 +285,12 @@ N1 SHIA N1 Shias
     } -cleanup {
         cleanup
     } -result {
-n  g    c   sat0 trend0 saliency 
--- ---- --- ---- ------ -------- 
-N1 SHIA AUT 0.0  0.0    1.0      
-N1 SHIA SFT 0.0  0.0    1.0      
-N1 SHIA CUL 0.0  0.0    1.0      
-N1 SHIA QOL 0.0  0.0    1.0      
+n  g    c   gtype sat0 trend0 saliency 
+-- ---- --- ----- ---- ------ -------- 
+N1 SHIA AUT CIV   0.0  0.0    1.0      
+N1 SHIA SFT CIV   0.0  0.0    1.0      
+N1 SHIA CUL CIV   0.0  0.0    1.0      
+N1 SHIA QOL CIV   0.0  0.0    1.0      
     }
 
 
@@ -351,12 +351,12 @@ N1 SHIA QOL 0.0  0.0    1.0
     } -cleanup {
         cleanup
     } -result {
-n  g    c   sat0 trend0 saliency 
--- ---- --- ---- ------ -------- 
-N1 SUNN AUT 0.0  0.0    1.0      
-N1 SUNN SFT 0.0  0.0    1.0      
-N1 SUNN CUL 0.0  0.0    1.0      
-N1 SUNN QOL 0.0  0.0    1.0      
+n  g    c   gtype sat0 trend0 saliency 
+-- ---- --- ----- ---- ------ -------- 
+N1 SUNN AUT CIV   0.0  0.0    1.0      
+N1 SUNN SFT CIV   0.0  0.0    1.0      
+N1 SUNN CUL CIV   0.0  0.0    1.0      
+N1 SUNN QOL CIV   0.0  0.0    1.0      
     }
 
 
@@ -388,12 +388,12 @@ N1 SHIA N1 Shias   AVERAGE  1.0           1.1
     } -cleanup {
         cleanup
     } -result {
-n  g    c   sat0 trend0 saliency 
--- ---- --- ---- ------ -------- 
-N1 SHIA AUT 0.0  0.0    1.0      
-N1 SHIA SFT 1.0  2.0    0.5      
-N1 SHIA CUL 0.0  0.0    1.0      
-N1 SHIA QOL 0.0  0.0    1.0      
+n  g    c   gtype sat0 trend0 saliency 
+-- ---- --- ----- ---- ------ -------- 
+N1 SHIA AUT CIV   0.0  0.0    1.0      
+N1 SHIA SFT CIV   1.0  2.0    0.5      
+N1 SHIA CUL CIV   0.0  0.0    1.0      
+N1 SHIA QOL CIV   0.0  0.0    1.0      
     }
 
 

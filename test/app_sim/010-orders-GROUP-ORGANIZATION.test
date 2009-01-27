@@ -52,6 +52,16 @@ namespace eval ::athena_test::tests:: {
         effects_factor 1.3
     }
 
+    # Neighborhoods.
+
+    set nb1 {
+        n            NB1
+        longname     "Here"
+        urbanization URBAN
+        refpoint     B00B00
+        polygon      {A80A80 B20A80 B00B20}
+    }
+
     # Clean up after a test
 
     proc cleanup {} {
@@ -63,9 +73,11 @@ namespace eval ::athena_test::tests:: {
         rdb eval {
             DELETE FROM groups;
             DELETE FROM orggroups;
+            DELETE FROM nbhoods;
+            DELETE FROM sat_ngc;
         }
 
-        orggroup reconfigure
+        scenario reconfigure
     }
 
     #-------------------------------------------------------------------
@@ -229,6 +241,34 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
     }
 
 
+    test GROUP:ORGANIZATION:CREATE-2.3 {ORG Sat curves are populated} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted query {
+            SELECT * FROM sat_ngc
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+n   g     c   gtype sat0 trend0 saliency 
+--- ----- --- ----- ---- ------ -------- 
+NB1 USAID CAS ORG   0.0  0.0    1.0      
+    }
+
+
+    test GROUP:ORGANIZATION:CREATE-2.4 {<Entity> create n g c} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted notifier bind ::sat <Entity>
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> create NB1 USAID CAS}
+    }
+
     test GROUP:ORGANIZATION:CREATE-3.1 {undo deletes the orggroup} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
         ted order GROUP:ORGANIZATION:CREATE $hal
@@ -241,6 +281,47 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
 g     longname 
 ----- -------- 
 USAID US Aid   
+    }
+
+
+    test GROUP:ORGANIZATION:CREATE-3.2 {<Entity> delete} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted notifier bind ::orggroup <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::orggroup <Entity> delete USAID}
+    }
+
+
+    test GROUP:ORGANIZATION:CREATE-3.3 {ORG Sat curves are undone} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        cif undo -test
+        ted query {
+            SELECT * FROM sat_ngc
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+    }
+
+
+    test GROUP:ORGANIZATION:CREATE-3.4 {<Entity> delete n g c} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted notifier bind ::sat <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> delete NB1 USAID CAS}
     }
 
     #-------------------------------------------------------------------
@@ -296,6 +377,58 @@ USAID US Aid
 g     longname color   orgtype medical engineer support rollup_weight effects_factor 
 ----- -------- ------- ------- ------- -------- ------- ------------- -------------- 
 USAID US Aid   #00ff00 NGO     0       0        1       1.0           1.1            
+    }
+
+
+    test GROUP:ORGANIZATION:DELETE-3.2 {On undo, <Entity> create} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted order GROUP:ORGANIZATION:DELETE g USAID
+    } -body {
+        ted notifier bind ::orggroup <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::orggroup <Entity> create USAID}
+    }
+
+
+    test GROUP:ORGANIZATION:DELETE-3.3 {ORG sats are restored} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted order SAT:UPDATE n NB1 g USAID c CAS \
+            sat0 1.0 trend0 2.0 saliency 0.5
+
+        ted order GROUP:ORGANIZATION:DELETE g USAID
+    } -body {
+        cif undo -test
+        ted query {SELECT * FROM sat_ngc}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g     c   gtype sat0 trend0 saliency 
+--- ----- --- ----- ---- ------ -------- 
+NB1 USAID CAS ORG   1.0  2.0    0.5      
+    }
+
+
+    test GROUP:ORGANIZATION:DELETE-3.3 {sat <Entity> notices on undo} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted order SAT:UPDATE n NB1 g USAID c CAS \
+            sat0 1.0 trend0 2.0 saliency 0.5
+
+        ted order GROUP:ORGANIZATION:DELETE g USAID
+    } -body {
+        ted notifier bind ::sat <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> create NB1 USAID CAS}
+        {::sat <Entity> update NB1 USAID CAS}
     }
 
     #-------------------------------------------------------------------

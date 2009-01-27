@@ -69,6 +69,21 @@ namespace eval ::athena_test::tests:: {
         effects_factor 1.0
     }
 
+    # Org Groups
+
+    set orggrp {
+        g              USAID
+        longname       "US Aid"
+        color          #00ff00
+        orgtype        NGO
+        medical        no
+        engineer       no
+        support        yes
+        rollup_weight  1.0
+        effects_factor 1.1
+    }
+    
+
 
     # Clean up after a test
 
@@ -80,11 +95,11 @@ namespace eval ::athena_test::tests:: {
         # Delete all neighborhoods and reinitialize the module
         rdb eval {DELETE FROM nbhoods}
         rdb eval {DELETE FROM groups}
+        rdb eval {DELETE FROM orggroups}
         rdb eval {DELETE FROM nbgroups}
+        rdb eval {DELETE FROM sat_ngc}
 
-        nbhood   reconfigure
-        civgroup reconfigure
-        nbgroup  reconfigure
+        scenario reconfigure
     }
 
     #-------------------------------------------------------------------
@@ -241,11 +256,41 @@ OV1 Over
     }
 
 
+    test NBHOOD:CREATE-2.5 {ORG Satisfaction curves are populated} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $orggrp
+    } -body {
+        ted order NBHOOD:CREATE $nb1
+        ted query {
+            SELECT * FROM sat_ngc
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+n   g     c   gtype sat0 trend0 saliency 
+--- ----- --- ----- ---- ------ -------- 
+NB1 USAID CAS ORG   0.0  0.0    1.0      
+    }
+
+
+    test NBHOOD:CREATE-2.6 {<Entity> create n g c} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $orggrp
+    } -body {
+        ted notifier bind ::sat <Entity>
+        ted order NBHOOD:CREATE $nb1
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> create NB1 USAID CAS}
+    }
+
+
+
     test NBHOOD:CREATE-3.1 {undo deletes the nbhood} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $nb2
     } -body {
-        cif undo
+        cif undo -test
         ted query "SELECT n,longname FROM nbhoods"
     } -cleanup {
         cleanup
@@ -256,11 +301,24 @@ NB1 Here
     }
 
 
-    test NBHOOD:CREATE-3.2 {undo updates obscured_by} -setup {
+    test NBHOOD:CREATE-3.2 {On undo: <Entity> delete $n} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted notifier bind ::nbhood <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbhood <Entity> delete NB1}
+    }
+
+
+    test NBHOOD:CREATE-3.3 {undo updates obscured_by} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $overnb1
     } -body {
-        cif undo
+        cif undo -test
         ted query "SELECT n,longname,obscured_by FROM nbhoods"
     } -cleanup {
         cleanup
@@ -269,6 +327,34 @@ n   longname obscured_by
 --- -------- ----------- 
 NB1 Here                 
     }
+
+    test NBHOOD:CREATE-3.4 {ORG Satisfaction curves are undone} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $orggrp
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        cif undo -test
+        ted query {
+            SELECT * FROM sat_ngc
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+    }
+
+
+    test NBHOOD:CREATE-3.5 {On undo, <Entity> delete n g c} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $orggrp
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted notifier bind ::sat <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> delete NB1 USAID CAS}
+    }
+
 
     #-------------------------------------------------------------------
     # NBHOOD:DELETE
@@ -318,11 +404,36 @@ NB1 Here
     } -result {
     }
 
+    test NBHOOD:DELETE-2.4 {Deletes org sat curves} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $orggrp
+        ted order NBHOOD:CREATE             $nb1
+    } -body {
+        ted order NBHOOD:DELETE n NB1
+        ted query {SELECT * FROM sat_ngc}
+    } -cleanup {
+        cleanup
+    } -result {
+    }
+
+    test NBHOOD:DELETE-2.5 {<Entity> delete n g c} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $orggrp
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted notifier bind ::sat <Entity>
+        ted order NBHOOD:DELETE n NB1
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> delete NB1 USAID CAS}
+    }
+
+
     test NBHOOD:DELETE-3.1 {Undo restores nbhood} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:DELETE n NB1
     } -body {
-        cif undo
+        cif undo -test
         set parms [join [dict keys $nb1] ","]
         ted query "SELECT $parms FROM nbhoods"
     } -cleanup {
@@ -333,13 +444,28 @@ n   longname urbanization refpoint polygon
 NB1 Here     URBAN        100 100  80 80 120 80 100 120 
     }
 
-    test NBHOOD:DELETE-3.2 {Undo restores nbhood groups} -setup {
+
+    test NBHOOD:DELETE-3.2 {On undo, <Entity> create} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:DELETE n NB1
+    } -body {
+        ted notifier bind ::nbhood <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbhood <Entity> create NB1}
+    }
+
+
+    test NBHOOD:DELETE-3.3 {Undo restores nbhood groups} -setup {
         ted order NBHOOD:CREATE         $nb1
         ted order GROUP:CIVILIAN:CREATE $civgrp
         ted order GROUP:NBHOOD:CREATE   $nbgrp
         ted order NBHOOD:DELETE n NB1
     } -body {
-        cif undo
+        cif undo -test
         ted query {SELECT * FROM nbgroups}
     } -cleanup {
         cleanup
@@ -349,6 +475,39 @@ n   g    local_name   demeanor   rollup_weight effects_factor
 NB1 PASH NB1 Pashtuns AGGRESSIVE 1.0           1.0            
     }
 
+
+    test NBHOOD:DELETE-3.4 {Undo restores org sat curves} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $orggrp
+        ted order NBHOOD:CREATE             $nb1
+        ted order SAT:UPDATE \
+            [list n NB1 g USAID c CAS sat0 1.0 trend0 2.0 saliency 0.5]
+        ted order NBHOOD:DELETE n NB1
+    } -body {
+        cif undo -test
+        ted query {SELECT * FROM sat_ngc}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g     c   gtype sat0 trend0 saliency 
+--- ----- --- ----- ---- ------ -------- 
+NB1 USAID CAS ORG   1.0  2.0    0.5      
+    }
+
+
+    test NBHOOD:DELETE-3.5 {Undo, <Entity> create n g c} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $orggrp
+        ted order NBHOOD:CREATE             $nb1
+        ted order NBHOOD:DELETE n NB1
+    } -body {
+        ted notifier bind ::sat <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> create NB1 USAID CAS}
+        {::sat <Entity> update NB1 USAID CAS}
+    }
 
     #-------------------------------------------------------------------
     # NBHOOD:LOWER
