@@ -11,6 +11,33 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.2, 27 January 2009</h3>
+
+This build includes some new features, plus a number of usability
+enhancements.  Civilian and organization satisfaction curves are now
+created and deleted automatically as their parent entities are
+created and deleted.  There's a new "Sat" browser for the satisfaction
+curves.  The Log tab now includes a log list, so that the user can
+view each of the logs for the current session.  The entity browsers
+now support incremental, case-insensitive filtering by default.  And
+the order dialog's handling of invalid key combinations is much
+improved.  See the following packages for details.<p>
+
+<ul>
+  <li> Bug 1868: Data loss caused by moving the "Create Neighborhood" dialog box
+  <li> Bug 1869: athena_sim(1): Add loglist to Log tab
+  <li> Bug 1870: athena_sim(1): Widen component column in loglist
+  <li> Bug 1872: athena_sim(1): Civilian Satisfaction Curves
+  <li> Bug 1873: cif(sim): dump
+  <li> Bug 1877: tablebrowser(n): incremental, case-insensitive filtering
+  <li> Bug 1878: athena_sim(1): Preventing database corruption on order send, undo
+  <li> Bug 1879: Order dialog and non-existent entities
+  <li> Bug 1880: Dialog text needs update for deleting a Neighborhood Group
+  <li> Bug 1881: Dialog offers invalid choices, then complains when one is selected
+  <li> Bug 1882: Manage ORG satisfaction levels
+  <li> Bug 1883: Order dialog key parameters 
+</ul><p>
+
 <h3>Build 1.0.1, 16 January 2009</h3>
 
 This build contains quite a few new features, including organization
