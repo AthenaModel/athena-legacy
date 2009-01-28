@@ -58,6 +58,25 @@ snit::type nbgroup {
         }
     }
 
+    # validate id
+    #
+    # id      A group ID, [list $n $g]
+    #
+    # Validates an nbgroup ID
+
+    typemethod validate {id} {
+        lassign $id n g
+
+        set n [nbhood   validate $n]
+        set g [civgroup validate $g]
+
+        if {![$type exists $n $g]} { 
+            return -code error -errorcode INVALID \
+                "Group $g does not reside in neighborhood $n"
+        }
+
+        return [list $n $g]
+    }
 
     #-------------------------------------------------------------------
     # Mutators
@@ -248,12 +267,12 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare n              -trim -toupper -required -type nbhood
-    prepare g              -trim -toupper -required -type civgroup
+    prepare n              -toupper -required -type nbhood
+    prepare g              -toupper -required -type civgroup
     prepare local_name     -normalize
-    prepare demeanor       -trim -toupper -required -type edemeanor
-    prepare rollup_weight  -trim          -required -type weight
-    prepare effects_factor -trim          -required -type weight
+    prepare demeanor       -toupper -required -type edemeanor
+    prepare rollup_weight           -required -type weight
+    prepare effects_factor          -required -type weight
 
     returnOnError
 
@@ -286,14 +305,14 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare n -trim -toupper -required -type nbhood
-    prepare g -trim -toupper -required -type civgroup
+    prepare n -toupper -required -type nbhood
+    prepare g -toupper -required -type civgroup
 
     returnOnError
 
     # NEXT, do cross-validation
-    if {![$type exists $parms(n) $parms(g)]} {
-        reject g "This group does not reside in this neighborhood"
+    validate g {
+        $type validate [list $parms(n) $parms(g)]
     }
 
     returnOnError
@@ -343,18 +362,18 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare n              -trim -toupper  -required -type nbhood
-    prepare g              -trim -toupper  -required -type civgroup
+    prepare n              -toupper  -required -type nbhood
+    prepare g              -toupper  -required -type civgroup
     prepare local_name     -normalize      
-    prepare demeanor       -trim -toupper  -type edemeanor
-    prepare rollup_weight  -trim           -type weight
-    prepare effects_factor -trim           -type weight
+    prepare demeanor       -toupper  -type edemeanor
+    prepare rollup_weight            -type weight
+    prepare effects_factor           -type weight
 
     returnOnError
 
     # NEXT, do cross-validation
-    if {![$type exists $parms(n) $parms(g)]} {
-        reject g "This group does not reside in this neighborhood"
+    validate g {
+        $type validate [list $parms(n) $parms(g)]
     }
 
     returnOnError
@@ -363,3 +382,38 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
     setundo [$type mutate update [array get parms]]
 }
 
+
+# GROUP:NBHOOD:UPDATE:MULTI
+#
+# Updates multiple groups.
+
+order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
+    title "Update Multiple Nbhood Groups"
+    table gui_nbgroups
+    parms {
+        ids            {ptype ids       label "Groups"  }
+        local_name     {ptype text      label "Local Name"    }
+        demeanor       {ptype demeanor  label "Demeanor"      }
+        rollup_weight  {ptype weight    label "RollupWeight"  }
+        effects_factor {ptype weight    label "EffectsFactor" }
+    }
+} {
+    # FIRST, prepare the parameters
+    prepare ids            -toupper  -required -listof nbgroup
+    prepare local_name     -normalize      
+    prepare demeanor       -toupper  -type edemeanor
+    prepare rollup_weight            -type weight
+    prepare effects_factor           -type weight
+
+    returnOnError
+
+    # NEXT, modify the group
+    set undo [list]
+
+    foreach id $parms(ids) {
+        lassign $id parms(n) parms(g)
+        lappend undo [$type mutate update [array get parms]]
+    }
+
+    setundo [join $undo \n]
+}

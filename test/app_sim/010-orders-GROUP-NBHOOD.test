@@ -97,7 +97,7 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # GROUP:NBHOOD:CREATE
 
-    test GROUP:NBHOOD:CREATE-1.1 {required parms} -body {
+    test CREATE-1.1 {required parms} -body {
         ted order -reject GROUP:NBHOOD:CREATE {}
     } -result {
         n {required value}
@@ -107,7 +107,7 @@ namespace eval ::athena_test::tests:: {
         effects_factor {required value}
     }
 
-    test GROUP:NBHOOD:CREATE-1.2 {n is not a nbhood} -body {
+    test CREATE-1.2 {n is not a nbhood} -body {
         ted order -reject GROUP:NBHOOD:CREATE [dict merge $n1shia {
             n NONESUCH
         }]
@@ -118,7 +118,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test GROUP:NBHOOD:CREATE-1.3 {g is not a civ group} -body {
+    test CREATE-1.3 {g is not a civ group} -body {
         ted order -reject GROUP:NBHOOD:CREATE [dict merge $n1shia {
             g NONESUCH
         }]
@@ -128,7 +128,7 @@ namespace eval ::athena_test::tests:: {
         g {Invalid civilian group, should be one of: SHIA, SUNN, KURD}
     }
 
-    test GROUP:NBHOOD:CREATE-1.4 {n,g is already an nbgroup} -setup {
+    test CREATE-1.4 {n,g is already an nbgroup} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
     } -body {
         ted order -reject GROUP:NBHOOD:CREATE $n1shia
@@ -138,7 +138,7 @@ namespace eval ::athena_test::tests:: {
         g {This group already resides in this neighborhood}
     }
 
-    test GROUP:NBHOOD:CREATE-1.5 {invalid demeanor} -body {
+    test CREATE-1.5 {invalid demeanor} -body {
         ted order -reject GROUP:NBHOOD:CREATE [dict merge $n1shia {
             demeanor NONESUCH
         }]
@@ -146,7 +146,7 @@ namespace eval ::athena_test::tests:: {
         demeanor {invalid value, "NONESUCH"}
     }
 
-    test GROUP:NBHOOD:CREATE-1.6 {invalid rollup_weight 1} -body {
+    test CREATE-1.6 {invalid rollup_weight 1} -body {
         ted order -reject GROUP:NBHOOD:CREATE [dict merge $n1shia {
             rollup_weight NONESUCH
         }]
@@ -155,7 +155,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test GROUP:NBHOOD:CREATE-1.7 {invalid rollup_weight 2} -body {
+    test CREATE-1.7 {invalid rollup_weight 2} -body {
         ted order -reject GROUP:NBHOOD:CREATE [dict merge $n1shia {
             rollup_weight -0.1
         }]
@@ -164,7 +164,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test GROUP:NBHOOD:CREATE-1.8 {invalid effects_factor 1} -body {
+    test CREATE-1.8 {invalid effects_factor 1} -body {
         ted order -reject GROUP:NBHOOD:CREATE [dict merge $n1shia {
             effects_factor NONESUCH
         }]
@@ -173,7 +173,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test GROUP:NBHOOD:CREATE-1.9 {invalid effects_factor 2} -body {
+    test CREATE-1.9 {invalid effects_factor 2} -body {
         ted order -reject GROUP:NBHOOD:CREATE [dict merge $n1shia {
             effects_factor -0.1
         }]
@@ -182,7 +182,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test GROUP:NBHOOD:CREATE-2.1 {nbgroup is created} -body {
+    test CREATE-2.1 {nbgroup is created} -body {
         ted order GROUP:NBHOOD:CREATE $n1shia
         ted order GROUP:NBHOOD:CREATE $n1sunn
         set parms [join [dict keys $n1shia] ","]
@@ -197,7 +197,7 @@ N1 SUNN N1 Sunnis  AGGRESSIVE 1.2           1.3
     }
 
 
-    test GROUP:NBHOOD:CREATE-2.2 {<Entity> create} -body {
+    test CREATE-2.2 {<Entity> create} -body {
         ted notifier bind ::nbgroup <Entity>
         ted order GROUP:NBHOOD:CREATE $n1shia
         ted notifier received
@@ -208,7 +208,7 @@ N1 SUNN N1 Sunnis  AGGRESSIVE 1.2           1.3
     }
 
 
-    test GROUP:NBHOOD:CREATE-2.3 {local_name defaults to longname} -body {
+    test CREATE-2.3 {local_name defaults to longname} -body {
         ted order GROUP:NBHOOD:CREATE [dict merge $n1shia {
             local_name ""
         }]
@@ -223,7 +223,7 @@ N1 SHIA Local Shias AVERAGE  1.0           1.1
     }
 
 
-    test GROUP:NBHOOD:CREATE-2.4 {Satisfaction curves are populated} -body {
+    test CREATE-2.4 {Satisfaction curves are populated} -body {
         ted order GROUP:NBHOOD:CREATE $n1shia
         ted order GROUP:NBHOOD:CREATE $n1sunn
         ted query {
@@ -245,7 +245,7 @@ N1 SUNN QOL CIV   0.0  0.0    1.0
     }
 
 
-    test GROUP:NBHOOD:CREATE-3.1 {undo deletes the nbgroup} -setup {
+    test CREATE-3.1 {undo deletes the nbgroup} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
         ted order GROUP:NBHOOD:CREATE $n1sunn
     } -body {
@@ -260,7 +260,7 @@ N1 SHIA N1 Shias
     }
 
 
-    test GROUP:NBHOOD:CREATE-3.1 {undo deletes the nbgroup} -setup {
+    test CREATE-3.1 {undo deletes the nbgroup} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
         ted order GROUP:NBHOOD:CREATE $n1sunn
     } -body {
@@ -274,7 +274,7 @@ n  g    local_name
 N1 SHIA N1 Shias   
     }
 
-    test GROUP:NBHOOD:CREATE-3.2 {undo deletes sat curves} -setup {
+    test CREATE-3.2 {undo deletes sat curves} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
         ted order GROUP:NBHOOD:CREATE $n1sunn
     } -body {
@@ -297,7 +297,7 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     #-------------------------------------------------------------------
     # GROUP:NBHOOD:DELETE
 
-    test GROUP:NBHOOD:DELETE-1.1 {required parms} -body {
+    test DELETE-1.1 {required parms} -body {
         ted order -reject GROUP:NBHOOD:DELETE {}
     } -result {
         n {required value}
@@ -305,7 +305,7 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     }
 
     
-    test GROUP:NBHOOD:DELETE-1.2 {unknown n,g} -body {
+    test DELETE-1.2 {unknown n,g} -body {
         ted order -reject GROUP:NBHOOD:DELETE n NONESUCH1 g NONESUCH2
     } -result {
         n {Invalid neighborhood, should be one of: N1}
@@ -313,14 +313,14 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     }
 
 
-    test GROUP:NBHOOD:DELETE-1.3 {no such nbgroup} -body {
+    test DELETE-1.3 {no such nbgroup} -body {
         ted order -reject GROUP:NBHOOD:DELETE n N1 g KURD
     } -result {
-        g {This group does not reside in this neighborhood}
+        g {Group KURD does not reside in neighborhood N1}
     }
 
 
-    test GROUP:NBHOOD:DELETE-2.1 {Group is deleted} -setup {
+    test DELETE-2.1 {Group is deleted} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
     } -body {
         ted order GROUP:NBHOOD:DELETE n N1 g SHIA
@@ -330,7 +330,7 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     } -result {}
 
 
-    test GROUP:NBHOOD:DELETE-2.2 {<Entity> delete} -setup {
+    test DELETE-2.2 {<Entity> delete} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
     } -body {
         ted notifier bind ::nbgroup <Entity>
@@ -342,7 +342,7 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
         {::nbgroup <Entity> delete N1 SHIA}
     }
 
-    test GROUP:NBHOOD:DELETE-2.3 {Sat curves are deleted} -setup {
+    test DELETE-2.3 {Sat curves are deleted} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
         ted order GROUP:NBHOOD:CREATE $n1sunn
     } -body {
@@ -360,7 +360,7 @@ N1 SUNN QOL CIV   0.0  0.0    1.0
     }
 
 
-    test GROUP:NBHOOD:DELETE-3.1 {Undo recreates the group} -setup {
+    test DELETE-3.1 {Undo recreates the group} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
         ted order GROUP:NBHOOD:DELETE n N1 g SHIA
     } -body {
@@ -376,7 +376,7 @@ N1 SHIA N1 Shias   AVERAGE  1.0           1.1
     }
 
 
-    test GROUP:NBHOOD:DELETE-3.2 {Undo recreates the sat curves} -setup {
+    test DELETE-3.2 {Undo recreates the sat curves} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
         ted order SAT:UPDATE {
             n N1 g SHIA c SFT sat0 1.0 trend0 2.0 saliency 0.5
@@ -400,7 +400,7 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     #-------------------------------------------------------------------
     # GROUP:NBHOOD:UPDATE
 
-    test GROUP:NBHOOD:UPDATE-1.1 {required parms} -body {
+    test UPDATE-1.1 {required parms} -body {
         ted order -reject GROUP:NBHOOD:UPDATE {}
     } -result {
         n {required value}
@@ -408,7 +408,7 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     }
     
 
-    test GROUP:NBHOOD:UPDATE-1.2 {invalid n, g} -body {
+    test UPDATE-1.2 {invalid n, g} -body {
         ted order -reject GROUP:NBHOOD:UPDATE n NONESUCH1 g NONESUCH1
     } -result {
         n {Invalid neighborhood, should be one of: N1}
@@ -416,14 +416,14 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     }
 
 
-    test GROUP:NBHOOD:UPDATE-1.3 {undefined nbgroup} -body {
+    test UPDATE-1.3 {undefined nbgroup} -body {
         ted order -reject GROUP:NBHOOD:UPDATE n N1 g SHIA
     } -result {
-        g {This group does not reside in this neighborhood}
+        g {Group SHIA does not reside in neighborhood N1}
     }
 
 
-    test GROUP:NBHOOD:UPDATE-1.4 {invalid demeanor} -setup {
+    test UPDATE-1.4 {invalid demeanor} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
     } -body {
         ted order -reject GROUP:NBHOOD:UPDATE n N1 g SHIA demeanor NONESUCH
@@ -434,7 +434,7 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     }
 
 
-    test GROUP:NBHOOD:UPDATE-1.5 {invalid rollup_weight 1} -setup {
+    test UPDATE-1.5 {invalid rollup_weight 1} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
     } -body {
         ted order -reject GROUP:NBHOOD:UPDATE n N1 g SHIA rollup_weight NONESUCH
@@ -445,7 +445,7 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     }
 
 
-    test GROUP:NBHOOD:UPDATE-1.6 {invalid rollup_weight 2} -setup {
+    test UPDATE-1.6 {invalid rollup_weight 2} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
     } -body {
         ted order -reject GROUP:NBHOOD:UPDATE n N1 g SHIA rollup_weight -0.1
@@ -456,7 +456,7 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     }
 
 
-    test GROUP:NBHOOD:UPDATE-1.7 {invalid effects_factor 1} -setup {
+    test UPDATE-1.7 {invalid effects_factor 1} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
     } -body {
         ted order -reject GROUP:NBHOOD:UPDATE n N1 g SHIA effects_factor NONESUCH
@@ -467,7 +467,7 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     }
 
 
-    test GROUP:NBHOOD:UPDATE-1.8 {invalid effects_factor 2} -setup {
+    test UPDATE-1.8 {invalid effects_factor 2} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
     } -body {
         ted order -reject GROUP:NBHOOD:UPDATE n N1 g SHIA effects_factor -0.1
@@ -478,7 +478,7 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     }
 
 
-    test GROUP:NBHOOD:UPDATE-2.1 {nbgroup is updated} -setup {
+    test UPDATE-2.1 {nbgroup is updated} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
     } -body {
         ted order GROUP:NBHOOD:UPDATE {
@@ -501,7 +501,7 @@ N1 SHIA John Doe   APATHETIC 0.1           0.2
     }
 
 
-    test GROUP:NBHOOD:UPDATE-2.2 {<Entity> update} -setup {
+    test UPDATE-2.2 {<Entity> update} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
     } -body {
         ted notifier bind ::nbgroup <Entity>
@@ -514,7 +514,7 @@ N1 SHIA John Doe   APATHETIC 0.1           0.2
     }
 
 
-    test GROUP:NBHOOD:UPDATE-3.1 {undo undoes the change} -setup {
+    test UPDATE-3.1 {undo undoes the change} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
         ted order GROUP:NBHOOD:UPDATE {
             n              N1
@@ -534,6 +534,210 @@ N1 SHIA John Doe   APATHETIC 0.1           0.2
 n  g    local_name demeanor rollup_weight effects_factor 
 -- ---- ---------- -------- ------------- -------------- 
 N1 SHIA N1 Shias   AVERAGE  1.0           1.1            
+    }
+
+    #-------------------------------------------------------------------
+    # GROUP:NBHOOD:UPDATE:MULTI
+
+    test UPDATE:MULTI-1.1 {required parms} -body {
+        ted order -reject GROUP:NBHOOD:UPDATE:MULTI {}
+    } -result {
+        ids {required value}
+    }
+    
+
+    test UPDATE:MULTI-1.2 {invalid ids, no groups, bad nbhood} -body {
+        ted order -reject GROUP:NBHOOD:UPDATE:MULTI \
+            ids {{NONESUCH SHIA}}
+    } -result {
+        ids {Invalid neighborhood, should be one of: N1}
+    }
+
+
+    test UPDATE:MULTI-1.3 {invalid ids, no groups, bad group} -body {
+        ted order -reject GROUP:NBHOOD:UPDATE:MULTI \
+            ids {{N1 NONESUCH}}
+    } -result {
+        ids {Invalid civilian group, should be one of: SHIA, SUNN, KURD}
+    }
+
+
+    test UPDATE:MULTI-1.4 {invalid ids, no groups, no nbgroup} -body {
+        ted order -reject GROUP:NBHOOD:UPDATE:MULTI \
+            ids {{N1 SHIA}}
+    } -result {
+        ids {Group SHIA does not reside in neighborhood N1}
+    }
+
+    test UPDATE:MULTI-1.5 {invalid demeanor} -setup {
+        ted order GROUP:NBHOOD:CREATE $n1shia
+    } -body {
+        ted order -reject GROUP:NBHOOD:UPDATE:MULTI \
+            ids {{N1 SHIA}} demeanor NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        demeanor {invalid value, "NONESUCH"}
+    }
+
+
+    test UPDATE:MULTI-1.6 {invalid rollup_weight 1} -setup {
+        ted order GROUP:NBHOOD:CREATE $n1shia
+    } -body {
+        ted order -reject GROUP:NBHOOD:UPDATE:MULTI \
+            ids {{N1 SHIA}} rollup_weight NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        rollup_weight {invalid value "NONESUCH", expected double}
+    }
+
+
+    test UPDATE:MULTI-1.7 {invalid rollup_weight 2} -setup {
+        ted order GROUP:NBHOOD:CREATE $n1shia
+    } -body {
+        ted order -reject GROUP:NBHOOD:UPDATE:MULTI \
+            ids {{N1 SHIA}} rollup_weight -0.1
+    } -cleanup {
+        cleanup
+    } -result {
+        rollup_weight {invalid value "-0.1", expected double no less than 0.0}
+    }
+
+
+    test UPDATE:MULTI-1.8 {invalid effects_factor 1} -setup {
+        ted order GROUP:NBHOOD:CREATE $n1shia
+    } -body {
+        ted order -reject GROUP:NBHOOD:UPDATE:MULTI \
+            ids {{N1 SHIA}} effects_factor NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        effects_factor {invalid value "NONESUCH", expected double}
+    }
+
+
+    test UPDATE:MULTI-1.9 {invalid effects_factor 2} -setup {
+        ted order GROUP:NBHOOD:CREATE $n1shia
+    } -body {
+        ted order -reject GROUP:NBHOOD:UPDATE:MULTI \
+            ids {{N1 SHIA}} effects_factor -0.1
+    } -cleanup {
+        cleanup
+    } -result {
+        effects_factor {invalid value "-0.1", expected double no less than 0.0}
+    }
+
+
+    test UPDATE:MULTI-2.1 {one nbgroup of several is updated} -setup {
+        ted order GROUP:NBHOOD:CREATE $n1shia
+        ted order GROUP:NBHOOD:CREATE $n1sunn
+    } -body {
+        ted order GROUP:NBHOOD:UPDATE:MULTI {
+            ids            {{N1 SHIA}}
+            local_name     "John Doe"
+            demeanor       APATHETIC
+            rollup_weight  0.1
+            effects_factor 0.2
+        }
+
+        ted query {
+            SELECT n,g,local_name,demeanor,rollup_weight,effects_factor
+            FROM nbgroups_view
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+n  g    local_name demeanor   rollup_weight effects_factor 
+-- ---- ---------- ---------- ------------- -------------- 
+N1 SHIA John Doe   APATHETIC  0.1           0.2            
+N1 SUNN N1 Sunnis  AGGRESSIVE 1.2           1.3            
+    }
+
+
+    test UPDATE:MULTI-2.2 {several nbgroups are updated} -setup {
+        ted order GROUP:NBHOOD:CREATE $n1shia
+        ted order GROUP:NBHOOD:CREATE $n1sunn
+    } -body {
+        ted order GROUP:NBHOOD:UPDATE:MULTI {
+            ids            {{N1 SHIA} {N1 SUNN}}
+            local_name     "John Doe"
+            demeanor       APATHETIC
+            rollup_weight  0.1
+            effects_factor 0.2
+        }
+
+        ted query {
+            SELECT n,g,local_name,demeanor,rollup_weight,effects_factor
+            FROM nbgroups_view
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+n  g    local_name demeanor  rollup_weight effects_factor 
+-- ---- ---------- --------- ------------- -------------- 
+N1 SHIA John Doe   APATHETIC 0.1           0.2            
+N1 SUNN John Doe   APATHETIC 0.1           0.2            
+    }
+
+
+    test UPDATE:MULTI-2.3 {<Entity> update} -setup {
+        ted order GROUP:NBHOOD:CREATE $n1shia
+        ted order GROUP:NBHOOD:CREATE $n1sunn
+    } -body {
+        ted notifier bind ::nbgroup <Entity>
+        ted order GROUP:NBHOOD:UPDATE:MULTI \
+            ids {{N1 SHIA} {N1 SUNN}} local_name "John Doe"
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbgroup <Entity> update N1 SHIA}
+        {::nbgroup <Entity> update N1 SUNN}
+    }
+
+
+    test UPDATE:MULTI-3.1 {undo undoes the change} -setup {
+        ted order GROUP:NBHOOD:CREATE $n1shia
+        ted order GROUP:NBHOOD:CREATE $n1sunn
+        ted order GROUP:NBHOOD:UPDATE:MULTI {
+            ids            {{N1 SHIA} {N1 SUNN}}
+            local_name     "John Doe"
+            demeanor       APATHETIC
+            rollup_weight  0.1
+            effects_factor 0.2
+        }
+    } -body {
+        cif undo -test
+        ted query {
+            SELECT n,g,local_name,demeanor,rollup_weight,effects_factor
+            FROM nbgroups_view
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+n  g    local_name demeanor   rollup_weight effects_factor 
+-- ---- ---------- ---------- ------------- -------------- 
+N1 SHIA N1 Shias   AVERAGE    1.0           1.1            
+N1 SUNN N1 Sunnis  AGGRESSIVE 1.2           1.3            
+    }
+
+    test UPDATE:MULTI-3.2 {undo sends update} -setup {
+        ted order GROUP:NBHOOD:CREATE $n1shia
+        ted order GROUP:NBHOOD:CREATE $n1sunn
+        ted order GROUP:NBHOOD:UPDATE:MULTI {
+            ids            {{N1 SHIA} {N1 SUNN}}
+            local_name     "John Doe"
+        }
+    } -body {
+        ted notifier bind ::nbgroup <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbgroup <Entity> update N1 SHIA}
+        {::nbgroup <Entity> update N1 SUNN}
     }
 
     #-------------------------------------------------------------------

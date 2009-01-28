@@ -233,12 +233,12 @@ order define ::frcgroup GROUP:FORCE:CREATE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare g          -trim -toupper -required -unused -type ident
+    prepare g          -toupper -required -unused -type ident
     prepare longname   -normalize     -required -unused
-    prepare color      -trim -tolower -required -type hexcolor
-    prepare forcetype  -trim -toupper -required -type eforcetype
-    prepare local      -trim -toupper -required -type boolean
-    prepare coalition  -trim -toupper -required -type boolean
+    prepare color      -tolower -required -type hexcolor
+    prepare forcetype  -toupper -required -type eforcetype
+    prepare local      -toupper -required -type boolean
+    prepare coalition  -toupper -required -type boolean
 
     returnOnError
 
@@ -263,7 +263,7 @@ order define ::frcgroup GROUP:FORCE:DELETE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare g -trim -toupper -required -type frcgroup
+    prepare g -toupper -required -type frcgroup
 
     returnOnError
 
@@ -311,20 +311,58 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare g         -trim -toupper  -required -type frcgroup
+    prepare g         -toupper  -required -type frcgroup
 
     set oldname [rdb onecolumn {SELECT longname FROM groups WHERE g=$parms(g)}]
 
     prepare longname  -normalize      -oldvalue $oldname -unused
-    prepare color     -trim -tolower  -type hexcolor
-    prepare forcetype -trim -toupper  -type eforcetype
-    prepare local     -trim -toupper  -type boolean
-    prepare coalition -trim -toupper  -type boolean
+    prepare color     -tolower  -type hexcolor
+    prepare forcetype -toupper  -type eforcetype
+    prepare local     -toupper  -type boolean
+    prepare coalition -toupper  -type boolean
 
     returnOnError
 
     # NEXT, modify the group
     setundo [$type mutate update [array get parms]]
+}
+
+# GROUP:FORCE:UPDATE:MULTI
+#
+# Updates multiple groups.
+
+order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
+    title "Update Multiple Force Groups"
+    multi yes
+    table gui_frcgroups
+    parms {
+        ids          {ptype ids           label "Groups"            }
+        color        {ptype color         label "Color"             }
+        forcetype    {ptype forcetype     label "Force Type"        }
+        local        {ptype yesno         label "Local Group?"      }
+        coalition    {ptype yesno         label "Coalition Member?" }
+    }
+} {
+    # FIRST, prepare the parameters
+    prepare ids       -toupper  -required -listof frcgroup
+    prepare color     -tolower            -type   hexcolor
+    prepare forcetype -toupper            -type   eforcetype
+    prepare local     -toupper            -type   boolean
+    prepare coalition -toupper            -type   boolean
+
+    returnOnError
+
+    # NEXT, clear the other parameters expected by the mutator
+    prepare longname
+
+    # NEXT, modify the group
+    set undo [list]
+
+    foreach parms(g) $parms(ids) {
+        lappend undo [$type mutate update [array get parms]]
+    }
+
+    setundo [join $undo \n]
 }
 
 

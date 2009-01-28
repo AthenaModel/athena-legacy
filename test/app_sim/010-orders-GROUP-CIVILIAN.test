@@ -82,7 +82,7 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # GROUP:CIVILIAN:CREATE
 
-    test GROUP:CIVILIAN:CREATE-1.1 {required parms} -body {
+    test CREATE-1.1 {required parms} -body {
         ted order -reject GROUP:CIVILIAN:CREATE {}
     } -result {
         g {required value}
@@ -90,7 +90,7 @@ namespace eval ::athena_test::tests:: {
         color {required value}
     }
     
-    test GROUP:CIVILIAN:CREATE-1.2 {Duplicate g, longname} -setup {
+    test CREATE-1.2 {Duplicate g, longname} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
     } -body {
         ted order -reject GROUP:CIVILIAN:CREATE $shia
@@ -101,7 +101,7 @@ namespace eval ::athena_test::tests:: {
         longname {An entity with this name already exists}
     }
 
-    test GROUP:CIVILIAN:CREATE-1.3 {longname duplicates n} -body {
+    test CREATE-1.3 {longname duplicates n} -body {
         ted order -reject GROUP:CIVILIAN:CREATE [dict merge $shia {
             longname SHIA
         }]
@@ -111,7 +111,7 @@ namespace eval ::athena_test::tests:: {
         longname {longname must not be identical to ID}
     }
 
-    test GROUP:CIVILIAN:CREATE-1.4 {g is not an ident} -body {
+    test CREATE-1.4 {g is not an ident} -body {
         ted order -reject GROUP:CIVILIAN:CREATE [dict merge $shia {
             g "BL&E"
         }]
@@ -121,7 +121,7 @@ namespace eval ::athena_test::tests:: {
         g {Identifiers should begin with a letter and contain only letters or digits}
     }
 
-    test GROUP:CIVILIAN:CREATE-1.5 {invalid color} -body {
+    test CREATE-1.5 {invalid color} -body {
         ted order -reject GROUP:CIVILIAN:CREATE [dict merge $shia {
             color NONESUCH
         }]
@@ -132,7 +132,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test GROUP:CIVILIAN:CREATE-2.1 {civgroup is created} -body {
+    test CREATE-2.1 {civgroup is created} -body {
         ted order GROUP:CIVILIAN:CREATE $shia
         set parms [join [dict keys $shia] ","]
         ted query "SELECT $parms FROM civgroups_view"
@@ -144,7 +144,7 @@ g    longname    color
 SHIA Shia Locals #ffff00 
     }
 
-    test GROUP:CIVILIAN:CREATE-2.2 {<Entity> create} -body {
+    test CREATE-2.2 {<Entity> create} -body {
         ted notifier bind ::civgroup <Entity>
         ted order GROUP:CIVILIAN:CREATE $shia
         ted notifier received
@@ -155,7 +155,7 @@ SHIA Shia Locals #ffff00
     }
 
 
-    test GROUP:CIVILIAN:CREATE-3.1 {undo deletes the civgroup} -setup {
+    test CREATE-3.1 {undo deletes the civgroup} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
         ted order GROUP:CIVILIAN:CREATE $sunn
     } -body {
@@ -172,21 +172,21 @@ SHIA Shia Locals
     #-------------------------------------------------------------------
     # GROUP:CIVILIAN:DELETE
 
-    test GROUP:CIVILIAN:DELETE-1.1 {required parms} -body {
+    test DELETE-1.1 {required parms} -body {
         ted order -reject GROUP:CIVILIAN:DELETE {}
     } -result {
         g {required value}
     }
     
 
-    test GROUP:CIVILIAN:DELETE-1.2 {unknown g} -body {
+    test DELETE-1.2 {unknown g} -body {
         ted order -reject GROUP:CIVILIAN:DELETE g NONESUCH
     } -result {
         g {Invalid civilian group, none are defined}
     }
 
 
-    test GROUP:CIVILIAN:DELETE-2.1 {Group is deleted} -setup {
+    test DELETE-2.1 {Group is deleted} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
     } -body {
         ted order GROUP:CIVILIAN:DELETE g SHIA
@@ -196,7 +196,7 @@ SHIA Shia Locals
     } -result {}
 
 
-    test GROUP:CIVILIAN:DELETE-2.2 {<Entity> delete} -setup {
+    test DELETE-2.2 {<Entity> delete} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
     } -body {
         ted notifier bind ::civgroup <Entity>
@@ -209,7 +209,7 @@ SHIA Shia Locals
     }
 
 
-    test GROUP:CIVILIAN:DELETE-2.3 {Deletes nbhood groups} -setup {
+    test DELETE-2.3 {Deletes nbhood groups} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
         ted order NBHOOD:CREATE         $nb1
         ted order GROUP:NBHOOD:CREATE   $nb1shia
@@ -222,7 +222,7 @@ SHIA Shia Locals
     }
 
 
-    test GROUP:CIVILIAN:DELETE-3.1 {Undo restores group} -setup {
+    test DELETE-3.1 {Undo restores group} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
         ted order GROUP:CIVILIAN:DELETE g SHIA
     } -body {
@@ -236,7 +236,7 @@ g    longname    color   gtype
 SHIA Shia Locals #ffff00 CIV   
     }
 
-    test GROUP:CIVILIAN:DELETE-3.2 {Undo restores nbgroups} -setup {
+    test DELETE-3.2 {Undo restores nbgroups} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
         ted order NBHOOD:CREATE         $nb1
         ted order GROUP:NBHOOD:CREATE   $nb1shia
@@ -255,13 +255,13 @@ NB1 SHIA NB1 Shia   AGGRESSIVE 1.0           1.0
     #-------------------------------------------------------------------
     # GROUP:CIVILIAN:UPDATE
 
-    test GROUP:CIVILIAN:UPDATE-1.1 {required parms} -body {
+    test UPDATE-1.1 {required parms} -body {
         ted order -reject GROUP:CIVILIAN:UPDATE {}
     } -result {
         g {required value}
     }
     
-    test GROUP:CIVILIAN:UPDATE-1.2 {Duplicate longname} -setup {
+    test UPDATE-1.2 {Duplicate longname} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
         ted order GROUP:CIVILIAN:CREATE $sunn
     } -body {
@@ -273,7 +273,7 @@ NB1 SHIA NB1 Shia   AGGRESSIVE 1.0           1.0
         longname {An entity with this name already exists}
     }
 
-    test GROUP:CIVILIAN:UPDATE-1.3 {longname duplicates some g} -setup {
+    test UPDATE-1.3 {longname duplicates some g} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
         ted order GROUP:CIVILIAN:CREATE $sunn
     } -body {
@@ -284,7 +284,7 @@ NB1 SHIA NB1 Shia   AGGRESSIVE 1.0           1.0
         longname {An entity with this ID already exists}
     }
 
-    test GROUP:CIVILIAN:UPDATE-1.4 {invalid color} -setup {
+    test UPDATE-1.4 {invalid color} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
     } -body {
         ted order -reject GROUP:CIVILIAN:UPDATE g SHIA color NONESUCH
@@ -295,7 +295,7 @@ NB1 SHIA NB1 Shia   AGGRESSIVE 1.0           1.0
     }
 
 
-    test GROUP:CIVILIAN:UPDATE-2.1 {civgroup is updated} -setup {
+    test UPDATE-2.1 {civgroup is updated} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
     } -body {
         ted order GROUP:CIVILIAN:UPDATE {
@@ -314,7 +314,7 @@ g    longname  color
 SHIA Shia Folk #ff0000 
     }
 
-    test GROUP:CIVILIAN:UPDATE-2.2 {<Entity> update} -setup {
+    test UPDATE-2.2 {<Entity> update} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
     } -body {
         ted notifier bind ::civgroup <Entity>
@@ -326,7 +326,7 @@ SHIA Shia Folk #ff0000
         {::civgroup <Entity> update SHIA}
     }
 
-    test GROUP:CIVILIAN:UPDATE-2.3 {identical values are OK} -setup {
+    test UPDATE-2.3 {identical values are OK} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
     } -body {
         ted order GROUP:CIVILIAN:UPDATE $shia 
@@ -341,7 +341,7 @@ g    longname    color
 SHIA Shia Locals #ffff00 
     }
 
-    test GROUP:CIVILIAN:UPDATE-3.1 {undo undoes the change} -setup {
+    test UPDATE-3.1 {undo undoes the change} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
         ted order GROUP:CIVILIAN:UPDATE {
             g            SHIA
@@ -358,6 +358,120 @@ SHIA Shia Locals #ffff00
 g    longname    color   
 ---- ----------- ------- 
 SHIA Shia Locals #ffff00 
+    }
+
+    #-------------------------------------------------------------------
+    # GROUP:CIVILIAN:UPDATE:MULTI
+
+    test UPDATE:MULTI-1.1 {required parms} -body {
+        ted order -reject GROUP:CIVILIAN:UPDATE:MULTI {}
+    } -result {
+        ids {required value}
+    }
+    
+    test UPDATE:MULTI-1.2 {invalid ids, no groups} -body {
+        ted order -reject GROUP:CIVILIAN:UPDATE:MULTI ids NONESUCH
+    } -result {
+        ids {Invalid civilian group, none are defined}
+    }
+
+    test UPDATE:MULTI-1.3 {invalid ids, groups} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+    } -body {
+        ted order -reject GROUP:CIVILIAN:UPDATE:MULTI ids NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        ids {Invalid civilian group, should be one of: SHIA}
+    }
+
+    test UPDATE:MULTI-1.4 {invalid color} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+    } -body {
+        ted order -reject GROUP:CIVILIAN:UPDATE:MULTI ids SHIA color NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+    }
+
+
+    test UPDATE:MULTI-2.1 {one civgroup of several is updated} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:CIVILIAN:CREATE $sunn
+    } -body {
+        ted order GROUP:CIVILIAN:UPDATE:MULTI ids SHIA color "#ff0000"
+
+        ted query "SELECT g,color FROM civgroups_view"
+    } -cleanup {
+        cleanup
+    } -result {
+g    color   
+---- ------- 
+SHIA #ff0000 
+SUNN #ffffff 
+    }
+
+    test UPDATE:MULTI-2.2 {several civgroups are updated} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:CIVILIAN:CREATE $sunn
+    } -body {
+        ted order GROUP:CIVILIAN:UPDATE:MULTI ids {SHIA SUNN} color "#ff0000"
+
+        ted query "SELECT g,color FROM civgroups_view"
+    } -cleanup {
+        cleanup
+    } -result {
+g    color   
+---- ------- 
+SHIA #ff0000 
+SUNN #ff0000 
+    }
+
+    test UPDATE:MULTI-2.3 {<Entity> update} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:CIVILIAN:CREATE $sunn
+    } -body {
+        ted notifier bind ::civgroup <Entity>
+        ted order GROUP:CIVILIAN:UPDATE:MULTI ids {SHIA SUNN} color "#ff0000"
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::civgroup <Entity> update SHIA}
+        {::civgroup <Entity> update SUNN}
+    }
+
+    test UPDATE:MULTI-3.1 {undo undoes the change} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:CIVILIAN:CREATE $sunn
+        ted order GROUP:CIVILIAN:UPDATE:MULTI ids {SHIA SUNN} color "#ff0000"
+    } -body {
+        cif undo
+        ted query "SELECT g,color FROM civgroups_view"
+    } -cleanup {
+        cleanup
+    } -result {
+g    color   
+---- ------- 
+SHIA #ffff00 
+SUNN #ffffff 
+    }
+
+
+    test UPDATE:MULTI-3.2 {undo sends update} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:CIVILIAN:CREATE $sunn
+        ted order GROUP:CIVILIAN:UPDATE:MULTI ids {SHIA SUNN} color "#ff0000"
+    } -body {
+        ted notifier bind ::civgroup <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::civgroup <Entity> update SHIA}
+        {::civgroup <Entity> update SUNN}
     }
 
     #-------------------------------------------------------------------

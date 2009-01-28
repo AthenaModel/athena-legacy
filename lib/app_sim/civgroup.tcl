@@ -213,9 +213,9 @@ order define ::civgroup GROUP:CIVILIAN:CREATE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare g          -trim -toupper -required -unused -type ident
+    prepare g          -toupper -required -unused -type ident
     prepare longname   -normalize     -required -unused
-    prepare color      -trim -tolower -required -type hexcolor
+    prepare color      -tolower -required -type hexcolor
 
     returnOnError
 
@@ -240,7 +240,7 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare g -trim -toupper -required -type civgroup
+    prepare g -toupper -required -type civgroup
 
     returnOnError
 
@@ -285,17 +285,45 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare g         -trim -toupper  -required -type civgroup
+    prepare g         -toupper  -required -type civgroup
 
     set oldname [rdb onecolumn {SELECT longname FROM groups WHERE g=$parms(g)}]
 
     prepare longname  -normalize      -oldvalue $oldname -unused
-    prepare color     -trim -tolower  -type hexcolor
+    prepare color     -tolower  -type hexcolor
 
     returnOnError
 
     # NEXT, modify the group
     setundo [$type mutate update [array get parms]]
+}
+
+order define ::civgroup GROUP:CIVILIAN:UPDATE:MULTI {
+    title "Update Multiple Civilian Groups"
+    multi yes
+    table civgroups_view
+    parms {
+        ids          {ptype ids           label "Groups"            }
+        color        {ptype color         label "Color"             }
+    }
+} {
+    # FIRST, prepare the parameters
+    prepare ids    -toupper -required -listof civgroup
+    prepare color  -tolower           -type   hexcolor
+
+    returnOnError
+
+    # NEXT, clear the other parameters expected by the mutator
+    prepare longname
+
+    # NEXT, modify the group
+    set undo [list]
+
+    foreach parms(g) $parms(ids) {
+        lappend undo [$type mutate update [array get parms]]
+    }
+
+    setundo [join $undo \n]
 }
 
 

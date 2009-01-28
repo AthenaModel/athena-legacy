@@ -99,13 +99,16 @@ namespace eval ::athena_test::tests:: {
         rdb eval {DELETE FROM nbgroups}
         rdb eval {DELETE FROM sat_ngc}
 
-        scenario reconfigure
+        nbhood   reconfigure
+        orggroup reconfigure
+        nbgroup  reconfigure
+        sat      reconfigure
     }
 
     #-------------------------------------------------------------------
     # NBHOOD:CREATE
 
-    test NBHOOD:CREATE-1.1 {required parms} -body {
+    test CREATE-1.1 {required parms} -body {
         ted order -reject NBHOOD:CREATE {}
     } -result {
         n {required value}
@@ -116,7 +119,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     
-    test NBHOOD:CREATE-1.2 {Duplicate n, longname} -setup {
+    test CREATE-1.2 {Duplicate n, longname} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted order -reject NBHOOD:CREATE $nb1 
@@ -128,7 +131,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test NBHOOD:CREATE-1.3 {longname duplicates n} -body {
+    test CREATE-1.3 {longname duplicates n} -body {
         ted order -reject NBHOOD:CREATE [dict merge $nb1 {longname NB1}]
     } -cleanup {
         cleanup
@@ -136,7 +139,7 @@ namespace eval ::athena_test::tests:: {
         longname {longname must not be identical to ID}
     }
 
-    test NBHOOD:CREATE-1.4 {longname duplicates n} -body {
+    test CREATE-1.4 {longname duplicates n} -body {
         ted order -reject NBHOOD:CREATE [dict merge $nb1 {n "NONE-SUCH"}]
     } -cleanup {
         cleanup
@@ -144,7 +147,7 @@ namespace eval ::athena_test::tests:: {
         n {Identifiers should begin with a letter and contain only letters or digits}
     }
 
-    test NBHOOD:CREATE-1.4 {invalid urbanization} -body {
+    test CREATE-1.4 {invalid urbanization} -body {
         ted order -reject NBHOOD:CREATE [dict merge $nb1 {
             urbanization NONESUCH
         }]
@@ -153,7 +156,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test NBHOOD:CREATE-1.5 {polygon: invalid map ref} -body {
+    test CREATE-1.5 {polygon: invalid map ref} -body {
         ted order -reject NBHOOD:CREATE [dict merge $nb1 {
             polygon {A80A80 B20A80 Z99Z99 B00B20}
         }]
@@ -162,7 +165,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test NBHOOD:CREATE-1.6 {polygon: duplicate polygon} -setup {
+    test CREATE-1.6 {polygon: duplicate polygon} -setup {
         ted order NBHOOD:CREATE  $nb1
     } -body {
         ted order -reject NBHOOD:CREATE \
@@ -174,7 +177,7 @@ namespace eval ::athena_test::tests:: {
     }
     
 
-    test NBHOOD:CREATE-1.7 {refpoint: invalid map ref} -body {
+    test CREATE-1.7 {refpoint: invalid map ref} -body {
         ted order -reject NBHOOD:CREATE [dict merge $nb1 {
             refpoint X99X99
         }]
@@ -183,7 +186,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test NBHOOD:CREATE-1.8 {refpoint: duplicate refpoint} -setup {
+    test CREATE-1.8 {refpoint: duplicate refpoint} -setup {
         ted order NBHOOD:CREATE  $nb1
     } -body {
         ted order -reject NBHOOD:CREATE \
@@ -195,7 +198,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test NBHOOD:CREATE-1.9 {refpoint not in polygon} -body {
+    test CREATE-1.9 {refpoint not in polygon} -body {
         ted order -reject NBHOOD:CREATE [dict merge $nb1 {
             refpoint A00A00
         }]
@@ -204,7 +207,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test NBHOOD:CREATE-2.1 {nbhood is created} -body {
+    test CREATE-2.1 {nbhood is created} -body {
         ted order NBHOOD:CREATE $nb1
         set parms [join [dict keys $nb1] ","]
         ted query "SELECT $parms FROM nbhoods"
@@ -217,7 +220,7 @@ NB1 Here     URBAN        100 100  80 80 120 80 100 120
     }
 
 
-    test NBHOOD:CREATE-2.2 {stacking_order is set} -body {
+    test CREATE-2.2 {stacking_order is set} -body {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $nb2
         ted query "SELECT n,longname,stacking_order FROM nbhoods"
@@ -231,7 +234,7 @@ NB2 There    2
     }
 
 
-    test NBHOOD:CREATE-2.3 {obscured_by is set} -body {
+    test CREATE-2.3 {obscured_by is set} -body {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $overnb1
         ted query "SELECT n,longname,obscured_by FROM nbhoods"
@@ -245,7 +248,7 @@ OV1 Over
     }
 
 
-    test NBHOOD:CREATE-2.4 {<Entity> create} -body {
+    test CREATE-2.4 {<Entity> create} -body {
         ted notifier bind ::nbhood <Entity>
         ted order NBHOOD:CREATE $nb1
         ted notifier received
@@ -256,7 +259,7 @@ OV1 Over
     }
 
 
-    test NBHOOD:CREATE-2.5 {ORG Satisfaction curves are populated} -setup {
+    test CREATE-2.5 {ORG Satisfaction curves are populated} -setup {
         ted order GROUP:ORGANIZATION:CREATE $orggrp
     } -body {
         ted order NBHOOD:CREATE $nb1
@@ -272,7 +275,7 @@ NB1 USAID CAS ORG   0.0  0.0    1.0
     }
 
 
-    test NBHOOD:CREATE-2.6 {<Entity> create n g c} -setup {
+    test CREATE-2.6 {<Entity> create n g c} -setup {
         ted order GROUP:ORGANIZATION:CREATE $orggrp
     } -body {
         ted notifier bind ::sat <Entity>
@@ -286,7 +289,7 @@ NB1 USAID CAS ORG   0.0  0.0    1.0
 
 
 
-    test NBHOOD:CREATE-3.1 {undo deletes the nbhood} -setup {
+    test CREATE-3.1 {undo deletes the nbhood} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $nb2
     } -body {
@@ -301,7 +304,7 @@ NB1 Here
     }
 
 
-    test NBHOOD:CREATE-3.2 {On undo: <Entity> delete $n} -setup {
+    test CREATE-3.2 {On undo: <Entity> delete $n} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted notifier bind ::nbhood <Entity>
@@ -314,7 +317,7 @@ NB1 Here
     }
 
 
-    test NBHOOD:CREATE-3.3 {undo updates obscured_by} -setup {
+    test CREATE-3.3 {undo updates obscured_by} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $overnb1
     } -body {
@@ -328,7 +331,7 @@ n   longname obscured_by
 NB1 Here                 
     }
 
-    test NBHOOD:CREATE-3.4 {ORG Satisfaction curves are undone} -setup {
+    test CREATE-3.4 {ORG Satisfaction curves are undone} -setup {
         ted order GROUP:ORGANIZATION:CREATE $orggrp
         ted order NBHOOD:CREATE $nb1
     } -body {
@@ -342,7 +345,7 @@ NB1 Here
     }
 
 
-    test NBHOOD:CREATE-3.5 {On undo, <Entity> delete n g c} -setup {
+    test CREATE-3.5 {On undo, <Entity> delete n g c} -setup {
         ted order GROUP:ORGANIZATION:CREATE $orggrp
         ted order NBHOOD:CREATE $nb1
     } -body {
@@ -359,19 +362,19 @@ NB1 Here
     #-------------------------------------------------------------------
     # NBHOOD:DELETE
 
-    test NBHOOD:DELETE-1.1 {required parms} -body {
+    test DELETE-1.1 {required parms} -body {
         ted order -reject NBHOOD:DELETE {}
     } -result {
         n {required value}
     }
     
-    test NBHOOD:DELETE-1.2 {unknown n} -body {
+    test DELETE-1.2 {unknown n} -body {
         ted order -reject NBHOOD:DELETE n NONESUCH
     } -result {
         n {Invalid neighborhood, none are defined}
     }
 
-    test NBHOOD:DELETE-2.1 {Nbhood is deleted} -setup {
+    test DELETE-2.1 {Nbhood is deleted} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted order NBHOOD:DELETE n NB1
@@ -380,7 +383,7 @@ NB1 Here
         cleanup
     } -result {}
 
-    test NBHOOD:DELETE-2.2 {<Entity> delete} -setup {
+    test DELETE-2.2 {<Entity> delete} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted notifier bind ::nbhood <Entity>
@@ -392,7 +395,7 @@ NB1 Here
         {::nbhood <Entity> delete NB1}
     }
 
-    test NBHOOD:DELETE-2.3 {Deletes nbhood groups} -setup {
+    test DELETE-2.3 {Deletes nbhood groups} -setup {
         ted order NBHOOD:CREATE         $nb1
         ted order GROUP:CIVILIAN:CREATE $civgrp
         ted order GROUP:NBHOOD:CREATE   $nbgrp
@@ -404,7 +407,7 @@ NB1 Here
     } -result {
     }
 
-    test NBHOOD:DELETE-2.4 {Deletes org sat curves} -setup {
+    test DELETE-2.4 {Deletes org sat curves} -setup {
         ted order GROUP:ORGANIZATION:CREATE $orggrp
         ted order NBHOOD:CREATE             $nb1
     } -body {
@@ -415,7 +418,7 @@ NB1 Here
     } -result {
     }
 
-    test NBHOOD:DELETE-2.5 {<Entity> delete n g c} -setup {
+    test DELETE-2.5 {<Entity> delete n g c} -setup {
         ted order GROUP:ORGANIZATION:CREATE $orggrp
         ted order NBHOOD:CREATE $nb1
     } -body {
@@ -429,7 +432,7 @@ NB1 Here
     }
 
 
-    test NBHOOD:DELETE-3.1 {Undo restores nbhood} -setup {
+    test DELETE-3.1 {Undo restores nbhood} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:DELETE n NB1
     } -body {
@@ -445,7 +448,7 @@ NB1 Here     URBAN        100 100  80 80 120 80 100 120
     }
 
 
-    test NBHOOD:DELETE-3.2 {On undo, <Entity> create} -setup {
+    test DELETE-3.2 {On undo, <Entity> create} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:DELETE n NB1
     } -body {
@@ -459,7 +462,7 @@ NB1 Here     URBAN        100 100  80 80 120 80 100 120
     }
 
 
-    test NBHOOD:DELETE-3.3 {Undo restores nbhood groups} -setup {
+    test DELETE-3.3 {Undo restores nbhood groups} -setup {
         ted order NBHOOD:CREATE         $nb1
         ted order GROUP:CIVILIAN:CREATE $civgrp
         ted order GROUP:NBHOOD:CREATE   $nbgrp
@@ -476,7 +479,7 @@ NB1 PASH NB1 Pashtuns AGGRESSIVE 1.0           1.0
     }
 
 
-    test NBHOOD:DELETE-3.4 {Undo restores org sat curves} -setup {
+    test DELETE-3.4 {Undo restores org sat curves} -setup {
         ted order GROUP:ORGANIZATION:CREATE $orggrp
         ted order NBHOOD:CREATE             $nb1
         ted order SAT:UPDATE \
@@ -494,7 +497,7 @@ NB1 USAID CAS ORG   1.0  2.0    0.5
     }
 
 
-    test NBHOOD:DELETE-3.5 {Undo, <Entity> create n g c} -setup {
+    test DELETE-3.5 {Undo, <Entity> create n g c} -setup {
         ted order GROUP:ORGANIZATION:CREATE $orggrp
         ted order NBHOOD:CREATE             $nb1
         ted order NBHOOD:DELETE n NB1
@@ -512,19 +515,19 @@ NB1 USAID CAS ORG   1.0  2.0    0.5
     #-------------------------------------------------------------------
     # NBHOOD:LOWER
 
-    test NBHOOD:LOWER-1.1 {required parms} -body {
+    test LOWER-1.1 {required parms} -body {
         ted order -reject NBHOOD:LOWER {}
     } -result {
         n {required value}
     }
     
-    test NBHOOD:LOWER-1.2 {unknown n} -body {
+    test LOWER-1.2 {unknown n} -body {
         ted order -reject NBHOOD:LOWER n NONESUCH
     } -result {
         n {Invalid neighborhood, none are defined}
     }
 
-    test NBHOOD:LOWER-2.1 {Nbhood is lower} -setup {
+    test LOWER-2.1 {Nbhood is lower} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $overnb1
     } -body {
@@ -539,7 +542,7 @@ NB1 Here     2
 OV1 Over     1              NB1         
     }
 
-    test NBHOOD:LOWER-2.2 {<Entity> stack} -setup {
+    test LOWER-2.2 {<Entity> stack} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $overnb1
     } -body {
@@ -552,7 +555,7 @@ OV1 Over     1              NB1
         {::nbhood <Entity> stack}
     }
 
-    test NBHOOD:LOWER-3.1 {Undo} -setup {
+    test LOWER-3.1 {Undo} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $overnb1
     } -body {
@@ -571,19 +574,19 @@ OV1 Over     2
     #-------------------------------------------------------------------
     # NBHOOD:RAISE
 
-    test NBHOOD:RAISE-1.1 {required parms} -body {
+    test RAISE-1.1 {required parms} -body {
         ted order -reject NBHOOD:RAISE {}
     } -result {
         n {required value}
     }
     
-    test NBHOOD:RAISE-1.2 {unknown n} -body {
+    test RAISE-1.2 {unknown n} -body {
         ted order -reject NBHOOD:RAISE n NONESUCH
     } -result {
         n {Invalid neighborhood, none are defined}
     }
 
-    test NBHOOD:RAISE-2.1 {Nbhood is lower} -setup {
+    test RAISE-2.1 {Nbhood is lower} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $overnb1
     } -body {
@@ -598,7 +601,7 @@ NB1 Here     2
 OV1 Over     1              NB1         
     }
 
-    test NBHOOD:RAISE-2.2 {<Entity> stack} -setup {
+    test RAISE-2.2 {<Entity> stack} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $overnb1
     } -body {
@@ -611,7 +614,7 @@ OV1 Over     1              NB1
         {::nbhood <Entity> stack}
     }
 
-    test NBHOOD:RAISE-3.1 {Undo} -setup {
+    test RAISE-3.1 {Undo} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $overnb1
     } -body {
@@ -630,13 +633,13 @@ OV1 Over     2
     #-------------------------------------------------------------------
     # NBHOOD:UPDATE
 
-    test NBHOOD:UPDATE-1.1 {required parms} -body {
+    test UPDATE-1.1 {required parms} -body {
         ted order -reject NBHOOD:UPDATE {}
     } -result {
         n {required value}
     }
     
-    test NBHOOD:UPDATE-1.2 {Duplicate longname} -setup {
+    test UPDATE-1.2 {Duplicate longname} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $nb2
     } -body {
@@ -647,7 +650,7 @@ OV1 Over     2
         longname {An entity with this name already exists}
     }
 
-    test NBHOOD:UPDATE-1.3 {longname duplicates another n} -setup {
+    test UPDATE-1.3 {longname duplicates another n} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $nb2
     } -body {
@@ -658,7 +661,7 @@ OV1 Over     2
         longname {An entity with this ID already exists}
     }
 
-    test NBHOOD:UPDATE-1.4 {invalid urbanization} -setup {
+    test UPDATE-1.4 {invalid urbanization} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted order -reject NBHOOD:UPDATE n NB1 urbanization NONESUCH
@@ -668,7 +671,7 @@ OV1 Over     2
         urbanization {invalid value, "NONESUCH"}
     }
 
-    test NBHOOD:UPDATE-1.5 {polygon: invalid map ref} -setup {
+    test UPDATE-1.5 {polygon: invalid map ref} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted order -reject NBHOOD:UPDATE           \
@@ -680,7 +683,7 @@ OV1 Over     2
         polygon {point "Z99Z99" is not a map reference string}
     }
 
-    test NBHOOD:UPDATE-1.6 {polygon: duplicate polygon} -setup {
+    test UPDATE-1.6 {polygon: duplicate polygon} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $nb2
     } -body {
@@ -693,7 +696,7 @@ OV1 Over     2
         polygon {A neighborhood with this polygon already exists}
     }
 
-    test NBHOOD:UPDATE-1.7 {refpoint: invalid map ref} -setup {
+    test UPDATE-1.7 {refpoint: invalid map ref} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted order -reject NBHOOD:UPDATE \
@@ -705,7 +708,7 @@ OV1 Over     2
         refpoint {not a map reference string}
     }
 
-    test NBHOOD:UPDATE-1.9 {refpoint: duplicate refpoint} -setup {
+    test UPDATE-1.9 {refpoint: duplicate refpoint} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $nb2
     } -body {
@@ -718,7 +721,7 @@ OV1 Over     2
         polygon {A neighborhood with this reference point already exists}
     }
 
-    test NBHOOD:UPDATE-1.8 {refpoint not in polygon} -setup {
+    test UPDATE-1.8 {refpoint not in polygon} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted order -reject NBHOOD:UPDATE \
@@ -730,7 +733,7 @@ OV1 Over     2
         refpoint {not in polygon}
     }
 
-    test NBHOOD:UPDATE-2.1 {nbhood is updated} -setup {
+    test UPDATE-2.1 {nbhood is updated} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted order NBHOOD:UPDATE {
@@ -751,7 +754,7 @@ n   longname urbanization refpoint polygon
 NB1 Not Here RURAL        5 5      0 0 10 0 10 10 0 10 
     }
 
-    test NBHOOD:UPDATE-2.2 {stacking_order,obscured_by are set} -setup {
+    test UPDATE-2.2 {stacking_order,obscured_by are set} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $overnb1
     } -body {
@@ -767,7 +770,7 @@ NB1 Here     1              OV1
 OV1 Over     2                          
     }
 
-    test NBHOOD:UPDATE-2.3 {<Entity> update} -setup {
+    test UPDATE-2.3 {<Entity> update} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted notifier bind ::nbhood <Entity>
@@ -780,7 +783,7 @@ OV1 Over     2
     }
 
 
-    test NBHOOD:UPDATE-3.1 {undo undoes the change} -setup {
+    test UPDATE-3.1 {undo undoes the change} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:UPDATE [dict merge $overnb1 {n NB1}]
     } -body {
@@ -796,7 +799,7 @@ n   longname urbanization refpoint polygon
 NB1 Here     URBAN        100 100  80 80 120 80 100 120 
     }
 
-    test NBHOOD:UPDATE-3.2 {stacking_order,obscured_by are undone} -setup {
+    test UPDATE-3.2 {stacking_order,obscured_by are undone} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $nb2
 
@@ -812,6 +815,125 @@ n   longname stacking_order obscured_by
 --- -------- -------------- ----------- 
 NB1 Here     1                          
 NB2 There    2                          
+    }
+
+
+    #-------------------------------------------------------------------
+    # NBHOOD:UPDATE:MULTI
+
+    test UPDATE:MULTI-1.1 {required parms} -body {
+        ted order -reject NBHOOD:UPDATE:MULTI {}
+    } -result {
+        ids {required value}
+    }
+
+    test UPDATE:MULTI-1.2 {invalid ids, no nbhoods} -body {
+        ted order -reject NBHOOD:UPDATE:MULTI ids NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        ids {Invalid neighborhood, none are defined}
+    }
+    
+    test UPDATE:MULTI-1.3 {invalid ids, nbhoods} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted order -reject NBHOOD:UPDATE:MULTI ids NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        ids {Invalid neighborhood, should be one of: NB1}
+    }
+
+    test UPDATE:MULTI-1.4 {invalid urbanization} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted order -reject NBHOOD:UPDATE:MULTI ids NB1 urbanization NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        urbanization {invalid value, "NONESUCH"}
+    }
+
+    test UPDATE:MULTI-2.1 {one nbhood of several is updated} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $nb2
+    } -body {
+        ted order NBHOOD:UPDATE:MULTI ids NB1 urbanization SUBURBAN
+
+        ted query "SELECT n,urbanization FROM nbhoods"
+    } -cleanup {
+        cleanup
+    } -result {
+n   urbanization 
+--- ------------ 
+NB1 SUBURBAN     
+NB2 RURAL        
+    }
+
+    test UPDATE:MULTI-2.2 {several nbhoods are updated} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $nb2
+    } -body {
+        ted order NBHOOD:UPDATE:MULTI ids {NB1 NB2} urbanization SUBURBAN
+
+        ted query "SELECT n,urbanization FROM nbhoods"
+    } -cleanup {
+        cleanup
+    } -result {
+n   urbanization 
+--- ------------ 
+NB1 SUBURBAN     
+NB2 SUBURBAN     
+    }
+
+    test UPDATE:MULTI-2.3 {<Entity> update} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $nb2
+    } -body {
+        ted notifier bind ::nbhood <Entity>
+        ted order NBHOOD:UPDATE:MULTI ids {NB1 NB2} urbanization SUBURBAN
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbhood <Entity> update NB1}
+        {::nbhood <Entity> update NB2}
+    }
+
+
+    test UPDATE:MULTI-3.1 {undo undoes the change} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $nb2
+        ted order NBHOOD:UPDATE:MULTI ids {NB1 NB2} urbanization SUBURBAN
+    } -body {
+        cif undo -test
+        ted query {
+            SELECT n,urbanization FROM nbhoods
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+n   urbanization 
+--- ------------ 
+NB1 URBAN        
+NB2 RURAL        
+    }
+
+
+    test UPDATE:MULTI-3.3 {<Entity> update on undo} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order NBHOOD:CREATE $nb2
+        ted order NBHOOD:UPDATE:MULTI ids {NB1 NB2} urbanization SUBURBAN
+    } -body {
+        ted notifier bind ::nbhood <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbhood <Entity> update NB1}
+        {::nbhood <Entity> update NB2}
     }
 
 

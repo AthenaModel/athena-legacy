@@ -361,15 +361,16 @@ snit::type order {
             set parms($parm) ""
         }
 
+        # NEXT, trim the data.
+        set parms($parm) [string trim $parms($parm)]
+
+
         # NEXT, process the options, so long as there's no explicit
         # error.
 
         while {![dict exists $errors $parm] && [llength $args] > 0} {
             set opt [lshift args]
             switch -exact -- $opt {
-                -trim {
-                    set parms($parm) [string trim $parms($parm)]
-                }
                 -toupper {
                     set parms($parm) [string toupper $parms($parm)]
                 }
@@ -417,6 +418,19 @@ snit::type order {
 
                     validate $parm { 
                         set parms($parm) [{*}$parmtype validate $parms($parm)]
+                    }
+                }
+                -listof {
+                    set parmtype [lshift args]
+
+                    validate $parm {
+                        set newvalue [list]
+
+                        foreach val $parms($parm) {
+                            lappend newvalue [{*}$parmtype validate $val]
+                        }
+
+                        set parms($parm) $newvalue
                     }
                 }
                 -xform {

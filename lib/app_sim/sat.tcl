@@ -54,20 +54,27 @@ snit::type sat {
     #-------------------------------------------------------------------
     # Queries
 
-    # validate n g c
+    # validate id
     #
-    # n       A neighborhood ID
-    # g       A group ID
-    # c       A concern ID
+    # id     A curve ID, [list $n $g $c]
     #
     # Throws INVALID if there's no satisfaction level for the 
     # specified combination.
 
-    typemethod validate {n g c} {
+    typemethod validate {id} {
+        lassign $id n g c
+
+        set n [nbhood    validate $n]
+        set g [sat group validate $g]
+        set c [econcern  validate $c]
+
+
         if {![$type exists $n $g $c]} {
             return -code error -errorcode INVALID \
-      "Satisfaction is not tracked for this neighborhood, group, and concern."
+                "Satisfaction is not tracked for group $g's $c in $n."
         }
+
+        return [list $n $g $c]
     }
 
     # exists n g c
@@ -383,9 +390,9 @@ snit::type sat {
 #-------------------------------------------------------------------
 # Orders: SAT:*
 
-# GROUP:NBHOOD:UPDATE
+# SAT:UPDATE
 #
-# Updates existing groups.
+# Updates existing curves
 
 order define ::sat SAT:UPDATE {
     title "Update Satisfaction Curve"
@@ -395,27 +402,27 @@ order define ::sat SAT:UPDATE {
         g              {ptype key       label "Group"         }
         c              {ptype key       label "Concern"       }
         sat0           {ptype sat       label "Sat at T0"     }
-        trend0         {ptype trend     label "Trend0"        }
+        trend0         {ptype trend     label "Trend"         }
         saliency       {ptype saliency  label "Saliency"      }
     }
 } {
     # FIRST, prepare the parameters
-    prepare n        -trim -toupper  -required -type nbhood
-    prepare g        -trim -toupper  -required -type [list sat group]
-    prepare c        -trim -toupper  -required -type econcern
+    prepare n        -toupper  -required -type nbhood
+    prepare g        -toupper  -required -type [list sat group]
+    prepare c        -toupper  -required -type econcern
 
-    prepare sat0     -trim -toupper \
+    prepare sat0     -toupper \
         -type qsat      -xform [list qsat value]
-    prepare trend0   -trim -toupper \
+    prepare trend0   -toupper \
         -type qtrend    -xform [list qtrend value]
-    prepare saliency -trim -toupper \
+    prepare saliency -toupper \
         -type qsaliency -xform [list qsaliency value]
 
     returnOnError
 
     # NEXT, do cross-validation
     validate c {
-        sat validate $parms(n) $parms(g) $parms(c)
+        sat validate [list $parms(n) $parms(g) $parms(c)]
     }
 
     returnOnError
@@ -424,3 +431,40 @@ order define ::sat SAT:UPDATE {
     setundo [$type mutate update [array get parms]]
 }
 
+
+# SAT:UPDATE:MULTI
+#
+# Updates multiple existing curves
+
+order define ::sat SAT:UPDATE:MULTI {
+    title "Update Multiple Satisfaction Curves"
+    multi yes
+    table sat_ngc
+    parms {
+        ids            {ptype ids       label "Curves"        }
+        sat0           {ptype sat       label "Sat at T0"     }
+        trend0         {ptype trend     label "Trend"         }
+        saliency       {ptype saliency  label "Saliency"      }
+    }
+} {
+    # FIRST, prepare the parameters
+    prepare ids      -toupper  -required -listof sat
+
+    prepare sat0     -toupper -type qsat      -xform [list qsat value]
+    prepare trend0   -toupper -type qtrend    -xform [list qtrend value]
+    prepare saliency -toupper -type qsaliency -xform [list qsaliency value]
+
+    returnOnError
+
+
+    # NEXT, modify the curves
+    set undo [list]
+
+    foreach id $parms(ids) {
+        lassign $id parms(n) parms(g) parms(c)
+
+        lappend undo [$type mutate update [array get parms]]
+    }
+
+    setundo [join $undo \n]
+}

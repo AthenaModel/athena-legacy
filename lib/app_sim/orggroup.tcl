@@ -255,15 +255,15 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare g              -trim -toupper -required -unused -type ident
+    prepare g              -toupper -required -unused -type ident
     prepare longname       -normalize     -required -unused
-    prepare color          -trim -tolower -required -type hexcolor
-    prepare orgtype        -trim -toupper -required -type eorgtype
-    prepare medical        -trim          -required -type boolean
-    prepare engineer       -trim          -required -type boolean
-    prepare support        -trim          -required -type boolean
-    prepare rollup_weight  -trim          -required -type weight
-    prepare effects_factor -trim          -required -type weight
+    prepare color          -tolower -required -type hexcolor
+    prepare orgtype        -toupper -required -type eorgtype
+    prepare medical                 -required -type boolean
+    prepare engineer                -required -type boolean
+    prepare support                 -required -type boolean
+    prepare rollup_weight           -required -type weight
+    prepare effects_factor          -required -type weight
 
     returnOnError
 
@@ -288,7 +288,7 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare g -trim -toupper -required -type orggroup
+    prepare g -toupper -required -type orggroup
 
     returnOnError
 
@@ -339,18 +339,18 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare g              -trim -toupper  -required -type orggroup
+    prepare g              -toupper  -required -type orggroup
 
     set oldname [rdb onecolumn {SELECT longname FROM groups WHERE g=$parms(g)}]
 
     prepare longname       -normalize      -oldvalue $oldname -unused
-    prepare color          -trim -tolower  -type hexcolor
-    prepare orgtype        -trim -toupper  -type eorgtype
-    prepare medical        -trim           -type boolean
-    prepare engineer       -trim           -type boolean
-    prepare support        -trim           -type boolean
-    prepare rollup_weight  -trim           -type weight
-    prepare effects_factor -trim           -type weight
+    prepare color          -tolower  -type hexcolor
+    prepare orgtype        -toupper  -type eorgtype
+    prepare medical                  -type boolean
+    prepare engineer                 -type boolean
+    prepare support                  -type boolean
+    prepare rollup_weight            -type weight
+    prepare effects_factor           -type weight
 
     returnOnError
 
@@ -358,3 +358,47 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     setundo [$type mutate update [array get parms]]
 }
 
+
+# GROUP:ORGANIZATION:UPDATE:MULTI
+#
+# Updates multiple groups.
+
+order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
+    title "Update Multiple Organization Groups"
+    multi yes
+    table gui_orggroups
+    parms {
+        ids            {ptype ids       label "Groups"        }
+        color          {ptype color     label "Color"         }
+        orgtype        {ptype orgtype   label "Org. Type"     }
+        medical        {ptype yesno     label "Medical?"      }
+        engineer       {ptype yesno     label "Engineer?"     }
+        support        {ptype yesno     label "Support?"      }
+        rollup_weight  {ptype weight    label "RollupWeight"  }
+        effects_factor {ptype weight    label "EffectsFactor" }
+    }
+} {
+    # FIRST, prepare the parameters
+    prepare ids            -toupper  -required -listof orggroup
+    prepare color          -tolower            -type   hexcolor
+    prepare orgtype        -toupper            -type   eorgtype
+    prepare medical                            -type   boolean
+    prepare engineer                           -type   boolean
+    prepare support                            -type   boolean
+    prepare rollup_weight                      -type   weight
+    prepare effects_factor                     -type   weight
+
+    returnOnError
+
+    # NEXT, clear the other parameters expected by the mutator
+    prepare longname
+
+    # NEXT, modify the group
+    set undo [list]
+
+    foreach parms(g) $parms(ids) {
+        lappend undo [$type mutate update [array get parms]]
+    }
+
+    setundo [join $undo \n]
+}

@@ -216,7 +216,7 @@ order define ::map MAP:IMPORT {
     }
 } {
     # FIRST, prepare the parameters
-    prepare filename -trim -required 
+    prepare filename -required 
 
     returnOnError
 

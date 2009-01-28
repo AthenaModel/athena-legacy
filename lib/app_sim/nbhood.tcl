@@ -394,10 +394,10 @@ order define ::nbhood NBHOOD:CREATE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare n             -trim -toupper      -required -unused -type ident
+    prepare n             -toupper      -required -unused -type ident
     prepare longname      -normalize          -required -unused
-    prepare urbanization  -trim -toupper      -required -type eurbanization
-    prepare refpoint      -trim -toupper      -required -type refpoint
+    prepare urbanization  -toupper      -required -type eurbanization
+    prepare refpoint      -toupper      -required -type refpoint
     prepare polygon       -normalize -toupper -required -type refpoly
 
     returnOnError
@@ -456,7 +456,7 @@ order define ::nbhood NBHOOD:DELETE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare n  -trim -toupper -required -type nbhood
+    prepare n  -toupper -required -type nbhood
 
     returnOnError
 
@@ -496,7 +496,7 @@ order define ::nbhood NBHOOD:LOWER {
     }
 } {
     # FIRST, prepare the parameters
-    prepare n  -trim -toupper -required -type nbhood
+    prepare n  -toupper -required -type nbhood
 
     returnOnError
 
@@ -514,7 +514,7 @@ order define ::nbhood NBHOOD:RAISE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare n  -trim -toupper -required -type nbhood
+    prepare n  -toupper -required -type nbhood
 
     returnOnError
 
@@ -538,15 +538,15 @@ order define ::nbhood NBHOOD:UPDATE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare n            -trim -toupper       -required -type nbhood
+    prepare n            -toupper       -required -type nbhood
 
     set oldname [rdb onecolumn {
         SELECT longname FROM nbhoods WHERE n=$parms(n)
     }]
 
     prepare longname     -normalize           -oldvalue $oldname -unused
-    prepare urbanization -trim -toupper       -type eurbanization
-    prepare refpoint     -trim -toupper       -type refpoint
+    prepare urbanization -toupper             -type eurbanization
+    prepare refpoint     -toupper             -type refpoint
     prepare polygon      -normalize -toupper  -type refpoly
 
     returnOnError
@@ -606,5 +606,38 @@ order define ::nbhood NBHOOD:UPDATE {
 
     # NEXT, modify the neighborhood
     setundo [$type mutate update [array get parms]]
+}
+
+# NBHOOD:UPDATE:MULTI
+#
+# Updates multiple neighborhoods.
+
+order define ::nbhood NBHOOD:UPDATE:MULTI {
+    title "Update Multiple Neighborhoods"
+    multi yes
+    table gui_nbhoods
+    parms {
+        ids          {ptype ids           label "Neighborhoods"   }
+        urbanization {ptype urbanization  label "Urbanization"    }
+     }
+} {
+    # FIRST, prepare the parameters
+    prepare ids          -toupper -required -listof nbhood
+    prepare urbanization -toupper           -type   eurbanization
+    returnOnError
+
+    # NEXT, clear the other parameters expected by the mutator
+    prepare longname
+    prepare refpoint
+    prepare polygon
+
+    # NEXT, modify the neighborhoods
+    set undo [list]
+
+    foreach parms(n) $parms(ids) {
+        lappend undo [$type mutate update [array get parms]]
+    }
+
+    setundo [join $undo \n]
 }
 
