@@ -363,6 +363,36 @@ message nbhood GUI      "<Entity> update \$n"
 
 }>>
 
+<<subsection "NBHOOD:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the neighborhood data."
+
+actor GUI
+actor order
+actor nbhood
+
+message GUI    order    NBHOOD:UPDATE:MULTI
+action  order           "For all updated nbhoods:"
+message order  nbhood   "mutate update \$parmdict"
+message nbhood GUI      "<Entity> update \$n"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous neighborhood data."
+
+actor GUI
+actor cif
+actor nbhood
+
+message GUI    cif      undo
+action  cif             "For all updated nbhoods:"
+message cif    nbhood   "mutate update \$parmdict"
+message nbhood GUI      "<Entity> update \$n"
+
+}>>
+
+
 
 <<subsection "NBHOOD:LOWER">>
 
@@ -526,6 +556,35 @@ message civgroup GUI       "<Entity> update \$g"
 }>>
 
 
+<<subsection "GROUP:CIVILIAN:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the civilian group data."
+
+actor GUI
+actor order
+actor civgroup
+
+message GUI      order     GROUP:CIVILIAN:UPDATE:MULTI
+action  order              "For all updated groups:"
+message order    civgroup  "mutate update \$parmdict"
+message civgroup GUI       "<Entity> update \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous civilian group data."
+
+actor GUI
+actor cif
+actor civgroup
+
+message GUI      cif       undo
+action  cif                "For all updated groups:"
+message cif      civgroup  "mutate update \$parmdict"
+message civgroup GUI       "<Entity> update \$g"
+}>>
+
+
 <<section "GROUP:FORCE:* ORDERS">>
 
 <<subsection "GROUP:FORCE:CREATE">>
@@ -608,6 +667,34 @@ message cif      frcgroup  "mutate update \$parmdict"
 message frcgroup GUI       "<Entity> update \$g"
 }>>
 
+
+<<subsection "GROUP:FORCE:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the force group data."
+
+actor GUI
+actor order
+actor frcgroup
+
+message GUI      order     GROUP:FORCE:UPDATE
+action  order              "For all updated groups:"
+message order    frcgroup  "mutate update \$parmdict"
+message frcgroup GUI       "<Entity> update \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous force group data."
+
+actor GUI
+actor cif
+actor frcgroup
+
+message GUI      cif       undo
+action  cif                "For all updated groups:"
+message cif      frcgroup  "mutate update \$parmdict"
+message frcgroup GUI       "<Entity> update \$g"
+}>>
 
 <<section "GROUP:NBHOOD:* ORDERS">>
 
@@ -709,6 +796,35 @@ actor cif
 actor nbgroup
 
 message GUI     cif      undo
+message cif     nbgroup  "mutate update \$parmdict"
+message nbgroup GUI      "<Entity> update \$n \$g"
+}>>
+
+
+<<subsection "GROUP:NBHOOD:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the neighborhood group data."
+
+actor GUI
+actor order
+actor nbgroup
+
+message GUI     order    GROUP:NBHOOD:UPDATE:MULTI
+action  order            "For all updated groups:"
+message order   nbgroup  "mutate update \$parmdict"
+message nbgroup GUI      "<Entity> update \$n \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous neighborhood group data."
+
+actor GUI
+actor cif
+actor nbgroup
+
+message GUI     cif      undo
+action  cif              "For all updated groups:"
 message cif     nbgroup  "mutate update \$parmdict"
 message nbgroup GUI      "<Entity> update \$n \$g"
 }>>
@@ -820,6 +936,34 @@ message orggroup GUI       "<Entity> update \$g"
 }>>
 
 
+<<subsection "GROUP:ORGANIZATION:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the organization group data."
+
+actor GUI
+actor order
+actor orggroup
+
+message GUI      order     GROUP:ORGANIZATION:UPDATE:MULTI
+action  order              "For all updated groups:"
+message order    orggroup  "mutate update \$parmdict"
+message orggroup GUI       "<Entity> update \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous organization group data."
+
+actor GUI
+actor cif
+actor orggroup
+
+message GUI      cif       undo
+action  cif                "For all updated groups:"
+message cif      orggroup  "mutate update \$parmdict"
+message orggroup GUI       "<Entity> update \$g"
+}>>
+
 <<section "SAT:* ORDERS">>
 
 <<subsection "SAT:UPDATE">>
@@ -848,6 +992,33 @@ message cif     sat      "mutate update \$parmdict"
 message sat     GUI      "<Entity> update \$n \$g \$c"
 }>>
 
+<<subsection "SAT:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the satisfaction curve data."
+
+actor GUI
+actor order
+actor sat
+
+message GUI     order    SAT:UPDATE:MULTI
+action  order            "For all updated groups:"
+message order   sat      "mutate update \$parmdict"
+message sat     GUI      "<Entity> update \$n \$g \$c"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous neighborhood group data."
+
+actor GUI
+actor cif
+actor sat
+
+message GUI     cif      undo
+action  cif              "For all updated groups:"
+message cif     sat      "mutate update \$parmdict"
+message sat     GUI      "<Entity> update \$n \$g \$c"
+}>>
 
 
 <<section AUTHOR>>

@@ -90,11 +90,29 @@ The parameters are as follows:<p>
 
 <</parmlist>>
 
+
 <<defitem GROUP:CIVILIAN:UPDATE {GROUP:CIVILIAN:UPDATE}>>
 
 Updates an existing civilian group.  The parameters are as
 defined for <<iref GROUP:CIVILIAN:CREATE>>; <b>g</b> is required, and
 specifies the group to update, while the remainder are optional.<p>
+
+
+<<defitem GROUP:CIVILIAN:UPDATE:MULTI {GROUP:CIVILIAN:UPDATE:MULTI}>>
+
+Updates multiple civilian groups.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of one or more group
+IDs.<</parm>>
+
+<<parm color>> As for <<iref GROUP:CIVILIAN:CREATE>>. <</parm>>
+
+<</parmlist>>
+
+
 
 <</deflist group civilian>>
 
@@ -160,6 +178,24 @@ The parameters are as follows:<p>
 Updates an existing force group.  The parameters are as
 defined for <<iref GROUP:FORCE:CREATE>>; <b>g</b> is required, and
 specifies the group to update, while the remainder are optional.<p>
+
+<<defitem GROUP:FORCE:UPDATE:MULTI {GROUP:FORCE:UPDATE:MULTI}>>
+
+Updates multiple force groups.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of one or more group
+IDs.<</parm>>
+
+<<parm color>>     As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
+<<parm forcetype>> As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
+<<parm local>>     As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
+<<parm coalition>> As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
+
+<</parmlist>>
+
 
 <</deflist group force>>
 
@@ -229,6 +265,32 @@ Updates an existing civilian group.  The parameters are as
 defined for <<iref GROUP:NBHOOD:CREATE>>; <b>n</b> and <b>g</b> are
 required, and specifies the group to update, while the remainder are
 optional.<p>
+
+
+<<defitem GROUP:NBHOOD:UPDATE:MULTI {GROUP:NBHOOD:UPDATE:MULTI}>>
+
+Updates multiple neighborhood groups.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of one or more neighborhood group
+IDs.  A neighborhood group ID is a Tcl list containing the group's a
+neighborhood ID and civilian group ID.  If group A lives in
+neighborhood N1, and group B lives in neighborhood N2, and both are to
+be updated, the value of <b>ids</b> would be as follows:
+
+<pre>    {N1 A} {N2 B}</pre>
+
+<</parm>>
+
+<<parm local_name>>     As for <<iref GROUP:NBHOOD:CREATE>>. <</parm>>
+<<parm demeanor>>       As for <<iref GROUP:NBHOOD:CREATE>>. <</parm>>
+<<parm rollup_weight>>  As for <<iref GROUP:NBHOOD:CREATE>>. <</parm>>
+<<parm effects_factor>> As for <<iref GROUP:NBHOOD:CREATE>>. <</parm>>
+
+<</parmlist>>
+
 
 <</deflist group nbhood>>
 
@@ -308,6 +370,27 @@ The parameters are as follows:<p>
 Updates an existing organization group.  The parameters are as
 defined for <<iref GROUP:ORGANIZATION:CREATE>>; <b>g</b> is required, and
 specifies the group to update, while the remainder are optional.<p>
+
+<<defitem GROUP:ORGANIZATION:UPDATE:MULTI {GROUP:ORGANIZATION:UPDATE:MULTI}>>
+
+Updates multiple organization groups.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of one or more group
+IDs.<</parm>>
+
+<<parm color>>          As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
+<<parm orgtype>>        As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
+<<parm medical>>        As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
+<<parm engineer>>       As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
+<<parm support>>        As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
+<<parm rollup_weight>>  As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
+<<parm effects_factor>> As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
+
+<</parmlist>>
+
 
 <</deflist group organization>>
 
@@ -414,6 +497,21 @@ for <<iref NBHOOD:CREATE>>; <b>n</b>, is
 required, and species the neighborhood to update; the remainder are
 optional.<p>
 
+<<defitem NBHOOD:UPDATE:MULTI {NBHOOD:UPDATE:MULTI}>>
+
+Updates multiple neighborhoods.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of one or more neighborhood
+IDs.<</parm>>
+
+<<parm urbanization>> As for <<iref NBHOOD:CREATE>>. <</parm>>
+
+<</parmlist>>
+
+
 <</deflist nbhood>>
 
 
@@ -460,6 +558,29 @@ either symbolic or numeric form; numeric values must be in the range
 
 <</parmlist>>
 
+
+<<defitem SAT:UPDATE:MULTI {SAT:UPDATE:MULTI}>>
+
+Updates multiple satisfaction curves.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of one or more satisfaction
+curve IDs.  A satisfaction curve ID is a Tcl list of IDs of the
+curve's neighborhood, group, and concern.  To update the AUT curve for
+group A in neighborhood N1 and group B in neighborhood N2,
+the value of <b>ids</b> would be as follows:
+
+<pre>    {N1 A AUT} {N2 B AUT}</pre>
+
+<</parm>>
+
+<<parm sat0>>     As for <<iref SAT:UPDATE>>. <</parm>>
+<<parm trend0>>   As for <<iref SAT:UPDATE>>. <</parm>>
+<<parm saliency>> As for <<iref SAT:UPDATE>>. <</parm>>
+
+<</parmlist>>
 
 <</deflist sat>>
 
