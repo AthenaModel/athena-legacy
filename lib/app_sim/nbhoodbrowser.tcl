@@ -120,8 +120,8 @@ snit::widget nbhoodbrowser {
         # NEXT, create the table browser
         install tb using tablebrowser $win.tb   \
             -db          ::rdb                  \
-            -table       "nbhoods"              \
-            -keycol      "n"                    \
+            -table       "gui_nbhoods"          \
+            -keycol      "id"                   \
             -keycolnum   0                      \
             -width       100                    \
             -displaycmd  [mymethod DisplayData]
@@ -342,8 +342,8 @@ snit::widget nbhoodbrowser {
                                 $urbanization                  \
                                 [format "%3d" $stacking_order] \
                                 $obscured_by                   \
-                                [map m2ref {*}$refpoint]       \
-                                [map m2ref {*}$polygon]        ]
+                                $refpoint                      \
+                                $polygon                       ]
                                 
         }
     }

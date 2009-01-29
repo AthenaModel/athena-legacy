@@ -300,7 +300,7 @@ snit::type ordergui {
         # NEXT, if this is the "ids" parm in a multi-update order, it's
         # handled specially.
         if {$info(multi) && $parm eq "ids"} {
-            $entries(ids) configure -text "[llength $value] Selected"
+            $type IDsChange
         }
     }
 
@@ -560,6 +560,59 @@ snit::type ordergui {
             }
         }
     }
+
+    # IDsChange
+    #
+    # When the "ids" parameter for multi-update orders changes, 
+    # fill in the rest of the dialog.
+
+    typemethod IDsChange {} {
+        # FIRST, get the IDs
+        set ids $values(ids)
+
+        # NEXT, set the ids field to show how many there are
+        $entries(ids) configure -text "[llength $ids] Selected"
+
+        # NEXT, if there are no IDs, clear the data; we're done.
+        if {[llength $ids] == 0} {
+            foreach parm [array names values] {
+                set values($parm) ""
+            }
+            return
+        }
+
+        # NEXT, retrieve the first entity's data
+
+        set id [lshift ids]
+
+        rdb eval "
+            SELECT * FROM $info(table) WHERE id=\$id
+        " prev {}
+
+        # NEXT, retrieve the remaining entities, looking for
+        # mismatches
+        foreach id $ids {
+            rdb eval "
+                SELECT * FROM $info(table) WHERE id=\$id
+            " current {}
+
+            foreach parm [array names current] {
+                if {$prev($parm) ne $current($parm)} {
+                    set prev($parm) ""
+                }
+            }
+        }
+
+        unset prev(*)
+
+        # NEXT, update the values
+        foreach parm [array names values] {
+            if {$parm ne "ids"} {
+                set values($parm) $prev($parm)
+            }
+        }
+    }
+
 
     # clear
     #

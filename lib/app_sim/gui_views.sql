@@ -17,7 +17,8 @@
 
 -- A nbhoods view for use by the GUI
 CREATE TEMPORARY VIEW gui_nbhoods AS
-SELECT n                      AS n,
+SELECT n                      AS id,
+       n                      AS n,
        longname               AS longname,
        urbanization           AS urbanization,
        stacking_order         AS stacking_order,
@@ -27,8 +28,17 @@ SELECT n                      AS n,
 FROM nbhoods;
 
 -- A Force Groups view for use by the GUI
+CREATE TEMPORARY VIEW gui_civgroups AS
+SELECT g                                              AS id,
+       g                                              AS g,
+       longname                                       AS longname,
+       color                                          AS color
+FROM civgroups_view;
+
+-- A Force Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_frcgroups AS
-SELECT g                                              AS g,
+SELECT g                                              AS id,
+       g                                              AS g,
        longname                                       AS longname,
        color                                          AS color,
        forcetype                                      AS forcetype,
@@ -38,7 +48,8 @@ FROM groups JOIN frcgroups USING (g);
 
 -- An Org Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_orggroups AS
-SELECT g                                             AS g,
+SELECT g                                             AS id,
+       g                                             AS g,
        longname                                      AS longname,
        color                                         AS color,
        orgtype                                       AS orgtype,
@@ -51,7 +62,7 @@ FROM groups JOIN orggroups USING (g);
 
 -- An NB Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_nbgroups AS
-SELECT n || ' ' || g                                 AS ng,
+SELECT n || ' ' || g                                 AS id,
        n                                             AS n,
        g                                             AS g,
        local_name                                    AS local_name,
@@ -62,7 +73,7 @@ FROM groups JOIN nbgroups USING (g);
 
 -- A sat_ngc view for use by the GUI
 CREATE TEMPORARY VIEW gui_sat_ngc AS
-SELECT n || ' ' || g || ' ' || c                     AS ngc,
+SELECT n || ' ' || g || ' ' || c                     AS id,
        n                                             AS n,
        g                                             AS g,
        c                                             AS c,

@@ -301,7 +301,7 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE {
 order define ::civgroup GROUP:CIVILIAN:UPDATE:MULTI {
     title "Update Multiple Civilian Groups"
     multi yes
-    table civgroups_view
+    table gui_civgroups
     parms {
         ids          {ptype ids           label "Groups"            }
         color        {ptype color         label "Color"             }

@@ -59,7 +59,7 @@ snit::widget orggroupbrowser {
         install tb using tablebrowser $win.tb   \
             -db          ::rdb                  \
             -table       "gui_orggroups"        \
-            -keycol      "g"                    \
+            -keycol      "id"                   \
             -keycolnum   0                      \
             -width       100                    \
             -displaycmd  [mymethod DisplayData]

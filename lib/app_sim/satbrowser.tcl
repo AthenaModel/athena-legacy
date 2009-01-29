@@ -57,7 +57,7 @@ snit::widget satbrowser {
         install tb using tablebrowser $win.tb   \
             -db          ::rdb                  \
             -table       "gui_sat_ngc"          \
-            -keycol      "ngc"                  \
+            -keycol      "id"                   \
             -keycolnum   0                      \
             -width       100                    \
             -displaycmd  [mymethod DisplayData]

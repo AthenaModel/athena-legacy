@@ -439,7 +439,7 @@ order define ::sat SAT:UPDATE {
 order define ::sat SAT:UPDATE:MULTI {
     title "Update Multiple Satisfaction Curves"
     multi yes
-    table sat_ngc
+    table gui_sat_ngc
     parms {
         ids            {ptype ids       label "Curves"        }
         sat0           {ptype sat       label "Sat at T0"     }

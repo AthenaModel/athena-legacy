@@ -59,7 +59,7 @@ snit::widget nbgroupbrowser {
         install tb using tablebrowser $win.tb   \
             -db          ::rdb                  \
             -table       "gui_nbgroups"         \
-            -keycol      "ng"                   \
+            -keycol      "id"                   \
             -keycolnum   0                      \
             -width       100                    \
             -displaycmd  [mymethod DisplayData]

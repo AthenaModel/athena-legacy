@@ -58,8 +58,8 @@ snit::widget civgroupbrowser {
         # NEXT, create the table browser
         install tb using tablebrowser $win.tb   \
             -db          ::rdb                  \
-            -table       "civgroups_view"       \
-            -keycol      "g"                    \
+            -table       "gui_civgroups"        \
+            -keycol      "id"                   \
             -keycolnum   0                      \
             -width       100                    \
             -displaycmd  [mymethod DisplayData]
