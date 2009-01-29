@@ -188,17 +188,22 @@ snit::widget satbrowser {
 
     # EditSelected
     #
-    # Called when the user wants to edit the selected group.
+    # Called when the user wants to edit the selected group(s)
 
     method EditSelected {} {
-        # FIRST, there should be only one selected.
-        lassign [lindex [$tb curselection] 0] n g c
+        set ids [$tb curselection]
 
-        # NEXT, Pop up the dialog, and select this group
-        ordergui enter SAT:UPDATE
-        ordergui parm set n $n
-        ordergui parm set g $g
-        ordergui parm set c $c
+        if {[llength $ids] == 1} {
+            lassign [lindex $ids 0] n g c
+
+            ordergui enter SAT:UPDATE
+            ordergui parm set n $n
+            ordergui parm set g $g
+            ordergui parm set c $c
+        } else {
+            ordergui enter SAT:UPDATE:MULTI
+            ordergui parm set ids $ids
+        }
     }
 
     # DisplayData dict
@@ -227,7 +232,7 @@ snit::widget satbrowser {
         set num [llength [$tb curselection]]
 
         # NEXT, update the toolbar buttons
-        if {$num == 1} {
+        if {$num > 0} {
             $editbtn    configure -state normal
         } else {
             $editbtn    configure -state disabled

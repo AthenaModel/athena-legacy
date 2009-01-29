@@ -211,14 +211,7 @@ snit::type cif {
             # this should clean up any problems in Tcl memory.
             scenario reconfigure
         } else {
-            # FIRST, no error; clear this undo information, and
-            # update the top of stack.
-            rdb eval {
-                UPDATE cif
-                SET   undo = ''
-                WHERE id   = $id
-            }
-
+            # FIRST, no error; update the top of the stack.
             incr info(nextid) -1
         }
 

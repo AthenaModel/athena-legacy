@@ -389,6 +389,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
 
 order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
     title "Update Multiple Nbhood Groups"
+    multi yes
     table gui_nbgroups
     parms {
         ids            {ptype ids       label "Groups"  }

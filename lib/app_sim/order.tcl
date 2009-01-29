@@ -259,8 +259,8 @@ snit::type order {
 
     typemethod define {module name metadata body} {
         # FIRST, save the metadata, setting default values.
-        set meta($name) [dict merge             \
-                             {table "" keys ""} \
+        set meta($name) [dict merge                      \
+                             {table "" keys "" multi no} \
                              $metadata]
 
         # Add the "defvalue" key to each parm's defdict.

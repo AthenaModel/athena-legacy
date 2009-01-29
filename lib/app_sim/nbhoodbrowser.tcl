@@ -252,12 +252,17 @@ snit::widget nbhoodbrowser {
     # Called when the user wants to edit the selected neighborhood.
 
     method EditSelected {} {
-        # FIRST, there should be only one selected.
-        set id [lindex [$tb curselection] 0]
+        set ids [$tb curselection]
 
-        # NEXT, Pop up the dialog, and select this nbhood
-        ordergui enter NBHOOD:UPDATE
-        ordergui parm set n $id
+        if {[llength $ids] == 1} {
+            set id [lindex $ids 0]
+
+            ordergui enter NBHOOD:UPDATE
+            ordergui parm set n $id
+        } else {
+            ordergui enter NBHOOD:UPDATE:MULTI
+            ordergui parm set ids $ids
+        }
     }
 
     # RaiseSelected
@@ -352,13 +357,17 @@ snit::widget nbhoodbrowser {
         set num [llength [$tb curselection]]
 
         # NEXT, update the toolbar buttons
-        if {$num == 1} {
+        if {$num > 0} {
             $editbtn    configure -state normal
+        } else {
+            $editbtn    configure -state disabled
+        }
+
+        if {$num == 1} {
             $raisebtn   configure -state normal
             $lowerbtn   configure -state normal
             $deletebtn  configure -state normal
         } else {
-            $editbtn    configure -state disabled
             $raisebtn   configure -state disabled
             $lowerbtn   configure -state disabled
             $deletebtn  configure -state disabled

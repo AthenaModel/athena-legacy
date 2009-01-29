@@ -177,15 +177,20 @@ snit::widget civgroupbrowser {
 
     # EditSelected
     #
-    # Called when the user wants to edit the selected group.
+    # Called when the user wants to edit the selected group(s).
 
     method EditSelected {} {
-        # FIRST, there should be only one selected.
-        set id [lindex [$tb curselection] 0]
+        set ids [$tb curselection]
 
-        # NEXT, Pop up the dialog, and select this group
-        ordergui enter GROUP:CIVILIAN:UPDATE
-        ordergui parm set g $id
+        if {[llength $ids] == 1} {
+            set id [lindex $ids 0]
+
+            ordergui enter GROUP:CIVILIAN:UPDATE
+            ordergui parm set g $id
+        } else {
+            ordergui enter GROUP:CIVILIAN:UPDATE:MULTI
+            ordergui parm set ids $ids
+        }
     }
 
     # DeleteSelected
@@ -241,11 +246,15 @@ snit::widget civgroupbrowser {
         set num [llength [$tb curselection]]
 
         # NEXT, update the toolbar buttons
-        if {$num == 1} {
+        if {$num > 0} {
             $editbtn    configure -state normal
-            $deletebtn  configure -state normal
         } else {
             $editbtn    configure -state disabled
+        }
+
+        if {$num == 1} {
+            $deletebtn  configure -state normal
+        } else {
             $deletebtn  configure -state disabled
         }
     }

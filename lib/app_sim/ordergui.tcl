@@ -296,6 +296,12 @@ snit::type ordergui {
         if {$parm in $info(keys)} {
             $type KeyChange $parm
         }
+
+        # NEXT, if this is the "ids" parm in a multi-update order, it's
+        # handled specially.
+        if {$info(multi) && $parm eq "ids"} {
+            $entries(ids) configure -text "[llength $value] Selected"
+        }
     }
 
     # enter order
@@ -336,6 +342,7 @@ snit::type ordergui {
         set info(order) $order
         set info(title) [order meta $order title]
         set info(table) [order meta $order table]
+        set info(multi) [order meta $order multi]
         set info(keys)  [list]
         array unset values
         array unset entries
@@ -358,7 +365,11 @@ snit::type ordergui {
             # NEXT, get the entry type and args.  If no entry type
             # is know for this parameter type, we treat it as a standard
             # text entry.  If it's a key, add it to the list of keys.
-            if {$ptype eq "key"} {
+
+            if {$ptype eq "ids"} {
+                assert {$info(multi)}
+                set etype label
+            } elseif {$ptype eq "key"} {
                 assert {$info(table) ne ""}
                 lappend info(keys) $parm
 
@@ -380,25 +391,29 @@ snit::type ordergui {
             # Entry
             set entries($parm) $parmf.entry$row
 
-            $ewidget($etype) $entries($parm) {*}$eoptions \
-                -textvariable [mytypevar values($parm)]
+            if {$etype eq "label"} {
+                ttk::label $entries($parm)
+            } else {
+                $ewidget($etype) $entries($parm) {*}$eoptions \
+                    -textvariable [mytypevar values($parm)]
 
-            bind $entries($parm) <FocusIn> \
-                [mytypemethod ParmIn $parm $ptype]
-            bind $entries($parm) <FocusOut> \
-                [mytypemethod ParmOut $parm]
+                bind $entries($parm) <FocusIn> \
+                    [mytypemethod ParmIn $parm $ptype]
+                bind $entries($parm) <FocusOut> \
+                    [mytypemethod ParmOut $parm]
 
-            if {$ptype eq "key"} {
-                bind $entries($parm) <<ComboboxSelected>> \
-                    [mytypemethod KeyChange $parm]
+                if {$ptype eq "key"} {
+                    bind $entries($parm) <<ComboboxSelected>> \
+                        [mytypemethod KeyChange $parm]
+                }
             }
 
             # Status Icon
             ttk::label $parmf.icon$row \
                 -image ${type}::blank10x10
-
+            
             set icon($parm) $parmf.icon$row
-
+            
             grid $parmf.label$row -row $row -column 0 -sticky w
             grid $parmf.entry$row -row $row -column 1 -sticky ew \
                 -padx 2 -pady 4
@@ -553,6 +568,11 @@ snit::type ordergui {
     typemethod clear {} {
         # FIRST, clear the parameter values
         foreach parm [array names values] {
+            # Skip the "ids" parm for multi-update orders
+            if {$parm eq "ids" && $info(multi)} {
+                continue
+            }
+
             set values($parm) ""
         }
 
