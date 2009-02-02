@@ -204,7 +204,7 @@ N1 SUNN N1 Sunnis  AGGRESSIVE 1.2           1.3
     } -cleanup {
         cleanup
     } -result {
-        {::nbgroup <Entity> create N1 SHIA}
+        {::nbgroup <Entity> create {N1 SHIA}}
     }
 
 
@@ -339,7 +339,7 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     } -cleanup {
         cleanup
     } -result {
-        {::nbgroup <Entity> delete N1 SHIA}
+        {::nbgroup <Entity> delete {N1 SHIA}}
     }
 
     test DELETE-2.3 {Sat curves are deleted} -setup {
@@ -510,7 +510,7 @@ N1 SHIA John Doe   APATHETIC 0.1           0.2
     } -cleanup {
         cleanup
     } -result {
-        {::nbgroup <Entity> update N1 SHIA}
+        {::nbgroup <Entity> update {N1 SHIA}}
     }
 
 
@@ -692,8 +692,8 @@ N1 SUNN John Doe   APATHETIC 0.1           0.2
     } -cleanup {
         cleanup
     } -result {
-        {::nbgroup <Entity> update N1 SHIA}
-        {::nbgroup <Entity> update N1 SUNN}
+        {::nbgroup <Entity> update {N1 SHIA}}
+        {::nbgroup <Entity> update {N1 SUNN}}
     }
 
 
@@ -736,8 +736,8 @@ N1 SUNN N1 Sunnis  AGGRESSIVE 1.2           1.3
     } -cleanup {
         cleanup
     } -result {
-        {::nbgroup <Entity> update N1 SHIA}
-        {::nbgroup <Entity> update N1 SUNN}
+        {::nbgroup <Entity> update {N1 SHIA}}
+        {::nbgroup <Entity> update {N1 SUNN}}
     }
 
     #-------------------------------------------------------------------

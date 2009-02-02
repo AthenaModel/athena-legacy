@@ -249,12 +249,67 @@ CREATE TABLE sat_ngc (
     PRIMARY KEY (n, g, c)
 );
 
+
 ------------------------------------------------------------------------
--- Entities
+-- Initial Relationship Data
+
+-- rel_fg: Group f's relationship with group g, from f's point of view.
+-- This table contains the relationships between all groups in the set
+-- of force groups and organization groups.
+
+CREATE TABLE rel_fg (
+    -- Symbolic group name: group f
+    f           TEXT,
+
+    -- Symbolic group name: group g
+    g           TEXT,
+
+    -- Group relationship, from f's point of view.
+    rel         DOUBLE DEFAULT 0.0,
+
+    PRIMARY KEY (f, g)
+);
+
+
+-- rel_nfg: Civilian group relationships.  Unlike the force and
+-- organization relationships described above, civilian group
+-- relationships are always local to a neighborhood.  Thus, 
+-- in this table at least one of f and g will be a civilian group;
+-- the other can be a civilian, force, or organization group.
 --
--- Anything with an ID and a long name is an entity.  All IDs and 
--- long names must be unique.  The following view is used to check this.
+-- The table is populated as follows:
+--
+-- For all nbhoods n:
+--    For all civ groups f and all civ groups g
+--    For all civ groups f and all frc/org groups g, f resides in n
+--    For all frc/org groups f and all civ groups g, g resides in n
+
+
+CREATE TABLE rel_nfg (
+    -- Symbolic nbhood name
+    n           TEXT,
+
+    -- Symbolic group name: group f
+    f           TEXT,
+
+    -- Symbolic group name: group g
+    g           TEXT,
+
+    -- Group relationship, from f's point of view.
+    rel         DOUBLE DEFAULT 0.0,
+
+    PRIMARY KEY (n, f, g)
+);
+
+
+------------------------------------------------------------------------
+-- Primary Entities
+--
+-- Anything with an ID and a long name is a primary entity.  All IDs and 
+-- long names of primary entities must be unique.  The following view is 
+-- used to check this.
 
 CREATE VIEW entities AS
-SELECT n AS id, longname FROM nbhoods UNION
-SELECT g AS id, longname FROM groups;
+SELECT n AS id, longname FROM nbhoods   UNION
+SELECT g AS id, longname FROM groups    UNION
+SELECT c AS id, longname FROM concerns;

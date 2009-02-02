@@ -132,39 +132,37 @@ snit::widget satbrowser {
         $self UpdateToolbarState
     }
 
-    # create n g c
+    # create id
     #
-    # n, g    The nbhood, group, and concern of a new sat curve.
+    # id      The {n g c} of a new sat curve.
     #
     # A new satisfaction curve has been created.  
     # For now, just reload the whole shebang
     
-    method create {n g c} {
+    method create {id} {
         $tb reload
     }
 
-    # update n g c
+    # update id
     #
-    # n, g, c    The nbhood, group, and concern of the updated curve
+    # id        The {n g c} of the updated curve
     #
     # The curve has been updated.
 
-    method update {n g c} {
-        $tb update [list $n $g $c]
+    method update {id} {
+        $tb update $id
     }
 
-    # delete n g c
+    # delete id
     #
-    # n     Nbhood of deleted curve
-    # g     group of deleted curve
-    # c     Concern of deleted curve
+    # id        The {n g c} of the updated curve
     #
     # When a curve is deleted, we need to update the toolbar
     # state, as there might no longer be a selection.
 
-    method delete {n g c} {
+    method delete {id} {
         # FIRST, update the tablebrowser
-        $tb delete [list $n $g $c]
+        $tb delete $id
 
         # NEXT, update the state
         $self UpdateToolbarState

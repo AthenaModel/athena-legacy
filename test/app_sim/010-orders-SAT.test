@@ -188,7 +188,7 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update N1 SHIA SFT}
+        {::sat <Entity> update {N1 SHIA SFT}}
     }
 
 
@@ -375,8 +375,8 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update N1 SHIA SFT}
-        {::sat <Entity> update N1 SHIA CUL}
+        {::sat <Entity> update {N1 SHIA SFT}}
+        {::sat <Entity> update {N1 SHIA CUL}}
     }
 
 
@@ -416,8 +416,8 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update N1 SHIA SFT}
-        {::sat <Entity> update N1 SHIA CUL}
+        {::sat <Entity> update {N1 SHIA SFT}}
+        {::sat <Entity> update {N1 SHIA CUL}}
     }
 
 

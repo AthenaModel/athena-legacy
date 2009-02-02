@@ -123,7 +123,7 @@ snit::type nbgroup {
             sat mutate nbgroupCreated $n $g
 
             # NEXT, notify the app.
-            notifier send ::nbgroup <Entity> create $n $g
+            notifier send ::nbgroup <Entity> create [list $n $g]
 
             # NEXT, finish the undo script
             lappend undo [mytypemethod mutate delete $n $g]
@@ -161,7 +161,7 @@ snit::type nbgroup {
         lappend undo [sat mutate nbgroupDeleted $n $g]
 
         # NEXT, notify the app.
-        notifier send ::nbgroup <Entity> delete $n $g
+        notifier send ::nbgroup <Entity> delete [list $n $g]
 
         # NEXT, Return the undo script
         return [join $undo \n]
@@ -204,7 +204,7 @@ snit::type nbgroup {
             } {}
 
             # NEXT, notify the app.
-            notifier send ::nbgroup <Entity> update $n $g
+            notifier send ::nbgroup <Entity> update [list $n $g]
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]

@@ -140,12 +140,12 @@ snit::type sat {
     # satisfaction levels.
 
     typemethod {mutate nbgroupCreated} {n g} {
-        set keys [list]
+        set ids [list]
 
         rdb eval {
             SELECT c FROM civ_concerns
         } {
-            lappend keys $n $g $c
+            lappend ids [list $n $g $c]
 
             rdb eval {
                 INSERT INTO sat_ngc(n,g,c,gtype)
@@ -154,7 +154,7 @@ snit::type sat {
         }
 
         # Notify the app.
-        $type SendEntity create {*}$keys
+        $type SendEntity create {*}$ids
 
         # Note: No undo script is required; undoing an nbgroup creation
         # requires an nbgroup deletion, which will call nbgroupDeleted
@@ -191,7 +191,7 @@ snit::type sat {
         } {}
 
         foreach c [rdb eval {SELECT c FROM civ_concerns}] {
-            notifier send $type <Entity> delete $n $g $c
+            notifier send $type <Entity> delete [list $n $g $c]
         }
         
         # NEXT, Return the undo script
@@ -206,13 +206,14 @@ snit::type sat {
     # satisfaction curves for the neighborhood and all org groups.
 
     typemethod {mutate nbhoodCreated} {n} {
-        set keys [list]
+        set ids [list]
 
         rdb eval {
             SELECT g, c
             FROM orggroups JOIN org_concerns
         } {
-            lappend keys $n $g $c
+            lappend ids [list $n $g $c]
+
             rdb eval {
                 INSERT INTO sat_ngc(n,g,c,gtype)
                 VALUES($n,$g,$c,'ORG')
@@ -220,7 +221,7 @@ snit::type sat {
         }
 
         # Notify the app
-        $type SendEntity create {*}$keys
+        $type SendEntity create {*}$ids
 
         # Note: No undo script is required; undoing a nbhood creation
         # requires a nbhood deletion, which will call nbhoodDeleted
@@ -240,14 +241,14 @@ snit::type sat {
         # FIRST, get the undo information: updates to restore any
         # non-default values.
         set undo [list]
-        set keys [list]
+        set ids [list]
 
         rdb eval {
             SELECT * FROM sat_ngc
             WHERE n=$n AND gtype='ORG'
         } row {
             unset -nocomplain row(*)
-            lappend keys $row(n) $row(g) $row(c)
+            lappend ids [list $row(n) $row(g) $row(c)]
             lappend undo [mytypemethod mutate update [array get row]]
         }
 
@@ -258,7 +259,7 @@ snit::type sat {
         } {}
 
         # NEXT, notify the app.
-        $type SendEntity delete {*}$keys
+        $type SendEntity delete {*}$ids
         
         # NEXT, Return the undo script
         return [join $undo \n]
@@ -272,13 +273,13 @@ snit::type sat {
     # satisfaction curves for this group in all neighborhoods.
 
     typemethod {mutate orggroupCreated} {g} {
-        set keys [list]
+        set ids [list]
 
         rdb eval {
             SELECT n, c
             FROM nbhoods JOIN org_concerns
         } {
-            lappend keys $n $g $c
+            lappend ids [list $n $g $c]
             rdb eval {
                 INSERT INTO sat_ngc(n,g,c,gtype)
                 VALUES($n,$g,$c,'ORG')
@@ -286,7 +287,7 @@ snit::type sat {
         }
 
         # NEXT, notify the app
-        $type SendEntity create {*}$keys
+        $type SendEntity create {*}$ids
 
         # Note: No undo script is required; undoing an ORG group creation
         # requires an ORG group deletion, which will call orggroupDeleted
@@ -306,14 +307,14 @@ snit::type sat {
         # FIRST, get the undo information: updates to restore any
         # non-default values.
         set undo [list]
-        set keys [list]
+        set ids [list]
 
         rdb eval {
             SELECT * FROM sat_ngc
             WHERE g=$g
         } row {
             unset -nocomplain row(*)
-            lappend keys $row(n) $row(g) $row(c)
+            lappend ids [list $row(n) $row(g) $row(c)]
             lappend undo [mytypemethod mutate update [array get row]]
         }
 
@@ -324,7 +325,7 @@ snit::type sat {
         } {}
 
         # NEXT, notify the app.
-        $type SendEntity delete {*}$keys
+        $type SendEntity delete {*}$ids
         
         # NEXT, Return the undo script
         return [join $undo \n]
@@ -365,23 +366,23 @@ snit::type sat {
             } {}
 
             # NEXT, notify the app.
-            $type SendEntity update $n $g $c
+            $type SendEntity update [list $n $g $c]
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]
         }
     }
    
-    # SendEntity op n g c ?n g c...?
+    # SendEntity op id ?id...?
     #
     # op     create, delete, or update
-    # n,g,c  Indices of a satisfaction curve
+    # id     List {n g c}, identifying a satisfaction curve
     #
     # Sends the <Entity> events for a set of curves
 
     typemethod SendEntity {op args} {
-        foreach {n g c} $args {
-            notifier send ::sat <Entity> $op $n $g $c
+        foreach id $args {
+            notifier send ::sat <Entity> $op $id
         }
     }
 

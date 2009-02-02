@@ -56,11 +56,13 @@ source [file join $::app_sim::library cif.tcl             ]
 source [file join $::app_sim::library order.tcl           ]
 source [file join $::app_sim::library map.tcl             ]
 source [file join $::app_sim::library nbhood.tcl          ]
+source [file join $::app_sim::library group.tcl           ]
 source [file join $::app_sim::library civgroup.tcl        ]
 source [file join $::app_sim::library frcgroup.tcl        ]
 source [file join $::app_sim::library orggroup.tcl        ]
 source [file join $::app_sim::library nbgroup.tcl         ]
 source [file join $::app_sim::library sat.tcl             ]
+source [file join $::app_sim::library rel.tcl             ]
 
 # GUI
 source [file join $::app_sim::library ordergui.tcl        ]

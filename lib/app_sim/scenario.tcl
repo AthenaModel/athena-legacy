@@ -230,10 +230,13 @@ snit::type scenario {
         cif      reconfigure
         map      reconfigure
         nbhood   reconfigure
+        group    reconfigure
         civgroup reconfigure
         frcgroup reconfigure
         orggroup reconfigure
         nbgroup  reconfigure
+        sat      reconfigure
+        rel      reconfigure
 
         # NEXT, Reconfigure the GUI
         notifier send $type <Reconfigure>

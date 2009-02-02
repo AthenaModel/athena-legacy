@@ -152,38 +152,37 @@ snit::widget nbgroupbrowser {
         $self UpdateToolbarState
     }
 
-    # create n g
+    # create id
     #
-    # n, g    The nbhood and civ group of the created nbhood group
+    # id    The {n g} of the created nbhood group
     #
     # A new group has been created.  We need to put it in its place.
     # For now, just reload the whole shebang
     
-    method create {n g} {
+    method create {id} {
         $tb reload
     }
 
-    # update n g
+    # update id
     #
-    # n, g    The nbhood and civ group of the updated nbhood group
+    # id     The {n g} of the updated nbhood group
     #
     # The group has been updated.
 
-    method update {n g} {
-        $tb update [list $n $g]
+    method update {id} {
+        $tb update $id
     }
 
-    # delete n g
+    # delete id
     #
-    # n     Nbhood of deleted nbgroup
-    # g     Civgroup of deleted nbgroup
+    # id     The {n g} of the delete nbhood group
     #
     # When a group is deleted, we need to update the toolbar
     # state, as it's likely that there is no longer a selection.
 
-    method delete {n g} {
+    method delete {id} {
         # FIRST, update the tablebrowser
-        $tb delete [list $n $g]
+        $tb delete $id
 
         # NEXT, update the state
         $self UpdateToolbarState

@@ -82,11 +82,13 @@ snit::type app {
         cif      init
         order    init
         nbhood   init
+        group    init
         civgroup init
         frcgroup init
         orggroup init
         nbgroup  init
         sat      init
+        rel      init
 
         # NEXT, Withdraw the default toplevel window, and create 
         # the main GUI components.

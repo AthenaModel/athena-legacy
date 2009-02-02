@@ -268,7 +268,7 @@ NB1 USAID CAS ORG   0.0  0.0    1.0
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> create NB1 USAID CAS}
+        {::sat <Entity> create {NB1 USAID CAS}}
     }
 
     test CREATE-3.1 {undo deletes the orggroup} -setup {
@@ -323,7 +323,7 @@ USAID US Aid
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> delete NB1 USAID CAS}
+        {::sat <Entity> delete {NB1 USAID CAS}}
     }
 
     #-------------------------------------------------------------------
@@ -429,8 +429,8 @@ NB1 USAID CAS ORG   1.0  2.0    0.5
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> create NB1 USAID CAS}
-        {::sat <Entity> update NB1 USAID CAS}
+        {::sat <Entity> create {NB1 USAID CAS}}
+        {::sat <Entity> update {NB1 USAID CAS}}
     }
 
     #-------------------------------------------------------------------
