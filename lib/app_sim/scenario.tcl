@@ -276,8 +276,8 @@ snit::type scenario {
             }
         }
 
-        # NEXT, mark it saved; having the blank map is neither 
-        # here nor there.
+        # NEXT, mark it saved; there's no reason to save a scenario
+        # that has only these things in it.
         rdb marksaved
     }
 
