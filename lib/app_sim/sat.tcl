@@ -130,12 +130,12 @@ snit::type sat {
     # a script of one or more commands that will undo the change.  When
     # change cannot be undone, the mutator returns the empty string.
 
-    # mutate autopop
+    # mutate reconcile
     #
     # Determines which satisfaction curves should exist, and 
     # adds or deletes them, returning an undo script.
 
-    typemethod {mutate autopop} {} {
+    typemethod {mutate reconcile} {} {
         # FIRST, List required curves
         set valid [dict create]
 
@@ -159,7 +159,7 @@ snit::type sat {
         # if curves were restored, there will be additional entries
         # in the script to restore the old data values.
 
-        lappend undo [mytypemethod mutate autopop]
+        lappend undo [mytypemethod mutate reconcile]
 
         # NEXT, delete the ones that are no longer valid,
         # accumulating undo entries for them.  Also, note which ones
@@ -250,13 +250,13 @@ snit::type sat {
 }
 
 #-------------------------------------------------------------------
-# Orders: SAT:*
+# Orders: SATISFACTION:*
 
-# SAT:UPDATE
+# SATISFACTION:UPDATE
 #
 # Updates existing curves
 
-order define ::sat SAT:UPDATE {
+order define ::sat SATISFACTION:UPDATE {
     title "Update Satisfaction Curve"
     table sat_ngc
     parms {
@@ -294,11 +294,11 @@ order define ::sat SAT:UPDATE {
 }
 
 
-# SAT:UPDATE:MULTI
+# SATISFACTION:UPDATE:MULTI
 #
 # Updates multiple existing curves
 
-order define ::sat SAT:UPDATE:MULTI {
+order define ::sat SATISFACTION:UPDATE:MULTI {
     title "Update Multiple Satisfaction Curves"
     multi yes
     table gui_sat_ngc
@@ -330,3 +330,5 @@ order define ::sat SAT:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
+

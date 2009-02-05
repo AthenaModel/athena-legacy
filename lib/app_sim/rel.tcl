@@ -104,12 +104,12 @@ snit::type rel {
     # a script of one or more commands that will undo the change.  When
     # change cannot be undone, the mutator returns the empty string.
 
-    # mutate autopop
+    # mutate reconcile
     #
     # Determines which relationships should exist, and 
     # adds or deletes them, returning an undo script.
 
-    typemethod {mutate autopop} {} {
+    typemethod {mutate reconcile} {} {
         # FIRST, List required relationships
         set valid [dict create]
 
@@ -142,7 +142,7 @@ snit::type rel {
         # if relationships were restored, there will be additional entries
         # in the script to restore the old data values.
 
-        lappend undo [mytypemethod mutate autopop]
+        lappend undo [mytypemethod mutate reconcile]
 
         # NEXT, delete the ones that are no longer valid,
         # accumulating undo entries for them.  Also, note which ones
@@ -237,4 +237,5 @@ snit::type rel {
         }
     }
 }
+
 

@@ -251,7 +251,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
 
     # NEXT, create the group and dependent entities
     lappend undo [$type mutate create [array get parms]]
-    lappend undo [rel mutate autopop]
+    lappend undo [rel mutate reconcile]
 
     setundo [join $undo \n]
 }
@@ -294,7 +294,7 @@ order define ::frcgroup GROUP:FORCE:DELETE {
 
     # NEXT, Delete the group and dependent entities
     lappend undo [$type mutate delete $parms(g)]
-    lappend undo [rel mutate autopop]
+    lappend undo [rel mutate reconcile]
 
     setundo [join $undo \n]
 }
@@ -370,6 +370,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 
 
 

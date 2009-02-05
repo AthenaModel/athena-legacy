@@ -198,12 +198,12 @@ snit::type nbgroup {
         }
     }
 
-    # mutate autopop
+    # mutate reconcile
     #
     # Deletes nbgroups for which either the neighborhood or the
     # civilian group no longer exists.
 
-    typemethod {mutate autopop} {} {
+    typemethod {mutate reconcile} {} {
         # FIRST, get the set of possible nbgroups
         set valid [dict create]
 
@@ -275,8 +275,8 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
 
     # NEXT, create the group and dependent entities.
     lappend undo [$type mutate create [array get parms]]
-    lappend undo [sat mutate autopop]
-    lappend undo [rel mutate autopop]
+    lappend undo [sat mutate reconcile]
+    lappend undo [rel mutate reconcile]
     
     setundo [join $undo \n]
 }
@@ -329,8 +329,8 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
 
     # NEXT, delete the group and dependent entities
     lappend undo [$type mutate delete $parms(n) $parms(g)]
-    lappend undo [sat mutate autopop]
-    lappend undo [rel mutate autopop]
+    lappend undo [sat mutate reconcile]
+    lappend undo [rel mutate reconcile]
     
     setundo [join $undo \n]
 }
@@ -409,5 +409,6 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 
 

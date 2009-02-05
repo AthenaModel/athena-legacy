@@ -194,12 +194,12 @@ snit::widget satbrowser {
         if {[llength $ids] == 1} {
             lassign [lindex $ids 0] n g c
 
-            ordergui enter SAT:UPDATE
+            ordergui enter SATISFACTION:UPDATE
             ordergui parm set n $n
             ordergui parm set g $g
             ordergui parm set c $c
         } else {
-            ordergui enter SAT:UPDATE:MULTI
+            ordergui enter SATISFACTION:UPDATE:MULTI
             ordergui parm set ids $ids
         }
     }
@@ -237,5 +237,6 @@ snit::widget satbrowser {
         }
     }
 }
+
 
 

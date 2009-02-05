@@ -268,8 +268,8 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
 
     # NEXT, create the group and dependent entities
     lappend undo [$type mutate create [array get parms]]
-    lappend undo [sat mutate autopop]
-    lappend undo [rel mutate autopop]
+    lappend undo [sat mutate reconcile]
+    lappend undo [rel mutate reconcile]
     
     setundo [join $undo \n]
 }
@@ -312,8 +312,8 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
 
     # NEXT, Delete the group and dependent entities
     lappend undo [$type mutate delete $parms(g)]
-    lappend undo [sat mutate autopop]
-    lappend undo [rel mutate autopop]
+    lappend undo [sat mutate reconcile]
+    lappend undo [rel mutate reconcile]
     
     setundo [join $undo \n]
 }
@@ -402,5 +402,6 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 
 

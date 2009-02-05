@@ -287,7 +287,7 @@ snit::widget appwin {
         $ordersmenu add cascade -label "Satisfaction" \
             -underline 0 -menu $submenu
         
-        $self AddOrder $submenu SAT:UPDATE
+        $self AddOrder $submenu SATISFACTION:UPDATE
     }
 
     # AddOrder mnu order
@@ -813,6 +813,7 @@ snit::widget appwin {
         $msgline puts $text
     }
 }
+
 
 
 

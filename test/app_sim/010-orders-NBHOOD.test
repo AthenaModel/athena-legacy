@@ -482,7 +482,7 @@ NB1 PASH NB1 Pashtuns AGGRESSIVE 1.0           1.0
     test DELETE-3.4 {Undo restores org sat curves} -setup {
         ted order GROUP:ORGANIZATION:CREATE $orggrp
         ted order NBHOOD:CREATE             $nb1
-        ted order SAT:UPDATE \
+        ted order SATISFACTION:UPDATE \
             [list n NB1 g USAID c CAS sat0 1.0 trend0 2.0 saliency 0.5]
         ted order NBHOOD:DELETE n NB1
     } -body {
@@ -944,6 +944,7 @@ NB2 RURAL
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

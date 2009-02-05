@@ -433,7 +433,7 @@ order define ::nbhood NBHOOD:CREATE {
 
     # NEXT, create the neighborhood and dependent entities
     lappend undo [$type mutate create [array get parms]]
-    lappend undo [sat mutate autopop]
+    lappend undo [sat mutate reconcile]
 
     setundo [join $undo \n]
 }
@@ -476,9 +476,9 @@ order define ::nbhood NBHOOD:DELETE {
 
     # NEXT, delete the neighborhood and dependent entities
     lappend undo [$type mutate delete $parms(n)]
-    lappend undo [nbgroup mutate autopop]
-    lappend undo [sat    mutate autopop]
-    lappend undo [rel    mutate autopop]
+    lappend undo [nbgroup mutate reconcile]
+    lappend undo [sat    mutate reconcile]
+    lappend undo [rel    mutate reconcile]
 
     setundo [join $undo \n]
 }
@@ -637,6 +637,7 @@ order define ::nbhood NBHOOD:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 
 
 

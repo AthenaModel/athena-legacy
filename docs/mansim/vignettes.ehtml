@@ -251,10 +251,11 @@ actor sat
 
 message GUI    order    NBHOOD:CREATE
 message order  nbhood   "mutate create \$parmdict"
-message nbhood sat      "mutate nbhoodCreated \$n"
-action         sat      "For each ORG group and concern:"
-message sat    GUI      "<Entity> create \$n \$g \$c"
 message nbhood GUI      "<Entity> create \$n"
+message order  sat      "mutate reconcile"
+message sat    GUI      "<Entity> create {\$n \$g \$c}" {
+    For each new ORG satisfaction curve.
+}
 }>>
 
 <<sequence -narration {
@@ -263,18 +264,15 @@ comment "On undo: delete the neighborhood, and all dependent entities."
 actor GUI
 actor cif
 actor nbhood
-actor nbgroup
 actor sat
 
 message GUI    cif      undo
 message cif    nbhood   "mutate delete \$n"
-message nbhood nbgroup  "mutate nbhoodDeleted \$n" {
-    There should be no neighborhood groups for this neighborhood.
-}
-message nbhood sat      "mutate nbhoodDeleted \$n"
-action  sat             "For each ORG group and concern:"
-message sat    GUI      "<Entity> delete \$n \$g \$c"
 message nbhood GUI      "<Entity> delete \$n"
+message cif    sat      "mutate reconcile"
+message sat    GUI      "<Entity> delete {\$n \$g \$c}" {
+    For each deleted ORG satisfaction curve.
+}
 }>>
 
 <<subsection "NBHOOD:DELETE">>
@@ -287,19 +285,23 @@ actor order
 actor nbhood
 actor nbgroup
 actor sat
+actor rel
 
 message GUI     order    NBHOOD:DELETE
 message order   nbhood   "mutate delete \$n"
-message nbhood  nbgroup  "mutate nbhoodDeleted \$n"
-action  nbgroup          "For all groups which reside in \$n:"
-message nbgroup sat      "mutate nbgroupDeleted \$n \$g"
-action  sat              "For all CIV concerns:"
-message sat     GUI      "<Entity> delete \$n \$g \$c"
-message nbgroup GUI      "<Entity> delete \$n \$g"
-message nbhood  sat      "mutate nbhoodDeleted \$n"
-action  sat              "For all ORG groups and concerns:"
-message sat     GUI      "<Entity> delete \$n \$g \$c"
 message nbhood  GUI      "<Entity> delete \$n"
+message order   nbgroup  "mutate reconcile"
+message nbgroup GUI      "<Entity> delete {\$n \$g}" {
+    For each deleted group.
+}
+message order   sat      "mutate reconcile"
+message sat     GUI      "<Entity> delete {\$n \$g \$c}" {
+    For each deleted curve.
+}
+message order   rel      "mutate reconcile"
+message rel     GUI      "<Entity> delete {\$n \$f \$g}" {
+    For each deleted relationship.
+}
 }>>
 
 <<sequence -narration {
@@ -310,29 +312,32 @@ actor cif
 actor nbhood
 actor nbgroup
 actor sat
+actor rel
 
 message GUI     cif      undo
 message cif     nbhood   "mutate create \$parmdict"
 message nbhood  GUI      "<Entity> create \$n"
-action  cif              {
+message cif     nbgroup  "mutate create \$parmdict" {
     For each restored neighborhood group:
 }
-message cif     nbgroup  "mutate create \$parmdict"
-message nbgroup sat      "mutate nbgroupCreated \$n \$g"
-action  sat              "For all CIV concerns:"
-message sat     GUI      "<Entity> create \$n \$g \$c"
-message nbgroup GUI      "<Entity> create \$n \$g"
-message nbhood  sat      "mutate nbhoodCreated \$n"
-action  sat              "For all ORG groups and concerns:"
-message sat     GUI      "<Entity> create \$n \$g \$c"
-action  cif              {
-    For each restored CIV and ORG satisfaction curve:
+message nbgroup GUI      "<Entity> create {\$n \$g}"
+message cif     sat      "mutate reconcile"
+message sat     GUI      "<Entity> create {\$n \$g \$c}" {
+    For each restored satisfaction curve.
 }
 message cif     sat      "mutate update \$parmdict" {
-    Sets each satisfaction curve back to its previous value.
+    For each restored satisfaction curve.
 }
-message sat     GUI      "<Entity> update \$n \$g \$c"
+message sat     GUI      "<Entity> update {\$n \$g \$c}"
 
+message cif     rel      "mutate reconcile"
+message rel     GUI      "<Entity> create {\$n \$f \$g}" {
+    For each restored relationship.
+}
+message cif     rel      "mutate update \$parmdict" {
+    For each restored relationship.
+}
+message rel     GUI      "<Entity> update {\$n \$f \$g}"
 }>>
 
 
@@ -457,25 +462,32 @@ comment "On send: create the new civilian group"
 actor GUI
 actor order
 actor civgroup
+actor rel
 
 message GUI      order     GROUP:CIVILIAN:CREATE
 message order    civgroup  "mutate create \$parmdict"
 message civgroup GUI       "<Entity> create \$g"
+message order    rel       "mutate reconcile"
+message rel      GUI       "<Entity> create {\$n \$f \$g}" {
+    For each new relationship (if any).
+}
 }>>
 
 <<sequence -narration {
-comment "On undo: delete the civilian group and all dependent entities
-(but there shouldn't be any)."
+comment "On undo: delete the civilian group and all dependent entities."
 
 actor GUI
 actor cif
 actor civgroup
-actor nbgroup
+actor rel
 
 message GUI      cif       undo
 message cif      civgroup  "mutate delete \$g"
-message civgroup nbgroup   "mutate civgroupDeleted \$g"
 message civgroup GUI       "<Entity> delete \$g"
+message cif      rel       "mutate reconcile"
+message rel      GUI       "<Entity> delete {\$n \$f \$g}" {
+   For each deleted relationship (if any).
+}
 }>>
 
 
@@ -489,16 +501,23 @@ actor order
 actor civgroup
 actor nbgroup
 actor sat
+actor rel
 
 message GUI       order     GROUP:CIVILIAN:DELETE
 message order     civgroup  "mutate delete \$g"
-message civgroup  nbgroup   "mutate civgroupDeleted \$g"
-action  nbgroup             "For all neighborhoods in which \$g resides:"
-message nbgroup   sat       "mutate nbgroupDelete \$n \$g"
-action  sat                 "For all concerns:"
-message sat       GUI       "<Entity> delete \$n \$g \$c"
-message nbgroup   GUI       "<Entity> delete \$n \$g"
 message civgroup  GUI       "<Entity> delete \$g"
+message order     nbgroup   "mutate reconcile"
+message nbgroup   GUI       "<Entity> delete {\$n \$g}" {
+    For each deleted group.
+}
+message order     sat       "mutate reconcile"
+message sat       GUI       "<Entity> delete {\$n \$g \$c}" {
+    For each deleted curve.
+}
+message order     rel       "mutate reconcile"
+message rel       GUI       "<Entity> delete {\$n \$f \$g}" {
+    For each deleted relationship.
+}
 }>>
 
 <<sequence -narration {
@@ -509,23 +528,34 @@ actor cif
 actor civgroup
 actor nbgroup
 actor sat
+actor rel
 
 message GUI       cif       undo
 message cif       civgroup  "mutate create \$parmdict"
 message civgroup  GUI       "<Entity> create \$g"
-action  cif       "For each restored neighborhood group:"
-message cif       nbgroup   "mutate create \$parmdict"
-message nbgroup   sat       "mutate nbgroupCreated \$n \$g"
-action  sat                 "For all concerns:"
-message sat       GUI       "<Entity> create \$n \$g \$c"
-message nbgroup   GUI       "<Entity> create \$n \$g"
-action  cif       {
-    For each restored satisfaction curve for this neighborhood group:
+
+message cif       nbgroup   "mutate create \$parmdict" {
+    For each restored group.
+}
+message nbgroup   GUI       "<Entity> create {\$n \$g}"
+
+message cif       sat       "mutate reconcile"
+message sat       GUI       "<Entity> create {\$n \$g \$c}" {
+    For each restored curve.
 }
 message cif       sat       "mutate update \$parmdict" {
-    Sets each satisfaction curve back to its previous value.
+    For each restored curve.
 }
-message sat       GUI       "<Entity> update \$n \$g \$c"
+message sat       GUI       "<Entity> update {\$n \$g \$c}"
+
+message cif       rel       "mutate reconcile"
+message rel       GUI       "<Entity> create {\$n \$f \$g}" {
+    For each restored relationship.
+}
+message cif       rel       "mutate update \$parmdict" {
+    For each restored relationship.
+}
+message rel       GUI       "<Entity> update {\$n \$f \$g}"
 }>>
 
 
@@ -590,54 +620,78 @@ message civgroup GUI       "<Entity> update \$g"
 <<subsection "GROUP:FORCE:CREATE">>
 
 <<sequence -narration {
-comment "On send: create the new force group"
+comment "On send: create the new force group and all dependent entities."
 
 actor GUI
 actor order
 actor frcgroup
+actor rel
 
 message GUI      order     GROUP:FORCE:CREATE
 message order    frcgroup  "mutate create \$parmdict"
 message frcgroup GUI       "<Entity> create \$g"
+message order    rel       "mutate reconcile"
+message rel      GUI       "<Entity> create {\$n \$f \$g}" {
+    For each new relationship.
+}
 }>>
 
 <<sequence -narration {
-comment "On undo: delete the force group."
+comment "On undo: delete the force group and all dependent entities."
 
 actor GUI
 actor cif
 actor frcgroup
+actor rel
 
 message GUI      cif       undo
 message cif      frcgroup  "mutate delete \$g"
 message frcgroup GUI       "<Entity> delete \$g"
+message cif      rel       "mutate reconcile"
+message rel      GUI       "<Entity> delete {\$n \$f \$g}" {
+    For each deleted relationship.
+}
 }>>
 
 
 <<subsection "GROUP:FORCE:DELETE">>
 
 <<sequence -narration {
-comment "On send: delete the force group."
+comment "On send: delete the force group and all dependent entities."
 
 actor GUI
 actor order
 actor frcgroup
+actor rel
 
 message GUI       order     GROUP:FORCE:DELETE
 message order     frcgroup  "mutate delete \$g"
 message frcgroup  GUI       "<Entity> delete \$g"
+message order     rel       "mutate reconcile"
+message rel       GUI       "<Entity> delete {\$n \$f \$g}" {
+    For each deleted relationship.
+}
 }>>
 
 <<sequence -narration {
-comment "On undo: restore the force group."
+comment "On undo: restore the force group and all dependent entities."
 
 actor GUI
 actor cif
 actor frcgroup
+actor rel
 
 message GUI       cif       undo
 message cif       frcgroup  "mutate create \$parmdict"
 message frcgroup  GUI       "<Entity> create \$g"
+message cif       rel       "mutate reconcile"
+message rel       GUI       "<Entity> create {\$n \$f \$g}" {
+    For each restored relationship.
+}
+message cif       rel       "mutate update \$parmdict" {
+    For each restored relationship.
+}
+message rel       GUI       "<Entity> update {\$n \$f \$g}"
 }>>
 
 
@@ -707,13 +761,19 @@ actor GUI
 actor order
 actor nbgroup
 actor sat
+actor rel
 
 message GUI     order      GROUP:NBHOOD:CREATE
 message order   nbgroup    "mutate create \$parmdict"
-message nbgroup sat        "mutate nbgroupCreated \$n \$g"
-action  sat                "For all concerns:"
-message sat     GUI        "<Entity> create \$n \$g \$c"
-message nbgroup GUI        "<Entity> create \$n \$g"
+message nbgroup GUI        "<Entity> create {\$n \$g}"
+message order   sat        "mutate reconcile"
+message sat     GUI        "<Entity> create {\$n \$g \$c}" {
+    For all created curves.
+}
+message order   rel        "mutate reconcile"
+message rel     GUI        "<Entity> create {\$n \$f \$g}" {
+    For all created relationships.
+}
 }>>
 
 <<sequence -narration {
@@ -723,13 +783,19 @@ actor GUI
 actor cif
 actor nbgroup
 actor sat
+actor rel
 
 message GUI     cif        undo
-message cif     nbgroup    "mutate delete \$n \$g"
-message nbgroup sat        "mutate nbgroupDeleted \$n \$g"
-action  sat                "For all concerns:"
-message sat     GUI        "<Entity> delete \$n \$g \$c"
-message nbgroup GUI        "<Entity> delete \$n \$g"
+message cif     nbgroup    "mutate delete {\$n \$g}"
+message nbgroup GUI        "<Entity> delete {\$n \$g}"
+message cif     sat        "mutate reconcile"
+message sat     GUI        "<Entity> delete {\$n \$g \$c}" {
+    For all deleted curves.
+}
+message cif     rel        "mutate reconcile"
+message rel     GUI        "<Entity> delete {\$n \$f \$g}" {
+    For all deleted relationships.
+}
 }>>
 
 
@@ -742,13 +808,19 @@ actor GUI
 actor order
 actor nbgroup
 actor sat
+actor rel
 
 message GUI     order      GROUP:NBHOOD:DELETE
-message order   nbgroup    "mutate delete \$n \$g"
-message nbgroup sat        "mutate nbgroupDeleted \$n \$g"
-action  sat                "For all concerns:"
-message sat     GUI        "<Entity> delete \$n \$g \$c"
-message nbgroup GUI        "<Entity> delete \$n \$g"
+message order   nbgroup    "mutate delete {\$n \$g}"
+message nbgroup GUI        "<Entity> delete {\$n \$g}"
+message order   sat        "mutate reconcile"
+message sat     GUI        "<Entity> delete {\$n \$g \$c}" {
+    For all deleted curves.
+}
+message order   rel        "mutate reconcile"
+message rel     GUI        "<Entity> deleted {\$n \$f \$g}" {
+    For all deleted relationships.
+}
 }>>
 
 <<sequence -narration {
@@ -758,19 +830,28 @@ actor GUI
 actor cif
 actor nbgroup
 actor sat
+actor rel
 
 message GUI     cif        undo
-message cif     nbgroup    "mutate create \$n \$g"
-message nbgroup sat        "mutate nbgroupCreated \$n \$g" {
-    Recreates the satisfaction curves with default values.
+message cif     nbgroup    "mutate create {\$n \$g}"
+message nbgroup GUI        "<Entity> create {\$n \$g}"
+message cif     sat        "mutate reconcile"
+message sat     GUI        "<Entity> create {\$n \$g \$c}" {
+    For all restored curves.
 }
-action  sat                "For all concerns:"
-message sat     GUI        "<Entity> create \$n \$g \$c"
-message nbgroup GUI        "<Entity> create \$n \$g"
-message cif     sat        "mutate update \$n \$g \$c" {
-    Restores the previous values for each recreated satisfaction curve.
+message cif     sat        "mutate update {\$n \$g \$c}" {
+    For all restored curves.
 }
-message sat     GUI        "<Entity> update \$n \$g \$c"
+message sat     GUI        "<Entity> update {\$n \$g \$c}"
+message cif     rel        "mutate reconcile"
+message rel     GUI        "<Entity> create {\$n \$f \$g}" {
+    For all restored relationships.
+}
+message cif     rel        "mutate update {\$n \$f \$g}" {
+    For all restored relationships.
+}
+message rel     GUI        "<Entity> update {\$n \$f \$g}"
+
 }>>
 
 
@@ -785,7 +866,7 @@ actor nbgroup
 
 message GUI     order    GROUP:NBHOOD:UPDATE
 message order   nbgroup  "mutate update \$parmdict"
-message nbgroup GUI      "<Entity> update \$n \$g"
+message nbgroup GUI      "<Entity> update {\$n \$g}"
 }>>
 
 <<sequence -narration {
@@ -797,7 +878,7 @@ actor nbgroup
 
 message GUI     cif      undo
 message cif     nbgroup  "mutate update \$parmdict"
-message nbgroup GUI      "<Entity> update \$n \$g"
+message nbgroup GUI      "<Entity> update {\$n \$g}"
 }>>
 
 
@@ -813,7 +894,7 @@ actor nbgroup
 message GUI     order    GROUP:NBHOOD:UPDATE:MULTI
 action  order            "For all updated groups:"
 message order   nbgroup  "mutate update \$parmdict"
-message nbgroup GUI      "<Entity> update \$n \$g"
+message nbgroup GUI      "<Entity> update {\$n \$g}"
 }>>
 
 <<sequence -narration {
@@ -826,7 +907,7 @@ actor nbgroup
 message GUI     cif      undo
 action  cif              "For all updated groups:"
 message cif     nbgroup  "mutate update \$parmdict"
-message nbgroup GUI      "<Entity> update \$n \$g"
+message nbgroup GUI      "<Entity> update {\$n \$g}"
 }>>
 
 
@@ -841,13 +922,19 @@ actor GUI
 actor order
 actor orggroup
 actor sat
+actor rel
 
 message GUI      order     GROUP:ORGANIZATION:CREATE
 message order    orggroup  "mutate create \$parmdict"
-message orggroup sat       "mutate orggroupCreated \$g"
-action  sat                "For all nbhoods and ORG concerns:"
-message sat      GUI       "<Entity> create \$n \$g \$c"
 message orggroup GUI       "<Entity> create \$g"
+message order    sat       "mutate reconcile"
+message sat      GUI       "<Entity> create {\$n \$g \$c}" {
+    For all created curves.
+}
+message order    rel       "mutate reconcile"
+message rel      GUI       "<Entity> create {\$n \$f \$g}" {
+    For all created relationships.
+}
 }>>
 
 <<sequence -narration {
@@ -857,13 +944,19 @@ actor GUI
 actor cif
 actor orggroup
 actor sat
+actor rel
 
-message GUI      cif       undo
-message cif      orggroup  "mutate delete \$g"
-message orggroup sat       "mutate orggroupDeleted \$g"
-action  sat                "For all nbhoods and ORG concerns:"
-message sat      GUI       "<Entity> delete \$n \$g \$c"
-message orggroup GUI       "<Entity> delete \$g"
+message GUI      cif        undo
+message cif      orggroup   "mutate delete \$g"
+message orggroup GUI        "<Entity> delete \$g"
+message cif      sat        "mutate reconcile"
+message sat      GUI        "<Entity> delete {\$n \$g \$c}" {
+    For all deleted curves.
+}
+message cif      rel        "mutate reconcile"
+message rel      GUI        "<Entity> delete {\$n \$f \$g}" {
+    For all deleted relationships.
+}
 }>>
 
 
@@ -876,13 +969,19 @@ actor GUI
 actor order
 actor orggroup
 actor sat
+actor rel
 
-message GUI      order     GROUP:ORGANIZATION:DELETE
-message order    orggroup  "mutate delete \$g"
-message orggroup sat       "mutate orggroupDeleted \$g"
-action  sat                "For all nbhoods and ORG concerns:"
-message sat      GUI       "<Entity> delete \$n \$g \$c"
-message orggroup GUI       "<Entity> delete \$g"
+message GUI      order      GROUP:ORGANIZATION:DELETE
+message order    orggroup   "mutate delete \$g"
+message orggroup GUI        "<Entity> delete \$g"
+message order    sat        "mutate reconcile"
+message sat      GUI        "<Entity> delete {\$n \$g \$c}" {
+    For all deleted curves.
+}
+message order    rel        "mutate reconcile"
+message rel      GUI        "<Entity> deleted {\$n \$f \$g}" {
+    For all deleted relationships.
+}
 }>>
 
 <<sequence -narration {
@@ -892,20 +991,29 @@ actor GUI
 actor cif
 actor orggroup
 actor sat
+actor rel
 
-message GUI      cif       undo
-message cif      orggroup  "mutate create \$parmdict"
-message orggroup sat       "mutate orggroupCreated \$g"
-action  sat                "For all nbhoods and ORG concerns:"
-message sat      GUI       "<Entity> create \$n \$g \$c" {
-    Recreates satisfaction levels with default values.
+
+message GUI      cif        undo
+message cif      orggroup   "mutate create \$parmdict"
+message orggroup GUI        "<Entity> create \$g"
+message cif      sat        "mutate reconcile"
+message sat      GUI        "<Entity> create {\$n \$g \$c}" {
+    For all restored curves.
 }
-message orggroup GUI       "<Entity> create \$g"
-action  cif                "For each restored ORG satisfaction curve:"
-message cif      sat       "mutate update \$parmdict" {
-    Resets each curve back to its previous values.
+message cif      sat        "mutate update {\$n \$g \$c}" {
+    For all restored curves.
 }
-message sat      GUI       "<Entity> update \$n \$g \$c"
+message sat      GUI        "<Entity> update {\$n \$g \$c}"
+message cif      rel        "mutate reconcile"
+message rel      GUI        "<Entity> create {\$n \$f \$g}" {
+    For all restored relationships.
+}
+message cif      rel        "mutate update {\$n \$f \$g}" {
+    For all restored relationships.
+}
+message rel      GUI        "<Entity> update {\$n \$f \$g}"
+
 }>>
 
 
@@ -964,24 +1072,24 @@ message cif      orggroup  "mutate update \$parmdict"
 message orggroup GUI       "<Entity> update \$g"
 }>>
 
-<<section "SAT:* ORDERS">>
+<<section "SATISFACTION:* ORDERS">>
 
-<<subsection "SAT:UPDATE">>
+<<subsection "SATISFACTION:UPDATE">>
 
 <<sequence -narration {
-comment "On send: update the satisfaction curve data."
+comment "On send: update the satisfaction data."
 
 actor GUI
 actor order
 actor sat
 
-message GUI     order    SAT:UPDATE
+message GUI     order    SATISFACTION:UPDATE
 message order   sat      "mutate update \$parmdict"
-message sat     GUI      "<Entity> update \$n \$g \$c"
+message sat     GUI      "<Entity> update {\$n \$g \$c}"
 }>>
 
 <<sequence -narration {
-comment "On undo: restore the previous neighborhood group data."
+comment "On undo: restore the previous satisfaction."
 
 actor GUI
 actor cif
@@ -989,35 +1097,92 @@ actor sat
 
 message GUI     cif      undo
 message cif     sat      "mutate update \$parmdict"
-message sat     GUI      "<Entity> update \$n \$g \$c"
+message sat     GUI      "<Entity> update {\$n \$g \$c}"
 }>>
 
-<<subsection "SAT:UPDATE:MULTI">>
+<<subsection "SATISFACTION:UPDATE:MULTI">>
 
 <<sequence -narration {
-comment "On send: update the satisfaction curve data."
+comment "On send: update the satisfaction data."
 
 actor GUI
 actor order
 actor sat
 
-message GUI     order    SAT:UPDATE:MULTI
-action  order            "For all updated groups:"
+message GUI     order    SATISFACTION:UPDATE:MULTI
+action  order            "For all updated curves:"
 message order   sat      "mutate update \$parmdict"
-message sat     GUI      "<Entity> update \$n \$g \$c"
+message sat     GUI      "<Entity> update {\$n \$g \$c}"
 }>>
 
 <<sequence -narration {
-comment "On undo: restore the previous neighborhood group data."
+comment "On undo: restore the previous satisfaction data."
 
 actor GUI
 actor cif
 actor sat
 
 message GUI     cif      undo
-action  cif              "For all updated groups:"
+action  cif              "For all updated curves:"
 message cif     sat      "mutate update \$parmdict"
-message sat     GUI      "<Entity> update \$n \$g \$c"
+message sat     GUI      "<Entity> update {\$n \$g \$c}"
+}>>
+
+
+<<section "RELATIONSHIP:* ORDERS">>
+
+<<subsection "RELATIONSHIP:UPDATE">>
+
+<<sequence -narration {
+comment "On send: update the relationship data."
+
+actor GUI
+actor order
+actor rel
+
+message GUI     order    RELATIONSHIP:UPDATE
+message order   rel      "mutate update \$parmdict"
+message rel     GUI      "<Entity> update {\$n \$f \$g}"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous relationship data."
+
+actor GUI
+actor cif
+actor rel
+
+message GUI     cif      undo
+message cif     rel      "mutate update \$parmdict"
+message rel     GUI      "<Entity> update {\$n \$f \$g}"
+}>>
+
+<<subsection "RELATIONSHIP:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the relationship data."
+
+actor GUI
+actor order
+actor rel
+
+message GUI     order    RELATIONSHIP:UPDATE:MULTI
+action  order            "For all updated relationships:"
+message order   rel      "mutate update \$parmdict"
+message rel     GUI      "<Entity> update {\$n \$f \$g}"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous relationship data."
+
+actor GUI
+actor cif
+actor rel
+
+message GUI     cif      undo
+action  cif              "For all updated relationships:"
+message cif     rel      "mutate update \$parmdict"
+message rel     GUI      "<Entity> update {\$n \$f \$g}"
 }>>
 
 

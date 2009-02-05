@@ -378,7 +378,7 @@ N1 SHIA N1 Shias   AVERAGE  1.0           1.1
 
     test DELETE-3.2 {Undo recreates the sat curves} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
-        ted order SAT:UPDATE {
+        ted order SATISFACTION:UPDATE {
             n N1 g SHIA c SFT sat0 1.0 trend0 2.0 saliency 0.5
         }
         ted order GROUP:NBHOOD:DELETE n N1 g SHIA
@@ -748,6 +748,7 @@ N1 SUNN N1 Sunnis  AGGRESSIVE 1.2           1.3
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

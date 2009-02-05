@@ -399,7 +399,7 @@ USAID US Aid   #00ff00 NGO     0       0        1       1.0           1.1
     test DELETE-3.3 {ORG sats are restored} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order GROUP:ORGANIZATION:CREATE $usaid
-        ted order SAT:UPDATE n NB1 g USAID c CAS \
+        ted order SATISFACTION:UPDATE n NB1 g USAID c CAS \
             sat0 1.0 trend0 2.0 saliency 0.5
 
         ted order GROUP:ORGANIZATION:DELETE g USAID
@@ -418,7 +418,7 @@ NB1 USAID CAS 1.0  2.0    0.5
     test DELETE-3.3 {sat <Entity> notices on undo} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order GROUP:ORGANIZATION:CREATE $usaid
-        ted order SAT:UPDATE n NB1 g USAID c CAS \
+        ted order SATISFACTION:UPDATE n NB1 g USAID c CAS \
             sat0 1.0 trend0 2.0 saliency 0.5
 
         ted order GROUP:ORGANIZATION:DELETE g USAID
@@ -890,6 +890,7 @@ HAL   Haliburton #ffff00 ORG   CTR     0       1        0       1.2           1.
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 
