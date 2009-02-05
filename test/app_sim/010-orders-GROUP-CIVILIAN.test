@@ -159,7 +159,7 @@ SHIA Shia Locals #ffff00
         ted order GROUP:CIVILIAN:CREATE $shia
         ted order GROUP:CIVILIAN:CREATE $sunn
     } -body {
-        cif undo
+        cif undo -test
         ted query "SELECT g,longname FROM civgroups_view"
     } -cleanup {
         cleanup
@@ -226,7 +226,7 @@ SHIA Shia Locals
         ted order GROUP:CIVILIAN:CREATE $shia
         ted order GROUP:CIVILIAN:DELETE g SHIA
     } -body {
-        cif undo
+        cif undo -test
         ted query {SELECT * FROM civgroups_view}
     } -cleanup {
         cleanup
@@ -242,7 +242,7 @@ SHIA Shia Locals #ffff00 CIV
         ted order GROUP:NBHOOD:CREATE   $nb1shia
         ted order GROUP:CIVILIAN:DELETE g SHIA
     } -body {
-        cif undo
+        cif undo -test
         ted query {SELECT * FROM nbgroups}
     } -cleanup {
         cleanup
@@ -349,7 +349,7 @@ SHIA Shia Locals #ffff00
             color        "#ff0000"
         }
     } -body {
-        cif undo
+        cif undo -test
         set parms [join [dict keys $shia] ","]
         ted query "SELECT $parms FROM civgroups_view"
     } -cleanup {
@@ -447,7 +447,7 @@ SUNN #ff0000
         ted order GROUP:CIVILIAN:CREATE $sunn
         ted order GROUP:CIVILIAN:UPDATE:MULTI ids {SHIA SUNN} color "#ff0000"
     } -body {
-        cif undo
+        cif undo -test
         ted query "SELECT g,color FROM civgroups_view"
     } -cleanup {
         cleanup

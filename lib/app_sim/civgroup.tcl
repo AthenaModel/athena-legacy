@@ -128,7 +128,7 @@ snit::type civgroup {
     #
     # g     A group short name
     #
-    # Deletes the group, including all references.
+    # Deletes the group.
 
     typemethod {mutate delete} {g} {
         # FIRST, get the undo information
@@ -137,7 +137,6 @@ snit::type civgroup {
             WHERE g=$g
         } row {
             unset row(*)
-            lappend undo [mytypemethod mutate create [array get row]]
         }
 
         # NEXT, delete it.
@@ -145,17 +144,11 @@ snit::type civgroup {
             DELETE FROM groups WHERE g=$g;
         }
 
-        # NEXT, clear the group field for entities which 
-        # refer to this group (e.g., units in the group) and
-        # delete entities that depend on this group.
-        
-        lappend undo [nbgroup mutate civgroupDeleted $g]
-        
         # NEXT, notify the app
         notifier send ::civgroup <Entity> delete $g
 
         # NEXT, return aggregate undo script.
-        return [join $undo \n]
+        return [mytypemethod mutate create [array get row]]
     }
 
 
@@ -226,8 +219,11 @@ order define ::civgroup GROUP:CIVILIAN:CREATE {
 
     returnOnError
 
-    # NEXT, create the group
-    setundo [$type mutate create [array get parms]]
+    # NEXT, create the group and dependent entities
+    lappend undo [$type mutate create [array get parms]]
+    lappend undo [rel mutate autopop]
+
+    setundo [join $undo \n]
 }
 
 # GROUP:CIVILIAN:DELETE
@@ -266,8 +262,13 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
         }
     }
 
-    # NEXT, Delete the group
-    setundo [$type mutate delete $parms(g)]
+    # NEXT, Delete the group and dependent entities
+    lappend undo [$type mutate delete $parms(g)]
+    lappend undo [nbgroup mutate autopop]
+    lappend undo [sat    mutate autopop]
+    lappend undo [rel    mutate autopop]
+
+    setundo [join $undo \n]
 }
 
 
@@ -325,6 +326,9 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
+
+
 
 
 

@@ -234,9 +234,6 @@ CREATE TABLE sat_ngc (
     -- Symbolic concerns name
     c          TEXT,
 
-    -- Group type: CIV or ORG
-    gtype      TEXT,
-
     -- Initial satisfaction value
     sat0       DOUBLE DEFAULT 0.0,
 
@@ -253,40 +250,29 @@ CREATE TABLE sat_ngc (
 ------------------------------------------------------------------------
 -- Initial Relationship Data
 
--- rel_fg: Group f's relationship with group g, from f's point of view.
--- This table contains the relationships between all groups in the set
--- of force groups and organization groups.
-
-CREATE TABLE rel_fg (
-    -- Symbolic group name: group f
-    f           TEXT,
-
-    -- Symbolic group name: group g
-    g           TEXT,
-
-    -- Group relationship, from f's point of view.
-    rel         DOUBLE DEFAULT 0.0,
-
-    PRIMARY KEY (f, g)
-);
-
-
--- rel_nfg: Civilian group relationships.  Unlike the force and
--- organization relationships described above, civilian group
--- relationships are always local to a neighborhood.  Thus, 
--- in this table at least one of f and g will be a civilian group;
--- the other can be a civilian, force, or organization group.
+-- rel_nfg: Group f's relationship with group g in neighborhood n, from
+-- f's point of view.
 --
--- The table is populated as follows:
+-- Relationships between force and org groups are at the playbox level,
+-- indicated by setting n='PLAYBOX'.  This is a special token, used 
+-- to indicate non-neighborhood-specific relationships.
 --
--- For all nbhoods n:
---    For all civ groups f and all civ groups g
---    For all civ groups f and all frc/org groups g, f resides in n
---    For all frc/org groups f and all civ groups g, g resides in n
+-- All relationships with civilian groups occur at the neighborhood
+-- level.
+--
+-- Thus, the table is populated as follows:
+--
+-- At the PLAYBOX level: all frc/org groups f with all all frc/org groups g.
+--
+-- For each nbhood n:
+--    For all civ groups f and all civ groups g, provided that there's at
+--    least one civ group resident in n.
+--    For each civ group f resident in n with with all frc/org groups g
+--    For all frc/org groups f with each civ group g resident in n.
 
 
 CREATE TABLE rel_nfg (
-    -- Symbolic nbhood name
+    -- Symbolic nbhood name, or 'PLAYBOX'.
     n           TEXT,
 
     -- Symbolic group name: group f
@@ -310,6 +296,7 @@ CREATE TABLE rel_nfg (
 -- used to check this.
 
 CREATE VIEW entities AS
-SELECT n AS id, longname FROM nbhoods   UNION
-SELECT g AS id, longname FROM groups    UNION
-SELECT c AS id, longname FROM concerns;
+SELECT 'PLAYBOX' AS id, 'Playbox' AS longname                UNION
+SELECT n         AS id, longname  AS longname FROM nbhoods   UNION
+SELECT g         AS id, longname  AS longname FROM groups    UNION
+SELECT c         AS id, longname  AS longname FROM concerns;

@@ -269,9 +269,9 @@ OV1 Over
     } -cleanup {
         cleanup
     } -result {
-n   g     c   gtype sat0 trend0 saliency 
---- ----- --- ----- ---- ------ -------- 
-NB1 USAID CAS ORG   0.0  0.0    1.0      
+n   g     c   sat0 trend0 saliency 
+--- ----- --- ---- ------ -------- 
+NB1 USAID CAS 0.0  0.0    1.0      
     }
 
 
@@ -491,9 +491,9 @@ NB1 PASH NB1 Pashtuns AGGRESSIVE 1.0           1.0
     } -cleanup {
         cleanup
     } -result {
-n   g     c   gtype sat0 trend0 saliency 
---- ----- --- ----- ---- ------ -------- 
-NB1 USAID CAS ORG   1.0  2.0    0.5      
+n   g     c   sat0 trend0 saliency 
+--- ----- --- ---- ------ -------- 
+NB1 USAID CAS 1.0  2.0    0.5      
     }
 
 

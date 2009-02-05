@@ -104,6 +104,101 @@ snit::type rel {
     # a script of one or more commands that will undo the change.  When
     # change cannot be undone, the mutator returns the empty string.
 
+    # mutate autopop
+    #
+    # Determines which relationships should exist, and 
+    # adds or deletes them, returning an undo script.
+
+    typemethod {mutate autopop} {} {
+        # FIRST, List required relationships
+        set valid [dict create]
+
+        rdb eval {
+            -- Force/Org vs. Force/Org
+            SELECT 'PLAYBOX' AS n, 
+                   F.g       AS f, 
+                   G.g       AS g
+            FROM groups AS F
+            JOIN groups AS G
+            WHERE F.gtype IN ('FRC', 'ORG')
+            AND   G.gtype IN ('FRC', 'ORG')
+
+            UNION
+
+            -- Nbgroup with all other groups
+            SELECT nbgroups.n AS n, 
+                   groups.g   AS f, 
+                   nbgroups.g AS g
+            FROM nbgroups JOIN groups
+        } {
+            # Some of these will be set more often than is necessary,
+            # but that's OK.
+            dict set valid [list $n $f $g] 0
+            dict set valid [list $n $g $f] 0
+        }
+
+        # NEXT, Begin the undo script.  Any undo will begin by 
+        # calling this routine to create or delete relationships; then,
+        # if relationships were restored, there will be additional entries
+        # in the script to restore the old data values.
+
+        lappend undo [mytypemethod mutate autopop]
+
+        # NEXT, delete the ones that are no longer valid,
+        # accumulating undo entries for them.  Also, note which ones
+        # *do* exist.
+
+        rdb eval {
+            SELECT * FROM rel_nfg
+        } row {
+            unset -nocomplain row(*)
+
+            set id [list $row(n) $row(f) $row(g)]
+
+            if {[dict exists $valid $id]} {
+                dict incr valid $id
+            } else {
+                lappend undo [mytypemethod mutate update [array get row]]
+
+                rdb eval {
+                    DELETE FROM rel_nfg
+                    WHERE n=$row(n) AND f=$row(f) AND g=$row(g)
+                }
+
+                notifier send ::rel <Entity> delete $id
+            }
+        }
+
+        # NEXT, create any that don't exist and should.
+        foreach id [dict keys $valid] {
+            if {[dict get $valid $id] == 1} {
+                continue
+            }
+
+            lassign $id n f g
+
+            if {$f eq $g} {
+                # Every group has a relationship of 1.0 with itself.
+                rdb eval {
+                    INSERT INTO rel_nfg(n,f,g,rel)
+                    VALUES($n,$f,$g,1.0)
+                }
+
+            } else {
+                # Otherwise, we get the default relationship.
+                rdb eval {
+                    INSERT INTO rel_nfg(n,f,g)
+                    VALUES($n,$f,$g)
+                }
+            }
+
+            notifier send ::rel <Entity> create $id
+        }
+
+        # NEXT, return the undo script
+        return [join $undo \n]
+    }
+
     # mutate update parmdict
     #
     # parmdict     A dictionary of group parms
@@ -135,314 +230,10 @@ snit::type rel {
             } {}
 
             # NEXT, notify the app.
-            $type SendEntity update [list [list $n $g $c]]
+            notifier send ::rel <Entity> update [list $n $f $g]
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]
-        }
-    }
-
-    # mutate frcgroupCreated g
-    #
-    # g    Name of a force group
-    #
-    # A force group has been created.  Create relevant relationships.
-
-    typemethod {mutate frcgroupCreated} {g} {
-        $type FrcOrgGroupCreated $g
-    }
-
-    # mutate frcgroupDeleted g
-    #
-    # g    Name of a force group
-    #
-    # Delete all relationships created by frcgroupCreated
-
-    typemethod {mutate frcgroupDeleted} {g} {
-        $type GroupDeleted $g
-    }
-    
-
-    # mutate orggroupCreated g
-    #
-    # g    Name of an organization group
-    #
-    # An org group has been created.  Create relevant relationships.
-
-    typemethod {mutate orggroupCreated} {g} {
-        $type FrcOrgGroupCreated $g
-    }
-
-    # mutate orggroupDeleted g
-    #
-    # g    Name of a force or organization group
-    #
-    # Delete all relationships created by orggroupCreated
-
-    typemethod {mutate orggroupDeleted} {g} {
-        $type GroupDeleted $g
-    }
-
-    
-    # mutate civgroupCreated g
-    #
-    # g    Name of a civilian group
-    #
-    # A civ group has been created.  Create relationships
-    # in each neighborhood with each existing nbgroup.
-
-    typemethod {mutate civgroupCreated} {g} {
-        # FIRST, create a list of the new relationships
-        set ids [list]
-
-        # NEXT, add relationships with each nbgroup.
-
-        rdb eval {
-            SELECT n AS n,
-                   g AS f
-            FROM nbgroups
-        } {
-            lappend ids [list $n $f $g] [list $n $g $f]
-        }
-
-        # NEXT, create the relationships
-        $type MakeRelationships $ids
-
-        # NEXT, notify the app
-        $type SendEntity create $ids
-
-        # Note: No undo script is required; undoing a group creation
-        # requires a group deletion, which will call this routine
-        # explicitly
-        return
-    }
-
-    # mutate civgroupDeleted g
-    #
-    # g    Name of a civilian group
-    #
-    # Delete all relationships created by civgroupCreated
-
-    typemethod {mutate civgroupDeleted} {g} {
-        $type GroupDeleted $g
-    }
-    
-    # mutate nbgroupCreated n g
-    #
-    # n    Name of nbhood
-    # g    Name of civ group
-    #
-    # Create relationship ngg with self
-    # Create relationships nfg and ngf for all frc/org groups f
-    # Create relationships nfg and ngf with all civ groups f, provided
-    #    that they don't already exist.
-
-    typemethod {mutate nbgroupCreated} {n g} {
-        # FIRST, create a list of the new relationships
-        set ids [list]
-
-        # NEXT, add relationship with self: 1.0
-        lappend ids [list $n $g $g]
-
-        # NEXT, get a list of groups with which g already has
-        # relationships in n
-        set existing [rdb eval {
-            SELECT f FROM rel_nfg WHERE n=$n AND g=$g
-        }]
-
-        # NEXT, create relationships between g and all other groups
-        # except those in $existing
-        rdb eval {
-            SELECT g AS f FROM groups
-        } {
-            # Skip existing relationships
-            if {$g IN $existing} {
-                continue
-            }
-
-            lappend ids [list $n $f $g] [list $n $g $f]
-        }
-
-        # NEXT, create the relationships
-        $type MakeRelationships $ids
-
-        # NEXT, notify the app
-        $type SendEntity create $ids
-
-        # Note: No undo script is required; undoing a group creation
-        # requires a group deletion, which will call this routine
-        # explicitly
-        return
-    }
-
-
-    # mutate nbgroupDeleted n g
-    #
-    # n    Name of nbhood
-    # g    Name of civ group
-    #
-    # Delete all relationships nfg and ngf where nf is NOT a 
-    # nbgroup.  Create an undo script to restore the deleted
-    # values.
-
-    typemethod {mutate nbgroupDeleted} {n g} {
-        # FIRST, get a list of the groups (other than g) that
-        # are still resident in n.
-
-        set existing [rdb eval {
-            SELECT g AS f
-            FROM nbgroups
-            WHERE n=$n AND f != $g
-        }]
-
-        # NEXT, get the undo information: updates to restore any
-        # non-default values.
-        set undo [list]
-        set ids [list]
-
-        rdb eval {
-            SELECT * FROM rel_nfg
-            WHERE n=$n AND (f=$g OR g=$g)
-        } row {
-            if {$row(f) IN $existing ||
-                $row(g) IN $existing} {
-                continue
-            }
-
-            unset -nocomplain row(*)
-            lappend ids [list $row(n) $row(f) $row(g)]
-            lappend undo [mytypemethod mutate update [array get row]]
-
-            rdb eval {
-                DELETE FROM rel_nfg
-                WHERE n=$row(n) AND f=$row(f) AND g=$row(g)
-            }
-        }
-
-        # NEXT, notify the app.
-        $type SendEntity delete $ids
-        
-        # NEXT, Return the undo script
-        return [join $undo \n]
-    }
-
-    # FrcOrgGroupCreated g
-    #
-    # g    Name of a force or organization group
-    #
-    # Create relationships with other groups.
-
-    typemethod FrcOrgGroupCreated {g} {
-        # FIRST, create a list of the new relationships
-        set ids [list]
-
-        # NEXT, add playbox-wide relationships with other groups.
-        set n PLAYBOX
-
-        # With self: 1.0
-        lappend ids [list $n $g $g]
-
-        # With other groups
-        rdb eval {
-            -- Force and ORG groups
-            SELECT 'PLAYBOX' AS n,
-                   g         AS f
-            FROM groups WHERE gtype IN ('FRC', 'ORG') AND g != $g
-
-            UNION
-
-            -- Nbhood groups
-            SELECT n AS n,
-                   g AS f
-            FROM nbgroups
-        } {
-            lappend ids [list $n $f $g] [list $n $g $f]
-        }
-
-        # NEXT, create the relationships
-        $type MakeRelationships $ids
-
-        # NEXT, notify the app
-        $type SendEntity create $ids
-
-        # Note: No undo script is required; undoing a group creation
-        # requires a group deletion, which will call this routine
-        # explicitly
-        return
-    }
-
-    # GroupDeleted g
-    #
-    # g    Name of any group
-    #
-    # Delete all relationships involving this group,
-    # and prepare an undo script to restore deleted values.
-
-    typemethod GroupDeleted {g} {
-        # FIRST, get the undo information: updates to restore any
-        # non-default values.
-        set undo [list]
-        set ids [list]
-
-        rdb eval {
-            SELECT * FROM rel_nfg
-            WHERE f=$g OR g=$g
-        } row {
-            unset -nocomplain row(*)
-            lappend ids [list $row(n) $row(f) $row(g)]
-            lappend undo [mytypemethod mutate update [array get row]]
-        }
-
-        # NEXT, Delete the relationships
-        rdb eval {
-            DELETE FROM rel_nfg
-            WHERE f=$g OR g=$g;
-        } {}
-
-        # NEXT, notify the app.
-        $type SendEntity delete $ids
-        
-        # NEXT, Return the undo script
-        return [join $undo \n]
-    }
-
-    # MakeRelationships ids
-    #
-    # ids     List of ids {n f g} for which relationships are needed.
-    #
-    # Inserts default relationship entities into the database.
-    # It's assumed that none of the relationships exist.
-
-    typemethod MakeRelationships {ids} {
-        foreach id $ids {
-            lassign $id n f g
-
-            if {$f eq $g} {
-                # Relationship with self is always 1.0
-                rdb eval {
-                    INSERT INTO rel_nfg(n,f,g,rel)
-                    VALUES($n,$g,$g,1.0)
-                }
-            } else {
-                # Accept default rel.
-                rdb eval {
-                    INSERT INTO rel_nfg(n,f,g)
-                    VALUES($n,$f,$g);
-                }
-            }
-        }
-    }
-
-    # SendEntity op ids
-    #
-    # op     create, delete, or update
-    # ids    List of ids {n f g}
-    #
-    # Sends the <Entity> events for a set of relationships
-
-    typemethod SendEntity {op ids} {
-        foreach id $ids {
-            notifier send ::rel <Entity> $op $id
         }
     }
 }

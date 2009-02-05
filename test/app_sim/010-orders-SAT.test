@@ -170,12 +170,12 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-n  g    c   gtype sat0 trend0 saliency 
--- ---- --- ----- ---- ------ -------- 
-N1 SHIA AUT CIV   0.0  0.0    1.0      
-N1 SHIA SFT CIV   80.0 8.0    0.85     
-N1 SHIA CUL CIV   0.0  0.0    1.0      
-N1 SHIA QOL CIV   0.0  0.0    1.0      
+n  g    c   sat0 trend0 saliency 
+-- ---- --- ---- ------ -------- 
+N1 SHIA AUT 0.0  0.0    1.0      
+N1 SHIA CUL 0.0  0.0    1.0      
+N1 SHIA QOL 0.0  0.0    1.0      
+N1 SHIA SFT 80.0 8.0    0.85     
     }
 
 
@@ -208,12 +208,12 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     } -cleanup {
         cleanup
     } -result {
-n  g    c   gtype sat0 trend0 saliency 
--- ---- --- ----- ---- ------ -------- 
-N1 SHIA AUT CIV   0.0  0.0    1.0      
-N1 SHIA SFT CIV   0.0  0.0    1.0      
-N1 SHIA CUL CIV   0.0  0.0    1.0      
-N1 SHIA QOL CIV   0.0  0.0    1.0      
+n  g    c   sat0 trend0 saliency 
+-- ---- --- ---- ------ -------- 
+N1 SHIA AUT 0.0  0.0    1.0      
+N1 SHIA CUL 0.0  0.0    1.0      
+N1 SHIA QOL 0.0  0.0    1.0      
+N1 SHIA SFT 0.0  0.0    1.0      
     }
 
     #-------------------------------------------------------------------
@@ -330,12 +330,12 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     } -cleanup {
         cleanup
     } -result {
-n  g    c   gtype sat0 trend0 saliency 
--- ---- --- ----- ---- ------ -------- 
-N1 SHIA AUT CIV   0.0  0.0    1.0      
-N1 SHIA SFT CIV   80.0 8.0    0.85     
-N1 SHIA CUL CIV   0.0  0.0    1.0      
-N1 SHIA QOL CIV   0.0  0.0    1.0      
+n  g    c   sat0 trend0 saliency 
+-- ---- --- ---- ------ -------- 
+N1 SHIA AUT 0.0  0.0    1.0      
+N1 SHIA CUL 0.0  0.0    1.0      
+N1 SHIA QOL 0.0  0.0    1.0      
+N1 SHIA SFT 80.0 8.0    0.85     
     }
 
 
@@ -354,12 +354,12 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     } -cleanup {
         cleanup
     } -result {
-n  g    c   gtype sat0 trend0 saliency 
--- ---- --- ----- ---- ------ -------- 
-N1 SHIA AUT CIV   0.0  0.0    1.0      
-N1 SHIA SFT CIV   80.0 8.0    0.85     
-N1 SHIA CUL CIV   80.0 8.0    0.85     
-N1 SHIA QOL CIV   0.0  0.0    1.0      
+n  g    c   sat0 trend0 saliency 
+-- ---- --- ---- ------ -------- 
+N1 SHIA AUT 0.0  0.0    1.0      
+N1 SHIA CUL 80.0 8.0    0.85     
+N1 SHIA QOL 0.0  0.0    1.0      
+N1 SHIA SFT 80.0 8.0    0.85     
     }
 
 
@@ -394,12 +394,12 @@ N1 SHIA QOL CIV   0.0  0.0    1.0
     } -cleanup {
         cleanup
     } -result {
-n  g    c   gtype sat0 trend0 saliency 
--- ---- --- ----- ---- ------ -------- 
-N1 SHIA AUT CIV   0.0  0.0    1.0      
-N1 SHIA SFT CIV   0.0  0.0    1.0      
-N1 SHIA CUL CIV   0.0  0.0    1.0      
-N1 SHIA QOL CIV   0.0  0.0    1.0      
+n  g    c   sat0 trend0 saliency 
+-- ---- --- ---- ------ -------- 
+N1 SHIA AUT 0.0  0.0    1.0      
+N1 SHIA CUL 0.0  0.0    1.0      
+N1 SHIA QOL 0.0  0.0    1.0      
+N1 SHIA SFT 0.0  0.0    1.0      
     }
 
 

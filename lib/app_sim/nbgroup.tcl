@@ -118,18 +118,11 @@ snit::type nbgroup {
                        $effects_factor);
             }
 
-            # NEXT, population the sat_ngc table with satisfaction
-            # levels
-            sat mutate nbgroupCreated $n $g
-
             # NEXT, notify the app.
             notifier send ::nbgroup <Entity> create [list $n $g]
 
-            # NEXT, finish the undo script
-            lappend undo [mytypemethod mutate delete $n $g]
-
             # NEXT, Return the undo command
-            return [join $undo \n]
+            return [mytypemethod mutate delete $n $g]
         }
     }
 
@@ -147,7 +140,6 @@ snit::type nbgroup {
             WHERE n=$n AND g=$g
         } undoData {
             unset undoData(*)
-            lappend undo [mytypemethod mutate create [array get undoData]]
         }
 
         # NEXT, delete it.
@@ -155,16 +147,11 @@ snit::type nbgroup {
             DELETE FROM nbgroups WHERE n=$n AND g=$g;
         }
 
-        # NEXT, Clean up entities which refer to this nbhood group,
-        # i.e., either clear the field, or delete the entities.
-        
-        lappend undo [sat mutate nbgroupDeleted $n $g]
-
         # NEXT, notify the app.
         notifier send ::nbgroup <Entity> delete [list $n $g]
 
         # NEXT, Return the undo script
-        return [join $undo \n]
+        return [mytypemethod mutate create [array get undoData]]
     }
 
 
@@ -211,41 +198,37 @@ snit::type nbgroup {
         }
     }
 
-    # mutate nbhoodDeleted n
+    # mutate autopop
     #
-    # Called *by* nbhood when nbhood n is deleted.  Deletes all 
-    # nbgroups for this nbhood.
+    # Deletes nbgroups for which either the neighborhood or the
+    # civilian group no longer exists.
 
-    typemethod {mutate nbhoodDeleted} {n} {
+    typemethod {mutate autopop} {} {
+        # FIRST, get the set of possible nbgroups
+        set valid [dict create]
+
+        rdb eval {
+            SELECT n, g 
+            FROM nbhoods 
+            JOIN civgroups_view
+        } {
+            dict set valid [list $n $g] 0
+        }
+
+        # NEXT, delete the ones that are no longer valid, accumulating
+        # an undo script.
         set undo [list]
 
         rdb eval {
-            SELECT g FROM nbgroups WHERE n=$n
+            SELECT n,g FROM nbgroups
         } {
-            lappend undo [$type mutate delete $n $g]
+            if {![dict exists $valid [list $n $g]]} {
+                lappend undo [$type mutate delete $n $g]
+            }
         }
 
         return [join $undo \n]
     }
-
-
-    # mutate civgroupDeleted g
-    #
-    # Called *by* civgroup when civgroup g is deleted.  Deletes all 
-    # nbgroups for this civgroup.
-
-    typemethod {mutate civgroupDeleted} {g} {
-        set undo [list]
-
-        rdb eval {
-            SELECT n FROM nbgroups WHERE g=$g
-        } {
-            lappend undo [$type mutate delete $n $g]
-        }
-
-        return [join $undo \n]
-    }
-
 }
 
 #-------------------------------------------------------------------
@@ -290,8 +273,12 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
         }]
     }
 
-    # NEXT, create the group
-    setundo [$type mutate create [array get parms]]
+    # NEXT, create the group and dependent entities.
+    lappend undo [$type mutate create [array get parms]]
+    lappend undo [sat mutate autopop]
+    lappend undo [rel mutate autopop]
+    
+    setundo [join $undo \n]
 }
 
 # GROUP:NBHOOD:DELETE
@@ -340,8 +327,12 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
         }
     }
 
-    # NEXT, delete the group
-    setundo [$type mutate delete $parms(n) $parms(g)]
+    # NEXT, delete the group and dependent entities
+    lappend undo [$type mutate delete $parms(n) $parms(g)]
+    lappend undo [sat mutate autopop]
+    lappend undo [rel mutate autopop]
+    
+    setundo [join $undo \n]
 }
 
 
@@ -418,3 +409,5 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
+

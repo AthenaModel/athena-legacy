@@ -157,6 +157,7 @@ snit::type nbhood {
     #
     # parmdict     A dictionary of neighborhood parms
     #
+    #    n              The neighborhood's ID
     #    longname       The neighborhood's long name
     #    urbanization   eurbanization level
     #    refpoint       Reference point, map coordinates
@@ -196,10 +197,6 @@ snit::type nbhood {
             # have obscured some other neighborhood's refpoint.
             $type SetObscuredBy
 
-            # NEXT, create satisfaction curves for pre-existing
-            # org groups
-            sat mutate nbhoodCreated $n
-
             # NEXT, notify the app.
             notifier send ::nbhood <Entity> create $n
 
@@ -220,9 +217,8 @@ snit::type nbhood {
             SELECT n, longname, refpoint, polygon, urbanization 
             FROM nbhoods
             WHERE n=$n
-        } row {
-            unset row(*)
-            lappend undo [mytypemethod mutate create [array get row]]
+        } undoData {
+            unset undoData(*)
         }
 
         # FIRST, delete it.
@@ -232,13 +228,6 @@ snit::type nbhood {
 
         $geo delete $n
 
-        # NEXT, clear the nbhood field for entities which 
-        # refer to this nbhood (e.g., units in the nbhood) and
-        # delete entities that depend on this nbhood.
-        
-        lappend undo [nbgroup mutate nbhoodDeleted $n]
-        lappend undo [sat     mutate nbhoodDeleted $n]
-
         # NEXT, recompute the obscured_by field; this nbhood might
         # have obscured some other neighborhood's refpoint.
         $type SetObscuredBy
@@ -247,7 +236,7 @@ snit::type nbhood {
         notifier send ::nbhood <Entity> delete $n
 
         # NEXT, return aggregate undo script.
-        return [join $undo \n]
+        return [mytypemethod mutate create [array get undoData]]
     }
 
     # mutate lower n
@@ -442,8 +431,11 @@ order define ::nbhood NBHOOD:CREATE {
     
     returnOnError
 
-    # NEXT, create the neighborhood
-    setundo [$type mutate create [array get parms]]
+    # NEXT, create the neighborhood and dependent entities
+    lappend undo [$type mutate create [array get parms]]
+    lappend undo [sat mutate autopop]
+
+    setundo [join $undo \n]
 }
 
 # NBHOOD:DELETE
@@ -482,8 +474,13 @@ order define ::nbhood NBHOOD:DELETE {
         }
     }
 
-    # NEXT, raise the neighborhood
-    setundo [$type mutate delete $parms(n)]
+    # NEXT, delete the neighborhood and dependent entities
+    lappend undo [$type mutate delete $parms(n)]
+    lappend undo [nbgroup mutate autopop]
+    lappend undo [sat    mutate autopop]
+    lappend undo [rel    mutate autopop]
+
+    setundo [join $undo \n]
 }
 
 # NBHOOD:LOWER
@@ -640,4 +637,6 @@ order define ::nbhood NBHOOD:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
+
 

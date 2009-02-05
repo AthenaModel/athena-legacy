@@ -133,10 +133,6 @@ snit::type orggroup {
                        $effects_factor);
             }
 
-            # NEXT, create satisfaction curves for pre-existing
-            # nbhoods
-            sat mutate orggroupCreated $g
-
             # NEXT, notify the app.
             notifier send ::orggroup <Entity> create $g
 
@@ -159,7 +155,6 @@ snit::type orggroup {
             WHERE g=$g
         } undoData {
             unset undoData(*)
-            lappend undo [mytypemethod mutate create [array get undoData]]
         }
 
         # NEXT, delete it.
@@ -168,15 +163,12 @@ snit::type orggroup {
             DELETE FROM orggroups WHERE g=$g;
         }
 
-        # NEXT, Clean up entities which refer to this organization group,
-        # i.e., either clear the field, or delete the entities.
-        lappend undo [sat mutate orggroupDeleted $g]
-
         # NEXT, notify the app
         notifier send ::orggroup <Entity> delete $g
 
         # NEXT, Return the undo script
-        return [join $undo \n]
+        return [mytypemethod mutate create [array get undoData]]
+
     }
 
 
@@ -274,8 +266,12 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
 
     returnOnError
 
-    # NEXT, create the group
-    setundo [$type mutate create [array get parms]]
+    # NEXT, create the group and dependent entities
+    lappend undo [$type mutate create [array get parms]]
+    lappend undo [sat mutate autopop]
+    lappend undo [rel mutate autopop]
+    
+    setundo [join $undo \n]
 }
 
 # GROUP:ORGANIZATION:DELETE
@@ -314,8 +310,12 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
         }
     }
 
-    # NEXT, Delete the group
-    setundo [$type mutate delete $parms(g)]
+    # NEXT, Delete the group and dependent entities
+    lappend undo [$type mutate delete $parms(g)]
+    lappend undo [sat mutate autopop]
+    lappend undo [rel mutate autopop]
+    
+    setundo [join $undo \n]
 }
 
 
@@ -402,3 +402,5 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
+
