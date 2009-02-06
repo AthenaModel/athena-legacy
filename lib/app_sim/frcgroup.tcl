@@ -142,12 +142,8 @@ snit::type frcgroup {
 
     typemethod {mutate delete} {g} {
         # FIRST, get the undo information
-        rdb eval {
-            SELECT * FROM frcgroups_view
-            WHERE g=$g
-        } undoData {
-            unset undoData(*)
-        }
+        rdb eval {SELECT * FROM groups    WHERE g=$g} row1 { unset row1(*) }
+        rdb eval {SELECT * FROM frcgroups WHERE g=$g} row2 { unset row2(*) }
 
         # NEXT, delete it.
         rdb eval {
@@ -155,17 +151,25 @@ snit::type frcgroup {
             DELETE FROM frcgroups WHERE g=$g;
         }
 
-        # NEXT, Clean up entities which refer to this force group,
-        # i.e., either clear the field, or delete the entities.
-        
-        # TBD.
-
+        # NEXT, notify the app
         notifier send ::frcgroup <Entity> delete $g
 
         # NEXT, Return the undo script
-        return [mytypemethod mutate create [array get undoData]]
+        return [mytypemethod Restore [array get row1] [array get row2]]
     }
 
+    # Restore gdict fdict
+    #
+    # gdict    row dict for deleted entity in groups
+    # fdict    row dict for deleted entity in frcgroups
+    #
+    # Restores the rows to the database
+
+    typemethod Restore {gdict fdict} {
+        rdb insert groups    $gdict
+        rdb insert frcgroups $fdict
+        notifier send ::frcgroup <Entity> create [dict get $gdict g]
+    }
 
     # mutate update parmdict
     #

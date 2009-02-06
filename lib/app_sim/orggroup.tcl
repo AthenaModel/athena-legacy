@@ -150,12 +150,8 @@ snit::type orggroup {
 
     typemethod {mutate delete} {g} {
         # FIRST, get the undo information
-        rdb eval {
-            SELECT * FROM orggroups_view
-            WHERE g=$g
-        } undoData {
-            unset undoData(*)
-        }
+        rdb eval {SELECT * FROM groups    WHERE g=$g} row1 { unset row1(*) }
+        rdb eval {SELECT * FROM orggroups WHERE g=$g} row2 { unset row2(*) }
 
         # NEXT, delete it.
         rdb eval {
@@ -167,10 +163,21 @@ snit::type orggroup {
         notifier send ::orggroup <Entity> delete $g
 
         # NEXT, Return the undo script
-        return [mytypemethod mutate create [array get undoData]]
-
+        return [mytypemethod Restore [array get row1] [array get row2]]
     }
 
+    # Restore gdict odict
+    #
+    # gdict    row dict for deleted entity in groups
+    # odict    row dict for deleted entity in orggroups
+    #
+    # Restores the rows to the database
+
+    typemethod Restore {gdict odict} {
+        rdb insert groups    $gdict
+        rdb insert orggroups $odict
+        notifier send ::orggroup <Entity> create [dict get $gdict g]
+    }
 
     # mutate update parmdict
     #
