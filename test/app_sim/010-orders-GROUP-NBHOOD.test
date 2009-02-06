@@ -74,6 +74,28 @@ namespace eval ::athena_test::tests:: {
         color        "#ff00ff"
     }
 
+    # Force Group
+    ted order GROUP:FORCE:CREATE {
+        g         BLUE
+        longname  "US Army"
+        color     #0000ff
+        forcetype REGULAR
+        local     no
+        coalition yes
+    }
+
+    # Org Group
+    ted order GROUP:ORGANIZATION:CREATE {
+        g              USAID
+        longname       "US Aid"
+        color          #00ff00
+        orgtype        NGO
+        medical        no
+        engineer       no
+        support        yes
+        rollup_weight  1.0
+        effects_factor 1.1
+    }
 
     # Clean up after a test
 
@@ -85,11 +107,11 @@ namespace eval ::athena_test::tests:: {
         # Delete all created entities and reinitialize the module
         rdb eval {
             DELETE FROM nbgroups;
-            DELETE FROM sat_ngc;
         }
 
         nbgroup reconfigure
-        sat reconfigure
+        sat mutate reconcile
+        rel mutate reconcile
 
         cif clear
     }
@@ -224,32 +246,46 @@ N1 SHIA Local Shias AVERAGE  1.0           1.1
 
 
     test CREATE-2.4 {Satisfaction curves are populated} -body {
+        ted notifier bind ::sat <Entity>
         ted order GROUP:NBHOOD:CREATE $n1shia
         ted order GROUP:NBHOOD:CREATE $n1sunn
-        ted query {
-            SELECT * FROM sat_ngc
-        }
+        ted notifier received
     } -cleanup {
         cleanup
     } -result {
-n  g    c   sat0 trend0 saliency 
--- ---- --- ---- ------ -------- 
-N1 SHIA AUT 0.0  0.0    1.0      
-N1 SHIA CUL 0.0  0.0    1.0      
-N1 SHIA QOL 0.0  0.0    1.0      
-N1 SHIA SFT 0.0  0.0    1.0      
-N1 SUNN AUT 0.0  0.0    1.0      
-N1 SUNN CUL 0.0  0.0    1.0      
-N1 SUNN QOL 0.0  0.0    1.0      
-N1 SUNN SFT 0.0  0.0    1.0      
+        {::sat <Entity> create {N1 SHIA AUT}}
+        {::sat <Entity> create {N1 SHIA CUL}}
+        {::sat <Entity> create {N1 SHIA QOL}}
+        {::sat <Entity> create {N1 SHIA SFT}}
+        {::sat <Entity> create {N1 SUNN AUT}}
+        {::sat <Entity> create {N1 SUNN CUL}}
+        {::sat <Entity> create {N1 SUNN QOL}}
+        {::sat <Entity> create {N1 SUNN SFT}}
     }
 
+    test CREATE-2.5 {Relationships are created} -body {
+        ted notifier bind ::rel <Entity>
+        ted order GROUP:NBHOOD:CREATE $n1shia
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rel <Entity> create {N1 BLUE SHIA}}
+        {::rel <Entity> create {N1 SHIA BLUE}}
+        {::rel <Entity> create {N1 KURD SHIA}}
+        {::rel <Entity> create {N1 SHIA KURD}}
+        {::rel <Entity> create {N1 SHIA SHIA}}
+        {::rel <Entity> create {N1 SUNN SHIA}}
+        {::rel <Entity> create {N1 SHIA SUNN}}
+        {::rel <Entity> create {N1 USAID SHIA}}
+        {::rel <Entity> create {N1 SHIA USAID}}
+    }
 
     test CREATE-3.1 {undo deletes the nbgroup} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
         ted order GROUP:NBHOOD:CREATE $n1sunn
     } -body {
-        cif undo
+        cif undo -test
         ted query "SELECT n,g,local_name FROM nbgroups"
     } -cleanup {
         cleanup
@@ -259,40 +295,41 @@ n  g    local_name
 N1 SHIA N1 Shias   
     }
 
-
-    test CREATE-3.1 {undo deletes the nbgroup} -setup {
-        ted order GROUP:NBHOOD:CREATE $n1shia
-        ted order GROUP:NBHOOD:CREATE $n1sunn
-    } -body {
-        cif undo
-        ted query "SELECT n,g,local_name FROM nbgroups"
-    } -cleanup {
-        cleanup
-    } -result {
-n  g    local_name 
--- ---- ---------- 
-N1 SHIA N1 Shias   
-    }
 
     test CREATE-3.2 {undo deletes sat curves} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
         ted order GROUP:NBHOOD:CREATE $n1sunn
     } -body {
-        cif undo
-        ted query "SELECT * FROM sat_ngc"
-
-        # Sunni data should be gone.
+        ted notifier bind ::sat <Entity>
+        cif undo -test
+        ted notifier received
     } -cleanup {
         cleanup
     } -result {
-n  g    c   sat0 trend0 saliency 
--- ---- --- ---- ------ -------- 
-N1 SHIA AUT 0.0  0.0    1.0      
-N1 SHIA CUL 0.0  0.0    1.0      
-N1 SHIA QOL 0.0  0.0    1.0      
-N1 SHIA SFT 0.0  0.0    1.0      
+        {::sat <Entity> delete {N1 SUNN AUT}}
+        {::sat <Entity> delete {N1 SUNN CUL}}
+        {::sat <Entity> delete {N1 SUNN QOL}}
+        {::sat <Entity> delete {N1 SUNN SFT}}
     }
 
+    test CREATE-3.3 {undo deletes relationships} -setup {
+        ted order GROUP:NBHOOD:CREATE $n1shia
+        ted order GROUP:NBHOOD:CREATE $n1sunn
+    } -body {
+        ted notifier bind ::rel <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rel <Entity> delete {N1 BLUE SUNN}}
+        {::rel <Entity> delete {N1 SUNN BLUE}}
+        {::rel <Entity> delete {N1 KURD SUNN}}
+        {::rel <Entity> delete {N1 SUNN KURD}}
+        {::rel <Entity> delete {N1 SUNN SUNN}}
+        {::rel <Entity> delete {N1 USAID SUNN}}
+        {::rel <Entity> delete {N1 SUNN USAID}}
+    }
 
     #-------------------------------------------------------------------
     # GROUP:NBHOOD:DELETE
@@ -346,19 +383,36 @@ N1 SHIA SFT 0.0  0.0    1.0
         ted order GROUP:NBHOOD:CREATE $n1shia
         ted order GROUP:NBHOOD:CREATE $n1sunn
     } -body {
+        ted notifier bind ::sat <Entity>
         ted order GROUP:NBHOOD:DELETE n N1 g SHIA
-        ted query {SELECT * FROM sat_ngc}
+        ted notifier received
     } -cleanup {
         cleanup
     } -result {
-n  g    c   sat0 trend0 saliency 
--- ---- --- ---- ------ -------- 
-N1 SUNN AUT 0.0  0.0    1.0      
-N1 SUNN CUL 0.0  0.0    1.0      
-N1 SUNN QOL 0.0  0.0    1.0      
-N1 SUNN SFT 0.0  0.0    1.0      
+        {::sat <Entity> delete {N1 SHIA AUT}}
+        {::sat <Entity> delete {N1 SHIA CUL}}
+        {::sat <Entity> delete {N1 SHIA QOL}}
+        {::sat <Entity> delete {N1 SHIA SFT}}
     }
 
+    test DELETE-2.4 {Relationships are deleted} -setup {
+        ted order GROUP:NBHOOD:CREATE $n1shia
+        ted order GROUP:NBHOOD:CREATE $n1sunn
+    } -body {
+        ted notifier bind ::rel <Entity>
+        ted order GROUP:NBHOOD:DELETE n N1 g SHIA
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rel <Entity> delete {N1 BLUE SHIA}}
+        {::rel <Entity> delete {N1 SHIA BLUE}}
+        {::rel <Entity> delete {N1 KURD SHIA}}
+        {::rel <Entity> delete {N1 SHIA KURD}}
+        {::rel <Entity> delete {N1 SHIA SHIA}}
+        {::rel <Entity> delete {N1 USAID SHIA}}
+        {::rel <Entity> delete {N1 SHIA USAID}}
+    }
 
     test DELETE-3.1 {Undo recreates the group} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
@@ -378,22 +432,22 @@ N1 SHIA N1 Shias   AVERAGE  1.0           1.1
 
     test DELETE-3.2 {Undo recreates the sat curves} -setup {
         ted order GROUP:NBHOOD:CREATE $n1shia
-        ted order SATISFACTION:UPDATE {
-            n N1 g SHIA c SFT sat0 1.0 trend0 2.0 saliency 0.5
-        }
         ted order GROUP:NBHOOD:DELETE n N1 g SHIA
     } -body {
-        cif undo
-        ted query {SELECT * FROM sat_ngc}
+        ted notifier bind ::sat <Entity>
+        cif undo -test
+        ted notifier received
     } -cleanup {
         cleanup
     } -result {
-n  g    c   sat0 trend0 saliency 
--- ---- --- ---- ------ -------- 
-N1 SHIA AUT 0.0  0.0    1.0      
-N1 SHIA CUL 0.0  0.0    1.0      
-N1 SHIA QOL 0.0  0.0    1.0      
-N1 SHIA SFT 1.0  2.0    0.5      
+        {::sat <Entity> create {N1 SHIA AUT}}
+        {::sat <Entity> create {N1 SHIA CUL}}
+        {::sat <Entity> create {N1 SHIA QOL}}
+        {::sat <Entity> create {N1 SHIA SFT}}
+        {::sat <Entity> update {N1 SHIA AUT}}
+        {::sat <Entity> update {N1 SHIA CUL}}
+        {::sat <Entity> update {N1 SHIA QOL}}
+        {::sat <Entity> update {N1 SHIA SFT}}
     }
 
 

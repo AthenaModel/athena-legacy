@@ -40,7 +40,7 @@ namespace eval ::athena_test::tests:: {
         color     #ffffff
     }
 
-    # Neighborhoods and nbgroups
+    # Neighborhoods, and frc, org, and  nb groups.
 
     set nb1 {
         n            NB1
@@ -59,7 +59,6 @@ namespace eval ::athena_test::tests:: {
         effects_factor 1.0
     }
 
-
     # Clean up after a test
 
     proc cleanup {} {
@@ -72,11 +71,15 @@ namespace eval ::athena_test::tests:: {
             DELETE FROM nbhoods;
             DELETE FROM groups;
             DELETE FROM nbgroups;
+            DELETE FROM sat_ngc;
+            DELETE FROM rel_nfg;
         }
 
         civgroup reconfigure
         nbhood   reconfigure
         nbgroup  reconfigure
+        sat      reconfigure
+        rel      reconfigure
     }
 
     #-------------------------------------------------------------------
@@ -154,6 +157,20 @@ SHIA Shia Locals #ffff00
         {::civgroup <Entity> create SHIA}
     }
 
+    test CREATE-2.3 {relationships are created} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:NBHOOD:CREATE $nb1shia
+    } -body {
+        ted notifier bind ::rel <Entity>
+        ted order GROUP:CIVILIAN:CREATE $sunn
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rel <Entity> create {NB1 SUNN SHIA}}
+        {::rel <Entity> create {NB1 SHIA SUNN}}
+    }
 
     test CREATE-3.1 {undo deletes the civgroup} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
@@ -167,6 +184,22 @@ SHIA Shia Locals #ffff00
 g    longname    
 ---- ----------- 
 SHIA Shia Locals 
+    }
+
+    test CREATE-3.2 {relationships are undone} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:NBHOOD:CREATE $nb1shia
+        ted order GROUP:CIVILIAN:CREATE $sunn
+    } -body {
+        ted notifier bind ::rel <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rel <Entity> delete {NB1 SUNN SHIA}}
+        {::rel <Entity> delete {NB1 SHIA SUNN}}
     }
 
     #-------------------------------------------------------------------
@@ -221,6 +254,23 @@ SHIA Shia Locals
     } -result {
     }
 
+    test DELETE-2.4 {relationships are deleted} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:NBHOOD:CREATE $nb1shia
+        ted order GROUP:CIVILIAN:CREATE $sunn
+    } -body {
+        ted notifier bind ::rel <Entity>
+        ted order GROUP:CIVILIAN:DELETE g SUNN
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rel <Entity> delete {NB1 SUNN SHIA}}
+        {::rel <Entity> delete {NB1 SHIA SUNN}}
+    }
+
+
 
     test DELETE-3.1 {Undo restores group} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
@@ -251,6 +301,26 @@ n   g    local_name demeanor   rollup_weight effects_factor
 --- ---- ---------- ---------- ------------- -------------- 
 NB1 SHIA NB1 Shia   AGGRESSIVE 1.0           1.0            
     }
+
+    test DELETE-3.3 {relationships are restored} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:NBHOOD:CREATE $nb1shia
+        ted order GROUP:CIVILIAN:CREATE $sunn
+        ted order GROUP:CIVILIAN:DELETE g SUNN
+    } -body {
+        ted notifier bind ::rel <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rel <Entity> create {NB1 SUNN SHIA}}
+        {::rel <Entity> create {NB1 SHIA SUNN}}
+        {::rel <Entity> update {NB1 SUNN SHIA}}
+        {::rel <Entity> update {NB1 SHIA SUNN}}
+    }
+
 
     #-------------------------------------------------------------------
     # GROUP:CIVILIAN:UPDATE

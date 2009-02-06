@@ -46,6 +46,43 @@ namespace eval ::athena_test::tests:: {
         coalition yes
     }
 
+    # Other entities
+
+    set shia {
+        g         SHIA
+        longname  "Shia Locals"
+        color     #ffff00
+    }
+
+    set nb1 {
+        n            NB1
+        longname     "Here"
+        urbanization URBAN
+        refpoint     B00B00
+        polygon      {A80A80 B20A80 B00B20}
+    }
+
+    set nb1shia {
+        n              NB1
+        g              SHIA
+        local_name     "NB1 Shia"
+        demeanor       AGGRESSIVE
+        rollup_weight  1.0
+        effects_factor 1.0
+    }
+
+    set usaid {
+        g              USAID
+        longname       "US Aid"
+        color          #00ff00
+        orgtype        NGO
+        medical        no
+        engineer       no
+        support        yes
+        rollup_weight  1.0
+        effects_factor 1.1
+    }
+
     # Clean up after a test
 
     proc cleanup {} {
@@ -57,9 +94,20 @@ namespace eval ::athena_test::tests:: {
         rdb eval {
             DELETE FROM groups;
             DELETE FROM frcgroups;
+            DELETE FROM orggroups;
+            DELETE FROM nbhoods;
+            DELETE FROM nbgroups;
+            DELETE FROM sat_ngc;
+            DELETE FROM rel_nfg;
         }
 
         frcgroup reconfigure
+        civgroup reconfigure
+        orggroup reconfigure
+        nbgroup  reconfigure
+        nbhood   reconfigure
+        sat      reconfigure
+        rel      reconfigure
     }
 
     #-------------------------------------------------------------------
@@ -163,6 +211,24 @@ BLUE US Army  #0000ff REGULAR   0     1
         {::frcgroup <Entity> create BLUE}
     }
 
+    test CREATE-2.3 {Relationships are created} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:NBHOOD:CREATE $nb1shia
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted notifier bind ::rel <Entity>
+        ted order GROUP:FORCE:CREATE $blue
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rel <Entity> create {NB1 BLUE SHIA}}
+        {::rel <Entity> create {NB1 SHIA BLUE}}
+        {::rel <Entity> create {PLAYBOX BLUE BLUE}}
+        {::rel <Entity> create {PLAYBOX BLUE USAID}}
+        {::rel <Entity> create {PLAYBOX USAID BLUE}}
+    }
 
     test CREATE-3.1 {undo deletes the frcgroup} -setup {
         ted order GROUP:FORCE:CREATE $blue
@@ -177,6 +243,27 @@ g    longname
 ---- -------- 
 BLUE US Army  
     }
+
+    test CREATE-2.4 {Relationships are undone} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:NBHOOD:CREATE $nb1shia
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted notifier bind ::rel <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rel <Entity> delete {NB1 BLUE SHIA}}
+        {::rel <Entity> delete {NB1 SHIA BLUE}}
+        {::rel <Entity> delete {PLAYBOX BLUE BLUE}}
+        {::rel <Entity> delete {PLAYBOX BLUE USAID}}
+        {::rel <Entity> delete {PLAYBOX USAID BLUE}}
+    }
+
 
     #-------------------------------------------------------------------
     # GROUP:FORCE:DELETE
@@ -214,6 +301,28 @@ BLUE US Army
         {::frcgroup <Entity> delete BLUE}
     }
 
+    test DELETE-2.3 {Relationships are deleted} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:NBHOOD:CREATE $nb1shia
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted notifier bind ::rel <Entity>
+        ted order GROUP:FORCE:DELETE g BLUE
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rel <Entity> delete {NB1 BLUE SHIA}}
+        {::rel <Entity> delete {NB1 SHIA BLUE}}
+        {::rel <Entity> delete {PLAYBOX BLUE BLUE}}
+        {::rel <Entity> delete {PLAYBOX BLUE USAID}}
+        {::rel <Entity> delete {PLAYBOX USAID BLUE}}
+    }
+
+
+
     test DELETE-3.1 {Undo recreates group} -setup {
         ted order GROUP:FORCE:CREATE $blue
         ted order GROUP:FORCE:DELETE g BLUE
@@ -228,6 +337,34 @@ g    longname color   forcetype local coalition
 ---- -------- ------- --------- ----- --------- 
 BLUE US Army  #0000ff REGULAR   0     1         
     }
+
+
+    test DELETE-3.2 {Relationships are restored} -setup {
+        ted order NBHOOD:CREATE $nb1
+        ted order GROUP:CIVILIAN:CREATE $shia
+        ted order GROUP:NBHOOD:CREATE $nb1shia
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted order GROUP:FORCE:CREATE $blue
+        ted order GROUP:FORCE:DELETE g BLUE
+    } -body {
+        ted notifier bind ::rel <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rel <Entity> create {NB1 BLUE SHIA}}
+        {::rel <Entity> create {NB1 SHIA BLUE}}
+        {::rel <Entity> create {PLAYBOX BLUE BLUE}}
+        {::rel <Entity> create {PLAYBOX BLUE USAID}}
+        {::rel <Entity> create {PLAYBOX USAID BLUE}}
+        {::rel <Entity> update {NB1 BLUE SHIA}}
+        {::rel <Entity> update {NB1 SHIA BLUE}}
+        {::rel <Entity> update {PLAYBOX BLUE BLUE}}
+        {::rel <Entity> update {PLAYBOX BLUE USAID}}
+        {::rel <Entity> update {PLAYBOX USAID BLUE}}
+    }
+
 
     #-------------------------------------------------------------------
     # GROUP:FORCE:UPDATE

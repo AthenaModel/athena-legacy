@@ -52,14 +52,48 @@ namespace eval ::athena_test::tests:: {
         effects_factor 1.3
     }
 
-    # Neighborhoods.
+    # Neighborhood.
 
-    set nb1 {
+    ted order NBHOOD:CREATE {
         n            NB1
         longname     "Here"
         urbanization URBAN
         refpoint     B00B00
         polygon      {A80A80 B20A80 B00B20}
+    }
+
+    # Civ Groups
+
+    ted order GROUP:CIVILIAN:CREATE {
+        g            SHIA
+        longname     "Local Shias"
+        color        "#00ffff"
+    }
+
+    ted order GROUP:CIVILIAN:CREATE {
+        g            SUNN
+        longname     "Local Sunnis"
+        color        "#ffff00"
+    }
+
+    # Nbhood Group
+    ted order GROUP:NBHOOD:CREATE {
+        n              NB1
+        g              SHIA
+        local_name     "N1 Shias"
+        demeanor       AVERAGE
+        rollup_weight  1.0
+        effects_factor 1.1
+    }
+
+    # Force Group
+    ted order GROUP:FORCE:CREATE {
+        g         BLUE
+        longname  "US Army"
+        color     #0000ff
+        forcetype REGULAR
+        local     no
+        coalition yes
     }
 
     # Clean up after a test
@@ -71,15 +105,14 @@ namespace eval ::athena_test::tests:: {
 
         # Delete all organization groups and reinitialize the module
         rdb eval {
-            DELETE FROM groups;
+            DELETE FROM groups WHERE gtype = 'ORG';
             DELETE FROM orggroups;
-            DELETE FROM nbhoods;
-            DELETE FROM sat_ngc;
         }
 
         nbhood   reconfigure
         orggroup reconfigure
-        sat      reconfigure
+        sat      mutate reconcile
+        rel      mutate reconcile
     }
 
     #-------------------------------------------------------------------
@@ -243,25 +276,7 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
     }
 
 
-    test CREATE-2.3 {ORG Sat curves are populated} -setup {
-        ted order NBHOOD:CREATE $nb1
-    } -body {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-        ted query {
-            SELECT * FROM sat_ngc
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-n   g     c   sat0 trend0 saliency 
---- ----- --- ---- ------ -------- 
-NB1 USAID CAS 0.0  0.0    1.0      
-    }
-
-
-    test CREATE-2.4 {<Entity> create n g c} -setup {
-        ted order NBHOOD:CREATE $nb1
-    } -body {
+    test CREATE-2.3 {Satisfaction curves are created} -body {
         ted notifier bind ::sat <Entity>
         ted order GROUP:ORGANIZATION:CREATE $usaid
         ted notifier received
@@ -270,6 +285,21 @@ NB1 USAID CAS 0.0  0.0    1.0
     } -result {
         {::sat <Entity> create {NB1 USAID CAS}}
     }
+
+    test CREATE-2.4 {Relationships are created} -body {
+        ted notifier bind ::rel <Entity>
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rel <Entity> create {NB1 USAID SHIA}}
+        {::rel <Entity> create {NB1 SHIA USAID}}
+        {::rel <Entity> create {PLAYBOX BLUE USAID}}
+        {::rel <Entity> create {PLAYBOX USAID BLUE}}
+        {::rel <Entity> create {PLAYBOX USAID USAID}}
+    }
+
 
     test CREATE-3.1 {undo deletes the orggroup} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
@@ -299,22 +329,7 @@ USAID US Aid
     }
 
 
-    test CREATE-3.3 {ORG Sat curves are undone} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        cif undo -test
-        ted query {
-            SELECT * FROM sat_ngc
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-    }
-
-
-    test CREATE-3.4 {<Entity> delete n g c} -setup {
-        ted order NBHOOD:CREATE $nb1
+    test CREATE-3.3 {Satisfaction curves are undone} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted notifier bind ::sat <Entity>
@@ -324,6 +339,23 @@ USAID US Aid
         cleanup
     } -result {
         {::sat <Entity> delete {NB1 USAID CAS}}
+    }
+
+
+    test CREATE-3.4 {Relationships are undone} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted notifier bind ::rel <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rel <Entity> delete {NB1 USAID SHIA}}
+        {::rel <Entity> delete {NB1 SHIA USAID}}
+        {::rel <Entity> delete {PLAYBOX BLUE USAID}}
+        {::rel <Entity> delete {PLAYBOX USAID BLUE}}
+        {::rel <Entity> delete {PLAYBOX USAID USAID}}
     }
 
     #-------------------------------------------------------------------
@@ -365,6 +397,33 @@ USAID US Aid
         {::orggroup <Entity> delete USAID}
     }
 
+    test DELETE-2.3 {Satisfaction curves are deleted} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted notifier bind ::sat <Entity>
+        ted order GROUP:ORGANIZATION:DELETE g USAID
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> delete {NB1 USAID CAS}}
+    }
+
+    test DELETE-2.4 {Relationships are created} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted notifier bind ::rel <Entity>
+        ted order GROUP:ORGANIZATION:DELETE g USAID
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rel <Entity> delete {NB1 USAID SHIA}}
+        {::rel <Entity> delete {NB1 SHIA USAID}}
+        {::rel <Entity> delete {PLAYBOX BLUE USAID}}
+        {::rel <Entity> delete {PLAYBOX USAID BLUE}}
+        {::rel <Entity> delete {PLAYBOX USAID USAID}}
+    }
 
     test DELETE-3.1 {Undo recreates the org group} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
@@ -396,31 +455,8 @@ USAID US Aid   #00ff00 NGO     0       0        1       1.0           1.1
     }
 
 
-    test DELETE-3.3 {ORG sats are restored} -setup {
-        ted order NBHOOD:CREATE $nb1
+    test DELETE-3.3 {Sat curves are restored} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
-        ted order SATISFACTION:UPDATE n NB1 g USAID c CAS \
-            sat0 1.0 trend0 2.0 saliency 0.5
-
-        ted order GROUP:ORGANIZATION:DELETE g USAID
-    } -body {
-        cif undo -test
-        ted query {SELECT * FROM sat_ngc}
-    } -cleanup {
-        cleanup
-    } -result {
-n   g     c   sat0 trend0 saliency 
---- ----- --- ---- ------ -------- 
-NB1 USAID CAS 1.0  2.0    0.5      
-    }
-
-
-    test DELETE-3.3 {sat <Entity> notices on undo} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-        ted order SATISFACTION:UPDATE n NB1 g USAID c CAS \
-            sat0 1.0 trend0 2.0 saliency 0.5
-
         ted order GROUP:ORGANIZATION:DELETE g USAID
     } -body {
         ted notifier bind ::sat <Entity>
@@ -432,6 +468,30 @@ NB1 USAID CAS 1.0  2.0    0.5
         {::sat <Entity> create {NB1 USAID CAS}}
         {::sat <Entity> update {NB1 USAID CAS}}
     }
+
+
+    test DELETE-3.4 {Relationships are restored} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted order GROUP:ORGANIZATION:DELETE g USAID
+    } -body {
+        ted notifier bind ::rel <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rel <Entity> create {NB1 USAID SHIA}}
+        {::rel <Entity> create {NB1 SHIA USAID}}
+        {::rel <Entity> create {PLAYBOX BLUE USAID}}
+        {::rel <Entity> create {PLAYBOX USAID BLUE}}
+        {::rel <Entity> create {PLAYBOX USAID USAID}}
+        {::rel <Entity> update {NB1 USAID SHIA}}
+        {::rel <Entity> update {NB1 SHIA USAID}}
+        {::rel <Entity> update {PLAYBOX BLUE USAID}}
+        {::rel <Entity> update {PLAYBOX USAID BLUE}}
+        {::rel <Entity> update {PLAYBOX USAID USAID}}
+    }
+
 
     #-------------------------------------------------------------------
     # GROUP:ORGANIZATION:UPDATE
@@ -887,6 +947,7 @@ HAL   Haliburton #ffff00 ORG   CTR     0       1        0       1.2           1.
     # Cleanup
 
     cleanupTests
+    scenario new
 }
 
 namespace delete ::athena_test::tests::
