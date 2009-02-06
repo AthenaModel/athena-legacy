@@ -135,10 +135,7 @@ snit::type nbgroup {
 
     typemethod {mutate delete} {n g} {
         # FIRST, get the undo information
-        rdb eval {
-            SELECT * FROM nbgroups
-            WHERE n=$n AND g=$g
-        } undoData {
+        rdb eval {SELECT * FROM nbgroups WHERE n=$n AND g=$g} undoData {
             unset undoData(*)
         }
 
@@ -151,9 +148,21 @@ snit::type nbgroup {
         notifier send ::nbgroup <Entity> delete [list $n $g]
 
         # NEXT, Return the undo script
-        return [mytypemethod mutate create [array get undoData]]
+        return [mytypemethod Restore [array get undoData]]
     }
 
+    # Restore parmdict
+    #
+    # parmdict     row dict for deleted entity
+    #
+    # Restores the entity in the database
+
+    typemethod Restore {parmdict} {
+        rdb insert nbgroups $parmdict
+        dict with parmdict {
+            notifier send ::nbgroup <Entity> create [list $n $g]
+        }
+    }
 
     # mutate update parmdict
     #

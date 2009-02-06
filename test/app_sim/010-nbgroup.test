@@ -1,0 +1,401 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-nbgroup.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    nbgroup(sim) tests.
+#
+#    This test suite tests the nbgroup(sim) mutators and queries
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        array unset parms
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # mutate create
+
+    test create-1.1 {nbgroup is created} -body {
+        nbgroup mutate create [ted entity NB1SHIA]
+        ted query {SELECT * FROM nbgroups}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    local_name demeanor rollup_weight effects_factor 
+--- ---- ---------- -------- ------------- -------------- 
+NB1 SHIA NB1 Shias  AVERAGE  1.0           1.1            
+    }
+
+
+    test create-1.2 {<Entity> create} -body {
+        ted notifier bind ::nbgroup <Entity>
+        nbgroup mutate create [ted entity NB1SHIA]
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbgroup <Entity> create {NB1 SHIA}}
+    }
+
+
+    test create-2.1 {undo deletes the nbgroup} -setup {
+        nbgroup mutate create [ted entity NB1SHIA]
+        set undo [nbgroup mutate create [ted entity NB1SUNN]]
+    } -body {
+        {*}$undo
+        rdb eval {SELECT n,g FROM nbgroups}
+    } -cleanup {
+        cleanup
+    } -result {NB1 SHIA}
+
+
+    test create-2.2 {On undo, <Entity> delete} -setup {
+        set undo [nbgroup mutate create [ted entity NB1SHIA]]
+    } -body {
+        ted notifier bind ::nbgroup <Entity>
+        {*}$undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbgroup <Entity> delete {NB1 SHIA}}
+    }
+
+    #-------------------------------------------------------------------
+    # mutate delete
+
+    test delete-1.1 {Group is deleted} -setup {
+        ted create NB1SHIA NB1SUNN
+    } -body {
+        nbgroup mutate delete NB1 SHIA
+
+        # Is NB1SHIA gone?
+        rdb eval {SELECT n,g FROM nbgroups}
+    } -cleanup {
+        cleanup
+    } -result {NB1 SUNN}
+
+
+    test delete-1.2 {<Entity> delete} -setup {
+        ted create NB1SHIA
+    } -body {
+        ted notifier bind ::nbgroup <Entity>
+        nbgroup mutate delete NB1 SHIA
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbgroup <Entity> delete {NB1 SHIA}}
+    }
+
+
+    test delete-2.1 {Undo restores group} -setup {
+        ted create NB1SHIA
+        set undo [nbgroup mutate delete NB1 SHIA]
+    } -body {
+        {*}$undo
+        ted query {SELECT * FROM nbgroups}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    local_name demeanor rollup_weight effects_factor 
+--- ---- ---------- -------- ------------- -------------- 
+NB1 SHIA NB1 Shias  AVERAGE  1.0           1.1            
+    }
+
+
+    test delete-2.2 {On undo, <Entity> create} -setup {
+        ted create NB1SHIA
+        set undo [nbgroup mutate delete NB1 SHIA]
+    } -body {
+        ted notifier bind ::nbgroup <Entity>
+        {*}$undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbgroup <Entity> create {NB1 SHIA}}
+    }
+
+    #-------------------------------------------------------------------
+    # mutate update
+
+
+    test update-1.1 {nbgroup is updated} -setup {
+        ted create NB1SHIA
+    } -body {
+        nbgroup mutate update {
+            n              NB1
+            g              SHIA
+            local_name     "John Doe"
+            demeanor       APATHETIC
+            rollup_weight  0.1
+            effects_factor 0.2
+        }
+
+        ted query {SELECT * FROM nbgroups}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    local_name demeanor  rollup_weight effects_factor 
+--- ---- ---------- --------- ------------- -------------- 
+NB1 SHIA John Doe   APATHETIC 0.1           0.2            
+    }
+
+
+    test update-1.2 {identical values are OK} -setup {
+        ted create NB1SHIA
+    } -body {
+        set a [ted query {SELECT * FROM nbgroups}]
+
+        nbgroup mutate update [ted entity NB1SHIA]
+
+        set b [ted query {SELECT * FROM nbgroups}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-1.3 {empty values are OK} -setup {
+        ted create NB1SHIA
+    } -body {
+        set a [ted query {SELECT * FROM nbgroups}]
+
+        nbgroup mutate update  {
+            n              NB1
+            g              SHIA
+            local_name     ""
+            demeanor       ""
+            rollup_weight  ""
+            effects_factor ""
+        }
+
+        set b [ted query {SELECT * FROM nbgroups}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-1.4 {<Entity> update} -setup {
+        ted create NB1SHIA
+    } -body {
+        ted notifier bind ::nbgroup <Entity>
+        nbgroup mutate update  {
+            n              NB1
+            g              SHIA
+            local_name     ""
+            demeanor       ""
+            rollup_weight  ""
+            effects_factor ""
+        }
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbgroup <Entity> update {NB1 SHIA}}
+    }
+
+
+    test update-2.1 {undo undoes the change} -setup {
+        ted create NB1SHIA
+    } -body {
+
+        set a [ted query {SELECT * FROM nbgroups}]
+
+        set undo [nbgroup mutate update {
+            n              NB1
+            g              SHIA
+            local_name     "John Doe"
+            demeanor       APATHETIC
+            rollup_weight  0.1
+            effects_factor 0.2
+        }]
+
+        {*}$undo
+
+        set b [ted query {SELECT * FROM nbgroups}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test update-2.2 {undo sends <Entity> update} -setup {
+        ted create NB1SHIA
+    } -body {
+        set undo [nbgroup mutate update {
+            n              NB1
+            g              SHIA
+            local_name     ""
+            demeanor       ""
+            rollup_weight  ""
+            effects_factor ""
+        }]
+
+        ted notifier bind ::nbgroup <Entity>
+        {*}$undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbgroup <Entity> update {NB1 SHIA}}
+    }
+
+    #-------------------------------------------------------------------
+    # mutate reconcile
+
+    test reconcile-1.1 {valid groups remain} -setup {
+        ted create NB1 SHIA NB1SHIA
+    } -body {
+        nbgroup mutate reconcile
+        rdb eval {SELECT n,g FROM nbgroups}
+    } -cleanup {
+        cleanup
+    } -result {NB1 SHIA}
+
+
+    test reconcile-1.2 {group deleted when nbhood is gone} -setup {
+        ted create SHIA NB1SHIA 
+    } -body {
+        nbgroup mutate reconcile
+        rdb eval {SELECT n,g FROM nbgroups}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test reconcile-1.3 {group deleted when civgroup is gone} -setup {
+        ted create NB1 NB1SHIA 
+    } -body {
+        nbgroup mutate reconcile
+        rdb eval {SELECT n,g FROM nbgroups}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test reconcile-2.1 {groups restored on undo} -setup {
+        ted create NB1SHIA NB2SUNN
+    } -body {
+        set undo [nbgroup mutate reconcile]
+        eval $undo
+        rdb eval {SELECT n,g FROM nbgroups}
+    } -cleanup {
+        cleanup
+    } -result {NB1 SHIA NB2 SUNN}
+
+    #-------------------------------------------------------------------
+    # exists
+
+    test exists-1.1 {nbgroup does not exist} -body {
+        nbgroup exists NONE SUCH
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test exists-1.2 {nbgroup exists} -setup {
+        ted create NB1SHIA
+    } -body {
+        nbgroup exists NB1 SHIA
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # validate
+
+    test validate-1.1 {Invalid group: invalid nbhood} -body {
+        nbgroup validate {NONE SUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, none are defined}
+
+    test validate-1.2 {Invalid group: invalid civgroup} -setup {
+        ted create NB1
+    } -body {
+        nbgroup validate {NB1 NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid civilian group, none are defined}
+
+    test validate-1.3 {Invalid group: no such group} -setup {
+        ted create NB1 SHIA
+    } -body {
+        nbgroup validate {NB1 SHIA}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Group SHIA does not reside in neighborhood NB1}
+
+    test validate-1.4 {Invalid group: some defined} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA
+    } -body {
+        nbgroup validate {NB1 SUNN}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Group SUNN does not reside in neighborhood NB1}
+
+    test validate-2.1 {Valid group} -setup {
+        ted create NB1 SHIA NB1SHIA
+    } -body {
+        nbgroup validate {NB1 SHIA}
+    } -cleanup {
+        cleanup
+    } -result {NB1 SHIA}
+
+
+    #-------------------------------------------------------------------
+    # reconfigure
+
+    test reconfigure-1.1 {can be called} -body {
+        # This is currently a no-op
+        nbgroup reconfigure
+    } -result {}
+    
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

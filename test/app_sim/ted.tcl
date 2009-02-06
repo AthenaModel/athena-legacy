@@ -156,13 +156,31 @@ snit::type ted {
             effects_factor 1.1
         }
 
-        defentity NB1SUNN :nbgroup {
+        defentity NB1SUNN ::nbgroup {
             n              NB1
             g              SUNN
             local_name     "NB1 Sunnis"
             demeanor       AGGRESSIVE
             rollup_weight  1.2
             effects_factor 1.3
+        }
+
+        defentity NB2SHIA ::nbgroup {
+            n              NB2
+            g              SHIA
+            local_name     "NB2 Shias"
+            demeanor       AVERAGE
+            rollup_weight  2.0
+            effects_factor 2.1
+        }
+
+        defentity NB2SUNN ::nbgroup {
+            n              NB2
+            g              SUNN
+            local_name     "NB2 Sunnis"
+            demeanor       AGGRESSIVE
+            rollup_weight  2.2
+            effects_factor 2.3
         }
 
         # Force Groups
