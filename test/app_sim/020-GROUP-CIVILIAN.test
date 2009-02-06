@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-order-GROUP-CIVILIAN.test
+#    020-GROUP-CIVILIAN.test
 #
 # AUTHOR:
 #    Will Duquette
@@ -551,6 +551,7 @@ SUNN #ffffff
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

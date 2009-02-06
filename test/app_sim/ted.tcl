@@ -24,6 +24,35 @@ snit::type ted {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
+    # Lookup tables
+
+    # cleanupTables -- list of RDB tables that should be cleared after
+    # a test.
+
+    typevariable cleanupTables {
+        nbhoods
+        groups
+        nbgroups
+        frcgroups
+        orggroups
+        sat_ngc
+        rel_nfg
+    }
+
+    # cleanupModules -- list of modules that need to be reconfigured
+    # after a test.
+
+    typevariable cleanupModules {
+        nbhood
+        civgroup
+        nbgroup
+        frcgroup
+        orggroup
+        sat
+        rel
+    }
+
+    #-------------------------------------------------------------------
     # Type Constructor
 
     typeconstructor {
@@ -34,20 +63,230 @@ snit::type ted {
     #-------------------------------------------------------------------
     # Type Variables
 
+    # Entities ted knows how to create.  The key is the entry ID; the
+    # value is a pair, module name and creation dict.
+
+    typevariable entities -array { }
+
     # List of notifier events received since last "ted notifier forget".
     # Each event is "object event args..."
 
     typevariable notifierResults {}
 
     #-------------------------------------------------------------------
-    # Client Interface
+    # Initialization
 
     # init
     #
-    # Initializes all TED-defined constraints. 
+    # Initializes all TED-defined data and constraints
 
     typemethod init {} {
-        # TBD: None yet.
+        DefineEntities
+
+        # No constraints yet
+
+        puts "Test Execution Deputy: Initialized"
+    }
+
+    # DefineEntities
+    #
+    # Defines the entities that can be created by TED
+
+    proc DefineEntities {} {
+
+        # Neighborhoods
+        defentity NB1 ::nbhood {
+            n            NB1
+            longname     "Here"
+            urbanization URBAN
+            refpoint     {100 100}
+            polygon      {80 80 120 80 100 120}
+        }
+
+        defentity OV1 ::nbhood {
+            n            OV1
+            longname     "Over Here"
+            urbanization SUBURBAN
+            refpoint     {101 101}
+            polygon      {81 81 121 81 101 121}
+        }
+
+        defentity NB2 ::nbhood {
+            n            NB2
+            longname     "There"
+            urbanization RURAL
+            refpoint     {300 300}
+            polygon      {280 280 320 280 300 320}
+        }
+
+        # Civ Groups
+        
+        defentity SHIA ::civgroup {
+            g        SHIA
+            longname "Shia"
+            color    "#c00001"
+        }
+
+        defentity SUNN ::civgroup {
+            g        SUNN
+            longname "Sunni"
+            color    "#c00002"
+        }
+
+        defentity KURD ::civgroup {
+            g        KURD
+            longname "Kurd"
+            color    "#c00003"
+        }
+
+        defentity PASH ::civgroup {
+            g        PASH
+            longname "Pashtuns"
+            color    "#c00004"
+        }
+
+        # Neighborhood Groups
+
+        defentity NB1SHIA ::nbgroup {
+            n              NB1
+            g              SHIA
+            local_name     "NB1 Shias"
+            demeanor       AVERAGE
+            rollup_weight  1.0
+            effects_factor 1.1
+        }
+
+        defentity NB1SUNN :nbgroup {
+            n              NB1
+            g              SUNN
+            local_name     "NB1 Sunnis"
+            demeanor       AGGRESSIVE
+            rollup_weight  1.2
+            effects_factor 1.3
+        }
+
+        # Force Groups
+
+        defentity BLUE ::frcgroup {
+            g         BLUE
+            longname  "US Army"
+            color     "#f00001"
+            forcetype REGULAR
+            local     no
+            coalition yes
+        }
+
+        defentity BRIT ::frcgroup {
+            g         BRIT
+            longname  "British Forces"
+            color     "#f00002"
+            forcetype REGULAR
+            local     no
+            coalition yes
+        }
+        
+        # Organization Groups
+
+        defentity USAID ::orggroup {
+            g              USAID
+            longname       "US Aid"
+            color          "#000001"
+            orgtype        NGO
+            medical        no
+            engineer       no
+            support        yes
+            rollup_weight  1.0
+            effects_factor 1.1
+        }
+
+        defentity HAL ::orggroup {
+            g              HAL
+            longname       "Haliburton"
+            color          "#000002"
+            orgtype        CTR
+            medical        no
+            engineer       yes
+            support        no
+            rollup_weight  1.2
+            effects_factor 1.3
+        }
+
+        
+    }
+
+    # defentity name module parmdict
+    #
+    # name      The entity name
+    # module    The module that creates it
+    # parmdict  The creation dictionary
+    #
+    # Adds the entity to the entities array
+
+    proc defentity {name module parmdict} {
+        set entities($name) [list $module $parmdict]
+    }
+
+    #-------------------------------------------------------------------
+    # Other Client Commands
+
+    # entity name ?dict?
+    # entity name ?key value ...?
+    #
+    # name    The name of a defined entity
+    #
+    # By default returns the entity's creation dictionary
+    # If additional creation parameters are given, as a single dictionary
+    # or as separate keys and values, they are merged with the creation
+    # dictionary and the result is returned.
+
+    typemethod entity {name args} {
+        # FIRST, entity's dict
+        set dict [lindex $entities($name) 1]
+
+        # NEXT, get the additional parameters, if any
+        if {[llength $args] == 1} {
+            set args [lindex $args 0]
+        }
+
+        if {[llength $args] > 0} {
+            set dict [dict merge $dict $args]
+        }
+
+        return $dict
+    }
+
+    # create name ?name....?
+    #
+    # name     The name of an entity
+    #
+    # Calls "$module mutate create" for each named entity.
+
+    typemethod create {args} {
+        foreach name $args {
+            lassign $entities($name) module parmdict
+
+            {*}$module mutate create $parmdict
+        }
+    }
+
+    # cleanup
+    #
+    # Cleans up after a test:
+    #
+    # * Forgets notifier binds
+    # * Deletes all records from the $cleanupTables
+    # * Reconfigures the $cleanupModules
+    
+    typemethod cleanup {} {
+        ted notifier forget
+
+        foreach table $cleanupTables {
+            rdb eval "DELETE FROM $table;" 
+        }
+
+        foreach module $cleanupModules {
+            {*}$module reconfigure
+        }
     }
 
     # sendex ?-error? command...
