@@ -148,7 +148,19 @@ snit::type civgroup {
         notifier send ::civgroup <Entity> delete $g
 
         # NEXT, return aggregate undo script.
-        return [mytypemethod mutate create [array get row]]
+        return [mytypemethod Restore [array get row]]
+    }
+
+
+    # Restore parmdict
+    #
+    # parmdict     row dict for deleted entity
+    #
+    # Restores the entity in the database
+
+    typemethod Restore {parmdict} {
+        rdb insert groups $parmdict
+        notifier send ::civgroup <Entity> create [dict get $parmdict g]
     }
 
 

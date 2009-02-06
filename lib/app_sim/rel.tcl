@@ -239,3 +239,79 @@ snit::type rel {
 }
 
 
+#-------------------------------------------------------------------
+# Orders: RELATIONSHIP:*
+
+# RELATIONSHIP:UPDATE
+#
+# Updates existing relationships
+
+# These are not yet ready for prime time
+if 0 {
+
+    order define ::rel RELATIONSHIP:UPDATE {
+        title "Update Relationships"
+        table rel_nfg
+        parms {
+            n              {ptype key       label "Neighborhood"  }
+            f              {ptype key       label "Of Group"      }
+            g              {ptype key       label "With Group"    }
+            rel            {ptype rel       label "Relationship0" }
+        }
+    } {
+        # FIRST, prepare the parameters
+        # TBD: or PLAYBOX!
+        prepare n        -toupper  -required -type nbhood
+        prepare f        -toupper  -required -type group
+        prepare g        -toupper  -required -type group
+
+        prepare rel      -toupper  -type TBD
+
+        returnOnError
+
+        # NEXT, do cross-validation
+        validate g {
+            rel validate [list $parms(n) $parms(f) $parms(g)]
+        }
+
+        returnOnError
+
+        # NEXT, modify the curve
+        setundo [$type mutate update [array get parms]]
+    }
+
+
+    # RELATIONSHIP:UPDATE:MULTI
+    #
+    # Updates multiple existing relationships
+
+    order define ::rel RELATIONSHIP:UPDATE:MULTI {
+        title "Update Multiple Relationships"
+        multi yes
+        table gui_rel_nfg
+        parms {
+            ids            {ptype ids       label "IDs"           }
+            rel            {ptype rel       label "Relationship"  }
+        }
+    } {
+        # FIRST, prepare the parameters
+        prepare ids      -toupper  -required -listof rel
+
+        prepare rel      -toupper  -type TBD
+
+        returnOnError
+
+
+        # NEXT, modify the curves
+        set undo [list]
+
+        foreach id $parms(ids) {
+            lassign $id parms(n) parms(f) parms(g)
+
+            lappend undo [$type mutate update [array get parms]]
+        }
+
+        setundo [join $undo \n]
+    }
+
+}

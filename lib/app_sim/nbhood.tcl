@@ -214,9 +214,7 @@ snit::type nbhood {
     typemethod {mutate delete} {n} {
         # FIRST, get this neighborhood's undo information
         rdb eval {
-            SELECT n, longname, refpoint, polygon, urbanization 
-            FROM nbhoods
-            WHERE n=$n
+            SELECT * FROM nbhoods WHERE n=$n
         } undoData {
             unset undoData(*)
         }
@@ -236,7 +234,25 @@ snit::type nbhood {
         notifier send ::nbhood <Entity> delete $n
 
         # NEXT, return aggregate undo script.
-        return [mytypemethod mutate create [array get undoData]]
+        return [mytypemethod RestoreNbhood [array get undoData]]
+    }
+
+    # RestoreNbhood parmdict
+    #
+    # parmdict     A complete nbhoods row, to be restored as is.
+    #
+    # Restores a row in the nbhoods table.
+
+    typemethod RestoreNbhood {parmdict} {
+        # FIRST, restore the database row
+        rdb insert nbhoods $parmdict
+
+        # NEXT, reconfigure: this will update the geoset and the stacking
+        # order.
+        $type reconfigure
+
+        # NEXT, notify the app.
+        notifier send ::nbhood <Entity> create [dict get $parmdict n]
     }
 
     # mutate lower n
@@ -302,12 +318,9 @@ snit::type nbhood {
             }
         }
 
-        # NEXT, refresh the geoset
+        # NEXT, refresh the geoset and set the "obscured_by" field
         $type reconfigure
         
-        # NEXT, determine who obscures who
-        $type SetObscuredBy
-
         # NEXT, notify the GUI of the change.
         notifier send ::nbhood <Entity> stack
 
