@@ -101,9 +101,12 @@ snit::type sat {
     typemethod {group validate} {g} {
         set groups [$type group names]
 
-        if {$g ni $groups} {
+        if {[llength $groups] == 0} {
             return -code error -errorcode INVALID \
-                "Invalid group, should be one of: [join $groups {, }]"
+                "Invalid satisfaction group, none are defined"
+        } elseif {$g ni $groups} {
+            return -code error -errorcode INVALID \
+                "Invalid satisfaction group, should be one of: [join $groups {, }]"
         }
 
         return $g
@@ -154,12 +157,8 @@ snit::type sat {
             dict set valid [list $n $g $c] 0
         }
 
-        # NEXT, Begin the undo script.  Any undo will begin by 
-        # calling this routine to create or delete curves; then,
-        # if curves were restored, there will be additional entries
-        # in the script to restore the old data values.
-
-        lappend undo [mytypemethod mutate reconcile]
+        # NEXT, Begin the undo script.
+        set undo [list]
 
         # NEXT, delete the ones that are no longer valid,
         # accumulating undo entries for them.  Also, note which ones
@@ -175,7 +174,7 @@ snit::type sat {
             if {[dict exists $valid $id]} {
                 dict incr valid $id
             } else {
-                lappend undo [mytypemethod mutate update [array get row]]
+                lappend undo [mytypemethod Restore [array get row]]
 
                 rdb eval {
                     DELETE FROM sat_ngc
@@ -199,12 +198,42 @@ snit::type sat {
                 VALUES($n,$g,$c)
             }
 
+            lappend undo [mytypemethod Delete $n $g $c]
+
             notifier send ::sat <Entity> create $id
         }
 
         # NEXT, return the undo script
         return [join $undo \n]
     }
+
+    # Restore parmdict
+    #
+    # parmdict     row dict for deleted entity
+    #
+    # Restores the entity in the database
+
+    typemethod Restore {parmdict} {
+        rdb insert sat_ngc $parmdict
+        dict with parmdict {
+            notifier send ::sat <Entity> create [list $n $g $c]
+        }
+    }
+
+    # Delete n g c
+    #
+    # n,g,c    The indices of the curve
+    #
+    # Deletes the curve.  Used only in undo scripts.
+    
+    typemethod Delete {n g c} {
+        rdb eval {
+            DELETE FROM sat_ngc WHERE n=$n AND g=$g AND c=$c
+        }
+
+        notifier send ::sat <Entity> delete [list $n $g $c]
+    }
+
 
     # mutate update parmdict
     #

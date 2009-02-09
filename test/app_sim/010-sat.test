@@ -1,0 +1,568 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-sat.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    sat(sim) tests.
+#
+#    This test suite tests the sat(sim) mutators and queries
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        array unset parms
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # mutate reconcile
+
+    # Adding curves: org
+    # Adding curves: nbgroup
+    # Undo deletes curves
+    # Valid curves remain
+    # Deleting curves: org, when nbhood deleted
+    # Deleting curves: org, when org deleted
+    # Deleting curves: civ, when nbgroup deleted
+    # Undo restores curves as they were.
+
+    test reconcile-1.1 {ORG curves are populated} -setup {
+        ted create NB1 NB2 USAID HAL
+    } -body {
+        sat mutate reconcile
+        ted query {SELECT * FROM sat_ngc}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g     c   sat0 trend0 saliency 
+--- ----- --- ---- ------ -------- 
+NB1 HAL   CAS 0.0  0.0    1.0      
+NB1 USAID CAS 0.0  0.0    1.0      
+NB2 HAL   CAS 0.0  0.0    1.0      
+NB2 USAID CAS 0.0  0.0    1.0      
+    }
+
+    test reconcile-1.2 {nbgroup curves are populated} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN
+    } -body {
+        sat mutate reconcile
+        ted query {SELECT * FROM sat_ngc}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    c   sat0 trend0 saliency 
+--- ---- --- ---- ------ -------- 
+NB1 SHIA AUT 0.0  0.0    1.0      
+NB1 SHIA CUL 0.0  0.0    1.0      
+NB1 SHIA QOL 0.0  0.0    1.0      
+NB1 SHIA SFT 0.0  0.0    1.0      
+NB1 SUNN AUT 0.0  0.0    1.0      
+NB1 SUNN CUL 0.0  0.0    1.0      
+NB1 SUNN QOL 0.0  0.0    1.0      
+NB1 SUNN SFT 0.0  0.0    1.0      
+    }
+
+    test reconcile-1.3 {<Entity> create} -setup {
+        ted create NB1 USAID SHIA NB1SHIA
+    } -body {
+        ted notifier bind ::sat <Entity>
+        sat mutate reconcile
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> create {NB1 SHIA AUT}}
+        {::sat <Entity> create {NB1 SHIA CUL}}
+        {::sat <Entity> create {NB1 SHIA QOL}}
+        {::sat <Entity> create {NB1 SHIA SFT}}
+        {::sat <Entity> create {NB1 USAID CAS}}
+    }
+
+
+    test reconcile-1.4 {Created curves are undone} -setup {
+        ted create NB1 USAID SHIA NB1SHIA
+        set undo [sat mutate reconcile]
+    } -body {
+        eval $undo
+        rdb query {SELECT * FROM sat_ngc}
+    } -cleanup {
+        cleanup
+    } -result {}
+    
+
+    test reconcile-1.5 {On undo: <Entity> delete} -setup {
+        ted create NB1 USAID SHIA NB1SHIA
+        set undo [sat mutate reconcile]
+    } -body {
+        ted notifier bind ::sat <Entity>
+        eval $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> delete {NB1 SHIA AUT}}
+        {::sat <Entity> delete {NB1 SHIA CUL}}
+        {::sat <Entity> delete {NB1 SHIA QOL}}
+        {::sat <Entity> delete {NB1 SHIA SFT}}
+        {::sat <Entity> delete {NB1 USAID CAS}}
+    }
+
+    
+    test reconcile-2.1 {ORG curves deleted with group} -setup {
+        ted create NB1 USAID HAL
+        sat mutate reconcile
+    } -body {
+        orggroup mutate delete USAID
+        sat mutate reconcile
+
+        # HAL curves are left
+        ted query {SELECT * FROM sat_ngc}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g   c   sat0 trend0 saliency 
+--- --- --- ---- ------ -------- 
+NB1 HAL CAS 0.0  0.0    1.0      
+    }
+
+
+    test reconcile-2.2 {ORG curves deleted with nbhood} -setup {
+        ted create NB1 NB2 USAID
+        sat mutate reconcile
+    } -body {
+        nbhood mutate delete NB1
+        sat mutate reconcile
+
+        # NB2 curves are left
+        ted query {SELECT * FROM sat_ngc}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g     c   sat0 trend0 saliency 
+--- ----- --- ---- ------ -------- 
+NB2 USAID CAS 0.0  0.0    1.0      
+    }
+
+
+    test reconcile-2.3 {CIV curves deleted with group} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN
+        sat mutate reconcile
+    } -body {
+        nbgroup mutate delete NB1 SHIA
+        sat mutate reconcile
+
+        # NB1 SUNN remains
+        ted query {SELECT * FROM sat_ngc}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    c   sat0 trend0 saliency 
+--- ---- --- ---- ------ -------- 
+NB1 SUNN AUT 0.0  0.0    1.0      
+NB1 SUNN CUL 0.0  0.0    1.0      
+NB1 SUNN QOL 0.0  0.0    1.0      
+NB1 SUNN SFT 0.0  0.0    1.0      
+    }
+
+
+    test reconcile-2.4 {<Entity> Delete} -setup {
+        ted create NB1 NB2 USAID SHIA NB1SHIA
+        sat mutate reconcile
+    } -body {
+        nbgroup mutate delete NB1 SHIA
+        orggroup mutate delete USAID
+
+        ted notifier bind ::sat <Entity>
+        sat mutate reconcile
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> delete {NB1 SHIA AUT}}
+        {::sat <Entity> delete {NB1 SHIA CUL}}
+        {::sat <Entity> delete {NB1 SHIA QOL}}
+        {::sat <Entity> delete {NB1 SHIA SFT}}
+        {::sat <Entity> delete {NB1 USAID CAS}}
+        {::sat <Entity> delete {NB2 USAID CAS}}
+    }
+
+
+    test reconcile-2.5 {On undo: deleted curves are restored} -setup {
+        # FIRST, create the groups and related curves
+        ted create NB1 NB2 USAID SHIA NB1SHIA
+        sat mutate reconcile
+
+        # NEXT, update one, so that we can see that it's restored
+        sat mutate update \
+            [list n NB1 g SHIA c AUT sat0 1.0 trend0 2.0 saliency 0.5]
+
+        # NEXT, delete the groups and related curves, and get the
+        # undo script.
+        nbgroup mutate delete NB1 SHIA
+        orggroup mutate delete USAID
+
+        set undo [sat mutate reconcile]
+    } -body {
+        eval $undo
+        ted query {SELECT * FROM sat_ngc}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g     c   sat0 trend0 saliency 
+--- ----- --- ---- ------ -------- 
+NB1 SHIA  AUT 1.0  2.0    0.5      
+NB1 SHIA  CUL 0.0  0.0    1.0      
+NB1 SHIA  QOL 0.0  0.0    1.0      
+NB1 SHIA  SFT 0.0  0.0    1.0      
+NB1 USAID CAS 0.0  0.0    1.0      
+NB2 USAID CAS 0.0  0.0    1.0      
+    }
+
+
+    test reconcile-2.6 {On undo: <Entity> create} -setup {
+        # FIRST, create the groups and related curves
+        ted create NB1 NB2 USAID SHIA NB1SHIA
+        sat mutate reconcile
+
+        # NEXT, delete the groups and related curves, and get the
+        # undo script.
+        nbgroup mutate delete NB1 SHIA
+        orggroup mutate delete USAID
+
+        set undo [sat mutate reconcile]
+    } -body {
+        ted notifier bind ::sat <Entity>
+        eval $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> create {NB1 SHIA AUT}}
+        {::sat <Entity> create {NB1 SHIA CUL}}
+        {::sat <Entity> create {NB1 SHIA QOL}}
+        {::sat <Entity> create {NB1 SHIA SFT}}
+        {::sat <Entity> create {NB1 USAID CAS}}
+        {::sat <Entity> create {NB2 USAID CAS}}
+    }
+
+
+    test reconcile-3.1 {Reconcile doesn't affect valid curves} -setup {
+        ted create NB1 USAID SHIA NB1SHIA
+        sat mutate reconcile
+    } -body {
+        ted notifier bind ::sat <Entity>
+        sat mutate reconcile
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    #-------------------------------------------------------------------
+    # mutate update
+
+
+    test update-1.1 {sat is updated} -setup {
+        ted create NB1SHIA
+        sat mutate reconcile
+    } -body {
+        sat mutate update {
+            n              NB1
+            g              SHIA
+            c              AUT
+            sat0           1.0
+            trend0         2.0
+            saliency       0.5
+        }
+
+        ted query {SELECT * FROM sat_ngc}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    c   sat0 trend0 saliency 
+--- ---- --- ---- ------ -------- 
+NB1 SHIA AUT 1.0  2.0    0.5      
+NB1 SHIA CUL 0.0  0.0    1.0      
+NB1 SHIA QOL 0.0  0.0    1.0      
+NB1 SHIA SFT 0.0  0.0    1.0      
+    }
+
+
+    test update-1.2 {identical values are OK} -setup {
+        ted create NB1SHIA
+        sat mutate reconcile
+        set parmdict {
+            n              NB1
+            g              SHIA
+            c              AUT
+            sat0           1.0
+            trend0         2.0
+            saliency       0.5
+        }
+
+        sat mutate update $parmdict
+    } -body {
+
+        set a [ted query {SELECT * FROM sat_ngc}]
+        
+        sat mutate update $parmdict
+
+        set b [ted query {SELECT * FROM sat_ngc}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-1.3 {empty values are OK} -setup {
+        ted create NB1SHIA
+        sat mutate reconcile
+    } -body {
+        set a [ted query {SELECT * FROM sat_ngc}]
+
+        sat mutate update  {
+            n              NB1
+            g              SHIA
+            c              SFT
+            sat0           ""
+            trend0         ""
+            saliency       ""
+        }
+
+        set b [ted query {SELECT * FROM sat_ngc}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-1.4 {<Entity> update} -setup {
+        ted create NB1SHIA
+        sat mutate reconcile
+    } -body {
+        ted notifier bind ::sat <Entity>
+        sat mutate update  {
+            n              NB1
+            g              SHIA
+            c              SFT
+            sat0           ""
+            trend0         ""
+            saliency       ""
+        }
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> update {NB1 SHIA SFT}}
+    }
+
+
+    test update-2.1 {undo undoes the change} -setup {
+        ted create NB1SHIA
+        sat mutate reconcile
+    } -body {
+
+        set a [ted query {SELECT * FROM sat_ngc}]
+
+        set undo [sat mutate update {
+            n              NB1
+            g              SHIA
+            c              SFT
+            sat0           1.0
+            trend0         2.0
+            saliency       0.5
+        }]
+
+        eval $undo
+
+        set b [ted query {SELECT * FROM sat_ngc}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test update-2.2 {undo sends <Entity> update} -setup {
+        ted create NB1SHIA
+        sat mutate reconcile
+    } -body {
+        set undo [sat mutate update {
+            n              NB1
+            g              SHIA
+            c              SFT
+            sat0           ""
+            trend0         ""
+            saliency       ""
+        }]
+
+        ted notifier bind ::sat <Entity>
+        eval $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> update {NB1 SHIA SFT}}
+    }
+
+    #-------------------------------------------------------------------
+    # exists
+
+    test exists-1.1 {sat does not exist} -body {
+        sat exists NONESUCH NONESUCH NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test exists-1.2 {sat exists} -setup {
+        ted create NB1SHIA
+        sat mutate reconcile
+    } -body {
+        sat exists NB1 SHIA SFT
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # validate
+
+    test validate-1.1 {invalid nbhood} -body {
+        sat validate {NONESUCH NONESUCH NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, none are defined}
+
+    test validate-1.2 {invalid civgroup} -setup {
+        ted create NB1
+    } -body {
+        sat validate {NB1 NONESUCH NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid satisfaction group, none are defined}
+
+    test validate-1.3 {Invalid concern} -setup {
+        ted create NB1 SHIA
+    } -body {
+        sat validate {NB1 SHIA NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {invalid value, "NONESUCH"}
+
+    test validate-1.4 {Invalid curve} -setup {
+        ted create NB1 SHIA
+    } -body {
+        sat validate {NB1 SHIA SFT}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Satisfaction is not tracked for group SHIA's SFT in NB1.}
+
+    test validate-2.1 {Valid group} -setup {
+        ted create NB1 SHIA NB1SHIA
+        sat mutate reconcile
+    } -body {
+        sat validate {NB1 SHIA SFT}
+    } -cleanup {
+        cleanup
+    } -result {NB1 SHIA SFT}
+
+    
+    #-------------------------------------------------------------------
+    # group validate
+
+    test group_validate-1.1 {invalid satisfaction group, none defined} -body {
+        sat group validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid satisfaction group, none are defined}
+
+    test group_validate-1.2 {invalid satisfaction group, some defined} -setup {
+        ted create SHIA USAID
+    } -body {
+        sat group validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid satisfaction group, should be one of: SHIA, USAID}
+
+    test group_validate-2.1 {valid satisfaction group} -setup {
+        ted create SHIA USAID
+    } -body {
+        sat group validate USAID
+    } -cleanup {
+        cleanup
+    } -result {USAID}
+
+
+    #-------------------------------------------------------------------
+    # group names
+
+    test group_names-1.1 {none defined} -body {
+        sat group names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test group_names-1.2 {some defined} -setup {
+        ted create SHIA USAID
+    } -body {
+        sat group names
+    } -cleanup {
+        cleanup
+    } -result {SHIA USAID}
+
+
+    #-------------------------------------------------------------------
+    # reconfigure
+
+    test reconfigure-1.1 {can be called} -body {
+        # This is currently a no-op
+        sat reconfigure
+    } -result {}
+    
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
