@@ -57,7 +57,7 @@ snit::type rel {
     #-------------------------------------------------------------------
     # Queries
 
-    # nfg validate id
+    # validate id
     #
     # id     An nfg relationship ID, [list $n $f $g]
     #
@@ -71,12 +71,12 @@ snit::type rel {
             set n [nbhood validate $n]
         }
 
-        set f [groups validate $f]
-        set g [groups validate $g]
+        set f [group validate $f]
+        set g [group validate $g]
 
         if {![$type exists $n $f $g]} {
             return -code error -errorcode INVALID \
-               "Relationship is not tracked for groups $f and $g in $n."
+               "Relationship is not tracked for $f with $g in $n."
         }
 
         return [list $n $f $g]
@@ -137,12 +137,8 @@ snit::type rel {
             dict set valid [list $n $g $f] 0
         }
 
-        # NEXT, Begin the undo script.  Any undo will begin by 
-        # calling this routine to create or delete relationships; then,
-        # if relationships were restored, there will be additional entries
-        # in the script to restore the old data values.
-
-        lappend undo [mytypemethod mutate reconcile]
+        # NEXT, Begin the undo script.
+        set undo [list]
 
         # NEXT, delete the ones that are no longer valid,
         # accumulating undo entries for them.  Also, note which ones
@@ -158,7 +154,7 @@ snit::type rel {
             if {[dict exists $valid $id]} {
                 dict incr valid $id
             } else {
-                lappend undo [mytypemethod mutate update [array get row]]
+                lappend undo [mytypemethod Restore [array get row]]
 
                 rdb eval {
                     DELETE FROM rel_nfg
@@ -192,12 +188,44 @@ snit::type rel {
                 }
             }
 
+            lappend undo [mytypemethod Delete $n $f $g]
+
             notifier send ::rel <Entity> create $id
         }
 
         # NEXT, return the undo script
         return [join $undo \n]
     }
+
+
+    # Restore parmdict
+    #
+    # parmdict     row dict for deleted entity
+    #
+    # Restores the entity in the database
+
+    typemethod Restore {parmdict} {
+        rdb insert rel_nfg $parmdict
+        dict with parmdict {
+            notifier send ::rel <Entity> create [list $n $f $g]
+        }
+    }
+
+
+    # Delete n f g
+    #
+    # n,f,g    The indices of the entity
+    #
+    # Deletes the entity.  Used only in undo scripts.
+    
+    typemethod Delete {n f g} {
+        rdb eval {
+            DELETE FROM rel_nfg WHERE n=$n AND f=$f AND g=$g
+        }
+
+        notifier send ::rel <Entity> delete [list $n $f $g]
+    }
+
 
     # mutate update parmdict
     #

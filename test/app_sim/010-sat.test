@@ -37,15 +37,6 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # mutate reconcile
 
-    # Adding curves: org
-    # Adding curves: nbgroup
-    # Undo deletes curves
-    # Valid curves remain
-    # Deleting curves: org, when nbhood deleted
-    # Deleting curves: org, when org deleted
-    # Deleting curves: civ, when nbgroup deleted
-    # Undo restores curves as they were.
-
     test reconcile-1.1 {ORG curves are populated} -setup {
         ted create NB1 NB2 USAID HAL
     } -body {
