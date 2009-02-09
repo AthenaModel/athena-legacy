@@ -46,68 +46,12 @@ namespace eval ::athena_test::tests:: {
         coalition yes
     }
 
-    # Other entities
-
-    set shia {
-        g         SHIA
-        longname  "Shia Locals"
-        color     #ffff00
-    }
-
-    set nb1 {
-        n            NB1
-        longname     "Here"
-        urbanization URBAN
-        refpoint     B00B00
-        polygon      {A80A80 B20A80 B00B20}
-    }
-
-    set nb1shia {
-        n              NB1
-        g              SHIA
-        local_name     "NB1 Shia"
-        demeanor       AGGRESSIVE
-        rollup_weight  1.0
-        effects_factor 1.0
-    }
-
-    set usaid {
-        g              USAID
-        longname       "US Aid"
-        color          #00ff00
-        orgtype        NGO
-        medical        no
-        engineer       no
-        support        yes
-        rollup_weight  1.0
-        effects_factor 1.1
-    }
 
     # Clean up after a test
 
     proc cleanup {} {
         # Clean up the test environment
-        array unset parms
-        ted notifier forget
-
-        # Delete all force groups and reinitialize the module
-        rdb eval {
-            DELETE FROM groups;
-            DELETE FROM frcgroups;
-            DELETE FROM orggroups;
-            DELETE FROM nbhoods;
-            DELETE FROM nbgroups;
-            DELETE FROM sat_ngc;
-            DELETE FROM rel_nfg;
-        }
-
-        frcgroup reconfigure
-        civgroup reconfigure
-        orggroup reconfigure
-        nbgroup  reconfigure
-        nbhood   reconfigure
-        sat      reconfigure
-        rel      reconfigure
+        ted cleanup
     }
 
     #-------------------------------------------------------------------
@@ -189,79 +133,45 @@ namespace eval ::athena_test::tests:: {
         coalition {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
+
     test CREATE-2.1 {frcgroup is created} -body {
         ted order GROUP:FORCE:CREATE $blue
-        set parms [join [dict keys $blue] ","]
-        ted query "SELECT $parms FROM frcgroups_view"
+
+        ted query {SELECT * FROM frcgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname color   forcetype local coalition 
----- -------- ------- --------- ----- --------- 
-BLUE US Army  #0000ff REGULAR   0     1         
+g    longname color   gtype forcetype local coalition 
+---- -------- ------- ----- --------- ----- --------- 
+BLUE US Army  #0000ff FRC   REGULAR   0     1         
     }
 
-    test CREATE-2.2 {<Entity> create} -body {
+
+    test CREATE-2.2 {Effects} -body {
         ted notifier bind ::frcgroup <Entity>
+        ted notifier bind ::rel      <Entity>
         ted order GROUP:FORCE:CREATE $blue
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::frcgroup <Entity> create BLUE}
-    }
-
-    test CREATE-2.3 {Relationships are created} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order GROUP:CIVILIAN:CREATE $shia
-        ted order GROUP:NBHOOD:CREATE $nb1shia
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        ted notifier bind ::rel <Entity>
-        ted order GROUP:FORCE:CREATE $blue
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rel <Entity> create {NB1 BLUE SHIA}}
-        {::rel <Entity> create {NB1 SHIA BLUE}}
         {::rel <Entity> create {PLAYBOX BLUE BLUE}}
-        {::rel <Entity> create {PLAYBOX BLUE USAID}}
-        {::rel <Entity> create {PLAYBOX USAID BLUE}}
     }
 
-    test CREATE-3.1 {undo deletes the frcgroup} -setup {
-        ted order GROUP:FORCE:CREATE $blue
-        ted order GROUP:FORCE:CREATE $brit
-    } -body {
-        cif undo
-        ted query "SELECT g,longname FROM frcgroups_view"
-    } -cleanup {
-        cleanup
-    } -result {
-g    longname 
----- -------- 
-BLUE US Army  
-    }
 
-    test CREATE-2.4 {Relationships are undone} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order GROUP:CIVILIAN:CREATE $shia
-        ted order GROUP:NBHOOD:CREATE $nb1shia
-        ted order GROUP:ORGANIZATION:CREATE $usaid
+    test CREATE-3.1 {undo effects} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
-        ted notifier bind ::rel <Entity>
+        ted notifier bind ::frcgroup <Entity>
+        ted notifier bind ::rel      <Entity>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rel <Entity> delete {NB1 BLUE SHIA}}
-        {::rel <Entity> delete {NB1 SHIA BLUE}}
+        {::frcgroup <Entity> delete BLUE}
         {::rel <Entity> delete {PLAYBOX BLUE BLUE}}
-        {::rel <Entity> delete {PLAYBOX BLUE USAID}}
-        {::rel <Entity> delete {PLAYBOX USAID BLUE}}
     }
 
 
@@ -273,6 +183,7 @@ BLUE US Army
     } -result {
         g {required value}
     }
+
     
     test DELETE-1.2 {unknown g} -body {
         ted order -reject GROUP:FORCE:DELETE g NONESUCH
@@ -280,89 +191,35 @@ BLUE US Army
         g {Invalid force group, none are defined}
     }
 
-    test DELETE-2.1 {Group is deleted} -setup {
-        ted order GROUP:FORCE:CREATE $blue
-    } -body {
-        ted order GROUP:FORCE:DELETE g BLUE
-        frcgroup names
-    } -cleanup {
-        cleanup
-    } -result {}
 
-    test DELETE-2.2 {<Entity> delete} -setup {
+    test DELETE-2.1 {Effects} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted notifier bind ::frcgroup <Entity>
+        ted notifier bind ::rel      <Entity>
         ted order GROUP:FORCE:DELETE g BLUE
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::frcgroup <Entity> delete BLUE}
-    }
-
-    test DELETE-2.3 {Relationships are deleted} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order GROUP:CIVILIAN:CREATE $shia
-        ted order GROUP:NBHOOD:CREATE $nb1shia
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-        ted order GROUP:FORCE:CREATE $blue
-    } -body {
-        ted notifier bind ::rel <Entity>
-        ted order GROUP:FORCE:DELETE g BLUE
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rel <Entity> delete {NB1 BLUE SHIA}}
-        {::rel <Entity> delete {NB1 SHIA BLUE}}
         {::rel <Entity> delete {PLAYBOX BLUE BLUE}}
-        {::rel <Entity> delete {PLAYBOX BLUE USAID}}
-        {::rel <Entity> delete {PLAYBOX USAID BLUE}}
     }
 
 
-
-    test DELETE-3.1 {Undo recreates group} -setup {
+    test DELETE-3.1 {Undo effects} -setup {
         ted order GROUP:FORCE:CREATE $blue
         ted order GROUP:FORCE:DELETE g BLUE
     } -body {
-        cif undo
-        set parms [join [dict keys $blue] ","]
-        ted query "SELECT $parms FROM frcgroups_view"
-    } -cleanup {
-        cleanup
-    } -result {
-g    longname color   forcetype local coalition 
----- -------- ------- --------- ----- --------- 
-BLUE US Army  #0000ff REGULAR   0     1         
-    }
-
-
-    test DELETE-3.2 {Relationships are restored} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order GROUP:CIVILIAN:CREATE $shia
-        ted order GROUP:NBHOOD:CREATE $nb1shia
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-        ted order GROUP:FORCE:CREATE $blue
-        ted order GROUP:FORCE:DELETE g BLUE
-    } -body {
-        ted notifier bind ::rel <Entity>
+        ted notifier bind ::frcgroup <Entity>
+        ted notifier bind ::rel      <Entity>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rel <Entity> create {NB1 BLUE SHIA}}
-        {::rel <Entity> create {NB1 SHIA BLUE}}
+        {::frcgroup <Entity> create BLUE}
         {::rel <Entity> create {PLAYBOX BLUE BLUE}}
-        {::rel <Entity> create {PLAYBOX BLUE USAID}}
-        {::rel <Entity> create {PLAYBOX USAID BLUE}}
-        {::rel <Entity> update {NB1 BLUE SHIA}}
-        {::rel <Entity> update {NB1 SHIA BLUE}}
-        {::rel <Entity> update {PLAYBOX BLUE BLUE}}
-        {::rel <Entity> update {PLAYBOX BLUE USAID}}
-        {::rel <Entity> update {PLAYBOX USAID BLUE}}
     }
 
 
@@ -450,15 +307,15 @@ BLUE US Army  #0000ff REGULAR   0     1
             coalition    no
         }
 
-        set parms [join [dict keys $blue] ","]
-        ted query "SELECT $parms FROM frcgroups_view"
+        ted query {SELECT * FROM frcgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   forcetype local coalition 
----- ----------- ------- --------- ----- --------- 
-BLUE Blue Angels #ff0000 POLICE    1     0         
+g    longname    color   gtype forcetype local coalition 
+---- ----------- ------- ----- --------- ----- --------- 
+BLUE Blue Angels #ff0000 FRC   POLICE    1     0         
     }
+
 
     test UPDATE-2.2 {<Entity> update} -setup {
         ted order GROUP:FORCE:CREATE $blue
@@ -472,20 +329,6 @@ BLUE Blue Angels #ff0000 POLICE    1     0
         {::frcgroup <Entity> update BLUE}
     }
 
-    test UPDATE-2.3 {identical values are OK} -setup {
-        ted order GROUP:FORCE:CREATE $blue
-    } -body {
-        ted order GROUP:FORCE:UPDATE $blue 
-
-        set parms [join [dict keys $blue] ","]
-        ted query "SELECT $parms FROM frcgroups_view"
-    } -cleanup {
-        cleanup
-    } -result {
-g    longname color   forcetype local coalition 
----- -------- ------- --------- ----- --------- 
-BLUE US Army  #0000ff REGULAR   0     1         
-    }
 
     test UPDATE-3.1 {undo undoes the change} -setup {
         ted order GROUP:FORCE:CREATE $blue
@@ -498,15 +341,13 @@ BLUE US Army  #0000ff REGULAR   0     1
             coalition    no
         }
     } -body {
-        cif undo
-        set parms [join [dict keys $blue] ","]
-        ted query "SELECT $parms FROM frcgroups_view"
+        ted notifier bind ::frcgroup <Entity>
+        cif undo -test
+        ted notifier received
     } -cleanup {
         cleanup
     } -result {
-g    longname color   forcetype local coalition 
----- -------- ------- --------- ----- --------- 
-BLUE US Army  #0000ff REGULAR   0     1         
+        {::frcgroup <Entity> update BLUE}
     }
 
     #-------------------------------------------------------------------
@@ -584,6 +425,8 @@ BLUE US Army  #0000ff REGULAR   0     1
         ted order GROUP:FORCE:CREATE $blue
         ted order GROUP:FORCE:CREATE $brit
     } -body {
+        ted notifier bind ::frcgroup <Entity>
+
         ted order GROUP:FORCE:UPDATE:MULTI {
             ids       BLUE 
             color     "#ff0000"
@@ -592,14 +435,11 @@ BLUE US Army  #0000ff REGULAR   0     1
             coalition no
         }
 
-        ted query "SELECT * FROM frcgroups_view"
+        ted notifier received
     } -cleanup {
         cleanup
     } -result {
-g    longname       color   gtype forcetype local coalition 
----- -------------- ------- ----- --------- ----- --------- 
-BLUE US Army        #ff0000 FRC   POLICE    1     0         
-BRIT British Forces #00ffff FRC   REGULAR   0     1         
+        {::frcgroup <Entity> update BLUE}
     }
 
 
@@ -607,6 +447,8 @@ BRIT British Forces #00ffff FRC   REGULAR   0     1
         ted order GROUP:FORCE:CREATE $blue
         ted order GROUP:FORCE:CREATE $brit
     } -body {
+        ted notifier bind ::frcgroup <Entity>
+
         ted order GROUP:FORCE:UPDATE:MULTI {
             ids       {BLUE BRIT}
             color     "#ff0000"
@@ -615,23 +457,6 @@ BRIT British Forces #00ffff FRC   REGULAR   0     1
             coalition no
         }
 
-        ted query "SELECT * FROM frcgroups_view"
-    } -cleanup {
-        cleanup
-    } -result {
-g    longname       color   gtype forcetype local coalition 
----- -------------- ------- ----- --------- ----- --------- 
-BLUE US Army        #ff0000 FRC   POLICE    1     0         
-BRIT British Forces #ff0000 FRC   POLICE    1     0         
-    }
-
-
-    test UPDATE:MULTI-2.3 {<Entity> update} -setup {
-        ted order GROUP:FORCE:CREATE $blue
-        ted order GROUP:FORCE:CREATE $brit
-    } -body {
-        ted notifier bind ::frcgroup <Entity>
-        ted order GROUP:FORCE:UPDATE:MULTI ids {BLUE BRIT} color "#ff0000"
         ted notifier received
     } -cleanup {
         cleanup
@@ -641,29 +466,8 @@ BRIT British Forces #ff0000 FRC   POLICE    1     0
     }
 
 
-    test UPDATE:MULTI-3.1 {undo undoes the change} -setup {
-        ted order GROUP:FORCE:CREATE $blue
-        ted order GROUP:FORCE:CREATE $brit
-        ted order GROUP:FORCE:UPDATE:MULTI {
-            ids       {BLUE BRIT}
-            color     "#ff0000"
-            forcetype POLICE
-            local     yes
-            coalition no
-        }
-    } -body {
-        cif undo -test
-        ted query "SELECT * FROM frcgroups_view"
-    } -cleanup {
-        cleanup
-    } -result {
-g    longname       color   gtype forcetype local coalition 
----- -------------- ------- ----- --------- ----- --------- 
-BLUE US Army        #0000ff FRC   REGULAR   0     1         
-BRIT British Forces #00ffff FRC   REGULAR   0     1         
-    }
 
-    test UPDATE:MULTI-3.2 {undo sends update} -setup {
+    test UPDATE:MULTI-3.1 {undo effects} -setup {
         ted order GROUP:FORCE:CREATE $blue
         ted order GROUP:FORCE:CREATE $brit
         ted order GROUP:FORCE:UPDATE:MULTI {

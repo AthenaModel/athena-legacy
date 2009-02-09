@@ -270,7 +270,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
 
     # NEXT, do cross-validation
     if {[$type exists $parms(n) $parms(g)]} {
-        reject g "This group already resides in this neighborhood"
+        reject g "Group $parms(g) already resides in $parms(n)"
     }
 
     returnOnError

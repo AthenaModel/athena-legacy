@@ -40,46 +40,12 @@ namespace eval ::athena_test::tests:: {
         color     #ffffff
     }
 
-    # Neighborhoods, and frc, org, and  nb groups.
-
-    set nb1 {
-        n            NB1
-        longname     "Here"
-        urbanization URBAN
-        refpoint     B00B00
-        polygon      {A80A80 B20A80 B00B20}
-    }
-
-    set nb1shia {
-        n              NB1
-        g              SHIA
-        local_name     "NB1 Shia"
-        demeanor       AGGRESSIVE
-        rollup_weight  1.0
-        effects_factor 1.0
-    }
 
     # Clean up after a test
 
     proc cleanup {} {
         # Clean up the test environment
-        array unset parms
-        ted notifier forget
-
-        # Delete all civilian groups and reinitialize the module
-        rdb eval {
-            DELETE FROM nbhoods;
-            DELETE FROM groups;
-            DELETE FROM nbgroups;
-            DELETE FROM sat_ngc;
-            DELETE FROM rel_nfg;
-        }
-
-        civgroup reconfigure
-        nbhood   reconfigure
-        nbgroup  reconfigure
-        sat      reconfigure
-        rel      reconfigure
+        ted cleanup
     }
 
     #-------------------------------------------------------------------
@@ -135,69 +101,49 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-2.1 {civgroup is created} -body {
+    test CREATE-2.1 {group is created} -body {
         ted order GROUP:CIVILIAN:CREATE $shia
-        set parms [join [dict keys $shia] ","]
-        ted query "SELECT $parms FROM civgroups_view"
+        
+        ted query {SELECT * FROM civgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   
----- ----------- ------- 
-SHIA Shia Locals #ffff00 
+g    longname    color   gtype 
+---- ----------- ------- ----- 
+SHIA Shia Locals #ffff00 CIV   
     }
 
-    test CREATE-2.2 {<Entity> create} -body {
-        ted notifier bind ::civgroup <Entity>
-        ted order GROUP:CIVILIAN:CREATE $shia
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::civgroup <Entity> create SHIA}
-    }
 
-    test CREATE-2.3 {relationships are created} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order GROUP:CIVILIAN:CREATE $shia
-        ted order GROUP:NBHOOD:CREATE $nb1shia
+    test CREATE-2.2 {effects} -setup {
+        ted create NB1 SHIA NB1SHIA
+        rel mutate reconcile
     } -body {
-        ted notifier bind ::rel <Entity>
+        ted notifier bind ::civgroup <Entity>
+        ted notifier bind ::rel      <Entity>
         ted order GROUP:CIVILIAN:CREATE $sunn
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
+        {::civgroup <Entity> create SUNN}
         {::rel <Entity> create {NB1 SUNN SHIA}}
         {::rel <Entity> create {NB1 SHIA SUNN}}
     }
 
-    test CREATE-3.1 {undo deletes the civgroup} -setup {
-        ted order GROUP:CIVILIAN:CREATE $shia
-        ted order GROUP:CIVILIAN:CREATE $sunn
-    } -body {
-        cif undo -test
-        ted query "SELECT g,longname FROM civgroups_view"
-    } -cleanup {
-        cleanup
-    } -result {
-g    longname    
----- ----------- 
-SHIA Shia Locals 
-    }
 
-    test CREATE-3.2 {relationships are undone} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order GROUP:CIVILIAN:CREATE $shia
-        ted order GROUP:NBHOOD:CREATE $nb1shia
+    test CREATE-3.1 {effects are undone} -setup {
+        ted create NB1 SHIA NB1SHIA
+        rel mutate reconcile
         ted order GROUP:CIVILIAN:CREATE $sunn
     } -body {
-        ted notifier bind ::rel <Entity>
+        ted notifier bind ::civgroup <Entity>
+        ted notifier bind ::rel      <Entity>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
+        {::civgroup <Entity> delete SUNN}
         {::rel <Entity> delete {NB1 SUNN SHIA}}
         {::rel <Entity> delete {NB1 SHIA SUNN}}
     }
@@ -219,108 +165,41 @@ SHIA Shia Locals
     }
 
 
-    test DELETE-2.1 {Group is deleted} -setup {
-        ted order GROUP:CIVILIAN:CREATE $shia
-    } -body {
-        ted order GROUP:CIVILIAN:DELETE g SHIA
-        civgroup names
-    } -cleanup {
-        cleanup
-    } -result {}
-
-
-    test DELETE-2.2 {<Entity> delete} -setup {
-        ted order GROUP:CIVILIAN:CREATE $shia
+    test DELETE-2.1 {Effects} -setup {
+        ted create NB1 SHIA NB1SHIA
+        rel mutate reconcile
     } -body {
         ted notifier bind ::civgroup <Entity>
+        ted notifier bind ::nbgroup  <Entity>
+        ted notifier bind ::rel      <Entity>
         ted order GROUP:CIVILIAN:DELETE g SHIA
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::civgroup <Entity> delete SHIA}
+        {::nbgroup <Entity> delete {NB1 SHIA}}
+        {::rel <Entity> delete {NB1 SHIA SHIA}}
     }
 
 
-    test DELETE-2.3 {Deletes nbhood groups} -setup {
-        ted order GROUP:CIVILIAN:CREATE $shia
-        ted order NBHOOD:CREATE         $nb1
-        ted order GROUP:NBHOOD:CREATE   $nb1shia
-    } -body {
-        ted order GROUP:CIVILIAN:DELETE g SHIA
-        ted query {SELECT * FROM nbgroups}
-    } -cleanup {
-        cleanup
-    } -result {
-    }
-
-    test DELETE-2.4 {relationships are deleted} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order GROUP:CIVILIAN:CREATE $shia
-        ted order GROUP:NBHOOD:CREATE $nb1shia
-        ted order GROUP:CIVILIAN:CREATE $sunn
-    } -body {
-        ted notifier bind ::rel <Entity>
-        ted order GROUP:CIVILIAN:DELETE g SUNN
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rel <Entity> delete {NB1 SUNN SHIA}}
-        {::rel <Entity> delete {NB1 SHIA SUNN}}
-    }
-
-
-
-    test DELETE-3.1 {Undo restores group} -setup {
-        ted order GROUP:CIVILIAN:CREATE $shia
+    test DELETE-3.1 {Effects on undo} -setup {
+        ted create NB1 SHIA NB1SHIA
+        rel mutate reconcile
         ted order GROUP:CIVILIAN:DELETE g SHIA
     } -body {
-        cif undo -test
-        ted query {SELECT * FROM civgroups_view}
-    } -cleanup {
-        cleanup
-    } -result {
-g    longname    color   gtype 
----- ----------- ------- ----- 
-SHIA Shia Locals #ffff00 CIV   
-    }
-
-    test DELETE-3.2 {Undo restores nbgroups} -setup {
-        ted order GROUP:CIVILIAN:CREATE $shia
-        ted order NBHOOD:CREATE         $nb1
-        ted order GROUP:NBHOOD:CREATE   $nb1shia
-        ted order GROUP:CIVILIAN:DELETE g SHIA
-    } -body {
-        cif undo -test
-        ted query {SELECT * FROM nbgroups}
-    } -cleanup {
-        cleanup
-    } -result {
-n   g    local_name demeanor   rollup_weight effects_factor 
---- ---- ---------- ---------- ------------- -------------- 
-NB1 SHIA NB1 Shia   AGGRESSIVE 1.0           1.0            
-    }
-
-    test DELETE-3.3 {relationships are restored} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order GROUP:CIVILIAN:CREATE $shia
-        ted order GROUP:NBHOOD:CREATE $nb1shia
-        ted order GROUP:CIVILIAN:CREATE $sunn
-        ted order GROUP:CIVILIAN:DELETE g SUNN
-    } -body {
-        ted notifier bind ::rel <Entity>
+        ted notifier bind ::civgroup <Entity>
+        ted notifier bind ::nbgroup  <Entity>
+        ted notifier bind ::rel      <Entity>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rel <Entity> create {NB1 SUNN SHIA}}
-        {::rel <Entity> create {NB1 SHIA SUNN}}
-        {::rel <Entity> update {NB1 SUNN SHIA}}
-        {::rel <Entity> update {NB1 SHIA SUNN}}
+        {::civgroup <Entity> create SHIA}
+        {::nbgroup <Entity> create {NB1 SHIA}}
+        {::rel <Entity> create {NB1 SHIA SHIA}}
     }
-
 
     #-------------------------------------------------------------------
     # GROUP:CIVILIAN:UPDATE
@@ -374,15 +253,15 @@ NB1 SHIA NB1 Shia   AGGRESSIVE 1.0           1.0
             color        "#ff0000"
         }
 
-        set parms [join [dict keys $shia] ","]
-        ted query "SELECT $parms FROM civgroups_view"
+        ted query {SELECT * FROM civgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname  color   
----- --------- ------- 
-SHIA Shia Folk #ff0000 
+g    longname  color   gtype 
+---- --------- ------- ----- 
+SHIA Shia Folk #ff0000 CIV   
     }
+
 
     test UPDATE-2.2 {<Entity> update} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
@@ -396,22 +275,8 @@ SHIA Shia Folk #ff0000
         {::civgroup <Entity> update SHIA}
     }
 
-    test UPDATE-2.3 {identical values are OK} -setup {
-        ted order GROUP:CIVILIAN:CREATE $shia
-    } -body {
-        ted order GROUP:CIVILIAN:UPDATE $shia 
 
-        set parms [join [dict keys $shia] ","]
-        ted query "SELECT $parms FROM civgroups_view"
-    } -cleanup {
-        cleanup
-    } -result {
-g    longname    color   
----- ----------- ------- 
-SHIA Shia Locals #ffff00 
-    }
-
-    test UPDATE-3.1 {undo undoes the change} -setup {
+    test UPDATE-3.1 {undo effects} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
         ted order GROUP:CIVILIAN:UPDATE {
             g            SHIA
@@ -419,15 +284,13 @@ SHIA Shia Locals #ffff00
             color        "#ff0000"
         }
     } -body {
+        ted notifier bind ::civgroup <Entity>
         cif undo -test
-        set parms [join [dict keys $shia] ","]
-        ted query "SELECT $parms FROM civgroups_view"
+        ted notifier received
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   
----- ----------- ------- 
-SHIA Shia Locals #ffff00 
+        {::civgroup <Entity> update SHIA}
     }
 
     #-------------------------------------------------------------------
@@ -470,35 +333,17 @@ SHIA Shia Locals #ffff00
         ted order GROUP:CIVILIAN:CREATE $shia
         ted order GROUP:CIVILIAN:CREATE $sunn
     } -body {
+        ted notifier bind ::civgroup <Entity>
         ted order GROUP:CIVILIAN:UPDATE:MULTI ids SHIA color "#ff0000"
-
-        ted query "SELECT g,color FROM civgroups_view"
+        ted notifier received
     } -cleanup {
         cleanup
     } -result {
-g    color   
----- ------- 
-SHIA #ff0000 
-SUNN #ffffff 
+        {::civgroup <Entity> update SHIA}
     }
+
 
     test UPDATE:MULTI-2.2 {several civgroups are updated} -setup {
-        ted order GROUP:CIVILIAN:CREATE $shia
-        ted order GROUP:CIVILIAN:CREATE $sunn
-    } -body {
-        ted order GROUP:CIVILIAN:UPDATE:MULTI ids {SHIA SUNN} color "#ff0000"
-
-        ted query "SELECT g,color FROM civgroups_view"
-    } -cleanup {
-        cleanup
-    } -result {
-g    color   
----- ------- 
-SHIA #ff0000 
-SUNN #ff0000 
-    }
-
-    test UPDATE:MULTI-2.3 {<Entity> update} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
         ted order GROUP:CIVILIAN:CREATE $sunn
     } -body {
@@ -512,24 +357,8 @@ SUNN #ff0000
         {::civgroup <Entity> update SUNN}
     }
 
-    test UPDATE:MULTI-3.1 {undo undoes the change} -setup {
-        ted order GROUP:CIVILIAN:CREATE $shia
-        ted order GROUP:CIVILIAN:CREATE $sunn
-        ted order GROUP:CIVILIAN:UPDATE:MULTI ids {SHIA SUNN} color "#ff0000"
-    } -body {
-        cif undo -test
-        ted query "SELECT g,color FROM civgroups_view"
-    } -cleanup {
-        cleanup
-    } -result {
-g    color   
----- ------- 
-SHIA #ffff00 
-SUNN #ffffff 
-    }
 
-
-    test UPDATE:MULTI-3.2 {undo sends update} -setup {
+    test UPDATE:MULTI-3.1 {undo effects} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
         ted order GROUP:CIVILIAN:CREATE $sunn
         ted order GROUP:CIVILIAN:UPDATE:MULTI ids {SHIA SUNN} color "#ff0000"

@@ -26,57 +26,16 @@ namespace eval ::athena_test::tests:: {
     # Import tcltest(n)
     namespace import ::tcltest::*
 
-    # Neighborhoods
-    ted order NBHOOD:CREATE {
-        n            N1
-        longname     "Nbhood 1"
-        urbanization RURAL
-        refpoint     B00B00
-        polygon      {A00A00 C00A00 C00C00 A00C00}
+    proc setup {} {
+        ted create NB1 SHIA SUNN NB1SHIA
+        sat mutate reconcile
     }
 
-    # Civ Groups
-    ted order GROUP:CIVILIAN:CREATE {
-        g            SHIA
-        longname     "Local Shias"
-        color        "#00ffff"
-    }
-
-    ted order GROUP:CIVILIAN:CREATE {
-        g            SUNN
-        longname     "Local Sunnis"
-        color        "#ffff00"
-    }
-
-
-    # Nbhood Groups
-
-    set n1shia {
-        n              N1
-        g              SHIA
-        local_name     "N1 Shias"
-        demeanor       AVERAGE
-        rollup_weight  1.0
-        effects_factor 1.1
-    }
 
     # Clean up after a test
 
     proc cleanup {} {
-        # Clean up the test environment
-        array unset parms
-        ted notifier forget
-
-        # Delete all created entities and reinitialize the module
-        rdb eval {
-            DELETE FROM nbgroups;
-            DELETE FROM sat_ngc;
-        }
-
-        nbgroup reconfigure
-        sat reconfigure
-
-        cif clear
+        ted cleanup
     }
 
 
@@ -92,24 +51,34 @@ namespace eval ::athena_test::tests:: {
     }
     
 
-    test UPDATE-1.2 {invalid n, g, c} -body {
+    test UPDATE-1.2 {invalid n, g, c} -setup {
+        setup
+    } -body {
         ted order -reject SATISFACTION:UPDATE n NONESUCH1 g NONESUCH2 c NONESUCH3
+    } -cleanup {
+        cleanup
     } -result {
-        n {Invalid neighborhood, should be one of: N1}
-        g {Invalid group, should be one of: SHIA, SUNN}
+        n {Invalid neighborhood, should be one of: NB1}
+        g {Invalid satisfaction group, should be one of: SHIA, SUNN}
         c {invalid value, "NONESUCH3"}
     }
 
 
-    test UPDATE-1.3 {undefined curve} -body {
-        ted order -reject SATISFACTION:UPDATE n N1 g SUNN c AUT
+    test UPDATE-1.3 {undefined curve} -setup {
+        setup
+    } -body {
+        ted order -reject SATISFACTION:UPDATE n NB1 g SUNN c AUT
+    } -cleanup {
+        cleanup
     } -result {
-        c {Satisfaction is not tracked for group SUNN's AUT in N1.}
+        c {Satisfaction is not tracked for group SUNN's AUT in NB1.}
     }
 
 
-    test UPDATE-1.4 {invalid sat0: symbol} -body {
-        ted order -reject SATISFACTION:UPDATE n N1 g SHIA c SFT sat0 NONESUCH
+    test UPDATE-1.4 {invalid sat0: symbol} -setup {
+        setup
+    } -body {
+        ted order -reject SATISFACTION:UPDATE n NB1 g SHIA c SFT sat0 NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -117,8 +86,10 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test UPDATE-1.5 {invalid sat0: out of range} -body {
-        ted order -reject SATISFACTION:UPDATE n N1 g SHIA c SFT sat0 101.0
+    test UPDATE-1.5 {invalid sat0: out of range} -setup {
+        setup
+    } -body {
+        ted order -reject SATISFACTION:UPDATE n NB1 g SHIA c SFT sat0 101.0
     } -cleanup {
         cleanup
     } -result {
@@ -126,8 +97,10 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test UPDATE-1.6 {invalid trend0: symbol} -body {
-        ted order -reject SATISFACTION:UPDATE n N1 g SHIA c SFT trend0 NONESUCH
+    test UPDATE-1.6 {invalid trend0: symbol} -setup {
+        setup
+    } -body {
+        ted order -reject SATISFACTION:UPDATE n NB1 g SHIA c SFT trend0 NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -135,8 +108,10 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test UPDATE-1.7 {invalid saliency: symbol} -body {
-        ted order -reject SATISFACTION:UPDATE n N1 g SHIA c SFT saliency NONESUCH
+    test UPDATE-1.7 {invalid saliency: symbol} -setup {
+        setup
+    } -body {
+        ted order -reject SATISFACTION:UPDATE n NB1 g SHIA c SFT saliency NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -144,8 +119,10 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test UPDATE-1.8 {invalid saliency: out of range} -body {
-        ted order -reject SATISFACTION:UPDATE n N1 g SHIA c SFT saliency -0.1
+    test UPDATE-1.8 {invalid saliency: out of range} -setup {
+        setup
+    } -body {
+        ted order -reject SATISFACTION:UPDATE n NB1 g SHIA c SFT saliency -0.1
     } -cleanup {
         cleanup
     } -result {
@@ -154,10 +131,10 @@ namespace eval ::athena_test::tests:: {
 
 
     test UPDATE-2.1 {sat is updated} -setup {
-        ted order GROUP:NBHOOD:CREATE $n1shia
+        setup
     } -body {
         ted order SATISFACTION:UPDATE {
-            n              N1
+            n              NB1
             g              SHIA
             c              SFT
             sat0           VS
@@ -170,32 +147,33 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-n  g    c   sat0 trend0 saliency 
--- ---- --- ---- ------ -------- 
-N1 SHIA AUT 0.0  0.0    1.0      
-N1 SHIA CUL 0.0  0.0    1.0      
-N1 SHIA QOL 0.0  0.0    1.0      
-N1 SHIA SFT 80.0 8.0    0.85     
+n   g    c   sat0 trend0 saliency 
+--- ---- --- ---- ------ -------- 
+NB1 SHIA AUT 0.0  0.0    1.0      
+NB1 SHIA CUL 0.0  0.0    1.0      
+NB1 SHIA QOL 0.0  0.0    1.0      
+NB1 SHIA SFT 80.0 8.0    0.85     
     }
 
 
     test UPDATE-2.2 {<Entity> update} -setup {
-        ted order GROUP:NBHOOD:CREATE $n1shia
+        setup
     } -body {
         ted notifier bind ::sat <Entity>
-        ted order SATISFACTION:UPDATE n N1 g SHIA c SFT sat0 4.0
+        ted order SATISFACTION:UPDATE n NB1 g SHIA c SFT sat0 4.0
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {N1 SHIA SFT}}
+        {::sat <Entity> update {NB1 SHIA SFT}}
     }
 
 
     test UPDATE-3.1 {undo undoes the change} -setup {
-        ted order GROUP:NBHOOD:CREATE $n1shia
+        setup
+
         ted order SATISFACTION:UPDATE {
-            n              N1
+            n              NB1
             g              SHIA
             c              SFT
             sat0           VS
@@ -203,65 +181,81 @@ N1 SHIA SFT 80.0 8.0    0.85
             saliency       VI
         }
     } -body {
-        cif undo
-        ted query {SELECT * FROM sat_ngc}
+        ted notifier bind ::sat <Entity>
+        cif undo -test
+        ted notifier received
     } -cleanup {
         cleanup
     } -result {
-n  g    c   sat0 trend0 saliency 
--- ---- --- ---- ------ -------- 
-N1 SHIA AUT 0.0  0.0    1.0      
-N1 SHIA CUL 0.0  0.0    1.0      
-N1 SHIA QOL 0.0  0.0    1.0      
-N1 SHIA SFT 0.0  0.0    1.0      
+        {::sat <Entity> update {NB1 SHIA SFT}}
     }
 
     #-------------------------------------------------------------------
     # SATISFACTION:UPDATE:MULTI
 
-    test UPDATE:MULTI-1.1 {required parms} -body {
+    test UPDATE:MULTI-1.1 {required parms} -setup {
+        setup
+    } -body {
         ted order -reject SATISFACTION:UPDATE:MULTI {}
+    } -cleanup {
+        cleanup
     } -result {
         ids {required value}
     }
     
 
-    test UPDATE:MULTI-1.2 {invalid n in ids} -body {
+    test UPDATE:MULTI-1.2 {invalid n in ids} -setup {
+        setup
+    } -body {
         ted order -reject SATISFACTION:UPDATE:MULTI \
             ids {{NONESUCH1 SHIA SFT}}
+    } -cleanup {
+        cleanup
     } -result {
-        ids {Invalid neighborhood, should be one of: N1}
+        ids {Invalid neighborhood, should be one of: NB1}
     }
 
 
-    test UPDATE:MULTI-1.3 {invalid g in ids} -body {
+    test UPDATE:MULTI-1.3 {invalid g in ids} -setup {
+        setup
+    } -body {
         ted order -reject SATISFACTION:UPDATE:MULTI \
-            ids {{N1 NONESUCH SFT}}
+            ids {{NB1 NONESUCH SFT}}
+    } -cleanup {
+        cleanup
     } -result {
-        ids {Invalid group, should be one of: SHIA, SUNN}
+        ids {Invalid satisfaction group, should be one of: SHIA, SUNN}
     }
 
 
-    test UPDATE:MULTI-1.4 {invalid c in ids} -body {
+    test UPDATE:MULTI-1.4 {invalid c in ids} -setup {
+        setup
+    } -body {
         ted order -reject SATISFACTION:UPDATE:MULTI \
-            ids {{N1 SHIA NONESUCH}}
+            ids {{NB1 SHIA NONESUCH}}
+    } -cleanup {
+        cleanup
     } -result {
         ids {invalid value, "NONESUCH"}
     }
 
 
-    test UPDATE:MULTI-1.5 {undefined curve} -body {
-        ted order -reject SATISFACTION:UPDATE:MULTI ids {{N1 SUNN AUT}}
+    test UPDATE:MULTI-1.5 {undefined curve} -setup {
+        setup
+    } -body {
+        ted order -reject SATISFACTION:UPDATE:MULTI ids {{NB1 SUNN AUT}}
+    } -cleanup {
+        cleanup
     } -result {
-        ids {Satisfaction is not tracked for group SUNN's AUT in N1.}
+        ids {Satisfaction is not tracked for group SUNN's AUT in NB1.}
     }
 
 
     test UPDATE:MULTI-1.6 {invalid sat0: symbol} -setup {
-        ted order GROUP:NBHOOD:CREATE $n1shia
+        setup
     } -body {
         ted order -reject SATISFACTION:UPDATE:MULTI \
-            ids {{N1 SHIA SFT}} sat0 NONESUCH
+            ids {{NB1 SHIA SFT}} sat0 NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -270,9 +264,9 @@ N1 SHIA SFT 0.0  0.0    1.0
 
 
     test UPDATE:MULTI-1.7 {invalid sat0: out of range} -setup {
-        ted order GROUP:NBHOOD:CREATE $n1shia
+        setup
     } -body {
-        ted order -reject SATISFACTION:UPDATE:MULTI ids {{N1 SHIA SFT}} sat0 101.0
+        ted order -reject SATISFACTION:UPDATE:MULTI ids {{NB1 SHIA SFT}} sat0 101.0
     } -cleanup {
         cleanup
     } -result {
@@ -281,9 +275,9 @@ N1 SHIA SFT 0.0  0.0    1.0
 
 
     test UPDATE:MULTI-1.8 {invalid trend0: symbol} -setup {
-        ted order GROUP:NBHOOD:CREATE $n1shia
+        setup
     } -body {
-        ted order -reject SATISFACTION:UPDATE:MULTI ids {{N1 SHIA SFT}} trend0 NONESUCH
+        ted order -reject SATISFACTION:UPDATE:MULTI ids {{NB1 SHIA SFT}} trend0 NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -292,10 +286,10 @@ N1 SHIA SFT 0.0  0.0    1.0
 
 
     test UPDATE:MULTI-1.9 {invalid saliency: symbol} -setup {
-        ted order GROUP:NBHOOD:CREATE $n1shia
+        setup
     } -body {
         ted order -reject SATISFACTION:UPDATE:MULTI \
-            ids {{N1 SHIA SFT}} saliency NONESUCH
+            ids {{NB1 SHIA SFT}} saliency NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -304,10 +298,10 @@ N1 SHIA SFT 0.0  0.0    1.0
 
 
     test UPDATE:MULTI-1.10 {invalid saliency: out of range} -setup {
-        ted order GROUP:NBHOOD:CREATE $n1shia
+        setup
     } -body {
         ted order -reject SATISFACTION:UPDATE:MULTI ids \
-            {{N1 SHIA SFT}} saliency -0.1
+            {{NB1 SHIA SFT}} saliency -0.1
     } -cleanup {
         cleanup
     } -result {
@@ -316,98 +310,50 @@ N1 SHIA SFT 0.0  0.0    1.0
 
 
     test UPDATE:MULTI-2.1 {one curve of several is updated} -setup {
-        ted order GROUP:NBHOOD:CREATE $n1shia
+        setup
     } -body {
+        ted notifier bind ::sat <Entity>
+
         ted order SATISFACTION:UPDATE:MULTI {
-            ids       {{N1 SHIA SFT}}
+            ids       {{NB1 SHIA SFT}}
             sat0      VS
             trend0    VH
             saliency  VI
         }
-        ted query {
-            SELECT * FROM sat_ngc
-        }
+
+        ted notifier received
     } -cleanup {
         cleanup
     } -result {
-n  g    c   sat0 trend0 saliency 
--- ---- --- ---- ------ -------- 
-N1 SHIA AUT 0.0  0.0    1.0      
-N1 SHIA CUL 0.0  0.0    1.0      
-N1 SHIA QOL 0.0  0.0    1.0      
-N1 SHIA SFT 80.0 8.0    0.85     
+        {::sat <Entity> update {NB1 SHIA SFT}}
     }
 
 
     test UPDATE:MULTI-2.2 {several curves are updated} -setup {
-        ted order GROUP:NBHOOD:CREATE $n1shia
-    } -body {
-        ted order SATISFACTION:UPDATE:MULTI {
-            ids        {{N1 SHIA SFT} {N1 SHIA CUL}}
-            sat0       VS
-            trend0     VH
-            saliency   VI
-        }
-        ted query {
-            SELECT * FROM sat_ngc
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-n  g    c   sat0 trend0 saliency 
--- ---- --- ---- ------ -------- 
-N1 SHIA AUT 0.0  0.0    1.0      
-N1 SHIA CUL 80.0 8.0    0.85     
-N1 SHIA QOL 0.0  0.0    1.0      
-N1 SHIA SFT 80.0 8.0    0.85     
-    }
-
-
-    test UPDATE:MULTI-2.3 {<Entity> update} -setup {
-        ted order GROUP:NBHOOD:CREATE $n1shia
+        setup
     } -body {
         ted notifier bind ::sat <Entity>
         ted order SATISFACTION:UPDATE:MULTI {
-            ids   {{N1 SHIA SFT} {N1 SHIA CUL}} 
+            ids   {{NB1 SHIA SFT} {NB1 SHIA CUL}} 
             sat0  4.0
         }
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {N1 SHIA SFT}}
-        {::sat <Entity> update {N1 SHIA CUL}}
+        {::sat <Entity> update {NB1 SHIA SFT}}
+        {::sat <Entity> update {NB1 SHIA CUL}}
     }
 
 
     test UPDATE:MULTI-3.1 {undo undoes the change} -setup {
-        ted order GROUP:NBHOOD:CREATE $n1shia
+        setup
+
         ted order SATISFACTION:UPDATE:MULTI {
-            ids        {{N1 SHIA SFT} {N1 SHIA CUL}}
+            ids        {{NB1 SHIA SFT} {NB1 SHIA CUL}}
             sat0       VS
             trend0     VH
             saliency   VI
-        }
-    } -body {
-        cif undo -test
-        ted query {SELECT * FROM sat_ngc}
-    } -cleanup {
-        cleanup
-    } -result {
-n  g    c   sat0 trend0 saliency 
--- ---- --- ---- ------ -------- 
-N1 SHIA AUT 0.0  0.0    1.0      
-N1 SHIA CUL 0.0  0.0    1.0      
-N1 SHIA QOL 0.0  0.0    1.0      
-N1 SHIA SFT 0.0  0.0    1.0      
-    }
-
-
-    test UPDATE:MULTI-3.2 {undo sends <Entity> update} -setup {
-        ted order GROUP:NBHOOD:CREATE $n1shia
-        ted order SATISFACTION:UPDATE:MULTI {
-            ids   {{N1 SHIA SFT} {N1 SHIA CUL}} 
-            sat0  4.0
         }
     } -body {
         ted notifier bind ::sat <Entity>
@@ -416,8 +362,8 @@ N1 SHIA SFT 0.0  0.0    1.0
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {N1 SHIA SFT}}
-        {::sat <Entity> update {N1 SHIA CUL}}
+        {::sat <Entity> update {NB1 SHIA SFT}}
+        {::sat <Entity> update {NB1 SHIA CUL}}
     }
 
 
@@ -425,7 +371,6 @@ N1 SHIA SFT 0.0  0.0    1.0
     # Cleanup
 
     cleanupTests
-    scenario new
 }
 
 namespace delete ::athena_test::tests::

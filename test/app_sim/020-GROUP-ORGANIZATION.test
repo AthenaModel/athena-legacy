@@ -52,67 +52,12 @@ namespace eval ::athena_test::tests:: {
         effects_factor 1.3
     }
 
-    # Neighborhood.
-
-    ted order NBHOOD:CREATE {
-        n            NB1
-        longname     "Here"
-        urbanization URBAN
-        refpoint     B00B00
-        polygon      {A80A80 B20A80 B00B20}
-    }
-
-    # Civ Groups
-
-    ted order GROUP:CIVILIAN:CREATE {
-        g            SHIA
-        longname     "Local Shias"
-        color        "#00ffff"
-    }
-
-    ted order GROUP:CIVILIAN:CREATE {
-        g            SUNN
-        longname     "Local Sunnis"
-        color        "#ffff00"
-    }
-
-    # Nbhood Group
-    ted order GROUP:NBHOOD:CREATE {
-        n              NB1
-        g              SHIA
-        local_name     "N1 Shias"
-        demeanor       AVERAGE
-        rollup_weight  1.0
-        effects_factor 1.1
-    }
-
-    # Force Group
-    ted order GROUP:FORCE:CREATE {
-        g         BLUE
-        longname  "US Army"
-        color     #0000ff
-        forcetype REGULAR
-        local     no
-        coalition yes
-    }
 
     # Clean up after a test
 
     proc cleanup {} {
         # Clean up the test environment
-        array unset parms
-        ted notifier forget
-
-        # Delete all organization groups and reinitialize the module
-        rdb eval {
-            DELETE FROM groups WHERE gtype = 'ORG';
-            DELETE FROM orggroups;
-        }
-
-        nbhood   reconfigure
-        orggroup reconfigure
-        sat      mutate reconcile
-        rel      mutate reconcile
+        ted cleanup
     }
 
     #-------------------------------------------------------------------
@@ -265,98 +210,42 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
     }
 
 
-    test CREATE-2.2 {<Entity> create} -body {
+    test CREATE-2.2 {Effects} -setup {
+        ted create NB1
+        rel mutate reconcile
+    } -body {
         ted notifier bind ::orggroup <Entity>
+        ted notifier bind ::sat      <Entity>
+        ted notifier bind ::rel      <Entity>
         ted order GROUP:ORGANIZATION:CREATE $usaid
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::orggroup <Entity> create USAID}
-    }
-
-
-    test CREATE-2.3 {Satisfaction curves are created} -body {
-        ted notifier bind ::sat <Entity>
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
         {::sat <Entity> create {NB1 USAID CAS}}
-    }
-
-    test CREATE-2.4 {Relationships are created} -body {
-        ted notifier bind ::rel <Entity>
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rel <Entity> create {NB1 USAID SHIA}}
-        {::rel <Entity> create {NB1 SHIA USAID}}
-        {::rel <Entity> create {PLAYBOX BLUE USAID}}
-        {::rel <Entity> create {PLAYBOX USAID BLUE}}
         {::rel <Entity> create {PLAYBOX USAID USAID}}
     }
 
 
-    test CREATE-3.1 {undo deletes the orggroup} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-        ted order GROUP:ORGANIZATION:CREATE $hal
-    } -body {
-        cif undo
-        ted query "SELECT g,longname FROM orggroups_view"
-    } -cleanup {
-        cleanup
-    } -result {
-g     longname 
------ -------- 
-USAID US Aid   
-    }
-
-
-    test CREATE-3.2 {<Entity> delete} -setup {
+    test CREATE-3.1 {Undo effects} -setup {
+        ted create NB1
+        rel mutate reconcile
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted notifier bind ::orggroup <Entity>
+        ted notifier bind ::sat      <Entity>
+        ted notifier bind ::rel      <Entity>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::orggroup <Entity> delete USAID}
-    }
-
-
-    test CREATE-3.3 {Satisfaction curves are undone} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        ted notifier bind ::sat <Entity>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
         {::sat <Entity> delete {NB1 USAID CAS}}
-    }
-
-
-    test CREATE-3.4 {Relationships are undone} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        ted notifier bind ::rel <Entity>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rel <Entity> delete {NB1 USAID SHIA}}
-        {::rel <Entity> delete {NB1 SHIA USAID}}
-        {::rel <Entity> delete {PLAYBOX BLUE USAID}}
-        {::rel <Entity> delete {PLAYBOX USAID BLUE}}
         {::rel <Entity> delete {PLAYBOX USAID USAID}}
     }
+
 
     #-------------------------------------------------------------------
     # GROUP:ORGANIZATION:DELETE
@@ -375,76 +264,31 @@ USAID US Aid
     }
 
 
-    test DELETE-2.1 {Group is deleted} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        ted order GROUP:ORGANIZATION:DELETE g USAID
-        orggroup names
-    } -cleanup {
-        cleanup
-    } -result {}
-
-
-    test DELETE-2.2 {<Entity> delete} -setup {
+    test DELETE-2.1 {Effects} -setup {
+        ted create NB1
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted notifier bind ::orggroup <Entity>
+        ted notifier bind ::sat      <Entity>
+        ted notifier bind ::rel      <Entity>
         ted order GROUP:ORGANIZATION:DELETE g USAID
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::orggroup <Entity> delete USAID}
-    }
-
-    test DELETE-2.3 {Satisfaction curves are deleted} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        ted notifier bind ::sat <Entity>
-        ted order GROUP:ORGANIZATION:DELETE g USAID
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
         {::sat <Entity> delete {NB1 USAID CAS}}
-    }
-
-    test DELETE-2.4 {Relationships are created} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        ted notifier bind ::rel <Entity>
-        ted order GROUP:ORGANIZATION:DELETE g USAID
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rel <Entity> delete {NB1 USAID SHIA}}
-        {::rel <Entity> delete {NB1 SHIA USAID}}
-        {::rel <Entity> delete {PLAYBOX BLUE USAID}}
-        {::rel <Entity> delete {PLAYBOX USAID BLUE}}
         {::rel <Entity> delete {PLAYBOX USAID USAID}}
     }
 
-    test DELETE-3.1 {Undo recreates the org group} -setup {
+
+    test DELETE-3.1 {Undo effects} -setup {
+        ted create NB1
         ted order GROUP:ORGANIZATION:CREATE $usaid
         ted order GROUP:ORGANIZATION:DELETE g USAID
     } -body {
-        cif undo
-        set parms [join [dict keys $usaid] ","]
-        ted query "SELECT $parms FROM orggroups_view"
-    } -cleanup {
-        cleanup
-    } -result {
-g     longname color   orgtype medical engineer support rollup_weight effects_factor 
------ -------- ------- ------- ------- -------- ------- ------------- -------------- 
-USAID US Aid   #00ff00 NGO     0       0        1       1.0           1.1            
-    }
-
-
-    test DELETE-3.2 {On undo, <Entity> create} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-        ted order GROUP:ORGANIZATION:DELETE g USAID
-    } -body {
+        ted notifier bind ::sat      <Entity>
+        ted notifier bind ::rel      <Entity>
         ted notifier bind ::orggroup <Entity>
         cif undo -test
         ted notifier received
@@ -452,44 +296,8 @@ USAID US Aid   #00ff00 NGO     0       0        1       1.0           1.1
         cleanup
     } -result {
         {::orggroup <Entity> create USAID}
-    }
-
-
-    test DELETE-3.3 {Sat curves are restored} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-        ted order GROUP:ORGANIZATION:DELETE g USAID
-    } -body {
-        ted notifier bind ::sat <Entity>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
         {::sat <Entity> create {NB1 USAID CAS}}
-        {::sat <Entity> update {NB1 USAID CAS}}
-    }
-
-
-    test DELETE-3.4 {Relationships are restored} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-        ted order GROUP:ORGANIZATION:DELETE g USAID
-    } -body {
-        ted notifier bind ::rel <Entity>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rel <Entity> create {NB1 USAID SHIA}}
-        {::rel <Entity> create {NB1 SHIA USAID}}
-        {::rel <Entity> create {PLAYBOX BLUE USAID}}
-        {::rel <Entity> create {PLAYBOX USAID BLUE}}
         {::rel <Entity> create {PLAYBOX USAID USAID}}
-        {::rel <Entity> update {NB1 USAID SHIA}}
-        {::rel <Entity> update {NB1 SHIA USAID}}
-        {::rel <Entity> update {PLAYBOX BLUE USAID}}
-        {::rel <Entity> update {PLAYBOX USAID BLUE}}
-        {::rel <Entity> update {PLAYBOX USAID USAID}}
     }
 
 
@@ -664,45 +472,21 @@ USAID Red Cross #ff0000 IGO     1       1        0       0.1           0.2
     }
 
 
-    test UPDATE-2.3 {identical values are OK} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        ted order GROUP:ORGANIZATION:UPDATE $usaid 
-
-        set parms [join [dict keys $usaid] ","]
-        ted query "SELECT $parms FROM orggroups_view"
-    } -cleanup {
-        cleanup
-    } -result {
-g     longname color   orgtype medical engineer support rollup_weight effects_factor 
------ -------- ------- ------- ------- -------- ------- ------------- -------------- 
-USAID US Aid   #00ff00 NGO     0       0        1       1.0           1.1            
-    }
-
-
-    test UPDATE-3.1 {undo undoes the change} -setup {
+    test UPDATE-3.1 {undo effects} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
         ted order GROUP:ORGANIZATION:UPDATE {
             g              USAID
             longname       "Red Cross"
             color          "#ff0000"
-            orgtype        IGO
-            medical        yes
-            engineer       yes
-            support        no
-            rollup_weight  0.1
-            effects_factor 0.2
         }
     } -body {
-        cif undo
-        set parms [join [dict keys $usaid] ","]
-        ted query "SELECT $parms FROM orggroups_view"
+        ted notifier bind ::orggroup <Entity>
+        cif undo -test
+        ted notifier received
     } -cleanup {
         cleanup
     } -result {
-g     longname color   orgtype medical engineer support rollup_weight effects_factor 
------ -------- ------- ------- ------- -------- ------- ------------- -------------- 
-USAID US Aid   #00ff00 NGO     0       0        1       1.0           1.1            
+        {::orggroup <Entity> update USAID}
     }
 
     #-------------------------------------------------------------------
@@ -841,58 +625,33 @@ USAID US Aid   #00ff00 NGO     0       0        1       1.0           1.1
         ted order GROUP:ORGANIZATION:CREATE $usaid
         ted order GROUP:ORGANIZATION:CREATE $hal
     } -body {
+        ted notifier bind ::orggroup <Entity>
+
         ted order GROUP:ORGANIZATION:UPDATE:MULTI {
             ids            USAID 
             color          "#ff0000"
             orgtype        IGO
-            medical        yes
-            engineer       yes
-            support        yes
-            rollup_weight  2.0
-            effects_factor 2.1
         }
 
-        ted query "SELECT * FROM orggroups_view"
+        ted notifier received
     } -cleanup {
         cleanup
     } -result {
-g     longname   color   gtype orgtype medical engineer support rollup_weight effects_factor 
------ ---------- ------- ----- ------- ------- -------- ------- ------------- -------------- 
-USAID US Aid     #ff0000 ORG   IGO     1       1        1       2.0           2.1            
-HAL   Haliburton #ffff00 ORG   CTR     0       1        0       1.2           1.3            
+        {::orggroup <Entity> update USAID}
     }
 
     test UPDATE:MULTI-2.2 {several orggroups are updated} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
         ted order GROUP:ORGANIZATION:CREATE $hal
     } -body {
+        ted notifier bind ::orggroup <Entity>
+
         ted order GROUP:ORGANIZATION:UPDATE:MULTI {
             ids            {USAID HAL}
             color          "#ff0000"
             orgtype        IGO
-            medical        yes
-            engineer       yes
-            support        yes
-            rollup_weight  2.0
-            effects_factor 2.1
         }
 
-        ted query "SELECT * FROM orggroups_view"
-    } -cleanup {
-        cleanup
-    } -result {
-g     longname   color   gtype orgtype medical engineer support rollup_weight effects_factor 
------ ---------- ------- ----- ------- ------- -------- ------- ------------- -------------- 
-USAID US Aid     #ff0000 ORG   IGO     1       1        1       2.0           2.1            
-HAL   Haliburton #ff0000 ORG   IGO     1       1        1       2.0           2.1            
-    }
-
-    test UPDATE:MULTI-2.3 {<Entity> update} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-        ted order GROUP:ORGANIZATION:CREATE $hal
-    } -body {
-        ted notifier bind ::orggroup <Entity>
-        ted order GROUP:ORGANIZATION:UPDATE:MULTI ids {USAID HAL} color "#ff0000"
         ted notifier received
     } -cleanup {
         cleanup
@@ -901,36 +660,12 @@ HAL   Haliburton #ff0000 ORG   IGO     1       1        1       2.0           2.
         {::orggroup <Entity> update HAL}
     }
 
-    test UPDATE:MULTI-3.1 {undo undoes the change} -setup {
+
+    test UPDATE:MULTI-3.2 {undo effects} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
         ted order GROUP:ORGANIZATION:CREATE $hal
-        ted order GROUP:ORGANIZATION:UPDATE:MULTI {
-            ids            {USAID HAL}
-            color          "#ff0000"
-            orgtype        IGO
-            medical        yes
-            engineer       yes
-            support        yes
-            rollup_weight  2.0
-            effects_factor 2.1
-        }
-    } -body {
-        cif undo
-        ted query "SELECT * FROM orggroups_view"
-    } -cleanup {
-        cleanup
-    } -result {
-g     longname   color   gtype orgtype medical engineer support rollup_weight effects_factor 
------ ---------- ------- ----- ------- ------- -------- ------- ------------- -------------- 
-USAID US Aid     #00ff00 ORG   NGO     0       0        1       1.0           1.1            
-HAL   Haliburton #ffff00 ORG   CTR     0       1        0       1.2           1.3            
-    }
-
-
-    test UPDATE:MULTI-3.2 {undo sends update} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-        ted order GROUP:ORGANIZATION:CREATE $hal
-        ted order GROUP:ORGANIZATION:UPDATE:MULTI ids {USAID HAL} color "#ff0000"
+        ted order GROUP:ORGANIZATION:UPDATE:MULTI \
+            ids {USAID HAL} color "#ff0000"
     } -body {
         ted notifier bind ::orggroup <Entity>
         cif undo -test
@@ -947,7 +682,6 @@ HAL   Haliburton #ffff00 ORG   CTR     0       1        0       1.2           1.
     # Cleanup
 
     cleanupTests
-    scenario new
 }
 
 namespace delete ::athena_test::tests::

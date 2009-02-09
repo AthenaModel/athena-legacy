@@ -53,53 +53,12 @@ namespace eval ::athena_test::tests:: {
         polygon      {C80C80 D20C80 D00D20}
     }
 
-    # Civ Groups and nbhood groups
-    ted order GROUP:CIVILIAN:CREATE {
-        g        PASH
-        longname "Pashtuns"
-        color    #ffff00
-    }
-
-    set nbgrp {
-        n              NB1
-        g              PASH
-        local_name     "NB1 Pashtuns"
-        demeanor       AGGRESSIVE
-        rollup_weight  1.0
-        effects_factor 1.0
-    }
-
-    # Org Groups
-
-    ted order GROUP:ORGANIZATION:CREATE {
-        g              USAID
-        longname       "US Aid"
-        color          #00ff00
-        orgtype        NGO
-        medical        no
-        engineer       no
-        support        yes
-        rollup_weight  1.0
-        effects_factor 1.1
-    }
-    
-
 
     # Clean up after a test
 
     proc cleanup {} {
         # Clean up the test environment
-        array unset parms
-        ted notifier forget
-
-        # Delete all neighborhoods and reinitialize the module
-        rdb eval {DELETE FROM nbhoods}
-        rdb eval {DELETE FROM nbgroups}
-
-        nbhood   reconfigure
-        nbgroup  reconfigure
-        sat      mutate reconcile
-        rel      mutate reconcile
+        ted cleanup
     }
 
     #-------------------------------------------------------------------
@@ -217,107 +176,33 @@ NB1 Here     URBAN        100 100  80 80 120 80 100 120
     }
 
 
-    test CREATE-2.2 {stacking_order is set} -body {
-        ted order NBHOOD:CREATE $nb1
-        ted order NBHOOD:CREATE $nb2
-        ted query "SELECT n,longname,stacking_order FROM nbhoods"
-    } -cleanup {
-        cleanup
-    } -result {
-n   longname stacking_order 
---- -------- -------------- 
-NB1 Here     1              
-NB2 There    2              
-    }
-
-
-    test CREATE-2.3 {obscured_by is set} -body {
-        ted order NBHOOD:CREATE $nb1
-        ted order NBHOOD:CREATE $overnb1
-        ted query "SELECT n,longname,obscured_by FROM nbhoods"
-    } -cleanup {
-        cleanup
-    } -result {
-n   longname obscured_by 
---- -------- ----------- 
-NB1 Here     OV1         
-OV1 Over                 
-    }
-
-
-    test CREATE-2.4 {<Entity> create} -body {
+    test CREATE-2.2 {Effects} -setup {
+        ted create USAID
+    } -body {
         ted notifier bind ::nbhood <Entity>
+        ted notifier bind ::sat    <Entity>
         ted order NBHOOD:CREATE $nb1
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::nbhood <Entity> create NB1}
-    }
-
-
-    test CREATE-2.5 {Sat curves are created} -body {
-        ted notifier bind ::sat <Entity>
-        ted order NBHOOD:CREATE $nb1
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
         {::sat <Entity> create {NB1 USAID CAS}}
     }
 
 
-    test CREATE-3.1 {undo deletes the nbhood} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order NBHOOD:CREATE $nb2
-    } -body {
-        cif undo -test
-        ted query "SELECT n,longname FROM nbhoods"
-    } -cleanup {
-        cleanup
-    } -result {
-n   longname 
---- -------- 
-NB1 Here     
-    }
-
-
-    test CREATE-3.2 {On undo: <Entity> delete $n} -setup {
+    test CREATE-3.1 {undo effects} -setup {
+        ted create USAID
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted notifier bind ::nbhood <Entity>
+        ted notifier bind ::sat    <Entity>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::nbhood <Entity> delete NB1}
-    }
-
-
-    test CREATE-3.3 {undo updates obscured_by} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order NBHOOD:CREATE $overnb1
-    } -body {
-        cif undo -test
-        ted query "SELECT n,longname,obscured_by FROM nbhoods"
-    } -cleanup {
-        cleanup
-    } -result {
-n   longname obscured_by 
---- -------- ----------- 
-NB1 Here                 
-    }
-
-    test CREATE-3.4 {ORG Satisfaction curves are undone} -setup {
-        ted order NBHOOD:CREATE $nb1
-    } -body {
-        ted notifier bind ::sat <Entity>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
         {::sat <Entity> delete {NB1 USAID CAS}}
     }
 
@@ -337,159 +222,60 @@ NB1 Here
         n {Invalid neighborhood, none are defined}
     }
 
-    test DELETE-2.1 {Nbhood is deleted} -setup {
-        ted order NBHOOD:CREATE $nb1
+    test DELETE-2.1 {Effects} -setup {
+        ted create NB1 USAID SHIA NB1SHIA
+        sat mutate reconcile
+        rel mutate reconcile
     } -body {
-        ted order NBHOOD:DELETE n NB1
-        nbhood names
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test DELETE-2.2 {<Entity> delete} -setup {
-        ted order NBHOOD:CREATE $nb1
-    } -body {
-        ted notifier bind ::nbhood <Entity>
+        ted notifier bind ::nbhood  <Entity>
+        ted notifier bind ::nbgroup <Entity>
+        ted notifier bind ::sat     <Entity>
+        ted notifier bind ::rel     <Entity>
         ted order NBHOOD:DELETE n NB1
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::nbhood <Entity> delete NB1}
-    }
-
-    test DELETE-2.3 {Deletes nbhood groups} -setup {
-        ted order NBHOOD:CREATE         $nb1
-        ted order GROUP:NBHOOD:CREATE   $nbgrp
-    } -body {
-        ted notifier bind ::nbgroup <Entity>
-        ted order NBHOOD:DELETE n NB1
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::nbgroup <Entity> delete {NB1 PASH}}
-    }
-
-    test DELETE-2.4 {Deletes sat curves} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order GROUP:NBHOOD:CREATE   $nbgrp
-    } -body {
-        ted notifier bind ::sat <Entity>
-        ted order NBHOOD:DELETE n NB1
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
+        {::nbgroup <Entity> delete {NB1 SHIA}}
+        {::sat <Entity> delete {NB1 SHIA AUT}}
+        {::sat <Entity> delete {NB1 SHIA CUL}}
+        {::sat <Entity> delete {NB1 SHIA QOL}}
+        {::sat <Entity> delete {NB1 SHIA SFT}}
         {::sat <Entity> delete {NB1 USAID CAS}}
-        {::sat <Entity> delete {NB1 PASH AUT}}
-        {::sat <Entity> delete {NB1 PASH CUL}}
-        {::sat <Entity> delete {NB1 PASH QOL}}
-        {::sat <Entity> delete {NB1 PASH SFT}}
-    }
-
-    test DELETE-2.5 {Deletes relationships} -setup {
-        ted order NBHOOD:CREATE         $nb1
-        ted order GROUP:NBHOOD:CREATE   $nbgrp
-    } -body {
-        ted notifier bind ::rel <Entity>
-        ted order NBHOOD:DELETE n NB1
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rel <Entity> delete {NB1 PASH PASH}}
-        {::rel <Entity> delete {NB1 USAID PASH}}
-        {::rel <Entity> delete {NB1 PASH USAID}}
-    }
-
-    test DELETE-3.1 {Undo restores nbhood} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order NBHOOD:DELETE n NB1
-    } -body {
-        cif undo -test
-        set parms [join [dict keys $nb1] ","]
-        ted query "SELECT $parms FROM nbhoods"
-    } -cleanup {
-        cleanup
-    } -result {
-n   longname urbanization refpoint polygon              
---- -------- ------------ -------- -------------------- 
-NB1 Here     URBAN        100 100  80 80 120 80 100 120 
+        {::rel <Entity> delete {NB1 SHIA SHIA}}
+        {::rel <Entity> delete {NB1 USAID SHIA}}
+        {::rel <Entity> delete {NB1 SHIA USAID}}
     }
 
 
-    test DELETE-3.2 {On undo, <Entity> create} -setup {
-        ted order NBHOOD:CREATE $nb1
+    test DELETE-3.1 {Undo effects} -setup {
+        ted create NB1 USAID SHIA NB1SHIA
+        sat mutate reconcile
+        rel mutate reconcile
         ted order NBHOOD:DELETE n NB1
     } -body {
-        ted notifier bind ::nbhood <Entity>
+        ted notifier bind ::nbhood  <Entity>
+        ted notifier bind ::nbgroup <Entity>
+        ted notifier bind ::sat     <Entity>
+        ted notifier bind ::rel     <Entity>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::nbhood <Entity> create NB1}
-    }
-
-
-    test DELETE-3.3 {Undo restores nbhood groups} -setup {
-        ted order NBHOOD:CREATE         $nb1
-        ted order GROUP:NBHOOD:CREATE   $nbgrp
-        ted order NBHOOD:DELETE n NB1
-    } -body {
-        cif undo -test
-        ted query {SELECT * FROM nbgroups}
-    } -cleanup {
-        cleanup
-    } -result {
-n   g    local_name   demeanor   rollup_weight effects_factor 
---- ---- ------------ ---------- ------------- -------------- 
-NB1 PASH NB1 Pashtuns AGGRESSIVE 1.0           1.0            
-    }
-
-
-    test DELETE-3.4 {Undo restores sat curves} -setup {
-        ted order NBHOOD:CREATE         $nb1
-        ted order GROUP:NBHOOD:CREATE   $nbgrp
-        ted order NBHOOD:DELETE n NB1
-    } -body {
-        ted notifier bind ::sat <Entity>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::sat <Entity> create {NB1 PASH AUT}}
-        {::sat <Entity> create {NB1 PASH CUL}}
-        {::sat <Entity> create {NB1 PASH QOL}}
-        {::sat <Entity> create {NB1 PASH SFT}}
+        {::nbgroup <Entity> create {NB1 SHIA}}
+        {::sat <Entity> create {NB1 SHIA AUT}}
+        {::sat <Entity> create {NB1 SHIA CUL}}
+        {::sat <Entity> create {NB1 SHIA QOL}}
+        {::sat <Entity> create {NB1 SHIA SFT}}
         {::sat <Entity> create {NB1 USAID CAS}}
-        {::sat <Entity> update {NB1 USAID CAS}}
-        {::sat <Entity> update {NB1 PASH AUT}}
-        {::sat <Entity> update {NB1 PASH CUL}}
-        {::sat <Entity> update {NB1 PASH QOL}}
-        {::sat <Entity> update {NB1 PASH SFT}}
+        {::rel <Entity> create {NB1 SHIA SHIA}}
+        {::rel <Entity> create {NB1 USAID SHIA}}
+        {::rel <Entity> create {NB1 SHIA USAID}}
     }
 
-    test DELETE-3.5 {Undo restores relationships} -setup {
-        ted order NBHOOD:CREATE         $nb1
-        ted order GROUP:NBHOOD:CREATE   $nbgrp
-        ted order NBHOOD:DELETE n NB1
-    } -body {
-        ted notifier bind ::rel <Entity>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rel <Entity> create {NB1 PASH PASH}}
-        {::rel <Entity> create {NB1 USAID PASH}}
-        {::rel <Entity> create {NB1 PASH USAID}}
-        {::rel <Entity> update {NB1 PASH PASH}}
-        {::rel <Entity> update {NB1 USAID PASH}}
-        {::rel <Entity> update {NB1 PASH USAID}}
-    }
 
     #-------------------------------------------------------------------
     # NBHOOD:LOWER
@@ -733,23 +519,8 @@ n   longname urbanization refpoint polygon
 NB1 Not Here RURAL        5 5      0 0 10 0 10 10 0 10 
     }
 
-    test UPDATE-2.2 {stacking_order,obscured_by are set} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order NBHOOD:CREATE $overnb1
-    } -body {
-        # Move OV1 over NB1
-        ted order NBHOOD:UPDATE [dict merge $overnb1 {n OV1}]
-        ted query "SELECT n,longname,stacking_order,obscured_by FROM nbhoods"
-    } -cleanup {
-        cleanup
-    } -result {
-n   longname stacking_order obscured_by 
---- -------- -------------- ----------- 
-NB1 Here     1              OV1         
-OV1 Over     2                          
-    }
 
-    test UPDATE-2.3 {<Entity> update} -setup {
+    test UPDATE-2.2 {<Entity> update} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted notifier bind ::nbhood <Entity>
@@ -766,36 +537,14 @@ OV1 Over     2
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:UPDATE [dict merge $overnb1 {n NB1}]
     } -body {
-        cif undo
-        ted query {
-            SELECT n,longname,urbanization,refpoint,polygon FROM nbhoods
-        }
+        ted notifier bind ::nbhood <Entity>
+        cif undo -test
+        ted notifier received
     } -cleanup {
         cleanup
     } -result {
-n   longname urbanization refpoint polygon              
---- -------- ------------ -------- -------------------- 
-NB1 Here     URBAN        100 100  80 80 120 80 100 120 
+        {::nbhood <Entity> update NB1}
     }
-
-    test UPDATE-3.2 {stacking_order,obscured_by are undone} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order NBHOOD:CREATE $nb2
-
-        # Move OV1 over NB1
-        ted order NBHOOD:UPDATE [dict merge $overnb1 {n NB2}]
-    } -body {
-        cif undo
-        ted query "SELECT n,longname,stacking_order,obscured_by FROM nbhoods"
-    } -cleanup {
-        cleanup
-    } -result {
-n   longname stacking_order obscured_by 
---- -------- -------------- ----------- 
-NB1 Here     1                          
-NB2 There    2                          
-    }
-
 
     #-------------------------------------------------------------------
     # NBHOOD:UPDATE:MULTI
@@ -838,35 +587,16 @@ NB2 There    2
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $nb2
     } -body {
+        ted notifier bind ::nbhood <Entity>
         ted order NBHOOD:UPDATE:MULTI ids NB1 urbanization SUBURBAN
-
-        ted query "SELECT n,urbanization FROM nbhoods"
+        ted notifier received
     } -cleanup {
         cleanup
     } -result {
-n   urbanization 
---- ------------ 
-NB1 SUBURBAN     
-NB2 RURAL        
+        {::nbhood <Entity> update NB1}
     }
 
     test UPDATE:MULTI-2.2 {several nbhoods are updated} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order NBHOOD:CREATE $nb2
-    } -body {
-        ted order NBHOOD:UPDATE:MULTI ids {NB1 NB2} urbanization SUBURBAN
-
-        ted query "SELECT n,urbanization FROM nbhoods"
-    } -cleanup {
-        cleanup
-    } -result {
-n   urbanization 
---- ------------ 
-NB1 SUBURBAN     
-NB2 SUBURBAN     
-    }
-
-    test UPDATE:MULTI-2.3 {<Entity> update} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $nb2
     } -body {
@@ -881,26 +611,7 @@ NB2 SUBURBAN
     }
 
 
-    test UPDATE:MULTI-3.1 {undo undoes the change} -setup {
-        ted order NBHOOD:CREATE $nb1
-        ted order NBHOOD:CREATE $nb2
-        ted order NBHOOD:UPDATE:MULTI ids {NB1 NB2} urbanization SUBURBAN
-    } -body {
-        cif undo -test
-        ted query {
-            SELECT n,urbanization FROM nbhoods
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-n   urbanization 
---- ------------ 
-NB1 URBAN        
-NB2 RURAL        
-    }
-
-
-    test UPDATE:MULTI-3.3 {<Entity> update on undo} -setup {
+    test UPDATE:MULTI-3.1 {Undo effects} -setup {
         ted order NBHOOD:CREATE $nb1
         ted order NBHOOD:CREATE $nb2
         ted order NBHOOD:UPDATE:MULTI ids {NB1 NB2} urbanization SUBURBAN
@@ -920,7 +631,6 @@ NB2 RURAL
     # Cleanup
 
     cleanupTests
-    scenario new
 }
 
 namespace delete ::athena_test::tests::

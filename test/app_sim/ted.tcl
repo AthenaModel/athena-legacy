@@ -305,6 +305,8 @@ snit::type ted {
         foreach module $cleanupModules {
             {*}$module reconfigure
         }
+
+        cif clear
     }
 
     # sendex ?-error? command...
