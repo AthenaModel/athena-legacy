@@ -269,10 +269,10 @@ actor sat
 message GUI    cif      undo
 message cif    nbhood   "mutate delete \$n"
 message nbhood GUI      "<Entity> delete \$n"
-message cif    sat      "mutate reconcile"
-message sat    GUI      "<Entity> delete {\$n \$g \$c}" {
+message cif    sat      "Delete \$n \$g \$c" {
     For each deleted ORG satisfaction curve.
 }
+message sat    GUI      "<Entity> delete {\$n \$g \$c}"
 }>>
 
 <<subsection "NBHOOD:DELETE">>
@@ -315,29 +315,20 @@ actor sat
 actor rel
 
 message GUI     cif      undo
-message cif     nbhood   "mutate create \$parmdict"
+message cif     nbhood   "Restore \$parmdict"
 message nbhood  GUI      "<Entity> create \$n"
-message cif     nbgroup  "mutate create \$parmdict" {
+message cif     nbgroup  "Restore \$parmdict" {
     For each restored neighborhood group:
 }
 message nbgroup GUI      "<Entity> create {\$n \$g}"
-message cif     sat      "mutate reconcile"
-message sat     GUI      "<Entity> create {\$n \$g \$c}" {
+message cif     sat      "Restore \$parmdict" {
     For each restored satisfaction curve.
 }
-message cif     sat      "mutate update \$parmdict" {
-    For each restored satisfaction curve.
-}
-message sat     GUI      "<Entity> update {\$n \$g \$c}"
-
-message cif     rel      "mutate reconcile"
-message rel     GUI      "<Entity> create {\$n \$f \$g}" {
+message sat     GUI      "<Entity> create {\$n \$g \$c}"
+message cif     rel      "Restore \$parmdict" {
     For each restored relationship.
 }
-message cif     rel      "mutate update \$parmdict" {
-    For each restored relationship.
-}
-message rel     GUI      "<Entity> update {\$n \$f \$g}"
+message rel     GUI      "<Entity> create {\$n \$f \$g}"
 }>>
 
 
@@ -484,10 +475,10 @@ actor rel
 message GUI      cif       undo
 message cif      civgroup  "mutate delete \$g"
 message civgroup GUI       "<Entity> delete \$g"
-message cif      rel       "mutate reconcile"
-message rel      GUI       "<Entity> delete {\$n \$f \$g}" {
+message cif      rel       "Delete \$n \$f \$g" {
    For each deleted relationship (if any).
 }
+message rel      GUI       "<Entity> delete {\$n \$f \$g}"
 }>>
 
 
@@ -531,31 +522,22 @@ actor sat
 actor rel
 
 message GUI       cif       undo
-message cif       civgroup  "mutate create \$parmdict"
+message cif       civgroup  "Restore \$parmdict"
 message civgroup  GUI       "<Entity> create \$g"
 
-message cif       nbgroup   "mutate create \$parmdict" {
+message cif       nbgroup   "Restore \$parmdict" {
     For each restored group.
 }
 message nbgroup   GUI       "<Entity> create {\$n \$g}"
 
-message cif       sat       "mutate reconcile"
-message sat       GUI       "<Entity> create {\$n \$g \$c}" {
+message cif       sat       "Restore \$parmdict" {
     For each restored curve.
 }
-message cif       sat       "mutate update \$parmdict" {
-    For each restored curve.
-}
-message sat       GUI       "<Entity> update {\$n \$g \$c}"
-
-message cif       rel       "mutate reconcile"
-message rel       GUI       "<Entity> create {\$n \$f \$g}" {
+message sat       GUI       "<Entity> create {\$n \$g \$c}"
+message cif       rel       "Restore \$parmdict" {
     For each restored relationship.
 }
-message cif       rel       "mutate update \$parmdict" {
-    For each restored relationship.
-}
-message rel       GUI       "<Entity> update {\$n \$f \$g}"
+message rel       GUI       "<Entity> create {\$n \$f \$g}"
 }>>
 
 
@@ -647,10 +629,10 @@ actor rel
 message GUI      cif       undo
 message cif      frcgroup  "mutate delete \$g"
 message frcgroup GUI       "<Entity> delete \$g"
-message cif      rel       "mutate reconcile"
-message rel      GUI       "<Entity> delete {\$n \$f \$g}" {
+message cif      rel       "Delete \$n \$f \$g" {
     For each deleted relationship.
 }
+message rel      GUI       "<Entity> delete {\$n \$f \$g}"
 }>>
 
 
@@ -682,16 +664,12 @@ actor frcgroup
 actor rel
 
 message GUI       cif       undo
-message cif       frcgroup  "mutate create \$parmdict"
+message cif       frcgroup  "Restore \$parmdict"
 message frcgroup  GUI       "<Entity> create \$g"
-message cif       rel       "mutate reconcile"
-message rel       GUI       "<Entity> create {\$n \$f \$g}" {
+message cif       rel       "Restore \$parmdict" {
     For each restored relationship.
 }
-message cif       rel       "mutate update \$parmdict" {
-    For each restored relationship.
-}
-message rel       GUI       "<Entity> update {\$n \$f \$g}"
+message rel       GUI       "<Entity> create {\$n \$f \$g}"
 }>>
 
 
@@ -788,14 +766,14 @@ actor rel
 message GUI     cif        undo
 message cif     nbgroup    "mutate delete {\$n \$g}"
 message nbgroup GUI        "<Entity> delete {\$n \$g}"
-message cif     sat        "mutate reconcile"
-message sat     GUI        "<Entity> delete {\$n \$g \$c}" {
+message cif     sat        "Delete \$n \$g \$c" {
     For all deleted curves.
 }
-message cif     rel        "mutate reconcile"
-message rel     GUI        "<Entity> delete {\$n \$f \$g}" {
+message sat     GUI        "<Entity> delete {\$n \$g \$c}"
+message cif     rel        "Delete \$n \$f \$g" {
     For all deleted relationships.
 }
+message rel     GUI        "<Entity> delete {\$n \$f \$g}"
 }>>
 
 
@@ -833,25 +811,16 @@ actor sat
 actor rel
 
 message GUI     cif        undo
-message cif     nbgroup    "mutate create {\$n \$g}"
+message cif     nbgroup    "Restore \$parmdict"
 message nbgroup GUI        "<Entity> create {\$n \$g}"
-message cif     sat        "mutate reconcile"
-message sat     GUI        "<Entity> create {\$n \$g \$c}" {
+message cif     sat        "Restore \$parmdict" {
     For all restored curves.
 }
-message cif     sat        "mutate update {\$n \$g \$c}" {
-    For all restored curves.
-}
-message sat     GUI        "<Entity> update {\$n \$g \$c}"
-message cif     rel        "mutate reconcile"
-message rel     GUI        "<Entity> create {\$n \$f \$g}" {
+message sat     GUI        "<Entity> create {\$n \$g \$c}"
+message cif     rel        "Restore \$parmdict" {
     For all restored relationships.
 }
-message cif     rel        "mutate update {\$n \$f \$g}" {
-    For all restored relationships.
-}
-message rel     GUI        "<Entity> update {\$n \$f \$g}"
-
+message rel     GUI        "<Entity> create {\$n \$f \$g}"
 }>>
 
 
@@ -949,14 +918,14 @@ actor rel
 message GUI      cif        undo
 message cif      orggroup   "mutate delete \$g"
 message orggroup GUI        "<Entity> delete \$g"
-message cif      sat        "mutate reconcile"
-message sat      GUI        "<Entity> delete {\$n \$g \$c}" {
+message cif      sat        "Delete \$n \$g \$c" {
     For all deleted curves.
 }
-message cif      rel        "mutate reconcile"
-message rel      GUI        "<Entity> delete {\$n \$f \$g}" {
+message sat      GUI        "<Entity> delete {\$n \$g \$c}"
+message cif      rel        "Delete \$n \$f \$g" {
     For all deleted relationships.
 }
+message rel      GUI        "<Entity> delete {\$n \$f \$g}"
 }>>
 
 
@@ -995,25 +964,16 @@ actor rel
 
 
 message GUI      cif        undo
-message cif      orggroup   "mutate create \$parmdict"
+message cif      orggroup   "Restore \$parmdict"
 message orggroup GUI        "<Entity> create \$g"
-message cif      sat        "mutate reconcile"
-message sat      GUI        "<Entity> create {\$n \$g \$c}" {
+message cif      sat        "Restore \$parmdict" {
     For all restored curves.
 }
-message cif      sat        "mutate update {\$n \$g \$c}" {
-    For all restored curves.
-}
-message sat      GUI        "<Entity> update {\$n \$g \$c}"
-message cif      rel        "mutate reconcile"
-message rel      GUI        "<Entity> create {\$n \$f \$g}" {
+message sat      GUI        "<Entity> create {\$n \$g \$c}"
+message cif      rel        "Restore \$parmdict" {
     For all restored relationships.
 }
-message cif      rel        "mutate update {\$n \$f \$g}" {
-    For all restored relationships.
-}
-message rel      GUI        "<Entity> update {\$n \$f \$g}"
-
+message rel      GUI        "<Entity> create {\$n \$f \$g}"
 }>>
 
 

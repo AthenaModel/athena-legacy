@@ -234,16 +234,16 @@ snit::type nbhood {
         notifier send ::nbhood <Entity> delete $n
 
         # NEXT, return aggregate undo script.
-        return [mytypemethod RestoreNbhood [array get undoData]]
+        return [mytypemethod Restore [array get undoData]]
     }
 
-    # RestoreNbhood parmdict
+    # Restore parmdict
     #
     # parmdict     A complete nbhoods row, to be restored as is.
     #
     # Restores a row in the nbhoods table.
 
-    typemethod RestoreNbhood {parmdict} {
+    typemethod Restore {parmdict} {
         # FIRST, restore the database row
         rdb insert nbhoods $parmdict
 
@@ -650,6 +650,7 @@ order define ::nbhood NBHOOD:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 
 
 
