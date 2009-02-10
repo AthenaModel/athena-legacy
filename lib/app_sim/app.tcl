@@ -89,6 +89,7 @@ snit::type app {
         nbgroup  init
         sat      init
         rel      init
+        coop     init
 
         # NEXT, Withdraw the default toplevel window, and create 
         # the main GUI components.

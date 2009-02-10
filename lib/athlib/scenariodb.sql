@@ -289,14 +289,54 @@ CREATE TABLE rel_nfg (
 
 
 ------------------------------------------------------------------------
+-- Initial Cooperation Data
+
+-- coop_nfg: Group f's cooperation with group g in neighborhood n, that
+-- is, the likelihood that f will provide intel to g.
+--
+-- At present, cooperation is defined only between all
+-- nbgroups nf and all force groups g.
+
+CREATE TABLE coop_nfg (
+    -- Symbolic nbhood name.
+    n           TEXT,
+
+    -- Symbolic civ group name: group f
+    f           TEXT,
+
+    -- Symbolic frc group name: group g
+    g           TEXT,
+
+    -- cooperation of f with g at time 0.
+    coop0       DOUBLE DEFAULT 0.0,
+
+    PRIMARY KEY (n, f, g)
+);
+
+
+------------------------------------------------------------------------
 -- Primary Entities
 --
 -- Anything with an ID and a long name is a primary entity.  All IDs and 
 -- long names of primary entities must be unique.  The following view is 
--- used to check this.
+-- used to check this, and to retrieve the entity type for a given ID.
 
 CREATE VIEW entities AS
-SELECT 'PLAYBOX' AS id, 'Playbox' AS longname                UNION
-SELECT n         AS id, longname  AS longname FROM nbhoods   UNION
-SELECT g         AS id, longname  AS longname FROM groups    UNION
-SELECT c         AS id, longname  AS longname FROM concerns;
+SELECT 'PLAYBOX' AS id, 
+       'Playbox' AS longname, 
+       'pseudo'  AS etype
+UNION
+SELECT n         AS id, 
+       longname  AS longname, 
+       'nbhood'  AS etype 
+FROM nbhoods
+UNION
+SELECT g         AS id, 
+       longname  AS longname, 
+       'group'   AS etype 
+FROM groups
+UNION
+SELECT c         AS id, 
+       longname  AS longname, 
+       'concern' AS etype 
+FROM concerns;

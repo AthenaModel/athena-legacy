@@ -147,31 +147,46 @@ BLUE US Army  #0000ff FRC   REGULAR   0     1
     }
 
 
-    test CREATE-2.2 {Effects} -body {
+    test CREATE-2.2 {Effects} -setup {
+        ted create NB1 SHIA NB1SHIA
+        coop mutate reconcile
+    } -body {
         ted notifier bind ::frcgroup <Entity>
         ted notifier bind ::rel      <Entity>
+        ted notifier bind ::coop     <Entity>
         ted order GROUP:FORCE:CREATE $blue
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::frcgroup <Entity> create BLUE}
+        {::rel <Entity> create {NB1 BLUE SHIA}}
+        {::rel <Entity> create {NB1 SHIA BLUE}}
+        {::rel <Entity> create {NB1 SHIA SHIA}}
         {::rel <Entity> create {PLAYBOX BLUE BLUE}}
+        {::coop <Entity> create {NB1 SHIA BLUE}}
     }
 
 
     test CREATE-3.1 {undo effects} -setup {
+        ted create NB1 SHIA NB1SHIA
+        coop mutate reconcile
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted notifier bind ::frcgroup <Entity>
         ted notifier bind ::rel      <Entity>
+        ted notifier bind ::coop     <Entity>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::frcgroup <Entity> delete BLUE}
+        {::rel <Entity> delete {NB1 BLUE SHIA}}
+        {::rel <Entity> delete {NB1 SHIA BLUE}}
+        {::rel <Entity> delete {NB1 SHIA SHIA}}
         {::rel <Entity> delete {PLAYBOX BLUE BLUE}}
+        {::coop <Entity> delete {NB1 SHIA BLUE}}
     }
 
 
@@ -193,25 +208,32 @@ BLUE US Army  #0000ff FRC   REGULAR   0     1
 
 
     test DELETE-2.1 {Effects} -setup {
+        ted create NB1 SHIA NB1SHIA
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted notifier bind ::frcgroup <Entity>
         ted notifier bind ::rel      <Entity>
+        ted notifier bind ::coop     <Entity>
         ted order GROUP:FORCE:DELETE g BLUE
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::frcgroup <Entity> delete BLUE}
+        {::rel <Entity> delete {NB1 BLUE SHIA}}
+        {::rel <Entity> delete {NB1 SHIA BLUE}}
         {::rel <Entity> delete {PLAYBOX BLUE BLUE}}
+        {::coop <Entity> delete {NB1 SHIA BLUE}}
     }
 
 
     test DELETE-3.1 {Undo effects} -setup {
+        ted create NB1 SHIA NB1SHIA
         ted order GROUP:FORCE:CREATE $blue
         ted order GROUP:FORCE:DELETE g BLUE
     } -body {
         ted notifier bind ::frcgroup <Entity>
+        ted notifier bind ::coop     <Entity>
         ted notifier bind ::rel      <Entity>
         cif undo -test
         ted notifier received
@@ -219,7 +241,10 @@ BLUE US Army  #0000ff FRC   REGULAR   0     1
         cleanup
     } -result {
         {::frcgroup <Entity> create BLUE}
+        {::rel <Entity> create {NB1 BLUE SHIA}}
+        {::rel <Entity> create {NB1 SHIA BLUE}}
         {::rel <Entity> create {PLAYBOX BLUE BLUE}}
+        {::coop <Entity> create {NB1 SHIA BLUE}}
     }
 
 

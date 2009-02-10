@@ -37,6 +37,7 @@ snit::type ted {
         orggroups
         sat_ngc
         rel_nfg
+        coop_nfg
     }
 
     # cleanupModules -- list of modules that need to be reconfigured
@@ -50,6 +51,7 @@ snit::type ted {
         orggroup
         sat
         rel
+        coop
     }
 
     #-------------------------------------------------------------------

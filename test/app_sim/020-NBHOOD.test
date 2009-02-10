@@ -223,14 +223,16 @@ NB1 Here     URBAN        100 100  80 80 120 80 100 120
     }
 
     test DELETE-2.1 {Effects} -setup {
-        ted create NB1 USAID SHIA NB1SHIA
-        sat mutate reconcile
-        rel mutate reconcile
+        ted create NB1 BLUE SHIA NB1SHIA
+        sat  mutate reconcile
+        rel  mutate reconcile
+        coop mutate reconcile
     } -body {
         ted notifier bind ::nbhood  <Entity>
         ted notifier bind ::nbgroup <Entity>
         ted notifier bind ::sat     <Entity>
         ted notifier bind ::rel     <Entity>
+        ted notifier bind ::coop    <Entity>
         ted order NBHOOD:DELETE n NB1
         ted notifier received
     } -cleanup {
@@ -242,23 +244,25 @@ NB1 Here     URBAN        100 100  80 80 120 80 100 120
         {::sat <Entity> delete {NB1 SHIA CUL}}
         {::sat <Entity> delete {NB1 SHIA QOL}}
         {::sat <Entity> delete {NB1 SHIA SFT}}
-        {::sat <Entity> delete {NB1 USAID CAS}}
+        {::rel <Entity> delete {NB1 BLUE SHIA}}
+        {::rel <Entity> delete {NB1 SHIA BLUE}}
         {::rel <Entity> delete {NB1 SHIA SHIA}}
-        {::rel <Entity> delete {NB1 USAID SHIA}}
-        {::rel <Entity> delete {NB1 SHIA USAID}}
+        {::coop <Entity> delete {NB1 SHIA BLUE}}
     }
 
 
     test DELETE-3.1 {Undo effects} -setup {
-        ted create NB1 USAID SHIA NB1SHIA
-        sat mutate reconcile
-        rel mutate reconcile
+        ted create NB1 BLUE SHIA NB1SHIA
+        sat  mutate reconcile
+        rel  mutate reconcile
+        coop mutate reconcile
         ted order NBHOOD:DELETE n NB1
     } -body {
         ted notifier bind ::nbhood  <Entity>
         ted notifier bind ::nbgroup <Entity>
         ted notifier bind ::sat     <Entity>
         ted notifier bind ::rel     <Entity>
+        ted notifier bind ::coop    <Entity>
         cif undo -test
         ted notifier received
     } -cleanup {
@@ -270,10 +274,10 @@ NB1 Here     URBAN        100 100  80 80 120 80 100 120
         {::sat <Entity> create {NB1 SHIA CUL}}
         {::sat <Entity> create {NB1 SHIA QOL}}
         {::sat <Entity> create {NB1 SHIA SFT}}
-        {::sat <Entity> create {NB1 USAID CAS}}
+        {::rel <Entity> create {NB1 BLUE SHIA}}
+        {::rel <Entity> create {NB1 SHIA BLUE}}
         {::rel <Entity> create {NB1 SHIA SHIA}}
-        {::rel <Entity> create {NB1 USAID SHIA}}
-        {::rel <Entity> create {NB1 SHIA USAID}}
+        {::coop <Entity> create {NB1 SHIA BLUE}}
     }
 
 

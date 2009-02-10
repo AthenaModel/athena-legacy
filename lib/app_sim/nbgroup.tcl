@@ -284,8 +284,9 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
 
     # NEXT, create the group and dependent entities.
     lappend undo [$type mutate create [array get parms]]
-    lappend undo [sat mutate reconcile]
-    lappend undo [rel mutate reconcile]
+    lappend undo [sat  mutate reconcile]
+    lappend undo [rel  mutate reconcile]
+    lappend undo [coop mutate reconcile]
     
     setundo [join $undo \n]
 }
@@ -338,8 +339,9 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
 
     # NEXT, delete the group and dependent entities
     lappend undo [$type mutate delete $parms(n) $parms(g)]
-    lappend undo [sat mutate reconcile]
-    lappend undo [rel mutate reconcile]
+    lappend undo [sat  mutate reconcile]
+    lappend undo [rel  mutate reconcile]
+    lappend undo [coop mutate reconcile]
     
     setundo [join $undo \n]
 }
