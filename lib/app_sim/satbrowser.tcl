@@ -6,9 +6,9 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    satbrowser(sim) package: Nbhood Group browser.
+#    satbrowser(sim) package: Satisfaction browser.
 #
-#    This widget displays a formatted list of nbhood group records.
+#    This widget displays a formatted list of satisfaction curve records.
 #    Entries in the list are managed by the tablebrowser(n).  
 #
 #-----------------------------------------------------------------------

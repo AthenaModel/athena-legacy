@@ -282,6 +282,13 @@ snit::widget appwin {
         $self AddOrder $submenu NBHOOD:RAISE
         $self AddOrder $submenu NBHOOD:DELETE
 
+        # Orders/Relationship Menu
+        set submenu [menu $ordersmenu.rel]
+        $ordersmenu add cascade -label "Relationship" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu RELATIONSHIP:UPDATE
+
         # Orders/Satisfaction Menu
         set submenu [menu $ordersmenu.sat]
         $ordersmenu add cascade -label "Satisfaction" \
@@ -424,6 +431,16 @@ snit::widget appwin {
             -sticky  nsew                  \
             -padding 2                     \
             -text    "OrgGrps"
+
+        # NEXT, add the relationship browser to the content notebook
+        relbrowser $content.rel            \
+            -width   600                   \
+            -height  600
+
+        $content add $content.rel          \
+            -sticky  nsew                  \
+            -padding 2                     \
+            -text    "Rel"
 
         # NEXT, add the scrolling log to the content notebook
 

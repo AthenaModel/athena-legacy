@@ -75,6 +75,7 @@ source [file join $::app_sim::library frcgroupbrowser.tcl ]
 source [file join $::app_sim::library orggroupbrowser.tcl ]
 source [file join $::app_sim::library nbgroupbrowser.tcl  ]
 source [file join $::app_sim::library satbrowser.tcl      ]
+source [file join $::app_sim::library relbrowser.tcl      ]
 
 
 
