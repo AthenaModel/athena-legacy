@@ -26,6 +26,7 @@ namespace eval ::athlib:: {
         hexcolor      \
         ident         \
         polygon       \
+        qcooperation  \
         qsaliency     \
         qsat          \
         qtrend        \
@@ -85,6 +86,17 @@ namespace eval ::athlib:: {
 
 #-------------------------------------------------------------------
 # Qualities
+
+# Cooperation
+::marsutil::quality ::athlib::qcooperation {
+    AC "Always Cooperative"      99.9 100.0 100.0
+    VC "Very Cooperative"        80.0  90.0  99.9
+    C  "Cooperative"             60.0  70.0  80.0
+    MC "Marginally Cooperative"  40.0  50.0  60.0
+    U  "Uncooperative"           20.0  30.0  40.0
+    VU "Very Uncooperative"       1.0  10.0  20.0
+    NC "Never Cooperative"        0.0   0.0   1.0
+} -min 0.0 -max 100.0 -format {%5.1f} -bounds yes
 
 # Saliency (Of a Factor)
 ::marsutil::quality ::athlib::qsaliency {

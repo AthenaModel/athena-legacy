@@ -90,3 +90,12 @@ SELECT n || ' ' || f || ' ' || g                     AS id,
        g                                             AS g,
        format('%+4.1f', rel)                         AS rel
 FROM rel_nfg;
+
+-- A coop_nfg view for use by the GUI
+CREATE TEMPORARY VIEW gui_coop_nfg AS
+SELECT n || ' ' || f || ' ' || g                     AS id,
+       n                                             AS n,
+       f                                             AS f,
+       g                                             AS g,
+       format('%+6.1f', coop0)                       AS coop0
+FROM coop_nfg;

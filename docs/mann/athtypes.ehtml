@@ -111,6 +111,15 @@ single argument, or as one argument per coordinate.  On error, throws
 an error with <code>-errorcode</code> <b>INVALID</b>.<p>
 
 
+<<defitem qcooperation {qcooperation <i>subcommand</i> ?<i>args</i>?}>>
+
+A <<xref mars:quality(n)>> type, representing the cooperation of
+one group with another, i.e., the likelihood that the first group will
+pass intel to the second.<p>
+
+<<::athlib::qcooperation html>>
+
+
 <<defitem qsaliency {qsaliency <i>subcommand</i> ?<i>args</i>?}>>
 
 A <<xref mars:quality(n)>> type, representing the saliency of a

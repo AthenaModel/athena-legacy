@@ -252,17 +252,17 @@ order define ::coop COOPERATION:UPDATE {
     title "Update Cooperation"
     table coop_nfg
     parms {
-        n    {ptype key  label "Neighborhood" }
-        f    {ptype key  label "Of Group"     }
-        g    {ptype key  label "With Group"   }
-        coop  {ptype coop  label "Cooperation" }
+        n      {ptype key   label "Neighborhood" }
+        f      {ptype key   label "Of Group"     }
+        g      {ptype key   label "With Group"   }
+        coop0  {ptype coop  label "Cooperation" }
     }
 } {
     # FIRST, prepare the parameters
-    prepare n        -toupper  -required -type [list ::coop nbhood]
-    prepare f        -toupper  -required -type group
-    prepare g        -toupper  -required -type group
-    prepare coop      -toupper            -type rgroupcoop
+    prepare n        -toupper  -required -type nbhood
+    prepare f        -toupper  -required -type civgroup
+    prepare g        -toupper  -required -type frcgroup
+    prepare coop0    -toupper            -type qcooperation
 
     returnOnError
 
@@ -288,13 +288,13 @@ order define ::coop COOPERATION:UPDATE:MULTI {
     table gui_coop_nfg
     parms {
         ids            {ptype ids       label "IDs"           }
-        coop            {ptype coop       label "Cooperation"  }
+        coop0          {ptype coop      label "Cooperation"  }
     }
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof coop
 
-    prepare coop      -toupper            -type rgroupcoop
+    prepare coop0    -toupper            -type qcooperation
 
     returnOnError
 

@@ -286,6 +286,7 @@ actor nbhood
 actor nbgroup
 actor sat
 actor rel
+actor coop
 
 message GUI     order    NBHOOD:DELETE
 message order   nbhood   "mutate delete \$n"
@@ -302,6 +303,10 @@ message order   rel      "mutate reconcile"
 message rel     GUI      "<Entity> delete {\$n \$f \$g}" {
     For each deleted relationship.
 }
+message order   coop     "mutate reconcile"
+message coop    GUI      "<Entity> delete {\$n \$f \$g}" {
+    For each deleted cooperation.
+}
 }>>
 
 <<sequence -narration {
@@ -313,6 +318,7 @@ actor nbhood
 actor nbgroup
 actor sat
 actor rel
+actor coop
 
 message GUI     cif      undo
 message cif     nbhood   "Restore \$parmdict"
@@ -329,6 +335,10 @@ message cif     rel      "Restore \$parmdict" {
     For each restored relationship.
 }
 message rel     GUI      "<Entity> create {\$n \$f \$g}"
+message cif     coop     "Restore \$parmdict" {
+    For each restored cooperation.
+}
+message coop    GUI      "<Entity> create {\$n \$f \$g}"
 }>>
 
 
@@ -493,6 +503,7 @@ actor civgroup
 actor nbgroup
 actor sat
 actor rel
+actor coop
 
 message GUI       order     GROUP:CIVILIAN:DELETE
 message order     civgroup  "mutate delete \$g"
@@ -509,6 +520,10 @@ message order     rel       "mutate reconcile"
 message rel       GUI       "<Entity> delete {\$n \$f \$g}" {
     For each deleted relationship.
 }
+message order   coop     "mutate reconcile"
+message coop    GUI      "<Entity> delete {\$n \$f \$g}" {
+    For each deleted cooperation.
+}
 }>>
 
 <<sequence -narration {
@@ -520,6 +535,7 @@ actor civgroup
 actor nbgroup
 actor sat
 actor rel
+actor coop
 
 message GUI       cif       undo
 message cif       civgroup  "Restore \$parmdict"
@@ -538,6 +554,10 @@ message cif       rel       "Restore \$parmdict" {
     For each restored relationship.
 }
 message rel       GUI       "<Entity> create {\$n \$f \$g}"
+message cif       coop      "Restore \$parmdict" {
+    For each restored cooperation.
+}
+message coop      GUI       "<Entity> create {\$n \$f \$g}"
 }>>
 
 
@@ -608,6 +628,7 @@ actor GUI
 actor order
 actor frcgroup
 actor rel
+actor coop
 
 message GUI      order     GROUP:FORCE:CREATE
 message order    frcgroup  "mutate create \$parmdict"
@@ -615,6 +636,10 @@ message frcgroup GUI       "<Entity> create \$g"
 message order    rel       "mutate reconcile"
 message rel      GUI       "<Entity> create {\$n \$f \$g}" {
     For each new relationship.
+}
+message order    coop      "mutate reconcile"
+message coop     GUI       "<Entity> create {\$n \$f \$g}" {
+    For each new cooperation.
 }
 }>>
 
@@ -625,6 +650,7 @@ actor GUI
 actor cif
 actor frcgroup
 actor rel
+actor coop
 
 message GUI      cif       undo
 message cif      frcgroup  "mutate delete \$g"
@@ -633,6 +659,10 @@ message cif      rel       "Delete \$n \$f \$g" {
     For each deleted relationship.
 }
 message rel      GUI       "<Entity> delete {\$n \$f \$g}"
+message cif      coop      "Delete \$n \$f \$g" {
+    For all deleted cooperations.
+}
+message coop     GUI       "<Entity> delete {\$n \$f \$g}"
 }>>
 
 
@@ -645,6 +675,7 @@ actor GUI
 actor order
 actor frcgroup
 actor rel
+actor coop
 
 message GUI       order     GROUP:FORCE:DELETE
 message order     frcgroup  "mutate delete \$g"
@@ -652,6 +683,10 @@ message frcgroup  GUI       "<Entity> delete \$g"
 message order     rel       "mutate reconcile"
 message rel       GUI       "<Entity> delete {\$n \$f \$g}" {
     For each deleted relationship.
+}
+message order   coop     "mutate reconcile"
+message coop    GUI      "<Entity> delete {\$n \$f \$g}" {
+    For each deleted cooperation.
 }
 }>>
 
@@ -662,6 +697,7 @@ actor GUI
 actor cif
 actor frcgroup
 actor rel
+actor coop
 
 message GUI       cif       undo
 message cif       frcgroup  "Restore \$parmdict"
@@ -670,6 +706,10 @@ message cif       rel       "Restore \$parmdict" {
     For each restored relationship.
 }
 message rel       GUI       "<Entity> create {\$n \$f \$g}"
+message cif       coop      "Restore \$parmdict" {
+    For each restored cooperation.
+}
+message coop      GUI       "<Entity> create {\$n \$f \$g}"
 }>>
 
 
@@ -740,6 +780,7 @@ actor order
 actor nbgroup
 actor sat
 actor rel
+actor coop
 
 message GUI     order      GROUP:NBHOOD:CREATE
 message order   nbgroup    "mutate create \$parmdict"
@@ -752,6 +793,10 @@ message order   rel        "mutate reconcile"
 message rel     GUI        "<Entity> create {\$n \$f \$g}" {
     For all created relationships.
 }
+message order    coop      "mutate reconcile"
+message coop     GUI       "<Entity> create {\$n \$f \$g}" {
+    For each new cooperation.
+}
 }>>
 
 <<sequence -narration {
@@ -762,6 +807,7 @@ actor cif
 actor nbgroup
 actor sat
 actor rel
+actor coop
 
 message GUI     cif        undo
 message cif     nbgroup    "mutate delete {\$n \$g}"
@@ -774,6 +820,10 @@ message cif     rel        "Delete \$n \$f \$g" {
     For all deleted relationships.
 }
 message rel     GUI        "<Entity> delete {\$n \$f \$g}"
+message cif     coop       "Delete \$n \$f \$g" {
+    For all deleted cooperations.
+}
+message coop    GUI        "<Entity> delete {\$n \$f \$g}"
 }>>
 
 
@@ -787,6 +837,7 @@ actor order
 actor nbgroup
 actor sat
 actor rel
+actor coop
 
 message GUI     order      GROUP:NBHOOD:DELETE
 message order   nbgroup    "mutate delete {\$n \$g}"
@@ -799,6 +850,10 @@ message order   rel        "mutate reconcile"
 message rel     GUI        "<Entity> deleted {\$n \$f \$g}" {
     For all deleted relationships.
 }
+message order   coop     "mutate reconcile"
+message coop    GUI      "<Entity> delete {\$n \$f \$g}" {
+    For each deleted cooperation.
+}
 }>>
 
 <<sequence -narration {
@@ -809,6 +864,7 @@ actor cif
 actor nbgroup
 actor sat
 actor rel
+actor coop
 
 message GUI     cif        undo
 message cif     nbgroup    "Restore \$parmdict"
@@ -821,6 +877,10 @@ message cif     rel        "Restore \$parmdict" {
     For all restored relationships.
 }
 message rel     GUI        "<Entity> create {\$n \$f \$g}"
+message cif     coop       "Restore \$parmdict" {
+    For each restored cooperation.
+}
+message coop    GUI        "<Entity> create {\$n \$f \$g}"
 }>>
 
 
@@ -1143,6 +1203,63 @@ message GUI     cif      undo
 action  cif              "For all updated relationships:"
 message cif     rel      "mutate update \$parmdict"
 message rel     GUI      "<Entity> update {\$n \$f \$g}"
+}>>
+
+
+<<section "COOPERATION:* ORDERS">>
+
+<<subsection "COOPERATION:UPDATE">>
+
+<<sequence -narration {
+comment "On send: update the cooperation data."
+
+actor GUI
+actor order
+actor coop
+
+message GUI     order    COOPERATION:UPDATE
+message order   coop     "mutate update \$parmdict"
+message coop    GUI      "<Entity> update {\$n \$f \$g}"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous cooperation data."
+
+actor GUI
+actor cif
+actor coop
+
+message GUI     cif      undo
+message cif     coop     "mutate update \$parmdict"
+message coop    GUI      "<Entity> update {\$n \$f \$g}"
+}>>
+
+<<subsection "COOPERATION:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the cooperation data."
+
+actor GUI
+actor order
+actor coop
+
+message GUI     order    COOPERATION:UPDATE:MULTI
+action  order            "For all updated cooperations:"
+message order   coop     "mutate update \$parmdict"
+message coop    GUI      "<Entity> update {\$n \$f \$g}"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous cooperation data."
+
+actor GUI
+actor cif
+actor coop
+
+message GUI     cif      undo
+action  cif              "For all updated cooperations:"
+message cif     coop     "mutate update \$parmdict"
+message coop    GUI      "<Entity> update {\$n \$f \$g}"
 }>>
 
 

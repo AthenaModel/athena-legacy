@@ -289,6 +289,13 @@ snit::widget appwin {
         
         $self AddOrder $submenu RELATIONSHIP:UPDATE
 
+        # Orders/Cooperation Menu
+        set submenu [menu $ordersmenu.coop]
+        $ordersmenu add cascade -label "Cooperation" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu COOPERATION:UPDATE
+
         # Orders/Satisfaction Menu
         set submenu [menu $ordersmenu.sat]
         $ordersmenu add cascade -label "Satisfaction" \
@@ -441,6 +448,16 @@ snit::widget appwin {
             -sticky  nsew                  \
             -padding 2                     \
             -text    "Rel"
+
+        # NEXT, add the cooperation browser to the content notebook
+        coopbrowser $content.coop          \
+            -width   600                   \
+            -height  600
+
+        $content add $content.coop         \
+            -sticky  nsew                  \
+            -padding 2                     \
+            -text    "Coop"
 
         # NEXT, add the scrolling log to the content notebook
 
