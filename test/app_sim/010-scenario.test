@@ -1,0 +1,143 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-scenario.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    scenario(sim) tests.
+#
+#    This test suite tests the scenario(sim) mutators and queries
+#
+#    TBD: At present, it really only tests "scenario mutate reconcile".
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+    
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # mutate reconcile
+    #
+    # All we really need to test is that each mutate reconcile command
+    # is called.
+   
+
+    test reconcile-1.1 {All entities are reconciled} -body {
+        ted notifier bind ::nbgroup <Entity>
+        ted notifier bind ::sat     <Entity>
+        ted notifier bind ::rel     <Entity>
+        ted notifier bind ::coop    <Entity>
+        ted notifier bind ::scenario <Reconcile>
+
+        ted create BLUE USAID NB1 SHIA NB1SHIA
+
+        scenario mutate reconcile
+
+        nbgroup mutate delete NB1 SHIA
+
+        scenario mutate reconcile
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbgroup <Entity> create {NB1 SHIA}}
+        {::sat <Entity> create {NB1 SHIA AUT}}
+        {::sat <Entity> create {NB1 SHIA CUL}}
+        {::sat <Entity> create {NB1 SHIA QOL}}
+        {::sat <Entity> create {NB1 SHIA SFT}}
+        {::sat <Entity> create {NB1 USAID CAS}}
+        {::rel <Entity> create {NB1 BLUE SHIA}}
+        {::rel <Entity> create {NB1 SHIA BLUE}}
+        {::rel <Entity> create {NB1 SHIA SHIA}}
+        {::rel <Entity> create {NB1 USAID SHIA}}
+        {::rel <Entity> create {NB1 SHIA USAID}}
+        {::rel <Entity> create {PLAYBOX BLUE BLUE}}
+        {::rel <Entity> create {PLAYBOX BLUE USAID}}
+        {::rel <Entity> create {PLAYBOX USAID BLUE}}
+        {::rel <Entity> create {PLAYBOX USAID USAID}}
+        {::coop <Entity> create {NB1 SHIA BLUE}}
+        {::scenario <Reconcile>}
+        {::nbgroup <Entity> delete {NB1 SHIA}}
+        {::sat <Entity> delete {NB1 SHIA AUT}}
+        {::sat <Entity> delete {NB1 SHIA CUL}}
+        {::sat <Entity> delete {NB1 SHIA QOL}}
+        {::sat <Entity> delete {NB1 SHIA SFT}}
+        {::rel <Entity> delete {NB1 BLUE SHIA}}
+        {::rel <Entity> delete {NB1 SHIA BLUE}}
+        {::rel <Entity> delete {NB1 SHIA SHIA}}
+        {::rel <Entity> delete {NB1 USAID SHIA}}
+        {::rel <Entity> delete {NB1 SHIA USAID}}
+        {::coop <Entity> delete {NB1 SHIA BLUE}}
+        {::scenario <Reconcile>}
+    }
+
+
+    test reconcile-1.2 {On undo: <Entity> delete} -body {
+        ted create BLUE USAID NB1 SHIA NB1SHIA
+
+        scenario mutate reconcile
+
+        nbhood mutate delete NB1
+
+        set undo [scenario mutate reconcile]
+
+        ted notifier bind ::nbgroup  <Entity>
+        ted notifier bind ::sat      <Entity>
+        ted notifier bind ::rel      <Entity>
+        ted notifier bind ::coop     <Entity>
+        ted notifier bind ::scenario <Reconcile>
+        
+        eval $undo
+        
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbgroup <Entity> create {NB1 SHIA}}
+        {::sat <Entity> create {NB1 SHIA AUT}}
+        {::sat <Entity> create {NB1 SHIA CUL}}
+        {::sat <Entity> create {NB1 SHIA QOL}}
+        {::sat <Entity> create {NB1 SHIA SFT}}
+        {::sat <Entity> create {NB1 USAID CAS}}
+        {::rel <Entity> create {NB1 BLUE SHIA}}
+        {::rel <Entity> create {NB1 SHIA BLUE}}
+        {::rel <Entity> create {NB1 SHIA SHIA}}
+        {::rel <Entity> create {NB1 USAID SHIA}}
+        {::rel <Entity> create {NB1 SHIA USAID}}
+        {::coop <Entity> create {NB1 SHIA BLUE}}
+    }
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+

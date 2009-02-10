@@ -30,6 +30,15 @@ Returns the full path name of the open scenario file, or "" if none.<p>
 
 Initializes the scenario, creating a working RDB.<p>
 
+<<defitem "mutate reconcile" {scenario mutate reconcile}>>
+
+This command aggregates the <b>mutate reconcile</b> mutators for the
+various scenario modules.  After an order creates or deletes an
+entity, it may call this command, and be confident that all required
+dependent entities have been created or deleted.<p>
+
+Sends <b>&lt;Reconcile&gt;</b>.<p>
+
 <<defitem new {scenario new}>>
 
 Creates a new, blank, scenario, replacing whatever scenario was
@@ -89,6 +98,13 @@ scenario(sim) sends the following events, primarily to notify the GUI of
 significant changes to the scenario data.<p>
 
 <<deflist events>>
+
+
+<<defitem Reconcile    {&lt;Reconcile&gt;}>>
+
+Sent by <<iref mutate reconcile>>; indicates that dependent entities
+have been created or deleted as need be for consistency with the
+primary entities.  This is expected to be used primarily for testing.<p>
 
 <<defitem Reconfigure    {&lt;Reconfigure&gt;}>>
 

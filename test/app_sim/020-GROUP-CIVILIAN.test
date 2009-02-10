@@ -114,38 +114,29 @@ SHIA Shia Locals #ffff00 CIV
     }
 
 
-    test CREATE-2.2 {effects} -setup {
-        ted create NB1 SHIA NB1SHIA
-        rel mutate reconcile
-    } -body {
+    test CREATE-2.2 {effects} -body {
         ted notifier bind ::civgroup <Entity>
-        ted notifier bind ::rel      <Entity>
+        ted notifier bind ::scenario <Reconcile>
         ted order GROUP:CIVILIAN:CREATE $sunn
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::civgroup <Entity> create SUNN}
-        {::rel <Entity> create {NB1 SUNN SHIA}}
-        {::rel <Entity> create {NB1 SHIA SUNN}}
+        {::scenario <Reconcile>}
     }
 
 
     test CREATE-3.1 {effects are undone} -setup {
-        ted create NB1 SHIA NB1SHIA
-        rel mutate reconcile
         ted order GROUP:CIVILIAN:CREATE $sunn
     } -body {
         ted notifier bind ::civgroup <Entity>
-        ted notifier bind ::rel      <Entity>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::civgroup <Entity> delete SUNN}
-        {::rel <Entity> delete {NB1 SUNN SHIA}}
-        {::rel <Entity> delete {NB1 SHIA SUNN}}
     }
 
     #-------------------------------------------------------------------
@@ -166,62 +157,31 @@ SHIA Shia Locals #ffff00 CIV
 
 
     test DELETE-2.1 {Effects} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
-        sat  mutate reconcile
-        rel  mutate reconcile
-        coop mutate reconcile
-
+        ted create SHIA
     } -body {
         ted notifier bind ::civgroup <Entity>
-        ted notifier bind ::nbgroup  <Entity>
-        ted notifier bind ::sat      <Entity>
-        ted notifier bind ::rel      <Entity>
-        ted notifier bind ::coop     <Entity>
+        ted notifier bind ::scenario <Reconcile>
         ted order GROUP:CIVILIAN:DELETE g SHIA
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::civgroup <Entity> delete SHIA}
-        {::nbgroup <Entity> delete {NB1 SHIA}}
-        {::sat <Entity> delete {NB1 SHIA AUT}}
-        {::sat <Entity> delete {NB1 SHIA CUL}}
-        {::sat <Entity> delete {NB1 SHIA QOL}}
-        {::sat <Entity> delete {NB1 SHIA SFT}}
-        {::rel <Entity> delete {NB1 BLUE SHIA}}
-        {::rel <Entity> delete {NB1 SHIA BLUE}}
-        {::rel <Entity> delete {NB1 SHIA SHIA}}
-        {::coop <Entity> delete {NB1 SHIA BLUE}}
+        {::scenario <Reconcile>}
     }
 
 
     test DELETE-3.1 {Effects on undo} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
-        sat  mutate reconcile
-        rel  mutate reconcile
-        coop mutate reconcile
+        ted create SHIA
         ted order GROUP:CIVILIAN:DELETE g SHIA
     } -body {
         ted notifier bind ::civgroup <Entity>
-        ted notifier bind ::nbgroup  <Entity>
-        ted notifier bind ::sat      <Entity>
-        ted notifier bind ::rel      <Entity>
-        ted notifier bind ::coop     <Entity>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::civgroup <Entity> create SHIA}
-        {::nbgroup <Entity> create {NB1 SHIA}}
-        {::sat <Entity> create {NB1 SHIA AUT}}
-        {::sat <Entity> create {NB1 SHIA CUL}}
-        {::sat <Entity> create {NB1 SHIA QOL}}
-        {::sat <Entity> create {NB1 SHIA SFT}}
-        {::rel <Entity> create {NB1 BLUE SHIA}}
-        {::rel <Entity> create {NB1 SHIA BLUE}}
-        {::rel <Entity> create {NB1 SHIA SHIA}}
-        {::coop <Entity> create {NB1 SHIA BLUE}}
     }
 
     #-------------------------------------------------------------------

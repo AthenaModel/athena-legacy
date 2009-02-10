@@ -210,40 +210,29 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
     }
 
 
-    test CREATE-2.2 {Effects} -setup {
-        ted create NB1
-        rel mutate reconcile
-    } -body {
+    test CREATE-2.2 {Effects} -body {
         ted notifier bind ::orggroup <Entity>
-        ted notifier bind ::sat      <Entity>
-        ted notifier bind ::rel      <Entity>
+        ted notifier bind ::scenario <Reconcile>
         ted order GROUP:ORGANIZATION:CREATE $usaid
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::orggroup <Entity> create USAID}
-        {::sat <Entity> create {NB1 USAID CAS}}
-        {::rel <Entity> create {PLAYBOX USAID USAID}}
+        {::scenario <Reconcile>}
     }
 
 
     test CREATE-3.1 {Undo effects} -setup {
-        ted create NB1
-        rel mutate reconcile
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted notifier bind ::orggroup <Entity>
-        ted notifier bind ::sat      <Entity>
-        ted notifier bind ::rel      <Entity>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::orggroup <Entity> delete USAID}
-        {::sat <Entity> delete {NB1 USAID CAS}}
-        {::rel <Entity> delete {PLAYBOX USAID USAID}}
     }
 
 
@@ -265,30 +254,24 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
 
 
     test DELETE-2.1 {Effects} -setup {
-        ted create NB1
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted notifier bind ::orggroup <Entity>
-        ted notifier bind ::sat      <Entity>
-        ted notifier bind ::rel      <Entity>
+        ted notifier bind ::scenario <Reconcile>
         ted order GROUP:ORGANIZATION:DELETE g USAID
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::orggroup <Entity> delete USAID}
-        {::sat <Entity> delete {NB1 USAID CAS}}
-        {::rel <Entity> delete {PLAYBOX USAID USAID}}
+        {::scenario <Reconcile>}
     }
 
 
     test DELETE-3.1 {Undo effects} -setup {
-        ted create NB1
         ted order GROUP:ORGANIZATION:CREATE $usaid
         ted order GROUP:ORGANIZATION:DELETE g USAID
     } -body {
-        ted notifier bind ::sat      <Entity>
-        ted notifier bind ::rel      <Entity>
         ted notifier bind ::orggroup <Entity>
         cif undo -test
         ted notifier received
@@ -296,8 +279,6 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
         cleanup
     } -result {
         {::orggroup <Entity> create USAID}
-        {::sat <Entity> create {NB1 USAID CAS}}
-        {::rel <Entity> create {PLAYBOX USAID USAID}}
     }
 
 

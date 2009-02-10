@@ -446,7 +446,7 @@ order define ::nbhood NBHOOD:CREATE {
 
     # NEXT, create the neighborhood and dependent entities
     lappend undo [$type mutate create [array get parms]]
-    lappend undo [sat mutate reconcile]
+    lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
 }
@@ -489,10 +489,7 @@ order define ::nbhood NBHOOD:DELETE {
 
     # NEXT, delete the neighborhood and dependent entities
     lappend undo [$type mutate delete $parms(n)]
-    lappend undo [nbgroup mutate reconcile]
-    lappend undo [sat     mutate reconcile]
-    lappend undo [rel     mutate reconcile]
-    lappend undo [coop    mutate reconcile]
+    lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
 }

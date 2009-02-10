@@ -185,27 +185,17 @@ SUNN Sunni    #c00002 CIV   NB1 NB1 Sunnis AGGRESSIVE 1.2           1.3
 
 
     test CREATE-2.2 {Effects} -setup {
-        ted create BLUE NB1 SHIA
-        rel mutate reconcile
+        ted create NB1 SHIA
     } -body {
         ted notifier bind ::nbgroup <Entity>
-        ted notifier bind ::sat     <Entity>
-        ted notifier bind ::rel     <Entity>
-        ted notifier bind ::coop     <Entity>
+        ted notifier bind ::scenario <Reconcile>
         ted order GROUP:NBHOOD:CREATE $nb1shia
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::nbgroup <Entity> create {NB1 SHIA}}
-        {::sat <Entity> create {NB1 SHIA AUT}}
-        {::sat <Entity> create {NB1 SHIA CUL}}
-        {::sat <Entity> create {NB1 SHIA QOL}}
-        {::sat <Entity> create {NB1 SHIA SFT}}
-        {::rel <Entity> create {NB1 BLUE SHIA}}
-        {::rel <Entity> create {NB1 SHIA BLUE}}
-        {::rel <Entity> create {NB1 SHIA SHIA}}
-        {::coop <Entity> create {NB1 SHIA BLUE}}
+        {::scenario <Reconcile>}
     }
 
 
@@ -227,28 +217,16 @@ NB1 SHIA Shia       AVERAGE  1.0           1.1
 
 
     test CREATE-3.1 {undo effects} -setup {
-        ted create BLUE NB1 SHIA
-        rel mutate reconcile
+        ted create NB1 SHIA
         ted order GROUP:NBHOOD:CREATE $nb1shia
     } -body {
         ted notifier bind ::nbgroup <Entity>
-        ted notifier bind ::sat     <Entity>
-        ted notifier bind ::rel     <Entity>
-        ted notifier bind ::coop    <Entity>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::nbgroup <Entity> delete {NB1 SHIA}}
-        {::sat <Entity> delete {NB1 SHIA AUT}}
-        {::sat <Entity> delete {NB1 SHIA CUL}}
-        {::sat <Entity> delete {NB1 SHIA QOL}}
-        {::sat <Entity> delete {NB1 SHIA SFT}}
-        {::rel <Entity> delete {NB1 BLUE SHIA}}
-        {::rel <Entity> delete {NB1 SHIA BLUE}}
-        {::rel <Entity> delete {NB1 SHIA SHIA}}
-        {::coop <Entity> delete {NB1 SHIA BLUE}}
     }
 
 
@@ -287,53 +265,33 @@ NB1 SHIA Shia       AVERAGE  1.0           1.1
 
 
     test DELETE-2.1 {Effects} -setup {
-        ted create BLUE NB1 SHIA
+        ted create NB1 SHIA
         ted order GROUP:NBHOOD:CREATE $nb1shia
     } -body {
         ted notifier bind ::nbgroup <Entity>
-        ted notifier bind ::sat     <Entity>
-        ted notifier bind ::rel     <Entity>
-        ted notifier bind ::coop    <Entity>
+        ted notifier bind ::scenario <Reconcile>
         ted order GROUP:NBHOOD:DELETE n NB1 g SHIA
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::nbgroup <Entity> delete {NB1 SHIA}}
-        {::sat <Entity> delete {NB1 SHIA AUT}}
-        {::sat <Entity> delete {NB1 SHIA CUL}}
-        {::sat <Entity> delete {NB1 SHIA QOL}}
-        {::sat <Entity> delete {NB1 SHIA SFT}}
-        {::rel <Entity> delete {NB1 BLUE SHIA}}
-        {::rel <Entity> delete {NB1 SHIA BLUE}}
-        {::rel <Entity> delete {NB1 SHIA SHIA}}
-        {::coop <Entity> delete {NB1 SHIA BLUE}}
+        {::scenario <Reconcile>}
     }
 
 
     test DELETE-3.1 {Undo effects} -setup {
-        ted create BLUE NB1 SHIA
+        ted create NB1 SHIA
         ted order GROUP:NBHOOD:CREATE $nb1shia
         ted order GROUP:NBHOOD:DELETE n NB1 g SHIA
     } -body {
         ted notifier bind ::nbgroup <Entity>
-        ted notifier bind ::sat     <Entity>
-        ted notifier bind ::rel     <Entity>
-        ted notifier bind ::coop    <Entity>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::nbgroup <Entity> create {NB1 SHIA}}
-        {::sat <Entity> create {NB1 SHIA AUT}}
-        {::sat <Entity> create {NB1 SHIA CUL}}
-        {::sat <Entity> create {NB1 SHIA QOL}}
-        {::sat <Entity> create {NB1 SHIA SFT}}
-        {::rel <Entity> create {NB1 BLUE SHIA}}
-        {::rel <Entity> create {NB1 SHIA BLUE}}
-        {::rel <Entity> create {NB1 SHIA SHIA}}
-        {::coop <Entity> create {NB1 SHIA BLUE}}
     }
 
 

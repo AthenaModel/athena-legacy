@@ -243,6 +243,28 @@ snit::type scenario {
     }
 
     #-------------------------------------------------------------------
+    # Scenario Reconciliation
+
+    # mutate reconcile
+    #
+    # This routine aggregates the various "mutate reconcile" routines,
+    # returning the accumulated undo script, so that order handlers
+    # don't need to be aware of which other modules require reconciliation.
+
+    typemethod {mutate reconcile} {} {
+        set undo [list]
+
+        lappend undo [nbgroup mutate reconcile]
+        lappend undo [sat     mutate reconcile]
+        lappend undo [rel     mutate reconcile]
+        lappend undo [coop    mutate reconcile]
+
+        notifier send $type <Reconcile>
+
+        return [join $undo \n]
+    }
+
+    #-------------------------------------------------------------------
     # Configure RDB
 
     # InitializeRuntimeData

@@ -233,7 +233,7 @@ order define ::civgroup GROUP:CIVILIAN:CREATE {
 
     # NEXT, create the group and dependent entities
     lappend undo [$type mutate create [array get parms]]
-    lappend undo [rel mutate reconcile]
+    lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
 }
@@ -276,10 +276,7 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
 
     # NEXT, Delete the group and dependent entities
     lappend undo [$type mutate delete $parms(g)]
-    lappend undo [nbgroup mutate reconcile]
-    lappend undo [sat     mutate reconcile]
-    lappend undo [rel     mutate reconcile]
-    lappend undo [coop    mutate reconcile]
+    lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
 }
