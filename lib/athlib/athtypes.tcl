@@ -29,6 +29,7 @@ namespace eval ::athlib:: {
         qsaliency     \
         qsat          \
         qtrend        \
+        rgrouprel     \
         weight
 }
 
@@ -112,6 +113,13 @@ namespace eval ::athlib:: {
     L  "Low"       -4.0
     VL "Very Low"  -8.0
 } -format {%4.1f}
+
+#-------------------------------------------------------------------
+# Ranges
+
+# Group Relationships
+::marsutil::range ::athlib::rgrouprel \
+    -min -1.0 -max 1.0 -format "%+4.1f"
 
 #-------------------------------------------------------------------
 # Boolean type

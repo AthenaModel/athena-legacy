@@ -461,7 +461,7 @@ PLAYBOX BRIT BRIT 1.0
         error
     } -cleanup {
         cleanup
-    } -result {Invalid neighborhood, none are defined}
+    } -result {Invalid neighborhood, should be one of: PLAYBOX}
 
 
     test validate-1.2 {invalid group f} -setup {
@@ -505,6 +505,35 @@ PLAYBOX BRIT BRIT 1.0
     } -cleanup {
         cleanup
     } -result {PLAYBOX BLUE BLUE}
+
+    #-------------------------------------------------------------------
+    # nbhood validate
+
+    test nbhood_validate-1.1 {Invalid neighborhood} -setup {
+        ted create NB1
+    } -body {
+        rel nbhood validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: PLAYBOX, NB1}
+    
+    test nbhood_validate-2.1 {PLAYBOX is valid} -setup {
+        ted create NB1
+    } -body {
+        rel nbhood validate PLAYBOX
+    } -cleanup {
+        cleanup
+    } -result {PLAYBOX}
+
+    test nbhood_validate-2.2 {NB1 is valid} -setup {
+        ted create NB1
+    } -body {
+        rel nbhood validate NB1
+    } -cleanup {
+        cleanup
+    } -result {NB1}
 
 
     #-------------------------------------------------------------------

@@ -134,6 +134,12 @@ satisfaction curve.<p>
 
 <<::athlib::qtrend html>>
 
+<<defitem "rgrouprel validate" {rgrouprel validate <i>value</i>}>>
+
+A <<xref mars:range(n)>> type used for group relationship values,
+which ranges from 
+<<::athlib::rgrouprel format [::athlib::rgrouprel cget -min]>> to
+<<::athlib::rgrouprel format [::athlib::rgrouprel cget -max]>>.<p>
 
 <<defitem "weight validate" {weight validate <i>value</i>}>>
 

@@ -67,10 +67,7 @@ snit::type rel {
     typemethod validate {id} {
         lassign $id n f g
 
-        if {$n ne "PLAYBOX"} {
-            set n [nbhood validate $n]
-        }
-
+        set n [rel nbhood validate $n]
         set f [group validate $f]
         set g [group validate $g]
 
@@ -94,6 +91,23 @@ snit::type rel {
         rdb exists {
             SELECT * FROM rel_nfg WHERE n=$n AND f=$f AND g=$g
         }
+    }
+
+    # nbhood validate n
+    #
+    # n     A possible neighborhood name, or "PLAYBOX"
+    #
+    # Validates and returns n.
+
+    typemethod {nbhood validate} {n} {
+        set nbhoods [concat PLAYBOX [nbhood names]]
+
+        if {$n ni $nbhoods} {
+            return -code error -errorcode INVALID \
+                "Invalid neighborhood, should be one of: [join $nbhoods {, }]"
+        }
+
+        return $n
     }
 
     #-------------------------------------------------------------------
@@ -275,71 +289,66 @@ snit::type rel {
 # Updates existing relationships
 
 # These are not yet ready for prime time
-if 0 {
+order define ::rel RELATIONSHIP:UPDATE {
+    title "Update Relationship"
+    table rel_nfg
+    parms {
+        n    {ptype key  label "Neighborhood" }
+        f    {ptype key  label "Of Group"     }
+        g    {ptype key  label "With Group"   }
+        rel  {ptype rel  label "Relationship" }
+    }
+} {
+    # FIRST, prepare the parameters
+    prepare n        -toupper  -required -type [list ::rel nbhood]
+    prepare f        -toupper  -required -type group
+    prepare g        -toupper  -required -type group
+    prepare rel      -toupper            -type rgrouprel
 
-    order define ::rel RELATIONSHIP:UPDATE {
-        title "Update Relationships"
-        table rel_nfg
-        parms {
-            n              {ptype key       label "Neighborhood"  }
-            f              {ptype key       label "Of Group"      }
-            g              {ptype key       label "With Group"    }
-            rel            {ptype rel       label "Relationship0" }
-        }
-    } {
-        # FIRST, prepare the parameters
-        # TBD: or PLAYBOX!
-        prepare n        -toupper  -required -type nbhood
-        prepare f        -toupper  -required -type group
-        prepare g        -toupper  -required -type group
+    returnOnError
 
-        prepare rel      -toupper  -type TBD
-
-        returnOnError
-
-        # NEXT, do cross-validation
-        validate g {
-            rel validate [list $parms(n) $parms(f) $parms(g)]
-        }
-
-        returnOnError
-
-        # NEXT, modify the curve
-        setundo [$type mutate update [array get parms]]
+    # NEXT, do cross-validation
+    validate g {
+        rel validate [list $parms(n) $parms(f) $parms(g)]
     }
 
+    returnOnError
 
-    # RELATIONSHIP:UPDATE:MULTI
-    #
-    # Updates multiple existing relationships
-
-    order define ::rel RELATIONSHIP:UPDATE:MULTI {
-        title "Update Multiple Relationships"
-        multi yes
-        table gui_rel_nfg
-        parms {
-            ids            {ptype ids       label "IDs"           }
-            rel            {ptype rel       label "Relationship"  }
-        }
-    } {
-        # FIRST, prepare the parameters
-        prepare ids      -toupper  -required -listof rel
-
-        prepare rel      -toupper  -type TBD
-
-        returnOnError
-
-
-        # NEXT, modify the curves
-        set undo [list]
-
-        foreach id $parms(ids) {
-            lassign $id parms(n) parms(f) parms(g)
-
-            lappend undo [$type mutate update [array get parms]]
-        }
-
-        setundo [join $undo \n]
-    }
-
+    # NEXT, modify the curve
+    setundo [$type mutate update [array get parms]]
 }
+
+
+# RELATIONSHIP:UPDATE:MULTI
+#
+# Updates multiple existing relationships
+
+order define ::rel RELATIONSHIP:UPDATE:MULTI {
+    title "Update Multiple Relationships"
+    multi yes
+    table gui_rel_nfg
+    parms {
+        ids            {ptype ids       label "IDs"           }
+        rel            {ptype rel       label "Relationship"  }
+    }
+} {
+    # FIRST, prepare the parameters
+    prepare ids      -toupper  -required -listof rel
+
+    prepare rel      -toupper            -type rgrouprel
+
+    returnOnError
+
+
+    # NEXT, modify the curves
+    set undo [list]
+
+    foreach id $parms(ids) {
+        lassign $id parms(n) parms(f) parms(g)
+
+        lappend undo [$type mutate update [array get parms]]
+    }
+
+    setundo [join $undo \n]
+}
+

@@ -81,3 +81,12 @@ SELECT n || ' ' || g || ' ' || c                     AS id,
        format('%.3f', trend0)                        AS trend0,
        format('%.2f', saliency)                      AS saliency
 FROM sat_ngc;
+
+-- A rel_nfg view for use by the GUI
+CREATE TEMPORARY VIEW gui_rel_nfg AS
+SELECT n || ' ' || f || ' ' || g                     AS id,
+       n                                             AS n,
+       f                                             AS f,
+       g                                             AS g,
+       format('%+4.1f', rel)                         AS rel
+FROM rel_nfg;
