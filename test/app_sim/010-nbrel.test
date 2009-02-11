@@ -1,0 +1,380 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-nbrel.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    nbrel(sim) tests.
+#
+#    This test suite tests the nbrel(sim) mutators and queries
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # mutate reconcile
+
+    test reconcile-1.1 {create nb relationships} -setup {
+        ted create NB1 NB2
+    } -body {
+        nbrel mutate reconcile
+        
+        ted query {SELECT * FROM nbrel_mn}
+    } -cleanup {
+        cleanup
+    } -result {
+m   n   proximity effects_delay 
+--- --- --------- ------------- 
+NB1 NB1 HERE      0.0           
+NB1 NB2 REMOTE    0.0           
+NB2 NB1 REMOTE    0.0           
+NB2 NB2 HERE      0.0           
+    }
+
+
+    test reconcile-1.2 {<Entity> create} -setup {
+        ted create NB1 NB2
+    } -body {
+        ted notifier bind ::nbrel <Entity>
+        nbrel mutate reconcile
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbrel <Entity> create {NB1 NB1}}
+        {::nbrel <Entity> create {NB1 NB2}}
+        {::nbrel <Entity> create {NB2 NB1}}
+        {::nbrel <Entity> create {NB2 NB2}}
+    }
+
+
+    test reconcile-1.3 {Created curves are undone} -setup {
+        ted create NB1 NB2
+        set undo [nbrel mutate reconcile]
+    } -body {
+        eval $undo
+        rdb query {SELECT * FROM nbrel_mn}
+    } -cleanup {
+        cleanup
+    } -result {}
+    
+
+    test reconcile-1.4 {On undo: <Entity> delete} -setup {
+        ted create NB1 NB2
+        set undo [nbrel mutate reconcile]
+    } -body {
+        ted notifier bind ::nbrel <Entity>
+        eval $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbrel <Entity> delete {NB1 NB1}}
+        {::nbrel <Entity> delete {NB1 NB2}}
+        {::nbrel <Entity> delete {NB2 NB1}}
+        {::nbrel <Entity> delete {NB2 NB2}}
+    }
+
+    
+    test reconcile-2.1 {nb relations deleted with nbhood} -setup {
+        ted create NB1 NB2
+        nbrel mutate reconcile
+    } -body {
+        nbhood mutate delete NB1
+        nbrel mutate reconcile
+
+        # NB2 remains
+        ted query {SELECT * FROM nbrel_mn}
+    } -cleanup {
+        cleanup
+    } -result {
+m   n   proximity effects_delay 
+--- --- --------- ------------- 
+NB2 NB2 HERE      0.0           
+    }
+
+
+    test reconcile-2.2 {<Entity> delete} -setup {
+        ted create NB1 NB2
+        nbrel mutate reconcile
+    } -body {
+        nbhood mutate delete NB1
+
+        ted notifier bind ::nbrel <Entity>
+        nbrel mutate reconcile
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbrel <Entity> delete {NB1 NB1}}
+        {::nbrel <Entity> delete {NB1 NB2}}
+        {::nbrel <Entity> delete {NB2 NB1}}
+    }
+
+
+    test reconcile-2.3 {On undo: deleted nbrels are restored} -setup {
+        # FIRST, create the nbhoods and relationships
+        ted create NB1 NB2
+        nbrel mutate reconcile
+
+        # NEXT, update one, so that we can see that it's restored
+        nbrel mutate update [list m NB1 n NB2 proximity NEAR]
+
+        # NEXT, delete a neighborhood, and get the undo script.
+        nbhood mutate delete NB1
+
+        set undo [nbrel mutate reconcile]
+    } -body {
+        eval $undo
+        ted query {SELECT * FROM nbrel_mn}
+    } -cleanup {
+        cleanup
+    } -result {
+m   n   proximity effects_delay 
+--- --- --------- ------------- 
+NB2 NB2 HERE      0.0           
+NB1 NB1 HERE      0.0           
+NB1 NB2 NEAR      0.0           
+NB2 NB1 REMOTE    0.0           
+    }
+
+
+    test reconcile-2.4 {On undo: <Entity> create} -setup {
+        # FIRST, create the nbhoods and relationships
+        ted create NB1 NB2
+        nbrel mutate reconcile
+
+        # NEXT, delete a neighborhood, and get the undo script.
+        nbhood mutate delete NB1
+
+        set undo [nbrel mutate reconcile]
+    } -body {
+        ted notifier bind ::nbrel <Entity>
+        eval $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbrel <Entity> create {NB1 NB1}}
+        {::nbrel <Entity> create {NB1 NB2}}
+        {::nbrel <Entity> create {NB2 NB1}}
+    }
+
+
+    test reconcile-3.1 {Reconcile doesn't affect valid entities} -setup {
+        ted create NB1 NB2
+        nbrel mutate reconcile
+    } -body {
+        ted notifier bind ::nbrel <Entity>
+        nbrel mutate reconcile
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    #-------------------------------------------------------------------
+    # mutate update
+
+
+    test update-1.1 {nbrel is updated} -setup {
+        ted create NB1 NB2
+        nbrel mutate reconcile
+    } -body {
+        nbrel mutate update {
+            m             NB1
+            n             NB2
+            proximity     NEAR
+            effects_delay 1.0
+        }
+
+        ted query {SELECT * FROM nbrel_mn}
+    } -cleanup {
+        cleanup
+    } -result {
+m   n   proximity effects_delay 
+--- --- --------- ------------- 
+NB1 NB1 HERE      0.0           
+NB1 NB2 NEAR      1.0           
+NB2 NB1 REMOTE    0.0           
+NB2 NB2 HERE      0.0           
+    }
+
+
+    test update-1.2 {identical values are OK} -setup {
+        ted create NB1 NB2
+        nbrel mutate reconcile
+        set parmdict {
+            m             NB1
+            n             NB2
+            proximity     NEAR
+            effects_delay 1.0
+        }
+
+        nbrel mutate update $parmdict
+    } -body {
+        set a [ted query {SELECT * FROM nbrel_mn}]
+        
+        nbrel mutate update $parmdict
+
+        set b [ted query {SELECT * FROM nbrel_mn}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-1.3 {empty values are OK} -setup {
+        ted create NB1 NB2
+        nbrel mutate reconcile
+    } -body {
+        set a [ted query {SELECT * FROM nbrel_mn}]
+
+        nbrel mutate update  {
+            m             NB1
+            n             NB2
+            proximity     ""
+            effects_delay ""
+        }
+
+        set b [ted query {SELECT * FROM nbrel_mn}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-1.4 {<Entity> update} -setup {
+        ted create NB1 NB2
+        nbrel mutate reconcile
+    } -body {
+        ted notifier bind ::nbrel <Entity>
+        nbrel mutate update  {
+            m             NB1
+            n             NB2
+            proximity     ""
+            effects_delay ""
+        }
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbrel <Entity> update {NB1 NB2}}
+    }
+
+
+    test update-2.1 {undo undoes the change} -setup {
+        ted create NB1 NB2
+        nbrel mutate reconcile
+    } -body {
+
+        set a [ted query {SELECT * FROM nbrel_mn}]
+
+        set undo [nbrel mutate update {
+            m             NB1
+            n             NB2
+            proximity     NEAR
+            effects_delay 1.0
+        }]
+
+        eval $undo
+
+        set b [ted query {SELECT * FROM nbrel_mn}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-2.2 {undo sends <Entity> update} -setup {
+        ted create NB1 NB2
+        nbrel mutate reconcile
+    } -body {
+        set undo [nbrel mutate update {
+            m             NB1
+            n             NB2
+            proximity     ""
+            effects_delay ""
+        }]
+
+        ted notifier bind ::nbrel <Entity>
+        eval $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::nbrel <Entity> update {NB1 NB2}}
+    }
+
+    #-------------------------------------------------------------------
+    # validate
+
+    test validate-1.1 {invalid m} -setup {
+        ted create NB1 NB2
+    } -body {
+        nbrel validate {NONESUCH NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1, NB2}
+
+
+    test validate-1.2 {invalid n} -setup {
+        ted create NB1 NB2
+    } -body {
+        nbrel validate {NB1 NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1, NB2}
+
+
+    #-------------------------------------------------------------------
+    # reconfigure
+
+    test reconfigure-1.1 {can be called} -body {
+        # This is currently a no-op
+        nbrel reconfigure
+    } -result {}
+    
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

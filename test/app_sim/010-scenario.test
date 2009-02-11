@@ -43,6 +43,7 @@ namespace eval ::athena_test::tests:: {
    
 
     test reconcile-1.1 {All entities are reconciled} -body {
+        ted notifier bind ::nbrel   <Entity>
         ted notifier bind ::nbgroup <Entity>
         ted notifier bind ::sat     <Entity>
         ted notifier bind ::rel     <Entity>
@@ -53,7 +54,7 @@ namespace eval ::athena_test::tests:: {
 
         scenario mutate reconcile
 
-        nbgroup mutate delete NB1 SHIA
+        nbhood mutate delete NB1
 
         scenario mutate reconcile
 
@@ -62,6 +63,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {
         {::nbgroup <Entity> create {NB1 SHIA}}
+        {::nbrel <Entity> create {NB1 NB1}}
         {::sat <Entity> create {NB1 SHIA AUT}}
         {::sat <Entity> create {NB1 SHIA CUL}}
         {::sat <Entity> create {NB1 SHIA QOL}}
@@ -78,11 +80,13 @@ namespace eval ::athena_test::tests:: {
         {::rel <Entity> create {PLAYBOX USAID USAID}}
         {::coop <Entity> create {NB1 SHIA BLUE}}
         {::scenario <Reconcile>}
+        {::nbrel <Entity> delete {NB1 NB1}}
         {::nbgroup <Entity> delete {NB1 SHIA}}
         {::sat <Entity> delete {NB1 SHIA AUT}}
         {::sat <Entity> delete {NB1 SHIA CUL}}
         {::sat <Entity> delete {NB1 SHIA QOL}}
         {::sat <Entity> delete {NB1 SHIA SFT}}
+        {::sat <Entity> delete {NB1 USAID CAS}}
         {::rel <Entity> delete {NB1 BLUE SHIA}}
         {::rel <Entity> delete {NB1 SHIA BLUE}}
         {::rel <Entity> delete {NB1 SHIA SHIA}}
@@ -93,7 +97,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test reconcile-1.2 {On undo: <Entity> delete} -body {
+    test reconcile-1.2 {On undo: <Entity> create} -body {
         ted create BLUE USAID NB1 SHIA NB1SHIA
 
         scenario mutate reconcile
@@ -102,6 +106,7 @@ namespace eval ::athena_test::tests:: {
 
         set undo [scenario mutate reconcile]
 
+        ted notifier bind ::nbrel    <Entity>
         ted notifier bind ::nbgroup  <Entity>
         ted notifier bind ::sat      <Entity>
         ted notifier bind ::rel      <Entity>
@@ -114,6 +119,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
+        {::nbrel <Entity> create {NB1 NB1}}
         {::nbgroup <Entity> create {NB1 SHIA}}
         {::sat <Entity> create {NB1 SHIA AUT}}
         {::sat <Entity> create {NB1 SHIA CUL}}

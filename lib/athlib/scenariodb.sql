@@ -101,6 +101,29 @@ CREATE TABLE nbhoods (
 );
 
 ------------------------------------------------------------------------
+-- Neighborhood Relationships
+
+-- Neighborhood relationships from m's point of view
+CREATE TABLE nbrel_mn (
+    -- Symbolic nbhood name
+    m             TEXT,
+
+    -- Symbolic nbhood name
+    n             TEXT,
+
+    -- Proximity of m to n from m's point of view: eproximity value
+    -- By default, a direct effect in n has no indirect effects in m,
+    -- unless m == n (this is set automatically).
+    proximity     TEXT DEFAULT 'REMOTE',
+
+    -- Indirect effects delay: how long in decimal days before a
+    -- direct effect in n has an indirect effect in m.
+    effects_delay DOUBLE DEFAULT 0.0, 
+
+    PRIMARY KEY (m, n)
+);
+
+------------------------------------------------------------------------
 -- Group Tables
 
 -- Generic Group Data

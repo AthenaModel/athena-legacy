@@ -31,6 +31,7 @@ snit::type ted {
 
     typevariable cleanupTables {
         nbhoods
+        nbrel_mn
         groups
         nbgroups
         frcgroups
@@ -45,6 +46,7 @@ snit::type ted {
 
     typevariable cleanupModules {
         nbhood
+        nbrel
         civgroup
         nbgroup
         frcgroup

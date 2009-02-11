@@ -230,6 +230,7 @@ snit::type scenario {
         cif      reconfigure
         map      reconfigure
         nbhood   reconfigure
+        nbrel    reconfigure
         group    reconfigure
         civgroup reconfigure
         frcgroup reconfigure
@@ -237,6 +238,7 @@ snit::type scenario {
         nbgroup  reconfigure
         sat      reconfigure
         rel      reconfigure
+        coop     reconfigure
 
         # NEXT, Reconfigure the GUI
         notifier send $type <Reconfigure>
@@ -254,6 +256,7 @@ snit::type scenario {
     typemethod {mutate reconcile} {} {
         set undo [list]
 
+        lappend undo [nbrel   mutate reconcile]
         lappend undo [nbgroup mutate reconcile]
         lappend undo [sat     mutate reconcile]
         lappend undo [rel     mutate reconcile]

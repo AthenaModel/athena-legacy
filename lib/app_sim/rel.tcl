@@ -288,7 +288,6 @@ snit::type rel {
 #
 # Updates existing relationships
 
-# These are not yet ready for prime time
 order define ::rel RELATIONSHIP:UPDATE {
     title "Update Relationship"
     table rel_nfg

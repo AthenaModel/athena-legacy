@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    rel.tcl
+#    coop.tcl
 #
 # AUTHOR:
 #    Will Duquette
@@ -247,7 +247,6 @@ snit::type coop {
 #
 # Updates existing cooperations
 
-# These are not yet ready for prime time
 order define ::coop COOPERATION:UPDATE {
     title "Update Cooperation"
     table coop_nfg

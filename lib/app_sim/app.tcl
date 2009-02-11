@@ -82,6 +82,7 @@ snit::type app {
         cif      init
         order    init
         nbhood   init
+        nbrel    init
         group    init
         civgroup init
         frcgroup init
