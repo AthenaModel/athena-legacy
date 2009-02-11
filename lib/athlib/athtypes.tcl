@@ -22,6 +22,7 @@ namespace eval ::athlib:: {
         eforcetype    \
         eorgconcern   \
         eorgtype      \
+        eproximity    \
         eurbanization \
         hexcolor      \
         ident         \
@@ -30,6 +31,7 @@ namespace eval ::athlib:: {
         qsaliency     \
         qsat          \
         qtrend        \
+        rdays         \
         rgrouprel     \
         weight
 }
@@ -45,14 +47,17 @@ namespace eval ::athlib:: {
     QOL "Quality of Life"
 }
 
+
 # Organization Concerns
 ::marsutil::enum ::athlib::eorgconcern {
     CAS "Casualties"
 }
 
+
 # All Concerns
 ::marsutil::enum ::athlib::econcern \
     [concat [::athlib::ecivconcern deflist] [::athlib::eorgconcern deflist]]
+
 
 # Civilian Group Demeanor
 ::marsutil::enum ::athlib::edemeanor {
@@ -60,6 +65,7 @@ namespace eval ::athlib:: {
     AVERAGE    "Average"
     AGGRESSIVE "Aggressive"
 }
+
 
 # Force Group Type
 ::marsutil::enum ::athlib::eforcetype {
@@ -70,12 +76,25 @@ namespace eval ::athlib:: {
     CRIMINAL       "Organized Crime"
 }
 
+
 # Org Group Type
 ::marsutil::enum ::athlib::eorgtype {
     NGO "Non-Governmental Organization"
     IGO "Intergovernmental Organization"
     CTR "Contractor"
 }
+
+
+# Neighborhood Proximity
+#
+# 0=here, 1=near, 2=far, 3=remote
+::marsutil::enum ::athlib::eproximity {
+    HERE   "Here"
+    NEAR   "Near"
+    FAR    "Far"
+    REMOTE "Remote"
+}
+
 
 # Urbanization Level
 ::marsutil::enum ::athlib::eurbanization {
@@ -128,6 +147,11 @@ namespace eval ::athlib:: {
 
 #-------------------------------------------------------------------
 # Ranges
+
+# Duration in decimal days
+
+::marsutil::range ::athlib::rdays \
+    -min 0.0 -format "%.1f"
 
 # Group Relationships
 ::marsutil::range ::athlib::rgrouprel \

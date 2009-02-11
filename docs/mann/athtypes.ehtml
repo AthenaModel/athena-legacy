@@ -77,6 +77,14 @@ An <<xref mars:enum(n)>> type, representing organization group types.<p>
 
 <<::athlib::eorgtype html>>
 
+<<defitem eproximity {eproximity <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the proximity of one
+neighborhood to another.<p>
+
+<<::athlib::eorgconcern html>>
+
+
 <<defitem eurbanization {eurbanization <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing neighborhood urbanization

@@ -249,12 +249,15 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE {
 
     # NEXT, can't change HERE for a neighborhood with itself
     if {[valid proximity]} {
-        if {$parms(m) eq $parms(n) &&
-            $parms(proximity) ne "HERE"
-        } { 
+        if {$parms(m) eq $parms(n) && $parms(proximity) ne "HERE"} { 
             reject proximity "Proximity of $parms(m) to itself must be HERE"
+        } elseif {$parms(m) ne $parms(n) && $parms(proximity) eq "HERE"} { 
+            reject proximity \
+                "Proximity of $parms(m) to $parms(n) cannot be HERE"
         }
     }
+
+    returnOnError
 
     # NEXT, modify the curve
     setundo [$type mutate update [array get parms]]
@@ -283,13 +286,29 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE:MULTI {
     returnOnError
 
     # NEXT, make sure that we're not changing the proximity
+    if {[valid proximity]} {
+        foreach id $parms(ids) {
+            lassign $id parms(m) parms(n)
+            
+            if {$parms(m) eq $parms(n) && $parms(proximity) ne "HERE"} {
+                reject proximity \
+           "Proximity cannot be HERE for these neighborhoods."
+                break
+            } elseif {$parms(m) ne $parms(n) && $parms(proximity) eq "HERE"} {
+                reject proximity \
+           "Proximity cannot be $parms(proximity) for these neighborhoods."
+                break
+            }
+        }
+    }
 
+    returnOnError
 
     # NEXT, modify the curves
     set undo [list]
 
     foreach id $parms(ids) {
-        lassign $id parms(n) parms(f) parms(g)
+        lassign $id parms(m) parms(n)
 
         lappend undo [$type mutate update [array get parms]]
     }
