@@ -99,3 +99,12 @@ SELECT n || ' ' || f || ' ' || g                     AS id,
        g                                             AS g,
        format('%+6.1f', coop0)                       AS coop0
 FROM coop_nfg;
+
+-- An nbrel_mn view for use by the GUI
+CREATE TEMPORARY VIEW gui_nbrel_mn AS
+SELECT m || ' ' || n                                 AS id,
+       m                                             AS m,
+       n                                             AS n,
+       proximity                                     AS proximity,
+       format('%5.1f', effects_delay)                AS effects_delay
+FROM nbrel_mn;

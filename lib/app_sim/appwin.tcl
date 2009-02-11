@@ -281,6 +281,7 @@ snit::widget appwin {
         $self AddOrder $submenu NBHOOD:LOWER
         $self AddOrder $submenu NBHOOD:RAISE
         $self AddOrder $submenu NBHOOD:DELETE
+        $self AddOrder $submenu NBHOOD:RELATIONSHIP:UPDATE
 
         # Orders/Relationship Menu
         set submenu [menu $ordersmenu.rel]
@@ -379,7 +380,6 @@ snit::widget appwin {
             -text    "Map"
 
         # NEXT, add the nbhood browser to the content notebook
-        
         nbhoodbrowser $content.nbhoods \
             -width   600               \
             -height  600
@@ -388,6 +388,16 @@ snit::widget appwin {
             -sticky  nsew              \
             -padding 2                 \
             -text    "Nbhoods"
+
+        # NEXT, add the nbrel browser to the content notebook
+        nbrelbrowser $content.nbrel    \
+            -width   600               \
+            -height  600
+
+        $content add $content.nbrel    \
+            -sticky  nsew              \
+            -padding 2                 \
+            -text    "Prox"
 
         # NEXT, add the CIV group browser to the content notebook
         civgroupbrowser $content.civgroups \
