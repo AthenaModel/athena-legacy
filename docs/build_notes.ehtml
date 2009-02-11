@@ -11,6 +11,24 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.3, 11 February 2009</h3>
+
+This build includes auto-population and user editing of group
+relationships, cooperation levels, and neighborhood relationships (i.e.,
+proximity).  In addition, it's now possible to edit multiple entities
+at a time from any of the entity browsers.  Finally, the architecture
+used to support auto-population of dependent entities and the
+architecture of the athena_sim(1) test suite have both been
+extensively overhauled.  See the following packages for details:<p>
+
+<ul>
+  <li> Bug 1884: Multi-Update Orders
+  <li> Bug 1890: athena_sim(1): Manage group relationships
+  <li> Bug 1904: athena_sim(1): Manage cooperation levels
+  <li> Bug 1905: athena_sim(1): scenario reconciliation
+  <li> Bug 1907: athena_sim(1): Manage neighborhood relationships 
+</ul><p>
+
 <h3>Build 1.0.2, 27 January 2009</h3>
 
 This build includes some new features, plus a number of usability
