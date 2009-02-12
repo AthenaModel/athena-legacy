@@ -1014,14 +1014,13 @@ snit::widget editorentry {
 #-------------------------------------------------------------------
 # Define specific entry types
 
-ordergui entrytype editor color        -editcmd  ::ordergui::colorpicker
-ordergui entrytype enum   concern      -values   [econcern names]
-ordergui entrytype enum   demeanor     -values   [edemeanor names]
-ordergui entrytype enum   forcetype    -values   [eforcetype names]
-ordergui entrytype enum   orgtype      -values   [eorgtype names]
-ordergui entrytype enum   proximity    -values   [eproximity names]
-ordergui entrytype enum   urbanization -values   [eurbanization names]
-ordergui entrytype enum   yesno        -values   {Yes No}
+ordergui entrytype editor color         -editcmd  ::ordergui::colorpicker
+ordergui entrytype enum   edemeanor     -values   [edemeanor names]
+ordergui entrytype enum   eforcetype    -values   [eforcetype names]
+ordergui entrytype enum   eorgtype      -values   [eorgtype names]
+ordergui entrytype enum   eproximity    -values   [eproximity names]
+ordergui entrytype enum   eurbanization -values   [eurbanization names]
+ordergui entrytype enum   eyesno        -values   {Yes No}
 
 ordergui entrytype enum   nbhood       -valuecmd [list nbhood names]
 ordergui entrytype enum   civgroup     -valuecmd [list civgroup names]

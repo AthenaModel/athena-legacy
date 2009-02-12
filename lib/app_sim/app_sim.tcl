@@ -54,7 +54,6 @@ source [file join $::app_sim::library apptypes.tcl        ]
 source [file join $::app_sim::library scenario.tcl        ]
 source [file join $::app_sim::library cif.tcl             ]
 source [file join $::app_sim::library order.tcl           ]
-source [file join $::app_sim::library orderdef.tcl        ]
 source [file join $::app_sim::library map.tcl             ]
 source [file join $::app_sim::library nbhood.tcl          ]
 source [file join $::app_sim::library nbrel.tcl           ]
@@ -66,6 +65,11 @@ source [file join $::app_sim::library nbgroup.tcl         ]
 source [file join $::app_sim::library sat.tcl             ]
 source [file join $::app_sim::library rel.tcl             ]
 source [file join $::app_sim::library coop.tcl            ]
+
+# TBD: remove this once all order definition scripts have
+# been moved to the "order define" calls.
+source [file join $::app_sim::library orderdef.tcl        ]
+
 
 # GUI
 source [file join $::app_sim::library ordergui.tcl        ]

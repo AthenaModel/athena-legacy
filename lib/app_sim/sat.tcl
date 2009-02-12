@@ -286,12 +286,6 @@ snit::type sat {
 # Updates existing curves
 
 order define ::sat SATISFACTION:UPDATE {
-        n              {ptype key       label "Neighborhood"  }
-        g              {ptype key       label "Group"         }
-        c              {ptype key       label "Concern"       }
-        sat0           {ptype sat       label "Sat at T0"     }
-        trend0         {ptype trend     label "Trend"         }
-        saliency       {ptype saliency  label "Saliency"      }
 } {
     # FIRST, prepare the parameters
     prepare n        -toupper  -required -type nbhood
@@ -324,10 +318,6 @@ order define ::sat SATISFACTION:UPDATE {
 # Updates multiple existing curves
 
 order define ::sat SATISFACTION:UPDATE:MULTI {
-        ids            {ptype ids       label "Curves"        }
-        sat0           {ptype sat       label "Sat at T0"     }
-        trend0         {ptype trend     label "Trend"         }
-        saliency       {ptype saliency  label "Saliency"      }
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof sat

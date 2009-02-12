@@ -289,10 +289,6 @@ snit::type rel {
 # Updates existing relationships
 
 order define ::rel RELATIONSHIP:UPDATE {
-        n    {ptype key  label "Neighborhood" }
-        f    {ptype key  label "Of Group"     }
-        g    {ptype key  label "With Group"   }
-        rel  {ptype rel  label "Relationship" }
 } {
     # FIRST, prepare the parameters
     prepare n        -toupper  -required -type [list ::rel nbhood]
@@ -319,8 +315,6 @@ order define ::rel RELATIONSHIP:UPDATE {
 # Updates multiple existing relationships
 
 order define ::rel RELATIONSHIP:UPDATE:MULTI {
-        ids            {ptype ids       label "IDs"           }
-        rel            {ptype rel       label "Relationship"  }
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof rel

@@ -281,7 +281,9 @@ order defmeta NBHOOD:RELATIONSHIP:UPDATE {
 
     parm m             key  "Of Neighborhood"      -tags nbhood
     parm n             key  "With Neighborhood"    -tags nbhood
-    parm proximity     enum "Proximity"            \
+
+    # The -type won't be required once -refreshcmd is fully implemented.
+    parm proximity     enum "Proximity"            -type eproximity \
         -refreshcmd {::nbrel RefreshProximitySingle}
     parm effects_delay text "Effects Delay (Days)" 
 }
@@ -291,7 +293,9 @@ order defmeta NBHOOD:RELATIONSHIP:UPDATE:MULTI {
     table gui_nbrel_mn
 
     parm ids           multi  "IDs"
-    parm proximity     enum   "Proximity" \
+
+    # The -type won't be required once -refreshcmd is fully implemented.
+    parm proximity     enum   "Proximity"            -type eproximity \
         -refreshcmd {::nbrel RefreshProximityMulti}
     parm effects_delay text   "Effects Delay (Days)"
 }

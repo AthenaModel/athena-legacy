@@ -210,9 +210,6 @@ snit::type civgroup {
 # Creates new civilian groups.
 
 order define ::civgroup GROUP:CIVILIAN:CREATE {
-    g            {ptype text          label "ID"                }
-    longname     {ptype text          label "Long Name"         }
-    color        {ptype color         label "Color"             }
 } {
     # FIRST, prepare and validate the parameters
     prepare g          -toupper -required -unused -type ident
@@ -238,7 +235,6 @@ order define ::civgroup GROUP:CIVILIAN:CREATE {
 # GROUP:CIVILIAN:DELETE
 
 order define ::civgroup GROUP:CIVILIAN:DELETE {
-    g {ptype key label "Group"}
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type civgroup
@@ -280,9 +276,6 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
 # Updates existing groups.
 
 order define ::civgroup GROUP:CIVILIAN:UPDATE {
-    g            {ptype key           label "ID"                }
-    longname     {ptype text          label "Long Name"         }
-    color        {ptype color         label "Color"             }
 } {
     # FIRST, prepare the parameters
     prepare g         -toupper  -required -type civgroup
@@ -299,8 +292,6 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE {
 }
 
 order define ::civgroup GROUP:CIVILIAN:UPDATE:MULTI {
-        ids          {ptype ids           label "Groups"            }
-        color        {ptype color         label "Color"             }
 } {
     # FIRST, prepare the parameters
     prepare ids    -toupper -required -listof civgroup

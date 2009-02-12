@@ -240,15 +240,6 @@ snit::type orggroup {
 # Creates new organization groups.
 
 order define ::orggroup GROUP:ORGANIZATION:CREATE {
-        g              {ptype text    label "ID"            }
-        longname       {ptype text    label "Long Name"     }
-        color          {ptype color   label "Color"         }
-        orgtype        {ptype orgtype label "Org. Type"     }
-        medical        {ptype yesno   label "Medical?"      }
-        engineer       {ptype yesno   label "Engineer?"     }
-        support        {ptype yesno   label "Support?"      }
-        rollup_weight  {ptype weight  label "RollupWeight"  defval 1.0}
-        effects_factor {ptype weight  label "EffectsFactor" defval 1.0}
 } {
     # FIRST, prepare and validate the parameters
     prepare g              -toupper -required -unused -type ident
@@ -280,7 +271,6 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
 # GROUP:ORGANIZATION:DELETE
 
 order define ::orggroup GROUP:ORGANIZATION:DELETE {
-        g {ptype key label "Group"}
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type orggroup
@@ -322,15 +312,6 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
 # Updates existing groups.
 
 order define ::orggroup GROUP:ORGANIZATION:UPDATE {
-        g              {ptype key       label "ID"            }
-        longname       {ptype text      label "Long Name"     }
-        color          {ptype color     label "Color"         }
-        orgtype        {ptype orgtype   label "Org. Type"     }
-        medical        {ptype yesno     label "Medical?"      }
-        engineer       {ptype yesno     label "Engineer?"     }
-        support        {ptype yesno     label "Support?"      }
-        rollup_weight  {ptype weight    label "RollupWeight"  }
-        effects_factor {ptype weight    label "EffectsFactor" }
 } {
     # FIRST, prepare the parameters
     prepare g              -toupper  -required -type orggroup
@@ -358,14 +339,6 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
 # Updates multiple groups.
 
 order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
-        ids            {ptype ids       label "Groups"        }
-        color          {ptype color     label "Color"         }
-        orgtype        {ptype orgtype   label "Org. Type"     }
-        medical        {ptype yesno     label "Medical?"      }
-        engineer       {ptype yesno     label "Engineer?"     }
-        support        {ptype yesno     label "Support?"      }
-        rollup_weight  {ptype weight    label "RollupWeight"  }
-        effects_factor {ptype weight    label "EffectsFactor" }
 } {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof orggroup

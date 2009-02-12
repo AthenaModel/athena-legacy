@@ -226,12 +226,6 @@ snit::type frcgroup {
 # Creates new force groups.
 
 order define ::frcgroup GROUP:FORCE:CREATE {
-        g            {ptype text          label "ID"                }
-        longname     {ptype text          label "Long Name"         }
-        color        {ptype color         label "Color"             }
-        forcetype    {ptype forcetype     label "Force Type"        }
-        local        {ptype yesno         label "Local Group?"      }
-        coalition    {ptype yesno         label "Coalition Member?" }
 } {
     # FIRST, prepare and validate the parameters
     prepare g          -toupper -required -unused -type ident
@@ -260,7 +254,6 @@ order define ::frcgroup GROUP:FORCE:CREATE {
 # GROUP:FORCE:DELETE
 
 order define ::frcgroup GROUP:FORCE:DELETE {
-    g {ptype key label "Group"}
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type frcgroup
@@ -302,12 +295,6 @@ order define ::frcgroup GROUP:FORCE:DELETE {
 # Updates existing groups.
 
 order define ::frcgroup GROUP:FORCE:UPDATE {
-        g            {ptype key           label "ID"                }
-        longname     {ptype text          label "Long Name"         }
-        color        {ptype color         label "Color"             }
-        forcetype    {ptype forcetype     label "Force Type"        }
-        local        {ptype yesno         label "Local Group?"      }
-        coalition    {ptype yesno         label "Coalition Member?" }
 } {
     # FIRST, prepare the parameters
     prepare g         -toupper  -required -type frcgroup
@@ -331,11 +318,6 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
 # Updates multiple groups.
 
 order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
-        ids          {ptype ids           label "Groups"            }
-        color        {ptype color         label "Color"             }
-        forcetype    {ptype forcetype     label "Force Type"        }
-        local        {ptype yesno         label "Local Group?"      }
-        coalition    {ptype yesno         label "Coalition Member?" }
 } {
     # FIRST, prepare the parameters
     prepare ids       -toupper  -required -listof frcgroup

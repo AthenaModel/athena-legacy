@@ -386,11 +386,6 @@ snit::type nbhood {
 # Creates new neighborhoods.
 
 order define ::nbhood NBHOOD:CREATE {
-        n            {ptype text          label "Neighborhood"    }
-        longname     {ptype text          label "Long Name"       }
-        urbanization {ptype urbanization  label "Urbanization"    }
-        refpoint     {ptype point         label "Reference Point" }
-        polygon      {ptype polygon       label "Polygon"         }
 } {
     # FIRST, prepare the parameters
     prepare n             -toupper      -required -unused -type ident
@@ -451,7 +446,6 @@ order define ::nbhood NBHOOD:CREATE {
 # NBHOOD:DELETE
 
 order define ::nbhood NBHOOD:DELETE {
-        n {ptype key label "Neighborhood"}
 } {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type nbhood
@@ -490,7 +484,6 @@ order define ::nbhood NBHOOD:DELETE {
 # NBHOOD:LOWER
 
 order define ::nbhood NBHOOD:LOWER {
-        n {ptype key label "Neighborhood"}
 } {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type nbhood
@@ -504,7 +497,6 @@ order define ::nbhood NBHOOD:LOWER {
 # NBHOOD:RAISE
 
 order define ::nbhood NBHOOD:RAISE {
-        n {ptype key label "Neighborhood"}
 } {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type nbhood
@@ -520,11 +512,6 @@ order define ::nbhood NBHOOD:RAISE {
 # Updates existing neighborhoods.
 
 order define ::nbhood NBHOOD:UPDATE {
-        n            {ptype key           label "Neighborhood"    }
-        longname     {ptype text          label "Long Name"       }
-        urbanization {ptype urbanization  label "Urbanization"    }
-        refpoint     {ptype point         label "Reference Point" }
-        polygon      {ptype polygon       label "Polygon"         }
 } {
     # FIRST, prepare the parameters
     prepare n            -toupper       -required -type nbhood
@@ -602,8 +589,6 @@ order define ::nbhood NBHOOD:UPDATE {
 # Updates multiple neighborhoods.
 
 order define ::nbhood NBHOOD:UPDATE:MULTI {
-        ids          {ptype ids           label "Neighborhoods"   }
-        urbanization {ptype urbanization  label "Urbanization"    }
 } {
     # FIRST, prepare the parameters
     prepare ids          -toupper -required -listof nbhood

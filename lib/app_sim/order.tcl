@@ -207,22 +207,16 @@ snit::type order {
     #
     # module      The name of a module (a snit::type)
     # name        The name of the order
-    # metadata    The order's parameter metadata 
+    # defscript   The order's definition script 
     # body        The body of the order
     #
     # Defines a proc within the module::orders namespace in which all
     # type variables appear.  This allows orders to be defined
     # outside the order.tcl file.
 
-    typemethod define {module name metadata body} {
-        # FIRST, save the metadata, setting default values.
-        foreach parm [dict keys $metadata] {
-            if {![dict exists $metadata $parm defval]} {
-                dict set metadata $parm defval ""
-            }
-        }
-
-        set meta($name) $metadata
+    typemethod define {module name defscript body} {
+        # FIRST, save the defscript
+        order defmeta $name $defscript
 
         # NEXT, get the module variables
         set modVarList [$module info typevars]
@@ -334,12 +328,85 @@ snit::type order {
         set orders(table-$deftrans(name)) $tableName
     }
 
-    # parm args
+    # parm name fieldType label ?option...?
     #
-    # Stub
+    # name        The parameter's name
+    # fieldType   The field type, e.g., key, text, enum
+    # label       The parameter's label string
+    # 
+    # -defval value    Default value
+    # -tags taglist    <EntitySelect> tags
+    # -type enumtype   fieldType enum only, the enum(n) type.
+    # -refresh         Setting this parm triggers a refresh.
+    # -refreshcmd      Command to update the field when refreshed.
+    #
+    # Defines the parameter.  Most of the data feeds the generic
+    # order dialog code.
+    #
+    # TBD: At first, this call will build the legacy metadata
+    # dictionaries.  Then, it will build the new metadata in parallel.
+    # Then we'll define the new metadata API.  Then we'll update
+    # ordergui(sim) to use it, and get rid of the old metadata.
 
-    proc define::parm {args} {
-        # Does nothing.
+    proc define::parm {name fieldType label args} {
+        # FIRST, initialize the meta dictionary
+
+        # ptype
+        if {$name eq "ids"} {
+            # Special case: multi orders
+            dict set pdict ptype ids
+        } else {
+            # Default the ptype to the field type.  If there's a
+            # -tags, we'll update this.
+            dict set pdict ptype $fieldType
+        }
+
+        # label
+        dict set pdict label $label
+
+        # defval
+        dict set pdict defval ""
+        
+        # NEXT, look at the options
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+
+            switch -exact -- $opt {
+                -defval {
+                    dict set pdict defval [lshift args]
+                }
+
+                -tags {
+                    set taglist [lshift args]
+
+                    # Set the ptype to the first tag, unless the ptype
+                    # is already "key".
+                    if {$fieldType ne "key"} {
+                        dict set pdict ptype [lindex $taglist 0]
+                    }
+                }
+
+                -type {
+                    dict set pdict ptype [lshift args]
+                }
+
+                -refresh {
+                    # TBD
+                }
+
+                -refreshcmd {
+                    # Skip the arg
+                    lshift args
+                }
+
+                default {
+                    error "Unknown option: $opt"
+                }
+            }
+        }
+
+        # NEXT, save the pdict
+        dict set meta($deftrans(name)) $name $pdict
     }
 
 
