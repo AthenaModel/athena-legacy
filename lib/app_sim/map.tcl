@@ -37,7 +37,7 @@ snit::type map {
         set mapimage   ""
         set projection [mapref ${type}::proj]
 
-        log normal map "Initialized"
+        log detail map "Initialized"
     }
 
     #-------------------------------------------------------------------

@@ -39,7 +39,7 @@ snit::type cif {
         notifier bind ::scenario <Saving> $type [mytypemethod ClearUndo]
 
         # NEXT, log that we're saved.
-        log normal cif "Initialized"
+        log detail cif "Initialized"
     }
 
     # reconfigure

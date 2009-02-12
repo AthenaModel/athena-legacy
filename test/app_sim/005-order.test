@@ -29,10 +29,8 @@ namespace eval ::athena_test::tests:: {
 
     order define ::order DUMMY:ORDER {
         title "Dummy Order"
-        parms {
-            this    {ptype text label "This Parm"}
-            that    {ptype text label "That Parm"}
-        }
+        parm this text "This Parm"
+        parm that text "That Parm"
     } {
         # Nothing to be done
     }

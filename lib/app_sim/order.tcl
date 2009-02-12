@@ -116,12 +116,12 @@ snit::type order {
 
     # orders: array of order definition data.
     #
-    # TBD: This design is preliminary!
-    #
     # names               List of order names
     # defscript-$name     Definition script for the named order.
     # title-$name         The order's title
     # table-$name         The order's associated RDB table, or ""
+    # parms-$name         List of the names of the order's parameters
+    # pdict-$name-$parm   Parameter definition dictionary
    
     typevariable orders -array {
         names {}
@@ -151,7 +151,7 @@ snit::type order {
 
     # deftrans: Array of transient order definition data
     #
-    # name     The name of the order currently being defined.
+    # order     The name of the order currently being defined.
     
     typevariable deftrans -array {}
     
@@ -181,7 +181,7 @@ snit::type order {
 
     typemethod init {} {
         # FIRST, evaluate all of the existing definition scripts.
-        log normal order "Initializing"
+        log detail order "Initializing"
 
         foreach name $orders(names) {
             DefineOrder $name
@@ -189,7 +189,7 @@ snit::type order {
 
         # NEXT, Order processing is up.
         set info(initialized) 1
-        log normal order "Initialized"
+        log detail order "Initialized"
     }
 
     # initialized
@@ -289,9 +289,11 @@ snit::type order {
         # FIRST, initialize the data values
         set orders(title-$name) ""
         set orders(table-$name) ""
+        set orders(parms-$name) ""
+        array unset orders pdict-$name-*
 
         # NEXT, set the current order name
-        set deftrans(name) $name
+        set deftrans(order) $name
 
         # NEXT, execute the defscript
         namespace eval ::order::define $orders(defscript-$name)
@@ -299,6 +301,9 @@ snit::type order {
         # NEXT, check constraints
         require {$orders(title-$name) ne ""} \
             "Order $name has no title"
+
+        require {[llength $orders(parms-$name)] > 0} \
+            "Order $name has no parameters"
     }
 
     #-------------------------------------------------------------------
@@ -314,7 +319,7 @@ snit::type order {
     # Sets the order's title text
 
     proc define::title {titleText} {
-        set orders(title-$deftrans(name)) $titleText
+        set orders(title-$deftrans(order)) $titleText
     }
     
     # table tableName
@@ -325,7 +330,7 @@ snit::type order {
     # Saves the table name.
     
     proc define::table {tableName} {
-        set orders(table-$deftrans(name)) $tableName
+        set orders(table-$deftrans(order)) $tableName
     }
 
     # parm name fieldType label ?option...?
@@ -349,6 +354,11 @@ snit::type order {
     # ordergui(sim) to use it, and get rid of the old metadata.
 
     proc define::parm {name fieldType label args} {
+        #---------------------------------------------------------------
+        # Old-style metadata
+
+        set oldargs $args
+
         # FIRST, initialize the meta dictionary
 
         # ptype
@@ -406,7 +416,91 @@ snit::type order {
         }
 
         # NEXT, save the pdict
-        dict set meta($deftrans(name)) $name $pdict
+        dict set meta($deftrans(order)) $name $pdict
+
+        #---------------------------------------------------------------
+        # New-style Metadata
+
+        set args $oldargs
+
+        # FIRST, remember this parameter
+        set order $deftrans(order)
+
+        lappend orders(parms-$order) $name
+
+        # NEXT, initialize the pdict
+        set pdict [dict create \
+                       -fieldtype  $fieldType \
+                       -label      $label     \
+                       -defval     {}         \
+                       -tags       {}         \
+                       -refresh    0          \
+                       -refreshcmd {}]
+
+        # NEXT, accumulate the pdict
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+
+            switch -exact -- $opt {
+                -defval     -
+                -tags       -
+                -type       -
+                -refreshcmd { 
+                    dict set pdict $opt [lshift args] 
+                }
+
+                -refresh {
+                    dict set pdict -refresh 1
+                }
+
+                default {
+                    error "Unknown option: $opt"
+                }
+            }
+        }
+
+        # NEXT, check constraints
+
+        # An enum parameter must have a -type or a -refreshcmd.
+        if {$fieldType eq "enum" &&
+            ![dict exists $pdict -type] &&
+            [dict get $pdict -refreshcmd] eq ""
+        } {
+            error \
+                "field type \"enum\" requires -type or -refreshcmd: \"$name\""
+        }
+
+        # key and multi parameters requires a "table".
+        if {$fieldType in {key multi} && 
+            $orders(table-$order) eq ""
+        } {
+            error \
+                "missing table, field type $fieldType requires it: \"$name\""
+        } 
+
+        # A multi parameter must be the first parameter.
+        if {$fieldType eq "multi"} {
+            if {[llength $orders(parms-$order)] > 1} {
+                error "misplaced multi parameter, must be first: \"$name\""
+            }
+        }
+
+        # A key parameter can only be preceded by key parameters.
+        if {$fieldType eq "key"} {
+            foreach p $orders(parms-$order) {
+                if {$p eq $name} {
+                    break
+                }
+
+                if {[dict get $orders(pdict-$order-$p) -fieldtype] ne "key"} {
+                    error \
+    "misplaced key parameter, must precede all non-key parameters: \"$name\""
+                }
+            }
+        }
+
+        # NEXT, save the accumulated pdict
+        set orders(pdict-$order-$name) $pdict
     }
 
 
@@ -458,6 +552,25 @@ snit::type order {
     typemethod exists {name} {
         return [info exists handler($name)]
     }
+
+    # parm order parm ?opt?
+    #
+    # order     The name of an order
+    # parm      The name of a parameter
+    # opt       The name of an option parameter
+    #
+    # If opt is omitted, returns the parm's parameter definition 
+    # dictionary (pdict).  Otherwise, returns the value of the particular
+    # option.
+
+    typemethod parm {order parm {opt ""}} {
+        if {$opt eq ""} {
+            return $orders(pdict-$order-$parm)
+        } else {
+            return [dict get $orders(pdict-$order-$parm) $opt]
+        }
+    }
+
 
     # meta order key ?key...?
     #
