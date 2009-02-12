@@ -248,14 +248,10 @@ snit::type coop {
 # Updates existing cooperations
 
 order define ::coop COOPERATION:UPDATE {
-    title "Update Cooperation"
-    table coop_nfg
-    parms {
         n      {ptype key   label "Neighborhood" }
         f      {ptype key   label "Of Group"     }
         g      {ptype key   label "With Group"   }
         coop0  {ptype coop  label "Cooperation" }
-    }
 } {
     # FIRST, prepare the parameters
     prepare n        -toupper  -required -type nbhood
@@ -282,13 +278,8 @@ order define ::coop COOPERATION:UPDATE {
 # Updates multiple existing cooperations
 
 order define ::coop COOPERATION:UPDATE:MULTI {
-    title "Update Multiple Cooperations"
-    multi yes
-    table gui_coop_nfg
-    parms {
         ids            {ptype ids       label "IDs"           }
         coop0          {ptype coop      label "Cooperation"  }
-    }
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof coop

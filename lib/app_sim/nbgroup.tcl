@@ -248,15 +248,12 @@ snit::type nbgroup {
 # Creates new nbhood groups.
 
 order define ::nbgroup GROUP:NBHOOD:CREATE {
-    title "Create Nbhood Group"
-    parms {
         n              {ptype nbhood   label "Neighborhood"            }
         g              {ptype civgroup label "Civ Group"               }
         local_name     {ptype text     label "Local Name"              }
         demeanor       {ptype demeanor label "Demeanor"                }
         rollup_weight  {ptype weight   label "RollupWeight"  defval 1.0}
         effects_factor {ptype weight   label "EffectsFactor" defval 1.0}
-    }
 } {
     # FIRST, prepare and validate the parameters
     prepare n              -toupper -required -type nbhood
@@ -292,12 +289,8 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
 # GROUP:NBHOOD:DELETE
 
 order define ::nbgroup GROUP:NBHOOD:DELETE {
-    title "Delete Nbhood Group"
-    table gui_nbgroups
-    parms {
         n {ptype key label "Neighborhood" }
         g {ptype key label "Civ Group"    }
-    }
 } {
     # FIRST, prepare the parameters
     prepare n -toupper -required -type nbhood
@@ -348,16 +341,12 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
 # Updates existing groups.
 
 order define ::nbgroup GROUP:NBHOOD:UPDATE {
-    title "Update Nbhood Group"
-    table gui_nbgroups
-    parms {
         n              {ptype key       label "Neighborhood"  }
         g              {ptype key       label "Civ Group"     }
         local_name     {ptype text      label "Local Name"    }
         demeanor       {ptype demeanor  label "Demeanor"      }
         rollup_weight  {ptype weight    label "RollupWeight"  }
         effects_factor {ptype weight    label "EffectsFactor" }
-    }
 } {
     # FIRST, prepare the parameters
     prepare n              -toupper  -required -type nbhood
@@ -386,16 +375,11 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
 # Updates multiple groups.
 
 order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
-    title "Update Multiple Nbhood Groups"
-    multi yes
-    table gui_nbgroups
-    parms {
         ids            {ptype ids       label "Groups"  }
         local_name     {ptype text      label "Local Name"    }
         demeanor       {ptype demeanor  label "Demeanor"      }
         rollup_weight  {ptype weight    label "RollupWeight"  }
         effects_factor {ptype weight    label "EffectsFactor" }
-    }
 } {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof nbgroup

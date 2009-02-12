@@ -210,10 +210,7 @@ snit::type map {
 # Imports a map into the scenario
 
 order define ::map MAP:IMPORT {
-    title "Import Map"
-    parms {
         filename { ptype imagefile  label "Map File" }
-    }
 } {
     # FIRST, prepare the parameters
     prepare filename -required 

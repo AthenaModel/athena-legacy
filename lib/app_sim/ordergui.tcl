@@ -272,7 +272,7 @@ snit::type ordergui {
         }
 
         # NEXT, get the parm type
-        return [order meta $info(order) parms $parm ptype]
+        return [order meta $info(order) $parm ptype]
     }
 
     # parm set parm value
@@ -340,10 +340,18 @@ snit::type ordergui {
 
         # NEXT, get the order's title
         set info(order) $order
-        set info(title) [order meta $order title]
-        set info(table) [order meta $order table]
-        set info(multi) [order meta $order multi]
+        set info(title) [order title $order]
+        set info(table) [order table $order]
         set info(keys)  [list]
+
+        # TBD: Temporarily, use presence of "ids" to indicate a
+        # multi order.
+        if {"ids" in [order parms $order]} {
+            set info(multi) 1
+        } else {
+            set info(multi) 0
+        }
+
         array unset values
         array unset entries
         array unset icon
@@ -352,7 +360,9 @@ snit::type ordergui {
         # NEXT, add the parameter fields
         set row -1
         
-        dict for {parm pdict} [order meta $order parms] {
+        foreach parm [order parms $order] {
+            set pdict [order meta $order $parm]
+
             # FIRST, get the current row
             incr row
 
@@ -747,7 +757,7 @@ snit::type ordergui {
 
         # NEXT, if there's an error message, display it.
         if {[info exists perrors($parm)]} {
-            set label [order meta $info(order) parms $parm label]
+            set label [order meta $info(order) $parm label]
             $type Message "$label: $perrors($parm)"
         } else {
             $type Message ""

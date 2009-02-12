@@ -80,6 +80,11 @@
 #-----------------------------------------------------------------------
 # order
 
+# Create the defscript namespace immediately.
+
+namespace eval ::order::define:: {}
+
+
 snit::type order {
     # Make it an ensemble
     pragma -hastypedestroy 0 -hasinstances 0
@@ -98,16 +103,29 @@ snit::type order {
 
     #-------------------------------------------------------------------
     # Order Definition metadata
-    #
-    # TBD: This will be revised when the new definition scripts are
-    # implemented.
 
     # Order handler name by order name
     
     typevariable handler -array {}
 
     # Array of meta dicts by order name.
+    #
+    # TBD: This will be revised when the new definition scripts are
+    # implemented.
     typevariable meta -array {}
+
+    # orders: array of order definition data.
+    #
+    # TBD: This design is preliminary!
+    #
+    # names               List of order names
+    # defscript-$name     Definition script for the named order.
+    # title-$name         The order's title
+    # table-$name         The order's associated RDB table, or ""
+   
+    typevariable orders -array {
+        names {}
+    }
 
     #-------------------------------------------------------------------
     # Non-checkpointed variables
@@ -128,7 +146,15 @@ snit::type order {
 
     #-------------------------------------------------------------------
     # Transient Variables
+
+    # The following variables are used while defining an order:
+
+    # deftrans: Array of transient order definition data
     #
+    # name     The name of the order currently being defined.
+    
+    typevariable deftrans -array {}
+    
     # The following variables are used while processing an order, and
     # are cleared before every new order.
 
@@ -150,13 +176,18 @@ snit::type order {
 
     # init
     #
-    # Initializes the module.
-    #
-    # TBD: This will do more after the new definition scripts are
-    # implemented.
+    # Initializes the module, executing the definition scripts for
+    # each order.
 
     typemethod init {} {
-        # FIRST, Order processing is up.
+        # FIRST, evaluate all of the existing definition scripts.
+        log normal order "Initializing"
+
+        foreach name $orders(names) {
+            DefineOrder $name
+        }
+
+        # NEXT, Order processing is up.
         set info(initialized) 1
         log normal order "Initialized"
     }
@@ -176,7 +207,7 @@ snit::type order {
     #
     # module      The name of a module (a snit::type)
     # name        The name of the order
-    # metadata    The order's metadata
+    # metadata    The order's parameter metadata 
     # body        The body of the order
     #
     # Defines a proc within the module::orders namespace in which all
@@ -185,22 +216,13 @@ snit::type order {
 
     typemethod define {module name metadata body} {
         # FIRST, save the metadata, setting default values.
-        set meta($name) [dict merge                      \
-                             {table "" keys "" multi no} \
-                             $metadata]
-
-        # Add the "defvalue" key to each parm's defdict.
-        set parmdefs [dict get $meta($name) parms]
-
-        dict for {parm defdict} $parmdefs {
-            dict set parmdefs $parm [dict merge {
-                ptype  text
-                defval ""
-            } $defdict]
+        foreach parm [dict keys $metadata] {
+            if {![dict exists $metadata $parm defval]} {
+                dict set metadata $parm defval ""
+            }
         }
 
-        dict set meta($name) parms $parmdefs
-
+        set meta($name) $metadata
 
         # NEXT, get the module variables
         set modVarList [$module info typevars]
@@ -233,6 +255,94 @@ snit::type order {
         }]
     }
 
+    # defmeta name script
+    #
+    # name     An order name
+    # script   A definition script
+    #
+    # Specifies the metadata definition script for the existing orders.
+    # The script is saved, to be executed at "order init"; if the
+    # module is already initialized, then the script is executed
+    # immediately.
+    #
+    # TBD: This routine is temporary; once ordergui(n) has switched
+    # over to the new metadata API, the new definition scripts will
+    # replace the old metadata dicts in the "order define" calls.
+
+    typemethod defmeta {name script} {
+        # FIRST, save the script
+        if {$name ni $orders(names)} {
+            lappend orders(names) $name
+        }
+
+        set orders(defscript-$name) $script
+
+        # NEXT, execute it if the module is already initialized.
+        if {[$type initialized]} {
+            DefineOrder $name
+        }
+    }
+
+    # DefineOrder name
+    #
+    # name      Order name
+    #
+    # Executes the definition script for this order
+
+    proc DefineOrder {name} {
+        log detail order "define $name"
+
+        # FIRST, initialize the data values
+        set orders(title-$name) ""
+        set orders(table-$name) ""
+
+        # NEXT, set the current order name
+        set deftrans(name) $name
+
+        # NEXT, execute the defscript
+        namespace eval ::order::define $orders(defscript-$name)
+
+        # NEXT, check constraints
+        require {$orders(title-$name) ne ""} \
+            "Order $name has no title"
+    }
+
+    #-------------------------------------------------------------------
+    # Definition Script Procs
+    #
+    # These procs are defined in the ::order::define:: namespace, which
+    # is where definition scripts are evaluated.
+
+    # title titleText
+    #
+    # titleText    Human-readable order title
+    #
+    # Sets the order's title text
+
+    proc define::title {titleText} {
+        set orders(title-$deftrans(name)) $titleText
+    }
+    
+    # table tableName
+    #
+    # tableName     name of an RDB table or view associated with 
+    #               this order.
+    #
+    # Saves the table name.
+    
+    proc define::table {tableName} {
+        set orders(table-$deftrans(name)) $tableName
+    }
+
+    # parm args
+    #
+    # Stub
+
+    proc define::parm {args} {
+        # Does nothing.
+    }
+
+
     #-------------------------------------------------------------------
     # Order Queries
     #
@@ -246,8 +356,20 @@ snit::type order {
     # Returns the order's title
 
     typemethod title {name} {
-        return [dict get $meta($name) title]
+        return $orders(title-$name)
     }
+
+
+    # table name
+    #
+    # name     The name of an order
+    #
+    # Returns the order's RDB table, or ""
+
+    typemethod table {name} {
+        return $orders(table-$name)
+    }
+
 
     # parms name
     #
@@ -256,8 +378,9 @@ snit::type order {
     # Returns a list of the parameter names
 
     typemethod parms {name} {
-        return [dict keys [dict get $meta($name) parms]]
+        return [dict keys $meta($name)]
     }
+
 
     # exists name
     #
@@ -275,6 +398,7 @@ snit::type order {
     # key...    Keys into the meta dictionary
     #
     # Returns the result of "dict get" on the meta dictionary
+    # The first key is always a parameter name.
 
     typemethod meta {order args} {
         return [dict get $meta($order) {*}$args]
@@ -311,7 +435,7 @@ snit::type order {
 
         # NEXT, save the order parameters in the parms array, saving
         # the order name.
-        set validParms [dict keys [$type meta $name parms]]
+        set validParms [order parms $name]
 
         array unset parms
 

@@ -230,14 +230,10 @@ snit::type nbrel {
 
 
 order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE {
-    title "Update Neighborhood Relationship"
-    table nbrel_mn
-    parms {
         m             {ptype key        label "Of Neighborhood"      }
         n             {ptype key        label "With Neighborhood"    }
         proximity     {ptype proximity  label "Proximity"            }
         effects_delay {ptype days       label "Effects Delay (Days)" }
-    }
 } {
     # FIRST, prepare the parameters
     prepare m             -toupper  -required -type nbhood
@@ -269,14 +265,9 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE {
 # Updates multiple existing neighborhood relationships
 
 order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE:MULTI {
-    title "Update Multiple Neighborhood Relationships"
-    multi yes
-    table gui_nbrel_mn
-    parms {
         ids           {ptype ids        label "IDs"                  }
         proximity     {ptype proximity  label "Proximity"            }
         effects_delay {ptype days       label "Effects Delay (Days)" }
-    }
 } {
     # FIRST, prepare the parameters
     prepare ids           -toupper  -required -listof nbrel

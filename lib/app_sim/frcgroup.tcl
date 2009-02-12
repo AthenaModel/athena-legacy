@@ -226,15 +226,12 @@ snit::type frcgroup {
 # Creates new force groups.
 
 order define ::frcgroup GROUP:FORCE:CREATE {
-    title "Create Force Group"
-    parms {
         g            {ptype text          label "ID"                }
         longname     {ptype text          label "Long Name"         }
         color        {ptype color         label "Color"             }
         forcetype    {ptype forcetype     label "Force Type"        }
         local        {ptype yesno         label "Local Group?"      }
         coalition    {ptype yesno         label "Coalition Member?" }
-    }
 } {
     # FIRST, prepare and validate the parameters
     prepare g          -toupper -required -unused -type ident
@@ -263,11 +260,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
 # GROUP:FORCE:DELETE
 
 order define ::frcgroup GROUP:FORCE:DELETE {
-    title "Delete Force Group"
-    table gui_frcgroups
-    parms {
-        g {ptype key label "Group"}
-    }
+    g {ptype key label "Group"}
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type frcgroup
@@ -309,16 +302,12 @@ order define ::frcgroup GROUP:FORCE:DELETE {
 # Updates existing groups.
 
 order define ::frcgroup GROUP:FORCE:UPDATE {
-    title "Update Force Group"
-    table gui_frcgroups
-    parms {
         g            {ptype key           label "ID"                }
         longname     {ptype text          label "Long Name"         }
         color        {ptype color         label "Color"             }
         forcetype    {ptype forcetype     label "Force Type"        }
         local        {ptype yesno         label "Local Group?"      }
         coalition    {ptype yesno         label "Coalition Member?" }
-    }
 } {
     # FIRST, prepare the parameters
     prepare g         -toupper  -required -type frcgroup
@@ -342,16 +331,11 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
 # Updates multiple groups.
 
 order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
-    title "Update Multiple Force Groups"
-    multi yes
-    table gui_frcgroups
-    parms {
         ids          {ptype ids           label "Groups"            }
         color        {ptype color         label "Color"             }
         forcetype    {ptype forcetype     label "Force Type"        }
         local        {ptype yesno         label "Local Group?"      }
         coalition    {ptype yesno         label "Coalition Member?" }
-    }
 } {
     # FIRST, prepare the parameters
     prepare ids       -toupper  -required -listof frcgroup
