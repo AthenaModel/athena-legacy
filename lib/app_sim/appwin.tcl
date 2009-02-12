@@ -314,7 +314,7 @@ snit::widget appwin {
 
     method AddOrder {mnu order} {
         $mnu add command \
-            -label   [order meta $order title] \
+            -label   [order title $order]         \
             -command [list ordergui enter $order]
     }
 
@@ -625,7 +625,7 @@ snit::widget appwin {
 
         # NEXT, Import the map
         if {[catch {
-            order send "" gui MAP:IMPORT [list filename $filename]
+            order send gui MAP:IMPORT [list filename $filename]
         } result]} {
             app error {
                 |<--
@@ -857,6 +857,7 @@ snit::widget appwin {
         $msgline puts $text
     }
 }
+
 
 
 

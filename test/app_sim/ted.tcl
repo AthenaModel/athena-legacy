@@ -398,7 +398,7 @@ snit::type ted {
         # NEXT, send the order
         if {$rejectFlag} {
             set code [catch {
-                order send "" test $order $parmdict
+                order send test $order $parmdict
             } result opts]
 
             if {$code} {
@@ -419,7 +419,7 @@ snit::type ted {
             }
         } else {
             # Normal case; let nature take its course
-            order send "" test $order $parmdict
+            order send test $order $parmdict
         }
     }
 
@@ -643,6 +643,7 @@ snit::type ted {
 
 
 }
+
 
 
 

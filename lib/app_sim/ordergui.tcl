@@ -688,7 +688,7 @@ snit::type ordergui {
     typemethod ButtonSend {} {
         # FIRST, send the order, and handle any errors
         if {[catch {
-            order send "" gui $info(order) [array get values]
+            order send gui $info(order) [array get values]
         } result opts]} {
             # FIRST, if it's unexpected let the app handle it.
             if {[dict get $opts -errorcode] ne "REJECT"} {
@@ -1018,6 +1018,7 @@ ordergui entrytype enum   civgroup     -valuecmd [list civgroup names]
 ordergui entrytype enum   frcgroup     -valuecmd [list frcgroup names]
 ordergui entrytype enum   orggroup     -valuecmd [list orggroup names]
 ordergui entrytype enum   satgroup     -valuecmd [list sat group names]
+
 
 
 

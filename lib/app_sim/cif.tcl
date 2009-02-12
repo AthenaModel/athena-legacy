@@ -130,7 +130,7 @@ snit::type cif {
                 return ""
             }
 
-            return [order meta $name title]
+            return [order title $name]
         }
 
         return
@@ -230,7 +230,7 @@ snit::type cif {
             FROM cif 
             WHERE id=$info(nextid)
         } {
-            return [order meta $name title]
+            return [order title $name]
         }
 
         return
@@ -251,7 +251,7 @@ snit::type cif {
             log normal cif "redo: $name $parmdict"
 
             bgcatch {
-                order send "" sim $name $parmdict
+                order send sim $name $parmdict
             }
 
             incr info(nextid)
@@ -347,5 +347,6 @@ snit::type cif {
         return [join $result "\n"]
     }
 }
+
 
 

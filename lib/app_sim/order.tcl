@@ -9,30 +9,71 @@
 #    athena_sim(n) Order Processing Module
 #
 #    This is the module responsible for processing simulation orders.
-#    Orders can be received from the simulation, "sim", or
-#    from the GUI, "gui", or from the test suite, "test".
-#
-#    Orders are defined with sufficient information that order
-#    dialogs can be defined mostly automatically.
-#
-# ERROR HANDLING
-#
-#    There are three kinds of error, of increasing severity:
-#
-#    * REJECT: the order parameters contain an out-and-out error which
-#      prevents the order from being processed.
-#
-#    * Unexpected: the order handler, or code called by it, throws an
-#      error unexpectedly (i.e., there's a bug in the code).
-#
-#    How these are handled varies depending on the interface.
-#
 #    Insofar as possible, input validation and error-handling are
 #    automated, so that all orders are trivially easy to make work the
-#    same.
+#    same.  Orders are defined with sufficient information that order
+#    dialogs can be generated automatically.
 #
 #    ::order is a singleton object implemented as a snit::type.  To
 #    initialize it, call "::order init".
+#
+# ERROR HANDLING
+#
+#    order(sim) throws two kinds of errors when processing an order.
+#
+#    If the -errorcode is REJECT, the order was rejected due to errors
+#    in the order parameters.  The error return is a dictionary of
+#    parameter names and error messages.
+#
+#    Otherwise, the error is unexpected, i.e, the order handler, or
+#    code called by it, threw an error unrelated to validation of the
+#    order parms.  This usually indicates a bug in the code.
+#
+#    How errors are handled depends on the interface.
+#
+# ORDER INTERFACES:
+#
+#    Orders can be received from the simulation, the GUI (or, more 
+#    generally, from the user) or from the test suite.  The interface
+#    is specified on "order send" using one of the following interface
+#    specifiers:
+#
+#    gui  -- Order originates from the GUI (i.e., the user)
+#    test -- Order originates from the test suite
+#    sim  -- Order originates elsewhere in the simulation
+#
+#    The chosen interface affects the outcome in the following ways:
+#
+#    * The order handler can modify its behavior depending on the interface.
+#      For example, a *:DELETE order handler can pop up a warning dialog
+#      if the interface is "gui", and "cancel" the order if need be.
+#
+#    * Ordinarily, all orders are added to the CIF and can be undone
+#      and redone.  Orders received from the "sim", however, are really
+#      fancy procedure calls, and so the CIF is bypassed.
+#
+#    * Ordinarily, the call to the order handler is wrapped in an
+#      SQL transaction, so that unexpected failures do not corrupt the
+#      RDB.  When the interface is "test", failed changes are not rolled
+#      back, to make it easier to debug the failure.
+#
+#    * If the order handler throws an error, how it is handled depends on
+#      the interface.
+#
+#      * When "sim" sends an order, it is a fancy procedure call; there 
+#        should be no errors.  Therefore, any error is allowed to propagate 
+#        back to the sender of the order, so that the error stack trace is 
+#        maximally informative. 
+#
+#      * Otherwise, if the order is REJECTed the rejection is logged and
+#        the error is rethrown.  The presumption is that the sender
+#        will do something useful with the rejection dictionary.
+#
+#      * Otherwise, if the error is unexpected and the interface is "gui",
+#        the stack trace is logged and a detailed error message is displayed
+#        in a popup.  The scenario is then reconfigured.
+#
+#      * Otherwise, the error is simply rethrown.
 #
 #-----------------------------------------------------------------------
 
@@ -56,7 +97,10 @@ snit::type order {
     # None
 
     #-------------------------------------------------------------------
-    # Non-Checkpointed Variables
+    # Order Definition metadata
+    #
+    # TBD: This will be revised when the new definition scripts are
+    # implemented.
 
     # Order handler name by order name
     
@@ -66,185 +110,67 @@ snit::type order {
     typevariable meta -array {}
 
     #-------------------------------------------------------------------
-    # Transient Variables
+    # Non-checkpointed variables
+
+    # info -- array of scalars
     #
-    # The following variables are used while processing an error; they
-    # are cleared before every new order.
+    # initialized:    0 or 1.  Indicates whether "order init" has been
+    #                 called or not.
+    #
+    # nullMode:       0 or 1.  While in null mode, the orders don't 
+    #                 actually get executed; "order send" returns after 
+    #                 saving the parms.
 
-    typevariable currentInterface  ;# The current interface
-    typevariable parms             ;# Array of order parameters
-    typevariable oldparms          ;# For UPDATE orders, previous parms.
-    typevariable errors            ;# List of error message components.
-    typevariable errorLevel        ;# Nature of error messages.
-    typevariable undoScript        ;# Undo script for this order.
-
-    # nullMode: While in null mode, the orders don't actually get
-    # executed; send returns after saving the parms.
-    typevariable nullMode 0
+    typevariable info -array {
+        initialized 0
+        nullMode    0
+    }
 
     #-------------------------------------------------------------------
-    # Initialization method
+    # Transient Variables
+    #
+    # The following variables are used while processing an order, and
+    # are cleared before every new order.
+
+    # trans: Array of transient data
+    # interface           The current interface
+    # errors              Dictionary of parameter names and error messages
+    # level               Error level: NONE or REJECT
+    # undo                Undo script for this order
+
+    typevariable trans -array {}
+
+    # Parms: array of order parameter values, by parameter name.
+    # This array is aliased into every order handler.
+    typevariable parms             ;# Array of order parameters
+
+
+    #-------------------------------------------------------------------
+    # Initialization
+
+    # init
+    #
+    # Initializes the module.
+    #
+    # TBD: This will do more after the new definition scripts are
+    # implemented.
 
     typemethod init {} {
-        # NEXT, Order processing is up.
+        # FIRST, Order processing is up.
+        set info(initialized) 1
         log normal order "Initialized"
     }
 
+    # initialized
+    #
+    # Returns 1 if the module has been initialized, and 0 otherwise.
+
+    typemethod initialized {} {
+        return $info(initialized)
+    }
+
     #-------------------------------------------------------------------
-    # Public Typemethods
-
-    # nullmode flag
-    #
-    # flag      A boolean flag
-    #
-    # Turns nullmode on and off.  This is used for testing commands
-    # that send orders.
-
-    typemethod nullmode {flag} {
-        set nullMode $flag
-    }
-
-    # parmdict
-    #
-    # Returns a dictionary of the most recent order parms, with one
-    # additional parm, _order.
-
-    typemethod parmdict {} {
-        array get parms
-    }
-
-    # send alias interface name parmdict
-    #
-    # alias           Alternate order name to use in error messages; leave
-    #                 as "" to use real order name.
-    # interface       sim|gui
-    # name            The order's name
-    # parmdict        The order's parameter dictionary
-    #
-    # Processes the order, handling errors in the appropriate way for the
-    # interface.
-
-    typemethod send {alias interface name parmdict} {
-        # FIRST, log the order
-        if {$alias ne ""} {
-            set displayName '$alias'
-        } else {
-            set displayName $name
-        }
-
-        log normal order [list $displayName from '$interface': $parmdict]
-
-        # NEXT, do we have an order handler?
-        require {[info exists handler($name)]} "Undefined order: $name"
-
-        # NEXT, is the interface valid?
-        if {$interface ni {gui test sim}} {
-            error \
-     "Unexpected error in $displayName, invalid interface spec: \"$interface\""
-        }
-
-        # NEXT, save the interface.
-        set currentInterface $interface
-
-        # NEXT, save the order parameters in the parms array, saving
-        # the order name.
-        set validParms [dict keys [$type meta $name parms]]
-
-        array unset parms
-
-        dict for {parm value} $parmdict {
-            require {$parm in $validParms} "Unknown parameter: \"$parm\""
-
-            set parms($parm) $value
-        }
-
-        set parms(_order) $name
-
-        # NEXT, in null mode we're done.
-        if {$nullMode} {
-            if {$errorLevel ne "NONE"} {
-                return -code error -errorcode REJECT $errors
-            }
-
-            return
-        }
-
-        # NEXT, set up the error messages and call the order handler,
-        # rolling back the database automatically on error.
-        set errors     [dict create]
-        set errorLevel NONE
-        set undoScript {}
-
-        if {[catch {
-            if {$interface ne "test"} {
-                rdb transaction {
-                    $handler($name)
-                }
-            } else {
-                # On "test", don't rollback automatically, to make
-                # debugging easier.
-                $handler($name)
-            }
-        } result opts]} {
-            # FIRST, get the error info
-            set einfo [dict get $opts -errorinfo]
-            set ecode [dict get $opts -errorcode]
-
-            # NEXT, handle the result 
-            if {$interface eq "sim"} {
-                error "Unexpected error in $displayName:\n$result" $einfo
-            }
-
-            if {$ecode eq "REJECT"} {
-                log warning order $result                    
-                return {*}$opts $result
-            }
-
-            if {$ecode eq "CANCEL"} {
-                log warning order $result                    
-                return
-            }
-
-            if {$interface eq "gui"} {
-                log error order "Unexpected error in $displayName:\n$result"
-                log error order "Stack Trace:\n$einfo"
-
-                app error {
-                    |<--
-                    $name
-
-                    There was an unexpected error during the 
-                    handling of this order.  The scenario has 
-                    been rolled back to its previous state, so 
-                    the application data  should not be 
-                    corrupted.  However:
-
-                    * You should probably save the scenario under
-                      a new name, just in case.
-
-                    * The error has been logged in detail.  Please
-                      contact JPL to get the problem fixed.
-                }
-
-                scenario reconfigure
-                
-                return
-            }
-
-            # Non-GUI error return.
-            error \
-                "Unexpected error in $displayName:\n$result" $einfo
-        }
-
-        # NEXT: Add order to CIF, unless it was generated by the
-        # simulation.
-        if {$interface ne "sim"} {
-            cif add $name $parmdict $undoScript
-        }
-
-        # NEXT, return the result, if any.
-        return $result
-    }
+    # Order Definition
 
     # define module name metadata body
     #
@@ -307,15 +233,20 @@ snit::type order {
         }]
     }
 
-    # meta order key ?key...?
+    #-------------------------------------------------------------------
+    # Order Queries
     #
-    # order     The name of an order
-    # key...    Keys into the meta dictionary
-    #
-    # Returns the result of "dict get" on the meta dictionary
+    # These commands are used to query the existing orders and their
+    # metadata.
 
-    typemethod meta {order args} {
-        return [dict get $meta($order) {*}$args]
+    # title name
+    #
+    # name     The name of an order
+    #
+    # Returns the order's title
+
+    typemethod title {name} {
+        return [dict get $meta($name) title]
     }
 
     # parms name
@@ -338,6 +269,164 @@ snit::type order {
         return [info exists handler($name)]
     }
 
+    # meta order key ?key...?
+    #
+    # order     The name of an order
+    # key...    Keys into the meta dictionary
+    #
+    # Returns the result of "dict get" on the meta dictionary
+
+    typemethod meta {order args} {
+        return [dict get $meta($order) {*}$args]
+    }
+
+
+    #-------------------------------------------------------------------
+    # Sending Orders
+
+    # send interface name parmdict
+    #
+    # interface       sim|gui
+    # name            The order's name
+    # parmdict        The order's parameter dictionary
+    #
+    # Processes the order, handling errors in the appropriate way for the
+    # interface.
+
+    typemethod send {interface name parmdict} {
+        # FIRST, log the order
+        log normal order [list $name from '$interface': $parmdict]
+
+        # NEXT, do we have an order handler?
+        require {[info exists handler($name)]} "Undefined order: $name"
+
+        # NEXT, is the interface valid?
+        if {$interface ni {gui test sim}} {
+            error \
+     "Unexpected error in $name, invalid interface spec: \"$interface\""
+        }
+
+        # NEXT, save the interface.
+        set trans(interface) $interface
+
+        # NEXT, save the order parameters in the parms array, saving
+        # the order name.
+        set validParms [dict keys [$type meta $name parms]]
+
+        array unset parms
+
+        dict for {parm value} $parmdict {
+            require {$parm in $validParms} "Unknown parameter: \"$parm\""
+
+            set parms($parm) $value
+        }
+
+        set parms(_order) $name
+
+        # NEXT, in null mode we're done.
+        if {$info(nullMode)} {
+            return
+        }
+
+        # NEXT, set up the error messages and call the order handler,
+        # rolling back the database automatically on error.
+        set trans(errors) [dict create]
+        set trans(level)  NONE
+        set trans(undo)   {}
+
+        if {[catch {
+            if {$interface ne "test"} {
+                rdb transaction {
+                    $handler($name)
+                }
+            } else {
+                # On "test", don't rollback automatically, to make
+                # debugging easier.
+                $handler($name)
+            }
+        } result opts]} {
+            # FIRST, get the error info
+            set einfo [dict get $opts -errorinfo]
+            set ecode [dict get $opts -errorcode]
+
+            # NEXT, handle the result 
+            if {$interface eq "sim"} {
+                error "Unexpected error in $name:\n$result" $einfo
+            }
+
+            if {$ecode eq "REJECT"} {
+                log warning order $result                    
+                return {*}$opts $result
+            }
+
+            if {$ecode eq "CANCEL"} {
+                log warning order $result                    
+                return
+            }
+
+            if {$interface eq "gui"} {
+                log error order "Unexpected error in $name:\n$result"
+                log error order "Stack Trace:\n$einfo"
+
+                app error {
+                    |<--
+                    $name
+
+                    There was an unexpected error during the 
+                    handling of this order.  The scenario has 
+                    been rolled back to its previous state, so 
+                    the application data  should not be 
+                    corrupted.  However:
+
+                    * You should probably save the scenario under
+                      a new name, just in case.
+
+                    * The error has been logged in detail.  Please
+                      contact JPL to get the problem fixed.
+                }
+
+                scenario reconfigure
+                
+                return
+            }
+
+            # Non-GUI error return.
+            error \
+                "Unexpected error in $name:\n$result" $einfo
+        }
+
+        # NEXT: Add order to CIF, unless it was generated by the
+        # simulation.
+        if {$interface ne "sim"} {
+            cif add $name $parmdict $trans(undo)
+        }
+
+        # NEXT, return the result, if any.
+        return $result
+    }
+
+
+    # nullmode flag
+    #
+    # flag      A boolean flag
+    #
+    # Turns nullmode on and off.  This is used for testing commands
+    # that send orders.
+
+    typemethod nullmode {flag} {
+        set info(nullMode) $flag
+    }
+
+
+    # lastparms
+    #
+    # Returns a dictionary of the most recent order parms, with one
+    # additional parm, _order.
+
+    typemethod lastparms {} {
+        array get parms
+    }
+
 
     #-------------------------------------------------------------------
     # Procs for use in order handlers
@@ -347,7 +436,7 @@ snit::type order {
     # Returns the name of the current interface
 
     proc interface {} {
-        return $currentInterface
+        return $trans(interface)
     }
 
     # prepare parm options...
@@ -368,7 +457,7 @@ snit::type order {
         # NEXT, process the options, so long as there's no explicit
         # error.
 
-        while {![dict exists $errors $parm] && [llength $args] > 0} {
+        while {![dict exists $trans(errors) $parm] && [llength $args] > 0} {
             set opt [lshift args]
             switch -exact -- $opt {
                 -toupper {
@@ -454,11 +543,11 @@ snit::type order {
     # msg    An error message
     #
     # There's an out-and-out error in the order.  Add the message to
-    # the error dictionary, and set the errorLevel to REJECT.
+    # the error dictionary, and set the trans(level) to REJECT.
 
     proc reject {parm msg} {
-        dict set errors $parm $msg
-        set errorLevel REJECT
+        dict set trans(errors) $parm $msg
+        set trans(level) REJECT
     }
 
     # valid parm
@@ -471,7 +560,7 @@ snit::type order {
     # flagged as invalid.
 
     proc valid {parm} {
-        if {$parms($parm) eq "" || [dict exists $errors $parm]} {
+        if {$parms($parm) eq "" || [dict exists $trans(errors) $parm]} {
             return 0
         }
 
@@ -514,14 +603,14 @@ snit::type order {
 
     proc returnOnError {} {
         # FIRST, If there are no errors, do nothing
-        if {[dict size $errors] == 0} {
+        if {[dict size $trans(errors)] == 0} {
             return
         }
 
         # FINALLY, throw the accumulated errors at the specified
         # error level; this will terminate order processing.
         
-        return -code error -errorcode REJECT $errors
+        return -code error -errorcode $trans(level) $trans(errors)
     }
 
     # cancel
@@ -541,7 +630,7 @@ snit::type order {
     # Sets the undo script for the current order.
 
     proc setundo {script} {
-        set undoScript $script
+        set trans(undo) $script
     }
 }
 
