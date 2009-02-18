@@ -190,13 +190,9 @@ snit::widget coopbrowser {
         if {[llength $ids] == 1} {
             lassign [lindex $ids 0] n f g
 
-            order enter COOPERATION:UPDATE
-            ordergui parm set n $n
-            ordergui parm set f $f
-            ordergui parm set g $g
+            order enter COOPERATION:UPDATE n $n f $f g $g
         } else {
-            order enter COOPERATION:UPDATE:MULTI
-            ordergui parm set ids $ids
+            order enter COOPERATION:UPDATE:MULTI ids $ids
         }
     }
 

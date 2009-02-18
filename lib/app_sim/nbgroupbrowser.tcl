@@ -223,12 +223,9 @@ snit::widget nbgroupbrowser {
         if {[llength $ids] == 1} {
             lassign [lindex $ids 0] n g
 
-            order enter GROUP:NBHOOD:UPDATE
-            ordergui parm set n $n
-            ordergui parm set g $g
+            order enter GROUP:NBHOOD:UPDATE n $n g $g
         } else {
-            order enter GROUP:NBHOOD:UPDATE:MULTI
-            ordergui parm set ids $ids
+            order enter GROUP:NBHOOD:UPDATE:MULTI ids $ids
         }
     }
 
@@ -241,9 +238,7 @@ snit::widget nbgroupbrowser {
         lassign [lindex [$tb curselection] 0] n g
 
         # NEXT, Pop up the dialog, and select this group
-        order enter GROUP:NBHOOD:DELETE
-        ordergui parm set n $n 
-        ordergui parm set g $g
+        order enter GROUP:NBHOOD:DELETE n $n g $g
     }
 
     # DisplayData dict

@@ -193,11 +193,9 @@ snit::widget orggroupbrowser {
         if {[llength $ids] == 1} {
             set id [lindex $ids 0]
 
-            order enter GROUP:ORGANIZATION:UPDATE
-            ordergui parm set g $id
+            order enter GROUP:ORGANIZATION:UPDATE g $id
         } else {
-            order enter GROUP:ORGANIZATION:UPDATE:MULTI
-            ordergui parm set ids $ids
+            order enter GROUP:ORGANIZATION:UPDATE:MULTI ids $ids
         }
     }
 
@@ -210,8 +208,7 @@ snit::widget orggroupbrowser {
         set id [lindex [$tb curselection] 0]
 
         # NEXT, Pop up the dialog, and select this group
-        order enter GROUP:ORGANIZATION:DELETE
-        ordergui parm set g $id
+        order enter GROUP:ORGANIZATION:DELETE g $id
     }
 
     # delete n

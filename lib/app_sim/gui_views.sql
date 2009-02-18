@@ -97,7 +97,7 @@ SELECT n || ' ' || f || ' ' || g                     AS id,
        n                                             AS n,
        f                                             AS f,
        g                                             AS g,
-       format('%+6.1f', coop0)                       AS coop0
+       format('%5.1f', coop0)                        AS coop0
 FROM coop_nfg;
 
 -- An nbrel_mn view for use by the GUI

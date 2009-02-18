@@ -188,11 +188,9 @@ snit::widget frcgroupbrowser {
         if {[llength $ids] == 1} {
             set id [lindex $ids 0]
 
-            order enter GROUP:FORCE:UPDATE
-            ordergui parm set g $id
+            order enter GROUP:FORCE:UPDATE g $id
         } else {
-            order enter GROUP:FORCE:UPDATE:MULTI
-            ordergui parm set ids $ids
+            order enter GROUP:FORCE:UPDATE:MULTI ids $ids
         }
     }
 
@@ -205,8 +203,7 @@ snit::widget frcgroupbrowser {
         set id [lindex [$tb curselection] 0]
 
         # NEXT, Pop up the dialog, and select this group
-        order enter GROUP:FORCE:DELETE
-        ordergui parm set g $id
+        order enter GROUP:FORCE:DELETE g $id
     }
 
     # delete n

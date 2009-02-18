@@ -189,12 +189,9 @@ snit::widget nbrelbrowser {
         if {[llength $ids] == 1} {
             lassign [lindex $ids 0] m n
 
-            order enter NBHOOD:RELATIONSHIP:UPDATE
-            ordergui parm set m $m
-            ordergui parm set n $n
+            order enter NBHOOD:RELATIONSHIP:UPDATE m $m n $n
         } else {
-            order enter NBHOOD:RELATIONSHIP:UPDATE:MULTI
-            ordergui parm set ids $ids
+            order enter NBHOOD:RELATIONSHIP:UPDATE:MULTI ids $ids
         }
     }
 

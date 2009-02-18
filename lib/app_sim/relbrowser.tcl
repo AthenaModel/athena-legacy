@@ -190,13 +190,9 @@ snit::widget relbrowser {
         if {[llength $ids] == 1} {
             lassign [lindex $ids 0] n f g
 
-            order enter RELATIONSHIP:UPDATE
-            ordergui parm set n $n
-            ordergui parm set f $f
-            ordergui parm set g $g
+            order enter RELATIONSHIP:UPDATE n $n f $f g $g
         } else {
-            order enter RELATIONSHIP:UPDATE:MULTI
-            ordergui parm set ids $ids
+            order enter RELATIONSHIP:UPDATE:MULTI ids $ids
         }
     }
 

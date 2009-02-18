@@ -185,11 +185,9 @@ snit::widget civgroupbrowser {
         if {[llength $ids] == 1} {
             set id [lindex $ids 0]
 
-            order enter GROUP:CIVILIAN:UPDATE
-            ordergui parm set g $id
+            order enter GROUP:CIVILIAN:UPDATE g $id
         } else {
-            order enter GROUP:CIVILIAN:UPDATE:MULTI
-            ordergui parm set ids $ids
+            order enter GROUP:CIVILIAN:UPDATE:MULTI ids $ids
         }
     }
 
@@ -202,8 +200,7 @@ snit::widget civgroupbrowser {
         set id [lindex [$tb curselection] 0]
 
         # NEXT, Pop up the dialog, and select this group
-        order enter GROUP:CIVILIAN:DELETE
-        ordergui parm set g $id
+        order enter GROUP:CIVILIAN:DELETE g $id
     }
 
     # delete n
