@@ -315,7 +315,7 @@ snit::widget appwin {
     method AddOrder {mnu order} {
         $mnu add command \
             -label   [order title $order]         \
-            -command [list ordergui enter $order]
+            -command [list order enter $order]
     }
 
     # CreateComponents
@@ -857,6 +857,7 @@ snit::widget appwin {
         $msgline puts $text
     }
 }
+
 
 
 

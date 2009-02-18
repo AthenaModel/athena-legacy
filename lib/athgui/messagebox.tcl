@@ -278,6 +278,9 @@ snit::type ::athgui::messagebox {
                 # Do nothing
             }
 
+            # NEXT, it must be on top
+            wm attributes $dialog -topmost 1
+
             # NEXT, create and grid the standard widgets
             
             # Row 1: Icon and message

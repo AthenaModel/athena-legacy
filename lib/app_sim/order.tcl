@@ -61,7 +61,7 @@
 #      the interface.
 #
 #      * When "sim" sends an order, it is a fancy procedure call; there 
-#        should be no errors.  Therefore, any error is allowed to propagate 
+#        should be no erroordersrs.  Therefore, any error is allowed to propagate 
 #        back to the sender of the order, so that the error stack trace is 
 #        maximally informative. 
 #
@@ -95,6 +95,13 @@ snit::type order {
     typeconstructor {
         # TBD
     }
+
+    #-------------------------------------------------------------------
+    # Type Components
+
+    typecomponent orderdialog     ;# orderdialog(sim)
+
+
 
     #-------------------------------------------------------------------
     # Checkpointed Variables
@@ -172,6 +179,11 @@ snit::type order {
 
 
     #-------------------------------------------------------------------
+    # Delegated Typemethods
+
+    delegate typemethod enter to orderdialog
+
+    #-------------------------------------------------------------------
     # Initialization
 
     # init
@@ -186,6 +198,9 @@ snit::type order {
         foreach name $orders(names) {
             DefineOrder $name
         }
+
+        # NEXT, save components
+        set orderdialog ::orderdialog
 
         # NEXT, Order processing is up.
         set info(initialized) 1
@@ -434,6 +449,7 @@ snit::type order {
                        -label      $label     \
                        -defval     {}         \
                        -tags       {}         \
+                       -type       {}         \
                        -refresh    0          \
                        -refreshcmd {}]
 
@@ -509,6 +525,14 @@ snit::type order {
     #
     # These commands are used to query the existing orders and their
     # metadata.
+
+    # names
+    #
+    # Returns the names of the currently defined orders
+    
+    typemethod names {} {
+        return $orders(names)
+    }
 
     # title name
     #

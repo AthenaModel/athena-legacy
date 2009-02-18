@@ -210,7 +210,7 @@ snit::widget nbgroupbrowser {
 
     method AddGroup {} {
         # FIRST, Pop up the dialog
-        ordergui enter GROUP:NBHOOD:CREATE
+        order enter GROUP:NBHOOD:CREATE
     }
 
     # EditSelected
@@ -223,11 +223,11 @@ snit::widget nbgroupbrowser {
         if {[llength $ids] == 1} {
             lassign [lindex $ids 0] n g
 
-            ordergui enter GROUP:NBHOOD:UPDATE
+            order enter GROUP:NBHOOD:UPDATE
             ordergui parm set n $n
             ordergui parm set g $g
         } else {
-            ordergui enter GROUP:NBHOOD:UPDATE:MULTI
+            order enter GROUP:NBHOOD:UPDATE:MULTI
             ordergui parm set ids $ids
         }
     }
@@ -241,7 +241,7 @@ snit::widget nbgroupbrowser {
         lassign [lindex [$tb curselection] 0] n g
 
         # NEXT, Pop up the dialog, and select this group
-        ordergui enter GROUP:NBHOOD:DELETE
+        order enter GROUP:NBHOOD:DELETE
         ordergui parm set n $n 
         ordergui parm set g $g
     }
@@ -286,5 +286,6 @@ snit::widget nbgroupbrowser {
         }
     }
 }
+
 
 

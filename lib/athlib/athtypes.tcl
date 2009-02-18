@@ -24,6 +24,7 @@ namespace eval ::athlib:: {
         eorgtype      \
         eproximity    \
         eurbanization \
+        eyesno        \
         hexcolor      \
         ident         \
         polygon       \
@@ -101,6 +102,12 @@ namespace eval ::athlib:: {
     RURAL        "Rural"
     SUBURBAN     "Suburban"
     URBAN        "Urban"
+}
+
+# Yes/No
+::marsutil::enum ::athlib::eyesno {
+    YES    "Yes"
+    NO     "No"
 }
 
 #-------------------------------------------------------------------

@@ -92,6 +92,12 @@ levels.<p>
 
 <<::athlib::eurbanization html>>
 
+<<defitem eyesno {eyesno <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing boolean "Yes" and "No" values.<p>
+
+<<::athlib::eyesno html>>
+
 <<defitem "hexcolor validate" {hexcolor validate <i>color</i>}>>
 
 Hex color type.  A hex color specification is a string

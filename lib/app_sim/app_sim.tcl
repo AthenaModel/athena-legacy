@@ -73,6 +73,10 @@ source [file join $::app_sim::library orderdef.tcl        ]
 
 # GUI
 source [file join $::app_sim::library ordergui.tcl        ]
+source [file join $::app_sim::library orderdialog.tcl     ]
+source [file join $::app_sim::library textfield.tcl       ]
+source [file join $::app_sim::library enumfield.tcl       ]
+source [file join $::app_sim::library multifield.tcl      ]
 source [file join $::app_sim::library appwin.tcl          ]
 source [file join $::app_sim::library mapviewer.tcl       ]
 source [file join $::app_sim::library mapicons.tcl        ]

@@ -257,10 +257,10 @@ snit::widget nbhoodbrowser {
         if {[llength $ids] == 1} {
             set id [lindex $ids 0]
 
-            ordergui enter NBHOOD:UPDATE
+            order enter NBHOOD:UPDATE
             ordergui parm set n $id
         } else {
-            ordergui enter NBHOOD:UPDATE:MULTI
+            order enter NBHOOD:UPDATE:MULTI
             ordergui parm set ids $ids
         }
     }
@@ -298,7 +298,7 @@ snit::widget nbhoodbrowser {
         set id [lindex [$tb curselection] 0]
 
         # NEXT, Pop up the dialog, and select this nbhood
-        ordergui enter NBHOOD:DELETE
+        order enter NBHOOD:DELETE
         ordergui parm set n $id
     }
 
@@ -374,6 +374,7 @@ snit::widget nbhoodbrowser {
         }
     }
 }
+
 
 
 

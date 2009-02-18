@@ -172,7 +172,7 @@ snit::widget civgroupbrowser {
 
     method AddGroup {} {
         # FIRST, Pop up the dialog
-        ordergui enter GROUP:CIVILIAN:CREATE
+        order enter GROUP:CIVILIAN:CREATE
     }
 
     # EditSelected
@@ -185,10 +185,10 @@ snit::widget civgroupbrowser {
         if {[llength $ids] == 1} {
             set id [lindex $ids 0]
 
-            ordergui enter GROUP:CIVILIAN:UPDATE
+            order enter GROUP:CIVILIAN:UPDATE
             ordergui parm set g $id
         } else {
-            ordergui enter GROUP:CIVILIAN:UPDATE:MULTI
+            order enter GROUP:CIVILIAN:UPDATE:MULTI
             ordergui parm set ids $ids
         }
     }
@@ -202,7 +202,7 @@ snit::widget civgroupbrowser {
         set id [lindex [$tb curselection] 0]
 
         # NEXT, Pop up the dialog, and select this group
-        ordergui enter GROUP:CIVILIAN:DELETE
+        order enter GROUP:CIVILIAN:DELETE
         ordergui parm set g $id
     }
 
@@ -259,5 +259,6 @@ snit::widget civgroupbrowser {
         }
     }
 }
+
 
 

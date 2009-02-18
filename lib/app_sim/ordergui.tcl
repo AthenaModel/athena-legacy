@@ -140,9 +140,11 @@ snit::type ordergui {
 
     typemethod init {} {
         # FIRST, create the necessary fonts
+        if 0 {
         font create OrderTitleFont {*}[font actual TkDefaultFont] \
             -weight bold                                          \
             -size   -16
+        }
 
         # NEXT, set up the standard ptypes
         $type entrytype text text

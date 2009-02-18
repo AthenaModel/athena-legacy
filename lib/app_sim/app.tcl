@@ -103,8 +103,9 @@ snit::type app {
         wm iconphoto .main -default $icon
 
         # NEXT, initialize the order GUI
-        ordergui init
-
+        ordergui init  ;# TBD: Delete this
+        orderdialog init
+        
         # NEXT, log that we're up.
         log normal app "Athena [version]"
 

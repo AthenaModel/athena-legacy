@@ -180,7 +180,7 @@ snit::widget orggroupbrowser {
 
     method AddGroup {} {
         # FIRST, Pop up the dialog
-        ordergui enter GROUP:ORGANIZATION:CREATE
+        order enter GROUP:ORGANIZATION:CREATE
     }
 
     # EditSelected
@@ -193,10 +193,10 @@ snit::widget orggroupbrowser {
         if {[llength $ids] == 1} {
             set id [lindex $ids 0]
 
-            ordergui enter GROUP:ORGANIZATION:UPDATE
+            order enter GROUP:ORGANIZATION:UPDATE
             ordergui parm set g $id
         } else {
-            ordergui enter GROUP:ORGANIZATION:UPDATE:MULTI
+            order enter GROUP:ORGANIZATION:UPDATE:MULTI
             ordergui parm set ids $ids
         }
     }
@@ -210,7 +210,7 @@ snit::widget orggroupbrowser {
         set id [lindex [$tb curselection] 0]
 
         # NEXT, Pop up the dialog, and select this group
-        ordergui enter GROUP:ORGANIZATION:DELETE
+        order enter GROUP:ORGANIZATION:DELETE
         ordergui parm set g $id
     }
 
@@ -268,5 +268,6 @@ snit::widget orggroupbrowser {
         }
     }
 }
+
 
 

@@ -363,7 +363,7 @@ snit::widget mapviewer {
         button $win.vbar.nbhood                          \
             -relief  flat                                \
             -image   ${type}::icon::nbpoly               \
-            -command [list ordergui enter NBHOOD:CREATE]
+            -command [list order enter NBHOOD:CREATE]
         DynamicHelp::add $win.vbar.nbhood -text "Create Neighborhood"
 
         pack $win.vbar.nbhood -side top -fill x -padx 2
@@ -847,6 +847,7 @@ snit::widget mapviewer {
     }
 
 }
+
 
 
 
