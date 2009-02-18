@@ -66,13 +66,7 @@ source [file join $::app_sim::library sat.tcl             ]
 source [file join $::app_sim::library rel.tcl             ]
 source [file join $::app_sim::library coop.tcl            ]
 
-# TBD: remove this once all order definition scripts have
-# been moved to the "order define" calls.
-source [file join $::app_sim::library orderdef.tcl        ]
-
-
 # GUI
-source [file join $::app_sim::library ordergui.tcl        ]
 source [file join $::app_sim::library orderdialog.tcl     ]
 source [file join $::app_sim::library textfield.tcl       ]
 source [file join $::app_sim::library enumfield.tcl       ]

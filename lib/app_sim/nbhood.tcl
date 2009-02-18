@@ -386,6 +386,13 @@ snit::type nbhood {
 # Creates new neighborhoods.
 
 order define ::nbhood NBHOOD:CREATE {
+    title "Create Neighborhood"
+
+    parm n            text "Neighborhood"
+    parm longname     text "Long Name"
+    parm urbanization enum "Urbanization"     -type eurbanization
+    parm refpoint     text "Reference Point"  -tags point
+    parm polygon      text "Polygon"          -tags polygon
 } {
     # FIRST, prepare the parameters
     prepare n             -toupper      -required -unused -type ident
@@ -446,6 +453,10 @@ order define ::nbhood NBHOOD:CREATE {
 # NBHOOD:DELETE
 
 order define ::nbhood NBHOOD:DELETE {
+    title "Delete Neighborhood"
+    table gui_nbhoods   ;# Why gui_nbhoods?
+
+    parm n  key  "Neighborhood"   -tags nbhood
 } {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type nbhood
@@ -484,6 +495,10 @@ order define ::nbhood NBHOOD:DELETE {
 # NBHOOD:LOWER
 
 order define ::nbhood NBHOOD:LOWER {
+    title "Lower Neighborhood"
+    table gui_nbhoods
+
+    parm n key "Neighborhood"     -tags nbhood
 } {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type nbhood
@@ -497,6 +512,10 @@ order define ::nbhood NBHOOD:LOWER {
 # NBHOOD:RAISE
 
 order define ::nbhood NBHOOD:RAISE {
+    title "Raise Neighborhood"
+    table gui_nbhoods
+
+    parm n key "Neighborhood"     -tags nbhood
 } {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type nbhood
@@ -512,6 +531,14 @@ order define ::nbhood NBHOOD:RAISE {
 # Updates existing neighborhoods.
 
 order define ::nbhood NBHOOD:UPDATE {
+    title "Update Neighborhood"
+    table gui_nbhoods
+
+    parm n            key   "Neighborhood"     -tags nbhood
+    parm longname     text  "Long Name"
+    parm urbanization enum  "Urbanization"     -type eurbanization
+    parm refpoint     text  "Reference Point"  -tags point
+    parm polygon      text  "Polygon"          -tags polygon
 } {
     # FIRST, prepare the parameters
     prepare n            -toupper       -required -type nbhood
@@ -589,6 +616,11 @@ order define ::nbhood NBHOOD:UPDATE {
 # Updates multiple neighborhoods.
 
 order define ::nbhood NBHOOD:UPDATE:MULTI {
+    title "Update Multiple Neighborhoods"
+    table gui_nbhoods
+
+    parm ids          multi  "Neighborhoods"
+    parm urbanization enum   "Urbanization"    -type eurbanization
 } {
     # FIRST, prepare the parameters
     prepare ids          -toupper -required -listof nbhood

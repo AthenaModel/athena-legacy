@@ -240,6 +240,17 @@ snit::type orggroup {
 # Creates new organization groups.
 
 order define ::orggroup GROUP:ORGANIZATION:CREATE {
+    title "Create Organization Group"
+
+    parm g              text  "ID"
+    parm longname       text  "Long Name"
+    parm color          color "Color"
+    parm orgtype        enum  "Org. Type"     -type eorgtype
+    parm medical        enum  "Medical?"      -type eyesno
+    parm engineer       enum  "Engineer?"     -type eyesno
+    parm support        enum  "Support?"      -type eyesno
+    parm rollup_weight  text  "RollupWeight"  -defval 1.0
+    parm effects_factor text  "EffectsFactor" -defval 1.0
 } {
     # FIRST, prepare and validate the parameters
     prepare g              -toupper -required -unused -type ident
@@ -271,6 +282,10 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
 # GROUP:ORGANIZATION:DELETE
 
 order define ::orggroup GROUP:ORGANIZATION:DELETE {
+    title "Delete Organization Group"
+    table gui_orggroups
+
+    parm g  key "Group"
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type orggroup
@@ -312,6 +327,18 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
 # Updates existing groups.
 
 order define ::orggroup GROUP:ORGANIZATION:UPDATE {
+    title "Update Organization Group"
+    table gui_orggroups
+
+    parm g              key   "ID"
+    parm longname       text  "Long Name"
+    parm color          color "Color"
+    parm orgtype        enum  "Org. Type"     -type eorgtype
+    parm medical        enum  "Medical?"      -type eyesno
+    parm engineer       enum  "Engineer?"     -type eyesno
+    parm support        enum  "Support?"      -type eyesno
+    parm rollup_weight  text  "RollupWeight"  
+    parm effects_factor text  "EffectsFactor" 
 } {
     # FIRST, prepare the parameters
     prepare g              -toupper  -required -type orggroup
@@ -339,6 +366,18 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
 # Updates multiple groups.
 
 order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
+    title "Update Multiple Organization Groups"
+    table gui_orggroups
+
+
+    parm ids            multi "Groups"
+    parm color          color "Color"
+    parm orgtype        enum  "Org. Type"     -type eorgtype
+    parm medical        enum  "Medical?"      -type eyesno
+    parm engineer       enum  "Engineer?"     -type eyesno
+    parm support        enum  "Support?"      -type eyesno
+    parm rollup_weight  text  "RollupWeight"  
+    parm effects_factor text  "EffectsFactor" 
 } {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof orggroup

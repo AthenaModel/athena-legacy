@@ -210,6 +210,11 @@ snit::type map {
 # Imports a map into the scenario
 
 order define ::map MAP:IMPORT {
+    title "Import Map"
+
+    # NOTE: Dialog is not usually used.  Could define a "filepicker"
+    # -editcmd, though.
+    parm filename   text "Map File"
 } {
     # FIRST, prepare the parameters
     prepare filename -required 

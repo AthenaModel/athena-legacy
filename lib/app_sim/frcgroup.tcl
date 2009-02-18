@@ -226,6 +226,14 @@ snit::type frcgroup {
 # Creates new force groups.
 
 order define ::frcgroup GROUP:FORCE:CREATE {
+    title "Create Force Group"
+
+    parm g          text  "ID"
+    parm longname   text  "Long Name"
+    parm color      color "Color"
+    parm forcetype  enum  "Force Type"        -type eforcetype
+    parm local      enum  "Local Group?"      -type eyesno
+    parm coalition  enum  "Coalition Member?" -type eyesno
 } {
     # FIRST, prepare and validate the parameters
     prepare g          -toupper -required -unused -type ident
@@ -254,6 +262,10 @@ order define ::frcgroup GROUP:FORCE:CREATE {
 # GROUP:FORCE:DELETE
 
 order define ::frcgroup GROUP:FORCE:DELETE {
+    title "Delete Force Group"
+    table gui_frcgroups
+
+    parm g  key "Group" -tags group
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type frcgroup
@@ -295,6 +307,15 @@ order define ::frcgroup GROUP:FORCE:DELETE {
 # Updates existing groups.
 
 order define ::frcgroup GROUP:FORCE:UPDATE {
+    title "Update Force Group"
+    table gui_frcgroups
+
+    parm g          key   "ID"                 -tags group
+    parm longname   text  "Long Name"
+    parm color      color "Color"
+    parm forcetype  enum  "Force Type"         -type eforcetype
+    parm local      enum  "Local Group?"       -type eyesno
+    parm coalition  enum  "Coalition Member?"  -type eyesno
 } {
     # FIRST, prepare the parameters
     prepare g         -toupper  -required -type frcgroup
@@ -318,6 +339,14 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
 # Updates multiple groups.
 
 order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
+    title "Update Multiple Force Groups"
+    table gui_frcgroups
+
+    parm ids        multi "Groups"
+    parm color      color "Color"
+    parm forcetype  enum  "Force Type"         -type eforcetype
+    parm local      enum  "Local Group?"       -type eyesno
+    parm coalition  enum  "Coalition Member?"  -type eyesno
 } {
     # FIRST, prepare the parameters
     prepare ids       -toupper  -required -listof frcgroup

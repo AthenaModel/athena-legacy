@@ -286,6 +286,15 @@ snit::type sat {
 # Updates existing curves
 
 order define ::sat SATISFACTION:UPDATE {
+    title "Update Satisfaction Curve"
+    table sat_ngc
+
+    parm n         key   "Neighborhood"  -tags nbhood
+    parm g         key   "Group"         -tags group
+    parm c         key   "Concern"       -tags concern
+    parm sat0      text  "Sat at T0"
+    parm trend0    text  "Trend"
+    parm saliency  text  "Saliency"
 } {
     # FIRST, prepare the parameters
     prepare n        -toupper  -required -type nbhood
@@ -318,6 +327,13 @@ order define ::sat SATISFACTION:UPDATE {
 # Updates multiple existing curves
 
 order define ::sat SATISFACTION:UPDATE:MULTI {
+    title "Update Multiple Satisfaction Curves"
+    table gui_sat_ngc
+
+    parm ids       multi  "Curves"
+    parm sat0      text   "Sat at T0"
+    parm trend0    text   "Trend"
+    parm saliency  text   "Saliency"
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof sat

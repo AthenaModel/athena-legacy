@@ -287,6 +287,16 @@ snit::type nbgroup {
 # Creates new nbhood groups.
 
 order define ::nbgroup GROUP:NBHOOD:CREATE {
+    title "Create Nbhood Group"
+
+    parm n              enum "Neighborhood"   \
+        -type ::nbhood -tags nbhood -refresh
+    parm g              enum "Civ Group" \
+        -tags group -refreshcmd [list ::nbgroup RefreshCreateG]
+    parm local_name     text "Local Name"
+    parm demeanor       enum "Demeanor"       -type edemeanor
+    parm rollup_weight  text "RollupWeight"   -defval 1.0
+    parm effects_factor text "EffectsFactor"  -defval 1.0
 } {
     # FIRST, prepare and validate the parameters
     prepare n              -toupper -required -type nbhood
@@ -322,6 +332,11 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
 # GROUP:NBHOOD:DELETE
 
 order define ::nbgroup GROUP:NBHOOD:DELETE {
+    title "Delete Nbhood Group"
+    table gui_nbgroups
+
+    parm n  key  "Neighborhood"  -tags nbhood
+    parm g  key  "Civ Group"     -tags group
 } {
     # FIRST, prepare the parameters
     prepare n -toupper -required -type nbhood
@@ -372,6 +387,15 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
 # Updates existing groups.
 
 order define ::nbgroup GROUP:NBHOOD:UPDATE {
+    title "Update Nbhood Group"
+    table gui_nbgroups
+
+    parm n              key   "Neighborhood"  -tags nbhood
+    parm g              key   "Civ Group"     -tags group
+    parm local_name     text  "Local Name"
+    parm demeanor       enum  "Demeanor"      -type edemeanor
+    parm rollup_weight  text  "RollupWeight"
+    parm effects_factor text  "EffectsFactor"
 } {
     # FIRST, prepare the parameters
     prepare n              -toupper  -required -type nbhood
@@ -400,6 +424,14 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
 # Updates multiple groups.
 
 order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
+    title "Update Multiple Nbhood Groups"
+    table gui_nbgroups
+
+    parm ids            multi "Groups"
+    parm local_name     text  "Local Name"
+    parm demeanor       enum  "Demeanor"       -type edemeanor
+    parm rollup_weight  text  "RollupWeight"
+    parm effects_factor text  "EffectsFactor"
 } {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof nbgroup

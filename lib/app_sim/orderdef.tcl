@@ -178,9 +178,10 @@ order defmeta MAP:IMPORT {
 order defmeta GROUP:NBHOOD:CREATE {
     title "Create Nbhood Group"
 
-    parm n              enum "Neighborhood"   -type ::nbhood -refresh
+    parm n              enum "Neighborhood"   \
+        -type ::nbhood -tags nbhood -refresh
     parm g              enum "Civ Group" \
-        -refreshcmd [list ::nbgroup RefreshCreateG]
+        -tags group -refreshcmd [list ::nbgroup RefreshCreateG]
     parm local_name     text "Local Name"
     parm demeanor       enum "Demeanor"       -type edemeanor
     parm rollup_weight  text "RollupWeight"   -defval 1.0

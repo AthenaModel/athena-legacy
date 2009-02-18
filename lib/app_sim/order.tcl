@@ -115,12 +115,6 @@ snit::type order {
     
     typevariable handler -array {}
 
-    # Array of meta dicts by order name.
-    #
-    # TBD: This will be revised when the new definition scripts are
-    # implemented.
-    typevariable meta -array {}
-
     # orders: array of order definition data.
     #
     # names               List of order names
@@ -273,10 +267,6 @@ snit::type order {
     # The script is saved, to be executed at "order init"; if the
     # module is already initialized, then the script is executed
     # immediately.
-    #
-    # TBD: This routine is temporary; once ordergui(n) has switched
-    # over to the new metadata API, the new definition scripts will
-    # replace the old metadata dicts in the "order define" calls.
 
     typemethod defmeta {name script} {
         # FIRST, save the script
@@ -362,82 +352,8 @@ snit::type order {
     #
     # Defines the parameter.  Most of the data feeds the generic
     # order dialog code.
-    #
-    # TBD: At first, this call will build the legacy metadata
-    # dictionaries.  Then, it will build the new metadata in parallel.
-    # Then we'll define the new metadata API.  Then we'll update
-    # ordergui(sim) to use it, and get rid of the old metadata.
 
     proc define::parm {name fieldType label args} {
-        #---------------------------------------------------------------
-        # Old-style metadata
-
-        set oldargs $args
-
-        # FIRST, initialize the meta dictionary
-
-        # ptype
-        if {$name eq "ids"} {
-            # Special case: multi orders
-            dict set pdict ptype ids
-        } else {
-            # Default the ptype to the field type.  If there's a
-            # -tags, we'll update this.
-            dict set pdict ptype $fieldType
-        }
-
-        # label
-        dict set pdict label $label
-
-        # defval
-        dict set pdict defval ""
-        
-        # NEXT, look at the options
-        while {[llength $args] > 0} {
-            set opt [lshift args]
-
-            switch -exact -- $opt {
-                -defval {
-                    dict set pdict defval [lshift args]
-                }
-
-                -tags {
-                    set taglist [lshift args]
-
-                    # Set the ptype to the first tag, unless the ptype
-                    # is already "key".
-                    if {$fieldType ne "key"} {
-                        dict set pdict ptype [lindex $taglist 0]
-                    }
-                }
-
-                -type {
-                    dict set pdict ptype [lshift args]
-                }
-
-                -refresh {
-                    # TBD
-                }
-
-                -refreshcmd {
-                    # Skip the arg
-                    lshift args
-                }
-
-                default {
-                    error "Unknown option: $opt"
-                }
-            }
-        }
-
-        # NEXT, save the pdict
-        dict set meta($deftrans(order)) $name $pdict
-
-        #---------------------------------------------------------------
-        # New-style Metadata
-
-        set args $oldargs
-
         # FIRST, remember this parameter
         set order $deftrans(order)
 
@@ -578,7 +494,7 @@ snit::type order {
     # Returns a list of the parameter names
 
     typemethod parms {name} {
-        return [dict keys $meta($name)]
+        return [dict keys $orders(parms-$name)]
     }
 
 
@@ -608,19 +524,6 @@ snit::type order {
         } else {
             return [dict get $orders(pdict-$order-$parm) $opt]
         }
-    }
-
-
-    # meta order key ?key...?
-    #
-    # order     The name of an order
-    # key...    Keys into the meta dictionary
-    #
-    # Returns the result of "dict get" on the meta dictionary
-    # The first key is always a parameter name.
-
-    typemethod meta {order args} {
-        return [dict get $meta($order) {*}$args]
     }
 
 

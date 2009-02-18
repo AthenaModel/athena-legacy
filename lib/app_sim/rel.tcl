@@ -289,6 +289,13 @@ snit::type rel {
 # Updates existing relationships
 
 order define ::rel RELATIONSHIP:UPDATE {
+    title "Update Relationship"
+    table rel_nfg
+
+    parm n    key   "Neighborhood"   -tags nbhood
+    parm f    key   "Of Group"       -tags group
+    parm g    key   "With Group"     -tags group
+    parm rel  text  "Relationship"   ;# TBD: Might want -refreshcmd
 } {
     # FIRST, prepare the parameters
     prepare n        -toupper  -required -type [list ::rel nbhood]
@@ -315,6 +322,11 @@ order define ::rel RELATIONSHIP:UPDATE {
 # Updates multiple existing relationships
 
 order define ::rel RELATIONSHIP:UPDATE:MULTI {
+    title "Update Multiple Relationships"
+    table gui_rel_nfg
+
+    parm ids  multi  "IDs"
+    parm rel  text   "Relationship"  ;# TBD: Might want -refreshcmd
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof rel
