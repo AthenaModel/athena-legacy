@@ -218,6 +218,72 @@ snit::type nbrel {
             return [mytypemethod mutate update [array get undoData]]
         }
     }
+
+    #-------------------------------------------------------------------
+    # Order Helpers
+
+    # RefreshProximitySingle field parmdict
+    #
+    # field     The "proximity" field in a N:R:UPDATE dialog
+    # parmdict  The current values of the various fields
+    #
+    # Updates the "proximity" field's state.
+
+    typemethod RefreshProximitySingle {field parmdict} {
+        dict with parmdict {
+            if {$m eq $n} {
+                $field configure -values HERE
+                $field set HERE
+                $field configure -state disabled
+            } else {
+                set values [lrange [eproximity names] 1 end]
+                $field configure -values $values
+
+                if {$proximity ni $values} {
+                    $field set ""
+                }
+            }
+        }
+    }
+
+    # RefreshProximityMulti field parmdict
+    #
+    # field     The "proximity" field in a N:R:UPDATE:MULTI dialog
+    # parmdict  The current values of the various fields
+    #
+    # Updates the "proximity" field's state.
+
+    typemethod RefreshProximityMulti {field parmdict} {
+        set same 0
+        set diff 0
+
+        foreach id [dict get $parmdict ids] {
+            lassign $id m n
+
+            if {$m eq $n} {
+                incr same
+            } else {
+                incr diff
+            }
+        }
+
+        if {$same > 0 && $diff > 0} {
+            # Mixed bag
+            $field set ""
+            $field configure -state disabled
+        } elseif {$same > 0} {
+            # All are HERE
+            $field configure -values HERE
+            $field set HERE
+            $field configure -state disabled
+        } else {
+            # None are HERE
+            set values [lrange [eproximity names] 1 end]
+            $field configure -values $values
+
+            $field set ""
+        }
+    }
 }
 
 

@@ -105,7 +105,6 @@ snit::widgetadaptor enumfield {
         $self GetValues
 
         # NEXT, is this value valid?  If not, set the value to ""
-
         if {$value ni [$self cget -values]} {
             $hull set ""
         } else {

@@ -72,14 +72,6 @@
 #
 # QUESTIONS:
 #
-#    Q: Do we want one "parm" command, with options that depend on the
-#       field type?  Or do we have one command per field type, so that
-#       each can have its peculiar options?
-#
-#    Q: Should -refreshcmd scripts be like Tk scripts, with replacement
-#       tokens?  Probably depends on what kind of API is available for
-#       updating the field.
-#
 #    Q: Do we want a "qual" field type?
 #
 #-----------------------------------------------------------------------
@@ -186,8 +178,9 @@ order defmeta MAP:IMPORT {
 order defmeta GROUP:NBHOOD:CREATE {
     title "Create Nbhood Group"
 
-    parm n              text "Neighborhood"
-    parm g              text "Civ Group"
+    parm n              enum "Neighborhood"   -type ::nbhood -refresh
+    parm g              enum "Civ Group" \
+        -refreshcmd [list ::nbgroup RefreshCreateG]
     parm local_name     text "Local Name"
     parm demeanor       enum "Demeanor"       -type edemeanor
     parm rollup_weight  text "RollupWeight"   -defval 1.0
@@ -283,7 +276,7 @@ order defmeta NBHOOD:RELATIONSHIP:UPDATE {
     parm n             key  "With Neighborhood"    -tags nbhood
 
     # The -type won't be required once -refreshcmd is fully implemented.
-    parm proximity     enum "Proximity"            -type eproximity \
+    parm proximity     enum "Proximity" \
         -refreshcmd {::nbrel RefreshProximitySingle}
     parm effects_delay text "Effects Delay (Days)" 
 }
@@ -295,7 +288,7 @@ order defmeta NBHOOD:RELATIONSHIP:UPDATE:MULTI {
     parm ids           multi  "IDs"
 
     # The -type won't be required once -refreshcmd is fully implemented.
-    parm proximity     enum   "Proximity"            -type eproximity \
+    parm proximity     enum   "Proximity" \
         -refreshcmd {::nbrel RefreshProximityMulti}
     parm effects_delay text   "Effects Delay (Days)"
 }

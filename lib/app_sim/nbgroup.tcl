@@ -238,6 +238,45 @@ snit::type nbgroup {
 
         return [join $undo \n]
     }
+
+    #---------------------------------------------------------------
+    # Order Helpers
+
+    # RefreshCreateG field parmdict
+    #
+    # field     The enumfield for G:N:CREATE's g parameter
+    # parmdict  The values of upstream parameters
+    #
+    # Sets the valid values to those for which no group exists.
+
+    typemethod RefreshCreateG {field parmdict} {
+        puts "RefreshCreateG $field <$parmdict>"
+        # FIRST, get the list of existing g's
+        set n [dict get $parmdict n]
+
+        set nbgs [rdb eval {SELECT g FROM nbgroups WHERE n=$n}]
+
+        # NEXT, build a list of the missing civ groups
+        foreach g [civgroup names] {
+            if {$g ni $nbgs} {
+                lappend values $g
+            }
+        }
+
+        # NEXT, update the field.
+        if {[llength $values] > 0} {
+            $field configure -values $values
+        } else {
+            $field configure -state disabled
+        }
+
+        if {[dict get $parmdict g] ni $values} {
+            $field set ""
+        }
+            
+    }
+
+
 }
 
 #-------------------------------------------------------------------

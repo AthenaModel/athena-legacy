@@ -479,11 +479,11 @@ snit::type order {
 
         # An enum parameter must have a -type or a -refreshcmd.
         if {$fieldType eq "enum" &&
-            ![dict exists $pdict -type] &&
+            [dict get $pdict -type]       eq "" &&
             [dict get $pdict -refreshcmd] eq ""
         } {
             error \
-                "field type \"enum\" requires -type or -refreshcmd: \"$name\""
+                "field type \"enum\" requires -type, or -refreshcmd: \"$name\""
         }
 
         # key and multi parameters requires a "table".
@@ -513,6 +513,21 @@ snit::type order {
     "misplaced key parameter, must precede all non-key parameters: \"$name\""
                 }
             }
+        }
+
+        # Only enum can have -refresh.
+        if {$fieldType ne "enum" && 
+            [dict get $pdict -refresh]
+        } {
+            error \
+                "field type \"$fieldType\" does not allow -refresh: \"$name\""
+        }
+
+        # Key and multi parameters cannot have -refreshcmd.
+        if {$fieldType in {key multi} && 
+            [dict get $pdict -refreshcmd] ne ""
+        } {
+            error "field type \"$fieldType\" does not allow -refreshcmd"
         }
 
         # NEXT, save the accumulated pdict

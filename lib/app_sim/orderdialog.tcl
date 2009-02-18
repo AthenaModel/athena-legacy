@@ -439,6 +439,8 @@ snit::widget orderdialog {
         # NEXT, create the field widget
         textfield $my(field-$parm) \
             -editcmd [mymethod colorpicker]
+
+        # TBD: Need to detect changes if we want to support -refresh
     }
 
 
@@ -463,6 +465,12 @@ snit::widget orderdialog {
 
         # NEXT, create the field widget
         enumfield $my(field-$parm) {*}$opts
+
+        # NEXT, refresh downstream when selected key changes
+        if {[order parm $options(-order) $parm -refresh]} {
+            bind $my(field-$parm) <<ComboboxSelected>> \
+                [mymethod NonKeyChange $parm]
+        }
     }
 
 
@@ -516,6 +524,8 @@ snit::widget orderdialog {
 
         # NEXT, create the field widget
         textfield $my(field-$parm)
+
+        # TBD: Need to detect changes if we want to support -refresh
     }
 
     #-------------------------------------------------------------------
@@ -541,8 +551,10 @@ snit::widget orderdialog {
             return
         }
 
-        # NEXT, retrieve the first entity's data
+        # NEXT, refresh all fields with -refreshcmds.
+        $self NonKeyChange ""
 
+        # NEXT, retrieve the first entity's data
         set id [lshift ids]
 
         rdb eval "
@@ -566,8 +578,6 @@ snit::widget orderdialog {
         unset prev(*)
 
         # NEXT, update the values
-        # puts "nonkeys: $my(nonkeys)"
-        # parray prev
         foreach parm $my(nonkeys) {
             $my(field-$parm) set $prev($parm)
         }
@@ -677,8 +687,13 @@ snit::widget orderdialog {
 
         # NEXT, get the data from the table
         rdb eval $query row {
+            # FIRST, enable all key fields
             $self SetNonKeyFieldState normal
 
+            # NEXT, refresh all fields with -refreshcmds.
+            $self NonKeyChange ""
+
+            # NEXT, update the values.
             foreach parm $my(nonkeys) {
                 $my(field-$parm) set $row($parm)
             }
@@ -700,9 +715,38 @@ snit::widget orderdialog {
     method SetNonKeyFieldState {state} {
         foreach parm $my(nonkeys) {
             $my(field-$parm) configure -state $state
+
+            if {$state eq "disabled"} {
+                $my(field-$parm) set ""
+            }
         }
     }
 
+
+    #-------------------------------------------------------------------
+    # Event Handlers: Non-Key Management
+
+    # NonKeyChange parm
+    #
+    # parm      The name of a non-key parm, or ""
+    #
+    # The value of the parameter has changed; refresh all downstream
+    # fields with -refreshcmd's.  If parm is "", refresh all
+    # non-key fields.
+
+    method NonKeyChange {parm} {
+        # FIRST, get the list of downstream fields
+        set ndx        [lsearch $my(nonkeys) $parm]
+        set downstream [lrange $my(nonkeys) $ndx+1 end]
+        
+        # NEXT, refresh all downstream fields that have a -refreshcmd.
+        foreach p $downstream {
+            set cmd [order parm $options(-order) $p -refreshcmd]
+            if {$cmd ne ""} {
+                {*}$cmd $my(field-$p) [$self get]
+            }
+        }
+    }
 
     #-------------------------------------------------------------------
     # Event Handlers: Buttons
@@ -756,7 +800,8 @@ snit::widget orderdialog {
         messagebox popup \
             -buttons {ok OK}                                      \
             -icon    info                                         \
-            -parent  [app topwin]                                 \
+            -parent  [app topwin            $my(field-$parm) set $prev($parm)
+]                                 \
             -title   "Athena [version]"                           \
             -message "This feature has not yet been implemented."
     }
@@ -934,20 +979,14 @@ snit::widget orderdialog {
                 # FIRST, set the field value
                 $my(field-$parm) set [dict get $parmdict $parm]
 
-                # NEXT, if it's a multi, handle it specially.
+                # NEXT, do special handling
                 if {$parm eq $my(multi)} {
                     $self MultiChange
-                }
-
-                # NEXT, if it's a key do a key change
-                if {$parm in $my(keys)} {
+                } elseif {$parm in $my(keys)} {
                     $self KeyChange $parm
+                } else {
+                    $self NonKeyChange $parm
                 }
-
-                # NEXT, if it's a nonkey, and -refresh is set, 
-                # refresh downstream fields.
-                # TBD
-
             }
         }
     }
