@@ -225,7 +225,7 @@ snit::type order {
 
     typemethod define {module name defscript body} {
         # FIRST, save the defscript
-        order defmeta $name $defscript
+        order DefMeta $name $defscript
 
         # NEXT, get the module variables
         set modVarList [$module info typevars]
@@ -258,7 +258,7 @@ snit::type order {
         }]
     }
 
-    # defmeta name script
+    # DefMeta name script
     #
     # name     An order name
     # script   A definition script
@@ -268,7 +268,7 @@ snit::type order {
     # module is already initialized, then the script is executed
     # immediately.
 
-    typemethod defmeta {name script} {
+    typemethod DefMeta {name script} {
         # FIRST, save the script
         if {$name ni $orders(names)} {
             lappend orders(names) $name
@@ -494,7 +494,7 @@ snit::type order {
     # Returns a list of the parameter names
 
     typemethod parms {name} {
-        return [dict keys $orders(parms-$name)]
+        return $orders(parms-$name)
     }
 
 
@@ -531,16 +531,25 @@ snit::type order {
     # Sending Orders
 
     # send interface name parmdict
+    # send interface name parm value ?parm value...?
     #
     # interface       sim|gui
     # name            The order's name
     # parmdict        The order's parameter dictionary
+    # parm,value...   The parameter dictionary passed as separate args.
     #
     # Processes the order, handling errors in the appropriate way for the
     # interface.
 
-    typemethod send {interface name parmdict} {
-        # FIRST, log the order
+    typemethod send {interface name args} {
+        # FIRST, get the parmdict.
+        if {[llength $args] > 1} {
+            set parmdict $args
+        } else {
+            set parmdict [lindex $args 0]
+        }
+
+        # NEXT, log the order
         log normal order [list $name from '$interface': $parmdict]
 
         # NEXT, do we have an order handler?

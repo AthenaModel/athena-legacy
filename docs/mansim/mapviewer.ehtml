@@ -73,7 +73,7 @@ the RDB.  Note that this should not normally be required.<p>
 
 <</deflist instance>>
 
-<<section EVENTS>>
+<<section "TK EVENTS">>
 
 <<defitem Icon-1 {&lt;&lt;Icon-1&gt;&gt;}>>
 
@@ -97,6 +97,11 @@ dialog is active.  The <b>%d</b> is the corresponding map reference.<p>
 Sent when the user has completed a new polygon in <b>poly</b> mode and
 no order dialog is active. The <b>%d</b> conversion is replaced with
 the list of the new polygon's vertices as map reference strings.<p>
+
+<<section "NOTIFIER EVENTS">>
+
+Sends <<xref app(sim)>>'s <b>&lt;ObjectSelect&gt</b>; event when
+a neighborhood, polygon, or point is selected.<p>
 
 <<section ENVIRONMENT>>
 

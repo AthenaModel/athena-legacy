@@ -242,12 +242,13 @@ snit::widget mapviewer {
     # Info array; used for most scalars
     #
     #    mode           The current mapcanvas(n) mode
-    #    orderflag      1 if an order is being entered, and 0 otherwise.
+    #    ordertags      List of parameter type tags, if an order is
+    #                   being entered and the current field has tags.
     #    ref            The current map reference
 
     variable info -array {
         mode      ""
-        orderflag 0
+        ordertags {}
         ref       ""
     }
 
@@ -388,7 +389,7 @@ snit::widget mapviewer {
 
         # NEXT, Support order processing.  This will set the viewer mode
         # to support the currently edited order field.
-        notifier bind ::ordergui <OrderEntry> $self [mymethod OrderEntry]
+        notifier bind ::order <OrderEntry> $self [mymethod OrderEntry]
 
         bind $canvas <<Point-1>>      [mymethod Point-1 %d]
         bind $canvas <<PolyComplete>> [mymethod PolyComplete %d]
@@ -462,12 +463,7 @@ snit::widget mapviewer {
     # neighborhood ID and forward.
 
     method Nbhood-1 {id} {
-        if {[ordergui isactive]} {
-            if {[ordergui parm type current] eq "nbhood"} {
-                # Save the nbhood into the order
-                ordergui parm set current $nbhoods(n-$id)
-            }
-        }
+        notifier send ::app <ObjectSelect> [list nbhood $nbhoods(n-$id)]
 
         event generate $win <<Nbhood-1>> -data $nbhoods(n-$id)
     }
@@ -505,9 +501,9 @@ snit::widget mapviewer {
     #-------------------------------------------------------------------
     # Order Handling
 
-    # OrderEntry ptype
+    # OrderEntry tags
     #
-    # ptype   The type of the select parameter
+    # tags   The tags for the current order field.
     #
     # Detects when we are in order entry mode and when we are not.
     #
@@ -519,19 +515,16 @@ snit::widget mapviewer {
     # TBD: In the long run, certain modes shouldn't be allowed in order
     # entry mode.  But unfortunately, pan mode can't be one of them.
 
-    method OrderEntry {ptype} {
+    method OrderEntry {tags} {
         # FIRST, handle entering and leaving order entry mode
-        if {$ptype ne "" && !$info(orderflag)} {
-            # Entering order entry mode
-            set info(orderflag) 1
-        } elseif {$ptype eq "" && $info(orderflag)} {
-            # Leaving order entry mode
-            set info(orderflag 0)
+        if {$tags eq "" && $info(ordertags) ne ""} {
             $canvas delete transient
         }
 
-        # NEXT, set the mode according to the parameter type
-        switch -exact -- $ptype {
+        set info(ordertags) $tags
+
+        # NEXT, set the mode according to the first tag
+        switch -exact -- [lindex $info(ordertags) 0] {
             point   { $self mode point  }
             polygon { $self mode poly   }
             default { $self mode browse }
@@ -547,21 +540,19 @@ snit::widget mapviewer {
     # field's value to this point.  Otherwise, propagate the event.
 
     method Point-1 {ref} {
-        if {[ordergui isactive]} {
-            if {[ordergui parm type current] eq "point"} {
-                # FIRST, plot a point; mark existing points as old.
-                $canvas itemconfigure {transient&&point} -fill blue
+        if {"point" in $info(ordertags)} {
+            # FIRST, plot a point; mark existing points as old.
+            $canvas itemconfigure {transient&&point} -fill blue
 
-                lassign [$canvas ref2c $ref] cx cy
+            lassign [$canvas ref2c $ref] cx cy
                 
-                $canvas create oval [boxaround 3.0 $cx $cy] \
-                    -outline blue                           \
-                    -fill    cyan                           \
-                    -tags    [list transient point]
+            $canvas create oval [boxaround 3.0 $cx $cy] \
+                -outline blue                           \
+                -fill    cyan                           \
+                -tags    [list transient point]
 
-                # NEXT, save the ref into the order
-                ordergui parm set current $ref
-            }
+            # NEXT, notify the app that a point has been selected.
+            notifier send ::app <ObjectSelect> [list point $ref]
         } else {
             event generate $win <<Point-1>> -data $ref
         }
@@ -577,19 +568,17 @@ snit::widget mapviewer {
     # the event.
 
     method PolyComplete {poly} {
-        if {[ordergui isactive]} {
-            if {[ordergui parm type current] eq "polygon"} {
-                # FIRST, delete existing polygons, and plot the new one.
-                $canvas itemconfigure {transient&&polygon} -outline blue
+        if {"polygon" in $info(ordertags)} {
+            # FIRST, delete existing polygons, and plot the new one.
+            $canvas itemconfigure {transient&&polygon} -outline blue
 
-                $canvas create polygon [$canvas ref2c {*}$poly] \
-                    -outline cyan                               \
-                    -fill    ""                                 \
-                    -tags    [list transient polygon]
+            $canvas create polygon [$canvas ref2c {*}$poly] \
+                -outline cyan                               \
+                -fill    ""                                 \
+                -tags    [list transient polygon]
 
-                # NEXT, save the polygon into the order.
-                ordergui parm set current $poly
-            }
+            # NEXT, notify the app that a polygon has been selected.
+            notifier send ::app <ObjectSelect> [list polygon $poly]
         } else {
             event generate $win <<PolyComplete>> -data $poly
         }

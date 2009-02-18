@@ -70,6 +70,28 @@ Outputs a brief usage string to stdout.<p>
 
 <</deflist commands>>
 
+<<section "NOTIFIER EVENTS">>
+
+app(sim) doesn't actually send any notifier events.  However, there
+are certain events which are sent by a variety of objects, and for
+which the source isn't significant.  These are sent as though they
+came from <code>::app</code>.
+
+<<deflist events>>
+
+<<defitem ObjectSelect {&lt;ObjectSelect&gt; <i>tagdict</i>}>>
+
+This event is sent when the user clicks on some object in the GUI.
+The <i>tagdict</i> is a dictionary of tags and values, where the tag
+indicates the data type.  If the user clicks on a neighborhood on the
+map display, for example, the <<xref mapviewer(sim)>> will send this
+event, as though it came from <code>::app</code>.  The <i>tagdict</i>
+will contain one entry, with key <b>nbhood</b>; the value is the
+neighborhood's ID.<p>
+
+<</deflist events>>
+
+
 <<section ENVIRONMENT>>
 
 Requires Tcl 8.5 or later.<p>

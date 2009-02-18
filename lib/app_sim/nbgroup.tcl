@@ -250,7 +250,6 @@ snit::type nbgroup {
     # Sets the valid values to those for which no group exists.
 
     typemethod RefreshCreateG {field parmdict} {
-        puts "RefreshCreateG $field <$parmdict>"
         # FIRST, get the list of existing g's
         set n [dict get $parmdict n]
 

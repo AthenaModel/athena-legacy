@@ -9,6 +9,10 @@
 #    Order GUI Manager.  This module is responsible for creating and
 #    managing orderdialog(sim) widgets.
 #
+#    This module sends the <OrderEntry> event to indicate what kind
+#    of parameter is currently being entered.  Because this is a submodule
+#    of ::order, ::order is the subject.
+#
 #-----------------------------------------------------------------------
 
 snit::widget orderdialog {
@@ -80,7 +84,6 @@ snit::widget orderdialog {
     #
     # initialized      1 if initialized, 0 otherwise.
     # wincounter       Counter for creating widget names.
-    #
     # win-$order       The dialog's widget name.  We reuse the same name
     #                  over and over.
     # geometry-$order  The dialog's saved geometry (i.e., screen position)
@@ -159,7 +162,7 @@ snit::widget orderdialog {
         }
 
         # NEXT, if this is a new order, initialize its data.
-        if {![info exists info(active-$order)]} {
+        if {![info exists info(win-$order)]} {
             $type InitOrderData $order
         }
 
@@ -167,7 +170,7 @@ snit::widget orderdialog {
         #
         # MOTE: If at some point we need special dialogs for some
         # orders, we can add a query to order metadata here.
-        
+
         if {![$type isactive $order]} {
             # FIRST, Create the dialog for the specified order
             orderdialog $info(win-$order) \
@@ -181,7 +184,8 @@ snit::widget orderdialog {
         }
         
         # NEXT, give the parms and the focus
-        $info(win-$order) focus $parmdict
+        $info(win-$order) Focus $parmdict
+
     }
 
 
@@ -197,6 +201,21 @@ snit::widget orderdialog {
     typemethod isactive {order} {
         return [winfo exists $info(win-$order)]
     }
+
+    # topwin
+    #
+    # Returns the name of the topmost order dialog
+
+    typemethod topwin {} {
+        foreach w [lreverse [wm stackorder .]] {
+            if {[winfo class $w] eq "Orderdialog"} {
+                return $w
+            }
+        }
+
+        return ""
+    }
+
 
     #===================================================================
     # Dialog Widget
@@ -353,11 +372,18 @@ snit::widget orderdialog {
         wm deiconify $win
         raise $win
 
+        # NEXT, prepare to receive selected objects from the application.
+        notifier bind ::app <ObjectSelect> $win [mymethod ObjectSelect]
+
         # NEXT, clear its contents
         $self Clear
 
         # NEXT, wait for visibility.
         update idletasks
+    }
+
+    destructor {
+        notifier forget $win
     }
 
     # CreateParameterFields
@@ -527,6 +553,84 @@ snit::widget orderdialog {
 
         # TBD: Need to detect changes if we want to support -refresh
     }
+
+    #-------------------------------------------------------------------
+    # Event Handlers: Explicit Focus
+
+    # Focus parmdict
+    #
+    # parmdict     A dictionary of initial parameter values.
+    #
+    # Gives the window the focus, and populates it with the initial data.
+    # This is used by "orderdialog enter".
+
+    method Focus {parmdict} {
+        # FIRST, throw an error if this is a "multi" order and the
+        # "multi" parm is not included.
+        if {$my(multi) ne "" && 
+            (![dict exists $parmdict $my(multi)] ||
+             [llength [dict get $parmdict $my(multi)]] == 0)
+        } {
+            error "Required parm $my(multi) not specified."
+        }
+
+        # NEXT, make the window visible
+        raise $win
+
+        # NEXT, focus on the first parameter
+        focus $my(field-$my(first))
+        
+        # NEXT, fill in the data
+        if {[dict size $parmdict] > 0} {
+            $self Clear
+
+            $self set $parmdict
+        }
+    }
+
+
+    #-------------------------------------------------------------------
+    # Event Handlers: Object Selection
+
+    # ObjectSelect tagdict
+    #
+    # tagdict   A dictionary of tags and values
+    #
+    # A dictionary of tags and values that indicates the object or 
+    # objects that were selected.  The first one that matches the current
+    # field, if any, will be inserted into it.
+    #
+    # This is only allowed to happen if this dialog is currently the
+    # active order dialog.
+
+    method ObjectSelect {tagdict} {
+        # FIRST, Is this the active dialog?
+        if {[$type topwin] ne $win} {
+            return
+        }
+
+        # NEXT, get the tags for the current field.  If there are none,
+        # just leave.
+
+        if {$my(current) eq ""} {
+            return
+        }
+
+        set tags [order parm $options(-order) $my(current) -tags]
+
+        if {[llength $tags] == 0} {
+            return
+        }
+
+        # NEXT, save the value
+        foreach {tag value} $tagdict {
+            if {$tag in $tags} {
+                $self set $my(current) $value
+            }
+        }
+    }
+
+
 
     #-------------------------------------------------------------------
     # Event Handlers: Multi Management
@@ -772,7 +876,7 @@ snit::widget orderdialog {
 
         # NEXT, notify the app that the dialog has been cleared; this
         # will allow it to clear up any entry artifacts.
-        notifier send $type <OrderEntry> ""
+        notifier send ::order <OrderEntry> {}
     }
 
     # Close
@@ -786,7 +890,7 @@ snit::widget orderdialog {
         set info(geometry-$options(-order)) [string range $geo $ndx end]
 
         # NEXT, notify the app that no order entry is being done.
-        notifier send $type <OrderEntry> ""
+        notifier send ::order <OrderEntry> {}
 
         # NEXT, destroy the dialog
         destroy $win
@@ -841,7 +945,7 @@ snit::widget orderdialog {
 
         # NEXT, notify the app that no order entry is being done; this
         # will allow it to clear up any entry artifacts.
-        notifier send $type <OrderEntry> ""
+        notifier send ::order <OrderEntry> {}
 
         # NEXT, the order was accepted; we're done here.
         return 1
@@ -893,7 +997,7 @@ snit::widget orderdialog {
             set tags null
         }
 
-        notifier send $type <OrderEntry> $tags
+        notifier send ::order <OrderEntry> $tags
     }
 
 
@@ -919,34 +1023,6 @@ snit::widget orderdialog {
 
     #-------------------------------------------------------------------
     # Public methods
-
-    # focus parmdict
-    #
-    # parmdict     A dictionary of initial parameter values.
-    #
-    # Gives the window the focus, and populates it with the initial data.
-
-    method focus {parmdict} {
-        # FIRST, throw an error if this is a "multi" order and the
-        # "multi" parm is not included.
-        if {$my(multi) ne "" && 
-            (![dict exists $parmdict $my(multi)] ||
-             [llength [dict get $parmdict $my(multi)]] == 0)
-        } {
-            error "Required parm $my(multi) not specified."
-        }
-
-        # NEXT, make the window visible
-        raise $win
-        
-        # NEXT, fill in the data
-        if {[dict size $parmdict] > 0} {
-            $self Clear
-
-            $self set $parmdict
-        }
-    }
-
 
     # get
     #
