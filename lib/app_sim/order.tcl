@@ -61,7 +61,7 @@
 #      the interface.
 #
 #      * When "sim" sends an order, it is a fancy procedure call; there 
-#        should be no erroordersrs.  Therefore, any error is allowed to propagate 
+#        should be no errors.  Therefore, any error is allowed to propagate 
 #        back to the sender of the order, so that the error stack trace is 
 #        maximally informative. 
 #
@@ -341,7 +341,7 @@ snit::type order {
     # parm name fieldType label ?option...?
     #
     # name        The parameter's name
-    # fieldType   The field type, e.g., key, text, enum
+    # fieldType   The field type, e.g., color, enum, key, multi, text
     # label       The parameter's label string
     # 
     # -defval value    Default value
