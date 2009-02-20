@@ -48,7 +48,9 @@ source [file join $::athgui::library icons.tcl        ]
 source [file join $::athgui::library mapcanvas.tcl    ]
 source [file join $::athgui::library tablebrowser.tcl ]
 source [file join $::athgui::library messagebox.tcl   ]
-
+source [file join $::athgui::library enumfield.tcl    ]
+source [file join $::athgui::library multifield.tcl   ]
+source [file join $::athgui::library textfield.tcl    ]
 
 
 

@@ -1,0 +1,119 @@
+<<manpage {athgui(n) enumfield(n)} "Enumerated Data Entry Field">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require athgui 1.0
+namespace import ::athgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+The enumfield(n) widget is a <<xref tk:ttk_combobox(n)>> configured as a
+<<xref field(i)>> data entry field.  It is used for choosing items
+from a (possibly dynamic) list of arbitrary
+text strings.<p>
+
+<<section COMMANDS>>
+
+This module defines the following commands.<p>
+
+<<deflist commands>>
+
+<<defitem enumfield {enumfield <i>pathName</i> ?<i>options...</i>?}>>
+
+Creates a new <<iref enumfield>> widget named <i>pathName</i>, and
+returns <i>pathName</i>.  The widget supports the following options:<p>
+
+<<defopt {-changecmd <i>command</i>}>>
+
+From <<xref field(i)>>.  Specifies a <i>command</i> to be called
+whenever the field's value changes, for any reason whatsoever
+(including explicit calls to <<iref set>>.  The new value is appended
+to the <i>command</i> as an argument.<p>
+
+<<defopt {-state <i>state</i>}>>
+
+From <<xref field(i)>>.  enumfield(i) widgets have states, just as the
+normal <code>tk::</code> and <code>ttk::</code> widgets do.  The valid
+states are <b>normal</b> and <b>disabled</b>.<p>
+
+<<defopt {-values <i>values</i>}>>
+
+Statically defines the list of valid values.  If either
+<code>-enumtype</code> or <code>-valuecmd</code> are specified, this
+option is effectively ignored.<p>
+
+<<defopt {-enumtype <i>enumType</i>}>>
+
+Specifies the name of an <<xref mars:enum(n)>> type, or some other
+object that presents a similar interface.  The widget will dynamically
+retrieve its list of valid values by
+calling<p>
+
+<pre>
+    {*}$enumType names
+</pre>
+
+If <code>-enumtype</code> is specified, then <code>-valuecmd</code> is
+ignored.<p>
+
+<<defopt {-valuecmd <i>command</i>}>>
+
+Specifies the name of a command to call to dynamically retrieve the
+list of valid values.  The <code>-enumtype</code> option takes precedence.<p>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+enumfield(n) widgets have the following subcommands:<p>
+
+<<deflist instance>>
+
+<<defitem cget {<i>pathName</i> cget <i>option</i>}>>
+
+From <<xref field(i)>>.  Returns the value of the specified <i>option</i>.<p>
+
+<<defitem configure {<i>pathName</i> configure <i>option value...</i>}>>
+
+From <<xref field(i)>>.  Sets the value of one or more of the object's
+options.<p>
+
+<<defitem get {<i>pathName</i> get}>>
+
+From <<xref field(i)>>.  Returns the field's current value.<p>
+
+<<defitem set {<i>pathName</i> set <i>value</i>}>>
+
+From <<xref field(i)>>.  Explicitly sets the field's <i>value</i>, and
+calls the <code>-changecmd</code> if the value has really changed,
+i.e., successive calls to <<iref set>> with the same <i>value</i> will
+result in at most one call to the <code>-changecmd</code>.<p>
+
+<</deflist instance>>
+
+
+<<section ENVIRONMENT>>
+
+athgui(n) requires Tcl 8.5 or later.
+
+To use athgui(n) in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+

@@ -70,6 +70,8 @@ Explicitly sets the field's <i>value</i>, and calls the
 successive calls to <<iref set>> with the same <i>value</i> will
 result in at most one call to the <code>-changecmd</code>.<p>
 
+To clear the field, set its value to "".<p>
+
 <</deflist instance>>
 
 <<section AUTHOR>>

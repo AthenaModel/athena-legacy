@@ -6,12 +6,25 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    A multifield is an order parameter field displaying a multi-selection
-#    message.  It is not editable.
+#    athgui(n) package: Multi-entity data entry field
+#
+#    A multifield is a pseudo-field which displays the number of
+#    selected entities upon which the dialog will operate, e.g.,
+#    "5 Selected".  It is not editable by the user.
 #
 #-----------------------------------------------------------------------
 
-snit::widgetadaptor multifield {
+#-----------------------------------------------------------------------
+# Export public commands
+
+namespace eval ::athgui:: {
+    namespace export multifield
+}
+
+#-------------------------------------------------------------------
+# multifield
+
+snit::widgetadaptor ::athgui::multifield {
     #-------------------------------------------------------------------
     # Options
 

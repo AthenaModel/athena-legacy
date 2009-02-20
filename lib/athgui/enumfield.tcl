@@ -6,12 +6,23 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    A enumfield is an order parameter field containing editable text.
-#    If desired, it can have an -editcmd, which pops up a value editor.
+#    athgui(n) package: Enum data entry field
+#
+#    An enumfield is a combobox with a (possibly dynamic) set of values.
 #
 #-----------------------------------------------------------------------
 
-snit::widgetadaptor enumfield {
+#-----------------------------------------------------------------------
+# Export public commands
+
+namespace eval ::athgui:: {
+    namespace export enumfield
+}
+
+#-------------------------------------------------------------------
+# enumfield
+
+snit::widgetadaptor ::athgui::enumfield {
     #-------------------------------------------------------------------
     # Options
 
@@ -53,11 +64,9 @@ snit::widgetadaptor enumfield {
 
     option -enumtype
 
-    # -valuecmd
+    # -valuecmd command
     #
-    # Specifies a command to call to get the values dynamically.
-
-    option -valuecmd
+    # Specifies a command to be called dynamically to provide values.
 
     #-------------------------------------------------------------------
     # Instance Variables
