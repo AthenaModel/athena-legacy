@@ -86,7 +86,7 @@ snit::widget orderdialog {
     # wincounter       Counter for creating widget names.
     # win-$order       The dialog's widget name.  We reuse the same name
     #                  over and over.
-    # geometry-$order  The dialog's saved geometry (i.e., screen position)
+    # position-$order  The dialog's saved geometry (i.e., screen position)
 
     typevariable info -array {
         initialized   0
@@ -127,7 +127,7 @@ snit::widget orderdialog {
 
     typemethod InitOrderData {order} {
         set info(win-$order)      .order[format %04d [incr info(wincounter)]]
-        set info(geometry-$order) {}
+        set info(position-$order) {}
     }
 
     
@@ -177,12 +177,6 @@ snit::widget orderdialog {
                 -order $order
         }
 
-        # NEXT, if there's saved geometry, give the dialog the
-        # geometry.
-        if {$info(geometry-$order) ne ""} {
-            wm geometry $info(win-$order) $info(geometry-$order)
-        }
-        
         # NEXT, give the parms and the focus
         $info(win-$order) Focus $parmdict
 
@@ -372,6 +366,14 @@ snit::widget orderdialog {
         wm deiconify $win
         raise $win
 
+        # NEXT, if there's saved position, give the dialog the
+        # position.
+        if {$info(position-$options(-order)) ne ""} {
+            wm geometry \
+                $info(win-$options(-order)) \
+                $info(position-$options(-order))
+        }
+        
         # NEXT, prepare to receive selected objects from the application.
         notifier bind ::app <ObjectSelect> $win [mymethod ObjectSelect]
 
@@ -884,10 +886,10 @@ snit::widget orderdialog {
     # Closes the dialog
 
     method Close {} {
-        # FIRST, save the dialog's location
+        # FIRST, save the dialog's position
         set geo [wm geometry $win]
         set ndx [string first "+" $geo]
-        set info(geometry-$options(-order)) [string range $geo $ndx end]
+        set info(position-$options(-order)) [string range $geo $ndx end]
 
         # NEXT, notify the app that no order entry is being done.
         notifier send ::order <OrderEntry> {}
@@ -999,7 +1001,6 @@ snit::widget orderdialog {
 
         notifier send ::order <OrderEntry> $tags
     }
-
 
     #-------------------------------------------------------------------
     # Utility Methods

@@ -68,6 +68,8 @@ snit::widgetadaptor ::athgui::enumfield {
     #
     # Specifies a command to be called dynamically to provide values.
 
+    option -valuecmd
+
     #-------------------------------------------------------------------
     # Instance Variables
 
