@@ -52,6 +52,7 @@ snit::widget textfield {
         }
     }
 
+
     # -editcmd command
     #
     # If given, the widget will have an "Edit" button that executes this
@@ -61,6 +62,21 @@ snit::widget textfield {
     option -editcmd   \
         -default ""   \
         -readonly yes
+
+
+    # -changecmd command
+    # 
+    # Specifies a command to call whenever the field's content changes
+    # for any reason.  The new text is appended to the command as a 
+    # single argument.
+
+    option -changecmd \
+        -default ""
+
+    #-------------------------------------------------------------------
+    # Instance Variables
+
+    variable oldValue ""   ;# Used to detect changes.
 
     #-------------------------------------------------------------------
     # Constructor
@@ -83,6 +99,9 @@ snit::widget textfield {
         bindtags $win [linsert [bindtags $win] 0 $win.entry]
 
         bind $win.entry <FocusIn> [list focus $win.entry]
+
+        # NEXT, detect the changes as the user types.
+        bind $win.entry <KeyRelease> [mymethod DetectChange]
 
         # NEXT, create the button, if needed.
         set options(-editcmd) [from args -editcmd]
@@ -144,6 +163,24 @@ snit::widget textfield {
         }
     }
 
+    # DetectChange
+    #
+    # Calls the change command if the field's value has changed.
+
+    method DetectChange {} {
+        set value [$self get]
+
+        if {$value eq $oldValue} {
+            return
+        }
+
+        set oldValue $value
+
+        if {$options(-changecmd) ne ""} {
+            {*}$options(-changecmd) $value
+        }
+    }
+
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -158,9 +195,13 @@ snit::widget textfield {
     # Sets the widget's value to the new value.
 
     method set {value} {
+        # FIRST, set the value
         $entry configure -state normal
         $entry delete 0 end
         $entry insert end $value
         $self configure -state $options(-state)
+
+        # NEXT, detect changes
+        $self DetectChange
     }
 }

@@ -37,6 +37,15 @@ snit::widgetadaptor enumfield {
         }
     }
 
+    # -changecmd command
+    # 
+    # Specifies a command to call whenever the field's content changes
+    # for any reason.  The new value is appended to the command as a 
+    # single argument.
+
+    option -changecmd \
+        -default ""
+
     # -enumtype enumtype
     #
     # Specifies an enumeration type to provide values.  This option
@@ -50,6 +59,10 @@ snit::widgetadaptor enumfield {
 
     option -valuecmd
 
+    #-------------------------------------------------------------------
+    # Instance Variables
+
+    variable oldValue ""   ;# Used to detect changes.
 
     #-------------------------------------------------------------------
     # Constructor
@@ -65,6 +78,9 @@ snit::widgetadaptor enumfield {
 
         # NEXT, configure the arguments
         $self configurelist $args
+
+        # NEXT, prepare to signal changes
+        bind $win <<ComboboxSelected>> [mymethod DetectChange]
     }
 
     #-------------------------------------------------------------------
@@ -84,6 +100,24 @@ snit::widgetadaptor enumfield {
             $self configure -values [{*}$options(-enumtype) names]
         } elseif {$options(-valuecmd) ne ""} {
             $self configure -values [uplevel \#0 $options(-valuecmd)]
+        }
+    }
+
+    # DetectChange
+    #
+    # Calls the change command if the field's value has changed.
+
+    method DetectChange {} {
+        set value [$self get]
+
+        if {$value eq $oldValue} {
+            return
+        }
+
+        set oldValue $value
+
+        if {$options(-changecmd) ne ""} {
+            {*}$options(-changecmd) $value
         }
     }
 
@@ -110,5 +144,8 @@ snit::widgetadaptor enumfield {
         } else {
             $hull set $value
         }
+
+        # NEXT, detect changes
+        $self DetectChange
     }
 }

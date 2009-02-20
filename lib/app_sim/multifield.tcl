@@ -24,10 +24,19 @@ snit::widgetadaptor multifield {
     option -state          \
         -default  "normal"
 
+    # -changecmd command
+    # 
+    # Specifies a command to call whenever the field's content changes
+    # for any reason.  The new text is appended to the command as a 
+    # single argument.
+
+    option -changecmd \
+        -default ""
+
     #-------------------------------------------------------------------
     # Instance variables
 
-    variable theValue    ;# List of selected item IDs
+    variable theValue {}  ;# List of selected item IDs
 
     #-------------------------------------------------------------------
     # Constructor
@@ -57,9 +66,16 @@ snit::widgetadaptor multifield {
     # Saves the value and updates the display
 
     method set {value} {
+        set oldValue $theValue
         set theValue $value
 
         $hull configure -text "[llength $theValue] Selected"
+
+        # Detect any change
+        if {$oldValue ne $value &&
+            $options(-changecmd) ne ""} {
+            {*}$options(-changecmd) $value
+        }
     }
 
     # get
