@@ -178,7 +178,7 @@ snit::widget orderdialog {
         }
 
         # NEXT, give the parms and the focus
-        $info(win-$order) Focus $parmdict
+        $info(win-$order) EnterDialog $parmdict
 
     }
 
@@ -242,6 +242,7 @@ snit::widget orderdialog {
     # nonkeys           Names of non-key parms, or {}
     # table             Name of associated RDB table/view, or ""
     # current           Name of current parameter, or ""
+    # saved             Dictionary of "saved" field values
     # field-$parm       Name of field widget
     # icon-$parm        Name of status icon widget
 
@@ -253,6 +254,7 @@ snit::widget orderdialog {
         nonkeys  {}
         table    ""
         current  ""
+        saved    {}
     }
 
     # ferrors -- Array of field errors by parm name
@@ -377,8 +379,9 @@ snit::widget orderdialog {
         # NEXT, prepare to receive selected objects from the application.
         notifier bind ::app <ObjectSelect> $win [mymethod ObjectSelect]
 
-        # NEXT, clear its contents
-        $self Clear
+        # NEXT, save the current (empty) values, so that EnterDialog
+        # won't complain about them.
+        $self MarkSaved
 
         # NEXT, wait for visibility.
         update idletasks
@@ -466,9 +469,8 @@ snit::widget orderdialog {
 
         # NEXT, create the field widget
         textfield $my(field-$parm) \
-            -editcmd [mymethod colorpicker]
-
-        # TBD: Need to detect changes if we want to support -refresh
+            -changecmd [mymethod NonKeyChange $parm]
+            -editcmd   [mymethod colorpicker]
     }
 
 
@@ -492,13 +494,8 @@ snit::widget orderdialog {
         }
 
         # NEXT, create the field widget
-        enumfield $my(field-$parm) {*}$opts
-
-        # NEXT, refresh downstream when selected key changes
-        if {[order parm $options(-order) $parm -refresh]} {
-            bind $my(field-$parm) <<ComboboxSelected>> \
-                [mymethod NonKeyChange $parm]
-        }
+        enumfield $my(field-$parm) {*}$opts \
+            -changecmd [mymethod NonKeyChange $parm]
     }
 
 
@@ -516,11 +513,8 @@ snit::widget orderdialog {
         lappend my(keys) $parm
 
         # NEXT, create the field widget
-        enumfield $my(field-$parm)
-
-        # NEXT, refresh downstream when selected key changes
-        bind $my(field-$parm) <<ComboboxSelected>> \
-            [mymethod KeyChange $parm]
+        enumfield $my(field-$parm) \
+            -changecmd [mymethod KeyChange $parm]
     }
 
 
@@ -536,7 +530,8 @@ snit::widget orderdialog {
 
         # NEXT, create the field.  We'll fill in the 
         # value on focus.
-        multifield $my(field-$parm)
+        multifield $my(field-$parm) \
+            -changecmd [mymethod MultiChange $parm]
     }
 
 
@@ -551,22 +546,21 @@ snit::widget orderdialog {
         lappend my(nonkeys) $parm
 
         # NEXT, create the field widget
-        textfield $my(field-$parm)
-
-        # TBD: Need to detect changes if we want to support -refresh
+        textfield $my(field-$parm) \
+            -changecmd [mymethod NonKeyChange $parm]
     }
 
     #-------------------------------------------------------------------
-    # Event Handlers: Explicit Focus
+    # Event Handlers: Entering the Dialog
 
-    # Focus parmdict
+    # EnterDialog parmdict
     #
     # parmdict     A dictionary of initial parameter values.
     #
     # Gives the window the focus, and populates it with the initial data.
     # This is used by "orderdialog enter".
 
-    method Focus {parmdict} {
+    method EnterDialog {parmdict} {
         # FIRST, throw an error if this is a "multi" order and the
         # "multi" parm is not included.
         if {$my(multi) ne "" && 
@@ -578,6 +572,12 @@ snit::widget orderdialog {
 
         # NEXT, make the window visible
         raise $win
+
+        # NEXT, re-entering the dialog will clear any unsaved
+        # changes.  Ask if this is what they want.
+        if {[$self Unsaved] && ![$self DiscardUnsaved]} {
+            return
+        }
 
         # NEXT, focus on the first parameter
         focus $my(field-$my(first))
@@ -624,14 +624,35 @@ snit::widget orderdialog {
             return
         }
 
-        # NEXT, save the value
+        # NEXT, get the new value, if any
+        set newValue ""
+
         foreach {tag value} $tagdict {
             if {$tag in $tags} {
-                $self set $my(current) $value
+                set newValue $value
+                break
             }
         }
-    }
 
+        if {$newValue eq ""} {
+            return
+        }
+
+        # NEXT, if this is a key or multi field, and dialog data is
+        # unsaved, we can only save this value if the user requests it.
+
+        set ftype [order parm $options(-order) $my(current) -fieldtype]
+
+        if {$ftype in {key multi} 
+            && [$self Unsaved] 
+            && ![$self DiscardUnsaved $my(current)]
+        } {
+            return
+        }
+
+        # NEXT, save the value
+        $self set $my(current) $newValue
+    }
 
 
     #-------------------------------------------------------------------
@@ -640,20 +661,21 @@ snit::widget orderdialog {
     # When the multi field's value is set, the downstream fields need
     # to be populated.
 
-    # MultiChange
+    # MultiChange parm ?value?
+    #
+    # parm     The parm that changed, e.g., my(multi)
+    # value    Its new value (ignored)
     #
     # When the "multi" field's value changes, refresh the other
     # fields.
 
-    method MultiChange {} {
+    method MultiChange {parm {value ""}} {
         # FIRST, get the IDs
         set ids [$my(field-$my(multi)) get]
 
         # NEXT, if there are no IDs, clear the data; we're done.
         if {[llength $ids] == 0} {
-            foreach parm $my(nonkeys) {
-                $my(field-$parm) set ""
-            }
+            $self Clear
             return
         }
 
@@ -687,6 +709,10 @@ snit::widget orderdialog {
         foreach parm $my(nonkeys) {
             $my(field-$parm) set $prev($parm)
         }
+
+        # NEXT, everything has been refreshed; there are no unsaved
+        # values.
+        $self MarkSaved
     }
 
 
@@ -753,21 +779,27 @@ snit::widget orderdialog {
     }
 
 
-    # KeyChange key
+    # KeyChange parm ?value?
     #
-    # key    Name of a key parameter
+    # parm   Name of a key parameter
+    # value  The new value, which is ignored.
     #
     # Called when the user has selected a new value for this key.
     #
     # If this is the last of the keys, we must refresh and enable
     # the other fields.  Otherwise, we must refresh the next key.
 
-    method KeyChange {key} {
+    method KeyChange {parm {value ""}} {
         set last [expr {[llength $my(keys)] - 1}]
-        set ndx  [lsearch -exact $my(keys) $key]
+        set ndx  [lsearch -exact $my(keys) $parm]
 
         if {$ndx == $last} {
+            # FIRST, refresh the non-key fields
             $self RefreshNonKeyFields
+
+            # NEXT, everything has been refreshed; there are no unsaved
+            # values.
+            $self MarkSaved
         } else {
             $self RefreshKey [lindex $my(keys) $ndx+1]
         }
@@ -832,16 +864,28 @@ snit::widget orderdialog {
     #-------------------------------------------------------------------
     # Event Handlers: Non-Key Management
 
-    # NonKeyChange parm
+    # NonKeyChange parm ?value?
     #
     # parm      The name of a non-key parm, or ""
+    # value     The new value (ignored)
     #
     # The value of the parameter has changed; refresh all downstream
     # fields with -refreshcmd's.  If parm is "", refresh all
     # non-key fields.
 
-    method NonKeyChange {parm} {
-        # FIRST, get the list of downstream fields
+    method NonKeyChange {parm {value ""}} {
+        # FIRST, is this one parameter or a general refresh?
+        if {$parm ne ""} {
+            # FIRST, set the send button state
+            $self CheckForUnsavedValues
+
+            # NEXT, if it doesn't have -refresh set, skip it.
+            if {![order parm $options(-order) $parm -refresh]} {
+                return
+            }
+        }
+
+        # NEXT, get the list of downstream fields
         set ndx        [lsearch $my(nonkeys) $parm]
         set downstream [lrange $my(nonkeys) $ndx+1 end]
         
@@ -853,6 +897,7 @@ snit::widget orderdialog {
             }
         }
     }
+
 
     #-------------------------------------------------------------------
     # Event Handlers: Buttons
@@ -875,6 +920,10 @@ snit::widget orderdialog {
         if {[llength $my(keys)] != 0} {
             $self RefreshKey [lindex $my(keys) 0]
         }
+
+        # NEXT, save the current field values, so that we can check
+        # whether there are unsaved changes.
+        $self MarkSaved
 
         # NEXT, notify the app that the dialog has been cleared; this
         # will allow it to clear up any entry artifacts.
@@ -945,6 +994,10 @@ snit::widget orderdialog {
         # NEXT, say that it's OK.
         $self Message "The order was accepted."
 
+        # NEXT, save the current values, so that we can check whether
+        # there are changes.
+        $self MarkSaved
+
         # NEXT, notify the app that no order entry is being done; this
         # will allow it to clear up any entry artifacts.
         notifier send ::order <OrderEntry> {}
@@ -1003,6 +1056,90 @@ snit::widget orderdialog {
     }
 
     #-------------------------------------------------------------------
+    # Saved/Unsaved Values
+    #
+    # There are certain points where we know there are no unsaved
+    # user changes:
+    #
+    # * When Clear is called.
+    # * When Send is successful.
+    # * When the content has been refreshed due to a key or multi field
+    #   change.
+    #
+    # When there are no unsaved changes, the Send and SendClose buttons
+    # should be disabled.
+
+    # MarkSaved
+    #
+    # Saves the current field values, and disables the Send buttons.
+
+    method MarkSaved {} {
+        # FIRST, save the current values, so we check whether 
+        # there's anything unsaved.
+        set my(saved) [$self get]
+
+        # NEXT, disable the buttons
+        $win.buttons.send      configure -state disabled
+        $win.buttons.sendclose configure -state disabled
+    }
+
+
+    # CheckForUnsavedValues
+    #
+    # Enables/disables the send buttons based on whether there are
+    # unsaved changes.
+
+    method CheckForUnsavedValues {} {
+        if {[$self Unsaved]} {
+            $win.buttons.send      configure -state normal
+            $win.buttons.sendclose configure -state normal
+        } else {
+            $win.buttons.send      configure -state disabled
+            $win.buttons.sendclose configure -state disabled
+        }
+    }
+
+    # Unsaved
+    #
+    # Returns 1 if there are unsaved field values, and 0 otherwise.
+
+    method Unsaved {} {
+        expr {[$self get] ne $my(saved)}
+    }
+
+    # DiscardUnsaved ?parm?
+    #
+    # parm   Name of a key or multi partm
+    #
+    # Asks the user if they want to discard unsaved changes.  Returns
+    # 1 if so and 0 otherwise.
+
+    method DiscardUnsaved {{parm ""}} {
+        if {$parm ne ""} {
+            set label [order parm $options(-order) $my(current) -label]
+            
+            set message "You have selected a new $label, but the"
+        } else {
+            set message "The"
+        }
+        
+        append message " dialog contains unsaved changes.  Discard them?"
+
+        set answer [messagebox popup \
+                        -icon          warning                    \
+                        -message       [normalize $message]       \
+                        -parent        $win                       \
+                        -title         "Unsaved Changes"          \
+                        -default       ok                         \
+                        -buttons       {
+                            ok     "Discard" 
+                            cancel "Go Back"
+                        }]
+
+        return [expr {$answer eq "ok"}]
+    }
+
+    #-------------------------------------------------------------------
     # Utility Methods
 
 
@@ -1055,15 +1192,6 @@ snit::widget orderdialog {
             if {[dict exists $parmdict $parm]} {
                 # FIRST, set the field value
                 $my(field-$parm) set [dict get $parmdict $parm]
-
-                # NEXT, do special handling
-                if {$parm eq $my(multi)} {
-                    $self MultiChange
-                } elseif {$parm in $my(keys)} {
-                    $self KeyChange $parm
-                } else {
-                    $self NonKeyChange $parm
-                }
             }
         }
     }
