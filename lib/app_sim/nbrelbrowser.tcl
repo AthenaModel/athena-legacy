@@ -238,15 +238,8 @@ snit::widget nbrelbrowser {
             lassign $id m n
 
             notifier send ::app <ObjectSelect> \
-                [list nbrel $id  nbhood $m]
+                [list mn $id  nbhood $m]
         }
     }
 }
-
-
-
-
-
-
-
 

@@ -239,16 +239,7 @@ snit::widget coopbrowser {
             lassign $id n f g
 
             notifier send ::app <ObjectSelect> \
-                [list coop $id nbhood $n group $f]
+                [list nfg $id nbhood $n group $f]
         }
-
     }
 }
-
-
-
-
-
-
-
-

@@ -120,7 +120,7 @@ snit::type order {
     # names               List of order names
     # defscript-$name     Definition script for the named order.
     # title-$name         The order's title
-    # table-$name         The order's associated RDB table, or ""
+    # opts-$name          Option definition dictionary
     # parms-$name         List of the names of the order's parameters
     # pdict-$name-$parm   Parameter definition dictionary
    
@@ -293,7 +293,10 @@ snit::type order {
 
         # FIRST, initialize the data values
         set orders(title-$name) ""
-        set orders(table-$name) ""
+        set orders(opts-$name) {
+            -table ""
+            -tags  {}
+        }
         set orders(parms-$name) ""
         array unset orders pdict-$name-*
 
@@ -327,16 +330,47 @@ snit::type order {
         set orders(title-$deftrans(order)) $titleText
     }
     
-    # table tableName
+
+    # options option...
     #
-    # tableName     name of an RDB table or view associated with 
-    #               this order.
+    # -table tableName    Name of an RDB table or view associated with 
+    #                     this order.
+    # -tags taglist       Entity tags (requires -table)
     #
-    # Saves the table name.
-    
-    proc define::table {tableName} {
-        set orders(table-$deftrans(order)) $tableName
+    # Sets the order's options.
+
+    proc define::options {args} {
+        # FIRST, get the option dictionary
+        set odict $orders(opts-$deftrans(order))
+
+        # FIRST, validate and save the options
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+
+            switch -exact -- $opt {
+                -table -
+                -tags  { 
+                    dict set odict $opt [lshift args] 
+                }
+
+                default {
+                    error "Unknown option: $opt"
+                }
+            }
+        }
+
+        # NEXT, check constraints
+
+        # -tags requires -table.
+        if {[dict get $odict -tags]  ne "" &&
+            [dict get $odict -table] eq ""} {
+            error "order option -tags requires -table"
+        }
+
+        # NEXT, save the accumulated options
+        set orders(opts-$deftrans(order)) $odict
     }
+
 
     # parm name fieldType label ?option...?
     #
@@ -404,7 +438,7 @@ snit::type order {
 
         # key and multi parameters requires a "table".
         if {$fieldType in {key multi} && 
-            $orders(table-$order) eq ""
+            [dict get $orders(opts-$order) -table] eq ""
         } {
             error \
                 "missing table, field type $fieldType requires it: \"$name\""
@@ -465,6 +499,18 @@ snit::type order {
         return $orders(names)
     }
 
+
+    # exists name
+    #
+    # name     An order name
+    #
+    # Returns 1 if there's an order with this name, and 0 otherwise
+
+    typemethod exists {name} {
+        return [info exists handler($name)]
+    }
+
+
     # title name
     #
     # name     The name of an order
@@ -475,15 +521,40 @@ snit::type order {
         return $orders(title-$name)
     }
 
-
-    # table name
-    #
+    
+    # cget name ?opt?
+    # 
     # name     The name of an order
+    # opt      The name of an order option
     #
-    # Returns the order's RDB table, or ""
+    # Returns the order's option dictionary, or the value of the
+    # specified option.
 
-    typemethod table {name} {
-        return $orders(table-$name)
+    typemethod cget {name {opt ""}} {
+        if {$opt eq ""} {
+            return $orders(opts-$name)
+        } else {
+            return [dict get $orders(opts-$name) $opt]
+        }
+    }
+
+    
+    # parm order parm ?opt?
+    #
+    # order     The name of an order
+    # parm      The name of a parameter
+    # opt       The name of an option parameter
+    #
+    # If opt is omitted, returns the parm's parameter definition 
+    # dictionary (pdict).  Otherwise, returns the value of the particular
+    # option.
+
+    typemethod parm {order parm {opt ""}} {
+        if {$opt eq ""} {
+            return $orders(pdict-$order-$parm)
+        } else {
+            return [dict get $orders(pdict-$order-$parm) $opt]
+        }
     }
 
 
@@ -497,16 +568,6 @@ snit::type order {
         return $orders(parms-$name)
     }
 
-
-    # exists name
-    #
-    # name     An order name
-    #
-    # Returns 1 if there's an order with this name, and 0 otherwise
-
-    typemethod exists {name} {
-        return [info exists handler($name)]
-    }
 
     # parm order parm ?opt?
     #

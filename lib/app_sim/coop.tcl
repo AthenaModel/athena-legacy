@@ -249,7 +249,7 @@ snit::type coop {
 
 order define ::coop COOPERATION:UPDATE {
     title "Update Cooperation"
-    table coop_nfg
+    options -table gui_coop_nfg -tags nfg
 
     parm n      key   "Neighborhood"  -tags nbhood
     parm f      key   "Of Group"      -tags group
@@ -282,7 +282,7 @@ order define ::coop COOPERATION:UPDATE {
 
 order define ::coop COOPERATION:UPDATE:MULTI {
     title "Update Multiple Cooperations"
-    table gui_coop_nfg
+    options -table gui_coop_nfg
  
     parm ids    multi  "IDs"
     parm coop0  text   "Cooperation"

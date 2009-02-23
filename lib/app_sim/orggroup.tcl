@@ -283,7 +283,7 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
 
 order define ::orggroup GROUP:ORGANIZATION:DELETE {
     title "Delete Organization Group"
-    table gui_orggroups
+    options -table gui_orggroups
 
     parm g  key "Group"
 } {
@@ -328,7 +328,7 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
 
 order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     title "Update Organization Group"
-    table gui_orggroups
+    options -table gui_orggroups
 
     parm g              key   "ID"
     parm longname       text  "Long Name"
@@ -367,7 +367,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
 
 order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
     title "Update Multiple Organization Groups"
-    table gui_orggroups
+    options -table gui_orggroups
 
 
     parm ids            multi "Groups"

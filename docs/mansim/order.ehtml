@@ -232,7 +232,7 @@ Returns a list of the names of the parameters of the named order.<p>
 
 <<defitem "order parm" {order parm <i>order parm</i> ?<i>opt</i>?}>>
 
-By default, returns a dictionary of parameter options for named
+By default, returns a dictionary of parameter options for the named
 <i>parm</i> of the named <i>order</i>; see <<iref parm>> for the
 options and their meanings.  If an option <i>opt</i> is specified,
 returns the value of that particular option.<p>
@@ -245,10 +245,12 @@ specified <i>interface</i>: <i>gui</i>, <i>sim</i>, or <i>test</i>.
 The order's parameters are specified as one argument, a dictionary, or
 as multiple parameter names and values.<p>
 
-<<defitem "order table" {order table <i>name</i>}>>
+<<defitem "order cget" {order cget <i>name</i> ?<i>option</i>...?}>>
 
-Some orders are associated with a particular RDB table or view.  This
-command returns the name of the table or view, or "" if there is none.<p>
+By default, returns a dictionary of order options for order
+<i>name</i>;  see <<iref options>> for the options and their meanings.
+If an <i>option</i> name is specified, returns the value of that
+particular option.<p>
 
 <<defitem "order title" {order title <i>name</i>}>>
 
@@ -268,15 +270,40 @@ appear in the order shown.<p>
 Specifies the human-readable title for the order, e.g., "Create
 Neighborhood" for order <b>NBHOOD:CREATE</b>.<p>
 
-<<defitem table {table <i>tableName</i>}>>
+<<defitem options {options <i>option...</i>}>>
+
+Specifies option settings for this particular order.  The available
+options are as follows:<p>
+
+<<deflist options>>
+
+<<defopt {-table <i>tableName</i>}>>
 
 Orders intended to create, update, or otherwise manipulate database
 entities can be associated with a particular RDB table or view.  This
-command, which is optional, specifies the <i>tableName</i> of this
-table or view.<p>
+option specifies the <i>tableName</i> of this table or view.<p>
 
 Such an order will usually have either one or more <b>key</b>
 parameters or a <b>multi</b> parameter; see <<iref parm>>, below.<p>
+
+<<defopt {-tags <i>taglist</i>}>>
+
+Specifies a list of data type tags associated with this order.
+This feature allows the user to fill in the order's keys as a set
+by clicking elsewhere in the interface.  If the user clicks on a
+satisfaction curve, for example, and the order dialog is keyed on
+neighborhood, group, and concern, the order dialog will be populated
+with the relevant data, provided that the selected entity is contained
+in the order's <code>-table</code>.<p>
+
+This option requires that <code>-table</code> also be set; and it will
+have no effect unless the order has <b>key</b> parameters.<p>
+
+order(sim) does not define any particular set of order tags; commonly used
+ones include <b>ngc</b> and <b>nfg</b>.<p>
+
+<</deflist options>>
+
 
 <<defitem parm {parm <i>name fieldType label</i> ?<i>options...</i>?}>>
 

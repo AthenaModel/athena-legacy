@@ -287,7 +287,7 @@ snit::type sat {
 
 order define ::sat SATISFACTION:UPDATE {
     title "Update Satisfaction Curve"
-    table sat_ngc
+    options -table gui_sat_ngc -tags ngc
 
     parm n         key   "Neighborhood"  -tags nbhood
     parm g         key   "Group"         -tags group
@@ -328,7 +328,7 @@ order define ::sat SATISFACTION:UPDATE {
 
 order define ::sat SATISFACTION:UPDATE:MULTI {
     title "Update Multiple Satisfaction Curves"
-    table gui_sat_ngc
+    options -table gui_sat_ngc
 
     parm ids       multi  "Curves"
     parm sat0      text   "Sat at T0"

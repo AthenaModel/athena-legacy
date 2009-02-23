@@ -243,7 +243,7 @@ snit::widget satbrowser {
             lassign $id n g c
 
             notifier send ::app <ObjectSelect> \
-                [list sat $id  nbhood $n group $g concern $c]
+                [list ngc $id  nbhood $n group $g concern $c]
         }
     }
 }

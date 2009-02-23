@@ -297,7 +297,7 @@ snit::type nbrel {
 
 order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE {
     title "Update Neighborhood Relationship"
-    table nbrel_mn
+    options -table gui_nbrel_mn -tags mn
 
     parm m             key  "Of Neighborhood"      -tags nbhood
     parm n             key  "With Neighborhood"    -tags nbhood
@@ -337,7 +337,7 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE {
 
 order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE:MULTI {
     title "Update Multiple Neighborhood Relationships"
-    table gui_nbrel_mn
+    options -table gui_nbrel_mn
 
     parm ids           multi  "IDs"
 

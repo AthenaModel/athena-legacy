@@ -399,7 +399,7 @@ snit::widget orderdialog {
         # FIRST, save some variables
         set order     $options(-order)
         set my(parms) [order parms $order]
-        set my(table) [order table $order]
+        set my(table) [order cget $order -table]
 
         # NEXT, Create the fields
         set row    -1
@@ -611,12 +611,50 @@ snit::widget orderdialog {
             return
         }
 
-        # NEXT, get the tags for the current field.  If there are none,
+        # NEXT, get the current field.  If there is none,
         # just leave.
 
         if {$my(current) eq ""} {
             return
         }
+
+        # NEXT, are there unsaved parameters?
+        set unsaved [$self Unsaved] 
+
+
+        # NEXT, if the current field is a key field, and the order itself
+        # has an overall tag, and there's a matching tag in the tagdict,
+        # update the keys using it if possible.  If not, proceed.
+
+        if {!$unsaved && $my(current) in $my(keys)} {
+            foreach otag [order cget $options(-order) -tags] {
+                # FIRST, is this tag present?
+                if {![dict exists $tagdict $otag]} {
+                    continue
+                }
+                
+                # NEXT, It is.  Does it have the right number of tokens?
+                # If not, skip it.
+                set id [dict get $tagdict $otag]
+
+                if {[llength $my(keys)] ne [llength $id]} {
+                    continue
+                }
+
+                # NEXT, If we load it, we're done.
+                if {[rdb exists "SELECT id FROM $my(table) WHERE id=\$id"]} {
+                    foreach parm $my(keys) value $id {
+                        $self set $parm $value
+                    }
+
+                    return
+                }
+            }
+        }
+
+
+        # NEXT, get the tags for the current field.  If there are none,
+        # just leave.
 
         set tags [order parm $options(-order) $my(current) -tags]
 
@@ -644,7 +682,7 @@ snit::widget orderdialog {
         set ftype [order parm $options(-order) $my(current) -fieldtype]
 
         if {$ftype in {key multi} 
-            && [$self Unsaved] 
+            && $unsaved
             && ![$self DiscardUnsaved $my(current)]
         } {
             return

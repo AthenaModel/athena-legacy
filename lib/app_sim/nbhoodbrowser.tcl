@@ -384,11 +384,3 @@ snit::widget nbhoodbrowser {
         }
     }
 }
-
-
-
-
-
-
-
-

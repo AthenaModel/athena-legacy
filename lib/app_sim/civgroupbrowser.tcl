@@ -269,10 +269,3 @@ snit::widget civgroupbrowser {
         }
     }
 }
-
-
-
-
-
-
-

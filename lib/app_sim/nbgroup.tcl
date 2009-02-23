@@ -332,7 +332,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
 
 order define ::nbgroup GROUP:NBHOOD:DELETE {
     title "Delete Nbhood Group"
-    table gui_nbgroups
+    options -table gui_nbgroups -tags ng
 
     parm n  key  "Neighborhood"  -tags nbhood
     parm g  key  "Civ Group"     -tags group
@@ -387,7 +387,7 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
 
 order define ::nbgroup GROUP:NBHOOD:UPDATE {
     title "Update Nbhood Group"
-    table gui_nbgroups
+    options -table gui_nbgroups -tags ng
 
     parm n              key   "Neighborhood"  -tags nbhood
     parm g              key   "Civ Group"     -tags group
@@ -424,7 +424,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
 
 order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
     title "Update Multiple Nbhood Groups"
-    table gui_nbgroups
+    options -table gui_nbgroups
 
     parm ids            multi "Groups"
     parm local_name     text  "Local Name"

@@ -272,10 +272,3 @@ snit::widget frcgroupbrowser {
         }
     }
 }
-
-
-
-
-
-
-

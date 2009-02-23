@@ -291,14 +291,7 @@ snit::widget nbgroupbrowser {
             lassign $id n g
 
             notifier send ::app <ObjectSelect> \
-                [list nbgroup $id nbhood $n group $g]
+                [list ng $id nbhood $n group $g]
         }
     }
 }
-
-
-
-
-
-
-

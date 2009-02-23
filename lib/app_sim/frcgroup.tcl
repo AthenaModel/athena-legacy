@@ -263,7 +263,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
 
 order define ::frcgroup GROUP:FORCE:DELETE {
     title "Delete Force Group"
-    table gui_frcgroups
+    options -table gui_frcgroups
 
     parm g  key "Group" -tags group
 } {
@@ -308,7 +308,7 @@ order define ::frcgroup GROUP:FORCE:DELETE {
 
 order define ::frcgroup GROUP:FORCE:UPDATE {
     title "Update Force Group"
-    table gui_frcgroups
+    options -table gui_frcgroups
 
     parm g          key   "ID"                 -tags group
     parm longname   text  "Long Name"
@@ -340,7 +340,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
 
 order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
     title "Update Multiple Force Groups"
-    table gui_frcgroups
+    options -table gui_frcgroups
 
     parm ids        multi "Groups"
     parm color      color "Color"

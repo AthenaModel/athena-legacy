@@ -454,7 +454,7 @@ order define ::nbhood NBHOOD:CREATE {
 
 order define ::nbhood NBHOOD:DELETE {
     title "Delete Neighborhood"
-    table gui_nbhoods   ;# Why gui_nbhoods?
+    options -table gui_nbhoods
 
     parm n  key  "Neighborhood"   -tags nbhood
 } {
@@ -496,7 +496,7 @@ order define ::nbhood NBHOOD:DELETE {
 
 order define ::nbhood NBHOOD:LOWER {
     title "Lower Neighborhood"
-    table gui_nbhoods
+    options -table gui_nbhoods
 
     parm n key "Neighborhood"     -tags nbhood
 } {
@@ -513,7 +513,7 @@ order define ::nbhood NBHOOD:LOWER {
 
 order define ::nbhood NBHOOD:RAISE {
     title "Raise Neighborhood"
-    table gui_nbhoods
+    options -table gui_nbhoods
 
     parm n key "Neighborhood"     -tags nbhood
 } {
@@ -532,7 +532,7 @@ order define ::nbhood NBHOOD:RAISE {
 
 order define ::nbhood NBHOOD:UPDATE {
     title "Update Neighborhood"
-    table gui_nbhoods
+    options -table gui_nbhoods
 
     parm n            key   "Neighborhood"     -tags nbhood
     parm longname     text  "Long Name"
@@ -617,7 +617,7 @@ order define ::nbhood NBHOOD:UPDATE {
 
 order define ::nbhood NBHOOD:UPDATE:MULTI {
     title "Update Multiple Neighborhoods"
-    table gui_nbhoods
+    options -table gui_nbhoods
 
     parm ids          multi  "Neighborhoods"
     parm urbanization enum   "Urbanization"    -type eurbanization

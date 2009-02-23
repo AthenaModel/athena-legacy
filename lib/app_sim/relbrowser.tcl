@@ -240,7 +240,7 @@ snit::widget relbrowser {
             lassign $id n f g
 
             notifier send ::app <ObjectSelect> \
-                [list sat $id  nbhood $n group $f]
+                [list nfg $id  nbhood $n group $f]
         }
     }
 }
