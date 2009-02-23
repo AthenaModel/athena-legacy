@@ -469,7 +469,7 @@ snit::widget orderdialog {
 
         # NEXT, create the field widget
         textfield $my(field-$parm) \
-            -changecmd [mymethod NonKeyChange $parm]
+            -changecmd [mymethod NonKeyChange $parm] \
             -editcmd   [mymethod colorpicker]
     }
 

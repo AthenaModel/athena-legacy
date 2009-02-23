@@ -345,7 +345,7 @@ snit::type order {
     # label       The parameter's label string
     # 
     # -defval value    Default value
-    # -tags taglist    <EntitySelect> tags
+    # -tags taglist    <SelectionChanged> tags
     # -type enumtype   fieldType enum only, the enum(n) type.
     # -refresh         Setting this parm triggers a refresh.
     # -refreshcmd      Command to update the field when refreshed.
@@ -888,6 +888,7 @@ snit::type order {
         set trans(undo) $script
     }
 }
+
 
 
 

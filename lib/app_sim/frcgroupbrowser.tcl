@@ -114,7 +114,7 @@ snit::widget frcgroupbrowser {
         pack $tb -expand yes -fill both
 
         # NEXT, prepare to get tablelist events
-        bind $tb <<TablebrowserSelect>> [mymethod UpdateToolbarState]
+        bind $tb <<TablebrowserSelect>> [mymethod SelectionChanged]
 
         # NEXT, prepare to update on data change
         notifier bind ::scenario <Reconfigure> $self [mymethod Reconfigure]
@@ -135,11 +135,15 @@ snit::widget frcgroupbrowser {
     #
     # ids    A list of neighborhood ids
     #
-    # Selects the neighborhoods in the browser.
+    # Programmatically selects the neighborhoods in the browser.
 
     method select {ids} {
+        # FIRST, select them in the table browser.
         $tb select $ids
-        $self UpdateToolbarState
+
+        # NEXT, handle the new selection (tablebrowser only reports
+        # user changes, not programmatic changes).
+        $self SelectionChanged
     }
 
     # create id
@@ -165,8 +169,8 @@ snit::widget frcgroupbrowser {
         # FIRST, update the table browser
         $tb reload
 
-        # NEXT, update the tools
-        $self UpdateToolbarState
+        # NEXT, handle selection changes
+        $self SelectionChanged
     }
 
     # AddGroup
@@ -218,7 +222,7 @@ snit::widget frcgroupbrowser {
         $tb delete $n
 
         # NEXT, update the state
-        $self UpdateToolbarState
+        $self SelectionChanged
     }
 
     # DisplayData dict
@@ -237,11 +241,12 @@ snit::widget frcgroupbrowser {
         }
     }
 
-    # UpdateToolbarState
+    # SelectionChanged
     #
-    # Enables/disables toolbar controls based on the displayed data.
+    # Enables/disables toolbar controls based on the current selection,
+    # and notifies the app of the selection change.
 
-    method UpdateToolbarState {} {
+    method SelectionChanged {} {
         # FIRST, get the number of selected groups
         set num [llength [$tb curselection]]
 
@@ -257,8 +262,20 @@ snit::widget frcgroupbrowser {
         } else {
             $deletebtn  configure -state disabled
         }
+
+        # NEXT, notify the app of the selection.
+        if {$num == 1} {
+            set g [lindex [$tb curselection] 0]
+
+            notifier send ::app <ObjectSelect> \
+                [list group $g]
+        }
     }
 }
+
+
+
+
 
 
 

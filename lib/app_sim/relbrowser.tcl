@@ -100,7 +100,7 @@ snit::widget relbrowser {
         pack $tb -expand yes -fill both
 
         # NEXT, prepare to get tablelist events
-        bind $tb <<TablebrowserSelect>> [mymethod UpdateToolbarState]
+        bind $tb <<TablebrowserSelect>> [mymethod SelectionChanged]
 
         # NEXT, prepare to update on data change
         notifier bind ::scenario <Reconfigure> $self [mymethod Reconfigure]
@@ -121,11 +121,15 @@ snit::widget relbrowser {
     #
     # ids    A list of neighborhood ids
     #
-    # Selects the neighborhoods in the browser.
+    # Programmatically selects the neighborhoods in the browser.
 
     method select {ids} {
+        # FIRST, select them in the table browser.
         $tb select $ids
-        $self UpdateToolbarState
+
+        # NEXT, handle the new selection (tablebrowser only reports
+        # user changes, not programmatic changes).
+        $self SelectionChanged
     }
 
     # create id
@@ -161,7 +165,7 @@ snit::widget relbrowser {
         $tb delete $id
 
         # NEXT, update the state
-        $self UpdateToolbarState
+        $self SelectionChanged
     }
 
     #-------------------------------------------------------------------
@@ -176,8 +180,8 @@ snit::widget relbrowser {
         # FIRST, update the table browser
         $tb reload
 
-        # NEXT, update the tools
-        $self UpdateToolbarState
+        # NEXT, handle selection changes
+        $self SelectionChanged
     }
 
     # EditSelected
@@ -213,11 +217,12 @@ snit::widget relbrowser {
         }
     }
 
-    # UpdateToolbarState
+    # SelectionChanged
     #
-    # Enables/disables toolbar controls based on the displayed data.
+    # Enables/disables toolbar controls based on the current selection,
+    # and notifies the app of the selection change.
 
-    method UpdateToolbarState {} {
+    method SelectionChanged {} {
         # FIRST, get the number of selected groups
         set num [llength [$tb curselection]]
 
@@ -227,8 +232,22 @@ snit::widget relbrowser {
         } else {
             $editbtn    configure -state disabled
         }
+
+        # NEXT, if there's exactly one item selected, notify the
+        # the app.
+        if {$num == 1} {
+            set id [lindex [$tb curselection] 0]
+            lassign $id n f g
+
+            notifier send ::app <ObjectSelect> \
+                [list sat $id  nbhood $n group $f]
+        }
     }
 }
+
+
+
+
 
 
 
