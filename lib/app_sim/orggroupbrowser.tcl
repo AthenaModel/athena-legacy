@@ -211,8 +211,8 @@ snit::widget orggroupbrowser {
         # FIRST, there should be only one selected.
         set id [lindex [$tb curselection] 0]
 
-        # NEXT, Pop up the dialog, and select this group
-        order enter GROUP:ORGANIZATION:DELETE g $id
+        # NEXT, Send the order
+        order send gui GROUP:ORGANIZATION:DELETE g $id
     }
 
     # delete n

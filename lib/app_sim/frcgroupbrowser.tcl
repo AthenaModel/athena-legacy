@@ -207,7 +207,7 @@ snit::widget frcgroupbrowser {
         set id [lindex [$tb curselection] 0]
 
         # NEXT, Pop up the dialog, and select this group
-        order enter GROUP:FORCE:DELETE g $id
+        order send gui GROUP:FORCE:DELETE g $id
     }
 
     # delete n

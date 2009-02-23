@@ -299,8 +299,8 @@ snit::widget nbhoodbrowser {
         # FIRST, there should be only one selected.
         set id [lindex [$tb curselection] 0]
 
-        # NEXT, Pop up the dialog, and select this nbhood
-        order enter NBHOOD:DELETE n $id
+        # NEXT, Send the order.
+        order send gui NBHOOD:DELETE n $id
     }
 
     # delete n

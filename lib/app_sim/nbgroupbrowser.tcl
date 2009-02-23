@@ -242,7 +242,7 @@ snit::widget nbgroupbrowser {
         lassign [lindex [$tb curselection] 0] n g
 
         # NEXT, Pop up the dialog, and select this group
-        order enter GROUP:NBHOOD:DELETE n $n g $g
+        order send gui GROUP:NBHOOD:DELETE n $n g $g
     }
 
     # DisplayData dict

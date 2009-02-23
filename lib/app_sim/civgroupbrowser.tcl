@@ -204,7 +204,7 @@ snit::widget civgroupbrowser {
         set id [lindex [$tb curselection] 0]
 
         # NEXT, Pop up the dialog, and select this group
-        order enter GROUP:CIVILIAN:DELETE g $id
+        order send gui GROUP:CIVILIAN:DELETE g $id
     }
 
     # delete n
