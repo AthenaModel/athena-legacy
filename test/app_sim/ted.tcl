@@ -61,7 +61,7 @@ snit::type ted {
 
     typeconstructor {
         # Import all util(n) and simlib(n) routines
-        namespace import ::marsutil::* ::athlib::* ::tcltest::*
+        namespace import ::marsutil::* ::projectlib::* ::tcltest::*
     }
 
     #-------------------------------------------------------------------
@@ -643,6 +643,7 @@ snit::type ted {
 
 
 }
+
 
 
 

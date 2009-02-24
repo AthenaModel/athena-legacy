@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athgui(n) package: messagebox
+#    projectgui(n) package: messagebox
 #
 #    This is a replacement for tk_messageBox with a slightly different
 #    set of options.  In particular, the message box can include a
@@ -15,14 +15,14 @@
 #
 #-----------------------------------------------------------------------
 
-namespace eval ::athgui:: {
+namespace eval ::projectgui:: {
     namespace export messagebox
 }
 
 #-----------------------------------------------------------------------
 # messagebox
 
-snit::type ::athgui::messagebox {
+snit::type ::projectgui::messagebox {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
@@ -480,4 +480,5 @@ snit::type ::athgui::messagebox {
         }
     }
 }
+
 

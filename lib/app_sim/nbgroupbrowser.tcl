@@ -69,7 +69,7 @@ snit::widget nbgroupbrowser {
             -relief flat
 
         install addbtn using button $bar.add   \
-            -image      ::athgui::icon::plus22 \
+            -image      ::projectgui::icon::plus22 \
             -relief     flat                   \
             -overrelief raised                 \
             -state      normal                 \
@@ -78,7 +78,7 @@ snit::widget nbgroupbrowser {
         DynamicHelp::add $addbtn -text "Add Nbhood Group"
 
         install editbtn using button $bar.edit   \
-            -image      ::athgui::icon::pencil22 \
+            -image      ::projectgui::icon::pencil22 \
             -relief     flat                     \
             -overrelief raised                   \
             -state      disabled                 \
@@ -87,7 +87,7 @@ snit::widget nbgroupbrowser {
         DynamicHelp::add $editbtn -text "Edit Selected Group"
 
         install deletebtn using button $bar.delete \
-            -image      ::athgui::icon::x22        \
+            -image      ::projectgui::icon::x22        \
             -relief     flat                       \
             -overrelief raised                     \
             -state      disabled                   \
@@ -295,3 +295,4 @@ snit::widget nbgroupbrowser {
         }
     }
 }
+

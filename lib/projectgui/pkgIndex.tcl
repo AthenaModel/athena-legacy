@@ -6,9 +6,10 @@
 #    William H. Duquette
 #
 # DESCRIPTION:
-#    Athena: athgui(n) package index file
+#    Athena: projectgui(n) package index file
 
-package ifneeded athgui 1.0 [list source [file join $dir athgui.tcl]]
+package ifneeded projectgui 1.0 [list source [file join $dir projectgui.tcl]]
+
 
 
 

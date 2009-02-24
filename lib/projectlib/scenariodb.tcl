@@ -27,14 +27,14 @@
 #
 #-----------------------------------------------------------------------
 
-namespace eval ::athlib:: {
+namespace eval ::projectlib:: {
     namespace export scenariodb
 }
 
 #-----------------------------------------------------------------------
 # scenario
 
-snit::type ::athlib::scenariodb {
+snit::type ::projectlib::scenariodb {
     #-------------------------------------------------------------------
     # Type Constructor
 
@@ -67,7 +67,7 @@ snit::type ::athlib::scenariodb {
     # Returns the section's persistent schema definitions, if any.
 
     typemethod {sqlsection schema} {} {
-        return [readfile [file join $::athlib::library scenariodb.sql]]
+        return [readfile [file join $::projectlib::library scenariodb.sql]]
     }
 
     # sqlsection tempschema
@@ -263,6 +263,7 @@ snit::type ::athlib::scenariodb {
         set info(savedChanges) [$db total_changes]
     }
 }
+
 
 
 

@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    athtypes.tcl
+#    projtypes.tcl
 #
 # AUTHOR:
 #    Will Duquette
@@ -13,7 +13,7 @@
 #-----------------------------------------------------------------------
 # Export public commands
 
-namespace eval ::athlib:: {
+namespace eval ::projectlib:: {
     namespace export  \
         boolean       \
         ecivconcern   \
@@ -41,7 +41,7 @@ namespace eval ::athlib:: {
 # Enumerations
 
 # Civilian Concerns
-::marsutil::enum ::athlib::ecivconcern {
+::marsutil::enum ::projectlib::ecivconcern {
     AUT "Autonomy"
     SFT "Physical Safety"
     CUL "Culture"
@@ -50,18 +50,18 @@ namespace eval ::athlib:: {
 
 
 # Organization Concerns
-::marsutil::enum ::athlib::eorgconcern {
+::marsutil::enum ::projectlib::eorgconcern {
     CAS "Casualties"
 }
 
 
 # All Concerns
-::marsutil::enum ::athlib::econcern \
-    [concat [::athlib::ecivconcern deflist] [::athlib::eorgconcern deflist]]
+::marsutil::enum ::projectlib::econcern \
+    [concat [::projectlib::ecivconcern deflist] [::projectlib::eorgconcern deflist]]
 
 
 # Civilian Group Demeanor
-::marsutil::enum ::athlib::edemeanor {
+::marsutil::enum ::projectlib::edemeanor {
     APATHETIC  "Apathetic"
     AVERAGE    "Average"
     AGGRESSIVE "Aggressive"
@@ -69,7 +69,7 @@ namespace eval ::athlib:: {
 
 
 # Force Group Type
-::marsutil::enum ::athlib::eforcetype {
+::marsutil::enum ::projectlib::eforcetype {
     REGULAR        "Regular Military"
     PARAMILITARY   "Paramilitary"
     POLICE         "Police"
@@ -79,7 +79,7 @@ namespace eval ::athlib:: {
 
 
 # Org Group Type
-::marsutil::enum ::athlib::eorgtype {
+::marsutil::enum ::projectlib::eorgtype {
     NGO "Non-Governmental Organization"
     IGO "Intergovernmental Organization"
     CTR "Contractor"
@@ -89,7 +89,7 @@ namespace eval ::athlib:: {
 # Neighborhood Proximity
 #
 # 0=here, 1=near, 2=far, 3=remote
-::marsutil::enum ::athlib::eproximity {
+::marsutil::enum ::projectlib::eproximity {
     HERE   "Here"
     NEAR   "Near"
     FAR    "Far"
@@ -98,14 +98,14 @@ namespace eval ::athlib:: {
 
 
 # Urbanization Level
-::marsutil::enum ::athlib::eurbanization {
+::marsutil::enum ::projectlib::eurbanization {
     RURAL        "Rural"
     SUBURBAN     "Suburban"
     URBAN        "Urban"
 }
 
 # Yes/No
-::marsutil::enum ::athlib::eyesno {
+::marsutil::enum ::projectlib::eyesno {
     YES    "Yes"
     NO     "No"
 }
@@ -114,7 +114,7 @@ namespace eval ::athlib:: {
 # Qualities
 
 # Cooperation
-::marsutil::quality ::athlib::qcooperation {
+::marsutil::quality ::projectlib::qcooperation {
     AC "Always Cooperative"      99.9 100.0 100.0
     VC "Very Cooperative"        80.0  90.0  99.9
     C  "Cooperative"             60.0  70.0  80.0
@@ -125,7 +125,7 @@ namespace eval ::athlib:: {
 } -min 0.0 -max 100.0 -format {%5.1f} -bounds yes
 
 # Saliency (Of a Factor)
-::marsutil::quality ::athlib::qsaliency {
+::marsutil::quality ::projectlib::qsaliency {
     CR "Crucial"         1.000
     VI "Very Important"  0.850
     I  "Important"       0.700
@@ -135,7 +135,7 @@ namespace eval ::athlib:: {
 } -min 0.0 -max 1.0 -format {%5.3f}
 
 # Satisfaction
-::marsutil::quality ::athlib::qsat {
+::marsutil::quality ::projectlib::qsat {
     VS "Very Satisfied"     80.0
     S  "Satisfied"          40.0
     A  "Ambivalent"          0.0
@@ -144,7 +144,7 @@ namespace eval ::athlib:: {
 } -min -100.0 -max 100.0 -format {%7.2f}
 
 # Satisfaction: Long-Term Trend
-::marsutil::quality ::athlib::qtrend {
+::marsutil::quality ::projectlib::qtrend {
     VH "Very High"  8.0
     H  "High"       4.0
     N  "Neutral"   -1.0
@@ -157,11 +157,11 @@ namespace eval ::athlib:: {
 
 # Duration in decimal days
 
-::marsutil::range ::athlib::rdays \
+::marsutil::range ::projectlib::rdays \
     -min 0.0 -format "%.1f"
 
 # Group Relationships
-::marsutil::range ::athlib::rgrouprel \
+::marsutil::range ::projectlib::rgrouprel \
     -min -1.0 -max 1.0 -format "%+4.1f"
 
 #-------------------------------------------------------------------
@@ -169,7 +169,7 @@ namespace eval ::athlib:: {
 #
 # This differs from the snit::boolean type in that it throws INVALID.
 
-snit::type ::athlib::boolean {
+snit::type ::projectlib::boolean {
     # Make it a singleton
     pragma -hasinstances no
 
@@ -198,7 +198,7 @@ snit::type ::athlib::boolean {
 #-----------------------------------------------------------------------
 # hexcolor type
 
-snit::type ::athlib::hexcolor {
+snit::type ::projectlib::hexcolor {
     # Make it a singleton
     pragma -hasinstances no
 
@@ -225,7 +225,7 @@ snit::type ::athlib::hexcolor {
 #-----------------------------------------------------------------------
 # ident type
 
-snit::type ::athlib::ident {
+snit::type ::projectlib::ident {
     # Make it a singleton
     pragma -hasinstances no
 
@@ -252,7 +252,7 @@ snit::type ::athlib::ident {
 #-----------------------------------------------------------------------
 # polygon type
 
-snit::type ::athlib::polygon {
+snit::type ::projectlib::polygon {
     # Make it a singleton
     pragma -hasinstances no
 
@@ -342,7 +342,7 @@ snit::type ::athlib::polygon {
 # A weight is a non-negative floating point number.  
 # This differs from the snit::double type in that it throws INVALID.
 
-snit::type ::athlib::weight {
+snit::type ::projectlib::weight {
     # Make it a singleton
     pragma -hasinstances no
 
@@ -370,6 +370,8 @@ snit::type ::athlib::weight {
         return $value
     }
 }
+
+
 
 
 

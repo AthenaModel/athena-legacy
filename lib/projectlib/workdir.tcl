@@ -24,14 +24,14 @@
 #
 #-----------------------------------------------------------------------
 
-namespace eval ::athlib:: {
+namespace eval ::projectlib:: {
     namespace export workdir
 }
 
 #-----------------------------------------------------------------------
 # workdir
 
-snit::type ::athlib::workdir {
+snit::type ::projectlib::workdir {
     pragma -hastypedestroy 0 -hasinstances 0
 
     #-------------------------------------------------------------------
@@ -92,6 +92,7 @@ snit::type ::athlib::workdir {
         set workdir ""
     }
 }
+
 
 
 

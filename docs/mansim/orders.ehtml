@@ -1,7 +1,7 @@
 <<manpage orders(sim) "Athena Orders">>
 
 <<swallow {
-    package require athlib
+    package require projectlib
 
     # <<parmlist>>
     # <<parm name>> Description <</parm>>
@@ -143,7 +143,7 @@ the group's icons.<</parm>>
 
 <<parm forcetype>> <b>Required.</b> The force type, as follows:<p>
 
-<<::athlib::eforcetype html>>
+<<::projectlib::eforcetype html>>
 <</parm>>
 
 <<parm local>> <b>Required.</b> The local flag, expressed as a boolean
@@ -225,7 +225,7 @@ group, e.g., a tribal name.<</parm>>
 <<parm demeanor>> <b>Required.</b>  The demeanor of the civilian
 group, e.g., its propensity to violence:<p>
 
-<<athlib::edemeanor html>><</parm>>
+<<projectlib::edemeanor html>><</parm>>
 
 <<parm rollup_weight>> <b>Required.</b> The rollup weight, used when
 rolling up the group's satisfaction levels to the playbox level.  A
@@ -321,7 +321,7 @@ the group's icons.<</parm>>
 
 <<parm orgtype>> <b>Required.</b> The organization type, as follows:<p>
 
-<<::athlib::eorgtype html>><</parm>>
+<<::projectlib::eorgtype html>><</parm>>
 
 <<parm medical>> <b>Required.</b> The medical capability flag,
 expressed as a boolean value (e.g., "Yes" or "No"). Indicates whether
@@ -441,7 +441,7 @@ neighborhood, e.g., "Los Angeles".<</parm>>
 <<parm urbanization>> <b>Required.</b> The neighborhood's urbanization
 level:<p>
 
-<<::athlib::eurbanization html>><</parm>>
+<<::projectlib::eurbanization html>><</parm>>
 
 <<parm refpoint>> <b>Required.</b> The neighborhood's reference point,
 expressed as a <<xref mapref(n)>> mapref string.  This is a location
@@ -538,14 +538,14 @@ Updates a satisfaction curve.  The parameters are as follows:<p>
 The initial value for this satisfaction curve, in either symbolic or
 numeric form; numeric values must be in the range -100.0 to +100.0:<p>
 
-<<::athlib::qsat html>>
+<<::projectlib::qsat html>>
 <</parm>>
 
 <<parm trend0>>
 The long-term trend for this satisfaction curve, in either symbolic or
 numeric form:<p>
 
-<<::athlib::qtrend html>>
+<<::projectlib::qtrend html>>
 <</parm>>
 
 <<parm saliency>>
@@ -553,7 +553,7 @@ The saliency of this concern to this group in this neighborhood, in
 either symbolic or numeric form; numeric values must be in the range
 0.0 to 1.0:<p>
 
-<<::athlib::qsaliency html>>
+<<::projectlib::qsaliency html>>
 <</parm>>
 
 <</parmlist>>
@@ -591,3 +591,4 @@ the value of <b>ids</b> would be as follows:
 Will Duquette<p>
 
 <</manpage>>
+

@@ -42,7 +42,7 @@ INCLPATH = \
 	-I$(TCL_INC_DIR) 
 
 
-TARGET = $(TOP_DIR)/lib/athlib/libVersion.so
+TARGET = $(TOP_DIR)/lib/projectlib/libVersion.so
 
 OBJS = \
 	version.o
@@ -84,6 +84,7 @@ include MakeDepends
 # Standard MakeRules
 
 include $(TOP_DIR)/MakeRules
+
 
 
 

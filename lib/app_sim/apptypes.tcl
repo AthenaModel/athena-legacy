@@ -9,7 +9,7 @@
 #    Application Data Types
 #
 #    This module defines simple data types are application-specific and
-#    hence don't fit in athtypes(n).
+#    hence don't fit in projtypes(n).
 #
 #-----------------------------------------------------------------------
 
@@ -42,6 +42,7 @@ snit::type refpoly {
         return polygon validate $coords
     }
 }
+
 
 
 

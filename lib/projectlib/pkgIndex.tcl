@@ -6,9 +6,10 @@
 #    William H. Duquette
 #
 # DESCRIPTION:
-#    Athena: athlib(n) package index file
+#    Athena: projectlib(n) package index file
 
-package ifneeded athlib 1.0 [list source [file join $dir athlib.tcl]]
+package ifneeded projectlib 1.0 [list source [file join $dir projectlib.tcl]]
+
 
 
 

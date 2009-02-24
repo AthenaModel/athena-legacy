@@ -7,7 +7,7 @@
 <<section DESCRIPTION>>
 
 A map <<xref field(i)>> is a widget that allows a data item to be
-entered in a dialog box.  <<xref athgui(n)>> provides a number of
+entered in a dialog box.  <<xref projectgui(n)>> provides a number of
 field types; all of them implement at least the interface described
 here.<p>
 
@@ -83,6 +83,7 @@ Will Duquette<p>
 Original interface.
 
 <</manpage>>
+
 
 
 

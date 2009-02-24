@@ -1,12 +1,12 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    athgui.tcl
+#    projectgui.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Athena: athgui(n) main package
+#    Athena: projectgui(n) main package
 #
 #-----------------------------------------------------------------------
 
@@ -23,34 +23,36 @@ package require tablelist
 
 package require marsutil
 package require marsgui
-package require athlib
+package require projectlib
 
 #-----------------------------------------------------------------------
 # Package Definition
 
-package provide athgui 1.0
+package provide projectgui 1.0
 
 #-----------------------------------------------------------------------
 # Namespace definition
 
-namespace eval ::athgui:: {
+namespace eval ::projectgui:: {
     variable library [file dirname [info script]]
 
     namespace import ::marsutil::* 
     namespace import ::marsgui::*
-    namespace import ::athlib::*
+    namespace import ::projectlib::*
 }
 
 #-----------------------------------------------------------------------
-# Load athgui(n) submodules
+# Load projectgui(n) submodules
 
-source [file join $::athgui::library icons.tcl        ]
-source [file join $::athgui::library mapcanvas.tcl    ]
-source [file join $::athgui::library tablebrowser.tcl ]
-source [file join $::athgui::library messagebox.tcl   ]
-source [file join $::athgui::library enumfield.tcl    ]
-source [file join $::athgui::library multifield.tcl   ]
-source [file join $::athgui::library textfield.tcl    ]
+source [file join $::projectgui::library icons.tcl        ]
+source [file join $::projectgui::library mapcanvas.tcl    ]
+source [file join $::projectgui::library tablebrowser.tcl ]
+source [file join $::projectgui::library messagebox.tcl   ]
+source [file join $::projectgui::library enumfield.tcl    ]
+source [file join $::projectgui::library multifield.tcl   ]
+source [file join $::projectgui::library textfield.tcl    ]
+
+
 
 
 

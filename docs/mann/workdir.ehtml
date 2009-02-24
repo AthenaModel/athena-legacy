@@ -1,10 +1,10 @@
-<<manpage {athlib(n) workdir(n)} "Working Directory Utility">>
+<<manpage {projectlib(n) workdir(n)} "Working Directory Utility">>
 
 <<section SYNOPSIS>>
 
 <pre>
-package require athlib 1.0
-namespace import ::athlib::*
+package require projectlib 1.0
+namespace import ::projectlib::*
 </pre>
 
 <<itemlist>>
@@ -78,6 +78,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 

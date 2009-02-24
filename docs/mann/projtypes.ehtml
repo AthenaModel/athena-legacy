@@ -1,12 +1,12 @@
-<<manpage {athlib(n) athtypes(n)} "Athena Data Types">>
+<<manpage {projectlib(n) projtypes(n)} "Athena Data Types">>
 
-<<swallow {package require athlib}>>
+<<swallow {package require projectlib}>>
 
 <<section SYNOPSIS>>
 
 <pre>
-package require athlib 1.0
-namespace import ::athlib::athtypes
+package require projectlib 1.0
+namespace import ::projectlib::projtypes
 </pre>
 
 <<itemlist>>
@@ -37,7 +37,7 @@ the value to canonical form, and throws <b>INVALID</b> on error.<p>
 An <<xref mars:enum(n)>> type, representing the concerns of civilian
 groups.<p>
 
-<<::athlib::ecivconcern html>>
+<<::projectlib::ecivconcern html>>
 
 
 <<defitem econcern {econcern <i>subcommand</i> ?<i>args</i>?}>>
@@ -46,7 +46,7 @@ An <<xref mars:enum(n)>> type, representing the concerns of all kinds
 of groups for which satisfaction is tracked.  It is simply the
 concatenation of <<iref ecivconcern>> and <<iref eorgconcern>>.<p>
 
-<<::athlib::econcern html>>
+<<::projectlib::econcern html>>
 
 
 <<defitem edemeanor {edemeanor <i>subcommand</i> ?<i>args</i>?}>>
@@ -54,13 +54,13 @@ concatenation of <<iref ecivconcern>> and <<iref eorgconcern>>.<p>
 An <<xref mars:enum(n)>> type, representing neighborhood group
 demeanor.<p>
 
-<<::athlib::eforcetype html>>
+<<::projectlib::eforcetype html>>
 
 <<defitem eforcetype {eforcetype <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing force group types.<p>
 
-<<::athlib::eforcetype html>>
+<<::projectlib::eforcetype html>>
 
 
 <<defitem eorgconcern {eorgconcern <i>subcommand</i> ?<i>args</i>?}>>
@@ -68,21 +68,21 @@ An <<xref mars:enum(n)>> type, representing force group types.<p>
 An <<xref mars:enum(n)>> type, representing the concerns of organization
 groups.<p>
 
-<<::athlib::eorgconcern html>>
+<<::projectlib::eorgconcern html>>
 
 
 <<defitem eorgtype {eorgtype <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing organization group types.<p>
 
-<<::athlib::eorgtype html>>
+<<::projectlib::eorgtype html>>
 
 <<defitem eproximity {eproximity <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing the proximity of one
 neighborhood to another.<p>
 
-<<::athlib::eorgconcern html>>
+<<::projectlib::eorgconcern html>>
 
 
 <<defitem eurbanization {eurbanization <i>subcommand</i> ?<i>args</i>?}>>
@@ -90,13 +90,13 @@ neighborhood to another.<p>
 An <<xref mars:enum(n)>> type, representing neighborhood urbanization
 levels.<p>
 
-<<::athlib::eurbanization html>>
+<<::projectlib::eurbanization html>>
 
 <<defitem eyesno {eyesno <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing boolean "Yes" and "No" values.<p>
 
-<<::athlib::eyesno html>>
+<<::projectlib::eyesno html>>
 
 <<defitem "hexcolor validate" {hexcolor validate <i>color</i>}>>
 
@@ -131,7 +131,7 @@ A <<xref mars:quality(n)>> type, representing the cooperation of
 one group with another, i.e., the likelihood that the first group will
 pass intel to the second.<p>
 
-<<::athlib::qcooperation html>>
+<<::projectlib::qcooperation html>>
 
 
 <<defitem qsaliency {qsaliency <i>subcommand</i> ?<i>args</i>?}>>
@@ -139,7 +139,7 @@ pass intel to the second.<p>
 A <<xref mars:quality(n)>> type, representing the saliency of a
 concern to a group.<p>
 
-<<::athlib::qsaliency html>>
+<<::projectlib::qsaliency html>>
 
 
 <<defitem qsat {qsat <i>subcommand</i> ?<i>args</i>?}>>
@@ -147,7 +147,7 @@ concern to a group.<p>
 A <<xref mars:quality(n)>> type, representing a level of satisfaction
 with respect to a concern.<p>
 
-<<::athlib::qsat html>>
+<<::projectlib::qsat html>>
 
 
 <<defitem qtrend {qtrend <i>subcommand</i> ?<i>args</i>?}>>
@@ -155,14 +155,14 @@ with respect to a concern.<p>
 A <<xref mars:quality(n)>> type, representing a trend in a
 satisfaction curve.<p>
 
-<<::athlib::qtrend html>>
+<<::projectlib::qtrend html>>
 
 <<defitem "rgrouprel validate" {rgrouprel validate <i>value</i>}>>
 
 A <<xref mars:range(n)>> type used for group relationship values,
 which ranges from 
-<<::athlib::rgrouprel format [::athlib::rgrouprel cget -min]>> to
-<<::athlib::rgrouprel format [::athlib::rgrouprel cget -max]>>.<p>
+<<::projectlib::rgrouprel format [::projectlib::rgrouprel cget -min]>> to
+<<::projectlib::rgrouprel format [::projectlib::rgrouprel cget -max]>>.<p>
 
 <<defitem "weight validate" {weight validate <i>value</i>}>>
 
@@ -190,6 +190,8 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
+
 
 
 

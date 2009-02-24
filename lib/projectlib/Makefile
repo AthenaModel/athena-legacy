@@ -1,6 +1,6 @@
 #---------------------------------------------------------------------
 #
-# Makefile -- Makefile for athlib(n)
+# Makefile -- Makefile for projectlib(n)
 #
 # Targets supported:
 # 
@@ -16,7 +16,8 @@ include $(TOP_DIR)/MakeDefs
 
 # Target: test
 test:
-	$(TCLSH) athlib.test
+	$(TCLSH) projectlib.test
 
 include $(TOP_DIR)/MakeRules
+
 

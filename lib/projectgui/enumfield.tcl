@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athgui(n) package: Enum data entry field
+#    projectgui(n) package: Enum data entry field
 #
 #    An enumfield is a combobox with a (possibly dynamic) set of values.
 #
@@ -15,14 +15,14 @@
 #-----------------------------------------------------------------------
 # Export public commands
 
-namespace eval ::athgui:: {
+namespace eval ::projectgui:: {
     namespace export enumfield
 }
 
 #-------------------------------------------------------------------
 # enumfield
 
-snit::widgetadaptor ::athgui::enumfield {
+snit::widgetadaptor ::projectgui::enumfield {
     #-------------------------------------------------------------------
     # Options
 
@@ -160,3 +160,4 @@ snit::widgetadaptor ::athgui::enumfield {
         $self DetectChange
     }
 }
+

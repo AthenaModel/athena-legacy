@@ -24,7 +24,7 @@ TOP_DIR = $(shell pwd)/..
 
 include $(TOP_DIR)/MakeDefs
 
-PACKAGES = athlib
+PACKAGES = projectlib
 
 #---------------------------------------------------------------------
 # Target: all
@@ -64,6 +64,7 @@ include $(TOP_DIR)/MakeRules
 # file.
 
 include MakePackages
+
 
 
 

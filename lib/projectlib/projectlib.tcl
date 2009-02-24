@@ -1,12 +1,12 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    athlib.tcl
+#    projectlib.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Athena: athlib(n) main package
+#    Athena: projectlib(n) main package
 #
 #-----------------------------------------------------------------------
 
@@ -24,12 +24,12 @@ package require sqlite3
 #-----------------------------------------------------------------------
 # Package Definition
 
-package provide athlib 1.0
+package provide projectlib 1.0
 
 #-----------------------------------------------------------------------
 # Namespace definition
 
-namespace eval ::athlib:: {
+namespace eval ::projectlib:: {
     variable library [file dirname [info script]]
 
     namespace import ::marsutil::* 
@@ -40,20 +40,22 @@ namespace eval ::athlib:: {
 #-------------------------------------------------------------------
 # Load binary extensions, if present.
 
-set binlib [file join $::athlib::library libVersion.so]
+set binlib [file join $::projectlib::library libVersion.so]
 
 if {[file exists $binlib]} {
     load $binlib
 }
 
 #-----------------------------------------------------------------------
-# Load athlib(n) submodules
+# Load projectlib(n) submodules
 
-source [file join $::athlib::library athtypes.tcl   ]
-source [file join $::athlib::library mapref.tcl     ]
-source [file join $::athlib::library scenariodb.tcl ]
-source [file join $::athlib::library workdir.tcl    ]
-source [file join $::athlib::library verman.tcl     ]
+source [file join $::projectlib::library projtypes.tcl  ]
+source [file join $::projectlib::library mapref.tcl     ]
+source [file join $::projectlib::library scenariodb.tcl ]
+source [file join $::projectlib::library workdir.tcl    ]
+source [file join $::projectlib::library verman.tcl     ]
+
+
 
 
 

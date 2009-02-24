@@ -1,10 +1,10 @@
-<<manpage {athgui(n) textfield(n)} "Text Data Entry Field">>
+<<manpage {projectgui(n) textfield(n)} "Text Data Entry Field">>
 
 <<section SYNOPSIS>>
 
 <pre>
-package require athgui 1.0
-namespace import ::athgui::*
+package require projectgui 1.0
+namespace import ::projectgui::*
 </pre>
 
 <<itemlist>>
@@ -74,9 +74,9 @@ result in at most one call to the <code>-changecmd</code>.<p>
 
 <<section ENVIRONMENT>>
 
-athgui(n) requires Tcl 8.5 or later.
+projectgui(n) requires Tcl 8.5 or later.
 
-To use athgui(n) in a Tcl script, the environment variable
+To use projectgui(n) in a Tcl script, the environment variable
 <code>TCLLIBPATH</code> must include the parent of the package
 directory.
 
@@ -89,6 +89,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 

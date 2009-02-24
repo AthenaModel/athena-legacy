@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athgui(n) package: Multi-entity data entry field
+#    projectgui(n) package: Multi-entity data entry field
 #
 #    A multifield is a pseudo-field which displays the number of
 #    selected entities upon which the dialog will operate, e.g.,
@@ -17,14 +17,14 @@
 #-----------------------------------------------------------------------
 # Export public commands
 
-namespace eval ::athgui:: {
+namespace eval ::projectgui:: {
     namespace export multifield
 }
 
 #-------------------------------------------------------------------
 # multifield
 
-snit::widgetadaptor ::athgui::multifield {
+snit::widgetadaptor ::projectgui::multifield {
     #-------------------------------------------------------------------
     # Options
 
@@ -99,3 +99,4 @@ snit::widgetadaptor ::athgui::multifield {
         return $theValue
     }
 }
+

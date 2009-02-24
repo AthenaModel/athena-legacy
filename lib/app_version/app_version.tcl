@@ -33,16 +33,17 @@ package require snit
 
 # Athena Packages
 package require marsutil
-package require athlib
+package require projectlib
 
 namespace import ::marsutil::* 
 namespace import ::marsutil::*
-namespace import ::athlib::*
+namespace import ::projectlib::*
 
 #-----------------------------------------------------------------------
 # Load app(version) submodules
 
 source [file join $::app_version::library app.tcl]
+
 
 
 

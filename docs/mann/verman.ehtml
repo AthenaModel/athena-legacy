@@ -1,10 +1,10 @@
-<<manpage {athlib(n) verman(n)} "Athena Version Manager">>
+<<manpage {projectlib(n) verman(n)} "Athena Version Manager">>
 
 <<section SYNOPSIS>>
 
 <pre>
-package require athlib 1.0
-namespace import ::athlib::*
+package require projectlib 1.0
+namespace import ::projectlib::*
 </pre>
 
 <<itemlist>>
@@ -93,6 +93,7 @@ Will Duquette<p>
 Derived from the JNEM dirman(n) package.<p>
 
 <</manpage>>
+
 
 
 

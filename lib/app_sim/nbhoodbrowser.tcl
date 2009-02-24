@@ -131,7 +131,7 @@ snit::widget nbhoodbrowser {
             -relief flat
 
         install editbtn using button $bar.edit   \
-            -image      ::athgui::icon::pencil22 \
+            -image      ::projectgui::icon::pencil22 \
             -relief     flat                     \
             -overrelief raised                   \
             -state      disabled                 \
@@ -158,7 +158,7 @@ snit::widget nbhoodbrowser {
         DynamicHelp::add $lowerbtn -text "Send Neighborhood to Back"
 
         install deletebtn using button $bar.delete \
-            -image      ::athgui::icon::x22        \
+            -image      ::projectgui::icon::x22        \
             -relief     flat                       \
             -overrelief raised                     \
             -state      disabled                   \
@@ -384,3 +384,4 @@ snit::widget nbhoodbrowser {
         }
     }
 }
+

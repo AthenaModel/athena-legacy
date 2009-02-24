@@ -1,6 +1,6 @@
 <<manpage nbgroup(sim) "Neighborhood Group Manager">>
 
-<<swallow {package require athlib}>>
+<<swallow {package require projectlib}>>
 
 <<section SYNOPSIS>>
 
@@ -107,3 +107,4 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+

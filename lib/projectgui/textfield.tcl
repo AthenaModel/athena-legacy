@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athgui(n) package: Text data entry field
+#    projectgui(n) package: Text data entry field
 #
 #    A textfield is a data entry field containing editable text.
 #    If desired, it can have an -editcmd, which pops up a value editor.
@@ -16,14 +16,14 @@
 #-----------------------------------------------------------------------
 # Export public commands
 
-namespace eval ::athgui:: {
+namespace eval ::projectgui:: {
     namespace export textfield
 }
 
 #-------------------------------------------------------------------
 # textfield
 
-snit::widget ::athgui::textfield {
+snit::widget ::projectgui::textfield {
     #-------------------------------------------------------------------
     # Components
 
@@ -217,3 +217,4 @@ snit::widget ::athgui::textfield {
         $self DetectChange
     }
 }
+

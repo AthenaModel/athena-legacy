@@ -1,10 +1,10 @@
-<<manpage {athlib(n) mapref(n)} "Generic map projection">>
+<<manpage {projectlib(n) mapref(n)} "Generic map projection">>
 
 <<section SYNOPSIS>>
 
 <pre>
-package require athlib 1.0
-namespace import ::athlib::mapref
+package require projectlib 1.0
+namespace import ::projectlib::mapref
 </pre>
 
 <<itemlist>>
@@ -146,6 +146,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 

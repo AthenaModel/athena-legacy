@@ -1,17 +1,17 @@
-<<manpage athlib(n) "Athena Library">>
+<<manpage projectlib(n) "Athena Library">>
 
 <<section SYNOPSIS>>
 
 <pre>
-package require athlib 1.0
-namespace import ::athlib::*
+package require projectlib 1.0
+namespace import ::projectlib::*
 </pre>
 
 <<itemlist>>
 
 <<section DESCRIPTION>>
 
-athlib(n) is a package of non-GUI code for use in <<xref athena_sim(1)>> and
+projectlib(n) is a package of non-GUI code for use in <<xref athena_sim(1)>> and
 related tools.<p>
 
 <<section MODULES>>
@@ -35,6 +35,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 

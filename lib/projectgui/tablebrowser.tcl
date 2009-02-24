@@ -7,7 +7,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athgui(n) package: Generic table browser.
+#    projectgui(n) package: Generic table browser.
 #
 #    This widget displays a formatted list of data from an SQLite3 
 #    database table or view.  Entries in the list can be filtered 
@@ -18,14 +18,14 @@
 #-----------------------------------------------------------------------
 # Export public commands
 
-namespace eval ::athgui:: {
+namespace eval ::projectgui:: {
     namespace export tablebrowser
 }
 
 #-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widget ::athgui::tablebrowser {
+snit::widget ::projectgui::tablebrowser {
 
     #-------------------------------------------------------------------
     # Type Constructor
@@ -633,6 +633,7 @@ snit::widget ::athgui::tablebrowser {
         set found(lines) [list]
     }
 }
+
 
 
 

@@ -1,9 +1,9 @@
-<<manpage {athgui(n) icons(n)} "Standard Athena Icons">>
+<<manpage {projectgui(n) icons(n)} "Standard Athena Icons">>
 
 <<section SYNOPSIS>>
 
 <pre>
-package require athgui 1.0
+package require projectgui 1.0
 </pre>
 
 <<itemlist>>
@@ -11,12 +11,12 @@ package require athgui 1.0
 <<section DESCRIPTION>>
 
 This module defines a number of standard icon images.  Each icon is a
-standard Tk image; all are defined in the <code>::athgui::icon</code>
+standard Tk image; all are defined in the <code>::projectgui::icon</code>
 namespace.  <b>Note that it's necessary to use the fully qualified
 name!</b>.<p>
 
 Icons are generally square; each name is suffixed with the size of the
-icon in pixels, e.g., <code>::athgui::icon::pencil22</code> is a 22x22
+icon in pixels, e.g., <code>::projectgui::icon::pencil22</code> is a 22x22
 pixel icon.<p>
 
 <<section ICONS>>
@@ -25,15 +25,15 @@ The module defines the following icons.<p>
 
 <<deflist icons>>
 
-<<defitem pencil22 {::athgui::icon::pencil22}>>
+<<defitem pencil22 {::projectgui::icon::pencil22}>>
 
 A pencil, i.e., "Edit".<p>
 
-<<defitem plus22 {::athgui::icon::plus22}>>
+<<defitem plus22 {::projectgui::icon::plus22}>>
 
 A bold plus sign, i.e., "Add".<p>
 
-<<defitem x22 {::athgui::icon::x22}>>
+<<defitem x22 {::projectgui::icon::x22}>>
 
 A large "X", i.e., "Cancel" or "Delete".<p>
 
@@ -49,6 +49,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 

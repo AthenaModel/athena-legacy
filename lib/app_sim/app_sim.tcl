@@ -37,13 +37,13 @@ package require marsutil
 package require marsgui
 
 # From Athena
-package require athlib
-package require athgui
+package require projectlib
+package require projectgui
         
 namespace import ::marsutil::* 
 namespace import ::marsgui::*
-namespace import ::athlib::*
-namespace import ::athgui::*
+namespace import ::projectlib::*
+namespace import ::projectgui::*
 
 #-----------------------------------------------------------------------
 # Load app_sim(n) submodules
@@ -80,6 +80,8 @@ source [file join $::app_sim::library nbgroupbrowser.tcl  ]
 source [file join $::app_sim::library satbrowser.tcl      ]
 source [file join $::app_sim::library relbrowser.tcl      ]
 source [file join $::app_sim::library coopbrowser.tcl     ]
+
+
 
 
 

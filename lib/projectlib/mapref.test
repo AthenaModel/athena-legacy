@@ -7,7 +7,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Tcltest test suite for athlib(n), mapref.tcl
+#    Tcltest test suite for projectlib(n), mapref.tcl
 #
 #-----------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 #-----------------------------------------------------------------------
 # Load the package to be tested
 
-package require athlib 1.0
+package require projectlib 1.0
 
 #-----------------------------------------------------------------------
 # Test Suite
@@ -30,7 +30,7 @@ package require athlib 1.0
 # The tests run in a namespace so as not to interfere with other
 # test suites.
 
-namespace eval ::athlib::test {
+namespace eval ::projectlib::test {
     #-------------------------------------------------------------------
     # Set up the test environment
 
@@ -38,7 +38,7 @@ namespace eval ::athlib::test {
     namespace import ::tcltest::*
 
     # Import the code to be tested
-    namespace import ::athlib::*
+    namespace import ::projectlib::*
 
     # Setup for tests
 
@@ -358,6 +358,7 @@ namespace eval ::athlib::test {
     cleanupTests
 }
 
-namespace delete ::athlib::test
+namespace delete ::projectlib::test
+
 
 

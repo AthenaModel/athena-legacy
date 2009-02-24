@@ -1,8 +1,8 @@
-<<manpage {athlib(n) scenariodb(n)} "Scenario Database Object">>
+<<manpage {projectlib(n) scenariodb(n)} "Scenario Database Object">>
 
 <<swallow {
     package require marsutil
-    package require athlib
+    package require projectlib
 
     proc sqlSectionLink {section} {
         set title [$section sqlsection title]
@@ -79,8 +79,8 @@
 <<section SYNOPSIS>>
 
 <pre>
-package require athlib 1.0
-namespace import ::athlib::scenariodb
+package require projectlib 1.0
+namespace import ::projectlib::scenariodb
 </pre>
 
 <<itemlist>>
@@ -198,6 +198,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 

@@ -1,13 +1,13 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    athlib.test
+#    projectlib.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Tcltest test suite for athlib(n)
+#    Tcltest test suite for projectlib(n)
 #
 #-----------------------------------------------------------------------
 
@@ -21,11 +21,12 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 
 ::tcltest::configure \
     -testdir [file dirname [file normalize [info script]]] \
-    -notfile athlib.test
+    -notfile projectlib.test
 
 #-----------------------------------------------------------------------
 # Run all of the tests in this directory
 
 ::tcltest::runAllTests
+
 
 

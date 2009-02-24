@@ -41,14 +41,14 @@
 #
 #-----------------------------------------------------------------------
 
-namespace eval ::athlib:: {
+namespace eval ::projectlib:: {
     namespace export verman
 }
 
 #-----------------------------------------------------------------------
 # verman
 
-snit::type ::athlib::verman {
+snit::type ::projectlib::verman {
     # Make it a singleton
     pragma -hasinstances no -hastypedestroy no
 
@@ -143,6 +143,7 @@ snit::type ::athlib::verman {
     }
 
 }
+
 
 
 

@@ -46,7 +46,7 @@ int
 Version_Init(Tcl_Interp *interp)
 {
     /* Define the commands. */
-    Tcl_CreateObjCommand(interp, "::athlib::version", 
+    Tcl_CreateObjCommand(interp, "::projectlib::version", 
                          version_versionCmd, NULL, NULL);
 
     return TCL_OK;
@@ -93,6 +93,7 @@ version_versionCmd(ClientData cd, Tcl_Interp *interp,
     Tcl_SetResult(interp, ATHENA_VERSION, TCL_STATIC);
     return TCL_OK;
 }
+
 
 
 

@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athgui(n) package: Map Canvas widget
+#    projectgui(n) package: Map Canvas widget
 #
 #    This is a canvas widget designed to display a map with
 #    features upon it, including neighborhood polygons and asset icons.
@@ -66,14 +66,14 @@
 #-----------------------------------------------------------------------
 # Export public commands
 
-namespace eval ::athgui:: {
+namespace eval ::projectgui:: {
     namespace export mapcanvas mapimage
 }
 
 #-------------------------------------------------------------------
 # Data Types
 
-snit::type ::athgui::mapimage {
+snit::type ::projectgui::mapimage {
     typemethod validate {img} {
         if {$img eq ""} {
             return
@@ -91,7 +91,7 @@ snit::type ::athgui::mapimage {
 #-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widgetadaptor ::athgui::mapcanvas {
+snit::widgetadaptor ::projectgui::mapcanvas {
     #-------------------------------------------------------------------
     # Type Constructor
 
@@ -230,7 +230,7 @@ snit::widgetadaptor ::athgui::mapcanvas {
     #
     # Tk photo image of the map
     
-    option -map -type ::athgui::mapimage
+    option -map -type ::projectgui::mapimage
 
     # -projection
     #
@@ -1751,4 +1751,5 @@ snit::widgetadaptor ::athgui::mapcanvas {
         expr {$x1 <= $x && $x2 >= $x && $y1 <= $y && $y2 >= $y}
     }
 }
+
 

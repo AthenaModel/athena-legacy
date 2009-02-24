@@ -1,17 +1,17 @@
-<<manpage athgui(n) "Athena GUI Library">>
+<<manpage projectgui(n) "Athena GUI Library">>
 
 <<section SYNOPSIS>>
 
 <pre>
-package require athgui 1.0
-namespace import ::athgui::*
+package require projectgui 1.0
+namespace import ::projectgui::*
 </pre>
 
 <<itemlist>>
 
 <<section DESCRIPTION>>
 
-athgui(n) is a package of graphical user
+projectgui(n) is a package of graphical user
 interface code specifically for use in <<xref athena_sim(1)>> and
 related tools.<p>
 
@@ -36,6 +36,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 
