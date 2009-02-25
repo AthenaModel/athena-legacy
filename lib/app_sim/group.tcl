@@ -83,6 +83,19 @@ snit::type group {
 
         return $g
     }
+
+    # gtype g
+    #
+    # g       A group short name
+    #
+    # Returns the group's type, CIV, ORG, or FRC.
+
+    typemethod gtype {g} {
+        return [rdb onecolumn {
+            SELECT gtype FROM groups WHERE g=$g
+        }]
+    }
+
 }
 
 

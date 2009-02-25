@@ -16,6 +16,7 @@
 namespace eval ::projectlib:: {
     namespace export  \
         boolean       \
+        eactivity     \
         ecivconcern   \
         econcern      \
         edemeanor     \
@@ -27,6 +28,7 @@ namespace eval ::projectlib:: {
         eyesno        \
         hexcolor      \
         ident         \
+        iquantity     \
         polygon       \
         qcooperation  \
         qsaliency     \
@@ -38,7 +40,131 @@ namespace eval ::projectlib:: {
 }
 
 #-------------------------------------------------------------------
+# Type Wrapper -- wraps snit::<type> instances so they throw
+#                 -errorcode INVALID
+
+snit::type ::projectlib::TypeWrapper {
+    #---------------------------------------------------------------
+    # Components
+
+    component basetype
+
+    #---------------------------------------------------------------
+    # Options
+
+    delegate option * to basetype
+
+    #---------------------------------------------------------------
+    # Constructor
+
+    # TypeWrapper newtype oldtype ?options....?
+
+    constructor {oldtype args} {
+        # FIRST, create the basetype, if need be.
+        if {[llength $args] > 0} {
+            set basetype [{*}$oldtype ${selfns}::basetype {*}$args]
+        } else {
+            set basetype $oldtype
+        }
+    }
+
+    #---------------------------------------------------------------
+    # Methods
+
+    delegate method * to basetype
+
+
+    # validate value
+    #
+    # value    A value of the type
+    #
+    # Validates the value, returning it if valid and throwing
+    # -errorcode INVALID if not.
+
+    method validate {value} {
+        if {[catch {
+            {*}$basetype validate $value
+        } result]} {
+            return -code error -errorcode INVALID $result
+        }
+
+        return $value
+    }
+}
+
+
+
+#-------------------------------------------------------------------
 # Enumerations
+
+# Assignable Unit Activities
+#
+# eactivity       All assignable activities
+# efrcactivity    Assignable Force Activities
+# eorgactivity    Assignable Org Activities
+#
+# TBD: This is temporary.  I need an "activity" type that handles
+# the entire family of activities, including all subsets.  The
+# mapping from activities to situation types should be done in
+# the application.
+
+::projectlib::TypeWrapper ::projectlib::efrcactivity snit::enum -values {
+    NONE
+    CHECKPOINT
+    CMO_CONSTRUCTION
+    CMO_DEVELOPMENT
+    CMO_EDUCATION
+    CMO_EMPLOYMENT
+    CMO_HEALTHCARE
+    CMO_INDUSTRY
+    CMO_INFRASTRUCTURE
+    CMO_LAW_ENFORCEMENT
+    CMO_OTHER
+    COERCION
+    CORDON_AND_SEARCH
+    CRIMINAL_ACTIVITIES
+    CURFEW
+    GUARD
+    INTERVIEW_SCREEN
+    MILITARY_TRAINING
+    PATROL
+    PSYOP
+}
+
+::projectlib::TypeWrapper ::projectlib::eorgactivity snit::enum -values {
+    NONE
+    CMO_CONSTRUCTION
+    CMO_EDUCATION
+    CMO_EMPLOYMENT
+    CMO_HEALTHCARE
+    CMO_INDUSTRY
+    CMO_INFRASTRUCTURE
+    CMO_OTHER
+}
+
+::marsutil::enum ::projectlib::eactivity {
+    NONE                    "None"
+    CHECKPOINT              "Checkpoint/Control Point"
+    CMO_CONSTRUCTION        "CMO -- Construction"
+    CMO_DEVELOPMENT         "CMO -- Development (Light)"
+    CMO_EDUCATION           "CMO -- Education"
+    CMO_EMPLOYMENT          "CMO -- Employment"
+    CMO_HEALTHCARE          "CMO -- Healthcare"
+    CMO_INDUSTRY            "CMO -- Industry"
+    CMO_INFRASTRUCTURE      "CMO -- Infrastructure"
+    CMO_LAW_ENFORCEMENT     "CMO -- Law Enforcement"
+    CMO_OTHER               "CMO -- Other"
+    COERCION                "Coercion"
+    CORDON_AND_SEARCH       "Cordon and Search"
+    CRIMINAL_ACTIVITIES     "Criminal Activities"
+    CURFEW                  "Curfew"
+    GUARD                   "Guard"
+    INTERVIEW_SCREEN        "Interview/Screen"
+    MILITARY_TRAINING       "Military Training"
+    PATROL                  "Patrol"
+    PSYOP                   "PSYOP"
+}
+
 
 # Civilian Concerns
 ::marsutil::enum ::projectlib::ecivconcern {
@@ -151,6 +277,12 @@ namespace eval ::projectlib:: {
     L  "Low"       -4.0
     VL "Very Low"  -8.0
 } -format {%4.1f}
+
+#-----------------------------------------------------------------------
+# Integer Types
+
+# iquantity: non-negative integers
+::projectlib::TypeWrapper iquantity snit::integer -min 0
 
 #-------------------------------------------------------------------
 # Ranges
@@ -370,14 +502,3 @@ snit::type ::projectlib::weight {
         return $value
     }
 }
-
-
-
-
-
-
-
-
-
-
-

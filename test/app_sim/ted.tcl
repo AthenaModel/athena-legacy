@@ -39,6 +39,7 @@ snit::type ted {
         sat_ngc
         rel_nfg
         coop_nfg
+        units
     }
 
     # cleanupModules -- list of modules that need to be reconfigured
@@ -54,6 +55,7 @@ snit::type ted {
         sat
         rel
         coop
+        unit
     }
 
     #-------------------------------------------------------------------

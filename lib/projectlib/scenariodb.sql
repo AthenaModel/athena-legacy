@@ -336,6 +336,37 @@ CREATE TABLE coop_nfg (
     PRIMARY KEY (n, f, g)
 );
 
+------------------------------------------------------------------------
+-- Units
+
+-- General unit data
+CREATE TABLE units (
+    -- Symbolic unit name
+    u                TEXT PRIMARY KEY,
+
+    -- Group to which the unit belongs
+    g                TEXT,
+
+    -- Total Personnel
+    personnel        INTEGER DEFAULT 0,
+
+    -- Location, in map coordinates
+    location         TEXT,
+
+    -- Unit activity: eactivity(n) value
+    activity         TEXT DEFAULT 'NONE',
+
+    --------------------------------------------------------------------
+    -- Computed parameters
+
+    -- Group type (for convenience)
+    gtype            TEXT DEFAULT '',
+
+    -- Neighborhood in which unit is currently located, a nbhood ID or ""
+    -- if outside all neighborhoods.
+    n                TEXT DEFAULT ''
+);
+
 
 ------------------------------------------------------------------------
 -- Primary Entities
@@ -362,4 +393,9 @@ UNION
 SELECT c         AS id, 
        longname  AS longname, 
        'concern' AS etype 
-FROM concerns;
+FROM concerns
+UNION
+SELECT u         AS id,
+       u         AS longname,
+       'unit'    AS etype
+FROM units;
