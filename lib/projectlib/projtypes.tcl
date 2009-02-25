@@ -38,6 +38,7 @@ namespace eval ::projectlib:: {
         qtrend        \
         rdays         \
         rgrouprel     \
+        unitname      \
         weight
 }
 
@@ -371,17 +372,42 @@ snit::type ::projectlib::ident {
     # name    Possibly, an identifier
     #
     # Identifiers should begin with a letter, and contain only letters
-    # and digits.
+    # and digits
 
     typemethod validate {name} {
         if {![regexp {^[A-Z][A-Z0-9]*$} $name]} {
             return -code error -errorcode INVALID \
-           "Identifiers should begin with a letter and contain only letters or digits"
+  "Identifiers begin with a letter and contain only letters and digits."
         }
 
         return $name
     }
 }
+
+snit::type ::projectlib::unitname {
+    # Make it a singleton
+    pragma -hasinstances no
+
+    #-------------------------------------------------------------------
+    # Public Type Methods
+
+    # validate name
+    #
+    # name    Possibly, a unit name
+    #
+    # Unit names should begin with a letter, and contain only letters,
+    # digits, "-", and "/"
+
+    typemethod validate {name} {
+        if {![regexp {^[A-Z][A-Z0-9/\-]*$} $name]} {
+            return -code error -errorcode INVALID \
+  "Unit names begin with a letter and contain only letters, digits, - and /."
+        }
+
+        return $name
+    }
+}
+
 
 #-----------------------------------------------------------------------
 # polygon type

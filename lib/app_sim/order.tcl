@@ -677,7 +677,7 @@ snit::type order {
 
             if {$ecode eq "CANCEL"} {
                 log warning order $result                    
-                return
+                return "Order was cancelled."
             }
 
             if {$interface eq "gui"} {
@@ -703,7 +703,7 @@ snit::type order {
 
                 scenario reconfigure
                 
-                return
+                return "Unexpected error while handling order."
             }
 
             # Non-GUI error return.
@@ -947,6 +947,7 @@ snit::type order {
 
     proc setundo {script} {
         set trans(undo) $script
+        return
     }
 }
 

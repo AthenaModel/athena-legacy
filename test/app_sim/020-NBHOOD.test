@@ -95,12 +95,12 @@ namespace eval ::athena_test::tests:: {
         longname {longname must not be identical to ID}
     }
 
-    test CREATE-1.4 {longname duplicates n} -body {
+    test CREATE-1.4 {invalid identifier} -body {
         ted order -reject NBHOOD:CREATE [dict merge $nb1 {n "NONE-SUCH"}]
     } -cleanup {
         cleanup
     } -result {
-        n {Identifiers should begin with a letter and contain only letters or digits}
+        n {Identifiers begin with a letter and contain only letters and digits.}
     }
 
     test CREATE-1.4 {invalid urbanization} -body {

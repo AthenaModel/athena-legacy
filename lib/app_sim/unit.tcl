@@ -80,6 +80,7 @@ snit::type unit {
     typemethod {group names} {} {
         rdb eval {
             SELECT g FROM groups WHERE gtype IN ('FRC', 'ORG')
+            ORDER BY g
         }
     }
 
@@ -324,11 +325,18 @@ snit::type unit {
                 SET g         = nonempty($g, g),
                     gtype     = $gtype,
                     location  = nonempty($location,  location),
-                    n         = $n,
                     personnel = nonempty($personnel, personnel),
                     activity  = nonempty($activity,  activity)
                 WHERE u=$u
-            } {}
+            }
+
+            if {$location ne ""} {
+                rdb eval {
+                    UPDATE units
+                    SET   n = $n
+                    WHERE u = $u
+                }
+            }
 
             # NEXT, notify the app.
             notifier send ::unit <Entity> update $u
@@ -358,6 +366,136 @@ snit::type unit {
             }
         }
     }
+
+    # RefreshUnitName field parmdict
+    #
+    # field     The "u" field in a U:CREATE order.
+    # parmdict  The current values of the various fields.
+    #
+    # Initializes the unit name, if it's not set.
+    #
+    # TBD: Need a better mechanism for this!
+
+    typemethod RefreshUnitName {field parmdict} {
+        dict with parmdict {
+            # FIRST, leave it alone if the group is unknown.
+            if {$g eq ""} {
+                return
+            }
+
+            # NEXT, if the name is already set, but it looks like
+            # an automatically generated name, you can replace it.
+            if {$u ne ""} {
+                if {![regexp {(.*)/\d\d\d\d$} $u dummy prefix] ||
+                    $prefix ni [unit group names]
+                } {
+                    return
+                }
+            }
+
+            # NEXT, generate a unit name for this group.
+            set count [rdb onecolumn {
+                SELECT count(u) FROM units
+                WHERE g=$g;
+            }]
+
+            set u [format "%s/%04d" $g [incr count]]
+
+            while {[rdb exists {SELECT u FROM units WHERE u=$u}]} {
+                set u [format "%s/%04d" $g [incr count]]
+            }
+
+            $field set $u
+        }
+    }
+
+    # RefreshActivityCreate field parmdict
+    #
+    # field     The "activity" field in a U:CREATE order.
+    # parmdict  The current values of the various fields.
+    #
+    # Sets the list of valid activities.
+
+    typemethod RefreshActivityCreate {field parmdict} {
+        dict with parmdict {
+            set gtype [group gtype $g]
+
+            $type SetActivityValues $field $gtype
+        }
+    }
+
+
+    # RefreshActivityUpdate field parmdict
+    #
+    # field     The "activity" field in a U:UPDATE order.
+    # parmdict  The current values of the various fields.
+    #
+    # Sets the list of valid activities.
+
+    typemethod RefreshActivityUpdate {field parmdict} {
+        dict with parmdict {
+            set gtype [rdb onecolumn {
+                SELECT gtype FROM units WHERE u=$u
+            }]
+
+            $type SetActivityValues $field $gtype
+        }
+    }
+
+
+    # SetActivityValues field gtype
+    #
+    # field     The activity field in an order
+    # gtype     The group type
+    # 
+    # Sets the list of values appropriately.
+
+    typemethod SetActivityValues {field gtype} {
+        switch -exact -- $gtype {
+            FRC     { set values [efrcactivity cget -values]    }
+            ORG     { set values [eorgactivity cget -values]    }
+            ""      { set values {}                             }
+            default { error "Unexpected group type: \"$gtype\"" }
+        }
+
+        $field configure -values $values
+    }
+
+
+    # RefreshActivityMulti field parmdict
+    #
+    # field     The "activity" field in a U:UPDATE:MULTI order.
+    # parmdict  The current values of the various fields.
+    #
+    # Sets the list of valid activities.
+
+    typemethod RefreshActivityMulti {field parmdict} {
+        dict with parmdict {
+            if {$g ne ""} {
+                set gtypes [group gtype $g]
+            } else {
+                set fragment [join $ids ',']
+
+                set gtypes [rdb eval "
+                    SELECT DISTINCT gtype
+                    FROM units
+                    WHERE u IN ('$fragment');
+                "]
+            }
+
+            if {"" eq $gtypes || "" in $gtypes} {
+                set values {}
+            } elseif {"ORG" in $gtypes} {
+                set values [eorgactivity cget -values]
+            } elseif {"FRC" in $gtypes} {
+                set values [efrcactivity cget -values]
+            } else {
+                set values {}
+            }
+
+            $field configure -values $values
+        }
+    }
 }
 
 #-------------------------------------------------------------------
@@ -370,17 +508,17 @@ snit::type unit {
 order define ::unit UNIT:CREATE {
     title "Create Unit"
 
-    parm g          enum  "Group"      -type {unit group} -refresh
+    parm g          enum  "Group" -type {unit group} -tags group -refresh
     parm u          text  "Name" \
-        -refreshcmd SetDefaultUnitName
+        -refreshcmd [list ::unit RefreshUnitName]
     parm personnel  text  "Personnel"  -defval 1
     parm location   text  "Location"   -tags point
-    parm activity   enum  "Activity"   -defval NONE -tags activity \
-        -refreshcmd TBD
+    parm activity   enum  "Activity"   -tags activity \
+        -refreshcmd [list ::unit RefreshActivityCreate]
 } {
     # FIRST, prepare and validate the parameters
     prepare g          -toupper -required         -type {unit group}
-    prepare u          -toupper -required -unused -type ident
+    prepare u          -toupper -required -unused -type unitname
     prepare personnel           -required         -type iquantity
     prepare location            -required         -type refpoint
     prepare activity   -toupper -required         -type eactivity
@@ -448,14 +586,14 @@ order define ::unit UNIT:DELETE {
 
 order define ::unit UNIT:UPDATE {
     title "Update Unit"
-    options -table units
+    options -table gui_units
 
     parm u          key   "Unit"       -tags unit
     parm g          enum  "Group"      -type {unit group}
     parm personnel  text  "Personnel"  
     parm location   text  "Location"   -tags point
     parm activity   enum  "Activity"   -tags activity \
-        -refreshcmd TBD
+        -refreshcmd [list ::unit RefreshActivityUpdate]
 } {
     # FIRST, prepare the parameters
     prepare u          -toupper -required -type unit
@@ -491,14 +629,14 @@ order define ::unit UNIT:UPDATE {
 
 order define ::unit UNIT:UPDATE:MULTI {
     title "Update Multiple Units"
-    options -table units
+    options -table gui_units
 
     parm ids        multi "Units"
-    parm g          enum  "Group"      -type {unit group}
+    parm g          enum  "Group"      -type {unit group} -refresh
     parm personnel  text  "Personnel"  
     parm location   text  "Location"   -tags point
     parm activity   enum  "Activity"   -tags activity \
-        -refreshcmd TBD
+        -refreshcmd [list ::unit RefreshActivityMulti]
 } {
     # FIRST, prepare the parameters
     prepare ids        -toupper -required -listof unit
@@ -513,9 +651,9 @@ order define ::unit UNIT:UPDATE:MULTI {
 
     validate activity {
         if {$parms(g) ne ""} {
-            set gtype [group gtype $parms(g)]
+            set gtypes [group gtype $parms(g)]
         } else {
-            set fragment [join $ids ',']
+            set fragment [join $parms(ids) ',']
 
             set gtypes [rdb eval "
                 SELECT DISTINCT gtype

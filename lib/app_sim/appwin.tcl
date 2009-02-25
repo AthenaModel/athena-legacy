@@ -235,6 +235,15 @@ snit::widget appwin {
         set ordersmenu [menu $menu.orders]
         $menu add cascade -label "Orders" -underline 0 -menu $ordersmenu
 
+        # Orders/Unit
+        set submenu [menu $ordersmenu.unit]
+        $ordersmenu add cascade -label "Unit" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu UNIT:CREATE
+        $self AddOrder $submenu UNIT:UPDATE
+        $self AddOrder $submenu UNIT:DELETE
+
         # Orders/Civilian Group
         set submenu [menu $ordersmenu.civgroup]
         $ordersmenu add cascade -label "Civilian Group" \
@@ -378,6 +387,16 @@ snit::widget appwin {
             -sticky  nsew    \
             -padding 2       \
             -text    "Map"
+
+        # NEXT, add the units browser to the content notebook
+        unitbrowser $content.unit      \
+            -width   600               \
+            -height  600
+
+        $content add $content.unit     \
+            -sticky  nsew              \
+            -padding 2                 \
+            -text    "Units"
 
         # NEXT, add the nbhood browser to the content notebook
         nbhoodbrowser $content.nbhoods \

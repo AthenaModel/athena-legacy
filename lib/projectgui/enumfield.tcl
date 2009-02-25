@@ -70,6 +70,23 @@ snit::widgetadaptor ::projectgui::enumfield {
 
     option -valuecmd
 
+    # -values values
+    #
+    # Specifies a list of valid values
+
+    option -values \
+        -configuremethod ConfigValues
+
+    method ConfigValues {opt val} {
+        set options($opt) $val
+        $hull configure -value $val
+
+        if {[$self get] ni $val} {
+            $hull set ""
+        }
+    }
+
+
     #-------------------------------------------------------------------
     # Instance Variables
 

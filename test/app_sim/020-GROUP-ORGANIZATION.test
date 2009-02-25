@@ -103,12 +103,12 @@ namespace eval ::athena_test::tests:: {
 
     test CREATE-1.4 {g is not an ident} -body {
         ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
-            g "NONE-SUCH"
+            g "NONE&SUCH"
         }]
     } -cleanup {
         cleanup
     } -result {
-        g {Identifiers should begin with a letter and contain only letters or digits}
+        g {Identifiers begin with a letter and contain only letters and digits.}
     }
 
 

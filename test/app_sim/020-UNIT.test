@@ -109,7 +109,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        u {Identifiers should begin with a letter and contain only letters or digits}
+        u {Unit names begin with a letter and contain only letters, digits, - and /.}
     }
 
 

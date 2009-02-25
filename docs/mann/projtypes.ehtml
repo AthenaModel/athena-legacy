@@ -111,8 +111,8 @@ upper-cased.  On error, throws an error with <code>-errorcode</code>
 
 <<defitem "ident validate" {ident validate <i>name</i>}>>
 
-Identifier type.  An identifier is a string consisting of letters and
-digits beginning with a letter.<p>
+Identifier type.  An identifier is a string consisting only of letters
+and digits, beginning with a letter.<p>
 
 Validates and returns the <i>name</i>.  On error, throws
 an error with <code>-errorcode</code> <b>INVALID</b>.<p>
@@ -163,6 +163,14 @@ A <<xref mars:range(n)>> type used for group relationship values,
 which ranges from 
 <<::projectlib::rgrouprel format [::projectlib::rgrouprel cget -min]>> to
 <<::projectlib::rgrouprel format [::projectlib::rgrouprel cget -max]>>.<p>
+
+<<defitem "unitname validate" {unitname validate <i>name</i>}>>
+
+Identifier type.  A unit name is a string consisting only of letters
+and digits, "-", or "/", beginning with a letter.<p>
+
+Validates and returns the <i>name</i>.  On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
 
 <<defitem "weight validate" {weight validate <i>value</i>}>>
 

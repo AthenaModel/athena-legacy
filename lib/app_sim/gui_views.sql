@@ -108,3 +108,16 @@ SELECT m || ' ' || n                                 AS id,
        proximity                                     AS proximity,
        format('%5.1f', effects_delay)                AS effects_delay
 FROM nbrel_mn;
+
+-- A units view for use by the GUI
+CREATE TEMPORARY VIEW gui_units AS
+SELECT u                      AS id,
+       u                      AS u,
+       g                      AS g,
+       gtype                  AS gtype,
+       n                      AS n,
+       personnel              AS personnel,
+       m2ref(location)        AS location,
+       activity               AS activity
+FROM units;
+

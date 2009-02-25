@@ -1029,8 +1029,13 @@ snit::widget orderdialog {
             return 0
         }
 
-        # NEXT, say that it's OK.
-        $self Message "The order was accepted."
+        # NEXT, either output the result, or just say that the order
+        # was accepted.
+        if {$result ne ""} {
+            $self Message $result
+        } else {
+            $self Message "The order was accepted."
+        }
 
         # NEXT, save the current values, so that we can check whether
         # there are changes.

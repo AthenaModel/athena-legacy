@@ -96,7 +96,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        g {Identifiers should begin with a letter and contain only letters or digits}
+        g {Identifiers begin with a letter and contain only letters and digits.}
     }
 
     test CREATE-1.5 {invalid color} -body {
