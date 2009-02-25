@@ -235,6 +235,15 @@ snit::type ted {
             effects_factor 1.3
         }
 
+        # Units
+
+        defentity BLUE1 ::unit {
+            g         BLUE
+            u         BLUE1
+            personnel 15
+            location  {99 99}
+            activity  NONE
+        }
         
     }
 

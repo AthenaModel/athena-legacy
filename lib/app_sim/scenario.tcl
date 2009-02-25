@@ -239,6 +239,7 @@ snit::type scenario {
         sat      reconfigure
         rel      reconfigure
         coop     reconfigure
+        unit     reconfigure
 
         # NEXT, Reconfigure the GUI
         notifier send $type <Reconfigure>
@@ -261,6 +262,7 @@ snit::type scenario {
         lappend undo [sat     mutate reconcile]
         lappend undo [rel     mutate reconcile]
         lappend undo [coop    mutate reconcile]
+        lappend undo [unit    mutate reconcile]
 
         notifier send $type <Reconcile>
 

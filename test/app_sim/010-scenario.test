@@ -48,9 +48,10 @@ namespace eval ::athena_test::tests:: {
         ted notifier bind ::sat     <Entity>
         ted notifier bind ::rel     <Entity>
         ted notifier bind ::coop    <Entity>
+        ted notifier bind ::unit    <Entity>
         ted notifier bind ::scenario <Reconcile>
 
-        ted create BLUE USAID NB1 SHIA NB1SHIA
+        ted create BLUE USAID NB1 SHIA NB1SHIA BLUE1
 
         scenario mutate reconcile
 
@@ -63,6 +64,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {
         {::nbgroup <Entity> create {NB1 SHIA}}
+        {::unit <Entity> create BLUE1}
         {::nbrel <Entity> create {NB1 NB1}}
         {::sat <Entity> create {NB1 SHIA AUT}}
         {::sat <Entity> create {NB1 SHIA CUL}}
@@ -93,16 +95,18 @@ namespace eval ::athena_test::tests:: {
         {::rel <Entity> delete {NB1 USAID SHIA}}
         {::rel <Entity> delete {NB1 SHIA USAID}}
         {::coop <Entity> delete {NB1 SHIA BLUE}}
+        {::unit <Entity> update BLUE1}
         {::scenario <Reconcile>}
     }
 
 
     test reconcile-1.2 {On undo: <Entity> create} -body {
-        ted create BLUE USAID NB1 SHIA NB1SHIA
+        ted create BLUE USAID NB1 SHIA NB1SHIA BLUE1
 
         scenario mutate reconcile
 
         nbhood mutate delete NB1
+        frcgroup mutate delete BLUE
 
         set undo [scenario mutate reconcile]
 
@@ -111,6 +115,7 @@ namespace eval ::athena_test::tests:: {
         ted notifier bind ::sat      <Entity>
         ted notifier bind ::rel      <Entity>
         ted notifier bind ::coop     <Entity>
+        ted notifier bind ::unit     <Entity>
         ted notifier bind ::scenario <Reconcile>
         
         eval $undo
@@ -131,7 +136,11 @@ namespace eval ::athena_test::tests:: {
         {::rel <Entity> create {NB1 SHIA SHIA}}
         {::rel <Entity> create {NB1 USAID SHIA}}
         {::rel <Entity> create {NB1 SHIA USAID}}
+        {::rel <Entity> create {PLAYBOX BLUE BLUE}}
+        {::rel <Entity> create {PLAYBOX BLUE USAID}}
+        {::rel <Entity> create {PLAYBOX USAID BLUE}}
         {::coop <Entity> create {NB1 SHIA BLUE}}
+        {::unit <Entity> create BLUE1}
     }
 
     #-------------------------------------------------------------------
