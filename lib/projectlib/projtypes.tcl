@@ -21,6 +21,8 @@ namespace eval ::projectlib:: {
         econcern      \
         edemeanor     \
         eforcetype    \
+        efrcactivity  \
+        eorgactivity  \
         eorgconcern   \
         eorgtype      \
         eproximity    \

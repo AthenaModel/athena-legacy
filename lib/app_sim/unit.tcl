@@ -341,24 +341,23 @@ snit::type unit {
     #-------------------------------------------------------------------
     # Order Helpers
 
-    # ValidateActivity g activity
+    # ValidateActivity gtypes activity
     #
-    # g          A group
+    # gtypes     List of one or more group types
     # activity   An activity
     #
-    # Ensures that the activity is valid for the group.
+    # Ensures that the activity is valid for the group type(s)
 
-    typemethod ValidateActivity {g activity} {
-        set gtype [group gtype $g]
+    typemethod ValidateActivity {gtypes activity} {
 
-        switch -exact -- $gtype {
-            FRC     { efrcactivity validate $activity }
-            ORG     { eorgactivity validate $activity }
-            default { error "Unexpected gtype: \"$gtype\""   }
+        foreach gtype $gtypes {
+            switch -exact -- $gtype {
+                FRC     { efrcactivity validate $activity }
+                ORG     { eorgactivity validate $activity }
+                default { error "Unexpected gtype: \"$gtype\""   }
+            }
         }
     }
-
-
 }
 
 #-------------------------------------------------------------------
@@ -371,25 +370,27 @@ snit::type unit {
 order define ::unit UNIT:CREATE {
     title "Create Unit"
 
-    parm u          text  "Name"
-    parm g          enum  "Group"      -type {unit group}
+    parm g          enum  "Group"      -type {unit group} -refresh
+    parm u          text  "Name" \
+        -refreshcmd SetDefaultUnitName
     parm personnel  text  "Personnel"  -defval 1
     parm location   text  "Location"   -tags point
-    parm forcetype  enum  "Activity"   -defval NONE -tags activity \
+    parm activity   enum  "Activity"   -defval NONE -tags activity \
         -refreshcmd TBD
 } {
     # FIRST, prepare and validate the parameters
+    prepare g          -toupper -required         -type {unit group}
     prepare u          -toupper -required -unused -type ident
-    prepare g          -toupper -required -type {unit group}
-    prepare personnel           -required -type iquantity
-    prepare activity   -toupper -required -type eactivity
+    prepare personnel           -required         -type iquantity
+    prepare location            -required         -type refpoint
+    prepare activity   -toupper -required         -type eactivity
 
     returnOnError
 
     # NEXT, do cross-validation
 
     validate activity {
-        $type ValidateActivity $parms(g) $parms(activity)
+        $type ValidateActivity [group gtype $parms(g)] $parms(activity)
     }
 
     returnOnError
@@ -460,14 +461,25 @@ order define ::unit UNIT:UPDATE {
     prepare u          -toupper -required -type unit
     prepare g          -toupper           -type {unit group}
     prepare personnel                     -type iquantity
+    prepare location                      -type refpoint
     prepare activity   -toupper           -type eactivity
 
     returnOnError
 
     # NEXT, do cross-validation
     validate activity {
-        $type ValidateActivity $parms(g) $parms(activity)
+        if {$parms(g) ne ""} {
+            set gtype [group gtype $parms(g)]
+        } else {
+            set gtype [rdb onecolumn {
+                SELECT gtype FROM units WHERE u=$parms(u)
+            }]
+        }
+
+        $type ValidateActivity $gtype $parms(activity)
     }
+
+    returnOnError
 
     # NEXT, modify the group
     setundo [$type mutate update [array get parms]]
@@ -492,13 +504,27 @@ order define ::unit UNIT:UPDATE:MULTI {
     prepare ids        -toupper -required -listof unit
     prepare g          -toupper           -type {unit group}
     prepare personnel                     -type iquantity
+    prepare location                      -type refpoint
     prepare activity   -toupper           -type eactivity
 
     returnOnError
 
     # NEXT, do cross-validation
+
     validate activity {
-        $type ValidateActivity $parms(g) $parms(activity)
+        if {$parms(g) ne ""} {
+            set gtype [group gtype $parms(g)]
+        } else {
+            set fragment [join $ids ',']
+
+            set gtypes [rdb eval "
+                SELECT DISTINCT gtype
+                FROM units
+                WHERE u IN ('$fragment');
+            "]
+        }
+
+        $type ValidateActivity $gtypes $parms(activity)
     }
 
     # NEXT, modify the group

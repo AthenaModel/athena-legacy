@@ -1,0 +1,517 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-UNIT.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) UNIT:* order tests.
+#
+#    This test suite tests the unit-related orders.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Standard units
+
+    set u1 {
+        u         U1 
+        g         BLUE 
+        location  A01A01
+        personnel 1 
+        activity  NONE
+    }
+
+    set u2 {
+        u         U2 
+        g         USAID 
+        location  K99K99
+        personnel 1 
+        activity  NONE
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # UNIT:CREATE
+
+    test CREATE-1.1 {required parms} -body {
+        ted order -reject UNIT:CREATE {}
+    } -result {
+        g {required value}
+        u {required value}
+        personnel {required value}
+        location {required value}
+        activity {required value}
+    }
+
+    
+    test CREATE-1.2 {g is unknown} -body {
+        ted order -reject UNIT:CREATE \
+            [dict merge $u1 [list g NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid unit group, none are defined}
+    }
+
+
+    test CREATE-1.3 {g is known but not suitable} -setup {
+        ted create BLUE USAID SHIA
+    } -body {
+        ted order -reject UNIT:CREATE \
+            [dict merge $u1 [list g SHIA]]
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid unit group, should be one of: BLUE, USAID}
+    }
+
+
+    test CREATE-1.4 {u duplicates existing ID} -setup {
+        ted create BLUE
+    } -body {
+        ted order -reject UNIT:CREATE [dict merge $u1 {
+            u BLUE
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        u {An entity with this ID already exists}
+    }
+
+
+    test CREATE-1.5 {u is not an ident} -setup {
+        ted create BLUE
+    } -body {
+        ted order -reject UNIT:CREATE [dict merge $u1 {
+            u "*ME*"
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        u {Identifiers should begin with a letter and contain only letters or digits}
+    }
+
+
+    test CREATE-1.6 {personnel is invalid} -setup {
+        ted create BLUE
+    } -body {
+        ted order -reject UNIT:CREATE [dict merge $u1 {
+            personnel -5
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        personnel {invalid value "-5", expected integer no less than 0}
+    }
+
+
+    test CREATE-1.7 {location is invalid} -setup {
+        ted create BLUE
+    } -body {
+        ted order -reject UNIT:CREATE [dict merge $u1 {
+            location Z99Z99
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        location {not a map reference string}
+    }
+
+
+    test CREATE-1.8 {activity is unknown} -setup {
+        ted create BLUE
+    } -body {
+        ted order -reject UNIT:CREATE [dict merge $u1 {
+            activity NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        activity {invalid value, "NONESUCH"}
+    }
+
+
+    test CREATE-1.9 {activity is invalid for this group type} -setup {
+        ted create USAID
+    } -body {
+        ted order -reject UNIT:CREATE [dict merge $u2 {
+            activity PATROL
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        activity {invalid value "PATROL", should be one of: NONE, CMO_CONSTRUCTION, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_OTHER}
+    }
+
+
+    test CREATE-2.1 {unit is created} -setup {
+        ted create BLUE
+    } -body {
+        ted order UNIT:CREATE $u1
+
+        ted query {SELECT * FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u  g    personnel location activity gtype n 
+-- ---- --------- -------- -------- ----- - 
+U1 BLUE 1         1 1      NONE     FRC     
+    }
+
+
+    test CREATE-2.2 {Effects} -setup {
+        ted create BLUE
+    } -body {
+        ted notifier bind ::unit <Entity>
+        ted order UNIT:CREATE $u1
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> create U1}
+    }
+
+
+    test CREATE-3.1 {undo effects} -setup {
+        ted create BLUE
+        ted order UNIT:CREATE $u1
+    } -body {
+        ted notifier bind ::unit <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> delete U1}
+    }
+
+
+    #-------------------------------------------------------------------
+    # UNIT:DELETE
+
+    test DELETE-1.1 {required parms} -body {
+        ted order -reject UNIT:DELETE {}
+    } -result {
+        u {required value}
+    }
+
+    
+    test DELETE-1.2 {unknown u} -body {
+        ted order -reject UNIT:DELETE u NONESUCH
+    } -result {
+        u {Invalid unit name: "NONESUCH"}
+    }
+
+
+    test DELETE-2.1 {Effects} -setup {
+        ted create BLUE
+        ted order UNIT:CREATE $u1
+    } -body {
+        ted notifier bind ::unit <Entity>
+        ted order UNIT:DELETE u U1
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> delete U1}
+    }
+
+
+    test DELETE-3.1 {Undo effects} -setup {
+        ted create BLUE
+        ted order UNIT:CREATE $u1
+        ted order UNIT:DELETE u U1
+    } -body {
+        ted notifier bind ::unit <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> create U1}
+    }
+
+
+    #-------------------------------------------------------------------
+    # UNIT:UPDATE
+
+    test UPDATE-1.1 {required parms} -body {
+        ted order -reject UNIT:UPDATE {}
+    } -result {
+        u {required value}
+    }
+    
+    test UPDATE-1.2 {g is not unit group} -setup {
+        ted create BLUE USAID SHIA
+        ted order UNIT:CREATE $u1
+    } -body {
+        ted order -reject UNIT:UPDATE u U1 g SHIA
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid unit group, should be one of: BLUE, USAID}
+    }
+
+    test UPDATE-1.3 {invalid personnel} -setup {
+        ted create BLUE
+        ted order UNIT:CREATE $u1
+    } -body {
+        ted order -reject UNIT:UPDATE u U1 personnel NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        personnel {invalid value "NONESUCH", expected integer}
+    }
+
+
+    test UPDATE-1.4 {invalid location} -setup {
+        ted create BLUE
+        ted order UNIT:CREATE $u1
+    } -body {
+        ted order -reject UNIT:UPDATE u U1 location NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        location {not a map reference string}
+    }
+
+
+    test UPDATE-1.5 {invalid activity} -setup {
+        ted create BLUE
+        ted order UNIT:CREATE $u1
+    } -body {
+        ted order -reject UNIT:UPDATE u U1 activity NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        activity {invalid value, "NONESUCH"}
+    }
+
+
+    test UPDATE-1.6 {invalid activity for this group type} -setup {
+        ted create USAID
+        ted order UNIT:CREATE $u2
+    } -body {
+        ted order -reject UNIT:UPDATE u U2 activity PATROL
+    } -cleanup {
+        cleanup
+    } -result {
+        activity {invalid value "PATROL", should be one of: NONE, CMO_CONSTRUCTION, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_OTHER}
+    }
+
+
+    test UPDATE-2.1 {unit is updated} -setup {
+        ted create BLUE USAID
+        ted order UNIT:CREATE $u1
+    } -body {
+        ted order UNIT:UPDATE {
+            u         U1 
+            g         USAID 
+            location  B01B01
+            personnel 60
+            activity  CMO_CONSTRUCTION
+        }
+
+        ted query {SELECT * FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u  g     personnel location activity         gtype n 
+-- ----- --------- -------- ---------------- ----- - 
+U1 USAID 60        101 101  CMO_CONSTRUCTION ORG     
+    }
+
+
+    test UPDATE-2.2 {<Entity> update} -setup {
+        ted create BLUE
+        ted order UNIT:CREATE $u1
+    } -body {
+        ted notifier bind ::unit <Entity>
+        ted order UNIT:UPDATE u U1 activity PATROL
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update U1}
+    }
+
+
+    test UPDATE-3.1 {undo undoes the change} -setup {
+        ted create BLUE USAID
+        ted order UNIT:CREATE $u1
+        ted order UNIT:UPDATE {
+            u         U1 
+            g         USAID 
+            location  B01B01
+            personnel 60
+            activity  CMO_CONSTRUCTION
+        }
+    } -body {
+        ted notifier bind ::unit <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update U1}
+    }
+
+    #-------------------------------------------------------------------
+    # UNIT:UPDATE:MULTI
+
+    test UPDATE:MULTI-1.1 {required parms} -body {
+        ted order -reject UNIT:UPDATE:MULTI {}
+    } -result {
+        ids {required value}
+    }
+    
+
+    test UPDATE:MULTI-1.2 {invalid ids} -body {
+        ted order -reject UNIT:UPDATE:MULTI ids NONESUCH
+    } -result {
+        ids {Invalid unit name: "NONESUCH"}
+    }
+
+
+    test UPDATE:MULTI-1.3 {invalid group} -setup {
+        ted create BLUE USAID SHIA
+        ted order UNIT:CREATE $u1
+    } -body {
+        ted order -reject UNIT:UPDATE:MULTI ids U1 g SHIA
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid unit group, should be one of: BLUE, USAID}
+    }
+
+
+    test UPDATE:MULTI-1.4 {invalid personnel} -setup {
+        ted create BLUE
+        ted order UNIT:CREATE $u1
+    } -body {
+        ted order -reject UNIT:UPDATE:MULTI ids U1 personnel NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        personnel {invalid value "NONESUCH", expected integer}
+    }
+
+
+    test UPDATE:MULTI-1.5 {invalid location} -setup {
+        ted create BLUE
+        ted order UNIT:CREATE $u1
+    } -body {
+        ted order -reject UNIT:UPDATE:MULTI ids U1 location NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        location {not a map reference string}
+    }
+
+
+    test UPDATE:MULTI-1.6 {invalid activity} -setup {
+        ted create BLUE
+        ted order UNIT:CREATE $u1
+    } -body {
+        ted order -reject UNIT:UPDATE:MULTI ids U1 activity NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        activity {invalid value, "NONESUCH"}
+    }
+
+
+    test UPDATE:MULTI-2.1 {one group of several is updated} -setup {
+        ted create BLUE USAID
+        ted order UNIT:CREATE $u1
+        ted order UNIT:CREATE $u2
+    } -body {
+        ted notifier bind ::unit <Entity>
+
+        ted order UNIT:UPDATE:MULTI {
+            ids       U1 
+            personnel 15
+        }
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update U1}
+    }
+
+
+    test UPDATE:MULTI-2.2 {several groups are updated} -setup {
+        ted create BLUE USAID
+        ted order UNIT:CREATE $u1
+        ted order UNIT:CREATE $u2
+    } -body {
+        ted notifier bind ::unit <Entity>
+
+        ted order UNIT:UPDATE:MULTI {
+            ids       {U1 U2}
+            personnel 15
+        }
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update U1}
+        {::unit <Entity> update U2}
+    }
+
+
+
+    test UPDATE:MULTI-3.1 {undo effects} -setup {
+        ted create BLUE USAID
+        ted order UNIT:CREATE $u1
+        ted order UNIT:CREATE $u2
+        ted order UNIT:UPDATE:MULTI {
+            ids       {U1 U2}
+            personnel 15
+        }
+    } -body {
+        ted notifier bind ::unit <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update U1}
+        {::unit <Entity> update U2}
+    }
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

@@ -395,10 +395,10 @@ order define ::nbhood NBHOOD:CREATE {
     parm polygon      text "Polygon"          -tags polygon
 } {
     # FIRST, prepare the parameters
-    prepare n             -toupper      -required -unused -type ident
+    prepare n             -toupper            -required -unused -type ident
     prepare longname      -normalize          -required -unused
-    prepare urbanization  -toupper      -required -type eurbanization
-    prepare refpoint      -toupper      -required -type refpoint
+    prepare urbanization  -toupper            -required -type eurbanization
+    prepare refpoint      -toupper            -required -type refpoint
     prepare polygon       -normalize -toupper -required -type refpoly
 
     returnOnError
