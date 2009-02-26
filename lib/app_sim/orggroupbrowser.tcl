@@ -106,6 +106,7 @@ snit::widget orggroupbrowser {
         $tb insertcolumn end 0 {ID}
         $tb insertcolumn end 0 {Long Name}
         $tb insertcolumn end 0 {Color}
+        $tb insertcolumn end 0 {Unit Shape}        
         $tb insertcolumn end 0 {Org Type}
         $tb insertcolumn end 0 {Medical?}
         $tb insertcolumn end 0 {Engineer?}
@@ -164,6 +165,23 @@ snit::widget orggroupbrowser {
     
     #-------------------------------------------------------------------
     # Private Methods
+
+    # DisplayData dict
+    # 
+    # dict   the data dictionary that contains the group information
+    #
+    # This method converts the group data dictionary to a list
+    # that contains just the information to be displayed in the table browser.
+
+    method DisplayData {dict} {
+        # FIRST, extract each field
+        dict with dict {
+            $tb setdata $g \
+                [list $g $longname $color $shape $orgtype $medical $engineer \
+                     $support $rollup_weight $effects_factor]
+            $tb setcellbackground $g 2 $color
+        }
+    }
 
     # Reconfigure
     #
@@ -228,23 +246,6 @@ snit::widget orggroupbrowser {
 
         # NEXT, update the state
         $self SelectionChanged
-    }
-
-    # DisplayData dict
-    # 
-    # dict   the data dictionary that contains the group information
-    #
-    # This method converts the group data dictionary to a list
-    # that contains just the information to be displayed in the table browser.
-
-    method DisplayData {dict} {
-        # FIRST, extract each field
-        dict with dict {
-            $tb setdata $g \
-                [list $g $longname $color $orgtype $medical $engineer \
-                     $support $rollup_weight $effects_factor]
-            $tb setcellbackground $g 2 $color
-        }
     }
 
     # SelectionChanged
