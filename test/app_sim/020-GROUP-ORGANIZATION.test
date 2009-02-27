@@ -32,6 +32,7 @@ namespace eval ::athena_test::tests:: {
         g              USAID
         longname       "US Aid"
         color          #00ff00
+        shape          NEUTRAL
         orgtype        NGO
         medical        no
         engineer       no
@@ -44,6 +45,7 @@ namespace eval ::athena_test::tests:: {
         g              HAL
         longname       "Haliburton"
         color          #ffff00
+        shape          NEUTRAL
         orgtype        CTR
         medical        no
         engineer       yes
@@ -69,6 +71,7 @@ namespace eval ::athena_test::tests:: {
         g {required value}
         longname {required value}
         color {required value}
+        shape {required value}
         orgtype {required value}
         medical {required value}
         engineer {required value}
@@ -123,7 +126,18 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.6 {invalid orgtype} -body {
+    test CREATE-1.6 {invalid shape} -body {
+        ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
+            shape NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        shape {invalid value, "NONESUCH"}
+    }
+
+
+    test CREATE-1.7 {invalid orgtype} -body {
         ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
             orgtype NONESUCH
         }]
@@ -132,7 +146,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.7 {invalid medical} -body {
+    test CREATE-1.8 {invalid medical} -body {
         ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
             medical NONESUCH
         }]
@@ -141,7 +155,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.8 {invalid engineer} -body {
+    test CREATE-1.9 {invalid engineer} -body {
         ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
             engineer NONESUCH
         }]
@@ -150,7 +164,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.9 {invalid support} -body {
+    test CREATE-1.10 {invalid support} -body {
         ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
             support NONESUCH
         }]
@@ -159,7 +173,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.10 {invalid rollup_weight 1} -body {
+    test CREATE-1.11 {invalid rollup_weight 1} -body {
         ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
             rollup_weight NONESUCH
         }]
@@ -168,7 +182,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.11 {invalid rollup_weight 2} -body {
+    test CREATE-1.12 {invalid rollup_weight 2} -body {
         ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
             rollup_weight -0.1
         }]
@@ -177,7 +191,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.12 {invalid effects_factor 1} -body {
+    test CREATE-1.13 {invalid effects_factor 1} -body {
         ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
             effects_factor NONESUCH
         }]
@@ -186,7 +200,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.13 {invalid effects_factor 2} -body {
+    test CREATE-1.14 {invalid effects_factor 2} -body {
         ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
             effects_factor -0.1
         }]
@@ -198,15 +212,14 @@ namespace eval ::athena_test::tests:: {
     test CREATE-2.1 {orggroup is created} -body {
         ted order GROUP:ORGANIZATION:CREATE $usaid
         ted order GROUP:ORGANIZATION:CREATE $hal
-        set parms [join [dict keys $usaid] ","]
-        ted query "SELECT $parms FROM orggroups_view"
+        ted query {SELECT * FROM orggroups_view}
     } -cleanup {
         cleanup
     } -result {
-g     longname   color   orgtype medical engineer support rollup_weight effects_factor 
------ ---------- ------- ------- ------- -------- ------- ------------- -------------- 
-USAID US Aid     #00ff00 NGO     0       0        1       1.0           1.1            
-HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3            
+g     longname   color   shape   gtype orgtype medical engineer support rollup_weight effects_factor 
+----- ---------- ------- ------- ----- ------- ------- -------- ------- ------------- -------------- 
+USAID US Aid     #00ff00 NEUTRAL ORG   NGO     0       0        1       1.0           1.1            
+HAL   Haliburton #ffff00 NEUTRAL ORG   CTR     0       1        0       1.2           1.3            
     }
 
 
@@ -326,7 +339,18 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
     }
 
 
-    test UPDATE-1.5 {invalid orgtype} -setup {
+    test UPDATE-1.5 {invalid shape} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE g USAID shape NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        shape {invalid value, "NONESUCH"}
+    }
+
+
+    test UPDATE-1.6 {invalid orgtype} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE g USAID orgtype NONESUCH
@@ -337,7 +361,7 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
     }
 
 
-    test UPDATE-1.6 {invalid medical} -setup {
+    test UPDATE-1.7 {invalid medical} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE g USAID medical NONESUCH
@@ -348,7 +372,7 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
     }
  
 
-    test UPDATE-1.7 {invalid engineer} -setup {
+    test UPDATE-1.8 {invalid engineer} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE g USAID engineer NONESUCH
@@ -359,7 +383,7 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
     }
 
 
-    test UPDATE-1.8 {invalid support} -setup {
+    test UPDATE-1.9 {invalid support} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE g USAID support NONESUCH
@@ -370,7 +394,7 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
     }
 
 
-    test UPDATE-1.9 {invalid rollup_weight 1} -setup {
+    test UPDATE-1.10 {invalid rollup_weight 1} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE g USAID rollup_weight NONESUCH
@@ -381,7 +405,7 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
     }
 
 
-    test UPDATE-1.10 {invalid rollup_weight 2} -setup {
+    test UPDATE-1.11 {invalid rollup_weight 2} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE g USAID rollup_weight -0.1
@@ -392,7 +416,7 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
     }
 
 
-    test UPDATE-1.11 {invalid effects_factor 1} -setup {
+    test UPDATE-1.12 {invalid effects_factor 1} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE g USAID effects_factor NONESUCH
@@ -403,7 +427,7 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
     }
 
 
-    test UPDATE-1.12 {invalid effects_factor 2} -setup {
+    test UPDATE-1.13 {invalid effects_factor 2} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE g USAID effects_factor -0.1
@@ -421,6 +445,7 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
             g              USAID
             longname       "Red Cross"
             color          "#ff0000"
+            shape          ENEMY
             orgtype        IGO
             medical        yes
             engineer       yes
@@ -429,14 +454,13 @@ HAL   Haliburton #ffff00 CTR     0       1        0       1.2           1.3
             effects_factor 0.2
         }
 
-        set parms [join [dict keys $usaid] ","]
-        ted query "SELECT $parms FROM orggroups_view"
+        ted query {SELECT * FROM orggroups_view}
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   orgtype medical engineer support rollup_weight effects_factor 
------ --------- ------- ------- ------- -------- ------- ------------- -------------- 
-USAID Red Cross #ff0000 IGO     1       1        0       0.1           0.2            
+g     longname  color   shape gtype orgtype medical engineer support rollup_weight effects_factor 
+----- --------- ------- ----- ----- ------- ------- -------- ------- ------------- -------------- 
+USAID Red Cross #ff0000 ENEMY ORG   IGO     1       1        0       0.1           0.2            
     }
 
 
@@ -506,7 +530,18 @@ USAID Red Cross #ff0000 IGO     1       1        0       0.1           0.2
     }
 
 
-    test UPDATE:MULTI-1.5 {invalid orgtype} -setup {
+    test UPDATE:MULTI-1.5 {invalid color} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI ids USAID shape NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        shape {invalid value, "NONESUCH"}
+    }
+
+
+    test UPDATE:MULTI-1.6 {invalid orgtype} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
@@ -518,7 +553,7 @@ USAID Red Cross #ff0000 IGO     1       1        0       0.1           0.2
     }
 
 
-    test UPDATE:MULTI-1.6 {invalid medical} -setup {
+    test UPDATE:MULTI-1.7 {invalid medical} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
@@ -530,7 +565,7 @@ USAID Red Cross #ff0000 IGO     1       1        0       0.1           0.2
     }
  
 
-    test UPDATE:MULTI-1.7 {invalid engineer} -setup {
+    test UPDATE:MULTI-1.8 {invalid engineer} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
@@ -542,7 +577,7 @@ USAID Red Cross #ff0000 IGO     1       1        0       0.1           0.2
     }
 
 
-    test UPDATE:MULTI-1.8 {invalid support} -setup {
+    test UPDATE:MULTI-1.9 {invalid support} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
@@ -554,7 +589,7 @@ USAID Red Cross #ff0000 IGO     1       1        0       0.1           0.2
     }
 
 
-    test UPDATE:MULTI-1.9 {invalid rollup_weight 1} -setup {
+    test UPDATE:MULTI-1.10 {invalid rollup_weight 1} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
@@ -566,7 +601,7 @@ USAID Red Cross #ff0000 IGO     1       1        0       0.1           0.2
     }
 
 
-    test UPDATE:MULTI-1.10 {invalid rollup_weight 2} -setup {
+    test UPDATE:MULTI-1.11 {invalid rollup_weight 2} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
@@ -578,7 +613,7 @@ USAID Red Cross #ff0000 IGO     1       1        0       0.1           0.2
     }
 
 
-    test UPDATE:MULTI-1.11 {invalid effects_factor 1} -setup {
+    test UPDATE:MULTI-1.12 {invalid effects_factor 1} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
@@ -590,7 +625,7 @@ USAID Red Cross #ff0000 IGO     1       1        0       0.1           0.2
     }
 
 
-    test UPDATE:MULTI-1.12 {invalid effects_factor 2} -setup {
+    test UPDATE:MULTI-1.13 {invalid effects_factor 2} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \

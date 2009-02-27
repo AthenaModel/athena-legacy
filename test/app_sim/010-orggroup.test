@@ -43,9 +43,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g     longname color   gtype orgtype medical engineer support rollup_weight effects_factor 
------ -------- ------- ----- ------- ------- -------- ------- ------------- -------------- 
-USAID US Aid   #000001 ORG   NGO     no      no       yes     1.0           1.1            
+g     longname color   shape   gtype orgtype medical engineer support rollup_weight effects_factor 
+----- -------- ------- ------- ----- ------- ------- -------- ------- ------------- -------------- 
+USAID US Aid   #000001 NEUTRAL ORG   NGO     no      no       yes     1.0           1.1            
     }
 
 
@@ -60,7 +60,7 @@ USAID US Aid   #000001 ORG   NGO     no      no       yes     1.0           1.1
     }
 
 
-    test create-3.1 {undo deletes the orggroup} -setup {
+    test create-2.1 {undo deletes the orggroup} -setup {
         orggroup mutate create [ted entity USAID]
         set undo [orggroup mutate create [ted entity HAL]]
     } -body {
@@ -71,7 +71,7 @@ USAID US Aid   #000001 ORG   NGO     no      no       yes     1.0           1.1
     } -result {USAID}
 
 
-    test create-3.2 {On undo, <Entity> delete} -setup {
+    test create-2.2 {On undo, <Entity> delete} -setup {
         set undo [orggroup mutate create [ted entity USAID]]
     } -body {
         ted notifier bind ::orggroup <Entity>
@@ -120,9 +120,9 @@ USAID US Aid   #000001 ORG   NGO     no      no       yes     1.0           1.1
     } -cleanup {
         cleanup
     } -result {
-g     longname color   gtype orgtype medical engineer support rollup_weight effects_factor 
------ -------- ------- ----- ------- ------- -------- ------- ------------- -------------- 
-USAID US Aid   #000001 ORG   NGO     no      no       yes     1.0           1.1            
+g     longname color   shape   gtype orgtype medical engineer support rollup_weight effects_factor 
+----- -------- ------- ------- ----- ------- ------- -------- ------- ------------- -------------- 
+USAID US Aid   #000001 NEUTRAL ORG   NGO     no      no       yes     1.0           1.1            
     }
 
 
@@ -150,6 +150,7 @@ USAID US Aid   #000001 ORG   NGO     no      no       yes     1.0           1.1
             g              USAID
             longname       "Red Cross"
             color          "#ff0000"
+            shape          FRIEND
             orgtype        IGO
             medical        yes
             engineer       yes
@@ -162,9 +163,9 @@ USAID US Aid   #000001 ORG   NGO     no      no       yes     1.0           1.1
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   gtype orgtype medical engineer support rollup_weight effects_factor 
------ --------- ------- ----- ------- ------- -------- ------- ------------- -------------- 
-USAID Red Cross #ff0000 ORG   IGO     yes     yes      no      0.1           0.2            
+g     longname  color   shape  gtype orgtype medical engineer support rollup_weight effects_factor 
+----- --------- ------- ------ ----- ------- ------- -------- ------- ------------- -------------- 
+USAID Red Cross #ff0000 FRIEND ORG   IGO     yes     yes      no      0.1           0.2            
     }
 
 
@@ -192,6 +193,7 @@ USAID Red Cross #ff0000 ORG   IGO     yes     yes      no      0.1           0.2
             g              USAID
             longname       ""
             color          ""
+            shape          ""
             orgtype        ""
             medical        ""
             engineer       ""
@@ -216,6 +218,7 @@ USAID Red Cross #ff0000 ORG   IGO     yes     yes      no      0.1           0.2
             g              USAID
             longname       ""
             color          ""
+            shape          ""
             orgtype        ""
             medical        ""
             engineer       ""
@@ -241,6 +244,7 @@ USAID Red Cross #ff0000 ORG   IGO     yes     yes      no      0.1           0.2
             g              USAID
             longname       "Red Cross"
             color          "#ff0000"
+            shape          FRIEND
             orgtype        IGO
             medical        yes
             engineer       yes
@@ -265,6 +269,7 @@ USAID Red Cross #ff0000 ORG   IGO     yes     yes      no      0.1           0.2
             g              USAID
             longname       ""
             color          ""
+            shape          ""
             orgtype        ""
             medical        ""
             engineer       ""

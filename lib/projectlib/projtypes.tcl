@@ -27,6 +27,8 @@ namespace eval ::projectlib:: {
         eorgtype      \
         eproximity    \
         eurbanization \
+        eunitshape    \
+        eunitsymbol   \
         eyesno        \
         hexcolor      \
         ident         \
@@ -167,6 +169,26 @@ snit::type ::projectlib::TypeWrapper {
     PATROL                  "Patrol"
     PSYOP                   "PSYOP"
 }
+
+
+# Unit icon shape (per MIL-STD-2525B)
+::marsutil::enum ::projectlib::eunitshape {
+    FRIEND   "Friend"
+    ENEMY    "Enemy"
+    NEUTRAL  "Neutral"
+}
+
+# Unit icon symbols
+
+::marsutil::enum ::projectlib::eunitsymbol {
+    infantry       "Infantry"
+    police         "Civilian Police"
+    criminal       "Criminal"
+    medical        "ORG - Medical"
+    support        "ORG - Support"
+    engineer       "ORG - Engineer"
+}
+
 
 
 # Civilian Concerns

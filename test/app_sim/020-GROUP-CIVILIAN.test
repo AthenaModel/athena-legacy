@@ -32,12 +32,14 @@ namespace eval ::athena_test::tests:: {
         g         SHIA
         longname  "Shia Locals"
         color     #ffff00
+        shape     NEUTRAL
     }
 
     set sunn {
         g         SUNN
         longname  "Sunni Locals"
         color     #ffffff
+        shape     ENEMY
     }
 
 
@@ -57,6 +59,7 @@ namespace eval ::athena_test::tests:: {
         g {required value}
         longname {required value}
         color {required value}
+        shape {required value}
     }
     
     test CREATE-1.2 {Duplicate g, longname} -setup {
@@ -101,6 +104,17 @@ namespace eval ::athena_test::tests:: {
     }
 
 
+    test CREATE-1.6 {invalid shape} -body {
+        ted order -reject GROUP:CIVILIAN:CREATE [dict merge $shia {
+            shape NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        shape {invalid value, "NONESUCH"}
+    }
+
+
     test CREATE-2.1 {group is created} -body {
         ted order GROUP:CIVILIAN:CREATE $shia
         
@@ -108,9 +122,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   gtype 
----- ----------- ------- ----- 
-SHIA Shia Locals #ffff00 CIV   
+g    longname    color   shape   gtype 
+---- ----------- ------- ------- ----- 
+SHIA Shia Locals #ffff00 NEUTRAL CIV   
     }
 
 
@@ -192,6 +206,7 @@ SHIA Shia Locals #ffff00 CIV
     } -result {
         g {required value}
     }
+
     
     test UPDATE-1.2 {Duplicate longname} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
@@ -205,6 +220,7 @@ SHIA Shia Locals #ffff00 CIV
         longname {An entity with this name already exists}
     }
 
+
     test UPDATE-1.3 {longname duplicates some g} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
         ted order GROUP:CIVILIAN:CREATE $sunn
@@ -215,6 +231,7 @@ SHIA Shia Locals #ffff00 CIV
     } -result {
         longname {An entity with this ID already exists}
     }
+
 
     test UPDATE-1.4 {invalid color} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
@@ -227,6 +244,17 @@ SHIA Shia Locals #ffff00 CIV
     }
 
 
+    test UPDATE-1.5 {invalid shape} -setup {
+        ted order GROUP:CIVILIAN:CREATE $shia
+    } -body {
+        ted order -reject GROUP:CIVILIAN:UPDATE g SHIA shape NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        shape {invalid value, "NONESUCH"}
+    }
+
+
     test UPDATE-2.1 {civgroup is updated} -setup {
         ted order GROUP:CIVILIAN:CREATE $shia
     } -body {
@@ -234,15 +262,16 @@ SHIA Shia Locals #ffff00 CIV
             g            SHIA
             longname     "Shia Folk"
             color        "#ff0000"
+            shape        ENEMY
         }
 
         ted query {SELECT * FROM civgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname  color   gtype 
----- --------- ------- ----- 
-SHIA Shia Folk #ff0000 CIV   
+g    longname  color   shape gtype 
+---- --------- ------- ----- ----- 
+SHIA Shia Folk #ff0000 ENEMY CIV   
     }
 
 

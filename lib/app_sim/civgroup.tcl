@@ -99,6 +99,7 @@ snit::type civgroup {
     #    g              The group's ID
     #    longname       The group's long name
     #    color          The group's color
+    #    shape          The group's unit shape (eunitshape(n))
     #
     # Creates a civilian group given the parms, which are presumed to be
     # valid.
@@ -109,10 +110,11 @@ snit::type civgroup {
         dict with parmdict {
             # FIRST, Put the group in the database
             rdb eval {
-                INSERT INTO groups(g,longname,color,gtype)
+                INSERT INTO groups(g,longname,color,shape,gtype)
                 VALUES($g,
                        $longname,
                        $color,
+                       $shape,
                        'CIV');
             }
 
@@ -171,6 +173,7 @@ snit::type civgroup {
     #    g              A group short name
     #    longname       A new long name, or ""
     #    color          A new color, or ""
+    #    shape          A new shape, or ""
     #
     # Updates a civgroup given the parms, which are presumed to be
     # valid.
@@ -189,7 +192,8 @@ snit::type civgroup {
             rdb eval {
                 UPDATE groups
                 SET longname  = nonempty($longname,  longname),
-                    color     = nonempty($color,     color)
+                    color     = nonempty($color,     color),
+                    shape     = nonempty($shape,     shape)
                 WHERE g=$g;
             } {}
 
@@ -216,11 +220,13 @@ order define ::civgroup GROUP:CIVILIAN:CREATE {
     parm g         text   "ID"
     parm longname  text   "Long Name"
     parm color     color  "Color"
+    parm shape     enum   "Unit Shape" -type eunitshape -defval NEUTRAL
 } {
     # FIRST, prepare and validate the parameters
-    prepare g          -toupper -required -unused -type ident
-    prepare longname   -normalize     -required -unused
-    prepare color      -tolower -required -type hexcolor
+    prepare g        -toupper   -required -unused -type ident
+    prepare longname -normalize -required -unused
+    prepare color    -tolower   -required         -type hexcolor
+    prepare shape    -toupper   -required         -type eunitshape
 
     returnOnError
 
@@ -292,6 +298,7 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE {
     parm g         key    "ID"         -tags group
     parm longname  text   "Long Name"
     parm color     color  "Color"
+    parm shape     enum   "Unit Shape" -type eunitshape
 } {
     # FIRST, prepare the parameters
     prepare g         -toupper  -required -type civgroup
@@ -300,6 +307,7 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE {
 
     prepare longname  -normalize      -oldvalue $oldname -unused
     prepare color     -tolower  -type hexcolor
+    prepare shape     -toupper  -type eunitshape
 
     returnOnError
 
@@ -313,10 +321,12 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE:MULTI {
 
     parm ids    multi  "Groups"
     parm color  color  "Color"
+    parm shape  enum   "Unit Shape" -type eunitshape
 } {
     # FIRST, prepare the parameters
     prepare ids    -toupper -required -listof civgroup
     prepare color  -tolower           -type   hexcolor
+    prepare shape  -toupper           -type   eunitshape
 
     returnOnError
 

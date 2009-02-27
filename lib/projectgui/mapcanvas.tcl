@@ -150,7 +150,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
             cleanup  {}
             bindings {
                 icon   <ButtonPress-1>    {%W Icon-1 %x %y}
-                icon   <Shift-Button-1>   {%W IconMark %x %y}
+                icon   <Control-Button-1> {%W IconMark %x %y}
                 icon   <B1-Motion>        {%W IconDrag %x %y}
                 icon   <B1-ButtonRelease> {%W IconRelease %x %y}
                 nbhood <ButtonPress-1>    {%W Nbhood-1 %x %y %X %Y}
@@ -1237,6 +1237,76 @@ snit::widgetadaptor ::projectgui::mapcanvas {
         return $id
     }
 
+    # icon exists id
+    #
+    # id       The icon ID
+    #
+    # Returns 1 if the icon exists, and 0 otherwise.
+
+    method {icon exists} {id} {
+        info exists icons(icon-$id)
+    }
+
+    # icon delete id
+    #
+    # id       The icon ID
+    #
+    # Deletes the named icon.
+
+    method {icon delete} {id} {
+        require {[$self icon exists $id]} "no such icon: $id"
+
+        # FIRST, save the command name.
+        set cmd [dict get $icons(icon-$id) cmd]
+
+        # NEXT, clean up the metadata
+        ldelete icons(ids) $id
+        unset icons(icon-$id)
+
+        # NEXT, destroy the icon's command; this will also
+        # delete it from the canvas.
+        $cmd destroy
+
+        return
+    }
+
+
+
+    # icon configure id option value...
+    #
+    # id       The icon ID
+    # options  Depends on the icon type
+    #
+    # Sets the options for the specified icon.
+
+    method {icon configure} {id args} {
+        if {[llength $args] < 2 || [llength $args] % 2 != 0} {
+            $self WrongNumArgs \
+                "icon configure id option value ?option value...?"
+        }
+
+        require {[$self icon exists $id]} "no such icon: $id"
+
+        set cmd [dict get $icons(icon-$id) cmd]
+
+        $cmd configure {*}$args
+    }
+
+    # icon cget id option...
+    #
+    # id       The icon ID
+    # option   Option name; depends on the icon type
+    #
+    # Queries the options for the specified icon.
+
+    method {icon cget} {id option} {
+        require {[$self icon exists $id]} "no such icon: $id"
+
+        set cmd [dict get $icons(icon-$id) cmd]
+
+        return [$cmd cget $option]
+    }
+
     # icon ref id
     #
     # id   An icon id
@@ -1244,6 +1314,8 @@ snit::widgetadaptor ::projectgui::mapcanvas {
     # Returns the location of the icon as a map reference
 
     method {icon ref} {id} {
+        require {[$self icon exists $id]} "no such icon: $id"
+
         $self m2ref {*}[dict get $icons(icon-$id) mxy]
     }
 
@@ -1253,6 +1325,8 @@ snit::widgetadaptor ::projectgui::mapcanvas {
     # mappoint    A location in map units or mapref, as for icon create
 
     method {icon moveto} {id args} {
+        require {[$self icon exists $id]} "no such icon: $id"
+
         # FIRST, validate the arguments
         if {[llength $args] < 1} {
             $self WrongNumArgs "icon moveto id mappoint"
@@ -1280,6 +1354,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
 
         return
     }
+
 
     #-------------------------------------------------------------------
     # Nbhood Management

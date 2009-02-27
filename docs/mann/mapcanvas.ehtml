@@ -261,13 +261,22 @@ Returns the new icon's ID.<p>
 
 <<defitem "icon cget" {<i>pathName</i> icon cget <i>id option</i>}>>
 
-<b>Not Yet Implemented.</b>  Returns the value of the specified
+Returns the value of the specified
 <i>option</i> for the icon with ID <i>id</i>.<p>
 
 <<defitem "icon configure" {<i>pathName</i> icon configure <i>id option value</i> ?<i>option value...</i>?}>>
 
-<b>Not Yet Implemented.</b>  Sets the value of one or more of the
-icon's options.<p>
+Sets the value of one or more of the icon's options.  The precise set
+of options depends on the icon type; typical options include
+<code>-foreground</code> and <code>-background</code>.<p>
+
+<<defitem "icon delete" {<i>pathName</i> icon delete <i>id</i>?}>>
+
+Deletes the named icon.<p>
+
+<<defitem "icon exists" {<i>pathName</i> icon exists <i>id</i>?}>>
+
+Returns 1 if the icon exists, and 0 otherwise.<p>
 
 <<defitem "icon moveto" {<i>pathName</i> icon moveto <i>id mappoint</i>}>>
 

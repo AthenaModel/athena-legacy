@@ -225,6 +225,17 @@ snit::widget mapviewer {
         }
     }
 
+    #-------------------------------------------------------------------
+    # Lookup Tables
+
+    # Force unit symbols, by force type
+    typevariable forceSymbols -array {
+        REGULAR      infantry
+        IRREGULAR    infantry
+        PARAMILITARY {infantry police}
+        POLICE       police
+        CRIMINAL     criminal
+    }
 
     #-------------------------------------------------------------------
     # Options
@@ -272,6 +283,17 @@ snit::widget mapviewer {
     # n-$id      n, given ID
     # id-$n      id, given n
     # trans      Transient $n, used in event bindings
+
+    variable nbhoods -array { }
+
+    # units array: 
+    #
+    #     $id is canvas unit ID
+    #     $u  is "u" column from units table.
+    #
+    # u-$id      u, given ID
+    # id-$u      id, given u
+    # trans      Transient $u, used in event bindings
 
     variable nbhoods -array { }
 
@@ -712,22 +734,9 @@ snit::widget mapviewer {
         $self NbhoodDrawAll
 
         # NEXT, create icons
-        # TBD: Ultimately, this will query the RDB; for now, 
-        # just make some icons.
+        $self UnitDrawAll
 
-        # Get the bounding box, so we can position things
-        # randomly within it.
-        lassign [map box] x1 y1 x2 y2
-
-        foreach icontype [mapcanvas icon types] {
-            for {set i 0} {$i < 20} {incr i} {
-                set mx [expr {$x1 + rand()*($x2 - $x1)}]
-                set my [expr {$y1 + rand()*($y2 - $y1)}]
-                
-                $canvas icon create $icontype $mx $my
-            }
-        }
-
+        # NEXT, set zoom and region
         set info(zoom)   "[$canvas zoom]%"
         set info(region) [$canvas region]
     }
@@ -834,6 +843,74 @@ snit::widget mapviewer {
     method {nbhood cget} {n option} {
         $canvas nbhood cget $nbhoods(id-$n) $option
     }
+
+    #-------------------------------------------------------------------
+    # Unit Methods
+
+    # UnitDrawAll
+    #
+    # Clears and redraws all units
+
+    method UnitDrawAll {} {
+        array unset units
+
+        # NEXT, add force units
+        rdb eval {
+            SELECT * FROM units JOIN frcgroups_view USING (g)
+        } row {
+            $self UnitDraw [array get row]
+        }
+
+        # NEXT, add org units
+        rdb eval {
+            SELECT * FROM units JOIN orggroups_view USING (g)
+        } row {
+            $self UnitDraw [array get row]
+        }
+
+    }
+
+    # UnitDraw parmdict
+    #
+    # parmdict   Data about the unit
+
+    method UnitDraw {parmdict} {
+        dict with parmdict {
+            # FIRST, if there's an existing unit called this,
+            # delete it.
+            if {[info exists units(id-$u)]} {
+                $canvas icon delete $units(id-$u)
+                unset units(id-$u)
+            }
+
+            # NEXT, get the symbol
+            if {$gtype eq "FRC"} {
+                set symbol $forceSymbols($forcetype)
+            } elseif {$gtype eq "ORG"} {
+                set symbol [list]
+
+                if {$medical}  { lappend symbol medical  }
+                if {$support}  { lappend symbol support  }
+                if {$engineer} { lappend symbol engineer }
+            } else {
+                error "Unexpected gtype: \"$gtype\""
+            }
+            
+            # NEXT, draw it.
+            set id [$canvas icon create unit \
+                        {*}$location         \
+                        -foreground $color   \
+                        -shape      $shape   \
+                        -symbol     $symbol]
+            
+            # NEXT, save the name by the ID.
+            set units(u-$id) $u
+            set units(id-$u) $id
+        }
+    }
+
+
+
 
 }
 

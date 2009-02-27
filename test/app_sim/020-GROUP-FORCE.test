@@ -32,6 +32,7 @@ namespace eval ::athena_test::tests:: {
         g         BLUE
         longname  "US Army"
         color     #0000ff
+        shape     FRIEND
         forcetype REGULAR
         local     no
         coalition yes
@@ -41,6 +42,7 @@ namespace eval ::athena_test::tests:: {
         g         BRIT
         longname  "British Forces"
         color     #00ffff
+        shape     FRIEND
         forcetype REGULAR
         local     no
         coalition yes
@@ -63,11 +65,13 @@ namespace eval ::athena_test::tests:: {
         g {required value}
         longname {required value}
         color {required value}
+        shape {required value}
         forcetype {required value}
         local {required value}
         coalition {required value}
     }
     
+
     test CREATE-1.2 {Duplicate g, longname} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
@@ -79,6 +83,7 @@ namespace eval ::athena_test::tests:: {
         longname {An entity with this name already exists}
     }
 
+
     test CREATE-1.3 {longname duplicates n} -body {
         ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
             longname BLUE
@@ -88,6 +93,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
         longname {longname must not be identical to ID}
     }
+
 
     test CREATE-1.4 {g is not an ident} -body {
         ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
@@ -99,6 +105,7 @@ namespace eval ::athena_test::tests:: {
         g {Identifiers begin with a letter and contain only letters and digits.}
     }
 
+
     test CREATE-1.5 {invalid color} -body {
         ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
             color NONESUCH
@@ -109,7 +116,19 @@ namespace eval ::athena_test::tests:: {
         color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
     }
 
-    test CREATE-1.6 {invalid forcetype} -body {
+
+    test CREATE-1.6 {invalid shape} -body {
+        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+            shape NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        shape {invalid value, "NONESUCH"}
+    }
+
+
+    test CREATE-1.7 {invalid forcetype} -body {
         ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
             forcetype NONESUCH
         }]
@@ -117,7 +136,7 @@ namespace eval ::athena_test::tests:: {
         forcetype {invalid value, "NONESUCH"}
     }
 
-    test CREATE-1.7 {invalid local} -body {
+    test CREATE-1.8 {invalid local} -body {
         ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
             local NONESUCH
         }]
@@ -125,7 +144,7 @@ namespace eval ::athena_test::tests:: {
         local {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test CREATE-1.8 {invalid coalition} -body {
+    test CREATE-1.9 {invalid coalition} -body {
         ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
             coalition NONESUCH
         }]
@@ -141,9 +160,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   gtype forcetype local coalition 
----- -------- ------- ----- --------- ----- --------- 
-BLUE US Army  #0000ff FRC   REGULAR   0     1         
+g    longname color   shape  gtype forcetype local coalition 
+---- -------- ------- ------ ----- --------- ----- --------- 
+BLUE US Army  #0000ff FRIEND FRC   REGULAR   0     1         
     }
 
 
@@ -228,6 +247,7 @@ BLUE US Army  #0000ff FRC   REGULAR   0     1
         g {required value}
     }
     
+
     test UPDATE-1.2 {Duplicate longname} -setup {
         ted order GROUP:FORCE:CREATE $blue
         ted order GROUP:FORCE:CREATE $brit
@@ -238,6 +258,7 @@ BLUE US Army  #0000ff FRC   REGULAR   0     1
     } -result {
         longname {An entity with this name already exists}
     }
+
 
     test UPDATE-1.3 {longname duplicates some g} -setup {
         ted order GROUP:FORCE:CREATE $blue
@@ -250,6 +271,7 @@ BLUE US Army  #0000ff FRC   REGULAR   0     1
         longname {An entity with this ID already exists}
     }
 
+
     test UPDATE-1.4 {invalid color} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
@@ -260,7 +282,19 @@ BLUE US Army  #0000ff FRC   REGULAR   0     1
         color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
     }
 
-    test UPDATE-1.5 {invalid forcetype} -setup {
+
+    test UPDATE-1.5 {invalid shape} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted order -reject GROUP:FORCE:UPDATE g BLUE shape NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        shape {invalid value, "NONESUCH"}
+    }
+
+
+    test UPDATE-1.6 {invalid forcetype} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted order -reject GROUP:FORCE:UPDATE g BLUE forcetype NONESUCH
@@ -270,7 +304,8 @@ BLUE US Army  #0000ff FRC   REGULAR   0     1
         forcetype {invalid value, "NONESUCH"}
     }
 
-    test UPDATE-1.6 {invalid local} -setup {
+
+    test UPDATE-1.7 {invalid local} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted order -reject GROUP:FORCE:UPDATE g BLUE local NONESUCH
@@ -280,7 +315,8 @@ BLUE US Army  #0000ff FRC   REGULAR   0     1
         local {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test UPDATE-1.7 {invalid coalition} -setup {
+
+    test UPDATE-1.8 {invalid coalition} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted order -reject GROUP:FORCE:UPDATE g BLUE coalition NONESUCH
@@ -298,6 +334,7 @@ BLUE US Army  #0000ff FRC   REGULAR   0     1
             g            BLUE
             longname     "Blue Angels"
             color        "#ff0000"
+            shape        NEUTRAL
             forcetype    POLICE
             local        yes
             coalition    no
@@ -307,9 +344,9 @@ BLUE US Army  #0000ff FRC   REGULAR   0     1
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   gtype forcetype local coalition 
----- ----------- ------- ----- --------- ----- --------- 
-BLUE Blue Angels #ff0000 FRC   POLICE    1     0         
+g    longname    color   shape   gtype forcetype local coalition 
+---- ----------- ------- ------- ----- --------- ----- --------- 
+BLUE Blue Angels #ff0000 NEUTRAL FRC   POLICE    1     0         
     }
 
 
@@ -385,7 +422,18 @@ BLUE Blue Angels #ff0000 FRC   POLICE    1     0
     }
 
 
-    test UPDATE:MULTI-1.5 {invalid forcetype} -setup {
+    test UPDATE:MULTI-1.5 {invalid shape} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE shape NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        shape {invalid value, "NONESUCH"}
+    }
+
+
+    test UPDATE:MULTI-1.6 {invalid forcetype} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE forcetype NONESUCH
@@ -396,7 +444,7 @@ BLUE Blue Angels #ff0000 FRC   POLICE    1     0
     }
 
 
-    test UPDATE:MULTI-1.6 {invalid local} -setup {
+    test UPDATE:MULTI-1.7 {invalid local} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE local NONESUCH
@@ -406,7 +454,7 @@ BLUE Blue Angels #ff0000 FRC   POLICE    1     0
         local {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test UPDATE:MULTI-1.7 {invalid coalition} -setup {
+    test UPDATE:MULTI-1.8 {invalid coalition} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE coalition NONESUCH
@@ -426,6 +474,7 @@ BLUE Blue Angels #ff0000 FRC   POLICE    1     0
         ted order GROUP:FORCE:UPDATE:MULTI {
             ids       BLUE 
             color     "#ff0000"
+            shape     NEUTRAL
             forcetype POLICE
             local     yes
             coalition no
@@ -448,6 +497,7 @@ BLUE Blue Angels #ff0000 FRC   POLICE    1     0
         ted order GROUP:FORCE:UPDATE:MULTI {
             ids       {BLUE BRIT}
             color     "#ff0000"
+            shape     NEUTRAL
             forcetype POLICE
             local     yes
             coalition no

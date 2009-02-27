@@ -99,6 +99,7 @@ snit::type orggroup {
     #    g                The group's ID
     #    longname         The group's long name
     #    color            The group's color
+    #    shape          The group's unit shape (eunitshape(n))
     #    orgtype          The group's eorgtype
     #    medical          The group's medical capability flag
     #    engineer         The group's engineer capability flag
@@ -116,10 +117,11 @@ snit::type orggroup {
         dict with parmdict {
             # FIRST, Put the group in the database
             rdb eval {
-                INSERT INTO groups(g,longname,color,gtype)
+                INSERT INTO groups(g,longname,color,shape,gtype)
                 VALUES($g,
                        $longname,
                        $color,
+                       $shape,
                        'ORG');
 
                 INSERT INTO orggroups(g,orgtype,medical,engineer,support,
@@ -186,6 +188,7 @@ snit::type orggroup {
     #    g                A group short name
     #    longname         A new long name, or ""
     #    color            A new color, or ""
+    #    shape          A new shape, or ""
     #    orgtype          A new eorgtype, or ""
     #    medical          A new medical flag, or ""
     #    engineer         A new engineer flag, or ""
@@ -210,7 +213,8 @@ snit::type orggroup {
             rdb eval {
                 UPDATE groups
                 SET longname  = nonempty($longname,  longname),
-                    color     = nonempty($color,     color)
+                    color     = nonempty($color,     color),
+                    shape     = nonempty($shape,     shape)
                 WHERE g=$g;
 
                 UPDATE orggroups
@@ -245,6 +249,7 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
     parm g              text  "ID"
     parm longname       text  "Long Name"
     parm color          color "Color"
+    parm shape          enum  "Unit Shape"    -type eunitshape -defval NEUTRAL
     parm orgtype        enum  "Org. Type"     -type eorgtype
     parm medical        enum  "Medical?"      -type eyesno
     parm engineer       enum  "Engineer?"     -type eyesno
@@ -253,15 +258,16 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
     parm effects_factor text  "EffectsFactor" -defval 1.0
 } {
     # FIRST, prepare and validate the parameters
-    prepare g              -toupper -required -unused -type ident
-    prepare longname       -normalize     -required -unused
-    prepare color          -tolower -required -type hexcolor
-    prepare orgtype        -toupper -required -type eorgtype
-    prepare medical                 -required -type boolean
-    prepare engineer                -required -type boolean
-    prepare support                 -required -type boolean
-    prepare rollup_weight           -required -type weight
-    prepare effects_factor          -required -type weight
+    prepare g              -toupper   -required -unused -type ident
+    prepare longname       -normalize -required -unused
+    prepare color          -tolower   -required -type hexcolor
+    prepare shape          -toupper   -required -type eunitshape
+    prepare orgtype        -toupper   -required -type eorgtype
+    prepare medical                   -required -type boolean
+    prepare engineer                  -required -type boolean
+    prepare support                   -required -type boolean
+    prepare rollup_weight             -required -type weight
+    prepare effects_factor            -required -type weight
 
     returnOnError
 
@@ -333,6 +339,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     parm g              key   "ID"
     parm longname       text  "Long Name"
     parm color          color "Color"
+    parm shape          enum  "Unit Shape"    -type eunitshape
     parm orgtype        enum  "Org. Type"     -type eorgtype
     parm medical        enum  "Medical?"      -type eyesno
     parm engineer       enum  "Engineer?"     -type eyesno
@@ -347,6 +354,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
 
     prepare longname       -normalize      -oldvalue $oldname -unused
     prepare color          -tolower  -type hexcolor
+    prepare shape          -toupper  -type eunitshape
     prepare orgtype        -toupper  -type eorgtype
     prepare medical                  -type boolean
     prepare engineer                 -type boolean
@@ -369,9 +377,9 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
     title "Update Multiple Organization Groups"
     options -table gui_orggroups
 
-
     parm ids            multi "Groups"
     parm color          color "Color"
+    parm shape          enum  "Unit Shape"    -type eunitshape
     parm orgtype        enum  "Org. Type"     -type eorgtype
     parm medical        enum  "Medical?"      -type eyesno
     parm engineer       enum  "Engineer?"     -type eyesno
@@ -382,6 +390,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof orggroup
     prepare color          -tolower            -type   hexcolor
+    prepare shape          -toupper            -type   eunitshape
     prepare orgtype        -toupper            -type   eorgtype
     prepare medical                            -type   boolean
     prepare engineer                           -type   boolean

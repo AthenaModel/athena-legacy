@@ -43,9 +43,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   gtype 
----- -------- ------- ----- 
-SHIA Shia     #c00001 CIV   
+g    longname color   shape   gtype 
+---- -------- ------- ------- ----- 
+SHIA Shia     #c00001 NEUTRAL CIV   
     }
 
 
@@ -60,7 +60,7 @@ SHIA Shia     #c00001 CIV
     }
 
 
-    test create-3.1 {undo deletes the civgroup} -setup {
+    test create-2.1 {undo deletes the civgroup} -setup {
         civgroup mutate create [ted entity SHIA]
         set undo [civgroup mutate create [ted entity SUNN]]
     } -body {
@@ -71,7 +71,7 @@ SHIA Shia     #c00001 CIV
     } -result {SHIA}
 
 
-    test create-3.2 {On undo, <Entity> delete} -setup {
+    test create-2.2 {On undo, <Entity> delete} -setup {
         set undo [civgroup mutate create [ted entity SHIA]]
     } -body {
         ted notifier bind ::civgroup <Entity>
@@ -120,9 +120,9 @@ SHIA Shia     #c00001 CIV
     } -cleanup {
         cleanup
     } -result {
-g    longname color   gtype 
----- -------- ------- ----- 
-SHIA Shia     #c00001 CIV   
+g    longname color   shape   gtype 
+---- -------- ------- ------- ----- 
+SHIA Shia     #c00001 NEUTRAL CIV   
     }
 
 
@@ -150,15 +150,16 @@ SHIA Shia     #c00001 CIV
             g            SHIA
             longname     "Shia Folk"
             color        "#ff0000"
+            shape        FRIEND
         }
 
         ted query {SELECT * FROM civgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname  color   gtype 
----- --------- ------- ----- 
-SHIA Shia Folk #ff0000 CIV   
+g    longname  color   shape  gtype 
+---- --------- ------- ------ ----- 
+SHIA Shia Folk #ff0000 FRIEND CIV   
     }
 
 

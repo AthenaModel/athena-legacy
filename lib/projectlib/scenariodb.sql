@@ -137,6 +137,9 @@ CREATE TABLE groups (
     -- Group Color, as #RRGGBB
     color       TEXT DEFAULT '#00FFFF',
 
+    -- Unit Shape (eunitshape(n))
+    shape       TEXT DEFAULT 'NEUTRAL',
+
     -- Group type, CIV, FRC, ORG
     gtype       TEXT 
 );

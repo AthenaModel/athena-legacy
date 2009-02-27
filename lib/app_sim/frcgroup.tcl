@@ -99,6 +99,7 @@ snit::type frcgroup {
     #    g              The group's ID
     #    longname       The group's long name
     #    color          The group's color
+    #    shape          The group's unit shape (eunitshape(n))
     #    forcetype      The group's eforcetype
     #    local          The group's local flag
     #    coalition      The group's coalition flag
@@ -113,10 +114,11 @@ snit::type frcgroup {
         dict with parmdict {
             # FIRST, Put the group in the database
             rdb eval {
-                INSERT INTO groups(g,longname,color,gtype)
+                INSERT INTO groups(g,longname,color,shape,gtype)
                 VALUES($g,
                        $longname,
                        $color,
+                       $shape,
                        'FRC');
 
                 INSERT INTO frcgroups(g,forcetype,local,coalition)
@@ -178,6 +180,7 @@ snit::type frcgroup {
     #    g              A group short name
     #    longname       A new long name, or ""
     #    color          A new color, or ""
+    #    shape          A new shape, or ""
     #    forcetype      A new eforcetype, or ""
     #    local          A new local flag, or ""
     #    coalition      A new coalition flag, or ""
@@ -199,7 +202,8 @@ snit::type frcgroup {
             rdb eval {
                 UPDATE groups
                 SET longname  = nonempty($longname,  longname),
-                    color     = nonempty($color,     color)
+                    color     = nonempty($color,     color),
+                    shape     = nonempty($shape,     shape)
                 WHERE g=$g;
 
                 UPDATE frcgroups
@@ -231,17 +235,19 @@ order define ::frcgroup GROUP:FORCE:CREATE {
     parm g          text  "ID"
     parm longname   text  "Long Name"
     parm color      color "Color"
+    parm shape      enum  "Unit Shape"        -type eunitshape -defval NEUTRAL
     parm forcetype  enum  "Force Type"        -type eforcetype
     parm local      enum  "Local Group?"      -type eyesno
     parm coalition  enum  "Coalition Member?" -type eyesno
 } {
     # FIRST, prepare and validate the parameters
-    prepare g          -toupper -required -unused -type ident
-    prepare longname   -normalize     -required -unused
-    prepare color      -tolower -required -type hexcolor
-    prepare forcetype  -toupper -required -type eforcetype
-    prepare local      -toupper -required -type boolean
-    prepare coalition  -toupper -required -type boolean
+    prepare g          -toupper   -required -unused -type ident
+    prepare longname   -normalize -required -unused
+    prepare color      -tolower   -required -type hexcolor
+    prepare shape      -toupper   -required -type eunitshape
+    prepare forcetype  -toupper   -required -type eforcetype
+    prepare local      -toupper   -required -type boolean
+    prepare coalition  -toupper   -required -type boolean
 
     returnOnError
 
@@ -313,6 +319,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
     parm g          key   "ID"                 -tags group
     parm longname   text  "Long Name"
     parm color      color "Color"
+    parm shape      enum  "Unit Shape"         -type eunitshape
     parm forcetype  enum  "Force Type"         -type eforcetype
     parm local      enum  "Local Group?"       -type eyesno
     parm coalition  enum  "Coalition Member?"  -type eyesno
@@ -322,11 +329,12 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
 
     set oldname [rdb onecolumn {SELECT longname FROM groups WHERE g=$parms(g)}]
 
-    prepare longname  -normalize      -oldvalue $oldname -unused
-    prepare color     -tolower  -type hexcolor
-    prepare forcetype -toupper  -type eforcetype
-    prepare local     -toupper  -type boolean
-    prepare coalition -toupper  -type boolean
+    prepare longname  -normalize -oldvalue $oldname -unused
+    prepare color     -tolower   -type hexcolor
+    prepare shape     -toupper   -type eunitshape
+    prepare forcetype -toupper   -type eforcetype
+    prepare local     -toupper   -type boolean
+    prepare coalition -toupper   -type boolean
 
     returnOnError
 
@@ -344,6 +352,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
 
     parm ids        multi "Groups"
     parm color      color "Color"
+    parm shape      enum  "Unit Shape"         -type eunitshape
     parm forcetype  enum  "Force Type"         -type eforcetype
     parm local      enum  "Local Group?"       -type eyesno
     parm coalition  enum  "Coalition Member?"  -type eyesno
@@ -351,6 +360,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
     # FIRST, prepare the parameters
     prepare ids       -toupper  -required -listof frcgroup
     prepare color     -tolower            -type   hexcolor
+    prepare shape     -toupper            -type   eunitshape
     prepare forcetype -toupper            -type   eforcetype
     prepare local     -toupper            -type   boolean
     prepare coalition -toupper            -type   boolean

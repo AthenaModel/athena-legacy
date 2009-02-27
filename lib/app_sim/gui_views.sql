@@ -32,7 +32,8 @@ CREATE TEMPORARY VIEW gui_civgroups AS
 SELECT g                                              AS id,
        g                                              AS g,
        longname                                       AS longname,
-       color                                          AS color
+       color                                          AS color,
+       shape                                          AS shape
 FROM civgroups_view;
 
 -- A Force Groups view for use by the GUI
@@ -41,6 +42,7 @@ SELECT g                                              AS id,
        g                                              AS g,
        longname                                       AS longname,
        color                                          AS color,
+       shape                                          AS shape,
        forcetype                                      AS forcetype,
        CASE local     WHEN 1 THEN 'YES' ELSE 'NO' END AS local,
        CASE coalition WHEN 1 THEN 'YES' ELSE 'NO' END AS coalition
@@ -52,6 +54,7 @@ SELECT g                                             AS id,
        g                                             AS g,
        longname                                      AS longname,
        color                                         AS color,
+       shape                                         AS shape,
        orgtype                                       AS orgtype,
        CASE medical  WHEN 1 THEN 'YES' ELSE 'NO' END AS medical,
        CASE engineer WHEN 1 THEN 'YES' ELSE 'NO' END AS engineer,

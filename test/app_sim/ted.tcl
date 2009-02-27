@@ -131,24 +131,28 @@ snit::type ted {
             g        SHIA
             longname "Shia"
             color    "#c00001"
+            shape    NEUTRAL
         }
 
         defentity SUNN ::civgroup {
             g        SUNN
             longname "Sunni"
             color    "#c00002"
+            shape    NEUTRAL
         }
 
         defentity KURD ::civgroup {
             g        KURD
             longname "Kurd"
             color    "#c00003"
+            shape    NEUTRAL
         }
 
         defentity PASH ::civgroup {
             g        PASH
             longname "Pashtuns"
             color    "#c00004"
+            shape    NEUTRAL
         }
 
         # Neighborhood Groups
@@ -195,6 +199,7 @@ snit::type ted {
             g         BLUE
             longname  "US Army"
             color     "#f00001"
+            shape     FRIEND
             forcetype REGULAR
             local     no
             coalition yes
@@ -204,6 +209,7 @@ snit::type ted {
             g         BRIT
             longname  "British Forces"
             color     "#f00002"
+            shape     FRIEND
             forcetype REGULAR
             local     no
             coalition yes
@@ -215,6 +221,7 @@ snit::type ted {
             g              USAID
             longname       "US Aid"
             color          "#000001"
+            shape          NEUTRAL
             orgtype        NGO
             medical        no
             engineer       no
@@ -227,6 +234,7 @@ snit::type ted {
             g              HAL
             longname       "Haliburton"
             color          "#000002"
+            shape          NEUTRAL
             orgtype        CTR
             medical        no
             engineer       yes

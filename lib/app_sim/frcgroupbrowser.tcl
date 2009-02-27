@@ -106,6 +106,7 @@ snit::widget frcgroupbrowser {
         $tb insertcolumn end 0 {ID}
         $tb insertcolumn end 0 {Long Name}
         $tb insertcolumn end 0 {Color}
+        $tb insertcolumn end 0 {Unit Shape}        
         $tb insertcolumn end 0 {Force Type}
         $tb insertcolumn end 0 {Foreign?}
         $tb insertcolumn end 0 {Coalition?}
@@ -159,6 +160,22 @@ snit::widget frcgroupbrowser {
     
     #-------------------------------------------------------------------
     # Private Methods
+
+    # DisplayData dict
+    # 
+    # dict   the data dictionary that contains the group information
+    #
+    # This method converts the group data dictionary to a list
+    # that contains just the information to be displayed in the table browser.
+
+    method DisplayData {dict} {
+        # FIRST, extract each field
+        dict with dict {
+            $tb setdata $g \
+                [list $g $longname $color $shape $forcetype $local $coalition]
+            $tb setcellbackground $g 2 $color
+        }
+    }
 
     # Reconfigure
     #
@@ -223,22 +240,6 @@ snit::widget frcgroupbrowser {
 
         # NEXT, update the state
         $self SelectionChanged
-    }
-
-    # DisplayData dict
-    # 
-    # dict   the data dictionary that contains the group information
-    #
-    # This method converts the group data dictionary to a list
-    # that contains just the information to be displayed in the table browser.
-
-    method DisplayData {dict} {
-        # FIRST, extract each field
-        dict with dict {
-            $tb setdata $g \
-                [list $g $longname $color $forcetype $local $coalition]
-            $tb setcellbackground $g 2 $color
-        }
     }
 
     # SelectionChanged

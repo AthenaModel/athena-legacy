@@ -1,14 +1,14 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    civgroupbrowser.tcl
+#    unitbrowser.tcl
 #
 # AUTHORS:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    civgroupbrowser(sim) package: Civilian Group browser.
+#    unitbrowser(sim) package: Unit browser.
 #
-#    This widget displays a formatted list of civilian group records.
+#    This widget displays a formatted list of unit records.
 #    Entries in the list are managed by the tablebrowser(n).  
 #
 #-----------------------------------------------------------------------
@@ -19,7 +19,7 @@
 #-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widget civgroupbrowser {
+snit::widget unitbrowser {
     #-------------------------------------------------------------------
     # Type Constructor
 
@@ -39,9 +39,9 @@ snit::widget civgroupbrowser {
 
     component tb          ;# tablebrowser(n) used to browse groups
     component bar         ;# Tool bar
-    component addbtn      ;# The "Add Civ Group" button
-    component editbtn     ;# The "Edit Civ Group" button
-    component deletebtn   ;# The "Delete Civ Group" button
+    component addbtn      ;# The "Add Unit" button
+    component editbtn     ;# The "Edit Unit" button
+    component deletebtn   ;# The "Delete Unit" button
 
     #--------------------------------------------------------------------
     # Instance Variables
@@ -58,7 +58,7 @@ snit::widget civgroupbrowser {
         # NEXT, create the table browser
         install tb using tablebrowser $win.tb   \
             -db          ::rdb                  \
-            -table       "gui_civgroups"        \
+            -table       "gui_units"        \
             -keycol      "id"                   \
             -keycolnum   0                      \
             -width       100                    \
@@ -73,9 +73,9 @@ snit::widget civgroupbrowser {
             -relief     flat                   \
             -overrelief raised                 \
             -state      normal                 \
-            -command    [mymethod AddGroup]
+            -command    [mymethod Add]
 
-        DynamicHelp::add $addbtn -text "Add Civilian Group"
+        DynamicHelp::add $addbtn -text "Add Unit"
 
         install editbtn using button $bar.edit   \
             -image      ::projectgui::icon::pencil22 \
@@ -84,7 +84,7 @@ snit::widget civgroupbrowser {
             -state      disabled                 \
             -command    [mymethod EditSelected]
 
-        DynamicHelp::add $editbtn -text "Edit Selected Group"
+        DynamicHelp::add $editbtn -text "Edit Selected Unit"
 
         install deletebtn using button $bar.delete \
             -image      ::projectgui::icon::x22        \
@@ -93,7 +93,7 @@ snit::widget civgroupbrowser {
             -state      disabled                   \
             -command    [mymethod DeleteSelected]
 
-        DynamicHelp::add $deletebtn -text "Delete Selected Group"
+        DynamicHelp::add $deletebtn -text "Delete Selected Unit"
         
         pack $addbtn    -side left
         pack $editbtn   -side left
@@ -104,9 +104,13 @@ snit::widget civgroupbrowser {
 
         # NEXT, create the columns and labels.
         $tb insertcolumn end 0 {ID}
-        $tb insertcolumn end 0 {Long Name}
-        $tb insertcolumn end 0 {Color}
-        $tb insertcolumn end 0 {Unit Shape}
+        $tb insertcolumn end 0 {GType}
+        $tb insertcolumn end 0 {Group}
+        $tb insertcolumn end 0 {Nbhood}
+        $tb insertcolumn end 0 {Location}
+        $tb insertcolumn end 0 {Personnel}
+        $tb columnconfigure end -sortmode integer
+        $tb insertcolumn end 0 {Activity}
 
         # NEXT, pack the tablebrowser and let it expand
         pack $tb -expand yes -fill both
@@ -116,7 +120,7 @@ snit::widget civgroupbrowser {
 
         # NEXT, prepare to update on data change
         notifier bind ::scenario <Reconfigure> $self [mymethod Reconfigure]
-        notifier bind ::civgroup <Entity>      $self $self
+        notifier bind ::unit <Entity>          $self $self
 
         # NEXT, reload on creation
         $self reload
@@ -131,9 +135,9 @@ snit::widget civgroupbrowser {
 
     # select ids
     #
-    # ids    A list of neighborhood ids
+    # ids    A list of unit ids
     #
-    # Programmatically selects the neighborhoods in the browser.
+    # Programmatically selects the units in the browser.
 
     method select {ids} {
         # FIRST, select them in the table browser.
@@ -146,9 +150,9 @@ snit::widget civgroupbrowser {
 
     # create id
     #
-    # id    The ID of the created group
+    # id    The ID of the created unit
     #
-    # A new group has been created.  We need to put it in its place.
+    # A new unit has been created.  We need to put it in its place.
     # For now, just reload the whole shebang
     
     method create {id} {
@@ -157,22 +161,6 @@ snit::widget civgroupbrowser {
     
     #-------------------------------------------------------------------
     # Private Methods
-
-    # DisplayData dict
-    # 
-    # dict   the data dictionary that contains the group information
-    #
-    # This method converts the group data dictionary to a list
-    # that contains just the information to be displayed in the table browser.
-
-    method DisplayData {dict} {
-        # FIRST, extract each field
-        dict with dict {
-            $tb setdata $g \
-                [list $g $longname $color $shape]
-            $tb setcellbackground $g 2 $color
-        }
-    }
 
     # Reconfigure
     #
@@ -187,18 +175,18 @@ snit::widget civgroupbrowser {
         $self SelectionChanged
     }
 
-    # AddGroup
+    # Add
     #
-    # Called when the user wants to add a new group.
+    # Called when the user wants to add a new unit.
 
-    method AddGroup {} {
+    method Add {} {
         # FIRST, Pop up the dialog
-        order enter GROUP:CIVILIAN:CREATE
+        order enter UNIT:CREATE
     }
 
     # EditSelected
     #
-    # Called when the user wants to edit the selected group(s).
+    # Called when the user wants to edit the selected units(s).
 
     method EditSelected {} {
         set ids [$tb curselection]
@@ -206,37 +194,52 @@ snit::widget civgroupbrowser {
         if {[llength $ids] == 1} {
             set id [lindex $ids 0]
 
-            order enter GROUP:CIVILIAN:UPDATE g $id
+            order enter UNIT:UPDATE u $id
         } else {
-            order enter GROUP:CIVILIAN:UPDATE:MULTI ids $ids
+            order enter UNIT:UPDATE:MULTI ids $ids
         }
     }
 
     # DeleteSelected
     #
-    # Called when the user wants to delete the selected group.
+    # Called when the user wants to delete the selected unit.
 
     method DeleteSelected {} {
         # FIRST, there should be only one selected.
         set id [lindex [$tb curselection] 0]
 
-        # NEXT, Pop up the dialog, and select this group
-        order send gui GROUP:CIVILIAN:DELETE g $id
+        # NEXT, Send the delete order.
+        order send gui UNIT:DELETE u $id
     }
 
-    # delete n
+    # delete u
     #
-    # n     Deleted group.
+    # u     Deleted unit
     #
-    # When a group is deleted, we need to update the toolbar
+    # When a unit is deleted, we need to update the toolbar
     # state, as it's likely that there is no longer a selection.
 
-    method delete {n} {
+    method delete {u} {
         # FIRST, update the tablebrowser
-        $tb delete $n
+        $tb delete $u
 
         # NEXT, update the state
         $self SelectionChanged
+    }
+
+    # DisplayData dict
+    # 
+    # dict   the data dictionary that contains the group information
+    #
+    # This method converts the unit data dictionary to a list
+    # that contains just the information to be displayed in the table browser.
+
+    method DisplayData {dict} {
+        # FIRST, extract each field
+        dict with dict {
+            $tb setdata $u \
+                [list $u $gtype $g $n $location $personnel $activity]
+        }
     }
 
     # SelectionChanged
@@ -263,10 +266,9 @@ snit::widget civgroupbrowser {
 
         # NEXT, notify the app of the selection.
         if {$num == 1} {
-            set g [lindex [$tb curselection] 0]
+            set u [lindex [$tb curselection] 0]
 
-            notifier send ::app <ObjectSelect> \
-                [list group $g]
+            notifier send ::app <ObjectSelect> [list u $u]
         }
     }
 }

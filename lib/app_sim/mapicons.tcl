@@ -9,6 +9,9 @@
 #    This module defines some preliminary icon types for use with
 #    mapcanvas.
 #
+#    NOTE: These have effectively been replaced by mapicon_unit.tcl.
+#    These are really here as examples.
+#
 # mapicon(i) Interface:
 #
 #    mapicon <name> <mapcanvas> <cx> <cy> <options....>
@@ -60,19 +63,19 @@ snit::type ::mapicon::infantry {
     method ConfigureForeground {opt val} {
         set options($opt) $val
 
-        $can itemconfigure $me.rect  -outline $val
-        $can itemconfigure $me.lines -fill    $val
+        $can itemconfigure $me&&unitshape  -outline $val
+        $can itemconfigure $me&&unitfg     -fill    $val
     }
 
     # -background color
 
     option -background                        \
-        -default         gray                 \
+        -default         \#ffffff             \
         -configuremethod ConfigureBackground
 
     method ConfigureBackground {opt val} {
         set options($opt) $val
-        $can itemconfigure $me.rect -fill $val
+        $can itemconfigure $me&&unitshape -fill $val
     }
 
     # -tags taglist
@@ -124,20 +127,24 @@ snit::type ::mapicon::infantry {
         # There are two sets of items: the underlying rectangle
         # and the crossed lines.
 
-        # $self.rect
-        $can create rectangle $x1 $y1 $x2 $y2            \
-            -outline $options(-foreground)               \
-            -fill    $options(-background)               \
-            -tags    [list $me $me.rect [$type typename] icon {*}$options(-tags)]
+        # unitshape
+        $can create rectangle $x1 $y1 $x2 $y2             \
+            -width   2                                    \
+            -outline $options(-foreground)                \
+            -fill    $options(-background)                \
+            -tags    [list $me unitshape [$type typename] \
+                          icon {*}$options(-tags)]
         
-        # $self.lines
+        # unitfg
         $can create line $x1 $y1 $x2 $y2                 \
+            -width   2                                   \
             -fill $options(-foreground)                  \
-            -tags [list $me $me.lines [$type typename] icon {*}$options(-tags)]
+            -tags [list $me unitfg [$type typename] icon {*}$options(-tags)]
 
         $can create line $x1 $y2 $x2 $y1                 \
+            -width   2                                   \
             -fill $options(-foreground)                  \
-            -tags [list $me $me.lines [$type typename] icon {*}$options(-tags)]
+            -tags [list $me unitfg [$type typename] icon {*}$options(-tags)]
     }
 }
 
