@@ -150,6 +150,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
             cleanup  {}
             bindings {
                 icon   <ButtonPress-1>    {%W Icon-1 %x %y}
+                icon   <ButtonPress-3>    {%W Icon-3 %x %y %X %Y}
                 icon   <Control-Button-1> {%W IconMark %x %y}
                 icon   <B1-Motion>        {%W IconDrag %x %y}
                 icon   <B1-ButtonRelease> {%W IconRelease %x %y}
@@ -907,6 +908,24 @@ snit::widgetadaptor ::projectgui::mapcanvas {
             -x    $wx                  \
             -y    $wy                  \
             -data $id
+    }
+
+    # Icon-3 wx wy rx ry
+    #
+    # wx,wy   x,y window coordinates
+    # rx,ry   x,y root window coordinate
+    #
+    # Generates the <<Icon-3>> virtual event for the selected icon.
+
+    method Icon-3 {wx wy rx ry} {
+        set id [lindex [$win gettags current] 0]
+
+        event generate $win <<Icon-3>> \
+            -x     $wx                   \
+            -y     $wy                   \
+            -rootx $rx                   \
+            -rooty $ry                   \
+            -data  $id
     }
 
     # Nbhood-1 wx wy rx ry

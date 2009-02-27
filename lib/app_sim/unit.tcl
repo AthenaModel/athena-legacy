@@ -309,7 +309,7 @@ snit::type unit {
             if {$g ne ""} {
                 set gtype [group gtype $g]
             } else {
-                set gtype ""
+                set gtype $undoData(gtype)
             }
 
             # NEXT, get the new neighborhood

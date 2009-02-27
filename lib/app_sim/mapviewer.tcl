@@ -191,6 +191,35 @@ snit::widget mapviewer {
         }
 
 
+        mkicon ${type}::icon::newunit {
+            ......................
+            ......................
+            ......................
+            ......................
+            .XXXXXXXXXXXXXXXXXXXX.
+            .X..................X.
+            .X..................X.
+            .X..................X.
+            .X.....X.....X......X.
+            .X.....XX....X......X.
+            .X.....X.X...X......X.
+            .X.....X..X..X......X.
+            .X.....X...X.X......X.
+            .X.....X....XX......X.
+            .X.....X.....X......X.
+            .X..................X.
+            .X..................X.
+            .X..................X.
+            .XXXXXXXXXXXXXXXXXXXX.
+            ......................
+            ......................
+            ......................
+        } {
+            .  trans
+            X  #000000
+        }
+
+
         mkicon ${type}::icon::extend {
             ......................
             .,,,,,,x-------------.
@@ -295,7 +324,7 @@ snit::widget mapviewer {
     # id-$u      id, given u
     # trans      Transient $u, used in event bindings
 
-    variable nbhoods -array { }
+    variable units -array { }
 
     #-------------------------------------------------------------------
     # Constructor
@@ -387,9 +416,20 @@ snit::widget mapviewer {
             -relief  flat                                \
             -image   ${type}::icon::nbpoly               \
             -command [list order enter NBHOOD:CREATE]
-        DynamicHelp::add $win.vbar.nbhood -text "Create Neighborhood"
+        DynamicHelp::add $win.vbar.nbhood \
+            -text [order title NBHOOD:CREATE]
 
         pack $win.vbar.nbhood -side top -fill x -padx 2
+
+        button $win.vbar.newunit                         \
+            -relief  flat                                \
+            -image   ${type}::icon::newunit              \
+            -command [list order enter UNIT:CREATE]
+        DynamicHelp::add $win.vbar.newunit \
+            -text [order title UNIT:CREATE]
+
+        pack $win.vbar.nbhood  -side top -fill x -padx 2
+        pack $win.vbar.newunit -side top -fill x -padx 2
 
         # Pack all of these components
         pack $win.hbar  -side top  -fill x
@@ -403,11 +443,10 @@ snit::widget mapviewer {
         # NEXT, draw everything for the current map, whatever it is.
         $self refresh
 
-        # NEXT, Forward virtual events from the canvas to the application.
-        $self ForwardVirtual <<Icon-1>>
-
         # NEXT, Translate events for the application
         bind $canvas <<Nbhood-1>>     [mymethod Nbhood-1 %d]
+        bind $canvas <<Icon-1>>       [mymethod Icon-1 %d]
+        bind $canvas <<IconMoved>>    [mymethod IconMoved %d]
 
         # NEXT, Support order processing.  This will set the viewer mode
         # to support the currently edited order field.
@@ -420,8 +459,11 @@ snit::widget mapviewer {
         notifier bind ::scenario <Reconfigure>   $self [mymethod refresh]
         notifier bind ::map      <MapChanged>    $self [mymethod refresh]
         notifier bind ::nbhood   <Entity>        $self [mymethod Nbhood]
+        notifier bind ::unit     <Entity>        $self [mymethod Unit]
+        notifier bind ::frcgroup <Entity>        $self [mymethod Group]
+        notifier bind ::orggroup <Entity>        $self [mymethod Group]
 
-        # NEXT, create popup menus
+        # NEXT, create nbhood popup menu
         set mnu [menu $canvas.nbhoodmenu]
 
         $mnu add command \
@@ -433,6 +475,15 @@ snit::widget mapviewer {
             -command [mymethod SendToBack]
 
         bind $canvas <<Nbhood-3>> [mymethod Nbhood-3 %d %X %Y]
+
+        # NEXT, create unit popup menu
+        set mnu [menu $canvas.unitmenu]
+
+        $mnu add command \
+            -label   "Update Unit" \
+            -command [mymethod UpdateUnit]
+
+        bind $canvas <<Icon-3>> [mymethod Icon-3 %d %X %Y]
     }
 
     destructor {
@@ -519,6 +570,71 @@ snit::widget mapviewer {
     method SendToBack {} {
         order send gui NBHOOD:LOWER [list n $nbhoods(trans)]
     }
+
+    #-------------------------------------------------------------------
+    # Icon Events
+
+    # Icon-1 id
+    #
+    # id      An icon canvas ID
+    #
+    # Called when the user clicks on an icon.  First, support pucking 
+    # of units into orders.  Next, translate it to a unit ID and forward.
+    #
+    # TBD: At present, we only have unit icons.  Later, we'll need to
+    # generalize this.
+
+    method Icon-1 {id} {
+        notifier send ::app <ObjectSelect> [list unit $units(u-$id)]
+
+        event generate $win <<Unit-1>> -data $units(u-$id)
+    }
+    
+    # Icon-3 id rx ry
+    #
+    # id      An icon canvas ID
+    # rx,ry   Root window coordinates
+    #
+    # Called when the user right-clicks on an icon.  Pops up the
+    # icon context menu.
+    #
+    # TBD: At present, we only have unit icons.  Later, we'll need to
+    # generalize this.
+
+    method Icon-3 {id rx ry} {
+        set units(trans) $units(u-$id)
+
+        tk_popup $canvas.unitmenu $rx $ry
+    }
+
+    # IconMoved id
+    #
+    # id    An icon canvas ID
+    #
+    # Called when the user drags an icon.  Moves the unit to the
+    # desired location.
+    #
+    # TBD: At present, we only have unit icons.  Later, we'll need to
+    # generalize this.
+    #
+    # TBD: At present, there are no restrictions on moving units--
+    # the order will always succeed.  If we add some, we'll need to
+    # handle the failure here.
+
+    method IconMoved {id} {
+        order send gui UNIT:UPDATE          \
+            u $units(u-$id)                 \
+            location [$canvas icon ref $id]
+    }
+
+    # UpdateUnit
+    #
+    # Pops up the "Update Unit" dialog for this unit
+
+    method UpdateUnit {} {
+        order enter UNIT:UPDATE u $units(trans)
+    }
+
 
     #-------------------------------------------------------------------
     # Order Handling
@@ -675,6 +791,104 @@ snit::widget mapviewer {
         # fast enough.
         $self NbhoodDrawAll
     }
+
+    # Unit create u
+    #
+    # u     The unit ID
+    #
+    # There's a new unit; display it.
+
+    method {Unit create} {u} {
+        $self Unit update $u
+    }
+
+    # Unit delete u
+    #
+    # u     The unit ID
+    #
+    # Delete the unit from the mapcanvas.
+
+    method {Unit delete} {u} {
+        # FIRST, delete it from the canvas
+        $canvas icon delete $units(id-$u)
+
+        # NEXT, delete it from the mapviewer's data.
+        set id $units(id-$u)
+        unset units(u-$id)
+        unset units(id-$u)
+    }
+      
+    # Unit update n
+    #
+    # n     The unit ID
+    #
+    # Something changed about unit n.  Update it.
+
+    method {Unit update} {u} {
+        # FIRST, we need to handle different unit types
+        # separately.
+        # TBD: Can we put this logic in unit(sim) and make
+        # it more efficient?  Or should we cache the symbol
+        # type?
+
+
+        rdb eval {SELECT gtype FROM units WHERE u=$u} {}
+
+        if {$gtype eq "FRC"} {
+            rdb eval {
+                SELECT *
+                FROM units JOIN frcgroups_view USING (g)
+                WHERE u=$u
+            } row {}
+        } elseif {$gtype eq "ORG"} {
+            rdb eval {
+                SELECT *
+                FROM units JOIN orggroups_view USING (g)
+                WHERE u=$u
+            } row {}
+        } else {
+            error "Unexpected gtype: \"$gtype\""
+        }
+
+        # NEXT, draw it; this will delete any previous unit
+        # with the same name.
+        $self UnitDraw [array get row]
+    }
+
+
+    # Group create g
+    #
+    # g    The group ID
+    #
+    # A FRC or ORG group was created.  No-op.
+
+    method {Group create} {g} { }
+
+
+    # Group delete g
+    #
+    # g    The group ID
+    #
+    # A FRC or ORG group was deleted.  No-op.
+
+    method {Group delete} {g} { }
+
+
+    # Group update g
+    #
+    # g    The group ID
+    #
+    # A FRC or ORG group was updated.  This might have changed
+    # the group's shape or symbol.  Redraw all units belonging to
+    # the group.
+    #
+    # TBD: For now, redraw all units.
+
+    method {Group update} {g} {
+        $canvas delete unit
+        $self UnitDrawAll 
+    }
+
 
     #-------------------------------------------------------------------
     # FillPoly
@@ -880,6 +1094,7 @@ snit::widget mapviewer {
             # delete it.
             if {[info exists units(id-$u)]} {
                 $canvas icon delete $units(id-$u)
+                unset units(u-$units(id-$u))
                 unset units(id-$u)
             }
 

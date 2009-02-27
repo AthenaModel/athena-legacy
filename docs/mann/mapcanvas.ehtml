@@ -461,6 +461,12 @@ Sent when the user clicks button-1 on an icon in <b>browse</b> mode.
 The <b>%x</b> and <b>%y</b> conversions are the window coordinates of
 the event, as usual, and <b>%d</b> is the ID of the icon.<p>
 
+<<defitem Icon-3 {&lt;&lt;Icon-3&gt;&gt;}>>
+
+Sent when the user clicks button-3 on an icon in <b>browse</b> mode.
+The <b>%x</b>, <b>%y</b>, <b>%X</b>, and <b>%Y</b> conversions are
+defined as usual, and <b>%d</b> is the ID of the icon.<p>
+
 <<defitem IconMoved {&lt;&lt;IconMoved&gt;&gt;}>>
 
 Sent when the user drags an icon to a new location in <b>browse</b> mode.

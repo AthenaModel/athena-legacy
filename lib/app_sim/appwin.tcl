@@ -92,7 +92,7 @@ snit::widget appwin {
         # NEXT, Prepare to receive window events
         bind $content <<NotebookTabChanged>> [mymethod Reconfigure]
 
-        bind $viewer <<Icon-1>>       [mymethod Icon-1 %d]
+        bind $viewer <<Unit-1>>       [mymethod Unit-1 %d]
         bind $viewer <<Nbhood-1>>     [mymethod Nbhood-1 %d]
 
         # NEXT, prepare to append pucked points, etc., to the CLI
@@ -769,14 +769,17 @@ snit::widget appwin {
     # Mapviewer Event Handlers
 
 
-    # Icon-1 id
+    # Unit-1 u
     #
-    # id      An icon ID
+    # u      A unit ID
     #
-    # Called when the user clicks on an icon.
+    # Called when the user clicks on a unit icon.
 
-    method Icon-1 {id} {
-        $self puts "Found $id at [$viewer icon ref $id]"
+    method Unit-1 {u} {
+        rdb eval {SELECT * FROM gui_units WHERE u=$u} row {
+        $self puts \
+            "Unit $u  at: $row(location)  group: $row(g)  activity: $row(activity)  personnel: $row(personnel)"
+        }
     }
 
     # Nbhood-1 n
