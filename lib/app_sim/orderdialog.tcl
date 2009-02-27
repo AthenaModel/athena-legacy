@@ -583,9 +583,9 @@ snit::widget orderdialog {
         focus $my(field-$my(first))
         
         # NEXT, fill in the data
-        if {[dict size $parmdict] > 0} {
-            $self Clear
+        $self Clear
 
+        if {[dict size $parmdict] > 0} {
             $self set $parmdict
         }
     }
