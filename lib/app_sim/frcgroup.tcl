@@ -25,7 +25,15 @@ snit::type frcgroup {
     #-------------------------------------------------------------------
     # Type Variables
 
-    # TBD
+    # Unit Symbols, by force type
+
+    typevariable symbols -array {
+        REGULAR       infantry
+        IRREGULAR     infantry
+        PARAMILITARY  {infantry police}
+        POLICE        police
+        CRIMINAL      criminal
+    }
 
     #-------------------------------------------------------------------
     # Initialization
@@ -112,13 +120,17 @@ snit::type frcgroup {
 
     typemethod {mutate create} {parmdict} {
         dict with parmdict {
-            # FIRST, Put the group in the database
+            # FIRST, get the symbol
+            set symbol $symbols($forcetype)
+
+            # NEXT, Put the group in the database
             rdb eval {
-                INSERT INTO groups(g,longname,color,shape,gtype)
+                INSERT INTO groups(g,longname,color,shape,symbol,gtype)
                 VALUES($g,
                        $longname,
                        $color,
                        $shape,
+                       $symbol,
                        'FRC');
 
                 INSERT INTO frcgroups(g,forcetype,local,coalition)
@@ -197,13 +209,21 @@ snit::type frcgroup {
             } undoData {
                 unset undoData(*)
             }
+            
+            # NEXT, get the new unit symbol, if need be.
+            if {$forcetype ne ""} {
+                set symbol $symbols($forcetype)
+            } else {
+                set symbol ""
+            }
 
             # NEXT, Update the group
             rdb eval {
                 UPDATE groups
                 SET longname  = nonempty($longname,  longname),
                     color     = nonempty($color,     color),
-                    shape     = nonempty($shape,     shape)
+                    shape     = nonempty($shape,     shape),
+                    symbol    = nonempty($symbol,    symbol)
                 WHERE g=$g;
 
                 UPDATE frcgroups

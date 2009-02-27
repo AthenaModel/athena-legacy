@@ -255,18 +255,6 @@ snit::widget mapviewer {
     }
 
     #-------------------------------------------------------------------
-    # Lookup Tables
-
-    # Force unit symbols, by force type
-    typevariable forceSymbols -array {
-        REGULAR      infantry
-        IRREGULAR    infantry
-        PARAMILITARY {infantry police}
-        POLICE       police
-        CRIMINAL     criminal
-    }
-
-    #-------------------------------------------------------------------
     # Options
 
     delegate option *    to hull
@@ -827,32 +815,15 @@ snit::widget mapviewer {
     method {Unit update} {u} {
         # FIRST, we need to handle different unit types
         # separately.
-        # TBD: Can we put this logic in unit(sim) and make
-        # it more efficient?  Or should we cache the symbol
-        # type?
 
-
-        rdb eval {SELECT gtype FROM units WHERE u=$u} {}
-
-        if {$gtype eq "FRC"} {
-            rdb eval {
-                SELECT *
-                FROM units JOIN frcgroups_view USING (g)
-                WHERE u=$u
-            } row {}
-        } elseif {$gtype eq "ORG"} {
-            rdb eval {
-                SELECT *
-                FROM units JOIN orggroups_view USING (g)
-                WHERE u=$u
-            } row {}
-        } else {
-            error "Unexpected gtype: \"$gtype\""
+        rdb eval {
+            SELECT * FROM units JOIN groups USING (g)
+            WHERE u=$u
+        } row {
+            # NEXT, draw it; this will delete any previous unit
+            # with the same name.
+            $self UnitDraw [array get row]
         }
-
-        # NEXT, draw it; this will delete any previous unit
-        # with the same name.
-        $self UnitDraw [array get row]
     }
 
 
@@ -1068,19 +1039,12 @@ snit::widget mapviewer {
     method UnitDrawAll {} {
         array unset units
 
-        # NEXT, add force units
+        # NEXT, add units
         rdb eval {
-            SELECT * FROM units JOIN frcgroups_view USING (g)
+            SELECT * FROM units JOIN groups USING (g)
         } row {
             $self UnitDraw [array get row]
-        }
-
-        # NEXT, add org units
-        rdb eval {
-            SELECT * FROM units JOIN orggroups_view USING (g)
-        } row {
-            $self UnitDraw [array get row]
-        }
+        } 
 
     }
 
@@ -1098,19 +1062,6 @@ snit::widget mapviewer {
                 unset units(id-$u)
             }
 
-            # NEXT, get the symbol
-            if {$gtype eq "FRC"} {
-                set symbol $forceSymbols($forcetype)
-            } elseif {$gtype eq "ORG"} {
-                set symbol [list]
-
-                if {$medical}  { lappend symbol medical  }
-                if {$support}  { lappend symbol support  }
-                if {$engineer} { lappend symbol engineer }
-            } else {
-                error "Unexpected gtype: \"$gtype\""
-            }
-            
             # NEXT, draw it.
             set id [$canvas icon create unit \
                         {*}$location         \
@@ -1123,10 +1074,6 @@ snit::widget mapviewer {
             set units(id-$u) $id
         }
     }
-
-
-
-
 }
 
 

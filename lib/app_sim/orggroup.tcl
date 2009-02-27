@@ -115,13 +115,27 @@ snit::type orggroup {
 
     typemethod {mutate create} {parmdict} {
         dict with parmdict {
+            # FIRST, get the unit symbol
+            if {$medical} {
+                lappend symbol medical
+            }
+
+            if {$engineer} {
+                lappend symbol engineer
+            }
+
+            if {$support} {
+                lappend symbol support
+            }
+
             # FIRST, Put the group in the database
             rdb eval {
-                INSERT INTO groups(g,longname,color,shape,gtype)
+                INSERT INTO groups(g,longname,color,shape,symbol,gtype)
                 VALUES($g,
                        $longname,
                        $color,
                        $shape,
+                       $symbol,
                        'ORG');
 
                 INSERT INTO orggroups(g,orgtype,medical,engineer,support,
@@ -209,12 +223,48 @@ snit::type orggroup {
                 unset undoData(*)
             }
 
+            # NEXT, get the symbol.  (TBD: Do this as a trigger?)
+            set symbol [list]
+
+            if {$medical eq ""} {
+                if {$undoData($medical)} {
+                    lappend symbol medical
+                }
+            } elseif {$medical} {
+                lappend symbol medical
+            }
+
+
+            if {$engineer eq ""} {
+                if {$undoData($engineer)} {
+                    lappend symbol engineer
+                }
+            } elseif {$engineer} {
+                lappend symbol engineer
+            }
+
+
+            if {$support eq ""} {
+                if {$undoData($support)} {
+                    lappend symbol support
+                }
+            } elseif {$support} {
+                lappend symbol support
+            }
+
+
+            if {$symbol eq $undoData(symbol)} {
+                set symbol ""
+            }
+
+
             # NEXT, Update the group
             rdb eval {
                 UPDATE groups
                 SET longname  = nonempty($longname,  longname),
                     color     = nonempty($color,     color),
-                    shape     = nonempty($shape,     shape)
+                    shape     = nonempty($shape,     shape),
+                    symbol    = nonempty($symbol,    symbol)
                 WHERE g=$g;
 
                 UPDATE orggroups

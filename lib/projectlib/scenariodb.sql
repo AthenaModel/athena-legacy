@@ -140,6 +140,9 @@ CREATE TABLE groups (
     -- Unit Shape (eunitshape(n))
     shape       TEXT DEFAULT 'NEUTRAL',
 
+    -- Unit Symbol (list of eunitsymbol(n), or '')
+    symbol      TEXT DEFAULT '',
+
     -- Group type, CIV, FRC, ORG
     gtype       TEXT 
 );
