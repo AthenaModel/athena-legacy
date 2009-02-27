@@ -25,6 +25,10 @@
 #    database is in an unchanged state.  The "unsaved" method returns
 #    1 if there are unsaved changes, and 0 otherwise.
 #
+# XML IMPORT/EXPORT:
+#    scenariodb(n) supports automated export and import of scenario
+#    files.
+#
 #-----------------------------------------------------------------------
 
 namespace eval ::projectlib:: {
@@ -261,6 +265,218 @@ snit::type ::projectlib::scenariodb {
 
     method marksaved {} {
         set info(savedChanges) [$db total_changes]
+    }
+
+    #-------------------------------------------------------------------
+    # XML Import/Export
+    #
+    # The schema is as follows:
+    #
+    #    <database>
+    #        <table name="thetable">
+    #            <row>
+    #                <column name="thecolumn">
+    #                value
+    #                </column>
+    #            </row>
+    #        </table>
+    #    </database>
+
+    # export ?tables?
+    #
+    # tables      A list of the names of the tables to export.
+    #
+    # Exports the database as XML.  If tables is given, exports the named
+    # tables.
+    
+    method export {{tables ""}} {
+        # FIRST, create the document
+        set doc  [dom createDocument database]
+        set root [$doc documentElement]
+
+        # NEXT, add the user_version of the schema to the root.
+        set version [$db onecolumn {PRAGMA user_version}]
+
+        if {$version ne ""} {
+            $root setAttribute dbschema $version
+        }
+        
+        # NEXT, export each of the requested tables; or all tables.
+        if {[llength $tables] == 0} {
+            set tables [$db eval {
+                SELECT name FROM sqlite_master
+                WHERE type='table'
+            }]
+        }
+        
+        foreach name $tables {
+            $self ExportTable $doc $name
+        }
+        
+        # NEXT, return the document
+        set output [$doc asXML -indent 4 -doctypeDeclaration yes]
+        $doc delete
+        
+        return $output
+    }
+
+    # ExportTable doc table
+    #
+    # doc      a tDOM document object
+    # table    The name of a table in the DB
+    #
+    # Adds a table element to the XML document for this table.
+
+    method ExportTable {doc table} {
+        # FIRST, add a "table" element for this table
+        set root  [$doc documentElement]
+        set tnode [$doc createElement table]
+
+        $tnode setAttribute name $table
+
+        # NEXT, get the column types
+        $db eval "PRAGMA table_info('$table')" tinfo {
+            set ctype($tinfo(name)) $tinfo(type)
+        }
+
+        # NEXT, add each row.
+        set count 0
+
+        $db eval "SELECT * FROM $table" row {
+            unset -nocomplain row(*)
+            incr count
+
+            set rnode [$doc createElement row]
+            $tnode appendChild $rnode
+
+            foreach col [array names row] {
+                set cnode [$doc createElement column]
+                $rnode appendChild $cnode
+                $cnode setAttribute name $col
+
+                if {$ctype($col) eq "BLOB"} {
+                    binary scan $row($col) H* hex
+                    set vnode [$doc createTextNode $hex]
+                } else {
+                    set vnode [$doc createTextNode $row($col)]
+                }
+
+                $cnode appendChild $vnode
+            }
+        }
+
+        # NEXT, if there were any rows, save this table.  Otherwise,
+        # destroy it.
+        if {$count > 0} {
+            $root appendChild $tnode
+        } else {
+            $tnode delete
+        }
+    }
+
+    # import xmltext ?logcmd?
+    #
+    # xmltext   XML text
+    # logcmd    A command prefix taking a message string as its single
+    #           argument.
+    #
+    # Imports the XML text into the database.  Erases existing content.
+
+    method import {xmltext {logcmd ""}} {
+        # FIRST, parse the XML input
+        set doc [dom parse $xmltext]
+        set root [$doc documentElement]
+
+        # NEXT, clear the contents of the database.
+        $db clear
+
+        # NEXT, get the schema version.
+        # TBD: Ultimately, we'll need to handle this explicitly.
+        set version [$root getAttribute dbschema]
+        
+        $db eval "PRAGMA user_version=$version"
+
+        # NEXT, import the tables
+        try {
+            foreach node [$root getElementsByTagName table] {
+                $self ImportTable $node $logcmd
+            }
+        } finally {
+            $doc delete
+        }
+    }
+
+    method ImportTable {tnode logcmd} {
+        # FIRST, get the table's name
+        set table [$tnode getAttribute name]
+
+        # NEXT, verify that the table exists.
+        if {![$db exists "PRAGMA table_info('$table')"]} {
+            callwith $logcmd "Skipping $table"
+            return
+        }
+
+        callwith $logcmd "Importing $table"
+
+        # NEXT, get the table's BLOB columns
+        set blobs [list]
+
+        $db eval "PRAGMA table_info('$table')" tinfo {
+            if {$tinfo(type) eq "BLOB"} {
+                lappend blobs $tinfo(name)
+            }
+        }
+
+        # NEXT, get the rows.
+        set rnodes [$tnode getElementsByTagName row]
+
+        # NEXT, all rows will have the same columns.  Get the actual list
+        # of columns from the first row.
+        set rdict [$self ImportRow [lindex $rnodes 0]]
+
+        set cnames [dict keys $rdict]
+
+        # NEXT, use the names to create the query we'll use to insert
+        # data into the database.
+
+        foreach name $cnames {
+            lappend cvars "\$row($name)"
+        }
+
+        set query [tsubst {
+            |<--
+            INSERT OR REPLACE INTO ${table}([join $cnames ,])
+            VALUES([join $cvars ,])
+        }]
+
+        # NEXT, import the rows.
+        $db eval "DELETE FROM $table;"
+
+        foreach rnode $rnodes {
+            array set row [$self ImportRow $rnode]
+
+            foreach name $blobs {
+                set row($name) [binary format H* $row($name)]
+            }
+
+            $db eval $query
+        }
+    }
+
+    # ImportRow rnode
+    #
+    # rnode    A row node.
+    #
+    # Returns the row's data as a dictionary.
+
+    method ImportRow {rnode} {
+        set rdict [list]
+
+        foreach cnode [$rnode getElementsByTagName column] {
+            lappend rdict [$cnode getAttribute name] [$cnode text]
+        }
+
+        return $rdict
     }
 }
 

@@ -1,0 +1,35 @@
+<<manpage {athena(1) athena_import(1)} "Athena Import Tool">>
+
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<deflist program>>
+
+<<defitem {athena import} {athena import <i>scenario</i> [<i>xmlfile</i>]}>>
+
+<</deflist program>>
+
+Creates an Athena <i>scenario</i> file from XML input.  The
+XML text is read from standard input, or from an <i>xmlfile</i>.  If
+the <i>scenario</i> file already exists, any existing data is destroyed.<p>
+
+The <<xref athena_export(1)>> application exports a scenario file
+as XML; see that man page for the XML schema.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+New application.
+
+<</manpage>>
+
+
+
+
+

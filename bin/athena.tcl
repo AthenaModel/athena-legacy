@@ -101,6 +101,18 @@ set metadata {
         applib   app_version
         mode     cmdline
     }
+
+    import {
+        text     "XML Import"
+        applib   app_import
+        mode     cmdline
+    }
+
+    export {
+        text     "XML Export"
+        applib   app_export
+        mode     cmdline
+    }
 }
 
 #-----------------------------------------------------------------------

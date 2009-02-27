@@ -20,6 +20,7 @@ package require snit
 
 package require marsutil
 package require sqlite3
+package require tdom
 
 #-----------------------------------------------------------------------
 # Package Definition
