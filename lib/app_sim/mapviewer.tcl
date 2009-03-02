@@ -6,15 +6,51 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Map viewer widget
+#    mapviewer(sim): athena_sim(1) Map viewer widget
 #
-#    The mapviewer is a mapcanvas with addition tools and components.
+#    The mapviewer uses a mapcanvas(n) widget to display a map, and
+#    neighborhood polygons and icons upon that map.  Its purpose is 
+#    to wrap up all of the application-specific details of interacting
+#    with the map.
+#
+# OUTLINE:
+#    This is a large and complex file; the following outline may prove
+#    useful.
+#
+#      I. General Behavior
+#         A. Button Icon Definitions
+#         B. Widget Options
+#         C. Widget Components
+#         D. Instance Variables
+#         E. Constructor
+#         F. Event Handlers: Tool Buttons
+#         G. Event Handlers: Order Entry 
+#         H. Public Methods
+#     II. Neighborhood Display and Behavior
+#         A. Instance Variables
+#         B. Neighborhood Display
+#         C. Context Menu
+#         D. Event Handlers: mapcanvas(n)
+#         E. Event Handlers: notifier(n)
+#         F. Public Methods
+#    III. Icon Display and Behavior
+#         A. Instance Variables
+#         B. Event Handlers: mapcanvas(n)
+#     IV. Unit Display and Behavior
+#         A. Unit Display
+#         B. Context Menu
+#         C. Icon Handlers
+#         D. Event Handlers: notifier(n)
+#         E. Public Methods
 #
 #-----------------------------------------------------------------------
 
 snit::widget mapviewer {
+    #===================================================================
+    # General Behavior
+
     #-------------------------------------------------------------------
-    # Type Constructor
+    # Button Icon Definitions
 
     typeconstructor {
         # Create the button icons
@@ -255,12 +291,13 @@ snit::widget mapviewer {
     }
 
     #-------------------------------------------------------------------
-    # Options
+    # Widget Options
 
-    delegate option *    to hull
+    # All options are delegated to the mapcanvas(n).
+    delegate option * to hull
     
     #-------------------------------------------------------------------
-    # Components
+    # Widget Components
 
     component canvas           ;# The mapcanvas(n)
 
@@ -292,34 +329,11 @@ snit::widget mapviewer {
         zoom     "100%"
     }
 
-    # nbhoods array: 
-    #
-    #     $id is canvas nbhood ID
-    #     $n  is "n" column from nbhoods table.
-    #
-    # n-$id      n, given ID
-    # id-$n      id, given n
-    # trans      Transient $n, used in event bindings
-
-    variable nbhoods -array { }
-
-    # units array: 
-    #
-    #     $id is canvas unit ID
-    #     $u  is "u" column from units table.
-    #
-    # u-$id      u, given ID
-    # id-$u      id, given u
-    # trans      Transient $u, used in event bindings
-
-    variable units -array { }
-
     #-------------------------------------------------------------------
     # Constructor
 
     constructor {args} {
         # FIRST, Configure the hull's appearance.
-        
         $hull configure    \
             -borderwidth 0 \
             -relief flat
@@ -425,53 +439,33 @@ snit::widget mapviewer {
         pack $win.vbar  -side left -fill y 
         pack $win.mapsw            -fill both -expand yes
 
+        # NEXT, Create the context menus
+        $self CreateNbhoodContextMenu
+        $self CreateUnitContextMenu
+
         # NEXT, process the arguments
         $self configurelist $args
 
-        # NEXT, draw everything for the current map, whatever it is.
-        $self refresh
-
-        # NEXT, Translate events for the application
-        bind $canvas <<Nbhood-1>>     [mymethod Nbhood-1 %d]
+        # NEXT, Subscribe to mapcanvas(n) events.
         bind $canvas <<Icon-1>>       [mymethod Icon-1 %d]
+        bind $canvas <<Icon-3>>       [mymethod Icon-3 %d %X %Y]
         bind $canvas <<IconMoved>>    [mymethod IconMoved %d]
-
-        # NEXT, Support order processing.  This will set the viewer mode
-        # to support the currently edited order field.
-        notifier bind ::order <OrderEntry> $self [mymethod OrderEntry]
-
+        bind $canvas <<Nbhood-1>>     [mymethod Nbhood-1 %d]
+        bind $canvas <<Nbhood-3>>     [mymethod Nbhood-3 %d %X %Y]
         bind $canvas <<Point-1>>      [mymethod Point-1 %d]
         bind $canvas <<PolyComplete>> [mymethod PolyComplete %d]
 
-        # NEXT, Support model updates
-        notifier bind ::scenario <Reconfigure>   $self [mymethod refresh]
-        notifier bind ::map      <MapChanged>    $self [mymethod refresh]
-        notifier bind ::nbhood   <Entity>        $self [mymethod Nbhood]
-        notifier bind ::unit     <Entity>        $self [mymethod Unit]
-        notifier bind ::frcgroup <Entity>        $self [mymethod Group]
-        notifier bind ::orggroup <Entity>        $self [mymethod Group]
+        # NEXT, Subscribe to application notifier(n) events.
+        notifier bind ::scenario <Reconfigure> $self [mymethod refresh]
+        notifier bind ::map      <MapChanged>  $self [mymethod refresh]
+        notifier bind ::order    <OrderEntry>  $self [mymethod OrderEntry]
+        notifier bind ::nbhood   <Entity>      $self [mymethod EntityNbhood]
+        notifier bind ::unit     <Entity>      $self [mymethod EntityUnit]
+        notifier bind ::frcgroup <Entity>      $self [mymethod EntityGroup]
+        notifier bind ::orggroup <Entity>      $self [mymethod EntityGroup]
 
-        # NEXT, create nbhood popup menu
-        set mnu [menu $canvas.nbhoodmenu]
-
-        $mnu add command \
-            -label   "Bring to Front" \
-            -command [mymethod BringToFront]
-
-        $mnu add command \
-            -label   "Send to Back" \
-            -command [mymethod SendToBack]
-
-        bind $canvas <<Nbhood-3>> [mymethod Nbhood-3 %d %X %Y]
-
-        # NEXT, create unit popup menu
-        set mnu [menu $canvas.unitmenu]
-
-        $mnu add command \
-            -label   "Update Unit" \
-            -command [mymethod UpdateUnit]
-
-        bind $canvas <<Icon-3>> [mymethod Icon-3 %d %X %Y]
+        # NEXT, draw everything for the current map, whatever it is.
+        $self refresh
     }
 
     destructor {
@@ -498,134 +492,36 @@ snit::widget mapviewer {
         DynamicHelp::add $win.vbar.$mode -text $tooltip
     }
 
-    # ForwardVirtual event
-    #
-    # virtualEvent    A virtual event name
-    #
-    # Forwards virtual events from the $canvas to $win
-
-    method ForwardVirtual {event} {
-        bind $canvas $event \
-            [list event generate $win $event -x %x -y %y -data %d]
-    }
-
-    #===================================================================
-    # Event Handlers
-
     #-------------------------------------------------------------------
-    # Neighborhood Events
+    # Event Handlers: Tool Buttons
 
-    # Nbhood-1 id
+    # ZoomBoxSet
     #
-    # id      A nbhood canvas ID
-    #
-    # Called when the user clicks on a nbhood.  First, support pucking 
-    # of neighborhoods into orders.  Next, translate it to a 
-    # neighborhood ID and forward.
+    # Sets the map zoom to the specified amount.
 
-    method Nbhood-1 {id} {
-        notifier send ::app <ObjectSelect> [list nbhood $nbhoods(n-$id)]
-
-        event generate $win <<Nbhood-1>> -data $nbhoods(n-$id)
-    }
-    
-    # Nbhood-3 id rx ry
-    #
-    # id      A nbhood canvas ID
-    # rx,ry   Root window coordinates
-    #
-    # Called when the user right-clicks on a nbhood.  Pops up the
-    # neighborhood context menu.
-
-    method Nbhood-3 {id rx ry} {
-        set nbhoods(trans) $nbhoods(n-$id)
-
-        tk_popup $canvas.nbhoodmenu $rx $ry
+    method ZoomBoxSet {} {
+        scan $view(zoom) "%d" factor
+        $canvas zoom $factor
     }
 
-    # BringToFront
+    # ButtonFillPoly
     #
-    # Brings the transient neighborhood to the front
+    # Fills/unfills the neighborhood polygons
 
-    method BringToFront {} {
-        order send gui NBHOOD:RAISE [list n $nbhoods(trans)]
+    method ButtonFillPoly {} {
+        $self NbhoodFill
     }
 
-    # SendToBack
+    # ButtonExtend
     #
-    # Sends the transient neighborhood to the back
+    # Sets the scrollregion to the full 1000x1000 area
 
-    method SendToBack {} {
-        order send gui NBHOOD:LOWER [list n $nbhoods(trans)]
+    method ButtonExtend {} {
+        $canvas region $view(region)
     }
 
     #-------------------------------------------------------------------
-    # Icon Events
-
-    # Icon-1 id
-    #
-    # id      An icon canvas ID
-    #
-    # Called when the user clicks on an icon.  First, support pucking 
-    # of units into orders.  Next, translate it to a unit ID and forward.
-    #
-    # TBD: At present, we only have unit icons.  Later, we'll need to
-    # generalize this.
-
-    method Icon-1 {id} {
-        notifier send ::app <ObjectSelect> [list unit $units(u-$id)]
-
-        event generate $win <<Unit-1>> -data $units(u-$id)
-    }
-    
-    # Icon-3 id rx ry
-    #
-    # id      An icon canvas ID
-    # rx,ry   Root window coordinates
-    #
-    # Called when the user right-clicks on an icon.  Pops up the
-    # icon context menu.
-    #
-    # TBD: At present, we only have unit icons.  Later, we'll need to
-    # generalize this.
-
-    method Icon-3 {id rx ry} {
-        set units(trans) $units(u-$id)
-
-        tk_popup $canvas.unitmenu $rx $ry
-    }
-
-    # IconMoved id
-    #
-    # id    An icon canvas ID
-    #
-    # Called when the user drags an icon.  Moves the unit to the
-    # desired location.
-    #
-    # TBD: At present, we only have unit icons.  Later, we'll need to
-    # generalize this.
-    #
-    # TBD: At present, there are no restrictions on moving units--
-    # the order will always succeed.  If we add some, we'll need to
-    # handle the failure here.
-
-    method IconMoved {id} {
-        order send gui UNIT:UPDATE          \
-            u $units(u-$id)                 \
-            location [$canvas icon ref $id]
-    }
-
-    # UpdateUnit
-    #
-    # Pops up the "Update Unit" dialog for this unit
-
-    method UpdateUnit {} {
-        order enter UNIT:UPDATE u $units(trans)
-    }
-
-
-    #-------------------------------------------------------------------
-    # Order Handling
+    # Event Handlers: Order Entry
 
     # OrderEntry tags
     #
@@ -657,6 +553,7 @@ snit::widget mapviewer {
         }
     }
 
+
     # Point-1 ref
     #
     # ref     A map reference string
@@ -683,6 +580,7 @@ snit::widget mapviewer {
             event generate $win <<Point-1>> -data $ref
         }
     }
+
 
     # PolyComplete poly
     #
@@ -711,195 +609,7 @@ snit::widget mapviewer {
     }
 
     #-------------------------------------------------------------------
-    # Entity Updates
-
-    # Nbhood create n
-    #
-    # n     The neighborhood ID
-    #
-    # There's a new neighborhood; display it.
-
-    method {Nbhood create} {n} {
-        # FIRST, get the nbhood data we care about
-        rdb eval {SELECT refpoint, polygon FROM nbhoods WHERE n=$n} {}
-
-        # NEXT, draw it; this will delete any previous neighborhood
-        # with the same name.
-        $self NbhoodDraw $n $refpoint $polygon
-
-        # NEXT, show refpoints obscured by the change
-        $self NbhoodShowObscured
-    }
-
-    # Nbhood delete n
-    #
-    # n     The neighborhood ID
-    #
-    # Delete the neighborhood from the mapcanvas.
-
-    method {Nbhood delete} {n} {
-        # FIRST, delete it from the canvas
-        $canvas nbhood delete $nbhoods(id-$n)
-
-        # NEXT, delete it from the mapviewer's data.
-        set id $nbhoods(id-$n)
-        unset nbhoods(n-$id)
-        unset nbhoods(id-$n)
-
-        # NEXT, show refpoints revealed by the change
-        $self NbhoodShowObscured
-    }
-      
-    # Nbhood update n
-    #
-    # n     The neighborhood ID
-    #
-    # Something changed about neighborhood n.  Update it.
-
-    method {Nbhood update} {n} {
-        # FIRST, get the nbhood data we care about
-        rdb eval {SELECT refpoint, polygon FROM nbhoods WHERE n=$n} {}
-
-        # NEXT, update the refpoint and polygon
-        $canvas nbhood point $nbhoods(id-$n)   $refpoint
-        $canvas nbhood polygon $nbhoods(id-$n) $polygon
-
-        # NEXT, show refpoints obscured by the change
-        $self NbhoodShowObscured
-    }
-
-    # Nbhood stack
-    #
-    # The neighborhood stacking order has changed; redraw all
-    # neighborhoods
-
-    method {Nbhood stack} {} {
-        # TBD: This could be optimized to just raise and lower the
-        # existing nbhoods; but this is simple and appears to be
-        # fast enough.
-        $self NbhoodDrawAll
-    }
-
-    # Unit create u
-    #
-    # u     The unit ID
-    #
-    # There's a new unit; display it.
-
-    method {Unit create} {u} {
-        $self Unit update $u
-    }
-
-    # Unit delete u
-    #
-    # u     The unit ID
-    #
-    # Delete the unit from the mapcanvas.
-
-    method {Unit delete} {u} {
-        # FIRST, delete it from the canvas
-        $canvas icon delete $units(id-$u)
-
-        # NEXT, delete it from the mapviewer's data.
-        set id $units(id-$u)
-        unset units(u-$id)
-        unset units(id-$u)
-    }
-      
-    # Unit update n
-    #
-    # n     The unit ID
-    #
-    # Something changed about unit n.  Update it.
-
-    method {Unit update} {u} {
-        # FIRST, we need to handle different unit types
-        # separately.
-
-        rdb eval {
-            SELECT * FROM units JOIN groups USING (g)
-            WHERE u=$u
-        } row {
-            # NEXT, draw it; this will delete any previous unit
-            # with the same name.
-            $self UnitDraw [array get row]
-        }
-    }
-
-
-    # Group create g
-    #
-    # g    The group ID
-    #
-    # A FRC or ORG group was created.  No-op.
-
-    method {Group create} {g} { }
-
-
-    # Group delete g
-    #
-    # g    The group ID
-    #
-    # A FRC or ORG group was deleted.  No-op.
-
-    method {Group delete} {g} { }
-
-
-    # Group update g
-    #
-    # g    The group ID
-    #
-    # A FRC or ORG group was updated.  This might have changed
-    # the group's shape or symbol.  Redraw all units belonging to
-    # the group.
-    #
-    # TBD: For now, redraw all units.
-
-    method {Group update} {g} {
-        $canvas delete unit
-        $self UnitDrawAll 
-    }
-
-
-    #-------------------------------------------------------------------
-    # FillPoly
-    
-
-    # ButtonFillPoly
-    #
-    # Fills/unfills the neighborhood polygons
-
-    method ButtonFillPoly {} {
-        $self NbhoodFill
-    }
-
-    #-------------------------------------------------------------------
-    # Extend
-
-    # ButtonExtend
-    #
-    # Sets the scrollregion to the full 1000x1000 area
-
-    method ButtonExtend {} {
-        $canvas region $view(region)
-    }
-
-
-
-    #-------------------------------------------------------------------
-    # Zoom Box
-    
-    # ZoomBoxSet
-    #
-    # Sets the map zoom to the specified amount.
-
-    method ZoomBoxSet {} {
-        scan $view(zoom) "%d" factor
-        $canvas zoom $factor
-    }
-
-    #===================================================================
-    # Public Methods
+    # Public Methods: General
 
     delegate method * to canvas
 
@@ -917,14 +627,38 @@ snit::widget mapviewer {
 
         # NEXT, clear all remembered state, and redraw everything
         $self NbhoodDrawAll
-
-        # NEXT, create icons
         $self UnitDrawAll
 
         # NEXT, set zoom and region
         set info(zoom)   "[$canvas zoom]%"
         set info(region) [$canvas region]
     }
+
+
+    #===================================================================
+    # Neighborhood Display and Behavior
+    #
+    # The mapcanvas(n) has a basic ability to display neighborhoods. 
+    # This section of mapviewer(n) provides the glue between the 
+    # mapcanvas(n) and the remainder of the application.
+
+    #-------------------------------------------------------------------
+    # Neighborhood Instance Variables
+
+    # nbhoods array:  maps between neighborhood names and canvas IDs.
+    #
+    #     $id is canvas nbhood ID
+    #     $n  is "n" column from nbhoods table.
+    #
+    # n-$id      n, given ID
+    # id-$n      id, given n
+    # trans      Transient $n, used in event bindings
+
+    variable nbhoods -array { }
+
+
+    #-------------------------------------------------------------------
+    # Neighborhood Display
 
     # NbhoodDrawAll
     #
@@ -949,6 +683,7 @@ snit::widget mapviewer {
         $self NbhoodFill
     }
 
+
     # NbhoodDraw n refpoint polygon
     #
     # n          The neighborhood ID
@@ -971,6 +706,7 @@ snit::widget mapviewer {
         set nbhoods(id-$n) $id
     }
 
+
     # NbhoodFill
     #
     # Fills the neighborhood polygons according to the current
@@ -988,6 +724,7 @@ snit::widget mapviewer {
         }
     }
 
+
     # NbhoodShowObscured
     #
     # Shows the obscured status of each neighborhood by lighting
@@ -1004,7 +741,153 @@ snit::widget mapviewer {
             }
         }
     }
+
+    #-------------------------------------------------------------------
+    # Neighborhood Context Menu
+
+    # CreateNbhoodContextMenu
+    #
+    # Creates the context menu
+
+    method CreateNbhoodContextMenu {} {
+        set mnu [menu $canvas.nbhoodmenu]
+
+        $mnu add command                     \
+            -label   "Bring to Front"        \
+            -command [mymethod NbhoodBringToFront]
+
+        $mnu add command                   \
+            -label   "Send to Back"        \
+            -command [mymethod NbhoodSendToBack]
+    }
+
+
+    # NbhoodBringToFront
+    #
+    # Brings the transient neighborhood to the front
+
+    method NbhoodBringToFront {} {
+        order send gui NBHOOD:RAISE [list n $nbhoods(trans)]
+    }
+
+
+    # NbhoodSendToBack
+    #
+    # Sends the transient neighborhood to the back
+
+    method NbhoodSendToBack {} {
+        order send gui NBHOOD:LOWER [list n $nbhoods(trans)]
+    }
+
+    #-------------------------------------------------------------------
+    # Event Handlers: mapcanvas(n)
+
+    # Nbhood-1 id
+    #
+    # id      A nbhood canvas ID
+    #
+    # Called when the user clicks on a nbhood.  First, support pucking 
+    # of neighborhoods into orders.  Next, translate it to a 
+    # neighborhood ID and forward for use by the containing appwin(sim).
+
+    method Nbhood-1 {id} {
+        notifier send ::app <ObjectSelect> [list nbhood $nbhoods(n-$id)]
+
+        event generate $win <<Nbhood-1>> -data $nbhoods(n-$id)
+    }
+
     
+    # Nbhood-3 id rx ry
+    #
+    # id      A nbhood canvas ID
+    # rx,ry   Root window coordinates
+    #
+    # Called when the user right-clicks on a nbhood.  Pops up the
+    # neighborhood context menu.
+
+    method Nbhood-3 {id rx ry} {
+        set nbhoods(trans) $nbhoods(n-$id)
+
+        tk_popup $canvas.nbhoodmenu $rx $ry
+    }
+
+
+    #-------------------------------------------------------------------
+    # Event Handlers: notifier(n)
+
+    # EntityNbhood create n
+    #
+    # n     The neighborhood ID
+    #
+    # There's a new neighborhood; display it.
+
+    method {EntityNbhood create} {n} {
+        # FIRST, get the nbhood data we care about
+        rdb eval {SELECT refpoint, polygon FROM nbhoods WHERE n=$n} {}
+
+        # NEXT, draw it; this will delete any previous neighborhood
+        # with the same name.
+        $self NbhoodDraw $n $refpoint $polygon
+
+        # NEXT, show refpoints obscured by the change
+        $self NbhoodShowObscured
+    }
+
+
+    # EntityNbhood delete n
+    #
+    # n     The neighborhood ID
+    #
+    # Delete the neighborhood from the mapcanvas.
+
+    method {EntityNbhood delete} {n} {
+        # FIRST, delete it from the canvas
+        $canvas nbhood delete $nbhoods(id-$n)
+
+        # NEXT, delete it from the mapviewer's data.
+        set id $nbhoods(id-$n)
+        unset nbhoods(n-$id)
+        unset nbhoods(id-$n)
+
+        # NEXT, show refpoints revealed by the change
+        $self NbhoodShowObscured
+    }
+      
+
+    # EntityNbhood update n
+    #
+    # n     The neighborhood ID
+    #
+    # Something changed about neighborhood n.  Update it.
+
+    method {EntityNbhood update} {n} {
+        # FIRST, get the nbhood data we care about
+        rdb eval {SELECT refpoint, polygon FROM nbhoods WHERE n=$n} {}
+
+        # NEXT, update the refpoint and polygon
+        $canvas nbhood point $nbhoods(id-$n)   $refpoint
+        $canvas nbhood polygon $nbhoods(id-$n) $polygon
+
+        # NEXT, show refpoints obscured by the change
+        $self NbhoodShowObscured
+    }
+
+
+    # EntityNbhood stack
+    #
+    # The neighborhood stacking order has changed; redraw all
+    # neighborhoods
+
+    method {EntityNbhood stack} {} {
+        # TBD: This could be optimized to just raise and lower the
+        # existing nbhoods; but this is simple and appears to be
+        # fast enough.
+        $self NbhoodDrawAll
+    }
+
+
+    #-------------------------------------------------------------------
+    # Public Methods: Neighborhoods
 
     # nbhood configure n option value...
     #
@@ -1016,6 +899,7 @@ snit::widget mapviewer {
     method {nbhood configure} {n args} {
         $canvas nbhood configure $nbhoods(id-$n) {*}$args
     }
+
 
     # nbhood cget n option
     #
@@ -1029,17 +913,108 @@ snit::widget mapviewer {
         $canvas nbhood cget $nbhoods(id-$n) $option
     }
 
+
+
+    #===================================================================
+    # Icon Display and Behavior
+    #
+    # Eventually we will have many different kinds of icon: units,
+    # situations, sites, etc.  This section covers the general 
+    # behavior, including dispatch of mapcanvas(n) events to 
+    # other sections.
+
     #-------------------------------------------------------------------
-    # Unit Methods
+    # Instance Variables
+
+    # icons array: 
+    #
+    #   $cid is canvas icon ID
+    #   $sid is scenario ID:
+    #        For units: "u" column from units table.
+    #
+    #   sid-$cid      sid, given cid
+    #   cid-$sid      cid, given sid
+    #   itype-$cid    Icon type, given cid
+    #   context       Transient sid, using in context menu bindings
+   
+    variable icons -array { }
+
+    #-------------------------------------------------------------------
+    # Event Handlers: mapcanvas(n)
+
+    # Icon-1 cid
+    #
+    # cid      A canvas icon ID
+    #
+    # Called when the user clicks on an icon.  First, support pucking 
+    # of icons into orders.  Next, translate it to a scenario ID
+    # and forward as the appropriate kind of entity.
+
+    method Icon-1 {cid} {
+        notifier send ::app <ObjectSelect> \
+            [list $icons(itype-$cid) $icons(sid-$cid)]
+
+        if {$icons(itype-$cid) eq "unit"} {
+            event generate $win <<Unit-1>> \
+                -data $icons(sid-$cid)
+        }
+    }
+
+    
+    # Icon-3 cid rx ry
+    #
+    # cid     A canvas icon ID
+    # rx,ry   Root window coordinates
+    #
+    # Called when the user right-clicks on an icon.  Pops up the
+    # icon context menu.
+
+    method Icon-3 {cid rx ry} {
+        set icons(context) $icons(sid-$cid)
+
+        # TBD: At present, we only have unit icons.  Later, we'll need to
+        # generalize this.
+        tk_popup $canvas.unitmenu $rx $ry
+    }
+
+
+    # IconMoved cid
+    #
+    # cid    A canvas icon ID
+    #
+    # Called when the user drags an icon.  Moves the underlying
+    # scenario object to the desired location.
+    #
+    # TBD: At present, we only have unit icons.  Later, we'll need to
+    # generalize this.
+    #
+    # TBD: At present, there are no restrictions on moving icons--
+    # the order will always succeed.  If we add some, we'll need to
+    # handle the failure here.
+
+    method IconMoved {cid} {
+        order send gui UNIT:UPDATE           \
+            u $icons(sid-$cid)               \
+            location [$canvas icon ref $cid]
+    }
+
+
+    #===================================================================
+    # Unit Display and Behavior
+
+    #-------------------------------------------------------------------
+    # Unit Display
 
     # UnitDrawAll
     #
     # Clears and redraws all units
 
     method UnitDrawAll {} {
-        array unset units
+        # TBD: This is a problem -- we can't be doing this if there
+        # are multiple kinds of icon.
+        $canvas delete icon
+        array unset icons
 
-        # NEXT, add units
         rdb eval {
             SELECT * FROM units JOIN groups USING (g)
         } row {
@@ -1056,30 +1031,142 @@ snit::widget mapviewer {
         dict with parmdict {
             # FIRST, if there's an existing unit called this,
             # delete it.
-            if {[info exists units(id-$u)]} {
-                $canvas icon delete $units(id-$u)
-                unset units(u-$units(id-$u))
-                unset units(id-$u)
+            if {[info exists icons(cid-$u)]} {
+                $canvas icon delete $icons(cid-$u)
+                unset icons(sid-$icons(cid-$u))
+                unset icons(cid-$u)
             }
 
             # NEXT, draw it.
-            set id [$canvas icon create unit \
-                        {*}$location         \
-                        -foreground $color   \
-                        -shape      $shape   \
-                        -symbol     $symbol]
+            set cid [$canvas icon create unit \
+                         {*}$location         \
+                         -foreground $color   \
+                         -shape      $shape   \
+                         -symbol     $symbol]
             
             # NEXT, save the name by the ID.
-            set units(u-$id) $u
-            set units(id-$u) $id
+            set icons(itype-$cid) unit
+            set icons(sid-$cid) $u
+            set icons(cid-$u)   $cid
         }
     }
+
+
+    #-------------------------------------------------------------------
+    # Unit Context Menu
+
+    # CreateUnitContextMenu
+    #
+    # Creates the context menu
+
+    method CreateUnitContextMenu {} {
+        set mnu [menu $canvas.unitmenu]
+
+        $mnu add command                   \
+            -label   "Update Unit"         \
+            -command [mymethod UpdateUnit]
+    }
+
+    # UpdateUnit
+    #
+    # Pops up the "Update Unit" dialog for this unit
+
+    method UpdateUnit {} {
+        order enter UNIT:UPDATE u $icons(context)
+    }
+
+    #-------------------------------------------------------------------
+    # Icon Handlers
+
+    # TBD: Eventually, we'll need a set of IconUnit calls.
+
+
+    #-------------------------------------------------------------------
+    # Event Handlers: notifier(n)
+
+    # EntityUnit create u
+    #
+    # u     The unit ID
+    #
+    # There's a new unit; display it.
+
+    method {EntityUnit create} {u} {
+        $self EntityUnit update $u
+    }
+
+
+    # EntityUnit delete u
+    #
+    # u     The unit ID
+    #
+    # Delete the unit from the mapcanvas.
+
+    method {EntityUnit delete} {u} {
+        # TBD: This should be an Icon call.
+
+        # FIRST, delete it from the canvas
+        $canvas icon delete $icons(cid-$u)
+
+        # NEXT, delete it from the mapviewer's data.
+        set cid $icons(cid-$u)
+        unset icons(sid-$cid)
+        unset icons(cid-$u)
+    }
+      
+    # EntityUnit update n
+    #
+    # n     The unit ID
+    #
+    # Something changed about unit n.  Update it.
+
+    method {EntityUnit update} {u} {
+        # FIRST, we need to handle different unit types
+        # separately.
+
+        rdb eval {
+            SELECT * FROM units JOIN groups USING (g)
+            WHERE u=$u
+        } row {
+            # NEXT, draw it; this will delete any previous unit
+            # with the same name.
+            $self UnitDraw [array get row]
+        }
+    }
+
+
+    # EntityGroup create g
+    #
+    # g    The group ID
+    #
+    # A FRC or ORG group was created.  No-op.
+
+    method {EntityGroup create} {g} { }
+
+
+    # Group delete g
+    #
+    # g    The group ID
+    #
+    # A FRC or ORG group was deleted.  No-op.
+
+    method {EntityGroup delete} {g} { }
+
+
+    # EntityGroup update g
+    #
+    # g    The group ID
+    #
+    # A FRC or ORG group was updated.  This might have changed
+    # the group's shape or symbol.  Redraw all units belonging to
+    # the group.
+    #
+    # TBD: For now, redraw all units.
+
+    method {EntityGroup update} {g} {
+        $self UnitDrawAll 
+    }
+
+
+
 }
-
-
-
-
-
-
-
 
