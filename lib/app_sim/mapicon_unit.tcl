@@ -56,7 +56,7 @@ snit::type ::mapicon::unit {
 
         if {$drawn} {
             # Redraw the icon
-            $self Draw {*}$origin
+            $self draw {*}$origin
         }
     }
 
@@ -79,7 +79,7 @@ snit::type ::mapicon::unit {
 
         if {$drawn} {
             # Redraw the icon
-            $self Draw {*}[$self origin]
+            $self draw {*}[$self origin]
         }
     }
 
@@ -138,7 +138,7 @@ snit::type ::mapicon::unit {
         $self configure -tags {} {*}$args
 
         # NEXT, draw the unit.
-        $self Draw $cx $cy
+        $self draw $cx $cy
     }
 
     destructor {
@@ -146,16 +146,16 @@ snit::type ::mapicon::unit {
     }
 
     #-------------------------------------------------------------------
-    # Private Methods
+    # Public Methods
 
-    # Draw cx cy
+    # draw cx cy
     #
     # cx,cy      A location in canvas coordinates
     #
     # Draws the icon at the specified location using the current
     # option settings
 
-    method Draw {cx cy} {
+    method draw {cx cy} {
         # FIRST, we've now drawn the icon at least once.
         set drawn 1
 
@@ -172,6 +172,9 @@ snit::type ::mapicon::unit {
     }
 
     
+    #-------------------------------------------------------------------
+    # Private Methods
+
     # DrawShape FRIEND cx cy
     #
     # Draws the background shape for FRIENDs.  This is a rectangle
