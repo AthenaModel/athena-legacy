@@ -380,12 +380,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
         set nbhoods(ids) [list]
 
         # Icons
-        foreach id $icons(ids) {
-            rename [dict get $icons(icon-$id) cmd] ""
-        }
-
-        array unset icons
-        set icons(ids) [list]
+        $self icon delete all
 
         # NEXT, clear the zoom cache
         foreach factor [array names zooms] {
@@ -1268,23 +1263,32 @@ snit::widgetadaptor ::projectgui::mapcanvas {
 
     # icon delete id
     #
-    # id       The icon ID
+    # id       The icon ID, or all
     #
     # Deletes the named icon.
 
     method {icon delete} {id} {
-        require {[$self icon exists $id]} "no such icon: $id"
-
-        # FIRST, save the command name.
-        set cmd [dict get $icons(icon-$id) cmd]
-
-        # NEXT, clean up the metadata
-        ldelete icons(ids) $id
-        unset icons(icon-$id)
-
-        # NEXT, destroy the icon's command; this will also
-        # delete it from the canvas.
-        $cmd destroy
+        if {$id eq "all"} {
+            foreach id $icons(ids) {
+                rename [dict get $icons(icon-$id) cmd] ""
+            }
+            
+            array unset icons
+            set icons(ids) [list]
+        } else {
+            require {[$self icon exists $id]} "no such icon: $id"
+            
+            # FIRST, save the command name.
+            set cmd [dict get $icons(icon-$id) cmd]
+            
+            # NEXT, clean up the metadata
+            ldelete icons(ids) $id
+            unset icons(icon-$id)
+            
+            # NEXT, destroy the icon's command; this will also
+            # delete it from the canvas.
+            $cmd destroy
+        }
 
         return
     }

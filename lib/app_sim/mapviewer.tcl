@@ -1012,7 +1012,7 @@ snit::widget mapviewer {
     method UnitDrawAll {} {
         # TBD: This is a problem -- we can't be doing this if there
         # are multiple kinds of icon.
-        $canvas delete icon
+        $canvas icon delete all
         array unset icons
 
         rdb eval {

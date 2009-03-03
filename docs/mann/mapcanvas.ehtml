@@ -272,7 +272,8 @@ of options depends on the icon type; typical options include
 
 <<defitem "icon delete" {<i>pathName</i> icon delete <i>id</i>?}>>
 
-Deletes the named icon.<p>
+Deletes the icon with the given icon <i>id</i>, or all icons if
+<i>id</i> has the value <b>all</b>.<p> 
 
 <<defitem "icon exists" {<i>pathName</i> icon exists <i>id</i>?}>>
 
