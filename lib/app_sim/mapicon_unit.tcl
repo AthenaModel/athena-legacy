@@ -286,18 +286,28 @@ snit::type ::mapicon::unit {
 
         # NEXT, draw left eyebrow
         $self SymLine \
-            [expr {$cx - 5}] [expr {$cy - 4}]  \
-            [expr {$cx - 2}] [expr {$cy - 1}]
+            [expr {$cx - 4}] [expr {$cy - 4}]  \
+            [expr {$cx - 1}] [expr {$cy - 1}]
 
-        # NEXT, draw right eyebrow. Go one pixel higher,
+        # NEXT, draw left eye
+        $self SymLine \
+            [expr {$cx - 4}] [expr {$cy - 1}] \
+            [expr {$cx - 3}] [expr {$cy - 0}]
+
+        # NEXT, draw right eyebrow. The pixel choices are odd
         # to work around weird canvas behavior
         $self SymLine \
             [expr {$cx + 5}] [expr {$cy - 5}]  \
             [expr {$cx + 2}] [expr {$cy - 2}]
 
+        # NEXT, draw right eye
+        $self SymLine \
+            [expr {$cx + 5}] [expr {$cy + 0}] \
+            [expr {$cx + 4}] [expr {$cy - 1}]
+
         # NEXT, draw mouth
         $self SymLine \
-            [expr {$cx - 7}] [expr {$cy + 4}]  \
+            [expr {$cx - 6}] [expr {$cy + 4}]  \
             [expr {$cx + 7}] [expr {$cy + 4}]
     }
 
