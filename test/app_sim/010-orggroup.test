@@ -43,9 +43,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   gtype orgtype medical engineer support rollup_weight effects_factor 
------ -------- ------- ------- ----- ------- ------- -------- ------- ------------- -------------- 
-USAID US Aid   #000001 NEUTRAL ORG   NGO     no      no       yes     1.0           1.1            
+g     longname color   shape   symbol  gtype orgtype medical engineer support rollup_weight effects_factor 
+----- -------- ------- ------- ------- ----- ------- ------- -------- ------- ------------- -------------- 
+USAID US Aid   #000001 NEUTRAL support ORG   NGO     no      no       yes     1.0           1.1            
     }
 
 
@@ -120,9 +120,9 @@ USAID US Aid   #000001 NEUTRAL ORG   NGO     no      no       yes     1.0       
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   gtype orgtype medical engineer support rollup_weight effects_factor 
------ -------- ------- ------- ----- ------- ------- -------- ------- ------------- -------------- 
-USAID US Aid   #000001 NEUTRAL ORG   NGO     no      no       yes     1.0           1.1            
+g     longname color   shape   symbol  gtype orgtype medical engineer support rollup_weight effects_factor 
+----- -------- ------- ------- ------- ----- ------- ------- -------- ------- ------------- -------------- 
+USAID US Aid   #000001 NEUTRAL support ORG   NGO     no      no       yes     1.0           1.1            
     }
 
 
@@ -163,9 +163,9 @@ USAID US Aid   #000001 NEUTRAL ORG   NGO     no      no       yes     1.0       
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   shape  gtype orgtype medical engineer support rollup_weight effects_factor 
------ --------- ------- ------ ----- ------- ------- -------- ------- ------------- -------------- 
-USAID Red Cross #ff0000 FRIEND ORG   IGO     yes     yes      no      0.1           0.2            
+g     longname  color   shape  symbol           gtype orgtype medical engineer support rollup_weight effects_factor 
+----- --------- ------- ------ ---------------- ----- ------- ------- -------- ------- ------------- -------------- 
+USAID Red Cross #ff0000 FRIEND medical engineer ORG   IGO     yes     yes      no      0.1           0.2            
     }
 
 
