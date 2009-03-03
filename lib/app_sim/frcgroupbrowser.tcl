@@ -108,7 +108,7 @@ snit::widget frcgroupbrowser {
         $tb insertcolumn end 0 {Color}
         $tb insertcolumn end 0 {Unit Shape}        
         $tb insertcolumn end 0 {Force Type}
-        $tb insertcolumn end 0 {Foreign?}
+        $tb insertcolumn end 0 {Local?}
         $tb insertcolumn end 0 {Coalition?}
 
         # NEXT, pack the tablebrowser and let it expand
