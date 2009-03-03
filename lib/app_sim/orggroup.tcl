@@ -202,7 +202,7 @@ snit::type orggroup {
     #    g                A group short name
     #    longname         A new long name, or ""
     #    color            A new color, or ""
-    #    shape          A new shape, or ""
+    #    shape            A new shape, or ""
     #    orgtype          A new eorgtype, or ""
     #    medical          A new medical flag, or ""
     #    engineer         A new engineer flag, or ""
@@ -227,7 +227,7 @@ snit::type orggroup {
             set symbol [list]
 
             if {$medical eq ""} {
-                if {$undoData($medical)} {
+                if {$undoData(medical)} {
                     lappend symbol medical
                 }
             } elseif {$medical} {
@@ -236,7 +236,7 @@ snit::type orggroup {
 
 
             if {$engineer eq ""} {
-                if {$undoData($engineer)} {
+                if {$undoData(engineer)} {
                     lappend symbol engineer
                 }
             } elseif {$engineer} {
@@ -245,7 +245,7 @@ snit::type orggroup {
 
 
             if {$support eq ""} {
-                if {$undoData($support)} {
+                if {$undoData(support)} {
                     lappend symbol support
                 }
             } elseif {$support} {

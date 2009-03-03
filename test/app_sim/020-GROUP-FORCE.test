@@ -160,9 +160,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  gtype forcetype local coalition 
----- -------- ------- ------ ----- --------- ----- --------- 
-BLUE US Army  #0000ff FRIEND FRC   REGULAR   0     1         
+g    longname color   shape  symbol   gtype forcetype local coalition 
+---- -------- ------- ------ -------- ----- --------- ----- --------- 
+BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   0     1         
     }
 
 
@@ -344,9 +344,9 @@ BLUE US Army  #0000ff FRIEND FRC   REGULAR   0     1
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   gtype forcetype local coalition 
----- ----------- ------- ------- ----- --------- ----- --------- 
-BLUE Blue Angels #ff0000 NEUTRAL FRC   POLICE    1     0         
+g    longname    color   shape   symbol gtype forcetype local coalition 
+---- ----------- ------- ------- ------ ----- --------- ----- --------- 
+BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    1     0         
     }
 
 
