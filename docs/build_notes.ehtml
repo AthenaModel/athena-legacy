@@ -11,6 +11,24 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.4, 3 March 2009</h3>
+
+This build includes a redesign of the Athena order processor and
+order entry GUI.  It also adds force and organization units, and
+the ability to export and import Athena scenarios as XML.  The
+full list of changes is as follows:<p>
+
+<ul>
+  <li> Bug 1846: Map scale indicator incorrect on loading scenario
+  <li> Bug 1888: Order Dialog geometry management failure
+  <li> Bug 1908: athena_sim(1): The Great Order Redesign
+  <li> Bug 1916: Delete from entity browser should bypass order dialog
+  <li> Bug 1922: athlib(n)/athgui(n) become projectlib(n), projectgui(n)
+  <li> Bug 1923: athena_sim(1): Force and Organization Units
+  <li> Bug 1924: orderdialog(sim): First Key Field has no valid values
+  <li> Bug 1925: athena_export(1), athena_import(1): XML export and import 
+</ul><p>
+
 <h3>Build 1.0.3, 11 February 2009</h3>
 
 This build includes auto-population and user editing of group
