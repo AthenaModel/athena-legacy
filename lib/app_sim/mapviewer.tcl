@@ -630,8 +630,8 @@ snit::widget mapviewer {
         $self UnitDrawAll
 
         # NEXT, set zoom and region
-        set info(zoom)   "[$canvas zoom]%"
-        set info(region) [$canvas region]
+        set view(zoom)   "[$canvas zoom]%"
+        set view(region) [$canvas region]
     }
 
 
