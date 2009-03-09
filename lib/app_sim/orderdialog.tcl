@@ -832,12 +832,16 @@ snit::widget orderdialog {
         set ndx  [lsearch -exact $my(keys) $parm]
 
         if {$ndx == $last} {
-            # FIRST, refresh the non-key fields
-            $self RefreshNonKeyFields
-
-            # NEXT, everything has been refreshed; there are no unsaved
-            # values.
-            $self MarkSaved
+            # FIRST, if there are non-key fields, refresh them, and 
+            # mark the dialog saved; we've just loaded the non-key
+            # fields from the database, and so there are no unsaved fields.
+            # Otherwise, check for unsaved fields.
+            if {[llength $my(nonkeys)] > 0} {
+                $self RefreshNonKeyFields
+                $self MarkSaved
+            } else {
+                $self CheckForUnsavedValues
+            }
         } else {
             $self RefreshKey [lindex $my(keys) $ndx+1]
         }
