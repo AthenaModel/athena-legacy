@@ -701,6 +701,11 @@ snit::widget mapviewer {
         # NEXT, draw it.
         set id [$canvas nbhood create $refpoint $polygon]
 
+        # NEXT, fill it if necessary.
+        if {$view(fillpoly)} {
+            $canvas nbhood configure $id -fill white
+        }
+
         # NEXT, save the name by the ID.
         set nbhoods(n-$id) $n
         set nbhoods(id-$n) $id
