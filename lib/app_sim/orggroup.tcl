@@ -223,48 +223,12 @@ snit::type orggroup {
                 unset undoData(*)
             }
 
-            # NEXT, get the symbol.  (TBD: Do this as a trigger?)
-            set symbol [list]
-
-            if {$medical eq ""} {
-                if {$undoData(medical)} {
-                    lappend symbol medical
-                }
-            } elseif {$medical} {
-                lappend symbol medical
-            }
-
-
-            if {$engineer eq ""} {
-                if {$undoData(engineer)} {
-                    lappend symbol engineer
-                }
-            } elseif {$engineer} {
-                lappend symbol engineer
-            }
-
-
-            if {$support eq ""} {
-                if {$undoData(support)} {
-                    lappend symbol support
-                }
-            } elseif {$support} {
-                lappend symbol support
-            }
-
-
-            if {$symbol eq $undoData(symbol)} {
-                set symbol ""
-            }
-
-
             # NEXT, Update the group
             rdb eval {
                 UPDATE groups
                 SET longname  = nonempty($longname,  longname),
                     color     = nonempty($color,     color),
-                    shape     = nonempty($shape,     shape),
-                    symbol    = nonempty($symbol,    symbol)
+                    shape     = nonempty($shape,     shape)
                 WHERE g=$g;
 
                 UPDATE orggroups
@@ -276,6 +240,35 @@ snit::type orggroup {
                     effects_factor = nonempty($effects_factor, effects_factor)
                 WHERE g=$g
             } {}
+
+            # NEXT, compute the symbol.
+            set symbol [list]
+
+            rdb eval {
+                SELECT medical,engineer,support FROM orggroups
+                WHERE g=$g
+            } {
+                if {$medical} {
+                    lappend symbol medical
+                }
+
+
+                if {$engineer} {
+                    lappend symbol engineer
+                }
+
+
+                if {$support} {
+                    lappend symbol support
+                }
+            }
+
+            rdb eval {
+                UPDATE groups
+                SET symbol = $symbol
+                WHERE g=$g;
+            }
+
 
             # NEXT, notify the app.
             notifier send ::orggroup <Entity> update $g

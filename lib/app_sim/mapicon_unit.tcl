@@ -71,6 +71,8 @@ snit::type ::mapicon::unit {
         -configuremethod ConfigureSymbols
 
     method ConfigureSymbols {opt val} {
+        set newval [list]
+
         foreach sym $val {
             lappend newval [eunitsymbol name $sym] 
         }
