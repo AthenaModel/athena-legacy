@@ -86,7 +86,7 @@ snit::type ::mapicon::unit {
     # -foreground color
 
     option -foreground                        \
-        -default         black                \
+        -default         white                \
         -configuremethod ConfigureForeground
 
     method ConfigureForeground {opt val} {
@@ -101,7 +101,7 @@ snit::type ::mapicon::unit {
     # -background color
 
     option -background                        \
-        -default         \#ffffff             \
+        -default         black                \
         -configuremethod ConfigureBackground
 
     method ConfigureBackground {opt val} {
