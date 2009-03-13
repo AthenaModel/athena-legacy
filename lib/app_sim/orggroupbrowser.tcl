@@ -108,9 +108,6 @@ snit::widget orggroupbrowser {
         $tb insertcolumn end 0 {Color}
         $tb insertcolumn end 0 {Unit Shape}        
         $tb insertcolumn end 0 {Org Type}
-        $tb insertcolumn end 0 {Medical?}
-        $tb insertcolumn end 0 {Engineer?}
-        $tb insertcolumn end 0 {Support?}
         $tb insertcolumn end 0 {RollupWeight}
         $tb columnconfigure end -sortmode real
         $tb insertcolumn end 0 {EffectsFactor}
@@ -177,8 +174,8 @@ snit::widget orggroupbrowser {
         # FIRST, extract each field
         dict with dict {
             $tb setdata $g \
-                [list $g $longname $color $shape $orgtype $medical $engineer \
-                     $support $rollup_weight $effects_factor]
+                [list $g $longname $color $shape $orgtype \
+                     $rollup_weight $effects_factor]
             $tb setcellbackground $g 2 $color
         }
     }

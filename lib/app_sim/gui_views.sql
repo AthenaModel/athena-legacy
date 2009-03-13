@@ -56,9 +56,6 @@ SELECT g                                             AS id,
        color                                         AS color,
        shape                                         AS shape,
        orgtype                                       AS orgtype,
-       CASE medical  WHEN 1 THEN 'YES' ELSE 'NO' END AS medical,
-       CASE engineer WHEN 1 THEN 'YES' ELSE 'NO' END AS engineer,
-       CASE support  WHEN 1 THEN 'YES' ELSE 'NO' END AS support,
        format('%.2f', rollup_weight)                 AS rollup_weight,
        format('%.2f', effects_factor)                AS effects_factor
 FROM groups JOIN orggroups USING (g);

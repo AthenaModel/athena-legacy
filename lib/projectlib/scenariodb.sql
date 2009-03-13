@@ -175,11 +175,6 @@ CREATE TABLE orggroups (
     -- Organization type: eorgtype
     orgtype        TEXT DEFAULT 'NGO',
 
-    -- Capability flags, 1 or 0
-    medical        INTEGER DEFAULT 0,
-    engineer       INTEGER DEFAULT 0,
-    support        INTEGER DEFAULT 0,
-
     -- Group rollup-weight (non-negative) (JRAM input)
     rollup_weight  DOUBLE DEFAULT 1.0,
 

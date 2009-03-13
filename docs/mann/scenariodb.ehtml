@@ -191,13 +191,13 @@ See above for the <<xref "XML Schema">>.<p>
 <<defitem import {<i>obj</i> import <i>xmltext</i> ?<i>logcmd</i>?}>>
 
 Imports the <i>xmltext</i> into the database, first
-<<iref clear>>ing the existing content.  Tables that exist in the
+<<iref clear>>ing the existing content.  Tables and columns that exist in the
 <i>xmltext</i> but not in the current schema are skipped.<p>
 
 If <i>logcmd</i> is given, it should be a command prefix expecting
 one additional argument, a message string.  <<iref import>> will
-call it with a human-readable message for each table that's imported
-or skipped.<p>
+call it with a human-readable message for each table and column
+that's imported or skipped.<p>
 
 <<defitem load {<i>obj</i> load <i>filename</i>}>>
 

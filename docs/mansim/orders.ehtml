@@ -323,20 +323,6 @@ the group's icons.<</parm>>
 
 <<::projectlib::eorgtype html>><</parm>>
 
-<<parm medical>> <b>Required.</b> The medical capability flag,
-expressed as a boolean value (e.g., "Yes" or "No"). Indicates whether
-the group can provide healthcare to local civilians.<</parm>>
-
-<<parm engineer>> <b>Required.</b> The engineering capability flag,
-expressed as a boolean value (e.g., "Yes" or "No").  Indicates whether
-or not the group can provide engineering services to the local
-civilians.<</parm>>
-
-<<parm support>> <b>Required.</b> The support capability flag,
-expressed as a boolean value (e.g., "Yes" or "No").  Indicates whether
-or not the group provides support (food, water, education, etc.) to
-the local civilians.<</parm>>
-
 <<parm rollup_weight>> <b>Required.</b> The rollup weight, used when
 rolling up the group's satisfaction levels to the playbox level.  A
 non-negative floating point value, nominally 1.0.<</parm>>
@@ -383,9 +369,6 @@ IDs.<</parm>>
 
 <<parm color>>          As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
 <<parm orgtype>>        As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
-<<parm medical>>        As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
-<<parm engineer>>       As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
-<<parm support>>        As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
 <<parm rollup_weight>>  As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
 <<parm effects_factor>> As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
 

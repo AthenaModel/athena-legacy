@@ -223,9 +223,6 @@ snit::type ted {
             color          "#000001"
             shape          NEUTRAL
             orgtype        NGO
-            medical        no
-            engineer       no
-            support        yes
             rollup_weight  1.0
             effects_factor 1.1
         }
@@ -236,9 +233,6 @@ snit::type ted {
             color          "#000002"
             shape          NEUTRAL
             orgtype        CTR
-            medical        no
-            engineer       yes
-            support        no
             rollup_weight  1.2
             effects_factor 1.3
         }

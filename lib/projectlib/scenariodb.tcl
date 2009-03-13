@@ -418,10 +418,13 @@ snit::type ::projectlib::scenariodb {
 
         callwith $logcmd "Importing $table"
 
-        # NEXT, get the table's BLOB columns
+        # NEXT, get the table's column names and BLOB columns
         set blobs [list]
+        set ocols [list]
 
         $db eval "PRAGMA table_info('$table')" tinfo {
+            lappend ocols $tinfo(name)
+
             if {$tinfo(type) eq "BLOB"} {
                 lappend blobs $tinfo(name)
             }
@@ -440,12 +443,17 @@ snit::type ::projectlib::scenariodb {
         # data into the database.
 
         foreach name $cnames {
-            lappend cvars "\$row($name)"
+            if {$name in $ocols} {
+                lappend ccols $name
+                lappend cvars "\$row($name)"
+            } else {
+                callwith $logcmd "    Skipping undefined column $name"
+            }
         }
 
         set query [tsubst {
             |<--
-            INSERT OR REPLACE INTO ${table}([join $cnames ,])
+            INSERT OR REPLACE INTO ${table}([join $ccols ,])
             VALUES([join $cvars ,])
         }]
 
