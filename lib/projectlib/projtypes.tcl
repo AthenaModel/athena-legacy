@@ -182,11 +182,10 @@ snit::type ::projectlib::TypeWrapper {
 
 ::marsutil::enum ::projectlib::eunitsymbol {
     infantry       "Infantry"
+    irregular      "Irregular Military"
     police         "Civilian Police"
     criminal       "Criminal"
-    medical        "ORG - Medical"
-    support        "ORG - Support"
-    engineer       "ORG - Engineer"
+    organization   "Organization"
 }
 
 

@@ -29,7 +29,7 @@ snit::type frcgroup {
 
     typevariable symbols -array {
         REGULAR       infantry
-        IRREGULAR     infantry
+        IRREGULAR     {irregular infantry}
         PARAMILITARY  {infantry police}
         POLICE        police
         CRIMINAL      criminal

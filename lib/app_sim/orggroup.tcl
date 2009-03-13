@@ -115,19 +115,6 @@ snit::type orggroup {
 
     typemethod {mutate create} {parmdict} {
         dict with parmdict {
-            # FIRST, get the unit symbol
-            if {$medical} {
-                lappend symbol medical
-            }
-
-            if {$engineer} {
-                lappend symbol engineer
-            }
-
-            if {$support} {
-                lappend symbol support
-            }
-
             # FIRST, Put the group in the database
             rdb eval {
                 INSERT INTO groups(g,longname,color,shape,symbol,gtype)
@@ -135,7 +122,7 @@ snit::type orggroup {
                        $longname,
                        $color,
                        $shape,
-                       $symbol,
+                       'organization',
                        'ORG');
 
                 INSERT INTO orggroups(g,orgtype,medical,engineer,support,
@@ -240,35 +227,6 @@ snit::type orggroup {
                     effects_factor = nonempty($effects_factor, effects_factor)
                 WHERE g=$g
             } {}
-
-            # NEXT, compute the symbol.
-            set symbol [list]
-
-            rdb eval {
-                SELECT medical,engineer,support FROM orggroups
-                WHERE g=$g
-            } {
-                if {$medical} {
-                    lappend symbol medical
-                }
-
-
-                if {$engineer} {
-                    lappend symbol engineer
-                }
-
-
-                if {$support} {
-                    lappend symbol support
-                }
-            }
-
-            rdb eval {
-                UPDATE groups
-                SET symbol = $symbol
-                WHERE g=$g;
-            }
-
 
             # NEXT, notify the app.
             notifier send ::orggroup <Entity> update $g

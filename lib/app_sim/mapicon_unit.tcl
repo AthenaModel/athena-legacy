@@ -21,6 +21,12 @@ snit::type ::mapicon::unit {
     }
 
     #-------------------------------------------------------------------
+    # Type Variables
+
+    # Font to use for symbol text
+    typevariable symfont {"Luxi Sans" -8}
+
+    #-------------------------------------------------------------------
     # Components
 
     component can         ;# The mapcanvas
@@ -276,6 +282,24 @@ snit::type ::mapicon::unit {
         $self SymLine $x1 $y2 $x2 $y1
     }
 
+    # DrawSymbol irregular coords
+    #
+    # coords    Coordinates of the icon shape
+    #
+    # Draws the irregular military symbol: "IRR"
+
+    method {DrawSymbol irregular} {coords} {
+        # FIRST, get the center point.
+        lassign [$self Center $coords] cx cy
+
+        $can create text $cx $cy              \
+            -anchor n                         \
+            -font   $symfont                  \
+            -text   I                         \
+            -fill   $options(-foreground)     \
+            -tags   [concat $tags unitsymbol]
+    }
+
     # DrawSymbol criminal coords
     #
     # coords    Coordinates of the icon shape
@@ -334,70 +358,23 @@ snit::type ::mapicon::unit {
             $cx              [expr {$cy + 5}]  \
             [expr {$cx - 5}] [expr {$cy + 3}]  \
             [expr {$cx - 5}] [expr {$cy - 5}]
-
     }
 
-    # DrawSymbol medical coords
+    # DrawSymbol organization coords
     #
     # coords    Coordinates of the icon shape
     #
-    # Draws the medical symbol: a small cross.
+    # Draws the organization symbol: "ORG"
 
-    method {DrawSymbol medical} {coords} {
+    method {DrawSymbol organization} {coords} {
         # FIRST, get the center point.
         lassign [$self Center $coords] cx cy
 
-        # NEXT, draw cross
-        $self SymLine \
-            [expr {$cx - 4}] [expr {$cy - 5}]  \
-            [expr {$cx - 4}] [expr {$cy + 0}]
-
-        $self SymLine \
-            [expr {$cx - 6}] [expr {$cy - 3}] \
-            [expr {$cx - 1}] [expr {$cy - 3}]
-    }
-
-
-    # DrawSymbol support coords
-    #
-    # coords    Coordinates of the icon shape
-    #
-    # Draws the support symbol: a banana?
-
-    method {DrawSymbol support} {coords} {
-        # FIRST, get the center point.
-        lassign [$self Center $coords] cx cy
-
-        # NEXT, draw banana
-        $self SymLine \
-            [expr {$cx + 5}] [expr {$cy - 8}] \
-            [expr {$cx + 2}] [expr {$cy - 4}] \
-            [expr {$cx + 5}] [expr {$cy + 0}]
-
-    }
-
-
-    # DrawSymbol engineer coords
-    #
-    # coords    Coordinates of the icon shape
-    #
-    # Draws the medical symbol: a small cross.
-
-    method {DrawSymbol engineer} {coords} {
-        # FIRST, get the center point.
-        lassign [$self Center $coords] cx cy
-
-        # NEXT, draw body of E
-        $self SymLine \
-            [expr {$cx - 5}] [expr {$cy + 5}] \
-            [expr {$cx - 5}] [expr {$cy + 1}] \
-            [expr {$cx + 5}] [expr {$cy + 1}] \
-            [expr {$cx + 5}] [expr {$cy + 5}]
-
-        # NEXT, draw center line
-        $self SymLine \
-            $cx              [expr {$cy + 1}] \
-            $cx              [expr {$cy + 5}]
+        $can create text $cx $cy            \
+            -font $symfont                  \
+            -text ORG                       \
+            -fill $options(-foreground)     \
+            -tags [concat $tags unitsymbol]
     }
 
 
