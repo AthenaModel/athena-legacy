@@ -9,7 +9,7 @@
 #    projectlib(n) module: a generic projection(i) type.
 #
 #    Routines for conversion between canvas coordinates and map references.
-#    A map is an image file used as a map background.  Maps may be zoomed.
+#    A map is an image file used as a map background.
 #
 #    There are three kinds of coordinate in use:
 #
@@ -18,7 +18,8 @@
 #      much larger than the visible area.  Canvas coordinates are floating
 #      point pixels.  The canvas coordinates for a map location are
 #      unique for any given zoom factor, but vary from one zoom factor
-#      to another.
+#      to another.  Conversions to and from canvas coordinates take
+#      the zoom factor into account.
 #
 #    * Map units: mx,my coordinates extending to the right and down from
 #      the upper-left corner of the map image.  Map units are
@@ -99,9 +100,6 @@ snit::type ::projectlib::mapref {
     # map factor: map_unit = factor*canvas_unit
     variable mapFactor 1.0
 
-    # zoomFactor: 100%, etc.
-    variable zoomFactor 100
-
     # mwid, mht
     #
     # Dimensions in map coordinates
@@ -116,25 +114,6 @@ snit::type ::projectlib::mapref {
 
     #-------------------------------------------------------------------
     # Methods
-
-    # zoom ?factor?
-    #
-    # factor    The zoom factor as an integer percentage, e.g., 100
-    #
-    # Zooms the map to the desired zoom factor.  The default zoom factor
-    # is 100.  Returns the zoom factor.
-
-    method zoom {{factor ""}} {
-        # FIRST, if no new zoom, just return the old one.
-        if {$factor eq ""} {
-            return $zoomFactor
-        }
-
-        # NEXT, validate the zoom factor. 
-        zoomfactor validate $factor
-
-        set zoomFactor $factor
-    }
 
     # box
     #
@@ -152,29 +131,31 @@ snit::type ::projectlib::mapref {
         list $mwid $mht
     }
 
-    # c2m cx cy
+    # c2m zoom cx cy
     #
+    # zoom     Zoom factor
     # cx,cy    Position in canvas units
     #
     # Returns the position in map units
 
-    method c2m {cx cy} {
-        set fac [expr {$mapFactor * ($zoomFactor/100.0)}]
+    method c2m {zoom cx cy} {
+        set fac [expr {$mapFactor * ($zoom/100.0)}]
 
         list [expr {round($cx / $fac)}] [expr {round($cy / $fac)}]
     }
 
-    # m2c mx my....
+    # m2c zoom mx my....
     #
+    # zoom     Zoom factor
     # mx,my    One or points in map units
     #
     # Returns the points in canvas units
 
-    method m2c {args} {
+    method m2c {zoom args} {
         set out [list]
 
         foreach {mx my} $args {
-            set fac [expr {$mapFactor * ($zoomFactor/100.0)}]
+            set fac [expr {$mapFactor * ($zoom/100.0)}]
 
             lappend out [expr {$mx * $fac}] [expr {$my * $fac}]
         }
@@ -182,26 +163,28 @@ snit::type ::projectlib::mapref {
         return $out
     }
 
-    # c2ref cx cy
+    # c2ref zoom cx cy
     #
+    # zoom     Zoom factor
     # cx,cy    Position in canvas units
     #
     # Returns the position as a map reference
 
-    method c2ref {cx cy} {
-        set fac [expr {$mapFactor * ($zoomFactor/100.0)}]
+    method c2ref {zoom cx cy} {
+        set fac [expr {$mapFactor * ($zoom/100.0)}]
 
         return [GetRef $fac $cx][GetRef $fac $cy]
     }
 
-    # ref2c ref...
+    # ref2c zoom ref...
     #
-    # ref   A map reference
+    # zoom     Zoom factor
+    # ref      A map reference
     #
     # Returns a list {cx cy} in canvas units
 
-    method ref2c {args} {
-        set fac [expr {$mapFactor * ($zoomFactor/100.0)}]
+    method ref2c {zoom args} {
+        set fac [expr {$mapFactor * ($zoom/100.0)}]
 
         foreach ref $args {
             lappend result \

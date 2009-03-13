@@ -59,14 +59,6 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {0 0 999 666}
 
-    test box-1.2 {Retrieve bounding box, 200%} -setup setup -body {
-        proj zoom 200
-        proj box
-    } -cleanup {
-        cleanup
-    } -result {0 0 999 666}
-
-
     #-------------------------------------------------------------------
     # dim
 
@@ -76,85 +68,29 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {999 666}
 
-    test dim-1.2 {Retrieve dimensions, 200%} -setup setup -body {
-        proj zoom 200
-        proj dim
-    } -cleanup {
-        cleanup
-    } -result {999 666}
-
-    #-------------------------------------------------------------------
-    # zoom
-
-    test zoom-1.1 {Default zoom} -setup setup -body {
-        proj zoom
-    } -cleanup {
-        cleanup
-    } -result {100}
-
-    test zoom-1.2 {Set zoom} -setup setup -body {
-        proj zoom 200
-
-        proj zoom
-    } -cleanup {
-        cleanup
-    } -result {200}
-
-    test zoom-1.3 {set returns zoom} -setup setup -body {
-        proj zoom 50
-    } -cleanup {
-        cleanup
-    } -result {50}
-
-
-    test zoom-1.4 {0 is invalid} -setup setup -body {
-        proj zoom 0
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {invalid value "0", expected integer in range 1, 300}
-
-    test zoom-1.5 {1000 is invalid} -setup setup -body {
-        proj zoom 1000
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {invalid value "1000", expected integer in range 1, 300}
-
-    test zoom-1.6 {fraction is invalid} -setup setup -body {
-        proj zoom 1.5
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {invalid value "1.5", expected integer}
-
     #-------------------------------------------------------------------
     # c2m
 
     test c2m-1.1 {Convert origin} -setup setup -body {
-        proj c2m 0 0
+        proj c2m 100 0 0
     } -cleanup {
         cleanup
     } -result {0 0}
 
     test c2m-1.2 {Convert bounds} -setup setup -body {
-        proj c2m 1500 1000
+        proj c2m 100 1500 1000
     } -cleanup {
         cleanup
     } -result {999 666}
 
     test c2m-1.3 {Convert midpoint} -setup setup -body {
-        proj c2m 750 500
+        proj c2m 100 750 500
     } -cleanup {
         cleanup
     } -result {500 333}
 
     test c2m-1.4 {Convert bounds} -setup setup -body {
-        proj zoom 200
-        proj c2m 3000 2000
+        proj c2m 200 3000 2000
     } -cleanup {
         cleanup
     } -result {999 666}
@@ -164,26 +100,25 @@ namespace eval ::projectlib::test {
     # c2ref
 
     test c2ref-1.1 {Convert origin} -setup setup -body {
-        proj c2ref 0 0
+        proj c2ref 100 0 0
     } -cleanup {
         cleanup
     } -result {A00A00}
 
     test c2ref-1.2 {Convert bounds} -setup setup -body {
-        proj c2ref 1500 1000
+        proj c2ref 100 1500 1000
     } -cleanup {
         cleanup
     } -result {K99G66}
 
     test c2ref-1.3 {Convert midpoint} -setup setup -body {
-        proj c2ref 750 500
+        proj c2ref 100 750 500
     } -cleanup {
         cleanup
     } -result {F00D33}
 
     test c2ref-1.4 {Convert with zoom} -setup setup -body {
-        proj zoom 200
-        proj c2ref 3000 2000
+        proj c2ref 200 3000 2000
     } -cleanup {
         cleanup
     } -result {K99G66}
@@ -193,32 +128,31 @@ namespace eval ::projectlib::test {
     # m2c
 
     test m2c-1.1 {Convert origin} -setup setup -body {
-        proj m2c 0 0
+        proj m2c 100 0 0
     } -cleanup {
         cleanup
     } -result {0.0 0.0}
 
     test m2c-1.2 {Convert bounds} -setup setup -body {
-        proj m2c 999 666
+        proj m2c 100 999 666
     } -cleanup {
         cleanup
     } -result {1500.0 999.9999999999999}
 
     test m2c-1.3 {Convert midpoint} -setup setup -body {
-        proj m2c 500 333
+        proj m2c 100 500 333
     } -cleanup {
         cleanup
     } -result {750.7507507507507 499.99999999999994}
 
     test m2c-1.4 {Convert with zoom} -setup setup -body {
-        proj zoom 200
-        proj m2c 999 666
+        proj m2c 200 999 666
     } -cleanup {
         cleanup
     } -result {3000.0 1999.9999999999998}
 
     test m2c-1.5 {Convert many} -setup setup -body {
-        proj m2c 0 0 999 666
+        proj m2c 100 0 0 999 666
     } -cleanup {
         cleanup
     } -result {0.0 0.0 1500.0 999.9999999999999}
@@ -244,14 +178,7 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {F00D33}
 
-    test m2ref-1.4 {Convert with zoom} -setup setup -body {
-        proj zoom 200
-        proj m2ref 999 666
-    } -cleanup {
-        cleanup
-    } -result {K99G66}
-
-    test m2ref-1.5 {Convert several coordinates} -setup setup -body {
+    test m2ref-1.4 {Convert several coordinates} -setup setup -body {
         proj m2ref 0 0 500 333 999 666
     } -cleanup {
         cleanup
@@ -262,32 +189,31 @@ namespace eval ::projectlib::test {
     # ref2c
 
     test ref2c-1.1 {Convert origin} -setup setup -body {
-        proj ref2c A00A00
+        proj ref2c 100 A00A00
     } -cleanup {
         cleanup
     } -result {0.0 0.0}
 
     test ref2c-1.2 {Convert bounds} -setup setup -body {
-        proj ref2c K99G66
+        proj ref2c 100 K99G66
     } -cleanup {
         cleanup
     } -result {1500.0 999.9999999999999}
 
     test ref2c-1.3 {Convert midpoint} -setup setup -body {
-        proj ref2c F00D33
+        proj ref2c 100 F00D33
     } -cleanup {
         cleanup
     } -result {750.7507507507507 499.99999999999994}
 
     test ref2c-1.4 {Convert with zoom} -setup setup -body {
-        proj zoom 200
-        proj ref2c K99G66
+        proj ref2c 200 K99G66
     } -cleanup {
         cleanup
     } -result {3000.0 1999.9999999999998}
 
     test ref2c-1.5 {Convert list} -setup setup -body {
-        proj ref2c A00A00 K99G66
+        proj ref2c 100 A00A00 K99G66
     } -cleanup {
         cleanup
     } -result {0.0 0.0 1500.0 999.9999999999999}
@@ -314,14 +240,7 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {500 333}
 
-    test ref2m-1.4 {Convert with zoom} -setup setup -body {
-        proj zoom 200
-        proj ref2m K99G66
-    } -cleanup {
-        cleanup
-    } -result {999 666}
-
-    test ref2m-1.5 {Convert list} -setup setup -body {
+    test ref2m-1.4 {Convert list} -setup setup -body {
         proj ref2m A00A00 K99G66
     } -cleanup {
         cleanup

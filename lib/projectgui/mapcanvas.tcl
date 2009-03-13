@@ -480,9 +480,6 @@ snit::widgetadaptor ::projectgui::mapcanvas {
             $self region $info(region)
         }
         
-        # NEXT, set the projection to the current zoom factor
-        $proj zoom $info(zoom)
-
         # NEXT, add the layer marker, to separate nbhoods from
         # icons.  Nbhoods will be drawn below it, icons above it.
         $hull create line -1 -1 -2 -2 -tags marker
@@ -495,7 +492,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
         # NEXT, draw all icons in their correct places
         foreach id $icons(ids) {
             dict with icons(icon-$id) {
-                $cmd draw {*}[$self m2c {*}$mxy]
+                $cmd draw {*}[$proj m2c $info(zoom) {*}$mxy]
             }
         }
 
@@ -552,10 +549,8 @@ snit::widgetadaptor ::projectgui::mapcanvas {
             # x1,y1 = 0,0
             lassign $bbox x1 y1 x2 y2
         } else {
-            set zoom [$proj zoom]
-
-            set x2 [expr {$zoom*[$proj cget -width]}]
-            set y2 [expr {$zoom*[$proj cget -height]}]
+            set x2 [expr {$info(zoom)*[$proj cget -width]}]
+            set y2 [expr {$info(zoom)*[$proj cget -height]}]
         }
 
         set info(regionNormal) [list 0 0 $x2 $y2]
@@ -606,7 +601,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
 
         # NEXT, center the display (insofar as possible) on mx,my.
         # Begin by converting the point to canvas coordinates.
-        lassign [$self m2c $mx $my] cx cy
+        lassign [$proj m2c $info(zoom) $mx $my] cx cy
 
         # NEXT, I need to determine the fx,fy that yields this
         # cx,cy at the center.  What are the window coordinates of
@@ -858,7 +853,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
                 lassign [dict get $icons(icon-$trans(id)) mxy] mx1 my1
 
                 # NEXT, get the icon's original cxy
-                lassign [$win m2c $mx1 $my1] cx1 cy1
+                lassign [$proj m2c $info(zoom) $mx1 $my1] cx1 cy1
 
                 # NEXT, get the icon's new cxy
                 set cx2 [expr {$cx1 + $dx}]
@@ -866,7 +861,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
 
                 # NEXT, get the icon's new mxy, and save it.
                 dict set icons(icon-$trans(id)) \
-                    mxy [$win c2m $cx2 $cy2]
+                    mxy [$proj c2m $info(zoom) $cx2 $cy2]
 
                 # NEXT, notify the user
                 event generate $win <<IconMoved>> \
@@ -1074,7 +1069,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
 
         # NEXT, convert the coords to a list of map reference strings
         foreach {cx cy} $trans(coords) {
-            lappend refs [$proj c2ref $cx $cy]
+            lappend refs [$proj c2ref $info(zoom) $cx $cy]
         }
 
         # NEXT, notify the application
@@ -1161,10 +1156,46 @@ snit::widgetadaptor ::projectgui::mapcanvas {
     # Methods delegated to projection
     delegate method m2ref  to proj
     delegate method ref2m  to proj
-    delegate method c2m    to proj
-    delegate method m2c    to proj
-    delegate method c2ref  to proj
-    delegate method ref2c  to proj
+
+    # c2m cx cy
+    #
+    # cx,cy    Position in canvas units
+    #
+    # Returns the position in map units
+
+    method c2m {cx cy} {
+        $proj c2m $info(zoom) $cx $cy
+    }
+
+    # m2c mx my
+    #
+    # mx,my    Position in map units
+    #
+    # Returns the position in canvas units
+
+    method m2c {mx my} {
+        $proj m2c $info(zoom) $mx $my
+    }
+
+    # c2ref cx cy
+    #
+    # cx,cy    Position in canvas units
+    #
+    # Returns the position as a map reference
+
+    method c2ref {cx cy} {
+        $proj c2ref $info(zoom) $cx $cy
+    }
+
+    # ref2c ref...
+    #
+    # ref      A map reference
+    #
+    # Returns a list {cx cy} in canvas units
+
+    method ref2c {args} {
+        $proj ref2c $info(zoom) {*}$args
+    }
 
     # w2c wx wy
     #
@@ -1183,7 +1214,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
     # Returns the position in map units
 
     method w2m {wx wy} {
-        $proj c2m [$hull canvasx $wx] [$hull canvasy $wy]
+        $proj c2m $info(zoom) [$hull canvasx $wx] [$hull canvasy $wy]
     }
 
     # w2ref wx wy
@@ -1193,7 +1224,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
     # Returns the position as a map reference
 
     method w2ref {wx wy} {
-        $proj c2ref [$hull canvasx $wx] [$hull canvasy $wy]
+        $proj c2ref $info(zoom) [$hull canvasx $wx] [$hull canvasy $wy]
     }
 
     #-------------------------------------------------------------------
@@ -1229,7 +1260,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
         # NEXT, Convert the map coords to canvas coords, and create
         # the icon, given the options.
         
-        lassign [$self m2c $mx $my] cx cy
+        lassign [$proj m2c $info(zoom) $mx $my] cx cy
 
         set id "$icontype[incr info(iconCounter)]"
         set cmd  ${selfns}::icons::$id
@@ -1365,8 +1396,8 @@ snit::widgetadaptor ::projectgui::mapcanvas {
         # the delta.
         lassign [dict get $icons(icon-$id) mxy] mx1 my1
 
-        lassign [$win m2c $mx1 $my1] cx1 cy1
-        lassign [$win m2c $mx2 $my2] cx2 cy2
+        lassign [$proj m2c $info(zoom) $mx1 $my1] cx1 cy1
+        lassign [$proj m2c $info(zoom) $mx2 $my2] cx2 cy2
 
         set dx [expr {$cx2 - $cx1}]
         set dy [expr {$cy2 - $cy1}]
@@ -1417,7 +1448,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
 
         # NEXT, get the ref point
         lassign [$self GetMapPoint args] rx ry
-        lassign [$self m2c $rx $ry] crx cry
+        lassign [$proj m2c $info(zoom) $rx $ry] crx cry
 
         # NEXT, everything else is the polygon
         set mpoly [$self GetMapPointList args]
@@ -1538,7 +1569,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
             set nbhoods(polygon-$id) $mpoly
 
             # NEXT, update the display
-            $hull coords $id.poly [$self m2c {*}$mpoly]
+            $hull coords $id.poly [$proj m2c $info(zoom) {*}$mpoly]
         }
 
         # NEXT, return the coords
@@ -1567,8 +1598,8 @@ snit::widgetadaptor ::projectgui::mapcanvas {
             set mxy [$self GetMapPoint args]
 
             # NEXT, compute the delta in canvas coords
-            lassign [$self m2c {*}$nbhoods(refpoint-$id)] cx1 cy1
-            lassign [$self m2c {*}$mxy]                   cx2 cy2
+            lassign [$proj m2c $info(zoom) {*}$nbhoods(refpoint-$id)] cx1 cy1
+            lassign [$proj m2c $info(zoom) {*}$mxy]                   cx2 cy2
 
             set cxdelta [expr {$cx2 - $cx1}]
             set cydelta [expr {$cy2 - $cy1}]
@@ -1592,10 +1623,10 @@ snit::widgetadaptor ::projectgui::mapcanvas {
 
     method NbhoodDraw {id} {
         # FIRST, Get the refpoint in canvas coords
-        lassign [$self m2c {*}$nbhoods(refpoint-$id)] crx cry
+        lassign [$proj m2c $info(zoom) {*}$nbhoods(refpoint-$id)] crx cry
 
         # NEXT, Get the polygon in canvas coords
-        set cpoly [$self m2c {*}$nbhoods(polygon-$id)]
+        set cpoly [$proj m2c $info(zoom) {*}$nbhoods(polygon-$id)]
 
         # NEXT, Draw it
         $hull create polygon $cpoly                        \
@@ -1803,7 +1834,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
         set cy [expr {0.5*($fy1 + $fy2)*$cy2}]
 
         # NEXT, convert to mxy, and return.
-        return [$self c2m $cx $cy]
+        return [$proj c2m $info(zoom) $cx $cy]
     }
 
     # WrongNumArgs methodsig
