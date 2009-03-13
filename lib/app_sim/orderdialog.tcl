@@ -235,7 +235,6 @@ snit::widget orderdialog {
 
     # my array -- scalars and field data
     #
-    # first             Name of first editable parm (i.e., not multi)
     # parms             Names of all parms.
     # multi             Name of "multi" parm, or ""
     # keys              Names of "key" parms, or {}
@@ -247,7 +246,6 @@ snit::widget orderdialog {
     # icon-$parm        Name of status icon widget
 
     variable my -array {
-        first    {}
         parms    {}
         multi    ""
         keys     {}
@@ -412,11 +410,6 @@ snit::widget orderdialog {
             # NEXT, get the field type
             set ftype [dict get $pdict -fieldtype]
 
-            # NEXT, determine the "first" non-multi parm
-            if {$ftype ne "multi" && $my(first) eq ""} {
-                set my(first) $parm
-            }
-
             # NEXT, get the current grid row, and see if we need to 
             # insert a separator before the non-key fields
             incr row
@@ -579,14 +572,29 @@ snit::widget orderdialog {
             return
         }
 
-        # NEXT, focus on the first parameter
-        focus $my(field-$my(first))
-        
         # NEXT, fill in the data
         $self Clear
 
         if {[dict size $parmdict] > 0} {
             $self set $parmdict
+
+            # NEXT, focus on the first editable field
+            $self SetFocus
+        }
+    }
+
+    # SetFocus
+    #
+    # Sets the focus to the first editable field.
+
+    method SetFocus {} {
+        foreach parm $my(parms) {
+            if {$parm ne $my(multi) &&
+                [$my(field-$parm) cget -state] ne "disabled"
+            } {
+                focus $my(field-$parm)
+                break
+            }
         }
     }
 
@@ -955,13 +963,13 @@ snit::widget orderdialog {
                 [order parm $options(-order) $parm -defval]
         }
 
-        # NEXT, Set the focus to the first field
-        focus $my(field-$my(first))
-
         # NEXT, if there are key fields, disable non-key fields.
         if {[llength $my(keys)] != 0} {
             $self RefreshKey [lindex $my(keys) 0]
         }
+
+        # NEXT, set the focus to first editable field
+        $self SetFocus
 
         # NEXT, save the current field values, so that we can check
         # whether there are unsaved changes.
