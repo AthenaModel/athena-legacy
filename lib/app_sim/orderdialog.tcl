@@ -1160,8 +1160,14 @@ snit::widget orderdialog {
     #
     # Asks the user if they want to discard unsaved changes.  Returns
     # 1 if so and 0 otherwise.
+    #
+    # If the dialog has no nonkey fields, it returns 1 immediately.
 
     method DiscardUnsaved {{parm ""}} {
+        if {[llength $my(nonkeys)] == 0} {
+            return 1
+        }
+
         if {$parm ne ""} {
             set label [order parm $options(-order) $my(current) -label]
             

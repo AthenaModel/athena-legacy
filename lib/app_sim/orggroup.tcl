@@ -334,7 +334,7 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
     title "Delete Organization Group"
     options -table gui_orggroups
 
-    parm g  key "Group"
+    parm g  key "Group" -tags group
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type orggroup
@@ -379,7 +379,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     title "Update Organization Group"
     options -table gui_orggroups
 
-    parm g              key   "ID"
+    parm g              key   "ID"            -tags group
     parm longname       text  "Long Name"
     parm color          color "Color"
     parm shape          enum  "Unit Shape"    -type eunitshape
