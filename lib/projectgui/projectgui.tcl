@@ -51,6 +51,7 @@ source [file join $::projectgui::library messagebox.tcl   ]
 source [file join $::projectgui::library enumfield.tcl    ]
 source [file join $::projectgui::library multifield.tcl   ]
 source [file join $::projectgui::library textfield.tcl    ]
+source [file join $::projectgui::library zulufield.tcl    ]
 
 
 

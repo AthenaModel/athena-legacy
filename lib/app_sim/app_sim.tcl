@@ -66,6 +66,7 @@ source [file join $::app_sim::library sat.tcl             ]
 source [file join $::app_sim::library rel.tcl             ]
 source [file join $::app_sim::library coop.tcl            ]
 source [file join $::app_sim::library unit.tcl            ]
+source [file join $::app_sim::library sim.tcl             ]
 
 # GUI
 source [file join $::app_sim::library orderdialog.tcl     ]

@@ -13,6 +13,14 @@
 #
 #-----------------------------------------------------------------------
 
+# simstate: The current simulation state
+
+enum simstate {
+    PREP    Prep
+    RUNNING Running
+    PAUSED  Paused
+}
+
 # refpoint
 #
 # A refpoint is a location expressed as a map reference.  On validation,

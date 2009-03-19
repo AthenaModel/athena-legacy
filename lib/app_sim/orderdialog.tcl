@@ -492,6 +492,21 @@ snit::widget orderdialog {
     }
 
 
+    # CreateField zulu parm
+    #
+    # parm    The parameter name
+    #
+    # Creates the field widget
+
+    method {CreateField zulu} {parm} {
+        # FIRST, remember that this is not a key
+        lappend my(nonkeys) $parm
+
+        # NEXT, create the field widget
+        zulufield $my(field-$parm) \
+            -changecmd [mymethod NonKeyChange $parm]
+    }
+
 
     # CreateField key parm
     #
@@ -966,6 +981,8 @@ snit::widget orderdialog {
         # NEXT, if there are key fields, disable non-key fields.
         if {[llength $my(keys)] != 0} {
             $self RefreshKey [lindex $my(keys) 0]
+        } else {
+            $self NonKeyChange ""
         }
 
         # NEXT, set the focus to first editable field

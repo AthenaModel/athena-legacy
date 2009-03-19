@@ -91,6 +91,7 @@ snit::type app {
         sat      init
         rel      init
         coop     init
+        sim      init
 
         # NEXT, Withdraw the default toplevel window, and create 
         # the main GUI components.

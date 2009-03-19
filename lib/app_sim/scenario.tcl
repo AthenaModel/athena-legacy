@@ -214,6 +214,8 @@ snit::type scenario {
 
     #-------------------------------------------------------------------
     # Simulation Reconfiguration
+    #
+    # TBD: This should probably move to sim(sim) as "sim reconfigure".
 
     # reconfigure
     #

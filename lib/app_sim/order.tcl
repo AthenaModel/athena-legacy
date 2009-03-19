@@ -375,7 +375,7 @@ snit::type order {
     # parm name fieldType label ?option...?
     #
     # name        The parameter's name
-    # fieldType   The field type, e.g., color, enum, key, multi, text
+    # fieldType   The field type, e.g., color, enum, key, multi, text, zulu
     # label       The parameter's label string
     # 
     # -defval value    Default value

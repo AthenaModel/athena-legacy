@@ -51,7 +51,12 @@ snit::widget appwin {
     #-------------------------------------------------------------------
     # Instance variables
 
-    # TBD
+    # Status info
+    #
+    # zulutime    Current sim time as a zulu time string
+    variable info -array {
+        zulutime ""
+    }
 
     #-------------------------------------------------------------------
     # Constructor
@@ -88,6 +93,7 @@ snit::widget appwin {
         # NEXT, Prepare to receive notifier events.
         notifier bind ::scenario <Reconfigure>   $self [mymethod Reconfigure]
         notifier bind ::scenario <ScenarioSaved> $self [mymethod Reconfigure]
+        notifier bind ::sim      <Time>          $self [mymethod Time]
 
         # NEXT, Prepare to receive window events
         bind $content <<NotebookTabChanged>> [mymethod Reconfigure]
@@ -235,6 +241,13 @@ snit::widget appwin {
         set ordersmenu [menu $menu.orders]
         $menu add cascade -label "Orders" -underline 0 -menu $ordersmenu
 
+        # Orders/Simulation
+        set submenu [menu $ordersmenu.sim]
+        $ordersmenu add cascade -label "Simulation" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu SIM:STARTDATE
+
         # Orders/Unit
         set submenu [menu $ordersmenu.unit]
         $ordersmenu add cascade -label "Unit" \
@@ -374,8 +387,26 @@ snit::widget appwin {
         # ROW 2, add a separator
         frame $win.sep2 -height 2 -relief sunken -borderwidth 2
 
-        # ROW 3, Create the Message line.
-        install msgline using messageline $win.msgline
+        # ROW 3, Create the Status Line frame.
+        frame $win.status         \
+            -relief flat          \
+            -borderwidth        2 \
+            -highlightthickness 0
+
+        # Zulu time
+        label $win.status.zulutime                     \
+            -relief             sunken                 \
+            -borderwidth        1                      \
+            -highlightthickness 0                      \
+            -font               codefont               \
+            -width              12                     \
+            -textvariable       [myvar info(zulutime)]
+
+        # Message line
+        install msgline using messageline $win.status.msgline
+
+        pack $win.status.zulutime -side right -padx 2 -fill y
+        pack $win.status.msgline -fill both -expand yes
 
         # NEXT, add the mapviewer to the content notebook
         
@@ -534,7 +565,7 @@ snit::widget appwin {
         grid $win.sep0     -sticky ew
         grid $row1         -sticky nsew
         grid $win.sep2     -sticky ew
-        grid $win.msgline  -sticky ew
+        grid $win.status   -sticky ew
     }
    
     #-------------------------------------------------------------------
@@ -841,7 +872,19 @@ snit::widget appwin {
         }
 
         wm title $win "$dbfile, $tab - Athena [version] $wintype"
+
+        # NEXT, set the sim time
+        $self Time
     }
+
+    # Time
+    #
+    # Display the sim time when it is updated.
+
+    method Time {} {
+        set info(zulutime) [simclock asZulu]
+    }
+
 
     #-------------------------------------------------------------------
     # Utility Methods
