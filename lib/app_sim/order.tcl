@@ -701,7 +701,7 @@ snit::type order {
                       contact JPL to get the problem fixed.
                 }
 
-                scenario reconfigure
+                sim reconfigure
                 
                 return "Unexpected error while handling order."
             }

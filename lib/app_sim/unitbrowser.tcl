@@ -119,7 +119,7 @@ snit::widget unitbrowser {
         bind $tb <<TablebrowserSelect>> [mymethod SelectionChanged]
 
         # NEXT, prepare to update on data change
-        notifier bind ::scenario <Reconfigure> $self [mymethod Reconfigure]
+        notifier bind ::sim  <Reconfigure> $self [mymethod Reconfigure]
         notifier bind ::unit <Entity>          $self $self
 
         # NEXT, reload on creation

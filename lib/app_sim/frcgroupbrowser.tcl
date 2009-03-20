@@ -118,7 +118,7 @@ snit::widget frcgroupbrowser {
         bind $tb <<TablebrowserSelect>> [mymethod SelectionChanged]
 
         # NEXT, prepare to update on data change
-        notifier bind ::scenario <Reconfigure> $self [mymethod Reconfigure]
+        notifier bind ::sim      <Reconfigure> $self [mymethod Reconfigure]
         notifier bind ::frcgroup <Entity>      $self $self
 
         # NEXT, reload on creation

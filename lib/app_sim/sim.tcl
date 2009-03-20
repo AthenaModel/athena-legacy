@@ -70,6 +70,60 @@ snit::type sim {
     }
 
     #-------------------------------------------------------------------
+    # Simulation Reconfiguration
+
+    # reconfigure
+    #
+    # Reconfiguration occurs when a brand new scenario is created or
+    # loaded.  All application modules must re-initialize themselves
+    # at this time.
+    #
+    # * Simulation modules are reconfigured directly by this routine.
+    # * User interface modules are reconfigured on receipt of the
+    #   <Reconfigure> event.
+
+    typemethod reconfigure {} {
+        # FIRST, Reconfigure the simulation
+        cif      reconfigure
+        map      reconfigure
+        nbhood   reconfigure
+        nbrel    reconfigure
+        group    reconfigure
+        civgroup reconfigure
+        frcgroup reconfigure
+        orggroup reconfigure
+        nbgroup  reconfigure
+        sat      reconfigure
+        rel      reconfigure
+        coop     reconfigure
+        unit     reconfigure
+
+        # NEXT, Reconfigure the GUI
+        notifier send $type <Reconfigure>
+    }
+
+    # reset
+    #
+    # Resets the simulation to time 0 and the PREP state, doing all
+    # relevent cleanup.
+
+    typemethod reset {} {
+        # FIRST, reset the sim time to time 0
+        simclock reset
+        
+        # NEXT, reset the sim state
+        set info(state) PREP
+
+        # NEXT, clean up other simulation modules and delete simulation
+        # history.
+        # TBD: Clear orders at times greater than time 0 from the CIF.
+
+        # NEXT, reconfigure the app.
+        $type reconfigure
+    }
+
+
+    #-------------------------------------------------------------------
     # Mutators
     #
     # Mutators are used to implement orders that change the simulation in

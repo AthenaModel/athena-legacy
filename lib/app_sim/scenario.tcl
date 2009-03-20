@@ -70,14 +70,15 @@ snit::type scenario {
         # NEXT, there is no dbfile.
         set info(dbfile) ""
 
+        # NEXT, Reset the simulation to time 0.  This also reconfigures
+        # the app.
+        sim reset
+
         # NEXT, log it.
         log newlog new
         log normal scenario "New Scenario: Untitled"
         
         app puts "New scenario created"
-
-        # NEXT, Reconfigure the app
-        $type reconfigure
     }
 
     # open filename
@@ -118,7 +119,7 @@ snit::type scenario {
         app puts "Opened Scenario [file tail $filename]"
 
         # NEXT, Reconfigure the app
-        $type reconfigure
+        sim reconfigure
     }
 
     # save ?filename?
@@ -210,41 +211,6 @@ snit::type scenario {
         }
 
         return 0
-    }
-
-    #-------------------------------------------------------------------
-    # Simulation Reconfiguration
-    #
-    # TBD: This should probably move to sim(sim) as "sim reconfigure".
-
-    # reconfigure
-    #
-    # Reconfiguration occurs when a brand new scenario is created or
-    # loaded.  All application modules must re-initialize themselves
-    # at this time.
-    #
-    # * Simulation modules are reconfigured directly by this routine.
-    # * User interface modules are reconfigured on receipt of the
-    #   <Reconfigure> event.
-
-    typemethod reconfigure {} {
-        # FIRST, Reconfigure the simulation
-        cif      reconfigure
-        map      reconfigure
-        nbhood   reconfigure
-        nbrel    reconfigure
-        group    reconfigure
-        civgroup reconfigure
-        frcgroup reconfigure
-        orggroup reconfigure
-        nbgroup  reconfigure
-        sat      reconfigure
-        rel      reconfigure
-        coop     reconfigure
-        unit     reconfigure
-
-        # NEXT, Reconfigure the GUI
-        notifier send $type <Reconfigure>
     }
 
     #-------------------------------------------------------------------

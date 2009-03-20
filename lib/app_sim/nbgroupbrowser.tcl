@@ -127,7 +127,7 @@ snit::widget nbgroupbrowser {
         bind $tb <<TablebrowserSelect>> [mymethod SelectionChanged]
 
         # NEXT, prepare to update on data change
-        notifier bind ::scenario <Reconfigure> $self [mymethod Reconfigure]
+        notifier bind ::sim     <Reconfigure> $self [mymethod Reconfigure]
         notifier bind ::nbgroup <Entity>       $self $self
 
         # NEXT, reload on creation

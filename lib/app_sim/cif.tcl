@@ -209,7 +209,7 @@ snit::type cif {
 
             # NEXT, Reconfigure all modules from the database: 
             # this should clean up any problems in Tcl memory.
-            scenario reconfigure
+            sim reconfigure
         } else {
             # FIRST, no error; update the top of the stack.
             incr info(nextid) -1
