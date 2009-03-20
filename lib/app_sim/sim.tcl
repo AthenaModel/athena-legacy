@@ -22,10 +22,11 @@ snit::type sim {
     #-------------------------------------------------------------------
     # Type Components
 
-    # TBD
+    typecomponent ticker    ;# The timeout(n) instance that makes the
+                             # simulation go.
 
     #-------------------------------------------------------------------
-    # Type Variables
+    # Non-checkpointed Type Variables
 
     # constants -- scalar array
     
@@ -38,10 +39,16 @@ snit::type sim {
     #
     # changed   1 if saveable(i) data has changed, and 0 otherwise.
     # state     The current simulation state, a simstate value
+    # delay     The inter-tick delay in milliseconds.  
+    #           TBD: Should be checkpointed.
+    # stoptime  The time tick at which the simulation should pause,
+    #           or 0 if there's no limit.
 
     typevariable info -array {
-        changed 0
-        state   PREP
+        changed  0
+        state    PREP
+        delay    1000
+        stoptime 0
     }
 
     #-------------------------------------------------------------------
@@ -59,7 +66,7 @@ snit::type sim {
         scenario register $type
 
         # NEXT, set the simulation state
-        set info(state)   prep
+        set info(state)   PREP
         set info(changed) 0
 
         # NEXT, configure the simclock.
@@ -67,6 +74,12 @@ snit::type sim {
         simclock configure              \
             -tick $constants(ticksize)  \
             -t0   $constants(startdate)
+
+        # NEXT, create the ticker
+        set ticker [timeout ${type}::ticker              \
+                        -interval   $info(delay)         \
+                        -repetition yes                  \
+                        -command    [mytypemethod Tick]]
     }
 
     #-------------------------------------------------------------------
@@ -100,6 +113,7 @@ snit::type sim {
 
         # NEXT, Reconfigure the GUI
         notifier send $type <Reconfigure>
+        notifier send $type <State>
     }
 
     # reset
@@ -111,17 +125,29 @@ snit::type sim {
         # FIRST, reset the sim time to time 0
         simclock reset
         
-        # NEXT, reset the sim state
-        set info(state) PREP
-
         # NEXT, clean up other simulation modules and delete simulation
         # history.
         # TBD: Clear orders at times greater than time 0 from the CIF.
+        # TBD: Reset the event queue, including scheduling standard events.
+
+        # NEXT, reset the sim state.  Don't use SetState, as we'll be
+        # reconfiguring immediately.
+        set info(state) PREP
 
         # NEXT, reconfigure the app.
         $type reconfigure
     }
 
+    #-------------------------------------------------------------------
+    # Queries
+
+    # state
+    #
+    # Returns the current simulation state
+
+    typemethod state {} {
+        return $info(state)
+    }
 
     #-------------------------------------------------------------------
     # Mutators
@@ -133,7 +159,7 @@ snit::type sim {
 
 
     # mutate startdate startdate
-    #cha
+    #
     # startdate   The date of T0 as a zulu-time string
     #
     # Sets the simclock's -t0 start date
@@ -151,6 +177,123 @@ snit::type sim {
 
         # NEXT, set the undo command
         return [mytypemethod mutate startdate $oldDate]
+    }
+
+    # mutate run ?options...?
+    #
+    # -ticks ticks       Run until now + ticks
+    # -until tick        Run until tick
+    #
+    # Causes the simulation to run time forward until the specified
+    # time, or until "mutate stop" is called.
+    #
+    # Time proceeds by ticks; each tick is run in the context of the 
+    # Tcl event loop, as controlled by a timeout(n) object called
+    # "ticker".  The timeout interval is called the inter-tick delay;
+    # it determines how fast the simulation runs.
+
+    typemethod {mutate run} {args} {
+        assert {$info(state) ne "RUNNING"}
+
+        # FIRST, get the stop time
+        set info(stoptime) 0
+
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+            
+            switch -exact -- $opt {
+                -ticks {
+                    set val [lshift args]
+
+                    set info(stoptime) [expr {[simclock now] + $val}]
+                }
+
+                -until {
+                    set info(stoptime) [lshift args]
+                }
+
+                default {
+                    error "Unknown option: \"$opt\""
+                }
+            }
+        }
+
+        # The SIM:RUN order should have guaranteed this, but let's
+        # check it to make sure.
+        assert {$info(stoptime) == 0 || $info(stoptime) > [simclock now]}
+
+        # NEXT, if state is PREP, we've got work to do
+        # TBD: E.g., initialize ARAM.
+
+        # NEXT, set the state to running
+        $type SetState RUNNING
+
+        # NEXT, schedule the next tick.
+        $ticker schedule
+
+        # NEXT, return "", as this can't be undone.
+        return ""
+    }
+
+    # mutate stop
+    #
+    # Stops the simulation from running.
+
+    typemethod {mutate stop} {} {
+        # FIRST, cancel the ticker, so that the next tick doesn't occur.
+        $ticker cancel
+
+        # NEXT, set the state to paused.
+        $type SetState PAUSED
+    }
+
+    #-------------------------------------------------------------------
+    # Tick
+
+    # Tick
+    #
+    # This command is executed at each time tick.
+
+    typemethod Tick {} {
+        # FIRST, advance time one tick.
+        # TBD: Put the <Time> event and log message in -advancecmd?
+        simclock tick
+
+        notifier send $type <Time>
+        log normal sim "Tick [simclock now]"
+        
+        # NEXT, advance ARAM
+        # TBD: aram advance
+
+        # NEXT, execute eventq events
+        # TBD: eventq advance [simclock now]
+
+        # NEXT, check Reactive Decision Conditions (RDCs)
+
+        # NEXT, stop if it's the stop time.
+        if {$info(stoptime) != 0 &&
+            [simclock now] >= $info(stoptime)
+        } {
+            log normal sim "Stop time reached"
+            $type mutate stop
+        }
+    }
+
+
+    
+    #-------------------------------------------------------------------
+    # Utility Routines
+
+    # SetState state
+    #
+    # state    The simulation state
+    #
+    # Sets the current simulation state, and reports it as <State>
+
+    typemethod SetState {state} {
+        set info(state) $state
+        log normal sim "Simulation state is $info(state)"
+        notifier send $type <State>
     }
 
     #-------------------------------------------------------------------
@@ -171,7 +314,16 @@ snit::type sim {
     # checkpoint     A string returned by the checkpoint typemethod
     
     typemethod restore {checkpoint} {
+        # FIRST, restore the sim time
         simclock configure -t0 $checkpoint
+
+        # Don't use SetState, as we'll be reconfiguring immediately.
+        if {[simclock now] == 0} {
+            set info(state) PREP
+        } else {
+            set info(state) PAUSED
+        }
+
         set info(changed) 0
     }
 

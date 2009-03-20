@@ -53,8 +53,11 @@ snit::widget appwin {
 
     # Status info
     #
+    # simstate    Current simulation state
     # zulutime    Current sim time as a zulu time string
+
     variable info -array {
+        simstate ""
         zulutime ""
     }
 
@@ -94,6 +97,7 @@ snit::widget appwin {
         notifier bind ::sim      <Reconfigure>   $self [mymethod Reconfigure]
         notifier bind ::scenario <ScenarioSaved> $self [mymethod Reconfigure]
         notifier bind ::sim      <Time>          $self [mymethod Time]
+        notifier bind ::sim      <State>         $self [mymethod State]
 
         # NEXT, Prepare to receive window events
         bind $content <<NotebookTabChanged>> [mymethod Reconfigure]
@@ -394,6 +398,16 @@ snit::widget appwin {
             -highlightthickness 0
 
         # Zulu time
+        label $win.status.simstate                     \
+            -relief             sunken                 \
+            -borderwidth        1                      \
+            -highlightthickness 0                      \
+            -font               codefont               \
+            -width              7                      \
+            -anchor             w                      \
+            -textvariable       [myvar info(simstate)]
+
+        # Zulu time
         label $win.status.zulutime                     \
             -relief             sunken                 \
             -borderwidth        1                      \
@@ -406,6 +420,7 @@ snit::widget appwin {
         install msgline using messageline $win.status.msgline
 
         pack $win.status.zulutime -side right -padx 2 -fill y
+        pack $win.status.simstate -side right -padx 2 -fill y
         pack $win.status.msgline -fill both -expand yes
 
         # NEXT, add the mapviewer to the content notebook
@@ -873,8 +888,9 @@ snit::widget appwin {
 
         wm title $win "$dbfile, $tab - Athena [version] $wintype"
 
-        # NEXT, set the sim time
+        # NEXT, set the status variables
         $self Time
+        $self State
     }
 
     # Time
@@ -883,6 +899,14 @@ snit::widget appwin {
 
     method Time {} {
         set info(zulutime) [simclock asZulu]
+    }
+
+    # State state
+    #
+    # Display the sim state when it is updated.
+
+    method State {} {
+        set info(simstate) [sim state]
     }
 
 
