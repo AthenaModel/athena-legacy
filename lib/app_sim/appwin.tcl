@@ -353,10 +353,12 @@ snit::widget appwin {
         # should stretch vertically on resize; the others shouldn't.
         # And everything should stretch horizontally.
 
-        grid rowconfigure $win 0 -weight 0
-        grid rowconfigure $win 1 -weight 1
-        grid rowconfigure $win 2 -weight 0
-        grid rowconfigure $win 3 -weight 0
+        grid rowconfigure $win 0 -weight 0    ;# Separator
+        grid rowconfigure $win 1 -weight 0    ;# Tool Bar
+        grid rowconfigure $win 2 -weight 0    ;# Separator
+        grid rowconfigure $win 3 -weight 1    ;# Content
+        grid rowconfigure $win 4 -weight 0    ;# Separator
+        grid rowconfigure $win 5 -weight 0    ;# Status line
 
         grid columnconfigure $win 0 -weight 1
 
@@ -366,7 +368,77 @@ snit::widget appwin {
         # window.
         frame $win.sep0 -height 2 -relief sunken -borderwidth 2
 
-        # ROW 1, create the content widgets.  If this is a main window,
+        # ROW 1, add a simulation toolbar
+        frame $win.toolbar        \
+            -relief flat          \
+            -borderwidth        0 \
+            -highlightthickness 0
+
+        # Run
+        button $win.toolbar.run  \
+            -image      ::projectgui::icon::play22    \
+            -relief     flat                          \
+            -overrelief raised                        \
+            -state      normal                        \
+            -command    [mymethod Run]
+
+        DynamicHelp::add $win.toolbar.run -text "Run Simulation"
+
+        
+        # Duration
+
+        # Pause
+
+        button $win.toolbar.pause  \
+            -image      ::projectgui::icon::pause22   \
+            -relief     flat                          \
+            -overrelief raised                        \
+            -state      normal                        \
+            -command    [mymethod Pause]
+
+        DynamicHelp::add $win.toolbar.pause -text "Pause Simulation"
+
+
+        # Restart
+
+        button $win.toolbar.restart \
+            -image      ::projectgui::icon::rewind22  \
+            -relief     flat                          \
+            -overrelief raised                        \
+            -state      normal                        \
+            -command    [mymethod Restart]
+
+        DynamicHelp::add $win.toolbar.restart -text "Restart Simulation"
+
+
+        # Sim State
+        label $win.toolbar.simstate                    \
+            -borderwidth        1                      \
+            -highlightthickness 0                      \
+            -font               codefont               \
+            -width              7                      \
+            -anchor             w                      \
+            -textvariable       [myvar info(simstate)]
+
+        # Zulu time
+        label $win.toolbar.zulutime                    \
+            -borderwidth        1                      \
+            -highlightthickness 0                      \
+            -font               codefont               \
+            -width              12                     \
+            -textvariable       [myvar info(zulutime)]
+
+        pack $win.toolbar.run      -side left          
+        pack $win.toolbar.pause    -side left
+        pack $win.toolbar.restart  -side left
+        pack $win.toolbar.zulutime -side right -padx 2 
+        pack $win.toolbar.simstate -side right -padx 2 
+
+        # ROW 2, add a separator between the tool bar and the content
+        # window.
+        frame $win.sep2 -height 2 -relief sunken -borderwidth 2
+
+        # ROW 3, create the content widgets.  If this is a main window,
         # then we have a paner containing the content notebook with 
         # a CLI underneath.  Otherwise, we get just the content
         # notebook.
@@ -380,48 +452,28 @@ snit::widget appwin {
                 -minsize 120        \
                 -stretch always
 
-            set row1 $win.paner
+            set row3 $win.paner
         } else {
             install content using ttk::notebook $win.content \
                 -padding 2 
 
-            set row1 $win.content
+            set row3 $win.content
         }
 
-        # ROW 2, add a separator
-        frame $win.sep2 -height 2 -relief sunken -borderwidth 2
+        # ROW 4, add a separator
+        frame $win.sep4 -height 2 -relief sunken -borderwidth 2
 
-        # ROW 3, Create the Status Line frame.
+        # ROW 5, Create the Status Line frame.
         frame $win.status         \
             -relief flat          \
             -borderwidth        2 \
             -highlightthickness 0
 
-        # Zulu time
-        label $win.status.simstate                     \
-            -relief             sunken                 \
-            -borderwidth        1                      \
-            -highlightthickness 0                      \
-            -font               codefont               \
-            -width              7                      \
-            -anchor             w                      \
-            -textvariable       [myvar info(simstate)]
-
-        # Zulu time
-        label $win.status.zulutime                     \
-            -relief             sunken                 \
-            -borderwidth        1                      \
-            -highlightthickness 0                      \
-            -font               codefont               \
-            -width              12                     \
-            -textvariable       [myvar info(zulutime)]
-
         # Message line
         install msgline using messageline $win.status.msgline
 
-        pack $win.status.zulutime -side right -padx 2 -fill y
-        pack $win.status.simstate -side right -padx 2 -fill y
         pack $win.status.msgline -fill both -expand yes
+
 
         # NEXT, add the mapviewer to the content notebook
         
@@ -578,8 +630,10 @@ snit::widget appwin {
 
         # NEXT, manage all of the components.
         grid $win.sep0     -sticky ew
-        grid $row1         -sticky nsew
+        grid $win.toolbar  -sticky ew
         grid $win.sep2     -sticky ew
+        grid $row3         -sticky nsew
+        grid $win.sep4     -sticky ew
         grid $win.status   -sticky ew
     }
    
@@ -810,6 +864,35 @@ snit::widget appwin {
         }
     }
 
+    #-------------------------------------------------------------------
+    # Toolbar Event Handlers
+
+    # Run
+    #
+    # Sends SIM:RUN
+
+    method Run {} {
+        order send gui SIM:RUN
+    }
+
+
+    # Pause
+    #
+    # Sends SIM:PAUSE
+
+    method Pause {} {
+        order send gui SIM:PAUSE
+    }
+
+
+    # Restart
+    #
+    # Sends SIM:RESTART
+
+    method Restart {} {
+        order send gui SIM:RESTART
+    }
+
 
     #-------------------------------------------------------------------
     # Mapviewer Event Handlers
@@ -837,7 +920,7 @@ snit::widget appwin {
     method Nbhood-1 {n} {
         rdb eval {SELECT longname FROM nbhoods WHERE n=$n} {}
 
-        $self puts "Found $n: $longname"
+        $self puts "Neighborhood $n: $longname"
     }
 
     # Point-1 ref
@@ -861,6 +944,8 @@ snit::widget appwin {
     method PolyComplete {poly} {
         $cli append " $poly"
     }
+
+
 
 
     #-------------------------------------------------------------------

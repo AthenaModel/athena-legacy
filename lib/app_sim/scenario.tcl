@@ -70,9 +70,9 @@ snit::type scenario {
         # NEXT, there is no dbfile.
         set info(dbfile) ""
 
-        # NEXT, Reset the simulation to time 0.  This also reconfigures
+        # NEXT, Restart the simulation.  This also reconfigures
         # the app.
-        sim reset
+        sim restart
 
         # NEXT, log it.
         log newlog new

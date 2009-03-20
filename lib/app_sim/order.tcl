@@ -309,9 +309,6 @@ snit::type order {
         # NEXT, check constraints
         require {$orders(title-$name) ne ""} \
             "Order $name has no title"
-
-        require {[llength $orders(parms-$name)] > 0} \
-            "Order $name has no parameters"
     }
 
     #-------------------------------------------------------------------

@@ -1044,7 +1044,9 @@ snit::widget orderdialog {
 
             # NEXT, mark the bad parms.
             foreach {parm msg} $result {
-                $my(icon-$parm) configure -image ${type}::error_x
+                if {$parm ne "*"} {
+                    $my(icon-$parm) configure -image ${type}::error_x
+                }
             }
 
             # NEXT, save the error text
@@ -1052,8 +1054,12 @@ snit::widget orderdialog {
             array set ferrors $result
 
             # NEXT, if it's not shown, show the message box
-            $self Message \
-          "Error in order; click in marked fields for error messages."
+            if {[dict exists $result *]} {
+                $self Message "Error in order: [dict get $result *]"
+            } else {
+                $self Message \
+                 "Error in order; click in marked fields for error messages."
+            }
 
             return 0
         }
