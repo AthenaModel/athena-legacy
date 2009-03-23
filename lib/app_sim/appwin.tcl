@@ -53,10 +53,12 @@ snit::widget appwin {
 
     # Status info
     #
+    # simspeed    Current simulation speed
     # simstate    Current simulation state
     # zulutime    Current sim time as a zulu time string
 
     variable info -array {
+        simspeed 5
         simstate ""
         zulutime ""
     }
@@ -96,8 +98,11 @@ snit::widget appwin {
         # NEXT, Prepare to receive notifier events.
         notifier bind ::sim      <Reconfigure>   $self [mymethod Reconfigure]
         notifier bind ::scenario <ScenarioSaved> $self [mymethod Reconfigure]
+
+        # TBD: Combine these?  Game truth variables?
         notifier bind ::sim      <Time>          $self [mymethod Time]
         notifier bind ::sim      <State>         $self [mymethod State]
+        notifier bind ::sim      <Speed>         $self [mymethod Speed]
 
         # NEXT, Prepare to receive window events
         bind $content <<NotebookTabChanged>> [mymethod Reconfigure]
@@ -410,6 +415,27 @@ snit::widget appwin {
 
         DynamicHelp::add $win.toolbar.restart -text "Restart Simulation"
 
+        
+        label $win.toolbar.spacer1 \
+            -text "  "
+
+
+        # Simulation Speed
+        label $win.toolbar.slower \
+            -text "Slower"
+
+        ttk::scale $win.toolbar.speed        \
+            -from     1                      \
+            -to       10                     \
+            -length   100                    \
+            -orient   horizontal             \
+            -value    5                      \
+            -variable [myvar info(simspeed)] \
+            -command  [mymethod SetSpeed]
+
+        label $win.toolbar.faster \
+            -text "Faster"
+
 
         # Sim State
         label $win.toolbar.simstate                    \
@@ -431,6 +457,10 @@ snit::widget appwin {
         pack $win.toolbar.run      -side left          
         pack $win.toolbar.pause    -side left
         pack $win.toolbar.restart  -side left
+        pack $win.toolbar.spacer1  -side left
+        pack $win.toolbar.slower   -side left
+        pack $win.toolbar.speed    -side left  -padx 2
+        pack $win.toolbar.faster   -side left
         pack $win.toolbar.zulutime -side right -padx 2 
         pack $win.toolbar.simstate -side right -padx 2 
 
@@ -893,6 +923,16 @@ snit::widget appwin {
         sim restart
     }
 
+    # SetSpeed speed
+    #
+    # Sets the simulation speed
+
+    method SetSpeed {speed} {
+        set speed [expr {round($speed)}]
+        sim speed $speed
+
+        app puts "Simulation Speed: $speed"
+    }
 
     #-------------------------------------------------------------------
     # Mapviewer Event Handlers
@@ -974,8 +1014,10 @@ snit::widget appwin {
         wm title $win "$dbfile, $tab - Athena [version] $wintype"
 
         # NEXT, set the status variables
+        $win.toolbar.speed configure -value [sim speed]
         $self Time
         $self State
+        $self Speed
     }
 
     # Time
@@ -986,7 +1028,7 @@ snit::widget appwin {
         set info(zulutime) [simclock asZulu]
     }
 
-    # State state
+    # State
     #
     # Display the sim state when it is updated.
 
@@ -994,6 +1036,15 @@ snit::widget appwin {
         set info(simstate) [sim state]
     }
 
+    # Speed
+    #
+    # Display the sim speed when it is updated.
+
+    method Speed {} {
+        if {round($info(simspeed)) != [sim speed]} {
+            set info(simspeed) [sim speed]
+        }
+    }
 
     #-------------------------------------------------------------------
     # Utility Methods

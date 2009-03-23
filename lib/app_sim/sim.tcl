@@ -57,14 +57,14 @@ snit::type sim {
     # state      The current simulation state, a simstate value
     # pausetime  The time tick at which the simulation should pause,
     #            or 0 if there's no limit.
-    #
-    # TBD: The following values should be checkpointed
-    #
+    # speed      The speed at which the simulation should run.
+    #            (This should probably be saved with the GUI settings.)
 
     typevariable info -array {
         changed   0
         state     PREP
         pausetime 0
+        speed     5
     }
 
     #-------------------------------------------------------------------
@@ -72,12 +72,10 @@ snit::type sim {
 
     # db -- Checkpointed scalars
     #
-    # speed      The speed at which the simulation should run
     # cifmark    Marks the top of the CIF on PREP->RUNNING, to support
     #            "mutate restart".
 
     typevariable db -array {
-        speed     5
         cifmark   ""
     }
 
@@ -107,7 +105,7 @@ snit::type sim {
 
         # NEXT, create the ticker
         set ticker [timeout ${type}::ticker              \
-                        -interval   $speeds($db(speed)) \
+                        -interval   $speeds($info(speed)) \
                         -repetition yes                  \
                         -command    [mytypemethod Tick]]
 
@@ -242,23 +240,25 @@ snit::type sim {
     # Sets/queries the simulation speed.
 
     typemethod speed {{speed ""}} {
-        if {$speed ne ""} {
+        if {$speed ne "" && $speed != $info(speed)} {
             require {$speed in [array names speeds]} \
                 "Invalid speed: \"$speed\""
 
-            set db(speed) $speed
+            set info(speed) $speed
 
             set wasScheduled [$ticker isScheduled]
             
             $ticker cancel
-            $ticker configure -interval $speeds($db(speed))
+            $ticker configure -interval $speeds($info(speed))
             
             if {$wasScheduled} {
                 $ticker schedule
             }
+
+            notifier send $type <Speed>
         }
 
-        return $db(speed)
+        return $info(speed)
     }
 
     #-------------------------------------------------------------------
