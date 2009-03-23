@@ -74,16 +74,27 @@ snit::type cif {
     #-------------------------------------------------------------------
     # Public Typemethods
 
-    # clear
+    # mark
     #
-    # Deletes all history from the CIF
+    # Returns a mark representing the top of the CIF
 
-    typemethod clear {} {
+    typemethod mark {} {
+        expr $info(nextid) - 1
+    }
+
+    # clear ?mark?
+    #
+    # mark    A mark, as returned by "mark".
+    #
+    # By default, deletes all history from the CIF.  If mark is
+    # given, deletes all history later than mark.
+
+    typemethod clear {{mark 0}} {
         rdb eval {
-            DELETE FROM cif;
+            DELETE FROM cif WHERE id > $mark;
         }
 
-        set info(nextid) 0
+        set info(nextid) $mark
     }
 
     # add order parmdict ?undo?

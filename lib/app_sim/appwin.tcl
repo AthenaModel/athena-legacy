@@ -890,7 +890,7 @@ snit::widget appwin {
     # Sends SIM:RESTART
 
     method Restart {} {
-        order send gui SIM:RESTART
+        sim restart
     }
 
 

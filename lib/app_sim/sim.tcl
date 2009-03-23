@@ -55,16 +55,30 @@ snit::type sim {
     #
     # changed    1 if saveable(i) data has changed, and 0 otherwise.
     # state      The current simulation state, a simstate value
-    # delay      The inter-tick delay in milliseconds.  
-    #            TBD: Should be checkpointed.
     # pausetime  The time tick at which the simulation should pause,
     #            or 0 if there's no limit.
+    #
+    # TBD: The following values should be checkpointed
+    #
 
     typevariable info -array {
         changed   0
         state     PREP
-        speed     5
         pausetime 0
+    }
+
+    #-------------------------------------------------------------------
+    # Checkpointed type variables
+
+    # db -- Checkpointed scalars
+    #
+    # speed      The speed at which the simulation should run
+    # cifmark    Marks the top of the CIF on PREP->RUNNING, to support
+    #            "mutate restart".
+
+    typevariable db -array {
+        speed     5
+        cifmark   ""
     }
 
     #-------------------------------------------------------------------
@@ -93,12 +107,89 @@ snit::type sim {
 
         # NEXT, create the ticker
         set ticker [timeout ${type}::ticker              \
-                        -interval   $speeds($info(speed)) \
+                        -interval   $speeds($db(speed)) \
                         -repetition yes                  \
                         -command    [mytypemethod Tick]]
 
         # NEXT, initialize the event queue
         eventq init ::rdb
+    }
+
+    # new
+    #
+    # Reinitializes the module when a new scenario is created.
+
+    typemethod new {} {
+        # FIRST, set the simulation state
+        set info(state)   PREP
+        set info(changed) 0
+
+        # NEXT, configure the simclock.
+        simclock configure              \
+            -tick $constants(ticksize)  \
+            -t0   $constants(startdate)
+
+        simclock reset
+
+        # NEXT, clear the event queue
+        eventq restart
+
+    }
+
+    # restart
+    #
+    # Resets the simulation as a whole to the moment before it first
+    # transitioned from PREP to RUNNING.
+
+    typemethod restart {} {
+        assert {[sim state] eq "PAUSED"}
+
+        # FIRST, Confirm with the user
+        set answer [messagebox popup \
+                        -title         "Are you sure?"   \
+                        -icon          warning           \
+                        -buttons       {
+                            ok     "Restart the Sim" 
+                            cancel "Cancel"
+                        }                                \
+                        -default       cancel            \
+                        -ignoretag     sim_restart       \
+                        -ignoredefault ok                \
+                        -parent        [app topwin]      \
+                        -message       [normalize {
+                            Are you sure you
+                            really want to reset the simulation state
+                            back to time 0?  This cannot be undone!
+                        }]]
+
+        if {$answer eq "cancel"} {
+            cancel
+        }
+
+        # NEXT, reset the sim time to time 0
+        simclock reset
+        
+        # NEXT, clean up other simulation modules and delete simulation
+        # history.
+        cif clear $db(cifmark)
+        eventq restart
+        
+        # TBD: Other cleanup
+
+        # NEXT, reset the sim state.  Don't use SetState, as we'll be
+        # reconfiguring immediately.
+        set info(state) PREP
+
+        # NEXT, reconfigure the app.
+        $type reconfigure
+
+        # NEXT, log the restart.
+        log newlog restart
+        log normal sim "Restarted the simulation"
+        app puts "Restarted the simulation"
+
+        # NEXT, no undo.
+        return ""
     }
 
     #-------------------------------------------------------------------
@@ -135,44 +226,6 @@ snit::type sim {
         notifier send $type <State>
     }
 
-    # restart
-    #
-    # Resets the simulation to time 0 and the PREP state, doing all
-    # relevant cleanup.
-    #
-    # This command is for general use by the sim (e.g., scenario new
-    # calls it.)  From orders, use "mutate restart".
-    #
-    # TBD: This is not right.  On "scenario new", things need to 
-    # be initialized back to the "init" state.  On "mutate restart",
-    # we want to restore a tick 0 checkpoint.  This code should not
-    # be shared like this.
-
-    typemethod restart {} {
-        # FIRST, reset the sim time to time 0
-        simclock reset
-        
-        # NEXT, clean up other simulation modules and delete simulation
-        # history.
-        #
-        # NOTE: There's no need to clean up the CIF at this time.
-        # Either this is a new scenario, in which case the CIF
-        # is cleared, or it's a SIM:RESTART order.
-        eventq restart
-        
-        # TBD: Other cleanup
-
-        # NEXT, reset the sim state.  Don't use SetState, as we'll be
-        # reconfiguring immediately.
-        set info(state) PREP
-
-        # NEXT, reconfigure the app.
-        $type reconfigure
-
-        # NEXT, no undo.
-        return ""
-    }
-
 
     #-------------------------------------------------------------------
     # Speed Control
@@ -193,19 +246,19 @@ snit::type sim {
             require {$speed in [array names speeds]} \
                 "Invalid speed: \"$speed\""
 
-            set info(speed) $speed
+            set db(speed) $speed
 
             set wasScheduled [$ticker isScheduled]
             
             $ticker cancel
-            $ticker configure -interval $speeds($info(speed))
+            $ticker configure -interval $speeds($db(speed))
             
             if {$wasScheduled} {
                 $ticker schedule
             }
         }
 
-        return $info(speed)
+        return $db(speed)
     }
 
     #-------------------------------------------------------------------
@@ -226,26 +279,6 @@ snit::type sim {
     # some way.  Mutators assume that their inputs are valid, and returns
     # a script of one or more commands that will undo the change.  When
     # the change cannot be undone, the mutator returns the empty string.
-
-
-    # mutate restart
-    #
-    # Restarts the simulation in response to a SIM:RESTART order.
-    # TBD: This is not right.  Needs to restart by going back to
-    # tick 0 checkpoint!
-
-    typemethod {mutate restart} {} {
-        # FIRST, restart the sim; this will reconfigure the GUI.
-        sim restart
-
-        # NEXT, log the restart.
-        log newlog restart
-        log normal sim "Restart the simulation"
-        app puts "Restart the simulation"
-
-        # NEXT, no undo.
-        return ""
-    }
 
 
     # mutate startdate startdate
@@ -313,7 +346,17 @@ snit::type sim {
         assert {$info(pausetime) == 0 || $info(pausetime) > [simclock now]}
 
         # NEXT, if state is PREP, we've got work to do
-        # TBD: E.g., initialize ARAM.
+        if {$info(state) eq "PREP"} {
+            # FIRST, Do a sanity check: can we advance time?
+            # TBD
+
+            # NEXT, mark the top of the CIF stack, so that we
+            # can return to it on restart.
+            set db(cifmark) [cif mark]
+
+            # NEXT, initialize ARAM.
+            # TBD
+        }
 
         # NEXT, set the state to running
         $type SetState RUNNING
@@ -336,18 +379,8 @@ snit::type sim {
         # NEXT, set the state to paused.
         $type SetState PAUSED
 
-        # NEXT, return the undo script
-        return [mytypemethod UndoPause]
-    }
-
-    # UndoPause
-    #
-    # Undoes a pause.
-
-    typemethod UndoPause {} {
-        $type SetState RUNNING
-
-        $ticker schedule
+        # NEXT, cannot be undone.
+        return ""
     }
 
     #-------------------------------------------------------------------
@@ -410,9 +443,11 @@ snit::type sim {
     typemethod checkpoint {} {
         set info(changed) 0
 
-        return [dict create \
-                    t0  [simclock cget -t0] \
-                    now [simclock now]]
+        set checkpoint [dict create]
+
+        dict set checkpoint t0   [simclock cget -t0]
+        dict set checkpoint now  [simclock now]
+        dict set checkpoint db   [array get db]
     }
 
     # restore checkpoint
@@ -420,10 +455,13 @@ snit::type sim {
     # checkpoint     A string returned by the checkpoint typemethod
     
     typemethod restore {checkpoint} {
-        # FIRST, restore the sim time
+        # FIRST, restore the checkpoint data
         simclock configure -t0 [dict get $checkpoint t0]
         simclock reset
         simclock advance [dict get $checkpoint now]
+
+        array unset db
+        array set db [dict get $checkpoint db]
 
         # Don't use SetState, as we'll be reconfiguring immediately.
         if {[simclock now] == 0} {
@@ -526,47 +564,6 @@ order define ::sim SIM:PAUSE {
 } {
     # FIRST, pause the simulation and return the undo script
     lappend undo [$type mutate pause]
-
-    setundo [join $undo \n]
-}
-
-# SIM:RESTART
-#
-# Restarts the simulation to time 0.  It's an error if the simulation is not
-# running.
-
-order define ::sim SIM:RESTART {
-    title "Restart Simulation"
-
-    # TBD Need to indicate valid states
-} {
-    # FIRST, Confirm with the user
-
-    if {[interface] eq "gui"} {
-        set answer [messagebox popup \
-                        -title         "Are you sure?"   \
-                        -icon          warning           \
-                        -buttons       {
-                            ok     "Restart the Sim" 
-                            cancel "Cancel"
-                        }                                \
-                        -default       cancel            \
-                        -ignoretag     SIM:RESTART         \
-                        -ignoredefault ok                \
-                        -parent        [app topwin]      \
-                        -message       [normalize {
-                            Are you sure you
-                            really want to resset the simulation state
-                            back to time 0?  This cannot be undone!
-                        }]]
-
-        if {$answer eq "cancel"} {
-            cancel
-        }
-    }
-
-    # NEXT, restart the simulation and return the undo script
-    lappend undo [$type mutate restart]
 
     setundo [join $undo \n]
 }

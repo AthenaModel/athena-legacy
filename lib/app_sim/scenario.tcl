@@ -72,7 +72,7 @@ snit::type scenario {
 
         # NEXT, Restart the simulation.  This also reconfigures
         # the app.
-        sim restart
+        sim new
 
         # NEXT, log it.
         log newlog new
