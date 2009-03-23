@@ -24,6 +24,30 @@ snit::widget appwin {
     hulltype toplevel
 
     #-------------------------------------------------------------------
+    # Lookup Variables
+
+    # Dictionary of duration values by label strings 
+    # for the durations pulldown
+    typevariable durations {
+        "Until paused"  ""
+        "1 days"         1
+        "2 days"         2
+        "3 days"         3
+        "4 days"         4
+        "5 days"         5
+        "10 days"       10
+        "15 days"       15
+        "20 days"       20
+        "25 days"       25
+        "30 days"       30
+        "45 days"       45
+        "60 days"       60
+        "75 days"       75
+        "90 days"       90
+    }
+
+
+    #-------------------------------------------------------------------
     # Components
 
     component editmenu              ;# The Edit menu
@@ -45,7 +69,7 @@ snit::widget appwin {
     # the menus, and so forth.
     
     option -main      \
-        -default  no \
+        -default  no  \
         -readonly yes
 
     #-------------------------------------------------------------------
@@ -98,11 +122,7 @@ snit::widget appwin {
         # NEXT, Prepare to receive notifier events.
         notifier bind ::sim      <Reconfigure>   $self [mymethod Reconfigure]
         notifier bind ::scenario <ScenarioSaved> $self [mymethod Reconfigure]
-
-        # TBD: Combine these?  Game truth variables?
-        notifier bind ::sim      <Time>          $self [mymethod Time]
         notifier bind ::sim      <State>         $self [mymethod State]
-        notifier bind ::sim      <Speed>         $self [mymethod Speed]
 
         # NEXT, Prepare to receive window events
         bind $content <<NotebookTabChanged>> [mymethod Reconfigure]
@@ -379,43 +399,32 @@ snit::widget appwin {
             -borderwidth        0 \
             -highlightthickness 0
 
-        # Run
-        button $win.toolbar.run  \
+        # RunPause
+        button $win.toolbar.runpause  \
             -image      ::projectgui::icon::play22    \
             -relief     flat                          \
             -overrelief raised                        \
             -state      normal                        \
-            -command    [mymethod Run]
+            -command    [mymethod RunPause]
 
-        DynamicHelp::add $win.toolbar.run -text "Run Simulation"
-
-        
         # Duration
 
-        # Pause
+        ttk::combobox $win.toolbar.duration   \
+            -justify   left                   \
+            -state     readonly               \
+            -width     12                     \
+            -takefocus 0                      \
+            -values    [dict keys $durations]
 
-        button $win.toolbar.pause  \
-            -image      ::projectgui::icon::pause22   \
-            -relief     flat                          \
-            -overrelief raised                        \
-            -state      normal                        \
-            -command    [mymethod Pause]
+        $win.toolbar.duration set [lindex [dict keys $durations] 0]
 
-        DynamicHelp::add $win.toolbar.pause -text "Pause Simulation"
+        DynamicHelp::add $win.toolbar.duration -text "Duration of run"
+
+        bind $win.toolbar.duration <<ComboboxSelected>> \
+            [list $win.toolbar.duration selection clear]
 
 
-        # Restart
-
-        button $win.toolbar.restart \
-            -image      ::projectgui::icon::rewind22  \
-            -relief     flat                          \
-            -overrelief raised                        \
-            -state      normal                        \
-            -command    [mymethod Restart]
-
-        DynamicHelp::add $win.toolbar.restart -text "Restart Simulation"
-
-        
+        # Spacer
         label $win.toolbar.spacer1 \
             -text "  "
 
@@ -433,36 +442,60 @@ snit::widget appwin {
             -variable [myvar info(simspeed)] \
             -command  [mymethod SetSpeed]
 
+        DynamicHelp::add $win.toolbar.speed -text "Simulation Speed"
+
         label $win.toolbar.faster \
             -text "Faster"
 
+        # Spacer
+        label $win.toolbar.spacer2 \
+            -text "  "
+
+        # Restart
+
+        button $win.toolbar.restart \
+            -image      ::projectgui::icon::rewind22  \
+            -relief     flat                          \
+            -overrelief raised                        \
+            -state      normal                        \
+            -command    [mymethod Restart]
+
+        DynamicHelp::add $win.toolbar.restart -text "Restart Simulation"
+
 
         # Sim State
+        label $win.toolbar.state                       \
+            -text "State:"
+
         label $win.toolbar.simstate                    \
-            -borderwidth        1                      \
             -highlightthickness 0                      \
             -font               codefont               \
-            -width              7                      \
+            -width              26                     \
             -anchor             w                      \
             -textvariable       [myvar info(simstate)]
 
         # Zulu time
+        label $win.toolbar.time                        \
+            -text "Time:"
+
         label $win.toolbar.zulutime                    \
-            -borderwidth        1                      \
             -highlightthickness 0                      \
             -font               codefont               \
             -width              12                     \
             -textvariable       [myvar info(zulutime)]
 
-        pack $win.toolbar.run      -side left          
-        pack $win.toolbar.pause    -side left
-        pack $win.toolbar.restart  -side left
+        pack $win.toolbar.runpause -side left    
+        pack $win.toolbar.duration -side left
         pack $win.toolbar.spacer1  -side left
         pack $win.toolbar.slower   -side left
         pack $win.toolbar.speed    -side left  -padx 2
         pack $win.toolbar.faster   -side left
+        pack $win.toolbar.spacer2  -side left
+        pack $win.toolbar.restart  -side left
         pack $win.toolbar.zulutime -side right -padx 2 
+        pack $win.toolbar.time     -side right -padx 2
         pack $win.toolbar.simstate -side right -padx 2 
+        pack $win.toolbar.state    -side right -padx 2
 
         # ROW 2, add a separator between the tool bar and the content
         # window.
@@ -897,27 +930,23 @@ snit::widget appwin {
     #-------------------------------------------------------------------
     # Toolbar Event Handlers
 
-    # Run
+    # RunPause
     #
-    # Sends SIM:RUN
+    # Sends SIM:RUN or SIM:PAUSE, depending on state.
 
-    method Run {} {
-        order send gui SIM:RUN
-    }
-
-
-    # Pause
-    #
-    # Sends SIM:PAUSE
-
-    method Pause {} {
-        order send gui SIM:PAUSE
+    method RunPause {} {
+        if {[sim state] eq "RUNNING"} {
+            order send gui SIM:PAUSE
+        } else {
+            order send gui SIM:RUN \
+                days [dict get $durations [$win.toolbar.duration get]]
+        }
     }
 
 
     # Restart
     #
-    # Sends SIM:RESTART
+    # Restarts the simulation.
 
     method Restart {} {
         sim restart
@@ -1015,32 +1044,43 @@ snit::widget appwin {
 
         # NEXT, set the status variables
         $win.toolbar.speed configure -value [sim speed]
-        $self Time
         $self State
-        $self Speed
-    }
-
-    # Time
-    #
-    # Display the sim time when it is updated.
-
-    method Time {} {
-        set info(zulutime) [simclock asZulu]
     }
 
     # State
     #
-    # Display the sim state when it is updated.
+    # This routine is called when the simulation state has changed
+    # in some way.
 
     method State {} {
-        set info(simstate) [sim state]
-    }
+        # Display current sim time.
+        set info(zulutime) [simclock asZulu]
 
-    # Speed
-    #
-    # Display the sim speed when it is updated.
+        # Display simulation state, and update GUI
 
-    method Speed {} {
+        if {[sim state] eq "RUNNING"} {
+            $win.toolbar.runpause configure -image ::projectgui::icon::pause22
+            DynamicHelp::add $win.toolbar.runpause -text "Pause Simulation"
+
+            $win.toolbar.duration configure -state disabled
+
+            set prefix [esimstate longname [sim state]]
+            if {[sim stoptime] == 0} {
+                set info(simstate) "$prefix until paused"
+            } else {
+                set info(simstate) \
+                    "$prefix until [simclock toZulu [sim stoptime]]"
+            }
+        } else {
+            $win.toolbar.runpause configure -image ::projectgui::icon::play22
+            DynamicHelp::add $win.toolbar.runpause -text "Run Simulation"
+
+            $win.toolbar.duration configure -state readonly
+
+            set info(simstate) [esimstate longname [sim state]]
+        }
+
+        # Display current speed.
         if {round($info(simspeed)) != [sim speed]} {
             set info(simspeed) [sim speed]
         }

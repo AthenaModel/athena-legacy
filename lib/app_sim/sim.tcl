@@ -55,7 +55,7 @@ snit::type sim {
     #
     # changed    1 if saveable(i) data has changed, and 0 otherwise.
     # state      The current simulation state, a simstate value
-    # pausetime  The time tick at which the simulation should pause,
+    # stoptime   The time tick at which the simulation should pause,
     #            or 0 if there's no limit.
     # speed      The speed at which the simulation should run.
     #            (This should probably be saved with the GUI settings.)
@@ -63,7 +63,7 @@ snit::type sim {
     typevariable info -array {
         changed   0
         state     PREP
-        pausetime 0
+        stoptime  0
         speed     5
     }
 
@@ -255,7 +255,7 @@ snit::type sim {
                 $ticker schedule
             }
 
-            notifier send $type <Speed>
+            notifier send $type <State>
         }
 
         return $info(speed)
@@ -264,12 +264,22 @@ snit::type sim {
     #-------------------------------------------------------------------
     # Queries
 
+    delegate typemethod now using {::simclock %m}
+
     # state
     #
     # Returns the current simulation state
 
     typemethod state {} {
         return $info(state)
+    }
+
+    # stoptime
+    #
+    # Returns the current stop time in ticks
+
+    typemethod stoptime {} {
+        return $info(stoptime)
     }
 
     #-------------------------------------------------------------------
@@ -296,7 +306,7 @@ snit::type sim {
         set info(changed) 1
 
         # NEXT, notify the app
-        notifier send ::sim <Time>
+        notifier send $type <State>
 
         # NEXT, set the undo command
         return [mytypemethod mutate startdate $oldDate]
@@ -319,7 +329,7 @@ snit::type sim {
         assert {$info(state) ne "RUNNING"}
 
         # FIRST, get the pause time
-        set info(pausetime) 0
+        set info(stoptime) 0
 
         while {[llength $args] > 0} {
             set opt [lshift args]
@@ -328,11 +338,11 @@ snit::type sim {
                 -ticks {
                     set val [lshift args]
 
-                    set info(pausetime) [expr {[simclock now] + $val}]
+                    set info(stoptime) [expr {[simclock now] + $val}]
                 }
 
                 -until {
-                    set info(pausetime) [lshift args]
+                    set info(stoptime) [lshift args]
                 }
 
                 default {
@@ -343,7 +353,7 @@ snit::type sim {
 
         # The SIM:RUN order should have guaranteed this, but let's
         # check it to make sure.
-        assert {$info(pausetime) == 0 || $info(pausetime) > [simclock now]}
+        assert {$info(stoptime) == 0 || $info(stoptime) > [simclock now]}
 
         # NEXT, if state is PREP, we've got work to do
         if {$info(state) eq "PREP"} {
@@ -392,10 +402,10 @@ snit::type sim {
 
     typemethod Tick {} {
         # FIRST, advance time one tick.
-        # TBD: Put the <Time> event and log message in -advancecmd?
+        # TBD: Put the <State> event and log message in -advancecmd?
         simclock tick
 
-        notifier send $type <Time>
+        notifier send $type <State>
         log normal sim "Tick [simclock now]"
         set info(changed) 1
         
@@ -408,16 +418,14 @@ snit::type sim {
         # NEXT, check Reactive Decision Conditions (RDCs)
 
         # NEXT, pause if it's the pause time.
-        if {$info(pausetime) != 0 &&
-            [simclock now] >= $info(pausetime)
+        if {$info(stoptime) != 0 &&
+            [simclock now] >= $info(stoptime)
         } {
-            log normal sim "Pause time reached"
+            log normal sim "Stop time reached"
             $type mutate pause
         }
     }
 
-
-    
     #-------------------------------------------------------------------
     # Utility Routines
 

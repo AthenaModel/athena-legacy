@@ -103,8 +103,8 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-</node>
-<node CREATED="1237483128068" HGAP="23" ID="Freemind_Link_1107318934" MODIFIED="1237822889774" POSITION="right" TEXT="SIM:* orders" VSHIFT="10">
+<node CREATED="1237483128068" FOLDED="true" HGAP="23" ID="Freemind_Link_1107318934" MODIFIED="1237842022014" TEXT="Basic SIM:* orders" VSHIFT="10">
+<icon BUILTIN="button_ok"/>
 <node CREATED="1237483185284" ID="Freemind_Link_127894024" MODIFIED="1237823285221" TEXT="SIM:RUN">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -112,27 +112,8 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1237822894200" ID="Freemind_Link_349945687" MODIFIED="1237822898066" POSITION="right" TEXT="Sim State Transitions">
-<node CREATED="1237584303253" ID="Freemind_Link_792192294" MODIFIED="1237824214687" TEXT="From PREP to RUNNING">
-<node CREATED="1237584308469" ID="Freemind_Link_990193513" MODIFIED="1237824223327" TEXT="Sanity check -- don&apos;t transition on failure"/>
-<node CREATED="1237824226422" ID="Freemind_Link_1915585588" MODIFIED="1237824237743" TEXT="Mark top of order history"/>
-<node CREATED="1237584314101" ID="Freemind_Link_717596265" MODIFIED="1237584324879" TEXT="Initialize GRAM"/>
-</node>
-<node CREATED="1237571987086" ID="Freemind_Link_33041850" MODIFIED="1237822422675" TEXT="No orders while RUNNING">
-<node CREATED="1237822367721" ID="Freemind_Link_631968741" MODIFIED="1237822372531" TEXT="Except for SIM:PAUSE"/>
-<node CREATED="1237572005182" ID="Freemind_Link_534414882" MODIFIED="1237822402051" TEXT="To do others, SIM:PAUSE"/>
-</node>
-<node CREATED="1237829444971" FOLDED="true" ID="Freemind_Link_1616008815" MODIFIED="1237829880920" TEXT="From PAUSED to PREP">
+<node CREATED="1237568666596" FOLDED="true" ID="Freemind_Link_935626367" MODIFIED="1237841986270" TEXT="GUI toolbar">
 <icon BUILTIN="button_ok"/>
-<node CREATED="1237829451003" ID="Freemind_Link_227666211" MODIFIED="1237829454644" TEXT="sim restart"/>
-<node CREATED="1237822987320" ID="Freemind_Link_823637420" MODIFIED="1237829510596" TEXT="Clears order history back to cif mark">
-<node CREATED="1237820147166" ID="Freemind_Link_754027232" MODIFIED="1237825132005" TEXT="&quot;cif mark&quot;: allows order to mark a point in the CIF"/>
-<node CREATED="1237820168205" ID="Freemind_Link_6799645" MODIFIED="1237825136909" TEXT="&quot;cif clear ?mark?&quot;: allows &quot;sim restart&quot; to clear CIF safely"/>
-</node>
-<node CREATED="1237829513754" ID="Freemind_Link_230335908" MODIFIED="1237829534757" TEXT="Requires PAUSED."/>
-</node>
-</node>
-<node CREATED="1237568666596" ID="Freemind_Link_935626367" MODIFIED="1237568695551" POSITION="right" TEXT="GUI toolbar">
 <node CREATED="1237568696595" FOLDED="true" ID="Freemind_Link_688955543" MODIFIED="1237577946848" TEXT="Shows sim time">
 <icon BUILTIN="button_ok"/>
 <node CREATED="1237568815156" ID="Freemind_Link_1101662688" MODIFIED="1237568822319" TEXT="Or leave in status line"/>
@@ -148,16 +129,30 @@
 <node CREATED="1237568791380" ID="Freemind_Link_945018037" MODIFIED="1237577957568" TEXT="&quot;Pause&quot; button">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1237577930098" ID="Freemind_Link_296455047" MODIFIED="1237577960960" TEXT="&quot;Reset&quot; button">
+<node CREATED="1237577930098" ID="Freemind_Link_296455047" MODIFIED="1237838264594" TEXT="&quot;Restart&quot; button">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1237568734803" ID="Freemind_Link_764556898" MODIFIED="1237568743855" TEXT="&quot;Duration&quot; pulldown">
-<node CREATED="1237568744388" ID="Freemind_Link_750558499" MODIFIED="1237568771069" TEXT="Increments of 5 days, up to 90 days"/>
+<node CREATED="1237578117969" ID="Freemind_Link_565416020" MODIFIED="1237836450850" TEXT="Simulation speed control">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1237568734803" ID="Freemind_Link_764556898" MODIFIED="1237841979494" TEXT="Run Until control">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237568744388" ID="Freemind_Link_750558499" MODIFIED="1237839728398" TEXT="Some quantity of days"/>
 <node CREATED="1237568772612" ID="Freemind_Link_877609823" MODIFIED="1237568787149" TEXT="Until Stopped"/>
+<node CREATED="1237839749637" ID="Freemind_Link_585327944" MODIFIED="1237839795902" TEXT="Should show stop time somewhere"/>
+<node CREATED="1237839801573" ID="Freemind_Link_924404855" MODIFIED="1237839813118" TEXT="Stop time is a game truth variable"/>
 </node>
-<node CREATED="1237578117969" ID="Freemind_Link_565416020" MODIFIED="1237579353301" TEXT="Simulation speed control"/>
 </node>
-<node CREATED="1237482978661" ID="Freemind_Link_590650592" MODIFIED="1237564236967" POSITION="right" TEXT="order(sim) changes">
+</node>
+<node CREATED="1237565046988" ID="Freemind_Link_519693663" MODIFIED="1237577872557" POSITION="right" TEXT="Before we&apos;re done">
+<node CREATED="1237565060763" ID="Freemind_Link_652076622" MODIFIED="1237565065141" TEXT="sim(sim) test suite"/>
+<node CREATED="1237565053115" ID="Freemind_Link_497781934" MODIFIED="1237565056133" TEXT="sim(sim) man page"/>
+<node CREATED="1237577885955" ID="Freemind_Link_388849907" MODIFIED="1237577891084" TEXT="icons(n) man page"/>
+<node CREATED="1237565066059" ID="Freemind_Link_1246695325" MODIFIED="1237565074005" TEXT="orders(sim) man page"/>
+<node CREATED="1237565077547" ID="Freemind_Link_630026494" MODIFIED="1237565081253" TEXT="vignettes(sim) man page"/>
+</node>
+<node CREATED="1237822802296" ID="Freemind_Link_1985698672" MODIFIED="1237830303527" POSITION="right" TEXT="Subsequent Packages">
+<node CREATED="1237482978661" FOLDED="true" ID="Freemind_Link_590650592" MODIFIED="1237564236967" TEXT="order(sim) changes">
 <node CREATED="1237577900818" ID="Freemind_Link_1994585489" MODIFIED="1237577908140" TEXT="Orders with no parameters">
 <node CREATED="1237580779500" ID="Freemind_Link_1074093108" MODIFIED="1237580792906" TEXT="In order(sim)">
 <icon BUILTIN="button_ok"/>
@@ -166,29 +161,26 @@
 </node>
 <node CREATED="1237564212894" ID="Freemind_Link_465859869" MODIFIED="1237564223741" TEXT="Response to sim state">
 <node CREATED="1237482986581" ID="Freemind_Link_621246274" MODIFIED="1237482995070" TEXT="Orders map to states"/>
-<node CREATED="1237482995589" ID="Freemind_Link_967178350" MODIFIED="1237483007934" TEXT="Can only create nbhood in PREP state"/>
+<node CREATED="1237482995589" ID="Freemind_Link_967178350" MODIFIED="1237842121353" TEXT="E.g., can only create nbhood in PREP state"/>
 <node CREATED="1237483032804" ID="Freemind_Link_1095063732" MODIFIED="1237483041230" TEXT="GUI needs to reflect order state"/>
 </node>
-<node CREATED="1237564255342" ID="Freemind_Link_726909451" MODIFIED="1237564268327" TEXT="Some orders can be scheduled"/>
-<node CREATED="1237564269614" ID="Freemind_Link_1046433076" MODIFIED="1237564304359" TEXT="Some orders cannot be scheduled"/>
+<node CREATED="1237571987086" ID="Freemind_Link_33041850" MODIFIED="1237822422675" TEXT="No orders while RUNNING">
+<node CREATED="1237822367721" ID="Freemind_Link_631968741" MODIFIED="1237822372531" TEXT="Except for SIM:PAUSE"/>
+<node CREATED="1237572005182" ID="Freemind_Link_534414882" MODIFIED="1237822402051" TEXT="To do others, SIM:PAUSE"/>
 </node>
-<node CREATED="1237565046988" FOLDED="true" ID="Freemind_Link_519693663" MODIFIED="1237577872557" POSITION="right" TEXT="Before we&apos;re done">
-<node CREATED="1237565060763" ID="Freemind_Link_652076622" MODIFIED="1237565065141" TEXT="sim(sim) test suite"/>
-<node CREATED="1237565053115" ID="Freemind_Link_497781934" MODIFIED="1237565056133" TEXT="sim(sim) man page"/>
-<node CREATED="1237577885955" ID="Freemind_Link_388849907" MODIFIED="1237577891084" TEXT="icons(n) man page"/>
-<node CREATED="1237565066059" ID="Freemind_Link_1246695325" MODIFIED="1237565074005" TEXT="orders(sim) man page"/>
-<node CREATED="1237565077547" ID="Freemind_Link_630026494" MODIFIED="1237565081253" TEXT="vignettes(sim) man page"/>
 </node>
-<node CREATED="1237822802296" FOLDED="true" ID="Freemind_Link_1985698672" MODIFIED="1237830303527" POSITION="right" TEXT="Subsequent Packages">
 <node CREATED="1237822571945" ID="Freemind_Link_810137226" MODIFIED="1237822576485" TEXT="gram(n)">
+<node CREATED="1237842153584" ID="Freemind_Link_340570150" MODIFIED="1237842166969" TEXT="Initialize GRAM on PREP to RUNNING">
+<node CREATED="1237842189695" ID="Freemind_Link_11302190" MODIFIED="1237842195146" TEXT="Requires sanity check"/>
+</node>
 <node CREATED="1237822576953" ID="Freemind_Link_1552650374" MODIFIED="1237822586866" TEXT="Advance GRAM during each tick"/>
 <node CREATED="1237820225709" ID="Freemind_Link_209344982" MODIFIED="1237822673138" TEXT="On Open of scenario with t &gt; 0, must be able to sync with loaded gram_* data"/>
 <node CREATED="1237820290381" ID="Freemind_Link_1416194108" MODIFIED="1237820313047" TEXT="For simplicity, should not be a saveable--should save all scalars in RDB"/>
 </node>
-<node CREATED="1237488295816" ID="Freemind_Link_1208739900" MODIFIED="1237495169282" TEXT="zulufield(n) widget">
+<node CREATED="1237488295816" FOLDED="true" ID="Freemind_Link_1208739900" MODIFIED="1237495169282" TEXT="zulufield(n) widget">
 <node CREATED="1237560838308" ID="Freemind_Link_7202440" MODIFIED="1237560850862" TEXT="-increment set by simclock&apos;s tick size"/>
 </node>
-<node CREATED="1237571826655" ID="Freemind_Link_358553126" MODIFIED="1237571830584" TEXT="SIM:SCHEDULE">
+<node CREATED="1237571826655" FOLDED="true" ID="Freemind_Link_358553126" MODIFIED="1237571830584" TEXT="SIM:SCHEDULE">
 <node CREATED="1237571831262" ID="Freemind_Link_691473547" MODIFIED="1237571836200" TEXT="Schedules another order">
 <node CREATED="1237571798062" ID="Freemind_Link_1698334970" MODIFIED="1237571803384" TEXT="This is undoable and cif&apos;d"/>
 </node>
@@ -206,11 +198,7 @@
 <node CREATED="1237482851061" ID="Freemind_Link_1152163067" MODIFIED="1237482874725" TEXT="Event priorities?"/>
 </node>
 </node>
-<node CREATED="1237822733720" ID="Freemind_Link_1356652575" MODIFIED="1237822740277" TEXT="Reactive Decision Conditions">
-<node CREATED="1237822742521" ID="Freemind_Link_656806568" MODIFIED="1237822753602" TEXT="Check RDCs at end of each tick"/>
-<node CREATED="1237822754248" ID="Freemind_Link_1244752831" MODIFIED="1237822768786" TEXT="Simplest: pause simulation if RDC is met"/>
-</node>
-<node CREATED="1237823234872" ID="Freemind_Link_1459784431" MODIFIED="1237829910324" TEXT="Auto-checkpoints">
+<node CREATED="1237823234872" FOLDED="true" ID="Freemind_Link_1459784431" MODIFIED="1237829910324" TEXT="Auto-checkpoints">
 <node CREATED="1237564822348" ID="Freemind_Link_1094167895" MODIFIED="1237829936612" TEXT="SIM:RUN saves checkpoint before transition"/>
 <node CREATED="1237823265751" ID="Freemind_Link_407919202" MODIFIED="1237829972563" TEXT="App manages set of checkpoints during session"/>
 <node CREATED="1237829977146" ID="Freemind_Link_911436126" MODIFIED="1237829993187" TEXT="Also, explicit checkpoints"/>
@@ -231,6 +219,10 @@
 <node CREATED="1237830202729" ID="Freemind_Link_1109472895" MODIFIED="1237830213155" TEXT="Will replace contents of all tables included in the XML."/>
 </node>
 </node>
+</node>
+<node CREATED="1237822733720" FOLDED="true" ID="Freemind_Link_1356652575" MODIFIED="1237822740277" TEXT="Reactive Decision Conditions">
+<node CREATED="1237822742521" ID="Freemind_Link_656806568" MODIFIED="1237822753602" TEXT="Check RDCs at end of each tick"/>
+<node CREATED="1237822754248" ID="Freemind_Link_1244752831" MODIFIED="1237822768786" TEXT="Simplest: pause simulation if RDC is met"/>
 </node>
 </node>
 </node>

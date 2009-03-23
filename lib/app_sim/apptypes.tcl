@@ -13,9 +13,9 @@
 #
 #-----------------------------------------------------------------------
 
-# simstate: The current simulation state
+# esimstate: The current simulation state
 
-enum simstate {
+enum esimstate {
     PREP    Prep
     RUNNING Running
     PAUSED  Paused
