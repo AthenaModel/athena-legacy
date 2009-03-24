@@ -98,7 +98,7 @@ method which is called by this one, to allow them to resync if need be.<p>
 <<defitem restart {sim restart ?-noconfirm?}>>
 
 If the simulation is in the PAUSED state, this command returns it to
-the PREP state, resetting the simulation to the point just before it
+the PREP state, reloading the snapshot taking just before it
 first transitioned to RUNNING.  By default, the user is prompted to
 confirm the operation; if the <code>-noconfirm</code> option is given,
 the operation proceeds without confirmation.<p>

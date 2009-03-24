@@ -90,6 +90,37 @@ Returns 1 on success and returns 0 on failure.<p>
 
 Returns 1 if there are unsaved changes, and 0 otherwise.<p>
 
+<<defitem snapshot {scenario snapshot <i>subcommand</i> ?<i>args...</i>?}>>
+
+This command provides the capability to manage snapshots of the
+simulation state.<p>
+
+<<deflist snapshot>>
+
+<<defitem "snapshot save" {scenario snapshot save}>>
+
+Saves a snapshot of the simulation state as of the current simulation
+time.  The snapshot is an XML-string produced by exporting all of the
+tables in the RDB except <b>maps</b> (because of its size) and
+<b>snapshots</b> (because recursively saving snapshots is silly); it
+is saved in the <b>snapshots</b> table.<p>
+
+<<defitem "snapshot load" {scenario snapshot load <i>tick</i>}>>
+
+Loads the snapshot saved at time <i>tick</i>, and reconfigures the
+simulation.  It's an error if there is no such snapshot.<p>
+
+<<defitem "snapshot list" {scenario snapshot list}>>
+
+Lists the sim times (in ticks) for which snapshots exist.<p>
+
+<<defitem "snapshot purge" {scenario snapshot purge <i>after</i>}>>
+
+Deletes all snapshots with timestamps greater than <i>after</i>, which
+must be a sim time in ticks.<p>
+
+<</deflist snapshot>>
+
 <</deflist commands>>
 
 <<section "NOTIFIER EVENTS">>
