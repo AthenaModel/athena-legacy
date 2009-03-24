@@ -144,12 +144,29 @@
 </node>
 </node>
 </node>
-<node CREATED="1237565046988" ID="Freemind_Link_519693663" MODIFIED="1237577872557" POSITION="right" TEXT="Before we&apos;re done">
-<node CREATED="1237565060763" ID="Freemind_Link_652076622" MODIFIED="1237565065141" TEXT="sim(sim) test suite"/>
-<node CREATED="1237565053115" ID="Freemind_Link_497781934" MODIFIED="1237565056133" TEXT="sim(sim) man page"/>
-<node CREATED="1237577885955" ID="Freemind_Link_388849907" MODIFIED="1237577891084" TEXT="icons(n) man page"/>
-<node CREATED="1237565066059" ID="Freemind_Link_1246695325" MODIFIED="1237565074005" TEXT="orders(sim) man page"/>
-<node CREATED="1237565077547" ID="Freemind_Link_630026494" MODIFIED="1237565081253" TEXT="vignettes(sim) man page"/>
+<node CREATED="1237565046988" ID="Freemind_Link_519693663" MODIFIED="1237917603687" POSITION="right" TEXT="Before we&apos;re done">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237577885955" ID="Freemind_Link_388849907" MODIFIED="1237844830855" TEXT="icons(n) man page">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1237565060763" ID="Freemind_Link_652076622" MODIFIED="1237910310038" TEXT="sim(sim) test suite">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237908937867" ID="Freemind_Link_212183600" MODIFIED="1237910310039" TEXT="010-sim.test">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1237908945723" ID="Freemind_Link_61122261" MODIFIED="1237910310039" TEXT="020-SIM.test">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1237909847737" ID="Freemind_Link_1388774871" MODIFIED="1237910514262" TEXT="projtypes(n) man page">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1237565053115" ID="Freemind_Link_497781934" MODIFIED="1237912722753" TEXT="sim(sim) man page">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1237565066059" ID="Freemind_Link_1246695325" MODIFIED="1237917597663" TEXT="orders(sim) man page">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 <node CREATED="1237822802296" ID="Freemind_Link_1985698672" MODIFIED="1237830303527" POSITION="right" TEXT="Subsequent Packages">
 <node CREATED="1237482978661" FOLDED="true" ID="Freemind_Link_590650592" MODIFIED="1237564236967" TEXT="order(sim) changes">
@@ -164,12 +181,9 @@
 <node CREATED="1237482995589" ID="Freemind_Link_967178350" MODIFIED="1237842121353" TEXT="E.g., can only create nbhood in PREP state"/>
 <node CREATED="1237483032804" ID="Freemind_Link_1095063732" MODIFIED="1237483041230" TEXT="GUI needs to reflect order state"/>
 </node>
-<node CREATED="1237571987086" ID="Freemind_Link_33041850" MODIFIED="1237822422675" TEXT="No orders while RUNNING">
-<node CREATED="1237822367721" ID="Freemind_Link_631968741" MODIFIED="1237822372531" TEXT="Except for SIM:PAUSE"/>
-<node CREATED="1237572005182" ID="Freemind_Link_534414882" MODIFIED="1237822402051" TEXT="To do others, SIM:PAUSE"/>
+<node CREATED="1237571987086" ID="Freemind_Link_33041850" MODIFIED="1237907699655" TEXT="Undo info cleared at each tick."/>
 </node>
-</node>
-<node CREATED="1237822571945" ID="Freemind_Link_810137226" MODIFIED="1237822576485" TEXT="gram(n)">
+<node CREATED="1237822571945" FOLDED="true" ID="Freemind_Link_810137226" MODIFIED="1237822576485" TEXT="gram(n)">
 <node CREATED="1237842153584" ID="Freemind_Link_340570150" MODIFIED="1237842166969" TEXT="Initialize GRAM on PREP to RUNNING">
 <node CREATED="1237842189695" ID="Freemind_Link_11302190" MODIFIED="1237842195146" TEXT="Requires sanity check"/>
 </node>
@@ -184,8 +198,8 @@
 <node CREATED="1237571831262" ID="Freemind_Link_691473547" MODIFIED="1237571836200" TEXT="Schedules another order">
 <node CREATED="1237571798062" ID="Freemind_Link_1698334970" MODIFIED="1237571803384" TEXT="This is undoable and cif&apos;d"/>
 </node>
-<node CREATED="1237571837118" ID="Freemind_Link_1205931009" MODIFIED="1237571857800" TEXT="No explicit dialog"/>
-<node CREATED="1237571861758" ID="Freemind_Link_1495751002" MODIFIED="1237571866296" TEXT="Most orders can be scheduled"/>
+<node CREATED="1237571837118" ID="Freemind_Link_1205931009" MODIFIED="1237907725207" TEXT="No explicit dialog for this order"/>
+<node CREATED="1237571861758" ID="Freemind_Link_1495751002" MODIFIED="1237907750119" TEXT="Orders valid in RUNNING can be scheduled"/>
 <node CREATED="1237571868509" ID="Freemind_Link_351266681" MODIFIED="1237571875304" TEXT="Undone by cancelling scheduled order"/>
 <node CREATED="1237571660719" ID="Freemind_Link_1311718344" MODIFIED="1237571813596" TEXT="Orders run by scheduled events" VSHIFT="-6">
 <node CREATED="1237571721677" ID="Freemind_Link_402714946" MODIFIED="1237571728024" TEXT="Run by &quot;sim&quot;, not &quot;gui&quot;"/>

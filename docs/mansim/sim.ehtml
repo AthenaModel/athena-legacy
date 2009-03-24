@@ -1,0 +1,173 @@
+<<manpage sim(sim) "Main Simulation Module">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+sim(sim) is the main simulation module for <<xref athena_sim(1)>>.  It
+controls simulation time, the discrete event queue, and the
+initialization and restart of the various models (e.g., GRAM).  In
+addition, it implements the SIM:* orders, which are documented in
+<<xref orders(sim)>>.<p>
+
+<<subsection "Simulation State">>
+
+The simulation has three states, <b>PREP</b>, <b>RUNNING</b>, and
+<b>PAUSED</b>.<p>
+
+The state is <b>PREP</b> at time 0, before simulation time has
+advanced.  Orders used to define the initial conditions of the
+simulation are generally valid only in this state.<p>
+
+When time is advancing, the state is <b>RUNNING</b>.  When time is
+then paused, the state is <b>PAUSED</b>.  Most of the simulation
+models are initialized when the simulation first transitions from
+<b>PREP</b> to <b>RUNNING</b>; therefore, orders which require that
+all of the simulation models are initialized and working are generally
+valid only in these states.  Note that the undo stack is cleared at
+each tick while the simulation is <b>RUNNING</b>; hence, it's usually
+best to pause before entering a large number of orders.<p>
+
+<<subsection "Tick Activities">>
+
+Athena is a time-step simulation discrete event capabilities.  The
+tick size is one simulated day.  In other words, all simulation
+activity takes place during each 1-day time tick; however, events can
+be scheduled to happen in future ticks and will execute at that time.<p>
+
+The following activities take place during a time tick:<p>
+
+<ul>
+  <li> Time is advanced one tick (one day)
+  <li> GRAM is advanced accordingly (TBD: Not yet implemented)
+  <li> Scheduled events are executed
+  <li> Reactive decision conditions (RDCs) are checked, and take
+       effect if the conditions are right.<p>
+       <ul>
+         <li> TBD: Not yet implemented.
+         <li> RDCs will be similar to rules in an e-mail application.
+              If a set of conditions are met, a desired activity will
+              take place.
+         <li> For example, if the economy crashes, the simulation should
+              be paused.<p>
+       </ul>
+  <li> If a stop time was specified, and has been reached, the
+       simulation is paused.<p>
+</ul>
+
+As other models are added to the simulation, they will respond to time
+advances as well, either as explicit steps during the tick, or in
+discrete events managed by the event queue.<p>
+
+<<section "COMMANDS">>
+
+sim(sim) provides the following commands for use by the application.<p>
+
+<<deflist commands>>
+
+<<defitem init {sim init}>>
+
+Initializes the module.  This should be called once, at application
+start-up.<p>
+
+<<defitem new {sim new}>>
+
+Re-initializes the simulation when a new scenario is created, erasing
+the details of the old scenario.<p>
+
+<<defitem now {sim now}>>
+
+Returns the current simulation time in ticks.<p>
+
+<<defitem reconfigure {sim reconfigure}>>
+
+The simulation is reconfigured when a new scenario is created or
+loaded, or any other time when the simulation's "in-memory" data needs
+to be resynced with the contents of the RDB.  As a side-effect, the
+GUI is completely refreshed.<p>
+
+Most scenario and simulation modules have a <code>reconfigure</code>
+method which is called by this one, to allow them to resync if need be.<p>
+
+<<defitem restart {sim restart ?-noconfirm?}>>
+
+If the simulation is in the PAUSED state, this command returns it to
+the PREP state, resetting the simulation to the point just before it
+first transitioned to RUNNING.  By default, the user is prompted to
+confirm the operation; if the <code>-noconfirm</code> option is given,
+the operation proceeds without confirmation.<p>
+
+<<defitem speed {sim speed ?<i>speed</i>?}>>
+
+This command queries and sets the simulation <i>speed</i>, which is an
+integer number from 1 to 10, with 1 being slowests and 10 being
+fastest.<p>
+
+In Athena, all simulation activity takes place during each time tick.
+The simulation speed determines the delay, in milliseconds, between
+ticks, with faster speeds leading to shorter delays.  The main purpose
+of the delay is to allow the GUI to remain responsive while time is
+advancing, but varying it also allows the user to watch the progress
+of the simulation at a comfortable speed.<p>
+
+<<defitem state {sim state}>>
+
+Returns the current <<xref "Simulation State">>.<p>
+
+<<defitem stoptime {sim stoptime}>>
+
+While the simulation is in the <b>RUNNING</b> state, this command
+returns the time, in ticks, at which the simulation will automatically
+stop running and enter the <b>PAUSED</b> state (assuming it isn't
+stopped by something else first).  If no such stop time was specified,
+or if the state is something other than <b>RUNNING</b>,
+this command will return 0.<p>
+
+
+
+<</deflist commands>>
+
+<<section "NOTIFIER EVENTS">>
+
+<<deflist events>>
+
+<<defitem Reconfigure {&lt;Reconfigure&gt;}>>
+
+Sent by <<iref reconfigure>>.  Usually indicates that the scenario has
+changed completely, as when a new scenario is created or opened.
+Directs the user interface to refresh itself completely.<p>
+
+<<defitem State {&lt;State&gt;}>>
+
+This event is sent when the sim(sim) module's state changes
+significantly, e.g., when the <<xref "Simulation State">> changes,
+or simulation time advances, etc.  It directs the user interface
+to update the related status displays.<p>
+
+<</deflist events>>
+
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

@@ -31,6 +31,7 @@ namespace eval ::projectlib:: {
         eunitsymbol   \
         eyesno        \
         hexcolor      \
+        idays         \
         ident         \
         iquantity     \
         polygon       \
@@ -306,7 +307,11 @@ snit::type ::projectlib::TypeWrapper {
 # Integer Types
 
 # iquantity: non-negative integers
-::projectlib::TypeWrapper iquantity snit::integer -min 0
+::projectlib::TypeWrapper ::projectlib::iquantity snit::integer -min 0
+
+# idays: non-negative days
+::projectlib::TypeWrapper ::projectlib::idays snit::integer -min 0
+
 
 #-------------------------------------------------------------------
 # Ranges

@@ -25,17 +25,30 @@ The module defines the following icons.<p>
 
 <<deflist icons>>
 
+<<defitem pause22 {::projectgui::icon::pause22}>>
+
+A "pause" icon, two black vertical bars.<p>
+
 <<defitem pencil22 {::projectgui::icon::pencil22}>>
 
 A pencil, i.e., "Edit".<p>
+
+<<defitem play22 {::projectgui::icon::play22}>>
+
+A "play" icon, a black triangle pointing right.<p>
 
 <<defitem plus22 {::projectgui::icon::plus22}>>
 
 A bold plus sign, i.e., "Add".<p>
 
+<<defitem rewind22 {::projectgui::icon::rewind22}>>
+
+A "rewind to start" icon, a black triangle pointing left into a solid
+black line.<p>
+
 <<defitem x22 {::projectgui::icon::x22}>>
 
-A large "X", i.e., "Cancel" or "Delete".<p>
+A large red "X", i.e., "Cancel" or "Delete".<p>
 
 <</deflist icons>>
 

@@ -40,6 +40,47 @@ All user inputs to the athena_sim(1) simulation come in as simulation
 orders, which are defined by the various simulation modules.  This man
 page documents the orders and their parameters.<p>
 
+<<section "COOPERATION:*">>
+
+The <code>COOPERATION:*</code> orders are used to modify and
+manipulate cooperation levels.<p>
+
+<<deflist cooperation>>
+
+<<defitem COOPERATION:UPDATE {COOPERATION:UPDATE}>>
+
+Updates an existing cooperation level.  Note that cooperation levels
+come and go automatically as neighborhood groups and force groups come
+and go.  The parameters are as follows:
+
+<<parmlist>>
+
+<<parm n>> <b>Required.</b>  The neighborhood of a neighborhood group.<</parm>>
+<<parm f>> <b>Required.</b>  The group name of a neighborhood group.<</parm>>
+<<parm g>> <b>Required.</b>  The group name of a force group.<</parm>>
+
+<<parm coop0>> The new initial level of cooperation for group
+<i>nf</i> with group <i>g</i>, a numeric
+<<xref projtypes(n) qcooperation>> value.<</parm>>
+
+<</parmlist>>
+
+<<defitem COOPERATION:UPDATE:MULTI {COOPERATION:UPDATE:MULTI}>>
+
+Updates multiple cooperation levels.  The parameters are as follows:
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of <b>{n f g}</b> triples.<</parm>>
+
+<<parm coop0>> The new initial level of cooperation for specified
+cooperation curves, a numeric <<xref projtypes(n) qcooperation>>
+value.<</parm>>
+
+<</parmlist>>
+
+<</deflist cooperation>>
+
 <<section "GROUP:*">>
 
 The <code>GROUP:*</code> orders are used to create, modify, and
@@ -497,6 +538,103 @@ IDs.<</parm>>
 
 <</deflist nbhood>>
 
+<<section "NBHOOD:RELATIONSHIP:*">>
+
+The <code>NBHOOD:RELATIONSHIP:*</code> orders are used to modify and
+manipulate the relationships between pairs of neighborhoods.<p>
+
+<<deflist nbrel>>
+
+<<defitem NBHOOD:RELATIONSHIP:UPDATE {NBHOOD:RELATIONSHIP:UPDATE}>>
+
+Updates the relationships between a pair of neighborhoods.  Note that
+neighborhood relationships come and go automatically as neighborhoods come
+and go.  The parameters are as follows:
+
+<<parmlist>>
+
+<<parm m>> <b>Required.</b>  A neighborhood name.<</parm>>
+<<parm n>> <b>Required.</b>  Another neighborhood name.<</parm>>
+
+<<parm proximity>>  The proximity between the two neighborhoods, from
+<i>m</i>'s point of view, an 
+<<xref projtypes(n) eproximity>> value:<p>
+
+<<::projectlib::eproximity html>>
+
+Note that a neighborhood's proximity with itself is always
+<b>HERE</b>; the proximity between two distinct neighborhoods can
+never be <b>HERE</b>.<</parm>>
+
+
+<<parm effects_delay>> The delay between a direct effect in
+neighborhood <i>n</i> and the resulting indirect effect in
+neighborhood <i>m</i>, in decimal days.<</parm>>
+<</parm>>
+
+<</parmlist>>
+
+<<defitem NBHOOD:RELATIONSHIP:UPDATE:MULTI {NBHOOD:RELATIONSHIP:UPDATE:MULTI}>>
+
+Updates neighborhood relationships for multiple pairs of
+neighborhoods.  The parameters are as follows:
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of <b>{m n}</b> pairs.<</parm>>
+
+<<parm proximity>> As for <<iref NBHOOD:RELATIONSHIP:UPDATE>>.<</parm>>
+<<parm effects_delay>> As for <<iref NBHOOD:RELATIONSHIP:UPDATE>>.<</parm>>
+
+<</parmlist>>
+
+<</deflist nbrel>>
+
+
+<<section "RELATIONSHIP:*">>
+
+The <code>RELATIONSHIP:*</code> orders are used to modify and
+manipulate the relationships between pairs of groups. Relationships
+exist at the <b>PLAYBOX</b> level between force and organization
+groups, and at the neighborhood level between neighborhood groups and
+other groups.<p>
+
+<<deflist rel>>
+
+<<defitem RELATIONSHIP:UPDATE {RELATIONSHIP:UPDATE}>>
+
+Updates the relationships between a pair of groups, in a neighborhood
+or at the playbox level.  Note that relationship entities come and go
+automatically as groups come and go.  The parameters are as follows:
+
+<<parmlist>>
+
+<<parm n>> <b>Required.</b>  A neighborhood name, or <b>PLAYBOX</b>.<</parm>>
+<<parm f>> <b>Required.</b>  A group name.<</parm>>
+<<parm g>> <b>Required.</b>  A group name.<</parm>>
+
+<<parm rel>>  The relationship between the two groups in the
+neighborhood, a decimal number between -1.0 and 1.0.  The relationship
+of a group with itself defaults to 1.0 and should generally not be
+changed.  Typical relationship values range from -0.5 to +0.8.<</parm>>
+
+<</parmlist>>
+
+<<defitem RELATIONSHIP:UPDATE:MULTI {RELATIONSHIP:UPDATE:MULTI}>>
+
+Updates neighborhood relationships for multiple pairs of
+groups.  The parameters are as follows:
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of <b>{n f g}</b> pairs, where
+<b>n</b> can be <b>PLAYBOX</b>.<</parm>>
+
+<<parm rel>> As for <<iref RELATIONSHIP:UPDATE>>.<</parm>>
+
+<</parmlist>>
+
+<</deflist rel>>
 
 <<section "SAT:*">>
 
@@ -567,7 +705,130 @@ the value of <b>ids</b> would be as follows:
 
 <</deflist sat>>
 
+<<section "SIM:*">>
 
+The <code>SIM:*</code> orders are used to control the behavior of the
+simulation as a whole.<p>
+
+<<deflist sim>>
+
+<<defitem SIM:PAUSE {SIM:PAUSE}>>
+
+Pauses the simulation when it is running.  This order has no effect if
+the simulation is not running.  This order has no parameters.<p>
+
+<<defitem SIM:RUN {SIM:RUN}>>
+
+Starts simulation time advancing.  If the simulation is in
+the <b>PREP</b> state, at time 0, then Athena must do a sanity check
+on the scenario data and initialize all simulation models before time
+can start advancing.  The order will have no effect if the sanity
+check fails.<p>
+
+The parameters are as follows:
+
+<<parmlist>>
+
+<<parm days>> <b>Optional.</b>  By default, the simulation will run
+until paused by the user.  If <b>days</b> is given, then the
+simulation will pause automatically after that many <b>days</b>.<</parm>>
+
+<</parmlist>>
+
+
+<<defitem SIM:STARTDATE {SIM:STARTDATE}>>
+
+Sets the start date, i.e., the calendar date associated with
+simulation time 0.  Specifying the start date allows Athena to display
+appropriate zulu-time strings.<p>
+
+The parameters are as follows:
+
+<<parmlist>>
+
+<<parm startdate>> <b>Required.</b>  The calendar start date,
+specified as a <<xref mars::zulu(n)>> time string.<</parm>>
+
+<</parmlist>>
+
+
+<</deflist sim>>
+
+
+<<section "UNIT:*">>
+
+These orders relate to force and organization units, entities that
+represent the allocation of force and organization personnel to
+activities in neighborhoods.<p>
+
+<<deflist unit>>
+
+<<defitem UNIT:CREATE {UNIT:CREATE}>>
+
+Creates a new unit.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm g>> <b>Required.</b>  The name of a force or organization
+group.<</parm>>
+
+<<parm u>> <b>Required.</b>  The name of the unit, a
+<<xref projtypes(n) unitname>> value.<</parm>>
+
+<<parm personnel>> <b>Required.</b>  The number of personnel in the
+unit, an <<xref projtypes(n) iquantity>> value.<</parm>>
+
+<<parm location>> <b>Required.</b>  The location of the unit as
+a map reference.<</parm>>
+
+<<parm activity>> <b>Required.</b>  The unit's initial activity,
+an <<xref projtypes(n) eactivity>> value.  Note that organization
+units can perform only a subset of these activities.<</parm>>
+
+<</parmlist>>
+
+<<defitem UNIT:DELETE {UNIT:DELETE}>>
+
+Deletes a unit.<p>
+
+The parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm u>> <b>Required.</b> The unit's name.<</parm>>
+
+<</parmlist>>
+
+
+<<defitem UNIT:UPDATE {UNIT:UPDATE}>>
+
+Updates an existing unit.  The parameters are as
+defined for <<iref UNIT:CREATE>>; <b>u</b> is required, and
+specifies the unit to update, while the remainder are optional.<p>
+
+
+<<defitem UNIT:UPDATE:MULTI {UNIT:UPDATE:MULTI}>>
+
+Updates multiple units.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of one or more unit
+IDs.<</parm>>
+
+<<parm g>>As for <<iref UNIT:CREATE>>. <</parm>>
+
+<<parm personnel>>As for <<iref UNIT:CREATE>>. <</parm>>
+
+<<parm location>>As for <<iref UNIT:CREATE>>. <</parm>>
+
+<<parm activity>>As for <<iref UNIT:CREATE>>. <</parm>>
+
+<</parmlist>>
+
+<</deflist unit>>
 
 <<section AUTHOR>>
 

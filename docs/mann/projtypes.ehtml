@@ -109,12 +109,26 @@ Validates and returns the <i>color</i>; the hex-digits are
 upper-cased.  On error, throws an error with <code>-errorcode</code>
 <b>INVALID</b>.<p>
 
+<<defitem "idays validate" {idays validate <i>days</i>}>>
+
+Integer days type: a non-negative integer number.<p>
+
+Validates and returns <i>days</i>.  On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
 <<defitem "ident validate" {ident validate <i>name</i>}>>
 
 Identifier type.  An identifier is a string consisting only of letters
 and digits, beginning with a letter.<p>
 
 Validates and returns the <i>name</i>.  On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
+<<defitem "iquantity validate" {iquantity validate <i>quantity</i>}>>
+
+Integer quantity type: a non-negative integer number.<p>
+
+Validates and returns <i>quantity</i>.  On error, throws
 an error with <code>-errorcode</code> <b>INVALID</b>.<p>
 
 <<defitem "polygon validate" {polygon validate <i>coords</i>}>>

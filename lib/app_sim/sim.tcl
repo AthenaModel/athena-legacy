@@ -32,7 +32,7 @@ snit::type sim {
     
     typevariable constants -array {
         ticksize  {1 day}
-        startdate 190000ZMAR09
+        startdate 100000ZJAN10
     }
 
     # speeds -- array of inter-tick delays in milliseconds, by
@@ -123,11 +123,10 @@ snit::type sim {
         set info(changed) 0
 
         # NEXT, configure the simclock.
+        simclock reset
         simclock configure              \
             -tick $constants(ticksize)  \
             -t0   $constants(startdate)
-
-        simclock reset
 
         # NEXT, clear the event queue
         eventq restart
@@ -388,8 +387,10 @@ snit::type sim {
         # FIRST, cancel the ticker, so that the next tick doesn't occur.
         $ticker cancel
 
-        # NEXT, set the state to paused.
-        $type SetState PAUSED
+        # NEXT, set the state to paused, if we're running
+        if {$info(state) eq "RUNNING"} {
+            $type SetState PAUSED
+        }
 
         # NEXT, cannot be undone.
         return ""
@@ -540,19 +541,13 @@ order define ::sim SIM:RUN {
     # TBD Need to indicate valid states
 } {
     # FIRST, prepare the parameters
-    prepare days -toupper
-
-    # NEXT, check for errors
-    
-    validate days {
-        # TBD: If not numeric and positive, reject.
-    }
+    prepare days -toupper -type idays
 
     returnOnError
 
     # NEXT, start the simulation and return the undo script
 
-    if {$parms(days) eq ""} {
+    if {$parms(days) eq "" || $parms(days) == 0} {
         lappend undo [$type mutate run]
     } else {
         lappend undo [$type mutate run -ticks [simclock fromDays $parms(days)]]

@@ -1,0 +1,198 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-SIM.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) SIM:* order tests.
+#
+#    This test suite tests the sim(sim) orders.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    variable oldDate [simclock cget -t0]
+
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        variable oldDate
+
+        # Clean up the test environment
+        ted cleanup
+
+        simclock reset
+        simclock configure -t0 $oldDate
+
+        if {[sim state] eq "RUNNING"} {
+            sim mutate pause
+        }
+
+        if {[sim state] eq "PAUSED"} {
+            sim restart -noconfirm
+        }
+    }
+
+    #-------------------------------------------------------------------
+    # SIM:STARTDATE
+
+    test STARTDATE-1.1 {required parms} -body {
+        ted order -reject SIM:STARTDATE {}
+    } -result {
+        startdate {required value}
+    }
+
+
+    test STARTDATE-1.2 {invalid startdate} -body {
+        ted order -reject SIM:STARTDATE startdate NONESUCH
+    } -result {
+        startdate {invalid Zulu-time string: "NONESUCH"}
+    }
+
+
+    test STARTDATE-2.1 {startdate is set} -body {
+        ted order SIM:STARTDATE startdate 240000ZMAR09
+        simclock cget -t0
+    } -cleanup {
+        cleanup
+    } -result {240000ZMAR09}
+
+
+    test STARTDATE-2.2 {<State> is sent} -body {
+        ted notifier bind ::sim <State>
+        ted order SIM:STARTDATE startdate 240000ZMAR09
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sim <State>}
+    }
+    
+    test STARTDATE-3.1 {<State> is sent on undo} -setup {
+        set undo [ted order SIM:STARTDATE startdate 240000ZMAR09]
+
+    } -body {
+        ted notifier bind ::sim <State>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sim <State>}
+    }
+    
+    #-------------------------------------------------------------------
+    # SIM:RUN
+
+    
+    test RUN-1.1 {invalid days string} -body {
+        ted order -reject SIM:RUN days NONESUCH
+    } -result {
+        days {invalid value "NONESUCH", expected integer}
+    }
+
+
+    test RUN-1.2 {negative days} -body {
+        ted order -reject SIM:RUN days -1
+    } -result {
+        days {invalid value "-1", expected integer no less than 0}
+    }
+
+
+    test RUN-2.1 {Run until paused} -body {
+        ted order SIM:RUN
+        list [sim state] [sim stoptime]
+    } -cleanup {
+        cleanup
+    } -result {RUNNING 0}
+
+
+    test RUN-2.2 {Run for days} -body {
+        ted order SIM:RUN days 5
+        list [sim state] [sim stoptime]
+    } -cleanup {
+        cleanup
+    } -result {RUNNING 5}
+
+
+    test RUN-2.3 {Sends <State>} -body {
+        ted notifier bind ::sim <State>
+        ted order SIM:RUN
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sim <State>}
+    }
+
+    #-------------------------------------------------------------------
+    # SIM:PAUSE
+
+    test PAUSE-1.1 {No effect in PREP} -body {
+        ted order SIM:PAUSE
+        sim state
+    } -cleanup {
+        cleanup
+    } -result {PREP}
+
+
+    test PAUSE-1.2 {Pauses while running} -body {
+        ted order SIM:RUN
+        ted order SIM:PAUSE
+        sim state
+    } -cleanup {
+        cleanup
+    } -result {PAUSED}
+
+
+    test PAUSE-1.3 {No effect while paused} -body {
+        ted order SIM:RUN
+        ted order SIM:PAUSE
+        ted order SIM:PAUSE
+        sim state
+    } -cleanup {
+        cleanup
+    } -result {PAUSED}
+
+
+    test PAUSE-1.4 {Sends <State>} -body {
+        ted order SIM:RUN
+        ted notifier bind ::sim <State>
+        ted order SIM:PAUSE
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sim <State>}
+    }
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
