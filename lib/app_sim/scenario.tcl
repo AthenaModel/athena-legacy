@@ -107,7 +107,7 @@ snit::type scenario {
         DefineTempSchema
 
         # NEXT, restore the saveables
-        $type RestoreSaveables
+        $type RestoreSaveables -saved
 
         # NEXT, save the name.
         set info(dbfile) $filename
@@ -143,7 +143,7 @@ snit::type scenario {
         }
 
         # NEXT, save the saveables
-        $type SaveSaveables
+        $type SaveSaveables -saved
 
         # NEXT, notify the simulation that we're saving, so other 
         # modules can prepare.
@@ -212,6 +212,93 @@ snit::type scenario {
 
         return 0
     }
+
+    #-------------------------------------------------------------------
+    # Snapshot Management
+
+    # snapshot save
+    #
+    # Saves a snapshot as of the current sim time.  The snapshot is
+    # an XML string of everything but the "maps" and "snapshots" tables.
+    # The "maps" are excluded because of the size, and the "snapshots"
+    # are excluded for obvious reasons.
+
+    typemethod {snapshot save} {} {
+        # FIRST, save the saveables
+        $type SaveSaveables
+
+        # NEXT, get the snapshot text
+        set snapshot [rdb export -exclude {snapshots maps}]
+
+        # NEXT, save it into the RDB
+        set tick [sim now]
+
+        rdb eval {
+            INSERT OR REPLACE INTO snapshots(tick,snapshot)
+            VALUES($tick,$snapshot)
+        }
+
+        log normal scenario "snapshot saved"
+    }
+
+
+    # snapshot load tick
+    #
+    # tick     The tick of the snapshot to load
+    #
+    # Loads the specified snapshot, and reconfigures the sim.
+
+    typemethod {snapshot load} {tick} {
+        require {$tick in [scenario snapshot list]} \
+            "No snapshot at tick $tick"
+
+        # FIRST, get the snapshot
+        set snapshot [rdb onecolumn {
+            SELECT snapshot FROM snapshots 
+            WHERE tick=$tick
+        }]
+
+        # NEXT, import it.
+        log normal scenario "Loading snapshot for tick $tick"
+        rdb import $snapshot -logcmd [list log detail scenario]
+
+        # NEXT, restore the saveables
+        $type RestoreSaveables
+        log newlog snapshot
+        log normal scenario "Loaded snapshot for tick $tick"
+        
+        app puts "Loaded Snapshot for [simclock toZulu $tick]"
+
+        # NEXT, Reconfigure the app
+        sim reconfigure
+    }
+
+
+    # snapshot list
+    #
+    # Returns a list of the ticks for which snapshots are available.
+
+    typemethod {snapshot list} {} {
+        rdb eval {
+            SELECT tick FROM snapshots
+            ORDER BY tick
+        }
+    }
+
+    
+    # snapshot purge after
+    #
+    # after     A sim time in ticks
+    #
+    # Purges all snapshots with ticks greater than after.
+
+    typemethod {snapshot purge} {after} {
+        rdb eval {
+            DELETE FROM snapshots WHERE tick > $after;
+        }
+    }
+
+
 
     #-------------------------------------------------------------------
     # Scenario Reconciliation
@@ -325,39 +412,46 @@ snit::type scenario {
         }
     }
 
-    # SaveSaveables
+    # SaveSaveables ?-saved?
     #
-    # Save all saveable data to the checkpoint table
+    # Save all saveable data to the checkpoint table, optionally
+    # clearing the "changed" flag for all of the saveables.
 
-    typemethod SaveSaveables {} {
+    typemethod SaveSaveables {{option ""}} {
         foreach saveable $info(saveables) {
-            set checkpoint [{*}$saveable checkpoint]
+            # Forget and skip saveables that no longer exist
+            if {[llength [info commands $saveable]] == 0} {
+                ldelete info(saveables) $saveable
+                continue
+            }
+
+            set checkpoint [{*}$saveable checkpoint $option]
 
             rdb eval {
                 INSERT OR REPLACE 
-                INTO checkpoint(saveable,checkpoint)
+                INTO saveables(saveable,checkpoint)
                 VALUES($saveable,$checkpoint)
             }
         }
     }
 
-    # RestoreSaveables
+    # RestoreSaveables ?-saved?
     #
-    # Restore all saveable data from the checkpoint table
+    # Restore all saveable data from the checkpoint table, optionally
+    # clearing the "changed" flag for all of the saveables.
 
-    typemethod RestoreSaveables {} {
+    typemethod RestoreSaveables {{option ""}} {
         rdb eval {
-            SELECT saveable,checkpoint FROM checkpoint
+            SELECT saveable,checkpoint FROM saveables
         } {
-            if {$saveable in $info(saveables)} {
-                {*}$saveable restore $checkpoint
+            if {[llength [info commands $saveable]] != 0} {
+                {*}$saveable restore $checkpoint $option
             } else {
                 log warning scenario \
                     "Unknown saveable found in checkpoint: \"$saveable\""
             }
         }
     }
-
 }
 
 

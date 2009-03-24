@@ -68,18 +68,6 @@ snit::type sim {
     }
 
     #-------------------------------------------------------------------
-    # Checkpointed type variables
-
-    # db -- Checkpointed scalars
-    #
-    # cifmark    Marks the top of the CIF on PREP->RUNNING, to support
-    #            "restart".
-
-    typevariable db -array {
-        cifmark   ""
-    }
-
-    #-------------------------------------------------------------------
     # Singleton Initializer
 
     # init
@@ -165,30 +153,26 @@ snit::type sim {
             }
         }
 
-        # NEXT, reset the sim time to time 0
-        simclock reset
-        
-        # NEXT, clean up other simulation modules and delete simulation
-        # history.
-        cif clear $db(cifmark)
-        eventq restart
-        
-        # TBD: Other cleanup
+        # NEXT, if the time is greater than 0, save a snapshot
+        if {[simclock now] > 0} {
+            scenario snapshot save
+        }
 
-        # NEXT, reset the sim state.  Don't use SetState, as we'll be
-        # reconfiguring immediately.
-        set info(state) PREP
+        # NEXT, restore to the tick 0 
+        scenario snapshot load 0
 
-        # NEXT, reconfigure the app.
-        $type reconfigure
+        # NEXT, make sure the state is PREP
+        $type SetState PREP
 
         # NEXT, log the restart.
         log newlog restart
         log normal sim "Restarted the simulation"
         app puts "Restarted the simulation"
 
-        # NEXT, no undo.
-        return ""
+        # NEXT, reconfigure the app.
+        $type reconfigure
+
+        return
     }
 
     #-------------------------------------------------------------------
@@ -361,10 +345,6 @@ snit::type sim {
             # FIRST, Do a sanity check: can we advance time?
             # TBD
 
-            # NEXT, mark the top of the CIF stack, so that we
-            # can return to it on restart.
-            set db(cifmark) [cif mark]
-
             # NEXT, initialize ARAM.
             # TBD
         }
@@ -436,9 +416,18 @@ snit::type sim {
     #
     # state    The simulation state
     #
-    # Sets the current simulation state, and reports it as <State>
+    # Sets the current simulation state, and reports it as <State>.
+    # On transition to RUNNING, saves snapshot
 
     typemethod SetState {state} {
+        # FIRST, save snapshot if need be, purging snapshots
+        # that are in the future.
+        if {$info(state) ne "RUNNING" && $state eq "RUNNING"} {
+            scenario snapshot purge [simclock now]
+            scenario snapshot save
+        }
+
+        # NEXT, transition to the new state.
         set info(state) $state
         log normal sim "Simulation state is $info(state)"
         notifier send $type <State>
@@ -447,32 +436,30 @@ snit::type sim {
     #-------------------------------------------------------------------
     # saveable(i) interface
 
-    # checkpoint
+    # checkpoint ?-saved?
     #
     # Returns a checkpoint of the non-RDB simulation data.
 
-    typemethod checkpoint {} {
-        set info(changed) 0
+    typemethod checkpoint {{option ""}} {
+        if {$option eq "-saved"} {
+            set info(changed) 0
+        }
 
         set checkpoint [dict create]
 
         dict set checkpoint t0   [simclock cget -t0]
         dict set checkpoint now  [simclock now]
-        dict set checkpoint db   [array get db]
     }
 
-    # restore checkpoint
+    # restore checkpoint ?-saved?
     #
     # checkpoint     A string returned by the checkpoint typemethod
     
-    typemethod restore {checkpoint} {
+    typemethod restore {checkpoint {option ""}} {
         # FIRST, restore the checkpoint data
         simclock configure -t0 [dict get $checkpoint t0]
         simclock reset
         simclock advance [dict get $checkpoint now]
-
-        array unset db
-        array set db [dict get $checkpoint db]
 
         # Don't use SetState, as we'll be reconfiguring immediately.
         if {[simclock now] == 0} {
@@ -481,7 +468,9 @@ snit::type sim {
             set info(state) PAUSED
         }
 
-        set info(changed) 0
+        if {$option eq "-saved"} {
+            set info(changed) 0
+        }
     }
 
     # changed

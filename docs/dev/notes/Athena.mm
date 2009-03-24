@@ -1,17 +1,53 @@
 <map version="0.8.1">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
+<node CREATED="1237934628643" FOLDED="true" ID="Freemind_Link_276542603" MODIFIED="1237934645816" POSITION="right" TEXT="Done">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237477459286" FOLDED="true" ID="Freemind_Link_860445490" MODIFIED="1237918566061" TEXT="Allow simtime to advance">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237479644159" FOLDED="true" ID="Freemind_Link_1989940868" MODIFIED="1237479651010" TEXT="Simulation State">
+<node CREATED="1237479651814" ID="Freemind_Link_1441941516" MODIFIED="1237479657082" TEXT="PREP"/>
+<node CREATED="1237479657678" ID="Freemind_Link_1705099136" MODIFIED="1237479660450" TEXT="RUNNING"/>
+<node CREATED="1237479661110" ID="Freemind_Link_1694836583" MODIFIED="1237479663634" TEXT="PAUSED"/>
+</node>
+</node>
+<node CREATED="1237480079146" ID="Freemind_Link_1971828045" MODIFIED="1237585969712" TEXT="Support eventq events">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1237823234872" FOLDED="true" ID="Freemind_Link_1459784431" MODIFIED="1237934610816" TEXT="Auto-snapshots">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237564822348" ID="Freemind_Link_1094167895" MODIFIED="1237934572300" TEXT="SIM:RUN saves snapshott before transition"/>
+<node CREATED="1237823265751" ID="Freemind_Link_407919202" MODIFIED="1237934579811" TEXT="App manages set of snapshots during session"/>
+<node CREATED="1237829994090" ID="Freemind_Link_1764789611" MODIFIED="1237934595948" TEXT="User can return to old snapshot"/>
+<node CREATED="1237823273480" FOLDED="true" ID="Freemind_Link_1214250639" MODIFIED="1237823302545" TEXT="saveables(i) Change">
+<node CREATED="1237830033193" ID="Freemind_Link_355979907" MODIFIED="1237830047443" TEXT="At present, saveables assume that &quot;checkpoint&quot; means they have been saved."/>
+<node CREATED="1237823316552" ID="Freemind_Link_1633805485" MODIFIED="1237823354614" TEXT="Must be able to call saveable&apos;s &quot;checkpoint&quot; method&#xa;without setting the object&apos;s &quot;saved&quot; flag, e.g.,&#xa;&quot;$object checkpoint -notsaved&quot;"/>
+</node>
+<node CREATED="1237830058698" FOLDED="true" ID="Freemind_Link_1660914597" MODIFIED="1237934605708" TEXT="Include snapshots in RDB, ADB">
+<node CREATED="1237830107610" ID="Freemind_Link_1797755349" MODIFIED="1237830118739" TEXT="Rename &quot;checkpoints&quot; table to &quot;saveables&quot;"/>
+<node CREATED="1237830119434" ID="Freemind_Link_1657153926" MODIFIED="1237830128723" TEXT="Store checkpoints in &quot;checkpoints&quot; table"/>
+<node CREATED="1237830129242" FOLDED="true" ID="Freemind_Link_1826040449" MODIFIED="1237830145652" TEXT="To save a checkpoint">
+<node CREATED="1237830146106" ID="Freemind_Link_880660979" MODIFIED="1237830151395" TEXT="Save working data as XML"/>
+<node CREATED="1237830152058" ID="Freemind_Link_243868175" MODIFIED="1237830174691" TEXT="Exclude the maps and checkpoints tables"/>
+</node>
+<node CREATED="1237830186136" FOLDED="true" ID="Freemind_Link_258901333" MODIFIED="1237830190003" TEXT="To restore a checkpoint">
+<node CREATED="1237830190744" ID="Freemind_Link_1078181867" MODIFIED="1237830202115" TEXT="Reload the XML for the checkpoint"/>
+<node CREATED="1237830202729" ID="Freemind_Link_1109472895" MODIFIED="1237830213155" TEXT="Will replace contents of all tables included in the XML."/>
+</node>
+</node>
+</node>
+</node>
 <node CREATED="1237475139158" ID="_" MODIFIED="1237477117490" POSITION="right" TEXT="Order">
-<node CREATED="1237477378229" ID="Freemind_Link_527719459" MODIFIED="1237588243420" TEXT="Enable/disable orders based on simulation state">
+<node CREATED="1237477378229" FOLDED="true" ID="Freemind_Link_527719459" MODIFIED="1237588243420" TEXT="Enable/disable orders based on simulation state">
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1237482978661" FOLDED="true" ID="Freemind_Link_590650592" MODIFIED="1237564236967" TEXT="order(sim) changes">
-<node CREATED="1237577900818" ID="Freemind_Link_1994585489" MODIFIED="1237577908140" TEXT="Orders with no parameters">
+<node CREATED="1237577900818" FOLDED="true" ID="Freemind_Link_1994585489" MODIFIED="1237577908140" TEXT="Orders with no parameters">
 <node CREATED="1237580779500" ID="Freemind_Link_1074093108" MODIFIED="1237580792906" TEXT="In order(sim)">
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1237580784284" ID="Freemind_Link_799467361" MODIFIED="1237580790310" TEXT="In orderdialog(sim)"/>
 </node>
-<node CREATED="1237564212894" ID="Freemind_Link_465859869" MODIFIED="1237564223741" TEXT="Response to sim state">
+<node CREATED="1237564212894" FOLDED="true" ID="Freemind_Link_465859869" MODIFIED="1237564223741" TEXT="Response to sim state">
 <node CREATED="1237482986581" ID="Freemind_Link_621246274" MODIFIED="1237482995070" TEXT="Orders map to states"/>
 <node CREATED="1237482995589" ID="Freemind_Link_967178350" MODIFIED="1237842121353" TEXT="E.g., can only create nbhood in PREP state"/>
 <node CREATED="1237483032804" ID="Freemind_Link_1095063732" MODIFIED="1237483041230" TEXT="GUI needs to reflect order state"/>
@@ -23,18 +59,18 @@
 <node CREATED="1237480092962" FOLDED="true" ID="Freemind_Link_1722894145" MODIFIED="1237480125937" TEXT="Schedule orders ahead of time">
 <arrowlink DESTINATION="Freemind_Link_1129765376" ENDARROW="Default" ENDINCLINATION="93;0;" ID="Freemind_Arrow_Link_906925163" STARTARROW="None" STARTINCLINATION="93;0;"/>
 <node CREATED="1237571826655" FOLDED="true" ID="Freemind_Link_358553126" MODIFIED="1237571830584" TEXT="SIM:SCHEDULE">
-<node CREATED="1237571831262" ID="Freemind_Link_691473547" MODIFIED="1237571836200" TEXT="Schedules another order">
+<node CREATED="1237571831262" FOLDED="true" ID="Freemind_Link_691473547" MODIFIED="1237571836200" TEXT="Schedules another order">
 <node CREATED="1237571798062" ID="Freemind_Link_1698334970" MODIFIED="1237571803384" TEXT="This is undoable and cif&apos;d"/>
 </node>
 <node CREATED="1237571837118" ID="Freemind_Link_1205931009" MODIFIED="1237907725207" TEXT="No explicit dialog for this order"/>
 <node CREATED="1237571861758" ID="Freemind_Link_1495751002" MODIFIED="1237907750119" TEXT="Orders valid in RUNNING can be scheduled"/>
 <node CREATED="1237571868509" ID="Freemind_Link_351266681" MODIFIED="1237571875304" TEXT="Undone by cancelling scheduled order"/>
-<node CREATED="1237571660719" ID="Freemind_Link_1311718344" MODIFIED="1237571813596" TEXT="Orders run by scheduled events" VSHIFT="-6">
+<node CREATED="1237571660719" FOLDED="true" ID="Freemind_Link_1311718344" MODIFIED="1237571813596" TEXT="Orders run by scheduled events" VSHIFT="-6">
 <node CREATED="1237571721677" ID="Freemind_Link_402714946" MODIFIED="1237571728024" TEXT="Run by &quot;sim&quot;, not &quot;gui&quot;"/>
 <node CREATED="1237571728750" ID="Freemind_Link_203596528" MODIFIED="1237571732296" TEXT="Not put in CIF"/>
 <node CREATED="1237571732717" ID="Freemind_Link_739438388" MODIFIED="1237571735784" TEXT="Not undoable"/>
 </node>
-<node CREATED="1237482622421" ID="Freemind_Link_144828260" MODIFIED="1237482629632" TEXT="eventq">
+<node CREATED="1237482622421" FOLDED="true" ID="Freemind_Link_144828260" MODIFIED="1237482629632" TEXT="eventq">
 <node CREATED="1237564183614" ID="Freemind_Link_1439004237" MODIFIED="1237564192023" TEXT="Event: scheduled order"/>
 <node CREATED="1237482707941" ID="Freemind_Link_316875113" MODIFIED="1237482711247" TEXT="Queue browser"/>
 <node CREATED="1237482851061" ID="Freemind_Link_1152163067" MODIFIED="1237482874725" TEXT="Event priorities?"/>
@@ -75,28 +111,17 @@
 </node>
 </node>
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1237477459286" ID="Freemind_Link_860445490" MODIFIED="1237918566061" TEXT="Allow simtime to advance">
-<icon BUILTIN="button_ok"/>
-<node CREATED="1237479644159" FOLDED="true" ID="Freemind_Link_1989940868" MODIFIED="1237479651010" TEXT="Simulation State">
-<node CREATED="1237479651814" ID="Freemind_Link_1441941516" MODIFIED="1237479657082" TEXT="PREP"/>
-<node CREATED="1237479657678" ID="Freemind_Link_1705099136" MODIFIED="1237479660450" TEXT="RUNNING"/>
-<node CREATED="1237479661110" ID="Freemind_Link_1694836583" MODIFIED="1237479663634" TEXT="PAUSED"/>
-</node>
-</node>
 <node CREATED="1237478995798" FOLDED="true" ID="Freemind_Link_1090109606" MODIFIED="1237479000811" TEXT="Model sanity check">
 <node CREATED="1237479063275" ID="Freemind_Link_1873084845" MODIFIED="1237479076859" TEXT="The model must be sane before time can advance."/>
 <node CREATED="1237479048340" ID="Freemind_Link_542139928" MODIFIED="1237479087446" TEXT="Present warnings to user."/>
 </node>
 <node CREATED="1237478987023" FOLDED="true" ID="Freemind_Link_324117817" MODIFIED="1237478992234" TEXT="Integrate gram(n)">
-<node CREATED="1237842153584" ID="Freemind_Link_340570150" MODIFIED="1237842166969" TEXT="Initialize GRAM on PREP to RUNNING">
+<node CREATED="1237842153584" FOLDED="true" ID="Freemind_Link_340570150" MODIFIED="1237842166969" TEXT="Initialize GRAM on PREP to RUNNING">
 <node CREATED="1237842189695" ID="Freemind_Link_11302190" MODIFIED="1237842195146" TEXT="Requires sanity check"/>
 </node>
 <node CREATED="1237822576953" ID="Freemind_Link_1552650374" MODIFIED="1237822586866" TEXT="Advance GRAM during each tick"/>
 <node CREATED="1237820225709" ID="Freemind_Link_209344982" MODIFIED="1237822673138" TEXT="On Open of scenario with t &gt; 0, must be able to sync with loaded gram_* data"/>
 <node CREATED="1237820290381" ID="Freemind_Link_1416194108" MODIFIED="1237820313047" TEXT="For simplicity, should not be a saveable--should save all scalars in RDB"/>
-</node>
-<node CREATED="1237480079146" ID="Freemind_Link_1971828045" MODIFIED="1237585969712" TEXT="Support eventq events">
-<icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1237480898155" FOLDED="true" ID="Freemind_Link_919848605" MODIFIED="1237480916486" TEXT="GRAM slope limits based on duration">
 <node CREATED="1237480917418" ID="Freemind_Link_701469202" MODIFIED="1237480958721" TEXT="Limits based on total nominal change&#xa;don&apos;t really make sense."/>
@@ -104,28 +129,6 @@
 <node CREATED="1237568034086" FOLDED="true" ID="Freemind_Link_1406761834" MODIFIED="1237568069787" TEXT="Game truth variables">
 <icon BUILTIN="help"/>
 <node CREATED="1237568050726" ID="Freemind_Link_454367740" MODIFIED="1237568062559" TEXT="Like gtclient/gtserver, but within one app"/>
-</node>
-<node CREATED="1237823234872" FOLDED="true" ID="Freemind_Link_1459784431" MODIFIED="1237829910324" TEXT="Auto-checkpoints">
-<node CREATED="1237564822348" ID="Freemind_Link_1094167895" MODIFIED="1237829936612" TEXT="SIM:RUN saves checkpoint before transition"/>
-<node CREATED="1237823265751" ID="Freemind_Link_407919202" MODIFIED="1237829972563" TEXT="App manages set of checkpoints during session"/>
-<node CREATED="1237829977146" ID="Freemind_Link_911436126" MODIFIED="1237829993187" TEXT="Also, explicit checkpoints"/>
-<node CREATED="1237829994090" ID="Freemind_Link_1764789611" MODIFIED="1237830001940" TEXT="User can return to old checkpoint"/>
-<node CREATED="1237823273480" ID="Freemind_Link_1214250639" MODIFIED="1237823302545" TEXT="saveables(i) Change">
-<node CREATED="1237830033193" ID="Freemind_Link_355979907" MODIFIED="1237830047443" TEXT="At present, saveables assume that &quot;checkpoint&quot; means they have been saved."/>
-<node CREATED="1237823316552" ID="Freemind_Link_1633805485" MODIFIED="1237823354614" TEXT="Must be able to call saveable&apos;s &quot;checkpoint&quot; method&#xa;without setting the object&apos;s &quot;saved&quot; flag, e.g.,&#xa;&quot;$object checkpoint -notsaved&quot;"/>
-</node>
-<node CREATED="1237830058698" ID="Freemind_Link_1660914597" MODIFIED="1237830106355" TEXT="Include checkpoints in RDB, ADB?">
-<node CREATED="1237830107610" ID="Freemind_Link_1797755349" MODIFIED="1237830118739" TEXT="Rename &quot;checkpoints&quot; table to &quot;saveables&quot;"/>
-<node CREATED="1237830119434" ID="Freemind_Link_1657153926" MODIFIED="1237830128723" TEXT="Store checkpoints in &quot;checkpoints&quot; table"/>
-<node CREATED="1237830129242" ID="Freemind_Link_1826040449" MODIFIED="1237830145652" TEXT="To save a checkpoint">
-<node CREATED="1237830146106" ID="Freemind_Link_880660979" MODIFIED="1237830151395" TEXT="Save working data as XML"/>
-<node CREATED="1237830152058" ID="Freemind_Link_243868175" MODIFIED="1237830174691" TEXT="Exclude the maps and checkpoints tables"/>
-</node>
-<node CREATED="1237830186136" ID="Freemind_Link_258901333" MODIFIED="1237830190003" TEXT="To restore a checkpoint">
-<node CREATED="1237830190744" ID="Freemind_Link_1078181867" MODIFIED="1237830202115" TEXT="Reload the XML for the checkpoint"/>
-<node CREATED="1237830202729" ID="Freemind_Link_1109472895" MODIFIED="1237830213155" TEXT="Will replace contents of all tables included in the XML."/>
-</node>
-</node>
 </node>
 <node CREATED="1237822733720" FOLDED="true" ID="Freemind_Link_1356652575" MODIFIED="1237822740277" TEXT="Reactive Decision Conditions">
 <node CREATED="1237822742521" ID="Freemind_Link_656806568" MODIFIED="1237822753602" TEXT="Check RDCs at end of each tick"/>
@@ -159,7 +162,7 @@
 </node>
 <node CREATED="1237481210122" FOLDED="true" ID="Freemind_Link_1615196501" MODIFIED="1237481223466" TEXT="appwin(sim): Hierarchical tabs">
 <node CREATED="1237481224027" ID="Freemind_Link_1716821238" MODIFIED="1237481233326" TEXT="We need a better way to present the info."/>
-<node CREATED="1237481238530" ID="Freemind_Link_1492297848" MODIFIED="1237481243686" TEXT="Some data might be on multiple tabs">
+<node CREATED="1237481238530" FOLDED="true" ID="Freemind_Link_1492297848" MODIFIED="1237481243686" TEXT="Some data might be on multiple tabs">
 <node CREATED="1237481244362" ID="Freemind_Link_1880842776" MODIFIED="1237481256094" TEXT="Units vs. Frc Units"/>
 </node>
 </node>
@@ -262,7 +265,7 @@
 <node CREATED="1237479141070" FOLDED="true" ID="Freemind_Link_1157275495" MODIFIED="1237479391450" TEXT="Purging old sessions">
 <node CREATED="1237479159342" ID="Freemind_Link_978533443" MODIFIED="1237479167154" TEXT="At present, session data is deleted on exit"/>
 <node CREATED="1237479168366" ID="Freemind_Link_28557513" MODIFIED="1237479175178" TEXT="Should retain multiple sessions"/>
-<node CREATED="1237479186254" ID="Freemind_Link_1095851202" MODIFIED="1237479202138" TEXT="Should purge older sessions">
+<node CREATED="1237479186254" FOLDED="true" ID="Freemind_Link_1095851202" MODIFIED="1237479202138" TEXT="Should purge older sessions">
 <node CREATED="1237479203454" ID="Freemind_Link_369530055" MODIFIED="1237479217394" TEXT="Athena writes a timestamp file periodically"/>
 <node CREATED="1237479354070" ID="Freemind_Link_901309961" MODIFIED="1237479361778" TEXT="Deletes timestamp file on exit"/>
 <node CREATED="1237479218718" ID="Freemind_Link_65984085" MODIFIED="1237479240154" TEXT="At startup, Athena checks files, deletes old sessions"/>

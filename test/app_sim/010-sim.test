@@ -295,11 +295,10 @@ namespace eval ::athena_test::tests:: {
             [sim state]         \
             [sim now]           \
             [sim changed]       \
-            [simclock cget -t0] \
-            [cif mark]
+            [simclock cget -t0]
     } -cleanup {
         cleanup
-    } -result {PREP 0 1 240000ZMAR09 -1}
+    } -result {PREP 0 1 100000ZJAN10}
     
     
     #-------------------------------------------------------------------

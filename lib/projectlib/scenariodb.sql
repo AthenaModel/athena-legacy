@@ -23,11 +23,24 @@ CREATE TABLE scenario (
     value TEXT DEFAULT ''
 );
 
--- Checkpoint Table: saves saveable(i) data
+-- Saveables Table: saves saveable(i) data.  I.e., this table contains
+-- checkpoints of in-memory data for specific objects.
 
-CREATE TABLE checkpoint (
+CREATE TABLE saveables (
     saveable   TEXT PRIMARY KEY,
     checkpoint TEXT
+);
+
+-- Snapshots Table: saves scenario snapshots.  I.e., this table
+-- contains snapshots of the scenario at different points in time.
+
+CREATE TABLE snapshots (
+    -- Time tick at which the snapshot was saved; 0 is restart
+    -- checkpoint.
+    tick       INTEGER PRIMARY KEY,
+
+    -- XML text of the snapshot.
+    snapshot TEXT
 );
 
 -- Critical Input Table: Saves user orders and (temporarily) any

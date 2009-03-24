@@ -65,7 +65,7 @@ snit::type app {
         }
 
         # NEXT, import the XML.
-        if {[catch {db import $xmltext puts}]} {
+        if {[catch {db import $xmltext -clear -logcmd puts}]} {
             puts "Error importing $scenario:\n\n"
             puts $::errorInfo
             exit

@@ -282,15 +282,34 @@ snit::type ::projectlib::scenariodb {
     #        </table>
     #    </database>
 
-    # export ?tables?
+    # export ?-exclude? ?tables?
     #
-    # tables      A list of the names of the tables to export.
+    # tables      A list of table names
     #
     # Exports the database as XML.  If tables is given, exports the named
+    # tables.  If -exclude tables is given, exports all *but* the named
     # tables.
     
-    method export {{tables ""}} {
-        # FIRST, create the document
+    method export {args} {
+        # FIRST, process the arguments
+        if {[llength $args] > 2} {
+            error \
+                "wrong \# args: should be \"$self export ?-exclude? ?tables?\""
+        } elseif {[llength $args] == 0} {
+            set exclude 0
+            set tables [list]
+        } elseif {[llength $args] == 1} {
+            set exclude 0
+            set tables [lindex $args 0]
+        } else {
+            require {[lindex $args 0] eq "-exclude"} \
+                "Unknown option: \"[lindex $args 0]\""
+
+            set exclude 1
+            set tables [lindex $args 1]
+        }
+
+        # NEXT, create the document
         set doc  [dom createDocument database]
         set root [$doc documentElement]
 
@@ -303,10 +322,16 @@ snit::type ::projectlib::scenariodb {
         
         # NEXT, export each of the requested tables; or all tables.
         if {[llength $tables] == 0} {
-            set tables [$db eval {
-                SELECT name FROM sqlite_master
-                WHERE type='table'
-            }]
+            set tables [$self tables]
+        } elseif {$exclude} {
+            set excluded $tables
+            set tables [list]
+
+            foreach name [$self tables] {
+                if {$name ni $excluded} {
+                    lappend tables $name
+                }
+            }
         }
         
         foreach name $tables {
@@ -374,21 +399,44 @@ snit::type ::projectlib::scenariodb {
         }
     }
 
-    # import xmltext ?logcmd?
+    # import xmltext ?options...?
     #
     # xmltext   XML text
-    # logcmd    A command prefix taking a message string as its single
-    #           argument.
     #
-    # Imports the XML text into the database.  Erases existing content.
+    # -clear         Clears the RDB, defining the current schema, prior
+    #                to importing.
+    # -logcmd cmd    A command prefix taking a message string as its 
+    #                single argument.
+    #
+    # Imports the XML text into the database.  Imported tables replace
+    # existing content; other tables are left alone.
+    
 
-    method import {xmltext {logcmd ""}} {
-        # FIRST, parse the XML input
+    method import {xmltext args} {
+        # FIRST, get the options
+        array set opts {
+            -clear  0
+            -logcmd ""
+        }
+
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+
+            switch -exact -- $opt {
+                -clear  { set opts(-clear) 1               }
+                -logcmd { set opts(-logcmd) [lshift args]  }
+                default { error "Unknown option: \"$opt\"" }
+            }
+        }
+
+        # NEXT, parse the XML input
         set doc [dom parse $xmltext]
         set root [$doc documentElement]
 
-        # NEXT, clear the contents of the database.
-        $db clear
+        # NEXT, clear the DB, if desired
+        if {$opts(-clear)} {
+            $db clear
+        }
 
         # NEXT, get the schema version.
         # TBD: Ultimately, we'll need to handle this explicitly.
@@ -399,7 +447,7 @@ snit::type ::projectlib::scenariodb {
         # NEXT, import the tables
         try {
             foreach node [$root getElementsByTagName table] {
-                $self ImportTable $node $logcmd
+                $self ImportTable $node $opts(-logcmd)
             }
         } finally {
             $doc delete
