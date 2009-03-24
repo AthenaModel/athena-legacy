@@ -1063,6 +1063,7 @@ snit::widget appwin {
             DynamicHelp::add $win.toolbar.runpause -text "Pause Simulation"
 
             $win.toolbar.duration configure -state disabled
+            $win.toolbar.restart  configure -state disabled
 
             set prefix [esimstate longname [sim state]]
             if {[sim stoptime] == 0} {
@@ -1076,6 +1077,12 @@ snit::widget appwin {
             DynamicHelp::add $win.toolbar.runpause -text "Run Simulation"
 
             $win.toolbar.duration configure -state readonly
+
+            if {[sim state] eq "PAUSED"} {
+                $win.toolbar.restart  configure -state normal
+            } else {
+                $win.toolbar.restart  configure -state disabled
+            }
 
             set info(simstate) [esimstate longname [sim state]]
         }

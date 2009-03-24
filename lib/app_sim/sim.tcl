@@ -73,7 +73,7 @@ snit::type sim {
     # db -- Checkpointed scalars
     #
     # cifmark    Marks the top of the CIF on PREP->RUNNING, to support
-    #            "mutate restart".
+    #            "restart".
 
     typevariable db -array {
         cifmark   ""
@@ -134,34 +134,36 @@ snit::type sim {
 
     }
 
-    # restart
+    # restart ?-noconfirm?
     #
     # Resets the simulation as a whole to the moment before it first
     # transitioned from PREP to RUNNING.
 
-    typemethod restart {} {
+    typemethod restart {{option ""}} {
         assert {[sim state] eq "PAUSED"}
 
         # FIRST, Confirm with the user
-        set answer [messagebox popup \
-                        -title         "Are you sure?"   \
-                        -icon          warning           \
-                        -buttons       {
-                            ok     "Restart the Sim" 
-                            cancel "Cancel"
-                        }                                \
-                        -default       cancel            \
-                        -ignoretag     sim_restart       \
-                        -ignoredefault ok                \
-                        -parent        [app topwin]      \
-                        -message       [normalize {
-                            Are you sure you
-                            really want to reset the simulation state
-                            back to time 0?  This cannot be undone!
-                        }]]
+        if {$option ne "-noconfirm"} {
+            set answer [messagebox popup \
+                            -title         "Are you sure?"   \
+                            -icon          warning           \
+                            -buttons       {
+                                ok     "Restart the Sim" 
+                                cancel "Cancel"
+                            }                                \
+                            -default       cancel            \
+                            -ignoretag     sim_restart       \
+                            -ignoredefault ok                \
+                            -parent        [app topwin]      \
+                            -message       [normalize {
+                                Are you sure you
+                                really want to reset the simulation state
+                                back to time 0?  This cannot be undone!
+                            }]]
 
-        if {$answer eq "cancel"} {
-            cancel
+            if {$answer eq "cancel"} {
+                cancel
+            }
         }
 
         # NEXT, reset the sim time to time 0
