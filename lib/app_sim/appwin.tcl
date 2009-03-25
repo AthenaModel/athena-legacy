@@ -401,6 +401,8 @@ snit::widget appwin {
 
         # RunPause
         button $win.toolbar.runpause  \
+            -height     32                            \
+            -width      32                            \
             -image      ::projectgui::icon::play22    \
             -relief     flat                          \
             -overrelief raised                        \

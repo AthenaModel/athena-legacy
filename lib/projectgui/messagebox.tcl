@@ -226,7 +226,7 @@ snit::type ::projectgui::messagebox {
     #
     # -buttons dict          Dictionary {symbol labeltext ...} of buttons
     # -default symbol        Symbolic name of the default button
-    # -icon image            error, info, question, warning
+    # -icon image            error, info, question, warning, peabody
     # -ignoretag tag         Tag for ignoring this dialog
     # -ignoredefault symbol  Button "pressed" if dialog is ignored.
     # -message string        Message to display.  Will be wrapped.
@@ -318,8 +318,13 @@ snit::type ::projectgui::messagebox {
         wm title $dialog $opts(-title)
 
         # Set the icon
-        $dialog.top.icon configure \
-            -image ${type}::icon::$opts(-icon)
+        if {$opts(-icon) eq "peabody"} {
+            set icon ::projectgui::icon::peabody32
+        } else {
+            set icon ${type}::icon::$opts(-icon)
+        }
+
+        $dialog.top.icon configure -image $icon
 
         # Set the ignore tag
         if {$opts(-ignoretag) ne ""} {
@@ -446,7 +451,7 @@ snit::type ::projectgui::messagebox {
         }
 
         # NEXT, validate -icon
-        if {$opts(-icon) ni $iconnames} {
+        if {$opts(-icon) ni $iconnames && $opts(-icon) ne "peabody"} {
             error "-icon: should be one of [join $iconnames {, }]"
         }
 

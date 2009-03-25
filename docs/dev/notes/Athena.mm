@@ -103,6 +103,19 @@
 </node>
 </node>
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
+<node CREATED="1238015584936" FOLDED="true" ID="Freemind_Link_1054409835" MODIFIED="1238015588709" TEXT="WAYBACK state">
+<node CREATED="1238015589208" ID="Freemind_Link_1081765451" MODIFIED="1238015601106" TEXT="Enter WAYBACK state when loading prior snapshot"/>
+<node CREATED="1238015602360" ID="Freemind_Link_1868904837" MODIFIED="1238015609218" TEXT="In WAYBACK, most orders are disabled"/>
+<node CREATED="1238015621352" ID="Freemind_Link_1434476628" MODIFIED="1238015631410" TEXT="Leave WAYBACK automatically on return to final snapshot"/>
+<node CREATED="1238015609784" ID="Freemind_Link_1583241154" MODIFIED="1238015619602" TEXT="Must leave WAYBACK explicitly to change things"/>
+<node CREATED="1238015639048" ID="Freemind_Link_1905612992" MODIFIED="1238015653522" TEXT="On leaving WAYBACK explicitly, future snapshots are purged">
+<node CREATED="1238015654120" ID="Freemind_Link_779539554" MODIFIED="1238015661314" TEXT="Rather than on SIM:RUN."/>
+<node CREATED="1238015661865" ID="Freemind_Link_1702214277" MODIFIED="1238015667250" TEXT="Can&apos;t SIM:RUN while in WAYBACK"/>
+</node>
+<node CREATED="1238015681529" ID="Freemind_Link_1703074413" MODIFIED="1238015700325" TEXT="Need special handling for GUI interactions">
+<node CREATED="1238015700680" ID="Freemind_Link_1732762311" MODIFIED="1238015705266" TEXT="E.g., dragging units"/>
+</node>
+</node>
 <node CREATED="1237478995798" FOLDED="true" ID="Freemind_Link_1090109606" MODIFIED="1238003903546" TEXT="Model sanity check">
 <node CREATED="1237479063275" ID="Freemind_Link_1873084845" MODIFIED="1237479076859" TEXT="The model must be sane before time can advance."/>
 <node CREATED="1237479048340" ID="Freemind_Link_542139928" MODIFIED="1237479087446" TEXT="Present warnings to user."/>
@@ -128,8 +141,9 @@
 </node>
 </node>
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
-<node CREATED="1237479698478" FOLDED="true" ID="Freemind_Link_1365670694" MODIFIED="1237585949280" TEXT="Enable/Disable order controls automatically">
+<node COLOR="#006699" CREATED="1237479698478" ID="Freemind_Link_1365670694" MODIFIED="1238008592729" TEXT="Enable/Disable order controls automatically">
 <arrowlink DESTINATION="Freemind_Link_527719459" ENDARROW="Default" ENDINCLINATION="166;0;" ID="Freemind_Arrow_Link_414537259" STARTARROW="None" STARTINCLINATION="166;0;"/>
+<font NAME="SansSerif" SIZE="10"/>
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1237995094341" ID="Freemind_Link_1954543268" MODIFIED="1237995112766" TEXT="Action Manager">
 <node CREATED="1237995164132" ID="Freemind_Link_237309003" MODIFIED="1237995167454" TEXT="Application defines actions">
