@@ -233,6 +233,7 @@ snit::type orggroup {
 
 order define ::orggroup GROUP:ORGANIZATION:CREATE {
     title "Create Organization Group"
+    options -sendstates PREP
 
     parm g              text  "ID"
     parm longname       text  "Long Name"
@@ -271,7 +272,7 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
 
 order define ::orggroup GROUP:ORGANIZATION:DELETE {
     title "Delete Organization Group"
-    options -table gui_orggroups
+    options -sendstates PREP -table gui_orggroups
 
     parm g  key "Group" -tags group
 } {
@@ -316,7 +317,7 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
 
 order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     title "Update Organization Group"
-    options -table gui_orggroups
+    options -sendstates PREP -table gui_orggroups
 
     parm g              key   "ID"            -tags group
     parm longname       text  "Long Name"
@@ -351,7 +352,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
 
 order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
     title "Update Multiple Organization Groups"
-    options -table gui_orggroups
+    options -sendstates PREP -table gui_orggroups
 
     parm ids            multi "Groups"
     parm color          color "Color"

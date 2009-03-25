@@ -216,6 +216,8 @@ snit::type civgroup {
 order define ::civgroup GROUP:CIVILIAN:CREATE {
     title "Create Civilian Group"
 
+    options -sendstates PREP
+
     #    name      field  label
     parm g         text   "ID"
     parm longname  text   "Long Name"
@@ -248,7 +250,7 @@ order define ::civgroup GROUP:CIVILIAN:CREATE {
 
 order define ::civgroup GROUP:CIVILIAN:DELETE {
     title "Delete Civilian Group"
-    options -table civgroups_view
+    options -sendstates PREP -table civgroups_view
 
     parm g  key  "Group"  -tags group
 } {
@@ -293,7 +295,7 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
 
 order define ::civgroup GROUP:CIVILIAN:UPDATE {
     title "Update Civilian Group"
-    options -table civgroups_view
+    options -sendstates PREP -table civgroups_view
 
     parm g         key    "ID"         -tags group
     parm longname  text   "Long Name"
@@ -317,7 +319,7 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE {
 
 order define ::civgroup GROUP:CIVILIAN:UPDATE:MULTI {
     title "Update Multiple Civilian Groups"
-    options -table gui_civgroups
+    options -sendstates PREP -table gui_civgroups
 
     parm ids    multi  "Groups"
     parm color  color  "Color"

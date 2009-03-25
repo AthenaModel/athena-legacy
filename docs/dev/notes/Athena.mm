@@ -36,25 +36,12 @@
 </node>
 </node>
 </node>
-</node>
-<node CREATED="1237475139158" ID="_" MODIFIED="1237477117490" POSITION="right" TEXT="Order">
-<node CREATED="1237477378229" FOLDED="true" ID="Freemind_Link_527719459" MODIFIED="1237588243420" TEXT="Enable/disable orders based on simulation state">
-<icon BUILTIN="messagebox_warning"/>
-<node CREATED="1237482978661" FOLDED="true" ID="Freemind_Link_590650592" MODIFIED="1237564236967" TEXT="order(sim) changes">
-<node CREATED="1237577900818" FOLDED="true" ID="Freemind_Link_1994585489" MODIFIED="1237577908140" TEXT="Orders with no parameters">
-<node CREATED="1237580779500" ID="Freemind_Link_1074093108" MODIFIED="1237580792906" TEXT="In order(sim)">
+<node CREATED="1237477378229" ID="Freemind_Link_527719459" MODIFIED="1238003858401" TEXT="Enable/disable orders based on simulation state">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1237580784284" ID="Freemind_Link_799467361" MODIFIED="1237580790310" TEXT="In orderdialog(sim)"/>
 </node>
-<node CREATED="1237564212894" FOLDED="true" ID="Freemind_Link_465859869" MODIFIED="1237564223741" TEXT="Response to sim state">
-<node CREATED="1237482986581" ID="Freemind_Link_621246274" MODIFIED="1237482995070" TEXT="Orders map to states"/>
-<node CREATED="1237482995589" ID="Freemind_Link_967178350" MODIFIED="1237842121353" TEXT="E.g., can only create nbhood in PREP state"/>
-<node CREATED="1237483032804" ID="Freemind_Link_1095063732" MODIFIED="1237483041230" TEXT="GUI needs to reflect order state"/>
-</node>
-<node CREATED="1237571987086" ID="Freemind_Link_33041850" MODIFIED="1237907699655" TEXT="Undo info cleared at each tick."/>
-</node>
-</node>
+<node CREATED="1237475139158" ID="_" MODIFIED="1237477117490" POSITION="right" TEXT="Order">
+<node CREATED="1237571987086" ID="Freemind_Link_33041850" MODIFIED="1238003829181" TEXT="Undo info should be cleared at each tick."/>
 <node CREATED="1237480052010" ID="Freemind_Link_1129765376" MODIFIED="1237480125936" TEXT="Ability to validate orders without executing them"/>
 <node CREATED="1237480092962" FOLDED="true" ID="Freemind_Link_1722894145" MODIFIED="1237480125937" TEXT="Schedule orders ahead of time">
 <arrowlink DESTINATION="Freemind_Link_1129765376" ENDARROW="Default" ENDINCLINATION="93;0;" ID="Freemind_Arrow_Link_906925163" STARTARROW="None" STARTINCLINATION="93;0;"/>
@@ -116,11 +103,11 @@
 </node>
 </node>
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1237478995798" FOLDED="true" ID="Freemind_Link_1090109606" MODIFIED="1237479000811" TEXT="Model sanity check">
+<node CREATED="1237478995798" FOLDED="true" ID="Freemind_Link_1090109606" MODIFIED="1238003903546" TEXT="Model sanity check">
 <node CREATED="1237479063275" ID="Freemind_Link_1873084845" MODIFIED="1237479076859" TEXT="The model must be sane before time can advance."/>
 <node CREATED="1237479048340" ID="Freemind_Link_542139928" MODIFIED="1237479087446" TEXT="Present warnings to user."/>
 </node>
-<node CREATED="1237478987023" FOLDED="true" ID="Freemind_Link_324117817" MODIFIED="1237478992234" TEXT="Integrate gram(n)">
+<node CREATED="1237478987023" FOLDED="true" ID="Freemind_Link_324117817" MODIFIED="1238003903545" TEXT="Integrate gram(n)">
 <node CREATED="1237842153584" FOLDED="true" ID="Freemind_Link_340570150" MODIFIED="1237842166969" TEXT="Initialize GRAM on PREP to RUNNING">
 <node CREATED="1237842189695" ID="Freemind_Link_11302190" MODIFIED="1237842195146" TEXT="Requires sanity check"/>
 </node>
@@ -144,8 +131,26 @@
 <node CREATED="1237479698478" FOLDED="true" ID="Freemind_Link_1365670694" MODIFIED="1237585949280" TEXT="Enable/Disable order controls automatically">
 <arrowlink DESTINATION="Freemind_Link_527719459" ENDARROW="Default" ENDINCLINATION="166;0;" ID="Freemind_Arrow_Link_414537259" STARTARROW="None" STARTINCLINATION="166;0;"/>
 <icon BUILTIN="messagebox_warning"/>
-<node CREATED="1237479727670" ID="Freemind_Link_745023378" MODIFIED="1237479733362" TEXT="Based on simulation state"/>
-<node CREATED="1237479734030" ID="Freemind_Link_1477900361" MODIFIED="1237479739426" TEXT="Based on order state"/>
+<node CREATED="1237995094341" ID="Freemind_Link_1954543268" MODIFIED="1237995112766" TEXT="Action Manager">
+<node CREATED="1237995164132" ID="Freemind_Link_237309003" MODIFIED="1237995167454" TEXT="Application defines actions">
+<node CREATED="1237995517923" ID="Freemind_Link_1201722912" MODIFIED="1237995520269" TEXT="Order actions"/>
+<node CREATED="1237995520931" ID="Freemind_Link_1181558353" MODIFIED="1237995524013" TEXT="Non-order actions"/>
+</node>
+<node CREATED="1237995113252" ID="Freemind_Link_996976429" MODIFIED="1237995129790" TEXT="Each action is associated with states">
+<node CREATED="1237995503987" ID="Freemind_Link_347164691" MODIFIED="1237995509837" TEXT="Order states retrieved on demand"/>
+<node CREATED="1237995538867" ID="Freemind_Link_434115069" MODIFIED="1237995543581" TEXT="Non-orders states are fixed"/>
+</node>
+<node CREATED="1237995130340" ID="Freemind_Link_1908790561" MODIFIED="1237995149230" TEXT="Action manager allows menu items, buttons, etc., to be created for an action"/>
+<node CREATED="1237995177700" ID="Freemind_Link_1394156990" MODIFIED="1237995225229" TEXT="As state changes, all controls are automatically enabled/disabled"/>
+</node>
+<node CREATED="1237995197780" ID="Freemind_Link_812363857" MODIFIED="1237995202142" TEXT="State control">
+<node CREATED="1237995202900" ID="Freemind_Link_156792157" MODIFIED="1237995209949" TEXT="GUI controls are associated with states"/>
+<node CREATED="1237995464994" ID="Freemind_Link_455918835" MODIFIED="1237995473677" TEXT="Order controls">
+<node CREATED="1237995474227" ID="Freemind_Link_644358395" MODIFIED="1237995482781" TEXT="Order states retrieved at creation time"/>
+</node>
+<node CREATED="1237995177700" ID="Freemind_Link_1275196334" MODIFIED="1237995225229" TEXT="As state changes, all controls are automatically enabled/disabled"/>
+</node>
+<node CREATED="1237995398099" ID="Freemind_Link_440124666" MODIFIED="1237995567771" TEXT="Control module binds to ::sim &lt;State&gt; to get state changes"/>
 </node>
 <node CREATED="1237588201262" ID="Freemind_Link_222069803" MODIFIED="1237588224100" TEXT="File/Open, etc., should be disabled when RUNNING">
 <icon BUILTIN="messagebox_warning"/>

@@ -83,6 +83,7 @@ snit::type sim {
 
         # NEXT, set the simulation state
         set info(state)   PREP
+        order state $info(state)
         set info(changed) 0
 
         # NEXT, configure the simclock.
@@ -106,11 +107,7 @@ snit::type sim {
     # Reinitializes the module when a new scenario is created.
 
     typemethod new {} {
-        # FIRST, set the simulation state
-        set info(state)   PREP
-        set info(changed) 0
-
-        # NEXT, configure the simclock.
+        # FIRST, configure the simclock.
         simclock reset
         simclock configure              \
             -tick $constants(ticksize)  \
@@ -119,6 +116,11 @@ snit::type sim {
         # NEXT, clear the event queue
         eventq restart
 
+        # NEXT, set the simulation status
+        set info(changed) 0
+        set info(state)   PREP
+
+        $type reconfigure
     }
 
     # restart ?-noconfirm?
@@ -206,7 +208,7 @@ snit::type sim {
 
         # NEXT, Reconfigure the GUI
         notifier send $type <Reconfigure>
-        notifier send $type <State>
+        notifier send $type <Status>
     }
 
 
@@ -240,7 +242,7 @@ snit::type sim {
                 $ticker schedule
             }
 
-            notifier send $type <State>
+            notifier send $type <Status>
         }
 
         return $info(speed)
@@ -291,7 +293,7 @@ snit::type sim {
         set info(changed) 1
 
         # NEXT, notify the app
-        notifier send $type <State>
+        notifier send $type <Status>
 
         # NEXT, set the undo command
         return [mytypemethod mutate startdate $oldDate]
@@ -385,10 +387,10 @@ snit::type sim {
 
     typemethod Tick {} {
         # FIRST, advance time one tick.
-        # TBD: Put the <State> event and log message in -advancecmd?
+        # TBD: Put the <Status> event and log message in -advancecmd?
         simclock tick
 
-        notifier send $type <State>
+        notifier send $type <Status>
         log normal sim "Tick [simclock now]"
         set info(changed) 1
         
@@ -416,7 +418,7 @@ snit::type sim {
     #
     # state    The simulation state
     #
-    # Sets the current simulation state, and reports it as <State>.
+    # Sets the current simulation state, and reports it as <Status>.
     # On transition to RUNNING, saves snapshot
 
     typemethod SetState {state} {
@@ -430,7 +432,8 @@ snit::type sim {
         # NEXT, transition to the new state.
         set info(state) $state
         log normal sim "Simulation state is $info(state)"
-        notifier send $type <State>
+
+        notifier send $type <Status>
     }
 
     #-------------------------------------------------------------------
@@ -501,6 +504,7 @@ snit::type sim {
 
 order define ::sim SIM:STARTDATE {
     title "Set Start Date"
+    options -sendstates PREP
 
     # TBD: This should be a "zulu" field; but that's not working
     # yet.
@@ -524,6 +528,7 @@ order define ::sim SIM:STARTDATE {
 
 order define ::sim SIM:RUN {
     title "Run Simulation"
+    options -sendstates {PREP PAUSED}
 
     parm days text "Days to Run"
 
@@ -553,6 +558,7 @@ order define ::sim SIM:RUN {
 
 order define ::sim SIM:PAUSE {
     title "Pause Simulation"
+    options -sendstates RUNNING
 
     # TBD Need to indicate valid states
 } {

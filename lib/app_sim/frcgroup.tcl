@@ -251,6 +251,8 @@ snit::type frcgroup {
 
 order define ::frcgroup GROUP:FORCE:CREATE {
     title "Create Force Group"
+    
+    options -sendstates PREP
 
     parm g          text  "ID"
     parm longname   text  "Long Name"
@@ -289,7 +291,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
 
 order define ::frcgroup GROUP:FORCE:DELETE {
     title "Delete Force Group"
-    options -table gui_frcgroups
+    options -sendstates PREP -table gui_frcgroups
 
     parm g  key "Group" -tags group
 } {
@@ -334,7 +336,7 @@ order define ::frcgroup GROUP:FORCE:DELETE {
 
 order define ::frcgroup GROUP:FORCE:UPDATE {
     title "Update Force Group"
-    options -table gui_frcgroups
+    options -sendstates PREP -table gui_frcgroups
 
     parm g          key   "ID"                 -tags group
     parm longname   text  "Long Name"
@@ -368,7 +370,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
 
 order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
     title "Update Multiple Force Groups"
-    options -table gui_frcgroups
+    options -sendstates PREP -table gui_frcgroups
 
     parm ids        multi "Groups"
     parm color      color "Color"

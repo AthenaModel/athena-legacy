@@ -387,6 +387,7 @@ snit::type nbhood {
 
 order define ::nbhood NBHOOD:CREATE {
     title "Create Neighborhood"
+    options -sendstates PREP
 
     parm n            text "Neighborhood"
     parm longname     text "Long Name"
@@ -454,7 +455,7 @@ order define ::nbhood NBHOOD:CREATE {
 
 order define ::nbhood NBHOOD:DELETE {
     title "Delete Neighborhood"
-    options -table gui_nbhoods
+    options -sendstates PREP -table gui_nbhoods
 
     parm n  key  "Neighborhood"   -tags nbhood
 } {
@@ -496,7 +497,7 @@ order define ::nbhood NBHOOD:DELETE {
 
 order define ::nbhood NBHOOD:LOWER {
     title "Lower Neighborhood"
-    options -table gui_nbhoods
+    options -sendstates PREP -table gui_nbhoods
 
     parm n key "Neighborhood"     -tags nbhood
 } {
@@ -513,7 +514,7 @@ order define ::nbhood NBHOOD:LOWER {
 
 order define ::nbhood NBHOOD:RAISE {
     title "Raise Neighborhood"
-    options -table gui_nbhoods
+    options -sendstates PREP -table gui_nbhoods
 
     parm n key "Neighborhood"     -tags nbhood
 } {
@@ -532,7 +533,7 @@ order define ::nbhood NBHOOD:RAISE {
 
 order define ::nbhood NBHOOD:UPDATE {
     title "Update Neighborhood"
-    options -table gui_nbhoods
+    options -sendstates PREP -table gui_nbhoods
 
     parm n            key   "Neighborhood"     -tags nbhood
     parm longname     text  "Long Name"
@@ -617,7 +618,7 @@ order define ::nbhood NBHOOD:UPDATE {
 
 order define ::nbhood NBHOOD:UPDATE:MULTI {
     title "Update Multiple Neighborhoods"
-    options -table gui_nbhoods
+    options -sendstates PREP -table gui_nbhoods
 
     parm ids          multi  "Neighborhoods"
     parm urbanization enum   "Urbanization"    -type eurbanization

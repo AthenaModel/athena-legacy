@@ -143,9 +143,9 @@ Sent by <<iref reconfigure>>.  Usually indicates that the scenario has
 changed completely, as when a new scenario is created or opened.
 Directs the user interface to refresh itself completely.<p>
 
-<<defitem State {&lt;State&gt;}>>
+<<defitem Status {&lt;Status&gt;}>>
 
-This event is sent when the sim(sim) module's state changes
+This event is sent when the sim(sim) module's status changes
 significantly, e.g., when the <<xref "Simulation State">> changes,
 or simulation time advances, etc.  It directs the user interface
 to update the related status displays.<p>

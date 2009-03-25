@@ -108,14 +108,14 @@ namespace eval ::athena_test::tests:: {
     } -result {230000ZMAR09}
 
     
-    test mutate_startdate-1.2 {Sends <State>} -body {
-        ted notifier bind ::sim <State>
+    test mutate_startdate-1.2 {Sends <Status>} -body {
+        ted notifier bind ::sim <Status>
         sim mutate startdate 230000ZMAR09
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sim <State>}
+        {::sim <Status>}
     }
 
 
@@ -178,14 +178,14 @@ namespace eval ::athena_test::tests:: {
     } -result {Assertion failed: $info(state) ne "RUNNING"}
 
 
-    test mutate_runpause-1.6 {Sends <State>} -body {
-        ted notifier bind ::sim <State>
+    test mutate_runpause-1.6 {Sends <Status>} -body {
+        ted notifier bind ::sim <Status>
         sim mutate run
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sim <State>}
+        {::sim <Status>}
     }
 
 
@@ -205,15 +205,15 @@ namespace eval ::athena_test::tests:: {
     } -result {PAUSED}
 
 
-    test mutate_runpause-2.2 {Sends <State>} -body {
+    test mutate_runpause-2.2 {Sends <Status>} -body {
         sim mutate run
-        ted notifier bind ::sim <State>
+        ted notifier bind ::sim <Status>
         sim mutate pause
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sim <State>}
+        {::sim <Status>}
     }
 
     
@@ -330,6 +330,7 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

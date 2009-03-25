@@ -122,7 +122,7 @@ snit::widget appwin {
         # NEXT, Prepare to receive notifier events.
         notifier bind ::sim      <Reconfigure>   $self [mymethod Reconfigure]
         notifier bind ::scenario <ScenarioSaved> $self [mymethod Reconfigure]
-        notifier bind ::sim      <State>         $self [mymethod State]
+        notifier bind ::sim      <Status>        $self [mymethod SimStatus]
 
         # NEXT, Prepare to receive window events
         bind $content <<NotebookTabChanged>> [mymethod Reconfigure]
@@ -1044,15 +1044,15 @@ snit::widget appwin {
 
         # NEXT, set the status variables
         $win.toolbar.speed configure -value [sim speed]
-        $self State
+        $self SimStatus
     }
 
-    # State
+    # SimStatus
     #
     # This routine is called when the simulation state has changed
     # in some way.
 
-    method State {} {
+    method SimStatus {} {
         # Display current sim time.
         set info(zulutime) [simclock asZulu]
 

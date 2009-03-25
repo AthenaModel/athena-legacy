@@ -290,7 +290,7 @@ snit::type rel {
 
 order define ::rel RELATIONSHIP:UPDATE {
     title "Update Relationship"
-    options -table gui_rel_nfg -tags nfg
+    options -sendstates PREP -table gui_rel_nfg -tags nfg
 
     parm n    key   "Neighborhood"   -tags nbhood
     parm f    key   "Of Group"       -tags group
@@ -323,7 +323,7 @@ order define ::rel RELATIONSHIP:UPDATE {
 
 order define ::rel RELATIONSHIP:UPDATE:MULTI {
     title "Update Multiple Relationships"
-    options -table gui_rel_nfg
+    options -sendstates PREP -table gui_rel_nfg
 
     parm ids  multi  "IDs"
     parm rel  text   "Relationship"  ;# TBD: Might want -refreshcmd

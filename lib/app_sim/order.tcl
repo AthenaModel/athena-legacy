@@ -136,12 +136,15 @@ snit::type order {
     # initialized:    0 or 1.  Indicates whether "order init" has been
     #                 called or not.
     #
+    # state           Application's current order state.
+    #
     # nullMode:       0 or 1.  While in null mode, the orders don't 
     #                 actually get executed; "order send" returns after 
     #                 saving the parms.
 
     typevariable info -array {
         initialized 0
+        state       ""
         nullMode    0
     }
 
@@ -294,8 +297,9 @@ snit::type order {
         # FIRST, initialize the data values
         set orders(title-$name) ""
         set orders(opts-$name) {
-            -table ""
-            -tags  {}
+            -sendstates {}
+            -table      ""
+            -tags       {}
         }
         set orders(parms-$name) ""
         array unset orders pdict-$name-*
@@ -330,9 +334,10 @@ snit::type order {
 
     # options option...
     #
-    # -table tableName    Name of an RDB table or view associated with 
-    #                     this order.
-    # -tags taglist       Entity tags (requires -table)
+    # -sendstates states      States in which the order can be sent
+    # -table      tableName   Name of an RDB table or view associated with 
+    #                         this order.
+    # -tags       taglist     Entity tags (requires -table)
     #
     # Sets the order's options.
 
@@ -345,8 +350,9 @@ snit::type order {
             set opt [lshift args]
 
             switch -exact -- $opt {
-                -table -
-                -tags  { 
+                -sendstates  -
+                -table       -
+                -tags        { 
                     dict set odict $opt [lshift args] 
                 }
 
@@ -588,6 +594,29 @@ snit::type order {
     #-------------------------------------------------------------------
     # Sending Orders
 
+    # state ?state?
+    #
+    # state    A new order state
+    #
+    # Sets/queries the current order state, which determines which
+    # orders are valid/invalid.  Each order is associated with a list
+    # of states in which is valid, or is valid in all states.  This
+    # module doesn't care what the states are, particularly; it has no
+    # logic associated with specific states.  Thus, the application
+    # can pick whatever states make sense.
+
+    typemethod state {{state ""}} {
+        if {$state ne ""           && 
+            $state ne $info(state)
+        } {
+            set info(state) $state
+            notifier send $type <State> $state
+        }
+
+        return $info(state)
+    }
+
+
     # send interface name parmdict
     # send interface name parm value ?parm value...?
     #
@@ -648,6 +677,22 @@ snit::type order {
         set trans(undo)   {}
 
         if {[catch {
+            # FIRST, check the state
+            set states [$type cget $name -sendstates]
+
+            if {[llength $states] > 0 &&
+                $info(state) ni $states
+            } {
+                
+                reject * "
+                    Simulation state is $info(state), but order is valid
+                    only in these states: [join $states {, }]
+                "
+
+                returnOnError
+            }
+            
+            # NEXT, call the handler
             if {$interface ne "test"} {
                 rdb transaction {
                     $handler($name)
@@ -859,7 +904,7 @@ snit::type order {
     # the error dictionary, and set the trans(level) to REJECT.
 
     proc reject {parm msg} {
-        dict set trans(errors) $parm $msg
+        dict set trans(errors) $parm [normalize $msg]
         set trans(level) REJECT
     }
 

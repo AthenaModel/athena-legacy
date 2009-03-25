@@ -140,8 +140,25 @@ details are as follows:<p>
          <li> Unexpected errors in <b>test</b> orders are simply
               rethrown.<p>
        </ul>
-       
 </ul>
+
+<<subsection "Application States">>
+
+It is common that an order is valid (in principle, not due to its
+parameters) at some times in the application's life time, and not at
+others.  This is handled by the notion of the application's "state".<p>
+
+Each order is associated with a list of the states in which it is
+valid using the <<iref options>> order definition command.
+Then, the application notifies order(sim) of the current
+application state using <<iref order state>>.  If an order is sent
+during a state in which it is invalid, the order is rejected
+immediately.<p>
+
+The application can query both the states associated with an order
+(via <<iref order cget>>) and the current state (via
+<<iref order state>>).  Thus, this can also be used to enable and
+disable GUI controls (e.g., menu items) when the state changes.<p>
 
 <<section COMMANDS>>
 
@@ -157,6 +174,13 @@ used in each order's body.<p>
 The application-level commands are as follows:<p>
 
 <<deflist app>>
+
+<<defitem "order cget" {order cget <i>name</i> ?<i>option</i>...?}>>
+
+By default, returns a dictionary of order options for order
+<i>name</i>;  see <<iref options>> for the options and their meanings.
+If an <i>option</i> name is specified, returns the value of that
+particular option.<p>
 
 <<defitem "order define" {order define <i>module name metadata body</i>}>>
 
@@ -245,12 +269,12 @@ specified <i>interface</i>: <i>gui</i>, <i>sim</i>, or <i>test</i>.
 The order's parameters are specified as one argument, a dictionary, or
 as multiple parameter names and values.<p>
 
-<<defitem "order cget" {order cget <i>name</i> ?<i>option</i>...?}>>
+<<defitem "order state" {order state ?<i>state</i>}>>
 
-By default, returns a dictionary of order options for order
-<i>name</i>;  see <<iref options>> for the options and their meanings.
-If an <i>option</i> name is specified, returns the value of that
-particular option.<p>
+By default, returns the current application state, as known by
+order(sim).  If <i>state</i> is given, sets the application state.
+The application state determines which orders are valid; see
+<<xref Application States>> for more information.<p>
 
 <<defitem "order title" {order title <i>name</i>}>>
 
@@ -276,6 +300,13 @@ Specifies option settings for this particular order.  The available
 options are as follows:<p>
 
 <<deflist options>>
+
+<<defopt {-sendstates <i>states</i>}>>
+
+Specifies a list of application <i>states</i> in which the order is valid.
+If this option is omitted, or <i>states</i> is the empty list, the
+order is presumed to be valid in all states.  See
+<<xref "Application States">> for more information.<p>
 
 <<defopt {-table <i>tableName</i>}>>
 
@@ -550,7 +581,7 @@ by passing it to the specified command.<p>
 
 This command explicitly rejects the order because of an error
 involving the value of parameter <i>parm</i>; the <i>msg</i> details
-the error.<p>
+the error.  The <i>msg</i> text is <<xref marsmisc(n) normalize>>d.<p>
 
 <b>NOTE:</b> Calling <<iref reject>> doesn't terminate the execution
 of the order body; it's common to validate multiple parameters before
@@ -635,6 +666,16 @@ The <i>script</i> can contain any number of commands, of course.<p>
 The <<xref orderdialog(sim)>> sends the <b>&lt;OrderEntry&gt;</b>
 event as though it were from this module, <code>::order</code>.  See
 the <<xref orderdialog(sim)>> man page for details.<p>
+
+In addition, order(sim) sends these events:<p>
+
+<<deflist events>>
+
+<<defitem State {<b>&lt;State&gt;</b> <i>state</i>}>>
+
+This event is sent when the <<iref order state>> changes.<p>
+
+<</deflist events>>
 
 <<section ENVIRONMENT>>
 

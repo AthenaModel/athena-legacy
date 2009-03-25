@@ -64,6 +64,8 @@ snit::type scenario {
     # Creates a new, blank scenario.
 
     typemethod new {} {
+        assert {[sim state] ne "RUNNING"}
+
         # FIRST, initialize the runtime data
         InitializeRuntimeData
 
@@ -88,6 +90,8 @@ snit::type scenario {
     # Opens the specified file name, replacing the existing file.
 
     typemethod open {filename} {
+        assert {[sim state] ne "RUNNING"}
+
         # FIRST, load the file.
         if {[catch {
             rdb load $filename
@@ -131,6 +135,8 @@ snit::type scenario {
     # the save is successful and 0 otherwise.
 
     typemethod save {{filename ""}} {
+        assert {[sim state] ne "RUNNING"}
+
         # FIRST, if filename is not specified, get the dbfile
         if {$filename eq ""} {
             if {$info(dbfile) eq ""} {

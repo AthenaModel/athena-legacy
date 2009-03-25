@@ -93,6 +93,9 @@ snit::type app {
         coop     init
         sim      init
 
+        # NEXT, bind components together
+        notifier bind ::sim <Status> ::order {::order state [::sim state]}
+
         # NEXT, Withdraw the default toplevel window, and create 
         # the main GUI components.
         wm withdraw .

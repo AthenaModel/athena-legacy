@@ -288,6 +288,8 @@ snit::type nbgroup {
 order define ::nbgroup GROUP:NBHOOD:CREATE {
     title "Create Nbhood Group"
 
+    options -sendstates PREP
+
     parm n              enum "Neighborhood"   \
         -type ::nbhood -tags nbhood -refresh
     parm g              enum "Civ Group" \
@@ -332,7 +334,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
 
 order define ::nbgroup GROUP:NBHOOD:DELETE {
     title "Delete Nbhood Group"
-    options -table gui_nbgroups -tags ng
+    options -sendstates PREP -table gui_nbgroups -tags ng
 
     parm n  key  "Neighborhood"  -tags nbhood
     parm g  key  "Civ Group"     -tags group
@@ -387,7 +389,7 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
 
 order define ::nbgroup GROUP:NBHOOD:UPDATE {
     title "Update Nbhood Group"
-    options -table gui_nbgroups -tags ng
+    options -sendstates PREP -table gui_nbgroups -tags ng
 
     parm n              key   "Neighborhood"  -tags nbhood
     parm g              key   "Civ Group"     -tags group
@@ -424,7 +426,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
 
 order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
     title "Update Multiple Nbhood Groups"
-    options -table gui_nbgroups
+    options -sendstates PREP -table gui_nbgroups
 
     parm ids            multi "Groups"
     parm local_name     text  "Local Name"
