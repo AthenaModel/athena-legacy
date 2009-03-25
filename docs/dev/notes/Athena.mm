@@ -58,23 +58,28 @@
 <node CREATED="1237480052010" ID="Freemind_Link_1129765376" MODIFIED="1237480125936" TEXT="Ability to validate orders without executing them"/>
 <node CREATED="1237480092962" FOLDED="true" ID="Freemind_Link_1722894145" MODIFIED="1237480125937" TEXT="Schedule orders ahead of time">
 <arrowlink DESTINATION="Freemind_Link_1129765376" ENDARROW="Default" ENDINCLINATION="93;0;" ID="Freemind_Arrow_Link_906925163" STARTARROW="None" STARTINCLINATION="93;0;"/>
-<node CREATED="1237571826655" FOLDED="true" ID="Freemind_Link_358553126" MODIFIED="1237571830584" TEXT="SIM:SCHEDULE">
-<node CREATED="1237571831262" FOLDED="true" ID="Freemind_Link_691473547" MODIFIED="1237571836200" TEXT="Schedules another order">
-<node CREATED="1237571798062" ID="Freemind_Link_1698334970" MODIFIED="1237571803384" TEXT="This is undoable and cif&apos;d"/>
-</node>
+<node CREATED="1237571826655" ID="Freemind_Link_358553126" MODIFIED="1237994632175" TEXT="&quot;order schedule&quot; command">
+<node CREATED="1237571831262" ID="Freemind_Link_691473547" MODIFIED="1237571836200" TEXT="Schedules another order"/>
+<node CREATED="1237994657557" ID="Freemind_Link_1225659272" MODIFIED="1237994673855" TEXT="CIF&apos;d as ORDER:SCHEDULE pseudo-order">
 <node CREATED="1237571837118" ID="Freemind_Link_1205931009" MODIFIED="1237907725207" TEXT="No explicit dialog for this order"/>
-<node CREATED="1237571861758" ID="Freemind_Link_1495751002" MODIFIED="1237907750119" TEXT="Orders valid in RUNNING can be scheduled"/>
-<node CREATED="1237571868509" ID="Freemind_Link_351266681" MODIFIED="1237571875304" TEXT="Undone by cancelling scheduled order"/>
-<node CREATED="1237571660719" FOLDED="true" ID="Freemind_Link_1311718344" MODIFIED="1237571813596" TEXT="Orders run by scheduled events" VSHIFT="-6">
-<node CREATED="1237571721677" ID="Freemind_Link_402714946" MODIFIED="1237571728024" TEXT="Run by &quot;sim&quot;, not &quot;gui&quot;"/>
-<node CREATED="1237571728750" ID="Freemind_Link_203596528" MODIFIED="1237571732296" TEXT="Not put in CIF"/>
-<node CREATED="1237571732717" ID="Freemind_Link_739438388" MODIFIED="1237571735784" TEXT="Not undoable"/>
+<node CREATED="1237994680548" ID="Freemind_Link_1360872238" MODIFIED="1237994683823" TEXT="Can be undone"/>
 </node>
+<node CREATED="1237571868509" ID="Freemind_Link_351266681" MODIFIED="1237571875304" TEXT="Undone by cancelling scheduled order"/>
 <node CREATED="1237482622421" FOLDED="true" ID="Freemind_Link_144828260" MODIFIED="1237482629632" TEXT="eventq">
 <node CREATED="1237564183614" ID="Freemind_Link_1439004237" MODIFIED="1237564192023" TEXT="Event: scheduled order"/>
 <node CREATED="1237482707941" ID="Freemind_Link_316875113" MODIFIED="1237482711247" TEXT="Queue browser"/>
 <node CREATED="1237482851061" ID="Freemind_Link_1152163067" MODIFIED="1237482874725" TEXT="Event priorities?"/>
 </node>
+</node>
+<node CREATED="1237571660719" ID="Freemind_Link_1311718344" MODIFIED="1237571813596" TEXT="Orders run by scheduled events" VSHIFT="-6">
+<node CREATED="1237571721677" ID="Freemind_Link_402714946" MODIFIED="1237571728024" TEXT="Run by &quot;sim&quot;, not &quot;gui&quot;"/>
+<node CREATED="1237571728750" ID="Freemind_Link_203596528" MODIFIED="1237571732296" TEXT="Not put in CIF"/>
+<node CREATED="1237571732717" ID="Freemind_Link_739438388" MODIFIED="1237571735784" TEXT="Not undoable"/>
+</node>
+<node CREATED="1237994749045" ID="Freemind_Link_137028882" MODIFIED="1237994796554" TEXT="No SIM:SCHEDULE order">
+<icon BUILTIN="flag"/>
+<node CREATED="1237994759220" ID="Freemind_Link_884689448" MODIFIED="1237994787918" TEXT="&quot;order schedule&quot; must validate order states"/>
+<node CREATED="1237994788501" ID="Freemind_Link_481627364" MODIFIED="1237994793104" TEXT="That&apos;s a framework issue."/>
 </node>
 </node>
 <node CREATED="1237477120338" ID="Freemind_Link_191938982" MODIFIED="1237477220978" TEXT="Merge cif(sim) into order(sim) as &quot;order history&quot;"/>
@@ -145,6 +150,14 @@
 <node CREATED="1237588201262" ID="Freemind_Link_222069803" MODIFIED="1237588224100" TEXT="File/Open, etc., should be disabled when RUNNING">
 <icon BUILTIN="messagebox_warning"/>
 </node>
+<node CREATED="1237935555280" FOLDED="true" ID="Freemind_Link_695028490" MODIFIED="1237935589114" TEXT="Snapshot browser/loader">
+<node CREATED="1237994176614" ID="Freemind_Link_343371493" MODIFIED="1237994196064" TEXT="Controls: first, previous, next, last"/>
+<node CREATED="1237994196662" ID="Freemind_Link_122266377" MODIFIED="1237994205824" TEXT="&quot;First&quot; control replaces &quot;restart&quot;"/>
+<node CREATED="1237994206534" ID="Freemind_Link_1540265172" MODIFIED="1237994232880" TEXT="Use iPod icons: double triangles, with a vertical line for first and last"/>
+<node CREATED="1237994233798" ID="Freemind_Link_1620821104" MODIFIED="1237994261888" TEXT="Tool tip should indicate the sim time of the checkpoint to load"/>
+<node CREATED="1237994262438" ID="Freemind_Link_1024035268" MODIFIED="1237994283776" TEXT="Moving backwards should save a checkpoint if there isn&apos;t one."/>
+<node CREATED="1237994284725" ID="Freemind_Link_128499237" MODIFIED="1237994321663" TEXT="Pressing run should be confirmed if future checkpoints would be purged."/>
+</node>
 <node CREATED="1237488295816" FOLDED="true" ID="Freemind_Link_1208739900" MODIFIED="1237495169282" TEXT="zulufield(n) widget">
 <node CREATED="1237560838308" ID="Freemind_Link_7202440" MODIFIED="1237560850862" TEXT="-increment set by simclock&apos;s tick size"/>
 <node CREATED="1237918381064" ID="Freemind_Link_274696888" MODIFIED="1237918408034" TEXT="Make -changecmd work properly"/>
@@ -178,6 +191,11 @@
 <node CREATED="1237481293089" ID="Freemind_Link_348314360" MODIFIED="1237481307013" TEXT="One browser could browse several subsets, given different views"/>
 <node CREATED="1237481308697" ID="Freemind_Link_38947399" MODIFIED="1237481318813" TEXT="Perhaps, browser gets list of views"/>
 <node CREATED="1237481319513" ID="Freemind_Link_1805553183" MODIFIED="1237481325621" TEXT="User can switch between views"/>
+</node>
+<node CREATED="1237935592833" FOLDED="true" ID="Freemind_Link_115718094" MODIFIED="1237935621398" TEXT="Order/ability to save explicit checkpoint">
+<icon BUILTIN="help"/>
+<node CREATED="1237935623632" ID="Freemind_Link_1015974023" MODIFIED="1237935628332" TEXT="Why would this be useful?"/>
+<node CREATED="1237935632528" ID="Freemind_Link_1714148047" MODIFIED="1237935637098" TEXT="Possibly as a scheduled order."/>
 </node>
 <node CREATED="1237481060666" ID="Freemind_Link_236045392" MODIFIED="1237481071958" TEXT="Wizard infrastructure">
 <icon BUILTIN="help"/>
