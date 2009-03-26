@@ -424,7 +424,7 @@ snit::type scenario {
     typemethod SaveSaveables {{option ""}} {
         foreach saveable $info(saveables) {
             # Forget and skip saveables that no longer exist
-            if {[llength [info commands $saveable]] == 0} {
+            if {[llength [info commands [lindex $saveable 0]]] == 0} {
                 ldelete info(saveables) $saveable
                 continue
             }
@@ -448,7 +448,7 @@ snit::type scenario {
         rdb eval {
             SELECT saveable,checkpoint FROM saveables
         } {
-            if {[llength [info commands $saveable]] != 0} {
+            if {[llength [info commands [lindex $saveable 0]]] != 0} {
                 {*}$saveable restore $checkpoint $option
             } else {
                 log warning scenario \

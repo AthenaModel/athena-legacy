@@ -39,11 +39,20 @@
 <node CREATED="1237477378229" ID="Freemind_Link_527719459" MODIFIED="1238003858401" TEXT="Enable/disable orders based on simulation state">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1237479698478" ID="Freemind_Link_1365670694" MODIFIED="1238100325978" TEXT="Bug 1963: Enable/Disable order controls automatically">
+<node CREATED="1237479698478" ID="Freemind_Link_1365670694" MODIFIED="1238104974257" TEXT="Bug 1963">
 <edge WIDTH="thin"/>
 <arrowlink DESTINATION="Freemind_Link_527719459" ENDARROW="Default" ENDINCLINATION="166;0;" ID="Freemind_Arrow_Link_414537259" STARTARROW="None" STARTINCLINATION="166;0;"/>
 <font NAME="SansSerif" SIZE="12"/>
 <icon BUILTIN="button_ok"/>
+<node CREATED="1237479698478" ID="Freemind_Link_92668086" MODIFIED="1238104981809" TEXT="Enable/Disable order controls automatically">
+<edge WIDTH="thin"/>
+<arrowlink DESTINATION="Freemind_Link_527719459" ENDARROW="Default" ENDINCLINATION="166;0;" ID="Freemind_Arrow_Link_1935046911" STARTARROW="None" STARTINCLINATION="166;0;"/>
+<font NAME="SansSerif" SIZE="12"/>
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1237588201262" ID="Freemind_Link_222069803" MODIFIED="1238104951277" TEXT="File/Open, etc., should be disabled when RUNNING">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 </node>
 <node CREATED="1237475139158" ID="_" MODIFIED="1237477117490" POSITION="right" TEXT="Order">
@@ -89,9 +98,6 @@
 <node CREATED="1237481133242" ID="Freemind_Link_1851551577" MODIFIED="1237481149014" TEXT="Abstract order(sim) into order(n)"/>
 </node>
 <node CREATED="1237477511538" ID="Freemind_Link_894463638" MODIFIED="1237477524514" POSITION="right" TEXT="Scenario">
-<node CREATED="1237477546722" ID="Freemind_Link_815759729" MODIFIED="1237477568182" TEXT="CIV group units">
-<icon BUILTIN="help"/>
-</node>
 <node CREATED="1237477586106" FOLDED="true" ID="Freemind_Link_516563511" MODIFIED="1237477603190" TEXT="Must rel=1.0 when f=g">
 <icon BUILTIN="help"/>
 <node CREATED="1237477606906" ID="Freemind_Link_1462718131" MODIFIED="1237477628037" TEXT="If so, I need to update the RELATIONSHIP:* orders"/>
@@ -104,7 +110,11 @@
 <node CREATED="1237480977571" FOLDED="true" ID="Freemind_Link_590980119" MODIFIED="1237480983314" TEXT="MAP:EXPORT">
 <node CREATED="1237480984002" ID="Freemind_Link_151089338" MODIFIED="1237480998630" TEXT="Exports the current map background as an image file"/>
 </node>
-<node CREATED="1237482120338" FOLDED="true" ID="Freemind_Link_1183885189" MODIFIED="1237482137495" TEXT="Orders to rename entities">
+<node CREATED="1237477546722" ID="Freemind_Link_815759729" MODIFIED="1237477568182" TEXT="CIV group units">
+<icon BUILTIN="help"/>
+</node>
+<node CREATED="1237482120338" FOLDED="true" ID="Freemind_Link_1183885189" MODIFIED="1238104926493" TEXT="Orders to rename entities">
+<icon BUILTIN="help"/>
 <node CREATED="1237482138802" ID="Freemind_Link_1495570394" MODIFIED="1237482143838" TEXT="Useful; can of worms."/>
 </node>
 </node>
@@ -148,9 +158,6 @@
 </node>
 </node>
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
-<node CREATED="1237588201262" ID="Freemind_Link_222069803" MODIFIED="1237588224100" TEXT="File/Open, etc., should be disabled when RUNNING">
-<icon BUILTIN="messagebox_warning"/>
-</node>
 <node CREATED="1237935555280" FOLDED="true" ID="Freemind_Link_695028490" MODIFIED="1238017834278" TEXT="Snapshot browser/loader">
 <arrowlink DESTINATION="Freemind_Link_1054409835" ENDARROW="Default" ENDINCLINATION="378;0;" ID="Freemind_Arrow_Link_254679226" STARTARROW="None" STARTINCLINATION="378;0;"/>
 <node CREATED="1237994176614" ID="Freemind_Link_343371493" MODIFIED="1237994196064" TEXT="Controls: first, previous, next, last"/>
