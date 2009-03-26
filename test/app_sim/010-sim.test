@@ -286,7 +286,7 @@ namespace eval ::athena_test::tests:: {
         sim mutate run
         simclock advance 5
         sim mutate pause
-        ted order SIM:STARTDATE startdate 240000ZMAR09
+        sim mutate startdate 240000ZMAR09
         # TBD: Should schedule something in the event queue
     } -body {
         sim restart -noconfirm
@@ -308,7 +308,7 @@ namespace eval ::athena_test::tests:: {
         sim mutate run
         simclock advance 5
         sim mutate pause
-        ted order SIM:STARTDATE startdate 240000ZMAR09
+        sim mutate startdate 240000ZMAR09
         # TBD: Should schedule something in the event queue
     } -body {
         sim new
