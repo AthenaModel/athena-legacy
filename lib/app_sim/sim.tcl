@@ -390,6 +390,7 @@ snit::type sim {
         # TBD: Put the <Status> event and log message in -advancecmd?
         simclock tick
 
+        notifier send $type <Tick>
         notifier send $type <Status>
         log normal sim "Tick [simclock now]"
         set info(changed) 1

@@ -1,60 +1,6 @@
 <map version="0.8.1">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
-<node CREATED="1237934628643" ID="Freemind_Link_276542603" MODIFIED="1237934645816" POSITION="right" TEXT="Done">
-<icon BUILTIN="button_ok"/>
-<node CREATED="1237477459286" FOLDED="true" ID="Freemind_Link_860445490" MODIFIED="1237918566061" TEXT="Allow simtime to advance">
-<icon BUILTIN="button_ok"/>
-<node CREATED="1237479644159" FOLDED="true" ID="Freemind_Link_1989940868" MODIFIED="1237479651010" TEXT="Simulation State">
-<node CREATED="1237479651814" ID="Freemind_Link_1441941516" MODIFIED="1237479657082" TEXT="PREP"/>
-<node CREATED="1237479657678" ID="Freemind_Link_1705099136" MODIFIED="1237479660450" TEXT="RUNNING"/>
-<node CREATED="1237479661110" ID="Freemind_Link_1694836583" MODIFIED="1237479663634" TEXT="PAUSED"/>
-</node>
-</node>
-<node CREATED="1237480079146" ID="Freemind_Link_1971828045" MODIFIED="1237585969712" TEXT="Support eventq events">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1237823234872" FOLDED="true" ID="Freemind_Link_1459784431" MODIFIED="1237934610816" TEXT="Auto-snapshots">
-<icon BUILTIN="button_ok"/>
-<node CREATED="1237564822348" ID="Freemind_Link_1094167895" MODIFIED="1237934572300" TEXT="SIM:RUN saves snapshott before transition"/>
-<node CREATED="1237823265751" ID="Freemind_Link_407919202" MODIFIED="1237934579811" TEXT="App manages set of snapshots during session"/>
-<node CREATED="1237829994090" ID="Freemind_Link_1764789611" MODIFIED="1237934595948" TEXT="User can return to old snapshot"/>
-<node CREATED="1237823273480" FOLDED="true" ID="Freemind_Link_1214250639" MODIFIED="1237823302545" TEXT="saveables(i) Change">
-<node CREATED="1237830033193" ID="Freemind_Link_355979907" MODIFIED="1237830047443" TEXT="At present, saveables assume that &quot;checkpoint&quot; means they have been saved."/>
-<node CREATED="1237823316552" ID="Freemind_Link_1633805485" MODIFIED="1237823354614" TEXT="Must be able to call saveable&apos;s &quot;checkpoint&quot; method&#xa;without setting the object&apos;s &quot;saved&quot; flag, e.g.,&#xa;&quot;$object checkpoint -notsaved&quot;"/>
-</node>
-<node CREATED="1237830058698" FOLDED="true" ID="Freemind_Link_1660914597" MODIFIED="1237934605708" TEXT="Include snapshots in RDB, ADB">
-<node CREATED="1237830107610" ID="Freemind_Link_1797755349" MODIFIED="1237830118739" TEXT="Rename &quot;checkpoints&quot; table to &quot;saveables&quot;"/>
-<node CREATED="1237830119434" ID="Freemind_Link_1657153926" MODIFIED="1237830128723" TEXT="Store checkpoints in &quot;checkpoints&quot; table"/>
-<node CREATED="1237830129242" FOLDED="true" ID="Freemind_Link_1826040449" MODIFIED="1237830145652" TEXT="To save a checkpoint">
-<node CREATED="1237830146106" ID="Freemind_Link_880660979" MODIFIED="1237830151395" TEXT="Save working data as XML"/>
-<node CREATED="1237830152058" ID="Freemind_Link_243868175" MODIFIED="1237830174691" TEXT="Exclude the maps and checkpoints tables"/>
-</node>
-<node CREATED="1237830186136" FOLDED="true" ID="Freemind_Link_258901333" MODIFIED="1237830190003" TEXT="To restore a checkpoint">
-<node CREATED="1237830190744" ID="Freemind_Link_1078181867" MODIFIED="1237830202115" TEXT="Reload the XML for the checkpoint"/>
-<node CREATED="1237830202729" ID="Freemind_Link_1109472895" MODIFIED="1237830213155" TEXT="Will replace contents of all tables included in the XML."/>
-</node>
-</node>
-</node>
-<node CREATED="1237477378229" ID="Freemind_Link_527719459" MODIFIED="1238003858401" TEXT="Enable/disable orders based on simulation state">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1237479698478" ID="Freemind_Link_1365670694" MODIFIED="1238104974257" TEXT="Bug 1963">
-<edge WIDTH="thin"/>
-<arrowlink DESTINATION="Freemind_Link_527719459" ENDARROW="Default" ENDINCLINATION="166;0;" ID="Freemind_Arrow_Link_414537259" STARTARROW="None" STARTINCLINATION="166;0;"/>
-<font NAME="SansSerif" SIZE="12"/>
-<icon BUILTIN="button_ok"/>
-<node CREATED="1237479698478" ID="Freemind_Link_92668086" MODIFIED="1238104981809" TEXT="Enable/Disable order controls automatically">
-<edge WIDTH="thin"/>
-<arrowlink DESTINATION="Freemind_Link_527719459" ENDARROW="Default" ENDINCLINATION="166;0;" ID="Freemind_Arrow_Link_1935046911" STARTARROW="None" STARTINCLINATION="166;0;"/>
-<font NAME="SansSerif" SIZE="12"/>
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1237588201262" ID="Freemind_Link_222069803" MODIFIED="1238104951277" TEXT="File/Open, etc., should be disabled when RUNNING">
-<icon BUILTIN="button_ok"/>
-</node>
-</node>
-</node>
 <node CREATED="1237475139158" ID="_" MODIFIED="1237477117490" POSITION="right" TEXT="Order">
 <node CREATED="1237571987086" ID="Freemind_Link_33041850" MODIFIED="1238003829181" TEXT="Undo info should be cleared at each tick."/>
 <node CREATED="1237480052010" ID="Freemind_Link_1129765376" MODIFIED="1237480125936" TEXT="Ability to validate orders without executing them"/>
@@ -119,7 +65,16 @@
 </node>
 </node>
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1238015584936" FOLDED="true" ID="Freemind_Link_1054409835" MODIFIED="1238017834278" TEXT="WAYBACK state">
+<node CREATED="1238107709026" ID="Freemind_Link_1212395686" MODIFIED="1238107720060" TEXT="Simulation &quot;states&quot; should be &quot;modes&quot; instead"/>
+<node CREATED="1238107725235" ID="Freemind_Link_260363276" MODIFIED="1238107739214" TEXT="Replace ::sim &lt;Status&gt;">
+<node CREATED="1238107798339" ID="Freemind_Link_1365021836" MODIFIED="1238107800300" TEXT="New Events">
+<node CREATED="1238107739698" ID="Freemind_Link_437840786" MODIFIED="1238107745596" TEXT="&lt;Tick&gt;"/>
+<node CREATED="1238107746179" ID="Freemind_Link_1624909068" MODIFIED="1238107749756" TEXT="&lt;Mode&gt;"/>
+<node CREATED="1238107788002" ID="Freemind_Link_409425418" MODIFIED="1238107790380" TEXT="&lt;Speed&gt;"/>
+</node>
+<node CREATED="1238107804754" ID="Freemind_Link_1786540087" MODIFIED="1238107814748" TEXT="appwin can subscribe one handler to all three"/>
+</node>
+<node CREATED="1238015584936" FOLDED="true" ID="Freemind_Link_1054409835" MODIFIED="1238107703158" TEXT="WAYBACK mode">
 <node CREATED="1238015589208" ID="Freemind_Link_1081765451" MODIFIED="1238015601106" TEXT="Enter WAYBACK state when loading prior snapshot"/>
 <node CREATED="1238015602360" ID="Freemind_Link_1868904837" MODIFIED="1238015609218" TEXT="In WAYBACK, most orders are disabled"/>
 <node CREATED="1238015621352" ID="Freemind_Link_1434476628" MODIFIED="1238015631410" TEXT="Leave WAYBACK automatically on return to final snapshot"/>
@@ -158,8 +113,8 @@
 </node>
 </node>
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
-<node CREATED="1237935555280" FOLDED="true" ID="Freemind_Link_695028490" MODIFIED="1238017834278" TEXT="Snapshot browser/loader">
-<arrowlink DESTINATION="Freemind_Link_1054409835" ENDARROW="Default" ENDINCLINATION="378;0;" ID="Freemind_Arrow_Link_254679226" STARTARROW="None" STARTINCLINATION="378;0;"/>
+<node CREATED="1237935555280" FOLDED="true" ID="Freemind_Link_695028490" MODIFIED="1238106346211" TEXT="Snapshot browser/loader">
+<arrowlink DESTINATION="Freemind_Link_1054409835" ENDARROW="Default" ENDINCLINATION="215;0;" ID="Freemind_Arrow_Link_254679226" STARTARROW="None" STARTINCLINATION="529;0;"/>
 <node CREATED="1237994176614" ID="Freemind_Link_343371493" MODIFIED="1237994196064" TEXT="Controls: first, previous, next, last"/>
 <node CREATED="1237994196662" ID="Freemind_Link_122266377" MODIFIED="1237994205824" TEXT="&quot;First&quot; control replaces &quot;restart&quot;"/>
 <node CREATED="1237994206534" ID="Freemind_Link_1540265172" MODIFIED="1237994232880" TEXT="Use iPod icons: double triangles, with a vertical line for first and last"/>
@@ -319,6 +274,69 @@
 <node CREATED="1237480512322" ID="Freemind_Link_1356756808" MODIFIED="1237480517069" TEXT="Move from JNEM to Mars."/>
 <node CREATED="1237480517906" ID="Freemind_Link_1655161326" MODIFIED="1237480519237" TEXT="Update"/>
 <node CREATED="1237480520129" ID="Freemind_Link_656371050" MODIFIED="1237480523168" TEXT="Reference in Athena"/>
+</node>
+</node>
+<node CREATED="1237934628643" FOLDED="true" ID="Freemind_Link_276542603" MODIFIED="1237934645816" POSITION="left" TEXT="Done">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238105059255" ID="Freemind_Link_1270491565" MODIFIED="1238105072101" TEXT="Bug 1958">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237477459286" FOLDED="true" ID="Freemind_Link_860445490" MODIFIED="1237918566061" TEXT="Allow simtime to advance">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237479644159" FOLDED="true" ID="Freemind_Link_1989940868" MODIFIED="1237479651010" TEXT="Simulation State">
+<node CREATED="1237479651814" ID="Freemind_Link_1441941516" MODIFIED="1237479657082" TEXT="PREP"/>
+<node CREATED="1237479657678" ID="Freemind_Link_1705099136" MODIFIED="1237479660450" TEXT="RUNNING"/>
+<node CREATED="1237479661110" ID="Freemind_Link_1694836583" MODIFIED="1237479663634" TEXT="PAUSED"/>
+</node>
+</node>
+<node CREATED="1237480079146" ID="Freemind_Link_1971828045" MODIFIED="1237585969712" TEXT="Support eventq events">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1238105040439" ID="Freemind_Link_397054523" MODIFIED="1238105050189" TEXT="Bug 1961">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237823234872" FOLDED="true" ID="Freemind_Link_1459784431" MODIFIED="1237934610816" TEXT="Auto-snapshots">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237564822348" ID="Freemind_Link_1094167895" MODIFIED="1237934572300" TEXT="SIM:RUN saves snapshott before transition"/>
+<node CREATED="1237823265751" ID="Freemind_Link_407919202" MODIFIED="1237934579811" TEXT="App manages set of snapshots during session"/>
+<node CREATED="1237829994090" ID="Freemind_Link_1764789611" MODIFIED="1237934595948" TEXT="User can return to old snapshot"/>
+<node CREATED="1237823273480" FOLDED="true" ID="Freemind_Link_1214250639" MODIFIED="1237823302545" TEXT="saveables(i) Change">
+<node CREATED="1237830033193" ID="Freemind_Link_355979907" MODIFIED="1237830047443" TEXT="At present, saveables assume that &quot;checkpoint&quot; means they have been saved."/>
+<node CREATED="1237823316552" ID="Freemind_Link_1633805485" MODIFIED="1237823354614" TEXT="Must be able to call saveable&apos;s &quot;checkpoint&quot; method&#xa;without setting the object&apos;s &quot;saved&quot; flag, e.g.,&#xa;&quot;$object checkpoint -notsaved&quot;"/>
+</node>
+<node CREATED="1237830058698" FOLDED="true" ID="Freemind_Link_1660914597" MODIFIED="1237934605708" TEXT="Include snapshots in RDB, ADB">
+<node CREATED="1237830107610" ID="Freemind_Link_1797755349" MODIFIED="1237830118739" TEXT="Rename &quot;checkpoints&quot; table to &quot;saveables&quot;"/>
+<node CREATED="1237830119434" ID="Freemind_Link_1657153926" MODIFIED="1237830128723" TEXT="Store checkpoints in &quot;checkpoints&quot; table"/>
+<node CREATED="1237830129242" FOLDED="true" ID="Freemind_Link_1826040449" MODIFIED="1237830145652" TEXT="To save a checkpoint">
+<node CREATED="1237830146106" ID="Freemind_Link_880660979" MODIFIED="1237830151395" TEXT="Save working data as XML"/>
+<node CREATED="1237830152058" ID="Freemind_Link_243868175" MODIFIED="1237830174691" TEXT="Exclude the maps and checkpoints tables"/>
+</node>
+<node CREATED="1237830186136" FOLDED="true" ID="Freemind_Link_258901333" MODIFIED="1237830190003" TEXT="To restore a checkpoint">
+<node CREATED="1237830190744" ID="Freemind_Link_1078181867" MODIFIED="1237830202115" TEXT="Reload the XML for the checkpoint"/>
+<node CREATED="1237830202729" ID="Freemind_Link_1109472895" MODIFIED="1237830213155" TEXT="Will replace contents of all tables included in the XML."/>
+</node>
+</node>
+</node>
+</node>
+<node CREATED="1238105021367" ID="Freemind_Link_135593121" MODIFIED="1238105031997" TEXT="Bug 1962">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237477378229" ID="Freemind_Link_527719459" MODIFIED="1238003858401" TEXT="Enable/disable orders based on simulation state">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1237479698478" ID="Freemind_Link_1365670694" MODIFIED="1238104974257" TEXT="Bug 1963">
+<edge WIDTH="thin"/>
+<arrowlink DESTINATION="Freemind_Link_527719459" ENDARROW="Default" ENDINCLINATION="166;0;" ID="Freemind_Arrow_Link_358621600" STARTARROW="None" STARTINCLINATION="166;0;"/>
+<font NAME="SansSerif" SIZE="12"/>
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237479698478" ID="Freemind_Link_92668086" MODIFIED="1238104981809" TEXT="Enable/Disable order controls automatically">
+<edge WIDTH="thin"/>
+<arrowlink DESTINATION="Freemind_Link_527719459" ENDARROW="Default" ENDINCLINATION="166;0;" ID="Freemind_Arrow_Link_152220553" STARTARROW="None" STARTINCLINATION="166;0;"/>
+<font NAME="SansSerif" SIZE="12"/>
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1237588201262" ID="Freemind_Link_222069803" MODIFIED="1238104951277" TEXT="File/Open, etc., should be disabled when RUNNING">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 </node>
 </node>

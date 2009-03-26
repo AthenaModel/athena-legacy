@@ -37,6 +37,7 @@ snit::type cif {
     typemethod init {} {
         # FIRST, prepare to receive events
         notifier bind ::scenario <Saving> $type [mytypemethod ClearUndo]
+        notifier bind ::sim      <Tick>   $type [mytypemethod ClearUndo]
 
         # NEXT, log that we're saved.
         log detail cif "Initialized"
