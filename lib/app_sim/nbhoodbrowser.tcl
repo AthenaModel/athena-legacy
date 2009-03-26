@@ -139,6 +139,13 @@ snit::widget nbhoodbrowser {
 
         DynamicHelp::add $editbtn -text "Edit Selected Neighborhood"
 
+        # Assumes that *:UPDATE and *:UPDATE:MULTI always have the
+        # the same validity.
+        cond::orderIsValidMulti control $editbtn \
+            order   NBHOOD:UPDATE                \
+            browser $win
+
+
         install raisebtn using button $bar.raise  \
             -image      ${type}::icon::raise      \
             -relief     flat                      \
@@ -147,6 +154,11 @@ snit::widget nbhoodbrowser {
             -command    [mymethod RaiseSelected]
 
         DynamicHelp::add $raisebtn -text "Bring Neighborhood to Front"
+
+        cond::orderIsValidSingle control $raisebtn \
+            order   NBHOOD:RAISE                   \
+            browser $win
+
 
         install lowerbtn using button $bar.lower  \
             -image      ${type}::icon::lower      \
@@ -157,6 +169,11 @@ snit::widget nbhoodbrowser {
 
         DynamicHelp::add $lowerbtn -text "Send Neighborhood to Back"
 
+        cond::orderIsValidSingle control $lowerbtn \
+            order   NBHOOD:LOWER                   \
+            browser $win
+
+
         install deletebtn using button $bar.delete \
             -image      ::projectgui::icon::x22        \
             -relief     flat                       \
@@ -165,6 +182,11 @@ snit::widget nbhoodbrowser {
             -command    [mymethod DeleteSelected]
 
         DynamicHelp::add $deletebtn -text "Delete Selected Neighborhood"
+
+        cond::orderIsValidSingle control $deletebtn \
+            order   NBHOOD:DELETE                   \
+            browser $win
+
         
         pack $editbtn   -side left
         pack $raisebtn  -side left
@@ -355,28 +377,12 @@ snit::widget nbhoodbrowser {
     # and notifies the app of the selection change.
 
     method SelectionChanged {} {
-        # FIRST, get the number of selected nbhoods
-        set num [llength [$tb curselection]]
-
-        # NEXT, update the toolbar buttons
-        if {$num > 0} {
-            $editbtn    configure -state normal
-        } else {
-            $editbtn    configure -state disabled
-        }
-
-        if {$num == 1} {
-            $raisebtn   configure -state normal
-            $lowerbtn   configure -state normal
-            $deletebtn  configure -state normal
-        } else {
-            $raisebtn   configure -state disabled
-            $lowerbtn   configure -state disabled
-            $deletebtn  configure -state disabled
-        }
+        # FIRST, update buttons
+        cond::orderIsValidSingle update [list $deletebtn $lowerbtn $raisebtn]
+        cond::orderIsValidMulti  update $editbtn
 
         # NEXT, notify the app of the selection.
-        if {$num == 1} {
+        if {[llength [$tb curselection]] == 1} {
             set n [lindex [$tb curselection] 0]
 
             notifier send ::app <ObjectSelect> \

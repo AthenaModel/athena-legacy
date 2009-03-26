@@ -68,32 +68,46 @@ snit::widget nbgroupbrowser {
         install bar using frame $tb.toolbar \
             -relief flat
 
-        install addbtn using button $bar.add   \
+        install addbtn using button $bar.add       \
             -image      ::projectgui::icon::plus22 \
-            -relief     flat                   \
-            -overrelief raised                 \
-            -state      normal                 \
+            -relief     flat                       \
+            -overrelief raised                     \
+            -state      normal                     \
             -command    [mymethod AddGroup]
 
         DynamicHelp::add $addbtn -text "Add Nbhood Group"
 
-        install editbtn using button $bar.edit   \
+        cond::orderIsValid control $addbtn \
+            order GROUP:NBHOOD:CREATE
+
+
+        install editbtn using button $bar.edit       \
             -image      ::projectgui::icon::pencil22 \
-            -relief     flat                     \
-            -overrelief raised                   \
-            -state      disabled                 \
+            -relief     flat                         \
+            -overrelief raised                       \
+            -state      disabled                     \
             -command    [mymethod EditSelected]
 
         DynamicHelp::add $editbtn -text "Edit Selected Group"
 
+        cond::orderIsValidMulti control $editbtn \
+            order   GROUP:NBHOOD:UPDATE          \
+            browser $win
+
+
         install deletebtn using button $bar.delete \
-            -image      ::projectgui::icon::x22        \
+            -image      ::projectgui::icon::x22    \
             -relief     flat                       \
             -overrelief raised                     \
             -state      disabled                   \
             -command    [mymethod DeleteSelected]
 
         DynamicHelp::add $deletebtn -text "Delete Selected Group"
+
+        cond::orderIsValidSingle control $deletebtn \
+            order   GROUP:NBHOOD:DELETE             \
+            browser $win
+
         
         pack $addbtn    -side left
         pack $editbtn   -side left
@@ -269,24 +283,12 @@ snit::widget nbgroupbrowser {
     # and notifies the app of the selection change.
 
     method SelectionChanged {} {
-        # FIRST, get the number of selected groups
-        set num [llength [$tb curselection]]
-
-        # NEXT, update the toolbar buttons
-        if {$num > 0} {
-            $editbtn    configure -state normal
-        } else {
-            $editbtn    configure -state disabled
-        }
-
-        if {$num == 1} {
-            $deletebtn  configure -state normal
-        } else {
-            $deletebtn  configure -state disabled
-        }
+        # FIRST, update buttons
+        cond::orderIsValidSingle update $deletebtn
+        cond::orderIsValidMulti  update $editbtn
 
         # NEXT, notify the app of the selection.
-        if {$num == 1} {
+        if {[llength [$tb curselection]] == 1} {
             set id [lindex [$tb curselection] 0]
             lassign $id n g
 

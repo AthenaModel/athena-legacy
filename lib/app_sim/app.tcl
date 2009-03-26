@@ -96,6 +96,55 @@ snit::type app {
         # NEXT, bind components together
         notifier bind ::sim <Status> ::order {::order state [::sim state]}
 
+        # NEXT, define global conditions
+        namespace eval ::cond { }
+
+        # Simulation state is not RUNNING.
+
+        statecontroller ::cond::simNotRunning -events {
+            ::order <State>
+        } -condition {
+            [::sim state] ne "RUNNING"
+        }
+
+        # Order is valid.
+        #
+        # Objdict:   order   THE:ORDER:NAME
+
+        statecontroller ::cond::orderIsValid -events {
+            ::order <State>
+        } -condition {
+            [::order isvalid $order]
+        }
+
+        # Order is valid, one browser entry is selected.  The
+        # browser should call update for its widgets.
+        #
+        # Objdict:   order     THE:ORDER:NAME
+        #            browser   The browser window
+
+        statecontroller ::cond::orderIsValidSingle -events {
+            ::order <State>
+        } -condition {
+            [::order isvalid $order]                &&
+            [llength [$browser curselection]] == 1
+        }
+
+        # Order is valid, one or more browser entries are selected.  The
+        # browser should call update for its widgets.
+        #
+        # Objdict:   order     THE:ORDER:NAME
+        #            browser   The browser window
+
+        statecontroller ::cond::orderIsValidMulti -events {
+            ::order <State>
+        } -condition {
+            [::order isvalid $order]              &&
+            [llength [$browser curselection]] > 0
+        }
+
+
+
         # NEXT, Withdraw the default toplevel window, and create 
         # the main GUI components.
         wm withdraw .

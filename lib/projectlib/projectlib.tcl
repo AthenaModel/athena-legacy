@@ -50,12 +50,12 @@ if {[file exists $binlib]} {
 #-----------------------------------------------------------------------
 # Load projectlib(n) submodules
 
-source [file join $::projectlib::library projtypes.tcl  ]
-source [file join $::projectlib::library mapref.tcl     ]
-source [file join $::projectlib::library scenariodb.tcl ]
-source [file join $::projectlib::library workdir.tcl    ]
-source [file join $::projectlib::library verman.tcl     ]
-
+source [file join $::projectlib::library projtypes.tcl      ]
+source [file join $::projectlib::library mapref.tcl         ]
+source [file join $::projectlib::library scenariodb.tcl     ]
+source [file join $::projectlib::library workdir.tcl        ]
+source [file join $::projectlib::library verman.tcl         ]
+source [file join $::projectlib::library statecontroller.tcl]
 
 
 

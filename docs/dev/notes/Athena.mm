@@ -1,7 +1,7 @@
 <map version="0.8.1">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
-<node CREATED="1237934628643" FOLDED="true" ID="Freemind_Link_276542603" MODIFIED="1237934645816" POSITION="right" TEXT="Done">
+<node CREATED="1237934628643" ID="Freemind_Link_276542603" MODIFIED="1237934645816" POSITION="right" TEXT="Done">
 <icon BUILTIN="button_ok"/>
 <node CREATED="1237477459286" FOLDED="true" ID="Freemind_Link_860445490" MODIFIED="1237918566061" TEXT="Allow simtime to advance">
 <icon BUILTIN="button_ok"/>
@@ -37,6 +37,12 @@
 </node>
 </node>
 <node CREATED="1237477378229" ID="Freemind_Link_527719459" MODIFIED="1238003858401" TEXT="Enable/disable orders based on simulation state">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1237479698478" ID="Freemind_Link_1365670694" MODIFIED="1238100325978" TEXT="Bug 1963: Enable/Disable order controls automatically">
+<edge WIDTH="thin"/>
+<arrowlink DESTINATION="Freemind_Link_527719459" ENDARROW="Default" ENDINCLINATION="166;0;" ID="Freemind_Arrow_Link_414537259" STARTARROW="None" STARTINCLINATION="166;0;"/>
+<font NAME="SansSerif" SIZE="12"/>
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
@@ -103,7 +109,7 @@
 </node>
 </node>
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1238015584936" FOLDED="true" ID="Freemind_Link_1054409835" MODIFIED="1238015588709" TEXT="WAYBACK state">
+<node CREATED="1238015584936" FOLDED="true" ID="Freemind_Link_1054409835" MODIFIED="1238017834278" TEXT="WAYBACK state">
 <node CREATED="1238015589208" ID="Freemind_Link_1081765451" MODIFIED="1238015601106" TEXT="Enter WAYBACK state when loading prior snapshot"/>
 <node CREATED="1238015602360" ID="Freemind_Link_1868904837" MODIFIED="1238015609218" TEXT="In WAYBACK, most orders are disabled"/>
 <node CREATED="1238015621352" ID="Freemind_Link_1434476628" MODIFIED="1238015631410" TEXT="Leave WAYBACK automatically on return to final snapshot"/>
@@ -115,6 +121,7 @@
 <node CREATED="1238015681529" ID="Freemind_Link_1703074413" MODIFIED="1238015700325" TEXT="Need special handling for GUI interactions">
 <node CREATED="1238015700680" ID="Freemind_Link_1732762311" MODIFIED="1238015705266" TEXT="E.g., dragging units"/>
 </node>
+<node CREATED="1238015717159" ID="Freemind_Link_1853367133" MODIFIED="1238015722825" TEXT="Possible icon: "/>
 </node>
 <node CREATED="1237478995798" FOLDED="true" ID="Freemind_Link_1090109606" MODIFIED="1238003903546" TEXT="Model sanity check">
 <node CREATED="1237479063275" ID="Freemind_Link_1873084845" MODIFIED="1237479076859" TEXT="The model must be sane before time can advance."/>
@@ -141,35 +148,11 @@
 </node>
 </node>
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
-<node COLOR="#006699" CREATED="1237479698478" ID="Freemind_Link_1365670694" MODIFIED="1238008592729" TEXT="Enable/Disable order controls automatically">
-<arrowlink DESTINATION="Freemind_Link_527719459" ENDARROW="Default" ENDINCLINATION="166;0;" ID="Freemind_Arrow_Link_414537259" STARTARROW="None" STARTINCLINATION="166;0;"/>
-<font NAME="SansSerif" SIZE="10"/>
-<icon BUILTIN="messagebox_warning"/>
-<node CREATED="1237995094341" ID="Freemind_Link_1954543268" MODIFIED="1237995112766" TEXT="Action Manager">
-<node CREATED="1237995164132" ID="Freemind_Link_237309003" MODIFIED="1237995167454" TEXT="Application defines actions">
-<node CREATED="1237995517923" ID="Freemind_Link_1201722912" MODIFIED="1237995520269" TEXT="Order actions"/>
-<node CREATED="1237995520931" ID="Freemind_Link_1181558353" MODIFIED="1237995524013" TEXT="Non-order actions"/>
-</node>
-<node CREATED="1237995113252" ID="Freemind_Link_996976429" MODIFIED="1237995129790" TEXT="Each action is associated with states">
-<node CREATED="1237995503987" ID="Freemind_Link_347164691" MODIFIED="1237995509837" TEXT="Order states retrieved on demand"/>
-<node CREATED="1237995538867" ID="Freemind_Link_434115069" MODIFIED="1237995543581" TEXT="Non-orders states are fixed"/>
-</node>
-<node CREATED="1237995130340" ID="Freemind_Link_1908790561" MODIFIED="1237995149230" TEXT="Action manager allows menu items, buttons, etc., to be created for an action"/>
-<node CREATED="1237995177700" ID="Freemind_Link_1394156990" MODIFIED="1237995225229" TEXT="As state changes, all controls are automatically enabled/disabled"/>
-</node>
-<node CREATED="1237995197780" ID="Freemind_Link_812363857" MODIFIED="1237995202142" TEXT="State control">
-<node CREATED="1237995202900" ID="Freemind_Link_156792157" MODIFIED="1237995209949" TEXT="GUI controls are associated with states"/>
-<node CREATED="1237995464994" ID="Freemind_Link_455918835" MODIFIED="1237995473677" TEXT="Order controls">
-<node CREATED="1237995474227" ID="Freemind_Link_644358395" MODIFIED="1237995482781" TEXT="Order states retrieved at creation time"/>
-</node>
-<node CREATED="1237995177700" ID="Freemind_Link_1275196334" MODIFIED="1237995225229" TEXT="As state changes, all controls are automatically enabled/disabled"/>
-</node>
-<node CREATED="1237995398099" ID="Freemind_Link_440124666" MODIFIED="1237995567771" TEXT="Control module binds to ::sim &lt;State&gt; to get state changes"/>
-</node>
 <node CREATED="1237588201262" ID="Freemind_Link_222069803" MODIFIED="1237588224100" TEXT="File/Open, etc., should be disabled when RUNNING">
 <icon BUILTIN="messagebox_warning"/>
 </node>
-<node CREATED="1237935555280" FOLDED="true" ID="Freemind_Link_695028490" MODIFIED="1237935589114" TEXT="Snapshot browser/loader">
+<node CREATED="1237935555280" FOLDED="true" ID="Freemind_Link_695028490" MODIFIED="1238017834278" TEXT="Snapshot browser/loader">
+<arrowlink DESTINATION="Freemind_Link_1054409835" ENDARROW="Default" ENDINCLINATION="378;0;" ID="Freemind_Arrow_Link_254679226" STARTARROW="None" STARTINCLINATION="378;0;"/>
 <node CREATED="1237994176614" ID="Freemind_Link_343371493" MODIFIED="1237994196064" TEXT="Controls: first, previous, next, last"/>
 <node CREATED="1237994196662" ID="Freemind_Link_122266377" MODIFIED="1237994205824" TEXT="&quot;First&quot; control replaces &quot;restart&quot;"/>
 <node CREATED="1237994206534" ID="Freemind_Link_1540265172" MODIFIED="1237994232880" TEXT="Use iPod icons: double triangles, with a vertical line for first and last"/>

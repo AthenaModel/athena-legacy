@@ -135,8 +135,6 @@ snit::type scenario {
     # the save is successful and 0 otherwise.
 
     typemethod save {{filename ""}} {
-        assert {[sim state] ne "RUNNING"}
-
         # FIRST, if filename is not specified, get the dbfile
         if {$filename eq ""} {
             if {$info(dbfile) eq ""} {

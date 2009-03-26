@@ -77,6 +77,10 @@ snit::widget unitbrowser {
 
         DynamicHelp::add $addbtn -text "Add Unit"
 
+        cond::orderIsValid control $addbtn \
+            order UNIT:CREATE
+
+
         install editbtn using button $bar.edit   \
             -image      ::projectgui::icon::pencil22 \
             -relief     flat                     \
@@ -86,14 +90,24 @@ snit::widget unitbrowser {
 
         DynamicHelp::add $editbtn -text "Edit Selected Unit"
 
+        cond::orderIsValidMulti control $editbtn \
+            order   UNIT:UPDATE                  \
+            browser $win
+
+
         install deletebtn using button $bar.delete \
-            -image      ::projectgui::icon::x22        \
+            -image      ::projectgui::icon::x22    \
             -relief     flat                       \
             -overrelief raised                     \
             -state      disabled                   \
             -command    [mymethod DeleteSelected]
 
         DynamicHelp::add $deletebtn -text "Delete Selected Unit"
+
+        cond::orderIsValidSingle control $deletebtn \
+            order   UNIT:DELETE                     \
+            browser $win
+
         
         pack $addbtn    -side left
         pack $editbtn   -side left
@@ -248,24 +262,12 @@ snit::widget unitbrowser {
     # and notifies the app of the selection change.
 
     method SelectionChanged {} {
-        # FIRST, get the number of selected groups
-        set num [llength [$tb curselection]]
-
-        # NEXT, update the toolbar buttons
-        if {$num > 0} {
-            $editbtn    configure -state normal
-        } else {
-            $editbtn    configure -state disabled
-        }
-
-        if {$num == 1} {
-            $deletebtn  configure -state normal
-        } else {
-            $deletebtn  configure -state disabled
-        }
+        # FIRST, update buttons
+        cond::orderIsValidSingle update $deletebtn
+        cond::orderIsValidMulti  update $editbtn
 
         # NEXT, notify the app of the selection.
-        if {$num == 1} {
+        if {[llength [$tb curselection]] == 1} {
             set u [lindex [$tb curselection] 0]
 
             notifier send ::app <ObjectSelect> [list u $u]

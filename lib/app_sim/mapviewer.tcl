@@ -414,19 +414,25 @@ snit::widget mapviewer {
         $self AddModeTool poly   draw_poly  "Draw Polygon tool"
 
         # TBD: Really need separator
-        button $win.vbar.nbhood                          \
-            -relief  flat                                \
-            -image   ${type}::icon::nbpoly               \
-            -command [list order enter NBHOOD:CREATE]
+        cond::orderIsValid control \
+            [button $win.vbar.nbhood                          \
+                 -relief  flat                                \
+                 -image   ${type}::icon::nbpoly               \
+                 -command [list order enter NBHOOD:CREATE]]   \
+            order NBHOOD:CREATE
+
         DynamicHelp::add $win.vbar.nbhood \
             -text [order title NBHOOD:CREATE]
 
         pack $win.vbar.nbhood -side top -fill x -padx 2
 
-        button $win.vbar.newunit                         \
-            -relief  flat                                \
-            -image   ${type}::icon::newunit              \
-            -command [list order enter UNIT:CREATE]
+        cond::orderIsValid control \
+            [button $win.vbar.newunit                         \
+                 -relief  flat                                \
+                 -image   ${type}::icon::newunit              \
+                 -command [list order enter UNIT:CREATE]]     \
+            order UNIT:CREATE
+
         DynamicHelp::add $win.vbar.newunit \
             -text [order title UNIT:CREATE]
 
@@ -757,13 +763,15 @@ snit::widget mapviewer {
     method CreateNbhoodContextMenu {} {
         set mnu [menu $canvas.nbhoodmenu]
 
-        $mnu add command                     \
-            -label   "Bring to Front"        \
-            -command [mymethod NbhoodBringToFront]
+        cond::orderIsValid control \
+            [menuitem $mnu command "Bring to Front"      \
+                 -command [mymethod NbhoodBringToFront]] \
+            order NBHOOD:RAISE
 
-        $mnu add command                   \
-            -label   "Send to Back"        \
-            -command [mymethod NbhoodSendToBack]
+        cond::orderIsValid control \
+            [menuitem $mnu command "Send to Back"        \
+                 -command [mymethod NbhoodSendToBack]]   \
+            order NBHOOD:LOWER
     }
 
 
@@ -1067,9 +1075,10 @@ snit::widget mapviewer {
     method CreateUnitContextMenu {} {
         set mnu [menu $canvas.unitmenu]
 
-        $mnu add command                   \
-            -label   "Update Unit"         \
-            -command [mymethod UpdateUnit]
+        cond::orderIsValid control \
+            [menuitem $mnu command "Update Unit" \
+                 -command [mymethod UpdateUnit]] \
+            order UNIT:UPDATE
     }
 
     # UpdateUnit

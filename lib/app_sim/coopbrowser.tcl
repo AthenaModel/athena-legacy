@@ -75,6 +75,10 @@ snit::widget coopbrowser {
 
         DynamicHelp::add $editbtn -text "Edit Selected Curve"
 
+        cond::orderIsValidMulti control $editbtn \
+            order   COOPERATION:UPDATE           \
+            browser $win
+
        
         pack $editbtn   -side left
 
@@ -223,18 +227,11 @@ snit::widget coopbrowser {
     # and notifies the app of the selection change.
 
     method SelectionChanged {} {
-        # FIRST, get the number of selected groups
-        set num [llength [$tb curselection]]
-
-        # NEXT, update the toolbar buttons
-        if {$num > 0} {
-            $editbtn    configure -state normal
-        } else {
-            $editbtn    configure -state disabled
-        }
+        # FIRST, update buttons
+        cond::orderIsValidMulti  update $editbtn
 
         # NEXT, notify the app of the selection.
-        if {$num == 1} {
+        if {[llength [$tb curselection]] == 1} {
             set id [lindex [$tb curselection] 0]
             lassign $id n f g
 

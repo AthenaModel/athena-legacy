@@ -66,14 +66,18 @@ snit::widget relbrowser {
         install bar using frame $tb.toolbar \
             -relief flat
 
-        install editbtn using button $bar.edit   \
+        install editbtn using button $bar.edit       \
             -image      ::projectgui::icon::pencil22 \
-            -relief     flat                     \
-            -overrelief raised                   \
-            -state      disabled                 \
+            -relief     flat                         \
+            -overrelief raised                       \
+            -state      disabled                     \
             -command    [mymethod EditSelected]
 
         DynamicHelp::add $editbtn -text "Edit Selected Curve"
+
+        cond::orderIsValidMulti control $editbtn \
+            order   RELATIONSHIP:UPDATE          \
+            browser $win
 
        
         pack $editbtn   -side left
@@ -223,19 +227,12 @@ snit::widget relbrowser {
     # and notifies the app of the selection change.
 
     method SelectionChanged {} {
-        # FIRST, get the number of selected groups
-        set num [llength [$tb curselection]]
-
-        # NEXT, update the toolbar buttons
-        if {$num > 0} {
-            $editbtn    configure -state normal
-        } else {
-            $editbtn    configure -state disabled
-        }
+        # FIRST, update buttons
+        cond::orderIsValidMulti update $editbtn
 
         # NEXT, if there's exactly one item selected, notify the
         # the app.
-        if {$num == 1} {
+        if {[llength [$tb curselection]] == 1} {
             set id [lindex [$tb curselection] 0]
             lassign $id n f g
 

@@ -514,6 +514,19 @@ snit::type order {
     }
 
 
+    # isvalid name
+    #
+    # name    An order name
+    #
+    # Returns 1 if the order is valid in the current state, and 0 otherwise
+
+    typemethod isvalid {name} {
+        set states [$type cget $name -sendstates]
+
+        expr {[llength $states] == 0 || $info(state) in $states}
+    }
+
+
     # title name
     #
     # name     The name of an order

@@ -150,14 +150,14 @@ snit::widget appwin {
 
     method CreateMenuBar {} {
         # Menu Bar
-        set menu [menu $win.menubar -relief flat]
-        $win configure -menu $menu
+        set menubar [menu $win.menubar -relief flat]
+        $win configure -menu $menubar
         
         # File Menu
-        set filemenu [menu $menu.file]
-        $menu add cascade -label "File" -underline 0 -menu $filemenu
+        set mnu [menu $menubar.file]
+        $menubar add cascade -label "File" -underline 0 -menu $mnu
 
-        $filemenu add command                  \
+        $mnu add command                  \
             -label       "New Browser"         \
             -underline   4                     \
             -accelerator "Ctrl+N"              \
@@ -165,17 +165,17 @@ snit::widget appwin {
         bind $win <Control-n> [list appwin new]
         bind $win <Control-N> [list appwin new]
         
-        $filemenu add command                  \
-            -label     "New Scenario..."       \
-            -underline 0                       \
-            -command   [mymethod FileNew]
+        cond::simNotRunning control \
+            [menuitem $mnu command "New Scenario..."  \
+                 -underline 0                         \
+                 -command   [mymethod FileNew]]
 
-        $filemenu add command                  \
-            -label     "Open Scenario..."      \
-            -underline 0                       \
-            -command   [mymethod FileOpen]
+        cond::simNotRunning control \
+            [menuitem $mnu command "Open Scenario..." \
+                 -underline 0                         \
+                 -command   [mymethod FileOpen]]
 
-        $filemenu add command                  \
+        $mnu add command                  \
             -label       "Save Scenario"       \
             -underline   0                     \
             -accelerator "Ctrl+S"              \
@@ -183,22 +183,23 @@ snit::widget appwin {
         bind $win <Control-s> [mymethod FileSave]
         bind $win <Control-S> [mymethod FileSave]
 
-        $filemenu add command                  \
+        $mnu add command                  \
             -label     "Save Scenario As..."   \
             -underline 14                      \
             -command   [mymethod FileSaveAs]
 
-        $filemenu add separator
+        $mnu add separator
 
-        $filemenu add command                  \
-            -label     "Import Map..."         \
-            -underline 4                       \
-            -command   [mymethod FileImportMap]
+        cond::orderIsValid control                  \
+            [menuitem $mnu command "Import Map..."    \
+                 -underline 4                         \
+                 -command   [mymethod FileImportMap]] \
+            order MAP:IMPORT
 
-        $filemenu add separator
+        $mnu add separator
 
         if {$options(-main)} {
-            $filemenu add command                  \
+            $mnu add command                  \
                 -label       "Exit"                \
                 -underline   1                     \
                 -accelerator "Ctrl+Q"              \
@@ -206,7 +207,7 @@ snit::widget appwin {
             bind $win <Control-q> [mymethod FileExit]
             bind $win <Control-Q> [mymethod FileExit]
         } else {
-            $filemenu add command                  \
+            $mnu add command                  \
                 -label       "Close Window"        \
                 -underline   6                     \
                 -accelerator "Ctrl+W"              \
@@ -216,9 +217,9 @@ snit::widget appwin {
         }
 
         # Edit menu
-        set editmenu [menu $menu.edit \
+        set editmenu [menu $menubar.edit \
                           -postcommand [mymethod PostEditMenu]]
-        $menu add cascade -label "Edit" -underline 0 -menu $editmenu
+        $menubar add cascade -label "Edit" -underline 0 -menu $editmenu
 
         $editmenu add command                \
             -label       "Undo"              \
@@ -267,8 +268,8 @@ snit::widget appwin {
             -command {event generate [focus] <<SelectAll>>}
 
         # Orders menu
-        set ordersmenu [menu $menu.orders]
-        $menu add cascade -label "Orders" -underline 0 -menu $ordersmenu
+        set ordersmenu [menu $menubar.orders]
+        $menubar add cascade -label "Orders" -underline 0 -menu $ordersmenu
 
         # Orders/Simulation
         set submenu [menu $ordersmenu.sim]
@@ -364,9 +365,10 @@ snit::widget appwin {
     # Adds a menu item for the order
 
     method AddOrder {mnu order} {
-        $mnu add command \
-            -label   [order title $order]         \
-            -command [list order enter $order]
+        cond::orderIsValid control \
+            [menuitem $mnu command [order title $order] \
+                 -command [list order enter $order]]    \
+            order $order
     }
 
     # CreateComponents
