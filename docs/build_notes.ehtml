@@ -11,6 +11,47 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.5, 26 March 2009</h3>
+
+This build contains a host of bug fixes, and four significant additions.
+First, athena_sim(1) is now truly a simulation: simulated time can
+elapse.  The user can run forward, pause, run forward, pause, and
+return to time 0.  Second, the simulation automatically takes snapshots of
+simulation state whenever time starts to advance, and when
+restarting.  Returning to time 0 uses one of this snapshots; as yet,
+there's no GUI to access the others.  Third, as the simulation mode
+changes from PREP to RUNNING to PAUSED, the various orders are appropriately
+enabled and disabled.  For example, you can't create or delete groups
+or neighborhoods except in PREP mode.  Fourth, as orders are enabled
+and disabled, the GUI controls which send the orders or popup their
+dialogs are also enabled and disabled.  This last capability is of
+great generality, capable of checking any arbitrary conditions that
+determine whether a menu item, button, or other widget is enabled or
+disabled.<p>
+
+The complete set of packages is as follows:<p>
+
+<ul>
+  <li> Bug 1929: Correct inconsistent labeling for foreign/local FRC groups
+  <li> Bug 1930: Delete neighborhood from menu doesn't enable buttons
+  <li> Bug 1931: Change the map drawing icon for Units to a 'U' in a box
+  <li> Bug 1934: bgerror: Error in constructor: can't read "newval": no such variable
+  <li> Bug 1938: Nbhood fill doesn't affect new neighborhoods
+  <li> Bug 1939: Unit background defaults to black
+  <li> Bug 1941: Lighten the blank map
+  <li> Bug 1942: ORG Group dialogs are not auto-filled when an ORG group is clicked
+  <li> Bug 1943: Discarding changes fails to fill in 'Update' dialog as expected
+  <li> Bug 1944: Wrong entry field selected in 'Update Mult Nbhood Relationships'
+  <li> Bug 1949: Maps at different zoom levels confuse athena_sim's map display
+  <li> Bug 1950: athena_sim(1): Unit Icons
+  <li> Bug 1951: athena_sim(1): Remove organization capability flags
+  <li> Bug 1958: athena_sim(1): Simulation!
+  <li> Bug 1961: athena_sim(1): auto-snapshot capability
+  <li> Bug 1962: athena_sim(1): Order states
+  <li> Bug 1963: athena_sim(1): State-based GUI control
+</ul><p>
+
+
 <h3>Build 1.0.4, 3 March 2009</h3>
 
 This build includes a redesign of the Athena order processor and
