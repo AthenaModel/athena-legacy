@@ -123,58 +123,154 @@ snit::type sim {
         $type reconfigure
     }
 
-    # restart ?-noconfirm?
+    #-------------------------------------------------------------------
+    # Snapshot Navigation
+
+    # snapshot first
     #
-    # Resets the simulation as a whole to the moment before it first
+    # Loads the tick 0 snapshot, which resets the simulation as a 
+    # whole to the moment before it first 
     # transitioned from PREP to RUNNING.
 
-    typemethod restart {{option ""}} {
-        assert {[sim state] eq "PAUSED"}
+    typemethod {snapshot first} {} {
+        $type LoadSnapshot 0
 
-        # FIRST, Confirm with the user
-        if {$option ne "-noconfirm"} {
-            set answer [messagebox popup \
-                            -title         "Are you sure?"   \
-                            -icon          warning           \
-                            -buttons       {
-                                ok     "Restart the Sim" 
-                                cancel "Cancel"
-                            }                                \
-                            -default       cancel            \
-                            -ignoretag     sim_restart       \
-                            -ignoredefault ok                \
-                            -parent        [app topwin]      \
-                            -message       [normalize {
-                                Are you sure you
-                                really want to reset the simulation state
-                                back to time 0?  This cannot be undone!
-                            }]]
+        return
+    }
 
-            if {$answer eq "cancel"} {
-                cancel
+
+    # snapshot prev
+    #
+    # Loads the previous snapshot, if any.
+
+    typemethod {snapshot prev} {} {
+        # FIRST, get the tick of the previous snapshot
+        set now [simclock now]
+
+        foreach tick [lreverse [scenario snapshot list]] {
+            if {$tick < $now} {
+                break
             }
         }
 
-        # NEXT, if the time is greater than 0, save a snapshot
-        if {[simclock now] > 0} {
+        # NEXT, Load the snapshot
+        $type LoadSnapshot $tick
+
+        return
+    }
+
+
+    # snapshot next
+    #
+    # Loads the next snapshot, if any.
+
+    typemethod {snapshot next} {} {
+        # FIRST, get the tick of the next snapshot
+        set now [simclock now]
+
+        foreach tick [scenario snapshot list] {
+            if {$tick > $now} {
+                break
+            }
+        }
+
+        assert {$tick > $now}
+
+        # NEXT, Load the snapshot
+        $type LoadSnapshot $tick
+
+        return
+    }
+
+
+    # snapshot last
+    #
+    # Loads the latest snapshot.
+
+    typemethod {snapshot last} {} {
+        set tick [lindex [scenario snapshot list] end]
+
+        assert {[simclock now] < $tick}
+
+        $type LoadSnapshot $tick
+
+        return
+    }
+
+    # LoadSnapshot tick
+    #
+    # tick        The timestamp of the snapshot to load
+    #
+    # Loads the snapshot; if the tick is 0, makes sure we're
+    # in the PREP state.  If the time now is later the latest checkpoint,
+    # saves one.
+
+    typemethod LoadSnapshot {tick} {
+        assert {[sim state] in {PAUSED WAYBACK}}
+
+        # FIRST, if the time is greater than the last snapshot, 
+        # save one.
+        if {[simclock now] > [lindex [scenario snapshot list] end]} {
             scenario snapshot save
         }
 
-        # NEXT, restore to the tick 0 
-        scenario snapshot load 0
+        # NEXT, restore to the tick 
+        scenario snapshot load $tick
 
-        # NEXT, make sure the state is PREP
-        $type SetState PREP
+        # NEXT, enter PAUSED if we're at the last snapshot, and
+        # WAYBACK otherwise.
+        if {$tick == [lindex [scenario snapshot list] end]} {
+            $type SetState PAUSED
+            log newlog latest
+        } else {
+            $type SetState WAYBACK
+            log newlog wayback
+        }
 
-        # NEXT, log the restart.
-        log newlog restart
-        log normal sim "Restarted the simulation"
-        app puts "Restarted the simulation"
+        # NEXT, log the change
+        set message \
+            "Loaded snapshot at [simclock asZulu] (tick [simclock now])"
+
+        log normal sim $message
+        app puts $message
 
         # NEXT, reconfigure the app.
         $type reconfigure
 
         return
+    }
+
+    # snapshot enter
+    #
+    # Re-enters the time-stream as of the current snapshot; purges
+    # later snapshots.
+
+    typemethod {snapshot enter} {} {
+        # FIRST, must be in WAYBACK mode.
+        assert {[sim state] eq "WAYBACK"}
+
+        # NEXT, purge future snapshots
+        set now [simclock now]
+
+        rdb eval {
+            DELETE FROM snapshots WHERE tick > $now;
+        }
+
+        # NEXT, set state
+        if {$now == 0} {
+            $type SetState PREP
+        } else {
+            $type SetState PAUSED
+        }
+
+        # NEXT, log it.
+        log newlog latest
+        
+        set message \
+       "Re-entered the timestream at [simclock asZulu] (tick [simclock now])"
+
+        log normal sim $message
+        app puts $message
     }
 
     #-------------------------------------------------------------------
@@ -553,7 +649,11 @@ snit::type sim {
         simclock advance [dict get $checkpoint now]
 
         # Don't use SetState, as we'll be reconfiguring immediately.
-        if {[simclock now] == 0} {
+        set latest [lindex [scenario snapshot list] end]
+
+        if {[simclock now] < $latest} {
+            set info(state) WAYBACK
+        } elseif {[simclock now] == 0} {
             set info(state) PREP
         } else {
             set info(state) PAUSED

@@ -280,11 +280,7 @@ snit::type scenario {
 
         # NEXT, restore the saveables
         $type RestoreSaveables
-        log newlog snapshot
-        log normal scenario "Loaded snapshot for tick $tick"
         
-        app puts "Loaded Snapshot for [simclock toZulu $tick]"
-
         # NEXT, Reconfigure the app
         sim reconfigure
     }

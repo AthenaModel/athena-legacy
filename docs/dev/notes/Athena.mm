@@ -44,9 +44,38 @@
 <node CREATED="1237480217386" ID="Freemind_Link_96571795" MODIFIED="1238170655243" TEXT="Dump order history as script">
 <arrowlink DESTINATION="Freemind_Link_860046120" ENDARROW="Default" ENDINCLINATION="75;0;" ID="Freemind_Arrow_Link_966523914" STARTARROW="None" STARTINCLINATION="75;0;"/>
 <icon BUILTIN="messagebox_warning"/>
+<node CREATED="1238185877929" ID="Freemind_Link_1596050694" MODIFIED="1238185885379" TEXT="Need to know scripting format first"/>
 </node>
-<node CREATED="1237480209602" ID="Freemind_Link_860046120" MODIFIED="1238170658003" TEXT="Order scripting">
+<node CREATED="1237480209602" FOLDED="true" ID="Freemind_Link_860046120" MODIFIED="1238170658003" TEXT="Order scripting">
 <icon BUILTIN="messagebox_warning"/>
+<node CREATED="1238185910426" ID="Freemind_Link_1940884826" MODIFIED="1238185912932" TEXT="Uses">
+<node CREATED="1238185655578" ID="Freemind_Link_136202823" MODIFIED="1238185664708" TEXT="Run script within existing scenario">
+<node CREATED="1238185776810" ID="Freemind_Link_1966079268" MODIFIED="1238185799476" TEXT="Not intended to recreate previous run"/>
+<node CREATED="1238185668699" ID="Freemind_Link_549143569" MODIFIED="1238185675908" TEXT="Ignore timestamps">
+<node CREATED="1238185219419" ID="Freemind_Link_558616974" MODIFIED="1238185240359" TEXT="Run all orders now">
+<node CREATED="1238185241979" ID="Freemind_Link_640319681" MODIFIED="1238185244309" TEXT="Log Failures"/>
+<node CREATED="1238185244699" ID="Freemind_Link_118761070" MODIFIED="1238185248085" TEXT="Stop after first failure"/>
+</node>
+</node>
+<node CREATED="1238185676299" ID="Freemind_Link_134673193" MODIFIED="1238185679892" TEXT="Honor timestamps">
+<node CREATED="1238185710346" ID="Freemind_Link_1027973767" MODIFIED="1238185722580" TEXT="Options">
+<node CREATED="1238185680442" ID="Freemind_Link_788668770" MODIFIED="1238185684564" TEXT="Without offset"/>
+<node CREATED="1238185684922" ID="Freemind_Link_87005297" MODIFIED="1238185687028" TEXT="With offset"/>
+</node>
+<node CREATED="1238185730010" ID="Freemind_Link_984278862" MODIFIED="1238185747732" TEXT="Run orders timestamped now, now"/>
+<node CREATED="1238185748137" ID="Freemind_Link_1818266246" MODIFIED="1238185755284" TEXT="Schedule other orders in eventq"/>
+</node>
+</node>
+<node CREATED="1238185298203" ID="Freemind_Link_1182934650" MODIFIED="1238185380791" TEXT="Run up a CIF">
+<node CREATED="1238185559819" ID="Freemind_Link_1475157012" MODIFIED="1238185568388" TEXT="Start with blank scenario"/>
+<node CREATED="1238185570426" ID="Freemind_Link_521160338" MODIFIED="1238185575684" TEXT="Specify script on command-line"/>
+<node CREATED="1238185381402" ID="Freemind_Link_1257379761" MODIFIED="1238185399188" TEXT="Run orders timestamped now, now"/>
+<node CREATED="1238185399899" ID="Freemind_Link_513220195" MODIFIED="1238185448484" TEXT="Run later orders in Tick after everything else"/>
+</node>
+</node>
+<node CREATED="1238185894985" ID="Freemind_Link_982239340" MODIFIED="1238185906771" TEXT="What do scripts look like?">
+<icon BUILTIN="help"/>
+</node>
 </node>
 <node CREATED="1237480052010" ID="Freemind_Link_1129765376" MODIFIED="1237480125936" TEXT="Ability to validate orders without executing them"/>
 <node CREATED="1237480092962" FOLDED="true" ID="Freemind_Link_1722894145" MODIFIED="1237480125937" TEXT="Schedule orders ahead of time">
@@ -106,7 +135,7 @@
 </node>
 </node>
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
-<node CREATED="1237935555280" FOLDED="true" ID="Freemind_Link_695028490" MODIFIED="1238106346211" TEXT="Snapshot browser/loader">
+<node CREATED="1237935555280" FOLDED="true" ID="Freemind_Link_695028490" MODIFIED="1238185997091" TEXT="Snapshot Navigation">
 <arrowlink DESTINATION="Freemind_Link_1054409835" ENDARROW="Default" ENDINCLINATION="215;0;" ID="Freemind_Arrow_Link_254679226" STARTARROW="None" STARTINCLINATION="529;0;"/>
 <node CREATED="1237994176614" ID="Freemind_Link_343371493" MODIFIED="1237994196064" TEXT="Controls: first, previous, next, last"/>
 <node CREATED="1237994196662" ID="Freemind_Link_122266377" MODIFIED="1237994205824" TEXT="&quot;First&quot; control replaces &quot;restart&quot;"/>

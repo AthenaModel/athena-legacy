@@ -19,6 +19,7 @@ enum esimstate {
     PREP    Prep
     RUNNING Running
     PAUSED  Paused
+    WAYBACK Wayback
 }
 
 # refpoint

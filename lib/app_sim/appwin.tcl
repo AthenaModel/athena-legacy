@@ -442,7 +442,7 @@ snit::widget appwin {
         ttk::scale $win.toolbar.speed        \
             -from     1                      \
             -to       10                     \
-            -length   100                    \
+            -length   60                     \
             -orient   horizontal             \
             -value    5                      \
             -variable [myvar info(simspeed)] \
@@ -457,16 +457,21 @@ snit::widget appwin {
         label $win.toolbar.spacer2 \
             -text "  "
 
-        # Restart
+        # First Snapshot
+        $self AddToolbarButton first first16 "Time 0 Snapshot" \
+            [list ::sim snapshot first]
 
-        button $win.toolbar.restart \
-            -image      ::projectgui::icon::rewind22  \
-            -relief     flat                          \
-            -overrelief raised                        \
-            -state      normal                        \
-            -command    [mymethod Restart]
+        # Previous Snapshot
+        $self AddToolbarButton prev prev16 "Previous Snapshot" \
+            [list ::sim snapshot prev]
 
-        DynamicHelp::add $win.toolbar.restart -text "Restart Simulation"
+        # Next Snapshot
+        $self AddToolbarButton next next16 "Next Snapshot" \
+            [list ::sim snapshot next]
+
+        # Latest Snapshot
+        $self AddToolbarButton last last16 "Latest Snapshot" \
+            [list ::sim snapshot last]
 
 
         # Sim State
@@ -497,7 +502,10 @@ snit::widget appwin {
         pack $win.toolbar.speed    -side left  -padx 2
         pack $win.toolbar.faster   -side left
         pack $win.toolbar.spacer2  -side left
-        pack $win.toolbar.restart  -side left
+        pack $win.toolbar.first    -side left
+        pack $win.toolbar.prev     -side left
+        pack $win.toolbar.next     -side left
+        pack $win.toolbar.last     -side left
         pack $win.toolbar.zulutime -side right -padx 2 
         pack $win.toolbar.time     -side right -padx 2
         pack $win.toolbar.simstate -side right -padx 2 
@@ -706,6 +714,21 @@ snit::widget appwin {
         grid $win.status   -sticky ew
     }
    
+    # AddToolbarButton name icon tooltip command
+    #
+    # Creates a toolbar button with standard style
+
+    method AddToolbarButton {name icon tooltip command} {
+        button $win.toolbar.$name \
+            -image      ::projectgui::icon::$icon \
+            -relief     flat                      \
+            -overrelief raised                    \
+            -state      normal                    \
+            -command    $command
+
+        DynamicHelp::add $win.toolbar.$name -text $tooltip
+    }
+
     #-------------------------------------------------------------------
     # File Menu Handlers
 
@@ -943,6 +966,20 @@ snit::widget appwin {
     method RunPause {} {
         if {[sim state] eq "RUNNING"} {
             order send gui SIM:PAUSE
+        } elseif {[sim state] eq "WAYBACK"} {
+            set answer [messagebox popup \
+                            -parent    $win                  \
+                            -icon      peabody               \
+                            -title     "Are you sure?"       \
+                            -ignoretag "sim_snapshot_enter"  \
+                            -buttons   {
+                                ok      "Change the Future"
+                                cancel  "Look, But Don't Touch"
+                            } -message "Peabody here.  If you proceed, you may make changes and run the simulation forward.  However, all snapshots with timestamps later than [simclock asZulu] will be purged."]
+
+            if {$answer eq "ok"} {
+                sim snapshot enter
+            }
         } else {
             if {[catch {
                 order send gui SIM:RUN \
@@ -963,14 +1000,6 @@ snit::widget appwin {
         }
     }
 
-
-    # Restart
-    #
-    # Restarts the simulation.
-
-    method Restart {} {
-        sim restart
-    }
 
     # SetSpeed speed
     #
@@ -1075,35 +1104,73 @@ snit::widget appwin {
     # in some way.
 
     method SimState {} {
-        # Display simulation state, and update GUI
-
+        # FIRST, display the simulation state
         if {[sim state] eq "RUNNING"} {
-            $win.toolbar.runpause configure -image ::projectgui::icon::pause22
-            DynamicHelp::add $win.toolbar.runpause -text "Pause Simulation"
-
-            $win.toolbar.duration configure -state disabled
-            $win.toolbar.restart  configure -state disabled
-
             set prefix [esimstate longname [sim state]]
+
             if {[sim stoptime] == 0} {
                 set info(simstate) "$prefix until paused"
             } else {
                 set info(simstate) \
                     "$prefix until [simclock toZulu [sim stoptime]]"
             }
+        } elseif {[sim state] eq "WAYBACK"} {
+            set info(simstate) \
+                "Browsing snapshot"
+        } else {
+            set info(simstate) [esimstate longname [sim state]]
+        }
+
+        # NEXT, Update Run/Pause button and the Duration
+        if {[sim state] eq "RUNNING"} {
+            $win.toolbar.runpause configure -image ::projectgui::icon::pause22
+            DynamicHelp::add $win.toolbar.runpause -text "Pause Simulation"
+
+            $win.toolbar.duration configure -state disabled
+        } elseif {[sim state] eq "WAYBACK"} {
+            $win.toolbar.runpause configure \
+                -image ::projectgui::icon::peabody32
+            DynamicHelp::add $win.toolbar.runpause -text "Leave Wayback Mode"
+
+            $win.toolbar.duration configure -state disabled
         } else {
             $win.toolbar.runpause configure -image ::projectgui::icon::play22
             DynamicHelp::add $win.toolbar.runpause -text "Run Simulation"
 
             $win.toolbar.duration configure -state readonly
+        }
 
-            if {[sim state] eq "PAUSED"} {
-                $win.toolbar.restart  configure -state normal
+        # NEXT, Update the snapshot buttons.
+        set now       [sim now]
+        set snapshots [scenario snapshot list]
+        set latest    [lindex $snapshots end]
+        set ndx       [lsearch -exact $snapshots $now]
+
+        if {[sim state] eq "RUNNING"} {
+            $win.toolbar.first  configure -state disabled
+            $win.toolbar.prev   configure -state disabled
+            $win.toolbar.next   configure -state disabled
+            $win.toolbar.last   configure -state disabled
+        } else {
+            if {$now > 0} {
+                # Not at time 0, first is always valid; and prev is
+                # valid if first is.
+                $win.toolbar.first configure -state normal
+                $win.toolbar.prev  configure -state normal
             } else {
-                $win.toolbar.restart  configure -state disabled
+                $win.toolbar.first  configure -state disabled
+                $win.toolbar.prev   configure -state disabled
             }
 
-            set info(simstate) [esimstate longname [sim state]]
+            # If we're at a time earlier than the latest snapshot,
+            # then last is valid; and next is valid if last is.
+            if {$now < $latest} {
+                $win.toolbar.next configure -state normal
+                $win.toolbar.last configure -state normal
+            } else {
+                $win.toolbar.next configure -state disabled
+                $win.toolbar.last configure -state disabled
+            }
         }
     }
 
