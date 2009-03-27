@@ -66,6 +66,22 @@ snit::type scenario {
     typemethod new {} {
         assert {[sim state] ne "RUNNING"}
 
+        # FIRST, Create a blank scenario
+        $type MakeBlankScenario
+
+        # NEXT, log it.
+        log newlog new
+        log normal scenario "New Scenario: Untitled"
+        
+        app puts "New scenario created"
+    }
+
+    # MakeBlankScenario
+    #
+    # Creates a new, blank, scenario.  This is used on 
+    # "scenario new", and when "scenario open" tries and fails.
+
+    typemethod MakeBlankScenario {} {
         # FIRST, initialize the runtime data
         InitializeRuntimeData
 
@@ -75,12 +91,6 @@ snit::type scenario {
         # NEXT, Restart the simulation.  This also reconfigures
         # the app.
         sim new
-
-        # NEXT, log it.
-        log newlog new
-        log normal scenario "New Scenario: Untitled"
-        
-        app puts "New scenario created"
     }
 
     # open filename
@@ -104,6 +114,8 @@ snit::type scenario {
 
                 $result
             }
+
+            $type MakeBlankScenario
             return
         }
 
