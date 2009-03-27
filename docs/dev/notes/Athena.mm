@@ -65,16 +65,7 @@
 </node>
 </node>
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1238107709026" ID="Freemind_Link_1212395686" MODIFIED="1238107720060" TEXT="Simulation &quot;states&quot; should be &quot;modes&quot; instead"/>
-<node CREATED="1238107725235" ID="Freemind_Link_260363276" MODIFIED="1238107739214" TEXT="Replace ::sim &lt;Status&gt;">
-<node CREATED="1238107798339" ID="Freemind_Link_1365021836" MODIFIED="1238107800300" TEXT="New Events">
-<node CREATED="1238107739698" ID="Freemind_Link_437840786" MODIFIED="1238107745596" TEXT="&lt;Tick&gt;"/>
-<node CREATED="1238107746179" ID="Freemind_Link_1624909068" MODIFIED="1238107749756" TEXT="&lt;Mode&gt;"/>
-<node CREATED="1238107788002" ID="Freemind_Link_409425418" MODIFIED="1238107790380" TEXT="&lt;Speed&gt;"/>
-</node>
-<node CREATED="1238107804754" ID="Freemind_Link_1786540087" MODIFIED="1238107814748" TEXT="appwin can subscribe one handler to all three"/>
-</node>
-<node CREATED="1238015584936" FOLDED="true" ID="Freemind_Link_1054409835" MODIFIED="1238107703158" TEXT="WAYBACK mode">
+<node CREATED="1238015584936" FOLDED="true" ID="Freemind_Link_1054409835" MODIFIED="1238168626771" TEXT="WAYBACK state">
 <node CREATED="1238015589208" ID="Freemind_Link_1081765451" MODIFIED="1238015601106" TEXT="Enter WAYBACK state when loading prior snapshot"/>
 <node CREATED="1238015602360" ID="Freemind_Link_1868904837" MODIFIED="1238015609218" TEXT="In WAYBACK, most orders are disabled"/>
 <node CREATED="1238015621352" ID="Freemind_Link_1434476628" MODIFIED="1238015631410" TEXT="Leave WAYBACK automatically on return to final snapshot"/>
@@ -336,6 +327,19 @@
 </node>
 <node CREATED="1237588201262" ID="Freemind_Link_222069803" MODIFIED="1238104951277" TEXT="File/Open, etc., should be disabled when RUNNING">
 <icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1238170053719" ID="Freemind_Link_953600025" MODIFIED="1238170094533" TEXT="Bug 1966">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238107725235" FOLDED="true" ID="Freemind_Link_260363276" MODIFIED="1238170094532" TEXT="Replace ::sim &lt;Status&gt;">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238107798339" ID="Freemind_Link_1365021836" MODIFIED="1238107800300" TEXT="New Events">
+<node CREATED="1238107739698" ID="Freemind_Link_437840786" MODIFIED="1238107745596" TEXT="&lt;Tick&gt;"/>
+<node CREATED="1238168630505" ID="Freemind_Link_539391698" MODIFIED="1238168634836" TEXT="&lt;Time&gt;"/>
+<node CREATED="1238107746179" ID="Freemind_Link_1624909068" MODIFIED="1238168640723" TEXT="&lt;State&gt;"/>
+<node CREATED="1238107788002" ID="Freemind_Link_409425418" MODIFIED="1238107790380" TEXT="&lt;Speed&gt;"/>
+</node>
+<node CREATED="1238107804754" ID="Freemind_Link_1786540087" MODIFIED="1238107814748" TEXT="appwin can subscribe one handler to all three"/>
 </node>
 </node>
 </node>

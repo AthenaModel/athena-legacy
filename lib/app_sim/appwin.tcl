@@ -122,7 +122,9 @@ snit::widget appwin {
         # NEXT, Prepare to receive notifier events.
         notifier bind ::sim      <Reconfigure>   $self [mymethod Reconfigure]
         notifier bind ::scenario <ScenarioSaved> $self [mymethod Reconfigure]
-        notifier bind ::sim      <Status>        $self [mymethod SimStatus]
+        notifier bind ::sim      <State>         $self [mymethod SimState]
+        notifier bind ::sim      <Time>          $self [mymethod SimTime]
+        notifier bind ::sim      <Speed>         $self [mymethod SimSpeed]
 
         # NEXT, Prepare to receive window events
         bind $content <<NotebookTabChanged>> [mymethod Reconfigure]
@@ -1048,18 +1050,17 @@ snit::widget appwin {
 
         # NEXT, set the status variables
         $win.toolbar.speed configure -value [sim speed]
-        $self SimStatus
+        $self SimState
+        $self SimTime
+        $self SimSpeed
     }
 
-    # SimStatus
+    # SimState
     #
     # This routine is called when the simulation state has changed
     # in some way.
 
-    method SimStatus {} {
-        # Display current sim time.
-        set info(zulutime) [simclock asZulu]
-
+    method SimState {} {
         # Display simulation state, and update GUI
 
         if {[sim state] eq "RUNNING"} {
@@ -1090,7 +1091,23 @@ snit::widget appwin {
 
             set info(simstate) [esimstate longname [sim state]]
         }
+    }
 
+    # SimTime
+    #
+    # This routine is called when the simulation time display has changed,
+    # either because the start date has changed, or the time has advanced.
+
+    method SimTime {} {
+        # Display current sim time.
+        set info(zulutime) [simclock asZulu]
+    }
+
+    # SimSpeed
+    #
+    # This routine is called when the simulation speed has changed.
+
+    method SimSpeed {} {
         # Display current speed.
         if {round($info(simspeed)) != [sim speed]} {
             set info(simspeed) [sim speed]

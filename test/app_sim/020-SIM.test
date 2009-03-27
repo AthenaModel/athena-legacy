@@ -74,27 +74,27 @@ namespace eval ::athena_test::tests:: {
     } -result {240000ZMAR09}
 
 
-    test STARTDATE-2.2 {<Status> is sent} -body {
-        ted notifier bind ::sim <Status>
+    test STARTDATE-2.2 {<Time> is sent} -body {
+        ted notifier bind ::sim <Time>
         ted order SIM:STARTDATE startdate 240000ZMAR09
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sim <Status>}
+        {::sim <Time>}
     }
     
-    test STARTDATE-3.1 {<Status> is sent on undo} -setup {
+    test STARTDATE-3.1 {<Time> is sent on undo} -setup {
         set undo [ted order SIM:STARTDATE startdate 240000ZMAR09]
 
     } -body {
-        ted notifier bind ::sim <Status>
+        ted notifier bind ::sim <Time>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sim <Status>}
+        {::sim <Time>}
     }
     
     #-------------------------------------------------------------------
@@ -131,14 +131,14 @@ namespace eval ::athena_test::tests:: {
     } -result {RUNNING 5}
 
 
-    test RUN-2.3 {Sends <Status>} -body {
-        ted notifier bind ::sim <Status>
+    test RUN-2.3 {Sends <State>} -body {
+        ted notifier bind ::sim <State>
         ted order SIM:RUN
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sim <Status>}
+        {::sim <State>}
     }
 
     #-------------------------------------------------------------------
@@ -173,15 +173,15 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test PAUSE-1.4 {Sends <Status>} -body {
+    test PAUSE-1.4 {Sends <State>} -body {
         ted order SIM:RUN
-        ted notifier bind ::sim <Status>
+        ted notifier bind ::sim <State>
         ted order SIM:PAUSE
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sim <Status>}
+        {::sim <State>}
     }
 
 

@@ -274,7 +274,7 @@ as multiple parameter names and values.<p>
 By default, returns the current application state, as known by
 order(sim).  If <i>state</i> is given, sets the application state.
 The application state determines which orders are valid; see
-<<xref Application States>> for more information.<p>
+<<xref "Application States">> for more information.<p>
 
 <<defitem "order title" {order title <i>name</i>}>>
 

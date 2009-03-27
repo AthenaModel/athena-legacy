@@ -71,21 +71,21 @@ sim(sim) provides the following commands for use by the application.<p>
 
 <<deflist commands>>
 
-<<defitem init {sim init}>>
+<<defitem "sim init" {sim init}>>
 
 Initializes the module.  This should be called once, at application
 start-up.<p>
 
-<<defitem new {sim new}>>
+<<defitem "sim new" {sim new}>>
 
 Re-initializes the simulation when a new scenario is created, erasing
 the details of the old scenario.<p>
 
-<<defitem now {sim now}>>
+<<defitem "sim now" {sim now}>>
 
 Returns the current simulation time in ticks.<p>
 
-<<defitem reconfigure {sim reconfigure}>>
+<<defitem "sim reconfigure" {sim reconfigure}>>
 
 The simulation is reconfigured when a new scenario is created or
 loaded, or any other time when the simulation's "in-memory" data needs
@@ -95,7 +95,7 @@ GUI is completely refreshed.<p>
 Most scenario and simulation modules have a <code>reconfigure</code>
 method which is called by this one, to allow them to resync if need be.<p>
 
-<<defitem restart {sim restart ?-noconfirm?}>>
+<<defitem "sim restart" {sim restart ?-noconfirm?}>>
 
 If the simulation is in the PAUSED state, this command returns it to
 the PREP state, reloading the snapshot taking just before it
@@ -103,7 +103,7 @@ first transitioned to RUNNING.  By default, the user is prompted to
 confirm the operation; if the <code>-noconfirm</code> option is given,
 the operation proceeds without confirmation.<p>
 
-<<defitem speed {sim speed ?<i>speed</i>?}>>
+<<defitem "sim speed" {sim speed ?<i>speed</i>?}>>
 
 This command queries and sets the simulation <i>speed</i>, which is an
 integer number from 1 to 10, with 1 being slowests and 10 being
@@ -116,11 +116,11 @@ of the delay is to allow the GUI to remain responsive while time is
 advancing, but varying it also allows the user to watch the progress
 of the simulation at a comfortable speed.<p>
 
-<<defitem state {sim state}>>
+<<defitem "sim state" {sim state}>>
 
 Returns the current <<xref "Simulation State">>.<p>
 
-<<defitem stoptime {sim stoptime}>>
+<<defitem "sim stoptime" {sim stoptime}>>
 
 While the simulation is in the <b>RUNNING</b> state, this command
 returns the time, in ticks, at which the simulation will automatically
@@ -139,16 +139,29 @@ this command will return 0.<p>
 
 <<defitem Reconfigure {&lt;Reconfigure&gt;}>>
 
-Sent by <<iref reconfigure>>.  Usually indicates that the scenario has
+Sent by <<iref sim reconfigure>>.  Usually indicates that the scenario has
 changed completely, as when a new scenario is created or opened.
 Directs the user interface to refresh itself completely.<p>
 
-<<defitem Status {&lt;Status&gt;}>>
+<<defitem Speed {&lt;Speed&gt;}>>
 
-This event is sent when the sim(sim) module's status changes
-significantly, e.g., when the <<xref "Simulation State">> changes,
-or simulation time advances, etc.  It directs the user interface
-to update the related status displays.<p>
+This event is sent when the <<iref sim speed>> changes.<p>
+
+<<defitem State {&lt;State&gt;}>>
+
+This event is sent when <<iref sim state>> changes.<p>
+
+<<defitem Time {&lt;Time&gt;}>>
+
+This event is sent when the display of simulated time has changed,
+either because time has advanced, or because the startdate has been
+changed, or because of a reconfigure.  Code that displays the
+Zulu-time should bind to this event.<p>
+
+
+<<defitem Tick {&lt;Tick&gt;}>>
+
+This event is sent when simulation time has advanced by one tick.<p>
 
 <</deflist events>>
 

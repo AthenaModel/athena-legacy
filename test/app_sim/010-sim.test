@@ -40,6 +40,7 @@ namespace eval ::athena_test::tests:: {
         eventq restart
         simclock configure -t0 $t0
         sim speed 5
+
         if {[sim state] eq "RUNNING"} {
             sim mutate pause
         }
@@ -108,14 +109,14 @@ namespace eval ::athena_test::tests:: {
     } -result {230000ZMAR09}
 
     
-    test mutate_startdate-1.2 {Sends <Status>} -body {
-        ted notifier bind ::sim <Status>
+    test mutate_startdate-1.2 {Sends <Time>} -body {
+        ted notifier bind ::sim <Time>
         sim mutate startdate 230000ZMAR09
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sim <Status>}
+        {::sim <Time>}
     }
 
 
@@ -178,14 +179,14 @@ namespace eval ::athena_test::tests:: {
     } -result {Assertion failed: $info(state) ne "RUNNING"}
 
 
-    test mutate_runpause-1.6 {Sends <Status>} -body {
-        ted notifier bind ::sim <Status>
+    test mutate_runpause-1.6 {Sends <State>} -body {
+        ted notifier bind ::sim <State>
         sim mutate run
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sim <Status>}
+        {::sim <State>}
     }
 
 
@@ -205,15 +206,15 @@ namespace eval ::athena_test::tests:: {
     } -result {PAUSED}
 
 
-    test mutate_runpause-2.2 {Sends <Status>} -body {
+    test mutate_runpause-2.2 {Sends <State>} -body {
         sim mutate run
-        ted notifier bind ::sim <Status>
+        ted notifier bind ::sim <State>
         sim mutate pause
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sim <Status>}
+        {::sim <State>}
     }
 
     

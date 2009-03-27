@@ -94,7 +94,7 @@ snit::type app {
         sim      init
 
         # NEXT, bind components together
-        notifier bind ::sim <Status> ::order {::order state [::sim state]}
+        notifier bind ::sim <State> ::order {::order state [::sim state]}
 
         # NEXT, define global conditions
         namespace eval ::cond { }
@@ -102,7 +102,7 @@ snit::type app {
         # Simulation state is not RUNNING.
 
         statecontroller ::cond::simNotRunning -events {
-            ::order <State>
+            ::sim <State>
         } -condition {
             [::sim state] ne "RUNNING"
         }

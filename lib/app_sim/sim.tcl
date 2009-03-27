@@ -208,7 +208,9 @@ snit::type sim {
 
         # NEXT, Reconfigure the GUI
         notifier send $type <Reconfigure>
-        notifier send $type <Status>
+        notifier send $type <Time>
+        notifier send $type <Speed>
+        notifier send $type <State>
     }
 
 
@@ -242,7 +244,7 @@ snit::type sim {
                 $ticker schedule
             }
 
-            notifier send $type <Status>
+            notifier send $type <Speed>
         }
 
         return $info(speed)
@@ -293,7 +295,7 @@ snit::type sim {
         set info(changed) 1
 
         # NEXT, notify the app
-        notifier send $type <Status>
+        notifier send $type <Time>
 
         # NEXT, set the undo command
         return [mytypemethod mutate startdate $oldDate]
@@ -384,19 +386,20 @@ snit::type sim {
     # Tick
     #
     # This command is executed at each time tick.
+    #
+    # TBD: The precise sequence of events during a Tick has yet
+    # to be determined.
 
     typemethod Tick {} {
         # FIRST, advance time one tick.
-        # TBD: Put the <Status> event and log message in -advancecmd?
         simclock tick
 
-        notifier send $type <Tick>
-        notifier send $type <Status>
+        notifier send $type <Time>
         log normal sim "Tick [simclock now]"
         set info(changed) 1
         
-        # NEXT, advance ARAM
-        # TBD: aram advance
+        # NEXT, advance GRAM
+        # TBD: gram advance
 
         # NEXT, execute eventq events
         eventq advance [simclock now]
@@ -410,6 +413,9 @@ snit::type sim {
             log normal sim "Stop time reached"
             $type mutate pause
         }
+
+        # NEXT, notify the application that the tick has occurred.
+        notifier send $type <Tick>
     }
 
     #-------------------------------------------------------------------
@@ -419,7 +425,7 @@ snit::type sim {
     #
     # state    The simulation state
     #
-    # Sets the current simulation state, and reports it as <Status>.
+    # Sets the current simulation state, and reports it as <State>.
     # On transition to RUNNING, saves snapshot
 
     typemethod SetState {state} {
@@ -434,7 +440,7 @@ snit::type sim {
         set info(state) $state
         log normal sim "Simulation state is $info(state)"
 
-        notifier send $type <Status>
+        notifier send $type <State>
     }
 
     #-------------------------------------------------------------------
