@@ -45,20 +45,22 @@ The following activities take place during a time tick:<p>
 
 <ul>
   <li> Time is advanced one tick (one day)
+  <li> The <b>&lt;Time&gt;</b> event is sent.
   <li> GRAM is advanced accordingly (TBD: Not yet implemented)
   <li> Scheduled events are executed
   <li> Reactive decision conditions (RDCs) are checked, and take
-       effect if the conditions are right.<p>
+       effect if the conditions are right.
        <ul>
          <li> TBD: Not yet implemented.
          <li> RDCs will be similar to rules in an e-mail application.
               If a set of conditions are met, a desired activity will
               take place.
          <li> For example, if the economy crashes, the simulation should
-              be paused.<p>
+              be paused.
        </ul>
   <li> If a stop time was specified, and has been reached, the
-       simulation is paused.<p>
+       simulation is paused.
+  <li> The <b>&lt;Tick&gt;</b> event is sent.
 </ul>
 
 As other models are added to the simulation, they will respond to time
@@ -70,6 +72,16 @@ discrete events managed by the event queue.<p>
 sim(sim) provides the following commands for use by the application.<p>
 
 <<deflist commands>>
+
+<<defitem "sim check" {sim check ?-log?}>>
+
+Performs a scenario sanity check, returning 1 if the scenario contains
+the data required to initialize all of the simulation models and 0
+otherwise.  The simulation can only advance from the PREP state to the
+RUNNING state if the sanity check succeeds.<p>
+
+If the <code>-log</code> option is included, then the results of the
+sanity check are logged in detail.<p>
 
 <<defitem "sim init" {sim init}>>
 

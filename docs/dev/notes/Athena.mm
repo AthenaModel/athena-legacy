@@ -1,8 +1,53 @@
 <map version="0.8.1">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
+<node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
+<node CREATED="1237478987023" FOLDED="true" ID="Freemind_Link_324117817" MODIFIED="1238170518037" TEXT="Integrate gram(n)">
+<icon BUILTIN="messagebox_warning"/>
+<node CREATED="1238170451558" ID="Freemind_Link_1373349157" MODIFIED="1238170461615" TEXT="sim(sim) Changes">
+<node CREATED="1237842153584" ID="Freemind_Link_340570150" MODIFIED="1238170440973" TEXT="Initialize GRAM on PREP to RUNNING"/>
+<node CREATED="1238170474294" ID="Freemind_Link_271034006" MODIFIED="1238170493983" TEXT="Sync GRAM when loading PAUSED scenario"/>
+<node CREATED="1237822576953" ID="Freemind_Link_1552650374" MODIFIED="1237822586866" TEXT="Advance GRAM during each tick"/>
+</node>
+<node CREATED="1238170378694" ID="Freemind_Link_1318678904" MODIFIED="1238170382224" TEXT="gram(n) Changes">
+<node CREATED="1237820225709" ID="Freemind_Link_209344982" MODIFIED="1237822673138" TEXT="On Open of scenario with t &gt; 0, must be able to sync with loaded gram_* data"/>
+<node CREATED="1237820290381" ID="Freemind_Link_1416194108" MODIFIED="1237820313047" TEXT="For simplicity, should not be a saveable--should save all scalars in RDB"/>
+</node>
+</node>
+<node CREATED="1237480898155" FOLDED="true" ID="Freemind_Link_919848605" MODIFIED="1237480916486" TEXT="GRAM slope limits based on duration">
+<node CREATED="1237480917418" ID="Freemind_Link_701469202" MODIFIED="1237480958721" TEXT="Limits based on total nominal change&#xa;don&apos;t really make sense."/>
+</node>
+<node CREATED="1238015584936" FOLDED="true" ID="Freemind_Link_1054409835" MODIFIED="1238168626771" TEXT="WAYBACK state">
+<node CREATED="1238015589208" ID="Freemind_Link_1081765451" MODIFIED="1238015601106" TEXT="Enter WAYBACK state when loading prior snapshot"/>
+<node CREATED="1238015602360" ID="Freemind_Link_1868904837" MODIFIED="1238015609218" TEXT="In WAYBACK, most orders are disabled"/>
+<node CREATED="1238015621352" ID="Freemind_Link_1434476628" MODIFIED="1238015631410" TEXT="Leave WAYBACK automatically on return to final snapshot"/>
+<node CREATED="1238015609784" ID="Freemind_Link_1583241154" MODIFIED="1238015619602" TEXT="Must leave WAYBACK explicitly to change things"/>
+<node CREATED="1238015639048" ID="Freemind_Link_1905612992" MODIFIED="1238015653522" TEXT="On leaving WAYBACK explicitly, future snapshots are purged">
+<node CREATED="1238015654120" ID="Freemind_Link_779539554" MODIFIED="1238015661314" TEXT="Rather than on SIM:RUN."/>
+<node CREATED="1238015661865" ID="Freemind_Link_1702214277" MODIFIED="1238015667250" TEXT="Can&apos;t SIM:RUN while in WAYBACK"/>
+</node>
+<node CREATED="1238015681529" ID="Freemind_Link_1703074413" MODIFIED="1238015700325" TEXT="Need special handling for GUI interactions">
+<node CREATED="1238015700680" ID="Freemind_Link_1732762311" MODIFIED="1238015705266" TEXT="E.g., dragging units"/>
+</node>
+<node CREATED="1238015717159" ID="Freemind_Link_1853367133" MODIFIED="1238015722825" TEXT="Possible icon: "/>
+</node>
+<node CREATED="1237822733720" FOLDED="true" ID="Freemind_Link_1356652575" MODIFIED="1237822740277" TEXT="Reactive Decision Conditions">
+<node CREATED="1237822742521" ID="Freemind_Link_656806568" MODIFIED="1237822753602" TEXT="Check RDCs at end of each tick"/>
+<node CREATED="1237822754248" ID="Freemind_Link_1244752831" MODIFIED="1237822768786" TEXT="Simplest: pause simulation if RDC is met"/>
+</node>
+<node CREATED="1237568034086" FOLDED="true" ID="Freemind_Link_1406761834" MODIFIED="1237568069787" TEXT="Game truth variables">
+<icon BUILTIN="help"/>
+<node CREATED="1237568050726" ID="Freemind_Link_454367740" MODIFIED="1237568062559" TEXT="Like gtclient/gtserver, but within one app"/>
+</node>
+</node>
 <node CREATED="1237475139158" ID="_" MODIFIED="1237477117490" POSITION="right" TEXT="Order">
-<node CREATED="1237571987086" ID="Freemind_Link_33041850" MODIFIED="1238003829181" TEXT="Undo info should be cleared at each tick."/>
+<node CREATED="1237480217386" ID="Freemind_Link_96571795" MODIFIED="1238170655243" TEXT="Dump order history as script">
+<arrowlink DESTINATION="Freemind_Link_860046120" ENDARROW="Default" ENDINCLINATION="75;0;" ID="Freemind_Arrow_Link_966523914" STARTARROW="None" STARTINCLINATION="75;0;"/>
+<icon BUILTIN="messagebox_warning"/>
+</node>
+<node CREATED="1237480209602" ID="Freemind_Link_860046120" MODIFIED="1238170658003" TEXT="Order scripting">
+<icon BUILTIN="messagebox_warning"/>
+</node>
 <node CREATED="1237480052010" ID="Freemind_Link_1129765376" MODIFIED="1237480125936" TEXT="Ability to validate orders without executing them"/>
 <node CREATED="1237480092962" FOLDED="true" ID="Freemind_Link_1722894145" MODIFIED="1237480125937" TEXT="Schedule orders ahead of time">
 <arrowlink DESTINATION="Freemind_Link_1129765376" ENDARROW="Default" ENDINCLINATION="93;0;" ID="Freemind_Arrow_Link_906925163" STARTARROW="None" STARTINCLINATION="93;0;"/>
@@ -31,17 +76,13 @@
 </node>
 </node>
 <node CREATED="1237477120338" ID="Freemind_Link_191938982" MODIFIED="1237477220978" TEXT="Merge cif(sim) into order(sim) as &quot;order history&quot;"/>
-<node CREATED="1237480209602" ID="Freemind_Link_860046120" MODIFIED="1237480242305" TEXT="Order scripting"/>
-<node CREATED="1237480217386" ID="Freemind_Link_96571795" MODIFIED="1237480242306" TEXT="Dump order history as script">
-<arrowlink DESTINATION="Freemind_Link_860046120" ENDARROW="Default" ENDINCLINATION="75;0;" ID="Freemind_Arrow_Link_966523914" STARTARROW="None" STARTINCLINATION="75;0;"/>
-</node>
 <node CREATED="1237480262914" FOLDED="true" ID="Freemind_Link_325462962" MODIFIED="1237480278885" TEXT="Add *:MULTI orders as appropriate">
 <node CREATED="1237480280162" ID="Freemind_Link_526459050" MODIFIED="1237480285749" TEXT="E.g., *:DELETE:MULTI"/>
 </node>
+<node CREATED="1237481133242" ID="Freemind_Link_1851551577" MODIFIED="1237481149014" TEXT="Abstract order(sim) into order(n)"/>
 <node CREATED="1237481099914" ID="Freemind_Link_1283162022" MODIFIED="1237481131391" TEXT="Abstract prepare/reject/returnOnError model for use in other code">
 <icon BUILTIN="help"/>
 </node>
-<node CREATED="1237481133242" ID="Freemind_Link_1851551577" MODIFIED="1237481149014" TEXT="Abstract order(sim) into order(n)"/>
 </node>
 <node CREATED="1237477511538" ID="Freemind_Link_894463638" MODIFIED="1237477524514" POSITION="right" TEXT="Scenario">
 <node CREATED="1237477586106" FOLDED="true" ID="Freemind_Link_516563511" MODIFIED="1237477603190" TEXT="Must rel=1.0 when f=g">
@@ -64,45 +105,6 @@
 <node CREATED="1237482138802" ID="Freemind_Link_1495570394" MODIFIED="1237482143838" TEXT="Useful; can of worms."/>
 </node>
 </node>
-<node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1238015584936" FOLDED="true" ID="Freemind_Link_1054409835" MODIFIED="1238168626771" TEXT="WAYBACK state">
-<node CREATED="1238015589208" ID="Freemind_Link_1081765451" MODIFIED="1238015601106" TEXT="Enter WAYBACK state when loading prior snapshot"/>
-<node CREATED="1238015602360" ID="Freemind_Link_1868904837" MODIFIED="1238015609218" TEXT="In WAYBACK, most orders are disabled"/>
-<node CREATED="1238015621352" ID="Freemind_Link_1434476628" MODIFIED="1238015631410" TEXT="Leave WAYBACK automatically on return to final snapshot"/>
-<node CREATED="1238015609784" ID="Freemind_Link_1583241154" MODIFIED="1238015619602" TEXT="Must leave WAYBACK explicitly to change things"/>
-<node CREATED="1238015639048" ID="Freemind_Link_1905612992" MODIFIED="1238015653522" TEXT="On leaving WAYBACK explicitly, future snapshots are purged">
-<node CREATED="1238015654120" ID="Freemind_Link_779539554" MODIFIED="1238015661314" TEXT="Rather than on SIM:RUN."/>
-<node CREATED="1238015661865" ID="Freemind_Link_1702214277" MODIFIED="1238015667250" TEXT="Can&apos;t SIM:RUN while in WAYBACK"/>
-</node>
-<node CREATED="1238015681529" ID="Freemind_Link_1703074413" MODIFIED="1238015700325" TEXT="Need special handling for GUI interactions">
-<node CREATED="1238015700680" ID="Freemind_Link_1732762311" MODIFIED="1238015705266" TEXT="E.g., dragging units"/>
-</node>
-<node CREATED="1238015717159" ID="Freemind_Link_1853367133" MODIFIED="1238015722825" TEXT="Possible icon: "/>
-</node>
-<node CREATED="1237478995798" FOLDED="true" ID="Freemind_Link_1090109606" MODIFIED="1238003903546" TEXT="Model sanity check">
-<node CREATED="1237479063275" ID="Freemind_Link_1873084845" MODIFIED="1237479076859" TEXT="The model must be sane before time can advance."/>
-<node CREATED="1237479048340" ID="Freemind_Link_542139928" MODIFIED="1237479087446" TEXT="Present warnings to user."/>
-</node>
-<node CREATED="1237478987023" FOLDED="true" ID="Freemind_Link_324117817" MODIFIED="1238003903545" TEXT="Integrate gram(n)">
-<node CREATED="1237842153584" FOLDED="true" ID="Freemind_Link_340570150" MODIFIED="1237842166969" TEXT="Initialize GRAM on PREP to RUNNING">
-<node CREATED="1237842189695" ID="Freemind_Link_11302190" MODIFIED="1237842195146" TEXT="Requires sanity check"/>
-</node>
-<node CREATED="1237822576953" ID="Freemind_Link_1552650374" MODIFIED="1237822586866" TEXT="Advance GRAM during each tick"/>
-<node CREATED="1237820225709" ID="Freemind_Link_209344982" MODIFIED="1237822673138" TEXT="On Open of scenario with t &gt; 0, must be able to sync with loaded gram_* data"/>
-<node CREATED="1237820290381" ID="Freemind_Link_1416194108" MODIFIED="1237820313047" TEXT="For simplicity, should not be a saveable--should save all scalars in RDB"/>
-</node>
-<node CREATED="1237480898155" FOLDED="true" ID="Freemind_Link_919848605" MODIFIED="1237480916486" TEXT="GRAM slope limits based on duration">
-<node CREATED="1237480917418" ID="Freemind_Link_701469202" MODIFIED="1237480958721" TEXT="Limits based on total nominal change&#xa;don&apos;t really make sense."/>
-</node>
-<node CREATED="1237568034086" FOLDED="true" ID="Freemind_Link_1406761834" MODIFIED="1237568069787" TEXT="Game truth variables">
-<icon BUILTIN="help"/>
-<node CREATED="1237568050726" ID="Freemind_Link_454367740" MODIFIED="1237568062559" TEXT="Like gtclient/gtserver, but within one app"/>
-</node>
-<node CREATED="1237822733720" FOLDED="true" ID="Freemind_Link_1356652575" MODIFIED="1237822740277" TEXT="Reactive Decision Conditions">
-<node CREATED="1237822742521" ID="Freemind_Link_656806568" MODIFIED="1237822753602" TEXT="Check RDCs at end of each tick"/>
-<node CREATED="1237822754248" ID="Freemind_Link_1244752831" MODIFIED="1237822768786" TEXT="Simplest: pause simulation if RDC is met"/>
-</node>
-</node>
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
 <node CREATED="1237935555280" FOLDED="true" ID="Freemind_Link_695028490" MODIFIED="1238106346211" TEXT="Snapshot browser/loader">
 <arrowlink DESTINATION="Freemind_Link_1054409835" ENDARROW="Default" ENDINCLINATION="215;0;" ID="Freemind_Arrow_Link_254679226" STARTARROW="None" STARTINCLINATION="529;0;"/>
@@ -116,10 +118,6 @@
 <node CREATED="1237488295816" FOLDED="true" ID="Freemind_Link_1208739900" MODIFIED="1237495169282" TEXT="zulufield(n) widget">
 <node CREATED="1237560838308" ID="Freemind_Link_7202440" MODIFIED="1237560850862" TEXT="-increment set by simclock&apos;s tick size"/>
 <node CREATED="1237918381064" ID="Freemind_Link_274696888" MODIFIED="1237918408034" TEXT="Make -changecmd work properly"/>
-</node>
-<node CREATED="1237479433118" FOLDED="true" ID="Freemind_Link_491578520" MODIFIED="1237479488218" TEXT="Cell-based editing in browsers">
-<node CREATED="1237479441630" ID="Freemind_Link_1508483203" MODIFIED="1237479447402" TEXT="Interaction Logic"/>
-<node CREATED="1237479448534" ID="Freemind_Link_1379686715" MODIFIED="1237479457434" TEXT="How to use custom editors in Tablelist"/>
 </node>
 <node CREATED="1237479490254" ID="Freemind_Link_1164487778" MODIFIED="1237479498698" TEXT="Order History Browser"/>
 <node CREATED="1237479513679" ID="Freemind_Link_123674584" MODIFIED="1237479523691" TEXT="appwin(sim): Windows Menu"/>
@@ -137,6 +135,10 @@
 <node CREATED="1237479823575" FOLDED="true" ID="Freemind_Link_1856908617" MODIFIED="1237479838611" TEXT="Preserve GUI layout">
 <node CREATED="1237479839174" ID="Freemind_Link_254956277" MODIFIED="1237479844658" TEXT="Save on shutdown or request"/>
 <node CREATED="1237479845294" ID="Freemind_Link_1346360849" MODIFIED="1237479851922" TEXT="Restore at startup"/>
+</node>
+<node CREATED="1237479433118" FOLDED="true" ID="Freemind_Link_491578520" MODIFIED="1237479488218" TEXT="Cell-based editing in browsers">
+<node CREATED="1237479441630" ID="Freemind_Link_1508483203" MODIFIED="1237479447402" TEXT="Interaction Logic"/>
+<node CREATED="1237479448534" ID="Freemind_Link_1379686715" MODIFIED="1237479457434" TEXT="How to use custom editors in Tablelist"/>
 </node>
 <node CREATED="1237480548048" FOLDED="true" ID="Freemind_Link_1752009235" MODIFIED="1237480701864" TEXT="Help Browser">
 <node CREATED="1237480554706" ID="Freemind_Link_418716993" MODIFIED="1237480564829" TEXT="Firefox, Tkhtml2, or Text"/>
@@ -162,14 +164,14 @@
 <node CREATED="1237481862754" ID="Freemind_Link_1299949235" MODIFIED="1237481887774" TEXT="qgrouprel defines FRIEND, NEUTRAL, ENEMY"/>
 </node>
 <node CREATED="1237479995726" ID="Freemind_Link_1174080421" MODIFIED="1237480014930" TEXT="Data-driven nbhood fill colors"/>
-<node CREATED="1237480762290" ID="Freemind_Link_1647420652" MODIFIED="1237480770710" TEXT="Ability to drag reference points interactively"/>
-<node CREATED="1237481081578" ID="Freemind_Link_1201367450" MODIFIED="1237481091054" TEXT="Ability to edit nbhood boundary points interactively"/>
 <node CREATED="1237482154410" ID="Freemind_Link_1362932509" MODIFIED="1237482165447" TEXT="Enable/disable map background"/>
 <node CREATED="1237482166114" ID="Freemind_Link_639175641" MODIFIED="1237482173382" TEXT="Enable/disable nbhood display"/>
 <node CREATED="1237482173858" FOLDED="true" ID="Freemind_Link_270558674" MODIFIED="1237482179936" TEXT="Enable/disable icons">
 <node CREATED="1237482180474" ID="Freemind_Link_1659229339" MODIFIED="1237482185838" TEXT="By icon type"/>
 </node>
 <node CREATED="1237482195459" ID="Freemind_Link_1291634544" MODIFIED="1237482204646" TEXT="Display nbhood names by refpoint"/>
+<node CREATED="1237480762290" ID="Freemind_Link_1647420652" MODIFIED="1237480770710" TEXT="Ability to drag reference points interactively"/>
+<node CREATED="1237481081578" ID="Freemind_Link_1201367450" MODIFIED="1237481091054" TEXT="Ability to edit nbhood boundary points interactively"/>
 </node>
 <node CREATED="1237480148482" ID="Freemind_Link_1288481032" MODIFIED="1237480151141" POSITION="right" TEXT="Order GUI">
 <node CREATED="1237480151546" ID="Freemind_Link_1910353174" MODIFIED="1237480162312" TEXT="Validate order on parameter entry change"/>
@@ -183,19 +185,20 @@
 <node CREATED="1237480464266" ID="Freemind_Link_1002868925" MODIFIED="1237480490037" TEXT="Buttons active only when unsaved data"/>
 <node CREATED="1237480480554" ID="Freemind_Link_208340476" MODIFIED="1237480498638" TEXT="Buttons use tinyfont"/>
 </node>
-<node CREATED="1237480589114" ID="Freemind_Link_1560701323" MODIFIED="1237480832899" TEXT="Implement order dialog&apos;s Help button">
-<arrowlink DESTINATION="Freemind_Link_1752009235" ENDARROW="Default" ENDINCLINATION="187;0;" ID="Freemind_Arrow_Link_1754252667" STARTARROW="None" STARTINCLINATION="187;0;"/>
-</node>
 <node CREATED="1237482036218" FOLDED="true" ID="Freemind_Link_594210180" MODIFIED="1237482044439" TEXT="textfield(n) allows -autocmd">
 <node CREATED="1237482048762" ID="Freemind_Link_1233297342" MODIFIED="1237482067198" TEXT="If present, field has &quot;Auto&quot; button"/>
 <node CREATED="1237482068018" ID="Freemind_Link_1873031307" MODIFIED="1237482082038" TEXT="Pressing Auto fills in field automatically"/>
 </node>
 <node CREATED="1237482088442" ID="Freemind_Link_1487556535" MODIFIED="1237482098407" TEXT="colorfield(n) should allow editing"/>
+<node CREATED="1237480589114" ID="Freemind_Link_1560701323" MODIFIED="1237480832899" TEXT="Implement order dialog&apos;s Help button">
+<arrowlink DESTINATION="Freemind_Link_1752009235" ENDARROW="Default" ENDINCLINATION="187;0;" ID="Freemind_Arrow_Link_1754252667" STARTARROW="None" STARTINCLINATION="187;0;"/>
+</node>
 <node CREATED="1237480808675" ID="Freemind_Link_490467788" MODIFIED="1237480882437" TEXT="Scrolling order tree, in dialog or palette">
 <icon BUILTIN="help"/>
 </node>
-<node CREATED="1237481160994" FOLDED="true" ID="Freemind_Link_1793874343" MODIFIED="1237481180162" TEXT="Parameter help strings">
+<node CREATED="1237481160994" ID="Freemind_Link_1793874343" MODIFIED="1237481180162" TEXT="Parameter help strings">
 <node CREATED="1237481181034" ID="Freemind_Link_382977978" MODIFIED="1237481200616" TEXT="Display in order dialog&apos;s message area"/>
+<node CREATED="1238170607413" ID="Freemind_Link_1227050066" MODIFIED="1238170619791" TEXT="Build order docs at build time?"/>
 </node>
 <node CREATED="1237481709395" FOLDED="true" ID="Freemind_Link_242433049" MODIFIED="1237481719533" TEXT="Enumfield should display short and long name">
 <node CREATED="1237481720578" ID="Freemind_Link_568955124" MODIFIED="1237481725070" TEXT="For enum(n)"/>
@@ -235,7 +238,8 @@
 </node>
 </node>
 <node CREATED="1237479138614" ID="Freemind_Link_1692010973" MODIFIED="1237479140586" POSITION="right" TEXT="App">
-<node CREATED="1237479141070" FOLDED="true" ID="Freemind_Link_1157275495" MODIFIED="1237479391450" TEXT="Purging old sessions">
+<node CREATED="1237479141070" FOLDED="true" ID="Freemind_Link_1157275495" MODIFIED="1238170644307" TEXT="Purging old sessions">
+<icon BUILTIN="messagebox_warning"/>
 <node CREATED="1237479159342" ID="Freemind_Link_978533443" MODIFIED="1237479167154" TEXT="At present, session data is deleted on exit"/>
 <node CREATED="1237479168366" ID="Freemind_Link_28557513" MODIFIED="1237479175178" TEXT="Should retain multiple sessions"/>
 <node CREATED="1237479186254" FOLDED="true" ID="Freemind_Link_1095851202" MODIFIED="1237479202138" TEXT="Should purge older sessions">
@@ -340,6 +344,64 @@
 <node CREATED="1238107788002" ID="Freemind_Link_409425418" MODIFIED="1238107790380" TEXT="&lt;Speed&gt;"/>
 </node>
 <node CREATED="1238107804754" ID="Freemind_Link_1786540087" MODIFIED="1238107814748" TEXT="appwin can subscribe one handler to all three"/>
+</node>
+</node>
+<node CREATED="1238170234726" ID="Freemind_Link_329451020" MODIFIED="1238170252020" TEXT="Bug 1965">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237571987086" ID="Freemind_Link_33041850" MODIFIED="1238170252021" TEXT="Undo info should be cleared at each tick.">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1238174760622" ID="Freemind_Link_1452183384" MODIFIED="1238174774524" TEXT="Bug 1967">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238171285579" FOLDED="true" ID="Freemind_Link_164640460" MODIFIED="1238174774526" TEXT="Scenario Sanity Check">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238171311427" ID="Freemind_Link_1401500484" MODIFIED="1238171324314" TEXT="Concept">
+<icon BUILTIN="flag"/>
+<node CREATED="1237479063275" ID="Freemind_Link_1056971138" MODIFIED="1238174587800" TEXT="The scenario must be sane before time can advance."/>
+<node CREATED="1238171344773" ID="Freemind_Link_426910570" MODIFIED="1238171427950" TEXT="Do a sanity check on SIM:RUN">
+<node CREATED="1238171428405" ID="Freemind_Link_759586256" MODIFIED="1238171433550" TEXT="Order is rejected."/>
+<node CREATED="1238171434340" ID="Freemind_Link_875208047" MODIFIED="1238171449006" TEXT="Present warnings to user"/>
+</node>
+<node CREATED="1238170280470" ID="Freemind_Link_922997392" MODIFIED="1238173690494" TEXT="Conditions">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238170282869" ID="Freemind_Link_1314220736" MODIFIED="1238170286656" TEXT="At least one nbhood"/>
+<node CREATED="1238170287253" ID="Freemind_Link_1784577310" MODIFIED="1238170293808" TEXT="At least one FRC group"/>
+<node CREATED="1238173505296" ID="Freemind_Link_1273631840" MODIFIED="1238173515113" TEXT="At least one CIV group"/>
+<node CREATED="1238170294358" ID="Freemind_Link_265827600" MODIFIED="1238170299952" TEXT="At least one nbgroup per neighborhood"/>
+<node CREATED="1238173516192" ID="Freemind_Link_650706235" MODIFIED="1238173521850" TEXT="At least one nbgroup per CIV group"/>
+</node>
+<node CREATED="1238173533168" ID="Freemind_Link_476733601" MODIFIED="1238173657909" TEXT="These conditions assume that all neighborhoods must&#xa;have resident civilians.  We might instead want to track&#xa;satisfaction only for neighborhoods that do have &#xa;resident civilians.">
+<icon BUILTIN="help"/>
+</node>
+</node>
+<node CREATED="1237478995798" ID="Freemind_Link_1302227452" MODIFIED="1238174388141" TEXT="sim(sim) Changes">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238171490835" ID="Freemind_Link_752525374" MODIFIED="1238174386229" TEXT="sim check ?-log?">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238171508052" ID="Freemind_Link_1274803095" MODIFIED="1238171514157" TEXT="Performs sanity check"/>
+<node CREATED="1238171514692" ID="Freemind_Link_1441734208" MODIFIED="1238171523054" TEXT="Logs results to debugging log"/>
+<node CREATED="1238171524308" ID="Freemind_Link_1253796134" MODIFIED="1238171536364" TEXT="Returns a boolean flag."/>
+</node>
+<node CREATED="1238171567604" ID="Freemind_Link_43310679" MODIFIED="1238174386229" TEXT="SIM:RUN">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238171571172" ID="Freemind_Link_1028498519" MODIFIED="1238171579101" TEXT="Calls &quot;sim check -log&quot;"/>
+<node CREATED="1238171579732" ID="Freemind_Link_460230865" MODIFIED="1238171599661" TEXT="On failure, rejects order with explanatory message"/>
+</node>
+</node>
+<node CREATED="1238171602644" ID="Freemind_Link_1245358500" MODIFIED="1238174395357" TEXT="appwin(sim) Changes">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238171612611" ID="Freemind_Link_556644434" MODIFIED="1238171635705" TEXT="Sends SIM:RUN when play button is pressed">
+<icon BUILTIN="flag"/>
+</node>
+<node CREATED="1238171887427" ID="Freemind_Link_1319861674" MODIFIED="1238174395357" TEXT="Displays rejections to user">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238171939475" ID="Freemind_Link_1489528397" MODIFIED="1238174395358" TEXT="Catches errors">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238171945810" ID="Freemind_Link_156063273" MODIFIED="1238171972962" TEXT="Should be only rejections; other errors &#xa;are handled by order(sim)"/>
+</node>
+</node>
 </node>
 </node>
 </node>

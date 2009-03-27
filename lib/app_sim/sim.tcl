@@ -272,6 +272,90 @@ snit::type sim {
     }
 
     #-------------------------------------------------------------------
+    # Model Sanity Check
+
+    # check ?-log?
+    #
+    # Does a sanity check of the model: can we advance time from PREP?
+    # Returns 1 if sane and 0 otherwise.  If -log is specified, then the 
+    # results are logged.
+
+    typemethod check {{option -nolog}} {
+        # FIRST, presume that the model is sane.
+        set sane 1
+
+        set results [list]
+
+        # NEXT, Require at least one neighborhood:
+        if {[llength [nbhood names]] == 0} {
+            set sane 0
+
+            lappend results \
+                "No neighborhoods are defined; at least one is required"
+        }
+
+        # NEXT, Require at least one force group
+        if {[llength [frcgroup names]] == 0} {
+            set sane 0
+
+            lappend results \
+                "No force groups are defined; at least one is required"
+        }
+
+        # NEXT, Require at least one civ group
+        if {[llength [civgroup names]] == 0} {
+            set sane 0
+
+            lappend results \
+                "No civilian groups are defined; at least one is required"
+        }
+
+        # NEXT, collect data on neighborhood groups
+        rdb eval {
+            SELECT n,g FROM nbgroups
+        } {
+            lappend gInN($n)  $g
+            lappend nForG($g) $n
+        }
+
+        # NEXT, Every neighborhood must have at least one group
+        # TBD: Is this really required?  Can we insist, instead,
+        # that at least one neighborhood must have a group?
+        foreach n [nbhood names] {
+            if {![info exists gInN($n)]} {
+                set sane 0
+
+                lappend results \
+              "Neighborhood $n contains no groups; at least one is required"
+            }
+        }
+
+        # NEXT, Every CIV group must reside in at least one nbhood.
+        # TBD: Is this really required?
+        foreach g [civgroup names] {
+            if {![info exists nForG($g)]} {
+                set sane 0
+
+                lappend results \
+      "Civilian group $g resides in no neighborhoods; at least one is required"
+            }
+        }
+
+        if {$option eq "-log"} {
+            if {$sane} {
+                log normal sim "Scenario Sanity Check: OK"
+            } else {
+                log warning sim \
+                    "Scenario Sanity Check: FAILED\n[join $results \n]"
+            }
+        }
+
+
+        # NEXT, return the result
+        return $sane
+    }
+
+    #-------------------------------------------------------------------
     # Mutators
     #
     # Mutators are used to implement orders that change the simulation in
@@ -346,10 +430,7 @@ snit::type sim {
 
         # NEXT, if state is PREP, we've got work to do
         if {$info(state) eq "PREP"} {
-            # FIRST, Do a sanity check: can we advance time?
-            # TBD
-
-            # NEXT, initialize ARAM.
+            # FIRST, initialize GRAM, other sim models
             # TBD
         }
 
@@ -543,6 +624,17 @@ order define ::sim SIM:RUN {
 } {
     # FIRST, prepare the parameters
     prepare days -toupper -type idays
+
+    returnOnError
+
+    # NEXT, do the sanity check
+    if {![sim check -log]} {
+        reject * {
+            Scenario sanity check failed; time cannot advance.
+            Fix the error, and try again.
+            Please see the log for details.
+        }
+    }
 
     returnOnError
 

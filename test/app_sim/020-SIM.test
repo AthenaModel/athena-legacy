@@ -35,8 +35,6 @@ namespace eval ::athena_test::tests:: {
         variable oldDate
 
         # Clean up the test environment
-        ted cleanup
-
         simclock reset
         simclock configure -t0 $oldDate
 
@@ -47,6 +45,8 @@ namespace eval ::athena_test::tests:: {
         if {[sim state] eq "PAUSED"} {
             sim restart -noconfirm
         }
+
+        ted cleanup
     }
 
     #-------------------------------------------------------------------
@@ -114,8 +114,17 @@ namespace eval ::athena_test::tests:: {
         days {invalid value "-1", expected integer no less than 0}
     }
 
+    
+    test RUN-1.3 {sanity check fails} -body {
+        ted order -reject SIM:RUN
+    } -result {
+        * {Scenario sanity check failed; time cannot advance. Fix the error, and try again. Please see the log for details.}
+    }
 
-    test RUN-2.1 {Run until paused} -body {
+
+    test RUN-2.1 {Run until paused} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
         ted order SIM:RUN
         list [sim state] [sim stoptime]
     } -cleanup {
@@ -123,7 +132,9 @@ namespace eval ::athena_test::tests:: {
     } -result {RUNNING 0}
 
 
-    test RUN-2.2 {Run for days} -body {
+    test RUN-2.2 {Run for days} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
         ted order SIM:RUN days 5
         list [sim state] [sim stoptime]
     } -cleanup {
@@ -131,7 +142,9 @@ namespace eval ::athena_test::tests:: {
     } -result {RUNNING 5}
 
 
-    test RUN-2.3 {Sends <State>} -body {
+    test RUN-2.3 {Sends <State>} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
         ted notifier bind ::sim <State>
         ted order SIM:RUN
         ted notifier received
@@ -153,7 +166,9 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test PAUSE-1.2 {Pauses while running} -body {
+    test PAUSE-1.2 {Pauses while running} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
         ted order SIM:RUN
         ted order SIM:PAUSE
         sim state
@@ -162,7 +177,9 @@ namespace eval ::athena_test::tests:: {
     } -result {PAUSED}
 
 
-    test PAUSE-1.3 {Not allowed while paused} -body {
+    test PAUSE-1.3 {Not allowed while paused} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
         ted order SIM:RUN
         ted order SIM:PAUSE
         ted order -reject SIM:PAUSE
@@ -173,7 +190,9 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test PAUSE-1.4 {Sends <State>} -body {
+    test PAUSE-1.4 {Sends <State>} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
         ted order SIM:RUN
         ted notifier bind ::sim <State>
         ted order SIM:PAUSE

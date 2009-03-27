@@ -944,8 +944,22 @@ snit::widget appwin {
         if {[sim state] eq "RUNNING"} {
             order send gui SIM:PAUSE
         } else {
-            order send gui SIM:RUN \
-                days [dict get $durations [$win.toolbar.duration get]]
+            if {[catch {
+                order send gui SIM:RUN \
+                    days [dict get $durations [$win.toolbar.duration get]]
+            } result opts]} {
+                # order(sim) should ensure that this is a REJECT; but 
+                # let's make sure
+                assert {[dict get $opts -errorcode] eq "REJECT"}
+
+                set message [dict get $result [lindex [dict keys $result] 0]]
+
+                messagebox popup \
+                    -parent  $win               \
+                    -icon    error              \
+                    -title   "Not ready to run" \
+                    -message $message 
+            }
         }
     }
 

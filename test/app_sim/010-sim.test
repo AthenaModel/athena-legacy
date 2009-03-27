@@ -323,6 +323,23 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {PREP 0 0 100000ZJAN10}
 
+    #-------------------------------------------------------------------
+    # check
+
+    test check-1.1 {Fails sanity check initially} -body {
+        sim check
+    } -result {0}
+
+    
+    test check-1.2 {Check succeeds} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
+        sim check
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
 
     #-------------------------------------------------------------------
     # Cleanup
