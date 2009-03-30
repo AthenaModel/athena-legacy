@@ -188,7 +188,7 @@ snit::type sim {
     # Loads the latest snapshot.
 
     typemethod {snapshot last} {} {
-        set tick [lindex [scenario snapshot list] end]
+        set tick [scenario snapshot latest]
 
         assert {[simclock now] < $tick}
 
@@ -206,11 +206,11 @@ snit::type sim {
     # saves one.
 
     typemethod LoadSnapshot {tick} {
-        assert {[sim state] in {PAUSED WAYBACK}}
+        assert {[sim state] in {PAUSED SNAPSHOT}}
 
         # FIRST, if the time is greater than the last snapshot, 
         # save one.
-        if {[simclock now] > [lindex [scenario snapshot list] end]} {
+        if {[simclock now] > [scenario snapshot latest]} {
             scenario snapshot save
         }
 
@@ -218,18 +218,18 @@ snit::type sim {
         scenario snapshot load $tick
 
         # NEXT, enter PAUSED if we're at the last snapshot, and
-        # WAYBACK otherwise.
-        if {$tick == [lindex [scenario snapshot list] end]} {
+        # SNAPSHOT otherwise.
+        if {$tick == [scenario snapshot latest]} {
             $type SetState PAUSED
             log newlog latest
         } else {
-            $type SetState WAYBACK
-            log newlog wayback
+            $type SetState SNAPSHOT
+            log newlog snapshot
         }
 
         # NEXT, log the change
         set message \
-            "Loaded snapshot at [simclock asZulu] (tick [simclock now])"
+            "Loaded snapshot [scenario snapshot current] at [simclock asZulu] (tick [simclock now])"
 
         log normal sim $message
         app puts $message
@@ -246,8 +246,8 @@ snit::type sim {
     # later snapshots.
 
     typemethod {snapshot enter} {} {
-        # FIRST, must be in WAYBACK mode.
-        assert {[sim state] eq "WAYBACK"}
+        # FIRST, must be in SNAPSHOT mode.
+        assert {[sim state] eq "SNAPSHOT"}
 
         # NEXT, purge future snapshots
         set now [simclock now]
@@ -649,10 +649,10 @@ snit::type sim {
         simclock advance [dict get $checkpoint now]
 
         # Don't use SetState, as we'll be reconfiguring immediately.
-        set latest [lindex [scenario snapshot list] end]
+        set latest [scenario snapshot latest]
 
         if {[simclock now] < $latest} {
-            set info(state) WAYBACK
+            set info(state) SNAPSHOT
         } elseif {[simclock now] == 0} {
             set info(state) PREP
         } else {
@@ -766,6 +766,7 @@ order define ::sim SIM:PAUSE {
 
     setundo [join $undo \n]
 }
+
 
 
 

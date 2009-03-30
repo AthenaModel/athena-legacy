@@ -79,11 +79,13 @@ snit::widget appwin {
     #
     # simspeed    Current simulation speed
     # simstate    Current simulation state
+    # tick        Current sim time as a four-digit tick
     # zulutime    Current sim time as a zulu time string
 
     variable info -array {
         simspeed 5
         simstate ""
+        tick     "0000"
         zulutime ""
     }
 
@@ -474,6 +476,10 @@ snit::widget appwin {
             [list ::sim snapshot last]
 
 
+        # Spacer
+        label $win.toolbar.spacer3 \
+            -text "  "
+
         # Sim State
         label $win.toolbar.state                       \
             -text "State:"
@@ -495,6 +501,16 @@ snit::widget appwin {
             -width              12                     \
             -textvariable       [myvar info(zulutime)]
 
+        # Tick
+        label $win.toolbar.ticklab                     \
+            -text "Tick:"
+
+        label $win.toolbar.tick                        \
+            -highlightthickness 0                      \
+            -font               codefont               \
+            -width              4                      \
+            -textvariable       [myvar info(tick)]
+
         pack $win.toolbar.runpause -side left    
         pack $win.toolbar.duration -side left
         pack $win.toolbar.spacer1  -side left
@@ -506,10 +522,13 @@ snit::widget appwin {
         pack $win.toolbar.prev     -side left
         pack $win.toolbar.next     -side left
         pack $win.toolbar.last     -side left
+        pack $win.toolbar.spacer3  -side left
+        pack $win.toolbar.tick     -side right -padx 2 
+        pack $win.toolbar.ticklab  -side right
         pack $win.toolbar.zulutime -side right -padx 2 
-        pack $win.toolbar.time     -side right -padx 2
+        pack $win.toolbar.time     -side right
         pack $win.toolbar.simstate -side right -padx 2 
-        pack $win.toolbar.state    -side right -padx 2
+        pack $win.toolbar.state    -side right
 
         # ROW 2, add a separator between the tool bar and the content
         # window.
@@ -966,7 +985,19 @@ snit::widget appwin {
     method RunPause {} {
         if {[sim state] eq "RUNNING"} {
             order send gui SIM:PAUSE
-        } elseif {[sim state] eq "WAYBACK"} {
+        } elseif {[sim state] eq "SNAPSHOT"} {
+            set last [expr {[llength [scenario snapshot list]] - 1}]
+            set next [expr {[scenario snapshot current] + 1}]
+            
+            if {$last == $next} {
+                set lostSnapshots "Snapshot $next"
+            } elseif {$last == $next + 1} {
+                set lostSnapshots "Snapshots $next and $last"
+            } else {
+                set lostSnapshots "Snapshots $next to $last"
+            }
+
+
             set answer [messagebox popup \
                             -parent    $win                  \
                             -icon      peabody               \
@@ -975,7 +1006,9 @@ snit::widget appwin {
                             -buttons   {
                                 ok      "Change the Future"
                                 cancel  "Look, But Don't Touch"
-                            } -message "Peabody here.  If you proceed, you may make changes and run the simulation forward.  However, all snapshots with timestamps later than [simclock asZulu] will be purged."]
+                            } -message [normalize "
+    Peabody here.  If you wish, you may use the Wayback Machine to re-enter the time stream at Snapshot [scenario snapshot current]; you may then make changes and run the simulation forward.  However, you will lose $lostSnapshots.
+                            "]]
 
             if {$answer eq "ok"} {
                 sim snapshot enter
@@ -1104,7 +1137,13 @@ snit::widget appwin {
     # in some way.
 
     method SimState {} {
-        # FIRST, display the simulation state
+        # FIRST, get some snapshot data
+        set now       [sim now]
+        set snapshots [scenario snapshot list]
+        set latest    [lindex $snapshots end]
+        set current   [lsearch -exact $snapshots $now]
+
+        # NEXT, display the simulation state
         if {[sim state] eq "RUNNING"} {
             set prefix [esimstate longname [sim state]]
 
@@ -1114,9 +1153,9 @@ snit::widget appwin {
                 set info(simstate) \
                     "$prefix until [simclock toZulu [sim stoptime]]"
             }
-        } elseif {[sim state] eq "WAYBACK"} {
+        } elseif {[sim state] eq "SNAPSHOT"} {
             set info(simstate) \
-                "Browsing snapshot"
+                "Snapshot $current"
         } else {
             set info(simstate) [esimstate longname [sim state]]
         }
@@ -1127,10 +1166,10 @@ snit::widget appwin {
             DynamicHelp::add $win.toolbar.runpause -text "Pause Simulation"
 
             $win.toolbar.duration configure -state disabled
-        } elseif {[sim state] eq "WAYBACK"} {
+        } elseif {[sim state] eq "SNAPSHOT"} {
             $win.toolbar.runpause configure \
                 -image ::projectgui::icon::peabody32
-            DynamicHelp::add $win.toolbar.runpause -text "Leave Wayback Mode"
+            DynamicHelp::add $win.toolbar.runpause -text "Leave Snapshot Mode"
 
             $win.toolbar.duration configure -state disabled
         } else {
@@ -1141,11 +1180,6 @@ snit::widget appwin {
         }
 
         # NEXT, Update the snapshot buttons.
-        set now       [sim now]
-        set snapshots [scenario snapshot list]
-        set latest    [lindex $snapshots end]
-        set ndx       [lsearch -exact $snapshots $now]
-
         if {[sim state] eq "RUNNING"} {
             $win.toolbar.first  configure -state disabled
             $win.toolbar.prev   configure -state disabled
@@ -1181,6 +1215,7 @@ snit::widget appwin {
 
     method SimTime {} {
         # Display current sim time.
+        set info(tick)     [format "%04d" [simclock now]]
         set info(zulutime) [simclock asZulu]
     }
 
@@ -1231,6 +1266,7 @@ snit::widget appwin {
         $msgline puts $text
     }
 }
+
 
 
 

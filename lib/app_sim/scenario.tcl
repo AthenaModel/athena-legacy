@@ -310,7 +310,23 @@ snit::type scenario {
         }
     }
 
+    # snapshot current
+    #
+    # Returns the index of the current snapshot, or -1 if we're
+    # not on a snapshot.
 
+    typemethod {snapshot current} {} {
+        # TBD: Consider storing the index in the RDB.
+        lsearch -exact [scenario snapshot list] [simclock now]
+    }
+
+    # snapshot latest
+    #
+    # Returns the tick of the latest snapshot.
+
+    typemethod {snapshot latest} {} {
+        lindex [scenario snapshot list] end
+    }
 
     #-------------------------------------------------------------------
     # Scenario Reconciliation

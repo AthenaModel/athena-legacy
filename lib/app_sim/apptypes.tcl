@@ -16,10 +16,10 @@
 # esimstate: The current simulation state
 
 enum esimstate {
-    PREP    Prep
-    RUNNING Running
-    PAUSED  Paused
-    WAYBACK Wayback
+    PREP     Prep
+    RUNNING  Running
+    PAUSED   Paused
+    SNAPSHOT Snapshot
 }
 
 # refpoint
@@ -51,6 +51,7 @@ snit::type refpoly {
         return polygon validate $coords
     }
 }
+
 
 
 

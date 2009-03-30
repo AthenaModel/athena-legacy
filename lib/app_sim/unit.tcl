@@ -508,6 +508,8 @@ snit::type unit {
 order define ::unit UNIT:CREATE {
     title "Create Unit"
 
+    options -sendstates {PREP PAUSED RUNNING}
+
     parm g          enum  "Group" -type {unit group} -tags group -refresh
     parm u          text  "Name" \
         -refreshcmd [list ::unit RefreshUnitName]
@@ -543,7 +545,10 @@ order define ::unit UNIT:CREATE {
 
 order define ::unit UNIT:DELETE {
     title "Delete Unit"
-    options -table units
+    options \
+        -table      units                 \
+        -sendstates {PREP PAUSED RUNNING}
+
 
     parm u  key "Unit" -tags unit
 } {
@@ -586,7 +591,9 @@ order define ::unit UNIT:DELETE {
 
 order define ::unit UNIT:UPDATE {
     title "Update Unit"
-    options -table gui_units
+    options \
+        -table      gui_units             \
+        -sendstates {PREP PAUSED RUNNING}
 
     parm u          key   "Unit"       -tags unit
     parm g          enum  "Group"      -type {unit group}
@@ -629,7 +636,9 @@ order define ::unit UNIT:UPDATE {
 
 order define ::unit UNIT:UPDATE:MULTI {
     title "Update Multiple Units"
-    options -table gui_units
+    options \
+        -table      gui_units             \
+        -sendstates {PREP PAUSED RUNNING}
 
     parm ids        multi "Units"
     parm g          enum  "Group"      -type {unit group} -refresh
