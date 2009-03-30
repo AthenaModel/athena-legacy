@@ -35,6 +35,7 @@ package require sqlite3  3.5
 # From Mars
 package require marsutil
 package require marsgui
+package require simlib
 
 # From Athena
 package require projectlib
@@ -42,6 +43,7 @@ package require projectgui
         
 namespace import ::marsutil::* 
 namespace import ::marsgui::*
+namespace import ::simlib::*
 namespace import ::projectlib::*
 namespace import ::projectgui::*
 

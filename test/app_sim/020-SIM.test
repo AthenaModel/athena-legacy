@@ -43,7 +43,7 @@ namespace eval ::athena_test::tests:: {
         }
 
         if {[sim state] eq "PAUSED"} {
-            sim restart -noconfirm
+            sim restart
         }
 
         ted cleanup

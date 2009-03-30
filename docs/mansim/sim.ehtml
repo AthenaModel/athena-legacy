@@ -121,13 +121,14 @@ GUI is completely refreshed.<p>
 Most scenario and simulation modules have a <code>reconfigure</code>
 method which is called by this one, to allow them to resync if need be.<p>
 
-<<defitem "sim restart" {sim restart ?-noconfirm?}>>
+<<defitem "sim restart" {sim restart}>>
 
-If the simulation is in the PAUSED state, this command returns it to
-the PREP state, reloading the snapshot taking just before it
-first transitioned to RUNNING.  By default, the user is prompted to
-confirm the operation; if the <code>-noconfirm</code> option is given,
-the operation proceeds without confirmation.<p>
+If the simulation is in the PAUSED or SNAPSHOT state, this command
+returns it to the PREP state, reloading the snapshot taking just before it
+first transitioned to RUNNING.<p>
+
+Essentially, this is the same as loading the time 0 snapshot, and then
+"enter"-ing the snapshot.  See <<iref sim snapshot enter>>.<p>
 
 <<defitem "sim snapshot" {sim snapshot <i>subcommand</i> ?<i>args...</i>?}>>
 

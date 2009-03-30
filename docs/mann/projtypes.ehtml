@@ -77,13 +77,6 @@ An <<xref mars:enum(n)>> type, representing organization group types.<p>
 
 <<::projectlib::eorgtype html>>
 
-<<defitem eproximity {eproximity <i>subcommand</i> ?<i>args</i>?}>>
-
-An <<xref mars:enum(n)>> type, representing the proximity of one
-neighborhood to another.<p>
-
-<<::projectlib::eorgconcern html>>
-
 
 <<defitem eurbanization {eurbanization <i>subcommand</i> ?<i>args</i>?}>>
 
@@ -137,39 +130,6 @@ Validates the polygon described by the <i>coords</i>, which is a flat
 list of <i>x</i> and <i>y</i> coordinates.  It may be passed as a
 single argument, or as one argument per coordinate.  On error, throws
 an error with <code>-errorcode</code> <b>INVALID</b>.<p>
-
-
-<<defitem qcooperation {qcooperation <i>subcommand</i> ?<i>args</i>?}>>
-
-A <<xref mars:quality(n)>> type, representing the cooperation of
-one group with another, i.e., the likelihood that the first group will
-pass intel to the second.<p>
-
-<<::projectlib::qcooperation html>>
-
-
-<<defitem qsaliency {qsaliency <i>subcommand</i> ?<i>args</i>?}>>
-
-A <<xref mars:quality(n)>> type, representing the saliency of a
-concern to a group.<p>
-
-<<::projectlib::qsaliency html>>
-
-
-<<defitem qsat {qsat <i>subcommand</i> ?<i>args</i>?}>>
-
-A <<xref mars:quality(n)>> type, representing a level of satisfaction
-with respect to a concern.<p>
-
-<<::projectlib::qsat html>>
-
-
-<<defitem qtrend {qtrend <i>subcommand</i> ?<i>args</i>?}>>
-
-A <<xref mars:quality(n)>> type, representing a trend in a
-satisfaction curve.<p>
-
-<<::projectlib::qtrend html>>
 
 <<defitem "rgrouprel validate" {rgrouprel validate <i>value</i>}>>
 

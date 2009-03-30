@@ -1,6 +1,7 @@
 <<manpage orders(sim) "Athena Orders">>
 
 <<swallow {
+    package require simlib
     package require projectlib
 
     # <<parmlist>>
@@ -558,9 +559,9 @@ and go.  The parameters are as follows:
 
 <<parm proximity>>  The proximity between the two neighborhoods, from
 <i>m</i>'s point of view, an 
-<<xref projtypes(n) eproximity>> value:<p>
+<<xref mars:simtypes(n) eproximity>> value:<p>
 
-<<::projectlib::eproximity html>>
+<<::simlib::eproximity html>>
 
 Note that a neighborhood's proximity with itself is always
 <b>HERE</b>; the proximity between two distinct neighborhoods can
@@ -659,14 +660,14 @@ Updates a satisfaction curve.  The parameters are as follows:<p>
 The initial value for this satisfaction curve, in either symbolic or
 numeric form; numeric values must be in the range -100.0 to +100.0:<p>
 
-<<::projectlib::qsat html>>
+<<::simlib::qsat html>>
 <</parm>>
 
 <<parm trend0>>
 The long-term trend for this satisfaction curve, in either symbolic or
 numeric form:<p>
 
-<<::projectlib::qtrend html>>
+<<::simlib::qtrend html>>
 <</parm>>
 
 <<parm saliency>>
@@ -674,7 +675,7 @@ The saliency of this concern to this group in this neighborhood, in
 either symbolic or numeric form; numeric values must be in the range
 0.0 to 1.0:<p>
 
-<<::projectlib::qsaliency html>>
+<<::simlib::qsaliency html>>
 <</parm>>
 
 <</parmlist>>

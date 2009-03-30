@@ -25,7 +25,6 @@ namespace eval ::projectlib:: {
         eorgactivity  \
         eorgconcern   \
         eorgtype      \
-        eproximity    \
         eurbanization \
         eunitshape    \
         eunitsymbol   \
@@ -35,10 +34,6 @@ namespace eval ::projectlib:: {
         ident         \
         iquantity     \
         polygon       \
-        qcooperation  \
-        qsaliency     \
-        qsat          \
-        qtrend        \
         rdays         \
         rgrouprel     \
         unitname      \
@@ -237,17 +232,6 @@ snit::type ::projectlib::TypeWrapper {
 }
 
 
-# Neighborhood Proximity
-#
-# 0=here, 1=near, 2=far, 3=remote
-::marsutil::enum ::projectlib::eproximity {
-    HERE   "Here"
-    NEAR   "Near"
-    FAR    "Far"
-    REMOTE "Remote"
-}
-
-
 # Urbanization Level
 ::marsutil::enum ::projectlib::eurbanization {
     RURAL        "Rural"
@@ -263,45 +247,6 @@ snit::type ::projectlib::TypeWrapper {
 
 #-------------------------------------------------------------------
 # Qualities
-
-# Cooperation
-::marsutil::quality ::projectlib::qcooperation {
-    AC "Always Cooperative"      99.9 100.0 100.0
-    VC "Very Cooperative"        80.0  90.0  99.9
-    C  "Cooperative"             60.0  70.0  80.0
-    MC "Marginally Cooperative"  40.0  50.0  60.0
-    U  "Uncooperative"           20.0  30.0  40.0
-    VU "Very Uncooperative"       1.0  10.0  20.0
-    NC "Never Cooperative"        0.0   0.0   1.0
-} -min 0.0 -max 100.0 -format {%5.1f} -bounds yes
-
-# Saliency (Of a Factor)
-::marsutil::quality ::projectlib::qsaliency {
-    CR "Crucial"         1.000
-    VI "Very Important"  0.850
-    I  "Important"       0.700
-    LI "Less Important"  0.550
-    UN "Unimportant"     0.400
-    NG "Negligible"      0.000
-} -min 0.0 -max 1.0 -format {%5.3f}
-
-# Satisfaction
-::marsutil::quality ::projectlib::qsat {
-    VS "Very Satisfied"     80.0
-    S  "Satisfied"          40.0
-    A  "Ambivalent"          0.0
-    D  "Dissatisfied"      -40.0
-    VD "Very Dissatisfied" -80.0
-} -min -100.0 -max 100.0 -format {%7.2f}
-
-# Satisfaction: Long-Term Trend
-::marsutil::quality ::projectlib::qtrend {
-    VH "Very High"  8.0
-    H  "High"       4.0
-    N  "Neutral"   -1.0
-    L  "Low"       -4.0
-    VL "Very Low"  -8.0
-} -format {%4.1f}
 
 #-----------------------------------------------------------------------
 # Integer Types

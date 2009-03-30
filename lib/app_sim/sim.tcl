@@ -100,6 +100,83 @@ snit::type sim {
 
         # NEXT, initialize the event queue
         eventq init ::rdb
+
+        # NEXT, create ARAM and register it as a saveable
+        gram ::aram \
+            -clock        ::simclock              \
+            -rdb          ::rdb                   \
+            -logger       ::log                   \
+            -logcomponent "aram"                  \
+            -loadcmd      [mytypemethod LoadAram]
+
+        scenario register ::aram
+    }
+
+    # LoadAram gram
+    #
+    # Loads scenario data into ARAM when it's initialized.
+
+    typemethod LoadAram {gram} {
+        $gram load nbhoods {*}[rdb eval {
+            SELECT n FROM nbhoods
+            ORDER BY n
+        }]
+
+        $gram load groups {*}[rdb eval {
+            SELECT g, gtype FROM groups
+            ORDER BY gtype,g
+        }]
+
+        $gram load concerns {*}[rdb eval {
+            SELECT c, gtype FROM concerns
+            ORDER BY gtype,c
+        }]
+
+        $gram load nbrel {*}[rdb eval {
+            SELECT m, n, proximity, effects_delay 
+            FROM nbrel_mn
+            ORDER BY m,n
+        }]
+
+        # TBD: We don't have population yet.  Pass 1.
+        $gram load nbgroups {*}[rdb eval {
+            SELECT n, g, 1, rollup_weight, effects_factor
+            FROM nbgroups
+            ORDER BY n,g
+        }]
+
+        $gram load sat {*}[rdb eval {
+            SELECT n, g, c, sat0, saliency, trend0
+            FROM sat_ngc JOIN groups USING (g)
+            ORDER BY n, gtype, g, c
+        }]
+
+        # relationships are difficult: need to convert PLAYBOX
+        # to all nbhoods
+        set records [list]
+        set nbhoods [nbhood names]
+
+        rdb eval {
+            SELECT n, f, g, rel
+            FROM rel_nfg
+            ORDER BY n, f, g
+        } {
+            if {$n ne "PLAYBOX"} {
+                lappend records $n $f $g $rel
+            } else {
+                foreach n $nbhoods {
+                    lappend records $n $f $g $rel
+                }
+            }
+        }
+
+        $gram load rel {*}$records
+
+        $gram load coop {*}[rdb eval {
+            SELECT n, f, g, coop0
+            FROM coop_nfg
+            ORDER BY n, f, g
+        }]
     }
 
     # new
@@ -121,6 +198,18 @@ snit::type sim {
         set info(state)   PREP
 
         $type reconfigure
+    }
+
+    # restart
+    #
+    # Reloads snapshot 0, and enters.
+
+    typemethod restart {} {
+        sim snapshot first
+
+        if {$info(state) eq "SNAPSHOT"} {
+            sim snapshot enter
+        }
     }
 
     #-------------------------------------------------------------------
@@ -217,9 +306,12 @@ snit::type sim {
         # NEXT, restore to the tick 
         scenario snapshot load $tick
 
-        # NEXT, enter PAUSED if we're at the last snapshot, and
-        # SNAPSHOT otherwise.
-        if {$tick == [scenario snapshot latest]} {
+        # NEXT, enter PREP if we're at time 0, PAUSED if we're at the 
+        # last snapshot, and SNAPSHOT otherwise.
+        if {$tick == 0} {
+            $type SetState PREP
+            log newlog prep
+        } elseif {$tick == [scenario snapshot latest]} {
             $type SetState PAUSED
             log newlog latest
         } else {
@@ -526,8 +618,8 @@ snit::type sim {
 
         # NEXT, if state is PREP, we've got work to do
         if {$info(state) eq "PREP"} {
-            # FIRST, initialize GRAM, other sim models
-            # TBD
+            # FIRST, initialize ARAM, other sim models
+            aram init -reload
         }
 
         # NEXT, set the state to running
@@ -575,8 +667,8 @@ snit::type sim {
         log normal sim "Tick [simclock now]"
         set info(changed) 1
         
-        # NEXT, advance GRAM
-        # TBD: gram advance
+        # NEXT, advance ARAM
+        aram advance
 
         # NEXT, execute eventq events
         eventq advance [simclock now]

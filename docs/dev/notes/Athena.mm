@@ -2,18 +2,6 @@
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1237478987023" FOLDED="true" ID="Freemind_Link_324117817" MODIFIED="1238170518037" TEXT="Integrate gram(n)">
-<icon BUILTIN="messagebox_warning"/>
-<node CREATED="1238170451558" ID="Freemind_Link_1373349157" MODIFIED="1238170461615" TEXT="sim(sim) Changes">
-<node CREATED="1237842153584" ID="Freemind_Link_340570150" MODIFIED="1238170440973" TEXT="Initialize GRAM on PREP to RUNNING"/>
-<node CREATED="1238170474294" ID="Freemind_Link_271034006" MODIFIED="1238170493983" TEXT="Sync GRAM when loading PAUSED scenario"/>
-<node CREATED="1237822576953" ID="Freemind_Link_1552650374" MODIFIED="1237822586866" TEXT="Advance GRAM during each tick"/>
-</node>
-<node CREATED="1238170378694" ID="Freemind_Link_1318678904" MODIFIED="1238170382224" TEXT="gram(n) Changes">
-<node CREATED="1237820225709" ID="Freemind_Link_209344982" MODIFIED="1237822673138" TEXT="On Open of scenario with t &gt; 0, must be able to sync with loaded gram_* data"/>
-<node CREATED="1237820290381" ID="Freemind_Link_1416194108" MODIFIED="1237820313047" TEXT="For simplicity, should not be a saveable--should save all scalars in RDB"/>
-</node>
-</node>
 <node CREATED="1237480898155" FOLDED="true" ID="Freemind_Link_919848605" MODIFIED="1237480916486" TEXT="GRAM slope limits based on duration">
 <node CREATED="1237480917418" ID="Freemind_Link_701469202" MODIFIED="1237480958721" TEXT="Limits based on total nominal change&#xa;don&apos;t really make sense."/>
 </node>
@@ -27,13 +15,11 @@
 </node>
 </node>
 <node CREATED="1237475139158" ID="_" MODIFIED="1237477117490" POSITION="right" TEXT="Order">
-<node CREATED="1237480217386" ID="Freemind_Link_96571795" MODIFIED="1238170655243" TEXT="Dump order history as script">
+<node CREATED="1237480217386" ID="Freemind_Link_96571795" MODIFIED="1238433033389" TEXT="Dump order history as script">
 <arrowlink DESTINATION="Freemind_Link_860046120" ENDARROW="Default" ENDINCLINATION="75;0;" ID="Freemind_Arrow_Link_966523914" STARTARROW="None" STARTINCLINATION="75;0;"/>
-<icon BUILTIN="messagebox_warning"/>
 <node CREATED="1238185877929" ID="Freemind_Link_1596050694" MODIFIED="1238185885379" TEXT="Need to know scripting format first"/>
 </node>
-<node CREATED="1237480209602" FOLDED="true" ID="Freemind_Link_860046120" MODIFIED="1238170658003" TEXT="Order scripting">
-<icon BUILTIN="messagebox_warning"/>
+<node CREATED="1237480209602" FOLDED="true" ID="Freemind_Link_860046120" MODIFIED="1238433033390" TEXT="Order scripting">
 <node CREATED="1238185910426" ID="Freemind_Link_1940884826" MODIFIED="1238185912932" TEXT="Uses">
 <node CREATED="1238185655578" ID="Freemind_Link_136202823" MODIFIED="1238185664708" TEXT="Run script within existing scenario">
 <node CREATED="1238185776810" ID="Freemind_Link_1966079268" MODIFIED="1238185799476" TEXT="Not intended to recreate previous run"/>
@@ -418,7 +404,7 @@
 </node>
 </node>
 </node>
-<node CREATED="1238431453361" ID="Freemind_Link_595977621" MODIFIED="1238431467673" TEXT="Bug 1967">
+<node CREATED="1238431453361" ID="Freemind_Link_595977621" MODIFIED="1238445457383" TEXT="Bug 1969">
 <icon BUILTIN="button_ok"/>
 <node CREATED="1238185942456" FOLDED="true" ID="Freemind_Link_405704848" MODIFIED="1238431480265" TEXT="Snapshot Navigation and the SNAPSHOT State">
 <icon BUILTIN="button_ok"/>
@@ -515,6 +501,48 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1238426283366" ID="Freemind_Link_990041422" MODIFIED="1238431325026" TEXT="sim(sim) man page">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+</node>
+</node>
+<node CREATED="1238445403725" ID="Freemind_Link_1772844702" MODIFIED="1238445426051" TEXT="Bug 1972">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238436555694" FOLDED="true" ID="Freemind_Link_342947994" MODIFIED="1238445426053" TEXT="Integrate gram(n)">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238436679903" ID="Freemind_Link_135625100" MODIFIED="1238445298523" TEXT="General Changes">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238436683200" ID="Freemind_Link_569591853" MODIFIED="1238436903958" TEXT="Require simlib(n) from Mars">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238436878576" ID="Freemind_Link_369762958" MODIFIED="1238436903957" TEXT="Remove duplicate types from projectlib(n)">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+</node>
+<node CREATED="1238170378694" ID="Freemind_Link_177076752" MODIFIED="1238445298524" TEXT="gram(n) Changes">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238432919607" ID="Freemind_Link_1700995736" MODIFIED="1238436625958" TEXT="Should not &quot;init&quot; on creation; explict &quot;init&quot; should be required.">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238432938983" ID="Freemind_Link_637646933" MODIFIED="1238441450435" TEXT="Then, when going from PREP to RUNNING, &quot;init&quot;">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238441475413" ID="Freemind_Link_136658914" MODIFIED="1238441487275" TEXT="Support full saveable(i) API">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238432951096" ID="Freemind_Link_1705604552" MODIFIED="1238441454910" TEXT="When loading a snapshot, just &quot;restore&quot;.">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238441497333" ID="Freemind_Link_1184606364" MODIFIED="1238444360733" TEXT="Update gram(n) man page.">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1238170451558" ID="Freemind_Link_1408336574" MODIFIED="1238441470260" TEXT="sim(sim) Changes">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237842153584" ID="Freemind_Link_783424914" MODIFIED="1238441470259" TEXT="Initialize ARAM on PREP to RUNNING">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1237822576953" ID="Freemind_Link_790187971" MODIFIED="1238441470260" TEXT="Advance ARAM during each tick">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
