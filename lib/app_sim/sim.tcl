@@ -306,14 +306,16 @@ snit::type sim {
         # NEXT, restore to the tick 
         scenario snapshot load $tick
 
-        # NEXT, enter PREP if we're at time 0, PAUSED if we're at the 
+        # NEXT, PAUSED if we're at the 
         # last snapshot, and SNAPSHOT otherwise.
-        if {$tick == 0} {
-            $type SetState PREP
-            log newlog prep
-        } elseif {$tick == [scenario snapshot latest]} {
-            $type SetState PAUSED
-            log newlog latest
+        if {$tick == [scenario snapshot latest]} {
+            if {$tick == 0} {
+                $type SetState PREP
+                log newlog prep
+            } else {
+                $type SetState PAUSED
+                log newlog latest
+            }
         } else {
             $type SetState SNAPSHOT
             log newlog snapshot
