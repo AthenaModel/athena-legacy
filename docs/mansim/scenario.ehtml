@@ -119,6 +119,18 @@ Lists the sim times (in ticks) for which snapshots exist.<p>
 Deletes all snapshots with timestamps greater than <i>after</i>, which
 must be a sim time in ticks.<p>
 
+<<defitem "snapshot current" {scenario snapshot current}>>
+
+Returns the index of the current snapshot, or -1 if there are no
+snapshots.  The time 0 snapshot has index 0; the index increments for
+each snapshot in simulation time order.<p>
+
+<<defitem "snapshot latest" {scenario snapshot latest}>>
+
+Returns the simulation time stamp, in ticks, of the snapshot with the
+highest simulation time.  This snapshot represents the leading edge of
+the simulation.<p>
+
 <</deflist snapshot>>
 
 <</deflist commands>>

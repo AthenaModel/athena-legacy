@@ -17,20 +17,6 @@
 <node CREATED="1237480898155" FOLDED="true" ID="Freemind_Link_919848605" MODIFIED="1237480916486" TEXT="GRAM slope limits based on duration">
 <node CREATED="1237480917418" ID="Freemind_Link_701469202" MODIFIED="1237480958721" TEXT="Limits based on total nominal change&#xa;don&apos;t really make sense."/>
 </node>
-<node CREATED="1238015584936" FOLDED="true" ID="Freemind_Link_1054409835" MODIFIED="1238168626771" TEXT="WAYBACK state">
-<node CREATED="1238015589208" ID="Freemind_Link_1081765451" MODIFIED="1238015601106" TEXT="Enter WAYBACK state when loading prior snapshot"/>
-<node CREATED="1238015602360" ID="Freemind_Link_1868904837" MODIFIED="1238015609218" TEXT="In WAYBACK, most orders are disabled"/>
-<node CREATED="1238015621352" ID="Freemind_Link_1434476628" MODIFIED="1238015631410" TEXT="Leave WAYBACK automatically on return to final snapshot"/>
-<node CREATED="1238015609784" ID="Freemind_Link_1583241154" MODIFIED="1238015619602" TEXT="Must leave WAYBACK explicitly to change things"/>
-<node CREATED="1238015639048" ID="Freemind_Link_1905612992" MODIFIED="1238015653522" TEXT="On leaving WAYBACK explicitly, future snapshots are purged">
-<node CREATED="1238015654120" ID="Freemind_Link_779539554" MODIFIED="1238015661314" TEXT="Rather than on SIM:RUN."/>
-<node CREATED="1238015661865" ID="Freemind_Link_1702214277" MODIFIED="1238015667250" TEXT="Can&apos;t SIM:RUN while in WAYBACK"/>
-</node>
-<node CREATED="1238015681529" ID="Freemind_Link_1703074413" MODIFIED="1238015700325" TEXT="Need special handling for GUI interactions">
-<node CREATED="1238015700680" ID="Freemind_Link_1732762311" MODIFIED="1238015705266" TEXT="E.g., dragging units"/>
-</node>
-<node CREATED="1238015717159" ID="Freemind_Link_1853367133" MODIFIED="1238015722825" TEXT="Possible icon: "/>
-</node>
 <node CREATED="1237822733720" FOLDED="true" ID="Freemind_Link_1356652575" MODIFIED="1237822740277" TEXT="Reactive Decision Conditions">
 <node CREATED="1237822742521" ID="Freemind_Link_656806568" MODIFIED="1237822753602" TEXT="Check RDCs at end of each tick"/>
 <node CREATED="1237822754248" ID="Freemind_Link_1244752831" MODIFIED="1237822768786" TEXT="Simplest: pause simulation if RDC is met"/>
@@ -136,7 +122,6 @@
 </node>
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
 <node CREATED="1237935555280" FOLDED="true" ID="Freemind_Link_695028490" MODIFIED="1238185997091" TEXT="Snapshot Navigation">
-<arrowlink DESTINATION="Freemind_Link_1054409835" ENDARROW="Default" ENDINCLINATION="215;0;" ID="Freemind_Arrow_Link_254679226" STARTARROW="None" STARTINCLINATION="529;0;"/>
 <node CREATED="1237994176614" ID="Freemind_Link_343371493" MODIFIED="1237994196064" TEXT="Controls: first, previous, next, last"/>
 <node CREATED="1237994196662" ID="Freemind_Link_122266377" MODIFIED="1237994205824" TEXT="&quot;First&quot; control replaces &quot;restart&quot;"/>
 <node CREATED="1237994206534" ID="Freemind_Link_1540265172" MODIFIED="1237994232880" TEXT="Use iPod icons: double triangles, with a vertical line for first and last"/>
@@ -429,6 +414,108 @@
 <node CREATED="1238171939475" ID="Freemind_Link_1489528397" MODIFIED="1238174395358" TEXT="Catches errors">
 <icon BUILTIN="button_ok"/>
 <node CREATED="1238171945810" ID="Freemind_Link_156063273" MODIFIED="1238171972962" TEXT="Should be only rejections; other errors &#xa;are handled by order(sim)"/>
+</node>
+</node>
+</node>
+</node>
+<node CREATED="1238431453361" ID="Freemind_Link_595977621" MODIFIED="1238431467673" TEXT="Bug 1967">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238185942456" FOLDED="true" ID="Freemind_Link_405704848" MODIFIED="1238431480265" TEXT="Snapshot Navigation and the SNAPSHOT State">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238190921792" ID="Freemind_Link_1311836518" MODIFIED="1238190995647" TEXT="The &quot;latest time&quot; is the latest sim time &#xa;achieved for this scenario.  There might or might&#xa;not be a snapshot at the latest time.">
+<icon BUILTIN="flag"/>
+</node>
+<node CREATED="1238190851871" ID="Freemind_Link_746914711" MODIFIED="1238431338513" TEXT="Navigation">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237994176614" ID="Freemind_Link_336164682" MODIFIED="1238189988024" TEXT="Controls: first, previous, next, last">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1237994196662" ID="Freemind_Link_1852573157" MODIFIED="1238187633108" TEXT="&quot;First&quot; control replaces &quot;restart&quot;">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1237994206534" ID="Freemind_Link_1226705527" MODIFIED="1238187627189" TEXT="Use iPod icons: double triangles, with a vertical line for first and last">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1237994262438" ID="Freemind_Link_541192332" MODIFIED="1238190906394" TEXT="If there&apos;s no checkpoint at the current time, create one">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1238191030192" ID="Freemind_Link_322032318" MODIFIED="1238431348609" TEXT="SNAPSHOT State">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238191408045" ID="Freemind_Link_1598909806" MODIFIED="1238431334330" TEXT="Enter the SNAPSHOT state:">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237994284725" ID="Freemind_Link_1731247325" MODIFIED="1238194043206" TEXT="On loading a snapshot prior to the &quot;latest time&quot;">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238191433694" ID="Freemind_Link_930869996" MODIFIED="1238194369869" TEXT="On loading a scenario that was saved in the SNAPSHOT state">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1238015602360" ID="Freemind_Link_541498746" MODIFIED="1238431334329" TEXT="In SNAPSHOT, most orders are disabled">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238191465582" ID="Freemind_Link_1154318956" MODIFIED="1238191495508" TEXT="Prevents history from being changed">
+<icon BUILTIN="flag"/>
+</node>
+<node CREATED="1238015609784" ID="Freemind_Link_701333418" MODIFIED="1238194054864" TEXT="Must leave SNAPSHOT explicitly to change things">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238192076044" ID="Freemind_Link_789581497" MODIFIED="1238194054862" TEXT="Leaving SNAPSHOT at time T&lt; latest makes T the latest time&#xa;and purges all snapshots with time &gt; T.">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1238191530429" ID="Freemind_Link_1217471197" MODIFIED="1238194088230" TEXT="Leave the SNAPSHOT state:">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238191067727" ID="Freemind_Link_1871259741" MODIFIED="1238194064630" TEXT="Implicitly, by returning to the snapshot for the &quot;latest time&quot;">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238191719725" ID="Freemind_Link_1721476881" MODIFIED="1238191722487" TEXT="Enter PAUSED."/>
+</node>
+<node CREATED="1238191576830" ID="Freemind_Link_1270538436" MODIFIED="1238194084525" TEXT="Explicitly, by pressing Run/Pause button">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238194072375" ID="Freemind_Link_1499229190" MODIFIED="1238194077761" TEXT="Asks user to confirm"/>
+<node CREATED="1238191626750" ID="Freemind_Link_177796372" MODIFIED="1238191639415" TEXT="Re-enters time stream at current snapshot&apos;s time"/>
+<node CREATED="1238191603150" ID="Freemind_Link_1262506582" MODIFIED="1238191615710" TEXT="Enter PREP if at time 0"/>
+<node CREATED="1238191648189" ID="Freemind_Link_926597207" MODIFIED="1238191655095" TEXT="Enter PAUSED if at time &gt; 0"/>
+<node CREATED="1238191655774" ID="Freemind_Link_986079587" MODIFIED="1238191681255" TEXT="Purge snapshots with time &gt; now"/>
+</node>
+</node>
+<node CREATED="1238194101784" ID="Freemind_Link_1461508952" MODIFIED="1238428123360" TEXT="Check orders, to see if any should be valid in SNAPSHOT">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238015681529" ID="Freemind_Link_1517558552" MODIFIED="1238428648951" TEXT="Need special handling for GUI interactions">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238015700680" ID="Freemind_Link_1107307253" MODIFIED="1238015705266" TEXT="E.g., dragging units"/>
+</node>
+</node>
+<node CREATED="1238425808630" ID="Freemind_Link_1294854083" MODIFIED="1238427813545" TEXT="Reflections over the weekend">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238425817574" ID="Freemind_Link_1746054516" MODIFIED="1238427813545" TEXT="Change WAYBACK to SNAPSHOT">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238425826309" ID="Freemind_Link_1869494239" MODIFIED="1238427813547" TEXT="Add &quot;scenario snapshot latest&quot;">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238425850886" ID="Freemind_Link_1304559035" MODIFIED="1238425855888" TEXT="Returns tick of last snapshot"/>
+</node>
+<node CREATED="1238425857494" ID="Freemind_Link_902008359" MODIFIED="1238427813547" TEXT="Add &quot;scenario snapshot current&quot;">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238425865095" ID="Freemind_Link_951007981" MODIFIED="1238425984039" TEXT="Returns index of current snapshot"/>
+<node CREATED="1238425903286" ID="Freemind_Link_1552120527" MODIFIED="1238425996496" TEXT="Time 0 snapshot is snapshot 0"/>
+</node>
+<node CREATED="1238425917221" ID="Freemind_Link_462603546" MODIFIED="1238427813546" TEXT="In appwin, for state: &quot;Snapshot 2&quot;">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238426025702" ID="Freemind_Link_274922866" MODIFIED="1238427813546" TEXT="In Mr. Peabody&apos;s message: ">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238426042773" ID="Freemind_Link_958522936" MODIFIED="1238426053728" TEXT="You can use wayback machine to re-enter timestream here in snapshot 2"/>
+<node CREATED="1238426054437" ID="Freemind_Link_836263563" MODIFIED="1238426070224" TEXT="However, snapshots 3 through 7 will be erased."/>
+</node>
+</node>
+<node CREATED="1238426269478" ID="Freemind_Link_674135358" MODIFIED="1238431325025" TEXT="Before we&apos;re done:">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238426273798" ID="Freemind_Link_918478796" MODIFIED="1238431325026" TEXT="scenario(sim) man page">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238426283366" ID="Freemind_Link_990041422" MODIFIED="1238431325026" TEXT="sim(sim) man page">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 </node>

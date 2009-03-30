@@ -1000,15 +1000,15 @@ snit::widget mapviewer {
     #
     # TBD: At present, we only have unit icons.  Later, we'll need to
     # generalize this.
-    #
-    # TBD: At present, there are no restrictions on moving icons--
-    # the order will always succeed.  If we add some, we'll need to
-    # handle the failure here.
 
     method IconMoved {cid} {
-        order send gui UNIT:UPDATE           \
-            u $icons(sid-$cid)               \
-            location [$canvas icon ref $cid]
+        if {[order isvalid UNIT:UPDATE]} {
+            order send gui UNIT:UPDATE           \
+                u $icons(sid-$cid)               \
+                location [$canvas icon ref $cid]
+        } else {
+            $self UnitDrawSingle $icons(sid-$cid)
+        }
     }
 
 
@@ -1062,6 +1062,22 @@ snit::widget mapviewer {
             set icons(sid-$cid) $u
             set icons(cid-$u)   $cid
         }
+    }
+
+    # UnitDrawSingle u
+    #
+    # u    The name of the unit.
+    #
+    # Redraws just unit u.  Use this when only a single unit is
+    # to be redrawn.
+
+    method UnitDrawSingle {u} {
+        rdb eval {
+            SELECT * FROM units JOIN groups USING (g)
+            WHERE u=$u
+        } row {
+            $self UnitDraw [array get row]
+        } 
     }
 
 

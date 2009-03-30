@@ -18,8 +18,8 @@ addition, it implements the SIM:* orders, which are documented in
 
 <<subsection "Simulation State">>
 
-The simulation has three states, <b>PREP</b>, <b>RUNNING</b>, and
-<b>PAUSED</b>.<p>
+The simulation has four states, <b>PREP</b>, <b>RUNNING</b>,
+<b>PAUSED</b>, and <b>SNAPSHOT</b>.<p>
 
 The state is <b>PREP</b> at time 0, before simulation time has
 advanced.  Orders used to define the initial conditions of the
@@ -33,6 +33,20 @@ all of the simulation models are initialized and working are generally
 valid only in these states.  Note that the undo stack is cleared at
 each tick while the simulation is <b>RUNNING</b>; hence, it's usually
 best to pause before entering a large number of orders.<p>
+
+Whenever the simulation is about to enter the <b>RUNNING</b> state,
+it saves a snapshot.  If the user loads one of these snapshots, then
+the simulation enters the <b>SNAPSHOT</b> state.  In this state the
+user can browse the simulation data, and can switch from one snapshot
+to another, but is not allowed to change anything.  Before entering
+the <b>SNAPSHOT</b> state, the simulation saves a "latest time"
+snapshot; if the user loads this snapshot, the simulation state
+automatically changes back to <b>PAUSED</b>.<p>
+
+In addition, the user may explicitly choose to leave the
+<b>SNAPSHOT</b> state as of the timestamp on the snapshot.  He may
+then make changes and run time forward starting at that time; but all
+snapshots with timestamps later than that time are purged.<p>
 
 <<subsection "Tick Activities">>
 
@@ -114,6 +128,45 @@ the PREP state, reloading the snapshot taking just before it
 first transitioned to RUNNING.  By default, the user is prompted to
 confirm the operation; if the <code>-noconfirm</code> option is given,
 the operation proceeds without confirmation.<p>
+
+<<defitem "sim snapshot" {sim snapshot <i>subcommand</i> ?<i>args...</i>?}>>
+
+The <<iref sim snapshot>> commands are used to navigate from the
+current sim time back to prior snapshots.  The available subcommands
+are as follows:<p>
+
+<<deflist sim snapshot>>
+
+<<defitem "sim snapshot first" {sim snapshot first}>>
+
+Loads the time 0 snapshot; the simulation state will be <b>SNAPSHOT</b>.<p>
+
+<<defitem "sim snapshot prev" {sim snapshot prev}>>
+
+Loads the snapshot immediately prior to the current time; the
+simulation state will be <b>SNAPSHOT</b>.<p>
+
+<<defitem "sim snapshot next" {sim snapshot next}>>
+
+Loads the snapshot immediately subsequent to the current time; the
+simulation state will be <b>SNAPSHOT</b>.<p>
+
+<<defitem "sim snapshot last" {sim snapshot last}>>
+
+Loads the snapshot with the highest timestamp; this corresponds to the
+latest simulation time achieved by the simulation.  The simulation
+state will therefore be <b>PAUSED</b>.<p>
+
+<<defitem "sim snapshot enter" {sim snapshot enter}>>
+
+This command explicitly leaves the <b>SNAPSHOT</b> as of the
+simulation time of the currently loaded snapshot.  If the sim time of
+the snapshot is 0, the state will be <b>PREP</b>; otherwise it will be
+<b>PAUSED</b>.  However, all snapshots subsequent to the current
+snapshot will be purged.<p>
+
+<</deflist sim snapshot>>
+
 
 <<defitem "sim speed" {sim speed ?<i>speed</i>?}>>
 
