@@ -2,6 +2,25 @@
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
+<node CREATED="1238449538228" ID="Freemind_Link_298189624" MODIFIED="1238449546446" TEXT="Environmental Situations"/>
+<node CREATED="1238449552883" ID="Freemind_Link_17150792" MODIFIED="1238449701506" TEXT="Neighborhood statistics">
+<node CREATED="1238449563668" ID="Freemind_Link_782464506" MODIFIED="1238449568782" TEXT="Force analysis"/>
+<node CREATED="1238449569221" ID="Freemind_Link_435502220" MODIFIED="1238449573198" TEXT="Security analysis"/>
+<node CREATED="1238449573540" ID="Freemind_Link_1959694269" MODIFIED="1238449581806" TEXT="Activity coverage"/>
+</node>
+<node CREATED="1238449547044" ID="Freemind_Link_1091690936" MODIFIED="1238449701507" TEXT="Activity Situations">
+<arrowlink DESTINATION="Freemind_Link_17150792" ENDARROW="Default" ENDINCLINATION="57;0;" ID="Freemind_Arrow_Link_201110197" STARTARROW="None" STARTINCLINATION="57;0;"/>
+</node>
+<node CREATED="1238449586884" ID="Freemind_Link_213166219" MODIFIED="1238449747274" TEXT="DAM Rule Infrastructure"/>
+<node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1238449718099" TEXT="Magic satisfaction inputs">
+<arrowlink DESTINATION="Freemind_Link_213166219" ENDARROW="Default" ENDINCLINATION="22;0;" ID="Freemind_Arrow_Link_72370025" STARTARROW="None" STARTINCLINATION="22;0;"/>
+</node>
+<node CREATED="1238449608020" ID="Freemind_Link_1639950112" MODIFIED="1238449718100" TEXT="Magic cooperation inputs">
+<arrowlink DESTINATION="Freemind_Link_213166219" ENDARROW="Default" ENDINCLINATION="44;0;" ID="Freemind_Arrow_Link_323657927" STARTARROW="None" STARTINCLINATION="44;0;"/>
+</node>
+<node CREATED="1238449726244" ID="Freemind_Link_1432696154" MODIFIED="1238449747274" TEXT="DAM Rules">
+<arrowlink DESTINATION="Freemind_Link_213166219" ENDARROW="Default" ENDINCLINATION="162;0;" ID="Freemind_Arrow_Link_560219951" STARTARROW="None" STARTINCLINATION="115;10;"/>
+</node>
 <node CREATED="1237480898155" FOLDED="true" ID="Freemind_Link_919848605" MODIFIED="1237480916486" TEXT="GRAM slope limits based on duration">
 <node CREATED="1237480917418" ID="Freemind_Link_701469202" MODIFIED="1237480958721" TEXT="Limits based on total nominal change&#xa;don&apos;t really make sense."/>
 </node>
@@ -86,6 +105,11 @@
 </node>
 </node>
 <node CREATED="1237477511538" ID="Freemind_Link_894463638" MODIFIED="1237477524514" POSITION="right" TEXT="Scenario">
+<node CREATED="1238449309988" ID="Freemind_Link_505337437" MODIFIED="1238449315454" TEXT="Need parmdb(5) equivalent">
+<node CREATED="1238449322165" ID="Freemind_Link_1501377378" MODIFIED="1238449329486" TEXT="Per scenario file?"/>
+<node CREATED="1238449329989" ID="Freemind_Link_288460784" MODIFIED="1238449335726" TEXT="As preferences?"/>
+<node CREATED="1238449336213" ID="Freemind_Link_302281370" MODIFIED="1238449337726" TEXT="Both?"/>
+</node>
 <node CREATED="1237477586106" FOLDED="true" ID="Freemind_Link_516563511" MODIFIED="1237477603190" TEXT="Must rel=1.0 when f=g">
 <icon BUILTIN="help"/>
 <node CREATED="1237477606906" ID="Freemind_Link_1462718131" MODIFIED="1237477628037" TEXT="If so, I need to update the RELATIONSHIP:* orders"/>
@@ -107,13 +131,22 @@
 </node>
 </node>
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
-<node CREATED="1237935555280" FOLDED="true" ID="Freemind_Link_695028490" MODIFIED="1238185997091" TEXT="Snapshot Navigation">
-<node CREATED="1237994176614" ID="Freemind_Link_343371493" MODIFIED="1237994196064" TEXT="Controls: first, previous, next, last"/>
-<node CREATED="1237994196662" ID="Freemind_Link_122266377" MODIFIED="1237994205824" TEXT="&quot;First&quot; control replaces &quot;restart&quot;"/>
-<node CREATED="1237994206534" ID="Freemind_Link_1540265172" MODIFIED="1237994232880" TEXT="Use iPod icons: double triangles, with a vertical line for first and last"/>
-<node CREATED="1237994233798" ID="Freemind_Link_1620821104" MODIFIED="1237994261888" TEXT="Tool tip should indicate the sim time of the checkpoint to load"/>
-<node CREATED="1237994262438" ID="Freemind_Link_1024035268" MODIFIED="1237994283776" TEXT="Moving backwards should save a checkpoint if there isn&apos;t one."/>
-<node CREATED="1237994284725" ID="Freemind_Link_128499237" MODIFIED="1237994321663" TEXT="Pressing run should be confirmed if future checkpoints would be purged."/>
+<node CREATED="1238449283044" ID="Freemind_Link_1866249747" MODIFIED="1238449360206" TEXT="Include current levels in Sat and Coop browsers"/>
+<node CREATED="1238449301764" ID="Freemind_Link_1081255706" MODIFIED="1238449351118" TEXT="Browsers for other gram(n) outputs">
+<node CREATED="1238449364132" ID="Freemind_Link_1105838454" MODIFIED="1238449367550" TEXT="Group mood"/>
+<node CREATED="1238449369301" ID="Freemind_Link_741069631" MODIFIED="1238449371966" TEXT="Nbhood mood"/>
+<node CREATED="1238449372724" ID="Freemind_Link_1834677894" MODIFIED="1238449375614" TEXT="Drivers"/>
+<node CREATED="1238449376116" ID="Freemind_Link_367125519" MODIFIED="1238449386414" TEXT="Causality Visualization"/>
+<node CREATED="1238449389956" ID="Freemind_Link_284238200" MODIFIED="1238449414798" TEXT="Color nbhoods by nbhood/group mood, etc."/>
+</node>
+<node CREATED="1238449424244" ID="Freemind_Link_1819277701" MODIFIED="1238449870289" TEXT="Text reports">
+<icon BUILTIN="help"/>
+<node CREATED="1238449438196" ID="Freemind_Link_158053164" MODIFIED="1238449443967" TEXT="Report Browser"/>
+<node CREATED="1238449454308" ID="Freemind_Link_810723720" MODIFIED="1238449463566" TEXT="Use log more aggressively"/>
+</node>
+<node CREATED="1238449514469" ID="Freemind_Link_165845852" MODIFIED="1238449524783" TEXT="Browsers should update themselves only when:">
+<node CREATED="1238449525588" ID="Freemind_Link_1160705008" MODIFIED="1238449528014" TEXT="They are visible"/>
+<node CREATED="1238449528723" ID="Freemind_Link_403784776" MODIFIED="1238449531726" TEXT="They become visible"/>
 </node>
 <node CREATED="1237488295816" FOLDED="true" ID="Freemind_Link_1208739900" MODIFIED="1237495169282" TEXT="zulufield(n) widget">
 <node CREATED="1237560838308" ID="Freemind_Link_7202440" MODIFIED="1237560850862" TEXT="-increment set by simclock&apos;s tick size"/>
