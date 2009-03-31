@@ -710,9 +710,11 @@ snit::widget appwin {
 
         # NEXT, add the CLI to the paner, if needed.
         if {$options(-main)} {
-            install cli using cli $win.paner.cli \
-                -height 8                        \
-                -relief flat
+            install cli using cli $win.paner.cli   \
+                -height    8                       \
+                -relief    flat                    \
+                -promptcmd [mymethod CliPrompt]    \
+                -evalcmd   [list ::executive eval]
             
             $win.paner add $win.paner.cli \
                 -sticky  nsew             \
@@ -731,6 +733,18 @@ snit::widget appwin {
         grid $row3         -sticky nsew
         grid $win.sep4     -sticky ew
         grid $win.status   -sticky ew
+    }
+
+    # CliPrompt
+    #
+    # Returns a prompt string for the CLI
+
+    method CliPrompt {} {
+        if {[executive usermode] eq "super"} {
+            return "super>"
+        } else {
+            return ">"
+        }
     }
    
     # AddToolbarButton name icon tooltip command

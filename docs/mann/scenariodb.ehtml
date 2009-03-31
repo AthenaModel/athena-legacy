@@ -217,6 +217,16 @@ RDB, into which the user's scenario file will be <<iref load>>ed.
 If <i>filename</i> is "<code>:memory:</code>", the database will be
 opened in memory rather than on the disk.<p>
 
+<<defitem safeeval {<i>obj</i> safeeval <i>args...</i>}>>
+
+This subcommand is just like <<xref sqldocument(n)>>'s "eval", but is
+prevented from changing the contents of the database.<p>
+
+<<defitem safequery {<i>obj</i> safequery <i>sql</i>}>>
+
+This subcommand is just like <<xref sqldocument(n)>>'s "query", but is
+prevented from changing the contents of the database.<p>
+
 <<defitem saveas {<i>obj</i> saveas <i>filename</i>}>>
 
 Saves the current contents of the database to the file with name

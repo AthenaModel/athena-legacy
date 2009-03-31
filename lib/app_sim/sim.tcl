@@ -644,7 +644,12 @@ snit::type sim {
 
         # NEXT, set the state to paused, if we're running
         if {$info(state) eq "RUNNING"} {
-            $type SetState PAUSED
+            if {[simclock now] > 0} {
+                $type SetState PAUSED
+            } else {
+                $type SetState PREP
+                # TBD: aram clear
+            }
         }
 
         # NEXT, cannot be undone.

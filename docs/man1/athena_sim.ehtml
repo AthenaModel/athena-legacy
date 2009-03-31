@@ -19,9 +19,165 @@ documents simulation operation only.<p>
 
 <<xref athena_sim(1)>> is a documentic-centric application, like a
 word-processor; here, however, the documents are Athena scenario
-files, which conventionally have a "<code>.ath</code>" extension.<p>
+files, which conventionally have a "<code>.adb</code>" extension.<p>
 
-Further documentation is TBD.<p>
+<<section "COMMANDS">>
+
+Although the Athena simulation is driven primarily by the GUI, it does
+have a command-line shell as well.  The following executive
+commands are available, and may be entered at the
+<<xref SHELL>> or used in <<xref SCRIPTS>>.  In addition, most
+standard Tcl commands are available.<p>
+
+<<deflist commands>>
+
+<<defitem _equals_ {= <i>expression...</i>}>>
+
+Computes and returns the value of an arithmetic expression:<p>
+
+<pre>
+    &gt; <b>= 1 + 1</b>
+    2
+    &gt;
+</pre>
+
+Variables can be defined with <<iref set>> and retrieved using "$"
+notation:<p>
+
+<pre>
+    &gt; <b>set num 5</b>
+    5
+    &gt; <b>= $num * 2</b>
+    10
+    &gt;
+</pre>
+
+<<defitem call {call <i>script</i>}>>
+
+Calls the named <i>script</i>, which is assumed to be in the current
+working directory unless an absolute path is specified. The ".tcl"
+extension may be omitted; <<iref call>> will add it automatically.<p>
+
+<<defitem debug {debug}>>
+
+Invokes a debugger window.  The debugger is simply a Tcl interpreter
+with full access to the application's code and data; it's intended for
+developer use only.<p>
+
+
+<<defitem errtrace {errtrace}>>
+
+Returns the stack trace associated with the
+last command which returned an error.  This command is a debugging
+aid, and has no effect on the execution of the program.<p>
+
+
+<<defitem help {help ?-info? <i>command...</i>}>>
+
+Returns the calling syntax for the named <i>command</i> in
+human-readable format.  If <b>-info</b> is specified, then
+information on the linkage from the executive commands to the
+simulation internals is included in the output.<p>
+
+For example,<p>
+
+<pre>
+&gt; <b>help rdb</b>
+Usage: rdb subcommand ?args...?
+Valid subcommands: eval, query, schema, table
+&gt; <b>help rdb query</b>
+Usage: rdb query sql
+&gt;
+</pre>
+
+
+<<defitem "rdb" {rdb <i>subcommand</i> ?<i>args...</i>?}>>
+
+Exposes the application's run-time database, which is an
+<<xref scenariodb(n)>> object.  See that man page for
+subcommand documentation.  Note, however, that this command cannot be
+used to modify the RDB.<p>
+
+
+<<defitem set {set <i>variable value</i>}>>
+
+Assigns a <i>value</i> to a named <i>variable</i>.<p>
+
+<<defitem super {super <i>arg</i> ?<i>arg...</i>?}>>
+
+Concatenates the <i>args</i> into a command and executes the
+command in the context of the application rather
+than in the simulation executive.  <b>Caution:</b> this command is
+intended for the Athena developers, as careless use can corrupt
+the scenario.<p>
+
+<<defitem usermode {usermode ?<i>mode</i>?}>>
+
+Sets and queries the user mode.<p>
+
+athena_sim(1)'s executive runs in two modes, <b>normal</b> and
+<b>super</b>.  In <b>normal</b> mode, user command entry is prevented
+from affecting application internals, i.e., the user can't kill or
+corrupt the application by mis-typing.  <b>Caution:</b> In
+<b>super</b> mode, the <<xref SHELL>> is attached directly to the
+application.  Anything is possible, including damage to the user's
+scenario.<p>
+
+The <b>super</b> mode is intended primarily for use by the Athena
+developers; other users should consider using the <<iref super>>
+command in the rare case that evading the normal protections is required.<p>
+
+<b>Note:</b> in <b>super</b> mode, the <<xref SHELL>>'s command prompt
+changes, as shown:<p>
+
+<pre>
+   &gt; <b>usermode super</b>
+   super&gt; <b>usermode normal</b>
+   &gt;
+</pre>
+
+<</deflist commands>>
+
+<<section SHELL>>
+
+The athena_sim(1) shell provides the following conveniences:<p>
+
+<ul>
+  <li> Full command-line editing.  Use the left and right arrow keys
+       (or the mouse) to edit the text on the command-line before
+       executing it.<p>
+
+  <li> Command-history.  Use the up and down arrow keys to retrieve
+       the previous commands to the command-line for execution.<p>
+
+  <li> Command-completion.  Press the Tab key to expand a partial
+       command name into a full command name, e.g., type "err" and
+       press Tab to expand "err" into "errtrace".<p>
+
+  <li> Standard cut, copy, and paste.  Use Ctrl+X, Ctrl+C, and Ctrl+V
+       to cut, copy, and paste on the command line.  Use the mouse to
+       select older text in the shell (e.g., command outputs) and copy
+       it with Ctrl+C.<p>
+</ul>
+
+The shell's command prompt is initially "<b>&gt;</b>"; in <b>super</b>
+mode, it changes to "<b>super&gt;</b>" instead.  See
+<<iref usermode>> for more details.<p>
+
+<<section SCRIPTS>>
+
+An athena_sim(1) script is simply a sequence of <<xref COMMANDS>>
+placed on consecutive lines of a text file.  Use the <<iref call>>
+command to execute a script:<p>
+
+<pre>
+    &gt; <b>call myscript.tcl</b>
+    ...
+    &gt;
+</pre>
+
+athena_sim(1) scripts are Tcl scripts, and can define
+procs, perform loops, and so forth.<p>
 
 <<section AUTHOR>>
 

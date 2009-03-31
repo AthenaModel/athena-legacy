@@ -1,0 +1,97 @@
+<<manpage executive(sim) "Executive Command Processor">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+executive(sim) is the main command processor for
+<<xref athena_sim(1)>>.  It accepts user-entered commands, and
+processes them in a safe-interpreter, so that user input cannot easily
+corrupt program internals.  It also allows the user to circumvent this
+protection via the <<xref athena_sim(1) super>> and
+<<xref athena_sim(1) usermode>> commands.
+
+This man page documents the executive's API; the set of executive
+commands is documented in <<xref athena_sim(1)>>.<p>
+
+<<subsection "User Modes">>
+
+executive(sim) implements two user modes, <b>normal</b> and
+<b>super</b>.  In <b>normal</b> mode, the user is isolated from the
+main Tcl interpreter.  The only commands available to the user are
+those defined by the application, and standard Tcl commands which are
+considered "safe".  In <b>super</b> mode, the executive passes
+commands along to the main Tcl interpreter.  This mode is intended
+primarily for development and debugging; end users should approach it
+with caution.<p>
+
+<<section "COMMANDS">>
+
+executive(sim) provides the following commands for use by the application.<p>
+
+<<deflist commands>>
+
+<<defitem "executive commands" {executive commands}>>
+
+Returns a list of the commands currently defined in <b>normal</b> mode.<p>
+
+
+<<defitem "executive eval" {executive eval <i>script</i>}>>
+
+Evaluates the <i>script</i> according to the current user mode.
+The command is logged.  If the command throws an error, the error
+message is both logged and returned, and the stack trace is available
+via the <<xref athena_sim(1) errtrace>> command.<p>
+
+
+<<defitem "executive help" {executive help ?-info? <i>command...</i>}>>
+
+Returns usage information for the named command, where available.
+If <code>-info</code> is given, also gives the mapping of the command
+to its implementation.<p>
+
+
+<<defitem "executive init" {executive init}>>
+
+Initializes the executive and puts it in <b>normal</b> mode.  Call
+this prior to any of the other subcommands.<p>
+
+
+<<defitem "executive usermode" {executive usermode ?<i>mode</i>?}>>
+
+Sets and queries the executive's user mode.<p>
+
+<<defitem "usermode" {usermode ?<i>mode</i>?}>>
+
+This command is equivalent to <<iref executive usermode>>; it's
+provided so that the executive command
+<<xref athena_sim(1) usermode>> is defined in both <b>normal</b> and
+<b>super</b> mode.<p>
+
+
+<</deflist commands>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

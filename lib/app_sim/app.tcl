@@ -77,21 +77,22 @@ snit::type app {
 
         # NEXT, Create the working scenario RDB and initialize simulation
         # components
-        map      init
-        scenario init
-        cif      init
-        order    init
-        nbhood   init
-        nbrel    init
-        group    init
-        civgroup init
-        frcgroup init
-        orggroup init
-        nbgroup  init
-        sat      init
-        rel      init
-        coop     init
-        sim      init
+        executive init
+        map       init
+        scenario  init
+        cif       init
+        order     init
+        nbhood    init
+        nbrel     init
+        group     init
+        civgroup  init
+        frcgroup  init
+        orggroup  init
+        nbgroup   init
+        sat       init
+        rel       init
+        coop      init
+        sim       init
 
         # NEXT, bind components together
         notifier bind ::sim <State> ::order {::order state [::sim state]}
