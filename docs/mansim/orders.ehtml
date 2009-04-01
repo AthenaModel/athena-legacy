@@ -592,6 +592,51 @@ neighborhoods.  The parameters are as follows:
 <</deflist nbrel>>
 
 
+<<section "PARM:*">>
+
+The <code>PARM:*</code> orders relate to the model parameter database
+(<<xref parmdb(5)>>, which is used to tune Athena's models.  The model
+parameters are saved with the scenario, and hence are modified using
+orders.  The orders are implemented by the <<xref parm(sim)>> module.<p>
+
+<<deflist parm>>
+
+<<defitem PARM:IMPORT {PARM:IMPORT}>>
+
+Imports the set of model parameters from a <<xref parmdb(5)>>
+parameter file.  The order parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm filename>> <b>Required.</b> The name of the parameter file to
+import.<</parm>>
+
+<</parmlist>>
+
+<<defitem PARM:RESET {PARM:RESET}>>
+
+Resets all model parameter values back to their default settings.
+If the user has saved a set of user defaults, they are used.<p>
+
+This order takes no parameters.<p>
+
+
+<<defitem PARM:SET {PARM:SET}>>
+
+Assigns a new value to a model parameter.  The order parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm parm>> <b>Required.</b> The name of the parameter to be set.<</parm>>
+<<parm value>> <b>Required.</b> The new value.<</parm>>
+
+<</parmlist>>
+
+<</deflist parm>>
+
+
+
 <<section "RELATIONSHIP:*">>
 
 The <code>RELATIONSHIP:*</code> orders are used to modify and
