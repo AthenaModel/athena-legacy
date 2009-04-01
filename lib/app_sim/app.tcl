@@ -52,7 +52,7 @@ snit::type app {
             -ignoredefaultparms no
         }
 
-        while {[llength $argv] > 0} {
+        while {[string match "-*" [lindex $argv 0]]} {
             set opt [lshift argv]
 
             switch -exact -- $opt {

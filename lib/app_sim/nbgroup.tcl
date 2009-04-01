@@ -256,6 +256,7 @@ snit::type nbgroup {
         set nbgs [rdb eval {SELECT g FROM nbgroups WHERE n=$n}]
 
         # NEXT, build a list of the missing civ groups
+        set values [list]
         foreach g [civgroup names] {
             if {$g ni $nbgs} {
                 lappend values $g
