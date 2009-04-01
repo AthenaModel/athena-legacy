@@ -25,6 +25,7 @@
 
 <ul>
   <li> <a href="man1/index.html">Section (1)</a>: Executables
+  <li> <a href="man5/index.html">Section (5)</a>: File Formats
   <li> <a href="mann/index.html">Section (n)</a>: Tcl Commands
   <li> <a href="mani/index.html">Section (i)</a>: Tcl Interfaces
   <li> <a href="mansim/index.html">Section (sim)</a>:
@@ -35,12 +36,12 @@
 <h2>Mars Man Pages</h2>
 
 <ul>
-  <li> <a href="../mars/docs/man1/index.html">Section (1): Executables</a>
-  <li> <a href="../mars/docs/man5/index.html">Section (5): File Formats</a>
-  <li> <a href="../mars/docs/mann/index.html">Section (n): Tcl
-       Commands</a>
-  <li> <a href="../mars/docs/mani/index.html">Section (i): Tcl
-       Interfaces</a>
+  <li> <a href="../mars/docs/man1/index.html">Section (1)</a>: Executables
+  <li> <a href="../mars/docs/man5/index.html">Section (5)</a>: File Formats
+  <li> <a href="../mars/docs/mann/index.html">Section (n)</a>: Tcl
+       Commands
+  <li> <a href="../mars/docs/mani/index.html">Section (i)</a>: Tcl
+       Interfaces
 </ul>
 
 <h2>Copyright</h2>

@@ -23,7 +23,7 @@ the order of execution.
 
 001:     Test infrastructure
 002-009: Application infrastructure
-010:     Scenario Definition modules
+010:     Scenario and Simulation modules
 020:     Simulation orders
 
 

@@ -216,6 +216,7 @@ namespace eval ::athena_test::tests:: {
         ted create NB1 BLUE SHIA NB1SHIA
     } -body {
         sim mutate run
+        simclock tick
         sim mutate pause
         sim state
     } -cleanup {
@@ -264,6 +265,7 @@ namespace eval ::athena_test::tests:: {
 
         lappend states [sim state]
         sim mutate run
+        simclock tick
         lappend states [sim state]
         sim mutate pause
         lappend states [sim state]

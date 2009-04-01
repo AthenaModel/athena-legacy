@@ -80,6 +80,48 @@ snit::type executive {
         $interp smartalias help 1 - {?-info? command...} \
             [mytypemethod help]
 
+        # parm
+        $interp ensemble parm
+
+        # parm defaults
+        $interp ensemble {parm defaults}
+
+        # parm defaults clear
+        $interp smartalias {parm defaults clear} 0 0 {} \
+            [list ::parm defaults clear]
+
+        # parm defaults save
+        $interp smartalias {parm defaults save} 0 0 {} \
+            [list ::parm defaults save]
+
+        # parm export
+        $interp smartalias {parm export} 1 1 {filename} \
+            [list ::parm save]
+
+        # parm get
+        $interp smartalias {parm get} 1 1 {parm} \
+            [list ::parm get]
+
+        # parm import
+        $interp smartalias {parm import} 1 1 {filename} \
+            [list ::parm exec import]
+
+        # parm list
+        $interp smartalias {parm list} 0 1 {?pattern?} \
+            [list ::parm exec list]
+
+        # parm names
+        $interp smartalias {parm names} 0 1 {?pattern?} \
+            [list ::parm names]
+
+        # parm reset
+        $interp smartalias {parm reset} 0 0 {} \
+            [list ::parm exec reset]
+
+        # parm set
+        $interp smartalias {parm set} 2 2 {parm value} \
+            [list ::parm exec set]
+
         # rdb
         $interp ensemble rdb
 

@@ -154,7 +154,8 @@ namespace eval ::athena_test:: {
     puts "app_sim(n):  $::app_sim::library"
     puts ""
 
-    app init {}
+    app init [list -ignoredefaultparms]
+
     puts "app_sim(n) initialized."
 
     # NEXT, if there's no -wait flag, then get rid of the GUI.

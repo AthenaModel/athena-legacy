@@ -23,10 +23,10 @@ app(sim) provides the following commands for use by the application.<p>
 
 <<deflist commands>>
 
-<<defitem ask {app ask <i>mode text</i>}>>
+<<defitem "app ask" {app ask <i>mode text</i>}>>
 
 Displays <i>text</i> in a question dialog centered on the
-<<iref topwin>>. Variables and commands in <i>text</i> are
+<<iref app topwin>>. Variables and commands in <i>text</i> are
 interpolated using <<xref template(n) tsubst>> from
 <<xref template(n)>>.<p>
 
@@ -35,36 +35,50 @@ determines whether the dialog shows two buttons or three.  Returns the
 symbolic name of the selected button, e.g., <b>yes</b>, <b>no</b>, or
 <b>cancel</b>.<p>
 
-<<defitem error {app error <i>text</i>}>>
+<<defitem "app error" {app error <i>text</i>}>>
 
 Displays <i>text</i> in an error dialog centered on the
-<<iref topwin>>.  Variables and commands in <i>text</i> are
+<<iref app topwin>>.  Variables and commands in <i>text</i> are
 interpolated using <<xref template(n) tsubst>> from
 <<xref template(n)>>.<p>
 
-<<defitem exit {app exit ?<i>text</i>?}>>
+<<defitem "app exit" {app exit ?<i>text</i>?}>>
 
 Outputs <i>text</i>, if given, to stdout, deletes the working
 directory, and exits the program.
 Variables and commands in <i>text</i> are interpolated using
 <<xref template(n) tsubst>> from <<xref template(n)>>.<p>
 
-<<defitem init {app init <i>argv</i>}>>
+<<defitem "app init" {app init <i>argv</i>}>>
 
-Initializes the application given the command line arguments.  At
-present the application has one optional argument, a scenario file
-name.  If given, the scenario will be opened after the GUI is created.<p>
+Initializes the application given the command line arguments, which
+are passed to <<iref app init>> by the <<xref athena(1)>> loader.  The
+command line arguments are passed as a single Tcl argument with this
+syntax:<p>
 
-<<defitem puts {app puts <i>text</i>}>>
+<pre>
+    ?-ignoreparmdefaults? ?<i>filename</i>?
+</pre>
 
-Outputs <i>text</i> to the <<iref topwin>>'s message line.<p>
+If <i>filename</i> is given, it should name an Athena scenario (.adb)
+file; the scenario will be opened after the GUI is created.<p>
 
-<<defitem topwin {app topwin}>>
+If <code>-ignoreparmdefaults</code> is given, then new scenarios will
+use the programmatic defaults for the model parameter database (see
+<<xref parmdb(5)>>, rather than the user's saved defaults.  This
+option is used by <<xref athena_test(1)>> so that the results of the
+test suite do not depend on the user's environment.<p>
+
+<<defitem "app puts" {app puts <i>text</i>}>>
+
+Outputs <i>text</i> to the <<iref app topwin>>'s message line.<p>
+
+<<defitem "app topwin" {app topwin}>>
 
 Returns the name of the topmost <<xref appwin(sim)>> window, which
 will usually be the active window.<p>
 
-<<defitem usage {app usage}>>
+<<defitem "app usage" {app usage}>>
 
 Outputs a brief usage string to stdout.<p>
 

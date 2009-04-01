@@ -47,7 +47,27 @@ snit::type app {
     #
     # Initializes the application.
     typemethod init {argv} {
-        # FIRST, "Process" the command line.
+        # FIRST, Process the command line.
+        array set opts {
+            -ignoredefaultparms no
+        }
+
+        while {[llength $argv] > 0} {
+            set opt [lshift argv]
+
+            switch -exact -- $opt {
+                -ignoredefaultparms {
+                    set opts(-ignoredefaultparms) yes
+                }
+                
+                default {
+                    puts "Unknown option: \"$opt\""
+                    exit 1
+                }
+            }
+
+        }
+
         if {[llength $argv] > 1} {
             app usage
             exit 1
@@ -78,8 +98,9 @@ snit::type app {
         # NEXT, Create the working scenario RDB and initialize simulation
         # components
         executive init
+        parm      init
         map       init
-        scenario  init
+        scenario  init -ignoredefaultparms $opts(-ignoredefaultparms)
         cif       init
         order     init
         nbhood    init

@@ -59,6 +59,12 @@ tests from mytest.test whose names begin with "mycase-":<p>
     $ athena_test mytest -match "mycase-*"
 </pre>
 
+<<subsection "User Environment">>
+
+<<xref athena_test(1)>> does not load user environment files, such as
+the default parameters file.  All model parameters will have their
+programmatic defaults.<p>
+
 <<section "ENTITIES">>
 
 TED defines a number of standard entities--neighborhoods, groups, and
@@ -108,9 +114,11 @@ It cleans up in the following ways:<p>
 
 <ul>
   <li> It calls <<iref ted notifier forget>>.
-  <li> It clears the CIF history.
   <li> It deletes entities from the scenario tables in the RDB and
        reconfigures the related modules.
+  <li> It clears the CIF history.
+  <li> It resets all <<xref parms(sim)>> parameters to their
+       programmatic defaults.<p>
 </ul><p>
 
 <<defitem "ted create" {ted create <i>name</i> ?<i>name...</i>?}>>

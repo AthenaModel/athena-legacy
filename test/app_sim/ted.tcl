@@ -311,6 +311,8 @@ snit::type ted {
     # * Forgets notifier binds
     # * Deletes all records from the $cleanupTables
     # * Reconfigures the $cleanupModules
+    # * Clears the CIF
+    # * Resets the parms
     
     typemethod cleanup {} {
         ted notifier forget
@@ -324,6 +326,7 @@ snit::type ted {
         }
 
         cif clear
+        parm reset
     }
 
     # sendex ?-error? command...

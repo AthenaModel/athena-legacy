@@ -39,6 +39,7 @@
 #    specifiers:
 #
 #    gui  -- Order originates from the GUI (i.e., the user)
+#    cli  -- Order originates from the CLI (i.e., the user)
 #    test -- Order originates from the test suite
 #    sim  -- Order originates elsewhere in the simulation
 #
@@ -72,6 +73,9 @@
 #      * Otherwise, if the error is unexpected and the interface is "gui",
 #        the stack trace is logged and a detailed error message is displayed
 #        in a popup.  The scenario is then reconfigured.
+#  
+#      * "cli" is handled in all cases just like "gui", except that
+#        REJECT messages are formatted for display at the CLI.
 #
 #      * Otherwise, the error is simply rethrown.
 #
@@ -633,7 +637,7 @@ snit::type order {
     # send interface name parmdict
     # send interface name parm value ?parm value...?
     #
-    # interface       sim|gui
+    # interface       gui|cli|test|sim
     # name            The order's name
     # parmdict        The order's parameter dictionary
     # parm,value...   The parameter dictionary passed as separate args.
@@ -656,7 +660,7 @@ snit::type order {
         require {[info exists handler($name)]} "Undefined order: $name"
 
         # NEXT, is the interface valid?
-        if {$interface ni {gui test sim}} {
+        if {$interface ni {gui cli test sim}} {
             error \
      "Unexpected error in $name, invalid interface spec: \"$interface\""
         }
@@ -726,6 +730,10 @@ snit::type order {
             }
 
             if {$ecode eq "REJECT"} {
+                if {$interface eq "cli"} {
+                    set result [FormatRejectionForCLI $result]
+                }
+
                 log warning order $result                    
                 return {*}$opts $result
             }
@@ -735,7 +743,7 @@ snit::type order {
                 return "Order was cancelled."
             }
 
-            if {$interface eq "gui"} {
+            if {$interface in {gui cli}} {
                 log error order "Unexpected error in $name:\n$result"
                 log error order "Stack Trace:\n$einfo"
 
@@ -774,6 +782,26 @@ snit::type order {
 
         # NEXT, return the result, if any.
         return $result
+    }
+
+    # FormatRejectionForCLI errdict
+    #
+    # errdict     A REJECT error dictionary
+    #
+    # Formats the rejection error dictionary for display at the console.
+    
+    proc FormatRejectionForCLI {errdict} {
+        if {[dict exists $errdict *]} {
+            lappend out [dict get $errdict *]
+        }
+
+        dict for {parm msg} $errdict {
+            if {$parm ne "*"} {
+                lappend out "$parm: $msg"
+            }
+        }
+
+        return [join $out \n]
     }
 
 

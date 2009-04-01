@@ -30,23 +30,41 @@ snit::type scenario {
 
     # Info Array: most scalars are stored here
     #
-    # dbfile      Name of the current scenario file
-    # saveable    List of saveables.
+    # dbfile              Name of the current scenario file
+    # saveable            List of saveables.
+    # ignoreDefaultParms  If yes, won't load defaults.parmdb when 
+    #                     creating a new scenario.
 
     typevariable info -array {
-        dbfile    ""
-        saveables {}
+        dbfile             ""
+        saveables          {}
+        ignoreDefaultParms no
     }
 
     #-------------------------------------------------------------------
     # Singleton Initializer
 
-    # init
+    # init ?-ignoredefaultparms flag?
     #
     # Initializes the scenario RDB.
 
-    typemethod init {} {
-        # FIRST, create the a clean working RDB.
+    typemethod init {args} {
+        # FIRST, process options
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+
+            switch -exact -- $opt {
+                -ignoredefaultparms { 
+                    set info(ignoreDefaultParms) [lshift args]
+                }
+
+                default { 
+                    error "Unknown option \"$opt\""  
+                }
+            }
+        }
+
+        # NEXT, create the a clean working RDB.
         set rdb [scenariodb ::rdb]
 
         set rdbfile [workdir join rdb working.rdb]
@@ -385,6 +403,17 @@ snit::type scenario {
                 VALUES($c,$longname,$gtype)
             }
         }
+
+        # NEXT, if there's a default parameter file, load it; and
+        # mark the parameters saved.
+
+        if {$info(ignoreDefaultParms)} {
+            parm reset
+        } else {
+            parm defaults load
+        }
+
+        parm checkpoint -saved
 
         # NEXT, mark it saved; there's no reason to save a scenario
         # that has only these things in it.

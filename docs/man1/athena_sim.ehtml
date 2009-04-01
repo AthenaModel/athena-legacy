@@ -91,6 +91,73 @@ Usage: rdb query sql
 </pre>
 
 
+<<defitem parm {parm <i>subcommand</i> <i>args...</i>}>>
+
+The <<iref parm>> command sets and queries <<xref parmdb(5)>> parameters.<p>
+
+<<deflist parm>>
+
+<<defitem {parm defaults} {parm defaults <i>subcommand</i> <i>args...</i>}>>
+
+Allows the user to manager their own customized set of default values.<p>
+
+<<deflist defaults>>
+
+<<defitem {parm defaults clear} {parm defaults clear}>>
+
+Deletes any saved defaults; new scenarios will use the programmatic
+defaults for all parameters.<p>
+
+<<defitem {parm defaults save} {parm defaults save}>>
+
+Saves the current parameter values to the file
+<code>~/.athena/defaults.parmdb</code>; they will be used as the
+default parameter values for every new scenario, and when
+<<iref parm reset>> is used.<p>
+
+<</deflist defaults>>
+
+
+<<defitem {parm export} {parm export <i>filename</i>}>>
+
+Saves the parameters to a file; if the file already exists, it
+is copied to "<i>filename</i>.bak".<p>
+
+<<defitem {parm get} {parm get <i>parm</i>}>>
+
+Retrieves the value of the named parameter.<p>
+
+<<defitem {parm import} {parm import <i>filename</i>}>>
+
+Imports all parameter values from the named file.  If there's an error
+loading the file, the parameter settings will be unchanged.<p>
+
+<<defitem {parm list} {parm list ?<i>pattern</i>?}>>
+
+Returns a human-readable list of parameters whose names match
+the specified wildcard pattern, in alphabetical order.
+If no <i>pattern</i> is
+specified, all parameters will be returned.<p>
+
+<<defitem {parm names} {parm names ?<i>pattern</i>?}>>
+
+Returns a list of the parameter names, in alphabetical order, which
+match the specified wildcard pattern; if no <i>pattern</i> is
+specified, all names will be returned.<p>
+
+<<defitem {parm reset} {parm reset}>>
+
+Resets all parameter values to their default settings.  If the user
+has saved their own defaults, those will be used.<p>
+
+<<defitem {parm set} {parm set <i>parm value</i>}>>
+
+Sets the value of the named parameter, which must be valid.<p>
+
+
+<</deflist parm>>
+
+
 <<defitem "rdb" {rdb <i>subcommand</i> ?<i>args...</i>?}>>
 
 Exposes the application's run-time database, which is an

@@ -202,6 +202,33 @@ snit::widget appwin {
 
         $mnu add separator
 
+        set submenu [menu $mnu.parm]
+        $mnu add cascade -label "Parameters" \
+            -underline 0 -menu $submenu
+
+        cond::orderIsValid control                           \
+            [menuitem $submenu command "Import..."           \
+                 -underline 0                                \
+                 -command   [mymethod FileParametersImport]] \
+            order PARM:IMPORT
+
+        $submenu add command \
+            -label     "Export..."                     \
+            -underline 0                               \
+            -command   [mymethod FileParametersExport]
+        
+        $submenu add command \
+            -label     "Save as Default..."                   \
+            -underline 0                                      \
+            -command   [mymethod FileParametersSaveAsDefault]
+        
+        $submenu add command \
+            -label     "Clear Defaults..."                    \
+            -underline 0                                      \
+            -command   [mymethod FileParametersClearDefaults]
+
+        $mnu add separator
+
         if {$options(-main)} {
             $mnu add command                  \
                 -label       "Exit"                \
@@ -879,6 +906,117 @@ snit::widget appwin {
             }
         }
     }
+
+
+    # FileParametersImport
+    #
+    # Imports model parameters from a .parmdb file
+
+    method FileParametersImport {} {
+        # FIRST, query for a parameters file.
+        set filename [tk_getOpenFile                  \
+                          -parent $win                \
+                          -title "Select a parameters file" \
+                          -filetypes {
+                              {{Model Parameters} {.parmdb} }
+                              {{Any File}         *         }
+                          }]
+
+        # NEXT, If none, they cancelled
+        if {$filename eq ""} {
+            return
+        }
+
+        # NEXT, Import the map
+        if {[catch {
+            order send gui PARM:IMPORT [list filename $filename]
+        } result]} {
+            app error {
+                |<--
+                Import failed: $result
+
+                $filename
+            }
+        }
+    }
+
+    # FileParametersExport
+    #
+    # Exports model parameters to a .parmdb file
+
+    method FileParametersExport {} {
+        # FIRST, query for the file name.  If the file already
+        # exists, the dialog will automatically query whether to 
+        # overwrite it or not. Returns 1 on success and 0 on failure.
+
+        set filename [tk_getSaveFile                       \
+                          -parent $win                     \
+                          -title "Export Parameters As"        \
+                          -filetypes {
+                              {{Model Parameters} {.parmdb} }
+                          }]
+
+        # NEXT, If none, they cancelled.
+        if {$filename eq ""} {
+            return 0
+        }
+
+        # NEXT, Save the scenario using this name
+        return [parm save $filename]
+    }
+
+
+    # FileParametersSaveAsDefault
+    #
+    # Saves the current model parameters to a default parameter file.
+
+    method FileParametersSaveAsDefault {} {
+        set message [normalize {
+            Save the current model parameter settings as the
+            default for new scenarios?
+        }]
+
+        set answer [messagebox popup                \
+                        -icon    question           \
+                        -message $message           \
+                        -parent  $win               \
+                        -title   "Athena [version]" \
+                        -buttons {
+                            ok      "Save"
+                            cancel  "Cancel"
+                        }]
+
+        if {$answer eq "ok"} {
+            parm defaults save
+        }
+    }
+
+    # FileParametersClearDefaults
+    #
+    # Deletes any default parameter file.
+
+    method FileParametersClearDefaults {} {
+        set message [normalize {
+            Clear the default model parameter settings to their
+            original values?
+        }]
+
+        set answer [messagebox popup                \
+                        -icon    question           \
+                        -message $message           \
+                        -parent  $win               \
+                        -title   "Athena [version]" \
+                        -buttons {
+                            ok      "Clear"
+                            cancel  "Cancel"
+                        }]
+
+        if {$answer eq "ok"} {
+            parm defaults clear
+        }
+    }
+
+
 
     # FileExit
     #

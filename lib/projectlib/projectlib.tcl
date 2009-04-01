@@ -18,9 +18,10 @@ package require snit
 #-----------------------------------------------------------------------
 # Internal Package Dependencies
 
-package require marsutil
 package require sqlite3
 package require tdom
+package require marsutil
+package require simlib
 
 #-----------------------------------------------------------------------
 # Package Definition
@@ -51,6 +52,7 @@ if {[file exists $binlib]} {
 # Load projectlib(n) submodules
 
 source [file join $::projectlib::library projtypes.tcl      ]
+source [file join $::projectlib::library parmdb.tcl         ]
 source [file join $::projectlib::library mapref.tcl         ]
 source [file join $::projectlib::library scenariodb.tcl     ]
 source [file join $::projectlib::library workdir.tcl        ]
