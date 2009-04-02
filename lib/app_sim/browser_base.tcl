@@ -152,6 +152,11 @@ snit::widget browser_base {
     # The curve has been updated.
 
     method update {id} {
+        # FIRST, if the window isn't mapped we can ignore this.
+        if {![winfo ismapped $win]} {
+            return
+        }
+
         $tb update $id
     }
 
@@ -162,7 +167,12 @@ snit::widget browser_base {
     # When a curve is deleted, there might no longer be a selection.
 
     method delete {id} {
-        # FIRST, update the tablebrowser
+        # FIRST, if the window isn't mapped we can ignore this.
+        if {![winfo ismapped $win]} {
+            return
+        }
+
+        # NEXT, update the tablebrowser
         $tb delete $id
 
         # NEXT, handle selection changes.

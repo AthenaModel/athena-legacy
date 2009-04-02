@@ -10,17 +10,14 @@
 #    nbhoodbrowser(sim) package: Neighborhood browser.
 #
 #    This widget displays a formatted list of neighborhood records.
-#    Entries in the list are managed by the tablebrowser(n).  
+#    It is a variation of browser_base(n).
 #
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# Export public commands
-
-#-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widget nbhoodbrowser {
+snit::widgetadaptor nbhoodbrowser {
     #-------------------------------------------------------------------
     # Type Constructor
 
@@ -92,43 +89,31 @@ snit::widget nbhoodbrowser {
     # Options delegated to the hull
     delegate option * to hull
 
-    # Methods delegated to the tablebrowser
-    delegate method * to tb
-
     #-------------------------------------------------------------------
     # Components
 
-    component tb          ;# tablebrowser(n) used to browse nbhoods
-    component bar         ;# Tool bar
-    component editbtn     ;# The "Edit Neighborhood" button
+    component editbtn     ;# The "Edit" button
     component raisebtn    ;# The "Bring to Front" button
     component lowerbtn    ;# The "Send to Back" button
-    component deletebtn   ;# The "Delete Neighborhood" button
-
-    #--------------------------------------------------------------------
-    # Instance Variables
-
-    # TBD
+    component deletebtn   ;# The "Delete" button
 
     #--------------------------------------------------------------------
     # Constructor
 
     constructor {args} {
-        # FIRST, get the options.
+        # FIRST, Install the hull
+        installhull using browser_base                \
+            -table        "gui_nbhoods"               \
+            -keycol       "id"                        \
+            -keycolnum    0                           \
+            -displaycmd   [mymethod DisplayData]      \
+            -selectioncmd [mymethod SelectionChanged]
+
+        # NEXT, get the options.
         $self configurelist $args
 
-        # NEXT, create the table browser
-        install tb using tablebrowser $win.tb   \
-            -db          ::rdb                  \
-            -table       "gui_nbhoods"          \
-            -keycol      "id"                   \
-            -keycolnum   0                      \
-            -width       100                    \
-            -displaycmd  [mymethod DisplayData]
-
-        # NEXT, create the toolbar
-        install bar using frame $tb.toolbar \
-            -relief flat
+        # NEXT, create the toolbar buttons
+        set bar [$hull toolbar]
 
         install editbtn using button $bar.edit   \
             -image      ::projectgui::icon::pencil22 \
@@ -187,40 +172,26 @@ snit::widget nbhoodbrowser {
             order   NBHOOD:DELETE                   \
             browser $win
 
-        
         pack $editbtn   -side left
         pack $raisebtn  -side left
         pack $lowerbtn  -side left
         pack $deletebtn -side right
 
-        # NEXT, hand the toolbar to the browser.
-        $tb toolbar $tb.toolbar
-
         # NEXT, create the columns and labels.
-        $tb insertcolumn end 0 {ID}
-        $tb insertcolumn end 0 {Neighborhood}
-        $tb insertcolumn end 0 {Urbanization}
-        $tb insertcolumn end 0 {StkOrd}
-        $tb columnconfigure end -sortmode integer
-        $tb insertcolumn end 0 {ObscuredBy}
-        $tb insertcolumn end 0 {RefPoint}
-        $tb insertcolumn end 0 {Polygon}
+        $hull insertcolumn end 0 {ID}
+        $hull insertcolumn end 0 {Neighborhood}
+        $hull insertcolumn end 0 {Urbanization}
+        $hull insertcolumn end 0 {StkOrd}
+        $hull columnconfigure end -sortmode integer
+        $hull insertcolumn end 0 {ObscuredBy}
+        $hull insertcolumn end 0 {RefPoint}
+        $hull insertcolumn end 0 {Polygon}
 
         # NEXT, the last column fills extra space
-        $tb columnconfigure end -stretchable yes
+        $hull columnconfigure end -stretchable yes
 
-        # NEXT, pack the tablebrowser and let it expand
-        pack $tb -expand yes -fill both
-
-        # NEXT, prepare to get tablelist events
-        bind $tb <<TablebrowserSelect>> [mymethod SelectionChanged]
-
-        # NEXT, prepare to update on data change
-        notifier bind ::sim      <Reconfigure> $self [mymethod Reconfigure]
-        notifier bind ::nbhood   <Entity>      $self $self
-
-        # NEXT, reload on creation
-        $self reload
+        # NEXT, update individual entities when they change.
+        notifier bind ::nbhood <Entity> $self $self
     }
 
     destructor {
@@ -230,136 +201,31 @@ snit::widget nbhoodbrowser {
     #-------------------------------------------------------------------
     # Public Methods
 
-    # select ids
-    #
-    # ids    A list of neighborhood ids
-    #
-    # Programmatically selects the neighborhoods in the browser.
-
-    method select {ids} {
-        # FIRST, select them in the table browser.
-        $tb select $ids
-
-        # NEXT, handle the new selection (tablebrowser only reports
-        # user changes, not programmatic changes).
-        $self SelectionChanged
-    }
-
-    # create id
-    #
-    # id    The ID of the created neighborhood
-    #
-    # A new neighborhood has been created.  We need to update any 
-    # neighborhoods obscured by it.  For now, just reload the whole
-    # shebang.
-    
-    method create {id} {
-        $tb reload
-    }
-    
-    #-------------------------------------------------------------------
-    # Private Methods
-
-    # Reconfigure
-    #
-    # Called when the simulation is reconfigured.  Updates the 
-    # tablebrowser, etc.
-
-    method Reconfigure {} {
-        # FIRST, update the table browser
-        $tb reload
-
-        # NEXT, handle selection changes
-        $self SelectionChanged
-    }
-
-    # EditSelected
-    #
-    # Called when the user wants to edit the selected neighborhood.
-
-    method EditSelected {} {
-        set ids [$tb curselection]
-
-        if {[llength $ids] == 1} {
-            set id [lindex $ids 0]
-
-            order enter NBHOOD:UPDATE n $id
-        } else {
-            order enter NBHOOD:UPDATE:MULTI ids $ids
-        }
-    }
-
-    # RaiseSelected
-    #
-    # Called when the user wants to raise the selected neighborhood.
-
-    method RaiseSelected {} {
-        # FIRST, there should be only one selected.
-        set id [lindex [$tb curselection] 0]
-
-        # NEXT, bring it to the front.
-        order send gui NBHOOD:RAISE [list n $id]
-    }
-
-    # LowerSelected
-    #
-    # Called when the user wants to lower the selected neighborhood.
-
-    method LowerSelected {} {
-        # FIRST, there should be only one selected.
-        set id [lindex [$tb curselection] 0]
-
-        # NEXT, bring it to the front.
-        order send gui NBHOOD:LOWER [list n $id]
-    }
-
-    # DeleteSelected
-    #
-    # Called when the user wants to delete the selected neighborhood.
-
-    method DeleteSelected {} {
-        # FIRST, there should be only one selected.
-        set id [lindex [$tb curselection] 0]
-
-        # NEXT, Send the order.
-        order send gui NBHOOD:DELETE n $id
-    }
-
-    # delete n
-    #
-    # n     Deleted neighborhood.
-    #
-    # When a neighborhood is deleted, we need to update the toolbar
-    # state, as it's likely that there is no longer a selection.
-
-    method delete {n} {
-        # FIRST, update the tablebrowser
-        $tb delete $n
-
-        # NEXT, update the state
-        $self SelectionChanged
-    }
+    delegate method * to hull
 
     # stack
     #
     # Reloads all data items when the neighborhood stacking order
-    # changes.
+    # changes in response to "<Entity> stack"
 
     method stack {} {
         $self reload
     }
 
+    #-------------------------------------------------------------------
+    # Private Methods
+
     # DisplayData dict
     # 
-    # dict   the data dictionary that contains the nbhood information
+    # dict   the data dictionary that contains the entity information
     #
-    # This method converts the nbhood data dictionary to a list
+    # This method converts the entity data dictionary to a list
     # that contains just the information to be displayed in the table browser.
 
     method DisplayData {dict} {
         # FIRST, extract each field
         dict with dict {
-            $tb setdata $n [list \
+            $hull setdata $n [list \
                                 $n                             \
                                 $longname                      \
                                 $urbanization                  \
@@ -370,6 +236,7 @@ snit::widget nbhoodbrowser {
                                 
         }
     }
+
 
     # SelectionChanged
     #
@@ -382,12 +249,68 @@ snit::widget nbhoodbrowser {
         cond::orderIsValidMulti  update $editbtn
 
         # NEXT, notify the app of the selection.
-        if {[llength [$tb curselection]] == 1} {
-            set n [lindex [$tb curselection] 0]
+        if {[llength [$hull curselection]] == 1} {
+            set n [lindex [$hull curselection] 0]
 
             notifier send ::app <ObjectSelect> \
                 [list nbhood $n]
         }
+    }
+
+
+    # EditSelected
+    #
+    # Called when the user wants to edit the selected entity
+
+    method EditSelected {} {
+        set ids [$hull curselection]
+
+        if {[llength $ids] == 1} {
+            set id [lindex $ids 0]
+
+            order enter NBHOOD:UPDATE n $id
+        } else {
+            order enter NBHOOD:UPDATE:MULTI ids $ids
+        }
+    }
+
+
+    # RaiseSelected
+    #
+    # Called when the user wants to raise the selected neighborhood.
+
+    method RaiseSelected {} {
+        # FIRST, there should be only one selected.
+        set id [lindex [$hull curselection] 0]
+
+        # NEXT, bring it to the front.
+        order send gui NBHOOD:RAISE [list n $id]
+    }
+
+
+    # LowerSelected
+    #
+    # Called when the user wants to lower the selected neighborhood.
+
+    method LowerSelected {} {
+        # FIRST, there should be only one selected.
+        set id [lindex [$hull curselection] 0]
+
+        # NEXT, bring it to the front.
+        order send gui NBHOOD:LOWER [list n $id]
+    }
+
+
+    # DeleteSelected
+    #
+    # Called when the user wants to delete the selected entity.
+
+    method DeleteSelected {} {
+        # FIRST, there should be only one selected.
+        set id [lindex [$hull curselection] 0]
+
+        # NEXT, Send the order.
+        order send gui NBHOOD:DELETE n $id
     }
 }
 

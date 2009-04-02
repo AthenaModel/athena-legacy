@@ -26,7 +26,7 @@ snit::widgetadaptor satbrowser {
     #-------------------------------------------------------------------
     # Components
 
-    component editbtn     ;# The "Edit Curve" button
+    component editbtn     ;# The "Edit" button
 
     #--------------------------------------------------------------------
     # Constructor
@@ -87,6 +87,10 @@ snit::widgetadaptor satbrowser {
         notifier bind ::sat <Entity> $self $self
     }
 
+    destructor {
+        notifier forget $self
+    }
+
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -137,7 +141,7 @@ snit::widgetadaptor satbrowser {
 
     # EditSelected
     #
-    # Called when the user wants to edit the selected group(s)
+    # Called when the user wants to edit the selected entities
 
     method EditSelected {} {
         set ids [$hull curselection]

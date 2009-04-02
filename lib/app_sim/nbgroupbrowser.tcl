@@ -26,9 +26,9 @@ snit::widgetadaptor nbgroupbrowser {
     #-------------------------------------------------------------------
     # Components
 
-    component addbtn      ;# The "Add Group" button
-    component editbtn     ;# The "Edit Group" button
-    component deletebtn   ;# The "Delete Group" button
+    component addbtn      ;# The "Add" button
+    component editbtn     ;# The "Edit" button
+    component deletebtn   ;# The "Delete" button
 
     #--------------------------------------------------------------------
     # Constructor
@@ -54,7 +54,7 @@ snit::widgetadaptor nbgroupbrowser {
             -relief     flat                       \
             -overrelief raised                     \
             -state      normal                     \
-            -command    [mymethod AddGroup]
+            -command    [mymethod AddEntity]
 
         DynamicHelp::add $addbtn -text "Add Nbhood Group"
 
@@ -121,6 +121,10 @@ snit::widgetadaptor nbgroupbrowser {
         notifier bind ::nbgroup <Entity> $self $self
     }
 
+    destructor {
+        notifier forget $self
+    }
+
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -131,9 +135,9 @@ snit::widgetadaptor nbgroupbrowser {
 
     # DisplayData dict
     # 
-    # dict   the data dictionary that contains the group information
+    # dict   the data dictionary that contains the entity information
     #
-    # This method converts the group data dictionary to a list
+    # This method converts the entity data dictionary to a list
     # that contains just the information to be displayed in the table browser.
 
     method DisplayData {dict} {
@@ -169,11 +173,11 @@ snit::widgetadaptor nbgroupbrowser {
     }
 
 
-    # AddGroup
+    # AddEntity
     #
-    # Called when the user wants to add a new group.
+    # Called when the user wants to add a new entity.
 
-    method AddGroup {} {
+    method AddEntity {} {
         # FIRST, Pop up the dialog
         order enter GROUP:NBHOOD:CREATE
     }
@@ -181,7 +185,7 @@ snit::widgetadaptor nbgroupbrowser {
 
     # EditSelected
     #
-    # Called when the user wants to edit the selected group.
+    # Called when the user wants to edit the selected entities.
 
     method EditSelected {} {
         set ids [$hull curselection]
@@ -200,13 +204,13 @@ puts "order enter GROUP:NBHOOD:UPDATE n $n g $g"
 
     # DeleteSelected
     #
-    # Called when the user wants to delete the selected group.
+    # Called when the user wants to delete the selected entity.
 
     method DeleteSelected {} {
         # FIRST, there should be only one selected.
         lassign [lindex [$hull curselection] 0] n g
 
-        # NEXT, Pop up the dialog, and select this group
+        # NEXT, Pop up the dialog, and select this entity
         order send gui GROUP:NBHOOD:DELETE n $n g $g
     }
 }

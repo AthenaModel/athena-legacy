@@ -99,6 +99,7 @@ U1 BLUE 1         100 100  NONE     FRC   NB1
     }
 
     test create-2.1 {undo deletes the unit} -setup {
+        ted create BLUE
         set undo [unit mutate create $u1]
     } -body {
         {*}$undo
@@ -109,6 +110,7 @@ U1 BLUE 1         100 100  NONE     FRC   NB1
 
 
     test create-2.2 {On undo, <Entity> delete} -setup {
+        ted create BLUE
         set undo [unit mutate create $u1]
     } -body {
         ted notifier bind ::unit <Entity>
@@ -124,6 +126,7 @@ U1 BLUE 1         100 100  NONE     FRC   NB1
     # mutate delete
 
     test delete-1.1 {Unit is deleted} -setup {
+        ted create BLUE USAID
         unit mutate create $u1
         unit mutate create $u2
     } -body {
@@ -137,6 +140,7 @@ U1 BLUE 1         100 100  NONE     FRC   NB1
 
 
     test delete-1.2 {<Entity> delete} -setup {
+        ted create BLUE
         unit mutate create $u1
     } -body {
         ted notifier bind ::unit <Entity>
@@ -166,6 +170,7 @@ U1 BLUE 1         1 1      NONE     FRC
 
 
     test delete-2.2 {On undo, <Entity> create} -setup {
+        ted create BLUE
         unit mutate create $u1
         set undo [unit mutate delete U1]
     } -body {

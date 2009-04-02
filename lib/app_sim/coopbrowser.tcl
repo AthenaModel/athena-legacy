@@ -26,7 +26,7 @@ snit::widgetadaptor coopbrowser {
     #-------------------------------------------------------------------
     # Components
 
-    component editbtn     ;# The "Edit Curve" button
+    component editbtn     ;# The "Edit" button
 
     #--------------------------------------------------------------------
     # Constructor
@@ -98,9 +98,9 @@ snit::widgetadaptor coopbrowser {
 
     # DisplayData dict
     # 
-    # dict   the data dictionary that contains the group information
+    # dict   the data dictionary that contains the entity information
     #
-    # This method converts the group data dictionary to a list
+    # This method converts the entity data dictionary to a list
     # that contains just the information to be displayed in the table browser.
 
     method DisplayData {dict} {
@@ -136,7 +136,7 @@ snit::widgetadaptor coopbrowser {
 
     # EditSelected
     #
-    # Called when the user wants to edit the selected group(s)
+    # Called when the user wants to edit the selected entities
 
     method EditSelected {} {
         set ids [$hull curselection]
