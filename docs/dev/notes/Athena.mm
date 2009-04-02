@@ -1,11 +1,66 @@
 <map version="0.8.1">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
-<node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1238519780623" ID="Freemind_Link_1494103863" MODIFIED="1238519786396" TEXT="gram(n): clear">
-<node CREATED="1238519786767" ID="Freemind_Link_1483383607" MODIFIED="1238519794346" TEXT="Uninitializes the simulation"/>
-<node CREATED="1238519798736" ID="Freemind_Link_1833850300" MODIFIED="1238519825629" TEXT="Use when returning to PREP from RUNNING if paused at time 0"/>
+<node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
+<node CREATED="1238693698012" FOLDED="true" ID="Freemind_Link_1599806815" MODIFIED="1238697674458" TEXT="Update browsers to use browser_base(sim)">
+<icon BUILTIN="messagebox_warning"/>
+<node CREATED="1238449514469" ID="Freemind_Link_165845852" MODIFIED="1238449524783" TEXT="Browsers should update themselves only when:">
+<node CREATED="1238449525588" ID="Freemind_Link_1160705008" MODIFIED="1238449528014" TEXT="They are visible"/>
+<node CREATED="1238449528723" ID="Freemind_Link_403784776" MODIFIED="1238449531726" TEXT="They become visible"/>
 </node>
+</node>
+<node CREATED="1238513070204" FOLDED="true" ID="Freemind_Link_66077028" MODIFIED="1238513075367" TEXT="Plot Tab">
+<node CREATED="1238513076429" ID="Freemind_Link_1251215369" MODIFIED="1238513086791" TEXT="Scrolling list of strip charts"/>
+<node CREATED="1238513112382" ID="Freemind_Link_999492866" MODIFIED="1238513123384" TEXT="Time Series View">
+<node CREATED="1238513123757" ID="Freemind_Link_474710164" MODIFIED="1238513127655" TEXT="SQL View"/>
+<node CREATED="1238513128189" ID="Freemind_Link_1492949825" MODIFIED="1238513145479" TEXT="Columns: tick, value"/>
+</node>
+<node CREATED="1238513186078" ID="Freemind_Link_1267249555" MODIFIED="1238513191192" TEXT="viewfactory">
+<node CREATED="1238513191869" ID="Freemind_Link_1269125596" MODIFIED="1238513237416" TEXT="Produces temporary time series views "/>
+<node CREATED="1238513246284" ID="Freemind_Link_992877018" MODIFIED="1238513259719" TEXT="Examples:">
+<node CREATED="1238513260109" ID="Freemind_Link_609283393" MODIFIED="1238513270071" TEXT="Satisfaction curve, n,g,c"/>
+<node CREATED="1238513270718" ID="Freemind_Link_267874709" MODIFIED="1238513275175" TEXT="Satisfaction mood, n,g"/>
+<node CREATED="1238513277725" ID="Freemind_Link_158106301" MODIFIED="1238513285303" TEXT="Cooperation level, n,f,g"/>
+<node CREATED="1238513287789" ID="Freemind_Link_1112984383" MODIFIED="1238513291831" TEXT="Anything else we can think of"/>
+</node>
+</node>
+<node CREATED="1238513306844" ID="Freemind_Link_1071430040" MODIFIED="1238513318408" TEXT="viewfactory dialog">
+<node CREATED="1238513318845" ID="Freemind_Link_111701076" MODIFIED="1238513357287" TEXT="GUI to create a view given criteria"/>
+<node CREATED="1238513340894" ID="Freemind_Link_1405768500" MODIFIED="1238513346167" TEXT="Like E-Mail rules GUI"/>
+</node>
+<node CREATED="1238513087837" ID="Freemind_Link_1527981066" MODIFIED="1238513111816" TEXT="View-based plot widget">
+<node CREATED="1238513147901" ID="Freemind_Link_1318827185" MODIFIED="1238513179639" TEXT="Displays one or more time series views"/>
+</node>
+</node>
+<node CREATED="1237479490254" ID="Freemind_Link_1164487778" MODIFIED="1237479498698" TEXT="Order History Browser"/>
+<node CREATED="1237479513679" ID="Freemind_Link_123674584" MODIFIED="1237479523691" TEXT="appwin(sim): Windows Menu"/>
+<node CREATED="1237479525078" FOLDED="true" ID="Freemind_Link_122163295" MODIFIED="1237479534962" TEXT="appwin(sim): Optional Tabs">
+<node CREATED="1237479542494" ID="Freemind_Link_1417851375" MODIFIED="1237479555026" TEXT="Most/all tabs should be optional."/>
+<node CREATED="1237479555774" ID="Freemind_Link_1026314275" MODIFIED="1237479568490" TEXT="Each tab has a checkbox on View menu"/>
+<node CREATED="1237479569238" ID="Freemind_Link_1577478674" MODIFIED="1237479591914" TEXT="Disabled tabs don&apos;t exist, no CPU used"/>
+</node>
+<node CREATED="1237481210122" FOLDED="true" ID="Freemind_Link_1615196501" MODIFIED="1237481223466" TEXT="appwin(sim): Hierarchical tabs">
+<node CREATED="1237481224027" ID="Freemind_Link_1716821238" MODIFIED="1237481233326" TEXT="We need a better way to present the info."/>
+<node CREATED="1237481238530" FOLDED="true" ID="Freemind_Link_1492297848" MODIFIED="1237481243686" TEXT="Some data might be on multiple tabs">
+<node CREATED="1237481244362" ID="Freemind_Link_1880842776" MODIFIED="1237481256094" TEXT="Units vs. Frc Units"/>
+</node>
+</node>
+<node CREATED="1237479823575" FOLDED="true" ID="Freemind_Link_1856908617" MODIFIED="1237479838611" TEXT="Preserve GUI layout">
+<node CREATED="1237479839174" ID="Freemind_Link_254956277" MODIFIED="1237479844658" TEXT="Save on shutdown or request"/>
+<node CREATED="1237479845294" ID="Freemind_Link_1346360849" MODIFIED="1237479851922" TEXT="Restore at startup"/>
+</node>
+<node CREATED="1237481279626" FOLDED="true" ID="Freemind_Link_19715277" MODIFIED="1237481292487" TEXT="Browsers: -view option">
+<node CREATED="1237481293089" ID="Freemind_Link_348314360" MODIFIED="1237481307013" TEXT="One browser could browse several subsets, given different views"/>
+<node CREATED="1237481308697" ID="Freemind_Link_38947399" MODIFIED="1237481318813" TEXT="Perhaps, browser gets list of views"/>
+<node CREATED="1237481319513" ID="Freemind_Link_1805553183" MODIFIED="1237481325621" TEXT="User can switch between views"/>
+</node>
+<node CREATED="1238449372724" ID="Freemind_Link_1834677894" MODIFIED="1238514154561" TEXT="Drivers Browser"/>
+<node CREATED="1238513993932" ID="Freemind_Link_26326231" MODIFIED="1238514038997" TEXT="History and Causality Visualization"/>
+<node CREATED="1238513921852" ID="Freemind_Link_1922832150" MODIFIED="1238514171849" TEXT="Display Roll-ups other than mood">
+<icon BUILTIN="help"/>
+</node>
+</node>
+<node CREATED="1237477449934" FOLDED="true" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
 <node CREATED="1238449538228" ID="Freemind_Link_298189624" MODIFIED="1238449546446" TEXT="Environmental Situations"/>
 <node CREATED="1238449552883" FOLDED="true" ID="Freemind_Link_17150792" MODIFIED="1238449701506" TEXT="Neighborhood statistics">
 <node CREATED="1238449563668" ID="Freemind_Link_782464506" MODIFIED="1238449568782" TEXT="Force analysis"/>
@@ -25,9 +80,6 @@
 <node CREATED="1238449726244" ID="Freemind_Link_1432696154" MODIFIED="1238449747274" TEXT="DAM Rules">
 <arrowlink DESTINATION="Freemind_Link_213166219" ENDARROW="Default" ENDINCLINATION="162;0;" ID="Freemind_Arrow_Link_560219951" STARTARROW="None" STARTINCLINATION="115;10;"/>
 </node>
-<node CREATED="1237480898155" FOLDED="true" ID="Freemind_Link_919848605" MODIFIED="1237480916486" TEXT="GRAM slope limits based on duration">
-<node CREATED="1237480917418" ID="Freemind_Link_701469202" MODIFIED="1237480958721" TEXT="Limits based on total nominal change&#xa;don&apos;t really make sense."/>
-</node>
 <node CREATED="1237822733720" FOLDED="true" ID="Freemind_Link_1356652575" MODIFIED="1237822740277" TEXT="Reactive Decision Conditions">
 <node CREATED="1237822742521" ID="Freemind_Link_656806568" MODIFIED="1237822753602" TEXT="Check RDCs at end of each tick"/>
 <node CREATED="1237822754248" ID="Freemind_Link_1244752831" MODIFIED="1237822768786" TEXT="Simplest: pause simulation if RDC is met"/>
@@ -37,7 +89,20 @@
 <node CREATED="1237568050726" ID="Freemind_Link_454367740" MODIFIED="1237568062559" TEXT="Like gtclient/gtserver, but within one app"/>
 </node>
 </node>
-<node CREATED="1237475139158" ID="_" MODIFIED="1237477117490" POSITION="right" TEXT="Order">
+<node CREATED="1238687583256" FOLDED="true" ID="Freemind_Link_940282254" MODIFIED="1238687618178" POSITION="right" TEXT="GRAM">
+<node CREATED="1238687586408" FOLDED="true" ID="Freemind_Link_501065661" MODIFIED="1238687608018" TEXT="Trends have a built-in limit of 100.0">
+<node CREATED="1238687641432" ID="Freemind_Link_246888599" MODIFIED="1238687653634" TEXT="A 1.0 trend ceases after 100 days"/>
+<node CREATED="1238687655800" ID="Freemind_Link_674950714" MODIFIED="1238687666514" TEXT="Trends should be regarded as regression to some long-term value"/>
+<node CREATED="1238687668488" ID="Freemind_Link_556104662" MODIFIED="1238687696727" TEXT="Currently, positive trends regress to 100.0;&#xa;negative trends regress to -100.0"/>
+<node CREATED="1238687701144" ID="Freemind_Link_617461885" MODIFIED="1238687717134" TEXT="Should we make other values available?">
+<icon BUILTIN="help"/>
+</node>
+</node>
+<node CREATED="1237480898155" FOLDED="true" ID="Freemind_Link_919848605" MODIFIED="1237480916486" TEXT="GRAM slope limits based on duration">
+<node CREATED="1237480917418" ID="Freemind_Link_701469202" MODIFIED="1237480958721" TEXT="Limits based on total nominal change&#xa;don&apos;t really make sense."/>
+</node>
+</node>
+<node CREATED="1237475139158" FOLDED="true" ID="_" MODIFIED="1237477117490" POSITION="right" TEXT="Order">
 <node CREATED="1237480217386" FOLDED="true" ID="Freemind_Link_96571795" MODIFIED="1238433033389" TEXT="Dump order history as script">
 <arrowlink DESTINATION="Freemind_Link_860046120" ENDARROW="Default" ENDINCLINATION="75;0;" ID="Freemind_Arrow_Link_966523914" STARTARROW="None" STARTINCLINATION="75;0;"/>
 <node CREATED="1238185877929" ID="Freemind_Link_1596050694" MODIFIED="1238185885379" TEXT="Need to know scripting format first"/>
@@ -108,7 +173,7 @@
 <icon BUILTIN="help"/>
 </node>
 </node>
-<node CREATED="1237477511538" ID="Freemind_Link_894463638" MODIFIED="1237477524514" POSITION="right" TEXT="Scenario">
+<node CREATED="1237477511538" FOLDED="true" ID="Freemind_Link_894463638" MODIFIED="1237477524514" POSITION="right" TEXT="Scenario">
 <node CREATED="1237477586106" FOLDED="true" ID="Freemind_Link_516563511" MODIFIED="1237477603190" TEXT="Must rel=1.0 when f=g">
 <icon BUILTIN="help"/>
 <node CREATED="1237477606906" ID="Freemind_Link_1462718131" MODIFIED="1237477628037" TEXT="If so, I need to update the RELATIONSHIP:* orders"/>
@@ -129,121 +194,7 @@
 <node CREATED="1237482138802" ID="Freemind_Link_1495570394" MODIFIED="1237482143838" TEXT="Useful; can of worms."/>
 </node>
 </node>
-<node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
-<node CREATED="1238513450107" FOLDED="true" ID="Freemind_Link_1362554758" MODIFIED="1238516207094" TEXT="Display ARAM Outputs">
-<icon BUILTIN="messagebox_warning"/>
-<node CREATED="1238513902140" ID="Freemind_Link_1093815571" MODIFIED="1238513904518" TEXT="Easy Outputs">
-<node CREATED="1238513462364" ID="Freemind_Link_202640026" MODIFIED="1238513471062" TEXT="Satisfaction level">
-<node CREATED="1238513537516" ID="Freemind_Link_546236318" MODIFIED="1238513541878" TEXT="In Sat tab"/>
-</node>
-<node CREATED="1238513471468" ID="Freemind_Link_1488824991" MODIFIED="1238513498038" TEXT="Satisfaction mood">
-<node CREATED="1238513545372" ID="Freemind_Link_655608650" MODIFIED="1238513567142" TEXT="CIVs: In nbgroups tab"/>
-<node CREATED="1238513567964" ID="Freemind_Link_934590409" MODIFIED="1238513580918" TEXT="ORGs: Mood is just CAS; no need to display it."/>
-</node>
-<node CREATED="1238513475964" ID="Freemind_Link_1063575566" MODIFIED="1238513480118" TEXT="Cooperation level">
-<node CREATED="1238513589405" ID="Freemind_Link_1488117750" MODIFIED="1238513592214" TEXT="In Coop tab"/>
-</node>
-<node CREATED="1238513954203" ID="Freemind_Link_785914341" MODIFIED="1238513959046" TEXT="Nbhood satisfaction mood">
-<node CREATED="1238513965660" ID="Freemind_Link_375931689" MODIFIED="1238513969398" TEXT="CIVs only"/>
-<node CREATED="1238513969820" ID="Freemind_Link_359127490" MODIFIED="1238513974678" TEXT="In nbhoods tab"/>
-</node>
-</node>
-<node CREATED="1238513521053" ID="Freemind_Link_827038239" MODIFIED="1238513621094" TEXT="Join GRAM tables with GUI views">
-<node CREATED="1238513624477" ID="Freemind_Link_1555932134" MODIFIED="1238513636182" TEXT="GRAM tables are not always valid">
-<icon BUILTIN="flag"/>
-</node>
-<node CREATED="1238513671100" ID="Freemind_Link_1333397723" MODIFIED="1238513878435" TEXT="Use left outer join and display blanks for&#xa;the output columns when in PREP state.">
-<node CREATED="1238513830588" ID="Freemind_Link_1906705615" MODIFIED="1238513845930" TEXT="Can tablelist cope with blanks in numeric-sorted column?">
-<icon BUILTIN="help"/>
-</node>
-<node CREATED="1238513740637" ID="Freemind_Link_1155655183" MODIFIED="1238513744935" TEXT="If need be:">
-<node CREATED="1238513641132" ID="Freemind_Link_749976764" MODIFIED="1238513662742" TEXT="SQL function: simstate()"/>
-<node CREATED="1238513691292" ID="Freemind_Link_1623432011" MODIFIED="1238513756438" TEXT="Switch on simstate() to format column"/>
-</node>
-</node>
-</node>
-</node>
-<node CREATED="1238449424244" FOLDED="true" ID="Freemind_Link_1819277701" MODIFIED="1238449870289" TEXT="Text reports">
-<icon BUILTIN="help"/>
-<node CREATED="1238449438196" ID="Freemind_Link_158053164" MODIFIED="1238449443967" TEXT="Report Browser"/>
-<node CREATED="1238449454308" ID="Freemind_Link_810723720" MODIFIED="1238449463566" TEXT="Use log more aggressively"/>
-</node>
-<node CREATED="1238449514469" FOLDED="true" ID="Freemind_Link_165845852" MODIFIED="1238449524783" TEXT="Browsers should update themselves only when:">
-<node CREATED="1238449525588" ID="Freemind_Link_1160705008" MODIFIED="1238449528014" TEXT="They are visible"/>
-<node CREATED="1238449528723" ID="Freemind_Link_403784776" MODIFIED="1238449531726" TEXT="They become visible"/>
-</node>
-<node CREATED="1237488295816" FOLDED="true" ID="Freemind_Link_1208739900" MODIFIED="1237495169282" TEXT="zulufield(n) widget">
-<node CREATED="1237560838308" ID="Freemind_Link_7202440" MODIFIED="1237560850862" TEXT="-increment set by simclock&apos;s tick size"/>
-<node CREATED="1237918381064" ID="Freemind_Link_274696888" MODIFIED="1237918408034" TEXT="Make -changecmd work properly"/>
-</node>
-<node CREATED="1238513070204" FOLDED="true" ID="Freemind_Link_66077028" MODIFIED="1238513075367" TEXT="Plot Tab">
-<node CREATED="1238513076429" ID="Freemind_Link_1251215369" MODIFIED="1238513086791" TEXT="Scrolling list of strip charts"/>
-<node CREATED="1238513112382" ID="Freemind_Link_999492866" MODIFIED="1238513123384" TEXT="Time Series View">
-<node CREATED="1238513123757" ID="Freemind_Link_474710164" MODIFIED="1238513127655" TEXT="SQL View"/>
-<node CREATED="1238513128189" ID="Freemind_Link_1492949825" MODIFIED="1238513145479" TEXT="Columns: tick, value"/>
-</node>
-<node CREATED="1238513186078" ID="Freemind_Link_1267249555" MODIFIED="1238513191192" TEXT="viewfactory">
-<node CREATED="1238513191869" ID="Freemind_Link_1269125596" MODIFIED="1238513237416" TEXT="Produces temporary time series views "/>
-<node CREATED="1238513246284" ID="Freemind_Link_992877018" MODIFIED="1238513259719" TEXT="Examples:">
-<node CREATED="1238513260109" ID="Freemind_Link_609283393" MODIFIED="1238513270071" TEXT="Satisfaction curve, n,g,c"/>
-<node CREATED="1238513270718" ID="Freemind_Link_267874709" MODIFIED="1238513275175" TEXT="Satisfaction mood, n,g"/>
-<node CREATED="1238513277725" ID="Freemind_Link_158106301" MODIFIED="1238513285303" TEXT="Cooperation level, n,f,g"/>
-<node CREATED="1238513287789" ID="Freemind_Link_1112984383" MODIFIED="1238513291831" TEXT="Anything else we can think of"/>
-</node>
-</node>
-<node CREATED="1238513306844" ID="Freemind_Link_1071430040" MODIFIED="1238513318408" TEXT="viewfactory dialog">
-<node CREATED="1238513318845" ID="Freemind_Link_111701076" MODIFIED="1238513357287" TEXT="GUI to create a view given criteria"/>
-<node CREATED="1238513340894" ID="Freemind_Link_1405768500" MODIFIED="1238513346167" TEXT="Like E-Mail rules GUI"/>
-</node>
-<node CREATED="1238513087837" ID="Freemind_Link_1527981066" MODIFIED="1238513111816" TEXT="View-based plot widget">
-<node CREATED="1238513147901" ID="Freemind_Link_1318827185" MODIFIED="1238513179639" TEXT="Displays one or more time series views"/>
-</node>
-</node>
-<node CREATED="1237479490254" ID="Freemind_Link_1164487778" MODIFIED="1237479498698" TEXT="Order History Browser"/>
-<node CREATED="1237479513679" ID="Freemind_Link_123674584" MODIFIED="1237479523691" TEXT="appwin(sim): Windows Menu"/>
-<node CREATED="1237479525078" FOLDED="true" ID="Freemind_Link_122163295" MODIFIED="1237479534962" TEXT="appwin(sim): Optional Tabs">
-<node CREATED="1237479542494" ID="Freemind_Link_1417851375" MODIFIED="1237479555026" TEXT="Most/all tabs should be optional."/>
-<node CREATED="1237479555774" ID="Freemind_Link_1026314275" MODIFIED="1237479568490" TEXT="Each tab has a checkbox on View menu"/>
-<node CREATED="1237479569238" ID="Freemind_Link_1577478674" MODIFIED="1237479591914" TEXT="Disabled tabs don&apos;t exist, no CPU used"/>
-</node>
-<node CREATED="1237481210122" FOLDED="true" ID="Freemind_Link_1615196501" MODIFIED="1237481223466" TEXT="appwin(sim): Hierarchical tabs">
-<node CREATED="1237481224027" ID="Freemind_Link_1716821238" MODIFIED="1237481233326" TEXT="We need a better way to present the info."/>
-<node CREATED="1237481238530" FOLDED="true" ID="Freemind_Link_1492297848" MODIFIED="1237481243686" TEXT="Some data might be on multiple tabs">
-<node CREATED="1237481244362" ID="Freemind_Link_1880842776" MODIFIED="1237481256094" TEXT="Units vs. Frc Units"/>
-</node>
-</node>
-<node CREATED="1237479823575" FOLDED="true" ID="Freemind_Link_1856908617" MODIFIED="1237479838611" TEXT="Preserve GUI layout">
-<node CREATED="1237479839174" ID="Freemind_Link_254956277" MODIFIED="1237479844658" TEXT="Save on shutdown or request"/>
-<node CREATED="1237479845294" ID="Freemind_Link_1346360849" MODIFIED="1237479851922" TEXT="Restore at startup"/>
-</node>
-<node CREATED="1237479433118" FOLDED="true" ID="Freemind_Link_491578520" MODIFIED="1237479488218" TEXT="Cell-based editing in browsers">
-<node CREATED="1237479441630" ID="Freemind_Link_1508483203" MODIFIED="1237479447402" TEXT="Interaction Logic"/>
-<node CREATED="1237479448534" ID="Freemind_Link_1379686715" MODIFIED="1237479457434" TEXT="How to use custom editors in Tablelist"/>
-</node>
-<node CREATED="1237480548048" FOLDED="true" ID="Freemind_Link_1752009235" MODIFIED="1237480701864" TEXT="Help Browser">
-<node CREATED="1237480554706" ID="Freemind_Link_418716993" MODIFIED="1237480564829" TEXT="Firefox, Tkhtml2, or Text"/>
-<node CREATED="1237480565722" ID="Freemind_Link_452312016" MODIFIED="1237480582229" TEXT="If Firefox, prefs setting for location"/>
-</node>
-<node CREATED="1237481279626" FOLDED="true" ID="Freemind_Link_19715277" MODIFIED="1237481292487" TEXT="Browsers: -view option">
-<node CREATED="1237481293089" ID="Freemind_Link_348314360" MODIFIED="1237481307013" TEXT="One browser could browse several subsets, given different views"/>
-<node CREATED="1237481308697" ID="Freemind_Link_38947399" MODIFIED="1237481318813" TEXT="Perhaps, browser gets list of views"/>
-<node CREATED="1237481319513" ID="Freemind_Link_1805553183" MODIFIED="1237481325621" TEXT="User can switch between views"/>
-</node>
-<node CREATED="1237935592833" FOLDED="true" ID="Freemind_Link_115718094" MODIFIED="1237935621398" TEXT="Order/ability to save explicit checkpoint">
-<icon BUILTIN="help"/>
-<node CREATED="1237935623632" ID="Freemind_Link_1015974023" MODIFIED="1237935628332" TEXT="Why would this be useful?"/>
-<node CREATED="1237935632528" ID="Freemind_Link_1714148047" MODIFIED="1237935637098" TEXT="Possibly as a scheduled order."/>
-</node>
-<node CREATED="1237481060666" ID="Freemind_Link_236045392" MODIFIED="1237481071958" TEXT="Wizard infrastructure">
-<icon BUILTIN="help"/>
-</node>
-<node CREATED="1238449372724" ID="Freemind_Link_1834677894" MODIFIED="1238514154561" TEXT="Drivers Browser"/>
-<node CREATED="1238513993932" ID="Freemind_Link_26326231" MODIFIED="1238514038997" TEXT="History and Causality Visualization"/>
-<node CREATED="1238513921852" ID="Freemind_Link_1922832150" MODIFIED="1238514171849" TEXT="Display Roll-ups other than mood">
-<icon BUILTIN="help"/>
-</node>
-</node>
-<node CREATED="1237479990726" ID="Freemind_Link_1486904062" MODIFIED="1237479995186" POSITION="right" TEXT="Map GUI">
+<node CREATED="1237479990726" FOLDED="true" ID="Freemind_Link_1486904062" MODIFIED="1237479995186" POSITION="right" TEXT="Map GUI">
 <node CREATED="1237481843234" FOLDED="true" ID="Freemind_Link_1306844691" MODIFIED="1237481853838" TEXT="Set unit shapes based on relationships">
 <node CREATED="1237481854578" ID="Freemind_Link_720065925" MODIFIED="1237481862230" TEXT="WRT user-selected group"/>
 <node CREATED="1237481862754" ID="Freemind_Link_1299949235" MODIFIED="1237481887774" TEXT="qgrouprel defines FRIEND, NEUTRAL, ENEMY"/>
@@ -258,7 +209,7 @@
 <node CREATED="1237480762290" ID="Freemind_Link_1647420652" MODIFIED="1237480770710" TEXT="Ability to drag reference points interactively"/>
 <node CREATED="1237481081578" ID="Freemind_Link_1201367450" MODIFIED="1237481091054" TEXT="Ability to edit nbhood boundary points interactively"/>
 </node>
-<node CREATED="1237480148482" ID="Freemind_Link_1288481032" MODIFIED="1237480151141" POSITION="right" TEXT="Order GUI">
+<node CREATED="1237480148482" FOLDED="true" ID="Freemind_Link_1288481032" MODIFIED="1237480151141" POSITION="right" TEXT="Order GUI">
 <node CREATED="1237480151546" ID="Freemind_Link_1910353174" MODIFIED="1237480162312" TEXT="Validate order on parameter entry change"/>
 <node CREATED="1237480163506" FOLDED="true" ID="Freemind_Link_1602203708" MODIFIED="1237480178654" TEXT="User selects order execution time">
 <node CREATED="1237480179450" ID="Freemind_Link_1441599316" MODIFIED="1237480186965" TEXT="Invalid orders can be scheduled"/>
@@ -292,7 +243,7 @@
 <node CREATED="1237481740282" ID="Freemind_Link_1648375048" MODIFIED="1237481749862" TEXT="Send short name to order(sim)"/>
 </node>
 </node>
-<node CREATED="1237479872766" ID="Freemind_Link_307055918" MODIFIED="1237479878826" POSITION="right" TEXT="Infrastructure">
+<node CREATED="1237479872766" FOLDED="true" ID="Freemind_Link_307055918" MODIFIED="1237479878826" POSITION="right" TEXT="Infrastructure">
 <node CREATED="1237479880174" FOLDED="true" ID="Freemind_Link_640139219" MODIFIED="1237479885643" TEXT="notifier(n) introspection">
 <node CREATED="1237479886358" ID="Freemind_Link_1497195308" MODIFIED="1237479891074" TEXT="Dump subscription info"/>
 <node CREATED="1237479891694" ID="Freemind_Link_67855834" MODIFIED="1237479901642" TEXT="Predict effect of sending an event"/>
@@ -300,9 +251,6 @@
 <node CREATED="1237479930358" ID="Freemind_Link_1301494248" MODIFIED="1237479939826" TEXT="range(n) should emulate snit::double&apos;s error messages"/>
 <node CREATED="1237479941254" ID="Freemind_Link_285676340" MODIFIED="1237479950842" TEXT="enum(n) should emulate snit::enum&apos;s error messages"/>
 <node CREATED="1237479952062" ID="Freemind_Link_1986519778" MODIFIED="1237479968762" TEXT="quality(n) should emulate snit::double and snit::enum&apos;s error messages"/>
-<node CREATED="1237480727986" FOLDED="true" ID="Freemind_Link_1856628726" MODIFIED="1237480741999" TEXT="filter(n): -filterset option">
-<node CREATED="1237480742858" ID="Freemind_Link_1542097651" MODIFIED="1237480750709" TEXT="Allows multiple filters to show same filter string"/>
-</node>
 <node CREATED="1237481352818" FOLDED="true" ID="Freemind_Link_1224970170" MODIFIED="1237481417790" TEXT="notifer(n) priorities">
 <icon BUILTIN="help"/>
 <node CREATED="1237481421898" ID="Freemind_Link_1848530205" MODIFIED="1237481436422" TEXT="App defines priorities: gui, sim1, sim2, sim3"/>
@@ -320,6 +268,35 @@
 <node CREATED="1237481638490" ID="Freemind_Link_1455778469" MODIFIED="1237481646893" TEXT="Named cells containing formulas"/>
 <node CREATED="1237481647402" ID="Freemind_Link_1584051598" MODIFIED="1237481655934" TEXT="Formulas can depend on other cells"/>
 <node CREATED="1237481656514" ID="Freemind_Link_853037145" MODIFIED="1237481662310" TEXT="Ability to iterate to a solution"/>
+</node>
+</node>
+<node CREATED="1238697459940" ID="Freemind_Link_946664107" MODIFIED="1238697464078" POSITION="right" TEXT="GUI Infrastructure">
+<node CREATED="1238697576356" ID="Freemind_Link_1910498498" MODIFIED="1238697674457" TEXT="tablebrowser(n) should create toolbar automatically">
+<arrowlink DESTINATION="Freemind_Link_1599806815" ENDARROW="Default" ENDINCLINATION="128;0;" ID="Freemind_Arrow_Link_1005875885" STARTARROW="None" STARTINCLINATION="83;0;"/>
+<icon BUILTIN="messagebox_warning"/>
+</node>
+<node CREATED="1237488295816" FOLDED="true" ID="Freemind_Link_1208739900" MODIFIED="1237495169282" TEXT="zulufield(n) widget">
+<node CREATED="1237560838308" ID="Freemind_Link_7202440" MODIFIED="1237560850862" TEXT="-increment set by simclock&apos;s tick size"/>
+<node CREATED="1237918381064" ID="Freemind_Link_274696888" MODIFIED="1237918408034" TEXT="Make -changecmd work properly"/>
+</node>
+<node CREATED="1238449424244" FOLDED="true" ID="Freemind_Link_1819277701" MODIFIED="1238449870289" TEXT="Text reports">
+<icon BUILTIN="help"/>
+<node CREATED="1238449438196" ID="Freemind_Link_158053164" MODIFIED="1238449443967" TEXT="Report Browser"/>
+<node CREATED="1238449454308" ID="Freemind_Link_810723720" MODIFIED="1238449463566" TEXT="Use log more aggressively"/>
+</node>
+<node CREATED="1237479433118" FOLDED="true" ID="Freemind_Link_491578520" MODIFIED="1237479488218" TEXT="Cell-based editing in browsers">
+<node CREATED="1237479441630" ID="Freemind_Link_1508483203" MODIFIED="1237479447402" TEXT="Interaction Logic"/>
+<node CREATED="1237479448534" ID="Freemind_Link_1379686715" MODIFIED="1237479457434" TEXT="How to use custom editors in Tablelist"/>
+</node>
+<node CREATED="1237480548048" FOLDED="true" ID="Freemind_Link_1752009235" MODIFIED="1237480701864" TEXT="Help Browser">
+<node CREATED="1237480554706" ID="Freemind_Link_418716993" MODIFIED="1237480564829" TEXT="Firefox, Tkhtml2, or Text"/>
+<node CREATED="1237480565722" ID="Freemind_Link_452312016" MODIFIED="1237480582229" TEXT="If Firefox, prefs setting for location"/>
+</node>
+<node CREATED="1237481060666" ID="Freemind_Link_236045392" MODIFIED="1237481071958" TEXT="Wizard infrastructure">
+<icon BUILTIN="help"/>
+</node>
+<node CREATED="1237480727986" FOLDED="true" ID="Freemind_Link_1856628726" MODIFIED="1237480741999" TEXT="filter(n): -filterset option">
+<node CREATED="1237480742858" ID="Freemind_Link_1542097651" MODIFIED="1237480750709" TEXT="Allows multiple filters to show same filter string"/>
 </node>
 </node>
 <node CREATED="1237479138614" ID="Freemind_Link_1692010973" MODIFIED="1237479140586" POSITION="right" TEXT="App">
@@ -343,10 +320,10 @@
 </node>
 </node>
 </node>
-<node CREATED="1237481029826" ID="Freemind_Link_660348068" MODIFIED="1237481031278" POSITION="right" TEXT="CM">
+<node CREATED="1237481029826" FOLDED="true" ID="Freemind_Link_660348068" MODIFIED="1237481031278" POSITION="right" TEXT="CM">
 <node CREATED="1237481032018" ID="Freemind_Link_920792744" MODIFIED="1237481052413" TEXT="make clean: clean up auto-generated GIFs in man* directories"/>
 </node>
-<node CREATED="1237477422983" ID="Freemind_Link_1059023875" MODIFIED="1237477425010" POSITION="right" TEXT="Docs">
+<node CREATED="1237477422983" FOLDED="true" ID="Freemind_Link_1059023875" MODIFIED="1237477425010" POSITION="right" TEXT="Docs">
 <node CREATED="1237477426471" ID="Freemind_Link_887072406" MODIFIED="1237477434298" TEXT="Athena Analyst&apos;s Guide"/>
 <node CREATED="1237477435158" ID="Freemind_Link_144909588" MODIFIED="1237477440938" TEXT="Athena Architecture Document"/>
 <node CREATED="1237480507154" FOLDED="true" ID="Freemind_Link_1237244067" MODIFIED="1237480511727" TEXT="Tcl/Tk Coding Standard">
@@ -913,6 +890,118 @@
 <node CREATED="1238603090409" ID="Freemind_Link_449583637" MODIFIED="1238623222998" TEXT="athena_sim(1)">
 <icon BUILTIN="button_ok"/>
 </node>
+</node>
+</node>
+</node>
+<node CREATED="1238685198893" ID="Freemind_Link_8568626" MODIFIED="1238685219899" TEXT="Bug 1985">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238519780623" FOLDED="true" ID="Freemind_Link_1494103863" MODIFIED="1238685219900" TEXT="gram(n): clear">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238519786767" ID="Freemind_Link_1483383607" MODIFIED="1238519794346" TEXT="Uninitializes the simulation"/>
+<node CREATED="1238519798736" ID="Freemind_Link_1833850300" MODIFIED="1238519825629" TEXT="Use when returning to PREP from RUNNING if paused at time 0"/>
+</node>
+</node>
+<node CREATED="1238698182610" ID="Freemind_Link_137290562" MODIFIED="1238698192736" TEXT="Bug 1988">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238513450107" FOLDED="true" ID="Freemind_Link_7414174" MODIFIED="1238698192737" TEXT="Display ARAM Outputs">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238686916746" ID="Freemind_Link_727602711" MODIFIED="1238686927023" TEXT="Concept">
+<icon BUILTIN="flag"/>
+<node CREATED="1238513902140" ID="Freemind_Link_1424491231" MODIFIED="1238686924799" TEXT="Easy Outputs">
+<node CREATED="1238513462364" ID="Freemind_Link_624747327" MODIFIED="1238513471062" TEXT="Satisfaction level">
+<node CREATED="1238513537516" ID="Freemind_Link_1445697922" MODIFIED="1238513541878" TEXT="In Sat tab"/>
+</node>
+<node CREATED="1238513471468" ID="Freemind_Link_1882141234" MODIFIED="1238513498038" TEXT="Satisfaction mood">
+<node CREATED="1238513545372" ID="Freemind_Link_1744898646" MODIFIED="1238513567142" TEXT="CIVs: In nbgroups tab"/>
+<node CREATED="1238513567964" ID="Freemind_Link_1244954265" MODIFIED="1238513580918" TEXT="ORGs: Mood is just CAS; no need to display it."/>
+</node>
+<node CREATED="1238513475964" ID="Freemind_Link_1264468866" MODIFIED="1238513480118" TEXT="Cooperation level">
+<node CREATED="1238513589405" ID="Freemind_Link_585181092" MODIFIED="1238513592214" TEXT="In Coop tab"/>
+</node>
+</node>
+<node CREATED="1238513521053" ID="Freemind_Link_1376958068" MODIFIED="1238513621094" TEXT="Join GRAM tables with GUI views">
+<node CREATED="1238513624477" ID="Freemind_Link_632643494" MODIFIED="1238687154563" TEXT="Ensure that GRAM tables are invalid in PREP state"/>
+<node CREATED="1238687003417" ID="Freemind_Link_424287950" MODIFIED="1238687020051" TEXT="Use left outer join so that NULLs are OK"/>
+<node CREATED="1238687021209" ID="Freemind_Link_783894674" MODIFIED="1238687032979" TEXT="In view, convert NULL to initial value, or 0.0">
+<node CREATED="1238687039385" ID="Freemind_Link_760283125" MODIFIED="1238687126441" TEXT="Tablelist can&apos;t cope with non-numeric values&#xa;in columns sorted as floating point."/>
+</node>
+</node>
+</node>
+<node CREATED="1238686906474" ID="Freemind_Link_1024916433" MODIFIED="1238686911906" TEXT="sim(sim) changes">
+<node CREATED="1238687188600" ID="Freemind_Link_1421268975" MODIFIED="1238688061317" TEXT="&quot;clear&quot; GRAM on return to PREP">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238687205369" ID="Freemind_Link_1551832867" MODIFIED="1238687213139" TEXT="Ensures GRAM tables are invalid in PREP state"/>
+</node>
+</node>
+<node CREATED="1238687231961" ID="Freemind_Link_218414122" MODIFIED="1238693023622" TEXT="Outputs">
+<node CREATED="1238687238921" ID="Freemind_Link_1573153266" MODIFIED="1238688071189" TEXT="Satisfaction level">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238687249913" ID="Freemind_Link_1923784955" MODIFIED="1238688071190" TEXT="Add to gui_sat_ngc view">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238692991085" ID="Freemind_Link_341350653" MODIFIED="1238693001610" TEXT="satbrowser(sim) uses browser_base(sim)">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238687283705" ID="Freemind_Link_1746018501" MODIFIED="1238688071190" TEXT="Display in satbrowser(sim)">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238687290745" ID="Freemind_Link_467958280" MODIFIED="1238688071190" TEXT="Update satbrowser(sim) on each tick">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1238694049754" ID="Freemind_Link_1183215814" MODIFIED="1238695436776" TEXT="nbgroup mood">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238694058762" ID="Freemind_Link_953932921" MODIFIED="1238695436774" TEXT="Add to gui_nbgroups">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238692991085" ID="Freemind_Link_1210867595" MODIFIED="1238695436775" TEXT="nbgroupbrowser(sim) uses browser_base(sim)">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238694076171" ID="Freemind_Link_511189845" MODIFIED="1238695436775" TEXT="Display in nbgroupbrowser(sim)">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238694084410" ID="Freemind_Link_1820930935" MODIFIED="1238695436775" TEXT="Update nbgroupbrowser(sim) on each tick">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1238687238921" ID="Freemind_Link_1557291643" MODIFIED="1238697284794" TEXT="Cooperation Level">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238687249913" ID="Freemind_Link_228174065" MODIFIED="1238696764835" TEXT="Add to gui_coop_nfg view">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238692991085" ID="Freemind_Link_806824872" MODIFIED="1238697284795" TEXT="coopbrowser(sim) uses browser_base(sim)">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238687283705" ID="Freemind_Link_1418401896" MODIFIED="1238697284796" TEXT="Display in coopbrowser(sim)">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238687290745" ID="Freemind_Link_579471615" MODIFIED="1238697284795" TEXT="Update coopbrowser(sim) on each tick">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+</node>
+<node CREATED="1238692222334" ID="Freemind_Link_1205103087" MODIFIED="1238693014892" TEXT="Browser changes:">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238692232062" ID="Freemind_Link_444483456" MODIFIED="1238693654817" TEXT="tablebrowser(n):">
+<node CREATED="1238692299374" ID="Freemind_Link_559358856" MODIFIED="1238693652025" TEXT="&quot;toolbar&quot; queries the toolbar">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1238693643339" ID="Freemind_Link_135985490" MODIFIED="1238697697417" TEXT="Update manpage">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1238692311022" ID="Freemind_Link_1565959369" MODIFIED="1238693014891" TEXT="browser_base(sim)">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1238692323469" ID="Freemind_Link_428964578" MODIFIED="1238692325848" TEXT="New module"/>
+<node CREATED="1238692326269" ID="Freemind_Link_474762533" MODIFIED="1238692331032" TEXT="Common behavior among browsers"/>
+<node CREATED="1238692335887" ID="Freemind_Link_985382742" MODIFIED="1238692345624" TEXT="reloads only when mapped"/>
+</node>
+</node>
+<node CREATED="1238513511116" ID="Freemind_Link_774003595" MODIFIED="1238697716513" TEXT="Subsequent work, as needed">
+<icon BUILTIN="flag"/>
+<node CREATED="1238514000940" ID="Freemind_Link_682310181" MODIFIED="1238514005925" TEXT="Time Series Plots"/>
+<node CREATED="1238513993932" ID="Freemind_Link_333427434" MODIFIED="1238514038997" TEXT="History and Causality Visualization"/>
+<node CREATED="1238513921852" ID="Freemind_Link_228918684" MODIFIED="1238513945126" TEXT="Roll-ups other than mood"/>
 </node>
 </node>
 </node>

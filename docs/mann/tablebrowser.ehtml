@@ -171,6 +171,13 @@ database for the table it is configured to show.<p>
 Causes the tablebrowser to take focus so that things like keyboard traversal
 work properly.<p>
 
+<<defitem toolbar {<i>pathName</i> toolbar ?<i>toolbar</i>?}>>
+
+The tablebrowser can manage a toolbar, if desired.  The client should
+create a toolbar frame as a child of the tablebrowser, and pass it to
+the tablebrowser using this command.  Subsequently, this command will
+return the toolbar widget's name.<p>
+
 <</deflist instance>>
 
 <<section EXAMPLE>>

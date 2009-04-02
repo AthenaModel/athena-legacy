@@ -712,6 +712,11 @@ snit::type sim {
             scenario snapshot save
         }
 
+        # NEXT, on return to PREP, clear ARAM
+        if {$state eq "PREP"} {
+            aram clear
+        }
+
         # NEXT, transition to the new state.
         set info(state) $state
         log normal sim "Simulation state is $info(state)"

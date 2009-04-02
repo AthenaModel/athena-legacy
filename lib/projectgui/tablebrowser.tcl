@@ -202,18 +202,23 @@ snit::widget ::projectgui::tablebrowser {
     #-------------------------------------------------------------------
     # Public Methods
 
-    # toolbar tbar
+    # toolbar ?tbar?
     #
     # tbar  the frame widget that contains the toolbar widgets to be displayed
     #
-    # This method packs the supplied toolbar frame into the f
-    method toolbar {tbar} {
-        # FIRST, make sure it doesn't already exist
-        assert {[winfo exists $toolbar] == 0}
+    # Sets/queries the toolbar frame.
 
-        # NEXT, set it as the toolbar and pack it
-        set toolbar $tbar
-        pack $toolbar -in $bar -side left -fill x -expand yes
+    method toolbar {{tbar ""}} {
+        if {$tbar ne ""} {
+            # FIRST, make sure it doesn't already exist
+            assert {[winfo exists $toolbar] == 0}
+            
+            # NEXT, set it as the toolbar and pack it
+            set toolbar $tbar
+            pack $toolbar -in $bar -side left -fill x -expand yes
+        }
+
+        return $toolbar
     }
 
     # curselection
