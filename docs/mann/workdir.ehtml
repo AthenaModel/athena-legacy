@@ -44,7 +44,7 @@ purged, and so it must be possible to determine which is which.<p>
 
 workdir(n) helps by updating the working directory's modification
 time every 10 seconds.  It does so by calling
-<<xref Tcl:file(n) "file mtime">> with the current time.  Then,
+<<xref tcl:file(n) "file mtime">> with the current time.  Then,
 a working directory is presumed to be inactive if its modification
 time is at least ten minutes in the past.<p>
 

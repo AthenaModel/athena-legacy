@@ -158,6 +158,52 @@ Sets the value of the named parameter, which must be valid.<p>
 <</deflist parm>>
 
 
+<<defitem prefs {prefs <i>subcommand</i> <i>args...</i>}>>
+
+The <<iref prefs>> command sets and queries user preference
+parameters, which are documented in the <<xref prefs(5)>> man
+page.  The user preferences are distinct from the model parameters
+edited using the <<iref parm>> command in that they apply to the
+application rather than to individual scenarios.  Therefore,<p>
+
+<ul>
+  <li> They are not saved in scenario files.
+  <li> They do not affect the outcome of simulation runs.
+</ul><p>
+
+<<deflist prefs>>
+
+<<defitem {prefs get} {prefs get <i>parm</i>}>>
+
+Retrieves the value of the named parameter.<p>
+
+<<defitem {prefs help} {prefs help <i>parm</i>}>>
+
+Displays the help string for the named parameter.<p>
+
+<<defitem {prefs list} {prefs list ?<i>pattern</i>?}>>
+
+Returns a human-readable list of parameters whose names match
+the specified wildcard pattern, in alphabetical order.
+If no <i>pattern</i> is specified, all parameters will be returned.<p>
+
+<<defitem {prefs names} {prefs names ?<i>pattern</i>?}>>
+
+Returns a list of the parameter names, in alphabetical order, which
+match the specified wildcard pattern; if no <i>pattern</i> is
+specified, all names will be returned.<p>
+
+<<defitem {prefs reset} {prefs reset}>>
+
+Resets all parameter values to their default settings.<p>
+
+<<defitem {prefs set} {prefs set <i>parm value</i>}>>
+
+Sets the value of the named parameter, which must be valid.<p>
+
+<</deflist prefs>>
+
+
 <<defitem "rdb" {rdb <i>subcommand</i> ?<i>args...</i>?}>>
 
 Exposes the application's run-time database, which is an

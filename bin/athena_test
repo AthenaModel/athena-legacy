@@ -154,7 +154,7 @@ namespace eval ::athena_test:: {
     puts "app_sim(n):  $::app_sim::library"
     puts ""
 
-    app init [list -ignoredefaultparms]
+    app init [list -ignoreuser]
 
     puts "app_sim(n) initialized."
 

@@ -122,6 +122,33 @@ snit::type executive {
         $interp smartalias {parm set} 2 2 {parm value} \
             [list ::parm exec set]
 
+        # prefs
+        $interp ensemble prefs
+
+        # prefs get
+        $interp smartalias {prefs get} 1 1 {prefs} \
+            [list prefs get]
+
+        # prefs help
+        $interp smartalias {prefs help} 1 1 {parm} \
+            [list prefs help]
+
+        # prefs list
+        $interp smartalias {prefs list} 0 1 {?pattern?} \
+            [list prefs list]
+
+        # prefs names
+        $interp smartalias {prefs names} 0 1 {?pattern?} \
+            [list prefs names]
+
+        # prefs reset
+        $interp smartalias {prefs reset} 0 0 {} \
+            [list prefs reset]
+
+        # prefs set
+        $interp smartalias {prefs set} 2 2 {prefs value} \
+            [list prefs set]
+
         # rdb
         $interp ensemble rdb
 

@@ -29,16 +29,9 @@ snit::type app {
     pragma -hastypedestroy 0 -hasinstances 0
 
     #-------------------------------------------------------------------
-    # Type Components
-
-    # TBD
-
-    #-------------------------------------------------------------------
     # Type Variables
 
-    # Maximum age in hours for old working directories; 
-    # older inactive working directories will be purged.
-    typevariable maxWorkDirAge 4
+    # TBD
 
     #-------------------------------------------------------------------
     # Application Initializer
@@ -51,15 +44,15 @@ snit::type app {
     typemethod init {argv} {
         # FIRST, Process the command line.
         array set opts {
-            -ignoredefaultparms no
+            -ignoreuser no
         }
 
         while {[string match "-*" [lindex $argv 0]]} {
             set opt [lshift argv]
 
             switch -exact -- $opt {
-                -ignoredefaultparms {
-                    set opts(-ignoredefaultparms) yes
+                -ignoreuser {
+                    set opts(-ignoreuser) yes
                 }
                 
                 default {
@@ -87,16 +80,23 @@ snit::type app {
             }
         }
 
-        # NEXT, purge old working directories
-        # TBD: If this proves slow, we can make it an idle process.
-        workdir purge $maxWorkDirAge
-
         # NEXT, open the debugging log.
         logger ::log                                           \
             -simclock   ::simclock                             \
             -logdir     [workdir join log app_sim]             \
             -newlogcmd  [list notifier send $type <AppLogNew>]
-            
+
+        # NEXT, initialize and load the user preferences
+        prefs init
+        
+        if {!$opts(-ignoreuser)} {
+            prefs load
+        }
+
+        # NEXT, purge old working directories
+        # TBD: If this proves slow, we can make it an idle process.
+        workdir purge [prefs get session.purgeHours]
+
 
         # NEXT, enable notifier(n) tracing
         notifier trace [myproc NotifierTrace]
@@ -106,7 +106,7 @@ snit::type app {
         executive init
         parm      init
         map       init
-        scenario  init -ignoredefaultparms $opts(-ignoredefaultparms)
+        scenario  init -ignoredefaultparms $opts(-ignoreuser)
         cif       init
         order     init
         nbhood    init
@@ -204,6 +204,7 @@ snit::type app {
         set objects [join $objects ", "]
         log detail notify "send $subject $event [list $eargs] to $objects"
     }
+
 
     #-------------------------------------------------------------------
     # Utility Type Methods
