@@ -36,7 +36,9 @@ snit::type app {
     #-------------------------------------------------------------------
     # Type Variables
 
-    # TBD
+    # Maximum age in hours for old working directories; 
+    # older inactive working directories will be purged.
+    typevariable maxWorkDirAge 4
 
     #-------------------------------------------------------------------
     # Application Initializer
@@ -73,7 +75,7 @@ snit::type app {
             exit 1
         }
 
-        # NEXT, creating the working directory.
+        # NEXT, create the working directory.
         if {[catch {workdir init} result]} {
             app exit {
                 |<--
@@ -84,6 +86,10 @@ snit::type app {
                 Reason: $result
             }
         }
+
+        # NEXT, purge old working directories
+        # TBD: If this proves slow, we can make it an idle process.
+        workdir purge $maxWorkDirAge
 
         # NEXT, open the debugging log.
         logger ::log                                           \
@@ -253,9 +259,6 @@ snit::type app {
         if {$text ne ""} {
             puts [uplevel 1 [list tsubst $text]]
         }
-
-        # NEXT, clean up the working files
-        workdir cleanup
 
         # NEXT, exit
         exit

@@ -36,13 +36,27 @@ then creates the following subdirectories:<p>
 
 Other working subdirectories are TBD.<p>
 
+<<subsection "Active and Inactive Working Directories">>
+
+A working directory is active if it's in use by an application, and
+inactive otherwise.  Inactive working directories must ultimately be
+purged, and so it must be possible to determine which is which.<p>
+
+workdir(n) helps by updating the working directory's modification
+time every 10 seconds.  It does so by calling
+<<xref Tcl:file(n) "file mtime">> with the current time.  Then,
+a working directory is presumed to be inactive if its modification
+time is at least ten minutes in the past.<p>
+
+<<section "COMMANDS">>
+
 This module defines the following commands:<p>
 
 <<deflist commands>>
 
 <<defitem "workdir cleanup" {workdir cleanup}>>
 
-Deletes the working directory and its contents, and "uninitializes"
+Deletes the current working directory and its contents, and "uninitializes"
 workdir(n).<p>
 
 <<defitem "workdir init" {workdir init}>>
@@ -62,6 +76,12 @@ following command returns the absolute path of a file called
 <pre>
 set rdbfile [workdir join rdb working.rdb]
 </pre>
+
+<<defitem "workdir purge" {workdir purge <i>hours</i>}>>
+
+Purges all inactive working directories that are least
+<i>hours</i> old.  If <i>hours</i> is zero, purges all inactive
+working directories.<p>
 
 <</deflist commands>>
 
