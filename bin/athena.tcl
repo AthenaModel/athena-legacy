@@ -61,10 +61,10 @@ exec tclsh8.5 "$0" "$@"
 
 # First, remove all TCLLIBPATH directories from the auto_path.
 
-set old_path $auto_path
-set auto_path [list]
-
 if {[info exists env(TCLLIBPATH)]} {
+    set old_path $auto_path
+    set auto_path [list]
+
     foreach dir $old_path {
         if {$dir ni $env(TCLLIBPATH)} {
             lappend auto_path $dir
