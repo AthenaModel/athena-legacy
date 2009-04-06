@@ -31,7 +31,13 @@ snit::type app {
     #-------------------------------------------------------------------
     # Type Variables
 
-    # TBD
+    # Application options
+    #
+    # -ignoreuser     If yes, ignore user preferences, etc.
+
+    typevariable opts -array {
+        -ignoreuser no
+    }
 
     #-------------------------------------------------------------------
     # Application Initializer
@@ -43,10 +49,6 @@ snit::type app {
     # Initializes the application.
     typemethod init {argv} {
         # FIRST, Process the command line.
-        array set opts {
-            -ignoreuser no
-        }
-
         while {[string match "-*" [lindex $argv 0]]} {
             set opt [lshift argv]
 
@@ -261,6 +263,11 @@ snit::type app {
             puts [uplevel 1 [list tsubst $text]]
         }
 
+        # NEXT, save the CLI history, if any.
+        if {!$opts(-ignoreuser)} {
+            .main savehistory
+        }
+
         # NEXT, exit
         exit
     }
@@ -295,7 +302,7 @@ snit::type app {
 }
 
 
-#-------------------------------------------------------------------
+#-----------------------------------------------------------------------
 # Miscellaneous Application Utilities
 
 # bgerror msg

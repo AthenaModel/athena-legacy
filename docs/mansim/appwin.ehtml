@@ -43,11 +43,28 @@ appwin(sim) defines the following commands:<p>
 Creates a appwin(sim) widget called <i>pathName</i>, given the
 <<xref OPTIONS options>>.  Returns <i>pathName</i>.<p>
 
+<<defitem "appwin error" {appwin error <i>text</i>}>>
+
+Displays an error message dialog containing the
+<<xref template(n) tsubst>>'d <i>text</i>.<p>
+
 <<defitem "appwin new" {appwin new ?<i>option value...</i>?}>>
 
 Creates a new appwin(sim) widget given the
 <<xref OPTIONS options>>, generating the window name automatically.
 Returns the new window's name.<p>
+
+
+<<defitem "appwin puts" {appwin puts <i>text</i>}>>
+
+Writes the text to the window's message line.<p>
+
+
+<<defitem "appwin savehistory" {appwin savehistory}>>
+
+Saves the window's CLI widget's command history to
+<code>~/.athena/history.cli</code>.  It's an error to call this for
+anything but the <code>-main</code> appwin(sim) window.
 
 <</deflist commands>>
 

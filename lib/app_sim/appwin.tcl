@@ -748,9 +748,12 @@ snit::widget appwin {
                 -minsize 60               \
                 -stretch never
 
+            # Load the CLI command history
+            $self LoadCliHistory
+
             # Register the CLI, so that history is saved in the 
             # scenario file.
-            scenario register [list $cli saveable]
+            # scenario register [list $cli saveable]
         }
 
         # NEXT, manage all of the components.
@@ -788,6 +791,37 @@ snit::widget appwin {
 
         DynamicHelp::add $win.toolbar.$name -text $tooltip
     }
+
+    #-------------------------------------------------------------------
+    # CLI history
+
+    # SaveCliHistory
+    #
+    # If there's a CLI, saves its command history to 
+    # ~/.athena/history.cli.
+
+    method savehistory {} {
+        assert {$cli ne ""}
+
+        set f [open ~/.athena/history.cli w]
+
+        puts "Got: [$cli saveable checkpoint]"
+
+        puts $f [$cli saveable checkpoint]
+        
+        close $f
+    }
+
+    # LoadCliHistory
+    #
+    # If there's a CLI, and a history file, read its command history.
+
+    method LoadCliHistory {} {
+        if {[file exists ~/.athena/history.cli]} {
+            $cli saveable restore [readfile ~/.athena/history.cli]
+        }
+    }
+
 
     #-------------------------------------------------------------------
     # File Menu Handlers
