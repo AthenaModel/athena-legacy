@@ -98,7 +98,7 @@ snit::type ::projectlib::scenariodb {
     #-------------------------------------------------------------------
     # Options
 
-    # TBD
+    delegate option -clock to db
 
     #-------------------------------------------------------------------
     # Instance variables
@@ -115,15 +115,12 @@ snit::type ::projectlib::scenariodb {
     # Constructor
     
     constructor {args} {
-        # FIRST, get the options.
-        # TBD: None yet
-        # $self configurelist $args
-
-        # NEXT, create the sqldocument, naming it so that it
+        # FIRST, create the sqldocument, naming it so that it
         # will be automatically destroyed.  We don't want
         # automatic transaction batching.
-        set db [sqldocument ${selfns}::db \
-                    -autotrans off        \
+        set db [sqldocument ${selfns}::db          \
+                    -clock     [from args -clock] \
+                    -autotrans off                 \
                     -rollback  on]
     }
 

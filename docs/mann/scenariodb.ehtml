@@ -154,7 +154,7 @@ loaded by the application.<p>
 
 <<deflist commands>>
 
-<<defitem scenariodb {scenariodb <i>name</i>}>>
+<<defitem scenariodb {scenariodb <i>name</i> ?<i>options...?</i>}>>
 
 Creates a new scenariodb(n) object called <i>name</i>. The object is
 represented as a new Tcl command in the caller's scope;
@@ -163,6 +163,18 @@ represented as a new Tcl command in the caller's scope;
 
 Before the new scenariodb(n) can be used, a database file must be
 <<iref open>>ed, and possibly <<iref clear>>ed.<p>
+
+The scenariodb(n) may be created with the following options:<p>
+
+<<deflist options>
+
+<<defopt {-clock <i>clock</i>}>>
+
+Specifies a <<xref simclock(n)>> object, or the equivalent.  This
+option is delegated to the underlying <<xref sqldocument(n)>> object,
+which uses it to provide <<xref simclock(n)>>-related SQL functions.<p>
+
+<</deflist options>>
 
 <</deflist commands>>
 

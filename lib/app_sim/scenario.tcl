@@ -65,7 +65,8 @@ snit::type scenario {
         }
 
         # NEXT, create the a clean working RDB.
-        set rdb [scenariodb ::rdb]
+        set rdb [scenariodb ::rdb \
+                    -clock ::marsutil::simclock]
 
         set rdbfile [workdir join rdb working.rdb]
 

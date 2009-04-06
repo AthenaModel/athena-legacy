@@ -1,13 +1,13 @@
 <map version="0.8.1">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
-<node CREATED="1237477449934" FOLDED="true" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1238449538228" ID="Freemind_Link_298189624" MODIFIED="1238449546446" TEXT="Environmental Situations"/>
-<node CREATED="1238449552883" FOLDED="true" ID="Freemind_Link_17150792" MODIFIED="1238449701506" TEXT="Neighborhood statistics">
+<node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
+<node CREATED="1238449552883" ID="Freemind_Link_17150792" MODIFIED="1238449701506" TEXT="Neighborhood statistics">
 <node CREATED="1238449563668" ID="Freemind_Link_782464506" MODIFIED="1238449568782" TEXT="Force analysis"/>
 <node CREATED="1238449569221" ID="Freemind_Link_435502220" MODIFIED="1238449573198" TEXT="Security analysis"/>
 <node CREATED="1238449573540" ID="Freemind_Link_1959694269" MODIFIED="1238449581806" TEXT="Activity coverage"/>
 </node>
+<node CREATED="1238449538228" ID="Freemind_Link_298189624" MODIFIED="1238449546446" TEXT="Environmental Situations"/>
 <node CREATED="1238449547044" ID="Freemind_Link_1091690936" MODIFIED="1238449701507" TEXT="Activity Situations">
 <arrowlink DESTINATION="Freemind_Link_17150792" ENDARROW="Default" ENDINCLINATION="57;0;" ID="Freemind_Arrow_Link_201110197" STARTARROW="None" STARTINCLINATION="57;0;"/>
 </node>
@@ -30,7 +30,7 @@
 <node CREATED="1237568050726" ID="Freemind_Link_454367740" MODIFIED="1237568062559" TEXT="Like gtclient/gtserver, but within one app"/>
 </node>
 </node>
-<node CREATED="1238687583256" FOLDED="true" ID="Freemind_Link_940282254" MODIFIED="1238687618178" POSITION="right" TEXT="GRAM">
+<node CREATED="1238687583256" ID="Freemind_Link_940282254" MODIFIED="1238687618178" POSITION="right" TEXT="GRAM">
 <node CREATED="1238687586408" FOLDED="true" ID="Freemind_Link_501065661" MODIFIED="1238687608018" TEXT="Trends have a built-in limit of 100.0">
 <node CREATED="1238687641432" ID="Freemind_Link_246888599" MODIFIED="1238687653634" TEXT="A 1.0 trend ceases after 100 days"/>
 <node CREATED="1238687655800" ID="Freemind_Link_674950714" MODIFIED="1238687666514" TEXT="Trends should be regarded as regression to some long-term value"/>
@@ -135,7 +135,23 @@
 <node CREATED="1237482138802" ID="Freemind_Link_1495570394" MODIFIED="1237482143838" TEXT="Useful; can of worms."/>
 </node>
 </node>
-<node CREATED="1237479428630" FOLDED="true" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
+<node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
+<node CREATED="1239031016461" ID="Freemind_Link_976715152" MODIFIED="1239031022024" TEXT="Tab reduction">
+<node CREATED="1239031022908" ID="Freemind_Link_1958124407" MODIFIED="1239031037239" TEXT="Need to reduce the number of tabs in the GUI"/>
+<node CREATED="1239031048013" ID="Freemind_Link_1715559799" MODIFIED="1239031049687" TEXT="Some ideas">
+<node CREATED="1237479525078" FOLDED="true" ID="Freemind_Link_122163295" MODIFIED="1237479534962" TEXT="appwin(sim): Optional Tabs">
+<node CREATED="1237479542494" ID="Freemind_Link_1417851375" MODIFIED="1237479555026" TEXT="Most/all tabs should be optional."/>
+<node CREATED="1237479555774" ID="Freemind_Link_1026314275" MODIFIED="1237479568490" TEXT="Each tab has a checkbox on View menu"/>
+<node CREATED="1237479569238" ID="Freemind_Link_1577478674" MODIFIED="1237479591914" TEXT="Disabled tabs don&apos;t exist, no CPU used"/>
+</node>
+<node CREATED="1237481210122" FOLDED="true" ID="Freemind_Link_1615196501" MODIFIED="1237481223466" TEXT="appwin(sim): Hierarchical tabs">
+<node CREATED="1237481224027" ID="Freemind_Link_1716821238" MODIFIED="1237481233326" TEXT="We need a better way to present the info."/>
+<node CREATED="1237481238530" FOLDED="true" ID="Freemind_Link_1492297848" MODIFIED="1237481243686" TEXT="Some data might be on multiple tabs">
+<node CREATED="1237481244362" ID="Freemind_Link_1880842776" MODIFIED="1237481256094" TEXT="Units vs. Frc Units"/>
+</node>
+</node>
+</node>
+</node>
 <node CREATED="1238513070204" FOLDED="true" ID="Freemind_Link_66077028" MODIFIED="1238513075367" TEXT="Plot Tab">
 <node CREATED="1238513076429" ID="Freemind_Link_1251215369" MODIFIED="1238513086791" TEXT="Scrolling list of strip charts"/>
 <node CREATED="1238513112382" ID="Freemind_Link_999492866" MODIFIED="1238513123384" TEXT="Time Series View">
@@ -161,17 +177,6 @@
 </node>
 <node CREATED="1237479490254" ID="Freemind_Link_1164487778" MODIFIED="1237479498698" TEXT="Order History Browser"/>
 <node CREATED="1237479513679" ID="Freemind_Link_123674584" MODIFIED="1237479523691" TEXT="appwin(sim): Windows Menu"/>
-<node CREATED="1237479525078" FOLDED="true" ID="Freemind_Link_122163295" MODIFIED="1237479534962" TEXT="appwin(sim): Optional Tabs">
-<node CREATED="1237479542494" ID="Freemind_Link_1417851375" MODIFIED="1237479555026" TEXT="Most/all tabs should be optional."/>
-<node CREATED="1237479555774" ID="Freemind_Link_1026314275" MODIFIED="1237479568490" TEXT="Each tab has a checkbox on View menu"/>
-<node CREATED="1237479569238" ID="Freemind_Link_1577478674" MODIFIED="1237479591914" TEXT="Disabled tabs don&apos;t exist, no CPU used"/>
-</node>
-<node CREATED="1237481210122" FOLDED="true" ID="Freemind_Link_1615196501" MODIFIED="1237481223466" TEXT="appwin(sim): Hierarchical tabs">
-<node CREATED="1237481224027" ID="Freemind_Link_1716821238" MODIFIED="1237481233326" TEXT="We need a better way to present the info."/>
-<node CREATED="1237481238530" FOLDED="true" ID="Freemind_Link_1492297848" MODIFIED="1237481243686" TEXT="Some data might be on multiple tabs">
-<node CREATED="1237481244362" ID="Freemind_Link_1880842776" MODIFIED="1237481256094" TEXT="Units vs. Frc Units"/>
-</node>
-</node>
 <node CREATED="1237479823575" FOLDED="true" ID="Freemind_Link_1856908617" MODIFIED="1237479838611" TEXT="Preserve GUI layout">
 <node CREATED="1237479839174" ID="Freemind_Link_254956277" MODIFIED="1237479844658" TEXT="Save on shutdown or request"/>
 <node CREATED="1237479845294" ID="Freemind_Link_1346360849" MODIFIED="1237479851922" TEXT="Restore at startup"/>
@@ -267,7 +272,7 @@
 <node CREATED="1237481656514" ID="Freemind_Link_853037145" MODIFIED="1237481662310" TEXT="Ability to iterate to a solution"/>
 </node>
 </node>
-<node CREATED="1238697459940" FOLDED="true" ID="Freemind_Link_946664107" MODIFIED="1238697464078" POSITION="right" TEXT="GUI Infrastructure">
+<node CREATED="1238697459940" ID="Freemind_Link_946664107" MODIFIED="1238697464078" POSITION="right" TEXT="GUI Infrastructure">
 <node CREATED="1237488295816" FOLDED="true" ID="Freemind_Link_1208739900" MODIFIED="1237495169282" TEXT="zulufield(n) widget">
 <node CREATED="1237560838308" ID="Freemind_Link_7202440" MODIFIED="1237560850862" TEXT="-increment set by simclock&apos;s tick size"/>
 <node CREATED="1237918381064" ID="Freemind_Link_274696888" MODIFIED="1237918408034" TEXT="Make -changecmd work properly"/>
