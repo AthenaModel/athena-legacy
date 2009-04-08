@@ -309,7 +309,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
     prepare n              -toupper -required -type nbhood
     prepare g              -toupper -required -type civgroup
     prepare local_name     -normalize
-    prepare population              -required -type iquantity
+    prepare population              -required -type ingpopulation
     prepare demeanor       -toupper -required -type edemeanor
     prepare rollup_weight           -required -type weight
     prepare effects_factor          -required -type weight
@@ -410,7 +410,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
     prepare n              -toupper  -required -type nbhood
     prepare g              -toupper  -required -type civgroup
     prepare local_name     -normalize      
-    prepare population               -type iquantity
+    prepare population               -type ingpopulation
     prepare demeanor       -toupper  -type edemeanor
     prepare rollup_weight            -type weight
     prepare effects_factor           -type weight
@@ -447,7 +447,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof nbgroup
     prepare local_name     -normalize      
-    prepare population               -type iquantity
+    prepare population               -type ingpopulation
     prepare demeanor       -toupper  -type edemeanor
     prepare rollup_weight            -type weight
     prepare effects_factor           -type weight

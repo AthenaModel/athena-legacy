@@ -119,16 +119,16 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.6 {negative population} -setup {
+    test CREATE-1.6 {zero population} -setup {
         ted create NB1 SHIA
     } -body {
         ted order -reject GROUP:NBHOOD:CREATE [dict merge $nb1shia {
-            population -1
+            population 0
         }]
     } -cleanup {
         cleanup
     } -result {
-        population {invalid value "-1", expected integer no less than 0}
+        population {invalid value "0", expected integer no less than 1}
     }
 
 
@@ -375,11 +375,11 @@ NB1 SHIA Shia
         ted create NB1 SHIA
         ted order GROUP:NBHOOD:CREATE $nb1shia
     } -body {
-        ted order -reject GROUP:NBHOOD:UPDATE n NB1 g SHIA population -1
+        ted order -reject GROUP:NBHOOD:UPDATE n NB1 g SHIA population 0
     } -cleanup {
         cleanup
     } -result {
-        population {invalid value "-1", expected integer no less than 0}
+        population {invalid value "0", expected integer no less than 1}
     }
 
     test UPDATE-1.6 {invalid demeanor} -setup {
@@ -566,11 +566,11 @@ NB1 SHIA John Doe   2000       APATHETIC 0.1           0.2
         ted order GROUP:NBHOOD:CREATE $nb1shia
     } -body {
         ted order -reject GROUP:NBHOOD:UPDATE:MULTI \
-            ids {{NB1 SHIA}} population -1
+            ids {{NB1 SHIA}} population 0
     } -cleanup {
         cleanup
     } -result {
-        population {invalid value "-1", expected integer no less than 0}
+        population {invalid value "0", expected integer no less than 1}
     }
 
     test UPDATE:MULTI-1.7 {invalid demeanor} -setup {

@@ -32,6 +32,7 @@ namespace eval ::projectlib:: {
         hexcolor      \
         idays         \
         ident         \
+        ingpopulation \
         iquantity     \
         polygon       \
         rdays         \
@@ -253,6 +254,9 @@ snit::type ::projectlib::TypeWrapper {
 
 # iquantity: non-negative integers
 ::projectlib::TypeWrapper ::projectlib::iquantity snit::integer -min 0
+
+# ingpopulation: positive integers
+::projectlib::TypeWrapper ::projectlib::ingpopulation snit::integer -min 1
 
 # idays: non-negative days
 ::projectlib::TypeWrapper ::projectlib::idays snit::integer -min 0
