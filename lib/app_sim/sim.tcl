@@ -138,8 +138,7 @@ snit::type sim {
             ORDER BY m,n
         }]
 
-        # TBD: We aren't loading the ORG groups, or non-resident nbgroups,
-        # which GRAM expects.
+        # Only need to load civ nbgroups with non-zero population.
         $gram load nbgroups {*}[rdb eval {
             SELECT n, g, population, rollup_weight, effects_factor
             FROM nbgroups
