@@ -168,6 +168,9 @@ CREATE TABLE frcgroups (
     -- Force Type
     forcetype   TEXT,
 
+    -- Group demeanor: edemeanor
+    demeanor    TEXT DEFAULT 'AVERAGE',
+
     -- Local or foreign: 1 if local, 0 if foreign
     local       INTEGER,
 
@@ -187,6 +190,9 @@ CREATE TABLE orggroups (
 
     -- Organization type: eorgtype
     orgtype        TEXT DEFAULT 'NGO',
+
+    -- Group demeanor: edemeanor
+    demeanor       TEXT DEFAULT 'AVERAGE',
 
     -- Group rollup-weight (non-negative) (JRAM input)
     rollup_weight  DOUBLE DEFAULT 1.0,
@@ -216,8 +222,11 @@ CREATE TABLE nbgroups (
     -- Local name: human readable name
     local_name     TEXT,
 
+    -- Population
+    population     INTEGER DEFAULT 1,
+
     -- Group demeanor: edemeanor
-    demeanor       TEXT,
+    demeanor       TEXT DEFAULT 'AVERAGE',
 
     -- Group rollup-weight (non-negative) (JRAM input)
     rollup_weight  DOUBLE DEFAULT 1.0,

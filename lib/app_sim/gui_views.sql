@@ -44,6 +44,7 @@ SELECT g                                              AS id,
        color                                          AS color,
        shape                                          AS shape,
        forcetype                                      AS forcetype,
+       demeanor                                       AS demeanor,
        CASE local     WHEN 1 THEN 'YES' ELSE 'NO' END AS local,
        CASE coalition WHEN 1 THEN 'YES' ELSE 'NO' END AS coalition
 FROM groups JOIN frcgroups USING (g);
@@ -56,6 +57,7 @@ SELECT g                                             AS id,
        color                                         AS color,
        shape                                         AS shape,
        orgtype                                       AS orgtype,
+       demeanor                                      AS demeanor,
        format('%.2f', rollup_weight)                 AS rollup_weight,
        format('%.2f', effects_factor)                AS effects_factor
 FROM groups JOIN orggroups USING (g);
@@ -67,6 +69,7 @@ SELECT main.n || ' ' || main.g                       AS id,
        main.n                                        AS n,
        main.g                                        AS g,
        local_name                                    AS local_name,
+       main.population                               AS population,
        demeanor                                      AS demeanor,
        format('%.3f', coalesce(gram.sat0, 0.0))      AS mood0,
        format('%.3f', coalesce(gram.sat,  0.0))      AS mood,

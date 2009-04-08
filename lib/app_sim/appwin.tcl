@@ -805,8 +805,6 @@ snit::widget appwin {
 
         set f [open ~/.athena/history.cli w]
 
-        puts "Got: [$cli saveable checkpoint]"
-
         puts $f [$cli saveable checkpoint]
         
         close $f

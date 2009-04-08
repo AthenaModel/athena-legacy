@@ -34,6 +34,7 @@ namespace eval ::athena_test::tests:: {
         color     #0000ff
         shape     FRIEND
         forcetype REGULAR
+        demeanor  AVERAGE
         local     no
         coalition yes
     }
@@ -44,6 +45,7 @@ namespace eval ::athena_test::tests:: {
         color     #00ffff
         shape     FRIEND
         forcetype REGULAR
+        demeanor  AVERAGE
         local     no
         coalition yes
     }
@@ -67,6 +69,7 @@ namespace eval ::athena_test::tests:: {
         color {required value}
         shape {required value}
         forcetype {required value}
+        demeanor {required value}
         local {required value}
         coalition {required value}
     }
@@ -136,7 +139,15 @@ namespace eval ::athena_test::tests:: {
         forcetype {invalid value, "NONESUCH"}
     }
 
-    test CREATE-1.8 {invalid local} -body {
+    test CREATE-1.8 {invalid demeanor} -body {
+        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+            demeanor NONESUCH
+        }]
+    } -result {
+        demeanor {invalid value, "NONESUCH"}
+    }
+
+    test CREATE-1.9 {invalid local} -body {
         ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
             local NONESUCH
         }]
@@ -144,7 +155,7 @@ namespace eval ::athena_test::tests:: {
         local {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test CREATE-1.9 {invalid coalition} -body {
+    test CREATE-1.10 {invalid coalition} -body {
         ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
             coalition NONESUCH
         }]
@@ -160,9 +171,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   gtype forcetype local coalition 
----- -------- ------- ------ -------- ----- --------- ----- --------- 
-BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   0     1         
+g    longname color   shape  symbol   gtype forcetype demeanor local coalition 
+---- -------- ------- ------ -------- ----- --------- -------- ----- --------- 
+BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   AVERAGE  0     1         
     }
 
 
@@ -305,7 +316,18 @@ BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   0     1
     }
 
 
-    test UPDATE-1.7 {invalid local} -setup {
+    test UPDATE-1.7 {invalid demeanor} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted order -reject GROUP:FORCE:UPDATE g BLUE demeanor NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        demeanor {invalid value, "NONESUCH"}
+    }
+
+
+    test UPDATE-1.8 {invalid local} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted order -reject GROUP:FORCE:UPDATE g BLUE local NONESUCH
@@ -316,7 +338,7 @@ BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   0     1
     }
 
 
-    test UPDATE-1.8 {invalid coalition} -setup {
+    test UPDATE-1.9 {invalid coalition} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted order -reject GROUP:FORCE:UPDATE g BLUE coalition NONESUCH
@@ -336,6 +358,7 @@ BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   0     1
             color        "#ff0000"
             shape        NEUTRAL
             forcetype    POLICE
+            demeanor     AGGRESSIVE
             local        yes
             coalition    no
         }
@@ -344,9 +367,9 @@ BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   0     1
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol gtype forcetype local coalition 
----- ----------- ------- ------- ------ ----- --------- ----- --------- 
-BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    1     0         
+g    longname    color   shape   symbol gtype forcetype demeanor   local coalition 
+---- ----------- ------- ------- ------ ----- --------- ---------- ----- --------- 
+BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE 1     0         
     }
 
 
@@ -370,6 +393,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    1     0
             longname     "Blue Angels"
             color        "#ff0000"
             forcetype    POLICE
+            demeanor     AGGRESSIVE
             local        yes
             coalition    no
         }
@@ -444,7 +468,18 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    1     0
     }
 
 
-    test UPDATE:MULTI-1.7 {invalid local} -setup {
+    test UPDATE:MULTI-1.7 {invalid demeanor} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE demeanor NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        demeanor {invalid value, "NONESUCH"}
+    }
+
+
+    test UPDATE:MULTI-1.8 {invalid local} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE local NONESUCH
@@ -454,7 +489,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    1     0
         local {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test UPDATE:MULTI-1.8 {invalid coalition} -setup {
+    test UPDATE:MULTI-1.9 {invalid coalition} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE coalition NONESUCH
@@ -476,6 +511,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    1     0
             color     "#ff0000"
             shape     NEUTRAL
             forcetype POLICE
+            demeanor  AGGRESSIVE
             local     yes
             coalition no
         }
@@ -499,6 +535,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    1     0
             color     "#ff0000"
             shape     NEUTRAL
             forcetype POLICE
+            demeanor  AGGRESSIVE
             local     yes
             coalition no
         }

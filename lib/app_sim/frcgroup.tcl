@@ -109,6 +109,7 @@ snit::type frcgroup {
     #    color          The group's color
     #    shape          The group's unit shape (eunitshape(n))
     #    forcetype      The group's eforcetype
+    #    demeanor       The group's demeanor (edemeanor(n))
     #    local          The group's local flag
     #    coalition      The group's coalition flag
     #
@@ -133,9 +134,10 @@ snit::type frcgroup {
                        $symbol,
                        'FRC');
 
-                INSERT INTO frcgroups(g,forcetype,local,coalition)
+                INSERT INTO frcgroups(g,forcetype,demeanor,local,coalition)
                 VALUES($g,
                        $forcetype,
+                       $demeanor,
                        $local,
                        $coalition);
             }
@@ -194,6 +196,7 @@ snit::type frcgroup {
     #    color          A new color, or ""
     #    shape          A new shape, or ""
     #    forcetype      A new eforcetype, or ""
+    #    demeanor       A new demeanor, or ""
     #    local          A new local flag, or ""
     #    coalition      A new coalition flag, or ""
     #
@@ -228,6 +231,7 @@ snit::type frcgroup {
 
                 UPDATE frcgroups
                 SET forcetype = nonempty($forcetype, forcetype),
+                    demeanor  = nonempty($demeanor,  demeanor),
                     local     = nonempty($local,     local),
                     coalition = nonempty($coalition, coalition)
                 WHERE g=$g
@@ -259,6 +263,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
     parm color      color "Color"
     parm shape      enum  "Unit Shape"        -type eunitshape -defval NEUTRAL
     parm forcetype  enum  "Force Type"        -type eforcetype
+    parm demeanor   enum  "Demeanor"          -type edemeanor
     parm local      enum  "Local Group?"      -type eyesno
     parm coalition  enum  "Coalition Member?" -type eyesno
 } {
@@ -268,6 +273,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
     prepare color      -tolower   -required -type hexcolor
     prepare shape      -toupper   -required -type eunitshape
     prepare forcetype  -toupper   -required -type eforcetype
+    prepare demeanor   -toupper   -required -type edemeanor
     prepare local      -toupper   -required -type boolean
     prepare coalition  -toupper   -required -type boolean
 
@@ -343,6 +349,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
     parm color      color "Color"
     parm shape      enum  "Unit Shape"         -type eunitshape
     parm forcetype  enum  "Force Type"         -type eforcetype
+    parm demeanor   enum  "Demeanor"           -type edemeanor
     parm local      enum  "Local Group?"       -type eyesno
     parm coalition  enum  "Coalition Member?"  -type eyesno
 } {
@@ -355,6 +362,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
     prepare color     -tolower   -type hexcolor
     prepare shape     -toupper   -type eunitshape
     prepare forcetype -toupper   -type eforcetype
+    prepare demeanor  -toupper   -type edemeanor
     prepare local     -toupper   -type boolean
     prepare coalition -toupper   -type boolean
 
@@ -376,6 +384,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
     parm color      color "Color"
     parm shape      enum  "Unit Shape"         -type eunitshape
     parm forcetype  enum  "Force Type"         -type eforcetype
+    parm demeanor   enum  "Demeanor"           -type edemeanor
     parm local      enum  "Local Group?"       -type eyesno
     parm coalition  enum  "Coalition Member?"  -type eyesno
 } {
@@ -384,6 +393,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
     prepare color     -tolower            -type   hexcolor
     prepare shape     -toupper            -type   eunitshape
     prepare forcetype -toupper            -type   eforcetype
+    prepare demeanor  -toupper            -type edemeanor
     prepare local     -toupper            -type   boolean
     prepare coalition -toupper            -type   boolean
 

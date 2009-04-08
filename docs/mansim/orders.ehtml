@@ -188,6 +188,10 @@ the group's icons.<</parm>>
 <<::projectlib::eforcetype html>>
 <</parm>>
 
+<<parm demeanor>> <b>Required.</b> The demeanor, as follows:<p>
+<<::projectlib::edemeanor html>>
+<</parm>>
+
 <<parm local>> <b>Required.</b> The local flag, expressed as a boolean
 value (e.g., "Yes" or "No"). Indicates whether the group is perceived
 as being local to the playbox, or as a foreign force.<</parm>>
@@ -233,6 +237,7 @@ IDs.<</parm>>
 
 <<parm color>>     As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
 <<parm forcetype>> As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
+<<parm demeanor>>  As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
 <<parm local>>     As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
 <<parm coalition>> As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
 
@@ -263,6 +268,9 @@ which this group belongs.<</parm>>
 
 <<parm local_name>> <b>Required.</b> A short human-readable name for the
 group, e.g., a tribal name.<</parm>>
+
+<<parm population>> <b>Required.</b> The group's population in the
+neighborhood.<</parm>>
 
 <<parm demeanor>> <b>Required.</b>  The demeanor of the civilian
 group, e.g., its propensity to violence:<p>
@@ -327,6 +335,7 @@ be updated, the value of <b>ids</b> would be as follows:
 <</parm>>
 
 <<parm local_name>>     As for <<iref GROUP:NBHOOD:CREATE>>. <</parm>>
+<<parm population>>     As for <<iref GROUP:NBHOOD:CREATE>>. <</parm>>
 <<parm demeanor>>       As for <<iref GROUP:NBHOOD:CREATE>>. <</parm>>
 <<parm rollup_weight>>  As for <<iref GROUP:NBHOOD:CREATE>>. <</parm>>
 <<parm effects_factor>> As for <<iref GROUP:NBHOOD:CREATE>>. <</parm>>
@@ -364,6 +373,10 @@ the group's icons.<</parm>>
 <<parm orgtype>> <b>Required.</b> The organization type, as follows:<p>
 
 <<::projectlib::eorgtype html>><</parm>>
+
+<<parm demeanor>> <b>Required.</b> The demeanor, as follows:<p>
+<<::projectlib::edemeanor html>>
+<</parm>>
 
 <<parm rollup_weight>> <b>Required.</b> The rollup weight, used when
 rolling up the group's satisfaction levels to the playbox level.  A
@@ -411,6 +424,7 @@ IDs.<</parm>>
 
 <<parm color>>          As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
 <<parm orgtype>>        As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
+<<parm demeanor>>       As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
 <<parm rollup_weight>>  As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
 <<parm effects_factor>> As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
 

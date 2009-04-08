@@ -99,8 +99,9 @@ snit::type orggroup {
     #    g                The group's ID
     #    longname         The group's long name
     #    color            The group's color
-    #    shape          The group's unit shape (eunitshape(n))
+    #    shape            The group's unit shape (eunitshape(n))
     #    orgtype          The group's eorgtype
+    #    demeanor         The group's demeanor (edemeanor(n))
     #    rollup_weight    The group's rollup weight (JRAM)
     #    effects_factor   The group's indirect effects factor (JRAM)
     #
@@ -122,9 +123,11 @@ snit::type orggroup {
                        'organization',
                        'ORG');
 
-                INSERT INTO orggroups(g,orgtype,rollup_weight,effects_factor)
+                INSERT INTO orggroups(g,orgtype,demeanor,rollup_weight,
+                                      effects_factor)
                 VALUES($g,
                        $orgtype,
+                       $demeanor,
                        $rollup_weight,
                        $effects_factor);
             }
@@ -183,7 +186,8 @@ snit::type orggroup {
     #    longname         A new long name, or ""
     #    color            A new color, or ""
     #    shape            A new shape, or ""
-    #    orgtype          A new eorgtype, or ""
+    #    orgtype          A new orgtype, or ""
+    #    demeanor         A new demeanor, or ""
     #    rollup_weight    A new rollup weight, or ""
     #    effects_factor   A new effects factor, or ""
     #
@@ -210,6 +214,7 @@ snit::type orggroup {
 
                 UPDATE orggroups
                 SET orgtype        = nonempty($orgtype,        orgtype),
+                    demeanor       = nonempty($demeanor,       demeanor),
                     rollup_weight  = nonempty($rollup_weight,  rollup_weight),
                     effects_factor = nonempty($effects_factor, effects_factor)
                 WHERE g=$g
@@ -240,6 +245,7 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
     parm color          color "Color"
     parm shape          enum  "Unit Shape"    -type eunitshape -defval NEUTRAL
     parm orgtype        enum  "Org. Type"     -type eorgtype
+    parm demeanor       enum  "Demeanor"      -type edemeanor
     parm rollup_weight  text  "RollupWeight"  -defval 1.0
     parm effects_factor text  "EffectsFactor" -defval 1.0
 } {
@@ -249,6 +255,7 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
     prepare color          -tolower   -required -type hexcolor
     prepare shape          -toupper   -required -type eunitshape
     prepare orgtype        -toupper   -required -type eorgtype
+    prepare demeanor       -toupper   -required -type edemeanor
     prepare rollup_weight             -required -type weight
     prepare effects_factor            -required -type weight
 
@@ -324,6 +331,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     parm color          color "Color"
     parm shape          enum  "Unit Shape"    -type eunitshape
     parm orgtype        enum  "Org. Type"     -type eorgtype
+    parm demeanor       enum  "Demeanor"      -type edemeanor
     parm rollup_weight  text  "RollupWeight"  
     parm effects_factor text  "EffectsFactor" 
 } {
@@ -336,6 +344,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     prepare color          -tolower  -type hexcolor
     prepare shape          -toupper  -type eunitshape
     prepare orgtype        -toupper  -type eorgtype
+    prepare demeanor       -toupper  -type edemeanor
     prepare rollup_weight            -type weight
     prepare effects_factor           -type weight
 
@@ -358,6 +367,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
     parm color          color "Color"
     parm shape          enum  "Unit Shape"    -type eunitshape
     parm orgtype        enum  "Org. Type"     -type eorgtype
+    parm demeanor       enum  "Demeanor"      -type edemeanor
     parm rollup_weight  text  "RollupWeight"  
     parm effects_factor text  "EffectsFactor" 
 } {
@@ -366,6 +376,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
     prepare color          -tolower            -type   hexcolor
     prepare shape          -toupper            -type   eunitshape
     prepare orgtype        -toupper            -type   eorgtype
+    prepare demeanor       -toupper            -type edemeanor
     prepare rollup_weight                      -type   weight
     prepare effects_factor                     -type   weight
 

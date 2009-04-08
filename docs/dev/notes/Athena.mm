@@ -30,20 +30,23 @@
 <node CREATED="1237568050726" ID="Freemind_Link_454367740" MODIFIED="1237568062559" TEXT="Like gtclient/gtserver, but within one app"/>
 </node>
 </node>
-<node CREATED="1238687583256" ID="Freemind_Link_940282254" MODIFIED="1238687618178" POSITION="right" TEXT="GRAM">
-<node CREATED="1238687586408" FOLDED="true" ID="Freemind_Link_501065661" MODIFIED="1238687608018" TEXT="Trends have a built-in limit of 100.0">
-<node CREATED="1238687641432" ID="Freemind_Link_246888599" MODIFIED="1238687653634" TEXT="A 1.0 trend ceases after 100 days"/>
-<node CREATED="1238687655800" ID="Freemind_Link_674950714" MODIFIED="1238687666514" TEXT="Trends should be regarded as regression to some long-term value"/>
-<node CREATED="1238687668488" ID="Freemind_Link_556104662" MODIFIED="1238687696727" TEXT="Currently, positive trends regress to 100.0;&#xa;negative trends regress to -100.0"/>
-<node CREATED="1238687701144" ID="Freemind_Link_617461885" MODIFIED="1238687717134" TEXT="Should we make other values available?">
-<icon BUILTIN="help"/>
+<node CREATED="1239210064249" ID="Freemind_Link_1216819379" MODIFIED="1239210065909" POSITION="right" TEXT="GRAM">
+<node CREATED="1239210066312" FOLDED="true" ID="Freemind_Link_1735127823" MODIFIED="1239210081618" TEXT="Slope effect bounds">
+<node CREATED="1239210082792" ID="Freemind_Link_21995878" MODIFIED="1239210115298" TEXT="Effect scales to bound other than +/- 100"/>
+<node CREATED="1239210116617" ID="Freemind_Link_16044741" MODIFIED="1239210129458" TEXT="Effect is ignored if level exceeds bound"/>
+<node CREATED="1239210138568" ID="Freemind_Link_1350980017" MODIFIED="1239210156149" TEXT="Tendency to some value, say 0">
+<node CREATED="1239210156872" ID="Freemind_Link_196779551" MODIFIED="1239210189954" TEXT="Slope increasing to 0.0"/>
+<node CREATED="1239210174983" ID="Freemind_Link_1653086417" MODIFIED="1239210183954" TEXT="Slope decreasing to 0.0"/>
+</node>
+<node CREATED="1239210193352" FOLDED="true" ID="Freemind_Link_737991295" MODIFIED="1239210210642" TEXT="Aggregating effects over causes is difficult">
+<node CREATED="1239210212168" ID="Freemind_Link_29733535" MODIFIED="1239210224625" TEXT="Could associate each cause with a positive bound and a negative bound"/>
+<node CREATED="1239210225832" ID="Freemind_Link_998066155" MODIFIED="1239210234770" TEXT="Don&apos;t really like that.">
+<node CREATED="1239210241848" ID="Freemind_Link_1507885005" MODIFIED="1239210255954" TEXT="Some things are more important than others, even within the same cause."/>
 </node>
 </node>
-<node CREATED="1237480898155" FOLDED="true" ID="Freemind_Link_919848605" MODIFIED="1237480916486" TEXT="GRAM slope limits based on duration">
-<node CREATED="1237480917418" ID="Freemind_Link_701469202" MODIFIED="1237480958721" TEXT="Limits based on total nominal change&#xa;don&apos;t really make sense."/>
 </node>
 </node>
-<node CREATED="1237475139158" FOLDED="true" ID="_" MODIFIED="1237477117490" POSITION="right" TEXT="Order">
+<node CREATED="1237475139158" ID="_" MODIFIED="1237477117490" POSITION="right" TEXT="Order">
 <node CREATED="1237480217386" FOLDED="true" ID="Freemind_Link_96571795" MODIFIED="1238433033389" TEXT="Dump order history as script">
 <arrowlink DESTINATION="Freemind_Link_860046120" ENDARROW="Default" ENDINCLINATION="75;0;" ID="Freemind_Arrow_Link_966523914" STARTARROW="None" STARTINCLINATION="75;0;"/>
 <node CREATED="1238185877929" ID="Freemind_Link_1596050694" MODIFIED="1238185885379" TEXT="Need to know scripting format first"/>
@@ -114,7 +117,7 @@
 <icon BUILTIN="help"/>
 </node>
 </node>
-<node CREATED="1237477511538" FOLDED="true" ID="Freemind_Link_894463638" MODIFIED="1237477524514" POSITION="right" TEXT="Scenario">
+<node CREATED="1237477511538" ID="Freemind_Link_894463638" MODIFIED="1237477524514" POSITION="right" TEXT="Scenario">
 <node CREATED="1237477586106" FOLDED="true" ID="Freemind_Link_516563511" MODIFIED="1237477603190" TEXT="Must rel=1.0 when f=g">
 <icon BUILTIN="help"/>
 <node CREATED="1237477606906" ID="Freemind_Link_1462718131" MODIFIED="1237477628037" TEXT="If so, I need to update the RELATIONSHIP:* orders"/>
@@ -1160,6 +1163,181 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1238793072335" ID="Freemind_Link_1020414574" MODIFIED="1238794989824" TEXT="athena_sim(1)">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+</node>
+</node>
+<node CREATED="1239210014055" ID="Freemind_Link_132577491" MODIFIED="1239210037070" TEXT="Bug 2037">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239201483295" FOLDED="true" ID="Freemind_Link_689851774" MODIFIED="1239210037071" TEXT="nbstat(sim) inputs">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239201535546" ID="Freemind_Link_1149165559" MODIFIED="1239203506963" TEXT="Concept">
+<icon BUILTIN="flag"/>
+<node CREATED="1239201540393" ID="Freemind_Link_443033548" MODIFIED="1239201568867" TEXT="Athena scenario lacks inputs required for nbstat"/>
+<node CREATED="1239201573481" ID="Freemind_Link_677661726" MODIFIED="1239201579187" TEXT="Missing inputs:">
+<node CREATED="1239201508889" ID="Freemind_Link_778445827" MODIFIED="1239201513507" TEXT="frcgroup demeanor"/>
+<node CREATED="1239201514089" ID="Freemind_Link_1200100485" MODIFIED="1239201518227" TEXT="orggroup demeanor"/>
+<node CREATED="1239201497305" ID="Freemind_Link_1016081835" MODIFIED="1239201508243" TEXT="nbgroup population"/>
+</node>
+<node CREATED="1239201587400" ID="Freemind_Link_1857323162" MODIFIED="1239201603667" TEXT="Add the inputs, and update the test suites and docs"/>
+</node>
+<node CREATED="1239201633672" ID="Freemind_Link_1989389568" MODIFIED="1239203746251" TEXT="scenariodb(n)">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239201639672" ID="Freemind_Link_1138615288" MODIFIED="1239203743851" TEXT="Add frcgroups.demeanor with default AVERAGE">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201659337" ID="Freemind_Link_1245302417" MODIFIED="1239203743853" TEXT="Add orggroups.demeanor with default AVERAGE">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201668265" ID="Freemind_Link_58497775" MODIFIED="1239203743852" TEXT="Add nbgroups.population with default 1">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239203533093" ID="Freemind_Link_1151333993" MODIFIED="1239203743852" TEXT="Convert test.adb">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1239203775205" ID="Freemind_Link_1855706093" MODIFIED="1239203879132" TEXT="gui_views(sim)">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239203847429" ID="Freemind_Link_1782911728" MODIFIED="1239203879130" TEXT="Add demeanor to gui_frcgroups">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239203857412" ID="Freemind_Link_451215073" MODIFIED="1239203879132" TEXT="Add demeanor to gui_orggroups">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239203864885" ID="Freemind_Link_1251111335" MODIFIED="1239203879131" TEXT="Add population to gui_nbgroups">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1239204170356" ID="Freemind_Link_55085766" MODIFIED="1239204246891" TEXT="sim(sim)">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239204173508" ID="Freemind_Link_550118914" MODIFIED="1239204246890" TEXT="Provide population to gram(n)">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1239204823026" ID="Freemind_Link_1980129022" MODIFIED="1239206998204" TEXT="athena_test(1)">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239204827874" ID="Freemind_Link_1578225378" MODIFIED="1239206998205" TEXT="Update ted entities with new parameters">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1239201690393" ID="Freemind_Link_1154375970" MODIFIED="1239207692419" TEXT="frcgroup(sim)">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239201706041" ID="Freemind_Link_514614881" MODIFIED="1239206988756" TEXT="Add demeanor to orders">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239201724857" ID="Freemind_Link_611072098" MODIFIED="1239207200024" TEXT="GROUP:FORCE:CREATE">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201730217" ID="Freemind_Link_1545237383" MODIFIED="1239207200023" TEXT="GROUP:FORCE:UPDATE">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201735945" ID="Freemind_Link_20345149" MODIFIED="1239207200023" TEXT="GROUP:FORCE:UPDATE:MULTI">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1239201815752" ID="Freemind_Link_1383174235" MODIFIED="1239207692420" TEXT="Update tests">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239201839128" ID="Freemind_Link_60664309" MODIFIED="1239207172236" TEXT="010-frcgroup.test">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201844759" ID="Freemind_Link_87985674" MODIFIED="1239207692420" TEXT="020-GROUP-FORCE.test">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+</node>
+<node CREATED="1239202244648" ID="Freemind_Link_1535812733" MODIFIED="1239204260419" TEXT="frcgroupbrowser(sim)">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239202249784" ID="Freemind_Link_1434924615" MODIFIED="1239204260420" TEXT="Display demeanor">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1239201747544" ID="Freemind_Link_514763984" MODIFIED="1239209355481" TEXT="orggroup(sim)">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239201750953" ID="Freemind_Link_70999843" MODIFIED="1239206991196" TEXT="Add demeanor to orders">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239201757992" ID="Freemind_Link_489050888" MODIFIED="1239207200022" TEXT="GROUP:ORGANIZATION:CREATE">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201763688" ID="Freemind_Link_601525599" MODIFIED="1239207200022" TEXT="GROUP:ORGANIZATION:UPDATE">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201768937" ID="Freemind_Link_7245376" MODIFIED="1239207200021" TEXT="GROUP:ORGANIZATION:UPDATE:MULTI">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1239201891304" ID="Freemind_Link_1547139017" MODIFIED="1239209355481" TEXT="Update tests">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239201895560" ID="Freemind_Link_810095979" MODIFIED="1239209355479" TEXT="010-orggroup.test">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201899816" ID="Freemind_Link_1389408841" MODIFIED="1239209355480" TEXT="020-GROUP-ORGANIZATION.test">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+</node>
+<node CREATED="1239202257303" ID="Freemind_Link_409246384" MODIFIED="1239204260420" TEXT="orggroupbrowser(sim)">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239202262888" ID="Freemind_Link_140842720" MODIFIED="1239204260419" TEXT="Display demeanor">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1239201776089" ID="Freemind_Link_862374364" MODIFIED="1239209077632" TEXT="nbgroup(sim)">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239201784441" ID="Freemind_Link_777577273" MODIFIED="1239206994140" TEXT="Add population to orders">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239201789097" ID="Freemind_Link_1878401214" MODIFIED="1239207200021" TEXT="GROUP:NBHOOD:CREATE">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201798265" ID="Freemind_Link_1770738085" MODIFIED="1239207200020" TEXT="GROUP:NBHOOD:UPDATE">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201802521" ID="Freemind_Link_220348278" MODIFIED="1239207200019" TEXT="GROUP:NBHOOD:UPDATE:MULTI">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1239201907640" ID="Freemind_Link_1523740663" MODIFIED="1239209077633" TEXT="Update tests">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239201910632" ID="Freemind_Link_391272266" MODIFIED="1239209077633" TEXT="010-nbgroup.test">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201919720" ID="Freemind_Link_1248205781" MODIFIED="1239209077634" TEXT="020-GROUP-NBHOOD.test">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+</node>
+<node CREATED="1239202268087" ID="Freemind_Link_314841661" MODIFIED="1239204260419" TEXT="nbgroupbrowser(sim)">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239202271863" ID="Freemind_Link_630310815" MODIFIED="1239204260418" TEXT="Display population">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1239201933369" ID="Freemind_Link_1672220262" MODIFIED="1239209872758" TEXT="orders(sim) manpage">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1239201724857" ID="Freemind_Link_1770089602" MODIFIED="1239209872760" TEXT="GROUP:FORCE:CREATE">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201730217" ID="Freemind_Link_1852745667" MODIFIED="1239209872763" TEXT="GROUP:FORCE:UPDATE">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201735945" ID="Freemind_Link_394288563" MODIFIED="1239209872763" TEXT="GROUP:FORCE:UPDATE:MULTI">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201757992" ID="Freemind_Link_685393812" MODIFIED="1239209872762" TEXT="GROUP:ORGANIZATION:CREATE">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201763688" ID="Freemind_Link_1491972669" MODIFIED="1239209872762" TEXT="GROUP:ORGANIZATION:UPDATE">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201768937" ID="Freemind_Link_884592812" MODIFIED="1239209872761" TEXT="GROUP:ORGANIZATION:UPDATE:MULTI">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201789097" ID="Freemind_Link_1495342173" MODIFIED="1239209872761" TEXT="GROUP:NBHOOD:CREATE">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201798265" ID="Freemind_Link_1332510055" MODIFIED="1239209872760" TEXT="GROUP:NBHOOD:UPDATE">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1239201802521" ID="Freemind_Link_1191930025" MODIFIED="1239209872760" TEXT="GROUP:NBHOOD:UPDATE:MULTI">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>

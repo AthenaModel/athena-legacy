@@ -43,9 +43,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   gtype forcetype local coalition 
----- -------- ------- ------ -------- ----- --------- ----- --------- 
-BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   no    yes       
+g    longname color   shape  symbol   gtype forcetype demeanor local coalition 
+---- -------- ------- ------ -------- ----- --------- -------- ----- --------- 
+BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   AVERAGE  no    yes       
     }
 
 
@@ -120,9 +120,9 @@ BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   no    yes
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   gtype forcetype local coalition 
----- -------- ------- ------ -------- ----- --------- ----- --------- 
-BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   no    yes       
+g    longname color   shape  symbol   gtype forcetype demeanor local coalition 
+---- -------- ------- ------ -------- ----- --------- -------- ----- --------- 
+BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   AVERAGE  no    yes       
     }
 
 
@@ -152,6 +152,7 @@ BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   no    yes
             color        "#ff0000"
             shape        NEUTRAL
             forcetype    POLICE
+            demeanor     AGGRESSIVE
             local        yes
             coalition    no
         }
@@ -160,9 +161,9 @@ BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   no    yes
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol gtype forcetype local coalition 
----- ----------- ------- ------- ------ ----- --------- ----- --------- 
-BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    yes   no        
+g    longname    color   shape   symbol gtype forcetype demeanor   local coalition 
+---- ----------- ------- ------- ------ ----- --------- ---------- ----- --------- 
+BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE yes   no        
     }
 
 
@@ -191,6 +192,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    yes   no
             longname     ""
             color        ""
             forcetype    ""
+            demeanor     ""
             local        ""
             coalition    ""
         }
@@ -212,6 +214,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    yes   no
             longname     ""
             color        ""
             forcetype    ""
+            demeanor     ""
             local        ""
             coalition    ""
         }
@@ -234,6 +237,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    yes   no
             longname     "Blue Angels"
             color        ""
             forcetype    ""
+            demeanor     ""
             local        ""
             coalition    ""
         }]
@@ -255,6 +259,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    yes   no
             longname     "Blue Angels"
             color        ""
             forcetype    ""
+            demeanor     ""
             local        ""
             coalition    ""
         }]

@@ -100,6 +100,7 @@ snit::widgetadaptor orggroupbrowser {
         $hull insertcolumn end 0 {Color}
         $hull insertcolumn end 0 {Unit Shape}        
         $hull insertcolumn end 0 {Org Type}
+        $hull insertcolumn end 0 {Demeanor}
         $hull insertcolumn end 0 {RollupWeight}
         $hull columnconfigure end -sortmode real
         $hull insertcolumn end 0 {EffectsFactor}
@@ -133,7 +134,7 @@ snit::widgetadaptor orggroupbrowser {
         dict with dict {
             $hull setdata $g \
                 [list $g $longname $color $shape $orgtype \
-                     $rollup_weight $effects_factor]
+                     $demeanor $rollup_weight $effects_factor]
             $hull setcellbackground $g 2 $color
         }
     }
