@@ -166,7 +166,7 @@ Before the new scenariodb(n) can be used, a database file must be
 
 The scenariodb(n) may be created with the following options:<p>
 
-<<deflist options>
+<<deflist options>>
 
 <<defopt {-clock <i>clock</i>}>>
 

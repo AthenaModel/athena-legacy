@@ -11,6 +11,39 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.6, 13 April 2009</h3>
+
+This build includes significant new changes.  For the first time it's
+possible to run simulated time forward.  By using the "Sat" browser
+it's possible to watch satisfaction levels change as time advances.
+Note that the levels will only change if the long-term trend is
+non-zero.  In addition, Athena takes a snapshot of simulation state
+whenever time begins to advance; and the user can step back through
+the snapshots.<p>
+
+<ul>
+  <li> Bug 1964: athena_sim(1): CLI command history is not being saved
+  <li> Bug 1965: athena_sim(1): Undo information should be cleared at each tick.
+  <li> Bug 1966: sim(sim): Notifier Event Cleanup
+  <li> Bug 1967: athena_sim(1): Scenario Sanity Check
+  <li> Bug 1968: athena_sim(1): Bug when opening invalid scenario
+  <li> Bug 1969: athena_sim(1): Snapshot Navigation and the Snapshot State
+  <li> Bug 1972: athena_sim(1): Integrate gram(n)
+  <li> Bug 1973: athena_sim(1): Jumping to snapshot 0 goes straight to PREP
+  <li> Bug 1977: athena_sim(1): Command-line Executive
+  <li> Bug 1979: athena_sim(1): Model parameter database
+  <li> Bug 1982: bgerror creating NB Group: can't read "values": no such variable
+  <li> Bug 1988: athena_sim(1): Display GRAM outputs
+  <li> Bug 1989: bgerror: can't find package pixane
+  <li> Bug 1991: athena_sim(1): Update all browsers to use base_browser(sim)
+  <li> Bug 1994: prefs(5): Athena User Preferences
+  <li> Bug 1996: scenariodb(n) delegates -clock to sqldocument(n)
+  <li> Bug 2033: athena_sim(1): Save CLI history to ~/.athena/history.cli
+  <li> Bug 2037: athena_sim(1): nbstat(sim) inputs
+  <li> Bug 2038: athena_sim(1): gram_ng is incorrectly populated 
+</ul><p>
+
+
 <h3>Build 1.0.5, 26 March 2009</h3>
 
 This build contains a host of bug fixes, and four significant additions.
