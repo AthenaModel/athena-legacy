@@ -102,6 +102,9 @@ CREATE TABLE nbhoods (
     -- Urbanization: eurbanization
     urbanization   TEXT,
 
+    -- Volatility gain: rgain
+    vtygain        REAL DEFAULT 1.0,
+
     -- Neighborhood reference point: map coordinates {mx my}
     refpoint       TEXT,
 

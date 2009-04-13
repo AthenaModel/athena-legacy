@@ -160,6 +160,7 @@ snit::type nbhood {
     #    n              The neighborhood's ID
     #    longname       The neighborhood's long name
     #    urbanization   eurbanization level
+    #    vtygain        Volatility gain (rgain)
     #    refpoint       Reference point, map coordinates
     #    polygon        Boundary polygon, in map coordinates.
     #
@@ -171,12 +172,14 @@ snit::type nbhood {
         dict with parmdict {
             # FIRST, Put the neighborhood in the database
             rdb eval {
-                INSERT INTO nbhoods(n,longname,refpoint,polygon,urbanization)
+                INSERT INTO nbhoods(n,longname,urbanization,vtygain,
+                                    refpoint,polygon)
                 VALUES($n,
                        $longname,
+                       $urbanization,
+                       $vtygain,
                        $refpoint,
-                       $polygon,
-                       $urbanization);
+                       $polygon);
             } {}
 
             # NEXT, set the stacking order
@@ -335,6 +338,7 @@ snit::type nbhood {
     #    n              A neighborhood short name
     #    longname       A new long name, or ""
     #    urbanization   A new eurbanization level, or ""
+    #    vtygain        A new volatility gain, or ""
     #    refpoint       A new reference point, or ""
     #    polygon        A new polygon, or ""
     #
@@ -357,9 +361,10 @@ snit::type nbhood {
             rdb eval {
                 UPDATE nbhoods
                 SET longname     = nonempty($longname,     longname),
+                    urbanization = nonempty($urbanization, urbanization),
+                    vtygain      = nonempty($vtygain,      vtygain),
                     refpoint     = nonempty($refpoint,     refpoint),
-                    polygon      = nonempty($polygon,      polygon),
-                    urbanization = nonempty($urbanization, urbanization)
+                    polygon      = nonempty($polygon,      polygon)
                 WHERE n=$n
             } {}
 
@@ -392,6 +397,7 @@ order define ::nbhood NBHOOD:CREATE {
     parm n            text "Neighborhood"
     parm longname     text "Long Name"
     parm urbanization enum "Urbanization"     -type eurbanization
+    parm vtygain      text "Volatility Gain"  -defval 1.0
     parm refpoint     text "Reference Point"  -tags point
     parm polygon      text "Polygon"          -tags polygon
 } {
@@ -399,6 +405,7 @@ order define ::nbhood NBHOOD:CREATE {
     prepare n             -toupper            -required -unused -type ident
     prepare longname      -normalize          -required -unused
     prepare urbanization  -toupper            -required -type eurbanization
+    prepare vtygain                           -required -type rgain
     prepare refpoint      -toupper            -required -type refpoint
     prepare polygon       -normalize -toupper -required -type refpoly
 
@@ -538,6 +545,7 @@ order define ::nbhood NBHOOD:UPDATE {
     parm n            key   "Neighborhood"     -tags nbhood
     parm longname     text  "Long Name"
     parm urbanization enum  "Urbanization"     -type eurbanization
+    parm vtygain      text  "Volatility Gain"
     parm refpoint     text  "Reference Point"  -tags point
     parm polygon      text  "Polygon"          -tags polygon
 } {
@@ -550,6 +558,7 @@ order define ::nbhood NBHOOD:UPDATE {
 
     prepare longname     -normalize           -oldvalue $oldname -unused
     prepare urbanization -toupper             -type eurbanization
+    prepare vtygain                           -type rgain
     prepare refpoint     -toupper             -type refpoint
     prepare polygon      -normalize -toupper  -type refpoly
 
@@ -622,10 +631,13 @@ order define ::nbhood NBHOOD:UPDATE:MULTI {
 
     parm ids          multi  "Neighborhoods"
     parm urbanization enum   "Urbanization"    -type eurbanization
+    parm vtygain      text   "Volatility Gain"
 } {
     # FIRST, prepare the parameters
     prepare ids          -toupper -required -listof nbhood
     prepare urbanization -toupper           -type   eurbanization
+    prepare vtygain                         -type   rgain
+
     returnOnError
 
     # NEXT, clear the other parameters expected by the mutator

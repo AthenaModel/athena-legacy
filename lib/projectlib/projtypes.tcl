@@ -36,6 +36,7 @@ namespace eval ::projectlib:: {
         iquantity     \
         polygon       \
         rdays         \
+        rgain         \
         rgrouprel     \
         unitname      \
         weight
@@ -269,6 +270,10 @@ snit::type ::projectlib::TypeWrapper {
 
 ::marsutil::range ::projectlib::rdays \
     -min 0.0 -format "%.1f"
+
+# Gain setting
+::projectlib::TypeWrapper ::projectlib::rgain snit::double -min 0.0
+
 
 # Group Relationships
 ::marsutil::range ::projectlib::rgrouprel \

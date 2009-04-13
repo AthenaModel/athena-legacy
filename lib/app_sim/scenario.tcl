@@ -317,15 +317,15 @@ snit::type scenario {
     }
 
     
-    # snapshot purge after
+    # snapshot purge t
     #
-    # after     A sim time in ticks
+    # t     A sim time in ticks
     #
-    # Purges all snapshots with ticks greater than after.
+    # Purges all snapshots with ticks greater than or equal to t
 
-    typemethod {snapshot purge} {after} {
+    typemethod {snapshot purge} {t} {
         rdb eval {
-            DELETE FROM snapshots WHERE tick > $after;
+            DELETE FROM snapshots WHERE tick >= $t;
         }
     }
 

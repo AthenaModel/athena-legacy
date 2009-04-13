@@ -131,6 +131,12 @@ list of <i>x</i> and <i>y</i> coordinates.  It may be passed as a
 single argument, or as one argument per coordinate.  On error, throws
 an error with <code>-errorcode</code> <b>INVALID</b>.<p>
 
+<<defitem "rgain validate" {rgain validate <i>value</i>}>>
+
+A wrapped <code>snit::double</code> representing a gain control
+setting: a non-negative floating-point value.   On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
 <<defitem "rgrouprel validate" {rgrouprel validate <i>value</i>}>>
 
 A <<xref mars:range(n)>> type used for group relationship values,

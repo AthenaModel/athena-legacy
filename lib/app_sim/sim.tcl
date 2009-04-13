@@ -345,10 +345,7 @@ snit::type sim {
 
         # NEXT, purge future snapshots
         set now [simclock now]
-
-        rdb eval {
-            DELETE FROM snapshots WHERE tick > $now;
-        }
+        scenario snapshot purge $now
 
         # NEXT, set state
         if {$now == 0} {
@@ -621,7 +618,8 @@ snit::type sim {
         # NEXT, if state is PREP, we've got work to do
         if {$info(state) eq "PREP"} {
             # FIRST, initialize ARAM, other sim models
-            aram init -reload
+            nbstat init
+            aram   init -reload
         }
 
         # NEXT, set the state to running
@@ -705,8 +703,7 @@ snit::type sim {
     # On transition to RUNNING, saves snapshot
 
     typemethod SetState {state} {
-        # FIRST, save snapshot if need be, purging snapshots
-        # that are in the future.
+        # FIRST, save snapshot if need be, purging any later snapshots.
         if {$info(state) ne "RUNNING" && $state eq "RUNNING"} {
             scenario snapshot purge [simclock now]
             scenario snapshot save

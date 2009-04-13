@@ -43,9 +43,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-n   longname stacking_order urbanization refpoint polygon              obscured_by 
---- -------- -------------- ------------ -------- -------------------- ----------- 
-NB1 Here     1              URBAN        100 100  80 80 120 80 100 120             
+n   longname stacking_order urbanization vtygain refpoint polygon              obscured_by 
+--- -------- -------------- ------------ ------- -------- -------------------- ----------- 
+NB1 Here     1              URBAN        1.0     100 100  80 80 120 80 100 120             
     }
 
 
@@ -177,9 +177,9 @@ NB1 1
     } -cleanup {
         cleanup
     } -result {
-n   longname stacking_order urbanization refpoint polygon              obscured_by 
---- -------- -------------- ------------ -------- -------------------- ----------- 
-NB1 Here     1              URBAN        100 100  80 80 120 80 100 120             
+n   longname stacking_order urbanization vtygain refpoint polygon              obscured_by 
+--- -------- -------------- ------------ ------- -------- -------------------- ----------- 
+NB1 Here     1              URBAN        1.0     100 100  80 80 120 80 100 120             
     }
 
 
@@ -317,6 +317,7 @@ OV1 1              NB1
             n            NB1
             longname     "Not Here"
             urbanization RURAL
+            vtygain      2.0
             refpoint     {5 5}
             polygon      {0 0 10 0 10 10 0 10}
         }
@@ -325,9 +326,9 @@ OV1 1              NB1
     } -cleanup {
         cleanup
     } -result {
-n   longname stacking_order urbanization refpoint polygon             obscured_by 
---- -------- -------------- ------------ -------- ------------------- ----------- 
-NB1 Not Here 1              RURAL        5 5      0 0 10 0 10 10 0 10             
+n   longname stacking_order urbanization vtygain refpoint polygon             obscured_by 
+--- -------- -------------- ------------ ------- -------- ------------------- ----------- 
+NB1 Not Here 1              RURAL        2.0     5 5      0 0 10 0 10 10 0 10             
     }
 
 
@@ -340,6 +341,7 @@ NB1 Not Here 1              RURAL        5 5      0 0 10 0 10 10 0 10
             n            NB1
             longname     ""
             urbanization ""
+            vtygain      ""
             refpoint     ""
             polygon      ""
         }
@@ -447,6 +449,7 @@ NB2 2              NB1
             n            N1
             longname     "Nb 1"
             urbanization RURAL
+            vtygain      1.0
             refpoint     {2 2}
             polygon      {0 0 10 0 10 10 0 10}
         }
@@ -455,6 +458,7 @@ NB2 2              NB1
             n            N2
             longname     "Nb 2"
             urbanization RURAL
+            vtygain      1.0
             refpoint     {5 5}
             polygon      {3 3 7 3 7 7 3 7}
         }

@@ -105,6 +105,7 @@ snit::type ted {
             n            NB1
             longname     "Here"
             urbanization URBAN
+            vtygain      1.0
             refpoint     {100 100}
             polygon      {80 80 120 80 100 120}
         }
@@ -113,6 +114,7 @@ snit::type ted {
             n            OV1
             longname     "Over Here"
             urbanization SUBURBAN
+            vtygain      1.0
             refpoint     {101 101}
             polygon      {81 81 121 81 101 121}
         }
@@ -121,6 +123,7 @@ snit::type ted {
             n            NB2
             longname     "There"
             urbanization RURAL
+            vtygain      1.0
             refpoint     {300 300}
             polygon      {280 280 320 280 300 320}
         }

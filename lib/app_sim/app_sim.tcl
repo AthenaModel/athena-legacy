@@ -50,13 +50,15 @@ namespace import ::projectgui::*
 #-----------------------------------------------------------------------
 # Load app_sim(n) submodules
 
-# Non-GUI
+# Non-GUI: Application
 source [file join $::app_sim::library app.tcl             ]
 source [file join $::app_sim::library apptypes.tcl        ]
 source [file join $::app_sim::library executive.tcl       ]
-source [file join $::app_sim::library scenario.tcl        ]
 source [file join $::app_sim::library cif.tcl             ]
 source [file join $::app_sim::library order.tcl           ]
+
+# Non-GUI: Scenario
+source [file join $::app_sim::library scenario.tcl        ]
 source [file join $::app_sim::library parm.tcl            ]
 source [file join $::app_sim::library map.tcl             ]
 source [file join $::app_sim::library nbhood.tcl          ]
@@ -70,7 +72,10 @@ source [file join $::app_sim::library sat.tcl             ]
 source [file join $::app_sim::library rel.tcl             ]
 source [file join $::app_sim::library coop.tcl            ]
 source [file join $::app_sim::library unit.tcl            ]
+
+# Non-GUI: Simulation
 source [file join $::app_sim::library sim.tcl             ]
+source [file join $::app_sim::library nbstat.tcl          ]
 
 # GUI
 source [file join $::app_sim::library orderdialog.tcl     ]
