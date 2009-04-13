@@ -181,6 +181,8 @@ snit::widgetadaptor nbhoodbrowser {
         $hull insertcolumn end 0 {ID}
         $hull insertcolumn end 0 {Neighborhood}
         $hull insertcolumn end 0 {Urbanization}
+        $hull insertcolumn end 0 {VtyGain}
+        $hull columnconfigure end -sortmode real
         $hull insertcolumn end 0 {StkOrd}
         $hull columnconfigure end -sortmode integer
         $hull insertcolumn end 0 {ObscuredBy}
@@ -229,6 +231,7 @@ snit::widgetadaptor nbhoodbrowser {
                                 $n                             \
                                 $longname                      \
                                 $urbanization                  \
+                                $vtygain                       \
                                 [format "%3d" $stacking_order] \
                                 $obscured_by                   \
                                 $refpoint                      \

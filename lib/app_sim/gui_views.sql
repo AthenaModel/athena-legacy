@@ -17,14 +17,15 @@
 
 -- A nbhoods view for use by the GUI
 CREATE TEMPORARY VIEW gui_nbhoods AS
-SELECT n                      AS id,
-       n                      AS n,
-       longname               AS longname,
-       urbanization           AS urbanization,
-       stacking_order         AS stacking_order,
-       obscured_by            AS obscured_by,
-       m2ref(refpoint)        AS refpoint,
-       m2ref(polygon)         AS polygon
+SELECT n                       AS id,
+       n                       AS n,
+       longname                AS longname,
+       urbanization            AS urbanization,
+       format('%4.1f',vtygain) AS vtygain,                
+       stacking_order          AS stacking_order,
+       obscured_by             AS obscured_by,
+       m2ref(refpoint)         AS refpoint,
+       m2ref(polygon)          AS polygon
 FROM nbhoods;
 
 -- A Force Groups view for use by the GUI
