@@ -482,6 +482,11 @@ level:<p>
 
 <<::projectlib::eurbanization html>><</parm>>
 
+<<parm vtygain>> <b>Required.</b> The neighborhood's volatility gain,
+a floating-point value no less than zero.  This parameter is nominally
+1.0; it is used to dial up and down the effect of neighborhood volatility on
+neighborhood security.<</parm>>
+
 <<parm refpoint>> <b>Required.</b> The neighborhood's reference point,
 expressed as a <<xref mapref(n)>> mapref string.  This is a location
 within the neighborhood's polygon.<</parm>>
@@ -547,6 +552,7 @@ follows:<p>
 IDs.<</parm>>
 
 <<parm urbanization>> As for <<iref NBHOOD:CREATE>>. <</parm>>
+<<parm vtygain>>      As for <<iref NBHOOD:CREATE>>. <</parm>>
 
 <</parmlist>>
 
