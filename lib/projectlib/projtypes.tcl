@@ -36,6 +36,7 @@ namespace eval ::projectlib:: {
         iquantity     \
         polygon       \
         rdays         \
+        rposfactor    \
         rgain         \
         rgrouprel     \
         unitname      \

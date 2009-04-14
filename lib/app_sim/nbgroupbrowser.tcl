@@ -191,11 +191,9 @@ snit::widgetadaptor nbgroupbrowser {
 
     method EditSelected {} {
         set ids [$hull curselection]
-        puts "ids = $ids"
 
         if {[llength $ids] == 1} {
             lassign [lindex $ids 0] n g
-puts "order enter GROUP:NBHOOD:UPDATE n $n g $g"
 
             order enter GROUP:NBHOOD:UPDATE n $n g $g
         } else {

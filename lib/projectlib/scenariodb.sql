@@ -393,6 +393,58 @@ CREATE TABLE units (
     n                TEXT DEFAULT ''
 );
 
+----------------------------------------------------------------
+-- Neighborhood Status Tables
+
+-- nbstat Table: Total Force and Volatility in neighborhoods
+CREATE TABLE force_n (
+    -- Symbolic nbhood name
+    n                   TEXT    PRIMARY KEY,
+
+    -- Total force in nbhood, including nearby.
+    total_force         INTEGER DEFAULT 0,
+
+    -- Gain on volatility, a multiplier >= 0.0
+    volatility_gain     DOUBLE  DEFAULT 1.0,
+
+    -- Nominal Volatility, excluding gain, 0 to 100
+    nominal_volatility  INTEGER DEFAULT 0,
+
+    -- Effective Volatility, including gain, 0 to 100
+    volatility          INTEGER DEFAULT 0,
+
+    -- Total civilian population of neighborhood,
+    -- excluding unit personnel.
+    population          INTEGER DEFAULT 0
+);
+
+-- nbstat Table: Group force in neighborhoods
+CREATE TABLE force_ng (
+    n           TEXT,         -- Symbolic nbhood name
+    g           TEXT,         -- Symbolic group name
+
+    personnel     INTEGER     -- Group's personnel
+        DEFAULT 0,
+    own_force     INTEGER     -- Group's own force (Q.ng)
+        DEFAULT 0,
+    local_force   INTEGER     -- own_force + friends in n
+        DEFAULT 0,
+    local_enemy   INTEGER     -- enemies in n
+        DEFAULT 0,
+    force         INTEGER     -- own_force + friends nearby
+        DEFAULT 0,
+    pct_force     INTEGER     -- 100*force/total_force
+        DEFAULT 0,
+    enemy         INTEGER     -- enemies nearby
+        DEFAULT 0,
+    pct_enemy     INTEGER     -- 100*enemy/total_force
+        DEFAULT 0,
+    security      INTEGER     -- Group's security in n
+        DEFAULT 0,
+
+    PRIMARY KEY (n, g)
+);
+
 
 ------------------------------------------------------------------------
 -- Primary Entities

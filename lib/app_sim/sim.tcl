@@ -618,8 +618,8 @@ snit::type sim {
         # NEXT, if state is PREP, we've got work to do
         if {$info(state) eq "PREP"} {
             # FIRST, initialize ARAM, other sim models
-            nbstat init
             aram   init -reload
+            nbstat init
         }
 
         # NEXT, set the state to running
