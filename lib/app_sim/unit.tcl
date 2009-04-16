@@ -215,7 +215,7 @@ snit::type unit {
     #    g              The group to which the unit belongs
     #    location       The unit's initial location (map coords)
     #    personnel      The unit's total personnel
-    #    activity       The unit's current activity (eactivity(n))
+    #    activity       The unit's current activity
     #
     # Creates a unit given the parms, which are presumed to be
     # valid.  n should be "" unless g is a CIV group.
@@ -360,8 +360,8 @@ snit::type unit {
 
         foreach gtype $gtypes {
             switch -exact -- $gtype {
-                FRC     { efrcactivity validate $activity }
-                ORG     { eorgactivity validate $activity }
+                FRC     { activity frc validate $activity }
+                ORG     { activity org validate $activity }
                 default { error "Unexpected gtype: \"$gtype\""   }
             }
         }
@@ -452,8 +452,8 @@ snit::type unit {
 
     typemethod SetActivityValues {field gtype} {
         switch -exact -- $gtype {
-            FRC     { set values [efrcactivity cget -values]    }
-            ORG     { set values [eorgactivity cget -values]    }
+            FRC     { set values [activity frc names]           }
+            ORG     { set values [activity org names]           }
             ""      { set values {}                             }
             default { error "Unexpected group type: \"$gtype\"" }
         }
@@ -486,9 +486,9 @@ snit::type unit {
             if {"" eq $gtypes || "" in $gtypes} {
                 set values {}
             } elseif {"ORG" in $gtypes} {
-                set values [eorgactivity cget -values]
+                set values [activity org names]
             } elseif {"FRC" in $gtypes} {
-                set values [efrcactivity cget -values]
+                set values [activity frc names]
             } else {
                 set values {}
             }
@@ -523,7 +523,7 @@ order define ::unit UNIT:CREATE {
     prepare u          -toupper -required -unused -type unitname
     prepare personnel           -required         -type iquantity
     prepare location            -required         -type refpoint
-    prepare activity   -toupper -required         -type eactivity
+    prepare activity   -toupper -required         -type activity
 
     returnOnError
 
@@ -607,7 +607,7 @@ order define ::unit UNIT:UPDATE {
     prepare g          -toupper           -type {unit group}
     prepare personnel                     -type iquantity
     prepare location                      -type refpoint
-    prepare activity   -toupper           -type eactivity
+    prepare activity   -toupper           -type activity
 
     returnOnError
 
@@ -652,7 +652,7 @@ order define ::unit UNIT:UPDATE:MULTI {
     prepare g          -toupper           -type {unit group}
     prepare personnel                     -type iquantity
     prepare location                      -type refpoint
-    prepare activity   -toupper           -type eactivity
+    prepare activity   -toupper           -type activity
 
     returnOnError
 

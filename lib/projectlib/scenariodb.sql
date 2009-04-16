@@ -380,6 +380,7 @@ CREATE TABLE units (
     location         TEXT,
 
     -- Unit activity: eactivity(n) value
+    -- TBD: Possibly should be called 'a'
     activity         TEXT DEFAULT 'NONE',
 
     --------------------------------------------------------------------
@@ -390,11 +391,14 @@ CREATE TABLE units (
 
     -- Neighborhood in which unit is currently located, a nbhood ID or ""
     -- if outside all neighborhoods.
-    n                TEXT DEFAULT ''
+    n                TEXT DEFAULT '',
+
+    -- Ineffective flag: 1 if activity is ineffective, and 0 otherwise.
+    ineffective      INTEGER DEFAULT 0
 );
 
-----------------------------------------------------------------
--- Neighborhood Status Tables
+--------------------------------------------------------------------
+-- Force and Security Tables
 
 -- nbstat Table: Total Force and Volatility in neighborhoods
 CREATE TABLE force_n (
@@ -446,6 +450,83 @@ CREATE TABLE force_ng (
 );
 
 
+--------------------------------------------------------------------
+-- Group Activity Tables
+
+-- Main activity table.  Lists all activity names and long names
+CREATE TABLE activity (
+    -- Symbolic activity name
+    a         TEXT PRIMARY KEY,
+
+    -- Human-readable name
+    longname  TEXT
+);
+
+-- Activity/group type table.
+CREATE TABLE activity_gtype (
+    -- Symbolic activity name
+    a           TEXT,
+
+    -- Symbolic group type: FRC or ORG
+    gtype       TEXT,
+
+    -- Assignable: 1 or 0
+    assignable  INTEGER DEFAULT 0,
+
+    -- Situation Type Name, or ''
+    stype       TEXT DEFAULT '',
+
+    PRIMARY KEY (a, gtype)
+);
+
+
+-- When "g" is a FRC group, "a" may be any of the
+-- efrcactivity values; when "g" is an ORG group,
+-- "a" may be any of the eorgactivity values.
+CREATE TABLE activity_nga (
+    n                   TEXT,     -- Symbolic nbhoods name
+    g                   TEXT,     -- Symbolic groups name
+    a                   TEXT,     -- Symbolic activity name
+         
+    -- 1 if there's enough security to conduct the activity,
+    -- and 0 otherwise.
+    security_flag       INTEGER  DEFAULT 0,
+
+    -- 1 if the group can do the activity in the neighborhood,
+    -- and 0 otherwise.
+    group_can_do        INTEGER  DEFAULT 0,
+
+    -- Number of personnel in units in nbhood n belonging to 
+    -- group g which are assigned activity a.
+    nominal_personnel   INTEGER  DEFAULT 0,
+
+    -- Number of personnel in units in nbhood n belonging to 
+    -- group g which can actively pursue a given the assigned-to-active
+    -- ratio.
+    active_personnel    INTEGER  DEFAULT 0,
+
+    -- Number of the active personnel that are effectively performing
+    -- the activity.  This will be 0 if security_flag is 0.
+    effective_personnel INTEGER  DEFAULT 0,
+
+    -- Coverage fraction, 0.0 to 1.0, for this activity.
+    coverage            DOUBLE   DEFAULT 0.0,
+
+    -- Type of activity situation associated with this activity
+    stype               TEXT,
+
+    -- Activity Situation ID.  This is the driver ID of the
+    -- Activity Situation associated with this activity, if
+    -- any, and 0 otherwise.
+    driver              INTEGER  DEFAULT 0,
+
+
+    PRIMARY KEY (n,g,a)
+);
+
+
+
+
 ------------------------------------------------------------------------
 -- Primary Entities
 --
@@ -454,9 +535,14 @@ CREATE TABLE force_ng (
 -- used to check this, and to retrieve the entity type for a given ID.
 
 CREATE VIEW entities AS
-SELECT 'PLAYBOX' AS id, 
-       'Playbox' AS longname, 
-       'pseudo'  AS etype
+SELECT 'PLAYBOX'  AS id, 
+       'Playbox'  AS longname, 
+       'pseudo'   AS etype
+UNION
+SELECT a          AS id, 
+       longname   AS longname, 
+       'activity' AS etype 
+FROM activity
 UNION
 SELECT n         AS id, 
        longname  AS longname, 

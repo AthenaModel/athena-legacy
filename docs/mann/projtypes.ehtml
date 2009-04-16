@@ -31,6 +31,24 @@ for false values.  On error, throws an error with <code>-errorcode</code>
 This call differs from <code>snit::boolean</code> in that it converts
 the value to canonical form, and throws <b>INVALID</b> on error.<p>
 
+<<defitem "coverage validate" {coverage validate <i>covFunc</i>}>>
+
+Coverage function type.  A coverage function is a pair of values
+{<i>c d</i>} that determine the coverage of a neighborhood by an
+activity performed by group personnel.  Coverage
+depends on the asset density, which is the number
+of personnel per <i>d</i> people in the population.  If the 
+density is 0, the coverage is 0.  The coverage 
+fraction increases to 2/3 when density is <i>c</i>, and approaches 1.0
+asymptotitically as the density increases.<p>
+
+Both <i>c</i> and <i>d</i> are floating point values; <i>c</i> must be
+non-negative, and <i>d</i> must be strictly positive.  A typical value
+is <code>{25 1000}</code>.<p>
+
+Validates and returns the <i>covFunc</i>.  On error, throws an error
+with <code>-errorcode</code> <b>INVALID</b>.<p>
+
 
 <<defitem ecivconcern {ecivconcern <i>subcommand</i> ?<i>args</i>?}>>
 
@@ -130,6 +148,15 @@ Validates the polygon described by the <i>coords</i>, which is a flat
 list of <i>x</i> and <i>y</i> coordinates.  It may be passed as a
 single argument, or as one argument per coordinate.  On error, throws
 an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
+<<defitem qsecurity qsecurity>>
+
+This quality is use to rate a group's security in a neighborhood.
+Numerically, <<iref qsecurity>> values are
+formatted as "<<qsecurity cget -format>>" and have the bounds
+shown in the following table:<p>
+
+<<::projectlib::qsecurity html>>
 
 <<defitem "rgain validate" {rgain validate <i>value</i>}>>
 

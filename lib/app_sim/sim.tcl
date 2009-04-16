@@ -618,8 +618,9 @@ snit::type sim {
         # NEXT, if state is PREP, we've got work to do
         if {$info(state) eq "PREP"} {
             # FIRST, initialize ARAM, other sim models
-            aram   init -reload
-            nbstat init
+            aram     init -reload
+            nbstat   init
+            activity init
         }
 
         # NEXT, set the state to running
@@ -672,7 +673,9 @@ snit::type sim {
         log normal sim "Tick [simclock now]"
         set info(changed) 1
         
-        # NEXT, advance ARAM
+        # NEXT, advance models
+        nbstat analyze
+        activity analyze
         aram advance
 
         # NEXT, execute eventq events

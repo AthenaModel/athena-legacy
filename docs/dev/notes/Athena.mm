@@ -118,6 +118,31 @@
 </node>
 </node>
 <node CREATED="1237477511538" ID="Freemind_Link_894463638" MODIFIED="1237477524514" POSITION="right" TEXT="Scenario">
+<node CREATED="1239732129300" FOLDED="true" ID="Freemind_Link_1466082572" MODIFIED="1239732892010" TEXT="Updates to RDB Lookup Tables">
+<icon BUILTIN="messagebox_warning"/>
+<node CREATED="1239732193381" ID="Freemind_Link_39922698" MODIFIED="1239732214911" TEXT="Contain constant data">
+<node CREATED="1239732215589" ID="Freemind_Link_677767177" MODIFIED="1239732221679" TEXT="Concerns"/>
+<node CREATED="1239732222325" ID="Freemind_Link_1602636332" MODIFIED="1239732224815" TEXT="Activities"/>
+</node>
+<node CREATED="1239732235221" ID="Freemind_Link_428763924" MODIFIED="1239732239567" TEXT="Really part of the source code"/>
+<node CREATED="1239732740468" ID="Freemind_Link_548433879" MODIFIED="1239732751406" TEXT="Bump user_schema on change"/>
+<node CREATED="1239732773796" ID="Freemind_Link_653719630" MODIFIED="1239732799342" TEXT="Add explicit code to &quot;scenario open&quot; to update scenario on user_schema change"/>
+<node CREATED="1239732574821" ID="Freemind_Link_516676740" MODIFIED="1239732582382" TEXT="Updating after changes">
+<node CREATED="1239732859684" ID="Freemind_Link_1972859384" MODIFIED="1239732876670" TEXT="Warn user before updating">
+<node CREATED="1239732882228" ID="Freemind_Link_42180979" MODIFIED="1239732885470" TEXT="Require confirmation"/>
+</node>
+<node CREATED="1239732500020" ID="Freemind_Link_1005453805" MODIFIED="1239732858750" TEXT="Must return to PREP state if not there."/>
+<node CREATED="1239732583460" ID="Freemind_Link_177522823" MODIFIED="1239732604974" TEXT="Table: concerns">
+<node CREATED="1239732520052" ID="Freemind_Link_72501896" MODIFIED="1239732547284" TEXT="&quot;sat mutate reconcile&quot;">
+<node CREATED="1239732547813" ID="Freemind_Link_580001743" MODIFIED="1239732565038" TEXT="Deletes invalid curves (or could)"/>
+<node CREATED="1239732565429" ID="Freemind_Link_1193464453" MODIFIED="1239732571934" TEXT="Creates required curves"/>
+</node>
+</node>
+<node CREATED="1239732613413" ID="Freemind_Link_1234208450" MODIFIED="1239732641214" TEXT="Table: activity, activity_gtype">
+<node CREATED="1239732620021" ID="Freemind_Link_406731612" MODIFIED="1239732663870" TEXT="Set unit activity to NONE for unknown activities."/>
+</node>
+</node>
+</node>
 <node CREATED="1237477586106" FOLDED="true" ID="Freemind_Link_516563511" MODIFIED="1237477603190" TEXT="Must rel=1.0 when f=g">
 <icon BUILTIN="help"/>
 <node CREATED="1237477606906" ID="Freemind_Link_1462718131" MODIFIED="1237477628037" TEXT="If so, I need to update the RELATIONSHIP:* orders"/>

@@ -21,6 +21,74 @@ snit::type scenario {
     pragma -hastypedestroy 0 -hasinstances 0
 
     #-------------------------------------------------------------------
+    # Look-up Tables
+
+    # Dictionary by table of RDB initialization dicts
+    #
+    # TBD: Consider reading these lists from registered modules.
+
+    typevariable rdbInitializers {
+        concerns {
+            { c AUT longname "Autonomy"        gtype CIV }
+            { c SFT longname "Physical Safety" gtype CIV }
+            { c CUL longname "Culture"         gtype CIV }
+            { c QOL longname "Quality of Life" gtype CIV }
+            { c CAS longname "Casualties"      gtype ORG }
+        }
+
+        activity {
+            { a NONE                 longname "None"                       }
+            { a CHECKPOINT           longname "Checkpoint/Control Point"   }
+            { a CMO_CONSTRUCTION     longname "CMO -- Construction"        }
+            { a CMO_DEVELOPMENT      longname "CMO -- Development (Light)" }
+            { a CMO_EDUCATION        longname "CMO -- Education"           }
+            { a CMO_EMPLOYMENT       longname "CMO -- Employment"          }
+            { a CMO_HEALTHCARE       longname "CMO -- Healthcare"          }
+            { a CMO_INDUSTRY         longname "CMO -- Industry"            }
+            { a CMO_INFRASTRUCTURE   longname "CMO -- Infrastructure"      }
+            { a CMO_LAW_ENFORCEMENT  longname "CMO -- Law Enforcement"     }
+            { a CMO_OTHER            longname "CMO -- Other"               }
+            { a COERCION             longname "Coercion"                   }
+            { a CRIMINAL_ACTIVITIES  longname "Criminal Activities"        }
+            { a CURFEW               longname "Curfew"                     }
+            { a GUARD                longname "Guard"                      }
+            { a PATROL               longname "Patrol"                     }
+            { a PRESENCE             longname "Presence"                   }
+            { a PSYOP                longname "PSYOP"                      }
+        }
+
+        activity_gtype {
+            { a NONE                 gtype FRC assignable 1 stype {}       }
+            { a CHECKPOINT           gtype FRC assignable 1 stype CHKPOINT }
+            { a CMO_CONSTRUCTION     gtype FRC assignable 1 stype CMOCONST }
+            { a CMO_DEVELOPMENT      gtype FRC assignable 1 stype CMODEV   }
+            { a CMO_EDUCATION        gtype FRC assignable 1 stype CMOEDU   }
+            { a CMO_EMPLOYMENT       gtype FRC assignable 1 stype CMOEMP   }
+            { a CMO_HEALTHCARE       gtype FRC assignable 1 stype CMOMED   }
+            { a CMO_INDUSTRY         gtype FRC assignable 1 stype CMOIND   }
+            { a CMO_INFRASTRUCTURE   gtype FRC assignable 1 stype CMOINF   }
+            { a CMO_LAW_ENFORCEMENT  gtype FRC assignable 1 stype CMOLAW   }
+            { a CMO_OTHER            gtype FRC assignable 1 stype CMOOTHER }
+            { a COERCION             gtype FRC assignable 1 stype COERCION }
+            { a CRIMINAL_ACTIVITIES  gtype FRC assignable 1 stype CRIMINAL }
+            { a CURFEW               gtype FRC assignable 1 stype CURFEW   }
+            { a GUARD                gtype FRC assignable 1 stype GUARD    }
+            { a PATROL               gtype FRC assignable 1 stype PATROL   }
+            { a PRESENCE             gtype FRC assignable 0 stype PRESENCE }
+            { a PSYOP                gtype FRC assignable 1 stype PSYOP    }
+            
+            { a NONE                 gtype ORG assignable 1 stype {}       }
+            { a CMO_CONSTRUCTION     gtype ORG assignable 1 stype ORGCONST }
+            { a CMO_EDUCATION        gtype ORG assignable 1 stype ORGEDU   }
+            { a CMO_EMPLOYMENT       gtype ORG assignable 1 stype ORGEMP   }
+            { a CMO_HEALTHCARE       gtype ORG assignable 1 stype ORGMED   }
+            { a CMO_INDUSTRY         gtype ORG assignable 1 stype ORGIND   }
+            { a CMO_INFRASTRUCTURE   gtype ORG assignable 1 stype ORGINF   }
+            { a CMO_OTHER            gtype ORG assignable 1 stype ORGOTHER }
+        }
+    }
+    
+    #-------------------------------------------------------------------
     # Type Components
 
     typecomponent rdb                ;# The scenario RDB
@@ -380,6 +448,7 @@ snit::type scenario {
     # 
     # * Blank map
     # * Concern definitions
+    # * Activity definitions
 
     proc InitializeRuntimeData {} {
         # FIRST, clear the RDB
@@ -391,19 +460,8 @@ snit::type scenario {
         # NEXT, load the blank map
         map load [file join $::app_sim::library blank.png]
 
-        # NEXT, insert the concern definitions
-        foreach {c longname gtype} {
-            AUT "Autonomy"        CIV
-            SFT "Physical Safety" CIV
-            CUL "Culture"         CIV
-            QOL "Quality of Life" CIV
-            CAS "Casualties"      ORG
-        } {
-            rdb eval {
-                INSERT INTO concerns(c,longname,gtype)
-                VALUES($c,$longname,$gtype)
-            }
-        }
+        # NEXT, insert the standard tables
+        scenario InsertStandardTables
 
         # NEXT, if there's a default parameter file, load it; and
         # mark the parameters saved.
@@ -420,6 +478,22 @@ snit::type scenario {
         # that has only these things in it.
         rdb marksaved
     }
+
+    # InsertStandardTables
+    #
+    # Inserts the standard tables into the RDB, erasing previous
+    # entries in those tables.
+
+    typemethod InsertStandardTables {} {
+        dict for {table rows} $rdbInitializers {
+            rdb eval "DELETE FROM $table;"
+
+            foreach row $rows {
+                rdb insert $table $row
+            }
+        }
+    }
+
 
     # DefineTempSchema
     #

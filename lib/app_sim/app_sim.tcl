@@ -76,6 +76,7 @@ source [file join $::app_sim::library unit.tcl            ]
 # Non-GUI: Simulation
 source [file join $::app_sim::library sim.tcl             ]
 source [file join $::app_sim::library nbstat.tcl          ]
+source [file join $::app_sim::library activity.tcl        ]
 
 # GUI
 source [file join $::app_sim::library orderdialog.tcl     ]

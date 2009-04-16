@@ -16,6 +16,7 @@
 namespace eval ::projectlib:: {
     namespace export  \
         boolean       \
+        coverage      \
         eactivity     \
         ecivconcern   \
         econcern      \
@@ -35,6 +36,7 @@ namespace eval ::projectlib:: {
         ingpopulation \
         iquantity     \
         polygon       \
+        qsecurity     \
         rdays         \
         rposfactor    \
         rgain         \
@@ -100,75 +102,6 @@ snit::type ::projectlib::TypeWrapper {
 
 #-------------------------------------------------------------------
 # Enumerations
-
-# Assignable Unit Activities
-#
-# eactivity       All assignable activities
-# efrcactivity    Assignable Force Activities
-# eorgactivity    Assignable Org Activities
-#
-# TBD: This is temporary.  I need an "activity" type that handles
-# the entire family of activities, including all subsets.  The
-# mapping from activities to situation types should be done in
-# the application.
-
-::projectlib::TypeWrapper ::projectlib::efrcactivity snit::enum -values {
-    NONE
-    CHECKPOINT
-    CMO_CONSTRUCTION
-    CMO_DEVELOPMENT
-    CMO_EDUCATION
-    CMO_EMPLOYMENT
-    CMO_HEALTHCARE
-    CMO_INDUSTRY
-    CMO_INFRASTRUCTURE
-    CMO_LAW_ENFORCEMENT
-    CMO_OTHER
-    COERCION
-    CORDON_AND_SEARCH
-    CRIMINAL_ACTIVITIES
-    CURFEW
-    GUARD
-    INTERVIEW_SCREEN
-    MILITARY_TRAINING
-    PATROL
-    PSYOP
-}
-
-::projectlib::TypeWrapper ::projectlib::eorgactivity snit::enum -values {
-    NONE
-    CMO_CONSTRUCTION
-    CMO_EDUCATION
-    CMO_EMPLOYMENT
-    CMO_HEALTHCARE
-    CMO_INDUSTRY
-    CMO_INFRASTRUCTURE
-    CMO_OTHER
-}
-
-::marsutil::enum ::projectlib::eactivity {
-    NONE                    "None"
-    CHECKPOINT              "Checkpoint/Control Point"
-    CMO_CONSTRUCTION        "CMO -- Construction"
-    CMO_DEVELOPMENT         "CMO -- Development (Light)"
-    CMO_EDUCATION           "CMO -- Education"
-    CMO_EMPLOYMENT          "CMO -- Employment"
-    CMO_HEALTHCARE          "CMO -- Healthcare"
-    CMO_INDUSTRY            "CMO -- Industry"
-    CMO_INFRASTRUCTURE      "CMO -- Infrastructure"
-    CMO_LAW_ENFORCEMENT     "CMO -- Law Enforcement"
-    CMO_OTHER               "CMO -- Other"
-    COERCION                "Coercion"
-    CORDON_AND_SEARCH       "Cordon and Search"
-    CRIMINAL_ACTIVITIES     "Criminal Activities"
-    CURFEW                  "Curfew"
-    GUARD                   "Guard"
-    INTERVIEW_SCREEN        "Interview/Screen"
-    MILITARY_TRAINING       "Military Training"
-    PATROL                  "Patrol"
-    PSYOP                   "PSYOP"
-}
-
 
 # Unit icon shape (per MIL-STD-2525B)
 ::marsutil::enum ::projectlib::eunitshape {
@@ -251,6 +184,15 @@ snit::type ::projectlib::TypeWrapper {
 #-------------------------------------------------------------------
 # Qualities
 
+# Security
+::marsutil::quality ::projectlib::qsecurity {
+    H    "High"         25  60  100
+    M    "Medium"        5  15   25
+    L    "Low"         -25 -10    5
+    N    "None"       -100 -60  -25
+} -bounds yes -format {%4d}
+
+
 #-----------------------------------------------------------------------
 # Integer Types
 
@@ -310,6 +252,36 @@ snit::type ::projectlib::boolean {
         }
     }
 }
+
+#-------------------------------------------------------------------
+# Coverage Function type
+#
+# TBD: Consider putting this in simlib.  Should validate and evaluate
+# both.
+
+snit::type ::projectlib::coverage {
+    typemethod validate {value} {
+        if {[llength $value] != 2} {
+            return -code error -errorcode INVALID \
+     "invalid coverage function \"$value\", expected \"c d\""
+        }
+        
+        foreach {c d} $value {}
+
+        if {![string is double -strict $c] || $c < 0.0} {
+            return -code error -errorcode INVALID \
+                "invalid c \"$c\", should be non-negative number"
+        }
+
+        if {![string is double -strict $d] || $d <= 0.0} {
+            return -code error -errorcode INVALID \
+             "invalid d \"$d\", should be positive number"
+        }
+
+        return $value
+    }
+}
+
 
 #-----------------------------------------------------------------------
 # hexcolor type

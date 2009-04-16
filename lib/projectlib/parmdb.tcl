@@ -71,6 +71,218 @@ snit::type ::projectlib::parmdb {
             cannot be changed at run-time.
         }
 
+        # NEXT, Activity Parameters
+        #
+
+        $ps subset activity {
+            Parameters which affect the computation of group activity
+            coverage.
+        }
+
+        $ps subset activity.FRC {
+            Parameters which affect the computation of force group 
+            activity coverage.
+        }
+
+        $ps subset activity.ORG {
+            Parameters which affect the computation of organization group 
+            activity coverage.
+        }
+
+        # FRC activities
+        foreach a {
+            CHECKPOINT
+            CMO_CONSTRUCTION
+            CMO_DEVELOPMENT
+            CMO_EDUCATION
+            CMO_EMPLOYMENT
+            CMO_HEALTHCARE
+            CMO_INDUSTRY
+            CMO_INFRASTRUCTURE
+            CMO_LAW_ENFORCEMENT
+            CMO_OTHER
+            COERCION
+            CRIMINAL_ACTIVITIES
+            CURFEW
+            GUARD
+            PATROL
+            PRESENCE
+            PSYOP
+        } {
+            $ps subset activity.FRC.$a {
+                Parameters relating to this force activity.
+            }
+
+            $ps define activity.FRC.$a.minSecurity ::projectlib::qsecurity L {
+                Minimum security level required to conduct this
+                activity.
+            }
+
+            $ps define activity.FRC.$a.coverage ::projectlib::coverage {
+                25.0 1000
+            } {
+                The parameters (c, d) that determine the
+                coverage fraction function for this force activity.  Coverage
+                depends on the asset density, which is the number
+                of personnel per d people in the population.  If the 
+                density is 0, the coverage is 0.  The coverage 
+                fraction increases to 2/3 when density is c.
+            }
+        }
+
+        # ORG activities
+        foreach a {
+            CMO_CONSTRUCTION
+            CMO_EDUCATION
+            CMO_EMPLOYMENT
+            CMO_HEALTHCARE
+            CMO_INDUSTRY
+            CMO_INFRASTRUCTURE
+            CMO_OTHER
+        } {
+            $ps subset activity.ORG.$a {
+                Parameters relating to this organization activity.
+            }
+
+            $ps subset activity.ORG.$a.minSecurity {
+                Minimum security levels required to conduct this
+                activity, by organization type.
+            }
+
+            foreach orgtype [eorgtype names] {
+                 $ps define activity.ORG.$a.minSecurity.$orgtype \
+                     ::projectlib::qsecurity H {
+                         Minimum security level required to conduct this
+                         activity.
+                     }
+            }
+ 
+            $ps define activity.ORG.$a.coverage ::projectlib::coverage {
+                25.0 1000
+            } {
+                The parameters (c, d) that determine the
+                coverage fraction function for this activity.  Coverage
+                depends on the asset density, which is the number
+                of personnel per d people in the population.  If the 
+                density is 0, the coverage is 0.  The coverage 
+                fraction increases to 2/3 when density is c.
+            }
+         }
+
+        # FRC Activities
+
+        # Activity: PRESENCE
+        $ps setdefault activity.FRC.PRESENCE.minSecurity            N
+        $ps setdefault activity.FRC.PRESENCE.coverage               {25 1000}
+
+        # Activity: CHECKPOINT
+        $ps setdefault activity.FRC.CHECKPOINT.minSecurity          L
+        $ps setdefault activity.FRC.CHECKPOINT.coverage             {25 1000}
+
+        # Activity: CMO_CONSTRUCTION
+        $ps setdefault activity.FRC.CMO_CONSTRUCTION.minSecurity    H
+        $ps setdefault activity.FRC.CMO_CONSTRUCTION.coverage       {20 1000}
+
+        # Activity: CMO_DEVELOPMENT
+        $ps setdefault activity.FRC.CMO_DEVELOPMENT.minSecurity     M
+        $ps setdefault activity.FRC.CMO_DEVELOPMENT.coverage        {25 1000}
+
+        # Activity: CMO_EDUCATION
+        $ps setdefault activity.FRC.CMO_EDUCATION.minSecurity       H
+        $ps setdefault activity.FRC.CMO_EDUCATION.coverage          {20 1000}
+
+        # Activity: CMO_EMPLOYMENT
+        $ps setdefault activity.FRC.CMO_EMPLOYMENT.minSecurity      H
+        $ps setdefault activity.FRC.CMO_EMPLOYMENT.coverage         {20 1000}
+
+        # Activity: CMO_HEALTHCARE
+        $ps setdefault activity.FRC.CMO_HEALTHCARE.minSecurity      H
+        $ps setdefault activity.FRC.CMO_HEALTHCARE.coverage         {20 1000}
+
+        # Activity: CMO_INDUSTRY
+        $ps setdefault activity.FRC.CMO_INDUSTRY.minSecurity        H
+        $ps setdefault activity.FRC.CMO_INDUSTRY.coverage           {20 1000}
+
+        # Activity: CMO_INFRASTRUCTURE
+        $ps setdefault activity.FRC.CMO_INFRASTRUCTURE.minSecurity  H
+        $ps setdefault activity.FRC.CMO_INFRASTRUCTURE.coverage     {20 1000}
+
+        # Activity: CMO_OTHER
+        $ps setdefault activity.FRC.CMO_OTHER.minSecurity           H
+        $ps setdefault activity.FRC.CMO_OTHER.coverage              {20 1000}
+
+        # Activity: CMO_LAW_ENFORCEMENT
+        $ps setdefault activity.FRC.CMO_LAW_ENFORCEMENT.minSecurity M
+        $ps setdefault activity.FRC.CMO_LAW_ENFORCEMENT.coverage    {25 1000}
+
+        # Activity: COERCION
+        $ps setdefault activity.FRC.COERCION.minSecurity            M
+        $ps setdefault activity.FRC.COERCION.coverage               {12 1000}
+
+        # Activity: CRIMINAL
+        $ps setdefault activity.FRC.CRIMINAL_ACTIVITIES.minSecurity M
+        $ps setdefault activity.FRC.CRIMINAL_ACTIVITIES.coverage    {10 1000}
+
+        # Activity: CURFEW
+        $ps setdefault activity.FRC.CURFEW.minSecurity              M
+        $ps setdefault activity.FRC.CURFEW.coverage                 {25 1000}
+
+        # Activity: GUARD
+        $ps setdefault activity.FRC.GUARD.minSecurity               L
+        $ps setdefault activity.FRC.GUARD.coverage                  {25 1000}
+
+        # Activity: PATROL
+        $ps setdefault activity.FRC.PATROL.minSecurity              L
+        $ps setdefault activity.FRC.PATROL.coverage                 {25 1000}
+
+        # Activity: PSYOP
+        $ps setdefault activity.FRC.PSYOP.minSecurity               M
+        $ps setdefault activity.FRC.PSYOP.coverage                  {1 50000}
+
+        # ORG Activities
+
+        # Activity: CMO_CONSTRUCTION
+        $ps setdefault activity.ORG.CMO_CONSTRUCTION.minSecurity.IGO   H
+        $ps setdefault activity.ORG.CMO_CONSTRUCTION.minSecurity.NGO   H
+        $ps setdefault activity.ORG.CMO_CONSTRUCTION.minSecurity.CTR   M
+        $ps setdefault activity.ORG.CMO_CONSTRUCTION.coverage          {20 1000}
+
+        # Activity: CMO_EDUCATION
+        $ps setdefault activity.ORG.CMO_EDUCATION.minSecurity.IGO      H
+        $ps setdefault activity.ORG.CMO_EDUCATION.minSecurity.NGO      H
+        $ps setdefault activity.ORG.CMO_EDUCATION.minSecurity.CTR      M
+        $ps setdefault activity.ORG.CMO_EDUCATION.coverage             {20 1000}
+
+        # Activity: CMO_EMPLOYMENT
+        $ps setdefault activity.ORG.CMO_EMPLOYMENT.minSecurity.IGO     H
+        $ps setdefault activity.ORG.CMO_EMPLOYMENT.minSecurity.NGO     H
+        $ps setdefault activity.ORG.CMO_EMPLOYMENT.minSecurity.CTR     M
+        $ps setdefault activity.ORG.CMO_EMPLOYMENT.coverage            {20 1000}
+
+        # Activity: CMO_HEALTHCARE
+        $ps setdefault activity.ORG.CMO_HEALTHCARE.minSecurity.IGO     H
+        $ps setdefault activity.ORG.CMO_HEALTHCARE.minSecurity.NGO     H
+        $ps setdefault activity.ORG.CMO_HEALTHCARE.minSecurity.CTR     M
+        $ps setdefault activity.ORG.CMO_HEALTHCARE.coverage            {20 1000}
+
+        # Activity: CMO_INDUSTRY
+        $ps setdefault activity.ORG.CMO_INDUSTRY.minSecurity.IGO       H
+        $ps setdefault activity.ORG.CMO_INDUSTRY.minSecurity.NGO       H
+        $ps setdefault activity.ORG.CMO_INDUSTRY.minSecurity.CTR       M
+        $ps setdefault activity.ORG.CMO_INDUSTRY.coverage              {20 1000}
+
+        # Activity: CMO_INFRASTRUCTURE
+        $ps setdefault activity.ORG.CMO_INFRASTRUCTURE.minSecurity.IGO H
+        $ps setdefault activity.ORG.CMO_INFRASTRUCTURE.minSecurity.NGO H
+        $ps setdefault activity.ORG.CMO_INFRASTRUCTURE.minSecurity.CTR M
+        $ps setdefault activity.ORG.CMO_INFRASTRUCTURE.coverage        {20 1000}
+
+        # Activity: CMO_OTHER
+        $ps setdefault activity.ORG.CMO_OTHER.minSecurity.IGO          H
+        $ps setdefault activity.ORG.CMO_OTHER.minSecurity.NGO          H
+        $ps setdefault activity.ORG.CMO_OTHER.minSecurity.CTR          M
+        $ps setdefault activity.ORG.CMO_OTHER.coverage                 {20 1000}
+
         # NEXT, Force/Volatility/Security Parameters
         $ps subset force {
             Parameters which affect the neighborhood force analysis models.
