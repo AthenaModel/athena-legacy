@@ -16,7 +16,6 @@
 namespace eval ::projectlib:: {
     namespace export  \
         boolean       \
-        coverage      \
         eactivity     \
         ecivconcern   \
         econcern      \
@@ -250,35 +249,6 @@ snit::type ::projectlib::boolean {
         } else {
             return 0
         }
-    }
-}
-
-#-------------------------------------------------------------------
-# Coverage Function type
-#
-# TBD: Consider putting this in simlib.  Should validate and evaluate
-# both.
-
-snit::type ::projectlib::coverage {
-    typemethod validate {value} {
-        if {[llength $value] != 2} {
-            return -code error -errorcode INVALID \
-     "invalid coverage function \"$value\", expected \"c d\""
-        }
-        
-        foreach {c d} $value {}
-
-        if {![string is double -strict $c] || $c < 0.0} {
-            return -code error -errorcode INVALID \
-                "invalid c \"$c\", should be non-negative number"
-        }
-
-        if {![string is double -strict $d] || $d <= 0.0} {
-            return -code error -errorcode INVALID \
-             "invalid d \"$d\", should be positive number"
-        }
-
-        return $value
     }
 }
 

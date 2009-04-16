@@ -118,7 +118,7 @@ snit::type ::projectlib::parmdb {
                 activity.
             }
 
-            $ps define activity.FRC.$a.coverage ::projectlib::coverage {
+            $ps define activity.FRC.$a.coverage ::simlib::coverage {
                 25.0 1000
             } {
                 The parameters (c, d) that determine the
@@ -157,7 +157,7 @@ snit::type ::projectlib::parmdb {
                      }
             }
  
-            $ps define activity.ORG.$a.coverage ::projectlib::coverage {
+            $ps define activity.ORG.$a.coverage ::simlib::coverage {
                 25.0 1000
             } {
                 The parameters (c, d) that determine the

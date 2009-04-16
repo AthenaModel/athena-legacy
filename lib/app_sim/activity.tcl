@@ -272,7 +272,7 @@ snit::type activity {
             AND   activity_nga.g=groups.g
             AND   effective > 0
         } {
-            set cov [CoverageFrac \
+            set cov [coverage eval \
                          [parmdb get activity.$gtype.$a.coverage] \
                          $personnel                               \
                          $population]
@@ -283,28 +283,6 @@ snit::type activity {
                 WHERE n=$n AND g=$g AND a=$a
             }
         }
-    }
-
-
-    # CoverageFrac covFunc troops population
-    #
-    # covFunc     The coverage function parameters: max, denominator
-    # troops      The number of troops
-    # pop         The neighborhood's total civilian population
-    #
-    # Computes the coverage fraction, i.e., the fraction of the
-    # neighborhood covered by the activity.
-    
-    proc CoverageFrac {covFunc troops pop} {
-        foreach {c d} $covFunc {}
-
-        let td {double($troops)*$d/$pop}
-
-        let exponent {-($td)*log(3)/($c)}
-
-        let cf {1 - exp($exponent)}
-
-        return $cf
     }
 
     #-------------------------------------------------------------------
