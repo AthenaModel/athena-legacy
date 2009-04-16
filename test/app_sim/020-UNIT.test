@@ -161,7 +161,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        activity {invalid value "PATROL", should be one of: NONE, CMO_CONSTRUCTION, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_OTHER}
+        activity {Invalid activity, should be one of: NONE, CMO_CONSTRUCTION, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_OTHER}
     }
 
 
@@ -317,7 +317,7 @@ U1 BLUE 1         1 1      NONE     FRC
     } -cleanup {
         cleanup
     } -result {
-        activity {invalid value "PATROL", should be one of: NONE, CMO_CONSTRUCTION, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_OTHER}
+        activity {Invalid activity, should be one of: NONE, CMO_CONSTRUCTION, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_OTHER}
     }
 
 
