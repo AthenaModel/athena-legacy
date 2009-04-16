@@ -118,13 +118,21 @@ snit::type ::projectlib::parmdb {
                 activity.
             }
 
+            $ps define activity.FRC.$a.assignedToActive \
+                ::projectlib::ipositive 1 {
+                    Number of personnel which must be assigned to the
+                    activity to yield one person actively performing the
+                    activity given a typical schedule, i.e., a 24x7 activity
+                    requires the assigned personnel to work shifts.
+                }
+
             $ps define activity.FRC.$a.coverage ::simlib::coverage {
                 25.0 1000
             } {
                 The parameters (c, d) that determine the
                 coverage fraction function for this force activity.  Coverage
                 depends on the asset density, which is the number
-                of personnel per d people in the population.  If the 
+                of active personnel per d people in the population.  If the 
                 density is 0, the coverage is 0.  The coverage 
                 fraction increases to 2/3 when density is c.
             }
@@ -156,6 +164,15 @@ snit::type ::projectlib::parmdb {
                          activity.
                      }
             }
+
+            $ps define activity.ORG.$a.assignedToActive \
+                ::projectlib::ipositive 1 {
+                    Number of personnel which must be assigned to the
+                    activity to yield one person actively performing the
+                    activity given a typical schedule, i.e., a 24x7 activity
+                    requires the assigned personnel to work shifts.
+                }
+
  
             $ps define activity.ORG.$a.coverage ::simlib::coverage {
                 25.0 1000
@@ -163,7 +180,7 @@ snit::type ::projectlib::parmdb {
                 The parameters (c, d) that determine the
                 coverage fraction function for this activity.  Coverage
                 depends on the asset density, which is the number
-                of personnel per d people in the population.  If the 
+                of active personnel per d people in the population.  If the 
                 density is 0, the coverage is 0.  The coverage 
                 fraction increases to 2/3 when density is c.
             }

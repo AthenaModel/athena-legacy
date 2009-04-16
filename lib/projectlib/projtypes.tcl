@@ -201,6 +201,10 @@ snit::type ::projectlib::TypeWrapper {
 # ingpopulation: positive integers
 ::projectlib::TypeWrapper ::projectlib::ingpopulation snit::integer -min 1
 
+# ipositive: positive integers
+::projectlib::TypeWrapper ::projectlib::ipositive snit::integer -min 1
+
+
 # idays: non-negative days
 ::projectlib::TypeWrapper ::projectlib::idays snit::integer -min 0
 

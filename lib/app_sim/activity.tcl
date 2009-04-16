@@ -222,23 +222,28 @@ snit::type activity {
         }
 
         # NEXT, compute the personnel statistics
-        # TBD: Select activity_nga JOIN units instead?
         rdb eval {
             SELECT units.n                      AS n,
                    units.g                      AS g, 
                    units.a                      AS a,
                    a_effective                  AS a_effective,
-                   total(units.personnel)       AS troops
+                   total(units.personnel)       AS troops,
+                   groups.gtype                 AS gtype
             FROM units JOIN activity_nga USING (n,g,a)
+            JOIN groups USING (g)
             WHERE units.a != 'PRESENCE'
             GROUP BY units.n, units.g, units.a
         } {
             log detail activity \
                 "n=$n g=$g a=$a eff=$a_effective troops=$troops"
 
-            # Accumulate what the troops are doing.
+            # How many are active?
+            set a2a [parmdb get activity.$gtype.$a.assignedToActive]
+            let activeTroops {$troops / $a2a}
+
+            # And are they effective?
             if {$a_effective} {
-                set effectiveTroops $troops
+                set effectiveTroops $activeTroops
             } else {
                 set effectiveTroops 0
             }
@@ -247,7 +252,7 @@ snit::type activity {
             rdb eval {
                 UPDATE activity_nga
                 SET nominal   = nominal   + $troops,
-                    active    = active    + $troops,
+                    active    = active    + $activeTroops,
                     effective = effective + $effectiveTroops
                 WHERE n=$n AND g=$g AND a=$a
             }
