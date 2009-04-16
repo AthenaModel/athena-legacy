@@ -77,12 +77,12 @@ snit::type activity {
         # FIRST, clear the previous results.
         rdb eval {
             UPDATE activity_nga
-            SET security_flag       = 1,
-                group_can_do        = 1,
-                nominal_personnel   = 0,
-                active_personnel    = 0,
-                effective_personnel = 0,
-                coverage            = 0.0;
+            SET security_flag = 1,
+                can_do        = 1,
+                nominal       = 0,
+                active        = 0,
+                effective     = 0,
+                coverage      = 0.0;
         }
     }
 
@@ -138,15 +138,15 @@ snit::type activity {
             JOIN force_ng USING (n, g)
             JOIN orggroups USING (g)
         } {
-            # group_can_do
+            # can_do
             # TBD: Need to set this based on whether the group
             # is active in the neighborhood or not!
             if 0 {
                 # Old JNEM code
-                set group_can_do [jout orgIsActive $n $g]
+                set can_do [jout orgIsActive $n $g]
             } else {
                 # For now, assume that it can.
-                set group_can_do 1
+                set can_do 1
             }
 
             # security
@@ -165,7 +165,7 @@ snit::type activity {
             # Save values
             rdb eval {
                 UPDATE activity_nga
-                SET group_can_do  = $group_can_do,
+                SET can_do        = $can_do,
                     security_flag = $security_flag
                 WHERE n=$n AND g=$g AND a=$a
             }
@@ -191,33 +191,34 @@ snit::type activity {
             # All troops are active and effective at being present
             rdb eval {
                 UPDATE activity_nga
-                SET nominal_personnel   = nominal_personnel    + $troops,
-                    active_personnel    = active_personnel     + $troops,
-                    effective_personnel = effective_personnel  + $troops
+                SET nominal   = nominal   + $troops,
+                    active    = active    + $troops,
+                    effective = effective + $troops
                 WHERE n=$n AND g=$g AND a='PRESENCE'
             }
         }
 
         # NEXT, Determine which units are tasked with an activity but are
-        # ineffective.  Begin by clearing the ineffective flag
+        # ineffective.  Begin by assuming that all are effective.
         rdb eval {
             UPDATE units
-            SET ineffective = 0
+            SET a_effective = 1
         }
 
-        # NEXT, set the flag when appropriate.
+        # NEXT, clear the flag if the group has insufficient
+        # security or is otherwise incapable of doing the activity.
         rdb eval {
             UPDATE units
-            SET ineffective = 1
-            WHERE activity != ''
-            AND   activity != 'NONE'
+            SET a_effective = 0
+            WHERE a != ''
+            AND   a != 'NONE'
             AND EXISTS(
                 SELECT a FROM activity_nga
                 WHERE activity_nga.n = units.n
                 AND   activity_nga.g = units.g
-                AND   activity_nga.a = units.activity
+                AND   activity_nga.a = units.a
                 AND   ((activity_nga.security_flag = 0) OR
-                       (activity_nga.group_can_do = 0)));
+                       (activity_nga.can_do = 0)));
         }
 
         # NEXT, compute the personnel statistics
@@ -225,32 +226,29 @@ snit::type activity {
         rdb eval {
             SELECT units.n                      AS n,
                    units.g                      AS g, 
-                   activity                     AS a,
-                   ineffective                  AS ineffective,
+                   units.a                      AS a,
+                   a_effective                  AS a_effective,
                    total(units.personnel)       AS troops
-            FROM units JOIN activity_nga
-            WHERE units.n        = activity_nga.n
-            AND   units.g        = activity_nga.g
-            AND   activity = activity_nga.a
-            AND   activity != 'PRESENCE'
-            GROUP BY units.n, units.g, activity
+            FROM units JOIN activity_nga USING (n,g,a)
+            WHERE units.a != 'PRESENCE'
+            GROUP BY units.n, units.g, units.a
         } {
-            log detail activity "n=$n g=$g act=$a ineff=$ineffective troops=$troops"
+            log detail activity \
+                "n=$n g=$g a=$a eff=$a_effective troops=$troops"
 
             # Accumulate what the troops are doing.
-
-            if {$ineffective} {
-                set effectiveTroops 0
-            } else {
+            if {$a_effective} {
                 set effectiveTroops $troops
+            } else {
+                set effectiveTroops 0
             }
 
             # Update the personnel figures
             rdb eval {
                 UPDATE activity_nga
-                SET nominal_personnel   = nominal_personnel + $troops,
-                    active_personnel    = active_personnel  + $troops,
-                    effective_personnel = effective_personnel + $effectiveTroops
+                SET nominal   = nominal   + $troops,
+                    active    = active    + $troops,
+                    effective = effective + $effectiveTroops
                 WHERE n=$n AND g=$g AND a=$a
             }
         }
@@ -266,13 +264,13 @@ snit::type activity {
             SELECT activity_nga.n      AS n,
                    activity_nga.g      AS g,
                    activity_nga.a      AS a,
-                   effective_personnel AS personnel,
+                   effective           AS personnel,
                    force_n.population  AS population,
                    groups.gtype        AS gtype
             FROM activity_nga JOIN force_n JOIN groups
             WHERE force_n.n=activity_nga.n
             AND   activity_nga.g=groups.g
-            AND   effective_personnel > 0
+            AND   effective > 0
         } {
             set cov [CoverageFrac \
                          [parmdb get activity.$gtype.$a.coverage] \

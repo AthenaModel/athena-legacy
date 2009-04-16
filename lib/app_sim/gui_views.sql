@@ -135,6 +135,6 @@ SELECT u                      AS id,
        n                      AS n,
        personnel              AS personnel,
        m2ref(location)        AS location,
-       activity               AS activity
+       a                      AS a
 FROM units;
 

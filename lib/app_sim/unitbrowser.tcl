@@ -131,7 +131,7 @@ snit::widgetadaptor unitbrowser {
         # FIRST, extract each field
         dict with dict {
             $hull setdata $u \
-                [list $u $gtype $g $n $location $personnel $activity]
+                [list $u $gtype $g $n $location $personnel $a]
         }
     }
 

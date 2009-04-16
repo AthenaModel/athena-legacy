@@ -380,8 +380,7 @@ CREATE TABLE units (
     location         TEXT,
 
     -- Unit activity: eactivity(n) value
-    -- TBD: Possibly should be called 'a'
-    activity         TEXT DEFAULT 'NONE',
+    a                TEXT DEFAULT 'NONE',
 
     --------------------------------------------------------------------
     -- Computed parameters
@@ -393,8 +392,8 @@ CREATE TABLE units (
     -- if outside all neighborhoods.
     n                TEXT DEFAULT '',
 
-    -- Ineffective flag: 1 if activity is ineffective, and 0 otherwise.
-    ineffective      INTEGER DEFAULT 0
+    -- Activity effective flag: 1 if activity is effective, and 0 otherwise.
+    a_effective      INTEGER DEFAULT 0
 );
 
 --------------------------------------------------------------------
@@ -494,20 +493,20 @@ CREATE TABLE activity_nga (
 
     -- 1 if the group can do the activity in the neighborhood,
     -- and 0 otherwise.
-    group_can_do        INTEGER  DEFAULT 0,
+    can_do              INTEGER  DEFAULT 0,
 
     -- Number of personnel in units in nbhood n belonging to 
     -- group g which are assigned activity a.
-    nominal_personnel   INTEGER  DEFAULT 0,
+    nominal             INTEGER  DEFAULT 0,
 
     -- Number of personnel in units in nbhood n belonging to 
     -- group g which can actively pursue a given the assigned-to-active
     -- ratio.
-    active_personnel    INTEGER  DEFAULT 0,
+    active              INTEGER  DEFAULT 0,
 
     -- Number of the active personnel that are effectively performing
     -- the activity.  This will be 0 if security_flag is 0.
-    effective_personnel INTEGER  DEFAULT 0,
+    effective           INTEGER  DEFAULT 0,
 
     -- Coverage fraction, 0.0 to 1.0, for this activity.
     coverage            DOUBLE   DEFAULT 0.0,

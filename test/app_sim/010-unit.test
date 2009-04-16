@@ -39,7 +39,7 @@ namespace eval ::athena_test::tests:: {
         g         BLUE 
         location  {1 1} 
         personnel 1 
-        activity  NONE
+        a         NONE
     }
 
     set u2 {
@@ -47,7 +47,7 @@ namespace eval ::athena_test::tests:: {
         g         USAID 
         location  {999 999} 
         personnel 1 
-        activity  NONE
+        a         NONE
     }
 
 
@@ -65,10 +65,10 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-u  g     personnel location activity gtype n 
--- ----- --------- -------- -------- ----- - 
-U1 BLUE  1         1 1      NONE     FRC     
-U2 USAID 1         999 999  NONE     ORG     
+u  g     personnel location a    gtype n a_effective 
+-- ----- --------- -------- ---- ----- - ----------- 
+U1 BLUE  1         1 1      NONE FRC     0           
+U2 USAID 1         999 999  NONE ORG     0           
     }
 
 
@@ -93,9 +93,9 @@ U2 USAID 1         999 999  NONE     ORG
     } -cleanup {
         cleanup
     } -result {
-u  g    personnel location activity gtype n   
--- ---- --------- -------- -------- ----- --- 
-U1 BLUE 1         100 100  NONE     FRC   NB1 
+u  g    personnel location a    gtype n   a_effective 
+-- ---- --------- -------- ---- ----- --- ----------- 
+U1 BLUE 1         100 100  NONE FRC   NB1 0           
     }
 
     test create-2.1 {undo deletes the unit} -setup {
@@ -163,9 +163,9 @@ U1 BLUE 1         100 100  NONE     FRC   NB1
     } -cleanup {
         cleanup
     } -result {
-u  g    personnel location activity gtype n 
--- ---- --------- -------- -------- ----- - 
-U1 BLUE 1         1 1      NONE     FRC     
+u  g    personnel location a    gtype n a_effective 
+-- ---- --------- -------- ---- ----- - ----------- 
+U1 BLUE 1         1 1      NONE FRC     0           
     }
 
 
@@ -196,16 +196,16 @@ U1 BLUE 1         1 1      NONE     FRC
             g         BRIT
             location  {2 2} 
             personnel 3 
-            activity  PATROL
+            a         PATROL
         }
 
         ted query {SELECT * FROM units}
     } -cleanup {
         cleanup
     } -result {
-u  g    personnel location activity gtype n 
--- ---- --------- -------- -------- ----- - 
-U1 BRIT 3         2 2      PATROL   FRC     
+u  g    personnel location a      gtype n a_effective 
+-- ---- --------- -------- ------ ----- - ----------- 
+U1 BRIT 3         2 2      PATROL FRC     0           
     }
 
     test update-1.2 {identical values are OK} -setup {
@@ -233,7 +233,7 @@ U1 BRIT 3         2 2      PATROL   FRC
             g         ""
             location  ""
             personnel ""
-            activity  ""
+            a         ""
         }
 
         set b [ted query {SELECT * FROM units}]
@@ -253,7 +253,7 @@ U1 BRIT 3         2 2      PATROL   FRC
             g         ""
             location  ""
             personnel ""
-            activity  ""
+            a         ""
         }
         ted notifier received
     } -cleanup {
@@ -272,7 +272,7 @@ U1 BRIT 3         2 2      PATROL   FRC
             g         USAID
             location  ""
             personnel ""
-            activity  ""
+            a         ""
         }
 
         ted query {SELECT u,gtype FROM units}
@@ -313,7 +313,7 @@ U1 NB1
             g         USAID
             location  ""
             personnel ""
-            activity  ""
+            a         ""
         }]
 
         {*}$undo
@@ -333,7 +333,7 @@ U1 NB1
             g         USAID
             location  ""
             personnel ""
-            activity  ""
+            a         ""
         }]
 
         ted notifier bind ::unit <Entity>

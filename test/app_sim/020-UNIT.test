@@ -33,7 +33,7 @@ namespace eval ::athena_test::tests:: {
         g         BLUE 
         location  A01A01
         personnel 1 
-        activity  NONE
+        a         NONE
     }
 
     set u2 {
@@ -41,7 +41,7 @@ namespace eval ::athena_test::tests:: {
         g         USAID 
         location  K99K99
         personnel 1 
-        activity  NONE
+        a         NONE
     }
 
     # Clean up after a test
@@ -61,7 +61,7 @@ namespace eval ::athena_test::tests:: {
         u {required value}
         personnel {required value}
         location {required value}
-        activity {required value}
+        a {required value}
     }
 
     
@@ -139,29 +139,29 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.8 {activity is unknown} -setup {
+    test CREATE-1.8 {a is unknown} -setup {
         ted create BLUE
     } -body {
         ted order -reject UNIT:CREATE [dict merge $u1 {
-            activity NONESUCH
+            a NONESUCH
         }]
     } -cleanup {
         cleanup
     } -result {
-        activity {invalid value, "NONESUCH"}
+        a {Invalid activity, should be one of: NONE, CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, PATROL, PRESENCE, PSYOP}
     }
 
 
-    test CREATE-1.9 {activity is invalid for this group type} -setup {
+    test CREATE-1.9 {a is invalid for this group type} -setup {
         ted create USAID
     } -body {
         ted order -reject UNIT:CREATE [dict merge $u2 {
-            activity PATROL
+            a PATROL
         }]
     } -cleanup {
         cleanup
     } -result {
-        activity {Invalid activity, should be one of: NONE, CMO_CONSTRUCTION, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_OTHER}
+        a {Invalid activity, should be one of: NONE, CMO_CONSTRUCTION, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_OTHER}
     }
 
 
@@ -174,9 +174,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-u  g    personnel location activity gtype n 
--- ---- --------- -------- -------- ----- - 
-U1 BLUE 1         1 1      NONE     FRC     
+u  g    personnel location a    gtype n a_effective 
+-- ---- --------- -------- ---- ----- - ----------- 
+U1 BLUE 1         1 1      NONE FRC     0           
     }
 
 
@@ -297,27 +297,27 @@ U1 BLUE 1         1 1      NONE     FRC
     }
 
 
-    test UPDATE-1.5 {invalid activity} -setup {
+    test UPDATE-1.5 {invalid a} -setup {
         ted create BLUE
         ted order UNIT:CREATE $u1
     } -body {
-        ted order -reject UNIT:UPDATE u U1 activity NONESUCH
+        ted order -reject UNIT:UPDATE u U1 a NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        activity {invalid value, "NONESUCH"}
+        a {Invalid activity, should be one of: NONE, CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, PATROL, PRESENCE, PSYOP}
     }
 
 
-    test UPDATE-1.6 {invalid activity for this group type} -setup {
+    test UPDATE-1.6 {invalid a for this group type} -setup {
         ted create USAID
         ted order UNIT:CREATE $u2
     } -body {
-        ted order -reject UNIT:UPDATE u U2 activity PATROL
+        ted order -reject UNIT:UPDATE u U2 a PATROL
     } -cleanup {
         cleanup
     } -result {
-        activity {Invalid activity, should be one of: NONE, CMO_CONSTRUCTION, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_OTHER}
+        a {Invalid activity, should be one of: NONE, CMO_CONSTRUCTION, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_OTHER}
     }
 
 
@@ -330,16 +330,16 @@ U1 BLUE 1         1 1      NONE     FRC
             g         USAID 
             location  B01B01
             personnel 60
-            activity  CMO_CONSTRUCTION
+            a         CMO_CONSTRUCTION
         }
 
         ted query {SELECT * FROM units}
     } -cleanup {
         cleanup
     } -result {
-u  g     personnel location activity         gtype n 
--- ----- --------- -------- ---------------- ----- - 
-U1 USAID 60        101 101  CMO_CONSTRUCTION ORG     
+u  g     personnel location a                gtype n a_effective 
+-- ----- --------- -------- ---------------- ----- - ----------- 
+U1 USAID 60        101 101  CMO_CONSTRUCTION ORG     0           
     }
 
 
@@ -348,7 +348,7 @@ U1 USAID 60        101 101  CMO_CONSTRUCTION ORG
         ted order UNIT:CREATE $u1
     } -body {
         ted notifier bind ::unit <Entity>
-        ted order UNIT:UPDATE u U1 activity PATROL
+        ted order UNIT:UPDATE u U1 a PATROL
         ted notifier received
     } -cleanup {
         cleanup
@@ -365,7 +365,7 @@ U1 USAID 60        101 101  CMO_CONSTRUCTION ORG
             g         USAID 
             location  B01B01
             personnel 60
-            activity  CMO_CONSTRUCTION
+            a         CMO_CONSTRUCTION
         }
     } -body {
         ted notifier bind ::unit <Entity>
@@ -430,15 +430,15 @@ U1 USAID 60        101 101  CMO_CONSTRUCTION ORG
     }
 
 
-    test UPDATE:MULTI-1.6 {invalid activity} -setup {
+    test UPDATE:MULTI-1.6 {invalid a} -setup {
         ted create BLUE
         ted order UNIT:CREATE $u1
     } -body {
-        ted order -reject UNIT:UPDATE:MULTI ids U1 activity NONESUCH
+        ted order -reject UNIT:UPDATE:MULTI ids U1 a NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        activity {invalid value, "NONESUCH"}
+        a {Invalid activity, should be one of: NONE, CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, PATROL, PRESENCE, PSYOP}
     }
 
 

@@ -255,7 +255,7 @@ snit::type ted {
             u         BLUE1
             personnel 15
             location  {99 99}
-            activity  NONE
+            a         NONE
         }
     }
 

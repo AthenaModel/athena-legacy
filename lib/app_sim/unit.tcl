@@ -215,7 +215,7 @@ snit::type unit {
     #    g              The group to which the unit belongs
     #    location       The unit's initial location (map coords)
     #    personnel      The unit's total personnel
-    #    activity       The unit's current activity
+    #    a              The unit's current activity
     #
     # Creates a unit given the parms, which are presumed to be
     # valid.  n should be "" unless g is a CIV group.
@@ -230,14 +230,14 @@ snit::type unit {
 
             # NEXT, Put the unit in the database
             rdb eval {
-                INSERT INTO units(u,gtype,g,personnel,location,n,activity)
+                INSERT INTO units(u,gtype,g,personnel,location,n,a)
                 VALUES($u,
                        $gtype,
                        $g,
                        $personnel,
                        $location,
                        $n,
-                       $activity);
+                       $a);
             }
 
             # NEXT, notify the app.
@@ -290,7 +290,7 @@ snit::type unit {
     #    g              A new group, or ""
     #    location       A new location (map coords) or ""
     #    personnel      A new quantity of personnel, or ""
-    #    activity       A new activity, or ""
+    #    a              A new activity, or ""
     #
     # Updates a unit given the parms, which are presumed to be
     # valid.
@@ -326,7 +326,7 @@ snit::type unit {
                     gtype     = $gtype,
                     location  = nonempty($location,  location),
                     personnel = nonempty($personnel, personnel),
-                    activity  = nonempty($activity,  activity)
+                    a         = nonempty($a,         a)
                 WHERE u=$u
             }
 
@@ -349,19 +349,19 @@ snit::type unit {
     #-------------------------------------------------------------------
     # Order Helpers
 
-    # ValidateActivity gtypes activity
+    # ValidateActivity gtypes a
     #
     # gtypes     List of one or more group types
-    # activity   An activity
+    # a          An activity
     #
     # Ensures that the activity is valid for the group type(s)
 
-    typemethod ValidateActivity {gtypes activity} {
+    typemethod ValidateActivity {gtypes a} {
 
         foreach gtype $gtypes {
             switch -exact -- $gtype {
-                FRC     { activity frc validate $activity }
-                ORG     { activity org validate $activity }
+                FRC     { activity frc validate $a }
+                ORG     { activity org validate $a }
                 default { error "Unexpected gtype: \"$gtype\""   }
             }
         }
@@ -411,7 +411,7 @@ snit::type unit {
 
     # RefreshActivityCreate field parmdict
     #
-    # field     The "activity" field in a U:CREATE order.
+    # field     The "a" field in a U:CREATE order.
     # parmdict  The current values of the various fields.
     #
     # Sets the list of valid activities.
@@ -427,7 +427,7 @@ snit::type unit {
 
     # RefreshActivityUpdate field parmdict
     #
-    # field     The "activity" field in a U:UPDATE order.
+    # field     The "a" field in a U:UPDATE order.
     # parmdict  The current values of the various fields.
     #
     # Sets the list of valid activities.
@@ -445,7 +445,7 @@ snit::type unit {
 
     # SetActivityValues field gtype
     #
-    # field     The activity field in an order
+    # field     The "a" field in an order
     # gtype     The group type
     # 
     # Sets the list of values appropriately.
@@ -464,7 +464,7 @@ snit::type unit {
 
     # RefreshActivityMulti field parmdict
     #
-    # field     The "activity" field in a U:UPDATE:MULTI order.
+    # field     The "a" field in a U:UPDATE:MULTI order.
     # parmdict  The current values of the various fields.
     #
     # Sets the list of valid activities.
@@ -515,7 +515,7 @@ order define ::unit UNIT:CREATE {
         -refreshcmd [list ::unit RefreshUnitName]
     parm personnel  text  "Personnel"  -defval 1
     parm location   text  "Location"   -tags point
-    parm activity   enum  "Activity"   -tags activity \
+    parm a          enum  "Activity"   -tags activity \
         -refreshcmd [list ::unit RefreshActivityCreate]
 } {
     # FIRST, prepare and validate the parameters
@@ -523,14 +523,14 @@ order define ::unit UNIT:CREATE {
     prepare u          -toupper -required -unused -type unitname
     prepare personnel           -required         -type iquantity
     prepare location            -required         -type refpoint
-    prepare activity   -toupper -required         -type activity
+    prepare a          -toupper -required         -type activity
 
     returnOnError
 
     # NEXT, do cross-validation
 
-    validate activity {
-        $type ValidateActivity [group gtype $parms(g)] $parms(activity)
+    validate a {
+        $type ValidateActivity [group gtype $parms(g)] $parms(a)
     }
 
     returnOnError
@@ -599,7 +599,7 @@ order define ::unit UNIT:UPDATE {
     parm g          enum  "Group"      -type {unit group}
     parm personnel  text  "Personnel"  
     parm location   text  "Location"   -tags point
-    parm activity   enum  "Activity"   -tags activity \
+    parm a          enum  "Activity"   -tags activity \
         -refreshcmd [list ::unit RefreshActivityUpdate]
 } {
     # FIRST, prepare the parameters
@@ -607,12 +607,12 @@ order define ::unit UNIT:UPDATE {
     prepare g          -toupper           -type {unit group}
     prepare personnel                     -type iquantity
     prepare location                      -type refpoint
-    prepare activity   -toupper           -type activity
+    prepare a          -toupper           -type activity
 
     returnOnError
 
     # NEXT, do cross-validation
-    validate activity {
+    validate a {
         if {$parms(g) ne ""} {
             set gtype [group gtype $parms(g)]
         } else {
@@ -621,7 +621,7 @@ order define ::unit UNIT:UPDATE {
             }]
         }
 
-        $type ValidateActivity $gtype $parms(activity)
+        $type ValidateActivity $gtype $parms(a)
     }
 
     returnOnError
@@ -644,7 +644,7 @@ order define ::unit UNIT:UPDATE:MULTI {
     parm g          enum  "Group"      -type {unit group} -refresh
     parm personnel  text  "Personnel"  
     parm location   text  "Location"   -tags point
-    parm activity   enum  "Activity"   -tags activity \
+    parm a          enum  "Activity"   -tags activity \
         -refreshcmd [list ::unit RefreshActivityMulti]
 } {
     # FIRST, prepare the parameters
@@ -652,13 +652,13 @@ order define ::unit UNIT:UPDATE:MULTI {
     prepare g          -toupper           -type {unit group}
     prepare personnel                     -type iquantity
     prepare location                      -type refpoint
-    prepare activity   -toupper           -type activity
+    prepare a          -toupper           -type activity
 
     returnOnError
 
     # NEXT, do cross-validation
 
-    validate activity {
+    validate a {
         if {$parms(g) ne ""} {
             set gtypes [group gtype $parms(g)]
         } else {
@@ -671,7 +671,7 @@ order define ::unit UNIT:UPDATE:MULTI {
             "]
         }
 
-        $type ValidateActivity $gtypes $parms(activity)
+        $type ValidateActivity $gtypes $parms(a)
     }
 
     # NEXT, modify the group

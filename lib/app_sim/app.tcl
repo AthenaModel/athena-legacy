@@ -216,7 +216,7 @@ snit::type app {
     # Displays the application's command-line syntax
     
     typemethod usage {} {
-        puts "Usage: athena sim"
+        puts "Usage: athena sim ?scenario.adb?"
         puts ""
         puts "See athena_sim(1) for more information."
     }
