@@ -25,8 +25,10 @@ SELECT n                       AS id,
        stacking_order          AS stacking_order,
        obscured_by             AS obscured_by,
        m2ref(refpoint)         AS refpoint,
-       m2ref(polygon)          AS polygon
-FROM nbhoods;
+       m2ref(polygon)          AS polygon,
+       COALESCE(volatility,0)  AS volatility,
+       COALESCE(population,0)  AS population              
+FROM nbhoods LEFT OUTER JOIN force_n USING (n);
 
 -- A Force Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_civgroups AS
@@ -128,13 +130,47 @@ FROM nbrel_mn;
 
 -- A units view for use by the GUI
 CREATE TEMPORARY VIEW gui_units AS
-SELECT u                      AS id,
-       u                      AS u,
-       g                      AS g,
-       gtype                  AS gtype,
-       n                      AS n,
-       personnel              AS personnel,
-       m2ref(location)        AS location,
-       a                      AS a
+SELECT u                                                AS id,
+       u                                                AS u,
+       g                                                AS g,
+       gtype                                            AS gtype,
+       n                                                AS n,
+       personnel                                        AS personnel,
+       m2ref(location)                                  AS location,
+       a                                                AS a,
+       CASE a_effective WHEN 1 THEN 'YES' ELSE 'NO' END AS a_effective
 FROM units;
 
+
+-- A force_ng view for use by the GUI
+CREATE TEMPORARY VIEW gui_security AS
+SELECT n || ' ' || g      AS id,
+       n                  AS n,
+       g                  AS g,
+       security           AS security,
+       pct_force          AS pct_force,
+       pct_enemy          AS pct_enemy,
+       volatility         AS volatility,
+       volatility_gain    AS volatility_gain,
+       nominal_volatility AS nominal_volatility
+FROM force_ng JOIN force_n USING (n)
+ORDER BY n, g;
+
+
+-- An activity_nga view for use by the GUI
+CREATE TEMPORARY VIEW gui_activity_nga AS
+SELECT n || ' ' || g || ' ' || a     AS id,
+       n                             AS n,
+       g                             AS g,
+       a                             AS a,
+       format('%6.4f',coverage)      AS coverage,
+       CASE security_flag WHEN 1 THEN 'YES' ELSE 'NO' END AS security_flag,
+       CASE can_do        WHEN 1 THEN 'YES' ELSE 'NO' END AS can_do,
+       nominal                       AS nominal,
+       active                        AS active,
+       effective                     AS effective,
+       stype                         AS stype,
+       driver                        AS driver
+FROM activity_nga
+WHERE nominal > 0
+ORDER BY n,g,a;

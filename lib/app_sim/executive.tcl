@@ -62,6 +62,14 @@ snit::type executive {
             uplevel 1 [list source [file join [pwd] $script]]
         }
 
+        # TBD: See if we like it!
+        $interp proc select {args} {
+            set query "SELECT $args"
+            
+            return [rdb query $query]
+        }
+
+
         # NEXT, install the executive commands
 
         # =

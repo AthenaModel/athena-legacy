@@ -37,6 +37,7 @@ snit::widgetadaptor relbrowser {
             -table        "gui_rel_nfg"               \
             -keycol       "id"                        \
             -keycolnum    0                           \
+            -titlecolumns 4                           \
             -displaycmd   [mymethod DisplayData]      \
             -selectioncmd [mymethod SelectionChanged]
 

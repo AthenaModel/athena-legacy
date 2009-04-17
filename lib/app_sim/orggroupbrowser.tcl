@@ -39,6 +39,7 @@ snit::widgetadaptor orggroupbrowser {
             -table        "gui_orggroups"             \
             -keycol       "id"                        \
             -keycolnum    0                           \
+            -titlecolumns 1                           \
             -displaycmd   [mymethod DisplayData]      \
             -selectioncmd [mymethod SelectionChanged]
 

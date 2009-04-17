@@ -103,9 +103,11 @@ snit::widgetadaptor nbhoodbrowser {
     constructor {args} {
         # FIRST, Install the hull
         installhull using browser_base                \
+            -tickreload   yes                         \
             -table        "gui_nbhoods"               \
             -keycol       "id"                        \
             -keycolnum    0                           \
+            -titlecolumns 1                           \
             -displaycmd   [mymethod DisplayData]      \
             -selectioncmd [mymethod SelectionChanged]
 
@@ -181,8 +183,12 @@ snit::widgetadaptor nbhoodbrowser {
         $hull insertcolumn end 0 {ID}
         $hull insertcolumn end 0 {Neighborhood}
         $hull insertcolumn end 0 {Urbanization}
+        $hull insertcolumn end 0 {Population}
+        $hull columnconfigure end -sortmode integer
         $hull insertcolumn end 0 {VtyGain}
         $hull columnconfigure end -sortmode real
+        $hull insertcolumn end 0 {Vty}
+        $hull columnconfigure end -sortmode integer
         $hull insertcolumn end 0 {StkOrd}
         $hull columnconfigure end -sortmode integer
         $hull insertcolumn end 0 {ObscuredBy}
@@ -231,7 +237,9 @@ snit::widgetadaptor nbhoodbrowser {
                                 $n                             \
                                 $longname                      \
                                 $urbanization                  \
+                                $population                    \
                                 $vtygain                       \
+                                $volatility                    \
                                 [format "%3d" $stacking_order] \
                                 $obscured_by                   \
                                 $refpoint                      \

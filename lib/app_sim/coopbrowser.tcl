@@ -38,6 +38,7 @@ snit::widgetadaptor coopbrowser {
             -table        "gui_coop_nfg"              \
             -keycol       "id"                        \
             -keycolnum    0                           \
+            -titlecolumns 4                           \
             -displaycmd   [mymethod DisplayData]      \
             -selectioncmd [mymethod SelectionChanged]
 

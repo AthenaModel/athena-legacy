@@ -37,6 +37,7 @@ snit::widgetadaptor nbrelbrowser {
             -table        "gui_nbrel_mn"              \
             -keycol       "id"                        \
             -keycolnum    0                           \
+            -titlecolumns 3                           \
             -displaycmd   [mymethod DisplayData]      \
             -selectioncmd [mymethod SelectionChanged]
 

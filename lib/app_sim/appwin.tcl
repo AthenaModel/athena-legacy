@@ -709,6 +709,27 @@ snit::widget appwin {
             -padding 2                     \
             -text    "Coop"
 
+        # NEXT, add the security browser to the content notebook
+        securitybrowser $content.security  \
+            -width   600                   \
+            -height  600
+
+        $content add $content.security     \
+            -sticky  nsew                  \
+            -padding 2                     \
+            -text    "Security"
+
+        # NEXT, add the activity browser to the content notebook
+        activitybrowser $content.activity  \
+            -width   600                   \
+            -height  600
+
+        $content add $content.activity     \
+            -sticky  nsew                  \
+            -padding 2                     \
+            -text    "Activity"
+
+
         # NEXT, add the scrolling log to the content notebook
 
         install slog using scrollinglog $content.slog \

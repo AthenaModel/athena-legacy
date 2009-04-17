@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): Activity Manager
+#    athena_sim(1): nbstat(sim) Activity Coverage module
 #
 #    This module is responsible for defining the unit activities and
 #    for determining activity coverage.  As such, it is a type ensemble.
@@ -47,7 +47,14 @@ snit::type activity {
 
         # NEXT, Activity is up.
         log normal activity "Initialized"
-        
+    }
+
+    # clear
+    #
+    # Clears the data from the activity_nga table
+
+    typemethod clear {} {
+        rdb eval { DELETE FROM activity_nga }
     }
 
     #-------------------------------------------------------------------

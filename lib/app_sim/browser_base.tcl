@@ -30,10 +30,11 @@ snit::widget browser_base {
     delegate option * to hull
 
     # Options delegated to the table browser
-    delegate option -table      to tb
-    delegate option -keycol     to tb
-    delegate option -keycolnum  to tb
-    delegate option -displaycmd to tb
+    delegate option -table        to tb
+    delegate option -keycol       to tb
+    delegate option -keycolnum    to tb
+    delegate option -displaycmd   to tb
+    delegate option -titlecolumns to tb
 
     # -selectioncmd cmd
     #

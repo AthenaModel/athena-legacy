@@ -76,6 +76,11 @@ to the Tk frame widget options of the same name.<p>
 
 Sets the hull frame's background color.<p>
 
+<<defopt {-titlecolumns <i>count</i>}>>
+
+Sets the number of non-scrollable columns at the left edge of the
+tablebrowser.<p>
+
 <<defopt {-width <i>width</i>}>>
 
 Sets the width of the tablebrowser.<p>

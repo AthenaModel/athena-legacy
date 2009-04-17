@@ -35,12 +35,13 @@ snit::widgetadaptor civgroupbrowser {
 
     constructor {args} {
         # FIRST, Install the hull
-       installhull using browser_base                 \
-            -table        "gui_civgroups"             \
-            -keycol       "id"                        \
-            -keycolnum    0                           \
-            -displaycmd   [mymethod DisplayData]      \
-            -selectioncmd [mymethod SelectionChanged]
+       installhull using browser_base                \
+           -table        "gui_civgroups"             \
+           -keycol       "id"                        \
+           -keycolnum    0                           \
+           -titlecolumns 1                           \
+           -displaycmd   [mymethod DisplayData]      \
+           -selectioncmd [mymethod SelectionChanged]
 
         # NEXT, get the options.
         $self configurelist $args

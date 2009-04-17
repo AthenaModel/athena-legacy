@@ -39,6 +39,7 @@ snit::widgetadaptor frcgroupbrowser {
             -table        "gui_frcgroups"             \
             -keycol       "id"                        \
             -keycolnum    0                           \
+            -titlecolumns 1                           \
             -displaycmd   [mymethod DisplayData]      \
             -selectioncmd [mymethod SelectionChanged]
 

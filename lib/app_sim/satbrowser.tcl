@@ -38,6 +38,7 @@ snit::widgetadaptor satbrowser {
             -table        "gui_sat_ngc"               \
             -keycol       "id"                        \
             -keycolnum    0                           \
+            -titlecolumns 4                           \
             -displaycmd   [mymethod DisplayData]      \
             -selectioncmd [mymethod SelectionChanged]
 

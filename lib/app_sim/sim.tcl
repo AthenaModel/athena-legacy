@@ -362,6 +362,9 @@ snit::type sim {
 
         log normal sim $message
         app puts $message
+
+        # NEXT, reconfigure the app.
+        $type reconfigure
     }
 
     #-------------------------------------------------------------------
@@ -615,15 +618,8 @@ snit::type sim {
         # check it to make sure.
         assert {$info(stoptime) == 0 || $info(stoptime) > [simclock now]}
 
-        # NEXT, if state is PREP, we've got work to do
-        if {$info(state) eq "PREP"} {
-            # FIRST, initialize ARAM, other sim models
-            aram     init -reload
-            nbstat   init
-            activity init
-        }
-
-        # NEXT, set the state to running
+        # NEXT, set the state to running.  This will initialize the
+        # models, if need be.
         $type SetState RUNNING
 
         # NEXT, schedule the next tick.
@@ -675,7 +671,6 @@ snit::type sim {
         
         # NEXT, advance models
         nbstat analyze
-        activity analyze
         aram advance
 
         # NEXT, execute eventq events
@@ -710,11 +705,18 @@ snit::type sim {
         if {$info(state) ne "RUNNING" && $state eq "RUNNING"} {
             scenario snapshot purge [simclock now]
             scenario snapshot save
+
+            if {$info(state) eq "PREP"} {
+                # FIRST, initialize ARAM, other sim models
+                aram     init -reload
+                nbstat   init
+            }
         }
 
-        # NEXT, on return to PREP, clear ARAM
+        # NEXT, on return to PREP, clear models
         if {$state eq "PREP"} {
             aram clear
+            nbstat clear
         }
 
         # NEXT, transition to the new state.

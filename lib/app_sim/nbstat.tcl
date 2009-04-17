@@ -47,6 +47,16 @@ snit::type nbstat {
         log normal nbstat "Initialized"
     }
 
+    # clear
+    #
+    # Clears the model data.
+
+    typemethod clear {} {
+        security clear
+        activity clear
+    }
+
+
     #-------------------------------------------------------------------
     # analyze
 

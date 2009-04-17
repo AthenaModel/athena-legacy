@@ -141,7 +141,7 @@ an error with <code>-errorcode</code> <b>INVALID</b>.<p>
 
 This quality is use to rate a group's security in a neighborhood.
 Numerically, <<iref qsecurity>> values are
-formatted as "<<qsecurity cget -format>>" and have the bounds
+formatted as "<<::projectlib::qsecurity cget -format>>" and have the bounds
 shown in the following table:<p>
 
 <<::projectlib::qsecurity html>>

@@ -36,9 +36,11 @@ snit::widgetadaptor unitbrowser {
     constructor {args} {
         # FIRST, Install the hull
         installhull using browser_base                \
+            -tickreload   yes                         \
             -table        "gui_units"                 \
             -keycol       "id"                        \
             -keycolnum    0                           \
+            -titlecolumns 1                           \
             -displaycmd   [mymethod DisplayData]      \
             -selectioncmd [mymethod SelectionChanged]
 
@@ -103,6 +105,7 @@ snit::widgetadaptor unitbrowser {
         $hull insertcolumn end 0 {Personnel}
         $hull columnconfigure end -sortmode integer
         $hull insertcolumn end 0 {Activity}
+        $hull insertcolumn end 0 {Effective}
 
         # NEXT, update individual entities when they change.
         notifier bind ::unit <Entity> $self $self
@@ -131,7 +134,8 @@ snit::widgetadaptor unitbrowser {
         # FIRST, extract each field
         dict with dict {
             $hull setdata $u \
-                [list $u $gtype $g $n $location $personnel $a]
+                [list $u $gtype $g $n $location $personnel $a \
+                     $a_effective]
         }
     }
 

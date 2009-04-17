@@ -43,13 +43,11 @@ snit::type security {
             SELECT n FROM nbhoods;
         }
 
-        # TBD: Presumes that there's only one instance of GRAM.
         # TBD: If populations begin to vary, we'll need to recompute
         # this during each analysis.
         rdb eval {
             SELECT n, total(population) AS pop
-            FROM gram_ng JOIN gram_g USING (g)
-            WHERE gram_g.gtype = 'CIV'
+            FROM nbgroups
             GROUP BY n
         } {
             rdb eval {
@@ -73,6 +71,18 @@ snit::type security {
         # NEXT, Security is up.
         log normal security "Initialized"
     }
+
+    # clear
+    #
+    # Clears the data from the activity_nga table
+
+    typemethod clear {} {
+        rdb eval { 
+            DELETE FROM force_n;
+            DELETE FROM force_ng;
+        }
+    }
+
 
     #-------------------------------------------------------------------
     # analyze

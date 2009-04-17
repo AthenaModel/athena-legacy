@@ -53,7 +53,17 @@ snit::widget ::projectgui::tablebrowser {
 
     #-------------------------------------------------------------------
     # Options
-    
+
+    # Options delegated to the hull
+    delegate option -borderwidth    to hull
+    delegate option -relief         to hull
+    delegate option -hullbackground to hull as -background
+
+    # Options delegated to the tableList
+    delegate option -titlecolumns   to tableList
+    delegate option -width          to tableList
+
+   
     # -keycol col
     #
     # The name of the column in the db that contains the unique 
@@ -81,15 +91,6 @@ snit::widget ::projectgui::tablebrowser {
     #
     # The name of the table in the db that this browser displays
     option -table
-
-    # Options delegated to the hull
-    delegate option -borderwidth    to hull
-    delegate option -relief         to hull
-    delegate option -hullbackground to hull as -background
-    delegate option -width          to tableList
-
-    # Methods delegated to the tablelist
-    delegate method columnconfigure to tableList
 
     #-------------------------------------------------------------------
     # Instance Variables
@@ -201,6 +202,9 @@ snit::widget ::projectgui::tablebrowser {
     
     #-------------------------------------------------------------------
     # Public Methods
+
+    # Methods delegated to the tablelist
+    delegate method columnconfigure to tableList
 
     # toolbar ?tbar?
     #

@@ -40,6 +40,7 @@ snit::widgetadaptor nbgroupbrowser {
             -table        "gui_nbgroups"              \
             -keycol       "id"                        \
             -keycolnum    0                           \
+            -titlecolumns 3                           \
             -displaycmd   [mymethod DisplayData]      \
             -selectioncmd [mymethod SelectionChanged]
 

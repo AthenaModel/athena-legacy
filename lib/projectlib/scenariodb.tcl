@@ -87,7 +87,9 @@ snit::type ::projectlib::scenariodb {
     # Returns a dictionary of function names and command prefixes
 
     typemethod {sqlsection functions} {} {
-        return ""
+        return { 
+            qsecurity ::projectlib::qsecurity
+        }
     }
 
     #-------------------------------------------------------------------
@@ -434,10 +436,14 @@ snit::type ::projectlib::scenariodb {
 
         # NEXT, if there were any rows, save this table.  Otherwise,
         # destroy it.
-        if {$count > 0} {
-            $root appendChild $tnode
+        if 0 {
+            if {$count > 0} {
+                $root appendChild $tnode
+            } else {
+                $tnode delete
+            }
         } else {
-            $tnode delete
+            $root appendChild $tnode
         }
     }
 
@@ -508,6 +514,9 @@ snit::type ::projectlib::scenariodb {
 
         callwith $logcmd "Importing $table"
 
+        # NEXT, delete the contents of the table.
+        $db eval "DELETE FROM $table;"
+
         # NEXT, get the table's column names and BLOB columns
         set blobs [list]
         set ocols [list]
@@ -520,8 +529,12 @@ snit::type ::projectlib::scenariodb {
             }
         }
 
-        # NEXT, get the rows.
+        # NEXT, get the rows.  If there are none, we're done.
         set rnodes [$tnode getElementsByTagName row]
+
+        if {[llength $rnodes] == 0} {
+            return
+        }
 
         # NEXT, all rows will have the same columns.  Get the actual list
         # of columns from the first row.
@@ -548,8 +561,6 @@ snit::type ::projectlib::scenariodb {
         }]
 
         # NEXT, import the rows.
-        $db eval "DELETE FROM $table;"
-
         foreach rnode $rnodes {
             array set row [$self ImportRow $rnode]
 
