@@ -75,6 +75,140 @@ snit::widget appwin {
     #-------------------------------------------------------------------
     # Instance variables
 
+    # Dictionary of tabs to be created.
+    #
+    #    label     The tab text
+    #
+    #    parent    The tag of the parent tab, or "" if this is a top-level
+    #              tab.
+    #
+    #    script    Widget command (and options) to create the tab.
+    #              "%W" is replaced with the name of the widget contained
+    #              in the new tab.  For tabs containing notebooks, the
+    #              script is "".
+    #
+    #    tabwin    Once the tab is created, its window.
+
+    variable tabs {
+        viewer {
+            label "Map"
+            parent ""
+            script { mapviewer %W -width 600 -height 600 }
+        }
+
+        units {
+            label   "Units"
+            parent  ""
+            script  { unitbrowser %W }
+        }
+
+        nbhoodst {
+            label   "Neighborhoods"
+            parent  ""
+            script  ""
+        }
+
+        nbhoods {
+            label   "Neighborhoods"
+            parent  nbhoodst
+            script  { nbhoodbrowser %W }
+        }
+
+        nbrel {
+            label   "Relationships"
+            parent  nbhoodst
+            script  { nbrelbrowser %W }
+        }
+
+        security {
+            label   "Security"
+            parent  nbhoodst
+            script  { securitybrowser %W }
+        }
+
+        activity {
+            label   "Activity"
+            parent  nbhoodst
+            script  { activitybrowser %W }
+        }
+
+        groupst {
+            label   "Groups"
+            parent  ""
+            script  ""
+        }
+
+        civgroups {
+            label   "CivGroups"
+            parent  groupst
+            script  { civgroupbrowser %W }
+        }
+
+        nbgroups {
+            label   "NbGroups"
+            parent  groupst
+            script  { nbgroupbrowser %W }
+        }
+
+        frcgroups {
+            label   "FrcGroups"
+            parent  groupst
+            script  { frcgroupbrowser %W }
+        }
+
+        orggroups {
+            label   "OrgGroups"
+            parent  groupst
+            script  { orggroupbrowser %W }
+        }
+
+        rel {
+            label   "Relationships"
+            parent  groupst
+            script  { relbrowser %W }
+        }
+
+        gramt {
+            label  "GRAM"
+            parent ""
+            script ""
+        }
+
+        sat {
+            label "Satisfaction"
+            parent gramt
+            script { satbrowser %W }
+        }
+
+        coop {
+            label "Cooperation"
+            parent gramt
+            script { coopbrowser %W }
+        }
+
+        slog {
+            label  "Log"
+            parent ""
+            script {
+                scrollinglog %W \
+                    -relief        flat                \
+                    -height        30                  \
+                    -logcmd        [mymethod puts]     \
+                    -loglevel      "normal"            \
+                    -showloglist   yes                 \
+                    -rootdir       [workdir join log]  \
+                    -defaultappdir app_sim             \
+                    -format        {
+                        {zulu  12 yes}
+                        {v      7 yes}
+                        {c      9 yes}
+                        {m      0 yes}
+                    }
+            }
+        }
+    }
+
+
     # Status info
     #
     # simspeed    Current simulation speed
@@ -297,6 +431,12 @@ snit::widget appwin {
             -underline 7 \
             -accelerator "Ctrl+Shift+A" \
             -command {event generate [focus] <<SelectAll>>}
+
+        # View menu
+        set viewmenu [menu $menubar.view]
+        $menubar add cascade -label "View" -underline 0 -menu $viewmenu
+
+        $self AddTabMenuItems $viewmenu
 
         # Orders menu
         set ordersmenu [menu $menubar.orders]
@@ -598,161 +738,13 @@ snit::widget appwin {
         pack $win.status.msgline -fill both -expand yes
 
 
-        # NEXT, add the mapviewer to the content notebook
-        
-        install viewer using mapviewer $content.viewer \
-            -width   600                                        \
-            -height  600
+        # NEXT, add the content tabs, and save relevant tabs
+        # as components.  Also, finish configuring the scrolling log.
+        $self AddTabs
 
-        $content add $viewer \
-            -sticky  nsew    \
-            -padding 2       \
-            -text    "Map"
+        set viewer [$self tab win viewer]
 
-        # NEXT, add the units browser to the content notebook
-        unitbrowser $content.unit      \
-            -width   600               \
-            -height  600
-
-        $content add $content.unit     \
-            -sticky  nsew              \
-            -padding 2                 \
-            -text    "Units"
-
-        # NEXT, add the nbhood browser to the content notebook
-        nbhoodbrowser $content.nbhoods \
-            -width   600               \
-            -height  600
-
-        $content add $content.nbhoods  \
-            -sticky  nsew              \
-            -padding 2                 \
-            -text    "Nbhoods"
-
-        # NEXT, add the nbrel browser to the content notebook
-        nbrelbrowser $content.nbrel    \
-            -width   600               \
-            -height  600
-
-        $content add $content.nbrel    \
-            -sticky  nsew              \
-            -padding 2                 \
-            -text    "Prox"
-
-        # NEXT, add the CIV group browser to the content notebook
-        civgroupbrowser $content.civgroups \
-            -width   600                   \
-            -height  600
-
-        $content add $content.civgroups    \
-            -sticky  nsew                  \
-            -padding 2                     \
-            -text    "CivGrps"
-
-        # NEXT, add the NB group browser to the content notebook
-        nbgroupbrowser $content.nbgroups \
-            -width   600                   \
-            -height  600
-
-        $content add $content.nbgroups     \
-            -sticky  nsew                  \
-            -padding 2                     \
-            -text    "NbGrps"
-
-        # NEXT, add the satisfaction browser to the content notebook
-        satbrowser $content.sat            \
-            -width   600                   \
-            -height  600
-
-        $content add $content.sat          \
-            -sticky  nsew                  \
-            -padding 2                     \
-            -text    "Sat"
-
-        # NEXT, add the FRC group browser to the content notebook
-        frcgroupbrowser $content.frcgroups \
-            -width   600                   \
-            -height  600
-
-        $content add $content.frcgroups    \
-            -sticky  nsew                  \
-            -padding 2                     \
-            -text    "ForceGrps"
-
-        # NEXT, add the ORG group browser to the content notebook
-        orggroupbrowser $content.orggroups \
-            -width   600                   \
-            -height  600
-
-        $content add $content.orggroups    \
-            -sticky  nsew                  \
-            -padding 2                     \
-            -text    "OrgGrps"
-
-        # NEXT, add the relationship browser to the content notebook
-        relbrowser $content.rel            \
-            -width   600                   \
-            -height  600
-
-        $content add $content.rel          \
-            -sticky  nsew                  \
-            -padding 2                     \
-            -text    "Rel"
-
-        # NEXT, add the cooperation browser to the content notebook
-        coopbrowser $content.coop          \
-            -width   600                   \
-            -height  600
-
-        $content add $content.coop         \
-            -sticky  nsew                  \
-            -padding 2                     \
-            -text    "Coop"
-
-        # NEXT, add the security browser to the content notebook
-        securitybrowser $content.security  \
-            -width   600                   \
-            -height  600
-
-        $content add $content.security     \
-            -sticky  nsew                  \
-            -padding 2                     \
-            -text    "Security"
-
-        # NEXT, add the activity browser to the content notebook
-        activitybrowser $content.activity  \
-            -width   600                   \
-            -height  600
-
-        $content add $content.activity     \
-            -sticky  nsew                  \
-            -padding 2                     \
-            -text    "Activity"
-
-
-        # NEXT, add the scrolling log to the content notebook
-
-        install slog using scrollinglog $content.slog \
-            -relief        flat                       \
-            -height        30                         \
-            -logcmd        [mymethod puts]            \
-            -loglevel      "normal"                   \
-            -showloglist   yes                        \
-            -rootdir       [workdir join log]         \
-            -defaultappdir app_sim                    \
-            -format        {
-                {zulu  12 yes}
-                {v      7 yes}
-                {c      9 yes}
-                {m      0 yes}
-            }
-
-
-        $content add $slog \
-            -sticky  nsew  \
-            -padding 2     \
-            -text    "Log"
-
+        set slog   [$self tab win slog]
         $slog load [log cget -logfile]
         notifier bind ::app <AppLogNew> $self [list $slog load]
 
@@ -797,7 +789,7 @@ snit::widget appwin {
             return ">"
         }
     }
-   
+
     # AddToolbarButton name icon tooltip command
     #
     # Creates a toolbar button with standard style
@@ -813,6 +805,104 @@ snit::widget appwin {
         DynamicHelp::add $win.toolbar.$name -text $tooltip
     }
 
+    #-------------------------------------------------------------------
+    # Tab Management
+
+    # AddTabs
+    #
+    # Adds all of the content tabs and subtabs to the window.
+
+    method AddTabs {} {
+        # FIRST, add each tab
+        foreach tab [dict keys $tabs] {
+            # Add a "tabwin" key to the 
+            dict set tabs $tab tabwin ""
+
+            # Create the tab
+            dict with tabs $tab {
+                # FIRST, get the parent
+                if {$parent eq ""} {
+                    set p $content
+                } else {
+                    set p [dict get $tabs $parent tabwin]
+                }
+
+                # NEXT, get the new tabwin name
+                set tabwin $p.$tab
+
+                # NEXT, create the new tab widget
+                if {$script eq ""} {
+                    ttk::notebook $tabwin -padding 2
+                } else {
+                    eval [string map [list %W $tabwin] $script]
+                }
+
+                # NEXT, add it to the parent notebook
+                $p add $tabwin      \
+                    -sticky  nsew   \
+                    -padding 2      \
+                    -text    $label
+            }
+        }
+    }
+
+    # AddTabMenuItems mnu
+    #
+    # mnu     The View menu
+    #
+    # Adds tabs to pop up the tabs to the View menu
+
+    method AddTabMenuItems {mnu} {
+        # FIRST, save the parent menu for toplevel tabs
+        set pmenu() $mnu
+
+        # FIRST, add each tab
+        foreach tab [dict keys $tabs] {
+            dict with tabs $tab {
+                # FIRST, if this is a leaf tab just add its item.
+                if {$script ne ""} {
+                    $pmenu($parent) add command \
+                        -label $label           \
+                        -command [mymethod tab view $tab]
+                    continue
+                }
+
+                # NEXT, this tab has subtabs.  Create a new menu
+                set pmenu($tab) [menu $pmenu($parent).$tab]
+
+                $pmenu($parent) add cascade \
+                    -label $label \
+                    -menu  $pmenu($tab)
+            }
+        }
+    }
+
+    # tab win tab
+    #
+    # Returns the window name of the specified tab
+    
+    method {tab win} {tab} {
+        dict get $tabs $tab tabwin
+    }
+
+    # tab view tab
+    #
+    # Makes the window display the specified tab
+
+    method {tab view} {tab} {
+        dict with tabs $tab {
+            if {$parent eq ""} {
+                $content select $tabwin
+            } else {
+                set pwin [dict get $tabs $parent tabwin]
+
+                $content select $pwin
+                $pwin select $tabwin
+            }
+        }
+    }
+    
+   
     #-------------------------------------------------------------------
     # CLI history
 

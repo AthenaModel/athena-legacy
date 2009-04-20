@@ -61,7 +61,10 @@ snit::widget browser_base {
             -width       100
 
         # NEXT, get the options.
-        $self configurelist $args
+        $self configure \
+            -width  600 \
+            -height 600 \
+            {*}$args
 
         # NEXT, create the toolbar
         install bar using frame $tb.toolbar \

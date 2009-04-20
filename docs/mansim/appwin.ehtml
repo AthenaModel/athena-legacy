@@ -66,6 +66,25 @@ Saves the window's CLI widget's command history to
 <code>~/.athena/history.cli</code>.  It's an error to call this for
 anything but the <code>-main</code> appwin(sim) window.
 
+<<defitem "appwin tab" {appwin tab <i>subcommand</i> ?<i>args...</i>?}>>
+
+This family of commands relates to the content tabs displayed in the
+appwin(sim) window.  These are low-level commands, primarily used
+internally to appsim(sim); for example, there is as yet no command
+that returns a list of the valid tab IDs.<p>
+
+<<deflist tab>>
+
+<<defitem "appwin tab win" {appwin tab win <i>tab</i>}>>
+
+Returns the name of the window associated with the specified <i>tab</i>.<p>
+
+<<defitem "appwin tab view" {appwin tab view <i>tab</i>}>>
+
+Makes the specified tab visible.<p>
+
+<</deflist tab>>
+
 <</deflist commands>>
 
 <<section "INSTANCE COMMAND">>
