@@ -93,8 +93,6 @@ snit::widgetadaptor activitybrowser {
     method DisplayData {dict} {
         # FIRST, extract each field
         dict with dict {
-            set id [list $n $g]
-
             lappend fields $id $n $g $a $coverage $security_flag
             lappend fields $nominal $active $effective
             lappend fields $stype $driver

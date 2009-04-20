@@ -111,6 +111,10 @@
 </node>
 </node>
 <node CREATED="1237477511538" ID="Freemind_Link_894463638" MODIFIED="1237477524514" POSITION="right" TEXT="Scenario">
+<node CREATED="1240255547518" FOLDED="true" ID="Freemind_Link_1642065644" MODIFIED="1240255575384" TEXT="parmdb(n): Allow changes to parms while PAUSED, RUNNING">
+<node CREATED="1240255576590" ID="Freemind_Link_39749292" MODIFIED="1240255583784" TEXT="Some need to be locked."/>
+<node CREATED="1240255585806" ID="Freemind_Link_654800573" MODIFIED="1240255589288" TEXT="Making sure locking works."/>
+</node>
 <node CREATED="1239732129300" FOLDED="true" ID="Freemind_Link_1466082572" MODIFIED="1239732892010" TEXT="Updates to RDB Lookup Tables">
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1239732193381" ID="Freemind_Link_39922698" MODIFIED="1239732214911" TEXT="Contain constant data">
