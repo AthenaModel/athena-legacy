@@ -840,6 +840,10 @@ order define ::sim SIM:RUN {
             Fix the error, and try again.
             Please see the log for details.
         }
+
+        if {[interface] eq "gui"} {
+            [app topwin] tab view slog
+        }
     }
 
     returnOnError

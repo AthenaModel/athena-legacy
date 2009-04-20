@@ -1022,8 +1022,7 @@ snit::widget orderdialog {
         messagebox popup \
             -buttons {ok OK}                                      \
             -icon    info                                         \
-            -parent  [app topwin            $my(field-$parm) set $prev($parm)
-]                                 \
+            -parent  [app topwin $my(field-$parm) set $prev($parm)] \
             -title   "Athena [version]"                           \
             -message "This feature has not yet been implemented."
     }

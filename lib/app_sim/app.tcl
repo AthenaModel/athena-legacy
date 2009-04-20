@@ -317,6 +317,8 @@ proc bgerror {msg} {
     log error app "bgerror: $msg"
     log error app "Stack Trace:\n$bgErrorInfo"
 
+    [app topwin] tab view slog
+
     app error {
         |<--
         An unexpected error has occurred;

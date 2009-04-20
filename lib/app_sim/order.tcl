@@ -747,6 +747,8 @@ snit::type order {
                 log error order "Unexpected error in $name:\n$result"
                 log error order "Stack Trace:\n$einfo"
 
+                [app topwin] tab view slog
+
                 app error {
                     |<--
                     $name
