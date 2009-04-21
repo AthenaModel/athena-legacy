@@ -170,7 +170,25 @@ SELECT n || ' ' || g || ' ' || a     AS id,
        active                        AS active,
        effective                     AS effective,
        stype                         AS stype,
-       driver                        AS driver
+       s                             AS s
 FROM activity_nga
 WHERE nominal > 0
 ORDER BY n,g,a;
+
+
+-- An actsits view for use by the GUI
+CREATE TEMPORARY VIEW gui_actsits AS
+SELECT s                        AS id,
+       s                        AS s,
+       change                   AS change,
+       state                    AS state,
+       driver                   AS driver,
+       stype                    AS stype,
+       n                        AS n,
+       g                        AS g,
+       a                        AS a,
+       format('%6.4f',coverage) AS coverage,
+       tozulu(ts)               AS ts,
+       tozulu(tc)               AS tc
+FROM actsits;
+       

@@ -671,6 +671,7 @@ snit::type sim {
         
         # NEXT, advance models
         nbstat analyze
+        actsit analyze
         aram advance
 
         # NEXT, execute eventq events
@@ -710,10 +711,12 @@ snit::type sim {
                 # FIRST, initialize ARAM, other sim models
                 aram     init -reload
                 nbstat   init
+                actsit analyze
             }
         }
 
         # NEXT, on return to PREP, clear models
+        # TBD: This shouldn't be necessary!
         if {$state eq "PREP"} {
             aram clear
             nbstat clear

@@ -25,6 +25,7 @@ namespace eval ::projectlib:: {
         eorgactivity  \
         eorgconcern   \
         eorgtype      \
+        esitstate     \
         eurbanization \
         eunitshape    \
         eunitsymbol   \
@@ -164,6 +165,13 @@ snit::type ::projectlib::TypeWrapper {
     NGO "Non-Governmental Organization"
     IGO "Intergovernmental Organization"
     CTR "Contractor"
+}
+
+# Situation State
+::marsutil::enum ::projectlib::esitstate {
+    ACTIVE   Active
+    INACTIVE Inactive
+    ENDED    Ended
 }
 
 

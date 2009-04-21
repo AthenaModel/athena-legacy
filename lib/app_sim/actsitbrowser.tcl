@@ -1,14 +1,14 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    activitybrowser.tcl
+#    actsitbrowser.tcl
 #
 # AUTHORS:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    activitybrowser(sim) package: Unit Activity browser.
+#    actsitbrowser(sim) package: Activity Situation browser.
 #
-#    This widget displays a formatted list of activity_nga records.
+#    This widget displays a formatted list of actsits.
 #    It is a variation of browser_base(n).
 #
 #-----------------------------------------------------------------------
@@ -16,7 +16,7 @@
 #-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widgetadaptor activitybrowser {
+snit::widgetadaptor actsitbrowser {
     #-------------------------------------------------------------------
     # Options
 
@@ -35,10 +35,10 @@ snit::widgetadaptor activitybrowser {
         # FIRST, Install the hull
         installhull using browser_base                \
             -tickreload   yes                         \
-            -table        "gui_activity_nga"          \
+            -table        "gui_actsits"               \
             -keycol       "id"                        \
             -keycolnum    0                           \
-            -titlecolumns 4                           \
+            -titlecolumns 1                           \
             -displaycmd   [mymethod DisplayData]
 
         # FIRST, get the options.
@@ -49,26 +49,22 @@ snit::widgetadaptor activitybrowser {
         # we don't want to display it.
 
         $hull insertcolumn end 0 {ID}
-        $hull columnconfigure end -hide yes
+        $hull columnconfigure end -sortmode integer
+        $hull insertcolumn end 0 {Change}
+        $hull insertcolumn end 0 {State}
+        $hull insertcolumn end 0 {Driver}
+        $hull columnconfigure end -sortmode integer
+        $hull insertcolumn end 0 {Type}
         $hull insertcolumn end 0 {Nbhood}
         $hull insertcolumn end 0 {Group}
         $hull insertcolumn end 0 {Activity}
         $hull insertcolumn end 0 {Coverage}
         $hull columnconfigure end -sortmode real
-        $hull insertcolumn end 0 {SecFlag}
-        $hull insertcolumn end 0 {NomPers}
-        $hull columnconfigure end -sortmode integer
-        $hull insertcolumn end 0 {ActPers}
-        $hull columnconfigure end -sortmode integer
-        $hull insertcolumn end 0 {EffPers}
-        $hull columnconfigure end -sortmode integer
-        $hull insertcolumn end 0 {SitType}
-        $hull insertcolumn end 0 {Situation}
-        $hull columnconfigure end -sortmode integer
+        $hull insertcolumn end 0 {Began At}
+        $hull insertcolumn end 0 {Changed At}
 
-
-        # NEXT, sort on column 1 by default
-        $hull sortbycolumn 1 -increasing
+        # NEXT, sort on column 0 by default
+        $hull sortbycolumn 0 -increasing
     }
 
     destructor {
@@ -93,9 +89,8 @@ snit::widgetadaptor activitybrowser {
     method DisplayData {dict} {
         # FIRST, extract each field
         dict with dict {
-            lappend fields $id $n $g $a $coverage $security_flag
-            lappend fields $nominal $active $effective
-            lappend fields $stype $s
+            lappend fields $id $change $state $driver $stype $n $g $a
+            lappend fields $coverage $ts $tc
 
             $hull setdata $id $fields
         }

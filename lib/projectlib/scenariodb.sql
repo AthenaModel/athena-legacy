@@ -514,16 +514,79 @@ CREATE TABLE activity_nga (
     -- Type of activity situation associated with this activity
     stype               TEXT,
 
-    -- Activity Situation ID.  This is the driver ID of the
+    -- Activity Situation ID.  This is the ID of the
     -- Activity Situation associated with this activity, if
     -- any, and 0 otherwise.
-    driver              INTEGER  DEFAULT 0,
+    s                   INTEGER  DEFAULT 0,
 
 
     PRIMARY KEY (n,g,a)
 );
 
 
+------------------------------------------------------------------------
+-- Situations
+--
+-- Base situation data is stored in the situations table; then, 
+-- Derived situation data is stored in the kind-specific table.
+
+-- situations: base situation data
+
+CREATE TABLE situations (
+    -- Situation ID
+    s             INTEGER PRIMARY KEY,
+
+    -- Situation Kind: the singleton command of the situation kind,
+    -- e.g., ::actsit
+    kind      TEXT,
+ 
+    -- Situation Type (the rule set name)
+    stype     TEXT,
+
+    -- GRAM Driver ID
+    driver    INTEGER DEFAULT -1,
+
+    -- Neighborhood
+    n         TEXT,
+
+    -- Coverage: fraction of neighborhood affected.
+    coverage  DOUBLE DEFAULT 1.0,
+
+    -- State: esitstate
+    state     TEXT,
+
+    -- Start Time, in ticks
+    ts        INTEGER,
+
+    -- Change Time, in ticks
+    tc        INTEGER,
+
+    -- Change: nature of last change
+    change    TEXT DEFAULT '',
+
+    -- List of affected groups, or '' for all
+    flist     TEXT DEFAULT '',
+
+    -- Causing Group (may be empty)
+    g         TEXT DEFAULT ''
+);
+
+-- Activity Situations
+CREATE TABLE actsits_t (
+    -- Situation ID
+    s         INTEGER PRIMARY KEY,
+
+    -- Activity
+    a         TEXT
+);
+
+-- Activity Situations View
+CREATE VIEW actsits AS
+SELECT * FROM situations JOIN actsits_t USING (s);
+
+-- Environmental Situations View
+CREATE VIEW envsits AS
+SELECT * FROM situations WHERE kind='::envsit';
 
 
 ------------------------------------------------------------------------

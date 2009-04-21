@@ -77,6 +77,14 @@ An <<xref mars:enum(n)>> type, representing organization group types.<p>
 <<::projectlib::eorgtype html>>
 
 
+<<defitem esitstate {esitstate <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the current state of a
+situation.<p>
+
+<<::projectlib::esitstate html>>
+
+
 <<defitem eurbanization {eurbanization <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing neighborhood urbanization

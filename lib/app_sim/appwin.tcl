@@ -132,6 +132,12 @@ snit::widget appwin {
             script  { activitybrowser %W }
         }
 
+        actsit {
+            label   "ActSits"
+            parent  nbhoodst
+            script  { actsitbrowser %W }
+        }
+
         groupst {
             label   "Groups"
             parent  ""
