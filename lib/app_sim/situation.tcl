@@ -77,9 +77,51 @@ snit::type situation {
         # FIRST, initialize the specific situation types
         actsit init
 
+        # NEXT, register this module as a saveable, so that the
+        # cache is flushed as appropriate.
+        scenario register $type
+
+        # NEXT, prepare to receive simulation events
+        notifier bind ::sim <State> $type [mytypemethod SimState]
+
         # NEXT, the module is up.
         log normal situation "Initialized"
     }
+
+    #-------------------------------------------------------------------
+    # Event Bindings
+
+    # SimState
+    #
+    # Called when the simulation state changes.
+
+    typemethod SimState {} {
+        # FIRST, on transition to "RUNNING" clear all change marks.
+        if {[sim state] eq "RUNNING"} {
+            $type ClearChangeMarks
+        }
+    }
+
+
+    # ClearChangeMarks
+    #
+    # Clears all of the change marks.  This is typically called
+    # on entry to the RUNNING state.
+
+    typemethod ClearChangeMarks {} {
+        rdb eval {SELECT s, kind FROM situations WHERE change != ''} {
+            # NOTE:  The "info exists" is purely defensive programming; 
+            # if the actsit has changed, there should be an object that 
+            # exists.  Perhaps the "if" should be an "assert" instead?
+            if {[info exists cache($s)]} {
+                $cache($s) set change ""
+            }
+            
+            # NEXT, send out the notifier event for the change in data
+            notifier send $kind <Entity> update $s
+        }
+    }
+
 
     #-------------------------------------------------------------------
     # Public Typemethods
@@ -179,30 +221,6 @@ snit::type situation {
 
         return $kind
     }
-
-
-    # clearchanges
-    #
-    # Clears all of the change marks.  This is typically called
-    # on entry to the RUNNING state.
-    #
-    # TBD: Should this just subscribe to the "::sim <State>" event?
-
-    typemethod clearchanges {} {
-        rdb eval {SELECT s, kind FROM situations WHERE change != ''} {
-            # NOTE:  The "info exists" is purely defensive programming; 
-            # if the actsit has changed, there should be an object that 
-            # exists.  Perhaps the "if" should be an "assert" instead?
-            if {[info exists cache($s)]} {
-                $cache($s) set change ""
-            }
-            
-            # NEXT, send out the notifier event for the change in data
-            notifier send $kind <Entity> update $s
-        }
-    }
-    
-
 
     #-------------------------------------------------------------------
     # Private Type Methods
@@ -337,7 +355,7 @@ snit::type situationType {
     # Updates the field's value, in memory and in the RDB.
     
     method set {field value} {
-        # This is either a base or a derived field.  Update the
+        # FIRST, This is either a base or a derived field.  Update the
         # relevant table and array.
         if {[info exists binfo($field)]} {
             rdb eval "

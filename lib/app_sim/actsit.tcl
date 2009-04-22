@@ -90,7 +90,10 @@ snit::type actsit {
                 VALUES($s,$row(a))
             }
 
-            log detail actsit "create $s for $row(n),$row(g),$row(a)"
+            log detail actsit "$s: created for $row(n),$row(g),$row(a)"
+
+            # NEXT, remember that it's new this time around.
+            set new($s) 1
 
             # NEXT, get an actsit object to manipulate the data.  This will
             # create a record in the RDB automatically.
@@ -129,13 +132,23 @@ snit::type actsit {
                    activity_nga.coverage          AS coverage,
                    activity_nga.nominal           AS nominal
             FROM actsits JOIN activity_nga USING (s)
-            WHERE change != 'NEW' AND state != 'ENDED'
+            WHERE state != 'ENDED'
         } {
+            log detail actsit "$s: reviewing"
+
+            # FIRST, If we just created this one, continue.
+            if {[info exists new($s)]} {
+                log detail actsit "$s: brand new, skipping"
+                continue
+            }
+
+            # NEXT, get its object.
             set sit [situation get $s]
 
-            # FIRST, If the coverage hasn't changed we're done.
+            # NEXT, If the coverage hasn't changed we're done.
             if {$coverage == [$sit get coverage]} {
-                return
+                log detail actsit "$s: no change, skipping"
+                continue
             }
 
             # NEXT, save the coverage, and set the state if appropriate.
@@ -143,10 +156,12 @@ snit::type actsit {
 
             if {$coverage > 0} {
                 $sit set state ACTIVE
+                $sit set change UPDATED
             } elseif {$nominal == 0} {
                 # The situation ends when the coverage is 0 and there
                 # are no personnel assigned to the activity.
                 $sit set state ENDED
+                $sit set change ENDED
 
                 rdb eval {
                     UPDATE activity_nga
@@ -154,13 +169,17 @@ snit::type actsit {
                     WHERE s = $s;
                 }
 
-                log normal actsit "end $s"
+                log normal actsit "$s: end"
             } else {
                 $sit set state INACTIVE
+                $sit set change UPDATED
             }
 
             # NEXT, call the monitor rule set.
-            $ actsit_rules monitor $sit
+            # $actsit_rules monitor $sit
+
+            # NEXT, the situation has changed in some way; note the time.
+            $sit set tc [simclock now]
 
             # NEXT, inform all clients about the update
             if {[$sit get state] ne "ENDED"} {

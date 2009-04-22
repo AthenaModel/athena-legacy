@@ -110,6 +110,9 @@ snit::type sim {
             -loadcmd      [mytypemethod LoadAram]
 
         scenario register ::aram
+
+        # NEXT, initialize the situation modules
+        situation init
     }
 
     # LoadAram gram
@@ -702,24 +705,21 @@ snit::type sim {
     # On transition to RUNNING, saves snapshot
 
     typemethod SetState {state} {
+        # FIRST, save the old state, and determine
+        # whether or not this is a state transition.
+        set oldState   $info(state)
+        let transition {$state ne $oldState}
+
         # FIRST, save snapshot if need be, purging any later snapshots.
-        if {$info(state) ne "RUNNING" && $state eq "RUNNING"} {
+        if {$transition && $state eq "RUNNING"} {
             scenario snapshot purge [simclock now]
             scenario snapshot save
 
-            if {$info(state) eq "PREP"} {
+            if {$oldState eq "PREP"} {
                 # FIRST, initialize ARAM, other sim models
                 aram     init -reload
                 nbstat   init
-                actsit analyze
             }
-        }
-
-        # NEXT, on return to PREP, clear models
-        # TBD: This shouldn't be necessary!
-        if {$state eq "PREP"} {
-            aram clear
-            nbstat clear
         }
 
         # NEXT, transition to the new state.
@@ -836,8 +836,8 @@ order define ::sim SIM:RUN {
 
     returnOnError
 
-    # NEXT, do the sanity check
-    if {![sim check -log]} {
+    # NEXT, do the sanity check (if we're in the PREP state)
+    if {[sim state] eq "PREP" && ![sim check -log]} {
         reject * {
             Scenario sanity check failed; time cannot advance.
             Fix the error, and try again.
