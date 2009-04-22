@@ -245,6 +245,28 @@ individual arguments which are aggregated into a single command.<p>
 <b>TBD:</b> As yet, Athena has no executive, and so the commands are
 sent directly to the main interpreter.<p>
 
+<<defitem "ted unit" {ted unit <i>subcommand</i> ?<i>args...</i>?}>>
+
+Commands for easily manipulating units.
+
+<<deflist ted unit>>
+
+<<defitem "ted unit activity" {ted unit activity <i>u</i> ?<i>a</i>?}>>
+
+Sets/queries the unit's activity.<p>
+
+<<defitem "ted unit location" {ted unit location <i>u</i> ?<i>location</i>?}>>
+
+Moves unit <i>u</i> to the specified <i>location</i> (if given), which
+may be a neighborhood name or a map reference.  Returns the unit's
+location.<p>
+
+<<defitem "ted unit personnel" {ted unit personnel <i>u</i> ?<i>personnel</i>?}>>
+
+Sets/queries the unit's personnel.<p>
+
+<</deflist ted unit>>
+
 <</deflist ted>>
 <</deflist test_commands>>
 

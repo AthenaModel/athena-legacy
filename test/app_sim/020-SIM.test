@@ -115,7 +115,21 @@ namespace eval ::athena_test::tests:: {
     }
 
     
-    test RUN-1.3 {sanity check fails} -body {
+    test RUN-1.3 {invalid block} -body {
+        ted order -reject SIM:RUN days 1 block NONESUCH
+    } -result {
+        block {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+    
+    test RUN-1.4 {block, but no stop time} -body {
+        ted order -reject SIM:RUN block YES
+    } -result {
+        block {Cannot block without specifying the days to run}
+    }
+
+
+    test RUN-1.5 {sanity check fails} -body {
         ted order -reject SIM:RUN
     } -result {
         * {Scenario sanity check failed; time cannot advance. Fix the error, and try again. Please see the log for details.}

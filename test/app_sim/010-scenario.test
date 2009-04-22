@@ -52,6 +52,7 @@ namespace eval ::athena_test::tests:: {
         ted notifier bind ::scenario <Reconcile>
 
         ted create BLUE USAID NB1 SHIA NB1SHIA BLUE1
+        ted unit location BLUE1 NB1
 
         scenario mutate reconcile
 
@@ -65,6 +66,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
         {::nbgroup <Entity> create {NB1 SHIA}}
         {::unit <Entity> create BLUE1}
+        {::unit <Entity> update BLUE1}
         {::nbrel <Entity> create {NB1 NB1}}
         {::sat <Entity> create {NB1 SHIA AUT}}
         {::sat <Entity> create {NB1 SHIA CUL}}

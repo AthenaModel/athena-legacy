@@ -1,0 +1,161 @@
+<<manpage situation(sim) "Shared Situation Code">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+A situation is an on-going set of circumstances in a neighborhood that
+affects the attitudes of the local civilians.  Athena has two kinds of
+situation at present, activity situations and environmental
+situations.  This module contains the code shared between them.<p>
+
+situation(sim) uses the Database-backed Object pattern.<p>
+
+<<subsection "Situation States">>
+
+A situation can be in one of three states:<p>
+
+<ul>
+  <li> <b>ACTIVE</b>: The situation is actively affecting the local
+       civilians; it has a coverage greater than 0.<p>
+
+  <li> <b>INACTIVE</b>: The situation still exists, but is quiescent:
+       the coverage is 0.  This might occur if a group is performing an
+       activity, and their security worses to the extent that they can
+       no longer perform it.  If the coverage increases, the situation
+       will become <b>ACTIVE</b> again.<p>
+
+  <li> <b>ENDED</b>: The situation has been terminated; it is no
+       longer "live".<p>
+</ul>
+
+<<section "COMMANDS">>
+
+situation(sim) provides the following commands for use by the application.<p>
+
+<<deflist commands>>
+
+<<defitem "situation init" {situation init}>>
+
+Initializes the module.  This should be called once, at application
+start-up.  It initializes both this module and the situation modules
+which depend upon it.<p>
+
+<<defitem "situation create" {situation create <i>kind column value...</i>}>>
+
+This command is for use by <<xref actsit(sim)>> and <<xref envsit(sim)>>.
+It adds a new situation to the <b>situations</b> table in the RDB,
+automatically filling in the initial state, change mark, start time,
+and change time parameters.  It returns the situation ID of the new
+situation.<p>
+
+<<defitem "situation get" {situation get <i>s</i> ?-all | -live?}>>
+
+Given the ID, <i>s</i>, of some situation, returns a situation
+object command of the appropriate type.  This command can be used to
+query and manipulate the situation; however, it should never be cached
+for later use.  A routine should always use this command to acquire
+the situation object; it may then be passed to other commands so long
+as it isn't saved for later.<p>
+
+The command throws an error if there is no situation with ID <i>s</i>.
+If the <code>-live</code> option is included, the command will throw
+an error if there is no "live" situation with ID <i>s</i>.  A
+situation is "live" if it isn't in the <b>ENDED</b> state.<p>
+
+See <<xref "SITUATION OBJECTS">>, below, for the methods made
+available by situation objects.<p>
+
+<<defitem "situation kind" {situation kind <i>s</i> ?-all | -live?}>>
+
+Given a situation, <i>s</i>, this command determines what kind of
+situation it is, e.g., an activity situation or an environmental
+situation.  The return value is the fully-qualified command name of
+the kind's singleton, e.g., <b>::actsit</b> or <b>::envsit</b>.<p>
+
+If no situation <i>s</i> exists, returns the empty string.  If
+<code>-live</code> is passed, returns the empty string if no "live"
+situation <i>s</i> exists.<p>
+
+<</deflist commands>>
+
+<<section "SITUATION OBJECTS">>
+
+situation(sim) defines the base type <b>situationType</b>, which is
+used as a component by the <<xref actsit(sim)>> and
+<<xref envsit(sim)>> object types.  This section details the methods
+defined by <b>situationType</b>; the activity and environmental
+situation objects will usually provide all of these, possibly tweaking
+their behavior slightly.<p>
+
+<<deflist object>>
+
+<<defitem id {<i>object</i> id}>>
+
+Returns the situation's ID.  Note that this is the same as retrieving
+the value of the situation's <b>s</b> field.<p>
+
+<<defitem kind {<i>object</i> kind}>>
+
+Returns the "kind" of situation, i.e., <b>::actsit</b> or <b>::envsit</b>.<p>
+
+<<defitem oneliner {<i>object</i> oneliner}>>
+
+Returns a one-line description of the situation.<p>
+
+<<defitem islive {<i>object</i> islive}>>
+
+Returns 1 if the situation is "live" and 0 otherwise.<p>
+
+<<defitem set {<i>object</i> set <i>field value</i>}>>
+
+Sets the <i>value</i> of the named <i>field</i>; the new value is
+cached in memory and written to the relevant RDB table.<p>
+
+<<defitem dict {<i>object</i> dict}>>
+
+Returns a dictionary of the situation's field values.<p>
+
+<<defitem get {<i>object</i> get <i>field</i>}>>
+
+Retrieves the value of the specific <i>field</i>.<p>
+
+<</deflist>>
+
+<<section "NOTIFIER EVENTS">>
+
+<<deflist events>>
+
+<<defitem Entity {&lt;Entity&gt; s operation}>>
+
+situation(sim) sends the <b>&lt;Entity&gt</b> event for situation
+<i>s</i> with operation <i>update</i> when clearing change marks.  It
+is sent on behalf of <b>::actsit</b> or <b>::envsit</b>, as though it
+were sent by one of those modules.<p>
+
+<</deflist events>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

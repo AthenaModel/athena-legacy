@@ -82,9 +82,11 @@ snit::type sim {
         scenario register $type
 
         # NEXT, set the simulation state
-        set info(state)   PREP
+        set info(state)    PREP
+        set info(changed)  0
+        set info(stoptime) 0
+
         order state $info(state)
-        set info(changed) 0
 
         # NEXT, configure the simclock.
         # TBD: The tick size and the start date should be parmdb parms.
@@ -582,20 +584,25 @@ snit::type sim {
     #
     # -ticks ticks       Run until now + ticks
     # -until tick        Run until tick
+    # -block flag        If true, block until run completed.
     #
     # Causes the simulation to run time forward until the specified
     # time, or until "mutate pause" is called.
     #
-    # Time proceeds by ticks; each tick is run in the context of the 
-    # Tcl event loop, as controlled by a timeout(n) object called
-    # "ticker".  The timeout interval is called the inter-tick delay;
-    # it determines how fast the simulation runs.
+    # Time proceeds by ticks.  Normally, each tick is run in the 
+    # context of the Tcl event loop, as controlled by a timeout(n) 
+    # object called "ticker".  The timeout interval is called the 
+    # inter-tick delay; it determines how fast the simulation runs.
+    # If -block is specified, then this routine runs time forward
+    # until the stoptime, and then returns.  Thus, -block requires
+    # -ticks or -until.
 
     typemethod {mutate run} {args} {
         assert {$info(state) ne "RUNNING"}
 
         # FIRST, get the pause time
         set info(stoptime) 0
+        set blocking 0
 
         while {[llength $args] > 0} {
             set opt [lshift args]
@@ -611,6 +618,10 @@ snit::type sim {
                     set info(stoptime) [lshift args]
                 }
 
+                -block {
+                    set blocking [lshift args]
+                }
+
                 default {
                     error "Unknown option: \"$opt\""
                 }
@@ -620,13 +631,22 @@ snit::type sim {
         # The SIM:RUN order should have guaranteed this, but let's
         # check it to make sure.
         assert {$info(stoptime) == 0 || $info(stoptime) > [simclock now]}
+        assert {!$blocking || $info(stoptime) != 0}
 
         # NEXT, set the state to running.  This will initialize the
         # models, if need be.
         $type SetState RUNNING
 
-        # NEXT, schedule the next tick.
-        $ticker schedule
+        # NEXT, Either schedule the next tick, or run until the stop time.
+        if {!$blocking} {
+            $ticker schedule
+        } else {
+            while {$info(state) eq "RUNNING"} {
+                $type Tick
+            }
+
+            set info(stoptime) 0
+        }
 
         # NEXT, return "", as this can't be undone.
         return ""
@@ -643,6 +663,7 @@ snit::type sim {
         # NEXT, set the state to paused, if we're running
         if {$info(state) eq "RUNNING"} {
             if {[simclock now] > 0} {
+                set info(stoptime) 0
                 $type SetState PAUSED
             } else {
                 $type SetState PREP
@@ -827,14 +848,29 @@ order define ::sim SIM:RUN {
     title "Run Simulation"
     options -sendstates {PREP PAUSED}
 
-    parm days text "Days to Run"
+    parm days  text "Days to Run"
+    parm block enum "Block?"         -type eyesno -defval NO
 
     # TBD Need to indicate valid states
 } {
     # FIRST, prepare the parameters
-    prepare days -toupper -type idays
+    prepare days  -toupper -type idays
+    prepare block -toupper -type boolean
 
     returnOnError
+
+    # NEXT, if block is yes, then days must be greater than 0
+    validate block {
+        if {$parms(block) && ($parms(days) eq "" || $parms(days) == 0)} {
+            reject block "Cannot block without specifying the days to run"
+        }
+    }
+
+    returnOnError
+
+    if {$parms(block) eq ""} {
+        set parms(block) 0
+    }
 
     # NEXT, do the sanity check (if we're in the PREP state)
     if {[sim state] eq "PREP" && ![sim check -log]} {
@@ -856,7 +892,9 @@ order define ::sim SIM:RUN {
     if {$parms(days) eq "" || $parms(days) == 0} {
         lappend undo [$type mutate run]
     } else {
-        lappend undo [$type mutate run -ticks [simclock fromDays $parms(days)]]
+        set ticks [simclock fromDays $parms(days)]
+
+        lappend undo [$type mutate run -ticks $ticks -block $parms(block)]
     }
 
     setundo [join $undo \n]
@@ -879,10 +917,3 @@ order define ::sim SIM:PAUSE {
 
     setundo [join $undo \n]
 }
-
-
-
-
-
-
-

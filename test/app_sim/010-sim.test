@@ -247,6 +247,15 @@ namespace eval ::athena_test::tests:: {
     } -result {}
 
 
+    test mutate_runpause-2.4 {Runs for some number of ticks} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
+        sim mutate run -ticks 5 -block yes
+        list [simclock now] [sim state]
+    } -cleanup {
+        cleanup
+    } -result {5 PAUSED}
+
     #-------------------------------------------------------------------
     # now
 

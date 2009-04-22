@@ -254,7 +254,15 @@ snit::type ted {
             g         BLUE
             u         BLUE1
             personnel 15
-            location  {99 99}
+            location  {0 0}
+            a         NONE
+        }
+
+        defentity BLUE2 ::unit {
+            g         BLUE
+            u         BLUE2
+            personnel 15
+            location  {0 0}
             a         NONE
         }
     }
@@ -326,6 +334,14 @@ snit::type ted {
     
     typemethod cleanup {} {
         ted notifier forget
+
+        if {[sim state] eq "RUNNING"} {
+            sim mutate pause
+        }
+
+        if {[sim state] eq "PAUSED"} {
+            sim restart
+        }
 
         foreach table $cleanupTables {
             rdb eval "DELETE FROM $table;" 
@@ -458,6 +474,66 @@ snit::type ted {
 
     typemethod query {sql} {
         return "\n[rdb query $sql]    "
+    }
+
+    #-------------------------------------------------------------------
+    # Unit Routines
+
+    # unit location u ?location?
+    #
+    # u     The unit ID
+    # loc   A neighborhood id, a mapref
+    #
+    # Sets/queries the unit's location. 
+    # Moves the unit to the neighborhood's refpoint, or to the
+    # mapref.
+
+    typemethod {unit location} {u {location ""}} {
+        # FIRST, get the location
+        if {$location ne ""} {
+            if {$location in [nbhood names]} {
+                set location [rdb onecolumn {
+                    SELECT refpoint FROM gui_nbhoods WHERE n=$location
+                }]
+            }
+
+            # NEXT, move the unit.
+            ted order UNIT:UPDATE u $u location $location
+        }
+
+        rdb onecolumn {SELECT location FROM gui_units WHERE u=$u}
+    }
+
+
+    # unit activity u ?a?
+    #
+    # u     The unit ID
+    # a     The activity
+    #
+    # Sets/queries the unit's activity
+
+    typemethod {unit activity} {u {a ""}} {
+        if {$a ne ""} {
+            ted order UNIT:UPDATE u $u a $a
+        }
+
+        rdb onecolumn {SELECT a FROM gui_units WHERE u=$u}
+    }
+
+
+    # unit personnel u ?num?
+    #
+    # u     The unit ID
+    # num   Some number of personnel
+    #
+    # Sets/queries the unit's personnel
+
+    typemethod {unit personnel} {u {num ""}} {
+        if {$num ne ""} {
+            ted order UNIT:UPDATE u $u personnel $num
+        }
+
+        rdb onecolumn {SELECT personnel FROM gui_units WHERE u=$u}
     }
 
     #-------------------------------------------------------------------

@@ -1,0 +1,113 @@
+<<manpage actsit(sim) "Activity Situation Manager">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+An activity situation arises when units belonging to a group are
+present in a number, possibly carrying out some particular activity.
+This module contains the code that detects activity situations (and
+changes to them) and calls the Driver Assessment Model's rule sets.
+It relies on <<xref situation(sim)>> for much of its functionality.<p>
+
+<<subsection "Situation States">>
+
+An activity situation can be in one of three states:<p>
+
+<ul>
+  <li> <b>ACTIVE</b>: The situation is actively affecting the local
+       civilians; it has a coverage greater than 0.<p>
+
+  <li> <b>INACTIVE</b>: The situation still exists, but is quiescent:
+       the coverage is 0.  This might occur if a group is performing an
+       activity, and their security worses to the extent that they can
+       no longer perform it.  If the coverage increases, the situation
+       will become <b>ACTIVE</b> again.<p>
+
+  <li> <b>ENDED</b>: The situation has been terminated; it is no
+       longer "live".  This occurs when no personnel are even trying
+       to perform the activity, i.e., when the relevant units have
+       left the neighborhood.<p>
+</ul>
+
+<<section "COMMANDS">>
+
+actsit(sim) provides the following commands for use by the application.<p>
+
+<<deflist commands>>
+
+<<defitem "actsit init" {actsit init}>>
+
+Initializes the module.  This should be called once, by
+<<xref situation(sim)>>, at application
+start-up.<p>
+
+<<defitem "actsit table" {actsit table}>>
+
+Data common to all kinds of situations is stored in the
+<b>situations</b> table.  Data common to the specific kind of
+situation is stored in a kind-specific table.  This command returns
+the name of the activity-situation specific table.<p>
+
+This command is for the use of <<xref situation(sim)>>.<p>
+
+<<defitem "actsit get" {actsit get <i>s</i> ?-all | -live?}>>
+
+This command is identical to <<xref situation(sim)>>'s
+<<xref situation(sim) get>> method, except that it requires that
+<i>s</i> be an activity situation.  It returns a situation object to
+be used to manipulate the situation.<p>
+
+See <<xref "SITUATION OBJECTS">>, below, for the methods made
+available by situation objects.<p>
+
+<<defitem "actsit analyze" {actsit analyze}>>
+
+This command is to be called once per tick, after security and
+activity coverage have been computed.  It creates, updates, and
+terminates activity situations as needed, calling the relevant DAM
+rule sets.<p>
+
+<</deflist commands>>
+
+<<section "SITUATION OBJECTS">>
+
+The actsit(sim) situation object is derived from the
+<<xref situation(sim)>> situation object.  At present, it offers no
+new commands.<p>
+
+<<section "NOTIFIER EVENTS">>
+
+<<deflist events>>
+
+<<defitem Entity {&lt;Entity&gt; s operation}>>
+
+actsit(sim) sends this event when situation <i>s</i> changes in some
+way.  The <i>operation</i> is <b>create</b>, <b>update</b> or <b>end</b>.<p>
+
+<</deflist events>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

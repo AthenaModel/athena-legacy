@@ -122,7 +122,7 @@ snit::type actsit {
             # NEXT, inform all clients about the new object.
             # Always do this after running the rules,
             # because the object will be changed if a rule fired.
-            notifier send $type <Entity> update $s
+            notifier send $type <Entity> create $s
         }
 
         # NEXT, call the relevant rule sets for all pre-existing
@@ -203,7 +203,7 @@ snit::type actsit {
     typemethod get {s {opt -all}} {
         set sit [situation get $s $opt]
 
-        if {[$sit kind] ne $type} {
+        if {$sit ne "" && [$sit kind] ne $type} {
             error "no such situation: \"$s\""
         }
 
@@ -255,18 +255,9 @@ snit::type actsitType {
     
 
     method oneliner {} {
-        return "$binfo(g) $binfo(stype) in $binfo(n) currently $binfo(state))"
+        return "$binfo(g) $binfo(stype) in $binfo(n) (currently $binfo(state))"
     }
 }
-
-
-
-
-
-
-
-
-
 
 
 

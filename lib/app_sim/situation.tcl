@@ -177,7 +177,9 @@ snit::type situation {
     typemethod get {s {opt -all}} {
         # FIRST, If we have an object, return it.
         if {[info exists cache($s)]} {
-            return $cache($s)
+            if {$opt eq "-all" || [$cache($s) get state] ne "ENDED"} {
+                return $cache($s)
+            }
         }
 
         # NEXT, We don't have an object; create and return it.
@@ -264,6 +266,14 @@ snit::type situation {
 
     typemethod restore {checkpoint {flag ""}} {
         $type FlushCache
+    }
+
+    # changed
+    #
+    # Indicates that the nothing needs to be saved.
+
+    typemethod changed {} {
+        return 0
     }
 }
 
