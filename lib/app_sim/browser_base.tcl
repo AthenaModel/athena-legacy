@@ -22,6 +22,7 @@ snit::widget browser_base {
 
     component tb          ;# tablebrowser(n) used to browse groups
     component bar         ;# Tool bar
+    component reloader    ;# timeout(n) to reload entities
 
     #-------------------------------------------------------------------
     # Options
@@ -77,6 +78,12 @@ snit::widget browser_base {
 
         # NEXT, prepare to get tablelist events
         bind $tb <<TablebrowserSelect>> [mymethod SelectionChanged]
+
+        # NEXT, create the reloader timeout
+        install reloader using timeout ${selfns}::reloader \
+            -command    [mymethod reload]                  \
+            -interval   1                                  \
+            -repetition no
 
         # NEXT, Reconfigure the whole window when:
         #
@@ -142,11 +149,17 @@ snit::widget browser_base {
     #
     # id      The ID of a new entity
     #
-    # A new entity has been created.  
-    # For now, just reload the whole shebang.
+    # A new entity has been created. For now, just reload the whole 
+    # shebang.  Sometimes this happens many times in sequence, so 
+    # schedule the reload to happen shortly.
     
     method create {id} {
-        $tb reload
+        # FIRST, if the window isn't mapped we can ignore this.
+        if {![winfo ismapped $win]} {
+            return
+        }
+
+        $reloader schedule
     }
 
     # update id
