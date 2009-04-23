@@ -305,6 +305,26 @@ snit::type app {
 #-----------------------------------------------------------------------
 # Miscellaneous Application Utilities
 
+# profile command ?args...?
+#
+# command    A command
+# args       Arguments to the command
+#
+# Calls the command once using [time], in the caller's context,
+# and logs the outcome, returning the command's return value.
+# In other words, you can stick "profile" before any command name
+# and profile that call without changing code or adding new routines.
+
+proc profile {args} {
+    set msec [lindex [time {
+        set result [uplevel 1 $args]
+    } 1] 0]
+    log normal app "profile [list $args] $msec"
+
+    return $result
+}
+
+
 # bgerror msg
 #
 # Logs background errors; the errorInfo is stored in ::bgErrorInfo

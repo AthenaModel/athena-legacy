@@ -82,6 +82,18 @@ will usually be the active window.<p>
 
 Outputs a brief usage string to stdout.<p>
 
+<<defitem "bgerror" {bgerror <i>msg</i>}>>
+
+Background error handler; logs errors to the debugging log.<p>
+
+<<defitem "profile" {profile <i>command</i> ?<i>args..</i>?}>>
+
+Executes the <i>command</i> with its arguments, logs the command
+with its execution time in microseconds to the debugging log and
+returns the <i>command</i>'s return value.  Thus, you can insert
+"profile" at the beginning of any command to profile that command in
+context.<p>
+
 <</deflist commands>>
 
 <<section "NOTIFIER EVENTS">>
