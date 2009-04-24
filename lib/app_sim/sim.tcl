@@ -637,9 +637,25 @@ snit::type sim {
         # models, if need be.
         $type SetState RUNNING
 
-        # NEXT, Either schedule the next tick, or run until the stop time.
+        # NEXT, Either execute the first tick and schedule the next,
+        # or run in blocking mode until the stop time.
         if {!$blocking} {
-            $ticker schedule
+            # FIRST, run a tick immediately.  This has two effects:
+            # 
+            # * Single-stepping is quick no matter what the sim speed
+            #   is.
+            #
+            # * The user is never PAUSED in time 0; this prevents
+            #   Athena from overwriting a PREP tick 0 snapshot with
+            #   a PAUSED tick 0 snapshot.
+
+            $type Tick
+
+            # NEXT, if we didn't pause as a result of the first
+            # tick, schedule the next one.
+            if {$info(state) eq "RUNNING"} {
+                $ticker schedule
+            }
         } else {
             while {$info(state) eq "RUNNING"} {
                 $type Tick

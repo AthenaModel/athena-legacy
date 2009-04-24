@@ -311,7 +311,7 @@ namespace eval ::athena_test::tests:: {
         set times
     } -cleanup {
         cleanup
-    } -result {0 0 5 10}
+    } -result {0 0 6 10}
 
 
 
