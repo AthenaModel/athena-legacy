@@ -33,7 +33,7 @@
 #    The ::actsit module sends the following notifier(n) events:
 #
 #    <Entity> op s
-#        When called, the op will be one of 'update' or 'end',
+#        When called, the op will be one of 'create', 'update' or 'delete',
 #        and s will be the ID of the situation.
 #
 #-----------------------------------------------------------------------
@@ -78,7 +78,7 @@ snit::type actsit {
             WHERE s = 0
             AND   coverage > 0.0
         } row {
-            # FIRST, Create the activity
+            # FIRST, Create the situation
             set s [situation create $type       \
                        stype    $row(stype)     \
                        n        $row(n)         \
@@ -100,11 +100,10 @@ snit::type actsit {
             set sit [situation get $s]
 
             # NEXT, create a GRAM driver for this situation
-            # TBD: Consider doing this in [situation create]
             $sit set driver [aram driver add \
-                               -dtype    $row(stype) \
-                               -name     "Sit $s"    \
-                               -oneliner "$row(g) $row(stype) in $row(n)"]
+                                 -dtype    $row(stype) \
+                                 -name     "Sit $s"    \
+                                 -oneliner [$sit oneliner]]
 
             # NEXT, link it to the activity_nga object.
             rdb eval {
@@ -182,11 +181,7 @@ snit::type actsit {
             $sit set tc [simclock now]
 
             # NEXT, inform all clients about the update
-            if {[$sit get state] ne "ENDED"} {
-                notifier send $type <Entity> update $s
-            } else {
-                notifier send $type <Entity> end $s
-            }
+            notifier send $type <Entity> update $s
         }
     }
 
@@ -204,7 +199,7 @@ snit::type actsit {
         set sit [situation get $s $opt]
 
         if {$sit ne "" && [$sit kind] ne $type} {
-            error "no such situation: \"$s\""
+            error "no such activity situation: \"$s\""
         }
 
         return $sit
@@ -253,9 +248,8 @@ snit::type actsitType {
     # Returns a one-line description of the situation
     # NOTE: Overrides base method
     
-
     method oneliner {} {
-        return "$binfo(g) $binfo(stype) in $binfo(n) (currently $binfo(state))"
+        return "$binfo(g) $binfo(stype) in $binfo(n)"
     }
 }
 

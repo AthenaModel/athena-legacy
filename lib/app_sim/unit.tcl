@@ -122,7 +122,6 @@ snit::type unit {
     #
     # Deletes units for which the owning group no longer exists.
     # Clears the "n" field for neighborhoods that no longer exist.
-    # civilian group no longer exists.
 
     typemethod {mutate reconcile} {} {
         # FIRST, delete units for which no group exists.

@@ -89,7 +89,7 @@ new commands.<p>
 <<defitem Entity {&lt;Entity&gt; s operation}>>
 
 actsit(sim) sends this event when situation <i>s</i> changes in some
-way.  The <i>operation</i> is <b>create</b>, <b>update</b> or <b>end</b>.<p>
+way.  The <i>operation</i> is <b>create</b> or <b>update</b>.<p>
 
 <</deflist events>>
 

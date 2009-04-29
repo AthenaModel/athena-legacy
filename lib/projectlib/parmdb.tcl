@@ -300,6 +300,49 @@ snit::type ::projectlib::parmdb {
         $ps setdefault activity.ORG.CMO_OTHER.minSecurity.CTR          M
         $ps setdefault activity.ORG.CMO_OTHER.coverage                 {20 1000}
 
+        # envsit.* parameters
+        $ps subset envsit {
+            Environmental situation parameters, by envsit type.
+        }
+
+        foreach name [eenvsit names] {
+            $ps subset envsit.$name "
+                Parameters for environmental situation type 
+                [eenvsit longname $name].
+            "
+            $ps define envsit.$name.spawnTime ::projectlib::ioptdays -1 {
+                How long until the envsit spawns other envsits, in days.  If
+                -1, the envsit never spawns.
+            }
+
+            $ps define envsit.$name.spawns ::projectlib::leenvsit {} {
+                List of envsit types spawned by this envsit type.
+            }
+        }
+
+        # Tweak the specifics
+        $ps setdefault envsit.BADFOOD.spawns                DISEASE
+        $ps setdefault envsit.BADFOOD.spawnTime             2
+
+        $ps setdefault envsit.BADWATER.spawns               DISEASE
+        $ps setdefault envsit.BADWATER.spawnTime            1
+
+        $ps setdefault envsit.BIO.spawns                    EPIDEMIC
+        $ps setdefault envsit.BIO.spawnTime                 4
+
+        $ps setdefault envsit.CHEM.spawns                   DISEASE
+        $ps setdefault envsit.CHEM.spawnTime                1
+
+        $ps setdefault envsit.INDSPILL.spawns               DISEASE
+        $ps setdefault envsit.INDSPILL.spawnTime            2
+
+        $ps setdefault envsit.NOWATER.spawns                DISEASE
+        $ps setdefault envsit.NOWATER.spawnTime             4
+
+        $ps setdefault envsit.SEWAGE.spawns                 DISEASE
+        $ps setdefault envsit.SEWAGE.spawnTime              2
+
+
         # NEXT, Force/Volatility/Security Parameters
         $ps subset force {
             Parameters which affect the neighborhood force analysis models.

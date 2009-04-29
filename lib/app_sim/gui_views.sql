@@ -192,3 +192,21 @@ SELECT s                        AS id,
        tozulu(tc)               AS tc
 FROM actsits;
        
+
+-- An envsits view for use by the GUI
+CREATE TEMPORARY VIEW gui_envsits AS
+SELECT s                        AS id,
+       s                        AS s,
+       change                   AS change,
+       state                    AS state,
+       driver                   AS driver,
+       stype                    AS stype,
+       n                        AS n,
+       g                        AS g,
+       format('%6.4f',coverage) AS coverage,
+       tozulu(ts)               AS ts,
+       tozulu(tc)               AS tc,
+       m2ref(location)          AS location,
+       flist                    AS flist,
+       resolver                 AS resolver
+ FROM envsits;

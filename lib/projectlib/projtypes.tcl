@@ -20,6 +20,8 @@ namespace eval ::projectlib:: {
         ecivconcern   \
         econcern      \
         edemeanor     \
+        eenvsit       \
+        leenvsit      \
         eforcetype    \
         efrcactivity  \
         eorgactivity  \
@@ -34,7 +36,9 @@ namespace eval ::projectlib:: {
         idays         \
         ident         \
         ingpopulation \
+        ioptdays      \
         iquantity     \
+        leenvsit      \
         polygon       \
         qsecurity     \
         rdays         \
@@ -188,6 +192,35 @@ snit::type ::projectlib::TypeWrapper {
     NO     "No"
 }
 
+# The name is the rule set name, e.g., SEWAGE, and the 
+# long name is the full name of the rule set.
+::marsutil::enum ::projectlib::eenvsit {
+    BADFOOD     "CONTAMINATED.FOOD.SUPPLY"
+    BADWATER    "CONTAMINATED.WATER.SUPPLY"
+    BIO         "BIOLOGICAL.HAZARD"
+    CHEM        "CHEMICAL.HAZARD"
+    COMMOUT     "COMMUNICATIONS.OUTAGE"
+    DISASTER    "DISASTER"
+    DISEASE     "DISEASE"
+    EPIDEMIC    "EPIDEMIC"
+    FOODSHRT    "FOOD.SHORTAGE"
+    FUELSHRT    "FUEL.SHORTAGE"
+    GARBAGE     "GARBAGE.IN.THE.STREETS"
+    INDSPILL    "INDUSTRIAL.SPILL"
+    MOSQUE      "DAMAGE.TO.MOSQUE"
+    NOWATER     "NO.WATER"
+    ORDNANCE    "UNEXPLODED.ORDNANCE"
+    PIPELINE    "OIL.PIPELINE.FIRE"
+    POWEROUT    "POWER.OUTAGE"
+    REFINERY    "OIL.REFINERY.FIRE"
+    SEWAGE      "SEWAGE.SPILL"
+}
+
+# List of eenvsit values
+::projectlib::TypeWrapper ::projectlib::leenvsit \
+    snit::listtype -type ::projectlib::eenvsit 
+
+
 #-------------------------------------------------------------------
 # Qualities
 
@@ -215,6 +248,9 @@ snit::type ::projectlib::TypeWrapper {
 
 # idays: non-negative days
 ::projectlib::TypeWrapper ::projectlib::idays snit::integer -min 0
+
+# ioptdays: days with -1 as sentinal
+::projectlib::TypeWrapper ::projectlib::ioptdays snit::integer -min -1
 
 
 #-------------------------------------------------------------------

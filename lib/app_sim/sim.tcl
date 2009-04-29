@@ -115,6 +115,8 @@ snit::type sim {
 
         # NEXT, initialize the situation modules
         situation init
+
+        log normal sim "Initialized"
     }
 
     # LoadAram gram
@@ -699,7 +701,10 @@ snit::type sim {
     # This command is executed at each time tick.
     #
     # TBD: The precise sequence of events during a Tick has yet
-    # to be determined.
+    # to be fully determined.  At present, though, we are presuming
+    # that scheduled events are executed at the *beginning* of the
+    # tick.  Models that require proper sequencing relative to
+    # other models during the tick are called subsequently.
 
     typemethod Tick {} {
         # FIRST, advance time one tick.
@@ -709,13 +714,14 @@ snit::type sim {
         log normal sim "Tick [simclock now]"
         set info(changed) 1
         
+        # NEXT, execute eventq events
+        eventq advance [simclock now]
+
         # NEXT, advance models
+        envsit assess
         nbstat analyze
         actsit analyze
         aram advance
-
-        # NEXT, execute eventq events
-        eventq advance [simclock now]
 
         # NEXT, check Reactive Decision Conditions (RDCs)
 

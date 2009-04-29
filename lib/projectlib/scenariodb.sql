@@ -584,9 +584,34 @@ CREATE TABLE actsits_t (
 CREATE VIEW actsits AS
 SELECT * FROM situations JOIN actsits_t USING (s);
 
+-- Environmental Situations
+CREATE TABLE envsits_t (
+    -- Situation ID
+    s          INTEGER PRIMARY KEY,
+
+    -- Location, in map coordinates
+    location   TEXT,
+
+    --------------------------------------------------------------------
+    -- The following columns are set when the GRAM implications of the
+    -- situation need to be assessed at the next time tick.
+
+    -- 1 if assessment is needed, and 0 otherwise.
+    assess     INTEGER,
+
+    -- Flag: 1 if this is a new situation, and inception effects should 
+    -- be assessed; 0 otherwise.  (This will be set to 0 for situations
+    -- that are on-going at time 0.)
+    inception  INTEGER,
+
+    -- Resolving group (may be empty): name of the group that resolved
+    -- the situation, if any.  This will only be set in the ENDED state.
+    resolver   TEXT DEFAULT ''
+);
+
 -- Environmental Situations View
 CREATE VIEW envsits AS
-SELECT * FROM situations WHERE kind='::envsit';
+SELECT * FROM situations JOIN envsits_t USING (s);
 
 
 ------------------------------------------------------------------------
@@ -599,7 +624,11 @@ SELECT * FROM situations WHERE kind='::envsit';
 CREATE VIEW entities AS
 SELECT 'PLAYBOX'  AS id, 
        'Playbox'  AS longname, 
-       'pseudo'   AS etype
+       'reserved' AS etype
+UNION
+SELECT 'ALL'      AS id, 
+       'All'      AS longname, 
+       'reserved' AS etype
 UNION
 SELECT a          AS id, 
        longname   AS longname, 

@@ -393,7 +393,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
     prepare color     -tolower            -type   hexcolor
     prepare shape     -toupper            -type   eunitshape
     prepare forcetype -toupper            -type   eforcetype
-    prepare demeanor  -toupper            -type edemeanor
+    prepare demeanor  -toupper            -type   edemeanor
     prepare local     -toupper            -type   boolean
     prepare coalition -toupper            -type   boolean
 

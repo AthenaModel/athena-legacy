@@ -138,6 +138,12 @@ snit::widget appwin {
             script  { actsitbrowser %W }
         }
 
+        envsit {
+            label   "EnvSits"
+            parent  nbhoodst
+            script  { envsitbrowser %W }
+        }
+
         groupst {
             label   "Groups"
             parent  ""
@@ -463,6 +469,13 @@ snit::widget appwin {
         $self AddOrder $submenu UNIT:CREATE
         $self AddOrder $submenu UNIT:UPDATE
         $self AddOrder $submenu UNIT:DELETE
+
+        # Orders/Situation
+        set submenu [menu $ordersmenu.sit]
+        $ordersmenu add cascade -label "Situation" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu SITUATION:ENVIRONMENTAL:CREATE
 
         # Orders/Civilian Group
         set submenu [menu $ordersmenu.civgroup]

@@ -76,6 +76,7 @@ snit::type situation {
     typemethod init {} {
         # FIRST, initialize the specific situation types
         actsit init
+        envsit init
 
         # NEXT, register this module as a saveable, so that the
         # cache is flushed as appropriate.
@@ -224,6 +225,19 @@ snit::type situation {
         return $kind
     }
 
+    # uncache s
+    #
+    # s     The situation ID
+    #
+    # Removes s from the object cache.
+
+    typemethod uncache {s} {
+        if {[info exists cache($s)]} {
+            $cache($s) destroy
+            unset cache($s)
+        }
+    }
+
     #-------------------------------------------------------------------
     # Private Type Methods
 
@@ -344,7 +358,7 @@ snit::type situationType {
     # Returns a one-line description of the situation
 
     method oneliner {} {
-        return "$binfo(stype) in $binfo(n) (currently $binfo(state))"
+        return "$binfo(stype) in $binfo(n)"
     }
 
 
