@@ -176,7 +176,7 @@ WHERE nominal > 0
 ORDER BY n,g,a;
 
 
--- An actsits view for use by the GUI
+-- An actsits view for use by the GUI: All actsits
 CREATE TEMPORARY VIEW gui_actsits AS
 SELECT s                        AS id,
        s                        AS s,
@@ -191,7 +191,15 @@ SELECT s                        AS id,
        tozulu(ts)               AS ts,
        tozulu(tc)               AS tc
 FROM actsits;
+
+--Actsits view: live actsits
+CREATE TEMPORARY VIEW gui_actsits_live AS
+SELECT * FROM gui_actsits 
+WHERE state != 'ENDED' OR change != '';
        
+--Actsits view: ended actsits
+CREATE TEMPORARY VIEW gui_actsits_ended AS
+SELECT * FROM gui_actsits WHERE state == 'ENDED';
 
 -- An envsits view for use by the GUI
 CREATE TEMPORARY VIEW gui_envsits AS

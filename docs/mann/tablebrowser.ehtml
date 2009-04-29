@@ -45,6 +45,34 @@ Sets the workstation database that is queried for data to be displayed.<p>
 Sets the name of the table in the workstation database that contains the data
 to be displayed.<p>
 
+<<defopt {-views <i>dict</i>}>>
+
+Specifies a set of alternative views for this table browser.  The
+<i>dict</i> is a dictionary of view labels and SQL view or table
+names.  For example, suppose the browser can display all entries, current
+entries, or old entries, as indicated by three SQL views:
+
+<pre>
+    tablebrowser .browser      \
+        ...                    \
+        -table mytable_current \
+        -views {
+            "All"        mytable
+            "Current"    mytable_current
+            "Old"        mytable_old
+        }
+</pre>
+
+In the example, the browser will initially browse
+<b>mytable_current</b>, but the user can select <b>mytable</b> or
+<b>mytable_old</b> as well.<p>
+
+If the value of <code>-views</code> is not empty, then the
+tablebrowser will included a "View" pulldown which lists the labels;
+selecting a view will set <code>-table</code> to the specified SQL
+view or table.  In addition, if <code>-table</code> is set explicitly,
+the "View" pulldown will update itself to match.<p>
+
 <<defopt {-displaycmd <i>cmd</i>}>>
 
 Sets the callback command used to format the row of data for display in the

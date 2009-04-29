@@ -49,7 +49,8 @@ snit::widget ::projectgui::tablebrowser {
     component bar         ;# The bar at the top of the window  
     component toolbar     ;# The toolbar for application-specific widgets.
     component db          ;# sqldatabase(n) component
-    component filter      ;# filter(n) component used to filtefilterr entries.
+    component filter      ;# filter(n) component used to filter entries.
+    component views       ;# Pulldown of available views
 
     #-------------------------------------------------------------------
     # Options
@@ -89,8 +90,32 @@ snit::widget ::projectgui::tablebrowser {
 
     # -table name
     #
-    # The name of the table in the db that this browser displays
-    option -table
+    # The name of the table in the db that this browser displays.
+    # If you change it, you need to reload explicitly.
+    option -table -configuremethod ConfigureTable
+
+    method ConfigureTable {opt val} {
+        set options($opt) $val
+
+        if {$views ne ""} {
+            # Set the view to match
+            set label ""
+
+            dict for {key value} $options(-views) {
+                if {$value eq $options(-table)} {
+                    set label $key
+                }
+            }
+            
+            $views set $label
+        }
+    }
+
+    # -views viewlist
+    #
+    # A set of views and labels to display in a pulldown by the
+    # filter box.  Selecting a view sets -table.
+    option -views -readonly yes
 
     #-------------------------------------------------------------------
     # Instance Variables
@@ -157,17 +182,49 @@ snit::widget ::projectgui::tablebrowser {
             -selectforeground white                   
 
         # NEXT, configure options
+        set views ""
         $self configurelist $args
 
-        # NEXT, fill in the options
-        set db      $options(-db)
+        # NEXT, save the -db
+        set db $options(-db)
 
-        # Install the filter controls.
+        # NEXT, Install the filter controls.
         install filter using ::marsgui::filter $bar.filter \
             -width      15                                 \
             -filtertype incremental                        \
             -ignorecase yes                                \
             -filtercmd  [mymethod FilterData]
+
+        pack $filter -side right -fill y
+
+        # Install the views pulldown, if any.
+        if {$options(-views) ne ""} {
+            # FIRST, create the pulldown
+            ttk::label $bar.viewlabel \
+                -text "View:"
+
+            set keys [dict keys $options(-views)]
+
+            install views using ttk::combobox $bar.views   \
+                -justify   left                            \
+                -state     readonly                        \
+                -width     [expr {[lmaxlen $keys] + 2}]    \
+                -takefocus 0                               \
+                -values    $keys
+
+            ttk::label $bar.viewspacer \
+                -text "  "
+
+            pack $bar.viewspacer -side right -fill y
+            pack $views          -side right -fill y -padx 2
+            pack $bar.viewlabel  -side right -fill y
+
+            $views set [lindex $keys 0]
+            $self configure -table [dict get $options(-views) [$views get]]
+
+            # NEXT, prepare for changes.
+            bind $views <<ComboboxSelected>> [mymethod SetView]
+        }
         
         # Scrollbars
         scrollbar $win.yview   \
@@ -180,8 +237,6 @@ snit::widget ::projectgui::tablebrowser {
 
 
         # NEXT, layout the components.
-        pack $filter    -side right -fill y
-        
         grid $bar -row 0 -column 0 -columnspan 2 -sticky ew
         grid $tableList -row 1 -column 0 -sticky nsew
         grid $win.yview -row 1 -column 1 -sticky nsew
@@ -199,6 +254,17 @@ snit::widget ::projectgui::tablebrowser {
         bind $tableList <<TablelistSelect>> \
             [list event generate $win <<TablebrowserSelect>>]
     }
+
+    # SetView
+    #
+    # Called when a new view is selected from the Views pulldown.
+    # Updates the display.
+
+    method SetView {} {
+        $self configure -table [dict get $options(-views) [$views get]]
+        $self reload
+    }
+
     
     #-------------------------------------------------------------------
     # Public Methods
@@ -526,6 +592,7 @@ snit::widget ::projectgui::tablebrowser {
 
     #-------------------------------------------------------------------
     # Private Methods
+
 
     # TablelistCopy
     #

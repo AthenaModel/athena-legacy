@@ -36,6 +36,7 @@ snit::widget browser_base {
     delegate option -keycolnum    to tb
     delegate option -displaycmd   to tb
     delegate option -titlecolumns to tb
+    delegate option -views        to tb
 
     # -selectioncmd cmd
     #
@@ -59,7 +60,8 @@ snit::widget browser_base {
         # FIRST, create the table browser
         install tb using tablebrowser $win.tb   \
             -db          ::rdb                  \
-            -width       100
+            -width       100                    \
+            -views       [from args -views]
 
         # NEXT, get the options.
         $self configure \

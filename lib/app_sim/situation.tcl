@@ -114,9 +114,8 @@ snit::type situation {
             # NOTE:  The "info exists" is purely defensive programming; 
             # if the actsit has changed, there should be an object that 
             # exists.  Perhaps the "if" should be an "assert" instead?
-            if {[info exists cache($s)]} {
-                $cache($s) set change ""
-            }
+            set sit [$type get $s]
+            $sit set change ""
             
             # NEXT, send out the notifier event for the change in data
             notifier send $kind <Entity> update $s
