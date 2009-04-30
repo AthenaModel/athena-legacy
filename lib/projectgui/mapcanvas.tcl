@@ -1270,7 +1270,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
 
         # NEXT, save the icon's name and current data.
         lappend icons(ids)           $id
-        lappend icons(id-$icontype)  $id
+        lappend icons(ids-$icontype) $id
 
         set icons(icon-$id) [dict create                  \
                                  id       $id             \
@@ -1292,39 +1292,79 @@ snit::widgetadaptor ::projectgui::mapcanvas {
         info exists icons(icon-$id)
     }
 
+
+    # icon list ?iconType?
+    #
+    # iconType       An icon type
+    #
+    # Returns a list of icon IDs
+
+    method {icon list} {{iconType ""}} {
+        if {$iconType eq ""} {
+            return $icons(ids)
+        }
+
+        if {[info exists icons(ids-$iconType)]} {
+            return $icons(ids-$iconType)
+        } else {
+            return ""
+        }
+    }
+
+
     # icon delete id
     #
-    # id       The icon ID, or all
+    # id       The icon ID, or an icon type, or all
     #
-    # Deletes the named icon.
+    # Deletes the named icon or set of icons
 
     method {icon delete} {id} {
         if {$id eq "all"} {
             foreach id $icons(ids) {
-                rename [dict get $icons(icon-$id) cmd] ""
+                $self IconDelete $id
             }
-            
-            array unset icons
-            set icons(ids) [list]
+        } elseif {$id in $icontypes(names)} {
+            set icontype $id
+
+            # If none have been created, we're done
+            if {![info exists icons(ids-$icontype)]} {
+                return
+            }
+
+            foreach id $icons(ids-$icontype) {
+                $self IconDelete $id
+            }
         } else {
             require {[$self icon exists $id]} "no such icon: $id"
-            
-            # FIRST, save the command name.
-            set cmd [dict get $icons(icon-$id) cmd]
-            
-            # NEXT, clean up the metadata
-            ldelete icons(ids) $id
-            unset icons(icon-$id)
-            
-            # NEXT, destroy the icon's command; this will also
-            # delete it from the canvas.
-            $cmd destroy
+            $self IconDelete $id
         }
 
         return
     }
 
 
+    # IconDelete id
+    #
+    # id       The icon ID
+    #
+    # Deletes the named icon.
+
+    method IconDelete {id} {
+        # FIRST, save the command name.
+        set cmd      [dict get $icons(icon-$id) cmd]
+        set icontype [dict get $icons(icon-$id) icontype]
+            
+        # NEXT, clean up the metadata
+        ldelete icons(ids)           $id
+        ldelete icons(ids-$icontype) $id
+        unset icons(icon-$id)
+            
+        # NEXT, destroy the icon's command; this will also
+        # delete it from the canvas.
+        $cmd destroy
+
+        return
+    }
 
     # icon configure id option value...
     #

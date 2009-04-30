@@ -35,13 +35,17 @@
 #         F. Public Methods
 #    III. Icon Display and Behavior
 #         A. Instance Variables
-#         B. Event Handlers: mapcanvas(n)
+#         B. Helper Routines
+#         C. Event Handlers: mapcanvas(n)
 #     IV. Unit Display and Behavior
 #         A. Unit Display
 #         B. Context Menu
-#         C. Icon Handlers
-#         D. Event Handlers: notifier(n)
-#         E. Public Methods
+#         C. Event Handlers: notifier(n)
+#         D. Public Methods
+#     V.  Envsit Display and Behavior
+#         A. Envsit Display
+#         B. Event Handlers: notifier(n)
+#         C. Public Methods
 #
 #-----------------------------------------------------------------------
 
@@ -507,6 +511,7 @@ snit::widget mapviewer {
         notifier bind ::order    <OrderEntry>  $self [mymethod OrderEntry]
         notifier bind ::nbhood   <Entity>      $self [mymethod EntityNbhood]
         notifier bind ::unit     <Entity>      $self [mymethod EntityUnit]
+        notifier bind ::envsit   <Entity>      $self [mymethod EntityEnvsit]
         notifier bind ::frcgroup <Entity>      $self [mymethod EntityGroup]
         notifier bind ::orggroup <Entity>      $self [mymethod EntityGroup]
 
@@ -670,10 +675,12 @@ snit::widget mapviewer {
 
         # NEXT, clear the canvas
         $canvas clear
+        $self IconDeleteAll
 
         # NEXT, clear all remembered state, and redraw everything
         $self NbhoodDrawAll
         $self UnitDrawAll
+        $self EnvsitDrawAll
 
         # NEXT, set zoom and region
         set view(zoom)   "[$canvas zoom]%"
@@ -993,6 +1000,34 @@ snit::widget mapviewer {
     variable icons -array { }
 
     #-------------------------------------------------------------------
+    # Helper Routines
+
+    method IconDeleteAll {} {
+        # Deletes all icons, clears metadata
+        array unset icons
+        $canvas icon delete all
+    }
+
+    # IconDelete sid
+    #
+    # sid     An icon's scenario ID
+    #
+    # Deletes an icon given its scenario ID
+
+    method IconDelete {sid} {
+        # FIRST, delete it from the canvas
+        set cid $icons(cid-$sid)
+        $canvas icon delete $cid
+
+        # NEXT, delete it from the mapviewer's data.
+        unset icons(sid-$cid)
+        unset icons(itype-$cid)
+        unset icons(cid-$sid)
+    }
+
+
+
+    #-------------------------------------------------------------------
     # Event Handlers: mapcanvas(n)
 
     # Icon-1 cid
@@ -1007,10 +1042,12 @@ snit::widget mapviewer {
         notifier send ::app <ObjectSelect> \
             [list $icons(itype-$cid) $icons(sid-$cid)]
 
-        if {$icons(itype-$cid) eq "unit"} {
-            event generate $win <<Unit-1>> \
-                -data $icons(sid-$cid)
-        }
+        set sid $icons(sid-$cid)
+
+        switch $icons(itype-$cid) {
+            unit      { event generate $win <<Unit-1>>   -data $sid }
+            situation { event generate $win <<Envsit-1>> -data $sid }
+        } 
     }
 
     
@@ -1023,11 +1060,11 @@ snit::widget mapviewer {
     # icon context menu.
 
     method Icon-3 {cid rx ry} {
-        set icons(context) $icons(sid-$cid)
-
-        # TBD: At present, we only have unit icons.  Later, we'll need to
-        # generalize this.
-        tk_popup $canvas.unitmenu $rx $ry
+        # Units
+        if {$icons(itype-$cid) eq "unit"} {
+            set icons(context) $icons(sid-$cid)
+            tk_popup $canvas.unitmenu $rx $ry
+        }
     }
 
 
@@ -1037,17 +1074,17 @@ snit::widget mapviewer {
     #
     # Called when the user drags an icon.  Moves the underlying
     # scenario object to the desired location.
-    #
-    # TBD: At present, we only have unit icons.  Later, we'll need to
-    # generalize this.
 
     method IconMoved {cid} {
-        if {[order isvalid UNIT:UPDATE]} {
-            order send gui UNIT:UPDATE           \
-                u $icons(sid-$cid)               \
-                location [$canvas icon ref $cid]
-        } else {
-            $self UnitDrawSingle $icons(sid-$cid)
+        # Units
+        if {$icons(itype-$cid) eq "unit"} {
+            if {[order isvalid UNIT:UPDATE]} {
+                order send gui UNIT:UPDATE           \
+                    u $icons(sid-$cid)               \
+                    location [$canvas icon ref $cid]
+            } else {
+                $self UnitDrawSingle $icons(sid-$cid)
+            }
         }
     }
 
@@ -1063,11 +1100,6 @@ snit::widget mapviewer {
     # Clears and redraws all units
 
     method UnitDrawAll {} {
-        # TBD: This is a problem -- we can't be doing this if there
-        # are multiple kinds of icon.
-        $canvas icon delete all
-        array unset icons
-
         rdb eval {
             SELECT * FROM units JOIN groups USING (g)
         } row {
@@ -1085,9 +1117,7 @@ snit::widget mapviewer {
             # FIRST, if there's an existing unit called this,
             # delete it.
             if {[info exists icons(cid-$u)]} {
-                $canvas icon delete $icons(cid-$u)
-                unset icons(sid-$icons(cid-$u))
-                unset icons(cid-$u)
+                $self IconDelete $u
             }
 
             # NEXT, draw it.
@@ -1146,12 +1176,6 @@ snit::widget mapviewer {
     }
 
     #-------------------------------------------------------------------
-    # Icon Handlers
-
-    # TBD: Eventually, we'll need a set of IconUnit calls.
-
-
-    #-------------------------------------------------------------------
     # Event Handlers: notifier(n)
 
     # EntityUnit create u
@@ -1172,15 +1196,7 @@ snit::widget mapviewer {
     # Delete the unit from the mapcanvas.
 
     method {EntityUnit delete} {u} {
-        # TBD: This should be an Icon call.
-
-        # FIRST, delete it from the canvas
-        $canvas icon delete $icons(cid-$u)
-
-        # NEXT, delete it from the mapviewer's data.
-        set cid $icons(cid-$u)
-        unset icons(sid-$cid)
-        unset icons(cid-$u)
+        $self IconDelete $u
     }
       
     # EntityUnit update n
@@ -1190,17 +1206,7 @@ snit::widget mapviewer {
     # Something changed about unit n.  Update it.
 
     method {EntityUnit update} {u} {
-        # FIRST, we need to handle different unit types
-        # separately.
-
-        rdb eval {
-            SELECT * FROM units JOIN groups USING (g)
-            WHERE u=$u
-        } row {
-            # NEXT, draw it; this will delete any previous unit
-            # with the same name.
-            $self UnitDraw [array get row]
-        }
+        $self UnitDrawSingle $u
     }
 
 
@@ -1236,7 +1242,98 @@ snit::widget mapviewer {
         $self UnitDrawAll 
     }
 
+    #===================================================================
+    # Envsit Display and Behavior
+
+    #-------------------------------------------------------------------
+    # Envsit Display
+
+    # EnvsitDrawAll
+    #
+    # Clears and redraws all envsits
+
+    method EnvsitDrawAll {} {
+        rdb eval {
+            SELECT * FROM envsits
+        } row {
+            $self EnvsitDraw [array get row]
+        } 
+
+    }
+
+    # EnvsitDraw parmdict
+    #
+    # parmdict   Data about the envsit
+
+    method EnvsitDraw {parmdict} {
+        dict with parmdict {
+            # FIRST, if there's an existing envsit called this,
+            # delete it.
+            if {[info exists icons(cid-$s)]} {
+                $self IconDelete $s
+            }
+
+            # NEXT, draw it.
+            set cid [$canvas icon create situation \
+                         {*}$location              \
+                         -text $stype]
+            
+            # NEXT, save the name by the ID.
+            set icons(itype-$cid) situation
+            set icons(sid-$cid) $s
+            set icons(cid-$s)   $cid
+        }
+    }
+
+    # EnvsitDrawSingle s
+    #
+    # s    The ID of the envsit.
+    #
+    # Redraws just envsit s.  Use this when only a single envsit is
+    # to be redrawn.
+
+    method EnvsitDrawSingle {s} {
+        rdb eval {
+            SELECT * FROM envsits
+            WHERE s=$s
+        } row {
+            $self EnvsitDraw [array get row]
+        } 
+    }
 
 
+    #-------------------------------------------------------------------
+    # Event Handlers: notifier(n)
+
+    # EntityEnvsit create s
+    #
+    # s     The envsit ID
+    #
+    # There's a new envsit; display it.
+
+    method {EntityEnvsit create} {s} {
+        $self EntityEnvsit update $s
+    }
+
+
+    # EntityEnvsit delete s
+    #
+    # s     The envsit ID
+    #
+    # Delete the envsit from the mapcanvas.
+
+    method {EntityEnvsit delete} {s} {
+        $self IconDelete $s
+    }
+      
+    # EntityEnvsit update s
+    #
+    # s     The envsit ID
+    #
+    # Something changed about envsit s.  Update it.
+
+    method {EntityEnvsit update} {s} {
+        $self EnvsitDrawSingle $s
+    }
 }
 

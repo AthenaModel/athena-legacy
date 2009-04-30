@@ -277,7 +277,8 @@ snit::widget appwin {
         # NEXT, Prepare to receive window events
         bind $content <<NotebookTabChanged>> [mymethod Reconfigure]
 
-        bind $viewer <<Unit-1>>       [mymethod Unit-1 %d]
+        bind $viewer <<Unit-1>>       [mymethod Unit-1   %d]
+        bind $viewer <<Envsit-1>>     [mymethod Envsit-1 %d]
         bind $viewer <<Nbhood-1>>     [mymethod Nbhood-1 %d]
 
         # NEXT, prepare to append pucked points, etc., to the CLI
@@ -1373,6 +1374,19 @@ snit::widget appwin {
         rdb eval {SELECT * FROM gui_units WHERE u=$u} row {
         $self puts \
             "Unit $u  at: $row(location)  group: $row(g)  activity: $row(a)  personnel: $row(personnel)"
+        }
+    }
+
+    # Envsit-1 s
+    #
+    # s      An envsit ID
+    #
+    # Called when the user clicks on an envsit icon.
+
+    method Envsit-1 {s} {
+        rdb eval {SELECT * FROM gui_envsits WHERE s=$s} row {
+        $self puts \
+            "$row(stype) $s  at: $row(location)  coverage: $row(coverage)"
         }
     }
 
