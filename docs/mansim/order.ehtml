@@ -460,7 +460,7 @@ parameters.  This is enabled by specifying the <code>-refresh</code>
 option.<p>
 
 <b>Note:</b> at present, <code>-refresh</code> is supported only for
-<b>enum</b> parameters, but other types (e.g., <b>text</b>) could
+<b>enum</b> and <b>text</b> parameters, but other types could
 easily be supported as well.<p>
 
 <</deflist option>>

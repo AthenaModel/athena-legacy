@@ -174,6 +174,32 @@ snit::type envsit {
     }
 
 
+    # names
+    #
+    # List of envsit IDs.
+
+    typemethod names {} {
+        return [rdb eval {
+            SELECT s FROM envsits
+        }]
+    }
+
+
+    # validate s
+    #
+    # s      A situation ID
+    #
+    # Verifies that s is an envsit.
+
+    typemethod validate {s} {
+        if {$s ni [$type names]} {
+            return -code error -errorcode INVALID \
+                "Invalid environmental situation ID: \"$s\""
+        }
+
+        return $s
+    }
+
     # pending names
     #
     # List of pending envsit IDs.  An envsit is pending if it has
@@ -315,6 +341,7 @@ snit::type envsit {
     # parmdict     A dictionary of entity parms
     #
     #    s              The situation ID
+    #    stype          A new situation type, or ""
     #    location       A new location (map coords), or ""
     #                   (Must be in same neighborhood.)
     #    coverage       A new coverage, or ""
@@ -336,14 +363,16 @@ snit::type envsit {
             # NEXT, Update the entity
             set sit [$type get $s]
 
-            # TBD: Verify that nbhood hasn't changed if driver exists.
+            $sit set change   UPDATED
 
-            if {$location ne ""} { $sit set location $location }
+            if {$stype    ne ""} { $sit set stype    $stype    }
             if {$g        ne ""} { $sit set g        $g        }
             if {$flist    ne ""} { $sit set flist    $flist    }
 
-            $sit set change   UPDATED
-            $sit set assess   1
+            if {$location ne ""} { 
+                $sit set location $location 
+                $sit set n [nbhood find {*}$location]
+            }
 
             if {$coverage ne "" && $coverage ne [$sit get coverage]} {
                 $sit set coverage $coverage
@@ -485,6 +514,13 @@ snit::type envsitType {
 
     delegate method * to base
 
+    # isPending
+    #
+    # Returns 1 if the situation is pending, and 0 otherwise.
+
+    method pending {} {
+        expr {$binfo(driver) == -1}
+    }
 
     #-------------------------------------------------------------------
     # Private Methods
@@ -683,4 +719,118 @@ order define ::envsit SITUATION:ENVIRONMENTAL:DELETE {
 }
 
 
+# SITUATION:ENVIRONMENTAL:UPDATE
+#
+# Updates existing envsits.
+
+order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
+    title "Update Environmental Situation"
+    options \
+        -table      gui_envsits           \
+        -sendstates {PREP PAUSED RUNNING}
+
+    parm s          key   "Situation"   -tags situation
+    parm location   text  "Location"    -tags point
+
+    # TBD: Only allow current type, or an absent type
+    parm stype      enum  "Type"        -type eenvsit
+    parm coverage   text  "Coverage"    -defval 1.0
+    parm inception  enum  "Inception?"  -type eyesno -defval "YES"
+
+    # TBD: Name of group, or NONE
+    parm g          text  "Caused By"
+
+    # TBD: List of affected groups, or ALL
+    parm flist      text  "Affected Groups" -defval ALL
+
+} {
+    # FIRST, check the situation
+    prepare s                    -required -type envsit
+
+    # NEXT, get the situation object
+    set sit [envsit get $parms(s)]
+
+    # NEXT, Can we even update this situation?
+    validate s {
+        if {[$sit get state] eq "ENDED"} {
+            reject s "Cannot update a situation that has ended."
+        }
+    }
+    returnOnError
+
+    # NEXT, prepare the remaining parameters
+    prepare location  -toupper  -type refpoint 
+    prepare stype     -toupper  -type eenvsit   -oldvalue [$sit get stype]
+    prepare coverage            -type rfraction -oldvalue [$sit get coverage]
+    prepare inception -toupper  -type boolean   -oldvalue [$sit get inception]
+    prepare g         -toupper  -type group     -oldvalue [$sit get g]
+    prepare flist     -toupper                  -oldvalue [$sit get flist]
+
+    returnOnError
+
+
+    # NEXT, validate the other parameters
+
+    validate location {
+        set n [nbhood find {*}$parms(location)]
+
+        if {[$sit pending]} {
+            if {$n eq ""} {
+                reject location "Should be within a neighborhood"
+            }
+        } else {
+            if {$n ne [$sit get n]} {
+                reject location "Cannot remove situation from its neighborhood"
+            }
+        }
+    }
+
+    validate stype {
+        if {[$sit pending]} {
+            if {[envsit existsInNbhood $n $parms(stype)]} {
+                reject stype \
+                "An envsit of this type already exists in this neighborhood."
+            }
+        } else {
+            reject coverage "Cannot update this parameter; time has advanced."
+        }
+    }
+
+
+    validate coverage {
+        if {[$sit pending]} {
+            if {$parms(coverage) == 0.0} {
+                reject coverage "Coverage must be greater than 0."
+            }
+        } else {
+            reject coverage "Cannot update this parameter; time has advanced."
+        }
+    }
+
+
+    validate inception {
+        if {![$sit pending]} {
+            reject inception "Cannot update this parameter; time has advanced."
+        }
+    }
+
+
+    validate flist {
+        if {![$sit pending]} {
+            reject flist "Cannot update this parameter; time has advanced."
+        }
+    }
+    
+
+    validate g {
+        if {![$sit pending]} {
+            reject g "Cannot update this parameter; time has advanced."
+        }
+    }
+
+    returnOnError
+
+    # NEXT, modify the group
+    setundo [$type mutate update [array get parms]]
+}
 

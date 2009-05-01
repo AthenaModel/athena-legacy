@@ -102,6 +102,7 @@ snit::type sim {
 
         # NEXT, initialize the event queue
         eventq init ::rdb
+        scenario register ::marsutil::eventq
 
         # NEXT, create ARAM and register it as a saveable
         gram ::aram \

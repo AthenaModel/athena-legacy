@@ -1086,6 +1086,16 @@ snit::widget mapviewer {
                 $self UnitDrawSingle $icons(sid-$cid)
             }
         }
+
+        if {$icons(itype-$cid) eq "situation"} {
+            if {[catch {
+                order send gui SITUATION:ENVIRONMENTAL:UPDATE \
+                    s        $icons(sid-$cid)                 \
+                    location [$canvas icon ref $cid]
+            }]} {
+                $self EnvsitDrawSingle $icons(sid-$cid)
+            }
+        }
     }
 
 

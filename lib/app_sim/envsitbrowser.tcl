@@ -63,6 +63,19 @@ snit::widgetadaptor envsitbrowser {
         cond::orderIsValid control $addbtn \
             order SITUATION:ENVIRONMENTAL:CREATE
 
+        install editbtn using button $bar.edit   \
+            -image      ::projectgui::icon::pencil22 \
+            -relief     flat                     \
+            -overrelief raised                   \
+            -state      disabled                 \
+            -command    [mymethod EditSelected]
+
+        DynamicHelp::add $editbtn -text "Edit Selected Situation"
+
+        cond::orderIsValidSingle control $editbtn   \
+            order   SITUATION:ENVIRONMENTAL:UPDATE \
+            browser $win
+
         install deletebtn using button $bar.delete \
             -image      ::projectgui::icon::x22    \
             -relief     flat                       \
@@ -78,6 +91,7 @@ snit::widgetadaptor envsitbrowser {
 
 
         pack $addbtn    -side left
+        pack $editbtn   -side left
         pack $deletebtn -side right
 
         # NEXT, create the columns and labels.
@@ -87,6 +101,7 @@ snit::widgetadaptor envsitbrowser {
         $hull insertcolumn end 0 {State}
         $hull insertcolumn end 0 {Type}
         $hull insertcolumn end 0 {Nbhood}
+        $hull insertcolumn end 0 {Location}
         $hull insertcolumn end 0 {Coverage}
         $hull columnconfigure end -sortmode real
         $hull insertcolumn end 0 {Began At}
@@ -142,7 +157,7 @@ snit::widgetadaptor envsitbrowser {
     method DisplayData {dict} {
         # FIRST, extract each field
         dict with dict {
-            lappend fields $id $change $state $stype $n $coverage
+            lappend fields $id $change $state $stype $n $location $coverage
             lappend fields $ts $tc $g $flist $resolver $driver
 
             $hull setdata $id $fields
@@ -157,6 +172,7 @@ snit::widgetadaptor envsitbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
+        cond::orderIsValidSingle    update $editbtn
         cond::orderIsValidCanDelete update $deletebtn
 
         # NEXT, notify the app of the selection.
@@ -176,6 +192,19 @@ snit::widgetadaptor envsitbrowser {
         # FIRST, Pop up the dialog
         order enter SITUATION:ENVIRONMENTAL:CREATE
     }
+
+    # EditSelected
+    #
+    # Called when the user wants to edit the selected entity
+
+    method EditSelected {} {
+        # FIRST, there should be only one selected.
+        set id [lindex [$hull curselection] 0]
+
+        # NEXT, Send the delete order.
+        order enter SITUATION:ENVIRONMENTAL:UPDATE s $id
+    }
+
 
     # DeleteSelected
     #

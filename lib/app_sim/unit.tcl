@@ -586,7 +586,7 @@ order define ::unit UNIT:DELETE {
 
 # UNIT:UPDATE
 #
-# Updates existing groups.
+# Updates existing units.
 
 order define ::unit UNIT:UPDATE {
     title "Update Unit"
@@ -631,7 +631,7 @@ order define ::unit UNIT:UPDATE {
 
 # UNIT:UPDATE:MULTI
 #
-# Updates multiple groups.
+# Updates multiple units.
 
 order define ::unit UNIT:UPDATE:MULTI {
     title "Update Multiple Units"

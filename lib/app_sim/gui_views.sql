@@ -216,5 +216,6 @@ SELECT s                        AS id,
        tozulu(tc)               AS tc,
        m2ref(location)          AS location,
        flist                    AS flist,
-       resolver                 AS resolver
+       resolver                 AS resolver,
+       CASE inception WHEN 1 THEN 'YES' ELSE 'NO' END AS inception
  FROM envsits;

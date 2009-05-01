@@ -477,6 +477,7 @@ snit::widget appwin {
             -underline 0 -menu $submenu
         
         $self AddOrder $submenu SITUATION:ENVIRONMENTAL:CREATE
+        $self AddOrder $submenu SITUATION:ENVIRONMENTAL:UPDATE
         $self AddOrder $submenu SITUATION:ENVIRONMENTAL:DELETE
 
         # Orders/Civilian Group
