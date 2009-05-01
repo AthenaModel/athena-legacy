@@ -44,8 +44,9 @@
 #         D. Public Methods
 #     V.  Envsit Display and Behavior
 #         A. Envsit Display
-#         B. Event Handlers: notifier(n)
-#         C. Public Methods
+#         B. Context Menu
+#         C. Event Handlers: notifier(n)
+#         D. Public Methods
 #
 #-----------------------------------------------------------------------
 
@@ -492,6 +493,7 @@ snit::widget mapviewer {
         # NEXT, Create the context menus
         $self CreateNbhoodContextMenu
         $self CreateUnitContextMenu
+        $self CreateEnvsitContextMenu
 
         # NEXT, process the arguments
         $self configurelist $args
@@ -501,7 +503,7 @@ snit::widget mapviewer {
         bind $canvas <<Icon-3>>       [mymethod Icon-3 %d %X %Y]
         bind $canvas <<IconMoved>>    [mymethod IconMoved %d]
         bind $canvas <<Nbhood-1>>     [mymethod Nbhood-1 %d]
-        bind $canvas <<Nbhood-3>>     [mymethod Nbhood-3 %d %X %Y]
+        bind $canvas <<Nbhood-3>>     [mymethod Nbhood-3 %d %X %Y %x %y]
         bind $canvas <<Point-1>>      [mymethod Point-1 %d]
         bind $canvas <<PolyComplete>> [mymethod PolyComplete %d]
 
@@ -706,6 +708,7 @@ snit::widget mapviewer {
     # n-$id      n, given ID
     # id-$n      id, given n
     # trans      Transient $n, used in event bindings
+    # transref   Transient mapref, used in event bindings
 
     variable nbhoods -array { }
 
@@ -811,6 +814,18 @@ snit::widget mapviewer {
         set mnu [menu $canvas.nbhoodmenu]
 
         cond::orderIsValid control \
+            [menuitem $mnu command "Create Unit"           \
+                 -command [mymethod NbhoodCreateUnitHere]] \
+            order UNIT:CREATE
+        
+        cond::orderIsValid control \
+            [menuitem $mnu command "Create Environmental Situation" \
+                 -command [mymethod NbhoodCreateEnvsitHere]]        \
+            order SITUATION:ENVIRONMENTAL:CREATE
+
+        $mnu add separator
+
+        cond::orderIsValid control \
             [menuitem $mnu command "Bring to Front"      \
                  -command [mymethod NbhoodBringToFront]] \
             order NBHOOD:RAISE
@@ -819,6 +834,24 @@ snit::widget mapviewer {
             [menuitem $mnu command "Send to Back"        \
                  -command [mymethod NbhoodSendToBack]]   \
             order NBHOOD:LOWER
+    }
+
+
+    # NbhoodCreateUnitHere
+    #
+    # Pops up the create unit dialog with this location filled in.
+
+    method NbhoodCreateUnitHere {} {
+        order enter UNIT:CREATE location $nbhoods(transref)
+    }
+
+
+    # NbhoodCreateEnvsitHere
+    #
+    # Pops up the create envsit dialog with this location filled in.
+
+    method NbhoodCreateEnvsitHere {} {
+        order enter SITUATION:ENVIRONMENTAL:CREATE location $nbhoods(transref)
     }
 
 
@@ -857,7 +890,7 @@ snit::widget mapviewer {
     }
 
     
-    # Nbhood-3 id rx ry
+    # Nbhood-3 id rx ry wx wy
     #
     # id      A nbhood canvas ID
     # rx,ry   Root window coordinates
@@ -865,8 +898,9 @@ snit::widget mapviewer {
     # Called when the user right-clicks on a nbhood.  Pops up the
     # neighborhood context menu.
 
-    method Nbhood-3 {id rx ry} {
-        set nbhoods(trans) $nbhoods(n-$id)
+    method Nbhood-3 {id rx ry wx wy} {
+        set nbhoods(trans)    $nbhoods(n-$id)
+        set nbhoods(transref) [$canvas w2ref $wx $wy]
 
         tk_popup $canvas.nbhoodmenu $rx $ry
     }
@@ -1064,6 +1098,12 @@ snit::widget mapviewer {
         if {$icons(itype-$cid) eq "unit"} {
             set icons(context) $icons(sid-$cid)
             tk_popup $canvas.unitmenu $rx $ry
+        }
+
+        # EnvSits
+        if {$icons(itype-$cid) eq "situation"} {
+            set icons(context) $icons(sid-$cid)
+            tk_popup $canvas.envsitmenu $rx $ry
         }
     }
 
@@ -1311,6 +1351,30 @@ snit::widget mapviewer {
         } 
     }
 
+
+    #-------------------------------------------------------------------
+    # Envsit Context Menu
+
+    # CreateEnvsitContextMenu
+    #
+    # Creates the context menu
+
+    method CreateEnvsitContextMenu {} {
+        set mnu [menu $canvas.envsitmenu]
+
+        cond::orderIsValid control \
+            [menuitem $mnu command "Update Situation" \
+                 -command [mymethod UpdateEnvsit]] \
+            order SITUATION:ENVIRONMENTAL:UPDATE
+    }
+
+    # UpdateEnvsit
+    #
+    # Pops up the "Update Environmental Situation" dialog for this unit
+
+    method UpdateEnvsit {} {
+        order enter SITUATION:ENVIRONMENTAL:UPDATE s $icons(context)
+    }
 
     #-------------------------------------------------------------------
     # Event Handlers: notifier(n)
