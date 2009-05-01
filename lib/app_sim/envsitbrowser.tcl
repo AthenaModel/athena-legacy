@@ -42,7 +42,8 @@ snit::widgetadaptor envsitbrowser {
             -keycol       "id"                        \
             -keycolnum    0                           \
             -titlecolumns 1                           \
-            -displaycmd   [mymethod DisplayData]
+            -displaycmd   [mymethod DisplayData]      \
+            -selectioncmd [mymethod SelectionChanged]
 
         # FIRST, get the options.
         $self configurelist $args
@@ -62,7 +63,22 @@ snit::widgetadaptor envsitbrowser {
         cond::orderIsValid control $addbtn \
             order SITUATION:ENVIRONMENTAL:CREATE
 
+        install deletebtn using button $bar.delete \
+            -image      ::projectgui::icon::x22    \
+            -relief     flat                       \
+            -overrelief raised                     \
+            -state      disabled                   \
+            -command    [mymethod DeleteSelected]
+
+        DynamicHelp::add $deletebtn -text "Delete Selected Situation"
+
+        cond::orderIsValidCanDelete control $deletebtn \
+            order   SITUATION:ENVIRONMENTAL:DELETE  \
+            browser $win
+
+
         pack $addbtn    -side left
+        pack $deletebtn -side right
 
         # NEXT, create the columns and labels.
         $hull insertcolumn end 0 {ID}
@@ -97,6 +113,22 @@ snit::widgetadaptor envsitbrowser {
 
     delegate method * to hull
 
+    # candelete
+    #
+    # Returns 1 if the current selection is deletable.
+    
+    method candelete {} {
+        if {[llength [$self curselection]] == 1} {
+            set id [lindex [$self curselection] 0]
+
+            if {$id in [envsit pending names]} {
+                return 1
+            }
+        }
+
+        return 0
+    }
+
     #-------------------------------------------------------------------
     # Private Methods
 
@@ -117,6 +149,25 @@ snit::widgetadaptor envsitbrowser {
         }
     }
 
+
+    # SelectionChanged
+    #
+    # Enables/disables toolbar controls based on the current selection,
+    # and notifies the app of the selection change.
+
+    method SelectionChanged {} {
+        # FIRST, update buttons
+        cond::orderIsValidCanDelete update $deletebtn
+
+        # NEXT, notify the app of the selection.
+        if {[llength [$hull curselection]] == 1} {
+            set s [lindex [$hull curselection] 0]
+
+            notifier send ::app <ObjectSelect> [list situation $s]
+        }
+    }
+
+
     # AddEntity
     #
     # Called when the user wants to add a new entity
@@ -125,5 +176,18 @@ snit::widgetadaptor envsitbrowser {
         # FIRST, Pop up the dialog
         order enter SITUATION:ENVIRONMENTAL:CREATE
     }
+
+    # DeleteSelected
+    #
+    # Called when the user wants to delete the selected entity.
+
+    method DeleteSelected {} {
+        # FIRST, there should be only one selected.
+        set id [lindex [$hull curselection] 0]
+
+        # NEXT, Send the delete order.
+        order send gui SITUATION:ENVIRONMENTAL:DELETE s $id
+    }
+
 }
 

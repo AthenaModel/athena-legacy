@@ -472,8 +472,8 @@ snit::type order {
             }
         }
 
-        # Only enum can have -refresh.
-        if {$fieldType ne "enum" && 
+        # Only enum and text can have -refresh.
+        if {$fieldType ni {enum text} && 
             [dict get $pdict -refresh]
         } {
             error \

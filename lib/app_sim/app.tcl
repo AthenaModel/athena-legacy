@@ -173,7 +173,18 @@ snit::type app {
             [llength [$browser curselection]] > 0
         }
 
+        # Order is valid, and the selection is deletable.
+        # The browser should call update for its widgets.
+        #
+        # Objdict:   order     THE:ORDER:NAME
+        #            browser   The browser window
 
+        statecontroller ::cond::orderIsValidCanDelete -events {
+            ::order <State>
+        } -condition {
+            [::order isvalid $order] &&
+            [$browser candelete]
+        }
 
         # NEXT, Withdraw the default toplevel window, and create 
         # the main GUI components.

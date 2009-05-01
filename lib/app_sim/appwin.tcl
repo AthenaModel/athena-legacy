@@ -477,6 +477,7 @@ snit::widget appwin {
             -underline 0 -menu $submenu
         
         $self AddOrder $submenu SITUATION:ENVIRONMENTAL:CREATE
+        $self AddOrder $submenu SITUATION:ENVIRONMENTAL:DELETE
 
         # Orders/Civilian Group
         set submenu [menu $ordersmenu.civgroup]
@@ -1386,7 +1387,7 @@ snit::widget appwin {
     method Envsit-1 {s} {
         rdb eval {SELECT * FROM gui_envsits WHERE s=$s} row {
         $self puts \
-            "$row(stype) $s  at: $row(location)  coverage: $row(coverage)"
+            "Situation $s: $row(stype)  at: $row(location)  coverage: $row(coverage)"
         }
     }
 

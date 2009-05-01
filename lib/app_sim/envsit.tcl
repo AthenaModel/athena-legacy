@@ -124,22 +124,84 @@ snit::type envsit {
     }
 
 
-    # existsInNbhood stype n
+    # existsInNbhood n ?stype?
     #
+    # n          A neighborhood ID
     # stype      An envsit type
+    #
+    # If stype is given, returns 1 if there's a live envsit of the 
+    # specified type already present in n, and 0 otherwise.  Otherwise,
+    # returns a list of the envsit types that exist in n.
+
+    typemethod existsInNbhood {n {stype ""}} {
+        if {$stype eq ""} {
+            return [rdb eval {
+                SELECT stype FROM envsits
+                WHERE n     =  $n
+                AND   state != 'ENDED'
+            }]
+        } else {
+            return [rdb exists {
+                SELECT stype FROM envsits
+                WHERE n     =  $n
+                AND   state != 'ENDED'
+                AND   stype =  $stype
+            }]
+        }
+    }
+
+
+    # absentFromNbhood n
+    #
     # n          A neighborhood ID
     #
-    # Returns 1 if there's a live envsit of the specified type
-    # already present in n, and 0 otherwise.
+    # Returns a list of the envsits which do not exist in this
+    # neighborhood.
 
-    typemethod existsInNbhood {stype n} {
-        return [rdb exists {
+    typemethod absentFromNbhood {n} {
+        # TBD: Consider writing an lsetdiff routine
+        set present [$type existsInNbhood $n]
+
+        set absent [list]
+
+        foreach stype [eenvsit names] {
+            if {$stype ni $present} {
+                lappend absent $stype
+            }
+        }
+
+        return $absent
+    }
+
+
+    # pending names
+    #
+    # List of pending envsit IDs.  An envsit is pending if it has
+    # been created but hasn't yet been assessed.  While it is pending,
+    # it can be edited and deleted as desired; after that, many
+    # fewer things can be done to it.
+
+    typemethod {pending names} {} {
+        return [rdb eval {
             SELECT s FROM envsits
-            WHERE stype =  $stype 
-            AND   n     =  $n
-            AND   state != 'ENDED'
-            
+            WHERE driver == -1
         }]
+    }
+
+
+    # pending validate s
+    #
+    # s      A situation ID
+    #
+    # Verifies that s is pending.
+
+    typemethod {pending validate} {s} {
+        if {$s ni [$type pending names]} {
+            return -code error -errorcode INVALID \
+                "operation is invalid; time has passed."
+        }
+
+        return $s
     }
 
 
@@ -291,6 +353,7 @@ snit::type envsit {
                 if {$coverage > 0.0} {
                     $sit set state ACTIVE
                 } else {
+                    # NOTE: At this time, coverage can't be set to 0.
                     $sit set state INACTIVE
                 }
             }
@@ -352,6 +415,38 @@ snit::type envsit {
         notifier send $type <Entity> update [dict get $bdict s]
     }
 
+    #-------------------------------------------------------------------
+    # Order Helpers
+
+    # RefreshSType field parmdict
+    #
+    # field     The "stype" field in an S:E:CREATE dialog
+    # parmdict  The current values of the various fields
+    #
+    # Updates the "stype" field's state.
+
+    typemethod RefreshSType {field parmdict} {
+        dict with parmdict {
+            set nbhood ""
+            catch {
+                set nbhood [nbhood find {*}[refpoint validate $location]]
+            }
+
+            if {$nbhood ne ""} {
+                set stypes [$type absentFromNbhood $nbhood]
+            } else {
+                set stypes [list]
+            }
+
+            if {[llength $stypes] > 0} {
+                $field configure -values $stypes
+                $field configure -state normal
+            } else {
+                $field configure -values {}
+                $field configure -state disabled
+            }
+        }
+    }
 }
 
 #-----------------------------------------------------------------------
@@ -450,7 +545,7 @@ eventq define envsitSpawn {s} {
             "spawn $s: [$sit get stype] spawns $stype in [$sit get n]"
 
         # FIRST, if there's already an envsit of this type, don't spawn.
-        if {[envsit existsInNbhood $stype [$sit get n]]} {
+        if {[envsit existsInNbhood [$sit get n] $stype]} {
             log warning envsit \
                 "can't spawn $stype in [$sit get n]: already present"
             continue
@@ -474,18 +569,19 @@ eventq define envsitSpawn {s} {
 }
 
 #-------------------------------------------------------------------
-# Rules
+# Orders
 
 # SITUATION:ENVIRONMENTAL:CREATE
 #
-# Creates new environment situations.
+# Creates new envsits.
 
 order define ::envsit SITUATION:ENVIRONMENTAL:CREATE {
     title "Create Environmental Situation"
+    options -sendstates {PREP PAUSED RUNNING}
 
-    # TBD: stype should be limited by the envsits already in existence.
-    parm stype      enum  "Type"          -type eenvsit
-    parm location   text  "Location"      -tags point
+    parm location   text  "Location"      -tags point -refresh
+    parm stype      enum  "Type"  \
+        -refreshcmd {::envsit RefreshSType}
     parm coverage   text  "Coverage"      -defval 1.0
     parm inception  enum  "Inception?"    -type eyesno -defval "YES"
 
@@ -496,9 +592,9 @@ order define ::envsit SITUATION:ENVIRONMENTAL:CREATE {
     parm flist      text  "Affected Groups" -defval ALL
 } {
     # FIRST, prepare and validate the parameters
+    prepare location  -toupper   -required -type refpoint
     prepare stype     -toupper   -required -type eenvsit
     prepare coverage             -required -type rfraction
-    prepare location  -toupper   -required -type refpoint
     prepare inception -toupper   -required -type boolean
     prepare g         -toupper             -type group
 
@@ -517,10 +613,16 @@ order define ::envsit SITUATION:ENVIRONMENTAL:CREATE {
         }
     }
 
+    validate coverage {
+        if {$parms(coverage) == 0.0} {
+            reject coverage "Coverage must be greater than 0."
+        }
+    }
+
     returnOnError
 
     validate stype {
-        if {[envsit existsInNbhood $parms(stype) $n]} {
+        if {[envsit existsInNbhood $n $parms(stype)]} {
             reject stype \
                 "An envsit of this type already exists in this neighborhood."
         }
@@ -532,6 +634,50 @@ order define ::envsit SITUATION:ENVIRONMENTAL:CREATE {
 
     # NEXT, create the situation.
     lappend undo [$type mutate create [array get parms]]
+    
+    setundo [join $undo \n]
+}
+
+
+# SITUATION:ENVIRONMENTAL:DELETE
+#
+# Deletes an envsit.
+
+order define ::envsit SITUATION:ENVIRONMENTAL:DELETE {
+    title "Delete Environmental Situation"
+    options -sendstates {PREP PAUSED RUNNING}
+
+    parm s  enum  "Situation"  -tags situation -type {envsit pending}
+} {
+    # FIRST, prepare the parameters
+    prepare s -required -type {envsit pending}
+
+    returnOnError
+
+    # NEXT, make sure the user knows what he is getting into.
+
+    if {[interface] eq "gui"} {
+        set answer [messagebox popup \
+                        -title         "Are you sure?"                  \
+                        -icon          warning                          \
+                        -buttons       {ok "Delete it" cancel "Cancel"} \
+                        -default       cancel                           \
+                        -ignoretag     SITUATION:ENVIRONMENTAL:DELETE   \
+                        -ignoredefault ok                               \
+                        -parent        [app topwin]                     \
+                        -message       [normalize {
+                            Are you sure you
+                            really want to delete this situation?
+                        }]]
+
+        if {$answer eq "cancel"} {
+            cancel
+        }
+    }
+
+
+    # NEXT, create the situation.
+    lappend undo [$type mutate delete $parms(s)]
     
     setundo [join $undo \n]
 }

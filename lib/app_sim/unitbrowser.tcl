@@ -154,6 +154,7 @@ snit::widgetadaptor unitbrowser {
         if {[llength [$hull curselection]] == 1} {
             set u [lindex [$hull curselection] 0]
 
+            # TBD: Should this be [list unit $u]?
             notifier send ::app <ObjectSelect> [list u $u]
         }
     }
