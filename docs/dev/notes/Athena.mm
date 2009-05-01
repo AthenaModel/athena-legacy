@@ -3,7 +3,6 @@
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
 <node CREATED="1238449538228" ID="Freemind_Link_298189624" MODIFIED="1238449546446" TEXT="Environmental Situations"/>
-<node CREATED="1238449547044" ID="Freemind_Link_1091690936" MODIFIED="1238449701507" TEXT="Activity Situations"/>
 <node CREATED="1238449586884" ID="Freemind_Link_213166219" MODIFIED="1238449747274" TEXT="DAM Rule Infrastructure"/>
 <node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1238449718099" TEXT="Magic satisfaction inputs">
 <arrowlink DESTINATION="Freemind_Link_213166219" ENDARROW="Default" ENDINCLINATION="22;0;" ID="Freemind_Arrow_Link_72370025" STARTARROW="None" STARTINCLINATION="22;0;"/>
@@ -24,7 +23,17 @@
 </node>
 </node>
 <node CREATED="1239210064249" ID="Freemind_Link_1216819379" MODIFIED="1239210065909" POSITION="right" TEXT="GRAM">
-<node CREATED="1239210066312" FOLDED="true" ID="Freemind_Link_1735127823" MODIFIED="1239210081618" TEXT="Slope effect bounds">
+<node CREATED="1241215740273" ID="Freemind_Link_1519643380" MODIFIED="1241215764319" TEXT="Speed up gram_value update on cancel"/>
+<node CREATED="1241215792272" ID="Freemind_Link_1746105883" MODIFIED="1241215807290" TEXT="Grab acontrib assignment speed up from JRAM"/>
+<node CREATED="1241215767617" ID="Freemind_Link_1703805627" MODIFIED="1241215779674" TEXT="Accumulate acontrib directly into gram_contribs">
+<node CREATED="1241215785360" ID="Freemind_Link_276110028" MODIFIED="1241215789775" TEXT="If it&apos;s faster to do so."/>
+</node>
+<node CREATED="1241215865953" ID="Freemind_Link_731499049" MODIFIED="1241215878509" TEXT="More epsilons?">
+<node CREATED="1241215878848" ID="Freemind_Link_957640958" MODIFIED="1241215882778" TEXT="Level vs. Slope"/>
+<node CREATED="1241215883249" ID="Freemind_Link_1735758744" MODIFIED="1241215886122" TEXT="Sat vs Coop"/>
+</node>
+<node CREATED="1241216187039" ID="Freemind_Link_490314084" MODIFIED="1241216198009" TEXT="Compute driver &quot;reach&quot; statistics"/>
+<node CREATED="1239210066312" ID="Freemind_Link_1735127823" MODIFIED="1239210081618" TEXT="Slope effect bounds">
 <node CREATED="1239210082792" ID="Freemind_Link_21995878" MODIFIED="1239210115298" TEXT="Effect scales to bound other than +/- 100"/>
 <node CREATED="1239210116617" ID="Freemind_Link_16044741" MODIFIED="1239210129458" TEXT="Effect is ignored if level exceeds bound"/>
 <node CREATED="1239210138568" FOLDED="true" ID="Freemind_Link_1350980017" MODIFIED="1239210156149" TEXT="Tendency to some value, say 0">
@@ -105,6 +114,7 @@
 <node CREATED="1237480262914" FOLDED="true" ID="Freemind_Link_325462962" MODIFIED="1237480278885" TEXT="Add *:MULTI orders as appropriate">
 <node CREATED="1237480280162" ID="Freemind_Link_526459050" MODIFIED="1237480285749" TEXT="E.g., *:DELETE:MULTI"/>
 </node>
+<node CREATED="1241216212943" ID="Freemind_Link_1693598122" MODIFIED="1241216216554" TEXT="Test order return values"/>
 <node CREATED="1237481133242" ID="Freemind_Link_1851551577" MODIFIED="1237481149014" TEXT="Abstract order(sim) into order(n)"/>
 <node CREATED="1237481099914" ID="Freemind_Link_1283162022" MODIFIED="1237481131391" TEXT="Abstract prepare/reject/returnOnError model for use in other code">
 <icon BUILTIN="help"/>
@@ -115,6 +125,7 @@
 <node CREATED="1240255576590" ID="Freemind_Link_39749292" MODIFIED="1240255583784" TEXT="Some need to be locked."/>
 <node CREATED="1240255585806" ID="Freemind_Link_654800573" MODIFIED="1240255589288" TEXT="Making sure locking works."/>
 </node>
+<node CREATED="1241216225071" ID="Freemind_Link_1235588521" MODIFIED="1241216236345" TEXT="Naming conventions for scenario tables vs. model tables"/>
 <node CREATED="1239732129300" FOLDED="true" ID="Freemind_Link_1466082572" MODIFIED="1239732892010" TEXT="Updates to RDB Lookup Tables">
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1239732193381" FOLDED="true" ID="Freemind_Link_39922698" MODIFIED="1239732214911" TEXT="Contain constant data">
@@ -161,13 +172,11 @@
 </node>
 </node>
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
-<node CREATED="1237479525078" FOLDED="true" ID="Freemind_Link_122163295" MODIFIED="1239983812453" TEXT="appwin(sim): Optional Tabs">
-<icon BUILTIN="help"/>
-<node CREATED="1237479542494" ID="Freemind_Link_1417851375" MODIFIED="1237479555026" TEXT="Most/all tabs should be optional."/>
-<node CREATED="1237479555774" ID="Freemind_Link_1026314275" MODIFIED="1237479568490" TEXT="Each tab has a checkbox on View menu"/>
-<node CREATED="1237479569238" ID="Freemind_Link_1577478674" MODIFIED="1237479591914" TEXT="Disabled tabs don&apos;t exist, no CPU used"/>
-</node>
 <node CREATED="1239723521749" ID="Freemind_Link_1093494342" MODIFIED="1239723533567" TEXT="Save sim speed, duration as prefs"/>
+<node CREATED="1241215918369" ID="Freemind_Link_268023639" MODIFIED="1241215930559" TEXT="Stop button">
+<node CREATED="1241215931217" ID="Freemind_Link_1632396932" MODIFIED="1241215945706" TEXT="Enter time at tick 0"/>
+</node>
+<node CREATED="1241215894576" ID="Freemind_Link_1711563604" MODIFIED="1241215901322" TEXT="More GRAM browsers"/>
 <node CREATED="1238513070204" FOLDED="true" ID="Freemind_Link_66077028" MODIFIED="1238513075367" TEXT="Plot Tab">
 <node CREATED="1238513076429" ID="Freemind_Link_1251215369" MODIFIED="1238513086791" TEXT="Scrolling list of strip charts"/>
 <node CREATED="1238513112382" FOLDED="true" ID="Freemind_Link_999492866" MODIFIED="1238513123384" TEXT="Time Series View">
@@ -191,21 +200,31 @@
 <node CREATED="1238513147901" ID="Freemind_Link_1318827185" MODIFIED="1238513179639" TEXT="Displays one or more time series views"/>
 </node>
 </node>
+<node CREATED="1241216009376" ID="Freemind_Link_679327480" MODIFIED="1241216026234" TEXT="Splash screen/About box"/>
 <node CREATED="1237479490254" ID="Freemind_Link_1164487778" MODIFIED="1237479498698" TEXT="Order History Browser"/>
 <node CREATED="1237479513679" ID="Freemind_Link_123674584" MODIFIED="1237479523691" TEXT="appwin(sim): Windows Menu"/>
+<node CREATED="1238449372724" ID="Freemind_Link_1834677894" MODIFIED="1238514154561" TEXT="Drivers Browser"/>
 <node CREATED="1237479823575" FOLDED="true" ID="Freemind_Link_1856908617" MODIFIED="1237479838611" TEXT="Preserve GUI layout">
 <node CREATED="1237479839174" ID="Freemind_Link_254956277" MODIFIED="1237479844658" TEXT="Save on shutdown or request"/>
 <node CREATED="1237479845294" ID="Freemind_Link_1346360849" MODIFIED="1237479851922" TEXT="Restore at startup"/>
 </node>
-<node CREATED="1237481279626" FOLDED="true" ID="Freemind_Link_19715277" MODIFIED="1237481292487" TEXT="Browsers: -view option">
-<node CREATED="1237481293089" ID="Freemind_Link_348314360" MODIFIED="1237481307013" TEXT="One browser could browse several subsets, given different views"/>
-<node CREATED="1237481308697" ID="Freemind_Link_38947399" MODIFIED="1237481318813" TEXT="Perhaps, browser gets list of views"/>
-<node CREATED="1237481319513" ID="Freemind_Link_1805553183" MODIFIED="1237481325621" TEXT="User can switch between views"/>
-</node>
-<node CREATED="1238449372724" ID="Freemind_Link_1834677894" MODIFIED="1238514154561" TEXT="Drivers Browser"/>
 <node CREATED="1238513993932" ID="Freemind_Link_26326231" MODIFIED="1238514038997" TEXT="History and Causality Visualization"/>
 <node CREATED="1238513921852" ID="Freemind_Link_1922832150" MODIFIED="1238514171849" TEXT="Display Roll-ups other than mood">
 <icon BUILTIN="help"/>
+</node>
+<node CREATED="1237479525078" FOLDED="true" ID="Freemind_Link_122163295" MODIFIED="1239983812453" TEXT="appwin(sim): Optional Tabs">
+<icon BUILTIN="help"/>
+<node CREATED="1241214594644" ID="Freemind_Link_1984205013" MODIFIED="1241214609450" TEXT="May be obsolesced by hierarchical tab layout"/>
+<node CREATED="1237479542494" ID="Freemind_Link_1417851375" MODIFIED="1237479555026" TEXT="Most/all tabs should be optional."/>
+<node CREATED="1237479555774" ID="Freemind_Link_1026314275" MODIFIED="1237479568490" TEXT="Each tab has a checkbox on View menu"/>
+<node CREATED="1237479569238" ID="Freemind_Link_1577478674" MODIFIED="1237479591914" TEXT="Disabled tabs don&apos;t exist, no CPU used"/>
+</node>
+<node CREATED="1241216036944" ID="Freemind_Link_559127107" MODIFIED="1241216053418" TEXT="&quot;URL&quot; based tab browsing">
+<icon BUILTIN="help"/>
+<node CREATED="1241216062751" ID="Freemind_Link_322438430" MODIFIED="1241216070954" TEXT="Tabs appear as requested"/>
+<node CREATED="1241216071296" ID="Freemind_Link_781573337" MODIFIED="1241216074202" TEXT="Can have links to tabs"/>
+<node CREATED="1241216074704" ID="Freemind_Link_825887682" MODIFIED="1241216078266" TEXT="Can have bookmarks to tabs"/>
+<node CREATED="1241216084864" ID="Freemind_Link_1227873560" MODIFIED="1241216095226" TEXT="Links/bookmarks can include filter settings, views, etc."/>
 </node>
 </node>
 <node CREATED="1237479990726" ID="Freemind_Link_1486904062" MODIFIED="1237479995186" POSITION="right" TEXT="Map GUI">
@@ -259,6 +278,10 @@
 </node>
 </node>
 <node CREATED="1237479872766" ID="Freemind_Link_307055918" MODIFIED="1237479878826" POSITION="right" TEXT="Infrastructure">
+<node CREATED="1241215963136" ID="Freemind_Link_651437895" MODIFIED="1241215970925" TEXT="editcode command">
+<node CREATED="1241215972800" ID="Freemind_Link_1463898670" MODIFIED="1241215982895" TEXT="Use built-in editor; accumulate changes."/>
+<node CREATED="1241215991169" ID="Freemind_Link_365239223" MODIFIED="1241215998114" TEXT="Can save changes to disk"/>
+</node>
 <node CREATED="1237479880174" FOLDED="true" ID="Freemind_Link_640139219" MODIFIED="1237479885643" TEXT="notifier(n) introspection">
 <node CREATED="1237479886358" ID="Freemind_Link_1497195308" MODIFIED="1237479891074" TEXT="Dump subscription info"/>
 <node CREATED="1237479891694" ID="Freemind_Link_67855834" MODIFIED="1237479901642" TEXT="Predict effect of sending an event"/>
@@ -266,6 +289,9 @@
 <node CREATED="1237479930358" ID="Freemind_Link_1301494248" MODIFIED="1237479939826" TEXT="range(n) should emulate snit::double&apos;s error messages"/>
 <node CREATED="1237479941254" ID="Freemind_Link_285676340" MODIFIED="1237479950842" TEXT="enum(n) should emulate snit::enum&apos;s error messages"/>
 <node CREATED="1237479952062" ID="Freemind_Link_1986519778" MODIFIED="1237479968762" TEXT="quality(n) should emulate snit::double and snit::enum&apos;s error messages"/>
+<node CREATED="1241216138976" ID="Freemind_Link_246477941" MODIFIED="1241216144201" TEXT="option parsing control structure">
+<node CREATED="1241216145551" ID="Freemind_Link_1558908137" MODIFIED="1241216155226" TEXT="Wraps while/switch structure"/>
+</node>
 <node CREATED="1238773722771" ID="Freemind_Link_866234982" MODIFIED="1238773731816" TEXT="Store logs in RDB?">
 <icon BUILTIN="help"/>
 </node>
@@ -335,6 +361,7 @@
 <node CREATED="1238777552924" ID="Freemind_Link_313955929" MODIFIED="1238777567542" TEXT="Inactive sessions older than X"/>
 </node>
 </node>
+<node CREATED="1241216122192" ID="Freemind_Link_97633427" MODIFIED="1241216132861" TEXT="session.usermode preference"/>
 </node>
 <node CREATED="1237481029826" ID="Freemind_Link_660348068" MODIFIED="1237481031278" POSITION="right" TEXT="CM">
 <node CREATED="1237481032018" ID="Freemind_Link_920792744" MODIFIED="1237481052413" TEXT="make clean: clean up auto-generated GIFs in man* directories"/>
