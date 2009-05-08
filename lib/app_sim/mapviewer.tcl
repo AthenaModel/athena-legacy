@@ -1305,7 +1305,7 @@ snit::widget mapviewer {
 
     method EnvsitDrawAll {} {
         rdb eval {
-            SELECT * FROM envsits
+            SELECT * FROM envsits_live
         } row {
             $self EnvsitDraw [array get row]
         } 
@@ -1328,6 +1328,12 @@ snit::widget mapviewer {
             set cid [$canvas icon create situation \
                          {*}$location              \
                          -text $stype]
+
+            if {$state eq "INITIAL"} {
+                $canvas icon configure $cid -background white
+            } else {
+                $canvas icon configure $cid -background yellow
+            }
             
             # NEXT, save the name by the ID.
             set icons(itype-$cid) situation
@@ -1345,7 +1351,7 @@ snit::widget mapviewer {
 
     method EnvsitDrawSingle {s} {
         rdb eval {
-            SELECT * FROM envsits
+            SELECT * FROM envsits_live
             WHERE s=$s
         } row {
             $self EnvsitDraw [array get row]

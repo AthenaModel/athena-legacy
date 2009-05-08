@@ -218,4 +218,13 @@ SELECT s                        AS id,
        flist                    AS flist,
        resolver                 AS resolver,
        CASE inception WHEN 1 THEN 'YES' ELSE 'NO' END AS inception
- FROM envsits;
+FROM envsits;
+
+--Envsits view: live envsits
+CREATE TEMPORARY VIEW gui_envsits_live AS
+SELECT * FROM gui_envsits
+WHERE state != 'ENDED' OR change != '';
+       
+--Actsits view: ended envsits
+CREATE TEMPORARY VIEW gui_envsits_ended AS
+SELECT * FROM gui_envsits WHERE state = 'ENDED';

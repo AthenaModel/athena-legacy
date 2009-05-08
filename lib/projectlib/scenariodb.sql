@@ -564,11 +564,11 @@ CREATE TABLE situations (
     -- Change: nature of last change
     change    TEXT DEFAULT '',
 
-    -- List of affected groups, or '' for all
-    flist     TEXT DEFAULT '',
+    -- List of affected groups, or 'ALL' for all
+    flist     TEXT DEFAULT 'ALL',
 
-    -- Causing Group (may be empty)
-    g         TEXT DEFAULT ''
+    -- Causing Group, or 'NONE'
+    g         TEXT DEFAULT 'NONE'
 );
 
 -- Activity Situations
@@ -583,6 +583,11 @@ CREATE TABLE actsits_t (
 -- Activity Situations View
 CREATE VIEW actsits AS
 SELECT * FROM situations JOIN actsits_t USING (s);
+
+-- Live Activity Situations View
+CREATE VIEW actsits_live AS
+SELECT * FROM situations JOIN actsits_t USING (s)
+WHERE state != 'ENDED' OR change != '';
 
 -- Environmental Situations
 CREATE TABLE envsits_t (
@@ -613,6 +618,10 @@ CREATE TABLE envsits_t (
 CREATE VIEW envsits AS
 SELECT * FROM situations JOIN envsits_t USING (s);
 
+-- Live Environmental Situations View
+CREATE VIEW envsits_live AS
+SELECT * FROM situations JOIN envsits_t USING (s)
+WHERE state != 'ENDED' OR change != '';
 
 ------------------------------------------------------------------------
 -- Primary Entities
@@ -628,6 +637,10 @@ SELECT 'PLAYBOX'  AS id,
 UNION
 SELECT 'ALL'      AS id, 
        'All'      AS longname, 
+       'reserved' AS etype
+UNION
+SELECT 'NONE'     AS id, 
+       'None'     AS longname, 
        'reserved' AS etype
 UNION
 SELECT a          AS id, 

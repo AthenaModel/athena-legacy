@@ -70,6 +70,8 @@ snit::type envsit {
             # NEXT, if it's in the initial state, make it active
             if {[$sit get state] eq "INITIAL"} {
                 $sit set state ACTIVE
+
+                notifier send $type <Entity> update $s
             }
 
             # NEXT, create a driver if it lacks one.
@@ -232,6 +234,34 @@ snit::type envsit {
         return $s
     }
 
+    # causer names
+    #
+    # List of names of potentially causing groups, plus NONE.
+
+    typemethod {causer names} {} {
+        linsert [group names] 0 NONE
+    }
+
+    # causer validate g
+    #
+    # g       Potentially, a causing group g
+    #
+    # Verifies that g is a valid causing group.
+
+    typemethod {causer validate} {g} {
+        if {$g ni [$type causer names]} {
+            set names [join [$type causer names] ", "]
+
+            set msg "should be one of: $names"
+
+            return -code error -errorcode INVALID \
+                "Invalid causing group, $msg"
+        }
+
+        return $g
+    }
+
+
 
     #-------------------------------------------------------------------
     # Mutators
@@ -244,8 +274,6 @@ snit::type envsit {
     #    location       The situation's initial location (map coords)
     #    coverage       The situation's coverage
     #    g              The group causing the situation, or ""
-    #    flist          Civ groups affected by the situation, or "ALL" 
-    #                   for all.
     #    inception      1 if there are inception effects, and 0 otherwise.
     #
     # Creates an envsit given the parms, which are presumed to be
@@ -262,7 +290,6 @@ snit::type envsit {
                        stype     $stype     \
                        n         $n         \
                        coverage  $coverage  \
-                       flist     $flist     \
                        g         $g]
 
             rdb eval {
@@ -348,13 +375,12 @@ snit::type envsit {
     #                   (Must be in same neighborhood.)
     #    coverage       A new coverage, or ""
     #    g              A new causing group, or ""
-    #    flist          A new list of affected groups, or ""
     #
     # Updates a situation given the parms, which are presumed to be
     # valid.
     #
-    # The following parameters should be updated only if the situation
-    # has not yet been assessed:  g, flist
+    # Only the "location" parameter can be updated if the state isn't
+    # INITIAL.
 
     typemethod {mutate update} {parmdict} {
         dict with parmdict {
@@ -369,7 +395,6 @@ snit::type envsit {
 
             if {$stype    ne ""} { $sit set stype    $stype    }
             if {$g        ne ""} { $sit set g        $g        }
-            if {$flist    ne ""} { $sit set flist    $flist    }
 
             if {$location ne ""} { 
                 $sit set location $location 
@@ -476,6 +501,47 @@ snit::type envsit {
                 $field configure -values {}
                 $field configure -state disabled
             }
+        }
+    }
+
+
+    # RefreshUpdateParm parm field parmdict
+    #
+    # parm      The field's parm
+    # field     A field in an S:E:UPDATE dialog
+    # parmdict  The current values of the various fields
+    #
+    # Updates the field's state.  The parameter is enabled if
+    # the situation is in the INITIAL state, and disabled otherwise.
+
+    typemethod RefreshUpdateParm {parm field parmdict} {
+        dict with parmdict {
+            set sit [situation get $s]
+
+            # FIRST, We can't edit this unless we're in the INITIAL state.
+            if {[$sit get state] ne "INITIAL"} {
+                $field configure -state disabled
+                return
+            } 
+
+            # NEXT, we can edit.
+            $field configure -state normal
+
+            # NEXT, for stype get the valid (unused) types, plus the
+            # current type
+            if {$parm eq "stype"} {
+                set stypes [$type absentFromNbhood [$sit get n]]]]
+
+                if {[llength $stypes] > 0} {
+                    $field configure \
+                        -values [lsort [concat [$sit get stype] $stypes]]
+                    $field configure -state normal
+                } else {
+                    $field configure -values {}
+                    $field configure -state disabled
+                }
+            }
+            
         }
     }
 }
@@ -594,7 +660,6 @@ eventq define envsitSpawn {s} {
             lappend parmDict location  [$sit get location]
             lappend parmDict coverage  [$sit get coverage]
             lappend parmDict g         [$sit get g]
-            lappend parmDict flist     [$sit get flist]
             lappend parmDict inception 1
 
             envsit mutate create $parmDict
@@ -618,22 +683,15 @@ order define ::envsit SITUATION:ENVIRONMENTAL:CREATE {
         -refreshcmd {::envsit RefreshSType}
     parm coverage   text  "Coverage"      -defval 1.0
     parm inception  enum  "Inception?"    -type eyesno -defval "YES"
-
-    # TBD: Name of group, or empty
-    parm g          text  "Caused By"
-
-    # TBD: List of affected groups, or ALL
-    parm flist      text  "Affected Groups" -defval ALL
+    parm g          enum  "Caused By"     -type [list envsit causer] \
+        -defval NONE
 } {
     # FIRST, prepare and validate the parameters
     prepare location  -toupper   -required -type refpoint
     prepare stype     -toupper   -required -type eenvsit
     prepare coverage             -required -type rfraction
     prepare inception -toupper   -required -type boolean
-    prepare g         -toupper             -type group
-
-    # TBD: Should be a list of groups resident in the nbhood, or ALL
-    prepare flist     -toupper   -required
+    prepare g         -toupper             -type [list envsit causer]
 
     returnOnError
 
@@ -661,8 +719,6 @@ order define ::envsit SITUATION:ENVIRONMENTAL:CREATE {
                 "An envsit of this type already exists in this neighborhood."
         }
     }
-
-    # TBD: Verify that groups in flist are in nbhood.
 
     returnOnError
 
@@ -731,15 +787,14 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
     parm location   text  "Location"    -tags point
 
     # TBD: Only allow current type, or an absent type
-    parm stype      enum  "Type"        -type eenvsit
-    parm coverage   text  "Coverage"    -defval 1.0
-    parm inception  enum  "Inception?"  -type eyesno -defval "YES"
-
-    # TBD: Name of group, or NONE
-    parm g          text  "Caused By"
-
-    # TBD: List of affected groups, or ALL
-    parm flist      text  "Affected Groups" -defval ALL
+    parm stype      enum  "Type" \
+        -refreshcmd [list ::envsit RefreshUpdateParm stype]
+    parm coverage   text  "Coverage"    -defval 1.0 \
+        -refreshcmd [list ::envsit RefreshUpdateParm coverage]
+    parm inception  enum  "Inception?"  -type eyesno -defval "YES" \
+        -refreshcmd [list ::envsit RefreshUpdateParm inception]
+    parm g          enum  "Caused By"   -type [list envsit causer] \
+        -refreshcmd [list ::envsit RefreshUpdateParm g]
 
 } {
     # FIRST, check the situation
@@ -758,11 +813,14 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
 
     # NEXT, prepare the remaining parameters
     prepare location  -toupper  -type refpoint 
-    prepare stype     -toupper  -type eenvsit   -oldvalue [$sit get stype]
-    prepare coverage            -type rfraction -oldnum   [$sit get coverage]
-    prepare inception -toupper  -type boolean   -oldvalue [$sit get inception]
-    prepare g         -toupper  -type group     -oldvalue [$sit get g]
-    prepare flist     -toupper                  -oldvalue [$sit get flist]
+    prepare stype     -toupper  -type eenvsit   \
+        -oldvalue [$sit get stype]
+    prepare coverage -type rfraction \
+        -oldnum   [$sit get coverage]
+    prepare inception -toupper  -type boolean   \
+        -oldvalue [$sit get inception]
+    prepare g -toupper  -type {envsit causer} \
+        -oldvalue [$sit get g]
 
     returnOnError
 
@@ -816,11 +874,6 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
             reject inception "Cannot update this parameter; time has advanced."
         }
 
-
-        validate flist {
-            reject flist "Cannot update this parameter; time has advanced."
-        }
-        
 
         validate g {
             reject g "Cannot update this parameter; time has advanced."

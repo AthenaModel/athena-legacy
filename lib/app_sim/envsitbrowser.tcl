@@ -38,12 +38,18 @@ snit::widgetadaptor envsitbrowser {
         # FIRST, Install the hull
         installhull using browser_base                \
             -tickreload   yes                         \
-            -table        "gui_envsits"               \
+            -table        "gui_envsits_live"          \
             -keycol       "id"                        \
             -keycolnum    0                           \
             -titlecolumns 1                           \
             -displaycmd   [mymethod DisplayData]      \
-            -selectioncmd [mymethod SelectionChanged]
+            -selectioncmd [mymethod SelectionChanged] \
+            -views        {
+                "All"    gui_envsits
+                "Live"   gui_envsits_live
+                "Ended"  gui_envsits_ended
+            }
+
 
         # FIRST, get the options.
         $self configurelist $args
@@ -107,7 +113,6 @@ snit::widgetadaptor envsitbrowser {
         $hull insertcolumn end 0 {Began At}
         $hull insertcolumn end 0 {Changed At}
         $hull insertcolumn end 0 {Caused By}
-        $hull insertcolumn end 0 {Affects}
         $hull insertcolumn end 0 {Resolved By}
         $hull insertcolumn end 0 {Driver}
         $hull columnconfigure end -sortmode integer
@@ -158,7 +163,7 @@ snit::widgetadaptor envsitbrowser {
         # FIRST, extract each field
         dict with dict {
             lappend fields $id $change $state $stype $n $location $coverage
-            lappend fields $ts $tc $g $flist $resolver $driver
+            lappend fields $ts $tc $g $resolver $driver
 
             $hull setdata $id $fields
         }
