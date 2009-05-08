@@ -138,7 +138,7 @@ snit::type situation {
     #
     #    s
     #    kind
-    #    state = ACTIVE
+    #    state = INITIAL
     #    change = NEW
     #    ts, tc = now
     #
@@ -147,7 +147,7 @@ snit::type situation {
     typemethod create {kind args} {
         # FIRST, get default parameters
         set parmdict [dict create \
-                          state  ACTIVE         \
+                          state  INITIAL        \
                           change NEW            \
                           ts     [simclock now] \
                           tc     [simclock now]]

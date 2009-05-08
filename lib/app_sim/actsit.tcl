@@ -83,7 +83,8 @@ snit::type actsit {
                        stype    $row(stype)     \
                        n        $row(n)         \
                        g        $row(g)         \
-                       coverage $row(coverage)]
+                       coverage $row(coverage)  \
+                       state    ACTIVE]
 
             rdb eval {
                 INSERT INTO actsits_t(s,a)

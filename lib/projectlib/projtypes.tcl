@@ -173,6 +173,7 @@ snit::type ::projectlib::TypeWrapper {
 
 # Situation State
 ::marsutil::enum ::projectlib::esitstate {
+    INITIAL  Initial
     ACTIVE   Active
     INACTIVE Inactive
     ENDED    Ended

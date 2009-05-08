@@ -13,9 +13,43 @@
 <node CREATED="1238449726244" ID="Freemind_Link_1432696154" MODIFIED="1238449747274" TEXT="DAM Rules">
 <arrowlink DESTINATION="Freemind_Link_213166219" ENDARROW="Default" ENDINCLINATION="162;0;" ID="Freemind_Arrow_Link_560219951" STARTARROW="None" STARTINCLINATION="115;10;"/>
 </node>
+<node CREATED="1241624415166" FOLDED="true" ID="Freemind_Link_472031065" MODIFIED="1241624422010" TEXT="Displaced Civilians/Refugees">
+<node CREATED="1241624422469" ID="Freemind_Link_636312974" MODIFIED="1241624433033" TEXT="Suppose we don&apos;t model attitudes of refugees"/>
+<node CREATED="1241624435453" ID="Freemind_Link_1452155827" MODIFIED="1241624443073" TEXT="Just model effect on local civilians"/>
+<node CREATED="1241624443469" ID="Freemind_Link_1269891450" MODIFIED="1241624457188" TEXT="Model refugees as civilian units with activity REFUGEE"/>
+<node CREATED="1241624461278" ID="Freemind_Link_1488285898" MODIFIED="1241624466921" TEXT="Creates a coverage"/>
+<node CREATED="1241624467661" ID="Freemind_Link_1826431892" MODIFIED="1241624495385" TEXT="Local civilians respond to PRESENCE of REFUGEEs."/>
+<node CREATED="1241624496365" ID="Freemind_Link_1702054574" MODIFIED="1241624504481" TEXT="Use RMFs between civilian groups"/>
+</node>
 <node CREATED="1237822733720" FOLDED="true" ID="Freemind_Link_1356652575" MODIFIED="1237822740277" TEXT="Reactive Decision Conditions">
 <node CREATED="1237822742521" ID="Freemind_Link_656806568" MODIFIED="1237822753602" TEXT="Check RDCs at end of each tick"/>
 <node CREATED="1237822754248" ID="Freemind_Link_1244752831" MODIFIED="1237822768786" TEXT="Simplest: pause simulation if RDC is met"/>
+<node CREATED="1241531400361" ID="Freemind_Link_288992448" MODIFIED="1241531402236" TEXT="Parts">
+<node CREATED="1241530211430" ID="Freemind_Link_1465150393" MODIFIED="1241530232389" TEXT="Condition">
+<node CREATED="1241530371924" ID="Freemind_Link_1930782461" MODIFIED="1241530407559" TEXT="SQL-based conditions"/>
+<node CREATED="1241530408716" ID="Freemind_Link_1613374353" MODIFIED="1241530466016" TEXT="GUI interface on top of that"/>
+</node>
+<node CREATED="1241530227624" ID="Freemind_Link_616423081" MODIFIED="1241530236851" TEXT="Action">
+<node CREATED="1241530237670" ID="Freemind_Link_76436217" MODIFIED="1241530240114" TEXT="An order"/>
+<node CREATED="1241530240430" ID="Freemind_Link_349576284" MODIFIED="1241530260946" TEXT="Initially, a parm-less order">
+<node CREATED="1241530247438" ID="Freemind_Link_541185666" MODIFIED="1241530288365" TEXT="SIM:PAUSE"/>
+</node>
+</node>
+</node>
+<node CREATED="1241530475828" ID="Freemind_Link_1124585185" MODIFIED="1241530483160" TEXT="Scheduled orders are handled separately"/>
+<node CREATED="1241531450249" ID="Freemind_Link_1973532751" MODIFIED="1241531454405" TEXT="Kinds of conditions">
+<node CREATED="1241531454856" ID="Freemind_Link_1297130317" MODIFIED="1241531547972" TEXT="Level of attrition">
+<node CREATED="1241531550337" ID="Freemind_Link_1352513347" MODIFIED="1241531554380" TEXT="To a nbhood group"/>
+<node CREATED="1241531554728" ID="Freemind_Link_1753806039" MODIFIED="1241531559221" TEXT="To a force/ORG group"/>
+<node CREATED="1241531471496" ID="Freemind_Link_687695655" MODIFIED="1241531474956" TEXT="In a neighborhood"/>
+<node CREATED="1241531475320" ID="Freemind_Link_1374724522" MODIFIED="1241531485028" TEXT="Across the playbox"/>
+</node>
+<node CREATED="1241531486161" ID="Freemind_Link_1669522905" MODIFIED="1241531515525" TEXT="Decline in civilian population">
+<node CREATED="1241531515936" ID="Freemind_Link_618610016" MODIFIED="1241531525412" TEXT="Of a nbhood group"/>
+<node CREATED="1241531525896" ID="Freemind_Link_972695167" MODIFIED="1241531527996" TEXT="Of a nbhood"/>
+<node CREATED="1241531528352" ID="Freemind_Link_1028715699" MODIFIED="1241531533185" TEXT="Of the playbox"/>
+</node>
+</node>
 </node>
 <node CREATED="1237568034086" FOLDED="true" ID="Freemind_Link_1406761834" MODIFIED="1237568069787" TEXT="Game truth variables">
 <icon BUILTIN="help"/>
@@ -23,6 +57,10 @@
 </node>
 </node>
 <node CREATED="1239210064249" ID="Freemind_Link_1216819379" MODIFIED="1239210065909" POSITION="right" TEXT="GRAM">
+<node CREATED="1241547209100" ID="Freemind_Link_874223123" MODIFIED="1241547213697" TEXT="GRAM effects_delay">
+<node CREATED="1241547214268" ID="Freemind_Link_741184539" MODIFIED="1241547235353" TEXT="Athena allows effects_delay to be non-zero for HERE."/>
+<node CREATED="1241547225964" ID="Freemind_Link_1772608855" MODIFIED="1241547247223" TEXT="GRAM ignores effects_delay for HERE."/>
+</node>
 <node CREATED="1241215740273" ID="Freemind_Link_1519643380" MODIFIED="1241215764319" TEXT="Speed up gram_value update on cancel"/>
 <node CREATED="1241215792272" ID="Freemind_Link_1746105883" MODIFIED="1241215807290" TEXT="Grab acontrib assignment speed up from JRAM"/>
 <node CREATED="1241215767617" ID="Freemind_Link_1703805627" MODIFIED="1241215779674" TEXT="Accumulate acontrib directly into gram_contribs">

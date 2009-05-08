@@ -22,6 +22,11 @@ situation(sim) uses the Database-backed Object pattern.<p>
 A situation can be in one of three states:<p>
 
 <ul>
+  <li> <b>INITIAL</b>: For <<xref envsit(sim)>> situations only.  The
+       situation is newly created, and its affect on civilian
+       attitudes has not yet been assessed.  Consequently, the
+       situation's parameters may be changed freely.<p>
+       
   <li> <b>ACTIVE</b>: The situation is actively affecting the local
        civilians; it has a coverage greater than 0.<p>
 

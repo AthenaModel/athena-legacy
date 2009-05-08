@@ -882,6 +882,13 @@ snit::type order {
                         set parms($parm) ""
                     }
                 }
+                -oldnum {
+                    set oldvalue [lshift args]
+
+                    if {$parms($parm) == $oldvalue} {
+                        set parms($parm) ""
+                    }
+                }
                 -unused {
                     if {$parms($parm) eq ""} {
                         continue

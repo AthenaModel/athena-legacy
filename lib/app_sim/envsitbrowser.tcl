@@ -136,7 +136,7 @@ snit::widgetadaptor envsitbrowser {
         if {[llength [$self curselection]] == 1} {
             set id [lindex [$self curselection] 0]
 
-            if {$id in [envsit pending names]} {
+            if {$id in [envsit initial names]} {
                 return 1
             }
         }

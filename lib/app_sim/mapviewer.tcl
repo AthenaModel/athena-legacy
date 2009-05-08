@@ -1094,16 +1094,16 @@ snit::widget mapviewer {
     # icon context menu.
 
     method Icon-3 {cid rx ry} {
-        # Units
-        if {$icons(itype-$cid) eq "unit"} {
-            set icons(context) $icons(sid-$cid)
-            tk_popup $canvas.unitmenu $rx $ry
-        }
+        switch -exact $icons(itype-$cid) {
+            unit {
+                set icons(context) $icons(sid-$cid)
+                tk_popup $canvas.unitmenu $rx $ry
+            }
 
-        # EnvSits
-        if {$icons(itype-$cid) eq "situation"} {
-            set icons(context) $icons(sid-$cid)
-            tk_popup $canvas.envsitmenu $rx $ry
+            situation {
+                set icons(context) $icons(sid-$cid)
+                tk_popup $canvas.envsitmenu $rx $ry
+            }
         }
     }
 
@@ -1116,24 +1116,25 @@ snit::widget mapviewer {
     # scenario object to the desired location.
 
     method IconMoved {cid} {
-        # Units
-        if {$icons(itype-$cid) eq "unit"} {
-            if {[order isvalid UNIT:UPDATE]} {
-                order send gui UNIT:UPDATE           \
-                    u $icons(sid-$cid)               \
-                    location [$canvas icon ref $cid]
-            } else {
-                $self UnitDrawSingle $icons(sid-$cid)
+        switch -exact $icons(itype-$cid) {
+            unit {
+                if {[order isvalid UNIT:UPDATE]} {
+                    order send gui UNIT:UPDATE           \
+                        u $icons(sid-$cid)               \
+                        location [$canvas icon ref $cid]
+                } else {
+                    $self UnitDrawSingle $icons(sid-$cid)
+                }
             }
-        }
 
-        if {$icons(itype-$cid) eq "situation"} {
-            if {[catch {
-                order send gui SITUATION:ENVIRONMENTAL:UPDATE \
-                    s        $icons(sid-$cid)                 \
-                    location [$canvas icon ref $cid]
-            }]} {
-                $self EnvsitDrawSingle $icons(sid-$cid)
+            situation {
+                if {[catch {
+                    order send gui SITUATION:ENVIRONMENTAL:UPDATE \
+                        s        $icons(sid-$cid)                 \
+                        location [$canvas icon ref $cid]
+                }]} {
+                    $self EnvsitDrawSingle $icons(sid-$cid)
+                }
             }
         }
     }

@@ -67,6 +67,11 @@ snit::type envsit {
             set sit [$type get $s]
             $sit set assess 0
 
+            # NEXT, if it's in the initial state, make it active
+            if {[$sit get state] eq "INITIAL"} {
+                $sit set state ACTIVE
+            }
+
             # NEXT, create a driver if it lacks one.
             if {[$sit get driver] == -1} {
                 $sit set driver [aram driver add \
@@ -200,29 +205,26 @@ snit::type envsit {
         return $s
     }
 
-    # pending names
+    # initial names
     #
-    # List of pending envsit IDs.  An envsit is pending if it has
-    # been created but hasn't yet been assessed.  While it is pending,
-    # it can be edited and deleted as desired; after that, many
-    # fewer things can be done to it.
+    # List of IDs of envsits in the INITIAL state.
 
-    typemethod {pending names} {} {
+    typemethod {initial names} {} {
         return [rdb eval {
             SELECT s FROM envsits
-            WHERE driver == -1
+            WHERE state = 'INITIAL'
         }]
     }
 
 
-    # pending validate s
+    # initial validate s
     #
     # s      A situation ID
     #
-    # Verifies that s is pending.
+    # Verifies that s is in the INITIAL state
 
-    typemethod {pending validate} {s} {
-        if {$s ni [$type pending names]} {
+    typemethod {initial validate} {s} {
+        if {$s ni [$type initial names]} {
             return -code error -errorcode INVALID \
                 "operation is invalid; time has passed."
         }
@@ -514,14 +516,6 @@ snit::type envsitType {
 
     delegate method * to base
 
-    # isPending
-    #
-    # Returns 1 if the situation is pending, and 0 otherwise.
-
-    method pending {} {
-        expr {$binfo(driver) == -1}
-    }
-
     #-------------------------------------------------------------------
     # Private Methods
 
@@ -549,9 +543,13 @@ snit::type envsitType {
     # If this situation type spawns another situation, cancel the spawn.
 
     method CancelSpawn {} {
+        log detail envsit "CancelSpawn s=$binfo(s)"
         rdb eval {
-            SELECT id FROM eventq_etype_envsitSpawn WHERE s=$binfo(s)
+            SELECT id FROM eventq_etype_envsitSpawn 
+            WHERE CAST (s AS INTEGER) = $binfo(s)
         } {
+            log detail envsit "Cancelling eventq event $id"
+
             eventq cancel $id
         }
     }
@@ -683,10 +681,10 @@ order define ::envsit SITUATION:ENVIRONMENTAL:DELETE {
     title "Delete Environmental Situation"
     options -sendstates {PREP PAUSED RUNNING}
 
-    parm s  enum  "Situation"  -tags situation -type {envsit pending}
+    parm s  enum  "Situation"  -tags situation -type {envsit initial}
 } {
     # FIRST, prepare the parameters
-    prepare s -required -type {envsit pending}
+    prepare s -required -type {envsit initial}
 
     returnOnError
 
@@ -761,7 +759,7 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
     # NEXT, prepare the remaining parameters
     prepare location  -toupper  -type refpoint 
     prepare stype     -toupper  -type eenvsit   -oldvalue [$sit get stype]
-    prepare coverage            -type rfraction -oldvalue [$sit get coverage]
+    prepare coverage            -type rfraction -oldnum   [$sit get coverage]
     prepare inception -toupper  -type boolean   -oldvalue [$sit get inception]
     prepare g         -toupper  -type group     -oldvalue [$sit get g]
     prepare flist     -toupper                  -oldvalue [$sit get flist]
@@ -769,61 +767,62 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
     returnOnError
 
 
-    # NEXT, validate the other parameters
+    # NEXT, validate the other parameters.  In the INITIAL state, everything
+    # can be changed; in any other state, only the location can be changed.
 
-    validate location {
-        set n [nbhood find {*}$parms(location)]
-
-        if {[$sit pending]} {
+    if {[$sit get state] eq "INITIAL"} {
+        validate location {
+            set n [nbhood find {*}$parms(location)]
+            
             if {$n eq ""} {
                 reject location "Should be within a neighborhood"
             }
-        } else {
+        }
+
+        validate stype {
+            if {[envsit existsInNbhood $n $parms(stype)]} {
+                reject stype \
+                  "An envsit of this type already exists in this neighborhood."
+            }
+        }
+
+
+        validate coverage {
+            if {$parms(coverage) == 0.0} {
+                reject coverage "Coverage must be greater than 0."
+            }
+        }
+    } else {
+        # Not INITIAL
+        validate location {
+            set n [nbhood find {*}$parms(location)]
+
             if {$n ne [$sit get n]} {
                 reject location "Cannot remove situation from its neighborhood"
             }
         }
-    }
 
-    validate stype {
-        if {[$sit pending]} {
-            if {[envsit existsInNbhood $n $parms(stype)]} {
-                reject stype \
-                "An envsit of this type already exists in this neighborhood."
-            }
-        } else {
+        validate stype {
+            reject stype "Cannot update this parameter; time has advanced."
+        }
+
+
+        validate coverage {
             reject coverage "Cannot update this parameter; time has advanced."
         }
-    }
 
 
-    validate coverage {
-        if {[$sit pending]} {
-            if {$parms(coverage) == 0.0} {
-                reject coverage "Coverage must be greater than 0."
-            }
-        } else {
-            reject coverage "Cannot update this parameter; time has advanced."
-        }
-    }
-
-
-    validate inception {
-        if {![$sit pending]} {
+        validate inception {
             reject inception "Cannot update this parameter; time has advanced."
         }
-    }
 
 
-    validate flist {
-        if {![$sit pending]} {
+        validate flist {
             reject flist "Cannot update this parameter; time has advanced."
         }
-    }
-    
+        
 
-    validate g {
-        if {![$sit pending]} {
+        validate g {
             reject g "Cannot update this parameter; time has advanced."
         }
     }
