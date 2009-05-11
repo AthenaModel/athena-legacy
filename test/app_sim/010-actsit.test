@@ -54,7 +54,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
 s kind     stype    driver n   coverage           state  ts tc change flist g    a        
 - -------- -------- ------ --- ------------------ ------ -- -- ------ ----- ---- -------- 
-1 ::actsit PRESENCE 1      NB1 0.4827181420282134 ACTIVE 1  1  NEW          BLUE PRESENCE 
+1 ::actsit PRESENCE 1      NB1 0.4827181420282134 ACTIVE 1  1  NEW    ALL   BLUE PRESENCE 
     }
 
 
@@ -90,7 +90,7 @@ s change
     } -result {
 s kind     stype    driver n   coverage           state  ts tc change  flist g    a        
 - -------- -------- ------ --- ------------------ ------ -- -- ------- ----- ---- -------- 
-1 ::actsit PRESENCE 1      NB1 0.7324194794132565 ACTIVE 1  2  UPDATED       BLUE PRESENCE 
+1 ::actsit PRESENCE 1      NB1 0.7324194794132565 ACTIVE 1  2  UPDATED ALL   BLUE PRESENCE 
     }
 
 
@@ -109,7 +109,7 @@ s kind     stype    driver n   coverage           state  ts tc change  flist g  
     } -result {
 s kind     stype    driver n   coverage state ts tc change flist g    a        
 - -------- -------- ------ --- -------- ----- -- -- ------ ----- ---- -------- 
-1 ::actsit PRESENCE 1      NB1 0.0      ENDED 1  2  ENDED        BLUE PRESENCE 
+1 ::actsit PRESENCE 1      NB1 0.0      ENDED 1  2  ENDED  ALL   BLUE PRESENCE 
     }
 
 
@@ -139,21 +139,21 @@ s kind     stype    driver n   coverage state ts tc change flist g    a
     } -result {
 s kind     stype    driver n   coverage           state  ts tc change flist g    a        
 - -------- -------- ------ --- ------------------ ------ -- -- ------ ----- ---- -------- 
-1 ::actsit GUARD    1      NB1 0.4827181420282134 ACTIVE 1  1  NEW          BLUE GUARD    
-2 ::actsit PATROL   2      NB1 0.4827181420282134 ACTIVE 1  1  NEW          BLUE PATROL   
-3 ::actsit PRESENCE 3      NB1 0.7324194794132565 ACTIVE 1  1  NEW          BLUE PRESENCE 
+1 ::actsit GUARD    1      NB1 0.4827181420282134 ACTIVE 1  1  NEW    ALL   BLUE GUARD    
+2 ::actsit PATROL   2      NB1 0.4827181420282134 ACTIVE 1  1  NEW    ALL   BLUE PATROL   
+3 ::actsit PRESENCE 3      NB1 0.7324194794132565 ACTIVE 1  1  NEW    ALL   BLUE PRESENCE 
     
 s kind     stype    driver n   coverage           state  ts tc change flist g    a        
 - -------- -------- ------ --- ------------------ ------ -- -- ------ ----- ---- -------- 
-1 ::actsit GUARD    1      NB1 0.4827181420282134 ACTIVE 1  1               BLUE GUARD    
-2 ::actsit PATROL   2      NB1 0.4827181420282134 ACTIVE 1  1               BLUE PATROL   
-3 ::actsit PRESENCE 3      NB1 0.7324194794132565 ACTIVE 1  1               BLUE PRESENCE 
+1 ::actsit GUARD    1      NB1 0.4827181420282134 ACTIVE 1  1         ALL   BLUE GUARD    
+2 ::actsit PATROL   2      NB1 0.4827181420282134 ACTIVE 1  1         ALL   BLUE PATROL   
+3 ::actsit PRESENCE 3      NB1 0.7324194794132565 ACTIVE 1  1         ALL   BLUE PRESENCE 
     
 s kind     stype    driver n   coverage state ts tc change flist g    a        
 - -------- -------- ------ --- -------- ----- -- -- ------ ----- ---- -------- 
-1 ::actsit GUARD    1      NB1 0.0      ENDED 1  3  ENDED        BLUE GUARD    
-2 ::actsit PATROL   2      NB1 0.0      ENDED 1  3  ENDED        BLUE PATROL   
-3 ::actsit PRESENCE 3      NB1 0.0      ENDED 1  3  ENDED        BLUE PRESENCE 
+1 ::actsit GUARD    1      NB1 0.0      ENDED 1  3  ENDED  ALL   BLUE GUARD    
+2 ::actsit PATROL   2      NB1 0.0      ENDED 1  3  ENDED  ALL   BLUE PATROL   
+3 ::actsit PRESENCE 3      NB1 0.0      ENDED 1  3  ENDED  ALL   BLUE PRESENCE 
     }
 
     #-------------------------------------------------------------------
@@ -169,7 +169,7 @@ s kind     stype    driver n   coverage state ts tc change flist g    a
         $sit oneliner
     } -cleanup {
         cleanup
-    } -result {BLUE PRESENCE in NB1 (currently ACTIVE)}
+    } -result {BLUE PRESENCE in NB1}
 
 
     test get-1.2 {get -live} -setup {

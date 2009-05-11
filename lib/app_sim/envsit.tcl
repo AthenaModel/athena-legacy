@@ -86,6 +86,7 @@ snit::type envsit {
             if {[$sit get inception]} {
                 $sit set inception 0
                 # envsit_rules begin $sit
+                notifier send $type <Entity> update $s
             }
 
             # NEXT, monitor its coverage
@@ -345,7 +346,7 @@ snit::type envsit {
     # s     A situation ID
     #
     # Deletes the situation.  This should be done only if the
-    # situation has not yet been assessed for the first time.
+    # situation is in the INITIAL state.
 
     typemethod {mutate delete} {s} {
         # FIRST, get the undo information
@@ -420,10 +421,21 @@ snit::type envsit {
             # NEXT, Update the entity
             set sit [$type get $s]
 
-            $sit set change   UPDATED
+            if {[$sit get change] eq ""} {
+                $sit set change UPDATED
+            }
 
-            if {$stype    ne ""} { $sit set stype    $stype    }
-            if {$g        ne ""} { $sit set g        $g        }
+            if {$stype ne ""} { 
+                $sit set stype $stype
+
+                # The spawn parameters vary by stype; update accordingly.
+                $sit CancelSpawn
+                $sit ScheduleSpawn
+            }
+
+            if {$g ne ""} { 
+                $sit set g $g
+            }
 
             if {$location ne ""} { 
                 $sit set location $location 
@@ -435,11 +447,15 @@ snit::type envsit {
                 $sit set assess   1
                 $sit set tc       [simclock now]
 
-                if {$coverage > 0.0} {
-                    $sit set state ACTIVE
-                } else {
-                    # NOTE: At this time, coverage can't be set to 0.
-                    $sit set state INACTIVE
+                # Set state to ACTIVE/INACTIVE based on coverage,
+                # unless we're still in the INITIAL state.
+                if {[$sit get state] ne "INITIAL"} {
+                    if {$coverage > 0.0} {
+                        $sit set state ACTIVE
+                    } else {
+                        # NOTE: At this time, coverage can't be set to 0.
+                        $sit set state INACTIVE
+                    }
                 }
             }
 
@@ -478,6 +494,8 @@ snit::type envsit {
             $sit set state    ENDED
             $sit set tc       [simclock now]
 
+            $sit CancelSpawn
+
             # NEXT, notify the app
             notifier send $type <Entity> update $s
         }
@@ -491,13 +509,21 @@ snit::type envsit {
     # bdict    row dict for base entity
     # ddict    row dict for derived entity
     #
-    # Restores the rows to the database
+    # Restores the rows to the database, and reschedules any spawns.
 
     typemethod Replace {bdict ddict} {
-        situation uncache [dict get $bdict s]
+        set s [dict get $bdict s]
+        situation uncache $s
+        
         rdb replace situations $bdict
         rdb replace envsits_t  $ddict
-        notifier send $type <Entity> update [dict get $bdict s]
+
+        set sit [situation get $s]
+        
+        $sit CancelSpawn
+        $sit ScheduleSpawn
+
+        notifier send $type <Entity> update $s
     }
 
     #-------------------------------------------------------------------

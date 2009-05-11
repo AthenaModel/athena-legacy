@@ -237,6 +237,14 @@ snit::type situation {
         }
     }
 
+    # reconfigure
+    #
+    # Resets the in-memory state to reflect the RDB.
+
+    typemethod reconfigure {} {
+        $type FlushCache
+    }
+
     #-------------------------------------------------------------------
     # Private Type Methods
 

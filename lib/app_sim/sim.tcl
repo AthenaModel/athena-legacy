@@ -390,19 +390,20 @@ snit::type sim {
 
     typemethod reconfigure {} {
         # FIRST, Reconfigure the simulation
-        cif      reconfigure
-        map      reconfigure
-        nbhood   reconfigure
-        nbrel    reconfigure
-        group    reconfigure
-        civgroup reconfigure
-        frcgroup reconfigure
-        orggroup reconfigure
-        nbgroup  reconfigure
-        sat      reconfigure
-        rel      reconfigure
-        coop     reconfigure
-        unit     reconfigure
+        cif       reconfigure
+        map       reconfigure
+        nbhood    reconfigure
+        nbrel     reconfigure
+        group     reconfigure
+        civgroup  reconfigure
+        frcgroup  reconfigure
+        orggroup  reconfigure
+        nbgroup   reconfigure
+        sat       reconfigure
+        rel       reconfigure
+        coop      reconfigure
+        unit      reconfigure
+        situation reconfigure
 
         # NEXT, Reconfigure the GUI
         notifier send $type <Reconfigure>

@@ -54,7 +54,7 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # mutate create
 
-    test create-1.1 {units is created} -setup {
+    test create-1.1 {units are created} -setup {
         ted create BLUE USAID
     } -body {
         # FRC unit

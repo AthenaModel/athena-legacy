@@ -40,6 +40,9 @@ snit::type ted {
         rel_nfg
         coop_nfg
         units
+        situations
+        envsits_t
+        actsits_t
     }
 
     # cleanupModules -- list of modules that need to be reconfigured
@@ -56,6 +59,7 @@ snit::type ted {
         rel
         coop
         unit
+        situation
     }
 
     #-------------------------------------------------------------------
@@ -331,6 +335,7 @@ snit::type ted {
     # * Reconfigures the $cleanupModules
     # * Clears the CIF
     # * Resets the parms
+    # * Restarts the eventq(n) queue
     
     typemethod cleanup {} {
         ted notifier forget
@@ -351,8 +356,9 @@ snit::type ted {
             {*}$module reconfigure
         }
 
-        cif clear
-        parm reset
+        cif    clear
+        parm   reset
+        eventq restart
     }
 
     # sendex ?-error? command...
