@@ -1330,8 +1330,13 @@ snit::widget mapviewer {
                          -text $stype]
 
             if {$state eq "INITIAL"} {
+                $canvas icon configure $cid -foreground red
+                $canvas icon configure $cid -background white
+            } elseif {$state eq "ENDED"} {
+                $canvas icon configure $cid -foreground "#009900"
                 $canvas icon configure $cid -background white
             } else {
+                $canvas icon configure $cid -foreground red
                 $canvas icon configure $cid -background yellow
             }
             
@@ -1350,12 +1355,19 @@ snit::widget mapviewer {
     # to be redrawn.
 
     method EnvsitDrawSingle {s} {
+        # FIRST, draw it, if it's current.
         rdb eval {
             SELECT * FROM envsits_current
             WHERE s=$s
         } row {
             $self EnvsitDraw [array get row]
+            return
         } 
+
+        # NEXT, the envsit is no longer current; delete the icon.
+        if {[info exists icons(cid-$s)]} {
+            $self IconDelete $s
+        }
     }
 
 

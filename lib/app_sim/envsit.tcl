@@ -832,14 +832,6 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
     # NEXT, get the situation object
     set sit [envsit get $parms(s)]
 
-    # NEXT, Can we even update this situation?
-    validate s {
-        if {[$sit get state] eq "ENDED"} {
-            reject s "Cannot update a situation that has ended."
-        }
-    }
-    returnOnError
-
     # NEXT, prepare the remaining parameters
     prepare location  -toupper  -type refpoint 
     prepare stype     -toupper  -type eenvsit   \
