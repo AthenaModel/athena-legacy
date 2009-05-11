@@ -186,6 +186,20 @@ snit::type app {
             [$browser candelete]
         }
 
+        # Order is valid, and the selection can be resolved.
+        # The browser should call update for its widgets.
+        #
+        # Objdict:   order     THE:ORDER:NAME
+        #            browser   The browser window
+
+        statecontroller ::cond::orderIsValidCanResolve -events {
+            ::order <State>
+        } -condition {
+            [::order isvalid $order] &&
+            [$browser canresolve]
+        }
+
+
         # NEXT, Withdraw the default toplevel window, and create 
         # the main GUI components.
         wm withdraw .

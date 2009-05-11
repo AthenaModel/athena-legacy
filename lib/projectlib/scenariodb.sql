@@ -584,8 +584,8 @@ CREATE TABLE actsits_t (
 CREATE VIEW actsits AS
 SELECT * FROM situations JOIN actsits_t USING (s);
 
--- Live Activity Situations View
-CREATE VIEW actsits_live AS
+-- Current Activity Situations View
+CREATE VIEW actsits_current AS
 SELECT * FROM situations JOIN actsits_t USING (s)
 WHERE state != 'ENDED' OR change != '';
 
@@ -618,8 +618,8 @@ CREATE TABLE envsits_t (
 CREATE VIEW envsits AS
 SELECT * FROM situations JOIN envsits_t USING (s);
 
--- Live Environmental Situations View
-CREATE VIEW envsits_live AS
+-- Current Environmental Situations View
+CREATE VIEW envsits_current AS
 SELECT * FROM situations JOIN envsits_t USING (s)
 WHERE state != 'ENDED' OR change != '';
 

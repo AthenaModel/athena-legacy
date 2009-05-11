@@ -35,15 +35,15 @@ snit::widgetadaptor actsitbrowser {
         # FIRST, Install the hull
         installhull using browser_base                \
             -tickreload   yes                         \
-            -table        "gui_actsits_live"          \
+            -table        "gui_actsits_current"       \
             -keycol       "id"                        \
             -keycolnum    0                           \
             -titlecolumns 1                           \
             -displaycmd   [mymethod DisplayData]      \
             -views        {
-                "All"    gui_actsits
-                "Live"   gui_actsits_live
-                "Ended"  gui_actsits_ended
+                "All"      gui_actsits
+                "Current"  gui_actsits_current
+                "Ended"    gui_actsits_ended
             }
 
         # FIRST, get the options.

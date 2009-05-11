@@ -192,8 +192,8 @@ SELECT s                        AS id,
        tozulu(tc)               AS tc
 FROM actsits;
 
---Actsits view: live actsits
-CREATE TEMPORARY VIEW gui_actsits_live AS
+--Actsits view: current actsits: live or freshly ended
+CREATE TEMPORARY VIEW gui_actsits_current AS
 SELECT * FROM gui_actsits 
 WHERE state != 'ENDED' OR change != '';
        
@@ -220,8 +220,8 @@ SELECT s                        AS id,
        CASE inception WHEN 1 THEN 'YES' ELSE 'NO' END AS inception
 FROM envsits;
 
---Envsits view: live envsits
-CREATE TEMPORARY VIEW gui_envsits_live AS
+--Envsits view: current envsits: live or freshly ended
+CREATE TEMPORARY VIEW gui_envsits_current AS
 SELECT * FROM gui_envsits
 WHERE state != 'ENDED' OR change != '';
        

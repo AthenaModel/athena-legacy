@@ -1305,7 +1305,7 @@ snit::widget mapviewer {
 
     method EnvsitDrawAll {} {
         rdb eval {
-            SELECT * FROM envsits_live
+            SELECT * FROM envsits_current
         } row {
             $self EnvsitDraw [array get row]
         } 
@@ -1351,7 +1351,7 @@ snit::widget mapviewer {
 
     method EnvsitDrawSingle {s} {
         rdb eval {
-            SELECT * FROM envsits_live
+            SELECT * FROM envsits_current
             WHERE s=$s
         } row {
             $self EnvsitDraw [array get row]

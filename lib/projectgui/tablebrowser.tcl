@@ -328,6 +328,8 @@ snit::widget ::projectgui::tablebrowser {
     # Extract the row with the supplied id from the db. The client tells
     # the table browser how to display the data, then the data is sorted.
     # 
+    # NOTE: If -views is being used, the updated entity might not
+    # currently be displayed.  If no data is retrieved, just return.
 
     method update {id} {
         set dict {}
@@ -340,6 +342,11 @@ snit::widget ::projectgui::tablebrowser {
             unset -nocomplain row(*)
             set dict [array get row]
         } 
+
+        # NEXT, if we retrieved nothing, there's nothing to do.
+        if {[dict size $dict] == 0} {
+            return
+        }
 
         # NEXT, callback to client for display
         callwith $options(-displaycmd) $dict
@@ -355,12 +362,19 @@ snit::widget ::projectgui::tablebrowser {
     #
     # This method deletes the row from the table that has the column
     # that matches id
+    #
+    # NOTE: If -views is being used, the deleted entity might not
+    # currently be displayed.
 
     method delete {id} {
-        # FIRST, look for a match on id
-        if {[info exists keyMap($id)]} {
-            $tableList delete $keyMap($id) $keyMap($id)
+        # FIRST, look for a match on id.  If there is none, there's
+        # nothing to be done.
+        if {![info exists keyMap($id)]} {
+            return
         }
+
+        # NEXT, delete the entry.
+        $tableList delete $keyMap($id) $keyMap($id)
 
         # NEXT, clear the array
         array unset keyMap

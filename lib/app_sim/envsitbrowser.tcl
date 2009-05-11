@@ -38,16 +38,16 @@ snit::widgetadaptor envsitbrowser {
         # FIRST, Install the hull
         installhull using browser_base                \
             -tickreload   yes                         \
-            -table        "gui_envsits_live"          \
+            -table        "gui_envsits_current"       \
             -keycol       "id"                        \
             -keycolnum    0                           \
             -titlecolumns 1                           \
             -displaycmd   [mymethod DisplayData]      \
             -selectioncmd [mymethod SelectionChanged] \
             -views        {
-                "All"    gui_envsits
-                "Live"   gui_envsits_live
-                "Ended"  gui_envsits_ended
+                "All"      gui_envsits
+                "Current"  gui_envsits_current
+                "Ended"    gui_envsits_ended
             }
 
 
@@ -82,6 +82,19 @@ snit::widgetadaptor envsitbrowser {
             order   SITUATION:ENVIRONMENTAL:UPDATE \
             browser $win
 
+        install resolvebtn using button $bar.resolve   \
+            -image      ::projectgui::icon::check22 \
+            -relief     flat                     \
+            -overrelief raised                   \
+            -state      disabled                 \
+            -command    [mymethod ResolveSelected]
+
+        DynamicHelp::add $resolvebtn -text "Resolve Selected Situation"
+
+        cond::orderIsValidCanResolve control $resolvebtn  \
+            order   SITUATION:ENVIRONMENTAL:RESOLVE   \
+            browser $win
+
         install deletebtn using button $bar.delete \
             -image      ::projectgui::icon::x22    \
             -relief     flat                       \
@@ -96,9 +109,10 @@ snit::widgetadaptor envsitbrowser {
             browser $win
 
 
-        pack $addbtn    -side left
-        pack $editbtn   -side left
-        pack $deletebtn -side right
+        pack $addbtn     -side left
+        pack $editbtn    -side left
+        pack $deletebtn  -side right
+        pack $resolvebtn -side right
 
         # NEXT, create the columns and labels.
         $hull insertcolumn end 0 {ID}
@@ -149,6 +163,23 @@ snit::widgetadaptor envsitbrowser {
         return 0
     }
 
+
+    # canresolve
+    #
+    # Returns 1 if the current selection is resolveable.
+    
+    method canresolve {} {
+        if {[llength [$self curselection]] == 1} {
+            set id [lindex [$self curselection] 0]
+
+            if {$id in [envsit live names]} {
+                return 1
+            }
+        }
+
+        return 0
+    }
+
     #-------------------------------------------------------------------
     # Private Methods
 
@@ -177,8 +208,9 @@ snit::widgetadaptor envsitbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidSingle    update $editbtn
-        cond::orderIsValidCanDelete update $deletebtn
+        cond::orderIsValidSingle     update $editbtn
+        cond::orderIsValidCanResolve update $resolvebtn
+        cond::orderIsValidCanDelete  update $deletebtn
 
         # NEXT, notify the app of the selection.
         if {[llength [$hull curselection]] == 1} {
@@ -206,8 +238,21 @@ snit::widgetadaptor envsitbrowser {
         # FIRST, there should be only one selected.
         set id [lindex [$hull curselection] 0]
 
-        # NEXT, Send the delete order.
+        # NEXT, Pop up the order dialog.
         order enter SITUATION:ENVIRONMENTAL:UPDATE s $id
+    }
+
+
+    # ResolveSelected
+    #
+    # Called when the user wants to resolve the selected entity
+
+    method ResolveSelected {} {
+        # FIRST, there should be only one selected.
+        set id [lindex [$hull curselection] 0]
+
+        # NEXT, Pop up the order dialog.
+        order enter SITUATION:ENVIRONMENTAL:RESOLVE s $id
     }
 
 

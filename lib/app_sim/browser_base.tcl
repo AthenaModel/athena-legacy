@@ -23,6 +23,7 @@ snit::widget browser_base {
     component tb          ;# tablebrowser(n) used to browse groups
     component bar         ;# Tool bar
     component reloader    ;# timeout(n) to reload entities
+    component changer     ;# timeout(n) to call -selectioncmd
 
     #-------------------------------------------------------------------
     # Options
@@ -85,6 +86,12 @@ snit::widget browser_base {
         install reloader using timeout ${selfns}::reloader \
             -command    [mymethod reload]                  \
             -interval   1                                  \
+            -repetition no
+
+        # NEXT, create the changer timeout
+        install changer using timeout ${selfns}::changer \
+            -command    [mymethod SelectionChanged]      \
+            -interval   1                                \
             -repetition no
 
         # NEXT, Reconfigure the whole window when:
@@ -176,7 +183,12 @@ snit::widget browser_base {
             return
         }
 
+        # NEXT, update the table browser
         $tb update $id
+
+        # NEXT, notify the client that the selection has changed--
+        # after a moment.
+        $changer schedule
     }
 
     # delete id
@@ -194,8 +206,9 @@ snit::widget browser_base {
         # NEXT, update the tablebrowser
         $tb delete $id
 
-        # NEXT, handle selection changes.
-        $self SelectionChanged
+        # NEXT, notify the client that the selection has changed--
+        # after a moment.
+        $changer schedule
     }
 
     #-------------------------------------------------------------------

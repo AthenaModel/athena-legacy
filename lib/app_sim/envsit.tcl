@@ -234,28 +234,57 @@ snit::type envsit {
         return $s
     }
 
-    # causer names
+    # live names
     #
-    # List of names of potentially causing groups, plus NONE.
+    # List of IDs of envsits that are still "live"
 
-    typemethod {causer names} {} {
+    typemethod {live names} {} {
+        return [rdb eval {
+            SELECT s FROM envsits WHERE state != 'ENDED'
+        }]
+    }
+
+
+    # live validate s
+    #
+    # s      A situation ID
+    #
+    # Verifies that s is still "live"
+
+    typemethod {live validate} {s} {
+        if {$s ni [$type live names]} {
+            return -code error -errorcode INVALID \
+                "not a \"live\" situation: \"$s\"."
+        }
+
+        return $s
+    }
+
+
+    # doer names
+    #
+    # List of names of groups that can cause and resolve envsits,
+    # plus "NONE".
+
+    typemethod {doer names} {} {
         linsert [group names] 0 NONE
     }
 
-    # causer validate g
-    #
-    # g       Potentially, a causing group g
-    #
-    # Verifies that g is a valid causing group.
 
-    typemethod {causer validate} {g} {
-        if {$g ni [$type causer names]} {
-            set names [join [$type causer names] ", "]
+    # doer validate g
+    #
+    # g       Potentially, a doing group g
+    #
+    # Verifies that g is a valid doing group.
+
+    typemethod {doer validate} {g} {
+        if {$g ni [$type doer names]} {
+            set names [join [$type doer names] ", "]
 
             set msg "should be one of: $names"
 
             return -code error -errorcode INVALID \
-                "Invalid causing group, $msg"
+                "Invalid doing group, $msg"
         }
 
         return $g
@@ -683,7 +712,7 @@ order define ::envsit SITUATION:ENVIRONMENTAL:CREATE {
         -refreshcmd {::envsit RefreshSType}
     parm coverage   text  "Coverage"      -defval 1.0
     parm inception  enum  "Inception?"    -type eyesno -defval "YES"
-    parm g          enum  "Caused By"     -type [list envsit causer] \
+    parm g          enum  "Caused By"     -type [list envsit doer] \
         -defval NONE
 } {
     # FIRST, prepare and validate the parameters
@@ -691,7 +720,7 @@ order define ::envsit SITUATION:ENVIRONMENTAL:CREATE {
     prepare stype     -toupper   -required -type eenvsit
     prepare coverage             -required -type rfraction
     prepare inception -toupper   -required -type boolean
-    prepare g         -toupper             -type [list envsit causer]
+    prepare g         -toupper             -type [list envsit doer]
 
     returnOnError
 
@@ -740,7 +769,7 @@ order define ::envsit SITUATION:ENVIRONMENTAL:DELETE {
     parm s  enum  "Situation"  -tags situation -type {envsit initial}
 } {
     # FIRST, prepare the parameters
-    prepare s -required -type {envsit initial}
+    preparecreate s -required -type {envsit initial}
 
     returnOnError
 
@@ -766,7 +795,7 @@ order define ::envsit SITUATION:ENVIRONMENTAL:DELETE {
     }
 
 
-    # NEXT, create the situation.
+    # NEXT, delete the situation.
     lappend undo [$type mutate delete $parms(s)]
     
     setundo [join $undo \n]
@@ -793,7 +822,7 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
         -refreshcmd [list ::envsit RefreshUpdateParm coverage]
     parm inception  enum  "Inception?"  -type eyesno -defval "YES" \
         -refreshcmd [list ::envsit RefreshUpdateParm inception]
-    parm g          enum  "Caused By"   -type [list envsit causer] \
+    parm g          enum  "Caused By"   -type [list envsit doer] \
         -refreshcmd [list ::envsit RefreshUpdateParm g]
 
 } {
@@ -819,7 +848,7 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
         -oldnum   [$sit get coverage]
     prepare inception -toupper  -type boolean   \
         -oldvalue [$sit get inception]
-    prepare g -toupper  -type {envsit causer} \
+    prepare g -toupper  -type {envsit doer} \
         -oldvalue [$sit get g]
 
     returnOnError
@@ -886,3 +915,28 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
     setundo [$type mutate update [array get parms]]
 }
 
+
+# SITUATION:ENVIRONMENTAL:RESOLVE
+#
+# Resolves an envsit.
+
+order define ::envsit SITUATION:ENVIRONMENTAL:RESOLVE {
+    title "Resolve Environmental Situation"
+    options -sendstates {PREP PAUSED RUNNING}
+
+    parm s         enum  "Situation"    -tags situation -type {envsit live}
+    parm resolver  enum  "Resolved By"  -type [list envsit doer] \
+        -defval NONE
+} {
+    # FIRST, prepare the parameters
+    prepare s         -required -type {envsit live}
+    prepare resolver  -toupper  -type [list envsit doer]
+
+
+    returnOnError
+
+    # NEXT, resolve the situation.
+    lappend undo [$type mutate resolve [array get parms]]
+    
+    setundo [join $undo \n]
+}

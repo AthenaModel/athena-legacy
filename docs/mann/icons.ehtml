@@ -25,6 +25,10 @@ The module defines the following icons.<p>
 
 <<deflist icons>>
 
+<<defitem check22 {::projectgui::icon::check22}>>
+
+A green "checkmark" icon.<p>
+
 <<defitem pause22 {::projectgui::icon::pause22}>>
 
 A "pause" icon, two black vertical bars.<p>
