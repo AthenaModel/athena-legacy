@@ -366,8 +366,8 @@ NB1 Not Here 1              RURAL        2.0     5 5      0 0 10 0 10 10 0 10
     } -result {
 n   stacking_order obscured_by 
 --- -------------- ----------- 
-NB1 1                          
-NB2 2              NB1         
+NB1 1              NB2         
+NB2 2                          
     }
 
 

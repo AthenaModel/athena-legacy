@@ -132,6 +132,26 @@ snit::type ted {
             polygon      {280 280 320 280 300 320}
         }
 
+
+        defentity NB3 ::nbhood {
+            n            NB3
+            longname     "County"
+            urbanization RURAL
+            vtygain      1.0
+            refpoint     {500 500}
+            polygon      {400 400 400 800 800 800 800 400}
+        }
+
+        defentity NB4 ::nbhood {
+            n            NB4
+            longname     "Town"
+            urbanization URBAN
+            vtygain      1.0
+            refpoint     {700 700}
+            polygon      {600 600 600 800 800 800 800 600}
+        }
+
+
         # Civ Groups
         
         defentity SHIA ::civgroup {

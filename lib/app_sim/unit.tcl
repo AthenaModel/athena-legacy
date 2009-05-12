@@ -121,7 +121,7 @@ snit::type unit {
     # mutate reconcile
     #
     # Deletes units for which the owning group no longer exists.
-    # Clears the "n" field for neighborhoods that no longer exist.
+    # Updates the "n" field to reflect neighborhood changes.
 
     typemethod {mutate reconcile} {} {
         # FIRST, delete units for which no group exists.
@@ -136,69 +136,40 @@ snit::type unit {
         }
 
         # NEXT, try to set n for units that have no neighborhood.
-
         rdb eval {
-            SELECT u, location
-            FROM units WHERE n = ''
+            SELECT u, n, location 
+            FROM units
         } { 
-            if {[$type FindNbhood $u $location]} {
-                lappend undo [mytypemethod ClearNbhood $u]
+            set newNbhood [nbhood find {*}$location]
+
+            if {$newNbhood ne $n} {
+                rdb eval {
+                    UPDATE units
+                    SET   n = $newNbhood
+                    WHERE u = $u
+                }
+
+                lappend undo [mytypemethod RestoreNbhood $u $n]
+
+                notifier send ::unit <Entity> update $u
             }
-        }
-
-        # NEXT, clear n for neighborhoods that
-        # no longer exist.
-
-        rdb eval {
-            SELECT u, location
-            FROM units LEFT OUTER JOIN nbhoods USING (n)
-            WHERE n != '' AND refpoint IS NULL
-        } {
-            $type ClearNbhood $u
-
-            lappend undo [mytypemethod FindNbhood $u $location]
         }
 
         return [join $undo \n]
     }
 
-    # FindNbhood u location
+    # RestoreNbhood u n
     #
     # u     A unit
+    # n     A nbhood
     # 
-    # Computes and saves the neighborhood for the unit on reconcile.
-    # Returns 1 if nbhood found, and 0 otherwise.
+    # Sets the unit's nbhood.
 
-    typemethod FindNbhood {u location} {
-        # FIRST, find the neighborhood.
-        set n [nbhood find {*}$location]
-
-        if {$n eq ""} {
-            return 0
-        }
-
-        # NEXT, save it, and notify the app.
+    typemethod RestoreNbhood {u n} {
+        # FIRST, save it, and notify the app.
         rdb eval {
             UPDATE units
             SET n = $n
-            WHERE u = $u
-        }
-
-        notifier send ::unit <Entity> update $u
-
-        return 1
-    }
-
-    # ClearNbhood u
-    #
-    # u     A unit
-    # 
-    # Clears the neighborhood for the unit on reconcile.
-
-    typemethod ClearNbhood {u} {
-        rdb eval {
-            UPDATE units
-            SET n = ''
             WHERE u = $u
         }
 

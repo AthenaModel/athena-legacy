@@ -368,10 +368,9 @@ snit::type nbhood {
                 WHERE n=$n
             } {}
 
-            # NEXT, recompute the obscured_by field if necessary; this 
-            # nbhood might have obscured some other neighborhood's refpoint.
+            # NEXT, if the polygon has changed update the geoset, etc.
             if {$polygon ne ""} {
-                $type SetObscuredBy
+                $type reconfigure
             }
 
             # NEXT, notify the app.
@@ -514,7 +513,10 @@ order define ::nbhood NBHOOD:LOWER {
     returnOnError
 
     # NEXT, raise the neighborhood
-    setundo [$type mutate lower $parms(n)]
+    lappend undo [$type mutate lower $parms(n)]
+    lappend undo [scenario mutate reconcile]
+
+    setundo [join $undo \n]
 }
 
 # NBHOOD:RAISE
@@ -531,7 +533,10 @@ order define ::nbhood NBHOOD:RAISE {
     returnOnError
 
     # NEXT, raise the neighborhood
-    setundo [$type mutate raise $parms(n)]
+    lappend undo [$type mutate raise $parms(n)]
+    lappend undo [scenario mutate reconcile]
+
+    setundo [join $undo \n]
 }
 
 # NBHOOD:UPDATE
@@ -618,7 +623,10 @@ order define ::nbhood NBHOOD:UPDATE {
     returnOnError
 
     # NEXT, modify the neighborhood
-    setundo [$type mutate update [array get parms]]
+    lappend undo [$type mutate update [array get parms]]
+    lappend undo [scenario mutate reconcile]
+
+    setundo [join $undo \n]
 }
 
 # NBHOOD:UPDATE:MULTI
@@ -651,6 +659,8 @@ order define ::nbhood NBHOOD:UPDATE:MULTI {
     foreach parms(n) $parms(ids) {
         lappend undo [$type mutate update [array get parms]]
     }
+
+    lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
 }
