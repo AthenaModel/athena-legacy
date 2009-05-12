@@ -751,6 +751,7 @@ snit::widget mapviewer {
         # delete it.
         if {[info exists nbhoods(id-$n)]} {
             $canvas nbhood delete $nbhoods(id-$n)
+            unset nbhoods(n-$nbhoods(id-$n))
             unset nbhoods(id-$n)
         }
 
@@ -976,6 +977,11 @@ snit::widget mapviewer {
         # TBD: This could be optimized to just raise and lower the
         # existing nbhoods; but this is simple and appears to be
         # fast enough.
+
+        foreach id [$canvas nbhood ids] {
+            $canvas nbhood delete $id
+        }
+
         $self NbhoodDrawAll
     }
 
