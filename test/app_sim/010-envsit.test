@@ -573,6 +573,155 @@ id t etype       s
 2  1 envsitSpawn 1 
     }
 
+
+    #-------------------------------------------------------------------
+    # mutate reconcile
+
+    # g set to NONE if g doesn't exist
+
+    test reconcile-1.1 {g set to NONE if g doesn't exist} -setup {
+        ted create NB1
+        envsit mutate create [dict merge $s1 [list g NONESUCH]]
+    } -body {
+        envsit mutate reconcile
+
+        ted query {SELECT * FROM envsits}
+    } -cleanup {
+        cleanup
+    } -result {
+s kind     stype    driver n   coverage state   ts tc change flist g    location assess inception resolver 
+- -------- -------- ------ --- -------- ------- -- -- ------ ----- ---- -------- ------ --------- -------- 
+1 ::envsit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   NONE 100 100  1      1                  
+    }
+
+
+    test reconcile-1.2 {<Entity> update} -setup {
+        ted create NB1
+        envsit mutate create [dict merge $s1 [list g NONESUCH]]
+    } -body {
+        ted notifier bind ::envsit <Entity>
+        envsit mutate reconcile
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::envsit <Entity> update 1}
+    }
+
+
+    # resolver set to NONE if resolver doesn't exist
+
+    test reconcile-2.1 {resolver set to NONE if resolver doesn't exist} -setup {
+        ted create NB1
+        envsit mutate create [dict merge $s1 [list g NONE]]
+        envsit mutate resolve [list s 1 resolver BLUE]
+    } -body {
+        envsit mutate reconcile
+
+        ted query {SELECT * FROM envsits}
+    } -cleanup {
+        cleanup
+    } -result {
+s kind     stype    driver n   coverage state ts tc change   flist g    location assess inception resolver 
+- -------- -------- ------ --- -------- ----- -- -- -------- ----- ---- -------- ------ --------- -------- 
+1 ::envsit BADWATER -1     NB1 0.0      ENDED 0  0  RESOLVED ALL   NONE 100 100  1      1         NONE     
+    }
+
+
+    test reconcile-2.2 {<Entity> update} -setup {
+        ted create NB1
+        envsit mutate create [dict merge $s1 [list g NONE]]
+        envsit mutate resolve [list s 1 resolver BLUE]
+    } -body {
+        ted notifier bind ::envsit <Entity>
+        envsit mutate reconcile
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::envsit <Entity> update 1}
+    }
+
+
+    # n reset
+
+    test reconcile-3.1 {n reset} -setup {
+        ted create NB1 BLUE
+        envsit mutate create $s1
+        nbhood mutate delete NB1
+    } -body {
+        envsit mutate reconcile
+
+        ted query {SELECT * FROM envsits}
+    } -cleanup {
+        cleanup
+    } -result {
+s kind     stype    driver n coverage state   ts tc change flist g    location assess inception resolver 
+- -------- -------- ------ - -------- ------- -- -- ------ ----- ---- -------- ------ --------- -------- 
+1 ::envsit BADWATER -1       1.0      INITIAL 0  0  NEW    ALL   BLUE 100 100  1      1                  
+    }
+
+
+    test reconcile-3.2 {<Entity> update} -setup {
+        ted create NB1 BLUE
+        envsit mutate create $s1
+        nbhood mutate delete NB1
+    } -body {
+        ted notifier bind ::envsit <Entity>
+        envsit mutate reconcile
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::envsit <Entity> update 1}
+    }
+
+
+    # Undo restores everything
+
+    test reconcile-4.1 {Undo restores everything} -setup {
+        ted create NB1
+        envsit mutate create $s1
+        envsit mutate resolve [list s 1 resolver BRIT]
+        nbhood mutate delete NB1
+
+        set undo [envsit mutate reconcile]
+    } -body {
+        eval $undo
+
+        ted query {SELECT * FROM envsits}
+    } -cleanup {
+        cleanup
+    } -result {
+s kind     stype    driver n   coverage state ts tc change   flist g    location assess inception resolver 
+- -------- -------- ------ --- -------- ----- -- -- -------- ----- ---- -------- ------ --------- -------- 
+1 ::envsit BADWATER -1     NB1 0.0      ENDED 0  0  RESOLVED ALL   BLUE 100 100  1      1         BRIT     
+    }
+
+
+    test reconcile-4.2 {Undo sends <Entity> update} -setup {
+        ted create NB1
+        envsit mutate create $s1
+        envsit mutate resolve [list s 1 resolver BRIT]
+        nbhood mutate delete NB1
+
+        set undo [envsit mutate reconcile]
+    } -body {
+        ted notifier bind ::envsit <Entity>
+        eval $undo
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::envsit <Entity> update 1}
+        {::envsit <Entity> update 1}
+    }
+
+
     #-------------------------------------------------------------------
     # get
 

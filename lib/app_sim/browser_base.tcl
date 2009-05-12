@@ -168,7 +168,7 @@ snit::widget browser_base {
             return
         }
 
-        $reloader schedule
+        $reloader schedule -nocomplain
     }
 
     # update id
@@ -188,7 +188,7 @@ snit::widget browser_base {
 
         # NEXT, notify the client that the selection has changed--
         # after a moment.
-        $changer schedule
+        $changer schedule -nocomplain
     }
 
     # delete id
@@ -208,7 +208,7 @@ snit::widget browser_base {
 
         # NEXT, notify the client that the selection has changed--
         # after a moment.
-        $changer schedule
+        $changer schedule -nocomplain
     }
 
     #-------------------------------------------------------------------

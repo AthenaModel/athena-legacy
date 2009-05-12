@@ -135,7 +135,7 @@ snit::type unit {
             lappend undo [$type mutate delete $u]
         }
 
-        # NEXT, try to set n for units that have no neighborhood.
+        # NEXT, set n for all units
         rdb eval {
             SELECT u, n, location 
             FROM units

@@ -24,8 +24,8 @@
 #    * Envsits are created, updated, and deleted via the "mutate *" 
 #      commands and the SITUATION:ENVIRONMENTAL:* orders.
 #
-#    * This module calls the envsit rule sets when it detects 
-#      relevant state transitions.
+#    * This module calls the envsit rule on "envsit assess", which is 
+#      done as part of the time advance.
 #
 # EVENT NOTIFICATIONS:
 #    The ::envsit module sends the following notifier(n) events:
@@ -60,7 +60,11 @@ snit::type envsit {
     # Calls the DAM rule sets for each situation requiring assessment.
 
     typemethod assess {} {
-        set ids [rdb eval {SELECT s FROM envsits WHERE assess=1}]
+        # FIRST, get a list of the IDs of envsits that need to be
+        # assessed.
+        set ids [rdb eval {
+            SELECT s FROM envsits WHERE assess=1
+        }]
         
         foreach s $ids {
             # FIRST, get the situation and clear the assess flag
@@ -295,6 +299,88 @@ snit::type envsit {
 
     #-------------------------------------------------------------------
     # Mutators
+    #
+    # Mutators are used to implement orders that change the scenario in
+    # some way.  Mutators assume that their inputs are valid, and returns
+    # a script of one or more commands that will undo the change.  When
+    # change cannot be undone, the mutator returns the empty string.
+
+    # mutate reconcile
+    #
+    # Updates envsits as neighborhoods and groups change:
+    #
+    # 1. If the "g" or "resolver" group no longer exists, that
+    #    field is set to "NONE".
+    #
+    # 2. Updates every envsit's "n" attribute to reflect the
+    #    current state of the neighborhood.
+
+    typemethod {mutate reconcile} {} {
+        set undo [list]
+
+        # FIRST, set g to NONE if g doesn't exist.
+        rdb eval {
+            SELECT *
+            FROM envsits LEFT OUTER JOIN groups USING (g)
+            WHERE envsits.g != 'NONE'
+            AND   longname IS NULL
+        } row {
+            set row(g) NONE
+
+            lappend undo [$type mutate update [array get row]]
+        }
+
+        # NEXT, set resolver to NONE if resolver doesn't exist.
+        rdb eval {
+            SELECT s
+            FROM envsits LEFT OUTER JOIN groups 
+            ON (envsits.resolver = groups.g)
+            WHERE state = 'ENDED'
+            AND   envsits.resolver != 'NONE'
+            AND   longname IS NULL
+        } {
+            lappend undo [$type mutate resolve [list s $s resolver NONE]]
+        }
+
+        # NEXT, set n for all envsits
+        rdb eval {
+            SELECT s, n, location 
+            FROM envsits
+        } { 
+            set newNbhood [nbhood find {*}$location]
+
+            if {$newNbhood ne $n} {
+                set sit [envsit get $s]
+
+                $sit set n $newNbhood
+
+                lappend undo [mytypemethod RestoreNbhood $s $n]
+
+                notifier send ::envsit <Entity> update $s
+            }
+        }
+
+        return [join [lreverse $undo] \n]
+    }
+
+
+    # RestoreNbhood s n
+    #
+    # s     An envsit
+    # n     A nbhood
+    # 
+    # Sets the envsit's nbhood.
+
+    typemethod RestoreNbhood {s n} {
+        # FIRST, save it, and notify the app.
+        set sit [envsit get $s]
+
+        $sit set n $n
+
+        notifier send ::envsit <Entity> update $s
+    }
+
+
 
     # mutate create parmdict
     #

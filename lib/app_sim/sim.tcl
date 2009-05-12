@@ -493,6 +493,17 @@ snit::type sim {
                 "No neighborhoods are defined; at least one is required"
         }
 
+        # NEXT, verify that neighborhoods are properly stacked
+        rdb eval {
+            SELECT n, obscured_by FROM nbhoods
+            WHERE obscured_by != ''
+        } {
+            set sane 0
+
+            lappend results \
+                "Neighborhood $n is obscured by neighborhood $obscured_by"
+        }
+
         # NEXT, Require at least one force group
         if {[llength [frcgroup names]] == 0} {
             set sane 0
@@ -538,6 +549,33 @@ snit::type sim {
                 lappend results \
       "Civilian group $g resides in no neighborhoods; at least one is required"
             }
+        }
+
+        # NEXT, every envsit must reside in a neighborhood
+        set ids [rdb eval {
+            SELECT s FROM envsits
+            WHERE n = ''
+        }]
+
+        if {[llength $ids] > 0} {
+            set sane 0
+
+            set ids [join $ids ", "]
+            lappend results \
+                "The following envsits are outside any neighborhood:\n $ids"
+        }
+
+        # NEXT, you can't have more than envsit of a type in a 
+        # neighborhood.
+        rdb eval {
+            SELECT count(s) AS count, n, stype
+            FROM envsits
+            GROUP BY n, stype
+            HAVING count > 1
+        } {
+            set sane 0
+            lappend results \
+                "Duplicate envsits of type $stype in neighborhood $n"
         }
 
         if {$option eq "-log"} {
