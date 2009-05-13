@@ -538,8 +538,15 @@ If the parameter's value is the empty string, it is <<iref reject>>ed.<p>
 
 <<defopt {-oldvalue <i>oldValue</i>}>>
 
-Sets the parameter's value to the empty string if it is equal to
+Sets the parameter's value to the empty string if it is
+<code><b>eq</b></code> to 
 <i>oldValue</i>.  This is useful in rare cases; see the existing orders.<p>
+
+<<defopt {-oldnum <i>oldNumber</i>}>>
+
+Sets the parameter's value to the empty string if it is
+<code><b>==</b></code> to 
+<i>oldNumber</i>.  This is useful in rare cases; see the existing orders.<p>
 
 <<defopt {-unused}>>
 

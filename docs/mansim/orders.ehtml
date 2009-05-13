@@ -821,6 +821,95 @@ specified as a <<xref mars::zulu(n)>> time string.<</parm>>
 <</deflist sim>>
 
 
+<<section "SITUATION:ENVIRONMENTAL:*">>
+
+These orders relate to environmental situations (envsits).  An envsit
+represents on on-going situation in a neighborhood, such as a power
+outage, a sewage spill, or an epidemic.<p>
+
+<<deflist envsit>>
+
+<<defitem SITUATION:ENVIRONMENTAL:CREATE {SITUATION:ENVIRONMENTAL:CREATE}>>
+
+Creates a new envsit.  The envsit may be updated freely until the next
+time advance.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm location>> <b>Required.</b>  The location of the envsit as
+a map reference.  It must be in a neighborhood.<</parm>>
+
+<<parm stype>> <b>Required.</b>  The situation type, as follows:<p>
+
+<<::projectlib::eenvsit html>>
+
+Only one envsit of a given type can exist in a single
+neighborhood.<</parm>>
+
+<<parm coverage>> <b>Required.</b>  The coverage of the situation,
+from 0.0 to 1.0.  Note that the value must be strictly greater than
+0.0.<</parm>>
+
+<<parm inception>> <b>Required.</b>  A boolean flag (<b>YES</b>,
+<b>NO</b>) indicating whether the situation will have effects on
+inception.  Set this flag to <b>NO</b> for situations that are to be
+on-going at time 0.<</parm>>
+
+<<parm g>> <b>Optional.</b>  The name of the group which caused the
+situation, or <b>NONE</b>.<</parm>>
+
+<</parmlist>>
+
+<<defitem SITUATION:ENVIRONMENTAL:DELETE {SITUATION:ENVIRONMENTAL:DELETE}>>
+
+Deletes an envsit as though it never existed.  This can only be done
+before attitude effects are assessed at the next time advance.<p>
+
+The parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm s>> <b>Required.</b> The envsit's ID.<</parm>>
+
+<</parmlist>>
+
+
+<<defitem SITUATION:ENVIRONMENTAL:UPDATE {SITUATION:ENVIRONMENTAL:UPDATE}>>
+
+Updates an existing envsit.  The parameters are as
+defined for <<iref SITUATION:ENVIRONMENTAL:CREATE>>, with the addition
+of <b>s</b>, the situation ID.  <b>s</b> is required, and
+specifies the envsit to update, while the remainder are optional.<p>
+
+Newly created envsits can be updated freely, up until attitude effects
+are assessed at the next time advance.  In particular, such envsits
+can be moved from one neighborhood to another.<p>
+
+Once time advances, the envsit may be moved within its neighborhood,
+but no other changes are possible.<p>
+
+<<defitem SITUATION:ENVIRONMENTAL:RESOLVE {SITUATION:ENVIRONMENTAL:RESOLVE}>>
+
+Resolves an unresolved envsit.
+Resolution effects will be assessed at the next time advance.<p>
+
+The parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm s>> <b>Required.</b> The envsit's ID.<</parm>>
+
+<<parm resolver>> <b>Optional.</b> The name of the group responsible
+for resolving the envsit, or <b>NONE</b>.  If omitted, defaults to
+<b>NONE</b>.<</parm>>
+
+<</parmlist>>
+
+
+<</deflist envsit>>
+
+
 <<section "UNIT:*">>
 
 These orders relate to force and organization units, entities that

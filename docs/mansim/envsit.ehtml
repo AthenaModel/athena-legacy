@@ -1,0 +1,164 @@
+<<manpage envsit(sim) "Environmental Situation Manager">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+An environmental situation represents some on-going condition in a
+neighborhood, such as a power outage, a sewage spill, or an epidemic.
+This module contains the code that creates, updates, manages, and
+resolves environmental situations (envsits) and that calls
+the Driver Assessment Model's rule sets.
+It relies on <<xref situation(sim)>> for much of its functionality.<p>
+
+<<subsection "Situation States">>
+
+An activity situation can be in one of three states:<p>
+
+<ul>
+  <li> <b>INITIAL</b>: The situation is newly created; no attitude
+       effects have yet been assessed.  The situation may be updated
+       and deleted freely.<p>
+       
+  <li> <b>ACTIVE</b>: The situation is actively affecting the local
+       civilians; it has a coverage greater than 0.<p>
+
+  <li> <b>INACTIVE</b>: The situation still exists, but is quiescent:
+       the coverage is 0.  (<b>Note:</b> in practice, this state
+       never arises; envsit coverage is constant.)<p>
+
+  <li> <b>ENDED</b>: The situation has been resolved; it is no
+       longer "live".<p>
+</ul>
+
+<<section "COMMANDS">>
+
+envsit(sim) provides the following commands for use by the application.<p>
+
+<<deflist commands>>
+
+<<defitem "envsit init" {envsit init}>>
+
+Initializes the module.  This should be called once, by
+<<xref situation(sim)>>, at application
+start-up.<p>
+
+<<defitem "envsit assess" {envsit assess}>>
+
+This command is to be called once per tick.  It calls the DAM rules to
+assess the attitude effects of all envsit changes made since the
+previous assessment.<p>
+
+<<defitem "envsit table" {envsit table}>>
+
+Data common to all kinds of situations is stored in the
+<b>situations</b> table.  Data common to the specific kind of
+situation is stored in a kind-specific table.  This command returns
+the name of the envsit-specific table.<p>
+
+This command is for the use of <<xref situation(sim)>>.<p>
+
+<<defitem "envsit get" {envsit get <i>s</i> ?-all | -live?}>>
+
+This command is identical to <<xref situation(sim)>>'s
+<<xref situation(sim) get>> method, except that it requires that
+<i>s</i> be an environmental situation.  It returns a situation object to
+be used to manipulate the situation.<p>
+
+See <<xref "SITUATION OBJECTS">>, below, for the methods made
+available by situation objects.<p>
+
+<<defitem "envsit existsInNbhood" {envsit existsInNbhood <i>n</i> ?<i>stype</i>?}>>
+
+By default, returns a list of the
+<<xref projtypes(n) eenvsit>> types that already exist in
+neighborhood <i>n</i>.  If an envsit type <i>stype</i> is given, it
+returns 1 if an envsit of that type exists, and 0 otherwise.<p>
+
+<<defitem "envsit absentFromNbhood" {envsit absentFromNbhood <i>n</i>}>>
+
+Returns a list of the <<xref projtypes(n) eenvsit>> types that
+are not currently "live" in neighborhood <i>n</i>.<p>
+
+<<defitem "envsit names" {envsit names}>>
+<<defitem "envsit validate" {envsit validate <i>s</i>}>>
+
+This pair of routines list and validate arbitrary envsit IDs, both
+"live" and ended.<p>
+
+<<defitem "envsit initial names" {envsit initial names}>>
+<<defitem "envsit initial validate" {envsit initial validate <i>s</i>}>>
+
+This pair of routines list and validate envsit IDs that are in the
+INITIAL state.<p>
+
+<<defitem "envsit live names" {envsit live names}>>
+<<defitem "envsit live validate" {envsit live validate <i>s</i>}>>
+
+This pair of routines list and validate the IDs of envsits that are
+"live", i.e., unresolved.<p>
+
+<<defitem "envsit doer names" {envsit doer names}>>
+<<defitem "envsit doer validate" {envsit doer validate <i>g</i>}>>
+
+This pair of routines list and validate the names of groups that
+can cause and resolve envsits.  It differs from
+<<xref group(sim) "group names">>/<<xref group(sim) "group validate">>
+in that <b>NONE</b> is a valid value.<p>
+
+<</deflist commands>>
+
+<<section "SITUATION OBJECTS">>
+
+The envsit(sim) situation object is derived from the
+<<xref situation(sim)>> situation object.  At present, it offers no
+new public commands.<p>
+
+<<section "EVENT QUEUE EVENTS">>
+
+envsit(sim) defines one <<xref eventq(n)>> event:<p>
+
+<<deflist events>>
+
+<<defitem envsitSpawn {envsitSpawn <i>s</i>}>>
+
+This event is scheduled at the creation of every event <i>s</i> that
+spawns other envsits, and spawns those envsits.<p>
+
+<</deflist>>
+
+<<section "NOTIFIER EVENTS">>
+
+<<deflist events>>
+
+<<defitem Entity {&lt;Entity&gt; s operation}>>
+
+envsit(sim) sends this event when situation <i>s</i> changes in some
+way.  The <i>operation</i> is <b>create</b> or <b>update</b>.<p>
+
+<</deflist events>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
