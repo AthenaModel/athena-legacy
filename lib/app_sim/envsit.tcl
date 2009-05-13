@@ -232,8 +232,13 @@ snit::type envsit {
 
     typemethod {initial validate} {s} {
         if {$s ni [$type initial names]} {
-            return -code error -errorcode INVALID \
-                "operation is invalid; time has passed."
+            if {$s in [$type live names]} {
+                return -code error -errorcode INVALID \
+                    "operation is invalid; time has passed."
+            } else {
+                return -code error -errorcode INVALID \
+                    "not a \"live\" situation: \"$s\""
+            }
         }
 
         return $s
@@ -490,6 +495,7 @@ snit::type envsit {
     #    location       A new location (map coords), or ""
     #                   (Must be in same neighborhood.)
     #    coverage       A new coverage, or ""
+    #    inception      A new inception, or ""
     #    g              A new causing group, or ""
     #
     # Updates a situation given the parms, which are presumed to be
@@ -521,6 +527,10 @@ snit::type envsit {
 
             if {$g ne ""} { 
                 $sit set g $g
+            }
+
+            if {$inception ne ""} {
+                $sit set inception $inception
             }
 
             if {$location ne ""} { 
@@ -863,6 +873,11 @@ order define ::envsit SITUATION:ENVIRONMENTAL:CREATE {
 
     returnOnError
 
+    # NEXT, g defaults to NONE
+    if {$parms(g) eq ""} {
+        set parms(g) NONE
+    }
+
     # NEXT, create the situation.
     lappend undo [$type mutate create [array get parms]]
     
@@ -881,7 +896,7 @@ order define ::envsit SITUATION:ENVIRONMENTAL:DELETE {
     parm s  enum  "Situation"  -tags situation -type {envsit initial}
 } {
     # FIRST, prepare the parameters
-    preparecreate s -required -type {envsit initial}
+    prepare s -required -type {envsit initial}
 
     returnOnError
 
@@ -941,6 +956,8 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
     # FIRST, check the situation
     prepare s                    -required -type envsit
 
+    returnOnError
+
     # NEXT, get the situation object
     set sit [envsit get $parms(s)]
 
@@ -956,6 +973,9 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
         -oldvalue [$sit get g]
 
     returnOnError
+
+    # NEXT, get the old neighborhood
+    set n [$sit get n]
 
 
     # NEXT, validate the other parameters.  In the INITIAL state, everything
@@ -1035,7 +1055,6 @@ order define ::envsit SITUATION:ENVIRONMENTAL:RESOLVE {
     # FIRST, prepare the parameters
     prepare s         -required -type {envsit live}
     prepare resolver  -toupper  -type [list envsit doer]
-
 
     returnOnError
 
