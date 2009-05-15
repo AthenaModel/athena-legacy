@@ -59,6 +59,7 @@ source [file join $::projectlib::library scenariodb.tcl     ]
 source [file join $::projectlib::library workdir.tcl        ]
 source [file join $::projectlib::library verman.tcl         ]
 source [file join $::projectlib::library statecontroller.tcl]
+source [file join $::projectlib::library reporter.tcl       ]
 
 
 

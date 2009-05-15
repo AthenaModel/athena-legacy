@@ -2,15 +2,18 @@
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1238449586884" ID="Freemind_Link_213166219" MODIFIED="1238449747274" TEXT="DAM Rule Infrastructure"/>
+<node CREATED="1238449586884" ID="Freemind_Link_213166219" MODIFIED="1242252113697" TEXT="DAM Rule Infrastructure">
+<icon BUILTIN="full-1"/>
+</node>
 <node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1238449718099" TEXT="Magic satisfaction inputs">
 <arrowlink DESTINATION="Freemind_Link_213166219" ENDARROW="Default" ENDINCLINATION="22;0;" ID="Freemind_Arrow_Link_72370025" STARTARROW="None" STARTINCLINATION="22;0;"/>
 </node>
 <node CREATED="1238449608020" ID="Freemind_Link_1639950112" MODIFIED="1238449718100" TEXT="Magic cooperation inputs">
 <arrowlink DESTINATION="Freemind_Link_213166219" ENDARROW="Default" ENDINCLINATION="44;0;" ID="Freemind_Arrow_Link_323657927" STARTARROW="None" STARTINCLINATION="44;0;"/>
 </node>
-<node CREATED="1238449726244" ID="Freemind_Link_1432696154" MODIFIED="1238449747274" TEXT="DAM Rules">
+<node CREATED="1238449726244" ID="Freemind_Link_1432696154" MODIFIED="1242252113695" TEXT="DAM Rules">
 <arrowlink DESTINATION="Freemind_Link_213166219" ENDARROW="Default" ENDINCLINATION="162;0;" ID="Freemind_Arrow_Link_560219951" STARTARROW="None" STARTINCLINATION="115;10;"/>
+<icon BUILTIN="full-1"/>
 </node>
 <node CREATED="1241624415166" FOLDED="true" ID="Freemind_Link_472031065" MODIFIED="1241624422010" TEXT="Displaced Civilians/Refugees">
 <node CREATED="1241624422469" ID="Freemind_Link_636312974" MODIFIED="1241624433033" TEXT="Suppose we don&apos;t model attitudes of refugees"/>
@@ -56,7 +59,7 @@
 </node>
 </node>
 <node CREATED="1239210064249" ID="Freemind_Link_1216819379" MODIFIED="1239210065909" POSITION="right" TEXT="GRAM">
-<node CREATED="1241547209100" ID="Freemind_Link_874223123" MODIFIED="1241547213697" TEXT="GRAM effects_delay">
+<node CREATED="1241547209100" FOLDED="true" ID="Freemind_Link_874223123" MODIFIED="1241547213697" TEXT="GRAM effects_delay">
 <node CREATED="1241547214268" ID="Freemind_Link_741184539" MODIFIED="1241547235353" TEXT="Athena allows effects_delay to be non-zero for HERE."/>
 <node CREATED="1241547225964" ID="Freemind_Link_1772608855" MODIFIED="1241547247223" TEXT="GRAM ignores effects_delay for HERE."/>
 </node>
@@ -65,12 +68,12 @@
 <node CREATED="1241215767617" ID="Freemind_Link_1703805627" MODIFIED="1241215779674" TEXT="Accumulate acontrib directly into gram_contribs">
 <node CREATED="1241215785360" ID="Freemind_Link_276110028" MODIFIED="1241215789775" TEXT="If it&apos;s faster to do so."/>
 </node>
-<node CREATED="1241215865953" ID="Freemind_Link_731499049" MODIFIED="1241215878509" TEXT="More epsilons?">
+<node CREATED="1241215865953" FOLDED="true" ID="Freemind_Link_731499049" MODIFIED="1241215878509" TEXT="More epsilons?">
 <node CREATED="1241215878848" ID="Freemind_Link_957640958" MODIFIED="1241215882778" TEXT="Level vs. Slope"/>
 <node CREATED="1241215883249" ID="Freemind_Link_1735758744" MODIFIED="1241215886122" TEXT="Sat vs Coop"/>
 </node>
 <node CREATED="1241216187039" ID="Freemind_Link_490314084" MODIFIED="1241216198009" TEXT="Compute driver &quot;reach&quot; statistics"/>
-<node CREATED="1239210066312" ID="Freemind_Link_1735127823" MODIFIED="1239210081618" TEXT="Slope effect bounds">
+<node CREATED="1239210066312" FOLDED="true" ID="Freemind_Link_1735127823" MODIFIED="1239210081618" TEXT="Slope effect bounds">
 <node CREATED="1239210082792" ID="Freemind_Link_21995878" MODIFIED="1239210115298" TEXT="Effect scales to bound other than +/- 100"/>
 <node CREATED="1239210116617" ID="Freemind_Link_16044741" MODIFIED="1239210129458" TEXT="Effect is ignored if level exceeds bound"/>
 <node CREATED="1239210138568" FOLDED="true" ID="Freemind_Link_1350980017" MODIFIED="1239210156149" TEXT="Tendency to some value, say 0">
@@ -209,6 +212,9 @@
 </node>
 </node>
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
+<node CREATED="1242252088170" ID="Freemind_Link_1222935831" MODIFIED="1242252128671" TEXT="Report Browser">
+<icon BUILTIN="full-1"/>
+</node>
 <node CREATED="1239723521749" ID="Freemind_Link_1093494342" MODIFIED="1239723533567" TEXT="Save sim speed, duration as prefs"/>
 <node CREATED="1241215918369" ID="Freemind_Link_268023639" MODIFIED="1241215930559" TEXT="Stop button">
 <node CREATED="1241215931217" ID="Freemind_Link_1632396932" MODIFIED="1241215945706" TEXT="Enter time at tick 0"/>
@@ -256,7 +262,7 @@
 <node CREATED="1237479555774" ID="Freemind_Link_1026314275" MODIFIED="1237479568490" TEXT="Each tab has a checkbox on View menu"/>
 <node CREATED="1237479569238" ID="Freemind_Link_1577478674" MODIFIED="1237479591914" TEXT="Disabled tabs don&apos;t exist, no CPU used"/>
 </node>
-<node CREATED="1241216036944" ID="Freemind_Link_559127107" MODIFIED="1241216053418" TEXT="&quot;URL&quot; based tab browsing">
+<node CREATED="1241216036944" FOLDED="true" ID="Freemind_Link_559127107" MODIFIED="1241216053418" TEXT="&quot;URL&quot; based tab browsing">
 <icon BUILTIN="help"/>
 <node CREATED="1241216062751" ID="Freemind_Link_322438430" MODIFIED="1241216070954" TEXT="Tabs appear as requested"/>
 <node CREATED="1241216071296" ID="Freemind_Link_781573337" MODIFIED="1241216074202" TEXT="Can have links to tabs"/>
@@ -272,22 +278,31 @@
 <node CREATED="1237479995726" ID="Freemind_Link_1174080421" MODIFIED="1237480014930" TEXT="Data-driven nbhood fill colors"/>
 <node CREATED="1237482154410" ID="Freemind_Link_1362932509" MODIFIED="1237482165447" TEXT="Enable/disable map background"/>
 <node CREATED="1237482166114" ID="Freemind_Link_639175641" MODIFIED="1237482173382" TEXT="Enable/disable nbhood display"/>
-<node CREATED="1237482173858" FOLDED="true" ID="Freemind_Link_270558674" MODIFIED="1237482179936" TEXT="Enable/disable icons">
+<node CREATED="1237482173858" ID="Freemind_Link_270558674" MODIFIED="1242251883715" TEXT="Enable/disable unit icons">
 <node CREATED="1237482180474" ID="Freemind_Link_1659229339" MODIFIED="1237482185838" TEXT="By icon type"/>
 </node>
-<node CREATED="1242242186635" FOLDED="true" ID="Freemind_Link_1413614648" MODIFIED="1242242244869" TEXT="Envsits in mapviewer">
-<node CREATED="1241806740191" ID="Freemind_Link_806472335" MODIFIED="1242242239897" TEXT="Give the user the option of which set of envsits to display"/>
-<node CREATED="1242056407111" ID="Freemind_Link_677911626" MODIFIED="1242242207325" TEXT="Allow resolving a situation by right-clicking on it"/>
-<node CREATED="1242059156531" ID="Freemind_Link_119951135" MODIFIED="1242242207324" TEXT="Allow deleting a situation by right-clicking on it"/>
+<node CREATED="1242251888314" ID="Freemind_Link_540157612" MODIFIED="1242251892983" TEXT="Enable/disable envsit icons">
+<node CREATED="1242251898217" ID="Freemind_Link_901616595" MODIFIED="1242251900787" TEXT="All"/>
+<node CREATED="1242251901338" ID="Freemind_Link_1052726683" MODIFIED="1242251902755" TEXT="Current"/>
+<node CREATED="1242251903034" ID="Freemind_Link_1053169404" MODIFIED="1242251904515" TEXT="Ended"/>
+<node CREATED="1242251904841" ID="Freemind_Link_1296804293" MODIFIED="1242251908099" TEXT="None"/>
+</node>
+<node CREATED="1242251949130" ID="Freemind_Link_1306195532" MODIFIED="1242251952519" TEXT="Envsit context menu">
+<node CREATED="1242251952906" ID="Freemind_Link_1286947887" MODIFIED="1242251956675" TEXT="Resolve Situation"/>
+<node CREATED="1242251956970" ID="Freemind_Link_184985576" MODIFIED="1242251960147" TEXT="Delete Situation"/>
+</node>
 <node CREATED="1241813623814" ID="Freemind_Link_1926362182" MODIFIED="1242242207323" TEXT="Spawned envsits should be offset from their parent&apos;s location"/>
+<node CREATED="1242242263068" ID="Freemind_Link_812896575" MODIFIED="1242251980423" TEXT="Nbhood context menu">
+<node CREATED="1242242268299" ID="Freemind_Link_1520143269" MODIFIED="1242251988899" TEXT="Update Neighborhood"/>
+<node CREATED="1242242274059" ID="Freemind_Link_1324604126" MODIFIED="1242251993812" TEXT="Delete Neighborhood"/>
 </node>
-<node CREATED="1242242263068" FOLDED="true" ID="Freemind_Link_812896575" MODIFIED="1242242267832" TEXT="Nbhoods in mapviewer">
-<node CREATED="1242242268299" ID="Freemind_Link_1520143269" MODIFIED="1242242273429" TEXT="Update on right-click"/>
-<node CREATED="1242242274059" ID="Freemind_Link_1324604126" MODIFIED="1242242277029" TEXT="Delete on right-click"/>
+<node CREATED="1237482195459" ID="Freemind_Link_1291634544" MODIFIED="1242252009331" TEXT="Display nbhood names near refpoint"/>
+<node CREATED="1237480762290" ID="Freemind_Link_1647420652" MODIFIED="1242252017271" TEXT="Ability to drag reference points interactively">
+<icon BUILTIN="help"/>
 </node>
-<node CREATED="1237482195459" ID="Freemind_Link_1291634544" MODIFIED="1237482204646" TEXT="Display nbhood names by refpoint"/>
-<node CREATED="1237480762290" ID="Freemind_Link_1647420652" MODIFIED="1237480770710" TEXT="Ability to drag reference points interactively"/>
-<node CREATED="1237481081578" ID="Freemind_Link_1201367450" MODIFIED="1237481091054" TEXT="Ability to edit nbhood boundary points interactively"/>
+<node CREATED="1237481081578" ID="Freemind_Link_1201367450" MODIFIED="1242252017273" TEXT="Ability to edit nbhood boundary points interactively">
+<icon BUILTIN="help"/>
+</node>
 </node>
 <node CREATED="1237480148482" ID="Freemind_Link_1288481032" MODIFIED="1237480151141" POSITION="right" TEXT="Order GUI">
 <node CREATED="1237480151546" ID="Freemind_Link_1910353174" MODIFIED="1237480162312" TEXT="Validate order on parameter entry change"/>

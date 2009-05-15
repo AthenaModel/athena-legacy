@@ -1,7 +1,20 @@
 <map version="0.8.1">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1238787191896" ID="Freemind_Link_1531719538" MODIFIED="1238787764033" TEXT="&lt;html&gt;&lt;center&gt;Athena Application&lt;br&gt;&#xa;Architecture&lt;/center&gt;&lt;/html&gt;">
-<node CREATED="1238787347625" ID="Freemind_Link_1519406967" MODIFIED="1238787349891" POSITION="right" TEXT="app(sim)"/>
+<node CREATED="1242254364276" ID="Freemind_Link_1332386302" MODIFIED="1242254365886" POSITION="right" TEXT="Application">
+<node CREATED="1238787347625" ID="Freemind_Link_1519406967" MODIFIED="1238787349891" TEXT="app(sim)"/>
+<node CREATED="1238787301882" ID="Freemind_Link_105413839" MODIFIED="1238787402580" TEXT="Order Processing">
+<node CREATED="1238787404633" ID="Freemind_Link_455405881" MODIFIED="1238787407523" TEXT="cif(sim)"/>
+<node CREATED="1238787407929" ID="Freemind_Link_1413685050" MODIFIED="1238787410387" TEXT="order(sim)"/>
+<node CREATED="1238787496793" ID="Freemind_Link_61157098" MODIFIED="1238787502371" TEXT="orderdialog(sim)"/>
+</node>
+<node CREATED="1238787797865" ID="_" MODIFIED="1238787801138" TEXT="Infrastructure">
+<node CREATED="1238787350281" ID="Freemind_Link_751949663" MODIFIED="1238787361252" TEXT="apptypes(sim)"/>
+<node CREATED="1238787353961" ID="Freemind_Link_238268100" MODIFIED="1238787366931" TEXT="executive(sim)"/>
+<node CREATED="1238787412281" ID="Freemind_Link_90179220" MODIFIED="1238787415891" TEXT="parm(sim)"/>
+<node CREATED="1238795462905" ID="Freemind_Link_207386271" MODIFIED="1242254419198" TEXT="prefs(sim)"/>
+</node>
+</node>
 <node CREATED="1238787225304" ID="Freemind_Link_1559741088" MODIFIED="1238787227171" POSITION="right" TEXT="Scenario">
 <node CREATED="1238787371785" ID="Freemind_Link_583579848" MODIFIED="1238787377379" TEXT="scenario(sim)"/>
 <node CREATED="1238787421081" ID="Freemind_Link_116469778" MODIFIED="1238787423587" TEXT="map(sim)"/>
@@ -79,17 +92,6 @@
 <node CREATED="1238787542664" ID="Freemind_Link_1854305319" MODIFIED="1238787545267" TEXT="Infrastructure">
 <node CREATED="1238787545673" ID="Freemind_Link_198114232" MODIFIED="1238787552659" TEXT="browser_base(sim)"/>
 </node>
-</node>
-<node CREATED="1238787797865" ID="_" MODIFIED="1238787801138" POSITION="right" TEXT="Infrastructure">
-<node CREATED="1238787301882" ID="Freemind_Link_105413839" MODIFIED="1238787402580" TEXT="Order Processing">
-<node CREATED="1238787404633" ID="Freemind_Link_455405881" MODIFIED="1238787407523" TEXT="cif(sim)"/>
-<node CREATED="1238787407929" ID="Freemind_Link_1413685050" MODIFIED="1238787410387" TEXT="order(sim)"/>
-<node CREATED="1238787496793" ID="Freemind_Link_61157098" MODIFIED="1238787502371" TEXT="orderdialog(sim)"/>
-</node>
-<node CREATED="1238795462905" ID="Freemind_Link_207386271" MODIFIED="1238795465907" TEXT="prefs(n)"/>
-<node CREATED="1238787353961" ID="Freemind_Link_238268100" MODIFIED="1238787366931" TEXT="executive(sim)"/>
-<node CREATED="1238787412281" ID="Freemind_Link_90179220" MODIFIED="1238787415891" TEXT="parm(sim)"/>
-<node CREATED="1238787350281" ID="Freemind_Link_751949663" MODIFIED="1238787361252" TEXT="apptypes(sim)"/>
 </node>
 </node>
 </map>
