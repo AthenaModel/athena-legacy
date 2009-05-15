@@ -1,18 +1,8 @@
 <map version="0.8.1">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
-<node CREATED="1242252143767" ID="Freemind_Link_564723163" MODIFIED="1242252152227" TEXT="Generic Report Browser">
-<node CREATED="1242252154009" ID="_" MODIFIED="1242252156371" POSITION="left" TEXT="Components">
-<node CREATED="1242252156744" ID="Freemind_Link_1909454119" MODIFIED="1242252168595" TEXT="reportviewer(n)">
-<node CREATED="1242252180665" ID="Freemind_Link_1100913683" MODIFIED="1242252189331" TEXT="Displays one report"/>
-<node CREATED="1242252231240" ID="Freemind_Link_624280492" MODIFIED="1242252237490" TEXT="Allows report to be marked/unmarked"/>
-</node>
-<node CREATED="1242252169497" ID="Freemind_Link_1093163714" MODIFIED="1242252176195" TEXT="reportbrowser(n)">
-<node CREATED="1242252277704" ID="Freemind_Link_33730278" MODIFIED="1242252296786" TEXT="Report bin tree"/>
-<node CREATED="1242252297144" ID="Freemind_Link_743330433" MODIFIED="1242252303186" TEXT="List of report titles"/>
-<node CREATED="1242252303737" ID="Freemind_Link_525533696" MODIFIED="1242252310674" TEXT="reportviewer(n)"/>
-</node>
-</node>
-<node CREATED="1242252352265" ID="Freemind_Link_744434834" MODIFIED="1242315799299" POSITION="right" TEXT="Report Attributes">
+<node CREATED="1242252143767" ID="Freemind_Link_564723163" MODIFIED="1242422981092" TEXT="Report Manager">
+<node CREATED="1242252352265" ID="Freemind_Link_744434834" MODIFIED="1242423013584" POSITION="right" TEXT="Report Attributes">
+<icon BUILTIN="button_ok"/>
 <node CREATED="1242316095096" ID="Freemind_Link_1205559417" MODIFIED="1242316105538" TEXT="Attributes are defined in the &quot;reports&quot; table"/>
 <node CREATED="1242253794405" ID="Freemind_Link_1334350872" MODIFIED="1242253796607" TEXT="Retain">
 <node CREATED="1242252390632" ID="Freemind_Link_68081537" MODIFIED="1242252604134" TEXT="id">
@@ -69,7 +59,7 @@
 <node CREATED="1242316048328" ID="Freemind_Link_78627077" MODIFIED="1242316065313" TEXT="May be used by bin views"/>
 </node>
 </node>
-<node CREATED="1242253797093" FOLDED="true" ID="Freemind_Link_587026395" MODIFIED="1242316082041" TEXT="Replace">
+<node CREATED="1242253797093" ID="Freemind_Link_587026395" MODIFIED="1242316082041" TEXT="Replace">
 <node CREATED="1242252522744" ID="Freemind_Link_458313355" MODIFIED="1242253464748" TEXT="mark">
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1242253145638" ID="Freemind_Link_1667958684" MODIFIED="1242253163776" TEXT="Flags reports for special attention"/>
@@ -91,7 +81,7 @@
 <node CREATED="1242315944904" ID="Freemind_Link_615488758" MODIFIED="1242315954930" TEXT="Replaced by &quot;requested&quot; and &quot;hot&quot;"/>
 </node>
 </node>
-<node CREATED="1242253802901" FOLDED="true" ID="Freemind_Link_1972437819" MODIFIED="1242253804927" TEXT="Omit">
+<node CREATED="1242253802901" ID="Freemind_Link_1972437819" MODIFIED="1242253804927" TEXT="Omit">
 <node CREATED="1242252469287" ID="Freemind_Link_24422432" MODIFIED="1242252872021" TEXT="nbhood">
 <icon BUILTIN="button_cancel"/>
 <node CREATED="1242252878696" ID="Freemind_Link_1794439659" MODIFIED="1242252899937" TEXT="Report&apos;s neighborhood"/>
@@ -116,7 +106,8 @@
 </node>
 </node>
 </node>
-<node CREATED="1242316113992" ID="Freemind_Link_1577911905" MODIFIED="1242316116644" POSITION="right" TEXT="reporter(n)">
+<node CREATED="1242316113992" ID="Freemind_Link_1577911905" MODIFIED="1242423016792" POSITION="right" TEXT="reporter(n)">
+<icon BUILTIN="button_ok"/>
 <node CREATED="1242316117705" ID="Freemind_Link_1581470341" MODIFIED="1242316132178" TEXT="New projectlib(n) module">
 <node CREATED="1242316132808" ID="Freemind_Link_1019058169" MODIFIED="1242316136914" TEXT="Can move to marsutil(n) later"/>
 </node>
@@ -184,22 +175,15 @@
 </node>
 </node>
 </node>
-<node CREATED="1242253547830" ID="Freemind_Link_832535930" MODIFIED="1242253552272" POSITION="right" TEXT="Generic Binning">
+<node CREATED="1242253547830" ID="Freemind_Link_832535930" MODIFIED="1242423020448" POSITION="right" TEXT="Generic Binning">
+<icon BUILTIN="button_ok"/>
 <node CREATED="1242253609398" ID="Freemind_Link_1598130818" MODIFIED="1242417217201" TEXT="The application can define any bins it likes">
 <node CREATED="1242253625654" ID="Freemind_Link_170199128" MODIFIED="1242253634783" TEXT="Name"/>
 <node CREATED="1242253635062" ID="Freemind_Link_763319936" MODIFIED="1242253646879" TEXT="Parent Bin, or &quot;&quot;"/>
 <node CREATED="1242253647493" ID="Freemind_Link_677559645" MODIFIED="1242253655071" TEXT="SQL view"/>
 </node>
-<node CREATED="1242417242199" ID="Freemind_Link_1589985234" MODIFIED="1242417254849" TEXT="The reportbrowser retrieves the bin tree"/>
-</node>
-<node CREATED="1242254129588" ID="Freemind_Link_1175082206" MODIFIED="1242254132016" POSITION="right" TEXT="Thoughts">
-<node CREATED="1242254458501" ID="Freemind_Link_1696953448" MODIFIED="1242254479773" TEXT="Should use tablebrowser for the report list."/>
-<node CREATED="1242317154374" ID="Freemind_Link_1173159262" MODIFIED="1242417265997" TEXT="Use tkhtml2 to display reports?">
-<icon BUILTIN="button_cancel"/>
-<node CREATED="1242317172294" ID="Freemind_Link_805909827" MODIFIED="1242417287337" TEXT="Could display plain text, using &lt;pre&gt;...&lt;/pre&gt;"/>
-<node CREATED="1242317209093" ID="Freemind_Link_1132261456" MODIFIED="1242317219712" TEXT="Opens door to formatted reports..."/>
-<node CREATED="1242317224231" ID="Freemind_Link_825792092" MODIFIED="1242417281625" TEXT="Generated formatted reports might take longer"/>
-<node CREATED="1242317232247" ID="Freemind_Link_1092459996" MODIFIED="1242317240512" TEXT="Displaying formatted reports probably takes longer"/>
+<node CREATED="1242417242199" ID="Freemind_Link_1589985234" MODIFIED="1242423029128" TEXT="The reportbrowser retrieves the bin tree">
+<icon BUILTIN="flag"/>
 </node>
 </node>
 </node>
