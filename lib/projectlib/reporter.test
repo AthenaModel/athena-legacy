@@ -432,9 +432,45 @@ id time stamp        rtype subtype title text requested hotlist meta1 meta2 meta
 -- ---- ------------ ----- ------- ----- ---- --------- ------- ----- ----- ----- ----- 
 1  0    010000ZJAN70 TEST          A     B    0         0                               
     }
-    
 
-    test bin-3.1 {bin getall/setall} -setup {
+
+    # 3.x: Other queries
+
+    test bin-3.1 {bin parent} -setup {
+        setup
+
+        reporter bin define p "Parent Bin" "" {
+            SELECT * FROM reports
+        } 
+
+        reporter bin define c "Child Bin" p {
+            SELECT * FROM reports WHERE rtype='TEST'
+        }
+    } -body {
+        list [reporter bin parent p] [reporter bin parent c]
+    } -cleanup {
+        cleanup
+    } -result {{} p}
+
+    test bin-3.2 {bin parent} -setup {
+        setup
+
+        reporter bin define p "Parent Bin" "" {
+            SELECT * FROM reports
+        } 
+
+        reporter bin define c "Child Bin" p {
+            SELECT * FROM reports WHERE rtype='TEST'
+        }
+    } -body {
+        list [reporter bin title p] [reporter bin title c]
+    } -cleanup {
+        cleanup
+    } -result {{Parent Bin} {Child Bin}}
+
+    # 4.x: getall/setall
+
+    test bin-4.1 {bin getall/setall} -setup {
         setup
 
         reporter bin define all "All Reports" "" {
@@ -459,6 +495,124 @@ id time stamp        rtype subtype title text requested hotlist meta1 meta2 meta
     } -cleanup {
         cleanup
     } -result {1 1 {these those}}
+
+
+    #-------------------------------------------------------------------
+    # hotlist
+
+    test hotlist-1.1 {Can set and clear individual flags.} -setup {
+        setup
+
+        reporter save  \
+            -title "A" \
+            -text  "B"
+
+        reporter save  \
+            -title "C" \
+            -text  "D"
+    } -body {
+        set a [db query {SELECT id,hotlist FROM reports}]
+        reporter hotlist set 2 1
+        set b [db query {SELECT id,hotlist FROM reports}]
+        reporter hotlist set 2 0
+        set c [db query {SELECT id,hotlist FROM reports}]
+
+        pprint "$a\n$b\n$c"
+    } -cleanup {
+        cleanup
+    } -result {
+id hotlist 
+-- ------- 
+1  0       
+2  0       
+
+id hotlist 
+-- ------- 
+1  0       
+2  1       
+
+id hotlist 
+-- ------- 
+1  0       
+2  0       
+    }
+    
+
+    test hotlist-1.2 {Can set and clear multiple flags.} -setup {
+        setup
+
+        reporter save  \
+            -title "A" \
+            -text  "B"
+
+        reporter save  \
+            -title "C" \
+            -text  "D"
+    } -body {
+        set a [db query {SELECT id,hotlist FROM reports}]
+        reporter hotlist set {1 2} 1
+        set b [db query {SELECT id,hotlist FROM reports}]
+        reporter hotlist set {1 2} 0
+        set c [db query {SELECT id,hotlist FROM reports}]
+
+        pprint "$a\n$b\n$c"
+    } -cleanup {
+        cleanup
+    } -result {
+id hotlist 
+-- ------- 
+1  0       
+2  0       
+
+id hotlist 
+-- ------- 
+1  1       
+2  1       
+
+id hotlist 
+-- ------- 
+1  0       
+2  0       
+    }
+
+
+    test hotlist-1.3 {Can set and clear all flags.} -setup {
+        setup
+
+        reporter save  \
+            -title "A" \
+            -text  "B"
+
+        reporter save  \
+            -title "C" \
+            -text  "D"
+    } -body {
+        set a [db query {SELECT id,hotlist FROM reports}]
+        reporter hotlist set all 1
+        set b [db query {SELECT id,hotlist FROM reports}]
+        reporter hotlist set all 0
+        set c [db query {SELECT id,hotlist FROM reports}]
+
+        pprint "$a\n$b\n$c"
+    } -cleanup {
+        cleanup
+    } -result {
+id hotlist 
+-- ------- 
+1  0       
+2  0       
+
+id hotlist 
+-- ------- 
+1  1       
+2  1       
+
+id hotlist 
+-- ------- 
+1  0       
+2  0       
+    }
+
 
     #-------------------------------------------------------------------
     # Cleanup

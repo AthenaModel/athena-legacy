@@ -295,6 +295,34 @@ snit::type ::projectlib::reporter {
         }
     }
 
+    # bin parent bin
+    #
+    # bin    A bin's symbolic name
+    #
+    # Returns the name of the bin's parent, or "" if none
+
+    typemethod {bin parent} {bin} {
+        require {[info exists bins(bin-$bin)]} \
+            "no such bin: \"$bin\""
+
+        return [dict get $bins(bin-$bin) parent]
+    }
+
+
+    # bin title bin
+    #
+    # bin    A bin's symbolic name
+    #
+    # Returns the name of the bin's title
+
+    typemethod {bin title} {bin} {
+        require {[info exists bins(bin-$bin)]} \
+            "no such bin: \"$bin\""
+
+        return [dict get $bins(bin-$bin) title]
+    }
+
+
     # bin getall
     #
     # Returns a string containing the full set of bin definitions.

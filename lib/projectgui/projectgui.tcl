@@ -17,6 +17,8 @@ package require snit
 package require sqlite3
 package require pixane
 package require tablelist
+package require treectrl  2.2.6
+
 
 #-----------------------------------------------------------------------
 # Internal Package Dependencies
@@ -53,6 +55,7 @@ source [file join $::projectgui::library multifield.tcl   ]
 source [file join $::projectgui::library textfield.tcl    ]
 source [file join $::projectgui::library zulufield.tcl    ]
 source [file join $::projectgui::library reportviewer.tcl ]
+source [file join $::projectgui::library rb_bintree.tcl   ]
 
 
 
