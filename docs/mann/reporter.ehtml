@@ -127,6 +127,23 @@ in <i>bindef</i>, which should be the return value of
 
 <</deflist bin>>
 
+
+<<defitem "reporter hotlist" {reporter hotlist <i>subcommand</i> ?<i>args...</i>?}>>
+
+The user can place particular reports on the "hot list" for easy
+reference.  This command is used to manage the hot list.<p>
+
+<<deflist hotlist>>
+
+<<defitem "reporter hotlist set" {reporter hotlist set <i>idlist flag</i>}>>
+
+Sets the hot list flag to <i>flag</i> (i.e., 1 or 0) for every report
+ID in the <i>idlist</i>.  If the <i>idlist</i> is set to <b>all</b>,
+then the flag is set for all reports.  This is usually used to
+clear all hot list flags.<p>
+
+<<deflist /hotlist>>
+
 <<defitem "reporter save" {reporter save <i>options...</i>}>>
 
 Saves a report to the database, and calls the <code>-reportcmd</code>,

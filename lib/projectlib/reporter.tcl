@@ -455,6 +455,32 @@ snit::type ::projectlib::reporter {
 
 
     #-------------------------------------------------------------------
+    # Hot List Management
+
+
+    # hotlist set idlist|all flag
+    #
+    # idlist   A list of report IDs, or "all"
+    # flag     1 or 0
+    #
+    # Sets the hotlist flag for one or more reports.
+
+    typemethod {hotlist set} {idlist flag} {
+        if {$idlist eq "all"} {
+            $db eval {
+                UPDATE reports SET hotlist=$flag
+            }
+        } else {
+            $db eval "
+                UPDATE reports
+                SET hotlist=$flag
+                WHERE id IN ([join $idlist ,])
+            "
+        }
+    }
+
+
+    #-------------------------------------------------------------------
     # Utility Procs
 
 
