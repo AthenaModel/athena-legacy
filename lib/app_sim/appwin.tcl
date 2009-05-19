@@ -201,7 +201,10 @@ snit::widget appwin {
         report {
             label  "Reports"
             parent ""
-            script { repbrowser %W }
+            script { 
+                reportbrowser %W -db ::rdb
+                %W refresh
+            }
         }
 
         slog {
@@ -768,11 +771,16 @@ snit::widget appwin {
 
 
         # NEXT, add the content tabs, and save relevant tabs
-        # as components.  Also, finish configuring the scrolling log.
+        # as components.  Also, finish configuring the tabs.
         $self AddTabs
 
+        # Viewer
         set viewer [$self tab win viewer]
 
+        # Report browser
+        notifier bind ::report <Report> $self [mymethod ReportCB]
+
+        # Scrolling log
         set slog   [$self tab win slog]
         $slog load [log cget -logfile]
         notifier bind ::app <AppLogNew> $self [list $slog load]
@@ -1466,6 +1474,9 @@ snit::widget appwin {
         $self SimState
         $self SimTime
         $self SimSpeed
+
+        # NEXT, refresh the report browser
+        [$self tab win report] refresh
     }
 
     # SimState
@@ -1543,6 +1554,12 @@ snit::widget appwin {
                 $win.toolbar.last configure -state disabled
             }
         }
+
+        # NEXT, set the -recentlimit on the report browser, so that
+        # reports from this run are recent.
+        if {[sim state] eq "RUNNING"} {
+            [$self tab win report] configure -recentlimit [simclock now]
+        }
     }
 
     # SimTime
@@ -1566,6 +1583,27 @@ snit::widget appwin {
             set info(simspeed) [sim speed]
         }
     }
+
+    # ReportCB dict
+    #
+    # dict     A dictionary of report options
+    #
+    # Displays the report in the browser.
+
+    method ReportCB {dict} {
+        # If this is a requested report, and if this is the top window,
+        # then switch the report browser to the "requested" bin, and
+        # make the report browser visible.
+        if {[dict get $dict -requested] &&
+            $win eq [app topwin]
+        } {
+            $self tab view report
+            [$self tab win report] setbin requested
+        } else {
+            [$self tab win report] update
+        }
+    }
+
 
     #-------------------------------------------------------------------
     # Utility Methods
