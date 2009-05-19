@@ -200,7 +200,7 @@ snit::widget ::projectgui::reportbrowser {
             -yscrollcommand [list $win.lr.tb.top.yscroll set] \
             -font codefont \
             -activestyle none \
-            -height 14 \
+            -height 10 \
             -highlightthickness 1
         bind $replist <1> {focus %W}
 
@@ -213,7 +213,8 @@ snit::widget ::projectgui::reportbrowser {
         grid $replist $win.lr.tb.top.yscroll -sticky nsew
 
         # Report Text pane
-        install viewer using ::projectgui::reportviewer $win.lr.tb.bottom
+        install viewer using ::projectgui::reportviewer $win.lr.tb.bottom \
+            -height 10
         $win.lr.tb add $win.lr.tb.bottom -sticky nsew -minsize 60
 
         # NEXT, manage all of the components.
@@ -401,10 +402,23 @@ snit::widget ::projectgui::reportbrowser {
     # if any.
 
     method update {} {
-        # FIRST, do nothing until we have a db and a view.
-        if {$db eq "" || $currentView eq ""} {
+        # FIRST, do nothing until we have a db and a bin.
+        if {$db eq ""} {
             return
         }
+
+        # Get the currently selected bin.
+        set bin [$bintree get]
+
+        # If nothing's selected, do nothing.
+        if {$bin eq ""} {
+            return
+        }
+
+        # NEXT, get the current view, and the bin title
+        set currentView [reporter bin view  $bin]
+        set currentBin  [reporter bin title $bin]
+
 
         # NEXT, If we're browsing recent reports, periodically retrieve
         # the whole list instead of just the new ones.  Otherwise,

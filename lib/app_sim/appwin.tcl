@@ -198,6 +198,12 @@ snit::widget appwin {
             script { coopbrowser %W }
         }
 
+        report {
+            label  "Reports"
+            parent ""
+            script { repbrowser %W }
+        }
+
         slog {
             label  "Log"
             parent ""

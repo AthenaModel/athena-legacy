@@ -111,6 +111,7 @@ snit::type app {
         scenario  init -ignoredefaultparms $opts(-ignoreuser)
         cif       init
         order     init
+        report    init
         nbhood    init
         nbrel     init
         group     init
