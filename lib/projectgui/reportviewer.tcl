@@ -164,6 +164,7 @@ snit::widget ::projectgui::reportviewer {
 
             $reptext ins end $row(text)
             $reptext see 1.0
+            $reptext yview moveto 0.0
 
             set hot $row(hotlist)
             $hotbtn configure -state normal

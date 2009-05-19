@@ -46,6 +46,8 @@ snit::widget ::projectgui::rb_bintree {
         # NEXT, create the tree
         install tree using treectrl $win.tree       \
             -width          140                     \
+            -borderwidth    0                       \
+            -relief         flat                    \
             -usetheme       1                       \
             -showroot       0                       \
             -showheader     0                       \
@@ -92,7 +94,10 @@ snit::widget ::projectgui::rb_bintree {
     # Reloads the list of bins from reporter(n).
 
     method refresh {} {
-        # FIRST, clear all content from the tree
+        # FIRST, get the current bin, if any
+        set currentBin [$self get]
+
+        # NEXT, clear all content from the tree
         $tree item delete 0 end
         array unset info
 
@@ -137,6 +142,14 @@ snit::widget ::projectgui::rb_bintree {
 
             # NEXT, link the item to the bin.
             set info(bin-$info(item-$bin)) $bin
+        }
+
+        # NEXT, if the current bin still exists, select it; otherwise,
+        # select the first bin.
+        if {[info exists info(item-$currentBin)]} {
+            $self set $currentBin
+        } else {
+            $self set [lindex [reporter bin children ""] 0]
         }
     }
 

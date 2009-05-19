@@ -38,7 +38,7 @@ The <<iref tablebrowser>> widget may be created with the following options:<p>
 
 <<defopt {-db <i>db</i>}>>
 
-Sets the workstation database that is queried for data to be displayed.<p>
+<b>Read-only after creation.</b>  Sets the workstation database that is queried for data to be displayed.<p>
 
 <<defopt {-table <i>table</i>}>>
 
@@ -104,14 +104,18 @@ to the Tk frame widget options of the same name.<p>
 
 Sets the hull frame's background color.<p>
 
-<<defopt {-titlecolumns <i>count</i>}>>
 
 Sets the number of non-scrollable columns at the left edge of the
 tablebrowser.<p>
 
-<<defopt {-width <i>width</i>}>>
 
 Sets the width of the tablebrowser.<p>
+
+<<defopt {-browsemode <i>mode</i>}>>
+<<defopt {-titlecolumns <i>count</i>}>>
+<<defopt {-width <i>width</i>}>>
+
+Delegated to the underlying tablelist widget.<p>
 
 <</deflist tablebrowser options>>
 

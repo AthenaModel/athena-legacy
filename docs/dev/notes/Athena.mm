@@ -212,7 +212,7 @@
 </node>
 </node>
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
-<node CREATED="1242252088170" ID="Freemind_Link_1222935831" MODIFIED="1242252128671" TEXT="Report Browser">
+<node CREATED="1242252088170" ID="Freemind_Link_1222935831" MODIFIED="1242760003843" TEXT="Report Browser Tab">
 <icon BUILTIN="full-1"/>
 </node>
 <node CREATED="1239723521749" ID="Freemind_Link_1093494342" MODIFIED="1239723533567" TEXT="Save sim speed, duration as prefs"/>
@@ -380,10 +380,6 @@
 <node CREATED="1237488295816" FOLDED="true" ID="Freemind_Link_1208739900" MODIFIED="1237495169282" TEXT="zulufield(n) widget">
 <node CREATED="1237560838308" ID="Freemind_Link_7202440" MODIFIED="1237560850862" TEXT="-increment set by simclock&apos;s tick size"/>
 <node CREATED="1237918381064" ID="Freemind_Link_274696888" MODIFIED="1237918408034" TEXT="Make -changecmd work properly"/>
-</node>
-<node CREATED="1238449424244" FOLDED="true" ID="Freemind_Link_1819277701" MODIFIED="1238771595911" TEXT="Text reports">
-<node CREATED="1238449438196" ID="Freemind_Link_158053164" MODIFIED="1238449443967" TEXT="Report Browser"/>
-<node CREATED="1238449454308" ID="Freemind_Link_810723720" MODIFIED="1238449463566" TEXT="Use log more aggressively"/>
 </node>
 <node CREATED="1238697576356" ID="Freemind_Link_1910498498" MODIFIED="1238771576578" TEXT="tablebrowser(n) could create toolbar automatically">
 <arrowlink DESTINATION="Freemind_Link_1599806815" ENDARROW="Default" ENDINCLINATION="128;0;" ID="Freemind_Arrow_Link_1005875885" STARTARROW="None" STARTINCLINATION="83;0;"/>

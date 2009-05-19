@@ -63,6 +63,7 @@ snit::widget ::projectgui::tablebrowser {
     # Options delegated to the tableList
     delegate option -titlecolumns   to tableList
     delegate option -width          to tableList
+    delegate option -selectmode     to tableList
 
    
     # -keycol col

@@ -1,0 +1,189 @@
+<<manpage {projectgui(n) reportbrowser(n)} "Report Browser Widget">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require projectgui 1.0
+namespace import ::projectgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+This module defines the reportbrowser(n) widget; it is used to browse
+a collection of <<xref reporter(n)>> reports stored in an
+<<xref mars:sqldocument(n)>>.<p>
+
+The reportbrowser consists of three subcomponents: the bin tree, the
+report list, and the report viewer.<p>
+
+The bin tree displays the report bins defined by <<xref reporter(n)>>;
+each bin groups together related reports.  Clicking on a bin causes
+all reports in that bin to be listed in the report list.
+
+The report list displays the ID number, time stamp, and title
+of all reports in the current bin.  Clicking on a report in the list
+causes the report to be displayed by the report viewer.  The cursor
+keys can also be used to step up and down through the list.
+Double-clicking on a report will pop-up a <<xref reportviewerwin(n)>> window
+displaying just that individual report.<p>
+
+The report viewer is a <<xref reportviewer(n)>> widget; it simply
+displays the currently selected report.<p>
+
+<<section COMMANDS>>
+
+This module defines the following command:<p>
+
+<<deflist commands>>
+
+<<defitem reportbrowser {reportbrowser <i>pathName ?options...?</i>}>>
+
+Creates a new <<iref reportbrowser>> widget named <i>pathName</i>.<p>
+
+The <<iref reportbrowser>> widget delegates all options except the
+following to its hull frame widget:<p>
+
+<<deflist reportbrowser options>>
+
+<<defopt {-db <i>db</i>}>>
+
+Specifies the <<xref mars:sqldocument(n)>> object from which the
+browser should get reports.  When this is set or changed, <<iref
+refresh>> method should be called to update the contents of the widget.<p>
+
+
+<<defopt {-shownewest <i>boolean</i>}>>
+
+Specifies whether or not the browser should scroll to the most recent reports
+in the bin when a new bin is selected.  Defaults to false.
+
+<<defopt {-showrecent <i>boolean</i>}>>
+
+Specifies whether the browser should display all reports in a bin, or
+only those which arrived since the <code>-recentlimit</code>.
+Defaults to false.<p>
+
+<<defopt {-recentlimit <i>time</i>}>>
+
+When <code>-showrecent</code> is true, the browser shows only those
+reports which are no older than <i>time</i>.  Defaults to 0; the
+application should update this periodically with the current
+notion of "recent".<p>
+
+<<defopt {-scrolllock <i>boolean</i>}>>
+
+Specifies whether or not the browser should jump to the latest report
+in the bin when new reports are found on <code>-autoupdate</code>.
+Defaults to false.<p>
+
+When <code>-scrolllock</code> is disabled, the browser will
+immediately jump to the last report in the bin.<p>
+
+<</deflist reportbrowser options>>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+<<deflist instance>>
+
+<<defitem configure {$browser configure <i>option value...</i>}>>
+
+Sets the values of the specified <i>options</i>.<p>
+
+<<defitem cget {$browser cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem refresh {$browser refresh}>>
+
+Tells the browser to refresh it contents from the <code>-db</code>.
+A fresh set of bin definitions will be loaded, and the browser will
+automatically display the first bin in the tree.<p>
+
+<<defitem setbin {$browser setbin <i>bin</i>}>>
+
+Selects and displays the named bin.<p>
+
+<<defitem {menuitem scrolllock} {$browser menuitem scrolllock <i>menu</i> ?<i>options...</i>?}>>
+
+Creates a <code>-scrolllock</code> checkbox menu item on the specified
+<i>menu</i>.  The menu item's <code>-command</code> and
+<code>-variable</code> options are set to control the
+<code>-scrolllock</code> flag; all other options may be set by the
+user.  The following options are set by default:<p>
+
+<pre>
+-label     "Scroll Lock"
+-underline 0
+</pre>
+
+<<defitem {menuitem showrecent} {$browser menuitem showrecent <i>menu</i> ?<i>options...</i>?}>>
+
+Creates a <code>-showrecent</code> checkbox menu item on the specified
+<i>menu</i>.  The menu item's <code>-command</code> and
+<code>-variable</code> options are set to control the
+<code>-showrecent</code> flag; all other options may be set by the
+user.  The following options are set by default:<p>
+
+<pre>
+-label     "Recent Reports Only"
+-underline 0
+</pre>
+
+<<defitem update {$browser update}>>
+
+Checks for new reports and updates the currently displayed bin.<p>
+
+<</deflist>>
+
+<<section "BINDINGS">>
+
+Clicking on a bin in the bin tree selects that bin and displays the
+reports it contains in the reports list.<p>
+
+Clicking on a report in the report list selects that report and
+displays it in the report viewer.<p>
+
+Double-clicking on a report in the report list selects that report and
+pops up a <<xref reportviewerwin(n)>> that displays it.<p>
+
+When the report viewer pane has the focus, the
+<<xref mars:rotext(n)>> bindings are active for keyboard navigation.<p>
+
+When the report list pane has the focus, the following keyboard
+bindings are active:<p>
+
+<ul>
+  <li> Up and PageUp select the previous report in the list.
+  <li> Down and PageDown select the next report in the list.
+  <li> Home selects the first report in the list.
+  <li> End selects the last report in the list.
+</ul>
+
+<<section ENVIRONMENT>>
+
+projectgui(n) requires Tcl 8.5 or later.
+
+To use projectgui(n) in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
+
+
