@@ -170,9 +170,9 @@ snit::type ada {
     #           -location          Location of input (default, none)
     #           -n                 Name of affected neighborhood, or *
     #           -f                 Name of affected group or groups
-    #           -cause             Cause, default ""
-    #           -p                 Near effects factor, default 0
-    #           -q                 Far effects factor, default 0
+    #           -cause             Cause, default from parmdb
+    #           -p                 Near effects factor, default from parmdb
+    #           -q                 Far effects factor, default from parmdb
     #
     # Begins accumulating data in preparation for a rule firing.
     # The options establish the defaults for subsequent rule firings.
@@ -193,9 +193,9 @@ snit::type ada {
                  -location    {}  \
                  -n           {}  \
                  -f           {}  \
-                 -cause       {}  \
-                 -p           0.0 \
-                 -q           0.0]
+                 -cause       [parmdb get ada.$ruleset.cause]      \
+                 -p           [parmdb get ada.$ruleset.nearFactor] \
+                 -q           [parmdb get ada.$ruleset.farFactor]]
 
         # NEXT, get the passed in options.
         # TBD: Should throw an error if there are any unknown dict keys.

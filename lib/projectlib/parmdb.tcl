@@ -455,11 +455,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.CHKPOINT.cause         CHKPOINT
         $ps setdefault ada.CHKPOINT.nearFactor    0.25
         $ps setdefault ada.CHKPOINT.farFactor     0.0
-        $ps setdefault ada.CHKPOINT.rmf.AUT       quad
-        $ps setdefault ada.CHKPOINT.rmf.SFT       quad
-        $ps setdefault ada.CHKPOINT.rmf.CUL       constant
-        $ps setdefault ada.CHKPOINT.rmf.QOL       constant
-        $ps setdefault ada.CHKPOINT.rmf.coop      quad
 
         # Rule Set: CMOCONST
         $ps setdefault ada.CMOCONST.active        no
@@ -811,11 +806,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.PRESENCE.cause         PRESENCE
         $ps setdefault ada.PRESENCE.nearFactor    0.25
         $ps setdefault ada.PRESENCE.farFactor     0.0
-        $ps setdefault ada.PRESENCE.rmf.AUT       quad
-        $ps setdefault ada.PRESENCE.rmf.SFT       quad
-        $ps setdefault ada.PRESENCE.rmf.CUL       quad
-        $ps setdefault ada.PRESENCE.rmf.QOL       quad
-        $ps setdefault ada.PRESENCE.rmf.coop      quad
 
         # Rule Set: PSYOP
         $ps setdefault ada.PSYOP.active           no

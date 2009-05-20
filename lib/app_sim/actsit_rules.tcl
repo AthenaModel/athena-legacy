@@ -72,11 +72,12 @@ snit::type actsit_rules {
     #-------------------------------------------------------------------
     # Rule Set Tools
 
-    # satslope cov f con slope ?con slope...?
+    # satslope cov f con rmf slope ?con rmf slope...?
     #
     # cov        The coverage fraction
     # f          The affected group
     # con        The affected concern
+    # rmf        The RMF to apply
     # slope      The nominal slope
     #
     # Enters satisfaction slope inputs for -n, the -f groups, and acting 
@@ -88,15 +89,13 @@ snit::type actsit_rules {
         set g       [ada rget -doer]
         set nomCov  [parmdb get ada.nominalCoverage]
 
-        assert {[llength $args] != 0 && [llength $args] % 2 == 0}
+        assert {[llength $args] != 0 && [llength $args] % 3 == 0}
 
         set rel [rel $n $f $g]
 
         set result [list]
 
-        foreach {con slope} $args {
-            set rmf [parmdb get ada.$ruleset.rmf.$con]
-
+        foreach {con rmf slope} $args {
             let mult {[rmf $rmf $rel] * $cov / $nomCov}
 
             let slope {[qmag value $slope] * $mult}
@@ -116,18 +115,18 @@ snit::type actsit_rules {
     # coopslope cov f slope
     #
     # cov        The coverage fraction
+    # rmf        The RMF to apply
     # f          The affected group
     # slope      The nominal slope
     #
     # Enters cooperation slope inputs for -n, "f", and acting 
     # group "g"  -doer, for the force activity situations.
 
-    proc coopslope {cov f slope} {
+    proc coopslope {cov rmf f slope} {
         set ruleset [ada get ruleset]
         set n       [ada rget -n]
         set g       [ada rget -doer]
         set nomCov  [parmdb get ada.nominalCoverage]
-        set rmf     [parmdb get ada.$ruleset.rmf.coop]
 
         set rel [rel $n $f $g]
 
@@ -179,15 +178,11 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
 
-        # TBD: Consider getting ada.$rulest.* parms automatically
         ada ruleset PRESENCE [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                            \
-            -p         [parmdb get ada.PRESENCE.nearFactor]        \
-            -q         [parmdb get ada.PRESENCE.farFactor]         \
-            -cause     [parmdb get ada.PRESENCE.cause] 
+            -f         [nbgroup gIn $n]
         
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -201,11 +196,11 @@ snit::type actsit_rules {
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
                 satslope $cov $f \
-                    AUT S+ \
-                    SFT S+ \
-                    QOL S+
+                    AUT quad S+ \
+                    SFT quad S+ \
+                    QOL quad S+
 
-                coopslope $cov $f S+
+                coopslope $cov quad $f S+
             }
 
         }
@@ -254,10 +249,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                            \
-            -p         [parmdb get ada.CHKPOINT.nearFactor]        \
-            -q         [parmdb get ada.CHKPOINT.farFactor]         \
-            -cause     [parmdb get ada.CHKPOINT.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -274,23 +266,23 @@ snit::type actsit_rules {
 
                 if {$rel >= 0} {
                     # FRIENDS
-                    satslope $cov $f \
-                        AUT S+       \
-                        SFT S+       \
-                        CUL XXS-     \
-                        QOL XS- 
+                    satslope $cov $f      \
+                        AUT quad     S+   \
+                        SFT quad     S+   \
+                        CUL constant XXS- \
+                        QOL constant XS- 
                 } elseif {$rel < 0} {
                     # ENEMIES
                     # Note: by default, RMF=quad for AUT, SFT, which will
                     # reverse the sign in this case.
-                    satslope $cov $f  \
-                        AUT S+        \
-                        SFT S+        \
-                        CUL S-        \
-                        QOL S-        
+                    satslope $cov $f     \
+                        AUT quad     S+  \
+                        SFT quad     S+  \
+                        CUL constant S-  \
+                        QOL constant S-        
                 }
 
-                coopslope $cov $f XXXS+
+                coopslope $cov quad $f XXXS+
             }
         }
 
