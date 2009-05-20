@@ -73,22 +73,6 @@ snit::type ada {
     }
 
     #-------------------------------------------------------------------
-    # Checkpointed Variables
-
-    # signatures
-    #
-    # Contains situation signatures by driver.  A signature is a string
-    # that describes the outcome of a rule firing.  It consists of the
-    # rule name (at a minimum) and also of the values of any variables 
-    # that can cause the rule's firing to have a different effect if it 
-    # fires again, e.g., an activity situation's coverage.  Signatures 
-    # are set and checked by the "ada guard" command; if the situation's
-    # signature has not changed, the remainder of the rule body is 
-    # skipped.
-
-    typevariable signatures -array {}
-
-    #-------------------------------------------------------------------
     # Non-Checkpointed Variables
     #
     # These variables are used to accumulate the inputs resulting from
@@ -153,8 +137,6 @@ snit::type ada {
         count  0
     }
 
-    typevariable jsiParms  ;# Array of <JinSatInput> parameters
-
     #-------------------------------------------------------------------
     # Initialization method
 
@@ -162,31 +144,10 @@ snit::type ada {
         # FIRST, check requirements
         require {[info commands log]  ne ""} "log is not defined."
 
-        # NEXT, prepare to delete signatures for ended situations
-        notifier bind ::actsit <Entity> ::ada [mytypemethod SitEvent]
-        notifier bind ::envsit <Entity> ::ada [mytypemethod SitEvent]
-
         # NEXT, ada is up.
         log normal ada "Initialized"
     }
 
-    # SitEvent op s
-    #
-    # op  Operation
-    # s   The situation ID
-    #
-    # When a situation has ended, forget its last signature.
-
-    typemethod SitEvent {op s} {
-        # TBD: Make sure timing is right.
-        if {$op ne "delete"} {
-            set sit [situation get $s]
-
-            if {[$sit get state] eq "ENDED"} {
-                unset -nocomplain signatures($s)
-            }
-        }
-    }
 
     #-------------------------------------------------------------------
     # Management
@@ -396,13 +357,8 @@ snit::type ada {
 
         set input(signature) "$input(rule) $text"
 
-        set s [$input(sit) id]
-
-        
-        if {[info exists signatures($s)]} {
-            if {$signatures($s) eq $input(signature)} {
-                return -code break
-            }
+        if {[$sit get signature] eq $input(signature)} {
+            return -code break
         }
     }
     
@@ -414,16 +370,12 @@ snit::type ada {
 
     typemethod Complete {} {
         # FIRST, do special handling for situations
-        # TBD: Consider moving "signature" to the situation table.
         if {$input(sit) ne ""} {
-            # FIRST, get the situation's ID
-            set s [$input(sit) id]
-            
-            # NEXT, Save the rule signature
+            # FIRST, Save the rule signature
             if {$input(signature) ne ""} {
-                set signatures($s) $input(signature)
+                $input(sit) set signature $input(signature)
             } else {
-                set signatures($s) $input(rule)
+                $input(sit) set signature $input(rule)
             }
         }
 
@@ -1095,35 +1047,6 @@ snit::type ada {
         }
 
         return $opts
-    }
-
-
-
-    #-------------------------------------------------------------------
-    # Checkpoint/Restore
-
-    # TBD: If I put "signature" in the situation, I don't need to
-    # worry about this.
-
-    # checkpoint
-    #
-    # Returns the component's checkpoint information as a string.
-
-    typemethod checkpoint {} {
-        list signatures [array get signatures]
-    }
-
-    # restore checkpoint
-    #
-    # checkpoint      A checkpoint string returned by "checkpoint"
-    #
-    # Restores the component's state to the checkpoint.
-
-    typemethod restore {checkpoint} {
-        foreach {name value} $checkpoint {
-            array unset $name
-            array set $name $value
-        }
     }
 }
 

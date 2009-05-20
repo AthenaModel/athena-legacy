@@ -568,7 +568,10 @@ CREATE TABLE situations (
     flist     TEXT DEFAULT 'ALL',
 
     -- Causing Group, or 'NONE'
-    g         TEXT DEFAULT 'NONE'
+    g         TEXT DEFAULT 'NONE',
+
+    -- Signature (used by Athena Driver Assessment rules)
+    signature TEXT DEFAULT ''
 );
 
 -- Activity Situations
