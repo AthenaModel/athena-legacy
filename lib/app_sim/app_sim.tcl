@@ -57,6 +57,7 @@ source [file join $::app_sim::library executive.tcl        ]
 source [file join $::app_sim::library cif.tcl              ]
 source [file join $::app_sim::library order.tcl            ]
 source [file join $::app_sim::library report.tcl           ]
+source [file join $::app_sim::library ada.tcl              ]
 
 # Non-GUI: Scenario
 source [file join $::app_sim::library scenario.tcl         ]

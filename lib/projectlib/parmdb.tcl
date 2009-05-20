@@ -300,6 +300,26 @@ snit::type ::projectlib::parmdb {
         $ps setdefault activity.ORG.CMO_OTHER.minSecurity.CTR          M
         $ps setdefault activity.ORG.CMO_OTHER.coverage                 {20 1000}
 
+        # ada.* parameters
+        $ps subset ada {
+            Athena Driver Assessment rule/rule set parameters.
+        }
+
+        # Rule parameters
+        foreach rule [lsort -dictionary [eadarule names]] {
+            $ps subset ada.$rule "
+                Parameters for ADA Rule $rule: [eadarule longname $rule]
+            "
+
+            $ps define ada.$rule.satgain ::projectlib::rgain 1.0 "
+                Satisfaction gain for ADA Rule $rule.
+            "
+
+            $ps define ada.$rule.coopgain ::projectlib::rgain 1.0 "
+                Cooperation gain for ADA Rule $rule.
+            "
+        }
+
         # envsit.* parameters
         $ps subset envsit {
             Environmental situation parameters, by envsit type.

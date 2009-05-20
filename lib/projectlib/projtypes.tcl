@@ -17,6 +17,9 @@ namespace eval ::projectlib:: {
     namespace export  \
         boolean       \
         eactivity     \
+        eadarules     \
+        eadarulesets  \
+        ecause        \
         ecivconcern   \
         econcern      \
         edemeanor     \
@@ -42,7 +45,6 @@ namespace eval ::projectlib:: {
         polygon       \
         qsecurity     \
         rdays         \
-        rposfactor    \
         rgain         \
         rgrouprel     \
         unitname      \
@@ -106,6 +108,105 @@ snit::type ::projectlib::TypeWrapper {
 
 #-------------------------------------------------------------------
 # Enumerations
+
+# ADA Rules
+::marsutil::enum ::projectlib::eadarule {
+    PATROL-1-1 "Dummy Rule"
+}
+
+# ADA Rule Sets
+::marsutil::enum ::projectlib::eadaruleset {
+    BADFOOD   "Contaminated Food Supply"
+    BADWATER  "Contaminated Water Supply"
+    BIO       "Biological Hazard"
+    CHEM      "Chemical Hazard"
+    CHKPOINT  "Checkpoint/Control Point"
+    CMOCONST  "CMO -- Construction"
+    CMODEV    "CMO -- Development"
+    CMOEDU    "CMO -- Education"
+    CMOEMP    "CMO -- Employment"
+    CMOIND    "CMO -- Industry"
+    CMOINF    "CMO -- Infrastructure"
+    CMOLAW    "CMO -- Law Enforcement"
+    CMOMED    "CMO -- Healthcare"
+    CMOOTHER  "CMO -- Other"
+    COERCION  "Coercion"
+    COMMOUT   "Communications Outage"
+    CRIMINAL  "Criminal Activities"
+    CURFEW    "Curfew"
+    DISASTER  "Disaster"
+    DISEASE   "Disease"
+    EPIDEMIC  "Epidemic"
+    FOOD      "Food Stuffs Distribution"
+    FOODSHRT  "Food Shortage"
+    FUEL      "Fuel Distribution"
+    FUELSHRT  "Fuel Shortage"
+    GARBAGE   "Garbage in the Streets"
+    INDSPILL  "Industrial Spill"
+    MOSQUE    "Damage to Mosque"
+    NOWATER   "No Water Supply"
+    ORDNANCE  "Unexploded Ordnance"
+    ORGCONST  "ORG -- Construction"
+    ORGEDU    "ORG -- Education"
+    ORGEMP    "ORG -- Employment"
+    ORGIND    "ORG -- Industry"
+    ORGINF    "ORG -- Infrastructure"
+    ORGMED    "ORG -- Healthcare"
+    ORGOTHER  "ORG -- Other"
+    PATROL    "Patrol"
+    PIPELINE  "Oil Pipeline Fire"
+    POWEROUT  "Power Outage"
+    PRESENCE  "Mere Presence of Force Units"
+    PSYOP     "PSYOP"
+    REFINERY  "Oil Refinery Fire"
+    SEWAGE    "Sewage Spill"
+}
+
+# ADA Rule Set Causes.  Most of these
+::marsutil::enum ::projectlib::ecause {
+    BIO       "Biological Agent"
+    CHEM      "Chemical Agent"
+    CHKPOINT  "Checkpoint/Control Point"
+    CMOCONST  "CMO -- Construction"
+    CMODEV    "CMO -- Development"
+    CMOEDU    "CMO -- Education"
+    CMOEMP    "CMO -- Employment"
+    CMOIND    "CMO -- Industry"
+    CMOINF    "CMO -- Infrastructure"
+    CMOLAW    "CMO -- Law Enforcement"
+    CMOMED    "CMO -- Healthcare"
+    CMOOTHER  "CMO -- Other"
+    COERCION  "Coercion"
+    COMMOUT   "Communications Outage"
+    CRIMINAL  "Criminal Activities"
+    CURFEW    "Curfew"
+    DISASTER  "Disaster"
+    FUELSHRT  "Fuel Shortage"
+    GARBAGE   "Garbage in the Streets"
+    GUARD     "Guard"
+    HUNGER    "Hunger"
+    INDSPILL  "Industrial Spill"
+    MOSQUE    "Damage to Mosque"
+    ORDNANCE  "Unexploded Ordnance"
+    ORGCAS    "Organization Casualties"
+    ORGCONST  "ORG -- Construction"
+    ORGEDU    "ORG -- Education"
+    ORGEMP    "ORG -- Employment"
+    ORGIND    "ORG -- Industry"
+    ORGINF    "ORG -- Infrastructure"
+    ORGMED    "ORG -- Healthcare"
+    ORGOTHER  "ORG -- Other"
+    PATROL    "Patrol"
+    PIPELINE  "Oil Pipeline Fire"
+    POWEROUT  "Power Outage"
+    PRESENCE  "Mere Presence of Force Units"
+    PSYOP     "PSYOP"
+    REFINERY  "Oil Refinery Fire"
+    SEWAGE    "Sewage Spill"
+    SICKNESS  "Sickness"
+    THIRST    "Thirst"
+}
+
 
 # Unit icon shape (per MIL-STD-2525B)
 ::marsutil::enum ::projectlib::eunitshape {

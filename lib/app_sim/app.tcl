@@ -112,6 +112,7 @@ snit::type app {
         cif       init
         order     init
         report    init
+        ada       init
         nbhood    init
         nbrel     init
         group     init

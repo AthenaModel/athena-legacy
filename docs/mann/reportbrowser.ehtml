@@ -50,8 +50,9 @@ following to its hull frame widget:<p>
 <<defopt {-db <i>db</i>}>>
 
 Specifies the <<xref mars:sqldocument(n)>> object from which the
-browser should get reports.  When this is set or changed, <<iref
-refresh>> method should be called to update the contents of the widget.<p>
+browser should get reports.  When this is set or changed, the
+<<iref refresh>> method should be called to update the contents of the
+widget.<p> 
 
 
 <<defopt {-shownewest <i>boolean</i>}>>
