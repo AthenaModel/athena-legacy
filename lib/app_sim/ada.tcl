@@ -848,14 +848,15 @@ snit::type ada {
         assert {[llength $args] != 0 && [llength $args] % 2 == 0}
 
         # NEXT, do each of the inputs
-        # TBD: Doers can only be force groups!
         foreach f $flist {
             foreach {limit days} $args {
                 foreach doer [dict get $opts -doer] {
-                    CoopLevel $n $f $doer $limit $days \
-                        [dict get $opts -cause]         \
-                        [dict get $opts -p]             \
-                        [dict get $opts -q]
+                    if {$doer in [frcgroup names]} {
+                        CoopLevel $n $f $doer $limit $days \
+                            [dict get $opts -cause]         \
+                            [dict get $opts -p]             \
+                            [dict get $opts -q]
+                    }
                 }
             }
         }
@@ -925,13 +926,14 @@ snit::type ada {
         lassign $args slope
 
         # NEXT, do each of the inputs
-        # TBD: Only for doers that are force groups!
         foreach f $flist {
             foreach doer [dict get $opts -doer] {
-                CoopSlope $n $f $doer $slope  \
-                    [dict get $opts -cause]   \
-                    [dict get $opts -p]       \
-                    [dict get $opts -q]
+                if {$doer in [frcgroup names]} {
+                    CoopSlope $n $f $doer $slope  \
+                        [dict get $opts -cause]   \
+                        [dict get $opts -p]       \
+                        [dict get $opts -q]
+                }
             }
         }
     }
@@ -992,11 +994,12 @@ snit::type ada {
 
         # NEXT, do each of the inputs
         foreach f $flist {
-            # TBD: Only for doers that are force groups!
             foreach doer [dict get $opts -doer] {
-                CoopSlope $n $f $doer 0 \
-                    [dict get $opts -cause] \
-                    0 0
+                if {$doer in [frcgroup names]} {
+                    CoopSlope $n $f $doer 0 \
+                        [dict get $opts -cause] \
+                        0 0
+                }
             }
         }
     }
