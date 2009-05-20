@@ -75,8 +75,9 @@ snit::type situation {
 
     typemethod init {} {
         # FIRST, initialize the specific situation types
-        actsit init
-        envsit init
+        actsit       init
+        actsit_rules init
+        envsit       init
 
         # NEXT, register this module as a saveable, so that the
         # cache is flushed as appropriate.

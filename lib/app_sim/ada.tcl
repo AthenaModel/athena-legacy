@@ -32,6 +32,9 @@ snit::type ada {
         namespace import ::marsutil::* 
         namespace import ::simlib::*
         namespace import ::projectlib::* 
+
+        # Register self as an sqlsection(i) module
+        sqldocument register $type
     }
 
     #-------------------------------------------------------------------
@@ -118,7 +121,7 @@ snit::type ada {
     #            -q        As in setdefs, above
     #            -cause    As in setdefs, above
     #
-    # title      Title of INPUT report
+    # title      Title of ADA report
     # header     Text that goes at the top of the report.
     # details    Text that goes between the header and the effects
     # logline    Log message; created by "rule", written by first
@@ -152,10 +155,9 @@ snit::type ada {
     #-------------------------------------------------------------------
     # Management
     #
-    # The following methods are used by the JIN Rules to bracket sets
-    # of related JRAM inputs related to a single rule firing.
-    # The commands take care of reporting the inputs to RTI and
-    # to the console/workstation.
+    # The following methods are used by the ADA Rules to bracket sets
+    # of related GRAM inputs related to a single rule firing.
+    # The commands also save an ADA report.
 
     # ruleset ruleset driver options
     #
@@ -215,7 +217,7 @@ snit::type ada {
     # call to "ruleset":
     #
     #           -description    Rule description (defaults to
-    #                           eadarules longname)
+    #                           eadarule longname)
     #           -location       See "ruleset"
     #
     # The following options specify defaults for the level and 
@@ -241,11 +243,11 @@ snit::type ada {
         set  input(description) [optval args -description]
 
         if {$input(description) eq ""} {
-            set input(description) [eadarules longname $rule]
+            set input(description) [eadarule longname $rule]
             
             if {$input(description) eq ""} {
                 error \
-                  "Rule $rule has no description (see projtypes(n) eadarules)"
+                  "Rule $rule has no description (see projtypes(n) eadarule)"
             }
         }
 
@@ -357,7 +359,7 @@ snit::type ada {
 
         set input(signature) "$input(rule) $text"
 
-        if {[$sit get signature] eq $input(signature)} {
+        if {[$input(sit) get signature] eq $input(signature)} {
             return -code break
         }
     }
@@ -366,7 +368,7 @@ snit::type ada {
     # Complete
     #
     # The inputs are complete; enters them into GRAM, and
-    # saves an INPUT report.
+    # saves an ADA report.
 
     typemethod Complete {} {
         # FIRST, do special handling for situations
@@ -422,7 +424,7 @@ snit::type ada {
                                -q     $q                \
                                -cause $cause]
             } elseif {$itype eq "coop" && $etype eq "SLOPE"} {
-                set dinput [jram coop slope $input(driver) \
+                set dinput [aram coop slope $input(driver) \
                                [simclock now]           \
                                $n                       \
                                $f                       \
@@ -443,22 +445,22 @@ snit::type ada {
             }
         }
 
-        # NEXT, produce the INPUT report for the console/workstation
+        # NEXT, produce the ADA report for the console/workstation
         # clients.
 
         # Add the gain settings:
-
-        append input(header) "\n"
 
         if {$got(sat)} {
             set satgain  [parmdb get ada.$input(rule).satgain]
 
             if {$satgain == 1.0} {
                 append input(header) \
-                    "Satisfaction Gain: 1.0 (default)\n"
+                    [format $columns "Satisfaction Gain:" "1.0 (default)"]
+
             } else {
                 append input(header) \
-                    "Satisfaction Gain: [format %.1f $satgain]\n"
+                    [format $columns "Satisfaction Gain:" \
+                         [format %.1f $satgain]]
             }
         }
 
@@ -467,10 +469,12 @@ snit::type ada {
 
             if {$coopgain == 1.0} {
                 append input(header) \
-                    "Cooperation Gain:  1.0 (default)\n"
+                    [format $columns "Cooperation Gain:" "1.0 (default)"]
+
             } else {
                 append input(header) \
-                    "Cooperation Gain:  [format %.1f $coopgain]\n"
+                    [format $columns "Cooperation Gain:" \
+                         [format %.1f $coopgain]]
             }
         }
 
@@ -488,7 +492,7 @@ snit::type ada {
                        f,
                        c,
                        CASE WHEN cause != '' THEN cause ELSE 'n/a' END,
-                       format('%5.1f (%s)',climit,qmag('name',climit)),
+                       format('%6.2f (%s)',climit,qmag('name',climit)),
                        format('%g days',days),
                        format('%4.2f',p),
                        format('%4.2f',q)
@@ -500,7 +504,7 @@ snit::type ada {
             }]
         
         if {$table ne ""} {
-            append input(header) "\nSatisfaction Level Inputs\n\n"
+            append input(header) "\nSATISFACTION LEVEL INPUTS\n\n"
             append input(header) $table
         }
 
@@ -512,7 +516,7 @@ snit::type ada {
                        f,
                        c,
                        CASE WHEN cause != '' THEN cause ELSE 'n/a' END,
-                       format('%5.1f (%s)',slope,qmag('name',slope)),
+                       format('%6.2f (%s)',slope,qmag('name',slope)),
                        format('%4.2f',p),
                        format('%4.2f',q)
                 FROM ada_inputs
@@ -523,7 +527,7 @@ snit::type ada {
             }]
 
         if {$table ne ""} {
-            append input(header) "\nSatisfaction Slope Inputs\n\n"
+            append input(header) "\nSATISFACTION SLOPE INPUTS\n\n"
             append input(header) $table
         }
 
@@ -535,7 +539,7 @@ snit::type ada {
                        f,
                        g,
                        CASE WHEN cause != '' THEN cause ELSE 'n/a' END,
-                       format('%5.1f (%s)',climit,qmag('name',climit)),
+                       format('%6.2f (%s)',climit,qmag('name',climit)),
                        format('%g days (%s)',days),
                        format('%4.2f',p),
                        format('%4.2f',q)
@@ -547,7 +551,7 @@ snit::type ada {
             }]
         
         if {$table ne ""} {
-            append input(header) "\nCooperation Level Inputs\n\n"
+            append input(header) "\nCOOPERATION LEVEL INPUTS\n\n"
             append input(header) $table
         }
 
@@ -559,7 +563,7 @@ snit::type ada {
                        f,
                        g,
                        CASE WHEN cause != '' THEN cause ELSE 'n/a' END,
-                       format('%5.1f (%s)',slope,qmag('name',slope)),
+                       format('%6.2f (%s)',slope,qmag('name',slope)),
                        format('%4.2f',p),
                        format('%4.2f',q)
                 FROM ada_inputs
@@ -570,13 +574,13 @@ snit::type ada {
             }]
 
         if {$table ne ""} {
-            append input(header) "\nCooperation Slope Inputs\n\n"
+            append input(header) "\nCOOPERATION SLOPE INPUTS\n\n"
             append input(header) $table
         }
 
         # Save the report to the console/workstation
         report save                  \
-            -type    INPUT           \
+            -type    ADA             \
             -subtype $input(ruleset) \
             -meta1   $input(rule)    \
             -title   $input(title)   \
@@ -826,7 +830,7 @@ snit::type ada {
     #     -p      Near effects multiplier
     #     -q      Far effects multiplier
     #
-    # Adds a level effect to a set of inputs, and submits it to JRAM.
+    # Adds a level effect to a set of inputs, and submits it to GRAM.
 
     typemethod {coop level} {args} {
         # FIRST, if the logline hasn't been logged, log it.
@@ -859,7 +863,7 @@ snit::type ada {
 
     # CoopLevel n f g limit days cause p q
     #
-    # Enters a single JRAM-NG input
+    # Enters a single GRAM input
 
     proc CoopLevel {n f g limit days cause p q} {
         # NEXT, update the level per the input gain
@@ -901,7 +905,7 @@ snit::type ada {
     #     -p      Near effects multiplier
     #     -q      Far effects multiplier
     #
-    # Adds a slope effect to a set of inputs, and submits it to JRAM
+    # Adds a slope effect to a set of inputs, and submits it to GRAM
 
     typemethod {coop slope} {args} {
         # FIRST, if the logline hasn't been logged, log it.
@@ -953,7 +957,6 @@ snit::type ada {
                 $g,
                 $cause,
                 $slope,
-                $limit,
                 $p,
                 $q
             );
@@ -991,7 +994,7 @@ snit::type ada {
         foreach f $flist {
             # TBD: Only for doers that are force groups!
             foreach doer [dict get $opts -doer] {
-                CoopSlope $n $f $doer 0 0 \
+                CoopSlope $n $f $doer 0 \
                     [dict get $opts -cause] \
                     0 0
             }

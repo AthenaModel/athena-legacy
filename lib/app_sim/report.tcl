@@ -39,7 +39,6 @@ snit::type report {
             -reportcmd [list notifier send $type <Report>]
 
         # NEXT, define the bins.
-        # TBD: We'll need more than this.
 
         reporter bin define all "All Reports" "" {
             SELECT * FROM reports
@@ -51,6 +50,19 @@ snit::type report {
 
         reporter bin define hotlist "Hot List" "" {
             SELECT * FROM reports WHERE hotlist=1
+        }
+
+        reporter bin define ada "ADA Rule Firings" "" {
+            SELECT * FROM reports WHERE rtype='ADA'
+        }
+
+        set count 0
+        foreach ruleset [eadaruleset names] {
+            set bin "ada[incr count]"
+
+            reporter bin define $bin $ruleset ada "
+                SELECT * FROM reports WHERE rtype='ADA' AND subtype='$ruleset'
+            "
         }
     }
 

@@ -58,6 +58,18 @@ snit::type nbgroup {
         }
     }
 
+    # gIn n
+    #
+    # n      A neighborhood ID
+    #
+    # Returns a list of the civ groups that reside in this neighborhood.
+
+    typemethod gIn {n} {
+        rdb eval {
+            SELECT g FROM nbgroups WHERE n=$n
+        }
+    }
+
     # validate id
     #
     # id      A group ID, [list $n $g]

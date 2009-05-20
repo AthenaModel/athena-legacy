@@ -16,9 +16,8 @@
 namespace eval ::projectlib:: {
     namespace export  \
         boolean       \
-        eactivity     \
-        eadarules     \
-        eadarulesets  \
+        eadarule      \
+        eadaruleset   \
         ecause        \
         ecivconcern   \
         econcern      \
@@ -47,6 +46,8 @@ namespace eval ::projectlib:: {
         rdays         \
         rgain         \
         rgrouprel     \
+        rnomcoverage  \
+        typewrapper   \
         unitname      \
         weight
 }
@@ -55,7 +56,7 @@ namespace eval ::projectlib:: {
 # Type Wrapper -- wraps snit::<type> instances so they throw
 #                 -errorcode INVALID
 
-snit::type ::projectlib::TypeWrapper {
+snit::type ::projectlib::typewrapper {
     #---------------------------------------------------------------
     # Components
 
@@ -69,7 +70,7 @@ snit::type ::projectlib::TypeWrapper {
     #---------------------------------------------------------------
     # Constructor
 
-    # TypeWrapper newtype oldtype ?options....?
+    # typewrapper newtype oldtype ?options....?
 
     constructor {oldtype args} {
         # FIRST, create the basetype, if need be.
@@ -111,7 +112,12 @@ snit::type ::projectlib::TypeWrapper {
 
 # ADA Rules
 ::marsutil::enum ::projectlib::eadarule {
-    PATROL-1-1 "Dummy Rule"
+    CHKPOINT-1-1  "Force group assigned CHECKPOINT activity"
+    CHKPOINT-2-1  "Force group no longer operating checkpoints"
+
+    PRESENCE-1-1  "Presence of force units"
+    PRESENCE-2-1  "Force units no longer present"
+
 }
 
 # ADA Rule Sets
@@ -137,11 +143,10 @@ snit::type ::projectlib::TypeWrapper {
     DISASTER  "Disaster"
     DISEASE   "Disease"
     EPIDEMIC  "Epidemic"
-    FOOD      "Food Stuffs Distribution"
     FOODSHRT  "Food Shortage"
-    FUEL      "Fuel Distribution"
     FUELSHRT  "Fuel Shortage"
     GARBAGE   "Garbage in the Streets"
+    GUARD     "Guard"
     INDSPILL  "Industrial Spill"
     MOSQUE    "Damage to Mosque"
     NOWATER   "No Water Supply"
@@ -319,7 +324,7 @@ snit::type ::projectlib::TypeWrapper {
 }
 
 # List of eenvsit values
-::projectlib::TypeWrapper ::projectlib::leenvsit \
+::projectlib::typewrapper ::projectlib::leenvsit \
     snit::listtype -type ::projectlib::eenvsit 
 
 
@@ -339,20 +344,20 @@ snit::type ::projectlib::TypeWrapper {
 # Integer Types
 
 # iquantity: non-negative integers
-::projectlib::TypeWrapper ::projectlib::iquantity snit::integer -min 0
+::projectlib::typewrapper ::projectlib::iquantity snit::integer -min 0
 
 # ingpopulation: positive integers
-::projectlib::TypeWrapper ::projectlib::ingpopulation snit::integer -min 1
+::projectlib::typewrapper ::projectlib::ingpopulation snit::integer -min 1
 
 # ipositive: positive integers
-::projectlib::TypeWrapper ::projectlib::ipositive snit::integer -min 1
+::projectlib::typewrapper ::projectlib::ipositive snit::integer -min 1
 
 
 # idays: non-negative days
-::projectlib::TypeWrapper ::projectlib::idays snit::integer -min 0
+::projectlib::typewrapper ::projectlib::idays snit::integer -min 0
 
 # ioptdays: days with -1 as sentinal
-::projectlib::TypeWrapper ::projectlib::ioptdays snit::integer -min -1
+::projectlib::typewrapper ::projectlib::ioptdays snit::integer -min -1
 
 
 #-------------------------------------------------------------------
@@ -363,13 +368,18 @@ snit::type ::projectlib::TypeWrapper {
 ::marsutil::range ::projectlib::rdays \
     -min 0.0 -format "%.1f"
 
-# Gain setting
-::projectlib::TypeWrapper ::projectlib::rgain snit::double -min 0.0
+# Fraction
+::projectlib::typewrapper ::projectlib::rfraction snit::double \
+    -min 0.0 \
+    -max 1.0
 
+# Gain setting
+::projectlib::typewrapper ::projectlib::rgain snit::double -min 0.0
 
 # Group Relationships
 ::marsutil::range ::projectlib::rgrouprel \
     -min -1.0 -max 1.0 -format "%+4.1f"
+
 
 #-------------------------------------------------------------------
 # Boolean type

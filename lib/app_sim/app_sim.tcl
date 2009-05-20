@@ -82,6 +82,7 @@ source [file join $::app_sim::library security.tcl         ]
 source [file join $::app_sim::library activity.tcl         ]
 source [file join $::app_sim::library situation.tcl        ]
 source [file join $::app_sim::library actsit.tcl           ]
+source [file join $::app_sim::library actsit_rules.tcl     ]
 source [file join $::app_sim::library envsit.tcl           ]
 
 # GUI

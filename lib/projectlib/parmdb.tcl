@@ -17,6 +17,14 @@ namespace eval ::projectlib:: {
 }
 
 #-------------------------------------------------------------------
+# First, define the parameter value types used in this database
+
+# Nominal coverage
+::marsutil::range ::projectlib::parmdb_nomcoverage \
+    -min 0.1 -max 1.0 -format "%+5.2f"
+
+
+#-------------------------------------------------------------------
 # parm
 
 snit::type ::projectlib::parmdb {
@@ -304,6 +312,534 @@ snit::type ::projectlib::parmdb {
         $ps subset ada {
             Athena Driver Assessment rule/rule set parameters.
         }
+
+        # Global parameters
+
+        $ps define ada.nominalCoverage ::projectlib::parmdb_nomcoverage 0.66 {
+            The nominal coverage fraction for rule sets that use 
+            coverage fractions.  Input magnitudes are
+            specified for this nominal coverage, i.e., if a change is
+            specified as "cov * M+" the input will be "M+" when "cov"
+            equals the nominal coverage.  The valid range is 0.1 to
+            1.0.
+        }
+
+        # First, give each an "active" flag.
+        foreach name [eadaruleset names] {
+            $ps subset ada.$name "
+                Parameters for ADA rule set $name.
+            "
+
+            $ps define ada.$name.active ::projectlib::boolean yes {
+                Indicates whether the rule set is active or not.
+            }
+
+            # NEXT, set the default cause to the first one, it will
+            # be overridden below.
+            set causedef [ecause name 0]
+
+            $ps define ada.$name.cause ::projectlib::ecause $causedef {
+                The "cause" for all GRAM inputs produced by this
+                rule set.  The value must be an ecause(n) short name.
+            }
+
+            $ps define ada.$name.nearFactor ::simlib::rfraction 0.25 {
+                Strength of indirect satisfaction effects in neighborhoods
+                which consider themselves "near" to the neighborhood in
+                which the rule set fires.
+            }
+
+            $ps define ada.$name.farFactor ::simlib::rfraction 0.1 {
+                Strength of indirect satisfaction effects in neighborhoods
+                which consider themselves "far" from the neighborhood in
+                which the rule set fires.
+            }
+
+
+            # Add standard parameters for Activity rule sets
+            if {$name in {
+                CHKPOINT
+                CMOCONST
+                CMODEV
+                CMOEDU
+                CMOEMP
+                CMOIND
+                CMOINF
+                CMOLAW
+                CMOMED
+                CMOOTHER
+                COERCION
+                CRIMINAL
+                CURFEW
+                GUARD
+                ORGCONST
+                ORGEDU
+                ORGEMP
+                ORGIND
+                ORGINF
+                ORGMED
+                ORGOTHER
+                PATROL
+                PRESENCE
+                PSYOP
+            }} {
+                $ps define ada.$name.mitigates ::projectlib::leenvsit {} {
+                    List of environmental situation types mitigated by this
+                    activity.
+                }
+
+                $ps subset ada.$name.rmf {
+                    Parameters which specify the Relationship Multiplier
+                    Function (RMF) used by this rule set.
+                }
+                
+                $ps define ada.$name.rmf.AUT ::simlib::rmf constant {
+                    Relationship Multiplier Function to use when computing
+                    satisfaction changes for the Autonomy (AUT) concern for
+                    this rule set.
+                }
+            
+                $ps define ada.$name.rmf.SFT ::simlib::rmf constant {
+                    Relationship Multiplier Function to use when computing
+                    satisfaction changes for the Safety (SFT) concern for
+                    this rule set.
+                }
+                
+                $ps define ada.$name.rmf.CUL ::simlib::rmf constant {
+                    Relationship Multiplier Function to use when computing
+                    satisfaction changes for the Culture (CUL) concern for
+                    this rule set.
+                }
+                
+                $ps define ada.$name.rmf.QOL ::simlib::rmf constant {
+                    Relationship Multiplier Function to use when computing
+                    satisfaction changes for the Quality of Life (QOL) 
+                    concern for this rule set.
+                }
+
+                # Add cooperation RMF for FRC activities
+                if {![string match "ORG*" $name]} {
+                    $ps define ada.$name.rmf.coop ::simlib::rmf constant {
+                        Relationship Multiplier Function to use when 
+                        computing cooperation changes for this activity.
+                    }
+                }
+            }
+        }
+
+        # Rule Set: BADFOOD
+        $ps setdefault ada.BADFOOD.active         no
+        $ps setdefault ada.BADFOOD.cause          HUNGER
+        $ps setdefault ada.BADFOOD.nearFactor     0.0
+        $ps setdefault ada.BADFOOD.farFactor      0.0
+
+        # Rule Set: BADWATER
+        $ps setdefault ada.BADWATER.active        no
+        $ps setdefault ada.BADWATER.cause         THIRST
+        $ps setdefault ada.BADWATER.nearFactor    0.0
+        $ps setdefault ada.BADWATER.farFactor     0.0
+
+        # Rule Set: BIO
+        $ps setdefault ada.BIO.active             no
+        $ps setdefault ada.BIO.cause              BIO
+        $ps setdefault ada.BIO.nearFactor         0.5
+        $ps setdefault ada.BIO.farFactor          0.25
+
+         # Rule Set: CHEM
+        $ps setdefault ada.CHEM.active            no
+        $ps setdefault ada.CHEM.cause             CHEM
+        $ps setdefault ada.CHEM.nearFactor        0.1
+        $ps setdefault ada.CHEM.farFactor         0.0
+
+       # Rule Set: CHKPOINT
+        $ps setdefault ada.CHKPOINT.cause         CHKPOINT
+        $ps setdefault ada.CHKPOINT.nearFactor    0.25
+        $ps setdefault ada.CHKPOINT.farFactor     0.0
+        $ps setdefault ada.CHKPOINT.rmf.AUT       quad
+        $ps setdefault ada.CHKPOINT.rmf.SFT       quad
+        $ps setdefault ada.CHKPOINT.rmf.CUL       constant
+        $ps setdefault ada.CHKPOINT.rmf.QOL       constant
+        $ps setdefault ada.CHKPOINT.rmf.coop      quad
+
+        # Rule Set: CMOCONST
+        $ps setdefault ada.CMOCONST.active        no
+        $ps setdefault ada.CMOCONST.cause         CMOCONST
+        $ps setdefault ada.CMOCONST.nearFactor    0.75
+        $ps setdefault ada.CMOCONST.farFactor     0.25
+        $ps setdefault ada.CMOCONST.mitigates     {
+            BADFOOD  BADWATER BIO CHEM COMMOUT DISASTER DISEASE EPIDEMIC 
+            FOODSHRT FUELSHRT GARBAGE  INDSPILL MOSQUE  NOWATER ORDNANCE 
+            PIPELINE POWEROUT REFINERY SEWAGE
+        }
+        $ps setdefault ada.CMOCONST.rmf.AUT       constant
+        $ps setdefault ada.CMOCONST.rmf.SFT       constant
+        $ps setdefault ada.CMOCONST.rmf.CUL       constant
+        $ps setdefault ada.CMOCONST.rmf.QOL       constant
+        $ps setdefault ada.CMOCONST.rmf.coop      frmore
+
+        # Rule Set: CMODEV
+        $ps setdefault ada.CMODEV.active          no
+        $ps setdefault ada.CMODEV.cause           CMODEV
+        $ps setdefault ada.CMODEV.nearFactor      0.5
+        $ps setdefault ada.CMODEV.farFactor       0.1
+        $ps setdefault ada.CMODEV.rmf.AUT         quad
+        $ps setdefault ada.CMODEV.rmf.SFT         quad
+        $ps setdefault ada.CMODEV.rmf.CUL         quad
+        $ps setdefault ada.CMODEV.rmf.QOL         quad
+        $ps setdefault ada.CMODEV.rmf.coop        frmore
+
+        # Rule Set: CMOEDU
+        $ps setdefault ada.CMOEDU.active          no
+        $ps setdefault ada.CMOEDU.cause           CMOEDU
+        $ps setdefault ada.CMOEDU.nearFactor      0.75
+        $ps setdefault ada.CMOEDU.farFactor       0.5
+        $ps setdefault ada.CMOEDU.mitigates       {}
+        $ps setdefault ada.CMOEDU.rmf.AUT         constant
+        $ps setdefault ada.CMOEDU.rmf.SFT         constant
+        $ps setdefault ada.CMOEDU.rmf.CUL         constant
+        $ps setdefault ada.CMOEDU.rmf.QOL         constant
+        $ps setdefault ada.CMOEDU.rmf.coop        frmore
+
+        # Rule Set: CMOEMP
+        $ps setdefault ada.CMOEMP.active          no
+        $ps setdefault ada.CMOEMP.cause           CMOEMP
+        $ps setdefault ada.CMOEMP.nearFactor      0.75
+        $ps setdefault ada.CMOEMP.farFactor       0.5
+        $ps setdefault ada.CMOEMP.mitigates       {}
+        $ps setdefault ada.CMOEMP.rmf.AUT         constant
+        $ps setdefault ada.CMOEMP.rmf.SFT         constant
+        $ps setdefault ada.CMOEMP.rmf.CUL         constant
+        $ps setdefault ada.CMOEMP.rmf.QOL         constant
+        $ps setdefault ada.CMOEMP.rmf.coop        frmore
+
+        # Rule Set: CMOIND
+        $ps setdefault ada.CMOIND.active          no
+        $ps setdefault ada.CMOIND.cause           CMOIND
+        $ps setdefault ada.CMOIND.nearFactor      0.75
+        $ps setdefault ada.CMOIND.farFactor       0.25
+        $ps setdefault ada.CMOIND.mitigates       {
+            COMMOUT  FOODSHRT FUELSHRT INDSPILL NOWATER PIPELINE
+            POWEROUT REFINERY
+        }
+        $ps setdefault ada.CMOIND.rmf.AUT         constant
+        $ps setdefault ada.CMOIND.rmf.SFT         constant
+        $ps setdefault ada.CMOIND.rmf.CUL         constant
+        $ps setdefault ada.CMOIND.rmf.QOL         constant
+        $ps setdefault ada.CMOIND.rmf.coop        frmore
+
+        # Rule Set: CMOINF
+        $ps setdefault ada.CMOINF.active          no
+        $ps setdefault ada.CMOINF.cause           CMOINF
+        $ps setdefault ada.CMOINF.nearFactor      0.75
+        $ps setdefault ada.CMOINF.farFactor       0.25
+        $ps setdefault ada.CMOINF.mitigates       {
+            BADWATER COMMOUT NOWATER POWEROUT SEWAGE
+        }
+        $ps setdefault ada.CMOINF.rmf.AUT         constant
+        $ps setdefault ada.CMOINF.rmf.SFT         constant
+        $ps setdefault ada.CMOINF.rmf.CUL         constant
+        $ps setdefault ada.CMOINF.rmf.QOL         constant
+        $ps setdefault ada.CMOINF.rmf.coop        frmore
+
+        # Rule Set: CMOLAW
+        $ps setdefault ada.CMOLAW.active          no
+        $ps setdefault ada.CMOLAW.cause           CMOLAW
+        $ps setdefault ada.CMOLAW.nearFactor      0.5
+        $ps setdefault ada.CMOLAW.farFactor       0.25
+        $ps setdefault ada.CMOLAW.rmf.AUT         quad
+        $ps setdefault ada.CMOLAW.rmf.SFT         quad
+        $ps setdefault ada.CMOLAW.rmf.CUL         quad
+        $ps setdefault ada.CMOLAW.rmf.QOL         quad
+        $ps setdefault ada.CMOLAW.rmf.coop        quad
+
+        # Rule Set: CMOMED
+        $ps setdefault ada.CMOMED.active          no
+        $ps setdefault ada.CMOMED.cause           CMOMED
+        $ps setdefault ada.CMOMED.nearFactor      0.75
+        $ps setdefault ada.CMOMED.farFactor       0.25
+        $ps setdefault ada.CMOMED.mitigates       {
+            BIO CHEM DISASTER DISEASE EPIDEMIC
+        }
+        $ps setdefault ada.CMOMED.rmf.AUT         constant
+        $ps setdefault ada.CMOMED.rmf.SFT         constant
+        $ps setdefault ada.CMOMED.rmf.CUL         constant
+        $ps setdefault ada.CMOMED.rmf.QOL         constant
+        $ps setdefault ada.CMOMED.rmf.coop        frmore
+
+        # Rule Set: CMOOTHER
+        $ps setdefault ada.CMOOTHER.active        no
+        $ps setdefault ada.CMOOTHER.cause         CMOOTHER
+        $ps setdefault ada.CMOOTHER.nearFactor    0.25
+        $ps setdefault ada.CMOOTHER.farFactor     0.1
+        $ps setdefault ada.CMOOTHER.mitigates     {
+            BADFOOD  BADWATER BIO CHEM COMMOUT DISASTER DISEASE EPIDEMIC 
+            FOODSHRT FUELSHRT GARBAGE  INDSPILL MOSQUE  NOWATER ORDNANCE 
+            PIPELINE POWEROUT REFINERY SEWAGE
+        }
+        $ps setdefault ada.CMOOTHER.rmf.AUT       constant
+        $ps setdefault ada.CMOOTHER.rmf.SFT       constant
+        $ps setdefault ada.CMOOTHER.rmf.CUL       constant
+        $ps setdefault ada.CMOOTHER.rmf.QOL       constant
+        $ps setdefault ada.CMOOTHER.rmf.coop      frmore
+
+        # Rule Set: COERCION
+        $ps setdefault ada.COERCION.active        no
+        $ps setdefault ada.COERCION.cause         COERCION
+        $ps setdefault ada.COERCION.nearFactor    0.5
+        $ps setdefault ada.COERCION.farFactor     0.2
+        $ps setdefault ada.COERCION.rmf.AUT       enquad
+        $ps setdefault ada.COERCION.rmf.SFT       enquad
+        $ps setdefault ada.COERCION.rmf.CUL       enquad
+        $ps setdefault ada.COERCION.rmf.QOL       enquad
+        $ps setdefault ada.COERCION.rmf.coop      enmore
+
+        # Rule Set: COMMOUT
+        $ps setdefault ada.COMMOUT.active         no
+        $ps setdefault ada.COMMOUT.cause          COMMOUT
+        $ps setdefault ada.COMMOUT.nearFactor     0.1
+        $ps setdefault ada.COMMOUT.farFactor      0.1
+
+        # Rule Set: CRIMINAL
+        $ps setdefault ada.CRIMINAL.active        no
+        $ps setdefault ada.CRIMINAL.cause         CRIMINAL
+        $ps setdefault ada.CRIMINAL.nearFactor    0.5
+        $ps setdefault ada.CRIMINAL.farFactor     0.2
+        $ps setdefault ada.CRIMINAL.rmf.AUT       enquad
+        $ps setdefault ada.CRIMINAL.rmf.SFT       enquad
+        $ps setdefault ada.CRIMINAL.rmf.CUL       enquad
+        $ps setdefault ada.CRIMINAL.rmf.QOL       enquad
+        $ps setdefault ada.CRIMINAL.rmf.coop      constant
+
+        # Rule Set: CURFEW
+        $ps setdefault ada.CURFEW.active          no
+        $ps setdefault ada.CURFEW.cause           CURFEW
+        $ps setdefault ada.CURFEW.nearFactor      0.5
+        $ps setdefault ada.CURFEW.farFactor       0.0
+        $ps setdefault ada.CURFEW.rmf.AUT         constant
+        $ps setdefault ada.CURFEW.rmf.SFT         quad
+        $ps setdefault ada.CURFEW.rmf.CUL         constant
+        $ps setdefault ada.CURFEW.rmf.QOL         constant
+        $ps setdefault ada.CURFEW.rmf.coop        quad
+
+        # Rule Set: DISASTER
+        $ps setdefault ada.DISASTER.active         no
+        $ps setdefault ada.DISASTER.cause          DISASTER
+        $ps setdefault ada.DISASTER.nearFactor     0.5
+        $ps setdefault ada.DISASTER.farFactor      0.25
+
+        # Rule Set: DISEASE
+        $ps setdefault ada.DISEASE.active         no
+        $ps setdefault ada.DISEASE.cause          SICKNESS
+        $ps setdefault ada.DISEASE.nearFactor     0.25
+        $ps setdefault ada.DISEASE.farFactor      0.0
+
+        # Rule Set: EPIDEMIC
+        $ps setdefault ada.EPIDEMIC.active        no
+        $ps setdefault ada.EPIDEMIC.cause         SICKNESS
+        $ps setdefault ada.EPIDEMIC.nearFactor    0.5
+        $ps setdefault ada.EPIDEMIC.farFactor     0.2
+
+        # Rule Set: FOODSHRT
+        $ps setdefault ada.FOODSHRT.active        no
+        $ps setdefault ada.FOODSHRT.cause         HUNGER
+        $ps setdefault ada.FOODSHRT.nearFactor    0.0
+        $ps setdefault ada.FOODSHRT.farFactor     0.0
+
+        # Rule Set: FUELSHRT
+        $ps setdefault ada.FUELSHRT.active        no
+        $ps setdefault ada.FUELSHRT.cause         FUELSHRT
+        $ps setdefault ada.FUELSHRT.nearFactor    0.0
+        $ps setdefault ada.FUELSHRT.farFactor     0.0
+
+        # Rule Set: GARBAGE
+        $ps setdefault ada.GARBAGE.active         no
+        $ps setdefault ada.GARBAGE.cause          GARBAGE
+        $ps setdefault ada.GARBAGE.nearFactor     0.2
+        $ps setdefault ada.GARBAGE.farFactor      0.0
+
+        # Rule Set: GUARD
+        $ps setdefault ada.GUARD.active           no
+        $ps setdefault ada.GUARD.cause            GUARD
+        $ps setdefault ada.GUARD.nearFactor       0.5
+        $ps setdefault ada.GUARD.farFactor        0.0
+        $ps setdefault ada.GUARD.rmf.AUT          enmore
+        $ps setdefault ada.GUARD.rmf.SFT          enmore
+        $ps setdefault ada.GUARD.rmf.CUL          enmore
+        $ps setdefault ada.GUARD.rmf.QOL          enmore
+        $ps setdefault ada.GUARD.rmf.coop         quad
+
+        # Rule Set: INDSPILL
+        $ps setdefault ada.INDSPILL.active        no
+        $ps setdefault ada.INDSPILL.cause         INDSPILL
+        $ps setdefault ada.INDSPILL.nearFactor    0.0
+        $ps setdefault ada.INDSPILL.farFactor     0.0
+
+        # Rule Set: MOSQUE
+        $ps setdefault ada.MOSQUE.active          no
+        $ps setdefault ada.MOSQUE.cause           MOSQUE
+        $ps setdefault ada.MOSQUE.nearFactor      0.2
+        $ps setdefault ada.MOSQUE.farFactor       0.1
+
+        # Rule Set: NOWATER
+        $ps setdefault ada.NOWATER.active         no
+        $ps setdefault ada.NOWATER.cause          THIRST
+        $ps setdefault ada.NOWATER.nearFactor     0.0
+        $ps setdefault ada.NOWATER.farFactor      0.0
+
+        # Rule Set: ORDNANCE
+        $ps setdefault ada.ORDNANCE.active        no
+        $ps setdefault ada.ORDNANCE.cause         ORDNANCE
+        $ps setdefault ada.ORDNANCE.nearFactor    0.2
+        $ps setdefault ada.ORDNANCE.farFactor     0.0
+
+        # Rule Set: ORGCONST
+        $ps setdefault ada.ORGCONST.active        no
+        $ps setdefault ada.ORGCONST.cause         ORGCONST
+        $ps setdefault ada.ORGCONST.nearFactor    0.75
+        $ps setdefault ada.ORGCONST.farFactor     0.25
+        $ps setdefault ada.ORGCONST.mitigates     {
+            BADFOOD BADWATER BIO CHEM COMMOUT DISASTER DISEASE EPIDEMIC 
+            FOODSHRT FUELSHRT GARBAGE INDSPILL MOSQUE  NOWATER ORDNANCE 
+            PIPELINE POWEROUT REFINERY SEWAGE
+        }
+        $ps setdefault ada.ORGCONST.rmf.AUT       constant
+        $ps setdefault ada.ORGCONST.rmf.SFT       constant
+        $ps setdefault ada.ORGCONST.rmf.CUL       constant
+        $ps setdefault ada.ORGCONST.rmf.QOL       constant
+
+        # Rule Set: ORGEDU
+        $ps setdefault ada.ORGEDU.active          no
+        $ps setdefault ada.ORGEDU.cause           ORGEDU
+        $ps setdefault ada.ORGEDU.nearFactor      0.75
+        $ps setdefault ada.ORGEDU.farFactor       0.5
+        $ps setdefault ada.ORGEDU.mitigates       {}
+        $ps setdefault ada.ORGEDU.rmf.AUT         constant
+        $ps setdefault ada.ORGEDU.rmf.SFT         constant
+        $ps setdefault ada.ORGEDU.rmf.CUL         constant
+        $ps setdefault ada.ORGEDU.rmf.QOL         constant
+
+        # Rule Set: ORGEMP
+        $ps setdefault ada.ORGEMP.active          no
+        $ps setdefault ada.ORGEMP.cause           ORGEMP
+        $ps setdefault ada.ORGEMP.nearFactor      0.75
+        $ps setdefault ada.ORGEMP.farFactor       0.5
+        $ps setdefault ada.ORGEMP.mitigates       {}
+        $ps setdefault ada.ORGEMP.rmf.AUT         constant
+        $ps setdefault ada.ORGEMP.rmf.SFT         constant
+        $ps setdefault ada.ORGEMP.rmf.CUL         constant
+        $ps setdefault ada.ORGEMP.rmf.QOL         constant
+
+        # Rule Set: ORGIND
+        $ps setdefault ada.ORGIND.active          no
+        $ps setdefault ada.ORGIND.cause           ORGIND
+        $ps setdefault ada.ORGIND.nearFactor      0.75
+        $ps setdefault ada.ORGIND.farFactor       0.25
+        $ps setdefault ada.ORGIND.mitigates       {
+            COMMOUT  FOODSHRT FUELSHRT INDSPILL NOWATER PIPELINE
+            POWEROUT REFINERY
+        }
+        $ps setdefault ada.ORGIND.rmf.AUT         constant
+        $ps setdefault ada.ORGIND.rmf.SFT         constant
+        $ps setdefault ada.ORGIND.rmf.CUL         constant
+        $ps setdefault ada.ORGIND.rmf.QOL         constant
+
+        # Rule Set: ORGINF
+        $ps setdefault ada.ORGINF.active          no
+        $ps setdefault ada.ORGINF.cause           ORGINF
+        $ps setdefault ada.ORGINF.nearFactor      0.75
+        $ps setdefault ada.ORGINF.farFactor       0.25
+        $ps setdefault ada.ORGINF.mitigates       {
+            BADWATER COMMOUT NOWATER POWEROUT SEWAGE
+        }
+        $ps setdefault ada.ORGINF.rmf.AUT         constant
+        $ps setdefault ada.ORGINF.rmf.SFT         constant
+        $ps setdefault ada.ORGINF.rmf.CUL         constant
+        $ps setdefault ada.ORGINF.rmf.QOL         constant
+
+        # Rule Set: ORGMED
+        $ps setdefault ada.ORGMED.active          no
+        $ps setdefault ada.ORGMED.cause           ORGMED
+        $ps setdefault ada.ORGMED.nearFactor      0.75
+        $ps setdefault ada.ORGMED.farFactor       0.25
+        $ps setdefault ada.ORGMED.mitigates       {
+            BIO CHEM DISASTER DISEASE EPIDEMIC
+        }
+        $ps setdefault ada.ORGMED.rmf.AUT         constant
+        $ps setdefault ada.ORGMED.rmf.SFT         constant
+        $ps setdefault ada.ORGMED.rmf.CUL         constant
+        $ps setdefault ada.ORGMED.rmf.QOL         constant
+
+        # Rule Set: ORGOTHER
+        $ps setdefault ada.ORGOTHER.active        no
+        $ps setdefault ada.ORGOTHER.cause         ORGOTHER
+        $ps setdefault ada.ORGOTHER.nearFactor    0.25
+        $ps setdefault ada.ORGOTHER.farFactor     0.1
+        $ps setdefault ada.ORGOTHER.mitigates     {
+            BADFOOD  BADWATER BIO CHEM COMMOUT DISASTER DISEASE EPIDEMIC
+            FOODSHRT FUELSHRT GARBAGE  INDSPILL MOSQUE  NOWATER ORDNANCE
+            PIPELINE POWEROUT REFINERY SEWAGE
+        }
+        $ps setdefault ada.ORGOTHER.rmf.AUT       constant
+        $ps setdefault ada.ORGOTHER.rmf.SFT       constant
+        $ps setdefault ada.ORGOTHER.rmf.CUL       constant
+        $ps setdefault ada.ORGOTHER.rmf.QOL       constant
+
+        # Rule Set: PATROL
+        $ps setdefault ada.PATROL.active          no
+        $ps setdefault ada.PATROL.cause           PATROL
+        $ps setdefault ada.PATROL.nearFactor      0.5
+        $ps setdefault ada.PATROL.farFactor       0.0
+        $ps setdefault ada.PATROL.rmf.AUT         enmore
+        $ps setdefault ada.PATROL.rmf.SFT         enmore
+        $ps setdefault ada.PATROL.rmf.CUL         enmore
+        $ps setdefault ada.PATROL.rmf.QOL         enmore
+        $ps setdefault ada.PATROL.rmf.coop        quad
+
+        # Rule Set: PIPELINE
+        $ps setdefault ada.PIPELINE.active        no
+        $ps setdefault ada.PIPELINE.cause         PIPELINE
+        $ps setdefault ada.PIPELINE.nearFactor    0.0
+        $ps setdefault ada.PIPELINE.farFactor     0.0
+
+        # Rule Set: POWEROUT
+        $ps setdefault ada.POWEROUT.active        no
+        $ps setdefault ada.POWEROUT.cause         POWEROUT
+        $ps setdefault ada.POWEROUT.nearFactor    0.1
+        $ps setdefault ada.POWEROUT.farFactor     0.0
+
+        # Rule Set: PRESENCE
+        $ps setdefault ada.PRESENCE.cause         PRESENCE
+        $ps setdefault ada.PRESENCE.nearFactor    0.25
+        $ps setdefault ada.PRESENCE.farFactor     0.0
+        $ps setdefault ada.PRESENCE.rmf.AUT       quad
+        $ps setdefault ada.PRESENCE.rmf.SFT       quad
+        $ps setdefault ada.PRESENCE.rmf.CUL       quad
+        $ps setdefault ada.PRESENCE.rmf.QOL       quad
+        $ps setdefault ada.PRESENCE.rmf.coop      quad
+
+        # Rule Set: PSYOP
+        $ps setdefault ada.PSYOP.active           no
+        $ps setdefault ada.PSYOP.cause            PSYOP
+        $ps setdefault ada.PSYOP.nearFactor       0.1
+        $ps setdefault ada.PSYOP.farFactor        0.0
+        $ps setdefault ada.PSYOP.mitigates        {BIO CHEM}
+        $ps setdefault ada.PSYOP.rmf.AUT          constant
+        $ps setdefault ada.PSYOP.rmf.SFT          constant
+        $ps setdefault ada.PSYOP.rmf.CUL          constant
+        $ps setdefault ada.PSYOP.rmf.QOL          constant
+        $ps setdefault ada.PSYOP.rmf.coop         frmore
+
+        # Rule Set: REFINERY
+        $ps setdefault ada.REFINERY.active        no
+        $ps setdefault ada.REFINERY.cause         REFINERY
+        $ps setdefault ada.REFINERY.nearFactor    0.0
+        $ps setdefault ada.REFINERY.farFactor     0.0
+
+        # Rule Set: SEWAGE
+        $ps setdefault ada.SEWAGE.active          no
+        $ps setdefault ada.SEWAGE.cause           SEWAGE
+        $ps setdefault ada.SEWAGE.nearFactor      0.2
+        $ps setdefault ada.SEWAGE.farFactor       0.0
 
         # Rule parameters
         foreach rule [lsort -dictionary [eadarule names]] {

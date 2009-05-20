@@ -147,10 +147,10 @@ snit::widget ::projectgui::reportviewer {
             set tags header
 
             $reptext ins end "Time:\t$row(stamp)\t"            $tags
-            $reptext ins end "ID: $row(id)\n"                  $tags
+            $reptext ins end "ID:  $row(id)    "               $tags
 
             if {$row(rtype) ne ""} {
-                $reptext ins end "Type:\t$row(rtype)"          $tags
+                $reptext ins end "Type:  $row(rtype)"          $tags
 
                 if {$row(subtype) ne ""} {
                     $reptext ins end "/$row(subtype)"          $tags
@@ -162,6 +162,7 @@ snit::widget ::projectgui::reportviewer {
 
             $reptext ins end "Title:\t$row(title)\n"  $tags
 
+            $reptext ins end "\n"
             $reptext ins end $row(text)
             $reptext see 1.0
             $reptext yview moveto 0.0

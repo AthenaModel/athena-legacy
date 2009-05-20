@@ -115,9 +115,7 @@ snit::type actsit {
 
             # NEXT, assess the satisfaction implications of this new
             # situation.
-            #
-            # TBD: Not clear when this will actually be done.
-            # actsit_rules monitor $sit
+            actsit_rules monitor $sit
 
             # NEXT, inform all clients about the new object.
             # Always do this after running the rules,
@@ -145,44 +143,41 @@ snit::type actsit {
             # NEXT, get its object.
             set sit [situation get $s]
 
-            # NEXT, If the coverage hasn't changed we're done.
-            if {$coverage == [$sit get coverage]} {
-                log detail actsit "$s: no change, skipping"
-                continue
-            }
+            # NEXT, If the coverage has changed, check the state.
+            if {$coverage ne [$sit get coverage]} {
+                # FIRST, save the coverage, and set the state if appropriate.
+                $sit set coverage $coverage
 
-            # NEXT, save the coverage, and set the state if appropriate.
-            $sit set coverage $coverage
-
-            if {$coverage > 0} {
-                $sit set state ACTIVE
-                $sit set change UPDATED
-            } elseif {$nominal == 0} {
-                # The situation ends when the coverage is 0 and there
-                # are no personnel assigned to the activity.
-                $sit set state ENDED
-                $sit set change ENDED
-
-                rdb eval {
-                    UPDATE activity_nga
-                    SET s = 0
-                    WHERE s = $s;
+                if {$coverage > 0} {
+                    $sit set state ACTIVE
+                    $sit set change UPDATED
+                } elseif {$nominal == 0} {
+                    # The situation ends when the coverage is 0 and there
+                    # are no personnel assigned to the activity.
+                    $sit set state ENDED
+                    $sit set change ENDED
+                    
+                    rdb eval {
+                        UPDATE activity_nga
+                        SET s = 0
+                        WHERE s = $s;
+                    }
+                    
+                    log normal actsit "$s: end"
+                } else {
+                    $sit set state INACTIVE
+                    $sit set change UPDATED
                 }
 
-                log normal actsit "$s: end"
-            } else {
-                $sit set state INACTIVE
-                $sit set change UPDATED
+                # NEXT, the situation has changed in some way; note the time.
+                $sit set tc [simclock now]
+
+                # NEXT, inform all clients about the update
+                notifier send $type <Entity> update $s
             }
 
             # NEXT, call the monitor rule set.
-            # $actsit_rules monitor $sit
-
-            # NEXT, the situation has changed in some way; note the time.
-            $sit set tc [simclock now]
-
-            # NEXT, inform all clients about the update
-            notifier send $type <Entity> update $s
+            actsit_rules monitor $sit
         }
     }
 
