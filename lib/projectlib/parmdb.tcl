@@ -380,7 +380,6 @@ snit::type ::projectlib::parmdb {
                 ORGMED
                 ORGOTHER
                 PATROL
-                PRESENCE
                 PSYOP
             }} {
                 $ps define ada.$name.mitigates ::projectlib::leenvsit {} {

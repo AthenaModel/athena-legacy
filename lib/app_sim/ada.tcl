@@ -822,6 +822,7 @@ snit::type ada {
     # Options:
     #   The following default to values given for "rule".
     #
+    #     -doer   Names of the doing groups
     #     -n      Name of affected neighborhood, or *.  Required if
     #             not specified by "ruleset" or "rule".
     #     -f      Name of affected group or groups.  Required if
@@ -898,6 +899,7 @@ snit::type ada {
     # Options: 
     #   The following default to values given for "rule".
     #
+    #     -doer   Names of the doing groups
     #     -n      Name of affected neighborhood, or *.  Required if
     #             not specified by "ruleset" or "rule".
     #     -f      Name of affected group or groups.  Required if
@@ -970,6 +972,7 @@ snit::type ada {
     # Options: 
     #   The following default to values given for "rule".
     #
+    #     -doer   Names of the doing groups
     #     -n      Name of affected neighborhood, or *.  Required if
     #             not specified by "ruleset" or "rule".
     #     -f      Name of affected group or groups.  Required if

@@ -2,18 +2,12 @@
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1238449586884" ID="Freemind_Link_213166219" MODIFIED="1242252113697" TEXT="DAM Rule Infrastructure">
+<node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1238449718099" TEXT="Magic satisfaction inputs"/>
+<node CREATED="1238449608020" ID="Freemind_Link_1639950112" MODIFIED="1238449718100" TEXT="Magic cooperation inputs"/>
+<node CREATED="1238449726244" ID="Freemind_Link_1432696154" MODIFIED="1242934730895" TEXT="ADA Rules">
 <icon BUILTIN="full-1"/>
-</node>
-<node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1238449718099" TEXT="Magic satisfaction inputs">
-<arrowlink DESTINATION="Freemind_Link_213166219" ENDARROW="Default" ENDINCLINATION="22;0;" ID="Freemind_Arrow_Link_72370025" STARTARROW="None" STARTINCLINATION="22;0;"/>
-</node>
-<node CREATED="1238449608020" ID="Freemind_Link_1639950112" MODIFIED="1238449718100" TEXT="Magic cooperation inputs">
-<arrowlink DESTINATION="Freemind_Link_213166219" ENDARROW="Default" ENDINCLINATION="44;0;" ID="Freemind_Arrow_Link_323657927" STARTARROW="None" STARTINCLINATION="44;0;"/>
-</node>
-<node CREATED="1238449726244" ID="Freemind_Link_1432696154" MODIFIED="1242252113695" TEXT="DAM Rules">
-<arrowlink DESTINATION="Freemind_Link_213166219" ENDARROW="Default" ENDINCLINATION="162;0;" ID="Freemind_Arrow_Link_560219951" STARTARROW="None" STARTINCLINATION="115;10;"/>
-<icon BUILTIN="full-1"/>
+<node CREATED="1242934731378" ID="Freemind_Link_44646766" MODIFIED="1242934733420" TEXT="Actsits"/>
+<node CREATED="1242934733874" ID="Freemind_Link_1930667840" MODIFIED="1242934736316" TEXT="Envsits"/>
 </node>
 <node CREATED="1241624415166" FOLDED="true" ID="Freemind_Link_472031065" MODIFIED="1241624422010" TEXT="Displaced Civilians/Refugees">
 <node CREATED="1241624422469" ID="Freemind_Link_636312974" MODIFIED="1241624433033" TEXT="Suppose we don&apos;t model attitudes of refugees"/>
@@ -212,9 +206,6 @@
 </node>
 </node>
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
-<node CREATED="1242252088170" ID="Freemind_Link_1222935831" MODIFIED="1242760003843" TEXT="Report Browser Tab">
-<icon BUILTIN="full-1"/>
-</node>
 <node CREATED="1239723521749" ID="Freemind_Link_1093494342" MODIFIED="1239723533567" TEXT="Save sim speed, duration as prefs"/>
 <node CREATED="1241215918369" ID="Freemind_Link_268023639" MODIFIED="1241215930559" TEXT="Stop button">
 <node CREATED="1241215931217" ID="Freemind_Link_1632396932" MODIFIED="1241215945706" TEXT="Enter time at tick 0"/>

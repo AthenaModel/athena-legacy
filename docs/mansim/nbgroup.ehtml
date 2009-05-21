@@ -37,26 +37,20 @@ Initializes the module.<p>
 Updates the nbgroup(sim) module when the scenario has changed.  It
 should rarely be necessary to call this directly.<p>
 
-<<defitem exists {nbgroup validate <i>n g</i>}>>
+<<defitem exists {nbgroup exists <i>n g</i>}>>
 
 Returns 1 if there is a neighborhood group for neighborhood <i>n</i>
 and civilian group <i>g</i>, and 0 otherwise.<p>
 
-<<defitem civgroupDeleted {nbgroup civgroupDeleted <i>g</i>}>>
+<<defitem validate {nbgroup validate {<i>n g</i>}}>>
 
-Deletes all neighborhood groups which are part of civilian group
-<i>g</i>, and sends <b>&lt;Entity&gt; delete</b> for each.<p>
+Validates the existence of the neighborhood group with ID {<i>n
+g</i>}.  Returns the ID if valid, and throws an error otherwise.<p>
 
-This command is for use only by <<xref civgroup(sim)>>, which calls it
-when a civilian group is deleted.<p>
+<<defitem gIn {nbgroup gIn <i>n</i>}>>
 
-<<defitem nbhoodDeleted {nbgroup nbhoodDeleted <i>n</i>}>>
-
-Deletes all neighborhood groups which belong to neighborhood <i>n</i>,
-and sends <b>&lt;Entity&gt; delete</b> for each.<p>
-
-This command is for use only by <<xref nbhood(sim)>>, which calls it
-when a neighborhood is deleted.<p>
+Returns a list of the names of the civilian groups that reside in
+neighborhood <i>n</i>.<p>
 
 <</deflist commands>>
 
