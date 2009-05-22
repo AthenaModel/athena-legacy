@@ -2,13 +2,13 @@
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1238449718099" TEXT="Magic satisfaction inputs"/>
-<node CREATED="1238449608020" ID="Freemind_Link_1639950112" MODIFIED="1238449718100" TEXT="Magic cooperation inputs"/>
 <node CREATED="1238449726244" ID="Freemind_Link_1432696154" MODIFIED="1242934730895" TEXT="ADA Rules">
 <icon BUILTIN="full-1"/>
 <node CREATED="1242934731378" ID="Freemind_Link_44646766" MODIFIED="1242934733420" TEXT="Actsits"/>
 <node CREATED="1242934733874" ID="Freemind_Link_1930667840" MODIFIED="1242934736316" TEXT="Envsits"/>
 </node>
+<node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1238449718099" TEXT="Magic satisfaction inputs"/>
+<node CREATED="1238449608020" ID="Freemind_Link_1639950112" MODIFIED="1238449718100" TEXT="Magic cooperation inputs"/>
 <node CREATED="1241624415166" FOLDED="true" ID="Freemind_Link_472031065" MODIFIED="1241624422010" TEXT="Displaced Civilians/Refugees">
 <node CREATED="1241624422469" ID="Freemind_Link_636312974" MODIFIED="1241624433033" TEXT="Suppose we don&apos;t model attitudes of refugees"/>
 <node CREATED="1241624435453" ID="Freemind_Link_1452155827" MODIFIED="1241624443073" TEXT="Just model effect on local civilians"/>
@@ -277,6 +277,9 @@
 <node CREATED="1242251901338" ID="Freemind_Link_1052726683" MODIFIED="1242251902755" TEXT="Current"/>
 <node CREATED="1242251903034" ID="Freemind_Link_1053169404" MODIFIED="1242251904515" TEXT="Ended"/>
 <node CREATED="1242251904841" ID="Freemind_Link_1296804293" MODIFIED="1242251908099" TEXT="None"/>
+</node>
+<node CREATED="1243022832705" ID="Freemind_Link_731449554" MODIFIED="1243022835854" TEXT="Unit context menu">
+<node CREATED="1243022836273" ID="Freemind_Link_1812653389" MODIFIED="1243022839722" TEXT="Set activity"/>
 </node>
 <node CREATED="1242251949130" ID="Freemind_Link_1306195532" MODIFIED="1242251952519" TEXT="Envsit context menu">
 <node CREATED="1242251952906" ID="Freemind_Link_1286947887" MODIFIED="1242251956675" TEXT="Resolve Situation"/>

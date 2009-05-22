@@ -112,17 +112,17 @@ snit::type actsit_rules {
     }
 
 
-    # coopslope cov f slope
+    # coopslope f cov rmf slope
     #
+    # f          The affected group
     # cov        The coverage fraction
     # rmf        The RMF to apply
-    # f          The affected group
     # slope      The nominal slope
     #
     # Enters cooperation slope inputs for -n, "f", and acting 
     # group "g"  -doer, for the force activity situations.
 
-    proc coopslope {cov rmf f slope} {
+    proc coopslope {f cov rmf slope} {
         set ruleset [ada get ruleset]
         set n       [ada rget -n]
         set g       [ada rget -doer]
@@ -200,7 +200,7 @@ snit::type actsit_rules {
                     SFT quad S+ \
                     QOL quad S+
 
-                coopslope $cov quad $f S+
+                coopslope $f $cov quad S+
             }
 
         }
@@ -282,7 +282,7 @@ snit::type actsit_rules {
                         QOL constant S-        
                 }
 
-                coopslope $cov quad $f XXXS+
+                coopslope $f $cov quad XXXS+
             }
         }
 
@@ -321,69 +321,47 @@ snit::type actsit_rules {
         set stops        0
         set mitigating   0
 
-        ada ruleset CMOCONST [$sit get driver]                   \
+        ada ruleset CMOCONST [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.CMOCONST.nearFactor]        \
-            -q         [parmdb get ada.CMOCONST.farFactor]         \
-            -cause     [parmdb get ada.CMOCONST.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule CMOCONST-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set groupList       [list]
-            set envsitsMitigated [mitigates CMOCONST $n groupList]
+            set envsitsMitigated [mitigates CMOCONST $n]
 
             if {[llength $envsitsMitigated] > 0} {
                 detail "Mitigates:"  [join $envsitsMitigated ", "]
-                detail "For groups:" [join $groupList ", "]
+                set stops 1
             }
 
-            ada guard [format "%.1f %s" $cov $groupList]
+            ada guard [format "%.1f %s" $cov $stops]
 
             # While there is a CMOCONST situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # For each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                set stops [expr {$f in $groupList ? 1 : 0}]
-                
                 satslope $cov $f \
-                    AUT [mag+ $stops S+]  100 \
-                    SFT [mag+ $stops S+]  100 \
-                    CUL [mag+ $stops XS+] 100 \
-                    QOL [mag+ $stops L+]  100
+                    AUT constant [mag+ $stops S+]  \
+                    SFT constant [mag+ $stops S+]  \
+                    CUL constant [mag+ $stops XS+] \
+                    QOL constant [mag+ $stops L+] 
 
-                coopslope $cov $f [mag+ $stops M+] 100
+                coopslope $f $cov frmore [mag+ $stops M+]
             }
         }
 
         ada rule CMOCONST-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a CMOCONST situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
-        }
-
-        ada rule CMOCONST-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a CMOCONST situation
-            #     with ENABLED = 0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -415,55 +393,35 @@ snit::type actsit_rules {
             -sit       $sit                                      \
             -doer      $g                                        \
             -n         $n                                        \
-            -f         [nbgroup gIn $n]                    \
-            -p         [parmdb get ada.CMODEV.nearFactor]        \
-            -q         [parmdb get ada.CMODEV.farFactor]         \
-            -cause     [parmdb get ada.CMODEV.cause] 
-
+            -f         [nbgroup gIn $n]
         
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule CMODEV-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             ada guard [format %.1f $cov]
 
             # While there is a CMODEV situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
                 satslope $cov $f  \
-                    AUT M+ 100 \
-                    SFT S+ 100 \
-                    CUL S+ 100 \
-                    QOL L+ 100
+                    AUT quad M+   \
+                    SFT quad S+   \
+                    CUL quad S+   \
+                    QOL quad L+
 
-                coopslope $cov $f M+ 100
+                coopslope $f $cov frmore M+
             }
         }
 
         ada rule CMODEV-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a CMODEV situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
-        }
-
-        ada rule CMODEV-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a CMODEV situation
-            #     with ENABLED = 0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -497,65 +455,43 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.CMOEDU.nearFactor]          \
-            -q         [parmdb get ada.CMOEDU.farFactor]           \
-            -cause     [parmdb get ada.CMOEDU.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule CMOEDU-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set groupList       [list]
-            set envsitsMitigated [mitigates CMOEDU $n groupList]
+            set envsitsMitigated [mitigates CMOEDU $n]
 
             if {[llength $envsitsMitigated] > 0} {
                 detail "Mitigates:"  [join $envsitsMitigated ", "]
-                detail "For groups:" [join $groupList ", "]
+                set stops 1
             }
 
-            ada guard [format "%.1f %s" $cov $groupList]
+            ada guard [format "%.1f %s" $cov $stops]
 
             # While there is a CMOEDU situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                set stops [expr {$f in $groupList ? 1 : 0}]
-
                 satslope $cov $f \
-                    AUT [mag+ $stops S+]   100 \
-                    SFT [mag+ $stops XXS+] 100 \
-                    CUL [mag+ $stops XXS+] 100 \
-                    QOL [mag+ $stops L+]   100 \
+                    AUT constant [mag+ $stops S+]   \
+                    SFT constant [mag+ $stops XXS+] \
+                    CUL constant [mag+ $stops XXS+] \
+                    QOL constant [mag+ $stops L+]
 
-                coopslope $cov $f [mag+ $stops M+] 100
+                coopslope $f $cov frmore [mag+ $stops M+]
             }
         }
 
         ada rule CMOEDU-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a CMOEDU situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
-        }
-
-        ada rule CMOEDU-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a CMOEDU situation
-            #     with ENABLED = 0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -585,74 +521,52 @@ snit::type actsit_rules {
         set stops        0
         set mitigating   0
 
-        ada ruleset CMOEMP [$sit get driver]                     \
+        ada ruleset CMOEMP [$sit get driver]                       \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.CMOEMP.nearFactor]          \
-            -q         [parmdb get ada.CMOEMP.farFactor]           \
-            -cause     [parmdb get ada.CMOEMP.cause] 
+            -f         [nbgroup gIn $n]
        
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule CMOEMP-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set groupList       [list]
-            set envsitsMitigated [mitigates CMOEMP $n groupList]
+            set envsitsMitigated [mitigates CMOEMP $n]
 
             if {[llength $envsitsMitigated] > 0} {
                 detail "Mitigates:"  [join $envsitsMitigated ", "]
-                detail "For groups:" [join $groupList ", "]
+                set stops 1
             }
 
-            ada guard [format "%.1f %s" $cov $groupList]
+            ada guard [format "%.1f %s" $cov $stops]
 
             # While there is a CMOEMP situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                set stops [expr {$f in $groupList ? 1 : 0}]
-
                 satslope $cov $f \
-                    AUT [mag+ $stops S+]   100 \
-                    SFT [mag+ $stops XXS+] 100 \
-                    CUL [mag+ $stops XXS+] 100 \
-                    QOL [mag+ $stops L+]   100
+                    AUT constant [mag+ $stops S+]   \
+                    SFT constant [mag+ $stops XXS+] \
+                    CUL constant [mag+ $stops XXS+] \
+                    QOL constant [mag+ $stops L+]
 
-                coopslope $cov $f [mag+ $stops M+] 100
+                coopslope $f $cov frmore [mag+ $stops M+]
             }
         }
 
         ada rule CMOEMP-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a CMOEMP situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
             ada coop clear
          }
-
-        ada rule CMOEMP-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a CMOEMP situation
-            #     with ENABLED = 0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
-        }
     }
 
     #-------------------------------------------------------------------
@@ -681,65 +595,43 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.CMOIND.nearFactor]          \
-            -q         [parmdb get ada.CMOIND.farFactor]           \
-            -cause     [parmdb get ada.CMOIND.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule CMOIND-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set groupList       [list]
-            set envsitsMitigated [mitigates CMOIND $n groupList]
+            set envsitsMitigated [mitigates CMOIND $n]
 
             if {[llength $envsitsMitigated] > 0} {
                 detail "Mitigates:"  [join $envsitsMitigated ", "]
-                detail "For groups:" [join $groupList ", "]
+                set stops 1
             }
 
-            ada guard [format "%.1f %s" $cov $groupList]
+            ada guard [format "%.1f %s" $cov $stops]
 
             # While there is a CMOIND situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                set stops [expr {$f in $groupList ? 1 : 0}]
-
                 satslope $cov $f \
-                    AUT [mag+ $stops S+]   100 \
-                    SFT [mag+ $stops XXS+] 100 \
-                    CUL [mag+ $stops XXS+] 100 \
-                    QOL [mag+ $stops L+]   100
+                    AUT constant [mag+ $stops S+]   \
+                    SFT constant [mag+ $stops XXS+] \
+                    CUL constant [mag+ $stops XXS+] \
+                    QOL constant [mag+ $stops L+]
 
-                coopslope $cov $f [mag+ $stops M+] 100
+                coopslope $f $cov frmore [mag+ $stops M+]
             }
         }
 
         ada rule CMOIND-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a CMOIND situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
-        }
-
-        ada rule CMOIND-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a CMOIND situation
-            #     with ENABLED = 0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -769,69 +661,47 @@ snit::type actsit_rules {
         set stops        0
         set mitigating   0
 
-        ada ruleset CMOINF [$sit get driver]                     \
+        ada ruleset CMOINF [$sit get driver]                       \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.CMOINF.nearFactor]          \
-            -q         [parmdb get ada.CMOINF.farFactor]           \
-            -cause     [parmdb get ada.CMOINF.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule CMOINF-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set groupList       [list]
-            set envsitsMitigated [mitigates CMOINF $n groupList]
+            set envsitsMitigated [mitigates CMOINF $n]
 
             if {[llength $envsitsMitigated] > 0} {
                 detail "Mitigates:"  [join $envsitsMitigated ", "]
-                detail "For groups:" [join $groupList ", "]
+                set stops 1
             }
 
-            ada guard [format "%.1f %s" $cov $groupList]
+            ada guard [format "%.1f %s" $cov $stops]
 
             # While there is a CMOINF situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                set stops [expr {$f in $groupList ? 1 : 0}]
-
                 satslope $cov $f \
-                    AUT [mag+ $stops S+]   100 \
-                    SFT [mag+ $stops XXS+] 100 \
-                    CUL [mag+ $stops XXS+] 100 \
-                    QOL [mag+ $stops M+]   100
+                    AUT constant [mag+ $stops S+]   \
+                    SFT constant [mag+ $stops XXS+] \
+                    CUL constant [mag+ $stops XXS+] \
+                    QOL constant [mag+ $stops M+]
 
-                coopslope $cov $f [mag+ $stops M+] 100
+                coopslope $f $cov frmore [mag+ $stops M+]
             }
         }
 
         ada rule CMOINF-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a CMOINF situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
-        }
-
-        ada rule CMOINF-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a CMOINF situation
-            #     with ENABLED = 0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -863,52 +733,33 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.CMOLAW.nearFactor]          \
-            -q         [parmdb get ada.CMOLAW.farFactor]           \
-            -cause     [parmdb get ada.CMOLAW.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
        ada rule CMOLAW-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             ada guard [format %.1f $cov]
 
             # While there is a CMOLAW situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
                 satslope $cov $f \
-                    AUT M+ 100 \
-                    SFT S+ 100
+                    AUT quad M+  \
+                    SFT quad S+
 
-                coopslope $cov $f M+ 100
+                coopslope $f $cov quad M+
             }
         }
 
         ada rule CMOLAW-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a CMOLAW situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT
-            ada coop clear
-        }
-
-        ada rule CMOLAW-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a CMOLAW situation
-            #     with ENABLED = 0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT
@@ -927,7 +778,7 @@ snit::type actsit_rules {
     # sit       The actsit object for this situation
     #
     # This method is called when monitoring FRC group units
-    # with an activity of CMOMED in a neighborhood.
+    # with an activity of CMO_HEALTHCARE in a neighborhood.
 
     typemethod CMOMED {sit} {
         log detail actr [list CMOMED [$sit id]]
@@ -938,69 +789,47 @@ snit::type actsit_rules {
         set stops        0
         set mitigating   0
 
-        ada ruleset CMOMED [$sit get driver]                     \
+        ada ruleset CMOMED [$sit get driver]                       \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.CMOMED.nearFactor]          \
-            -q         [parmdb get ada.CMOMED.farFactor]           \
-            -cause     [parmdb get ada.CMOMED.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule CMOMED-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set groupList       [list]
-            set envsitsMitigated [mitigates CMOMED $n groupList]
+            set envsitsMitigated [mitigates CMOMED $n]
 
             if {[llength $envsitsMitigated] > 0} {
                 detail "Mitigates:"  [join $envsitsMitigated ", "]
-                detail "For groups:" [join $groupList ", "]
+                set stops 1
             }
 
-            ada guard [format "%.1f %s" $cov $groupList]
+            ada guard [format "%.1f %s" $cov $stops]
 
             # While there is a CMOMED situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                set stops [expr {$f in $groupList ? 1 : 0}]
-
                 satslope $cov $f \
-                    AUT [mag+ $stops S+]   100 \
-                    SFT [mag+ $stops XXS+] 100 \
-                    CUL [mag+ $stops XXS+] 100 \
-                    QOL [mag+ $stops L+]   100
+                    AUT constant [mag+ $stops S+]   \
+                    SFT constant [mag+ $stops XXS+] \
+                    CUL constant [mag+ $stops XXS+] \
+                    QOL constant [mag+ $stops L+]
 
-                coopslope $cov $f [mag+ $stops L+] 100
+                coopslope $f $cov frmore [mag+ $stops L+]
             }
         }
 
         ada rule CMOMED-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a CMOMED situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
-        }
-
-        ada rule CMOMED-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a CMOMED situation
-            #     with ENABLED = 0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -1030,69 +859,47 @@ snit::type actsit_rules {
         set stops        0
         set mitigating   0
 
-        ada ruleset CMOOTHER [$sit get driver]                   \
+        ada ruleset CMOOTHER [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.CMOOTHER.nearFactor]        \
-            -q         [parmdb get ada.CMOOTHER.farFactor]         \
-            -cause     [parmdb get ada.CMOOTHER.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule CMOOTHER-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set groupList       [list]
-            set envsitsMitigated [mitigates CMOOTHER $n groupList]
+            set envsitsMitigated [mitigates CMOOTHER $n]
 
             if {[llength $envsitsMitigated] > 0} {
                 detail "Mitigates:"  [join $envsitsMitigated ", "]
-                detail "For groups:" [join $groupList ", "]
+                set stops 1
             }
 
-            ada guard [format "%.1f %s" $cov $groupList]
+            ada guard [format "%.1f %s" $cov $stops]
 
             # While there is a CMOOTHER situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                set stops [expr {$f in $groupList ? 1 : 0}]
-
                 satslope $cov $f \
-                    AUT [mag+ $stops S+]   100 \
-                    SFT [mag+ $stops S+]   100 \
-                    CUL [mag+ $stops XS+]  100 \
-                    QOL [mag+ $stops L+]   100
+                    AUT constant [mag+ $stops S+]  \
+                    SFT constant [mag+ $stops S+]  \
+                    CUL constant [mag+ $stops XS+] \
+                    QOL constant [mag+ $stops L+]
 
-                coopslope $cov $f [mag+ $stops M+] 100
+                coopslope $f $cov frmore [mag+ $stops M+]
             }
         }
 
         ada rule CMOOTHER-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a CMOOTHER situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
-        }
-
-        ada rule CMOOTHER-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a CMOOTHER situation
-            #     with ENABLED = 0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -1121,58 +928,39 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
 
-        ada ruleset COERCION [$sit get driver]                   \
+        ada ruleset COERCION [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.COERCION.nearFactor]        \
-            -q         [parmdb get ada.COERCION.farFactor]         \
-            -cause     [parmdb get ada.COERCION.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule COERCION-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             ada guard [format %.1f $cov]
 
             # While there is a COERCION situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
                 satslope $cov $f \
-                    AUT XL-  -100 \
-                    SFT XXL- -100 \
-                    CUL XS-  -100 \
-                    QOL M-   -100
+                    AUT enquad XL-  \
+                    SFT enquad XXL- \
+                    CUL enquad XS-  \
+                    QOL enquad M-
 
-                coopslope $cov $f XXXL+ 100
+                coopslope $f $cov enmore XXXL+
             }
         }
 
         ada rule COERCION-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a COERCION situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
-        }
-
-        ada rule COERCION-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a COERCION situation
-            #     with ENABLED = 0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -1201,54 +989,36 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
 
-        ada ruleset CRIMINAL [$sit get driver]                   \
+        ada ruleset CRIMINAL [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.CRIMINAL.nearFactor]        \
-            -q         [parmdb get ada.CRIMINAL.farFactor]         \
-            -cause     [parmdb get ada.CRIMINAL.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule CRIMINAL-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             ada guard [format %.1f $cov]
 
             # While there is a CRIMINAL situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
                 satslope $cov $f \
-                    AUT L-   -100 \
-                    SFT XL-  -100 \
-                    QOL L-   -100
+                    AUT enquad L-  \
+                    SFT enquad XL- \
+                    QOL enquad L-
             }
         }
 
         ada rule CRIMINAL-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a CRIMINAL situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT QOL
-        }
-
-        ada rule CRIMINAL-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a CRIMINAL situation
-            #     with ENABLED = 0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT QOL
@@ -1275,26 +1045,21 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
 
-        ada ruleset CURFEW [$sit get driver]                     \
+        ada ruleset CURFEW [$sit get driver]                       \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.CURFEW.nearFactor]          \
-            -q         [parmdb get ada.CURFEW.farFactor]           \
-            -cause     [parmdb get ada.CURFEW.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule CURFEW-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             ada guard [format %.1f $cov]
 
             # While there is a CURFEW situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
                 set rel [rel $n $f $g]
@@ -1302,46 +1067,32 @@ snit::type actsit_rules {
                 if {$rel >= 0} {
                     # Friends
                     satslope $cov $f \
-                        AUT S-  -100 \
-                        SFT S+   100 \
-                        CUL S-  -100 \
-                        QOL S-  -100
+                        AUT constant S- \
+                        SFT frquad   S+ \
+                        CUL constant S- \
+                        QOL constant S-
                 } else {
                     # Enemies
                     
                     # NOTE: Because $rel < 0, and the expected RMF
                     # is "quad", the SFT input turns into a minus.
                     satslope $cov $f \
-                        AUT S-  -100 \
-                        SFT M+   100 \
-                        CUL S-  -100 \
-                        QOL S-  -100 \
+                        AUT constant S- \
+                        SFT enquad   M- \
+                        CUL constant S- \
+                        QOL constant S-
                 }
 
-                coopslope $cov $f M+ 100
+                coopslope $f $cov quad M+
             }
         }
 
         ada rule CURFEW-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a CURFEW situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
-        }
-
-        ada rule CURFEW-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a CURFEW situation
-            #     with ENABLED = 0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -1369,58 +1120,39 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
 
-        ada ruleset GUARD [$sit get driver]                      \
+        ada ruleset GUARD [$sit get driver]                        \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.GUARD.nearFactor]           \
-            -q         [parmdb get ada.GUARD.farFactor]            \
-            -cause     [parmdb get ada.GUARD.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule GUARD-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             ada guard [format %.1f $cov]
 
             # While there is a GUARD situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                satslope $cov $f \
-                    AUT L-  -100 \
-                    SFT L-  -100 \
-                    CUL L-  -100 \
-                    QOL M-  -100
+                satslope $cov $f  \
+                    AUT enmore L- \
+                    SFT enmore L- \
+                    CUL enmore L- \
+                    QOL enmore M-
 
-                coopslope $cov $f S+ 100
+                coopslope $f $cov quad S+
             }
         }
 
         ada rule GUARD-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a GUARD situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
-        }
-
-        ada rule GUARD-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a GUARD situation
-            #     with ENABLED = 0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -1449,58 +1181,39 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
 
-        ada ruleset PATROL [$sit get driver]                     \
+        ada ruleset PATROL [$sit get driver]                       \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.PATROL.nearFactor]          \
-            -q         [parmdb get ada.PATROL.farFactor]           \
-            -cause     [parmdb get ada.PATROL.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule PATROL-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             ada guard [format %.1f $cov]
 
             # While there is a PATROL situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                satslope $cov $f \
-                    AUT M-  -100 \
-                    SFT M-  -100 \
-                    CUL S-  -100 \
-                    QOL L-  -100
+                satslope $cov $f  \
+                    AUT enmore M- \
+                    SFT enmore M- \
+                    CUL enmore S- \
+                    QOL enmore L-
 
-                coopslope $cov $f S+ 100
+                coopslope $f $cov quad S+
             }
         }
 
         ada rule PATROL-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a PATROL situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
-        }
-
-        ada rule PATROL-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a PATROL situation
-            #     with ENABLED = 0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -1532,22 +1245,17 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.PSYOP.nearFactor]           \
-            -q         [parmdb get ada.PSYOP.farFactor]            \
-            -cause     [parmdb get ada.PSYOP.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule PSYOP-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             ada guard [format %.1f $cov]
 
             # While there is a PSYOP situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
                 set rel [rel $n $f $g]
@@ -1555,44 +1263,30 @@ snit::type actsit_rules {
                 if {$rel >= 0} {
                     # Friends
                     satslope $cov $f \
-                        AUT S+  100 \
-                        SFT S+  100 \
-                        CUL S+  100 \
-                        QOL S+  100
+                        AUT constant S+ \
+                        SFT constant S+ \
+                        CUL constant S+ \
+                        QOL constant S+
                 } else {
                     # Enemies
                     satslope $cov $f \
-                        AUT XS+ 100 \
-                        SFT XS+ 100 \
-                        CUL XS+ 100 \
-                        QOL XS+ 100
+                        AUT constant XS+ \
+                        SFT constant XS+ \
+                        CUL constant XS+ \
+                        QOL constant XS+
                 }
 
 
-                coopslope $cov $f XL+ 100
+                coopslope $f $cov frmore XL+
             }
         }
 
         ada rule PSYOP-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a PSYOP situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
-        }
-
-        ada rule PSYOP-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a PSYOP situation
-            #     with ENABLED = 0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -1634,15 +1328,11 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.ORGCONST.nearFactor]        \
-            -q         [parmdb get ada.ORGCONST.farFactor]         \
-            -cause     [parmdb get ada.ORGCONST.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule ORGCONST-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -1666,7 +1356,6 @@ snit::type actsit_rules {
 
             # While there is a ORGCONST situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for the acting group,
             service [mag+ $gstops M+] 100
 
@@ -1683,13 +1372,11 @@ snit::type actsit_rules {
         }
 
         ada rule ORGCONST-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a ORGCONST situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
             # Then for the acting group,
             ada sat clear -f $g SVC
 
@@ -1739,15 +1426,11 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.ORGEDU.nearFactor]          \
-            -q         [parmdb get ada.ORGEDU.farFactor]           \
-            -cause     [parmdb get ada.ORGEDU.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule ORGEDU-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -1771,7 +1454,6 @@ snit::type actsit_rules {
 
             # While there is a ORGEDU situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for the acting group,
             service [mag+ $gstops M+] 100
 
@@ -1788,13 +1470,11 @@ snit::type actsit_rules {
         }
 
         ada rule ORGEDU-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a ORGEDU situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
             # Then for the acting group,
             ada sat clear -f $g SVC
 
@@ -1844,15 +1524,11 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.ORGEMP.nearFactor]          \
-            -q         [parmdb get ada.ORGEMP.farFactor]           \
-            -cause     [parmdb get ada.ORGEMP.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule ORGEMP-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -1876,7 +1552,6 @@ snit::type actsit_rules {
 
             # While there is a ORGEMP situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for the acting group,
             service [mag+ $gstops M+] 100
 
@@ -1893,13 +1568,11 @@ snit::type actsit_rules {
         }
 
         ada rule ORGEMP-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a ORGEMP situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
             # Then for the acting group,
             ada sat clear -f $g SVC
 
@@ -1949,15 +1622,11 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.ORGIND.nearFactor]          \
-            -q         [parmdb get ada.ORGIND.farFactor]           \
-            -cause     [parmdb get ada.ORGIND.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule ORGIND-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -1981,7 +1650,6 @@ snit::type actsit_rules {
 
             # While there is a ORGIND situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for the acting group,
             service [mag+ $gstops M+] 100
 
@@ -1998,13 +1666,11 @@ snit::type actsit_rules {
         }
 
         ada rule ORGIND-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a ORGIND situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
             # Then for the acting group,
             ada sat clear -f $g SVC
 
@@ -2054,15 +1720,11 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.ORGINF.nearFactor]          \
-            -q         [parmdb get ada.ORGINF.farFactor]           \
-            -cause     [parmdb get ada.ORGINF.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule ORGINF-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -2086,7 +1748,6 @@ snit::type actsit_rules {
 
             # While there is a ORGINF situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for the acting group,
             service [mag+ $gstops M+] 100
 
@@ -2103,13 +1764,11 @@ snit::type actsit_rules {
         }
 
         ada rule ORGINF-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a ORGINF situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
             # Then for the acting group,
             ada sat clear -f $g SVC
 
@@ -2159,15 +1818,11 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.ORGMED.nearFactor]          \
-            -q         [parmdb get ada.ORGMED.farFactor]           \
-            -cause     [parmdb get ada.ORGMED.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule ORGMED-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -2191,7 +1846,6 @@ snit::type actsit_rules {
 
             # While there is a ORGMED situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for the acting group,
             service [mag+ $gstops M+] 100
 
@@ -2208,13 +1862,11 @@ snit::type actsit_rules {
         }
 
         ada rule ORGMED-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a ORGMED situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
             # Then for the acting group,
             ada sat clear -f $g SVC
 
@@ -2264,15 +1916,11 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]                      \
-            -p         [parmdb get ada.ORGOTHER.nearFactor]        \
-            -q         [parmdb get ada.ORGOTHER.farFactor]         \
-            -cause     [parmdb get ada.ORGOTHER.cause] 
+            -f         [nbgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
         ada rule ORGOTHER-1-1 {
-            [$sit get enabled] &&
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -2296,7 +1944,6 @@ snit::type actsit_rules {
 
             # While there is a ORGOTHER situation
             #     with COVERAGE > 0.0
-            #     and  ENABLED = 1
             # Then for the acting group,
             service [mag+ $gstops M+] 100
 
@@ -2313,13 +1960,11 @@ snit::type actsit_rules {
         }
 
         ada rule ORGOTHER-2-1 {
-            [$sit get enabled] &&
             $cov == 0.0
         } {
             ada guard
             # While there is a ORGOTHER situation
             #     with COVERAGE = 0.0
-            #     and  ENABLED = 1
             # Then for the acting group,
             ada sat clear -f $g SVC
 
@@ -2366,22 +2011,17 @@ snit::type actsit_rules {
         return $rel
     }
 
-    # mitigates ruleset nbhood groupvar
+    # mitigates ruleset nbhood
     #
     # ruleset     A CIV or ORG activity rule set
     # nbhood      The affected nbhood
-    # groupvar    Name of var to contain groups affected by ongoing envsits
     #
-    # Returns a list of the envsits present and sorted list of affected groups 
+    # Returns a list of the envsits present 
     # in nbhood which are mitigated by this rule set's activity.  
-    # If none, returns the empty list and sets groupvar to {}.
+    # If none, returns the empty list.
 
-    proc mitigates {ruleset nbhood groupvar} {
-        # FIRST, initialize the groups list
-        upvar $groupvar groups
-        set groups [list]
-
-        # NEXT, get the mitigated envsits and form them into an 
+    proc mitigates {ruleset nbhood} {
+        # FIRST, get the mitigated envsits and form them into an 
         # "IN" list.  If none, just return immediately.
         set envsits [parmdb get ada.$ruleset.mitigates]
 
@@ -2390,32 +2030,15 @@ snit::type actsit_rules {
         }
 
         set inList "('[join $envsits ',']')"
-        set envsits [list]
-        set done   0
 
         # NEXT, check for active envsits, collecting the affected groups as
         # we go.
-        rdb eval "
-            SELECT TYPE, GROUPS FROM live_envsits
-            WHERE NEIGHBORHOOD = \$nbhood
-            AND   TYPE IN $inList
-        " row {
-            if {!$done} {
-                if {$row(GROUPS) eq ""} {
-                    set groups [nbgroup gIn $nbhood]
-                    set done 1;    # no need to process additional groups
-                } else {
-                    lmerge groups $row(GROUPS)
-                }
-            }
-
-            lappend envsits $row(TYPE)
-        }
-        
-        # NEXT, sort the groups for consitency and return the envsits
-        set groups [lsort $groups]
-        
-        return $envsits
+        return [rdb eval "
+            SELECT stype FROM envsits
+            WHERE n     = \$nbhood
+            AND   state = 'ACTIVE'
+            AND   stype IN $inList
+        "]
     }
 
     #-------------------------------------------------------------------

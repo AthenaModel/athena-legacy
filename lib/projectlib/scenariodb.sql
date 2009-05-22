@@ -621,7 +621,8 @@ CREATE TABLE envsits_t (
 CREATE VIEW envsits AS
 SELECT * FROM situations JOIN envsits_t USING (s);
 
--- Current Environmental Situations View
+-- Current Environmental Situations View: i.e., situations of current
+-- interest to the analyst
 CREATE VIEW envsits_current AS
 SELECT * FROM situations JOIN envsits_t USING (s)
 WHERE state != 'ENDED' OR change != '';

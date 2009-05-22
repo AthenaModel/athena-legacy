@@ -115,6 +115,51 @@ snit::type ::projectlib::typewrapper {
     CHKPOINT-1-1  "Force group assigned CHECKPOINT activity"
     CHKPOINT-2-1  "Force group no longer operating checkpoints"
 
+    CMOCONST-1-1  "FRC units are doing construction work"
+    CMOCONST-2-1  "FRC units no longer doing construction work"
+
+    CMODEV-1-1    "Force units are encouraging light development"
+    CMODEV-2-1    "Force units no longer encouraging light development"
+
+    CMOEDU-1-1    "FRC units are teaching local civilians"
+    CMOEDU-2-1    "FRC units no longer teaching local civilians"
+
+    CMOEMP-1-1    "FRC units are providing employment"
+    CMOEMP-2-1    "FRC units no longer providing employment"
+
+    CMOIND-1-1    "FRC units are aiding industry"
+    CMOIND-2-1    "FRC units no longer aiding industry"
+
+    CMOINF-1-1    "FRC units are improving infrastructure"
+    CMOINF-2-1    "FRC units no longer improving infrastructure"
+
+    CMOLAW-1-1    "Force units are enforcing the law"
+    CMOLAW-2-1    "Force units no longer enforcing the law"
+
+    CMOMED-1-1    "FRC units are providing healthcare"
+    CMOMED-2-1    "FRC units no longer providing healthcare"
+
+    CMOOTHER-1-1  "FRC units are doing other CMO activities"
+    CMOOTHER-2-1  "FRC units no longer doing other CMO activities"
+
+    COERCION-1-1  "Force units coercing local civilians"
+    COERCION-2-1  "Force units no longer coercing local civilians"
+
+    CRIMINAL-1-1  "Force units engaging in criminal activities"
+    CRIMINAL-2-1  "Force units no longer engaging in criminal activities"
+
+    CURFEW-1-1    "Force units enforcing curfew"
+    CURFEW-2-1    "Force units no longer enforcing curfew"
+
+    GUARD-1-1     "Force units guarding"
+    GUARD-2-1     "Force units no longer guarding"
+
+    PATROL-1-1    "Force units patrolling"
+    PATROL-2-1    "Force units no longer patrolling"
+
+    PSYOP-1-1     "Force units doing PSYOP"
+    PSYOP-2-1     "Force units no longer doing PSYOP"
+
     PRESENCE-1-1  "Presence of force units"
     PRESENCE-2-1  "Force units no longer present"
 

@@ -456,7 +456,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.CHKPOINT.farFactor     0.0
 
         # Rule Set: CMOCONST
-        $ps setdefault ada.CMOCONST.active        no
         $ps setdefault ada.CMOCONST.cause         CMOCONST
         $ps setdefault ada.CMOCONST.nearFactor    0.75
         $ps setdefault ada.CMOCONST.farFactor     0.25
@@ -465,49 +464,25 @@ snit::type ::projectlib::parmdb {
             FOODSHRT FUELSHRT GARBAGE  INDSPILL MOSQUE  NOWATER ORDNANCE 
             PIPELINE POWEROUT REFINERY SEWAGE
         }
-        $ps setdefault ada.CMOCONST.rmf.AUT       constant
-        $ps setdefault ada.CMOCONST.rmf.SFT       constant
-        $ps setdefault ada.CMOCONST.rmf.CUL       constant
-        $ps setdefault ada.CMOCONST.rmf.QOL       constant
-        $ps setdefault ada.CMOCONST.rmf.coop      frmore
 
         # Rule Set: CMODEV
-        $ps setdefault ada.CMODEV.active          no
         $ps setdefault ada.CMODEV.cause           CMODEV
         $ps setdefault ada.CMODEV.nearFactor      0.5
         $ps setdefault ada.CMODEV.farFactor       0.1
-        $ps setdefault ada.CMODEV.rmf.AUT         quad
-        $ps setdefault ada.CMODEV.rmf.SFT         quad
-        $ps setdefault ada.CMODEV.rmf.CUL         quad
-        $ps setdefault ada.CMODEV.rmf.QOL         quad
-        $ps setdefault ada.CMODEV.rmf.coop        frmore
 
         # Rule Set: CMOEDU
-        $ps setdefault ada.CMOEDU.active          no
         $ps setdefault ada.CMOEDU.cause           CMOEDU
         $ps setdefault ada.CMOEDU.nearFactor      0.75
         $ps setdefault ada.CMOEDU.farFactor       0.5
         $ps setdefault ada.CMOEDU.mitigates       {}
-        $ps setdefault ada.CMOEDU.rmf.AUT         constant
-        $ps setdefault ada.CMOEDU.rmf.SFT         constant
-        $ps setdefault ada.CMOEDU.rmf.CUL         constant
-        $ps setdefault ada.CMOEDU.rmf.QOL         constant
-        $ps setdefault ada.CMOEDU.rmf.coop        frmore
 
         # Rule Set: CMOEMP
-        $ps setdefault ada.CMOEMP.active          no
         $ps setdefault ada.CMOEMP.cause           CMOEMP
         $ps setdefault ada.CMOEMP.nearFactor      0.75
         $ps setdefault ada.CMOEMP.farFactor       0.5
         $ps setdefault ada.CMOEMP.mitigates       {}
-        $ps setdefault ada.CMOEMP.rmf.AUT         constant
-        $ps setdefault ada.CMOEMP.rmf.SFT         constant
-        $ps setdefault ada.CMOEMP.rmf.CUL         constant
-        $ps setdefault ada.CMOEMP.rmf.QOL         constant
-        $ps setdefault ada.CMOEMP.rmf.coop        frmore
 
         # Rule Set: CMOIND
-        $ps setdefault ada.CMOIND.active          no
         $ps setdefault ada.CMOIND.cause           CMOIND
         $ps setdefault ada.CMOIND.nearFactor      0.75
         $ps setdefault ada.CMOIND.farFactor       0.25
@@ -515,53 +490,29 @@ snit::type ::projectlib::parmdb {
             COMMOUT  FOODSHRT FUELSHRT INDSPILL NOWATER PIPELINE
             POWEROUT REFINERY
         }
-        $ps setdefault ada.CMOIND.rmf.AUT         constant
-        $ps setdefault ada.CMOIND.rmf.SFT         constant
-        $ps setdefault ada.CMOIND.rmf.CUL         constant
-        $ps setdefault ada.CMOIND.rmf.QOL         constant
-        $ps setdefault ada.CMOIND.rmf.coop        frmore
 
         # Rule Set: CMOINF
-        $ps setdefault ada.CMOINF.active          no
         $ps setdefault ada.CMOINF.cause           CMOINF
         $ps setdefault ada.CMOINF.nearFactor      0.75
         $ps setdefault ada.CMOINF.farFactor       0.25
         $ps setdefault ada.CMOINF.mitigates       {
             BADWATER COMMOUT NOWATER POWEROUT SEWAGE
         }
-        $ps setdefault ada.CMOINF.rmf.AUT         constant
-        $ps setdefault ada.CMOINF.rmf.SFT         constant
-        $ps setdefault ada.CMOINF.rmf.CUL         constant
-        $ps setdefault ada.CMOINF.rmf.QOL         constant
-        $ps setdefault ada.CMOINF.rmf.coop        frmore
 
         # Rule Set: CMOLAW
-        $ps setdefault ada.CMOLAW.active          no
         $ps setdefault ada.CMOLAW.cause           CMOLAW
         $ps setdefault ada.CMOLAW.nearFactor      0.5
         $ps setdefault ada.CMOLAW.farFactor       0.25
-        $ps setdefault ada.CMOLAW.rmf.AUT         quad
-        $ps setdefault ada.CMOLAW.rmf.SFT         quad
-        $ps setdefault ada.CMOLAW.rmf.CUL         quad
-        $ps setdefault ada.CMOLAW.rmf.QOL         quad
-        $ps setdefault ada.CMOLAW.rmf.coop        quad
 
         # Rule Set: CMOMED
-        $ps setdefault ada.CMOMED.active          no
         $ps setdefault ada.CMOMED.cause           CMOMED
         $ps setdefault ada.CMOMED.nearFactor      0.75
         $ps setdefault ada.CMOMED.farFactor       0.25
         $ps setdefault ada.CMOMED.mitigates       {
             BIO CHEM DISASTER DISEASE EPIDEMIC
         }
-        $ps setdefault ada.CMOMED.rmf.AUT         constant
-        $ps setdefault ada.CMOMED.rmf.SFT         constant
-        $ps setdefault ada.CMOMED.rmf.CUL         constant
-        $ps setdefault ada.CMOMED.rmf.QOL         constant
-        $ps setdefault ada.CMOMED.rmf.coop        frmore
 
         # Rule Set: CMOOTHER
-        $ps setdefault ada.CMOOTHER.active        no
         $ps setdefault ada.CMOOTHER.cause         CMOOTHER
         $ps setdefault ada.CMOOTHER.nearFactor    0.25
         $ps setdefault ada.CMOOTHER.farFactor     0.1
@@ -570,22 +521,11 @@ snit::type ::projectlib::parmdb {
             FOODSHRT FUELSHRT GARBAGE  INDSPILL MOSQUE  NOWATER ORDNANCE 
             PIPELINE POWEROUT REFINERY SEWAGE
         }
-        $ps setdefault ada.CMOOTHER.rmf.AUT       constant
-        $ps setdefault ada.CMOOTHER.rmf.SFT       constant
-        $ps setdefault ada.CMOOTHER.rmf.CUL       constant
-        $ps setdefault ada.CMOOTHER.rmf.QOL       constant
-        $ps setdefault ada.CMOOTHER.rmf.coop      frmore
 
         # Rule Set: COERCION
-        $ps setdefault ada.COERCION.active        no
         $ps setdefault ada.COERCION.cause         COERCION
         $ps setdefault ada.COERCION.nearFactor    0.5
         $ps setdefault ada.COERCION.farFactor     0.2
-        $ps setdefault ada.COERCION.rmf.AUT       enquad
-        $ps setdefault ada.COERCION.rmf.SFT       enquad
-        $ps setdefault ada.COERCION.rmf.CUL       enquad
-        $ps setdefault ada.COERCION.rmf.QOL       enquad
-        $ps setdefault ada.COERCION.rmf.coop      enmore
 
         # Rule Set: COMMOUT
         $ps setdefault ada.COMMOUT.active         no
@@ -594,26 +534,14 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.COMMOUT.farFactor      0.1
 
         # Rule Set: CRIMINAL
-        $ps setdefault ada.CRIMINAL.active        no
         $ps setdefault ada.CRIMINAL.cause         CRIMINAL
         $ps setdefault ada.CRIMINAL.nearFactor    0.5
         $ps setdefault ada.CRIMINAL.farFactor     0.2
-        $ps setdefault ada.CRIMINAL.rmf.AUT       enquad
-        $ps setdefault ada.CRIMINAL.rmf.SFT       enquad
-        $ps setdefault ada.CRIMINAL.rmf.CUL       enquad
-        $ps setdefault ada.CRIMINAL.rmf.QOL       enquad
-        $ps setdefault ada.CRIMINAL.rmf.coop      constant
 
         # Rule Set: CURFEW
-        $ps setdefault ada.CURFEW.active          no
         $ps setdefault ada.CURFEW.cause           CURFEW
         $ps setdefault ada.CURFEW.nearFactor      0.5
         $ps setdefault ada.CURFEW.farFactor       0.0
-        $ps setdefault ada.CURFEW.rmf.AUT         constant
-        $ps setdefault ada.CURFEW.rmf.SFT         quad
-        $ps setdefault ada.CURFEW.rmf.CUL         constant
-        $ps setdefault ada.CURFEW.rmf.QOL         constant
-        $ps setdefault ada.CURFEW.rmf.coop        quad
 
         # Rule Set: DISASTER
         $ps setdefault ada.DISASTER.active         no
@@ -652,15 +580,9 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.GARBAGE.farFactor      0.0
 
         # Rule Set: GUARD
-        $ps setdefault ada.GUARD.active           no
         $ps setdefault ada.GUARD.cause            GUARD
         $ps setdefault ada.GUARD.nearFactor       0.5
         $ps setdefault ada.GUARD.farFactor        0.0
-        $ps setdefault ada.GUARD.rmf.AUT          enmore
-        $ps setdefault ada.GUARD.rmf.SFT          enmore
-        $ps setdefault ada.GUARD.rmf.CUL          enmore
-        $ps setdefault ada.GUARD.rmf.QOL          enmore
-        $ps setdefault ada.GUARD.rmf.coop         quad
 
         # Rule Set: INDSPILL
         $ps setdefault ada.INDSPILL.active        no
@@ -779,15 +701,9 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.ORGOTHER.rmf.QOL       constant
 
         # Rule Set: PATROL
-        $ps setdefault ada.PATROL.active          no
         $ps setdefault ada.PATROL.cause           PATROL
         $ps setdefault ada.PATROL.nearFactor      0.5
         $ps setdefault ada.PATROL.farFactor       0.0
-        $ps setdefault ada.PATROL.rmf.AUT         enmore
-        $ps setdefault ada.PATROL.rmf.SFT         enmore
-        $ps setdefault ada.PATROL.rmf.CUL         enmore
-        $ps setdefault ada.PATROL.rmf.QOL         enmore
-        $ps setdefault ada.PATROL.rmf.coop        quad
 
         # Rule Set: PIPELINE
         $ps setdefault ada.PIPELINE.active        no
@@ -807,16 +723,10 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.PRESENCE.farFactor     0.0
 
         # Rule Set: PSYOP
-        $ps setdefault ada.PSYOP.active           no
         $ps setdefault ada.PSYOP.cause            PSYOP
         $ps setdefault ada.PSYOP.nearFactor       0.1
         $ps setdefault ada.PSYOP.farFactor        0.0
         $ps setdefault ada.PSYOP.mitigates        {BIO CHEM}
-        $ps setdefault ada.PSYOP.rmf.AUT          constant
-        $ps setdefault ada.PSYOP.rmf.SFT          constant
-        $ps setdefault ada.PSYOP.rmf.CUL          constant
-        $ps setdefault ada.PSYOP.rmf.QOL          constant
-        $ps setdefault ada.PSYOP.rmf.coop         frmore
 
         # Rule Set: REFINERY
         $ps setdefault ada.REFINERY.active        no
