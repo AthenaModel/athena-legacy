@@ -154,6 +154,27 @@ snit::type ::projectlib::typewrapper {
     GUARD-1-1     "Force units guarding"
     GUARD-2-1     "Force units no longer guarding"
 
+    ORGCONST-1-1  "ORG units are doing construction work"
+    ORGCONST-2-1  "ORG units no longer doing construction work"
+
+    ORGEDU-1-1    "ORG units are teaching local civilians"
+    ORGEDU-2-1    "ORG units no longer teaching local civilians"
+
+    ORGEMP-1-1    "ORG units are providing employment"
+    ORGEMP-2-1    "ORG units no longer providing employment"
+
+    ORGIND-1-1    "ORG units are aiding industry"
+    ORGIND-2-1    "ORG units no longer aiding industry"
+
+    ORGINF-1-1    "ORG units are improving infrastructure"
+    ORGINF-2-1    "ORG units no longer improving infrastructure"
+
+    ORGMED-1-1    "ORG units are providing healthcare"
+    ORGMED-2-1    "ORG units no longer providing healthcare"
+
+    ORGOTHER-1-1  "ORG units are doing other CMO activities"
+    ORGOTHER-2-1  "ORG units no longer doing other CMO activities"
+
     PATROL-1-1    "Force units patrolling"
     PATROL-2-1    "Force units no longer patrolling"
 

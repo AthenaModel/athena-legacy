@@ -4,11 +4,17 @@
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
 <node CREATED="1238449726244" ID="Freemind_Link_1432696154" MODIFIED="1242934730895" TEXT="ADA Rules">
 <icon BUILTIN="full-1"/>
-<node CREATED="1242934731378" ID="Freemind_Link_44646766" MODIFIED="1242934733420" TEXT="Actsits"/>
+<node CREATED="1242934731378" ID="Freemind_Link_44646766" MODIFIED="1243027994490" TEXT="Actsits">
+<icon BUILTIN="button_ok"/>
+</node>
 <node CREATED="1242934733874" ID="Freemind_Link_1930667840" MODIFIED="1242934736316" TEXT="Envsits"/>
 </node>
-<node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1238449718099" TEXT="Magic satisfaction inputs"/>
-<node CREATED="1238449608020" ID="Freemind_Link_1639950112" MODIFIED="1238449718100" TEXT="Magic cooperation inputs"/>
+<node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1243027981886" TEXT="Magic satisfaction inputs and adjustments"/>
+<node CREATED="1238449608020" ID="Freemind_Link_1639950112" MODIFIED="1243027989678" TEXT="Magic cooperation inputs and adjustments"/>
+<node CREATED="1243027998597" ID="Freemind_Link_1993004622" MODIFIED="1243028014337" TEXT="ORG active/inactive flag">
+<node CREATED="1243028014804" ID="Freemind_Link_290938405" MODIFIED="1243028020317" TEXT="Set as in JOUT rules"/>
+<node CREATED="1243028020644" ID="Freemind_Link_82333428" MODIFIED="1243028030814" TEXT="Used in analysis of ORG activities"/>
+</node>
 <node CREATED="1241624415166" FOLDED="true" ID="Freemind_Link_472031065" MODIFIED="1241624422010" TEXT="Displaced Civilians/Refugees">
 <node CREATED="1241624422469" ID="Freemind_Link_636312974" MODIFIED="1241624433033" TEXT="Suppose we don&apos;t model attitudes of refugees"/>
 <node CREATED="1241624435453" ID="Freemind_Link_1452155827" MODIFIED="1241624443073" TEXT="Just model effect on local civilians"/>

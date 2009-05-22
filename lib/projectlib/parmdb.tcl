@@ -384,44 +384,7 @@ snit::type ::projectlib::parmdb {
             }} {
                 $ps define ada.$name.mitigates ::projectlib::leenvsit {} {
                     List of environmental situation types mitigated by this
-                    activity.
-                }
-
-                $ps subset ada.$name.rmf {
-                    Parameters which specify the Relationship Multiplier
-                    Function (RMF) used by this rule set.
-                }
-                
-                $ps define ada.$name.rmf.AUT ::simlib::rmf constant {
-                    Relationship Multiplier Function to use when computing
-                    satisfaction changes for the Autonomy (AUT) concern for
-                    this rule set.
-                }
-            
-                $ps define ada.$name.rmf.SFT ::simlib::rmf constant {
-                    Relationship Multiplier Function to use when computing
-                    satisfaction changes for the Safety (SFT) concern for
-                    this rule set.
-                }
-                
-                $ps define ada.$name.rmf.CUL ::simlib::rmf constant {
-                    Relationship Multiplier Function to use when computing
-                    satisfaction changes for the Culture (CUL) concern for
-                    this rule set.
-                }
-                
-                $ps define ada.$name.rmf.QOL ::simlib::rmf constant {
-                    Relationship Multiplier Function to use when computing
-                    satisfaction changes for the Quality of Life (QOL) 
-                    concern for this rule set.
-                }
-
-                # Add cooperation RMF for FRC activities
-                if {![string match "ORG*" $name]} {
-                    $ps define ada.$name.rmf.coop ::simlib::rmf constant {
-                        Relationship Multiplier Function to use when 
-                        computing cooperation changes for this activity.
-                    }
+                    activity.  Note not all rule sets support this.
                 }
             }
         }
@@ -609,7 +572,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.ORDNANCE.farFactor     0.0
 
         # Rule Set: ORGCONST
-        $ps setdefault ada.ORGCONST.active        no
         $ps setdefault ada.ORGCONST.cause         ORGCONST
         $ps setdefault ada.ORGCONST.nearFactor    0.75
         $ps setdefault ada.ORGCONST.farFactor     0.25
@@ -618,35 +580,20 @@ snit::type ::projectlib::parmdb {
             FOODSHRT FUELSHRT GARBAGE INDSPILL MOSQUE  NOWATER ORDNANCE 
             PIPELINE POWEROUT REFINERY SEWAGE
         }
-        $ps setdefault ada.ORGCONST.rmf.AUT       constant
-        $ps setdefault ada.ORGCONST.rmf.SFT       constant
-        $ps setdefault ada.ORGCONST.rmf.CUL       constant
-        $ps setdefault ada.ORGCONST.rmf.QOL       constant
 
         # Rule Set: ORGEDU
-        $ps setdefault ada.ORGEDU.active          no
         $ps setdefault ada.ORGEDU.cause           ORGEDU
         $ps setdefault ada.ORGEDU.nearFactor      0.75
         $ps setdefault ada.ORGEDU.farFactor       0.5
         $ps setdefault ada.ORGEDU.mitigates       {}
-        $ps setdefault ada.ORGEDU.rmf.AUT         constant
-        $ps setdefault ada.ORGEDU.rmf.SFT         constant
-        $ps setdefault ada.ORGEDU.rmf.CUL         constant
-        $ps setdefault ada.ORGEDU.rmf.QOL         constant
 
         # Rule Set: ORGEMP
-        $ps setdefault ada.ORGEMP.active          no
         $ps setdefault ada.ORGEMP.cause           ORGEMP
         $ps setdefault ada.ORGEMP.nearFactor      0.75
         $ps setdefault ada.ORGEMP.farFactor       0.5
         $ps setdefault ada.ORGEMP.mitigates       {}
-        $ps setdefault ada.ORGEMP.rmf.AUT         constant
-        $ps setdefault ada.ORGEMP.rmf.SFT         constant
-        $ps setdefault ada.ORGEMP.rmf.CUL         constant
-        $ps setdefault ada.ORGEMP.rmf.QOL         constant
 
         # Rule Set: ORGIND
-        $ps setdefault ada.ORGIND.active          no
         $ps setdefault ada.ORGIND.cause           ORGIND
         $ps setdefault ada.ORGIND.nearFactor      0.75
         $ps setdefault ada.ORGIND.farFactor       0.25
@@ -654,39 +601,24 @@ snit::type ::projectlib::parmdb {
             COMMOUT  FOODSHRT FUELSHRT INDSPILL NOWATER PIPELINE
             POWEROUT REFINERY
         }
-        $ps setdefault ada.ORGIND.rmf.AUT         constant
-        $ps setdefault ada.ORGIND.rmf.SFT         constant
-        $ps setdefault ada.ORGIND.rmf.CUL         constant
-        $ps setdefault ada.ORGIND.rmf.QOL         constant
 
         # Rule Set: ORGINF
-        $ps setdefault ada.ORGINF.active          no
         $ps setdefault ada.ORGINF.cause           ORGINF
         $ps setdefault ada.ORGINF.nearFactor      0.75
         $ps setdefault ada.ORGINF.farFactor       0.25
         $ps setdefault ada.ORGINF.mitigates       {
             BADWATER COMMOUT NOWATER POWEROUT SEWAGE
         }
-        $ps setdefault ada.ORGINF.rmf.AUT         constant
-        $ps setdefault ada.ORGINF.rmf.SFT         constant
-        $ps setdefault ada.ORGINF.rmf.CUL         constant
-        $ps setdefault ada.ORGINF.rmf.QOL         constant
 
         # Rule Set: ORGMED
-        $ps setdefault ada.ORGMED.active          no
         $ps setdefault ada.ORGMED.cause           ORGMED
         $ps setdefault ada.ORGMED.nearFactor      0.75
         $ps setdefault ada.ORGMED.farFactor       0.25
         $ps setdefault ada.ORGMED.mitigates       {
             BIO CHEM DISASTER DISEASE EPIDEMIC
         }
-        $ps setdefault ada.ORGMED.rmf.AUT         constant
-        $ps setdefault ada.ORGMED.rmf.SFT         constant
-        $ps setdefault ada.ORGMED.rmf.CUL         constant
-        $ps setdefault ada.ORGMED.rmf.QOL         constant
 
         # Rule Set: ORGOTHER
-        $ps setdefault ada.ORGOTHER.active        no
         $ps setdefault ada.ORGOTHER.cause         ORGOTHER
         $ps setdefault ada.ORGOTHER.nearFactor    0.25
         $ps setdefault ada.ORGOTHER.farFactor     0.1
@@ -695,10 +627,6 @@ snit::type ::projectlib::parmdb {
             FOODSHRT FUELSHRT GARBAGE  INDSPILL MOSQUE  NOWATER ORDNANCE
             PIPELINE POWEROUT REFINERY SEWAGE
         }
-        $ps setdefault ada.ORGOTHER.rmf.AUT       constant
-        $ps setdefault ada.ORGOTHER.rmf.SFT       constant
-        $ps setdefault ada.ORGOTHER.rmf.CUL       constant
-        $ps setdefault ada.ORGOTHER.rmf.QOL       constant
 
         # Rule Set: PATROL
         $ps setdefault ada.PATROL.cause           PATROL

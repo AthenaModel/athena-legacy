@@ -1321,10 +1321,9 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set fstops       0
-        set gstops       0
-
-        ada ruleset ORGCONST [$sit get driver]                   \
+        set stops        0
+ 
+        ada ruleset ORGCONST [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -1336,38 +1335,30 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set groupList       [list]
-            set envsitsMitigated [mitigates ORGCONST $n groupList]
+            set envsitsMitigated [mitigates ORGCONST $n]
 
             if {[llength $envsitsMitigated] > 0} {
                 detail "Mitigates:"  [join $envsitsMitigated ", "]
-                detail "For groups:" [join $groupList ", "]
-                incr gstops +1
+                incr stops +1
             }
 
             # -1 stops if g's CAS=D.
             if {[orgsat $n $g CAS] eq "D"} {
-                incr fstops -1
-                incr gstops -1
+                incr stops -1
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            ada guard [format "%.1f %s %d" $cov $groupList $gstops]
+            ada guard [format "%.1f %d" $cov $stops]
 
             # While there is a ORGCONST situation
             #     with COVERAGE > 0.0
-            # Then for the acting group,
-            service [mag+ $gstops M+] 100
-
-            # And for each CIV group f in the nbhood,
+            # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                set stops [expr {$fstops + ($f in $groupList ? 1 : 0)}]
-
                 satslope $cov $f \
-                    AUT [mag+ $stops S+]  100 \
-                    SFT [mag+ $stops S+]  100 \
-                    CUL [mag+ $stops XS+] 100 \
-                    QOL [mag+ $stops L+]  100
+                    AUT constant [mag+ $stops S+]  \
+                    SFT constant [mag+ $stops S+]  \
+                    CUL constant [mag+ $stops XS+] \
+                    QOL constant [mag+ $stops L+]
             }
         }
 
@@ -1377,23 +1368,6 @@ snit::type actsit_rules {
             ada guard
             # While there is a ORGCONST situation
             #     with COVERAGE = 0.0
-            # Then for the acting group,
-            ada sat clear -f $g SVC
-
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-        }
-
-        ada rule ORGCONST-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a ORGCONST situation
-            #     with ENABLED = 0
-            # Then for the acting group,
-            ada sat clear -f $g SVC
-
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -1419,10 +1393,9 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set fstops       0
-        set gstops       0
+        set stops        0
 
-        ada ruleset ORGEDU [$sit get driver]                     \
+        ada ruleset ORGEDU [$sit get driver]                       \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -1434,38 +1407,30 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set groupList       [list]
-            set envsitsMitigated [mitigates ORGEDU $n groupList]
+            set envsitsMitigated [mitigates ORGEDU $n]
 
             if {[llength $envsitsMitigated] > 0} {
                 detail "Mitigates:"  [join $envsitsMitigated ", "]
-                detail "For groups:" [join $groupList ", "]
-                incr gstops +1
+                incr stops +1
             }
 
             # -1 stops if g's CAS=D.
             if {[orgsat $n $g CAS] eq "D"} {
-                incr fstops -1
-                incr gstops -1
+                incr stops -1
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            ada guard [format "%.1f %s %d" $cov $groupList $gstops]
+            ada guard [format "%.1f %d" $cov $stops]
 
             # While there is a ORGEDU situation
             #     with COVERAGE > 0.0
-            # Then for the acting group,
-            service [mag+ $gstops M+] 100
-
-            # And for each CIV group f in the nbhood,
+            # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                set stops [expr {$fstops + ($f in $groupList ? 1 : 0)}]
-
                 satslope $cov $f \
-                    AUT [mag+ $stops S+]   100 \
-                    SFT [mag+ $stops XXS+] 100 \
-                    CUL [mag+ $stops XXS+] 100 \
-                    QOL [mag+ $stops L+]   100
+                    AUT constant [mag+ $stops S+]   \
+                    SFT constant [mag+ $stops XXS+] \
+                    CUL constant [mag+ $stops XXS+] \
+                    QOL constant [mag+ $stops L+]
             }
         }
 
@@ -1475,23 +1440,6 @@ snit::type actsit_rules {
             ada guard
             # While there is a ORGEDU situation
             #     with COVERAGE = 0.0
-            # Then for the acting group,
-            ada sat clear -f $g SVC
-
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-        }
-
-        ada rule ORGEDU-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a ORGEDU situation
-            #     with ENABLED = 0
-            # Then for the acting group,
-            ada sat clear -f $g SVC
-
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -1517,10 +1465,9 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set fstops       0
-        set gstops       0
+        set stops        0
 
-        ada ruleset ORGEMP [$sit get driver]                     \
+        ada ruleset ORGEMP [$sit get driver]                       \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -1532,38 +1479,30 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set groupList       [list]
-            set envsitsMitigated [mitigates ORGEMP $n groupList]
+            set envsitsMitigated [mitigates ORGEMP $n]
 
             if {[llength $envsitsMitigated] > 0} {
                 detail "Mitigates:"  [join $envsitsMitigated ", "]
-                detail "For groups:" [join $groupList ", "]
-                incr gstops +1
+                incr stops +1
             }
 
             # -1 stops if g's CAS=D.
             if {[orgsat $n $g CAS] eq "D"} {
-                incr fstops -1
-                incr gstops -1
+                incr stops -1
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
             
-            ada guard [format "%.1f %s %d" $cov $groupList $gstops]
+            ada guard [format "%.1f %d" $cov $stops]
 
             # While there is a ORGEMP situation
             #     with COVERAGE > 0.0
-            # Then for the acting group,
-            service [mag+ $gstops M+] 100
-
-            # And for each CIV group f in the nbhood,
+            # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                set stops [expr {$fstops + ($f in $groupList ? 1 : 0)}]
-
                 satslope $cov $f \
-                    AUT [mag+ $stops S+]   100 \
-                    SFT [mag+ $stops XXS+] 100 \
-                    CUL [mag+ $stops XXS+] 100 \
-                    QOL [mag+ $stops L+]   100
+                    AUT constant [mag+ $stops S+]   \
+                    SFT constant [mag+ $stops XXS+] \
+                    CUL constant [mag+ $stops XXS+] \
+                    QOL constant [mag+ $stops L+]
             }
         }
 
@@ -1573,23 +1512,6 @@ snit::type actsit_rules {
             ada guard
             # While there is a ORGEMP situation
             #     with COVERAGE = 0.0
-            # Then for the acting group,
-            ada sat clear -f $g SVC
-
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-        }
-
-        ada rule ORGEMP-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a ORGEMP situation
-            #     with ENABLED = 0
-            # Then for the acting group,
-            ada sat clear -f $g SVC
-
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -1615,8 +1537,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set fstops       0
-        set gstops       0
+        set stops        0
 
         ada ruleset ORGIND [$sit get driver]                     \
             -sit       $sit                                        \
@@ -1630,38 +1551,30 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set groupList       [list]
-            set envsitsMitigated [mitigates ORGIND $n groupList]
+            set envsitsMitigated [mitigates ORGIND $n]
 
             if {[llength $envsitsMitigated] > 0} {
                 detail "Mitigates:"  [join $envsitsMitigated ", "]
-                detail "For groups:" [join $groupList ", "]
-                incr gstops +1
+                incr stops +1
             }
 
             # -1 stops if g's CAS=D.
             if {[orgsat $n $g CAS] eq "D"} {
-                incr fstops -1
-                incr gstops -1                
+                incr stops -1
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            ada guard [format "%.1f %s %d" $cov $groupList $gstops]
+            ada guard [format "%.1f %d" $cov $stops]
 
             # While there is a ORGIND situation
             #     with COVERAGE > 0.0
-            # Then for the acting group,
-            service [mag+ $gstops M+] 100
-
-            # And for each CIV group f in the nbhood,
+            # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                set stops [expr {$fstops + ($f in $groupList ? 1 : 0)}]
-
                 satslope $cov $f \
-                    AUT [mag+ $stops S+]   100 \
-                    SFT [mag+ $stops XXS+] 100 \
-                    CUL [mag+ $stops XXS+] 100 \
-                    QOL [mag+ $stops L+]   100
+                    AUT constant [mag+ $stops S+]   \
+                    SFT constant [mag+ $stops XXS+] \
+                    CUL constant [mag+ $stops XXS+] \
+                    QOL constant [mag+ $stops L+]
             }
         }
 
@@ -1671,23 +1584,6 @@ snit::type actsit_rules {
             ada guard
             # While there is a ORGIND situation
             #     with COVERAGE = 0.0
-            # Then for the acting group,
-            ada sat clear -f $g SVC
-
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-        }
-
-        ada rule ORGIND-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a ORGIND situation
-            #     with ENABLED = 0
-            # Then for the acting group,
-            ada sat clear -f $g SVC
-
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -1713,8 +1609,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set fstops       0
-        set gstops       0        
+        set stops        0
 
         ada ruleset ORGINF [$sit get driver]                     \
             -sit       $sit                                        \
@@ -1728,38 +1623,30 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set groupList       [list]
-            set envsitsMitigated [mitigates ORGINF $n groupList]
+            set envsitsMitigated [mitigates ORGINF $n]
 
             if {[llength $envsitsMitigated] > 0} {
                 detail "Mitigates:"  [join $envsitsMitigated ", "]
-                detail "For groups:" [join $groupList ", "]
-                incr gstops +1
+                incr stops +1
             }
 
             # -1 stops if g's CAS=D.
             if {[orgsat $n $g CAS] eq "D"} {
-                incr fstops -1
-                incr gstops -1
+                incr stops -1
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            ada guard [format "%.1f %s %d" $cov $groupList $gstops]
+            ada guard [format "%.1f %d" $cov $stops]
 
             # While there is a ORGINF situation
             #     with COVERAGE > 0.0
-            # Then for the acting group,
-            service [mag+ $gstops M+] 100
-
-            # And for each CIV group f in the nbhood,
+            # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                set stops [expr {$fstops + ($f in $groupList ? 1 : 0)}]
-                
                 satslope $cov $f \
-                    AUT [mag+ $stops S+]   100 \
-                    SFT [mag+ $stops XXS+] 100 \
-                    CUL [mag+ $stops XXS+] 100 \
-                    QOL [mag+ $stops M+]   100
+                    AUT constant [mag+ $stops S+]   \
+                    SFT constant [mag+ $stops XXS+] \
+                    CUL constant [mag+ $stops XXS+] \
+                    QOL constant [mag+ $stops M+]
             }
         }
 
@@ -1769,23 +1656,6 @@ snit::type actsit_rules {
             ada guard
             # While there is a ORGINF situation
             #     with COVERAGE = 0.0
-            # Then for the acting group,
-            ada sat clear -f $g SVC
-
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-        }
-
-        ada rule ORGINF-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a ORGINF situation
-            #     with ENABLED = 0
-            # Then for the acting group,
-            ada sat clear -f $g SVC
-
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -1811,8 +1681,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set fstops       0
-        set gstops       0
+        set stops        0
 
         ada ruleset ORGMED [$sit get driver]                     \
             -sit       $sit                                        \
@@ -1826,38 +1695,30 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set groupList       [list]
-            set envsitsMitigated [mitigates ORGMED $n groupList]
+            set envsitsMitigated [mitigates ORGMED $n]
 
             if {[llength $envsitsMitigated] > 0} {
                 detail "Mitigates:"  [join $envsitsMitigated ", "]
-                detail "For groups:" [join $groupList ", "]
-                incr gstops +1
+                incr stops +1
             }
 
             # -1 stops if g's CAS=D.
             if {[orgsat $n $g CAS] eq "D"} {
-                incr fstops -1
-                incr gstops -1
+                incr stops -1
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            ada guard [format "%.1f %s %d" $cov $groupList $gstops]
+            ada guard [format "%.1f %d" $cov $stops]
 
             # While there is a ORGMED situation
             #     with COVERAGE > 0.0
-            # Then for the acting group,
-            service [mag+ $gstops M+] 100
-
-            # And for each CIV group f in the nbhood,
+            # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                set stops [expr {$fstops + ($f in $groupList ? 1 : 0)}]
-
                 satslope $cov $f \
-                    AUT [mag+ $stops S+]   100 \
-                    SFT [mag+ $stops XXS+] 100 \
-                    CUL [mag+ $stops XXS+] 100 \
-                    QOL [mag+ $stops L+]   100
+                    AUT constant [mag+ $stops S+]   \
+                    SFT constant [mag+ $stops XXS+] \
+                    CUL constant [mag+ $stops XXS+] \
+                    QOL constant [mag+ $stops L+]
             }
         }
 
@@ -1867,23 +1728,6 @@ snit::type actsit_rules {
             ada guard
             # While there is a ORGMED situation
             #     with COVERAGE = 0.0
-            # Then for the acting group,
-            ada sat clear -f $g SVC
-
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-        }
-
-        ada rule ORGMED-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a ORGMED situation
-            #     with ENABLED = 0
-            # Then for the acting group,
-            ada sat clear -f $g SVC
-
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -1909,8 +1753,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set fstops       0
-        set gstops       0
+        set stops        0
 
         ada ruleset ORGOTHER [$sit get driver]                   \
             -sit       $sit                                        \
@@ -1924,38 +1767,30 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set groupList       [list]
-            set envsitsMitigated [mitigates ORGOTHER $n groupList]
+            set envsitsMitigated [mitigates ORGOTHER $n]
 
             if {[llength $envsitsMitigated] > 0} {
                 detail "Mitigates:"  [join $envsitsMitigated ", "]
-                detail "For groups:" [join $groupList ", "]
-                incr gstops +1
+                incr stops +1
             }
 
             # -1 stops if g's CAS=D.
             if {[orgsat $n $g CAS] eq "D"} {
-                incr fstops -1
-                incr gstops -1
+                incr stops -1
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            ada guard [format "%.1f %s %d" $cov $groupList $gstops]
+            ada guard [format "%.1f %d" $cov $stops]
 
             # While there is a ORGOTHER situation
             #     with COVERAGE > 0.0
-            # Then for the acting group,
-            service [mag+ $gstops M+] 100
-
-            # And for each CIV group f in the nbhood,
+            # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
-                set stops [expr {$fstops + ($f in $groupList ? 1 : 0)}]
-
                 satslope $cov $f \
-                    AUT [mag+ $stops S+]   100 \
-                    SFT [mag+ $stops S+]   100 \
-                    CUL [mag+ $stops XS+]  100 \
-                    QOL [mag+ $stops L+]   100
+                    AUT constant [mag+ $stops S+]  \
+                    SFT constant [mag+ $stops S+]  \
+                    CUL constant [mag+ $stops XS+] \
+                    QOL constant [mag+ $stops L+]
             }
         }
 
@@ -1965,23 +1800,6 @@ snit::type actsit_rules {
             ada guard
             # While there is a ORGOTHER situation
             #     with COVERAGE = 0.0
-            # Then for the acting group,
-            ada sat clear -f $g SVC
-
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-        }
-
-        ada rule ORGOTHER-2-2 {
-            ![$sit get enabled]
-        } {
-            ada guard
-            # While there is a ORGOTHER situation
-            #     with ENABLED = 0
-            # Then for the acting group,
-            ada sat clear -f $g SVC
-
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
             ada sat clear AUT SFT CUL QOL
@@ -2102,9 +1920,17 @@ snit::type actsit_rules {
         set sat ""
 
         if {$n eq "*"} {
-            set sat [jram sat.gc $g $c]
+            set sat [rdb eval {
+                SELECT sat FROM gram_gc 
+                WHERE object='::aram' 
+                AND   g=$g AND c=$c
+            }]
         } else {
-            set sat [jram sat.ngc $n $g $c]
+            set sat [rdb eval {
+                SELECT sat FROM gram_sat 
+                WHERE object='::aram' 
+                AND   n=$n AND g=$g AND c=$c
+            }]
         }
 
         return [qsat name $sat]
