@@ -65,7 +65,7 @@ snit::type envsit {
         # been resolved but the resolution has not yet been assessed.
         set ids [rdb eval {
             SELECT s FROM envsits 
-            WHERE state != 'ENDED' OR resolution=1
+            WHERE state != 'ENDED' OR rdriver=0
         }]
         
         foreach s $ids {
@@ -94,18 +94,19 @@ snit::type envsit {
                 notifier send $type <Entity> update $s
             }
 
-            # NEXT, assess resolution affects if need be.
-            # If the situation has been resolved, we're done with
-            # it.
-            if {[$sit get resolution]} {
-                $sit set resolution 0
-                envsit_rules resolution $sit
-                notifier send $type <Entity> update $s
-                return
-            }
-
             # NEXT, it's on going; monitor its coverage
             envsit_rules monitor $sit
+
+            # NEXT, assess resolution affects if need be.
+            if {[$sit get state] eq "ENDED"} {
+                $sit set rdriver [aram driver add \
+                                     -dtype    [$sit get stype] \
+                                     -name     "Sit $s"         \
+                                     -oneliner "Resolution of [$sit oneliner]"]
+
+                envsit_rules resolution $sit
+                notifier send $type <Entity> update $s
+            }
         }
     }
 
@@ -588,7 +589,6 @@ snit::type envsit {
             set sit [$type get $s]
 
             $sit set change     RESOLVED
-            $sit set resolution 1
             $sit set resolver   $resolver
 
             $sit set state      ENDED

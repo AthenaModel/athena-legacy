@@ -419,19 +419,16 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.BADFOOD.farFactor      0.0
 
         # Rule Set: BADWATER
-        $ps setdefault ada.BADWATER.active        no
         $ps setdefault ada.BADWATER.cause         THIRST
         $ps setdefault ada.BADWATER.nearFactor    0.0
         $ps setdefault ada.BADWATER.farFactor     0.0
 
         # Rule Set: BIO
-        $ps setdefault ada.BIO.active             no
         $ps setdefault ada.BIO.cause              BIO
         $ps setdefault ada.BIO.nearFactor         0.5
         $ps setdefault ada.BIO.farFactor          0.25
 
          # Rule Set: CHEM
-        $ps setdefault ada.CHEM.active            no
         $ps setdefault ada.CHEM.cause             CHEM
         $ps setdefault ada.CHEM.nearFactor        0.1
         $ps setdefault ada.CHEM.farFactor         0.0
@@ -514,7 +511,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.COERCION.farFactor     0.2
 
         # Rule Set: COMMOUT
-        $ps setdefault ada.COMMOUT.active         no
         $ps setdefault ada.COMMOUT.cause          COMMOUT
         $ps setdefault ada.COMMOUT.nearFactor     0.1
         $ps setdefault ada.COMMOUT.farFactor      0.1
@@ -530,37 +526,31 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.CURFEW.farFactor       0.0
 
         # Rule Set: DISASTER
-        $ps setdefault ada.DISASTER.active         no
         $ps setdefault ada.DISASTER.cause          DISASTER
         $ps setdefault ada.DISASTER.nearFactor     0.5
         $ps setdefault ada.DISASTER.farFactor      0.25
 
         # Rule Set: DISEASE
-        $ps setdefault ada.DISEASE.active         no
         $ps setdefault ada.DISEASE.cause          SICKNESS
         $ps setdefault ada.DISEASE.nearFactor     0.25
         $ps setdefault ada.DISEASE.farFactor      0.0
 
         # Rule Set: EPIDEMIC
-        $ps setdefault ada.EPIDEMIC.active        no
         $ps setdefault ada.EPIDEMIC.cause         SICKNESS
         $ps setdefault ada.EPIDEMIC.nearFactor    0.5
         $ps setdefault ada.EPIDEMIC.farFactor     0.2
 
         # Rule Set: FOODSHRT
-        $ps setdefault ada.FOODSHRT.active        no
         $ps setdefault ada.FOODSHRT.cause         HUNGER
         $ps setdefault ada.FOODSHRT.nearFactor    0.0
         $ps setdefault ada.FOODSHRT.farFactor     0.0
 
         # Rule Set: FUELSHRT
-        $ps setdefault ada.FUELSHRT.active        no
         $ps setdefault ada.FUELSHRT.cause         FUELSHRT
         $ps setdefault ada.FUELSHRT.nearFactor    0.0
         $ps setdefault ada.FUELSHRT.farFactor     0.0
 
         # Rule Set: GARBAGE
-        $ps setdefault ada.GARBAGE.active         no
         $ps setdefault ada.GARBAGE.cause          GARBAGE
         $ps setdefault ada.GARBAGE.nearFactor     0.2
         $ps setdefault ada.GARBAGE.farFactor      0.0
@@ -571,25 +561,21 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.GUARD.farFactor        0.0
 
         # Rule Set: INDSPILL
-        $ps setdefault ada.INDSPILL.active        no
         $ps setdefault ada.INDSPILL.cause         INDSPILL
         $ps setdefault ada.INDSPILL.nearFactor    0.0
         $ps setdefault ada.INDSPILL.farFactor     0.0
 
         # Rule Set: MOSQUE
-        $ps setdefault ada.MOSQUE.active          no
         $ps setdefault ada.MOSQUE.cause           MOSQUE
         $ps setdefault ada.MOSQUE.nearFactor      0.2
         $ps setdefault ada.MOSQUE.farFactor       0.1
 
         # Rule Set: NOWATER
-        $ps setdefault ada.NOWATER.active         no
         $ps setdefault ada.NOWATER.cause          THIRST
         $ps setdefault ada.NOWATER.nearFactor     0.0
         $ps setdefault ada.NOWATER.farFactor      0.0
 
         # Rule Set: ORDNANCE
-        $ps setdefault ada.ORDNANCE.active        no
         $ps setdefault ada.ORDNANCE.cause         ORDNANCE
         $ps setdefault ada.ORDNANCE.nearFactor    0.2
         $ps setdefault ada.ORDNANCE.farFactor     0.0
@@ -657,13 +643,11 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.PATROL.farFactor       0.0
 
         # Rule Set: PIPELINE
-        $ps setdefault ada.PIPELINE.active        no
         $ps setdefault ada.PIPELINE.cause         PIPELINE
         $ps setdefault ada.PIPELINE.nearFactor    0.0
         $ps setdefault ada.PIPELINE.farFactor     0.0
 
         # Rule Set: POWEROUT
-        $ps setdefault ada.POWEROUT.active        no
         $ps setdefault ada.POWEROUT.cause         POWEROUT
         $ps setdefault ada.POWEROUT.nearFactor    0.1
         $ps setdefault ada.POWEROUT.farFactor     0.0
@@ -680,13 +664,11 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.PSYOP.mitigates        {BIO CHEM}
 
         # Rule Set: REFINERY
-        $ps setdefault ada.REFINERY.active        no
         $ps setdefault ada.REFINERY.cause         REFINERY
         $ps setdefault ada.REFINERY.nearFactor    0.0
         $ps setdefault ada.REFINERY.farFactor     0.0
 
         # Rule Set: SEWAGE
-        $ps setdefault ada.SEWAGE.active          no
         $ps setdefault ada.SEWAGE.cause           SEWAGE
         $ps setdefault ada.SEWAGE.nearFactor      0.2
         $ps setdefault ada.SEWAGE.farFactor       0.0

@@ -113,9 +113,6 @@ snit::type situation {
 
     typemethod ClearChangeMarks {} {
         rdb eval {SELECT s, kind FROM situations WHERE change != ''} {
-            # NOTE:  The "info exists" is purely defensive programming; 
-            # if the actsit has changed, there should be an object that 
-            # exists.  Perhaps the "if" should be an "assert" instead?
             set sit [$type get $s]
             $sit set change ""
             
