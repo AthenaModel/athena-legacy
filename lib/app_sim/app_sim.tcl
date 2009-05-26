@@ -84,6 +84,7 @@ source [file join $::app_sim::library situation.tcl        ]
 source [file join $::app_sim::library actsit.tcl           ]
 source [file join $::app_sim::library actsit_rules.tcl     ]
 source [file join $::app_sim::library envsit.tcl           ]
+source [file join $::app_sim::library envsit_rules.tcl     ]
 
 # GUI
 source [file join $::app_sim::library orderdialog.tcl      ]

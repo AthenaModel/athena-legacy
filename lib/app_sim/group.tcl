@@ -96,6 +96,30 @@ snit::type group {
         }]
     }
 
+    # isLocal g
+    #
+    # g    A group
+    #
+    # Returns 1 if a group is local, and 0 otherwise.
+    #
+    # TBD: For now, a group is deemed to be local if it is a CIV group,
+    # or if it is a FRC group with the local flag set.  Ultimately,
+    # "local" should probably be an attribute of all groups.
+
+    typemethod isLocal {g} {
+        set gtype [$type gtype $g]
+
+        if {$gtype eq "CIV"} {
+            return 1
+        } elseif {$gtype eq "FRC"} {
+            return [rdb eval {
+                SELECT local FROM frcgroups WHERE g=$g
+            }]
+        } else {
+            return 0
+        }
+    }
+
 }
 
 

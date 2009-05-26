@@ -84,10 +84,9 @@ snit::type actsit_rules {
     # group "g"  -doer, for the force activity situations.
 
     proc satslope {cov f args} {
-        set ruleset [ada get ruleset]
         set n       [ada rget -n]
         set g       [ada rget -doer]
-        set nomCov  [parmdb get ada.nominalCoverage]
+        set nomCov  [parmdb get ada.actsit.nominalCoverage]
 
         assert {[llength $args] != 0 && [llength $args] % 3 == 0}
 
@@ -126,7 +125,7 @@ snit::type actsit_rules {
         set ruleset [ada get ruleset]
         set n       [ada rget -n]
         set g       [ada rget -doer]
-        set nomCov  [parmdb get ada.nominalCoverage]
+        set nomCov  [parmdb get ada.actsit.nominalCoverage]
 
         set rel [rel $n $f $g]
 

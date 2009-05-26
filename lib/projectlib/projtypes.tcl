@@ -112,6 +112,26 @@ snit::type ::projectlib::typewrapper {
 
 # ADA Rules
 ::marsutil::enum ::projectlib::eadarule {
+    BADFOOD-1-1   "Food supply is contaminated"
+    BADFOOD-2-1   "Food supply continues to be contaminated"
+    BADFOOD-3-1   "Food contamination is resolved by outsiders"
+    BADFOOD-3-2   "Food contamination is resolved by locals"
+
+    BADWATER-1-1  "Water supply is contaminated"
+    BADWATER-2-1  "Water supply continues to be contaminated"
+    BADWATER-3-1  "Water contamination is resolved by outsiders"
+    BADWATER-3-2  "Water contamination is resolved by locals"
+
+    BIO-1-1       "Biological agent is introduced"
+    BIO-2-1       "Biological agent remains"
+    BIO-3-1       "Biological agent is removed by outsiders"
+    BIO-3-2       "Biological agent is removed by locals"
+
+    CHEM-1-1      "Chemical agent is introduced"
+    CHEM-2-1      "Chemical agent remains"
+    CHEM-3-1      "Chemical agent is removed by outsiders"
+    CHEM-3-2      "Chemical agent is removed by locals"
+
     CHKPOINT-1-1  "Force group assigned CHECKPOINT activity"
     CHKPOINT-2-1  "Force group no longer operating checkpoints"
 
@@ -145,14 +165,68 @@ snit::type ::projectlib::typewrapper {
     COERCION-1-1  "Force units coercing local civilians"
     COERCION-2-1  "Force units no longer coercing local civilians"
 
+    COMMOUT-1-1   "Communications go out"
+    COMMOUT-2-1   "Communications remain out"
+    COMMOUT-3-1   "Communications are restored by outsiders"
+    COMMOUT-3-2   "Communications are restored by locals"
+
     CRIMINAL-1-1  "Force units engaging in criminal activities"
     CRIMINAL-2-1  "Force units no longer engaging in criminal activities"
 
     CURFEW-1-1    "Force units enforcing curfew"
     CURFEW-2-1    "Force units no longer enforcing curfew"
 
+    DISASTER-1-1   "Disaster occurred in the neighborhood"
+    DISASTER-2-1   "Disaster continues"
+    DISASTER-3-1   "Disaster resolved by outsiders"
+    DISASTER-3-2   "Disaster resolved by locals"
+
+    DISEASE-1-1   "Unhealthy conditions begin to cause disease"
+    DISEASE-2-1   "Unhealthy conditions continue to cause disease"
+    DISEASE-3-1   "Unhealthy conditions are resolved by outsiders"
+    DISEASE-3-2   "Unhealthy conditions are resolved by locals"
+
+    EPIDEMIC-1-1  "Epidemic begins to spread"
+    EPIDEMIC-2-1  "Epidemic continues to spread"
+    EPIDEMIC-3-1  "Spread of epidemic is halted by outsiders"
+    EPIDEMIC-3-2  "Spread of epidemic is halted by locals"
+
+    FOODSHRT-1-1  "Food has run short"
+    FOODSHRT-2-1  "Food shortage is ended by outsiders"
+    FOODSHRT-2-2  "Food shortage is ended by locals"
+
+    FUELSHRT-1-1  "Fuel begins to run short"
+    FUELSHRT-2-1  "Fuel continues to be in short supply"
+    FUELSHRT-3-1  "Fuel shortage is resolved by outsiders"
+    FUELSHRT-3-2  "Fuel shortage is resolved by locals"
+
+    GARBAGE-1-1   "Garbage begins to accumulate"
+    GARBAGE-2-1   "Garbage is piled in the streets"
+    GARBAGE-3-1   "Garbage is cleaned up by outsiders"
+    GARBAGE-3-2   "Garbage is cleaned up by locals"
+
     GUARD-1-1     "Force units guarding"
     GUARD-2-1     "Force units no longer guarding"
+
+    INDSPILL-1-1  "Industrial spill occurs"
+    INDSPILL-2-1  "Industrial spill has not been cleaned up"
+    INDSPILL-3-1  "Industrial spill is cleaned up by outsiders"
+    INDSPILL-3-2  "Industrial spill is cleaned by locals"
+
+    MOSQUE-1-1    "A mosque is damaged"
+    MOSQUE-2-1    "Mosque damage has not been resolved"
+    MOSQUE-3-1    "Mosque damage is resolved by outsiders"
+    MOSQUE-3-2    "Mosque damage is resolved by locals"
+
+    NOWATER-1-1   "Water becomes unavailable"
+    NOWATER-2-1   "Water continues to be unavailable"
+    NOWATER-3-1   "Water supply is restored by outsiders"
+    NOWATER-3-2   "Water supply is restored by locals"
+
+    ORDNANCE-1-1  "Unexploded ordnance is found"
+    ORDNANCE-2-1  "Unexploded ordnance remains"
+    ORDNANCE-3-1  "Unexploded ordnance is removed by outsiders"
+    ORDNANCE-3-2  "Unexploded ordnance is removed by locals"
 
     ORGCONST-1-1  "ORG units are doing construction work"
     ORGCONST-2-1  "ORG units no longer doing construction work"
@@ -178,12 +252,31 @@ snit::type ::projectlib::typewrapper {
     PATROL-1-1    "Force units patrolling"
     PATROL-2-1    "Force units no longer patrolling"
 
+    PIPELINE-1-1  "Oil pipeline catches fire"
+    PIPELINE-2-1  "Oil pipeline is still burning"
+    PIPELINE-3-1  "Oil pipeline fire is extinguished by outsiders"
+    PIPELINE-3-2  "Oil pipeline fire is extinguished by locals"
+
+    POWEROUT-1-1  "Power goes out"
+    POWEROUT-2-1  "Power remains out"
+    POWEROUT-3-1  "Power is restored by outsiders"
+    POWEROUT-3-2  "Power is restored by locals"
+
     PSYOP-1-1     "Force units doing PSYOP"
     PSYOP-2-1     "Force units no longer doing PSYOP"
 
     PRESENCE-1-1  "Presence of force units"
     PRESENCE-2-1  "Force units no longer present"
 
+    REFINERY-1-1  "Oil refinery catches fire"
+    REFINERY-2-1  "Oil refinery is still burning"
+    REFINERY-3-1  "Oil refinery fire is extinguished by outsiders"
+    REFINERY-3-2  "Oil refinery fire is extinguished by locals"
+
+    SEWAGE-1-1    "Sewage begins to pool in the streets"
+    SEWAGE-2-1    "Sewage has pooled in the streets"
+    SEWAGE-3-1    "Sewage is cleaned up by outsiders"
+    SEWAGE-3-2    "Sewage is cleaned up by locals"
 }
 
 # ADA Rule Sets

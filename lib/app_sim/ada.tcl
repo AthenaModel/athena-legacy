@@ -289,7 +289,7 @@ snit::type ada {
 
             # -location
             if {[llength ${-location}] == 2} {
-                set locText [map m2ref {*} ${-location}]
+                set locText [map m2ref {*}${-location}]
             } else {
                 set locText ""
             }

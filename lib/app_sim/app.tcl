@@ -366,6 +366,11 @@ proc bgerror {msg} {
 
     [app topwin] tab view slog
 
+    if {[sim state] eq "RUNNING"} {
+        # TBD: might need to send order?
+        sim mutate pause
+    }
+
     app error {
         |<--
         An unexpected error has occurred;

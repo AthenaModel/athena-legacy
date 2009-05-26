@@ -157,9 +157,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-s kind     stype    driver n   coverage state   ts tc change flist g    signature location assess inception resolver 
-- -------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- ------ --------- -------- 
-1 ::envsit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   NONE           100 100  1      1                  
+s kind     stype    driver n   coverage state   ts tc change flist g    signature location inception resolution resolver 
+- -------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- ---------- -------- 
+1 ::envsit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   NONE           100 100  1         0                   
     }
 
 
@@ -411,9 +411,9 @@ s kind     stype    driver n   coverage state   ts tc change flist g    signatur
     } -cleanup {
         cleanup
     } -result {
-s kind     stype   driver n   coverage state   ts tc change flist g    signature location assess inception resolver 
-- -------- ------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- ------ --------- -------- 
-1 ::envsit COMMOUT -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           101 101  1      0                  
+s kind     stype   driver n   coverage state   ts tc change flist g    signature location inception resolution resolver 
+- -------- ------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- ---------- -------- 
+1 ::envsit COMMOUT -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           101 101  0         0                   
     }
 
 
@@ -496,9 +496,9 @@ s kind     stype   driver n   coverage state   ts tc change flist g    signature
     } -cleanup {
         cleanup
     } -result {
-s kind     stype    driver n   coverage state ts tc change   flist g    signature location assess inception resolver 
-- -------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- ------ --------- -------- 
-1 ::envsit BADWATER -1     NB1 0.0      ENDED 0  0  RESOLVED ALL   NONE           100 100  1      1         BLUE     
+s kind     stype    driver n   coverage state ts tc change   flist g    signature location inception resolution resolver 
+- -------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- ---------- -------- 
+1 ::envsit BADWATER -1     NB1 0.0      ENDED 0  0  RESOLVED ALL   NONE           100 100  1         1          BLUE     
     }
 
 

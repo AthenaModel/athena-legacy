@@ -78,6 +78,7 @@ snit::type situation {
         actsit       init
         actsit_rules init
         envsit       init
+        envsit_rules init
 
         # NEXT, register this module as a saveable, so that the
         # cache is flushed as appropriate.

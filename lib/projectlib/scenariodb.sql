@@ -604,13 +604,14 @@ CREATE TABLE envsits_t (
     -- The following columns are set when the GRAM implications of the
     -- situation need to be assessed at the next time tick.
 
-    -- 1 if assessment is needed, and 0 otherwise.
-    assess     INTEGER,
-
     -- Flag: 1 if this is a new situation, and inception effects should 
     -- be assessed; 0 otherwise.  (This will be set to 0 for situations
     -- that are on-going at time 0.)
     inception  INTEGER,
+
+    -- Flag: 1 if the situation has been resolved, and assessment is 
+    -- needed, and 0 otherwise.
+    resolution INTEGER DEFAULT 0,
 
     -- Resolving group (may be empty): name of the group that resolved
     -- the situation, if any.  This will only be set in the ENDED state.

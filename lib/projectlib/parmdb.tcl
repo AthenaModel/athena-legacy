@@ -314,14 +314,38 @@ snit::type ::projectlib::parmdb {
         }
 
         # Global parameters
+        #
+        # TBD
 
-        $ps define ada.nominalCoverage ::projectlib::parmdb_nomcoverage 0.66 {
-            The nominal coverage fraction for rule sets that use 
-            coverage fractions.  Input magnitudes are
-            specified for this nominal coverage, i.e., if a change is
-            specified as "cov * M+" the input will be "M+" when "cov"
-            equals the nominal coverage.  The valid range is 0.1 to
-            1.0.
+        # Actsit global parameters
+        $ps subset ada.actsit {
+            Parameters for the activity situation rule sets in general.
+        }
+
+        $ps define ada.actsit.nominalCoverage \
+            ::projectlib::parmdb_nomcoverage 0.66 \
+            {
+                The nominal coverage fraction for activity rule sets.  
+                Input magnitudes are specified for this nominal coverage, 
+                i.e., if a change is specified as "cov * M+" the input 
+                will be "M+" when "cov" equals the nominal coverage.  The 
+                valid range is 0.1 to 1.0.
+        }
+
+        # Envsit global parameters
+        $ps subset ada.envsit {
+            Parameters for the environmental situation rule sets in general.
+        }
+
+        $ps define ada.envsit.nominalCoverage \
+            ::projectlib::parmdb_nomcoverage 1.0 \
+            {
+                The nominal coverage fraction for environmental
+                situation rule sets.
+                Input magnitudes are specified for this nominal coverage, 
+                i.e., if a change is specified as "cov * M+" the input 
+                will be "M+" when "cov" equals the nominal coverage.  The 
+                valid range is 0.1 to 1.0.
         }
 
         # First, give each an "active" flag.
@@ -390,7 +414,6 @@ snit::type ::projectlib::parmdb {
         }
 
         # Rule Set: BADFOOD
-        $ps setdefault ada.BADFOOD.active         no
         $ps setdefault ada.BADFOOD.cause          HUNGER
         $ps setdefault ada.BADFOOD.nearFactor     0.0
         $ps setdefault ada.BADFOOD.farFactor      0.0

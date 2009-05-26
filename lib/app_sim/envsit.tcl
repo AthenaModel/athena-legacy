@@ -61,15 +61,16 @@ snit::type envsit {
 
     typemethod assess {} {
         # FIRST, get a list of the IDs of envsits that need to be
-        # assessed.
+        # assessed: those that are "live", and those that have
+        # been resolved but the resolution has not yet been assessed.
         set ids [rdb eval {
-            SELECT s FROM envsits WHERE assess=1
+            SELECT s FROM envsits 
+            WHERE state != 'ENDED' OR resolution=1
         }]
         
         foreach s $ids {
-            # FIRST, get the situation and clear the assess flag
+            # FIRST, get the situation.
             set sit [$type get $s]
-            $sit set assess 0
 
             # NEXT, if it's in the initial state, make it active
             if {[$sit get state] eq "INITIAL"} {
@@ -89,17 +90,22 @@ snit::type envsit {
             # NEXT, assess inception affects if need be.
             if {[$sit get inception]} {
                 $sit set inception 0
-                # envsit_rules begin $sit
+                envsit_rules inception $sit
                 notifier send $type <Entity> update $s
             }
 
-            # NEXT, monitor its coverage
-            # envsit_rules monitor $sit
-
-            # NEXT, if it's ended then get the resolution effects.
-            if {[$sit get state] eq "ENDED"} {
-                # envsit_rules resolve $sit
+            # NEXT, assess resolution affects if need be.
+            # If the situation has been resolved, we're done with
+            # it.
+            if {[$sit get resolution]} {
+                $sit set resolution 0
+                envsit_rules resolution $sit
+                notifier send $type <Entity> update $s
+                return
             }
+
+            # NEXT, it's on going; monitor its coverage
+            envsit_rules monitor $sit
         }
     }
 
@@ -414,8 +420,8 @@ snit::type envsit {
                        g         $g]
 
             rdb eval {
-                INSERT INTO envsits_t(s,location,assess,inception)
-                VALUES($s,$location,1,$inception)
+                INSERT INTO envsits_t(s,location,inception)
+                VALUES($s,$location,$inception)
             }
 
             # NEXT, if it spawns, schedule the spawn
@@ -540,7 +546,6 @@ snit::type envsit {
 
             if {$coverage ne "" && $coverage ne [$sit get coverage]} {
                 $sit set coverage $coverage
-                $sit set assess   1
                 $sit set tc       [simclock now]
 
                 # Set state to ACTIVE/INACTIVE based on coverage,
@@ -582,13 +587,12 @@ snit::type envsit {
             # NEXT, Update the entity
             set sit [$type get $s]
 
-            $sit set change   RESOLVED
-            $sit set coverage 0.0
-            $sit set resolver $resolver
+            $sit set change     RESOLVED
+            $sit set resolution 1
+            $sit set resolver   $resolver
 
-            $sit set assess   1
-            $sit set state    ENDED
-            $sit set tc       [simclock now]
+            $sit set state      ENDED
+            $sit set tc         [simclock now]
 
             $sit CancelSpawn
 
