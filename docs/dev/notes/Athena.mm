@@ -2,19 +2,6 @@
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1238449726244" ID="Freemind_Link_1432696154" MODIFIED="1242934730895" TEXT="ADA Rules">
-<icon BUILTIN="full-1"/>
-<node CREATED="1242934731378" ID="Freemind_Link_44646766" MODIFIED="1243027994490" TEXT="Actsits">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1242934733874" ID="Freemind_Link_1930667840" MODIFIED="1242934736316" TEXT="Envsits"/>
-</node>
-<node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1243027981886" TEXT="Magic satisfaction inputs and adjustments"/>
-<node CREATED="1238449608020" ID="Freemind_Link_1639950112" MODIFIED="1243027989678" TEXT="Magic cooperation inputs and adjustments"/>
-<node CREATED="1243027998597" ID="Freemind_Link_1993004622" MODIFIED="1243028014337" TEXT="ORG active/inactive flag">
-<node CREATED="1243028014804" ID="Freemind_Link_290938405" MODIFIED="1243028020317" TEXT="Set as in JOUT rules"/>
-<node CREATED="1243028020644" ID="Freemind_Link_82333428" MODIFIED="1243028030814" TEXT="Used in analysis of ORG activities"/>
-</node>
 <node CREATED="1241624415166" FOLDED="true" ID="Freemind_Link_472031065" MODIFIED="1241624422010" TEXT="Displaced Civilians/Refugees">
 <node CREATED="1241624422469" ID="Freemind_Link_636312974" MODIFIED="1241624433033" TEXT="Suppose we don&apos;t model attitudes of refugees"/>
 <node CREATED="1241624435453" ID="Freemind_Link_1452155827" MODIFIED="1241624443073" TEXT="Just model effect on local civilians"/>
@@ -22,6 +9,12 @@
 <node CREATED="1241624461278" ID="Freemind_Link_1488285898" MODIFIED="1241624466921" TEXT="Creates a coverage"/>
 <node CREATED="1241624467661" ID="Freemind_Link_1826431892" MODIFIED="1241624495385" TEXT="Local civilians respond to PRESENCE of REFUGEEs."/>
 <node CREATED="1241624496365" ID="Freemind_Link_1702054574" MODIFIED="1241624504481" TEXT="Use RMFs between civilian groups"/>
+</node>
+<node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1243027981886" TEXT="Magic satisfaction inputs and adjustments"/>
+<node CREATED="1238449608020" ID="Freemind_Link_1639950112" MODIFIED="1243027989678" TEXT="Magic cooperation inputs and adjustments"/>
+<node CREATED="1243027998597" ID="Freemind_Link_1993004622" MODIFIED="1243028014337" TEXT="ORG active/inactive flag">
+<node CREATED="1243028014804" ID="Freemind_Link_290938405" MODIFIED="1243028020317" TEXT="Set as in JOUT rules"/>
+<node CREATED="1243028020644" ID="Freemind_Link_82333428" MODIFIED="1243028030814" TEXT="Used in analysis of ORG activities"/>
 </node>
 <node CREATED="1237822733720" FOLDED="true" ID="Freemind_Link_1356652575" MODIFIED="1237822740277" TEXT="Reactive Decision Conditions">
 <node CREATED="1237822742521" ID="Freemind_Link_656806568" MODIFIED="1237822753602" TEXT="Check RDCs at end of each tick"/>
@@ -161,11 +154,10 @@
 </node>
 </node>
 <node CREATED="1237477511538" ID="Freemind_Link_894463638" MODIFIED="1237477524514" POSITION="right" TEXT="Scenario">
-<node CREATED="1240255547518" FOLDED="true" ID="Freemind_Link_1642065644" MODIFIED="1240255575384" TEXT="parmdb(n): Allow changes to parms while PAUSED, RUNNING">
+<node CREATED="1240255547518" FOLDED="true" ID="Freemind_Link_1642065644" MODIFIED="1243459060705" TEXT="parmdb(n): Allow changes to some parms while PAUSED, RUNNING">
 <node CREATED="1240255576590" ID="Freemind_Link_39749292" MODIFIED="1240255583784" TEXT="Some need to be locked."/>
 <node CREATED="1240255585806" ID="Freemind_Link_654800573" MODIFIED="1240255589288" TEXT="Making sure locking works."/>
 </node>
-<node CREATED="1241216225071" ID="Freemind_Link_1235588521" MODIFIED="1241216236345" TEXT="Naming conventions for scenario tables vs. model tables"/>
 <node CREATED="1239732129300" FOLDED="true" ID="Freemind_Link_1466082572" MODIFIED="1239732892010" TEXT="Updates to RDB Lookup Tables">
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1239732193381" FOLDED="true" ID="Freemind_Link_39922698" MODIFIED="1239732214911" TEXT="Contain constant data">
@@ -203,6 +195,9 @@
 <node CREATED="1237480977571" FOLDED="true" ID="Freemind_Link_590980119" MODIFIED="1237480983314" TEXT="MAP:EXPORT">
 <node CREATED="1237480984002" ID="Freemind_Link_151089338" MODIFIED="1237480998630" TEXT="Exports the current map background as an image file"/>
 </node>
+<node CREATED="1241216225071" ID="Freemind_Link_1235588521" MODIFIED="1243459068126" TEXT="Naming conventions for scenario tables vs. model tables">
+<icon BUILTIN="help"/>
+</node>
 <node CREATED="1237477546722" ID="Freemind_Link_815759729" MODIFIED="1237477568182" TEXT="CIV group units">
 <icon BUILTIN="help"/>
 </node>
@@ -217,6 +212,7 @@
 <node CREATED="1241215931217" ID="Freemind_Link_1632396932" MODIFIED="1241215945706" TEXT="Enter time at tick 0"/>
 </node>
 <node CREATED="1241215894576" ID="Freemind_Link_1711563604" MODIFIED="1241215901322" TEXT="More GRAM browsers"/>
+<node CREATED="1243458991722" ID="Freemind_Link_1415025367" MODIFIED="1243459001378" TEXT="Display neighborhood mood in Nbhoods tab"/>
 <node CREATED="1238513070204" FOLDED="true" ID="Freemind_Link_66077028" MODIFIED="1238513075367" TEXT="Plot Tab">
 <node CREATED="1238513076429" ID="Freemind_Link_1251215369" MODIFIED="1238513086791" TEXT="Scrolling list of strip charts"/>
 <node CREATED="1238513112382" FOLDED="true" ID="Freemind_Link_999492866" MODIFIED="1238513123384" TEXT="Time Series View">
@@ -249,7 +245,7 @@
 <node CREATED="1237479845294" ID="Freemind_Link_1346360849" MODIFIED="1237479851922" TEXT="Restore at startup"/>
 </node>
 <node CREATED="1238513993932" ID="Freemind_Link_26326231" MODIFIED="1238514038997" TEXT="History and Causality Visualization"/>
-<node CREATED="1238513921852" ID="Freemind_Link_1922832150" MODIFIED="1238514171849" TEXT="Display Roll-ups other than mood">
+<node CREATED="1238513921852" ID="Freemind_Link_1922832150" MODIFIED="1243458986066" TEXT="Display GRAM Roll-ups other than mood">
 <icon BUILTIN="help"/>
 </node>
 <node CREATED="1237479525078" FOLDED="true" ID="Freemind_Link_122163295" MODIFIED="1239983812453" TEXT="appwin(sim): Optional Tabs">
@@ -272,7 +268,6 @@
 <node CREATED="1237481854578" ID="Freemind_Link_720065925" MODIFIED="1237481862230" TEXT="WRT user-selected group"/>
 <node CREATED="1237481862754" ID="Freemind_Link_1299949235" MODIFIED="1237481887774" TEXT="qgrouprel defines FRIEND, NEUTRAL, ENEMY"/>
 </node>
-<node CREATED="1237479995726" ID="Freemind_Link_1174080421" MODIFIED="1237480014930" TEXT="Data-driven nbhood fill colors"/>
 <node CREATED="1237482154410" ID="Freemind_Link_1362932509" MODIFIED="1237482165447" TEXT="Enable/disable map background"/>
 <node CREATED="1237482166114" ID="Freemind_Link_639175641" MODIFIED="1237482173382" TEXT="Enable/disable nbhood display"/>
 <node CREATED="1237482173858" ID="Freemind_Link_270558674" MODIFIED="1242251883715" TEXT="Enable/disable unit icons">
@@ -1911,6 +1906,12 @@
 <node CREATED="1241214808690" ID="Freemind_Link_1271819979" MODIFIED="1242239295629" TEXT="Write envsit(sim) man page">
 <icon BUILTIN="button_ok"/>
 </node>
+</node>
+</node>
+<node CREATED="1243459108889" FOLDED="true" ID="Freemind_Link_106518662" MODIFIED="1243459130566" TEXT="Bug 2128">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1237479995726" ID="Freemind_Link_1174080421" MODIFIED="1243459087607" TEXT="Data-driven nbhood fill colors">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 </node>

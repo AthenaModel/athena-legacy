@@ -334,6 +334,7 @@ snit::widget mapviewer {
     # Widget Components
 
     component canvas           ;# The mapcanvas(n)
+    component fillbox          ;# ComboBox of nbhood fill criteria
 
     #-------------------------------------------------------------------
     # Instance Variables
@@ -359,6 +360,7 @@ snit::widget mapviewer {
 
     variable view -array {
         fillpoly 0
+        filltag  white
         region   normal
         zoom     "100%"
     }
@@ -392,6 +394,53 @@ snit::widget mapviewer {
         frame $win.hbar \
             -relief flat
 
+        # MapRef
+        label $win.hbar.ref \
+            -textvariable [myvar info(ref)] \
+            -width 8
+
+        # Extended scroll region toggle
+        checkbutton $win.hbar.extend                \
+            -indicatoron no                         \
+            -offrelief   flat                       \
+            -onvalue     extended                   \
+            -offvalue    normal                     \
+            -variable    [myvar view(region)]       \
+            -image       ${type}::icon::extend      \
+            -command     [mymethod ButtonExtend]
+
+        DynamicHelp::add $win.hbar.extend \
+            -text "Enable the extended scroll region"
+
+        # Nbhood fill toggle
+        checkbutton $win.hbar.fillpoly              \
+            -indicatoron no                         \
+            -offrelief   flat                       \
+            -variable    [myvar view(fillpoly)]     \
+            -image       ${type}::icon::fill_poly   \
+            -command     [mymethod NbhoodFill]
+
+        DynamicHelp::add $win.hbar.fillpoly \
+            -text "Display neighborhood polygons with an opaque fill"
+
+        # Nbhood fill criteria
+        install fillbox using ComboBox $win.hbar.fillbox \
+            -textvariable [myvar view(filltag)]       \
+            -font          codefont                   \
+            -editable      0                          \
+            -width         8                          \
+            -justify       left                       \
+            -values        {white nbmood}             \
+            -takefocus     no                         \
+            -modifycmd     [mymethod NbhoodFill]
+
+        DynamicHelp::add $win.hbar.fillbox \
+            -text "Select the neighborhood fill criteria"
+
+        # Spacer
+        label $win.hbar.spacer1
+
+        # Zoom Box
         ComboBox $win.hbar.zoombox \
             -textvariable [myvar view(zoom)]                           \
             -font          codefont                                    \
@@ -405,33 +454,9 @@ snit::widget mapviewer {
         DynamicHelp::add $win.hbar.zoombox \
             -text "Select zoom factor for the map display"
 
-        label $win.hbar.ref \
-            -textvariable [myvar info(ref)] \
-            -width 8
-
-        checkbutton $win.hbar.fillpoly              \
-            -indicatoron no                         \
-            -offrelief   flat                       \
-            -variable    [myvar view(fillpoly)]     \
-            -image       ${type}::icon::fill_poly   \
-            -command     [mymethod ButtonFillPoly]
-
-        DynamicHelp::add $win.hbar.fillpoly \
-            -text "Display neighborhood polygons with an opaque fill"
-
-        checkbutton $win.hbar.extend                \
-            -indicatoron no                         \
-            -offrelief   flat                       \
-            -onvalue     extended                   \
-            -offvalue    normal                     \
-            -variable    [myvar view(region)]       \
-            -image       ${type}::icon::extend      \
-            -command     [mymethod ButtonExtend]
-
-        DynamicHelp::add $win.hbar.extend \
-            -text "Enable the extended scroll region"
-
         pack $win.hbar.zoombox  -side right
+        pack $win.hbar.spacer1  -side right -padx 1
+        pack $win.hbar.fillbox  -side right
         pack $win.hbar.fillpoly -side right
         pack $win.hbar.extend   -side right
         pack $win.hbar.ref      -side right
@@ -509,11 +534,13 @@ snit::widget mapviewer {
 
         # NEXT, Subscribe to application notifier(n) events.
         notifier bind ::sim      <Reconfigure> $self [mymethod refresh]
+        notifier bind ::sim      <Tick>        $self [mymethod NbhoodFill]
         notifier bind ::map      <MapChanged>  $self [mymethod refresh]
         notifier bind ::order    <OrderEntry>  $self [mymethod OrderEntry]
         notifier bind ::nbhood   <Entity>      $self [mymethod EntityNbhood]
         notifier bind ::unit     <Entity>      $self [mymethod EntityUnit]
         notifier bind ::envsit   <Entity>      $self [mymethod EntityEnvsit]
+        notifier bind ::civgroup <Entity>      $self [mymethod EntityCivGrp]
         notifier bind ::frcgroup <Entity>      $self [mymethod EntityGroup]
         notifier bind ::orggroup <Entity>      $self [mymethod EntityGroup]
 
@@ -555,14 +582,6 @@ snit::widget mapviewer {
     method ZoomBoxSet {} {
         scan $view(zoom) "%d" factor
         $canvas zoom $factor
-    }
-
-    # ButtonFillPoly
-    #
-    # Fills/unfills the neighborhood polygons
-
-    method ButtonFillPoly {} {
-        $self NbhoodFill
     }
 
     # ButtonExtend
@@ -687,6 +706,9 @@ snit::widget mapviewer {
         # NEXT, set zoom and region
         set view(zoom)   "[$canvas zoom]%"
         set view(region) [$canvas region]
+
+        # NEXT, update the set of fill tags
+        $self NbhoodUpdateFillTags
     }
 
 
@@ -716,9 +738,21 @@ snit::widget mapviewer {
     #-------------------------------------------------------------------
     # Neighborhood Display
 
-    # NbhoodDrawAll
+    # NbhoodRedrawAll
     #
     # Clears and redraws all neighborhoods
+
+    method NbhoodRedrawAll {} {
+        foreach id [$canvas nbhood ids] {
+            $canvas nbhood delete $id
+        }
+
+        $self NbhoodDrawAll
+    }
+
+    # NbhoodDrawAll
+    #
+    # Draws all neighborhoods
 
     method NbhoodDrawAll {} {
         array unset nbhoods
@@ -775,14 +809,44 @@ snit::widget mapviewer {
     # FillPoly setting
 
     method NbhoodFill {} {
-        if {$view(fillpoly)} {
-            set fill white
-        } else {
+        # FIRST, get the fill type, and retrieve nbhood moods if need be.
+        if {!$view(fillpoly)} {
             set fill ""
-        }
+        } elseif {$view(filltag) eq "white"} {
+            set fill white
+        } elseif {$view(filltag) eq "nbmood"} {
+            set fill mood
 
+            # Get the mood of each nbhood, if known
+            array set moods [rdb eval {
+                SELECT n, sat FROM gram_n
+                WHERE object='::aram'
+            }]
+        } else {
+            set fill mood
+
+            # filltag is a civ group.  Get the mood of each nbgroup
+            array set moods [rdb eval {
+                SELECT n, mood FROM gui_nbgroups
+                WHERE g=$view(filltag)
+            }]
+        }
+        
+        # NEXT, fill the nbhoods
         foreach id [$canvas nbhood ids] {
-            $canvas nbhood configure $id -fill $fill
+            set n $nbhoods(n-$id)
+
+            if {$fill eq "mood"} {
+                if {[info exists moods($n)]} {
+                    set color [satgradient color $moods($n)]
+                } else {
+                    set color white
+                }
+            } else {
+                set color $fill
+            }
+
+            $canvas nbhood configure $id -fill $color
         }
     }
 
@@ -802,6 +866,24 @@ snit::widget mapviewer {
                 $canvas nbhood configure $nbhoods(id-$n) -pointcolor black
             }
         }
+    }
+
+    # NbhoodUpdateFillTags
+    #
+    # Updates the list of nbhood fill tags on the toolbar
+
+    method NbhoodUpdateFillTags {} {
+        set tags [concat {white nbmood} [lsort [civgroup names]]]
+
+        if {$view(filltag) ni $tags} {
+            set view(filltag) white
+
+            if {$view(fillpoly)} {
+                $self NbhoodFill
+            }
+        }
+
+        $fillbox configure -values $tags
     }
 
     #-------------------------------------------------------------------
@@ -978,11 +1060,21 @@ snit::widget mapviewer {
         # existing nbhoods; but this is simple and appears to be
         # fast enough.
 
-        foreach id [$canvas nbhood ids] {
-            $canvas nbhood delete $id
-        }
+        $self NbhoodRedrawAll
+    }
 
-        $self NbhoodDrawAll
+
+    # EntityCivGrp op g
+    #
+    # op    The operation
+    # g     The group ID
+    #
+    # A CIV group was created/updated/deleted.
+    #
+    # Updates the list of nbhood fill tags.
+
+    method EntityCivGrp {op g} { 
+        $self NbhoodUpdateFillTags
     }
 
 
@@ -1276,7 +1368,7 @@ snit::widget mapviewer {
     method {EntityGroup create} {g} { }
 
 
-    # Group delete g
+    # EntityGroup delete g
     #
     # g    The group ID
     #

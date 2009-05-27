@@ -13,6 +13,7 @@
 #
 #-----------------------------------------------------------------------
 
+
 # esimstate: The current simulation state
 
 enum esimstate {
@@ -21,6 +22,16 @@ enum esimstate {
     PAUSED   Paused
     SNAPSHOT Snapshot
 }
+
+# satgradient: A fill color gradient for satisfaction levels
+
+::marsgui::gradient satgradient \
+    -mincolor \#FF0000          \
+    -midcolor \#FFFFFF          \
+    -maxcolor \#00FF00          \
+    -minlevel -100.0            \
+    -midlevel 0.0               \
+    -maxlevel 100.0
 
 # refpoint
 #
