@@ -82,7 +82,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        rel {Out of range: "1.1"}
+        rel {invalid value "1.1", should be a real number in range -1.0, 1.0}
     }
 
 
@@ -212,7 +212,7 @@ PLAYBOX BLUE BLUE 1.0
     } -cleanup {
         cleanup
     } -result {
-        rel {Out of range: "1.1"}
+        rel {invalid value "1.1", should be a real number in range -1.0, 1.0}
     }
 
 

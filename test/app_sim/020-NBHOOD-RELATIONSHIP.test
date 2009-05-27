@@ -71,7 +71,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        proximity {invalid value, "NONESUCH"}
+        proximity {invalid value "NONESUCH", should be one of: HERE, NEAR, FAR, REMOTE}
     }
 
 
@@ -107,7 +107,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        effects_delay {Out of range: "NONESUCH"}
+        effects_delay {invalid value "NONESUCH", should be a real number no less than 0.0}
     }
 
 
@@ -119,7 +119,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        effects_delay {Out of range: "-0.1"}
+        effects_delay {invalid value "-0.1", should be a real number no less than 0.0}
     }
 
 
@@ -224,7 +224,7 @@ NB2 NB2 HERE      0.0
     } -cleanup {
         cleanup
     } -result {
-        proximity {invalid value, "NONESUCH"}
+        proximity {invalid value "NONESUCH", should be one of: HERE, NEAR, FAR, REMOTE}
     }
 
 
@@ -260,7 +260,7 @@ NB2 NB2 HERE      0.0
     } -cleanup {
         cleanup
     } -result {
-        effects_delay {Out of range: "NONESUCH"}
+        effects_delay {invalid value "NONESUCH", should be a real number no less than 0.0}
     }
 
 
@@ -272,7 +272,7 @@ NB2 NB2 HERE      0.0
     } -cleanup {
         cleanup
     } -result {
-        effects_delay {Out of range: "-0.1"}
+        effects_delay {invalid value "-0.1", should be a real number no less than 0.0}
     }
 
     test UPDATE:MULTI-2.1 {one nbrel of several is updated} -setup {

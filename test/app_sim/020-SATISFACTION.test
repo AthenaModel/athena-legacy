@@ -60,7 +60,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
         n {Invalid neighborhood, should be one of: NB1}
         g {Invalid satisfaction group, should be one of: SHIA, SUNN}
-        c {invalid value, "NONESUCH3"}
+        c {invalid value "NONESUCH3", should be one of: AUT, SFT, CUL, QOL, CAS}
     }
 
 
@@ -82,18 +82,18 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        sat0 {invalid value, "NONESUCH"}
+        sat0 {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
     }
 
 
-    test UPDATE-1.5 {invalid sat0: out of range} -setup {
+    test UPDATE-1.5 {} -setup {
         setup
     } -body {
         ted order -reject SATISFACTION:UPDATE n NB1 g SHIA c SFT sat0 101.0
     } -cleanup {
         cleanup
     } -result {
-        sat0 {invalid value, "101.0"}
+        sat0 {invalid value "101.0", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
     }
 
 
@@ -104,7 +104,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        trend0 {invalid value, "NONESUCH"}
+        trend0 {invalid value "NONESUCH", should be a real number, or one of: VH, H, N, L, VL}
     }
 
 
@@ -115,7 +115,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        saliency {invalid value, "NONESUCH"}
+        saliency {invalid value "NONESUCH", should be a real number in range 0.0, 1.0, or one of: CR, VI, I, LI, UN, NG}
     }
 
 
@@ -126,7 +126,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        saliency {invalid value, "-0.1"}
+        saliency {invalid value "-0.1", should be a real number in range 0.0, 1.0, or one of: CR, VI, I, LI, UN, NG}
     }
 
 
@@ -236,7 +236,7 @@ NB1 SHIA SFT 80.0 8.0    0.85
     } -cleanup {
         cleanup
     } -result {
-        ids {invalid value, "NONESUCH"}
+        ids {invalid value "NONESUCH", should be one of: AUT, SFT, CUL, QOL, CAS}
     }
 
 
@@ -259,7 +259,7 @@ NB1 SHIA SFT 80.0 8.0    0.85
     } -cleanup {
         cleanup
     } -result {
-        sat0 {invalid value, "NONESUCH"}
+        sat0 {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
     }
 
 
@@ -270,7 +270,7 @@ NB1 SHIA SFT 80.0 8.0    0.85
     } -cleanup {
         cleanup
     } -result {
-        sat0 {invalid value, "101.0"}
+        sat0 {invalid value "101.0", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
     }
 
 
@@ -281,7 +281,7 @@ NB1 SHIA SFT 80.0 8.0    0.85
     } -cleanup {
         cleanup
     } -result {
-        trend0 {invalid value, "NONESUCH"}
+        trend0 {invalid value "NONESUCH", should be a real number, or one of: VH, H, N, L, VL}
     }
 
 
@@ -293,7 +293,7 @@ NB1 SHIA SFT 80.0 8.0    0.85
     } -cleanup {
         cleanup
     } -result {
-        saliency {invalid value, "NONESUCH"}
+        saliency {invalid value "NONESUCH", should be a real number in range 0.0, 1.0, or one of: CR, VI, I, LI, UN, NG}
     }
 
 
@@ -305,7 +305,7 @@ NB1 SHIA SFT 80.0 8.0    0.85
     } -cleanup {
         cleanup
     } -result {
-        saliency {invalid value, "-0.1"}
+        saliency {invalid value "-0.1", should be a real number in range 0.0, 1.0, or one of: CR, VI, I, LI, UN, NG}
     }
 
 

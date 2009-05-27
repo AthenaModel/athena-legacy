@@ -465,7 +465,7 @@ NB1 SHIA SFT 0.0  0.0    1.0
         error
     } -cleanup {
         cleanup
-    } -result {invalid value, "NONESUCH"}
+    } -result {invalid value "NONESUCH", should be one of: AUT, SFT, CUL, QOL, CAS}
 
     test validate-1.4 {Invalid curve} -setup {
         ted create NB1 SHIA

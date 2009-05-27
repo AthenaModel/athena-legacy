@@ -127,7 +127,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        shape {invalid value, "NONESUCH"}
+        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
     }
 
 
@@ -136,7 +136,7 @@ namespace eval ::athena_test::tests:: {
             orgtype NONESUCH
         }]
     } -result {
-        orgtype {invalid value, "NONESUCH"}
+        orgtype {invalid value "NONESUCH", should be one of: NGO, IGO, CTR}
     }
 
 
@@ -145,7 +145,7 @@ namespace eval ::athena_test::tests:: {
             demeanor NONESUCH
         }]
     } -result {
-        demeanor {invalid value, "NONESUCH"}
+        demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
 
@@ -322,7 +322,7 @@ HAL   Haliburton #ffff00 NEUTRAL organization ORG   CTR     AVERAGE  1.2        
     } -cleanup {
         cleanup
     } -result {
-        shape {invalid value, "NONESUCH"}
+        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
     }
 
 
@@ -333,7 +333,7 @@ HAL   Haliburton #ffff00 NEUTRAL organization ORG   CTR     AVERAGE  1.2        
     } -cleanup {
         cleanup
     } -result {
-        orgtype {invalid value, "NONESUCH"}
+        orgtype {invalid value "NONESUCH", should be one of: NGO, IGO, CTR}
     }
 
 
@@ -344,7 +344,7 @@ HAL   Haliburton #ffff00 NEUTRAL organization ORG   CTR     AVERAGE  1.2        
     } -cleanup {
         cleanup
     } -result {
-        demeanor {invalid value, "NONESUCH"}
+        demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
 
@@ -482,14 +482,14 @@ USAID Red Cross #ff0000 ENEMY organization ORG   IGO     AGGRESSIVE 0.1         
     }
 
 
-    test UPDATE:MULTI-1.5 {invalid color} -setup {
+    test UPDATE:MULTI-1.5 {invalid shape} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
         ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI ids USAID shape NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        shape {invalid value, "NONESUCH"}
+        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
     }
 
 
@@ -501,7 +501,7 @@ USAID Red Cross #ff0000 ENEMY organization ORG   IGO     AGGRESSIVE 0.1         
     } -cleanup {
         cleanup
     } -result {
-        orgtype {invalid value, "NONESUCH"}
+        orgtype {invalid value "NONESUCH", should be one of: NGO, IGO, CTR}
     }
 
 
@@ -513,7 +513,7 @@ USAID Red Cross #ff0000 ENEMY organization ORG   IGO     AGGRESSIVE 0.1         
     } -cleanup {
         cleanup
     } -result {
-        demeanor {invalid value, "NONESUCH"}
+        demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
 

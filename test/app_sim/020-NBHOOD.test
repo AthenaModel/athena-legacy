@@ -112,7 +112,7 @@ namespace eval ::athena_test::tests:: {
             urbanization NONESUCH
         }]
     } -result {
-        urbanization {invalid value, "NONESUCH"}
+        urbanization {invalid value "NONESUCH", should be one of: RURAL, SUBURBAN, URBAN}
     }
 
 
@@ -420,7 +420,7 @@ OV1 Over     2
     } -cleanup {
         cleanup
     } -result {
-        urbanization {invalid value, "NONESUCH"}
+        urbanization {invalid value "NONESUCH", should be one of: RURAL, SUBURBAN, URBAN}
     }
 
     test UPDATE-1.5 {invalid vtygain} -setup {
@@ -578,7 +578,7 @@ NB1 Not Here RURAL        2.0     5 5      0 0 10 0 10 10 0 10
     } -cleanup {
         cleanup
     } -result {
-        urbanization {invalid value, "NONESUCH"}
+        urbanization {invalid value "NONESUCH", should be one of: RURAL, SUBURBAN, URBAN}
     }
 
     test UPDATE:MULTI-1.5 {invalid vtygain} -setup {

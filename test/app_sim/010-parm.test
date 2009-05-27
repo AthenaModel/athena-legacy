@@ -101,7 +101,7 @@ namespace eval ::athena_test::tests:: {
         error
     } -cleanup {
         cleanup
-    } -result {Invalid gram.epsilon value "foo": Out of range: "foo"}
+    } -result {Invalid gram.epsilon value "foo": invalid value "foo", should be a real number no less than 0.0}
 
 
     test mutate_set-2.1 {Set is successful} -body {

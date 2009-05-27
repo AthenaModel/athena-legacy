@@ -127,7 +127,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        shape {invalid value, "NONESUCH"}
+        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
     }
 
 
@@ -136,7 +136,7 @@ namespace eval ::athena_test::tests:: {
             forcetype NONESUCH
         }]
     } -result {
-        forcetype {invalid value, "NONESUCH"}
+        forcetype {invalid value "NONESUCH", should be one of: REGULAR, PARAMILITARY, POLICE, IRREGULAR, CRIMINAL}
     }
 
     test CREATE-1.8 {invalid demeanor} -body {
@@ -144,7 +144,7 @@ namespace eval ::athena_test::tests:: {
             demeanor NONESUCH
         }]
     } -result {
-        demeanor {invalid value, "NONESUCH"}
+        demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
     test CREATE-1.9 {invalid local} -body {
@@ -301,7 +301,7 @@ BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   AVERAGE  0     1
     } -cleanup {
         cleanup
     } -result {
-        shape {invalid value, "NONESUCH"}
+        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
     }
 
 
@@ -312,7 +312,7 @@ BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   AVERAGE  0     1
     } -cleanup {
         cleanup
     } -result {
-        forcetype {invalid value, "NONESUCH"}
+        forcetype {invalid value "NONESUCH", should be one of: REGULAR, PARAMILITARY, POLICE, IRREGULAR, CRIMINAL}
     }
 
 
@@ -323,7 +323,7 @@ BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   AVERAGE  0     1
     } -cleanup {
         cleanup
     } -result {
-        demeanor {invalid value, "NONESUCH"}
+        demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
 
@@ -453,7 +453,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE 1     0
     } -cleanup {
         cleanup
     } -result {
-        shape {invalid value, "NONESUCH"}
+        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
     }
 
 
@@ -464,7 +464,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE 1     0
     } -cleanup {
         cleanup
     } -result {
-        forcetype {invalid value, "NONESUCH"}
+        forcetype {invalid value "NONESUCH", should be one of: REGULAR, PARAMILITARY, POLICE, IRREGULAR, CRIMINAL}
     }
 
 
@@ -475,7 +475,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE 1     0
     } -cleanup {
         cleanup
     } -result {
-        demeanor {invalid value, "NONESUCH"}
+        demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
 

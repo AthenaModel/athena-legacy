@@ -111,7 +111,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        shape {invalid value, "NONESUCH"}
+        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
     }
 
 
@@ -251,7 +251,7 @@ SHIA Shia Locals #ffff00 NEUTRAL        CIV
     } -cleanup {
         cleanup
     } -result {
-        shape {invalid value, "NONESUCH"}
+        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
     }
 
 

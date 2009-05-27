@@ -89,7 +89,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        stype {invalid value, "NONESUCH"}
+        stype {invalid value "NONESUCH", should be one of: BADFOOD, BADWATER, BIO, CHEM, COMMOUT, DISASTER, DISEASE, EPIDEMIC, FOODSHRT, FUELSHRT, GARBAGE, INDSPILL, MOSQUE, NOWATER, ORDNANCE, PIPELINE, POWEROUT, REFINERY, SEWAGE}
     }
 
 
@@ -111,7 +111,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        coverage {Out of range: "2.0"}
+        coverage {invalid value "2.0", should be a real number in range 0.0, 1.0}
     }
 
 
@@ -285,7 +285,7 @@ s kind     stype    driver n   coverage state   ts tc change flist g    signatur
     } -cleanup {
         cleanup
     } -result {
-        stype {invalid value, "NONESUCH"}
+        stype {invalid value "NONESUCH", should be one of: BADFOOD, BADWATER, BIO, CHEM, COMMOUT, DISASTER, DISEASE, EPIDEMIC, FOODSHRT, FUELSHRT, GARBAGE, INDSPILL, MOSQUE, NOWATER, ORDNANCE, PIPELINE, POWEROUT, REFINERY, SEWAGE}
     }
 
 
@@ -297,7 +297,7 @@ s kind     stype    driver n   coverage state   ts tc change flist g    signatur
     } -cleanup {
         cleanup
     } -result {
-        coverage {Out of range: "NONESUCH"}
+        coverage {invalid value "NONESUCH", should be a real number in range 0.0, 1.0}
     }
 
 

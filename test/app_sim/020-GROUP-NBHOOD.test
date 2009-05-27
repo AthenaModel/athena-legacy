@@ -141,7 +141,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        demeanor {invalid value, "NONESUCH"}
+        demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
     test CREATE-1.8 {invalid rollup_weight 1} -setup {
@@ -390,7 +390,7 @@ NB1 SHIA Shia
     } -cleanup {
         cleanup
     } -result {
-        demeanor {invalid value, "NONESUCH"}
+        demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
 
@@ -582,7 +582,7 @@ NB1 SHIA John Doe   2000       APATHETIC 0.1           0.2
     } -cleanup {
         cleanup
     } -result {
-        demeanor {invalid value, "NONESUCH"}
+        demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
 
