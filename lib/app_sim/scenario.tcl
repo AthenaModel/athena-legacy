@@ -136,10 +136,6 @@ snit::type scenario {
         set rdb [scenariodb ::rdb \
                     -clock ::marsutil::simclock]
 
-        set rdbfile [workdir join rdb working.rdb]
-
-        file delete -force $rdbfile
-        rdb open $rdbfile
         InitializeRuntimeData
     }
 
@@ -452,7 +448,14 @@ snit::type scenario {
     # * Activity definitions
 
     proc InitializeRuntimeData {} {
-        # FIRST, clear the RDB
+        # FIRST, create and clear the RDB
+        if {[rdb isopen]} {
+            rdb close
+        }
+
+        set rdbfile [workdir join rdb working.rdb]
+        file delete -force $rdbfile
+        rdb open $rdbfile
         rdb clear
 
         # NEXT, define the temp schema
