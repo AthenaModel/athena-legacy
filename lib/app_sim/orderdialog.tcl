@@ -1032,7 +1032,10 @@ snit::widget orderdialog {
     # Sends the order; on error, reveals the error.
 
     method Send {} {
-        # FIRST, send the order, and handle any errors
+        # FIRST, clear the error text from the previous order.
+        array unset ferrors
+
+        # NEXT, send the order, and handle any errors
         if {[catch {
             order send gui $options(-order) [$self get]
         } result opts]} {
@@ -1049,7 +1052,6 @@ snit::widget orderdialog {
             }
 
             # NEXT, save the error text
-            array unset ferrors
             array set ferrors $result
 
             # NEXT, if it's not shown, show the message box
