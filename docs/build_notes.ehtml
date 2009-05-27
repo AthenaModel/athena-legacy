@@ -11,6 +11,36 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.7, 27 May 2009</h3>
+
+This build includes many significant changes.  Athena now analyzes the
+population and units within a neighborhood, and creates activity
+situations; in addition, the analyst can create and resolve
+environmental situations.  A new flock of Athena Driver Assessment
+(ADA) rule sets assess the GRAM implications of these situations.
+Rule firings are reported on the new Report Browser tab.  There are
+also a number of GUI enhancements.<p>
+
+<ul>
+  <li> Bug 2040: nbstat(sim): Neighborhood statistics
+  <li> Bug 2052: Run 'sanity check' failure should first bring the log browser forward
+  <li> Bug 2055: athena_sim(1): Hierarchical Tabs
+  <li> Bug 2062: Activity Situations
+  <li> Bug 2065: athena_sim(1): Creating new force groups is *slow*
+  <li> Bug 2066: athena_sim(1): profile command
+  <li> Bug 2068: athena_sim(1): Do first tick quicker!
+  <li> Bug 2073: athena_sim(1): environmental situations
+  <li> Bug 2075: tablebrowser(n): Views pulldown
+  <li> Bug 2097: athena_sim(1): Updating units on nbhood changes
+  <li> Bug 2098: athena_test(1): GUI glitch when nbhood polygon is moved.
+  <li> Bug 2102: reporter(n): Report Manager
+  <li> Bug 2103: reportbrowser(n): Report Browser
+  <li> Bug 2115: athena_sim(1): Athena Driver Assessment rule set infrastructure
+  <li> Bug 2119: athena_sim(1): Force activity situation rule sets
+  <li> Bug 2120: athena_sim(1): ORG activity rule sets
+  <li> Bug 2121: athena_sim(1): Environmental Situation Rule Sets 
+</ul>
+
 <h3>Build 1.0.6, 13 April 2009</h3>
 
 This build includes significant new changes.  For the first time it's
