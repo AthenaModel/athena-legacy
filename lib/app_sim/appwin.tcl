@@ -1177,8 +1177,9 @@ snit::widget appwin {
 
     method FileParametersClearDefaults {} {
         set message [normalize {
-            Clear the default model parameter settings to their
-            original values?
+            Clear the default model parameter settings for new
+            scenarios to their original values?  (This will
+            have no effect on the current scenario.)
         }]
 
         set answer [messagebox popup                \

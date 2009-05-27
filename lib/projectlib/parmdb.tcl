@@ -856,7 +856,7 @@ snit::type ::projectlib::parmdb {
         if {[file exists $defaultsFile]} {
             file delete $defaultsFile
         }
-        return
+        return "New scenarios will be created with installation defaults."
     }
 
     # defaults load
