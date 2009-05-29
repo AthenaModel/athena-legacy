@@ -1254,7 +1254,6 @@ snit::widget mapviewer {
         } row {
             $self UnitDraw [array get row]
         } 
-
     }
 
     # UnitDraw parmdict

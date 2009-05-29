@@ -17,18 +17,23 @@
 
 -- A nbhoods view for use by the GUI
 CREATE TEMPORARY VIEW gui_nbhoods AS
-SELECT n                       AS id,
-       n                       AS n,
-       longname                AS longname,
-       urbanization            AS urbanization,
-       format('%4.1f',vtygain) AS vtygain,                
-       stacking_order          AS stacking_order,
-       obscured_by             AS obscured_by,
-       m2ref(refpoint)         AS refpoint,
-       m2ref(polygon)          AS polygon,
-       COALESCE(volatility,0)  AS volatility,
-       COALESCE(population,0)  AS population              
-FROM nbhoods LEFT OUTER JOIN force_n USING (n);
+SELECT nbhoods.n                                  AS id,
+       nbhoods.n                                  AS n,
+       longname                                   AS longname,
+       urbanization                               AS urbanization,
+       format('%4.1f',vtygain)                    AS vtygain,                
+       stacking_order                             AS stacking_order,
+       obscured_by                                AS obscured_by,
+       m2ref(refpoint)                            AS refpoint,
+       m2ref(polygon)                             AS polygon,
+       COALESCE(volatility,0)                     AS volatility,
+       COALESCE(population,0)                     AS population,
+       format('%.3f',COALESCE(gram_n.sat0, 0.0))  AS mood0,
+       format('%.3f',COALESCE(gram_n.sat, 0.0))   AS mood
+FROM nbhoods 
+LEFT OUTER JOIN force_n ON (force_n.n = nbhoods.n)
+LEFT OUTER JOIN gram_n  ON (gram_n.n  = nbhoods.n);
+
 
 -- A Force Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_civgroups AS

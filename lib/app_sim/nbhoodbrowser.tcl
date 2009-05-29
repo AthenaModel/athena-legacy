@@ -185,6 +185,10 @@ snit::widgetadaptor nbhoodbrowser {
         $hull insertcolumn end 0 {Urbanization}
         $hull insertcolumn end 0 {Population}
         $hull columnconfigure end -sortmode integer
+        $hull insertcolumn end 0 {Mood at T0}
+        $hull columnconfigure end -sortmode real
+        $hull insertcolumn end 0 {Mood Now}
+        $hull columnconfigure end -sortmode real
         $hull insertcolumn end 0 {VtyGain}
         $hull columnconfigure end -sortmode real
         $hull insertcolumn end 0 {Vty}
@@ -238,6 +242,8 @@ snit::widgetadaptor nbhoodbrowser {
                                 $longname                      \
                                 $urbanization                  \
                                 $population                    \
+                                $mood0                         \
+                                $mood                          \
                                 $vtygain                       \
                                 $volatility                    \
                                 [format "%3d" $stacking_order] \

@@ -1,14 +1,19 @@
 <map version="0.8.1">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
+<node CREATED="1243527457709" ID="Freemind_Link_320906598" MODIFIED="1243527459755" POSITION="right" TEXT="Problems">
+<node CREATED="1243527460189" ID="Freemind_Link_1011323624" MODIFIED="1243527474567" TEXT="Moving from snapshot to snapshot can be very slow"/>
+</node>
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1241624415166" FOLDED="true" ID="Freemind_Link_472031065" MODIFIED="1241624422010" TEXT="Displaced Civilians/Refugees">
+<node CREATED="1241624415166" ID="Freemind_Link_472031065" MODIFIED="1241624422010" TEXT="Displaced Civilians/Refugees">
 <node CREATED="1241624422469" ID="Freemind_Link_636312974" MODIFIED="1241624433033" TEXT="Suppose we don&apos;t model attitudes of refugees"/>
 <node CREATED="1241624435453" ID="Freemind_Link_1452155827" MODIFIED="1241624443073" TEXT="Just model effect on local civilians"/>
 <node CREATED="1241624443469" ID="Freemind_Link_1269891450" MODIFIED="1241624457188" TEXT="Model refugees as civilian units with activity REFUGEE"/>
-<node CREATED="1241624461278" ID="Freemind_Link_1488285898" MODIFIED="1241624466921" TEXT="Creates a coverage"/>
-<node CREATED="1241624467661" ID="Freemind_Link_1826431892" MODIFIED="1241624495385" TEXT="Local civilians respond to PRESENCE of REFUGEEs."/>
+<node CREATED="1241624461278" ID="Freemind_Link_1488285898" MODIFIED="1243545972472" TEXT="Creates a REFUGEE coverage"/>
+<node CREATED="1243545973839" ID="Freemind_Link_1396387780" MODIFIED="1243545978201" TEXT="REFUGEE rule set">
+<node CREATED="1241624467661" ID="Freemind_Link_1826431892" MODIFIED="1243545991112" TEXT="Local civilians respond to presence of REFUGEEs."/>
 <node CREATED="1241624496365" ID="Freemind_Link_1702054574" MODIFIED="1241624504481" TEXT="Use RMFs between civilian groups"/>
+</node>
 </node>
 <node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1243027981886" TEXT="Magic satisfaction inputs and adjustments"/>
 <node CREATED="1238449608020" ID="Freemind_Link_1639950112" MODIFIED="1243027989678" TEXT="Magic cooperation inputs and adjustments"/>
@@ -52,10 +57,6 @@
 </node>
 </node>
 <node CREATED="1239210064249" ID="Freemind_Link_1216819379" MODIFIED="1239210065909" POSITION="right" TEXT="GRAM">
-<node CREATED="1241547209100" FOLDED="true" ID="Freemind_Link_874223123" MODIFIED="1241547213697" TEXT="GRAM effects_delay">
-<node CREATED="1241547214268" ID="Freemind_Link_741184539" MODIFIED="1241547235353" TEXT="Athena allows effects_delay to be non-zero for HERE."/>
-<node CREATED="1241547225964" ID="Freemind_Link_1772608855" MODIFIED="1241547247223" TEXT="GRAM ignores effects_delay for HERE."/>
-</node>
 <node CREATED="1241215740273" ID="Freemind_Link_1519643380" MODIFIED="1241215764319" TEXT="Speed up gram_value update on cancel"/>
 <node CREATED="1241215792272" ID="Freemind_Link_1746105883" MODIFIED="1241215807290" TEXT="Grab acontrib assignment speed up from JRAM"/>
 <node CREATED="1241215767617" ID="Freemind_Link_1703805627" MODIFIED="1241215779674" TEXT="Accumulate acontrib directly into gram_contribs">
@@ -143,20 +144,43 @@
 <node CREATED="1237994788501" ID="Freemind_Link_481627364" MODIFIED="1237994793104" TEXT="That&apos;s a framework issue."/>
 </node>
 </node>
-<node CREATED="1237477120338" ID="Freemind_Link_191938982" MODIFIED="1237477220978" TEXT="Merge cif(sim) into order(sim) as &quot;order history&quot;"/>
 <node CREATED="1237480262914" FOLDED="true" ID="Freemind_Link_325462962" MODIFIED="1237480278885" TEXT="Add *:MULTI orders as appropriate">
 <node CREATED="1237480280162" ID="Freemind_Link_526459050" MODIFIED="1237480285749" TEXT="E.g., *:DELETE:MULTI"/>
 </node>
 <node CREATED="1241216212943" ID="Freemind_Link_1693598122" MODIFIED="1241216216554" TEXT="Test order return values"/>
-<node CREATED="1237481133242" ID="Freemind_Link_1851551577" MODIFIED="1237481149014" TEXT="Abstract order(sim) into order(n)"/>
+<node CREATED="1237481133242" ID="Freemind_Link_1851551577" MODIFIED="1243546073236" TEXT="Abstract order(sim) into order(n)">
+<icon BUILTIN="help"/>
+</node>
+<node CREATED="1237477120338" ID="Freemind_Link_191938982" MODIFIED="1243546063308" TEXT="Merge cif(sim) into order(sim) as &quot;order history&quot;">
+<icon BUILTIN="help"/>
+</node>
 <node CREATED="1237481099914" ID="Freemind_Link_1283162022" MODIFIED="1237481131391" TEXT="Abstract prepare/reject/returnOnError model for use in other code">
 <icon BUILTIN="help"/>
 </node>
 </node>
 <node CREATED="1237477511538" ID="Freemind_Link_894463638" MODIFIED="1237477524514" POSITION="right" TEXT="Scenario">
+<node CREATED="1243546243278" ID="Freemind_Link_1855932461" MODIFIED="1243546308604" TEXT="&quot;local&quot; flag should be on CIV and ORG groups as well">
+<icon BUILTIN="help"/>
+</node>
+<node CREATED="1241547209100" ID="Freemind_Link_874223123" MODIFIED="1243546162264" TEXT="nbrel effects_delay">
+<node CREATED="1241547214268" ID="Freemind_Link_741184539" MODIFIED="1241547235353" TEXT="Athena allows effects_delay to be non-zero for HERE."/>
+<node CREATED="1241547225964" ID="Freemind_Link_1772608855" MODIFIED="1243546140842" TEXT="GRAM assumes effects_delay is 0 for HERE."/>
+<node CREATED="1243546142815" ID="Freemind_Link_1268107626" MODIFIED="1243546151992" TEXT="Require effects_delay to be 0.0 in Athena"/>
+</node>
+<node CREATED="1237477586106" ID="Freemind_Link_516563511" MODIFIED="1243546185828" TEXT="Require rel=1.0 when f=g">
+<node CREATED="1237477606906" ID="Freemind_Link_1462718131" MODIFIED="1243546199960" TEXT="Update the RELATIONSHIP:* orders and browser"/>
+</node>
 <node CREATED="1240255547518" FOLDED="true" ID="Freemind_Link_1642065644" MODIFIED="1243459060705" TEXT="parmdb(n): Allow changes to some parms while PAUSED, RUNNING">
 <node CREATED="1240255576590" ID="Freemind_Link_39749292" MODIFIED="1240255583784" TEXT="Some need to be locked."/>
 <node CREATED="1240255585806" ID="Freemind_Link_654800573" MODIFIED="1240255589288" TEXT="Making sure locking works."/>
+</node>
+<node CREATED="1237480308963" ID="Freemind_Link_1212698036" MODIFIED="1237480331061" TEXT="Reciprocal flag in *:UPDATE">
+<node CREATED="1237480368626" ID="Freemind_Link_285045741" MODIFIED="1237480382381" TEXT="Sets same value for mn and nm, nfg and ngf"/>
+<node CREATED="1237480331738" ID="Freemind_Link_1725501118" MODIFIED="1237480344757" TEXT="NBHOOD:RELATIONSHIP:UPDATE"/>
+<node CREATED="1237480346154" ID="Freemind_Link_377220162" MODIFIED="1237480349469" TEXT="RELATIONSHIP:UPDATE"/>
+</node>
+<node CREATED="1237480977571" FOLDED="true" ID="Freemind_Link_590980119" MODIFIED="1237480983314" TEXT="MAP:EXPORT">
+<node CREATED="1237480984002" ID="Freemind_Link_151089338" MODIFIED="1237480998630" TEXT="Exports the current map background as an image file"/>
 </node>
 <node CREATED="1239732129300" FOLDED="true" ID="Freemind_Link_1466082572" MODIFIED="1239732892010" TEXT="Updates to RDB Lookup Tables">
 <icon BUILTIN="messagebox_warning"/>
@@ -183,18 +207,6 @@
 </node>
 </node>
 </node>
-<node CREATED="1237477586106" FOLDED="true" ID="Freemind_Link_516563511" MODIFIED="1237477603190" TEXT="Must rel=1.0 when f=g">
-<icon BUILTIN="help"/>
-<node CREATED="1237477606906" ID="Freemind_Link_1462718131" MODIFIED="1237477628037" TEXT="If so, I need to update the RELATIONSHIP:* orders"/>
-</node>
-<node CREATED="1237480308963" FOLDED="true" ID="Freemind_Link_1212698036" MODIFIED="1237480331061" TEXT="Reciprocal flag in *:UPDATE">
-<node CREATED="1237480368626" ID="Freemind_Link_285045741" MODIFIED="1237480382381" TEXT="Sets same value for mn and nm, nfg and ngf"/>
-<node CREATED="1237480331738" ID="Freemind_Link_1725501118" MODIFIED="1237480344757" TEXT="NBHOOD:RELATIONSHIP:UPDATE"/>
-<node CREATED="1237480346154" ID="Freemind_Link_377220162" MODIFIED="1237480349469" TEXT="RELATIONSHIP:UPDATE"/>
-</node>
-<node CREATED="1237480977571" FOLDED="true" ID="Freemind_Link_590980119" MODIFIED="1237480983314" TEXT="MAP:EXPORT">
-<node CREATED="1237480984002" ID="Freemind_Link_151089338" MODIFIED="1237480998630" TEXT="Exports the current map background as an image file"/>
-</node>
 <node CREATED="1241216225071" ID="Freemind_Link_1235588521" MODIFIED="1243459068126" TEXT="Naming conventions for scenario tables vs. model tables">
 <icon BUILTIN="help"/>
 </node>
@@ -206,12 +218,34 @@
 <node CREATED="1237482138802" ID="Freemind_Link_1495570394" MODIFIED="1237482143838" TEXT="Useful; can of worms."/>
 </node>
 </node>
+<node CREATED="1243547508955" ID="Freemind_Link_1801589990" MODIFIED="1243547510924" POSITION="right" TEXT="Reports">
+<node CREATED="1243547511644" ID="Freemind_Link_856756919" MODIFIED="1243547523166" TEXT="Scenario Report">
+<node CREATED="1243547523500" ID="Freemind_Link_241253623" MODIFIED="1243547529589" TEXT="Documents Scenario in detail"/>
+<node CREATED="1243547530219" ID="Freemind_Link_1958129409" MODIFIED="1243547554469" TEXT="Possible not a report as such, but an HTML document like JNEM&apos;s dbdoc(n)"/>
+</node>
+<node CREATED="1243547558140" ID="Freemind_Link_1248382754" MODIFIED="1243547565420" TEXT="Contributions Report">
+<node CREATED="1243547565707" ID="Freemind_Link_1217705822" MODIFIED="1243547571125" TEXT="Like JNEM&apos;s satcurve report"/>
+</node>
+</node>
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
 <node CREATED="1239723521749" ID="Freemind_Link_1093494342" MODIFIED="1239723533567" TEXT="Save sim speed, duration as prefs"/>
 <node CREATED="1241215918369" ID="Freemind_Link_268023639" MODIFIED="1241215930559" TEXT="Stop button">
 <node CREATED="1241215931217" ID="Freemind_Link_1632396932" MODIFIED="1241215945706" TEXT="Enter time at tick 0"/>
+<node CREATED="1243546337742" ID="Freemind_Link_1648827364" MODIFIED="1243546346296" TEXT="Fast: no need to save snapshot at time t"/>
 </node>
-<node CREATED="1241215894576" ID="Freemind_Link_1711563604" MODIFIED="1241215901322" TEXT="More GRAM browsers"/>
+<node CREATED="1241215894576" ID="Freemind_Link_1711563604" MODIFIED="1241215901322" TEXT="More GRAM browsers">
+<node CREATED="1243546351758" ID="Freemind_Link_672128754" MODIFIED="1243546354072" TEXT="Drivers"/>
+<node CREATED="1243546354990" ID="Freemind_Link_53932115" MODIFIED="1243546374317" TEXT="Effects">
+<node CREATED="1243546374830" ID="Freemind_Link_1570233797" MODIFIED="1243546377470" TEXT="Sat">
+<node CREATED="1243546377901" ID="Freemind_Link_754268158" MODIFIED="1243546379016" TEXT="Slope"/>
+<node CREATED="1243546379581" ID="Freemind_Link_425307736" MODIFIED="1243546380951" TEXT="Level"/>
+</node>
+<node CREATED="1243546381965" ID="Freemind_Link_1985444991" MODIFIED="1243546383176" TEXT="Coop">
+<node CREATED="1243546383614" ID="Freemind_Link_301164964" MODIFIED="1243546384759" TEXT="Slope"/>
+<node CREATED="1243546385166" ID="Freemind_Link_978739363" MODIFIED="1243546386327" TEXT="Level"/>
+</node>
+</node>
+</node>
 <node CREATED="1243458991722" ID="Freemind_Link_1415025367" MODIFIED="1243459001378" TEXT="Display neighborhood mood in Nbhoods tab"/>
 <node CREATED="1238513070204" FOLDED="true" ID="Freemind_Link_66077028" MODIFIED="1238513075367" TEXT="Plot Tab">
 <node CREATED="1238513076429" ID="Freemind_Link_1251215369" MODIFIED="1238513086791" TEXT="Scrolling list of strip charts"/>
@@ -264,7 +298,7 @@
 </node>
 </node>
 <node CREATED="1237479990726" ID="Freemind_Link_1486904062" MODIFIED="1242242438803" POSITION="right" TEXT="Map GUI">
-<node CREATED="1237481843234" FOLDED="true" ID="Freemind_Link_1306844691" MODIFIED="1237481853838" TEXT="Set unit shapes based on relationships">
+<node CREATED="1237481843234" ID="Freemind_Link_1306844691" MODIFIED="1237481853838" TEXT="Set unit shapes based on relationships">
 <node CREATED="1237481854578" ID="Freemind_Link_720065925" MODIFIED="1237481862230" TEXT="WRT user-selected group"/>
 <node CREATED="1237481862754" ID="Freemind_Link_1299949235" MODIFIED="1237481887774" TEXT="qgrouprel defines FRIEND, NEUTRAL, ENEMY"/>
 </node>
@@ -290,6 +324,81 @@
 <node CREATED="1242242263068" ID="Freemind_Link_812896575" MODIFIED="1242251980423" TEXT="Nbhood context menu">
 <node CREATED="1242242268299" ID="Freemind_Link_1520143269" MODIFIED="1242251988899" TEXT="Update Neighborhood"/>
 <node CREATED="1242242274059" ID="Freemind_Link_1324604126" MODIFIED="1242251993812" TEXT="Delete Neighborhood"/>
+</node>
+<node CREATED="1243608727625" FOLDED="true" ID="Freemind_Link_165747052" MODIFIED="1243608732708" TEXT="Coloring Neighborhoods">
+<node CREATED="1243609801832" ID="Freemind_Link_908576864" MODIFIED="1243609806894" TEXT="Concept">
+<icon BUILTIN="flag"/>
+<node CREATED="1243610891990" ID="Freemind_Link_1084808438" MODIFIED="1243610905184" TEXT="A simple coloring mechanism is already in place"/>
+<node CREATED="1243610905941" ID="Freemind_Link_1360045819" MODIFIED="1243610918879" TEXT="This is a more advanced capability"/>
+<node CREATED="1243608736874" ID="Freemind_Link_882934496" MODIFIED="1243608763924" TEXT="A coloring is a dictionary of neighborhood names and Tk color strings"/>
+<node CREATED="1243608789963" ID="Freemind_Link_1893917931" MODIFIED="1243608810628" TEXT="The nbcolor module is responsible for returning particular colorings."/>
+<node CREATED="1243608838682" ID="Freemind_Link_45215652" MODIFIED="1243608876884" TEXT="Instances of nbcolor can be set up to return any desired coloring."/>
+<node CREATED="1243608877386" ID="Freemind_Link_78227239" MODIFIED="1243608906564" TEXT="Each mapviewer creates an instance of nbcolor."/>
+<node CREATED="1243608910186" ID="Freemind_Link_1740995719" MODIFIED="1243608930964" TEXT="The instance of nbcolor can be configured by the user."/>
+<node CREATED="1243609823064" ID="Freemind_Link_1861755438" MODIFIED="1243609846562" TEXT="GUI Components">
+<node CREATED="1243609846904" ID="Freemind_Link_1900012607" MODIFIED="1243609853460" TEXT="Toolbar object">
+<node CREATED="1243609853735" ID="Freemind_Link_152770448" MODIFIED="1243609861106" TEXT="Shows current setting"/>
+<node CREATED="1243609861608" ID="Freemind_Link_25457227" MODIFIED="1243609889698" TEXT="When clicked, pops up a picker dialog"/>
+<node CREATED="1243609920456" ID="Freemind_Link_807141874" MODIFIED="1243609929425" TEXT="Might allow immediate choice of common colorings"/>
+</node>
+<node CREATED="1243609891496" ID="Freemind_Link_1377420000" MODIFIED="1243609894674" TEXT="Picker Dialog">
+<node CREATED="1243609895304" ID="Freemind_Link_1183318129" MODIFIED="1243609917313" TEXT="Allows user to configure the coloring"/>
+</node>
+</node>
+</node>
+<node CREATED="1243609945127" ID="Freemind_Link_707836616" MODIFIED="1243609947634" TEXT="Colorings">
+<node CREATED="1243609965735" ID="Freemind_Link_1072413760" MODIFIED="1243609967938" TEXT="none()">
+<node CREATED="1243609968376" ID="Freemind_Link_945600277" MODIFIED="1243609975457" TEXT="Neighborhoods are not colored."/>
+</node>
+<node CREATED="1243609948103" ID="Freemind_Link_610648636" MODIFIED="1243609954626" TEXT="white()">
+<node CREATED="1243609955351" ID="Freemind_Link_1609274989" MODIFIED="1243609961441" TEXT="All neighborhoods are white."/>
+</node>
+<node CREATED="1243610019448" ID="Freemind_Link_1227002190" MODIFIED="1243610024482" TEXT="nbmood(n)">
+<node CREATED="1243610024823" ID="Freemind_Link_758379556" MODIFIED="1243610049153" TEXT="Visualize neighborhood mood"/>
+</node>
+<node CREATED="1243610050792" ID="Freemind_Link_1868546239" MODIFIED="1243610056018" TEXT="mood(n,g)">
+<node CREATED="1243610056599" ID="Freemind_Link_829876562" MODIFIED="1243610062961" TEXT="Visual mood of group g in n"/>
+</node>
+<node CREATED="1243610067320" ID="Freemind_Link_159737659" MODIFIED="1243610084946" TEXT="sat(n,g,c)">
+<node CREATED="1243610085400" ID="Freemind_Link_371656735" MODIFIED="1243610105425" TEXT="Visualize satisfaction n,g,c"/>
+</node>
+<node CREATED="1243610107271" ID="Freemind_Link_26249288" MODIFIED="1243610143349" TEXT="nbcoop(n,g)">
+<icon BUILTIN="messagebox_warning"/>
+<node CREATED="1243610122775" ID="Freemind_Link_1870149657" MODIFIED="1243610136769" TEXT="Visualize cooperation of n with frcgroup g">
+<node CREATED="1243610138552" ID="Freemind_Link_1427140277" MODIFIED="1243610182159" TEXT="GRAM does not compute this yet"/>
+</node>
+</node>
+<node CREATED="1243610149352" ID="Freemind_Link_982613867" MODIFIED="1243610153634" TEXT="coop(n,f,g)">
+<node CREATED="1243610154055" ID="Freemind_Link_1874258289" MODIFIED="1243610162033" TEXT="Visualize cooperation of f with g in n"/>
+</node>
+<node CREATED="1243610199047" ID="Freemind_Link_181447196" MODIFIED="1243610233167" TEXT="coverage(n,g,stype)">
+<node CREATED="1243610205783" ID="Freemind_Link_1499403948" MODIFIED="1243610254625" TEXT="Visualize coverage of activity situations of type stype by g"/>
+</node>
+<node CREATED="1243610289128" ID="Freemind_Link_1828624426" MODIFIED="1243610318525" TEXT="contrib(n,drivers)">
+<icon BUILTIN="messagebox_warning"/>
+<node CREATED="1243610313479" ID="Freemind_Link_725701927" MODIFIED="1243610365967" TEXT="Contribution to some curve by some set of drivers over some period of time">
+<node CREATED="1243610350663" ID="Freemind_Link_154187182" MODIFIED="1243610358647" TEXT="Really tricky!"/>
+</node>
+</node>
+</node>
+<node CREATED="1243608943818" FOLDED="true" ID="Freemind_Link_1714145086" MODIFIED="1243609785970" TEXT="Design Choices">
+<node CREATED="1243609788120" ID="Freemind_Link_1454711819" MODIFIED="1243609791154" TEXT="Architecture">
+<node CREATED="1243608954762" ID="Freemind_Link_1926901190" MODIFIED="1243609994557" TEXT="Option A">
+<icon BUILTIN="button_cancel"/>
+<node CREATED="1243608957450" ID="Freemind_Link_352692912" MODIFIED="1243608979332" TEXT="nbcolor is a non-GUI type."/>
+<node CREATED="1243608979930" ID="Freemind_Link_76178840" MODIFIED="1243609001668" TEXT="nbcolorpicker is a GUI control for configuring nbcolor."/>
+<node CREATED="1243609010122" ID="Freemind_Link_804374048" MODIFIED="1243609021363" TEXT="nbcolorpicker might have an nbcolor as a component"/>
+</node>
+<node CREATED="1243609023482" ID="Freemind_Link_1608126917" MODIFIED="1243609998045" TEXT="Option B">
+<icon BUILTIN="button_ok"/>
+<node CREATED="1243609026121" ID="Freemind_Link_1577893005" MODIFIED="1243609721682" TEXT="nbcolor is a single GUI object combining the functions of Option A"/>
+</node>
+<node CREATED="1243609723367" ID="Freemind_Link_286287497" MODIFIED="1243609730771" TEXT="Conclusion">
+<node CREATED="1243609731433" ID="Freemind_Link_413340921" MODIFIED="1243609753858" TEXT="If this were library code, Option A would win."/>
+<node CREATED="1243609754760" ID="Freemind_Link_888507510" MODIFIED="1243609770738" TEXT="As application code, it&apos;s better not to pay the modularization cost."/>
+</node>
+</node>
+</node>
 </node>
 <node CREATED="1237482195459" ID="Freemind_Link_1291634544" MODIFIED="1242252009331" TEXT="Display nbhood names near refpoint"/>
 <node CREATED="1237480762290" ID="Freemind_Link_1647420652" MODIFIED="1242252017271" TEXT="Ability to drag reference points interactively">
@@ -343,9 +452,6 @@
 <node CREATED="1237479886358" ID="Freemind_Link_1497195308" MODIFIED="1237479891074" TEXT="Dump subscription info"/>
 <node CREATED="1237479891694" ID="Freemind_Link_67855834" MODIFIED="1237479901642" TEXT="Predict effect of sending an event"/>
 </node>
-<node CREATED="1237479930358" ID="Freemind_Link_1301494248" MODIFIED="1237479939826" TEXT="range(n) should emulate snit::double&apos;s error messages"/>
-<node CREATED="1237479941254" ID="Freemind_Link_285676340" MODIFIED="1237479950842" TEXT="enum(n) should emulate snit::enum&apos;s error messages"/>
-<node CREATED="1237479952062" ID="Freemind_Link_1986519778" MODIFIED="1237479968762" TEXT="quality(n) should emulate snit::double and snit::enum&apos;s error messages"/>
 <node CREATED="1241216138976" ID="Freemind_Link_246477941" MODIFIED="1241216144201" TEXT="option parsing control structure">
 <node CREATED="1241216145551" ID="Freemind_Link_1558908137" MODIFIED="1241216155226" TEXT="Wraps while/switch structure"/>
 </node>
@@ -420,7 +526,13 @@
 <node CREATED="1237481032018" ID="Freemind_Link_920792744" MODIFIED="1237481052413" TEXT="make clean: clean up auto-generated GIFs in man* directories"/>
 </node>
 <node CREATED="1237477422983" ID="Freemind_Link_1059023875" MODIFIED="1237477425010" POSITION="right" TEXT="Docs">
-<node CREATED="1237477426471" ID="Freemind_Link_887072406" MODIFIED="1237477434298" TEXT="Athena Analyst&apos;s Guide"/>
+<node CREATED="1237477426471" ID="Freemind_Link_887072406" MODIFIED="1237477434298" TEXT="Athena Analyst&apos;s Guide">
+<node CREATED="1243546538141" ID="Freemind_Link_875023326" MODIFIED="1243546545543" TEXT="Units"/>
+<node CREATED="1243546545805" ID="Freemind_Link_836988593" MODIFIED="1243546553975" TEXT="Activity Coverage"/>
+<node CREATED="1243546554317" ID="Freemind_Link_315437659" MODIFIED="1243546557255" TEXT="Activity Situations"/>
+<node CREATED="1243546557629" ID="Freemind_Link_647185308" MODIFIED="1243546563271" TEXT="Environmental Situations"/>
+<node CREATED="1243546566030" ID="Freemind_Link_1669318727" MODIFIED="1243546569655" TEXT="ADA Rules"/>
+</node>
 <node CREATED="1237477435158" ID="Freemind_Link_144909588" MODIFIED="1237477440938" TEXT="Athena Architecture Document"/>
 <node CREATED="1237480507154" FOLDED="true" ID="Freemind_Link_1237244067" MODIFIED="1237480511727" TEXT="Tcl/Tk Coding Standard">
 <node CREATED="1237480512322" ID="Freemind_Link_1356756808" MODIFIED="1237480517069" TEXT="Move from JNEM to Mars."/>
@@ -428,7 +540,7 @@
 <node CREATED="1237480520129" ID="Freemind_Link_656371050" MODIFIED="1237480523168" TEXT="Reference in Athena"/>
 </node>
 </node>
-<node CREATED="1237934628643" FOLDED="true" ID="Freemind_Link_276542603" MODIFIED="1237934645816" POSITION="left" TEXT="Done">
+<node CREATED="1237934628643" ID="Freemind_Link_276542603" MODIFIED="1237934645816" POSITION="left" TEXT="Done">
 <icon BUILTIN="button_ok"/>
 <node CREATED="1238105059255" FOLDED="true" ID="Freemind_Link_1270491565" MODIFIED="1238105072101" TEXT="Bug 1958">
 <icon BUILTIN="button_ok"/>
