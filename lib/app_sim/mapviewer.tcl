@@ -1,4 +1,4 @@
-#-----------------------------------------------------------------------
+#------------------------------------------------------------------------
 # TITLE:
 #    mapviewer.tcl
 #
@@ -47,6 +47,7 @@
 #         B. Context Menu
 #         C. Event Handlers: notifier(n)
 #         D. Public Methods
+#    VI.  Group Entity Handlers
 #
 #-----------------------------------------------------------------------
 
@@ -541,8 +542,8 @@ snit::widget mapviewer {
         notifier bind ::unit     <Entity>      $self [mymethod EntityUnit]
         notifier bind ::envsit   <Entity>      $self [mymethod EntityEnvsit]
         notifier bind ::civgroup <Entity>      $self [mymethod EntityCivGrp]
-        notifier bind ::frcgroup <Entity>      $self [mymethod EntityGroup]
-        notifier bind ::orggroup <Entity>      $self [mymethod EntityGroup]
+        notifier bind ::frcgroup <Entity>      $self [mymethod EntityFrcGrp]
+        notifier bind ::orggroup <Entity>      $self [mymethod EntityOrgGrp]
 
         # NEXT, draw everything for the current map, whatever it is.
         $self refresh
@@ -1063,21 +1064,6 @@ snit::widget mapviewer {
         $self NbhoodRedrawAll
     }
 
-
-    # EntityCivGrp op g
-    #
-    # op    The operation
-    # g     The group ID
-    #
-    # A CIV group was created/updated/deleted.
-    #
-    # Updates the list of nbhood fill tags.
-
-    method EntityCivGrp {op g} { 
-        $self NbhoodUpdateFillTags
-    }
-
-
     #-------------------------------------------------------------------
     # Public Methods: Neighborhoods
 
@@ -1358,38 +1344,6 @@ snit::widget mapviewer {
     }
 
 
-    # EntityGroup create g
-    #
-    # g    The group ID
-    #
-    # A FRC or ORG group was created.  No-op.
-
-    method {EntityGroup create} {g} { }
-
-
-    # EntityGroup delete g
-    #
-    # g    The group ID
-    #
-    # A FRC or ORG group was deleted.  No-op.
-
-    method {EntityGroup delete} {g} { }
-
-
-    # EntityGroup update g
-    #
-    # g    The group ID
-    #
-    # A FRC or ORG group was updated.  This might have changed
-    # the group's shape or symbol.  Redraw all units belonging to
-    # the group.
-    #
-    # TBD: For now, redraw all units.
-
-    method {EntityGroup update} {g} {
-        $self UnitDrawAll 
-    }
-
     #===================================================================
     # Envsit Display and Behavior
 
@@ -1524,6 +1478,56 @@ snit::widget mapviewer {
 
     method {EntityEnvsit update} {s} {
         $self EnvsitDrawSingle $s
+    }
+
+    #===================================================================
+    # Group Entity Event Handlers
+
+    # EntityCivGrp op g
+    #
+    # op    The operation
+    # g     The group ID
+    #
+    # A CIV group was created/updated/deleted.
+    #
+    # * Update the list of nbhood fill tags.
+    # * If the group was updated, redraw units; their shapes or
+    #   colors might have changed.
+
+    method EntityCivGrp {op g} { 
+        $self NbhoodUpdateFillTags
+
+        if {$op eq "update"} {
+            $self UnitDrawAll
+        }
+    }
+
+    # EntityFrcGrp op g
+    #
+    # op   The operation
+    # g    The group ID
+    #
+    # If a FRC group was updated, redraw units; their shapes or
+    # colors might have changed.
+
+    method EntityFrcGrp {op g} { 
+        if {$op eq "update"} {
+            $self UnitDrawAll
+        }
+    }
+
+    # EntityOrgGrp op g
+    #
+    # op   The operation
+    # g    The group ID
+    #
+    # If an ORG group was updated, redraw units; their shapes or
+    # colors might have changed.
+
+    method EntityOrgGrp {op g} { 
+        if {$op eq "update"} {
+            $self UnitDrawAll
+        }
     }
 }
 

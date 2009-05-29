@@ -54,10 +54,14 @@ snit::type scenario {
             { a GUARD                longname "Guard"                      }
             { a PATROL               longname "Patrol"                     }
             { a PRESENCE             longname "Presence"                   }
+            { a REFUGEE              longname "Refugee"                    }
             { a PSYOP                longname "PSYOP"                      }
         }
 
         activity_gtype {
+            { a NONE                 gtype CIV assignable 1 stype {}       }
+            { a REFUGEE              gtype CIV assignable 1 stype {}       }
+
             { a NONE                 gtype FRC assignable 1 stype {}       }
             { a CHECKPOINT           gtype FRC assignable 1 stype CHKPOINT }
             { a CMO_CONSTRUCTION     gtype FRC assignable 1 stype CMOCONST }

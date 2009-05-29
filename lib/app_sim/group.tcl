@@ -57,6 +57,7 @@ snit::type group {
     typemethod names {} {
         set names [rdb eval {
             SELECT g FROM groups 
+            ORDER BY g
         }]
     }
 

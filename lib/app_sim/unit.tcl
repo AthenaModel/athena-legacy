@@ -73,42 +73,6 @@ snit::type unit {
         return $u
     }
 
-    # group names
-    #
-    # Returns the names of groups for which units can be created.
-
-    typemethod {group names} {} {
-        rdb eval {
-            SELECT g FROM groups WHERE gtype IN ('FRC', 'ORG')
-            ORDER BY g
-        }
-    }
-
-    # group validate g
-    #
-    # g     A group name
-    #
-    # Validates a group name.
-
-    typemethod {group validate} {g} {
-        set names [$type group names]
-
-        if {$g ni $names} {
-            set names [join $names ", "]
-
-            if {$names ne ""} {
-                set msg "should be one of: $names"
-            } else {
-                set msg "none are defined"
-            }
-
-            return -code error -errorcode INVALID \
-                "Invalid unit group, $msg"
-        }
-
-        return $g
-    }
-
 
     # origin names
     #
@@ -402,6 +366,7 @@ snit::type unit {
 
         foreach gtype $gtypes {
             switch -exact -- $gtype {
+                CIV     { activity civ validate $a }
                 FRC     { activity frc validate $a }
                 ORG     { activity org validate $a }
                 default { error "Unexpected gtype: \"$gtype\""   }
@@ -494,6 +459,7 @@ snit::type unit {
 
     typemethod SetActivityValues {field gtype} {
         switch -exact -- $gtype {
+            CIV     { set values [activity civ names]           }
             FRC     { set values [activity frc names]           }
             ORG     { set values [activity org names]           }
             ""      { set values {}                             }
@@ -527,10 +493,12 @@ snit::type unit {
 
             if {"" eq $gtypes || "" in $gtypes} {
                 set values {}
-            } elseif {"ORG" in $gtypes} {
-                set values [activity org names]
+            } elseif {"CIV" in $gtypes} {
+                set values [activity civ names]
             } elseif {"FRC" in $gtypes} {
                 set values [activity frc names]
+            } elseif {"ORG" in $gtypes} {
+                set values [activity org names]
             } else {
                 set values {}
             }
@@ -552,7 +520,7 @@ order define ::unit UNIT:CREATE {
 
     options -sendstates {PREP PAUSED RUNNING}
 
-    parm g          enum  "Group" -type {unit group} -tags group -refresh
+    parm g          enum  "Group" -type group -tags group -refresh
     parm u          text  "Name" \
         -refreshcmd [list ::unit RefreshUnitName]
     parm origin     enum  "Origin"     -type {unit origin} -tags nbhood
@@ -562,7 +530,7 @@ order define ::unit UNIT:CREATE {
         -refreshcmd [list ::unit RefreshActivityCreate]
 } {
     # FIRST, prepare and validate the parameters
-    prepare g          -toupper -required         -type {unit group}
+    prepare g          -toupper -required         -type group
     prepare u          -toupper -required -unused -type unitname
     prepare origin     -toupper -required         -type {unit origin}
     prepare personnel           -required         -type iquantity
@@ -640,7 +608,7 @@ order define ::unit UNIT:UPDATE {
         -sendstates {PREP PAUSED RUNNING}
 
     parm u          key   "Unit"       -tags unit
-    parm g          enum  "Group"      -type {unit group}
+    parm g          enum  "Group"      -type group
     parm origin     enum  "Origin"     -type {unit origin} -tags nbhood
     parm personnel  text  "Personnel"  
     parm location   text  "Location"   -tags point
@@ -649,7 +617,7 @@ order define ::unit UNIT:UPDATE {
 } {
     # FIRST, prepare the parameters
     prepare u          -toupper -required -type unit
-    prepare g          -toupper           -type {unit group}
+    prepare g          -toupper           -type group
     prepare origin     -toupper           -type {unit origin}
     prepare personnel                     -type iquantity
     prepare location                      -type refpoint
@@ -687,7 +655,7 @@ order define ::unit UNIT:UPDATE:MULTI {
         -sendstates {PREP PAUSED RUNNING}
 
     parm ids        multi "Units"
-    parm g          enum  "Group"      -type {unit group} -refresh
+    parm g          enum  "Group"      -type group -refresh
     parm origin     enum  "Origin"     -type {unit origin} -tags nbhood
     parm personnel  text  "Personnel"  
     parm location   text  "Location"   -tags point
@@ -696,7 +664,7 @@ order define ::unit UNIT:UPDATE:MULTI {
 } {
     # FIRST, prepare the parameters
     prepare ids        -toupper -required -listof unit
-    prepare g          -toupper           -type {unit group}
+    prepare g          -toupper           -type group
     prepare origin     -toupper           -type {unit origin}
     prepare personnel                     -type iquantity
     prepare location                      -type refpoint
@@ -731,9 +699,6 @@ order define ::unit UNIT:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
-
-
-
 
 
 

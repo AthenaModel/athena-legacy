@@ -25,6 +25,7 @@ snit::type ::mapicon::unit {
 
     # Font to use for symbol text
     typevariable symfont {"Luxi Sans" -8}
+    typevariable civfont {"Luxi Sans" -10}
 
     #-------------------------------------------------------------------
     # Components
@@ -389,7 +390,7 @@ snit::type ::mapicon::unit {
         lassign [$self Center $coords] cx cy
 
         $can create text $cx $cy            \
-            -font $symfont                  \
+            -font $civfont                  \
             -text CIV                       \
             -fill $options(-foreground)     \
             -tags [concat $tags unitsymbol]
