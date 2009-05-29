@@ -406,6 +406,7 @@ snit::type ::projectlib::typewrapper {
     police         "Civilian Police"
     criminal       "Criminal"
     organization   "Organization"
+    civilian       "Civilian"
 }
 
 

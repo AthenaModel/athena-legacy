@@ -373,6 +373,9 @@ CREATE TABLE units (
     -- Group to which the unit belongs
     g                TEXT,
 
+    -- Neighborhood of Origin, or 'NONE'
+    origin           TEXT DEFAULT 'NONE',
+
     -- Total Personnel
     personnel        INTEGER DEFAULT 0,
 

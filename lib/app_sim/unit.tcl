@@ -84,7 +84,7 @@ snit::type unit {
         }
     }
 
-    # unit group validate g
+    # group validate g
     #
     # g     A group name
     #
@@ -109,6 +109,39 @@ snit::type unit {
         return $g
     }
 
+
+    # origin names
+    #
+    # Returns the names of valid unit origins: NONE, plus all neighborhoods.
+
+    typemethod {origin names} {} {
+        linsert [nbhood names] 0 NONE
+    }
+
+    # origin validate origin
+    #
+    # origin     A unit neighborhood of origin
+    #
+    # Validates an origin
+
+    typemethod {origin validate} {origin} {
+        set names [$type origin names]
+
+        if {$origin ni $names} {
+            set names [join $names ", "]
+
+            if {$names ne ""} {
+                set msg "should be one of: $names"
+            } else {
+                set msg "none are defined"
+            }
+
+            return -code error -errorcode INVALID \
+                "Invalid unit origin, $msg"
+        }
+
+        return $origin
+    }
 
     #-------------------------------------------------------------------
     # Mutators
@@ -135,7 +168,24 @@ snit::type unit {
             lappend undo [$type mutate delete $u]
         }
 
-        # NEXT, set n for all units
+        # NEXT, clear origin if no such nbhood exists.
+        rdb eval {
+            SELECT u, origin
+            FROM units 
+            LEFT OUTER JOIN nbhoods ON (nbhoods.n = units.origin)
+            WHERE origin != 'NONE'
+            WHERE longname IS NULL
+        } {
+            rdb eval {
+                UPDATE units
+                SET   origin = 'NONE'
+                WHERE u = $u
+            }
+
+            lappend undo [mytypemethod RestoreOrigin $u $origin]
+        }
+
+        # NEXT, set origin and n for all units
         rdb eval {
             SELECT u, n, location 
             FROM units
@@ -156,6 +206,24 @@ snit::type unit {
         }
 
         return [join $undo \n]
+    }
+
+    # RestoreOrigin u origin
+    #
+    # u          A unit
+    # origin     A nbhood
+    # 
+    # Sets the unit's neighborhood of origin
+
+    typemethod RestoreNbhood {u origin} {
+        # FIRST, save it, and notify the app.
+        rdb eval {
+            UPDATE units
+            SET origin = $origin
+            WHERE u = $u
+        }
+
+        notifier send ::unit <Entity> update $u
     }
 
     # RestoreNbhood u n
@@ -183,6 +251,7 @@ snit::type unit {
     #
     #    u              The unit's ID
     #    g              The group to which the unit belongs
+    #    origin         The unit's neighborhood of origin, or "NONE"
     #    location       The unit's initial location (map coords)
     #    personnel      The unit's total personnel
     #    a              The unit's current activity
@@ -200,10 +269,11 @@ snit::type unit {
 
             # NEXT, Put the unit in the database
             rdb eval {
-                INSERT INTO units(u,gtype,g,personnel,location,n,a)
+                INSERT INTO units(u,gtype,g,origin,personnel,location,n,a)
                 VALUES($u,
                        $gtype,
                        $g,
+                       $origin,
                        $personnel,
                        $location,
                        $n,
@@ -258,6 +328,7 @@ snit::type unit {
     #
     #    u              The unit's ID
     #    g              A new group, or ""
+    #    origin         A new origin, or ""
     #    location       A new location (map coords) or ""
     #    personnel      A new quantity of personnel, or ""
     #    a              A new activity, or ""
@@ -292,7 +363,8 @@ snit::type unit {
             # NEXT, Update the group
             rdb eval {
                 UPDATE units
-                SET g         = nonempty($g, g),
+                SET g         = nonempty($g,         g),
+                    origin    = nonempty($origin,    origin),
                     gtype     = $gtype,
                     location  = nonempty($location,  location),
                     personnel = nonempty($personnel, personnel),
@@ -483,6 +555,7 @@ order define ::unit UNIT:CREATE {
     parm g          enum  "Group" -type {unit group} -tags group -refresh
     parm u          text  "Name" \
         -refreshcmd [list ::unit RefreshUnitName]
+    parm origin     enum  "Origin"     -type {unit origin} -tags nbhood
     parm personnel  text  "Personnel"  -defval 1
     parm location   text  "Location"   -tags point
     parm a          enum  "Activity"   -tags activity \
@@ -491,6 +564,7 @@ order define ::unit UNIT:CREATE {
     # FIRST, prepare and validate the parameters
     prepare g          -toupper -required         -type {unit group}
     prepare u          -toupper -required -unused -type unitname
+    prepare origin     -toupper -required         -type {unit origin}
     prepare personnel           -required         -type iquantity
     prepare location            -required         -type refpoint
     prepare a          -toupper -required         -type activity
@@ -567,6 +641,7 @@ order define ::unit UNIT:UPDATE {
 
     parm u          key   "Unit"       -tags unit
     parm g          enum  "Group"      -type {unit group}
+    parm origin     enum  "Origin"     -type {unit origin} -tags nbhood
     parm personnel  text  "Personnel"  
     parm location   text  "Location"   -tags point
     parm a          enum  "Activity"   -tags activity \
@@ -575,6 +650,7 @@ order define ::unit UNIT:UPDATE {
     # FIRST, prepare the parameters
     prepare u          -toupper -required -type unit
     prepare g          -toupper           -type {unit group}
+    prepare origin     -toupper           -type {unit origin}
     prepare personnel                     -type iquantity
     prepare location                      -type refpoint
     prepare a          -toupper           -type activity
@@ -612,6 +688,7 @@ order define ::unit UNIT:UPDATE:MULTI {
 
     parm ids        multi "Units"
     parm g          enum  "Group"      -type {unit group} -refresh
+    parm origin     enum  "Origin"     -type {unit origin} -tags nbhood
     parm personnel  text  "Personnel"  
     parm location   text  "Location"   -tags point
     parm a          enum  "Activity"   -tags activity \
@@ -620,6 +697,7 @@ order define ::unit UNIT:UPDATE:MULTI {
     # FIRST, prepare the parameters
     prepare ids        -toupper -required -listof unit
     prepare g          -toupper           -type {unit group}
+    prepare origin     -toupper           -type {unit origin}
     prepare personnel                     -type iquantity
     prepare location                      -type refpoint
     prepare a          -toupper           -type activity

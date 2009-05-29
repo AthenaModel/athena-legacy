@@ -378,6 +378,24 @@ snit::type ::mapicon::unit {
     }
 
 
+    # DrawSymbol civilian coords
+    #
+    # coords    Coordinates of the icon shape
+    #
+    # Draws the civilian symbol: "CIV"
+
+    method {DrawSymbol civilian} {coords} {
+        # FIRST, get the center point.
+        lassign [$self Center $coords] cx cy
+
+        $can create text $cx $cy            \
+            -font $symfont                  \
+            -text CIV                       \
+            -fill $options(-foreground)     \
+            -tags [concat $tags unitsymbol]
+    }
+
+
     # SymLine x1 y1 x2 y2...
     #
     # Draws a unit symbol line

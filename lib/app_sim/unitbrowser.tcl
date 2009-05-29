@@ -100,8 +100,9 @@ snit::widgetadaptor unitbrowser {
         $hull insertcolumn end 0 {ID}
         $hull insertcolumn end 0 {GType}
         $hull insertcolumn end 0 {Group}
-        $hull insertcolumn end 0 {Nbhood}
+        $hull insertcolumn end 0 {Origin}
         $hull insertcolumn end 0 {Location}
+        $hull insertcolumn end 0 {Nbhood}
         $hull insertcolumn end 0 {Personnel}
         $hull columnconfigure end -sortmode integer
         $hull insertcolumn end 0 {Activity}
@@ -134,7 +135,7 @@ snit::widgetadaptor unitbrowser {
         # FIRST, extract each field
         dict with dict {
             $hull setdata $u \
-                [list $u $gtype $g $n $location $personnel $a \
+                [list $u $gtype $g $origin $location $n $personnel $a \
                      $a_effective]
         }
     }

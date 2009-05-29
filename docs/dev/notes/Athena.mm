@@ -246,7 +246,6 @@
 </node>
 </node>
 </node>
-<node CREATED="1243458991722" ID="Freemind_Link_1415025367" MODIFIED="1243459001378" TEXT="Display neighborhood mood in Nbhoods tab"/>
 <node CREATED="1238513070204" FOLDED="true" ID="Freemind_Link_66077028" MODIFIED="1238513075367" TEXT="Plot Tab">
 <node CREATED="1238513076429" ID="Freemind_Link_1251215369" MODIFIED="1238513086791" TEXT="Scrolling list of strip charts"/>
 <node CREATED="1238513112382" FOLDED="true" ID="Freemind_Link_999492866" MODIFIED="1238513123384" TEXT="Time Series View">
@@ -298,6 +297,7 @@
 </node>
 </node>
 <node CREATED="1237479990726" ID="Freemind_Link_1486904062" MODIFIED="1242242438803" POSITION="right" TEXT="Map GUI">
+<node CREATED="1243610985766" ID="Freemind_Link_1124965888" MODIFIED="1243611022272" TEXT="Can mapviewer(sim) be modularized?"/>
 <node CREATED="1237481843234" ID="Freemind_Link_1306844691" MODIFIED="1237481853838" TEXT="Set unit shapes based on relationships">
 <node CREATED="1237481854578" ID="Freemind_Link_720065925" MODIFIED="1237481862230" TEXT="WRT user-selected group"/>
 <node CREATED="1237481862754" ID="Freemind_Link_1299949235" MODIFIED="1237481887774" TEXT="qgrouprel defines FRIEND, NEUTRAL, ENEMY"/>

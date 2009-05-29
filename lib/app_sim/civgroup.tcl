@@ -110,11 +110,12 @@ snit::type civgroup {
         dict with parmdict {
             # FIRST, Put the group in the database
             rdb eval {
-                INSERT INTO groups(g,longname,color,shape,gtype)
+                INSERT INTO groups(g,longname,color,shape,symbol,gtype)
                 VALUES($g,
                        $longname,
                        $color,
                        $shape,
+                       'civilian',
                        'CIV');
             }
 
