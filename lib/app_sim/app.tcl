@@ -188,6 +188,19 @@ snit::type app {
             [$browser candelete]
         }
 
+        # Order is valid, and the selection is updateable.
+        # The browser should call update for its widgets.
+        #
+        # Objdict:   order     THE:ORDER:NAME
+        #            browser   The browser window
+
+        statecontroller ::cond::orderIsValidCanUpdate -events {
+            ::order <State>
+        } -condition {
+            [::order isvalid $order] &&
+            [$browser canupdate]
+        }
+
         # Order is valid, and the selection can be resolved.
         # The browser should call update for its widgets.
         #

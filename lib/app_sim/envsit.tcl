@@ -666,20 +666,13 @@ snit::type envsit {
     # field     A field in an S:E:UPDATE dialog
     # parmdict  The current values of the various fields
     #
-    # Updates the field's state.  The parameter is enabled if
-    # the situation is in the INITIAL state, and disabled otherwise.
+    # Updates the field's state.
 
     typemethod RefreshUpdateParm {parm field parmdict} {
         dict with parmdict {
             set sit [situation get $s]
 
-            # FIRST, We can't edit this unless we're in the INITIAL state.
-            if {[$sit get state] ne "INITIAL"} {
-                $field configure -state disabled
-                return
-            } 
-
-            # NEXT, we can edit.
+            # FIRST, assume we can edit.
             $field configure -state normal
 
             # NEXT, for stype get the valid (unused) types, plus the
@@ -696,7 +689,6 @@ snit::type envsit {
                     $field configure -state disabled
                 }
             }
-            
         }
     }
 }
@@ -895,9 +887,11 @@ order define ::envsit SITUATION:ENVIRONMENTAL:CREATE {
 
 order define ::envsit SITUATION:ENVIRONMENTAL:DELETE {
     title "Delete Environmental Situation"
-    options -sendstates {PREP PAUSED RUNNING}
+    options \
+        -table      gui_envsits_initial     \
+        -sendstates {PREP PAUSED RUNNING}
 
-    parm s  enum  "Situation"  -tags situation -type {envsit initial}
+    parm s  key  "Situation"  -tags situation
 } {
     # FIRST, prepare the parameters
     prepare s -required -type {envsit initial}
@@ -940,22 +934,82 @@ order define ::envsit SITUATION:ENVIRONMENTAL:DELETE {
 order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
     title "Update Environmental Situation"
     options \
-        -table      gui_envsits           \
+        -table      gui_envsits_initial     \
         -sendstates {PREP PAUSED RUNNING}
 
     parm s          key   "Situation"   -tags situation
     parm location   text  "Location"    -tags point
 
-    # TBD: Only allow current type, or an absent type
     parm stype      enum  "Type" \
         -refreshcmd [list ::envsit RefreshUpdateParm stype]
-    parm coverage   text  "Coverage"    -defval 1.0 \
-        -refreshcmd [list ::envsit RefreshUpdateParm coverage]
-    parm inception  enum  "Inception?"  -type eyesno -defval "YES" \
-        -refreshcmd [list ::envsit RefreshUpdateParm inception]
-    parm g          enum  "Caused By"   -type [list envsit doer] \
-        -refreshcmd [list ::envsit RefreshUpdateParm g]
+    parm coverage   text  "Coverage"    -defval 1.0 
+    parm inception  enum  "Inception?"  -type eyesno -defval "YES"
+    parm g          enum  "Caused By"   -type [list envsit doer]
 
+} {
+    # FIRST, check the situation
+    prepare s                    -required -type {envsit initial}
+
+    returnOnError
+
+    # NEXT, get the situation object
+    set sit [envsit get $parms(s)]
+
+    # NEXT, prepare the remaining parameters
+    prepare location  -toupper  -type refpoint 
+    prepare stype     -toupper  -type eenvsit   -oldvalue [$sit get stype]
+    prepare coverage            -type rfraction
+    prepare inception -toupper  -type boolean
+    prepare g -toupper  -type {envsit doer}
+
+    returnOnError
+
+    # NEXT, get the old neighborhood
+    set n [$sit get n]
+
+
+    # NEXT, validate the other parameters.
+    validate location {
+        set n [nbhood find {*}$parms(location)]
+            
+        if {$n eq ""} {
+            reject location "Should be within a neighborhood"
+        }
+    }
+
+    validate stype {
+        if {[envsit existsInNbhood $n $parms(stype)]} {
+            reject stype \
+                "An envsit of this type already exists in this neighborhood."
+        }
+    }
+
+
+    validate coverage {
+        if {$parms(coverage) == 0.0} {
+            reject coverage "Coverage must be greater than 0."
+        }
+    }
+
+    returnOnError
+
+    # NEXT, modify the group
+    setundo [$type mutate update [array get parms]]
+}
+
+
+# SITUATION:ENVIRONMENTAL:MOVE
+#
+# Moves an existing envsits.
+
+order define ::envsit SITUATION:ENVIRONMENTAL:MOVE {
+    title "Move Environmental Situation"
+    options \
+        -table      gui_envsits           \
+        -sendstates {PREP PAUSED RUNNING}
+
+    parm s          key   "Situation"   -tags situation
+    parm location   text  "Location"    -tags point
 } {
     # FIRST, check the situation
     prepare s                    -required -type envsit
@@ -966,15 +1020,7 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
     set sit [envsit get $parms(s)]
 
     # NEXT, prepare the remaining parameters
-    prepare location  -toupper  -type refpoint 
-    prepare stype     -toupper  -type eenvsit   \
-        -oldvalue [$sit get stype]
-    prepare coverage -type rfraction \
-        -oldnum   [$sit get coverage]
-    prepare inception -toupper  -type boolean   \
-        -oldvalue [$sit get inception]
-    prepare g -toupper  -type {envsit doer} \
-        -oldvalue [$sit get g]
+    prepare location  -toupper  -required -type refpoint 
 
     returnOnError
 
@@ -982,8 +1028,10 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
     set n [$sit get n]
 
 
-    # NEXT, validate the other parameters.  In the INITIAL state, everything
-    # can be changed; in any other state, only the location can be changed.
+    # NEXT, validate the other parameters.  In the INITIAL state, the
+    # envsit can be moved to any neighborhood; in any other state it
+    # can only be moved within the neighborhood.
+    # location can be changed.
 
     if {[$sit get state] eq "INITIAL"} {
         validate location {
@@ -991,20 +1039,6 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
             
             if {$n eq ""} {
                 reject location "Should be within a neighborhood"
-            }
-        }
-
-        validate stype {
-            if {[envsit existsInNbhood $n $parms(stype)]} {
-                reject stype \
-                  "An envsit of this type already exists in this neighborhood."
-            }
-        }
-
-
-        validate coverage {
-            if {$parms(coverage) == 0.0} {
-                reject coverage "Coverage must be greater than 0."
             }
         }
     } else {
@@ -1016,28 +1050,17 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
                 reject location "Cannot remove situation from its neighborhood"
             }
         }
-
-        validate stype {
-            reject stype "Cannot update this parameter; time has advanced."
-        }
-
-
-        validate coverage {
-            reject coverage "Cannot update this parameter; time has advanced."
-        }
-
-
-        validate inception {
-            reject inception "Cannot update this parameter; time has advanced."
-        }
-
-
-        validate g {
-            reject g "Cannot update this parameter; time has advanced."
-        }
     }
 
     returnOnError
+
+    # NEXT, add blank parms
+    array set parms {
+        stype     ""
+        coverage  ""
+        inception ""
+        g         ""
+    }
 
     # NEXT, modify the group
     setundo [$type mutate update [array get parms]]

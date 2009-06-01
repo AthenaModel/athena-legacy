@@ -254,10 +254,8 @@ s kind     stype    driver n   coverage state   ts tc change flist g    signatur
     # SITUATION:ENVIRONMENTAL:UPDATE
 
     # 1.*: parameter type validation
-    # 2.*: parameter validation for INITIAL state
-    # 3.*: parameter validation for other states
-    # 4.*: correct operation
-    # 5.*: undo
+    # 2.*: correct operation
+    # 3.*: undo
 
     test UPDATE-1.1 {required parms} -body {
         ted order -reject SITUATION:ENVIRONMENTAL:UPDATE {}
@@ -325,7 +323,7 @@ s kind     stype    driver n   coverage state   ts tc change flist g    signatur
     }
 
 
-    test UPDATE-2.1 {location is not in a nbhood} -setup {
+    test UPDATE-1.7 {location is not in a nbhood} -setup {
         ted create NB1
         ted order SITUATION:ENVIRONMENTAL:CREATE $s1
     } -body {
@@ -337,65 +335,25 @@ s kind     stype    driver n   coverage state   ts tc change flist g    signatur
     }
 
 
-    test UPDATE-2.2 {duplicate stype} -setup {
-        ted create NB1
-        ted order SITUATION:ENVIRONMENTAL:CREATE $s1
-        ted order SITUATION:ENVIRONMENTAL:CREATE $s2
-    } -body {
-        ted order -reject SITUATION:ENVIRONMENTAL:UPDATE s 1 stype COMMOUT
-    } -cleanup {
-        cleanup
-    } -result {
-        stype {An envsit of this type already exists in this neighborhood.}
-    }
-
-
-    test UPDATE-2.3 {coverage is zero} -setup {
-        ted create NB1
-        ted order SITUATION:ENVIRONMENTAL:CREATE $s1
-    } -body {
-        ted order -reject SITUATION:ENVIRONMENTAL:UPDATE s 1 coverage 0.0
-    } -cleanup {
-        cleanup
-    } -result {
-        coverage {Coverage must be greater than 0.}
-    }
-
-
-    test UPDATE-3.1 {location is out of neighborhood} -setup {
-        ted create NB1
-        ted order SITUATION:ENVIRONMENTAL:CREATE $s1
-        [envsit get 1] set state ACTIVE
-    } -body {
-        ted order -reject SITUATION:ENVIRONMENTAL:UPDATE s 1 location A00A00
-    } -cleanup {
-        cleanup
-    } -result {
-        location {Cannot remove situation from its neighborhood}
-    }
-
-
-    test UPDATE-3.2 {cannot change other parameters} -setup {
+    test UPDATE-1.8 {Not INITIAL state} -setup {
         ted create NB1 BLUE
         ted order SITUATION:ENVIRONMENTAL:CREATE $s1
         [envsit get 1] set state ACTIVE
     } -body {
         ted order -reject SITUATION:ENVIRONMENTAL:UPDATE s 1 \
             stype     COMMOUT \
+            location  A00A00  \
             coverage  0.5     \
             inception NO      \
             g         BLUE
     } -cleanup {
         cleanup
     } -result {
-        stype {Cannot update this parameter; time has advanced.}
-        coverage {Cannot update this parameter; time has advanced.}
-        inception {Cannot update this parameter; time has advanced.}
-        g {Cannot update this parameter; time has advanced.}
+        s {operation is invalid; time has passed.}
     }
 
 
-    test UPDATE-4.1 {envsit is updated} -setup {
+    test UPDATE-2.1 {envsit is updated} -setup {
         ted create NB1 BLUE
         ted order SITUATION:ENVIRONMENTAL:CREATE $s1
     } -body {
@@ -417,7 +375,7 @@ s kind     stype   driver n   coverage state   ts tc change flist g    signature
     }
 
 
-    test UPDATE-4.2 {<Entity> update} -setup {
+    test UPDATE-2.2 {<Entity> update} -setup {
         ted create NB1 BLUE
         ted order SITUATION:ENVIRONMENTAL:CREATE $s1
     } -body {
@@ -431,7 +389,7 @@ s kind     stype   driver n   coverage state   ts tc change flist g    signature
     }
 
 
-    test UPDATE-5.1 {undo undoes the change} -setup {
+    test UPDATE-3.1 {undo undoes the change} -setup {
         ted create NB1 BLUE
         ted order SITUATION:ENVIRONMENTAL:CREATE $s1
         ted order SITUATION:ENVIRONMENTAL:UPDATE {
@@ -440,6 +398,106 @@ s kind     stype   driver n   coverage state   ts tc change flist g    signature
             stype     COMMOUT
             inception NO
             g         BLUE
+        }
+    } -body {
+        ted notifier bind ::envsit <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::envsit <Entity> update 1}
+    }
+
+
+    #-------------------------------------------------------------------
+    # SITUATION:ENVIRONMENTAL:MOVE
+
+    # 1.*: parameter type validation
+    # 2.*: correct operation
+    # 3.*: undo
+
+    test MOVE-1.1 {required parms} -body {
+        ted order -reject SITUATION:ENVIRONMENTAL:MOVE {}
+    } -result {
+        s {required value}
+    }
+    
+    test MOVE-1.2 {location is not a mapref} -setup {
+        ted create NB1
+        ted order SITUATION:ENVIRONMENTAL:CREATE $s1
+    } -body {
+        ted order -reject SITUATION:ENVIRONMENTAL:MOVE s 1 location NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        location {not a map reference string}
+    }
+
+    test MOVE-1.3 {INITIAL state; location is not in a nbhood} -setup {
+        ted create NB1
+        ted order SITUATION:ENVIRONMENTAL:CREATE $s1
+    } -body {
+        ted order -reject SITUATION:ENVIRONMENTAL:MOVE s 1 location A00A00
+    } -cleanup {
+        cleanup
+    } -result {
+        location {Should be within a neighborhood}
+    }
+
+
+    test MOVE-1.4 {Not INITIAL sate; location is out of neighborhood} -setup {
+        ted create NB1
+        ted order SITUATION:ENVIRONMENTAL:CREATE $s1
+        [envsit get 1] set state ACTIVE
+    } -body {
+        ted order -reject SITUATION:ENVIRONMENTAL:MOVE s 1 location A00A00
+    } -cleanup {
+        cleanup
+    } -result {
+        location {Cannot remove situation from its neighborhood}
+    }
+
+
+    test MOVE-2.1 {envsit is updated} -setup {
+        ted create NB1 BLUE
+        ted order SITUATION:ENVIRONMENTAL:CREATE $s1
+    } -body {
+        ted order SITUATION:ENVIRONMENTAL:MOVE {
+            s         1 
+            location  B01B01
+        }
+
+        ted query {SELECT s, location FROM envsits}
+    } -cleanup {
+        cleanup
+    } -result {
+s location 
+- -------- 
+1 101 101  
+    }
+
+
+    test MOVE-2.2 {<Entity> update} -setup {
+        ted create NB1 BLUE
+        ted order SITUATION:ENVIRONMENTAL:CREATE $s1
+    } -body {
+        ted notifier bind ::envsit <Entity>
+        ted order SITUATION:ENVIRONMENTAL:MOVE s 1 location B01B01
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::envsit <Entity> update 1}
+    }
+
+
+    test MOVE-3.1 {undo undoes the change} -setup {
+        ted create NB1 BLUE
+        ted order SITUATION:ENVIRONMENTAL:CREATE $s1
+        ted order SITUATION:ENVIRONMENTAL:MOVE {
+            s         1 
+            location  B01B01
         }
     } -body {
         ted notifier bind ::envsit <Entity>

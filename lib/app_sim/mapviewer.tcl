@@ -1148,6 +1148,24 @@ snit::widget mapviewer {
     #-------------------------------------------------------------------
     # Event Handlers: mapcanvas(n)
 
+    # canupdate
+    #
+    # returns 1 if you can update the icon, and 0 otherwise.
+
+    method canupdate {} {
+        set sid $icons(context)
+        set cid $icons(cid-$sid)
+        set itype $icons(itype-$cid)
+
+        if {$itype eq "situation"} {
+            return [expr {$sid in [envsit initial names]}]
+        } else {
+            return 1
+        }
+    }
+
+
+
     # Icon-1 cid
     #
     # cid      A canvas icon ID
@@ -1168,7 +1186,7 @@ snit::widget mapviewer {
         } 
     }
 
-    
+ 
     # Icon-3 cid rx ry
     #
     # cid     A canvas icon ID
@@ -1432,10 +1450,10 @@ snit::widget mapviewer {
     method CreateEnvsitContextMenu {} {
         set mnu [menu $canvas.envsitmenu]
 
-        cond::orderIsValid control \
+        cond::orderIsValidCanUpdate control \
             [menuitem $mnu command "Update Situation" \
                  -command [mymethod UpdateEnvsit]] \
-            order SITUATION:ENVIRONMENTAL:UPDATE
+            order SITUATION:ENVIRONMENTAL:UPDATE browser $win
     }
 
     # UpdateEnvsit

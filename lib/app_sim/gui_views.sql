@@ -226,6 +226,11 @@ SELECT s                        AS id,
        CASE inception WHEN 1 THEN 'YES' ELSE 'NO' END AS inception
 FROM envsits;
 
+--Envsits view: envsits in INITIAL state
+CREATE TEMPORARY VIEW gui_envsits_initial AS
+SELECT * FROM gui_envsits
+WHERE state = 'INITIAL';
+
 --Envsits view: current envsits: live or freshly ended
 CREATE TEMPORARY VIEW gui_envsits_current AS
 SELECT * FROM gui_envsits

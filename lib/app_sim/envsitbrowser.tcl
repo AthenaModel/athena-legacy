@@ -78,7 +78,7 @@ snit::widgetadaptor envsitbrowser {
 
         DynamicHelp::add $editbtn -text "Edit Selected Situation"
 
-        cond::orderIsValidSingle control $editbtn   \
+        cond::orderIsValidCanUpdate control $editbtn   \
             order   SITUATION:ENVIRONMENTAL:UPDATE \
             browser $win
 
@@ -164,6 +164,23 @@ snit::widgetadaptor envsitbrowser {
     }
 
 
+    # canupdate
+    #
+    # Returns 1 if the current selection is updateable.
+    
+    method canupdate {} {
+        if {[llength [$self curselection]] == 1} {
+            set id [lindex [$self curselection] 0]
+
+            if {$id in [envsit initial names]} {
+                return 1
+            }
+        }
+
+        return 0
+    }
+
+
     # canresolve
     #
     # Returns 1 if the current selection is resolveable.
@@ -208,7 +225,7 @@ snit::widgetadaptor envsitbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidSingle     update $editbtn
+        cond::orderIsValidCanUpdate  update $editbtn
         cond::orderIsValidCanResolve update $resolvebtn
         cond::orderIsValidCanDelete  update $deletebtn
 
