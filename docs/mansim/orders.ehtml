@@ -925,11 +925,14 @@ follows:<p>
 
 <<parmlist>>
 
-<<parm g>> <b>Required.</b>  The name of a force or organization
-group.<</parm>>
+<<parm g>> <b>Required.</b>  The name of a group.<</parm>>
 
 <<parm u>> <b>Required.</b>  The name of the unit, a
 <<xref projtypes(n) unitname>> value.<</parm>>
+
+<<parm origin>> <b>Required.</b>  The unit's neighborhood of origin,
+either a neighborhood name or <b>NONE</b> for units originating
+outside the playbox.<</parm>>
 
 <<parm personnel>> <b>Required.</b>  The number of personnel in the
 unit, an <<xref projtypes(n) iquantity>> value.<</parm>>
@@ -938,8 +941,8 @@ unit, an <<xref projtypes(n) iquantity>> value.<</parm>>
 a map reference.<</parm>>
 
 <<parm activity>> <b>Required.</b>  The unit's initial activity,
-an <<xref projtypes(n) eactivity>> value.  Note that organization
-units can perform only a subset of these activities.<</parm>>
+an <<xref projtypes(n) eactivity>> value.  The unit's group type
+constrains the activities that it can be assigned to do.<</parm>>
 
 <</parmlist>>
 

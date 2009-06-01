@@ -54,8 +54,8 @@ snit::type scenario {
             { a GUARD                longname "Guard"                      }
             { a PATROL               longname "Patrol"                     }
             { a PRESENCE             longname "Presence"                   }
-            { a REFUGEE              longname "Refugee"                    }
             { a PSYOP                longname "PSYOP"                      }
+            { a REFUGEE              longname "Refugee"                    }
         }
 
         activity_gtype {

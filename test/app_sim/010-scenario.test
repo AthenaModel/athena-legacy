@@ -83,6 +83,7 @@ namespace eval ::athena_test::tests:: {
         {::rel <Entity> create {PLAYBOX USAID BLUE}}
         {::rel <Entity> create {PLAYBOX USAID USAID}}
         {::coop <Entity> create {NB1 SHIA BLUE}}
+        {::unit <Entity> update BLUE1}
         {::scenario <Reconcile>}
         {::nbrel <Entity> delete {NB1 NB1}}
         {::nbgroup <Entity> delete {NB1 SHIA}}

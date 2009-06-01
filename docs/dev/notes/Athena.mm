@@ -5,14 +5,23 @@
 <node CREATED="1243527460189" ID="Freemind_Link_1011323624" MODIFIED="1243527474567" TEXT="Moving from snapshot to snapshot can be very slow"/>
 </node>
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1241624415166" ID="Freemind_Link_472031065" MODIFIED="1241624422010" TEXT="Displaced Civilians/Refugees">
-<node CREATED="1241624422469" ID="Freemind_Link_636312974" MODIFIED="1241624433033" TEXT="Suppose we don&apos;t model attitudes of refugees"/>
-<node CREATED="1241624435453" ID="Freemind_Link_1452155827" MODIFIED="1241624443073" TEXT="Just model effect on local civilians"/>
-<node CREATED="1241624443469" ID="Freemind_Link_1269891450" MODIFIED="1241624457188" TEXT="Model refugees as civilian units with activity REFUGEE"/>
-<node CREATED="1241624461278" ID="Freemind_Link_1488285898" MODIFIED="1243545972472" TEXT="Creates a REFUGEE coverage"/>
-<node CREATED="1243545973839" ID="Freemind_Link_1396387780" MODIFIED="1243545978201" TEXT="REFUGEE rule set">
+<node CREATED="1243869063603" ID="Freemind_Link_963259115" MODIFIED="1243869070477" TEXT="Athena Attrition Model"/>
+<node CREATED="1241624415166" FOLDED="true" ID="Freemind_Link_472031065" MODIFIED="1241624422010" TEXT="Displaced Civilians/Refugees">
+<node CREATED="1241624443469" ID="Freemind_Link_1269891450" MODIFIED="1243619897072" TEXT="Model refugees as civilian units with activity REFUGEE">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1243619917252" ID="Freemind_Link_1143793780" MODIFIED="1243619933292" TEXT="Effect on local civilians">
+<node CREATED="1243619934178" ID="Freemind_Link_1928827775" MODIFIED="1243619943612" TEXT="Compute REFUGEE coverage"/>
+<node CREATED="1243619945650" ID="Freemind_Link_1438494628" MODIFIED="1243619956033" TEXT="REFUGEE rule set">
 <node CREATED="1241624467661" ID="Freemind_Link_1826431892" MODIFIED="1243545991112" TEXT="Local civilians respond to presence of REFUGEEs."/>
 <node CREATED="1241624496365" ID="Freemind_Link_1702054574" MODIFIED="1241624504481" TEXT="Use RMFs between civilian groups"/>
+</node>
+<node CREATED="1243627017794" ID="Freemind_Link_1047647382" MODIFIED="1243627027315" TEXT="Does neighborhood of origin actually matter?">
+<node CREATED="1243627028259" ID="Freemind_Link_884907885" MODIFIED="1243627043853" TEXT="We don&apos;t have ngmf relationships."/>
+</node>
+</node>
+<node CREATED="1243619978962" ID="Freemind_Link_1190169675" MODIFIED="1243620008101" TEXT="Ignore effect on civilians &quot;back home&quot;">
+<node CREATED="1243620008802" ID="Freemind_Link_1698042443" MODIFIED="1243620084553" TEXT="A neighborhood group that generates refugees&#xa;generates them because it is already unhappy.&#xa;It probably doesn&apos;t become more so because&#xa;it has produced refugees."/>
 </node>
 </node>
 <node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1243027981886" TEXT="Magic satisfaction inputs and adjustments"/>
@@ -159,6 +168,9 @@
 </node>
 </node>
 <node CREATED="1237477511538" ID="Freemind_Link_894463638" MODIFIED="1237477524514" POSITION="right" TEXT="Scenario">
+<node CREATED="1243619679940" ID="Freemind_Link_1266372693" MODIFIED="1243619693448" TEXT="Constrain origin for CIV groups?">
+<icon BUILTIN="help"/>
+</node>
 <node CREATED="1243546243278" ID="Freemind_Link_1855932461" MODIFIED="1243546308604" TEXT="&quot;local&quot; flag should be on CIV and ORG groups as well">
 <icon BUILTIN="help"/>
 </node>
@@ -208,9 +220,6 @@
 </node>
 </node>
 <node CREATED="1241216225071" ID="Freemind_Link_1235588521" MODIFIED="1243459068126" TEXT="Naming conventions for scenario tables vs. model tables">
-<icon BUILTIN="help"/>
-</node>
-<node CREATED="1237477546722" ID="Freemind_Link_815759729" MODIFIED="1237477568182" TEXT="CIV group units">
 <icon BUILTIN="help"/>
 </node>
 <node CREATED="1237482120338" FOLDED="true" ID="Freemind_Link_1183885189" MODIFIED="1238104926493" TEXT="Orders to rename entities">
@@ -540,7 +549,7 @@
 <node CREATED="1237480520129" ID="Freemind_Link_656371050" MODIFIED="1237480523168" TEXT="Reference in Athena"/>
 </node>
 </node>
-<node CREATED="1237934628643" ID="Freemind_Link_276542603" MODIFIED="1237934645816" POSITION="left" TEXT="Done">
+<node CREATED="1237934628643" FOLDED="true" ID="Freemind_Link_276542603" MODIFIED="1237934645816" POSITION="left" TEXT="Done">
 <icon BUILTIN="button_ok"/>
 <node CREATED="1238105059255" FOLDED="true" ID="Freemind_Link_1270491565" MODIFIED="1238105072101" TEXT="Bug 1958">
 <icon BUILTIN="button_ok"/>

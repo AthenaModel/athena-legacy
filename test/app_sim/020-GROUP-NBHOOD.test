@@ -206,10 +206,10 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape   symbol gtype n   local_name population demeanor   rollup_weight effects_factor 
----- -------- ------- ------- ------ ----- --- ---------- ---------- ---------- ------------- -------------- 
-SHIA Shia     #c00001 NEUTRAL        CIV   NB1 NB1 Shias  1000       AVERAGE    1.0           1.1            
-SUNN Sunni    #c00002 NEUTRAL        CIV   NB1 NB1 Sunnis 1000       AGGRESSIVE 1.2           1.3            
+g    longname color   shape   symbol   gtype n   local_name population demeanor   rollup_weight effects_factor 
+---- -------- ------- ------- -------- ----- --- ---------- ---------- ---------- ------------- -------------- 
+SHIA Shia     #c00001 NEUTRAL civilian CIV   NB1 NB1 Shias  1000       AVERAGE    1.0           1.1            
+SUNN Sunni    #c00002 NEUTRAL civilian CIV   NB1 NB1 Sunnis 1000       AGGRESSIVE 1.2           1.3            
     }
 
 

@@ -31,6 +31,7 @@ namespace eval ::athena_test::tests:: {
     set u1 {
         u         U1 
         g         BLUE 
+        origin    NONE
         location  A01A01
         personnel 1 
         a         NONE
@@ -38,7 +39,8 @@ namespace eval ::athena_test::tests:: {
 
     set u2 {
         u         U2 
-        g         USAID 
+        g         USAID
+        origin    NONE
         location  K99K99
         personnel 1 
         a         NONE
@@ -59,6 +61,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
         g {required value}
         u {required value}
+        origin {required value}
         personnel {required value}
         location {required value}
         a {required value}
@@ -71,23 +74,11 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        g {Invalid unit group, none are defined}
+        g {Invalid group, none are defined}
     }
 
 
-    test CREATE-1.3 {g is known but not suitable} -setup {
-        ted create BLUE USAID SHIA
-    } -body {
-        ted order -reject UNIT:CREATE \
-            [dict merge $u1 [list g SHIA]]
-    } -cleanup {
-        cleanup
-    } -result {
-        g {Invalid unit group, should be one of: BLUE, USAID}
-    }
-
-
-    test CREATE-1.4 {u duplicates existing ID} -setup {
+    test CREATE-1.3 {u duplicates existing ID} -setup {
         ted create BLUE
     } -body {
         ted order -reject UNIT:CREATE [dict merge $u1 {
@@ -100,7 +91,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.5 {u is not an ident} -setup {
+    test CREATE-1.4 {u is not an ident} -setup {
         ted create BLUE
     } -body {
         ted order -reject UNIT:CREATE [dict merge $u1 {
@@ -113,7 +104,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.6 {personnel is invalid} -setup {
+    test CREATE-1.5 {personnel is invalid} -setup {
         ted create BLUE
     } -body {
         ted order -reject UNIT:CREATE [dict merge $u1 {
@@ -126,7 +117,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.7 {location is invalid} -setup {
+    test CREATE-1.6 {location is invalid} -setup {
         ted create BLUE
     } -body {
         ted order -reject UNIT:CREATE [dict merge $u1 {
@@ -139,7 +130,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.8 {a is unknown} -setup {
+    test CREATE-1.7 {a is unknown} -setup {
         ted create BLUE
     } -body {
         ted order -reject UNIT:CREATE [dict merge $u1 {
@@ -148,11 +139,11 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        a {Invalid activity, should be one of: NONE, CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, PATROL, PRESENCE, PSYOP}
+        a {Invalid activity, should be one of: NONE, CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, PATROL, PRESENCE, PSYOP, REFUGEE}
     }
 
 
-    test CREATE-1.9 {a is invalid for this group type} -setup {
+    test CREATE-1.8 {a is invalid for this group type} -setup {
         ted create USAID
     } -body {
         ted order -reject UNIT:CREATE [dict merge $u2 {
@@ -165,6 +156,19 @@ namespace eval ::athena_test::tests:: {
     }
 
 
+    test CREATE-1.9 {origin is unknown} -setup {
+        ted create NB1 BLUE
+    } -body {
+        ted order -reject UNIT:CREATE [dict merge $u1 {
+            origin NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        origin {Invalid unit origin, should be one of: NONE, NB1}
+    }
+
+
     test CREATE-2.1 {unit is created} -setup {
         ted create BLUE
     } -body {
@@ -174,9 +178,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-u  g    personnel location a    gtype n a_effective 
--- ---- --------- -------- ---- ----- - ----------- 
-U1 BLUE 1         1 1      NONE FRC     0           
+u  g    origin personnel location a    gtype n a_effective 
+-- ---- ------ --------- -------- ---- ----- - ----------- 
+U1 BLUE NONE   1         1 1      NONE FRC     0           
     }
 
 
@@ -262,15 +266,15 @@ U1 BLUE 1         1 1      NONE FRC     0
         u {required value}
     }
     
-    test UPDATE-1.2 {g is not unit group} -setup {
+    test UPDATE-1.2 {g is not group} -setup {
         ted create BLUE USAID SHIA
         ted order UNIT:CREATE $u1
     } -body {
-        ted order -reject UNIT:UPDATE u U1 g SHIA
+        ted order -reject UNIT:UPDATE u U1 g NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        g {Invalid unit group, should be one of: BLUE, USAID}
+        g {Invalid group, should be one of: BLUE, SHIA, USAID}
     }
 
     test UPDATE-1.3 {invalid personnel} -setup {
@@ -305,7 +309,7 @@ U1 BLUE 1         1 1      NONE FRC     0
     } -cleanup {
         cleanup
     } -result {
-        a {Invalid activity, should be one of: NONE, CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, PATROL, PRESENCE, PSYOP}
+        a {Invalid activity, should be one of: NONE, CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, PATROL, PRESENCE, PSYOP, REFUGEE}
     }
 
 
@@ -321,13 +325,26 @@ U1 BLUE 1         1 1      NONE FRC     0
     }
 
 
+    test UPDATE-1.7 {invalid origin} -setup {
+        ted create NB1 USAID
+        ted order UNIT:CREATE $u2
+    } -body {
+        ted order -reject UNIT:UPDATE u U2 origin NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        origin {Invalid unit origin, should be one of: NONE, NB1}
+    }
+
+
     test UPDATE-2.1 {unit is updated} -setup {
-        ted create BLUE USAID
+        ted create NB1 BLUE USAID
         ted order UNIT:CREATE $u1
     } -body {
         ted order UNIT:UPDATE {
             u         U1 
             g         USAID 
+            origin    NB1
             location  B01B01
             personnel 60
             a         CMO_CONSTRUCTION
@@ -337,9 +354,9 @@ U1 BLUE 1         1 1      NONE FRC     0
     } -cleanup {
         cleanup
     } -result {
-u  g     personnel location a                gtype n a_effective 
--- ----- --------- -------- ---------------- ----- - ----------- 
-U1 USAID 60        101 101  CMO_CONSTRUCTION ORG     0           
+u  g     origin personnel location a                gtype n   a_effective 
+-- ----- ------ --------- -------- ---------------- ----- --- ----------- 
+U1 USAID NB1    60        101 101  CMO_CONSTRUCTION ORG   NB1 0           
     }
 
 
@@ -398,11 +415,11 @@ U1 USAID 60        101 101  CMO_CONSTRUCTION ORG     0
         ted create BLUE USAID SHIA
         ted order UNIT:CREATE $u1
     } -body {
-        ted order -reject UNIT:UPDATE:MULTI ids U1 g SHIA
+        ted order -reject UNIT:UPDATE:MULTI ids U1 g NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        g {Invalid unit group, should be one of: BLUE, USAID}
+        g {Invalid group, should be one of: BLUE, SHIA, USAID}
     }
 
 
@@ -438,7 +455,19 @@ U1 USAID 60        101 101  CMO_CONSTRUCTION ORG     0
     } -cleanup {
         cleanup
     } -result {
-        a {Invalid activity, should be one of: NONE, CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, PATROL, PRESENCE, PSYOP}
+        a {Invalid activity, should be one of: NONE, CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, PATROL, PRESENCE, PSYOP, REFUGEE}
+    }
+
+
+    test UPDATE:MULTI-1.7 {invalid origin} -setup {
+        ted create NB1 BLUE
+        ted order UNIT:CREATE $u1
+    } -body {
+        ted order -reject UNIT:UPDATE:MULTI ids U1 origin NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        origin {Invalid unit origin, should be one of: NONE, NB1}
     }
 
 

@@ -94,11 +94,7 @@ snit::type unit {
         if {$origin ni $names} {
             set names [join $names ", "]
 
-            if {$names ne ""} {
-                set msg "should be one of: $names"
-            } else {
-                set msg "none are defined"
-            }
+            set msg "should be one of: $names"
 
             return -code error -errorcode INVALID \
                 "Invalid unit origin, $msg"
@@ -138,7 +134,7 @@ snit::type unit {
             FROM units 
             LEFT OUTER JOIN nbhoods ON (nbhoods.n = units.origin)
             WHERE origin != 'NONE'
-            WHERE longname IS NULL
+            AND   longname IS NULL
         } {
             rdb eval {
                 UPDATE units
@@ -147,6 +143,8 @@ snit::type unit {
             }
 
             lappend undo [mytypemethod RestoreOrigin $u $origin]
+
+            notifier send ::unit <Entity> update $u
         }
 
         # NEXT, set origin and n for all units
@@ -179,7 +177,7 @@ snit::type unit {
     # 
     # Sets the unit's neighborhood of origin
 
-    typemethod RestoreNbhood {u origin} {
+    typemethod RestoreOrigin {u origin} {
         # FIRST, save it, and notify the app.
         rdb eval {
             UPDATE units

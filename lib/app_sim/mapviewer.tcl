@@ -1213,7 +1213,7 @@ snit::widget mapviewer {
 
             situation {
                 if {[catch {
-                    order send gui SITUATION:ENVIRONMENTAL:UPDATE \
+                    order send gui SITUATION:ENVIRONMENTAL:MOVE \
                         s        $icons(sid-$cid)                 \
                         location [$canvas icon ref $cid]
                 }]} {

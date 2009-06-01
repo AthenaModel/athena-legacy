@@ -122,9 +122,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol gtype 
----- ----------- ------- ------- ------ ----- 
-SHIA Shia Locals #ffff00 NEUTRAL        CIV   
+g    longname    color   shape   symbol   gtype 
+---- ----------- ------- ------- -------- ----- 
+SHIA Shia Locals #ffff00 NEUTRAL civilian CIV   
     }
 
 
@@ -269,9 +269,9 @@ SHIA Shia Locals #ffff00 NEUTRAL        CIV
     } -cleanup {
         cleanup
     } -result {
-g    longname  color   shape symbol gtype 
----- --------- ------- ----- ------ ----- 
-SHIA Shia Folk #ff0000 ENEMY        CIV   
+g    longname  color   shape symbol   gtype 
+---- --------- ------- ----- -------- ----- 
+SHIA Shia Folk #ff0000 ENEMY civilian CIV   
     }
 
 

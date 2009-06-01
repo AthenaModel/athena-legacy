@@ -37,6 +37,7 @@ namespace eval ::athena_test::tests:: {
     set u1 {
         u         U1 
         g         BLUE 
+        origin    NONE
         location  {1 1} 
         personnel 1 
         a         NONE
@@ -44,7 +45,8 @@ namespace eval ::athena_test::tests:: {
 
     set u2 {
         u         U2 
-        g         USAID 
+        g         USAID
+        origin    NONE
         location  {999 999} 
         personnel 1 
         a         NONE
@@ -65,10 +67,10 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-u  g     personnel location a    gtype n a_effective 
--- ----- --------- -------- ---- ----- - ----------- 
-U1 BLUE  1         1 1      NONE FRC     0           
-U2 USAID 1         999 999  NONE ORG     0           
+u  g     origin personnel location a    gtype n a_effective 
+-- ----- ------ --------- -------- ---- ----- - ----------- 
+U1 BLUE  NONE   1         1 1      NONE FRC     0           
+U2 USAID NONE   1         999 999  NONE ORG     0           
     }
 
 
@@ -93,9 +95,9 @@ U2 USAID 1         999 999  NONE ORG     0
     } -cleanup {
         cleanup
     } -result {
-u  g    personnel location a    gtype n   a_effective 
--- ---- --------- -------- ---- ----- --- ----------- 
-U1 BLUE 1         100 100  NONE FRC   NB1 0           
+u  g    origin personnel location a    gtype n   a_effective 
+-- ---- ------ --------- -------- ---- ----- --- ----------- 
+U1 BLUE NONE   1         100 100  NONE FRC   NB1 0           
     }
 
     test create-2.1 {undo deletes the unit} -setup {
@@ -163,9 +165,9 @@ U1 BLUE 1         100 100  NONE FRC   NB1 0
     } -cleanup {
         cleanup
     } -result {
-u  g    personnel location a    gtype n a_effective 
--- ---- --------- -------- ---- ----- - ----------- 
-U1 BLUE 1         1 1      NONE FRC     0           
+u  g    origin personnel location a    gtype n a_effective 
+-- ---- ------ --------- -------- ---- ----- - ----------- 
+U1 BLUE NONE   1         1 1      NONE FRC     0           
     }
 
 
@@ -194,6 +196,7 @@ U1 BLUE 1         1 1      NONE FRC     0
         unit mutate update {
             u         U1 
             g         BRIT
+            origin    NB1
             location  {2 2} 
             personnel 3 
             a         PATROL
@@ -203,9 +206,9 @@ U1 BLUE 1         1 1      NONE FRC     0
     } -cleanup {
         cleanup
     } -result {
-u  g    personnel location a      gtype n a_effective 
--- ---- --------- -------- ------ ----- - ----------- 
-U1 BRIT 3         2 2      PATROL FRC     0           
+u  g    origin personnel location a      gtype n a_effective 
+-- ---- ------ --------- -------- ------ ----- - ----------- 
+U1 BRIT NB1    3         2 2      PATROL FRC     0           
     }
 
     test update-1.2 {identical values are OK} -setup {
@@ -579,6 +582,71 @@ U2
     }
 
 
+    # reconcile-3.*: Units should have their "origin" reset to NONE
+    # if the neighborhood no longer exists.  The undo should reset
+    # the "origin". Both should send <Entity> events.
+
+    test reconcile-3.1 {Clear origin for units with deleted origins} -setup {
+        ted create BLUE
+        unit mutate create [dict merge $u1 [list origin NB1]]
+    } -body {
+        unit mutate reconcile
+        ted query {SELECT u,origin FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u  origin 
+-- ------ 
+U1 NONE   
+    }
+
+
+    test reconcile-3.2 {Send <Entity> update when origin is reset} -setup {
+        ted create BLUE
+        unit mutate create [dict merge $u1 [list origin NB1]]
+    } -body {
+        ted notifier bind ::unit <Entity>
+        unit mutate reconcile
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update U1}
+    }
+
+
+    test reconcile-3.3 {Reset origin on undo} -setup {
+        ted create BLUE
+        unit mutate create [dict merge $u1 [list origin NB1]]
+
+        set undo [unit mutate reconcile]
+    } -body {
+        eval $undo
+        ted query {SELECT u,origin FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u  origin 
+-- ------ 
+U1 NB1    
+    }
+
+
+    test reconcile-3.4 {Send <Entity> update on undo} -setup {
+        ted create BLUE
+        unit mutate create [dict merge $u1 [list origin NB1]]
+
+        set undo [unit mutate reconcile]
+    } -body {
+        ted notifier bind ::unit <Entity>
+        eval $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update U1}
+    }
+
 
     #-------------------------------------------------------------------
     # names
@@ -620,49 +688,39 @@ U2
         cleanup
     } -result {U1}
 
-
     #-------------------------------------------------------------------
-    # group names
+    # origin names
 
-    test group_names-1.1 {Returns names of FRC and ORG groups} -setup {
-        ted create BLUE USAID SHIA
+    test origin_names-1.1 {Returns names of nbhoods, plus NONE} -setup {
+        ted create NB1 NB2
     } -body {
-        unit group names
+        unit origin names
     } -cleanup {
         cleanup
-    } -result {BLUE USAID}
+    } -result {NONE NB1 NB2}
 
 
     #-------------------------------------------------------------------
-    # group validate
+    # origin validate
 
-    test group_validate-1.1 {Invalid name, none defined} -body {
-        unit group validate NONESUCH
+    test origin_validate-1.1 {Invalid name} -setup {
+        ted create NB1 NB2
+    } -body {
+        unit origin validate NONESUCH
     } -returnCodes {
         error
     } -cleanup {
         cleanup
-    } -result {Invalid unit group, none are defined}
+    } -result {Invalid unit origin, should be one of: NONE, NB1, NB2}
 
 
-    test group_validate-1.2 {Invalid name, some defined} -setup {
-        ted create BLUE USAID SHIA
+    test origin_validate-2.1 {Valid name} -setup {
+        ted create NB1 NB2
     } -body {
-        unit group validate SHIA
-    } -returnCodes {
-        error
+        unit origin validate NB2
     } -cleanup {
         cleanup
-    } -result {Invalid unit group, should be one of: BLUE, USAID}
-
-
-    test group_validate-2.1 {Valid name} -setup {
-        ted create BLUE USAID SHIA
-    } -body {
-        unit group validate USAID
-    } -cleanup {
-        cleanup
-    } -result {USAID}
+    } -result {NB2}
 
 
     #-------------------------------------------------------------------
