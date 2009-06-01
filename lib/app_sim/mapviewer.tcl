@@ -1153,6 +1153,11 @@ snit::widget mapviewer {
     # returns 1 if you can update the icon, and 0 otherwise.
 
     method canupdate {} {
+        if {![info exists icons(context)] ||
+            $icons(context) eq ""} {
+            return 0
+        }
+
         set sid $icons(context)
         set cid $icons(cid-$sid)
         set itype $icons(itype-$cid)
