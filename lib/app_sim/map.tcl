@@ -155,6 +155,7 @@ snit::type map {
             SELECT * FROM maps WHERE id=1
         } row {
             unset row(*)
+            binary scan $row(data) H* row(data)
         }
 
         # NEXT, try to load it into the RDB
@@ -181,6 +182,12 @@ snit::type map {
     typemethod UndoImport {dict} {
         # FIRST, restore the data
         dict for {key value} $dict {
+            # FIRST, decode the image data
+            if {$key eq "data"} {
+                set value [binary format H* $value]
+            }
+
+            # NEXT, put it back in the RDB
             rdb eval "
                 UPDATE maps
                 SET $key = \$value
