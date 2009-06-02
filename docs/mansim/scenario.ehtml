@@ -114,8 +114,10 @@ is saved in the <b>snapshots</b> table.<p>
 
 <<defitem "scenario snapshot load" {scenario snapshot load <i>tick</i>}>>
 
-Loads the snapshot saved at time <i>tick</i>, and reconfigures the
-simulation.  It's an error if there is no such snapshot.<p>
+Loads the snapshot saved at time <i>tick</i>.  It's an error if there
+is no such snapshot.  The caller must reconfigure the sim by calling
+<<xref sim(sim) "sim reconfigure">>.  (Since this call is used only by
+<<xref sim(sim)>> this is not an inconvenience.)<p>
 
 <<defitem "scenario snapshot list" {scenario snapshot list}>>
 

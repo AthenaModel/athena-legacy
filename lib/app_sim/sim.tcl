@@ -337,7 +337,6 @@ snit::type sim {
         app puts $message
 
         # NEXT, reconfigure the app.
-        # TBD: snapshot load does this already!
         $type reconfigure
 
         return

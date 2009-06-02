@@ -349,7 +349,8 @@ snit::type scenario {
     #
     # tick     The tick of the snapshot to load
     #
-    # Loads the specified snapshot, and reconfigures the sim.
+    # Loads the specified snapshot.  The caller should
+    # reconfigure the sim.
 
     typemethod {snapshot load} {tick} {
         require {$tick in [scenario snapshot list]} \
@@ -367,9 +368,6 @@ snit::type scenario {
 
         # NEXT, restore the saveables
         $type RestoreSaveables
-        
-        # NEXT, Reconfigure the app
-        sim reconfigure
     }
 
 
