@@ -38,7 +38,7 @@ snit::widgetadaptor nbcoopbrowser {
             -table        "gui_coop_ng"               \
             -keycol       "id"                        \
             -keycolnum    0                           \
-            -titlecolumns 4                           \
+            -titlecolumns 3                           \
             -displaycmd   [mymethod DisplayData]
 
         # NEXT, get the options.
