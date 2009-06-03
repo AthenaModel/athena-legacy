@@ -198,6 +198,12 @@ snit::widget appwin {
             script { coopbrowser %W }
         }
 
+        nbcoop {
+            label "NbhoodCoop"
+            parent gramt
+            script { nbcoopbrowser %W }
+        }
+
         report {
             label  "Reports"
             parent ""

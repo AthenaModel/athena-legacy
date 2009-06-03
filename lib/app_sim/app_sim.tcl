@@ -107,6 +107,7 @@ source [file join $::app_sim::library satbrowser.tcl       ]
 source [file join $::app_sim::library securitybrowser.tcl  ]
 source [file join $::app_sim::library relbrowser.tcl       ]
 source [file join $::app_sim::library coopbrowser.tcl      ] 
+source [file join $::app_sim::library nbcoopbrowser.tcl    ] 
 source [file join $::app_sim::library unitbrowser.tcl      ]
 
 

@@ -124,6 +124,16 @@ SELECT n || ' ' || f || ' ' || g                         AS id,
 FROM coop_nfg AS main 
 LEFT OUTER JOIN gram_coop AS gram USING (n,f,g);
 
+-- A coop_ng view for use by the GUI:
+-- NOTE: presumes there is a single gram(n)!
+CREATE TEMPORARY VIEW gui_coop_ng AS
+SELECT n || ' ' || g          AS id,
+       n                      AS n,
+       g                      AS g,
+       format('%5.1f', coop0) AS coop0,
+       format('%5.1f', coop)  AS coop
+FROM gram_frc_ng;
+
 -- An nbrel_mn view for use by the GUI
 CREATE TEMPORARY VIEW gui_nbrel_mn AS
 SELECT m || ' ' || n                                 AS id,
