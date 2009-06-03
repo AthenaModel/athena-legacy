@@ -102,6 +102,7 @@ snit::widgetadaptor frcgroupbrowser {
         $hull insertcolumn end 0 {Unit Shape}        
         $hull insertcolumn end 0 {Force Type}
         $hull insertcolumn end 0 {Demeanor}
+        $hull insertcolumn end 0 {Uniformed?}
         $hull insertcolumn end 0 {Local?}
         $hull insertcolumn end 0 {Coalition?}
 
@@ -133,7 +134,7 @@ snit::widgetadaptor frcgroupbrowser {
         dict with dict {
             $hull setdata $g \
                 [list $g $longname $color $shape $forcetype $demeanor \
-                     $local $coalition]
+                     $uniformed $local $coalition]
             $hull setcellbackground $g 2 $color
         }
     }

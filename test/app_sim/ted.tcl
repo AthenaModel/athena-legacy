@@ -233,6 +233,7 @@ snit::type ted {
             shape     FRIEND
             forcetype REGULAR
             demeanor  AVERAGE
+            uniformed yes
             local     no
             coalition yes
         }
@@ -244,8 +245,21 @@ snit::type ted {
             shape     FRIEND
             forcetype REGULAR
             demeanor  AVERAGE
+            uniformed yes
             local     no
             coalition yes
+        }
+        
+        defentity ALQ ::frcgroup {
+            g         ALQ
+            longname  "Al Qaeda"
+            color     "#f00003"
+            shape     ENEMY
+            forcetype IRREGULAR
+            demeanor  AGGRESSIVE
+            uniformed no
+            local     no
+            coalition no
         }
         
         # Organization Groups

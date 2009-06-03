@@ -192,6 +192,10 @@ the group's icons.<</parm>>
 <<::projectlib::edemeanor html>>
 <</parm>>
 
+<<parm uniformed>> <b>Required.</b> Whether units of this force group
+are uniformed or non-uniformed, expressed as a boolean
+value (e.g., "Yes" or "No").<</parm>>
+
 <<parm local>> <b>Required.</b> The local flag, expressed as a boolean
 value (e.g., "Yes" or "No"). Indicates whether the group is perceived
 as being local to the playbox, or as a foreign force.<</parm>>
@@ -238,6 +242,7 @@ IDs.<</parm>>
 <<parm color>>     As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
 <<parm forcetype>> As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
 <<parm demeanor>>  As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
+<<parm uniformed>> As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
 <<parm local>>     As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
 <<parm coalition>> As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
 

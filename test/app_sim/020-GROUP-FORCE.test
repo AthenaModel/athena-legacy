@@ -35,6 +35,7 @@ namespace eval ::athena_test::tests:: {
         shape     FRIEND
         forcetype REGULAR
         demeanor  AVERAGE
+        uniformed yes
         local     no
         coalition yes
     }
@@ -46,6 +47,7 @@ namespace eval ::athena_test::tests:: {
         shape     FRIEND
         forcetype REGULAR
         demeanor  AVERAGE
+        uniformed yes
         local     no
         coalition yes
     }
@@ -70,6 +72,7 @@ namespace eval ::athena_test::tests:: {
         shape {required value}
         forcetype {required value}
         demeanor {required value}
+        uniformed {required value}
         local {required value}
         coalition {required value}
     }
@@ -147,7 +150,15 @@ namespace eval ::athena_test::tests:: {
         demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
-    test CREATE-1.9 {invalid local} -body {
+    test CREATE-1.9 {invalid uniformed} -body {
+        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+            uniformed NONESUCH
+        }]
+    } -result {
+        uniformed {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+    test CREATE-1.10 {invalid local} -body {
         ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
             local NONESUCH
         }]
@@ -155,7 +166,7 @@ namespace eval ::athena_test::tests:: {
         local {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test CREATE-1.10 {invalid coalition} -body {
+    test CREATE-1.11 {invalid coalition} -body {
         ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
             coalition NONESUCH
         }]
@@ -171,9 +182,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   gtype forcetype demeanor local coalition 
----- -------- ------- ------ -------- ----- --------- -------- ----- --------- 
-BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   AVERAGE  0     1         
+g    longname color   shape  symbol   gtype forcetype demeanor uniformed local coalition 
+---- -------- ------- ------ -------- ----- --------- -------- --------- ----- --------- 
+BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   AVERAGE  1         0     1         
     }
 
 
@@ -327,7 +338,18 @@ BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   AVERAGE  0     1
     }
 
 
-    test UPDATE-1.8 {invalid local} -setup {
+    test UPDATE-1.8 {invalid uniformed} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted order -reject GROUP:FORCE:UPDATE g BLUE uniformed NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        uniformed {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+
+    test UPDATE-1.9 {invalid local} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted order -reject GROUP:FORCE:UPDATE g BLUE local NONESUCH
@@ -338,7 +360,7 @@ BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   AVERAGE  0     1
     }
 
 
-    test UPDATE-1.9 {invalid coalition} -setup {
+    test UPDATE-1.10 {invalid coalition} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted order -reject GROUP:FORCE:UPDATE g BLUE coalition NONESUCH
@@ -359,6 +381,7 @@ BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   AVERAGE  0     1
             shape        NEUTRAL
             forcetype    POLICE
             demeanor     AGGRESSIVE
+            uniformed    no
             local        yes
             coalition    no
         }
@@ -367,9 +390,9 @@ BLUE US Army  #0000ff FRIEND infantry FRC   REGULAR   AVERAGE  0     1
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol gtype forcetype demeanor   local coalition 
----- ----------- ------- ------- ------ ----- --------- ---------- ----- --------- 
-BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE 1     0         
+g    longname    color   shape   symbol gtype forcetype demeanor   uniformed local coalition 
+---- ----------- ------- ------- ------ ----- --------- ---------- --------- ----- --------- 
+BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE 0         1     0         
     }
 
 
@@ -395,6 +418,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE 1     0
             forcetype    POLICE
             demeanor     AGGRESSIVE
             local        yes
+            uniformed    no
             coalition    no
         }
     } -body {
@@ -479,7 +503,18 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE 1     0
     }
 
 
-    test UPDATE:MULTI-1.8 {invalid local} -setup {
+    test UPDATE:MULTI-1.8 {invalid uniformed} -setup {
+        ted order GROUP:FORCE:CREATE $blue
+    } -body {
+        ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE uniformed NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        uniformed {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+
+    test UPDATE:MULTI-1.9 {invalid local} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE local NONESUCH
@@ -489,7 +524,8 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE 1     0
         local {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test UPDATE:MULTI-1.9 {invalid coalition} -setup {
+
+    test UPDATE:MULTI-1.10 {invalid coalition} -setup {
         ted order GROUP:FORCE:CREATE $blue
     } -body {
         ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE coalition NONESUCH
@@ -512,6 +548,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE 1     0
             shape     NEUTRAL
             forcetype POLICE
             demeanor  AGGRESSIVE
+            uniformed no
             local     yes
             coalition no
         }
@@ -536,6 +573,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE 1     0
             shape     NEUTRAL
             forcetype POLICE
             demeanor  AGGRESSIVE
+            uniformed no
             local     yes
             coalition no
         }

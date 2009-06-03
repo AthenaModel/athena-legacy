@@ -174,6 +174,9 @@ CREATE TABLE frcgroups (
     -- Group demeanor: edemeanor
     demeanor    TEXT DEFAULT 'AVERAGE',
 
+    -- Uniformed or Non-uniformed: 1 or 0
+    uniformed   INTEGER DEFAULT 1,
+
     -- Local or foreign: 1 if local, 0 if foreign
     local       INTEGER,
 

@@ -53,6 +53,7 @@ SELECT g                                              AS id,
        shape                                          AS shape,
        forcetype                                      AS forcetype,
        demeanor                                       AS demeanor,
+       CASE uniformed WHEN 1 THEN 'YES' ELSE 'NO' END AS uniformed,
        CASE local     WHEN 1 THEN 'YES' ELSE 'NO' END AS local,
        CASE coalition WHEN 1 THEN 'YES' ELSE 'NO' END AS coalition
 FROM groups JOIN frcgroups USING (g);
