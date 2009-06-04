@@ -102,12 +102,6 @@ set metadata {
         mode     cmdline
     }
 
-    import {
-        text     "XML Import"
-        applib   app_import
-        mode     cmdline
-    }
-
     export {
         text     "XML Export"
         applib   app_export

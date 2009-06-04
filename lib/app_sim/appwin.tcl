@@ -349,10 +349,15 @@ snit::widget appwin {
         bind $win <Control-s> [mymethod FileSave]
         bind $win <Control-S> [mymethod FileSave]
 
-        $mnu add command                  \
+        $mnu add command                       \
             -label     "Save Scenario As..."   \
             -underline 14                      \
             -command   [mymethod FileSaveAs]
+
+        $mnu add command                         \
+            -label     "Export As XML..."        \
+            -underline 0                         \
+            -command   [mymethod FileExportAsXml]
 
         $mnu add separator
 
@@ -1008,7 +1013,8 @@ snit::widget appwin {
                           -parent $win                    \
                           -title "Open Scenario"          \
                           -filetypes {
-                              {{Athena Scenario} {.adb} }
+                              {{Athena Scenario}     {.adb} }
+                              {{Athena Scenario XML} {.xml} }
                           }]
 
         # NEXT, If none, they cancelled
@@ -1043,6 +1049,31 @@ snit::widget appwin {
 
         # NEXT, Save the scenario using this name
         return [scenario save $filename]
+    }
+
+    # FileExportAsXml
+    #
+    # Prompts the user to save the scenario as an XML file.
+
+    method FileExportAsXml {} {
+        # FIRST, query for the XML file name.  If the file already
+        # exists, the dialog will automatically query whether to 
+        # overwrite it or not. Returns 1 on success and 0 on failure.
+
+        set filename [tk_getSaveFile                         \
+                          -parent $win                       \
+                          -title "Export Scenario As"        \
+                          -filetypes {
+                              {{Athena Scenario XML} {.xml} }
+                          }]
+
+        # NEXT, If none, they cancelled.
+        if {$filename eq ""} {
+            return 0
+        }
+
+        # NEXT, Export the scenario using this name
+        return [scenario export $filename]
     }
 
     # FileSave

@@ -18,7 +18,7 @@ contents of the file's permanent SQL tables as XML text (see
 standard output by default, or to the named <i>xmlfile</i>.<p>
 
 The XML text can be imported back into a scenario file using
-<<xref athena_import(1)>>.<p>
+<<xref athena_sim(1)>>'s File/Open menu item.<p>
 
 <<subsection "XML Schema">>
 
