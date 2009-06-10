@@ -42,8 +42,8 @@
 #         B. Context Menu
 #         C. Event Handlers: notifier(n)
 #         D. Public Methods
-#     V.  Envsit Display and Behavior
-#         A. Envsit Display
+#     V.  Ensit Display and Behavior
+#         A. Ensit Display
 #         B. Context Menu
 #         C. Event Handlers: notifier(n)
 #         D. Public Methods
@@ -497,18 +497,18 @@ snit::widget mapviewer {
             -text [order title UNIT:CREATE]
 
         cond::orderIsValid control \
-            [button $win.vbar.newenvsit                                     \
+            [button $win.vbar.newensit                                     \
                  -relief  flat                                              \
                  -image   ${type}::icon::envpoly                            \
                  -command [list order enter SITUATION:ENVIRONMENTAL:CREATE]] \
             order SITUATION:ENVIRONMENTAL:CREATE
 
-        DynamicHelp::add $win.vbar.newenvsit \
+        DynamicHelp::add $win.vbar.newensit \
             -text [order title SITUATION:ENVIRONMENTAL:CREATE]
 
         pack $win.vbar.nbhood    -side top -fill x -padx 2
         pack $win.vbar.newunit   -side top -fill x -padx 2
-        pack $win.vbar.newenvsit -side top -fill x -padx 2
+        pack $win.vbar.newensit -side top -fill x -padx 2
 
         # Pack all of these components
         pack $win.hbar  -side top  -fill x
@@ -519,7 +519,7 @@ snit::widget mapviewer {
         # NEXT, Create the context menus
         $self CreateNbhoodContextMenu
         $self CreateUnitContextMenu
-        $self CreateEnvsitContextMenu
+        $self CreateEnsitContextMenu
 
         # NEXT, process the arguments
         $self configurelist $args
@@ -540,7 +540,7 @@ snit::widget mapviewer {
         notifier bind ::order    <OrderEntry>  $self [mymethod OrderEntry]
         notifier bind ::nbhood   <Entity>      $self [mymethod EntityNbhood]
         notifier bind ::unit     <Entity>      $self [mymethod EntityUnit]
-        notifier bind ::envsit   <Entity>      $self [mymethod EntityEnvsit]
+        notifier bind ::ensit   <Entity>      $self [mymethod EntityEnsit]
         notifier bind ::civgroup <Entity>      $self [mymethod EntityCivGrp]
         notifier bind ::frcgroup <Entity>      $self [mymethod EntityFrcGrp]
         notifier bind ::orggroup <Entity>      $self [mymethod EntityOrgGrp]
@@ -702,7 +702,7 @@ snit::widget mapviewer {
         # NEXT, clear all remembered state, and redraw everything
         $self NbhoodDrawAll
         $self UnitDrawAll
-        $self EnvsitDrawAll
+        $self EnsitDrawAll
 
         # NEXT, set zoom and region
         set view(zoom)   "[$canvas zoom]%"
@@ -904,7 +904,7 @@ snit::widget mapviewer {
         
         cond::orderIsValid control \
             [menuitem $mnu command "Create Environmental Situation" \
-                 -command [mymethod NbhoodCreateEnvsitHere]]        \
+                 -command [mymethod NbhoodCreateEnsitHere]]        \
             order SITUATION:ENVIRONMENTAL:CREATE
 
         $mnu add separator
@@ -930,11 +930,11 @@ snit::widget mapviewer {
     }
 
 
-    # NbhoodCreateEnvsitHere
+    # NbhoodCreateEnsitHere
     #
-    # Pops up the create envsit dialog with this location filled in.
+    # Pops up the create ensit dialog with this location filled in.
 
-    method NbhoodCreateEnvsitHere {} {
+    method NbhoodCreateEnsitHere {} {
         order enter SITUATION:ENVIRONMENTAL:CREATE location $nbhoods(transref)
     }
 
@@ -1163,7 +1163,7 @@ snit::widget mapviewer {
         set itype $icons(itype-$cid)
 
         if {$itype eq "situation"} {
-            return [expr {$sid in [envsit initial names]}]
+            return [expr {$sid in [ensit initial names]}]
         } else {
             return 1
         }
@@ -1187,7 +1187,7 @@ snit::widget mapviewer {
 
         switch $icons(itype-$cid) {
             unit      { event generate $win <<Unit-1>>   -data $sid }
-            situation { event generate $win <<Envsit-1>> -data $sid }
+            situation { event generate $win <<Ensit-1>> -data $sid }
         } 
     }
 
@@ -1209,7 +1209,7 @@ snit::widget mapviewer {
 
             situation {
                 set icons(context) $icons(sid-$cid)
-                tk_popup $canvas.envsitmenu $rx $ry
+                tk_popup $canvas.ensitmenu $rx $ry
             }
         }
     }
@@ -1240,7 +1240,7 @@ snit::widget mapviewer {
                         s        $icons(sid-$cid)                 \
                         location [$canvas icon ref $cid]
                 }]} {
-                    $self EnvsitDrawSingle $icons(sid-$cid)
+                    $self EnsitDrawSingle $icons(sid-$cid)
                 }
             }
         }
@@ -1368,31 +1368,31 @@ snit::widget mapviewer {
 
 
     #===================================================================
-    # Envsit Display and Behavior
+    # Ensit Display and Behavior
 
     #-------------------------------------------------------------------
-    # Envsit Display
+    # Ensit Display
 
-    # EnvsitDrawAll
+    # EnsitDrawAll
     #
-    # Clears and redraws all envsits
+    # Clears and redraws all ensits
 
-    method EnvsitDrawAll {} {
+    method EnsitDrawAll {} {
         rdb eval {
-            SELECT * FROM envsits_current
+            SELECT * FROM ensits_current
         } row {
-            $self EnvsitDraw [array get row]
+            $self EnsitDraw [array get row]
         } 
 
     }
 
-    # EnvsitDraw parmdict
+    # EnsitDraw parmdict
     #
-    # parmdict   Data about the envsit
+    # parmdict   Data about the ensit
 
-    method EnvsitDraw {parmdict} {
+    method EnsitDraw {parmdict} {
         dict with parmdict {
-            # FIRST, if there's an existing envsit called this,
+            # FIRST, if there's an existing ensit called this,
             # delete it.
             if {[info exists icons(cid-$s)]} {
                 $self IconDelete $s
@@ -1421,24 +1421,24 @@ snit::widget mapviewer {
         }
     }
 
-    # EnvsitDrawSingle s
+    # EnsitDrawSingle s
     #
-    # s    The ID of the envsit.
+    # s    The ID of the ensit.
     #
-    # Redraws just envsit s.  Use this when only a single envsit is
+    # Redraws just ensit s.  Use this when only a single ensit is
     # to be redrawn.
 
-    method EnvsitDrawSingle {s} {
+    method EnsitDrawSingle {s} {
         # FIRST, draw it, if it's current.
         rdb eval {
-            SELECT * FROM envsits_current
+            SELECT * FROM ensits_current
             WHERE s=$s
         } row {
-            $self EnvsitDraw [array get row]
+            $self EnsitDraw [array get row]
             return
         } 
 
-        # NEXT, the envsit is no longer current; delete the icon.
+        # NEXT, the ensit is no longer current; delete the icon.
         if {[info exists icons(cid-$s)]} {
             $self IconDelete $s
         }
@@ -1446,61 +1446,61 @@ snit::widget mapviewer {
 
 
     #-------------------------------------------------------------------
-    # Envsit Context Menu
+    # Ensit Context Menu
 
-    # CreateEnvsitContextMenu
+    # CreateEnsitContextMenu
     #
     # Creates the context menu
 
-    method CreateEnvsitContextMenu {} {
-        set mnu [menu $canvas.envsitmenu]
+    method CreateEnsitContextMenu {} {
+        set mnu [menu $canvas.ensitmenu]
 
         cond::orderIsValidCanUpdate control \
             [menuitem $mnu command "Update Situation" \
-                 -command [mymethod UpdateEnvsit]] \
+                 -command [mymethod UpdateEnsit]] \
             order SITUATION:ENVIRONMENTAL:UPDATE browser $win
     }
 
-    # UpdateEnvsit
+    # UpdateEnsit
     #
     # Pops up the "Update Environmental Situation" dialog for this unit
 
-    method UpdateEnvsit {} {
+    method UpdateEnsit {} {
         order enter SITUATION:ENVIRONMENTAL:UPDATE s $icons(context)
     }
 
     #-------------------------------------------------------------------
     # Event Handlers: notifier(n)
 
-    # EntityEnvsit create s
+    # EntityEnsit create s
     #
-    # s     The envsit ID
+    # s     The ensit ID
     #
-    # There's a new envsit; display it.
+    # There's a new ensit; display it.
 
-    method {EntityEnvsit create} {s} {
-        $self EntityEnvsit update $s
+    method {EntityEnsit create} {s} {
+        $self EntityEnsit update $s
     }
 
 
-    # EntityEnvsit delete s
+    # EntityEnsit delete s
     #
-    # s     The envsit ID
+    # s     The ensit ID
     #
-    # Delete the envsit from the mapcanvas.
+    # Delete the ensit from the mapcanvas.
 
-    method {EntityEnvsit delete} {s} {
+    method {EntityEnsit delete} {s} {
         $self IconDelete $s
     }
       
-    # EntityEnvsit update s
+    # EntityEnsit update s
     #
-    # s     The envsit ID
+    # s     The ensit ID
     #
-    # Something changed about envsit s.  Update it.
+    # Something changed about ensit s.  Update it.
 
-    method {EntityEnvsit update} {s} {
-        $self EnvsitDrawSingle $s
+    method {EntityEnsit update} {s} {
+        $self EnsitDrawSingle $s
     }
 
     #===================================================================
@@ -1553,4 +1553,6 @@ snit::widget mapviewer {
         }
     }
 }
+
+
 

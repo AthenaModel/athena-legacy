@@ -332,10 +332,10 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set envsitsMitigated [mitigates CMOCONST $n]
+            set ensitsMitigated [mitigates CMOCONST $n]
 
-            if {[llength $envsitsMitigated] > 0} {
-                detail "Mitigates:"  [join $envsitsMitigated ", "]
+            if {[llength $ensitsMitigated] > 0} {
+                detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
             }
 
@@ -462,10 +462,10 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set envsitsMitigated [mitigates CMOEDU $n]
+            set ensitsMitigated [mitigates CMOEDU $n]
 
-            if {[llength $envsitsMitigated] > 0} {
-                detail "Mitigates:"  [join $envsitsMitigated ", "]
+            if {[llength $ensitsMitigated] > 0} {
+                detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
             }
 
@@ -532,10 +532,10 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set envsitsMitigated [mitigates CMOEMP $n]
+            set ensitsMitigated [mitigates CMOEMP $n]
 
-            if {[llength $envsitsMitigated] > 0} {
-                detail "Mitigates:"  [join $envsitsMitigated ", "]
+            if {[llength $ensitsMitigated] > 0} {
+                detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
             }
 
@@ -602,10 +602,10 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set envsitsMitigated [mitigates CMOIND $n]
+            set ensitsMitigated [mitigates CMOIND $n]
 
-            if {[llength $envsitsMitigated] > 0} {
-                detail "Mitigates:"  [join $envsitsMitigated ", "]
+            if {[llength $ensitsMitigated] > 0} {
+                detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
             }
 
@@ -672,10 +672,10 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set envsitsMitigated [mitigates CMOINF $n]
+            set ensitsMitigated [mitigates CMOINF $n]
 
-            if {[llength $envsitsMitigated] > 0} {
-                detail "Mitigates:"  [join $envsitsMitigated ", "]
+            if {[llength $ensitsMitigated] > 0} {
+                detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
             }
 
@@ -800,10 +800,10 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set envsitsMitigated [mitigates CMOMED $n]
+            set ensitsMitigated [mitigates CMOMED $n]
 
-            if {[llength $envsitsMitigated] > 0} {
-                detail "Mitigates:"  [join $envsitsMitigated ", "]
+            if {[llength $ensitsMitigated] > 0} {
+                detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
             }
 
@@ -870,10 +870,10 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set envsitsMitigated [mitigates CMOOTHER $n]
+            set ensitsMitigated [mitigates CMOOTHER $n]
 
-            if {[llength $envsitsMitigated] > 0} {
-                detail "Mitigates:"  [join $envsitsMitigated ", "]
+            if {[llength $ensitsMitigated] > 0} {
+                detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
             }
 
@@ -1334,10 +1334,10 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set envsitsMitigated [mitigates ORGCONST $n]
+            set ensitsMitigated [mitigates ORGCONST $n]
 
-            if {[llength $envsitsMitigated] > 0} {
-                detail "Mitigates:"  [join $envsitsMitigated ", "]
+            if {[llength $ensitsMitigated] > 0} {
+                detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
             }
 
@@ -1406,10 +1406,10 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set envsitsMitigated [mitigates ORGEDU $n]
+            set ensitsMitigated [mitigates ORGEDU $n]
 
-            if {[llength $envsitsMitigated] > 0} {
-                detail "Mitigates:"  [join $envsitsMitigated ", "]
+            if {[llength $ensitsMitigated] > 0} {
+                detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
             }
 
@@ -1478,10 +1478,10 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set envsitsMitigated [mitigates ORGEMP $n]
+            set ensitsMitigated [mitigates ORGEMP $n]
 
-            if {[llength $envsitsMitigated] > 0} {
-                detail "Mitigates:"  [join $envsitsMitigated ", "]
+            if {[llength $ensitsMitigated] > 0} {
+                detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
             }
 
@@ -1550,10 +1550,10 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set envsitsMitigated [mitigates ORGIND $n]
+            set ensitsMitigated [mitigates ORGIND $n]
 
-            if {[llength $envsitsMitigated] > 0} {
-                detail "Mitigates:"  [join $envsitsMitigated ", "]
+            if {[llength $ensitsMitigated] > 0} {
+                detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
             }
 
@@ -1622,10 +1622,10 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set envsitsMitigated [mitigates ORGINF $n]
+            set ensitsMitigated [mitigates ORGINF $n]
 
-            if {[llength $envsitsMitigated] > 0} {
-                detail "Mitigates:"  [join $envsitsMitigated ", "]
+            if {[llength $ensitsMitigated] > 0} {
+                detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
             }
 
@@ -1694,10 +1694,10 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set envsitsMitigated [mitigates ORGMED $n]
+            set ensitsMitigated [mitigates ORGMED $n]
 
-            if {[llength $envsitsMitigated] > 0} {
-                detail "Mitigates:"  [join $envsitsMitigated ", "]
+            if {[llength $ensitsMitigated] > 0} {
+                detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
             }
 
@@ -1766,10 +1766,10 @@ snit::type actsit_rules {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
-            set envsitsMitigated [mitigates ORGOTHER $n]
+            set ensitsMitigated [mitigates ORGOTHER $n]
 
-            if {[llength $envsitsMitigated] > 0} {
-                detail "Mitigates:"  [join $envsitsMitigated ", "]
+            if {[llength $ensitsMitigated] > 0} {
+                detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
             }
 
@@ -1833,25 +1833,25 @@ snit::type actsit_rules {
     # ruleset     A CIV or ORG activity rule set
     # nbhood      The affected nbhood
     #
-    # Returns a list of the envsits present 
+    # Returns a list of the ensits present 
     # in nbhood which are mitigated by this rule set's activity.  
     # If none, returns the empty list.
 
     proc mitigates {ruleset nbhood} {
-        # FIRST, get the mitigated envsits and form them into an 
+        # FIRST, get the mitigated ensits and form them into an 
         # "IN" list.  If none, just return immediately.
-        set envsits [parmdb get ada.$ruleset.mitigates]
+        set ensits [parmdb get ada.$ruleset.mitigates]
 
-        if {[llength $envsits] == 0} {
+        if {[llength $ensits] == 0} {
             return {} 
         }
 
-        set inList "('[join $envsits ',']')"
+        set inList "('[join $ensits ',']')"
 
-        # NEXT, check for active envsits, collecting the affected groups as
+        # NEXT, check for active ensits, collecting the affected groups as
         # we go.
         return [rdb eval "
-            SELECT stype FROM envsits
+            SELECT stype FROM ensits
             WHERE n     = \$nbhood
             AND   state = 'ACTIVE'
             AND   stype IN $inList
@@ -1935,6 +1935,7 @@ snit::type actsit_rules {
         return [qsat name $sat]
     }
 }
+
 
 
 

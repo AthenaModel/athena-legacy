@@ -552,9 +552,9 @@ snit::type sim {
             }
         }
 
-        # NEXT, every envsit must reside in a neighborhood
+        # NEXT, every ensit must reside in a neighborhood
         set ids [rdb eval {
-            SELECT s FROM envsits
+            SELECT s FROM ensits
             WHERE n = ''
         }]
 
@@ -563,20 +563,20 @@ snit::type sim {
 
             set ids [join $ids ", "]
             lappend results \
-                "The following envsits are outside any neighborhood:\n $ids"
+                "The following ensits are outside any neighborhood:\n $ids"
         }
 
-        # NEXT, you can't have more than envsit of a type in a 
+        # NEXT, you can't have more than ensit of a type in a 
         # neighborhood.
         rdb eval {
             SELECT count(s) AS count, n, stype
-            FROM envsits
+            FROM ensits
             GROUP BY n, stype
             HAVING count > 1
         } {
             set sane 0
             lappend results \
-                "Duplicate envsits of type $stype in neighborhood $n"
+                "Duplicate ensits of type $stype in neighborhood $n"
         }
 
         if {$option eq "-log"} {
@@ -759,7 +759,7 @@ snit::type sim {
         eventq advance [simclock now]
 
         # NEXT, advance models
-        envsit assess
+        ensit assess
         nbstat analyze
         actsit analyze
         aram advance
@@ -980,3 +980,4 @@ order define ::sim SIM:PAUSE {
 
     setundo [join $undo \n]
 }
+

@@ -530,7 +530,7 @@ snit::type scenario {
         lappend undo [rel     mutate reconcile]
         lappend undo [coop    mutate reconcile]
         lappend undo [unit    mutate reconcile]
-        lappend undo [envsit  mutate reconcile]
+        lappend undo [ensit  mutate reconcile]
 
         notifier send $type <Reconcile>
 
@@ -690,6 +690,7 @@ snit::type scenario {
         }
     }
 }
+
 
 
 

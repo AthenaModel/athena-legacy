@@ -218,8 +218,8 @@ WHERE state != 'ENDED' OR change != '';
 CREATE TEMPORARY VIEW gui_actsits_ended AS
 SELECT * FROM gui_actsits WHERE state == 'ENDED';
 
--- An envsits view for use by the GUI
-CREATE TEMPORARY VIEW gui_envsits AS
+-- An ensits view for use by the GUI
+CREATE TEMPORARY VIEW gui_ensits AS
 SELECT s                        AS id,
        s                        AS s,
        change                   AS change,
@@ -235,18 +235,20 @@ SELECT s                        AS id,
        flist                    AS flist,
        resolver                 AS resolver,
        CASE inception WHEN 1 THEN 'YES' ELSE 'NO' END AS inception
-FROM envsits;
+FROM ensits;
 
---Envsits view: envsits in INITIAL state
-CREATE TEMPORARY VIEW gui_envsits_initial AS
-SELECT * FROM gui_envsits
+--Ensits view: ensits in INITIAL state
+CREATE TEMPORARY VIEW gui_ensits_initial AS
+SELECT * FROM gui_ensits
 WHERE state = 'INITIAL';
 
---Envsits view: current envsits: live or freshly ended
-CREATE TEMPORARY VIEW gui_envsits_current AS
-SELECT * FROM gui_envsits
+--Ensits view: current ensits: live or freshly ended
+CREATE TEMPORARY VIEW gui_ensits_current AS
+SELECT * FROM gui_ensits
 WHERE state != 'ENDED' OR change != '';
        
---Actsits view: ended envsits
-CREATE TEMPORARY VIEW gui_envsits_ended AS
-SELECT * FROM gui_envsits WHERE state = 'ENDED';
+--Actsits view: ended ensits
+CREATE TEMPORARY VIEW gui_ensits_ended AS
+SELECT * FROM gui_ensits WHERE state = 'ENDED';
+
+

@@ -828,28 +828,28 @@ specified as a <<xref mars::zulu(n)>> time string.<</parm>>
 
 <<section "SITUATION:ENVIRONMENTAL:*">>
 
-These orders relate to environmental situations (envsits).  An envsit
+These orders relate to environmental situations (ensits).  An ensit
 represents on on-going situation in a neighborhood, such as a power
 outage, a sewage spill, or an epidemic.<p>
 
-<<deflist envsit>>
+<<deflist ensit>>
 
 <<defitem SITUATION:ENVIRONMENTAL:CREATE {SITUATION:ENVIRONMENTAL:CREATE}>>
 
-Creates a new envsit.  The envsit may be updated freely until the next
+Creates a new ensit.  The ensit may be updated freely until the next
 time advance.  The parameters are as
 follows:<p>
 
 <<parmlist>>
 
-<<parm location>> <b>Required.</b>  The location of the envsit as
+<<parm location>> <b>Required.</b>  The location of the ensit as
 a map reference.  It must be in a neighborhood.<</parm>>
 
 <<parm stype>> <b>Required.</b>  The situation type, as follows:<p>
 
-<<::projectlib::eenvsit html>>
+<<::projectlib::eensit html>>
 
-Only one envsit of a given type can exist in a single
+Only one ensit of a given type can exist in a single
 neighborhood.<</parm>>
 
 <<parm coverage>> <b>Required.</b>  The coverage of the situation,
@@ -868,51 +868,51 @@ situation, or <b>NONE</b>.<</parm>>
 
 <<defitem SITUATION:ENVIRONMENTAL:DELETE {SITUATION:ENVIRONMENTAL:DELETE}>>
 
-Deletes an envsit as though it never existed.  This can only be done
+Deletes an ensit as though it never existed.  This can only be done
 before attitude effects are assessed at the next time advance.<p>
 
 The parameters are as follows:<p>
 
 <<parmlist>>
 
-<<parm s>> <b>Required.</b> The envsit's ID.<</parm>>
+<<parm s>> <b>Required.</b> The ensit's ID.<</parm>>
 
 <</parmlist>>
 
 
 <<defitem SITUATION:ENVIRONMENTAL:UPDATE {SITUATION:ENVIRONMENTAL:UPDATE}>>
 
-Updates an existing envsit.  The parameters are as
+Updates an existing ensit.  The parameters are as
 defined for <<iref SITUATION:ENVIRONMENTAL:CREATE>>, with the addition
 of <b>s</b>, the situation ID.  <b>s</b> is required, and
-specifies the envsit to update, while the remainder are optional.<p>
+specifies the ensit to update, while the remainder are optional.<p>
 
-Newly created envsits can be updated freely, up until attitude effects
-are assessed at the next time advance.  In particular, such envsits
+Newly created ensits can be updated freely, up until attitude effects
+are assessed at the next time advance.  In particular, such ensits
 can be moved from one neighborhood to another.<p>
 
-Once time advances, the envsit may be moved within its neighborhood,
+Once time advances, the ensit may be moved within its neighborhood,
 but no other changes are possible.<p>
 
 <<defitem SITUATION:ENVIRONMENTAL:RESOLVE {SITUATION:ENVIRONMENTAL:RESOLVE}>>
 
-Resolves an unresolved envsit.
+Resolves an unresolved ensit.
 Resolution effects will be assessed at the next time advance.<p>
 
 The parameters are as follows:<p>
 
 <<parmlist>>
 
-<<parm s>> <b>Required.</b> The envsit's ID.<</parm>>
+<<parm s>> <b>Required.</b> The ensit's ID.<</parm>>
 
 <<parm resolver>> <b>Optional.</b> The name of the group responsible
-for resolving the envsit, or <b>NONE</b>.  If omitted, defaults to
+for resolving the ensit, or <b>NONE</b>.  If omitted, defaults to
 <b>NONE</b>.<</parm>>
 
 <</parmlist>>
 
 
-<</deflist envsit>>
+<</deflist ensit>>
 
 
 <<section "UNIT:*">>
@@ -998,4 +998,5 @@ IDs.<</parm>>
 Will Duquette<p>
 
 <</manpage>>
+
 

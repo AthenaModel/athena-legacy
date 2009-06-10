@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    envsit_rules.tcl
+#    ensit_rules.tcl
 #
 # AUTHOR:
 #    Will Duquette
@@ -9,15 +9,15 @@
 #    athena_sim(n) ADA (Athena Driver Assessment) Module, 
 #    Environmental Situation Rule Sets
 #
-#    ::envsit_rules is a singleton object implemented as a snit::type.  To
-#    initialize it, call "::envsit_rules init".
+#    ::ensit_rules is a singleton object implemented as a snit::type.  To
+#    initialize it, call "::ensit_rules init".
 #
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# envsit_rules
+# ensit_rules
 
-snit::type envsit_rules {
+snit::type ensit_rules {
     # Make it an ensemble
     pragma -hastypedestroy 0 -hasinstances 0
     
@@ -34,18 +34,18 @@ snit::type envsit_rules {
     #-------------------------------------------------------------------
     # Lookup Tables
 
-    # Envsit Rule Subsets
+    # Ensit Rule Subsets
     #
     # Identifies the inception ("begin"), monitoring ("monitor") and
-    # termination ("resolve") subsets for each envsit rule set.
+    # termination ("resolve") subsets for each ensit rule set.
     #
     #  <ruleset>.setup         Command to call prior to invoking any subset
-    #  <ruleset>.begin         List of subset names to call when the envsit
+    #  <ruleset>.begin         List of subset names to call when the ensit
     #                          begins
-    #  <ruleset>.monitor       List of subset names to call when the envsit's
+    #  <ruleset>.monitor       List of subset names to call when the ensit's
     #                          state changes (except on full resolution).
     #  <ruleset>.resolution       List of subset names to call when the
-    #                          envsit is fully or partially resolved.
+    #                          ensit is fully or partially resolved.
 
 
     typevariable subsets -array {
@@ -172,7 +172,7 @@ snit::type envsit_rules {
     # setup calltype sit
     #
     # calltype  inception|monitor|resolution
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # Ruleset setup.  This is the default setup; specific rule sets
     # can override it.
@@ -202,79 +202,79 @@ snit::type envsit_rules {
 
     # inception sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     # 
-    # An envsit has begun.  Run the "inception" rule set for
-    # the envsit.
+    # An ensit has begun.  Run the "inception" rule set for
+    # the ensit.
 
     typemethod inception {sit} {
         set ruleset [$sit get stype]
 
-        if {![envsit_rules isactive $ruleset]} {
+        if {![ensit_rules isactive $ruleset]} {
             log warning envr \
-                "envsit inception $ruleset: ruleset has been deactivated"
+                "ensit inception $ruleset: ruleset has been deactivated"
             return
         }
 
         bgcatch {
             # Set up the rule set
-            envsit_rules $subsets($ruleset.setup) inception $sit
+            ensit_rules $subsets($ruleset.setup) inception $sit
 
             # Run the inception rule sets.
             foreach subset $subsets($ruleset.inception) {
-                envsit_rules $subset $sit
+                ensit_rules $subset $sit
             }
         }
     }
 
     # monitor sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
-    # An envsit is on-going; run its monitor rule set(s).
+    # An ensit is on-going; run its monitor rule set(s).
     
     typemethod monitor {sit} {
         set ruleset [$sit get stype]
 
-        if {![envsit_rules isactive $ruleset]} {
+        if {![ensit_rules isactive $ruleset]} {
             log warning envr \
-                "envsit monitor $ruleset: ruleset has been deactivated"
+                "ensit monitor $ruleset: ruleset has been deactivated"
             return
         }
 
         bgcatch {
             # Set up the rule set
-            envsit_rules $subsets($ruleset.setup) monitor $sit
+            ensit_rules $subsets($ruleset.setup) monitor $sit
 
             # Run the monitor rule sets.
             foreach subset $subsets($ruleset.monitor) {
-                envsit_rules $subset $sit
+                ensit_rules $subset $sit
             }
         }
     }
 
     # resolution sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
-    # An envsit has been resolved.  Run its resolution rule set(s).
+    # An ensit has been resolved.  Run its resolution rule set(s).
 
     typemethod resolution {sit} {
         set ruleset [$sit get stype]
 
-        if {![envsit_rules isactive $ruleset]} {
+        if {![ensit_rules isactive $ruleset]} {
             log warning envr \
-                "envsit resolution $ruleset: ruleset has been deactivated"
+                "ensit resolution $ruleset: ruleset has been deactivated"
             return
         }
 
         bgcatch {
             # Set up the rule set
-            envsit_rules $subsets($ruleset.setup) resolution $sit
+            ensit_rules $subsets($ruleset.setup) resolution $sit
 
             # Run the resolve rule sets.
             foreach subset $subsets($ruleset.resolution) {
-                envsit_rules $subset $sit
+                ensit_rules $subset $sit
             }
         }
     }
@@ -287,7 +287,7 @@ snit::type envsit_rules {
 
     # BADFOOD-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -310,7 +310,7 @@ snit::type envsit_rules {
 
     # BADFOOD-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -346,7 +346,7 @@ snit::type envsit_rules {
 
     # BADFOOD-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -393,7 +393,7 @@ snit::type envsit_rules {
  
     # BADWATER-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -416,7 +416,7 @@ snit::type envsit_rules {
 
     # BADWATER-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -452,7 +452,7 @@ snit::type envsit_rules {
 
     # BADWATER-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -499,7 +499,7 @@ snit::type envsit_rules {
  
     # BIO-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -522,7 +522,7 @@ snit::type envsit_rules {
 
     # BIO-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -557,7 +557,7 @@ snit::type envsit_rules {
 
     # BIO-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -606,7 +606,7 @@ snit::type envsit_rules {
  
     # CHEM-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -629,7 +629,7 @@ snit::type envsit_rules {
 
     # CHEM-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -664,7 +664,7 @@ snit::type envsit_rules {
 
     # CHEM-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -713,7 +713,7 @@ snit::type envsit_rules {
  
     # COMMOUT-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -737,7 +737,7 @@ snit::type envsit_rules {
 
     # COMMOUT-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -772,7 +772,7 @@ snit::type envsit_rules {
 
     # COMMOUT-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -821,7 +821,7 @@ snit::type envsit_rules {
  
     # DISASTER-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -844,7 +844,7 @@ snit::type envsit_rules {
 
     # DISASTER-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -879,7 +879,7 @@ snit::type envsit_rules {
 
     # DISASTER-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -928,7 +928,7 @@ snit::type envsit_rules {
  
     # DISEASE-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -952,7 +952,7 @@ snit::type envsit_rules {
 
     # DISEASE-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -987,7 +987,7 @@ snit::type envsit_rules {
 
     # DISEASE-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -1036,7 +1036,7 @@ snit::type envsit_rules {
  
     # EPIDEMIC-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -1060,7 +1060,7 @@ snit::type envsit_rules {
 
     # EPIDEMIC-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -1095,7 +1095,7 @@ snit::type envsit_rules {
 
     # EPIDEMIC-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -1144,7 +1144,7 @@ snit::type envsit_rules {
  
     # FOODSHRT-1 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -1178,7 +1178,7 @@ snit::type envsit_rules {
 
     # FOODSHRT-2 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -1225,7 +1225,7 @@ snit::type envsit_rules {
  
     # FUELSHRT-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -1249,7 +1249,7 @@ snit::type envsit_rules {
 
     # FUELSHRT-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -1284,7 +1284,7 @@ snit::type envsit_rules {
 
     # FUELSHRT-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -1333,7 +1333,7 @@ snit::type envsit_rules {
  
     # GARBAGE-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -1357,7 +1357,7 @@ snit::type envsit_rules {
 
     # GARBAGE-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -1392,7 +1392,7 @@ snit::type envsit_rules {
 
     # GARBAGE-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -1442,7 +1442,7 @@ snit::type envsit_rules {
  
     # INDSPILL-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -1466,7 +1466,7 @@ snit::type envsit_rules {
 
     # INDSPILL-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -1501,7 +1501,7 @@ snit::type envsit_rules {
 
     # INDSPILL-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -1551,7 +1551,7 @@ snit::type envsit_rules {
  
     # MOSQUE-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -1577,7 +1577,7 @@ snit::type envsit_rules {
 
     # MOSQUE-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -1613,7 +1613,7 @@ snit::type envsit_rules {
 
     # MOSQUE-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -1665,7 +1665,7 @@ snit::type envsit_rules {
  
     # NOWATER-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -1688,7 +1688,7 @@ snit::type envsit_rules {
 
     # NOWATER-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -1722,7 +1722,7 @@ snit::type envsit_rules {
 
     # NOWATER-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -1770,7 +1770,7 @@ snit::type envsit_rules {
  
     # ORDNANCE-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -1794,7 +1794,7 @@ snit::type envsit_rules {
 
     # ORDNANCE-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -1829,7 +1829,7 @@ snit::type envsit_rules {
 
     # ORDNANCE-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -1879,7 +1879,7 @@ snit::type envsit_rules {
  
     # PIPELINE-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -1903,7 +1903,7 @@ snit::type envsit_rules {
 
     # PIPELINE-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -1938,7 +1938,7 @@ snit::type envsit_rules {
 
     # PIPELINE-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -1987,7 +1987,7 @@ snit::type envsit_rules {
  
     # POWEROUT-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -2011,7 +2011,7 @@ snit::type envsit_rules {
 
     # POWEROUT-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -2046,7 +2046,7 @@ snit::type envsit_rules {
 
     # POWEROUT-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -2096,7 +2096,7 @@ snit::type envsit_rules {
  
     # REFINERY-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -2120,7 +2120,7 @@ snit::type envsit_rules {
 
     # REFINERY-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -2155,7 +2155,7 @@ snit::type envsit_rules {
 
     # REFINERY-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -2204,7 +2204,7 @@ snit::type envsit_rules {
  
     # SEWAGE-1 sit
     #
-    # sit     Envsit object
+    # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
@@ -2227,7 +2227,7 @@ snit::type envsit_rules {
 
     # SEWAGE-2 sit
     #
-    # sit       Envsit object
+    # sit       Ensit object
     #
     # The situation continues.
 
@@ -2261,7 +2261,7 @@ snit::type envsit_rules {
 
     # SEWAGE-3 sit
     #
-    # sit         Envsit object 
+    # sit         Ensit object 
     #
     # Situation resolution
 
@@ -2333,7 +2333,7 @@ snit::type envsit_rules {
 
     proc satlevel {sit args} {
         set cov     [$sit get coverage]
-        set nomCov  [parmdb get ada.envsit.nominalCoverage]
+        set nomCov  [parmdb get ada.ensit.nominalCoverage]
 
         assert {[llength $args] != 0 && [llength $args] % 3 == 0}
 
@@ -2365,7 +2365,7 @@ snit::type envsit_rules {
 
     proc satslope {sit args} {
         set cov     [$sit get coverage]
-        set nomCov  [parmdb get ada.envsit.nominalCoverage]
+        set nomCov  [parmdb get ada.ensit.nominalCoverage]
 
         assert {[llength $args] != 0 && [llength $args] % 2 == 0}
 
@@ -2385,6 +2385,8 @@ snit::type envsit_rules {
         ada sat slope {*}$result
     }
 }
+
+
 
 
 

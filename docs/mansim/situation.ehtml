@@ -22,7 +22,7 @@ situation(sim) uses the Database-backed Object pattern.<p>
 A situation can be in one of three states:<p>
 
 <ul>
-  <li> <b>INITIAL</b>: For <<xref envsit(sim)>> situations only.  The
+  <li> <b>INITIAL</b>: For <<xref ensit(sim)>> situations only.  The
        situation is newly created, and its affect on civilian
        attitudes has not yet been assessed.  Consequently, the
        situation's parameters may be changed freely.<p>
@@ -54,7 +54,7 @@ which depend upon it.<p>
 
 <<defitem "situation create" {situation create <i>kind column value...</i>}>>
 
-This command is for use by <<xref actsit(sim)>> and <<xref envsit(sim)>>.
+This command is for use by <<xref actsit(sim)>> and <<xref ensit(sim)>>.
 It adds a new situation to the <b>situations</b> table in the RDB,
 automatically filling in the initial state, change mark, start time,
 and change time parameters.  It returns the situation ID of the new
@@ -82,7 +82,7 @@ available by situation objects.<p>
 Given a situation, <i>s</i>, this command determines what kind of
 situation it is, e.g., an activity situation or an environmental
 situation.  The return value is the fully-qualified command name of
-the kind's singleton, e.g., <b>::actsit</b> or <b>::envsit</b>.<p>
+the kind's singleton, e.g., <b>::actsit</b> or <b>::ensit</b>.<p>
 
 If no situation <i>s</i> exists, returns the empty string.  If
 <code>-live</code> is passed, returns the empty string if no "live"
@@ -94,7 +94,7 @@ situation <i>s</i> exists.<p>
 
 situation(sim) defines the base type <b>situationType</b>, which is
 used as a component by the <<xref actsit(sim)>> and
-<<xref envsit(sim)>> object types.  This section details the methods
+<<xref ensit(sim)>> object types.  This section details the methods
 defined by <b>situationType</b>; the activity and environmental
 situation objects will usually provide all of these, possibly tweaking
 their behavior slightly.<p>
@@ -108,7 +108,7 @@ the value of the situation's <b>s</b> field.<p>
 
 <<defitem kind {<i>object</i> kind}>>
 
-Returns the "kind" of situation, i.e., <b>::actsit</b> or <b>::envsit</b>.<p>
+Returns the "kind" of situation, i.e., <b>::actsit</b> or <b>::ensit</b>.<p>
 
 <<defitem oneliner {<i>object</i> oneliner}>>
 
@@ -141,7 +141,7 @@ Retrieves the value of the specific <i>field</i>.<p>
 
 situation(sim) sends the <b>&lt;Entity&gt</b> event for situation
 <i>s</i> with operation <i>update</i> when clearing change marks.  It
-is sent on behalf of <b>::actsit</b> or <b>::envsit</b>, as though it
+is sent on behalf of <b>::actsit</b> or <b>::ensit</b>, as though it
 were sent by one of those modules.<p>
 
 <</deflist events>>
@@ -159,6 +159,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 

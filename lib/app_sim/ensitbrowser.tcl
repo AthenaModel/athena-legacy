@@ -1,14 +1,14 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    envsitbrowser.tcl
+#    ensitbrowser.tcl
 #
 # AUTHORS:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    envsitbrowser(sim) package: Environmental Situation browser.
+#    ensitbrowser(sim) package: Environmental Situation browser.
 #
-#    This widget displays a formatted list of envsits.
+#    This widget displays a formatted list of ensits.
 #    It is a variation of browser_base(n).
 #
 #-----------------------------------------------------------------------
@@ -16,7 +16,7 @@
 #-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widgetadaptor envsitbrowser {
+snit::widgetadaptor ensitbrowser {
     #-------------------------------------------------------------------
     # Options
 
@@ -38,16 +38,16 @@ snit::widgetadaptor envsitbrowser {
         # FIRST, Install the hull
         installhull using browser_base                \
             -tickreload   yes                         \
-            -table        "gui_envsits_current"       \
+            -table        "gui_ensits_current"       \
             -keycol       "id"                        \
             -keycolnum    0                           \
             -titlecolumns 1                           \
             -displaycmd   [mymethod DisplayData]      \
             -selectioncmd [mymethod SelectionChanged] \
             -views        {
-                "All"      gui_envsits
-                "Current"  gui_envsits_current
-                "Ended"    gui_envsits_ended
+                "All"      gui_ensits
+                "Current"  gui_ensits_current
+                "Ended"    gui_ensits_ended
             }
 
 
@@ -135,7 +135,7 @@ snit::widgetadaptor envsitbrowser {
         $hull sortbycolumn 0 -increasing
 
         # NEXT, update individual entities when they change.
-        notifier bind ::envsit <Entity> $self $self
+        notifier bind ::ensit <Entity> $self $self
     }
 
     destructor {
@@ -155,7 +155,7 @@ snit::widgetadaptor envsitbrowser {
         if {[llength [$self curselection]] == 1} {
             set id [lindex [$self curselection] 0]
 
-            if {$id in [envsit initial names]} {
+            if {$id in [ensit initial names]} {
                 return 1
             }
         }
@@ -172,7 +172,7 @@ snit::widgetadaptor envsitbrowser {
         if {[llength [$self curselection]] == 1} {
             set id [lindex [$self curselection] 0]
 
-            if {$id in [envsit initial names]} {
+            if {$id in [ensit initial names]} {
                 return 1
             }
         }
@@ -189,7 +189,7 @@ snit::widgetadaptor envsitbrowser {
         if {[llength [$self curselection]] == 1} {
             set id [lindex [$self curselection] 0]
 
-            if {$id in [envsit live names]} {
+            if {$id in [ensit live names]} {
                 return 1
             }
         }
@@ -286,4 +286,5 @@ snit::widgetadaptor envsitbrowser {
     }
 
 }
+
 

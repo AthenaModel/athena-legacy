@@ -332,12 +332,12 @@ snit::type ::projectlib::parmdb {
                 valid range is 0.1 to 1.0.
         }
 
-        # Envsit global parameters
-        $ps subset ada.envsit {
+        # Ensit global parameters
+        $ps subset ada.ensit {
             Parameters for the environmental situation rule sets in general.
         }
 
-        $ps define ada.envsit.nominalCoverage \
+        $ps define ada.ensit.nominalCoverage \
             ::projectlib::parmdb_nomcoverage 1.0 \
             {
                 The nominal coverage fraction for environmental
@@ -406,7 +406,7 @@ snit::type ::projectlib::parmdb {
                 PATROL
                 PSYOP
             }} {
-                $ps define ada.$name.mitigates ::projectlib::leenvsit {} {
+                $ps define ada.$name.mitigates ::projectlib::leensit {} {
                     List of environmental situation types mitigated by this
                     activity.  Note not all rule sets support this.
                 }
@@ -688,47 +688,47 @@ snit::type ::projectlib::parmdb {
             "
         }
 
-        # envsit.* parameters
-        $ps subset envsit {
-            Environmental situation parameters, by envsit type.
+        # ensit.* parameters
+        $ps subset ensit {
+            Environmental situation parameters, by ensit type.
         }
 
-        foreach name [eenvsit names] {
-            $ps subset envsit.$name "
+        foreach name [eensit names] {
+            $ps subset ensit.$name "
                 Parameters for environmental situation type 
-                [eenvsit longname $name].
+                [eensit longname $name].
             "
-            $ps define envsit.$name.spawnTime ::projectlib::ioptdays -1 {
-                How long until the envsit spawns other envsits, in days.  If
-                -1, the envsit never spawns.
+            $ps define ensit.$name.spawnTime ::projectlib::ioptdays -1 {
+                How long until the ensit spawns other ensits, in days.  If
+                -1, the ensit never spawns.
             }
 
-            $ps define envsit.$name.spawns ::projectlib::leenvsit {} {
-                List of envsit types spawned by this envsit type.
+            $ps define ensit.$name.spawns ::projectlib::leensit {} {
+                List of ensit types spawned by this ensit type.
             }
         }
 
         # Tweak the specifics
-        $ps setdefault envsit.BADFOOD.spawns                DISEASE
-        $ps setdefault envsit.BADFOOD.spawnTime             2
+        $ps setdefault ensit.BADFOOD.spawns                DISEASE
+        $ps setdefault ensit.BADFOOD.spawnTime             2
 
-        $ps setdefault envsit.BADWATER.spawns               DISEASE
-        $ps setdefault envsit.BADWATER.spawnTime            1
+        $ps setdefault ensit.BADWATER.spawns               DISEASE
+        $ps setdefault ensit.BADWATER.spawnTime            1
 
-        $ps setdefault envsit.BIO.spawns                    EPIDEMIC
-        $ps setdefault envsit.BIO.spawnTime                 4
+        $ps setdefault ensit.BIO.spawns                    EPIDEMIC
+        $ps setdefault ensit.BIO.spawnTime                 4
 
-        $ps setdefault envsit.CHEM.spawns                   DISEASE
-        $ps setdefault envsit.CHEM.spawnTime                1
+        $ps setdefault ensit.CHEM.spawns                   DISEASE
+        $ps setdefault ensit.CHEM.spawnTime                1
 
-        $ps setdefault envsit.INDSPILL.spawns               DISEASE
-        $ps setdefault envsit.INDSPILL.spawnTime            2
+        $ps setdefault ensit.INDSPILL.spawns               DISEASE
+        $ps setdefault ensit.INDSPILL.spawnTime            2
 
-        $ps setdefault envsit.NOWATER.spawns                DISEASE
-        $ps setdefault envsit.NOWATER.spawnTime             4
+        $ps setdefault ensit.NOWATER.spawns                DISEASE
+        $ps setdefault ensit.NOWATER.spawnTime             4
 
-        $ps setdefault envsit.SEWAGE.spawns                 DISEASE
-        $ps setdefault envsit.SEWAGE.spawnTime              2
+        $ps setdefault ensit.SEWAGE.spawns                 DISEASE
+        $ps setdefault ensit.SEWAGE.spawnTime              2
 
 
         # NEXT, Force/Volatility/Security Parameters
@@ -874,4 +874,6 @@ snit::type ::projectlib::parmdb {
         return
     }
 }
+
+
 

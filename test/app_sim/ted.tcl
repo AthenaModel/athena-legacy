@@ -41,7 +41,7 @@ snit::type ted {
         coop_nfg
         units
         situations
-        envsits_t
+        ensits_t
         actsits_t
     }
 
@@ -785,6 +785,7 @@ snit::type ted {
 
 
 }
+
 
 
 

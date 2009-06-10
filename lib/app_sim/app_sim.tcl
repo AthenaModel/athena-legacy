@@ -83,8 +83,8 @@ source [file join $::app_sim::library activity.tcl         ]
 source [file join $::app_sim::library situation.tcl        ]
 source [file join $::app_sim::library actsit.tcl           ]
 source [file join $::app_sim::library actsit_rules.tcl     ]
-source [file join $::app_sim::library envsit.tcl           ]
-source [file join $::app_sim::library envsit_rules.tcl     ]
+source [file join $::app_sim::library ensit.tcl           ]
+source [file join $::app_sim::library ensit_rules.tcl     ]
 
 # GUI
 source [file join $::app_sim::library orderdialog.tcl      ]
@@ -96,7 +96,7 @@ source [file join $::app_sim::library mapicon_situation.tcl]
 source [file join $::app_sim::library browser_base.tcl     ]
 source [file join $::app_sim::library activitybrowser.tcl  ]
 source [file join $::app_sim::library actsitbrowser.tcl    ]
-source [file join $::app_sim::library envsitbrowser.tcl    ]
+source [file join $::app_sim::library ensitbrowser.tcl    ]
 source [file join $::app_sim::library nbhoodbrowser.tcl    ]
 source [file join $::app_sim::library nbrelbrowser.tcl     ]
 source [file join $::app_sim::library civgroupbrowser.tcl  ]
@@ -109,6 +109,7 @@ source [file join $::app_sim::library relbrowser.tcl       ]
 source [file join $::app_sim::library coopbrowser.tcl      ] 
 source [file join $::app_sim::library nbcoopbrowser.tcl    ] 
 source [file join $::app_sim::library unitbrowser.tcl      ]
+
 
 
 

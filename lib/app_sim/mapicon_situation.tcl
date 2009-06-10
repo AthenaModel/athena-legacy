@@ -50,7 +50,7 @@ snit::type ::mapicon::situation {
     # Determines the text of the icon, typically the situation type.
 
     option -text \
-        -default         ENVSIT                   \
+        -default         ENSIT                   \
         -configuremethod ConfigureText
 
     method ConfigureText {opt val} {

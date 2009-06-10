@@ -1,13 +1,13 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-envsit.test
+#    010-ensit.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    envsit(sim) tests.
+#    ensit(sim) tests.
 #
 #-----------------------------------------------------------------------
 
@@ -48,63 +48,63 @@ namespace eval ::athena_test::tests:: {
     # table
   
     test table-1.1 {Check return value} -body {
-        envsit table
-    } -result {envsits_t}
+        ensit table
+    } -result {ensits_t}
 
     #-------------------------------------------------------------------
     # mutate create
 
-    test create-1.1 {Envsit is created} -setup {
+    test create-1.1 {Ensit is created} -setup {
         ted create NB1 BLUE
     } -body {
-        envsit mutate create $s1
-        envsit mutate create $s2
+        ensit mutate create $s1
+        ensit mutate create $s2
 
-        ted query {SELECT * FROM envsits}
+        ted query {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind     stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rdriver 
-- -------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- ------- 
-1 ::envsit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1                  0       
-2 ::envsit COMMOUT  -1     NB1 0.5      INITIAL 0  0  NEW    ALL   NONE           100 100  0                  0       
+s kind    stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rdriver 
+- ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- ------- 
+1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1                  0       
+2 ::ensit COMMOUT  -1     NB1 0.5      INITIAL 0  0  NEW    ALL   NONE           100 100  0                  0       
     }
     
 
     test create-1.2 {<Entity> create} -setup {
         ted create NB1 BLUE
     } -body {
-        ted notifier bind ::envsit <Entity>
-        envsit mutate create $s1
+        ted notifier bind ::ensit <Entity>
+        ensit mutate create $s1
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::envsit <Entity> create 1}
+        {::ensit <Entity> create 1}
     }
 
 
     test create-1.3 {spawn scheduled} -setup {
         ted create NB1 BLUE
     } -body {
-        envsit mutate create $s1
+        ensit mutate create $s1
 
-        ted query {SELECT * FROM eventq_queue_envsitSpawn}
+        ted query {SELECT * FROM eventq_queue_ensitSpawn}
     } -cleanup {
         cleanup
     } -result {
-id t etype       s 
--- - ----------- - 
-1  1 envsitSpawn 1 
+id t etype      s 
+-- - ---------- - 
+1  1 ensitSpawn 1 
     }
     
 
     test create-2.1 {Undo deletes the entity} -setup {
         ted create NB1 BLUE
-        set undo [envsit mutate create $s1]
+        set undo [ensit mutate create $s1]
     } -body {
         {*}$undo
-        rdb query {SELECT s FROM envsits}
+        rdb query {SELECT s FROM ensits}
     } -cleanup {
         cleanup
     } -result {}
@@ -112,24 +112,24 @@ id t etype       s
 
     test create-2.2 {On undo, <Entity> delete} -setup {
         ted create NB1 BLUE
-        set undo [envsit mutate create $s1]
+        set undo [ensit mutate create $s1]
     } -body {
-        ted notifier bind ::envsit <Entity>
+        ted notifier bind ::ensit <Entity>
         {*}$undo
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::envsit <Entity> delete 1}
+        {::ensit <Entity> delete 1}
     }
 
 
     test create-2.3 {On undo, spawn is cancelled} -setup {
         ted create NB1 BLUE
-        set undo [envsit mutate create $s1]
+        set undo [ensit mutate create $s1]
     } -body {
         {*}$undo
-        ted query {SELECT * FROM eventq_queue_envsitSpawn}
+        ted query {SELECT * FROM eventq_queue_ensitSpawn}
     } -cleanup {
         cleanup
     } -result {
@@ -140,13 +140,13 @@ id t etype       s
 
     test delete-1.1 {Entity is deleted} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
+        ensit mutate create $s1
+        ensit mutate create $s2
     } -body {
-        envsit mutate delete 1
+        ensit mutate delete 1
 
         # Is 1 gone?
-        rdb eval {SELECT s FROM envsits}
+        rdb eval {SELECT s FROM ensits}
     } -cleanup {
         cleanup
     } -result {2}
@@ -154,74 +154,74 @@ id t etype       s
 
     test delete-1.2 {<Entity> delete} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        ted notifier bind ::envsit <Entity>
-        envsit mutate delete 1
+        ted notifier bind ::ensit <Entity>
+        ensit mutate delete 1
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::envsit <Entity> delete 1}
+        {::ensit <Entity> delete 1}
     }
 
 
     test delete-1.3 {On delete, spawn is cancelled} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        envsit mutate delete 1
-        ted query {SELECT * FROM eventq_queue_envsitSpawn}
+        ensit mutate delete 1
+        ted query {SELECT * FROM eventq_queue_ensitSpawn}
     } -cleanup {
         cleanup
     } -result {
     }
 
 
-    test delete-2.1 {Undo restores envsit} -setup {
+    test delete-2.1 {Undo restores ensit} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        set undo [envsit mutate delete 1]
+        ensit mutate create $s1
+        set undo [ensit mutate delete 1]
     } -body {
         {*}$undo
-        ted query {SELECT * FROM envsits}
+        ted query {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind     stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rdriver 
-- -------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- ------- 
-1 ::envsit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1                  0       
+s kind    stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rdriver 
+- ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- ------- 
+1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1                  0       
     }
 
 
     test delete-2.2 {On undo, <Entity> create} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        set undo [envsit mutate delete 1]
+        ensit mutate create $s1
+        set undo [ensit mutate delete 1]
     } -body {
-        ted notifier bind ::envsit <Entity>
+        ted notifier bind ::ensit <Entity>
         {*}$undo
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::envsit <Entity> create 1}
+        {::ensit <Entity> create 1}
     }
 
 
     test delete-2.3 {On undo, spawn is restored} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        set undo [envsit mutate delete 1]
+        ensit mutate create $s1
+        set undo [ensit mutate delete 1]
     } -body {
         {*}$undo
-        ted query {SELECT * FROM eventq_queue_envsitSpawn}
+        ted query {SELECT * FROM eventq_queue_ensitSpawn}
     } -cleanup {
         cleanup
     } -result {
-id t etype       s 
--- - ----------- - 
-2  1 envsitSpawn 1 
+id t etype      s 
+-- - ---------- - 
+2  1 ensitSpawn 1 
     }
 
 
@@ -229,11 +229,11 @@ id t etype       s
     # mutate update
 
 
-    test update-1.1 {envsit is updated} -setup {
+    test update-1.1 {ensit is updated} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        envsit mutate update {
+        ensit mutate update {
             s         1 
             stype     BADFOOD
             location  {101 101} 
@@ -242,24 +242,24 @@ id t etype       s
             g         NONE
         }
 
-        ted query {SELECT * FROM envsits}
+        ted query {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind     stype   driver n   coverage state   ts tc change flist g    signature location inception resolver rdriver 
-- -------- ------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- ------- 
-1 ::envsit BADFOOD -1     NB1 0.5      INITIAL 0  0  NEW    ALL   NONE           101 101  0                  0       
+s kind    stype   driver n   coverage state   ts tc change flist g    signature location inception resolver rdriver 
+- ------- ------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- ------- 
+1 ::ensit BADFOOD -1     NB1 0.5      INITIAL 0  0  NEW    ALL   NONE           101 101  0                  0       
     }
 
     test update-1.2 {identical values are OK} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        set a [ted query {SELECT * FROM envsits}]
+        set a [ted query {SELECT * FROM ensits}]
 
-        envsit mutate update [concat {s 1} $s1]
+        ensit mutate update [concat {s 1} $s1]
 
-        set b [ted query {SELECT * FROM envsits}]
+        set b [ted query {SELECT * FROM ensits}]
 
         expr {$a eq $b}
     } -cleanup {
@@ -269,11 +269,11 @@ s kind     stype   driver n   coverage state   ts tc change flist g    signature
 
     test update-1.3 {empty values are OK} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        set a [ted query {SELECT * FROM envsits}]
+        set a [ted query {SELECT * FROM ensits}]
 
-        envsit mutate update  {
+        ensit mutate update  {
             s         1
             stype     ""
             location  ""
@@ -282,7 +282,7 @@ s kind     stype   driver n   coverage state   ts tc change flist g    signature
             g         ""
         }
 
-        set b [ted query {SELECT * FROM envsits}]
+        set b [ted query {SELECT * FROM ensits}]
 
         expr {$a eq $b}
     } -cleanup {
@@ -292,10 +292,10 @@ s kind     stype   driver n   coverage state   ts tc change flist g    signature
 
     test update-1.4 {<Entity> update} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        ted notifier bind ::envsit <Entity>
-        envsit mutate update  {
+        ted notifier bind ::ensit <Entity>
+        ensit mutate update  {
             s         1
             stype     ""
             location  ""
@@ -307,18 +307,18 @@ s kind     stype   driver n   coverage state   ts tc change flist g    signature
     } -cleanup {
         cleanup
     } -result {
-        {::envsit <Entity> update 1}
+        {::ensit <Entity> update 1}
     }
 
 
     test update-1.5 {n is updated} -setup {
         ted create NB1 NB2 BLUE
         set loc [dict get [ted entity NB2] refpoint]
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        envsit mutate update [dict merge $s1 [list s 1 location $loc]]
+        ensit mutate update [dict merge $s1 [list s 1 location $loc]]
 
-        ted query {SELECT s,n FROM envsits}
+        ted query {SELECT s,n FROM ensits}
     } -cleanup {
         cleanup
     } -result {
@@ -330,9 +330,9 @@ s n
 
     test update-1.6 {spawns are cancelled on stype change} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        envsit mutate update {
+        ensit mutate update {
             s         1 
             stype     COMMOUT
             location  ""
@@ -341,7 +341,7 @@ s n
             g         ""
         }
 
-        ted query {SELECT * FROM eventq_queue_envsitSpawn}
+        ted query {SELECT * FROM eventq_queue_ensitSpawn}
     } -cleanup {
         cleanup
     } -result {
@@ -350,9 +350,9 @@ s n
 
     test update-1.7 {spawns are scheduled on stype change} -setup {
         ted create NB1 BLUE
-        envsit mutate create [dict merge $s1 [list s 1 stype COMMOUT]]
+        ensit mutate create [dict merge $s1 [list s 1 stype COMMOUT]]
     } -body {
-        envsit mutate update {
+        ensit mutate update {
             s         1 
             stype     BADWATER
             location  ""
@@ -361,23 +361,23 @@ s n
             g         ""
         }
 
-        ted query {SELECT * FROM eventq_queue_envsitSpawn}
+        ted query {SELECT * FROM eventq_queue_ensitSpawn}
     } -cleanup {
         cleanup
     } -result {
-id t etype       s 
--- - ----------- - 
-1  1 envsitSpawn 1 
+id t etype      s 
+-- - ---------- - 
+1  1 ensitSpawn 1 
     }
 
 
     test update-2.1 {undo undoes the change} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        set a [ted query {SELECT * FROM envsits}]
+        set a [ted query {SELECT * FROM ensits}]
 
-        set undo [envsit mutate update {
+        set undo [ensit mutate update {
             s         1 
             stype     BADFOOD
             location  ""
@@ -388,7 +388,7 @@ id t etype       s
 
         {*}$undo
 
-        set b [ted query {SELECT * FROM envsits}]
+        set b [ted query {SELECT * FROM ensits}]
 
         expr {$a eq $b}
     } -cleanup {
@@ -398,9 +398,9 @@ id t etype       s
 
     test update-2.2 {undo sends <Entity> update} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        set undo [envsit mutate update {
+        set undo [ensit mutate update {
             s         1 
             stype     BADFOOD
             location  ""
@@ -409,21 +409,21 @@ id t etype       s
             g         ""
         }]
 
-        ted notifier bind ::envsit <Entity>
+        ted notifier bind ::ensit <Entity>
         {*}$undo
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::envsit <Entity> update 1}
+        {::ensit <Entity> update 1}
     }
 
 
     test update-2.3 {undo restores scheduled spawn} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        set undo [envsit mutate update {
+        set undo [ensit mutate update {
             s         1 
             stype     COMMOUT
             location  ""
@@ -434,21 +434,21 @@ id t etype       s
 
         {*}$undo
 
-        ted query {SELECT * FROM eventq_queue_envsitSpawn}
+        ted query {SELECT * FROM eventq_queue_ensitSpawn}
     } -cleanup {
         cleanup
     } -result {
-id t etype       s 
--- - ----------- - 
-2  1 envsitSpawn 1 
+id t etype      s 
+-- - ---------- - 
+2  1 ensitSpawn 1 
     }
 
 
     test update-2.4 {undo cancels scheduled spawn} -setup {
         ted create NB1 BLUE
-        envsit mutate create [dict merge $s1 [list stype COMMOUT]]
+        ensit mutate create [dict merge $s1 [list stype COMMOUT]]
     } -body {
-        set undo [envsit mutate update {
+        set undo [ensit mutate update {
             s         1 
             stype     BADWATER
             location  ""
@@ -459,7 +459,7 @@ id t etype       s
 
         {*}$undo
 
-        ted query {SELECT * FROM eventq_queue_envsitSpawn}
+        ted query {SELECT * FROM eventq_queue_ensitSpawn}
     } -cleanup {
         cleanup
     } -result {
@@ -470,31 +470,31 @@ id t etype       s
     # mutate resolve
 
 
-    test resolve-1.1 {envsit is resolved by NONE} -setup {
+    test resolve-1.1 {ensit is resolved by NONE} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        envsit mutate resolve {
+        ensit mutate resolve {
             s         1 
             resolver  NONE
         }
 
-        ted query {SELECT * FROM envsits}
+        ted query {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind     stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rdriver 
-- -------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- ------- 
-1 ::envsit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         NONE     0       
+s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rdriver 
+- ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- ------- 
+1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         NONE     0       
     }
 
 
     test resolve-1.2 {<Entity> update} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        ted notifier bind ::envsit <Entity>
-        envsit mutate resolve  {
+        ted notifier bind ::ensit <Entity>
+        ensit mutate resolve  {
             s        1
             resolver NONE
         }
@@ -502,20 +502,20 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
     } -cleanup {
         cleanup
     } -result {
-        {::envsit <Entity> update 1}
+        {::ensit <Entity> update 1}
     }
 
 
     test resolve-1.3 {spawns are cancelled on resolution} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        envsit mutate resolve {
+        ensit mutate resolve {
             s        1 
             resolver NONE
         }
 
-        ted query {SELECT * FROM eventq_queue_envsitSpawn}
+        ted query {SELECT * FROM eventq_queue_ensitSpawn}
     } -cleanup {
         cleanup
     } -result {
@@ -524,18 +524,18 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
 
     test resolve-2.1 {undo undoes the change} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        set a [ted query {SELECT * FROM envsits}]
+        set a [ted query {SELECT * FROM ensits}]
 
-        set undo [envsit mutate resolve {
+        set undo [ensit mutate resolve {
             s        1
             resolver NONE
         }]
 
         {*}$undo
 
-        set b [ted query {SELECT * FROM envsits}]
+        set b [ted query {SELECT * FROM ensits}]
 
         expr {$a eq $b}
     } -cleanup {
@@ -545,41 +545,41 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
 
     test resolve-2.2 {undo sends <Entity> update} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        set undo [envsit mutate resolve {
+        set undo [ensit mutate resolve {
             s        1
             resolver NONE
         }]
 
-        ted notifier bind ::envsit <Entity>
+        ted notifier bind ::ensit <Entity>
         {*}$undo
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::envsit <Entity> update 1}
+        {::ensit <Entity> update 1}
     }
 
 
     test resolve-2.3 {undo restores scheduled spawn} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
-        set undo [envsit mutate resolve {
+        set undo [ensit mutate resolve {
             s        1
             resolver NONE
         }]
 
         {*}$undo
 
-        ted query {SELECT * FROM eventq_queue_envsitSpawn}
+        ted query {SELECT * FROM eventq_queue_ensitSpawn}
     } -cleanup {
         cleanup
     } -result {
-id t etype       s 
--- - ----------- - 
-2  1 envsitSpawn 1 
+id t etype      s 
+-- - ---------- - 
+2  1 ensitSpawn 1 
     }
 
 
@@ -590,32 +590,32 @@ id t etype       s
 
     test reconcile-1.1 {g set to NONE if g doesn't exist} -setup {
         ted create NB1
-        envsit mutate create [dict merge $s1 [list g NONESUCH]]
+        ensit mutate create [dict merge $s1 [list g NONESUCH]]
     } -body {
-        envsit mutate reconcile
+        ensit mutate reconcile
 
-        ted query {SELECT * FROM envsits}
+        ted query {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind     stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rdriver 
-- -------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- ------- 
-1 ::envsit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   NONE           100 100  1                  0       
+s kind    stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rdriver 
+- ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- ------- 
+1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   NONE           100 100  1                  0       
     }
 
 
     test reconcile-1.2 {<Entity> update} -setup {
         ted create NB1
-        envsit mutate create [dict merge $s1 [list g NONESUCH]]
+        ensit mutate create [dict merge $s1 [list g NONESUCH]]
     } -body {
-        ted notifier bind ::envsit <Entity>
-        envsit mutate reconcile
+        ted notifier bind ::ensit <Entity>
+        ensit mutate reconcile
 
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::envsit <Entity> update 1}
+        {::ensit <Entity> update 1}
     }
 
 
@@ -623,34 +623,34 @@ s kind     stype    driver n   coverage state   ts tc change flist g    signatur
 
     test reconcile-2.1 {resolver set to NONE if resolver doesn't exist} -setup {
         ted create NB1
-        envsit mutate create [dict merge $s1 [list g NONE]]
-        envsit mutate resolve [list s 1 resolver BLUE]
+        ensit mutate create [dict merge $s1 [list g NONE]]
+        ensit mutate resolve [list s 1 resolver BLUE]
     } -body {
-        envsit mutate reconcile
+        ensit mutate reconcile
 
-        ted query {SELECT * FROM envsits}
+        ted query {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind     stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rdriver 
-- -------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- ------- 
-1 ::envsit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   NONE           100 100  1         NONE     0       
+s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rdriver 
+- ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- ------- 
+1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   NONE           100 100  1         NONE     0       
     }
 
 
     test reconcile-2.2 {<Entity> update} -setup {
         ted create NB1
-        envsit mutate create [dict merge $s1 [list g NONE]]
-        envsit mutate resolve [list s 1 resolver BLUE]
+        ensit mutate create [dict merge $s1 [list g NONE]]
+        ensit mutate resolve [list s 1 resolver BLUE]
     } -body {
-        ted notifier bind ::envsit <Entity>
-        envsit mutate reconcile
+        ted notifier bind ::ensit <Entity>
+        ensit mutate reconcile
 
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::envsit <Entity> update 1}
+        {::ensit <Entity> update 1}
     }
 
 
@@ -658,34 +658,34 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
 
     test reconcile-3.1 {n reset} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
         nbhood mutate delete NB1
     } -body {
-        envsit mutate reconcile
+        ensit mutate reconcile
 
-        ted query {SELECT * FROM envsits}
+        ted query {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind     stype    driver n coverage state   ts tc change flist g    signature location inception resolver rdriver 
-- -------- -------- ------ - -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- ------- 
-1 ::envsit BADWATER -1       1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1                  0       
+s kind    stype    driver n coverage state   ts tc change flist g    signature location inception resolver rdriver 
+- ------- -------- ------ - -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- ------- 
+1 ::ensit BADWATER -1       1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1                  0       
     }
 
 
     test reconcile-3.2 {<Entity> update} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
+        ensit mutate create $s1
         nbhood mutate delete NB1
     } -body {
-        ted notifier bind ::envsit <Entity>
-        envsit mutate reconcile
+        ted notifier bind ::ensit <Entity>
+        ensit mutate reconcile
 
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::envsit <Entity> update 1}
+        {::ensit <Entity> update 1}
     }
 
 
@@ -693,41 +693,41 @@ s kind     stype    driver n coverage state   ts tc change flist g    signature 
 
     test reconcile-4.1 {Undo restores everything} -setup {
         ted create NB1
-        envsit mutate create $s1
-        envsit mutate resolve [list s 1 resolver BRIT]
+        ensit mutate create $s1
+        ensit mutate resolve [list s 1 resolver BRIT]
         nbhood mutate delete NB1
 
-        set undo [envsit mutate reconcile]
+        set undo [ensit mutate reconcile]
     } -body {
         eval $undo
 
-        ted query {SELECT * FROM envsits}
+        ted query {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind     stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rdriver 
-- -------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- ------- 
-1 ::envsit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         BRIT     0       
+s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rdriver 
+- ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- ------- 
+1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         BRIT     0       
     }
 
 
     test reconcile-4.2 {Undo sends <Entity> update} -setup {
         ted create NB1
-        envsit mutate create $s1
-        envsit mutate resolve [list s 1 resolver BRIT]
+        ensit mutate create $s1
+        ensit mutate resolve [list s 1 resolver BRIT]
         nbhood mutate delete NB1
 
-        set undo [envsit mutate reconcile]
+        set undo [ensit mutate reconcile]
     } -body {
-        ted notifier bind ::envsit <Entity>
+        ted notifier bind ::ensit <Entity>
         eval $undo
 
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::envsit <Entity> update 1}
-        {::envsit <Entity> update 1}
+        {::ensit <Entity> update 1}
+        {::ensit <Entity> update 1}
     }
 
 
@@ -736,10 +736,10 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
 
     test get-1.1 {get -all} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
+        ensit mutate create $s1
+        ensit mutate create $s2
     } -body {
-        set sit [envsit get 1]
+        set sit [ensit get 1]
         $sit oneliner
     } -cleanup {
         cleanup
@@ -748,14 +748,14 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
 
     test get-1.2 {get -live} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
-        envsit mutate resolve { 
+        ensit mutate create $s1
+        ensit mutate create $s2
+        ensit mutate resolve { 
             s        1 
             resolver NONE
         }
     } -body {
-        set sit [envsit get 1 -live]
+        set sit [ensit get 1 -live]
     } -returnCodes {
         error
     } -cleanup {
@@ -766,16 +766,16 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
     #-------------------------------------------------------------------
     # existsInNbhood
 
-    test existsInNbhood-1.1 {get list of live envsits} -setup {
+    test existsInNbhood-1.1 {get list of live ensits} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
-        envsit mutate resolve {
+        ensit mutate create $s1
+        ensit mutate create $s2
+        ensit mutate resolve {
             s        2
             resolver NONE
         }
     } -body {
-        envsit existsInNbhood NB1
+        ensit existsInNbhood NB1
     } -cleanup {
         cleanup
     } -result {BADWATER}
@@ -783,16 +783,16 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
 
     test existsInNbhood-1.2 {Check existence of types} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
-        envsit mutate resolve {
+        ensit mutate create $s1
+        ensit mutate create $s2
+        ensit mutate resolve {
             s        2
             resolver NONE
         }
     } -body {
         list \
-            [envsit existsInNbhood NB1 BADWATER] \
-            [envsit existsInNbhood NB1 COMMOUT]
+            [ensit existsInNbhood NB1 BADWATER] \
+            [ensit existsInNbhood NB1 COMMOUT]
     } -cleanup {
         cleanup
     } -result {1 0}
@@ -801,17 +801,17 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
     #-------------------------------------------------------------------
     # absentFromNbhood
 
-    test absentFromNbhood-1.1 {get list of absent envsits} -setup {
+    test absentFromNbhood-1.1 {get list of absent ensits} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
-        envsit mutate resolve {
+        ensit mutate create $s1
+        ensit mutate create $s2
+        ensit mutate resolve {
             s        2
             resolver NONE
         }
     } -body {
         # Only BADWATER should be missing.
-        envsit absentFromNbhood NB1
+        ensit absentFromNbhood NB1
     } -cleanup {
         cleanup
     } -result {BADFOOD BIO CHEM COMMOUT DISASTER DISEASE EPIDEMIC FOODSHRT FUELSHRT GARBAGE INDSPILL MOSQUE NOWATER ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE}
@@ -820,14 +820,14 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
     #-------------------------------------------------------------------
     # names/validate
     #
-    # enum(n)-like subcommands for all envsits, live and ended.
+    # enum(n)-like subcommands for all ensits, live and ended.
 
-    test names-1.1 {get list of envsit IDs} -setup {
+    test names-1.1 {get list of ensit IDs} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
+        ensit mutate create $s1
+        ensit mutate create $s2
     } -body {
-        envsit names
+        ensit names
     } -cleanup {
         cleanup
     } -result {1 2}
@@ -835,10 +835,10 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
 
     test names-1.2 {validate valid ID} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
+        ensit mutate create $s1
+        ensit mutate create $s2
     } -body {
-        envsit validate 2
+        ensit validate 2
     } -cleanup {
         cleanup
     } -result {2}
@@ -846,10 +846,10 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
 
     test names-1.3 {validate invalid ID} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
+        ensit mutate create $s1
+        ensit mutate create $s2
     } -body {
-        envsit validate 3
+        ensit validate 3
     } -returnCodes {
         error
     } -cleanup {
@@ -860,18 +860,18 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
     #-------------------------------------------------------------------
     # initial names/validate
     #
-    # enum(n)-like subcommands for envsits in the INITIAL state
+    # enum(n)-like subcommands for ensits in the INITIAL state
 
-    test initial_names-1.1 {get list of envsit IDs} -setup {
+    test initial_names-1.1 {get list of ensit IDs} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
-        envsit mutate resolve {
+        ensit mutate create $s1
+        ensit mutate create $s2
+        ensit mutate resolve {
             s        2
             resolver NONE
         }
     } -body {
-        envsit initial names
+        ensit initial names
     } -cleanup {
         cleanup
     } -result {1}
@@ -879,14 +879,14 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
 
     test initial_names-1.2 {validate valid ID} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
-        envsit mutate resolve {
+        ensit mutate create $s1
+        ensit mutate create $s2
+        ensit mutate resolve {
             s        2
             resolver NONE
         }
     } -body {
-        envsit initial validate 1
+        ensit initial validate 1
     } -cleanup {
         cleanup
     } -result {1}
@@ -894,14 +894,14 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
 
     test initial_names-1.3 {validate ended ID} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
-        envsit mutate resolve {
+        ensit mutate create $s1
+        ensit mutate create $s2
+        ensit mutate resolve {
             s        2
             resolver NONE
         }
     } -body {
-        envsit initial validate 2
+        ensit initial validate 2
     } -returnCodes {
         error
     } -cleanup {
@@ -911,11 +911,11 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
 
     test initial_names-1.4 {validate active ID} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
-        [envsit get 2] set state ACTIVE
+        ensit mutate create $s1
+        ensit mutate create $s2
+        [ensit get 2] set state ACTIVE
     } -body {
-        envsit initial validate 2
+        ensit initial validate 2
     } -returnCodes {
         error
     } -cleanup {
@@ -925,18 +925,18 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
     #-------------------------------------------------------------------
     # live names/validate
     #
-    # enum(n)-like subcommands for envsits that "live"
+    # enum(n)-like subcommands for ensits that "live"
 
-    test live_names-1.1 {get list of envsit IDs} -setup {
+    test live_names-1.1 {get list of ensit IDs} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
-        envsit mutate resolve {
+        ensit mutate create $s1
+        ensit mutate create $s2
+        ensit mutate resolve {
             s        2
             resolver NONE
         }
     } -body {
-        envsit live names
+        ensit live names
     } -cleanup {
         cleanup
     } -result {1}
@@ -944,14 +944,14 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
 
     test live_names-1.2 {validate valid ID} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
-        envsit mutate resolve {
+        ensit mutate create $s1
+        ensit mutate create $s2
+        ensit mutate resolve {
             s        2
             resolver NONE
         }
     } -body {
-        envsit live validate 1
+        ensit live validate 1
     } -cleanup {
         cleanup
     } -result {1}
@@ -959,14 +959,14 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
 
     test live_names-1.3 {validate invalid ID} -setup {
         ted create NB1 BLUE
-        envsit mutate create $s1
-        envsit mutate create $s2
-        envsit mutate resolve {
+        ensit mutate create $s1
+        ensit mutate create $s2
+        ensit mutate resolve {
             s        2
             resolver NONE
         }
     } -body {
-        envsit live validate 2
+        ensit live validate 2
     } -returnCodes {
         error
     } -cleanup {
@@ -979,10 +979,10 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
     #
     # enum(n)-like subcommands for valid doing groups
 
-    test doer-1.1 {get list of envsit IDs} -setup {
+    test doer-1.1 {get list of ensit IDs} -setup {
         ted create BLUE BRIT
     } -body {
-        envsit doer names
+        ensit doer names
     } -cleanup {
         cleanup
     } -result {NONE BLUE BRIT}
@@ -991,7 +991,7 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
     test doer-1.2 {validate valid ID} -setup {
         ted create BLUE BRIT
     } -body {
-        envsit doer validate BLUE
+        ensit doer validate BLUE
     } -cleanup {
         cleanup
     } -result {BLUE}
@@ -1000,7 +1000,7 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
     test doer-1.3 {validate invalid ID} -setup {
         ted create BLUE BRIT
     } -body {
-        envsit doer validate USAID
+        ensit doer validate USAID
     } -returnCodes {
         error
     } -cleanup {
@@ -1009,22 +1009,22 @@ s kind     stype    driver n   coverage state ts tc change   flist g    signatur
 
 
     #-------------------------------------------------------------------
-    # envsitSpawn
+    # ensitSpawn
 
-    test envsitSpawn-1.1 {Envsit spawns} -setup {
+    test ensitSpawn-1.1 {Ensit spawns} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
-        envsit mutate create $s1
+        ensit mutate create $s1
     } -body {
         ted order SIM:RUN days 3 block yes
 
-        ted query {SELECT * FROM envsits}
+        ted query {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind     stype    driver n   coverage state  ts tc change flist g    signature         location inception resolver rdriver 
-- -------- -------- ------ --- -------- ------ -- -- ------ ----- ---- ----------------- -------- --------- -------- ------- 
-1 ::envsit BADWATER 1      NB1 1.0      ACTIVE 0  0         ALL   BLUE BADWATER-2-1 none 100 100  0                  0       
-2 ::envsit DISEASE  2      NB1 1.0      ACTIVE 1  1  NEW    ALL   BLUE DISEASE-2-1 none  100 100  0                  0       
+s kind    stype    driver n   coverage state  ts tc change flist g    signature         location inception resolver rdriver 
+- ------- -------- ------ --- -------- ------ -- -- ------ ----- ---- ----------------- -------- --------- -------- ------- 
+1 ::ensit BADWATER 1      NB1 1.0      ACTIVE 0  0         ALL   BLUE BADWATER-2-1 none 100 100  0                  0       
+2 ::ensit DISEASE  2      NB1 1.0      ACTIVE 1  1  NEW    ALL   BLUE DISEASE-2-1 none  100 100  0                  0       
     }
 
 
@@ -1037,6 +1037,8 @@ s kind     stype    driver n   coverage state  ts tc change flist g    signature
 }
 
 namespace delete ::athena_test::tests::
+
+
 
 
 

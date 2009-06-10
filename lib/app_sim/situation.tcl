@@ -36,11 +36,11 @@
 #      restore, which will delete all actsit objects from memory.
 #
 #    * All updates to the situation tables should be done through the 
-#      situation command, the actsit command, the envsit command,
+#      situation command, the actsit command, the ensit command,
 #      or through a situation object.
 #
 #      * Create records in the situation tables using 
-#        [envsit mutate create] or [actsit analyze].
+#        [ensit mutate create] or [actsit analyze].
 #
 #      * Update field values by using [$o set], where $o is a situation
 #        object.
@@ -77,8 +77,8 @@ snit::type situation {
         # FIRST, initialize the specific situation types
         actsit       init
         actsit_rules init
-        envsit       init
-        envsit_rules init
+        ensit       init
+        ensit_rules init
 
         # NEXT, register this module as a saveable, so that the
         # cache is flushed as appropriate.
@@ -430,6 +430,7 @@ snit::type situationType {
         }
     }
 }
+
 
 
 

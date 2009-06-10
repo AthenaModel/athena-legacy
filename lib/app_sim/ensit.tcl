@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    envsit.tcl
+#    ensit.tcl
 #
 # AUTHOR:
 #    Will Duquette
@@ -8,27 +8,27 @@
 # DESCRIPTION:
 #    athena_sim(1) Environmental Situation module
 #
-#    This module defines a singleton, "envsit", which is used to
-#    manage the collection of environmental situation objects, or envsits.
-#    Envsits are situations; see situation(sim) for additional details.
+#    This module defines a singleton, "ensit", which is used to
+#    manage the collection of environmental situation objects, or ensits.
+#    Ensits are situations; see situation(sim) for additional details.
 #
 #    Entities defined in this file:
 #
-#    envsit      -- The envsit ensemble
-#    envsitType  -- The type for the envsit objects.
+#    ensit      -- The ensit ensemble
+#    ensitType  -- The type for the ensit objects.
 #
 #    A single snit::type could do both jobs--but at the expense
-#    of accidentally creating an envsit object if an incorrect envsit
+#    of accidentally creating an ensit object if an incorrect ensit
 #    method name is used.
 #
-#    * Envsits are created, updated, and deleted via the "mutate *" 
+#    * Ensits are created, updated, and deleted via the "mutate *" 
 #      commands and the SITUATION:ENVIRONMENTAL:* orders.
 #
-#    * This module calls the envsit rule on "envsit assess", which is 
+#    * This module calls the ensit rule on "ensit assess", which is 
 #      done as part of the time advance.
 #
 # EVENT NOTIFICATIONS:
-#    The ::envsit module sends the following notifier(n) events:
+#    The ::ensit module sends the following notifier(n) events:
 #
 #    <Entity> op s
 #        When called, the op will be one of 'create', 'update' or 'delete',
@@ -37,9 +37,9 @@
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# envsit singleton
+# ensit singleton
 
-snit::type envsit {
+snit::type ensit {
     # Make it an ensemble
     pragma -hasinstances 0
 
@@ -48,8 +48,8 @@ snit::type envsit {
     # Initialization method
 
     typemethod init {} {
-        # FIRST, envsit is up.
-        log normal envsit "Initialized"
+        # FIRST, ensit is up.
+        log normal ensit "Initialized"
     }
 
     #-------------------------------------------------------------------
@@ -60,11 +60,11 @@ snit::type envsit {
     # Calls the DAM rule sets for each situation requiring assessment.
 
     typemethod assess {} {
-        # FIRST, get a list of the IDs of envsits that need to be
+        # FIRST, get a list of the IDs of ensits that need to be
         # assessed: those that are "live", and those that have
         # been resolved but the resolution has not yet been assessed.
         set ids [rdb eval {
-            SELECT s FROM envsits 
+            SELECT s FROM ensits 
             WHERE state != 'ENDED' OR rdriver=0
         }]
         
@@ -90,12 +90,12 @@ snit::type envsit {
             # NEXT, assess inception affects if need be.
             if {[$sit get inception]} {
                 $sit set inception 0
-                envsit_rules inception $sit
+                ensit_rules inception $sit
                 notifier send $type <Entity> update $s
             }
 
             # NEXT, it's on going; monitor its coverage
-            envsit_rules monitor $sit
+            ensit_rules monitor $sit
 
             # NEXT, assess resolution affects if need be.
             if {[$sit get state] eq "ENDED"} {
@@ -104,7 +104,7 @@ snit::type envsit {
                                      -name     "Sit $s"         \
                                      -oneliner "Resolution of [$sit oneliner]"]
 
-                envsit_rules resolution $sit
+                ensit_rules resolution $sit
                 notifier send $type <Entity> update $s
             }
         }
@@ -118,7 +118,7 @@ snit::type envsit {
     # Return the name of the RDB table for this type.
 
     typemethod table {} {
-        return "envsits_t"
+        return "ensits_t"
     }
 
 
@@ -146,22 +146,22 @@ snit::type envsit {
     # existsInNbhood n ?stype?
     #
     # n          A neighborhood ID
-    # stype      An envsit type
+    # stype      An ensit type
     #
-    # If stype is given, returns 1 if there's a live envsit of the 
+    # If stype is given, returns 1 if there's a live ensit of the 
     # specified type already present in n, and 0 otherwise.  Otherwise,
-    # returns a list of the envsit types that exist in n.
+    # returns a list of the ensit types that exist in n.
 
     typemethod existsInNbhood {n {stype ""}} {
         if {$stype eq ""} {
             return [rdb eval {
-                SELECT stype FROM envsits
+                SELECT stype FROM ensits
                 WHERE n     =  $n
                 AND   state != 'ENDED'
             }]
         } else {
             return [rdb exists {
-                SELECT stype FROM envsits
+                SELECT stype FROM ensits
                 WHERE n     =  $n
                 AND   state != 'ENDED'
                 AND   stype =  $stype
@@ -174,7 +174,7 @@ snit::type envsit {
     #
     # n          A neighborhood ID
     #
-    # Returns a list of the envsits which do not exist in this
+    # Returns a list of the ensits which do not exist in this
     # neighborhood.
 
     typemethod absentFromNbhood {n} {
@@ -183,7 +183,7 @@ snit::type envsit {
 
         set absent [list]
 
-        foreach stype [eenvsit names] {
+        foreach stype [eensit names] {
             if {$stype ni $present} {
                 lappend absent $stype
             }
@@ -195,11 +195,11 @@ snit::type envsit {
 
     # names
     #
-    # List of envsit IDs.
+    # List of ensit IDs.
 
     typemethod names {} {
         return [rdb eval {
-            SELECT s FROM envsits
+            SELECT s FROM ensits
         }]
     }
 
@@ -208,7 +208,7 @@ snit::type envsit {
     #
     # s      A situation ID
     #
-    # Verifies that s is an envsit.
+    # Verifies that s is an ensit.
 
     typemethod validate {s} {
         if {$s ni [$type names]} {
@@ -221,11 +221,11 @@ snit::type envsit {
 
     # initial names
     #
-    # List of IDs of envsits in the INITIAL state.
+    # List of IDs of ensits in the INITIAL state.
 
     typemethod {initial names} {} {
         return [rdb eval {
-            SELECT s FROM envsits
+            SELECT s FROM ensits
             WHERE state = 'INITIAL'
         }]
     }
@@ -253,11 +253,11 @@ snit::type envsit {
 
     # live names
     #
-    # List of IDs of envsits that are still "live"
+    # List of IDs of ensits that are still "live"
 
     typemethod {live names} {} {
         return [rdb eval {
-            SELECT s FROM envsits WHERE state != 'ENDED'
+            SELECT s FROM ensits WHERE state != 'ENDED'
         }]
     }
 
@@ -280,7 +280,7 @@ snit::type envsit {
 
     # doer names
     #
-    # List of names of groups that can cause and resolve envsits,
+    # List of names of groups that can cause and resolve ensits,
     # plus "NONE".
 
     typemethod {doer names} {} {
@@ -319,12 +319,12 @@ snit::type envsit {
 
     # mutate reconcile
     #
-    # Updates envsits as neighborhoods and groups change:
+    # Updates ensits as neighborhoods and groups change:
     #
     # 1. If the "g" or "resolver" group no longer exists, that
     #    field is set to "NONE".
     #
-    # 2. Updates every envsit's "n" attribute to reflect the
+    # 2. Updates every ensit's "n" attribute to reflect the
     #    current state of the neighborhood.
 
     typemethod {mutate reconcile} {} {
@@ -333,8 +333,8 @@ snit::type envsit {
         # FIRST, set g to NONE if g doesn't exist.
         rdb eval {
             SELECT *
-            FROM envsits LEFT OUTER JOIN groups USING (g)
-            WHERE envsits.g != 'NONE'
+            FROM ensits LEFT OUTER JOIN groups USING (g)
+            WHERE ensits.g != 'NONE'
             AND   longname IS NULL
         } row {
             set row(g) NONE
@@ -345,30 +345,30 @@ snit::type envsit {
         # NEXT, set resolver to NONE if resolver doesn't exist.
         rdb eval {
             SELECT s
-            FROM envsits LEFT OUTER JOIN groups 
-            ON (envsits.resolver = groups.g)
+            FROM ensits LEFT OUTER JOIN groups 
+            ON (ensits.resolver = groups.g)
             WHERE state = 'ENDED'
-            AND   envsits.resolver != 'NONE'
+            AND   ensits.resolver != 'NONE'
             AND   longname IS NULL
         } {
             lappend undo [$type mutate resolve [list s $s resolver NONE]]
         }
 
-        # NEXT, set n for all envsits
+        # NEXT, set n for all ensits
         rdb eval {
             SELECT s, n, location 
-            FROM envsits
+            FROM ensits
         } { 
             set newNbhood [nbhood find {*}$location]
 
             if {$newNbhood ne $n} {
-                set sit [envsit get $s]
+                set sit [ensit get $s]
 
                 $sit set n $newNbhood
 
                 lappend undo [mytypemethod RestoreNbhood $s $n]
 
-                notifier send ::envsit <Entity> update $s
+                notifier send ::ensit <Entity> update $s
             }
         }
 
@@ -378,25 +378,25 @@ snit::type envsit {
 
     # RestoreNbhood s n
     #
-    # s     An envsit
+    # s     An ensit
     # n     A nbhood
     # 
-    # Sets the envsit's nbhood.
+    # Sets the ensit's nbhood.
 
     typemethod RestoreNbhood {s n} {
         # FIRST, save it, and notify the app.
-        set sit [envsit get $s]
+        set sit [ensit get $s]
 
         $sit set n $n
 
-        notifier send ::envsit <Entity> update $s
+        notifier send ::ensit <Entity> update $s
     }
 
 
 
     # mutate create parmdict
     #
-    # parmdict     A dictionary of envsit parms
+    # parmdict     A dictionary of ensit parms
     #
     #    stype          The situation type
     #    location       The situation's initial location (map coords)
@@ -404,7 +404,7 @@ snit::type envsit {
     #    g              The group causing the situation, or ""
     #    inception      1 if there are inception effects, and 0 otherwise.
     #
-    # Creates an envsit given the parms, which are presumed to be
+    # Creates an ensit given the parms, which are presumed to be
     # valid.
 
     typemethod {mutate create} {parmdict} {
@@ -421,7 +421,7 @@ snit::type envsit {
                        g         $g]
 
             rdb eval {
-                INSERT INTO envsits_t(s,location,inception)
+                INSERT INTO ensits_t(s,location,inception)
                 VALUES($s,$location,$inception)
             }
 
@@ -431,7 +431,7 @@ snit::type envsit {
             $sit ScheduleSpawn
 
             # NEXT, inform all clients about the new object.
-            log detail envsit "$s: created for $n,$stype,$coverage"
+            log detail ensit "$s: created for $n,$stype,$coverage"
             notifier send $type <Entity> create $s
 
             # NEXT, Return the undo command
@@ -449,7 +449,7 @@ snit::type envsit {
     typemethod {mutate delete} {s} {
         # FIRST, get the undo information
         rdb eval {SELECT * FROM situations WHERE s=$s} row1 { unset row1(*) }
-        rdb eval {SELECT * FROM envsits_t  WHERE s=$s} row2 { unset row2(*) }
+        rdb eval {SELECT * FROM ensits_t  WHERE s=$s} row2 { unset row2(*) }
 
         # NEXT, unschedule any spawn
         set sit [$type get $s]
@@ -462,7 +462,7 @@ snit::type envsit {
         # NEXT, delete it.
         rdb eval {
             DELETE FROM situations WHERE s=$s;
-            DELETE FROM envsits_t  WHERE s=$s;
+            DELETE FROM ensits_t  WHERE s=$s;
         }
 
         # NEXT, notify the app
@@ -481,7 +481,7 @@ snit::type envsit {
 
     typemethod Restore {bdict ddict} {
         rdb insert situations $bdict
-        rdb insert envsits_t  $ddict
+        rdb insert ensits_t  $ddict
 
         set s [dict get $bdict s]
         situation uncache $s
@@ -515,7 +515,7 @@ snit::type envsit {
         dict with parmdict {
             # FIRST, get the undo information
             rdb eval {SELECT * FROM situations WHERE s=$s} row1 {unset row1(*)}
-            rdb eval {SELECT * FROM envsits_t  WHERE s=$s} row2 {unset row2(*)}
+            rdb eval {SELECT * FROM ensits_t  WHERE s=$s} row2 {unset row2(*)}
 
             # NEXT, Update the entity
             set sit [$type get $s]
@@ -583,7 +583,7 @@ snit::type envsit {
         dict with parmdict {
             # FIRST, get the undo information
             rdb eval {SELECT * FROM situations WHERE s=$s} row1 {unset row1(*)}
-            rdb eval {SELECT * FROM envsits_t  WHERE s=$s} row2 {unset row2(*)}
+            rdb eval {SELECT * FROM ensits_t  WHERE s=$s} row2 {unset row2(*)}
         
             # NEXT, Update the entity
             set sit [$type get $s]
@@ -616,7 +616,7 @@ snit::type envsit {
         situation uncache $s
         
         rdb replace situations $bdict
-        rdb replace envsits_t  $ddict
+        rdb replace ensits_t  $ddict
 
         set sit [situation get $s]
         
@@ -694,9 +694,9 @@ snit::type envsit {
 }
 
 #-----------------------------------------------------------------------
-# envsitType
+# ensitType
 
-snit::type envsitType {
+snit::type ensitType {
     #-------------------------------------------------------------------
     # Components
 
@@ -717,7 +717,7 @@ snit::type envsitType {
     constructor {s} {
         # FIRST, create the base situation object; this will retrieve
         # the data from disk.
-        set base [situationType ${selfns}::base ::envsit $s]
+        set base [situationType ${selfns}::base ::ensit $s]
 
         # NEXT, alias our arrays to the base arrays.
         upvar 0 [$base info vars binfo] ${selfns}::binfo
@@ -738,7 +738,7 @@ snit::type envsitType {
 
     method ScheduleSpawn {} {
         # FIRST, does it spawn?
-        set spawnTime [parmdb get envsit.$binfo(stype).spawnTime]
+        set spawnTime [parmdb get ensit.$binfo(stype).spawnTime]
 
         if {$spawnTime == -1} {
             return
@@ -747,7 +747,7 @@ snit::type envsitType {
         # NEXT, schedule the event
         set spawnTicks [simclock fromDays $spawnTime]
 
-        eventq schedule envsitSpawn [simclock now $spawnTicks] $binfo(s)
+        eventq schedule ensitSpawn [simclock now $spawnTicks] $binfo(s)
     }
 
 
@@ -756,12 +756,12 @@ snit::type envsitType {
     # If this situation type spawns another situation, cancel the spawn.
 
     method CancelSpawn {} {
-        log detail envsit "CancelSpawn s=$binfo(s)"
+        log detail ensit "CancelSpawn s=$binfo(s)"
         rdb eval {
-            SELECT id FROM eventq_etype_envsitSpawn 
+            SELECT id FROM eventq_etype_ensitSpawn 
             WHERE CAST (s AS INTEGER) = $binfo(s)
         } {
-            log detail envsit "Cancelling eventq event $id"
+            log detail ensit "Cancelling eventq event $id"
 
             eventq cancel $id
         }
@@ -770,30 +770,30 @@ snit::type envsitType {
 
 
 #-----------------------------------------------------------------------
-# Eventq: envsitSpawn
+# Eventq: ensitSpawn
 
-# envsitSpawn s
+# ensitSpawn s
 #
-# s      An envsit ID
+# s      An ensit ID
 #
-# Envsit s spawns another envsit, provide that s is still "live"
+# Ensit s spawns another ensit, provide that s is still "live"
 
-eventq define envsitSpawn {s} {
+eventq define ensitSpawn {s} {
     # FIRST, is is still "live"?  If not, nothing to do.
-    set sit [envsit get $s]
+    set sit [ensit get $s]
 
     if {![$sit islive]} {
         return
     }
 
     # NEXT, try to spawn each dependent situation
-    foreach stype [parmdb get envsit.[$sit get stype].spawns] {
-        log normal envsit \
+    foreach stype [parmdb get ensit.[$sit get stype].spawns] {
+        log normal ensit \
             "spawn $s: [$sit get stype] spawns $stype in [$sit get n]"
 
-        # FIRST, if there's already an envsit of this type, don't spawn.
-        if {[envsit existsInNbhood [$sit get n] $stype]} {
-            log warning envsit \
+        # FIRST, if there's already an ensit of this type, don't spawn.
+        if {[ensit existsInNbhood [$sit get n] $stype]} {
+            log warning ensit \
                 "can't spawn $stype in [$sit get n]: already present"
             continue
         }
@@ -809,7 +809,7 @@ eventq define envsitSpawn {s} {
             lappend parmDict g         [$sit get g]
             lappend parmDict inception 1
 
-            envsit mutate create $parmDict
+            ensit mutate create $parmDict
         }
     }
 }
@@ -819,26 +819,26 @@ eventq define envsitSpawn {s} {
 
 # SITUATION:ENVIRONMENTAL:CREATE
 #
-# Creates new envsits.
+# Creates new ensits.
 
-order define ::envsit SITUATION:ENVIRONMENTAL:CREATE {
+order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
     title "Create Environmental Situation"
     options -sendstates {PREP PAUSED RUNNING}
 
     parm location   text  "Location"      -tags point -refresh
     parm stype      enum  "Type"  \
-        -refreshcmd {::envsit RefreshSType}
+        -refreshcmd {::ensit RefreshSType}
     parm coverage   text  "Coverage"      -defval 1.0
     parm inception  enum  "Inception?"    -type eyesno -defval "YES"
-    parm g          enum  "Caused By"     -type [list envsit doer] \
+    parm g          enum  "Caused By"     -type [list ensit doer] \
         -defval NONE
 } {
     # FIRST, prepare and validate the parameters
     prepare location  -toupper   -required -type refpoint
-    prepare stype     -toupper   -required -type eenvsit
+    prepare stype     -toupper   -required -type eensit
     prepare coverage             -required -type rfraction
     prepare inception -toupper   -required -type boolean
-    prepare g         -toupper             -type [list envsit doer]
+    prepare g         -toupper             -type [list ensit doer]
 
     returnOnError
 
@@ -861,9 +861,9 @@ order define ::envsit SITUATION:ENVIRONMENTAL:CREATE {
     returnOnError
 
     validate stype {
-        if {[envsit existsInNbhood $n $parms(stype)]} {
+        if {[ensit existsInNbhood $n $parms(stype)]} {
             reject stype \
-                "An envsit of this type already exists in this neighborhood."
+                "An ensit of this type already exists in this neighborhood."
         }
     }
 
@@ -883,18 +883,18 @@ order define ::envsit SITUATION:ENVIRONMENTAL:CREATE {
 
 # SITUATION:ENVIRONMENTAL:DELETE
 #
-# Deletes an envsit.
+# Deletes an ensit.
 
-order define ::envsit SITUATION:ENVIRONMENTAL:DELETE {
+order define ::ensit SITUATION:ENVIRONMENTAL:DELETE {
     title "Delete Environmental Situation"
     options \
-        -table      gui_envsits_initial     \
+        -table      gui_ensits_initial     \
         -sendstates {PREP PAUSED RUNNING}
 
     parm s  key  "Situation"  -tags situation
 } {
     # FIRST, prepare the parameters
-    prepare s -required -type {envsit initial}
+    prepare s -required -type {ensit initial}
 
     returnOnError
 
@@ -929,38 +929,38 @@ order define ::envsit SITUATION:ENVIRONMENTAL:DELETE {
 
 # SITUATION:ENVIRONMENTAL:UPDATE
 #
-# Updates existing envsits.
+# Updates existing ensits.
 
-order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
+order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
     title "Update Environmental Situation"
     options \
-        -table      gui_envsits_initial     \
+        -table      gui_ensits_initial     \
         -sendstates {PREP PAUSED RUNNING}
 
     parm s          key   "Situation"   -tags situation
     parm location   text  "Location"    -tags point
 
     parm stype      enum  "Type" \
-        -refreshcmd [list ::envsit RefreshUpdateParm stype]
+        -refreshcmd [list ::ensit RefreshUpdateParm stype]
     parm coverage   text  "Coverage"    -defval 1.0 
     parm inception  enum  "Inception?"  -type eyesno -defval "YES"
-    parm g          enum  "Caused By"   -type [list envsit doer]
+    parm g          enum  "Caused By"   -type [list ensit doer]
 
 } {
     # FIRST, check the situation
-    prepare s                    -required -type {envsit initial}
+    prepare s                    -required -type {ensit initial}
 
     returnOnError
 
     # NEXT, get the situation object
-    set sit [envsit get $parms(s)]
+    set sit [ensit get $parms(s)]
 
     # NEXT, prepare the remaining parameters
     prepare location  -toupper  -type refpoint 
-    prepare stype     -toupper  -type eenvsit   -oldvalue [$sit get stype]
+    prepare stype     -toupper  -type eensit   -oldvalue [$sit get stype]
     prepare coverage            -type rfraction
     prepare inception -toupper  -type boolean
-    prepare g -toupper  -type {envsit doer}
+    prepare g -toupper  -type {ensit doer}
 
     returnOnError
 
@@ -978,9 +978,9 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
     }
 
     validate stype {
-        if {[envsit existsInNbhood $n $parms(stype)]} {
+        if {[ensit existsInNbhood $n $parms(stype)]} {
             reject stype \
-                "An envsit of this type already exists in this neighborhood."
+                "An ensit of this type already exists in this neighborhood."
         }
     }
 
@@ -1000,24 +1000,24 @@ order define ::envsit SITUATION:ENVIRONMENTAL:UPDATE {
 
 # SITUATION:ENVIRONMENTAL:MOVE
 #
-# Moves an existing envsits.
+# Moves an existing ensits.
 
-order define ::envsit SITUATION:ENVIRONMENTAL:MOVE {
+order define ::ensit SITUATION:ENVIRONMENTAL:MOVE {
     title "Move Environmental Situation"
     options \
-        -table      gui_envsits           \
+        -table      gui_ensits           \
         -sendstates {PREP PAUSED RUNNING}
 
     parm s          key   "Situation"   -tags situation
     parm location   text  "Location"    -tags point
 } {
     # FIRST, check the situation
-    prepare s                    -required -type envsit
+    prepare s                    -required -type ensit
 
     returnOnError
 
     # NEXT, get the situation object
-    set sit [envsit get $parms(s)]
+    set sit [ensit get $parms(s)]
 
     # NEXT, prepare the remaining parameters
     prepare location  -toupper  -required -type refpoint 
@@ -1029,7 +1029,7 @@ order define ::envsit SITUATION:ENVIRONMENTAL:MOVE {
 
 
     # NEXT, validate the other parameters.  In the INITIAL state, the
-    # envsit can be moved to any neighborhood; in any other state it
+    # ensit can be moved to any neighborhood; in any other state it
     # can only be moved within the neighborhood.
     # location can be changed.
 
@@ -1069,19 +1069,19 @@ order define ::envsit SITUATION:ENVIRONMENTAL:MOVE {
 
 # SITUATION:ENVIRONMENTAL:RESOLVE
 #
-# Resolves an envsit.
+# Resolves an ensit.
 
-order define ::envsit SITUATION:ENVIRONMENTAL:RESOLVE {
+order define ::ensit SITUATION:ENVIRONMENTAL:RESOLVE {
     title "Resolve Environmental Situation"
     options -sendstates {PREP PAUSED RUNNING}
 
-    parm s         enum  "Situation"    -tags situation -type {envsit live}
-    parm resolver  enum  "Resolved By"  -type [list envsit doer] \
+    parm s         enum  "Situation"    -tags situation -type {ensit live}
+    parm resolver  enum  "Resolved By"  -type [list ensit doer] \
         -defval NONE
 } {
     # FIRST, prepare the parameters
-    prepare s         -required -type {envsit live}
-    prepare resolver  -toupper  -type [list envsit doer]
+    prepare s         -required -type {ensit live}
+    prepare resolver  -toupper  -type [list ensit doer]
 
     returnOnError
 
@@ -1090,3 +1090,5 @@ order define ::envsit SITUATION:ENVIRONMENTAL:RESOLVE {
     
     setundo [join $undo \n]
 }
+
+

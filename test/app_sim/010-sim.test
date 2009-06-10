@@ -392,10 +392,10 @@ namespace eval ::athena_test::tests:: {
     } -result {1 0}
 
 
-    test check-1.4 {Two envsits of the same type in a neighborhood} -setup {
+    test check-1.4 {Two ensits of the same type in a neighborhood} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
     }  -body {
-        envsit mutate create {
+        ensit mutate create {
             stype     BADFOOD
             location  {100 100}
             coverage  1.0
@@ -405,7 +405,7 @@ namespace eval ::athena_test::tests:: {
 
         set a [sim check]
 
-        envsit mutate create {
+        ensit mutate create {
             stype     BADFOOD
             location  {100 100}
             coverage  1.0
@@ -421,7 +421,7 @@ namespace eval ::athena_test::tests:: {
     } -result {1 0}
 
 
-    test check-1.5 {Envsit with no neighborhood} -setup {
+    test check-1.5 {Ensit with no neighborhood} -setup {
         ted create NB1 BLUE SHIA NB1SHIA NB2 NB2SHIA
         set loc [dict get [ted entity NB2] refpoint]
     }  -body {
@@ -451,3 +451,5 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
+

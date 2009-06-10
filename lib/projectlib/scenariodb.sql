@@ -599,7 +599,7 @@ SELECT * FROM situations JOIN actsits_t USING (s)
 WHERE state != 'ENDED' OR change != '';
 
 -- Environmental Situations
-CREATE TABLE envsits_t (
+CREATE TABLE ensits_t (
     -- Situation ID
     s          INTEGER PRIMARY KEY,
 
@@ -625,13 +625,13 @@ CREATE TABLE envsits_t (
 );
 
 -- Environmental Situations View
-CREATE VIEW envsits AS
-SELECT * FROM situations JOIN envsits_t USING (s);
+CREATE VIEW ensits AS
+SELECT * FROM situations JOIN ensits_t USING (s);
 
 -- Current Environmental Situations View: i.e., situations of current
 -- interest to the analyst
-CREATE VIEW envsits_current AS
-SELECT * FROM situations JOIN envsits_t USING (s)
+CREATE VIEW ensits_current AS
+SELECT * FROM situations JOIN ensits_t USING (s)
 WHERE state != 'ENDED' OR change != '';
 
 ------------------------------------------------------------------------
@@ -678,3 +678,4 @@ SELECT u         AS id,
        u         AS longname,
        'unit'    AS etype
 FROM units;
+

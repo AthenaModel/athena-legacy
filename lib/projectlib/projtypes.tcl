@@ -22,8 +22,8 @@ namespace eval ::projectlib:: {
         ecivconcern   \
         econcern      \
         edemeanor     \
-        eenvsit       \
-        leenvsit      \
+        eensit       \
+        leensit      \
         eforcetype    \
         efrcactivity  \
         eorgactivity  \
@@ -40,7 +40,7 @@ namespace eval ::projectlib:: {
         ingpopulation \
         ioptdays      \
         iquantity     \
-        leenvsit      \
+        leensit      \
         polygon       \
         qsecurity     \
         rdays         \
@@ -480,7 +480,7 @@ snit::type ::projectlib::typewrapper {
 
 # The name is the rule set name, e.g., SEWAGE, and the 
 # long name is the full name of the rule set.
-::marsutil::enum ::projectlib::eenvsit {
+::marsutil::enum ::projectlib::eensit {
     BADFOOD     "CONTAMINATED.FOOD.SUPPLY"
     BADWATER    "CONTAMINATED.WATER.SUPPLY"
     BIO         "BIOLOGICAL.HAZARD"
@@ -502,9 +502,9 @@ snit::type ::projectlib::typewrapper {
     SEWAGE      "SEWAGE.SPILL"
 }
 
-# List of eenvsit values
-::projectlib::typewrapper ::projectlib::leenvsit \
-    snit::listtype -type ::projectlib::eenvsit 
+# List of eensit values
+::projectlib::typewrapper ::projectlib::leensit \
+    snit::listtype -type ::projectlib::eensit 
 
 
 #-------------------------------------------------------------------
@@ -792,3 +792,4 @@ snit::type ::projectlib::weight {
         return $value
     }
 }
+

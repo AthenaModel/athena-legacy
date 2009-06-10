@@ -138,10 +138,10 @@ snit::widget appwin {
             script  { actsitbrowser %W }
         }
 
-        envsit {
-            label   "EnvSits"
+        ensit {
+            label   "EnSits"
             parent  nbhoodst
-            script  { envsitbrowser %W }
+            script  { ensitbrowser %W }
         }
 
         groupst {
@@ -293,7 +293,7 @@ snit::widget appwin {
         bind $content <<NotebookTabChanged>> [mymethod Reconfigure]
 
         bind $viewer <<Unit-1>>       [mymethod Unit-1   %d]
-        bind $viewer <<Envsit-1>>     [mymethod Envsit-1 %d]
+        bind $viewer <<Ensit-1>>     [mymethod Ensit-1 %d]
         bind $viewer <<Nbhood-1>>     [mymethod Nbhood-1 %d]
 
         # NEXT, prepare to append pucked points, etc., to the CLI
@@ -1433,14 +1433,14 @@ snit::widget appwin {
         }
     }
 
-    # Envsit-1 s
+    # Ensit-1 s
     #
-    # s      An envsit ID
+    # s      An ensit ID
     #
-    # Called when the user clicks on an envsit icon.
+    # Called when the user clicks on an ensit icon.
 
-    method Envsit-1 {s} {
-        rdb eval {SELECT * FROM gui_envsits WHERE s=$s} row {
+    method Ensit-1 {s} {
+        rdb eval {SELECT * FROM gui_ensits WHERE s=$s} row {
         $self puts \
             "Situation $s: $row(stype)  at: $row(location)  coverage: $row(coverage)"
         }
@@ -1680,6 +1680,9 @@ snit::widget appwin {
         $msgline puts $text
     }
 }
+
+
+
 
 
 
