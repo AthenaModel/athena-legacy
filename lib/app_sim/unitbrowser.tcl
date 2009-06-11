@@ -18,6 +18,102 @@
 
 snit::widgetadaptor unitbrowser {
     #-------------------------------------------------------------------
+    # Type Constructor
+
+    typeconstructor {
+        # Create the button icons
+        namespace eval ${type}::icon { }
+
+
+        mkicon ${type}::icon::crosshair {
+            ......................
+            ......................
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ......................
+            ......................
+            ..XXXXXX..XX..XXXXXX..
+            ..XXXXXX..XX..XXXXXX..
+            ......................
+            ......................
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ..........XX..........
+            ......................
+            ......................
+        } {
+            .  trans
+            X  #000000
+        }
+
+
+        mkicon ${type}::icon::activity {
+            ......................
+            ......................
+            ......................
+            .........XXXX.........
+            .........XXXX.........
+            ........XXXXXX........
+            ........XXXXXX........
+            .......XXX..XXX.......
+            .......XXX..XXX.......
+            ......XXX....XXX......
+            ......XXX....XXX......
+            .....XXX......XXX.....
+            .....XXX......XXX.....
+            ....XXXXXXXXXXXXXX....
+            ....XXXXXXXXXXXXXX....
+            ...XXX..........XXX...
+            ...XXX..........XXX...
+            ..XXX............XXX..
+            ..XXX............XXX..
+            ......................
+            ......................
+            ......................
+        } {
+            .  trans
+            X  #000000
+        }
+
+
+        mkicon ${type}::icon::personnel {
+            ......................
+            ......................
+            .........XXXX.........
+            ........XXXXXX........
+            ........XXXXXX........
+            ........XXXXXX........
+            .........XXXX.........
+            .....XXXXXXXXXXXX.....
+            ....XXXXXXXXXXXXXX....
+            ....XX.XXXXXXXX.XX....
+            ....XX.XXXXXXXX.XX....
+            ....XX.XXXXXXXX.XX....
+            ....XX.XXXXXXXX.XX....
+            .......XXXXXXXX.......
+            .......XXX..XXX.......
+            .......XXX..XXX.......
+            .......XXX..XXX.......
+            .......XXX..XXX.......
+            .......XXX..XXX.......
+            ......................
+            ......................
+            ......................
+        } {
+            .  trans
+            X  #000000
+        }
+
+    }
+
+    #-------------------------------------------------------------------
     # Options
 
     # Options delegated to the hull
@@ -27,7 +123,9 @@ snit::widgetadaptor unitbrowser {
     # Components
 
     component addbtn      ;# The "Add" button
-    component editbtn     ;# The "Edit" button
+    component movebtn     ;# The "Move" button
+    component actbtn      ;# The "Activity" button
+    component perbtn      ;# The "Personnel" button
     component deletebtn   ;# The "Delete" button
 
     #--------------------------------------------------------------------
@@ -50,6 +148,7 @@ snit::widgetadaptor unitbrowser {
         # NEXT, create the toolbar buttons
         set bar [$hull toolbar]
 
+        # Add Button
         install addbtn using button $bar.add   \
             -image      ::projectgui::icon::plus22 \
             -relief     flat                   \
@@ -63,20 +162,53 @@ snit::widgetadaptor unitbrowser {
             order UNIT:CREATE
 
 
-        install editbtn using button $bar.edit   \
-            -image      ::projectgui::icon::pencil22 \
-            -relief     flat                     \
-            -overrelief raised                   \
-            -state      disabled                 \
-            -command    [mymethod EditSelected]
+        # Activity Button
+        install actbtn using button $bar.act         \
+            -image      ${type}::icon::activity      \
+            -relief     flat                         \
+            -overrelief raised                       \
+            -state      disabled                     \
+            -command    [mymethod SetActivitySelected]
 
-        DynamicHelp::add $editbtn -text "Edit Selected Unit"
+        DynamicHelp::add $actbtn -text "Set Activity for Selected Unit"
 
-        cond::orderIsValidMulti control $editbtn \
-            order   UNIT:UPDATE                  \
+        cond::orderIsValidSingle control $actbtn     \
+            order   UNIT:ACTIVITY                    \
             browser $win
 
 
+
+        # Personnel Button
+        install perbtn using button $bar.per         \
+            -image      ${type}::icon::personnel     \
+            -relief     flat                         \
+            -overrelief raised                       \
+            -state      disabled                     \
+            -command    [mymethod SetPersonnelSelected]
+
+        DynamicHelp::add $perbtn -text "Set Personnel for Selected Unit"
+
+        cond::orderIsValidSingle control $perbtn    \
+            order   UNIT:PERSONNEL                  \
+            browser $win
+
+
+        # Move Button
+        install movebtn using button $bar.move       \
+            -image      ${type}::icon::crosshair     \
+            -relief     flat                         \
+            -overrelief raised                       \
+            -state      disabled                     \
+            -command    [mymethod MoveSelected]
+
+        DynamicHelp::add $movebtn -text "Move Selected Unit"
+
+        cond::orderIsValidSingle control $movebtn    \
+            order   UNIT:MOVE                        \
+            browser $win
+
+
+        # Delete Button
         install deletebtn using button $bar.delete \
             -image      ::projectgui::icon::x22    \
             -relief     flat                       \
@@ -92,7 +224,9 @@ snit::widgetadaptor unitbrowser {
 
         
         pack $addbtn    -side left
-        pack $editbtn   -side left
+        pack $actbtn    -side left
+        pack $perbtn    -side left
+        pack $movebtn   -side left
         pack $deletebtn -side right
 
 
@@ -148,15 +282,14 @@ snit::widgetadaptor unitbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidSingle update $deletebtn
-        cond::orderIsValidMulti  update $editbtn
+        cond::orderIsValidSingle update \
+            [list $movebtn $actbtn $perbtn $deletebtn]
 
         # NEXT, notify the app of the selection.
         if {[llength [$hull curselection]] == 1} {
             set u [lindex [$hull curselection] 0]
 
-            # TBD: Should this be [list unit $u]?
-            notifier send ::app <ObjectSelect> [list u $u]
+            notifier send ::app <ObjectSelect> [list unit $u]
         }
     }
 
@@ -171,20 +304,36 @@ snit::widgetadaptor unitbrowser {
     }
 
 
-    # EditSelected
+    # MoveSelected
     #
-    # Called when the user wants to edit the selected entities.
+    # Called when the user wants to move the selected unit
 
-    method EditSelected {} {
-        set ids [$hull curselection]
+    method MoveSelected {} {
+        set id [lindex [$hull curselection] 0]
 
-        if {[llength $ids] == 1} {
-            set id [lindex $ids 0]
+        order enter UNIT:MOVE u $id
+    }
 
-            order enter UNIT:UPDATE u $id
-        } else {
-            order enter UNIT:UPDATE:MULTI ids $ids
-        }
+
+    # SetActivitySelected
+    #
+    # Called when the user wants to set the unit's activity
+
+    method SetActivitySelected {} {
+        set id [lindex [$hull curselection] 0]
+
+        order enter UNIT:ACTIVITY u $id
+    }
+
+
+    # SetPersonnelSelected
+    #
+    # Called when the user wants to set the unit's personnel
+
+    method SetPersonnelSelected {} {
+        set id [lindex [$hull curselection] 0]
+
+        order enter UNIT:PERSONNEL u $id
     }
 
 

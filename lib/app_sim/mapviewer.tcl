@@ -1225,8 +1225,8 @@ snit::widget mapviewer {
     method IconMoved {cid} {
         switch -exact $icons(itype-$cid) {
             unit {
-                if {[order isvalid UNIT:UPDATE]} {
-                    order send gui UNIT:UPDATE           \
+                if {[order isvalid UNIT:MOVE]} {
+                    order send gui UNIT:MOVE             \
                         u $icons(sid-$cid)               \
                         location [$canvas icon ref $cid]
                 } else {
@@ -1319,17 +1319,22 @@ snit::widget mapviewer {
         set mnu [menu $canvas.unitmenu]
 
         cond::orderIsValid control \
-            [menuitem $mnu command "Update Unit" \
-                 -command [mymethod UpdateUnit]] \
-            order UNIT:UPDATE
+            [menuitem $mnu command "Set Unit Activity" \
+                 -command [mymethod UpdateUnit ACTIVITY]] \
+            order UNIT:ACTIVITY
+
+        cond::orderIsValid control \
+            [menuitem $mnu command "Set Unit Personnel" \
+                 -command [mymethod UpdateUnit PERSONNEL]] \
+            order UNIT:PERSONNEL
     }
 
-    # UpdateUnit
+    # UpdateUnit suffix
     #
-    # Pops up the "Update Unit" dialog for this unit
+    # Pops up the relevant order dialog for this unit
 
-    method UpdateUnit {} {
-        order enter UNIT:UPDATE u $icons(context)
+    method UpdateUnit {suffix} {
+        order enter UNIT:$suffix u $icons(context)
     }
 
     #-------------------------------------------------------------------

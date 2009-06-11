@@ -52,16 +52,25 @@ namespace eval ::athena_test::tests:: {
         a         NONE
     }
 
+    set u3 {
+        u         U3 
+        g         SHIA
+        origin    NB1
+        location  {999 999} 
+        personnel 1 
+        a         NONE
+    }
 
     #-------------------------------------------------------------------
     # mutate create
 
     test create-1.1 {units are created} -setup {
-        ted create BLUE USAID
+        ted create NB1 BLUE USAID SHIA 
     } -body {
         # FRC unit
         unit mutate create $u1
         unit mutate create $u2
+        unit mutate create $u3
 
         ted query {SELECT * FROM units}
     } -cleanup {
@@ -71,6 +80,7 @@ u  g     origin personnel location a    gtype n a_effective
 -- ----- ------ --------- -------- ---- ----- - ----------- 
 U1 BLUE  NONE   1         1 1      NONE FRC     0           
 U2 USAID NONE   1         999 999  NONE ORG     0           
+U3 SHIA  NB1    1         999 999  NONE CIV     0           
     }
 
 
@@ -186,78 +196,29 @@ U1 BLUE NONE   1         1 1      NONE FRC     0
     }
 
     #-------------------------------------------------------------------
-    # mutate update
+    # mutate move
 
-
-    test update-1.1 {unit is updated} -setup {
-        ted create NB1 BLUE BRIT
+    test move-1.1 {unit is moved} -setup {
+        ted create NB1 BLUE
         unit mutate create $u1
     } -body {
-        unit mutate update {
-            u         U1 
-            g         BRIT
-            origin    NB1
-            location  {2 2} 
-            personnel 3 
-            a         PATROL
-        }
+        unit mutate move U1 {2 2}
 
         ted query {SELECT * FROM units}
     } -cleanup {
         cleanup
     } -result {
-u  g    origin personnel location a      gtype n a_effective 
--- ---- ------ --------- -------- ------ ----- - ----------- 
-U1 BRIT NB1    3         2 2      PATROL FRC     0           
+u  g    origin personnel location a    gtype n a_effective 
+-- ---- ------ --------- -------- ---- ----- - ----------- 
+U1 BLUE NONE   1         2 2      NONE FRC     0           
     }
 
-    test update-1.2 {identical values are OK} -setup {
-        unit mutate create $u1
-    } -body {
-        set a [ted query {SELECT * FROM units}]
 
-        unit mutate update $u1
-
-        set b [ted query {SELECT * FROM units}]
-
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-
-    test update-1.3 {empty values are OK} -setup {
-        unit mutate create $u1
-    } -body {
-        set a [ted query {SELECT * FROM units}]
-
-        unit mutate update  {
-            u         U1
-            g         ""
-            location  ""
-            personnel ""
-            a         ""
-        }
-
-        set b [ted query {SELECT * FROM units}]
-
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-
-    test update-1.4 {<Entity> update} -setup {
+    test move-1.2 {<Entity> update} -setup {
         unit mutate create $u1
     } -body {
         ted notifier bind ::unit <Entity>
-        unit mutate update  {
-            u         U1
-            g         ""
-            location  ""
-            personnel ""
-            a         ""
-        }
+        unit mutate move U1 {3 3}
         ted notifier received
     } -cleanup {
         cleanup
@@ -266,33 +227,12 @@ U1 BRIT NB1    3         2 2      PATROL FRC     0
     }
 
 
-    test update-1.5 {gtype is updated} -setup {
-        ted create NB1 BLUE USAID
-        unit mutate create $u1
-    } -body {
-        unit mutate update {
-            u         U1 
-            g         USAID
-            location  ""
-            personnel ""
-            a         ""
-        }
-
-        ted query {SELECT u,gtype FROM units}
-    } -cleanup {
-        cleanup
-    } -result {
-u  gtype 
--- ----- 
-U1 ORG   
-    }
-
-    test update-1.6 {n is updated} -setup {
+    test move-1.3 {n is updated} -setup {
         ted create NB1
         set loc [dict get [ted entity NB1] refpoint]
         unit mutate create $u1
     } -body {
-        unit mutate update [dict merge $u1 [list location $loc]]
+        unit mutate move U1 $loc
 
         ted query {SELECT u,n FROM units}
     } -cleanup {
@@ -304,20 +244,14 @@ U1 NB1
     }
 
 
-    test update-2.1 {undo undoes the change} -setup {
+    test move-2.1 {undo undoes the change} -setup {
         ted create BLUE USAID
         unit mutate create $u1
     } -body {
 
         set a [ted query {SELECT * FROM units}]
 
-        set undo [unit mutate update {
-            u         U1 
-            g         USAID
-            location  ""
-            personnel ""
-            a         ""
-        }]
+        set undo [unit mutate move U1 {3 3}]
 
         {*}$undo
 
@@ -328,16 +262,11 @@ U1 NB1
         cleanup
     } -result {1}
 
-    test update-2.2 {undo sends <Entity> update} -setup {
+
+    test move-2.2 {undo sends <Entity> update} -setup {
         unit mutate create $u1
     } -body {
-        set undo [unit mutate update {
-            u         U1 
-            g         USAID
-            location  ""
-            personnel ""
-            a         ""
-        }]
+        set undo [unit mutate move U1 {3 3}]
 
         ted notifier bind ::unit <Entity>
         {*}$undo
@@ -347,6 +276,140 @@ U1 NB1
     } -result {
         {::unit <Entity> update U1}
     }
+
+
+    #-------------------------------------------------------------------
+    # mutate activity
+
+    test activity-1.1 {unit's activity is set} -setup {
+        ted create BLUE
+        unit mutate create $u1
+    } -body {
+        unit mutate activity U1 PATROL
+
+        ted query {SELECT * FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u  g    origin personnel location a      gtype n a_effective 
+-- ---- ------ --------- -------- ------ ----- - ----------- 
+U1 BLUE NONE   1         1 1      PATROL FRC     0           
+    }
+
+
+    test activity-1.2 {<Entity> update} -setup {
+        unit mutate create $u1
+    } -body {
+        ted notifier bind ::unit <Entity>
+        unit mutate activity U1 PATROL
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update U1}
+    }
+
+
+    test activity-2.1 {undo undoes the change} -setup {
+        ted create BLUE USAID
+        unit mutate create $u1
+    } -body {
+
+        set a [ted query {SELECT * FROM units}]
+
+        set undo [unit mutate activity U1 PATROL]
+
+        {*}$undo
+
+        set b [ted query {SELECT * FROM units}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test activity-2.2 {undo sends <Entity> update} -setup {
+        unit mutate create $u1
+    } -body {
+        set undo [unit mutate activity U1 PATROL]
+
+        ted notifier bind ::unit <Entity>
+        {*}$undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update U1}
+    }
+
+
+    #-------------------------------------------------------------------
+    # mutate personnel
+
+
+    test personnel-1.1 {unit is updated} -setup {
+        ted create NB1 BLUE
+        unit mutate create $u1
+    } -body {
+        unit mutate personnel U1 3
+
+
+        ted query {SELECT * FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u  g    origin personnel location a    gtype n a_effective 
+-- ---- ------ --------- -------- ---- ----- - ----------- 
+U1 BLUE NONE   3         1 1      NONE FRC     0           
+    }
+
+
+    test personnel-1.2 {<Entity> update} -setup {
+        unit mutate create $u1
+    } -body {
+        ted notifier bind ::unit <Entity>
+        unit mutate personnel  U1 25
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update U1}
+    }
+
+
+    test personnel-2.1 {undo undoes the change} -setup {
+        ted create BLUE
+        unit mutate create $u1
+    } -body {
+
+        set a [ted query {SELECT * FROM units}]
+
+        set undo [unit mutate personnel U1 25]
+
+        {*}$undo
+
+        set b [ted query {SELECT * FROM units}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test personnel-2.2 {undo sends <Entity> update} -setup {
+        unit mutate create $u1
+    } -body {
+        set undo [unit mutate personnel U1 25]
+
+        ted notifier bind ::unit <Entity>
+        {*}$undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update U1}
+    }
+
 
     #-------------------------------------------------------------------
     # reconcile
@@ -582,28 +645,24 @@ U2
     }
 
 
-    # reconcile-3.*: Units should have their "origin" reset to NONE
-    # if the neighborhood no longer exists.  The undo should reset
-    # the "origin". Both should send <Entity> events.
+    # reconcile-3.*: CIV Units should be deleted if their nbgroup is
+    # deleted.  The undo should restore the unit.
+    # Both should send <Entity> events.
 
-    test reconcile-3.1 {Clear origin for units with deleted origins} -setup {
-        ted create BLUE
-        unit mutate create [dict merge $u1 [list origin NB1]]
+    test reconcile-3.1 {Delete CIV units with no nbgroup.} -setup {
+        ted create NB1 SHIA
+        unit mutate create $u3
     } -body {
         unit mutate reconcile
-        ted query {SELECT u,origin FROM units}
+        rdb eval {SELECT u FROM units}
     } -cleanup {
         cleanup
-    } -result {
-u  origin 
--- ------ 
-U1 NONE   
-    }
+    } -result {}
 
 
-    test reconcile-3.2 {Send <Entity> update when origin is reset} -setup {
-        ted create BLUE
-        unit mutate create [dict merge $u1 [list origin NB1]]
+    test reconcile-3.2 {Send <Entity> delete} -setup {
+        ted create NB1 SHIA
+        unit mutate create $u3
     } -body {
         ted notifier bind ::unit <Entity>
         unit mutate reconcile
@@ -611,30 +670,26 @@ U1 NONE
     } -cleanup {
         cleanup
     } -result {
-        {::unit <Entity> update U1}
+        {::unit <Entity> delete U3}
     }
 
 
-    test reconcile-3.3 {Reset origin on undo} -setup {
-        ted create BLUE
-        unit mutate create [dict merge $u1 [list origin NB1]]
+    test reconcile-3.3 {Restore unit on undo} -setup {
+        ted create NB1 SHIA
+        unit mutate create $u3
 
         set undo [unit mutate reconcile]
     } -body {
         eval $undo
-        ted query {SELECT u,origin FROM units}
+        rdb eval {SELECT u FROM units}
     } -cleanup {
         cleanup
-    } -result {
-u  origin 
--- ------ 
-U1 NB1    
-    }
+    } -result {U3}
 
 
     test reconcile-3.4 {Send <Entity> update on undo} -setup {
-        ted create BLUE
-        unit mutate create [dict merge $u1 [list origin NB1]]
+        ted create NB1 SHIA
+        unit mutate create $u3
 
         set undo [unit mutate reconcile]
     } -body {
@@ -644,7 +699,7 @@ U1 NB1
     } -cleanup {
         cleanup
     } -result {
-        {::unit <Entity> update U1}
+        {::unit <Entity> create U3}
     }
 
 

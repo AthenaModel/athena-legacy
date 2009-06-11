@@ -538,7 +538,7 @@ snit::type ted {
             }
 
             # NEXT, move the unit.
-            ted order UNIT:UPDATE u $u location $location
+            ted order UNIT:MOVE u $u location $location
         }
 
         rdb onecolumn {SELECT location FROM gui_units WHERE u=$u}
@@ -554,7 +554,7 @@ snit::type ted {
 
     typemethod {unit activity} {u {a ""}} {
         if {$a ne ""} {
-            ted order UNIT:UPDATE u $u a $a
+            ted order UNIT:ACTIVITY u $u a $a
         }
 
         rdb onecolumn {SELECT a FROM gui_units WHERE u=$u}
@@ -570,7 +570,7 @@ snit::type ted {
 
     typemethod {unit personnel} {u {num ""}} {
         if {$num ne ""} {
-            ted order UNIT:UPDATE u $u personnel $num
+            ted order UNIT:PERSONNEL u $u personnel $num
         }
 
         rdb onecolumn {SELECT personnel FROM gui_units WHERE u=$u}

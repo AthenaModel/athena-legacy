@@ -932,21 +932,23 @@ follows:<p>
 
 <<parm g>> <b>Required.</b>  The name of a group.<</parm>>
 
+<<parm origin>> <b>Required.</b>  The unit's neighborhood of origin.
+For force and organization units, this is always <b>NONE</b>; for
+civilian units, this must be the name of a neighborhood in which
+group <b>g</b> resides.<</parm>>
+
 <<parm u>> <b>Required.</b>  The name of the unit, a
 <<xref projtypes(n) unitname>> value.<</parm>>
 
-<<parm origin>> <b>Required.</b>  The unit's neighborhood of origin,
-either a neighborhood name or <b>NONE</b> for units originating
-outside the playbox.<</parm>>
-
 <<parm personnel>> <b>Required.</b>  The number of personnel in the
-unit, an <<xref projtypes(n) iquantity>> value.<</parm>>
+unit, an <<xref projtypes(n) iquantity>> value.  Civilian personnel
+are drawn from the neighborhood group's implicit population.<</parm>>
 
 <<parm location>> <b>Required.</b>  The location of the unit as
 a map reference.<</parm>>
 
-<<parm activity>> <b>Required.</b>  The unit's initial activity,
-an <<xref projtypes(n) eactivity>> value.  The unit's group type
+<<parm activity>> <b>Required.</b>  The unit's initial activity.
+The unit's group type
 constrains the activities that it can be assigned to do.<</parm>>
 
 <</parmlist>>
@@ -964,32 +966,55 @@ The parameters are as follows:<p>
 <</parmlist>>
 
 
-<<defitem UNIT:UPDATE {UNIT:UPDATE}>>
+<<defitem UNIT:MOVE {UNIT:MOVE}>>
 
-Updates an existing unit.  The parameters are as
-defined for <<iref UNIT:CREATE>>; <b>u</b> is required, and
-specifies the unit to update, while the remainder are optional.<p>
-
-
-<<defitem UNIT:UPDATE:MULTI {UNIT:UPDATE:MULTI}>>
-
-Updates multiple units.  The parameters are as
+Moves a unit to a new location.  The parameters are as
 follows:<p>
 
 <<parmlist>>
 
-<<parm ids>> <b>Required.</b>  A list of one or more unit
-IDs.<</parm>>
+<<parm u>> <b>Required.</b>  The name of an existing unit.<</parm>>
 
-<<parm g>>As for <<iref UNIT:CREATE>>. <</parm>>
-
-<<parm personnel>>As for <<iref UNIT:CREATE>>. <</parm>>
-
-<<parm location>>As for <<iref UNIT:CREATE>>. <</parm>>
-
-<<parm activity>>As for <<iref UNIT:CREATE>>. <</parm>>
+<<parm location>> <b>Required.</b>  The location of the unit as
+a map reference.<</parm>>
 
 <</parmlist>>
+
+
+<<defitem UNIT:ACTIVITY {UNIT:ACTIVITY}>>
+
+Assigns a new activity to a unit.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm u>> <b>Required.</b>  The name of an existing unit.<</parm>>
+
+<<parm activity>> <b>Required.</b>  The unit's new activity.
+The unit's group type constrains the activities that it can be
+assigned to do.
+<</parm>>
+
+<</parmlist>>
+
+
+<<defitem UNIT:PERSONNEL {UNIT:PERSONNEL}>>
+
+Sets the number of people in the unit.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm u>> <b>Required.</b>  The name of an existing unit.<</parm>>
+
+<<parm personnel>> <b>Required.</b>  The number of personnel in the
+unit, an <<xref projtypes(n) iquantity>> value.  Civilian personnel
+are drawn from the neighborhood group's implicit population.
+<</parm>>
+
+<</parmlist>>
+
+
 
 <</deflist unit>>
 

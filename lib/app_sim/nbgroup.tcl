@@ -67,8 +67,23 @@ snit::type nbgroup {
     typemethod gIn {n} {
         rdb eval {
             SELECT g FROM nbgroups WHERE n=$n
+            ORDER BY g
         }
     }
+
+    # nFor g
+    #
+    # g    A CIV group ID
+    #
+    # Returns a list of the neighborhoods in which g resides.
+
+    typemethod nFor {g} {
+        rdb eval {
+            SELECT n FROM nbgroups WHERE g=$g
+            ORDER BY n
+        }
+    }
+
 
     # validate id
     #

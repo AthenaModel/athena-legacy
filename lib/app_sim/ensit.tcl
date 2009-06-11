@@ -1000,7 +1000,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
 
 # SITUATION:ENVIRONMENTAL:MOVE
 #
-# Moves an existing ensits.
+# Moves an existing ensit.
 
 order define ::ensit SITUATION:ENVIRONMENTAL:MOVE {
     title "Move Environmental Situation"

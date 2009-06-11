@@ -128,26 +128,19 @@ snit::type unit {
             lappend undo [$type mutate delete $u]
         }
 
-        # NEXT, clear origin if no such nbhood exists.
+        # NEXT, delete CIV units for which no nbgroup exists
         rdb eval {
-            SELECT u, origin
+            SELECT u
             FROM units 
-            LEFT OUTER JOIN nbhoods ON (nbhoods.n = units.origin)
-            WHERE origin != 'NONE'
-            AND   longname IS NULL
+            LEFT OUTER JOIN nbgroups 
+            ON (units.g=nbgroups.g AND nbgroups.n = units.origin)
+            WHERE gtype = 'CIV'
+            AND   nbgroups.local_name IS NULL
         } {
-            rdb eval {
-                UPDATE units
-                SET   origin = 'NONE'
-                WHERE u = $u
-            }
-
-            lappend undo [mytypemethod RestoreOrigin $u $origin]
-
-            notifier send ::unit <Entity> update $u
+            lappend undo [$type mutate delete $u]
         }
 
-        # NEXT, set origin and n for all units
+        # NEXT, set n for all units
         rdb eval {
             SELECT u, n, location 
             FROM units
@@ -284,71 +277,100 @@ snit::type unit {
         notifier send ::unit <Entity> create [dict get $udict u]
     }
 
-    # mutate update parmdict
+
+    # mutate move u location
     #
-    # parmdict     A dictionary of unit parms
+    # u              The unit's ID
+    # location       A new location (map coords) or ""
     #
-    #    u              The unit's ID
-    #    g              A new group, or ""
-    #    origin         A new origin, or ""
-    #    location       A new location (map coords) or ""
-    #    personnel      A new quantity of personnel, or ""
-    #    a              A new activity, or ""
-    #
-    # Updates a unit given the parms, which are presumed to be
+    # Moves a unit given the parms, which are presumed to be
     # valid.
 
-    typemethod {mutate update} {parmdict} {
-        dict with parmdict {
-            # FIRST, get the undo information
-            rdb eval {
-                SELECT * FROM units
-                WHERE u=$u
-            } undoData {
-                unset undoData(*)
-            }
+    typemethod {mutate move} {u location} {
+        # FIRST, get the undo information
+        rdb eval {
+            SELECT location AS oldLocation FROM units
+            WHERE u=$u
+        } {}
 
-            # NEXT, get the new gtype
-            if {$g ne ""} {
-                set gtype [group gtype $g]
-            } else {
-                set gtype $undoData(gtype)
-            }
+        # NEXT, get the new neighborhood
+        set n [nbhood find {*}$location]
 
-            # NEXT, get the new neighborhood
-            if {$location ne ""} {
-                set n [nbhood find {*}$location]
-            } else {
-                set n ""
-            }
-
-            # NEXT, Update the group
-            rdb eval {
-                UPDATE units
-                SET g         = nonempty($g,         g),
-                    origin    = nonempty($origin,    origin),
-                    gtype     = $gtype,
-                    location  = nonempty($location,  location),
-                    personnel = nonempty($personnel, personnel),
-                    a         = nonempty($a,         a)
-                WHERE u=$u
-            }
-
-            if {$location ne ""} {
-                rdb eval {
-                    UPDATE units
-                    SET   n = $n
-                    WHERE u = $u
-                }
-            }
-
-            # NEXT, notify the app.
-            notifier send ::unit <Entity> update $u
-
-            # NEXT, Return the undo command
-            return [mytypemethod mutate update [array get undoData]]
+        # NEXT, Update the unit
+        rdb eval {
+            UPDATE units
+            SET location  = $location,
+                n         = $n
+            WHERE u=$u
         }
+
+        # NEXT, notify the app.
+        notifier send ::unit <Entity> update $u
+
+        # NEXT, Return the undo command
+        return [mytypemethod mutate move $u $oldLocation]
     }
+
+
+    # mutate activity u a
+    #
+    # u              The unit's ID
+    # a              A new activity
+    #
+    # Sets the unit's activity given the parms, which are presumed to be
+    # valid.
+
+    typemethod {mutate activity} {u a} {
+        # FIRST, get the undo information
+        rdb eval {
+            SELECT a AS oldActivity FROM units
+            WHERE u=$u
+        } {}
+
+        # NEXT, Update the unit
+        rdb eval {
+            UPDATE units
+            SET a = $a
+            WHERE u=$u
+        }
+
+        # NEXT, notify the app.
+        notifier send ::unit <Entity> update $u
+
+        # NEXT, Return the undo command
+        return [mytypemethod mutate activity $u $oldActivity]
+    }
+
+
+    # mutate personnel u personnel
+    #
+    # u              The unit's ID
+    # personnel      The new number of personnel
+    #
+    # Sets the unit's personnel given the parms, which are presumed to be
+    # valid.
+
+    typemethod {mutate personnel} {u personnel} {
+        # FIRST, get the undo information
+        rdb eval {
+            SELECT personnel AS oldPersonnel FROM units
+            WHERE u=$u
+        } {}
+
+        # NEXT, Update the unit
+        rdb eval {
+            UPDATE units
+            SET   personnel = $personnel
+            WHERE u=$u
+        }
+
+        # NEXT, notify the app.
+        notifier send ::unit <Entity> update $u
+
+        # NEXT, Return the undo command
+        return [mytypemethod mutate personnel $u $oldPersonnel]
+    }
+
 
     #-------------------------------------------------------------------
     # Order Helpers
@@ -372,6 +394,27 @@ snit::type unit {
         }
     }
 
+    # RefreshUnitOrigin field parmdict
+    #
+    # field     The "origin" field in a U:CREATE order.
+    # parmdict  The current values of the various fields.
+    #
+    # Sets the valid origin values, if it's not set.
+
+    typemethod RefreshUnitOrigin {field parmdict} {
+        dict with parmdict {
+            set gtype [group gtype $g]
+
+            if {$gtype eq "CIV"} {
+                $field configure -values [nbgroup nFor $g]
+            } else {
+                $field configure -values [list NONE]
+                $field set NONE
+            }
+
+        }
+    }
+
     # RefreshUnitName field parmdict
     #
     # field     The "u" field in a U:CREATE order.
@@ -379,7 +422,7 @@ snit::type unit {
     #
     # Initializes the unit name, if it's not set.
     #
-    # TBD: Need a better mechanism for this!
+    # TBD: Need a better mechanism for generating names!
 
     typemethod RefreshUnitName {field parmdict} {
         dict with parmdict {
@@ -388,26 +431,46 @@ snit::type unit {
                 return
             }
 
-            # NEXT, if the name is already set, but it looks like
-            # an automatically generated name, you can replace it.
+            # NEXT, if the name is already set, and doesn't look like
+            # an automatically generated name, you can't replace it.
             if {$u ne ""} {
-                if {![regexp {(.*)/\d\d\d\d$} $u dummy prefix] ||
-                    $prefix ni [unit group names]
-                } {
+                if {![regexp {(.*)/\d\d\d\d$} $u]} {
                     return
                 }
             }
 
-            # NEXT, generate a unit name for this group.
-            set count [rdb onecolumn {
-                SELECT count(u) FROM units
-                WHERE g=$g;
-            }]
+            # NEXT, get the group type; if it's CIV, leave it
+            # alone if the origin is unknown.  Determine the
+            # root and the initial count.
+            set gtype [group gtype $g]
 
-            set u [format "%s/%04d" $g [incr count]]
+            if {$gtype eq "CIV"} {
+                if {$origin eq ""} {
+                    return
+                }
+
+                set root $g-$origin
+
+                set count [rdb onecolumn {
+                    SELECT count(u) FROM units
+                    WHERE g=$g AND origin=$origin;
+                }]
+
+            } else {
+                set root $g
+
+                set count [rdb onecolumn {
+                    SELECT count(u) FROM units
+                    WHERE g=$g;
+                }]
+            }
+            
+
+            # NEXT, generate a unit name for this group.
+            set u [format "%s/%04d" $root [incr count]]
 
             while {[rdb exists {SELECT u FROM units WHERE u=$u}]} {
-                set u [format "%s/%04d" $g [incr count]]
+                set u [format "%s/%04d" $root [incr count]]
             }
 
             $field set $u
@@ -426,6 +489,7 @@ snit::type unit {
             set gtype [group gtype $g]
 
             $type SetActivityValues $field $gtype
+            $field set NONE
         }
     }
 
@@ -518,10 +582,11 @@ order define ::unit UNIT:CREATE {
 
     options -sendstates {PREP PAUSED RUNNING}
 
-    parm g          enum  "Group" -type group -tags group -refresh
+    parm g          enum  "Group"  -type group -tags group  -refresh
+    parm origin     enum  "Origin"             -tags nbhood -refresh \
+        -refreshcmd [list ::unit RefreshUnitOrigin]
     parm u          text  "Name" \
         -refreshcmd [list ::unit RefreshUnitName]
-    parm origin     enum  "Origin"     -type {unit origin} -tags nbhood
     parm personnel  text  "Personnel"  -defval 1
     parm location   text  "Location"   -tags point
     parm a          enum  "Activity"   -tags activity \
@@ -529,8 +594,8 @@ order define ::unit UNIT:CREATE {
 } {
     # FIRST, prepare and validate the parameters
     prepare g          -toupper -required         -type group
-    prepare u          -toupper -required -unused -type unitname
     prepare origin     -toupper -required         -type {unit origin}
+    prepare u          -toupper -required -unused -type unitname
     prepare personnel           -required         -type iquantity
     prepare location            -required         -type refpoint
     prepare a          -toupper -required         -type activity
@@ -538,9 +603,18 @@ order define ::unit UNIT:CREATE {
     returnOnError
 
     # NEXT, do cross-validation
+    set gtype [group gtype $parms(g)]
+
+    validate origin {
+        if {$gtype eq "CIV"} {
+            nbgroup validate [list $parms(origin) $parms(g)]
+        } elseif {$parms(origin) ne "NONE"} {
+            reject origin "Only civilian units have a neighborhood of origin"
+        }
+    }
 
     validate a {
-        $type ValidateActivity [group gtype $parms(g)] $parms(a)
+        $type ValidateActivity $gtype $parms(a)
     }
 
     returnOnError
@@ -595,43 +669,55 @@ order define ::unit UNIT:DELETE {
 }
 
 
-# UNIT:UPDATE
+# UNIT:MOVE
 #
-# Updates existing units.
+# Moves an existing unit.
 
-order define ::unit UNIT:UPDATE {
-    title "Update Unit"
+order define ::unit UNIT:MOVE {
+    title "Move Unit"
     options \
         -table      gui_units             \
         -sendstates {PREP PAUSED RUNNING}
 
     parm u          key   "Unit"       -tags unit
-    parm g          enum  "Group"      -type group
-    parm origin     enum  "Origin"     -type {unit origin} -tags nbhood
-    parm personnel  text  "Personnel"  
     parm location   text  "Location"   -tags point
+} {
+    # FIRST, prepare the parameters
+    prepare u          -toupper -required -type unit
+    prepare location   -toupper -required -type refpoint
+
+    returnOnError
+
+    # NEXT, move the unit
+    setundo [$type mutate move $parms(u) $parms(location)]
+}
+
+
+# UNIT:ACTIVITY
+#
+# Sets an existing unit's activity.
+
+order define ::unit UNIT:ACTIVITY {
+    title "Set Unit Activity"
+    options \
+        -table      gui_units             \
+        -sendstates {PREP PAUSED RUNNING}
+
+    parm u          key   "Unit"       -tags unit
     parm a          enum  "Activity"   -tags activity \
         -refreshcmd [list ::unit RefreshActivityUpdate]
 } {
     # FIRST, prepare the parameters
     prepare u          -toupper -required -type unit
-    prepare g          -toupper           -type group
-    prepare origin     -toupper           -type {unit origin}
-    prepare personnel                     -type iquantity
-    prepare location                      -type refpoint
-    prepare a          -toupper           -type activity
+    prepare a          -toupper -required -type activity
 
     returnOnError
 
     # NEXT, do cross-validation
     validate a {
-        if {$parms(g) ne ""} {
-            set gtype [group gtype $parms(g)]
-        } else {
-            set gtype [rdb onecolumn {
-                SELECT gtype FROM units WHERE u=$parms(u)
-            }]
-        }
+        set gtype [rdb onecolumn {
+            SELECT gtype FROM units WHERE u=$parms(u)
+        }]
 
         $type ValidateActivity $gtype $parms(a)
     }
@@ -639,64 +725,44 @@ order define ::unit UNIT:UPDATE {
     returnOnError
 
     # NEXT, modify the group
-    setundo [$type mutate update [array get parms]]
+    setundo [$type mutate activity $parms(u) $parms(a)]
 }
 
-# UNIT:UPDATE:MULTI
-#
-# Updates multiple units.
 
-order define ::unit UNIT:UPDATE:MULTI {
-    title "Update Multiple Units"
+# UNIT:PERSONNEL
+#
+# Sets the number of people in the unit
+
+order define ::unit UNIT:PERSONNEL {
+    title "Set Unit Personnel"
     options \
         -table      gui_units             \
         -sendstates {PREP PAUSED RUNNING}
 
-    parm ids        multi "Units"
-    parm g          enum  "Group"      -type group -refresh
-    parm origin     enum  "Origin"     -type {unit origin} -tags nbhood
+    parm u          key   "Unit"       -tags unit
     parm personnel  text  "Personnel"  
-    parm location   text  "Location"   -tags point
-    parm a          enum  "Activity"   -tags activity \
-        -refreshcmd [list ::unit RefreshActivityMulti]
 } {
     # FIRST, prepare the parameters
-    prepare ids        -toupper -required -listof unit
-    prepare g          -toupper           -type group
-    prepare origin     -toupper           -type {unit origin}
-    prepare personnel                     -type iquantity
-    prepare location                      -type refpoint
-    prepare a          -toupper           -type activity
+    prepare u          -toupper -required -type unit
+    prepare personnel           -required -type iquantity
 
     returnOnError
 
     # NEXT, do cross-validation
 
-    validate a {
-        if {$parms(g) ne ""} {
-            set gtypes [group gtype $parms(g)]
-        } else {
-            set fragment [join $parms(ids) ',']
-
-            set gtypes [rdb eval "
-                SELECT DISTINCT gtype
-                FROM units
-                WHERE u IN ('$fragment');
-            "]
-        }
-
-        $type ValidateActivity $gtypes $parms(a)
+    validate personnel {
+        # TBD: Verify that we can give the specified number of personnel
+        # to the unit, as a delta from the previous number.  (This probably
+        # only matters for CIV units.)
     }
+
+    returnOnError
 
     # NEXT, modify the group
-    set undo [list]
-
-    foreach parms(u) $parms(ids) {
-        lappend undo [$type mutate update [array get parms]]
-    }
-
-    setundo [join $undo \n]
+    setundo [$type mutate personnel $parms(u) $parms(personnel)]
 }
+
+
 
 
 

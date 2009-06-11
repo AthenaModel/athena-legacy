@@ -488,8 +488,10 @@ snit::widget appwin {
             -underline 0 -menu $submenu
         
         $self AddOrder $submenu UNIT:CREATE
-        $self AddOrder $submenu UNIT:UPDATE
         $self AddOrder $submenu UNIT:DELETE
+        $self AddOrder $submenu UNIT:MOVE
+        $self AddOrder $submenu UNIT:ACTIVITY
+        $self AddOrder $submenu UNIT:PERSONNEL
 
         # Orders/Situation
         set submenu [menu $ordersmenu.sit]
