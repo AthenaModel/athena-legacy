@@ -814,7 +814,7 @@ s kind    stype    driver n   coverage state ts tc change   flist g    signature
         ensit absentFromNbhood NB1
     } -cleanup {
         cleanup
-    } -result {BADFOOD BIO CHEM COMMOUT DISASTER DISEASE EPIDEMIC FOODSHRT FUELSHRT GARBAGE INDSPILL MOSQUE NOWATER ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE}
+    } -result {BADFOOD COMMOUT DISASTER DISEASE DMGCULT DMGSACRED EPIDEMIC FOODSHRT FUELSHRT GARBAGE INDSPILL MINEFIELD NOWATER ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE}
 
     
     #-------------------------------------------------------------------

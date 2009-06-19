@@ -423,16 +423,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.BADWATER.nearFactor    0.0
         $ps setdefault ada.BADWATER.farFactor     0.0
 
-        # Rule Set: BIO
-        $ps setdefault ada.BIO.cause              BIO
-        $ps setdefault ada.BIO.nearFactor         0.5
-        $ps setdefault ada.BIO.farFactor          0.25
-
-         # Rule Set: CHEM
-        $ps setdefault ada.CHEM.cause             CHEM
-        $ps setdefault ada.CHEM.nearFactor        0.1
-        $ps setdefault ada.CHEM.farFactor         0.0
-
        # Rule Set: CHKPOINT
         $ps setdefault ada.CHKPOINT.cause         CHKPOINT
         $ps setdefault ada.CHKPOINT.nearFactor    0.25
@@ -443,9 +433,9 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.CMOCONST.nearFactor    0.75
         $ps setdefault ada.CMOCONST.farFactor     0.25
         $ps setdefault ada.CMOCONST.mitigates     {
-            BADFOOD  BADWATER BIO CHEM COMMOUT DISASTER DISEASE EPIDEMIC 
-            FOODSHRT FUELSHRT GARBAGE  INDSPILL MOSQUE  NOWATER ORDNANCE 
-            PIPELINE POWEROUT REFINERY SEWAGE
+            BADFOOD  BADWATER COMMOUT  DISASTER DISEASE  DMGCULT DMGSACRED
+            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD NOWATER 
+            ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE
         }
 
         # Rule Set: CMODEV
@@ -492,7 +482,7 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.CMOMED.nearFactor      0.75
         $ps setdefault ada.CMOMED.farFactor       0.25
         $ps setdefault ada.CMOMED.mitigates       {
-            BIO CHEM DISASTER DISEASE EPIDEMIC
+            DISASTER DISEASE EPIDEMIC
         }
 
         # Rule Set: CMOOTHER
@@ -500,9 +490,9 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.CMOOTHER.nearFactor    0.25
         $ps setdefault ada.CMOOTHER.farFactor     0.1
         $ps setdefault ada.CMOOTHER.mitigates     {
-            BADFOOD  BADWATER BIO CHEM COMMOUT DISASTER DISEASE EPIDEMIC 
-            FOODSHRT FUELSHRT GARBAGE  INDSPILL MOSQUE  NOWATER ORDNANCE 
-            PIPELINE POWEROUT REFINERY SEWAGE
+            BADFOOD  BADWATER COMMOUT  DISASTER DISEASE  DMGCULT DMGSACRED
+            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD NOWATER
+            ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE
         }
 
         # Rule Set: COERCION
@@ -526,14 +516,24 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.CURFEW.farFactor       0.0
 
         # Rule Set: DISASTER
-        $ps setdefault ada.DISASTER.cause          DISASTER
-        $ps setdefault ada.DISASTER.nearFactor     0.5
-        $ps setdefault ada.DISASTER.farFactor      0.25
+        $ps setdefault ada.DISASTER.cause         DISASTER
+        $ps setdefault ada.DISASTER.nearFactor    0.5
+        $ps setdefault ada.DISASTER.farFactor     0.25
 
         # Rule Set: DISEASE
         $ps setdefault ada.DISEASE.cause          SICKNESS
         $ps setdefault ada.DISEASE.nearFactor     0.25
         $ps setdefault ada.DISEASE.farFactor      0.0
+
+        # Rule Set: DMGCULT
+        $ps setdefault ada.DMGCULT.cause          DMGCULT
+        $ps setdefault ada.DMGCULT.nearFactor     0.2
+        $ps setdefault ada.DMGCULT.farFactor      0.1
+
+        # Rule Set: DMGSACRED
+        $ps setdefault ada.DMGSACRED.cause        DMGSACRED
+        $ps setdefault ada.DMGSACRED.nearFactor   0.2
+        $ps setdefault ada.DMGSACRED.farFactor    0.1
 
         # Rule Set: EPIDEMIC
         $ps setdefault ada.EPIDEMIC.cause         SICKNESS
@@ -565,10 +565,10 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.INDSPILL.nearFactor    0.0
         $ps setdefault ada.INDSPILL.farFactor     0.0
 
-        # Rule Set: MOSQUE
-        $ps setdefault ada.MOSQUE.cause           MOSQUE
-        $ps setdefault ada.MOSQUE.nearFactor      0.2
-        $ps setdefault ada.MOSQUE.farFactor       0.1
+        # Rule Set: MINEFIELD
+        $ps setdefault ada.MINEFIELD.cause        ORDNANCE
+        $ps setdefault ada.MINEFIELD.nearFactor   0.2
+        $ps setdefault ada.MINEFIELD.farFactor    0.0
 
         # Rule Set: NOWATER
         $ps setdefault ada.NOWATER.cause          THIRST
@@ -585,9 +585,9 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.ORGCONST.nearFactor    0.75
         $ps setdefault ada.ORGCONST.farFactor     0.25
         $ps setdefault ada.ORGCONST.mitigates     {
-            BADFOOD BADWATER BIO CHEM COMMOUT DISASTER DISEASE EPIDEMIC 
-            FOODSHRT FUELSHRT GARBAGE INDSPILL MOSQUE  NOWATER ORDNANCE 
-            PIPELINE POWEROUT REFINERY SEWAGE
+            BADFOOD  BADWATER COMMOUT  DISASTER DISEASE  DMGCULT DMGSACRED
+            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD NOWATER 
+            ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE
         }
 
         # Rule Set: ORGEDU
@@ -624,7 +624,7 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.ORGMED.nearFactor      0.75
         $ps setdefault ada.ORGMED.farFactor       0.25
         $ps setdefault ada.ORGMED.mitigates       {
-            BIO CHEM DISASTER DISEASE EPIDEMIC
+            DISASTER DISEASE EPIDEMIC
         }
 
         # Rule Set: ORGOTHER
@@ -632,9 +632,9 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.ORGOTHER.nearFactor    0.25
         $ps setdefault ada.ORGOTHER.farFactor     0.1
         $ps setdefault ada.ORGOTHER.mitigates     {
-            BADFOOD  BADWATER BIO CHEM COMMOUT DISASTER DISEASE EPIDEMIC
-            FOODSHRT FUELSHRT GARBAGE  INDSPILL MOSQUE  NOWATER ORDNANCE
-            PIPELINE POWEROUT REFINERY SEWAGE
+            BADFOOD  BADWATER COMMOUT  DISASTER DISEASE  DMGCULT DMGSACRED
+            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD NOWATER 
+            ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE
         }
 
         # Rule Set: PATROL
@@ -661,7 +661,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ada.PSYOP.cause            PSYOP
         $ps setdefault ada.PSYOP.nearFactor       0.1
         $ps setdefault ada.PSYOP.farFactor        0.0
-        $ps setdefault ada.PSYOP.mitigates        {BIO CHEM}
 
         # Rule Set: REFINERY
         $ps setdefault ada.REFINERY.cause         REFINERY
@@ -710,25 +709,19 @@ snit::type ::projectlib::parmdb {
 
         # Tweak the specifics
         $ps setdefault ensit.BADFOOD.spawns                DISEASE
-        $ps setdefault ensit.BADFOOD.spawnTime             2
+        $ps setdefault ensit.BADFOOD.spawnTime             1
 
         $ps setdefault ensit.BADWATER.spawns               DISEASE
         $ps setdefault ensit.BADWATER.spawnTime            1
 
-        $ps setdefault ensit.BIO.spawns                    EPIDEMIC
-        $ps setdefault ensit.BIO.spawnTime                 4
-
-        $ps setdefault ensit.CHEM.spawns                   DISEASE
-        $ps setdefault ensit.CHEM.spawnTime                1
-
         $ps setdefault ensit.INDSPILL.spawns               DISEASE
-        $ps setdefault ensit.INDSPILL.spawnTime            2
+        $ps setdefault ensit.INDSPILL.spawnTime            5
 
         $ps setdefault ensit.NOWATER.spawns                DISEASE
-        $ps setdefault ensit.NOWATER.spawnTime             4
+        $ps setdefault ensit.NOWATER.spawnTime             1
 
         $ps setdefault ensit.SEWAGE.spawns                 DISEASE
-        $ps setdefault ensit.SEWAGE.spawnTime              2
+        $ps setdefault ensit.SEWAGE.spawnTime              30
 
 
         # NEXT, Force/Volatility/Security Parameters

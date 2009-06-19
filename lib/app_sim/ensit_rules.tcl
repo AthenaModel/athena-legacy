@@ -59,16 +59,6 @@ snit::type ensit_rules {
         BADWATER.monitor        BADWATER-2
         BADWATER.resolution     BADWATER-3
 
-        BIO.setup               setup
-        BIO.inception           BIO-1
-        BIO.monitor             BIO-2
-        BIO.resolution          BIO-3
-
-        CHEM.setup              setup
-        CHEM.inception          CHEM-1
-        CHEM.monitor            CHEM-2
-        CHEM.resolution         CHEM-3
-
         COMMOUT.setup           setup
         COMMOUT.inception       COMMOUT-1
         COMMOUT.monitor         COMMOUT-2
@@ -83,6 +73,16 @@ snit::type ensit_rules {
         DISEASE.inception       DISEASE-1
         DISEASE.monitor         DISEASE-2
         DISEASE.resolution      DISEASE-3
+
+        DMGCULT.setup           setup
+        DMGCULT.inception       DMGCULT-1
+        DMGCULT.monitor         DMGCULT-2
+        DMGCULT.resolution      DMGCULT-3
+
+        DMGSACRED.setup         setup
+        DMGSACRED.inception     DMGSACRED-1
+        DMGSACRED.monitor       DMGSACRED-2
+        DMGSACRED.resolution    DMGSACRED-3
 
         EPIDEMIC.setup          setup
         EPIDEMIC.inception      EPIDEMIC-1
@@ -109,10 +109,10 @@ snit::type ensit_rules {
         INDSPILL.monitor        INDSPILL-2
         INDSPILL.resolution     INDSPILL-3
 
-        MOSQUE.setup            setup
-        MOSQUE.inception        MOSQUE-1
-        MOSQUE.monitor          MOSQUE-2
-        MOSQUE.resolution       MOSQUE-3
+        MINEFIELD.setup         setup
+        MINEFIELD.inception     MINEFIELD-1
+        MINEFIELD.monitor       MINEFIELD-2
+        MINEFIELD.resolution    MINEFIELD-3
 
         NOWATER.setup           setup
         NOWATER.inception       NOWATER-1
@@ -492,219 +492,6 @@ snit::type ensit_rules {
         }
     }
 
-    #-------------------------------------------------------------------
-    # Rule Set: BIO: Biological Hazard
-    #
-    # Environmental Situation: Active Biological agents
- 
-    # BIO-1 sit
-    #
-    # sit     Ensit object
-    #
-    # Situation inception rules; level effects only.
-
-    typemethod BIO-1 {sit} {
-        log detail envr [list BIO-1 [$sit get s]]
-
-        # BIO-1-1:
-        #
-        # If there is a new BIO situation
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        ada rule BIO-1-1 {
-            1
-        } {
-            satlevel $sit     \
-                SFT XXXL-  2  \
-                QOL XXL-   2
-        }
-    }
-
-    # BIO-2 sit
-    #
-    # sit       Ensit object
-    #
-    # The situation continues.
-
-    typemethod BIO-2 {sit} {
-        # BIO-2-1:
-        #
-        # While there is a BIO situation
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        ada rule BIO-2-1 {
-            [$sit get state] ne "ENDED"
-        } {
-            ada guard
-
-            satslope $sit  \
-                AUT L-     \
-                SFT XXXL-  \
-                QOL XXL-
-        }
-
-        # BIO-2-2:
-        #
-        # When there is no longer a BIO situation
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        ada rule BIO-2-2 {
-            [$sit get state] eq "ENDED"
-        } {
-            ada sat clear AUT SFT QOL
-        }
-    }
-
-    # BIO-3 sit
-    #
-    # sit         Ensit object 
-    #
-    # Situation resolution
-
-    typemethod BIO-3 {sit} {
-        log detail envr [list BIO-3 [$sit get s]]
-
-        # FIRST, make the data available
-        set g        [$sit get resolver]
-        set gIsLocal [resolverIsLocal $g]
-
-        # BIO-3-1:
-        #
-        # If there is a BIO situation
-        #     and resolving group g is unknown or not local,
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        ada rule BIO-3-1 {
-            !$gIsLocal
-        } {
-            satlevel $sit  \
-                AUT XL+  2 \
-                SFT XL+  2 \
-                QOL L+   2
-        }
-
-        # BIO-3-2:
-        #
-        # If there is a BIO situation
-        #     and resolving group g is local,
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        ada rule BIO-3-2 {
-            $gIsLocal
-        } {
-            satlevel $sit   \
-                AUT XXXL+ 2 \
-                SFT XL+   2 \
-                QOL L+    2
-        }
-    }
-
-    #-------------------------------------------------------------------
-    # Rule Set: CHEM: Chemical Hazard
-    #
-    # Environmental Situation: Active Chemical agents
- 
-    # CHEM-1 sit
-    #
-    # sit     Ensit object
-    #
-    # Situation inception rules; level effects only.
-
-    typemethod CHEM-1 {sit} {
-        log detail envr [list CHEM-1 [$sit get s]]
-
-        # CHEM-1-1:
-        #
-        # If there is a new CHEM situation
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        ada rule CHEM-1-1 {
-            1
-        } {
-            satlevel $sit     \
-                SFT XXXL-  2  \
-                QOL XXL-   2
-        }
-    }
-
-    # CHEM-2 sit
-    #
-    # sit       Ensit object
-    #
-    # The situation continues.
-
-    typemethod CHEM-2 {sit} {
-        # CHEM-2-1:
-        #
-        # While there is a CHEM situation
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        ada rule CHEM-2-1 {
-            [$sit get state] ne "ENDED"
-        } {
-            ada guard
-
-            satslope $sit  \
-                AUT L-     \
-                SFT XXXL-  \
-                QOL XXL-
-        }
-
-        # CHEM-2-2:
-        #
-        # While there is a CHEM situation
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        ada rule CHEM-2-2 {
-            [$sit get state] eq "ENDED"
-        } {
-            ada sat clear AUT SFT QOL
-        }
-    }
-
-    # CHEM-3 sit
-    #
-    # sit         Ensit object 
-    #
-    # Situation resolution
-
-    typemethod CHEM-3 {sit} {
-        log detail envr [list CHEM-3 [$sit get s]]
-
-        # FIRST, make the data available
-        set g        [$sit get resolver]
-        set gIsLocal [resolverIsLocal $g]
-
-        # CHEM-3-1:
-        #
-        # If there is a CHEM situation
-        #     and resolving group g is unknown or not local,
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        ada rule CHEM-3-1 {
-            !$gIsLocal
-        } {
-            satlevel $sit   \
-                AUT XL+   2 \
-                SFT XL+   2 \
-                QOL L+    2
-        }
-
-        # CHEM-3-2:
-        #
-        # If there is a CHEM situation
-        #     and resolving group g is local,
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        ada rule CHEM-3-2 {
-            $gIsLocal
-        } {
-            satlevel $sit   \
-                AUT XXXL+ 2 \
-                SFT XL+   2 \
-                QOL L+    2
-        }
-    }
 
     #-------------------------------------------------------------------
     # Rule Set: COMMOUT: Communications Outage
@@ -1026,6 +813,234 @@ snit::type ensit_rules {
                 AUT XXXL+ 2 \
                 SFT XXXL+ 2 \
                 QOL XXXL+ 2
+        }
+    }
+
+    #-------------------------------------------------------------------
+    # Rule Set: DMGCULT: Damage to Cultural Site/Artifact
+    #
+    # Environmental Situation: A cultural site or artifact is
+    # damaged, presumably due to kinetic action.
+ 
+    # DMGCULT-1 sit
+    #
+    # sit     Ensit object
+    #
+    # Situation inception rules; level effects only.
+
+    typemethod DMGCULT-1 {sit} {
+        log detail envr [list DMGCULT-1 [$sit get s]]
+
+        # DMGCULT-1-1:
+        #
+        # If there is a new DMGCULT situation
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        ada rule DMGCULT-1-1 {
+            1
+        } {
+            satlevel $sit   \
+                AUT XS-   2 \
+                SFT S-    2 \
+                CUL XL-   2 \
+                QOL XS-   2
+        }
+
+    }
+
+    # DMGCULT-2 sit
+    #
+    # sit       Ensit object
+    #
+    # The situation continues.
+
+    typemethod DMGCULT-2 {sit} {
+        # DMGCULT-2-1:
+        #
+        # While there is a DMGCULT situation
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        ada rule DMGCULT-2-1 {
+            [$sit get state] ne "ENDED"
+        } {
+            ada guard
+
+            satslope $sit  \
+                AUT XS-    \
+                SFT S-     \
+                CUL L-     \
+                QOL XS-
+        }
+
+        # DMGCULT-2-2:
+        #
+        # When there is no longer a DMGCULT situation
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        ada rule DMGCULT-2-2 {
+            [$sit get state] eq "ENDED"
+        } {
+            ada sat clear AUT SFT CUL QOL
+        }
+    }
+
+    # DMGCULT-3 sit
+    #
+    # sit         Ensit object 
+    #
+    # Situation resolution
+
+    typemethod DMGCULT-3 {sit} {
+        log detail envr [list DMGCULT-3 [$sit get s]]
+
+        # FIRST, make the data available
+        set g        [$sit get resolver]
+        set gIsLocal [resolverIsLocal $g]
+
+        # DMGCULT-3-1:
+        #
+        # If there is a DMGCULT situation
+        #     and resolving group g is unknown or not local,
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        ada rule DMGCULT-3-1 {
+            !$gIsLocal
+        } {
+            satlevel $sit   \
+                AUT M+    2 \
+                SFT L+    2 \
+                CUL XXL+  2 \
+                QOL L+    2
+        }
+
+        # DMGCULT-3-2:
+        #
+        # If there is a DMGCULT situation
+        #     and resolving group g is local,
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        ada rule DMGCULT-3-2 {
+            $gIsLocal
+        } {
+            satlevel $sit   \
+                AUT XL+   2 \
+                SFT L+    2 \
+                CUL XXL+  2 \
+                QOL L+    2
+        }
+    }
+
+    #-------------------------------------------------------------------
+    # Rule Set: DMGSACRED: Damage to Sacred Site/Artifact
+    #
+    # Environmental Situation: A sacred site or artifact is
+    # damaged, presumably due to kinetic action.
+ 
+    # DMGSACRED-1 sit
+    #
+    # sit     Ensit object
+    #
+    # Situation inception rules; level effects only.
+
+    typemethod DMGSACRED-1 {sit} {
+        log detail envr [list DMGSACRED-1 [$sit get s]]
+
+        # DMGSACRED-1-1:
+        #
+        # If there is a new DMGSACRED situation
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        ada rule DMGSACRED-1-1 {
+            1
+        } {
+            satlevel $sit   \
+                AUT S-    2 \
+                SFT M-    2 \
+                CUL XXL-  2 \
+                QOL S-    2
+        }
+
+    }
+
+    # DMGSACRED-2 sit
+    #
+    # sit       Ensit object
+    #
+    # The situation continues.
+
+    typemethod DMGSACRED-2 {sit} {
+        # DMGSACRED-2-1:
+        #
+        # While there is a DMGSACRED situation
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        ada rule DMGSACRED-2-1 {
+            [$sit get state] ne "ENDED"
+        } {
+            ada guard
+
+            satslope $sit  \
+                AUT S-     \
+                SFT M-     \
+                CUL XL-    \
+                QOL S-
+        }
+
+        # DMGSACRED-2-2:
+        #
+        # When there is no longer a DMGSACRED situation
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        ada rule DMGSACRED-2-2 {
+            [$sit get state] eq "ENDED"
+        } {
+            ada sat clear AUT SFT CUL QOL
+        }
+    }
+
+    # DMGSACRED-3 sit
+    #
+    # sit         Ensit object 
+    #
+    # Situation resolution
+
+    typemethod DMGSACRED-3 {sit} {
+        log detail envr [list DMGSACRED-3 [$sit get s]]
+
+        # FIRST, make the data available
+        set g        [$sit get resolver]
+        set gIsLocal [resolverIsLocal $g]
+
+        # DMGSACRED-3-1:
+        #
+        # If there is a DMGSACRED situation
+        #     and resolving group g is unknown or not local,
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        ada rule DMGSACRED-3-1 {
+            !$gIsLocal
+        } {
+            satlevel $sit   \
+                AUT L+    2 \
+                SFT XL+   2 \
+                CUL XXXL+ 2 \
+                QOL XL+   2
+        }
+
+        # DMGSACRED-3-2:
+        #
+        # If there is a DMGSACRED situation
+        #     and resolving group g is local,
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        ada rule DMGSACRED-3-2 {
+            $gIsLocal
+        } {
+            satlevel $sit   \
+                AUT XXL+  2 \
+                SFT XL+   2 \
+                CUL XXXL+ 2 \
+                QOL XL+   2
         }
     }
 
@@ -1544,116 +1559,111 @@ snit::type ensit_rules {
     }
 
     #-------------------------------------------------------------------
-    # Rule Set: MOSQUE: Damage to Mosque
+    # Rule Set: MINEFIELD: Minefield
     #
-    # Environmental Situation: A mosque (or other religious site) is
-    # damaged, presumably due to kinetic action.
+    # Environmental Situation: The residents of this neighborhood know that
+    # there is a minefield in the neighborhood.
  
-    # MOSQUE-1 sit
+    # MINEFIELD-1 sit
     #
     # sit     Ensit object
     #
     # Situation inception rules; level effects only.
 
-    typemethod MOSQUE-1 {sit} {
-        log detail envr [list MOSQUE-1 [$sit get s]]
+    typemethod MINEFIELD-1 {sit} {
+        log detail envr [list MINEFIELD-1 [$sit get s]]
 
-        # MOSQUE-1-1:
+        # MINEFIELD-1-1:
         #
-        # If there is a new MOSQUE situation
+        # If there is a new MINEFIELD situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule MOSQUE-1-1 {
+        ada rule MINEFIELD-1-1 {
             1
         } {
             satlevel $sit   \
-                AUT S-    2 \
-                SFT M-    2 \
-                CUL XXL-  2 \
-                QOL S-    2
+                AUT L-    2 \
+                SFT XXL-  2 \
+                QOL XXXL- 2
         }
-
     }
 
-    # MOSQUE-2 sit
+    # MINEFIELD-2 sit
     #
     # sit       Ensit object
     #
     # The situation continues.
 
-    typemethod MOSQUE-2 {sit} {
-        # MOSQUE-2-1:
+    typemethod MINEFIELD-2 {sit} {
+        # MINEFIELD-2-1:
         #
-        # While there is a MOSQUE situation
+        # While there is an MINEFIELD situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule MOSQUE-2-1 {
+        ada rule MINEFIELD-2-1 {
             [$sit get state] ne "ENDED"
         } {
             ada guard
 
-            satslope $sit  \
-                AUT S-     \
-                SFT M-     \
-                CUL XL-    \
-                QOL S-
+            satslope $sit \
+                AUT L-    \
+                SFT XXL-  \
+                QOL XXL-
         }
 
-        # MOSQUE-2-2:
+        # MINEFIELD-2-2:
         #
-        # When there is no longer a MOSQUE situation
+        # When there is no longer an MINEFIELD situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule MOSQUE-2-2 {
+        ada rule MINEFIELD-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT SFT CUL QOL
+            ada sat clear AUT SFT QOL
         }
     }
 
-    # MOSQUE-3 sit
+    # MINEFIELD-3 sit
     #
     # sit         Ensit object 
     #
     # Situation resolution
 
-    typemethod MOSQUE-3 {sit} {
-        log detail envr [list MOSQUE-3 [$sit get s]]
+    typemethod MINEFIELD-3 {sit} {
+        log detail envr [list MINEFIELD-3 [$sit get s]]
 
         # FIRST, make the data available
         set g        [$sit get resolver]
         set gIsLocal [resolverIsLocal $g]
 
-        # MOSQUE-3-1:
+        # MINEFIELD-3-1:
         #
-        # If there is a MOSQUE situation
+        # If there is an MINEFIELD situation
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule MOSQUE-3-1 {
+        ada rule MINEFIELD-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
-                AUT L+    2 \
-                SFT XL+   2 \
-                CUL XXXL+ 2 \
-                QOL XL+   2
+                AUT M+    2 \
+                SFT XXXL+ 2 \
+                QOL XXXL+ 2
         }
 
-        # MOSQUE-3-2:
+        # MINEFIELD-3-2:
         #
-        # If there is a MOSQUE situation
+        # If there is an MINEFIELD situation
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule MOSQUE-3-2 {
+        ada rule MINEFIELD-3-2 {
             $gIsLocal
         } {
             satlevel $sit   \
-                AUT XXL+  2 \
-                SFT XL+   2 \
-                CUL XXXL+ 2 \
-                QOL XL+   2
+                AUT XXXL+ 2 \
+                SFT XXXL+ 2 \
+                QOL XXXL+ 2
         }
     }
 
@@ -1766,7 +1776,8 @@ snit::type ensit_rules {
     # Rule Set: ORDNANCE: Unexploded Ordnance
     #
     # Environmental Situation: The residents of this neighborhood know that
-    # there is unexploded ordnance in the neighborhood.
+    # there is unexploded ordnance (probably from cluster munitions)
+    # in the neighborhood.
  
     # ORDNANCE-1 sit
     #
