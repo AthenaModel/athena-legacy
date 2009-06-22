@@ -145,13 +145,24 @@ snit::type nbgroup {
                        $demeanor,
                        $rollup_weight,
                        $effects_factor);
+
+                -- All population is implicit, initially.
+                INSERT INTO demog_ng(n,g,implicit,population) 
+                VALUES($n,
+                       $g,
+                       $population,
+                       $population);
             }
 
             # NEXT, notify the app.
             notifier send ::nbgroup <Entity> create [list $n $g]
 
             # NEXT, Return the undo command
-            return [mytypemethod mutate delete $n $g]
+            set undo [list]
+            lappend undo [mytypemethod mutate delete $n $g]
+            # lappend undo [list ::demog analyze $n]
+
+            return [join $undo \n]
         }
     }
 
@@ -164,31 +175,40 @@ snit::type nbgroup {
 
     typemethod {mutate delete} {n g} {
         # FIRST, get the undo information
-        rdb eval {SELECT * FROM nbgroups WHERE n=$n AND g=$g} undoData {
-            unset undoData(*)
+        rdb eval {SELECT * FROM nbgroups WHERE n=$n AND g=$g} row1 {
+            unset row1(*)
+        }
+
+        rdb eval {SELECT * FROM demog_ng WHERE n=$n AND g=$g} row2 {
+            unset row2(*)
         }
 
         # NEXT, delete it.
         rdb eval {
             DELETE FROM nbgroups WHERE n=$n AND g=$g;
+            DELETE FROM demog_ng WHERE n=$n AND g=$g;
         }
 
         # NEXT, notify the app.
         notifier send ::nbgroup <Entity> delete [list $n $g]
 
         # NEXT, Return the undo script
-        return [mytypemethod Restore [array get undoData]]
+        return [mytypemethod Restore [array get row1] [array get row2]]
     }
 
-    # Restore parmdict
+    # Restore parmdict1 parmdict2
     #
-    # parmdict     row dict for deleted entity
+    # parmdict1     row dict for deleted entity
+    # parmdict2     row dict for deleted entity
     #
     # Restores the entity in the database
 
-    typemethod Restore {parmdict} {
-        rdb insert nbgroups $parmdict
-        dict with parmdict {
+    typemethod Restore {parmdict1 parmdict2} {
+        rdb insert nbgroups $parmdict1
+        rdb insert demog_ng $parmdict2
+
+        dict with parmdict1 {
+            # demog analyze $n $g
             notifier send ::nbgroup <Entity> create [list $n $g]
         }
     }
@@ -359,7 +379,8 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
 
     # NEXT, create the group and dependent entities.
     lappend undo [$type mutate create [array get parms]]
-    lappend undo [scenario  mutate reconcile]
+    lappend undo [scenario mutate reconcile]
+    # demog analyze $parms(n) $parms(g)
     
     setundo [join $undo \n]
 }
@@ -411,7 +432,8 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
 
     # NEXT, delete the group and dependent entities
     lappend undo [$type mutate delete $parms(n) $parms(g)]
-    lappend undo [scenario  mutate reconcile]
+    lappend undo [scenario mutate reconcile]
+    # demog analyze $parms(n)
     
     setundo [join $undo \n]
 }
@@ -453,6 +475,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
 
     # NEXT, modify the group
     setundo [$type mutate update [array get parms]]
+    # demog analyze $parms(n) $parms(g)
 }
 
 
@@ -490,6 +513,8 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
     }
 
     setundo [join $undo \n]
+
+    # demog analyze
 }
 
 

@@ -63,6 +63,13 @@ snit::type ::projectlib::parmdb {
         # NEXT, create the parmset.
         set ps [parmset %AUTO%]
 
+        # NEXT, create an "in-memory" scenariodb, for concerns
+        # and activities.
+        set tempdb ${type}::tempdb
+        catch {$tempdb destroy}
+        scenariodb $tempdb
+        $tempdb open :memory:
+
         # NEXT, define the "sim" parameters
 
         $ps subset sim {
@@ -80,7 +87,7 @@ snit::type ::projectlib::parmdb {
         }
 
         # NEXT, Activity Parameters
-        #
+        # Create 
 
         $ps subset activity {
             Parameters which affect the computation of group activity
@@ -687,6 +694,27 @@ snit::type ::projectlib::parmdb {
             "
         }
 
+        # demog.* parameters
+        $ps subset demog {
+            Demographics Model parameters.
+        }
+
+        $ps subset demog.laborForceFraction {
+            Labor force as a fraction of the population, by 
+            civilian activity.
+        }
+
+        $tempdb eval {
+            SELECT a FROM activity_gtype WHERE gtype = 'CIV'
+        } {
+            $ps define demog.laborForceFraction.$a ::simlib::rfraction 0.6 "
+                Fraction of civilians doing activity $a that
+                are in the labor force.
+            "
+        }
+
+        
+
         # ensit.* parameters
         $ps subset ensit {
             Environmental situation parameters, by ensit type.
@@ -829,6 +857,9 @@ snit::type ::projectlib::parmdb {
 
         # NEXT, define rmf parameters
         $ps slave add [list ::simlib::rmf parm]
+
+        # NEXT, destroy tempdb
+        $tempdb destroy
     }
 
     # defaults save

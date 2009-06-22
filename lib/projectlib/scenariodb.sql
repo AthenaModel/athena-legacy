@@ -228,7 +228,7 @@ CREATE TABLE nbgroups (
     -- Local name: human readable name
     local_name     TEXT,
 
-    -- Population
+    -- Base Population, as of time 0
     population     INTEGER DEFAULT 1,
 
     -- Group demeanor: edemeanor
@@ -584,3 +584,52 @@ CREATE VIEW ensits_current AS
 SELECT * FROM situations JOIN ensits_t USING (s)
 WHERE state != 'ENDED' OR change != '';
 
+
+------------------------------------------------------------------------
+-- Demographic Model
+--
+-- The following tables are used to track the demographics of each
+-- neighborhood.
+
+-- Demographics of the neighborhood as a whole
+
+CREATE TABLE demog_n (
+    -- Symbolic neighborhood name
+    n            TEXT PRIMARY KEY,
+
+    -- Total population (e.g., consumers) in the neighborhood at the
+    -- current time.
+    population   INTEGER DEFAULT 0,
+
+    -- Total labor force in the neighborhood at the current time
+    labor_force  INTEGER DEFAULT 0
+);
+
+-- Demographics of particular nbgroups
+
+CREATE TABLE demog_ng (
+    -- Symbolic neighborhood name
+    n              TEXT,
+
+    -- Symbolic civgroup name
+    g              TEXT,
+
+    -- Attrition to this nbgroup (total killed)
+    attrition      INTEGER DEFAULT 0,
+
+    -- Explicit population: personnel in units regardless of location
+    explicit       INTEGER DEFAULT 0,
+
+    -- Displaced population: personnel in units in other neighborhoods
+    displaced      INTEGER DEFAULT 0,
+
+    -- Implicit population: population implicit in the neighborhood
+    implicit       INTEGER DEFAULT 0,
+
+    -- Total population of this nbgroup in this neighborhood at the
+    -- current time.
+    population     INTEGER DEFAULT 0,
+
+   
+    PRIMARY KEY (n, g)
+);

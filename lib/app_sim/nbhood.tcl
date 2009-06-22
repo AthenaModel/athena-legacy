@@ -180,6 +180,8 @@ snit::type nbhood {
                        $vtygain,
                        $refpoint,
                        $polygon);
+
+                INSERT INTO demog_n(n) VALUES($n);
             } {}
 
             # NEXT, set the stacking order
@@ -218,13 +220,20 @@ snit::type nbhood {
         # FIRST, get this neighborhood's undo information
         rdb eval {
             SELECT * FROM nbhoods WHERE n=$n
-        } undoData {
-            unset undoData(*)
+        } row1 {
+            unset row1(*)
+        }
+
+        rdb eval {
+            SELECT * FROM demog_n WHERE n=$n
+        } row2 {
+            unset row2(*)
         }
 
         # FIRST, delete it.
         rdb eval {
-            DELETE FROM nbhoods WHERE n=$n
+            DELETE FROM nbhoods WHERE n=$n;
+            DELETE FROM demog_n WHERE n=$n
         }
 
         $geo delete $n
@@ -237,25 +246,27 @@ snit::type nbhood {
         notifier send ::nbhood <Entity> delete $n
 
         # NEXT, return aggregate undo script.
-        return [mytypemethod Restore [array get undoData]]
+        return [mytypemethod Restore [array get row1] [array get row2]]
     }
 
-    # Restore parmdict
+    # Restore parmdict1 parmdict2
     #
-    # parmdict     A complete nbhoods row, to be restored as is.
+    # parmdict1    A complete nbhoods row, to be restored as is.
+    # parmdict2    A complete demog_n row, to be restored as is.
     #
-    # Restores a row in the nbhoods table.
+    # Restores a neighborhood.
 
-    typemethod Restore {parmdict} {
+    typemethod Restore {parmdict1 parmdict2} {
         # FIRST, restore the database row
-        rdb insert nbhoods $parmdict
+        rdb insert nbhoods $parmdict1
+        rdb insert demog_n $parmdict2
 
         # NEXT, reconfigure: this will update the geoset and the stacking
         # order.
         $type reconfigure
 
         # NEXT, notify the app.
-        notifier send ::nbhood <Entity> create [dict get $parmdict n]
+        notifier send ::nbhood <Entity> create [dict get $parmdict1 n]
     }
 
     # mutate lower n
