@@ -568,7 +568,7 @@ snit::type scenario {
         map load [file join $::app_sim::library blank.png]
 
         # NEXT, insert the standard tables
-        scenario InsertStandardTables
+        # scenario InsertStandardTables
 
         # NEXT, if there's a default parameter file, load it; and
         # mark the parameters saved.

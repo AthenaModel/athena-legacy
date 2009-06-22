@@ -247,28 +247,6 @@ CREATE VIEW nbgroups_view AS
 SELECT * FROM groups JOIN nbgroups USING (g);
 
 ------------------------------------------------------------------------
--- Concerns and concern views
-
--- Concern definitions
-CREATE TABLE concerns (
-    -- Symbolic concern name
-    c         TEXT PRIMARY KEY,
-
-    -- Full concern name
-    longname  TEXT,
-
-    -- Concern type: egrouptype
-    gtype     TEXT
-);
-
-CREATE VIEW civ_concerns AS
-SELECT * FROM concerns WHERE gtype='CIV';
-
-CREATE VIEW org_concerns AS
-SELECT * FROM concerns WHERE gtype='ORG';
-
-
-------------------------------------------------------------------------
 -- Initial Satisfaction Data
 
 
@@ -458,36 +436,8 @@ CREATE TABLE force_ng (
 --------------------------------------------------------------------
 -- Group Activity Tables
 
--- Main activity table.  Lists all activity names and long names
-CREATE TABLE activity (
-    -- Symbolic activity name
-    a         TEXT PRIMARY KEY,
-
-    -- Human-readable name
-    longname  TEXT
-);
-
--- Activity/group type table.
-CREATE TABLE activity_gtype (
-    -- Symbolic activity name
-    a           TEXT,
-
-    -- Symbolic group type: FRC or ORG
-    gtype       TEXT,
-
-    -- Assignable: 1 or 0
-    assignable  INTEGER DEFAULT 0,
-
-    -- Situation Type Name, or ''
-    stype       TEXT DEFAULT '',
-
-    PRIMARY KEY (a, gtype)
-);
-
-
--- When "g" is a FRC group, "a" may be any of the
--- efrcactivity values; when "g" is an ORG group,
--- "a" may be any of the eorgactivity values.
+-- Note that "a" is constrained to match g's gtype, as indicated
+-- in the temporary activity_gtype table.
 CREATE TABLE activity_nga (
     n                   TEXT,     -- Symbolic nbhoods name
     g                   TEXT,     -- Symbolic groups name
@@ -633,49 +583,4 @@ SELECT * FROM situations JOIN ensits_t USING (s);
 CREATE VIEW ensits_current AS
 SELECT * FROM situations JOIN ensits_t USING (s)
 WHERE state != 'ENDED' OR change != '';
-
-------------------------------------------------------------------------
--- Primary Entities
---
--- Anything with an ID and a long name is a primary entity.  All IDs and 
--- long names of primary entities must be unique.  The following view is 
--- used to check this, and to retrieve the entity type for a given ID.
-
-CREATE VIEW entities AS
-SELECT 'PLAYBOX'  AS id, 
-       'Playbox'  AS longname, 
-       'reserved' AS etype
-UNION
-SELECT 'ALL'      AS id, 
-       'All'      AS longname, 
-       'reserved' AS etype
-UNION
-SELECT 'NONE'     AS id, 
-       'None'     AS longname, 
-       'reserved' AS etype
-UNION
-SELECT a          AS id, 
-       longname   AS longname, 
-       'activity' AS etype 
-FROM activity
-UNION
-SELECT n         AS id, 
-       longname  AS longname, 
-       'nbhood'  AS etype 
-FROM nbhoods
-UNION
-SELECT g         AS id, 
-       longname  AS longname, 
-       'group'   AS etype 
-FROM groups
-UNION
-SELECT c         AS id, 
-       longname  AS longname, 
-       'concern' AS etype 
-FROM concerns
-UNION
-SELECT u         AS id,
-       u         AS longname,
-       'unit'    AS etype
-FROM units;
 

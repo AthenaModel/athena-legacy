@@ -252,3 +252,49 @@ CREATE TEMPORARY VIEW gui_ensits_ended AS
 SELECT * FROM gui_ensits WHERE state = 'ENDED';
 
 
+------------------------------------------------------------------------
+-- Primary Entities
+--
+-- Anything with an ID and a long name is a primary entity.  All IDs and 
+-- long names of primary entities must be unique.  The following view is 
+-- used to check this, and to retrieve the entity type for a given ID.
+
+CREATE TEMPORARY VIEW entities AS
+SELECT 'PLAYBOX'  AS id, 
+       'Playbox'  AS longname, 
+       'reserved' AS etype
+UNION
+SELECT 'ALL'      AS id, 
+       'All'      AS longname, 
+       'reserved' AS etype
+UNION
+SELECT 'NONE'     AS id, 
+       'None'     AS longname, 
+       'reserved' AS etype
+UNION
+SELECT n         AS id, 
+       longname  AS longname, 
+       'nbhood'  AS etype 
+FROM nbhoods
+UNION
+SELECT g         AS id, 
+       longname  AS longname, 
+       'group'   AS etype 
+FROM groups
+UNION
+SELECT c         AS id, 
+       longname  AS longname, 
+       'concern' AS etype 
+FROM concerns
+UNION
+SELECT a          AS id, 
+       longname   AS longname, 
+       'activity' AS etype 
+FROM activity
+UNION
+SELECT u         AS id,
+       u         AS longname,
+       'unit'    AS etype
+FROM units;
+
+
