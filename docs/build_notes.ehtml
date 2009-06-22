@@ -11,6 +11,34 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.8, 22 June 2009</h3>
+
+This build contains a variety of changes.  There are better error
+messages in many of the order dialogs; neighborhoods can be colored
+according to mood; civilian units are now allowed, and the civilian
+unit orders have been revised; force groups can be uniformed
+vs. non-uniformed; and the set of ensits has changed.  In addition, a
+number of bugs have been fixed.<p>
+
+<ul>
+  <li> Bug 2050: Can't open scenario, database source already in use
+  <li> Bug 2058: 'Clear defaults' confirmation needs an additional notice
+  <li> Bug 2067: Expand range error messages in dialogs
+  <li> Bug 2122: athena_sim(1): Order dialog errors aren't cleared on success
+  <li> Bug 2128: athena_sim(1): Color nbhoods according to mood
+  <li> Bug 2133: athena_sim(1): Display nbhood mood in Neighborhoods tab
+  <li> Bug 2134: athena_sim(1): Allow civilian units
+  <li> Bug 2136: athena_sim(1): Envsit order changes
+  <li> Bug 2137: athena_sim(1): Sim reconfigured twice on "snapshot load"
+  <li> Bug 2138: athena_sim(1): Error saving snapshot after importing a new map
+  <li> Bug 2141: athena_sim(1): NbhoodCoop browser
+  <li> Bug 2142: athena_sim(1): Force Group Uniformed Flag
+  <li> Bug 2143: athena_import(1): Importing data skips eventq data
+  <li> Bug 2149: Envsits are now Ensits
+  <li> Bug 2151: athena_sim(1): Redesign of UNIT orders
+  <li> Bug 2152: athena_sim(1): Ensit Changes
+</ul>
+
 <h3>Build 1.0.7, 27 May 2009</h3>
 
 This build includes many significant changes.  Athena now analyzes the
