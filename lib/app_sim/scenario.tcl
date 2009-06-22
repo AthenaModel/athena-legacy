@@ -55,12 +55,14 @@ snit::type scenario {
             { a PATROL               longname "Patrol"                     }
             { a PRESENCE             longname "Presence"                   }
             { a PSYOP                longname "PSYOP"                      }
-            { a REFUGEE              longname "Refugee"                    }
+            { a DISPLACED            longname "Displaced Person/Refugee"   }
+            { a IN_CAMP              longname "In Camp"                    }
         }
 
         activity_gtype {
             { a NONE                 gtype CIV assignable 1 stype {}       }
-            { a REFUGEE              gtype CIV assignable 1 stype {}       }
+            { a DISPLACED            gtype CIV assignable 1 stype {}       }
+            { a IN_CAMP              gtype CIV assignable 1 stype {}       }
 
             { a NONE                 gtype FRC assignable 1 stype {}       }
             { a CHECKPOINT           gtype FRC assignable 1 stype CHKPOINT }
