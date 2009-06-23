@@ -105,12 +105,14 @@ snit::widgetadaptor nbgroupbrowser {
         $hull insertcolumn end 0 {Nbhood}
         $hull insertcolumn end 0 {CivGroup}
         $hull insertcolumn end 0 {Local Name}
-        $hull insertcolumn end 0 {Population}
+        $hull insertcolumn end 0 {BasePop}
         $hull columnconfigure end -sortmode integer
         $hull insertcolumn end 0 {Mood at T0}
         $hull columnconfigure end -sortmode real
         $hull insertcolumn end 0 {Mood Now}
-        $hull columnconfigure end -sortmode real
+        $hull columnconfigure end \
+            -sortmode   real      \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {Demeanor}
         $hull insertcolumn end 0 {RollupWeight}
         $hull columnconfigure end -sortmode real
@@ -149,7 +151,7 @@ snit::widgetadaptor nbgroupbrowser {
             set id [list $n $g]
 
             $hull setdata $id \
-                [list $id $n $g $local_name $population $mood0 $mood \
+                [list $id $n $g $local_name $basepop $mood0 $mood \
                      $demeanor $rollup_weight $effects_factor]
         }
     }

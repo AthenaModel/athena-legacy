@@ -43,10 +43,11 @@ snit::type security {
             SELECT n FROM nbhoods;
         }
 
-        # TBD: If populations begin to vary, we'll need to recompute
-        # this during each analysis.
+        # TBD: force_n.population should probably be removed.
+        # It's not used by security(sim), and other modules
+        # should be using demog(sim).
         rdb eval {
-            SELECT n, total(population) AS pop
+            SELECT n, total(basepop) AS pop
             FROM nbgroups
             GROUP BY n
         } {

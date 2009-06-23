@@ -18,6 +18,12 @@
 
 snit::widget browser_base {
     #-------------------------------------------------------------------
+    # Type Variables
+
+    # Foreground color for columns containing derived data.
+    typevariable derivedfg "#008800"
+
+    #-------------------------------------------------------------------
     # Components
 
     component tb          ;# tablebrowser(n) used to browse groups

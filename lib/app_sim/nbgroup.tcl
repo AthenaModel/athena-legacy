@@ -121,7 +121,7 @@ snit::type nbgroup {
     #    n                The neighborhood ID
     #    g                The civgroup ID
     #    local_name       The nbgroup's local name
-    #    population       The nbgroup's population
+    #    basepop          The nbgroup's base population
     #    demeanor         The nbgroup's demeanor (edemeanor(n))
     #    rollup_weight    The group's rollup weight (JRAM)
     #    effects_factor   The group's indirect effects factor (JRAM)
@@ -136,12 +136,12 @@ snit::type nbgroup {
         dict with parmdict {
             # FIRST, Put the group in the database
             rdb eval {
-                INSERT INTO nbgroups(n,g,local_name,population,demeanor,
+                INSERT INTO nbgroups(n,g,local_name,basepop,demeanor,
                                      rollup_weight,effects_factor)
                 VALUES($n,
                        $g,
                        $local_name,
-                       $population,
+                       $basepop,
                        $demeanor,
                        $rollup_weight,
                        $effects_factor);
@@ -150,8 +150,8 @@ snit::type nbgroup {
                 INSERT INTO demog_ng(n,g,implicit,population) 
                 VALUES($n,
                        $g,
-                       $population,
-                       $population);
+                       $basepop,
+                       $basepop);
             }
 
             # NEXT, notify the app.
@@ -220,7 +220,7 @@ snit::type nbgroup {
     #    n                Neighborhood ID of nbgroup
     #    g                Group ID of nbgroup
     #    local_name       A new local name, or ""
-    #    population       A new population, or ""
+    #    basepop          A new basepop, or ""
     #    demeanor         A new demeanor, or ""
     #    rollup_weight    A new rollup weight, or ""
     #    effects_factor   A new effects factor, or ""
@@ -243,7 +243,7 @@ snit::type nbgroup {
             rdb eval {
                 UPDATE nbgroups
                 SET local_name     = nonempty($local_name,     local_name),
-                    population     = nonempty($population,     population),
+                    basepop        = nonempty($basepop,        basepop),
                     demeanor       = nonempty($demeanor,       demeanor),
                     rollup_weight  = nonempty($rollup_weight,  rollup_weight),
                     effects_factor = nonempty($effects_factor, effects_factor)
@@ -347,7 +347,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
     parm g              enum "Civ Group" \
         -tags group -refreshcmd [list ::nbgroup RefreshCreateG]
     parm local_name     text "Local Name"
-    parm population     text "Population"
+    parm basepop        text "Base Population"
     parm demeanor       enum "Demeanor"       -type edemeanor
     parm rollup_weight  text "RollupWeight"   -defval 1.0
     parm effects_factor text "EffectsFactor"  -defval 1.0
@@ -356,7 +356,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
     prepare n              -toupper -required -type nbhood
     prepare g              -toupper -required -type civgroup
     prepare local_name     -normalize
-    prepare population              -required -type ingpopulation
+    prepare basepop                 -required -type ingpopulation
     prepare demeanor       -toupper -required -type edemeanor
     prepare rollup_weight           -required -type weight
     prepare effects_factor          -required -type weight
@@ -450,7 +450,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
     parm n              key  "Neighborhood"  -tags nbhood
     parm g              key  "Civ Group"     -tags group
     parm local_name     text "Local Name"
-    parm population     text "Population"
+    parm basepop        text "Base Population"
     parm demeanor       enum "Demeanor"      -type edemeanor
     parm rollup_weight  text "RollupWeight"
     parm effects_factor text "EffectsFactor"
@@ -459,7 +459,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
     prepare n              -toupper  -required -type nbhood
     prepare g              -toupper  -required -type civgroup
     prepare local_name     -normalize      
-    prepare population               -type ingpopulation
+    prepare basepop                  -type ingpopulation
     prepare demeanor       -toupper  -type edemeanor
     prepare rollup_weight            -type weight
     prepare effects_factor           -type weight
@@ -489,7 +489,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
 
     parm ids            multi "Groups"
     parm local_name     text  "Local Name"
-    parm population     text  "Population"
+    parm basepop        text  "Base Population"
     parm demeanor       enum  "Demeanor"       -type edemeanor
     parm rollup_weight  text  "RollupWeight"
     parm effects_factor text  "EffectsFactor"
@@ -497,7 +497,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof nbgroup
     prepare local_name     -normalize      
-    prepare population               -type ingpopulation
+    prepare basepop                  -type ingpopulation
     prepare demeanor       -toupper  -type edemeanor
     prepare rollup_weight            -type weight
     prepare effects_factor           -type weight

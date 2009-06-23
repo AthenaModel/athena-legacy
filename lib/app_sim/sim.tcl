@@ -148,7 +148,7 @@ snit::type sim {
 
         # Only need to load civ nbgroups with non-zero population.
         $gram load nbgroups {*}[rdb eval {
-            SELECT n, g, population, rollup_weight, effects_factor
+            SELECT n, g, basepop, rollup_weight, effects_factor
             FROM nbgroups
             ORDER BY n,g
         }]

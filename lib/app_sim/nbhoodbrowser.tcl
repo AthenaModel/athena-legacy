@@ -184,18 +184,29 @@ snit::widgetadaptor nbhoodbrowser {
         $hull insertcolumn end 0 {Neighborhood}
         $hull insertcolumn end 0 {Urbanization}
         $hull insertcolumn end 0 {Population}
-        $hull columnconfigure end -sortmode integer
+        $hull columnconfigure end \
+            -sortmode   integer   \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {Mood at T0}
         $hull columnconfigure end -sortmode real
         $hull insertcolumn end 0 {Mood Now}
-        $hull columnconfigure end -sortmode real
+        $hull columnconfigure end \
+            -sortmode   real      \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {VtyGain}
         $hull columnconfigure end -sortmode real
         $hull insertcolumn end 0 {Vty}
-        $hull columnconfigure end -sortmode integer
+        $hull columnconfigure end \
+            -sortmode   integer   \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {StkOrd}
-        $hull columnconfigure end -sortmode integer
+        $hull columnconfigure end \
+            -sortmode   integer   \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {ObscuredBy}
+        $hull columnconfigure end \
+            -sortmode   integer   \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {RefPoint}
         $hull insertcolumn end 0 {Polygon}
 

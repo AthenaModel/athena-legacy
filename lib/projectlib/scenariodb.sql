@@ -228,8 +228,8 @@ CREATE TABLE nbgroups (
     -- Local name: human readable name
     local_name     TEXT,
 
-    -- Base Population, as of time 0
-    population     INTEGER DEFAULT 1,
+    -- Base Population
+    basepop        INTEGER DEFAULT 1,
 
     -- Group demeanor: edemeanor
     demeanor       TEXT DEFAULT 'AVERAGE',

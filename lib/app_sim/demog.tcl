@@ -78,13 +78,13 @@ snit::type demog {
 
         # NEXT, compute implicit and population
         rdb eval {
-            SELECT n, g, population AS base
+            SELECT n, g, basepop
             FROM nbgroups
         } {
             rdb eval {
                 UPDATE demog_ng
-                SET implicit   = $base - explicit  - attrition,
-                    population = $base - displaced - attrition
+                SET implicit   = $basepop - explicit  - attrition,
+                    population = $basepop - displaced - attrition
                 WHERE n=$n AND g=$g
             }
         }

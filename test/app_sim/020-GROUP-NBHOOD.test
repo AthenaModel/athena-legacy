@@ -32,7 +32,7 @@ namespace eval ::athena_test::tests:: {
         n              NB1
         g              SHIA
         local_name     "NB1 Shias"
-        population     1000
+        basepop        1000
         demeanor       AVERAGE
         rollup_weight  1.0
         effects_factor 1.1
@@ -42,7 +42,7 @@ namespace eval ::athena_test::tests:: {
         n              NB1
         g              SUNN
         local_name     "NB1 Sunnis"
-        population     1000
+        basepop        1000
         demeanor       AGGRESSIVE
         rollup_weight  1.2
         effects_factor 1.3
@@ -65,7 +65,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
         n {required value}
         g {required value}
-        population {required value}
+        basepop {required value}
         demeanor {required value}
         rollup_weight {required value}
         effects_factor {required value}
@@ -110,12 +110,12 @@ namespace eval ::athena_test::tests:: {
         ted create NB1 SHIA
     } -body {
         ted order -reject GROUP:NBHOOD:CREATE [dict merge $nb1shia {
-            population NONESUCH
+            basepop NONESUCH
         }]
     } -cleanup {
         cleanup
     } -result {
-        population {invalid value "NONESUCH", expected integer}
+        basepop {invalid value "NONESUCH", expected integer}
     }
 
 
@@ -123,12 +123,12 @@ namespace eval ::athena_test::tests:: {
         ted create NB1 SHIA
     } -body {
         ted order -reject GROUP:NBHOOD:CREATE [dict merge $nb1shia {
-            population 0
+            basepop 0
         }]
     } -cleanup {
         cleanup
     } -result {
-        population {invalid value "0", expected integer no less than 1}
+        basepop {invalid value "0", expected integer no less than 1}
     }
 
 
@@ -206,10 +206,10 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape   symbol   gtype n   local_name population demeanor   rollup_weight effects_factor 
----- -------- ------- ------- -------- ----- --- ---------- ---------- ---------- ------------- -------------- 
-SHIA Shia     #c00001 NEUTRAL civilian CIV   NB1 NB1 Shias  1000       AVERAGE    1.0           1.1            
-SUNN Sunni    #c00002 NEUTRAL civilian CIV   NB1 NB1 Sunnis 1000       AGGRESSIVE 1.2           1.3            
+g    longname color   shape   symbol   gtype n   local_name basepop demeanor   rollup_weight effects_factor 
+---- -------- ------- ------- -------- ----- --- ---------- ------- ---------- ------------- -------------- 
+SHIA Shia     #c00001 NEUTRAL civilian CIV   NB1 NB1 Shias  1000    AVERAGE    1.0           1.1            
+SUNN Sunni    #c00002 NEUTRAL civilian CIV   NB1 NB1 Sunnis 1000    AGGRESSIVE 1.2           1.3            
     }
 
 
@@ -363,11 +363,11 @@ NB1 SHIA Shia
         ted order GROUP:NBHOOD:CREATE $nb1shia
     } -body {
         ted order -reject GROUP:NBHOOD:UPDATE \
-            n NB1 g SHIA population NONESUCH
+            n NB1 g SHIA basepop NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        population {invalid value "NONESUCH", expected integer}
+        basepop {invalid value "NONESUCH", expected integer}
     }
 
 
@@ -375,11 +375,11 @@ NB1 SHIA Shia
         ted create NB1 SHIA
         ted order GROUP:NBHOOD:CREATE $nb1shia
     } -body {
-        ted order -reject GROUP:NBHOOD:UPDATE n NB1 g SHIA population 0
+        ted order -reject GROUP:NBHOOD:UPDATE n NB1 g SHIA basepop 0
     } -cleanup {
         cleanup
     } -result {
-        population {invalid value "0", expected integer no less than 1}
+        basepop {invalid value "0", expected integer no less than 1}
     }
 
     test UPDATE-1.6 {invalid demeanor} -setup {
@@ -451,7 +451,7 @@ NB1 SHIA Shia
             n              NB1
             g              SHIA
             local_name     "John Doe"
-            population     2000
+            basepop        2000
             demeanor       APATHETIC
             rollup_weight  0.1
             effects_factor 0.2
@@ -461,9 +461,9 @@ NB1 SHIA Shia
     } -cleanup {
         cleanup
     } -result {
-n   g    local_name population demeanor  rollup_weight effects_factor 
---- ---- ---------- ---------- --------- ------------- -------------- 
-NB1 SHIA John Doe   2000       APATHETIC 0.1           0.2            
+n   g    local_name basepop demeanor  rollup_weight effects_factor 
+--- ---- ---------- ------- --------- ------------- -------------- 
+NB1 SHIA John Doe   2000    APATHETIC 0.1           0.2            
     }
 
 
@@ -488,7 +488,7 @@ NB1 SHIA John Doe   2000       APATHETIC 0.1           0.2
             n              NB1
             g              SHIA
             local_name     "John Doe"
-            population     2000
+            basepop        2000
             demeanor       APATHETIC
             rollup_weight  0.1
             effects_factor 0.2
@@ -553,11 +553,11 @@ NB1 SHIA John Doe   2000       APATHETIC 0.1           0.2
         ted order GROUP:NBHOOD:CREATE $nb1shia
     } -body {
         ted order -reject GROUP:NBHOOD:UPDATE:MULTI \
-            ids {{NB1 SHIA}} population NONESUCH
+            ids {{NB1 SHIA}} basepop NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        population {invalid value "NONESUCH", expected integer}
+        basepop {invalid value "NONESUCH", expected integer}
     }
 
 
@@ -566,11 +566,11 @@ NB1 SHIA John Doe   2000       APATHETIC 0.1           0.2
         ted order GROUP:NBHOOD:CREATE $nb1shia
     } -body {
         ted order -reject GROUP:NBHOOD:UPDATE:MULTI \
-            ids {{NB1 SHIA}} population 0
+            ids {{NB1 SHIA}} basepop 0
     } -cleanup {
         cleanup
     } -result {
-        population {invalid value "0", expected integer no less than 1}
+        basepop {invalid value "0", expected integer no less than 1}
     }
 
     test UPDATE:MULTI-1.7 {invalid demeanor} -setup {
@@ -648,7 +648,7 @@ NB1 SHIA John Doe   2000       APATHETIC 0.1           0.2
         ted order GROUP:NBHOOD:UPDATE:MULTI {
             ids            {{NB1 SHIA}}
             local_name     "John Doe"
-            population     2000
+            basepop        2000
             demeanor       APATHETIC
             rollup_weight  0.1
             effects_factor 0.2
@@ -672,7 +672,7 @@ NB1 SHIA John Doe   2000       APATHETIC 0.1           0.2
         ted order GROUP:NBHOOD:UPDATE:MULTI {
             ids            {{NB1 SHIA} {NB1 SUNN}}
             local_name     "John Doe"
-            population     2000
+            basepop        2000
             demeanor       APATHETIC
             rollup_weight  0.1
             effects_factor 0.2
