@@ -640,6 +640,7 @@ snit::type ensit {
         dict with parmdict {
             set nbhood ""
             catch {
+                set location [string trim [string toupper $location]]
                 set nbhood [nbhood find {*}[refpoint validate $location]]
             }
 
