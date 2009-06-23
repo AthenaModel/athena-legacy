@@ -128,5 +128,52 @@ snit::type demog {
             }
         }
     }
+
+    #-------------------------------------------------------------------
+    # Queries
+
+    # getng n g ?parm?
+    #
+    # n     A neighborhood
+    # g     A group in the neighborhood
+    # parm  A demog_ng column
+    #
+    # Retrieves a row dictionary, or a particular column value.
+
+    typemethod getng {n g {parm ""}} {
+        # FIRST, get the data
+        rdb eval {SELECT * FROM demog_ng WHERE n=$n AND g=$g} row {
+            if {$parm ne ""} {
+                return $row($parm)
+            } else {
+                unset row(*)
+                return [array get row]
+            }
+        }
+
+        return ""
+    }
+
+
+    # getn n ?parm?
+    #
+    # n     A neighborhood
+    # parm  A demog_n column
+    #
+    # Retrieves a row dictionary, or a particular column value.
+
+    typemethod getn {n {parm ""}} {
+        # FIRST, get the data
+        rdb eval {SELECT * FROM demog_n WHERE n=$n} row {
+            if {$parm ne ""} {
+                return $row($parm)
+            } else {
+                unset row(*)
+                return [array get row]
+            }
+        }
+
+        return ""
+    }
 }
 

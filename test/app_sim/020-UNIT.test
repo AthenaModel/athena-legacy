@@ -216,6 +216,19 @@ namespace eval ::athena_test::tests:: {
     }
 
 
+    test CREATE-1.13 {Insufficient population for personnel} -setup {
+        ted create NB1 SHIA NB1SHIA
+    } -body {
+        ted order -reject UNIT:CREATE [dict merge $u3 {
+            personnel 5000
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        personnel {Insufficient implicit population; check demographics.}
+    }
+
+
     test CREATE-2.1 {unit is created} -setup {
         ted create NB1 BLUE USAID SHIA NB1SHIA
     } -body {
@@ -502,6 +515,18 @@ U1 BLUE NONE   1         1 1      CMO_CONSTRUCTION FRC     0
         cleanup
     } -result {
         personnel {invalid value "NONESUCH", expected integer}
+    }
+
+
+    test PERSONNEL-1.4 {insufficient personnel} -setup {
+        ted create NB1 SHIA NB1SHIA
+        ted order UNIT:CREATE $u3
+    } -body {
+        ted order -reject UNIT:PERSONNEL u U3 personnel 1000
+    } -cleanup {
+        cleanup
+    } -result {
+        personnel {Insufficient implicit population; check demographics.}
     }
 
 

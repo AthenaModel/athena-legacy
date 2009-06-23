@@ -103,6 +103,30 @@ snit::type unit {
         return $origin
     }
 
+    # get u ?parm?
+    #
+    # u      The unit ID
+    # parm   A parameter name
+    #
+    # Retrieves a unit dictionary, or a particular parm value.
+    # This is for use when dealing with one single unit, e.g., in
+    # an order routine; when dealing with many units in a loop, always
+    # use rdb eval.
+
+    typemethod get {u {parm ""}} {
+        # FIRST, get the unit
+        rdb eval {SELECT * FROM units WHERE u=$u} row {
+            if {$parm ne ""} {
+                return $row($parm)
+            } else {
+                unset row(*)
+                return [array get row]
+            }
+        }
+
+        return ""
+    }
+
     #-------------------------------------------------------------------
     # Mutators
     #
@@ -619,6 +643,21 @@ order define ::unit UNIT:CREATE {
 
     returnOnError
 
+    validate personnel {
+        if {$gtype eq "CIV"} {
+            set imp [demog getng $parms(origin) $parms(g) implicit]
+
+            let max {$imp - 1}
+
+            if {$parms(personnel) > $max} {
+                reject personnel \
+                    "Insufficient implicit population; check demographics."
+            }
+        }
+    }
+
+    returnOnError
+
     # NEXT, create the unit
     lappend undo [$type mutate create [array get parms]]
     lappend undo [demog analyze]
@@ -759,9 +798,18 @@ order define ::unit UNIT:PERSONNEL {
     # NEXT, do cross-validation
 
     validate personnel {
-        # TBD: Verify that we can give the specified number of personnel
-        # to the unit, as a delta from the previous number.  (This probably
-        # only matters for CIV units.)
+        array set old [unit get $parms(u)]
+
+        if {$old(gtype) eq "CIV"} {
+            set imp [demog getng $old(origin) $old(g) implicit]
+
+            let maxIncrease {$imp - 1}
+
+            if {$parms(personnel) - $old(personnel) > $maxIncrease} {
+                reject personnel \
+                    "Insufficient implicit population; check demographics."
+            }
+        }
     }
 
     returnOnError
