@@ -1215,14 +1215,19 @@ snit::widget mapviewer {
     # icon context menu.
 
     method Icon-3 {cid rx ry} {
+        # FIRST, save the context.
+        set icons(context) $icons(sid-$cid)
+
+        # NEXT, Update any menu items that depend on this condition
+        cond::orderIsValidCanUpdate update
+
+        # NEXT, popup the menu
         switch -exact $icons(itype-$cid) {
             unit {
-                set icons(context) $icons(sid-$cid)
                 tk_popup $canvas.unitmenu $rx $ry
             }
 
             situation {
-                set icons(context) $icons(sid-$cid)
                 tk_popup $canvas.ensitmenu $rx $ry
             }
         }
