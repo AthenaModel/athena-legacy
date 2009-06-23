@@ -1010,7 +1010,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:MOVE {
         -sendstates {PREP PAUSED RUNNING}
 
     parm s          key   "Situation"   -tags situation
-    parm location   text  "Location"    -tags point
+    parm location   text  "Location"    -tags nbpoint
 } {
     # FIRST, check the situation
     prepare s                    -required -type ensit
