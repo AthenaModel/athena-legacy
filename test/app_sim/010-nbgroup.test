@@ -64,7 +64,7 @@ NB1 SHIA NB1 Shias  1000       AVERAGE  1.0           1.1
         nbgroup mutate create [ted entity NB1SHIA]
         set undo [nbgroup mutate create [ted entity NB1SUNN]]
     } -body {
-        {*}$undo
+        eval $undo
         rdb eval {SELECT n,g FROM nbgroups}
     } -cleanup {
         cleanup
@@ -75,7 +75,7 @@ NB1 SHIA NB1 Shias  1000       AVERAGE  1.0           1.1
         set undo [nbgroup mutate create [ted entity NB1SHIA]]
     } -body {
         ted notifier bind ::nbgroup <Entity>
-        {*}$undo
+        eval $undo
         ted notifier received
     } -cleanup {
         cleanup
@@ -115,7 +115,7 @@ NB1 SHIA NB1 Shias  1000       AVERAGE  1.0           1.1
         ted create NB1SHIA
         set undo [nbgroup mutate delete NB1 SHIA]
     } -body {
-        {*}$undo
+        eval $undo
         ted query {SELECT * FROM nbgroups}
     } -cleanup {
         cleanup
@@ -131,7 +131,7 @@ NB1 SHIA NB1 Shias  1000       AVERAGE  1.0           1.1
         set undo [nbgroup mutate delete NB1 SHIA]
     } -body {
         ted notifier bind ::nbgroup <Entity>
-        {*}$undo
+        eval $undo
         ted notifier received
     } -cleanup {
         cleanup
@@ -241,7 +241,7 @@ NB1 SHIA John Doe   5000       APATHETIC 0.1           0.2
             effects_factor 0.2
         }]
 
-        {*}$undo
+        eval $undo
 
         set b [ted query {SELECT * FROM nbgroups}]
 
@@ -264,7 +264,7 @@ NB1 SHIA John Doe   5000       APATHETIC 0.1           0.2
         }]
 
         ted notifier bind ::nbgroup <Entity>
-        {*}$undo
+        eval $undo
         ted notifier received
     } -cleanup {
         cleanup

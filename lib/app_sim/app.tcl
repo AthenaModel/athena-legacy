@@ -113,6 +113,7 @@ snit::type app {
         order     init
         report    init
         ada       init
+        demog     init
         nbhood    init
         nbrel     init
         group     init

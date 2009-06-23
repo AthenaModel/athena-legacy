@@ -160,7 +160,7 @@ snit::type nbgroup {
             # NEXT, Return the undo command
             set undo [list]
             lappend undo [mytypemethod mutate delete $n $g]
-            # lappend undo [list ::demog analyze $n]
+            lappend undo [list ::demog analyze]
 
             return [join $undo \n]
         }
@@ -208,7 +208,7 @@ snit::type nbgroup {
         rdb insert demog_ng $parmdict2
 
         dict with parmdict1 {
-            # demog analyze $n $g
+            demog analyze
             notifier send ::nbgroup <Entity> create [list $n $g]
         }
     }
@@ -380,7 +380,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
     # NEXT, create the group and dependent entities.
     lappend undo [$type mutate create [array get parms]]
     lappend undo [scenario mutate reconcile]
-    # demog analyze $parms(n) $parms(g)
+    demog analyze
     
     setundo [join $undo \n]
 }
@@ -433,7 +433,7 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
     # NEXT, delete the group and dependent entities
     lappend undo [$type mutate delete $parms(n) $parms(g)]
     lappend undo [scenario mutate reconcile]
-    # demog analyze $parms(n)
+    demog analyze
     
     setundo [join $undo \n]
 }
@@ -475,7 +475,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
 
     # NEXT, modify the group
     setundo [$type mutate update [array get parms]]
-    # demog analyze $parms(n) $parms(g)
+    demog analyze
 }
 
 
@@ -514,7 +514,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
 
     setundo [join $undo \n]
 
-    # demog analyze
+    demog analyze
 }
 
 

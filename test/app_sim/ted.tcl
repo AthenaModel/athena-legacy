@@ -43,6 +43,8 @@ snit::type ted {
         situations
         ensits_t
         actsits_t
+        demog_n
+        demog_ng
     }
 
     # cleanupModules -- list of modules that need to be reconfigured
