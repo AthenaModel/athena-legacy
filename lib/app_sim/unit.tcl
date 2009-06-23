@@ -621,6 +621,7 @@ order define ::unit UNIT:CREATE {
 
     # NEXT, create the unit
     lappend undo [$type mutate create [array get parms]]
+    lappend undo [demog analyze]
 
     setundo [join $undo \n]
 }
@@ -664,6 +665,7 @@ order define ::unit UNIT:DELETE {
 
     # NEXT, Delete the unit
     lappend undo [$type mutate delete $parms(u)]
+    lappend undo [demog analyze]
 
     setundo [join $undo \n]
 }
@@ -689,7 +691,10 @@ order define ::unit UNIT:MOVE {
     returnOnError
 
     # NEXT, move the unit
-    setundo [$type mutate move $parms(u) $parms(location)]
+    lappend undo [$type mutate move $parms(u) $parms(location)]
+    lappend undo [demog analyze]
+
+    setundo [join $undo \n]
 }
 
 
@@ -725,7 +730,10 @@ order define ::unit UNIT:ACTIVITY {
     returnOnError
 
     # NEXT, modify the group
-    setundo [$type mutate activity $parms(u) $parms(a)]
+    lappend undo [$type mutate activity $parms(u) $parms(a)]
+    lappend undo [demog analyze]
+
+    setundo [join $undo \n]
 }
 
 
@@ -759,7 +767,10 @@ order define ::unit UNIT:PERSONNEL {
     returnOnError
 
     # NEXT, modify the group
-    setundo [$type mutate personnel $parms(u) $parms(personnel)]
+    lappend undo [$type mutate personnel $parms(u) $parms(personnel)]
+    lappend undo [demog analyze]
+
+    setundo [join $undo \n]
 }
 
 

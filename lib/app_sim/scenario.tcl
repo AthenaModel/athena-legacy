@@ -473,8 +473,6 @@ snit::type scenario {
     # Clears the RDB, inserts the schema, and loads initial data:
     # 
     # * Blank map
-    # * Concern definitions
-    # * Activity definitions
 
     proc InitializeRuntimeData {} {
         # FIRST, create and clear the RDB

@@ -37,13 +37,16 @@ snit::type demog {
 
     # analyze
     #
-    # Computes demog_ng(n,g) and demog_n(n) for all n, g
+    # Computes demog_ng(n,g) and demog_n(n) for all n, g.
+    #
+    # This pretends to be a mutator, to make it easier to use
+    # in undo scripts.
 
     typemethod analyze {} {
-        profile $type ComputeNG
-        profile $type ComputeN
+        $type ComputeNG
+        $type ComputeN
 
-        return
+        return [mytypemethod analyze]
     }
 
     typemethod ComputeNG {} {
@@ -104,7 +107,7 @@ snit::type demog {
         rdb eval {
             SELECT n, a, total(personnel) AS personnel
             FROM units
-            WHERE gtype='CIV'
+            WHERE gtype='CIV' AND n != ''
             GROUP BY n, a
         } {
             set pop($n) [expr {$pop($n) + $personnel}]
