@@ -621,6 +621,7 @@ snit::widget mapviewer {
         # NEXT, set the mode according to the first tag
         switch -exact -- [lindex $info(ordertags) 0] {
             point   { $self mode point  }
+            nbpoint { $self mode point  }
             polygon { $self mode poly   }
             default { $self mode browse }
         }
@@ -636,8 +637,21 @@ snit::widget mapviewer {
     # field's value to this point.  Otherwise, propagate the event.
 
     method Point-1 {ref} {
-        if {"point" in $info(ordertags)} {
-            # FIRST, plot a point; mark existing points as old.
+        if {"point" in $info(ordertags) || "nbpoint" in $info(ordertags)} {
+            # FIRST, if nbpoint we must be in a neighborhood.
+            if {"nbpoint" in $info(ordertags)} {
+                set n [nbhood find {*}[$canvas ref2m $ref]]
+
+                if {$n eq ""} {
+                    return
+                } else {
+                    set data [list nbpoint $ref]
+                }
+            } else {
+                set data [list point $ref]
+            }
+            
+            # NEXT, plot a point; mark existing points as old.
             $canvas itemconfigure {transient&&point} -fill blue
 
             lassign [$canvas ref2c $ref] cx cy
@@ -648,7 +662,7 @@ snit::widget mapviewer {
                 -tags    [list transient point]
 
             # NEXT, notify the app that a point has been selected.
-            notifier send ::app <ObjectSelect> [list point $ref]
+            notifier send ::app <ObjectSelect> $data
         } else {
             event generate $win <<Point-1>> -data $ref
         }

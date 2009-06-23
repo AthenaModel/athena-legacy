@@ -826,7 +826,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
     title "Create Environmental Situation"
     options -sendstates {PREP PAUSED RUNNING}
 
-    parm location   text  "Location"      -tags point -refresh
+    parm location   text  "Location"      -tags nbpoint -refresh
     parm stype      enum  "Type"  \
         -refreshcmd {::ensit RefreshSType}
     parm coverage   text  "Coverage"      -defval 1.0
@@ -939,7 +939,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
         -sendstates {PREP PAUSED RUNNING}
 
     parm s          key   "Situation"   -tags situation
-    parm location   text  "Location"    -tags point
+    parm location   text  "Location"    -tags nbpoint
 
     parm stype      enum  "Type" \
         -refreshcmd [list ::ensit RefreshUpdateParm stype]
