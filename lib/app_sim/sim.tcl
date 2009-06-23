@@ -566,7 +566,7 @@ snit::type sim {
                 "The following ensits are outside any neighborhood:\n $ids"
         }
 
-        # NEXT, you can't have more than ensit of a type in a 
+        # NEXT, you can't have more than one ensit of a type in a 
         # neighborhood.
         rdb eval {
             SELECT count(s) AS count, n, stype
@@ -579,6 +579,19 @@ snit::type sim {
                 "Duplicate ensits of type $stype in neighborhood $n"
         }
 
+        # NEXT, all implicit population figures must be at least 1
+        rdb eval {
+            SELECT n,g,implicit FROM demog_ng
+            WHERE implicit < 1
+        } {
+            set sane 0
+            lappend results \
+                "Implicit population < 1 for group $g in neighborhood $n." \
+                "Increase the base population, or reduce the number of" \
+                "people in units for $n $g."
+        }
+
+        # NEXT, report on sanity
         if {$option eq "-log"} {
             if {$sane} {
                 log normal sim "Scenario Sanity Check: OK"
@@ -587,7 +600,6 @@ snit::type sim {
                     "Scenario Sanity Check: FAILED\n[join $results \n]"
             }
         }
-
 
         # NEXT, return the result
         return $sane
