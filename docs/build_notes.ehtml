@@ -11,6 +11,24 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.9, 24 June 2009</h3>
+
+This build contains the initial version of the Athena Demographics
+Model (DEMOG).  It tracks population changes due to civilian unit
+placement.  In principle it also tracks the effects of civilian
+attrition, though there are no sources of attrition in this build.  In
+addition, there are a bunch of bug fixes.<p>
+
+<ul>
+  <li> Bug 2150: athena_sim(1): Demographic model
+  <li> Bug 2153: athena_sim(1): REFUGEE is now DISPLACED
+  <li> Bug 2155: scenariodb(n): concerns, activity, activity_gtype redefinition
+  <li> Bug 2156: Create ensit dialog allows location outside all neighborhoods
+  <li> Bug 2157: Entering locations 'manually' fails to handle caps/no caps
+  <li> Bug 2158: "Update Situation" on ensit pop-up is grayed-out at wrong time
+  <li> Bug 2159: bgerror: invalid command name "" 
+</ul><p>
+
 <h3>Build 1.0.8, 22 June 2009</h3>
 
 This build contains a variety of changes.  There are better error
