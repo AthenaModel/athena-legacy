@@ -133,12 +133,14 @@ snit::type ::projectlib::parmdb {
                 activity.
             }
 
-            $ps define activity.FRC.$a.assignedToActive \
+            $ps define activity.FRC.$a.shifts \
                 ::projectlib::ipositive 1 {
                     Number of personnel which must be assigned to the
                     activity to yield one person actively performing the
-                    activity given a typical schedule, i.e., a 24x7 activity
-                    requires the assigned personnel to work shifts.
+                    activity given a typical schedule, i.e., the number
+                    of shifts.  For example, a 24x7 activity will 
+                    require the assigned personnel to work three or
+                    four shifts. 
                 }
 
             $ps define activity.FRC.$a.coverage ::simlib::coverage {
@@ -180,12 +182,14 @@ snit::type ::projectlib::parmdb {
                      }
             }
 
-            $ps define activity.ORG.$a.assignedToActive \
+            $ps define activity.ORG.$a.shifts \
                 ::projectlib::ipositive 1 {
                     Number of personnel which must be assigned to the
                     activity to yield one person actively performing the
-                    activity given a typical schedule, i.e., a 24x7 activity
-                    requires the assigned personnel to work shifts.
+                    activity given a typical schedule, i.e., the number
+                    of shifts.  For example, a 24x7 activity will 
+                    require the assigned personnel to work three or
+                    four shifts. 
                 }
 
  

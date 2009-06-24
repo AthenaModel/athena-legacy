@@ -245,8 +245,8 @@ snit::type activity {
                 "n=$n g=$g a=$a eff=$a_effective troops=$troops"
 
             # How many are active?
-            set a2a [parmdb get activity.$gtype.$a.assignedToActive]
-            let activeTroops {$troops / $a2a}
+            set shifts [parmdb get activity.$gtype.$a.shifts]
+            let activeTroops {$troops / $shifts}
 
             # And are they effective?
             if {$a_effective} {
