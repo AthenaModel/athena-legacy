@@ -32,20 +32,20 @@ This call differs from <code>snit::boolean</code> in that it converts
 the value to canonical form, and throws <b>INVALID</b> on error.<p>
 
 
-<<defitem eadarule {eadarule <i>subcommand</i> ?<i>args</i>?}>>
+<<defitem edamrule {edamrule <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, enumerating the names and descriptions
 of all Athena Driver Assessment rules.<p>
 
-<<::projectlib::eadarule html>>
+<<::projectlib::edamrule html>>
 
 
-<<defitem eadaruleset {eadaruleset <i>subcommand</i> ?<i>args</i>?}>>
+<<defitem edamruleset {edamruleset <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, enumerating the names and descriptions
 of all Athena Driver Assessment rule sets.<p>
 
-<<::projectlib::eadaruleset html>>
+<<::projectlib::edamruleset html>>
 
 
 <<defitem ecause {ecause <i>subcommand</i> ?<i>args</i>?}>>

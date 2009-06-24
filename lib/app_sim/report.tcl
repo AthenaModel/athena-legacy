@@ -52,16 +52,16 @@ snit::type report {
             SELECT * FROM reports WHERE hotlist=1
         }
 
-        reporter bin define ada "ADA Rule Firings" "" {
-            SELECT * FROM reports WHERE rtype='ADA'
+        reporter bin define dam "DAM Rule Firings" "" {
+            SELECT * FROM reports WHERE rtype='DAM'
         }
 
         set count 0
-        foreach ruleset [eadaruleset names] {
-            set bin "ada[incr count]"
+        foreach ruleset [edamruleset names] {
+            set bin "dam[incr count]"
 
-            reporter bin define $bin $ruleset ada "
-                SELECT * FROM reports WHERE rtype='ADA' AND subtype='$ruleset'
+            reporter bin define $bin $ruleset dam "
+                SELECT * FROM reports WHERE rtype='DAM' AND subtype='$ruleset'
             "
         }
     }
@@ -71,4 +71,7 @@ snit::type report {
 
     delegate typemethod save to reporter
 }
+
+
+
 

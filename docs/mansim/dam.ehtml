@@ -1,4 +1,4 @@
-<<manpage ada(sim) "Athena Driver Assessment Infrastructure">>
+<<manpage dam(sim) "Driver Assessment Model Infrastructure">>
 
 <<section SYNOPSIS>>
 
@@ -10,20 +10,20 @@ package require app_sim 1.0
 
 <<section DESCRIPTION>>
 
-ada(sim) provides the infrastructure for the Athena Driver Assessment
-rules and rule sets, e.g., the activity and environmental situation
+dam(sim) provides the infrastructure for the Driver Assessment
+Model rules and rule sets, e.g., the activity and environmental situation
 rules.<p>
 
 <<subsection "Model Parameters">>
 
 <<xref parmdb(5)>> contains a large number of model parameters for use
-by ada(sim) and the ADA rules; all such parameters have names like
-"<code><b>ada.*</b></code>".<p>
+by dam(sim) and the DAM rules; all such parameters have names like
+"<code><b>dam.*</b></code>".<p>
 
 <<subsection "Drivers, Rule Sets, Rules, and Inputs">>
 
 A driver is an event or situation that drives change in the
-simulation.  At present, ADA assesses only attitude change
+simulation.  At present, DAM assesses only attitude change
 (satisfaction and cooperation); eventually, we expect to assess other
 kinds of change as well.<p>
 
@@ -37,7 +37,7 @@ parameters.<p>
 When a rule's condition is met, it fires; this results in one or more
 inputs being entered into GRAM for the driver.<p>
 
-The intent of the ada(sim) infrastructure is to allow rules and rule
+The intent of the dam(sim) infrastructure is to allow rules and rule
 sets to be both flexible and concise.  Rules and rule sets can contain
 arbitrary code.  Many important parameters, such as GRAM causes, near
 factors, and far factors, are read automatically from
@@ -52,7 +52,7 @@ for a particular rule or even a particular input.<p>
 Situations are assessed at every tick, so that any changes that might
 affect them are captured.  However, we don't want to have rules firing
 for every situation at every tick.  Consequently, every situation has
-what's called its "signature".  ada(sim) sets this signature to
+what's called its "signature".  dam(sim) sets this signature to
 indicate the last rule that fired, along with any relevant driver
 parameters (e.g., an activity situation's coverage).  When the
 situation is next assessed, the new signature is determined and
@@ -66,7 +66,7 @@ need a signature for each rule subset.<p>
 
 <<section COMMANDS>>
 
-This section lists the commands provided by ada(sim).  There are two
+This section lists the commands provided by dam(sim).  There are two
 categories: commands for use by the application at large, and commands
 for use by rule sets.<p>
 
@@ -76,7 +76,7 @@ The application-level commands are as follows:<p>
 
 <<deflist app>>
 
-<<defitem "ada init" {ada init}>>
+<<defitem "dam init" {dam init}>>
 
 Initializes the module.<p>
 
@@ -89,12 +89,12 @@ The following commands are used to define rule sets.<p>
 
 <<deflist ruleset>>
 
-<<defitem "ada ruleset" {ada ruleset <i>ruleset driver options...</i>}>>
+<<defitem "dam ruleset" {dam ruleset <i>ruleset driver options...</i>}>>
 
-Indicates to ada(sim) that the code that follows is executing the rule
+Indicates to dam(sim) that the code that follows is executing the rule
 set named <i>ruleset</i> for the specific <i>driver</i>.  The
 <i>options</i> establish a collection of defaults for the subsequent
-<<iref ada rule>> statements.<p>
+<<iref dam rule>> statements.<p>
 
 There is no statement to terminate a rule set; either rules fire or
 they don't.<p>
@@ -136,29 +136,29 @@ driver.<p>
 
 The GRAM "cause" associated with the driver, e.g., <b>HUNGER</b>.  An
 <<xref projtypes(n) ecause>> value.  Defaults to the value of 
-<<xref parmdb(5)>> parameter <b><code>ada.<i>ruleset</i>.cause</code></b>.<p>
+<<xref parmdb(5)>> parameter <b><code>dam.<i>ruleset</i>.cause</code></b>.<p>
 
 <<defopt {-p <i>nearFactor</i>}>>
 
 The GRAM near effects factor associate with the driver.  Defaults to the
 value of <<xref parmdb(5)>> parameter
-<b><code>ada.<i>ruleset</i>.nearFactor</code></b>.<p>
+<b><code>dam.<i>ruleset</i>.nearFactor</code></b>.<p>
 
 <<defopt {-q <i>farFactor</i>}>>
 
 The GRAM far effects factor associate with the driver.  Defaults to the
 value of <<xref parmdb(5)>> parameter
-<b><code>ada.<i>ruleset</i>.farFactor</code></b>.<p>
+<b><code>dam.<i>ruleset</i>.farFactor</code></b>.<p>
 
 <</deflist options>>
 
-<<defitem "ada rule" {ada rule <i>rule </i>?<i>options...</i>? <i>expr body</i>}>>
+<<defitem "dam rule" {dam rule <i>rule </i>?<i>options...</i>? <i>expr body</i>}>>
 
 Defines a single rule within the current rule set.  The <i>rule</i>
 is the rule's name; it is typically a string like
 <i>ruleset-x-y</i>, where <i>x</i> is an integer indicating the subset
 of the rule set, and <i>y</i> is an integer indicating the rule within
-the subset.  The <<xref projtypes(n) eadarule>> enumeration lists all
+the subset.  The <<xref projtypes(n) edamrule>> enumeration lists all
 of the rule names.<p>
 
 The <i>expr</i> is a boolean Tcl expression stating the conditions
@@ -175,7 +175,7 @@ The rule can be called with the following options, which are seldom needed.<p>
 
 Gives a description of the rule, for use in the rule firing report.
 It defaults to the long name of the rule as given in the
-<<xref projtyeps(n) eadarule>> enumeration.<p>
+<<xref projtyeps(n) edamrule>> enumeration.<p>
 
 <<defopt {-doer <i>doerList</i>}>>
 <<defopt {-location <i>location</i>}>>
@@ -186,26 +186,26 @@ It defaults to the long name of the rule as given in the
 <<defopt {-q <i>farFactor</i>}>>
 
 Overrides the option values specified in the call to
-<<iref ada ruleset>>.<p>
+<<iref dam ruleset>>.<p>
 
 <</deflist options>>
 
-<<defitem "ada guard" {ada guard ?<i>text</i>?}>>
+<<defitem "dam guard" {dam guard ?<i>text</i>?}>>
 
-This command is used in the body of an <<iref ada rule>> in situation
+This command is used in the body of an <<iref dam rule>> in situation
 rule sets; it prevents the rule from firing twice in succession when
 the outcome will be identical.  The <i>text</i>, if given, derives
 from the values of significant inputs to the rule, changes in which
 would cause the outcome to be different.  The <i>coverage</i> of
 activity situations is the canonical example.<p>
 
-<<defitem "ada sat level" {ada sat level ?<i>options</i>? <i>con limit days</i> ?<i>con limit days...</i>?}>>
+<<defitem "dam sat level" {dam sat level ?<i>options</i>? <i>con limit days</i> ?<i>con limit days...</i>?}>>
 
 This routine is called within the body of a rule; it provides one or
 more satisfaction level inputs to GRAM.<p>
 
 The options are as follows; all of them override the defaults set by
-<<iref ada ruleset>> and <<iref ada rule>>.<p>
+<<iref dam ruleset>> and <<iref dam rule>>.<p>
 
 <<deflist options>>
 
@@ -224,13 +224,13 @@ specified as a <<xref mars:simtypes(n) qmag>> value, and a realization
 time in <i>days</i>.<p>
 
 
-<<defitem "ada sat slope" {ada sat slope ?<i>options</i>? <i>con slope</i> ?<i>con slope...</i>?}>>
+<<defitem "dam sat slope" {dam sat slope ?<i>options</i>? <i>con slope</i> ?<i>con slope...</i>?}>>
 
 This routine is called within the body of a rule; it provides one or
 more satisfaction slope inputs to GRAM.<p>
 
 The options are as follows; all of them override the defaults set by
-<<iref ada ruleset>> and <<iref ada rule>>.<p>
+<<iref dam ruleset>> and <<iref dam rule>>.<p>
 
 <<deflist options>>
 
@@ -248,13 +248,13 @@ specified by a concern <i>con</i>, and a <i>slope</i> (points per day),
 specified as a <<xref mars:simtypes(n) qmag>> value.<p>
 
 
-<<defitem "ada sat clear" {ada sat clear ?<i>options</i>? <i>con</i> ?<i>con...</i>?}>>
+<<defitem "dam sat clear" {dam sat clear ?<i>options</i>? <i>con</i> ?<i>con...</i>?}>>
 
 This routine is called within the body of a rule; it terminates one or
 more satisfaction slope inputs to GRAM.<p>
 
 The options are as follows; all of them override the defaults set by
-<<iref ada ruleset>> and <<iref ada rule>>.<p>
+<<iref dam ruleset>> and <<iref dam rule>>.<p>
 
 <<deflist options>>
 
@@ -270,13 +270,13 @@ specified by <code>-f</code> for each concern <i>con</i>.<p>
 
 
 
-<<defitem "ada coop level" {ada coop level ?<i>options</i>? <i>limit days</i>}>>
+<<defitem "dam coop level" {dam coop level ?<i>options</i>? <i>limit days</i>}>>
 
 This routine is called within the body of a rule; it provides one or
 more cooperation level inputs to GRAM.<p>
 
 The options are as follows; all of them override the defaults set by
-<<iref ada ruleset>> and <<iref ada rule>>.<p>
+<<iref dam ruleset>> and <<iref dam rule>>.<p>
 
 <<deflist options>>
 
@@ -298,13 +298,13 @@ specified as a <<xref mars:simtypes(n) qmag>> value, and a realization
 time in <i>days</i>.<p>
 
 
-<<defitem "ada coop slope" {ada coop slope ?<i>options</i>? <i>slope</i>}>>
+<<defitem "dam coop slope" {dam coop slope ?<i>options</i>? <i>slope</i>}>>
 
 This routine is called within the body of a rule; it provides one or
 more cooperation level inputs to GRAM.<p>
 
 The options are as follows; all of them override the defaults set by
-<<iref ada ruleset>> and <<iref ada rule>>.<p>
+<<iref dam ruleset>> and <<iref dam rule>>.<p>
 
 <<deflist options>>
 
@@ -323,13 +323,13 @@ specified by <code>-doer</code>.  (Non-force-groups listed in
 <code>-doer</code> are ignored.)  Each input has the specified
 <i>slope</i>, specified as a <<xref mars:simtypes(n) qmag>> value.<p>
 
-<<defitem "ada coop clear" {ada coop clear ?<i>options</i>?}>>
+<<defitem "dam coop clear" {dam coop clear ?<i>options</i>?}>>
 
 This routine is called within the body of a rule; it terminates one or
 more cooperation slope inputs to GRAM.<p>
 
 The options are as follows; all of them override the defaults set by
-<<iref ada ruleset>> and <<iref ada rule>>.<p>
+<<iref dam ruleset>> and <<iref dam rule>>.<p>
 
 <<deflist options>>
 
@@ -345,18 +345,18 @@ neighborhood specified by <code>-n</code> and all of the groups
 specified by <code>-f</code> with all of the force groups specify by
 <code>-doer</code>.<p>
 
-<<defitem "ada count" {ada count}>>
+<<defitem "dam count" {dam count}>>
 
 Returns the number of rules that have fired in this call of the rule set.<p>
 
-<<defitem "ada get" {ada get <i>name</i>}>>
+<<defitem "dam get" {dam get <i>name</i>}>>
 
-Retrieves data from ada(sim)'s internal "input" routine.  This is
+Retrieves data from dam(sim)'s internal "input" routine.  This is
 generally used by infrastructure particular to a particular kind of
 rule set.<p>
 
 
-<<defitem "ada rget" {ada rget <i>opt</i>}>>
+<<defitem "dam rget" {dam rget <i>opt</i>}>>
 
 Retrieves the value of a rule option, whether it was specified
 explicitly by the rule or the rule set. This is
@@ -364,7 +364,7 @@ generally used by infrastructure particular to a particular kind of
 rule set.<p>
 
 
-<<defitem "ada details" {ada details <i>text</i>}>>
+<<defitem "dam details" {dam details <i>text</i>}>>
 
 Appends the <i>text</i> to the "details" section of the rule-firing
 report.<p>

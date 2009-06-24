@@ -1,14 +1,14 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    ada.tcl
+#    dam.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    app_sim(n) Athena Driver Assessment Module
+#    app_sim(n) Driver Assessment Model
 #
-#    This module provides the interface used to define the ADA Rules.
+#    This module provides the interface used to define the DAM Rules.
 #    These rules assess the implications of various events and situations
 #    and provide inputs to GRAM (and eventually to other models as well).
 #
@@ -18,9 +18,9 @@
 
 
 #-----------------------------------------------------------------------
-# ada
+# dam
 
-snit::type ada {
+snit::type dam {
     # Make it an ensemble
     pragma -hastypedestroy 0 -hasinstances 0
 
@@ -48,7 +48,7 @@ snit::type ada {
     # Returns a human-readable title for the section
 
     typemethod {sqlsection title} {} {
-        return "ada(sim)"
+        return "dam(sim)"
     }
 
     # sqlsection schema
@@ -64,7 +64,7 @@ snit::type ada {
     # Returns the section's temporary schema definitions, if any.
 
     typemethod {sqlsection tempschema} {} {
-        return [readfile [file join $::app_sim::library ada_temp.sql]]
+        return [readfile [file join $::app_sim::library dam_temp.sql]]
     }
 
     # sqlsection functions
@@ -121,7 +121,7 @@ snit::type ada {
     #            -q        As in setdefs, above
     #            -cause    As in setdefs, above
     #
-    # title      Title of ADA report
+    # title      Title of DAM report
     # header     Text that goes at the top of the report.
     # details    Text that goes between the header and the effects
     # logline    Log message; created by "rule", written by first
@@ -147,17 +147,17 @@ snit::type ada {
         # FIRST, check requirements
         require {[info commands log]  ne ""} "log is not defined."
 
-        # NEXT, ada is up.
-        log normal ada "Initialized"
+        # NEXT, dam is up.
+        log normal dam "Initialized"
     }
 
 
     #-------------------------------------------------------------------
     # Management
     #
-    # The following methods are used by the ADA Rules to bracket sets
+    # The following methods are used by the DAM Rules to bracket sets
     # of related GRAM inputs related to a single rule firing.
-    # The commands also save an ADA report.
+    # The commands also save an DAM report.
 
     # ruleset ruleset driver options
     #
@@ -193,9 +193,9 @@ snit::type ada {
                  -location    {}  \
                  -n           {}  \
                  -f           {}  \
-                 -cause       [parmdb get ada.$ruleset.cause]      \
-                 -p           [parmdb get ada.$ruleset.nearFactor] \
-                 -q           [parmdb get ada.$ruleset.farFactor]]
+                 -cause       [parmdb get dam.$ruleset.cause]      \
+                 -p           [parmdb get dam.$ruleset.nearFactor] \
+                 -q           [parmdb get dam.$ruleset.farFactor]]
 
         # NEXT, get the passed in options.
         # TBD: Should throw an error if there are any unknown dict keys.
@@ -217,7 +217,7 @@ snit::type ada {
     # call to "ruleset":
     #
     #           -description    Rule description (defaults to
-    #                           eadarule longname)
+    #                           edamrule longname)
     #           -location       See "ruleset"
     #
     # The following options specify defaults for the level and 
@@ -243,11 +243,11 @@ snit::type ada {
         set  input(description) [optval args -description]
 
         if {$input(description) eq ""} {
-            set input(description) [eadarule longname $rule]
+            set input(description) [edamrule longname $rule]
             
             if {$input(description) eq ""} {
                 error \
-                  "Rule $rule has no description (see projtypes(n) eadarule)"
+                  "Rule $rule has no description (see projtypes(n) edamrule)"
             }
         }
 
@@ -278,7 +278,7 @@ snit::type ada {
         set input(logline) "Driver $input(driver), $rule $input(description)"
 
         # NEXT, clear the temp table used to accumulate the inputs
-        rdb eval {DELETE FROM ada_inputs}
+        rdb eval {DELETE FROM dam_inputs}
         
         # NEXT, Add details to the header.
 
@@ -327,7 +327,7 @@ snit::type ada {
         set code [catch {uplevel 1 $body} result catchOpts]
 
         # Do not complete the rule firing on "break"; this will 
-        # happen if "ada guard" determines that the rule should
+        # happen if "dam guard" determines that the rule should
         # not fire.
         if {$code == 3} {
             return
@@ -339,7 +339,7 @@ snit::type ada {
         }
 
         # NEXT, the input is complete
-        ada Complete
+        dam Complete
     }
 
     # guard text
@@ -368,7 +368,7 @@ snit::type ada {
     # Complete
     #
     # The inputs are complete; enters them into GRAM, and
-    # saves an ADA report.
+    # saves an DAM report.
 
     typemethod Complete {} {
         # FIRST, do special handling for situations
@@ -387,7 +387,7 @@ snit::type ada {
         rdb eval {
             SELECT id, itype, etype, n, f, g, c, slope, climit, days,
                    cause, p, q
-            FROM ada_inputs
+            FROM dam_inputs
         } {
             incr got($itype)
 
@@ -435,23 +435,23 @@ snit::type ada {
                                -cause $cause]
             }
 
-            # NEXT, add the inputId to the ada_inputs
+            # NEXT, add the inputId to the dam_inputs
             set inputId "$input(driver).$dinput"
 
             rdb eval {
-                UPDATE ada_inputs
+                UPDATE dam_inputs
                 SET input = $inputId
                 WHERE id = $id
             }
         }
 
-        # NEXT, produce the ADA report for the console/workstation
+        # NEXT, produce the DAM report for the console/workstation
         # clients.
 
         # Add the gain settings:
 
         if {$got(sat)} {
-            set satgain  [parmdb get ada.$input(rule).satgain]
+            set satgain  [parmdb get dam.$input(rule).satgain]
 
             if {$satgain == 1.0} {
                 append input(header) \
@@ -465,7 +465,7 @@ snit::type ada {
         }
 
         if {$got(coop)} {
-            set coopgain [parmdb get ada.$input(rule).coopgain]
+            set coopgain [parmdb get dam.$input(rule).coopgain]
 
             if {$coopgain == 1.0} {
                 append input(header) \
@@ -496,7 +496,7 @@ snit::type ada {
                        format('%g days',days),
                        format('%4.2f',p),
                        format('%4.2f',q)
-                FROM ada_inputs
+                FROM dam_inputs
                 WHERE itype = 'sat' AND etype = 'LEVEL'
             } -labels {
                 "Input" "Nbhood" "Group" "Con" "Cause" "Limit" "Days" 
@@ -519,7 +519,7 @@ snit::type ada {
                        format('%6.2f (%s)',slope,qmag('name',slope)),
                        format('%4.2f',p),
                        format('%4.2f',q)
-                FROM ada_inputs
+                FROM dam_inputs
                 WHERE itype = 'sat' AND etype = 'SLOPE'
             } -labels {
                 "Input" "Nbhood" "Group" "Con" "Cause" "Slope"
@@ -543,7 +543,7 @@ snit::type ada {
                        format('%g days (%s)',days),
                        format('%4.2f',p),
                        format('%4.2f',q)
-                FROM ada_inputs
+                FROM dam_inputs
                 WHERE itype = 'coop' AND etype = 'LEVEL'
             } -labels {
                 "Input" "Nbhood" "Civ" "Frc" "Cause" "Limit" "Days" 
@@ -566,7 +566,7 @@ snit::type ada {
                        format('%6.2f (%s)',slope,qmag('name',slope)),
                        format('%4.2f',p),
                        format('%4.2f',q)
-                FROM ada_inputs
+                FROM dam_inputs
                 WHERE itype = 'coop' AND etype = 'SLOPE'
             } -labels {
                 "Input" "Nbhood" "Civ" "Frc" "Cause" "Slope"
@@ -580,7 +580,7 @@ snit::type ada {
 
         # Save the report to the console/workstation
         report save                  \
-            -type    ADA             \
+            -type    DAM             \
             -subtype $input(ruleset) \
             -meta1   $input(rule)    \
             -title   $input(title)   \
@@ -681,11 +681,11 @@ snit::type ada {
 
     proc SatLevel {n f c limit days cause p q} {
         # NEXT, update the level per the input gain.
-        let limit {[parmdb get ada.$input(rule).satgain] * [qmag value $limit]}
+        let limit {[parmdb get dam.$input(rule).satgain] * [qmag value $limit]}
 
-        # NEXT, add this input to the ada_inputs
+        # NEXT, add this input to the dam_inputs
         rdb eval {
-            INSERT INTO ada_inputs(
+            INSERT INTO dam_inputs(
                 itype,etype,n,f,c,cause,climit,days,p,q
             ) VALUES(
                 'sat',
@@ -752,11 +752,11 @@ snit::type ada {
 
     proc SatSlope {n f c slope cause p q} {
         # FIRST, update the slope per the input gain.
-        let slope {[parmdb get ada.$input(rule).satgain] * [qmag value $slope]}
+        let slope {[parmdb get dam.$input(rule).satgain] * [qmag value $slope]}
 
-        # NEXT, add this input to the ada_inputs
+        # NEXT, add this input to the dam_inputs
         rdb eval {
-            INSERT INTO ada_inputs(
+            INSERT INTO dam_inputs(
                 itype,etype,n,f,c,cause,slope,p,q
             ) VALUES(
                 'sat',
@@ -870,12 +870,12 @@ snit::type ada {
     proc CoopLevel {n f g limit days cause p q} {
         # NEXT, update the level per the input gain
         let limit {
-            [parmdb get ada.$input(rule).coopgain] * [qmag value $limit]
+            [parmdb get dam.$input(rule).coopgain] * [qmag value $limit]
         }
 
-        # NEXT, add this input to the ada_inputs
+        # NEXT, add this input to the dam_inputs
         rdb eval {
-            INSERT INTO ada_inputs(
+            INSERT INTO dam_inputs(
                 itype,etype,n,f,g,cause,climit,days,p,q
             ) VALUES(
                 'coop',
@@ -947,11 +947,11 @@ snit::type ada {
     proc CoopSlope {n f g slope cause p q} {
         # FIRST, update the slope per the input gain.
         let slope {
-            [parmdb get ada.$input(rule).coopgain] * [qmag value $slope]
+            [parmdb get dam.$input(rule).coopgain] * [qmag value $slope]
         }
 
         rdb eval {
-            INSERT INTO ada_inputs(
+            INSERT INTO dam_inputs(
                 itype,etype,n,f,g,cause,slope,p,q
             ) VALUES(
                 'coop',
@@ -1018,7 +1018,7 @@ snit::type ada {
     proc LogFiring {} {
         # FIRST, if the logline hasn't been logged, log it.
         if {$input(logline) ne ""} {
-            log normal ada $input(logline)
+            log normal dam $input(logline)
             set input(logline) ""
         }
     }
@@ -1058,4 +1058,8 @@ snit::type ada {
         return $opts
     }
 }
+
+
+
+
 

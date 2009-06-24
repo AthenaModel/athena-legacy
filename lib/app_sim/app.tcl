@@ -112,7 +112,7 @@ snit::type app {
         cif       init
         order     init
         report    init
-        ada       init
+        dam       init
         demog     init
         nbhood    init
         nbrel     init
@@ -391,6 +391,7 @@ proc bgerror {msg} {
         please see the log for details.
     }
 }
+
 
 
 

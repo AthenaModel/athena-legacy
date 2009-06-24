@@ -54,7 +54,7 @@ snit::type actsit_rules {
     typemethod {monitor} {sit} {
         set ruleset [$sit get stype]
 
-        if {![parmdb get ada.$ruleset.active]} {
+        if {![parmdb get dam.$ruleset.active]} {
             log warning actr \
                 "monitor $ruleset: ruleset has been deactivated"
             return
@@ -84,9 +84,9 @@ snit::type actsit_rules {
     # group "g"  -doer, for the force activity situations.
 
     proc satslope {cov f args} {
-        set n       [ada rget -n]
-        set g       [ada rget -doer]
-        set nomCov  [parmdb get ada.actsit.nominalCoverage]
+        set n       [dam rget -n]
+        set g       [dam rget -doer]
+        set nomCov  [parmdb get dam.actsit.nominalCoverage]
 
         assert {[llength $args] != 0 && [llength $args] % 3 == 0}
 
@@ -107,7 +107,7 @@ snit::type actsit_rules {
             lappend result $con $slope
         }
 
-        ada sat slope -f $f {*}$result
+        dam sat slope -f $f {*}$result
     }
 
 
@@ -122,10 +122,10 @@ snit::type actsit_rules {
     # group "g"  -doer, for the force activity situations.
 
     proc coopslope {f cov rmf slope} {
-        set ruleset [ada get ruleset]
-        set n       [ada rget -n]
-        set g       [ada rget -doer]
-        set nomCov  [parmdb get ada.actsit.nominalCoverage]
+        set ruleset [dam get ruleset]
+        set n       [dam rget -n]
+        set g       [dam rget -doer]
+        set nomCov  [parmdb get dam.actsit.nominalCoverage]
 
         set rel [rel $n $f $g]
 
@@ -139,7 +139,7 @@ snit::type actsit_rules {
             set slope 0.0
         }
         
-        ada coop slope -f $f -- $slope
+        dam coop slope -f $f -- $slope
     }
 
 
@@ -148,7 +148,7 @@ snit::type actsit_rules {
     # Adds a detail to the input details
    
     proc detail {label value} {
-        ada details [format "%-21s %s\n" $label $value]
+        dam details [format "%-21s %s\n" $label $value]
     }
 
     #===================================================================
@@ -177,7 +177,7 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
 
-        ada ruleset PRESENCE [$sit get driver]                     \
+        dam ruleset PRESENCE [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -185,10 +185,10 @@ snit::type actsit_rules {
         
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule PRESENCE-1-1 {
+        dam rule PRESENCE-1-1 {
             $cov > 0.0
         } {
-            ada guard [format %.1f $cov]
+            dam guard [format %.1f $cov]
 
             # While there is a PRESENCE situation
             #     with COVERAGE > 0.0
@@ -204,16 +204,16 @@ snit::type actsit_rules {
 
         }
 
-        ada rule PRESENCE-2-1 {
+        dam rule PRESENCE-2-1 {
             $cov == 0.0
         } { 
-            ada guard
+            dam guard
             # While there is a PRESENCE situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT QOL
-            ada coop clear
+            dam sat clear AUT SFT QOL
+            dam coop clear
         }
     }
 
@@ -244,7 +244,7 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
 
-        ada ruleset CHKPOINT [$sit get driver]                     \
+        dam ruleset CHKPOINT [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -252,10 +252,10 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule CHKPOINT-1-1 {
+        dam rule CHKPOINT-1-1 {
             $cov > 0.0
         } {
-            ada guard [format %.1f $cov]
+            dam guard [format %.1f $cov]
 
             # While there is a CHKPOINT situation
             #     with COVERAGE > 0.0
@@ -285,16 +285,16 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule CHKPOINT-2-1 {
+        dam rule CHKPOINT-2-1 {
             $cov == 0.0 
         } {
-            ada guard
+            dam guard
             # While there is a CHKPOINT situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
+            dam sat clear AUT SFT CUL QOL
+            dam coop clear
         }
     }
 
@@ -320,7 +320,7 @@ snit::type actsit_rules {
         set stops        0
         set mitigating   0
 
-        ada ruleset CMOCONST [$sit get driver]                     \
+        dam ruleset CMOCONST [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -328,7 +328,7 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule CMOCONST-1-1 {
+        dam rule CMOCONST-1-1 {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -339,7 +339,7 @@ snit::type actsit_rules {
                 set stops 1
             }
 
-            ada guard [format "%.1f %s" $cov $stops]
+            dam guard [format "%.1f %s" $cov $stops]
 
             # While there is a CMOCONST situation
             #     with COVERAGE > 0.0
@@ -355,16 +355,16 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule CMOCONST-2-1 {
+        dam rule CMOCONST-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a CMOCONST situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
+            dam sat clear AUT SFT CUL QOL
+            dam coop clear
         }
     }
 
@@ -388,7 +388,7 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
 
-        ada ruleset CMODEV [$sit get driver]                   \
+        dam ruleset CMODEV [$sit get driver]                   \
             -sit       $sit                                      \
             -doer      $g                                        \
             -n         $n                                        \
@@ -396,10 +396,10 @@ snit::type actsit_rules {
         
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule CMODEV-1-1 {
+        dam rule CMODEV-1-1 {
             $cov > 0.0
         } {
-            ada guard [format %.1f $cov]
+            dam guard [format %.1f $cov]
 
             # While there is a CMODEV situation
             #     with COVERAGE > 0.0
@@ -415,16 +415,16 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule CMODEV-2-1 {
+        dam rule CMODEV-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a CMODEV situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
+            dam sat clear AUT SFT CUL QOL
+            dam coop clear
         }
     }
 
@@ -450,7 +450,7 @@ snit::type actsit_rules {
         set stops        0
         set mitigating   0
 
-        ada ruleset CMOEDU [$sit get driver]                     \
+        dam ruleset CMOEDU [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -458,7 +458,7 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule CMOEDU-1-1 {
+        dam rule CMOEDU-1-1 {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -469,7 +469,7 @@ snit::type actsit_rules {
                 set stops 1
             }
 
-            ada guard [format "%.1f %s" $cov $stops]
+            dam guard [format "%.1f %s" $cov $stops]
 
             # While there is a CMOEDU situation
             #     with COVERAGE > 0.0
@@ -485,16 +485,16 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule CMOEDU-2-1 {
+        dam rule CMOEDU-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a CMOEDU situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
+            dam sat clear AUT SFT CUL QOL
+            dam coop clear
         }
     }
 
@@ -520,7 +520,7 @@ snit::type actsit_rules {
         set stops        0
         set mitigating   0
 
-        ada ruleset CMOEMP [$sit get driver]                       \
+        dam ruleset CMOEMP [$sit get driver]                       \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -528,7 +528,7 @@ snit::type actsit_rules {
        
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule CMOEMP-1-1 {
+        dam rule CMOEMP-1-1 {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -539,7 +539,7 @@ snit::type actsit_rules {
                 set stops 1
             }
 
-            ada guard [format "%.1f %s" $cov $stops]
+            dam guard [format "%.1f %s" $cov $stops]
 
             # While there is a CMOEMP situation
             #     with COVERAGE > 0.0
@@ -555,16 +555,16 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule CMOEMP-2-1 {
+        dam rule CMOEMP-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a CMOEMP situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
+            dam sat clear AUT SFT CUL QOL
+            dam coop clear
          }
     }
 
@@ -590,7 +590,7 @@ snit::type actsit_rules {
         set stops        0
         set mitigating   0
 
-        ada ruleset CMOIND [$sit get driver]                     \
+        dam ruleset CMOIND [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -598,7 +598,7 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule CMOIND-1-1 {
+        dam rule CMOIND-1-1 {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -609,7 +609,7 @@ snit::type actsit_rules {
                 set stops 1
             }
 
-            ada guard [format "%.1f %s" $cov $stops]
+            dam guard [format "%.1f %s" $cov $stops]
 
             # While there is a CMOIND situation
             #     with COVERAGE > 0.0
@@ -625,16 +625,16 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule CMOIND-2-1 {
+        dam rule CMOIND-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a CMOIND situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
+            dam sat clear AUT SFT CUL QOL
+            dam coop clear
         }
     }
 
@@ -660,7 +660,7 @@ snit::type actsit_rules {
         set stops        0
         set mitigating   0
 
-        ada ruleset CMOINF [$sit get driver]                       \
+        dam ruleset CMOINF [$sit get driver]                       \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -668,7 +668,7 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule CMOINF-1-1 {
+        dam rule CMOINF-1-1 {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -679,7 +679,7 @@ snit::type actsit_rules {
                 set stops 1
             }
 
-            ada guard [format "%.1f %s" $cov $stops]
+            dam guard [format "%.1f %s" $cov $stops]
 
             # While there is a CMOINF situation
             #     with COVERAGE > 0.0
@@ -695,16 +695,16 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule CMOINF-2-1 {
+        dam rule CMOINF-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a CMOINF situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
+            dam sat clear AUT SFT CUL QOL
+            dam coop clear
         }
     }
 
@@ -728,7 +728,7 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
 
-        ada ruleset CMOLAW [$sit get driver]                     \
+        dam ruleset CMOLAW [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -736,10 +736,10 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-       ada rule CMOLAW-1-1 {
+       dam rule CMOLAW-1-1 {
             $cov > 0.0
         } {
-            ada guard [format %.1f $cov]
+            dam guard [format %.1f $cov]
 
             # While there is a CMOLAW situation
             #     with COVERAGE > 0.0
@@ -753,16 +753,16 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule CMOLAW-2-1 {
+        dam rule CMOLAW-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a CMOLAW situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT
-            ada coop clear
+            dam sat clear AUT SFT
+            dam coop clear
         }
     }
 
@@ -788,7 +788,7 @@ snit::type actsit_rules {
         set stops        0
         set mitigating   0
 
-        ada ruleset CMOMED [$sit get driver]                       \
+        dam ruleset CMOMED [$sit get driver]                       \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -796,7 +796,7 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule CMOMED-1-1 {
+        dam rule CMOMED-1-1 {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -807,7 +807,7 @@ snit::type actsit_rules {
                 set stops 1
             }
 
-            ada guard [format "%.1f %s" $cov $stops]
+            dam guard [format "%.1f %s" $cov $stops]
 
             # While there is a CMOMED situation
             #     with COVERAGE > 0.0
@@ -823,16 +823,16 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule CMOMED-2-1 {
+        dam rule CMOMED-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a CMOMED situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
+            dam sat clear AUT SFT CUL QOL
+            dam coop clear
         }
     }
 
@@ -858,7 +858,7 @@ snit::type actsit_rules {
         set stops        0
         set mitigating   0
 
-        ada ruleset CMOOTHER [$sit get driver]                     \
+        dam ruleset CMOOTHER [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -866,7 +866,7 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule CMOOTHER-1-1 {
+        dam rule CMOOTHER-1-1 {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -877,7 +877,7 @@ snit::type actsit_rules {
                 set stops 1
             }
 
-            ada guard [format "%.1f %s" $cov $stops]
+            dam guard [format "%.1f %s" $cov $stops]
 
             # While there is a CMOOTHER situation
             #     with COVERAGE > 0.0
@@ -893,16 +893,16 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule CMOOTHER-2-1 {
+        dam rule CMOOTHER-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a CMOOTHER situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
+            dam sat clear AUT SFT CUL QOL
+            dam coop clear
         }
     }
 
@@ -927,7 +927,7 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
 
-        ada ruleset COERCION [$sit get driver]                     \
+        dam ruleset COERCION [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -935,10 +935,10 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule COERCION-1-1 {
+        dam rule COERCION-1-1 {
             $cov > 0.0
         } {
-            ada guard [format %.1f $cov]
+            dam guard [format %.1f $cov]
 
             # While there is a COERCION situation
             #     with COVERAGE > 0.0
@@ -954,16 +954,16 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule COERCION-2-1 {
+        dam rule COERCION-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a COERCION situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
+            dam sat clear AUT SFT CUL QOL
+            dam coop clear
         }
     }
 
@@ -988,7 +988,7 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
 
-        ada ruleset CRIMINAL [$sit get driver]                     \
+        dam ruleset CRIMINAL [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -996,10 +996,10 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule CRIMINAL-1-1 {
+        dam rule CRIMINAL-1-1 {
             $cov > 0.0
         } {
-            ada guard [format %.1f $cov]
+            dam guard [format %.1f $cov]
 
             # While there is a CRIMINAL situation
             #     with COVERAGE > 0.0
@@ -1012,15 +1012,15 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule CRIMINAL-2-1 {
+        dam rule CRIMINAL-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a CRIMINAL situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT QOL
+            dam sat clear AUT SFT QOL
         }
     }
 
@@ -1044,7 +1044,7 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
 
-        ada ruleset CURFEW [$sit get driver]                       \
+        dam ruleset CURFEW [$sit get driver]                       \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -1052,10 +1052,10 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule CURFEW-1-1 {
+        dam rule CURFEW-1-1 {
             $cov > 0.0
         } {
-            ada guard [format %.1f $cov]
+            dam guard [format %.1f $cov]
 
             # While there is a CURFEW situation
             #     with COVERAGE > 0.0
@@ -1086,16 +1086,16 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule CURFEW-2-1 {
+        dam rule CURFEW-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a CURFEW situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
+            dam sat clear AUT SFT CUL QOL
+            dam coop clear
         }
     }
 
@@ -1119,7 +1119,7 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
 
-        ada ruleset GUARD [$sit get driver]                        \
+        dam ruleset GUARD [$sit get driver]                        \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -1127,10 +1127,10 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule GUARD-1-1 {
+        dam rule GUARD-1-1 {
             $cov > 0.0
         } {
-            ada guard [format %.1f $cov]
+            dam guard [format %.1f $cov]
 
             # While there is a GUARD situation
             #     with COVERAGE > 0.0
@@ -1146,16 +1146,16 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule GUARD-2-1 {
+        dam rule GUARD-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a GUARD situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
+            dam sat clear AUT SFT CUL QOL
+            dam coop clear
         }
     }
 
@@ -1180,7 +1180,7 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
 
-        ada ruleset PATROL [$sit get driver]                       \
+        dam ruleset PATROL [$sit get driver]                       \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -1188,10 +1188,10 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule PATROL-1-1 {
+        dam rule PATROL-1-1 {
             $cov > 0.0
         } {
-            ada guard [format %.1f $cov]
+            dam guard [format %.1f $cov]
 
             # While there is a PATROL situation
             #     with COVERAGE > 0.0
@@ -1207,16 +1207,16 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule PATROL-2-1 {
+        dam rule PATROL-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a PATROL situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
+            dam sat clear AUT SFT CUL QOL
+            dam coop clear
         }
     }
 
@@ -1240,7 +1240,7 @@ snit::type actsit_rules {
         set n   [$sit get n]
         set cov [$sit get coverage]
         
-        ada ruleset PSYOP [$sit get driver]                      \
+        dam ruleset PSYOP [$sit get driver]                      \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -1248,10 +1248,10 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule PSYOP-1-1 {
+        dam rule PSYOP-1-1 {
             $cov > 0.0
         } {
-            ada guard [format %.1f $cov]
+            dam guard [format %.1f $cov]
 
             # While there is a PSYOP situation
             #     with COVERAGE > 0.0
@@ -1280,16 +1280,16 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule PSYOP-2-1 {
+        dam rule PSYOP-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a PSYOP situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
-            ada coop clear
+            dam sat clear AUT SFT CUL QOL
+            dam coop clear
         }
     }
 
@@ -1322,7 +1322,7 @@ snit::type actsit_rules {
         set cov          [$sit get coverage]
         set stops        0
  
-        ada ruleset ORGCONST [$sit get driver]                     \
+        dam ruleset ORGCONST [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -1330,7 +1330,7 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule ORGCONST-1-1 {
+        dam rule ORGCONST-1-1 {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -1347,7 +1347,7 @@ snit::type actsit_rules {
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            ada guard [format "%.1f %d" $cov $stops]
+            dam guard [format "%.1f %d" $cov $stops]
 
             # While there is a ORGCONST situation
             #     with COVERAGE > 0.0
@@ -1361,15 +1361,15 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule ORGCONST-2-1 {
+        dam rule ORGCONST-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a ORGCONST situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
+            dam sat clear AUT SFT CUL QOL
         }
     }
 
@@ -1394,7 +1394,7 @@ snit::type actsit_rules {
         set cov          [$sit get coverage]
         set stops        0
 
-        ada ruleset ORGEDU [$sit get driver]                       \
+        dam ruleset ORGEDU [$sit get driver]                       \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -1402,7 +1402,7 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule ORGEDU-1-1 {
+        dam rule ORGEDU-1-1 {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -1419,7 +1419,7 @@ snit::type actsit_rules {
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            ada guard [format "%.1f %d" $cov $stops]
+            dam guard [format "%.1f %d" $cov $stops]
 
             # While there is a ORGEDU situation
             #     with COVERAGE > 0.0
@@ -1433,15 +1433,15 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule ORGEDU-2-1 {
+        dam rule ORGEDU-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a ORGEDU situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
+            dam sat clear AUT SFT CUL QOL
         }
     }
 
@@ -1466,7 +1466,7 @@ snit::type actsit_rules {
         set cov          [$sit get coverage]
         set stops        0
 
-        ada ruleset ORGEMP [$sit get driver]                       \
+        dam ruleset ORGEMP [$sit get driver]                       \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -1474,7 +1474,7 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule ORGEMP-1-1 {
+        dam rule ORGEMP-1-1 {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -1491,7 +1491,7 @@ snit::type actsit_rules {
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
             
-            ada guard [format "%.1f %d" $cov $stops]
+            dam guard [format "%.1f %d" $cov $stops]
 
             # While there is a ORGEMP situation
             #     with COVERAGE > 0.0
@@ -1505,15 +1505,15 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule ORGEMP-2-1 {
+        dam rule ORGEMP-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a ORGEMP situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
+            dam sat clear AUT SFT CUL QOL
         }
     }
 
@@ -1538,7 +1538,7 @@ snit::type actsit_rules {
         set cov          [$sit get coverage]
         set stops        0
 
-        ada ruleset ORGIND [$sit get driver]                     \
+        dam ruleset ORGIND [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -1546,7 +1546,7 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule ORGIND-1-1 {
+        dam rule ORGIND-1-1 {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -1563,7 +1563,7 @@ snit::type actsit_rules {
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            ada guard [format "%.1f %d" $cov $stops]
+            dam guard [format "%.1f %d" $cov $stops]
 
             # While there is a ORGIND situation
             #     with COVERAGE > 0.0
@@ -1577,15 +1577,15 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule ORGIND-2-1 {
+        dam rule ORGIND-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a ORGIND situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
+            dam sat clear AUT SFT CUL QOL
         }
     }
 
@@ -1610,7 +1610,7 @@ snit::type actsit_rules {
         set cov          [$sit get coverage]
         set stops        0
 
-        ada ruleset ORGINF [$sit get driver]                     \
+        dam ruleset ORGINF [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -1618,7 +1618,7 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule ORGINF-1-1 {
+        dam rule ORGINF-1-1 {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -1635,7 +1635,7 @@ snit::type actsit_rules {
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            ada guard [format "%.1f %d" $cov $stops]
+            dam guard [format "%.1f %d" $cov $stops]
 
             # While there is a ORGINF situation
             #     with COVERAGE > 0.0
@@ -1649,15 +1649,15 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule ORGINF-2-1 {
+        dam rule ORGINF-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a ORGINF situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
+            dam sat clear AUT SFT CUL QOL
         }
     }
 
@@ -1682,7 +1682,7 @@ snit::type actsit_rules {
         set cov          [$sit get coverage]
         set stops        0
 
-        ada ruleset ORGMED [$sit get driver]                     \
+        dam ruleset ORGMED [$sit get driver]                     \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -1690,7 +1690,7 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule ORGMED-1-1 {
+        dam rule ORGMED-1-1 {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -1707,7 +1707,7 @@ snit::type actsit_rules {
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            ada guard [format "%.1f %d" $cov $stops]
+            dam guard [format "%.1f %d" $cov $stops]
 
             # While there is a ORGMED situation
             #     with COVERAGE > 0.0
@@ -1721,15 +1721,15 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule ORGMED-2-1 {
+        dam rule ORGMED-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a ORGMED situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
+            dam sat clear AUT SFT CUL QOL
         }
     }
 
@@ -1754,7 +1754,7 @@ snit::type actsit_rules {
         set cov          [$sit get coverage]
         set stops        0
 
-        ada ruleset ORGOTHER [$sit get driver]                   \
+        dam ruleset ORGOTHER [$sit get driver]                   \
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
@@ -1762,7 +1762,7 @@ snit::type actsit_rules {
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
-        ada rule ORGOTHER-1-1 {
+        dam rule ORGOTHER-1-1 {
             $cov > 0.0
         } {
             # +1 stops if g is mitigating a situation for any f
@@ -1779,7 +1779,7 @@ snit::type actsit_rules {
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            ada guard [format "%.1f %d" $cov $stops]
+            dam guard [format "%.1f %d" $cov $stops]
 
             # While there is a ORGOTHER situation
             #     with COVERAGE > 0.0
@@ -1793,15 +1793,15 @@ snit::type actsit_rules {
             }
         }
 
-        ada rule ORGOTHER-2-1 {
+        dam rule ORGOTHER-2-1 {
             $cov == 0.0
         } {
-            ada guard
+            dam guard
             # While there is a ORGOTHER situation
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            ada sat clear AUT SFT CUL QOL
+            dam sat clear AUT SFT CUL QOL
         }
     }
 
@@ -1840,7 +1840,7 @@ snit::type actsit_rules {
     proc mitigates {ruleset nbhood} {
         # FIRST, get the mitigated ensits and form them into an 
         # "IN" list.  If none, just return immediately.
-        set ensits [parmdb get ada.$ruleset.mitigates]
+        set ensits [parmdb get dam.$ruleset.mitigates]
 
         if {[llength $ensits] == 0} {
             return {} 
@@ -1935,6 +1935,8 @@ snit::type actsit_rules {
         return [qsat name $sat]
     }
 }
+
+
 
 
 

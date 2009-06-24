@@ -1,18 +1,18 @@
 ------------------------------------------------------------------------
 -- TITLE:
---    ada_rules_temp.sql
+--    dam_rules_temp.sql
 --
 -- AUTHOR:
 --    Will Duquette
 --
 -- DESCRIPTION:
---    Temporary SQL Schema for ada_rules(sim).
+--    Temporary SQL Schema for dam(sim).
 --
 ------------------------------------------------------------------------
 
 
--- Temporary Table: ADA Inputs
-CREATE TEMP TABLE ada_inputs (
+-- Temporary Table: DAM Inputs
+CREATE TEMP TABLE dam_inputs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     input,            -- GRAM input ID
     itype,            -- sat, coop
@@ -28,3 +28,4 @@ CREATE TEMP TABLE ada_inputs (
     p,                -- Near effects multiplier
     q                 -- Far effects multiplier
 );
+

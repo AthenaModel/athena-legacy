@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(n) ADA (Athena Driver Assessment) Module, 
+#    athena_sim(n) DAM (Athena Driver Assessment) Module, 
 #    Environmental Situation Rule Sets
 #
 #    ::ensit_rules is a singleton object implemented as a snit::type.  To
@@ -152,7 +152,7 @@ snit::type ensit_rules {
         # FIRST, check requirements
         require {[info commands log]  ne ""} "log is not defined."
 
-        # NEXT, ADA Rules is up.
+        # NEXT, DAM Rules is up.
         log normal envr "Initialized"
     }
 
@@ -166,7 +166,7 @@ snit::type ensit_rules {
     # Returns 1 if the result is active, and 0 otherwise.
 
     typemethod isactive {ruleset} {
-        return [parmdb get ada.$ruleset.active]
+        return [parmdb get dam.$ruleset.active]
     }
 
     # setup calltype sit
@@ -190,7 +190,7 @@ snit::type ensit_rules {
             set g      [$sit get resolver]
         }
 
-        ada ruleset $ruleset $driver    \
+        dam ruleset $ruleset $driver    \
             -sit       $sit             \
             -doer      $g               \
             -location  $location        \
@@ -299,7 +299,7 @@ snit::type ensit_rules {
         # If there is a new BADFOOD situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule BADFOOD-1-1 {
+        dam rule BADFOOD-1-1 {
             1
         } {
             satlevel $sit   \
@@ -320,10 +320,10 @@ snit::type ensit_rules {
         # While there is a BADFOOD situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule BADFOOD-2-1 {
+        dam rule BADFOOD-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit \
                 AUT L-    \
@@ -335,12 +335,12 @@ snit::type ensit_rules {
         # When there is no longer a BADFOOD situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule BADFOOD-2-2 {
+        dam rule BADFOOD-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada guard
+            dam guard
 
-            ada sat clear AUT QOL
+            dam sat clear AUT QOL
         }
     }
 
@@ -363,7 +363,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule BADFOOD-3-1 {
+        dam rule BADFOOD-3-1 {
             !$gIsLocal
         } {
             satlevel $sit    \
@@ -377,7 +377,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule BADFOOD-3-2 {
+        dam rule BADFOOD-3-2 {
             $gIsLocal
         } {
             satlevel $sit    \
@@ -405,7 +405,7 @@ snit::type ensit_rules {
         # If there is a new BADWATER situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule BADWATER-1-1 {
+        dam rule BADWATER-1-1 {
             1
         } {
             satlevel $sit \
@@ -426,10 +426,10 @@ snit::type ensit_rules {
         # While there is a BADWATER situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule BADWATER-2-1 {
+        dam rule BADWATER-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit  \
                 AUT L-     \
@@ -441,12 +441,12 @@ snit::type ensit_rules {
         # When there is no longer a BADWATER situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule BADWATER-2-2 {
+        dam rule BADWATER-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada guard
+            dam guard
 
-            ada sat clear AUT QOL
+            dam sat clear AUT QOL
         }
     }
 
@@ -469,7 +469,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule BADWATER-3-1 {
+        dam rule BADWATER-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
@@ -483,7 +483,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule BADWATER-3-2 {
+        dam rule BADWATER-3-2 {
             $gIsLocal
         } {
             satlevel $sit \
@@ -512,7 +512,7 @@ snit::type ensit_rules {
         # If there is a new COMMOUT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule COMMOUT-1-1 {
+        dam rule COMMOUT-1-1 {
             1
         } {
             satlevel $sit   \
@@ -534,10 +534,10 @@ snit::type ensit_rules {
         # While there is a COMMOUT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule COMMOUT-2-1 {
+        dam rule COMMOUT-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit  \
                 AUT M-     \
@@ -550,10 +550,10 @@ snit::type ensit_rules {
         # When there is no longer a COMMOUT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule COMMOUT-2-2 {
+        dam rule COMMOUT-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT SFT QOL
+            dam sat clear AUT SFT QOL
         }
     }
 
@@ -576,7 +576,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule COMMOUT-3-1 {
+        dam rule COMMOUT-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
@@ -591,7 +591,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule COMMOUT-3-2 {
+        dam rule COMMOUT-3-2 {
             $gIsLocal
         } {
             satlevel $sit   \
@@ -620,7 +620,7 @@ snit::type ensit_rules {
         # If there is a new DISASTER situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DISASTER-1-1 {
+        dam rule DISASTER-1-1 {
             1
         } {
             satlevel $sit     \
@@ -641,10 +641,10 @@ snit::type ensit_rules {
         # While there is a DISASTER situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DISASTER-2-1 {
+        dam rule DISASTER-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit  \
                 AUT L-     \
@@ -657,10 +657,10 @@ snit::type ensit_rules {
         # When there is no longer a DISASTER situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DISASTER-2-2 {
+        dam rule DISASTER-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT SFT QOL
+            dam sat clear AUT SFT QOL
         }
     }
 
@@ -683,7 +683,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DISASTER-3-1 {
+        dam rule DISASTER-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
@@ -698,7 +698,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DISASTER-3-2 {
+        dam rule DISASTER-3-2 {
             $gIsLocal
         } {
             satlevel $sit   \
@@ -727,7 +727,7 @@ snit::type ensit_rules {
         # If there is a new DISEASE situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DISEASE-1-1 {
+        dam rule DISEASE-1-1 {
             1
         } {
             satlevel $sit  \
@@ -749,10 +749,10 @@ snit::type ensit_rules {
         # While there is a DISEASE situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DISEASE-2-1 {
+        dam rule DISEASE-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit  \
                 AUT S-     \
@@ -765,10 +765,10 @@ snit::type ensit_rules {
         # When there is no longer a DISEASE situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DISEASE-2-2 {
+        dam rule DISEASE-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT SFT QOL
+            dam sat clear AUT SFT QOL
         }
     }
 
@@ -791,7 +791,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DISEASE-3-1 {
+        dam rule DISEASE-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
@@ -806,7 +806,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DISEASE-3-2 {
+        dam rule DISEASE-3-2 {
             $gIsLocal
         } {
             satlevel $sit   \
@@ -836,7 +836,7 @@ snit::type ensit_rules {
         # If there is a new DMGCULT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DMGCULT-1-1 {
+        dam rule DMGCULT-1-1 {
             1
         } {
             satlevel $sit   \
@@ -860,10 +860,10 @@ snit::type ensit_rules {
         # While there is a DMGCULT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DMGCULT-2-1 {
+        dam rule DMGCULT-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit  \
                 AUT XS-    \
@@ -877,10 +877,10 @@ snit::type ensit_rules {
         # When there is no longer a DMGCULT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DMGCULT-2-2 {
+        dam rule DMGCULT-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT SFT CUL QOL
+            dam sat clear AUT SFT CUL QOL
         }
     }
 
@@ -903,7 +903,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DMGCULT-3-1 {
+        dam rule DMGCULT-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
@@ -919,7 +919,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DMGCULT-3-2 {
+        dam rule DMGCULT-3-2 {
             $gIsLocal
         } {
             satlevel $sit   \
@@ -950,7 +950,7 @@ snit::type ensit_rules {
         # If there is a new DMGSACRED situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DMGSACRED-1-1 {
+        dam rule DMGSACRED-1-1 {
             1
         } {
             satlevel $sit   \
@@ -974,10 +974,10 @@ snit::type ensit_rules {
         # While there is a DMGSACRED situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DMGSACRED-2-1 {
+        dam rule DMGSACRED-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit  \
                 AUT S-     \
@@ -991,10 +991,10 @@ snit::type ensit_rules {
         # When there is no longer a DMGSACRED situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DMGSACRED-2-2 {
+        dam rule DMGSACRED-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT SFT CUL QOL
+            dam sat clear AUT SFT CUL QOL
         }
     }
 
@@ -1017,7 +1017,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DMGSACRED-3-1 {
+        dam rule DMGSACRED-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
@@ -1033,7 +1033,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule DMGSACRED-3-2 {
+        dam rule DMGSACRED-3-2 {
             $gIsLocal
         } {
             satlevel $sit   \
@@ -1063,7 +1063,7 @@ snit::type ensit_rules {
         # If there is a new EPIDEMIC situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule EPIDEMIC-1-1 {
+        dam rule EPIDEMIC-1-1 {
             1
         } {
             satlevel $sit     \
@@ -1085,10 +1085,10 @@ snit::type ensit_rules {
         # While there is a EPIDEMIC situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule EPIDEMIC-2-1 {
+        dam rule EPIDEMIC-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit  \
                 AUT L-     \
@@ -1101,10 +1101,10 @@ snit::type ensit_rules {
         # When there is no longer an EPIDEMIC situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule EPIDEMIC-2-2 {
+        dam rule EPIDEMIC-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT SFT QOL
+            dam sat clear AUT SFT QOL
         }
     }
 
@@ -1127,7 +1127,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule EPIDEMIC-3-1 {
+        dam rule EPIDEMIC-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
@@ -1142,7 +1142,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule EPIDEMIC-3-2 {
+        dam rule EPIDEMIC-3-2 {
             $gIsLocal
         } {
             satlevel $sit   \
@@ -1169,10 +1169,10 @@ snit::type ensit_rules {
         # While there is a FOODSHRT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule FOODSHRT-1-1 {
+        dam rule FOODSHRT-1-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit \
                 AUT M-    \
@@ -1184,10 +1184,10 @@ snit::type ensit_rules {
         # When there is no longer a FOODSHRT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule FOODSHRT-1-2 {
+        dam rule FOODSHRT-1-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT QOL
+            dam sat clear AUT QOL
         }
     }
 
@@ -1210,7 +1210,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule FOODSHRT-2-1 {
+        dam rule FOODSHRT-2-1 {
             !$gIsLocal
         } {
             satlevel $sit  \
@@ -1224,7 +1224,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule FOODSHRT-2-2 {
+        dam rule FOODSHRT-2-2 {
             $gIsLocal
         } {
             satlevel $sit \
@@ -1252,7 +1252,7 @@ snit::type ensit_rules {
         # If there is a new FUELSHRT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule FUELSHRT-1-1 {
+        dam rule FUELSHRT-1-1 {
             1
         } {
             satlevel $sit \
@@ -1274,10 +1274,10 @@ snit::type ensit_rules {
         # While there is a FUELSHRT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule FUELSHRT-2-1 {
+        dam rule FUELSHRT-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit  \
                 AUT M-     \
@@ -1290,10 +1290,10 @@ snit::type ensit_rules {
         # When there is no longer a FUELSHRT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule FUELSHRT-2-2 {
+        dam rule FUELSHRT-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT SFT QOL
+            dam sat clear AUT SFT QOL
         }
     }
 
@@ -1316,7 +1316,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule FUELSHRT-3-1 {
+        dam rule FUELSHRT-3-1 {
             !$gIsLocal
         } {
             satlevel $sit  \
@@ -1331,7 +1331,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule FUELSHRT-3-2 {
+        dam rule FUELSHRT-3-2 {
             $gIsLocal
         } {
             satlevel $sit  \
@@ -1360,7 +1360,7 @@ snit::type ensit_rules {
         # If there is a new GARBAGE situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule GARBAGE-1-1  {
+        dam rule GARBAGE-1-1  {
             1
         } {
             satlevel $sit  \
@@ -1382,10 +1382,10 @@ snit::type ensit_rules {
         # While there is a GARBAGE situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule GARBAGE-2-1 {
+        dam rule GARBAGE-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit  \
                 AUT XS-    \
@@ -1398,10 +1398,10 @@ snit::type ensit_rules {
         # When there is no longer a GARBAGE situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule GARBAGE-2-2  {
+        dam rule GARBAGE-2-2  {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT SFT QOL
+            dam sat clear AUT SFT QOL
         }
     }
 
@@ -1424,7 +1424,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule GARBAGE-3-1 {
+        dam rule GARBAGE-3-1 {
             !$gIsLocal
         } {
             satlevel $sit  \
@@ -1439,7 +1439,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule GARBAGE-3-2 {
+        dam rule GARBAGE-3-2 {
             $gIsLocal
         } {
             satlevel $sit  \
@@ -1469,7 +1469,7 @@ snit::type ensit_rules {
         # If there is a new INDSPILL situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule INDSPILL-1-1 {
+        dam rule INDSPILL-1-1 {
             1
         } {
             satlevel $sit  \
@@ -1491,10 +1491,10 @@ snit::type ensit_rules {
         # While there is a INDSPILL situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule INDSPILL-2-1 {
+        dam rule INDSPILL-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit  \
                 AUT S-     \
@@ -1507,10 +1507,10 @@ snit::type ensit_rules {
         # When there is no longer a INDSPILL situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule INDSPILL-2-2 {
+        dam rule INDSPILL-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT SFT QOL
+            dam sat clear AUT SFT QOL
         }
     }
 
@@ -1533,7 +1533,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule INDSPILL-3-1 {
+        dam rule INDSPILL-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
@@ -1548,7 +1548,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule INDSPILL-3-2 {
+        dam rule INDSPILL-3-2 {
             $gIsLocal
         } {
             satlevel $sit   \
@@ -1578,7 +1578,7 @@ snit::type ensit_rules {
         # If there is a new MINEFIELD situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule MINEFIELD-1-1 {
+        dam rule MINEFIELD-1-1 {
             1
         } {
             satlevel $sit   \
@@ -1600,10 +1600,10 @@ snit::type ensit_rules {
         # While there is an MINEFIELD situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule MINEFIELD-2-1 {
+        dam rule MINEFIELD-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit \
                 AUT L-    \
@@ -1616,10 +1616,10 @@ snit::type ensit_rules {
         # When there is no longer an MINEFIELD situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule MINEFIELD-2-2 {
+        dam rule MINEFIELD-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT SFT QOL
+            dam sat clear AUT SFT QOL
         }
     }
 
@@ -1642,7 +1642,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule MINEFIELD-3-1 {
+        dam rule MINEFIELD-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
@@ -1657,7 +1657,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule MINEFIELD-3-2 {
+        dam rule MINEFIELD-3-2 {
             $gIsLocal
         } {
             satlevel $sit   \
@@ -1687,7 +1687,7 @@ snit::type ensit_rules {
         # If there is a new NOWATER situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule NOWATER-1-1 {
+        dam rule NOWATER-1-1 {
             1
         } {
             satlevel $sit   \
@@ -1708,10 +1708,10 @@ snit::type ensit_rules {
         # While there is a NOWATER situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule NOWATER-2-1 {
+        dam rule NOWATER-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit \
                 AUT XL-   \
@@ -1723,10 +1723,10 @@ snit::type ensit_rules {
         # When there is no longer a NOWATER situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule NOWATER-2-2 {
+        dam rule NOWATER-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT QOL
+            dam sat clear AUT QOL
         }
     }
 
@@ -1749,7 +1749,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule NOWATER-3-1 {
+        dam rule NOWATER-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
@@ -1763,7 +1763,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule NOWATER-3-2 {
+        dam rule NOWATER-3-2 {
             $gIsLocal
         } {
             satlevel $sit   \
@@ -1793,7 +1793,7 @@ snit::type ensit_rules {
         # If there is a new ORDNANCE situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule ORDNANCE-1-1 {
+        dam rule ORDNANCE-1-1 {
             1
         } {
             satlevel $sit   \
@@ -1815,10 +1815,10 @@ snit::type ensit_rules {
         # While there is an ORDNANCE situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule ORDNANCE-2-1 {
+        dam rule ORDNANCE-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit \
                 AUT L-    \
@@ -1831,10 +1831,10 @@ snit::type ensit_rules {
         # When there is no longer an ORDNANCE situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule ORDNANCE-2-2 {
+        dam rule ORDNANCE-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT SFT QOL
+            dam sat clear AUT SFT QOL
         }
     }
 
@@ -1857,7 +1857,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule ORDNANCE-3-1 {
+        dam rule ORDNANCE-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
@@ -1872,7 +1872,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule ORDNANCE-3-2 {
+        dam rule ORDNANCE-3-2 {
             $gIsLocal
         } {
             satlevel $sit   \
@@ -1902,7 +1902,7 @@ snit::type ensit_rules {
         # If there is a new PIPELINE situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule PIPELINE-1-1 {
+        dam rule PIPELINE-1-1 {
             1
         } {
             satlevel $sit \
@@ -1924,10 +1924,10 @@ snit::type ensit_rules {
         # While there is a PIPELINE situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule PIPELINE-2-1 {
+        dam rule PIPELINE-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit \
                 AUT S-    \
@@ -1940,10 +1940,10 @@ snit::type ensit_rules {
         # When there is no longer a PIPELINE situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule PIPELINE-2-2 {
+        dam rule PIPELINE-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT SFT QOL
+            dam sat clear AUT SFT QOL
         }
     }
 
@@ -1966,7 +1966,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule PIPELINE-3-1 {
+        dam rule PIPELINE-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
@@ -1981,7 +1981,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule PIPELINE-3-2 {
+        dam rule PIPELINE-3-2 {
             $gIsLocal
         } {
             satlevel $sit   \
@@ -2010,7 +2010,7 @@ snit::type ensit_rules {
         # If there is a new POWEROUT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule POWEROUT-1-1 {
+        dam rule POWEROUT-1-1 {
             1
         } {
             satlevel $sit \
@@ -2032,10 +2032,10 @@ snit::type ensit_rules {
         # While there is a POWEROUT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule POWEROUT-2-1 {
+        dam rule POWEROUT-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit  \
                 AUT S-     \
@@ -2048,10 +2048,10 @@ snit::type ensit_rules {
         # When there is no longer a POWEROUT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule POWEROUT-2-2 {
+        dam rule POWEROUT-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT SFT QOL
+            dam sat clear AUT SFT QOL
         }
     }
 
@@ -2074,7 +2074,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule POWEROUT-3-1 {
+        dam rule POWEROUT-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
@@ -2089,7 +2089,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule POWEROUT-3-2 {
+        dam rule POWEROUT-3-2 {
             $gIsLocal
         } {
             satlevel $sit   \
@@ -2119,7 +2119,7 @@ snit::type ensit_rules {
         # If there is a new REFINERY situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule REFINERY-1-1 {
+        dam rule REFINERY-1-1 {
             1
         } {
             satlevel $sit   \
@@ -2141,10 +2141,10 @@ snit::type ensit_rules {
         # While there is a REFINERY situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule REFINERY-2-1 {
+        dam rule REFINERY-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit  \
                 AUT S-     \
@@ -2157,10 +2157,10 @@ snit::type ensit_rules {
         # When there is no longer a REFINERY situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule REFINERY-2-2 {
+        dam rule REFINERY-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT SFT QOL
+            dam sat clear AUT SFT QOL
         }
     }
 
@@ -2183,7 +2183,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule REFINERY-3-1 {
+        dam rule REFINERY-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
@@ -2198,7 +2198,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule REFINERY-3-2 {
+        dam rule REFINERY-3-2 {
             $gIsLocal
         } {
             satlevel $sit    \
@@ -2227,7 +2227,7 @@ snit::type ensit_rules {
         # If there is a new SEWAGE situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule SEWAGE-1-1 {
+        dam rule SEWAGE-1-1 {
             1
         } {
             satlevel $sit \
@@ -2248,10 +2248,10 @@ snit::type ensit_rules {
         # While there is a SEWAGE situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule SEWAGE-2-1 {
+        dam rule SEWAGE-2-1 {
             [$sit get state] ne "ENDED"
         } {
-            ada guard
+            dam guard
 
             satslope $sit \
                 AUT XS-   \
@@ -2263,10 +2263,10 @@ snit::type ensit_rules {
         # When there is no longer a SEWAGE situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule SEWAGE-2-2 {
+        dam rule SEWAGE-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            ada sat clear AUT QOL
+            dam sat clear AUT QOL
         }
     }
 
@@ -2289,7 +2289,7 @@ snit::type ensit_rules {
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule SEWAGE-3-1 {
+        dam rule SEWAGE-3-1 {
             !$gIsLocal
         } {
             satlevel $sit   \
@@ -2303,7 +2303,7 @@ snit::type ensit_rules {
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        ada rule SEWAGE-3-2 {
+        dam rule SEWAGE-3-2 {
             $gIsLocal
         } {
             satlevel $sit   \
@@ -2320,7 +2320,7 @@ snit::type ensit_rules {
     # Adds a detail to the input details
    
     proc detail {label value} {
-        ada details [format "%-21s %s\n" $label $value]
+        dam details [format "%-21s %s\n" $label $value]
     }
 
     # resolverIsLocal g
@@ -2344,7 +2344,7 @@ snit::type ensit_rules {
 
     proc satlevel {sit args} {
         set cov     [$sit get coverage]
-        set nomCov  [parmdb get ada.ensit.nominalCoverage]
+        set nomCov  [parmdb get dam.ensit.nominalCoverage]
 
         assert {[llength $args] != 0 && [llength $args] % 3 == 0}
 
@@ -2361,7 +2361,7 @@ snit::type ensit_rules {
             lappend result $con $limit $days
         }
 
-        ada sat level {*}$result
+        dam sat level {*}$result
     }
 
 
@@ -2376,7 +2376,7 @@ snit::type ensit_rules {
 
     proc satslope {sit args} {
         set cov     [$sit get coverage]
-        set nomCov  [parmdb get ada.ensit.nominalCoverage]
+        set nomCov  [parmdb get dam.ensit.nominalCoverage]
 
         assert {[llength $args] != 0 && [llength $args] % 2 == 0}
 
@@ -2393,9 +2393,12 @@ snit::type ensit_rules {
             lappend result $con $slope
         }
 
-        ada sat slope {*}$result
+        dam sat slope {*}$result
     }
 }
+
+
+
 
 
 

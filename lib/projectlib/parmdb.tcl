@@ -315,9 +315,9 @@ snit::type ::projectlib::parmdb {
         $ps setdefault activity.ORG.CMO_OTHER.minSecurity.CTR          M
         $ps setdefault activity.ORG.CMO_OTHER.coverage                 {20 1000}
 
-        # ada.* parameters
-        $ps subset ada {
-            Athena Driver Assessment rule/rule set parameters.
+        # dam.* parameters
+        $ps subset dam {
+            Driver Assessment Model rule/rule set parameters.
         }
 
         # Global parameters
@@ -325,11 +325,11 @@ snit::type ::projectlib::parmdb {
         # TBD
 
         # Actsit global parameters
-        $ps subset ada.actsit {
+        $ps subset dam.actsit {
             Parameters for the activity situation rule sets in general.
         }
 
-        $ps define ada.actsit.nominalCoverage \
+        $ps define dam.actsit.nominalCoverage \
             ::projectlib::parmdb_nomcoverage 0.66 \
             {
                 The nominal coverage fraction for activity rule sets.  
@@ -340,11 +340,11 @@ snit::type ::projectlib::parmdb {
         }
 
         # Ensit global parameters
-        $ps subset ada.ensit {
+        $ps subset dam.ensit {
             Parameters for the environmental situation rule sets in general.
         }
 
-        $ps define ada.ensit.nominalCoverage \
+        $ps define dam.ensit.nominalCoverage \
             ::projectlib::parmdb_nomcoverage 1.0 \
             {
                 The nominal coverage fraction for environmental
@@ -356,12 +356,12 @@ snit::type ::projectlib::parmdb {
         }
 
         # First, give each an "active" flag.
-        foreach name [eadaruleset names] {
-            $ps subset ada.$name "
-                Parameters for ADA rule set $name.
+        foreach name [edamruleset names] {
+            $ps subset dam.$name "
+                Parameters for DAM rule set $name.
             "
 
-            $ps define ada.$name.active ::projectlib::boolean yes {
+            $ps define dam.$name.active ::projectlib::boolean yes {
                 Indicates whether the rule set is active or not.
             }
 
@@ -369,18 +369,18 @@ snit::type ::projectlib::parmdb {
             # be overridden below.
             set causedef [ecause name 0]
 
-            $ps define ada.$name.cause ::projectlib::ecause $causedef {
+            $ps define dam.$name.cause ::projectlib::ecause $causedef {
                 The "cause" for all GRAM inputs produced by this
                 rule set.  The value must be an ecause(n) short name.
             }
 
-            $ps define ada.$name.nearFactor ::simlib::rfraction 0.25 {
+            $ps define dam.$name.nearFactor ::simlib::rfraction 0.25 {
                 Strength of indirect satisfaction effects in neighborhoods
                 which consider themselves "near" to the neighborhood in
                 which the rule set fires.
             }
 
-            $ps define ada.$name.farFactor ::simlib::rfraction 0.1 {
+            $ps define dam.$name.farFactor ::simlib::rfraction 0.1 {
                 Strength of indirect satisfaction effects in neighborhoods
                 which consider themselves "far" from the neighborhood in
                 which the rule set fires.
@@ -413,7 +413,7 @@ snit::type ::projectlib::parmdb {
                 PATROL
                 PSYOP
             }} {
-                $ps define ada.$name.mitigates ::projectlib::leensit {} {
+                $ps define dam.$name.mitigates ::projectlib::leensit {} {
                     List of environmental situation types mitigated by this
                     activity.  Note not all rule sets support this.
                 }
@@ -421,276 +421,276 @@ snit::type ::projectlib::parmdb {
         }
 
         # Rule Set: BADFOOD
-        $ps setdefault ada.BADFOOD.cause          HUNGER
-        $ps setdefault ada.BADFOOD.nearFactor     0.0
-        $ps setdefault ada.BADFOOD.farFactor      0.0
+        $ps setdefault dam.BADFOOD.cause          HUNGER
+        $ps setdefault dam.BADFOOD.nearFactor     0.0
+        $ps setdefault dam.BADFOOD.farFactor      0.0
 
         # Rule Set: BADWATER
-        $ps setdefault ada.BADWATER.cause         THIRST
-        $ps setdefault ada.BADWATER.nearFactor    0.0
-        $ps setdefault ada.BADWATER.farFactor     0.0
+        $ps setdefault dam.BADWATER.cause         THIRST
+        $ps setdefault dam.BADWATER.nearFactor    0.0
+        $ps setdefault dam.BADWATER.farFactor     0.0
 
        # Rule Set: CHKPOINT
-        $ps setdefault ada.CHKPOINT.cause         CHKPOINT
-        $ps setdefault ada.CHKPOINT.nearFactor    0.25
-        $ps setdefault ada.CHKPOINT.farFactor     0.0
+        $ps setdefault dam.CHKPOINT.cause         CHKPOINT
+        $ps setdefault dam.CHKPOINT.nearFactor    0.25
+        $ps setdefault dam.CHKPOINT.farFactor     0.0
 
         # Rule Set: CMOCONST
-        $ps setdefault ada.CMOCONST.cause         CMOCONST
-        $ps setdefault ada.CMOCONST.nearFactor    0.75
-        $ps setdefault ada.CMOCONST.farFactor     0.25
-        $ps setdefault ada.CMOCONST.mitigates     {
+        $ps setdefault dam.CMOCONST.cause         CMOCONST
+        $ps setdefault dam.CMOCONST.nearFactor    0.75
+        $ps setdefault dam.CMOCONST.farFactor     0.25
+        $ps setdefault dam.CMOCONST.mitigates     {
             BADFOOD  BADWATER COMMOUT  DISASTER DISEASE  DMGCULT DMGSACRED
             EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD NOWATER 
             ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE
         }
 
         # Rule Set: CMODEV
-        $ps setdefault ada.CMODEV.cause           CMODEV
-        $ps setdefault ada.CMODEV.nearFactor      0.5
-        $ps setdefault ada.CMODEV.farFactor       0.1
+        $ps setdefault dam.CMODEV.cause           CMODEV
+        $ps setdefault dam.CMODEV.nearFactor      0.5
+        $ps setdefault dam.CMODEV.farFactor       0.1
 
         # Rule Set: CMOEDU
-        $ps setdefault ada.CMOEDU.cause           CMOEDU
-        $ps setdefault ada.CMOEDU.nearFactor      0.75
-        $ps setdefault ada.CMOEDU.farFactor       0.5
-        $ps setdefault ada.CMOEDU.mitigates       {}
+        $ps setdefault dam.CMOEDU.cause           CMOEDU
+        $ps setdefault dam.CMOEDU.nearFactor      0.75
+        $ps setdefault dam.CMOEDU.farFactor       0.5
+        $ps setdefault dam.CMOEDU.mitigates       {}
 
         # Rule Set: CMOEMP
-        $ps setdefault ada.CMOEMP.cause           CMOEMP
-        $ps setdefault ada.CMOEMP.nearFactor      0.75
-        $ps setdefault ada.CMOEMP.farFactor       0.5
-        $ps setdefault ada.CMOEMP.mitigates       {}
+        $ps setdefault dam.CMOEMP.cause           CMOEMP
+        $ps setdefault dam.CMOEMP.nearFactor      0.75
+        $ps setdefault dam.CMOEMP.farFactor       0.5
+        $ps setdefault dam.CMOEMP.mitigates       {}
 
         # Rule Set: CMOIND
-        $ps setdefault ada.CMOIND.cause           CMOIND
-        $ps setdefault ada.CMOIND.nearFactor      0.75
-        $ps setdefault ada.CMOIND.farFactor       0.25
-        $ps setdefault ada.CMOIND.mitigates       {
+        $ps setdefault dam.CMOIND.cause           CMOIND
+        $ps setdefault dam.CMOIND.nearFactor      0.75
+        $ps setdefault dam.CMOIND.farFactor       0.25
+        $ps setdefault dam.CMOIND.mitigates       {
             COMMOUT  FOODSHRT FUELSHRT INDSPILL NOWATER PIPELINE
             POWEROUT REFINERY
         }
 
         # Rule Set: CMOINF
-        $ps setdefault ada.CMOINF.cause           CMOINF
-        $ps setdefault ada.CMOINF.nearFactor      0.75
-        $ps setdefault ada.CMOINF.farFactor       0.25
-        $ps setdefault ada.CMOINF.mitigates       {
+        $ps setdefault dam.CMOINF.cause           CMOINF
+        $ps setdefault dam.CMOINF.nearFactor      0.75
+        $ps setdefault dam.CMOINF.farFactor       0.25
+        $ps setdefault dam.CMOINF.mitigates       {
             BADWATER COMMOUT NOWATER POWEROUT SEWAGE
         }
 
         # Rule Set: CMOLAW
-        $ps setdefault ada.CMOLAW.cause           CMOLAW
-        $ps setdefault ada.CMOLAW.nearFactor      0.5
-        $ps setdefault ada.CMOLAW.farFactor       0.25
+        $ps setdefault dam.CMOLAW.cause           CMOLAW
+        $ps setdefault dam.CMOLAW.nearFactor      0.5
+        $ps setdefault dam.CMOLAW.farFactor       0.25
 
         # Rule Set: CMOMED
-        $ps setdefault ada.CMOMED.cause           CMOMED
-        $ps setdefault ada.CMOMED.nearFactor      0.75
-        $ps setdefault ada.CMOMED.farFactor       0.25
-        $ps setdefault ada.CMOMED.mitigates       {
+        $ps setdefault dam.CMOMED.cause           CMOMED
+        $ps setdefault dam.CMOMED.nearFactor      0.75
+        $ps setdefault dam.CMOMED.farFactor       0.25
+        $ps setdefault dam.CMOMED.mitigates       {
             DISASTER DISEASE EPIDEMIC
         }
 
         # Rule Set: CMOOTHER
-        $ps setdefault ada.CMOOTHER.cause         CMOOTHER
-        $ps setdefault ada.CMOOTHER.nearFactor    0.25
-        $ps setdefault ada.CMOOTHER.farFactor     0.1
-        $ps setdefault ada.CMOOTHER.mitigates     {
+        $ps setdefault dam.CMOOTHER.cause         CMOOTHER
+        $ps setdefault dam.CMOOTHER.nearFactor    0.25
+        $ps setdefault dam.CMOOTHER.farFactor     0.1
+        $ps setdefault dam.CMOOTHER.mitigates     {
             BADFOOD  BADWATER COMMOUT  DISASTER DISEASE  DMGCULT DMGSACRED
             EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD NOWATER
             ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE
         }
 
         # Rule Set: COERCION
-        $ps setdefault ada.COERCION.cause         COERCION
-        $ps setdefault ada.COERCION.nearFactor    0.5
-        $ps setdefault ada.COERCION.farFactor     0.2
+        $ps setdefault dam.COERCION.cause         COERCION
+        $ps setdefault dam.COERCION.nearFactor    0.5
+        $ps setdefault dam.COERCION.farFactor     0.2
 
         # Rule Set: COMMOUT
-        $ps setdefault ada.COMMOUT.cause          COMMOUT
-        $ps setdefault ada.COMMOUT.nearFactor     0.1
-        $ps setdefault ada.COMMOUT.farFactor      0.1
+        $ps setdefault dam.COMMOUT.cause          COMMOUT
+        $ps setdefault dam.COMMOUT.nearFactor     0.1
+        $ps setdefault dam.COMMOUT.farFactor      0.1
 
         # Rule Set: CRIMINAL
-        $ps setdefault ada.CRIMINAL.cause         CRIMINAL
-        $ps setdefault ada.CRIMINAL.nearFactor    0.5
-        $ps setdefault ada.CRIMINAL.farFactor     0.2
+        $ps setdefault dam.CRIMINAL.cause         CRIMINAL
+        $ps setdefault dam.CRIMINAL.nearFactor    0.5
+        $ps setdefault dam.CRIMINAL.farFactor     0.2
 
         # Rule Set: CURFEW
-        $ps setdefault ada.CURFEW.cause           CURFEW
-        $ps setdefault ada.CURFEW.nearFactor      0.5
-        $ps setdefault ada.CURFEW.farFactor       0.0
+        $ps setdefault dam.CURFEW.cause           CURFEW
+        $ps setdefault dam.CURFEW.nearFactor      0.5
+        $ps setdefault dam.CURFEW.farFactor       0.0
 
         # Rule Set: DISASTER
-        $ps setdefault ada.DISASTER.cause         DISASTER
-        $ps setdefault ada.DISASTER.nearFactor    0.5
-        $ps setdefault ada.DISASTER.farFactor     0.25
+        $ps setdefault dam.DISASTER.cause         DISASTER
+        $ps setdefault dam.DISASTER.nearFactor    0.5
+        $ps setdefault dam.DISASTER.farFactor     0.25
 
         # Rule Set: DISEASE
-        $ps setdefault ada.DISEASE.cause          SICKNESS
-        $ps setdefault ada.DISEASE.nearFactor     0.25
-        $ps setdefault ada.DISEASE.farFactor      0.0
+        $ps setdefault dam.DISEASE.cause          SICKNESS
+        $ps setdefault dam.DISEASE.nearFactor     0.25
+        $ps setdefault dam.DISEASE.farFactor      0.0
 
         # Rule Set: DMGCULT
-        $ps setdefault ada.DMGCULT.cause          DMGCULT
-        $ps setdefault ada.DMGCULT.nearFactor     0.2
-        $ps setdefault ada.DMGCULT.farFactor      0.1
+        $ps setdefault dam.DMGCULT.cause          DMGCULT
+        $ps setdefault dam.DMGCULT.nearFactor     0.2
+        $ps setdefault dam.DMGCULT.farFactor      0.1
 
         # Rule Set: DMGSACRED
-        $ps setdefault ada.DMGSACRED.cause        DMGSACRED
-        $ps setdefault ada.DMGSACRED.nearFactor   0.2
-        $ps setdefault ada.DMGSACRED.farFactor    0.1
+        $ps setdefault dam.DMGSACRED.cause        DMGSACRED
+        $ps setdefault dam.DMGSACRED.nearFactor   0.2
+        $ps setdefault dam.DMGSACRED.farFactor    0.1
 
         # Rule Set: EPIDEMIC
-        $ps setdefault ada.EPIDEMIC.cause         SICKNESS
-        $ps setdefault ada.EPIDEMIC.nearFactor    0.5
-        $ps setdefault ada.EPIDEMIC.farFactor     0.2
+        $ps setdefault dam.EPIDEMIC.cause         SICKNESS
+        $ps setdefault dam.EPIDEMIC.nearFactor    0.5
+        $ps setdefault dam.EPIDEMIC.farFactor     0.2
 
         # Rule Set: FOODSHRT
-        $ps setdefault ada.FOODSHRT.cause         HUNGER
-        $ps setdefault ada.FOODSHRT.nearFactor    0.0
-        $ps setdefault ada.FOODSHRT.farFactor     0.0
+        $ps setdefault dam.FOODSHRT.cause         HUNGER
+        $ps setdefault dam.FOODSHRT.nearFactor    0.0
+        $ps setdefault dam.FOODSHRT.farFactor     0.0
 
         # Rule Set: FUELSHRT
-        $ps setdefault ada.FUELSHRT.cause         FUELSHRT
-        $ps setdefault ada.FUELSHRT.nearFactor    0.0
-        $ps setdefault ada.FUELSHRT.farFactor     0.0
+        $ps setdefault dam.FUELSHRT.cause         FUELSHRT
+        $ps setdefault dam.FUELSHRT.nearFactor    0.0
+        $ps setdefault dam.FUELSHRT.farFactor     0.0
 
         # Rule Set: GARBAGE
-        $ps setdefault ada.GARBAGE.cause          GARBAGE
-        $ps setdefault ada.GARBAGE.nearFactor     0.2
-        $ps setdefault ada.GARBAGE.farFactor      0.0
+        $ps setdefault dam.GARBAGE.cause          GARBAGE
+        $ps setdefault dam.GARBAGE.nearFactor     0.2
+        $ps setdefault dam.GARBAGE.farFactor      0.0
 
         # Rule Set: GUARD
-        $ps setdefault ada.GUARD.cause            GUARD
-        $ps setdefault ada.GUARD.nearFactor       0.5
-        $ps setdefault ada.GUARD.farFactor        0.0
+        $ps setdefault dam.GUARD.cause            GUARD
+        $ps setdefault dam.GUARD.nearFactor       0.5
+        $ps setdefault dam.GUARD.farFactor        0.0
 
         # Rule Set: INDSPILL
-        $ps setdefault ada.INDSPILL.cause         INDSPILL
-        $ps setdefault ada.INDSPILL.nearFactor    0.0
-        $ps setdefault ada.INDSPILL.farFactor     0.0
+        $ps setdefault dam.INDSPILL.cause         INDSPILL
+        $ps setdefault dam.INDSPILL.nearFactor    0.0
+        $ps setdefault dam.INDSPILL.farFactor     0.0
 
         # Rule Set: MINEFIELD
-        $ps setdefault ada.MINEFIELD.cause        ORDNANCE
-        $ps setdefault ada.MINEFIELD.nearFactor   0.2
-        $ps setdefault ada.MINEFIELD.farFactor    0.0
+        $ps setdefault dam.MINEFIELD.cause        ORDNANCE
+        $ps setdefault dam.MINEFIELD.nearFactor   0.2
+        $ps setdefault dam.MINEFIELD.farFactor    0.0
 
         # Rule Set: NOWATER
-        $ps setdefault ada.NOWATER.cause          THIRST
-        $ps setdefault ada.NOWATER.nearFactor     0.0
-        $ps setdefault ada.NOWATER.farFactor      0.0
+        $ps setdefault dam.NOWATER.cause          THIRST
+        $ps setdefault dam.NOWATER.nearFactor     0.0
+        $ps setdefault dam.NOWATER.farFactor      0.0
 
         # Rule Set: ORDNANCE
-        $ps setdefault ada.ORDNANCE.cause         ORDNANCE
-        $ps setdefault ada.ORDNANCE.nearFactor    0.2
-        $ps setdefault ada.ORDNANCE.farFactor     0.0
+        $ps setdefault dam.ORDNANCE.cause         ORDNANCE
+        $ps setdefault dam.ORDNANCE.nearFactor    0.2
+        $ps setdefault dam.ORDNANCE.farFactor     0.0
 
         # Rule Set: ORGCONST
-        $ps setdefault ada.ORGCONST.cause         ORGCONST
-        $ps setdefault ada.ORGCONST.nearFactor    0.75
-        $ps setdefault ada.ORGCONST.farFactor     0.25
-        $ps setdefault ada.ORGCONST.mitigates     {
+        $ps setdefault dam.ORGCONST.cause         ORGCONST
+        $ps setdefault dam.ORGCONST.nearFactor    0.75
+        $ps setdefault dam.ORGCONST.farFactor     0.25
+        $ps setdefault dam.ORGCONST.mitigates     {
             BADFOOD  BADWATER COMMOUT  DISASTER DISEASE  DMGCULT DMGSACRED
             EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD NOWATER 
             ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE
         }
 
         # Rule Set: ORGEDU
-        $ps setdefault ada.ORGEDU.cause           ORGEDU
-        $ps setdefault ada.ORGEDU.nearFactor      0.75
-        $ps setdefault ada.ORGEDU.farFactor       0.5
-        $ps setdefault ada.ORGEDU.mitigates       {}
+        $ps setdefault dam.ORGEDU.cause           ORGEDU
+        $ps setdefault dam.ORGEDU.nearFactor      0.75
+        $ps setdefault dam.ORGEDU.farFactor       0.5
+        $ps setdefault dam.ORGEDU.mitigates       {}
 
         # Rule Set: ORGEMP
-        $ps setdefault ada.ORGEMP.cause           ORGEMP
-        $ps setdefault ada.ORGEMP.nearFactor      0.75
-        $ps setdefault ada.ORGEMP.farFactor       0.5
-        $ps setdefault ada.ORGEMP.mitigates       {}
+        $ps setdefault dam.ORGEMP.cause           ORGEMP
+        $ps setdefault dam.ORGEMP.nearFactor      0.75
+        $ps setdefault dam.ORGEMP.farFactor       0.5
+        $ps setdefault dam.ORGEMP.mitigates       {}
 
         # Rule Set: ORGIND
-        $ps setdefault ada.ORGIND.cause           ORGIND
-        $ps setdefault ada.ORGIND.nearFactor      0.75
-        $ps setdefault ada.ORGIND.farFactor       0.25
-        $ps setdefault ada.ORGIND.mitigates       {
+        $ps setdefault dam.ORGIND.cause           ORGIND
+        $ps setdefault dam.ORGIND.nearFactor      0.75
+        $ps setdefault dam.ORGIND.farFactor       0.25
+        $ps setdefault dam.ORGIND.mitigates       {
             COMMOUT  FOODSHRT FUELSHRT INDSPILL NOWATER PIPELINE
             POWEROUT REFINERY
         }
 
         # Rule Set: ORGINF
-        $ps setdefault ada.ORGINF.cause           ORGINF
-        $ps setdefault ada.ORGINF.nearFactor      0.75
-        $ps setdefault ada.ORGINF.farFactor       0.25
-        $ps setdefault ada.ORGINF.mitigates       {
+        $ps setdefault dam.ORGINF.cause           ORGINF
+        $ps setdefault dam.ORGINF.nearFactor      0.75
+        $ps setdefault dam.ORGINF.farFactor       0.25
+        $ps setdefault dam.ORGINF.mitigates       {
             BADWATER COMMOUT NOWATER POWEROUT SEWAGE
         }
 
         # Rule Set: ORGMED
-        $ps setdefault ada.ORGMED.cause           ORGMED
-        $ps setdefault ada.ORGMED.nearFactor      0.75
-        $ps setdefault ada.ORGMED.farFactor       0.25
-        $ps setdefault ada.ORGMED.mitigates       {
+        $ps setdefault dam.ORGMED.cause           ORGMED
+        $ps setdefault dam.ORGMED.nearFactor      0.75
+        $ps setdefault dam.ORGMED.farFactor       0.25
+        $ps setdefault dam.ORGMED.mitigates       {
             DISASTER DISEASE EPIDEMIC
         }
 
         # Rule Set: ORGOTHER
-        $ps setdefault ada.ORGOTHER.cause         ORGOTHER
-        $ps setdefault ada.ORGOTHER.nearFactor    0.25
-        $ps setdefault ada.ORGOTHER.farFactor     0.1
-        $ps setdefault ada.ORGOTHER.mitigates     {
+        $ps setdefault dam.ORGOTHER.cause         ORGOTHER
+        $ps setdefault dam.ORGOTHER.nearFactor    0.25
+        $ps setdefault dam.ORGOTHER.farFactor     0.1
+        $ps setdefault dam.ORGOTHER.mitigates     {
             BADFOOD  BADWATER COMMOUT  DISASTER DISEASE  DMGCULT DMGSACRED
             EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD NOWATER 
             ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE
         }
 
         # Rule Set: PATROL
-        $ps setdefault ada.PATROL.cause           PATROL
-        $ps setdefault ada.PATROL.nearFactor      0.5
-        $ps setdefault ada.PATROL.farFactor       0.0
+        $ps setdefault dam.PATROL.cause           PATROL
+        $ps setdefault dam.PATROL.nearFactor      0.5
+        $ps setdefault dam.PATROL.farFactor       0.0
 
         # Rule Set: PIPELINE
-        $ps setdefault ada.PIPELINE.cause         PIPELINE
-        $ps setdefault ada.PIPELINE.nearFactor    0.0
-        $ps setdefault ada.PIPELINE.farFactor     0.0
+        $ps setdefault dam.PIPELINE.cause         PIPELINE
+        $ps setdefault dam.PIPELINE.nearFactor    0.0
+        $ps setdefault dam.PIPELINE.farFactor     0.0
 
         # Rule Set: POWEROUT
-        $ps setdefault ada.POWEROUT.cause         POWEROUT
-        $ps setdefault ada.POWEROUT.nearFactor    0.1
-        $ps setdefault ada.POWEROUT.farFactor     0.0
+        $ps setdefault dam.POWEROUT.cause         POWEROUT
+        $ps setdefault dam.POWEROUT.nearFactor    0.1
+        $ps setdefault dam.POWEROUT.farFactor     0.0
 
         # Rule Set: PRESENCE
-        $ps setdefault ada.PRESENCE.cause         PRESENCE
-        $ps setdefault ada.PRESENCE.nearFactor    0.25
-        $ps setdefault ada.PRESENCE.farFactor     0.0
+        $ps setdefault dam.PRESENCE.cause         PRESENCE
+        $ps setdefault dam.PRESENCE.nearFactor    0.25
+        $ps setdefault dam.PRESENCE.farFactor     0.0
 
         # Rule Set: PSYOP
-        $ps setdefault ada.PSYOP.cause            PSYOP
-        $ps setdefault ada.PSYOP.nearFactor       0.1
-        $ps setdefault ada.PSYOP.farFactor        0.0
+        $ps setdefault dam.PSYOP.cause            PSYOP
+        $ps setdefault dam.PSYOP.nearFactor       0.1
+        $ps setdefault dam.PSYOP.farFactor        0.0
 
         # Rule Set: REFINERY
-        $ps setdefault ada.REFINERY.cause         REFINERY
-        $ps setdefault ada.REFINERY.nearFactor    0.0
-        $ps setdefault ada.REFINERY.farFactor     0.0
+        $ps setdefault dam.REFINERY.cause         REFINERY
+        $ps setdefault dam.REFINERY.nearFactor    0.0
+        $ps setdefault dam.REFINERY.farFactor     0.0
 
         # Rule Set: SEWAGE
-        $ps setdefault ada.SEWAGE.cause           SEWAGE
-        $ps setdefault ada.SEWAGE.nearFactor      0.2
-        $ps setdefault ada.SEWAGE.farFactor       0.0
+        $ps setdefault dam.SEWAGE.cause           SEWAGE
+        $ps setdefault dam.SEWAGE.nearFactor      0.2
+        $ps setdefault dam.SEWAGE.farFactor       0.0
 
         # Rule parameters
-        foreach rule [lsort -dictionary [eadarule names]] {
-            $ps subset ada.$rule "
-                Parameters for ADA Rule $rule: [eadarule longname $rule]
+        foreach rule [lsort -dictionary [edamrule names]] {
+            $ps subset dam.$rule "
+                Parameters for DAM Rule $rule: [edamrule longname $rule]
             "
 
-            $ps define ada.$rule.satgain ::projectlib::rgain 1.0 "
-                Satisfaction gain for ADA Rule $rule.
+            $ps define dam.$rule.satgain ::projectlib::rgain 1.0 "
+                Satisfaction gain for DAM Rule $rule.
             "
 
-            $ps define ada.$rule.coopgain ::projectlib::rgain 1.0 "
-                Cooperation gain for ADA Rule $rule.
+            $ps define dam.$rule.coopgain ::projectlib::rgain 1.0 "
+                Cooperation gain for DAM Rule $rule.
             "
         }
 

@@ -16,8 +16,8 @@
 namespace eval ::projectlib:: {
     namespace export  \
         boolean       \
-        eadarule      \
-        eadaruleset   \
+        edamrule      \
+        edamruleset   \
         ecause        \
         ecivconcern   \
         econcern      \
@@ -111,7 +111,7 @@ snit::type ::projectlib::typewrapper {
 # Enumerations
 
 # ADA Rules
-::marsutil::enum ::projectlib::eadarule {
+::marsutil::enum ::projectlib::edamrule {
     BADFOOD-1-1   "Food supply is contaminated"
     BADFOOD-2-1   "Food supply continues to be contaminated"
     BADFOOD-2-2   "Food supply is no longer contaminated"
@@ -299,7 +299,7 @@ snit::type ::projectlib::typewrapper {
 }
 
 # ADA Rule Sets
-::marsutil::enum ::projectlib::eadaruleset {
+::marsutil::enum ::projectlib::edamruleset {
     BADFOOD   "Contaminated Food Supply"
     BADWATER  "Contaminated Water Supply"
     CHKPOINT  "Checkpoint/Control Point"
