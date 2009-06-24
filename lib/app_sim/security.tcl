@@ -43,21 +43,6 @@ snit::type security {
             SELECT n FROM nbhoods;
         }
 
-        # TBD: force_n.population should probably be removed.
-        # It's not used by security(sim), and other modules
-        # should be using demog(sim).
-        rdb eval {
-            SELECT n, total(basepop) AS pop
-            FROM nbgroups
-            GROUP BY n
-        } {
-            rdb eval {
-                UPDATE force_n
-                SET population = $pop
-                WHERE n=$n
-            }
-        }
-
         rdb eval {
             DELETE FROM force_ng;
 

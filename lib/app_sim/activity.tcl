@@ -277,10 +277,10 @@ snit::type activity {
                    activity_nga.g      AS g,
                    activity_nga.a      AS a,
                    effective           AS personnel,
-                   force_n.population  AS population,
+                   demog_n.population  AS population,
                    groups.gtype        AS gtype
-            FROM activity_nga JOIN force_n JOIN groups
-            WHERE force_n.n=activity_nga.n
+            FROM activity_nga JOIN demog_n JOIN groups
+            WHERE demog_n.n=activity_nga.n
             AND   activity_nga.g=groups.g
             AND   effective > 0
         } {
