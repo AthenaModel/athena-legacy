@@ -180,6 +180,12 @@ snit::widget appwin {
             script  { relbrowser %W }
         }
 
+        demog {
+            label  "Demog"
+            parent ""
+            script { demogbrowser %W }
+        }
+
         gramt {
             label  "GRAM"
             parent ""
