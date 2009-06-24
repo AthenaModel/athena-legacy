@@ -109,15 +109,27 @@ snit::type security {
         #---------------------------------------------------------------
         # CIV Groups
 
-        # population force
+        # Population force.  Note that in Athena (contra JNEM), unit
+        # personnel and implicit population are interchangeable.  Further,
+        # demog_ng.population includes both implicit and explicit
+        # population for group ng in neighborhood n.
+        #
+        # TBD: Note that "displaced units", i.e., civilian units outside
+        # their neighborhood of origin, are excluded from this calculation.
+        # It's not clear what to do with them.  In JNEM, units had no
+        # neighborhood of origin, and a unit of group g in nbhood n 
+        # was presumed to belong to group "n,g".  In Athena, that's not
+        # obviously the right thing to do.  We'll leave it for now.
+
         rdb eval {
-            SELECT gram_ng.n               AS n,
-                   gram_ng.g               AS g,
-                   gram_ng.population      AS population,
+            SELECT nbgroups.n              AS n,
+                   nbgroups.g              AS g,
+                   nbgroups.demeanor       AS demeanor,
                    gram_ng.sat             AS mood,
-                   nbgroups.demeanor       AS demeanor
-            FROM gram_ng 
-            JOIN nbgroups USING (n,g)
+                   demog_ng.population     AS population
+            FROM nbgroups
+            JOIN gram_ng USING (n,g)
+            JOIN demog_ng USING (n,g)
         } {
             set a [parmdb get force.population]
             set D [parmdb get force.demeanor.$demeanor]
@@ -134,11 +146,6 @@ snit::type security {
             }
         }
         
-        # unit force
-        #
-        # TBD: At present, there are no civilian units.
-        # If we add some, we'll need to look up the relevant
-        # algorithm.
 
         #---------------------------------------------------------------
         # FRC Groups
@@ -202,7 +209,7 @@ snit::type security {
                 local_enemy = 0
         }
 
-        # NEXT, iterate of all pairs of groups in each neighborhood.
+        # NEXT, iterate over all pairs of groups in each neighborhood.
         # TBD: Assumes that there's only one GRAM!
         rdb eval {
             SELECT gram_nfg.n           AS n, 

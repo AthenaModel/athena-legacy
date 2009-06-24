@@ -738,7 +738,6 @@ snit::type sim {
                 $type SetState PAUSED
             } else {
                 $type SetState PREP
-                # TBD: aram clear
             }
         }
 
@@ -774,6 +773,12 @@ snit::type sim {
         ensit assess
         nbstat analyze
         actsit analyze
+
+        # NEXT, advance GRAM; but first give it the latest
+        # population data.
+        aram update population {*}[rdb eval {
+            SELECT n,g,population FROM demog_ng
+        }]
         aram advance
 
         # NEXT, check Reactive Decision Conditions (RDCs)

@@ -660,7 +660,11 @@ order define ::unit UNIT:CREATE {
 
     # NEXT, create the unit
     lappend undo [$type mutate create [array get parms]]
-    lappend undo [demog analyze]
+
+    # NEXT, if it's a civilian unit, update the demographics
+    if {$gtype eq "CIV"} {
+        lappend undo [demog analyze]
+    }
 
     setundo [join $undo \n]
 }
@@ -702,9 +706,16 @@ order define ::unit UNIT:DELETE {
         }
     }
 
+    # NEXT, get the unit's group type
+    set gtype [unit get $parms(u) gtype]
+
     # NEXT, Delete the unit
     lappend undo [$type mutate delete $parms(u)]
-    lappend undo [demog analyze]
+
+    # NEXT, if it's a civilian unit, update the demographics
+    if {$gtype eq "CIV"} {
+        lappend undo [demog analyze]
+    }
 
     setundo [join $undo \n]
 }
@@ -729,9 +740,16 @@ order define ::unit UNIT:MOVE {
 
     returnOnError
 
+    # NEXT, get the unit's group type
+    set gtype [unit get $parms(u) gtype]
+
     # NEXT, move the unit
     lappend undo [$type mutate move $parms(u) $parms(location)]
-    lappend undo [demog analyze]
+
+    # NEXT, if it's a civilian unit, update the demographics
+    if {$gtype eq "CIV"} {
+        lappend undo [demog analyze]
+    }
 
     setundo [join $undo \n]
 }
@@ -757,20 +775,23 @@ order define ::unit UNIT:ACTIVITY {
 
     returnOnError
 
+    # NEXT, get the unit's group type
+    set gtype [unit get $parms(u) gtype]
+
     # NEXT, do cross-validation
     validate a {
-        set gtype [rdb onecolumn {
-            SELECT gtype FROM units WHERE u=$parms(u)
-        }]
-
         $type ValidateActivity $gtype $parms(a)
     }
 
     returnOnError
 
-    # NEXT, modify the group
+    # NEXT, modify the unit
     lappend undo [$type mutate activity $parms(u) $parms(a)]
-    lappend undo [demog analyze]
+
+    # NEXT, if it's a civilian unit, update the demographics
+    if {$gtype eq "CIV"} {
+        lappend undo [demog analyze]
+    }
 
     setundo [join $undo \n]
 }
@@ -795,10 +816,11 @@ order define ::unit UNIT:PERSONNEL {
 
     returnOnError
 
-    # NEXT, do cross-validation
+    # NEXT, get the old unit data
+    array set old [unit get $parms(u)]
 
+    # NEXT, do cross-validation
     validate personnel {
-        array set old [unit get $parms(u)]
 
         if {$old(gtype) eq "CIV"} {
             set imp [demog getng $old(origin) $old(g) implicit]
@@ -814,9 +836,13 @@ order define ::unit UNIT:PERSONNEL {
 
     returnOnError
 
-    # NEXT, modify the group
+    # NEXT, modify the unit
     lappend undo [$type mutate personnel $parms(u) $parms(personnel)]
-    lappend undo [demog analyze]
+
+    # NEXT, if it's a civilian unit update the demographics
+    if {$old(gtype) eq "CIV"} {
+        lappend undo [demog analyze]
+    }
 
     setundo [join $undo \n]
 }

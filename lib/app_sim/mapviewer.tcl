@@ -1155,6 +1155,10 @@ snit::widget mapviewer {
         unset icons(sid-$cid)
         unset icons(itype-$cid)
         unset icons(cid-$sid)
+
+        # NEXT, clear the context; the icon might not be there
+        # any more
+        set icons(context) ""
     }
 
 
