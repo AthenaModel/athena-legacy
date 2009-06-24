@@ -80,6 +80,7 @@ SELECT main.n || ' ' || main.g                       AS id,
        main.g                                        AS g,
        local_name                                    AS local_name,
        main.basepop                                  AS basepop,
+       demog_ng.population                           AS population,
        demeanor                                      AS demeanor,
        format('%.3f', coalesce(gram.sat0, 0.0))      AS mood0,
        format('%.3f', coalesce(gram.sat,  0.0))      AS mood,
@@ -89,6 +90,7 @@ SELECT main.n || ' ' || main.g                       AS id,
                                main.effects_factor)) AS effects_factor
 FROM groups 
 JOIN nbgroups AS main USING (g)
+JOIN demog_ng USING(n,g)
 LEFT OUTER JOIN gram_ng AS gram USING(n,g);
 
 -- A sat_ngc view for use by the GUI: 

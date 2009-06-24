@@ -107,6 +107,10 @@ snit::widgetadaptor nbgroupbrowser {
         $hull insertcolumn end 0 {Local Name}
         $hull insertcolumn end 0 {BasePop}
         $hull columnconfigure end -sortmode integer
+        $hull insertcolumn end 0 {CurrPop}
+        $hull columnconfigure end \
+            -sortmode integer     \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {Mood at T0}
         $hull columnconfigure end -sortmode real
         $hull insertcolumn end 0 {Mood Now}
@@ -122,8 +126,9 @@ snit::widgetadaptor nbgroupbrowser {
         # NEXT, sort on column 1 by default
         $hull sortbycolumn 1 -increasing
 
-        # NEXT, update individual entities when they change.
+        # NEXT, Respond to simulation updates
         notifier bind ::nbgroup <Entity> $self $self
+        notifier bind ::demog   <Update> $self [mymethod reload]
     }
 
     destructor {
@@ -151,8 +156,8 @@ snit::widgetadaptor nbgroupbrowser {
             set id [list $n $g]
 
             $hull setdata $id \
-                [list $id $n $g $local_name $basepop $mood0 $mood \
-                     $demeanor $rollup_weight $effects_factor]
+                [list $id $n $g $local_name $basepop $population \
+                     $mood0 $mood $demeanor $rollup_weight $effects_factor]
         }
     }
 
