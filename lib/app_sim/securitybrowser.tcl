@@ -53,13 +53,21 @@ snit::widgetadaptor securitybrowser {
         $hull insertcolumn end 0 {Nbhood}
         $hull insertcolumn end 0 {Group}
         $hull insertcolumn end 0 {Security}
-        $hull columnconfigure end -sortmode integer
+        $hull columnconfigure end \
+            -sortmode   integer   \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {%Force}
-        $hull columnconfigure end -sortmode integer
+        $hull columnconfigure end \
+            -sortmode   integer   \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {%Enemy}
-        $hull columnconfigure end -sortmode integer
+        $hull columnconfigure end \
+            -sortmode   integer   \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {Volatility}
-        $hull columnconfigure end -sortmode integer
+        $hull columnconfigure end \
+            -sortmode   integer   \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {VtyGain}
         $hull columnconfigure end -sortmode real
         $hull insertcolumn end 0 {NomVty}

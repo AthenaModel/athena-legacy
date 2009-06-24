@@ -27,10 +27,11 @@ SELECT nbhoods.n                                  AS id,
        m2ref(refpoint)                            AS refpoint,
        m2ref(polygon)                             AS polygon,
        COALESCE(volatility,0)                     AS volatility,
-       COALESCE(population,0)                     AS population,
+       COALESCE(demog_n.population,0)             AS population,
        format('%.3f',COALESCE(gram_n.sat0, 0.0))  AS mood0,
        format('%.3f',COALESCE(gram_n.sat, 0.0))   AS mood
 FROM nbhoods 
+JOIN demog_n ON (demog_n.n = nbhoods.n)
 LEFT OUTER JOIN force_n ON (force_n.n = nbhoods.n)
 LEFT OUTER JOIN gram_n  ON (gram_n.n  = nbhoods.n);
 

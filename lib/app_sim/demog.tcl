@@ -46,6 +46,9 @@ snit::type demog {
         $type ComputeNG
         $type ComputeN
 
+        # Notify the GUI that demographics may have changed.
+        notifier send $type <Update>
+
         return [mytypemethod analyze]
     }
 

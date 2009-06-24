@@ -54,18 +54,31 @@ snit::widgetadaptor activitybrowser {
         $hull insertcolumn end 0 {Group}
         $hull insertcolumn end 0 {Activity}
         $hull insertcolumn end 0 {Coverage}
-        $hull columnconfigure end -sortmode real
+        $hull columnconfigure end \
+            -sortmode   real      \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {SecFlag}
+        $hull columnconfigure end \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {NomPers}
-        $hull columnconfigure end -sortmode integer
+        $hull columnconfigure end \
+            -sortmode   integer   \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {ActPers}
-        $hull columnconfigure end -sortmode integer
+        $hull columnconfigure end \
+            -sortmode   integer   \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {EffPers}
-        $hull columnconfigure end -sortmode integer
+        $hull columnconfigure end \
+            -sortmode   integer   \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {SitType}
+        $hull columnconfigure end \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {Situation}
-        $hull columnconfigure end -sortmode integer
-
+        $hull columnconfigure end \
+            -sortmode   integer   \
+            -foreground $::browser_base::derivedfg
 
         # NEXT, sort on column 1 by default
         $hull sortbycolumn 1 -increasing

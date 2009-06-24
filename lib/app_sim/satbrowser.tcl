@@ -75,7 +75,9 @@ snit::widgetadaptor satbrowser {
         $hull insertcolumn end 0 {Sat at T0}
         $hull columnconfigure end -sortmode real
         $hull insertcolumn end 0 {Sat Now}
-        $hull columnconfigure end -sortmode real
+        $hull columnconfigure end \
+            -sortmode   real      \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {Trend}
         $hull columnconfigure end -sortmode real
         $hull insertcolumn end 0 {Saliency}

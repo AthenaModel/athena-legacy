@@ -237,10 +237,14 @@ snit::widgetadaptor unitbrowser {
         $hull insertcolumn end 0 {Origin}
         $hull insertcolumn end 0 {Location}
         $hull insertcolumn end 0 {Nbhood}
+        $hull columnconfigure end \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {Personnel}
         $hull columnconfigure end -sortmode integer
         $hull insertcolumn end 0 {Activity}
         $hull insertcolumn end 0 {Effective}
+        $hull columnconfigure end \
+            -foreground $::browser_base::derivedfg
 
         # NEXT, update individual entities when they change.
         notifier bind ::unit <Entity> $self $self

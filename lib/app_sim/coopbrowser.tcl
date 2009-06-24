@@ -76,7 +76,9 @@ snit::widgetadaptor coopbrowser {
         $hull insertcolumn end 0 {Coop at T0}
         $hull columnconfigure end -sortmode real
         $hull insertcolumn end 0 {Coop Now}
-        $hull columnconfigure end -sortmode real
+        $hull columnconfigure end \
+            -sortmode   real      \
+            -foreground $::browser_base::derivedfg
 
         # NEXT, sort on column 1 by default
         $hull sortbycolumn 1 -increasing

@@ -54,17 +54,29 @@ snit::widgetadaptor actsitbrowser {
         $hull insertcolumn end 0 {ID}
         $hull columnconfigure end -sortmode integer
         $hull insertcolumn end 0 {Change}
+        $hull columnconfigure end \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {State}
+        $hull columnconfigure end \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {Type}
         $hull insertcolumn end 0 {Nbhood}
         $hull insertcolumn end 0 {Group}
         $hull insertcolumn end 0 {Activity}
         $hull insertcolumn end 0 {Coverage}
-        $hull columnconfigure end -sortmode real
+        $hull columnconfigure end \
+            -sortmode   real      \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {Began At}
+        $hull columnconfigure end \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {Changed At}
+        $hull columnconfigure end \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {Driver}
-        $hull columnconfigure end -sortmode integer
+        $hull columnconfigure end \
+            -sortmode   integer   \
+            -foreground $::browser_base::derivedfg
 
         # NEXT, sort on column 0 by default
         $hull sortbycolumn 0 -increasing

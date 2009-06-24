@@ -213,8 +213,9 @@ snit::widgetadaptor nbhoodbrowser {
         # NEXT, the last column fills extra space
         $hull columnconfigure end -stretchable yes
 
-        # NEXT, update individual entities when they change.
+        # NEXT, Respond to simulation updates
         notifier bind ::nbhood <Entity> $self $self
+        notifier bind ::demog  <Update> $self [mymethod reload]
     }
 
     destructor {
