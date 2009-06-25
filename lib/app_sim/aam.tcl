@@ -92,10 +92,18 @@ snit::type aam {
             # Civilian attrition is handled by the demographics model.
             if {$g eq "CIV"} {
                 lappend undo [$type AttritNbhood $n $casualties]
+                # TBD: This shouldn't be here.  The attrition cycle
+                # should call this once after computing attrition,
+                # and the orders should call it after applying
+                # attrition.
                 lappend undo [demog analyze]
             } else {
                 if {[group gtype $g] eq "CIV"} {
                     lappend undo [$type AttritNbgroup $n $g $casualties]
+                    # TBD: This shouldn't be here.  The attrition cycle
+                    # should call this once after computing attrition,
+                    # and the orders should call it after applying
+                    # attrition.
                     lappend undo [demog analyze]
                 } else {
                     lappend undo [$type AttritFrcOrgUnits $n $g $casualties]
@@ -175,31 +183,78 @@ snit::type aam {
             return "# Nothing to undo"
         }
 
-        # NEXT, attrit the gruop.
+        # NEXT, attrit the group.
         dict with dict {
-            # FIRST, save the undo command
+            # FIRST, How many casualties can we actually take?  We have
+            # to leave at least one person in the implicit population,
+            # but the units can all go to zero.
+            #
+            # Note that "population" is in fact the implicit population
+            # plus the non-displaced personnel.
+            let actual {min($casualties, $population - 1)}
+
+            if {$actual == 0} {
+                log normal aam \
+                    "Overkill; no casualties can be inflicted."
+            } elseif {$actual < $casualties} {
+                log normal aam \
+                    "Overkill; only $actual casualties can be inflicted."
+            }
+
+
+            # NEXT, apply the actual casualties to the group, saving the
+            # undo command.
             lappend undo [mytypemethod SetNbgroupAttrition $n $g $attrition]
 
-
-            # NEXT, attrit implicit population, noting overkill.
-            # Note that we can kill all but 1, but have to leave at
-            # least 1.
-            let take {min($implicit - 1, $casualties)}
-            let implicit {$implicit - $take}
-            let casualties {$casualties - $take}
-            let newAttrition {$attrition + $take}
-
-            # NEXT, apply the casualties to the group
-            log normal aam \
-   "Group $n $g takes $take casualties, leaving $implicit implicit population"
+            let newAttrition {$attrition + $actual}
 
             $type SetNbgroupAttrition $n $g $newAttrition
 
-            # NEXT, if casualties is not zero, we attrited more than were
-            # available.
-            if {$casualties > 0} {
+
+            # NEXT, apply attrition to the bodies, in order of size.
+            set remaining $actual
+
+            rdb eval {
+                SELECT ''                                  AS u,
+                       ''                                  AS personnel,
+                       $actual*(CAST (implicit AS REAL)/$population)  
+                                                           AS share
+                FROM demog_ng 
+                WHERE n=$n AND g=$g AND implicit > 1
+                UNION
+                SELECT u                               AS u,
+                       personnel                       AS personnel,
+                       $actual*(CAST (personnel AS REAL)/$population) 
+                                                       AS share
+                FROM units
+                WHERE origin=$n AND g=$g AND personnel > 0
+                ORDER BY share DESC
+            } {
+                # FIRST, allocate the share to this body of people.
+                let kills     {min($remaining, ceil($share))}
+                let remaining {$remaining - $kills}
+
+                # NEXT, if it's the implicit personnel, we're
+                # done.
+                if {$u eq ""} {
+                    continue
+                }
+
+                # NEXT, it's a unit; attrit it.
+                let take {min($personnel, $kills)}
+                let personnel {$personnel - $take}
+
+
+                # NEXT, apply the casualties to the unit
                 log normal aam \
-           "Overkill; $casualties casualties could not be taken by $g in $n."
+                "Unit $u takes $take casualties, leaving $personnel personnel"
+            
+                lappend undo [unit mutate personnel $u $personnel]
+
+                # NEXT, we might have finished early
+                if {$remaining == 0} {
+                    break
+                }
             }
         }
 
