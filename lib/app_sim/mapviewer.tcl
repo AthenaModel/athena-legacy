@@ -1300,10 +1300,18 @@ snit::widget mapviewer {
                 $self IconDelete $u
             }
 
+            # NEXT, color it.
+            if {$personnel > 0} {
+                set bg black
+            } else {
+                set bg gray
+            }
+
             # NEXT, draw it.
             set cid [$canvas icon create unit \
                          {*}$location         \
                          -foreground $color   \
+                         -background $bg      \
                          -shape      $shape   \
                          -symbol     $symbol]
             

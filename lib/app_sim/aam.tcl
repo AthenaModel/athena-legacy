@@ -127,6 +127,8 @@ snit::type aam {
 
         # FIRST, attrit units until there are no more units with
         # personnel or all of the casualties have been taken.
+        set remaining $casualties
+
         rdb eval {
             SELECT u,personnel
             FROM units JOIN activity_gtype USING (a,gtype)
@@ -135,9 +137,9 @@ snit::type aam {
         } {
             # FIRST, determine how many of the casualties the
             # unit can take.
-            let take {min($personnel, $casualties)}
+            let take {min($personnel, $remaining)}
             let personnel {$personnel - $take}
-            let casualties {$casualties - $take}
+            let remaining {$remaining - $take}
 
             # NEXT, apply the casualties to the unit
             log normal aam \
@@ -146,16 +148,18 @@ snit::type aam {
             lappend undo [unit mutate personnel $u $personnel]
 
             # NEXT, if there are no more casualties, we're done
-            if {$casualties == 0} {
+            if {$remaining == 0} {
                 break
             }
         }
 
         # NEXT, if casualties is not zero, we attrited more than were
         # available.
-        if {$casualties > 0} {
+        if {$remaining > 0} {
+            let actual {$casualties - $remaining}
+
             log normal aam \
-            "Overkill; $casualties casualties could not be taken by $g in $n."
+                "Overkill; only $actual casualties could be taken by $g in $n."
         }
 
         return [join $undo \n]
@@ -196,6 +200,7 @@ snit::type aam {
             if {$actual == 0} {
                 log normal aam \
                     "Overkill; no casualties can be inflicted."
+                return
             } elseif {$actual < $casualties} {
                 log normal aam \
                     "Overkill; only $actual casualties can be inflicted."
@@ -227,11 +232,11 @@ snit::type aam {
                        $actual*(CAST (personnel AS REAL)/$population) 
                                                        AS share
                 FROM units
-                WHERE origin=$n AND g=$g AND personnel > 0
+                WHERE n=$n AND g=$g AND n=origin AND personnel > 0
                 ORDER BY share DESC
             } {
                 # FIRST, allocate the share to this body of people.
-                let kills     {min($remaining, ceil($share))}
+                let kills     {int(min($remaining, ceil($share)))}
                 let remaining {$remaining - $kills}
 
                 # NEXT, if it's the implicit personnel, we're
@@ -241,8 +246,8 @@ snit::type aam {
                 }
 
                 # NEXT, it's a unit; attrit it.
-                let take {min($personnel, $kills)}
-                let personnel {$personnel - $take}
+                let take {int(min($personnel, $kills))}
+                let personnel {int($personnel - $take)}
 
 
                 # NEXT, apply the casualties to the unit
@@ -256,6 +261,114 @@ snit::type aam {
                     break
                 }
             }
+        }
+
+        return [join $undo \n]
+    }
+
+
+    # AttritNbhood n casualties
+    #
+    # n           Neighborhood in which attrition occurs
+    # casualties  The number of casualties
+    #
+    # Attrits the civilian groups and units in the neighborhood, 
+    # returning an undo script.
+
+    typemethod AttritNbhood {n casualties} {
+        # FIRST, prepare to undo
+        set undo [list]
+
+        # NEXT, get the neighborhood's population
+        set nbpop [demog getn $n population]
+
+        # NEXT, we have to leave at least one person in each
+        # group's implicit personnel.  How many resident
+        # groups are there?
+        set numResident [llength [nbgroup gIn $n]]
+
+        # NEXT, compute the actual number of casualties.
+        let actual {min($casualties, $nbpop - $numResident)}
+
+        if {$actual == 0} {
+            log normal aam \
+                "Overkill; no casualties can be inflicted."
+            return
+        } elseif {$actual < $casualties} {
+            log normal aam \
+                "Overkill; only $actual casualties can be inflicted."
+        }
+        
+        # NEXT, apply attrition to the bodies, in order of size.
+        set remaining $actual
+
+        rdb eval {
+            SELECT ''                                  AS u,
+                   g                                   AS g,
+                   implicit - 1                        AS personnel,
+                   $n                                  AS origin,
+                   $actual*(CAST (implicit AS REAL)/$nbpop)  
+                                                       AS share
+            FROM demog_ng 
+            WHERE n=$n AND implicit > 1
+            UNION
+            SELECT u                                   AS u,
+                   g                                   AS g,
+                   personnel                           AS personnel,
+                   origin                              AS origin,
+                   $actual*(CAST (personnel AS REAL)/$nbpop) 
+                                                       AS share
+            FROM units
+            WHERE n=$n AND personnel > 0
+            ORDER BY share DESC
+        } {
+            # FIRST, allocate the share to this body of people.
+            let kills     {int(min($remaining, ceil($share)))}
+            let remaining {$remaining - $kills}
+
+            # NEXT, compute the attrition.
+            let take {int(min($personnel, $kills))}
+            let personnel {int($personnel - $take)}
+
+            # NEXT, if it's attrition to a resident group, save it.
+            if {$n eq $origin} {
+                incr attr($g) $kills
+            }
+
+            # NEXT, if it's not a unit were done in this loop.
+            if {$u eq ""} {
+                continue
+            }
+
+            # NEXT, apply the casualties to the unit
+            log normal aam \
+                "Unit $u takes $take casualties, leaving $personnel personnel"
+            
+            lappend undo [unit mutate personnel $u $personnel]
+
+            # NEXT, we might have finished early
+            if {$remaining == 0} {
+                break
+            }
+        }
+
+        # NEXT, apply the accumulated attrition to each group in the
+        # neighborhood, saving the undo command.
+        rdb eval {
+            SELECT g, attrition
+            FROM demog_ng
+            WHERE n=$n
+        } {
+            if {![info exists attr($g)]} {
+                continue
+            }
+
+            lappend undo \
+                [mytypemethod SetNbgroupAttrition $n $g $attrition]
+
+            let newAttrition {$attrition + $attr($g)}
+
+            $type SetNbgroupAttrition $n $g $newAttrition
         }
 
         return [join $undo \n]
