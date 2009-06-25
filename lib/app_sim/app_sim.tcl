@@ -78,6 +78,7 @@ source [file join $::app_sim::library unit.tcl             ]
 # Non-GUI: Simulation
 source [file join $::app_sim::library sim.tcl              ]
 source [file join $::app_sim::library demog.tcl            ]
+source [file join $::app_sim::library aam.tcl              ]
 source [file join $::app_sim::library nbstat.tcl           ]
 source [file join $::app_sim::library security.tcl         ]
 source [file join $::app_sim::library activity.tcl         ]

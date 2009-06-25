@@ -85,37 +85,153 @@ snit::type ::projectlib::scenariodb {
         }
 
         activity_gtype {
-            { a NONE                 gtype CIV assignable 1 stype {}       }
-            { a DISPLACED            gtype CIV assignable 1 stype {}       }
-            { a IN_CAMP              gtype CIV assignable 1 stype {}       }
+            { a NONE                 
+                gtype        CIV 
+                assignable   1 
+                stype        {}       
+                attrit_order 0}
+            { a DISPLACED            
+                gtype        CIV 
+                assignable   1 
+                stype        {}       
+                attrit_order 1}
+            { a IN_CAMP              
+                gtype        CIV 
+                assignable   1 
+                stype        {}       
+                attrit_order 2}
 
-            { a NONE                 gtype FRC assignable 1 stype {}       }
-            { a CHECKPOINT           gtype FRC assignable 1 stype CHKPOINT }
-            { a CMO_CONSTRUCTION     gtype FRC assignable 1 stype CMOCONST }
-            { a CMO_DEVELOPMENT      gtype FRC assignable 1 stype CMODEV   }
-            { a CMO_EDUCATION        gtype FRC assignable 1 stype CMOEDU   }
-            { a CMO_EMPLOYMENT       gtype FRC assignable 1 stype CMOEMP   }
-            { a CMO_HEALTHCARE       gtype FRC assignable 1 stype CMOMED   }
-            { a CMO_INDUSTRY         gtype FRC assignable 1 stype CMOIND   }
-            { a CMO_INFRASTRUCTURE   gtype FRC assignable 1 stype CMOINF   }
-            { a CMO_LAW_ENFORCEMENT  gtype FRC assignable 1 stype CMOLAW   }
-            { a CMO_OTHER            gtype FRC assignable 1 stype CMOOTHER }
-            { a COERCION             gtype FRC assignable 1 stype COERCION }
-            { a CRIMINAL_ACTIVITIES  gtype FRC assignable 1 stype CRIMINAL }
-            { a CURFEW               gtype FRC assignable 1 stype CURFEW   }
-            { a GUARD                gtype FRC assignable 1 stype GUARD    }
-            { a PATROL               gtype FRC assignable 1 stype PATROL   }
-            { a PRESENCE             gtype FRC assignable 0 stype PRESENCE }
-            { a PSYOP                gtype FRC assignable 1 stype PSYOP    }
+            { a NONE                 
+                gtype        FRC 
+                assignable   1 
+                stype        {}       
+                attrit_order 0}
+            { a CHECKPOINT           
+                gtype        FRC 
+                assignable   1 
+                stype        CHKPOINT 
+                attrit_order 14}
+            { a CMO_CONSTRUCTION     
+                gtype        FRC 
+                assignable   1 
+                stype        CMOCONST 
+                attrit_order 1}
+            { a CMO_DEVELOPMENT      
+                gtype        FRC 
+                assignable   1 
+                stype        CMODEV   
+                attrit_order 2}
+            { a CMO_EDUCATION        
+                gtype        FRC 
+                assignable   1 
+                stype        CMOEDU   
+                attrit_order 3}
+            { a CMO_EMPLOYMENT       
+                gtype        FRC 
+                assignable   1 
+                stype        CMOEMP   
+                attrit_order 4}
+            { a CMO_HEALTHCARE       
+                gtype        FRC 
+                assignable   1 
+                stype        CMOMED   
+                attrit_order 9}
+            { a CMO_INDUSTRY         
+                gtype        FRC 
+                assignable   1 
+                stype        CMOIND   
+                attrit_order 5}
+            { a CMO_INFRASTRUCTURE   
+                gtype        FRC 
+                assignable   1 
+                stype        CMOINF   
+                attrit_order 6}
+            { a CMO_LAW_ENFORCEMENT  
+                gtype        FRC 
+                assignable   1 
+                stype        CMOLAW   
+                attrit_order 7}
+            { a CMO_OTHER            
+                gtype        FRC 
+                assignable   1 
+                stype        CMOOTHER 
+                attrit_order 8}
+            { a COERCION             
+                gtype        FRC 
+                assignable   1 
+                stype        COERCION 
+                attrit_order 11}
+            { a CRIMINAL_ACTIVITIES  
+                gtype        FRC 
+                assignable   1 
+                stype        CRIMINAL 
+                attrit_order 10}
+            { a CURFEW               
+                gtype        FRC 
+                assignable   1 
+                stype        CURFEW   
+                attrit_order 13}
+            { a GUARD                
+                gtype        FRC 
+                assignable   1 
+                stype        GUARD    
+                attrit_order 16}
+            { a PATROL               
+                gtype        FRC 
+                assignable   1 
+                stype        PATROL   
+                attrit_order 15}
+            { a PRESENCE             
+                gtype        FRC 
+                assignable   0 
+                stype        PRESENCE 
+                attrit_order 0}
+            { a PSYOP                
+                gtype        FRC 
+                assignable   1 
+                stype        PSYOP    
+                attrit_order 12}
             
-            { a NONE                 gtype ORG assignable 1 stype {}       }
-            { a CMO_CONSTRUCTION     gtype ORG assignable 1 stype ORGCONST }
-            { a CMO_EDUCATION        gtype ORG assignable 1 stype ORGEDU   }
-            { a CMO_EMPLOYMENT       gtype ORG assignable 1 stype ORGEMP   }
-            { a CMO_HEALTHCARE       gtype ORG assignable 1 stype ORGMED   }
-            { a CMO_INDUSTRY         gtype ORG assignable 1 stype ORGIND   }
-            { a CMO_INFRASTRUCTURE   gtype ORG assignable 1 stype ORGINF   }
-            { a CMO_OTHER            gtype ORG assignable 1 stype ORGOTHER }
+            { a NONE                 
+                gtype        ORG 
+                assignable   1 
+                stype        {}       
+                attrit_order 0}
+            { a CMO_CONSTRUCTION     
+                gtype        ORG 
+                assignable   1 
+                stype        ORGCONST 
+                attrit_order 1}
+            { a CMO_EDUCATION        
+                gtype        ORG 
+                assignable   1 
+                stype        ORGEDU   
+                attrit_order 2}
+            { a CMO_EMPLOYMENT       
+                gtype        ORG 
+                assignable   1 
+                stype        ORGEMP   
+                attrit_order 3}
+            { a CMO_HEALTHCARE       
+                gtype        ORG 
+                assignable   1 
+                stype        ORGMED   
+                attrit_order 7}
+            { a CMO_INDUSTRY         
+                gtype        ORG 
+                assignable   1 
+                stype        ORGIND   
+                attrit_order 4}
+            { a CMO_INFRASTRUCTURE   
+                gtype        ORG 
+                assignable   1 
+                stype        ORGINF   
+                attrit_order 5}
+            { a CMO_OTHER            
+                gtype        ORG 
+                assignable   1 
+                stype        ORGOTHER 
+                attrit_order 6}
         }
     }
 

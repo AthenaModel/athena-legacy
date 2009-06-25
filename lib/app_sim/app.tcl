@@ -114,6 +114,7 @@ snit::type app {
         report    init
         dam       init
         demog     init
+        aam       init
         nbhood    init
         nbrel     init
         group     init
