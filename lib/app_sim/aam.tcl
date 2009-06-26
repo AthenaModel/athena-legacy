@@ -52,7 +52,7 @@ snit::type aam {
     # the change cannot be undone, the mutator returns the empty string.
 
 
-    # mutate attrit parmdict
+    # mutate attritng parmdict
     #
     # parmdict      Dictionary of order parms
     #
@@ -73,40 +73,29 @@ snit::type aam {
     # CIV Attrition
     #
     # If g is a civilian group, the group's implicit population is
-    # attrited.  If g is "CIV", meaning civilian collateral damage,
-    # then the casualties are allocated to groups in proportion to
-    # their population, and their implicit population is attrited.
+    # attrited and units are attrited proportionally.
     #
-    # TBD: Talk to Bob; we should really attrit civilian units as
-    # well, especially for magic attrition.  Units first, in attrit_order,
-    # then implicit population?
+    # If g is "CIV", meaning civilian collateral damage,
+    # then the casualties are allocated to the implicit population of
+    # all groups in the neighborhood, and to all civilian units
+    # in the neighborhood, in proportion to their population.
+    #
+    # NOTE: the caller should be sure to call "demog analyze"
+    # after all attrition is done.
 
-    typemethod {mutate attrit} {parmdict} {
-        # FIRST, prepare for undo
-        set undo [list]
-
+    typemethod {mutate attritng} {parmdict} {
         dict with parmdict {
             log normal aam "mutate attrit $n $g $casualties"
 
             # FIRST, determine what kind of attrition we're doing.
             # Civilian attrition is handled by the demographics model.
             if {$g eq "CIV"} {
-                lappend undo [$type AttritNbhood $n $casualties]
-                # TBD: This shouldn't be here.  The attrition cycle
-                # should call this once after computing attrition,
-                # and the orders should call it after applying
-                # attrition.
-                lappend undo [demog analyze]
+                return [$type AttritNbhood $n $casualties]
             } else {
                 if {[group gtype $g] eq "CIV"} {
-                    lappend undo [$type AttritNbgroup $n $g $casualties]
-                    # TBD: This shouldn't be here.  The attrition cycle
-                    # should call this once after computing attrition,
-                    # and the orders should call it after applying
-                    # attrition.
-                    lappend undo [demog analyze]
+                    return [$type AttritNbgroup $n $g $casualties]
                 } else {
-                    lappend undo [$type AttritFrcOrgUnits $n $g $casualties]
+                    return [$type AttritFrcOrgUnits $n $g $casualties]
                 }
             }
         }
@@ -221,7 +210,7 @@ snit::type aam {
 
             rdb eval {
                 SELECT ''                                  AS u,
-                       ''                                  AS personnel,
+                       implicit - 1                        AS personnel,
                        $actual*(CAST (implicit AS REAL)/$population)  
                                                            AS share
                 FROM demog_ng 
@@ -236,7 +225,7 @@ snit::type aam {
                 ORDER BY share DESC
             } {
                 # FIRST, allocate the share to this body of people.
-                let kills     {int(min($remaining, ceil($share)))}
+                let kills     {int(min($remaining, ceil($share), $personnel))}
                 let remaining {$remaining - $kills}
 
                 # NEXT, if it's the implicit personnel, we're
@@ -246,13 +235,12 @@ snit::type aam {
                 }
 
                 # NEXT, it's a unit; attrit it.
-                let take {int(min($personnel, $kills))}
-                let personnel {int($personnel - $take)}
+                let personnel {int($personnel - $kills)}
 
 
                 # NEXT, apply the casualties to the unit
                 log normal aam \
-                "Unit $u takes $take casualties, leaving $personnel personnel"
+                "Unit $u takes $kills casualties, leaving $personnel personnel"
             
                 lappend undo [unit mutate personnel $u $personnel]
 
@@ -330,10 +318,8 @@ snit::type aam {
             let take {int(min($personnel, $kills))}
             let personnel {int($personnel - $take)}
 
-            # NEXT, if it's attrition to a resident group, save it.
-            if {$n eq $origin} {
-                incr attr($g) $kills
-            }
+            # NEXT, prepare to save the proper group's attrition.
+            incr attr([list $origin $g]) $kills
 
             # NEXT, if it's not a unit were done in this loop.
             if {$u eq ""} {
@@ -354,19 +340,14 @@ snit::type aam {
 
         # NEXT, apply the accumulated attrition to each group in the
         # neighborhood, saving the undo command.
-        rdb eval {
-            SELECT g, attrition
-            FROM demog_ng
-            WHERE n=$n
-        } {
-            if {![info exists attr($g)]} {
-                continue
-            }
+        foreach ng [array names attr] {
+            lassign $ng n g
+            set oldAttrition [demog getng $n $g attrition]
 
             lappend undo \
-                [mytypemethod SetNbgroupAttrition $n $g $attrition]
+                [mytypemethod SetNbgroupAttrition $n $g $oldAttrition]
 
-            let newAttrition {$attrition + $attr($g)}
+            let newAttrition {$oldAttrition + $attr($ng)}
 
             $type SetNbgroupAttrition $n $g $newAttrition
         }

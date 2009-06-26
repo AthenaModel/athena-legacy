@@ -305,6 +305,126 @@ snit::type ted {
             location  {0 0}
             a         NONE
         }
+
+        defentity BRIT1 ::unit {
+            g         BRIT
+            u         BRIT1
+            personnel 15
+            location  {0 0}
+            a         NONE
+        }
+
+        defentity BRIT2 ::unit {
+            g         BRIT
+            u         BRIT2
+            personnel 15
+            location  {0 0}
+            a         NONE
+        }
+
+        defentity USAID1 ::unit {
+            g         USAID
+            u         USAID1
+            personnel 15
+            location  {0 0}
+            a         NONE
+        }
+
+        defentity USAID2 ::unit {
+            g         USAID
+            u         USAID2
+            personnel 15
+            location  {0 0}
+            a         NONE
+        } 
+
+        defentity HAL1 ::unit {
+            g         HAL
+            u         HAL1
+            personnel 15
+            location  {0 0}
+            a         NONE
+        }
+
+        defentity HAL2 ::unit {
+            g         HAL
+            u         HAL2
+            personnel 15
+            location  {0 0}
+            a         NONE
+        }
+
+        defentity NB1SHIA1 ::unit {
+            g         SHIA
+            origin    NB1
+            u         NB1SHIA1
+            personnel 15
+            location  {0 0}
+            a         NONE
+        }
+
+        defentity NB1SHIA2 ::unit {
+            g         SHIA
+            origin    NB1
+            u         NB1SHIA2
+            personnel 15
+            location  {0 0}
+            a         NONE
+        }
+
+        defentity NB1SUNN1 ::unit {
+            g         SUNN
+            origin    NB1
+            u         NB1SUNN1
+            personnel 15
+            location  {0 0}
+            a         NONE
+        }
+
+        defentity NB1SUNN2 ::unit {
+            g         SUNN
+            origin    NB1
+            u         NB1SUNN2
+            personnel 15
+            location  {0 0}
+            a         NONE
+        }
+
+        defentity NB2SHIA1 ::unit {
+            g         SHIA
+            origin    NB2
+            u         NB2SHIA1
+            personnel 15
+            location  {0 0}
+            a         NONE
+        }
+
+        defentity NB2SHIA2 ::unit {
+            g         SHIA
+            origin    NB2
+            u         NB2SHIA2
+            personnel 15
+            location  {0 0}
+            a         NONE
+        }
+
+        defentity NB2SUNN1 ::unit {
+            g         SUNN
+            origin    NB2
+            u         NB2SUNN1
+            personnel 15
+            location  {0 0}
+            a         NONE
+        }
+
+        defentity NB2SUNN2 ::unit {
+            g         SUNN
+            origin    NB2
+            u         NB2SUNN2
+            personnel 15
+            location  {0 0}
+            a         NONE
+        }
     }
 
     # defentity name module parmdict
