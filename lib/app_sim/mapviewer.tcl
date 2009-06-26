@@ -1177,6 +1177,14 @@ snit::widget mapviewer {
         }
 
         set sid $icons(context)
+
+        # If the icon once exist but has been deleted, forget
+        # it and return 0.
+        if {![info exists icons(cid-$sid)]} {
+            set icons(context) ""
+            return 0
+        }
+
         set cid $icons(cid-$sid)
         set itype $icons(itype-$cid)
 
@@ -1358,6 +1366,11 @@ snit::widget mapviewer {
             [menuitem $mnu command "Set Unit Personnel" \
                  -command [mymethod UpdateUnit PERSONNEL]] \
             order UNIT:PERSONNEL
+
+        cond::orderIsValid control \
+            [menuitem $mnu command "Magic Attrit Unit" \
+                 -command [mymethod AttritUnit]] \
+            order ATTRIT:UNIT
     }
 
     # UpdateUnit suffix
@@ -1366,6 +1379,14 @@ snit::widget mapviewer {
 
     method UpdateUnit {suffix} {
         order enter UNIT:$suffix u $icons(context)
+    }
+
+    # AttritUnit
+    #
+    # Pops up the relevant order dialog for this unit
+
+    method AttritUnit {} {
+        order enter ATTRIT:UNIT u $icons(context)
     }
 
     #-------------------------------------------------------------------

@@ -442,4 +442,36 @@ snit::type aam {
 #-------------------------------------------------------------------
 # Orders
 
+# ATTRIT:UNIT
+#
+# Attrits a single unit.
+
+order define ::aam ATTRIT:UNIT {
+    title "Magic Attrit Unit"
+    options \
+        -sendstates {PREP PAUSED RUNNING}
+
+    parm u          enum  "Unit"       -type unit -tags unit
+    parm casualties text  "Casualties" 
+} {
+    # FIRST, prepare the parameters
+    prepare u          -toupper -required -type unit
+    prepare casualties -toupper -required -type iquantity
+
+    returnOnError
+
+    # NEXT, get the unit's group type
+    set gtype [unit get $parms(u) gtype]
+
+    # NEXT, attrit the unit
+    lappend undo [$type mutate attritunit [array get parms]]
+
+    # NEXT, if it's a civilian unit, update the demographics
+    if {$gtype eq "CIV"} {
+        lappend undo [demog analyze]
+    }
+
+    setundo [join $undo \n]
+}
+
 

@@ -498,6 +498,14 @@ snit::widget appwin {
         $self AddOrder $submenu UNIT:MOVE
         $self AddOrder $submenu UNIT:ACTIVITY
         $self AddOrder $submenu UNIT:PERSONNEL
+        $self AddOrder $submenu ATTRIT:UNIT
+
+        # Orders/Attrition
+        set submenu [menu $ordersmenu.attrit]
+        $ordersmenu add cascade -label "Attrition" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu ATTRIT:UNIT
 
         # Orders/Situation
         set submenu [menu $ordersmenu.sit]
@@ -1688,16 +1696,3 @@ snit::widget appwin {
         $msgline puts $text
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

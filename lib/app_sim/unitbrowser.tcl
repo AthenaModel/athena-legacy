@@ -111,6 +111,34 @@ snit::widgetadaptor unitbrowser {
             X  #000000
         }
 
+        mkicon ${type}::icon::attrition {
+            ......................
+            ......................
+            .......X........XXX...
+            ......X.XXXX....XXX...
+            ......X.XXXXXXXXXXX...
+            .....X.XXXXXXXXXXXX...
+            .....X.XXXXXXXXXXXX...
+            .....X.XXXXXXXXXXXX...
+            .....X.XXXXXXXXXXXX...
+            ......X.XXXXX...XXX...
+            ......X.XXX.....XXX...
+            .......X.X......XXX...
+            ........X.......XXX...
+            ................XXX...
+            ................XXX...
+            ................XXX...
+            ................XXX...
+            ................XXX...
+            ................XXX...
+            ................XXX...
+            ................XXX...
+            ......................
+            ......................
+        } {
+            .  trans
+            X  #000000
+        }
     }
 
     #-------------------------------------------------------------------
@@ -126,6 +154,7 @@ snit::widgetadaptor unitbrowser {
     component movebtn     ;# The "Move" button
     component actbtn      ;# The "Activity" button
     component perbtn      ;# The "Personnel" button
+    component attbtn      ;# The "Attrition" button
     component deletebtn   ;# The "Delete" button
 
     #--------------------------------------------------------------------
@@ -193,6 +222,21 @@ snit::widgetadaptor unitbrowser {
             browser $win
 
 
+        # Attrition Button
+        install attbtn using button $bar.att         \
+            -image      ${type}::icon::attrition     \
+            -relief     flat                         \
+            -overrelief raised                       \
+            -state      disabled                     \
+            -command    [mymethod AttritSelected]
+
+        DynamicHelp::add $attbtn -text "Attrit Selected Unit"
+
+        cond::orderIsValidSingle control $attbtn    \
+            order   ATTRIT:UNIT                     \
+            browser $win
+
+
         # Move Button
         install movebtn using button $bar.move       \
             -image      ${type}::icon::crosshair     \
@@ -226,6 +270,7 @@ snit::widgetadaptor unitbrowser {
         pack $addbtn    -side left
         pack $actbtn    -side left
         pack $perbtn    -side left
+        pack $attbtn    -side left
         pack $movebtn   -side left
         pack $deletebtn -side right
 
@@ -287,7 +332,7 @@ snit::widgetadaptor unitbrowser {
     method SelectionChanged {} {
         # FIRST, update buttons
         cond::orderIsValidSingle update \
-            [list $movebtn $actbtn $perbtn $deletebtn]
+            [list $movebtn $actbtn $perbtn $attbtn $deletebtn]
 
         # NEXT, notify the app of the selection.
         if {[llength [$hull curselection]] == 1} {
@@ -338,6 +383,17 @@ snit::widgetadaptor unitbrowser {
         set id [lindex [$hull curselection] 0]
 
         order enter UNIT:PERSONNEL u $id
+    }
+
+
+    # AttritSelected
+    #
+    # Called when the user wants to attrit the unit's personnel
+
+    method AttritSelected {} {
+        set id [lindex [$hull curselection] 0]
+
+        order enter ATTRIT:UNIT u $id
     }
 
 
