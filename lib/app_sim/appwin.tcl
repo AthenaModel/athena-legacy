@@ -505,6 +505,8 @@ snit::widget appwin {
         $ordersmenu add cascade -label "Attrition" \
             -underline 0 -menu $submenu
         
+        $self AddOrder $submenu ATTRIT:NBHOOD
+        $self AddOrder $submenu ATTRIT:GROUP
         $self AddOrder $submenu ATTRIT:UNIT
 
         # Orders/Situation

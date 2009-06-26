@@ -74,46 +74,231 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test UNIT-2.1 {unit is attrited} -setup {
+    test UNIT-2.1 {unit and nbgroup are attrited} -setup {
         ted create NB1 SHIA NB1SHIA NB1SHIA1
     } -body {
+        ted notifier bind ::unit <Entity>
+        ted notifier bind ::demog <Update>
         ted order ATTRIT:UNIT u NB1SHIA1 casualties 5
-        ted query {SELECT u, personnel FROM units}
+        ted notifier received
     } -cleanup {
         cleanup
     } -result {
-u        personnel 
--------- --------- 
-NB1SHIA1 10        
-    }
-
-
-    test UNIT-2.2 {demographics are updated} -setup {
-        ted create NB1 SHIA NB1SHIA NB1SHIA1
-    } -body {
-        ted order ATTRIT:UNIT u NB1SHIA1 casualties 5
-        ted query {SELECT * FROM demog_ng}
-    } -cleanup {
-        cleanup
-    } -result {
-n   g    attrition explicit displaced implicit population 
---- ---- --------- -------- --------- -------- ---------- 
-NB1 SHIA 5         10       10        985      985        
+        {::unit <Entity> update NB1SHIA1}
+        {::demog <Update>}
     }
 
     test UNIT-3.1 {undo undoes the change} -setup {
-        ted create NB1 NB1SHIA NB1SHIA1
+        ted create NB1 SHIA NB1SHIA NB1SHIA1
         ted order ATTRIT:UNIT u NB1SHIA1 casualties 5
     } -body {
         ted notifier bind ::unit <Entity>
+        ted notifier bind ::demog <Update>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::unit <Entity> update NB1SHIA1}
+        {::demog <Update>}
     }
 
+
+    #-------------------------------------------------------------------
+    # ATTRIT:NBHOOD
+
+    test NBHOOD-1.1 {required parms} -body {
+        ted order -reject ATTRIT:NBHOOD {}
+    } -result {
+        n {required value}
+        casualties {required value}
+    }
+    
+
+    test NBHOOD-1.2 {invalid nbhood} -body {
+        ted order -reject ATTRIT:NBHOOD n NONESUCH casualties 25
+    } -result {
+        n {Invalid neighborhood, none are defined}
+    }
+
+
+    test NBHOOD-1.3 {invalid casualties} -setup {
+        ted create NB1
+    } -body {
+        ted order -reject ATTRIT:NBHOOD n NB1 casualties NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        casualties {invalid value "NONESUCH", expected integer}
+    }
+
+
+    test NBHOOD-1.4 {negative casualties} -setup {
+        ted create NB1
+    } -body {
+        ted order -reject ATTRIT:NBHOOD n NB1 casualties -1
+    } -cleanup {
+        cleanup
+    } -result {
+        casualties {invalid value "-1", expected integer no less than 0}
+    }
+
+
+    test NBHOOD-2.1 {nbgroups and units are attrited} -setup {
+        ted create NB1 SHIA NB1SHIA NB1SHIA1
+        ted unit location NB1SHIA1 NB1
+    } -body {
+        ted notifier bind ::unit <Entity>
+        ted notifier bind ::demog <Update>
+        ted order ATTRIT:NBHOOD n NB1 casualties 1000
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update NB1SHIA1}
+        {::demog <Update>}
+    }
+
+    test NBHOOD-3.1 {undo undoes the change} -setup {
+        ted create NB1 SHIA NB1SHIA NB1SHIA1
+        ted unit location NB1SHIA1 NB1
+        ted order ATTRIT:NBHOOD n NB1 casualties 1000
+    } -body {
+        ted notifier bind ::unit <Entity>
+        ted notifier bind ::demog <Update>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update NB1SHIA1}
+        {::demog <Update>}
+    }
+
+
+    #-------------------------------------------------------------------
+    # ATTRIT:GROUP
+
+    test GROUP-1.1 {required parms} -body {
+        ted order -reject ATTRIT:GROUP {}
+    } -result {
+        n {required value}
+        g {required value}
+        casualties {required value}
+    }
+    
+
+    test GROUP-1.2 {invalid nbhood} -setup {
+        ted create SHIA
+    } -body {
+        ted order -reject ATTRIT:GROUP n NONESUCH g SHIA casualties 25
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood, none are defined}
+    }
+
+
+    test GROUP-1.3 {invalid group} -setup {
+        ted create NB1
+    } -body {
+        ted order -reject ATTRIT:GROUP n NB1 g NONESUCH casualties 25
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid group, none are defined}
+    }
+
+
+
+    test GROUP-1.4 {invalid casualties} -setup {
+        ted create NB1 SHIA
+    } -body {
+        ted order -reject ATTRIT:GROUP n NB1 g SHIA casualties NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        casualties {invalid value "NONESUCH", expected integer}
+    }
+
+
+    test GROUP-1.5 {negative casualties} -setup {
+        ted create NB1 SHIA
+    } -body {
+        ted order -reject ATTRIT:GROUP n NB1 g SHIA casualties -1
+    } -cleanup {
+        cleanup
+    } -result {
+        casualties {invalid value "-1", expected integer no less than 0}
+    }
+
+
+    test GROUP-2.1 {FRC units are attrited} -setup {
+        ted create NB1 BLUE BLUE1 BLUE2
+        ted unit location BLUE1 NB1
+        ted unit location BLUE2 NB1
+    } -body {
+        ted notifier bind ::unit <Entity>
+        ted order ATTRIT:GROUP n NB1 g BLUE casualties 100
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update BLUE1}
+        {::unit <Entity> update BLUE2}
+    }
+
+
+    test GROUP-2.2 {ORG units are attrited} -setup {
+        ted create NB1 USAID USAID1 USAID2
+        ted unit location USAID1 NB1
+        ted unit location USAID2 NB1
+    } -body {
+        ted notifier bind ::unit <Entity>
+        ted order ATTRIT:GROUP n NB1 g USAID casualties 100
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update USAID1}
+        {::unit <Entity> update USAID2}
+    }
+
+
+    test GROUP-2.3 {CIV units and nbgroup are attrited} -setup {
+        ted create NB1 SHIA NB1SHIA NB1SHIA1 NB1SHIA2
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SHIA2 NB1
+    } -body {
+        ted notifier bind ::unit <Entity>
+        ted notifier bind ::demog <Update>
+        ted order ATTRIT:GROUP n NB1 g SHIA casualties 1000
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update NB1SHIA1}
+        {::unit <Entity> update NB1SHIA2}
+        {::demog <Update>}
+    }
+
+    test GROUP-3.1 {undo undoes the change} -setup {
+        ted create NB1 SHIA NB1SHIA NB1SHIA1 NB1SHIA2
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SHIA2 NB1
+        ted order ATTRIT:GROUP n NB1 g SHIA casualties 1000
+    } -body {
+        ted notifier bind ::unit <Entity>
+        ted notifier bind ::demog <Update>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update NB1SHIA1}
+        {::unit <Entity> update NB1SHIA2}
+        {::demog <Update>}
+    }
 
     #-------------------------------------------------------------------
     # Cleanup

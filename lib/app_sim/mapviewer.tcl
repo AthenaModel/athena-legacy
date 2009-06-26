@@ -918,19 +918,24 @@ snit::widget mapviewer {
         
         cond::orderIsValid control \
             [menuitem $mnu command "Create Environmental Situation" \
-                 -command [mymethod NbhoodCreateEnsitHere]]        \
+                 -command [mymethod NbhoodCreateEnsitHere]]         \
             order SITUATION:ENVIRONMENTAL:CREATE
 
         $mnu add separator
 
         cond::orderIsValid control \
-            [menuitem $mnu command "Bring to Front"      \
-                 -command [mymethod NbhoodBringToFront]] \
+            [menuitem $mnu command "Attrit Civilians in Neighborhood" \
+                 -command [mymethod NbhoodAttrit]]                    \
+            order ATTRIT:NBHOOD
+
+        cond::orderIsValid control \
+            [menuitem $mnu command "Bring Neighborhood to Front" \
+                 -command [mymethod NbhoodBringToFront]]         \
             order NBHOOD:RAISE
 
         cond::orderIsValid control \
-            [menuitem $mnu command "Send to Back"        \
-                 -command [mymethod NbhoodSendToBack]]   \
+            [menuitem $mnu command "Send Neighborhood to Back" \
+                 -command [mymethod NbhoodSendToBack]]         \
             order NBHOOD:LOWER
     }
 
@@ -950,6 +955,15 @@ snit::widget mapviewer {
 
     method NbhoodCreateEnsitHere {} {
         order enter SITUATION:ENVIRONMENTAL:CREATE location $nbhoods(transref)
+    }
+
+
+    # NbhoodAttrit
+    #
+    # Attrits all civilians in the neighborhood
+
+    method NbhoodAttrit {} {
+        order enter ATTRIT:NBHOOD n $nbhoods(trans)
     }
 
 

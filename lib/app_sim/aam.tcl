@@ -41,7 +41,7 @@ snit::type aam {
     #-------------------------------------------------------------------
     # Queries
 
-    # TBD -- will there be any?
+    # TBD
 
     #-------------------------------------------------------------------
     # Mutators
@@ -437,10 +437,101 @@ snit::type aam {
 
         return [join $undo \n]
     }
+
+    #-------------------------------------------------------------------
+    # Order Helpers
+
+    # RefreshGroup field parmdict
+    #
+    # field     The "Group" field in an A:GROUP order.
+    # parmdict  The current values of the various fields.
+    #
+    # Sets the valid group values, if it's not set.
+
+    typemethod RefreshGroup {field parmdict} {
+        dict with parmdict {
+            set groups [rdb eval {
+                SELECT DISTINCT g
+                FROM units
+                WHERE n=$n AND gtype != 'CIV'
+                UNION
+                SELECT DISTINCT g
+                FROM demog_ng
+                WHERE n=$n
+                ORDER BY g
+            }]
+
+            $field configure -values $groups
+        }
+    }
 }
 
 #-------------------------------------------------------------------
 # Orders
+
+
+# ATTRIT:NBHOOD
+#
+# Attrits all civilians in a neighborhood.
+
+order define ::aam ATTRIT:NBHOOD {
+    title "Magic Attrit Neighborhood"
+    options \
+        -sendstates {PREP PAUSED RUNNING}
+
+    parm n          enum  "Neighborhood"  -type nbhood  -tags nbhood -refresh
+    parm casualties text  "Casualties" 
+} {
+    # FIRST, prepare the parameters
+    prepare n          -toupper -required -type nbhood
+    prepare casualties -toupper -required -type iquantity
+
+    returnOnError
+
+    # NEXT, attrit the civilians in the neighborhood
+    set parms(g) "CIV"
+    lappend undo [$type mutate attritng [array get parms]]
+    lappend undo [demog analyze]
+
+    setundo [join $undo \n]
+}
+
+
+# ATTRIT:GROUP
+#
+# Attrits a group in a neighborhood.
+
+order define ::aam ATTRIT:GROUP {
+    title "Magic Attrit Group"
+    options \
+        -sendstates {PREP PAUSED RUNNING}
+
+    parm n          enum  "Neighborhood"  -type nbhood  -tags nbhood -refresh
+    parm g          enum  "Group"         -tags group  \
+        -refreshcmd [list ::aam RefreshGroup]
+    parm casualties text  "Casualties" 
+} {
+    # FIRST, prepare the parameters
+    prepare n          -toupper -required -type nbhood
+    prepare g          -toupper -required -type group
+    prepare casualties -toupper -required -type iquantity
+
+    returnOnError
+
+    # NEXT, get the group type
+    set gtype [group gtype $parms(g)]
+
+    # NEXT, attrit the group
+    lappend undo [$type mutate attritng [array get parms]]
+
+    # NEXT, if it's a civilian group, update the demographics
+    if {$gtype eq "CIV"} {
+        lappend undo [demog analyze]
+    }
+
+    setundo [join $undo \n]
+}
+
 
 # ATTRIT:UNIT
 #
