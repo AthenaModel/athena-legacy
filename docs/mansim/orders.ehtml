@@ -41,6 +41,102 @@ All user inputs to the athena_sim(1) simulation come in as simulation
 orders, which are defined by the various simulation modules.  This man
 page documents the orders and their parameters.<p>
 
+<<section "ATTRIT:*">>
+
+These orders allow magic attrition to units and neighborhood groups.
+All casualties are are assumed to be kills.<p>
+
+<<deflist attrit>>
+
+<<defitem ATTRIT:UNIT {ATTRIT:UNIT}>>
+
+Attrits a unit by a specified number of casualties.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm u>> <b>Required.</b>  The name of an existing unit.<</parm>>
+
+<<parm casualties>> <b>Required.</b>  The number of personnel to be
+attrited, an <<xref projtypes(n) iquantity>> value.
+<</parm>>
+
+<</parmlist>>
+
+
+<<defitem ATTRIT:GROUP {ATTRIT:GROUP}>>
+
+Attrits a group in a neighborhood by a specified number of casualties.
+The effect depends on the kind of group.<p>
+
+<b>Force and Organization Groups:</b>  The group's units are attrited
+by the specified number of casualties.  Units are attrited in priority
+order based on their activities, from lowest priority to greatest
+priority; thus, a unit with activity NONE is attrited before one with
+activity PATROL.<p>
+
+If the group has fewer personnel in the neighborhood
+than the requested number of casualties, then all of the group's units
+in the neighborhood will be reduced to
+zero personnel.  If the group has no units in the neighborhood, this
+order has no effect.<p>
+
+<b>Civilian Groups:</b> The group's units and implicit population are
+attrited proportionally to their size.<p>
+
+If the group's population is less than the requested number of
+casualties, then all of the group's units in the neighborhood will be
+reduced to zero personnel and its implicit population will be reduced
+to 1 person (a neighborhood group's population may not drop to 0).  If
+the group does not reside in the neighborhood, this order has no effect.<p>
+
+Note that civilian units outside of their neighborhood of origin are
+never attrited by this order.<p>
+
+The parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm n>> <b>Required.</b>  The name of an existing neighborhood.<</parm>>
+<<parm g>> <b>Required.</b>  The name of an existing group.<</parm>>
+
+<<parm casualties>> <b>Required.</b>  The number of personnel to be
+attrited, an <<xref projtypes(n) iquantity>> value.
+<</parm>>
+
+<</parmlist>>
+
+<<defitem ATTRIT:NBHOOD {ATTRIT:NBHOOD}>>
+
+Attrits all civilians in a neighborhood by a specified number of casualties.
+All civilian units and implicit populations are
+attrited proportionally to their size.  <b>NOTE:</b> all civilian
+units present in the neighborhood can be attrited, including those
+from other neighborhoods.<p>
+
+If the neighborhood's population is less than the requested number of
+casualties, then all of the civilian units in the neighborhood will be
+reduced to zero personnel and all of the implicit populations will be reduced
+to 1 person (a neighborhood group's population may not drop to 0).<p>
+
+The parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm n>> <b>Required.</b>  The name of an existing neighborhood.<</parm>>
+
+<<parm casualties>> <b>Required.</b>  The number of personnel to be
+attrited, an <<xref projtypes(n) iquantity>> value.
+<</parm>>
+
+<</parmlist>>
+
+
+
+
+<</deflist attrit>>
+
+
 <<section "COOPERATION:*">>
 
 The <code>COOPERATION:*</code> orders are used to modify and
