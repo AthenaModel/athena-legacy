@@ -8,7 +8,7 @@
 <node CREATED="1243869063603" ID="Freemind_Link_963259115" MODIFIED="1245882363502" TEXT="Athena Attrition Model">
 <icon BUILTIN="full-1"/>
 </node>
-<node CREATED="1241624415166" ID="Freemind_Link_472031065" MODIFIED="1245882365270" TEXT="Displaced Civilians/Refugees">
+<node CREATED="1241624415166" FOLDED="true" ID="Freemind_Link_472031065" MODIFIED="1245882365270" TEXT="Displaced Civilians/Refugees">
 <icon BUILTIN="full-1"/>
 <node CREATED="1241624443469" ID="Freemind_Link_1269891450" MODIFIED="1245882297155" TEXT="Model refugees as civilian units with activity DISPLACED">
 <icon BUILTIN="button_ok"/>
@@ -92,7 +92,7 @@
 <node CREATED="1241215878848" ID="Freemind_Link_957640958" MODIFIED="1241215882778" TEXT="Level vs. Slope"/>
 <node CREATED="1241215883249" ID="Freemind_Link_1735758744" MODIFIED="1241215886122" TEXT="Sat vs Coop"/>
 </node>
-<node CREATED="1239210066312" ID="Freemind_Link_1735127823" MODIFIED="1245882433454" TEXT="Slope effect bounds">
+<node CREATED="1239210066312" FOLDED="true" ID="Freemind_Link_1735127823" MODIFIED="1245882433454" TEXT="Slope effect bounds">
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1239210082792" ID="Freemind_Link_21995878" MODIFIED="1239210115298" TEXT="Effect scales to bound other than +/- 100"/>
 <node CREATED="1239210116617" ID="Freemind_Link_16044741" MODIFIED="1239210129458" TEXT="Effect is ignored if level exceeds bound"/>
@@ -326,7 +326,7 @@
 </node>
 <node CREATED="1237479990726" ID="Freemind_Link_1486904062" MODIFIED="1242242438803" POSITION="right" TEXT="Map GUI">
 <node CREATED="1243610985766" ID="Freemind_Link_1124965888" MODIFIED="1243611022272" TEXT="Can mapviewer(sim) be modularized?"/>
-<node CREATED="1237481843234" ID="Freemind_Link_1306844691" MODIFIED="1245882636814" TEXT="Set unit shapes based on relationships">
+<node CREATED="1237481843234" FOLDED="true" ID="Freemind_Link_1306844691" MODIFIED="1245882636814" TEXT="Set unit shapes based on relationships">
 <icon BUILTIN="full-4"/>
 <node CREATED="1237481854578" ID="Freemind_Link_720065925" MODIFIED="1237481862230" TEXT="WRT user-selected group"/>
 <node CREATED="1237481862754" ID="Freemind_Link_1299949235" MODIFIED="1237481887774" TEXT="qgrouprel defines FRIEND, NEUTRAL, ENEMY"/>
@@ -341,14 +341,14 @@
 <icon BUILTIN="full-4"/>
 <node CREATED="1237482180474" ID="Freemind_Link_1659229339" MODIFIED="1237482185838" TEXT="By icon type"/>
 </node>
-<node CREATED="1242251888314" ID="Freemind_Link_540157612" MODIFIED="1245882932951" TEXT="Enable/disable envsit icons">
+<node CREATED="1242251888314" FOLDED="true" ID="Freemind_Link_540157612" MODIFIED="1245882932951" TEXT="Enable/disable envsit icons">
 <icon BUILTIN="full-4"/>
 <node CREATED="1242251898217" ID="Freemind_Link_901616595" MODIFIED="1242251900787" TEXT="All"/>
 <node CREATED="1242251901338" ID="Freemind_Link_1052726683" MODIFIED="1242251902755" TEXT="Current"/>
 <node CREATED="1242251903034" ID="Freemind_Link_1053169404" MODIFIED="1242251904515" TEXT="Ended"/>
 <node CREATED="1242251904841" ID="Freemind_Link_1296804293" MODIFIED="1242251908099" TEXT="None"/>
 </node>
-<node CREATED="1242251949130" ID="Freemind_Link_1306195532" MODIFIED="1245882972519" TEXT="Envsit context menu">
+<node CREATED="1242251949130" FOLDED="true" ID="Freemind_Link_1306195532" MODIFIED="1245882972519" TEXT="Envsit context menu">
 <icon BUILTIN="full-4"/>
 <node CREATED="1242251952906" ID="Freemind_Link_1286947887" MODIFIED="1242251956675" TEXT="Resolve Situation"/>
 <node CREATED="1242251956970" ID="Freemind_Link_184985576" MODIFIED="1242251960147" TEXT="Delete Situation"/>
@@ -356,7 +356,7 @@
 <node CREATED="1241813623814" ID="Freemind_Link_1926362182" MODIFIED="1245882942989" TEXT="Spawned envsits should be offset from their parent&apos;s location">
 <icon BUILTIN="full-5"/>
 </node>
-<node CREATED="1242242263068" ID="Freemind_Link_812896575" MODIFIED="1245882948765" TEXT="Nbhood context menu">
+<node CREATED="1242242263068" FOLDED="true" ID="Freemind_Link_812896575" MODIFIED="1245882948765" TEXT="Nbhood context menu">
 <icon BUILTIN="full-5"/>
 <node CREATED="1242242268299" ID="Freemind_Link_1520143269" MODIFIED="1242251988899" TEXT="Update Neighborhood"/>
 <node CREATED="1242242274059" ID="Freemind_Link_1324604126" MODIFIED="1242251993812" TEXT="Delete Neighborhood"/>
