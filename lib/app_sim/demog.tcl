@@ -94,7 +94,12 @@ snit::type demog {
     }
 
     typemethod ComputeN {} {
-        # FIRST, get total implicit population and labor force
+        # FIRST, initialize the pop() and labor() arrays
+        set dict [rdb eval {SELECT n, 0 FROM nbhoods}]
+        array set pop $dict
+        array set labor $dict
+
+        # NEXT, get total implicit population and labor force
         set lff [parmdb get demog.laborForceFraction.NONE]
 
         rdb eval {

@@ -85,10 +85,9 @@ snit::type aam {
 
     typemethod {mutate attritng} {parmdict} {
         dict with parmdict {
-            log normal aam "mutate attrit $n $g $casualties"
+            log normal aam "mutate attritng $n $g $casualties"
 
             # FIRST, determine what kind of attrition we're doing.
-            # Civilian attrition is handled by the demographics model.
             if {$g eq "CIV"} {
                 return [$type AttritNbhood $n $casualties]
             } else {
@@ -372,6 +371,72 @@ snit::type aam {
         }
     }
     
+    # mutate attritunit parmdict
+    #
+    # parmdict      Dictionary of order parms
+    #
+    #   u           Unit to be attrited.
+    #   casualties  Number of casualties taken by the unit.
+    #
+    # Attrits the specified unit by the specified number of 
+    # casualties (all of which are kills).
+    #
+    # CIV Attrition
+    #
+    # If u is a CIV unit, the attrition is counted against the
+    # unit's neighborhood group.  In this case, the caller should 
+    # be sure to call "demog analyze".
+
+    typemethod {mutate attritunit} {parmdict} {
+        dict with parmdict {
+            log normal aam "mutate attritunit $u $casualties"
+
+            # FIRST, prepare to undo
+            set undo [list]
+
+            # NEXT, retrieve the unit.
+            set unit [unit get $u]
+
+            dict with unit {
+                # FIRST, get the actual number of casualties the
+                # unit can take.
+                let actual {min($casualties,$personnel)}
+
+                if {$actual == 0} {
+                    log normal aam \
+                        "Overkill; no casualties can be inflicted."
+                    return
+                } elseif {$actual < $casualties} {
+                    log normal aam \
+                        "Overkill; only $actual casualties can be inflicted."
+                }
+
+                # NEXT, attrit the unit
+                let personnel {$personnel - $actual}
+
+                log normal aam \
+              "Unit $u takes $actual casualties, leaving $personnel personnel"
+            
+                lappend undo [unit mutate personnel $u $personnel]
+
+                # NEXT, if this is a CIV unit, attrit the unit's
+                # group of origin.
+                if {$gtype eq "CIV"} {
+                    set oldAttrition [demog getng $origin $g attrition]
+
+                    lappend undo \
+                        [mytypemethod SetNbgroupAttrition \
+                             $origin $g $oldAttrition]
+
+                    let newAttrition {$oldAttrition + $actual}
+
+                    $type SetNbgroupAttrition $origin $g $newAttrition
+                }
+            }
+        }
+
+        return [join $undo \n]
+    }
 }
 
 #-------------------------------------------------------------------
