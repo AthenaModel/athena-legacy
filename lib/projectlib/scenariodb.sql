@@ -247,6 +247,53 @@ CREATE VIEW nbgroups_view AS
 SELECT * FROM groups JOIN nbgroups USING (g);
 
 ------------------------------------------------------------------------
+-- Athena Attrition Model: ROE tables
+
+-- Attacking ROE table: Uniformed and Non-uniformed Forces
+
+CREATE TABLE attroe_nfg (
+    -- Neighborhood in which to attack
+    n          TEXT,
+
+    -- Attacking force group
+    f          TEXT,
+
+    -- Attacked force group
+    g          TEXT,
+
+    -- ROE: eattroenf for non-uniformed forces, eattroeuf for uniformed
+    -- forces.  Note: a missing record for n,f,g is equivalent to an
+    -- ROE of DO_NOT_ATTACK.
+    roe        TEXT DEFAULT 'DO_NOT_ATTACK',
+
+    -- Cooperation limit: f will not attack unless n's cooperation with
+    -- f meets or exceeds cooplimit.
+    cooplimit  INTEGER DEFAULT 50,
+
+    -- Nominal attacks/day.  (Non-uniformed forces only.)
+    rate       DOUBLE DEFAULT 0.0,
+    
+    PRIMARY KEY (n,f,g)
+);
+
+
+-- Defending ROE table: Uniformed Forces only.
+
+CREATE TABLE defroe_ng (
+    -- Neighborhood in which to defend
+    n          TEXT,
+
+    -- Defending force group
+    g          TEXT,
+
+    -- ROE: edefroeuf.
+    roe        TEXT DEFAULT 'FIRE_BACK_IF_PRESSED',
+
+    PRIMARY KEY (n,g)
+);
+
+
+------------------------------------------------------------------------
 -- Initial Satisfaction Data
 
 

@@ -32,20 +32,26 @@ This call differs from <code>snit::boolean</code> in that it converts
 the value to canonical form, and throws <b>INVALID</b> on error.<p>
 
 
-<<defitem edamrule {edamrule <i>subcommand</i> ?<i>args</i>?}>>
+<<defitem eattroe {eattroe <i>subcommand</i> ?<i>args</i>?}>>
 
-An <<xref mars:enum(n)>> type, enumerating the names and descriptions
-of all Athena Driver Assessment rules.<p>
+This <<xref mars:enum(n)>> type defines the set of attacking rules of
+engagement (ROEs) for uniformed (UF) and non-uniformed forces (NF).<p>
 
-<<::projectlib::edamrule html>>
+<<::projectlib::eattroe html>>
 
+<<defitem eattroenf {eattroenf <i>subcommand</i> ?<i>args</i>?}>>
 
-<<defitem edamruleset {edamruleset <i>subcommand</i> ?<i>args</i>?}>>
+This <<xref mars:enum(n)>> type defines the set of attacking rules of
+engagement (ROEs) for non-uniformed forces (NF).<p>
 
-An <<xref mars:enum(n)>> type, enumerating the names and descriptions
-of all Athena Driver Assessment rule sets.<p>
+<<::projectlib::eattroenf html>>
 
-<<::projectlib::edamruleset html>>
+<<defitem eattroeuf {eattroeuf <i>subcommand</i> ?<i>args</i>?}>>
+
+This <<xref mars:enum(n)>> type defines the set of attacking rules of
+engagement (ROEs) for uniformed (UF).<p>
+
+<<::projectlib::eattroeuf html>>
 
 
 <<defitem ecause {ecause <i>subcommand</i> ?<i>args</i>?}>>
@@ -71,6 +77,29 @@ of groups for which satisfaction is tracked.  It is simply the
 concatenation of <<iref ecivconcern>> and <<iref eorgconcern>>.<p>
 
 <<::projectlib::econcern html>>
+
+
+<<defitem edamrule {edamrule <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, enumerating the names and descriptions
+of all Athena Driver Assessment rules.<p>
+
+<<::projectlib::edamrule html>>
+
+
+<<defitem edamruleset {edamruleset <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, enumerating the names and descriptions
+of all Athena Driver Assessment rule sets.<p>
+
+<<::projectlib::edamruleset html>>
+
+<<defitem edefroeuf {eattroeuf <i>subcommand</i> ?<i>args</i>?}>>
+
+These <<xref mars:enum(n)>> types define the set of defending rules of
+engagement (ROEs) for uniformed (UF).<p>
+
+<<::projectlib::edefroeuf html>>
 
 
 <<defitem edemeanor {edemeanor <i>subcommand</i> ?<i>args</i>?}>>

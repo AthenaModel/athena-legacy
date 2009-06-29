@@ -180,6 +180,18 @@ snit::widget appwin {
             script  { relbrowser %W }
         }
 
+        roet {
+            label  "ROE"
+            parent ""
+            script ""
+        }
+
+        defroe {
+            label  "Defend"
+            parent roet
+            script { defroebrowser %W }
+        }
+
         demog {
             label  "Demog"
             parent ""
@@ -508,6 +520,13 @@ snit::widget appwin {
         $self AddOrder $submenu ATTRIT:NBHOOD
         $self AddOrder $submenu ATTRIT:GROUP
         $self AddOrder $submenu ATTRIT:UNIT
+
+        # Orders/ROE
+        set submenu [menu $ordersmenu.roe]
+        $ordersmenu add cascade -label "ROE" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu ROE:DEFEND:UPDATE
 
         # Orders/Situation
         set submenu [menu $ordersmenu.sit]

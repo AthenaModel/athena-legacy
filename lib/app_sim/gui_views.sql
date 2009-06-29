@@ -97,6 +97,14 @@ JOIN nbgroups AS main USING (g)
 JOIN demog_ng USING(n,g)
 LEFT OUTER JOIN gram_ng AS gram USING(n,g);
 
+-- A defroe_ng view for use by the GUI
+CREATE TEMPORARY VIEW gui_defroe_ng AS
+SELECT n || ' ' || g                                  AS id,
+       n                                              AS n,
+       g                                              AS g,
+       roe                                            AS roe
+FROM defroe_ng;
+
 -- A sat_ngc view for use by the GUI: 
 -- NOTE: presumes there is a single gram(n)!
 CREATE TEMPORARY VIEW gui_sat_ngc AS

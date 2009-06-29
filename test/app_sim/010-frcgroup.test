@@ -45,7 +45,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
 g    longname color   shape  symbol   gtype forcetype demeanor uniformed local coalition 
 ---- -------- ------- ------ -------- ----- --------- -------- --------- ----- --------- 
-BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   AVERAGE  yes       no    yes       
+BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   AVERAGE  1         0     1         
     }
 
 
@@ -122,7 +122,7 @@ BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   AVERAGE  yes       no    y
     } -result {
 g    longname color   shape  symbol   gtype forcetype demeanor uniformed local coalition 
 ---- -------- ------- ------ -------- ----- --------- -------- --------- ----- --------- 
-BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   AVERAGE  yes       no    yes       
+BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   AVERAGE  1         0     1         
     }
 
 
@@ -153,9 +153,9 @@ BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   AVERAGE  yes       no    y
             shape        NEUTRAL
             forcetype    POLICE
             demeanor     AGGRESSIVE
-            uniformed    no
-            local        yes
-            coalition    no
+            uniformed    0
+            local        1  
+            coalition    0
         }
 
         ted query {SELECT * FROM frcgroups_view}
@@ -164,7 +164,7 @@ BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   AVERAGE  yes       no    y
     } -result {
 g    longname    color   shape   symbol gtype forcetype demeanor   uniformed local coalition 
 ---- ----------- ------- ------- ------ ----- --------- ---------- --------- ----- --------- 
-BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE no        yes   no        
+BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE 0         1     0         
     }
 
 
@@ -322,6 +322,54 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE no        yes
         ted create BLUE BRIT
     } -body {
         frcgroup validate BRIT
+    } -cleanup {
+        cleanup
+    } -result {BRIT}
+
+
+    #-------------------------------------------------------------------
+    # uniformed names
+
+    test uniformed_names-1.1 {Returns names: none defined} -body {
+        frcgroup uniformed names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test uniformed_names-1.2 {Returns names} -setup {
+        ted create BLUE BRIT ALQ
+    } -body {
+        frcgroup uniformed names
+    } -cleanup {
+        cleanup
+    } -result {BLUE BRIT}
+
+
+    #-------------------------------------------------------------------
+    # uniformed validate
+
+    test uniformed_validate-1.1 {Invalid name: none defined} -body {
+        frcgroup uniformed validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid uniformed force group, none are defined}
+
+    test uniformed_validate-1.2 {Invalid name: some defined} -setup {
+        ted create BLUE BRIT ALQ
+    } -body {
+        frcgroup uniformed validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid uniformed force group, should be one of: BLUE, BRIT}
+
+    test uniformed_validate-2.1 {Valid name} -setup {
+        ted create BLUE BRIT ALQ
+    } -body {
+        frcgroup uniformed validate BRIT
     } -cleanup {
         cleanup
     } -result {BRIT}

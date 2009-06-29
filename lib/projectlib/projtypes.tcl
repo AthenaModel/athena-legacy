@@ -16,11 +16,15 @@
 namespace eval ::projectlib:: {
     namespace export  \
         boolean       \
-        edamrule      \
-        edamruleset   \
+        eattroe       \
+        eattroenf     \
+        eattroeuf     \
         ecause        \
         ecivconcern   \
         econcern      \
+        edamrule      \
+        edamruleset   \
+        edefroeuf     \
         edemeanor     \
         eensit       \
         leensit      \
@@ -110,7 +114,40 @@ snit::type ::projectlib::typewrapper {
 #-------------------------------------------------------------------
 # Enumerations
 
-# ADA Rules
+# AAM Attacking ROEs, UF and NF combined
+::marsutil::enum ::projectlib::eattroe  {
+    DO_NOT_ATTACK   "Do not attack"
+    HIT_AND_RUN     "Hit and run"
+    STAND_AND_FIGHT "Stand and fight"
+    ATTACK          "Attack"
+}
+
+
+# AAM Attacking ROEs, NF only
+::marsutil::enum ::projectlib::eattroenf  {
+    DO_NOT_ATTACK   "Do not attack"
+    HIT_AND_RUN     "Hit and run"
+    STAND_AND_FIGHT "Stand and fight"
+}
+
+
+# AAM Attacking ROEs, UF only
+::marsutil::enum ::projectlib::eattroeuf  {
+    DO_NOT_ATTACK   "Do not attack"
+    ATTACK          "Attack"
+}
+
+
+# AAM Defending ROEs, UF only
+::marsutil::enum ::projectlib::edefroeuf  {
+    HOLD_FIRE             "Hold fire"
+    FIRE_BACK_IF_PRESSED  "Fire back if pressed"
+    FIRE_BACK_IMMEDIATELY "Fire back immediately"
+}
+
+
+
+# DAM Rules
 ::marsutil::enum ::projectlib::edamrule {
     BADFOOD-1-1   "Food supply is contaminated"
     BADFOOD-2-1   "Food supply continues to be contaminated"
@@ -298,7 +335,7 @@ snit::type ::projectlib::typewrapper {
     SEWAGE-3-2    "Sewage is cleaned up by locals"
 }
 
-# ADA Rule Sets
+# DAM Rule Sets
 ::marsutil::enum ::projectlib::edamruleset {
     BADFOOD   "Contaminated Food Supply"
     BADWATER  "Contaminated Water Supply"
@@ -345,7 +382,7 @@ snit::type ::projectlib::typewrapper {
     SEWAGE    "Sewage Spill"
 }
 
-# ADA Rule Set Causes.  Most of these
+# DAM Rule Set Causes
 ::marsutil::enum ::projectlib::ecause {
     CHKPOINT  "Checkpoint/Control Point"
     CMOCONST  "CMO -- Construction"

@@ -39,6 +39,7 @@ snit::type ted {
         sat_ngc
         rel_nfg
         coop_nfg
+        defroe_ng
         units
         situations
         ensits_t
@@ -48,7 +49,7 @@ snit::type ted {
     }
 
     # cleanupModules -- list of modules that need to be reconfigured
-    # after a test.
+    # after a test.lib/app_sim/
 
     typevariable cleanupModules {
         nbhood
@@ -235,9 +236,9 @@ snit::type ted {
             shape     FRIEND
             forcetype REGULAR
             demeanor  AVERAGE
-            uniformed yes
-            local     no
-            coalition yes
+            uniformed 1
+            local     0
+            coalition 1
         }
 
         defentity BRIT ::frcgroup {
@@ -247,9 +248,9 @@ snit::type ted {
             shape     FRIEND
             forcetype REGULAR
             demeanor  AVERAGE
-            uniformed yes
-            local     no
-            coalition yes
+            uniformed 1
+            local     0
+            coalition 1
         }
         
         defentity ALQ ::frcgroup {
@@ -259,9 +260,9 @@ snit::type ted {
             shape     ENEMY
             forcetype IRREGULAR
             demeanor  AGGRESSIVE
-            uniformed no
-            local     no
-            coalition no
+            uniformed 0
+            local     0
+            coalition 0
         }
         
         # Organization Groups

@@ -59,7 +59,7 @@ snit::type frcgroup {
 
     # names
     #
-    # Returns the list of neighborhood names
+    # Returns the list of force group names
 
     typemethod names {} {
         set names [rdb eval {
@@ -86,6 +86,43 @@ snit::type frcgroup {
 
             return -code error -errorcode INVALID \
                 "Invalid force group, $msg"
+        }
+
+        return $g
+    }
+
+
+    # uniformed names
+    #
+    # Returns the list of uniformed frcgroups
+
+    typemethod {uniformed names} {} {
+        set names [rdb eval {
+            SELECT g FROM frcgroups WHERE uniformed
+        }]
+    }
+
+
+    # uniformed validate g
+    #
+    # g         Possibly, a uniformed force group short name.
+    #
+    # Validates a uniformed force group short name
+
+    typemethod {uniformed validate} {g} {
+        set names [$type uniformed names]
+
+        if {$g ni $names} {
+            set names [join $names ", "]
+
+            if {$names ne ""} {
+                set msg "should be one of: $names"
+            } else {
+                set msg "none are defined"
+            }
+
+            return -code error -errorcode INVALID \
+                "Invalid uniformed force group, $msg"
         }
 
         return $g
