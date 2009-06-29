@@ -16,7 +16,7 @@
 # Settings
 
 # Location of Tcl Libraries
-export ATHENA_TCL_HOME = /usr/local/ActiveTclEE-2008Q4
+export ATHENA_TCL_HOME = /usr/local/ActiveTclEE-2009Q2
 
 # Set ATHENA_VERSION for development if it isn't set.
 ifndef ATHENA_VERSION
