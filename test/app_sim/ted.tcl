@@ -39,6 +39,7 @@ snit::type ted {
         sat_ngc
         rel_nfg
         coop_nfg
+        attroe_nfg
         defroe_ng
         units
         situations
