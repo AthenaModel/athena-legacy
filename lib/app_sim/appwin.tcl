@@ -186,6 +186,18 @@ snit::widget appwin {
             script ""
         }
 
+        attroeuf {
+            label  "Attack (Uniformed)"
+            parent roet
+            script { attroeufbrowser %W }
+        }
+
+        attroenf {
+            label  "Attack (Non-Uniformed)"
+            parent roet
+            script { attroenfbrowser %W }
+        }
+
         defroe {
             label  "Defend"
             parent roet
@@ -527,6 +539,11 @@ snit::widget appwin {
             -underline 0 -menu $submenu
         
         $self AddOrder $submenu ROE:DEFEND:UPDATE
+        $self AddOrder $submenu ROE:ATTACK:UNIFORMED:CREATE
+        $self AddOrder $submenu ROE:ATTACK:NONUNIFORMED:CREATE
+        $self AddOrder $submenu ROE:ATTACK:UNIFORMED:UPDATE
+        $self AddOrder $submenu ROE:ATTACK:NONUNIFORMED:UPDATE
+        $self AddOrder $submenu ROE:ATTACK:DELETE
 
         # Orders/Situation
         set submenu [menu $ordersmenu.sit]

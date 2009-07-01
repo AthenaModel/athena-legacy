@@ -75,6 +75,52 @@ snit::type ::attroe {
     }
 
 
+    # uniformed validate id
+    #
+    # id     An nfg attroe ID, [list $n $f $g]
+    #
+    # Throws INVALID if there's no ROE for the 
+    # specified combination, or if f isn't uniformed.
+
+    typemethod {uniformed validate} {id} {
+        lassign $id n f g
+
+        set n [nbhood validate $n]
+        set f [frcgroup uniformed validate $f]
+        set g [frcgroup nonuniformed validate $g]
+
+        if {![$type exists $n $f $g]} {
+            return -code error -errorcode INVALID \
+               "Group $f has no ROE for group $g in $n."
+        }
+
+        return [list $n $f $g]
+    }
+
+
+    # nonuniformed validate id
+    #
+    # id     An nfg attroe ID, [list $n $f $g]
+    #
+    # Throws INVALID if there's no ROE for the 
+    # specified combination, or if f is uniformed.
+
+    typemethod {nonuniformed validate} {id} {
+        lassign $id n f g
+
+        set n [nbhood validate $n]
+        set f [frcgroup nonuniformed validate $f]
+        set g [frcgroup uniformed validate $g]
+
+        if {![$type exists $n $f $g]} {
+            return -code error -errorcode INVALID \
+               "Group $f has no ROE for group $g in $n."
+        }
+
+        return [list $n $f $g]
+    }
+
+
     #-------------------------------------------------------------------
     # Mutators
     #
@@ -133,6 +179,7 @@ snit::type ::attroe {
     #    n                The neighborhood ID
     #    f                The attacking force group ID
     #    g                The attacked force group ID
+    #    uniformed        Flag, Group f is uniformed
     #    roe              The ROE value
     #    cooplimit        The cooperation limit
     #    rate             Attacks/day (when f is non-uniformed)
@@ -145,10 +192,11 @@ snit::type ::attroe {
         dict with parmdict {
             # FIRST, Put the group in the database
             rdb eval {
-                INSERT INTO attroe_nfg(n,f,g,roe,cooplimit,rate)
+                INSERT INTO attroe_nfg(n,f,g,uniformed,roe,cooplimit,rate)
                 VALUES($n,
                        $f,
                        $g,
+                       $uniformed,
                        $roe,
                        $cooplimit,
                        $rate);
@@ -255,72 +303,314 @@ snit::type ::attroe {
 #-------------------------------------------------------------------
 # Orders: ROE:ATTACK:*
 
-# ROE:ATTACK:UPDATE
+# ROE:ATTACK:UNIFORMED:CREATE
 #
-# Updates existing relationships
+# Creates new attacking ROEs for UF vs NF.
 
-order define ::rel ROE:ATTACK:UPDATE {
-    title "Update Relationship"
-    options -sendstates PREP -table gui_attroe_nfg -tags nfg
+order define ::attroe ROE:ATTACK:UNIFORMED:CREATE {
+    title "Create Attacking ROE (Uniformed)"
 
-    parm n    key   "Neighborhood"   -tags nbhood
-    parm f    key   "Of Group"       -tags group
-    parm g    key   "With Group"     -tags group
-    parm rel  text  "Relationship"   ;# TBD: Might want -refreshcmd
+    options -sendstates {PREP PAUSED RUNNING}
+
+    parm n          enum "Neighborhood"    -type nbhood -tags nbhood
+    parm f          enum "Attacking Group" -type {frcgroup uniformed} \
+                                           -tags group
+    parm g          enum "Attacked Group"  -type {frcgroup nonuniformed} \
+                                           -tags group
+    parm roe        enum "ROE"             -type eattroeuf -defval "ATTACK"
+    parm cooplimit  text "Cooperation Limit" -defval 50.0
+} {
+    # FIRST, prepare and validate the parameters
+    prepare n              -toupper -required -type nbhood
+    prepare f              -toupper -required -type {frcgroup uniformed}
+    prepare g              -toupper -required -type {frcgroup nonuniformed}
+    prepare roe            -toupper -required -type eattroeuf
+    prepare cooplimit      -toupper -required -type qcooperation
+
+    returnOnError
+
+    # NEXT, do cross-validation
+    if {[$type exists $parms(n) $parms(f) $parms(g)]} {
+        reject g "Group $parms(f) already has an ROE with group $parms(g) in $parms(n)"
+    }
+
+    returnOnError
+
+    # NEXT, create the ROE
+    set parms(uniformed) 1
+    set parms(rate)      ""
+
+    lappend undo [$type mutate create [array get parms]]
+    
+    setundo [join $undo \n]
+
+    return
+}
+
+# ROE:ATTACK:NONUNIFORMED:CREATE
+#
+# Creates new attacking ROEs for NF vs UF
+
+order define ::attroe ROE:ATTACK:NONUNIFORMED:CREATE {
+    title "Create Attacking ROE (Non-Uniformed)"
+
+    options -sendstates {PREP PAUSED RUNNING}
+
+    parm n          enum "Neighborhood"      -type nbhood -tags nbhood
+    parm f          enum "Attacking Group"   -type {frcgroup nonuniformed} \
+                                             -tags group
+    parm g          enum "Attacked Group"    -type {frcgroup uniformed} \
+                                             -tags group
+    parm roe        enum "ROE"               -type eattroenf \
+                                             -defval "HIT_AND_RUN"
+    parm cooplimit  text "Cooperation Limit" -defval 50.0
+    parm rate       text "Attacks/Day"       -defval 0.5
+} {
+    # FIRST, prepare and validate the parameters
+    prepare n              -toupper -required -type nbhood
+    prepare f              -toupper -required -type {frcgroup nonuniformed}
+    prepare g              -toupper -required -type {frcgroup uniformed}
+    prepare roe            -toupper -required -type eattroenf
+    prepare cooplimit      -toupper -required -type qcooperation
+    prepare rate           -toupper -required -type rrate
+
+    returnOnError
+
+    # NEXT, do cross-validation
+    if {[$type exists $parms(n) $parms(f) $parms(g)]} {
+        reject g "Group $parms(f) already has an ROE with group $parms(g) in $parms(n)"
+    }
+
+    returnOnError
+
+    # NEXT, create the ROE
+    set parms(uniformed) 0
+
+    lappend undo [$type mutate create [array get parms]]
+    
+    setundo [join $undo \n]
+
+    return
+}
+
+
+# ROE:ATTACK:DELETE
+
+order define ::attroe ROE:ATTACK:DELETE {
+    title "Delete Attacking ROE"
+    options \
+        -table      gui_attroe_nfg        \
+        -tags       nfg                   \
+        -sendstates {PREP PAUSED RUNNING}
+
+    parm n  key  "Neighborhood"     -tags nbhood
+    parm f  key  "Attacking Group"  -tags group
+    parm g  key  "Attacked Group"   -tags group
 } {
     # FIRST, prepare the parameters
-    prepare n        -toupper  -required -type [list ::rel nbhood]
-    prepare f        -toupper  -required -type group
-    prepare g        -toupper  -required -type group
-    prepare rel      -toupper            -type rgrouprel
+    prepare n -toupper -required -type nbhood
+    prepare f -toupper -required -type frcgroup
+    prepare g -toupper -required -type frcgroup
 
     returnOnError
 
     # NEXT, do cross-validation
     validate g {
-        rel validate [list $parms(n) $parms(f) $parms(g)]
+        $type validate [list $parms(n) $parms(f) $parms(g)]
     }
 
     returnOnError
 
-    # NEXT, modify the curve
-    setundo [$type mutate update [array get parms]]
+    # NEXT, Delete the ROE, unless the user says no.
+
+    if {[interface] eq "gui"} {
+        set answer [messagebox popup \
+                        -title         "Are you sure?"                  \
+                        -icon          warning                          \
+                        -buttons       {ok "Delete it" cancel "Cancel"} \
+                        -default       cancel                           \
+                        -ignoretag     ROE:ATTACK:DELETE                \
+                        -ignoredefault ok                               \
+                        -parent        [app topwin]                     \
+                        -message       [normalize {
+                            Are you sure 
+                            you really want to delete this ROE?
+                        }]]
+
+        if {$answer eq "cancel"} {
+            cancel
+        }
+    }
+
+    # NEXT, delete the ROE
+    lappend undo [$type mutate delete $parms(n) $parms(f) $parms(g)]
+    
+    setundo [join $undo \n]
+
+    return
 }
 
 
-# ROE:ATTACK:UPDATE:MULTI
+# ROE:ATTACK:UNIFORMED:UPDATE
 #
-# Updates multiple existing relationships
+# Updates existing ROEs for UF vs NF
 
-order define ::rel ROE:ATTACK:UPDATE:MULTI {
-    title "Update Multiple Relationships"
-    options -sendstates PREP -table gui_attroe_nfg
+order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE {
+    title "Update Attacking ROE (Uniformed)"
+    options \
+        -table      gui_attroeuf_nfg      \
+        -tags       nfg                   \
+        -sendstates {PREP PAUSED RUNNING}
 
-    parm ids  multi  "IDs"
-    parm rel  text   "Relationship"  ;# TBD: Might want -refreshcmd
+    parm n              key  "Neighborhood"      -tags nbhood
+    parm f              key  "Attacking Group"   -tags group
+    parm g              key  "Attacked Group"    -tags group
+    parm roe            enum "ROE"               -type eattroeuf
+    parm cooplimit      text "Cooperation Limit"
 } {
     # FIRST, prepare the parameters
-    prepare ids      -toupper  -required -listof rel
-
-    prepare rel      -toupper            -type rgrouprel
+    prepare n              -toupper -required -type nbhood
+    prepare f              -toupper -required -type {frcgroup uniformed}
+    prepare g              -toupper -required -type {frcgroup nonuniformed}
+    prepare roe            -toupper           -type eattroeuf
+    prepare cooplimit      -toupper           -type qcooperation
 
     returnOnError
 
+    # NEXT, do cross-validation
+    validate g {
+        $type validate [list $parms(n) $parms(f) $parms(g)]
+    }
 
-    # NEXT, modify the curves
+    returnOnError
+
+    # NEXT, modify the group
+    set parms(rate) ""
+    lappend undo [$type mutate update [array get parms]]
+
+    setundo [join $undo \n]
+
+    return
+}
+
+
+# ROE:ATTACK:NONUNIFORMED:UPDATE
+#
+# Updates existing ROEs for NF vs UF
+
+order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE {
+    title "Update Attacking ROE (Non-Uniformed)"
+    options \
+        -table      gui_attroenf_nfg      \
+        -tags       nfg                   \
+        -sendstates {PREP PAUSED RUNNING}
+
+    parm n              key  "Neighborhood"      -tags nbhood
+    parm f              key  "Attacking Group"   -tags group
+    parm g              key  "Attacked Group"    -tags group
+    parm roe            enum "ROE"               -type eattroenf
+    parm cooplimit      text "Cooperation Limit"
+    parm rate           text "Attacks/Day"
+
+} {
+    # FIRST, prepare the parameters
+    prepare n              -toupper -required -type nbhood
+    prepare f              -toupper -required -type {frcgroup nonuniformed}
+    prepare g              -toupper -required -type {frcgroup uniformed}
+    prepare roe            -toupper           -type eattroenf
+    prepare cooplimit      -toupper           -type qcooperation
+    prepare rate           -toupper           -type rrate
+
+    returnOnError
+
+    # NEXT, do cross-validation
+    validate g {
+        $type validate [list $parms(n) $parms(f) $parms(g)]
+    }
+
+    returnOnError
+
+    # NEXT, modify the group
+    lappend undo [$type mutate update [array get parms]]
+
+    setundo [join $undo \n]
+
+    return
+}
+
+
+# ROE:ATTACK:UNIFORMED:UPDATE:MULTI
+#
+# Updates multiple ROEs (UF vs NF)
+
+order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE:MULTI {
+    title "Update Multiple Attacking ROEs (Uniformed)"
+    options \
+        -table      gui_attroeuf_nfg      \
+        -tags       nfg                   \
+        -sendstates {PREP PAUSED RUNNING}
+
+    parm ids            multi "Groups"
+    parm roe            enum  "ROE"               -type eattroeuf
+    parm cooplimit      text  "Cooperation Limit"
+} {
+    # FIRST, prepare the parameters
+    prepare ids            -toupper  -required -listof {attroe uniformed}
+    prepare roe            -toupper            -type eattroeuf
+    prepare cooplimit      -toupper            -type qcooperation
+
+    returnOnError
+
+    # NEXT, modify the group
     set undo [list]
+
+    set parms(rate) ""
 
     foreach id $parms(ids) {
         lassign $id parms(n) parms(f) parms(g)
-
         lappend undo [$type mutate update [array get parms]]
     }
 
     setundo [join $undo \n]
+
+    return
 }
 
 
+# ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI
+#
+# Updates multiple ROEs (NF vs UF)
+
+order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI {
+    title "Update Multiple Attacking ROEs (Non-Uniformed)"
+    options \
+        -table      gui_attroenf_nfg      \
+        -tags       nfg                   \
+        -sendstates {PREP PAUSED RUNNING}
+
+    parm ids            multi "Groups"
+    parm roe            enum  "ROE"               -type eattroenf
+    parm cooplimit      text  "Cooperation Limit"
+    parm rate           text  "Attacks/Day"
+} {
+    # FIRST, prepare the parameters
+    prepare ids            -toupper  -required -listof {attroe nonuniformed}
+    prepare roe            -toupper            -type eattroenf
+    prepare cooplimit      -toupper            -type qcooperation
+    prepare rate           -toupper            -type rrate
+
+    returnOnError
+
+    # NEXT, modify the group
+    set undo [list]
 
 
+    foreach id $parms(ids) {
+        lassign $id parms(n) parms(f) parms(g)
+        lappend undo [$type mutate update [array get parms]]
+    }
 
+    setundo [join $undo \n]
 
+    return
+}

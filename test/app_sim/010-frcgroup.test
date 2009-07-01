@@ -376,6 +376,54 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE 0         1  
 
 
     #-------------------------------------------------------------------
+    # nonuniformed names
+
+    test nonuniformed_names-1.1 {Returns names: none defined} -body {
+        frcgroup nonuniformed names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test nonuniformed_names-1.2 {Returns names} -setup {
+        ted create BLUE BRIT ALQ
+    } -body {
+        frcgroup nonuniformed names
+    } -cleanup {
+        cleanup
+    } -result {ALQ}
+
+
+    #-------------------------------------------------------------------
+    # nonuniformed validate
+
+    test nonuniformed_validate-1.1 {Invalid name: none defined} -body {
+        frcgroup nonuniformed validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid non-uniformed force group, none are defined}
+
+    test nonuniformed_validate-1.2 {Invalid name: some defined} -setup {
+        ted create BLUE BRIT ALQ
+    } -body {
+        frcgroup nonuniformed validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid non-uniformed force group, should be one of: ALQ}
+
+    test nonuniformed_validate-2.1 {Valid name} -setup {
+        ted create BLUE BRIT ALQ
+    } -body {
+        frcgroup nonuniformed validate ALQ
+    } -cleanup {
+        cleanup
+    } -result {ALQ}
+
+
+    #-------------------------------------------------------------------
     # reconfigure
 
     test reconfigure-1.1 {can be called} -body {

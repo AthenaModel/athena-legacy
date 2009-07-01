@@ -113,6 +113,8 @@ source [file join $::app_sim::library securitybrowser.tcl  ]
 source [file join $::app_sim::library relbrowser.tcl       ]
 source [file join $::app_sim::library coopbrowser.tcl      ] 
 source [file join $::app_sim::library nbcoopbrowser.tcl    ] 
+source [file join $::app_sim::library attroeufbrowser.tcl  ]
+source [file join $::app_sim::library attroenfbrowser.tcl  ]
 source [file join $::app_sim::library defroebrowser.tcl    ]
 source [file join $::app_sim::library unitbrowser.tcl      ]
 

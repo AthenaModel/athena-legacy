@@ -51,6 +51,7 @@ namespace eval ::projectlib:: {
         rgain         \
         rgrouprel     \
         rnomcoverage  \
+        rrate         \
         typewrapper   \
         unitname      \
         weight
@@ -590,12 +591,14 @@ snit::type ::projectlib::typewrapper {
     -max 1.0
 
 # Gain setting
-::projectlib::typewrapper ::projectlib::rgain snit::double -min 0.0
+::marsutil::range ::projectlib::rgain -min 0.0
 
 # Group Relationships
 ::marsutil::range ::projectlib::rgrouprel \
     -min -1.0 -max 1.0 -format "%+4.1f"
 
+# Rate setting
+::marsutil::range ::projectlib::rrate -min 0.0
 
 #-------------------------------------------------------------------
 # Boolean type

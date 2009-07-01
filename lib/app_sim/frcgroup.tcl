@@ -129,6 +129,43 @@ snit::type frcgroup {
     }
 
 
+    # nonuniformed names
+    #
+    # Returns the list of nonuniformed frcgroups
+
+    typemethod {nonuniformed names} {} {
+        set names [rdb eval {
+            SELECT g FROM frcgroups WHERE NOT uniformed
+        }]
+    }
+
+
+    # nonuniformed validate g
+    #
+    # g         Possibly, a non-uniformed force group short name.
+    #
+    # Validates a non-uniformed force group short name
+
+    typemethod {nonuniformed validate} {g} {
+        set names [$type nonuniformed names]
+
+        if {$g ni $names} {
+            set names [join $names ", "]
+
+            if {$names ne ""} {
+                set msg "should be one of: $names"
+            } else {
+                set msg "none are defined"
+            }
+
+            return -code error -errorcode INVALID \
+                "Invalid non-uniformed force group, $msg"
+        }
+
+        return $g
+    }
+
+
     #-------------------------------------------------------------------
     # Mutators
     #

@@ -97,6 +97,28 @@ JOIN nbgroups AS main USING (g)
 JOIN demog_ng USING(n,g)
 LEFT OUTER JOIN gram_ng AS gram USING(n,g);
 
+-- An attroe_nfg view for use by the GUI
+CREATE TEMPORARY VIEW gui_attroe_nfg AS
+SELECT n || ' ' || f || ' ' || g                      AS id,
+       n                                              AS n,
+       f                                              AS f,
+       g                                              AS g,
+       uniformed                                      AS uniformed,
+       roe                                            AS roe,
+       cooplimit                                      AS cooplimit,
+       rate                                           AS rate
+FROM attroe_nfg;
+
+-- An attroe_nfg view for use by the GUI; f is uniformed
+CREATE TEMPORARY VIEW gui_attroeuf_nfg AS
+SELECT *
+FROM gui_attroe_nfg WHERE uniformed;
+
+-- An attroe_nfg view for use by the GUI; f is non-uniformed
+CREATE TEMPORARY VIEW gui_attroenf_nfg AS
+SELECT *
+FROM gui_attroe_nfg WHERE NOT uniformed;
+
 -- A defroe_ng view for use by the GUI
 CREATE TEMPORARY VIEW gui_defroe_ng AS
 SELECT n || ' ' || g                                  AS id,

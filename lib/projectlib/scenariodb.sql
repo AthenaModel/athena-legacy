@@ -261,6 +261,9 @@ CREATE TABLE attroe_nfg (
     -- Attacked force group
     g          TEXT,
 
+    -- 1 if f is uniformed, and 0 otherwise.
+    uniformed  INTEGER,
+
     -- ROE: eattroenf for non-uniformed forces, eattroeuf for uniformed
     -- forces.  Note: a missing record for n,f,g is equivalent to an
     -- ROE of DO_NOT_ATTACK.

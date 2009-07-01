@@ -210,7 +210,7 @@ shown in the following table:<p>
 
 <<defitem "rgain validate" {rgain validate <i>value</i>}>>
 
-A wrapped <code>snit::double</code> representing a gain control
+A <<xref mars:range(n)>> representing a gain control
 setting: a non-negative floating-point value.   On error, throws
 an error with <code>-errorcode</code> <b>INVALID</b>.<p>
 
@@ -220,6 +220,12 @@ A <<xref mars:range(n)>> type used for group relationship values,
 which ranges from 
 <<::projectlib::rgrouprel format [::projectlib::rgrouprel cget -min]>> to
 <<::projectlib::rgrouprel format [::projectlib::rgrouprel cget -max]>>.<p>
+
+<<defitem "rrate validate" {rrate validate <i>value</i>}>>
+
+A <<xref mars:range(n)>> representing a rate, e.g.,
+events/day: a non-negative floating-point value.   On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
 
 <<defitem "unitname validate" {unitname validate <i>name</i>}>>
 
