@@ -152,7 +152,7 @@ snit::type ::attroe {
             SELECT n, f, attroe_nfg.g AS g
             FROM attroe_nfg 
             LEFT OUTER JOIN frcgroups ON (attroe_nfg.f = frcgroups.g)
-            WHERE uniformed IS NULL
+            WHERE frcgroups.uniformed IS NULL
         } {
             lappend undo [$type mutate delete $n $f $g]
         }
@@ -162,7 +162,7 @@ snit::type ::attroe {
             SELECT n, f, attroe_nfg.g AS g
             FROM attroe_nfg 
             LEFT OUTER JOIN frcgroups ON (attroe_nfg.g = frcgroups.g)
-            WHERE uniformed IS NULL
+            WHERE frcgroups.uniformed IS NULL
         } {
             lappend undo [$type mutate delete $n $f $g]
         }

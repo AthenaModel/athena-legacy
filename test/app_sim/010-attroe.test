@@ -36,6 +36,7 @@ namespace eval ::athena_test::tests:: {
         n         NB1
         f         BLUE
         g         ALQ
+        uniformed 1
         roe       ATTACK
         cooplimit 30
         rate      ""
@@ -45,6 +46,7 @@ namespace eval ::athena_test::tests:: {
         n         NB1
         f         ALQ
         g         BRIT
+        uniformed 0
         roe       HIT_AND_RUN
         cooplimit 40
         rate      0.5
@@ -69,9 +71,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-n   f    g   roe    cooplimit rate 
---- ---- --- ------ --------- ---- 
-NB1 BLUE ALQ ATTACK 30             
+n   f    g   uniformed roe    cooplimit rate 
+--- ---- --- --------- ------ --------- ---- 
+NB1 BLUE ALQ 1         ATTACK 30.0           
     }
 
 
@@ -83,9 +85,9 @@ NB1 BLUE ALQ ATTACK 30
     } -cleanup {
         cleanup
     } -result {
-n   f   g    roe         cooplimit rate 
---- --- ---- ----------- --------- ---- 
-NB1 ALQ BRIT HIT_AND_RUN 40        0.5  
+n   f   g    uniformed roe         cooplimit rate 
+--- --- ---- --------- ----------- --------- ---- 
+NB1 ALQ BRIT 0         HIT_AND_RUN 40.0      0.5  
     }
 
 
@@ -165,9 +167,9 @@ NB1 ALQ BRIT HIT_AND_RUN 40        0.5
     } -cleanup {
         cleanup
     } -result {
-n   f    g   roe    cooplimit rate 
---- ---- --- ------ --------- ---- 
-NB1 BLUE ALQ ATTACK 30             
+n   f    g   uniformed roe    cooplimit rate 
+--- ---- --- --------- ------ --------- ---- 
+NB1 BLUE ALQ 1         ATTACK 30.0           
     }
 
 
@@ -205,9 +207,9 @@ NB1 BLUE ALQ ATTACK 30
     } -cleanup {
         cleanup
     } -result {
-n   f   g    roe             cooplimit rate 
---- --- ---- --------------- --------- ---- 
-NB1 ALQ BRIT STAND_AND_FIGHT 50        1.0  
+n   f   g    uniformed roe             cooplimit rate 
+--- --- ---- --------- --------------- --------- ---- 
+NB1 ALQ BRIT 0         STAND_AND_FIGHT 50.0      1.0  
     }
 
 

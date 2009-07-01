@@ -48,6 +48,7 @@ namespace eval ::athena_test::tests:: {
         ted notifier bind ::sat     <Entity>
         ted notifier bind ::rel     <Entity>
         ted notifier bind ::coop    <Entity>
+        ted notifier bind ::attroe  <Entity>
         ted notifier bind ::defroe  <Entity>
         ted notifier bind ::unit    <Entity>
         ted notifier bind ::scenario <Reconcile>
