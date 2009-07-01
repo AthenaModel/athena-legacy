@@ -94,7 +94,7 @@ of all Athena Driver Assessment rule sets.<p>
 
 <<::projectlib::edamruleset html>>
 
-<<defitem edefroeuf {eattroeuf <i>subcommand</i> ?<i>args</i>?}>>
+<<defitem edefroeuf {edefroeuf <i>subcommand</i> ?<i>args</i>?}>>
 
 These <<xref mars:enum(n)>> types define the set of defending rules of
 engagement (ROEs) for uniformed (UF).<p>

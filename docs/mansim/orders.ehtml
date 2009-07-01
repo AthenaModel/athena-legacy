@@ -803,6 +803,201 @@ groups.  The parameters are as follows:
 
 <</deflist rel>>
 
+
+<<section "ROE:*">>
+
+The <code>ROE:*</code> orders are used to create, modify, and
+manipulate various kinds of rules of engagement (ROEs).  The current
+set of ROEs determines which groups engage in combat with other
+groups, and how.<p>
+
+<<subsection "ROE:ATTACK:*">>
+
+These orders determine which groups go out and attack other groups,
+and when.  At present, uniformed force groups may hunt down and attack
+cells belonging to non-uniformed force groups, and non-uniformed force
+groups may ambush uniformed force groups.  These two cases are not
+identical, and hence there are orders for both.<p>
+
+<<deflist roe attack>>
+
+<<defitem ROE:ATTACK:NONUNIFORMED:CREATE {ROE:ATTACK:NONUNIFORMED:CREATE}>>
+
+Creates a new Attacking ROE for a non-uniformed force group.  The
+parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm n>> <b>Required.</b> The neighborhood in which the combat will
+take place.<</parm>>
+
+<<parm f>> <b>Required.</b> The non-uniformed force group doing the
+attacking.<</parm>>
+
+<<parm g>> <b>Required.</b> The uniformed force group being attacked.<</parm>>
+
+<<parm roe>> <b>Required.</b> The ROE; this determines how group
+<b>f</b> attacks group <b>g</b>.  It is an
+<<xref projtypes(n) eattroenf>> value<p>
+
+<<::projectlib::eattroenf html>>
+<</parm>>
+
+<<parm cooplimit>> <b>Required.</b>  Group <b>f</b> will attack group
+<b>g</b> only if neighborhood <b>n</b>'s cooperation with <b>f</b>
+meets or exceeds this limit, a <<xref mars:simtypes(n) qcooperation>> value:<p>
+
+<<::simlib::qcooperation html>>
+
+<<parm rate>> <b>Required.</b>  Attack rate in attacks per day.
+Group <b>f</b> will to attack group
+<b>g</b> in neighborhood <b>n</b> at this rate, given the ability.  A
+non-negative real number.
+
+<</parm>>
+
+<</parmlist>>
+
+<<defitem ROE:ATTACK:NONUNIFORMED:UPDATE {ROE:ATTACK:NONUNIFORMED:UPDATE}>>
+
+Updates an existing ROE.  The parameters are as
+defined for <<iref ROE:ATTACK:NONUNIFORMED:CREATE>>; <b>n</b>,
+<b>f</b>, and <b>g</b> are required, while the remainder are optional.<p>
+
+
+<<defitem ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI {ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI}>>
+
+Updates multiple ROEs.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of one or more ROE
+IDs.<</parm>>
+
+<<parm roe>> As for <<iref ROE:ATTACK:NONUNIFORMED:CREATE>>. <</parm>>
+<<parm cooplimit>> As for <<iref ROE:ATTACK:NONUNIFORMED:CREATE>>. <</parm>>
+<<parm rate>> As for <<iref ROE:ATTACK:NONUNIFORMED:CREATE>>. <</parm>>
+
+<</parmlist>>
+
+<<defitem ROE:ATTACK:UNIFORMED:CREATE {ROE:ATTACK:UNIFORMED:CREATE}>>
+
+Creates a new Attacking ROE for a uniformed force group.  The
+parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm n>> <b>Required.</b> The neighborhood in which the combat will
+take place.<</parm>>
+
+<<parm f>> <b>Required.</b> The uniformed force group doing the
+attacking.<</parm>>
+
+<<parm g>> <b>Required.</b> The non-uniformed force group being
+attacked.<</parm>>
+
+<<parm roe>> <b>Required.</b> The ROE; this determines how group
+<b>f</b> attacks group <b>g</b>.  It is an
+<<xref projtypes(n) eattroeuf>> value<p>
+
+<<::projectlib::eattroeuf html>>
+<</parm>>
+
+<<parm cooplimit>> <b>Required.</b>  Group <b>f</b> will attack group
+<b>g</b> only if neighborhood <b>n</b>'s cooperation with <b>f</b>
+meets or exceeds this limit, a <<xref mars:simtypes(n) qcooperation>> value:<p>
+
+<<::simlib::qcooperation html>>
+
+<</parm>>
+
+<</parmlist>>
+
+<<defitem ROE:ATTACK:UNIFORMED:UPDATE {ROE:ATTACK:UNIFORMED:UPDATE}>>
+
+Updates an existing ROE.  The parameters are as
+defined for <<iref ROE:ATTACK:UNIFORMED:CREATE>>; <b>n</b>,
+<b>f</b>, and <b>g</b> are required, while the remainder are optional.<p>
+
+
+<<defitem ROE:ATTACK:UNIFORMED:UPDATE:MULTI {ROE:ATTACK:UNIFORMED:UPDATE:MULTI}>>
+
+Updates multiple ROEs.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of one or more ROE
+IDs.<</parm>>
+
+<<parm roe>> As for <<iref ROE:ATTACK:UNIFORMED:CREATE>>. <</parm>>
+<<parm cooplimit>> As for <<iref ROE:ATTACK:UNIFORMED:CREATE>>. <</parm>>
+
+<</parmlist>>
+
+<<defitem ROE:ATTACK::DELETE {ROE:ATTACK::DELETE}>>
+
+Deletes an attacking ROE.  The parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm n>> <b>Required.</b> A neighborhood ID.<</parm>>
+<<parm f>> <b>Required.</b> A group ID.<</parm>>
+<<parm g>> <b>Required.</b> A group ID.<</parm>>
+
+<</parmlist>>
+
+
+<</deflist roe attack>>
+
+<<subsection "ROE:DEFEND:*">>
+
+These orders determine how uniformed force groups defend themselves
+from attack in particular neighborhoods.  These ROEs are created
+automatically, but can be updated by the user.<p>
+
+<<deflist roe defend>>
+
+<<defitem ROE:DEFEND:UPDATE {ROE:DEFEND:UPDATE}>>
+
+Updates an existing ROE. The parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm n>> <b>Required.</b> The neighborhood in which the combat will
+take place.<</parm>>
+
+<<parm g>> <b>Required.</b> The uniformed force group doing the
+defending.<</parm>>
+
+<<parm roe>> <b>Required.</b> The ROE; this determines how group
+<b>g</b> responds to being attacked.  It is an
+<<xref projtypes(n) edefroeuf>> value<p>
+
+<<::projectlib::edefroeuf html>>
+<</parm>>
+
+<</parmlist>>
+
+
+
+<<defitem ROE:DEFEND:UPDATE:MULTI {ROE:DEFEND:UPDATE:MULTI}>>
+
+Updates multiple ROEs.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of one or more ROE
+IDs.<</parm>>
+
+<<parm roe>> As for <<iref ROE:DEFEND:UPDATE>>. <</parm>>
+
+<</parmlist>>
+
+<</deflist roe defend>>
+
 <<section "SAT:*">>
 
 The <code>SAT:*</code> orders are used to modify, and
