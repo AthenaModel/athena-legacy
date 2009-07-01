@@ -107,7 +107,7 @@ snit::widgetadaptor attroenfbrowser {
         $hull insertcolumn end 0 {Attacked}
         $hull insertcolumn end 0 {ROE}
         $hull insertcolumn end 0 {Coop. Limit}
-        $hull columnconfigure end -sortmode integer
+        $hull columnconfigure end -sortmode real
         $hull insertcolumn end 0 {Attacks/Day}
         $hull columnconfigure end -sortmode real
 

@@ -266,6 +266,18 @@ snit::type ted {
             coalition 0
         }
         
+        defentity TAL ::frcgroup {
+            g         TAL
+            longname  "Taliban"
+            color     "#f00004"
+            shape     ENEMY
+            forcetype IRREGULAR
+            demeanor  AGGRESSIVE
+            uniformed 0
+            local     1
+            coalition 0
+        }
+        
         # Organization Groups
 
         defentity USAID ::orggroup {

@@ -271,7 +271,7 @@ CREATE TABLE attroe_nfg (
 
     -- Cooperation limit: f will not attack unless n's cooperation with
     -- f meets or exceeds cooplimit.
-    cooplimit  INTEGER DEFAULT 50,
+    cooplimit  DOUBLE DEFAULT 50.0,
 
     -- Nominal attacks/day.  (Non-uniformed forces only.)
     rate       DOUBLE DEFAULT 0.0,

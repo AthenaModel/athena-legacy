@@ -97,7 +97,7 @@ snit::widgetadaptor attroeufbrowser {
         pack $deletebtn   -side right
 
         # NEXT, create the columns and labels.  Create and hide the
-        # ID column; it will be used to reference rows as "$n $g", but
+        # ID column; it will be used to reference rows as "$n $f $g", but
         # we don't want to display it.
 
         $hull insertcolumn end 0 {ID}
@@ -107,7 +107,7 @@ snit::widgetadaptor attroeufbrowser {
         $hull insertcolumn end 0 {Attacked}
         $hull insertcolumn end 0 {ROE}
         $hull insertcolumn end 0 {Coop. Limit}
-        $hull columnconfigure end -sortmode integer        
+        $hull columnconfigure end -sortmode real        
 
         # NEXT, sort on column 1 by default
         $hull sortbycolumn 1 -increasing
