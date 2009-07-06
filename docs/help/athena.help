@@ -1,0 +1,130 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    sample.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Sample help(5) help file.
+#
+#-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+
+page home "Athena Help" {} {
+    This is the main help file for Athena.
+
+    <ul>
+    <li> <<cref changelog>>
+    <li> <<cref orders>>
+    </ul>
+
+    <hr>
+    <i>Help compiled <<clock format [clock seconds]>>
+}
+
+#-----------------------------------------------------------------------
+
+page changelog "Change Log" home {
+    <<changelog>>
+    <<change 7/6/2009 New whd>>
+    Initial draft.
+    <</change>>
+    <</changelog>>
+}
+
+
+#-----------------------------------------------------------------------
+
+page orders "Orders" home {
+    This page lists the orders available to the user.
+
+    <ul>
+    <li> <<cref ATTRIT:UNIT>>
+    </ul>
+}
+
+#-----------------------------------------------------------------------
+
+page ATTRIT:GROUP "Magic Attrit Group" orders {
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of an existing neighborhood.
+    <</parm>>
+
+    <<parm g "Neighborhood">>
+    <b>Required.</b>  The name of an existing civilian, force, or
+    organization group.
+    <</parm>>
+
+    <<parm casualties "Casualties">>
+    <b>Required.</b>  The number of personnel to be attrited, a
+    positive integer.
+    <</parm>>
+
+    <</parmlist>>
+
+    This order magically inflicts casualties upon a selected group in
+    a selected neighborhood.  The effect depends on the kind of
+    group.<p>
+
+    <b>Force and Organization Groups:</b>  The group's units are
+    attrited by the specified number of casualties.  Athena assumes
+    that units doing more important activities will be reinforced from
+    units doing less important activities; therefore, units are
+    attrited in priority order based on their activities, from lowest
+    priority to greatest priority.  For example, a unit with activity
+    <b>NONE</b> is attrited before one with activity <b>PATROL</b>.
+    The priority order is <<cref Activity_Priorities>>.<p>
+
+    <b>Civilian Groups:</b>  The group's units and implicit
+    population are attrited proportionally to their size.<p>
+
+    If the requested number of casualties exceeds the group's population in
+    the neighborhood, then all of the group's units in the
+    neighborhood will drop to zero personnel, and the group's implicit
+    population will drop to one person.  (A group's implicit
+    population may not be zero.)<p>
+
+    If the group does not reside in the neighborhood, this order has
+    no effect; therefore, civilian units outside their neighborhood of
+    origin are never attrited by this order.<p>
+
+    <b>Script Syntax:</b> <<page name>>
+}
+
+#-----------------------------------------------------------------------
+
+page ATTRIT:UNIT "Magic Attrit Unit" orders {
+    <<parmlist>>
+
+    <<parm u "Unit">>
+    <b>Required.</b>  The name of an existing unit.
+    <</parm>>
+
+    <<parm casualties "Casualties">>
+    <b>Required.</b>  The number of personnel to be attrited, a
+    positive integer.
+    <</parm>>
+
+    <</parmlist>>
+
+    This order magically inflicts casualties upon a selected unit.  The
+    casualties are presumed to be dead, and are deducted from the
+    unit's personnel.<p>
+
+    <ul>
+    <li> Unit attrition, and particularly civilian casualties, can
+         affect civilian attitudes.
+         
+    <li> To change the number of personnel in the unit for reasons
+         other than attrition, use the <<cref UNIT:PERSONNEL>> order.
+    </ul><p>
+
+    <b>Script Syntax:</b> <tt><<page name>></tt>
+
+}

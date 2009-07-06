@@ -16,7 +16,7 @@
 
     template parm {name} {
         |<--
-        <tr valign="baseline"><td width="95"><b><tt>$name</tt></b></td>
+        <tr valign="top"><td width="95"><b><tt>$name</tt></b></td>
         <td>
     }
 

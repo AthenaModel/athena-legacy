@@ -18,6 +18,7 @@ package require sqlite3
 package require pixane
 package require tablelist
 package require treectrl  2.2.6
+package require Tkhtml 2.0
 
 
 #-----------------------------------------------------------------------
@@ -58,6 +59,9 @@ source [file join $::projectgui::library reportviewer.tcl    ]
 source [file join $::projectgui::library reportviewerwin.tcl ]
 source [file join $::projectgui::library rb_bintree.tcl      ]
 source [file join $::projectgui::library reportbrowser.tcl   ]
+source [file join $::projectgui::library htmlviewer.tcl      ]
+source [file join $::projectgui::library helptree.tcl        ]
+source [file join $::projectgui::library helpbrowser.tcl     ]
 
 
 
