@@ -35,9 +35,25 @@ CREATE TABLE helpdb_pages (
 CREATE INDEX helpdb_pages_parent ON helpdb_pages(parent);
 
 ------------------------------------------------------------------------
+-- Images
+
+CREATE TABLE helpdb_images (
+    -- Name of the image.  This is the name used in IMG SRC.  It
+    -- should contain no whitespace.
+    name     TEXT PRIMARY KEY,
+
+    -- Caption
+    caption  TEXT,
+
+    -- The image data, in PNG format
+    data     BLOB
+);
+
+------------------------------------------------------------------------
 -- Page names and reserved words
 
 CREATE TEMPORARY VIEW helpdb_reserved AS
-SELECT '_helpdb:index' AS id UNION
-SELECT '_helpdb:error' AS id UNION
-SELECT name            AS id FROM helpdb_pages;
+SELECT '_helpdb:index' AS id                     UNION
+SELECT '_helpdb:error' AS id                     UNION
+SELECT name            AS id FROM helpdb_pages   UNION
+SELECT name            AS id FROM helpdb_images;

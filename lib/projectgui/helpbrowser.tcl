@@ -94,6 +94,7 @@ snit::widget ::projectgui::helpbrowser {
     component hv        ;# The htmlviewer(n)
     component backbtn   ;# Back one page button
     component fwdbtn    ;# Forward one page button
+    component titlelab  ;# Title label
 
     #-------------------------------------------------------------------
     # Options
@@ -104,17 +105,25 @@ snit::widget ::projectgui::helpbrowser {
     # -helpdb    The helpdb to browse
     option -helpdb -readonly yes
 
+    # -notfoundcmd:  A command that returns the body of a "Page Not Found"
+    # pseudo-page when the user requests a page that doesn't exist.
+    # The command should take one argument, the name of the requested
+    # page.
+    option -notfoundcmd
+
     #-------------------------------------------------------------------
     # Instance Variables
 
     # Browser Info
     #
     # current       The name of the current page
+    # title         The title of the current page
     # history       The history stack: a list of page refs
     # future        The future stack: a list of page refs
 
     variable info -array {
         current ""
+        title   ""
         history {}
         future  {}
     }
@@ -156,9 +165,13 @@ snit::widget ::projectgui::helpbrowser {
 
         DynamicHelp::add $fwdbtn -text "Go forward one page"
 
+        install titlelab using ttk::label $bar.title \
+            -textvariable [myvar info(title)]
 
-        pack $backbtn  -side left -padx 1 -pady 1
-        pack $fwdbtn   -side left -padx 1 -pady 1
+
+        pack $backbtn  -side left  -padx 1  -pady 1
+        pack $fwdbtn   -side left  -padx 1  -pady 1
+        pack $titlelab -side right -padx 1 -pady 1
 
 
         # Separator
@@ -184,7 +197,8 @@ snit::widget ::projectgui::helpbrowser {
         
         install hv using htmlviewer $win.paner.hvsw.hv \
             -takefocus        1                        \
-            -hyperlinkcommand [mymethod HyperlinkCmd]
+            -hyperlinkcommand [mymethod HyperlinkCmd]  \
+            -imagecommand     [mymethod ImageCmd]
 
         $win.paner.hvsw setwidget $hv
 
@@ -225,6 +239,27 @@ snit::widget ::projectgui::helpbrowser {
         $self showpage $name $anchor
     }
 
+    # ImageCmd src width height dict dummy
+    #
+    # src     The image source
+    # width   The requested width (ignored)
+    # height  The requested height (ignored)
+    # dict    All <img> parms (ignored)
+    # dummy   Not sure what this is.
+    #
+    # Returns the Tk image relating to the src.
+
+    method ImageCmd {src width height dict dummy} {
+        $hdb eval {
+            SELECT data FROM helpdb_images WHERE name=$src
+        } {
+            return [image create photo -format png -data $data]
+        }
+
+        return ""
+    }
+    
+
     # ShowTreePage
     #
     # Displays a page when the user clicks on it in the help tree.
@@ -251,14 +286,6 @@ snit::widget ::projectgui::helpbrowser {
         # do.
         if {$page eq "" && $anchor eq ""} {
             return
-        }
-
-        # NEXT, retrieve the page data
-        if {$page ne ""} {
-            if {![$hdb exists $page]} {
-                # TBD: Show error of some kind
-                return
-            }
         }
 
         # NEXT, push the current page ref onto the history stack
@@ -288,18 +315,25 @@ snit::widget ::projectgui::helpbrowser {
 
     # ShowPageRef page ?frac?
     #
-    # page      A valid page name
+    # page      A page name
     # frac      A scroll fraction, 0.0 to 1.0; defaults to 0.
     #
     # Loads the named page into the htmlviewer, and scrolls to the
-    # specified fraction.
+    # specified fraction.  If the page is not known, a pseudo-page
+    # is created.
 
     method ShowPageRef {page {frac 0.0}} {
         # FIRST, get the page data.
-        lassign [$hdb title+text $page] title text
+        lassign [$hdb title+text $page] info(title) text
+
+        # NEXT, if not found get a pseudo page
+        if {$info(title) eq ""} {
+            set info(title) "Page Not Found"
+            set text [$self PageNotFound $page]
+        }
 
         # NEXT, format the page, and show it.
-        $hv set "<h1>$title</h1>\n$text"
+        $hv set $text
 
         # NEXT, make it visible in the help tree
         $tree set $page
@@ -310,6 +344,25 @@ snit::widget ::projectgui::helpbrowser {
 
         # NEXT, scroll to the fraction.
         $hv yview moveto $frac
+    }
+
+    # PageNotFound page
+    #
+    # page     The name of an unknown page
+    #
+    # Creates a "Page Not Found" pseudo-page body.
+
+    method PageNotFound {page} {
+        if {$options(-notfoundcmd) ne ""} {
+            return [{*}$options(-notfoundcmd) $page]
+        } else {
+            return [tsubst {
+                |<--
+                The page you requested, "<tt>$page</tt>", could not be
+                found in this help file.  Please report the error to 
+                the development team..
+            }]
+        }
     }
 
 

@@ -171,10 +171,12 @@ snit::widget ::projectgui::helptree {
     # Sets the displayed name; does not send <<Selection>>
 
     method set {name} {
-        require {[info exists info(item-$name)]} \
-            "unknown name: \"$name\""
+        # FIRST, ignore unknown names.
+        if {![info exists info(item-$name)]} {
+            return
+        }
 
-        # FIRST, expand the item and its parents.
+        # NEXT, expand the item and its parents.
         set parent [$hdb parent $name]
 
         while {$parent ne ""} {

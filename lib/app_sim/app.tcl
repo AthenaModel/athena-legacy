@@ -70,6 +70,9 @@ snit::type app {
             exit 1
         }
 
+        # NEXT, get the application directory
+        appdir init
+
         # NEXT, create the working directory.
         if {[catch {workdir init} result]} {
             app exit {
@@ -261,6 +264,16 @@ snit::type app {
         puts "Usage: athena sim ?scenario.adb?"
         puts ""
         puts "See athena_sim(1) for more information."
+    }
+
+    # help ?page?
+    #
+    # page    A helpdb(n) page ID
+    #
+    # Pops up the helpbrowserwin on the specified page.
+
+    typemethod help {{page home}} {
+        helpbrowserwin showhelp $page
     }
 
     # puts text

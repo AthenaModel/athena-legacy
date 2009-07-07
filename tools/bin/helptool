@@ -24,6 +24,7 @@ exec tclsh8.5 "$0" "$@"
 package require snit
 package require marsutil
 package require projectlib
+package require pixane
 namespace import marsutil::* projectlib::*
 
 
@@ -48,6 +49,7 @@ proc CompilerInit {} {
 
     $compiler alias page    Compiler_page
     $compiler alias include Compiler_include
+    $compiler alias image   Compiler_image
 
     # NEXT, initialize the ehtml(5) processor used to transform
     # the page bodies.
@@ -91,6 +93,7 @@ proc CompileInputFile {infile} {
 # parent      Name of parent page, or ""
 # text        The raw text of the page.
 #
+# Defines a help page.
 
 proc Compiler_page {name title parent text} {
     # FIRST, validate the input
@@ -115,6 +118,41 @@ proc Compiler_page {name title parent text} {
     }
 }
 
+# Compiler_image name caption filename
+#
+# name       The name used in links
+# caption    A short caption
+# filename   The image file on disk
+#
+# Loads an image into the helpdb so that it can be referenced
+# in help pages.
+
+proc Compiler_image {name caption filename} {
+    # FIRST, is it a real image.
+    set img [pixane create]
+
+    if {[catch {
+        pixane load $img -file $filename
+    } result]} {
+        pixane delete $img
+
+        error "Could not open the specified file as an image: $filename"
+    }
+        
+    # NEXT, get the image data, and save it in the helpdb
+    set data [pixane save $img -format png]
+    set width [pixane width $img]
+    set height [pixane height $img]
+
+    hdb eval {
+        INSERT OR REPLACE
+        INTO helpdb_images(name,caption,data)
+        VALUES($name,$caption,$data)
+    }
+
+    pixane delete $img
+} 
+
 # Compiler_include filename
 #
 # filename   Another .help file
@@ -130,15 +168,20 @@ proc Compiler_include {filename} {
 # ehtml(5) extensions
 
 namespace eval ::macro:: {
+    variable docInfo   ;# Array of information about the document as a
+                        # whole.
     variable pageInfo  ;# Array of information about the current page.
 
     namespace export \
         cref         \
+        order        \
         page         \
         parmlist     \
         parm         \
         /parm        \
-        /parmlist
+        /parmlist    \
+        title        \
+        version
 }
 
 # cref uri ?text?
@@ -162,6 +205,17 @@ proc macro::cref {uri {text ""}} {
     }
 
     return "<a href=\"$uri\">$text</a>"
+}
+
+# order
+#
+# Outputs the standard header for an order page.
+
+template macro::order {} {
+    variable pageInfo
+} {
+    <font size=7>$pageInfo(title)</font><br>
+    (<tt>$pageInfo(name)</tt>)<p>
 }
 
 
@@ -197,7 +251,7 @@ template macro::parmlist {} {
 #
 # Begins a parameter description.
 
-template parm {parm field} {
+template macro::parm {parm field} {
     |<--
     <tr valign="baseline">
     <td><b>$field</b><br>(<tt>$parm</tt>)</td>
@@ -207,7 +261,7 @@ template parm {parm field} {
 # /parm
 #
 # Ends a parameter description
-template /parm {} {
+template macro::/parm {} {
     </td>
     </tr>
 }
@@ -215,11 +269,31 @@ template /parm {} {
 # /parmlist
 #
 # Ends a list of order parameters
-template /parmlist {} {
+template macro::/parmlist {} {
     |<--
     </table>
 }
 
+# title
+#
+# Outputs the standard title for a help page
+
+template macro::title {} {
+    variable pageInfo
+} {
+    <font size=7>$pageInfo(title)</font><p>
+}
+
+
+# version
+#
+# Returns the -version.
+
+proc macro::version {} {
+    variable docInfo
+    
+    return $docInfo(version)
+}
 
 #-------------------------------------------------------------------
 # Main-line code
@@ -231,7 +305,32 @@ template /parmlist {} {
 # Evaluates the command line, and compiles the input.
 
 proc main {argv} {
-    # FIRST, validate the command line.
+    # FIRST, get command-line options
+    array set ::macro::docInfo {
+        version  x.y.z
+    }
+
+    while {[string match "-*" [lindex $argv 0]]} {
+        set opt [lshift argv]
+
+        switch -exact -- $opt {
+            -- {
+                break
+            }
+
+            -version {
+                set ::macro::docInfo(version) [lshift argv]
+            }
+
+            default {
+                puts "Error, unrecognized option: $opt\n"
+                ShowUsage
+                exit 1
+            }
+        }
+    }
+
+    # NEXT, validate the remaining arguments.
     set infile ""
     set outfile ""
 
@@ -288,7 +387,11 @@ proc main {argv} {
 # Shows the command-line syntax
 
 proc ShowUsage {} {
-    puts "Usage: helptool file.help \[file.helpdb\]"
+    puts [outdent {
+        Usage: helptool \[options...\] file.help \[file.helpdb\]
+
+        -version ver         Application version number
+    }]
 }
 
 #-------------------------------------------------------------------

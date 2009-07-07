@@ -178,6 +178,7 @@ snit::widgetadaptor ::projectgui::htmlviewer {
 
         lappend fontspec $pixels($size)
 
+        # TBD: It appears that these never appear with "fixed".  Oh, well.
         if {"bold"   in $font} { lappend fontspec bold }
         if {"italic" in $font} { lappend fontspec italic }
 

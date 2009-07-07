@@ -624,6 +624,41 @@ snit::widget appwin {
             -underline 0 -menu $submenu
         
         $self AddOrder $submenu SATISFACTION:UPDATE
+
+        # Help menu
+        set helpmenu [menu $menubar.helpmenu]
+        $menubar add cascade -label "Help" -underline 0 -menu $helpmenu
+
+        $helpmenu add command                \
+            -label       "Help Contents"     \
+            -underline   0                   \
+            -accelerator "F1"                \
+            -command     [list app help]
+
+        bind $win <F1> [list app help]
+
+        $helpmenu add command                    \
+            -label       "Order Reference"       \
+            -underline   0                       \
+            -command     [list app help orders]
+
+        $helpmenu add command                    \
+            -label       "Command Reference"     \
+            -underline   0                       \
+            -command     [list app help commands]
+
+        $helpmenu add command                    \
+            -label       "Release Notes"         \
+            -underline   0                       \
+            -command     [list app help release]
+
+        $helpmenu add separator
+
+        $helpmenu add command                    \
+            -label       "About Athena"          \
+            -underline   0                       \
+            -command     [list app help about]
+
     }
 
     # AddOrder mnu order

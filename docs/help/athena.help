@@ -11,24 +11,76 @@
 #
 #-----------------------------------------------------------------------
 
+#-----------------------------------------------------------------------
+# Images
+
+image athena "Sculpture of the Goddess Athena" athena.png
 
 #-----------------------------------------------------------------------
 
 page home "Athena Help" {} {
-    This is the main help file for Athena.
+    <img src="athena" align="right">
+
+    This is the on-line help for <b>V<<version>></b> of the
+    Athena Stability & Recovery Operations Simulation.<p>
 
     <ul>
     <li> <<cref changelog>>
-    <li> <<cref orders>>
-    </ul>
+    <li> <<cref about>>
+    <li> <<cref release>>
+    <li> Using Athena
+         <ul>
+         <<cref Scenario_Preparation>>
+         </ul>
+    <li> Athena Reference
+         <ul>
+         <li> <<cref menus>>
+         <li> <<cref tabs>>
+         <li> <<cref orders>>
+         </ul>
+    </ul><p>
 
     <hr>
     <i>Help compiled <<clock format [clock seconds]>>
 }
 
+
 #-----------------------------------------------------------------------
 
-page changelog "Change Log" home {
+page about "About Athena" {} {
+    <img src="athena" align="right">
+
+    <font size=7>Athena V<<version>></font><br>
+    Stability and Recovery Operations Simulation<p>
+
+    (C) 2009, California Institute of
+    Technology. ALL RIGHTS RESERVED. U.S. Government sponsorship
+    acknowledged. Any commercial use must be negotiated with the
+    Office of Technology Transfer at the California Institute of
+    Technology.<p>
+
+    This software is subject to U. S. export control laws and
+    regulations (22 C.F.R. 120-130 and 15 C.F.R. 730-774). To the
+    extent that the software is subject to U.S. export control laws
+    and regulations, the recipient has the responsibility to obtain
+    export licenses or other export authority as may be required
+    before exporting such information to foreign countries or
+    providing access to foreign nationals.<p>
+}
+
+#-----------------------------------------------------------------------
+
+page release "Release Notes" {} {
+    <font size=7>Athena V<<version>> Release notes</font><p>
+
+    TBD.  These release notes should be filled in prior to delivery.<p>
+}
+
+
+#-----------------------------------------------------------------------
+
+page changelog "Change Log" {} {
+    <<title>>
     <<changelog>>
     <<change 7/6/2009 New whd>>
     Initial draft.
@@ -40,23 +92,56 @@ page changelog "Change Log" home {
 #-----------------------------------------------------------------------
 
 page orders "Orders" home {
-    This page lists the orders available to the user.
+    <<title>>
+    The analyst communicates with Athena by means of <i>orders</i>.
+    Most orders are sent by means of an order dialog; some are sent
+    implicitly.  For example, dragging a unit from one place to
+    another on the map implicitly sends the <<cref UNIT:MOVE>> 
+    order.  Order dialogs can be invoked in a number of ways, e.g., by
+    selecting an order from the <<cref menu:orders>>.<p>
+
+    Orders are grouped in the following categories:<p>
 
     <ul>
-    <li> <<cref ATTRIT:UNIT>>
+    <li> <<cref orders:attrition>>
+    <li> <<cref orders:nbhood>>
     </ul>
 }
 
 #-----------------------------------------------------------------------
 
-page ATTRIT:GROUP "Magic Attrit Group" orders {
+page orders:attrition "Attrition Orders" orders {
+    <<title>>
+
+    Athena assesses attrition due to conflict between groups
+    periodically; the period is nominally one week.  In addition,
+    the analyst can cause magic attrition to unit personnel and to the 
+    civilian population at any time.<p>
+
+    <b>Note:</b> magic attrition takes effect immediately; however, the
+    attitude effects resulting from magic attrition are assessed as
+    part of the regular weekly attrition assessment.<p>
+
+    <ul>
+    <li> <<cref ATTRIT:GROUP>>
+    <li> <<cref ATTRIT:NBHOOD>>
+    <li> <<cref ATTRIT:UNIT>>
+    </ul>
+}
+
+
+
+#-----------------------------------------------------------------------
+
+page ATTRIT:GROUP "Magic Attrit Group" orders:attrition {
+    <<order>>
     <<parmlist>>
 
     <<parm n "Neighborhood">>
     <b>Required.</b>  The name of an existing neighborhood.
     <</parm>>
 
-    <<parm g "Neighborhood">>
+    <<parm g "Group">>
     <b>Required.</b>  The name of an existing civilian, force, or
     organization group.
     <</parm>>
@@ -93,13 +178,43 @@ page ATTRIT:GROUP "Magic Attrit Group" orders {
     If the group does not reside in the neighborhood, this order has
     no effect; therefore, civilian units outside their neighborhood of
     origin are never attrited by this order.<p>
-
-    <b>Script Syntax:</b> <<page name>>
 }
 
 #-----------------------------------------------------------------------
 
-page ATTRIT:UNIT "Magic Attrit Unit" orders {
+page ATTRIT:NBHOOD "Magic Attrit Neighborhood" orders:attrition {
+    <<order>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of an existing neighborhood.
+    <</parm>>
+
+    <<parm casualties "Casualties">>
+    <b>Required.</b>  The number of personnel to be attrited, a
+    positive integer.
+    <</parm>>
+
+    <</parmlist>>
+
+    Attrits all civilians in the neighborhood by the specified number
+    of casualties.  All civilian units and implicit populations are
+    attrited proportionally to their size.  <b>Note:</b> unlike
+    the <<cref ATTRIT:GROUP>> order, this order attrits civilian units
+    from other neighborhoods along with those from this
+    neighborhood.<p>
+
+    If the neighborhood's total population is less than the requested
+    number of casualties, then all of the civilian units in the
+    neighborhood will be reduced to zero personnel and the implicit
+    population of each neighborhood group will drop to one person.  (A
+    neighborhood group's implicit population may not be zero.)<p>
+}
+
+#-----------------------------------------------------------------------
+
+page ATTRIT:UNIT "Magic Attrit Unit" orders:attrition {
+    <<order>>
     <<parmlist>>
 
     <<parm u "Unit">>
@@ -124,7 +239,60 @@ page ATTRIT:UNIT "Magic Attrit Unit" orders {
     <li> To change the number of personnel in the unit for reasons
          other than attrition, use the <<cref UNIT:PERSONNEL>> order.
     </ul><p>
-
-    <b>Script Syntax:</b> <tt><<page name>></tt>
-
 }
+
+#-----------------------------------------------------------------------
+
+page orders:nbhood "Neighborhood Orders" orders {
+    <<title>>
+
+    The Athena playbox, or region of interest, is divided into 
+    neighborhoods.  A neighborhood is a polygonal area on the map
+    containing civilian groups, units of various kinds, environmental
+    situations, and so forth.<p>
+
+    Neighborhoods can be stacked one on another; the upper
+    neighborhood covers any lower neighborhoods.  Although Athena does
+    not require it, it's customary to stack neighborhoods so that they
+    nest.  The one restriction on nesting is that a neighborhood
+    cannot cover another neighborhood's reference point.<p>
+
+    Neighborhoods can only be created, updated, and deleted during 
+    <<cref Scenario_Preparation>>.<p>
+
+    <ul>
+    <li> <<cref NBHOOD:CREATE>>
+    <li> <<cref NBHOOD:DELETE>>
+    <li> <<cref NBHOOD:LOWER>>
+    <li> <<cref NBHOOD:RAISE>>
+    <li> <<cref NBHOOD:UPDATE>>
+    </ul>
+}
+
+#-----------------------------------------------------------------------
+
+page NBHOOD:CREATE "Create Neighborhood" orders:nbhood {
+    <<order>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The ID for the new neighborhood.  It may
+    contain letters and digits, and must begin with a letter.  It may
+    not be the same as the ID of any existing neighborhood, group,
+    etc.  It should usually be short, between 2 and 8 characters in
+    length, e.g., <b>N1</b>.
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Required.</b>  A short human-readable name for the
+    neighborhood, e.g., "Los Angeles".
+    <</parm>>
+
+
+    <</parmlist>>
+
+    This order magically inflicts casualties upon a selected unit.  The
+    casualties are presumed to be dead, and are deducted from the
+    unit's personnel.<p>
+}
+

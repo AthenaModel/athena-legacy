@@ -1019,12 +1019,7 @@ snit::widget orderdialog {
     # Brings up the on-line help for the application
     
     method Help {} {
-        messagebox popup \
-            -buttons {ok OK}                                      \
-            -icon    info                                         \
-            -parent  [app topwin $my(field-$parm) set $prev($parm)] \
-            -title   "Athena [version]"                           \
-            -message "This feature has not yet been implemented."
+        app help $options(-order)
     }
 
     # Send

@@ -113,7 +113,6 @@ snit::type map {
             pixane delete $img
 
             error "Could not open the specified file as a map image"
-            return
         }
         
         # NEXT, get the image data, and save it in the RDB

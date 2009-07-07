@@ -94,14 +94,14 @@ ARCHIVE = $(ATHENA_TCL_HOME)/lib/teapot
 bin: check_env src
 	@ echo ""
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	@ echo "+              Building Athena Executable             +"
+	@ echo "+              Building Athena Executable           +"
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	@ echo ""
-	tclapp $(TOP_DIR)/bin/athena.tcl                   \
+	tclapp $(TOP_DIR)/bin/athena.tcl                    \
 		$(TOP_DIR)/lib/*/*                          \
 		$(TOP_DIR)/mars/lib/*/*                     \
 		$(TOP_DIR)/mars/lib/pixane/*/*              \
-		-out $(TOP_DIR)/bin/athena                 \
+		-out $(TOP_DIR)/bin/athena                  \
 		-prefix $(BASE_KIT)                         \
 		-archive $(ARCHIVE)                         \
 		-follow                                     \
@@ -115,7 +115,8 @@ bin: check_env src
 		-pkgref "tablelist -require 4.9"            \
 		-pkgref "tdom"                              \
 		-pkgref "textutil::expander"                \
-		-pkgref "Plotchart"
+		-pkgref "Plotchart"                         \
+		-pkgref "Tkhtml    -require 2.0"
 
 #---------------------------------------------------------------------
 # Target: docs

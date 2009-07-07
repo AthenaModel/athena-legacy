@@ -25,7 +25,7 @@ TOP_DIR = ..
 include $(TOP_DIR)/MakeDefs
 
 # Subdirectories to build
-SUBS     = dev man1 man5 mann mani mansim
+SUBS     = dev man1 man5 mann mani mansim help
 
 # Documents to build
 DOC_ROOT   = .
