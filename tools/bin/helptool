@@ -194,6 +194,7 @@ namespace eval ::macro:: {
     variable pageInfo  ;# Array of information about the current page.
 
     namespace export \
+        childlinks   \
         cref         \
         enumdoc      \
         pageinfo     \
@@ -203,6 +204,31 @@ namespace eval ::macro:: {
         /parmlist    \
         title        \
         version
+}
+
+# childlinks ?name?
+#
+# Returns a <ul>...</ul> list of links to the children of the
+# named page.  Defaults to the current page.
+
+proc macro::childlinks {{parent ""}} {
+    variable pageInfo
+
+    # FIRST, get the parent name.
+    if {$parent eq ""} {
+        set parent $pageInfo(name)
+    }
+
+    # NEXT, get the children
+    set out "<ul>\n"
+
+    hdb eval {SELECT name,title FROM helpdb_pages WHERE parent=$parent} {
+        append out "<li> <a href=\"$name\">$title</a>\n"
+    }
+
+    append out "</ul>\n"
+
+    return $out
 }
 
 # cref uri ?text?
@@ -237,7 +263,7 @@ proc macro::cref {uri {text ""}} {
 # enum    An enum(n) type.
 #
 # The built-in enum(n) "html" method produces bad results for this use.
-# Come up with something better.
+# This is an alternate that looks nicer.
 
 template macro::enumdoc {enum} {
     set names [{*}$enum names]

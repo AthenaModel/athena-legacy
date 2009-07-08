@@ -83,6 +83,12 @@ document-specific macros using the <<iref macro>> command.<p>
 
 <<deflist macros>>
 
+<<defitem childlinks {&lt;&lt;childlinks ?<i>parent</i>?&gt;&gt;}>>
+
+Creates a bulleted list of links to the children of the named
+<i>parent</i> page.  If <i>parent</i> is omitted, the children of the
+current page are listed.<p>
+
 <<defitem cref {&lt;&lt;cref <i>uri</i> ?<i>text</i>?&gt;&gt;}>>
 
 Creates a cross-reference link to another page, identified by

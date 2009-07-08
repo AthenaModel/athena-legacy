@@ -1,13 +1,13 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    sample.help
+#    athena.help
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Sample help(5) help file.
+#    Main Athena help(5) file
 #
 #-----------------------------------------------------------------------
 
@@ -30,7 +30,6 @@ macro order {} {
     (<tt>[pageinfo name]</tt>)<p>
 }
 
-
 #-----------------------------------------------------------------------
 
 page home "Athena Help" {} {
@@ -43,10 +42,8 @@ page home "Athena Help" {} {
     <li> <<cref changelog>>
     <li> <<cref about>>
     <li> <<cref release>>
-    <li> Using Athena
-         <ul>
-         <<cref Scenario_Preparation>>
-         </ul>
+    <li> <<cref using>>
+         <<childlinks using>>
     <li> Athena Reference
          <ul>
          <li> <<cref menus>>
@@ -63,7 +60,7 @@ page home "Athena Help" {} {
 
 #-----------------------------------------------------------------------
 
-page about "About Athena" {} {
+page about "About Athena" home {
     <img src="athena" align="right">
 
     <font size=7>Athena V<<version>></font><br>
@@ -86,7 +83,7 @@ page about "About Athena" {} {
 
 #-----------------------------------------------------------------------
 
-page release "Release Notes" {} {
+page release "Release Notes" home {
     <font size=7>Athena V<<version>> Release notes</font><p>
 
     TBD.  These release notes should be filled in prior to delivery.<p>
@@ -95,7 +92,7 @@ page release "Release Notes" {} {
 
 #-----------------------------------------------------------------------
 
-page changelog "Change Log" {} {
+page changelog "Change Log" home {
     <<title>>
     <<changelog>>
     <<change 7/6/2009 New whd>>
@@ -104,10 +101,26 @@ page changelog "Change Log" {} {
     <</changelog>>
 }
 
+#======================================================================
+# Using Athena
+
+page using "Using Athena" {} {
+    <<title>>
+
+    <<childlinks>>
+}
 
 #-----------------------------------------------------------------------
 
-page orders "Orders" home {
+page using.prep "Scenario Preparation" using {
+    <<title>>
+    TBD:  This page will describe the "Scenario Prep" state, and how
+    to prepare an Athena scenario.
+}
+
+#-----------------------------------------------------------------------
+
+page orders "Orders" {} {
     <<title>>
     The analyst communicates with Athena by means of <i>orders</i>.
     Most orders are sent by means of an order dialog; some are sent
@@ -118,15 +131,12 @@ page orders "Orders" home {
 
     Orders are grouped in the following categories:<p>
 
-    <ul>
-    <li> <<cref orders:attrition>>
-    <li> <<cref orders:nbhood>>
-    </ul>
+    <<childlinks>>
 }
 
 #-----------------------------------------------------------------------
 
-page orders:attrition "Attrition Orders" orders {
+page ATTRIT: "Attrition Orders" orders {
     <<title>>
 
     Athena assesses attrition due to conflict between groups
@@ -138,18 +148,14 @@ page orders:attrition "Attrition Orders" orders {
     attitude effects resulting from magic attrition are assessed as
     part of the regular weekly attrition assessment.<p>
 
-    <ul>
-    <li> <<cref ATTRIT:GROUP>>
-    <li> <<cref ATTRIT:NBHOOD>>
-    <li> <<cref ATTRIT:UNIT>>
-    </ul>
+    <<childlinks>>
 }
 
 
 
 #-----------------------------------------------------------------------
 
-page ATTRIT:GROUP "Magic Attrit Group" orders:attrition {
+page ATTRIT:GROUP "Magic Attrit Group" ATTRIT: {
     <<order>>
     <<parmlist>>
 
@@ -198,7 +204,7 @@ page ATTRIT:GROUP "Magic Attrit Group" orders:attrition {
 
 #-----------------------------------------------------------------------
 
-page ATTRIT:NBHOOD "Magic Attrit Neighborhood" orders:attrition {
+page ATTRIT:NBHOOD "Magic Attrit Neighborhood" ATTRIT: {
     <<order>>
     <<parmlist>>
 
@@ -229,7 +235,7 @@ page ATTRIT:NBHOOD "Magic Attrit Neighborhood" orders:attrition {
 
 #-----------------------------------------------------------------------
 
-page ATTRIT:UNIT "Magic Attrit Unit" orders:attrition {
+page ATTRIT:UNIT "Magic Attrit Unit" ATTRIT: {
     <<order>>
     <<parmlist>>
 
@@ -258,9 +264,88 @@ page ATTRIT:UNIT "Magic Attrit Unit" orders:attrition {
 }
 
 #=======================================================================
+# Cooperation Orders
+
+page COOPERATION: "Cooperation Orders" orders {
+    <<title>>
+
+    Athena models the cooperation of neighborhood
+    civilian groups with force groups, where cooperation is defined as
+    in the TRAC HUMINT methodology: the likelihood that a member of
+    the civilian group will give intelligence to a member of the force
+    group.  This family of orders are used to manipulate the
+    cooperation levels between various groups.<p>
+
+    The full set of orders is as follows:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+page COOPERATION:UPDATE "Update Cooperation" COOPERATION: {
+    <<order>>
+
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of a neighborhood.
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  The name of a civilian group resident in
+    neighborhood <i>n</i>.
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  The name of a force group.
+    <</parm>>
+
+    <<parm coop0 "Cooperation">>
+    <b>Required.</b>  The initial cooperation level of group <i>f</i>
+    with group <i>g</i> in neighborhood <i>n</i>.  Cooperation levels
+    run from 0.0 to 100.0, and are defined either numerically or using
+    the following rating scale:<p>
+
+    <<::simlib::qcooperation html>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order updates the initial
+    cooperation level of one group with another; this can only be done
+    during the Scenario Preparation phase.  TBD: At present, there is
+    no way to adjust the current cooperation level once time has
+    advanced.
+}
+
+#=======================================================================
+# Group Orders
+
+page GROUP: "Group Orders" orders {
+    <<title>>
+
+    Athena models collections of people as <i>groups</i>.  There are
+    three kinds of groups: <i>force groups</i>, which exist to apply
+    and use force; <i>organization groups</i>, such as the Red Cross,
+    USAID, and Haliburton; and <i>civilian groups</i>, such as
+    Pashtuns and Punjabis. Civilian groups reside in neighborhoods,
+    thereby forming <i>neighborhood groups</i>.  Most information
+    about civilians in the playbox is entered for the individual
+    neighborhood groups.<p> 
+
+    Each kind of group has its own set of orders:<p>
+
+    <<childlinks>>
+}
+
+# TBD: Complete the group orders.
+
+
+
+#=======================================================================
 # Neighborhood Orders
 
-page orders:nbhood "Neighborhood Orders" orders {
+page NBHOOD: "Neighborhood Orders" orders {
     <<title>>
 
     The Athena playbox, or region of interest, is divided into 
@@ -275,15 +360,9 @@ page orders:nbhood "Neighborhood Orders" orders {
     cannot cover another neighborhood's reference point.<p>
 
     Neighborhoods can only be created, updated, and deleted during 
-    <<cref Scenario_Preparation>>.<p>
+    <<cref using.prep>>.<p>
 
-    <ul>
-    <li> <<cref NBHOOD:CREATE>>
-    <li> <<cref NBHOOD:DELETE>>
-    <li> <<cref NBHOOD:LOWER>>
-    <li> <<cref NBHOOD:RAISE>>
-    <li> <<cref NBHOOD:UPDATE>>
-    </ul>
+    <<childlinks>>
 }
 
 macro NBHOOD.n {} {
@@ -329,7 +408,7 @@ macro NBHOOD.polygon {} {
 
 #-----------------------------------------------------------------------
 
-page NBHOOD:CREATE "Create Neighborhood" orders:nbhood {
+page NBHOOD:CREATE "Create Neighborhood" NBHOOD: {
     <<order>>
     <<parmlist>>
 
@@ -363,14 +442,70 @@ page NBHOOD:CREATE "Create Neighborhood" orders:nbhood {
 
     <</parmlist>>
 
-    <b><<cref Scenario_Preparation>> Only.</b>  This order creates a
+    <b><<cref using.prep>> Only.</b>  This order creates a
     new neighborhood.
+}
+
+#-----------------------------------------------------------------------
+
+page NBHOOD:DELETE "Delete Neighborhood" NBHOOD: {
+    <<order>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    neighborhood, along with all entities (e.g., neighborhood groups)
+    that depend upon it.<p>
 }
 
 
 #-----------------------------------------------------------------------
 
-page NBHOOD:UPDATE "Update Neighborhood" orders:nbhood {
+page NBHOOD:LOWER "Lower Neighborhood" NBHOOD: {
+    <<order>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Lowers a neighborhood
+    to the bottom of the stacking order, so that all overlapping
+    neighborhoods are stacked upon this one, and then determines
+    whether this neighborhood is obscured by any of those above it.
+    (One neighborhood obscures another if it covers the other
+    neighborhood's reference point.)
+}
+
+
+#-----------------------------------------------------------------------
+
+page NBHOOD:RAISE "Raise Neighborhood" NBHOOD: {
+    <<order>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Raises a neighborhood
+    to the top of the stacking order, so that all overlapping
+    neighborhoods are underneath it, and then determines
+    whether this neighborhood obscures any of those below it.
+    (One neighborhood obscures another if it covers the other
+    neighborhood's reference point.)
+}
+
+
+#-----------------------------------------------------------------------
+
+page NBHOOD:UPDATE "Update Neighborhood" NBHOOD: {
     <<order>>
     <<parmlist>>
 
@@ -400,6 +535,134 @@ page NBHOOD:UPDATE "Update Neighborhood" orders:nbhood {
 
     <</parmlist>>
 
-    <b><<cref Scenario_Preparation>> Only.</b>  This order modifies
+    <b><<cref using.prep>> Only.</b>  This order modifies
     the definition of an existing neighborhood.
 }
+
+
+#=======================================================================
+# Neighborhood Orders
+
+page NBHOOD:RELATIONSHIP: "Neighborhood Relationship Orders" orders {
+    <<title>>
+
+    The Athena playbox, or region of interest, is divided into 
+    <<cref NBHOOD: neighborhoods>>.  Neighborhoods are related
+    to each other in two ways: by proximity, and by the time it takes
+    attitude effects to spread.  The neighborhood relationship orders
+    are used to edit these relationships.<p>
+
+    Neighborhood relationships are created automatically for every
+    pair of neighborhoods, and are deleted as necessary when
+    neighborhoods are deleted.<p>
+
+    <<childlinks>>
+}
+
+#-------------------------------------------------------------------
+
+page NBHOOD:RELATIONSHIP:UPDATE "Update Neighborhood Relationship" NBHOOD:RELATIONSHIP: {
+    <<order>>
+
+    <<parmlist>>
+    <<parm m "Of Neighborhood">> 
+    <b>Required.</b>  A neighborhood name.
+    <</parm>>
+
+    <<parm n "With Neighborhood">> 
+    <b>Required.</b>  Another neighborhood name.
+    <</parm>>
+
+    <<parm proximity "Proximity">>  
+    <b>Optional.</b> The proximity between the two neighborhoods from
+    <i>m</i>'s point of view:<p>
+
+    <<enumdoc ::simlib::eproximity>><p>
+
+    Every neighborhood has a proximity of <b>HERE</b> with itself;
+    this cannot be changed.  Two distinct neighborhoods can have a
+    proximity from <b>NEAR</b> to <b>REMOTE</b>.<p>
+
+    The attitude effects of events and situations in neighborhood <i>n</i>
+    diminish with distance, and vanish altogether in neighborhoods
+    <i>m</i> that consider <i>n</i> to be <b>REMOTE</b>.
+    <</parm>>
+
+    <<parm effects_delay "Effects Delay">> 
+    <b>Optional.</b> Decimal days.  The attitude effects of events and
+    situations in neighborhood <i>n</i> are felt in neighborhood
+    <i>m</i> only after this number of days.
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies existing
+    neighborhood relationships.<p>
+
+    <b>TBD:</b>  At present, Athena allows the user to enter non-zero
+    effects delays within a single neighborhood; however, GRAM
+    presumes that there are no effects delays within a neighborhood 
+    regardless of what the input data says.  This needs to be resolved.
+}
+
+
+#===================================================================
+# Concepts
+
+page concepts "Athena Concepts" {} {
+    <<title>>
+    This page describes a number of general concepts used by the
+    Athena models and software.<p>
+
+    <<childlinks>>
+}
+
+#-------------------------------------------------------------------
+
+page Activity_Priorities "Activity Priorities" concepts {
+    <<title>>
+
+    TBD: This page will list the unit activities in priority order.
+}
+
+#-------------------------------------------------------------------
+
+page mapref "Map Reference Strings" concepts {
+    <<title>>
+    A map reference string is a six-character string that represents
+    a point on the scenario's map.  It has the form
+    <b><i>AnnAnn</i></b> where <i>A</i> is a letter from "A" to "K"
+    (excluding "I") and <i>n</i> is a digit, "0" to "9".<p>
+
+    <h2>Background</h2>
+
+    Athena is designed to use any map image the analyst may have on
+    hand, from a high-quality scan of a printed map to a snapshot of a
+    map hand-drawn on a piece of paper.  Consequently, Athena cannot
+    use geographic coordinates, as it cannot assume that maps are
+    properly geo-referenced.<p>
+
+    Instead, Athena uses X,Y coordinates in the range 0 to 999 for
+    both axes.  The origin is at the upper left; positive X runs from
+    left to right and positive Y from top to bottom.<p>
+
+    These numeric X,Y coordinates are used internally; for input and
+    output they are converted to the form shown above.  For example,
+    the location (123,456) has reference string "B23E56".<p>
+
+    Note that X and Y coordinates are scaled identically.  The lower
+    right corner of a map 1000 pixels wide by 500 pixels high would
+    have numeric map coordinates (999,499) and map reference string
+    "K99E99".
+}
+
+#-------------------------------------------------------------------
+
+page Neighborhood_Security "Neighborhood Security" concepts {
+    <<title>>
+
+    TBD: This page will describe the neighborhood security model.
+}
+
+
+
