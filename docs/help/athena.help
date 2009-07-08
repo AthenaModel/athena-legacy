@@ -11,10 +11,21 @@
 #
 #-----------------------------------------------------------------------
 
-#-----------------------------------------------------------------------
+#=======================================================================
 # Images
 
 image athena "Sculpture of the Goddess Athena" athena.png
+
+
+#=======================================================================
+# Macros
+
+macro order {} {
+    |<--
+    <font size=7>[page title]</font><br>
+    (<tt>[page name]</tt>)<p>
+}
+
 
 #-----------------------------------------------------------------------
 
@@ -37,6 +48,7 @@ page home "Athena Help" {} {
          <li> <<cref menus>>
          <li> <<cref tabs>>
          <li> <<cref orders>>
+         <li> <<cref commands>>
          </ul>
     </ul><p>
 
@@ -241,7 +253,8 @@ page ATTRIT:UNIT "Magic Attrit Unit" orders:attrition {
     </ul><p>
 }
 
-#-----------------------------------------------------------------------
+#=======================================================================
+# Neighborhood Orders
 
 page orders:nbhood "Neighborhood Orders" orders {
     <<title>>
@@ -269,6 +282,47 @@ page orders:nbhood "Neighborhood Orders" orders {
     </ul>
 }
 
+macro NBHOOD.n {} {
+    |<--
+    The ID of an existing neighborhood.
+}
+
+macro NBHOOD.longname {} {
+    |<--
+    A short human-readable name for the
+    neighborhood, e.g., "Los Angeles".  The long name must not be the
+    same as the ID or long name of any existing
+    neighborhood, group, etc.
+}
+
+macro NBHOOD.urbanization {} {
+    |<--
+    The neighborhood's urbanization level:
+    [enumdoc ::projectlib::eurbanization]
+}
+
+macro NBHOOD.vtygain {} {
+    |<--
+    The neighborhood's volatility gain, a real
+    number no less than zero; it is used to dial up and down the
+    effect of neighborhood volatility on neighborhood security.
+    See [cref Neighborhood_Security] for more information.
+}
+
+macro NBHOOD.refpoint {} {
+    |<--
+    The neighborhood's reference point, expressed as
+    a [cref mapref "map reference string"].  The reference point is
+    a location within the neighborhood that is guaranteed not to be
+    obscured by an overlapping or nested neighborhood.
+}
+
+macro NBHOOD.polygon {} {
+    |<--
+    The neighborhood's boundary polygon, expressed as
+    a list of [cref mapref "map reference strings"].
+}
+
 #-----------------------------------------------------------------------
 
 page NBHOOD:CREATE "Create Neighborhood" orders:nbhood {
@@ -278,21 +332,70 @@ page NBHOOD:CREATE "Create Neighborhood" orders:nbhood {
     <<parm n "Neighborhood">>
     <b>Required.</b>  The ID for the new neighborhood.  It may
     contain letters and digits, and must begin with a letter.  It may
-    not be the same as the ID of any existing neighborhood, group,
-    etc.  It should usually be short, between 2 and 8 characters in
-    length, e.g., <b>N1</b>.
+    not be the same as the ID or long name of any existing
+    neighborhood, group, etc.  It should usually be short, between 2
+    and 8 characters in length, e.g., <b>N1</b>.
     <</parm>>
 
     <<parm longname "Long Name">>
-    <b>Required.</b>  A short human-readable name for the
-    neighborhood, e.g., "Los Angeles".
+    <b>Required.</b>  <<NBHOOD.longname>>
     <</parm>>
 
+    <<parm urbanization "Urbanization">>
+    <b>Required.</b>  <<NBHOOD.urbanization>>
+    <</parm>>
+
+    <<parm vtygain "Volatility Gain">>
+    <b>Required.</b>  <<NBHOOD.vtygain>>
+    <</parm>>
+
+    <<parm refpoint "Reference Point">>
+    <b>Required.</b>  <<NBHOOD.refpoint>>
+    <</parm>>
+
+    <<parm polygon "Polygon">>
+    <b>Required.</b> <<NBHOOD.polygon>>
+    <</parm>>
 
     <</parmlist>>
 
-    This order magically inflicts casualties upon a selected unit.  The
-    casualties are presumed to be dead, and are deducted from the
-    unit's personnel.<p>
+    <b><<cref Scenario_Preparation>> Only.</b>  This order creates a
+    new neighborhood.
 }
 
+
+#-----------------------------------------------------------------------
+
+page NBHOOD:UPDATE "Update Neighborhood" orders:nbhood {
+    <<order>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Optional.</b>  <<NBHOOD.longname>>
+    <</parm>>
+
+    <<parm urbanization "Urbanization">>
+    <b>Optional.</b>  <<NBHOOD.urbanization>>
+    <</parm>>
+
+    <<parm vtygain "Volatility Gain">>
+    <b>Optional.</b>  <<NBHOOD.vtygain>>
+    <</parm>>
+
+    <<parm refpoint "Reference Point">>
+    <b>Optional.</b>  <<NBHOOD.refpoint>>
+    <</parm>>
+
+    <<parm polygon "Polygon">>
+    <b>Optional.</b> <<NBHOOD.polygon>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref Scenario_Preparation>> Only.</b>  This order modifies
+    the definition of an existing neighborhood.
+}

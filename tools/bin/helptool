@@ -50,6 +50,7 @@ proc CompilerInit {} {
     $compiler alias page    Compiler_page
     $compiler alias include Compiler_include
     $compiler alias image   Compiler_image
+    $compiler alias macro   Compiler_macro
 
     # NEXT, initialize the ehtml(5) processor used to transform
     # the page bodies.
@@ -164,17 +165,32 @@ proc Compiler_include {filename} {
     $compiler invokehidden -global source $filename
 }
 
+# Compiler_macro name arglist ?initbody? template
+#
+# name      A name for this fragment
+# arglist   Macro arguments
+# initbody  Initialization body
+# template  tsubst(n) template.
+#
+# Defines a macro that can be used in page bodies.
+
+proc Compiler_macro {name args} {
+    ehtml macro $name {*}$args
+}
+
 #-------------------------------------------------------------------
 # ehtml(5) extensions
 
 namespace eval ::macro:: {
+    namespace eval ::macro::user {}
+
     variable docInfo   ;# Array of information about the document as a
                         # whole.
     variable pageInfo  ;# Array of information about the current page.
 
     namespace export \
         cref         \
-        order        \
+        enumdoc      \
         page         \
         parmlist     \
         parm         \
@@ -196,28 +212,43 @@ proc macro::cref {uri {text ""}} {
 
     require {$name ne ""} "uri has no page name: \"$uri\""
 
-    if {$text eq ""} {
-        set text [hdb title $name]
-
+    if {[hdb exists $name]} {
         if {$text eq ""} {
-            set text "TBD: $name"
+            set text [hdb title $name]
         }
+    } else {
+        if {$text eq ""} {
+            set text $name
+        }
+
+        set text "TBD: $text"
     }
 
     return "<a href=\"$uri\">$text</a>"
 }
 
-# order
+# enumdoc enum
 #
-# Outputs the standard header for an order page.
+# enum    An enum(n) type.
+#
+# The built-in enum(n) "html" method produces bad results for this use.
+# Come up with something better.
 
-template macro::order {} {
-    variable pageInfo
+template macro::enumdoc {enum} {
+    set names [{*}$enum names]
 } {
-    <font size=7>$pageInfo(title)</font><br>
-    (<tt>$pageInfo(name)</tt>)<p>
+    |<--
+    <table cellspacing=0>
+    <tr><th align="left">Name</th><th align="left">Long Name</th></tr>
+    [tforeach name $names {
+        |<--
+        <tr>
+        <td><b>$name</b></td>
+        <td>[{*}$enum longname $name]</td>
+        </tr>
+    }]
+    </table>
 }
-
 
 # page field
 #
