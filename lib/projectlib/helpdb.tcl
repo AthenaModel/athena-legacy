@@ -107,24 +107,34 @@ snit::type ::projectlib::helpdb {
     # Delegated methods
     delegate method * to db
 
-    # exists name
+    # entity exists name
+    #
+    # name    An entity name
+    #
+    # Returns 1 if there is an entity with this name, and 0 otherwise.
+
+    method {entity exists} {name} {
+        $db exists {SELECT name FROM helpdb_reserved WHERE name=$name}
+    }
+
+    # page exists name
     #
     # name    A page name
     #
     # Returns 1 if the page exists, and 0 otherwise.
 
-    method exists {name} {
+    method {page exists} {name} {
         $db exists {SELECT name FROM helpdb_pages WHERE name=$name}
     }
 
-    # title+text name
+    # page title+text name
     #
     # name    A page name
     #
     # Returns a two-item list of the page's title and body text,
     # or the empty list if the page doesn't exist.
 
-    method title+text {name} {
+    method {page title+text} {name} {
         $db eval {
             SELECT title, text FROM helpdb_pages WHERE name=$name
         } {
@@ -134,38 +144,38 @@ snit::type ::projectlib::helpdb {
         return [list]
     }
 
-    # title name
+    # page title name
     #
     # name    A page name
     #
     # Returns the page's title.
 
-    method title {name} {
+    method {page title} {name} {
         return [$db onecolumn {
             SELECT title FROM helpdb_pages WHERE name=$name
         }]
     }
 
-    # children name
+    # page children name
     #
     # name    A page name, or ""
     #
     # Returns the names of the pages which are children of the
     # specified page.  "" is the parent of the toplevel pages.
 
-    method children {name} {
+    method {page children} {name} {
         return [$db eval {
             SELECT name FROM helpdb_pages WHERE parent=$name
         }]
     }
 
-    # parent name
+    # page parent name
     #
     # name     Name of a page
     #
     # Returns the name of the parent page, or "" for toplevel pages.
 
-    method parent {name} {
+    method {page parent} {name} {
         return [$db onecolumn {
             SELECT parent FROM helpdb_pages WHERE name=$name
         }]

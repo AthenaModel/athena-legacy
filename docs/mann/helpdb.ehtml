@@ -85,33 +85,57 @@ database handle.  In addition, it has the following subcommands:<p>
 
 <<deflist instance>>
 
-<<defitem children {<i>obj</i> children <i>name</i>}>>
+<<defitem "entity" {<i>obj</i> entity <i>subcommand</i> ?<i>args...</i>?}>>
+
+This command has subcommands relating to entities (pages, images) in
+general.<p>
+
+<<deflist entity>>
+
+<<defitem "entity exists" {<i>obj</i> entity exists <i>name</i>}>>
+
+Returns 1 if there is a help page or image called <i>name</i>, and 0
+otherwise.<p>
+
+<</deflist entity>>
+
+<<defitem "page" {<i>obj</i> page <i>subcommand</i> ?<i>args...</i>?}>>
+
+This command has subcommands relating to help page entities in
+particular.<p>
+
+<<deflist page>>
+
+
+<<defitem "page children" {<i>obj</i> page children <i>name</i>}>>
 
 Returns a list of the names of the help pages that are children
 of the named page.  If name is "", the command returns a
 list of the names of the top-level help pages.  If the named page does
 not exist, the command returns the empty list.<p>
 
-<<defitem exists {<i>obj</i> exists <i>name</i>}>>
+<<defitem "page exists" {<i>obj</i> page exists <i>name</i>}>>
 
-Returns 1 if there is a help page called <i>name</i>, and 0 otherwise.
-<b>NOTE:</b> this overrides the standard SQLite subcommand "exists".<p>
+Returns 1 if there is a help page called <i>name</i>, and 0 otherwise.<p>
 
-<<defitem parent {<i>obj</i> parent <i>name</i>}>>
+
+<<defitem "page parent" {<i>obj</i> page parent <i>name</i>}>>
 
 Returns the name of the parent page of the help page named
 <i>name</i>, or "" if the page does not exist (or is a toplevel
 page).<p>
 
-<<defitem title {<i>obj</i> title <i>name</i>}>>
+<<defitem "page title" {<i>obj</i> page title <i>name</i>}>>
 
 Returns the title of the help page named <i>name</i>, or "" if the
 page does not exist.<p>
 
-<<defitem title+text {<i>obj</i> title+text <i>name</i>}>>
+<<defitem "page title+text" {<i>obj</i> page title+text <i>name</i>}>>
 
 Returns a two-element list of the title and the body text of the named
 help page, or the empty list if the page does not exist.<p>
+
+<</deflist page>>
 
 <</deflist instance>>
 

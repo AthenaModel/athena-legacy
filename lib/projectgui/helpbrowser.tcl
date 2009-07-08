@@ -219,7 +219,7 @@ snit::widget ::projectgui::helpbrowser {
         bind $tree <<Selection>> [mymethod ShowTreePage]
 
         # NEXT, show the first page
-        $self showpage [lindex [$hdb children ""] 0]
+        $self showpage [lindex [$hdb page children ""] 0]
     }
 
     # HyperlinkCmd uri
@@ -324,7 +324,7 @@ snit::widget ::projectgui::helpbrowser {
 
     method ShowPageRef {page {frac 0.0}} {
         # FIRST, get the page data.
-        lassign [$hdb title+text $page] info(title) text
+        lassign [$hdb page title+text $page] info(title) text
 
         # NEXT, if not found get a pseudo page
         if {$info(title) eq ""} {

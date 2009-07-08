@@ -120,7 +120,7 @@ snit::widget ::projectgui::helptree {
         array unset info
 
         # NEXT, Get the top-level names
-        set names [$hdb children ""]
+        set names [$hdb page children ""]
 
         # NEXT, loop over the names
         while {[llength $names] > 0} {
@@ -138,7 +138,7 @@ snit::widget ::projectgui::helptree {
             }
 
             # NEXT, get the pages's children.
-            set kids [$hdb children $name]
+            set kids [$hdb page children $name]
 
             if {[llength $kids] > 0} {
                 lappend names {*}$kids
@@ -177,11 +177,11 @@ snit::widget ::projectgui::helptree {
         }
 
         # NEXT, expand the item and its parents.
-        set parent [$hdb parent $name]
+        set parent [$hdb page parent $name]
 
         while {$parent ne ""} {
             $tree item expand $info(item-$parent)
-            set parent [$hdb parent $parent]
+            set parent [$hdb page parent $parent]
         }
 
         # NEXT, make sure the item is visible

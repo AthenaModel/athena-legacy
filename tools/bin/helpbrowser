@@ -48,7 +48,7 @@ hdb open $filename
 helpbrowser .hb -helpdb ::hdb
 
 if {$page ne ""} {
-    if {![hdb exists $page]} {
+    if {![hdb page exists $page]} {
         puts "No such page: $page"
         exit 1
     }

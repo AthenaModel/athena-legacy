@@ -102,12 +102,11 @@ proc Compiler_page {name title parent text} {
     require {$title ne ""} "Page \"$name\" has no title"
     require {$text ne ""} "Page \"$name\" has no text"
 
-    # TBD: This is wrong; I have to fix this before I finish up.
-    if {[hdb exists {SELECT name FROM helpdb_reserved WHERE name=$name}]} {
-        error "Duplicate page name: \"$name\""
+    if {[hdb entity exists $name]} {
+        error "Duplicate entity name: \"$name\""
     }
 
-    if {$parent ne "" && ![hdb exists $parent]} {
+    if {$parent ne "" && ![hdb page exists $parent]} {
         error "Page \"$name\"'s parent does not exist: \"$parent\""
     }
 
@@ -130,7 +129,12 @@ proc Compiler_page {name title parent text} {
 # in help pages.
 
 proc Compiler_image {name title filename} {
-    # FIRST, is it a real image.
+    # FIRST, is the name unused?
+    if {[hdb entity exists $name]} {
+        error "Duplicate entity name: \"$name\""
+    }
+
+    # NEXT, is it a real image.
     set img [pixane create]
 
     if {[catch {
@@ -213,9 +217,9 @@ proc macro::cref {uri {text ""}} {
 
     require {$name ne ""} "uri has no page name: \"$uri\""
 
-    if {[hdb exists $name]} {
+    if {[hdb page exists $name]} {
         if {$text eq ""} {
-            set text [hdb title $name]
+            set text [hdb page title $name]
         }
     } else {
         if {$text eq ""} {
