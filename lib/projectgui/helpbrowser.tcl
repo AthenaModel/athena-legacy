@@ -218,8 +218,8 @@ snit::widget ::projectgui::helpbrowser {
         # NEXT, Event bindings
         bind $tree <<Selection>> [mymethod ShowTreePage]
 
-        # NEXT, show the home page
-        $self showpage home
+        # NEXT, show the first page
+        $self showpage [lindex [$hdb children ""] 0]
     }
 
     # HyperlinkCmd uri

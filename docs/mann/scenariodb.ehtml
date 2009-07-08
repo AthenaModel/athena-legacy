@@ -97,7 +97,7 @@ Mars.<p>
 <<xref athena_sim(1)>> uses scenariodb(n) to define its
 run-time database (RDB), and to save and load scenario data to and
 from external files.  By convention, these "scenario files" have a
-"<code>.ath</code>" (Athena Scenario) extension.<p>
+"<code>.adb</code>" (Athena Scenario) extension.<p>
 
 <<subsection "XML Schema">>
 

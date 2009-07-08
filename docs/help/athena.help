@@ -20,10 +20,14 @@ image athena "Sculpture of the Goddess Athena" athena.png
 #=======================================================================
 # Macros
 
+macro title {} {
+    <font size=7>[pageinfo title]</font><p>
+}
+
 macro order {} {
     |<--
-    <font size=7>[page title]</font><br>
-    (<tt>[page name]</tt>)<p>
+    <font size=7>[pageinfo title]</font><br>
+    (<tt>[pageinfo name]</tt>)<p>
 }
 
 

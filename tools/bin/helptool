@@ -102,7 +102,8 @@ proc Compiler_page {name title parent text} {
     require {$title ne ""} "Page \"$name\" has no title"
     require {$text ne ""} "Page \"$name\" has no text"
 
-    if {[hdb exists {SELECT id FROM helpdb_reserved WHERE id=$name}]} {
+    # TBD: This is wrong; I have to fix this before I finish up.
+    if {[hdb exists {SELECT name FROM helpdb_reserved WHERE name=$name}]} {
         error "Duplicate page name: \"$name\""
     }
 
@@ -119,16 +120,16 @@ proc Compiler_page {name title parent text} {
     }
 }
 
-# Compiler_image name caption filename
+# Compiler_image name title filename
 #
 # name       The name used in links
-# caption    A short caption
+# title      A short title
 # filename   The image file on disk
 #
 # Loads an image into the helpdb so that it can be referenced
 # in help pages.
 
-proc Compiler_image {name caption filename} {
+proc Compiler_image {name title filename} {
     # FIRST, is it a real image.
     set img [pixane create]
 
@@ -147,8 +148,8 @@ proc Compiler_image {name caption filename} {
 
     hdb eval {
         INSERT OR REPLACE
-        INTO helpdb_images(name,caption,data)
-        VALUES($name,$caption,$data)
+        INTO helpdb_images(name,title,data)
+        VALUES($name,$title,$data)
     }
 
     pixane delete $img
@@ -191,7 +192,7 @@ namespace eval ::macro:: {
     namespace export \
         cref         \
         enumdoc      \
-        page         \
+        pageinfo     \
         parmlist     \
         parm         \
         /parm        \
@@ -250,13 +251,13 @@ template macro::enumdoc {enum} {
     </table>
 }
 
-# page field
+# pageinfo field
 #
 # field    name, title, parent
 #
 # Returns information about the page currently being expanded.
 
-proc macro::page {field} {
+proc macro::pageinfo {field} {
     variable pageInfo
 
     return $pageInfo($field)
@@ -304,17 +305,6 @@ template macro::/parmlist {} {
     |<--
     </table>
 }
-
-# title
-#
-# Outputs the standard title for a help page
-
-template macro::title {} {
-    variable pageInfo
-} {
-    <font size=7>$pageInfo(title)</font><p>
-}
-
 
 # version
 #

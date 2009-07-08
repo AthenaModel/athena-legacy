@@ -43,7 +43,7 @@ CREATE TABLE helpdb_images (
     name     TEXT PRIMARY KEY,
 
     -- Caption
-    caption  TEXT,
+    title    TEXT,
 
     -- The image data, in PNG format
     data     BLOB
@@ -53,7 +53,5 @@ CREATE TABLE helpdb_images (
 -- Page names and reserved words
 
 CREATE TEMPORARY VIEW helpdb_reserved AS
-SELECT '_helpdb:index' AS id                     UNION
-SELECT '_helpdb:error' AS id                     UNION
-SELECT name            AS id FROM helpdb_pages   UNION
-SELECT name            AS id FROM helpdb_images;
+SELECT name, title FROM helpdb_pages   UNION
+SELECT name, title FROM helpdb_images;

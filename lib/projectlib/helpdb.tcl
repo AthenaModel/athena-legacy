@@ -92,7 +92,7 @@ snit::type ::projectlib::helpdb {
     #-------------------------------------------------------------------
     # Constructor
     
-    constructor {args} {
+    constructor {} {
         # FIRST, create the sqldocument, naming it so that it
         # will be automatically destroyed.  We don't want
         # automatic transaction batching.
