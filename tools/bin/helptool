@@ -270,11 +270,11 @@ template macro::enumdoc {enum} {
 } {
     |<--
     <table cellspacing=0>
-    <tr><th align="left">Name</th><th align="left">Long Name</th></tr>
+    <tr><th align="left">Symbol&nbsp;</th><th align="left">Meaning</th></tr>
     [tforeach name $names {
         |<--
         <tr>
-        <td><b>$name</b></td>
+        <td><tt>$name</tt>&nbsp;</td>
         <td>[{*}$enum longname $name]</td>
         </tr>
     }]
