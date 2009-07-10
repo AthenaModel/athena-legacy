@@ -364,7 +364,7 @@ snit::type scenario {
         $type SaveSaveables
 
         # NEXT, get the snapshot text
-        set snapshot [profile rdb export -exclude {
+        set snapshot [profile rdb tclexport -exclude {
             snapshots 
             maps 
             gram_sat_influence
@@ -406,7 +406,7 @@ snit::type scenario {
 
         # NEXT, import it.
         log normal scenario "Loading snapshot for tick $tick"
-        rdb import $snapshot -logcmd [list log detail scenario]
+        rdb tclimport $snapshot -logcmd [list log detail scenario]
 
         # NEXT, restore the saveables
         $type RestoreSaveables

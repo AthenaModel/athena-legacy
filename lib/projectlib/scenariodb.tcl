@@ -504,6 +504,212 @@ snit::type ::projectlib::scenariodb {
     }
 
     #-------------------------------------------------------------------
+    # Tcl Import/Export
+    #
+    # The schema is as follows:
+    #
+    #    [list <tableName> <tableContent> ...]
+    #
+    # where <tableContent> is
+    #
+    #    [list [list <columnName> <columnValue> ...]
+    #          ...]
+    #
+    # I.e., one dict per row.
+
+    # tclexport ?-exclude? ?tables?
+    #
+    # tables      A list of table names
+    #
+    # Exports the database as XML.  If tables is given, exports the named
+    # tables.  If -exclude tables is given, exports all *but* the named
+    # tables.
+    
+    method tclexport {args} {
+        # FIRST, process the arguments
+        if {[llength $args] > 2} {
+            error \
+                "wrong \# args: should be \"$self export ?-exclude? ?tables?\""
+        } elseif {[llength $args] == 0} {
+            set exclude 0
+            set tables [list]
+        } elseif {[llength $args] == 1} {
+            set exclude 0
+            set tables [lindex $args 0]
+        } else {
+            require {[lindex $args 0] eq "-exclude"} \
+                "Unknown option: \"[lindex $args 0]\""
+
+            set exclude 1
+            set tables [lindex $args 1]
+        }
+
+        # NEXT, create the document
+        set output [list]
+        
+        # NEXT, export each of the requested tables; or all tables.
+        if {[llength $tables] == 0} {
+            set tables [$self tables]
+        } elseif {$exclude} {
+            set excluded $tables
+            set tables [list]
+
+            foreach name [$self tables] {
+                if {$name ni $excluded} {
+                    lappend tables $name
+                }
+            }
+        }
+        
+        foreach name $tables {
+            lappend output $name [$self ExportTableAsTcl $name]
+        }
+        
+        # NEXT, return the document
+        return $output
+    }
+
+    # ExportTableAsTcl table
+    #
+    # table    The name of a table in the DB
+    #
+    # Returns a list of row dictionaries for the table.
+
+    method ExportTableAsTcl {table} {
+        # FIRST, get the name of BLOB columns.
+        set blobs [list]
+
+        $db eval "PRAGMA table_info('$table')" tinfo {
+            if {$tinfo(type) eq "BLOB"} {
+                lappend blobs $tinfo(name)
+            }
+        }
+
+        # NEXT, get each row.
+        set output [list]
+
+        $db eval "SELECT * FROM $table" row {
+            unset -nocomplain row(*)
+
+            # Translate blobs
+            foreach col $blobs {
+                binary scan $row($col) H* hex
+                set row($col) $hex
+            }
+
+            lappend output [array get row]
+        }
+
+        return $output
+    }
+
+
+    # importtcl text ?options...?
+    #
+    # text   TCL-formatted text
+    #
+    # -clear         Clears the RDB, defining the current schema, prior
+    #                to importing.
+    # -logcmd cmd    A command prefix taking a message string as its 
+    #                single argument.
+    #
+    # Imports the text into the database.  Imported tables replace
+    # existing content; other tables are left alone.
+    
+    method tclimport {text args} {
+        # FIRST, get the options
+        array set opts {
+            -clear  0
+            -logcmd ""
+        }
+
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+
+            switch -exact -- $opt {
+                -clear  { set opts(-clear) 1               }
+                -logcmd { set opts(-logcmd) [lshift args]  }
+                default { error "Unknown option: \"$opt\"" }
+            }
+        }
+
+        # NEXT, clear the DB, if desired
+        if {$opts(-clear)} {
+            $db clear
+        }
+
+        # NEXT, import the tables
+        foreach {table content} $text {
+            $self ImportTableFromTcl $table $content $opts(-logcmd)
+        }
+    }
+
+    method ImportTableFromTcl {table content logcmd} {
+        # FIRST, verify that the table exists.
+        if {![$db exists "PRAGMA table_info('$table')"]} {
+            callwith $logcmd "Skipping $table"
+            return
+        }
+
+        callwith $logcmd "Importing $table"
+
+        # NEXT, delete the contents of the table.
+        $db eval "DELETE FROM $table;"
+
+        # NEXT, if the contents is empty we're done.
+        if {[llength $content] == 0} {
+            return
+        }
+
+        # NEXT, get the table's BLOB columns and all column names
+        set blobs [list]
+        set ocols [list]
+
+        $db eval "PRAGMA table_info('$table')" tinfo {
+            lappend ocols $tinfo(name)
+
+            if {$tinfo(type) eq "BLOB"} {
+                lappend blobs $tinfo(name)
+            }
+        }
+
+        # NEXT, all rows will have the same columns.  Get the actual list
+        # of columns from the first row.
+        set cnames [dict keys [lindex $content 0]]
+
+        # NEXT, use the names to create the query we'll use to insert
+        # data into the database.
+
+        foreach name $cnames {
+            if {$name in $ocols} {
+                lappend ccols $name
+                lappend cvars "\$row($name)"
+            } else {
+                callwith $logcmd "    Skipping undefined column $name"
+            }
+        }
+
+        set query [tsubst {
+            |<--
+            INSERT OR REPLACE INTO ${table}([join $ccols ,])
+            VALUES([join $cvars ,])
+        }]
+
+        # NEXT, insert each row into the database.
+        foreach rowdict $content {
+            array set row $rowdict
+
+            # Update blobs
+            foreach name $blobs {
+                set row($name) [binary format H* $row($name)]
+            }
+
+            # Insert the row
+            $db eval $query
+        }
+    }
+
+    #-------------------------------------------------------------------
     # XML Import/Export
     #
     # The schema is as follows:

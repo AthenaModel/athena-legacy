@@ -191,25 +191,38 @@ database handle.  In addition, it has the following subcommands:<p>
 Clears the contents of the database, establishing a fresh, empty scenario.
 Also, clears the <<iref unsaved>> flag.<p>
 
-<<defitem export {<i>obj</i> export ?<i>tables</i>?}>>
+<<defitem export {<i>obj</i> export ?-exclude? ?<i>tables</i>?}>>
 
 Exports the contents of the permanent database tables as an XML text
 string.  The XML text can be imported into a scenariodb(n) using
 <<iref import>>.  If <i>tables</i> is specified, it should be a list
-of the names of the tables to export.<p>
+of the names of the tables to export.  If <code>-exclude</code> is
+given with <i>tables</i>, then <i>tables</i> is a list of tables that
+should <i>not</i> be exported.<p>
 
 See above for the <<xref "XML Schema">>.<p>
 
-<<defitem import {<i>obj</i> import <i>xmltext</i> ?<i>logcmd</i>?}>>
+<<defitem import {<i>obj</i> import <i>xmltext</i> ?<i>options...</i>?}>>
 
-Imports the <i>xmltext</i> into the database, first
-<<iref clear>>ing the existing content.  Tables and columns that exist in the
-<i>xmltext</i> but not in the current schema are skipped.<p>
+Imports the <i>xmltext</i> into the database. Tables and columns that
+exist in the <i>xmltext</i> but not in the current schema are
+skipped.  The command can be called with the following options:<p>
 
-If <i>logcmd</i> is given, it should be a command prefix expecting
+<<deflist options>>
+
+<<defopt {-clear}>>
+
+Clears the RDB, defining the current schema, prior to importing.<p.
+
+<<defopt {-logcmd <b>cmd</b>}>>
+
+Defines a command prefix expecting
 one additional argument, a message string.  <<iref import>> will
 call it with a human-readable message for each table and column
 that's imported or skipped.<p>
+
+<</deflist options>>
+
 
 <<defitem load {<i>obj</i> load <i>filename</i>}>>
 
@@ -244,6 +257,39 @@ prevented from changing the contents of the database.<p>
 Saves the current contents of the database to the file with name
 <i>filename</i>, which conventionally should have a
 "<code>.ath</code>" extension.  Clears the <<iref unsaved>> flag.<p>
+
+<<defitem tclexport {<i>obj</i> tclexport ?-exclude? ?<i>tables</i>?}>>
+
+Exports the contents of the permanent database tables as a
+Tcl-formatted text
+string.  The text can be imported into a scenariodb(n) using
+<<iref tclimport>>.  If <i>tables</i> is specified, it should be a list
+of the names of the tables to export.  If <code>-exclude</code> is
+given with <i>tables</i>, then <i>tables</i> is a list of tables that
+should <i>not</i> be exported.<p>
+
+<<defitem tclimport {<i>obj</i> tclimport <i>text</i> ?<i>logcmd</i>?}>>
+
+Imports <i>text</i> saved by <<iref tclexport>> into the database.
+
+Tables and columns that
+exist in the <i>text</i> but not in the current schema are
+skipped.  The command can be called with the following options:<p>
+
+<<deflist options>>
+
+<<defopt {-clear}>>
+
+Clears the RDB, defining the current schema, prior to importing.<p.
+
+<<defopt {-logcmd <b>cmd</b>}>>
+
+Defines a command prefix expecting
+one additional argument, a message string.  <<iref tclimport>> will
+call it with a human-readable message for each table and column
+that's imported or skipped.<p>
+
+<</deflist options>>
 
 <<defitem unsaved {<i>obj</i> unsaved}>>
 
