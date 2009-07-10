@@ -352,13 +352,28 @@ snit::type scenario {
     # an XML string of everything but the "maps" and "snapshots" tables.
     # The "maps" are excluded because of the size, and the "snapshots"
     # are excluded for obvious reasons.
+    #
+    # In addition, exclude the GRAM influence and history tables.
+    # The GRAM influence tables never change after time 0 (for now,
+    # anyway) and the GRAM history table entries never change after they
+    # are written.  We can leave them in place, and truncate the tables
+    # if we re-enter the time-stream.
 
     typemethod {snapshot save} {} {
         # FIRST, save the saveables
         $type SaveSaveables
 
         # NEXT, get the snapshot text
-        set snapshot [rdb export -exclude {snapshots maps}]
+        set snapshot [profile rdb export -exclude {
+            snapshots 
+            maps 
+            gram_sat_influence
+            gram_coop_influence
+            gram_values 
+            gram_contribs
+        }]
+
+        log detail scenario "Snapshot size=[string length $snapshot]"
 
         # NEXT, save it into the RDB
         set tick [sim now]
@@ -414,11 +429,17 @@ snit::type scenario {
     #
     # t     A sim time in ticks
     #
-    # Purges all snapshots with ticks greater than or equal to t
+    # Purges all snapshots with ticks greater than or equal to t,
+    # and all history with ticks greater than t.
 
     typemethod {snapshot purge} {t} {
+        # Note: this code presumes that we have a single
+        # instance of GRAM.  Also, GRAM history values with
+        # a timestamp of $t are from the previous time advance.
         rdb eval {
             DELETE FROM snapshots WHERE tick >= $t;
+            DELETE FROM gram_values WHERE time > $t;
+            DELETE FROM gram_contribs WHERE time > $t;
         }
     }
 
