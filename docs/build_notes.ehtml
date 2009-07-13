@@ -11,6 +11,29 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.10, 13 July 2009</h3>
+
+This build contains the initial implementation of Magic Attrition,
+which allows units and civilian groups to be attrited, but does not
+assess the attitude implications.  It also adds Rules of Engagement
+entities as a first step toward implementing the normal attrition
+model.  Finally, it adds a built-in help browser, with a smattering of
+help pages; much remains to be written here.  Plus there are some bug
+fixes.<p>
+
+<ul>
+  <li> Bug 2162: athena_sim(1): ada(sim) becomes dam(sim)
+  <li> Bug 2163: parmdb(5): activity.*.assignedToActive is now activity.*.shifts
+  <li> Bug 2164: athena_sim(1): Magic Attrition
+  <li> Bug 2168: Athena Rules Document is missing
+  <li> Bug 2169: Update Athena to ATEE 2009Q2
+  <li> Bug 2170: athena_sim(1): Rules of Engagement
+  <li> Bug 2176: help(5), plus tools
+  <li> Bug 2179: helptool(1): "enumdoc" macro
+  <li> Bug 2185: athena_sim(1): Save snapshots in Tcl format
+  <li> Bug 2186: athena_sim(1): Don't include GRAM history in snapshots 
+</ul>
+
 <h3>Build 1.0.9, 24 June 2009</h3>
 
 This build contains the initial version of the Athena Demographics
