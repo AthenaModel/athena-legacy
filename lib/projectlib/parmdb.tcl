@@ -272,7 +272,7 @@ snit::type ::projectlib::parmdb {
         $ps setdefault activity.FRC.PATROL.coverage                 {25 1000}
 
         # Activity: PSYOP
-        $ps setdefault activity.FRC.PSYOP.minSecurity               M
+        $ps setdefault activity.FRC.PSYOP.minSecurity               L
         $ps setdefault activity.FRC.PSYOP.coverage                  {1 50000}
 
         # ORG Activities
