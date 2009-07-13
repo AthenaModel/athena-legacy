@@ -429,6 +429,8 @@ snit::widget ::projectgui::tablebrowser {
     #
     # Selects the rows with the associated IDs.  Unknown IDs
     # are ignored.
+    # 
+    # NOTE: Calling this command doesn't send <<TablebrowserSelect>>.
 
     method select {ids} {
         $tableList selection clear 0 end
@@ -706,6 +708,7 @@ snit::widget ::projectgui::tablebrowser {
 
         # NEXT, clear all selections 
         $tableList selection clear 0 end
+        event generate $win <<TablebrowserSelect>>
     }
 
     # ResetRows
