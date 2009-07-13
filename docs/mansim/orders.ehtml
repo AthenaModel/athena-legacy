@@ -56,75 +56,7 @@ manipulate various kinds of groups.<p>
 
 <<subsection "GROUP:CIVILIAN:*">>
 
-These orders relate to top-level civilian groups, groups of the
-civilian population which can exist across multiple neighborhoods.<p>
-
-<<deflist group civilian>>
-
-<<defitem GROUP:CIVILIAN:CREATE {GROUP:CIVILIAN:CREATE}>>
-
-Creates a new civilian group.  The parameters are as
-follows:<p>
-
-<<parmlist>>
-
-<<parm g>> <b>Required.</b> A brief <<xref ident(n) identifier>> which
-uniquely identifies this group.<</parm>>
-
-<<parm longname>> <b>Required.</b> A short human-readable name for the
-group, e.g., "Pashtuns".<</parm>>
-
-<<parm color>> <b>Required.</b>  A color, specified as a hexadecimal
-RGB string, "<code>#<i>rrggbb</i></code>" or
-"<code>#<i>rrrrggggbbbb</i></code>". This color is used to color code
-the group's icons.<</parm>>
-
-<</parmlist>>
-
-<<defitem GROUP:CIVILIAN:DELETE {GROUP:CIVILIAN:DELETE}>>
-
-Deletes a civilian group, cleaning up dependencies.  In particular,
-it:<p>
-
-<ul>
-  <li> Deletes all neighborhood groups which belong to this civilian
-       group.<p>
-</ul>
-
-The parameters are as follows:<p>
-
-<<parmlist>>
-
-<<parm g>> <b>Required.</b> The group's ID.<</parm>>
-
-<</parmlist>>
-
-
-<<defitem GROUP:CIVILIAN:UPDATE {GROUP:CIVILIAN:UPDATE}>>
-
-Updates an existing civilian group.  The parameters are as
-defined for <<iref GROUP:CIVILIAN:CREATE>>; <b>g</b> is required, and
-specifies the group to update, while the remainder are optional.<p>
-
-
-<<defitem GROUP:CIVILIAN:UPDATE:MULTI {GROUP:CIVILIAN:UPDATE:MULTI}>>
-
-Updates multiple civilian groups.  The parameters are as
-follows:<p>
-
-<<parmlist>>
-
-<<parm ids>> <b>Required.</b>  A list of one or more group
-IDs.<</parm>>
-
-<<parm color>> As for <<iref GROUP:CIVILIAN:CREATE>>. <</parm>>
-
-<</parmlist>>
-
-
-
-<</deflist group civilian>>
-
+These orders are now documented in the Athena help.<p>
 
 <<subsection "GROUP:FORCE:*">>
 

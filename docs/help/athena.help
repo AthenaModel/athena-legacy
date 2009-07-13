@@ -30,6 +30,24 @@ macro order {} {
     (<tt>[pageinfo name]</tt>)<p>
 }
 
+macro parm.identifier {entity example} {
+    |<--
+    The ID for the new $entity.  It may
+    contain letters and digits, and must begin with a letter.  It may
+    not be the same as the ID or long name of any existing
+    neighborhood, group, etc.  It should usually be short, between 2
+    and 8 characters in length, e.g., <b>$example</b>.
+}
+
+macro parm.longname {entity example} {
+    |<--
+    A short human-readable name for the
+    $entity, e.g., "$example".  The long name must not be the
+    same as the ID or long name of any existing
+    neighborhood, group, etc.
+}
+
+
 #-----------------------------------------------------------------------
 
 page home "Athena Help" {} {
@@ -371,9 +389,151 @@ page GROUP: "Group Orders" orders {
     <<childlinks>>
 }
 
-# TBD: Complete the group orders.
+macro GROUP.g {flavor} {
+    |<--
+    The ID of an existing $flavor group.
+}
+
+macro GROUP.color {} {
+    |<--
+    The group's color, used when displaying the group's units
+    on the map viewer.  In general, group colors will be selected
+    using the color selection dialog; if a color is entered as a
+    string, it must be specified as a hex color string, of
+    one of the following forms<p>
+
+    #<i>rrggbb</i><br>
+    #<i>rrrgggbbb</i><br>
+    #<i>rrrrggggbbbb</i><p>
+
+    where <i>r</i>, <i>g</i> and <i>b</i> are hexadecimal digits 
+    expressing a shade of red, green, or blue.  Thus, "#000000" is
+    black, and "#FFFFFF" is white.<p>
+}
+
+macro GROUP.shape {} {
+    |<--
+    According to MIL-STD-2525a, friendly, neutral, and enemy units
+    are drawn differently by the map viewer.  This parameter
+    determines whether the group's units are drawn as friendly,
+    neutral, or enemy.  The possible values are as follows:<p>
+
+    [enumdoc ::projectlib::eunitshape]
+}
+
+#=======================================================================
+# Civilian Group Orders
+
+page GROUP:CIVILIAN: "Civilian Group Orders" GROUP: {
+    <<title>>
+
+    Athena uses civilian groups to model identifiable collections of
+    people who reside in multiple neighborhoods, e.g., Pashtuns and
+    Punjabis who reside in various parts of Pakistan.  Thus, defining
+    a population of Pashtuns resident in Peshawar requires first
+    defining Pashtuns in general. That's what this set of orders is for:<p>
+
+    <<childlinks>>
+
+    Then, the <<cref GROUP:NBHOOD:>> can be used to make the Pashtuns
+    actually reside in Peshawar:
+
+    <<childlinks GROUP:NBHOOD:>>
+}
+
+#-----------------------------------------------------------------------
+
+page GROUP:CIVILIAN:CREATE "Create Civilian Group" GROUP:CIVILIAN: {
+    <<order>>
+
+    <<parmlist>>
+    <<parm g "ID">>
+    <b>Required.</b>  <<parm.identifier group PASH>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Required.</b> <<parm.longname group "Urban Pashtuns">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Required.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Required.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order creates a
+    new civilian group.  The <<cref GROUP:NBHOOD:CREATE>> order can
+    then be used to add the new group to neighborhoods.<p>
+}
 
 
+#-----------------------------------------------------------------------
+
+page GROUP:CIVILIAN:DELETE "Delete Civilian Group" GROUP:CIVILIAN: {
+    <<order>>
+    <<parmlist>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  <<GROUP.g civilian>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    civilian group, along with all entities (e.g., neighborhood groups)
+    that depend upon it.<p>
+}
+
+#-----------------------------------------------------------------------
+
+page GROUP:CIVILIAN:UPDATE "Update Civilian Group" GROUP:CIVILIAN: {
+    <<order>>
+
+    <<parmlist>>
+    <<parm g "ID">>
+    <b>Required.</b>  <<GROUP.g civilian>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Optional.</b> <<parm.longname group "Urban Pashtuns">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Optional.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Optional.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of an existing civilian group.<p>
+}
+
+
+#=======================================================================
+# Neighborhood Group Orders
+
+page GROUP:NBHOOD: "Neighborhood Group Orders" GROUP: {
+    <<title>>
+
+    Athena uses civilian groups to model identifiable collections of
+    people who reside in multiple neighborhoods, e.g., Pashtuns and
+    Punjabis residing in various parts of Pakistan.  Defining a
+    population of Pashtuns resident in Peshawar requires first
+    defining Pashtuns in general, using the <<cref GROUP:CIVILIAN:>>.
+    Then, this set of orders can be used to make the Pashtuns 
+    actually reside in Peshawar.<p>
+
+    <<childlinks>>
+}
+
+# TBD: Add the GROUP:NBHOOD:* orders
 
 #=======================================================================
 # Neighborhood Orders
@@ -401,14 +561,6 @@ page NBHOOD: "Neighborhood Orders" orders {
 macro NBHOOD.n {} {
     |<--
     The ID of an existing neighborhood.
-}
-
-macro NBHOOD.longname {} {
-    |<--
-    A short human-readable name for the
-    neighborhood, e.g., "Los Angeles".  The long name must not be the
-    same as the ID or long name of any existing
-    neighborhood, group, etc.
 }
 
 macro NBHOOD.urbanization {} {
@@ -446,15 +598,11 @@ page NBHOOD:CREATE "Create Neighborhood" NBHOOD: {
     <<parmlist>>
 
     <<parm n "Neighborhood">>
-    <b>Required.</b>  The ID for the new neighborhood.  It may
-    contain letters and digits, and must begin with a letter.  It may
-    not be the same as the ID or long name of any existing
-    neighborhood, group, etc.  It should usually be short, between 2
-    and 8 characters in length, e.g., <b>N1</b>.
+    <b>Required.</b>  <<parm.identifier neighborhood N1>>
     <</parm>>
 
     <<parm longname "Long Name">>
-    <b>Required.</b>  <<NBHOOD.longname>>
+    <b>Required.</b>  <<parm.longname neighborhood "Peshawar">>
     <</parm>>
 
     <<parm urbanization "Urbanization">>
@@ -547,7 +695,7 @@ page NBHOOD:UPDATE "Update Neighborhood" NBHOOD: {
     <</parm>>
 
     <<parm longname "Long Name">>
-    <b>Optional.</b>  <<NBHOOD.longname>>
+    <b>Optional.</b>  <<parm.longname neighborhood "Peshawar">>
     <</parm>>
 
     <<parm urbanization "Urbanization">>
