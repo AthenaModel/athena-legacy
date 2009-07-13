@@ -151,6 +151,27 @@ page ATTRIT: "Attrition Orders" orders {
     <<childlinks>>
 }
 
+macro ATTRIT.responsible {} {
+    |<--
+    [parm g1 "Responsible Group"]
+    <b>Optional.</b>  The name of a force group that is wholly or
+    partially responsible for the casualties.
+    [/parm]
+
+    [parm g2 "Responsible Group"]
+    <b>Optional.</b>  The name of a force group that is wholly or
+    partially responsible for the casualties.
+    [/parm]
+}
+
+macro ATTRIT.attitude {} {
+    |<--
+    <b>Attitude Implications:</b>  Civilian and organization
+    casualties affect the satisfaction of the relevant groups.  If
+    responsible force groups are specified, then civilian casualties
+    will affect the cooperation of the civilian group with the
+    responsible groups.<p>
+}
 
 
 #-----------------------------------------------------------------------
@@ -163,15 +184,17 @@ page ATTRIT:GROUP "Magic Attrit Group" ATTRIT: {
     <b>Required.</b>  The name of an existing neighborhood.
     <</parm>>
 
-    <<parm g "Group">>
+    <<parm f "To Group">>
     <b>Required.</b>  The name of an existing civilian, force, or
-    organization group.
+    organization group to receive the casualites.
     <</parm>>
 
     <<parm casualties "Casualties">>
     <b>Required.</b>  The number of personnel to be attrited, a
     positive integer.
     <</parm>>
+
+    <<ATTRIT.responsible>>
 
     <</parmlist>>
 
@@ -200,6 +223,8 @@ page ATTRIT:GROUP "Magic Attrit Group" ATTRIT: {
     If the group does not reside in the neighborhood, this order has
     no effect; therefore, civilian units outside their neighborhood of
     origin are never attrited by this order.<p>
+
+    <<ATTRIT.attitude>>
 }
 
 #-----------------------------------------------------------------------
@@ -217,6 +242,8 @@ page ATTRIT:NBHOOD "Magic Attrit Neighborhood" ATTRIT: {
     positive integer.
     <</parm>>
 
+    <<ATTRIT.responsible>>
+
     <</parmlist>>
 
     Attrits all civilians in the neighborhood by the specified number
@@ -231,6 +258,8 @@ page ATTRIT:NBHOOD "Magic Attrit Neighborhood" ATTRIT: {
     neighborhood will be reduced to zero personnel and the implicit
     population of each neighborhood group will drop to one person.  (A
     neighborhood group's implicit population may not be zero.)<p>
+
+    <<ATTRIT.attitude>>
 }
 
 #-----------------------------------------------------------------------
@@ -248,6 +277,8 @@ page ATTRIT:UNIT "Magic Attrit Unit" ATTRIT: {
     positive integer.
     <</parm>>
 
+    <<ATTRIT.responsible>>
+
     <</parmlist>>
 
     This order magically inflicts casualties upon a selected unit.  The
@@ -261,6 +292,8 @@ page ATTRIT:UNIT "Magic Attrit Unit" ATTRIT: {
     <li> To change the number of personnel in the unit for reasons
          other than attrition, use the <<cref UNIT:PERSONNEL>> order.
     </ul><p>
+
+    <<ATTRIT.attitude>>
 }
 
 #=======================================================================

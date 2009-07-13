@@ -295,6 +295,51 @@ CREATE TABLE defroe_ng (
     PRIMARY KEY (n,g)
 );
 
+-- An instance of attrition to a group in a neighborhood.  These records
+-- are accumulated between attrition tocks and are used to assess 
+-- satisfaction implications.
+
+CREATE TABLE attrit_nf (
+    -- Unique ID, assigned automatically.
+    id         INTEGER PRIMARY KEY,
+
+    -- Neighborhood in which the attrition occurred
+    n          TEXT,
+   
+    -- Group to which the attrition occurred
+    f          TEXT,
+
+    -- Total attrition (in personnel) to group f.
+    casualties INTEGER
+);
+
+CREATE INDEX attrit_nf_index_nf ON attrit_nf(n,f);
+
+-- Total attrition to a group in a neighborhood by responsible group, 
+-- as accumulated between attrition tocks.  Note that multiple groups
+-- can be responsible for the same casualty, e.g., in a fire fight
+-- between two force groups, both can be blamed for collateral damage.
+-- This is used to assess cooperation implications.
+
+CREATE TABLE attrit_nfg (
+    -- Unique ID, assigned automatically.
+    id         INTEGER PRIMARY KEY,
+
+    -- Neighborhood in which the attrition occurred
+    n          TEXT,
+   
+    -- Group to which the attrition occurred
+    f          TEXT,
+
+    -- Responsible group.
+    g          TEXT,
+
+    -- Total attrition (in personnel) to group f.
+    casualties INTEGER
+);
+
+CREATE INDEX attrit_nfg_index_nfg ON attrit_nfg(n,f,g);
+
 
 ------------------------------------------------------------------------
 -- Initial Satisfaction Data

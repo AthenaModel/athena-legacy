@@ -41,6 +41,8 @@ snit::type ted {
         coop_nfg
         attroe_nfg
         defroe_ng
+        attrit_nf
+        attrit_nfg
         units
         situations
         ensits_t
@@ -306,6 +308,7 @@ snit::type ted {
 
         defentity BLUE1 ::unit {
             g         BLUE
+            origin    NONE
             u         BLUE1
             personnel 15
             location  {0 0}
@@ -314,6 +317,7 @@ snit::type ted {
 
         defentity BLUE2 ::unit {
             g         BLUE
+            origin    NONE
             u         BLUE2
             personnel 15
             location  {0 0}
@@ -322,6 +326,7 @@ snit::type ted {
 
         defentity BRIT1 ::unit {
             g         BRIT
+            origin    NONE
             u         BRIT1
             personnel 15
             location  {0 0}
@@ -330,6 +335,7 @@ snit::type ted {
 
         defentity BRIT2 ::unit {
             g         BRIT
+            origin    NONE
             u         BRIT2
             personnel 15
             location  {0 0}
@@ -338,6 +344,7 @@ snit::type ted {
 
         defentity USAID1 ::unit {
             g         USAID
+            origin    NONE
             u         USAID1
             personnel 15
             location  {0 0}
@@ -346,6 +353,7 @@ snit::type ted {
 
         defentity USAID2 ::unit {
             g         USAID
+            origin    NONE
             u         USAID2
             personnel 15
             location  {0 0}
@@ -354,6 +362,7 @@ snit::type ted {
 
         defentity HAL1 ::unit {
             g         HAL
+            origin    NONE
             u         HAL1
             personnel 15
             location  {0 0}
@@ -362,6 +371,7 @@ snit::type ted {
 
         defentity HAL2 ::unit {
             g         HAL
+            origin    NONE
             u         HAL2
             personnel 15
             location  {0 0}
