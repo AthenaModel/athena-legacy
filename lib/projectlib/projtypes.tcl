@@ -165,6 +165,9 @@ snit::type ::projectlib::typewrapper {
     CHKPOINT-1-1  "Force group assigned CHECKPOINT activity"
     CHKPOINT-2-1  "Force group no longer operating checkpoints"
 
+    CIVCAS-1-1    "Civilian casualties taken"
+    CIVCAS-2-1    "Civilian casualties taken from force group"
+
     CMOCONST-1-1  "FRC units are doing construction work"
     CMOCONST-2-1  "FRC units no longer doing construction work"
 
@@ -281,6 +284,10 @@ snit::type ::projectlib::typewrapper {
     ORDNANCE-3-1  "Unexploded ordnance is removed by outsiders"
     ORDNANCE-3-2  "Unexploded ordnance is removed by locals"
 
+    ORGCAS-1-1    "NGO personnel killed"
+    ORGCAS-1-2    "IGO personnel killed"
+    ORGCAS-1-3    "CTR personnel killed"
+
     ORGCONST-1-1  "ORG units are doing construction work"
     ORGCONST-2-1  "ORG units no longer doing construction work"
 
@@ -341,6 +348,7 @@ snit::type ::projectlib::typewrapper {
     BADFOOD   "Contaminated Food Supply"
     BADWATER  "Contaminated Water Supply"
     CHKPOINT  "Checkpoint/Control Point"
+    CIVCAS    "Civilian Casualties"
     CMOCONST  "CMO -- Construction"
     CMODEV    "CMO -- Development"
     CMOEDU    "CMO -- Education"
@@ -367,6 +375,7 @@ snit::type ::projectlib::typewrapper {
     MINEFIELD "Minefield"
     NOWATER   "Interrupted Water Supply"
     ORDNANCE  "Unexploded Ordnance"
+    ORGCAS    "Organization Casualties"
     ORGCONST  "ORG -- Construction"
     ORGEDU    "ORG -- Education"
     ORGEMP    "ORG -- Employment"
@@ -386,6 +395,7 @@ snit::type ::projectlib::typewrapper {
 # DAM Rule Set Causes
 ::marsutil::enum ::projectlib::ecause {
     CHKPOINT  "Checkpoint/Control Point"
+    CIVCAS    "Civilian Casualties"
     CMOCONST  "CMO -- Construction"
     CMODEV    "CMO -- Development"
     CMOEDU    "CMO -- Education"

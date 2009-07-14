@@ -86,6 +86,21 @@ snit::type ::projectlib::parmdb {
             cannot be changed at run-time.
         }
 
+        # NEXT, Athena Attrition Model parameters
+
+        $ps subset aam {
+            Parameters which affect the Athena Attrition Model
+        }
+
+        $ps define aam.ticksPerTock ::projectlib::ipositive 7 {
+            Defines the frequency of attrition assessments, in ticks.  During
+            each attrition assessment, Athena computes all normal 
+            attrition, applies it, and then determines the attitude
+            implications.  Note that Athena assesses the attitude
+            implications of magic attrition occuring between tocks at
+            the same time.
+        }
+
         # NEXT, Activity Parameters
         # Create 
 
@@ -390,7 +405,6 @@ snit::type ::projectlib::parmdb {
                 which the rule set fires.
             }
 
-
             # Add standard parameters for Activity rule sets
             if {$name in {
                 CHKPOINT
@@ -424,6 +438,26 @@ snit::type ::projectlib::parmdb {
             }
         }
 
+        # Add parameters for Attrition rule sets
+        $ps define dam.CIVCAS.Zsat ::marsutil::zcurve {0.3 1.0 100.0 2.0} {
+            Z-curve used to compute the casualty multiplier used in
+            the CIVCAS satisfaction rules from the number of civilian
+            casualties.
+        }
+
+        $ps define dam.CIVCAS.Zcoop ::marsutil::zcurve {0.3 1.0 100.0 2.0} {
+            Z-curve used to compute the casualty multiplier used in
+            the CIVCAS cooperation rule from the number of civilian
+            casualties.
+        }
+
+        $ps define dam.ORGCAS.Zsat ::marsutil::zcurve {0.3 1.0 100.0 2.0} {
+            Z-curve used to compute the casualty multiplier used in
+            the ORGCAS rule set from the number of organization
+            casualties.
+        }
+
+
         # Rule Set: BADFOOD
         $ps setdefault dam.BADFOOD.cause          HUNGER
         $ps setdefault dam.BADFOOD.nearFactor     0.0
@@ -434,10 +468,15 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.BADWATER.nearFactor    0.0
         $ps setdefault dam.BADWATER.farFactor     0.0
 
-       # Rule Set: CHKPOINT
+        # Rule Set: CHKPOINT
         $ps setdefault dam.CHKPOINT.cause         CHKPOINT
         $ps setdefault dam.CHKPOINT.nearFactor    0.25
         $ps setdefault dam.CHKPOINT.farFactor     0.0
+
+        # Rule Set: CIVCAS
+        $ps setdefault dam.CIVCAS.cause           CIVCAS
+        $ps setdefault dam.CIVCAS.nearFactor      0.25
+        $ps setdefault dam.CIVCAS.farFactor       0.1
 
         # Rule Set: CMOCONST
         $ps setdefault dam.CMOCONST.cause         CMOCONST
@@ -590,6 +629,11 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.ORDNANCE.cause         ORDNANCE
         $ps setdefault dam.ORDNANCE.nearFactor    0.2
         $ps setdefault dam.ORDNANCE.farFactor     0.0
+
+        # Rule Set: ORGCAS
+        $ps setdefault dam.ORGCAS.cause           ORGCAS
+        $ps setdefault dam.ORGCAS.nearFactor      0.25
+        $ps setdefault dam.ORGCAS.farFactor       0.1
 
         # Rule Set: ORGCONST
         $ps setdefault dam.ORGCONST.cause         ORGCONST

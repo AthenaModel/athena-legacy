@@ -282,8 +282,11 @@ snit::type dam {
         
         # NEXT, Add details to the header.
 
-        # -doer, -location,
+        # -f, -doer, -location,
         dict with opts {
+            # -f
+            set flist ${-f}
+
             # -doer
             set doer ${-doer}
 
@@ -305,6 +308,7 @@ snit::type dam {
         # NEXT, add the parameter data to the header, if need be.
         if {$locText      ne "" ||
             $sitText      ne "" ||
+            $flist        ne "" ||
             $doer         ne ""
         } {
             append input(header) "\n"
@@ -316,6 +320,11 @@ snit::type dam {
 
         if {$sitText ne ""} {
             append input(header) [format $columns "Situation ID:" $sitText]
+        }
+
+        if {$flist ne ""} {
+            append input(header) \
+                [format $columns "Affected Groups(s):" [join $flist ", "]]
         }
 
         if {$doer ne ""} {
@@ -540,7 +549,7 @@ snit::type dam {
                        g,
                        CASE WHEN cause != '' THEN cause ELSE 'n/a' END,
                        format('%6.2f (%s)',climit,qmag('name',climit)),
-                       format('%g days (%s)',days),
+                       format('%g days',days),
                        format('%4.2f',p),
                        format('%4.2f',q)
                 FROM dam_inputs

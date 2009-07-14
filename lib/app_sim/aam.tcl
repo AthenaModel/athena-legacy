@@ -33,9 +33,74 @@ snit::type aam {
     }
 
     #-------------------------------------------------------------------
-    # Analysis
+    # Attrition Assessment
 
-    
+    # assess
+    #
+    # This routine is to be called every aam.ticksPerTock to do the 
+    # attrition assessment.
+
+    typemethod assess {} {
+        log normal aam "assess"
+        # FIRST, do the normal attrition computation.
+        # TBD
+
+        # NEXT, assess the satisfaction implications
+        rdb eval {
+            SELECT n,
+                   f,
+                   gtype,
+                   total(casualties) AS casualties
+            FROM attrit_nf
+            JOIN groups ON attrit_nf.f = groups.g
+            GROUP BY n,f
+        } row {
+            unset -nocomplain row(*)
+
+            if {$row(gtype) eq "CIV"} {
+                set row(driver) \
+                    [aram driver add      \
+                         -name     CIVCAS \
+                         -oneliner "Casualties to nbhood group $row(n) $row(f)"]
+
+                set driver([list $row(n) $row(f)]) $row(driver)
+                aam_rules civsat [array get row]
+            } elseif {$row(gtype) eq "ORG"} {
+                set row(driver) \
+                    [aram driver add      \
+                         -name     ORGCAS \
+                         -oneliner "Casualties to group $row(f) in nbhood $row(n)"]
+
+                aam_rules orgsat [array get row]
+            } else {
+                error "Unexpected group type: \"$row(gtype)\""
+            }
+        }
+
+        # NEXT, assess the cooperation implications
+        rdb eval {
+            SELECT n,
+                   f,
+                   g,
+                   total(casualties) AS casualties
+            FROM attrit_nfg
+            GROUP BY n,f,g
+        } row {
+            unset -nocomplain row(*)
+
+            # Use the same driver as for the satisfaction effects.
+            set row(driver) $driver([list $row(n) $row(f)])
+
+            aam_rules civcoop [array get row]
+        }
+        
+        # NEXT, clear the accumulated attrition statistics, in preparation
+        # for the next tock.
+        rdb eval {
+            DELETE FROM attrit_nf;
+            DELETE FROM attrit_nfg;
+        }
+    }
 
 
     #-------------------------------------------------------------------

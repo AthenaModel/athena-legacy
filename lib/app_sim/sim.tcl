@@ -773,6 +773,10 @@ snit::type sim {
         ensit assess
         nbstat analyze
         actsit analyze
+        
+        if {[simclock now] % [parmdb get aam.ticksPerTock] == 0} {
+            aam assess
+        }
 
         # NEXT, advance GRAM; but first give it the latest
         # population data.
@@ -782,6 +786,7 @@ snit::type sim {
         aram advance
 
         # NEXT, check Reactive Decision Conditions (RDCs)
+        # TBD: None yet
 
         # NEXT, pause if it's the pause time.
         if {$info(stoptime) != 0 &&
