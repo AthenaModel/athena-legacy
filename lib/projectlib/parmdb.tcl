@@ -23,6 +23,14 @@ namespace eval ::projectlib:: {
 ::marsutil::range ::projectlib::parmdb_nomcoverage \
     -min 0.1 -max 1.0 -format "%+5.2f"
 
+# Nominal cooperation
+::marsutil::range ::projectlib::parmdb_nomcoop \
+    -min 10.0 -max 100.0 -format "%5.1f"
+
+# Positive Days
+::marsutil::range ::projectlib::parmdb_posdays \
+    -min 0.1 -format "%.2f"
+
 
 #-------------------------------------------------------------------
 # parm
@@ -101,8 +109,96 @@ snit::type ::projectlib::parmdb {
             the same time.
         }
 
+        # UFvsNF
+        $ps subset aam.UFvsNF {
+            Parameters for Uniformed Force vs. Non-uniformed Force
+            attrition.
+        }
+
+        $ps subset aam.UFvsNF.UF {
+            Parameters relating to the Uniformed Force in UF vs. NF
+            attrition.
+        }
+
+        $ps define aam.UFvsNF.UF.coverageFunction ::simlib::coverage {
+            25.0 1000
+        } {
+            The coverage function used for the coverage of the
+            Uniformed Force in the neighborhood, based on the number
+            of UF personnel in the neighborhood.
+        }
+
+        $ps define aam.UFvsNF.UF.nominalCoverage \
+            ::projectlib::parmdb_nomcoverage 0.3 {
+            The nominal coverage of the Uniformed Force in the
+            neighborhood for this algorithm.  When the UF coverage is
+            equal to this value, the time-to-find an NF cell will tend
+            to be <tt>aam.UFvsNF.UF.timeToFind</tt>.
+        }
+
+        $ps define aam.UFvsNF.UF.nominalCooperation \
+            ::projectlib::parmdb_nomcoop 35.0 {
+            The nominal cooperation of the neighborhood population 
+            with the Uniformed Force.  When the actual cooperation is
+            equal to this value, the time-to-find an NF cell will tend
+            to be <tt>aam.UFvsNF.UF.timeToFind</tt>.
+        }
+
+        $ps define aam.UFvsNF.UF.timeToFind \
+            ::projectlib::parmdb_posdays 5.0 {
+            The average time for the Uniformed Force to find a 
+            Non-uniformed Force cell, in days.
+        }
+
+        $ps subset aam.UFvsNF.NF {
+            Parameters relating to the Non-uniformed Force in UF vs. NF
+            attrition.
+        }
+
+        $ps define aam.UFvsNF.NF.coverageFunction ::simlib::coverage {
+            12.0 1000
+        } {
+            The coverage function used for the coverage of the
+            Non-uniformed Force in the neighborhood, based on the number
+            of NF personnel in the neighborhood.
+        }
+
+        $ps define aam.UFvsNF.NF.nominalCoverage \
+            ::projectlib::parmdb_nomcoverage 0.4 {
+            The nominal coverage of the Non-uniformed Force in the
+            neighborhood for this algorithm.  When the NF coverage is
+            equal to this value, the time-to-find an NF cell will tend
+            to be <tt>aam.UFvsNF.UF.timeToFind</tt>.
+        }
+
+        $ps define aam.UFvsNF.NF.cellSize \
+            ::projectlib::ipositive 7 {
+            The average number of Non-uniformed Force personnel per 
+            NF cell.  Ultimately, this might be allowed to vary by
+            group and neighborhood.
+        }
+
+        $ps subset aam.UFvsNF.ECDA {
+            The Expected Collateral Damage per Attack, i.e., the
+            expected number of civilians killed per non-uniformed cell
+            attacked by a uniformed force.  The actual value depends
+            on the urbanization level.
+        }
+
+        foreach ul [::projectlib::eurbanization names] {
+            $ps define aam.UFvsNF.ECDA.$ul ::projectlib::iquantity 0 {
+                The ECDA for this urbanization level, i.e., the
+                expected number of civilians killed per non-uniformed cell
+                attacked by a uniformed force.            
+            }
+        }
+
+        $ps setdefault aam.UFvsNF.ECDA.RURAL    1
+        $ps setdefault aam.UFvsNF.ECDA.SUBURBAN 3
+        $ps setdefault aam.UFvsNF.ECDA.URBAN    5
+
+
         # NEXT, Activity Parameters
-        # Create 
 
         $ps subset activity {
             Parameters which affect the computation of group activity

@@ -42,10 +42,92 @@ snit::type aam {
 
     typemethod assess {} {
         log normal aam "assess"
-        # FIRST, do the normal attrition computation.
-        # TBD
 
-        # NEXT, assess the satisfaction implications
+        # FIRST, Clear the pending attrition data, if any.
+        rdb eval {
+            DELETE FROM aam_pending_nf;
+            DELETE FROM aam_pending_n;
+        }
+
+        # NEXT, compute all normal attrition for this interval,
+        # and then apply it all at once.
+        $type UFvsNF
+        # $type NFvsUF
+        $type ApplyAttrition
+
+        # NEXT, assess the attitude implications of all normal
+        # and magic attrition for this interval.
+        $type AssessAttitudeImplications
+        $type ClearAttitudeStatistics
+    }
+
+    # ApplyAttrition
+    #
+    # Applies the attrition accumulated by the normal attrition
+    # algorithms.
+
+    typemethod ApplyAttrition {} {
+        # FIRST, apply the force group attrition
+        rdb eval {
+            SELECT n, 
+                   f, 
+                   total(casualties) AS casualties,
+                   ''                AS g1,
+                   ''                AS g2
+            FROM aam_pending_nf
+            GROUP BY n,f
+        } row {
+            $type mutate attritnf [array get row]
+        }
+
+        # NEXT, Scale the collateral damage if it exceeds the population of
+        # the neighborhood.
+
+        rdb eval {
+            SELECT aam_pending_n.n,
+                   total(casualties) AS casualties,
+                   population
+            FROM aam_pending_n JOIN demog_n USING (n)
+            GROUP BY aam_pending_n.n
+        } {
+            if {$casualties <= $population} {
+                continue
+            }
+
+            let factor { double($population)/$casualties }
+            
+            log detail aam \
+            "Scaling collateral damage in $n: cas=$casualties pop=$population"
+            rdb eval {
+                UPDATE aam_pending_n
+                SET casualties = round($factor * casualties)
+                WHERE n = $n
+            }
+        }
+
+        # NEXT, apply the collateral damage.
+        rdb eval {
+            SELECT n,
+                   'CIV'       AS f,
+                   casualties,
+                   attacker    AS g1,
+                   defender    AS g2
+            FROM aam_pending_n
+        } row {
+            $type mutate attritnf [array get row]
+        }
+
+        # NEXT, refresh the demographics
+        demog analyze
+    }
+
+    # AssessAttitudeImplications
+    #
+    # Assess the satisfaction and cooperation implications of all
+    # magic and normal attrition for this attrition interval.
+
+    typemethod AssessAttitudeImplications {} {
+        # FIRST, assess the satisfaction implications
         rdb eval {
             SELECT n,
                    f,
@@ -93,14 +175,149 @@ snit::type aam {
 
             aam_rules civcoop [array get row]
         }
-        
-        # NEXT, clear the accumulated attrition statistics, in preparation
+    }
+
+    # ClearAttitudeStatistics
+    #
+    # Clears the tables used to store attrition for use in
+    # assessing attitudinal effects.
+
+    typemethod ClearAttitudeStatistics {} {
+        # FIRST, clear the accumulated attrition statistics, in preparation
         # for the next tock.
         rdb eval {
             DELETE FROM attrit_nf;
             DELETE FROM attrit_nfg;
         }
     }
+
+    #-------------------------------------------------------------------
+    # UF vs. NF Attrition
+
+    # UFvsNF
+    #
+    # Computes the attrition, if any, due to Uniformed Force attacks
+    # on Non-uniformed Force personnel.
+
+    typemethod UFvsNF {} {
+        # FIRST, get the relevant parameter values
+        set deltaT    [simclock toDays [parmdb get aam.ticksPerTock]]
+        set ufCovFunc [parmdb get aam.UFvsNF.UF.coverageFunction]
+        set ufCovNom  [parmdb get aam.UFvsNF.UF.nominalCoverage]
+        set ufCoopNom [parmdb get aam.UFvsNF.UF.nominalCooperation]
+        set nfCovFunc [parmdb get aam.UFvsNF.NF.coverageFunction]
+        set nfCovNom  [parmdb get aam.UFvsNF.NF.nominalCoverage]
+        set tf        [parmdb get aam.UFvsNF.UF.timeToFind]
+        set cellSize  [parmdb get aam.UFvsNF.NF.cellSize]
+
+        # FIRST, step over all attacking ROEs.
+        rdb eval {
+            SELECT A.n                       AS n,
+                   A.f                       AS uf, 
+                   A.g                       AS nf,
+                   A.cooplimit               AS coopLimit,
+                   N.urbanization            AS urbanization,
+                   DN.population             AS pop,
+                   COALESCE(UP.effective,0)  AS ufPersonnel,
+                   UC.coop                   AS ufCoop,
+                   COALESCE(NP.effective,0)  AS nfPersonnel,
+                   NC.coop                   AS nfCoop
+            FROM attroe_nfg              AS A
+            JOIN nbhoods                 AS N  ON (N.n  = A.n)
+            JOIN demog_n                 AS DN ON (DN.n = A.n)
+            LEFT OUTER JOIN activity_nga AS UP ON (UP.n = A.n AND UP.g = A.f)
+            JOIN gram_frc_ng             AS UC ON (UC.n = A.n AND UC.g = A.f)
+            LEFT OUTER JOIN activity_nga AS NP ON (NP.n = A.n AND NP.g = A.g)
+            JOIN gram_frc_ng             AS NC ON (NC.n = A.n AND NC.g = A.g)
+            WHERE A.uniformed =  1
+            AND   A.roe       =  'ATTACK'
+            AND   UP.a        =  'PRESENCE'
+            AND   NP.a        =  'PRESENCE'
+        } {
+            
+            # FIRST, if the attack cannot be carried out, log it.
+            set prefix "no $uf attacks on $nf in $n:"
+
+            if {$ufPersonnel == 0} {
+                log detail aam "$prefix No $uf personnel in $n"
+                continue
+            } elseif {$nfPersonnel == 0} {
+                log detail aam "$prefix No $nf personnel in $n"
+                continue
+            } elseif {$ufCoop < $coopLimit} {
+                log detail aam "$prefix $n coop with $uf < $coopLimit"
+                continue
+            }
+
+            # NEXT, the attack occurs.  Get the coverage fractions.
+            set ufCov     [coverage eval $ufCovFunc $ufPersonnel $pop]
+            set nfCov     [coverage eval $nfCovFunc $nfPersonnel $pop]
+
+            # NEXT, compute the possible number of attacks:
+            let Np { 
+                round( ($ufCoop           * $ufCov    * $nfCov    * $deltaT)/
+                       (max($nfCoop,10.0) * $ufCovNom * $nfCovNom * $tf ) )
+            }
+
+            if {$Np == 0} {
+                log detail aam \
+                  "$prefix UF can't find NF"
+                continue
+            }
+
+            # NEXT, compute the actual number of attacks
+            
+            # Number of NF cells
+            let Ncells { ceil(double($nfPersonnel) / $cellSize) }
+
+            # Each attack kills an entire cell
+            let Na { entier(min($Np, $Ncells)) }
+
+            # Number of NF troops killed
+            let Nkilled { min($Na * $cellSize, $nfPersonnel) }
+
+            rdb eval {
+                INSERT INTO aam_pending_nf(n,f,casualties)
+                VALUES($n,$nf,$Nkilled);
+            }
+
+            # NEXT, compute the collateral damage.  Get the ECDA.
+            set ecda [parmdb get aam.UFvsNF.ECDA.$urbanization]
+
+            let Ncivcas {
+                entier( $Na * $ecda * $ufCoopNom / max($ufCoop, 10.0))
+            }
+
+            if {$Ncivcas > 0} {
+                rdb eval {
+                    INSERT INTO aam_pending_n(n,attacker,defender,casualties)
+                    VALUES($n,$uf,$nf,$Ncivcas);
+                }
+            }
+
+            log normal aam \
+                "UF $uf attacks NF $nf in $n: NF $Nkilled CIV $Ncivcas"
+            log detail aam [tsubst {
+                |<--
+                UF $uf attacks NF $nf in $n:
+                    coopLimit:    $coopLimit
+                    urbanization: $urbanization
+                    pop:          $pop
+                    ufPersonnel:  $ufPersonnel
+                    ufCov         $ufCov
+                    ufCoop:       $ufCoop
+                    nfPersonnel:  $nfPersonnel
+                    nfCov         $nfCov
+                    nfCoop:       $nfCoop
+                    Np:           $Np
+                    Ncells:       $Ncells
+                    Na:           $Na
+            }]
+
+        }
+    }
+
+
 
 
     #-------------------------------------------------------------------
