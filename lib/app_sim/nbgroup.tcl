@@ -347,8 +347,8 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
     parm local_name     text "Local Name"
     parm basepop        text "Base Population"
     parm demeanor       enum "Demeanor"       -type edemeanor
-    parm rollup_weight  text "RollupWeight"   -defval 1.0
-    parm effects_factor text "EffectsFactor"  -defval 1.0
+    parm rollup_weight  text "Rollup Weight"  -defval 1.0
+    parm effects_factor text "Effects Factor" -defval 1.0
 } {
     # FIRST, prepare and validate the parameters
     prepare n              -toupper -required -type nbhood
@@ -454,8 +454,8 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
     parm local_name     text "Local Name"
     parm basepop        text "Base Population"
     parm demeanor       enum "Demeanor"      -type edemeanor
-    parm rollup_weight  text "RollupWeight"
-    parm effects_factor text "EffectsFactor"
+    parm rollup_weight  text "Rollup Weight"
+    parm effects_factor text "Effects Factor"
 } {
     # FIRST, prepare the parameters
     prepare n              -toupper  -required -type nbhood

@@ -421,6 +421,31 @@ macro GROUP.shape {} {
     [enumdoc ::projectlib::eunitshape]
 }
 
+macro GROUP.demeanor {} {
+    |<--
+    The demeanor of the group, i.e., its propensity for
+    violence. The possible values are as follows:<p>
+
+    [enumdoc ::projectlib::edemeanor]
+}
+
+macro GROUP.rollup_weight {} {
+    |<--
+    The weight given to this group when rolling up satisfaction levels
+    across groups to get neighborhood moods or playbox satisfaction
+    levels.  It must be a non-negative real value, nominally 1.0.
+    Reasonable values range from 0.5 to 2.0.
+}
+
+macro GROUP.effects_factor {} {
+    |<--
+    A factor used to scale the indirect effects on other
+    groups of satisfaction effects on this group.
+    across groups to get neighborhood moods or playbox satisfaction
+    levels.  It must be a non-negative real value, nominally 1.0.
+    Reasonable values range from 0.5 to 2.0.
+}
+
 #=======================================================================
 # Civilian Group Orders
 
@@ -533,7 +558,130 @@ page GROUP:NBHOOD: "Neighborhood Group Orders" GROUP: {
     <<childlinks>>
 }
 
-# TBD: Add the GROUP:NBHOOD:* orders
+macro GROUP:NBHOOD.local_name {} {
+    |<--
+    A short, human-readable name the neighborhood group, e.g., 
+    the name of a tribe, clan, etc.
+}
+
+macro GROUP:NBHOOD.basepop {} {
+    |<--
+    The initial population of the neighborhood group.  This population
+    can be reduced by displacement to other neighborhoods, and by
+    attrition.  An integer number no less than 1.
+}
+
+
+#-----------------------------------------------------------------------
+
+page GROUP:NBHOOD:CREATE "Create Nbhood Group" GROUP:NBHOOD: {
+    <<order>>
+
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+
+    <<parm g "Civ Group">>
+    <b>Required.</b>  <<GROUP.g civilian>>  There must not already be
+    a neighborhood group for this <b>n</b> and <b>g</b>.
+    <</parm>>
+
+    <<parm local_name "Local Name">>
+    <b>Optional.</b> <<GROUP:NBHOOD.local_name>>  If no local name is
+    given, the civilian group's long name will be used.
+    <</parm>>
+
+    <<parm basepop "Base Population">>
+    <b>Required.</b> <<GROUP:NBHOOD.basepop>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Required.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm rollup_weight "Rollup Weight">>
+    <b>Required.</b> <<GROUP.rollup_weight>>
+    <</parm>>
+
+    <<parm effects_factor "Effects Factor">>
+    <b>Required.</b> <<GROUP.effects_factor>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order creates a
+    new neighborhood group, i.e., a civilian group resident in a
+    neighborhood.  The <<cref GROUP:CIVILIAN:CREATE>> order can
+    then be used to create civilian groups which can then be added to
+    neighborhoods.<p>
+}
+
+
+#-----------------------------------------------------------------------
+
+page GROUP:NBHOOD:DELETE "Delete Nbhood Group" GROUP:NBHOOD: {
+    <<order>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+
+    <<parm g "Civ Group">>
+    <b>Required.</b>  <<GROUP.g civilian>>  There must be
+    a neighborhood group for this <b>n</b> and <b>g</b>.
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    neighborhood group, along with all entities (e.g., civilian units,
+    satisfaction levels) that depend upon it.<p>
+}
+
+#-----------------------------------------------------------------------
+
+page GROUP:NBHOOD:UPDATE "Update Civilian Group" GROUP:NBHOOD: {
+    <<order>>
+
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+
+    <<parm g "Civ Group">>
+    <b>Required.</b>  <<GROUP.g civilian>>   There must be
+    a neighborhood group for this <b>n</b> and <b>g</b>.
+    <</parm>>
+
+    <<parm local_name "Local Name">>
+    <b>Optional.</b> <<GROUP:NBHOOD.local_name>>
+    <</parm>>
+
+    <<parm basepop "Base Population">>
+    <b>Optional.</b> <<GROUP:NBHOOD.basepop>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Optional.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm rollup_weight "Rollup Weight">>
+    <b>Optional.</b> <<GROUP.rollup_weight>>
+    <</parm>>
+
+    <<parm effects_factor "Effects Factor">>
+    <b>Optional.</b> <<GROUP.effects_factor>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of an existing neighborhood group.<p>
+}
+
+
 
 #=======================================================================
 # Neighborhood Orders
