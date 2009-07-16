@@ -19,6 +19,10 @@ namespace eval ::projectlib:: {
 #-------------------------------------------------------------------
 # First, define the parameter value types used in this database
 
+# Average Loss Exchange Ratio
+::marsutil::range ::projectlib::parmdb_aler \
+    -min 0.1 -format "%.2f"
+
 # Nominal coverage
 ::marsutil::range ::projectlib::parmdb_nomcoverage \
     -min 0.1 -max 1.0 -format "%+5.2f"
@@ -196,6 +200,118 @@ snit::type ::projectlib::parmdb {
         $ps setdefault aam.UFvsNF.ECDA.RURAL    1
         $ps setdefault aam.UFvsNF.ECDA.SUBURBAN 3
         $ps setdefault aam.UFvsNF.ECDA.URBAN    5
+
+        # NFvsUF
+
+        $ps subset aam.NFvsUF {
+            Parameters for Non-uniformed Force vs. Uniformed Force
+            attrition.
+        }
+
+        $ps subset aam.NFvsUF.UF {
+            Parameters relating to the Uniformed Force in NF vs. UF
+            attrition.
+        }
+
+        $ps define aam.NFvsUF.UF.coverageFunction ::simlib::coverage {
+            25.0 1000
+        } {
+            The coverage function used for the coverage of the
+            Uniformed Force in the neighborhood, based on the number
+            of UF personnel in the neighborhood.
+        }
+
+        $ps define aam.NFvsUF.UF.nominalCoverage \
+            ::projectlib::parmdb_nomcoverage 0.2 {
+            The nominal coverage of the Uniformed Force in the
+            neighborhood for this algorithm.
+        }
+
+        $ps subset aam.NFvsUF.HIT_AND_RUN {
+            Parameters relating to the Non-uniformed Force in NF vs. UF
+            attrition when the Non-uniformed Force is using
+            Hit-and-Run tactics.
+        }
+
+        $ps define aam.NFvsUF.HIT_AND_RUN.nominalCooperation \
+            ::projectlib::parmdb_nomcoop 70.0 {
+            The nominal cooperation of the neighborhood civilians
+            with the Non-uniformed Force for this algorithm.
+        }
+
+        $ps define aam.NFvsUF.HIT_AND_RUN.minUFcasualties \
+            ::projectlib::ipositive 4 {
+            The number of Uniformed Force personnel the Non-uniformed
+            wishes to kill in any hit-and-run attack.
+        }
+
+        $ps define aam.NFvsUF.HIT_AND_RUN.maxNFcasualties \
+            ::projectlib::ipositive 1 {
+            The maximum number of casualties the Non-uniformed Force
+            is prepared to take in order to kill the required
+            number of Uniformed Force personnel.  If it will cost the
+            NF more personnel than this, they will not attack.
+        }
+
+        $ps define aam.NFvsUF.HIT_AND_RUN.ALER \
+            ::projectlib::parmdb_aler 3.0 {
+            The Average Loss Exchange Ratio: the average number of UF
+            casualties per NF casualty, assuming that the UF fires
+            back.
+        }
+
+        $ps subset aam.NFvsUF.STAND_AND_FIGHT {
+            Parameters relating to the Non-uniformed Force in NF vs. UF
+            attrition when the Non-uniformed Force is using
+            Stand-and-Fight tactics.
+        }
+
+        $ps define aam.NFvsUF.STAND_AND_FIGHT.nominalCooperation \
+            ::projectlib::parmdb_nomcoop 70.0 {
+            The nominal cooperation of the neighborhood civilians
+            with the Non-uniformed Force for this algorithm.
+        }
+
+        $ps define aam.NFvsUF.STAND_AND_FIGHT.minUFcasualties \
+            ::projectlib::ipositive 40 {
+            The minimum number of Uniformed Force casualties required
+            by any stand-and-fight attack.  If the NF cannot kill at
+            least this many UF personnel, it will not attack.
+        }
+
+        $ps define aam.NFvsUF.STAND_AND_FIGHT.maxNFcasualties \
+            ::projectlib::ipositive 10 {
+            The number of personnel the Non-uniformed Force
+            is willing to expend in a single attack, killing as many
+            UF personnel as possible.
+        }
+
+        $ps define aam.NFvsUF.STAND_AND_FIGHT.ALER \
+            ::projectlib::parmdb_aler 6.0 {
+            The Average Loss Exchange Ratio: the average number of UF
+            casualties per NF casualty, assuming that the UF fires
+            back.
+        }
+
+        $ps subset aam.NFvsUF.ECDC {
+            The Expected Collateral Damage per Casualty, i.e., the
+            expected number of civilians killed per non-uniformed casualty
+            when a uniformed force is defending against non-uniformed
+            attack.  The actual value depends
+            on the urbanization level.
+        }
+
+        foreach ul [::projectlib::eurbanization names] {
+            $ps define aam.NFvsUF.ECDC.$ul ::projectlib::iquantity 0 {
+                The ECDC for this urbanization level, i.e., the
+                expected number of civilians killed per non-uniformed casualty
+                when a uniformed force is defending.
+            }
+        }
+
+        $ps setdefault aam.NFvsUF.ECDC.RURAL    6
+        $ps setdefault aam.NFvsUF.ECDC.SUBURBAN 12
+        $ps setdefault aam.NFvsUF.ECDC.URBAN    18
 
 
         # NEXT, Activity Parameters

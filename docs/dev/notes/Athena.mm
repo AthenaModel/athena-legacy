@@ -92,8 +92,24 @@
 <node CREATED="1241215878848" ID="Freemind_Link_957640958" MODIFIED="1241215882778" TEXT="Level vs. Slope"/>
 <node CREATED="1241215883249" ID="Freemind_Link_1735758744" MODIFIED="1241215886122" TEXT="Sat vs Coop"/>
 </node>
-<node CREATED="1239210066312" FOLDED="true" ID="Freemind_Link_1735127823" MODIFIED="1245882433454" TEXT="Slope effect bounds">
+<node CREATED="1247762885741" ID="Freemind_Link_1952865263" MODIFIED="1247762891249" TEXT="Smaller epsilons?"/>
+<node CREATED="1239210066312" ID="Freemind_Link_854754922" MODIFIED="1247762787319" TEXT="Slope effect thresholds">
 <icon BUILTIN="messagebox_warning"/>
+<node CREATED="1239210082792" ID="Freemind_Link_319482527" MODIFIED="1247762797557" TEXT="Threshold other than +/- 100"/>
+<node CREATED="1239210116617" ID="Freemind_Link_94705808" MODIFIED="1247762812375" TEXT="Effect does not contribute if level exceeds threshold"/>
+<node CREATED="1247762822989" ID="Freemind_Link_1630695005" MODIFIED="1247762846166" TEXT="Effects do NOT scale to threshold">
+<font BOLD="true" NAME="SansSerif" SIZE="12"/>
+</node>
+<node CREATED="1239210138568" ID="Freemind_Link_1017855387" MODIFIED="1239210156149" TEXT="Tendency to some value, say 0">
+<node CREATED="1239210156872" ID="Freemind_Link_1635068076" MODIFIED="1239210189954" TEXT="Slope increasing to 0.0"/>
+<node CREATED="1239210174983" ID="Freemind_Link_1430976267" MODIFIED="1239210183954" TEXT="Slope decreasing to 0.0"/>
+</node>
+</node>
+<node CREATED="1239210066312" ID="Freemind_Link_1735127823" MODIFIED="1247762875474" TEXT="Slope effect bounds">
+<icon BUILTIN="messagebox_warning"/>
+<node CREATED="1247762862700" ID="Freemind_Link_339710939" MODIFIED="1247762878379" TEXT="Slope effect thresholds are preferred in the short run">
+<icon BUILTIN="flag"/>
+</node>
 <node CREATED="1239210082792" ID="Freemind_Link_21995878" MODIFIED="1239210115298" TEXT="Effect scales to bound other than +/- 100"/>
 <node CREATED="1239210116617" ID="Freemind_Link_16044741" MODIFIED="1239210129458" TEXT="Effect is ignored if level exceeds bound"/>
 <node CREATED="1239210138568" FOLDED="true" ID="Freemind_Link_1350980017" MODIFIED="1239210156149" TEXT="Tendency to some value, say 0">

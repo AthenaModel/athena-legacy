@@ -52,7 +52,7 @@ snit::type aam {
         # NEXT, compute all normal attrition for this interval,
         # and then apply it all at once.
         $type UFvsNF
-        # $type NFvsUF
+        $type NFvsUF
         $type ApplyAttrition
 
         # NEXT, assess the attitude implications of all normal
@@ -210,7 +210,8 @@ snit::type aam {
         set tf        [parmdb get aam.UFvsNF.UF.timeToFind]
         set cellSize  [parmdb get aam.UFvsNF.NF.cellSize]
 
-        # FIRST, step over all attacking ROEs.
+        # NEXT, step over all attacking ROEs.
+        # TBD: Can use force_ng.personnel instead of activity_nga.effective.
         rdb eval {
             SELECT A.n                       AS n,
                    A.f                       AS uf, 
@@ -218,23 +219,20 @@ snit::type aam {
                    A.cooplimit               AS coopLimit,
                    N.urbanization            AS urbanization,
                    DN.population             AS pop,
-                   COALESCE(UP.effective,0)  AS ufPersonnel,
+                   UP.personnel              AS ufPersonnel,
                    UC.coop                   AS ufCoop,
-                   COALESCE(NP.effective,0)  AS nfPersonnel,
+                   NP.personnel              AS nfPersonnel,
                    NC.coop                   AS nfCoop
-            FROM attroe_nfg              AS A
-            JOIN nbhoods                 AS N  ON (N.n  = A.n)
-            JOIN demog_n                 AS DN ON (DN.n = A.n)
-            LEFT OUTER JOIN activity_nga AS UP ON (UP.n = A.n AND UP.g = A.f)
-            JOIN gram_frc_ng             AS UC ON (UC.n = A.n AND UC.g = A.f)
-            LEFT OUTER JOIN activity_nga AS NP ON (NP.n = A.n AND NP.g = A.g)
-            JOIN gram_frc_ng             AS NC ON (NC.n = A.n AND NC.g = A.g)
+            FROM attroe_nfg    AS A
+            JOIN nbhoods       AS N  ON (N.n  = A.n)
+            JOIN demog_n       AS DN ON (DN.n = A.n)
+            JOIN force_ng      AS UP ON (UP.n = A.n AND UP.g = A.f)
+            JOIN gram_frc_ng   AS UC ON (UC.n = A.n AND UC.g = A.f)
+            JOIN force_ng      AS NP ON (NP.n = A.n AND NP.g = A.g)
+            JOIN gram_frc_ng   AS NC ON (NC.n = A.n AND NC.g = A.g)
             WHERE A.uniformed =  1
             AND   A.roe       =  'ATTACK'
-            AND   UP.a        =  'PRESENCE'
-            AND   NP.a        =  'PRESENCE'
         } {
-            
             # FIRST, if the attack cannot be carried out, log it.
             set prefix "no $uf attacks on $nf in $n:"
 
@@ -295,6 +293,7 @@ snit::type aam {
                 }
             }
 
+            # NEXT, log the results
             log normal aam \
                 "UF $uf attacks NF $nf in $n: NF $Nkilled CIV $Ncivcas"
             log detail aam [tsubst {
@@ -317,7 +316,201 @@ snit::type aam {
         }
     }
 
+    #-------------------------------------------------------------------
+    # NF vs. UF Attrition
 
+    # NFvsUF
+    #
+    # Computes the attrition, if any, due to Non-uniformed Force attacks
+    # on Uniformed Force personnel.
+
+    typemethod NFvsUF {} {
+        # FIRST, get the relevant constant parameter values
+        set deltaT    [simclock toDays [parmdb get aam.ticksPerTock]]
+        set ufCovFunc [parmdb get aam.NFvsUF.UF.coverageFunction]
+        set ufCovNom  [parmdb get aam.NFvsUF.UF.nominalCoverage]
+
+        # NEXT, step over all attacking ROEs, gathering the related
+        # data as needed.
+        rdb eval {
+            SELECT A.n                             AS n,
+                   A.f                             AS nf,
+                   A.g                             AS uf,
+                   A.roe                           AS nfRoe,
+                   A.cooplimit                     AS coopLimit,
+                   A.rate                          AS rate,
+                   N.urbanization                  AS urbanization,
+                   DN.population                   AS pop,
+                   NP.personnel                    AS nfPersonnel,
+                   NC.coop                         AS nfCoop,
+                   UP.personnel                    AS ufPersonnel,
+                   UP.security                     AS ufSecurity,
+                   UC.coop                         AS ufCoop,
+                   UD.roe                          AS ufRoe
+            FROM attroe_nfg     AS A
+            JOIN nbhoods        AS N  ON (N.n = A.n)
+            JOIN demog_n        AS DN ON (DN.n = A.n)
+            JOIN force_ng       AS NP ON (NP.n = A.n AND NP.g = A.f)
+            JOIN gram_frc_ng    AS NC ON (NC.n = A.n AND NC.g = A.f)
+            JOIN force_ng       AS UP ON (UP.n = A.n AND UP.g = A.g)
+            JOIN gram_frc_ng    AS UC ON (UC.n = A.n AND UC.g = A.g)
+            JOIN defroe_ng      AS UD ON (UD.n = A.n AND UD.g = A.g)
+            WHERE A.uniformed =  0
+            AND   A.roe       != 'DO_NOT_ATTACK'
+        } {
+            # FIRST, if the attack cannot be carried out, log it.
+            set prefix "no $nf attacks on $uf in $n:"
+
+            if {$nfPersonnel == 0} {
+                log detail aam "$prefix No $nf personnel in $n"
+                continue
+            } elseif {$ufPersonnel == 0} {
+                log detail aam "$prefix No $uf personnel in $n"
+                continue
+            } elseif {$nfCoop < $coopLimit} {
+                log detail aam "$prefix $n coop with $nf < $coopLimit"
+                continue
+            }
+
+            # NEXT, get the UF coverage
+            set ufCov     [coverage eval $ufCovFunc $ufPersonnel $pop]
+
+            # NEXT, get the NF parameters that depend on ROE
+            set nfCoopNom [parmdb get aam.NFvsUF.$nfRoe.nominalCooperation]
+            set minUFcas  [parmdb get aam.NFvsUF.$nfRoe.minUFcasualties]
+            set maxNFcas  [parmdb get aam.NFvsUF.$nfRoe.maxNFcasualties]
+            set ALER      [parmdb get aam.NFvsUF.$nfRoe.ALER]
+
+            # NEXT, compute the potential number of attacks:
+            let Np { 
+                round( 
+                 ($rate * (100 - $ufSecurity) * $nfCoop    * $ufCov * $deltaT)
+                 / (             100          * $nfCoopNom * $ufCovNom))
+            }
+
+            if {$Np == 0} {
+                log detail aam \
+                  "$prefix NF can't ambush UF"
+                continue
+            }
+
+            # NEXT, whether we attack or not, and the number of 
+            # casualties per attack, depends on the attacking ROE
+            if {$nfRoe eq "HIT_AND_RUN"} {
+                set ufCas $minUFcas
+                
+                let nfCas {
+                    ($ufCas * $ufCoop)         /
+                    ($ALER  * max($nfCoop,10))
+                }
+
+                if {$nfCas > $maxNFcas} {
+                    log detail aam \
+                        "$prefix NF casualties/attack $nfCas > $maxNFcas"
+                    continue
+                }
+            } elseif {$nfRoe eq "STAND_AND_FIGHT"} {
+                set nfCas $maxNFcas
+
+                let ufCas {
+                    $nfCas * $ALER * $nfCoop / max($ufCoop, 10)
+                }
+
+                if {$ufCas < $minUFcas} {
+                    log detail aam \
+                        "$prefix UF casualties/attack $ufCas < $minUFcas"
+                    continue
+                }
+            } else {
+                error "Unknown ROE: \"$roe\""
+            }
+
+            # NEXT, compute the actual number of attacks.
+            let Na {
+                entier(min($Np, double($nfPersonnel) / $nfCas))
+            }
+
+            if {$Na == 0} {
+                log detail aam \
+                    "$prefix Insufficent NF personnel to stage an attack"
+                continue
+            }
+
+            # NEXT, compute the total number of UF casualties
+            let totalUFcas {entier($ufCas * $Na)}
+
+            # NEXT, compute the total number of UF casualties
+            if {[ufFiresBack $nfRoe $ufRoe]} {
+                let totalNFcas {
+                    entier($nfCas * $Na)
+                }
+            } else {
+                set totalNFcas 0
+            }
+
+            # NEXT, compute the civilian collateral damage
+            set ecdc [parmdb get aam.NFvsUF.ECDC.$urbanization]
+
+            let Ncivcas { $ecdc * $totalNFcas }
+            
+            # NEXT, save the casualties
+            rdb eval {
+                INSERT INTO aam_pending_nf(n,f,casualties)
+                VALUES($n,$uf,$totalUFcas);
+
+                INSERT INTO aam_pending_nf(n,f,casualties)
+                VALUES($n,$nf,$totalNFcas);
+
+                INSERT INTO aam_pending_n(n,attacker,defender,casualties)
+                VALUES($n,$nf,$uf,$Ncivcas);
+            }
+
+            # NEXT, log the results
+            log normal aam \
+                "NF $nf attacks UF $uf in $n: UF $totalUFcas NF $totalNFcas CIV $Ncivcas"
+            log detail aam [tsubst {
+                |<--
+                NF $nf attacks UF $uf in $n:
+                    nfRoe:        $nfRoe
+                    coopLimit:    $coopLimit
+                    rate:         $rate
+                    urbanization: $urbanization
+                    pop:          $pop
+                    nfPersonnel:  $nfPersonnel
+                    nfCoop:       $nfCoop
+                    ufPersonnel:  $ufPersonnel
+                    ufSecurity:   $ufSecurity
+                    ufCoop:       $ufCoop
+                    ufCov:        $ufCov
+                    ufRoe:        $ufRoe
+                    Np:           $Np
+                    Na:           $Na
+                    ufCas:        $ufCas
+                    nfCas:        $nfCas
+            }]
+        }
+    }
+
+    # ufFiresBack nfRoe ufRoe
+    #
+    # nfRoe       The NF's attacking ROE
+    # ufRoe       The UF's defending ROE
+    #
+    # Returns 1 if UF fires back, and 0 otherwise.
+
+    proc ufFiresBack {nfRoe ufRoe} {
+        if {$nfRoe eq "HIT_AND_RUN"} {
+            if {$ufRoe eq "FIRE_BACK_IMMEDIATELY"} {
+                return 1
+            }
+        } elseif {$nfRoe eq "STAND_AND_FIGHT"} {
+            if {$ufRoe ne "HOLD_FIRE"} {
+                return 1
+            }
+        }
+
+        return 0
+    }
 
 
     #-------------------------------------------------------------------
