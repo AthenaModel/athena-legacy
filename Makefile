@@ -177,6 +177,7 @@ installdocs: $(INSTALLDIRS)
 	-cp docs/dev/*.html            $(ATHENA_DOCS)/docs/dev
 	-cp docs/dev/*.doc             $(ATHENA_DOCS)/docs/dev
 	-cp docs/dev/*.odt             $(ATHENA_DOCS)/docs/dev
+	-cp docs/dev/*.ods             $(ATHENA_DOCS)/docs/dev
 	-cp docs/dev/*.pdf             $(ATHENA_DOCS)/docs/dev
 	-cp docs/dev/*.txt             $(ATHENA_DOCS)/docs/dev
 	-cp docs/man1/*.html           $(ATHENA_DOCS)/docs/man1

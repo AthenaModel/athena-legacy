@@ -51,6 +51,7 @@ set patterns(install) {
     docs/dev/*.pdf
     docs/dev/*.doc
     docs/dev/*.odt
+    docs/dev/*.ods
     docs/dev/*.txt
     docs/dev/*.gif
     docs/help/*.helpdb
@@ -78,6 +79,7 @@ set patterns(docs) {
     docs/dev/*.pdf
     docs/dev/*.doc
     docs/dev/*.odt
+    docs/dev/*.ods
     docs/dev/*.txt
     docs/help/*.helpdb
     mars/docs/*.html

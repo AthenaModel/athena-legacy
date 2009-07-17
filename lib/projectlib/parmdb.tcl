@@ -19,9 +19,13 @@ namespace eval ::projectlib:: {
 #-------------------------------------------------------------------
 # First, define the parameter value types used in this database
 
-# Average Loss Exchange Ratio
-::marsutil::range ::projectlib::parmdb_aler \
-    -min 0.1 -format "%.2f"
+# Real Quantity
+::marsutil::range ::projectlib::parmdb_rquantity \
+    -min 0.0 -format "%.2f"
+
+# Loss Exchange Ratio
+::marsutil::range ::projectlib::parmdb_ler \
+    -min 0.01 -format "%.2f"
 
 # Nominal coverage
 ::marsutil::range ::projectlib::parmdb_nomcoverage \
@@ -190,16 +194,16 @@ snit::type ::projectlib::parmdb {
         }
 
         foreach ul [::projectlib::eurbanization names] {
-            $ps define aam.UFvsNF.ECDA.$ul ::projectlib::iquantity 0 {
+            $ps define aam.UFvsNF.ECDA.$ul ::projectlib::parmdb_rquantity 0.0 {
                 The ECDA for this urbanization level, i.e., the
                 expected number of civilians killed per non-uniformed cell
                 attacked by a uniformed force.            
             }
         }
 
-        $ps setdefault aam.UFvsNF.ECDA.RURAL    1
-        $ps setdefault aam.UFvsNF.ECDA.SUBURBAN 3
-        $ps setdefault aam.UFvsNF.ECDA.URBAN    5
+        $ps setdefault aam.UFvsNF.ECDA.RURAL    1.0
+        $ps setdefault aam.UFvsNF.ECDA.SUBURBAN 3.0
+        $ps setdefault aam.UFvsNF.ECDA.URBAN    5.0
 
         # NFvsUF
 
@@ -234,30 +238,30 @@ snit::type ::projectlib::parmdb {
         }
 
         $ps define aam.NFvsUF.HIT_AND_RUN.nominalCooperation \
-            ::projectlib::parmdb_nomcoop 70.0 {
+            ::projectlib::parmdb_nomcoop 50.0 {
             The nominal cooperation of the neighborhood civilians
             with the Non-uniformed Force for this algorithm.
         }
 
-        $ps define aam.NFvsUF.HIT_AND_RUN.minUFcasualties \
+        $ps define aam.NFvsUF.HIT_AND_RUN.ELER \
+            ::projectlib::parmdb_ler 0.33 {
+            The Expected Loss Exchange Ratio: the expected number of NF
+            casualties per UF casualty inflicted, assuming that the
+            neighborhood cooperates equally with the NF and UF (and
+            that the UF is able to fire back).
+        }
+
+        $ps define aam.NFvsUF.HIT_AND_RUN.MAXLER \
+            ::projectlib::parmdb_ler 0.25 {
+            The Maximum Loss Exchange Ratio: the maximum number of
+            NF casualties the NF is willing to accept for each UF
+            casualty inflicted.
+        }
+
+        $ps define aam.NFvsUF.HIT_AND_RUN.ufCasualties \
             ::projectlib::ipositive 4 {
             The number of Uniformed Force personnel the Non-uniformed
             wishes to kill in any hit-and-run attack.
-        }
-
-        $ps define aam.NFvsUF.HIT_AND_RUN.maxNFcasualties \
-            ::projectlib::ipositive 1 {
-            The maximum number of casualties the Non-uniformed Force
-            is prepared to take in order to kill the required
-            number of Uniformed Force personnel.  If it will cost the
-            NF more personnel than this, they will not attack.
-        }
-
-        $ps define aam.NFvsUF.HIT_AND_RUN.ALER \
-            ::projectlib::parmdb_aler 3.0 {
-            The Average Loss Exchange Ratio: the average number of UF
-            casualties per NF casualty, assuming that the UF fires
-            back.
         }
 
         $ps subset aam.NFvsUF.STAND_AND_FIGHT {
@@ -267,30 +271,31 @@ snit::type ::projectlib::parmdb {
         }
 
         $ps define aam.NFvsUF.STAND_AND_FIGHT.nominalCooperation \
-            ::projectlib::parmdb_nomcoop 70.0 {
+            ::projectlib::parmdb_nomcoop 50.0 {
             The nominal cooperation of the neighborhood civilians
             with the Non-uniformed Force for this algorithm.
         }
 
-        $ps define aam.NFvsUF.STAND_AND_FIGHT.minUFcasualties \
-            ::projectlib::ipositive 40 {
-            The minimum number of Uniformed Force casualties required
-            by any stand-and-fight attack.  If the NF cannot kill at
-            least this many UF personnel, it will not attack.
+        $ps define aam.NFvsUF.STAND_AND_FIGHT.ELER \
+            ::projectlib::parmdb_ler 3.0 {
+            The Expected Loss Exchange Ratio: the expected number of NF
+            casualties per UF casualty inflicted, assuming that the
+            neighborhood cooperates equally with the NF and UF (and
+            that the UF is able to fire back).
         }
 
-        $ps define aam.NFvsUF.STAND_AND_FIGHT.maxNFcasualties \
-            ::projectlib::ipositive 10 {
+        $ps define aam.NFvsUF.STAND_AND_FIGHT.MAXLER \
+            ::projectlib::parmdb_ler 4.0 {
+            The Maximum Loss Exchange Ratio: the maximum number of
+            NF casualties the NF is willing to accept for each UF
+            casualty inflicted.
+        }
+
+        $ps define aam.NFvsUF.STAND_AND_FIGHT.nfCasualties \
+            ::projectlib::ipositive 20 {
             The number of personnel the Non-uniformed Force
             is willing to expend in a single attack, killing as many
-            UF personnel as possible.
-        }
-
-        $ps define aam.NFvsUF.STAND_AND_FIGHT.ALER \
-            ::projectlib::parmdb_aler 6.0 {
-            The Average Loss Exchange Ratio: the average number of UF
-            casualties per NF casualty, assuming that the UF fires
-            back.
+            UF personnel as possible, when standing and fighting.
         }
 
         $ps subset aam.NFvsUF.ECDC {
@@ -302,16 +307,16 @@ snit::type ::projectlib::parmdb {
         }
 
         foreach ul [::projectlib::eurbanization names] {
-            $ps define aam.NFvsUF.ECDC.$ul ::projectlib::iquantity 0 {
+            $ps define aam.NFvsUF.ECDC.$ul ::projectlib::parmdb_rquantity 0.0 {
                 The ECDC for this urbanization level, i.e., the
                 expected number of civilians killed per non-uniformed casualty
                 when a uniformed force is defending.
             }
         }
 
-        $ps setdefault aam.NFvsUF.ECDC.RURAL    6
-        $ps setdefault aam.NFvsUF.ECDC.SUBURBAN 12
-        $ps setdefault aam.NFvsUF.ECDC.URBAN    18
+        $ps setdefault aam.NFvsUF.ECDC.RURAL    0.1
+        $ps setdefault aam.NFvsUF.ECDC.SUBURBAN 0.15
+        $ps setdefault aam.NFvsUF.ECDC.URBAN    0.2
 
 
         # NEXT, Activity Parameters

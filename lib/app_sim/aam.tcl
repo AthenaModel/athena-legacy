@@ -377,9 +377,8 @@ snit::type aam {
 
             # NEXT, get the NF parameters that depend on ROE
             set nfCoopNom [parmdb get aam.NFvsUF.$nfRoe.nominalCooperation]
-            set minUFcas  [parmdb get aam.NFvsUF.$nfRoe.minUFcasualties]
-            set maxNFcas  [parmdb get aam.NFvsUF.$nfRoe.maxNFcasualties]
-            set ALER      [parmdb get aam.NFvsUF.$nfRoe.ALER]
+            set ELER      [parmdb get aam.NFvsUF.$nfRoe.ELER]
+            set MAXLER    [parmdb get aam.NFvsUF.$nfRoe.MAXLER]
 
             # NEXT, compute the potential number of attacks:
             let Np { 
@@ -390,59 +389,59 @@ snit::type aam {
 
             if {$Np == 0} {
                 log detail aam \
-                  "$prefix NF can't ambush UF"
+                  "$prefix $nf has no $uf target opportunities"
                 continue
             }
 
-            # NEXT, whether we attack or not, and the number of 
-            # casualties per attack, depends on the attacking ROE
+            # NEXT, compute loss exchange rate, and determine whether
+            # the NF is willing to attack.
+            
+            let ler {
+                $ELER * $ufCoop / max($nfCoop,10.0)
+            }
+
+            if {$ler > $MAXLER} {
+                log detail aam \
+                    "$prefix LER [format %.2f $ler] exceeds MAXLER $MAXLER"
+                continue
+            }
+
+            # NEXT, The number of casualties per attack depends on 
+            # the NF's attacking ROE.
             if {$nfRoe eq "HIT_AND_RUN"} {
-                set ufCas $minUFcas
+                set ufCas [parmdb get aam.NFvsUF.HIT_AND_RUN.ufCasualties]
                 
-                let nfCas {
-                    ($ufCas * $ufCoop)         /
-                    ($ALER  * max($nfCoop,10))
-                }
-
-                if {$nfCas > $maxNFcas} {
-                    log detail aam \
-                        "$prefix NF casualties/attack $nfCas > $maxNFcas"
-                    continue
-                }
+                let nfCas {$ufCas * $ler}
             } elseif {$nfRoe eq "STAND_AND_FIGHT"} {
-                set nfCas $maxNFcas
+                set nfCas [parmdb get aam.NFvsUF.STAND_AND_FIGHT.nfCasualties]
 
-                let ufCas {
-                    $nfCas * $ALER * $nfCoop / max($ufCoop, 10)
-                }
-
-                if {$ufCas < $minUFcas} {
-                    log detail aam \
-                        "$prefix UF casualties/attack $ufCas < $minUFcas"
-                    continue
-                }
+                let ufCas {$nfCas / max($ler,0.01)}
             } else {
                 error "Unknown ROE: \"$roe\""
             }
 
             # NEXT, compute the actual number of attacks.
+            let NFmax {double($nfPersonnel)/max($nfCas,0.1)}
+            let UFmax {double($ufPersonnel)/max($ufCas,0.1)}
+
             let Na {
-                entier(min($Np, double($nfPersonnel) / $nfCas))
+                entier(min($Np, $NFmax, $UFmax))
             }
 
+            # NEXT, they always attack at least once.
             if {$Na == 0} {
-                log detail aam \
-                    "$prefix Insufficent NF personnel to stage an attack"
-                continue
+                set Na 1
             }
 
             # NEXT, compute the total number of UF casualties
-            let totalUFcas {entier($ufCas * $Na)}
+            let totalUFcas {
+                round(min($Na * $ufCas, $ufPersonnel))
+            }
 
             # NEXT, compute the total number of UF casualties
             if {[ufFiresBack $nfRoe $ufRoe]} {
                 let totalNFcas {
-                    entier($nfCas * $Na)
+                    round(min($totalUFcas * $ler, $nfPersonnel))
                 }
             } else {
                 set totalNFcas 0
@@ -451,7 +450,7 @@ snit::type aam {
             # NEXT, compute the civilian collateral damage
             set ecdc [parmdb get aam.NFvsUF.ECDC.$urbanization]
 
-            let Ncivcas { $ecdc * $totalNFcas }
+            let Ncivcas { round($ecdc * $totalNFcas) }
             
             # NEXT, save the casualties
             rdb eval {
@@ -484,6 +483,7 @@ snit::type aam {
                     ufCov:        $ufCov
                     ufRoe:        $ufRoe
                     Np:           $Np
+                    LER:          $ler
                     Na:           $Na
                     ufCas:        $ufCas
                     nfCas:        $nfCas
