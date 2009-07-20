@@ -203,6 +203,10 @@ namespace eval ::macro:: {
         /parm        \
         /parmlist    \
         title        \
+        topiclist    \
+        topic        \
+        /topic       \
+        /topiclist   \
         version
 }
 
@@ -335,6 +339,49 @@ template macro::/parmlist {} {
     |<--
     </table>
 }
+
+# topiclist ?h1 ?h2?>
+#
+# Begins a table of topics and descriptions
+
+template macro::topiclist {{h1 Topic} {h2 Description}} {
+    |<--
+    <table border width="100%" cellspacing="0" cellpadding="4"> 
+    <tr>
+    <th align="left">$h1</th> 
+    <th align="left">$h2</th>
+    </tr>
+}
+
+# topic topic
+#
+# topic    The topic label
+#
+# Begins a topic description.
+
+template macro::topic {topic} {
+    |<--
+    <tr valign="baseline">
+    <td><b>$topic</b></td>
+    <td>
+}
+
+# /topic
+#
+# Ends a topic description
+template macro::/topic {} {
+    </td>
+    </tr>
+}
+
+# /topiclist
+#
+# Ends a list of topics
+template macro::/topiclist {} {
+    |<--
+    </table>
+}
+
 
 # version
 #

@@ -301,9 +301,10 @@ snit::type order {
         # FIRST, initialize the data values
         set orders(title-$name) ""
         set orders(opts-$name) {
-            -sendstates {}
-            -table      ""
-            -tags       {}
+            -alwaysunsaved  0
+            -sendstates     {}
+            -table          ""
+            -tags           {}
         }
         set orders(parms-$name) ""
         array unset orders pdict-$name-*
@@ -338,6 +339,8 @@ snit::type order {
 
     # options option...
     #
+    # -alwaysunsaved          If set, the dialog "Send" buttons will not
+    #                         be disabled when there is no "unsaved" data.
     # -sendstates states      States in which the order can be sent
     # -table      tableName   Name of an RDB table or view associated with 
     #                         this order.
@@ -354,6 +357,9 @@ snit::type order {
             set opt [lshift args]
 
             switch -exact -- $opt {
+                -alwaysunsaved   {
+                    dict set odict $opt 1
+                }
                 -sendstates  -
                 -table       -
                 -tags        { 

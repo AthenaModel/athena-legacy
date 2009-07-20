@@ -94,6 +94,9 @@ snit::type ::projectlib::reporter {
     # reportcmd -- callback when report is saved
     typevariable reportcmd {}
 
+    # deletecmd -- callback when report is deleted
+    typevariable deletecmd {}
+
 
     # Array: Bin Definitions
     #
@@ -120,14 +123,24 @@ snit::type ::projectlib::reporter {
     #
     # Configures the reporter(n) options:
     #
-    # -db      The sqldocument(n) into which reports are written.
-    # -clock   The simclock(n) for timestamping reports.
+    # -clock      The simclock(n) for timestamping reports.
+    # -db         The sqldocument(n) into which reports are written.
+    # -deletecmd  The callback for when reports are deleted
+    # -reportcmd  The callback for when reports are saved
 
     typemethod configure {args} {
         while {[llength $args] > 0} {
             set opt [lshift args]
 
             switch -exact -- $opt {
+                -clock { 
+                    set clock [lshift args] 
+
+                    if {$clock eq ""} {
+                        set clock [myproc NullClock]
+                    }
+                }
+
                 -db { 
                     set db [lshift args] 
 
@@ -136,12 +149,8 @@ snit::type ::projectlib::reporter {
                     }
                 }
 
-                -clock { 
-                    set clock [lshift args] 
-
-                    if {$clock eq ""} {
-                        set clock [myproc NullClock]
-                    }
+                -deletecmd {
+                    set deletecmd [lshift args]
                 }
 
                 -reportcmd {
@@ -163,9 +172,10 @@ snit::type ::projectlib::reporter {
 
     typemethod cget {option} {
         switch -exact -- $option {
-            -db        { set result $db        }
             -clock     { set result $clock     }
-            -reportcmd { return $reportcmd }
+            -db        { set result $db        }
+            -deletecmd { return $deletecmd     }
+            -reportcmd { return $reportcmd     }
 
             default { 
                 error "unknown option: \"$option\"" 
@@ -358,7 +368,7 @@ snit::type ::projectlib::reporter {
     
 
     #-------------------------------------------------------------------
-    # Saving Reports
+    # Report Management
 
     # save options...
     #
@@ -379,7 +389,7 @@ snit::type ::projectlib::reporter {
     #    -stamp    The report's time stamp string
     #
     # Saves a report with the current timestamp, and notifies the
-    # application.
+    # application, returning the report ID.
 
     typemethod save {args} {
         # FIRST, set the default option values:
@@ -479,6 +489,25 @@ snit::type ::projectlib::reporter {
 
         # NEXT, return the new row ID
         return $opts(-id)
+    }
+
+    # delete id
+    #
+    # Deletes the report with the specified ID.
+
+    typemethod delete {id} {
+        if {[$db exists {SELECT id FROM reports WHERE id=$id}]} {
+            # FIRST, delete the report
+            $db eval {
+                DELETE FROM reports
+                WHERE id=$id
+            }
+
+            # NEXT, notify the application
+            if {$deletecmd ne ""} {
+                {*}$deletecmd $id
+            }
+        }
     }
 
 

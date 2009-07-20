@@ -625,6 +625,12 @@ snit::widget appwin {
         
         $self AddOrder $submenu SATISFACTION:UPDATE
 
+        # Reports menu
+        set reportsmenu [menu $menubar.reports]
+        $menubar add cascade -label "Reports" -underline 0 -menu $reportsmenu
+
+        $self AddOrder $reportsmenu REPORT:DRIVER
+
         # Help menu
         set helpmenu [menu $menubar.helpmenu]
         $menubar add cascade -label "Help" -underline 0 -menu $helpmenu
@@ -641,6 +647,11 @@ snit::widget appwin {
             -label       "Order Reference"       \
             -underline   0                       \
             -command     [list app help orders]
+
+        $helpmenu add command                    \
+            -label       "Report Reference"      \
+            -underline   0                       \
+            -command     [list app help reports]
 
         $helpmenu add command                    \
             -label       "Command Reference"     \
@@ -880,6 +891,7 @@ snit::widget appwin {
 
         # Report browser
         notifier bind ::report <Report> $self [mymethod ReportCB]
+        notifier bind ::report <Delete> $self [mymethod ReportDeleteCB] 
 
         # Scrolling log
         set slog   [$self tab win slog]
@@ -1730,6 +1742,14 @@ snit::widget appwin {
         } else {
             [$self tab win report] update
         }
+    }
+
+    # ReportDeleteCB id
+    #
+    # Refreshes the report browser when a report is deleted.
+
+    method ReportDeleteCB {id} {
+        [$self tab win report] refresh
     }
 
 

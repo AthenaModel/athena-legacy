@@ -1148,7 +1148,12 @@ snit::widget orderdialog {
     # Saves the current field values, and disables the Send buttons.
 
     method MarkSaved {} {
-        # FIRST, save the current values, so we check whether 
+        # FIRST, if the order is always unsaved, ignore this.
+        if {[order cget $options(-order) -alwaysunsaved]} {
+            return 1
+        }
+
+        # NEXT, save the current values, so we check whether 
         # there's anything unsaved.
         set my(saved) [$self get]
 
@@ -1178,7 +1183,8 @@ snit::widget orderdialog {
     # Returns 1 if there are unsaved field values, and 0 otherwise.
 
     method Unsaved {} {
-        expr {[$self get] ne $my(saved)}
+        expr {[order cget $options(-order) -alwaysunsaved]  ||
+              [$self get] ne $my(saved)}
     }
 
     # DiscardUnsaved ?parm?
@@ -1188,9 +1194,14 @@ snit::widget orderdialog {
     # Asks the user if they want to discard unsaved changes.  Returns
     # 1 if so and 0 otherwise.
     #
-    # If the dialog has no nonkey fields, it returns 1 immediately.
 
     method DiscardUnsaved {{parm ""}} {
+        # FIRST, if the order is always unsaved, ignore this.
+        if {[order cget $options(-order) -alwaysunsaved]} {
+            return 1
+        }
+
+        # NEXT, If the dialog has no nonkey fields, it returns 1 immediately.
         if {[llength $my(nonkeys)] == 0} {
             return 1
         }
