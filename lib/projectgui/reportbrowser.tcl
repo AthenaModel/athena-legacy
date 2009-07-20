@@ -318,6 +318,7 @@ snit::widget ::projectgui::reportbrowser {
         }
 
         $self GetReports $bin
+        $self JumpToReport end
     }
 
     # GetReports bin
@@ -444,7 +445,7 @@ snit::widget ::projectgui::reportbrowser {
 
             # NEXT, if we've added any, display the last, unless
             # scrolling is locked.
-            if {!$options(-scrolllock) 
+            if {!$options(-scrolllock)
                 && [lindex $reportIds end] != $maxId} {
                 $self JumpToReport end
             }
