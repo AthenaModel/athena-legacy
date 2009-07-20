@@ -683,6 +683,306 @@ page GROUP:NBHOOD:UPDATE "Update Civilian Group" GROUP:NBHOOD: {
 }
 
 
+#=======================================================================
+# Force Group Orders
+
+page GROUP:FORCE: "Force Group Orders" GROUP: {
+    <<title>>
+
+    Athena uses force groups to model groups and organizations that 
+    exist to apply force, from the regular army to organized crime.
+    The Force Group Orders are used to define these groups.
+
+    <<childlinks>>
+
+    Then, the <<cref UNIT:>> can be used to create units belonging
+    to these groups.
+
+    <<childlinks UNIT:>>
+}
+
+macro GROUP:FORCE.forcetype {} {
+    |<--
+    The force type: regular military, paramilitary (e.g., national
+    police), police, irregular military (e.g., militias), or
+    organized crime.
+
+    [enumdoc ::projectlib::eforcetype]
+}
+
+macro GROUP:FORCE.uniformed {} {
+    |<--
+    Boolean flag (e.g., "Yes" or "No").  Indicates whether or not the
+    group's personnel wear recognizeable uniforms.  This affects the
+    offensive and defensive tactics used by the group.
+}
+
+
+macro GROUP:FORCE.local {} {
+    |<--
+    Boolean flag (e.g., "Yes" or "No").  Indicates whether or not the
+    group is perceived as being local to the playbox.
+}
+
+
+macro GROUP:FORCE.coalition {} {
+    |<--
+    Boolean flag (e.g., "Yes" or "No").  Indicates whether or not the
+    group is perceived as belonging to the U.S.-led coalition.<p>
+
+    <b>NOTE:</b> This flag was inherited from JNEM; it is not
+    currently used for anything, and might be deleted.
+}
+
+#-----------------------------------------------------------------------
+
+page GROUP:FORCE:CREATE "Create Force Group" GROUP:FORCE: {
+    <<order>>
+
+    <<parmlist>>
+    <<parm g "ID">>
+    <b>Required.</b>  <<parm.identifier group BLUE>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Required.</b> <<parm.longname group "US Army">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Required.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Required.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <<parm forcetype "Force Type">>
+    <b>Required.</b> <<GROUP:FORCE.forcetype>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Required.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm uniformed "Uniformed?">>
+    <b>Required.</b>  <<GROUP:FORCE.uniformed>>
+    <</parm>>
+
+    <<parm local "Local Group?">>
+    <b>Required.</b>  <<GROUP:FORCE.local>>
+    <</parm>>
+
+    <<parm coalition "Coalition Member?">>
+    <b>Required.</b>  <<GROUP:FORCE.coalition>>
+    <</parm>>
+
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order creates a
+    new force group.
+}
+
+
+#-----------------------------------------------------------------------
+
+page GROUP:FORCE:DELETE "Delete Force Group" GROUP:FORCE: {
+    <<order>>
+    <<parmlist>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  <<GROUP.g force>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    force group, along with all entities (e.g., units)
+    that depend upon it.<p>
+}
+
+#-----------------------------------------------------------------------
+
+page GROUP:FORCE:UPDATE "Update Force Group" GROUP:FORCE: {
+    <<order>>
+
+    <<parmlist>>
+    <<parm g "ID">>
+    <b>Required.</b>  <<GROUP.g force>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Optional.</b> <<parm.longname group "U.S. Army">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Optional.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Optional.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <<parm forcetype "Force Type">>
+    <b>Optional.</b> <<GROUP:FORCE.forcetype>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Optional.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm uniformed "Uniformed?">>
+    <b>Optional.</b>  <<GROUP:FORCE.uniformed>>
+    <</parm>>
+
+    <<parm local "Local Group?">>
+    <b>Optional.</b>  <<GROUP:FORCE.local>>
+    <</parm>>
+
+    <<parm coalition "Coalition Member?">>
+    <b>Optional.</b>  <<GROUP:FORCE.coalition>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of an existing force group.<p>
+}
+
+
+#=======================================================================
+# Organization Group Orders
+
+page GROUP:ORGANIZATION: "Organization Group Orders" GROUP: {
+    <<title>>
+
+    Athena uses organization groups to model organizations that are
+    active in the playbox and have a significant affect on civilian
+    attitudes.  Such groups might include the Red Cross, Doctors Without
+    Borders, US AID, and Haliburton.  The Organization Group Orders
+    are used to define these groups.
+
+    <<childlinks>>
+
+    Then, the <<cref UNIT:>> can be used to create units belonging
+    to these groups.
+
+    <<childlinks UNIT:>>
+}
+
+macro GROUP:ORGANIZATION.orgtype {} {
+    |<--
+    The organization type.
+
+    [enumdoc ::projectlib::eorgtype]
+}
+
+
+#-----------------------------------------------------------------------
+
+page GROUP:ORGANIZATION:CREATE "Create Organization Group" GROUP:ORGANIZATION: {
+    <<order>>
+
+    <<parmlist>>
+    <<parm g "ID">>
+    <b>Required.</b>  <<parm.identifier group RC>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Required.</b> <<parm.longname group "Red Cross">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Required.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Required.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <<parm orgtype "Organization Type">>
+    <b>Required.</b> <<GROUP:ORGANIZATION.orgtype>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Required.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm rollup_weight "Rollup Weight">>
+    <b>Required.</b> <<GROUP.rollup_weight>>
+    <</parm>>
+
+    <<parm effects_factor "Effects Factor">>
+    <b>Required.</b> <<GROUP.effects_factor>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order creates a
+    new organization group.
+}
+
+
+#-----------------------------------------------------------------------
+
+page GROUP:ORGANIZATION:DELETE "Delete Organization Group" GROUP:ORGANIZATION: {
+    <<order>>
+    <<parmlist>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  <<GROUP.g organization>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    organization group, along with all entities (e.g., units)
+    that depend upon it.<p>
+}
+
+#-----------------------------------------------------------------------
+
+page GROUP:ORGANIZATION:UPDATE "Update Organization Group" GROUP:ORGANIZATION: {
+    <<order>>
+
+    <<parmlist>>
+    <<parm g "ID">>
+    <b>Required.</b>  <<GROUP.g organization>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Optional.</b> <<parm.longname group "Red Cross">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Optional.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Optional.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <<parm orgtype "Organization Type">>
+    <b>Optional.</b> <<GROUP:ORGANIZATION.orgtype>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Optional.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm rollup_weight "Rollup Weight">>
+    <b>Optional.</b> <<GROUP.rollup_weight>>
+    <</parm>>
+
+    <<parm effects_factor "Effects Factor">>
+    <b>Optional.</b> <<GROUP.effects_factor>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of an existing organization group.<p>
+}
+
+
+
 
 #=======================================================================
 # Neighborhood Orders
