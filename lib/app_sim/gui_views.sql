@@ -143,12 +143,16 @@ LEFT OUTER JOIN gram_sat AS gram USING (n,g,c);
 
 -- A rel_nfg view for use by the GUI
 CREATE TEMPORARY VIEW gui_rel_nfg AS
-SELECT n || ' ' || f || ' ' || g                     AS id,
-       n                                             AS n,
-       f                                             AS f,
-       g                                             AS g,
-       format('%+4.1f', rel)                         AS rel
-FROM rel_nfg;
+SELECT R.n || ' ' || R.f || ' ' || R.g               AS id,
+       R.n                                           AS n,
+       R.f                                           AS f,
+       F.gtype                                       AS ftype,
+       R.g                                           AS g,
+       G.gtype                                       AS gtype,
+       format('%+4.1f', R.rel)                       AS rel
+FROM rel_nfg AS R
+JOIN groups AS F ON (F.g = R.f)
+JOIN groups as G on (G.g = R.g);
 
 -- A coop_nfg view for use by the GUI:
 -- NOTE: presumes there is a single gram(n)!

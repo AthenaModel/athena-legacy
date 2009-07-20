@@ -37,7 +37,7 @@ snit::widgetadaptor relbrowser {
             -table        "gui_rel_nfg"               \
             -keycol       "id"                        \
             -keycolnum    0                           \
-            -titlecolumns 4                           \
+            -titlecolumns 6                           \
             -displaycmd   [mymethod DisplayData]      \
             -selectioncmd [mymethod SelectionChanged]
 
@@ -69,8 +69,10 @@ snit::widgetadaptor relbrowser {
         $hull insertcolumn end 0 {ID}
         $hull columnconfigure end -hide yes
         $hull insertcolumn end 0 {Nbhood}
-        $hull insertcolumn end 0 {Of Group}
-        $hull insertcolumn end 0 {With Group}
+        $hull insertcolumn end 0 {Of Group F}
+        $hull insertcolumn end 0 {F Type}
+        $hull insertcolumn end 0 {With Group G}
+        $hull insertcolumn end 0 {G Type}
         $hull insertcolumn end 0 {Relationship}
         $hull columnconfigure end -sortmode real
 
@@ -104,10 +106,8 @@ snit::widgetadaptor relbrowser {
     method DisplayData {dict} {
         # FIRST, extract each field
         dict with dict {
-            set id [list $n $f $g]
-
             $hull setdata $id \
-                [list $id $n $f $g $rel]
+                [list $id $n $f $ftype $g $gtype $rel]
         }
     }
 
