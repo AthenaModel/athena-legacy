@@ -11,6 +11,31 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.11, 20 July 2009</h3>
+
+This build fixes a number of bugs found by Rob Crowson and Chris
+Kocmoud during their recent visit; in addition, it completes the
+initial implementation of the Athena Attrition Model.  In particular,
+the effects of attrition on civilian and organization attitudes are
+now documented in docs/dev/rules.odt and carried out by the
+application, and "normal" attrition now takes place (assuming that
+the attacking ROEs are set up, and the other stats are favorable).
+See docs/dev/aag_AAM.odt for details.  There's also a spreadsheet,
+docs/dev/NFvsUF.odt, that contains the NF vs. UF attrition model, for
+comparison with the actual results.<p>
+
+<ul>
+  <li> Bug 2188: athena_sim(1): Activity Parameter Errors
+  <li> Bug 2189: browser_base(sim): Pencil icon remains enabled when selection is hidden
+  <li> Bug 2190: rules.doc: FUELSHRT in Ensit summary table
+  <li> Bug 2194: athena_sim(1): Retain attrition statistics
+  <li> Bug 2195: Athena 'rules.odt' document is missing from 'eis/athena'
+  <li> Bug 2196: athena_sim(1): CIVCAS/ORGCAS Assessment
+  <li> Bug 2197: athena_sim(1): UF vs NF attrition
+  <li> Bug 2198: athena_sim(1): NF vs UF Attrition 
+</ul>
+
+
 <h3>Build 1.0.10, 13 July 2009</h3>
 
 This build contains the initial implementation of Magic Attrition,
