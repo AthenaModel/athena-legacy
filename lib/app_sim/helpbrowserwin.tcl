@@ -20,13 +20,15 @@ snit::widget helpbrowserwin {
     #-------------------------------------------------------------------
     # Type Components
 
+    typecomponent hdb          ;# The helpdb
     typecomponent thebrowser   ;# The browser window
 
     #-------------------------------------------------------------------
     # Type Constructor
 
     typeconstructor {
-        # We'll create the browser the first time we need it.
+        # We'll create the components the first time we need them.
+        set hdb        {}
         set thebrowser {}
     }
 
@@ -41,12 +43,34 @@ snit::widget helpbrowserwin {
     # browser window is created if necessary.
 
     typemethod showhelp {{page home}} {
+        $type MakeHDB
+
         if {$thebrowser eq ""} {
             set thebrowser [helpbrowserwin .help]
         }
 
         $thebrowser showhelp $page
     }
+
+    # exists page
+    #
+    # page    A help page name
+    #
+    # Returns 1 if the page exists, and 0 otherwise.
+
+    typemethod exists {page} {
+        $type MakeHDB
+
+        return [$hdb page exists $page]
+    }
+
+    typemethod MakeHDB {} {
+        if {$hdb eq ""} {
+            set hdb [helpdb ::hdb]
+            $hdb open [appdir join docs help athena.helpdb]
+        }
+    }
+
 
     #-------------------------------------------------------------------
     # Widget Options
@@ -57,7 +81,6 @@ snit::widget helpbrowserwin {
     #-------------------------------------------------------------------
     # Widget Components
 
-    component hdb              ;# The helpdb(n)
     component browser          ;# The helpbrowser(n)
 
     #-------------------------------------------------------------------
@@ -66,10 +89,6 @@ snit::widget helpbrowserwin {
     constructor {args} {
         # FIRST, get the options, if any
         $self configurelist $args
-
-        # NEXT, create the helpdb(n)
-        install hdb using helpdb ${selfns}::hdb
-        $hdb open [appdir join docs help athena.helpdb]
 
         # NEXT, create the browser
         install browser using helpbrowser $win.hb \

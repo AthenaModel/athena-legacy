@@ -95,6 +95,37 @@ macro cli {text} {
 }
 
 #=======================================================================
+# help command
+
+command "help" {
+    <<syntax ?-info? ?<i>command...</i>? >>
+
+    This command accesses the on-line help for Athena's
+    <<cref cmd>>.  To display a list of all commands, enter this
+    command with no arguments:<p>
+
+    <<cli {
+        &gt; help
+        &gt;
+    }>>
+
+    To request help for a particular command, enter it on the command
+    line.  For example, to see the help page for the 
+    <<cmdref parm set>> command, enter the following:<p>
+
+    <<cli {
+        &gt; help parm set
+        &gt;
+    }>>
+
+    The <b>-info</b> option is for use in debugging the Athena
+    Executive; if specified, the <b>help</b> command will dump
+    implementation info to the CLI.
+}
+
+
+
+#=======================================================================
 # parm commands
 
 command "parm" {

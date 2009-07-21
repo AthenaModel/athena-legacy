@@ -23,6 +23,10 @@ files, which conventionally have a "<code>.adb</code>" extension.<p>
 
 <<section "COMMANDS">>
 
+<b>NOTE:</b> The information in this section is being gradually
+transferred to the Athena on-line help.  As such, it is no longer
+being maintained here, and will be removed prior to delivery.<p>
+
 Although the Athena simulation is driven primarily by the GUI, it does
 have a command-line shell as well.  The following executive
 commands are available, and may be entered at the

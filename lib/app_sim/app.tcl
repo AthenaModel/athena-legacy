@@ -277,6 +277,32 @@ snit::type app {
         helpbrowserwin showhelp $page
     }
 
+    # cmdhelp ?command?
+    #
+    # command    An executive command name
+    #
+    # Pops up the helpbrowserwin on the specified command,
+    # or the Executive Commands page if no command was specified.
+
+    typemethod cmdhelp {{command {}}} {
+        # FIRST, just pop up the command help if no particular
+        # command was requested.
+        if {$command eq ""} {
+            helpbrowserwin showhelp cmd
+            return
+        }
+
+        # NEXT, do we have such a command?
+        set page cmd.[join $command .]
+
+        if {![helpbrowserwin exists $page]} {
+            error "No help found: $command"
+        }
+
+        helpbrowserwin showhelp $page
+    }
+
+
     # puts text
     #
     # text     A text string

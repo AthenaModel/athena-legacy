@@ -85,7 +85,7 @@ snit::type executive {
             [mytypemethod errtrace]
 
         # help
-        $interp smartalias help 1 - {?-info? command...} \
+        $interp smartalias help 0 - {?-info? ?command...?} \
             [mytypemethod help]
 
         # parm
@@ -241,25 +241,26 @@ snit::type executive {
         return $result
     }
 
-    # help ?-info? command...
+    # help ?-info? ?command...?
     #
     # Outputs the help for the command 
 
     typemethod help {args} {
-        set getInfo 0
+        if {[llength $args] == 0} {
+            app cmdhelp
+        }
 
         if {[lindex $args 0] eq "-info"} {
-            set getInfo 1
             set args [lrange $args 1 end]
-        }
 
-        set out [$interp help $args]
+            set out [$interp help $args]
 
-        if {$getInfo} {
             append out "\n\n[$interp cmdinfo $args]"
-        }
 
-        return $out
+            return $out
+        } else {
+            app cmdhelp $args
+        }
     }
 
     # usermode ?mode?
