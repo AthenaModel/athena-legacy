@@ -244,10 +244,10 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
     parm longname       text  "Long Name"
     parm color          color "Color"
     parm shape          enum  "Unit Shape"    -type eunitshape -defval NEUTRAL
-    parm orgtype        enum  "Org. Type"     -type eorgtype
-    parm demeanor       enum  "Demeanor"      -type edemeanor
-    parm rollup_weight  text  "RollupWeight"  -defval 1.0
-    parm effects_factor text  "EffectsFactor" -defval 1.0
+    parm orgtype        enum  "Organization Type" -type eorgtype
+    parm demeanor       enum  "Demeanor"          -type edemeanor
+    parm rollup_weight  text  "Rollup Weight"     -defval 1.0
+    parm effects_factor text  "Effects Factor"    -defval 1.0
 } {
     # FIRST, prepare and validate the parameters
     prepare g              -toupper   -required -unused -type ident
@@ -326,14 +326,14 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     title "Update Organization Group"
     options -sendstates PREP -table gui_orggroups
 
-    parm g              key   "ID"            -tags group
+    parm g              key   "ID"                 -tags group
     parm longname       text  "Long Name"
     parm color          color "Color"
-    parm shape          enum  "Unit Shape"    -type eunitshape
-    parm orgtype        enum  "Org. Type"     -type eorgtype
-    parm demeanor       enum  "Demeanor"      -type edemeanor
-    parm rollup_weight  text  "RollupWeight"  
-    parm effects_factor text  "EffectsFactor" 
+    parm shape          enum  "Unit Shape"         -type eunitshape
+    parm orgtype        enum  "Organization Type"  -type eorgtype
+    parm demeanor       enum  "Demeanor"           -type edemeanor
+    parm rollup_weight  text  "Rollup Weight"  
+    parm effects_factor text  "Effects Factor" 
 } {
     # FIRST, prepare the parameters
     prepare g              -toupper  -required -type orggroup
@@ -365,11 +365,11 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
 
     parm ids            multi "Groups"
     parm color          color "Color"
-    parm shape          enum  "Unit Shape"    -type eunitshape
-    parm orgtype        enum  "Org. Type"     -type eorgtype
-    parm demeanor       enum  "Demeanor"      -type edemeanor
-    parm rollup_weight  text  "RollupWeight"  
-    parm effects_factor text  "EffectsFactor" 
+    parm shape          enum  "Unit Shape"         -type eunitshape
+    parm orgtype        enum  "Organization Type"  -type eorgtype
+    parm demeanor       enum  "Demeanor"           -type edemeanor
+    parm rollup_weight  text  "Rollup Weight"  
+    parm effects_factor text  "Effects Factor" 
 } {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof orggroup

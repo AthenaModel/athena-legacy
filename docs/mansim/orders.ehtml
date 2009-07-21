@@ -51,8 +51,7 @@ These orders are now documented in the Athena help.<p>
 
 <<section "GROUP:*">>
 
-The <code>GROUP:*</code> orders are used to create, modify, and
-manipulate various kinds of groups.<p>
+These orders are now documented in the Athena help.<p>
 
 <<subsection "GROUP:CIVILIAN:*">>
 
@@ -60,95 +59,7 @@ These orders are now documented in the Athena help.<p>
 
 <<subsection "GROUP:FORCE:*">>
 
-These orders relate to force groups, groups which exist to project force.<p>
-
-<<deflist group force>>
-
-<<defitem GROUP:FORCE:CREATE {GROUP:FORCE:CREATE}>>
-
-Creates a new force group.  The parameters are as
-follows:<p>
-
-<<parmlist>>
-
-<<parm g>> <b>Required.</b> A brief <<xref ident(n) identifier>> which
-uniquely identifies this group.<</parm>>
-
-<<parm longname>> <b>Required.</b> A short human-readable name for the
-group, e.g., "U.S. Army".<</parm>>
-
-<<parm color>> <b>Required.</b>  A color, specified as a hexadecimal
-RGB string, "<code>#<i>rrggbb</i></code>" or
-"<code>#<i>rrrrggggbbbb</i></code>". This color is used to color code
-the group's icons.<</parm>>
-
-<<parm forcetype>> <b>Required.</b> The force type, as follows:<p>
-
-<<::projectlib::eforcetype html>>
-<</parm>>
-
-<<parm demeanor>> <b>Required.</b> The demeanor, as follows:<p>
-<<::projectlib::edemeanor html>>
-<</parm>>
-
-<<parm uniformed>> <b>Required.</b> Whether units of this force group
-are uniformed or non-uniformed, expressed as a boolean
-value (e.g., "Yes" or "No").<</parm>>
-
-<<parm local>> <b>Required.</b> The local flag, expressed as a boolean
-value (e.g., "Yes" or "No"). Indicates whether the group is perceived
-as being local to the playbox, or as a foreign force.<</parm>>
-
-<<parm coalition>> <b>Required.</b> The coalition flag, expressed as a
-boolean value (e.g., "Yes" or "No").  Indicates whether or not the
-group is a member of the U.S.-led coalition.<</parm>>
-
-<</parmlist>>
-
-<<defitem GROUP:FORCE:DELETE {GROUP:FORCE:DELETE}>>
-
-Deletes a force group, cleaning up dependencies.  In particular,
-it:<p>
-
-<ul>
-  <li> TBD
-</ul>
-
-The parameters are as follows:<p>
-
-<<parmlist>>
-
-<<parm g>> <b>Required.</b> The group's ID.<</parm>>
-
-<</parmlist>>
-
-<<defitem GROUP:FORCE:UPDATE {GROUP:FORCE:UPDATE}>>
-
-Updates an existing force group.  The parameters are as
-defined for <<iref GROUP:FORCE:CREATE>>; <b>g</b> is required, and
-specifies the group to update, while the remainder are optional.<p>
-
-<<defitem GROUP:FORCE:UPDATE:MULTI {GROUP:FORCE:UPDATE:MULTI}>>
-
-Updates multiple force groups.  The parameters are as
-follows:<p>
-
-<<parmlist>>
-
-<<parm ids>> <b>Required.</b>  A list of one or more group
-IDs.<</parm>>
-
-<<parm color>>     As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
-<<parm forcetype>> As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
-<<parm demeanor>>  As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
-<<parm uniformed>> As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
-<<parm local>>     As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
-<<parm coalition>> As for <<iref GROUP:FORCE:CREATE>>. <</parm>>
-
-<</parmlist>>
-
-
-<</deflist group force>>
+These orders are now documented in the Athena help.<p>
 
 <<subsection "GROUP:NBHOOD:*">>
 
@@ -156,92 +67,7 @@ These orders are now documented in the Athena help.<p>
 
 <<subsection "GROUP:ORGANIZATION:*">>
 
-These orders relate to organization groups, i.e., NGOs, IGOs, and
-Contractors, working in the playbox.<p>
-
-<<deflist group organization>>
-
-<<defitem GROUP:ORGANIZATION:CREATE {GROUP:ORGANIZATION:CREATE}>>
-
-Creates a new organization group.  The parameters are as
-follows:<p>
-
-<<parmlist>>
-
-<<parm g>>  <b>Required.</b> A brief <<xref ident(n) identifier>>
-which uniquely identifies this group.<</parm>>
-
-<<parm longname>> <b>Required.</b> A short human-readable name for the
-group, e.g., "Red Cross".<</parm>>
-
-<<parm color>> <b>Required.</b>  A color, specified as a hexadecimal
-RGB string, "<code>#<i>rrggbb</i></code>" or
-"<code>#<i>rrrrggggbbbb</i></code>". This color is used to color code
-the group's icons.<</parm>>
-
-<<parm orgtype>> <b>Required.</b> The organization type, as follows:<p>
-
-<<::projectlib::eorgtype html>><</parm>>
-
-<<parm demeanor>> <b>Required.</b> The demeanor, as follows:<p>
-<<::projectlib::edemeanor html>>
-<</parm>>
-
-<<parm rollup_weight>> <b>Required.</b> The rollup weight, used when
-rolling up the group's satisfaction levels to the playbox level.  A
-non-negative floating point value, nominally 1.0.<</parm>>
-
-<<parm effects_factor>> <b>Required.</b> The indirect effects factor,
-which scales indirect effects on other groups of satisfaction effects
-on this group.  A non-negative floating point value, nominally 1.0.<</parm>>
-
-<</parmlist>>
-
-
-<<defitem GROUP:ORGANIZATION:DELETE {GROUP:ORGANIZATION:DELETE}>>
-
-Deletes a organization group, cleaning up dependencies.  In
-particular, it:<p>
-
-<ul>
-  <li> TBD
-</ul><p>
-
-The parameters are as follows:<p>
-
-<<parmlist>>
-
-<<parm g>> <b>Required.</b> The group's ID.<</parm>>
-
-<</parmlist>>
-
-<<defitem GROUP:ORGANIZATION:UPDATE {GROUP:ORGANIZATION:UPDATE}>>
-
-Updates an existing organization group.  The parameters are as
-defined for <<iref GROUP:ORGANIZATION:CREATE>>; <b>g</b> is required, and
-specifies the group to update, while the remainder are optional.<p>
-
-<<defitem GROUP:ORGANIZATION:UPDATE:MULTI {GROUP:ORGANIZATION:UPDATE:MULTI}>>
-
-Updates multiple organization groups.  The parameters are as
-follows:<p>
-
-<<parmlist>>
-
-<<parm ids>> <b>Required.</b>  A list of one or more group
-IDs.<</parm>>
-
-<<parm color>>          As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
-<<parm orgtype>>        As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
-<<parm demeanor>>       As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
-<<parm rollup_weight>>  As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
-<<parm effects_factor>> As for <<iref GROUP:ORGANIZATION:CREATE>>. <</parm>>
-
-<</parmlist>>
-
-
-<</deflist group organization>>
-
+These orders are now documented in the Athena help.<p>
 
 <<section "MAP:*">>
 

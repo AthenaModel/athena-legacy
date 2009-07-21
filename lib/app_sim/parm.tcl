@@ -44,9 +44,31 @@ snit::type parm {
 
         set ps ::projectlib::parmdb
 
+        # NEXT, register to receive simulation state updates.
+        notifier bind ::sim <State> $type [mytypemethod SimState]
+
         # FINALLY, register this type as a saveable
         scenario register ::parm
     }
+
+    #-------------------------------------------------------------------
+    # Event Handlers
+
+    # SimState
+    #
+    # This is called when the simulation state changes, e.g., from
+    # PREP to RUNNING.  It locks and unlocks significant parameters.
+
+    typemethod SimState {} {
+        if {[sim state] eq "PREP"} {
+            parmdb unlock *
+        } else {
+            parmdb lock sim.tickSize
+            parmdb lock aam.ticksPerTock
+        }
+    }
+
+
 
     #-------------------------------------------------------------------
     # Executive Commands
@@ -147,13 +169,39 @@ snit::type parm {
         # FIRST, get the undo information
         set undo [mytypemethod restore [$ps checkpoint]]
 
+        # NEXT, get the names and values of any locked parameters
+        set locked [$ps locked]
+
+        foreach parm $locked {
+            set saved($parm) [$ps get $parm]
+        }
+
+        $ps unlock *
+
         # NEXT, try to load the defaults
         $type defaults load
 
+        # NEXT, put the locked parameters back
+        set unreset [list]
+
+        foreach parm $locked {
+            if {$saved($parm) ne [$ps get $parm]} {
+                $ps set $parm $saved($parm)
+                lappend unreset $parm
+            }
+            $ps lock $parm
+        }
+
         # NEXT, log it.
-        log normal parm "Reset Parameters"
-        
-        app puts "Reset Parameters"
+        if {[llength $unreset] == 0} {
+            log normal parm "Reset Parameters"
+            app puts        "Reset Parameters"
+        } else {
+            log normal warning \
+                "Reset Parameters, except for the following locked parameters\n[join $unreset \n]"
+
+            app puts "Reset Parameters (except for locked parameters, see log)"
+        }
 
         # NEXT, Return the undo script
         return $undo
@@ -189,7 +237,7 @@ snit::type parm {
 order define ::parm PARM:IMPORT {
     title "Import Parameter File"
 
-    options -sendstates PREP
+    options -sendstates {PREP RUNNING PAUSED}
 
     # NOTE: Dialog is not usually used.  Could define a "filepicker"
     # -editcmd, though.
@@ -219,7 +267,7 @@ order define ::parm PARM:IMPORT {
 order define ::parm PARM:RESET {
     title "Reset Parameters to Defaults"
 
-    options -sendstates PREP
+    options -sendstates {PREP RUNNING PAUSED}
 } {
     # FIRST, try to do it.
     if {[catch {
@@ -240,7 +288,7 @@ order define ::parm PARM:RESET {
 order define ::parm PARM:SET {
     title "Set Parameter Value"
 
-    options -sendstates PREP
+    options -sendstates {PREP RUNNING PAUSED}
 
     # NOTE: Dialog is not usually used.
     parm parm   text "Parameter"
