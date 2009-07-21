@@ -629,9 +629,7 @@ snit::type order {
     # can pick whatever states make sense.
 
     typemethod state {{state ""}} {
-        if {$state ne ""           && 
-            $state ne $info(state)
-        } {
+        if {$state ne ""} {
             set info(state) $state
             notifier send $type <State> $state
         }
