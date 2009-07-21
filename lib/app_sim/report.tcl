@@ -16,7 +16,7 @@
 #-----------------------------------------------------------------------
 # report
 
-snit::type report {
+snit::type ::report {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
@@ -319,61 +319,6 @@ snit::type report {
     # Public typemethods
 
     delegate typemethod save to reporter
-
-    #-------------------------------------------------------------------
-    # Parameter types
-    #
-    # TBD: This should perhaps go somewhere else.
-
-    # EnumVal ptype enum value
-    #
-    # ptype    Parameter type
-    # enum     List of valid values
-    # value    Value to validate
-    #
-    # Validates the value, returning it, or throws a good error message.
-
-    proc EnumVal {ptype enum value} {
-        if {$value ni $enum} {
-            set enum [join $enum ", "]
-            return -code error -errorcode INVALID \
-                "Invalid $ptype, should be one of: $enum"
-        }
-
-        return $value
-    }
-
-    # ptype n+all
-    #
-    # Neighborhood names + ALL
-
-    typemethod {ptype n+all names} {} {
-        linsert [nbhood names] 0 ALL
-    }
-
-    typemethod {ptype n+all validate} {value} {
-        EnumVal "neighborhood" [$type ptype n+all names] $value
-    }
-
-
-    # ptype civg+all names
-    typemethod {ptype civg+all names} {} {
-        linsert [civgroup names] 0 ALL
-    }
-
-    typemethod {ptype civg+all validate} {value} {
-        EnumVal "civilian group" [$type ptype civg+all names] $value
-    }
-
-
-    # ptype orgg+all names
-    typemethod {ptype orgg+all names} {} {
-        linsert [orggroup names] 0 ALL
-    }
-
-    typemethod {ptype orgg+all validate} {value} {
-        EnumVal "organization group" [$type ptype orgg+all names] $value
-    }
 }
 
 
@@ -390,14 +335,14 @@ order define ::report REPORT:CIVILIAN:SAT {
         -sendstates {PAUSED RUNNING} \
         -alwaysunsaved
 
-    parm n enum  "Neighborhood"  -type {::report ptype n+all} \
+    parm n enum  "Neighborhood"  -type {::ptype n+all} \
         -defval ALL
-    parm g enum  "Group"         -type {::report ptype civg+all} \
+    parm g enum  "Group"         -type {::ptype civg+all} \
         -defval ALL
 } {
     # FIRST, prepare the parameters
-    prepare n  -toupper -required -type {::report ptype n+all}
-    prepare g  -toupper -required -type {::report ptype civg+all}
+    prepare n  -toupper -required -type {::ptype n+all}
+    prepare g  -toupper -required -type {::ptype civg+all}
 
     returnOnError
 
@@ -444,14 +389,14 @@ order define ::report REPORT:ORGANIZATION:SAT {
         -sendstates {PAUSED RUNNING} \
         -alwaysunsaved
 
-    parm n enum  "Neighborhood"  -type {::report ptype n+all} \
+    parm n enum  "Neighborhood"  -type {::ptype n+all} \
         -defval ALL
-    parm g enum  "Group"         -type {::report ptype orgg+all} \
+    parm g enum  "Group"         -type {::ptype orgg+all} \
         -defval ALL
 } {
     # FIRST, prepare the parameters
-    prepare n  -toupper -required -type {::report ptype n+all}
-    prepare g  -toupper -required -type {::report ptype orgg+all}
+    prepare n  -toupper -required -type {::ptype n+all}
+    prepare g  -toupper -required -type {::ptype orgg+all}
 
     returnOnError
 

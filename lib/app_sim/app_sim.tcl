@@ -56,6 +56,7 @@ source [file join $::app_sim::library apptypes.tcl         ]
 source [file join $::app_sim::library executive.tcl        ]
 source [file join $::app_sim::library cif.tcl              ]
 source [file join $::app_sim::library order.tcl            ]
+source [file join $::app_sim::library ptype.tcl            ]
 source [file join $::app_sim::library report.tcl           ]
 source [file join $::app_sim::library dam.tcl              ]
 
