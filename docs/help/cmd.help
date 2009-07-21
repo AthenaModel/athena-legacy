@@ -94,6 +94,62 @@ macro cli {text} {
     <pre>[outdent $text]</pre><p>
 }
 
+# caution.debugging
+
+macro caution.debugging {} {
+    |<--
+    <b>Caution:</b>  This command is intended for use by the Athena
+    developers while debugging the simulation.  Careless use can
+    corrupt the application.<p>
+}
+
+#=======================================================================
+# = command
+
+command "=" {
+    <<syntax <i>expression...</i> >>
+
+    Computes the value of an arithmetic expression:<p>
+
+    <<cli {
+        &gt; = 1 + 1
+        2
+        &gt;
+    }>>
+
+    Variables can be defined with <<cmdref set>> and retrieved using
+    "$" notation:<p>
+
+    <<cli {
+        &gt; set num 5
+        5
+        &gt; = $num * 2
+        10
+        >
+    }>>
+}
+
+#=======================================================================
+# debug command
+
+command "debug" {
+    <<syntax>>
+    <<caution.debugging>>
+    Invokes a debugger window. The debugger is simply a Tcl interpreter
+    with full access to the application's code and data; it's intended
+    for developer use only. 
+}
+
+#=======================================================================
+# errtrace command
+
+command "errtrace" {
+    <<syntax>>
+    Returns the stack trace associated with the last command which
+    returned an error. This command is a debugging aid, and has no
+    effect on the execution of the program.
+}
+
 #=======================================================================
 # help command
 
@@ -122,7 +178,6 @@ command "help" {
     Executive; if specified, the <b>help</b> command will dump
     implementation info to the CLI.
 }
-
 
 
 #=======================================================================
@@ -280,3 +335,55 @@ command "parm set" {
     This command works by sending the <<cref PARM:SET>> order.
 }
 
+#=======================================================================
+# set command
+
+command "set" {
+    <<syntax <i>variable value</i> >>
+    Assigns a value to a named variable.  By itself, this will have no
+    effect on the execution of the simulation; however, variables can
+    be used with other commands, such as the <<cmdref =>> command.
+}
+
+ 
+#=======================================================================
+# super command
+
+command "super" {
+    <<syntax <i>args...</i> >>
+    <<caution.debugging>>
+    Concatenates its arguments into a single command, and executes
+    that command in the context of the application rather than in the
+    Athena Executive.
+}
+
+
+#=======================================================================
+# usermode command
+
+command "usermode" {
+    <<syntax ?<i>mode</i>? >>
+    <<caution.debugging>>
+    Sets and queries the user mode.<p>
+
+    Athena's executive runs in two modes, <b>normal</b> and
+    <b>super</b>. In normal mode, user command entry is prevented from
+    affecting application internals, i.e., the user can't kill or
+    corrupt the application by mis-typing. Caution: In super mode, the
+    CLI is attached directly to the application. Anything is possible,
+    including damage to the user's scenario. <p>
+
+    The <b>super</b> mode is intended primarily for use by the Athena
+    developers; other users should consider using the <<cmdref super>>
+    command in the rare case that evading the normal protections is
+    required.<p>
+
+    <b>Note:</b> in <b>super</b> mode, the CLI's command prompt
+    changes, as shown:<p>
+
+    <<cli {
+        > usermode super
+        super> usermode normal
+        >
+    }>>
+}
