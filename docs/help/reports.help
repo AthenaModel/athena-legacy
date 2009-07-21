@@ -8,7 +8,10 @@
 # DESCRIPTION:
 #    Athena Help Documentation: Reports
 #
-#    This file is included into athena.help
+#    This file is included into athena.help.
+#
+#    At present, all reports are in a flat list; eventually, we'll
+#    want a page hierarchy.
 #
 #-----------------------------------------------------------------------
 
@@ -22,6 +25,75 @@ page reports "Reports" {} {
 
     <<childlinks>>
 }
+
+macro reports.noprep {} {
+    |<--
+    Note that this order cannot be sent while Athena is in the
+    [cref using.prep] state, as GRAM has not yet been
+    initialized and so no data is available.<p>
+}
+
+#-----------------------------------------------------------------------
+
+page REPORT:CIVILIAN:SAT "Civilian Satisfaction Report" reports {
+    <<order>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  A civilian group name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <</parmlist>>
+
+    By default, this order lists the satisfaction values and deltas
+    since time 0 for all civilian groups in all neighborhoods, along
+    with the playbox-wide satisfaction roll-ups.  The user can also
+    elect to filter the output to a particular neighborhood, group, or
+    both.  If a specific neighborhood is selected, the playbox
+    roll-ups are omitted.<p>
+
+    <<reports.noprep>>
+
+    The output is presented in the form of a table with the following
+    columns:<p> 
+
+    <<topiclist Column Description>>
+    <<topic Nbhood>>
+    The neighborhood, or "Playbox" for the playbox-wide roll-ups.
+    <</topic>>
+
+    <<topic Group>>
+    The name of the group.
+    <</topic>>
+
+    <<topic Con>>
+    The concern, or "Mood" for the group's mood in this neighborhood.
+    <</topic>>
+
+    <<topic Satisfaction>>
+    The current satisfaction level, including both the numeric and
+    symbolic value, according to this scale:<p>
+
+    <<::simlib::qsat html>>
+    <</topic>>
+
+    <<topic Delta>>
+    The delta between the satisfaction level at time 0 and the value
+    now.
+    <</topic>>
+
+    <<topic "Initial Sat">>
+    The value of the satisfaction level at time 0, including both
+    the numeric and symbolic value as described above.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 
 #-----------------------------------------------------------------------
 
@@ -57,6 +129,10 @@ page REPORT:DRIVER "Attitude Driver Report" reports {
     if the relationships are all zero, the PRESENCE rules will fire
     but all of the attitude inputs will be 0.0, and hence will be
     ignored.<p>
+
+    Note that this order cannot be sent while Athena is in the
+    <<cref "Scenario Preparation">> state, as GRAM has not yet been
+    initialized and so no data is available.<p>
 
     The following information is listed for each driver:<p>
 
@@ -100,3 +176,66 @@ page REPORT:DRIVER "Attitude Driver Report" reports {
     <</topiclist>>
 
 }
+
+#-----------------------------------------------------------------------
+
+page REPORT:ORGANIZATION:SAT "Organization Satisfaction Report" reports {
+    <<order>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  A organization group name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <</parmlist>>
+
+    By default, this order lists the satisfaction values and deltas
+    since time 0 for all organization groups in all neighborhoods, along
+    with the playbox-wide satisfaction roll-ups.  The user can also
+    elect to filter the output to a particular neighborhood, group, or
+    both.  If a specific neighborhood is selected, the playbox
+    roll-ups are omitted.<p>
+
+    <<reports.noprep>>
+
+    The output is presented in the form of a table with the following
+    columns:<p> 
+
+    <<topiclist Column Description>>
+    <<topic Nbhood>>
+    The neighborhood, or "Playbox" for the playbox-wide roll-ups.
+    <</topic>>
+
+    <<topic Group>>
+    The name of the group.
+    <</topic>>
+
+    <<topic Con>>
+    The concern, or "Mood" for the group's mood in this neighborhood.
+    <</topic>>
+
+    <<topic Satisfaction>>
+    The current satisfaction level, including both the numeric and
+    symbolic value, according to this scale:<p>
+
+    <<::simlib::qsat html>>
+    <</topic>>
+
+    <<topic Delta>>
+    The delta between the satisfaction level at time 0 and the value
+    now.
+    <</topic>>
+
+    <<topic "Initial Sat">>
+    The value of the satisfaction level at time 0, including both
+    the numeric and symbolic value as described above.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+

@@ -629,7 +629,9 @@ snit::widget appwin {
         set reportsmenu [menu $menubar.reports]
         $menubar add cascade -label "Reports" -underline 0 -menu $reportsmenu
 
+        $self AddOrder $reportsmenu REPORT:CIVILIAN:SAT
         $self AddOrder $reportsmenu REPORT:DRIVER
+        $self AddOrder $reportsmenu REPORT:ORGANIZATION:SAT
 
         # Help menu
         set helpmenu [menu $menubar.helpmenu]
@@ -681,7 +683,7 @@ snit::widget appwin {
 
     method AddOrder {mnu order} {
         cond::orderIsValid control \
-            [menuitem $mnu command [order title $order] \
+            [menuitem $mnu command [order title $order]... \
                  -command [list order enter $order]]    \
             order $order
     }
