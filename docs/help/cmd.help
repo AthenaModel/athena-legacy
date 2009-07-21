@@ -1,0 +1,251 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    cmd.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: Executive Commands
+#
+#    This file is included into athena.help.
+#
+#    Individual commands have page names like
+#
+#       cmd.<command>
+#
+#    If the command's name has multiple tokens, they are connected
+#    by ".", as in "cmd.parm.set".
+#
+#-----------------------------------------------------------------------
+
+page cmd "Executive Commands" {} {
+    <<title>>
+    Athena provides a command-line interface (CLI) at the bottom on
+    the main window.  The CLI is primarily used during testing and
+    development, as most user tasks are done via 
+    <<cref orders "order dialogs">> and other GUI interactions.  However,
+    there are a small number of tasks that the user can do by typing
+    <i>executive commands</i> at the CLI.  Most of these are low-level
+    tasks, such as calibrating the Athena models by setting model
+    parameters.<p>
+
+    This page lists the available commands.<p>
+
+    <<childlinks>>
+}
+
+# command name text
+#
+# name     The name of the command, e.g., "parm set"
+#
+# Defines a command page, defining the parent/child links properly.
+
+proc command {name text} {
+    set tag "cmd.[join $name .]"
+
+    set parent [lrange $name 0 end-1]
+
+    if {[llength $parent] == 0} {
+        set ptag "cmd"
+    } else {
+        set ptag "cmd.[join $parent .]"
+    }
+
+    page $tag $name $ptag $text
+}
+
+
+# syntax args
+#
+# args      The command's argument spec
+#
+# Formats the header for the command, including a link to the parent
+# commands, if any.
+
+macro syntax {args} {
+    set fullname [pageinfo title]
+    set prefix [lrange $fullname 0 end-1]
+    set name   [lindex $fullname end]
+
+    set ancestor "cmd"
+    set nametext ""
+
+    foreach token $prefix {
+        append ancestor .$token
+        append nametext "[cref $ancestor $token] "
+    }
+    append nametext $name
+    
+} {
+    |<--
+    <h3>$nametext $args</h3>
+}
+
+# cli text
+#
+# text    A CLI script
+#
+# Formats a CLI dialog properly.
+
+macro cli {text} {
+    |<--
+    <pre>[outdent $text]</pre><p>
+}
+
+#=======================================================================
+# parm commands
+
+command "parm" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+
+    This command is used to set and query Athena's 
+    <<cref parmdb "model parameters">>.  It has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+command "parm defaults" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+    
+    This command allows the user to manage his own customized set of
+    default <<cref parmdb "model parameters">>, and share them among 
+    different Athena scenarios.  Saved defaults are used for all new
+    scenarios; also, a scenario's parameter settings can be reset to
+    the user's default using the <<cmdref parm reset>> command.
+    It has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+command "parm defaults clear" {
+    <<syntax>>
+    
+    This command deletes the user's own default settings for the 
+    Athena <<cref parmdb "model parameters">>.  New scenarios will
+    then use the installation defaults rather than the user's.<p>
+}
+
+#-----------------------------------------------------------------------
+
+command "parm defaults save" {
+    <<syntax>>
+    
+    This command saves the current <<cref parmdb "model parameter">> 
+    settings as the user's defaults for new scenarios.
+}
+
+#-----------------------------------------------------------------------
+
+command "parm export" {
+    <<syntax <i>filename</i> >>
+    
+    Exports the current <<cref parmdb "model parameter">> settings
+    to a disk file; if the named file already exists, it is copied
+    to "<i>filename</i>.bak".
+}
+
+#-----------------------------------------------------------------------
+
+command "parm get" {
+    <<syntax <i>parm</i> >>
+    
+    Retrieves the value of the named <<cref parmdb "model parameter">>.
+}
+
+#-----------------------------------------------------------------------
+
+command "parm import" {
+    <<syntax <i>filename</i> >>
+    
+    Imports new <<cref parmdb "model parameter">> values from
+    the named file.  Note that some parameters are 
+    <<cref parmdb.locked "locked">> once time advances, and cannot be
+    changed.<p>
+
+    This command works by sending the <<cref PARM:IMPORT>> order.
+}
+
+#-----------------------------------------------------------------------
+
+command "parm list" {
+    <<syntax ?<i>pattern</i>?>>
+
+    When called with no argument, this command lists the names and
+    values of all parameters.  If given, <i>pattern</i> is a wild-card
+    pattern; only matching parameters are included.  For example, the
+    following command will list all parameters related to the FUELSHRT
+    rule set:<p>
+
+    <<cli {
+        &gt; parm list dam.FUELSHRT.*
+        dam.FUELSHRT.active     yes
+        dam.FUELSHRT.cause      FUELSHRT
+        dam.FUELSHRT.nearFactor 0.0
+        dam.FUELSHRT.farFactor  0.0
+
+        &gt;}>>
+</pre>
+}
+
+#-----------------------------------------------------------------------
+
+command "parm names" {
+    <<syntax ?<i>pattern</i>?>>
+
+    When called with no argument, this command lists the names of all
+    parameters.  If given, <i>pattern</i> is a wild-card
+    pattern; only matching parameters are included.  For example, the
+    following command will list the names of all parameters related to 
+    the FUELSHRT rule set:<p>
+
+    <<cli {
+        &gt; parm names dam.FUELSHRT.*
+        dam.FUELSHRT.active dam.FUELSHRT.cause dam.FUELSHRT.nearFactor dam.FUELSHRT.farFactor
+        &gt;}>>
+</pre>
+}
+
+
+#-----------------------------------------------------------------------
+
+command "parm reset" {
+    <<syntax>>
+    
+    Resets all <<cref parmdb "model parameters">> to their default
+    values.  If the user has saved their own default settings using
+    the <<cmdref parm defaults>> command, these will be used;
+    otherwise the installation defaults will be used.<p>
+
+    Note that some parameters are 
+    <<cref parmdb.locked "locked">> once time advances past the
+    <<cref using.prep>> state, and cannot be changed.  Unlocked
+    parameters will be reset; locked parameters will not.<p>
+
+    This command works by sending the <<cref PARM:RESET>> order.
+}
+
+
+#-----------------------------------------------------------------------
+
+command "parm set" {
+    <<syntax <i>parm value</i> >>
+    
+    Sets the named <<cref parmdb "model parameter">> to the specified
+    <i>value</i>.  Updated
+    parameter values are saved automatically with the scenario; there
+    is no need to <<cref cmd.parm.export export>> the parameter
+    settings in order to save them.<p>
+
+    Note that some parameters are 
+    <<cref parmdb.locked "locked">> once time advances past the
+    <<cref using.prep>> state, and cannot be changed.<p>
+
+    This command works by sending the <<cref PARM:SET>> order.
+}
+

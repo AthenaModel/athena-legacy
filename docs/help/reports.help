@@ -1,0 +1,102 @@
+#-----------------------------------------------------------------------
+# TITLE:
+#    reports.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: Reports
+#
+#    This file is included into athena.help
+#
+#-----------------------------------------------------------------------
+
+page reports "Reports" {} {
+    <<title>>
+    As it runs, Athena produces a variety of text reports; in addition,
+    the user may request a variety of reports.  This section describes
+    the available reports.<p>
+
+    Orders are grouped in the following categories:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+page REPORT:DRIVER "Attitude Driver Report" reports {
+    <<order>>
+    <<parmlist>>
+
+    <<parm state "Driver State">>
+    <b>Required.</b>  The set of drivers to include in the report:<p>
+
+    <ul>
+    <li> <b>all</b>: All drivers
+    <li> <b>active</b>:  All active drivers: those which are currently
+    contributing to attitude change.
+    <li> <b>inactive</b>: All inactive drivers: those which have
+    contributed, or which are scheduled to do so in the future,
+    but are not currently doing so.
+    <li> <b>empty</b>: All drivers whose set of attitude inputs is
+    empty.
+    </ul>
+    <</parm>>
+
+    <</parmlist>>
+
+    An attitude driver is an event or situation that drives attitude
+    change.  Usually the set of active drivers is of the most
+    interest; after a long run, the set of inactive drivers might be
+    quite large.<p>
+
+    Some few drivers will be "empty", having had no effect at all.
+    For example, the effect of force group presence depends on the
+    relationship between the neighborhood groups and the force group;
+    if the relationships are all zero, the PRESENCE rules will fire
+    but all of the attitude inputs will be 0.0, and hence will be
+    ignored.<p>
+
+    The following information is listed for each driver:<p>
+
+    <<topiclist Column Description>>
+    <<topic ID>>
+    The driver ID.  Driver IDs are assigned in numerical order 
+    to drivers as they are created.  Because newer drivers have higher
+    IDs, the drivers are listed by ID in descending order.
+    <</topic>>
+
+    <<topic Type>>
+    The driver type.  Usually, this will be the name of one of the
+    Driver Assessment Model's rule sets.
+    <</topic>>
+
+    <<topic Name>>
+    The driver's name.  For example, situations will have names like
+    "Sit 34" where "34" is the situation ID.
+    <</topic>>
+
+    <<topic Description>>
+    A brief description of the driver.
+    <</topic>>
+
+    <<topic State>>
+    The driver's state: active, inactive, or empty, as described
+    above.
+    <</topic>>
+
+    <<topic "Start Time">>
+    The time at which the driver first started (or will first start)
+    to change attitudes in the playbox.
+    <</topic>>
+
+    <<topic "End Time">>
+    The time at which the driver stopped (or will stop) changing
+    attitudes in the playbox.  For on-going situations, this column will
+    contain the word "On-going" instead of a Zulu time.
+    <</topic>>
+
+    <</topiclist>>
+
+}
