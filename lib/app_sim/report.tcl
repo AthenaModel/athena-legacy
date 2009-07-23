@@ -70,6 +70,10 @@ snit::type ::report {
             SELECT * FROM reports WHERE rtype='GRAM'
         }
 
+        reporter bin define gram_coop "Cooperation" gram {
+            SELECT * FROM REPORTS WHERE rtype='GRAM' AND subtype='COOP'
+        }
+
         reporter bin define gram_driver "Drivers" gram {
             SELECT * FROM REPORTS WHERE rtype='GRAM' AND subtype='DRIVER'
         }
@@ -80,6 +84,10 @@ snit::type ::report {
 
         reporter bin define civ "Civilian" "" {
             SELECT * FROM reports WHERE meta1='CIV'
+        }
+
+        reporter bin define civ_coop "Cooperation" civ {
+            SELECT * FROM REPORTS WHERE rtype='GRAM' AND subtype='COOP'
         }
 
         reporter bin define civ_sat "Satisfaction" civ {
@@ -113,6 +121,177 @@ snit::type ::report {
     #
     # Each of these methods is a mutator, in that it adds a report to
     # the RDB, and returns an undo script.
+
+    # imp coop n f g
+    #
+    # n    Neighborhood, or "ALL"
+    # f    Civilian Group, or "ALL"
+    # g    Force Group, or "ALL"
+    #
+    # Generates a detailed report of group cooperation.
+
+    typemethod {imp coop} {n f g} {
+        # FIRST, Set the title
+        set modifiers [list]
+
+        if {$f ne "ALL"} {
+            lappend modifiers "of $f"
+        } else {
+            set f "*"
+        }
+
+        if {$g ne "ALL"} {
+            lappend modifiers "with $g"
+        } else {
+            set g "*"
+        }
+
+        if {$n ne "ALL"} {
+            lappend modifiers "in $n"
+        } else {
+            set n "*"
+        }
+
+        set title "Cooperation Report"
+
+        if {[llength $modifiers] > 0} {
+            append title " ([join $modifiers { }])"
+        }
+
+        # NEXT, get the text
+        set text [aram dump coop.nfg -nbhood $n -civ $f -frc $g]
+
+        # NEXT, save the report
+        set id [reporter save \
+                    -title     $title                       \
+                    -text      $text                        \
+                    -requested 1                            \
+                    -type      GRAM                         \
+                    -subtype   COOP]
+
+        return [list reporter delete $id]
+    }
+
+
+    # imp coop n f g
+    #
+    # n    Neighborhood, or "ALL"
+    # f    Civilian Group, or "ALL"
+    # g    Force Group, or "ALL"
+    #
+    # Generates a detailed report of group cooperation, including
+    # composite cooperation and deltas from time 0.
+
+    typemethod {imp coop} {n f g} {
+        # FIRST, Set the base title
+        set title "Cooperation"
+
+        # NEXT, Determine the effects of the arguments.
+        set modifiers [list]
+
+        if {$f ne "ALL"} {
+            set andF "AND f='$f'"
+
+            lappend modifiers "of $f"
+        } else {
+            set andF ""
+        }
+
+        if {$g ne "ALL"} {
+            set andG "AND g='$g'"
+
+            lappend modifiers "with $g"
+        } else {
+            set andG ""
+        }
+
+        if {$n ne "ALL"} {
+            set andN "AND n='$n'"
+
+            lappend modifiers "in $n"
+        } else {
+            set andN ""
+        }
+
+        # NEXT, add the modifiers (if any) to the title
+        if {[llength $modifiers] > 0} {
+            set title "$title ([join $modifiers { }])"
+        }
+
+        # NEXT, we need to accumulate the desired data.  Create a 
+        # temporary table to contain it.
+        rdb eval {
+            DROP TABLE IF EXISTS temp_coop_report_table;
+            CREATE TEMP TABLE temp_coop_report_table (
+                 n, f, g, coop, delta, coop0
+            );
+        }
+
+
+        # NEXT, include the neighborhood data
+        if {$f eq "ALL"} {
+            rdb eval "
+                -- Nbhood cooperation with force groups
+                INSERT INTO temp_coop_report_table(n,f,g,coop,delta,coop0)
+                SELECT n,
+                       '*', 
+                       g, 
+                       gram_frc_ng.coop,
+                       gram_frc_ng.coop - gram_frc_ng.coop0, 
+                       gram_frc_ng.coop0
+                FROM gram_frc_ng
+                WHERE object='::aram'
+                $andN
+                $andG;
+            "
+        }
+
+        rdb eval "
+             -- Cooperation levels
+            INSERT INTO temp_coop_report_table(n,f,g,coop,delta,coop0)
+            SELECT n, 
+                   f,
+                   g, 
+                   coop,
+                   coop - coop0, 
+                   coop0
+            FROM gram_coop
+            WHERE object='::aram'
+            $andN
+            $andF
+            $andG;
+        "
+
+        # NEXT, format the report for all groups or group-specific
+        set text [rdb query {
+            SELECT n,
+                   CASE WHEN f='*' THEN 'Nbhood' ELSE f END,
+                   g,
+                   format('%7.2f = %-2s', coop,  qcoop('name',coop)),
+                   format('%7.2f', delta),
+                   format('%7.2f = %-2s', coop0, qcoop('name',coop0))
+            FROM temp_coop_report_table
+            ORDER BY n, f, g
+        } -headercols 3 -labels {
+            "Nbhood" "Of" "With" "Cooperation" "  Delta" 
+            " Initial Coop"
+        }]
+
+        if {$text eq ""} {
+            set text "No data found."
+        }
+
+        # NEXT, save the report
+        set id [reporter save \
+                    -title     $title                       \
+                    -text      $text                        \
+                    -requested 1                            \
+                    -type      GRAM                         \
+                    -subtype   COOP]
+
+        return [list reporter delete $id]
+    }
+
 
     # imp driver state
     #
@@ -325,11 +504,11 @@ snit::type ::report {
 #-----------------------------------------------------------------------
 # Orders
 
-# REPORT:CIVILIAN:SAT
+# REPORT:CIVILIAN:SATISFACTION
 #
 # Produces a Civilian Satisfaction Report
 
-order define ::report REPORT:CIVILIAN:SAT {
+order define ::report REPORT:CIVILIAN:SATISFACTION {
     title "Civilian Satisfaction Report"
     options \
         -sendstates {PAUSED RUNNING} \
@@ -349,6 +528,38 @@ order define ::report REPORT:CIVILIAN:SAT {
     # NEXT, produce the report
     set undo [list]
     lappend undo [$type imp sat CIV $parms(n) $parms(g)]
+
+    setundo [join $undo \n]
+}
+
+
+# REPORT:COOPERATION
+#
+# Produces a Cooperation Report
+
+order define ::report REPORT:COOPERATION {
+    title "Cooperation Report"
+    options \
+        -sendstates {PAUSED RUNNING} \
+        -alwaysunsaved
+
+    parm n enum  "Neighborhood"  -type {::ptype n+all}    \
+        -defval ALL
+    parm f enum  "Of Group"      -type {::ptype civg+all} \
+        -defval ALL
+    parm g enum  "With Group"    -type {::ptype frcg+all} \
+        -defval ALL
+} {
+    # FIRST, prepare the parameters
+    prepare n  -toupper -required -type {::ptype n+all}
+    prepare f  -toupper -required -type {::ptype civg+all}
+    prepare g  -toupper -required -type {::ptype frcg+all}
+
+    returnOnError
+
+    # NEXT, produce the report
+    set undo [list]
+    lappend undo [$type imp coop $parms(n) $parms(f) $parms(g)]
 
     setundo [join $undo \n]
 }
@@ -379,11 +590,11 @@ order define ::report REPORT:DRIVER {
     setundo [join $undo \n]
 }
 
-# REPORT:ORGANIZATION:SAT
+# REPORT:ORGANIZATION:SATISFACTION
 #
 # Produces a Organization Satisfaction Report
 
-order define ::report REPORT:ORGANIZATION:SAT {
+order define ::report REPORT:ORGANIZATION:SATISFACTION {
     title "Organization Satisfaction Report"
     options \
         -sendstates {PAUSED RUNNING} \

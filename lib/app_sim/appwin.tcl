@@ -629,9 +629,10 @@ snit::widget appwin {
         set reportsmenu [menu $menubar.reports]
         $menubar add cascade -label "Reports" -underline 0 -menu $reportsmenu
 
-        $self AddOrder $reportsmenu REPORT:CIVILIAN:SAT
+        $self AddOrder $reportsmenu REPORT:CIVILIAN:SATISFACTION
+        $self AddOrder $reportsmenu REPORT:COOPERATION
         $self AddOrder $reportsmenu REPORT:DRIVER
-        $self AddOrder $reportsmenu REPORT:ORGANIZATION:SAT
+        $self AddOrder $reportsmenu REPORT:ORGANIZATION:SATISFACTION
 
         # Help menu
         set helpmenu [menu $menubar.helpmenu]

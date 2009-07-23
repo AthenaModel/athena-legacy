@@ -52,6 +52,19 @@ snit::type ptype {
     }
 
 
+    # frcg+all
+    #
+    # Force group names + ALL
+
+    typemethod {frcg+all names} {} {
+        linsert [frcgroup names] 0 ALL
+    }
+
+    typemethod {frcg+all validate} {value} {
+        EnumVal "force group" [$type frcg+all names] $value
+    }
+
+
     # orgg+all
     #
     # Organization group names + ALL

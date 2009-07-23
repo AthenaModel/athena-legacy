@@ -94,6 +94,73 @@ page REPORT:CIVILIAN:SAT "Civilian Satisfaction Report" reports {
     <</topiclist>>
 }
 
+#-----------------------------------------------------------------------
+
+page REPORT:COOPERATION "Cooperation Report" reports {
+    <<order>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  A civilian group name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  A force group name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <</parmlist>>
+
+    By default, this order displays the cooperation (and delta since
+    time 0) of each neighborhood group with each force group, along
+    with the composite cooperation of each neighborhood with each
+    force group.  The user can elect to limit the output to a 
+    particular neighborhood, civilian group, force group, or
+    all three.  If a particular civilan group is selected, the
+    composite cooperation is omitted.<p>
+
+    <<reports.noprep>>
+
+    The output is presented in the form of a table with the following
+    columns:<p> 
+
+    <<topiclist Column Description>>
+    <<topic Nbhood>>
+    The neighborhood.
+    <</topic>>
+
+    <<topic Of>>
+    The name of the civilian group in the neighborhood, or "Nbhood"
+    for the composite cooperation of the neighborhood as a whole.
+    <</topic>>
+
+    <<topic With>>
+    The force group.
+    <</topic>>
+
+    <<topic Cooperation>>
+    The current cooperation level, including both the numeric and
+    symbolic value, according to this scale:<p>
+
+    <<::simlib::qcooperation html>>
+    <</topic>>
+
+    <<topic Delta>>
+    The delta between the cooperation level at time 0 and the value
+    now.
+    <</topic>>
+
+    <<topic "Initial Coop">>
+    The value of the cooperation level at time 0, including both
+    the numeric and symbolic value as described above.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 
 #-----------------------------------------------------------------------
 
