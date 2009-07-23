@@ -451,8 +451,15 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
 
     returnOnError
 
-    # NEXT, modify the group
-    setundo [$type mutate update [array get parms]]
+    # NEXT, modify the group.
+    set undo [list]
+    lappend undo [$type mutate update [array get parms]]
+
+    # NEXT, If the uniformed flag is changed, the
+    # defending ROEs could be different.
+    lappend undo [scenario mutate reconcile]
+
+    setundo [join $undo \n]
 }
 
 # GROUP:FORCE:UPDATE:MULTI
@@ -493,6 +500,10 @@ order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
     foreach parms(g) $parms(ids) {
         lappend undo [$type mutate update [array get parms]]
     }
+
+    # NEXT, If the uniformed flag is changed, the
+    # defending ROEs could be different.
+    lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
 }
