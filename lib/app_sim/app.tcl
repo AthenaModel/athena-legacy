@@ -241,6 +241,10 @@ snit::type app {
         # open it.
         if {[llength $argv] == 1} {
             scenario open [file normalize [lindex $argv 0]]
+        } else {
+            # This makes sure that the notifier events are sent that
+            # initialize the user interface.
+            sim reconfigure
         }
     }
 
