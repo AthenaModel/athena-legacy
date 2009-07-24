@@ -86,13 +86,52 @@ page parmdb.locked "Locked Parameters" parmdb {
     <<cmdref parm reset>> commands.<p>
 }
 
-#-------------------------------------------------------------------
+#-----------------------------------------------------------------------
 
 page Neighborhood_Security "Neighborhood Security" concepts {
     <<title>>
 
     TBD: This page will describe the neighborhood security model.
 }
+
+#-----------------------------------------------------------------------
+
+page zulu "Zulu time string" concepts {
+    <<title>>
+    A "Zulu" time string, or date-time group, represents a particular
+    date and time in this format:<p>
+
+    <b><i>ddhhmm</i>Z<i>mmmyy</i></b><p>
+
+    where<p>
+
+    <<topiclist>>
+    <<topic "<i>dd</i>">>
+    The day of the month.
+    <</topic>>
+
+    <<topic "<i>hhmm</i>">>
+    The time of day in hours and minutes, using a 24-hour clock, UTC
+    (Greenwich Mean Time).  (The "Z" indicates the time zone.)<p>
+
+    Because Athena measures time in days, this field is conventionally
+    set to "0000" in all cases.
+    <</topic>>
+
+    <<topic "<i>mmm</i>">>
+    The month of the year, specified as the first three letters of the
+    month's name, e.g., "JAN", "FEB", etc.
+    <</topic>>
+
+    <<topic "<i>yy</i>">>
+    The year, represented as the last two digits of the year, e.g.,
+    "09".
+    <</topic>>
+
+    <</topiclist>>
+}
+
+
 
 
 

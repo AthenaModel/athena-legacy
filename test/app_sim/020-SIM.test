@@ -35,18 +35,23 @@ namespace eval ::athena_test::tests:: {
         variable oldDate
 
         # Clean up the test environment
-        simclock reset
         simclock configure -t0 $oldDate
 
         if {[sim state] eq "RUNNING"} {
             sim mutate pause
-        }
+        } 
 
         if {[sim state] eq "PAUSED"} {
             sim restart
         }
 
+        if {[simclock now] > 0} {
+            simclock reset
+        }
+
         ted cleanup
+
+        assert {![aram initialized]}
     }
 
     #-------------------------------------------------------------------

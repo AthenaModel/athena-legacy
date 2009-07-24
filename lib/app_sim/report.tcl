@@ -82,6 +82,10 @@ snit::type ::report {
             SELECT * FROM REPORTS WHERE rtype='GRAM' AND subtype='SAT'
         }
 
+        reporter bin define gram_satcontrib "Sat. Contrib." gram {
+            SELECT * FROM REPORTS WHERE rtype='GRAM' AND subtype='SATCONTRIB'
+        }
+
         reporter bin define civ "Civilian" "" {
             SELECT * FROM reports WHERE meta1='CIV'
         }
@@ -565,6 +569,7 @@ snit::type ::report {
             set results [rdb query {
                 SELECT format('%4d', temp_satcontribs.rowid),
                        format('%8.3f', acontrib),
+                       driver,
                        name,
                        oneliner
                 FROM temp_satcontribs
@@ -573,7 +578,7 @@ snit::type ::report {
 
                 DROP TABLE temp_satcontribs;
             }  -maxcolwidth 0 -labels {
-                "Rank" "  Actual" "Driver" "Description"
+                "Rank" "  Actual" "ID" "Name" "Description"
             }]
 
             # NEXT, always include the options 
@@ -627,40 +632,59 @@ snit::type ::report {
     # Public typemethods
 
     delegate typemethod save to reporter
+
+    #-------------------------------------------------------------------
+    # Order Helper procs
+
+    # RefreshRSContrib_g field parmdict
+    #
+    # field     The field to refresh.
+    # parmdict  The values of upstream parameters
+    #
+    # Sets the list of g values.
+
+    proc RefreshRSContrib_g {field parmdict} {
+        dict with parmdict {
+            set values [concat [nbgroup gIn $n] [orggroup names]]
+
+            if {[llength $values] != 0} {
+                $field configure -values $values -state normal
+            } else {
+                $field configure -values {} -state disabled
+            }
+        }
+    }
+
+    # RefreshRSContrib_c field parmdict
+    #
+    # field     The field to refresh.
+    # parmdict  The values of upstream parameters
+    #
+    # Sets the list of c values.
+
+    proc RefreshRSContrib_c {field parmdict} {
+        dict with parmdict {
+            set gtype [group gtype $g]
+
+            if {$gtype eq "CIV"} {
+                set values [ptype civc+mood names]
+            } else {
+                set values [ptype orgc+mood names]
+            }
+
+            if {[llength $values] != 0} {
+                $field configure -values $values -state normal
+            } else {
+                $field configure -values {} -state disabled
+            }
+        }
+    }
+
 }
 
 
 #-----------------------------------------------------------------------
 # Orders
-
-# REPORT:SATISFACTION:CIVILIAN
-#
-# Produces a Civilian Satisfaction Report
-
-order define ::report REPORT:SATISFACTION:CIVILIAN {
-    title "Civilian Satisfaction Report"
-    options \
-        -sendstates {PAUSED RUNNING} \
-        -alwaysunsaved
-
-    parm n enum  "Neighborhood"  -type {::ptype n+all} \
-        -defval ALL
-    parm g enum  "Group"         -type {::ptype civg+all} \
-        -defval ALL
-} {
-    # FIRST, prepare the parameters
-    prepare n  -toupper -required -type {::ptype n+all}
-    prepare g  -toupper -required -type {::ptype civg+all}
-
-    returnOnError
-
-    # NEXT, produce the report
-    set undo [list]
-    lappend undo [$type imp sat CIV $parms(n) $parms(g)]
-
-    setundo [join $undo \n]
-}
-
 
 # REPORT:COOPERATION
 #
@@ -719,6 +743,126 @@ order define ::report REPORT:DRIVER {
     setundo [join $undo \n]
 }
 
+# REPORT:SATISFACTION:CIVILIAN
+#
+# Produces a Civilian Satisfaction Report
+
+order define ::report REPORT:SATISFACTION:CIVILIAN {
+    title "Civilian Satisfaction Report"
+    options \
+        -sendstates {PAUSED RUNNING} \
+        -alwaysunsaved
+
+    parm n enum  "Neighborhood"  -type {::ptype n+all} \
+        -defval ALL
+    parm g enum  "Group"         -type {::ptype civg+all} \
+        -defval ALL
+} {
+    # FIRST, prepare the parameters
+    prepare n  -toupper -required -type {::ptype n+all}
+    prepare g  -toupper -required -type {::ptype civg+all}
+
+    returnOnError
+
+    # NEXT, produce the report
+    set undo [list]
+    lappend undo [$type imp sat CIV $parms(n) $parms(g)]
+
+    setundo [join $undo \n]
+}
+
+
+# REPORT:SATISFACTION:CONTRIB
+#
+# Produces a Contribution to Satisfaction Report
+
+order define ::report REPORT:SATISFACTION:CONTRIB {
+    title "Contribution to Satisfaction Report"
+    options \
+        -sendstates {PAUSED RUNNING} \
+        -alwaysunsaved
+
+    parm n      enum  "Neighborhood"  -type {ptype n} -refresh
+    parm g      enum  "Group"         -refresh \
+        -refreshcmd ::report::RefreshRSContrib_g
+    parm c      enum  "Concern"       \
+        -refreshcmd ::report::RefreshRSContrib_c
+    parm top    text  "Number"        -type ipositive -defval 20
+    parm start  text  "Start Time"    -type zulu
+    parm end    text  "End Time"      -type zulu
+} {
+    # FIRST, prepare the parameters
+    prepare n      -toupper -required -type {ptype n}
+    prepare g      -toupper -required -type {ptype satg}
+    prepare c      -toupper -required -type {ptype c+mood}
+    prepare top                       -type ipositive
+    prepare start  -toupper           -type zulu
+    prepare end    -toupper           -type zulu
+
+    returnOnError
+
+    # NEXT, verify that g and c are consistent.
+    validate c {
+        if {$parms(c) ne "MOOD"} {
+            set gtype [group gtype $parms(g)]
+
+            if {![rdb exists {
+                SELECT c FROM concerns WHERE c=$parms(c) AND gtype=$gtype
+            }]} {
+                reject c "not a $gtype concern"
+            }
+        }
+    }
+
+    # NEXT, validate the start and end times.
+
+    if {$parms(start) eq ""} {
+        set ts 0
+        set parms(start) [simclock asZulu $ts]
+    } else {
+        set ts [simclock fromZulu $parms(start)]
+    }
+
+    if {$parms(end) eq ""} {
+        set te [simclock now]
+        set parms(end) [simclock asZulu $te]
+    } else {
+        set te [simclock fromZulu $parms(end)]
+    }
+
+
+    validate start {
+        if {$ts < 0} {
+            reject start "Start time \"$parms(start)\" is prior to time 0"
+        }
+    }
+
+    validate end {
+        if {$te > [simclock now]} {
+            reject end "End time \"$parms(end)\" is greater than the current sim time"
+        } elseif {$te < $ts} {
+            reject end "End time \"$parms(end)\" is prior to start time \"$parms(start)\""
+        }
+    }
+
+    returnOnError
+
+    # NEXT, convert the data
+    if {$parms(top) eq ""} {
+        set parms(top) 20
+    }
+
+    set parms(start) $ts
+    set parms(end)   $te
+
+    # NEXT, produce the report
+    set undo [list]
+    lappend undo [$type imp satcontrib [array get parms]]
+
+    setundo [join $undo \n]
+}
+
+
 # REPORT:SATISFACTION:ORGANIZATION
 #
 # Produces a Organization Satisfaction Report
@@ -748,56 +892,6 @@ order define ::report REPORT:SATISFACTION:ORGANIZATION {
 }
 
 
-# REPORT:SATISFACTION:CONTRIB
-#
-# Produces a Contribution to Satisfaction Report
-
-order define ::report REPORT:SATISFACTION:CONTRIB {
-    title "Contribution to Satisfaction Report"
-    options \
-        -sendstates {PAUSED RUNNING} \
-        -alwaysunsaved
-
-    parm n      enum  "Neighborhood"  -type nbhood
-    parm g      enum  "Group"         -type civgroup
-    parm c      enum  "Concern"       -type {::ptype c+mood}
-    parm top    text  "Number"        -type ipositive -defval 20
-    parm start  text  "Start Time"    -type zulu
-    parm end    text  "End Time"      -type zulu
-} {
-    # FIRST, prepare the parameters
-    prepare n      -toupper -required -type nbhood
-    prepare g      -toupper -required -type civgroup
-    prepare c      -toupper -required -type {::ptype c+mood}
-    prepare top                       -type ipositive
-    prepare start  -toupper           -type zulu
-    prepare end    -toupper           -type zulu
-
-    returnOnError
-
-    # NEXT, convert the data
-    if {$parms(top) eq ""} {
-        set parms(top) 20
-    }
-
-    if {$parms(start) eq ""} {
-        set parms(start) 0
-    } else {
-        set parms(start) [simclock fromZulu $parms(start)]
-    }
-
-    if {$parms(end) eq ""} {
-        set parms(end) [simclock now]
-    } else {
-        set parms(end) [simclock fromZulu $parms(end)]
-    }
-
-    # NEXT, produce the report
-    set undo [list]
-    lappend undo [$type imp satcontrib [array get parms]]
-
-    setundo [join $undo \n]
-}
 
 
 

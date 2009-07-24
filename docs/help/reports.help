@@ -35,135 +35,6 @@ macro reports.noprep {} {
 
 #-----------------------------------------------------------------------
 
-page REPORT:CIVILIAN:SAT "Civilian Satisfaction Report" reports {
-    <<order>>
-    <<parmlist>>
-
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  A neighborhood name, or <b>ALL</b>.<p>
-    <</parm>>
-
-    <<parm g "Group">>
-    <b>Required.</b>  A civilian group name, or <b>ALL</b>.<p>
-    <</parm>>
-
-    <</parmlist>>
-
-    By default, this order lists the satisfaction values and deltas
-    since time 0 for all civilian groups in all neighborhoods, along
-    with the playbox-wide satisfaction roll-ups.  The user can also
-    elect to filter the output to a particular neighborhood, group, or
-    both.  If a specific neighborhood is selected, the playbox
-    roll-ups are omitted.<p>
-
-    <<reports.noprep>>
-
-    The output is presented in the form of a table with the following
-    columns:<p> 
-
-    <<topiclist Column Description>>
-    <<topic Nbhood>>
-    The neighborhood, or "Playbox" for the playbox-wide roll-ups.
-    <</topic>>
-
-    <<topic Group>>
-    The name of the group.
-    <</topic>>
-
-    <<topic Con>>
-    The concern, or "Mood" for the group's mood in this neighborhood.
-    <</topic>>
-
-    <<topic Satisfaction>>
-    The current satisfaction level, including both the numeric and
-    symbolic value, according to this scale:<p>
-
-    <<::simlib::qsat html>>
-    <</topic>>
-
-    <<topic Delta>>
-    The delta between the satisfaction level at time 0 and the value
-    now.
-    <</topic>>
-
-    <<topic "Initial Sat">>
-    The value of the satisfaction level at time 0, including both
-    the numeric and symbolic value as described above.
-    <</topic>>
-
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-page REPORT:COOPERATION "Cooperation Report" reports {
-    <<order>>
-    <<parmlist>>
-
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  A neighborhood name, or <b>ALL</b>.<p>
-    <</parm>>
-
-    <<parm f "Of Group">>
-    <b>Required.</b>  A civilian group name, or <b>ALL</b>.<p>
-    <</parm>>
-
-    <<parm g "With Group">>
-    <b>Required.</b>  A force group name, or <b>ALL</b>.<p>
-    <</parm>>
-
-    <</parmlist>>
-
-    By default, this order displays the cooperation (and delta since
-    time 0) of each neighborhood group with each force group, along
-    with the composite cooperation of each neighborhood with each
-    force group.  The user can elect to limit the output to a 
-    particular neighborhood, civilian group, force group, or
-    all three.  If a particular civilan group is selected, the
-    composite cooperation is omitted.<p>
-
-    <<reports.noprep>>
-
-    The output is presented in the form of a table with the following
-    columns:<p> 
-
-    <<topiclist Column Description>>
-    <<topic Nbhood>>
-    The neighborhood.
-    <</topic>>
-
-    <<topic Of>>
-    The name of the civilian group in the neighborhood, or "Nbhood"
-    for the composite cooperation of the neighborhood as a whole.
-    <</topic>>
-
-    <<topic With>>
-    The force group.
-    <</topic>>
-
-    <<topic Cooperation>>
-    The current cooperation level, including both the numeric and
-    symbolic value, according to this scale:<p>
-
-    <<::simlib::qcooperation html>>
-    <</topic>>
-
-    <<topic Delta>>
-    The delta between the cooperation level at time 0 and the value
-    now.
-    <</topic>>
-
-    <<topic "Initial Coop">>
-    The value of the cooperation level at time 0, including both
-    the numeric and symbolic value as described above.
-    <</topic>>
-
-    <</topiclist>>
-}
-
-
-#-----------------------------------------------------------------------
-
 page REPORT:DRIVER "Attitude Driver Report" reports {
     <<order>>
     <<parmlist>>
@@ -246,7 +117,212 @@ page REPORT:DRIVER "Attitude Driver Report" reports {
 
 #-----------------------------------------------------------------------
 
-page REPORT:ORGANIZATION:SAT "Organization Satisfaction Report" reports {
+page REPORT:SATISFACTION:CIVILIAN "Civilian Satisfaction Report" reports {
+    <<order>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  A civilian group name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <</parmlist>>
+
+    By default, this order lists the satisfaction values and deltas
+    since time 0 for all civilian groups in all neighborhoods, along
+    with the playbox-wide satisfaction roll-ups.  The user can also
+    elect to filter the output to a particular neighborhood, group, or
+    both.  If a specific neighborhood is selected, the playbox
+    roll-ups are omitted.<p>
+
+    <<reports.noprep>>
+
+    The output is presented in the form of a table with the following
+    columns:<p> 
+
+    <<topiclist Column Description>>
+    <<topic Nbhood>>
+    The neighborhood, or "Playbox" for the playbox-wide roll-ups.
+    <</topic>>
+
+    <<topic Group>>
+    The name of the group.
+    <</topic>>
+
+    <<topic Con>>
+    The concern, or "Mood" for the group's mood in this neighborhood.
+    <</topic>>
+
+    <<topic Satisfaction>>
+    The current satisfaction level, including both the numeric and
+    symbolic value, according to this scale:<p>
+
+    <<::simlib::qsat html>>
+    <</topic>>
+
+    <<topic Delta>>
+    The delta between the satisfaction level at time 0 and the value
+    now.
+    <</topic>>
+
+    <<topic "Initial Sat">>
+    The value of the satisfaction level at time 0, including both
+    the numeric and symbolic value as described above.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+page REPORT:SATISFACTION:CONTRIB "Contribution to Satisfaction Report" reports {
+    <<order>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood name.<p>
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  A civilian or organization group name.<p>
+    <</parm>>
+
+    <<parm c "Concern">>
+    <b>Required.</b>  A concern, or <b>MOOD</b>.<p>
+    <</parm>>
+
+    <<parm top "Number">>
+    <b>Optional.</b>  By default, the report shows the top 20
+    contributors to the particular satisfaction curve.  The user can
+    increase or decrease the number of listed contributors as desired.
+    <</parm>>
+
+    <<parm start "Start Time">>
+    <b>Optional.</b>  By default, the report includes all
+    contributions from time 0 until the current simulation time.  The
+    user can narrow the window by setting the start time to some 
+    <<cref zulu>> after time 0.
+    <</parm>>
+
+    <<parm end "End Time">>
+    <b>Optional.</b>  Similarly, the user can set the end of the time
+    window to some <<cref zulu>> prior to the current simulation time.
+    <</parm>>
+
+    <</parmlist>>
+
+    This report lists the drivers which have contributed the most (in
+    absolute terms) to a particular satisfaction curve or mood,
+    including the total amount contributed by each.  If not all
+    contributing drivers are listed, the report also indicates the
+    percentage of the total contributions represented by the listed
+    drivers.<p>
+
+    <<reports.noprep>>
+
+    The output is presented in the form of a table with the following
+    columns:<p> 
+
+    <<topiclist Column Description>>
+    <<topic Rank>>
+    The rank of this driver in terms of its absolute contribution to
+    the curve, from 1 to <i>n</i>.
+    <</topic>>
+
+    <<topic Actual>>
+    The actual contribution of the driver to the curve in satisfaction
+    points.
+    <</topic>>
+
+    <<topic ID>>
+    The driver ID, an integer number.
+    <</topic>>
+
+    <<topic Name>>
+    The driver's name
+    <</topic>>
+
+    <<topic Description>>
+    A one-line description of the driver.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+page REPORT:COOPERATION "Cooperation Report" reports {
+    <<order>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  A civilian group name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  A force group name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <</parmlist>>
+
+    By default, this order displays the cooperation (and delta since
+    time 0) of each neighborhood group with each force group, along
+    with the composite cooperation of each neighborhood with each
+    force group.  The user can elect to limit the output to a 
+    particular neighborhood, civilian group, force group, or
+    all three.  If a particular civilan group is selected, the
+    composite cooperation is omitted.<p>
+
+    <<reports.noprep>>
+
+    The output is presented in the form of a table with the following
+    columns:<p> 
+
+    <<topiclist Column Description>>
+    <<topic Nbhood>>
+    The neighborhood.
+    <</topic>>
+
+    <<topic Of>>
+    The name of the civilian group in the neighborhood, or "Nbhood"
+    for the composite cooperation of the neighborhood as a whole.
+    <</topic>>
+
+    <<topic With>>
+    The force group.
+    <</topic>>
+
+    <<topic Cooperation>>
+    The current cooperation level, including both the numeric and
+    symbolic value, according to this scale:<p>
+
+    <<::simlib::qcooperation html>>
+    <</topic>>
+
+    <<topic Delta>>
+    The delta between the cooperation level at time 0 and the value
+    now.
+    <</topic>>
+
+    <<topic "Initial Coop">>
+    The value of the cooperation level at time 0, including both
+    the numeric and symbolic value as described above.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+
+#-----------------------------------------------------------------------
+
+page REPORT:SATISFACTION:ORGANIZATION "Organization Satisfaction Report" reports {
     <<order>>
     <<parmlist>>
 
