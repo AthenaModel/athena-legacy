@@ -43,6 +43,7 @@ namespace eval ::projectlib:: {
         ident         \
         ingpopulation \
         ioptdays      \
+        ipositive     \
         iquantity     \
         leensit      \
         polygon       \

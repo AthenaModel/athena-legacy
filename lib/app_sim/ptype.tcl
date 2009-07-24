@@ -77,6 +77,30 @@ snit::type ptype {
         EnumVal "organization group" [$type orgg+all names] $value
     }
 
+    # c
+    #
+    # Concern names, CIV and ORG
+
+    typemethod {c names} {} {
+        rdb eval {SELECT c FROM concerns}
+    }
+
+    typemethod {c validate} {value} {
+        EnumVal "concern" [$type c names] $value
+    }
+
+    # c+mood
+    #
+    # Concern names (CIV and ORG), plus "MOOD"
+
+    typemethod {c+mood names} {} {
+        linsert [ptype c names] 0 MOOD
+    }
+
+    typemethod {c+mood validate} {value} {
+        EnumVal "concern" [$type c+mood names] $value
+    }
+
     #-------------------------------------------------------------------
     # Helper Routines
 

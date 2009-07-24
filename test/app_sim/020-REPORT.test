@@ -42,10 +42,10 @@ namespace eval ::athena_test::tests:: {
     }
 
     #-------------------------------------------------------------------
-    # REPORT:CIVILIAN:SATISFACTION
+    # REPORT:SATISFACTION:CIVILIAN
 
     test CIVILIAN:SATISFACTION-1.1 {not in prep} -body {
-        ted order -reject REPORT:CIVILIAN:SATISFACTION {}
+        ted order -reject REPORT:SATISFACTION:CIVILIAN {}
     } -result {
         * {Simulation state is PREP, but order is valid only in these states: PAUSED, RUNNING}
     }
@@ -54,7 +54,7 @@ namespace eval ::athena_test::tests:: {
     test CIVILIAN:SATISFACTION-1.2 {required parms} -setup {
         setup
     } -body {
-        ted order -reject REPORT:CIVILIAN:SATISFACTION {}
+        ted order -reject REPORT:SATISFACTION:CIVILIAN {}
     } -cleanup {
         cleanup
     } -result {
@@ -66,7 +66,7 @@ namespace eval ::athena_test::tests:: {
     test CIVILIAN:SATISFACTION-1.3 {invalid neighborhood} -setup {
         setup
     } -body {
-        ted order -reject REPORT:CIVILIAN:SATISFACTION n NONESUCH g SHIA
+        ted order -reject REPORT:SATISFACTION:CIVILIAN n NONESUCH g SHIA
     } -cleanup {
         cleanup
     } -result {
@@ -77,7 +77,7 @@ namespace eval ::athena_test::tests:: {
     test CIVILIAN:SATISFACTION-1.4 {invalid group} -setup {
         setup
     } -body {
-        ted order -reject REPORT:CIVILIAN:SATISFACTION n NB1 g NONESUCH
+        ted order -reject REPORT:SATISFACTION:CIVILIAN n NB1 g NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -88,7 +88,7 @@ namespace eval ::athena_test::tests:: {
     test CIVILIAN:SATISFACTION-2.1 {n ALL g ALL} -setup {
         setup
     } -body {
-        ted order REPORT:CIVILIAN:SATISFACTION n ALL g ALL
+        ted order REPORT:SATISFACTION:CIVILIAN n ALL g ALL
     } -cleanup {
         cleanup
     } -result {}
@@ -97,7 +97,7 @@ namespace eval ::athena_test::tests:: {
     test CIVILIAN:SATISFACTION-2.2 {n ALL g SHIA} -setup {
         setup
     } -body {
-        ted order REPORT:CIVILIAN:SATISFACTION n ALL g SHIA
+        ted order REPORT:SATISFACTION:CIVILIAN n ALL g SHIA
     } -cleanup {
         cleanup
     } -result {}
@@ -106,7 +106,7 @@ namespace eval ::athena_test::tests:: {
     test CIVILIAN:SATISFACTION-2.3 {n NB1 g ALL} -setup {
         setup
     } -body {
-        ted order REPORT:CIVILIAN:SATISFACTION n NB1 g ALL
+        ted order REPORT:SATISFACTION:CIVILIAN n NB1 g ALL
     } -cleanup {
         cleanup
     } -result {}
@@ -115,7 +115,7 @@ namespace eval ::athena_test::tests:: {
     test CIVILIAN:SATISFACTION-2.4 {n NB1 g SHIA} -setup {
         setup
     } -body {
-        ted order REPORT:CIVILIAN:SATISFACTION n NB1 g SHIA
+        ted order REPORT:SATISFACTION:CIVILIAN n NB1 g SHIA
     } -cleanup {
         cleanup
     } -result {}
@@ -235,10 +235,10 @@ namespace eval ::athena_test::tests:: {
 
 
     #-------------------------------------------------------------------
-    # REPORT:ORGANIZATION:SATISFACTION
+    # REPORT:SATISFACTION:ORGANIZATION
 
     test ORGANIZATION:SATISFACTION-1.1 {not in prep} -body {
-        ted order -reject REPORT:ORGANIZATION:SATISFACTION {}
+        ted order -reject REPORT:SATISFACTION:ORGANIZATION {}
     } -result {
         * {Simulation state is PREP, but order is valid only in these states: PAUSED, RUNNING}
     }
@@ -247,7 +247,7 @@ namespace eval ::athena_test::tests:: {
     test ORGANIZATION:SATISFACTION-1.2 {required parms} -setup {
         setup
     } -body {
-        ted order -reject REPORT:ORGANIZATION:SATISFACTION {}
+        ted order -reject REPORT:SATISFACTION:ORGANIZATION {}
     } -cleanup {
         cleanup
     } -result {
@@ -259,7 +259,7 @@ namespace eval ::athena_test::tests:: {
     test ORGANIZATION:SATISFACTION-1.3 {invalid neighborhood} -setup {
         setup
     } -body {
-        ted order -reject REPORT:ORGANIZATION:SATISFACTION n NONESUCH g USAID
+        ted order -reject REPORT:SATISFACTION:ORGANIZATION n NONESUCH g USAID
     } -cleanup {
         cleanup
     } -result {
@@ -270,7 +270,7 @@ namespace eval ::athena_test::tests:: {
     test ORGANIZATION:SATISFACTION-1.4 {invalid group} -setup {
         setup
     } -body {
-        ted order -reject REPORT:ORGANIZATION:SATISFACTION n NB1 g NONESUCH
+        ted order -reject REPORT:SATISFACTION:ORGANIZATION n NB1 g NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -281,7 +281,7 @@ namespace eval ::athena_test::tests:: {
     test ORGANIZATION:SATISFACTION-2.1 {n ALL g ALL} -setup {
         setup
     } -body {
-        ted order REPORT:ORGANIZATION:SATISFACTION n ALL g ALL
+        ted order REPORT:SATISFACTION:ORGANIZATION n ALL g ALL
     } -cleanup {
         cleanup
     } -result {}
@@ -290,7 +290,7 @@ namespace eval ::athena_test::tests:: {
     test ORGANIZATION:SATISFACTION-2.2 {n ALL g USAID} -setup {
         setup
     } -body {
-        ted order REPORT:ORGANIZATION:SATISFACTION n ALL g USAID
+        ted order REPORT:SATISFACTION:ORGANIZATION n ALL g USAID
     } -cleanup {
         cleanup
     } -result {}
@@ -299,7 +299,7 @@ namespace eval ::athena_test::tests:: {
     test ORGANIZATION:SATISFACTION-2.3 {n NB1 g ALL} -setup {
         setup
     } -body {
-        ted order REPORT:ORGANIZATION:SATISFACTION n NB1 g ALL
+        ted order REPORT:SATISFACTION:ORGANIZATION n NB1 g ALL
     } -cleanup {
         cleanup
     } -result {}
@@ -308,7 +308,7 @@ namespace eval ::athena_test::tests:: {
     test ORGANIZATION:SATISFACTION-2.4 {n NB1 g USAID} -setup {
         setup
     } -body {
-        ted order REPORT:ORGANIZATION:SATISFACTION n NB1 g USAID
+        ted order REPORT:SATISFACTION:ORGANIZATION n NB1 g USAID
     } -cleanup {
         cleanup
     } -result {}
@@ -321,6 +321,8 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
+
 
 
 

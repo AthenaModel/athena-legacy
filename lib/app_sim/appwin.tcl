@@ -629,10 +629,11 @@ snit::widget appwin {
         set reportsmenu [menu $menubar.reports]
         $menubar add cascade -label "Reports" -underline 0 -menu $reportsmenu
 
-        $self AddOrder $reportsmenu REPORT:CIVILIAN:SATISFACTION
+        $self AddOrder $reportsmenu REPORT:SATISFACTION:CIVILIAN
+        $self AddOrder $reportsmenu REPORT:SATISFACTION:CONTRIB
         $self AddOrder $reportsmenu REPORT:COOPERATION
         $self AddOrder $reportsmenu REPORT:DRIVER
-        $self AddOrder $reportsmenu REPORT:ORGANIZATION:SATISFACTION
+        $self AddOrder $reportsmenu REPORT:SATISFACTION:ORGANIZATION
 
         # Help menu
         set helpmenu [menu $menubar.helpmenu]
@@ -1792,3 +1793,5 @@ snit::widget appwin {
         $msgline puts $text
     }
 }
+
+

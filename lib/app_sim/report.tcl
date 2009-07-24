@@ -494,6 +494,135 @@ snit::type ::report {
 
 
 
+    # imp satcontrib parmdict
+    #
+    # parmdict      Parameters for this report
+    #
+    # n          Neighborhood
+    # g          Group
+    # c          Concern, or "MOOD".
+    # top        Number of drivers to include.
+    # start      Start of time window, in ticks
+    # end        End of time window, in ticks
+    #
+    # List of top-contributing drivers for a particular satisfaction curve,
+    # with contributions.
+
+    typemethod {imp satcontrib} {parmdict} {
+        dict with parmdict {
+            # FIRST, fix up the concern
+            if {$c eq "MOOD"} {
+                set c "mood"
+            }
+
+            # NEXT, Get the drivers for this time period.
+            aram sat drivers    \
+                -nbhood  $n     \
+                -group   $g     \
+                -concern $c     \
+                -start   $start \
+                -end     $end
+
+            # NEXT, pull them into a temporary table, in sorted order,
+            # so that we can use the "rowid" as the rank.  Note that
+            # if we asked for "mood", we have all of the
+            # concerns as well; only take what we asked for.
+            rdb eval "
+                DROP TABLE IF EXISTS temp_satcontribs;
+    
+                CREATE TEMP TABLE temp_satcontribs AS
+                SELECT driver,
+                       acontrib
+                FROM gram_sat_drivers
+                WHERE object='::aram'
+                AND   n=\$n AND g=\$g AND c=\$c
+                ORDER BY abs(acontrib) DESC
+                LIMIT $top
+            "
+
+            # NEXT, get the total contribution to this curve in this
+            # time window.
+            # for.
+
+            set totContrib [rdb onecolumn {
+                SELECT total(abs(acontrib))
+                FROM gram_sat_drivers
+                WHERE object='::aram'
+                AND   n=$n AND g=$g AND c=$c
+            }]
+
+            # NEXT, get the total contribution represented by the report.
+            # Note: This query is passed as a string, because the LIMIT
+            # is an integer, not an expression, so we can't use an SQL
+            # variable.
+
+            set totReported [rdb onecolumn "
+                SELECT total(abs(acontrib)) 
+                FROM temp_satcontribs
+            "]
+
+            # NEXT, format the body of the report.
+            set results [rdb query {
+                SELECT format('%4d', temp_satcontribs.rowid),
+                       format('%8.3f', acontrib),
+                       name,
+                       oneliner
+                FROM temp_satcontribs
+                JOIN gram_driver USING (driver)
+                WHERE gram_driver.object='::aram';
+
+                DROP TABLE temp_satcontribs;
+            }  -maxcolwidth 0 -labels {
+                "Rank" "  Actual" "Driver" "Description"
+            }]
+
+            # NEXT, always include the options 
+            set text "Total Contributions to Satisfaction Curve:\n\n"
+            append text "  Nbhood:  $n\n"
+            append text "  Group:   $g\n"
+            append text "  Concern: $c\n"
+            append text "  Window:  [simclock toZulu $start] to "
+
+            if {$end == [simclock now]} {
+                append text "now\n\n"
+            } else {
+                append text "[simclock toZulu $end]\n\n"
+            }
+
+            # NEXT, produce the text of the report if any
+            if {$results eq ""} {
+                append text "None known."
+            } else {
+                append text $results
+
+                append text "\n"
+
+                if {$totContrib > 0.0} {
+                    set pct [percent [expr {$totReported / $totContrib}]]
+
+                    append text [tsubst {
+             |<--
+             Reported events and situations represent $pct of the contributions
+             made to this curve during the specified time window.
+                    }]
+                }
+            }
+
+            # NEXT, save the report
+            set title \
+                "Contributions to Satisfaction (to $c of $g in $n)"
+
+            set id [reporter save \
+                        -title     $title                       \
+                        -text      $text                        \
+                        -requested 1                            \
+                        -type      GRAM                         \
+                        -subtype   SATCONTRIB]
+        }
+
+        return [list reporter delete $id]
+    }
+
     #-------------------------------------------------------------------
     # Public typemethods
 
@@ -504,11 +633,11 @@ snit::type ::report {
 #-----------------------------------------------------------------------
 # Orders
 
-# REPORT:CIVILIAN:SATISFACTION
+# REPORT:SATISFACTION:CIVILIAN
 #
 # Produces a Civilian Satisfaction Report
 
-order define ::report REPORT:CIVILIAN:SATISFACTION {
+order define ::report REPORT:SATISFACTION:CIVILIAN {
     title "Civilian Satisfaction Report"
     options \
         -sendstates {PAUSED RUNNING} \
@@ -590,11 +719,11 @@ order define ::report REPORT:DRIVER {
     setundo [join $undo \n]
 }
 
-# REPORT:ORGANIZATION:SATISFACTION
+# REPORT:SATISFACTION:ORGANIZATION
 #
 # Produces a Organization Satisfaction Report
 
-order define ::report REPORT:ORGANIZATION:SATISFACTION {
+order define ::report REPORT:SATISFACTION:ORGANIZATION {
     title "Organization Satisfaction Report"
     options \
         -sendstates {PAUSED RUNNING} \
@@ -617,6 +746,60 @@ order define ::report REPORT:ORGANIZATION:SATISFACTION {
 
     setundo [join $undo \n]
 }
+
+
+# REPORT:SATISFACTION:CONTRIB
+#
+# Produces a Contribution to Satisfaction Report
+
+order define ::report REPORT:SATISFACTION:CONTRIB {
+    title "Contribution to Satisfaction Report"
+    options \
+        -sendstates {PAUSED RUNNING} \
+        -alwaysunsaved
+
+    parm n      enum  "Neighborhood"  -type nbhood
+    parm g      enum  "Group"         -type civgroup
+    parm c      enum  "Concern"       -type {::ptype c+mood}
+    parm top    text  "Number"        -type ipositive -defval 20
+    parm start  text  "Start Time"    -type zulu
+    parm end    text  "End Time"      -type zulu
+} {
+    # FIRST, prepare the parameters
+    prepare n      -toupper -required -type nbhood
+    prepare g      -toupper -required -type civgroup
+    prepare c      -toupper -required -type {::ptype c+mood}
+    prepare top                       -type ipositive
+    prepare start  -toupper           -type zulu
+    prepare end    -toupper           -type zulu
+
+    returnOnError
+
+    # NEXT, convert the data
+    if {$parms(top) eq ""} {
+        set parms(top) 20
+    }
+
+    if {$parms(start) eq ""} {
+        set parms(start) 0
+    } else {
+        set parms(start) [simclock fromZulu $parms(start)]
+    }
+
+    if {$parms(end) eq ""} {
+        set parms(end) [simclock now]
+    } else {
+        set parms(end) [simclock fromZulu $parms(end)]
+    }
+
+    # NEXT, produce the report
+    set undo [list]
+    lappend undo [$type imp satcontrib [array get parms]]
+
+    setundo [join $undo \n]
+}
+
+
 
 
 
