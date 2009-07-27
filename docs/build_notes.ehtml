@@ -11,6 +11,32 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.12, 27 July 2009</h3>
+
+This build contains mostly bug fixes and a number of new
+user-requested reports.  The reports include the Drivers Report, which
+lists the events and situations which are driving attitude change; the
+Civilian and Organization Satisfaction reports and the Cooperation
+report, which show the current attitude levels with deltas from time
+0; and the "Contributions to Satisfaction" report, which is Athena's
+version of the JNEM "Satisfaction Curve" report.  Unlike that report,
+it is capable of showing contributions to a neighborhood group's mood
+as well as to its individual satisfaction curves.<p>
+
+<ul>
+  <li> Bug 2199: athena_sim(1): Drivers Report
+  <li> Bug 2200: athena_sim(1): Report Browser doesn't jump to most recent report
+  <li> Bug 2201: athena_sim(1): Show group types in relationship browser
+  <li> Bug 2203: athena_sim(1): Allow parameters to be set after Scenario Prep.
+  <li> Bug 2204: Non-uniformed FRC groups put on ROE 'Defend' list
+  <li> Bug 2205: athena_sim(1): "help" executive command
+  <li> Bug 2206: athena_sim(1): Civilian Satisfaction report
+  <li> Bug 2207: athena_sim(1): ptype module
+  <li> Bug 2208: athena_sim(1): Cooperation Report
+  <li> Bug 2209: athena_sim(1): PREP-only orders not disabled at start-up
+  <li> Bug 2210: athena_sim(1): Contributions to Satisfaction Report 
+</ul><p>
+
 <h3>Build 1.0.11, 20 July 2009</h3>
 
 This build fixes a number of bugs found by Rob Crowson and Chris
