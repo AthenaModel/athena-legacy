@@ -93,7 +93,7 @@ snit::type ::projectlib::scenariodb {
             { a DISPLACED            
                 gtype        CIV 
                 assignable   1 
-                stype        {}       
+                stype        DISPLACED       
                 attrit_order 1}
             { a IN_CAMP              
                 gtype        CIV 

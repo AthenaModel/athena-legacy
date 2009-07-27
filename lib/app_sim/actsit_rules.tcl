@@ -151,8 +151,74 @@ snit::type actsit_rules {
         dam details [format "%-21s %s\n" $label $value]
     }
 
+
     #===================================================================
-    # Explicit Situations
+    # Civilian Activity Situations
+    #
+    # The following rule sets are for situations which depend
+    # on the stated ACTIVITY of CIV units.
+
+    #-------------------------------------------------------------------
+    # Rule Set: DISPLACED:  Displaced Persons
+    #
+    # Activity Situation: Units belonging to a civilian group have
+    # been displaced from their homes.
+
+    # DISPLACED sit
+    #
+    # sit       The actsit object for this situation
+    #
+    # This method is called when monitoring civilian units
+    # with an activity of DISPLACED in a neighborhood.
+
+    typemethod DISPLACED {sit} {
+        log detail actr [list DISPLACED [$sit id]]
+
+        set g   [$sit get g]
+        set n   [$sit get n]
+        set cov [$sit get coverage]
+
+        dam ruleset DISPLACED [$sit get driver]                    \
+            -sit       $sit                                        \
+            -doer      $g                                          \
+            -n         $n                                          \
+            -f         [nbgroup gIn $n]
+
+        detail "Nbhood Coverage:" [string trim [percent $cov]]
+
+        dam rule DISPLACED-1-1 {
+            $cov > 0.0
+        } {
+            dam guard [format %.1f $cov]
+
+            # While there is a DISPLACED situation
+            #     with COVERAGE > 0.0
+            # Then for each CIV group f in the nbhood,
+            foreach f [nbgroup gIn $n] {
+                satslope $cov $f      \
+                    AUT enmore   S-   \
+                    SFT enmore   L-   \
+                    CUL enquad   S-   \
+                    QOL constant M- 
+            }
+        }
+
+        dam rule DISPLACED-2-1 {
+            $cov == 0.0 
+        } {
+            dam guard
+
+            # While there is a DISPLACED situation
+            #     with COVERAGE = 0.0
+            # Then for each CIV group in the nbhood there should be no
+            # satisfaction implications.
+            dam sat clear AUT SFT CUL QOL
+        }
+    }
+
+
+    #===================================================================
+    # Explicit Force Situations
     #
     # The following rule sets are for situations which do not depend
     # on the unit's stated ACTIVITY.

@@ -223,6 +223,9 @@ snit::type ::projectlib::typewrapper {
     DISEASE-3-1   "Unhealthy conditions are resolved by outsiders"
     DISEASE-3-2   "Unhealthy conditions are resolved by locals"
 
+    DISPLACED-1-1 "Displaced persons living in neighborhood"
+    DISPLACED-2-1 "Displaced persons no longer living in neighborhood"
+
     DMGCULT-1-1   "A sacred site is damaged"
     DMGCULT-2-1   "Damage has not been resolved"
     DMGCULT-2-2   "Damage is no longer causing resentment"
@@ -365,6 +368,7 @@ snit::type ::projectlib::typewrapper {
     CURFEW    "Curfew"
     DISASTER  "Disaster"
     DISEASE   "Disease"
+    DISPLACED "Displaced Persons"
     DMGCULT   "Damage to Cultural Site/Artifact"
     DMGSACRED "Damage to Sacred Site/Artifact"
     EPIDEMIC  "Epidemic"
@@ -411,6 +415,7 @@ snit::type ::projectlib::typewrapper {
     CRIMINAL  "Criminal Activities"
     CURFEW    "Curfew"
     DISASTER  "Disaster"
+    DISPLACED "Displaced Persons"
     DMGCULT   "Damage to Cultural Site/Artifact"
     DMGSACRED "Damage to Sacred Site/Artifact"
     FUELSHRT  "Fuel Shortage"

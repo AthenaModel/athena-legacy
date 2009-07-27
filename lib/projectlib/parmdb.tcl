@@ -326,6 +326,11 @@ snit::type ::projectlib::parmdb {
             coverage.
         }
 
+        $ps subset activity.CIV {
+            Parameters which affect the computation of civilian group 
+            activity coverage.
+        }
+
         $ps subset activity.FRC {
             Parameters which affect the computation of force group 
             activity coverage.
@@ -334,6 +339,41 @@ snit::type ::projectlib::parmdb {
         $ps subset activity.ORG {
             Parameters which affect the computation of organization group 
             activity coverage.
+        }
+
+        # CIV activities
+        foreach a {
+            DISPLACED
+        } {
+            $ps subset activity.CIV.$a {
+                Parameters relating to this civilian activity.
+            }
+
+            $ps define activity.CIV.$a.minSecurity ::projectlib::qsecurity N {
+                Minimum security level required to conduct this
+                activity.
+            }
+
+            $ps define activity.CIV.$a.shifts \
+                ::projectlib::ipositive 1 {
+                    Number of personnel which must be assigned to the
+                    activity to yield one person actively performing the
+                    activity given a typical schedule, i.e., the number
+                    of shifts.  For example, a 24x7 activity will 
+                    require the assigned personnel to work three or
+                    four shifts. 
+                }
+
+            $ps define activity.CIV.$a.coverage ::simlib::coverage {
+                25.0 1000
+            } {
+                The parameters (c, d) that determine the
+                coverage fraction function for this force activity.  Coverage
+                depends on the asset density, which is the number
+                of active personnel per d people in the population.  If the 
+                density is 0, the coverage is 0.  The coverage 
+                fraction increases to 2/3 when density is c.
+            }
         }
 
         # FRC activities
@@ -791,6 +831,11 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.DISEASE.cause          SICKNESS
         $ps setdefault dam.DISEASE.nearFactor     0.25
         $ps setdefault dam.DISEASE.farFactor      0.0
+
+        # Rule Set: DISPLACED
+        $ps setdefault dam.DISPLACED.cause        DISPLACED
+        $ps setdefault dam.DISPLACED.nearFactor   0.25
+        $ps setdefault dam.DISPLACED.farFactor    0.0
 
         # Rule Set: DMGCULT
         $ps setdefault dam.DMGCULT.cause          DMGCULT
