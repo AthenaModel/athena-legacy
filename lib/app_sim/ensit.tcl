@@ -745,8 +745,15 @@ snit::type ensitType {
             return
         }
 
-        # NEXT, schedule the event
+        # NEXT, schedule the event.  First, get the spawn time in
+        # ticks.
         set spawnTicks [simclock fromDays $spawnTime]
+
+        # NEXT, get the time at which the spawn should occur: spawnTicks
+        # after the ensit first begins to take effect.  Since 
+        # ensits are created at time t, but take effect at time t+1,
+        # we need to add a tick.
+        incr spawnTicks
 
         eventq schedule ensitSpawn [simclock now $spawnTicks] $binfo(s)
     }

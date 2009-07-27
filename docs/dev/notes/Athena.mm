@@ -5,26 +5,6 @@
 <node CREATED="1243527460189" ID="Freemind_Link_1011323624" MODIFIED="1243527474567" TEXT="Moving from snapshot to snapshot can be very slow"/>
 </node>
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1241624415166" FOLDED="true" ID="Freemind_Link_472031065" MODIFIED="1245882365270" TEXT="Displaced Civilians/Refugees">
-<icon BUILTIN="full-1"/>
-<node CREATED="1241624443469" ID="Freemind_Link_1269891450" MODIFIED="1245882297155" TEXT="Model refugees as civilian units with activity DISPLACED">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1243619917252" ID="Freemind_Link_1143793780" MODIFIED="1243619933292" TEXT="Effect on local civilians">
-<node CREATED="1243619934178" ID="Freemind_Link_1928827775" MODIFIED="1245882301518" TEXT="Compute DISPLACED coverage"/>
-<node CREATED="1243619945650" ID="Freemind_Link_1438494628" MODIFIED="1245882309925" TEXT="DISPLACED rule set">
-<node CREATED="1241624467661" ID="Freemind_Link_1826431892" MODIFIED="1245882321256" TEXT="Local civilians respond to presence of DISPLACED units."/>
-</node>
-<node CREATED="1243627017794" ID="Freemind_Link_1047647382" MODIFIED="1243627027315" TEXT="Does neighborhood of origin actually matter?">
-<node CREATED="1245882324928" ID="Freemind_Link_1740107134" MODIFIED="1245882328907" TEXT="No."/>
-<node CREATED="1243627028259" ID="Freemind_Link_884907885" MODIFIED="1243627043853" TEXT="We don&apos;t have ngmf relationships."/>
-</node>
-</node>
-<node CREATED="1243619978962" ID="Freemind_Link_1190169675" MODIFIED="1243620008101" TEXT="Ignore effect on civilians &quot;back home&quot;">
-<node CREATED="1243620008802" ID="Freemind_Link_1698042443" MODIFIED="1243620084553" TEXT="A neighborhood group that generates refugees&#xa;generates them because it is already unhappy.&#xa;It probably doesn&apos;t become more so because&#xa;it has produced refugees."/>
-<node CREATED="1245882338641" ID="Freemind_Link_1254223972" MODIFIED="1245882351069" TEXT="Plus, they might not know what&apos;s become of the refugees anyway."/>
-</node>
-</node>
 <node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1245882375350" TEXT="Magic satisfaction inputs and adjustments">
 <icon BUILTIN="full-2"/>
 </node>
