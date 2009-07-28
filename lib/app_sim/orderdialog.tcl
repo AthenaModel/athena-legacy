@@ -375,7 +375,9 @@ snit::widget orderdialog {
         }
         
         # NEXT, prepare to receive selected objects from the application.
-        notifier bind ::app <ObjectSelect> $win [mymethod ObjectSelect]
+        notifier bind ::app   <ObjectSelect> $win [mymethod ObjectSelect]
+        notifier bind ::sim   <Tick>         $win [mymethod RefreshDialog]
+        notifier bind ::order <Accepted>     $win [mymethod RefreshDialog]
 
         # NEXT, save the current (empty) values, so that EnterDialog
         # won't complain about them.
@@ -715,6 +717,29 @@ snit::widget orderdialog {
         $self set $my(current) $newValue
     }
 
+    #-------------------------------------------------------------------
+    # Event Handlers: Dialog Refresh
+
+    # RefreshDialog ?args...?
+    #
+    # args      Ignored optional arguments.
+    #
+    # At times, it's necessary to refresh the entire dialog:
+    # at initialization, on clear, etc.
+    #
+    # Any arguments are ignored; this allows a refresh to be
+    # triggered by any notifier(n) event.
+
+    method RefreshDialog {args} {
+        # If the first field is a key, refresh it as a key;
+        # otherwise, refresh it as a non-key.
+
+        if {[llength $my(keys)] != 0} {
+            $self RefreshKey [lindex $my(keys) 0]
+        } else {
+            $self NonKeyChange ""
+        }
+    }
 
     #-------------------------------------------------------------------
     # Event Handlers: Multi Management
@@ -978,12 +1003,8 @@ snit::widget orderdialog {
                 [order parm $options(-order) $parm -defval]
         }
 
-        # NEXT, if there are key fields, disable non-key fields.
-        if {[llength $my(keys)] != 0} {
-            $self RefreshKey [lindex $my(keys) 0]
-        } else {
-            $self NonKeyChange ""
-        }
+        # NEXT, refresh all of the fields.
+        $self RefreshDialog
 
         # NEXT, set the focus to first editable field
         $self SetFocus

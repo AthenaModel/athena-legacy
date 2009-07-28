@@ -786,6 +786,9 @@ snit::type order {
             cif add $name $parmdict $trans(undo)
         }
 
+        # NEXT, notify the app that the order has been accepted.
+        notifier send $type <Accepted> $name $parmdict
+
         # NEXT, return the result, if any.
         return $result
     }

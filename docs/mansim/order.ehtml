@@ -678,6 +678,11 @@ In addition, order(sim) sends these events:<p>
 
 <<deflist events>>
 
+<<defitem Accepted {<b>&lt;Accepted&gt;</b> <i>name parmdict</i>}>>
+
+This event is sent when an order has been accepted and processing is
+complete.  The order's name and parmdict are included.<p>
+
 <<defitem State {<b>&lt;State&gt;</b> <i>state</i>}>>
 
 This event is sent when the <<iref order state>> changes.<p>
