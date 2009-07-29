@@ -897,7 +897,9 @@ snit::type sim {
     # the order is cleared.
     
     typemethod RefreshStartDate {field parmdict} {
-        $field set [simclock cget -t0]
+        if {[$field get] eq ""} {
+            $field set [simclock cget -t0]
+        }
     }
 }
 

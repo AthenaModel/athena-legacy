@@ -668,6 +668,9 @@ snit::type ensit {
     # parmdict  The current values of the various fields
     #
     # Updates the field's state.
+    #
+    # TBD: This is only used for the stype field; it should
+    # be simplified.
 
     typemethod RefreshUpdateParm {parm field parmdict} {
         dict with parmdict {

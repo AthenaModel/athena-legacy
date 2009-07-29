@@ -1074,10 +1074,17 @@ snit::type aam {
                 SELECT DISTINCT g
                 FROM demog_ng
                 WHERE n=$n
+                AND   population > 1
                 ORDER BY g
             }]
 
             $field configure -values $groups
+
+            if {[llength $groups] > 0} {
+                $field configure -state normal
+            } else {
+                $field configure -state disabled
+            }
         }
     }
 

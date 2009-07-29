@@ -313,19 +313,14 @@ snit::type nbgroup {
         }
 
         # NEXT, update the field.
+	$field configure -values $values
+
         if {[llength $values] > 0} {
-            $field configure -values $values
+	    $field configure -state normal
         } else {
             $field configure -state disabled
         }
-
-        if {[dict get $parmdict g] ni $values} {
-            $field set ""
-        }
-            
     }
-
-
 }
 
 #-------------------------------------------------------------------

@@ -430,12 +430,12 @@ snit::type unit {
             set gtype [group gtype $g]
 
             if {$gtype eq "CIV"} {
-                $field configure -values [nbgroup nFor $g]
+                $field configure -values [nbgroup nFor $g] -state normal
             } else {
                 $field configure -values [list NONE]
                 $field set NONE
+                $field configure -state disabled
             }
-
         }
     }
 
@@ -513,7 +513,10 @@ snit::type unit {
             set gtype [group gtype $g]
 
             $type SetActivityValues $field $gtype
-            $field set NONE
+
+            if {[$field get] eq ""} {
+                $field set NONE
+            }
         }
     }
 
@@ -553,44 +556,6 @@ snit::type unit {
         }
 
         $field configure -values $values
-    }
-
-
-    # RefreshActivityMulti field parmdict
-    #
-    # field     The "a" field in a U:UPDATE:MULTI order.
-    # parmdict  The current values of the various fields.
-    #
-    # Sets the list of valid activities.
-
-    typemethod RefreshActivityMulti {field parmdict} {
-        dict with parmdict {
-            if {$g ne ""} {
-                set gtypes [group gtype $g]
-            } else {
-                set fragment [join $ids ',']
-
-                set gtypes [rdb eval "
-                    SELECT DISTINCT gtype
-                    FROM units
-                    WHERE u IN ('$fragment');
-                "]
-            }
-
-            if {"" eq $gtypes || "" in $gtypes} {
-                set values {}
-            } elseif {"CIV" in $gtypes} {
-                set values [activity civ names]
-            } elseif {"FRC" in $gtypes} {
-                set values [activity frc names]
-            } elseif {"ORG" in $gtypes} {
-                set values [activity org names]
-            } else {
-                set values {}
-            }
-
-            $field configure -values $values
-        }
     }
 }
 

@@ -238,10 +238,6 @@ snit::type nbrel {
             } else {
                 set values [lrange [eproximity names] 1 end]
                 $field configure -values $values
-
-                if {$proximity ni $values} {
-                    $field set ""
-                }
             }
         }
     }
