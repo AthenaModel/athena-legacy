@@ -321,7 +321,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        start {invalid Zulu-time string: "NONESUCH"}
+        start {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
     }
 
     test SATISFACTION:CONTRIB-1.9 {invalid end} -setup {
@@ -332,7 +332,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        end {invalid Zulu-time string: "NONESUCH"}
+        end {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
     }
 
     test SATISFACTION:CONTRIB-1.10 {start < 0} -setup {
@@ -343,7 +343,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        start {Start time "090000ZJAN10" is prior to time 0}
+        start {invalid time spec "090000ZJAN10", expected time between T0 and NOW}
     }
 
     test SATISFACTION:CONTRIB-1.11 {end > now} -setup {
@@ -354,7 +354,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        end {End time "120000ZJAN10" is greater than the current sim time}
+        end {invalid time spec "120000ZJAN10", expected time between T0 and NOW}
     }
 
     test SATISFACTION:CONTRIB-1.12 {start > end} -setup {
@@ -367,7 +367,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        end {End time "110000ZJAN10" is prior to start time "120000ZJAN10"}
+        start {invalid time spec "120000ZJAN10", expected time between T0 and NOW}
     }
 
     test SATISFACTION:CONTRIB-2.1 {Without optional} -setup {

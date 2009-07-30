@@ -52,8 +52,6 @@ macro parm.longname {entity example} {
     neighborhood, group, etc.
 }
 
-
-
 #-----------------------------------------------------------------------
 
 page ATTRIT: "Attrition Orders" orders {

@@ -787,17 +787,17 @@ order define ::report REPORT:SATISFACTION:CONTRIB {
         -refreshcmd ::report::RefreshRSContrib_g
     parm c      enum  "Concern"       \
         -refreshcmd ::report::RefreshRSContrib_c
-    parm top    text  "Number"        -type ipositive -defval 20
-    parm start  text  "Start Time"    -type zulu
-    parm end    text  "End Time"      -type zulu
+    parm top    text  "Number"        -defval 20
+    parm start  text  "Start Time"    -defval "TO"
+    parm end    text  "End Time"      -defval "NOW"
 } {
     # FIRST, prepare the parameters
     prepare n      -toupper -required -type {ptype n}
     prepare g      -toupper -required -type {ptype satg}
     prepare c      -toupper -required -type {ptype c+mood}
     prepare top                       -type ipositive
-    prepare start  -toupper           -type zulu
-    prepare end    -toupper           -type zulu
+    prepare start  -toupper           -type {simclock past}
+    prepare end    -toupper           -type {simclock past}
 
     returnOnError
 
@@ -817,31 +817,17 @@ order define ::report REPORT:SATISFACTION:CONTRIB {
     # NEXT, validate the start and end times.
 
     if {$parms(start) eq ""} {
-        set ts 0
-        set parms(start) [simclock asZulu $ts]
-    } else {
-        set ts [simclock fromZulu $parms(start)]
+        set parms(start) 0
     }
 
     if {$parms(end) eq ""} {
-        set te [simclock now]
-        set parms(end) [simclock asZulu $te]
-    } else {
-        set te [simclock fromZulu $parms(end)]
+        set parms(end) [simclock now]
     }
 
-
-    validate start {
-        if {$ts < 0} {
-            reject start "Start time \"$parms(start)\" is prior to time 0"
-        }
-    }
 
     validate end {
-        if {$te > [simclock now]} {
-            reject end "End time \"$parms(end)\" is greater than the current sim time"
-        } elseif {$te < $ts} {
-            reject end "End time \"$parms(end)\" is prior to start time \"$parms(start)\""
+        if {$parms(end) < $parms(start)} {
+            reject end "End time is prior to start time"
         }
     }
 
@@ -851,9 +837,6 @@ order define ::report REPORT:SATISFACTION:CONTRIB {
     if {$parms(top) eq ""} {
         set parms(top) 20
     }
-
-    set parms(start) $ts
-    set parms(end)   $te
 
     # NEXT, produce the report
     set undo [list]

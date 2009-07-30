@@ -96,6 +96,38 @@ page Neighborhood_Security "Neighborhood Security" concepts {
 
 #-----------------------------------------------------------------------
 
+page timespec "Time Specification String" concepts {
+    <<title>>
+
+    A time specification string identifies a particular simulation
+    time.  It has the form "<i>baseTime</i> +/- <i>offset</i>", where
+    the offset is some number of ticks and the base time has one of
+    the following forms:<p>
+
+    <ul>
+    <li> <b>T0</b>: Time zero, the beginning of the simulation.
+    <li> <b>NOW</b>: The current simulation time.
+    <li> <b><i>ticks</i></b>: The time as some number of ticks since
+         <b>T0</b>.
+    <li> <b><i>zulu</i></b>: A <<cref zulu>>.
+    </ul><p>
+
+    Either the base time or the offset may be omitted.  If the base
+    time is omitted, it defaults to <b>NOW</b>; if the offset is
+    omitted, it is 0.  For example,<p>
+
+    <ul>
+    <li> <b>NOW</b>: The current simulation time.
+    <li> <b>NOW+30</b>: 30 ticks (days) from now.
+    <li> <b>200000ZFEB10+7</b>: 7 ticks after 20 February 20010.
+    <li> <b>-5</b>: Five ticks ago
+    <li> <b>+5</b>: Five ticks from now 
+    <li> <b>5</b>: Day five.
+    </ul>
+}
+
+#-----------------------------------------------------------------------
+
 page zulu "Zulu time string" concepts {
     <<title>>
     A "Zulu" time string, or date-time group, represents a particular
