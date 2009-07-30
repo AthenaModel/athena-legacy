@@ -788,7 +788,7 @@ order define ::report REPORT:SATISFACTION:CONTRIB {
     parm c      enum  "Concern"       \
         -refreshcmd ::report::RefreshRSContrib_c
     parm top    text  "Number"        -defval 20
-    parm start  text  "Start Time"    -defval "TO"
+    parm start  text  "Start Time"    -defval "T0"
     parm end    text  "End Time"      -defval "NOW"
 } {
     # FIRST, prepare the parameters
