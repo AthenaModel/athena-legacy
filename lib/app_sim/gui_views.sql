@@ -275,6 +275,8 @@ SELECT s                        AS id,
        m2ref(location)          AS location,
        flist                    AS flist,
        resolver                 AS resolver,
+       rduration                AS rduration,
+       tozulu(ts+rduration+1)   AS tr,
        CASE inception WHEN 1 THEN 'YES' ELSE 'NO' END AS inception
 FROM ensits;
 

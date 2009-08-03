@@ -662,7 +662,7 @@ CREATE TABLE ensits_t (
 
     -- Auto-resolution duration: 0 if the situation will not auto-resolve,
     -- and a duration in ticks otherwise.
-    -- rduration  INTEGER DEFAULT 0,
+    rduration  INTEGER DEFAULT 0,
 
     -- Resolution Driver; 0 if the situation's resolution has not been
     -- assessed, and a GRAM driver ID if it has.

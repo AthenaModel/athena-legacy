@@ -169,6 +169,17 @@ namespace eval ::athena_test::tests:: {
     }
 
 
+    test CREATE-1.11 {invalid rduration} -body {
+        ted create BLUE
+        ted order -reject SITUATION:ENVIRONMENTAL:CREATE \
+            {*}$s1 rduration NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        rduration {invalid value "NONESUCH", expected integer}
+    }
+
+
 
     test CREATE-2.1 {ensit is created} -setup {
         ted create NB1 BLUE
@@ -179,9 +190,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-s kind    stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rdriver 
-- ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1         NONE     0       
+s kind    stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rduration rdriver 
+- ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- --------- ------- 
+1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1         NONE     5         0       
     }
 
 
@@ -357,7 +368,19 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
     }
 
 
-    test UPDATE-1.8 {location is not in a nbhood} -setup {
+    test UPDATE-1.8 {invalid rduration} -setup {
+        ted create NB1 BLUE
+        ted order SITUATION:ENVIRONMENTAL:CREATE $s1
+    } -body {
+        ted order -reject SITUATION:ENVIRONMENTAL:UPDATE s 1 rduration NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        rduration {invalid value "NONESUCH", expected integer}
+    }
+
+
+    test UPDATE-1.9 {location is not in a nbhood} -setup {
         ted create NB1 BLUE
         ted order SITUATION:ENVIRONMENTAL:CREATE $s1
     } -body {
@@ -369,7 +392,7 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
     }
 
 
-    test UPDATE-1.9 {Not INITIAL state} -setup {
+    test UPDATE-1.10 {Not INITIAL state} -setup {
         ted create NB1 BLUE
         ted order SITUATION:ENVIRONMENTAL:CREATE $s1
         [ensit get 1] set state ACTIVE
@@ -399,15 +422,16 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
             inception NO
             g         NONE
             resolver  BLUE
+            rduration 10
         }
 
         ted query {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind    stype   driver n   coverage state   ts tc change flist g    signature location inception resolver rdriver 
-- ------- ------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- ------- 
-1 ::ensit COMMOUT -1     NB1 1.0      INITIAL 0  0  NEW    ALL   NONE           101 101  0         BLUE     0       
+s kind    stype   driver n   coverage state   ts tc change flist g    signature location inception resolver rduration rdriver 
+- ------- ------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- --------- ------- 
+1 ::ensit COMMOUT -1     NB1 1.0      INITIAL 0  0  NEW    ALL   NONE           101 101  0         BLUE     10        0       
     }
 
 
@@ -590,9 +614,9 @@ s location
     } -cleanup {
         cleanup
     } -result {
-s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rdriver 
-- ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         BLUE     0       
+s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rduration rdriver 
+- ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- --------- ------- 
+1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         BLUE     5         0       
     }
 
 
@@ -606,9 +630,9 @@ s kind    stype    driver n   coverage state ts tc change   flist g    signature
     } -cleanup {
         cleanup
     } -result {
-s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rdriver 
-- ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         NONE     0       
+s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rduration rdriver 
+- ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- --------- ------- 
+1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         NONE     5         0       
     }
 
 

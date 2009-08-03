@@ -81,8 +81,9 @@ snit::type ensit {
                 $sit ScheduleSpawn
 
                 # NEXT, if it auto-resolves, schedule the auto-resolution.
-                # $sit ScheduleAutoResolve
+                $sit ScheduleAutoResolve
                 
+                # NEXT, notify the app that the state has changed.
                 notifier send $type <Entity> update $s
             }
 
@@ -381,6 +382,7 @@ snit::type ensit {
     #    g              The group causing the situation, or ""
     #    inception      1 if there are inception effects, and 0 otherwise.
     #    resolver       The group that will resolve the situation, or ""
+    #    rduration      Auto-resolution duration, in days
     #
     # Creates an ensit given the parms, which are presumed to be
     # valid.
@@ -391,6 +393,10 @@ snit::type ensit {
             set n [nbhood find {*}$location]
             assert {$n ne ""}
 
+            if {$rduration eq ""} {
+                set rduration [parmdb get ensit.$stype.duration]
+            }
+
             # NEXT, Create the situation
             set s [situation create $type   \
                        stype     $stype     \
@@ -399,8 +405,8 @@ snit::type ensit {
                        g         $g]
 
             rdb eval {
-                INSERT INTO ensits_t(s,location,inception,resolver)
-                VALUES($s,$location,$inception,$resolver)
+                INSERT INTO ensits_t(s,location,inception,resolver,rduration)
+                VALUES($s,$location,$inception,$resolver,$rduration)
             }
 
             # NEXT, inform all clients about the new object.
@@ -469,6 +475,7 @@ snit::type ensit {
     #    inception      A new inception, or ""
     #    g              A new causing group, or ""
     #    resolver       A new resolving group, or ""
+    #    rduration      A new auto-resolution duration, or ""
     #
     # Updates a situation given the parms, which are presumed to be
     # valid.
@@ -499,6 +506,10 @@ snit::type ensit {
 
             if {$resolver ne ""} { 
                 $sit set resolver $resolver
+            }
+
+            if {$rduration ne ""} {
+                $sit set rduration $rduration
             }
 
             if {$inception ne ""} {
@@ -563,7 +574,9 @@ snit::type ensit {
             $sit set state      ENDED
             $sit set tc         [simclock now]
 
+            # NEXT, cancel pending events
             $sit CancelSpawn
+            $sit CancelAutoResolve
 
             # NEXT, notify the app
             notifier send $type <Entity> update $s
@@ -590,8 +603,9 @@ snit::type ensit {
         set sit [situation get $s]
 
         if {[$sit get state] eq "ACTIVE"} {
-            $sit CancelSpawn
+            # Reschedule events, if any.
             $sit ScheduleSpawn
+            $sit ScheduleAutoResolve
         }
 
         notifier send $type <Entity> update $s
@@ -712,7 +726,11 @@ snit::type ensitType {
     # If this situation type spawns another situation, schedule the spawn.
 
     method ScheduleSpawn {} {
-        # FIRST, does it spawn?
+        # FIRST, cancel any previous spawn, since evidently it is 
+        # changing.
+        $self CancelSpawn
+
+        # NEXT, does it spawn?
         set spawnTime [parmdb get ensit.$binfo(stype).spawnTime]
 
         if {$spawnTime == -1} {
@@ -747,6 +765,45 @@ snit::type ensitType {
             eventq cancel $id
         }
     }
+
+    # ScheduleAutoResolve
+    #
+    # If this situation auto-resolves, schedules the resolution
+
+    method ScheduleAutoResolve {} {
+        # FIRST, cancel any previous event, since evidently it is 
+        # changing.
+        $self CancelAutoResolve
+
+        # NEXT, does it auto-resolve?  If not, we're done.
+        if {$dinfo(rduration) == 0} {
+            return
+        }
+
+        # NEXT, get the time at which the resolution should occur:
+        # rduration after the ensit first begins to take effect.  
+        # This is one tick after the situation is created.
+        let t {$binfo(ts) + $dinfo(rduration) + 1}
+        eventq schedule ensitAutoResolve $t $binfo(s)
+    }
+
+
+    # CancelAutoResolve
+    #
+    # If this situation type has a scheduled auto-resolution,
+    # cancel it.
+
+    method CancelAutoResolve {} {
+        log detail ensit "CancelAutoResolve s=$binfo(s)"
+        rdb eval {
+            SELECT id FROM eventq_etype_ensitAutoResolve 
+            WHERE CAST (s AS INTEGER) = $binfo(s)
+        } {
+            log detail ensit "Cancelling eventq event $id"
+
+            eventq cancel $id
+        }
+    }
 }
 
 
@@ -764,6 +821,7 @@ eventq define ensitSpawn {s} {
     set sit [ensit get $s]
 
     if {![$sit islive]} {
+        # TBD: This should probably be an assertion, really.
         return
     }
 
@@ -789,12 +847,33 @@ eventq define ensitSpawn {s} {
             lappend parmDict coverage  [$sit get coverage]
             lappend parmDict g         [$sit get g]
             lappend parmDict resolver  [$sit get resolver]
+            lappend parmDict rduration [parmdb get ensit.$stype.duration]
             lappend parmDict inception 1
 
             ensit mutate create $parmDict
         }
     }
 }
+
+# ensitAutoResolve s
+#
+# s     An ensit ID
+#
+# Ensit s is auto-resolved, provided that s is still alive
+
+eventq define ensitAutoResolve {s} {
+    # FIRST, is is still "live"?  If not, nothing to do.
+    set sit [ensit get $s]
+
+    if {![$sit islive]} {
+        # TBD: This should probably be an assertion, really.
+        return
+    }
+
+    # NEXT, resolve the situation, using the preset resolver.
+    ensit mutate resolve [list s $s resolver ""]
+}
+
 
 #-------------------------------------------------------------------
 # Orders
@@ -808,7 +887,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
     options -sendstates {PREP PAUSED RUNNING}
 
     parm location   text  "Location"      -tags nbpoint -refresh
-    parm stype      enum  "Type"  \
+    parm stype      enum  "Type"                        -refresh \
         -refreshcmd {::ensit RefreshSType}
     parm coverage   text  "Coverage"      -defval 1.0
     parm inception  enum  "Inception?"    -type eyesno -defval "YES"
@@ -816,6 +895,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
         -defval NONE
     parm resolver   enum  "Resolved By"   -type {ptype g+none} \
         -defval NONE
+    parm rduration  text  "Duration"
 } {
     # FIRST, prepare and validate the parameters
     prepare location  -toupper   -required -type refpoint
@@ -824,6 +904,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
     prepare inception -toupper   -required -type boolean
     prepare g         -toupper   -required -type {ptype g+none}
     prepare resolver  -toupper   -required -type {ptype g+none}
+    prepare rduration                      -type idays
 
     returnOnError
 
@@ -922,10 +1003,11 @@ order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
 
     parm stype      enum  "Type" \
         -refreshcmd [list ::ensit RefreshUpdateParm stype]
-    parm coverage   text  "Coverage"    -defval 1.0 
-    parm inception  enum  "Inception?"  -type eyesno -defval "YES"
+    parm coverage   text  "Coverage"
+    parm inception  enum  "Inception?"  -type eyesno
     parm g          enum  "Caused By"   -type {ptype g+none}
     parm resolver   enum  "Resolved By" -type {ptype g+none}
+    parm rduration  text  "Duration"    
 
 } {
     # FIRST, check the situation
@@ -943,6 +1025,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
     prepare inception -toupper  -type boolean
     prepare g         -toupper  -type {ptype g+none}
     prepare resolver  -toupper  -type {ptype g+none}
+    prepare rduration           -type idays
 
     returnOnError
 
@@ -1043,6 +1126,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:MOVE {
         inception ""
         g         ""
         resolver  ""
+        rduration ""
     }
 
     # NEXT, modify the group

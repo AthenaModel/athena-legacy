@@ -409,7 +409,8 @@ namespace eval ::athena_test::tests:: {
             location  [map m2ref {*}$loc]        \
             coverage  1.0                        \
             g         NONE                       \
-            inception 1
+            inception 1                          \
+            resolver  NONE
 
         set a [sim check]
 

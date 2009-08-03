@@ -138,6 +138,9 @@ snit::widgetadaptor ensitbrowser {
             -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {Caused By}
         $hull insertcolumn end 0 {Resolved By}
+        $hull insertcolumn end 0 {Resolve At}
+        $hull columnconfigure end \
+            -foreground $::browser_base::derivedfg
         $hull insertcolumn end 0 {Driver}
         $hull columnconfigure end \
             -sortmode   integer   \
@@ -223,7 +226,7 @@ snit::widgetadaptor ensitbrowser {
         # FIRST, extract each field
         dict with dict {
             lappend fields $id $change $state $stype $n $location $coverage
-            lappend fields $ts $tc $g $resolver $driver
+            lappend fields $ts $tc $g $resolver $tr $driver
 
             $hull setdata $id $fields
         }

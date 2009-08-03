@@ -423,17 +423,22 @@ proc bgerror {msg} {
     log error app "bgerror: $msg"
     log error app "Stack Trace:\n$bgErrorInfo"
 
-    [app topwin] tab view slog
-
     if {[sim state] eq "RUNNING"} {
         # TBD: might need to send order?
         sim mutate pause
     }
 
-    app error {
-        |<--
-        An unexpected error has occurred;
-        please see the log for details.
+    if {[app topwin] ne ""} {
+        [app topwin] tab view slog
+
+        app error {
+            |<--
+            An unexpected error has occurred;
+            please see the log for details.
+        }
+    } else {
+        puts "bgerror: $msg"
+        puts "Stack Trace:\n$bgErrorInfo"
     }
 }
 
