@@ -379,6 +379,8 @@ namespace eval ::athena_test::tests:: {
             location  {100 100}
             coverage  1.0
             g         NONE
+            resolver  NONE
+            rduration ""
             inception 1
         }
 
@@ -389,6 +391,8 @@ namespace eval ::athena_test::tests:: {
             location  {100 100}
             coverage  1.0
             g         NONE
+            resolver  NONE
+            rduration ""
             inception 1
         }
         
@@ -410,7 +414,8 @@ namespace eval ::athena_test::tests:: {
             coverage  1.0                        \
             g         NONE                       \
             inception 1                          \
-            resolver  NONE
+            resolver  NONE                       \
+            rduration ""
 
         set a [sim check]
 

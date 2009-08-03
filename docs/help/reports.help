@@ -36,7 +36,7 @@ macro reports.noprep {} {
 #-----------------------------------------------------------------------
 
 page REPORT:DRIVER "Attitude Driver Report" reports {
-    <<order>>
+    <<order.header>>
     <<parmlist>>
 
     <<parm state "Driver State">>
@@ -118,7 +118,7 @@ page REPORT:DRIVER "Attitude Driver Report" reports {
 #-----------------------------------------------------------------------
 
 page REPORT:SATISFACTION:CIVILIAN "Civilian Satisfaction Report" reports {
-    <<order>>
+    <<order.header>>
     <<parmlist>>
 
     <<parm n "Neighborhood">>
@@ -179,7 +179,7 @@ page REPORT:SATISFACTION:CIVILIAN "Civilian Satisfaction Report" reports {
 #-----------------------------------------------------------------------
 
 page REPORT:SATISFACTION:CONTRIB "Contribution to Satisfaction Report" reports {
-    <<order>>
+    <<order.header>>
     <<parmlist>>
 
     <<parm n "Neighborhood">>
@@ -255,7 +255,7 @@ page REPORT:SATISFACTION:CONTRIB "Contribution to Satisfaction Report" reports {
 #-----------------------------------------------------------------------
 
 page REPORT:COOPERATION "Cooperation Report" reports {
-    <<order>>
+    <<order.header>>
     <<parmlist>>
 
     <<parm n "Neighborhood">>
@@ -323,7 +323,7 @@ page REPORT:COOPERATION "Cooperation Report" reports {
 #-----------------------------------------------------------------------
 
 page REPORT:SATISFACTION:ORGANIZATION "Organization Satisfaction Report" reports {
-    <<order>>
+    <<order.header>>
     <<parmlist>>
 
     <<parm n "Neighborhood">>

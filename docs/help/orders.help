@@ -28,8 +28,16 @@ page orders "Orders" {} {
     <<childlinks>>
 }
 
+proc order {name title text} {
+    set tokens [split $name :]
+    set parent [join [lrange $tokens 0 end-1] :]:
+
+    set text "<<order.header>>\n\n$text"
+    page $name $title $parent $text
+}
+
 # Formats the title for an order page
-macro order {} {
+macro order.header {} {
     |<--
     <font size=7>[pageinfo title]</font><br>
     (<tt>[pageinfo name]</tt>)<p>
@@ -94,8 +102,7 @@ macro ATTRIT.attitude {} {
 
 #-----------------------------------------------------------------------
 
-page ATTRIT:GROUP "Magic Attrit Group" ATTRIT: {
-    <<order>>
+order ATTRIT:GROUP "Magic Attrit Group" {
     <<parmlist>>
 
     <<parm n "Neighborhood">>
@@ -147,8 +154,7 @@ page ATTRIT:GROUP "Magic Attrit Group" ATTRIT: {
 
 #-----------------------------------------------------------------------
 
-page ATTRIT:NBHOOD "Magic Attrit Neighborhood" ATTRIT: {
-    <<order>>
+order ATTRIT:NBHOOD "Magic Attrit Neighborhood" {
     <<parmlist>>
 
     <<parm n "Neighborhood">>
@@ -182,8 +188,7 @@ page ATTRIT:NBHOOD "Magic Attrit Neighborhood" ATTRIT: {
 
 #-----------------------------------------------------------------------
 
-page ATTRIT:UNIT "Magic Attrit Unit" ATTRIT: {
-    <<order>>
+order ATTRIT:UNIT "Magic Attrit Unit" {
     <<parmlist>>
 
     <<parm u "Unit">>
@@ -234,9 +239,7 @@ page COOPERATION: "Cooperation Orders" orders {
 
 #-----------------------------------------------------------------------
 
-page COOPERATION:UPDATE "Update Cooperation" COOPERATION: {
-    <<order>>
-
+order COOPERATION:UPDATE "Update Cooperation" {
     <<parmlist>>
     <<parm n "Neighborhood">>
     <b>Required.</b>  The name of a neighborhood.
@@ -268,6 +271,232 @@ page COOPERATION:UPDATE "Update Cooperation" COOPERATION: {
     no way to adjust the current cooperation level once time has
     advanced.
 }
+
+#=======================================================================
+# Environmental Situation Orders
+
+page SITUATION:ENVIRONMENTAL: "Environmental Situation Orders" orders {
+    <<title>>
+
+    Athena models a variety of on-going conditions within
+    neighborhoods; these are collectively referred to as
+    <i>environmental situations</i>.  The set of situation types
+    includes epidemics, contaminated food and water, power and
+    communication outages, and so forth.  Detailed information about
+    each situation type may be found in the Athena Rules document.<p>
+
+    This family of orders is used to create, update, and resolve
+    environmental situations.<p>
+
+    The full set of orders is as follows:<p>
+
+    <<childlinks>>
+}
+
+macro ENSIT.initial {} {
+    |<--
+    The numeric ID of an environmental situation that has not yet
+    become active.  Ensits become active at the first time advance
+    after their creation.
+}
+
+macro ENSIT.location {} {
+    |<--
+    The location of the situation, expressed as a 
+    [cref mapref "map reference string"].  The situation affects the
+    neighborhood that contains this location, and so the location must
+    lie within some neighborhood.
+}
+
+macro ENSIT.stype {} {
+    |<--
+    The type of situation.  There may be only one
+    environmental situation of a given type in each neighborhood.<p>
+
+    [enumdoc ::projectlib::eensit]
+}
+
+macro ENSIT.coverage {} {
+    |<--
+    Neighborhood coverage fraction, as a positive real number
+    less than or equal to 1.0.  The coverage represents the fraction
+    of the neighborhood's population that is affected by this situation.
+}
+
+macro ENSIT.inception {} {
+    |<--
+    A flag (<b>YES</b>, <b>NO</b>) that determines
+    whether the situation has inception effects.  Set this to
+    <b>NO</b> for situations that are to be on-going at time 0. 
+}
+
+macro ENSIT.g {} {
+    |<--
+    The name of the group that the neighborhood
+    population considers responsible for causing this situation,
+    or <b>NONE</b> if none.
+}
+
+macro ENSIT.rduration {} {
+    |<--
+    A duration, in integer ticks.  If positive, the
+    situation will automatically be resolved at the end of the
+    specified time. If 0, no auto-resolution will take place.<p>
+
+    If this value is omitted, it will default to the value of the
+    <b>ensit.<i>stype</i>.duration</b> [cref parmdb parameter].
+}
+
+#-----------------------------------------------------------------------
+
+order SITUATION:ENVIRONMENTAL:CREATE "Create Environmental Situation" {
+    <<parmlist>>
+    <<parm location "Location">>
+    <b>Required.</b>  <<ENSIT.location>>
+    <</parm>>
+
+    <<parm stype "Type">>
+    <b>Required.</b> <<ENSIT.stype>>
+    <</parm>>
+
+    <<parm coverage "Coverage">>
+    <b>Required.</b> <<ENSIT.coverage>>
+    <</parm>>
+
+    <<parm inception "Inception?">>
+    <b>Required.</b> <<ENSIT.inception>>
+    <</parm>>
+
+    <<parm g "Caused By">>
+    <b>Required.</b>  <<ENSIT.g>>
+    <</parm>>
+
+    <<parm resolver "Resolved By">>
+    <b>Required.</b>  The name of the group that the neighborhood
+    population will consider responsible for resolving this situation,
+    or <b>NONE</b> if none.  This entry is used when the situation
+    resolves itself automatically; it can be overridden if the
+    situation is resolved manually.
+    <</parm>>
+
+    <<parm rduration "Duration">>
+    <b>Optional.</b>  <<ENSIT.rduration>>
+    <</parm>>
+
+    <</parmlist>>
+
+    This order creates a new environmental situation.  Note that the
+    <<cref SITUATION:ENVIRONMENTAL:UPDATE>> order can be used to
+    edit any of these values so long as the situation has not yet
+    become active, i.e., up until the next time advance.<p>
+}
+
+#-----------------------------------------------------------------------
+
+order SITUATION:ENVIRONMENTAL:DELETE "Delete Environmental Situation" {
+    <<parmlist>>
+
+    <<parm s "Situation">>
+    <b>Required.</b>  <<ENSIT.initial>>
+    <</parm>>
+    <</parmlist>>
+
+    Deletes an existing environmental situation.
+}
+
+#-----------------------------------------------------------------------
+
+order SITUATION:ENVIRONMENTAL:UPDATE "Update Environmental Situation" {
+    <<parmlist>>
+
+    <<parm s "Situation">>
+    <b>Required.</b>  <<ENSIT.initial>>
+    <</parm>>
+
+    <<parm location "Location">>
+    <b>Required.</b>  <<ENSIT.location>>
+    <</parm>>
+
+    <<parm stype "Type">>
+    <b>Required.</b> <<ENSIT.stype>>
+    <</parm>>
+
+    <<parm coverage "Coverage">>
+    <b>Required.</b> <<ENSIT.coverage>>
+    <</parm>>
+
+    <<parm inception "Inception?">>
+    <b>Required.</b> <<ENSIT.inception>>
+    <</parm>>
+
+    <<parm g "Caused By">>
+    <b>Required.</b>  <<ENSIT.g>>
+    <</parm>>
+
+    <<parm resolver "Resolved By">>
+    <b>Required.</b>  The name of the group that the neighborhood
+    population will consider responsible for resolving this situation,
+    or <b>NONE</b> if none.  This entry is used when the situation
+    resolves itself automatically; it can be overridden if the
+    situation is resolved manually.
+    <</parm>>
+
+    <<parm rduration "Duration">>
+    <b>Optional.</b>  <<ENSIT.rduration>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Updates an existing environmental situation that has not yet
+    become active.
+}
+
+
+#-----------------------------------------------------------------------
+
+order SITUATION:ENVIRONMENTAL:MOVE "Move Environmental Situation" {
+    <<parmlist>>
+
+    <<parm s "Situation">>
+    <b>Required.</b>  The numeric ID of any existing environmental
+    situation.
+    <</parm>>
+
+    <<parm location "Location">>
+    <b>Required.</b>  <<ENSIT.location>>  <b>Note:</b> If the ensit
+    has already become active, it cannot be moved out of its
+    neighborhood.
+    <</parm>>
+
+    <</parmlist>>
+
+    Moves an existing environmental situation from one place to another.
+}
+
+
+order SITUATION:ENVIRONMENTAL:RESOLVE "Resolve Environmental Situation" {
+    <<parmlist>>
+
+    <<parm s "Situation">>
+    <b>Required.</b>  The numeric ID of any unresolved environmental
+    situation.
+    <</parm>>
+
+    <<parm resolver "Resolved By">>
+    <b>Optional.</b> The name of the group that the neighborhood
+    population will consider responsible for resolving this situation,
+    or <b>NONE</b> if none.  If specified, overrides the group name
+    given when the situation was 
+    <<cref SITUATION:ENVIRONMENTAL:CREATE created>>.
+    <</parm>>
+
+    <</parmlist>>
+
+    Resolves an unresolved environmental situation.  Any on-going
+    effects will be terminated, and the neighborhood population will
+    usually respond favorably.
+}
+
 
 #=======================================================================
 # Group Orders
@@ -368,9 +597,7 @@ page GROUP:CIVILIAN: "Civilian Group Orders" GROUP: {
 
 #-----------------------------------------------------------------------
 
-page GROUP:CIVILIAN:CREATE "Create Civilian Group" GROUP:CIVILIAN: {
-    <<order>>
-
+order GROUP:CIVILIAN:CREATE "Create Civilian Group" {
     <<parmlist>>
     <<parm g "ID">>
     <b>Required.</b>  <<parm.identifier group PASH>>
@@ -398,8 +625,7 @@ page GROUP:CIVILIAN:CREATE "Create Civilian Group" GROUP:CIVILIAN: {
 
 #-----------------------------------------------------------------------
 
-page GROUP:CIVILIAN:DELETE "Delete Civilian Group" GROUP:CIVILIAN: {
-    <<order>>
+order GROUP:CIVILIAN:DELETE "Delete Civilian Group" {
     <<parmlist>>
 
     <<parm g "Group">>
@@ -414,9 +640,7 @@ page GROUP:CIVILIAN:DELETE "Delete Civilian Group" GROUP:CIVILIAN: {
 
 #-----------------------------------------------------------------------
 
-page GROUP:CIVILIAN:UPDATE "Update Civilian Group" GROUP:CIVILIAN: {
-    <<order>>
-
+order GROUP:CIVILIAN:UPDATE "Update Civilian Group" {
     <<parmlist>>
     <<parm g "ID">>
     <b>Required.</b>  <<GROUP.g civilian>>
@@ -474,9 +698,7 @@ macro GROUP:NBHOOD.basepop {} {
 
 #-----------------------------------------------------------------------
 
-page GROUP:NBHOOD:CREATE "Create Nbhood Group" GROUP:NBHOOD: {
-    <<order>>
-
+order GROUP:NBHOOD:CREATE "Create Nbhood Group" {
     <<parmlist>>
     <<parm n "Neighborhood">>
     <b>Required.</b>  <<NBHOOD.n>>
@@ -520,8 +742,7 @@ page GROUP:NBHOOD:CREATE "Create Nbhood Group" GROUP:NBHOOD: {
 
 #-----------------------------------------------------------------------
 
-page GROUP:NBHOOD:DELETE "Delete Nbhood Group" GROUP:NBHOOD: {
-    <<order>>
+order GROUP:NBHOOD:DELETE "Delete Nbhood Group" {
     <<parmlist>>
 
     <<parm n "Neighborhood">>
@@ -542,9 +763,7 @@ page GROUP:NBHOOD:DELETE "Delete Nbhood Group" GROUP:NBHOOD: {
 
 #-----------------------------------------------------------------------
 
-page GROUP:NBHOOD:UPDATE "Update Civilian Group" GROUP:NBHOOD: {
-    <<order>>
-
+order GROUP:NBHOOD:UPDATE "Update Civilian Group" {
     <<parmlist>>
     <<parm n "Neighborhood">>
     <b>Required.</b>  <<NBHOOD.n>>
@@ -635,9 +854,7 @@ macro GROUP:FORCE.coalition {} {
 
 #-----------------------------------------------------------------------
 
-page GROUP:FORCE:CREATE "Create Force Group" GROUP:FORCE: {
-    <<order>>
-
+order GROUP:FORCE:CREATE "Create Force Group" {
     <<parmlist>>
     <<parm g "ID">>
     <b>Required.</b>  <<parm.identifier group BLUE>>
@@ -685,8 +902,7 @@ page GROUP:FORCE:CREATE "Create Force Group" GROUP:FORCE: {
 
 #-----------------------------------------------------------------------
 
-page GROUP:FORCE:DELETE "Delete Force Group" GROUP:FORCE: {
-    <<order>>
+order GROUP:FORCE:DELETE "Delete Force Group" {
     <<parmlist>>
 
     <<parm g "Group">>
@@ -701,9 +917,7 @@ page GROUP:FORCE:DELETE "Delete Force Group" GROUP:FORCE: {
 
 #-----------------------------------------------------------------------
 
-page GROUP:FORCE:UPDATE "Update Force Group" GROUP:FORCE: {
-    <<order>>
-
+order GROUP:FORCE:UPDATE "Update Force Group" {
     <<parmlist>>
     <<parm g "ID">>
     <b>Required.</b>  <<GROUP.g force>>
@@ -750,9 +964,7 @@ page GROUP:FORCE:UPDATE "Update Force Group" GROUP:FORCE: {
 #=======================================================================
 # Organization Group Orders
 
-page GROUP:ORGANIZATION: "Organization Group Orders" GROUP: {
-    <<title>>
-
+page GROUP:ORGANIZATION: "Organization Group Orders" orders {
     Athena uses organization groups to model organizations that are
     active in the playbox and have a significant affect on civilian
     attitudes.  Such groups might include the Red Cross, Doctors Without
@@ -777,9 +989,7 @@ macro GROUP:ORGANIZATION.orgtype {} {
 
 #-----------------------------------------------------------------------
 
-page GROUP:ORGANIZATION:CREATE "Create Organization Group" GROUP:ORGANIZATION: {
-    <<order>>
-
+order GROUP:ORGANIZATION:CREATE "Create Organization Group" {
     <<parmlist>>
     <<parm g "ID">>
     <b>Required.</b>  <<parm.identifier group RC>>
@@ -822,8 +1032,7 @@ page GROUP:ORGANIZATION:CREATE "Create Organization Group" GROUP:ORGANIZATION: {
 
 #-----------------------------------------------------------------------
 
-page GROUP:ORGANIZATION:DELETE "Delete Organization Group" GROUP:ORGANIZATION: {
-    <<order>>
+order GROUP:ORGANIZATION:DELETE "Delete Organization Group" {
     <<parmlist>>
 
     <<parm g "Group">>
@@ -838,9 +1047,7 @@ page GROUP:ORGANIZATION:DELETE "Delete Organization Group" GROUP:ORGANIZATION: {
 
 #-----------------------------------------------------------------------
 
-page GROUP:ORGANIZATION:UPDATE "Update Organization Group" GROUP:ORGANIZATION: {
-    <<order>>
-
+order GROUP:ORGANIZATION:UPDATE "Update Organization Group" {
     <<parmlist>>
     <<parm g "ID">>
     <b>Required.</b>  <<GROUP.g organization>>
@@ -941,8 +1148,7 @@ macro NBHOOD.polygon {} {
 
 #-----------------------------------------------------------------------
 
-page NBHOOD:CREATE "Create Neighborhood" NBHOOD: {
-    <<order>>
+order NBHOOD:CREATE "Create Neighborhood" {
     <<parmlist>>
 
     <<parm n "Neighborhood">>
@@ -977,8 +1183,7 @@ page NBHOOD:CREATE "Create Neighborhood" NBHOOD: {
 
 #-----------------------------------------------------------------------
 
-page NBHOOD:DELETE "Delete Neighborhood" NBHOOD: {
-    <<order>>
+order NBHOOD:DELETE "Delete Neighborhood" {
     <<parmlist>>
 
     <<parm n "Neighborhood">>
@@ -994,8 +1199,7 @@ page NBHOOD:DELETE "Delete Neighborhood" NBHOOD: {
 
 #-----------------------------------------------------------------------
 
-page NBHOOD:LOWER "Lower Neighborhood" NBHOOD: {
-    <<order>>
+order NBHOOD:LOWER "Lower Neighborhood" {
     <<parmlist>>
 
     <<parm n "Neighborhood">>
@@ -1014,8 +1218,7 @@ page NBHOOD:LOWER "Lower Neighborhood" NBHOOD: {
 
 #-----------------------------------------------------------------------
 
-page NBHOOD:RAISE "Raise Neighborhood" NBHOOD: {
-    <<order>>
+order NBHOOD:RAISE "Raise Neighborhood" {
     <<parmlist>>
 
     <<parm n "Neighborhood">>
@@ -1034,8 +1237,7 @@ page NBHOOD:RAISE "Raise Neighborhood" NBHOOD: {
 
 #-----------------------------------------------------------------------
 
-page NBHOOD:UPDATE "Update Neighborhood" NBHOOD: {
-    <<order>>
+order NBHOOD:UPDATE "Update Neighborhood" {
     <<parmlist>>
 
     <<parm n "Neighborhood">>
@@ -1090,9 +1292,7 @@ page NBHOOD:RELATIONSHIP: "Neighborhood Relationship Orders" orders {
 
 #-------------------------------------------------------------------
 
-page NBHOOD:RELATIONSHIP:UPDATE "Update Neighborhood Relationship" NBHOOD:RELATIONSHIP: {
-    <<order>>
-
+order NBHOOD:RELATIONSHIP:UPDATE "Update Neighborhood Relationship" {
     <<parmlist>>
     <<parm m "Of Neighborhood">> 
     <b>Required.</b>  A neighborhood name.
@@ -1161,9 +1361,7 @@ page PARM: "Model Parameter Orders" orders {
 
 #-------------------------------------------------------------------
 
-page PARM:IMPORT "Import Parameter File" PARM: {
-    <<order>>
-
+order PARM:IMPORT "Import Parameter File" {
     <<parmlist>>
 
     <<parm filename "Parameter File">> 
@@ -1179,17 +1377,15 @@ page PARM:IMPORT "Import Parameter File" PARM: {
 
 #-------------------------------------------------------------------
 
-page PARM:RESET "Reset Parameters to Defaults" PARM: {
-    <<order>>
-
+order PARM:RESET "Reset Parameters to Defaults" {
     This order resets all <<cref parmdb "model parameters">> to
     their default values.  See <<cmdref parm reset>> for details.
 }
 
 #-------------------------------------------------------------------
 
-page PARM:SET "Set Parameter Value" PARM: {
-    <<order>>
+order PARM:SET "Set Parameter Value" {
+    <<order.header>>
 
     <<parmlist>>
 
@@ -1206,3 +1402,4 @@ page PARM:SET "Set Parameter Value" PARM: {
     This order sets the value of the named parameter.  See 
     <<cmdref parm set>> for details. 
 }
+
