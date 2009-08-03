@@ -52,6 +52,19 @@ snit::type ptype {
     }
 
 
+    # g+none
+    #
+    # Group names + NONE
+
+    typemethod {g+none names} {} {
+        linsert [group names] 0 NONE
+    }
+
+    typemethod {g+none validate} {value} {
+        EnumVal "group" [$type g+none names] $value
+    }
+
+
     # civg+all
     #
     # Civilian group names + ALL

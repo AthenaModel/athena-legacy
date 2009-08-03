@@ -72,10 +72,17 @@ snit::type ensit {
             # FIRST, get the situation.
             set sit [$type get $s]
 
-            # NEXT, if it's in the initial state, make it active
+            # NEXT, if it's in the initial state, make it active.
+            # As part of this, schedule related events.
             if {[$sit get state] eq "INITIAL"} {
                 $sit set state ACTIVE
 
+                # NEXT, if it spawns, schedule the spawn
+                $sit ScheduleSpawn
+
+                # NEXT, if it auto-resolves, schedule the auto-resolution.
+                # $sit ScheduleAutoResolve
+                
                 notifier send $type <Entity> update $s
             }
 
@@ -278,37 +285,6 @@ snit::type ensit {
     }
 
 
-    # doer names
-    #
-    # List of names of groups that can cause and resolve ensits,
-    # plus "NONE".
-
-    typemethod {doer names} {} {
-        linsert [group names] 0 NONE
-    }
-
-
-    # doer validate g
-    #
-    # g       Potentially, a doing group g
-    #
-    # Verifies that g is a valid doing group.
-
-    typemethod {doer validate} {g} {
-        if {$g ni [$type doer names]} {
-            set names [join [$type doer names] ", "]
-
-            set msg "should be one of: $names"
-
-            return -code error -errorcode INVALID \
-                "Invalid doing group, $msg"
-        }
-
-        return $g
-    }
-
-
-
     #-------------------------------------------------------------------
     # Mutators
     #
@@ -344,14 +320,15 @@ snit::type ensit {
 
         # NEXT, set resolver to NONE if resolver doesn't exist.
         rdb eval {
-            SELECT s
+            SELECT *
             FROM ensits LEFT OUTER JOIN groups 
             ON (ensits.resolver = groups.g)
-            WHERE state = 'ENDED'
-            AND   ensits.resolver != 'NONE'
+            WHERE ensits.resolver != 'NONE'
             AND   longname IS NULL
-        } {
-            lappend undo [$type mutate resolve [list s $s resolver NONE]]
+        } row {
+            set row(resolver) NONE
+
+            lappend undo [$type mutate update [array get row]]
         }
 
         # NEXT, set n for all ensits
@@ -403,6 +380,7 @@ snit::type ensit {
     #    coverage       The situation's coverage
     #    g              The group causing the situation, or ""
     #    inception      1 if there are inception effects, and 0 otherwise.
+    #    resolver       The group that will resolve the situation, or ""
     #
     # Creates an ensit given the parms, which are presumed to be
     # valid.
@@ -421,14 +399,9 @@ snit::type ensit {
                        g         $g]
 
             rdb eval {
-                INSERT INTO ensits_t(s,location,inception)
-                VALUES($s,$location,$inception)
+                INSERT INTO ensits_t(s,location,inception,resolver)
+                VALUES($s,$location,$inception,$resolver)
             }
-
-            # NEXT, if it spawns, schedule the spawn
-            set sit [$type get $s]
-
-            $sit ScheduleSpawn
 
             # NEXT, inform all clients about the new object.
             log detail ensit "$s: created for $n,$stype,$coverage"
@@ -450,11 +423,6 @@ snit::type ensit {
         # FIRST, get the undo information
         rdb eval {SELECT * FROM situations WHERE s=$s} row1 { unset row1(*) }
         rdb eval {SELECT * FROM ensits_t  WHERE s=$s} row2 { unset row2(*) }
-
-        # NEXT, unschedule any spawn
-        set sit [$type get $s]
-        
-        $sit CancelSpawn
 
         # NEXT, remove it from the object cache
         situation uncache $s
@@ -486,10 +454,6 @@ snit::type ensit {
         set s [dict get $bdict s]
         situation uncache $s
 
-        set sit [$type get $s]
-
-        $sit ScheduleSpawn
-
         notifier send $type <Entity> create $s
     }
 
@@ -504,6 +468,7 @@ snit::type ensit {
     #    coverage       A new coverage, or ""
     #    inception      A new inception, or ""
     #    g              A new causing group, or ""
+    #    resolver       A new resolving group, or ""
     #
     # Updates a situation given the parms, which are presumed to be
     # valid.
@@ -526,14 +491,14 @@ snit::type ensit {
 
             if {$stype ne ""} { 
                 $sit set stype $stype
-
-                # The spawn parameters vary by stype; update accordingly.
-                $sit CancelSpawn
-                $sit ScheduleSpawn
             }
 
             if {$g ne ""} { 
                 $sit set g $g
+            }
+
+            if {$resolver ne ""} { 
+                $sit set resolver $resolver
             }
 
             if {$inception ne ""} {
@@ -575,7 +540,8 @@ snit::type ensit {
     # parmdict     A dictionary of order parms
     #
     #    s              The situation ID
-    #    resolver       Group responsible for resolving the situation, or ""
+    #    resolver       Group responsible for resolving the situation, or "NONE"
+    #                   or "".
     #
     # Resolves the situation, assigning credit where credit is due.
 
@@ -589,7 +555,10 @@ snit::type ensit {
             set sit [$type get $s]
 
             $sit set change     RESOLVED
-            $sit set resolver   $resolver
+
+            if {$resolver ne ""} {
+                $sit set resolver   $resolver
+            }
 
             $sit set state      ENDED
             $sit set tc         [simclock now]
@@ -619,9 +588,11 @@ snit::type ensit {
         rdb replace ensits_t  $ddict
 
         set sit [situation get $s]
-        
-        $sit CancelSpawn
-        $sit ScheduleSpawn
+
+        if {[$sit get state] eq "ACTIVE"} {
+            $sit CancelSpawn
+            $sit ScheduleSpawn
+        }
 
         notifier send $type <Entity> update $s
     }
@@ -753,18 +724,17 @@ snit::type ensitType {
         set spawnTicks [simclock fromDays $spawnTime]
 
         # NEXT, get the time at which the spawn should occur: spawnTicks
-        # after the ensit first begins to take effect.  Since 
-        # ensits are created at time t, but take effect at time t+1,
-        # we need to add a tick.
-        incr spawnTicks
-
-        eventq schedule ensitSpawn [simclock now $spawnTicks] $binfo(s)
+        # after the ensit first begins to take effect.  This is one tick
+        # after the situation is created.
+        let spawnTime {$binfo(ts) + $spawnTicks + 1}
+        eventq schedule ensitSpawn $spawnTime $binfo(s)
     }
 
 
     # CancelSpawn
     #
-    # If this situation type spawns another situation, cancel the spawn.
+    # If this situation type has a scheduled spawn,
+    # cancel it.
 
     method CancelSpawn {} {
         log detail ensit "CancelSpawn s=$binfo(s)"
@@ -818,6 +788,7 @@ eventq define ensitSpawn {s} {
             lappend parmDict location  [$sit get location]
             lappend parmDict coverage  [$sit get coverage]
             lappend parmDict g         [$sit get g]
+            lappend parmDict resolver  [$sit get resolver]
             lappend parmDict inception 1
 
             ensit mutate create $parmDict
@@ -841,7 +812,9 @@ order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
         -refreshcmd {::ensit RefreshSType}
     parm coverage   text  "Coverage"      -defval 1.0
     parm inception  enum  "Inception?"    -type eyesno -defval "YES"
-    parm g          enum  "Caused By"     -type [list ensit doer] \
+    parm g          enum  "Caused By"     -type {ptype g+none} \
+        -defval NONE
+    parm resolver   enum  "Resolved By"   -type {ptype g+none} \
         -defval NONE
 } {
     # FIRST, prepare and validate the parameters
@@ -849,7 +822,8 @@ order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
     prepare stype     -toupper   -required -type eensit
     prepare coverage             -required -type rfraction
     prepare inception -toupper   -required -type boolean
-    prepare g         -toupper             -type [list ensit doer]
+    prepare g         -toupper   -required -type {ptype g+none}
+    prepare resolver  -toupper   -required -type {ptype g+none}
 
     returnOnError
 
@@ -879,11 +853,6 @@ order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
     }
 
     returnOnError
-
-    # NEXT, g defaults to NONE
-    if {$parms(g) eq ""} {
-        set parms(g) NONE
-    }
 
     # NEXT, create the situation.
     lappend undo [$type mutate create [array get parms]]
@@ -955,7 +924,8 @@ order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
         -refreshcmd [list ::ensit RefreshUpdateParm stype]
     parm coverage   text  "Coverage"    -defval 1.0 
     parm inception  enum  "Inception?"  -type eyesno -defval "YES"
-    parm g          enum  "Caused By"   -type [list ensit doer]
+    parm g          enum  "Caused By"   -type {ptype g+none}
+    parm resolver   enum  "Resolved By" -type {ptype g+none}
 
 } {
     # FIRST, check the situation
@@ -971,7 +941,8 @@ order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
     prepare stype     -toupper  -type eensit   -oldvalue [$sit get stype]
     prepare coverage            -type rfraction
     prepare inception -toupper  -type boolean
-    prepare g -toupper  -type {ensit doer}
+    prepare g         -toupper  -type {ptype g+none}
+    prepare resolver  -toupper  -type {ptype g+none}
 
     returnOnError
 
@@ -1071,6 +1042,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:MOVE {
         coverage  ""
         inception ""
         g         ""
+        resolver  ""
     }
 
     # NEXT, modify the group
@@ -1084,15 +1056,17 @@ order define ::ensit SITUATION:ENVIRONMENTAL:MOVE {
 
 order define ::ensit SITUATION:ENVIRONMENTAL:RESOLVE {
     title "Resolve Environmental Situation"
-    options -sendstates {PREP PAUSED RUNNING}
+    options \
+        -table          gui_ensits             \
+        -alwaysunsaved                         \
+        -sendstates     {PREP PAUSED RUNNING}
 
-    parm s         enum  "Situation"    -tags situation -type {ensit live}
-    parm resolver  enum  "Resolved By"  -type [list ensit doer] \
-        -defval NONE
+    parm s         key   "Situation"    -tags situation
+    parm resolver  enum  "Resolved By"  -type {ptype g+none}
 } {
     # FIRST, prepare the parameters
     prepare s         -required -type {ensit live}
-    prepare resolver  -toupper  -type [list ensit doer]
+    prepare resolver  -toupper  -type {ptype g+none}
 
     returnOnError
 

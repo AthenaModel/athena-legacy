@@ -1035,9 +1035,15 @@ snit::type ::projectlib::parmdb {
                 Parameters for environmental situation type 
                 [eensit longname $name].
             "
+
+            $ps define ensit.$name.duration ::projectlib::idays 0 {
+                How long until the ensit auto-resolves, in integer
+                days.  If 0, the ensit never auto-resolves.
+            }
+
             $ps define ensit.$name.spawnTime ::projectlib::ioptdays -1 {
-                How long until the ensit spawns other ensits, in days.  If
-                -1, the ensit never spawns.
+                How long until the ensit spawns other ensits, in
+                integer days.  If -1, the ensit never spawns.
             }
 
             $ps define ensit.$name.spawns ::projectlib::leensit {} {
@@ -1046,18 +1052,51 @@ snit::type ::projectlib::parmdb {
         }
 
         # Tweak the specifics
+        $ps setdefault ensit.BADFOOD.duration              10
         $ps setdefault ensit.BADFOOD.spawns                DISEASE
         $ps setdefault ensit.BADFOOD.spawnTime             1
 
+        $ps setdefault ensit.BADWATER.duration             5
         $ps setdefault ensit.BADWATER.spawns               DISEASE
         $ps setdefault ensit.BADWATER.spawnTime            1
 
+        $ps setdefault ensit.COMMOUT.duration              7
+
+        $ps setdefault ensit.DISASTER.duration             45
+
+        $ps setdefault ensit.DISEASE.duration              30
+
+        $ps setdefault ensit.DMGCULT.duration              45
+
+        $ps setdefault ensit.DMGSACRED.duration            45
+
+        $ps setdefault ensit.EPIDEMIC.duration             360
+
+        $ps setdefault ensit.FOODSHRT.duration             180
+
+        $ps setdefault ensit.FUELSHRT.duration             30
+
+        $ps setdefault ensit.GARBAGE.duration              45
+
+        $ps setdefault ensit.INDSPILL.duration             90
         $ps setdefault ensit.INDSPILL.spawns               DISEASE
         $ps setdefault ensit.INDSPILL.spawnTime            5
 
+        $ps setdefault ensit.MINEFIELD.duration            1080
+
+        $ps setdefault ensit.NOWATER.duration              3
         $ps setdefault ensit.NOWATER.spawns                DISEASE
         $ps setdefault ensit.NOWATER.spawnTime             1
 
+        $ps setdefault ensit.ORDNANCE.duration             540
+
+        $ps setdefault ensit.PIPELINE.duration             7
+
+        $ps setdefault ensit.POWEROUT.duration             60
+
+        $ps setdefault ensit.REFINERY.duration             5
+
+        $ps setdefault ensit.REFINERY.duration             60
         $ps setdefault ensit.SEWAGE.spawns                 DISEASE
         $ps setdefault ensit.SEWAGE.spawnTime              30
 

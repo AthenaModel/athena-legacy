@@ -656,13 +656,17 @@ CREATE TABLE ensits_t (
     -- that are on-going at time 0.)
     inception  INTEGER,
 
-    -- Resolving group (may be empty): name of the group that resolved
-    -- the situation, if any.  This will only be set in the ENDED state.
-    resolver   TEXT DEFAULT '',
+    -- Resolving group: name of the group that resolved/will resolve
+    -- the situation, or 'NONE'
+    resolver   TEXT DEFAULT 'NONE',
+
+    -- Auto-resolution duration: 0 if the situation will not auto-resolve,
+    -- and a duration in ticks otherwise.
+    -- rduration  INTEGER DEFAULT 0,
 
     -- Resolution Driver; 0 if the situation's resolution has not been
     -- assessed, and a GRAM driver ID if it has.
-    rdriver INTEGER DEFAULT 0
+    rdriver    INTEGER DEFAULT 0
 );
 
 -- Environmental Situations View
