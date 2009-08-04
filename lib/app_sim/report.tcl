@@ -693,7 +693,8 @@ snit::type ::report {
 order define ::report REPORT:COOPERATION {
     title "Cooperation Report"
     options \
-        -sendstates PAUSED \
+        -canschedule          \
+        -sendstates    PAUSED \
         -alwaysunsaved
 
     parm n enum  "Neighborhood"  -type {::ptype n+all}    \
@@ -725,7 +726,8 @@ order define ::report REPORT:COOPERATION {
 order define ::report REPORT:DRIVER {
     title "Attitude Driver Report"
     options \
-        -sendstates PAUSED \
+        -canschedule          \
+        -sendstates    PAUSED \
         -alwaysunsaved
 
     parm state enum  "Driver State"  -type {::report::edriverstate} \
@@ -750,7 +752,8 @@ order define ::report REPORT:DRIVER {
 order define ::report REPORT:SATISFACTION:CIVILIAN {
     title "Civilian Satisfaction Report"
     options \
-        -sendstates PAUSED \
+        -canschedule           \
+        -sendstates     PAUSED \
         -alwaysunsaved
 
     parm n enum  "Neighborhood"  -type {::ptype n+all} \
@@ -779,7 +782,8 @@ order define ::report REPORT:SATISFACTION:CIVILIAN {
 order define ::report REPORT:SATISFACTION:CONTRIB {
     title "Contribution to Satisfaction Report"
     options \
-        -sendstates PAUSED \
+        -canschedule          \
+        -sendstates    PAUSED \
         -alwaysunsaved
 
     parm n      enum  "Neighborhood"  -type {ptype n} -refresh
@@ -853,7 +857,8 @@ order define ::report REPORT:SATISFACTION:CONTRIB {
 order define ::report REPORT:SATISFACTION:ORGANIZATION {
     title "Organization Satisfaction Report"
     options \
-        -sendstates PAUSED \
+        -canschedule           \
+        -sendstates     PAUSED \
         -alwaysunsaved
 
     parm n enum  "Neighborhood"  -type {::ptype n+all} \

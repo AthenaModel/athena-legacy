@@ -302,6 +302,7 @@ snit::type order {
         set orders(title-$name) ""
         set orders(opts-$name) {
             -alwaysunsaved  0
+            -canschedule    0
             -sendstates     {}
             -table          ""
             -tags           {}
@@ -341,6 +342,7 @@ snit::type order {
     #
     # -alwaysunsaved          If set, the dialog "Send" buttons will not
     #                         be disabled when there is no "unsaved" data.
+    # -canschedule            If set, the order can be scheduled.
     # -sendstates states      States in which the order can be sent
     # -table      tableName   Name of an RDB table or view associated with 
     #                         this order.
@@ -357,7 +359,8 @@ snit::type order {
             set opt [lshift args]
 
             switch -exact -- $opt {
-                -alwaysunsaved   {
+                -alwaysunsaved -
+                -canschedule   {
                     dict set odict $opt 1
                 }
                 -sendstates  -
@@ -510,6 +513,21 @@ snit::type order {
     
     typemethod names {} {
         return $orders(names)
+    }
+
+    # validate name
+    #
+    # name    An order name
+    #
+    # Validates the name as an order name
+
+    typemethod validate {name} {
+        if {![order exists $name]} {
+            return -code error -errorcode INVALID \
+                "order does not exist: \"$name\""
+        }
+
+        return $name
     }
 
 
@@ -698,19 +716,23 @@ snit::type order {
         set trans(undo)   {}
 
         if {[catch {
-            # FIRST, check the state
-            set states [$type cget $name -sendstates]
+            # FIRST, check the state.  Note that if the interface is
+            # "sim", this doesn't matter; the sim is in control
+            
+            if {$interface ne "sim"} {
+                set states [$type cget $name -sendstates]
 
-            if {[llength $states] > 0 &&
-                $info(state) ni $states
-            } {
-                
-                reject * "
-                    Simulation state is $info(state), but order is valid
-                    only in these states: [join $states {, }]
-                "
+                if {[llength $states] > 0 &&
+                    $info(state) ni $states
+                } {
+                    
+                    reject * "
+                        Simulation state is $info(state), but order is valid
+                        only in these states: [join $states {, }]
+                    "
 
-                returnOnError
+                    returnOnError
+                }
             }
             
             # NEXT, call the handler
@@ -729,10 +751,6 @@ snit::type order {
             set ecode [dict get $opts -errorcode]
 
             # NEXT, handle the result 
-            if {$interface eq "sim"} {
-                error "Unexpected error in $name:\n$result" $einfo
-            }
-
             if {$ecode eq "REJECT"} {
                 if {$interface eq "cli"} {
                     set result [FormatRejectionForCLI $result]
@@ -747,7 +765,7 @@ snit::type order {
                 return "Order was cancelled."
             }
 
-            if {$interface in {gui cli}} {
+            if {$interface in {gui cli sim}} {
                 log error order "Unexpected error in $name:\n$result"
                 log error order "Stack Trace:\n$einfo"
 
@@ -768,6 +786,11 @@ snit::type order {
 
                     * The error has been logged in detail.  Please
                       contact JPL to get the problem fixed.
+                }
+
+                if {[sim state] eq "RUNNING"} {
+                    # TBD: might need to send order?
+                    sim mutate pause
                 }
 
                 sim reconfigure
@@ -1048,8 +1071,203 @@ snit::type order {
         set trans(undo) $script
         return
     }
+
+    #---------------------------------------------------------------
+    # Order Scheduling
+
+    # schedule interface timespec name args...
+    #
+    # interface    The interface doing the scheduling
+    # timespec     A future timespec for when the order should execute;
+    #              must be > now.
+    # name         The name of the order
+    # args...      The parmdict for the order.
+    # 
+    # This is the public interface to the ORDER:SCHEDULE order
+
+    typemethod schedule {interface timespec name args} {
+        # FIRST, get the parmdict.
+        if {[llength $args] > 1} {
+            set parmdict $args
+        } else {
+            set parmdict [lindex $args 0]
+        }
+
+        # NEXT, send the order, so that it gets cif'd
+        order send $interface ORDER:SCHEDULE \
+            [list timespec $timespec name $name parmdict $parmdict]
+    }
+
+
+    # scheduled names
+    #
+    # Returns a list of the IDs of the scheduled orders
+
+    typemethod {scheduled names} {} {
+        rdb eval {SELECT id FROM eventq_queue_orderExecute}
+    }
+
+
+    # scheduled validate id
+    #
+    # id      A scheduled order ID
+    #
+    # Validates and returns the order ID
+
+    typemethod {scheduled validate} {id} {
+        if {$id ni [order scheduled names]} {
+            return -code error -errorcode INVALID \
+                "order not scheduled: \"$id\""
+        }
+
+        return $id
+    }
+    
+
+    # mutate schedule dict
+    #
+    # dict        A dictionary of order parameters
+    #
+    #    timespec     The time in ticks at which the order should
+    #                 execute, > now.
+    #    name         The name of the order
+    #    parmdict     The parmdict for the order.
+    #
+    # Schedules the order to occur at the specified time, and 
+    # returns the undo script.
+
+    typemethod {mutate schedule} {dict} {
+        dict with dict {
+            log normal order "at $timespec, schedule [list $name: $parmdict]"
+            set id [eventq schedule orderExecute $timespec $name $parmdict]
+
+            notifier send ::order <Queue>
+            
+            # NEXT, return the undo script
+            return [list order mutate cancel $id]
+        }
+    }
+
+
+    # mutate cancel id
+    #
+    # id      The eventq id of the order to cancel
+    #
+    # Cancels the order, but returns an undo script.
+
+    typemethod {mutate cancel} {id} {
+        # FIRST, get undo data
+        rdb eval {
+            SELECT t, name, parmdict FROM eventq_queue_orderExecute
+            WHERE id=$id
+        } {}
+
+
+        # NEXT, cancel the order
+        log normal order "cancel order $id at $t: [list $name: $parmdict]"
+
+        eventq cancel $id
+
+        notifier send ::order <Queue>
+        
+        # NEXT, return the undo script
+        return [list order mutate schedule \
+                    [list timespec $t name $name parmdict $parmdict]]
+    }
 }
 
 
+#-------------------------------------------------------------------
+# orderExecute event
 
+eventq define orderExecute {name parmdict} {
+    if {[catch {
+        order send sim $name $parmdict
+    } result]} {
+        # Unexpected errors are handled by order send; this is
+        # a rejection.
+
+        [app topwin] tab view slog
+        app error {
+            |<--
+            $name
+
+            This scheduled order was rejected.  Please
+            see the log for the reason why.  You may
+            rewind to the previous snapshot to replace
+            or delete the order, or you may continue
+            running from here.
+        }
+
+        sim mutate pause
+    }
+} 
+
+
+#-------------------------------------------------------------------
+# Order-related Orders
+
+# ORDER:SCHEDULE
+#
+# Schedules an order to be executed in the future.
+
+order define ::order ORDER:SCHEDULE {
+    title "Schedule Order"
+    options -sendstates {PREP PAUSED}
+
+    # Note: we're defining the parameters here, but the dialog will
+    # never be used.
+    parm timespec  text "Time Spec"
+    parm name      enum "Order Name"  -type order
+    parm parmdict  text "Parm Dict"
+} {
+    # FIRST, prepare the parameters
+    prepare timespec -required -toupper -type {simclock future}
+    prepare name     -required -toupper -type order
+    prepare parmdict
+
+    returnOnError
+
+    # NEXT, time must be later than now.
+    validate timespec {
+        if {$parms(timespec) == [simclock now]} {
+            reject timespec \
+                "The scheduled time must be strictly in the future."
+        }
+    }
+
+    # NEXT, the order must be schedulable
+    validate name {
+        if {![order cget $parms(name) -canschedule]} {
+            reject name "The named order cannot be scheduled in advance."
+        }
+    }
+
+    returnOnError
+
+    # NEXT, schedule the order and return the undo script
+    setundo [order mutate schedule [array get parms]]
+}
+
+
+# ORDER:CANCEL
+#
+# Cancels a scheduled order.
+
+order define ::order ORDER:CANCEL {
+    title "Cancel Scheduled Order"
+    options -sendstates {PREP PAUSED}
+
+    # Note: we're defining the parameters here, but the dialog will
+    # never be used.
+    parm id enum "Order ID" -type {order scheduled}
+} {
+    # FIRST, prepare the parameters
+    prepare id -required -type {order scheduled}
+
+    returnOnError
+
+    # NEXT, schedule the order and return the undo script
+    setundo [order mutate cancel $parms(id)]
+}
 

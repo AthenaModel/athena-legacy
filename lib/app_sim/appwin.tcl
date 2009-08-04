@@ -234,6 +234,14 @@ snit::widget appwin {
             script { nbcoopbrowser %W }
         }
 
+        orders {
+            label  "Orders"
+            parent ""
+            script { 
+                orderbrowser %W
+            }
+        }
+
         report {
             label  "Reports"
             parent ""

@@ -693,8 +693,9 @@ order define ::unit UNIT:DELETE {
 order define ::unit UNIT:MOVE {
     title "Move Unit"
     options \
-        -table      gui_units             \
-        -sendstates {PREP PAUSED}
+        -canschedule               \
+        -table       gui_units     \
+        -sendstates  {PREP PAUSED}
 
     parm u          key   "Unit"       -tags unit
     parm location   text  "Location"   -tags point
@@ -727,8 +728,9 @@ order define ::unit UNIT:MOVE {
 order define ::unit UNIT:ACTIVITY {
     title "Set Unit Activity"
     options \
-        -table      gui_units             \
-        -sendstates {PREP PAUSED}
+        -canschedule                \
+        -table        gui_units     \
+        -sendstates   {PREP PAUSED}
 
     parm u          key   "Unit"       -tags unit
     parm a          enum  "Activity"   -tags activity \
@@ -769,8 +771,9 @@ order define ::unit UNIT:ACTIVITY {
 order define ::unit UNIT:PERSONNEL {
     title "Set Unit Personnel"
     options \
-        -table      gui_units             \
-        -sendstates {PREP PAUSED}
+        -canschedule               \
+        -table       gui_units     \
+        -sendstates  {PREP PAUSED}
 
     parm u          key   "Unit"       -tags unit
     parm personnel  text  "Personnel"  

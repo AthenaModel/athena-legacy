@@ -295,6 +295,16 @@ CREATE TEMPORARY VIEW gui_ensits_ended AS
 SELECT * FROM gui_ensits WHERE state = 'ENDED';
 
 
+--View of scheduled orders
+CREATE TEMPORARY VIEW gui_orders AS
+SELECT id        AS id,
+       t         AS tick,
+       tozulu(t) AS zulu,
+       name      AS name,
+       parmdict  AS parmdict
+FROM eventq_queue_orderExecute;
+    
+
 ------------------------------------------------------------------------
 -- Primary Entities
 --

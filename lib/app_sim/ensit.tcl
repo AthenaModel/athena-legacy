@@ -884,7 +884,9 @@ eventq define ensitAutoResolve {s} {
 
 order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
     title "Create Environmental Situation"
-    options -sendstates {PREP PAUSED}
+    options \
+        -canschedule               \
+        -sendstates  {PREP PAUSED}
 
     parm location   text  "Location"      -tags nbpoint -refresh
     parm stype      enum  "Type"                        -refresh \
@@ -1141,6 +1143,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:MOVE {
 order define ::ensit SITUATION:ENVIRONMENTAL:RESOLVE {
     title "Resolve Environmental Situation"
     options \
+        -canschedule                           \
         -table          gui_ensits             \
         -alwaysunsaved                         \
         -sendstates     {PREP PAUSED}
