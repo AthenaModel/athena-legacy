@@ -44,6 +44,21 @@ namespace eval ::athena_test::tests:: {
         error
     } -result {Unknown parameter: "nonesuch"}
 
+    #-------------------------------------------------------------------
+    # check
+
+    test check-1.1 {invalid order returns error} -body {
+        order check GROUP:CIVILIAN:CREATE
+    } -returnCodes {
+        error
+    } -result {g {required value} longname {required value} color {required value} shape {required value}}
+
+    test check-1.2 {valid order doesn't execute} -body {
+        order check GROUP:CIVILIAN:CREATE \
+            g SHIA longname "Local Shia" color "#000000" shape NEUTRAL
+        civgroup names
+    } -result {}
+
 
     #-------------------------------------------------------------------
     # Cleanup

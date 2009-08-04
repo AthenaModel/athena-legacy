@@ -621,7 +621,7 @@ order define ::unit UNIT:CREATE {
         }
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, create the unit
     lappend undo [$type mutate create [array get parms]]
@@ -648,7 +648,7 @@ order define ::unit UNIT:DELETE {
     # FIRST, prepare the parameters
     prepare u -toupper -required -type unit
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, make sure the user knows what he is getting into.
 
@@ -704,7 +704,7 @@ order define ::unit UNIT:MOVE {
     prepare u          -toupper -required -type unit
     prepare location   -toupper -required -type refpoint
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, get the unit's group type
     set gtype [unit get $parms(u) gtype]
@@ -750,7 +750,7 @@ order define ::unit UNIT:ACTIVITY {
         $type ValidateActivity $gtype $parms(a)
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the unit
     lappend undo [$type mutate activity $parms(u) $parms(a)]
@@ -802,7 +802,7 @@ order define ::unit UNIT:PERSONNEL {
         }
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the unit
     lappend undo [$type mutate personnel $parms(u) $parms(personnel)]

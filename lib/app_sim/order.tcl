@@ -171,6 +171,7 @@ snit::type order {
     # errors              Dictionary of parameter names and error messages
     # level               Error level: NONE or REJECT
     # undo                Undo script for this order
+    # checking            1 if in "order check" and 0 otherwise.
 
     typevariable trans -array {}
 
@@ -690,6 +691,9 @@ snit::type order {
         # NEXT, save the interface.
         set trans(interface) $interface
 
+        # NEXT, we're not just checking.
+        set trans(checking) 0
+
         # NEXT, save the order parameters in the parms array, saving
         # the order name.
         set validParms [order parms $name]
@@ -834,6 +838,71 @@ snit::type order {
         }
 
         return [join $out \n]
+    }
+
+
+
+    # check name parmdict
+    # check name parm value ?parm value...?
+    #
+    # name            The order's name
+    # parmdict        The order's parameter dictionary
+    # parm,value...   The parameter dictionary passed as separate args.
+    #
+    # Checks the order, throwing a REJECT error if invalid.
+
+    typemethod check {name args} {
+        # FIRST, get the parmdict.
+        if {[llength $args] > 1} {
+            set parmdict $args
+        } else {
+            set parmdict [lindex $args 0]
+        }
+
+        # NEXT, do we have an order handler?
+        require {[info exists handler($name)]} "Undefined order: $name"
+
+        # NEXT, save the interface.
+        set trans(interface) sim
+
+        # NEXT, we're checking.
+        set trans(checking) 1
+
+        # NEXT, save the order parameters in the parms array, saving
+        # the order name.
+        set validParms [order parms $name]
+
+        array unset parms
+
+        dict for {parm value} $parmdict {
+            require {$parm in $validParms} "Unknown parameter: \"$parm\""
+
+            set parms($parm) $value
+        }
+
+        set parms(_order) $name
+
+        # NEXT, set up the error messages and call the order handler,
+        # rolling back the database automatically on error.
+        set trans(errors) [dict create]
+        set trans(level)  NONE
+        set trans(undo)   {}
+
+        # NEXT, call the handler
+        set code [catch { $handler($name) } result opts]
+
+        if {$code == 0} {
+            return -code error \
+                "order $name responds improperly on validity check"
+        } else {
+            set ecode [dict get $opts -errorcode]
+
+            if {$ecode ne "CHECKED"} {
+                return {*}$opts $result
+            }
+        }
+
+        return
     }
 
 
@@ -1035,14 +1104,21 @@ snit::type order {
         }
     }
 
-    # returnOnError
+    # returnOnError ?-final?
     #
     # Handles accumulated errors.
 
-    proc returnOnError {} {
-        # FIRST, If there are no errors, do nothing
+    proc returnOnError {{flag ""}} {
+        # FIRST, Were there any errors?
         if {[dict size $trans(errors)] == 0} {
-            return
+            # If this is the -final check, and we're just checking,
+            # escape out of the order.
+            if {$flag eq "-final" && $trans(checking)} {
+                return -code error -errorcode CHECKED
+            } else {
+                # Just return normally.
+                return
+            }
         }
 
         # FINALLY, throw the accumulated errors at the specified
@@ -1074,30 +1150,6 @@ snit::type order {
 
     #---------------------------------------------------------------
     # Order Scheduling
-
-    # schedule interface timespec name args...
-    #
-    # interface    The interface doing the scheduling
-    # timespec     A future timespec for when the order should execute;
-    #              must be > now.
-    # name         The name of the order
-    # args...      The parmdict for the order.
-    # 
-    # This is the public interface to the ORDER:SCHEDULE order
-
-    typemethod schedule {interface timespec name args} {
-        # FIRST, get the parmdict.
-        if {[llength $args] > 1} {
-            set parmdict $args
-        } else {
-            set parmdict [lindex $args 0]
-        }
-
-        # NEXT, send the order, so that it gets cif'd
-        order send $interface ORDER:SCHEDULE \
-            [list timespec $timespec name $name parmdict $parmdict]
-    }
-
 
     # scheduled names
     #
@@ -1187,16 +1239,19 @@ eventq define orderExecute {name parmdict} {
         # Unexpected errors are handled by order send; this is
         # a rejection.
 
-        [app topwin] tab view slog
-        app error {
-            |<--
-            $name
+        if {[app topwin] ne ""} {
+            [app topwin] tab view slog
 
-            This scheduled order was rejected.  Please
-            see the log for the reason why.  You may
-            rewind to the previous snapshot to replace
-            or delete the order, or you may continue
-            running from here.
+            app error {
+                |<--
+                $name
+
+                This scheduled order was rejected.  Please
+                see the log for the reason why.  You may
+                rewind to the previous snapshot to replace
+                or delete the order, or you may continue
+                running from here.
+            }
         }
 
         sim mutate pause
@@ -1243,7 +1298,7 @@ order define ::order ORDER:SCHEDULE {
         }
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, schedule the order and return the undo script
     setundo [order mutate schedule [array get parms]]
@@ -1265,7 +1320,7 @@ order define ::order ORDER:CANCEL {
     # FIRST, prepare the parameters
     prepare id -required -type {order scheduled}
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, schedule the order and return the undo script
     setundo [order mutate cancel $parms(id)]

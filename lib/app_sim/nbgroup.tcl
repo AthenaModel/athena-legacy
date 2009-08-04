@@ -361,7 +361,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
         reject g "Group $parms(g) already resides in $parms(n)"
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, if local_name is not given, use the group's long name
     if {$parms(local_name) eq ""} {
@@ -400,7 +400,7 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
         $type validate [list $parms(n) $parms(g)]
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, Delete all entities that depend on this group, unless the
     # user says no.
@@ -468,7 +468,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
         $type validate [list $parms(n) $parms(g)]
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the group
     lappend undo [$type mutate update [array get parms]]
@@ -502,7 +502,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
     prepare rollup_weight            -type weight
     prepare effects_factor           -type weight
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the group
     set undo [list]

@@ -211,7 +211,7 @@ order define ::defroe ROE:DEFEND:UPDATE {
     prepare g        -toupper  -required -type {frcgroup uniformed}
     prepare roe      -toupper            -type edefroeuf
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the entity
     setundo [$type mutate update [array get parms]]
@@ -236,7 +236,7 @@ order define ::defroe ROE:DEFEND:UPDATE:MULTI {
     prepare ids  -toupper  -required -listof defroe
     prepare roe  -toupper            -type edefroeuf
 
-    returnOnError
+    returnOnError -final
 
 
     # NEXT, modify the curves

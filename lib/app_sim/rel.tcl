@@ -310,7 +310,7 @@ order define ::rel RELATIONSHIP:UPDATE {
         rel validate [list $parms(n) $parms(f) $parms(g)]
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the curve
     setundo [$type mutate update [array get parms]]
@@ -333,7 +333,7 @@ order define ::rel RELATIONSHIP:UPDATE:MULTI {
 
     prepare rel      -toupper            -type rgrouprel
 
-    returnOnError
+    returnOnError -final
 
 
     # NEXT, modify the curves

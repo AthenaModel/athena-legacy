@@ -269,7 +269,7 @@ order define ::coop COOPERATION:UPDATE {
         coop validate [list $parms(n) $parms(f) $parms(g)]
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the curve
     setundo [$type mutate update [array get parms]]
@@ -292,7 +292,7 @@ order define ::coop COOPERATION:UPDATE:MULTI {
 
     prepare coop0    -toupper            -type qcooperation
 
-    returnOnError
+    returnOnError -final
 
 
     # NEXT, modify the curves

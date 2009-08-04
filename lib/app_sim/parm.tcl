@@ -246,7 +246,7 @@ order define ::parm PARM:IMPORT {
     # FIRST, prepare the parameters
     prepare filename -required 
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, validate the parameters
     if {[catch {
@@ -269,6 +269,8 @@ order define ::parm PARM:RESET {
 
     options -sendstates {PREP RUNNING PAUSED}
 } {
+    returnOnError -final
+
     # FIRST, try to do it.
     if {[catch {
         # In this case, simply try it.
@@ -298,7 +300,7 @@ order define ::parm PARM:SET {
     prepare parm  -required 
     prepare value -required
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, validate the parameters
     if {[catch {

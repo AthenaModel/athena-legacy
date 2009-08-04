@@ -935,7 +935,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
         }
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, create the situation.
     lappend undo [$type mutate create [array get parms]]
@@ -959,7 +959,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:DELETE {
     # FIRST, prepare the parameters
     prepare s -required -type {ensit initial}
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, make sure the user knows what he is getting into.
 
@@ -1058,7 +1058,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
         }
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the group
     setundo [$type mutate update [array get parms]]
@@ -1119,7 +1119,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:MOVE {
         }
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, add blank parms
     array set parms {
@@ -1155,7 +1155,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:RESOLVE {
     prepare s         -required -type {ensit live}
     prepare resolver  -toupper  -type {ptype g+none}
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, resolve the situation.
     lappend undo [$type mutate resolve [array get parms]]

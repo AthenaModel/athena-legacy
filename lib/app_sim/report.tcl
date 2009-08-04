@@ -709,7 +709,7 @@ order define ::report REPORT:COOPERATION {
     prepare f  -toupper -required -type {::ptype civg+all}
     prepare g  -toupper -required -type {::ptype frcg+all}
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, produce the report
     set undo [list]
@@ -736,7 +736,7 @@ order define ::report REPORT:DRIVER {
     # FIRST, prepare the parameters
     prepare state      -toupper -required -type {::report::edriverstate}
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, produce the report
     set undo [list]
@@ -765,7 +765,7 @@ order define ::report REPORT:SATISFACTION:CIVILIAN {
     prepare n  -toupper -required -type {::ptype n+all}
     prepare g  -toupper -required -type {::ptype civg+all}
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, produce the report
     set undo [list]
@@ -835,7 +835,7 @@ order define ::report REPORT:SATISFACTION:CONTRIB {
         }
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, convert the data
     if {$parms(top) eq ""} {
@@ -870,7 +870,7 @@ order define ::report REPORT:SATISFACTION:ORGANIZATION {
     prepare n  -toupper -required -type {::ptype n+all}
     prepare g  -toupper -required -type {::ptype orgg+all}
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, produce the report
     set undo [list]

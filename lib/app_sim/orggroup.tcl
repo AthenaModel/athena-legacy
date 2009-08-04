@@ -266,7 +266,7 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
         reject longname "longname must not be identical to ID"
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, create the group and dependent entities
     lappend undo [$type mutate create [array get parms]]
@@ -286,7 +286,7 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type orggroup
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, make sure the user knows what he is getting into.
 
@@ -348,7 +348,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     prepare rollup_weight            -type weight
     prepare effects_factor           -type weight
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the group
     setundo [$type mutate update [array get parms]]
@@ -380,7 +380,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
     prepare rollup_weight                      -type   weight
     prepare effects_factor                     -type   weight
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, clear the other parameters expected by the mutator
     prepare longname

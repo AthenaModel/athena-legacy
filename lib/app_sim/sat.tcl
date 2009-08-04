@@ -315,7 +315,7 @@ order define ::sat SATISFACTION:UPDATE {
         sat validate [list $parms(n) $parms(g) $parms(c)]
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the curve
     setundo [$type mutate update [array get parms]]
@@ -342,7 +342,7 @@ order define ::sat SATISFACTION:UPDATE:MULTI {
     prepare trend0   -toupper -type qtrend    -xform [list qtrend value]
     prepare saliency -toupper -type qsaliency -xform [list qsaliency value]
 
-    returnOnError
+    returnOnError -final
 
 
     # NEXT, modify the curves

@@ -1,0 +1,310 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-ORDER.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) ORDER:* order tests.
+#
+#    This test suite tests the order(sim) orders, which are used
+#    to schedule and cancel orders at future times.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        if {[sim state] eq "RUNNING"} {
+            sim mutate pause
+        } 
+
+        if {[sim state] eq "PAUSED"} {
+            sim restart
+        }
+
+        if {[simclock now] > 0} {
+            simclock reset
+        }
+
+        ted cleanup
+
+        assert {![aram initialized]}
+    }
+
+    # Return the newest scheduled order ID
+    proc newest {} {
+        rdb eval {SELECT max(id) FROM gui_orders}
+    }
+
+    #-------------------------------------------------------------------
+    # ORDER:SCHEDULE
+
+    test SCHEDULE-1.1 {Required parameters} -body {
+        ted order -reject ORDER:SCHEDULE
+    } -result {
+        timespec {required value}
+        name {required value}
+    }
+
+    test SCHEDULE-1.2 {Invalid timespec} -body {
+        ted order -reject ORDER:SCHEDULE {
+            timespec NONESUCH 
+            name     UNIT:MOVE
+        }
+    } -result {
+        timespec {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
+    }
+
+
+    test SCHEDULE-1.3 {Invalid timespec: not in future} -body {
+        ted order -reject ORDER:SCHEDULE {
+            timespec NOW
+            name     UNIT:MOVE
+        }
+    } -result {
+        timespec {The scheduled time must be strictly in the future.}
+    }
+
+    test SCHEDULE-1.4 {Invalid name} -body {
+        ted order -reject ORDER:SCHEDULE {
+            timespec +1
+            name     NONESUCH
+        }
+    } -result {
+        name {order does not exist: "NONESUCH"}
+    }
+
+    test SCHEDULE-1.5 {Order cannot be scheduled} -body {
+        ted order -reject ORDER:SCHEDULE {
+            timespec +1
+            name     MAP:IMPORT
+        }
+    } -result {
+        name {The named order cannot be scheduled in advance.}
+    }
+
+    test SCHEDULE-2.1 {Order is scheduled} -body {
+        ted order ORDER:SCHEDULE {
+            timespec +1
+            name     UNIT:MOVE
+            parmdict {u U1 location A00A00}
+        }
+        
+        ted query {SELECT * FROM gui_orders}
+    } -cleanup {
+        cleanup
+    } -result {
+id tick zulu         name      parmdict             
+-- ---- ------------ --------- -------------------- 
+1  1    110000ZJAN10 UNIT:MOVE u U1 location A00A00 
+    }
+
+
+    test SCHEDULE-2.2 {::order <Queue>} -body {
+        ted notifier bind ::order <Queue>
+        ted order ORDER:SCHEDULE {
+            timespec +1
+            name     UNIT:MOVE
+            parmdict {u U1 location A00A00}
+        }
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::order <Queue>}
+    }
+
+
+    test SCHEDULE-2.3 {undo cancels order} -setup {
+        ted order ORDER:SCHEDULE {
+            timespec +1
+            name     UNIT:MOVE
+            parmdict {u U1 location A00A00}
+        }
+    } -body {
+        cif undo
+        ted query {SELECT * FROM gui_orders}
+    } -cleanup {
+        cleanup
+    } -result {
+    }
+
+    test SCHEDULE-2.4 {::order <Queue> on undo} -setup {
+        ted order ORDER:SCHEDULE {
+            timespec +1
+            name     UNIT:MOVE
+            parmdict {u U1 location A00A00}
+        }
+    } -body {
+        ted notifier bind ::order <Queue>
+        cif undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::order <Queue>}
+    }
+
+    test SCHEDULE-3.1 {Scheduled order is rejected} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+
+        ted order ORDER:SCHEDULE {
+            timespec +1
+            name     UNIT:MOVE
+            parmdict {u U1 location A00A00}
+        }
+    } -body {        
+        ted order SIM:RUN days 5 block YES
+        simclock now
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test SCHEDULE-3.2 {Scheduled order is accepted; has effect} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA BLUE1
+
+        ted order ORDER:SCHEDULE {
+            timespec +1
+            name     UNIT:MOVE
+            parmdict {u BLUE1 location B00B00}
+        }
+    } -body {        
+        ted order SIM:RUN days 5 block YES
+        ted query {SELECT u, location FROM gui_units}
+    } -cleanup {
+        cleanup
+    } -result {
+u     location 
+----- -------- 
+BLUE1 B00B00   
+    }
+
+    test SCHEDULE-3.3 {Scheduled order is accepted; time passes} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA BLUE1
+
+        ted order ORDER:SCHEDULE {
+            timespec +1
+            name     UNIT:MOVE
+            parmdict {u BLUE1 location B00B00}
+        }
+    } -body {        
+        ted order SIM:RUN days 5 block YES
+        simclock now
+    } -cleanup {
+        cleanup
+    } -result {5}
+
+    #-------------------------------------------------------------------
+    # ORDER:CANCEL
+
+    test CANCEL-1.1 {Required parameters} -body {
+        ted order -reject ORDER:CANCEL
+    } -result {
+        id {required value}
+    }
+
+    test CANCEL-1.2 {Invalid ID} -body {
+        ted order -reject ORDER:CANCEL id NONESUCH
+    } -result {
+        id {order not scheduled: "NONESUCH"}
+    }
+
+
+    test CANCEL-2.1 {Order is canceled} -setup {
+        ted order ORDER:SCHEDULE {
+            timespec +1
+            name     UNIT:MOVE
+            parmdict {u U1 location A00A00}
+        }
+    } -body {
+        ted order ORDER:CANCEL id [newest]
+        ted query {SELECT * FROM gui_orders}
+    } -cleanup {
+        cleanup
+    } -result {
+    }
+
+
+    test CANCEL-2.2 {::order <Queue>} -setup {
+        ted order ORDER:SCHEDULE {
+            timespec +1
+            name     UNIT:MOVE
+            parmdict {u U1 location A00A00}
+        }
+    } -body {
+        ted notifier bind ::order <Queue>
+        ted order ORDER:CANCEL id [newest]
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::order <Queue>}
+    }
+
+
+    test CANCEL-2.3 {undo restores order} -setup {
+        ted order ORDER:SCHEDULE {
+            timespec +1
+            name     UNIT:MOVE
+            parmdict {u U1 location A00A00}
+        }
+        ted order ORDER:CANCEL id [newest]
+    } -body {
+        cif undo
+        ted query {SELECT * FROM gui_orders}
+    } -cleanup {
+        cleanup
+    } -result {
+id tick zulu         name      parmdict             
+-- ---- ------------ --------- -------------------- 
+2  1    110000ZJAN10 UNIT:MOVE u U1 location A00A00 
+    }
+
+    test CANCEL-2.4 {::order <Queue> on undo} -setup {
+        ted order ORDER:SCHEDULE {
+            timespec +1
+            name     UNIT:MOVE
+            parmdict {u U1 location A00A00}
+        }
+        ted order ORDER:CANCEL id [newest]
+    } -body {
+        ted notifier bind ::order <Queue>
+        cif undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::order <Queue>}
+    }
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+

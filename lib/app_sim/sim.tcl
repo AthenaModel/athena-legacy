@@ -919,7 +919,7 @@ order define ::sim SIM:STARTDATE {
     # FIRST, prepare the parameters
     prepare startdate -toupper -required -type zulu
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, set the start date
     lappend undo [$type mutate startdate $parms(startdate)]
@@ -972,7 +972,7 @@ order define ::sim SIM:RUN {
         }
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, start the simulation and return the undo script
 
@@ -996,9 +996,9 @@ order define ::sim SIM:RUN {
 order define ::sim SIM:PAUSE {
     title "Pause Simulation"
     options -sendstates RUNNING
-
-    # TBD Need to indicate valid states
 } {
+    returnOnError -final
+
     # FIRST, pause the simulation and return the undo script
     lappend undo [$type mutate pause]
 

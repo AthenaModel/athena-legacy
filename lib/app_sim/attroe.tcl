@@ -334,7 +334,7 @@ order define ::attroe ROE:ATTACK:UNIFORMED:CREATE {
         reject g "Group $parms(f) already has an ROE with group $parms(g) in $parms(n)"
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, create the ROE
     set parms(uniformed) 1
@@ -381,7 +381,7 @@ order define ::attroe ROE:ATTACK:NONUNIFORMED:CREATE {
         reject g "Group $parms(f) already has an ROE with group $parms(g) in $parms(n)"
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, create the ROE
     set parms(uniformed) 0
@@ -419,7 +419,7 @@ order define ::attroe ROE:ATTACK:DELETE {
         $type validate [list $parms(n) $parms(f) $parms(g)]
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, Delete the ROE, unless the user says no.
 
@@ -483,7 +483,7 @@ order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE {
         $type validate [list $parms(n) $parms(f) $parms(g)]
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the group
     set parms(rate) ""
@@ -530,7 +530,7 @@ order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE {
         $type validate [list $parms(n) $parms(f) $parms(g)]
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the group
     lappend undo [$type mutate update [array get parms]]
@@ -562,7 +562,7 @@ order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE:MULTI {
     prepare roe            -toupper            -type eattroeuf
     prepare cooplimit      -toupper            -type qcooperation
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the group
     set undo [list]
@@ -603,7 +603,7 @@ order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI {
     prepare cooplimit      -toupper            -type qcooperation
     prepare rate           -toupper            -type rrate
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the group
     set undo [list]

@@ -225,7 +225,7 @@ order define ::map MAP:IMPORT {
     # FIRST, prepare the parameters
     prepare filename -required 
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, validate the parameters
     if {[catch {

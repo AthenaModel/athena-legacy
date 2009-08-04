@@ -320,7 +320,7 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE {
         }
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the curve
     setundo [$type mutate update [array get parms]]
@@ -365,7 +365,7 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE:MULTI {
         }
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the curves
     set undo [list]

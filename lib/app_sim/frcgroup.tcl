@@ -365,7 +365,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
         reject longname "longname must not be identical to ID"
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, create the group and dependent entities
     lappend undo [$type mutate create [array get parms]]
@@ -385,7 +385,7 @@ order define ::frcgroup GROUP:FORCE:DELETE {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type frcgroup
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, make sure the user knows what he is getting into.
 
@@ -449,7 +449,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
     prepare local     -toupper   -type boolean
     prepare coalition -toupper   -type boolean
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the group.
     set undo [list]
@@ -489,7 +489,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
     prepare local     -toupper            -type   boolean
     prepare coalition -toupper            -type   boolean
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, clear the other parameters expected by the mutator
     prepare longname

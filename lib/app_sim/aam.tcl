@@ -1177,7 +1177,7 @@ order define ::aam ATTRIT:NBHOOD {
     prepare g1         -toupper           -type frcgroup
     prepare g2         -toupper           -type frcgroup
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, g1 != g2
     if {$parms(g1) eq $parms(g2)} {
@@ -1238,7 +1238,7 @@ order define ::aam ATTRIT:GROUP {
         }
     }
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, g1 != g2
     if {$parms(g1) eq $parms(g2)} {
@@ -1299,7 +1299,7 @@ order define ::aam ATTRIT:UNIT {
         }
     }
 
-    returnOnError
+    returnOnError -final
 
 
     # NEXT, attrit the unit

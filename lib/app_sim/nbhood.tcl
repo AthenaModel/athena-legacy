@@ -459,7 +459,7 @@ order define ::nbhood NBHOOD:CREATE {
         }
     }
     
-    returnOnError
+    returnOnError -final
 
     # NEXT, create the neighborhood and dependent entities
     lappend undo [$type mutate create [array get parms]]
@@ -479,7 +479,7 @@ order define ::nbhood NBHOOD:DELETE {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type nbhood
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, make sure the user knows what he is getting into.
 
@@ -521,7 +521,7 @@ order define ::nbhood NBHOOD:LOWER {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type nbhood
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, raise the neighborhood
     lappend undo [$type mutate lower $parms(n)]
@@ -541,7 +541,7 @@ order define ::nbhood NBHOOD:RAISE {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type nbhood
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, raise the neighborhood
     lappend undo [$type mutate raise $parms(n)]
@@ -631,7 +631,7 @@ order define ::nbhood NBHOOD:UPDATE {
         reject refpoint "not in polygon"
     }
     
-    returnOnError
+    returnOnError -final
 
     # NEXT, modify the neighborhood
     lappend undo [$type mutate update [array get parms]]
@@ -657,7 +657,7 @@ order define ::nbhood NBHOOD:UPDATE:MULTI {
     prepare urbanization -toupper           -type   eurbanization
     prepare vtygain                         -type   rgain
 
-    returnOnError
+    returnOnError -final
 
     # NEXT, clear the other parameters expected by the mutator
     prepare longname
