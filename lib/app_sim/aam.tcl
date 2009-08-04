@@ -1161,7 +1161,7 @@ snit::type aam {
 order define ::aam ATTRIT:NBHOOD {
     title "Magic Attrit Neighborhood"
     options \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm n          enum  "Neighborhood" -type nbhood -tags nbhood -refresh
     parm casualties text  "Casualties" 
@@ -1199,7 +1199,7 @@ order define ::aam ATTRIT:NBHOOD {
 order define ::aam ATTRIT:GROUP {
     title "Magic Attrit Group"
     options \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm n          enum  "Neighborhood"  -type nbhood  -tags nbhood -refresh
     parm f          enum  "To Group"      -tags group -refresh \
@@ -1262,7 +1262,7 @@ order define ::aam ATTRIT:GROUP {
 order define ::aam ATTRIT:UNIT {
     title "Magic Attrit Unit"
     options \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm u          enum  "Unit"       -type unit -tags unit -refresh
     parm casualties text  "Casualties" 
@@ -1309,5 +1309,6 @@ order define ::aam ATTRIT:UNIT {
 
     setundo [join $undo \n]
 }
+
 
 

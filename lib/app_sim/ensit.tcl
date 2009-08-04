@@ -884,7 +884,7 @@ eventq define ensitAutoResolve {s} {
 
 order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
     title "Create Environmental Situation"
-    options -sendstates {PREP PAUSED RUNNING}
+    options -sendstates {PREP PAUSED}
 
     parm location   text  "Location"      -tags nbpoint -refresh
     parm stype      enum  "Type"                        -refresh \
@@ -950,7 +950,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:DELETE {
     title "Delete Environmental Situation"
     options \
         -table      gui_ensits_initial     \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm s  key  "Situation"  -tags situation
 } {
@@ -996,7 +996,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
     title "Update Environmental Situation"
     options \
         -table      gui_ensits_initial     \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm s          key   "Situation"   -tags situation
     parm location   text  "Location"    -tags nbpoint
@@ -1071,7 +1071,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:MOVE {
     title "Move Environmental Situation"
     options \
         -table      gui_ensits           \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm s          key   "Situation"   -tags situation
     parm location   text  "Location"    -tags nbpoint
@@ -1143,7 +1143,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:RESOLVE {
     options \
         -table          gui_ensits             \
         -alwaysunsaved                         \
-        -sendstates     {PREP PAUSED RUNNING}
+        -sendstates     {PREP PAUSED}
 
     parm s         key   "Situation"    -tags situation
     parm resolver  enum  "Resolved By"  -type {ptype g+none}
@@ -1159,5 +1159,6 @@ order define ::ensit SITUATION:ENVIRONMENTAL:RESOLVE {
     
     setundo [join $undo \n]
 }
+
 
 

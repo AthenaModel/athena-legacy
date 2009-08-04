@@ -199,7 +199,7 @@ order define ::defroe ROE:DEFEND:UPDATE {
     title "Update Defending ROE"
     options \
         -table      gui_defroe_ng             \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm n    key   "Neighborhood"   -tags nbhood
     parm g    key   "Group"          -tags group
@@ -225,7 +225,7 @@ order define ::defroe ROE:DEFEND:UPDATE:MULTI {
     title "Update Multiple Defending ROEs"
     options \
         -table      gui_defroe_ng             \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm ids  multi  "IDs"
     parm roe  enum   "ROE" -type edefroeuf   
@@ -248,3 +248,4 @@ order define ::defroe ROE:DEFEND:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+

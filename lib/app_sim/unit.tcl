@@ -569,7 +569,7 @@ snit::type unit {
 order define ::unit UNIT:CREATE {
     title "Create Unit"
 
-    options -sendstates {PREP PAUSED RUNNING}
+    options -sendstates {PREP PAUSED}
 
     parm g          enum  "Group"  -type group -tags group  -refresh
     parm origin     enum  "Origin"             -tags nbhood -refresh \
@@ -640,7 +640,7 @@ order define ::unit UNIT:DELETE {
     title "Delete Unit"
     options \
         -table      units                 \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
 
     parm u  key "Unit" -tags unit
@@ -694,7 +694,7 @@ order define ::unit UNIT:MOVE {
     title "Move Unit"
     options \
         -table      gui_units             \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm u          key   "Unit"       -tags unit
     parm location   text  "Location"   -tags point
@@ -728,7 +728,7 @@ order define ::unit UNIT:ACTIVITY {
     title "Set Unit Activity"
     options \
         -table      gui_units             \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm u          key   "Unit"       -tags unit
     parm a          enum  "Activity"   -tags activity \
@@ -770,7 +770,7 @@ order define ::unit UNIT:PERSONNEL {
     title "Set Unit Personnel"
     options \
         -table      gui_units             \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm u          key   "Unit"       -tags unit
     parm personnel  text  "Personnel"  
@@ -811,6 +811,7 @@ order define ::unit UNIT:PERSONNEL {
 
     setundo [join $undo \n]
 }
+
 
 
 

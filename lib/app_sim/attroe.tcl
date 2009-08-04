@@ -310,7 +310,7 @@ snit::type ::attroe {
 order define ::attroe ROE:ATTACK:UNIFORMED:CREATE {
     title "Create Attacking ROE (Uniformed)"
 
-    options -sendstates {PREP PAUSED RUNNING}
+    options -sendstates {PREP PAUSED}
 
     parm n          enum "Neighborhood"    -type nbhood -tags nbhood
     parm f          enum "Attacking Group" -type {frcgroup uniformed} \
@@ -354,7 +354,7 @@ order define ::attroe ROE:ATTACK:UNIFORMED:CREATE {
 order define ::attroe ROE:ATTACK:NONUNIFORMED:CREATE {
     title "Create Attacking ROE (Non-Uniformed)"
 
-    options -sendstates {PREP PAUSED RUNNING}
+    options -sendstates {PREP PAUSED}
 
     parm n          enum "Neighborhood"      -type nbhood -tags nbhood
     parm f          enum "Attacking Group"   -type {frcgroup nonuniformed} \
@@ -401,7 +401,7 @@ order define ::attroe ROE:ATTACK:DELETE {
     options \
         -table      gui_attroe_nfg        \
         -tags       nfg                   \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm n  key  "Neighborhood"     -tags nbhood
     parm f  key  "Attacking Group"  -tags group
@@ -460,7 +460,7 @@ order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE {
     options \
         -table      gui_attroeuf_nfg      \
         -tags       nfg                   \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm n              key  "Neighborhood"      -tags nbhood
     parm f              key  "Attacking Group"   -tags group
@@ -503,7 +503,7 @@ order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE {
     options \
         -table      gui_attroenf_nfg      \
         -tags       nfg                   \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm n              key  "Neighborhood"      -tags nbhood
     parm f              key  "Attacking Group"   -tags group
@@ -548,7 +548,7 @@ order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE:MULTI {
     options \
         -table      gui_attroeuf_nfg      \
         -tags       nfg                   \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm ids            multi "Groups"
     parm roe            enum  "ROE"               -type eattroeuf
@@ -586,7 +586,7 @@ order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI {
     options \
         -table      gui_attroenf_nfg      \
         -tags       nfg                   \
-        -sendstates {PREP PAUSED RUNNING}
+        -sendstates {PREP PAUSED}
 
     parm ids            multi "Groups"
     parm roe            enum  "ROE"               -type eattroenf
@@ -614,3 +614,4 @@ order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI {
 
     return
 }
+
