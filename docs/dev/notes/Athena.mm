@@ -1,9 +1,6 @@
 <map version="0.8.1">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
-<node CREATED="1243527457709" ID="Freemind_Link_320906598" MODIFIED="1243527459755" POSITION="right" TEXT="Problems">
-<node CREATED="1243527460189" ID="Freemind_Link_1011323624" MODIFIED="1243527474567" TEXT="Moving from snapshot to snapshot can be very slow"/>
-</node>
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
 <node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1245882375350" TEXT="Magic satisfaction inputs and adjustments">
 <icon BUILTIN="full-2"/>
@@ -141,36 +138,6 @@
 <icon BUILTIN="help"/>
 </node>
 </node>
-<node CREATED="1237480052010" ID="Freemind_Link_1129765376" MODIFIED="1245882452662" TEXT="Ability to validate orders without executing them">
-<icon BUILTIN="full-3"/>
-</node>
-<node CREATED="1237480092962" FOLDED="true" ID="Freemind_Link_1722894145" MODIFIED="1245882456134" TEXT="Schedule orders ahead of time">
-<arrowlink DESTINATION="Freemind_Link_1129765376" ENDARROW="Default" ENDINCLINATION="93;0;" ID="Freemind_Arrow_Link_906925163" STARTARROW="None" STARTINCLINATION="93;0;"/>
-<icon BUILTIN="full-3"/>
-<node CREATED="1237571826655" ID="Freemind_Link_358553126" MODIFIED="1237994632175" TEXT="&quot;order schedule&quot; command">
-<node CREATED="1237571831262" ID="Freemind_Link_691473547" MODIFIED="1237571836200" TEXT="Schedules another order"/>
-<node CREATED="1237994657557" ID="Freemind_Link_1225659272" MODIFIED="1237994673855" TEXT="CIF&apos;d as ORDER:SCHEDULE pseudo-order">
-<node CREATED="1237571837118" ID="Freemind_Link_1205931009" MODIFIED="1237907725207" TEXT="No explicit dialog for this order"/>
-<node CREATED="1237994680548" ID="Freemind_Link_1360872238" MODIFIED="1237994683823" TEXT="Can be undone"/>
-</node>
-<node CREATED="1237571868509" ID="Freemind_Link_351266681" MODIFIED="1237571875304" TEXT="Undone by cancelling scheduled order"/>
-<node CREATED="1237482622421" ID="Freemind_Link_144828260" MODIFIED="1237482629632" TEXT="eventq">
-<node CREATED="1237564183614" ID="Freemind_Link_1439004237" MODIFIED="1237564192023" TEXT="Event: scheduled order"/>
-<node CREATED="1237482707941" ID="Freemind_Link_316875113" MODIFIED="1237482711247" TEXT="Queue browser"/>
-<node CREATED="1237482851061" ID="Freemind_Link_1152163067" MODIFIED="1237482874725" TEXT="Event priorities?"/>
-</node>
-</node>
-<node CREATED="1237571660719" ID="Freemind_Link_1311718344" MODIFIED="1237571813596" TEXT="Orders run by scheduled events" VSHIFT="-6">
-<node CREATED="1237571721677" ID="Freemind_Link_402714946" MODIFIED="1237571728024" TEXT="Run by &quot;sim&quot;, not &quot;gui&quot;"/>
-<node CREATED="1237571728750" ID="Freemind_Link_203596528" MODIFIED="1237571732296" TEXT="Not put in CIF"/>
-<node CREATED="1237571732717" ID="Freemind_Link_739438388" MODIFIED="1237571735784" TEXT="Not undoable"/>
-</node>
-<node CREATED="1237994749045" ID="Freemind_Link_137028882" MODIFIED="1237994796554" TEXT="No SIM:SCHEDULE order">
-<icon BUILTIN="flag"/>
-<node CREATED="1237994759220" ID="Freemind_Link_884689448" MODIFIED="1237994787918" TEXT="&quot;order schedule&quot; must validate order states"/>
-<node CREATED="1237994788501" ID="Freemind_Link_481627364" MODIFIED="1237994793104" TEXT="That&apos;s a framework issue."/>
-</node>
-</node>
 <node CREATED="1237480262914" FOLDED="true" ID="Freemind_Link_325462962" MODIFIED="1245882463734" TEXT="Add *:MULTI orders as appropriate">
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1237480280162" ID="Freemind_Link_526459050" MODIFIED="1237480285749" TEXT="E.g., *:DELETE:MULTI"/>
@@ -201,11 +168,6 @@
 <node CREATED="1237477586106" ID="Freemind_Link_516563511" MODIFIED="1245882889856" TEXT="Require rel=1.0 when f=g">
 <icon BUILTIN="full-4"/>
 <node CREATED="1237477606906" ID="Freemind_Link_1462718131" MODIFIED="1243546199960" TEXT="Update the RELATIONSHIP:* orders and browser"/>
-</node>
-<node CREATED="1240255547518" FOLDED="true" ID="Freemind_Link_1642065644" MODIFIED="1245882889855" TEXT="parmdb(n): Allow changes to some parms while PAUSED, RUNNING">
-<icon BUILTIN="full-4"/>
-<node CREATED="1240255576590" ID="Freemind_Link_39749292" MODIFIED="1240255583784" TEXT="Some need to be locked."/>
-<node CREATED="1240255585806" ID="Freemind_Link_654800573" MODIFIED="1240255589288" TEXT="Making sure locking works."/>
 </node>
 <node CREATED="1237480308963" ID="Freemind_Link_1212698036" MODIFIED="1245882899653" TEXT="Reciprocal flag in *:UPDATE">
 <icon BUILTIN="full-5"/>
@@ -442,13 +404,6 @@
 </node>
 </node>
 <node CREATED="1237480148482" ID="Freemind_Link_1288481032" MODIFIED="1237480151141" POSITION="right" TEXT="Order GUI">
-<node CREATED="1237480151546" ID="Freemind_Link_1910353174" MODIFIED="1245882715582" TEXT="Validate order on parameter entry change">
-<icon BUILTIN="full-3"/>
-</node>
-<node CREATED="1237480163506" FOLDED="true" ID="Freemind_Link_1602203708" MODIFIED="1245882718678" TEXT="User selects order execution time">
-<icon BUILTIN="full-3"/>
-<node CREATED="1237480179450" ID="Freemind_Link_1441599316" MODIFIED="1237480186965" TEXT="Invalid orders can be scheduled"/>
-</node>
 <node CREATED="1237480419203" FOLDED="true" ID="Freemind_Link_1658294835" MODIFIED="1245882727062" TEXT="Z-Curve editor/order field">
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1237480439570" ID="Freemind_Link_1579708717" MODIFIED="1237480447765" TEXT="Mostly complete"/>
@@ -464,15 +419,6 @@
 </node>
 <node CREATED="1237482088442" ID="Freemind_Link_1487556535" MODIFIED="1245882735533" TEXT="colorfield(n) should allow editing">
 <icon BUILTIN="messagebox_warning"/>
-</node>
-<node CREATED="1237480589114" ID="Freemind_Link_1560701323" MODIFIED="1245882753262" TEXT="Implement order dialog&apos;s Help button">
-<arrowlink DESTINATION="Freemind_Link_1752009235" ENDARROW="Default" ENDINCLINATION="187;0;" ID="Freemind_Arrow_Link_1754252667" STARTARROW="None" STARTINCLINATION="187;0;"/>
-<icon BUILTIN="messagebox_warning"/>
-</node>
-<node CREATED="1237481160994" FOLDED="true" ID="Freemind_Link_1793874343" MODIFIED="1245882756438" TEXT="Parameter help strings">
-<icon BUILTIN="full-4"/>
-<node CREATED="1237481181034" ID="Freemind_Link_382977978" MODIFIED="1237481200616" TEXT="Display in order dialog&apos;s message area"/>
-<node CREATED="1238170607413" ID="Freemind_Link_1227050066" MODIFIED="1238170619791" TEXT="Build order docs at build time?"/>
 </node>
 <node CREATED="1237481709395" FOLDED="true" ID="Freemind_Link_242433049" MODIFIED="1238771729630" TEXT="Enumfield should display short and long name">
 <icon BUILTIN="help"/>
@@ -523,20 +469,10 @@
 </node>
 </node>
 <node CREATED="1238697459940" ID="Freemind_Link_946664107" MODIFIED="1238697464078" POSITION="right" TEXT="GUI Infrastructure">
-<node CREATED="1237488295816" FOLDED="true" ID="Freemind_Link_1208739900" MODIFIED="1245882774638" TEXT="zulufield(n) widget">
-<icon BUILTIN="messagebox_warning"/>
-<node CREATED="1237560838308" ID="Freemind_Link_7202440" MODIFIED="1237560850862" TEXT="-increment set by simclock&apos;s tick size"/>
-<node CREATED="1237918381064" ID="Freemind_Link_274696888" MODIFIED="1237918408034" TEXT="Make -changecmd work properly"/>
-</node>
 <node CREATED="1237479433118" FOLDED="true" ID="Freemind_Link_491578520" MODIFIED="1245882780238" TEXT="Cell-based editing in browsers">
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1237479441630" ID="Freemind_Link_1508483203" MODIFIED="1237479447402" TEXT="Interaction Logic"/>
 <node CREATED="1237479448534" ID="Freemind_Link_1379686715" MODIFIED="1237479457434" TEXT="How to use custom editors in Tablelist"/>
-</node>
-<node CREATED="1237480548048" FOLDED="true" ID="Freemind_Link_1752009235" MODIFIED="1245882783486" TEXT="Help Browser">
-<icon BUILTIN="messagebox_warning"/>
-<node CREATED="1237480554706" ID="Freemind_Link_418716993" MODIFIED="1237480564829" TEXT="Firefox, Tkhtml2, or Text"/>
-<node CREATED="1237480565722" ID="Freemind_Link_452312016" MODIFIED="1237480582229" TEXT="If Firefox, prefs setting for location"/>
 </node>
 <node CREATED="1237480727986" FOLDED="true" ID="Freemind_Link_1856628726" MODIFIED="1245882786357" TEXT="filter(n): -filterset option">
 <icon BUILTIN="messagebox_warning"/>
