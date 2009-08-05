@@ -274,7 +274,7 @@ BLUE1 B00B00
     } -result {
 id tick zulu         name      parmdict             
 -- ---- ------------ --------- -------------------- 
-2  1    110000ZJAN10 UNIT:MOVE u U1 location A00A00 
+1  1    110000ZJAN10 UNIT:MOVE u U1 location A00A00 
     }
 
     test CANCEL-2.4 {::order <Queue> on undo} -setup {

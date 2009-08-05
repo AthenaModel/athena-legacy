@@ -1196,8 +1196,17 @@ snit::type order {
             notifier send ::order <Queue>
             
             # NEXT, return the undo script
-            return [list order mutate cancel $id]
+            return [list order UndoSchedule]
         }
+    }
+
+    # UndoSchedule
+    #
+    # Undo script for mutate schedule
+
+    typemethod UndoSchedule {} {
+        eventq undo schedule
+        notifier send ::order <Queue>
     }
 
 
@@ -1218,13 +1227,21 @@ snit::type order {
         # NEXT, cancel the order
         log normal order "cancel order $id at $t: [list $name: $parmdict]"
 
-        eventq cancel $id
+        set undoToken [eventq cancel $id]
 
         notifier send ::order <Queue>
         
         # NEXT, return the undo script
-        return [list order mutate schedule \
-                    [list timespec $t name $name parmdict $parmdict]]
+        return [list order UndoCancel $undoToken]
+    }
+
+    # UndoCancel undoToken
+    #
+    # Undo script for mutate cancel
+
+    typemethod UndoCancel {undoToken} {
+        eventq undo cancel $undoToken
+        notifier send ::order <Queue>
     }
 }
 
