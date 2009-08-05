@@ -234,11 +234,25 @@ snit::widget appwin {
             script { nbcoopbrowser %W }
         }
 
-        orders {
-            label  "Orders"
+        orderst {
+            label "Orders"
             parent ""
+            script ""
+        }
+
+        ordsched {
+            label  "Scheduled"
+            parent orderst
             script { 
                 orderbrowser %W
+            }
+        }
+
+        ordhist {
+            label  "History"
+            parent orderst
+            script { 
+                orderhistorybrowser %W
             }
         }
 

@@ -1162,6 +1162,7 @@ order define ::aam ATTRIT:NBHOOD {
     title "Magic Attrit Neighborhood"
     options \
         -canschedule               \
+        -alwaysunsaved             \
         -sendstates  {PREP PAUSED}
 
     parm n          enum  "Neighborhood" -type nbhood -tags nbhood
@@ -1200,6 +1201,7 @@ order define ::aam ATTRIT:GROUP {
     title "Magic Attrit Group"
     options \
         -canschedule               \
+        -alwaysunsaved             \
         -sendstates  {PREP PAUSED}
 
     parm n          enum  "Neighborhood"  -type nbhood  -tags nbhood
@@ -1263,6 +1265,7 @@ order define ::aam ATTRIT:UNIT {
     title "Magic Attrit Unit"
     options \
         -canschedule               \
+        -alwaysunsaved             \
         -sendstates  {PREP PAUSED}
 
     parm u          enum  "Unit"       -type unit -tags unit

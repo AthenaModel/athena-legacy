@@ -303,7 +303,17 @@ SELECT id        AS id,
        name      AS name,
        parmdict  AS parmdict
 FROM eventq_queue_orderExecute;
-    
+
+-- View of the CIF
+CREATE TEMPORARY VIEW gui_cif AS
+SELECT id                                            AS id,
+       time                                          AS tick,
+       tozulu(time)                                  AS zulu,
+       name                                          AS name,
+       parmdict                                      AS parmdict,
+       undo                                          AS undo,
+       CASE WHEN undo != '' THEN 'Yes' ELSE 'No' END AS canUndo
+FROM cif WHERE id <= ciftop();
 
 ------------------------------------------------------------------------
 -- Primary Entities

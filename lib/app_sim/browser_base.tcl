@@ -137,7 +137,7 @@ snit::widget browser_base {
             return
         }
         
-        # FIRST, update the table browser
+        # NEXT, update the table browser
         $tb reload
 
         # NEXT, handle selection changes

@@ -536,7 +536,8 @@ snit::type scenario {
 
     proc DefineTempSchema {} {
         # FIRST, define SQL functions
-        rdb function m2ref [myproc M2Ref]
+        rdb function m2ref  [myproc M2Ref]
+        rdb function ciftop [list ::cif mark]
 
         # NEXT, define the GUI Views
         rdb eval [readfile [file join $::app_sim::library gui_views.sql]]

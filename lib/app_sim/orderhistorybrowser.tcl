@@ -1,14 +1,16 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    orderbrowser.tcl
+#    orderhistorybrowser.tcl
 #
 # AUTHORS:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    orderbrowser(sim) package: Order browser.
+#    orderhistorybrowser(sim) package: Order History browser.
 #
-#    This widget displays a formatted list of scheduled orders.
+#    This widget displays a formatted list of the orders that have
+#    already been executed.
+#
 #    It is a variation of browser_base(n).
 #
 #-----------------------------------------------------------------------
@@ -16,7 +18,7 @@
 #-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widgetadaptor orderbrowser {
+snit::widgetadaptor orderhistorybrowser {
     #-------------------------------------------------------------------
     # Options
 
@@ -35,35 +37,14 @@ snit::widgetadaptor orderbrowser {
         # FIRST, Install the hull
         installhull using browser_base                \
             -tickreload   yes                         \
-            -table        "gui_orders"                \
+            -table        "gui_cif"                   \
             -keycol       "id"                        \
             -keycolnum    0                           \
             -titlecolumns 3                           \
-            -displaycmd   [mymethod DisplayData]      \
-            -selectioncmd [mymethod SelectionChanged]
+            -displaycmd   [mymethod DisplayData]
 
         # NEXT, get the options.
         $self configurelist $args
-
-        # NEXT, create the toolbar buttons
-        set bar [$hull toolbar]
-
-        # Cancel Button
-        install cancelbtn using button $bar.cancel \
-            -image      ::projectgui::icon::x22    \
-            -relief     flat                       \
-            -overrelief raised                     \
-            -state      disabled                   \
-            -command    [mymethod CancelSelected]
-
-        DynamicHelp::add $cancelbtn -text "Cancel Selected Order"
-
-        cond::orderIsValidSingle control $cancelbtn \
-            order   ORDER:CANCEL                     \
-            browser $win
-
-        pack $cancelbtn -side right
-
 
         # NEXT, create the columns and labels.
         $hull insertcolumn end 0 {ID}
@@ -71,13 +52,14 @@ snit::widgetadaptor orderbrowser {
         $hull insertcolumn end 0 {Tick}
         $hull columnconfigure end -sortmode integer
         $hull insertcolumn end 0 {Zulu}
+        $hull insertcolumn end 0 {Undo?}
         $hull insertcolumn end 0 {Order}
         $hull insertcolumn end 0 {Parameters}
 
-        $hull sortbycolumn 1 -increasing
+        $hull sortbycolumn 0 -decreasing
 
         # NEXT, update individual entities when they change.
-        notifier bind ::order <Queue> $self [mymethod reload]
+        notifier bind ::cif <Update> $self [mymethod reload]
     }
 
     destructor {
@@ -103,33 +85,8 @@ snit::widgetadaptor orderbrowser {
         # FIRST, extract each field
         dict with dict {
             $hull setdata $id \
-                [list $id $tick $zulu $name $parmdict]
+                [list $id $tick $zulu $canUndo $name $parmdict]
         }
-    }
-
-
-    # SelectionChanged
-    #
-    # Enables/disables toolbar controls based on the current selection,
-    # and notifies the app of the selection change.
-
-    method SelectionChanged {} {
-        # FIRST, update buttons
-        cond::orderIsValidSingle update \
-            [list $cancelbtn]
-    }
-
-
-    # CancelSelected
-    #
-    # Called when the user wants to cancel the selected entity.
-
-    method CancelSelected {} {
-        # FIRST, there should be only one selected.
-        set id [lindex [$hull curselection] 0]
-
-        # NEXT, Send the cancel order.
-        order send gui ORDER:CANCEL id $id
     }
 }
 

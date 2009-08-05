@@ -70,6 +70,8 @@ snit::type cif {
             UPDATE cif SET undo='';
             DELETE FROM cif WHERE id >= $info(nextid);
         }
+
+        notifier send ::cif <Update>
     }
 
     #-------------------------------------------------------------------
@@ -96,6 +98,7 @@ snit::type cif {
         }
 
         set info(nextid) $mark
+        notifier send ::cif <Update>
     }
 
     # add order parmdict ?undo?
@@ -123,6 +126,8 @@ snit::type cif {
         }
 
         incr info(nextid)
+
+        notifier send ::cif <Update>
     }
 
     # canundo
@@ -227,6 +232,8 @@ snit::type cif {
             incr info(nextid) -1
         }
 
+        notifier send ::cif <Update>
+
         return
     }
 
@@ -268,6 +275,7 @@ snit::type cif {
 
             incr info(nextid)
 
+            notifier send ::cif <Update>
             return
         }
 
