@@ -242,6 +242,7 @@ snit::widget orderdialog {
     # table             Name of associated RDB table/view, or ""
     # current           Name of current parameter, or ""
     # saved             Dictionary of "saved" field values
+    # valid             1 if current values are valid, and 0 otherwise.
     # field-$parm       Name of field widget
     # icon-$parm        Name of status icon widget
 
@@ -253,6 +254,7 @@ snit::widget orderdialog {
         table    ""
         current  ""
         saved    {}
+        valid    0
     }
 
     # ferrors -- Array of field errors by parm name
@@ -400,6 +402,7 @@ snit::widget orderdialog {
         set order     $options(-order)
         set my(parms) [order parms $order]
         set my(table) [order cget $order -table]
+        set my(valid) 0
 
         # NEXT, Create the fields
         set row    -1
@@ -883,12 +886,13 @@ snit::widget orderdialog {
             # FIRST, if there are non-key fields, refresh them, and 
             # mark the dialog saved; we've just loaded the non-key
             # fields from the database, and so there are no unsaved fields.
-            # Otherwise, check for unsaved fields.
+            # Otherwise, check for validity and enable/disable buttons
             if {[llength $my(nonkeys)] > 0} {
                 $self RefreshNonKeyFields
                 $self MarkSaved
             } else {
-                $self CheckForUnsavedValues
+                $self CheckValidity
+                $self SetButtonState
             }
         } else {
             $self RefreshKey [lindex $my(keys) $ndx+1]
@@ -964,13 +968,7 @@ snit::widget orderdialog {
     # non-key fields.
 
     method NonKeyChange {parm {value ""}} {
-        # FIRST, is this one parameter or a general refresh?
-        if {$parm ne ""} {
-            # FIRST, set the send button state
-            $self CheckForUnsavedValues
-        }
-
-        # NEXT, get the list of downstream fields
+        # FIRST, get the list of downstream fields
         set ndx        [lsearch $my(nonkeys) $parm]
         set downstream [lrange $my(nonkeys) $ndx+1 end]
         
@@ -980,6 +978,63 @@ snit::widget orderdialog {
             if {$cmd ne ""} {
                 {*}$cmd $my(field-$p) [$self get]
             }
+        }
+
+        # NEXT, validate at end of refresh
+        $self CheckValidity
+        $self SetButtonState
+    }
+
+    #-------------------------------------------------------------------
+    # Order Validation
+
+    # CheckValidity
+    #
+    # Checks the current parameters; on error, reveals the error.
+
+    method CheckValidity {} {
+        # FIRST, clear the error X's
+        foreach parm $my(parms) {
+            if {[$my(icon-$parm) cget -image] eq "${type}::error_x"} {
+                $my(icon-$parm) configure -image ${type}::blank10x10
+            }
+        }
+
+        # NEXT, check the order, and handle any errors
+        if {[catch {
+            order check $options(-order) [$self get]
+        } result opts]} {
+            # FIRST, if it's unexpected let the app handle it.
+            if {[dict get $opts -errorcode] ne "REJECT"} {
+                return {*}$opts $result
+            }
+
+            # NEXT, mark the bad parms.
+            foreach {parm msg} $result {
+                if {$parm ne "*"} {
+                    $my(icon-$parm) configure -image ${type}::error_x
+                }
+            }
+
+            # NEXT, save the error text
+            array set ferrors $result
+
+            # NEXT, show the current error message
+            if {$my(current) ne "" && [info exists ferrors($my(current))]} {
+                set label [order parm $options(-order) $my(current) -label]
+                $self Message "$label: $ferrors($my(current))"
+            } elseif {[dict exists $result *]} {
+                $self Message "Error in order: [dict get $result *]"
+            } else {
+                $self Message \
+                 "Error in order; click in marked fields for error messages."
+            }
+
+            set my(valid) 0
+        } else {
+            set my(valid) 1
+            array unset ferrors
+            $self Message ""
         }
     }
 
@@ -1179,13 +1234,13 @@ snit::widget orderdialog {
     }
 
 
-    # CheckForUnsavedValues
+    # SetButtonState
     #
     # Enables/disables the send buttons based on whether there are
-    # unsaved changes.
+    # unsaved changes, and whether the data is valid.
 
-    method CheckForUnsavedValues {} {
-        if {[$self Unsaved]} {
+    method SetButtonState {} {
+        if {[$self Unsaved] && $my(valid)} {
             $win.buttons.send      configure -state normal
             $win.buttons.sendclose configure -state normal
         } else {
