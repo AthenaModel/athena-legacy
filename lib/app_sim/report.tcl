@@ -786,8 +786,8 @@ order define ::report REPORT:SATISFACTION:CONTRIB {
         -sendstates    PAUSED \
         -alwaysunsaved
 
-    parm n      enum  "Neighborhood"  -type {ptype n} -refresh
-    parm g      enum  "Group"         -refresh \
+    parm n      enum  "Neighborhood"  -type {ptype n}
+    parm g      enum  "Group" \
         -refreshcmd ::report::RefreshRSContrib_g
     parm c      enum  "Concern"       \
         -refreshcmd ::report::RefreshRSContrib_c

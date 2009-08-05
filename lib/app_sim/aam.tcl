@@ -1164,10 +1164,9 @@ order define ::aam ATTRIT:NBHOOD {
         -canschedule               \
         -sendstates  {PREP PAUSED}
 
-    parm n          enum  "Neighborhood" -type nbhood -tags nbhood -refresh
+    parm n          enum  "Neighborhood" -type nbhood -tags nbhood
     parm casualties text  "Casualties" 
-    parm g1         enum  "Responsible Group" -type frcgroup -tags group \
-        -refresh
+    parm g1         enum  "Responsible Group" -type frcgroup -tags group
     parm g2         enum  "Responsible Group" -tags group \
         -refreshcmd [list ::aam RefreshRespGroup2]
 } {
@@ -1203,12 +1202,11 @@ order define ::aam ATTRIT:GROUP {
         -canschedule               \
         -sendstates  {PREP PAUSED}
 
-    parm n          enum  "Neighborhood"  -type nbhood  -tags nbhood -refresh
-    parm f          enum  "To Group"      -tags group -refresh \
+    parm n          enum  "Neighborhood"  -type nbhood  -tags nbhood
+    parm f          enum  "To Group"      -tags group \
         -refreshcmd [list ::aam RefreshGroup]
     parm casualties text  "Casualties" 
     parm g1         enum  "Responsible Group" -tags group \
-        -refresh \
         -refreshcmd [list ::aam RefreshAG_Group1]
     parm g2         enum  "Responsible Group" -tags group \
         -refreshcmd [list ::aam RefreshRespGroup2]
@@ -1267,10 +1265,9 @@ order define ::aam ATTRIT:UNIT {
         -canschedule               \
         -sendstates  {PREP PAUSED}
 
-    parm u          enum  "Unit"       -type unit -tags unit -refresh
+    parm u          enum  "Unit"       -type unit -tags unit
     parm casualties text  "Casualties" 
     parm g1         enum  "Responsible Group" -tags group \
-        -refresh \
         -refreshcmd [list ::aam RefreshAU_Group1]
     parm g2         enum  "Responsible Group" -tags group \
         -refreshcmd [list ::aam RefreshRespGroup2]

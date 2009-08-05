@@ -398,7 +398,6 @@ snit::type order {
     # -defval value    Default value
     # -tags taglist    <SelectionChanged> tags
     # -type enumtype   fieldType enum only, the enum(n) type.
-    # -refresh         Setting this parm triggers a refresh.
     # -refreshcmd      Command to update the field when refreshed.
     #
     # Defines the parameter.  Most of the data feeds the generic
@@ -417,7 +416,6 @@ snit::type order {
                        -defval     {}         \
                        -tags       {}         \
                        -type       {}         \
-                       -refresh    0          \
                        -refreshcmd {}]
 
         # NEXT, accumulate the pdict
@@ -430,10 +428,6 @@ snit::type order {
                 -type       -
                 -refreshcmd { 
                     dict set pdict $opt [lshift args] 
-                }
-
-                -refresh {
-                    dict set pdict -refresh 1
                 }
 
                 default {
@@ -480,14 +474,6 @@ snit::type order {
     "misplaced key parameter, must precede all non-key parameters: \"$name\""
                 }
             }
-        }
-
-        # Only enum and text can have -refresh.
-        if {$fieldType ni {enum text} && 
-            [dict get $pdict -refresh]
-        } {
-            error \
-                "field type \"$fieldType\" does not allow -refresh: \"$name\""
         }
 
         # Key and multi parameters cannot have -refreshcmd.

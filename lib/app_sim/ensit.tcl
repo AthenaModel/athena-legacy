@@ -888,8 +888,8 @@ order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
         -canschedule               \
         -sendstates  {PREP PAUSED}
 
-    parm location   text  "Location"      -tags nbpoint -refresh
-    parm stype      enum  "Type"                        -refresh \
+    parm location   text  "Location"      -tags nbpoint
+    parm stype      enum  "Type" \
         -refreshcmd {::ensit RefreshSType}
     parm coverage   text  "Coverage"      -defval 1.0
     parm inception  enum  "Inception?"    -type eyesno -defval "YES"

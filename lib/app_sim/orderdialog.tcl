@@ -968,11 +968,6 @@ snit::widget orderdialog {
         if {$parm ne ""} {
             # FIRST, set the send button state
             $self CheckForUnsavedValues
-
-            # NEXT, if it doesn't have -refresh set, skip it.
-            if {![order parm $options(-order) $parm -refresh]} {
-                return
-            }
         }
 
         # NEXT, get the list of downstream fields

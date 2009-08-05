@@ -336,7 +336,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
     options -sendstates PREP
 
     parm n              enum "Neighborhood"   \
-        -type ::nbhood -tags nbhood -refresh
+        -type ::nbhood -tags nbhood
     parm g              enum "Civ Group" \
         -tags group -refreshcmd [list ::nbgroup RefreshCreateG]
     parm local_name     text "Local Name"

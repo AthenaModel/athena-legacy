@@ -571,8 +571,8 @@ order define ::unit UNIT:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm g          enum  "Group"  -type group -tags group  -refresh
-    parm origin     enum  "Origin"             -tags nbhood -refresh \
+    parm g          enum  "Group"  -type group -tags group
+    parm origin     enum  "Origin"             -tags nbhood \
         -refreshcmd [list ::unit RefreshUnitOrigin]
     parm u          text  "Name" \
         -refreshcmd [list ::unit RefreshUnitName]
