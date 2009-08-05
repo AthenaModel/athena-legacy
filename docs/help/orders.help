@@ -1403,3 +1403,72 @@ order PARM:SET "Set Parameter Value" {
     <<cmdref parm set>> for details. 
 }
 
+#=======================================================================
+# Order Orders
+
+page ORDER: "Order Scheduling Orders" orders {
+    <<title>>
+
+    Athena allows certain orders to be scheduled to execute at some
+    later time.  These orders are used to schedule orders for
+    execution, and to cancel the scheduled orders.<p>
+
+    The user will usually use these orders indirectly, via the
+    the "Schedule" button on the various order dialogs, and the "X" 
+    button on the Orders browser;  Athena <<version>> provides no 
+    other way for the user to access them.  They are documented here 
+    for completeness' sake.<p>
+
+    In the long-run, it is likely that Athena will be able to execute
+    order scripts; at that time, the user will be able to enter these
+    orders directly into the scripts.<p>
+
+    The orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+#-------------------------------------------------------------------
+
+order ORDER:CANCEL "Cancel Scheduled Order" {
+    <<parmlist>>
+
+    <<parm id "Order ID">> 
+    <b>Required.</b>  The ID of the scheduled order, as shown in 
+    the Orders browser.
+    <</parm>>
+
+    <</parmlist>>
+
+    This order cancels a scheduled order given its ID.
+}
+
+#-------------------------------------------------------------------
+
+order ORDER:SCHEDULE "Schedule Order" {
+    <<parmlist>>
+
+    <<parm timespec "Time Spec">> 
+    <b>Required.</b> The time at which the order should be scheduled
+    to execute, expressed as a <<cref timespec>>.  The time must be at
+    least "NOW+1".
+    <</parm>>
+
+    <<parm name "Order Name">>
+    <b>Required.</b> The name of the order, as shown on the second
+    line of the order's help page.  For example, the name of this
+    order (as opposed to its title) is <b>ORDER:SCHEDULE</b>.
+
+    <<parm parmdict "Parm Dict">>
+    A Tcl dictionary of parameter names and values, using the 
+    parameter names shown in parentheses on the order's help page.
+    The name of this parameter, for example, is <b>parmdict</b>.
+    <</parm>>
+
+    <</parmlist>>
+
+    This order schedules the order to execute at the specified time.
+    It does not ensure that the order will be accepted; a valid order
+    might become invalid by the time it executes, and an invalid order
+    might (in particular cases) become valid.
+}

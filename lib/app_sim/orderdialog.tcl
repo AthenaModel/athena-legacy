@@ -231,6 +231,14 @@ snit::widget orderdialog {
         -readonly yes
 
     #-------------------------------------------------------------------
+    # Components
+
+    component whenFld    ;# textfield, time to schedule
+    component schedBtn   ;# Schedule button
+
+
+
+    #-------------------------------------------------------------------
     # Instance Variables
 
     # my array -- scalars and field data
@@ -283,12 +291,29 @@ snit::widget orderdialog {
         # Control closing the window
         wm protocol $win WM_DELETE_WINDOW [mymethod Close]
 
+        # NEXT, create the title bar
+        ttk::frame $win.tbar \
+            -borderwidth 0   \
+            -relief      flat
+
         # NEXT, create the title widget
-        ttk::label $win.title                             \
+        ttk::label $win.tbar.title                        \
             -font          OrderTitleFont                 \
             -text          [order title $options(-order)] \
-            -anchor        center                         \
             -padding       4
+
+        # NEXT, create the help button
+        button $win.tbar.help   \
+            -image      ::projectgui::icon::help22 \
+            -relief     flat                   \
+            -overrelief raised                 \
+            -state      normal                 \
+            -command    [mymethod Help]
+
+        DynamicHelp::add $win.tbar.help -text "Get help!"
+
+        pack $win.tbar.title -side left
+        pack $win.tbar.help  -side right
 
         # NEXT, create the frame to hold the fields
         ttk::frame $win.fields  \
@@ -317,49 +342,55 @@ snit::widget orderdialog {
             -borderwidth 0      \
             -relief      flat
 
-        ttk::button $win.buttons.help         \
-            -text    "Help"                   \
-            -width   6                        \
-            -command [mymethod Help]
-
-        label $win.buttons.spacer             \
-            -text "   "
-
-        ttk::button $win.buttons.close        \
-            -text    "Close"                  \
-            -width   6                        \
-            -command [mymethod Close]
-
         ttk::button $win.buttons.clear        \
             -text    "Clear"                  \
             -width   6                        \
             -command [mymethod Clear]
 
+        label $win.buttons.spacer             \
+            -text "   "
+
+        install schedBtn using ttk::button $win.buttons.schedule \
+            -text    "Schedule"                                  \
+            -width   8                                           \
+            -command [mymethod Schedule]
+
+        install whenFld using textfield $win.buttons.when \
+            -width     13                                 \
+            -changecmd [mymethod CheckWhen]
+
+        if {[order cget $options(-order) -canschedule]} {
+            $whenFld set "+1"
+        } else {
+            $whenFld configure -state disabled
+            $schedBtn configure -state disabled
+        }
+        
         ttk::button $win.buttons.send         \
             -text    "Send"                   \
             -width   6                        \
             -command [mymethod Send]
 
         ttk::button $win.buttons.sendclose    \
-            -text    "Send and Close"         \
-            -width   14                       \
+            -text    "Send & Close"           \
+            -width   12                       \
             -command [mymethod SendClose]
 
 
-        pack $win.buttons.help      -side left  -padx 2
+        pack $win.buttons.clear     -side left  -padx 2
         pack $win.buttons.spacer    -side left
 
         pack $win.buttons.sendclose -side right -padx 2
         pack $win.buttons.send      -side right -padx 2
-        pack $win.buttons.clear     -side right -padx 2
-        pack $win.buttons.close     -side right -padx 2
+        pack $win.buttons.when      -side right -padx 2
+        pack $win.buttons.schedule  -side right -padx 2
 
 
         # NEXT, pack components
-        pack $win.title   -side top -fill x
+        pack $win.tbar   -side top -fill x
         pack $win.fields  -side top -fill x -padx 4 -pady 4
-        pack $win.message -side top -fill x
-        pack $win.buttons -side top -fill x
+        pack $win.message -side top -fill x -padx 4
+        pack $win.buttons -side top -fill x -pady 4
 
         # NEXT, make the window visible, and transient over the
         # current top window.
@@ -1160,6 +1191,56 @@ snit::widget orderdialog {
         if {[$self Send]} {
             $self Close
         }
+    }
+
+    # CheckWhen timespec
+    #
+    # Sets the state of the Schedule button based on the
+    # validity of the "when" field.
+
+    method CheckWhen {timespec} {
+        if {[catch {simclock future validate $timespec} t] 
+            || $t == [simclock now]
+        } {
+            $schedBtn configure -state disabled
+        } else {
+            $schedBtn configure -state normal
+        }
+    }
+
+    # Schedule
+    #
+    # Schedules the current order
+
+    method Schedule {} {
+        # FIRST, Is the order valid?
+        if {!$my(valid)} {
+            set answer [messagebox popup \
+                            -title         "Are you sure?"                    \
+                            -icon          warning                            \
+                            -buttons       {ok "Schedule it" cancel "Cancel"} \
+                            -default       cancel                             \
+                            -ignoretag     ORDER:SCHEDULE                     \
+                            -ignoredefault ok                                 \
+                            -parent        [app topwin]                       \
+                            -message       [normalize {
+                                This order is invalid at the present
+                                time.  Are you sure you wish to schedule
+                                it to execute in the future?
+                            }]]
+
+            if {$answer eq "cancel"} {
+                return
+            }
+        }
+
+        # NEXT, schedule it.
+        order send gui ORDER:SCHEDULE \
+            timespec [$whenFld get]   \
+            name     $options(-order) \
+            parmdict [$self get]
+
+        $self Message "Order Scheduled"
     }
 
 
