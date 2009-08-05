@@ -993,12 +993,14 @@ snit::widget orderdialog {
     # Checks the current parameters; on error, reveals the error.
 
     method CheckValidity {} {
-        # FIRST, clear the error X's
+        # FIRST, clear the error X's and messages
         foreach parm $my(parms) {
             if {[$my(icon-$parm) cget -image] eq "${type}::error_x"} {
                 $my(icon-$parm) configure -image ${type}::blank10x10
             }
         }
+
+        array unset ferrors
 
         # NEXT, check the order, and handle any errors
         if {[catch {
@@ -1033,7 +1035,6 @@ snit::widget orderdialog {
             set my(valid) 0
         } else {
             set my(valid) 1
-            array unset ferrors
             $self Message ""
         }
     }
@@ -1174,7 +1175,12 @@ snit::widget orderdialog {
     method FieldIn {parm} {
         # FIRST, clear the previous parm's icon
         if {$my(current) ne ""} {
-            $my(icon-$my(current)) configure -image ${type}::blank10x10
+            set p $my(current)
+            if {[info exists ferrors($p)]} {
+                $my(icon-$p) configure -image ${type}::error_x
+            } else {
+                $my(icon-$p) configure -image ${type}::blank10x10
+            }
         }
 
         # NEXT, set the status icon
