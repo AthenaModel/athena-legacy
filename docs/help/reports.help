@@ -319,6 +319,41 @@ page REPORT:COOPERATION "Cooperation Report" reports {
     <</topiclist>>
 }
 
+#-----------------------------------------------------------------------
+
+page REPORT:PARMDB "Model Parameter Report" reports {
+    <<order.header>>
+    <<parmlist>>
+
+    <<parm state "Parameter State">>
+    <b>Required.</b>  The set of parameters to include in the report:<p>
+
+    <ul>
+    <li> <b>ALL</b>: All parameters
+    <li> <b>CHANGED</b>:  All parameters that have been changed from their 
+         default settings.
+    empty.
+    </ul>
+    <</parm>>
+
+    <<parm wildcard "Wildcard">>
+    <b>Optional.</b>  A wildcard pattern, e.g., the pattern "aam.*"
+    matches all of the attrition model parameters.
+    <</parm>>
+
+    <</parmlist>>
+
+    This report lists each of Athena's model parameters with its current
+    value.  If a parameter's current value differs from the installation
+    default, then the default value will be displayed on the
+    following line.<p>
+
+    The report's output can be filtered in two ways.  First, if
+    <b>CHANGED</b> is selected, the report will include only those
+    parameters whose values differ from their installation defaults.  
+    Second, the report will include only parameters whose names match
+    the specified wildcard.  (Wildcard-matching is case-insensitive.)
+}
 
 #-----------------------------------------------------------------------
 

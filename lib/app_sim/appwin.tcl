@@ -656,6 +656,7 @@ snit::widget appwin {
         $self AddOrder $reportsmenu REPORT:SATISFACTION:CONTRIB
         $self AddOrder $reportsmenu REPORT:COOPERATION
         $self AddOrder $reportsmenu REPORT:SATISFACTION:ORGANIZATION
+        $self AddOrder $reportsmenu REPORT:PARMDB
 
         # Help menu
         set helpmenu [menu $menubar.helpmenu]

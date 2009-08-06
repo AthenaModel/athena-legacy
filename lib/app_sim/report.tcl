@@ -34,6 +34,11 @@ snit::type ::report {
             inactive  "Inactive Drivers"
             empty     "Empty Drivers"
         }
+
+        enum eparmstate { 
+            ALL       "All Parameters"
+            CHANGED   "Changed Parameters"
+        }
     }
 
     #-------------------------------------------------------------------
@@ -71,19 +76,19 @@ snit::type ::report {
         }
 
         reporter bin define gram_coop "Cooperation" gram {
-            SELECT * FROM REPORTS WHERE rtype='GRAM' AND subtype='COOP'
+            SELECT * FROM reports WHERE rtype='GRAM' AND subtype='COOP'
         }
 
         reporter bin define gram_driver "Drivers" gram {
-            SELECT * FROM REPORTS WHERE rtype='GRAM' AND subtype='DRIVER'
+            SELECT * FROM reports WHERE rtype='GRAM' AND subtype='DRIVER'
         }
 
         reporter bin define gram_sat "Satisfaction" gram {
-            SELECT * FROM REPORTS WHERE rtype='GRAM' AND subtype='SAT'
+            SELECT * FROM reports WHERE rtype='GRAM' AND subtype='SAT'
         }
 
         reporter bin define gram_satcontrib "Sat. Contrib." gram {
-            SELECT * FROM REPORTS WHERE rtype='GRAM' AND subtype='SATCONTRIB'
+            SELECT * FROM reports WHERE rtype='GRAM' AND subtype='SATCONTRIB'
         }
 
         reporter bin define civ "Civilian" "" {
@@ -91,11 +96,11 @@ snit::type ::report {
         }
 
         reporter bin define civ_coop "Cooperation" civ {
-            SELECT * FROM REPORTS WHERE rtype='GRAM' AND subtype='COOP'
+            SELECT * FROM reports WHERE rtype='GRAM' AND subtype='COOP'
         }
 
         reporter bin define civ_sat "Satisfaction" civ {
-            SELECT * FROM REPORTS WHERE meta1='CIV' AND subtype='SAT'
+            SELECT * FROM reports WHERE meta1='CIV' AND subtype='SAT'
         }
 
         reporter bin define org "Organization" "" {
@@ -103,7 +108,15 @@ snit::type ::report {
         }
 
         reporter bin define org_sat "Satisfaction" org {
-            SELECT * FROM REPORTS WHERE meta1='ORG' AND subtype='SAT'
+            SELECT * FROM reports WHERE meta1='ORG' AND subtype='SAT'
+        }
+
+        reporter bin define scenario "Scenario" "" {
+            SELECT * FROM reports WHERE rtype='SCENARIO'
+        }
+
+        reporter bin define scenario_parmdb "Model Parameters" scenario {
+            SELECT * FROM reports WHERE rtype='SCENARIO' AND subtype="PARMDB"
         }
 
         reporter bin define dam "DAM Rule Firings" "" {
@@ -352,6 +365,129 @@ snit::type ::report {
                     -subtype   DRIVER]
 
         return [list reporter delete $id]
+    }
+
+    # imp parmdb state pattern
+    #
+    # state    CHANGED|ALL
+    # pattern  Glob-pattern
+    #
+    # Produces a report of all parameter values, or only those
+    # whose values differ from the default.
+
+    typemethod {imp parmdb} {state pattern} {
+        # FIRST, get everybody if there's no pattern.
+        if {$pattern eq ""} {
+            set pattern "*"
+        }
+
+        # NEXT, get the width of the longest parameter name
+        set parmwid [lmaxlen [parmdb names $pattern]]
+        set fmt     "%-${parmwid}s = %s\n"
+        let indent  {$parmwid + 3}
+
+        # NEXT, get the text.
+        set text ""
+
+        foreach {parm value} [parmdb list $pattern] {
+            set defvalue [parmdb getdefault $parm]
+
+            if {$value ne $defvalue} {
+                append text [format $fmt $parm [WrapVal $indent $value]]
+                append text [format $fmt "    Default Setting" \
+                                 [WrapVal $indent $defvalue]]
+            } elseif {$state eq "ALL"} {
+                append text [format $fmt $parm [WrapVal $indent $value]]
+            } {
+                # Current == default, and we're not showing that.
+                continue
+            }
+        }
+
+        if {$text eq ""} {
+            set text "No such parameters found.\n"
+        }
+
+        # NEXT, indicate which ones we're showing
+        set header "This report lists the values of all model parameters"
+ 
+        if {$state eq "CHANGED"} {
+            set title "Changed"
+
+            append header \
+                "\nthat have been changed from their default settings"
+        } else {
+            set title "All"
+        }
+
+        if {$pattern ne "*"} {
+            append title " matching \"$pattern\""
+            append header \
+                "\nand match the pattern \"$pattern\""
+        }
+
+        append header "."
+
+        # NEXT, save the report
+        set id [reporter save \
+                    -title     "Model Parameters ($title)"  \
+                    -text      "$header\n\n$text"           \
+                    -requested 1                            \
+                    -type      SCENARIO                     \
+                    -subtype   PARMDB]
+
+        return [list reporter delete $id]
+    }
+
+    # WrapVal indent value
+    #
+    # indent    Indent in characters for the second and subsequent lines
+    # value     Value to wrap
+    #
+    # Wraps the value to fit within a field (75 - indent) characters wide,
+    # breaking on whitespace, and indenting the second and subsequent
+    # lines.
+
+    proc WrapVal {indent value} {
+        # FIRST, does it need to be wrapped?
+        let wid {80 - $indent}
+
+        if {[string length $value] <= $wid} {
+            return $value
+        }
+
+        # NEXT, it does.  Compute the indent leader.
+        set leader  "\n[string repeat " " $indent]"
+
+        # NEXT, split the input into tokens
+        set lines [list]
+        set line ""
+
+        foreach token [split $value] {
+            # FIRST, if it's the empty string ignore it; we'll get that
+            # if there are multiple adjacent whitespaces in the value.
+            if {$token eq ""} {
+                continue
+            }
+
+            # NEXT, can the token be added to the current line without
+            # making it too long?
+
+            if {[string length $line] + [string length $token] + 1 < $wid} {
+                if {$line ne ""} {
+                    append line " "
+                }
+                append line $token
+            } elseif {$line eq ""} {
+                # This token is too long all by itself
+                lappend lines $token
+            } else {
+                lappend lines $line
+                set line $token
+            }
+        }
+
+        return [join $lines $leader]
     }
 
     # imp sat gtype n g
@@ -745,6 +881,34 @@ order define ::report REPORT:DRIVER {
     setundo [join $undo \n]
 }
 
+
+# REPORT:PARMDB
+#
+# Produces a parmdb(5) report.
+
+order define ::report REPORT:PARMDB {
+    title "Model Parameters Report"
+    options \
+        -canschedule                 \
+        -alwaysunsaved               \
+        -sendstates    {PREP PAUSED}
+
+    parm state    enum "Parameter State" -type ::report::eparmstate -defval ALL
+    parm wildcard text "Wild Card"
+} {
+    # FIRST, prepare the parameters
+    prepare state     -required -type ::report::eparmstate
+    prepare wildcard
+
+    returnOnError -final
+
+    # NEXT, produce the report
+    set undo [list]
+    lappend undo [$type imp parmdb $parms(state) $parms(wildcard)]
+
+    setundo [join $undo \n]
+}
+
 # REPORT:SATISFACTION:CIVILIAN
 #
 # Produces a Civilian Satisfaction Report
@@ -878,16 +1042,4 @@ order define ::report REPORT:SATISFACTION:ORGANIZATION {
 
     setundo [join $undo \n]
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
