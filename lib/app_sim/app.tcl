@@ -137,6 +137,14 @@ snit::type app {
         # NEXT, define global conditions
         namespace eval ::cond { }
 
+        # Simulation state is PREP.
+
+        statecontroller ::cond::simIsPrep -events {
+            ::sim <State>
+        } -condition {
+            [::sim state] eq "PREP"
+        }
+
         # Simulation state is not RUNNING.
 
         statecontroller ::cond::simNotRunning -events {

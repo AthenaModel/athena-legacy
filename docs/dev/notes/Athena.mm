@@ -53,9 +53,6 @@
 <node CREATED="1241215740273" ID="Freemind_Link_1519643380" MODIFIED="1245882867110" TEXT="Speed up gram_value update on cancel">
 <icon BUILTIN="full-3"/>
 </node>
-<node CREATED="1241215792272" ID="Freemind_Link_1746105883" MODIFIED="1245882867112" TEXT="Grab acontrib assignment speed up from JRAM">
-<icon BUILTIN="full-3"/>
-</node>
 <node CREATED="1245882571968" ID="Freemind_Link_1418176995" MODIFIED="1245882875317" TEXT="GRAM dump executive commands">
 <icon BUILTIN="full-4"/>
 </node>
@@ -185,6 +182,7 @@
 <node CREATED="1237482120338" FOLDED="true" ID="Freemind_Link_1183885189" MODIFIED="1238104926493" TEXT="Orders to rename entities">
 <icon BUILTIN="help"/>
 <node CREATED="1237482138802" ID="Freemind_Link_1495570394" MODIFIED="1237482143838" TEXT="Useful; can of worms."/>
+<node CREATED="1249594302044" ID="Freemind_Link_521417522" MODIFIED="1249594314421" TEXT="Need to use integers as entity keys"/>
 </node>
 </node>
 <node CREATED="1243547508955" ID="Freemind_Link_1801589990" MODIFIED="1243547510924" POSITION="right" TEXT="Reports">
@@ -250,9 +248,6 @@
 </node>
 <node CREATED="1241216009376" ID="Freemind_Link_679327480" MODIFIED="1245882597310" TEXT="Splash screen/About box">
 <icon BUILTIN="full-2"/>
-</node>
-<node CREATED="1237479490254" ID="Freemind_Link_1164487778" MODIFIED="1245882914397" TEXT="Order History Browser">
-<icon BUILTIN="full-4"/>
 </node>
 <node CREATED="1237479513679" ID="Freemind_Link_123674584" MODIFIED="1245882918598" TEXT="appwin(sim): Windows Menu">
 <icon BUILTIN="full-5"/>

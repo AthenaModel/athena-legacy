@@ -406,10 +406,10 @@ snit::widget appwin {
             -underline 14                      \
             -command   [mymethod FileSaveAs]
 
-        $mnu add command                         \
-            -label     "Export As XML..."        \
-            -underline 0                         \
-            -command   [mymethod FileExportAsXml]
+        cond::simIsPrep control \
+            [menuitem $mnu command "Export As XML..."        \
+                 -underline 0                                \
+                 -command   [mymethod FileExportAsXml]]
 
         $mnu add separator
 
