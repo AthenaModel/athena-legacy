@@ -51,6 +51,7 @@ proc CompilerInit {} {
     $compiler alias include Compiler_include
     $compiler alias image   Compiler_image
     $compiler alias macro   Compiler_macro
+    $compiler alias super   Compiler_super
 
     # NEXT, initialize the ehtml(5) processor used to transform
     # the page bodies.
@@ -181,6 +182,18 @@ proc Compiler_include {filename} {
 
 proc Compiler_macro {name args} {
     ehtml macro $name {*}$args
+}
+
+# Compiler_super args
+#
+# args    A command to execute in the main interpreter
+#
+# This command allows the help input to access information from
+# project libraries by accessing the main interpreter in a controlled
+# way.
+
+proc Compiler_super {args} {
+    namespace eval :: $args
 }
 
 #-------------------------------------------------------------------

@@ -185,7 +185,7 @@ snit::widget ::projectgui::helptree {
         }
 
         # NEXT, make sure the item is visible
-        $tree item expand $info(item-$name)
+        # $tree item expand $info(item-$name)
 
         $tree see $info(item-$name)
 

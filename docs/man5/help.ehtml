@@ -72,6 +72,19 @@ read, the help compiler will expand all of the <<xref ehtml(5)>>
 macros in each page, producing the finished HTML for display in a help
 browser.<p>
 
+<<defitem proc {proc <i>name arglist body</i>}>>
+
+This command defines a procedure in the context of the help file,
+e.g.., a new command that can be used to define pages of specific
+types.<p>
+
+<<defitem super {super <i>command...</i>}>>
+
+This is a special command that allows procedures defined using
+<<iref proc>> to access project libraries and other commands
+defined in the main Tcl interpreter.  It should be used with
+caution.<p>
+
 <</deflist commands>>
 
 

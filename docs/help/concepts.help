@@ -61,33 +61,6 @@ page mapref "Map Reference Strings" concepts {
 
 #-----------------------------------------------------------------------
 
-# TBD: we should include documentation for all model parameters
-# in the helpdb.
-
-page parmdb "Model Parameters" concepts {
-    <<title>>
-    Model parameters are variable settings used to calibrate
-    Athena's models and configure its low-level behavior.  
-    Ultimately we hope to include the documentation for all
-    model parameters in the on-line help; for now, please see
-    the parmdb(5) man page in the Athena documentation tree.
-    Parameter values can be queried and set using the
-    <<cmdref parm>> executive command.<p>
-
-    <<childlinks>>
-}
-
-page parmdb.locked "Locked Parameters" parmdb {
-    <<title>>
-    A few model parameters can only be set during
-    <<cref "Scenario Preparation">>; once time advances they are
-    "locked", and can no longer be changed using the
-    <<cmdref parm set>>, <<cmdref parm import>>, and 
-    <<cmdref parm reset>> commands.<p>
-}
-
-#-----------------------------------------------------------------------
-
 page Neighborhood_Security "Neighborhood Security" concepts {
     <<title>>
 

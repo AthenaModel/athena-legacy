@@ -97,7 +97,8 @@ snit::type ::projectlib::parmdb {
             Defines the size of the simulation time tick, i.e., the 
             resolution of the simulation clock.  The time tick can be 
             (within reason) any positive number of minutes, hours, or days, 
-            expressed as "<number> <units>", e.g., "1 minute", "2 minutes",
+            expressed as "<i>number</i> <i>units</i>", e.g., 
+            "1 minute", "2 minutes", 
             "1 hour", "2 hours", "1 day", "2 days".  This parameter
             cannot be changed at run-time.
         }
@@ -105,7 +106,7 @@ snit::type ::projectlib::parmdb {
         # NEXT, Athena Attrition Model parameters
 
         $ps subset aam {
-            Parameters which affect the Athena Attrition Model
+            Parameters which affect the Athena Attrition Model.
         }
 
         $ps define aam.ticksPerTock ::projectlib::ipositive 7 {
