@@ -130,6 +130,21 @@ command "=" {
 }
 
 #=======================================================================
+# call command
+
+command "call" {
+    <<syntax <i>script</i> >>
+
+    Calls the named <i>script</i>, which is assumed to be in the current
+    working directory unless an absolute path is specified. The ".tcl"
+    extension may be omitted; <b>call</b> will add it automatically.<p>
+
+    An executive script is a Tcl script containing <<cref cmd>>.  A
+    number of standard Tcl commands may also be used.
+}
+
+
+#=======================================================================
 # debug command
 
 command "debug" {
@@ -333,6 +348,189 @@ command "parm set" {
     <<cref using.prep>> state, and cannot be changed.<p>
 
     This command works by sending the <<cref PARM:SET>> order.
+}
+
+#=======================================================================
+# prefs commands
+
+command "prefs" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+
+    The <b>prefs</b> command sets and queries user preference
+    parameters, which are documented in the prefs(5) man page. The
+    user preferences are distinct from the <<cref parmdb>> edited
+    using the <<cmdref parm>> command in that they apply to the application
+    rather than to individual scenarios. Therefore,<p>
+
+    <ul>
+    <li> They are not saved in scenario files.
+    <li> They do not affect the outcome of simulation runs. 
+    </ul>
+
+    This command has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+command "prefs get" {
+    <<syntax <i>parm</i> >>
+    
+    Retrieves the value of the named preference parameter.
+}
+
+#-----------------------------------------------------------------------
+
+command "prefs help" {
+    <<syntax <i>parm</i> >>
+    
+    Displays the help string for the named preference parameter.
+}
+
+#-----------------------------------------------------------------------
+
+command "prefs list" {
+    <<syntax ?<i>pattern</i>?>>
+
+    When called with no argument, this command lists the names and
+    values of all preference parameters.  If given, <i>pattern</i> is
+    a wild-card pattern; only matching parameters are included.
+}
+
+#-----------------------------------------------------------------------
+
+command "prefs names" {
+    <<syntax ?<i>pattern</i>?>>
+
+    When called with no argument, this command lists the names of all
+    preference parameters.  If given, <i>pattern</i> is a wild-card
+    pattern; only matching parameters are included.
+}
+
+
+#-----------------------------------------------------------------------
+
+command "prefs reset" {
+    <<syntax>>
+    
+    Resets all preference parameters to their default
+    settings.
+}
+
+
+#-----------------------------------------------------------------------
+
+command "prefs set" {
+    <<syntax <i>parm value</i> >>
+    
+    Sets the named preference parameter to the specified
+    <i>value</i>.
+}
+
+#=======================================================================
+# rdb commands
+
+command "rdb" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+
+    Athena stores almost all of its working data in its run-time
+    database, or RDB.  This command allows the user to query 
+    the RDB directly; however, it cannot be used to modify the
+    contents of the RDB.  Note that the <<cmdref select>> command
+    is often more convenient.<p>
+
+    RDB queries are done using the SQL language, as implemented by
+    SQLite3.  A discussion of SQL is beyond the scope of this
+    document; see the documentation at 
+    <tt>http://sqlite.org</tt> for more information.<p>
+
+    This command has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+command "rdb eval" {
+    <<syntax <i>sql</i> >>
+
+    Executes the <i>sql</i> query (usually a SELECT statement)
+    and returns the result as an unformatted list
+    of values.  This command can be useful in scripts; for interactive
+    use, the <<cmdref rdb query>> or <<cmdref select>> command
+    is almost always more appropriate.
+}
+
+#-----------------------------------------------------------------------
+
+command "rdb query" {
+    <<syntax <i>sql</i> >>
+
+    Executes the <i>sql</i> query (usually a SELECT statement)
+    and returns the result as a formatted table.  This command
+    is appropriate for long, complex queries that are spread over
+    multiple lines; for short queries, use <<cmdref select>>
+    instead.<p>
+
+    For example,<p>
+
+    <<cli {
+        &gt; rdb query {select g,longname from frcgroups}
+        g       local 
+        ------- ----- 
+        TALIBAN 0     
+        PAR     0     
+        AQ      0     
+        POLI    1     
+        TRIBMIL 1     
+        &gt;}>>
+}
+
+#-----------------------------------------------------------------------
+
+command "rdb schema" {
+    <<syntax ?<i>table</i>?>>
+
+    By default, this command returns the complete SQL schema for the
+    RDB.  If a <i>table</i> or view name is given, it returns only the schema
+    for that table or view.
+}
+
+#-------------------------------------------------------------------
+
+command "rdb tables" {
+    <<syntax>>
+
+    Returns a list of the names of the tables defined in the 
+    RDB's schema.  (Views are not included.)
+}
+
+#=======================================================================
+# select command
+
+command "select" {
+    <<syntax <i>sql...</i> >>
+
+    The <b>select</b> command is a simplified version of 
+    <<cmdref rdb query>>, intended for interactive use with short,
+    simple SQL queries.  The command has the form of a single SQL
+    "SELECT" statement.  For example,<p>
+
+    <<cli {
+        &gt; select g,longname from frcgroups
+        g       local 
+        ------- ----- 
+        TALIBAN 0     
+        PAR     0     
+        AQ      0     
+        POLI    1     
+        TRIBMIL 1     
+        &gt;}>>
+
+    If the query is longer than one line, consider using
+    <<cmdref rdb query>> instead.<p.
+ 
 }
 
 #=======================================================================
