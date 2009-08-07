@@ -270,6 +270,8 @@ proc macro::cref {uri {text ""}} {
         }
 
         set text "TBD: $text"
+
+        puts "On \"[pageinfo name]\", broken link to: \"$name\""
     }
 
     return "<a href=\"$uri\">$text</a>"

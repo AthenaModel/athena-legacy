@@ -53,7 +53,7 @@ page home "Athena Help" {} {
          <<childlinks using>>
     <li> Athena Reference
          <ul>
-         <li> <<cref menus>>
+         <li> <<cref menu>>
          <li> <<cref tabs>>
          <li> <<cref orders>>
          <li> <<cref reports>>
@@ -131,6 +131,7 @@ page using.prep "Scenario Preparation" using {
 #======================================================================
 # The following sections are in separate files
 
+include menu.help
 include orders.help
 include reports.help
 include cmd.help

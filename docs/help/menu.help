@@ -1,0 +1,155 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    menus.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: Application Menus
+#
+#    This file is included into athena.help.
+#
+#    Individual menu and menu item pages have titles like
+#    
+#       File/Save Scenario As...
+#    
+#    The page names are created automatically by prepending
+#    "menu/" and converting blanks to underscores.
+#    
+#    The menuref macro creates a link to a menu/menu item page
+#    given its label.
+#
+#-----------------------------------------------------------------------
+
+page menu "Application Menus" {} {
+    <<title>>
+    The Athena main menu bar provides access to most of Athena's
+    functionality.  The full set of menus is as follows:<p>
+
+    <<childlinks>>
+}
+
+# menu name
+#
+# name     The name of the menu
+#
+# Defines a menu page, defining the parent/child links properly.
+
+proc menu {name text} {
+    set replist [list " " "_"]
+    
+    set tag "menu/[string map $replist $name]"
+
+    set tokens [split $tag /]
+
+    set parent [lrange $tokens 0 end-1]
+
+    set ptag [join $parent /]
+
+    set title "$name Menu"
+
+    page $tag $title $ptag "<<menu.header [list $name]>>\n\n$text"
+}
+
+macro menu.header {name} {
+    set nTokens [lrange [split [pageinfo name] /] 1 end]
+    set tTokens [split $name /]
+
+    set taglist "menu"
+    set nameWithLinks ""
+    foreach ntok [lrange $nTokens 0 end-1] ttok [lrange $tTokens 0 end-1] {
+        lappend taglist "$ntok"
+
+        append nameWithLinks "[cref [join $taglist /] $ttok]/"
+    }
+
+    append nameWithLinks [lindex $tTokens end]
+} {
+    |<--
+    <h3>$nameWithLinks Menu</h3>
+}
+
+proc menuitem {name text} {
+    set replist [list " " "_"]
+    
+    set tag "menu/[string map $replist $name]"
+
+    set tokens [split $tag /]
+
+    set parent [lrange $tokens 0 end-1]
+
+    set ptag [join $parent /]
+
+    page $tag $name $ptag "<<menuitem.header [list $name]>>\n\n$text"
+}
+
+macro menuitem.header {name} {
+    set nTokens [lrange [split [pageinfo name] /] 1 end]
+    set tTokens [split $name /]
+
+    set taglist "menu"
+    set nameWithLinks ""
+    foreach ntok [lrange $nTokens 0 end-1] ttok [lrange $tTokens 0 end-1] {
+        lappend taglist "$ntok"
+
+        append nameWithLinks "[cref [join $taglist /] $ttok]/"
+    }
+
+    append nameWithLinks [lindex $tTokens end]
+} {
+    |<--
+    <h3>$nameWithLinks</h3>
+}
+
+#=======================================================================
+# Orders Menu
+
+menu "Orders" {
+    This menu provides one means of access to Athena's simulation
+    orders, which are used to build the scenario and control its
+    execution.  See the <<cref orders>> documentation for complete
+    information on Athena's orders.<p>
+}
+
+
+#=======================================================================
+# Reports Menu
+
+menu "Reports" {
+    This menu provides access to Athena's user-requested reports, as
+    well as other report-oriented operations.  See the 
+    <<cref reports>> documentation for a full list of Athena's reports.
+
+    The remaining menu items are as follows:<p>
+
+    <<childlinks>>
+}
+
+macro reports.hotlist {} {
+    |<--
+    The user can mark particular reports as being of interest by checking
+    the Hot List box when the report is displayed in the
+    Report Browser.  These reports can be viewed as a group in the
+    Report Browser's Hot List bin, and can be saved to disk as a text
+    file.
+}
+
+#-----------------------------------------------------------------------
+
+menuitem "Reports/Save Hot List to Disk..." {
+    <<reports.hotlist>><p>
+
+    This item saves the reports on the Hot List as a single text file;
+    if there are multiple reports they are separated by form feeds,
+    so that the individual reports will print on separate pages.
+}
+
+#-----------------------------------------------------------------------
+
+menuitem "Reports/Clear Hot List..." {
+    <<reports.hotlist>><p>
+
+    This menu item removes all reports from the Hot List.<p>
+}

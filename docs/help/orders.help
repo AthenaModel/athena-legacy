@@ -21,7 +21,7 @@ page orders "Orders" {} {
     implicitly.  For example, dragging a unit from one place to
     another on the map implicitly sends the <<cref UNIT:MOVE>> 
     order.  Order dialogs can be invoked in a number of ways, e.g., by
-    selecting an order from the <<cref menu:orders>>.<p>
+    selecting an order from the <<cref menu/Orders>>.<p>
 
     Orders are grouped in the following categories:<p>
 

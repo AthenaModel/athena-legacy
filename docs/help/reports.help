@@ -21,8 +21,6 @@ page reports "Reports" {} {
     the user may request a variety of reports.  This section describes
     the available reports.<p>
 
-    Orders are grouped in the following categories:<p>
-
     <<childlinks>>
 }
 
