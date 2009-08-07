@@ -658,6 +658,18 @@ snit::widget appwin {
         $self AddOrder $reportsmenu REPORT:SATISFACTION:ORGANIZATION
         $self AddOrder $reportsmenu REPORT:PARMDB
 
+        $reportsmenu add separator
+
+        $reportsmenu add command \
+            -label     "Save Hot List to Disk..." \
+            -underline 0                          \
+            -command   [list report hotlist save]
+
+        $reportsmenu add command \
+            -label     "Clear Hot List..." \
+            -underline 0                          \
+            -command   [list report hotlist clear]
+
         # Help menu
         set helpmenu [menu $menubar.helpmenu]
         $menubar add cascade -label "Help" -underline 0 -menu $helpmenu
@@ -918,7 +930,7 @@ snit::widget appwin {
 
         # Report browser
         notifier bind ::report <Report> $self [mymethod ReportCB]
-        notifier bind ::report <Delete> $self [mymethod ReportDeleteCB] 
+        notifier bind ::report <Update> $self [mymethod ReportUpdateCB] 
 
         # Scrolling log
         set slog   [$self tab win slog]
@@ -1771,11 +1783,12 @@ snit::widget appwin {
         }
     }
 
-    # ReportDeleteCB id
+    # ReportUpdateCB id
     #
-    # Refreshes the report browser when a report is deleted.
+    # Refreshes the report browser when an existing report or reports
+    # are updated or deleted.
 
-    method ReportDeleteCB {id} {
+    method ReportUpdateCB {id} {
         [$self tab win report] refresh
     }
 

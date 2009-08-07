@@ -54,7 +54,7 @@ snit::type ::report {
         reporter configure \
             -db        ::rdb                                \
             -clock     ::simclock                           \
-            -deletecmd [list notifier send $type <Delete>]  \
+            -deletecmd [list notifier send $type <Update>]  \
             -reportcmd [list notifier send $type <Report>]
 
         # NEXT, define the bins.
@@ -132,6 +132,148 @@ snit::type ::report {
             "
         }
     }
+
+    #-------------------------------------------------------------------
+    # Reports
+
+    # hotlist save
+    #
+    # Saves the reports on the hot list to a disk file.
+
+    typemethod {hotlist save} {} {
+        # FIRST, are there any to save?
+        if {![rdb exists {SELECT id FROM reports WHERE hotlist=1}]} {
+            messagebox popup \
+                -title    "Cannot Save Reports" \
+                -icon     error                 \
+                -buttons  {cancel "Cancel"}     \
+                -parent   [app topwin]          \
+                -message  [normalize {
+                    No reports are currently on the Report Hot List.
+                    To add reports to the Hot List, check the Hot List
+                    in the Reports tab for each specific report.
+                }]
+
+            return
+        }
+
+        # NEXT, query for the file name.  If the file already
+        # exists, the dialog will automatically query whether to 
+        # overwrite it or not. Returns 1 on success and 0 on failure.
+
+        set filename [tk_getSaveFile                                 \
+                          -parent      [app topwin]                  \
+                          -title       "Save Hot Listed Reports As"  \
+                          -initialfile "hotlist.txt"                 \
+                          -filetypes {
+                              {{Text File} {.txt} }
+                          }]
+
+        # NEXT, If none, they cancelled.
+        if {$filename eq ""} {
+            return 0
+        }
+
+        # NEXT, Save the reports on the hotlist.
+        if {[catch {
+            $type SaveHotList $filename
+        } result]} {
+            messagebox popup \
+                -title    "Cannot Save Reports" \
+                -icon     error                 \
+                -buttons  {cancel "Cancel"}     \
+                -parent   [app topwin]          \
+                -message  [normalize {
+                    Athena was unable to save the reports to the
+                    requested file:  $result
+                }]
+        } else {
+            app puts "Reports saved to $filename"
+        }
+    }
+
+    # SaveHotList filename
+    #
+    # filename     A file to which to save the hot list.
+    #
+    # Saves the hot listed reports.
+
+    typemethod SaveHotList {filename} {
+        # FIRST, open the file
+        set f [open $filename w]
+
+        try {
+            set count 0
+
+            rdb eval {
+                SELECT * FROM reports
+                WHERE hotlist=1
+                ORDER BY id
+            } data {
+                if {$count > 0} {
+                    puts $f "\f"
+                }
+
+                puts $f [$type FormatReport data]
+
+                incr count
+            }
+
+        } finally {
+            close $f
+        }
+    }
+
+    # FormatReport dataVar
+    #
+    # dataVar     An array of the report attributes
+    #
+    # Formats the report so that it can saved to disk.
+
+    typemethod FormatReport {dataVar} {
+        upvar 1 $dataVar data
+
+        tsubst {
+            |<--
+            ID:    $data(id)
+            Time:  $data(stamp) (Tick $data(time))
+            Title: $data(title)
+            Type:  $data(rtype)/$data(subtype)
+
+            $data(text)
+        }
+    }
+
+    # hotlist clear
+    #
+    # Clears all hotlist flags, if the user so chooses.
+
+    typemethod {hotlist clear} {} {
+        set answer [messagebox popup \
+                        -title         "Are you sure?"                  \
+                        -icon          warning                          \
+                        -buttons       {ok "Clear" cancel "Cancel"} \
+                        -default       cancel                           \
+                        -ignoretag     "report:hotlist:clear"           \
+                        -ignoredefault ok                               \
+                        -parent        [app topwin]                     \
+                        -message       [normalize {
+                            Are you sure you really want to clear the
+                            report hot list?  Your hot listed reports
+                            will no longer be available in the Hot List
+                            bin in the report browser.
+                        }]]
+
+        if {$answer eq "cancel"} {
+            cancel
+        }
+
+        reporter hotlist set all 0
+
+        notifier send $type <Update> all
+    }
+
+
 
     #-------------------------------------------------------------------
     # Report Implementations
