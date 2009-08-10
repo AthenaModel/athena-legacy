@@ -31,6 +31,18 @@ page menu "Application Menus" {} {
     <<childlinks>>
 }
 
+# menuref args
+#
+# args    The name of a menu or menu item
+#
+# Returns a cref-link to the help page.
+
+macro menuref {args} {
+    set replist [list " " "_"]
+    
+    set tag "menu/[string map $replist $args]"
+} {[cref $tag $args]}
+
 # menu name
 #
 # name     The name of the menu
@@ -104,6 +116,170 @@ macro menuitem.header {name} {
 }
 
 #=======================================================================
+# File Menu
+
+menu "File" {
+    Athena's File menu contains the usual kinds of things, as listed
+    below:<p>
+
+    <<childlinks>>
+}
+
+menuitem "File/New Browser" {
+    Pops up a new browser window on the same scenario, allowing the
+    user to watch multiple browser tabs at the same time.  Each
+    browser window is identical to the main window except that it
+    lacks the Athena command line interface (CLI) at the bottom.<p>
+
+    Note that all windows will show the same scenario; to view
+    multiple scenarios at the same, it is necessary to invoke multiple
+    instances of Athena.<p>
+}
+
+menuitem "File/New Scenario..." {
+    Closes the current scenario and creates a new, blank scenario,
+    loading the user's default <<cref parmdb "model parameter">>
+    settings.
+}
+
+menuitem "File/Open Scenario..." {
+    Closes the current scenario, and loads an existing scenario from 
+    disk.<p>
+
+    By default, the Open Scenario dialog shows only Athena scenario
+    (".adb") files; use the file type pulldown at the bottom of the
+    dialog to show Athena Scenario XML files as well.
+}
+
+menuitem "File/Save Scenario" {
+    Saves the current scenario to disk, prompting for a file name if
+    necessary.  Athena scenario files should have a ".adb" extension.
+}
+
+menuitem "File/Save Scenario As..." {
+    Saves the current scenario to disk,
+    prompting for a new file name.
+}
+
+menuitem "File/Export as XML..." {
+    Saves the current scenario to disk in XML format.  Note that this
+    can only be done while the simulation is in 
+    <<cref "Scenario Preparation">> state.
+}
+
+menuitem "File/Import Map..." {
+    Imports an image file in JPEG, GIF, or PNG format to be used as
+    a map background for the scenario.  Any image file can be used.
+    See <<cref "Map Info">> for more information.
+}
+
+menu "File/Parameters" {
+    The items on this menu relate to the Athena 
+    <<cref parmdb>>.<p>
+
+    <<childlinks>>
+}
+
+menuitem "File/Parameters/Import..." {
+    Imports <<cref parmdb "model parameter">> settings into the 
+    scenario from a ".parmdb" file on the disk.<p>
+    
+    This menu item is equivalent to the <<cmdref parm import>> command.
+}
+
+menuitem "File/Parameters/Export..." {
+    Exports the scenario's current <<cref parmdb "model parameter">>
+    settings to 
+    a ".parmdb" file.  Note that only parameters whose values differ
+    from the installation defaults are included.<p>
+
+    This menu item is equivalent to the <<cmdref parm export>> command.
+}
+
+menuitem "File/Parameters/Save as Default..." {
+    Saves the scenario's current <<cref parmdb "model parameter">>
+    settings as the user's default settings for new scenarios.<p>
+
+    This menu item is equivalent to the <<cmdref parm defaults save>>
+    command.
+}
+
+menuitem "File/Parameters/Clear Defaults..." {
+    Clears the user's default <<cref parmdb "model parameter">>
+    settings; new scenarios will be created using the installation
+    defaults instead.  <b>Note:</b> Using this menu item will no
+    effect on the current scenario.<p>
+
+    This menu item is equivalent to the <<cmdref parm defaults clear>>
+    command.
+}
+
+menuitem "File/Exit" {
+    Exits the application, first prompting the user to save any
+    unsaved changes.<p>
+
+    This menu item appears only in the main application window.
+}
+
+menuitem "File/Close" {
+    Closes the current browser window.<p>
+
+    This menu item appears only in browser windows created using the
+    <<menuref File/New Browser>> menu item.
+}
+
+#=======================================================================
+# Edit Menu
+
+menu "Edit" {
+    This is a typical application "Edit" menu.  The menu items are as
+    follows:<p>
+
+    <<childlinks>>
+}
+
+menuitem "Edit/Undo" {
+    Undoes the most recent order, if possible.  The 
+    <<cref "Orders/History">> tab shows the orders that can be
+    undone (among other things).<p>
+
+    The undo stack is cleared when the scenario is saved, and when 
+    time advances.
+}
+
+menuitem "Edit/Redo" {
+    Re-sends the most recently undone order, as though it had never
+    been undone.  <b>Note:</b> The redo stack is cleared 
+    as soon as an order is sent by any other mechanism.
+}
+
+menuitem "Edit/Cut" {
+    Cuts the selected text to the clipboard.
+}
+
+menuitem "Edit/Copy" {
+    Copies the selected text to the clipboard.
+}
+
+menuitem "Edit/Paste" {
+    Pastes text from the clipboard into the current text box.
+}
+
+menuitem "Edit/Select All" {
+    Selects all text in the current text box, so that it can be cut or
+    copied.
+}
+
+#=======================================================================
+# View Menu
+
+menu "View" {
+    There is a menu item on this menu and its sub-menus for each of
+    Athena's browser <<cref tabs tabs>>.  Selecting a menu item makes
+    the associated tab visible.
+}
+
+#=======================================================================
 # Orders Menu
 
 menu "Orders" {
@@ -152,4 +328,44 @@ menuitem "Reports/Clear Hot List..." {
     <<reports.hotlist>><p>
 
     This menu item removes all reports from the Hot List.<p>
+}
+
+#=======================================================================
+# Help Menu
+
+menu "Help" {
+    This menu provides access to Athena's on-line help, as you have
+    evidently discovered.  The specific items are as follows:<p>
+
+    <<childlinks>>
+}
+
+menuitem "Help/Help Contents" {
+    This menu item pops up the on-line help's 
+    <<cref home "table of contents">>.
+}
+
+menuitem "Help/Order Reference" {
+    This menu item pops up the reference material for each of
+    Athena's simulation <<cref orders>>.
+}
+
+menuitem "Help/Report Reference" {
+    This menu item pops up the reference material for each of
+    Athena's <<cref reports>>.
+}
+
+menuitem "Help/Command Reference" {
+    This menu item pops up the reference material for each of 
+    Athena's <<cref cmd>>.
+}
+
+menuitem "Help/Release Notes" {
+    This menu item displays the <<cref release>> for this release
+    of Athena.
+}
+
+menuitem "Help/About Athena" {
+    This menu item displays basic information <<cref about>>,
+    including the copyright.
 }
