@@ -11,6 +11,32 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.13, 10 August 2009</h3>
+
+This build contains a number of bug fixes, and the following new
+features: the ability to schedule orders to execute in the future, a
+browser for scheduled orders, a browser for orders that have executed,
+and a report of all parmdb(5) settings.  In addition, a great deal of
+information has been added to the on-line help; all menus, executive
+commands, and parmdb(5) parameters are now covered.<p>
+
+<ul>
+  <li> Bug 2182: Dialog does not update to current state following successful Send
+  <li> Bug 2183: scenariodb(n): export of large scenarios causes core dump in TDOM
+  <li> Bug 2191: Ensit spawn delay is confusing
+  <li> Bug 2211: athena_sim(1): DISPLACED civilian activity situation
+  <li> Bug 2214: Pull-down disabled / does not list valid values
+  <li> Bug 2217: athena_sim(1): time specification strings in contributions report
+  <li> Bug 2218: athena_sim(1): Ensit auto-resolution
+  <li> Bug 2220: athena_sim(1): Orders should no longer be valid while "RUNNING".
+  <li> Bug 2222: athena_sim(1): Scheduled Orders
+  <li> Bug 2226: athena_sim(1): Order History Browser
+  <li> Bug 2227: athena_sim(1): Model Parameters Report
+  <li> Bug 2228: athena_sim(1): Add parmdb(5) docs to the on-line help
+  <li> Bug 2229: athena_sim(1): On-line help for Executive Commands
+  <li> Bug 2230: athena_sim(1): Save reports to disk 
+</ul><p>
+
 <h3>Build 1.0.12, 27 July 2009</h3>
 
 This build contains mostly bug fixes and a number of new
