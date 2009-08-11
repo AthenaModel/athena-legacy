@@ -170,7 +170,7 @@ menuitem "File/Export as XML..." {
 menuitem "File/Import Map..." {
     Imports an image file in JPEG, GIF, or PNG format to be used as
     a map background for the scenario.  Any image file can be used.
-    See <<cref "Map Info">> for more information.
+    See <<cref "Using Maps">> for more information.
 }
 
 menu "File/Parameters" {
