@@ -271,7 +271,7 @@ snit::type unit {
     #
     # u     A unit name
     #
-    # Deletes the unit, including all references.
+    # Deletes the unit.
 
     typemethod {mutate delete} {u} {
         # FIRST, get the undo information
@@ -564,7 +564,7 @@ snit::type unit {
 
 # UNIT:CREATE
 #
-# Creates new force groups.
+# Creates a new unit.
 
 order define ::unit UNIT:CREATE {
     title "Create Unit"

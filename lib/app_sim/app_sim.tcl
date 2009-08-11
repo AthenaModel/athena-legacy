@@ -77,6 +77,7 @@ source [file join $::app_sim::library coop.tcl               ]
 source [file join $::app_sim::library attroe.tcl             ]
 source [file join $::app_sim::library defroe.tcl             ]
 source [file join $::app_sim::library unit.tcl               ]
+source [file join $::app_sim::library mad.tcl                ]
 
 # Non-GUI: Simulation
 source [file join $::app_sim::library sim.tcl                ]
@@ -122,6 +123,7 @@ source [file join $::app_sim::library defroebrowser.tcl      ]
 source [file join $::app_sim::library unitbrowser.tcl        ]
 source [file join $::app_sim::library orderbrowser.tcl       ]
 source [file join $::app_sim::library orderhistorybrowser.tcl]
+source [file join $::app_sim::library madbrowser.tcl         ]
 
 
 

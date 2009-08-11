@@ -234,6 +234,12 @@ snit::widget appwin {
             script { nbcoopbrowser %W }
         }
 
+        mads {
+            label "Magic Attitude Drivers"
+            parent gramt
+            script {madbrowser %W}
+        }
+
         orderst {
             label "Orders"
             parent ""
@@ -577,6 +583,15 @@ snit::widget appwin {
         $self AddOrder $submenu SITUATION:ENVIRONMENTAL:DELETE
         $self AddOrder $submenu SITUATION:ENVIRONMENTAL:RESOLVE
         $self AddOrder $submenu SITUATION:ENVIRONMENTAL:UPDATE
+
+        # Orders/Magic Attitude Drivers
+        set submenu [menu $ordersmenu.mad]
+        $ordersmenu add cascade -label "Magic Attitude Driver" \
+            -underline 0 -menu $submenu
+
+        $self AddOrder $submenu MAD:CREATE
+        $self AddOrder $submenu MAD:UPDATE
+        $self AddOrder $submenu MAD:DELETE
 
         # Orders/Civilian Group
         set submenu [menu $ordersmenu.civgroup]

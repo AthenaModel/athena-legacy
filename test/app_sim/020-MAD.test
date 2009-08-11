@@ -1,0 +1,241 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-MAD.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) MAD:* order tests.
+#
+#    This test suite tests the unit-related orders.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Standard MADs
+
+    set m1 {
+        oneliner "The First MAD" 
+    }
+
+    set m2 {
+        oneliner "The Second MAD"
+    }
+
+    set m3 {
+        oneliner "The Third MAD"
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # MAD:CREATE
+
+    test CREATE-1.1 {required parms} -body {
+        ted order -reject MAD:CREATE {}
+    } -result {
+        oneliner {required value}
+    }
+
+
+    test CREATE-2.1 {MAD is created} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+    } -body {
+        ted order MAD:CREATE $m1
+        ted order MAD:CREATE $m2
+        ted order MAD:CREATE $m3
+
+        ted query {SELECT * FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+    }
+
+
+    test CREATE-2.2 {Effects} -body {
+        ted notifier bind ::mad <Entity>
+        ted order MAD:CREATE $m1
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Entity> create 1}
+    }
+
+
+    test CREATE-3.1 {undo effects} -setup {
+        ted order MAD:CREATE $m1
+    } -body {
+        ted notifier bind ::mad <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Entity> delete 1}
+    }
+
+
+    #-------------------------------------------------------------------
+    # MAD:DELETE
+
+    test DELETE-1.1 {required parms} -body {
+        ted order -reject MAD:DELETE {}
+    } -result {
+        id {required value}
+    }
+
+    
+    test DELETE-1.2 {unknown id} -body {
+        ted order -reject MAD:DELETE id NONESUCH
+    } -result {
+        id {MAD does not exist or is not in initial state: "NONESUCH"}
+    }
+
+
+    test DELETE-1.3 {invalid MAD (not initial)} -body {
+        ted order MAD:CREATE $m2
+        rdb eval {UPDATE mads SET driver=1}
+        ted order -reject MAD:DELETE id 2
+    } -cleanup {
+        cleanup
+    } -result {
+        id {MAD does not exist or is not in initial state: "2"}
+    }
+
+
+    test DELETE-2.1 {Effects} -setup {
+        ted create BLUE
+        ted order MAD:CREATE $m1
+    } -body {
+        ted notifier bind ::mad <Entity>
+        ted order MAD:DELETE id 1
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Entity> delete 1}
+    }
+
+
+    test DELETE-3.1 {Undo effects} -setup {
+        ted create BLUE
+        ted order MAD:CREATE $m1
+        ted order MAD:DELETE id 1
+    } -body {
+        ted notifier bind ::mad <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Entity> create 1}
+    }
+
+
+    #-------------------------------------------------------------------
+    # MAD:UPDATE
+
+    test UPDATE-1.1 {required parms} -body {
+        ted order -reject MAD:UPDATE {}
+    } -result {
+        id {required value}
+        oneliner {required value}
+    }
+    
+
+    test UPDATE-1.2 {invalid MAD} -body {
+        ted order -reject MAD:UPDATE id 1 oneliner PATROL
+    } -cleanup {
+        cleanup
+    } -result {
+        id {MAD does not exist or is not in initial state: "1"}
+    }
+
+
+    test UPDATE-1.3 {invalid MAD (not initial)} -body {
+        ted order MAD:CREATE $m2
+        rdb eval {UPDATE mads SET driver=1}
+        ted order -reject MAD:UPDATE id 2 oneliner "MAD the Second"
+    } -cleanup {
+        cleanup
+    } -result {
+        id {MAD does not exist or is not in initial state: "2"}
+    }
+
+
+    test UPDATE-2.1 {unit is updated} -setup {
+        ted order MAD:CREATE $m1
+    } -body {
+        ted order MAD:UPDATE id 1 oneliner "MAD the First"
+
+        ted query {SELECT * FROM mads}
+    } -cleanup {
+        cleanup
+    } -result {
+id oneliner      driver 
+-- ------------- ------ 
+1  MAD the First -1     
+    }
+
+
+    test UPDATE-2.2 {<Entity> update} -setup {
+        ted create BLUE
+        ted order MAD:CREATE $m1
+    } -body {
+        ted notifier bind ::mad <Entity>
+        ted order MAD:UPDATE id 1 oneliner "MAD the FIRST"
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Entity> update 1}
+    }
+
+
+    test UPDATE-3.1 {undo undoes the change} -setup {
+        ted create BLUE USAID
+        ted order MAD:CREATE $m1
+        ted order MAD:UPDATE id 1 oneliner "MAD the FIRST"
+    } -body {
+        ted notifier bind ::mad <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Entity> update 1}
+    }
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

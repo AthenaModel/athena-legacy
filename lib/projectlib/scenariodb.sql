@@ -679,6 +679,28 @@ CREATE VIEW ensits_current AS
 SELECT * FROM situations JOIN ensits_t USING (s)
 WHERE state != 'ENDED' OR change != '';
 
+------------------------------------------------------------------------
+-- Magic Attitude Drivers (MADs)
+--
+-- Magic inputs to GRAM are associated with MADs for causality purposes.
+-- A MAD is similar to an event or situation.
+
+CREATE TABLE mads (
+   -- MAD ID
+   id            INTEGER PRIMARY KEY,
+   
+   -- One line description
+   oneliner      TEXT,
+
+   -- GRAM Driver ID
+   driver        INTEGER DEFAULT -1
+);
+
+-- MADs in the INITIAL state, i.e., before any driver has been assigned.
+
+CREATE VIEW mads_initial AS
+SELECT * FROM mads
+WHERE driver=-1;
 
 ------------------------------------------------------------------------
 -- Demographic Model

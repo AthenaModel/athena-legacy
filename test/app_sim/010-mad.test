@@ -1,0 +1,379 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-mad.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    mad(sim) tests.
+#
+#    This test suite tests the mad(sim) mutators and queries
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        array unset parms
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # mutate create
+
+    test create-1.1 {MADs are created} -setup {
+        ted create NB1 BLUE USAID SHIA 
+    } -body {
+        # FRC mad
+        mad mutate create {oneliner "First MAD"}
+        mad mutate create {oneliner "Second MAD"}
+        mad mutate create {oneliner "Third MAD"}
+
+        ted query {SELECT * FROM mads}
+    } -cleanup {
+        cleanup
+    } -result {
+id oneliner   driver 
+-- ---------- ------ 
+1  First MAD  -1     
+2  Second MAD -1     
+3  Third MAD  -1     
+    }
+
+
+    test create-1.2 {<Entity> create} -body {
+        ted notifier bind ::mad <Entity>
+        mad mutate create {oneliner "First MAD"}
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Entity> create 1}
+    }
+
+
+    test create-2.1 {undo deletes the mad} -setup {
+        set undo [mad mutate create {oneliner "First MAD"}]
+    } -body {
+        {*}$undo
+        rdb eval {SELECT id FROM mads}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test create-2.2 {On undo, <Entity> delete} -setup {
+        set undo [mad mutate create {oneliner "First MAD"}]
+    } -body {
+        ted notifier bind ::mad <Entity>
+        {*}$undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Entity> delete 1}
+    }
+
+    #-------------------------------------------------------------------
+    # mutate delete
+
+    test delete-1.1 {MAD is deleted} -setup {
+        mad mutate create {oneliner First}
+        mad mutate create {oneliner Second}
+    } -body {
+        mad mutate delete 1
+
+        # Is 1 gone?
+        rdb eval {SELECT id FROM mads}
+    } -cleanup {
+        cleanup
+    } -result {2}
+
+
+    test delete-1.2 {<Entity> delete} -setup {
+        mad mutate create {oneliner First}
+    } -body {
+        ted notifier bind ::mad <Entity>
+        mad mutate delete 1
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Entity> delete 1}
+    }
+
+
+    test delete-2.1 {Undo restores MAD} -setup {
+        mad mutate create {oneliner First}
+        set undo [mad mutate delete 1]
+    } -body {
+        {*}$undo
+        ted query {SELECT * FROM mads}
+    } -cleanup {
+        cleanup
+    } -result {
+id oneliner driver 
+-- -------- ------ 
+1  First    -1     
+    }
+
+
+    test delete-2.2 {On undo, <Entity> create} -setup {
+        mad mutate create {oneliner First}
+        set undo [mad mutate delete 1]
+    } -body {
+        ted notifier bind ::mad <Entity>
+        {*}$undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Entity> create 1}
+    }
+
+    #-------------------------------------------------------------------
+    # mutate update
+
+    test update-1.1 {MAD's oneliner is set} -setup {
+        mad mutate create {oneliner Original}
+    } -body {
+        mad mutate update {id 1 oneliner Modified}
+
+        ted query {SELECT * FROM mads}
+    } -cleanup {
+        cleanup
+    } -result {
+id oneliner driver 
+-- -------- ------ 
+1  Modified -1     
+    }
+
+
+    test update-1.2 {<Entity> update} -setup {
+        mad mutate create {oneliner Original}
+    } -body {
+        ted notifier bind ::mad <Entity>
+        mad mutate update {id 1 oneliner Modified}
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Entity> update 1}
+    }
+
+
+    test update-2.1 {undo undoes the change} -setup {
+        mad mutate create {oneliner Original}
+    } -body {
+        set a [ted query {SELECT * FROM mads}]
+
+        set undo [mad mutate update {id 1 oneliner Modified}]
+
+        {*}$undo
+
+        set b [ted query {SELECT * FROM mads}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-2.2 {undo sends <Entity> update} -setup {
+        mad mutate create {oneliner Original}
+    } -body {
+        set undo [mad mutate update {id 1 oneliner Modified}]
+
+        ted notifier bind ::mad <Entity>
+        {*}$undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Entity> update 1}
+    }
+
+
+    #-------------------------------------------------------------------
+    # names
+
+    test names-1.1 {Returns names: none defined} -body {
+        mad names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test names-1.2 {Returns names} -setup {
+        mad mutate create {oneliner FIRST}
+        mad mutate create {oneliner SECOND}
+    } -body {
+        mad names
+    } -cleanup {
+        cleanup
+    } -result {1 2}
+
+
+    #-------------------------------------------------------------------
+    # validate
+
+    test validate-1.1 {Invalid ID} -body {
+        mad validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {MAD does not exist: "NONESUCH"}
+
+
+    test validate-1.2 {Does not extended ID + description} -setup {
+        mad mutate create {oneliner FIRST}
+    } -body {
+        mad validate "1 foo bar baz"
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {MAD does not exist: "1 foo bar baz"}
+
+    test validate-2.1 {Valid ID} -setup {
+        mad mutate create {oneliner FIRST}
+    } -body {
+        mad validate 1
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # extended names
+
+    test extended_names-1.1 {Returns names: none defined} -body {
+        mad extended names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test extended_names-1.2 {Returns extended names} -setup {
+        mad mutate create {oneliner FIRST}
+        mad mutate create {oneliner SECOND}
+    } -body {
+        mad extended names
+    } -cleanup {
+        cleanup
+    } -result {{1 - FIRST} {2 - SECOND}}
+
+
+    #-------------------------------------------------------------------
+    # extended_validate
+
+    test extended_validate-1.1 {Invalid ID} -body {
+        mad extended validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {MAD does not exist: "NONESUCH"}
+
+
+    test extended_validate-2.1 {Valid ID} -setup {
+        mad mutate create {oneliner FIRST}
+    } -body {
+        mad extended validate 1
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test extended_validate-2.2 {Accepts ID + description} -setup {
+        mad mutate create {oneliner FIRST}
+    } -body {
+        mad extended validate "1 foo bar baz"
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # initial names
+
+    test initial_names-1.1 {Returns names: none defined} -body {
+        mad initial names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test initial_names-1.2 {Returns names} -setup {
+        mad mutate create {oneliner FIRST}
+        mad mutate create {oneliner SECOND}
+        mad mutate create {oneliner THIRD}
+
+        rdb eval {UPDATE mads SET driver=1 WHERE id=2}
+    } -body {
+        mad initial names
+    } -cleanup {
+        cleanup
+    } -result {1 3}
+
+
+    #-------------------------------------------------------------------
+    # initial validate
+
+    test initial_validate-1.1 {Invalid ID} -body {
+        mad initial validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {MAD does not exist or is not in initial state: "NONESUCH"}
+
+
+    test initial_validate-2.1 {Valid ID} -setup {
+        mad mutate create {oneliner FIRST}
+        mad mutate create {oneliner SECOND}
+        mad mutate create {oneliner THIRD}
+
+        rdb eval {UPDATE mads SET driver=1 WHERE id=2}
+    } -body {
+        mad initial validate 3
+    } -cleanup {
+        cleanup
+    } -result {3}
+
+    test validate-2.2 {Accepts ID + description} -setup {
+        mad mutate create {oneliner FIRST}
+    } -body {
+        mad initial validate "1 foo bar baz"
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
