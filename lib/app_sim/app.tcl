@@ -119,6 +119,7 @@ snit::type app {
         demog     init
         aam       init
         aam_rules init
+        mad       init
         nbhood    init
         nbrel     init
         group     init

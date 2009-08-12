@@ -514,6 +514,9 @@ snit::type scenario {
         # NEXT, load the blank map
         map load [file join $::app_sim::library blank.png]
 
+        # NEXT, create the "Adjustments" MAD.
+        mad mutate create {oneliner "Adjustments"}
+
         # NEXT, if there's a default parameter file, load it; and
         # mark the parameters saved.
 
