@@ -58,7 +58,7 @@ snit::widgetadaptor coopbrowser {
         DynamicHelp::add $editbtn -text "Edit Selected Curve"
 
         cond::orderIsValidMulti control $editbtn \
-            order   COOPERATION:UPDATE           \
+            order   COOP:UPDATE           \
             browser $win
 
        
@@ -147,10 +147,11 @@ snit::widgetadaptor coopbrowser {
         if {[llength $ids] == 1} {
             lassign [lindex $ids 0] n f g
 
-            order enter COOPERATION:UPDATE n $n f $f g $g
+            order enter COOP:UPDATE n $n f $f g $g
         } else {
-            order enter COOPERATION:UPDATE:MULTI ids $ids
+            order enter COOP:UPDATE:MULTI ids $ids
         }
     }
 }
+
 

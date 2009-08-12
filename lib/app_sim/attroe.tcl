@@ -458,10 +458,10 @@ order define ::attroe ROE:ATTACK:DELETE {
 order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE {
     title "Update Attacking ROE (Uniformed)"
     options \
-        -canschedule                      \
-        -table      gui_attroeuf_nfg      \
-        -tags       nfg                   \
-        -sendstates {PREP PAUSED}
+        -table          gui_attroeuf_nfg \
+        -tags           nfg              \
+        -schedulestates {PREP PAUSED}    \
+        -sendstates     {PREP PAUSED}
 
     parm n              key  "Neighborhood"      -tags nbhood
     parm f              key  "Attacking Group"   -tags group
@@ -502,10 +502,10 @@ order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE {
 order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE {
     title "Update Attacking ROE (Non-Uniformed)"
     options \
-        -canschedule                      \
-        -table      gui_attroenf_nfg      \
-        -tags       nfg                   \
-        -sendstates {PREP PAUSED}
+        -table          gui_attroenf_nfg \
+        -tags           nfg              \
+        -schedulestates {PREP PAUSED}    \
+        -sendstates     {PREP PAUSED}
 
     parm n              key  "Neighborhood"      -tags nbhood
     parm f              key  "Attacking Group"   -tags group
@@ -548,10 +548,10 @@ order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE {
 order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE:MULTI {
     title "Update Multiple Attacking ROEs (Uniformed)"
     options \
-        -canschedule                       \
-        -table       gui_attroeuf_nfg      \
-        -tags        nfg                   \
-        -sendstates  {PREP PAUSED}
+        -table          gui_attroeuf_nfg \
+        -tags           nfg              \
+        -schedulestates {PREP PAUSED}    \
+        -sendstates     {PREP PAUSED}
 
     parm ids            multi "Groups"
     parm roe            enum  "ROE"               -type eattroeuf
@@ -587,10 +587,10 @@ order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE:MULTI {
 order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI {
     title "Update Multiple Attacking ROEs (Non-Uniformed)"
     options \
-        -canschedule                       \
-        -table       gui_attroenf_nfg      \
-        -tags        nfg                   \
-        -sendstates  {PREP PAUSED}
+        -table          gui_attroenf_nfg \
+        -tags           nfg              \
+        -schedulestates {PREP PAUSED}    \
+        -sendstates     {PREP PAUSED}
 
     parm ids            multi "Groups"
     parm roe            enum  "ROE"               -type eattroenf

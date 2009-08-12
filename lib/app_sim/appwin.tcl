@@ -653,14 +653,14 @@ snit::widget appwin {
         $ordersmenu add cascade -label "Cooperation" \
             -underline 0 -menu $submenu
         
-        $self AddOrder $submenu COOPERATION:UPDATE
+        $self AddOrder $submenu COOP:UPDATE
 
         # Orders/Satisfaction Menu
         set submenu [menu $ordersmenu.sat]
         $ordersmenu add cascade -label "Satisfaction" \
             -underline 0 -menu $submenu
         
-        $self AddOrder $submenu SATISFACTION:UPDATE
+        $self AddOrder $submenu SAT:UPDATE
 
         # Reports menu
         set reportsmenu [menu $menubar.reports]
@@ -1844,5 +1844,6 @@ snit::widget appwin {
         $msgline puts $text
     }
 }
+
 
 

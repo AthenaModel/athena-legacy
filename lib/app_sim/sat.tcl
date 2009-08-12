@@ -279,14 +279,14 @@ snit::type sat {
 }
 
 #-------------------------------------------------------------------
-# Orders: SATISFACTION:*
+# Orders: SAT:*
 
-# SATISFACTION:UPDATE
+# SAT:UPDATE
 #
 # Updates existing curves
 
-order define ::sat SATISFACTION:UPDATE {
-    title "Update Satisfaction Curve"
+order define ::sat SAT:UPDATE {
+    title "Update Initial Satisfaction"
     options -sendstates PREP -table gui_sat_ngc -tags ngc
 
     parm n         key   "Neighborhood"  -tags nbhood
@@ -322,12 +322,12 @@ order define ::sat SATISFACTION:UPDATE {
 }
 
 
-# SATISFACTION:UPDATE:MULTI
+# SAT:UPDATE:MULTI
 #
 # Updates multiple existing curves
 
-order define ::sat SATISFACTION:UPDATE:MULTI {
-    title "Update Multiple Satisfaction Curves"
+order define ::sat SAT:UPDATE:MULTI {
+    title "Update Initial Satisfaction (Multi)"
     options -sendstates PREP -table gui_sat_ngc
 
     parm ids       multi  "Curves"
@@ -356,5 +356,6 @@ order define ::sat SATISFACTION:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 
 

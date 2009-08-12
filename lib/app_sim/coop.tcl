@@ -241,14 +241,14 @@ snit::type coop {
 
 
 #-------------------------------------------------------------------
-# Orders: COOPERATION:*
+# Orders: COOP:*
 
-# COOPERATION:UPDATE
+# COOP:UPDATE
 #
 # Updates existing cooperations
 
-order define ::coop COOPERATION:UPDATE {
-    title "Update Cooperation"
+order define ::coop COOP:UPDATE {
+    title "Update Initial Cooperation"
     options -sendstates PREP -table gui_coop_nfg -tags nfg
 
     parm n      key   "Neighborhood"  -tags nbhood
@@ -276,12 +276,12 @@ order define ::coop COOPERATION:UPDATE {
 }
 
 
-# COOPERATION:UPDATE:MULTI
+# COOP:UPDATE:MULTI
 #
 # Updates multiple existing cooperations
 
-order define ::coop COOPERATION:UPDATE:MULTI {
-    title "Update Multiple Cooperations"
+order define ::coop COOP:UPDATE:MULTI {
+    title "Update Initial Cooperation (Multi)"
     options -sendstates PREP -table gui_coop_nfg
  
     parm ids    multi  "IDs"
@@ -306,4 +306,5 @@ order define ::coop COOPERATION:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 

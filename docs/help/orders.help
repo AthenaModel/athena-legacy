@@ -223,7 +223,7 @@ order ATTRIT:UNIT "Magic Attrit Unit" {
 #=======================================================================
 # Cooperation Orders
 
-page COOPERATION: "Cooperation Orders" orders {
+page COOP: "Cooperation Orders" orders {
     <<title>>
 
     Athena models the cooperation of neighborhood
@@ -231,7 +231,9 @@ page COOPERATION: "Cooperation Orders" orders {
     in the TRAC HUMINT methodology: the likelihood that a member of
     the civilian group will give intelligence to a member of the force
     group.  This family of orders are used to manipulate the
-    cooperation levels between various groups.<p>
+    initial cooperation levels between various groups.  (Use the
+    <<cref MAD:>> to adjust or otherwise influence the 
+    current levels.)<p>
 
     The full set of orders is as follows:<p>
 
@@ -240,7 +242,7 @@ page COOPERATION: "Cooperation Orders" orders {
 
 #-----------------------------------------------------------------------
 
-order COOPERATION:UPDATE "Update Cooperation" {
+order COOP:UPDATE "Update Initial Cooperation" {
     <<parmlist>>
     <<parm n "Neighborhood">>
     <b>Required.</b>  The name of a neighborhood.
@@ -268,9 +270,10 @@ order COOPERATION:UPDATE "Update Cooperation" {
 
     <b><<cref using.prep>> Only.</b>  This order updates the initial
     cooperation level of one group with another; this can only be done
-    during the Scenario Preparation phase.  TBD: At present, there is
-    no way to adjust the current cooperation level once time has
-    advanced.
+    during the Scenario Preparation phase.<p>
+
+    (Use the <<cref MAD:>> to adjust or otherwise influence the 
+    current levels.)
 }
 
 #=======================================================================
@@ -1444,6 +1447,80 @@ order NBHOOD:RELATIONSHIP:UPDATE "Update Neighborhood Relationship" {
     regardless of what the input data says.  This needs to be resolved.
 }
 
+
+#=======================================================================
+# Satisfaction Orders
+
+page SAT: "Satisfaction Orders" orders {
+    <<title>>
+
+    Athena models the satisfaction of organization groups and
+    neighborhood civilian groups with respect to a variety of
+    concerns.  This family of orders are used to manipulate the
+    initial satisfaction levels and related parameters.  (Use the
+    <<cref MAD:>> to adjust or otherwise influence the 
+    current levels.)<p>
+
+    The full set of orders is as follows:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order SAT:UPDATE "Update Initial Satisfaction" {
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of a neighborhood.
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  The name of an organization group, or
+    of a civilian group resident in neighborhood <i>n</i>.
+    <</parm>>
+
+    <<parm c "Concern">>
+    <b>Required.</b>  The name of a civilian or organization
+    concern, as appropriate.
+    <</parm>>
+
+    <<parm sat0 "Sat at T0">>
+    <b>Optional.</b>  The initial satisfaction level of group <i>g</i>
+    with concern <i>c</i> in neighborhood <i>n</i>.  Satisfaction levels
+    run from -100.0 to 100.0, and are defined either numerically or using
+    the following rating scale:<p>
+
+    <<::simlib::qsat html>>
+    <</parm>>
+
+    <<parm trend0 "Trend">>
+    <b>Optional.</b>  The long-term trend for this satisfaction level,
+    a slope in points per day.  Trends should generally be 0.0 unless
+    there is a systematic reason why the level will trend positive
+    or negative.  Trends are defined either numerically or using
+    the following rating scale:<p>
+
+    <<::simlib::qtrend html>>
+    <</parm>>
+
+    <<parm saliency "Saliency">>
+    <b>Optional.</b>  The importance of concern <i>c</i> to the group.
+    Saliencies range from 0.0 to 1.0, and are defined either
+    numerically or using the following rating scale:<p>
+
+    <<::simlib::qsaliency html>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order updates the initial
+    satisfaction level of one group with another; this can only be done
+    during the Scenario Preparation phase.<p>
+
+    (Use the <<cref MAD:>> to adjust or otherwise influence the 
+    current levels.)
+
+}
 
 #=======================================================================
 # Parm Orders

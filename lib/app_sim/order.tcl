@@ -303,7 +303,7 @@ snit::type order {
         set orders(title-$name) ""
         set orders(opts-$name) {
             -alwaysunsaved  0
-            -canschedule    0
+            -schedulestates {}
             -sendstates     {}
             -table          ""
             -tags           {}
@@ -341,13 +341,26 @@ snit::type order {
 
     # options option...
     #
-    # -alwaysunsaved          If set, the dialog "Send" buttons will not
-    #                         be disabled when there is no "unsaved" data.
-    # -canschedule            If set, the order can be scheduled.
-    # -sendstates states      States in which the order can be sent
-    # -table      tableName   Name of an RDB table or view associated with 
-    #                         this order.
-    # -tags       taglist     Entity tags (requires -table)
+    # -alwaysunsaved             
+    #     If set, the dialog "Send" buttons will not be disabled when 
+    #     there is no "unsaved" data.
+    #
+    # -schedulestates states     
+    #     States in which the order can be scheduled.  If clear, the 
+    #     order cannot be scheduled.  (Note: controls the act of 
+    #     scheduling the order, not the states in which the scheduled
+    #     order will execute--all scheduled orders execute in the RUNNING
+    #     state.)
+    #
+    # -sendstates states     
+    #     States in which the order can be sent.  If clear, the order 
+    #     can be sent in any state.
+    #
+    # -table tableName  
+    #     Name of an RDB table or view associated with this order.
+    #
+    # -tags taglist
+    #     Entity tags (requires -table)
     #
     # Sets the order's options.
 
@@ -360,13 +373,14 @@ snit::type order {
             set opt [lshift args]
 
             switch -exact -- $opt {
-                -alwaysunsaved -
-                -canschedule   {
+                -alwaysunsaved {
                     dict set odict $opt 1
                 }
-                -sendstates  -
-                -table       -
-                -tags        { 
+
+                -schedulestates -
+                -sendstates     -
+                -table          -
+                -tags           { 
                     dict set odict $opt [lshift args] 
                 }
 
@@ -557,19 +571,42 @@ snit::type order {
         return [info exists handler($name)]
     }
 
-
-    # isvalid name
+    
+    # cansend name
     #
     # name    An order name
     #
-    # Returns 1 if the order is valid in the current state, and 0 otherwise
+    # Returns 1 if the order can be sent in the current state,
+    # and 0 otherwise.
 
-    typemethod isvalid {name} {
+    typemethod cansend {name} {
         set states [$type cget $name -sendstates]
 
         expr {[llength $states] == 0 || $info(state) in $states}
     }
 
+    # canschedule name
+    #
+    # name    An order name
+    #
+    # Returns 1 if the order can be scheduled in the current state,
+    # and 0 otherwise.
+
+    typemethod canschedule {name} {
+        expr {$info(state) in [$type cget $name -schedulestates]}
+    }
+
+
+    # isvalid name
+    #
+    # name    An order name
+    #
+    # Returns 1 if the order can either be sent or scheduled in
+    # the current state.
+
+    typemethod isvalid {name} {
+        expr {[order canschedule $name] || [order cansend $name]}
+    }
 
     # title name
     #
@@ -599,25 +636,6 @@ snit::type order {
     }
 
     
-    # parm order parm ?opt?
-    #
-    # order     The name of an order
-    # parm      The name of a parameter
-    # opt       The name of an option parameter
-    #
-    # If opt is omitted, returns the parm's parameter definition 
-    # dictionary (pdict).  Otherwise, returns the value of the particular
-    # option.
-
-    typemethod parm {order parm {opt ""}} {
-        if {$opt eq ""} {
-            return $orders(pdict-$order-$parm)
-        } else {
-            return [dict get $orders(pdict-$order-$parm) $opt]
-        }
-    }
-
-
     # parms name
     #
     # name     The name of an order
@@ -1325,7 +1343,7 @@ order define ::order ORDER:SCHEDULE {
 
     # NEXT, the order must be schedulable
     validate name {
-        if {![order cget $parms(name) -canschedule]} {
+        if {![order canschedule $parms(name)]} {
             reject name "The named order cannot be scheduled in advance."
         }
     }

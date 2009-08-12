@@ -198,9 +198,9 @@ snit::type ::defroe {
 order define ::defroe ROE:DEFEND:UPDATE {
     title "Update Defending ROE"
     options \
-        -canschedule                \
-        -table       gui_defroe_ng  \
-        -sendstates  {PREP PAUSED}
+        -table          gui_defroe_ng \
+        -schedulestates {PREP PAUSED} \
+        -sendstates     {PREP PAUSED}
 
     parm n    key   "Neighborhood"   -tags nbhood
     parm g    key   "Group"          -tags group
@@ -225,9 +225,9 @@ order define ::defroe ROE:DEFEND:UPDATE {
 order define ::defroe ROE:DEFEND:UPDATE:MULTI {
     title "Update Multiple Defending ROEs"
     options \
-        -canschedule                \
-        -table       gui_defroe_ng  \
-        -sendstates  {PREP PAUSED}
+        -table          gui_defroe_ng \
+        -schedulestates {PREP PAUSED} \
+        -sendstates     {PREP PAUSED}
 
     parm ids  multi  "IDs"
     parm roe  enum   "ROE" -type edefroeuf   

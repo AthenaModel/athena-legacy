@@ -971,9 +971,9 @@ snit::type ::report {
 order define ::report REPORT:COOPERATION {
     title "Cooperation Report"
     options \
-        -canschedule          \
-        -sendstates    PAUSED \
-        -alwaysunsaved
+        -alwaysunsaved                \
+        -schedulestates {PREP PAUSED} \
+        -sendstates     PAUSED
 
     parm n enum  "Neighborhood"  -type {::ptype n+all}    \
         -defval ALL
@@ -1004,9 +1004,9 @@ order define ::report REPORT:COOPERATION {
 order define ::report REPORT:DRIVER {
     title "Attitude Driver Report"
     options \
-        -canschedule          \
-        -sendstates    PAUSED \
-        -alwaysunsaved
+        -alwaysunsaved                \
+        -schedulestates {PREP PAUSED} \
+        -sendstates     PAUSED
 
     parm state enum  "Driver State"  -type {::report::edriverstate} \
         -defval active
@@ -1031,9 +1031,9 @@ order define ::report REPORT:DRIVER {
 order define ::report REPORT:PARMDB {
     title "Model Parameters Report"
     options \
-        -canschedule                 \
-        -alwaysunsaved               \
-        -sendstates    {PREP PAUSED}
+        -alwaysunsaved                \
+        -schedulestates {PREP PAUSED} \
+        -sendstates     {PREP PAUSED}
 
     parm state    enum "Parameter State" -type ::report::eparmstate -defval ALL
     parm wildcard text "Wild Card"
@@ -1058,9 +1058,9 @@ order define ::report REPORT:PARMDB {
 order define ::report REPORT:SATISFACTION:CIVILIAN {
     title "Civilian Satisfaction Report"
     options \
-        -canschedule           \
-        -sendstates     PAUSED \
-        -alwaysunsaved
+        -alwaysunsaved                \
+        -schedulestates {PREP PAUSED} \
+        -sendstates     PAUSED
 
     parm n enum  "Neighborhood"  -type {::ptype n+all} \
         -defval ALL
@@ -1088,9 +1088,10 @@ order define ::report REPORT:SATISFACTION:CIVILIAN {
 order define ::report REPORT:SATISFACTION:CONTRIB {
     title "Contribution to Satisfaction Report"
     options \
-        -canschedule          \
-        -sendstates    PAUSED \
-        -alwaysunsaved
+        -alwaysunsaved                \
+        -schedulestates {PREP PAUSED} \
+        -sendstates     PAUSED
+
 
     parm n      enum  "Neighborhood"  -type {ptype n}
     parm g      enum  "Group" \
@@ -1163,9 +1164,9 @@ order define ::report REPORT:SATISFACTION:CONTRIB {
 order define ::report REPORT:SATISFACTION:ORGANIZATION {
     title "Organization Satisfaction Report"
     options \
-        -canschedule           \
-        -sendstates     PAUSED \
-        -alwaysunsaved
+        -alwaysunsaved                \
+        -schedulestates {PREP PAUSED} \
+        -sendstates     PAUSED
 
     parm n enum  "Neighborhood"  -type {::ptype n+all} \
         -defval ALL

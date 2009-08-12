@@ -10,6 +10,7 @@
 #
 #    all       Builds all documentation in this directory.
 #    clean     Deletes all build products.
+#    show      Opens the helpbrowser on the help file
 #
 #---------------------------------------------------------------------
 
@@ -41,6 +42,13 @@ athena.helpdb: $(HELP_FILES)
 
 clean:
 	rm -f $(HELPDB_FILES)
+
+
+#---------------------------------------------------------------------
+# Target: show -- builds and displays help
+
+show: clean all
+	$(HELP_BROWSER) athena.helpdb
 
 #---------------------------------------------------------------------
 # Standard Rules

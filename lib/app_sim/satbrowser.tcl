@@ -58,7 +58,7 @@ snit::widgetadaptor satbrowser {
         DynamicHelp::add $editbtn -text "Edit Selected Curve"
 
         cond::orderIsValidMulti control $editbtn \
-            order   SATISFACTION:UPDATE          \
+            order   SAT:UPDATE          \
             browser $win
        
         pack $editbtn   -side left
@@ -152,12 +152,13 @@ snit::widgetadaptor satbrowser {
         if {[llength $ids] == 1} {
             lassign [lindex $ids 0] n g c
 
-            order enter SATISFACTION:UPDATE n $n g $g c $c
+            order enter SAT:UPDATE n $n g $g c $c
         } else {
-            order enter SATISFACTION:UPDATE:MULTI ids $ids
+            order enter SAT:UPDATE:MULTI ids $ids
         }
     }
 }
+
 
 
 

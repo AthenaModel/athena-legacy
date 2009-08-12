@@ -359,13 +359,6 @@ snit::widget orderdialog {
             -width     13                                 \
             -changecmd [mymethod CheckWhen]
 
-        if {[order cget $options(-order) -canschedule]} {
-            $whenFld set "+1"
-        } else {
-            $whenFld configure -state disabled
-            $schedBtn configure -state disabled
-        }
-        
         ttk::button $win.buttons.send         \
             -text    "Send"                   \
             -width   6                        \
@@ -376,7 +369,12 @@ snit::widget orderdialog {
             -width   12                       \
             -command [mymethod SendClose]
 
-
+        # Can't do this above, as it sets the state of the
+        # send and sendclose buttons.
+        if {[order cget $options(-order) -schedulestates] ne ""} {
+            $whenFld set "+1"
+        }
+        
         pack $win.buttons.clear     -side left  -padx 2
         pack $win.buttons.spacer    -side left
 
@@ -410,6 +408,7 @@ snit::widget orderdialog {
         # NEXT, prepare to receive selected objects from the application.
         notifier bind ::app   <ObjectSelect> $win [mymethod ObjectSelect]
         notifier bind ::sim   <Tick>         $win [mymethod RefreshDialog]
+        notifier bind ::order <State>        $win [mymethod RefreshDialog]
         notifier bind ::order <Accepted>     $win [mymethod RefreshDialog]
         notifier bind ::cif   <Update>       $win [mymethod RefreshDialog]
 
@@ -558,6 +557,8 @@ snit::widget orderdialog {
         assert {$my(table) ne ""}
         
         # FIRST, remember that this is a key
+        set opts [dict create]
+
         lappend my(keys) $parm
 
         if {[order parm $options(-order) $parm -display] ne ""} {
@@ -1213,13 +1214,7 @@ snit::widget orderdialog {
     # validity of the "when" field.
 
     method CheckWhen {timespec} {
-        if {[catch {simclock future validate $timespec} t] 
-            || $t == [simclock now]
-        } {
-            $schedBtn configure -state disabled
-        } else {
-            $schedBtn configure -state normal
-        }
+        $self SetButtonState
     }
 
     # Schedule
@@ -1337,16 +1332,41 @@ snit::widget orderdialog {
 
     # SetButtonState
     #
-    # Enables/disables the send buttons based on whether there are
-    # unsaved changes, and whether the data is valid.
+    # Enables/disables the send and schedule buttons based on 
+    # whether there are unsaved changes, and whether the data is valid,
+    # and so forth.
 
     method SetButtonState {} {
-        if {[$self Unsaved] && $my(valid)} {
+        # FIRST, the order can be sent if it is valid in this state,
+        # there is unsaved data, and the field values are valid.
+        if {[order cansend $options(-order)] &&
+            [$self Unsaved]                  && 
+            $my(valid)
+        } {
             $win.buttons.send      configure -state normal
             $win.buttons.sendclose configure -state normal
         } else {
             $win.buttons.send      configure -state disabled
             $win.buttons.sendclose configure -state disabled
+        }
+
+        # NEXT, the order can be scheduled if it can be scheduled
+        # in this state, and the "when" is valid.
+        if {[order canschedule $options(-order)]} {
+            $whenFld configure -state normal
+
+            set timespec [$whenFld get]
+
+            if {![catch {simclock future validate $timespec} t]  &&
+                $t > [simclock now]
+            } {
+                $schedBtn configure -state normal
+            } else {
+                $schedBtn configure -state disabled
+            }
+        } else {
+            $schedBtn configure -state disabled
+            $whenFld  configure -state disabled
         }
     }
 

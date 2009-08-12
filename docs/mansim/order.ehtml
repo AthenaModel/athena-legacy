@@ -148,11 +148,14 @@ It is common that an order is valid (in principle, not due to its
 parameters) at some times in the application's life time, and not at
 others.  This is handled by the notion of the application's "state".<p>
 
-Each order is associated with a list of the states in which it is
-valid using the <<iref options>> order definition command.
+Each order is associated with a list of the states in which it can be
+sent, and with a list of the states in which it can be scheduled
+using the <<iref options>> order definition command.
+It is said to be "valid" if it can be either sent or scheduled at
+the present time given the current state.
 Then, the application notifies order(sim) of the current
 application state using <<iref order state>>.  If an order is sent
-during a state in which it is invalid, the order is rejected
+or scheduled during a state in which it is invalid, the order is rejected
 immediately.<p>
 
 The application can query both the states associated with an order
@@ -175,12 +178,33 @@ The application-level commands are as follows:<p>
 
 <<deflist app>>
 
+<<defitem "order canschedule" {order canschedule <i>name</i>}>>
+
+Returns 1 if the named order can be scheduled in the current
+application state, and 0 otherwise.<p>
+
+<<defitem "order cansend" {order cansend <i>name</i>}>>
+
+Returns 1 if the named order can be sent in the current
+application state, and 0 otherwise.<p>
+
 <<defitem "order cget" {order cget <i>name</i> ?<i>option</i>...?}>>
 
 By default, returns a dictionary of order options for order
 <i>name</i>;  see <<iref options>> for the options and their meanings.
 If an <i>option</i> name is specified, returns the value of that
 particular option.<p>
+
+<<defitem "order check" {order check <i>name parmdict</i>}>>
+<<defitem "order check" {order check <i>name parm value</i> ?<i>parm value...</i>?}>>
+
+Checks whether the specified parameter values are valid for the named
+order, throwing <b>REJECT</b> if not.
+The order's parameters are specified as one argument, a
+dictionary, or as multiple parameter names and values.<p>
+
+This command behaves identically to <<iref order send>>, except that the
+order is not executed if the parameters are valid.<p>
 
 <<defitem "order define" {order define <i>module name metadata body</i>}>>
 
@@ -231,6 +255,11 @@ start-up.<p>
 
 Returns 1 if the module has been initialized, and 0 otherwise.<p>
 
+<<defitem "order isvalid" {order isvalid <i>name</i>}>>
+
+Returns 1 if the named order can be either sent or scheduled
+in the current application state, and 0 otherwise.<p>
+
 <<defitem "order lastparms" {order lastparms}>>
 
 Returns the parameter dictionary of the last order sent.  The
@@ -261,6 +290,15 @@ By default, returns a dictionary of parameter options for the named
 options and their meanings.  If an option <i>opt</i> is specified,
 returns the value of that particular option.<p>
 
+<<defitem "order scheduled names" {order scheduled names}>>
+
+Returns a list of the IDs of the scheduled orders, if any.<p>
+
+<<defitem "order scheduled validate" {order scheduled validate <i>id</i>}>>
+
+Validates <i>id</i> as the ID of a scheduled order, throwing
+<b>INVALID</b> if not.  Returns <i>id</i>.<p>
+
 <<defitem "order send" {order send <i>interface name parmdict</i>}>>
 <<defitem "order send" {order send <i>interface name parm value</i> ?<i>parm value...</i>?}>>
 
@@ -269,12 +307,17 @@ specified <i>interface</i>: <i>gui</i>, <i>sim</i>, or <i>test</i>.
 The order's parameters are specified as one argument, a dictionary, or
 as multiple parameter names and values.<p>
 
-<<defitem "order state" {order state ?<i>state</i>}>>
+<<defitem "order state" {order state ?<i>state</i>?}>>
 
 By default, returns the current application state, as known by
 order(sim).  If <i>state</i> is given, sets the application state.
 The application state determines which orders are valid; see
 <<xref "Application States">> for more information.<p>
+
+<<defitem "order validate" {order validate <i>name</i>}>>
+
+Validates <i>name</i> as the name of an order.  Returns
+<i>name</i> on success and throws <b>INVALID</b> on error.<p>
 
 <<defitem "order title" {order title <i>name</i>}>>
 
@@ -301,11 +344,28 @@ options are as follows:<p>
 
 <<deflist options>>
 
+<<defopt {-alwaysunsaved}>>
+
+By default, an order dialog will not send the order unless
+its fields contain unsaved changes.  This is appropriate for orders
+that create or edit entities.  For other orders, it might be
+reasonable to send the same order twice in a row.  If this option is
+specified, the order dialog is presumed to always contain unsaved
+changes.<p>
+
+<<defopt {-schedulestates <i>states</i>}>>
+
+Specifies a list of application <i>states</i> in which the order can
+be scheduled for later execution.  If this option is omitted, or
+<i>states</i> is the empty list, the order cannot be scheduled for
+later execution.  See <<xref "Application States">> for more information.<p>
+
 <<defopt {-sendstates <i>states</i>}>>
 
-Specifies a list of application <i>states</i> in which the order is valid.
+Specifies a list of application <i>states</i> in which the order can
+be sent and executed.
 If this option is omitted, or <i>states</i> is the empty list, the
-order is presumed to be valid in all states.  See
+order is presumed to be sendable in all states.  See
 <<xref "Application States">> for more information.<p>
 
 <<defopt {-table <i>tableName</i>}>>
@@ -609,10 +669,15 @@ the error.  The <i>msg</i> text is <<xref marsmisc(n) normalize>>d.<p>
 of the order body; it's common to validate multiple parameters before
 returning.  See <<iref returnOnError>>.<p>
 
-<<defitem returnOnError {returnOnError}>>
+<<defitem returnOnError {returnOnError ?-final?}>>
 
 If any parameters have been <<iref reject>>ed, this command returns
-control to <<iref order send>>.<p>
+control to <<iref order send>> or <<iref order check>>.<p>
+
+A call to <<iref returnOnError>> with the <code>-final</code> option
+will also terminate processing if the order handler was called from
+<<iref order check>>.  Every order must contain such a call, or
+a <<iref order check>> might erroneously execute the order.<p>
 
 <<defitem setundo {setundo <i>script</i>}>>
 
