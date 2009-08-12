@@ -55,33 +55,6 @@ snit::type mad {
         return $id
     }
 
-    # extended names
-    #
-    # Returns the list of extended MAD ids (id + oneliner)
-
-    typemethod {extended names} {} {
-        rdb eval {SELECT id FROM gui_mads_orders}
-    }
-
-
-    # extended validate id
-    #
-    # id         Possibly, a MAD ID or extended MAD ID
-    #
-    # Validates a MAD id
-
-    typemethod {extended validate} {id} {
-        set realid [lindex [split $id " "] 0]
-
-        if {![rdb exists {SELECT id FROM mads WHERE id=$realid}]} {
-            return -code error -errorcode INVALID \
-                "MAD does not exist: \"$id\""
-        }
-
-        return $realid
-    }
-
-
     # initial names
     #
     # Returns the list of MAD ids for MADs in the initial state
@@ -98,14 +71,12 @@ snit::type mad {
     # Validates a MAD id for a MAD in the initial state
 
     typemethod {initial validate} {id} {
-        set realid [lindex [split $id " "] 0]
-
-        if {![rdb exists {SELECT id FROM mads_initial WHERE id=$realid}]} {
+        if {![rdb exists {SELECT id FROM mads_initial WHERE id=$id}]} {
             return -code error -errorcode INVALID \
                 "MAD does not exist or is not in initial state: \"$id\""
         }
 
-        return $realid
+        return $id
     }
 
 
@@ -256,11 +227,11 @@ order define ::mad MAD:CREATE {
 order define ::mad MAD:DELETE {
     title "Delete Magic Attitude Driver"
     options \
-        -table      gui_mads_orders_initial   \
+        -table      gui_mads_initial \
         -sendstates {PREP PAUSED}
 
 
-    parm id  key "MAD ID"
+    parm id key "MAD ID" -tags mad -display longid
 } {
     # FIRST, prepare the parameters
     prepare id -toupper -required -type {mad initial}
@@ -303,11 +274,11 @@ order define ::mad MAD:DELETE {
 order define ::mad MAD:UPDATE {
     title "Update Magic Attitude Driver"
     options \
-        -table       gui_mads_orders_initial  \
+        -table       gui_mads_initial  \
         -sendstates  {PREP PAUSED}
 
-    parm id          key   "MAD ID"
-    parm oneliner    text  "Description"
+    parm id       key   "MAD ID" -tags mad -display longid
+    parm oneliner text  "Description"
 } {
     # FIRST, prepare the parameters
     prepare id         -required -type {mad initial}

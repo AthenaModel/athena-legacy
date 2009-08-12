@@ -395,10 +395,12 @@ snit::type order {
     # fieldType   The field type, e.g., color, enum, key, multi, text, zulu
     # label       The parameter's label string
     # 
-    # -defval value    Default value
-    # -tags taglist    <SelectionChanged> tags
-    # -type enumtype   fieldType enum only, the enum(n) type.
-    # -refreshcmd      Command to update the field when refreshed.
+    # -defval value     Default value
+    # -tags taglist     <SelectionChanged> tags
+    # -type enumtype    fieldType enum only, the enum(n) type.
+    # -displaylong      enum only, with -type, display long names
+    # -display column   key only, display $column rather than $name
+    # -refreshcmd cmd   Command to update the field when refreshed.
     #
     # Defines the parameter.  Most of the data feeds the generic
     # order dialog code.
@@ -411,25 +413,31 @@ snit::type order {
 
         # NEXT, initialize the pdict
         set pdict [dict create \
-                       -fieldtype  $fieldType \
-                       -label      $label     \
-                       -defval     {}         \
-                       -tags       {}         \
-                       -type       {}         \
-                       -refreshcmd {}]
+                       -fieldtype   $fieldType \
+                       -label       $label     \
+                       -defval      {}         \
+                       -tags        {}         \
+                       -type        {}         \
+                       -displaylong 0          \
+                       -display     ""         \
+                       -refreshcmd  {}]
 
         # NEXT, accumulate the pdict
         while {[llength $args] > 0} {
             set opt [lshift args]
 
             switch -exact -- $opt {
-                -defval     -
-                -tags       -
-                -type       -
-                -refreshcmd { 
+                -defval      -
+                -tags        -
+                -type        -
+                -refreshcmd  -
+                -display     {
                     dict set pdict $opt [lshift args] 
                 }
 
+                -displaylong {
+                    dict set pdict $opt 1
+                }
                 default {
                     error "Unknown option: $opt"
                 }
@@ -438,6 +446,13 @@ snit::type order {
 
         # NEXT, check constraints
 
+        # -type requires "enum"
+        if {[dict get $pdict -type] ne "" &&
+            $fieldType ne "enum"
+        } {
+            error "-type is invalid for this field type: \"$name\""
+        }
+
         # An enum parameter must have a -type or a -refreshcmd.
         if {$fieldType eq "enum" &&
             [dict get $pdict -type]       eq "" &&
@@ -445,6 +460,20 @@ snit::type order {
         } {
             error \
                 "field type \"enum\" requires -type, or -refreshcmd: \"$name\""
+        }
+
+        # -displaylong requires -type
+        if {[dict get $pdict -displaylong] &&
+            [dict get $pdict -type] eq ""
+        } {
+            error "-displaylong requires enum with -type: \"$name\""
+        }
+
+        # -display requires key
+        if {[dict get $pdict -display] ne "" &&
+            $fieldType ne "key"
+        } {
+            error "-display requires key field: \"$name\""
         }
 
         # key and multi parameters requires a "table".

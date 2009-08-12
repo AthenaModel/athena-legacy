@@ -40,11 +40,14 @@ From <<xref field(i)>>.  enumfield(i) widgets have states, just as the
 normal <code>tk::</code> and <code>ttk::</code> widgets do.  The valid
 states are <b>normal</b> and <b>disabled</b>.<p>
 
-<<defopt {-values <i>values</i>}>>
+<<defopt {-displaylong <i>flag</i>}>>
 
-Statically defines the list of valid values.  If either
-<code>-enumtype</code> or <code>-valuecmd</code> are specified, this
-option is effectively ignored.<p>
+If <code>-displaylong</code> is set, then the widget manages two sets
+of values: the application values, used by <<iref get>> and
+<<iref set>>, and the displayed values, that appear in the field and
+the pulldown.  Where the values come from depends on the
+<code>-enumtype</code>, <code>-valuecmd</code>, and
+<code>-values</code> options.<p>
 
 <<defopt {-enumtype <i>enumType</i>}>>
 
@@ -57,13 +60,34 @@ calling<p>
     {*}$enumType names
 </pre>
 
-If <code>-enumtype</code> is specified, then <code>-valuecmd</code> is
-ignored.<p>
+If <code>-displaylong</code> is true, then the widget will retrieve
+the displayed values by calling<p>
+
+<pre>
+    {*}$enumType longnames
+</pre>
+
+If <code>-enumtype</code> is specified, then <code>-valuecmd</code>
+and <code>-values</code> are ignored.<p>
 
 <<defopt {-valuecmd <i>command</i>}>>
 
 Specifies the name of a command to call to dynamically retrieve the
-list of valid values.  The <code>-enumtype</code> option takes precedence.<p>
+list of valid values.  The <code>-enumtype</code> option takes
+precedence.<p>
+
+<code>-displaylong</code> is (currently) ignored if this option is
+used. <b>TBD:</b> this should be fixed, if <code>-valuecmd</code> is
+ever actually used in the application.<p>
+
+<<defopt {-values <i>values</i>}>>
+
+Statically defines the list of valid values.  If either
+<code>-enumtype</code> or <code>-valuecmd</code> are specified, this
+option is ignored.<p>
+
+If <code>-displaylong</code> is true, then <i>values</i> is a flat
+list of application value/displayed value pairs.<p>
 
 <</deflist commands>>
 

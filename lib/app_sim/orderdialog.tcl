@@ -411,6 +411,7 @@ snit::widget orderdialog {
         notifier bind ::app   <ObjectSelect> $win [mymethod ObjectSelect]
         notifier bind ::sim   <Tick>         $win [mymethod RefreshDialog]
         notifier bind ::order <Accepted>     $win [mymethod RefreshDialog]
+        notifier bind ::cif   <Update>       $win [mymethod RefreshDialog]
 
         # NEXT, save the current (empty) values, so that EnterDialog
         # won't complain about them.
@@ -522,6 +523,9 @@ snit::widget orderdialog {
             dict set opts -enumtype $enumtype
         }
 
+        dict set opts -displaylong \
+            [order parm $options(-order) $parm -displaylong]
+
         # NEXT, create the field widget
         enumfield $my(field-$parm) {*}$opts \
             -changecmd [mymethod NonKeyChange $parm]
@@ -556,8 +560,12 @@ snit::widget orderdialog {
         # FIRST, remember that this is a key
         lappend my(keys) $parm
 
+        if {[order parm $options(-order) $parm -display] ne ""} {
+            dict set opts -displaylong 1
+        }
+
         # NEXT, create the field widget
-        enumfield $my(field-$parm) \
+        enumfield $my(field-$parm) {*}$opts \
             -changecmd [mymethod KeyChange $parm]
     }
 
@@ -877,16 +885,22 @@ snit::widget orderdialog {
         }
 
         # NEXT, get the list of values
-        set list [rdb eval "
-            SELECT DISTINCT $key 
-            FROM $my(table) 
-            $where
-            ORDER BY $key
-        "]
+        set displayColumn [order parm $options(-order) $key -display]
 
-        # NEXT, blank the entry if the current value isn't in the list.
-        if {$values($key) ni $list} {
-            $my(field-$key) set ""
+        if {$displayColumn ne ""} {
+            set list [rdb eval "
+                SELECT DISTINCT $key,$displayColumn 
+                FROM $my(table) 
+                $where
+                ORDER BY $key
+            "]
+        } else {
+            set list [rdb eval "
+                SELECT DISTINCT $key 
+                FROM $my(table) 
+                $where
+                ORDER BY $key
+            "]
         }
 
         # NEXT, update the pulldown list

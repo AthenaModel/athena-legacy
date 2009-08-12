@@ -1088,6 +1088,77 @@ order GROUP:ORGANIZATION:UPDATE "Update Organization Group" {
     definition of an existing organization group.<p>
 }
 
+#=======================================================================
+# Magic Attitude Driver Orders
+
+page MAD: "Magic Attitude Driver Orders" orders {
+    <<title>>
+
+    Athena models a number of events and situations that drive
+    attitude change, e.g., civilian attrition and environmental
+    situations.  The set of drivers is not all encompassing, and so
+    Athena allows the analyst to create <i>Magic Attitude Drivers</i>
+    (MADs).  Once a MAD is created, the analyst may associate with it a
+    variety of attitude adjustments and inputs; and the effects of
+    these inputs will be associated with the MAD in the 
+    <<cref REPORT:SATISFACTION:CONTRIB>>.<p>
+
+    The following orders are used to create and manipulate MADs:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order MAD:CREATE "Create Magic Attitude Driver" {
+    <<parmlist>>
+
+    <<parm oneliner "Description">>
+    <b>Required.</b>  A one-line description of the driver.
+    <</parm>>
+    <</parmlist>>
+
+    Creates a new Magic Attitude Driver (MAD).  The description need
+    not be unique, but should remind the analyst of the reason for the
+    attitude inputs and adjustments associated with the MAD.<p>
+
+    The new MAD's description can be edited, and the MAD itself
+    deleted, only so long as no attitude inputs or adjustments have been
+    associated with it.
+}
+
+#-------------------------------------------------------------------
+
+order MAD:DELETE "Delete Magic Attitude Driver" {
+    <<parmlist>>
+
+    <<parm id "MAD ID">>
+    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to delete.
+    <</parm>>
+    <</parmlist>>
+
+    Deletes the specified MAD.  Note that this can only be done if no
+    attitude inputs or adjustments have been associated with the MAD.
+}
+
+#-------------------------------------------------------------------
+
+order MAD:UPDATE "Update Magic Attitude Driver" {
+    <<parmlist>>
+
+    <<parm id "MAD ID">>
+    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to update.
+    <</parm>>
+
+    <<parm oneliner "Description">>
+    <b>Required.</b>  A one-line description of the driver.
+    <</parm>>
+    <</parmlist>>
+
+    Updates the MAD's description. Note that this can only be done if no
+    attitude inputs or adjustments have been associated with the MAD.
+}
+
 
 #=======================================================================
 # Map Orders

@@ -19,14 +19,20 @@ namespace eval ::projectgui:: {
     namespace export enumfield
 }
 
-#-------------------------------------------------------------------
+#-----------------------------------------------------------------------
 # enumfield
 
-snit::widgetadaptor ::projectgui::enumfield {
+snit::widget ::projectgui::enumfield {
+    #-------------------------------------------------------------------
+    # Components
+
+    component combo   ;# The combobox
+
+
     #-------------------------------------------------------------------
     # Options
 
-    delegate option * to hull
+    delegate option * to combo
 
     # -state state
     #
@@ -40,9 +46,9 @@ snit::widgetadaptor ::projectgui::enumfield {
         set options($opt) $val
         
         if {$val eq "normal"} {
-            $hull configure -state readonly
+            $combo configure -state readonly
         } elseif {$val eq "disabled"} {
-            $hull configure -state disabled
+            $combo configure -state disabled
         } else {
             error "Invalid -state: \"$val\""
         }
@@ -72,19 +78,24 @@ snit::widgetadaptor ::projectgui::enumfield {
 
     # -values values
     #
-    # Specifies a list of valid values
+    # Specifies a list of valid values; or, if -displaylong, a list
+    # of values and display labels.
 
     option -values \
         -configuremethod ConfigValues
 
     method ConfigValues {opt val} {
         set options($opt) $val
-        $hull configure -value $val
 
-        if {[$self get] ni $val} {
-            $hull set ""
-        }
+        $self GetValues
     }
+
+    # -displaylong flag
+    #
+    # If 1, displays -enumtype or -value's long name.
+    
+    option -displaylong -default 0 \
+        -configuremethod ConfigValues
 
 
     #-------------------------------------------------------------------
@@ -92,23 +103,28 @@ snit::widgetadaptor ::projectgui::enumfield {
 
     variable oldValue ""   ;# Used to detect changes.
 
+    variable d2v -array {} ;# values by display label
+    variable v2d -array {} ;# display labels by value
+
     #-------------------------------------------------------------------
     # Constructor
 
     constructor {args} {
         # FIRST, install the hull
-        installhull using ttk::combobox           \
-            -exportselection yes                  \
-            -state           readonly             \
-            -takefocus       1                    \
-            -width           20                   \
+        install combo using ttk::combobox $win.combo \
+            -exportselection yes                     \
+            -state           readonly                \
+            -takefocus       1                       \
+            -width           20                      \
             -postcommand     [mymethod GetValues]
+
+        pack $combo -fill both -expand yes
 
         # NEXT, configure the arguments
         $self configurelist $args
 
         # NEXT, prepare to signal changes
-        bind $win <<ComboboxSelected>> [mymethod DetectChange]
+        bind $combo <<ComboboxSelected>> [mymethod DetectChange]
     }
 
     #-------------------------------------------------------------------
@@ -124,11 +140,45 @@ snit::widgetadaptor ::projectgui::enumfield {
     
     method GetValues {} {
         if {$options(-enumtype) ne ""} {
-            # TBD: We can do something fancier than this!
-            $self configure -values [{*}$options(-enumtype) names]
+            set vs [{*}$options(-enumtype) names]
+
+            if {$options(-displaylong)} {
+                set ds [{*}$options(-enumtype) longnames]
+            } else {
+                set ds $vs
+            }
         } elseif {$options(-valuecmd) ne ""} {
-            $self configure -values [uplevel \#0 $options(-valuecmd)]
+            set vs [uplevel \#0 $options(-valuecmd)]
+            set ds $vs
+        } elseif {$options(-values) ne ""} {
+            if {$options(-displaylong)} {
+                set vs [list]
+                set ds [list]
+                foreach {v d} $options(-values) {
+                    lappend vs $v
+                    lappend ds $d
+                }
+            } else {
+                set vs $options(-values)
+                set ds $vs
+            }
+        } else {
+            set vs ""
+            set ds ""
         }
+
+        foreach v $vs d $ds {
+            set v2d($v) $d
+            set d2v($d) $v
+        }
+
+        $combo configure -values $ds
+
+
+        if {[$combo get] ni $ds} {
+            $combo set ""
+        }
+
     }
 
     # DetectChange
@@ -152,8 +202,21 @@ snit::widgetadaptor ::projectgui::enumfield {
     #-------------------------------------------------------------------
     # Public Methods
 
-    delegate method get to hull
     delegate method * to hull
+
+    # get
+    #
+    # Retrieves the current value.
+
+    method get {} {
+        set d [$combo get]
+
+        if {[info exists d2v($d)]} {
+            return $d2v($d)
+        } else {
+            return $d
+        }
+    }
 
     # set value
     #
@@ -167,10 +230,10 @@ snit::widgetadaptor ::projectgui::enumfield {
         $self GetValues
 
         # NEXT, is this value valid?  If not, set the value to ""
-        if {$value ni [$self cget -values]} {
-            $hull set ""
+        if {![info exists v2d($value)]} {
+            $combo set ""
         } else {
-            $hull set $value
+            $combo set $v2d($value)
         }
 
         # NEXT, detect changes

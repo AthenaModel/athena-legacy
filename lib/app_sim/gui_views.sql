@@ -318,22 +318,17 @@ FROM cif WHERE id <= ciftop();
 -- View of MADs for use in browsers and order dialogs
 
 CREATE TEMPORARY VIEW gui_mads AS
-SELECT mads.id                 AS id,
-       mads.oneliner           AS oneliner,
-       mads.driver             AS driver,
-       COALESCE(last_input, 0) AS inputs
+SELECT mads.id                             AS id,
+       mads.id || ' - ' || mads.oneliner   AS longid,
+       mads.oneliner                       AS oneliner,
+       mads.driver                         AS driver,
+       COALESCE(last_input, 0)             AS inputs
 FROM mads
 LEFT OUTER JOIN gram_driver USING (driver);
 
-CREATE TEMPORARY VIEW gui_mads_orders AS
-SELECT id || ' - ' || oneliner   AS id,
-       oneliner                  AS oneliner
-FROM mads;
 
-CREATE TEMPORARY VIEW gui_mads_orders_initial AS
-SELECT id || ' - ' || oneliner   AS id,
-       oneliner                  AS oneliner
-FROM mads_initial;
+CREATE TEMPORARY VIEW gui_mads_initial AS
+SELECT * FROM gui_mads WHERE driver = -1;
 
 
 ------------------------------------------------------------------------

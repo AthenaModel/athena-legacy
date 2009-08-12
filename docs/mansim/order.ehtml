@@ -412,7 +412,7 @@ ones include <b>group</b>, <b>nbhood</b>, <b>point</b>, and <b>polygon</b>.<p>
 
 <<defopt {-type <i>enumType</i>}>>
 
-For <b>enum</b> parameters, only this is the name of an
+For <b>enum</b> parameters only, this is the name of an
 <<xref mars:enum(n)>> object (or any command with a <b>names</b>
 subcommand, really).  The field's pull-down will retrieve its values
 dynamically by calling
@@ -420,6 +420,21 @@ dynamically by calling
 <pre>
     {*}$enumType names
 </pre>
+
+<<defopt {-displaylong}>>
+
+For <b>enum</b> parameters only, this option indicates that the order
+dialog should use the <<xref mars:enum(n)>>
+<<xref mars:enum(n) longname>> command to retrieve the displayed
+values.  The value the dialog passes to the order will still be the
+short name.<p>
+
+<<defopt {-display <i>column</i>}>>
+
+For <b>key</b> parameters only, this option indicates that the order
+dialog should display the value of the named <i>column</i> rather than
+the actual key value.  (Note that the key value is still used for everything
+<i>but</i> display.)<p>
 
 <<defopt {-refreshcmd <i>cmd</i>}>>
 

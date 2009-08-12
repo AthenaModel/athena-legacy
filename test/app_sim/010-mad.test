@@ -262,55 +262,6 @@ id oneliner driver
 
 
     #-------------------------------------------------------------------
-    # extended names
-
-    test extended_names-1.1 {Returns names: none defined} -body {
-        mad extended names
-    } -cleanup {
-        cleanup
-    } -result {}
-
-
-    test extended_names-1.2 {Returns extended names} -setup {
-        mad mutate create {oneliner FIRST}
-        mad mutate create {oneliner SECOND}
-    } -body {
-        mad extended names
-    } -cleanup {
-        cleanup
-    } -result {{1 - FIRST} {2 - SECOND}}
-
-
-    #-------------------------------------------------------------------
-    # extended_validate
-
-    test extended_validate-1.1 {Invalid ID} -body {
-        mad extended validate NONESUCH
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {MAD does not exist: "NONESUCH"}
-
-
-    test extended_validate-2.1 {Valid ID} -setup {
-        mad mutate create {oneliner FIRST}
-    } -body {
-        mad extended validate 1
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-    test extended_validate-2.2 {Accepts ID + description} -setup {
-        mad mutate create {oneliner FIRST}
-    } -body {
-        mad extended validate "1 foo bar baz"
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-
-    #-------------------------------------------------------------------
     # initial names
 
     test initial_names-1.1 {Returns names: none defined} -body {
@@ -356,14 +307,6 @@ id oneliner driver
     } -cleanup {
         cleanup
     } -result {3}
-
-    test validate-2.2 {Accepts ID + description} -setup {
-        mad mutate create {oneliner FIRST}
-    } -body {
-        mad initial validate "1 foo bar baz"
-    } -cleanup {
-        cleanup
-    } -result {1}
 
     #-------------------------------------------------------------------
     # Cleanup
