@@ -592,6 +592,7 @@ snit::widget appwin {
         $self AddOrder $submenu MAD:CREATE
         $self AddOrder $submenu MAD:UPDATE
         $self AddOrder $submenu MAD:DELETE
+        $self AddOrder $submenu MAD:SAT:ADJUST
 
         # Orders/Civilian Group
         set submenu [menu $ordersmenu.civgroup]
@@ -661,6 +662,7 @@ snit::widget appwin {
             -underline 0 -menu $submenu
         
         $self AddOrder $submenu SAT:UPDATE
+        $self AddOrder $submenu MAD:SAT:ADJUST
 
         # Reports menu
         set reportsmenu [menu $menubar.reports]

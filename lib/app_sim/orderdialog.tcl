@@ -971,9 +971,12 @@ snit::widget orderdialog {
             # NEXT, refresh all fields with -refreshcmds.
             $self NonKeyChange ""
 
-            # NEXT, update the values.
+            # NEXT, update the values for fields matching the loaded
+            # data.
             foreach parm $my(nonkeys) {
-                $my(field-$parm) set $row($parm)
+                if {[info exists row($parm)]} {
+                    $my(field-$parm) set $row($parm)
+                }
             }
 
             return

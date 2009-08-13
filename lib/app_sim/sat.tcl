@@ -276,6 +276,7 @@ snit::type sat {
             return [mytypemethod mutate update [array get undoData]]
         }
     }
+
 }
 
 #-------------------------------------------------------------------
@@ -356,6 +357,5 @@ order define ::sat SAT:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
-
 
 

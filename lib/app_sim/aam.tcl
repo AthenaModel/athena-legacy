@@ -139,10 +139,12 @@ snit::type aam {
         } row {
             unset -nocomplain row(*)
 
+            # TBD: Consider defining a driver -name, using some kind of
+            # serial number, e.g., "Evt 1" or "Att 1" or "AAM 1"
             if {$row(gtype) eq "CIV"} {
                 set row(driver) \
                     [aram driver add      \
-                         -name     CIVCAS \
+                         -dtype    CIVCAS \
                          -oneliner "Casualties to nbhood group $row(n) $row(f)"]
 
                 set driver([list $row(n) $row(f)]) $row(driver)
@@ -150,7 +152,7 @@ snit::type aam {
             } elseif {$row(gtype) eq "ORG"} {
                 set row(driver) \
                     [aram driver add      \
-                         -name     ORGCAS \
+                         -dtype    ORGCAS \
                          -oneliner "Casualties to group $row(f) in nbhood $row(n)"]
 
                 aam_rules orgsat [array get row]

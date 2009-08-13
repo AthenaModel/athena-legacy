@@ -49,13 +49,13 @@ snit::widgetadaptor satbrowser {
         set bar [$hull toolbar]
 
         install editbtn using button $bar.edit   \
-            -image      ::projectgui::icon::pencil22 \
+            -image      ::projectgui::icon::pencil022 \
             -relief     flat                     \
             -overrelief raised                   \
             -state      disabled                 \
             -command    [mymethod EditSelected]
 
-        DynamicHelp::add $editbtn -text "Edit Selected Curve"
+        DynamicHelp::add $editbtn -text "Edit Initial Curve"
 
         cond::orderIsValidMulti control $editbtn \
             order   SAT:UPDATE          \

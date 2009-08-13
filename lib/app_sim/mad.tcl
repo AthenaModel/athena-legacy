@@ -40,6 +40,15 @@ snit::type mad {
     }
 
 
+    # longnames
+    #
+    # Returns the list of extended MAD ids
+
+    typemethod longnames {} {
+        rdb eval {SELECT id || ' - ' || oneliner AS longid FROM mads}
+    }
+
+
     # validate id
     #
     # id         Possibly, a MAD ID.
@@ -188,6 +197,116 @@ snit::type mad {
         }
     }
 
+    # mutate getdriver mad driverVar
+    #
+    # mad         A MAD ID
+    # driverVar   Name of a variable to receive the GRAM driver ID
+    #
+    # Gets the driver ID for the given MAD, allocating it if necessary.
+    # Returns an undo script if a new driver was allocated, and ""
+    # otherwise.
+
+    typemethod {mutate getdriver} {mad driverVar} {
+        upvar 1 $driverVar driver
+
+        # FIRST, get the MAD data.
+        rdb eval {SELECT * FROM mads WHERE id=$mad} row {}
+
+        # NEXT, if we've already got a driver, just return it.
+        if {$row(driver) != -1} {
+            set driver $row(driver)
+            return ""
+        }
+
+        # NEXT, create a new GRAM driver
+        set driver [aram driver add \
+                        -name     "MAD $mad"      \
+                        -dtype    "MAGIC"         \
+                        -oneliner $row(oneliner)]
+
+        # NEXT, save the driver ID
+        rdb eval {
+            UPDATE mads SET driver=$driver WHERE id=$mad;
+        }
+
+        # TBD: These notifications will be later than the
+        # "inputs" column updates.  Huh.
+
+        return [mytypemethod UndoGetDriver $mad $driver]
+    }
+
+    # UndoGetDriver mad driver
+    #
+    # mad        The mad ID
+    # driver     A gram(n) driver ID
+    #
+    # Cancels the driver, deleting it from the RDB, and resets
+    # the MAD.
+
+    typemethod UndoGetDriver {mad driver} {
+        # FIRST, cancel it in GRAM
+        aram cancel $driver -delete
+
+        # NEXT, clear it in the mads table
+        rdb eval {
+            UPDATE mads SET driver=-1 WHERE id=$mad
+        }
+        
+        notifier send ::mad <Entity> update $mad
+    }
+
+    # mutate satadjust parmdict
+    #
+    # parmdict    A dictionary of order parameters
+    #
+    #    n                Neighborhood ID
+    #    g                Group ID
+    #    c                Concern
+    #    mad              MAD ID
+    #    delta            Delta to the level, a qmag(n) value.
+    #
+    # Adjusts a satisfaction level by a delta given the parms, 
+    # which are presumed to be valid.
+
+    typemethod {mutate satadjust} {parmdict} {
+        # FIRST, use the dict
+        dict with parmdict {
+            # FIRST, get the undo information
+            set undo [list]
+            set oldSat [aram sat.ngc $n $g $c]
+
+            # NEXT, get a driver, if need be.
+            set driverUndo [mad mutate getdriver $mad driver]
+
+            # NEXT, Adjust the level
+            aram sat adjust $driver $n $g $c $delta
+
+            # NEXT, notify the app.
+            notifier send ::sat <Entity> update [list $n $g $c]
+            notifier send ::mad <Entity> update $mad
+
+            # NEXT, Return the undo command
+            lappend undo \
+                [mytypemethod RestoreSat $mad $driver $n $g $c $oldSat]
+
+            if {$driverUndo ne ""} {
+                lappend undo $driverUndo
+            }
+
+            return [join $undo \n]
+        }
+    }
+
+    # RestoreSat mad driver n g c sat
+    #
+    # Restores a satisfaction level to its previous value on undo.
+
+    typemethod RestoreSat {mad driver n g c sat} {
+        aram sat set $driver $n $g $c $sat
+        notifier send ::sat <Entity> update [list $n $g $c]
+        notifier send ::mad <Entity> update $mad
+    }
+
     #-------------------------------------------------------------------
     # Order Helpers
 
@@ -292,8 +411,43 @@ order define ::mad MAD:UPDATE {
     setundo [join $undo \n]
 }
 
+# MAD:SAT:ADJUST
+#
+# Adjusts a satisfaction curve by some delta.
 
+order define ::mad MAD:SAT:ADJUST {
+    title "Adjust Satisfaction Level"
+    options \
+        -alwaysunsaved                 \
+        -sendstates     PAUSED         \
+        -schedulestates {PREP PAUSED}  \
+        -table          gui_sat_ngc    \
+        -tags           ngc
 
+    parm n         key   "Neighborhood"  -tags nbhood
+    parm g         key   "Group"         -tags group
+    parm c         key   "Concern"       -tags concern
+    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm delta     text  "Delta"
+} {
+    # FIRST, prepare the parameters
+    prepare n     -toupper -required -type nbhood
+    prepare g     -toupper -required -type [list sat group]
+    prepare c     -toupper -required -type econcern
+    prepare mad            -required -type mad
+    prepare delta -toupper -required -type qmag -xform [list qmag value]
 
+    returnOnError
+
+    # NEXT, do cross-validation
+    validate c {
+        sat validate [list $parms(n) $parms(g) $parms(c)]
+    }
+
+    returnOnError -final
+
+    # NEXT, modify the curve
+    setundo [$type mutate satadjust [array get parms]]
+}
 
 
