@@ -72,7 +72,7 @@ snit::widgetadaptor madbrowser {
 
         DynamicHelp::add $editbtn -text "Edit Selected Driver"
 
-        cond::orderIsValidCanUpdate control $editbtn   \
+        cond::orderIsValidSingle control $editbtn   \
             order   MAD:UPDATE \
             browser $win
 
@@ -140,23 +140,6 @@ snit::widgetadaptor madbrowser {
     }
 
 
-    # canupdate
-    #
-    # Returns 1 if the current selection is updateable.
-    
-    method canupdate {} {
-        if {[llength [$self curselection]] == 1} {
-            set id [lindex [$self curselection] 0]
-
-            if {$id in [mad initial names]} {
-                return 1
-            }
-        }
-
-        return 0
-    }
-
-
     #-------------------------------------------------------------------
     # Private Methods
 
@@ -182,7 +165,7 @@ snit::widgetadaptor madbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidCanUpdate  update $editbtn
+        cond::orderIsValidSingle     update $editbtn
         cond::orderIsValidCanDelete  update $deletebtn
 
         # NEXT, notify the app of the selection.

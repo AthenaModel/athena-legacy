@@ -168,22 +168,11 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        id {MAD does not exist or is not in initial state: "1"}
+        id {MAD does not exist: "1"}
     }
 
 
-    test UPDATE-1.3 {invalid MAD (not initial)} -body {
-        ted order MAD:CREATE $m2
-        rdb eval {UPDATE mads SET driver=1}
-        ted order -reject MAD:UPDATE id 2 oneliner "MAD the Second"
-    } -cleanup {
-        cleanup
-    } -result {
-        id {MAD does not exist or is not in initial state: "2"}
-    }
-
-
-    test UPDATE-2.1 {unit is updated} -setup {
+    test UPDATE-2.1 {MAD is updated} -setup {
         ted order MAD:CREATE $m1
     } -body {
         ted order MAD:UPDATE id 1 oneliner "MAD the First"

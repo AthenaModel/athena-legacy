@@ -1125,9 +1125,8 @@ order MAD:CREATE "Create Magic Attitude Driver" {
     not be unique, but should remind the analyst of the reason for the
     attitude inputs and adjustments associated with the MAD.<p>
 
-    The new MAD's description can be edited, and the MAD itself
-    deleted, only so long as no attitude inputs or adjustments have been
-    associated with it.
+    The new MAD cannot be deleted once any attitude inputs or
+    adjustments have been associated with it.
 }
 
 #-------------------------------------------------------------------
@@ -1140,8 +1139,8 @@ order MAD:DELETE "Delete Magic Attitude Driver" {
     <</parm>>
     <</parmlist>>
 
-    Deletes the specified MAD.  Note that this can only be done if no
-    attitude inputs or adjustments have been associated with the MAD.
+    Deletes the specified MAD.  Note that a MAD cannot be deleted once
+    any attitude inputs or adjustments have been associated with it.
 }
 
 #-------------------------------------------------------------------
@@ -1158,8 +1157,7 @@ order MAD:UPDATE "Update Magic Attitude Driver" {
     <</parm>>
     <</parmlist>>
 
-    Updates the MAD's description. Note that this can only be done if no
-    attitude inputs or adjustments have been associated with the MAD.
+    Updates the MAD's description.
 }
 
 

@@ -69,7 +69,7 @@ snit::type mad {
     # Returns the list of MAD ids for MADs in the initial state
 
     typemethod {initial names} {} {
-        rdb eval {SELECT id FROM mads_initial}
+        rdb eval {SELECT id FROM gui_mads_initial}
     }
 
 
@@ -80,7 +80,7 @@ snit::type mad {
     # Validates a MAD id for a MAD in the initial state
 
     typemethod {initial validate} {id} {
-        if {![rdb exists {SELECT id FROM mads_initial WHERE id=$id}]} {
+        if {![rdb exists {SELECT id FROM gui_mads_initial WHERE id=$id}]} {
             return -code error -errorcode INVALID \
                 "MAD does not exist or is not in initial state: \"$id\""
         }
@@ -88,7 +88,19 @@ snit::type mad {
         return $id
     }
 
+    #-------------------------------------------------------------------
+    # Public Typemethods
 
+    # getdrivers
+    #
+    # This routine is called when the sim leaves the PREP state; it
+    # assigns driver IDs to all existing MADs.
+
+    typemethod getdrivers {} {
+        foreach id [$type names] {
+            $type mutate getdriver $id
+        }
+    }
 
     #-------------------------------------------------------------------
     # Mutators
@@ -125,8 +137,17 @@ snit::type mad {
             # NEXT, notify the app.
             notifier send ::mad <Entity> create $id
 
+            # NEXT, if we are not in PREP, get the GRAM driver
+            set undo [list]
+
+            if {[sim state] ne "PREP"} {
+                lappend undo [$type mutate getdriver $id]
+            }
+
             # NEXT, Return the undo command
-            return [mytypemethod mutate delete $id]
+            lappend undo [mytypemethod mutate delete $id]
+
+            return [join $undo \n]
         }
     }
 
@@ -138,28 +159,43 @@ snit::type mad {
 
     typemethod {mutate delete} {id} {
         # FIRST, get the undo information
-        rdb eval {SELECT * FROM mads WHERE id=$id} row { unset row(*) }
+        rdb eval {SELECT * FROM mads WHERE id=$id} row1 { unset row1(*) }
 
         # NEXT, delete it.
         rdb eval {DELETE FROM mads WHERE id=$id}
+
+        # NEXT, delete the GRAM driver, if any
+        if {$row1(driver) != -1} {
+            rdb eval {
+                SELECT * FROM gram_driver WHERE driver=$row1(driver)
+            } row2 { unset row2(*) }
+
+            aram cancel $row1(driver) -delete
+        }
 
         # NEXT, notify the app
         notifier send ::mad <Entity> delete $id
 
         # NEXT, Return the undo script
-        return [mytypemethod Restore [array get row]]
+        return [mytypemethod RestoreDeletedMAD \
+                    [array get row1] [array get row2]]
     }
 
-    # Restore dict
+    # RestoreDeletedMAD dict1 dict2
     #
-    # dict    row dict for deleted entity in mads
+    # dict1    row dict for deleted entity in mads
+    # dict2    row dict for deleted entity in gram_drivers
     #
     # Restores the row to the database
 
-    typemethod Restore {dict} {
-        rdb insert mads $dict
+    typemethod RestoreDeletedMAD {dict1 dict2} {
+        rdb insert mads $dict1
 
-        notifier send ::mad <Entity> create [dict get $dict id]
+        if {$dict2 ne ""} {
+            rdb insert gram_driver $dict2
+        }
+
+        notifier send ::mad <Entity> create [dict get $dict1 id]
     }
 
     # mutate update parmdict
@@ -189,6 +225,14 @@ snit::type mad {
                 WHERE id=$id
             }
 
+            # NEXT, if there's a GRAM driver, update it as well.
+            set undo [list]
+
+            if {$row(driver) != -1} {
+                set oldtext [aram driver cget $row(driver) -oneliner]
+                aram driver configure $row(driver) -oneliner $oneliner
+            }
+
             # NEXT, notify the app.
             notifier send ::mad <Entity> update $id
             
@@ -197,26 +241,16 @@ snit::type mad {
         }
     }
 
-    # mutate getdriver mad driverVar
+    # mutate getdriver mad
     #
     # mad         A MAD ID
-    # driverVar   Name of a variable to receive the GRAM driver ID
     #
-    # Gets the driver ID for the given MAD, allocating it if necessary.
-    # Returns an undo script if a new driver was allocated, and ""
-    # otherwise.
+    # Assignes a driver ID for the given MAD, and returns an 
+    # undo script.
 
-    typemethod {mutate getdriver} {mad driverVar} {
-        upvar 1 $driverVar driver
-
+    typemethod {mutate getdriver} {mad} {
         # FIRST, get the MAD data.
         rdb eval {SELECT * FROM mads WHERE id=$mad} row {}
-
-        # NEXT, if we've already got a driver, just return it.
-        if {$row(driver) != -1} {
-            set driver $row(driver)
-            return ""
-        }
 
         # NEXT, create a new GRAM driver
         set driver [aram driver add \
@@ -229,8 +263,7 @@ snit::type mad {
             UPDATE mads SET driver=$driver WHERE id=$mad;
         }
 
-        # TBD: These notifications will be later than the
-        # "inputs" column updates.  Huh.
+        notifier send ::mad <Entity> update $mad
 
         return [mytypemethod UndoGetDriver $mad $driver]
     }
@@ -276,6 +309,8 @@ snit::type mad {
             set oldSat [aram sat.ngc $n $g $c]
 
             # NEXT, get a driver, if need be.
+            # TBD: This no longer works.  Should just 
+            # retrieve drivers.
             set driverUndo [mad mutate getdriver $mad driver]
 
             # NEXT, Adjust the level
@@ -393,14 +428,14 @@ order define ::mad MAD:DELETE {
 order define ::mad MAD:UPDATE {
     title "Update Magic Attitude Driver"
     options \
-        -table       gui_mads_initial  \
+        -table       gui_mads  \
         -sendstates  {PREP PAUSED}
 
     parm id       key   "MAD ID" -tags mad -display longid
     parm oneliner text  "Description"
 } {
     # FIRST, prepare the parameters
-    prepare id         -required -type {mad initial}
+    prepare id         -required -type mad
     prepare oneliner   -required
 
     returnOnError -final

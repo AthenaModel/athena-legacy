@@ -825,6 +825,7 @@ snit::type sim {
                 # FIRST, initialize ARAM, other sim models
                 aram     init -reload
                 nbstat   init
+                mad      getdrivers
             }
         }
 

@@ -30,9 +30,12 @@ namespace eval ::athena_test::tests:: {
 
     proc cleanup {} {
         # Clean up the test environment
-        array unset parms
         ted cleanup
     }
+
+    # Do an initial clean-up; this will remove the Adjustments
+    # MAD.
+    cleanup
 
     #-------------------------------------------------------------------
     # mutate create
@@ -40,7 +43,6 @@ namespace eval ::athena_test::tests:: {
     test create-1.1 {MADs are created} -setup {
         ted create NB1 BLUE USAID SHIA 
     } -body {
-        # FRC mad
         mad mutate create {oneliner "First MAD"}
         mad mutate create {oneliner "Second MAD"}
         mad mutate create {oneliner "Third MAD"}
@@ -57,7 +59,29 @@ id oneliner   driver
     }
 
 
-    test create-1.2 {<Entity> create} -body {
+    test create-1.2 {After PREP, GRAM drivers are assigned} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+    } -body {
+
+        ted order SIM:RUN days 1 block yes
+
+        mad mutate create {oneliner "First MAD"}
+        mad mutate create {oneliner "Second MAD"}
+        mad mutate create {oneliner "Third MAD"}
+
+        ted query {SELECT * FROM mads}
+    } -cleanup {
+        cleanup
+    } -result {
+id oneliner   driver 
+-- ---------- ------ 
+1  First MAD  1      
+2  Second MAD 2      
+3  Third MAD  3      
+    }
+
+
+    test create-1.3 {<Entity> create} -body {
         ted notifier bind ::mad <Entity>
         mad mutate create {oneliner "First MAD"}
         ted notifier received
@@ -71,7 +95,7 @@ id oneliner   driver
     test create-2.1 {undo deletes the mad} -setup {
         set undo [mad mutate create {oneliner "First MAD"}]
     } -body {
-        {*}$undo
+        eval $undo
         rdb eval {SELECT id FROM mads}
     } -cleanup {
         cleanup
@@ -82,13 +106,31 @@ id oneliner   driver
         set undo [mad mutate create {oneliner "First MAD"}]
     } -body {
         ted notifier bind ::mad <Entity>
-        {*}$undo
+        eval $undo
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::mad <Entity> delete 1}
     }
+
+
+    test create-2.3 {undo deletes the GRAM driver} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        set undo [mad mutate create {oneliner "First MAD"}]
+        set driver [rdb onecolumn {
+            SELECT driver FROM mads WHERE oneliner='First MAD'
+        }]
+    } -body {
+        eval $undo
+        rdb exists {SELECT driver FROM gram_driver WHERE driver=$driver}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+
+
 
     #-------------------------------------------------------------------
     # mutate delete
@@ -106,7 +148,28 @@ id oneliner   driver
     } -result {2}
 
 
-    test delete-1.2 {<Entity> delete} -setup {
+    test delete-1.2 {GRAM driver is deleted} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+
+        mad mutate create {oneliner First}
+        mad mutate create {oneliner Second}
+    } -body {
+        mad mutate delete 1
+
+        # Is 1 gone?
+        ted query {SELECT driver,oneliner FROM gram_driver}
+    } -cleanup {
+        cleanup
+    } -result {
+driver oneliner                     
+------ ---------------------------- 
+0      Satisfaction Long-Term Trend 
+2      Second                       
+    }
+
+
+    test delete-1.3 {<Entity> delete} -setup {
         mad mutate create {oneliner First}
     } -body {
         ted notifier bind ::mad <Entity>
@@ -134,7 +197,26 @@ id oneliner driver
     }
 
 
-    test delete-2.2 {On undo, <Entity> create} -setup {
+    test delete-2.2 {Undo restores GRAM driver} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+
+        mad mutate create {oneliner First}
+        set undo [mad mutate delete 1]
+    } -body {
+        eval $undo
+        ted query {SELECT driver,oneliner FROM gram_driver}
+    } -cleanup {
+        cleanup
+    } -result {
+driver oneliner                     
+------ ---------------------------- 
+0      Satisfaction Long-Term Trend 
+1      First                        
+    }
+
+
+    test delete-2.3 {On undo, <Entity> create} -setup {
         mad mutate create {oneliner First}
         set undo [mad mutate delete 1]
     } -body {
@@ -165,7 +247,25 @@ id oneliner driver
     }
 
 
-    test update-1.2 {<Entity> update} -setup {
+    test update-1.2 {GRAM driver's oneliner is set} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        mad mutate update {id 1 oneliner Modified}
+
+        ted query {SELECT driver,oneliner FROM gram_driver}
+    } -cleanup {
+        cleanup
+    } -result {
+driver oneliner                     
+------ ---------------------------- 
+0      Satisfaction Long-Term Trend 
+1      Modified                     
+    }
+
+
+    test update-1.3 {<Entity> update} -setup {
         mad mutate create {oneliner Original}
     } -body {
         ted notifier bind ::mad <Entity>
@@ -195,7 +295,26 @@ id oneliner driver
     } -result {1}
 
 
-    test update-2.2 {undo sends <Entity> update} -setup {
+    test update-2.2 {undo undoes the GRAM driver change} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        set a [ted query {SELECT * FROM gram_driver}]
+
+        set undo [mad mutate update {id 1 oneliner Modified}]
+
+        eval $undo
+
+        set b [ted query {SELECT * FROM gram_driver}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-2.3 {undo sends <Entity> update} -setup {
         mad mutate create {oneliner Original}
     } -body {
         set undo [mad mutate update {id 1 oneliner Modified}]
@@ -281,8 +400,10 @@ id oneliner driver
         mad initial names
     } -cleanup {
         cleanup
-    } -result {1 3}
+    } -result {1 2 3}
 
+    # TBD: need a test that shows that a MAD with GRAM inputs is
+    # excluded.
 
     #-------------------------------------------------------------------
     # initial validate
@@ -300,8 +421,6 @@ id oneliner driver
         mad mutate create {oneliner FIRST}
         mad mutate create {oneliner SECOND}
         mad mutate create {oneliner THIRD}
-
-        rdb eval {UPDATE mads SET driver=1 WHERE id=2}
     } -body {
         mad initial validate 3
     } -cleanup {

@@ -696,11 +696,6 @@ CREATE TABLE mads (
    driver        INTEGER DEFAULT -1
 );
 
--- MADs in the INITIAL state, i.e., before any driver has been assigned.
-
-CREATE VIEW mads_initial AS
-SELECT * FROM mads
-WHERE driver=-1;
 
 ------------------------------------------------------------------------
 -- Demographic Model

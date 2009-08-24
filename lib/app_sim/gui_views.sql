@@ -328,7 +328,7 @@ LEFT OUTER JOIN gram_driver USING (driver);
 
 
 CREATE TEMPORARY VIEW gui_mads_initial AS
-SELECT * FROM gui_mads WHERE driver = -1;
+SELECT * FROM gui_mads WHERE inputs = 0;
 
 
 ------------------------------------------------------------------------
