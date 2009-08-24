@@ -305,39 +305,59 @@ snit::type mad {
         # FIRST, use the dict
         dict with parmdict {
             # FIRST, get the undo information
-            set undo [list]
             set oldSat [aram sat.ngc $n $g $c]
 
-            # NEXT, get a driver, if need be.
-            # TBD: This no longer works.  Should just 
-            # retrieve drivers.
-            set driverUndo [mad mutate getdriver $mad driver]
+            # NEXT, get the GRAM driver ID.
+            rdb eval {
+                SELECT driver, oneliner FROM mads WHERE id=$mad
+            } {}
 
             # NEXT, Adjust the level
-            aram sat adjust $driver $n $g $c $delta
+            set inputId [aram sat adjust $driver $n $g $c $delta]
+
+            # NEXT, send ADJUST-1-1 report
+            set text [edamrule longname ADJUST-1-1]
+            append text "\n\n"
+
+            set fmt "%-17s %s\n"
+
+            append text [format $fmt "Driver:"       "$driver, $oneliner"]
+            append text [format $fmt "Input ID:"     "$driver.$inputId"]
+            append text [format $fmt "Neighborhood:" $n]
+            append text [format $fmt "Group:"        $g]
+            append text [format $fmt "Concern:"      $c]
+
+            set deltaText [format "%.3f (%s)" $delta [qmag name $delta]]
+            append text [format $fmt "Delta:"        $deltaText]
+
+            set reportid \
+                [report save \
+                     -type    DAM                                          \
+                     -subtype ADJUST                                       \
+                     -meta1   ADJUST-1-1                                   \
+                     -title   "ADJUST-1-1 [edamrule longname ADJUST-1-1]" \
+                     -text    $text]
 
             # NEXT, notify the app.
+            # Note: need to update ::sat since current sat has changed,
+            # and need to update ::mad since number of inputs for this
+            # MAD has changed.
             notifier send ::sat <Entity> update [list $n $g $c]
             notifier send ::mad <Entity> update $mad
 
             # NEXT, Return the undo command
-            lappend undo \
-                [mytypemethod RestoreSat $mad $driver $n $g $c $oldSat]
-
-            if {$driverUndo ne ""} {
-                lappend undo $driverUndo
-            }
-
-            return [join $undo \n]
+            return [mytypemethod RestoreSat $mad $driver $n $g $c $oldSat \
+                       $reportid]
         }
     }
 
-    # RestoreSat mad driver n g c sat
+    # RestoreSat mad driver n g c sat reportid
     #
     # Restores a satisfaction level to its previous value on undo.
 
-    typemethod RestoreSat {mad driver n g c sat} {
-        aram sat set $driver $n $g $c $sat
+    typemethod RestoreSat {mad driver n g c sat reportid} {
+        aram sat set $driver $n $g $c $sat -undo
+        reporter delete $reportid
         notifier send ::sat <Entity> update [list $n $g $c]
         notifier send ::mad <Entity> update $mad
     }
