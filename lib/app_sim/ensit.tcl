@@ -737,9 +737,17 @@ snit::type ensitType {
         set spawnTicks [simclock fromDays $spawnTime]
 
         # NEXT, get the time at which the spawn should occur: spawnTicks
-        # after the ensit first begins to take effect.  This is one tick
+        # after the ensit first begins to take effect, which is one tick
         # after the situation is created.
         let spawnTime {$binfo(ts) + $spawnTicks + 1}
+
+        # NEXT, if this time has already passed, the ensit has
+        # already spawned; don't reschedule it.
+        if {$spawnTime <= [simclock now]} {
+            return
+        }
+
+        # NEXT, schedule it.
         eventq schedule ensitSpawn $spawnTime $binfo(s)
     }
 
