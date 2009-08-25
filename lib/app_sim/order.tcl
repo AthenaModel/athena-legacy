@@ -354,7 +354,7 @@ snit::type order {
     #
     # -sendstates states     
     #     States in which the order can be sent.  If clear, the order 
-    #     can be sent in any state.
+    #     cannot be sent.
     #
     # -table tableName  
     #     Name of an RDB table or view associated with this order.
@@ -580,9 +580,7 @@ snit::type order {
     # and 0 otherwise.
 
     typemethod cansend {name} {
-        set states [$type cget $name -sendstates]
-
-        expr {[llength $states] == 0 || $info(state) in $states}
+        expr {$info(state) in [$type cget $name -sendstates]}
     }
 
     # canschedule name
@@ -759,9 +757,7 @@ snit::type order {
             if {$interface ne "sim"} {
                 set states [$type cget $name -sendstates]
 
-                if {[llength $states] > 0 &&
-                    $info(state) ni $states
-                } {
+                if {$info(state) ni $states} {
                     
                     reject * "
                         Simulation state is $info(state), but order is valid
