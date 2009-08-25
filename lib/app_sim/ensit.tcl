@@ -646,39 +646,34 @@ snit::type ensit {
     }
 
 
-    # RefreshUpdateParm parm field parmdict
+    # RefreshUpdateStype field parmdict
     #
-    # parm      The field's parm
-    # field     A field in an S:E:UPDATE dialog
+    # field     The stype field in an S:E:UPDATE dialog
     # parmdict  The current values of the various fields
     #
     # Updates the field's state.
-    #
-    # TBD: This is only used for the stype field; it should
-    # be simplified.
 
-    typemethod RefreshUpdateParm {parm field parmdict} {
+    typemethod RefreshUpdateStype {field parmdict} {
         dict with parmdict {
-            set sit [situation get $s]
+            if {$s ne ""} {
+                set sit [situation get $s]
 
-            # FIRST, assume we can edit.
-            $field configure -state normal
-
-            # NEXT, for stype get the valid (unused) types, plus the
-            # current type
-            if {$parm eq "stype"} {
-                set stypes [$type absentFromNbhood [$sit get n]]]]
+                set stypes [$type absentFromNbhood [$sit get n]]
 
                 if {[llength $stypes] > 0} {
                     $field configure \
                         -values [lsort [concat [$sit get stype] $stypes]]
                     $field configure -state normal
-                } else {
-                    $field configure -values {}
-                    $field configure -state disabled
+
+                    return
                 }
             }
         }
+
+        # There is no situation selected, or there are no valid
+        # stypes remaining.
+        $field configure -values {}
+        $field configure -state disabled
     }
 }
 
@@ -1004,7 +999,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
     parm location   text  "Location"    -tags nbpoint
 
     parm stype      enum  "Type" \
-        -refreshcmd [list ::ensit RefreshUpdateParm stype]
+        -refreshcmd [list ::ensit RefreshUpdateStype]
     parm coverage   text  "Coverage"
     parm inception  enum  "Inception?"  -type eyesno
     parm g          enum  "Caused By"   -type {ptype g+none}
