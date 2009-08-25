@@ -365,7 +365,7 @@ later execution.  See <<xref "Application States">> for more information.<p>
 Specifies a list of application <i>states</i> in which the order can
 be sent and executed.
 If this option is omitted, or <i>states</i> is the empty list, the
-order is presumed to be sendable in all states.  See
+order cannot be sent in any state.  See
 <<xref "Application States">> for more information.<p>
 
 <<defopt {-table <i>tableName</i>}>>
@@ -537,6 +537,13 @@ option.<p>
 <b>Note:</b> at present, <code>-refresh</code> is supported only for
 <b>enum</b> and <b>text</b> parameters, but other types could
 easily be supported as well.<p>
+
+<<defopt {-schedwheninvalid}>>
+
+By default, the user can only schedule an order to execute at a later
+time if the order is valid.  There are a few cases where it's
+reasonable to schedule an order with invalid fields; this option
+marks the field as one that can be invalid when the order is scheduled.<p>
 
 <</deflist option>>
 

@@ -614,37 +614,6 @@ snit::type ensit {
     #-------------------------------------------------------------------
     # Order Helpers
 
-    # RefreshSType field parmdict
-    #
-    # field     The "stype" field in an S:E:CREATE dialog
-    # parmdict  The current values of the various fields
-    #
-    # Updates the "stype" field's state.
-
-    typemethod RefreshSType {field parmdict} {
-        dict with parmdict {
-            set nbhood ""
-            catch {
-                set location [string trim [string toupper $location]]
-                set nbhood [nbhood find {*}[refpoint validate $location]]
-            }
-
-            if {$nbhood ne ""} {
-                set stypes [$type absentFromNbhood $nbhood]
-            } else {
-                set stypes [list]
-            }
-
-            if {[llength $stypes] > 0} {
-                $field configure -values $stypes
-                $field configure -state normal
-            } else {
-                $field configure -values {}
-                $field configure -state disabled
-            }
-        }
-    }
-
 
     # RefreshUpdateStype field parmdict
     #
@@ -892,8 +861,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
         -sendstates     {PREP PAUSED}
 
     parm location   text  "Location"      -tags nbpoint
-    parm stype      enum  "Type" \
-        -refreshcmd {::ensit RefreshSType}
+    parm stype      enum  "Type"          -type eensit -schedwheninvalid
     parm coverage   text  "Coverage"      -defval 1.0
     parm inception  enum  "Inception?"    -type eyesno -defval "YES"
     parm g          enum  "Caused By"     -type {ptype g+none} \

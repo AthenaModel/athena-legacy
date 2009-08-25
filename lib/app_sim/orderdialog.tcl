@@ -1354,8 +1354,17 @@ snit::widget orderdialog {
         }
 
         # NEXT, the order can be scheduled if it can be scheduled
-        # in this state, and the "when" is valid.
-        if {[order canschedule $options(-order)]} {
+        # in this state, and the "when" is valid, and either the
+        # field values are valid or escaped with -schedwheninvalid
+        set valid 1
+
+        foreach p [array names ferrors] {
+            if {![order parm $options(-order) $p -schedwheninvalid]} {
+                set valid 0
+            }
+        }
+
+        if {$valid && [order canschedule $options(-order)]} {
             $whenFld configure -state normal
 
             set timespec [$whenFld get]

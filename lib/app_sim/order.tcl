@@ -409,12 +409,14 @@ snit::type order {
     # fieldType   The field type, e.g., color, enum, key, multi, text, zulu
     # label       The parameter's label string
     # 
-    # -defval value     Default value
-    # -tags taglist     <SelectionChanged> tags
-    # -type enumtype    fieldType enum only, the enum(n) type.
-    # -displaylong      enum only, with -type, display long names
-    # -display column   key only, display $column rather than $name
-    # -refreshcmd cmd   Command to update the field when refreshed.
+    # -defval value      Default value
+    # -tags taglist      <SelectionChanged> tags
+    # -type enumtype     fieldType enum only, the enum(n) type.
+    # -displaylong       enum only, with -type, display long names
+    # -display column    key only, display $column rather than $name
+    # -schedwheninvalid  Order can be scheduled even if this field is 
+    #                    invalid.
+    # -refreshcmd cmd    Command to update the field when refreshed.
     #
     # Defines the parameter.  Most of the data feeds the generic
     # order dialog code.
@@ -427,14 +429,15 @@ snit::type order {
 
         # NEXT, initialize the pdict
         set pdict [dict create \
-                       -fieldtype   $fieldType \
-                       -label       $label     \
-                       -defval      {}         \
-                       -tags        {}         \
-                       -type        {}         \
-                       -displaylong 0          \
-                       -display     ""         \
-                       -refreshcmd  {}]
+                       -fieldtype        $fieldType \
+                       -label            $label     \
+                       -defval           {}         \
+                       -tags             {}         \
+                       -type             {}         \
+                       -displaylong      0          \
+                       -display          ""         \
+                       -schedwheninvalid 0          \
+                       -refreshcmd       {}]
 
         # NEXT, accumulate the pdict
         while {[llength $args] > 0} {
@@ -449,7 +452,8 @@ snit::type order {
                     dict set pdict $opt [lshift args] 
                 }
 
-                -displaylong {
+                -displaylong      -
+                -schedwheninvalid {
                     dict set pdict $opt 1
                 }
                 default {
