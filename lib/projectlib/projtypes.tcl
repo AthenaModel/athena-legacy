@@ -152,7 +152,9 @@ snit::type ::projectlib::typewrapper {
 # DAM Rules
 ::marsutil::enum ::projectlib::edamrule {
     ADJUST-1-1    "Magic Satisfaction Adjustment"
+    ADJUST-1-2    "Magic Satisfaction Set"
     ADJUST-2-1    "Magic Cooperation Adjustment"
+    ADJUST-2-2    "Magic Cooperation Set"
 
     BADFOOD-1-1   "Food supply is contaminated"
     BADFOOD-2-1   "Food supply continues to be contaminated"

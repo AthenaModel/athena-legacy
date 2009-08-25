@@ -61,10 +61,17 @@ snit::widgetadaptor nbcoopbrowser {
 
         # NEXT, sort on column 1 by default
         $hull sortbycolumn 1 -increasing
+
+        # NEXT, receive other events
+        notifier bind ::coop <Entity> $self [mymethod CoopEntity]
     }
 
     destructor {
         notifier forget $self
+    }
+
+    method CoopEntity {args} {
+        $self reload
     }
 
     #-------------------------------------------------------------------

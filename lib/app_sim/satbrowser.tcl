@@ -27,6 +27,8 @@ snit::widgetadaptor satbrowser {
     # Components
 
     component editbtn     ;# The "Edit" button
+    component setbtn      ;# The "Set" button
+    component adjbtn      ;# The "Adjust" button
 
     #--------------------------------------------------------------------
     # Constructor
@@ -60,8 +62,38 @@ snit::widgetadaptor satbrowser {
         cond::orderIsValidMulti control $editbtn \
             order   SAT:UPDATE          \
             browser $win
+
+       
+        install setbtn using button $bar.set   \
+            -image      ::projectgui::icon::pencils22 \
+            -relief     flat                     \
+            -overrelief raised                   \
+            -state      disabled                 \
+            -command    [mymethod SetSelected]
+
+        DynamicHelp::add $setbtn -text "Magic Set Satisfaction Level"
+
+        cond::orderIsValidSingle control $setbtn \
+            order   MAD:SAT:SET                  \
+            browser $win
+       
+
+        install adjbtn using button $bar.adj   \
+            -image      ::projectgui::icon::pencila22 \
+            -relief     flat                     \
+            -overrelief raised                   \
+            -state      disabled                 \
+            -command    [mymethod AdjustSelected]
+
+        DynamicHelp::add $adjbtn -text "Magic Adjust Satisfaction Level"
+
+        cond::orderIsValidSingle control $adjbtn \
+            order   MAD:SAT:ADJUST               \
+            browser $win
        
         pack $editbtn   -side left
+        pack $setbtn    -side left
+        pack $adjbtn    -side left
 
         # NEXT, create the columns and labels.  Create and hide the
         # ID column; it will be used to reference rows as "$n $g", but
@@ -129,6 +161,7 @@ snit::widgetadaptor satbrowser {
     method SelectionChanged {} {
         # FIRST, update buttons
         cond::orderIsValidMulti update $editbtn
+        cond::orderIsValidSingle update [list $setbtn $adjbtn]
 
         # NEXT, if there's exactly one item selected, notify the
         # the app.
@@ -156,6 +189,31 @@ snit::widgetadaptor satbrowser {
         } else {
             order enter SAT:UPDATE:MULTI ids $ids
         }
+    }
+
+
+    # SetSelected
+    #
+    # Called when the user wants to set the selected level
+
+    method SetSelected {} {
+        set ids [$hull curselection]
+
+        lassign [lindex $ids 0] n g c
+
+        order enter MAD:SAT:SET n $n g $g c $c
+    }
+
+    # AdjustSelected
+    #
+    # Called when the user wants to adjust the selected level
+
+    method AdjustSelected {} {
+        set ids [$hull curselection]
+
+        lassign [lindex $ids 0] n g c
+
+        order enter MAD:SAT:ADJUST n $n g $g c $c
     }
 }
 

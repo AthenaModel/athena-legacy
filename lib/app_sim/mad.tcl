@@ -351,6 +351,69 @@ snit::type mad {
         }
     }
 
+    # mutate satset parmdict
+    #
+    # parmdict    A dictionary of order parameters
+    #
+    #    n                Neighborhood ID
+    #    g                Group ID
+    #    c                Concern
+    #    mad              MAD ID
+    #    sat              New qsat(n) value
+    #
+    # Sets a satisfaction level to a particular value given the parms, 
+    # which are presumed to be valid.
+
+    typemethod {mutate satset} {parmdict} {
+        # FIRST, use the dict
+        dict with parmdict {
+            # FIRST, get the undo information
+            set oldSat [aram sat.ngc $n $g $c]
+
+            # NEXT, get the GRAM driver ID.
+            rdb eval {
+                SELECT driver, oneliner FROM mads WHERE id=$mad
+            } {}
+
+            # NEXT, Set the level
+            set inputId [aram sat set $driver $n $g $c $sat]
+
+            # NEXT, send ADJUST-1-2 report
+            set text [edamrule longname ADJUST-1-2]
+            append text "\n\n"
+
+            set fmt "%-17s %s\n"
+
+            append text [format $fmt "Driver:"       "$driver, $oneliner"]
+            append text [format $fmt "Input ID:"     "$driver.$inputId"]
+            append text [format $fmt "Neighborhood:" $n]
+            append text [format $fmt "Group:"        $g]
+            append text [format $fmt "Concern:"      $c]
+
+            set satText [format "%.3f (%s)" $sat [qsat name $sat]]
+            append text [format $fmt "New Value:"    $satText]
+
+            set reportid \
+                [report save \
+                     -type    DAM                                          \
+                     -subtype ADJUST                                       \
+                     -meta1   ADJUST-1-2                                   \
+                     -title   "ADJUST-1-2 [edamrule longname ADJUST-1-2]"  \
+                     -text    $text]
+
+            # NEXT, notify the app.
+            # Note: need to update ::sat since current sat has changed,
+            # and need to update ::mad since number of inputs for this
+            # MAD has changed.
+            notifier send ::sat <Entity> update [list $n $g $c]
+            notifier send ::mad <Entity> update $mad
+
+            # NEXT, Return the undo command
+            return [mytypemethod RestoreSat $mad $driver $n $g $c $oldSat \
+                       $reportid]
+        }
+    }
+
     # RestoreSat mad driver n g c sat reportid
     #
     # Restores a satisfaction level to its previous value on undo.
@@ -359,6 +422,144 @@ snit::type mad {
         aram sat set $driver $n $g $c $sat -undo
         reporter delete $reportid
         notifier send ::sat <Entity> update [list $n $g $c]
+        notifier send ::mad <Entity> update $mad
+    }
+
+    # mutate coopadjust parmdict
+    #
+    # parmdict    A dictionary of order parameters
+    #
+    #    n                Neighborhood ID
+    #    f                CIV group ID
+    #    g                FRC group ID
+    #    mad              MAD ID
+    #    delta            Delta to the level, a qmag(n) value.
+    #
+    # Adjusts a cooperation level by a delta given the parms, 
+    # which are presumed to be valid.
+
+    typemethod {mutate coopadjust} {parmdict} {
+        # FIRST, use the dict
+        dict with parmdict {
+            # FIRST, get the undo information
+            set oldCoop [aram coop.nfg $n $f $g]
+
+            # NEXT, get the GRAM driver ID.
+            rdb eval {
+                SELECT driver, oneliner FROM mads WHERE id=$mad
+            } {}
+
+            # NEXT, Adjust the level
+            set inputId [aram coop adjust $driver $n $f $g $delta]
+
+            # NEXT, send ADJUST-2-1 report
+            set text [edamrule longname ADJUST-2-1]
+            append text "\n\n"
+
+            set fmt "%-17s %s\n"
+
+            append text [format $fmt "Driver:"       "$driver, $oneliner"]
+            append text [format $fmt "Input ID:"     "$driver.$inputId"]
+            append text [format $fmt "Neighborhood:" $n]
+            append text [format $fmt "Civ Group:"    $f]
+            append text [format $fmt "Frc Group:"    $g]
+
+            set deltaText [format "%.3f (%s)" $delta [qmag name $delta]]
+            append text [format $fmt "Delta:"        $deltaText]
+
+            set reportid \
+                [report save \
+                     -type    DAM                                          \
+                     -subtype ADJUST                                       \
+                     -meta1   ADJUST-2-1                                   \
+                     -title   "ADJUST-2-1 [edamrule longname ADJUST-2-1]" \
+                     -text    $text]
+
+            # NEXT, notify the app.
+            # Note: need to update ::sat since current sat has changed,
+            # and need to update ::mad since number of inputs for this
+            # MAD has changed.
+            notifier send ::coop <Entity> update [list $n $f $g]
+            notifier send ::mad <Entity> update $mad
+
+            # NEXT, Return the undo command
+            return [mytypemethod RestoreCoop $mad $driver $n $f $g $oldCoop \
+                       $reportid]
+        }
+    }
+
+
+    # mutate coopset parmdict
+    #
+    # parmdict    A dictionary of order parameters
+    #
+    #    n                Neighborhood ID
+    #    f                CIV group ID
+    #    g                FRC group ID
+    #    mad              MAD ID
+    #    coop             New level, a qcooperation(n) value.
+    #
+    # Sets a cooperation level to a new value given the parms, 
+    # which are presumed to be valid.
+
+    typemethod {mutate coopset} {parmdict} {
+        # FIRST, use the dict
+        dict with parmdict {
+            # FIRST, get the undo information
+            set oldCoop [aram coop.nfg $n $f $g]
+
+            # NEXT, get the GRAM driver ID.
+            rdb eval {
+                SELECT driver, oneliner FROM mads WHERE id=$mad
+            } {}
+
+            # NEXT, Set the level
+            set inputId [aram coop set $driver $n $f $g $coop]
+
+            # NEXT, send ADJUST-2-2 report
+            set text [edamrule longname ADJUST-2-2]
+            append text "\n\n"
+
+            set fmt "%-17s %s\n"
+
+            append text [format $fmt "Driver:"       "$driver, $oneliner"]
+            append text [format $fmt "Input ID:"     "$driver.$inputId"]
+            append text [format $fmt "Neighborhood:" $n]
+            append text [format $fmt "Civ Group:"    $f]
+            append text [format $fmt "Frc Group:"    $g]
+
+            set coopText [format "%.3f (%s)" $coop [qcooperation name $coop]]
+            append text [format $fmt "New Value:"    $coopText]
+
+            set reportid \
+                [report save \
+                     -type    DAM                                          \
+                     -subtype ADJUST                                       \
+                     -meta1   ADJUST-2-2                                   \
+                     -title   "ADJUST-2-2 [edamrule longname ADJUST-2-2]" \
+                     -text    $text]
+
+            # NEXT, notify the app.
+            # Note: need to update ::sat since current sat has changed,
+            # and need to update ::mad since number of inputs for this
+            # MAD has changed.
+            notifier send ::coop <Entity> update [list $n $f $g]
+            notifier send ::mad <Entity> update $mad
+
+            # NEXT, Return the undo command
+            return [mytypemethod RestoreCoop $mad $driver $n $f $g $oldCoop \
+                       $reportid]
+        }
+    }
+
+    # RestoreCoop mad driver n f g coop reportid
+    #
+    # Restores a cooperation level to its previous value on undo.
+
+    typemethod RestoreCoop {mad driver n f g coop reportid} {
+        aram coop set $driver $n $f $g $coop -undo
+        reporter delete $reportid
+        notifier send ::coop <Entity> update [list $n $f $g]
         notifier send ::mad <Entity> update $mad
     }
 
@@ -471,7 +672,7 @@ order define ::mad MAD:UPDATE {
 # Adjusts a satisfaction curve by some delta.
 
 order define ::mad MAD:SAT:ADJUST {
-    title "Adjust Satisfaction Level"
+    title "Magic Adjust Satisfaction Level"
     options \
         -alwaysunsaved                 \
         -sendstates     PAUSED         \
@@ -505,4 +706,124 @@ order define ::mad MAD:SAT:ADJUST {
     setundo [$type mutate satadjust [array get parms]]
 }
 
+
+# MAD:SAT:SET
+#
+# Sets a satisfaction curve to some value.
+
+order define ::mad MAD:SAT:SET {
+    title "Magic Set Satisfaction Level"
+    options \
+        -alwaysunsaved                 \
+        -sendstates     PAUSED         \
+        -schedulestates {PREP PAUSED}  \
+        -table          gui_sat_ngc    \
+        -tags           ngc
+
+    parm n         key   "Neighborhood"  -tags nbhood
+    parm g         key   "Group"         -tags group
+    parm c         key   "Concern"       -tags concern
+    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm sat       text  "New Value"
+} {
+    # FIRST, prepare the parameters
+    prepare n     -toupper -required -type nbhood
+    prepare g     -toupper -required -type [list sat group]
+    prepare c     -toupper -required -type econcern
+    prepare mad            -required -type mad
+    prepare sat   -toupper -required -type qsat -xform [list qsat value]
+
+    returnOnError
+
+    # NEXT, do cross-validation
+    validate c {
+        sat validate [list $parms(n) $parms(g) $parms(c)]
+    }
+
+    returnOnError -final
+
+    # NEXT, modify the curve
+    setundo [$type mutate satset [array get parms]]
+}
+
+
+# MAD:COOP:ADJUST
+#
+# Adjusts a cooperation curve by some delta.
+
+order define ::mad MAD:COOP:ADJUST {
+    title "Magic Adjust Cooperation Level"
+    options \
+        -alwaysunsaved                 \
+        -sendstates     PAUSED         \
+        -schedulestates {PREP PAUSED}  \
+        -table          gui_coop_nfg   \
+        -tags           nfg
+
+    parm n         key   "Neighborhood"  -tags nbhood
+    parm f         key   "Of Group"      -tags group
+    parm g         key   "With Group"    -tags group
+    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm delta     text  "Delta"
+} {
+    # FIRST, prepare the parameters
+    prepare n     -toupper -required -type nbhood
+    prepare f     -toupper -required -type civgroup
+    prepare g     -toupper -required -type frcgroup
+    prepare mad            -required -type mad
+    prepare delta -toupper -required -type qmag -xform [list qmag value]
+
+    returnOnError
+
+    # NEXT, do cross-validation
+    validate f {
+        coop validate [list $parms(n) $parms(f) $parms(g)]
+    }
+
+    returnOnError -final
+
+    # NEXT, modify the curve
+    setundo [$type mutate coopadjust [array get parms]]
+}
+
+
+# MAD:COOP:SET
+#
+# Sets a cooperation curve to some value.
+
+order define ::mad MAD:COOP:SET {
+    title "Magic Set Cooperation Level"
+    options \
+        -alwaysunsaved                 \
+        -sendstates     PAUSED         \
+        -schedulestates {PREP PAUSED}  \
+        -table          gui_coop_nfg   \
+        -tags           nfg
+
+    parm n         key   "Neighborhood"  -tags nbhood
+    parm f         key   "Of Group"      -tags group
+    parm g         key   "With Group"    -tags group
+    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm coop      text  "New Value"
+} {
+    # FIRST, prepare the parameters
+    prepare n     -toupper -required -type nbhood
+    prepare f     -toupper -required -type civgroup
+    prepare g     -toupper -required -type frcgroup
+    prepare mad            -required -type mad
+    prepare coop  -toupper -required -type qcooperation \
+        -xform [list qcooperation value]
+
+    returnOnError
+
+    # NEXT, do cross-validation
+    validate f {
+        coop validate [list $parms(n) $parms(f) $parms(g)]
+    }
+
+    returnOnError -final
+
+    # NEXT, modify the curve
+    setundo [$type mutate coopset [array get parms]]
+}
 

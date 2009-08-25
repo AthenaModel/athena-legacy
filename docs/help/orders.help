@@ -232,7 +232,7 @@ page COOP: "Cooperation Orders" orders {
     the civilian group will give intelligence to a member of the force
     group.  This family of orders are used to manipulate the
     initial cooperation levels between various groups.  (Use the
-    <<cref MAD:>> to adjust or otherwise influence the 
+    <<cref MAD:COOP:>> to adjust or otherwise influence the 
     current levels.)<p>
 
     The full set of orders is as follows:<p>
@@ -1160,6 +1160,176 @@ order MAD:UPDATE "Update Magic Attitude Driver" {
     Updates the MAD's description.
 }
 
+#=======================================================================
+# Magic Satisfaction Orders
+
+page MAD:SAT: "Magic Satisfaction Orders" MAD: {
+    <<title>>
+
+    These orders are used to set, adjust, and otherwise influence 
+    satisfaction levels.  All such changes are attributes to
+    some Magic Attitude Driver (MAD).<p>
+
+    The following orders are available:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order MAD:SAT:ADJUST "Magic Adjust Satisfaction Level" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  An organization group, or a civilian group
+    resident in neighborhood <i>n</i>.
+    <</parm>>
+
+    <<parm c "Concern">>
+    <b>Required.</b>  One of group <i>g</i>'s concerns.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to which
+    the change will be attributed.
+    <</parm>>
+
+    <<parm delta "Delta">>
+    <b>Required.</b>  The magnitude of the change, expressed as a real
+    number, or as one of the symbols from the following table:<p>
+
+    <<::simlib::qmag html>>
+    <</parmlist>>
+
+    Adjusts the value of the specified satisfaction curve by the
+    specified amount, clamping the curve's value to the range -100.0,
+    100.0 if need be.
+}
+
+#-----------------------------------------------------------------------
+
+order MAD:SAT:SET "Magic Set Satisfaction Level" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  An organization group, or a civilian group
+    resident in neighborhood <i>n</i>.
+    <</parm>>
+
+    <<parm c "Concern">>
+    <b>Required.</b>  One of group <i>g</i>'s concerns.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to which
+    the change will be attributed.
+    <</parm>>
+
+    <<parm sat "sat">>
+    <b>Required.</b>  The new value, expressed as a real
+    number, or as one of the symbols from the following table:<p>
+
+    <<::simlib::qsat html>>
+    <</parmlist>>
+
+    Sets the value of the specified satisfaction curve to the
+    specified amount.
+}
+
+
+
+#=======================================================================
+# Magic Cooperation Orders
+
+page MAD:COOP: "Magic Cooperation Orders" MAD: {
+    <<title>>
+
+    These orders are used to set, adjust, and otherwise influence 
+    cooperation levels.  All such changes are attributes to
+    some Magic Attitude Driver (MAD).<p>
+
+    The following orders are available:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order MAD:COOP:ADJUST "Magic Adjust Cooperation Level" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  A civilian group
+    resident in neighborhood <i>n</i>.
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  A force group.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to which
+    the change will be attributed.
+    <</parm>>
+
+    <<parm delta "Delta">>
+    <b>Required.</b>  The magnitude of the change, expressed as a real
+    number, or as one of the symbols from the following table:<p>
+
+    <<::simlib::qmag html>>
+    <</parmlist>>
+
+    Adjusts the value of the specified cooperation curve by the
+    specified amount, clamping the curve's value to the range 0.0,
+    100.0 if need be.
+}
+
+#-----------------------------------------------------------------------
+
+order MAD:COOP:SET "Magic Set Cooperation Level" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  A civilian group
+    resident in neighborhood <i>n</i>.
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  A force group.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to which
+    the change will be attributed.
+    <</parm>>
+
+    <<parm coop "coop">>
+    <b>Required.</b>  The new value, expressed as a real
+    number, or as one of the symbols from the following table:<p>
+
+    <<::simlib::qcooperation html>>
+    <</parmlist>>
+
+    Sets the value of the specified cooperation curve to the
+    specified amount.
+}
+
 
 #=======================================================================
 # Map Orders
@@ -1456,7 +1626,7 @@ page SAT: "Satisfaction Orders" orders {
     neighborhood civilian groups with respect to a variety of
     concerns.  This family of orders are used to manipulate the
     initial satisfaction levels and related parameters.  (Use the
-    <<cref MAD:>> to adjust or otherwise influence the 
+    <<cref MAD:SAT:>> to adjust or otherwise influence the 
     current levels.)<p>
 
     The full set of orders is as follows:<p>

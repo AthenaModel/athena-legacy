@@ -40,6 +40,17 @@ namespace eval ::athena_test::tests:: {
         oneliner "The Third MAD"
     }
 
+    # Set up for magic inputs
+
+    proc advance {} {
+        variable m1
+
+        ted create NB1 NB2 BLUE USAID SHIA SUNN NB1SHIA NB2SUNN
+        scenario mutate reconcile
+        ted order SIM:RUN days 1 block yes
+        ted order MAD:CREATE $m1
+    }
+
     # Clean up after a test
 
     proc cleanup {} {
@@ -215,6 +226,516 @@ id oneliner      driver
         {::mad <Entity> update 1}
     }
 
+
+    #-------------------------------------------------------------------
+    # MAD:SAT:ADJUST
+
+    test SAT:ADJUST-1.1 {required parms} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:SAT:ADJUST {}
+    } -result {
+        n {required value}
+        g {required value}
+        c {required value}
+        mad {required value}
+        delta {required value}
+    }
+    
+
+    test SAT:ADJUST-1.2 {invalid n} -body {
+        ted order -reject MAD:SAT:ADJUST {
+            n NONESUCH g SHIA c AUT mad 1 delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+
+    test SAT:ADJUST-1.3 {invalid g} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:SAT:ADJUST {
+            n NB1 g NONESUCH c AUT mad 1 delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid satisfaction group, should be one of: USAID, SHIA, SUNN}
+    }
+
+
+    test SAT:ADJUST-1.4 {invalid c} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:SAT:ADJUST {
+            n NB1 g SHIA c NONESUCH mad 1 delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        c {invalid value "NONESUCH", should be one of: AUT, SFT, CUL, QOL, CAS}
+    }
+
+
+    test SAT:ADJUST-1.5 {invalid MAD} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:SAT:ADJUST {
+            n NB1 g SHIA c AUT mad 2 delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        mad {MAD does not exist: "2"}
+    }
+
+
+    test SAT:ADJUST-1.6 {invalid delta} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:SAT:ADJUST {
+            n NB1 g SHIA c AUT mad 1 delta NONESUCH
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        delta {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
+    }
+
+
+    test SAT:ADJUST-1.7 {g does not reside in n} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:SAT:ADJUST {
+            n NB1 g SUNN c AUT mad 1 delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        c {Satisfaction is not tracked for group SUNN's AUT in NB1.}
+    }
+
+
+    test SAT:ADJUST-2.1 {<Entity> updates} -setup {
+        advance
+    } -body {
+        ted notifier bind ::sat <Entity>
+        ted notifier bind ::mad <Entity>
+        ted order MAD:SAT:ADJUST {
+            n NB1 g SHIA c AUT mad 1 delta 5
+        }
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::mad <Entity> update 1}
+    }
+
+
+    test SAT:ADJUST-3.1 {undo undoes the change} -setup {
+        advance
+
+        ted order MAD:SAT:ADJUST {
+            n NB1 g SHIA c AUT mad 1 delta 5
+        }
+    } -body {
+        ted notifier bind ::sat <Entity>
+        ted notifier bind ::mad <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::mad <Entity> update 1}
+    }
+
+
+    #-------------------------------------------------------------------
+    # MAD:SAT:SET
+
+    test SAT:SET-1.1 {required parms} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:SAT:SET {}
+    } -result {
+        n {required value}
+        g {required value}
+        c {required value}
+        mad {required value}
+        sat {required value}
+    }
+    
+
+    test SAT:SET-1.2 {invalid n} -body {
+        ted order -reject MAD:SAT:SET {
+            n NONESUCH g SHIA c AUT mad 1 sat 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+
+    test SAT:SET-1.3 {invalid g} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:SAT:SET {
+            n NB1 g NONESUCH c AUT mad 1 sat 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid satisfaction group, should be one of: USAID, SHIA, SUNN}
+    }
+
+
+    test SAT:SET-1.4 {invalid c} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:SAT:SET {
+            n NB1 g SHIA c NONESUCH mad 1 sat 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        c {invalid value "NONESUCH", should be one of: AUT, SFT, CUL, QOL, CAS}
+    }
+
+
+    test SAT:SET-1.5 {invalid MAD} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:SAT:SET {
+            n NB1 g SHIA c AUT mad 2 sat 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        mad {MAD does not exist: "2"}
+    }
+
+
+    test SAT:SET-1.6 {invalid sat} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:SAT:SET {
+            n NB1 g SHIA c AUT mad 1 sat NONESUCH
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        sat {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
+    }
+
+
+    test SAT:SET-1.7 {g does not reside in n} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:SAT:SET {
+            n NB1 g SUNN c AUT mad 1 sat 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        c {Satisfaction is not tracked for group SUNN's AUT in NB1.}
+    }
+
+
+    test SAT:SET-2.1 {<Entity> updates} -setup {
+        advance
+    } -body {
+        ted notifier bind ::sat <Entity>
+        ted notifier bind ::mad <Entity>
+        ted order MAD:SAT:SET {
+            n NB1 g SHIA c AUT mad 1 sat 5
+        }
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::mad <Entity> update 1}
+    }
+
+
+    test SAT:SET-3.1 {undo undoes the change} -setup {
+        advance
+
+        ted order MAD:SAT:SET {
+            n NB1 g SHIA c AUT mad 1 sat 5
+        }
+    } -body {
+        ted notifier bind ::sat <Entity>
+        ted notifier bind ::mad <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::mad <Entity> update 1}
+    }
+
+    #-------------------------------------------------------------------
+    # MAD:COOP:ADJUST
+
+    test COOP:ADJUST-1.1 {required parms} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:COOP:ADJUST {}
+    } -result {
+        n {required value}
+        f {required value}
+        g {required value}
+        mad {required value}
+        delta {required value}
+    }
+    
+
+    test COOP:ADJUST-1.2 {invalid n} -body {
+        ted order -reject MAD:COOP:ADJUST {
+            n NONESUCH f SHIA g BLUE mad 1 delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+
+    test COOP:ADJUST-1.3 {invalid f} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:COOP:ADJUST {
+            n NB1 f NONESUCH g BLUE mad 1 delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        f {Invalid civilian group, should be one of: SHIA, SUNN}
+    }
+
+
+    test COOP:ADJUST-1.4 {invalid g} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:COOP:ADJUST {
+            n NB1 f SHIA g NONESUCH mad 1 delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid force group, should be one of: BLUE}
+    }
+
+
+    test COOP:ADJUST-1.5 {invalid MAD} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:COOP:ADJUST {
+            n NB1 f SHIA g BLUE mad 2 delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        mad {MAD does not exist: "2"}
+    }
+
+
+    test COOP:ADJUST-1.6 {invalid delta} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:COOP:ADJUST {
+            n NB1 f SHIA g BLUE mad 1 delta NONESUCH
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        delta {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
+    }
+
+
+    test COOP:ADJUST-1.7 {f does not reside in n} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:COOP:ADJUST {
+            n NB1 f SUNN g BLUE mad 1 delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        f {Cooperation is not tracked for SUNN with BLUE in NB1.}
+    }
+
+
+    test COOP:ADJUST-2.1 {<Entity> updates} -setup {
+        advance
+    } -body {
+        ted notifier bind ::coop <Entity>
+        ted notifier bind ::mad <Entity>
+        ted order MAD:COOP:ADJUST {
+            n NB1 f SHIA g BLUE mad 1 delta 5
+        }
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::mad <Entity> update 1}
+    }
+
+
+    test COOP:ADJUST-3.1 {undo undoes the change} -setup {
+        advance
+
+        ted order MAD:COOP:ADJUST {
+            n NB1 f SHIA g BLUE mad 1 delta 5
+        }
+    } -body {
+        ted notifier bind ::coop <Entity>
+        ted notifier bind ::mad <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::mad <Entity> update 1}
+    }
+
+
+    #-------------------------------------------------------------------
+    # MAD:COOP:SET
+
+    test COOP:SET-1.1 {required parms} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:COOP:SET {}
+    } -result {
+        n {required value}
+        f {required value}
+        g {required value}
+        mad {required value}
+        coop {required value}
+    }
+    
+
+    test COOP:SET-1.2 {invalid n} -body {
+        ted order -reject MAD:COOP:SET {
+            n NONESUCH f SHIA g BLUE mad 1 coop 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+
+    test COOP:SET-1.3 {invalid f} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:COOP:SET {
+            n NB1 f NONESUCH g BLUE mad 1 coop 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        f {Invalid civilian group, should be one of: SHIA, SUNN}
+    }
+
+
+    test COOP:SET-1.4 {invalid g} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:COOP:SET {
+            n NB1 f SHIA g NONESUCH mad 1 coop 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid force group, should be one of: BLUE}
+    }
+
+
+    test COOP:SET-1.5 {invalid MAD} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:COOP:SET {
+            n NB1 f SHIA g BLUE mad 2 coop 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        mad {MAD does not exist: "2"}
+    }
+
+
+    test COOP:SET-1.6 {invalid coop} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:COOP:SET {
+            n NB1 f SHIA g BLUE mad 1 coop NONESUCH
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        coop {invalid value "NONESUCH", should be a real number in range 0.0, 100.0, or one of: AC, VC, C, MC, U, VU, NC}
+    }
+
+
+    test COOP:SET-1.7 {f does not reside in n} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:COOP:SET {
+            n NB1 f SUNN g BLUE mad 1 coop 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        f {Cooperation is not tracked for SUNN with BLUE in NB1.}
+    }
+
+
+    test COOP:SET-2.1 {<Entity> updates} -setup {
+        advance
+    } -body {
+        ted notifier bind ::coop <Entity>
+        ted notifier bind ::mad <Entity>
+        ted order MAD:COOP:SET {
+            n NB1 f SHIA g BLUE mad 1 coop 5
+        }
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::mad <Entity> update 1}
+    }
+
+
+    test COOP:SET-3.1 {undo undoes the change} -setup {
+        advance
+
+        ted order MAD:COOP:SET {
+            n NB1 f SHIA g BLUE mad 1 coop 5
+        }
+    } -body {
+        ted notifier bind ::coop <Entity>
+        ted notifier bind ::mad <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::mad <Entity> update 1}
+    }
 
     #-------------------------------------------------------------------
     # Cleanup

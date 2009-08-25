@@ -330,6 +330,535 @@ driver oneliner
 
 
     #-------------------------------------------------------------------
+    # satadjust
+
+    test satadjust-1.1 {Adjustment takes effect.} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        mad mutate satadjust {
+            n NB1 g SHIA c AUT mad 1 delta 5
+        }
+
+        ted query {
+            SELECT n,g,c,acontrib 
+            FROM gram_sat_contribs
+            JOIN mads USING (driver)
+            WHERE mads.id = 1
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    c   acontrib 
+--- ---- --- -------- 
+NB1 SHIA AUT 5.0      
+    }
+
+
+    test satadjust-1.2 {Adjustment sends report} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        mad mutate satadjust {
+            n NB1 g SHIA c AUT mad 1 delta 5
+        }
+
+        rdb eval {
+            SELECT rtype,subtype,title FROM reports
+        }
+    } -cleanup {
+        cleanup
+    } -result {DAM ADJUST {ADJUST-1-1 Magic Satisfaction Adjustment}}
+
+    test satadjust-1.3 {Adjustment sends events} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        ted notifier bind ::sat <Entity>
+        ted notifier bind ::mad <Entity>
+
+        mad mutate satadjust {
+            n NB1 g SHIA c AUT mad 1 delta 5
+        }
+        
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::mad <Entity> update 1}
+    }
+
+
+    test satadjust-2.1 {Undo removes effect.} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        set undo [mad mutate satadjust {
+            n NB1 g SHIA c AUT mad 1 delta 5
+        }]
+
+        eval $undo
+
+        ted query {
+            SELECT n,g,c,acontrib 
+            FROM gram_sat_contribs
+            JOIN mads USING (driver)
+            WHERE mads.id = 1
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    c   acontrib 
+--- ---- --- -------- 
+NB1 SHIA AUT 0.0      
+    }
+
+
+    test satadjust-2.2 {Undo removes report} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+
+        set undo [mad mutate satadjust {
+            n NB1 g SHIA c AUT mad 1 delta 5
+        }]
+    } -body {
+        eval $undo
+
+        ted query {
+            SELECT rtype,subtype,title FROM reports
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+    }
+
+
+    test satadjust-2.3 {Undo sends events} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+
+        set undo [mad mutate satadjust {
+            n NB1 g SHIA c AUT mad 1 delta 5
+        }]
+    } -body {
+        ted notifier bind ::sat <Entity>
+        ted notifier bind ::mad <Entity>
+
+        eval $undo
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::mad <Entity> update 1}
+    }
+
+    #-------------------------------------------------------------------
+    # satset
+
+    test satset-1.1 {Adjustment takes effect.} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        mad mutate satset {
+            n NB1 g SHIA c AUT mad 1 sat 5
+        }
+
+        ted query {
+            SELECT n,g,c,acontrib 
+            FROM gram_sat_contribs
+            JOIN mads USING (driver)
+            WHERE mads.id = 1
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    c   acontrib 
+--- ---- --- -------- 
+NB1 SHIA AUT 5.0      
+    }
+
+
+    test satset-1.2 {Adjustment sends report} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        mad mutate satset {
+            n NB1 g SHIA c AUT mad 1 sat 5
+        }
+
+        rdb eval {
+            SELECT rtype,subtype,title FROM reports
+        }
+    } -cleanup {
+        cleanup
+    } -result {DAM ADJUST {ADJUST-1-2 Magic Satisfaction Set}}
+
+
+    test satset-1.3 {Adjustment sends events} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        ted notifier bind ::sat <Entity>
+        ted notifier bind ::mad <Entity>
+
+        mad mutate satset {
+            n NB1 g SHIA c AUT mad 1 sat 5
+        }
+        
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::mad <Entity> update 1}
+    }
+
+
+    test satset-2.1 {Undo removes effect.} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        set undo [mad mutate satset {
+            n NB1 g SHIA c AUT mad 1 sat 5
+        }]
+
+        eval $undo
+
+        ted query {
+            SELECT n,g,c,acontrib 
+            FROM gram_sat_contribs
+            JOIN mads USING (driver)
+            WHERE mads.id = 1
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    c   acontrib 
+--- ---- --- -------- 
+NB1 SHIA AUT 0.0      
+    }
+
+
+    test satset-2.2 {Undo removes report} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+
+        set undo [mad mutate satset {
+            n NB1 g SHIA c AUT mad 1 sat 5
+        }]
+    } -body {
+        eval $undo
+
+        ted query {
+            SELECT rtype,subtype,title FROM reports
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+    }
+
+
+    test satset-2.3 {Undo sends events} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+
+        set undo [mad mutate satset {
+            n NB1 g SHIA c AUT mad 1 sat 5
+        }]
+    } -body {
+        ted notifier bind ::sat <Entity>
+        ted notifier bind ::mad <Entity>
+
+        eval $undo
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::mad <Entity> update 1}
+    }
+
+    #-------------------------------------------------------------------
+    # coopadjust
+
+    test coopadjust-1.1 {Adjustment takes effect.} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        mad mutate coopadjust {
+            n NB1 f SHIA g BLUE mad 1 delta 5
+        }
+
+        ted query {
+            SELECT n,f,g,acontrib 
+            FROM gram_coop_contribs
+            JOIN mads USING (driver)
+            WHERE mads.id = 1
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+n   f    g    acontrib 
+--- ---- ---- -------- 
+NB1 SHIA BLUE 5.0      
+    }
+
+
+    test coopadjust-1.2 {Adjustment sends report} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        mad mutate coopadjust {
+            n NB1 f SHIA g BLUE mad 1 delta 5
+        }
+
+        rdb eval {
+            SELECT rtype,subtype,title FROM reports
+        }
+    } -cleanup {
+        cleanup
+    } -result {DAM ADJUST {ADJUST-2-1 Magic Cooperation Adjustment}}
+
+
+    test coopadjust-1.3 {Adjustment sends events} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        ted notifier bind ::coop <Entity>
+        ted notifier bind ::mad <Entity>
+
+        mad mutate coopadjust {
+            n NB1 f SHIA g BLUE mad 1 delta 5
+        }
+        
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::mad <Entity> update 1}
+    }
+
+
+    test coopadjust-2.1 {Undo removes effect.} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        set undo [mad mutate coopadjust {
+            n NB1 f SHIA g BLUE mad 1 delta 5
+        }]
+
+        eval $undo
+
+        ted query {
+            SELECT n,f,g,acontrib 
+            FROM gram_coop_contribs
+            JOIN mads USING (driver)
+            WHERE mads.id = 1
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+n   f    g    acontrib 
+--- ---- ---- -------- 
+NB1 SHIA BLUE 0.0      
+    }
+
+
+    test coopadjust-2.2 {Undo removes report} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+
+        set undo [mad mutate coopadjust {
+            n NB1 f SHIA g BLUE mad 1 delta 5
+        }]
+    } -body {
+        eval $undo
+
+        rdb eval {
+            SELECT rtype,subtype,title FROM reports
+        }
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test coopadjust-2.3 {Undo sends events} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+
+        set undo [mad mutate coopadjust {
+            n NB1 f SHIA g BLUE mad 1 delta 5
+        }]
+    } -body {
+        ted notifier bind ::coop <Entity>
+        ted notifier bind ::mad <Entity>
+
+        eval $undo
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::mad <Entity> update 1}
+    }
+
+    #-------------------------------------------------------------------
+    # coopset
+
+    test coopset-1.1 {Adjustment takes effect.} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        mad mutate coopset {
+            n NB1 f SHIA g BLUE mad 1 coop 55
+        }
+
+        ted query {
+            SELECT n,f,g,acontrib 
+            FROM gram_coop_contribs
+            JOIN mads USING (driver)
+            WHERE mads.id = 1
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+n   f    g    acontrib 
+--- ---- ---- -------- 
+NB1 SHIA BLUE 5.0      
+    }
+
+
+    test coopset-1.2 {Adjustment sends report} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        mad mutate coopset {
+            n NB1 f SHIA g BLUE mad 1 coop 55
+        }
+
+        rdb eval {
+            SELECT rtype,subtype,title FROM reports
+        }
+    } -cleanup {
+        cleanup
+    } -result {DAM ADJUST {ADJUST-2-2 Magic Cooperation Set}}
+
+
+    test coopset-1.3 {Adjustment sends events} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        ted notifier bind ::coop <Entity>
+        ted notifier bind ::mad <Entity>
+
+        mad mutate coopset {
+            n NB1 f SHIA g BLUE mad 1 coop 55
+        }
+        
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::mad <Entity> update 1}
+    }
+
+
+    test coopset-2.1 {Undo removes effect.} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+    } -body {
+        set undo [mad mutate coopset {
+            n NB1 f SHIA g BLUE mad 1 coop 55
+        }]
+
+        eval $undo
+
+        ted query {
+            SELECT n,f,g,acontrib 
+            FROM gram_coop_contribs
+            JOIN mads USING (driver)
+            WHERE mads.id = 1
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+n   f    g    acontrib 
+--- ---- ---- -------- 
+NB1 SHIA BLUE 0.0      
+    }
+
+
+    test coopset-2.2 {Undo removes report} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+
+        set undo [mad mutate coopset {
+            n NB1 f SHIA g BLUE mad 1 coop 55
+        }]
+    } -body {
+        eval $undo
+
+        rdb eval {
+            SELECT rtype,subtype,title FROM reports
+        }
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test coopset-2.3 {Undo sends events} -setup {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted order SIM:RUN days 1 block yes
+        mad mutate create {oneliner Original}
+
+        set undo [mad mutate coopset {
+            n NB1 f SHIA g BLUE mad 1 coop 55
+        }]
+    } -body {
+        ted notifier bind ::coop <Entity>
+        ted notifier bind ::mad <Entity>
+
+        eval $undo
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::mad <Entity> update 1}
+    }
+
+    #-------------------------------------------------------------------
     # names
 
     test names-1.1 {Returns names: none defined} -body {

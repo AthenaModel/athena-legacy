@@ -27,6 +27,8 @@ snit::widgetadaptor coopbrowser {
     # Components
 
     component editbtn     ;# The "Edit" button
+    component setbtn      ;# The "Set" button
+    component adjbtn      ;# The "Adjust" button
 
     #--------------------------------------------------------------------
     # Constructor
@@ -49,7 +51,7 @@ snit::widgetadaptor coopbrowser {
         set bar [$hull toolbar]
 
         install editbtn using button $bar.edit   \
-            -image      ::projectgui::icon::pencil22 \
+            -image      ::projectgui::icon::pencil022 \
             -relief     flat                     \
             -overrelief raised                   \
             -state      disabled                 \
@@ -61,8 +63,38 @@ snit::widgetadaptor coopbrowser {
             order   COOP:UPDATE           \
             browser $win
 
+
+        install setbtn using button $bar.set   \
+            -image      ::projectgui::icon::pencils22 \
+            -relief     flat                     \
+            -overrelief raised                   \
+            -state      disabled                 \
+            -command    [mymethod SetSelected]
+
+        DynamicHelp::add $setbtn -text "Magic Set Cooperation Level"
+
+        cond::orderIsValidSingle control $setbtn \
+            order   MAD:COOP:SET                 \
+            browser $win
+       
+
+        install adjbtn using button $bar.adj   \
+            -image      ::projectgui::icon::pencila22 \
+            -relief     flat                     \
+            -overrelief raised                   \
+            -state      disabled                 \
+            -command    [mymethod AdjustSelected]
+
+        DynamicHelp::add $adjbtn -text "Magic Adjust Cooperation Level"
+
+        cond::orderIsValidSingle control $adjbtn \
+            order   MAD:COOP:ADJUST              \
+            browser $win
+
        
         pack $editbtn   -side left
+        pack $setbtn    -side left
+        pack $adjbtn    -side left
 
         # NEXT, create the columns and labels.  Create and hide the
         # ID column; it will be used to reference rows as "$n $g", but
@@ -125,6 +157,7 @@ snit::widgetadaptor coopbrowser {
     method SelectionChanged {} {
         # FIRST, update buttons
         cond::orderIsValidMulti  update $editbtn
+        cond::orderIsValidSingle update [list $setbtn $adjbtn]
 
         # NEXT, notify the app of the selection.
         if {[llength [$hull curselection]] == 1} {
@@ -151,6 +184,30 @@ snit::widgetadaptor coopbrowser {
         } else {
             order enter COOP:UPDATE:MULTI ids $ids
         }
+    }
+
+    # SetSelected
+    #
+    # Called when the user wants to set the selected level
+
+    method SetSelected {} {
+        set ids [$hull curselection]
+
+        lassign [lindex $ids 0] n f g
+
+        order enter MAD:COOP:SET n $n f $f g $g
+    }
+
+    # AdjustSelected
+    #
+    # Called when the user wants to adjust the selected level
+
+    method AdjustSelected {} {
+        set ids [$hull curselection]
+
+        lassign [lindex $ids 0] n f g
+
+        order enter MAD:COOP:ADJUST n $n f $f g $g
     }
 }
 
