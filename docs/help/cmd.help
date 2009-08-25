@@ -476,14 +476,14 @@ command "rdb query" {
     For example,<p>
 
     <<cli {
-        &gt; rdb query {select g,longname from frcgroups}
-        g       local 
-        ------- ----- 
-        TALIBAN 0     
-        PAR     0     
-        AQ      0     
-        POLI    1     
-        TRIBMIL 1     
+        &gt; rdb query {select g,forcetype from frcgroups}
+        g       forcetype 
+        ------- --------- 
+        TALIBAN IRREGULAR 
+        PAR     REGULAR   
+        AQ      IRREGULAR 
+        POLI    POLICE    
+        TRIBMIL IRREGULAR 
         &gt;}>>
 }
 
@@ -518,14 +518,14 @@ command "select" {
     "SELECT" statement.  For example,<p>
 
     <<cli {
-        &gt; select g,longname from frcgroups
-        g       local 
-        ------- ----- 
-        TALIBAN 0     
-        PAR     0     
-        AQ      0     
-        POLI    1     
-        TRIBMIL 1     
+        &gt; select g,forcetype from frcgroups
+        g       forcetype 
+        ------- --------- 
+        TALIBAN IRREGULAR 
+        PAR     REGULAR   
+        AQ      IRREGULAR 
+        POLI    POLICE    
+        TRIBMIL IRREGULAR 
         &gt;}>>
 
     If the query is longer than one line, consider using

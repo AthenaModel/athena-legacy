@@ -85,6 +85,10 @@ page timespec "Time Specification String" concepts {
     <li> <b><i>zulu</i></b>: A <<cref zulu>>.
     </ul><p>
 
+    (<b>Note:</b> The duration of a simulation time tick in days is
+    determined by the <<cref parm.sim.tickSize>> parameter; by
+    default, one tick is one day.)<p>
+
     Either the base time or the offset may be omitted.  If the base
     time is omitted, it defaults to <b>NOW</b>; if the offset is
     omitted, it is 0.  For example,<p>

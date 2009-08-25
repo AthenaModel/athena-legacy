@@ -99,8 +99,11 @@ snit::type ::projectlib::parmdb {
             (within reason) any positive number of minutes, hours, or days, 
             expressed as "<i>number</i> <i>units</i>", e.g., 
             "1 minute", "2 minutes", 
-            "1 hour", "2 hours", "1 day", "2 days".  This parameter
-            cannot be changed at run-time.
+            "1 hour", "2 hours", "1 day", "2 days"; however, the Athena
+            models are designed for a tick size of approximately one
+            day.<p>  
+
+            This parameter cannot be changed at run-time.
         }
 
         # NEXT, Athena Attrition Model parameters

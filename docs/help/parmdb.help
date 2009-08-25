@@ -105,7 +105,8 @@ proc parmpages {} {
 
 page parmdb.locked "Locked Parameters" parmdb {
     <<title>>
-    A few model parameters can only be set during
+    A few model parameters (e.g., <<cref parm.sim.tickSize>>) can only 
+    be set during
     <<cref "Scenario Preparation">>; once time advances they are
     "locked", and can no longer be changed using the
     <<cmdref parm set>>, <<cmdref parm import>>, and 
