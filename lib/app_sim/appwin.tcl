@@ -592,10 +592,15 @@ snit::widget appwin {
         $self AddOrder $submenu MAD:CREATE
         $self AddOrder $submenu MAD:UPDATE
         $self AddOrder $submenu MAD:DELETE
+        $self AddOrder $submenu MAD:TERMINATE
         $self AddOrder $submenu MAD:COOP:ADJUST
         $self AddOrder $submenu MAD:COOP:SET
+        $self AddOrder $submenu MAD:COOP:LEVEL
+        $self AddOrder $submenu MAD:COOP:SLOPE
         $self AddOrder $submenu MAD:SAT:ADJUST
         $self AddOrder $submenu MAD:SAT:SET
+        $self AddOrder $submenu MAD:SAT:LEVEL
+        $self AddOrder $submenu MAD:SAT:SLOPE
 
         # Orders/Civilian Group
         set submenu [menu $ordersmenu.civgroup]
@@ -660,6 +665,8 @@ snit::widget appwin {
         $self AddOrder $submenu COOP:UPDATE
         $self AddOrder $submenu MAD:COOP:ADJUST
         $self AddOrder $submenu MAD:COOP:SET
+        $self AddOrder $submenu MAD:COOP:LEVEL
+        $self AddOrder $submenu MAD:COOP:SLOPE
 
         # Orders/Satisfaction Menu
         set submenu [menu $ordersmenu.sat]
@@ -669,6 +676,8 @@ snit::widget appwin {
         $self AddOrder $submenu SAT:UPDATE
         $self AddOrder $submenu MAD:SAT:ADJUST
         $self AddOrder $submenu MAD:SAT:SET
+        $self AddOrder $submenu MAD:SAT:LEVEL
+        $self AddOrder $submenu MAD:SAT:SLOPE
 
         # Reports menu
         set reportsmenu [menu $menubar.reports]

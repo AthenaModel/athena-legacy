@@ -190,6 +190,18 @@ snit::type ptype {
         EnumVal "organization concern" [$type orgc+mood names] $value
     }
 
+    # ecause+driver
+    #
+    # All ecause values, plus "DRIVER"
+
+    typemethod {ecause+driver names} {} {
+        linsert [ecause names] 0 DRIVER
+    }
+
+    typemethod {ecause+driver validate} {value} {
+        EnumVal "cause" [$type ecause+driver names] $value
+    }
+
     #-------------------------------------------------------------------
     # Helper Routines
 

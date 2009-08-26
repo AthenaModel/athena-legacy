@@ -30,6 +30,16 @@ page Activity_Priorities "Activity Priorities" concepts {
 
 #-------------------------------------------------------------------
 
+page Causes "Causes" concepts {
+    <<title>>
+
+    TBD: This page will explain the meaning of the "Cause" in
+    GRAM inputs.
+}
+
+
+#-------------------------------------------------------------------
+
 page mapref "Map Reference Strings" concepts {
     <<title>>
     A map reference string is a six-character string that represents

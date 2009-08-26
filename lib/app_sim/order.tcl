@@ -1184,6 +1184,40 @@ snit::type order {
     #---------------------------------------------------------------
     # Order Scheduling
 
+    # schedule interface timespec name parmdict
+    #
+    # interface    gui, cli, test, sim
+    # timespec     A time specification string
+    # name         The name of the order
+    # parmdict     The parmdict for the order.
+    # 
+    # Validates the order, taking -schedwheninvalid into account,
+    # and schedules it if valid.
+
+    typemethod schedule {interface timespec name parmdict} {
+        # FIRST, check the order.
+        set code [catch {order check $name $parmdict} result opts]
+
+        if {$code} {
+            set ecode [dict get $opts -errorcode]
+
+            # FIRST, if the error code isn't REJECT, just rethrow
+            if {$ecode ne "REJECT"} {
+                return {*}$opts $result
+            }
+
+            # NEXT, if any invalid parameter isn't escaped, rethrow.
+            foreach {parm msg} $result {
+                if {![order parm $name $parm -schedwheninvalid]} {
+                    return {*}$opts $result
+                }
+            }
+        }
+
+        order send $interface ORDER:SCHEDULE \
+            [list timespec $timespec name $name parmdict $parmdict]
+    }
+
     # scheduled names
     #
     # Returns a list of the IDs of the scheduled orders

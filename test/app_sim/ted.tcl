@@ -561,8 +561,7 @@ snit::type ted {
     #    ted sendex magic absit BADFOOD {1.0 1.0}
     #    ted sendex {magic absit BADFOOD {1.0 1.0}} 
     #
-    # TBD: As yet there isn't any executive; so the command is 
-    # executed using uplevel.
+    # TBD: This really ought to use the executive, now that there is one.
 
     typemethod sendex {args} {
         # FIRST, is -error specified?
@@ -605,7 +604,7 @@ snit::type ted {
     # parmdict   The order's parameter dictionary, as a single
     #            argument or as multiple arguments.
     #
-    # Sends the order as the GUI client, and returns the result.
+    # Sends the order as the test client, and returns the result.
     # If "-reject" is used, expects the order to be rejected.
 
     typemethod order {args} {
@@ -654,6 +653,70 @@ snit::type ted {
         } else {
             # Normal case; let nature take its course
             order send test $order $parmdict
+        }
+    }
+
+    # schedule ?-reject? timespec name parmdict
+    #
+    # timespec   A time specification string
+    # name       A simulation order
+    # parmdict   The order's parameter dictionary, as a single
+    #            argument or as multiple arguments.
+    #
+    # Schedules the order as the test client, and returns the result.
+    # If "-reject" is used, expects the order to be rejected.
+
+    typemethod schedule {args} {
+        # FIRST, is -reject specified?
+        if {[lindex $args 0] eq "-reject"} {
+            lshift args
+            set rejectFlag 1
+        } else {
+            set rejectFlag 0
+        }
+
+        # NEXT, get the timespec
+        set timespec [lshift args]
+
+        require {$timespec ne ""} "No timespec specified!"
+
+        # NEXT, get the order name
+        set order [lshift args]
+
+        require {$order ne ""} "No order specified!"
+
+        # NEXT, get the parm dict
+        if {[llength $args] == 1} {
+            set parmdict [lindex $args 0]
+        } else {
+            set parmdict $args
+        }
+
+        # NEXT, schedule the order
+        if {$rejectFlag} {
+            set code [catch {
+                order schedule test $timespec $order $parmdict
+            } result opts]
+
+            if {$code} {
+                if {[dict get $opts -errorcode] eq "REJECT"} {
+
+                    set    results "\n"
+                    foreach {parm error} $result {
+                        append results "        $parm [list $error]\n" 
+                    }
+                    append results "    "
+                    
+                    return $results
+                } else {
+                    return {*}$opts $result
+                }
+            } else {
+                return -code error "Expected rejection, got ok"
+            }
+        } else {
+            # Normal case; let nature take its course
+            order schedule test $timespec $order $parmdict
         }
     }
 

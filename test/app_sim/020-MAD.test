@@ -483,6 +483,334 @@ id oneliner      driver
     }
 
     #-------------------------------------------------------------------
+    # MAD:SAT:LEVEL
+
+    test SAT:LEVEL-1.1 {required parms} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:LEVEL {}
+    } -result {
+        n {required value}
+        g {required value}
+        c {required value}
+        mad {required value}
+        limit {required value}
+        days {required value}
+        cause {required value}
+        p {required value}
+        q {required value}
+    }
+    
+
+    test SAT:LEVEL-1.2 {invalid n} -body {
+        ted schedule -reject +1 MAD:SAT:LEVEL {
+            n NONESUCH g SHIA c AUT mad 1 limit 5 days 1 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+
+    test SAT:LEVEL-1.3 {invalid g} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:LEVEL {
+            n NB1 g NONESUCH c AUT mad 1 limit 5 days 1 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid group "NONESUCH", should be one of: USAID, SHIA, SUNN}
+    }
+
+
+    test SAT:LEVEL-1.4 {invalid c} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:LEVEL {
+            n NB1 g SHIA c NONESUCH mad 1 limit 5 days 1 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        c {Invalid concern "NONESUCH", should be one of: AUT, SFT, CUL, QOL, CAS}
+    }
+
+
+    test SAT:LEVEL-1.5 {invalid MAD} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:LEVEL {
+            n NB1 g SHIA c AUT mad NONESUCH limit 5 days 1 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        mad {MAD does not exist: "NONESUCH"}
+    }
+
+
+    test SAT:LEVEL-1.6 {invalid limit} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:LEVEL {
+            n NB1 g SHIA c AUT mad 1 limit NONESUCH days 1 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        limit {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
+    }
+
+
+    test SAT:LEVEL-1.7 {invalid days} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:LEVEL {
+            n NB1 g SHIA c AUT mad 1 limit 5 days NONESUCH cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        days {invalid value "NONESUCH", should be a real number no less than 0.0}
+    }
+
+
+    test SAT:LEVEL-1.8 {invalid cause} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:LEVEL {
+            n NB1 g SHIA c AUT mad 1 limit 5 days 1 cause NONESUCH
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        cause {Invalid cause "NONESUCH", should be one of: DRIVER, CHKPOINT, CIVCAS, CMOCONST, CMODEV, CMOEDU, CMOEMP, CMOIND, CMOINF, CMOLAW, CMOMED, CMOOTHER, COERCION, COMMOUT, CRIMINAL, CURFEW, DISASTER, DISPLACED, DMGCULT, DMGSACRED, FUELSHRT, GARBAGE, GUARD, HUNGER, INDSPILL, MOSQUE, ORDNANCE, ORGCAS, ORGCONST, ORGEDU, ORGEMP, ORGIND, ORGINF, ORGMED, ORGOTHER, PATROL, PIPELINE, POWEROUT, PRESENCE, PSYOP, REFINERY, SEWAGE, SICKNESS, THIRST}
+    }
+
+
+    test SAT:LEVEL-1.9 {invalid p} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:LEVEL {
+            n NB1 g SHIA c AUT mad 1 limit 5 days 1 cause DRIVER
+            p NONESUCH q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        p {invalid value "NONESUCH", should be a real number in range 0.0, 1.0}
+    }
+
+
+    test SAT:LEVEL-1.10 {invalid q} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:LEVEL {
+            n NB1 g SHIA c AUT mad 1 limit 5 days 1 cause DRIVER
+            p 0.8 q NONESUCH
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        q {invalid value "NONESUCH", should be a real number in range 0.0, 1.0}
+    }
+
+
+    test SAT:LEVEL-1.11 {group type mismatch} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:LEVEL {
+            n NB1 g SHIA c CAS mad 1 limit 5 days 1 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        c {Invalid civilian concern "CAS", should be one of: AUT, SFT, CUL, QOL}
+    }
+
+
+    test SAT:LEVEL-2.1 {Order is accepted} -setup {
+        advance
+    } -body {
+        ted schedule +1 MAD:SAT:LEVEL {
+            n NB1 g SHIA c AUT mad 1 limit 5 days 1 cause DRIVER
+            p 0.8 q 0.4
+        }
+        ted order SIM:RUN days 1 block yes
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    #-------------------------------------------------------------------
+    # MAD:SAT:SLOPE
+
+    test SAT:SLOPE-1.1 {required parms} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:SLOPE {}
+    } -result {
+        n {required value}
+        g {required value}
+        c {required value}
+        mad {required value}
+        slope {required value}
+        cause {required value}
+        p {required value}
+        q {required value}
+    }
+    
+
+    test SAT:SLOPE-1.2 {invalid n} -body {
+        ted schedule -reject +1 MAD:SAT:SLOPE {
+            n NONESUCH g SHIA c AUT mad 1 slope 5 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+
+    test SAT:SLOPE-1.3 {invalid g} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:SLOPE {
+            n NB1 g NONESUCH c AUT mad 1 slope 5 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid group "NONESUCH", should be one of: USAID, SHIA, SUNN}
+    }
+
+
+    test SAT:SLOPE-1.4 {invalid c} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:SLOPE {
+            n NB1 g SHIA c NONESUCH mad 1 slope 5 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        c {Invalid concern "NONESUCH", should be one of: AUT, SFT, CUL, QOL, CAS}
+    }
+
+
+    test SAT:SLOPE-1.5 {invalid MAD} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:SLOPE {
+            n NB1 g SHIA c AUT mad NONESUCH slope 5 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        mad {MAD does not exist: "NONESUCH"}
+    }
+
+
+    test SAT:SLOPE-1.6 {invalid slope} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:SLOPE {
+            n NB1 g SHIA c AUT mad 1 slope NONESUCH cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        slope {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
+    }
+
+
+    test SAT:SLOPE-1.7 {invalid cause} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:SLOPE {
+            n NB1 g SHIA c AUT mad 1 slope 5 cause NONESUCH
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        cause {Invalid cause "NONESUCH", should be one of: DRIVER, CHKPOINT, CIVCAS, CMOCONST, CMODEV, CMOEDU, CMOEMP, CMOIND, CMOINF, CMOLAW, CMOMED, CMOOTHER, COERCION, COMMOUT, CRIMINAL, CURFEW, DISASTER, DISPLACED, DMGCULT, DMGSACRED, FUELSHRT, GARBAGE, GUARD, HUNGER, INDSPILL, MOSQUE, ORDNANCE, ORGCAS, ORGCONST, ORGEDU, ORGEMP, ORGIND, ORGINF, ORGMED, ORGOTHER, PATROL, PIPELINE, POWEROUT, PRESENCE, PSYOP, REFINERY, SEWAGE, SICKNESS, THIRST}
+    }
+
+
+    test SAT:SLOPE-1.8 {invalid p} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:SLOPE {
+            n NB1 g SHIA c AUT mad 1 slope 5 cause DRIVER
+            p NONESUCH q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        p {invalid value "NONESUCH", should be a real number in range 0.0, 1.0}
+    }
+
+
+    test SAT:SLOPE-1.9 {invalid q} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:SLOPE {
+            n NB1 g SHIA c AUT mad 1 slope 5 cause DRIVER
+            p 0.8 q NONESUCH
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        q {invalid value "NONESUCH", should be a real number in range 0.0, 1.0}
+    }
+
+
+    test SAT:SLOPE-1.10 {group type mismatch} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:SAT:SLOPE {
+            n NB1 g SHIA c CAS mad 1 slope 5 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        c {Invalid civilian concern "CAS", should be one of: AUT, SFT, CUL, QOL}
+    }
+
+
+    test SAT:SLOPE-2.1 {Order is accepted} -setup {
+        advance
+    } -body {
+        ted schedule +1 MAD:SAT:SLOPE {
+            n NB1 g SHIA c AUT mad 1 slope 5 cause DRIVER
+            p 0.8 q 0.4
+        }
+
+        ted order SIM:RUN days 1 block yes
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    #-------------------------------------------------------------------
     # MAD:COOP:ADJUST
 
     test COOP:ADJUST-1.1 {required parms} -setup {
@@ -736,6 +1064,305 @@ id oneliner      driver
         {::coop <Entity> update {NB1 SHIA BLUE}}
         {::mad <Entity> update 1}
     }
+
+    #-------------------------------------------------------------------
+    # MAD:COOP:LEVEL
+
+    test COOP:LEVEL-1.1 {required parms} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:LEVEL {}
+    } -result {
+        n {required value}
+        f {required value}
+        g {required value}
+        mad {required value}
+        limit {required value}
+        days {required value}
+        cause {required value}
+        p {required value}
+        q {required value}
+    }
+    
+
+    test COOP:LEVEL-1.2 {invalid n} -body {
+        ted schedule -reject +1 MAD:COOP:LEVEL {
+            n NONESUCH f SHIA g BLUE mad 1 limit 5 days 1 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+
+    test COOP:LEVEL-1.3 {invalid f} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:LEVEL {
+            n NB1 f NONESUCH g BLUE mad 1 limit 5 days 1 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        f {Invalid civilian group, should be one of: SHIA, SUNN}
+    }
+
+
+    test COOP:LEVEL-1.4 {invalid g} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:LEVEL {
+            n NB1 f SHIA g NONESUCH mad 1 limit 5 days 1 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid force group, should be one of: BLUE}
+    }
+
+
+    test COOP:LEVEL-1.5 {invalid MAD} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:LEVEL {
+            n NB1 f SHIA g BLUE mad NONESUCH limit 5 days 1 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        mad {MAD does not exist: "NONESUCH"}
+    }
+
+
+    test COOP:LEVEL-1.6 {invalid limit} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:LEVEL {
+            n NB1 f SHIA g BLUE mad 1 limit NONESUCH days 1 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        limit {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
+    }
+
+
+    test COOP:LEVEL-1.7 {invalid days} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:LEVEL {
+            n NB1 f SHIA g BLUE mad 1 limit 5 days NONESUCH cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        days {invalid value "NONESUCH", should be a real number no less than 0.0}
+    }
+
+
+    test COOP:LEVEL-1.8 {invalid cause} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:LEVEL {
+            n NB1 f SHIA g BLUE mad 1 limit 5 days 1 cause NONESUCH
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        cause {Invalid cause "NONESUCH", should be one of: DRIVER, CHKPOINT, CIVCAS, CMOCONST, CMODEV, CMOEDU, CMOEMP, CMOIND, CMOINF, CMOLAW, CMOMED, CMOOTHER, COERCION, COMMOUT, CRIMINAL, CURFEW, DISASTER, DISPLACED, DMGCULT, DMGSACRED, FUELSHRT, GARBAGE, GUARD, HUNGER, INDSPILL, MOSQUE, ORDNANCE, ORGCAS, ORGCONST, ORGEDU, ORGEMP, ORGIND, ORGINF, ORGMED, ORGOTHER, PATROL, PIPELINE, POWEROUT, PRESENCE, PSYOP, REFINERY, SEWAGE, SICKNESS, THIRST}
+    }
+
+
+    test COOP:LEVEL-1.9 {invalid p} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:LEVEL {
+            n NB1 f SHIA g BLUE mad 1 limit 5 days 1 cause DRIVER
+            p NONESUCH q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        p {invalid value "NONESUCH", should be a real number in range 0.0, 1.0}
+    }
+
+
+    test COOP:LEVEL-1.10 {invalid q} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:LEVEL {
+            n NB1 f SHIA g BLUE mad 1 limit 5 days 1 cause DRIVER
+            p 0.8 q NONESUCH
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        q {invalid value "NONESUCH", should be a real number in range 0.0, 1.0}
+    }
+
+
+    test COOP:LEVEL-2.1 {Order is accepted} -setup {
+        advance
+    } -body {
+        ted schedule +1 MAD:COOP:LEVEL {
+            n NB1 f SHIA g BLUE mad 1 limit 5 days 1 cause DRIVER
+            p 0.8 q 0.4
+        }
+        ted order SIM:RUN days 1 block yes
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    #-------------------------------------------------------------------
+    # MAD:COOP:SLOPE
+
+    test COOP:SLOPE-1.1 {required parms} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:SLOPE {}
+    } -result {
+        n {required value}
+        f {required value}
+        g {required value}
+        mad {required value}
+        slope {required value}
+        cause {required value}
+        p {required value}
+        q {required value}
+    }
+    
+
+    test COOP:SLOPE-1.2 {invalid n} -body {
+        ted schedule -reject +1 MAD:COOP:SLOPE {
+            n NONESUCH f SHIA g BLUE mad 1 slope 5 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+
+    test COOP:SLOPE-1.3 {invalid f} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:SLOPE {
+            n NB1 f NONESUCH g BLUE mad 1 slope 5 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        f {Invalid civilian group, should be one of: SHIA, SUNN}
+    }
+
+
+    test COOP:SLOPE-1.4 {invalid g} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:SLOPE {
+            n NB1 f SHIA g NONESUCH mad 1 slope 5 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid force group, should be one of: BLUE}
+    }
+
+
+    test COOP:SLOPE-1.5 {invalid MAD} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:SLOPE {
+            n NB1 f SHIA g BLUE mad NONESUCH slope 5 cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        mad {MAD does not exist: "NONESUCH"}
+    }
+
+
+    test COOP:SLOPE-1.6 {invalid slope} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:SLOPE {
+            n NB1 f SHIA g BLUE mad 1 slope NONESUCH cause DRIVER
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        slope {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
+    }
+
+
+    test COOP:SLOPE-1.7 {invalid cause} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:SLOPE {
+            n NB1 f SHIA g BLUE mad 1 slope 5 cause NONESUCH
+            p 0.8 q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        cause {Invalid cause "NONESUCH", should be one of: DRIVER, CHKPOINT, CIVCAS, CMOCONST, CMODEV, CMOEDU, CMOEMP, CMOIND, CMOINF, CMOLAW, CMOMED, CMOOTHER, COERCION, COMMOUT, CRIMINAL, CURFEW, DISASTER, DISPLACED, DMGCULT, DMGSACRED, FUELSHRT, GARBAGE, GUARD, HUNGER, INDSPILL, MOSQUE, ORDNANCE, ORGCAS, ORGCONST, ORGEDU, ORGEMP, ORGIND, ORGINF, ORGMED, ORGOTHER, PATROL, PIPELINE, POWEROUT, PRESENCE, PSYOP, REFINERY, SEWAGE, SICKNESS, THIRST}
+    }
+
+
+    test COOP:SLOPE-1.8 {invalid p} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:SLOPE {
+            n NB1 f SHIA g BLUE mad 1 slope 5 cause DRIVER
+            p NONESUCH q 0.4
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        p {invalid value "NONESUCH", should be a real number in range 0.0, 1.0}
+    }
+
+
+    test COOP:SLOPE-1.9 {invalid q} -setup {
+        advance
+    } -body {
+        ted schedule -reject +1 MAD:COOP:SLOPE {
+            n NB1 f SHIA g BLUE mad 1 slope 5 cause DRIVER
+            p 0.8 q NONESUCH
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        q {invalid value "NONESUCH", should be a real number in range 0.0, 1.0}
+    }
+
+
+    test COOP:SLOPE-2.1 {Order is accepted} -setup {
+        advance
+    } -body {
+        ted schedule +1 MAD:COOP:SLOPE {
+            n NB1 f SHIA g BLUE mad 1 slope 5 cause DRIVER
+            p 0.8 q 0.4
+        }
+        ted order SIM:RUN days 1 block yes
+    } -cleanup {
+        cleanup
+    } -result {}
+
 
     #-------------------------------------------------------------------
     # Cleanup

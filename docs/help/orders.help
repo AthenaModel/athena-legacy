@@ -1111,6 +1111,58 @@ page MAD: "Magic Attitude Driver Orders" orders {
     <<childlinks>>
 }
 
+macro MAD.mad {} {
+    |<--
+    The ID of the Magic Attitude Driver (MAD) to which
+    the change will be attributed.
+}
+
+macro MAD.limit {} {
+    |<--
+    The magnitude of the level input in points, expressed as a real
+    number, or as one of the symbols from the following table:<p>
+
+    [::simlib::qmag html]
+}
+
+macro MAD.slope {} {
+    |<--
+    The slope of the input in points per day, expressed as a real
+    number, or as one of the symbols from the following table:<p>
+
+    [::simlib::qmag html]
+}
+
+macro MAD.days {} {
+    |<--
+    The realization time for the level input, in
+    decimal days, expressed as a real number.  The input will take
+    effect over this number of days.
+}
+
+macro MAD.cause {} {
+    |<--
+    The "cause" of the input; see [cref Causes].  The cause
+    may be <b>DRIVER</b>, indicating that this MAD has its own unique 
+    cause, or any cause from the following list:<p>
+
+    [enumdoc ::projectlib::ecause]
+}
+
+macro MAD.p {} {
+    |<--
+    Indirect effects in <b>NEAR</b> neighborhoods are multiplied by
+    this factor.  If it is 0.0, there will be no such indirect effects.
+}
+
+macro MAD.q {} {
+    |<--
+    Indirect effects in <b>FAR</b> neighborhoods are multiplied by
+    this factor.  If it is 0.0, there will be no such indirect effects.
+}
+
+
+
 #-----------------------------------------------------------------------
 
 order MAD:CREATE "Create Magic Attitude Driver" {
@@ -1160,6 +1212,23 @@ order MAD:UPDATE "Update Magic Attitude Driver" {
     Updates the MAD's description.
 }
 
+#-------------------------------------------------------------------
+
+order MAD:TERMINATE "Terminate Magic Slope Inputs" {
+    <<parmlist>>
+
+    <<parm id "MAD ID">>
+    <b>Required.</b>  The ID of a Magic Attitude Driver (MAD).
+    <</parm>>
+    <</parmlist>>
+
+    <b>This order must be scheduled in advance.</b>
+    This order terminates all currently on-going slope inputs created
+    for this MAD using <<cref MAD:SAT:SLOPE>> or 
+    <<cref MAD:COOP:SLOPE>>.  (Delayed indirect effects
+    are terminated after a suitable delay.)
+}
+
 #=======================================================================
 # Magic Satisfaction Orders
 
@@ -1194,8 +1263,7 @@ order MAD:SAT:ADJUST "Magic Adjust Satisfaction Level" {
     <</parm>>
 
     <<parm mad "MAD ID">>
-    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to which
-    the change will be attributed.
+    <b>Required.</b>  <<MAD.mad>>
     <</parm>>
 
     <<parm delta "Delta">>
@@ -1203,9 +1271,10 @@ order MAD:SAT:ADJUST "Magic Adjust Satisfaction Level" {
     number, or as one of the symbols from the following table:<p>
 
     <<::simlib::qmag html>>
+    <</parm>>
     <</parmlist>>
 
-    Adjusts the value of the specified satisfaction curve by the
+    Immediately adjusts the value of the specified satisfaction curve by the
     specified amount, clamping the curve's value to the range -100.0,
     100.0 if need be.
 }
@@ -1229,8 +1298,7 @@ order MAD:SAT:SET "Magic Set Satisfaction Level" {
     <</parm>>
 
     <<parm mad "MAD ID">>
-    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to which
-    the change will be attributed.
+    <b>Required.</b>  <<MAD.mad>>
     <</parm>>
 
     <<parm sat "sat">>
@@ -1238,13 +1306,121 @@ order MAD:SAT:SET "Magic Set Satisfaction Level" {
     number, or as one of the symbols from the following table:<p>
 
     <<::simlib::qsat html>>
+    <</parm>>
+
     <</parmlist>>
 
-    Sets the value of the specified satisfaction curve to the
+    Immediately sets the value of the specified satisfaction curve to the
     specified amount.
 }
 
+#-----------------------------------------------------------------------
 
+order MAD:SAT:LEVEL "Magic Satisfaction Level Input" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  A civilian or organization group ID.
+    <</parm>>
+
+    <<parm c "Concern">>
+    <b>Required.</b>  One of group <i>g</i>'s concerns.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  <<MAD.mad>>
+    <</parm>>
+
+    <<parm limit "Limit">>
+    <b>Required.</b>  <<MAD.limit>>
+    <</parm>>
+
+    <<parm days "Realization Time">>
+    <b>Required.</b>  <<MAD.days>>
+    <</parm>>
+
+    <<parm cause "Cause">>
+    <b>Required.</b> <<MAD.cause>>
+    <</parm>>
+
+    <<parm p "Near Factor">>
+    <b>Required.</b> <<MAD.p>>
+    <</parm>>
+
+    <<parm q "Far Factor">>
+    <b>Required.</b> <<MAD.q>>
+    <</parm>>
+    
+    <</parmlist>>
+
+    <b>This order must be scheduled in advance.</b>
+    Enters a magic satisfaction level input into GRAM.  The input will
+    change the specified curve's value by <i>limit</i> nominal points
+    over a period of <i>days</i>.  The input will be attributed to the
+    specified MAD and <i>cause</i>, and will have indirect effects as
+    indicated by <i>p</i> and <i>q</i>.
+}
+
+
+#-----------------------------------------------------------------------
+
+order MAD:SAT:SLOPE "Magic Satisfaction Slope Input" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  A civilian or organization group ID.
+    <</parm>>
+
+    <<parm c "Concern">>
+    <b>Required.</b>  One of group <i>g</i>'s concerns.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  <<MAD.mad>>
+    <</parm>>
+
+    <<parm slope "Slope">>
+    <b>Required.</b>  <<MAD.slope>>
+    <</parm>>
+
+    <<parm cause "Cause">>
+    <b>Required.</b> <<MAD.cause>>
+    <</parm>>
+
+    <<parm p "Near Factor">>
+    <b>Required.</b> <<MAD.p>>
+    <</parm>>
+
+    <<parm q "Far Factor">>
+    <b>Required.</b> <<MAD.q>>
+    <</parm>>
+    
+    <</parmlist>>
+
+    <b>This order must be scheduled in advance.</b>
+    Enters a magic satisfaction slope input into GRAM.  The input will
+    change the specified curve's value by <i>slope</i> nominal points
+    per day until the input is terminated.  The input will be
+    attributed to the specified MAD and <i>cause</i>, and will have
+    indirect effects as indicated by <i>p</i> and <i>q</i>.<p>
+
+    A subsequent order for the same curve, MAD, and cause will change
+    the slope of the existing slope input, rather than creating a new
+    slope input.<p>
+
+    The input can be terminated in two ways.  First, the specific
+    input can be terminated by sending an identical order with a slope
+    of 0.0.  Second, the <<cref MAD:TERMINATE>> order will terminate
+    all ongoing slope effects for a particular MAD.
+}
 
 #=======================================================================
 # Magic Cooperation Orders
@@ -1328,6 +1504,114 @@ order MAD:COOP:SET "Magic Set Cooperation Level" {
 
     Sets the value of the specified cooperation curve to the
     specified amount.
+}
+
+#-----------------------------------------------------------------------
+
+order MAD:COOP:LEVEL "Magic Cooperation Level Input" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  A civilian group ID.
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  A force group ID.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  <<MAD.mad>>
+    <</parm>>
+
+    <<parm limit "Limit">>
+    <b>Required.</b>  <<MAD.limit>>
+    <</parm>>
+
+    <<parm days "Realization Time">>
+    <b>Required.</b>  <<MAD.days>>
+    <</parm>>
+
+    <<parm cause "Cause">>
+    <b>Required.</b> <<MAD.cause>>
+    <</parm>>
+
+    <<parm p "Near Factor">>
+    <b>Required.</b> <<MAD.p>>
+    <</parm>>
+
+    <<parm q "Far Factor">>
+    <b>Required.</b> <<MAD.q>>
+    <</parm>>
+    
+    <</parmlist>>
+
+    <b>This order must be scheduled in advance.</b>
+    Enters a magic cooperation level input into GRAM.  The input will
+    change the specified curve's value by <i>limit</i> nominal points
+    over a period of <i>days</i>.  The input will be attributed to the
+    specified MAD and <i>cause</i>, and will have indirect effects as
+    indicated by <i>p</i> and <i>q</i>.
+}
+
+
+#-----------------------------------------------------------------------
+
+order MAD:COOP:SLOPE "Magic Cooperation Slope Input" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  A civilian group ID.
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  A force group ID.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  <<MAD.mad>>
+    <</parm>>
+
+    <<parm slope "Slope">>
+    <b>Required.</b>  <<MAD.slope>>
+    <</parm>>
+
+    <<parm cause "Cause">>
+    <b>Required.</b> <<MAD.cause>>
+    <</parm>>
+
+    <<parm p "Near Factor">>
+    <b>Required.</b> <<MAD.p>>
+    <</parm>>
+
+    <<parm q "Far Factor">>
+    <b>Required.</b> <<MAD.q>>
+    <</parm>>
+    
+    <</parmlist>>
+
+    <b>This order must be scheduled in advance.</b>
+    Enters a magic cooperation slope input into GRAM.  The input will
+    change the specified curve's value by <i>slope</i> nominal points
+    per day until the input is terminated.  The input will be
+    attributed to the specified MAD and <i>cause</i>, and will have
+    indirect effects as indicated by <i>p</i> and <i>q</i>.<p>
+
+    A subsequent order for the same curve, MAD, and cause will change
+    the slope of the existing slope input, rather than creating a new
+    slope input.<p>
+
+    The input can be terminated in two ways.  First, the specific
+    input can be terminated by sending an identical order with a slope
+    of 0.0.  Second, the <<cref MAD:TERMINATE>> order will terminate
+    all ongoing slope effects for a particular MAD.
 }
 
 

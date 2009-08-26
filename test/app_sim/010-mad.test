@@ -26,6 +26,16 @@ namespace eval ::athena_test::tests:: {
     # Import tcltest(n)
     namespace import ::tcltest::*
 
+    # Advance time during setup
+    
+    proc advance {} {
+        ted create NB1 BLUE USAID SHIA NB1SHIA
+
+        scenario mutate reconcile
+
+        ted order SIM:RUN days 1 block yes
+    }
+
     # Clean up after a test
 
     proc cleanup {} {
@@ -60,11 +70,8 @@ id oneliner   driver
 
 
     test create-1.2 {After PREP, GRAM drivers are assigned} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
+        advance
     } -body {
-
-        ted order SIM:RUN days 1 block yes
-
         mad mutate create {oneliner "First MAD"}
         mad mutate create {oneliner "Second MAD"}
         mad mutate create {oneliner "Third MAD"}
@@ -116,8 +123,7 @@ id oneliner   driver
 
 
     test create-2.3 {undo deletes the GRAM driver} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         set undo [mad mutate create {oneliner "First MAD"}]
         set driver [rdb onecolumn {
             SELECT driver FROM mads WHERE oneliner='First MAD'
@@ -149,8 +155,7 @@ id oneliner   driver
 
 
     test delete-1.2 {GRAM driver is deleted} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
 
         mad mutate create {oneliner First}
         mad mutate create {oneliner Second}
@@ -198,8 +203,7 @@ id oneliner driver
 
 
     test delete-2.2 {Undo restores GRAM driver} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
 
         mad mutate create {oneliner First}
         set undo [mad mutate delete 1]
@@ -248,8 +252,8 @@ id oneliner driver
 
 
     test update-1.2 {GRAM driver's oneliner is set} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
+
         mad mutate create {oneliner Original}
     } -body {
         mad mutate update {id 1 oneliner Modified}
@@ -296,8 +300,8 @@ driver oneliner
 
 
     test update-2.2 {undo undoes the GRAM driver change} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
+
         mad mutate create {oneliner Original}
     } -body {
         set a [ted query {SELECT * FROM gram_driver}]
@@ -333,8 +337,8 @@ driver oneliner
     # satadjust
 
     test satadjust-1.1 {Adjustment takes effect.} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
+
         mad mutate create {oneliner Original}
     } -body {
         mad mutate satadjust {
@@ -357,8 +361,8 @@ NB1 SHIA AUT 5.0
 
 
     test satadjust-1.2 {Adjustment sends report} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
+
         mad mutate create {oneliner Original}
     } -body {
         mad mutate satadjust {
@@ -370,11 +374,11 @@ NB1 SHIA AUT 5.0
         }
     } -cleanup {
         cleanup
-    } -result {DAM ADJUST {ADJUST-1-1 Magic Satisfaction Adjustment}}
+    } -result {DAM ADJUST {ADJUST-1-1: Magic Satisfaction Adjustment}}
 
     test satadjust-1.3 {Adjustment sends events} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
+
         mad mutate create {oneliner Original}
     } -body {
         ted notifier bind ::sat <Entity>
@@ -394,8 +398,8 @@ NB1 SHIA AUT 5.0
 
 
     test satadjust-2.1 {Undo removes effect.} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
+
         mad mutate create {oneliner Original}
     } -body {
         set undo [mad mutate satadjust {
@@ -420,8 +424,8 @@ NB1 SHIA AUT 0.0
 
 
     test satadjust-2.2 {Undo removes report} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
+
         mad mutate create {oneliner Original}
 
         set undo [mad mutate satadjust {
@@ -440,8 +444,8 @@ NB1 SHIA AUT 0.0
 
 
     test satadjust-2.3 {Undo sends events} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
+
         mad mutate create {oneliner Original}
 
         set undo [mad mutate satadjust {
@@ -465,8 +469,7 @@ NB1 SHIA AUT 0.0
     # satset
 
     test satset-1.1 {Adjustment takes effect.} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
     } -body {
         mad mutate satset {
@@ -489,8 +492,7 @@ NB1 SHIA AUT 5.0
 
 
     test satset-1.2 {Adjustment sends report} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
     } -body {
         mad mutate satset {
@@ -502,12 +504,11 @@ NB1 SHIA AUT 5.0
         }
     } -cleanup {
         cleanup
-    } -result {DAM ADJUST {ADJUST-1-2 Magic Satisfaction Set}}
+    } -result {DAM ADJUST {ADJUST-1-2: Magic Satisfaction Set}}
 
 
     test satset-1.3 {Adjustment sends events} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
     } -body {
         ted notifier bind ::sat <Entity>
@@ -527,8 +528,7 @@ NB1 SHIA AUT 5.0
 
 
     test satset-2.1 {Undo removes effect.} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
     } -body {
         set undo [mad mutate satset {
@@ -553,8 +553,7 @@ NB1 SHIA AUT 0.0
 
 
     test satset-2.2 {Undo removes report} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
 
         set undo [mad mutate satset {
@@ -573,8 +572,7 @@ NB1 SHIA AUT 0.0
 
 
     test satset-2.3 {Undo sends events} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
 
         set undo [mad mutate satset {
@@ -595,11 +593,92 @@ NB1 SHIA AUT 0.0
     }
 
     #-------------------------------------------------------------------
+    # satlevel
+
+    test satlevel-1.1 {Level input is created} -setup {
+        advance
+
+        mad mutate create {oneliner First}
+    } -body {
+        mad mutate satlevel {
+            n NB1 g SHIA c AUT mad 1 limit 5 days 1 cause DRIVER p 0.8 q 0.4
+        }
+
+        ted query {
+            SELECT etype,cause,ts,n,g,c,llimit,days FROM gram_sat_effects
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+etype cause   ts n   g    c   llimit days 
+----- ------- -- --- ---- --- ------ ---- 
+L     MAD0001 1  NB1 SHIA AUT 5.0    1.0  
+    }
+
+
+    test satlevel-1.2 {Level input sends report} -setup {
+        advance
+
+        mad mutate create {oneliner First}
+    } -body {
+        mad mutate satlevel {
+            n NB1 g SHIA c AUT mad 1 limit 5 days 1 cause DRIVER p 0.8 q 0.4
+        }
+
+        rdb eval {
+            SELECT rtype,subtype,title FROM reports
+        }
+    } -cleanup {
+        cleanup
+    } -result {DAM MAGIC {MAGIC-1-1: Magic Satisfaction Level Input}}
+
+
+    #-------------------------------------------------------------------
+    # satslope
+
+    test satslope-1.1 {Slope input is created} -setup {
+        advance
+
+        mad mutate create {oneliner First}
+    } -body {
+        mad mutate satslope {
+            n NB1 g SHIA c AUT mad 1 slope 5 cause DRIVER p 0.8 q 0.4
+        }
+
+        ted query {
+            SELECT etype,cause,ts,n,g,c,slope FROM gram_sat_effects
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+etype cause   ts n   g    c   slope 
+----- ------- -- --- ---- --- ----- 
+S     MAD0001 1  NB1 SHIA AUT 5.0   
+    }
+
+
+    test satslope-1.2 {Slope input sends report} -setup {
+        advance
+
+        mad mutate create {oneliner First}
+    } -body {
+        mad mutate satslope {
+            n NB1 g SHIA c AUT mad 1 slope 5 cause DRIVER p 0.8 q 0.4
+        }
+
+        rdb eval {
+            SELECT rtype,subtype,title FROM reports
+        }
+    } -cleanup {
+        cleanup
+    } -result {DAM MAGIC {MAGIC-1-2: Magic Satisfaction Slope Input}}
+
+
+    #-------------------------------------------------------------------
     # coopadjust
 
     test coopadjust-1.1 {Adjustment takes effect.} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
     } -body {
         mad mutate coopadjust {
@@ -622,8 +701,7 @@ NB1 SHIA BLUE 5.0
 
 
     test coopadjust-1.2 {Adjustment sends report} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
     } -body {
         mad mutate coopadjust {
@@ -635,12 +713,11 @@ NB1 SHIA BLUE 5.0
         }
     } -cleanup {
         cleanup
-    } -result {DAM ADJUST {ADJUST-2-1 Magic Cooperation Adjustment}}
+    } -result {DAM ADJUST {ADJUST-2-1: Magic Cooperation Adjustment}}
 
 
     test coopadjust-1.3 {Adjustment sends events} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
     } -body {
         ted notifier bind ::coop <Entity>
@@ -660,8 +737,7 @@ NB1 SHIA BLUE 5.0
 
 
     test coopadjust-2.1 {Undo removes effect.} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
     } -body {
         set undo [mad mutate coopadjust {
@@ -686,8 +762,7 @@ NB1 SHIA BLUE 0.0
 
 
     test coopadjust-2.2 {Undo removes report} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
 
         set undo [mad mutate coopadjust {
@@ -705,8 +780,7 @@ NB1 SHIA BLUE 0.0
 
 
     test coopadjust-2.3 {Undo sends events} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
 
         set undo [mad mutate coopadjust {
@@ -730,12 +804,11 @@ NB1 SHIA BLUE 0.0
     # coopset
 
     test coopset-1.1 {Adjustment takes effect.} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
     } -body {
         mad mutate coopset {
-            n NB1 f SHIA g BLUE mad 1 coop 55
+            n NB1 f SHIA g BLUE mad 1 coop 5
         }
 
         ted query {
@@ -754,12 +827,11 @@ NB1 SHIA BLUE 5.0
 
 
     test coopset-1.2 {Adjustment sends report} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
     } -body {
         mad mutate coopset {
-            n NB1 f SHIA g BLUE mad 1 coop 55
+            n NB1 f SHIA g BLUE mad 1 coop 5
         }
 
         rdb eval {
@@ -767,19 +839,18 @@ NB1 SHIA BLUE 5.0
         }
     } -cleanup {
         cleanup
-    } -result {DAM ADJUST {ADJUST-2-2 Magic Cooperation Set}}
+    } -result {DAM ADJUST {ADJUST-2-2: Magic Cooperation Set}}
 
 
     test coopset-1.3 {Adjustment sends events} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
     } -body {
         ted notifier bind ::coop <Entity>
         ted notifier bind ::mad <Entity>
 
         mad mutate coopset {
-            n NB1 f SHIA g BLUE mad 1 coop 55
+            n NB1 f SHIA g BLUE mad 1 coop 5
         }
         
         ted notifier received
@@ -792,12 +863,11 @@ NB1 SHIA BLUE 5.0
 
 
     test coopset-2.1 {Undo removes effect.} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
     } -body {
         set undo [mad mutate coopset {
-            n NB1 f SHIA g BLUE mad 1 coop 55
+            n NB1 f SHIA g BLUE mad 1 coop 5
         }]
 
         eval $undo
@@ -818,12 +888,11 @@ NB1 SHIA BLUE 0.0
 
 
     test coopset-2.2 {Undo removes report} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
 
         set undo [mad mutate coopset {
-            n NB1 f SHIA g BLUE mad 1 coop 55
+            n NB1 f SHIA g BLUE mad 1 coop 5
         }]
     } -body {
         eval $undo
@@ -837,12 +906,11 @@ NB1 SHIA BLUE 0.0
 
 
     test coopset-2.3 {Undo sends events} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        ted order SIM:RUN days 1 block yes
+        advance
         mad mutate create {oneliner Original}
 
         set undo [mad mutate coopset {
-            n NB1 f SHIA g BLUE mad 1 coop 55
+            n NB1 f SHIA g BLUE mad 1 coop 5
         }]
     } -body {
         ted notifier bind ::coop <Entity>
@@ -857,6 +925,119 @@ NB1 SHIA BLUE 0.0
         {::coop <Entity> update {NB1 SHIA BLUE}}
         {::mad <Entity> update 1}
     }
+
+    #-------------------------------------------------------------------
+    # cooplevel
+
+    test cooplevel-1.1 {Level input is created} -setup {
+        advance
+
+        mad mutate create {oneliner First}
+    } -body {
+        mad mutate cooplevel {
+            n NB1 f SHIA g BLUE mad 1 limit 5 days 1 cause DRIVER p 0.8 q 0.4
+        }
+
+        ted query {
+            SELECT etype,cause,ts,n,f,g,llimit,days FROM gram_coop_effects
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+etype cause   ts n   f    g    llimit days 
+----- ------- -- --- ---- ---- ------ ---- 
+L     MAD0001 1  NB1 SHIA BLUE 5.0    1.0  
+    }
+
+
+    test cooplevel-1.2 {Level input sends report} -setup {
+        advance
+
+        mad mutate create {oneliner First}
+    } -body {
+        mad mutate cooplevel {
+            n NB1 f SHIA g BLUE mad 1 limit 5 days 1 cause DRIVER p 0.8 q 0.4
+        }
+
+        rdb eval {
+            SELECT rtype,subtype,title FROM reports
+        }
+    } -cleanup {
+        cleanup
+    } -result {DAM MAGIC {MAGIC-2-1: Magic Cooperation Level Input}}
+
+
+    #-------------------------------------------------------------------
+    # coopslope
+
+    test coopslope-1.1 {Slope input is created} -setup {
+        advance
+
+        mad mutate create {oneliner First}
+    } -body {
+        mad mutate coopslope {
+            n NB1 f SHIA g BLUE mad 1 slope 5 cause DRIVER p 0.8 q 0.4
+        }
+
+        ted query {
+            SELECT etype,cause,ts,n,f,g,slope FROM gram_coop_effects
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+etype cause   ts n   f    g    slope 
+----- ------- -- --- ---- ---- ----- 
+S     MAD0001 1  NB1 SHIA BLUE 5.0   
+    }
+
+
+    test coopslope-1.2 {Slope input sends report} -setup {
+        advance
+
+        mad mutate create {oneliner First}
+    } -body {
+        mad mutate coopslope {
+            n NB1 f SHIA g BLUE mad 1 slope 5 cause DRIVER p 0.8 q 0.4
+        }
+
+        rdb eval {
+            SELECT rtype,subtype,title FROM reports
+        }
+    } -cleanup {
+        cleanup
+    } -result {DAM MAGIC {MAGIC-2-2: Magic Cooperation Slope Input}}
+
+    #-------------------------------------------------------------------
+    # terminate
+
+    test terminate-1.1 {Terminate terminates slope effects} -setup {
+        advance
+
+        mad mutate create {oneliner First}
+        mad mutate create {oneliner Second}
+
+        mad mutate satslope {
+            n NB1 g SHIA c AUT mad 1 slope 5 cause DRIVER p 0.8 q 0.4
+        }
+
+        mad mutate satslope {
+            n NB1 g SHIA c QOL mad 2 slope 5 cause DRIVER p 0.8 q 0.4
+        }
+    } -body {
+        mad mutate terminate 1
+
+        set result "\n[aram dump sat slopes]    "
+    } -cleanup {
+        cleanup
+    } -result {
+Input DN  DG   Cause   E Start Time   End Time     Nbhd Grp  Con Slope Nominal Actual 
+----- --- ---- ------- - ------------ ------------ ---- ---- --- ----- ------- ------ 
+1.2   NB1 SHIA MAD0001 D 110000ZJAN10 110000ZJAN10 NB1  SHIA AUT   5.0   0.0     0.0  
+"     "   "    "       D 110000ZJAN10 n/a          NB1  SHIA AUT   0.0   0.0     0.0  
+2.1   "   "    MAD0002 D 110000ZJAN10 n/a          NB1  SHIA QOL   5.0   0.0     0.0  
+    }
+
+
 
     #-------------------------------------------------------------------
     # names

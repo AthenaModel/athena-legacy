@@ -224,6 +224,13 @@ returns a pretty-printed REJECT dictionary; otherwise, the rejection
 doesn't follow the protocol.  On any other kind of error,
 <<iref ted order>> propagates the error.<p>
 
+<<defitem "ted schedule" {ted schedule ?-reject? <i>timespec name parmdict</i>}>>
+
+Schedules the order with the specified <i>name</i> and <i>parmdict</i>
+to be executed at the <i>timespec</i>.  In short, this wraps
+<<xref order(sim) "order schedule">> in the same way that
+<<iref ted order>> wraps <<xref order(sim) "order send">>.<p>
+
 <<defitem "ted query" {ted query <i>sql</i>}>>
 
 Does a query on the RDB given the <i>sql</i>, and pretty-prints the
@@ -242,8 +249,9 @@ error.<p>
 A <i>command...</i> may be passed as a single argument or as
 individual arguments which are aggregated into a single command.<p>
 
-<b>TBD:</b> As yet, Athena has no executive, and so the commands are
-sent directly to the main interpreter.<p>
+<b>TBD:</b> This command pre-dates the Athena executive interface,
+and so commands are currently sent directly to the main interpreter.
+This will need to be fixed eventually.<p>
 
 <<defitem "ted unit" {ted unit <i>subcommand</i> ?<i>args...</i>?}>>
 

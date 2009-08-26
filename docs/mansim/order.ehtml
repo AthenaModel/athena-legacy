@@ -290,6 +290,22 @@ By default, returns a dictionary of parameter options for the named
 options and their meanings.  If an option <i>opt</i> is specified,
 returns the value of that particular option.<p>
 
+<<defitem "order schedule" {order schedule <i>interface timespec name parmdict</i>}>>
+<<defitem "order schedule" {order schedule <i>interface timespec name parm value</i> ?<i>parm value...</i>?}>>
+
+Schedules order <i>name</i> to be executed by the application at the
+specified <i>timespec</i>.  The scheduling is done by the
+specified <i>interface</i>: <i>gui</i>, <i>cli</i>, <i>sim</i>, or
+<i>test</i>. The order's parameters are specified as one argument, a
+dictionary, or as multiple parameter names and values.<p>
+
+The order's parameters are validated using <<iref order check>>; an
+order with invalid parameters will only be scheduled if the
+<code>-schedwheninvalid</code> flag is set for each invalid parameter.<p>
+
+The <i>timespec</i> is a future time specification, as validated by
+<<xref simclock(n)>>.<p>
+
 <<defitem "order scheduled names" {order scheduled names}>>
 
 Returns a list of the IDs of the scheduled orders, if any.<p>
@@ -303,7 +319,8 @@ Validates <i>id</i> as the ID of a scheduled order, throwing
 <<defitem "order send" {order send <i>interface name parm value</i> ?<i>parm value...</i>?}>>
 
 Sends order <i>name</i> to the application.  The order is sent by the
-specified <i>interface</i>: <i>gui</i>, <i>sim</i>, or <i>test</i>.
+specified <i>interface</i>: <i>gui</i>, <i>cli</i>, <i>sim</i>, or
+<i>test</i>.
 The order's parameters are specified as one argument, a dictionary, or
 as multiple parameter names and values.<p>
 

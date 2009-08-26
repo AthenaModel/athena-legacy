@@ -275,6 +275,12 @@ snit::type ::projectlib::typewrapper {
     INDSPILL-3-1  "Industrial spill is cleaned up by outsiders"
     INDSPILL-3-2  "Industrial spill is cleaned by locals"
 
+    MAGIC-1-1     "Magic Satisfaction Level Input"
+    MAGIC-1-2     "Magic Satisfaction Slope Input"
+    MAGIC-2-1     "Magic Cooperation Level Input"
+    MAGIC-2-2     "Magic Cooperation Slope Input"
+    MAGIC-3-1     "Terminate Magic Slope Inputs"
+
     MINEFIELD-1-1 "Minefield is placed"
     MINEFIELD-2-1 "Minefield remains"
     MINEFIELD-2-2 "Minefield has been cleared"
@@ -383,6 +389,7 @@ snit::type ::projectlib::typewrapper {
     GARBAGE   "Garbage in the Streets"
     GUARD     "Guard"
     INDSPILL  "Industrial Spill"
+    MAGIC     "Magic Attitude Inputs"
     MINEFIELD "Minefield"
     NOWATER   "Interrupted Water Supply"
     ORDNANCE  "Unexploded Ordnance"

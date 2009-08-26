@@ -288,6 +288,52 @@ snit::type mad {
         notifier send ::mad <Entity> update $mad
     }
 
+
+    # mutate terminate id
+    #
+    # id              MAD ID
+    #
+    # Terminates all magic cooperation and satisfaction slopes for
+    # the given MAD.
+
+    typemethod {mutate terminate} {id} {
+        # FIRST, get the GRAM driver ID.
+        rdb eval {
+            SELECT driver, oneliner FROM mads WHERE id=$id
+        } {}
+
+        # NEXT, Terminate the slope inputs.
+        aram terminate $driver [simclock now]
+
+        # NEXT, send MAGIC-3-1 report
+        set text [edamrule longname MAGIC-3-1]
+        append text "\n\n"
+
+        set fmt "%-22s %s\n"
+
+        append text [format $fmt "Magic Attitude Driver:" $id]
+        append text [format $fmt "Description:"           $oneliner]
+        append text [format $fmt "GRAM Driver ID:"        $driver]
+
+        append text "\n"
+
+        append text "All satisfaction and cooperation slope inputs have\n"
+        append text "been terminated.  Termination of indirect effects in\n"
+        append text "other neighborhoods is delayed as usual.\n"
+
+        set reportid \
+            [report save \
+                 -type    DAM                                       \
+                 -subtype MAGIC                                     \
+                 -meta1   ADJUST-3-1                                \
+                 -title   "MAGIC-3-1: [edamrule longname MAGIC-3-1]" \
+                 -text    $text]
+
+        # NEXT, cannot be undone.
+        return
+    }
+
+
     # mutate satadjust parmdict
     #
     # parmdict    A dictionary of order parameters
@@ -319,13 +365,15 @@ snit::type mad {
             set text [edamrule longname ADJUST-1-1]
             append text "\n\n"
 
-            set fmt "%-17s %s\n"
+            set fmt "%-22s %s\n"
 
-            append text [format $fmt "Driver:"       "$driver, $oneliner"]
-            append text [format $fmt "Input ID:"     "$driver.$inputId"]
-            append text [format $fmt "Neighborhood:" $n]
-            append text [format $fmt "Group:"        $g]
-            append text [format $fmt "Concern:"      $c]
+            append text [format $fmt "Magic Attitude Driver:" $mad]
+            append text [format $fmt "Description:"           $oneliner]
+            append text [format $fmt "GRAM Driver ID:"        $driver]
+            append text [format $fmt "Input ID:"           "$driver.$inputId"]
+            append text [format $fmt "Neighborhood:"          $n]
+            append text [format $fmt "Group:"                 $g]
+            append text [format $fmt "Concern:"               $c]
 
             set deltaText [format "%.3f (%s)" $delta [qmag name $delta]]
             append text [format $fmt "Delta:"        $deltaText]
@@ -335,7 +383,7 @@ snit::type mad {
                      -type    DAM                                          \
                      -subtype ADJUST                                       \
                      -meta1   ADJUST-1-1                                   \
-                     -title   "ADJUST-1-1 [edamrule longname ADJUST-1-1]" \
+                     -title   "ADJUST-1-1: [edamrule longname ADJUST-1-1]" \
                      -text    $text]
 
             # NEXT, notify the app.
@@ -382,13 +430,15 @@ snit::type mad {
             set text [edamrule longname ADJUST-1-2]
             append text "\n\n"
 
-            set fmt "%-17s %s\n"
+            set fmt "%-22s %s\n"
 
-            append text [format $fmt "Driver:"       "$driver, $oneliner"]
-            append text [format $fmt "Input ID:"     "$driver.$inputId"]
-            append text [format $fmt "Neighborhood:" $n]
-            append text [format $fmt "Group:"        $g]
-            append text [format $fmt "Concern:"      $c]
+            append text [format $fmt "Magic Attitude Driver:" $mad]
+            append text [format $fmt "Description:"           $oneliner]
+            append text [format $fmt "GRAM Driver ID:"        $driver]
+            append text [format $fmt "Input ID:"           "$driver.$inputId"]
+            append text [format $fmt "Neighborhood:"          $n]
+            append text [format $fmt "Group:"                 $g]
+            append text [format $fmt "Concern:"               $c]
 
             set satText [format "%.3f (%s)" $sat [qsat name $sat]]
             append text [format $fmt "New Value:"    $satText]
@@ -398,7 +448,7 @@ snit::type mad {
                      -type    DAM                                          \
                      -subtype ADJUST                                       \
                      -meta1   ADJUST-1-2                                   \
-                     -title   "ADJUST-1-2 [edamrule longname ADJUST-1-2]"  \
+                     -title   "ADJUST-1-2: [edamrule longname ADJUST-1-2]"  \
                      -text    $text]
 
             # NEXT, notify the app.
@@ -424,6 +474,99 @@ snit::type mad {
         notifier send ::sat <Entity> update [list $n $g $c]
         notifier send ::mad <Entity> update $mad
     }
+
+    # mutate satlevel parmdict
+    #
+    # parmdict    A dictionary of order parameters
+    #
+    #    n                Neighborhood ID
+    #    g                Group ID
+    #    c                Concern
+    #    mad              MAD ID
+    #    level            A qmag(n) value
+    #    days             An rdays(n) value
+    #    cause            "DRIVER", or an ecause(n) value
+    #    p                A fraction
+    #    q                A fraction
+    #
+    # Makes the MAGIC-1-1 rule fire for the given input.
+    
+    typemethod {mutate satlevel} {parmdict} {
+        dict with parmdict {
+            # FIRST, get the GRAM driver ID
+            rdb eval {SELECT driver,oneliner FROM mads WHERE id=$mad} {}
+
+            # NEXT, get the cause.
+            if {$cause eq "DRIVER"} {
+                set cause [format "MAD%04d" $mad]
+            }
+
+            dam ruleset MAGIC $driver \
+                -n     $n             \
+                -f     $g             \
+                -cause $cause         \
+                -p     $p             \
+                -q     $q
+
+            detail "Magic Attitude Driver:" $mad
+            detail "Description:"           $oneliner
+            detail "GRAM Driver ID:"        $driver
+
+            dam rule MAGIC-1-1 {1} {
+                dam sat level $c $limit $days
+            }
+        }
+
+        # NEXT, cannot be undone.
+        return
+    }
+
+
+    # mutate satslope parmdict
+    #
+    # parmdict    A dictionary of order parameters
+    #
+    #    n                Neighborhood ID
+    #    g                Group ID
+    #    c                Concern
+    #    mad              MAD ID
+    #    slope            A qmag(n) value
+    #    cause            "DRIVER", or an ecause(n) value
+    #    p                A fraction
+    #    q                A fraction
+    #
+    # Makes the MAGIC-1-2 rule fire for the given input.
+    
+    typemethod {mutate satslope} {parmdict} {
+        dict with parmdict {
+            # FIRST, get the GRAM driver ID
+            rdb eval {SELECT driver,oneliner FROM mads WHERE id=$mad} {}
+
+            # NEXT, get the cause.
+            if {$cause eq "DRIVER"} {
+                set cause [format "MAD%04d" $mad]
+            }
+
+            dam ruleset MAGIC $driver \
+                -n     $n             \
+                -f     $g             \
+                -cause $cause         \
+                -p     $p             \
+                -q     $q
+
+            detail "Magic Attitude Driver:" $mad
+            detail "Description:"           $oneliner
+            detail "GRAM Driver ID:"        $driver
+
+            dam rule MAGIC-1-2 {1} {
+                dam sat slope $c $slope
+            }
+        }
+
+        # NEXT, cannot be undone.
+        return
+    }
+
 
     # mutate coopadjust parmdict
     #
@@ -456,13 +599,15 @@ snit::type mad {
             set text [edamrule longname ADJUST-2-1]
             append text "\n\n"
 
-            set fmt "%-17s %s\n"
+            set fmt "%-22s %s\n"
 
-            append text [format $fmt "Driver:"       "$driver, $oneliner"]
-            append text [format $fmt "Input ID:"     "$driver.$inputId"]
-            append text [format $fmt "Neighborhood:" $n]
-            append text [format $fmt "Civ Group:"    $f]
-            append text [format $fmt "Frc Group:"    $g]
+            append text [format $fmt "Magic Attitude Driver:" $mad]
+            append text [format $fmt "Description:"           $oneliner]
+            append text [format $fmt "GRAM Driver ID:"        $driver]
+            append text [format $fmt "Input ID:"           "$driver.$inputId"]
+            append text [format $fmt "Neighborhood:"          $n]
+            append text [format $fmt "Civ Group:"             $f]
+            append text [format $fmt "Frc Group:"             $g]
 
             set deltaText [format "%.3f (%s)" $delta [qmag name $delta]]
             append text [format $fmt "Delta:"        $deltaText]
@@ -472,7 +617,7 @@ snit::type mad {
                      -type    DAM                                          \
                      -subtype ADJUST                                       \
                      -meta1   ADJUST-2-1                                   \
-                     -title   "ADJUST-2-1 [edamrule longname ADJUST-2-1]" \
+                     -title   "ADJUST-2-1: [edamrule longname ADJUST-2-1]" \
                      -text    $text]
 
             # NEXT, notify the app.
@@ -520,13 +665,15 @@ snit::type mad {
             set text [edamrule longname ADJUST-2-2]
             append text "\n\n"
 
-            set fmt "%-17s %s\n"
+            set fmt "%-22s %s\n"
 
-            append text [format $fmt "Driver:"       "$driver, $oneliner"]
-            append text [format $fmt "Input ID:"     "$driver.$inputId"]
-            append text [format $fmt "Neighborhood:" $n]
-            append text [format $fmt "Civ Group:"    $f]
-            append text [format $fmt "Frc Group:"    $g]
+            append text [format $fmt "Magic Attitude Driver:" $mad]
+            append text [format $fmt "Description:"           $oneliner]
+            append text [format $fmt "GRAM Driver ID:"        $driver]
+            append text [format $fmt "Input ID:"           "$driver.$inputId"]
+            append text [format $fmt "Neighborhood:"          $n]
+            append text [format $fmt "Civ Group:"             $f]
+            append text [format $fmt "Frc Group:"             $g]
 
             set coopText [format "%.3f (%s)" $coop [qcooperation name $coop]]
             append text [format $fmt "New Value:"    $coopText]
@@ -536,7 +683,7 @@ snit::type mad {
                      -type    DAM                                          \
                      -subtype ADJUST                                       \
                      -meta1   ADJUST-2-2                                   \
-                     -title   "ADJUST-2-2 [edamrule longname ADJUST-2-2]" \
+                     -title   "ADJUST-2-2: [edamrule longname ADJUST-2-2]" \
                      -text    $text]
 
             # NEXT, notify the app.
@@ -563,10 +710,138 @@ snit::type mad {
         notifier send ::mad <Entity> update $mad
     }
 
+    # mutate cooplevel parmdict
+    #
+    # parmdict    A dictionary of order parameters
+    #
+    #    n                Neighborhood ID
+    #    f                Civilian Group ID
+    #    g                Force Group ID
+    #    mad              MAD ID
+    #    level            A qmag(n) value
+    #    days             An rdays(n) value
+    #    cause            "DRIVER", or an ecause(n) value
+    #    p                A fraction
+    #    q                A fraction
+    #
+    # Makes the MAGIC-2-1 rule fire for the given input.
+    
+    typemethod {mutate cooplevel} {parmdict} {
+        dict with parmdict {
+            # FIRST, get the GRAM driver ID
+            rdb eval {SELECT driver,oneliner FROM mads WHERE id=$mad} {}
+
+            # NEXT, get the cause.
+            if {$cause eq "DRIVER"} {
+                set cause [format "MAD%04d" $mad]
+            }
+
+            dam ruleset MAGIC $driver \
+                -n     $n             \
+                -f     $f             \
+                -doer  $g             \
+                -cause $cause         \
+                -p     $p             \
+                -q     $q
+
+            detail "Magic Attitude Driver:" $mad
+            detail "Description:"           $oneliner
+            detail "GRAM Driver ID:"        $driver
+
+            dam rule MAGIC-2-1 {1} {
+                dam coop level -- $limit $days
+            }
+        }
+
+        # NEXT, cannot be undone.
+        return
+    }
+
+
+    # mutate coopslope parmdict
+    #
+    # parmdict    A dictionary of order parameters
+    #
+    #    n                Neighborhood ID
+    #    f                Civilian Group ID
+    #    g                Force Group ID
+    #    mad              MAD ID
+    #    slope            A qmag(n) value
+    #    cause            "DRIVER", or an ecause(n) value
+    #    p                A fraction
+    #    q                A fraction
+    #
+    # Makes the MAGIC-2-2 rule fire for the given input.
+    
+    typemethod {mutate coopslope} {parmdict} {
+        dict with parmdict {
+            # FIRST, get the GRAM driver ID
+            rdb eval {SELECT driver,oneliner FROM mads WHERE id=$mad} {}
+
+            # NEXT, get the cause.
+            if {$cause eq "DRIVER"} {
+                set cause [format "MAD%04d" $mad]
+            }
+
+            dam ruleset MAGIC $driver \
+                -n     $n             \
+                -f     $f             \
+                -doer  $g             \
+                -cause $cause         \
+                -p     $p             \
+                -q     $q
+
+            detail "Magic Attitude Driver:" $mad
+            detail "Description:"           $oneliner
+            detail "GRAM Driver ID:"        $driver
+
+            dam rule MAGIC-2-2 {1} {
+                dam coop slope -- $slope
+            }
+        }
+
+        # NEXT, cannot be undone.
+        return
+    }
+
+
     #-------------------------------------------------------------------
     # Order Helpers
 
-    # TBD
+    # detail label value
+    #
+    # Adds a detail to the rule input details
+   
+    proc detail {label value} {
+        dam details [format "%-22s %s\n" $label $value]
+    }
+
+    # RefreshConcern field parmdict
+    #
+    # field     The "c" field in MAD:SAT:LEVEL or MAD:SAT:SLOPE
+    # parmdict  The current values of the various fields
+    #
+    # Sets the valid concern values given "g".
+
+    typemethod RefreshConcern {field parmdict} {
+        dict with parmdict {
+            set gtype [group gtype $g]
+            
+            switch -exact -- $gtype {
+                CIV     {set values [ptype civc names]}
+                ORG     {set values [ptype orgc names]}
+                default {set values [list]}
+            }
+
+            $field configure -values $values
+
+            if {[llength $values] > 0} {
+                $field configure -state normal
+            } else {
+                $field configure -state disabled
+            }
+        }
+    }
 }
 
 #-------------------------------------------------------------------
@@ -667,6 +942,32 @@ order define ::mad MAD:UPDATE {
     setundo [join $undo \n]
 }
 
+# MAD:TERMINATE
+#
+# Terminates all magic slope inputs for a MAD.
+
+order define ::mad MAD:TERMINATE {
+    title "Terminate Magic Slope Inputs"
+    options \
+        -alwaysunsaved                 \
+        -sendstates     {}             \
+        -schedulestates {PREP PAUSED}  \
+        -table          gui_mads       \
+        -tags           id
+
+    parm id       key  "MAD ID"   -tags mad -display longid
+} {
+    # FIRST, prepare the parameters
+    prepare id            -required -type mad
+
+    returnOnError -final
+
+    # NEXT, modify the curve
+    $type mutate terminate $parms(id)
+
+    return
+}
+
 # MAD:SAT:ADJUST
 #
 # Adjusts a satisfaction curve by some delta.
@@ -744,6 +1045,115 @@ order define ::mad MAD:SAT:SET {
 
     # NEXT, modify the curve
     setundo [$type mutate satset [array get parms]]
+}
+
+
+# MAD:SAT:LEVEL
+#
+# Enters a magic satisfaction level input.
+
+order define ::mad MAD:SAT:LEVEL {
+    title "Magic Satisfaction Level Input"
+    options \
+        -alwaysunsaved                 \
+        -sendstates     {}             \
+        -schedulestates {PREP PAUSED}
+
+    parm n         enum  "Neighborhood"  -tags nbhood  -type nbhood
+    parm g         enum  "Group"         -tags group   -type {ptype satg}
+    parm c         enum  "Concern"       -tags concern \
+        -refreshcmd [list ::mad RefreshConcern]
+    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm limit     text  "Limit"
+    parm days      text  "Realization Time" -defval 2.0
+    parm cause     enum  "Cause"         -type {ptype ecause+driver}
+    parm p         text  "Near Factor"                -defval 0.0
+    parm q         text  "Far Factor"                 -defval 0.0
+    
+} {
+    # FIRST, prepare the parameters
+    prepare n     -toupper -required -type nbhood
+    prepare g     -toupper -required -type {ptype satg}
+    prepare c     -toupper -required -type {ptype c}
+    prepare mad            -required -type mad
+    prepare limit -toupper -required -type qmag -xform [list qmag value]
+    prepare days           -required -type rdays
+    prepare cause -toupper -required -type {ptype ecause+driver}
+    prepare p              -required -type rfraction
+    prepare q              -required -type rfraction
+
+    returnOnError
+
+    # NEXT, do cross-validation
+    validate c {
+        set gtype [group gtype $parms(g)]
+        
+        switch -exact -- $gtype {
+            CIV     { ptype civc validate $parms(c) }
+            ORG     { ptype orgc validate $parms(c) }
+            default { error "Unexpected gtype: \"$gtype\""   }
+        }
+    }
+
+    returnOnError -final
+
+    # NEXT, modify the curve
+    $type mutate satlevel [array get parms]
+
+    return
+}
+
+
+# MAD:SAT:SLOPE
+#
+# Enters a magic satisfaction slope input.
+
+order define ::mad MAD:SAT:SLOPE {
+    title "Magic Satisfaction Slope Input"
+    options \
+        -alwaysunsaved                 \
+        -sendstates     {}             \
+        -schedulestates {PREP PAUSED}
+
+    parm n         enum  "Neighborhood"  -tags nbhood  -type nbhood
+    parm g         enum  "Group"         -tags group   -type {ptype satg}
+    parm c         enum  "Concern"       -tags concern \
+        -refreshcmd [list ::mad RefreshConcern]
+    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm slope     text  "Slope"
+    parm cause     enum  "Cause"         -type {ptype ecause+driver}
+    parm p         text  "Near Factor"   -defval 0.0
+    parm q         text  "Far Factor"    -defval 0.0
+} {
+    # FIRST, prepare the parameters
+    prepare n     -toupper -required -type nbhood
+    prepare g     -toupper -required -type {ptype satg}
+    prepare c     -toupper -required -type {ptype c}
+    prepare mad            -required -type mad
+    prepare slope -toupper -required -type qmag -xform [list qmag value]
+    prepare cause -toupper -required -type {ptype ecause+driver}
+    prepare p              -required -type rfraction
+    prepare q              -required -type rfraction
+
+    returnOnError
+
+    # NEXT, do cross-validation
+    validate c {
+        set gtype [group gtype $parms(g)]
+        
+        switch -exact -- $gtype {
+            CIV     { ptype civc validate $parms(c) }
+            ORG     { ptype orgc validate $parms(c) }
+            default { error "Unexpected gtype: \"$gtype\""   }
+        }
+    }
+
+    returnOnError -final
+
+    # NEXT, modify the curve
+    $type mutate satslope [array get parms]
+
+    return
 }
 
 
@@ -827,3 +1237,83 @@ order define ::mad MAD:COOP:SET {
     setundo [$type mutate coopset [array get parms]]
 }
 
+
+# MAD:COOP:LEVEL
+#
+# Enters a magic cooperation level input.
+
+order define ::mad MAD:COOP:LEVEL {
+    title "Magic Cooperation Level Input"
+    options \
+        -alwaysunsaved                 \
+        -sendstates     {}             \
+        -schedulestates {PREP PAUSED}
+
+    parm n         enum  "Neighborhood"  -tags nbhood -type nbhood
+    parm f         enum  "Of Group"      -tags group  -type civgroup
+    parm g         enum  "With Group"    -tags group  -type frcgroup
+    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm limit     text  "Limit"
+    parm days      text  "Days"                       -defval 2.0
+    parm cause     enum  "Cause"         -type {ptype ecause+driver}
+    parm p         text  "Near Factor"                -defval 0.0
+    parm q         text  "Far Factor"                 -defval 0.0
+    
+} {
+    # FIRST, prepare the parameters
+    prepare n     -toupper -required -type nbhood
+    prepare f     -toupper -required -type civgroup
+    prepare g     -toupper -required -type frcgroup
+    prepare mad            -required -type mad
+    prepare limit -toupper -required -type qmag -xform [list qmag value]
+    prepare days           -required -type rdays
+    prepare cause -toupper -required -type {ptype ecause+driver}
+    prepare p              -required -type rfraction
+    prepare q              -required -type rfraction
+
+    returnOnError -final
+
+    # NEXT, modify the curve
+    $type mutate cooplevel [array get parms]
+
+    return
+}
+
+# MAD:COOP:SLOPE
+#
+# Enters a magic cooperation slope input.
+
+order define ::mad MAD:COOP:SLOPE {
+    title "Magic Cooperation Slope Input"
+    options \
+        -alwaysunsaved                 \
+        -sendstates     {}             \
+        -schedulestates {PREP PAUSED}
+
+    parm n         enum  "Neighborhood"  -tags nbhood -type nbhood
+    parm f         enum  "Of Group"      -tags group -type civgroup
+    parm g         enum  "With Group"    -tags group -type frcgroup
+    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm slope     text  "Slope"
+    parm cause     enum  "Cause"         -type {ptype ecause+driver}
+    parm p         text  "Near Factor"                -defval 0.0
+    parm q         text  "Far Factor"                 -defval 0.0
+    
+} {
+    # FIRST, prepare the parameters
+    prepare n     -toupper -required -type nbhood
+    prepare f     -toupper -required -type civgroup
+    prepare g     -toupper -required -type frcgroup
+    prepare mad            -required -type mad
+    prepare slope -toupper -required -type qmag -xform [list qmag value]
+    prepare cause -toupper -required -type {ptype ecause+driver}
+    prepare p              -required -type rfraction
+    prepare q              -required -type rfraction
+
+    returnOnError -final
+
+    # NEXT, modify the curve
+    $type mutate coopslope [array get parms]
+
+    return
+}
