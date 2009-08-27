@@ -692,6 +692,15 @@ CREATE TABLE mads (
    -- One line description
    oneliner      TEXT,
 
+   -- Cause: an ecause(n) value, or 'UNIQUE'
+   cause         TEXT DEFAULT 'UNIQUE',
+
+   -- Near Factor (p), a real fraction (0.0 to 1.0)
+   p             DOUBLE DEFAULT 0.0,
+
+   -- Near Factor (q), a real fraction (0.0 to 1.0)
+   q             DOUBLE DEFAULT 0.0,
+
    -- GRAM Driver ID
    driver        INTEGER DEFAULT -1
 );

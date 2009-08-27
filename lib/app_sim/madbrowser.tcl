@@ -98,6 +98,13 @@ snit::widgetadaptor madbrowser {
         $hull insertcolumn end 0 {ID}
         $hull columnconfigure end -sortmode integer
         $hull insertcolumn end 0 {Description}
+        $hull insertcolumn end 0 {Cause}
+        $hull insertcolumn end 0 {Near Factor (p)}
+        $hull columnconfigure end                  \
+            -sortmode   real
+        $hull insertcolumn end 0 {Far Factor (q)}
+        $hull columnconfigure end                  \
+            -sortmode   real
         $hull insertcolumn end 0 {Driver}
         $hull columnconfigure end                  \
             -sortmode   integer                    \
@@ -153,7 +160,8 @@ snit::widgetadaptor madbrowser {
     method DisplayData {dict} {
         # FIRST, extract each field
         dict with dict {
-            $hull setdata $id [list $id $oneliner $driver $inputs]
+            $hull setdata $id \
+                [list $id $oneliner $cause $p $q $driver $inputs]
         }
     }
 

@@ -1142,22 +1142,26 @@ macro MAD.days {} {
 
 macro MAD.cause {} {
     |<--
-    The "cause" of the input; see [cref Causes].  The cause
-    may be <b>DRIVER</b>, indicating that this MAD has its own unique 
-    cause, or any cause from the following list:<p>
+    The "cause" for any magic attitude input input associated with
+    this MAD; see [cref Causes].  The cause
+    may be <b>UNIQUE</b>, indicating that the effects of this MAD
+    are independent of all other drivers, or it may be
+    any cause from the following list:<p>
 
     [enumdoc ::projectlib::ecause]
 }
 
 macro MAD.p {} {
     |<--
-    Indirect effects in <b>NEAR</b> neighborhoods are multiplied by
-    this factor.  If it is 0.0, there will be no such indirect effects.
+    Indirect effects of magic attitude inputs for this MAD in <b>NEAR</b>
+    neighborhoods are multiplied by this factor.  If it is 0.0, there
+    will be no such indirect effects.
 }
 
 macro MAD.q {} {
     |<--
-    Indirect effects in <b>FAR</b> neighborhoods are multiplied by
+    Indirect effects of magic attitude inputs for this MAD in <b>FAR</b>
+    neighborhoods are multiplied by 
     this factor.  If it is 0.0, there will be no such indirect effects.
 }
 
@@ -1171,14 +1175,31 @@ order MAD:CREATE "Create Magic Attitude Driver" {
     <<parm oneliner "Description">>
     <b>Required.</b>  A one-line description of the driver.
     <</parm>>
+
+    <<parm cause "Cause">>
+    <b>Required.</b> <<MAD.cause>>
+    <</parm>>
+
+    <<parm p "Near Factor">>
+    <b>Required.</b> <<MAD.p>>
+    <</parm>>
+
+    <<parm q "Far Factor">>
+    <b>Required.</b> <<MAD.q>>
+    <</parm>>
+    
     <</parmlist>>
 
     Creates a new Magic Attitude Driver (MAD).  The description need
     not be unique, but should remind the analyst of the reason for the
     attitude inputs and adjustments associated with the MAD.<p>
 
-    The new MAD cannot be deleted once any attitude inputs or
-    adjustments have been associated with it.
+    All magic level and slope inputs associated with this MAD will use
+    the specified cause, near factor, and far factor.<p>
+
+    <b>Note:</b> Once any attitude inputs or adjustments have been
+    associated with this MAD, it can no longer be deleted; nor can its
+    cause, near factor or far factor be changed.
 }
 
 #-------------------------------------------------------------------
@@ -1205,11 +1226,24 @@ order MAD:UPDATE "Update Magic Attitude Driver" {
     <</parm>>
 
     <<parm oneliner "Description">>
-    <b>Required.</b>  A one-line description of the driver.
+    <b>Optional.</b>  A one-line description of the driver.
     <</parm>>
+
+    <<parm cause "Cause">>
+    <b>Optional.</b> <<MAD.cause>>
+    <</parm>>
+
+    <<parm p "Near Factor">>
+    <b>Optional.</b> <<MAD.p>>
+    <</parm>>
+
+    <<parm q "Far Factor">>
+    <b>Optional.</b> <<MAD.q>>
+    <</parm>>
+    
     <</parmlist>>
 
-    Updates the MAD's description.
+    Updates the MAD's definition.
 }
 
 #-------------------------------------------------------------------
@@ -1343,26 +1377,12 @@ order MAD:SAT:LEVEL "Magic Satisfaction Level Input" {
     <b>Required.</b>  <<MAD.days>>
     <</parm>>
 
-    <<parm cause "Cause">>
-    <b>Required.</b> <<MAD.cause>>
-    <</parm>>
-
-    <<parm p "Near Factor">>
-    <b>Required.</b> <<MAD.p>>
-    <</parm>>
-
-    <<parm q "Far Factor">>
-    <b>Required.</b> <<MAD.q>>
-    <</parm>>
-    
     <</parmlist>>
 
     <b>This order must be scheduled in advance.</b>
     Enters a magic satisfaction level input into GRAM.  The input will
     change the specified curve's value by <i>limit</i> nominal points
-    over a period of <i>days</i>.  The input will be attributed to the
-    specified MAD and <i>cause</i>, and will have indirect effects as
-    indicated by <i>p</i> and <i>q</i>.
+    over a period of <i>days</i>.
 }
 
 
@@ -1391,28 +1411,15 @@ order MAD:SAT:SLOPE "Magic Satisfaction Slope Input" {
     <b>Required.</b>  <<MAD.slope>>
     <</parm>>
 
-    <<parm cause "Cause">>
-    <b>Required.</b> <<MAD.cause>>
-    <</parm>>
-
-    <<parm p "Near Factor">>
-    <b>Required.</b> <<MAD.p>>
-    <</parm>>
-
-    <<parm q "Far Factor">>
-    <b>Required.</b> <<MAD.q>>
-    <</parm>>
-    
     <</parmlist>>
 
     <b>This order must be scheduled in advance.</b>
     Enters a magic satisfaction slope input into GRAM.  The input will
     change the specified curve's value by <i>slope</i> nominal points
     per day until the input is terminated.  The input will be
-    attributed to the specified MAD and <i>cause</i>, and will have
-    indirect effects as indicated by <i>p</i> and <i>q</i>.<p>
+    attributed to the specified MAD.<p>
 
-    A subsequent order for the same curve, MAD, and cause will change
+    A subsequent order for the same curve and MAD will change
     the slope of the existing slope input, rather than creating a new
     slope input.<p>
 
@@ -1535,26 +1542,13 @@ order MAD:COOP:LEVEL "Magic Cooperation Level Input" {
     <b>Required.</b>  <<MAD.days>>
     <</parm>>
 
-    <<parm cause "Cause">>
-    <b>Required.</b> <<MAD.cause>>
-    <</parm>>
-
-    <<parm p "Near Factor">>
-    <b>Required.</b> <<MAD.p>>
-    <</parm>>
-
-    <<parm q "Far Factor">>
-    <b>Required.</b> <<MAD.q>>
-    <</parm>>
-    
     <</parmlist>>
 
     <b>This order must be scheduled in advance.</b>
     Enters a magic cooperation level input into GRAM.  The input will
     change the specified curve's value by <i>limit</i> nominal points
     over a period of <i>days</i>.  The input will be attributed to the
-    specified MAD and <i>cause</i>, and will have indirect effects as
-    indicated by <i>p</i> and <i>q</i>.
+    specified MAD.
 }
 
 
@@ -1583,28 +1577,15 @@ order MAD:COOP:SLOPE "Magic Cooperation Slope Input" {
     <b>Required.</b>  <<MAD.slope>>
     <</parm>>
 
-    <<parm cause "Cause">>
-    <b>Required.</b> <<MAD.cause>>
-    <</parm>>
-
-    <<parm p "Near Factor">>
-    <b>Required.</b> <<MAD.p>>
-    <</parm>>
-
-    <<parm q "Far Factor">>
-    <b>Required.</b> <<MAD.q>>
-    <</parm>>
-    
     <</parmlist>>
 
     <b>This order must be scheduled in advance.</b>
     Enters a magic cooperation slope input into GRAM.  The input will
     change the specified curve's value by <i>slope</i> nominal points
     per day until the input is terminated.  The input will be
-    attributed to the specified MAD and <i>cause</i>, and will have
-    indirect effects as indicated by <i>p</i> and <i>q</i>.<p>
+    attributed to the specified MAD.<p>
 
-    A subsequent order for the same curve, MAD, and cause will change
+    A subsequent order for the same curve and MAD will change
     the slope of the existing slope input, rather than creating a new
     slope input.<p>
 

@@ -321,6 +321,9 @@ CREATE TEMPORARY VIEW gui_mads AS
 SELECT mads.id                             AS id,
        mads.id || ' - ' || mads.oneliner   AS longid,
        mads.oneliner                       AS oneliner,
+       mads.cause                          AS cause,
+       format('%5.3f',mads.p)              AS p,
+       format('%5.3f',mads.q)              AS q,
        mads.driver                         AS driver,
        COALESCE(last_input, 0)             AS inputs
 FROM mads

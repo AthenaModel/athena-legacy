@@ -116,6 +116,9 @@ snit::type mad {
     # parmdict     A dictionary of MAD parms
     #
     #    oneliner       The MAD's description.
+    #    cause          "UNIQUE", or an ecause(n) value
+    #    p              A fraction
+    #    q              A fraction
     #
     # Creates a MAD given the parms, which are presumed to be
     # valid.
@@ -129,9 +132,12 @@ snit::type mad {
 
             # FIRST, Put the MAD in the database
             rdb eval {
-                INSERT INTO mads(id,oneliner)
+                INSERT INTO mads(id,oneliner,cause,p,q)
                 VALUES($id,
-                       $oneliner);
+                       $oneliner,
+                       $cause,
+                       $p,
+                       $q);
             }
 
             # NEXT, notify the app.
@@ -203,10 +209,16 @@ snit::type mad {
     # parmdict     A dictionary of order parms
     #
     #   id           The MAD's ID
-    #   oneliner     A new description
+    #   oneliner     A new description, or ""
+    #   cause        "UNIQUE", or an ecause(n) value, or ""
+    #   p            A fraction, or ""
+    #   q            A fraction, or ""
     #
     # Updates the MAD given the parms, which are presumed to be
     # valid.
+    #
+    # Note that cause, p, and q should only be entered if no
+    # magic inputs have been entered for this MAD.
 
     typemethod {mutate update} {parmdict} {
         dict with parmdict {
@@ -221,7 +233,10 @@ snit::type mad {
             # NEXT, Update the MAD
             rdb eval {
                 UPDATE mads
-                SET oneliner = $oneliner
+                SET oneliner = nonempty($oneliner, oneliner),
+                    cause    = nonempty($cause,    cause),
+                    p        = nonempty($p,        p),
+                    q        = nonempty($q,        q)
                 WHERE id=$id
             }
 
@@ -485,19 +500,18 @@ snit::type mad {
     #    mad              MAD ID
     #    level            A qmag(n) value
     #    days             An rdays(n) value
-    #    cause            "DRIVER", or an ecause(n) value
-    #    p                A fraction
-    #    q                A fraction
     #
     # Makes the MAGIC-1-1 rule fire for the given input.
     
     typemethod {mutate satlevel} {parmdict} {
         dict with parmdict {
             # FIRST, get the GRAM driver ID
-            rdb eval {SELECT driver,oneliner FROM mads WHERE id=$mad} {}
+            rdb eval {
+                SELECT driver,oneliner,cause,p,q FROM mads WHERE id=$mad
+            } {}
 
             # NEXT, get the cause.
-            if {$cause eq "DRIVER"} {
+            if {$cause eq "UNIQUE"} {
                 set cause [format "MAD%04d" $mad]
             }
 
@@ -531,19 +545,18 @@ snit::type mad {
     #    c                Concern
     #    mad              MAD ID
     #    slope            A qmag(n) value
-    #    cause            "DRIVER", or an ecause(n) value
-    #    p                A fraction
-    #    q                A fraction
     #
     # Makes the MAGIC-1-2 rule fire for the given input.
     
     typemethod {mutate satslope} {parmdict} {
         dict with parmdict {
             # FIRST, get the GRAM driver ID
-            rdb eval {SELECT driver,oneliner FROM mads WHERE id=$mad} {}
+            rdb eval {
+                SELECT driver,oneliner,cause,p,q FROM mads WHERE id=$mad
+            } {}
 
             # NEXT, get the cause.
-            if {$cause eq "DRIVER"} {
+            if {$cause eq "UNIQUE"} {
                 set cause [format "MAD%04d" $mad]
             }
 
@@ -720,19 +733,18 @@ snit::type mad {
     #    mad              MAD ID
     #    level            A qmag(n) value
     #    days             An rdays(n) value
-    #    cause            "DRIVER", or an ecause(n) value
-    #    p                A fraction
-    #    q                A fraction
     #
     # Makes the MAGIC-2-1 rule fire for the given input.
     
     typemethod {mutate cooplevel} {parmdict} {
         dict with parmdict {
             # FIRST, get the GRAM driver ID
-            rdb eval {SELECT driver,oneliner FROM mads WHERE id=$mad} {}
+            rdb eval {
+                SELECT driver,oneliner,cause,p,q FROM mads WHERE id=$mad
+            } {}
 
             # NEXT, get the cause.
-            if {$cause eq "DRIVER"} {
+            if {$cause eq "UNIQUE"} {
                 set cause [format "MAD%04d" $mad]
             }
 
@@ -767,19 +779,18 @@ snit::type mad {
     #    g                Force Group ID
     #    mad              MAD ID
     #    slope            A qmag(n) value
-    #    cause            "DRIVER", or an ecause(n) value
-    #    p                A fraction
-    #    q                A fraction
     #
     # Makes the MAGIC-2-2 rule fire for the given input.
     
     typemethod {mutate coopslope} {parmdict} {
         dict with parmdict {
             # FIRST, get the GRAM driver ID
-            rdb eval {SELECT driver,oneliner FROM mads WHERE id=$mad} {}
+            rdb eval {
+                SELECT driver,oneliner,cause,p,q FROM mads WHERE id=$mad
+            } {}
 
             # NEXT, get the cause.
-            if {$cause eq "DRIVER"} {
+            if {$cause eq "UNIQUE"} {
                 set cause [format "MAD%04d" $mad]
             }
 
@@ -814,6 +825,32 @@ snit::type mad {
    
     proc detail {label value} {
         dam details [format "%-22s %s\n" $label $value]
+    }
+
+    # RefreshUpdateParm field parmdict
+    #
+    # field     The "cause", "p", or "q" field in MAD:UPDATE
+    # parmdict  The current values of the various fields
+    #
+    # These fields can only be updated if there are no inputs for
+    # this MAD.
+
+    typemethod RefreshUpdateParm {field parmdict} {
+        dict with parmdict {
+            if {$id eq ""} {
+                return
+            }
+
+            set inputs [rdb onecolumn {
+                SELECT inputs FROM gui_mads WHERE id=$id
+            }]
+
+            if {$inputs == 0} {
+                $field configure -state normal
+            } else {
+                $field configure -state disabled
+            }
+        }
     }
 
     # RefreshConcern field parmdict
@@ -856,10 +893,18 @@ order define ::mad MAD:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm oneliner text  "Description" 
+    parm oneliner  text  "Description" 
+    parm cause     enum  "Cause"         -type {ptype ecause+unique} \
+        -defval UNIQUE
+    parm p         text  "Near Factor"   -defval 0.0
+    parm q         text  "Far Factor"    -defval 0.0
+
 } {
     # FIRST, prepare and validate the parameters
-    prepare oneliner   -required
+    prepare oneliner          -required
+    prepare cause    -toupper -required -type {ptype ecause+unique}
+    prepare p                 -required -type rfraction
+    prepare q                 -required -type rfraction
 
     returnOnError -final
 
@@ -927,12 +972,49 @@ order define ::mad MAD:UPDATE {
         -table       gui_mads  \
         -sendstates  {PREP PAUSED}
 
-    parm id       key   "MAD ID" -tags mad -display longid
+    parm id       key   "MAD ID"       -tags mad -display longid
     parm oneliner text  "Description"
+    parm cause    enum  "Cause"         -type {ptype ecause+unique} \
+        -refreshcmd {::mad RefreshUpdateParm}
+    parm p        text  "Near Factor" \
+        -refreshcmd {::mad RefreshUpdateParm}
+    parm q        text  "Far Factor" \
+        -refreshcmd {::mad RefreshUpdateParm}
+
 } {
     # FIRST, prepare the parameters
-    prepare id         -required -type mad
-    prepare oneliner   -required
+    prepare id       -required -type mad
+    prepare oneliner
+    prepare cause    -toupper -type {ptype ecause+unique}
+    prepare p                 -type rfraction
+    prepare q                 -type rfraction
+
+    returnOnError
+
+    # NEXT, cause, p, and q should only be changed if there are no
+    # inputs.
+    set inputs [rdb onecolumn {SELECT inputs FROM gui_mads WHERE id=$id}]
+
+    validate cause {
+        if {$inputs > 0} {
+            reject cause \
+                "Cannot change cause once magic inputs have been made."
+        }
+    }
+
+    validate p {
+        if {$inputs > 0} {
+            reject p \
+                "Cannot change near factor once magic inputs have been made."
+        }
+    }
+
+    validate q {
+        if {$inputs > 0} {
+            reject q \
+                "Cannot change far factor once magic inputs have been made."
+        }
+    }
 
     returnOnError -final
 
@@ -1066,10 +1148,6 @@ order define ::mad MAD:SAT:LEVEL {
     parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
     parm limit     text  "Limit"
     parm days      text  "Realization Time" -defval 2.0
-    parm cause     enum  "Cause"         -type {ptype ecause+driver}
-    parm p         text  "Near Factor"                -defval 0.0
-    parm q         text  "Far Factor"                 -defval 0.0
-    
 } {
     # FIRST, prepare the parameters
     prepare n     -toupper -required -type nbhood
@@ -1078,9 +1156,6 @@ order define ::mad MAD:SAT:LEVEL {
     prepare mad            -required -type mad
     prepare limit -toupper -required -type qmag -xform [list qmag value]
     prepare days           -required -type rdays
-    prepare cause -toupper -required -type {ptype ecause+driver}
-    prepare p              -required -type rfraction
-    prepare q              -required -type rfraction
 
     returnOnError
 
@@ -1121,9 +1196,6 @@ order define ::mad MAD:SAT:SLOPE {
         -refreshcmd [list ::mad RefreshConcern]
     parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
     parm slope     text  "Slope"
-    parm cause     enum  "Cause"         -type {ptype ecause+driver}
-    parm p         text  "Near Factor"   -defval 0.0
-    parm q         text  "Far Factor"    -defval 0.0
 } {
     # FIRST, prepare the parameters
     prepare n     -toupper -required -type nbhood
@@ -1131,9 +1203,6 @@ order define ::mad MAD:SAT:SLOPE {
     prepare c     -toupper -required -type {ptype c}
     prepare mad            -required -type mad
     prepare slope -toupper -required -type qmag -xform [list qmag value]
-    prepare cause -toupper -required -type {ptype ecause+driver}
-    prepare p              -required -type rfraction
-    prepare q              -required -type rfraction
 
     returnOnError
 
@@ -1255,10 +1324,6 @@ order define ::mad MAD:COOP:LEVEL {
     parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
     parm limit     text  "Limit"
     parm days      text  "Days"                       -defval 2.0
-    parm cause     enum  "Cause"         -type {ptype ecause+driver}
-    parm p         text  "Near Factor"                -defval 0.0
-    parm q         text  "Far Factor"                 -defval 0.0
-    
 } {
     # FIRST, prepare the parameters
     prepare n     -toupper -required -type nbhood
@@ -1267,9 +1332,6 @@ order define ::mad MAD:COOP:LEVEL {
     prepare mad            -required -type mad
     prepare limit -toupper -required -type qmag -xform [list qmag value]
     prepare days           -required -type rdays
-    prepare cause -toupper -required -type {ptype ecause+driver}
-    prepare p              -required -type rfraction
-    prepare q              -required -type rfraction
 
     returnOnError -final
 
@@ -1295,10 +1357,6 @@ order define ::mad MAD:COOP:SLOPE {
     parm g         enum  "With Group"    -tags group -type frcgroup
     parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
     parm slope     text  "Slope"
-    parm cause     enum  "Cause"         -type {ptype ecause+driver}
-    parm p         text  "Near Factor"                -defval 0.0
-    parm q         text  "Far Factor"                 -defval 0.0
-    
 } {
     # FIRST, prepare the parameters
     prepare n     -toupper -required -type nbhood
@@ -1306,9 +1364,6 @@ order define ::mad MAD:COOP:SLOPE {
     prepare g     -toupper -required -type frcgroup
     prepare mad            -required -type mad
     prepare slope -toupper -required -type qmag -xform [list qmag value]
-    prepare cause -toupper -required -type {ptype ecause+driver}
-    prepare p              -required -type rfraction
-    prepare q              -required -type rfraction
 
     returnOnError -final
 
