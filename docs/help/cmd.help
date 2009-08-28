@@ -143,6 +143,16 @@ command "call" {
     number of standard Tcl commands may also be used.
 }
 
+#=======================================================================
+# clear command
+
+command "clear" {
+    <<syntax>>
+
+    Clears the contents of the CLI's scrollback buffer.
+}
+
+
 
 #=======================================================================
 # debug command

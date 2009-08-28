@@ -1924,6 +1924,16 @@ snit::widget appwin {
     method puts {text} {
         $msgline puts $text
     }
+
+    # cli clear
+    #
+    # Clears the contents of the CLI scrollback buffer
+
+    method {cli clear} {} {
+        require {$cli ne ""} "No CLI in this window: $win"
+
+        $cli clear
+    }
 }
 
 

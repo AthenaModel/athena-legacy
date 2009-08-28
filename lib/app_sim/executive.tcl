@@ -76,6 +76,10 @@ snit::type executive {
         $interp smartalias = 1 - {expression...} \
             ::expr
 
+        # clear
+        $interp smartalias clear 0 0 {} \
+            [list .main cli clear]
+
         # debug
         $interp smartalias debug 0 0 {} \
             [list ::marsgui::debugger new]
