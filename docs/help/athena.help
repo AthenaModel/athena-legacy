@@ -59,6 +59,7 @@ page home "Athena Help" {} {
          <li> <<cref reports>>
          <li> <<cref cmd>>
          <li> <<cref parmdb>>
+         <li> <<cref prefs>>
          <li> <<cref concepts>>
          </ul>
     </ul><p>
@@ -136,6 +137,7 @@ include orders.help
 include reports.help
 include cmd.help
 include parmdb.help
+include prefs.help
 include concepts.help
 
 

@@ -178,6 +178,15 @@ and digits, beginning with a letter.<p>
 Validates and returns the <i>name</i>.  On error, throws
 an error with <code>-errorcode</code> <b>INVALID</b>.<p>
 
+<<defitem "iminlines validate" {iminlines validate <i>quantity</i>}>>
+
+The minimum value for the
+<<xref prefs(5) cli.maxlines>> preferences parameter.  An integer
+number no less than 100.<p>
+
+Validates and returns <i>quantity</i>.  On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
 <<defitem "ipositive validate" {ipositive validate <i>quantity</i>}>>
 
 Integer quantity type: a positive integer number.<p>

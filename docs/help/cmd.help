@@ -366,9 +366,8 @@ command "parm set" {
 command "prefs" {
     <<syntax <i>subcommand</i> ?<i>args...</i>?>>
 
-    The <b>prefs</b> command sets and queries user preference
-    parameters, which are documented in the prefs(5) man page. The
-    user preferences are distinct from the <<cref parmdb>> edited
+    The <b>prefs</b> command sets and queries <<cref prefs>>.
+    Preference parameters are distinct from the <<cref parmdb>> edited
     using the <<cmdref parm>> command in that they apply to the application
     rather than to individual scenarios. Therefore,<p>
 
