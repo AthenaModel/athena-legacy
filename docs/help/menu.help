@@ -167,6 +167,13 @@ menuitem "File/Export as XML..." {
     <<cref "Scenario Preparation">> state.
 }
 
+menuitem "File/Save CLI Scrollback Buffer..." {
+    Saves the contents of the main window's Command Line Interface
+    (CLI) scrollback buffer to disk as a text file.<p>
+
+    This menu item appears only in the main application window.
+}
+
 menuitem "File/Import Map..." {
     Imports an image file in JPEG, GIF, or PNG format to be used as
     a map background for the scenario.  Any image file can be used.

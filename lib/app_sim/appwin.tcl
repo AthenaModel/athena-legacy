@@ -417,6 +417,13 @@ snit::widget appwin {
                  -underline 0                                \
                  -command   [mymethod FileExportAsXml]]
 
+        if {$options(-main)} {
+            $mnu add command                               \
+                -label     "Save CLI Scrollback Buffer..." \
+                -underline 5                               \
+                -command   [mymethod FileSaveCLI]
+        }
+
         $mnu add separator
 
         cond::orderIsValid control                  \
@@ -1262,6 +1269,63 @@ snit::widget appwin {
         # NEXT, Save the scenario to the current file.
         return [scenario save]
     }
+
+    # FileSaveCLI
+    #
+    # Prompts the user to save the CLI scrollback buffer to disk
+    # as a text file.
+    #
+    # TBD: This has become a standard pattern (catch, try/finally,
+    # logging errors, etc).  Consider packaging it up as a standard
+    # save file mechanism.
+
+    method FileSaveCLI {} {
+        # FIRST, query for the file name.  If the file already
+        # exists, the dialog will automatically query whether to 
+        # overwrite it or not. Returns 1 on success and 0 on failure.
+
+        set filename [tk_getSaveFile                                   \
+                          -parent      $win                            \
+                          -title       "Save CLI Scrollback Buffer As" \
+                          -initialfile "cli.txt"                       \
+                          -filetypes   {
+                              {{Text File} {.txt} }
+                          }]
+
+        # NEXT, If none, they cancelled.
+        if {$filename eq ""} {
+            return 0
+        }
+
+        # NEXT, Save the CLI using this name
+        if {[catch {
+            try {
+                set f [open $filename w]
+                puts $f [$cli get 1.0 end]
+            } finally {
+                close $f
+            }
+        } result opts]} {
+            log warning app "Could not save CLI buffer: $result"
+            log error app [dict get $opts -errorinfo]
+            app error {
+                |<--
+                Could not save the CLI buffer to
+                
+                    $filename
+
+                $result
+            }
+            return
+        }
+
+        log normal scenario "Saved CLI Buffer to: $filename"
+
+        app puts "Saved CLI Buffer to [file tail $filename]"
+
+        return
+    }
+
 
     # FileImportMap
     #

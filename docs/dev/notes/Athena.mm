@@ -2,12 +2,6 @@
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
-<node CREATED="1238449599668" ID="Freemind_Link_228057198" MODIFIED="1245882375350" TEXT="Magic satisfaction inputs and adjustments">
-<icon BUILTIN="full-2"/>
-</node>
-<node CREATED="1238449608020" ID="Freemind_Link_1639950112" MODIFIED="1245882379478" TEXT="Magic cooperation inputs and adjustments">
-<icon BUILTIN="full-2"/>
-</node>
 <node CREATED="1243027998597" ID="Freemind_Link_1993004622" MODIFIED="1245882390862" TEXT="ORG active/inactive flag">
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1243028014804" ID="Freemind_Link_290938405" MODIFIED="1243028020317" TEXT="Set as in JOUT rules"/>
@@ -50,12 +44,10 @@
 </node>
 </node>
 <node CREATED="1239210064249" ID="Freemind_Link_1216819379" MODIFIED="1239210065909" POSITION="right" TEXT="GRAM">
-<node CREATED="1241215740273" ID="Freemind_Link_1519643380" MODIFIED="1245882867110" TEXT="Speed up gram_value update on cancel">
-<icon BUILTIN="full-3"/>
+<node CREATED="1245882571968" ID="Freemind_Link_1418176995" MODIFIED="1251396516822" TEXT="GRAM dump executive commands">
+<icon BUILTIN="full-1"/>
 </node>
-<node CREATED="1245882571968" ID="Freemind_Link_1418176995" MODIFIED="1245882875317" TEXT="GRAM dump executive commands">
-<icon BUILTIN="full-4"/>
-</node>
+<node CREATED="1241215740273" ID="Freemind_Link_1519643380" MODIFIED="1251396569302" TEXT="Speed up gram_value update on cancel"/>
 <node CREATED="1241215767617" ID="Freemind_Link_1703805627" MODIFIED="1241215779674" TEXT="Accumulate acontrib directly into gram_contribs">
 <node CREATED="1241215785360" ID="Freemind_Link_276110028" MODIFIED="1241215789775" TEXT="If it&apos;s faster to do so."/>
 </node>
@@ -64,8 +56,7 @@
 <node CREATED="1241215883249" ID="Freemind_Link_1735758744" MODIFIED="1241215886122" TEXT="Sat vs Coop"/>
 </node>
 <node CREATED="1247762885741" ID="Freemind_Link_1952865263" MODIFIED="1247762891249" TEXT="Smaller epsilons?"/>
-<node CREATED="1239210066312" ID="Freemind_Link_854754922" MODIFIED="1247762787319" TEXT="Slope effect thresholds">
-<icon BUILTIN="messagebox_warning"/>
+<node CREATED="1239210066312" ID="Freemind_Link_854754922" MODIFIED="1251396572166" TEXT="Slope effect thresholds">
 <node CREATED="1239210082792" ID="Freemind_Link_319482527" MODIFIED="1247762797557" TEXT="Threshold other than +/- 100"/>
 <node CREATED="1239210116617" ID="Freemind_Link_94705808" MODIFIED="1247762812375" TEXT="Effect does not contribute if level exceeds threshold"/>
 <node CREATED="1247762822989" ID="Freemind_Link_1630695005" MODIFIED="1247762846166" TEXT="Effects do NOT scale to threshold">
@@ -75,6 +66,9 @@
 <node CREATED="1239210156872" ID="Freemind_Link_1635068076" MODIFIED="1239210189954" TEXT="Slope increasing to 0.0"/>
 <node CREATED="1239210174983" ID="Freemind_Link_1430976267" MODIFIED="1239210183954" TEXT="Slope decreasing to 0.0"/>
 </node>
+</node>
+<node CREATED="1251396967991" ID="Freemind_Link_499442037" MODIFIED="1251396990189" TEXT="Use numeric indices rather than strings when possible?">
+<icon BUILTIN="help"/>
 </node>
 <node CREATED="1239210066312" ID="Freemind_Link_1735127823" MODIFIED="1247762875474" TEXT="Slope effect bounds">
 <icon BUILTIN="messagebox_warning"/>
@@ -153,21 +147,20 @@
 </node>
 </node>
 <node CREATED="1237477511538" ID="Freemind_Link_894463638" MODIFIED="1237477524514" POSITION="right" TEXT="Scenario">
-<node CREATED="1243546243278" ID="Freemind_Link_1855932461" MODIFIED="1243546308604" TEXT="&quot;local&quot; flag should be on CIV and ORG groups as well">
-<icon BUILTIN="help"/>
-</node>
-<node CREATED="1241547209100" ID="Freemind_Link_874223123" MODIFIED="1245882889854" TEXT="nbrel effects_delay">
-<icon BUILTIN="full-4"/>
+<node CREATED="1241547209100" ID="Freemind_Link_874223123" MODIFIED="1251396550222" TEXT="nbrel effects_delay">
+<icon BUILTIN="full-1"/>
 <node CREATED="1241547214268" ID="Freemind_Link_741184539" MODIFIED="1241547235353" TEXT="Athena allows effects_delay to be non-zero for HERE."/>
 <node CREATED="1241547225964" ID="Freemind_Link_1772608855" MODIFIED="1243546140842" TEXT="GRAM assumes effects_delay is 0 for HERE."/>
 <node CREATED="1243546142815" ID="Freemind_Link_1268107626" MODIFIED="1243546151992" TEXT="Require effects_delay to be 0.0 in Athena"/>
 </node>
-<node CREATED="1237477586106" ID="Freemind_Link_516563511" MODIFIED="1245882889856" TEXT="Require rel=1.0 when f=g">
-<icon BUILTIN="full-4"/>
+<node CREATED="1237477586106" ID="Freemind_Link_516563511" MODIFIED="1251396555078" TEXT="Require rel=1.0 when f=g">
+<icon BUILTIN="full-1"/>
 <node CREATED="1237477606906" ID="Freemind_Link_1462718131" MODIFIED="1243546199960" TEXT="Update the RELATIONSHIP:* orders and browser"/>
 </node>
-<node CREATED="1237480308963" ID="Freemind_Link_1212698036" MODIFIED="1245882899653" TEXT="Reciprocal flag in *:UPDATE">
-<icon BUILTIN="full-5"/>
+<node CREATED="1243546243278" ID="Freemind_Link_1855932461" MODIFIED="1243546308604" TEXT="&quot;local&quot; flag should be on CIV and ORG groups as well">
+<icon BUILTIN="help"/>
+</node>
+<node CREATED="1237480308963" ID="Freemind_Link_1212698036" MODIFIED="1251396566598" TEXT="Reciprocal flag in *:UPDATE">
 <node CREATED="1237480368626" ID="Freemind_Link_285045741" MODIFIED="1237480382381" TEXT="Sets same value for mn and nm, nfg and ngf"/>
 <node CREATED="1237480331738" ID="Freemind_Link_1725501118" MODIFIED="1237480344757" TEXT="NBHOOD:RELATIONSHIP:UPDATE"/>
 <node CREATED="1237480346154" ID="Freemind_Link_377220162" MODIFIED="1237480349469" TEXT="RELATIONSHIP:UPDATE"/>
@@ -176,9 +169,6 @@
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1237480984002" ID="Freemind_Link_151089338" MODIFIED="1237480998630" TEXT="Exports the current map background as an image file"/>
 </node>
-<node CREATED="1241216225071" ID="Freemind_Link_1235588521" MODIFIED="1243459068126" TEXT="Naming conventions for scenario tables vs. model tables">
-<icon BUILTIN="help"/>
-</node>
 <node CREATED="1237482120338" FOLDED="true" ID="Freemind_Link_1183885189" MODIFIED="1238104926493" TEXT="Orders to rename entities">
 <icon BUILTIN="help"/>
 <node CREATED="1237482138802" ID="Freemind_Link_1495570394" MODIFIED="1237482143838" TEXT="Useful; can of worms."/>
@@ -186,8 +176,8 @@
 </node>
 </node>
 <node CREATED="1243547508955" ID="Freemind_Link_1801589990" MODIFIED="1243547510924" POSITION="right" TEXT="Reports">
-<node CREATED="1243547511644" ID="Freemind_Link_856756919" MODIFIED="1245882527534" TEXT="Scenario Report">
-<icon BUILTIN="full-2"/>
+<node CREATED="1243547511644" ID="Freemind_Link_856756919" MODIFIED="1251396596622" TEXT="Scenario Report">
+<icon BUILTIN="full-1"/>
 <node CREATED="1243547523500" ID="Freemind_Link_241253623" MODIFIED="1243547529589" TEXT="Documents Scenario in detail"/>
 <node CREATED="1243547530219" ID="Freemind_Link_1958129409" MODIFIED="1243547554469" TEXT="Possible not a report as such, but an HTML document like JNEM&apos;s dbdoc(n)"/>
 </node>
@@ -195,6 +185,25 @@
 <icon BUILTIN="full-2"/>
 <node CREATED="1243547565707" ID="Freemind_Link_1217705822" MODIFIED="1243547571125" TEXT="Like JNEM&apos;s satcurve report"/>
 <node CREATED="1249398777882" ID="Freemind_Link_1569066490" MODIFIED="1249398785036" TEXT="Still need contributions to cooperation"/>
+</node>
+<node CREATED="1251396710376" FOLDED="true" ID="Freemind_Link_325842854" MODIFIED="1251396720149" TEXT="Can&apos;t request reports in Snapshot Mode">
+<node CREATED="1251396720488" ID="Freemind_Link_1366299808" MODIFIED="1251396743217" TEXT="You can&apos;t change the RDB during Snapshot mode"/>
+<node CREATED="1251396743591" ID="Freemind_Link_601133329" MODIFIED="1251396748289" TEXT="Reports are saved in the RDB"/>
+<node CREATED="1251396753319" ID="Freemind_Link_1254781291" MODIFIED="1251396757589" TEXT="Fixes">
+<node CREATED="1251396758440" ID="Freemind_Link_305420263" MODIFIED="1251396768261" TEXT="Lose reports on Snapshot change">
+<node CREATED="1251396768583" ID="Freemind_Link_465097699" MODIFIED="1251396775969" TEXT="Allow reports to be requested"/>
+<node CREATED="1251396776919" ID="Freemind_Link_1774976860" MODIFIED="1251396791681" TEXT="When returning to another snapshot, the new reports will go away."/>
+<node CREATED="1251396793000" ID="Freemind_Link_226623297" MODIFIED="1251396817958" TEXT="Could warn the user using a message dialog when&#xa;the request a report while in Snapshot&#xa;"/>
+</node>
+<node CREATED="1251396820023" ID="Freemind_Link_266133164" MODIFIED="1251396841669" TEXT="Key reports on time tick + serial number">
+<node CREATED="1251396842647" ID="Freemind_Link_1592667854" MODIFIED="1251396851105" TEXT="Then, reports can be added at any tick"/>
+<node CREATED="1251396852087" ID="Freemind_Link_833508708" MODIFIED="1251396866257" TEXT="Keep reports out of the Snapshot, like we do with contribs"/>
+<node CREATED="1251396867095" ID="Freemind_Link_1619031679" MODIFIED="1251396881205" TEXT="Report browser updates">
+<node CREATED="1251396881543" ID="Freemind_Link_1089145347" MODIFIED="1251396890177" TEXT="Sort on tick+serial"/>
+<node CREATED="1251396890487" ID="Freemind_Link_1585781630" MODIFIED="1251396904081" TEXT="Avoid reports for ticks later than now"/>
+</node>
+</node>
+</node>
 </node>
 </node>
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
@@ -207,11 +216,8 @@
 <node CREATED="1243546337742" ID="Freemind_Link_1648827364" MODIFIED="1243546346296" TEXT="Fast: no need to save snapshot at time t"/>
 </node>
 <node CREATED="1241215894576" ID="Freemind_Link_1711563604" MODIFIED="1241215901322" TEXT="More GRAM browsers">
-<node CREATED="1243546351758" ID="Freemind_Link_672128754" MODIFIED="1245882556366" TEXT="Drivers">
-<icon BUILTIN="full-2"/>
-</node>
-<node CREATED="1243546354990" ID="Freemind_Link_53932115" MODIFIED="1245882560406" TEXT="Effects">
-<icon BUILTIN="messagebox_warning"/>
+<node CREATED="1243546351758" ID="Freemind_Link_672128754" MODIFIED="1251396614478" TEXT="Drivers"/>
+<node CREATED="1243546354990" ID="Freemind_Link_53932115" MODIFIED="1251396618237" TEXT="Effects">
 <node CREATED="1243546374830" ID="Freemind_Link_1570233797" MODIFIED="1243546377470" TEXT="Sat">
 <node CREATED="1243546377901" ID="Freemind_Link_754268158" MODIFIED="1243546379016" TEXT="Slope"/>
 <node CREATED="1243546379581" ID="Freemind_Link_425307736" MODIFIED="1243546380951" TEXT="Level"/>
@@ -222,8 +228,7 @@
 </node>
 </node>
 </node>
-<node CREATED="1238513070204" FOLDED="true" ID="Freemind_Link_66077028" MODIFIED="1245882910429" TEXT="Plot Tab">
-<icon BUILTIN="full-4"/>
+<node CREATED="1238513070204" FOLDED="true" ID="Freemind_Link_66077028" MODIFIED="1251396628181" TEXT="Plot Tab">
 <node CREATED="1238513076429" ID="Freemind_Link_1251215369" MODIFIED="1238513086791" TEXT="Scrolling list of strip charts"/>
 <node CREATED="1238513112382" FOLDED="true" ID="Freemind_Link_999492866" MODIFIED="1238513123384" TEXT="Time Series View">
 <node CREATED="1238513123757" ID="Freemind_Link_474710164" MODIFIED="1238513127655" TEXT="SQL View"/>
@@ -246,11 +251,10 @@
 <node CREATED="1238513147901" ID="Freemind_Link_1318827185" MODIFIED="1238513179639" TEXT="Displays one or more time series views"/>
 </node>
 </node>
-<node CREATED="1241216009376" ID="Freemind_Link_679327480" MODIFIED="1245882597310" TEXT="Splash screen/About box">
-<icon BUILTIN="full-2"/>
-</node>
-<node CREATED="1237479513679" ID="Freemind_Link_123674584" MODIFIED="1245882918598" TEXT="appwin(sim): Windows Menu">
-<icon BUILTIN="full-5"/>
+<node CREATED="1241216009376" ID="Freemind_Link_679327480" MODIFIED="1251396622806" TEXT="Splash screen/About box"/>
+<node CREATED="1237479513679" ID="Freemind_Link_123674584" MODIFIED="1251396630902" TEXT="appwin(sim): Windows Menu"/>
+<node CREATED="1251396681351" ID="Freemind_Link_1111624984" MODIFIED="1251396687749" TEXT="Order History Browser">
+<node CREATED="1251396688056" ID="Freemind_Link_1791500418" MODIFIED="1251396702849" TEXT="Add clear, save, etc. buttons"/>
 </node>
 <node CREATED="1237479823575" FOLDED="true" ID="Freemind_Link_1856908617" MODIFIED="1245882618094" TEXT="Preserve GUI layout">
 <icon BUILTIN="messagebox_warning"/>
@@ -427,6 +431,13 @@
 </node>
 </node>
 <node CREATED="1237479872766" ID="Freemind_Link_307055918" MODIFIED="1237479878826" POSITION="right" TEXT="Infrastructure">
+<node CREATED="1251473804325" ID="Freemind_Link_76548124" MODIFIED="1251473812432" TEXT="External Snapshots">
+<node CREATED="1251473812753" ID="Freemind_Link_1951864560" MODIFIED="1251473844122" TEXT="Save snapshots as external SQLite3 files."/>
+<node CREATED="1251473850592" ID="Freemind_Link_986438176" MODIFIED="1251473867978" TEXT="This will allow snapshots to be opened in tandem with the RDB"/>
+<node CREATED="1251473868848" ID="Freemind_Link_785507760" MODIFIED="1251473876122" TEXT="It should also be faster."/>
+<node CREATED="1251473879616" ID="Freemind_Link_801988434" MODIFIED="1251473892330" TEXT="When saving the scenario, snapshots can be saved in the snapshots table, as now."/>
+</node>
+<node CREATED="1251396942520" ID="Freemind_Link_51373887" MODIFIED="1251396950321" TEXT="Delete unneeded init/reconfigure methods"/>
 <node CREATED="1241215963136" ID="Freemind_Link_651437895" MODIFIED="1245882765790" TEXT="editcode command">
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1241215972800" ID="Freemind_Link_1463898670" MODIFIED="1241215982895" TEXT="Use built-in editor; accumulate changes."/>
@@ -464,6 +475,12 @@
 </node>
 </node>
 <node CREATED="1238697459940" ID="Freemind_Link_946664107" MODIFIED="1238697464078" POSITION="right" TEXT="GUI Infrastructure">
+<node CREATED="1251397016743" FOLDED="true" ID="Freemind_Link_1167127" MODIFIED="1251397043233" TEXT="Help Browser Status Bar">
+<node CREATED="1251397021144" ID="Freemind_Link_362409140" MODIFIED="1251397031361" TEXT="Add status bar that shows name of linked page"/>
+</node>
+<node CREATED="1251397054567" FOLDED="true" ID="Freemind_Link_1501672783" MODIFIED="1251397060357" TEXT="Help Browser Search">
+<node CREATED="1251397060599" ID="Freemind_Link_1483085231" MODIFIED="1251397066465" TEXT="Add full-text search to the help browser"/>
+</node>
 <node CREATED="1237479433118" FOLDED="true" ID="Freemind_Link_491578520" MODIFIED="1245882780238" TEXT="Cell-based editing in browsers">
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1237479441630" ID="Freemind_Link_1508483203" MODIFIED="1237479447402" TEXT="Interaction Logic"/>
@@ -478,8 +495,7 @@
 </node>
 </node>
 <node CREATED="1237479138614" ID="Freemind_Link_1692010973" MODIFIED="1237479140586" POSITION="right" TEXT="App">
-<node CREATED="1237479175966" FOLDED="true" ID="Freemind_Link_1542399623" MODIFIED="1245882790414" TEXT="Session Operations">
-<icon BUILTIN="full-4"/>
+<node CREATED="1237479175966" FOLDED="true" ID="Freemind_Link_1542399623" MODIFIED="1251396645278" TEXT="Session Operations">
 <node CREATED="1238777425532" FOLDED="true" ID="Freemind_Link_41549205" MODIFIED="1238777430760" TEXT="Rename current session">
 <node CREATED="1238777431084" ID="Freemind_Link_1718377270" MODIFIED="1238777436118" TEXT="Named sessions aren&apos;t purged"/>
 </node>
