@@ -347,6 +347,10 @@ snit::widget appwin {
         notifier bind ::sim      <Time>          $self [mymethod SimTime]
         notifier bind ::sim      <Speed>         $self [mymethod SimSpeed]
 
+        if {$options(-main)} {
+            notifier bind ::app <Prefs> $self [mymethod AppPrefs]
+        }
+
         # NEXT, Prepare to receive window events
         bind $content <<NotebookTabChanged>> [mymethod Reconfigure]
 
@@ -978,10 +982,11 @@ snit::widget appwin {
 
         # NEXT, add the CLI to the paner, if needed.
         if {$options(-main)} {
-            install cli using cli $win.paner.cli   \
-                -height    8                       \
-                -relief    flat                    \
-                -promptcmd [mymethod CliPrompt]    \
+            install cli using cli $win.paner.cli    \
+                -height    8                        \
+                -relief    flat                     \
+                -maxlines  [prefs get cli.maxlines] \
+                -promptcmd [mymethod CliPrompt]     \
                 -evalcmd   [list ::executive eval]
             
             $win.paner add $win.paner.cli \
@@ -1856,6 +1861,21 @@ snit::widget appwin {
         # Display current speed.
         if {round($info(simspeed)) != [sim speed]} {
             set info(simspeed) [sim speed]
+        }
+    }
+
+    # AppPrefs parm
+    #
+    # parm     Name of the preferences parm, or ""
+    #
+    # This routine is called when application preferences have changed.
+
+    method AppPrefs {parm} {
+        switch -exact -- $parm {
+            cli.maxlines -
+            ""           {
+                $cli configure -maxlines [prefs get cli.maxlines]
+            }
         }
     }
 

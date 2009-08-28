@@ -37,10 +37,15 @@ snit::type ::projectlib::prefs {
     #-------------------------------------------------------------------
     # Public typemethods
 
-    delegate typemethod get      to ps
-    delegate typemethod names    to ps
-    delegate typemethod manlinks to ps
-    delegate typemethod manpage  to ps
+    delegate typemethod cget       to ps
+    delegate typemethod configure  to ps
+    delegate typemethod docstring  to ps
+    delegate typemethod get        to ps
+    delegate typemethod getdefault to ps
+    delegate typemethod items      to ps
+    delegate typemethod names      to ps
+    delegate typemethod manlinks   to ps
+    delegate typemethod manpage    to ps
 
 
     # init
@@ -57,6 +62,16 @@ snit::type ::projectlib::prefs {
         set ps [parmset %AUTO%]
 
         # NEXT, define parameters
+
+        $ps subset cli {
+            Parameters which affect the Command Line Interface (CLI).
+        }
+
+        $ps define cli.maxlines ::projectlib::iminlines 500 {
+            The maximum number of lines of text to be retained in the
+            main window's command line interface scrollback buffer:
+            an integer number no less than 100.
+        }
 
         $ps subset session {
             Parameters which affect session management.

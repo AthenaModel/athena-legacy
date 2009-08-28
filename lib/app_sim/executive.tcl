@@ -84,6 +84,49 @@ snit::type executive {
         $interp smartalias debug 0 0 {} \
             [list ::marsgui::debugger new]
 
+        # dump
+        $interp ensemble dump
+
+
+        # dump coop
+        $interp ensemble {dump coop}
+
+        # dump coop levels
+        $interp smartalias {dump coop levels} 0 1 {?driver?} \
+            [list ::aram dump coop levels]
+
+        # dump coop level
+        $interp smartalias {dump coop level} 3 3 {n f g} \
+            [mytypemethod dump coop level]
+
+        # dump coop slopes
+        $interp smartalias {dump coop slopes} 0 1 {?driver?} \
+            [list ::aram dump coop slopes]
+
+        # dump coop slope
+        $interp smartalias {dump coop slope} 3 3 {n f g} \
+            [mytypemethod dump coop slope]
+
+        # dump sat
+        $interp ensemble {dump sat}
+
+        # dump sat levels
+        $interp smartalias {dump sat levels} 0 1 {?driver?} \
+            [list ::aram dump sat levels]
+
+        # dump sat level
+        $interp smartalias {dump sat level} 3 3 {n g c} \
+            [mytypemethod dump sat level]
+
+        # dump sat slopes
+        $interp smartalias {dump sat slopes} 0 1 {?driver?} \
+            [list ::aram dump sat slopes]
+
+        # dump sat slope
+        $interp smartalias {dump sat slope} 3 3 {n g c} \
+            [mytypemethod dump sat slope]
+
+
         # errtrace
         $interp smartalias errtrace 0 0 {} \
             [mytypemethod errtrace]
@@ -192,7 +235,49 @@ snit::type executive {
     #-------------------------------------------------------------------
     # Private typemethods
 
-    # TBD
+    # dump coop level n f g
+    #
+    # Capitalizes the arguments and forwards to GRAM.
+
+    typemethod {dump coop level} {n f g} {
+        aram dump coop level \
+            [string toupper $n] \
+            [string toupper $f] \
+            [string toupper $g]
+    }
+
+    # dump coop slope n f g
+    #
+    # Capitalizes the arguments and forwards to GRAM.
+
+    typemethod {dump coop slope} {n f g} {
+        aram dump coop slope \
+            [string toupper $n] \
+            [string toupper $f] \
+            [string toupper $g]
+    }
+
+    # dump sat level n g c
+    #
+    # Capitalizes the arguments and forwards to GRAM.
+
+    typemethod {dump sat level} {n g c} {
+        aram dump sat level \
+            [string toupper $n] \
+            [string toupper $g] \
+            [string toupper $c]
+    }
+
+    # dump sat slope n g c
+    #
+    # Capitalizes the arguments and forwards to GRAM.
+
+    typemethod {dump sat slope} {n g c} {
+        aram dump sat slope \
+            [string toupper $n] \
+            [string toupper $g] \
+            [string toupper $c]
+    }
 
     #-------------------------------------------------------------------
     # Public typemethods

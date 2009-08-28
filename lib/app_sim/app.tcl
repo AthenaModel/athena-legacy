@@ -98,6 +98,9 @@ snit::type app {
             prefs load
         }
 
+        prefs configure -notifycmd \
+            [list notifier send ::app <Prefs>]
+
         # NEXT, purge old working directories
         # TBD: If this proves slow, we can make it an idle process.
         workdir purge [prefs get session.purgeHours]

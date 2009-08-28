@@ -592,6 +592,10 @@ snit::type ::projectlib::typewrapper {
 # iquantity: non-negative integers
 ::projectlib::typewrapper ::projectlib::iquantity snit::integer -min 0
 
+# iminlines: Minimum value for prefs.maxlines
+::projectlib::typewrapper ::projectlib::iminlines snit::integer -min 100
+
+
 # ingpopulation: positive integers
 ::projectlib::typewrapper ::projectlib::ingpopulation snit::integer -min 1
 

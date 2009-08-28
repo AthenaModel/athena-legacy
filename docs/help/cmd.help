@@ -166,6 +166,148 @@ command "debug" {
 }
 
 #=======================================================================
+# dump commands
+
+command "dump" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+
+    This command is used to dump debugging information to the CLI, 
+    particularly data that is not available on the various browser
+    tabs.  It has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+# dump coop
+
+command "dump coop" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+    
+    This command allows dumps information related to GRAM's 
+    cooperation model.  It has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+# dump coop levels
+
+command "dump coop levels" {
+    <<syntax ?<i>driver</i>?>>
+    
+    Dumps a list of all active and future direct and indirect cooperation 
+    level effects, in tabular format.  If <i>driver</i> is specified
+    it must be a GRAM driver ID; the command will then dump only the
+    effects related to that driver.
+}
+
+#-----------------------------------------------------------------------
+# dump coop level
+
+command "dump coop level" {
+    <<syntax <i>n f g</i> >>
+    
+    Dumps a list of all direct and indirect cooperation 
+    level effects that currently affect the cooperation of 
+    civilian group <i>f</i> with force group <i>g</i> in neighborhood 
+    <i>n</i>.  The effects are grouped by cause, so that it is
+    easy to determine that multiple effects with the same cause
+    are handled properly.
+}
+
+#-----------------------------------------------------------------------
+# dump coop slopes
+
+command "dump coop slopes" {
+    <<syntax ?<i>driver</i>?>>
+    
+    Dumps a list of all active and future direct and indirect cooperation 
+    slope effects, in tabular format.  If <i>driver</i> is specified
+    it must be a GRAM driver ID; the command will then dump only the
+    effects related to that driver.
+}
+
+#-----------------------------------------------------------------------
+# dump coop slope
+
+command "dump coop slope" {
+    <<syntax <i>n f g</i> >>
+    
+    Dumps a list of all direct and indirect cooperation 
+    slope effects that currently affect the cooperation of 
+    civilian group <i>f</i> with force group <i>g</i> in neighborhood 
+    <i>n</i>.  The effects are grouped by cause, so that it is
+    easy to determine that multiple effects with the same cause
+    are handled properly.
+}
+
+#-----------------------------------------------------------------------
+# dump sat
+
+command "dump sat" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+    
+    This command allows dumps information related to GRAM's 
+    satisfaction model.  It has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+# dump sat levels
+
+command "dump sat levels" {
+    <<syntax ?<i>driver</i>?>>
+    
+    Dumps a list of all active and future direct and indirect satisfaction 
+    level effects, in tabular format.  If <i>driver</i> is specified
+    it must be a GRAM driver ID; the command will then dump only the
+    effects related to that driver.
+}
+
+#-----------------------------------------------------------------------
+# dump sat level
+
+command "dump sat level" {
+    <<syntax <i>n f g</i> >>
+    
+    Dumps a list of all direct and indirect satisfaction 
+    level effects that currently affect the satisfaction of 
+    civilian group <i>f</i> with force group <i>g</i> in neighborhood 
+    <i>n</i>.  The effects are grouped by cause, so that it is
+    easy to determine that multiple effects with the same cause
+    are handled properly.
+}
+
+#-----------------------------------------------------------------------
+# dump sat slopes
+
+command "dump sat slopes" {
+    <<syntax ?<i>driver</i>?>>
+    
+    Dumps a list of all active and future direct and indirect satisfaction 
+    slope effects, in tabular format.  If <i>driver</i> is specified
+    it must be a GRAM driver ID; the command will then dump only the
+    effects related to that driver.
+}
+
+#-----------------------------------------------------------------------
+# dump sat slope
+
+command "dump sat slope" {
+    <<syntax <i>n f g</i> >>
+    
+    Dumps a list of all direct and indirect satisfaction 
+    slope effects that currently affect the satisfaction of 
+    civilian group <i>f</i> with force group <i>g</i> in neighborhood 
+    <i>n</i>.  The effects are grouped by cause, so that it is
+    easy to determine that multiple effects with the same cause
+    are handled properly.
+}
+
+
+#=======================================================================
 # errtrace command
 
 command "errtrace" {
