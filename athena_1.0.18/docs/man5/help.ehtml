@@ -1,0 +1,190 @@
+<<manpage help(5) "Help Document Format">>
+
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+This man page defines the help(5) format for writing on-line help
+documents.  A help(5) file defines the pages, images, and other
+entities to be used in the on-line help.  The text for each help page
+is defined in "Extended HTML" format, i.e., HTML text extended
+with embedded macros. The basic syntax and capabilities of
+Extended HTML are defined in the <<xref ehtml(5)>> man page.  This man
+page describes a number of extensions to the basic format.<p>
+
+<<xref helptool(1)>> translates help(5) files into
+"<code>.helpdb</code>" help database files.  These can be queried
+directly using the <<xref helpdb(n)>> API, or browsed using
+<<xref helpbrowser(1)>>.  Finally, an application can provide on-line
+help by embedding the <<xref helpbrowser(n)>> widget.<p>
+
+<<xref helptool(1)>> takes a single help(5) file as input; however,
+it's possible to break the input into multiple files by use of the
+<<iref include>> command.<p>
+
+<<section ENTITIES>>
+
+A help(5) file can define two kinds of entities: pages and images.
+Both pages and images have a <i>name</i>, a short ID string containing no
+whitespace, and a <i>title</i>, a short human-readable title.  Pages
+and images are linked to by their <i>name</i>; the title is used only
+for output.  All entity names must be unique; and <<xref helpdb(n)>>
+might reserve some names for its own use.<p>
+
+<<section "COMMANDS">>
+
+A help(5) file is a Tcl-formatted file.  It can contain Tcl comments,
+along with the following commands.<p>
+
+<<deflist commands>>
+
+<<defitem image {image <i>name title filename</i>}>>
+
+Loads the image stored in <i>filename</i> into the output, assigning
+it the <i>name</i> and <i>title</i>.  Help pages may include the image
+using the following HTML syntax:<p>
+
+<pre>    &lt;img src="<i>name</i>"&gt;</pre>
+
+<<defitem include {include <i>filename</i>}>>
+
+Includes another help(5) file into this one.<p>
+
+<<defitem macro {macro <i>name arglist</i> ?<i>initbody</i>? <i>template</i>}>>
+
+Defines a document-specific macro that can be used in the body of
+subsequent pages.  The <<iref macro>> is essentially a
+<<xref template(n)>> <<xref template(n) template>>; see that man page
+for details.<p>
+
+<<defitem page {page <i>name title parent text</i>}>>
+
+Defines a help page identified by <i>name</i> with a human-readable
+<i>title</i>.  The page is a child of the page whose name is
+<i>parent</i>; this defines the hierarchy of pages for display in the
+<<xref helpbrowser(n)>>'s contents tree.  For top-level pages, the
+<i>parent</i> should be the empty string.<p>
+
+The <i>text</i> is the raw text of the page.  Once all pages have been
+read, the help compiler will expand all of the <<xref ehtml(5)>>
+macros in each page, producing the finished HTML for display in a help
+browser.<p>
+
+<<defitem proc {proc <i>name arglist body</i>}>>
+
+This command defines a procedure in the context of the help file,
+e.g.., a new command that can be used to define pages of specific
+types.<p>
+
+<<defitem super {super <i>command...</i>}>>
+
+This is a special command that allows procedures defined using
+<<iref proc>> to access project libraries and other commands
+defined in the main Tcl interpreter.  It should be used with
+caution.<p>
+
+<</deflist commands>>
+
+
+<<section MACROS>>
+
+help(5) man pages may use the following macros, as well as all
+macros defined in the <<xref ehtml(5)>> man page.  You can also define
+document-specific macros using the <<iref macro>> command.<p>
+
+<<deflist macros>>
+
+<<defitem childlinks {&lt;&lt;childlinks ?<i>parent</i>?&gt;&gt;}>>
+
+Creates a bulleted list of links to the children of the named
+<i>parent</i> page.  If <i>parent</i> is omitted, the children of the
+current page are listed.<p>
+
+<<defitem cref {&lt;&lt;cref <i>uri</i> ?<i>text</i>?&gt;&gt;}>>
+
+Creates a cross-reference link to another page, identified by
+<i>uri</i>.  The <i>uri</i> has this syntax:<p>
+
+<pre>    ?<i>name</i>??#<i>anchor</i>?</pre>
+
+where <i>name</i> is a page name, and <i>anchor</i> is an anchor name
+within the page, as defined using
+
+<pre>    &lt;a name="<i>anchor</i>"&gt;...&lt;/a&gt;</pre>
+
+The <i>uri</i> must include the <i>name</i> or the <i>anchor</i> or both.<p>
+
+If <i>text</i> is given, it is used as the link text; otherwise, the
+title of the linked page is used.<p>
+
+If the link page is unknown (as will often be the case when writing a new
+help file) then the link text is prefixed with "TBD:".<p>
+
+<<defitem enumdoc {&lt;&lt;enumdoc <i>enum</i>&gt;&gt;}>>
+
+The <<xref mars:enum(n)>> data type is capable of producing its own
+HTML documentation string; however, the produced HTML is ugly when
+rendered by <<xref htmlviewer(n)>>.  
+appropriate for Athena use.  This macro provides an alternative
+documentation string, given an <<xref mars:enum(n)>> object called
+<i>enum</i>.<p>
+
+<<defitem pageinfo {&lt;&lt;pageinfo <i>field</i>&gt;&gt;}>>
+
+This command returns information about the current page.  The
+<i>field</i> is one of <b>name</b>, <b>title</b>, <b>parent</b>, or
+<b>text</b>.<p>
+
+<<defitem parmlist {&lt;&lt;parmlist&gt;&gt;}>>
+<<defitem parm {&lt;&lt;parm <i>parm field</i>&gt;&gt;}>>
+<<defitem /parm {&lt;&lt;/parm&gt;&gt;}>>
+<<defitem /parmlist {&lt;&lt;/parmlist&gt;&gt;}>>
+
+These macros are used together to produce a table of order parameter
+definitions.  Each parameter has a name as used in the code,
+<i>parm</i>, plus a label used in dialog boxes, <i>field</i>, plus a
+description, which is <<xref ehtml(5)>> input contained between
+<code>&lt;&lt;parm&gt;&gt;</code> and
+<code>&lt;&lt;/parm&gt;&gt;</code>.<p>
+
+<b>TBD:</b> Possibly, these should be defined by the document, rather
+than here.<p>
+
+<<defitem topiclist {&lt;&lt;topiclist ?<i>h1</i>? ?<i>h2</i>?&gt;&gt;}>>
+<<defitem topic {&lt;&lt;topic <i>topic</i>&gt;&gt;}>>
+<<defitem /topic {&lt;&lt;/topic&gt;&gt;}>>
+<<defitem /topiclist {&lt;&lt;/topiclist&gt;&gt;}>>
+
+These macros are used together to produce a two-column table of topic
+names and descriptions.  The column headers defaults to "Topic" and
+"Description", but can be changed using the optional <i>h1</i> and
+<i>h2</i> parameters to &lt;&lt;topiclist&gt;&gt;.<p>
+
+Rows are added using the
+&lt;&lt;topic&gt;&gt;...&lt;&lt;/topic&gt;&gt; tags; the value of the
+<i>topic</i> argument to &lt;&lt;topic&gt;&gt; appears in the first
+column, and the text between the tags appears in the second.<p>
+
+<<defitem version {&lt;&lt;version&gt;&gt;}>>
+
+Returns the version number for the current project, as passed to
+the <<xref helptool(1)>> help compiler.<p>
+
+
+<</deflist>>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+New package.<p>
+
+<</manpage>>
+
+
+
+

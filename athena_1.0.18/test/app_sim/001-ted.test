@@ -1,0 +1,356 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    001-ted.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) Test Execution Deputy tests.
+#
+#    This test suite tests the test infrastructure itself: for example,
+#    can we advance time and read game truth variables?  It's named
+#    with an "001-" prefix so that it runs before other test files.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::ted:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    #-------------------------------------------------------------------
+    # sendex
+
+    test sendex-1.1 {send command as multiple arguments} -body {
+        ted sendex expr 1 + 1
+    } -result 2
+
+    test sendex-1.2 {send command as one argument} -body {
+        ted sendex {expr 2 + 2}
+    } -result 4
+
+    test sendex-2.1 {send -error with multiple arguments, get error} -body {
+        ted sendex -error expr 1 + dummy
+    } -result {invalid bareword "dummy"
+in expression "1 + dummy";
+should be "$dummy" or "{dummy}" or "dummy(...)" or ...}
+
+    test sendex-2.2 {send -error with one argument, get error} -body {
+        ted sendex -error {expr 1 + dummy}
+    } -result {invalid bareword "dummy"
+in expression "1 + dummy";
+should be "$dummy" or "{dummy}" or "dummy(...)" or ...}
+
+    test sendex-2.3 {send -error with multiple arguments, no error} -body {
+        ted sendex -error expr 1 + 1
+    } -returnCodes {
+        error
+    } -result {Expected error, got ok}
+
+    test sendex-2.4 {send -error with single argument, no error} -body {
+        ted sendex -error {expr 1 + 1}
+    } -returnCodes {
+        error
+    } -result {Expected error, got ok}
+
+    #-------------------------------------------------------------------
+    # dictdiff
+
+    test dictdiff-1.1 {b dict is one arg} -body {
+        set a [list this 1 that 2]
+        set b [list this 3 that 4]
+
+        ted dictdiff $a $b
+    } -result {
+        {A that 2}
+        {B that 4}
+        {A this 1}
+        {B this 3}
+    }
+
+    test dictdiff-1.2 {b dict is args on command line} -body {
+        set a [list this 1 that 2]
+
+        ted dictdiff $a this 3 that 4
+    } -result {
+        {A that 2}
+        {B that 4}
+        {A this 1}
+        {B this 3}
+    }
+
+    test dictdiff-1.3 {a and b are the same} -body {
+        set a [list this 1 that 2]
+
+        ted dictdiff $a $a
+    } -result {}
+
+    test dictdiff-1.4 {b is empty} -body {
+        set a [list this 1 that 2]
+
+        ted dictdiff $a {}
+    } -result {
+        {A that 2}
+        {A this 1}
+    }
+
+    test dictdiff-1.5 {a is empty} -body {
+        set b [list this 1 that 2]
+
+        ted dictdiff {} $b
+    } -result {
+        {B that 2}
+        {B this 1}
+    }
+
+    #-------------------------------------------------------------------
+    # dictmatch
+
+    test dictmatch-1.1 {b dict is one arg} -body {
+        set a [list this 1 that 2]
+        set b [list this 3 that 4]
+
+        ted dictmatch $a $b
+    } -result {
+        that 2
+        this 1
+    }
+
+    test dictmatch-1.2 {b dict is multiple args} -body {
+        set a [list this 1 that 2]
+        set b [list this 3 that 4]
+
+        ted dictmatch $a {*}$b
+    } -result {
+        that 2
+        this 1
+    }
+
+    test dictmatch-1.3 {exact matches match} -body {
+        set a [list this 1 that 2]
+        set b [list this 1 that 2]
+
+        ted dictmatch $a $b
+    } -result {OK}
+
+    test dictmatch-1.4 {patterns match} -body {
+        set a [list this foo that bar]
+        set b [list this f* that b*]
+
+        ted dictmatch $a $b
+    } -result {OK}
+
+    test dictmatch-1.5 {missing keys don't match} -body {
+        set a [list that bar]
+        set b [list this f* that b*]
+
+        ted dictmatch $a $b
+    } -result {
+        this *null*
+    }
+
+    test dictmatch-1.6 {extra keys are ignored} -body {
+        set a [list this foo that bar]
+        set b [list that quux]
+
+        ted dictmatch $a $b
+    } -result {
+        that bar
+    }
+
+
+    #-------------------------------------------------------------------
+    # notifier
+
+    test notifier-1.1 {Can forget bindings} -body {
+        ted notifier bind ::nonesuch <DummyEvent1>
+        
+        set a [notifier bind ::nonesuch <DummyEvent1> ::ted]
+        ted notifier forget
+        set b [notifier bind ::nonesuch <DummyEvent1> ::ted]
+
+        list $a $b
+    } -result {{::ted NotifierEvent ::nonesuch <DummyEvent1>} {}}
+
+    test notifier-1.2 {Can bind to notifier events} -body {
+        ted notifier bind ::nonesuch <DummyEvent1>
+        ted notifier bind ::nonesuch <DummyEvent2>
+        
+        notifier send ::nonesuch <DummyEvent1> 1 2 3
+        notifier send ::nonesuch <DummyEvent2> 2 4 6
+
+        ted notifier received
+    } -cleanup {
+        ted notifier forget
+    } -result {
+        {::nonesuch <DummyEvent1> 1 2 3}
+        {::nonesuch <DummyEvent2> 2 4 6}
+    }
+
+    test notifier-1.3 {Can forget results} -body {
+        ted notifier bind ::nonesuch <DummyEvent1>
+        
+        notifier send ::nonesuch <DummyEvent1> 1 2 3
+
+        ted notifier forget
+        ted notifier received
+    } -result {}
+
+    test notifier-1.4 {Can do a diff} -body {
+        ted notifier bind ::nonesuch <DummyEvent1>
+        ted notifier bind ::nonesuch <DummyEvent2>
+        
+        notifier send ::nonesuch <DummyEvent1> {A 1 B 2 C 3}
+        ted notifier diff 0 <DummyEvent1> {A 1 B two C 3}
+    } -cleanup {
+        ted notifier forget
+    } -result {
+        {A B 2}
+        {B B two}
+    }
+
+    test notifier-1.5 {Can do a match} -body {
+        ted notifier bind ::nonesuch <DummyEvent1>
+        ted notifier bind ::nonesuch <DummyEvent2>
+        
+        notifier send ::nonesuch <DummyEvent1> {A foo B bar C quux}
+        ted notifier match 0 <DummyEvent1> {A f* B x*}
+    } -cleanup {
+        ted notifier forget
+    } -result {
+        B bar
+    }
+
+    #-------------------------------------------------------------------
+    # create
+
+    # TBD
+
+    #-------------------------------------------------------------------
+    # unit activity
+
+    test unit_activity-1.1 {Can get a unit's activity} -setup {
+        ted create BLUE1
+    } -body {
+        ted unit activity BLUE1
+    } -cleanup {
+        ted cleanup
+    } -result {NONE}
+
+
+    test unit_activity-1.2 {Can set a unit's activity} -setup {
+        ted create BLUE1
+    } -body {
+        ted unit activity BLUE1 PATROL
+        ted unit activity BLUE1
+    } -cleanup {
+        ted cleanup
+    } -result {PATROL}
+
+
+    test unit_activity-1.3 {Returns changed activity} -setup {
+        ted create BLUE1
+    } -body {
+        ted unit activity BLUE1 PATROL
+    } -cleanup {
+        ted cleanup
+    } -result {PATROL}
+
+
+    #-------------------------------------------------------------------
+    # unit location
+
+    test unit_location-1.1 {Get a unit's current location} -setup {
+        ted create BLUE1
+    } -body {
+        ted unit location BLUE1
+    } -cleanup {
+        ted cleanup
+    } -result {A00A00}
+
+
+
+    test unit_location-1.2 {Can move a unit to a location} -setup {
+        ted create BLUE1
+    } -body {
+        ted unit location BLUE1 A15B30
+        ted unit location BLUE1
+    } -cleanup {
+        ted cleanup
+    } -result {A15B30}
+
+
+    test unit_location-1.3 {Can move a unit to a nbhood} -setup {
+        ted create NB1 BLUE1
+    } -body {
+        ted unit location BLUE1 NB1
+        ted unit location BLUE1
+    } -cleanup {
+        ted cleanup
+    } -result {B00B00}
+
+
+    test unit_location-1.4 {Returns changed location} -setup {
+        ted create NB1 BLUE1
+    } -body {
+        ted unit location BLUE1 A15B30
+    } -cleanup {
+        ted cleanup
+    } -result {A15B30}
+
+
+    #-------------------------------------------------------------------
+    # unit personnel
+
+    #-------------------------------------------------------------------
+    # unit personnel
+
+    test unit_personnel-1.1 {Can get a unit's personnel} -setup {
+        ted create BLUE1
+    } -body {
+        ted unit personnel BLUE1
+    } -cleanup {
+        ted cleanup
+    } -result {15}
+
+
+    test unit_personnel-1.2 {Can set a unit's personnel} -setup {
+        ted create BLUE1
+    } -body {
+        ted unit personnel BLUE1 5000
+        ted unit personnel BLUE1
+    } -cleanup {
+        ted cleanup
+    } -result {5000}
+
+
+    test unit_personnel-1.3 {Returns changed personnel} -setup {
+        ted create BLUE1
+    } -body {
+        ted unit personnel BLUE1 5000
+    } -cleanup {
+        ted cleanup
+    } -result {5000}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::ted::
+
+
+
+

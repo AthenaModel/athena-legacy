@@ -1,0 +1,16 @@
+Athena Version Modules
+-----------------------------------------------------------------
+
+This directory contains the app(export) package, which implements
+the Athena XML Export tool, athena_export(1), which is launched 
+by athena(1).
+
+NOTE: Because the modules in this package represent 
+application-level code, they are generally defined as singletons
+and live in the global namespace.
+
+
+
+
+
+

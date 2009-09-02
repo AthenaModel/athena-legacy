@@ -1,0 +1,33 @@
+<<manpage athena(1) "Athena S&RO Simulation">>
+
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<deflist program>>
+
+<<defitem athena {athena <i>app</i> [<i>args...</i>]}>>
+
+<</deflist program>>
+
+The athena(1) command is the launcher for a number of Athena applications,
+including the Athena simulation proper, <<xref athena_sim(1)>>.  The
+the <a href="index.html">section (1) index</a> for a complete list of
+applications.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

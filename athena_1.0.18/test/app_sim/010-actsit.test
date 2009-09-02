@@ -1,0 +1,202 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-actsit.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    actsit(sim) tests.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        ted cleanup
+    }
+
+
+    #-------------------------------------------------------------------
+    # table
+  
+    test table-1.1 {Check return value} -body {
+        actsit table
+    } -result {actsits_t}
+
+    #-------------------------------------------------------------------
+    # analyze
+
+    test analyze-1.1 {Create a situation} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA BLUE1
+
+        ted unit location  BLUE1 NB1
+    } -body {
+        ted order SIM:RUN days 1 block yes
+
+        ted query {SELECT * FROM actsits}
+    } -cleanup {
+        cleanup
+    } -result {
+s kind     stype    driver n   coverage           state  ts tc change flist g    signature        a        
+- -------- -------- ------ --- ------------------ ------ -- -- ------ ----- ---- ---------------- -------- 
+1 ::actsit PRESENCE 1      NB1 0.4827181420282134 ACTIVE 1  1  NEW    ALL   BLUE PRESENCE-1-1 0.5 PRESENCE 
+    }
+
+
+    test analyze-1.2 {Change marks are erased on next run} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA BLUE1
+
+        ted unit location  BLUE1 NB1
+    } -body {
+        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN days 1 block yes
+
+        ted query {SELECT s,change FROM actsits}
+    } -cleanup {
+        cleanup
+    } -result {
+s change 
+- ------ 
+1        
+    }
+
+    test analyze-1.3 {Change in coverage updates} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA BLUE1
+
+        ted unit location  BLUE1 NB1
+    } -body {
+        ted order SIM:RUN days 1 block yes
+        ted unit personnel BLUE1 30
+        ted order SIM:RUN days 1 block yes
+
+        ted query {SELECT * FROM actsits}
+    } -cleanup {
+        cleanup
+    } -result {
+s kind     stype    driver n   coverage           state  ts tc change  flist g    signature        a        
+- -------- -------- ------ --- ------------------ ------ -- -- ------- ----- ---- ---------------- -------- 
+1 ::actsit PRESENCE 1      NB1 0.7324194794132565 ACTIVE 1  2  UPDATED ALL   BLUE PRESENCE-1-1 0.7 PRESENCE 
+    }
+
+
+    test analyze-1.4 {Nominal personnel = 0 terminates} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA BLUE1
+
+        ted unit location  BLUE1 NB1
+    } -body {
+        ted order SIM:RUN days 1 block yes
+        ted unit location BLUE1 A00A00
+        ted order SIM:RUN days 1 block yes
+
+        ted query {SELECT * FROM actsits}
+    } -cleanup {
+        cleanup
+    } -result {
+s kind     stype    driver n   coverage state ts tc change flist g    signature         a        
+- -------- -------- ------ --- -------- ----- -- -- ------ ----- ---- ----------------- -------- 
+1 ::actsit PRESENCE 1      NB1 0.0      ENDED 1  2  ENDED  ALL   BLUE PRESENCE-2-1 none PRESENCE 
+    }
+
+
+    test analyze-1.5 {Can have multiple} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA BLUE1 BLUE2
+
+        ted unit location BLUE1 NB1
+        ted unit activity BLUE1 PATROL
+
+        ted unit location BLUE2 NB1
+        ted unit activity BLUE2 GUARD
+    } -body {
+        ted order SIM:RUN days 1 block yes
+        set out [ted query {SELECT * FROM actsits}]
+
+        ted order SIM:RUN days 1 block yes
+        append out [ted query {SELECT * FROM actsits}]
+
+        ted unit location BLUE1 A00A00
+        ted unit location BLUE2 A00A00
+        ted order SIM:RUN days 1 block yes
+        append out [ted query {SELECT * FROM actsits}]
+
+        set out
+    } -cleanup {
+        cleanup
+    } -result {
+s kind     stype    driver n   coverage           state  ts tc change flist g    signature        a        
+- -------- -------- ------ --- ------------------ ------ -- -- ------ ----- ---- ---------------- -------- 
+1 ::actsit GUARD    1      NB1 0.4827181420282134 ACTIVE 1  1  NEW    ALL   BLUE GUARD-1-1 0.5    GUARD    
+2 ::actsit PATROL   2      NB1 0.4827181420282134 ACTIVE 1  1  NEW    ALL   BLUE PATROL-1-1 0.5   PATROL   
+3 ::actsit PRESENCE 3      NB1 0.7324194794132565 ACTIVE 1  1  NEW    ALL   BLUE PRESENCE-1-1 0.7 PRESENCE 
+    
+s kind     stype    driver n   coverage           state  ts tc change flist g    signature        a        
+- -------- -------- ------ --- ------------------ ------ -- -- ------ ----- ---- ---------------- -------- 
+1 ::actsit GUARD    1      NB1 0.4827181420282134 ACTIVE 1  1         ALL   BLUE GUARD-1-1 0.5    GUARD    
+2 ::actsit PATROL   2      NB1 0.4827181420282134 ACTIVE 1  1         ALL   BLUE PATROL-1-1 0.5   PATROL   
+3 ::actsit PRESENCE 3      NB1 0.7324194794132565 ACTIVE 1  1         ALL   BLUE PRESENCE-1-1 0.7 PRESENCE 
+    
+s kind     stype    driver n   coverage state ts tc change flist g    signature         a        
+- -------- -------- ------ --- -------- ----- -- -- ------ ----- ---- ----------------- -------- 
+1 ::actsit GUARD    1      NB1 0.0      ENDED 1  3  ENDED  ALL   BLUE GUARD-2-1 none    GUARD    
+2 ::actsit PATROL   2      NB1 0.0      ENDED 1  3  ENDED  ALL   BLUE PATROL-2-1 none   PATROL   
+3 ::actsit PRESENCE 3      NB1 0.0      ENDED 1  3  ENDED  ALL   BLUE PRESENCE-2-1 none PRESENCE 
+    }
+
+    #-------------------------------------------------------------------
+    # get
+
+    test get-1.1 {get -all} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA BLUE1
+        ted unit location  BLUE1 NB1
+    } -body {
+        ted order SIM:RUN days 1 block yes
+        
+        set sit [actsit get 1]
+        $sit oneliner
+    } -cleanup {
+        cleanup
+    } -result {BLUE PRESENCE in NB1}
+
+
+    test get-1.2 {get -live} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA BLUE1
+        ted unit location  BLUE1 NB1
+        ted order SIM:RUN days 1 block yes
+        ted unit location  BLUE1 A00A00
+        ted order SIM:RUN days 1 block yes
+    } -body {
+        set sit [actsit get 1 -live]
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {no such live situation: "1"}
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+

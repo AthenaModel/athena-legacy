@@ -1,0 +1,138 @@
+<<manpage app(sim) "Main Application Module">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+app(sim) is the main application module for <<xref athena_sim(1)>>.
+It is responsible for initializing the entire application, creating
+the other components and gluing them together as needed.<p>
+
+In addition, app(sim) provides a number of services to the application
+as a whole.<p>
+
+<<section "COMMANDS">>
+
+app(sim) provides the following commands for use by the application.<p>
+
+<<deflist commands>>
+
+<<defitem "app ask" {app ask <i>mode text</i>}>>
+
+Displays <i>text</i> in a question dialog centered on the
+<<iref app topwin>>. Variables and commands in <i>text</i> are
+interpolated using <<xref template(n) tsubst>> from
+<<xref template(n)>>.<p>
+
+The <i>mode</i> may be <b>yesno</b> or <b>yesnocancel</b>; this
+determines whether the dialog shows two buttons or three.  Returns the
+symbolic name of the selected button, e.g., <b>yes</b>, <b>no</b>, or
+<b>cancel</b>.<p>
+
+<<defitem "app error" {app error <i>text</i>}>>
+
+Displays <i>text</i> in an error dialog centered on the
+<<iref app topwin>>.  Variables and commands in <i>text</i> are
+interpolated using <<xref template(n) tsubst>> from
+<<xref template(n)>>.<p>
+
+<<defitem "app exit" {app exit ?<i>text</i>?}>>
+
+Outputs <i>text</i>, if given, to stdout, deletes the working
+directory, and exits the program.
+Variables and commands in <i>text</i> are interpolated using
+<<xref template(n) tsubst>> from <<xref template(n)>>.<p>
+
+<<defitem "app init" {app init <i>argv</i>}>>
+
+Initializes the application given the command line arguments, which
+are passed to <<iref app init>> by the <<xref athena(1)>> loader.  The
+command line arguments are passed as a single Tcl argument with this
+syntax:<p>
+
+<pre>
+    ?-ignoreparmdefaults? ?<i>filename</i>?
+</pre>
+
+If <i>filename</i> is given, it should name an Athena scenario (.adb)
+file; the scenario will be opened after the GUI is created.<p>
+
+If <code>-ignoreparmdefaults</code> is given, then new scenarios will
+use the programmatic defaults for the model parameter database (see
+<<xref parmdb(5)>>, rather than the user's saved defaults.  This
+option is used by <<xref athena_test(1)>> so that the results of the
+test suite do not depend on the user's environment.<p>
+
+<<defitem "app puts" {app puts <i>text</i>}>>
+
+Outputs <i>text</i> to the <<iref app topwin>>'s message line.<p>
+
+<<defitem "app topwin" {app topwin}>>
+
+Returns the name of the topmost <<xref appwin(sim)>> window, which
+will usually be the active window.<p>
+
+<<defitem "app usage" {app usage}>>
+
+Outputs a brief usage string to stdout.<p>
+
+<<defitem "bgerror" {bgerror <i>msg</i>}>>
+
+Background error handler; logs errors to the debugging log.<p>
+
+<<defitem "profile" {profile <i>command</i> ?<i>args..</i>?}>>
+
+Executes the <i>command</i> with its arguments, logs the command
+with its execution time in microseconds to the debugging log and
+returns the <i>command</i>'s return value.  Thus, you can insert
+"profile" at the beginning of any command to profile that command in
+context.<p>
+
+<</deflist commands>>
+
+<<section "NOTIFIER EVENTS">>
+
+app(sim) doesn't actually send any notifier events.  However, there
+are certain events which are sent by a variety of objects, and for
+which the source isn't significant.  These are sent as though they
+came from <code>::app</code>.
+
+<<deflist events>>
+
+<<defitem ObjectSelect {&lt;ObjectSelect&gt; <i>tagdict</i>}>>
+
+This event is sent when the user clicks on some object in the GUI.
+The <i>tagdict</i> is a dictionary of tags and values, where the tag
+indicates the data type.  If the user clicks on a neighborhood on the
+map display, for example, the <<xref mapviewer(sim)>> will send this
+event, as though it came from <code>::app</code>.  The <i>tagdict</i>
+will contain one entry, with key <b>nbhood</b>; the value is the
+neighborhood's ID.<p>
+
+<</deflist events>>
+
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

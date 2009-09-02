@@ -1,0 +1,813 @@
+<<manpage order(sim) "Order Processor">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+order(sim) is responsible for processing all orders sent to the
+application.  Application modules can define orders, which are thereby
+registered with order(sim), and the application can receive them via
+various channels.<p>
+
+<<subsection "Application Orders">>
+
+All inputs that affect the state of the simulation scenario are
+implemented as "orders".  For example, the GUI sends orders to create
+and update neighborhoods and groups.<p>
+
+Orders are defined using the <<iref order define>> command.  Every
+order has the following elements:<p>
+
+<ul>
+  <li> A name, e.g., <b>NBHOOD:CREATE</b>.  Order names conventionally
+       consist of uppercase tokens separated by colons; and the tokens
+       are organized hierarchically.  All neighborhood orders, for
+       example, begin with "NBHOOD:".<p>
+
+  <li> A body.  This is the Tcl script that implements the order.<p>
+
+  <li> A parameter dictionary.  The values of the parameters are the
+       inputs to the order's body.<p>
+
+  <li> A collection of metadata that describes the order and its
+       parameters.<p>
+</ul>
+
+The parameter values may come from a variety of sources.  Once they
+are known, the order is sent to the application using the <<iref order send>>
+command.  The user may enter the parameter values explicitly in an
+order entry dialog; the dialog appears when <<iref order enter>> is
+called.<p>
+
+It is not necessary to implement an order dialog for each order.
+Instead, the <<xref orderdialog(sim)>> module creates the dialog
+automatically from the order metadata.<p>
+
+
+<<subsection "Order Bodies">>
+
+An order's body is primarily responsible for validating the order data
+and providing high-quality error messages for any invalid parameters.
+The actual work is usually handed off to one or more "mutator" commands
+implemented by the relevant modules.<p>
+
+order(sim) supports a multi-level undo/redo stack.  Those orders which
+are undoable will submit an undo script to order(sim) as their last
+action.  When possible, each mutator returns a script
+that undoes the mutator's effect; the order body aggregates these into
+a single undo script.
+
+
+<<subsection "Error Handling">>
+
+When an order is sent, there are three possibilities.<p>
+
+First, it might be rejected due to errors in the order's parameter
+values.  In this case the order has no effect on the simulation.
+Handling of rejections depends on the sending interface, but typically
+<<iref order send>> throws an error with error code <b>REJECT</b> and
+a result that is a dictionary of error messages by parameter name.<p>
+
+Second, it might fail due to an unexpected error (i.e., a bug).
+Again, the handling depends on the sending interface, but typically
+the error is logged in detail, the user is notified, and any scenario
+database changes are rolled back.<p>
+
+Finally, it may be successful.  In this case it is added to the order
+history, and (if undoable) can be undone and redone.<p>
+
+
+<<subsection "Order Interfaces">>
+
+At present, order(sim) accepts orders from three sources: the GUI
+(i.e., the user), the <<xref athena_test(1)>> test suite, or from
+within the simulation itself.  (Other interfaces may be added in the
+future, e.g., a bridge to federated simulations.)<p>
+
+The sending interface primarily affects the handling of 
+rejections and unexpected errors.  If order was sent by the GUI, for
+example, order(sim) can report the order through the GUI.  The precise
+details are as follows:<p>
+
+<ul>
+  <li> Orders can modify their behavior depending on the
+       interface.  If the interface is <b>gui</b>, for example, an
+       order can pop up a confirmation dialog if need be.<p>
+
+  <li> Sometimes it's convenient for the <b>sim</b> to send an order
+       directly.  In this case the order isn't really an input to the
+       simulation from the outside; it's more of a fancy procedure
+       call.  Consequently,<p>
+
+       <ul>
+         <li> If such an order is rejected that's a bug; all errors
+              are unexpected.  Therefore, all order handling errors
+              propagate like errors in a normal procedure call.<p>
+
+         <li> Normally, successful orders are added to the order
+              history.  Since <b>sim</b> orders are not really inputs,
+              they are omitted.<p>
+       </ul>
+
+  <li> Ordinarily, the call to the order's body is wrapped in an SQL
+       transaction, so that unexpected errors do not corrupt the
+       scenario database.  When the interface is <b>test</b> we omit
+       this step, so that the effects of unexpected errors remain in
+       place as an aid to debugging.<p>
+
+  <li> Errors are handled as follows:<p>
+
+       <ul>
+         <li> Errors in <b>sim</b> orders are handled as described
+              above.<p>
+
+         <li> Otherwise, rejections are logged and the error is
+              rethrown.  The presumption is that the sender will do
+              something useful with the rejection dictionary (e.g.,
+              the order dialog will display the error messages to the
+              user).<p>
+
+         <li> Unexpected errors in <b>gui</b> orders are logged in
+              detail, and a detailed error message is displayed in a
+              popup.<p>
+
+         <li> Unexpected errors in <b>test</b> orders are simply
+              rethrown.<p>
+       </ul>
+</ul>
+
+<<subsection "Application States">>
+
+It is common that an order is valid (in principle, not due to its
+parameters) at some times in the application's life time, and not at
+others.  This is handled by the notion of the application's "state".<p>
+
+Each order is associated with a list of the states in which it can be
+sent, and with a list of the states in which it can be scheduled
+using the <<iref options>> order definition command.
+It is said to be "valid" if it can be either sent or scheduled at
+the present time given the current state.
+Then, the application notifies order(sim) of the current
+application state using <<iref order state>>.  If an order is sent
+or scheduled during a state in which it is invalid, the order is rejected
+immediately.<p>
+
+The application can query both the states associated with an order
+(via <<iref order cget>>) and the current state (via
+<<iref order state>>).  Thus, this can also be used to enable and
+disable GUI controls (e.g., menu items) when the state changes.<p>
+
+<<section COMMANDS>>
+
+This section lists the commands provided by order(sim).  There are
+three categories:  <<xref "Application Commands">>, which are used to
+define and send orders, and to query order metadata;
+<<xref "Metadata Definition Commands">>, which are used in each
+order's metadata script; and <<xref "Order Body Commands">> which are
+used in each order's body.<p>
+
+<<subsection "Application Commands">>
+
+The application-level commands are as follows:<p>
+
+<<deflist app>>
+
+<<defitem "order canschedule" {order canschedule <i>name</i>}>>
+
+Returns 1 if the named order can be scheduled in the current
+application state, and 0 otherwise.<p>
+
+<<defitem "order cansend" {order cansend <i>name</i>}>>
+
+Returns 1 if the named order can be sent in the current
+application state, and 0 otherwise.<p>
+
+<<defitem "order cget" {order cget <i>name</i> ?<i>option</i>...?}>>
+
+By default, returns a dictionary of order options for order
+<i>name</i>;  see <<iref options>> for the options and their meanings.
+If an <i>option</i> name is specified, returns the value of that
+particular option.<p>
+
+<<defitem "order check" {order check <i>name parmdict</i>}>>
+<<defitem "order check" {order check <i>name parm value</i> ?<i>parm value...</i>?}>>
+
+Checks whether the specified parameter values are valid for the named
+order, throwing <b>REJECT</b> if not.
+The order's parameters are specified as one argument, a
+dictionary, or as multiple parameter names and values.<p>
+
+This command behaves identically to <<iref order send>>, except that the
+order is not executed if the parameters are valid.<p>
+
+<<defitem "order define" {order define <i>module name metadata body</i>}>>
+
+Defines an order.  Orders are typically defined at file scope in
+application modules; they can also be defined (and redefined) at any time.<p>
+
+The <i>module</i> is the fully-qualified name of the application
+module that implements the order.  It must be a
+<code>snit::type</code>.<p>
+
+The <i>name</i> is the name of the order, as described in 
+<<xref "Application Orders">>, above.<p>
+
+The <i>metadata</i> is a script that defines the order's title and
+parameters using the <<xref "Metadata Definition Commands">>.<p>
+
+The <i>body</i> is the script that implements the handler.  It is
+effectively the body of a <<xref tcl:proc(n) proc>> defined within
+the <i>module</i>, with these differences:<p>
+
+<ul>
+  <li> The <i>parms</i> array is predefined; it contains the
+       order parameters and their values.<p>
+
+  <li> It may use the <<xref "Order Body Commands">>.<p>
+</ul>
+
+<<defitem "order enter" {order enter <i>order</i> ?<i>parmdict</i>?}>>
+<<defitem "order enter" {order enter <i>order</i> ?<i>parm value...</i>?}>>
+
+Pops up the order dialog for the named <i>order</i>.  This command is
+actually implemented by <<xref orderdialog(sim)>>; see that man page
+for more details.  order(sim) delegates it to
+<<xref orderdialog(sim)>> so as to provide a single entrypoint for
+order-processing commands.<p>
+
+<<defitem "order exists" {order exists <i>name</i>}>>
+
+Returns 1 if there is an order with the specified <i>name</i>, and 0
+otherwise.<p>
+
+<<defitem "order init" {order init}>>
+
+Initializes the module.  This should be called once, at application
+start-up.<p>
+
+<<defitem "order initialized" {order initialized}>>
+
+Returns 1 if the module has been initialized, and 0 otherwise.<p>
+
+<<defitem "order isvalid" {order isvalid <i>name</i>}>>
+
+Returns 1 if the named order can be either sent or scheduled
+in the current application state, and 0 otherwise.<p>
+
+<<defitem "order lastparms" {order lastparms}>>
+
+Returns the parameter dictionary of the last order sent.  The
+dictionary will include one additional key, <b>_order</b>, whose value
+is the name of the order.  This is usually used in test code in
+conjunction with <<iref order nullmode>>.<p>
+
+<<defitem "order names" {order names}>>
+
+Returns a list of the names of the currently defined orders.<p>
+
+<<defitem "order nullmode" {order nullmode <i>flag</i>}>>
+
+Sets and clears "null mode".  In null mode the order is not executed,
+but the parameters are available by calling <<iref order lastparms>>.
+This is used for testing code that sends orders, e.g., executive
+commands that translate user command-line input into simulation
+orders, to verify that the user inputs are translated properly.<p>
+
+<<defitem "order parms" {order parms <i>name</i>}>>
+
+Returns a list of the names of the parameters of the named order.<p>
+
+<<defitem "order parm" {order parm <i>order parm</i> ?<i>opt</i>?}>>
+
+By default, returns a dictionary of parameter options for the named
+<i>parm</i> of the named <i>order</i>; see <<iref parm>> for the
+options and their meanings.  If an option <i>opt</i> is specified,
+returns the value of that particular option.<p>
+
+<<defitem "order schedule" {order schedule <i>interface timespec name parmdict</i>}>>
+<<defitem "order schedule" {order schedule <i>interface timespec name parm value</i> ?<i>parm value...</i>?}>>
+
+Schedules order <i>name</i> to be executed by the application at the
+specified <i>timespec</i>.  The scheduling is done by the
+specified <i>interface</i>: <i>gui</i>, <i>cli</i>, <i>sim</i>, or
+<i>test</i>. The order's parameters are specified as one argument, a
+dictionary, or as multiple parameter names and values.<p>
+
+The order's parameters are validated using <<iref order check>>; an
+order with invalid parameters will only be scheduled if the
+<code>-schedwheninvalid</code> flag is set for each invalid parameter.<p>
+
+The <i>timespec</i> is a future time specification, as validated by
+<<xref simclock(n)>>.<p>
+
+<<defitem "order scheduled names" {order scheduled names}>>
+
+Returns a list of the IDs of the scheduled orders, if any.<p>
+
+<<defitem "order scheduled validate" {order scheduled validate <i>id</i>}>>
+
+Validates <i>id</i> as the ID of a scheduled order, throwing
+<b>INVALID</b> if not.  Returns <i>id</i>.<p>
+
+<<defitem "order send" {order send <i>interface name parmdict</i>}>>
+<<defitem "order send" {order send <i>interface name parm value</i> ?<i>parm value...</i>?}>>
+
+Sends order <i>name</i> to the application.  The order is sent by the
+specified <i>interface</i>: <i>gui</i>, <i>cli</i>, <i>sim</i>, or
+<i>test</i>.
+The order's parameters are specified as one argument, a dictionary, or
+as multiple parameter names and values.<p>
+
+<<defitem "order state" {order state ?<i>state</i>?}>>
+
+By default, returns the current application state, as known by
+order(sim).  If <i>state</i> is given, sets the application state.
+The application state determines which orders are valid; see
+<<xref "Application States">> for more information.<p>
+
+<<defitem "order validate" {order validate <i>name</i>}>>
+
+Validates <i>name</i> as the name of an order.  Returns
+<i>name</i> on success and throws <b>INVALID</b> on error.<p>
+
+<<defitem "order title" {order title <i>name</i>}>>
+
+Returns the <<iref title>> of the named order.<p>
+
+<</deflist app>>
+
+<<subsection "Metadata Definition Commands">>
+
+The following commands may appear in order metadata; they usually
+appear in the order shown.<p>
+
+<<deflist metadata>>
+
+<<defitem title {title <i>titleText</i>}>>
+
+Specifies the human-readable title for the order, e.g., "Create
+Neighborhood" for order <b>NBHOOD:CREATE</b>.<p>
+
+<<defitem options {options <i>option...</i>}>>
+
+Specifies option settings for this particular order.  The available
+options are as follows:<p>
+
+<<deflist options>>
+
+<<defopt {-alwaysunsaved}>>
+
+By default, an order dialog will not send the order unless
+its fields contain unsaved changes.  This is appropriate for orders
+that create or edit entities.  For other orders, it might be
+reasonable to send the same order twice in a row.  If this option is
+specified, the order dialog is presumed to always contain unsaved
+changes.<p>
+
+<<defopt {-schedulestates <i>states</i>}>>
+
+Specifies a list of application <i>states</i> in which the order can
+be scheduled for later execution.  If this option is omitted, or
+<i>states</i> is the empty list, the order cannot be scheduled for
+later execution.  See <<xref "Application States">> for more information.<p>
+
+<<defopt {-sendstates <i>states</i>}>>
+
+Specifies a list of application <i>states</i> in which the order can
+be sent and executed.
+If this option is omitted, or <i>states</i> is the empty list, the
+order cannot be sent in any state.  See
+<<xref "Application States">> for more information.<p>
+
+<<defopt {-table <i>tableName</i>}>>
+
+Orders intended to create, update, or otherwise manipulate database
+entities can be associated with a particular RDB table or view.  This
+option specifies the <i>tableName</i> of this table or view.<p>
+
+Such an order will usually have either one or more <b>key</b>
+parameters or a <b>multi</b> parameter; see <<iref parm>>, below.<p>
+
+<<defopt {-tags <i>taglist</i>}>>
+
+Specifies a list of data type tags associated with this order.
+This feature allows the user to fill in the order's keys as a set
+by clicking elsewhere in the interface.  If the user clicks on a
+satisfaction curve, for example, and the order dialog is keyed on
+neighborhood, group, and concern, the order dialog will be populated
+with the relevant data, provided that the selected entity is contained
+in the order's <code>-table</code>.<p>
+
+This option requires that <code>-table</code> also be set; and it will
+have no effect unless the order has <b>key</b> parameters.<p>
+
+order(sim) does not define any particular set of order tags; commonly used
+ones include <b>ngc</b> and <b>nfg</b>.<p>
+
+<</deflist options>>
+
+
+<<defitem parm {parm <i>name fieldType label</i> ?<i>options...</i>?}>>
+
+Defines a parameter called <i>name</i>.  Note that the order in which
+parameters are defined determines the order in which they appear in
+the automatically-generated order dialog; it also has an effect on the
+dialog's functioning.  This is especially true for <b>multi</b> and
+<b>key</b> fields (see below) but can also affect other parameters
+(see <code>-refresh</code> and <code>-refreshcmd</code>, below).<p>
+
+The <i>fieldType</i> indicates how the data is edited.  The
+possibilities are as follows:<p>
+
+<ul>
+  <li> <b>color</b>:  The value is a color specified in
+       hexadecimal RGB; it will be edited using a GUI color picker.<p>
+
+  <li> <b>enum</b>: The value is chosen from an enumerated list using
+       a pull-down.  The set of possible values can be dynamic, and is
+       determined by the <i>options</i>.<p>
+
+  <li> <b>key</b>: The value corresponds to a key column of the
+       same <i>name</i> in the associated <i>table</i>.  The set of
+       possible values is read dynamically from the <i>table</i>, and
+       is presented using a pull-down.  If the order has <b>key</b>
+       parameters, they must precede all other parameters.<p>
+
+  <li> <b>multi</b>: The value is a list of entity IDs from the
+       associated <i>table</i>.  (An entity ID is a list of the key
+       field values for that row in the table).  This is used when
+       editing multiple entities, usually from a GUI entity browser.
+       If the order has a <b>multi</b> parameter, it must be the first
+       parameter.<p>
+
+       When <<iref order enter>> is used to pop up the order's dialog,
+       the value of the <b>multi</b> parameter must be provided to the
+       command; it cannot be edited by the user within the dialog itself.<p>
+
+  <li> <b>text</b>: The value is edited as a one-line text string.<p>
+</ul>
+
+The <i>label</i> is the label string used for this parameter's field
+in the order dialog.<p>
+
+The options are as shown in the following list.  Note that when using
+<b>order parm</b> to query this metadata, the <i>fieldType</i> and
+<i>label</i> are retrieved as the values of the <code>-fieldtype</code> and
+<code>-label</code> options.<p>
+
+<<deflist option>>
+
+<<defopt {-defval <i>value</i>}>>
+
+Specifies a default value for the parameter's field in the order
+dialog.  If <code>-defval</code> is not given, the field will typically
+be blank.  If there's a <i>table</i> associated with the order, this
+option is irrelevant, as all fields will be populated from the
+<i>table</i>.<p>
+
+<<defopt {-tags <i>taglist</i>}>>
+
+Specifies a list of data type tags associated with this parameter.
+This feature allows the user to fill in the field by clicking
+elsewhere in the interface.  If the user clicks on a neighborhood in
+the map viewer, for example, and the current field in the order dialog
+has <b>nbhood</b> in its list of <code>-tags</code>, the
+neighborhood's ID will appear in the field.<p>
+
+If the parameter is an <b>enum</b> parameter, the value will only
+appear in the dialog if it is contained in the field's list of valid
+values.<p>
+
+order(sim) does not define any particular set of tags; commonly used
+ones include <b>group</b>, <b>nbhood</b>, <b>point</b>, and <b>polygon</b>.<p>
+
+<<defopt {-type <i>enumType</i>}>>
+
+For <b>enum</b> parameters only, this is the name of an
+<<xref mars:enum(n)>> object (or any command with a <b>names</b>
+subcommand, really).  The field's pull-down will retrieve its values
+dynamically by calling
+
+<pre>
+    {*}$enumType names
+</pre>
+
+<<defopt {-displaylong}>>
+
+For <b>enum</b> parameters only, this option indicates that the order
+dialog should use the <<xref mars:enum(n)>>
+<<xref mars:enum(n) longname>> command to retrieve the displayed
+values.  The value the dialog passes to the order will still be the
+short name.<p>
+
+<<defopt {-display <i>column</i>}>>
+
+For <b>key</b> parameters only, this option indicates that the order
+dialog should display the value of the named <i>column</i> rather than
+the actual key value.  (Note that the key value is still used for everything
+<i>but</i> display.)<p>
+
+<<defopt {-refreshcmd <i>cmd</i>}>>
+
+Defining a <code>-refreshcmd</code> allows the behaviour of a
+parameter's field to depend on the values of the "upstream"
+fields--those which are defined earlier in the list of parameters and
+appear above it in the order dialog.
+
+The <b>NBHOOD:RELATIONSHIP:UPDATE</b> order, for example, allows the user
+to update the proximity of a pair of neighborhoods.  However, the
+proximity of a neighborhood to itself is always <b>HERE</b>, and the
+proximity of one neighborhood to another can never be <b>HERE</b>.
+The behavior of the field must change as the key values change.<p>
+
+The <i>cmd</i> accepts two arguments, the name of the parameter's field
+widget, and a dictionary of the values of all fields.  The command
+may:<p>
+
+<ul>
+  <li> Set the state of the field to <b>normal</b> or <b>disabled</b>.<p>
+  <li> Set or clear the value in the field.<p>
+  <li> For <b>enum</b> fields, set the list of possible values.<p>
+</ul>
+
+Although the current values of all fields are included in the
+dictionary, the command should properly look at the values of its own
+parameter and of those upstream.<p>
+
+This option cannot be set for <b>key</b> or <b>multi</b> parameters.<p>
+
+<<defopt {-refresh}>>
+
+Changes to <b>multi</b> and <b>key</b> parameters automatically
+trigger a refresh of all non-key fields for which
+<code>-refreshcmd</code> is defined.  On occasion, it's convenient for
+changes to a non-key field's value to trigger a refresh of down-stream
+parameters.  This is enabled by specifying the <code>-refresh</code>
+option.<p>
+
+<b>Note:</b> at present, <code>-refresh</code> is supported only for
+<b>enum</b> and <b>text</b> parameters, but other types could
+easily be supported as well.<p>
+
+<<defopt {-schedwheninvalid}>>
+
+By default, the user can only schedule an order to execute at a later
+time if the order is valid.  There are a few cases where it's
+reasonable to schedule an order with invalid fields; this option
+marks the field as one that can be invalid when the order is scheduled.<p>
+
+<</deflist option>>
+
+
+<</deflist metadata>>
+
+<<subsection "Order Body Commands">>
+
+The following commands are intended for use in order bodies.  None of
+them are strictly essential, but they allow orders to be written
+concisely.<p>
+
+Before the order body is called, <<iref order send>> will make sure
+that its parameter dictionary does not refer to any unknown
+parameters.  The dictionary is then assigned to the
+<code>parms()</code> array.  The body will access the
+<code>parms()</code> directly, and many of these body commands do so
+implicitly.<p>
+
+The order body will typically begin with a <<iref prepare>>
+command for each parameter; after that, it varies.<p>
+
+<<deflist body>>
+
+<<defitem cancel {cancel}>>
+
+Cancels the order. This is rarely used.  It throws an error with
+error code <b>CANCEL</b>, which allows the order dialog to respond
+appropriately.<p>
+
+<<defitem interface {interface}>>
+
+Returns the interface by which the order was sent, <b>gui</b>,
+<b>sim</b>, or <b>test</b>.  The body can use to, for example, pop up
+a confirmation dialog before deleting something.  This command should
+be used sparingly.<p>
+
+<<defitem prepare {prepare <i>parm</i> ?<i>options...</i>?}>>
+
+It is customary to begin each order's body with a succesion of
+<<iref prepare>> commands, one for each parameter.  Called with no
+options, <<iref prepare>> does the following:<p>
+
+<ul>
+  <li> It ensures that <i>parm</i> has an entry in the
+       <code>parms()</code> array, setting it to the empty string if
+       it is missing.<p>
+
+  <li> It trims extraneous white space characters from the beginning
+       and end of the parameter's value.<p>
+</ul>
+
+Most of the useful work is done by the options, which are processed in
+order.  The options are as follows:<p>
+
+<<deflist options>>
+
+<<defopt {-toupper}>>
+
+Converts the parameter's value to all uppercase.<p>
+
+<<defopt {-tolower}>>
+
+Converts the parameter's value to all lowercase.<p>
+
+<<defopt {-normalize}>>
+
+Normalizes internal whitespace: all internal whitespace sequences are
+replaced with single spaces.<p>
+
+<<defopt {-required}>>
+
+If the parameter's value is the empty string, it is <<iref reject>>ed.<p>
+
+<<defopt {-oldvalue <i>oldValue</i>}>>
+
+Sets the parameter's value to the empty string if it is
+<code><b>eq</b></code> to 
+<i>oldValue</i>.  This is useful in rare cases; see the existing orders.<p>
+
+<<defopt {-oldnum <i>oldNumber</i>}>>
+
+Sets the parameter's value to the empty string if it is
+<code><b>==</b></code> to 
+<i>oldNumber</i>.  This is useful in rare cases; see the existing orders.<p>
+
+<<defopt {-unused}>>
+
+This option indicates that the value is to be the ID or long name of a
+new primary entity, e.g., a new group, neighborhood, or so forth.
+Athena insists that all primary entity names are unique.  The command
+checks this by querying the <b>entities</b> view in the RDB.<p>
+
+If the value is already used as the ID or longname of some entity, the
+parameter is <<iref reject>>ed.<p>
+
+<<defopt {-type <i>valtype</i>}>>
+
+Indicates that the value of the parameter must belong to a validation
+type called <i>valtype</i>.  Specifying this option is essentially the
+same as including the following code snippet in the order body:<p>
+
+<pre>
+    validate $parm {
+        {*}$valtype validate $parms($parm)
+    }
+</pre>
+
+<<defopt {-listof <i>valtype</i>}>>
+
+This is similar to <code>-type</code>.  It indicates that the value is
+a list of which every element must be a member of the specified
+validation type.  If any element fails, the parameter is
+<<iref reject>>ed.<p>
+
+<<defopt {-xform <i>cmd</i>}>>
+
+If the parameter's value is <<iref valid>>, the value is transformed
+by passing it to the specified command.<p>
+
+<</deflist>>
+
+<<defitem reject {reject <i>parm msg</i>}>>
+
+This command explicitly rejects the order because of an error
+involving the value of parameter <i>parm</i>; the <i>msg</i> details
+the error.  The <i>msg</i> text is <<xref marsmisc(n) normalize>>d.<p>
+
+<b>NOTE:</b> Calling <<iref reject>> doesn't terminate the execution
+of the order body; it's common to validate multiple parameters before
+returning.  See <<iref returnOnError>>.<p>
+
+<<defitem returnOnError {returnOnError ?-final?}>>
+
+If any parameters have been <<iref reject>>ed, this command returns
+control to <<iref order send>> or <<iref order check>>.<p>
+
+A call to <<iref returnOnError>> with the <code>-final</code> option
+will also terminate processing if the order handler was called from
+<<iref order check>>.  Every order must contain such a call, or
+a <<iref order check>> might erroneously execute the order.<p>
+
+<<defitem setundo {setundo <i>script</i>}>>
+
+Tells order(sim) that the order's effect is undoable. The
+<i>script</i> must be a Tcl script that undoes the effect of the
+order.  If this routine is not called, or if the <i>script</i> is the
+empty string, order(sim) presumes that the order is <b>not</b>
+undoable.<p>
+
+Generally, it's assumed that if an order is not undoable it's because
+it has changed the simulation state in some non-trivial way.
+Consequently, previous orders can no longer be undone either.  In the
+unlikely event that the order has no effect to undo, the undo script
+can be a comment, e.g.,<p>
+
+<pre>
+    # No-op
+</pre>
+
+This will allow the order to be (trivially) undone.<p>
+
+
+<<defitem valid {valid <i>parm</i>}>>
+
+This command returns 1 if the named parameter's value is thought to be
+valid, and 0 otherwise.<p>
+
+A parameter's value is thought be valid if it is not the empty-string,
+and if it has not been <<iref reject>>ed.  (Some parameters are
+optional; a missing parameter is indicated by setting the parameter's
+value to the empty string.)
+
+This is used to ensure that a validation check is skipped if the
+parameter's value is missing or has already been <<iref reject>>ed.<p>
+
+<<defitem validate {validate <i>parm script</i>}>>
+
+The Athena codebase includes many "validation types"; Each such type
+has a <b>validation</b> subcommand which can be
+used to determine whether or not a data value belongs to a particular
+type.  If it does not, the subcommand throws an error with
+error code <b>INVALID</b> and a detailed message string.<p>
+
+The <<iref validate>> command executes its <i>script</i>; if the
+script throws an error with error code <b>INVALID</b>, it
+automatically <<iref reject>>s the named <i>parm</i>.  In other words,
+this code<p>
+
+<pre>
+    validate sat {
+        qsat validate $parms(sat)
+    }
+</pre>
+
+is equivalent to<p>
+
+<pre>
+    if {[valid sat]} {
+        if {[catch {
+            qsat validate $parms(sat)
+        } result]} {
+            reject sat $result
+        }
+    }
+</pre>
+
+The <i>script</i> can contain any number of commands, of course.<p>
+
+<</deflist body>>
+
+<<section EVENTS>>
+
+The <<xref orderdialog(sim)>> sends the <b>&lt;OrderEntry&gt;</b>
+event as though it were from this module, <code>::order</code>.  See
+the <<xref orderdialog(sim)>> man page for details.<p>
+
+In addition, order(sim) sends these events:<p>
+
+<<deflist events>>
+
+<<defitem Accepted {<b>&lt;Accepted&gt;</b> <i>name parmdict</i>}>>
+
+This event is sent when an order has been accepted and processing is
+complete.  The order's name and parmdict are included.<p>
+
+<<defitem State {<b>&lt;State&gt;</b> <i>state</i>}>>
+
+This event is sent when the <<iref order state>> changes.<p>
+
+<</deflist events>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

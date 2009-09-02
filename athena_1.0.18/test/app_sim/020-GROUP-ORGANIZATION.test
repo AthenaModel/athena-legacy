@@ -1,0 +1,637 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-GROUP-ORGANIZATION.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) GROUP:ORGANIZATION:* order tests.
+#
+#    This test suite tests the frcgroup-related orders.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Standard groups
+
+    set usaid {
+        g              USAID
+        longname       "US Aid"
+        color          #00ff00
+        shape          NEUTRAL
+        orgtype        NGO
+        demeanor       AVERAGE
+        rollup_weight  1.0
+        effects_factor 1.1
+    }
+
+    set hal {
+        g              HAL
+        longname       "Haliburton"
+        color          #ffff00
+        shape          NEUTRAL
+        orgtype        CTR
+        demeanor       AVERAGE
+        rollup_weight  1.2
+        effects_factor 1.3
+    }
+
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # GROUP:ORGANIZATION:CREATE
+
+    test CREATE-1.1 {required parms} -body {
+        ted order -reject GROUP:ORGANIZATION:CREATE {}
+    } -result {
+        g {required value}
+        longname {required value}
+        color {required value}
+        shape {required value}
+        orgtype {required value}
+        demeanor {required value}
+        rollup_weight {required value}
+        effects_factor {required value}
+    }
+
+    
+    test CREATE-1.2 {Duplicate g, longname} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:CREATE $usaid
+    } -cleanup {
+        cleanup
+    } -result {
+        g {An entity with this ID already exists}
+        longname {An entity with this name already exists}
+    }
+
+
+    test CREATE-1.3 {longname duplicates n} -body {
+        ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
+            longname USAID
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        longname {longname must not be identical to ID}
+    }
+
+
+    test CREATE-1.4 {g is not an ident} -body {
+        ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
+            g "NONE&SUCH"
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Identifiers begin with a letter and contain only letters and digits.}
+    }
+
+
+    test CREATE-1.5 {invalid color} -body {
+        ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
+            color NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+    }
+
+
+    test CREATE-1.6 {invalid shape} -body {
+        ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
+            shape NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
+    }
+
+
+    test CREATE-1.7 {invalid orgtype} -body {
+        ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
+            orgtype NONESUCH
+        }]
+    } -result {
+        orgtype {invalid value "NONESUCH", should be one of: NGO, IGO, CTR}
+    }
+
+
+    test CREATE-1.8 {invalid demeanor} -body {
+        ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
+            demeanor NONESUCH
+        }]
+    } -result {
+        demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
+    }
+
+
+    test CREATE-1.9 {invalid rollup_weight 1} -body {
+        ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
+            rollup_weight NONESUCH
+        }]
+    } -result {
+        rollup_weight {invalid value "NONESUCH", expected double}
+    }
+
+
+    test CREATE-1.10 {invalid rollup_weight 2} -body {
+        ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
+            rollup_weight -0.1
+        }]
+    } -result {
+        rollup_weight {invalid value "-0.1", expected double no less than 0.0}
+    }
+
+
+    test CREATE-1.11 {invalid effects_factor 1} -body {
+        ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
+            effects_factor NONESUCH
+        }]
+    } -result {
+        effects_factor {invalid value "NONESUCH", expected double}
+    }
+
+
+    test CREATE-1.12 {invalid effects_factor 2} -body {
+        ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
+            effects_factor -0.1
+        }]
+    } -result {
+        effects_factor {invalid value "-0.1", expected double no less than 0.0}
+    }
+
+
+    test CREATE-2.1 {orggroup is created} -body {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted order GROUP:ORGANIZATION:CREATE $hal
+        ted query {SELECT * FROM orggroups_view}
+    } -cleanup {
+        cleanup
+    } -result {
+g     longname   color   shape   symbol       gtype orgtype demeanor rollup_weight effects_factor 
+----- ---------- ------- ------- ------------ ----- ------- -------- ------------- -------------- 
+USAID US Aid     #00ff00 NEUTRAL organization ORG   NGO     AVERAGE  1.0           1.1            
+HAL   Haliburton #ffff00 NEUTRAL organization ORG   CTR     AVERAGE  1.2           1.3            
+    }
+
+
+    test CREATE-2.2 {Effects} -body {
+        ted notifier bind ::orggroup <Entity>
+        ted notifier bind ::scenario <Reconcile>
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::orggroup <Entity> create USAID}
+        {::scenario <Reconcile>}
+    }
+
+
+    test CREATE-3.1 {Undo effects} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted notifier bind ::orggroup <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::orggroup <Entity> delete USAID}
+    }
+
+
+    #-------------------------------------------------------------------
+    # GROUP:ORGANIZATION:DELETE
+
+    test DELETE-1.1 {required parms} -body {
+        ted order -reject GROUP:ORGANIZATION:DELETE {}
+    } -result {
+        g {required value}
+    }
+
+    
+    test DELETE-1.2 {unknown g} -body {
+        ted order -reject GROUP:ORGANIZATION:DELETE g NONESUCH
+    } -result {
+        g {Invalid organization group, none are defined}
+    }
+
+
+    test DELETE-2.1 {Effects} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted notifier bind ::orggroup <Entity>
+        ted notifier bind ::scenario <Reconcile>
+        ted order GROUP:ORGANIZATION:DELETE g USAID
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::orggroup <Entity> delete USAID}
+        {::scenario <Reconcile>}
+    }
+
+
+    test DELETE-3.1 {Undo effects} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted order GROUP:ORGANIZATION:DELETE g USAID
+    } -body {
+        ted notifier bind ::orggroup <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::orggroup <Entity> create USAID}
+    }
+
+
+    #-------------------------------------------------------------------
+    # GROUP:ORGANIZATION:UPDATE
+
+    test UPDATE-1.1 {required parms} -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE {}
+    } -result {
+        g {required value}
+    }
+    
+    test UPDATE-1.2 {Duplicate longname} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted order GROUP:ORGANIZATION:CREATE $hal
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE g USAID longname "Haliburton"
+    } -cleanup {
+        cleanup
+    } -result {
+        longname {An entity with this name already exists}
+    }
+
+
+    test UPDATE-1.3 {longname duplicates some g} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted order GROUP:ORGANIZATION:CREATE $hal
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE g USAID longname HAL
+    } -cleanup {
+        cleanup
+    } -result {
+        longname {An entity with this ID already exists}
+    }
+
+
+    test UPDATE-1.4 {invalid color} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE g USAID color NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+    }
+
+
+    test UPDATE-1.5 {invalid shape} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE g USAID shape NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
+    }
+
+
+    test UPDATE-1.6 {invalid orgtype} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE g USAID orgtype NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        orgtype {invalid value "NONESUCH", should be one of: NGO, IGO, CTR}
+    }
+
+
+    test UPDATE-1.7 {invalid orgtype} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE g USAID demeanor NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
+    }
+
+
+    test UPDATE-1.8 {invalid rollup_weight 1} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE g USAID rollup_weight NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        rollup_weight {invalid value "NONESUCH", expected double}
+    }
+
+
+    test UPDATE-1.9 {invalid rollup_weight 2} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE g USAID rollup_weight -0.1
+    } -cleanup {
+        cleanup
+    } -result {
+        rollup_weight {invalid value "-0.1", expected double no less than 0.0}
+    }
+
+
+    test UPDATE-1.10 {invalid effects_factor 1} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE g USAID effects_factor NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        effects_factor {invalid value "NONESUCH", expected double}
+    }
+
+
+    test UPDATE-1.11 {invalid effects_factor 2} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE g USAID effects_factor -0.1
+    } -cleanup {
+        cleanup
+    } -result {
+        effects_factor {invalid value "-0.1", expected double no less than 0.0}
+    }
+
+
+    test UPDATE-2.1 {orggroup is updated} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order GROUP:ORGANIZATION:UPDATE {
+            g              USAID
+            longname       "Red Cross"
+            color          "#ff0000"
+            shape          ENEMY
+            orgtype        IGO
+            demeanor       AGGRESSIVE
+            rollup_weight  0.1
+            effects_factor 0.2
+        }
+
+        ted query {SELECT * FROM orggroups_view}
+    } -cleanup {
+        cleanup
+    } -result {
+g     longname  color   shape symbol       gtype orgtype demeanor   rollup_weight effects_factor 
+----- --------- ------- ----- ------------ ----- ------- ---------- ------------- -------------- 
+USAID Red Cross #ff0000 ENEMY organization ORG   IGO     AGGRESSIVE 0.1           0.2            
+    }
+
+
+    test UPDATE-2.2 {<Entity> update} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted notifier bind ::orggroup <Entity>
+        ted order GROUP:ORGANIZATION:UPDATE g USAID longname "Red Cross"
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::orggroup <Entity> update USAID}
+    }
+
+
+    test UPDATE-3.1 {undo effects} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted order GROUP:ORGANIZATION:UPDATE {
+            g              USAID
+            longname       "Red Cross"
+            color          "#ff0000"
+        }
+    } -body {
+        ted notifier bind ::orggroup <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::orggroup <Entity> update USAID}
+    }
+
+    #-------------------------------------------------------------------
+    # GROUP:FORCE:UPDATE:MULTI
+
+    test UPDATE:MULTI-1.1 {required parms} -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI {}
+    } -result {
+        ids {required value}
+    }
+    
+    test UPDATE:MULTI-1.2 {invalid ids, no groups} -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI ids NONESUCH
+    } -result {
+        ids {Invalid organization group, none are defined}
+    }
+
+    test UPDATE:MULTI-1.3 {invalid ids, groups} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI ids NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        ids {Invalid organization group, should be one of: USAID}
+    }
+
+    test UPDATE:MULTI-1.4 {invalid color} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI ids USAID color NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+    }
+
+
+    test UPDATE:MULTI-1.5 {invalid shape} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI ids USAID shape NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
+    }
+
+
+    test UPDATE:MULTI-1.6 {invalid orgtype} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
+            ids USAID orgtype NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        orgtype {invalid value "NONESUCH", should be one of: NGO, IGO, CTR}
+    }
+
+
+    test UPDATE:MULTI-1.7 {invalid demeanor} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
+            ids USAID demeanor NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
+    }
+
+
+    test UPDATE:MULTI-1.8 {invalid rollup_weight 1} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
+            ids USAID rollup_weight NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        rollup_weight {invalid value "NONESUCH", expected double}
+    }
+
+
+    test UPDATE:MULTI-1.9 {invalid rollup_weight 2} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
+            ids USAID rollup_weight -0.1
+    } -cleanup {
+        cleanup
+    } -result {
+        rollup_weight {invalid value "-0.1", expected double no less than 0.0}
+    }
+
+
+    test UPDATE:MULTI-1.10 {invalid effects_factor 1} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
+            ids USAID effects_factor NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        effects_factor {invalid value "NONESUCH", expected double}
+    }
+
+
+    test UPDATE:MULTI-1.11 {invalid effects_factor 2} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+    } -body {
+        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
+            ids USAID effects_factor -0.1
+    } -cleanup {
+        cleanup
+    } -result {
+        effects_factor {invalid value "-0.1", expected double no less than 0.0}
+    }
+
+
+    test UPDATE:MULTI-2.1 {one orggroup of several is updated} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted order GROUP:ORGANIZATION:CREATE $hal
+    } -body {
+        ted notifier bind ::orggroup <Entity>
+
+        ted order GROUP:ORGANIZATION:UPDATE:MULTI {
+            ids            USAID 
+            color          "#ff0000"
+            orgtype        IGO
+        }
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::orggroup <Entity> update USAID}
+    }
+
+    test UPDATE:MULTI-2.2 {several orggroups are updated} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted order GROUP:ORGANIZATION:CREATE $hal
+    } -body {
+        ted notifier bind ::orggroup <Entity>
+
+        ted order GROUP:ORGANIZATION:UPDATE:MULTI {
+            ids            {USAID HAL}
+            color          "#ff0000"
+            orgtype        IGO
+        }
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::orggroup <Entity> update USAID}
+        {::orggroup <Entity> update HAL}
+    }
+
+
+    test UPDATE:MULTI-3.2 {undo effects} -setup {
+        ted order GROUP:ORGANIZATION:CREATE $usaid
+        ted order GROUP:ORGANIZATION:CREATE $hal
+        ted order GROUP:ORGANIZATION:UPDATE:MULTI \
+            ids {USAID HAL} color "#ff0000"
+    } -body {
+        ted notifier bind ::orggroup <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::orggroup <Entity> update USAID}
+        {::orggroup <Entity> update HAL}
+    }
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+

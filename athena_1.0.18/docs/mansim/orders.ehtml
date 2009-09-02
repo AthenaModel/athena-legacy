@@ -1,0 +1,453 @@
+<<manpage orders(sim) "Athena Orders">>
+
+<<swallow {
+    package require simlib
+    package require projectlib
+
+    # <<parmlist>>
+    # <<parm name>> Description <</parm>>
+    #    ...
+    # <</parmlist>>
+
+    template parmlist {} {
+        |<--
+        <table border="0" cellspacing="0" cellpadding="5"> 
+    }
+
+    template parm {name} {
+        |<--
+        <tr valign="top"><td width="95"><b><tt>$name</tt></b></td>
+        <td>
+    }
+
+    template /parm {} {
+        </td>
+        </tr>
+    }
+
+    template /parmlist {} {
+        |<--
+        </table>
+    }
+}>>
+
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+All user inputs to the athena_sim(1) simulation come in as simulation
+orders, which are defined by the various simulation modules.  This man
+page documents the orders and their parameters.<p>
+
+<<section "ATTRIT:*">>
+
+These orders are now documented in the Athena help.<p>
+
+<<section "COOPERATION:*">>
+
+These orders are now documented in the Athena help.<p>
+
+<<section "GROUP:*">>
+
+These orders are now documented in the Athena help.<p>
+
+<<subsection "GROUP:CIVILIAN:*">>
+
+These orders are now documented in the Athena help.<p>
+
+<<subsection "GROUP:FORCE:*">>
+
+These orders are now documented in the Athena help.<p>
+
+<<subsection "GROUP:NBHOOD:*">>
+
+These orders are now documented in the Athena help.<p>
+
+<<subsection "GROUP:ORGANIZATION:*">>
+
+These orders are now documented in the Athena help.<p>
+
+<<section "MAP:*">>
+
+These orders are now documented in the Athena help.<p>
+
+<<section "NBHOOD:*">>
+
+These orders are now documented in the Athena help.<p>
+
+<<section "NBHOOD:RELATIONSHIP:*">>
+
+These orders are now documented in the Athena help.<p>
+
+<<section "PARM:*">>
+
+These orders are now documented in the Athena help.<p>
+
+<<section "RELATIONSHIP:*">>
+
+These orders are now documented in the Athena help.<p>
+
+<<section "ROE:*">>
+
+The <code>ROE:*</code> orders are used to create, modify, and
+manipulate various kinds of rules of engagement (ROEs).  The current
+set of ROEs determines which groups engage in combat with other
+groups, and how.<p>
+
+<<subsection "ROE:ATTACK:*">>
+
+These orders determine which groups go out and attack other groups,
+and when.  At present, uniformed force groups may hunt down and attack
+cells belonging to non-uniformed force groups, and non-uniformed force
+groups may ambush uniformed force groups.  These two cases are not
+identical, and hence there are orders for both.<p>
+
+<<deflist roe attack>>
+
+<<defitem ROE:ATTACK:NONUNIFORMED:CREATE {ROE:ATTACK:NONUNIFORMED:CREATE}>>
+
+Creates a new Attacking ROE for a non-uniformed force group.  The
+parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm n>> <b>Required.</b> The neighborhood in which the combat will
+take place.<</parm>>
+
+<<parm f>> <b>Required.</b> The non-uniformed force group doing the
+attacking.<</parm>>
+
+<<parm g>> <b>Required.</b> The uniformed force group being attacked.<</parm>>
+
+<<parm roe>> <b>Required.</b> The ROE; this determines how group
+<b>f</b> attacks group <b>g</b>.  It is an
+<<xref projtypes(n) eattroenf>> value<p>
+
+<<::projectlib::eattroenf html>>
+<</parm>>
+
+<<parm cooplimit>> <b>Required.</b>  Group <b>f</b> will attack group
+<b>g</b> only if neighborhood <b>n</b>'s cooperation with <b>f</b>
+meets or exceeds this limit, a <<xref mars:simtypes(n) qcooperation>> value:<p>
+
+<<::simlib::qcooperation html>>
+
+<<parm rate>> <b>Required.</b>  Attack rate in attacks per day.
+Group <b>f</b> will to attack group
+<b>g</b> in neighborhood <b>n</b> at this rate, given the ability.  A
+non-negative real number.
+
+<</parm>>
+
+<</parmlist>>
+
+<<defitem ROE:ATTACK:NONUNIFORMED:UPDATE {ROE:ATTACK:NONUNIFORMED:UPDATE}>>
+
+Updates an existing ROE.  The parameters are as
+defined for <<iref ROE:ATTACK:NONUNIFORMED:CREATE>>; <b>n</b>,
+<b>f</b>, and <b>g</b> are required, while the remainder are optional.<p>
+
+
+<<defitem ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI {ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI}>>
+
+Updates multiple ROEs.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of one or more ROE
+IDs.<</parm>>
+
+<<parm roe>> As for <<iref ROE:ATTACK:NONUNIFORMED:CREATE>>. <</parm>>
+<<parm cooplimit>> As for <<iref ROE:ATTACK:NONUNIFORMED:CREATE>>. <</parm>>
+<<parm rate>> As for <<iref ROE:ATTACK:NONUNIFORMED:CREATE>>. <</parm>>
+
+<</parmlist>>
+
+<<defitem ROE:ATTACK:UNIFORMED:CREATE {ROE:ATTACK:UNIFORMED:CREATE}>>
+
+Creates a new Attacking ROE for a uniformed force group.  The
+parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm n>> <b>Required.</b> The neighborhood in which the combat will
+take place.<</parm>>
+
+<<parm f>> <b>Required.</b> The uniformed force group doing the
+attacking.<</parm>>
+
+<<parm g>> <b>Required.</b> The non-uniformed force group being
+attacked.<</parm>>
+
+<<parm roe>> <b>Required.</b> The ROE; this determines how group
+<b>f</b> attacks group <b>g</b>.  It is an
+<<xref projtypes(n) eattroeuf>> value<p>
+
+<<::projectlib::eattroeuf html>>
+<</parm>>
+
+<<parm cooplimit>> <b>Required.</b>  Group <b>f</b> will attack group
+<b>g</b> only if neighborhood <b>n</b>'s cooperation with <b>f</b>
+meets or exceeds this limit, a <<xref mars:simtypes(n) qcooperation>> value:<p>
+
+<<::simlib::qcooperation html>>
+
+<</parm>>
+
+<</parmlist>>
+
+<<defitem ROE:ATTACK:UNIFORMED:UPDATE {ROE:ATTACK:UNIFORMED:UPDATE}>>
+
+Updates an existing ROE.  The parameters are as
+defined for <<iref ROE:ATTACK:UNIFORMED:CREATE>>; <b>n</b>,
+<b>f</b>, and <b>g</b> are required, while the remainder are optional.<p>
+
+
+<<defitem ROE:ATTACK:UNIFORMED:UPDATE:MULTI {ROE:ATTACK:UNIFORMED:UPDATE:MULTI}>>
+
+Updates multiple ROEs.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of one or more ROE
+IDs.<</parm>>
+
+<<parm roe>> As for <<iref ROE:ATTACK:UNIFORMED:CREATE>>. <</parm>>
+<<parm cooplimit>> As for <<iref ROE:ATTACK:UNIFORMED:CREATE>>. <</parm>>
+
+<</parmlist>>
+
+<<defitem ROE:ATTACK::DELETE {ROE:ATTACK::DELETE}>>
+
+Deletes an attacking ROE.  The parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm n>> <b>Required.</b> A neighborhood ID.<</parm>>
+<<parm f>> <b>Required.</b> A group ID.<</parm>>
+<<parm g>> <b>Required.</b> A group ID.<</parm>>
+
+<</parmlist>>
+
+
+<</deflist roe attack>>
+
+<<subsection "ROE:DEFEND:*">>
+
+These orders determine how uniformed force groups defend themselves
+from attack in particular neighborhoods.  These ROEs are created
+automatically, but can be updated by the user.<p>
+
+<<deflist roe defend>>
+
+<<defitem ROE:DEFEND:UPDATE {ROE:DEFEND:UPDATE}>>
+
+Updates an existing ROE. The parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm n>> <b>Required.</b> The neighborhood in which the combat will
+take place.<</parm>>
+
+<<parm g>> <b>Required.</b> The uniformed force group doing the
+defending.<</parm>>
+
+<<parm roe>> <b>Required.</b> The ROE; this determines how group
+<b>g</b> responds to being attacked.  It is an
+<<xref projtypes(n) edefroeuf>> value<p>
+
+<<::projectlib::edefroeuf html>>
+<</parm>>
+
+<</parmlist>>
+
+
+
+<<defitem ROE:DEFEND:UPDATE:MULTI {ROE:DEFEND:UPDATE:MULTI}>>
+
+Updates multiple ROEs.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm ids>> <b>Required.</b>  A list of one or more ROE
+IDs.<</parm>>
+
+<<parm roe>> As for <<iref ROE:DEFEND:UPDATE>>. <</parm>>
+
+<</parmlist>>
+
+<</deflist roe defend>>
+
+<<section "SAT:*">>
+
+These orders are now documented in the Athena help.<p>
+
+<<section "SIM:*">>
+
+The <code>SIM:*</code> orders are used to control the behavior of the
+simulation as a whole.<p>
+
+<<deflist sim>>
+
+<<defitem SIM:PAUSE {SIM:PAUSE}>>
+
+Pauses the simulation when it is running.  This order has no effect if
+the simulation is not running.  This order has no parameters.<p>
+
+<<defitem SIM:RUN {SIM:RUN}>>
+
+Starts simulation time advancing.  If the simulation is in
+the <b>PREP</b> state, at time 0, then Athena must do a sanity check
+on the scenario data and initialize all simulation models before time
+can start advancing.  The order will have no effect if the sanity
+check fails.<p>
+
+The parameters are as follows:
+
+<<parmlist>>
+
+<<parm days>> <b>Optional.</b>  By default, the simulation will run
+until paused by the user.  If <b>days</b> is given, then the
+simulation will pause automatically after that many <b>days</b>.<</parm>>
+
+<</parmlist>>
+
+
+<<defitem SIM:STARTDATE {SIM:STARTDATE}>>
+
+Sets the start date, i.e., the calendar date associated with
+simulation time 0.  Specifying the start date allows Athena to display
+appropriate zulu-time strings.<p>
+
+The parameters are as follows:
+
+<<parmlist>>
+
+<<parm startdate>> <b>Required.</b>  The calendar start date,
+specified as a <<xref mars::zulu(n)>> time string.<</parm>>
+
+<</parmlist>>
+
+
+<</deflist sim>>
+
+
+<<section "SITUATION:ENVIRONMENTAL:*">>
+
+These orders are now documented in the Athena help.<p>
+
+<<section "UNIT:*">>
+
+These orders relate to force and organization units, entities that
+represent the allocation of force and organization personnel to
+activities in neighborhoods.<p>
+
+<<deflist unit>>
+
+<<defitem UNIT:CREATE {UNIT:CREATE}>>
+
+Creates a new unit.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm g>> <b>Required.</b>  The name of a group.<</parm>>
+
+<<parm origin>> <b>Required.</b>  The unit's neighborhood of origin.
+For force and organization units, this is always <b>NONE</b>; for
+civilian units, this must be the name of a neighborhood in which
+group <b>g</b> resides.<</parm>>
+
+<<parm u>> <b>Required.</b>  The name of the unit, a
+<<xref projtypes(n) unitname>> value.<</parm>>
+
+<<parm personnel>> <b>Required.</b>  The number of personnel in the
+unit, an <<xref projtypes(n) iquantity>> value.  Civilian personnel
+are drawn from the neighborhood group's implicit population.<</parm>>
+
+<<parm location>> <b>Required.</b>  The location of the unit as
+a map reference.<</parm>>
+
+<<parm activity>> <b>Required.</b>  The unit's initial activity.
+The unit's group type
+constrains the activities that it can be assigned to do.<</parm>>
+
+<</parmlist>>
+
+<<defitem UNIT:DELETE {UNIT:DELETE}>>
+
+Deletes a unit.<p>
+
+The parameters are as follows:<p>
+
+<<parmlist>>
+
+<<parm u>> <b>Required.</b> The unit's name.<</parm>>
+
+<</parmlist>>
+
+
+<<defitem UNIT:MOVE {UNIT:MOVE}>>
+
+Moves a unit to a new location.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm u>> <b>Required.</b>  The name of an existing unit.<</parm>>
+
+<<parm location>> <b>Required.</b>  The location of the unit as
+a map reference.<</parm>>
+
+<</parmlist>>
+
+
+<<defitem UNIT:ACTIVITY {UNIT:ACTIVITY}>>
+
+Assigns a new activity to a unit.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm u>> <b>Required.</b>  The name of an existing unit.<</parm>>
+
+<<parm activity>> <b>Required.</b>  The unit's new activity.
+The unit's group type constrains the activities that it can be
+assigned to do.
+<</parm>>
+
+<</parmlist>>
+
+
+<<defitem UNIT:PERSONNEL {UNIT:PERSONNEL}>>
+
+Sets the number of people in the unit.  The parameters are as
+follows:<p>
+
+<<parmlist>>
+
+<<parm u>> <b>Required.</b>  The name of an existing unit.<</parm>>
+
+<<parm personnel>> <b>Required.</b>  The number of personnel in the
+unit, an <<xref projtypes(n) iquantity>> value.  Civilian personnel
+are drawn from the neighborhood group's implicit population.
+<</parm>>
+
+<</parmlist>>
+
+
+
+<</deflist unit>>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<</manpage>>
+
+

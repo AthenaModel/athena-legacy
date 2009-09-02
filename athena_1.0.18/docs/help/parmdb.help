@@ -1,0 +1,119 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    parmdb.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: Model Parameters
+#
+#    This file is included into athena.help.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+
+page parmdb "Model Parameters" "" {
+    <<title>>
+    Model parameters are variable settings used to calibrate
+    Athena's models and configure its low-level behavior.
+    Parameter values can be queried and set using the
+    <<cmdref parm>> executive command.  See also the
+    <<cref REPORT:PARMDB>>.<p>
+
+    <<childlinks>>
+}
+
+# parmpage parm itemtype
+#
+# parm     The name of the parameter or subset
+# itemtype parm|subset
+#
+# Defines a parameter help page, defining the parent/child links properly.
+
+proc parmpage {parm itemtype} {
+    set tokens [split $parm "."]
+    set tag "parm.$parm"
+
+    set parent [join [lrange $tokens 0 end-1] .]
+
+    if {[llength $parent] == 0} {
+        set ptag "parmdb"
+    } else {
+        set ptag "parm.$parent"
+    }
+
+    set text "<<parmdb.header $parm $itemtype>>"
+    append text [super ::projectlib::parmdb docstring $parm]
+    append text "<p>"
+
+    if {$itemtype eq "subset"} {
+        append text "\n<<childlinks>>"
+    }
+
+    if {$itemtype eq "subset"} {
+        page $tag $parm.* $ptag $text
+    } else {
+        page $tag $parm $ptag $text
+    }
+}
+
+macro parmdb.header {parm itemtype} {
+    set tokens [split $parm .]
+
+    set namelinks ""
+    
+    set cref "parm"
+
+    foreach token [lrange $tokens 0 end-1] {
+        append cref ".$token" 
+        append namelinks "[cref $cref $token]."
+    }
+
+    append namelinks [lindex $tokens end]
+
+    if {$itemtype eq "subset"} {
+        append namelinks ".*"
+        set defaultValue ""
+    } else {
+        set defaultValue \
+            "Default value: [::projectlib::parmdb getdefault $parm]<p>"
+    }
+} {
+    |<--
+    <h3>$namelinks</h3>
+
+    $defaultValue
+}
+
+# parmpages
+#
+# Creates a page called "parm.<parmname>" for each parameters.
+
+proc parmpages {} {
+    super ::projectlib::parmdb init
+
+    foreach {item itemtype} [super ::projectlib::parmdb items] {
+        parmpage $item $itemtype
+    }
+}
+
+
+#-----------------------------------------------------------------------
+
+page parmdb.locked "Locked Parameters" parmdb {
+    <<title>>
+    A few model parameters (e.g., <<cref parm.sim.tickSize>>) can only 
+    be set during
+    <<cref "Scenario Preparation">>; once time advances they are
+    "locked", and can no longer be changed using the
+    <<cmdref parm set>>, <<cmdref parm import>>, and 
+    <<cmdref parm reset>> commands.<p>
+}
+
+#-----------------------------------------------------------------------
+
+parmpages
+

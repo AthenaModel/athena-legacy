@@ -1,0 +1,15 @@
+Athena Version Modules
+-----------------------------------------------------------------
+
+This directory contains the app(version) package, which contains
+the modules of Tcl code specific to the Athena Version Switcher
+tool, athena_version(1), which is launched by athena(1).
+
+NOTE: Because the modules in this package represent 
+application-level code, they are generally defined as singletons
+and live in the global namespace.
+
+
+
+
+

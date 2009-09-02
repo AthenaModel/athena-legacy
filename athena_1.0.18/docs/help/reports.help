@@ -1,0 +1,417 @@
+#-----------------------------------------------------------------------
+# TITLE:
+#    reports.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: Reports
+#
+#    This file is included into athena.help.
+#
+#    At present, all reports are in a flat list; eventually, we'll
+#    want a page hierarchy.
+#
+#-----------------------------------------------------------------------
+
+page reports "Reports" {} {
+    <<title>>
+    As it runs, Athena produces a variety of text reports; in addition,
+    the user may request a variety of reports.  This section describes
+    the available reports.<p>
+
+    <<childlinks>>
+}
+
+macro reports.noprep {} {
+    |<--
+    Note that this order cannot be sent while Athena is in the
+    [cref using.prep] state, as GRAM has not yet been
+    initialized and so no data is available.<p>
+}
+
+#-----------------------------------------------------------------------
+
+page REPORT:DRIVER "Attitude Driver Report" reports {
+    <<order.header>>
+    <<parmlist>>
+
+    <<parm state "Driver State">>
+    <b>Required.</b>  The set of drivers to include in the report:<p>
+
+    <ul>
+    <li> <b>all</b>: All drivers
+    <li> <b>active</b>:  All active drivers: those which are currently
+    contributing to attitude change.
+    <li> <b>inactive</b>: All inactive drivers: those which have
+    contributed, or which are scheduled to do so in the future,
+    but are not currently doing so.
+    <li> <b>empty</b>: All drivers whose set of attitude inputs is
+    empty.
+    </ul>
+    <</parm>>
+
+    <</parmlist>>
+
+    An attitude driver is an event or situation that drives attitude
+    change.  Usually the set of active drivers is of the most
+    interest; after a long run, the set of inactive drivers might be
+    quite large.<p>
+
+    Some few drivers will be "empty", having had no effect at all.
+    For example, the effect of force group presence depends on the
+    relationship between the neighborhood groups and the force group;
+    if the relationships are all zero, the PRESENCE rules will fire
+    but all of the attitude inputs will be 0.0, and hence will be
+    ignored.<p>
+
+    Note that this order cannot be sent while Athena is in the
+    <<cref "Scenario Preparation">> state, as GRAM has not yet been
+    initialized and so no data is available.<p>
+
+    The following information is listed for each driver:<p>
+
+    <<topiclist Column Description>>
+    <<topic ID>>
+    The driver ID.  Driver IDs are assigned in numerical order 
+    to drivers as they are created.  Because newer drivers have higher
+    IDs, the drivers are listed by ID in descending order.
+    <</topic>>
+
+    <<topic Type>>
+    The driver type.  Usually, this will be the name of one of the
+    Driver Assessment Model's rule sets.
+    <</topic>>
+
+    <<topic Name>>
+    The driver's name.  For example, situations will have names like
+    "Sit 34" where "34" is the situation ID.
+    <</topic>>
+
+    <<topic Description>>
+    A brief description of the driver.
+    <</topic>>
+
+    <<topic State>>
+    The driver's state: active, inactive, or empty, as described
+    above.
+    <</topic>>
+
+    <<topic "Start Time">>
+    The time at which the driver first started (or will first start)
+    to change attitudes in the playbox.
+    <</topic>>
+
+    <<topic "End Time">>
+    The time at which the driver stopped (or will stop) changing
+    attitudes in the playbox.  For on-going situations, this column will
+    contain the word "On-going" instead of a Zulu time.
+    <</topic>>
+
+    <</topiclist>>
+
+}
+
+#-----------------------------------------------------------------------
+
+page REPORT:SATISFACTION:CIVILIAN "Civilian Satisfaction Report" reports {
+    <<order.header>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  A civilian group name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <</parmlist>>
+
+    By default, this order lists the satisfaction values and deltas
+    since time 0 for all civilian groups in all neighborhoods, along
+    with the playbox-wide satisfaction roll-ups.  The user can also
+    elect to filter the output to a particular neighborhood, group, or
+    both.  If a specific neighborhood is selected, the playbox
+    roll-ups are omitted.<p>
+
+    <<reports.noprep>>
+
+    The output is presented in the form of a table with the following
+    columns:<p> 
+
+    <<topiclist Column Description>>
+    <<topic Nbhood>>
+    The neighborhood, or "Playbox" for the playbox-wide roll-ups.
+    <</topic>>
+
+    <<topic Group>>
+    The name of the group.
+    <</topic>>
+
+    <<topic Con>>
+    The concern, or "Mood" for the group's mood in this neighborhood.
+    <</topic>>
+
+    <<topic Satisfaction>>
+    The current satisfaction level, including both the numeric and
+    symbolic value, according to this scale:<p>
+
+    <<::simlib::qsat html>>
+    <</topic>>
+
+    <<topic Delta>>
+    The delta between the satisfaction level at time 0 and the value
+    now.
+    <</topic>>
+
+    <<topic "Initial Sat">>
+    The value of the satisfaction level at time 0, including both
+    the numeric and symbolic value as described above.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+page REPORT:SATISFACTION:CONTRIB "Contribution to Satisfaction Report" reports {
+    <<order.header>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood name.<p>
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  A civilian or organization group name.<p>
+    <</parm>>
+
+    <<parm c "Concern">>
+    <b>Required.</b>  A concern, or <b>MOOD</b>.<p>
+    <</parm>>
+
+    <<parm top "Number">>
+    <b>Optional.</b>  By default, the report shows the top 20
+    contributors to the particular satisfaction curve.  The user can
+    increase or decrease the number of listed contributors as desired.
+    <</parm>>
+
+    <<parm start "Start Time">>
+    <b>Optional.</b>  By default, the report includes all
+    contributions from time 0 until the current simulation time.  The
+    user can narrow the window by setting the start time to some time
+    after time 0.  The time is specified as a <<cref timespec>>.
+    <</parm>>
+
+    <<parm end "End Time">>
+    <b>Optional.</b>  Similarly, the user can set the end of the time
+    window to some <<cref timespec>> prior to the current simulation time.
+    <</parm>>
+
+    <</parmlist>>
+
+    This report lists the drivers which have contributed the most (in
+    absolute terms) to a particular satisfaction curve or mood,
+    including the total amount contributed by each.  If not all
+    contributing drivers are listed, the report also indicates the
+    percentage of the total contributions represented by the listed
+    drivers.<p>
+
+    <<reports.noprep>>
+
+    The output is presented in the form of a table with the following
+    columns:<p> 
+
+    <<topiclist Column Description>>
+    <<topic Rank>>
+    The rank of this driver in terms of its absolute contribution to
+    the curve, from 1 to <i>n</i>.
+    <</topic>>
+
+    <<topic Actual>>
+    The actual contribution of the driver to the curve in satisfaction
+    points.
+    <</topic>>
+
+    <<topic ID>>
+    The driver ID, an integer number.
+    <</topic>>
+
+    <<topic Name>>
+    The driver's name
+    <</topic>>
+
+    <<topic Description>>
+    A one-line description of the driver.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+page REPORT:COOPERATION "Cooperation Report" reports {
+    <<order.header>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  A civilian group name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  A force group name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <</parmlist>>
+
+    By default, this order displays the cooperation (and delta since
+    time 0) of each neighborhood group with each force group, along
+    with the composite cooperation of each neighborhood with each
+    force group.  The user can elect to limit the output to a 
+    particular neighborhood, civilian group, force group, or
+    all three.  If a particular civilan group is selected, the
+    composite cooperation is omitted.<p>
+
+    <<reports.noprep>>
+
+    The output is presented in the form of a table with the following
+    columns:<p> 
+
+    <<topiclist Column Description>>
+    <<topic Nbhood>>
+    The neighborhood.
+    <</topic>>
+
+    <<topic Of>>
+    The name of the civilian group in the neighborhood, or "Nbhood"
+    for the composite cooperation of the neighborhood as a whole.
+    <</topic>>
+
+    <<topic With>>
+    The force group.
+    <</topic>>
+
+    <<topic Cooperation>>
+    The current cooperation level, including both the numeric and
+    symbolic value, according to this scale:<p>
+
+    <<::simlib::qcooperation html>>
+    <</topic>>
+
+    <<topic Delta>>
+    The delta between the cooperation level at time 0 and the value
+    now.
+    <</topic>>
+
+    <<topic "Initial Coop">>
+    The value of the cooperation level at time 0, including both
+    the numeric and symbolic value as described above.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+page REPORT:PARMDB "Model Parameter Report" reports {
+    <<order.header>>
+    <<parmlist>>
+
+    <<parm state "Parameter State">>
+    <b>Required.</b>  The set of parameters to include in the report:<p>
+
+    <ul>
+    <li> <b>ALL</b>: All parameters
+    <li> <b>CHANGED</b>:  All parameters that have been changed from their 
+         default settings.
+    empty.
+    </ul>
+    <</parm>>
+
+    <<parm wildcard "Wildcard">>
+    <b>Optional.</b>  A wildcard pattern, e.g., the pattern "aam.*"
+    matches all of the attrition model parameters.
+    <</parm>>
+
+    <</parmlist>>
+
+    This report lists each of Athena's model parameters with its current
+    value.  If a parameter's current value differs from the installation
+    default, then the default value will be displayed on the
+    following line.<p>
+
+    The report's output can be filtered in two ways.  First, if
+    <b>CHANGED</b> is selected, the report will include only those
+    parameters whose values differ from their installation defaults.  
+    Second, the report will include only parameters whose names match
+    the specified wildcard.  (Wildcard-matching is case-insensitive.)
+}
+
+#-----------------------------------------------------------------------
+
+page REPORT:SATISFACTION:ORGANIZATION "Organization Satisfaction Report" reports {
+    <<order.header>>
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  A organization group name, or <b>ALL</b>.<p>
+    <</parm>>
+
+    <</parmlist>>
+
+    By default, this order lists the satisfaction values and deltas
+    since time 0 for all organization groups in all neighborhoods, along
+    with the playbox-wide satisfaction roll-ups.  The user can also
+    elect to filter the output to a particular neighborhood, group, or
+    both.  If a specific neighborhood is selected, the playbox
+    roll-ups are omitted.<p>
+
+    <<reports.noprep>>
+
+    The output is presented in the form of a table with the following
+    columns:<p> 
+
+    <<topiclist Column Description>>
+    <<topic Nbhood>>
+    The neighborhood, or "Playbox" for the playbox-wide roll-ups.
+    <</topic>>
+
+    <<topic Group>>
+    The name of the group.
+    <</topic>>
+
+    <<topic Con>>
+    The concern, or "Mood" for the group's mood in this neighborhood.
+    <</topic>>
+
+    <<topic Satisfaction>>
+    The current satisfaction level, including both the numeric and
+    symbolic value, according to this scale:<p>
+
+    <<::simlib::qsat html>>
+    <</topic>>
+
+    <<topic Delta>>
+    The delta between the satisfaction level at time 0 and the value
+    now.
+    <</topic>>
+
+    <<topic "Initial Sat">>
+    The value of the satisfaction level at time 0, including both
+    the numeric and symbolic value as described above.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+

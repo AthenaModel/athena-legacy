@@ -1,0 +1,529 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-REPORT.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) REPORT:* order tests.
+#
+#    This test suite tests the report orders.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    proc setup {} {
+        ted create NB1 NB2 BLUE SHIA NB1SHIA NB2SHIA USAID
+        sim mutate run -ticks 1 -block yes
+    }
+
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        sim restart
+        ted cleanup
+
+        assert {![aram initialized]}
+    }
+
+    #-------------------------------------------------------------------
+    # REPORT:COOPERATION
+
+    test COOPERATION-1.1 {not in prep} -body {
+        ted order -reject REPORT:COOPERATION {}
+    } -result {
+        * {Simulation state is PREP, but order is valid only in these states: PAUSED}
+    }
+
+
+    test COOPERATION-1.2 {required parms} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:COOPERATION {}
+    } -cleanup {
+        cleanup
+    } -result {
+        n {required value}
+        f {required value}
+        g {required value}
+    }
+
+
+    test COOPERATION-1.3 {invalid neighborhood} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:COOPERATION n NONESUCH f SHIA g BLUE
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood "NONESUCH", should be one of: ALL, NB1, NB2}
+    }
+
+
+    test COOPERATION-1.4 {invalid civ group} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:COOPERATION n NB1 f NONESUCH g BLUE
+    } -cleanup {
+        cleanup
+    } -result {
+        f {Invalid civilian group "NONESUCH", should be one of: ALL, SHIA}
+    }
+
+    test COOPERATION-1.5 {invalid frc group} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:COOPERATION n NB1 f SHIA g NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid force group "NONESUCH", should be one of: ALL, BLUE}
+    }
+
+    test COOPERATION-2.1 {n ALL f ALL g ALL} -setup {
+        setup
+    } -body {
+        ted order REPORT:COOPERATION n ALL f ALL g ALL
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test COOPERATION-2.2 {n NB1 f SHIA g BLUE} -setup {
+        setup
+    } -body {
+        ted order REPORT:COOPERATION n NB1 f SHIA g BLUE
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    #-------------------------------------------------------------------
+    # REPORT:DRIVER
+
+    test DRIVER-1.1 {not in prep} -body {
+        ted order -reject REPORT:DRIVER {}
+    } -result {
+        * {Simulation state is PREP, but order is valid only in these states: PAUSED}
+    }
+
+
+    test DRIVER-1.2 {required parms} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:DRIVER {}
+    } -cleanup {
+        cleanup
+    } -result {
+        state {required value}
+    }
+
+
+    test DRIVER-1.3 {invalid state} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:DRIVER state NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        state {invalid value "NONESUCH", should be one of: all, active, inactive, empty}
+    }
+
+
+    test DRIVER-2.1 {can be sent} -setup {
+        setup
+    } -body {
+        ted order REPORT:DRIVER state all
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    #-------------------------------------------------------------------
+    # REPORT:PARMDB
+
+    test PARMDB-1.1 {required parms} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:PARMDB {}
+    } -cleanup {
+        cleanup
+    } -result {
+        state {required value}
+    }
+
+
+    test PARMDB-1.2 {invalid state} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:PARMDB state NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        state {invalid value "NONESUCH", should be one of: ALL, CHANGED}
+    }
+
+
+    test PARMDB-2.1 {can be sent, no wildcard} -setup {
+        setup
+    } -body {
+        ted order REPORT:PARMDB state ALL
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test PARMDB-2.2 {can be sent with wildcard} -setup {
+        setup
+    } -body {
+        ted order REPORT:PARMDB state ALL wildcard "sim.*"
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    #-------------------------------------------------------------------
+    # REPORT:SATISFACTION:CIVILIAN
+
+    test SATISFACTION:CIVILIAN-1.1 {not in prep} -body {
+        ted order -reject REPORT:SATISFACTION:CIVILIAN {}
+    } -result {
+        * {Simulation state is PREP, but order is valid only in these states: PAUSED}
+    }
+
+
+    test SATISFACTION:CIVILIAN-1.2 {required parms} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:CIVILIAN {}
+    } -cleanup {
+        cleanup
+    } -result {
+        n {required value}
+        g {required value}
+    }
+
+
+    test SATISFACTION:CIVILIAN-1.3 {invalid neighborhood} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:CIVILIAN n NONESUCH g SHIA
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood "NONESUCH", should be one of: ALL, NB1, NB2}
+    }
+
+
+    test SATISFACTION:CIVILIAN-1.4 {invalid group} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:CIVILIAN n NB1 g NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid civilian group "NONESUCH", should be one of: ALL, SHIA}
+    }
+
+
+    test SATISFACTION:CIVILIAN-2.1 {n ALL g ALL} -setup {
+        setup
+    } -body {
+        ted order REPORT:SATISFACTION:CIVILIAN n ALL g ALL
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test SATISFACTION:CIVILIAN-2.2 {n ALL g SHIA} -setup {
+        setup
+    } -body {
+        ted order REPORT:SATISFACTION:CIVILIAN n ALL g SHIA
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test SATISFACTION:CIVILIAN-2.3 {n NB1 g ALL} -setup {
+        setup
+    } -body {
+        ted order REPORT:SATISFACTION:CIVILIAN n NB1 g ALL
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test SATISFACTION:CIVILIAN-2.4 {n NB1 g SHIA} -setup {
+        setup
+    } -body {
+        ted order REPORT:SATISFACTION:CIVILIAN n NB1 g SHIA
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    #-------------------------------------------------------------------
+    # REPORT:SATISFACTION:CONTRIB
+
+    test SATISFACTION:CONTRIB-1.1 {not in prep} -body {
+        ted order -reject REPORT:SATISFACTION:CONTRIB {}
+    } -result {
+        * {Simulation state is PREP, but order is valid only in these states: PAUSED}
+    }
+
+
+    test SATISFACTION:CONTRIB-1.2 {required parms} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:CONTRIB {}
+    } -cleanup {
+        cleanup
+    } -result {
+        n {required value}
+        g {required value}
+        c {required value}
+    }
+
+
+    test SATISFACTION:CONTRIB-1.3 {invalid neighborhood} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:CONTRIB n NONESUCH g SHIA c AUT
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood "NONESUCH", should be one of: NB1, NB2}
+    }
+
+
+    test SATISFACTION:CONTRIB-1.4 {invalid group} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:CONTRIB n NB1 g NONESUCH c AUT
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid group "NONESUCH", should be one of: SHIA, USAID}
+    }
+
+
+    test SATISFACTION:CONTRIB-1.5 {invalid concern} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:CONTRIB n NB1 g SHIA c NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        c {Invalid concern "NONESUCH", should be one of: MOOD, AUT, SFT, CUL, QOL, CAS}
+    }
+
+
+    test SATISFACTION:CONTRIB-1.6 {group/concern mismatch} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:CONTRIB n NB1 g SHIA c CAS
+    } -cleanup {
+        cleanup
+    } -result {
+        c {not a CIV concern}
+    }
+
+
+    test SATISFACTION:CONTRIB-1.7 {invalid top} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:CONTRIB \
+            n NB1 g SHIA c AUT top 0
+    } -cleanup {
+        cleanup
+    } -result {
+        top {invalid value "0", expected integer no less than 1}
+    }
+
+    test SATISFACTION:CONTRIB-1.8 {invalid start} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:CONTRIB \
+            n NB1 g SHIA c AUT start NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        start {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
+    }
+
+    test SATISFACTION:CONTRIB-1.9 {invalid end} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:CONTRIB \
+            n NB1 g SHIA c AUT end NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        end {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
+    }
+
+    test SATISFACTION:CONTRIB-1.10 {start < 0} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:CONTRIB \
+            n NB1 g SHIA c AUT start [simclock toZulu -1]
+    } -cleanup {
+        cleanup
+    } -result {
+        start {invalid time spec "090000ZJAN10", expected time between T0 and NOW}
+    }
+
+    test SATISFACTION:CONTRIB-1.11 {end > now} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:CONTRIB \
+            n NB1 g SHIA c AUT end [simclock asZulu 1]
+    } -cleanup {
+        cleanup
+    } -result {
+        end {invalid time spec "120000ZJAN10", expected time between T0 and NOW}
+    }
+
+    test SATISFACTION:CONTRIB-1.12 {start > end} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:CONTRIB \
+            n NB1 g SHIA c AUT \
+            start [simclock asZulu 1] \
+            end   [simclock asZulu 0]
+    } -cleanup {
+        cleanup
+    } -result {
+        start {invalid time spec "120000ZJAN10", expected time between T0 and NOW}
+    }
+
+    test SATISFACTION:CONTRIB-2.1 {Without optional} -setup {
+        setup
+    } -body {
+        ted order REPORT:SATISFACTION:CONTRIB n NB1 g SHIA c MOOD
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test SATISFACTION:CONTRIB-2.2 {With Optional} -setup {
+        setup
+    } -body {
+        ted order REPORT:SATISFACTION:CONTRIB n NB1 g SHIA c MOOD \
+            top 10 start [simclock toZulu 0] end [simclock asZulu]
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    #-------------------------------------------------------------------
+    # REPORT:SATISFACTION:ORGANIZATION
+
+    test SATISFACTION:ORGANIZATION-1.1 {not in prep} -body {
+        ted order -reject REPORT:SATISFACTION:ORGANIZATION {}
+    } -result {
+        * {Simulation state is PREP, but order is valid only in these states: PAUSED}
+    }
+
+
+    test SATISFACTION:ORGANIZATION-1.2 {required parms} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:ORGANIZATION {}
+    } -cleanup {
+        cleanup
+    } -result {
+        n {required value}
+        g {required value}
+    }
+
+
+    test SATISFACTION:ORGANIZATION-1.3 {invalid neighborhood} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:ORGANIZATION n NONESUCH g USAID
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood "NONESUCH", should be one of: ALL, NB1, NB2}
+    }
+
+
+    test SATISFACTION:ORGANIZATION-1.4 {invalid group} -setup {
+        setup
+    } -body {
+        ted order -reject REPORT:SATISFACTION:ORGANIZATION n NB1 g NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid organization group "NONESUCH", should be one of: ALL, USAID}
+    }
+
+
+    test SATISFACTION:ORGANIZATION-2.1 {n ALL g ALL} -setup {
+        setup
+    } -body {
+        ted order REPORT:SATISFACTION:ORGANIZATION n ALL g ALL
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test SATISFACTION:ORGANIZATION-2.2 {n ALL g USAID} -setup {
+        setup
+    } -body {
+        ted order REPORT:SATISFACTION:ORGANIZATION n ALL g USAID
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test SATISFACTION:ORGANIZATION-2.3 {n NB1 g ALL} -setup {
+        setup
+    } -body {
+        ted order REPORT:SATISFACTION:ORGANIZATION n NB1 g ALL
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test SATISFACTION:ORGANIZATION-2.4 {n NB1 g USAID} -setup {
+        setup
+    } -body {
+        ted order REPORT:SATISFACTION:ORGANIZATION n NB1 g USAID
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+
+
+

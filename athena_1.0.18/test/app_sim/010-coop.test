@@ -1,0 +1,439 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-coop.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    coop(sim) tests.
+#
+#    This test suite tests the coop(sim) mutators and queries
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # mutate reconcile
+
+    # Create cooperations
+
+
+    test reconcile-1.1 {nbgroups with force groups} -setup {
+        ted create NB1 NB2 BLUE USAID SHIA SUNN KURD NB1SHIA 
+    } -body {
+        coop mutate reconcile
+        
+        # Note that: 
+        #
+        # * There are no cooperations in NB2, because there are 
+        #   no nbgroups in NB2
+        ted query {SELECT * FROM coop_nfg}
+    } -cleanup {
+        cleanup
+    } -result {
+n   f    g    coop0 
+--- ---- ---- ----- 
+NB1 SHIA BLUE 0.0   
+    }
+
+    test reconcile-1.2 {<Entity> create} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA 
+    } -body {
+        ted notifier bind ::coop <Entity>
+        coop mutate reconcile
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::coop <Entity> create {NB1 SHIA BLUE}}
+    }
+
+
+    test reconcile-1.4 {Created curves are undone} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA 
+        set undo [coop mutate reconcile]
+    } -body {
+        eval $undo
+        rdb query {SELECT * FROM coop_nfg}
+    } -cleanup {
+        cleanup
+    } -result {}
+    
+
+    test reconcile-1.5 {On undo: <Entity> delete} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA 
+        set undo [coop mutate reconcile]
+    } -body {
+        ted notifier bind ::coop <Entity>
+        eval $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::coop <Entity> delete {NB1 SHIA BLUE}}
+    }
+
+    
+    test reconcile-2.1 {cooperations deleted with frc group} -setup {
+        ted create NB1 BLUE BRIT SHIA NB1SHIA 
+        coop mutate reconcile
+    } -body {
+        frcgroup mutate delete BLUE
+        coop mutate reconcile
+
+        # NB1SHIA with BLUE remains
+        ted query {SELECT * FROM coop_nfg}
+    } -cleanup {
+        cleanup
+    } -result {
+n   f    g    coop0 
+--- ---- ---- ----- 
+NB1 SHIA BRIT 0.0   
+    }
+
+
+    test reconcile-2.2 {nbgroup cooperations deleted with group} -setup {
+        ted create NB1 BLUE SHIA SUNN NB1SHIA NB1SUNN
+        coop mutate reconcile
+    } -body {
+        nbgroup mutate delete NB1 SHIA
+        coop mutate reconcile
+
+        # NB1 SUNN remains
+        ted query {SELECT * FROM coop_nfg}
+    } -cleanup {
+        cleanup
+    } -result {
+n   f    g    coop0 
+--- ---- ---- ----- 
+NB1 SUNN BLUE 0.0   
+    }
+
+
+    test reconcile-2.3 {<Entity> Delete} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        coop mutate reconcile
+    } -body {
+        nbgroup mutate delete NB1 SHIA
+
+        ted notifier bind ::coop <Entity>
+        coop mutate reconcile
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::coop <Entity> delete {NB1 SHIA BLUE}}
+    }
+
+
+    test reconcile-2.4 {On undo: deleted cooperations are restored} -setup {
+        # FIRST, create the groups and cooperations
+        ted create NB1 BLUE SHIA NB1SHIA
+        coop mutate reconcile
+
+        # NEXT, update one, so that we can see that it's restored
+        coop mutate update [list n NB1 f SHIA g BLUE coop0 50.0]
+
+        # NEXT, delete the groups and cooperations, and get the
+        # undo script.
+        nbgroup mutate delete NB1 SHIA
+
+        set undo [coop mutate reconcile]
+    } -body {
+        eval $undo
+        ted query {SELECT * FROM coop_nfg}
+    } -cleanup {
+        cleanup
+    } -result {
+n   f    g    coop0 
+--- ---- ---- ----- 
+NB1 SHIA BLUE 50.0  
+    }
+
+
+    test reconcile-2.5 {On undo: <Entity> create} -setup {
+        # FIRST, create the groups and cooperations
+        ted create NB1 BLUE SHIA NB1SHIA
+        coop mutate reconcile
+
+        # NEXT, delete the groups and cooperations, and get the
+        # undo script.
+        nbgroup mutate delete NB1 SHIA
+
+        set undo [coop mutate reconcile]
+    } -body {
+        ted notifier bind ::coop <Entity>
+        eval $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::coop <Entity> create {NB1 SHIA BLUE}}
+    }
+
+
+    test reconcile-3.1 {Reconcile doesn't affect valid curves} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        coop mutate reconcile
+    } -body {
+        ted notifier bind ::coop <Entity>
+        coop mutate reconcile
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    #-------------------------------------------------------------------
+    # mutate update
+
+
+    test update-1.1 {coop is updated} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        coop mutate reconcile
+    } -body {
+        coop mutate update {
+            n      NB1
+            f      SHIA
+            g      BLUE
+            coop0  50.0
+        }
+
+        ted query {SELECT * FROM coop_nfg}
+    } -cleanup {
+        cleanup
+    } -result {
+n   f    g    coop0 
+--- ---- ---- ----- 
+NB1 SHIA BLUE 50.0  
+    }
+
+
+    test update-1.2 {identical values are OK} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        coop mutate reconcile
+        set parmdict {
+            n      NB1
+            f      SHIA
+            g      BLUE
+            coop0  50.0
+        }
+
+        coop mutate update $parmdict
+    } -body {
+        set a [ted query {SELECT * FROM coop_nfg}]
+        
+        coop mutate update $parmdict
+
+        set b [ted query {SELECT * FROM coop_nfg}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-1.3 {empty values are OK} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        coop mutate reconcile
+    } -body {
+        set a [ted query {SELECT * FROM coop_nfg}]
+
+        coop mutate update  {
+            n      NB1
+            f      SHIA
+            g      BLUE
+            coop0  ""
+        }
+
+        set b [ted query {SELECT * FROM coop_nfg}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-1.4 {<Entity> update} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        coop mutate reconcile
+    } -body {
+        ted notifier bind ::coop <Entity>
+        coop mutate update  {
+            n      NB1
+            f      SHIA
+            g      BLUE
+            coop0  50.0
+        }
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::coop <Entity> update {NB1 SHIA BLUE}}
+    }
+
+
+    test update-2.1 {undo undoes the change} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        coop mutate reconcile
+    } -body {
+
+        set a [ted query {SELECT * FROM coop_nfg}]
+
+        set undo [coop mutate update {
+            n      NB1
+            f      SHIA
+            g      BLUE
+            coop0  50.0
+        }]
+
+        eval $undo
+
+        set b [ted query {SELECT * FROM coop_nfg}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-2.2 {undo sends <Entity> update} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        coop mutate reconcile
+    } -body {
+        set undo [coop mutate update {
+            n      NB1
+            f      SHIA
+            g      BLUE
+            coop0  50.0
+        }]
+
+        ted notifier bind ::coop <Entity>
+        eval $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::coop <Entity> update {NB1 SHIA BLUE}}
+    }
+
+    #-------------------------------------------------------------------
+    # exists
+
+    test exists-1.1 {coop does not exist} -body {
+        coop exists NONESUCH NONESUCH NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+
+    test exists-1.2 {coop exists} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        coop mutate reconcile
+    } -body {
+        coop exists NB1 SHIA BLUE
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # validate
+
+    test validate-1.1 {invalid nbhood} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
+        coop validate {NONESUCH NONESUCH NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
+
+
+    test validate-1.2 {invalid group f} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
+        coop validate {NB1 NONESUCH NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid civilian group, should be one of: SHIA}
+
+
+    test validate-1.3 {Invalid group g} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
+        coop validate {NB1 SHIA NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid force group, should be one of: BLUE}
+
+
+    test validate-1.4 {Invalid cooperation} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
+        coop validate {NB1 SHIA BLUE}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Cooperation is not tracked for SHIA with BLUE in NB1.}
+
+
+    test validate-2.1 {Valid group} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        coop mutate reconcile
+    } -body {
+        coop validate {NB1 SHIA BLUE}
+    } -cleanup {
+        cleanup
+    } -result {NB1 SHIA BLUE}
+
+
+    #-------------------------------------------------------------------
+    # reconfigure
+
+    test reconfigure-1.1 {can be called} -body {
+        # This is currently a no-op
+        coop reconfigure
+    } -result {}
+    
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

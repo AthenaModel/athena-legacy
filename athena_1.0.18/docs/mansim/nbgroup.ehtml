@@ -1,0 +1,104 @@
+<<manpage nbgroup(sim) "Neighborhood Group Manager">>
+
+<<swallow {package require projectlib}>>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+nbgroup(sim) is the module responsible for creating and manipulating
+neighborhood groups for <<xref athena_sim(1)>>.  A neighborhood group
+is a civilian group resident in a particular neighborhood.  This
+module implements the various GROUP:NBHOOD:* orders, and provides
+support for order-processing.<p>
+
+Each neighborhood group is identified by the combination of the IDs of the
+neighborhood and civilian group to which it belongs; in addition, it
+has a "local name", a human-readable name.<p>
+
+<<section "COMMANDS">>
+
+nbgroup(sim) provides the following commands for use by the application.<p>
+
+<<deflist commands>>
+
+<<defitem init {nbgroup init}>>
+
+Initializes the module.<p>
+
+<<defitem reconfigure {nbgroup reconfigure}>>
+
+Updates the nbgroup(sim) module when the scenario has changed.  It
+should rarely be necessary to call this directly.<p>
+
+<<defitem exists {nbgroup exists <i>n g</i>}>>
+
+Returns 1 if there is a neighborhood group for neighborhood <i>n</i>
+and civilian group <i>g</i>, and 0 otherwise.<p>
+
+<<defitem validate {nbgroup validate {<i>n g</i>}}>>
+
+Validates the existence of the neighborhood group with ID {<i>n
+g</i>}.  Returns the ID if valid, and throws an error otherwise.<p>
+
+<<defitem gIn {nbgroup gIn <i>n</i>}>>
+
+Returns a list of the names of the civilian groups that reside in
+neighborhood <i>n</i>.<p>
+
+<</deflist commands>>
+
+<<section "NOTIFIER EVENTS">>
+
+nbgroup(sim) sends the following events, primarily to notify the GUI of
+significant changes to the neighborhood groups. In each case, <i>g</i> is the
+neighborhood group's short name.<p>
+
+<<deflist events>>
+
+<<defitem Entity {&lt;Entity&gt; <i>operation</i> {<i>n g</i>}}>>
+
+Sent on change to some neighborhood group <i>n g</i>.  The <i>operation</i>
+indicates the kind of change; there are the following possibilities:<p>
+
+<<deflist entity>>
+
+<<defitem "Entity create" {&lt;Entity&gt; create {<i>n g</i>}}>>
+
+The neighborhood group has just been created.  Sent on
+<<xref orders(sim) GROUP:NBHOOD:CREATE>>.<p>
+
+<<defitem "Entity delete" {&lt;Entity&gt; delete {<i>n g</i>}}>>
+
+The neighborhood group has been deleted.  Sent on
+<<xref orders(sim) GROUP:NBHOOD:DELETE>>, etc.<p>
+
+<<defitem "Entity update" {&lt;Entity&gt; update {<i>n g</i>}}>>
+
+One or more of the neighborhood group's data items has been updated.  Sent on
+<<xref orders(sim) GROUP:NBHOOD:UPDATE>><p>
+
+<</deflist entity>>
+
+<</deflist events>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+

@@ -1,0 +1,738 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    cmd.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: Executive Commands
+#
+#    This file is included into athena.help.
+#
+#    Individual commands have page names like
+#
+#       cmd.<command>
+#
+#    If the command's name has multiple tokens, they are connected
+#    by ".", as in "cmd.parm.set".
+#
+#-----------------------------------------------------------------------
+
+page cmd "Executive Commands" {} {
+    <<title>>
+    Athena provides a command-line interface (CLI) at the bottom on
+    the main window.  The CLI is primarily used during testing and
+    development, as most user tasks are done via 
+    <<cref orders "order dialogs">> and other GUI interactions.  However,
+    there are a small number of tasks that the user can do by typing
+    <i>executive commands</i> at the CLI.  Most of these are low-level
+    tasks, such as calibrating the Athena models by setting model
+    parameters.<p>
+
+    This page lists the available commands.<p>
+
+    <<childlinks>>
+}
+
+# command name text
+#
+# name     The name of the command, e.g., "parm set"
+#
+# Defines a command page, defining the parent/child links properly.
+
+proc command {name text} {
+    set tag "cmd.[join $name .]"
+
+    set parent [lrange $name 0 end-1]
+
+    if {[llength $parent] == 0} {
+        set ptag "cmd"
+    } else {
+        set ptag "cmd.[join $parent .]"
+    }
+
+    page $tag $name $ptag $text
+}
+
+
+# syntax args
+#
+# args      The command's argument spec
+#
+# Formats the header for the command, including a link to the parent
+# commands, if any.
+
+macro syntax {args} {
+    set fullname [pageinfo title]
+    set prefix [lrange $fullname 0 end-1]
+    set name   [lindex $fullname end]
+
+    set ancestor "cmd"
+    set nametext ""
+
+    foreach token $prefix {
+        append ancestor .$token
+        append nametext "[cref $ancestor $token] "
+    }
+    append nametext $name
+    
+} {
+    |<--
+    <h3>$nametext $args</h3>
+}
+
+# cli text
+#
+# text    A CLI script
+#
+# Formats a CLI dialog properly.
+
+macro cli {text} {
+    |<--
+    <pre>[outdent $text]</pre><p>
+}
+
+# caution.debugging
+
+macro caution.debugging {} {
+    |<--
+    <b>Caution:</b>  This command is intended for use by the Athena
+    developers while debugging the simulation.  Careless use can
+    corrupt the application.<p>
+}
+
+#=======================================================================
+# = command
+
+command "=" {
+    <<syntax <i>expression...</i> >>
+
+    Computes the value of an arithmetic expression:<p>
+
+    <<cli {
+        &gt; = 1 + 1
+        2
+        &gt;
+    }>>
+
+    Variables can be defined with <<cmdref set>> and retrieved using
+    "$" notation:<p>
+
+    <<cli {
+        &gt; set num 5
+        5
+        &gt; = $num * 2
+        10
+        >
+    }>>
+}
+
+#=======================================================================
+# call command
+
+command "call" {
+    <<syntax <i>script</i> >>
+
+    Calls the named <i>script</i>, which is assumed to be in the current
+    working directory unless an absolute path is specified. The ".tcl"
+    extension may be omitted; <b>call</b> will add it automatically.<p>
+
+    An executive script is a Tcl script containing <<cref cmd>>.  A
+    number of standard Tcl commands may also be used.
+}
+
+#=======================================================================
+# clear command
+
+command "clear" {
+    <<syntax>>
+
+    Clears the contents of the CLI's scrollback buffer.
+}
+
+
+
+#=======================================================================
+# debug command
+
+command "debug" {
+    <<syntax>>
+    <<caution.debugging>>
+    Invokes a debugger window. The debugger is simply a Tcl interpreter
+    with full access to the application's code and data; it's intended
+    for developer use only. 
+}
+
+#=======================================================================
+# dump commands
+
+command "dump" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+
+    This command is used to dump debugging information to the CLI, 
+    particularly data that is not available on the various browser
+    tabs.  It has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+# dump coop
+
+command "dump coop" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+    
+    This command allows dumps information related to GRAM's 
+    cooperation model.  It has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+# dump coop levels
+
+command "dump coop levels" {
+    <<syntax ?<i>driver</i>?>>
+    
+    Dumps a list of all active and future direct and indirect cooperation 
+    level effects, in tabular format.  If <i>driver</i> is specified
+    it must be a GRAM driver ID; the command will then dump only the
+    effects related to that driver.
+}
+
+#-----------------------------------------------------------------------
+# dump coop level
+
+command "dump coop level" {
+    <<syntax <i>n f g</i> >>
+    
+    Dumps a list of all direct and indirect cooperation 
+    level effects that currently affect the cooperation of 
+    civilian group <i>f</i> with force group <i>g</i> in neighborhood 
+    <i>n</i>.  The effects are grouped by cause, so that it is
+    easy to determine that multiple effects with the same cause
+    are handled properly.
+}
+
+#-----------------------------------------------------------------------
+# dump coop slopes
+
+command "dump coop slopes" {
+    <<syntax ?<i>driver</i>?>>
+    
+    Dumps a list of all active and future direct and indirect cooperation 
+    slope effects, in tabular format.  If <i>driver</i> is specified
+    it must be a GRAM driver ID; the command will then dump only the
+    effects related to that driver.
+}
+
+#-----------------------------------------------------------------------
+# dump coop slope
+
+command "dump coop slope" {
+    <<syntax <i>n f g</i> >>
+    
+    Dumps a list of all direct and indirect cooperation 
+    slope effects that currently affect the cooperation of 
+    civilian group <i>f</i> with force group <i>g</i> in neighborhood 
+    <i>n</i>.  The effects are grouped by cause, so that it is
+    easy to determine that multiple effects with the same cause
+    are handled properly.
+}
+
+#-----------------------------------------------------------------------
+# dump sat
+
+command "dump sat" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+    
+    This command allows dumps information related to GRAM's 
+    satisfaction model.  It has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+# dump sat levels
+
+command "dump sat levels" {
+    <<syntax ?<i>driver</i>?>>
+    
+    Dumps a list of all active and future direct and indirect satisfaction 
+    level effects, in tabular format.  If <i>driver</i> is specified
+    it must be a GRAM driver ID; the command will then dump only the
+    effects related to that driver.
+}
+
+#-----------------------------------------------------------------------
+# dump sat level
+
+command "dump sat level" {
+    <<syntax <i>n f g</i> >>
+    
+    Dumps a list of all direct and indirect satisfaction 
+    level effects that currently affect the satisfaction of 
+    civilian group <i>f</i> with force group <i>g</i> in neighborhood 
+    <i>n</i>.  The effects are grouped by cause, so that it is
+    easy to determine that multiple effects with the same cause
+    are handled properly.
+}
+
+#-----------------------------------------------------------------------
+# dump sat slopes
+
+command "dump sat slopes" {
+    <<syntax ?<i>driver</i>?>>
+    
+    Dumps a list of all active and future direct and indirect satisfaction 
+    slope effects, in tabular format.  If <i>driver</i> is specified
+    it must be a GRAM driver ID; the command will then dump only the
+    effects related to that driver.
+}
+
+#-----------------------------------------------------------------------
+# dump sat slope
+
+command "dump sat slope" {
+    <<syntax <i>n f g</i> >>
+    
+    Dumps a list of all direct and indirect satisfaction 
+    slope effects that currently affect the satisfaction of 
+    civilian group <i>f</i> with force group <i>g</i> in neighborhood 
+    <i>n</i>.  The effects are grouped by cause, so that it is
+    easy to determine that multiple effects with the same cause
+    are handled properly.
+}
+
+
+#=======================================================================
+# errtrace command
+
+command "errtrace" {
+    <<syntax>>
+    Returns the stack trace associated with the last command which
+    returned an error. This command is a debugging aid, and has no
+    effect on the execution of the program.
+}
+
+#=======================================================================
+# help command
+
+command "help" {
+    <<syntax ?-info? ?<i>command...</i>? >>
+
+    This command accesses the on-line help for Athena's
+    <<cref cmd>>.  To display a list of all commands, enter this
+    command with no arguments:<p>
+
+    <<cli {
+        &gt; help
+        &gt;
+    }>>
+
+    To request help for a particular command, enter it on the command
+    line.  For example, to see the help page for the 
+    <<cmdref parm set>> command, enter the following:<p>
+
+    <<cli {
+        &gt; help parm set
+        &gt;
+    }>>
+
+    The <b>-info</b> option is for use in debugging the Athena
+    Executive; if specified, the <b>help</b> command will dump
+    implementation info to the CLI.
+}
+
+
+#=======================================================================
+# parm commands
+
+command "parm" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+
+    This command is used to set and query Athena's 
+    <<cref parmdb "model parameters">>.  It has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+command "parm defaults" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+    
+    This command allows the user to manage his own customized set of
+    default <<cref parmdb "model parameters">>, and share them among 
+    different Athena scenarios.  Saved defaults are used for all new
+    scenarios; also, a scenario's parameter settings can be reset to
+    the user's default using the <<cmdref parm reset>> command.
+    It has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+command "parm defaults clear" {
+    <<syntax>>
+    
+    This command deletes the user's own default settings for the 
+    Athena <<cref parmdb "model parameters">>.  New scenarios will
+    then use the installation defaults rather than the user's.<p>
+}
+
+#-----------------------------------------------------------------------
+
+command "parm defaults save" {
+    <<syntax>>
+    
+    This command saves the current <<cref parmdb "model parameter">> 
+    settings as the user's defaults for new scenarios.
+}
+
+#-----------------------------------------------------------------------
+
+command "parm export" {
+    <<syntax <i>filename</i> >>
+    
+    Exports the current <<cref parmdb "model parameter">> settings
+    to a disk file; if the named file already exists, it is copied
+    to "<i>filename</i>.bak".
+}
+
+#-----------------------------------------------------------------------
+
+command "parm get" {
+    <<syntax <i>parm</i> >>
+    
+    Retrieves the value of the named <<cref parmdb "model parameter">>.
+}
+
+#-----------------------------------------------------------------------
+
+command "parm import" {
+    <<syntax <i>filename</i> >>
+    
+    Imports new <<cref parmdb "model parameter">> values from
+    the named file.  Note that some parameters are 
+    <<cref parmdb.locked "locked">> once time advances, and cannot be
+    changed.<p>
+
+    This command works by sending the <<cref PARM:IMPORT>> order.
+}
+
+#-----------------------------------------------------------------------
+
+command "parm list" {
+    <<syntax ?<i>pattern</i>?>>
+
+    When called with no argument, this command lists the names and
+    values of all parameters.  If given, <i>pattern</i> is a wild-card
+    pattern; only matching parameters are included.  For example, the
+    following command will list all parameters related to the FUELSHRT
+    rule set:<p>
+
+    <<cli {
+        &gt; parm list dam.FUELSHRT.*
+        dam.FUELSHRT.active     yes
+        dam.FUELSHRT.cause      FUELSHRT
+        dam.FUELSHRT.nearFactor 0.0
+        dam.FUELSHRT.farFactor  0.0
+
+        &gt;}>>
+</pre>
+}
+
+#-----------------------------------------------------------------------
+
+command "parm names" {
+    <<syntax ?<i>pattern</i>?>>
+
+    When called with no argument, this command lists the names of all
+    parameters.  If given, <i>pattern</i> is a wild-card
+    pattern; only matching parameters are included.  For example, the
+    following command will list the names of all parameters related to 
+    the FUELSHRT rule set:<p>
+
+    <<cli {
+        &gt; parm names dam.FUELSHRT.*
+        dam.FUELSHRT.active dam.FUELSHRT.cause dam.FUELSHRT.nearFactor dam.FUELSHRT.farFactor
+        &gt;}>>
+</pre>
+}
+
+
+#-----------------------------------------------------------------------
+
+command "parm reset" {
+    <<syntax>>
+    
+    Resets all <<cref parmdb "model parameters">> to their default
+    values.  If the user has saved their own default settings using
+    the <<cmdref parm defaults>> command, these will be used;
+    otherwise the installation defaults will be used.<p>
+
+    Note that some parameters are 
+    <<cref parmdb.locked "locked">> once time advances past the
+    <<cref using.prep>> state, and cannot be changed.  Unlocked
+    parameters will be reset; locked parameters will not.<p>
+
+    This command works by sending the <<cref PARM:RESET>> order.
+}
+
+
+#-----------------------------------------------------------------------
+
+command "parm set" {
+    <<syntax <i>parm value</i> >>
+    
+    Sets the named <<cref parmdb "model parameter">> to the specified
+    <i>value</i>.  Updated
+    parameter values are saved automatically with the scenario; there
+    is no need to <<cref cmd.parm.export export>> the parameter
+    settings in order to save them.<p>
+
+    Note that some parameters are 
+    <<cref parmdb.locked "locked">> once time advances past the
+    <<cref using.prep>> state, and cannot be changed.<p>
+
+    This command works by sending the <<cref PARM:SET>> order.
+}
+
+#=======================================================================
+# prefs commands
+
+command "prefs" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+
+    The <b>prefs</b> command sets and queries <<cref prefs>>.
+    Preference parameters are distinct from the <<cref parmdb>> edited
+    using the <<cmdref parm>> command in that they apply to the application
+    rather than to individual scenarios. Therefore,<p>
+
+    <ul>
+    <li> They are not saved in scenario files.
+    <li> They do not affect the outcome of simulation runs. 
+    </ul>
+
+    This command has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+command "prefs get" {
+    <<syntax <i>parm</i> >>
+    
+    Retrieves the value of the named preference parameter.
+}
+
+#-----------------------------------------------------------------------
+
+command "prefs help" {
+    <<syntax <i>parm</i> >>
+    
+    Displays the help string for the named preference parameter.
+}
+
+#-----------------------------------------------------------------------
+
+command "prefs list" {
+    <<syntax ?<i>pattern</i>?>>
+
+    When called with no argument, this command lists the names and
+    values of all preference parameters.  If given, <i>pattern</i> is
+    a wild-card pattern; only matching parameters are included.
+}
+
+#-----------------------------------------------------------------------
+
+command "prefs names" {
+    <<syntax ?<i>pattern</i>?>>
+
+    When called with no argument, this command lists the names of all
+    preference parameters.  If given, <i>pattern</i> is a wild-card
+    pattern; only matching parameters are included.
+}
+
+
+#-----------------------------------------------------------------------
+
+command "prefs reset" {
+    <<syntax>>
+    
+    Resets all preference parameters to their default
+    settings.
+}
+
+
+#-----------------------------------------------------------------------
+
+command "prefs set" {
+    <<syntax <i>parm value</i> >>
+    
+    Sets the named preference parameter to the specified
+    <i>value</i>.
+}
+
+#=======================================================================
+# rdb commands
+
+command "rdb" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+
+    Athena stores almost all of its working data in its run-time
+    database, or RDB.  This command allows the user to query 
+    the RDB directly; however, it cannot be used to modify the
+    contents of the RDB.  Note that the <<cmdref select>> command
+    is often more convenient.<p>
+
+    RDB queries are done using the SQL language, as implemented by
+    SQLite3.  A discussion of SQL is beyond the scope of this
+    document; see the documentation at 
+    <tt>http://sqlite.org</tt> for more information.<p>
+
+    This command has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+command "rdb eval" {
+    <<syntax <i>sql</i> >>
+
+    Executes the <i>sql</i> query (usually a SELECT statement)
+    and returns the result as an unformatted list
+    of values.  This command can be useful in scripts; for interactive
+    use, the <<cmdref rdb query>> or <<cmdref select>> command
+    is almost always more appropriate.
+}
+
+#-----------------------------------------------------------------------
+
+command "rdb query" {
+    <<syntax <i>sql</i> >>
+
+    Executes the <i>sql</i> query (usually a SELECT statement)
+    and returns the result as a formatted table.  This command
+    is appropriate for long, complex queries that are spread over
+    multiple lines; for short queries, use <<cmdref select>>
+    instead.<p>
+
+    For example,<p>
+
+    <<cli {
+        &gt; rdb query {select g,forcetype from frcgroups}
+        g       forcetype 
+        ------- --------- 
+        TALIBAN IRREGULAR 
+        PAR     REGULAR   
+        AQ      IRREGULAR 
+        POLI    POLICE    
+        TRIBMIL IRREGULAR 
+        &gt;}>>
+}
+
+#-----------------------------------------------------------------------
+
+command "rdb schema" {
+    <<syntax ?<i>table</i>?>>
+
+    By default, this command returns the complete SQL schema for the
+    RDB.  If a <i>table</i> or view name is given, it returns only the schema
+    for that table or view.
+}
+
+#-------------------------------------------------------------------
+
+command "rdb tables" {
+    <<syntax>>
+
+    Returns a list of the names of the tables defined in the 
+    RDB's schema.  (Views are not included.)
+}
+
+#=======================================================================
+# select command
+
+command "select" {
+    <<syntax <i>sql...</i> >>
+
+    The <b>select</b> command is a simplified version of 
+    <<cmdref rdb query>>, intended for interactive use with short,
+    simple SQL queries.  The command has the form of a single SQL
+    "SELECT" statement.  For example,<p>
+
+    <<cli {
+        &gt; select g,forcetype from frcgroups
+        g       forcetype 
+        ------- --------- 
+        TALIBAN IRREGULAR 
+        PAR     REGULAR   
+        AQ      IRREGULAR 
+        POLI    POLICE    
+        TRIBMIL IRREGULAR 
+        &gt;}>>
+
+    If the query is longer than one line, consider using
+    <<cmdref rdb query>> instead.<p.
+ 
+}
+
+#=======================================================================
+# set command
+
+command "set" {
+    <<syntax <i>variable value</i> >>
+    Assigns a value to a named variable.  By itself, this will have no
+    effect on the execution of the simulation; however, variables can
+    be used with other commands, such as the <<cmdref =>> command.
+}
+
+ 
+#=======================================================================
+# super command
+
+command "super" {
+    <<syntax <i>args...</i> >>
+    <<caution.debugging>>
+    Concatenates its arguments into a single command, and executes
+    that command in the context of the application rather than in the
+    Athena Executive.
+}
+
+
+#=======================================================================
+# usermode command
+
+command "usermode" {
+    <<syntax ?<i>mode</i>? >>
+    <<caution.debugging>>
+    Sets and queries the user mode.<p>
+
+    Athena's executive runs in two modes, <b>normal</b> and
+    <b>super</b>. In normal mode, user command entry is prevented from
+    affecting application internals, i.e., the user can't kill or
+    corrupt the application by mis-typing. Caution: In super mode, the
+    CLI is attached directly to the application. Anything is possible,
+    including damage to the user's scenario. <p>
+
+    The <b>super</b> mode is intended primarily for use by the Athena
+    developers; other users should consider using the <<cmdref super>>
+    command in the rare case that evading the normal protections is
+    required.<p>
+
+    <b>Note:</b> in <b>super</b> mode, the CLI's command prompt
+    changes, as shown:<p>
+
+    <<cli {
+        > usermode super
+        super> usermode normal
+        >
+    }>>
+}

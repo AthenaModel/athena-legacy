@@ -1,0 +1,2193 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    orders.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: Orders
+#
+#    This file is included into athena.help.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+
+page orders "Orders" {} {
+    <<title>>
+    The analyst communicates with Athena by means of <i>orders</i>.
+    Most orders are sent by means of an order dialog; some are sent
+    implicitly.  For example, dragging a unit from one place to
+    another on the map implicitly sends the <<cref UNIT:MOVE>> 
+    order.  Order dialogs can be invoked in a number of ways, e.g., by
+    selecting an order from the <<cref menu/Orders>>.<p>
+
+    Orders are grouped in the following categories:<p>
+
+    <<childlinks>>
+}
+
+# order name title text
+#
+# name     The order's name (but see below)
+# title    The order's title (e.g., menu item text)
+# text     The documentation of the order.
+#
+# Defines a help page for one order.  The order hierarchy is determined
+# automatically using the ":"'s in the order name.
+#
+# Sometimes a colon shouldn't add a new level to the order hierarchy,
+# e.g., orders FOO:UPDATE and FOO:UPDATE:MULTI are at the same level.
+# In this case, enter the latter as "FOO:UPDATE+MULTI".
+
+proc order {name title text} {
+    set tokens [split $name :]
+    set parent [join [lrange $tokens 0 end-1] :]:
+    set name [string map {+ :} $name]
+    
+    set text "<<order.header>>\n\n$text"
+    page $name $title $parent $text
+}
+
+# Formats the title for an order page
+macro order.header {} {
+    |<--
+    <font size=7>[pageinfo title]</font><br>
+    (<tt>[pageinfo name]</tt>)<p>
+}
+
+macro parm.identifier {entity example} {
+    |<--
+    The ID for the new $entity.  It may
+    contain letters and digits, and must begin with a letter.  It may
+    not be the same as the ID or long name of any existing
+    neighborhood, group, etc.  It should usually be short, between 2
+    and 8 characters in length, e.g., <b>$example</b>.
+}
+
+macro parm.longname {entity example} {
+    |<--
+    A short human-readable name for the
+    $entity, e.g., "$example".  The long name must not be the
+    same as the ID or long name of any existing
+    neighborhood, group, etc.
+}
+
+macro parm.ids {entity} {
+    |<--
+    The IDs of two or more $entity entities.
+    The list of IDs isn't directly editable in the order dialog.
+}
+
+#-----------------------------------------------------------------------
+
+page ATTRIT: "Attrition Orders" orders {
+    <<title>>
+
+    Athena assesses attrition due to conflict between groups
+    periodically; the period is nominally one week.  In addition,
+    the analyst can cause magic attrition to unit personnel and to the 
+    civilian population at any time.<p>
+
+    <b>Note:</b> magic attrition takes effect immediately; however, the
+    attitude effects resulting from magic attrition are assessed as
+    part of the regular weekly attrition assessment.<p>
+
+    <<childlinks>>
+}
+
+macro ATTRIT.responsible {} {
+    |<--
+    [parm g1 "Responsible Group"]
+    <b>Optional.</b>  The name of a force group that is wholly or
+    partially responsible for the casualties.
+    [/parm]
+
+    [parm g2 "Responsible Group"]
+    <b>Optional.</b>  The name of a force group that is wholly or
+    partially responsible for the casualties.
+    [/parm]
+}
+
+macro ATTRIT.attitude {} {
+    |<--
+    <b>Attitude Implications:</b>  Civilian and organization
+    casualties affect the satisfaction of the relevant groups.  If
+    responsible force groups are specified, then civilian casualties
+    will affect the cooperation of the civilian group with the
+    responsible groups.<p>
+}
+
+
+#-----------------------------------------------------------------------
+
+order ATTRIT:GROUP "Magic Attrit Group" {
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of an existing neighborhood.
+    <</parm>>
+
+    <<parm f "To Group">>
+    <b>Required.</b>  The name of an existing civilian, force, or
+    organization group to receive the casualites.
+    <</parm>>
+
+    <<parm casualties "Casualties">>
+    <b>Required.</b>  The number of personnel to be attrited, a
+    positive integer.
+    <</parm>>
+
+    <<ATTRIT.responsible>>
+
+    <</parmlist>>
+
+    This order magically inflicts casualties upon a selected group in
+    a selected neighborhood.  The effect depends on the kind of
+    group.<p>
+
+    <b>Force and Organization Groups:</b>  The group's units are
+    attrited by the specified number of casualties.  Athena assumes
+    that units doing more important activities will be reinforced from
+    units doing less important activities; therefore, units are
+    attrited in priority order based on their activities, from lowest
+    priority to greatest priority.  For example, a unit with activity
+    <b>NONE</b> is attrited before one with activity <b>PATROL</b>.
+    The priority order is <<cref Activity_Priorities>>.<p>
+
+    <b>Civilian Groups:</b>  The group's units and implicit
+    population are attrited proportionally to their size.<p>
+
+    If the requested number of casualties exceeds the group's population in
+    the neighborhood, then all of the group's units in the
+    neighborhood will drop to zero personnel, and the group's implicit
+    population will drop to one person.  (A group's implicit
+    population may not be zero.)<p>
+
+    If the group does not reside in the neighborhood, this order has
+    no effect; therefore, civilian units outside their neighborhood of
+    origin are never attrited by this order.<p>
+
+    <<ATTRIT.attitude>>
+}
+
+#-----------------------------------------------------------------------
+
+order ATTRIT:NBHOOD "Magic Attrit Neighborhood" {
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of an existing neighborhood.
+    <</parm>>
+
+    <<parm casualties "Casualties">>
+    <b>Required.</b>  The number of personnel to be attrited, a
+    positive integer.
+    <</parm>>
+
+    <<ATTRIT.responsible>>
+
+    <</parmlist>>
+
+    Attrits all civilians in the neighborhood by the specified number
+    of casualties.  All civilian units and implicit populations are
+    attrited proportionally to their size.  <b>Note:</b> unlike
+    the <<cref ATTRIT:GROUP>> order, this order attrits civilian units
+    from other neighborhoods along with those from this
+    neighborhood.<p>
+
+    If the neighborhood's total population is less than the requested
+    number of casualties, then all of the civilian units in the
+    neighborhood will be reduced to zero personnel and the implicit
+    population of each neighborhood group will drop to one person.  (A
+    neighborhood group's implicit population may not be zero.)<p>
+
+    <<ATTRIT.attitude>>
+}
+
+#-----------------------------------------------------------------------
+
+order ATTRIT:UNIT "Magic Attrit Unit" {
+    <<parmlist>>
+
+    <<parm u "Unit">>
+    <b>Required.</b>  The name of an existing unit.
+    <</parm>>
+
+    <<parm casualties "Casualties">>
+    <b>Required.</b>  The number of personnel to be attrited, a
+    positive integer.
+    <</parm>>
+
+    <<ATTRIT.responsible>>
+
+    <</parmlist>>
+
+    This order magically inflicts casualties upon a selected unit.  The
+    casualties are presumed to be dead, and are deducted from the
+    unit's personnel.<p>
+
+    <ul>
+    <li> Unit attrition, and particularly civilian casualties, can
+         affect civilian attitudes.
+         
+    <li> To change the number of personnel in the unit for reasons
+         other than attrition, use the <<cref UNIT:PERSONNEL>> order.
+    </ul><p>
+
+    <<ATTRIT.attitude>>
+}
+
+#=======================================================================
+# Cooperation Orders
+
+page COOP: "Cooperation Orders" orders {
+    <<title>>
+
+    Athena models the cooperation of neighborhood
+    civilian groups with force groups, where cooperation is defined as
+    in the TRAC HUMINT methodology: the likelihood that a member of
+    the civilian group will give intelligence to a member of the force
+    group.  This family of orders are used to manipulate the
+    initial cooperation levels between various groups.  (Use the
+    <<cref MAD:COOP:>> to adjust or otherwise influence the 
+    current levels.)<p>
+
+    The full set of orders is as follows:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order COOP:UPDATE "Update Initial Cooperation" {
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of a neighborhood.
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  The name of a civilian group resident in
+    neighborhood <i>n</i>.
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  The name of a force group.
+    <</parm>>
+
+    <<parm coop0 "Cooperation">>
+    <b>Required.</b>  The initial cooperation level of group <i>f</i>
+    with group <i>g</i> in neighborhood <i>n</i>.  Cooperation levels
+    run from 0.0 to 100.0, and are defined either numerically or using
+    the following rating scale:<p>
+
+    <<::simlib::qcooperation html>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order updates the initial
+    cooperation level of one group with another; this can only be done
+    during the Scenario Preparation phase.<p>
+
+    (Use the <<cref MAD:>> to adjust or otherwise influence the 
+    current levels.)
+}
+
+#=======================================================================
+# Environmental Situation Orders
+
+page SITUATION:ENVIRONMENTAL: "Environmental Situation Orders" orders {
+    <<title>>
+
+    Athena models a variety of on-going conditions within
+    neighborhoods; these are collectively referred to as
+    <i>environmental situations</i>.  The set of situation types
+    includes epidemics, contaminated food and water, power and
+    communication outages, and so forth.  Detailed information about
+    each situation type may be found in the Athena Rules document.<p>
+
+    This family of orders is used to create, update, and resolve
+    environmental situations.<p>
+
+    The full set of orders is as follows:<p>
+
+    <<childlinks>>
+}
+
+macro ENSIT.initial {} {
+    |<--
+    The numeric ID of an environmental situation that has not yet
+    become active.  Ensits become active at the first time advance
+    after their creation.
+}
+
+macro ENSIT.location {} {
+    |<--
+    The location of the situation, expressed as a 
+    [cref mapref "map reference string"].  The situation affects the
+    neighborhood that contains this location, and so the location must
+    lie within some neighborhood.
+}
+
+macro ENSIT.stype {} {
+    |<--
+    The type of situation.  There may be only one
+    environmental situation of a given type in each neighborhood.<p>
+
+    [enumdoc ::projectlib::eensit]
+}
+
+macro ENSIT.coverage {} {
+    |<--
+    Neighborhood coverage fraction, as a positive real number
+    less than or equal to 1.0.  The coverage represents the fraction
+    of the neighborhood's population that is affected by this situation.
+}
+
+macro ENSIT.inception {} {
+    |<--
+    A flag (<b>YES</b>, <b>NO</b>) that determines
+    whether the situation has inception effects.  Set this to
+    <b>NO</b> for situations that are to be on-going at time 0. 
+}
+
+macro ENSIT.g {} {
+    |<--
+    The name of the group that the neighborhood
+    population considers responsible for causing this situation,
+    or <b>NONE</b> if none.
+}
+
+macro ENSIT.rduration {} {
+    |<--
+    A duration, in integer ticks.  If positive, the
+    situation will automatically be resolved at the end of the
+    specified time. If 0, no auto-resolution will take place.<p>
+
+    If this value is omitted, it will default to the value of the
+    <b>ensit.<i>stype</i>.duration</b> [cref parmdb parameter].
+}
+
+#-----------------------------------------------------------------------
+
+order SITUATION:ENVIRONMENTAL:CREATE "Create Environmental Situation" {
+    <<parmlist>>
+    <<parm location "Location">>
+    <b>Required.</b>  <<ENSIT.location>>
+    <</parm>>
+
+    <<parm stype "Type">>
+    <b>Required.</b> <<ENSIT.stype>>
+    <</parm>>
+
+    <<parm coverage "Coverage">>
+    <b>Required.</b> <<ENSIT.coverage>>
+    <</parm>>
+
+    <<parm inception "Inception?">>
+    <b>Required.</b> <<ENSIT.inception>>
+    <</parm>>
+
+    <<parm g "Caused By">>
+    <b>Required.</b>  <<ENSIT.g>>
+    <</parm>>
+
+    <<parm resolver "Resolved By">>
+    <b>Required.</b>  The name of the group that the neighborhood
+    population will consider responsible for resolving this situation,
+    or <b>NONE</b> if none.  This entry is used when the situation
+    resolves itself automatically; it can be overridden if the
+    situation is resolved manually.
+    <</parm>>
+
+    <<parm rduration "Duration">>
+    <b>Optional.</b>  <<ENSIT.rduration>>
+    <</parm>>
+
+    <</parmlist>>
+
+    This order creates a new environmental situation.  Note that the
+    <<cref SITUATION:ENVIRONMENTAL:UPDATE>> order can be used to
+    edit any of these values so long as the situation has not yet
+    become active, i.e., up until the next time advance.<p>
+}
+
+#-----------------------------------------------------------------------
+
+order SITUATION:ENVIRONMENTAL:DELETE "Delete Environmental Situation" {
+    <<parmlist>>
+
+    <<parm s "Situation">>
+    <b>Required.</b>  <<ENSIT.initial>>
+    <</parm>>
+    <</parmlist>>
+
+    Deletes an existing environmental situation.
+}
+
+#-----------------------------------------------------------------------
+
+order SITUATION:ENVIRONMENTAL:UPDATE "Update Environmental Situation" {
+    <<parmlist>>
+
+    <<parm s "Situation">>
+    <b>Required.</b>  <<ENSIT.initial>>
+    <</parm>>
+
+    <<parm location "Location">>
+    <b>Required.</b>  <<ENSIT.location>>
+    <</parm>>
+
+    <<parm stype "Type">>
+    <b>Required.</b> <<ENSIT.stype>>
+    <</parm>>
+
+    <<parm coverage "Coverage">>
+    <b>Required.</b> <<ENSIT.coverage>>
+    <</parm>>
+
+    <<parm inception "Inception?">>
+    <b>Required.</b> <<ENSIT.inception>>
+    <</parm>>
+
+    <<parm g "Caused By">>
+    <b>Required.</b>  <<ENSIT.g>>
+    <</parm>>
+
+    <<parm resolver "Resolved By">>
+    <b>Required.</b>  The name of the group that the neighborhood
+    population will consider responsible for resolving this situation,
+    or <b>NONE</b> if none.  This entry is used when the situation
+    resolves itself automatically; it can be overridden if the
+    situation is resolved manually.
+    <</parm>>
+
+    <<parm rduration "Duration">>
+    <b>Optional.</b>  <<ENSIT.rduration>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Updates an existing environmental situation that has not yet
+    become active.
+}
+
+
+#-----------------------------------------------------------------------
+
+order SITUATION:ENVIRONMENTAL:MOVE "Move Environmental Situation" {
+    <<parmlist>>
+
+    <<parm s "Situation">>
+    <b>Required.</b>  The numeric ID of any existing environmental
+    situation.
+    <</parm>>
+
+    <<parm location "Location">>
+    <b>Required.</b>  <<ENSIT.location>>  <b>Note:</b> If the ensit
+    has already become active, it cannot be moved out of its
+    neighborhood.
+    <</parm>>
+
+    <</parmlist>>
+
+    Moves an existing environmental situation from one place to another.
+}
+
+
+order SITUATION:ENVIRONMENTAL:RESOLVE "Resolve Environmental Situation" {
+    <<parmlist>>
+
+    <<parm s "Situation">>
+    <b>Required.</b>  The numeric ID of any unresolved environmental
+    situation.
+    <</parm>>
+
+    <<parm resolver "Resolved By">>
+    <b>Optional.</b> The name of the group that the neighborhood
+    population will consider responsible for resolving this situation,
+    or <b>NONE</b> if none.  If specified, overrides the group name
+    given when the situation was 
+    <<cref SITUATION:ENVIRONMENTAL:CREATE created>>.
+    <</parm>>
+
+    <</parmlist>>
+
+    Resolves an unresolved environmental situation.  Any on-going
+    effects will be terminated, and the neighborhood population will
+    usually respond favorably.
+}
+
+
+#=======================================================================
+# Group Orders
+
+page GROUP: "Group Orders" orders {
+    <<title>>
+
+    Athena models collections of people as <i>groups</i>.  There are
+    three kinds of groups: <i>force groups</i>, which exist to apply
+    and use force; <i>organization groups</i>, such as the Red Cross,
+    USAID, and Haliburton; and <i>civilian groups</i>, such as
+    Pashtuns and Punjabis. Civilian groups reside in neighborhoods,
+    thereby forming <i>neighborhood groups</i>.  Most information
+    about civilians in the playbox is entered for the individual
+    neighborhood groups.<p> 
+
+    Each kind of group has its own set of orders:<p>
+
+    <<childlinks>>
+}
+
+macro GROUP.g {flavor} {
+    |<--
+    The ID of an existing $flavor group.
+}
+
+macro GROUP.color {} {
+    |<--
+    The group's color, used when displaying the group's units
+    on the map viewer.  In general, group colors will be selected
+    using the color selection dialog; if a color is entered as a
+    string, it must be specified as a hex color string, of
+    one of the following forms<p>
+
+    #<i>rrggbb</i><br>
+    #<i>rrrgggbbb</i><br>
+    #<i>rrrrggggbbbb</i><p>
+
+    where <i>r</i>, <i>g</i> and <i>b</i> are hexadecimal digits 
+    expressing a shade of red, green, or blue.  Thus, "#000000" is
+    black, and "#FFFFFF" is white.<p>
+}
+
+macro GROUP.shape {} {
+    |<--
+    According to MIL-STD-2525a, friendly, neutral, and enemy units
+    are drawn differently by the map viewer.  This parameter
+    determines whether the group's units are drawn as friendly,
+    neutral, or enemy.  The possible values are as follows:<p>
+
+    [enumdoc ::projectlib::eunitshape]
+}
+
+macro GROUP.demeanor {} {
+    |<--
+    The demeanor of the group, i.e., its propensity for
+    violence. The possible values are as follows:<p>
+
+    [enumdoc ::projectlib::edemeanor]
+}
+
+macro GROUP.rollup_weight {} {
+    |<--
+    The weight given to this group when rolling up satisfaction levels
+    across groups to get neighborhood moods or playbox satisfaction
+    levels.  It must be a non-negative real value, nominally 1.0.
+    Reasonable values range from 0.5 to 2.0.
+}
+
+macro GROUP.effects_factor {} {
+    |<--
+    A factor used to scale the indirect effects on other
+    groups of satisfaction effects on this group.
+    across groups to get neighborhood moods or playbox satisfaction
+    levels.  It must be a non-negative real value, nominally 1.0.
+    Reasonable values range from 0.5 to 2.0.
+}
+
+#=======================================================================
+# Civilian Group Orders
+
+page GROUP:CIVILIAN: "Civilian Group Orders" GROUP: {
+    <<title>>
+
+    Athena uses civilian groups to model identifiable collections of
+    people who reside in multiple neighborhoods, e.g., Pashtuns and
+    Punjabis who reside in various parts of Pakistan.  Thus, defining
+    a population of Pashtuns resident in Peshawar requires first
+    defining Pashtuns in general. That's what this set of orders is for:<p>
+
+    <<childlinks>>
+
+    Then, the <<cref GROUP:NBHOOD:>> can be used to make the Pashtuns
+    actually reside in Peshawar:
+
+    <<childlinks GROUP:NBHOOD:>>
+}
+
+#-----------------------------------------------------------------------
+
+order GROUP:CIVILIAN:CREATE "Create Civilian Group" {
+    <<parmlist>>
+    <<parm g "ID">>
+    <b>Required.</b>  <<parm.identifier group PASH>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Required.</b> <<parm.longname group "Urban Pashtuns">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Required.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Required.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order creates a
+    new civilian group.  The <<cref GROUP:NBHOOD:CREATE>> order can
+    then be used to add the new group to neighborhoods.<p>
+}
+
+
+#-----------------------------------------------------------------------
+
+order GROUP:CIVILIAN:DELETE "Delete Civilian Group" {
+    <<parmlist>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  <<GROUP.g civilian>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    civilian group, along with all entities (e.g., neighborhood groups)
+    that depend upon it.<p>
+}
+
+#-----------------------------------------------------------------------
+
+order GROUP:CIVILIAN:UPDATE "Update Civilian Group" {
+    <<parmlist>>
+    <<parm g "ID">>
+    <b>Required.</b>  <<GROUP.g civilian>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Optional.</b> <<parm.longname group "Urban Pashtuns">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Optional.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Optional.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of an existing civilian group.<p>
+}
+
+
+#=======================================================================
+# Neighborhood Group Orders
+
+page GROUP:NBHOOD: "Neighborhood Group Orders" GROUP: {
+    <<title>>
+
+    Athena uses civilian groups to model identifiable collections of
+    people who reside in multiple neighborhoods, e.g., Pashtuns and
+    Punjabis residing in various parts of Pakistan.  Defining a
+    population of Pashtuns resident in Peshawar requires first
+    defining Pashtuns in general, using the <<cref GROUP:CIVILIAN:>>.
+    Then, this set of orders can be used to make the Pashtuns 
+    actually reside in Peshawar.<p>
+
+    <<childlinks>>
+}
+
+macro GROUP:NBHOOD.local_name {} {
+    |<--
+    A short, human-readable name the neighborhood group, e.g., 
+    the name of a tribe, clan, etc.
+}
+
+macro GROUP:NBHOOD.basepop {} {
+    |<--
+    The initial population of the neighborhood group.  This population
+    can be reduced by displacement to other neighborhoods, and by
+    attrition.  An integer number no less than 1.
+}
+
+
+#-----------------------------------------------------------------------
+
+order GROUP:NBHOOD:CREATE "Create Nbhood Group" {
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+
+    <<parm g "Civ Group">>
+    <b>Required.</b>  <<GROUP.g civilian>>  There must not already be
+    a neighborhood group for this <b>n</b> and <b>g</b>.
+    <</parm>>
+
+    <<parm local_name "Local Name">>
+    <b>Optional.</b> <<GROUP:NBHOOD.local_name>>  If no local name is
+    given, the civilian group's long name will be used.
+    <</parm>>
+
+    <<parm basepop "Base Population">>
+    <b>Required.</b> <<GROUP:NBHOOD.basepop>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Required.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm rollup_weight "Rollup Weight">>
+    <b>Required.</b> <<GROUP.rollup_weight>>
+    <</parm>>
+
+    <<parm effects_factor "Effects Factor">>
+    <b>Required.</b> <<GROUP.effects_factor>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order creates a
+    new neighborhood group, i.e., a civilian group resident in a
+    neighborhood.  The <<cref GROUP:CIVILIAN:CREATE>> order can
+    then be used to create civilian groups which can then be added to
+    neighborhoods.<p>
+}
+
+
+#-----------------------------------------------------------------------
+
+order GROUP:NBHOOD:DELETE "Delete Nbhood Group" {
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+
+    <<parm g "Civ Group">>
+    <b>Required.</b>  <<GROUP.g civilian>>  There must be
+    a neighborhood group for this <b>n</b> and <b>g</b>.
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    neighborhood group, along with all entities (e.g., civilian units,
+    satisfaction levels) that depend upon it.<p>
+}
+
+#-----------------------------------------------------------------------
+
+order GROUP:NBHOOD:UPDATE "Update Civilian Group" {
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+
+    <<parm g "Civ Group">>
+    <b>Required.</b>  <<GROUP.g civilian>>   There must be
+    a neighborhood group for this <b>n</b> and <b>g</b>.
+    <</parm>>
+
+    <<parm local_name "Local Name">>
+    <b>Optional.</b> <<GROUP:NBHOOD.local_name>>
+    <</parm>>
+
+    <<parm basepop "Base Population">>
+    <b>Optional.</b> <<GROUP:NBHOOD.basepop>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Optional.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm rollup_weight "Rollup Weight">>
+    <b>Optional.</b> <<GROUP.rollup_weight>>
+    <</parm>>
+
+    <<parm effects_factor "Effects Factor">>
+    <b>Optional.</b> <<GROUP.effects_factor>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of an existing neighborhood group.<p>
+}
+
+
+#=======================================================================
+# Force Group Orders
+
+page GROUP:FORCE: "Force Group Orders" GROUP: {
+    <<title>>
+
+    Athena uses force groups to model groups and organizations that 
+    exist to apply force, from the regular army to organized crime.
+    The Force Group Orders are used to define these groups.
+
+    <<childlinks>>
+
+    Then, the <<cref UNIT:>> can be used to create units belonging
+    to these groups.
+
+    <<childlinks UNIT:>>
+}
+
+macro GROUP:FORCE.forcetype {} {
+    |<--
+    The force type: regular military, paramilitary (e.g., national
+    police), police, irregular military (e.g., militias), or
+    organized crime.
+
+    [enumdoc ::projectlib::eforcetype]
+}
+
+macro GROUP:FORCE.uniformed {} {
+    |<--
+    Boolean flag (e.g., "Yes" or "No").  Indicates whether or not the
+    group's personnel wear recognizeable uniforms.  This affects the
+    offensive and defensive tactics used by the group.
+}
+
+
+macro GROUP:FORCE.local {} {
+    |<--
+    Boolean flag (e.g., "Yes" or "No").  Indicates whether or not the
+    group is perceived as being local to the playbox.
+}
+
+
+macro GROUP:FORCE.coalition {} {
+    |<--
+    Boolean flag (e.g., "Yes" or "No").  Indicates whether or not the
+    group is perceived as belonging to the U.S.-led coalition.<p>
+
+    <b>NOTE:</b> This flag was inherited from JNEM; it is not
+    currently used for anything, and might be deleted.
+}
+
+#-----------------------------------------------------------------------
+
+order GROUP:FORCE:CREATE "Create Force Group" {
+    <<parmlist>>
+    <<parm g "ID">>
+    <b>Required.</b>  <<parm.identifier group BLUE>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Required.</b> <<parm.longname group "US Army">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Required.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Required.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <<parm forcetype "Force Type">>
+    <b>Required.</b> <<GROUP:FORCE.forcetype>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Required.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm uniformed "Uniformed?">>
+    <b>Required.</b>  <<GROUP:FORCE.uniformed>>
+    <</parm>>
+
+    <<parm local "Local Group?">>
+    <b>Required.</b>  <<GROUP:FORCE.local>>
+    <</parm>>
+
+    <<parm coalition "Coalition Member?">>
+    <b>Required.</b>  <<GROUP:FORCE.coalition>>
+    <</parm>>
+
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order creates a
+    new force group.
+}
+
+
+#-----------------------------------------------------------------------
+
+order GROUP:FORCE:DELETE "Delete Force Group" {
+    <<parmlist>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  <<GROUP.g force>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    force group, along with all entities (e.g., units)
+    that depend upon it.<p>
+}
+
+#-----------------------------------------------------------------------
+
+order GROUP:FORCE:UPDATE "Update Force Group" {
+    <<parmlist>>
+    <<parm g "ID">>
+    <b>Required.</b>  <<GROUP.g force>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Optional.</b> <<parm.longname group "U.S. Army">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Optional.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Optional.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <<parm forcetype "Force Type">>
+    <b>Optional.</b> <<GROUP:FORCE.forcetype>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Optional.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm uniformed "Uniformed?">>
+    <b>Optional.</b>  <<GROUP:FORCE.uniformed>>
+    <</parm>>
+
+    <<parm local "Local Group?">>
+    <b>Optional.</b>  <<GROUP:FORCE.local>>
+    <</parm>>
+
+    <<parm coalition "Coalition Member?">>
+    <b>Optional.</b>  <<GROUP:FORCE.coalition>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of an existing force group.<p>
+}
+
+
+#=======================================================================
+# Organization Group Orders
+
+page GROUP:ORGANIZATION: "Organization Group Orders" orders {
+    Athena uses organization groups to model organizations that are
+    active in the playbox and have a significant affect on civilian
+    attitudes.  Such groups might include the Red Cross, Doctors Without
+    Borders, US AID, and Haliburton.  The Organization Group Orders
+    are used to define these groups.
+
+    <<childlinks>>
+
+    Then, the <<cref UNIT:>> can be used to create units belonging
+    to these groups.
+
+    <<childlinks UNIT:>>
+}
+
+macro GROUP:ORGANIZATION.orgtype {} {
+    |<--
+    The organization type.
+
+    [enumdoc ::projectlib::eorgtype]
+}
+
+
+#-----------------------------------------------------------------------
+
+order GROUP:ORGANIZATION:CREATE "Create Organization Group" {
+    <<parmlist>>
+    <<parm g "ID">>
+    <b>Required.</b>  <<parm.identifier group RC>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Required.</b> <<parm.longname group "Red Cross">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Required.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Required.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <<parm orgtype "Organization Type">>
+    <b>Required.</b> <<GROUP:ORGANIZATION.orgtype>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Required.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm rollup_weight "Rollup Weight">>
+    <b>Required.</b> <<GROUP.rollup_weight>>
+    <</parm>>
+
+    <<parm effects_factor "Effects Factor">>
+    <b>Required.</b> <<GROUP.effects_factor>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order creates a
+    new organization group.
+}
+
+
+#-----------------------------------------------------------------------
+
+order GROUP:ORGANIZATION:DELETE "Delete Organization Group" {
+    <<parmlist>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  <<GROUP.g organization>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    organization group, along with all entities (e.g., units)
+    that depend upon it.<p>
+}
+
+#-----------------------------------------------------------------------
+
+order GROUP:ORGANIZATION:UPDATE "Update Organization Group" {
+    <<parmlist>>
+    <<parm g "ID">>
+    <b>Required.</b>  <<GROUP.g organization>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Optional.</b> <<parm.longname group "Red Cross">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Optional.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Optional.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <<parm orgtype "Organization Type">>
+    <b>Optional.</b> <<GROUP:ORGANIZATION.orgtype>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Optional.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm rollup_weight "Rollup Weight">>
+    <b>Optional.</b> <<GROUP.rollup_weight>>
+    <</parm>>
+
+    <<parm effects_factor "Effects Factor">>
+    <b>Optional.</b> <<GROUP.effects_factor>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of an existing organization group.<p>
+}
+
+#=======================================================================
+# Magic Attitude Driver Orders
+
+page MAD: "Magic Attitude Driver Orders" orders {
+    <<title>>
+
+    Athena models a number of events and situations that drive
+    attitude change, e.g., civilian attrition and environmental
+    situations.  The set of drivers is not all encompassing, and so
+    Athena allows the analyst to create <i>Magic Attitude Drivers</i>
+    (MADs).  Once a MAD is created, the analyst may associate with it a
+    variety of attitude adjustments and inputs; and the effects of
+    these inputs will be associated with the MAD in the 
+    <<cref REPORT:SATISFACTION:CONTRIB>>.<p>
+
+    The following orders are used to create and manipulate MADs:<p>
+
+    <<childlinks>>
+}
+
+macro MAD.mad {} {
+    |<--
+    The ID of the Magic Attitude Driver (MAD) to which
+    the change will be attributed.
+}
+
+macro MAD.limit {} {
+    |<--
+    The magnitude of the level input in points, expressed as a real
+    number, or as one of the symbols from the following table:<p>
+
+    [::simlib::qmag html]
+}
+
+macro MAD.slope {} {
+    |<--
+    The slope of the input in points per day, expressed as a real
+    number, or as one of the symbols from the following table:<p>
+
+    [::simlib::qmag html]
+}
+
+macro MAD.days {} {
+    |<--
+    The realization time for the level input, in
+    decimal days, expressed as a real number.  The input will take
+    effect over this number of days.
+}
+
+macro MAD.cause {} {
+    |<--
+    The "cause" for any magic attitude input input associated with
+    this MAD; see [cref Causes].  The cause
+    may be <b>UNIQUE</b>, indicating that the effects of this MAD
+    are independent of all other drivers, or it may be
+    any cause from the following list:<p>
+
+    [enumdoc ::projectlib::ecause]
+}
+
+macro MAD.p {} {
+    |<--
+    Indirect effects of magic attitude inputs for this MAD in <b>NEAR</b>
+    neighborhoods are multiplied by this factor.  If it is 0.0, there
+    will be no such indirect effects.
+}
+
+macro MAD.q {} {
+    |<--
+    Indirect effects of magic attitude inputs for this MAD in <b>FAR</b>
+    neighborhoods are multiplied by 
+    this factor.  If it is 0.0, there will be no such indirect effects.
+}
+
+
+
+#-----------------------------------------------------------------------
+
+order MAD:CREATE "Create Magic Attitude Driver" {
+    <<parmlist>>
+
+    <<parm oneliner "Description">>
+    <b>Required.</b>  A one-line description of the driver.
+    <</parm>>
+
+    <<parm cause "Cause">>
+    <b>Required.</b> <<MAD.cause>>
+    <</parm>>
+
+    <<parm p "Near Factor">>
+    <b>Required.</b> <<MAD.p>>
+    <</parm>>
+
+    <<parm q "Far Factor">>
+    <b>Required.</b> <<MAD.q>>
+    <</parm>>
+    
+    <</parmlist>>
+
+    Creates a new Magic Attitude Driver (MAD).  The description need
+    not be unique, but should remind the analyst of the reason for the
+    attitude inputs and adjustments associated with the MAD.<p>
+
+    All magic level and slope inputs associated with this MAD will use
+    the specified cause, near factor, and far factor.<p>
+
+    <b>Note:</b> Once any attitude inputs or adjustments have been
+    associated with this MAD, it can no longer be deleted; nor can its
+    cause, near factor or far factor be changed.
+}
+
+#-------------------------------------------------------------------
+
+order MAD:DELETE "Delete Magic Attitude Driver" {
+    <<parmlist>>
+
+    <<parm id "MAD ID">>
+    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to delete.
+    <</parm>>
+    <</parmlist>>
+
+    Deletes the specified MAD.  Note that a MAD cannot be deleted once
+    any attitude inputs or adjustments have been associated with it.
+}
+
+#-------------------------------------------------------------------
+
+order MAD:UPDATE "Update Magic Attitude Driver" {
+    <<parmlist>>
+
+    <<parm id "MAD ID">>
+    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to update.
+    <</parm>>
+
+    <<parm oneliner "Description">>
+    <b>Optional.</b>  A one-line description of the driver.
+    <</parm>>
+
+    <<parm cause "Cause">>
+    <b>Optional.</b> <<MAD.cause>>
+    <</parm>>
+
+    <<parm p "Near Factor">>
+    <b>Optional.</b> <<MAD.p>>
+    <</parm>>
+
+    <<parm q "Far Factor">>
+    <b>Optional.</b> <<MAD.q>>
+    <</parm>>
+    
+    <</parmlist>>
+
+    Updates the MAD's definition.
+}
+
+#-------------------------------------------------------------------
+
+order MAD:TERMINATE "Terminate Magic Slope Inputs" {
+    <<parmlist>>
+
+    <<parm id "MAD ID">>
+    <b>Required.</b>  The ID of a Magic Attitude Driver (MAD).
+    <</parm>>
+    <</parmlist>>
+
+    <b>This order must be scheduled in advance.</b>
+    This order terminates all currently on-going slope inputs created
+    for this MAD using <<cref MAD:SAT:SLOPE>> or 
+    <<cref MAD:COOP:SLOPE>>.  (Delayed indirect effects
+    are terminated after a suitable delay.)
+}
+
+#=======================================================================
+# Magic Satisfaction Orders
+
+page MAD:SAT: "Magic Satisfaction Orders" MAD: {
+    <<title>>
+
+    These orders are used to set, adjust, and otherwise influence 
+    satisfaction levels.  All such changes are attributes to
+    some Magic Attitude Driver (MAD).<p>
+
+    The following orders are available:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order MAD:SAT:ADJUST "Magic Adjust Satisfaction Level" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  An organization group, or a civilian group
+    resident in neighborhood <i>n</i>.
+    <</parm>>
+
+    <<parm c "Concern">>
+    <b>Required.</b>  One of group <i>g</i>'s concerns.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  <<MAD.mad>>
+    <</parm>>
+
+    <<parm delta "Delta">>
+    <b>Required.</b>  The magnitude of the change, expressed as a real
+    number, or as one of the symbols from the following table:<p>
+
+    <<::simlib::qmag html>>
+    <</parm>>
+    <</parmlist>>
+
+    Immediately adjusts the value of the specified satisfaction curve by the
+    specified amount, clamping the curve's value to the range -100.0,
+    100.0 if need be.
+}
+
+#-----------------------------------------------------------------------
+
+order MAD:SAT:SET "Magic Set Satisfaction Level" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  An organization group, or a civilian group
+    resident in neighborhood <i>n</i>.
+    <</parm>>
+
+    <<parm c "Concern">>
+    <b>Required.</b>  One of group <i>g</i>'s concerns.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  <<MAD.mad>>
+    <</parm>>
+
+    <<parm sat "sat">>
+    <b>Required.</b>  The new value, expressed as a real
+    number, or as one of the symbols from the following table:<p>
+
+    <<::simlib::qsat html>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Immediately sets the value of the specified satisfaction curve to the
+    specified amount.
+}
+
+#-----------------------------------------------------------------------
+
+order MAD:SAT:LEVEL "Magic Satisfaction Level Input" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  A civilian or organization group ID.
+    <</parm>>
+
+    <<parm c "Concern">>
+    <b>Required.</b>  One of group <i>g</i>'s concerns.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  <<MAD.mad>>
+    <</parm>>
+
+    <<parm limit "Limit">>
+    <b>Required.</b>  <<MAD.limit>>
+    <</parm>>
+
+    <<parm days "Realization Time">>
+    <b>Required.</b>  <<MAD.days>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b>This order must be scheduled in advance.</b>
+    Enters a magic satisfaction level input into GRAM.  The input will
+    change the specified curve's value by <i>limit</i> nominal points
+    over a period of <i>days</i>.
+}
+
+
+#-----------------------------------------------------------------------
+
+order MAD:SAT:SLOPE "Magic Satisfaction Slope Input" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  A civilian or organization group ID.
+    <</parm>>
+
+    <<parm c "Concern">>
+    <b>Required.</b>  One of group <i>g</i>'s concerns.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  <<MAD.mad>>
+    <</parm>>
+
+    <<parm slope "Slope">>
+    <b>Required.</b>  <<MAD.slope>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b>This order must be scheduled in advance.</b>
+    Enters a magic satisfaction slope input into GRAM.  The input will
+    change the specified curve's value by <i>slope</i> nominal points
+    per day until the input is terminated.  The input will be
+    attributed to the specified MAD.<p>
+
+    A subsequent order for the same curve and MAD will change
+    the slope of the existing slope input, rather than creating a new
+    slope input.<p>
+
+    The input can be terminated in two ways.  First, the specific
+    input can be terminated by sending an identical order with a slope
+    of 0.0.  Second, the <<cref MAD:TERMINATE>> order will terminate
+    all ongoing slope effects for a particular MAD.
+}
+
+#=======================================================================
+# Magic Cooperation Orders
+
+page MAD:COOP: "Magic Cooperation Orders" MAD: {
+    <<title>>
+
+    These orders are used to set, adjust, and otherwise influence 
+    cooperation levels.  All such changes are attributes to
+    some Magic Attitude Driver (MAD).<p>
+
+    The following orders are available:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order MAD:COOP:ADJUST "Magic Adjust Cooperation Level" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  A civilian group
+    resident in neighborhood <i>n</i>.
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  A force group.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to which
+    the change will be attributed.
+    <</parm>>
+
+    <<parm delta "Delta">>
+    <b>Required.</b>  The magnitude of the change, expressed as a real
+    number, or as one of the symbols from the following table:<p>
+
+    <<::simlib::qmag html>>
+    <</parmlist>>
+
+    Adjusts the value of the specified cooperation curve by the
+    specified amount, clamping the curve's value to the range 0.0,
+    100.0 if need be.
+}
+
+#-----------------------------------------------------------------------
+
+order MAD:COOP:SET "Magic Set Cooperation Level" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  A civilian group
+    resident in neighborhood <i>n</i>.
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  A force group.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to which
+    the change will be attributed.
+    <</parm>>
+
+    <<parm coop "coop">>
+    <b>Required.</b>  The new value, expressed as a real
+    number, or as one of the symbols from the following table:<p>
+
+    <<::simlib::qcooperation html>>
+    <</parmlist>>
+
+    Sets the value of the specified cooperation curve to the
+    specified amount.
+}
+
+#-----------------------------------------------------------------------
+
+order MAD:COOP:LEVEL "Magic Cooperation Level Input" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  A civilian group ID.
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  A force group ID.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  <<MAD.mad>>
+    <</parm>>
+
+    <<parm limit "Limit">>
+    <b>Required.</b>  <<MAD.limit>>
+    <</parm>>
+
+    <<parm days "Realization Time">>
+    <b>Required.</b>  <<MAD.days>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b>This order must be scheduled in advance.</b>
+    Enters a magic cooperation level input into GRAM.  The input will
+    change the specified curve's value by <i>limit</i> nominal points
+    over a period of <i>days</i>.  The input will be attributed to the
+    specified MAD.
+}
+
+
+#-----------------------------------------------------------------------
+
+order MAD:COOP:SLOPE "Magic Cooperation Slope Input" {
+    <<parmlist>>
+    
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  A neighborhood ID.
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  A civilian group ID.
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  A force group ID.
+    <</parm>>
+
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  <<MAD.mad>>
+    <</parm>>
+
+    <<parm slope "Slope">>
+    <b>Required.</b>  <<MAD.slope>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b>This order must be scheduled in advance.</b>
+    Enters a magic cooperation slope input into GRAM.  The input will
+    change the specified curve's value by <i>slope</i> nominal points
+    per day until the input is terminated.  The input will be
+    attributed to the specified MAD.<p>
+
+    A subsequent order for the same curve and MAD will change
+    the slope of the existing slope input, rather than creating a new
+    slope input.<p>
+
+    The input can be terminated in two ways.  First, the specific
+    input can be terminated by sending an identical order with a slope
+    of 0.0.  Second, the <<cref MAD:TERMINATE>> order will terminate
+    all ongoing slope effects for a particular MAD.
+}
+
+
+#=======================================================================
+# Map Orders
+
+page MAP: "Map Orders" orders {
+    <<title>>
+
+    Athena allows the user to specify a map background to aid in both
+    the construction of the scenario and the analysis and
+    visualization of the results.  (See <<cref "Using Maps">> for more
+    information.  The following orders manipulate
+    the image used as the map background:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order MAP:IMPORT "Import Map" {
+    <<parmlist>>
+
+    <<parm filename "Map File">>
+    <b>Required.</b>  The name of a GIF, JPEG, or PNG image to be used
+    as the map background.
+    <</parm>>
+    <</parmlist>>
+
+    Imports an image into the scenario for use as the map background,
+    replacing any previous map image.  The image data is saved within
+    the scenario; it's not necessary to send the image file along with
+    the saved .adb file.<p>
+
+    This order is usually sent indirectly, using the
+    <<menuref File/Import Map...>> menu item.  However, Athena should
+    eventually support order script, and it it is documented here for
+    that purpose.
+}
+
+
+
+
+#=======================================================================
+# Neighborhood Orders
+
+page NBHOOD: "Neighborhood Orders" orders {
+    <<title>>
+
+    The Athena playbox, or region of interest, is divided into 
+    neighborhoods.  A neighborhood is a polygonal area on the map
+    containing civilian groups, units of various kinds, environmental
+    situations, and so forth.<p>
+
+    Neighborhoods can be stacked one on another; the upper
+    neighborhood covers any lower neighborhoods.  Although Athena does
+    not require it, it's customary to stack neighborhoods so that they
+    nest.  The one restriction on nesting is that a neighborhood
+    cannot cover another neighborhood's reference point.<p>
+
+    Neighborhoods can only be created, updated, and deleted during 
+    <<cref using.prep>>.<p>
+
+    <<childlinks>>
+}
+
+macro NBHOOD.n {} {
+    |<--
+    The ID of an existing neighborhood.
+}
+
+macro NBHOOD.urbanization {} {
+    |<--
+    The neighborhood's urbanization level:
+    [enumdoc ::projectlib::eurbanization]
+}
+
+macro NBHOOD.vtygain {} {
+    |<--
+    The neighborhood's volatility gain, a real
+    number no less than zero; it is used to dial up and down the
+    effect of neighborhood volatility on neighborhood security.
+    See [cref Neighborhood_Security] for more information.
+}
+
+macro NBHOOD.refpoint {} {
+    |<--
+    The neighborhood's reference point, expressed as
+    a [cref mapref "map reference string"].  The reference point is
+    a location within the neighborhood that is guaranteed not to be
+    obscured by an overlapping or nested neighborhood.
+}
+
+macro NBHOOD.polygon {} {
+    |<--
+    The neighborhood's boundary polygon, expressed as
+    a list of [cref mapref "map reference strings"].
+}
+
+#-----------------------------------------------------------------------
+
+order NBHOOD:CREATE "Create Neighborhood" {
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<parm.identifier neighborhood N1>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Required.</b>  <<parm.longname neighborhood "Peshawar">>
+    <</parm>>
+
+    <<parm urbanization "Urbanization">>
+    <b>Required.</b>  <<NBHOOD.urbanization>>
+    <</parm>>
+
+    <<parm vtygain "Volatility Gain">>
+    <b>Required.</b>  <<NBHOOD.vtygain>>
+    <</parm>>
+
+    <<parm refpoint "Reference Point">>
+    <b>Required.</b>  <<NBHOOD.refpoint>>
+    <</parm>>
+
+    <<parm polygon "Polygon">>
+    <b>Required.</b> <<NBHOOD.polygon>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order creates a
+    new neighborhood.
+}
+
+#-----------------------------------------------------------------------
+
+order NBHOOD:DELETE "Delete Neighborhood" {
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    neighborhood, along with all entities (e.g., neighborhood groups)
+    that depend upon it.<p>
+}
+
+
+#-----------------------------------------------------------------------
+
+order NBHOOD:LOWER "Lower Neighborhood" {
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Lowers a neighborhood
+    to the bottom of the stacking order, so that all overlapping
+    neighborhoods are stacked upon this one, and then determines
+    whether this neighborhood is obscured by any of those above it.
+    (One neighborhood obscures another if it covers the other
+    neighborhood's reference point.)
+}
+
+
+#-----------------------------------------------------------------------
+
+order NBHOOD:RAISE "Raise Neighborhood" {
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Raises a neighborhood
+    to the top of the stacking order, so that all overlapping
+    neighborhoods are underneath it, and then determines
+    whether this neighborhood obscures any of those below it.
+    (One neighborhood obscures another if it covers the other
+    neighborhood's reference point.)
+}
+
+
+#-----------------------------------------------------------------------
+
+order NBHOOD:UPDATE "Update Neighborhood" {
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Optional.</b>  <<parm.longname neighborhood "Peshawar">>
+    <</parm>>
+
+    <<parm urbanization "Urbanization">>
+    <b>Optional.</b>  <<NBHOOD.urbanization>>
+    <</parm>>
+
+    <<parm vtygain "Volatility Gain">>
+    <b>Optional.</b>  <<NBHOOD.vtygain>>
+    <</parm>>
+
+    <<parm refpoint "Reference Point">>
+    <b>Optional.</b>  <<NBHOOD.refpoint>>
+    <</parm>>
+
+    <<parm polygon "Polygon">>
+    <b>Optional.</b> <<NBHOOD.polygon>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies
+    the definition of an existing neighborhood.
+}
+
+
+#=======================================================================
+# Neighborhood Orders
+
+page NBHOOD:RELATIONSHIP: "Neighborhood Relationship Orders" orders {
+    <<title>>
+
+    The Athena playbox, or region of interest, is divided into 
+    <<cref NBHOOD: neighborhoods>>.  Neighborhoods are related
+    to each other in two ways: by proximity, and by the time it takes
+    attitude effects to spread.  The neighborhood relationship orders
+    are used to edit these relationships.<p>
+
+    Neighborhood relationships are created automatically for every
+    pair of neighborhoods, and are deleted as necessary when
+    neighborhoods are deleted.<p>
+
+    <<childlinks>>
+}
+
+#-------------------------------------------------------------------
+
+order NBHOOD:RELATIONSHIP:UPDATE "Update Neighborhood Relationship" {
+    <<parmlist>>
+    <<parm m "Of Neighborhood">> 
+    <b>Required.</b>  A neighborhood name.
+    <</parm>>
+
+    <<parm n "With Neighborhood">> 
+    <b>Required.</b>  Another neighborhood name.
+    <</parm>>
+
+    <<parm proximity "Proximity">>  
+    <b>Optional.</b> The proximity between the two neighborhoods from
+    <i>m</i>'s point of view:<p>
+
+    <<enumdoc ::simlib::eproximity>><p>
+
+    Every neighborhood has a proximity of <b>HERE</b> with itself;
+    this cannot be changed.  Two distinct neighborhoods can have a
+    proximity from <b>NEAR</b> to <b>REMOTE</b>.<p>
+
+    The attitude effects of events and situations in neighborhood <i>n</i>
+    diminish with distance, and vanish altogether in neighborhoods
+    <i>m</i> that consider <i>n</i> to be <b>REMOTE</b>.
+    <</parm>>
+
+    <<parm effects_delay "Effects Delay">> 
+    <b>Optional.</b> Decimal days.  The attitude effects of events and
+    situations in neighborhood <i>n</i> are felt in neighborhood
+    <i>m</i> only after this number of days.
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies existing
+    neighborhood relationships.<p>
+
+    <b>TBD:</b>  At present, Athena allows the user to enter non-zero
+    effects delays within a single neighborhood; however, GRAM
+    presumes that there are no effects delays within a neighborhood 
+    regardless of what the input data says.  This needs to be resolved.
+}
+
+#=======================================================================
+# Group Relationship Orders
+
+page RELATIONSHIP: "Group Relationship Orders" orders {
+    <<title>>
+
+    Groups can be friends, enemies, or neutrals, as determined by
+    their <i>relationship</i>, a number between -1.0 and 1.0.  
+    Relationships are established during <<cref using.prep>> and
+    are constant thereafter.<p>
+
+    Relationships with civilian groups exist at the neighborhood level; 
+    relationships between force and organization groups exist at the playbox 
+    level.  Athena creates the appropriate set of relationships as 
+    neighborhoods and groups are created.<p>
+
+    These orders are used to edit group relationships during
+    <<cref using.prep>>.
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order RELATIONSHIP:UPDATE "Update Group Relationship" {
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of a neighborhood, or <b>PLAYBOX</b>.
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  The name of a group.
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  The name of a group, possibly the same.
+    <</parm>>
+
+    <<parm rel "Relationship">>
+    <b>Optional.</b>  The relationship between the two groups in the
+    neighborhood, a decimal number between -1.0 and 1.0.  The relationship
+    of a group with itself defaults to 1.0 and should generally not be
+    changed.  Typical relationship values range from -0.5 to +0.8.  
+    A group always has a relationship of 1.0 with itself.
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order updates the relationship
+    of one group with another.  The combination <i>n</i>, <i>f</i>, <i>g</i> 
+    must identify an existing relationship; Athena creates the
+    appropriate set of relationships as groups and neighborhoods are
+    created.
+}
+
+
+#-----------------------------------------------------------------------
+
+order RELATIONSHIP:UPDATE+MULTI "Update Multiple Relationships" {
+    <<parmlist>>
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids relationship>>
+    <</parm>>
+
+    <<parm rel "Relationship">>
+    <b>Optional.</b>  The relationship between two groups in the
+    neighborhood, a decimal number between -1.0 and 1.0.  The relationship
+    of a group with itself defaults to 1.0 and should generally not be
+    changed.  Typical relationship values range from -0.5 to +0.8.  
+    A group always has a relationship of 1.0 with itself.
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order updates each of the
+    listed relationships.
+}
+
+
+
+#=======================================================================
+# Satisfaction Orders
+
+page SAT: "Satisfaction Orders" orders {
+    <<title>>
+
+    Athena models the satisfaction of organization groups and
+    neighborhood civilian groups with respect to a variety of
+    concerns.  This family of orders are used to manipulate the
+    initial satisfaction levels and related parameters.  (Use the
+    <<cref MAD:SAT:>> to adjust or otherwise influence the 
+    current levels.)<p>
+
+    The full set of orders is as follows:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order SAT:UPDATE "Update Initial Satisfaction" {
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of a neighborhood.
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  The name of an organization group, or
+    of a civilian group resident in neighborhood <i>n</i>.
+    <</parm>>
+
+    <<parm c "Concern">>
+    <b>Required.</b>  The name of a civilian or organization
+    concern, as appropriate.
+    <</parm>>
+
+    <<parm sat0 "Sat at T0">>
+    <b>Optional.</b>  The initial satisfaction level of group <i>g</i>
+    with concern <i>c</i> in neighborhood <i>n</i>.  Satisfaction levels
+    run from -100.0 to 100.0, and are defined either numerically or using
+    the following rating scale:<p>
+
+    <<::simlib::qsat html>>
+    <</parm>>
+
+    <<parm trend0 "Trend">>
+    <b>Optional.</b>  The long-term trend for this satisfaction level,
+    a slope in points per day.  Trends should generally be 0.0 unless
+    there is a systematic reason why the level will trend positive
+    or negative.  Trends are defined either numerically or using
+    the following rating scale:<p>
+
+    <<::simlib::qtrend html>>
+    <</parm>>
+
+    <<parm saliency "Saliency">>
+    <b>Optional.</b>  The importance of concern <i>c</i> to the group.
+    Saliencies range from 0.0 to 1.0, and are defined either
+    numerically or using the following rating scale:<p>
+
+    <<::simlib::qsaliency html>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order updates the initial
+    satisfaction level of one group with another; this can only be done
+    during the Scenario Preparation phase.<p>
+
+    (Use the <<cref MAD:>> to adjust or otherwise influence the 
+    current levels.)
+
+}
+
+#=======================================================================
+# Parm Orders
+
+page PARM: "Model Parameter Orders" orders {
+    <<title>>
+
+    These orders are used to set the values of the 
+    Athena <<cref parmdb>>.<p>
+
+    The user will usually use these orders indirectly, via the
+    <<cmdref parm>> <<cref cmd "executive command">> and its
+    subcommands; Athena <<version>> provides no other way for the user
+    to access them.  They are documented here for completeness'
+    sake.<p>
+
+    In the long-run, it is likely that Athena will be able to execute
+    order scripts; at that time, the user will be able to enter these
+    orders directly into the scripts.<p>
+
+    The orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+#-------------------------------------------------------------------
+
+order PARM:IMPORT "Import Parameter File" {
+    <<parmlist>>
+
+    <<parm filename "Parameter File">> 
+    <b>Required.</b>  Name of a parmdb(5) parameter file.
+    <</parm>>
+
+    <</parmlist>>
+
+    This order imports <<cref parmdb "model parameter">> settings from
+    a disk file.  See <<cmdref parm import>> for details.
+}
+
+
+#-------------------------------------------------------------------
+
+order PARM:RESET "Reset Parameters to Defaults" {
+    This order resets all <<cref parmdb "model parameters">> to
+    their default values.  See <<cmdref parm reset>> for details.
+}
+
+#-------------------------------------------------------------------
+
+order PARM:SET "Set Parameter Value" {
+    <<order.header>>
+
+    <<parmlist>>
+
+    <<parm parm "Parameter">> 
+    <b>Required.</b>  Name of a parmdb(5) parameter.
+    <</parm>>
+
+    <<parm value "Value">> 
+    <b>Required.</b>  New parameter value.
+    <</parm>>
+
+    <</parmlist>>
+
+    This order sets the value of the named parameter.  See 
+    <<cmdref parm set>> for details. 
+}
+
+#=======================================================================
+# Order Orders
+
+page ORDER: "Order Scheduling Orders" orders {
+    <<title>>
+
+    Athena allows certain orders to be scheduled to execute at some
+    later time.  These orders are used to schedule orders for
+    execution, and to cancel the scheduled orders.<p>
+
+    The user will usually use these orders indirectly, via the
+    the "Schedule" button on the various order dialogs, and the "X" 
+    button on the Orders browser;  Athena <<version>> provides no 
+    other way for the user to access them.  They are documented here 
+    for completeness' sake.<p>
+
+    In the long-run, it is likely that Athena will be able to execute
+    order scripts; at that time, the user will be able to enter these
+    orders directly into the scripts.<p>
+
+    The orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+#-------------------------------------------------------------------
+
+order ORDER:CANCEL "Cancel Scheduled Order" {
+    <<parmlist>>
+
+    <<parm id "Order ID">> 
+    <b>Required.</b>  The ID of the scheduled order, as shown in 
+    the Orders browser.
+    <</parm>>
+
+    <</parmlist>>
+
+    This order cancels a scheduled order given its ID.
+}
+
+#-------------------------------------------------------------------
+
+order ORDER:SCHEDULE "Schedule Order" {
+    <<parmlist>>
+
+    <<parm timespec "Time Spec">> 
+    <b>Required.</b> The time at which the order should be scheduled
+    to execute, expressed as a <<cref timespec>>.  The time must be at
+    least "NOW+1".
+    <</parm>>
+
+    <<parm name "Order Name">>
+    <b>Required.</b> The name of the order, as shown on the second
+    line of the order's help page.  For example, the name of this
+    order (as opposed to its title) is <b>ORDER:SCHEDULE</b>.
+
+    <<parm parmdict "Parm Dict">>
+    A Tcl dictionary of parameter names and values, using the 
+    parameter names shown in parentheses on the order's help page.
+    The name of this parameter, for example, is <b>parmdict</b>.
+    <</parm>>
+
+    <</parmlist>>
+
+    This order schedules the order to execute at the specified time.
+    It does not ensure that the order will be accepted; a valid order
+    might become invalid by the time it executes, and an invalid order
+    might (in particular cases) become valid.
+}

@@ -1,0 +1,1222 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-aam.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    aam(sim) tests.
+#
+#    This test suite tests the aam(sim) mutators and queries
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # mutate attritnf
+
+    # 1.* -- Attrition to FRC and ORG units.
+    #
+    # The code is identical for both types, so we do one ORG test just 
+    # to show that we can do it.
+
+    test attritnf-1.1 {f is FRC, units attrited in proper order} -setup {
+        ted create NB1 BLUE BRIT BLUE1 BLUE2 BRIT1
+
+        ted unit location BLUE1 NB1
+        ted unit location BLUE2 NB1
+        ted unit location BRIT1 NB1
+
+        ted unit activity BLUE1 PATROL
+    } -body {
+        aam mutate attritnf [list n NB1 f BLUE casualties 20 g1 "" g2 ""]
+
+        # All units had 15 personnel to start.
+        # BLUE2 should be attrited before BLUE1.
+        # BRIT1 should not be touched.
+        ted query {SELECT u,personnel FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u     personnel 
+----- --------- 
+BLUE1 10        
+BLUE2 0         
+BRIT1 15        
+    }
+
+
+    test attritnf-1.2 {f is FRC, overkill leaves 0} -setup {
+        ted create NB1 BLUE BRIT BLUE1 BLUE2 BRIT1
+
+        ted unit location BLUE1 NB1
+        ted unit location BLUE2 NB1
+        ted unit location BRIT1 NB1
+
+        ted unit activity BLUE1 PATROL
+    } -body {
+        aam mutate attritnf [list n NB1 f BLUE casualties 40 g1 "" g2 ""]
+
+        # All BLUE units should be at 0.
+        ted query {SELECT u,personnel FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u     personnel 
+----- --------- 
+BLUE1 0         
+BLUE2 0         
+BRIT1 15        
+    }
+
+
+    test attritnf-1.3 {f is FRC, no units present} -setup {
+        ted create NB1 BLUE BRIT BRIT1
+
+        ted unit location BRIT1 NB1
+    } -body {
+        aam mutate attritnf [list n NB1 f BLUE casualties 40 g1 "" g2 ""]
+
+        # All BLUE units should be at 0.
+        ted query {SELECT u,personnel FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u     personnel 
+----- --------- 
+BRIT1 15        
+    }
+
+    
+    test attritnf-1.4 {f is ORG, units attrited in proper order} -setup {
+        ted create NB1 USAID HAL USAID1 USAID2 HAL1
+
+        ted unit location USAID1 NB1
+        ted unit location USAID2 NB1
+        ted unit location HAL1 NB1
+
+        ted unit activity USAID1 CMO_HEALTHCARE
+    } -body {
+        aam mutate attritnf [list n NB1 f USAID casualties 20 g1 "" g2 ""]
+
+        # All units had 15 personnel to start.
+        # USAID2 should be attrited before USAID1.
+        # HAL1 should not be touched.
+        ted query {SELECT u,personnel FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u      personnel 
+------ --------- 
+USAID1 10        
+USAID2 0         
+HAL1   15        
+    }
+
+
+    test attritnf-1.5 {f is ORG, attitude data is saved} -setup {
+        ted create NB1 USAID HAL USAID1 USAID2 HAL1
+
+        ted unit location USAID1 NB1
+        ted unit location USAID2 NB1
+        ted unit location HAL1 NB1
+
+        ted unit activity USAID1 CMO_HEALTHCARE
+    } -body {
+        aam mutate attritnf [list n NB1 f USAID casualties 20 g1 "" g2 ""]
+
+        # USAID2 have 20 accumulated casualties
+        ted query {SELECT * FROM attrit_nf}
+    } -cleanup {
+        cleanup
+    } -result {
+id n   f     casualties 
+-- --- ----- ---------- 
+1  NB1 USAID 20         
+    }
+
+
+    test attritnf-1.6 {f is FRC, ::unit <Entity>} -setup {
+        ted create NB1 BLUE BRIT BLUE1 BLUE2 BRIT1
+
+        ted unit location BLUE1 NB1
+        ted unit location BLUE2 NB1
+        ted unit location BRIT1 NB1
+
+        ted unit activity BLUE1 PATROL
+
+    } -body {
+        ted notifier bind ::unit <Entity>
+        aam mutate attritnf [list n NB1 f BLUE casualties 20 g1 "" g2 ""]
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update BLUE2}
+        {::unit <Entity> update BLUE1}
+    }
+
+
+    test attritnf-1.7 {f is FRC, undo restores} -setup {
+        ted create NB1 BLUE BRIT BLUE1 BLUE2 BRIT1
+
+        ted unit location BLUE1 NB1
+        ted unit location BLUE2 NB1
+        ted unit location BRIT1 NB1
+
+        ted unit activity BLUE1 PATROL
+
+        set undo [aam mutate attritnf \
+                      [list n NB1 f BLUE casualties 20 g1 "" g2 ""]]
+    } -body {
+        eval $undo
+
+        # All units should have 15 personnel
+        ted query {SELECT u,personnel FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u     personnel 
+----- --------- 
+BLUE1 15        
+BLUE2 15        
+BRIT1 15        
+    }
+
+
+    test attritnf-1.8 {f is ORG, undo deletes saved attrition} -setup {
+        ted create NB1 USAID USAID1 USAID2
+
+        ted unit location USAID1 NB1
+        ted unit location USAID2 NB1
+
+        set undo [aam mutate attritnf \
+                      [list n NB1 f USAID casualties 20 g1 "" g2 ""]]
+    } -body {
+        eval $undo
+
+        ted query {SELECT * FROM attrit_nf}
+    } -cleanup {
+        cleanup
+    } -result {
+    }
+
+
+    test attritnf-1.9 {f is FRC, ::unit <Entity> on undo} -setup {
+        ted create NB1 BLUE BRIT BLUE1 BLUE2 BRIT1
+
+        ted unit location BLUE1 NB1
+        ted unit location BLUE2 NB1
+        ted unit location BRIT1 NB1
+
+        ted unit activity BLUE1 PATROL
+
+        set undo [aam mutate attritnf \
+                      [list n NB1 f BLUE casualties 20 g1 "" g2 ""]]
+    } -body {
+        ted notifier bind ::unit <Entity>
+        eval $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update BLUE2}
+        {::unit <Entity> update BLUE1}
+    }
+
+
+
+    # 2.* -- Attrition to a particular neighborhood group
+
+    test attritnf-2.1 {f is CIV, not resident in n} -setup {
+        ted create NB1 SHIA SUNN NB1SUNN
+    } -body {
+        aam mutate attritnf [list n NB1 f SHIA casualties 20 g1 "" g2 ""]
+
+        # No error
+        ted query {SELECT * FROM demog_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SUNN 0         0        0         1000     1000       
+    }
+
+    test attritnf-2.2 {f is CIV, no units in n, normal} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN
+    } -body {
+        aam mutate attritnf [list n NB1 f SHIA casualties 20 g1 "" g2 ""]
+        demog analyze
+
+        ted query {SELECT * FROM demog_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 20        0        0         980      980        
+NB1 SUNN 0         0        0         1000     1000       
+    }
+
+
+    test attritnf-2.3 {f is CIV, no units in n, overkill leaves 1} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN
+    } -body {
+        aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
+        demog analyze
+
+        ted query {SELECT * FROM demog_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 999       0        0         1        1          
+NB1 SUNN 0         0        0         1000     1000       
+    }
+
+
+    test attritnf-2.4 {f is CIV, no units in n, implicit = 1} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN
+        # use overkill to get down to that point
+        aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
+        demog analyze
+    } -body {
+        aam mutate attritnf [list n NB1 f SHIA casualties 20 g1 "" g2 ""]
+        demog analyze
+
+        # No change
+        ted query {SELECT * FROM demog_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 999       0        0         1        1          
+NB1 SUNN 0         0        0         1000     1000       
+    }
+
+    test attritnf-2.5 {f is CIV, units, 1 casualty goes to implicit} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN NB1SHIA1
+        ted unit location NB1SHIA1 NB1
+    } -body {
+        aam mutate attritnf [list n NB1 f SHIA casualties 1 g1 "" g2 ""]
+        demog analyze
+
+        set a [ted query {SELECT * FROM demog_ng}]
+        set b [ted query {SELECT * FROM units}]
+
+        # Unit should be untouched.
+        set c "$a$b"
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 1         15       0         984      999        
+NB1 SUNN 0         0        0         1000     1000       
+    
+u        g    origin personnel location a    gtype n   a_effective 
+-------- ---- ------ --------- -------- ---- ----- --- ----------- 
+NB1SHIA1 SHIA NB1    15        100 100  NONE CIV   NB1 0           
+    }
+
+
+    test attritnf-2.6 {f is CIV, units, 1 casualty goes to unit} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN NB1SHIA1
+        ted unit location  NB1SHIA1 NB1
+        ted unit personnel NB1SHIA1 700
+    } -body {
+        aam mutate attritnf [list n NB1 f SHIA casualties 1 g1 "" g2 ""]
+        demog analyze
+
+        set a [ted query {SELECT * FROM demog_ng}]
+        set b [ted query {SELECT * FROM units}]
+
+        # Unit should take the attrition
+        set c "$a$b"
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 1         699      0         300      999        
+NB1 SUNN 0         0        0         1000     1000       
+    
+u        g    origin personnel location a    gtype n   a_effective 
+-------- ---- ------ --------- -------- ---- ----- --- ----------- 
+NB1SHIA1 SHIA NB1    699       100 100  NONE CIV   NB1 0           
+    }
+
+
+    test attritnf-2.7 {f is CIV, units, attrition is proportional} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN NB1SHIA1 NB1SHIA2
+        ted unit location  NB1SHIA1 NB1
+        ted unit location  NB1SHIA2 NB1
+
+        ted unit personnel NB1SHIA1 100
+        ted unit personnel NB1SHIA2 200
+    } -body {
+        aam mutate attritnf [list n NB1 f SHIA casualties 15 g1 "" g2 ""]
+        demog analyze
+
+        set a [ted query {SELECT * FROM demog_ng}]
+        set b [ted query {SELECT * FROM units}]
+
+        # Unit should take 1
+        set c "$a$b"
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 15        296      0         689      985        
+NB1 SUNN 0         0        0         1000     1000       
+    
+u        g    origin personnel location a    gtype n   a_effective 
+-------- ---- ------ --------- -------- ---- ----- --- ----------- 
+NB1SHIA1 SHIA NB1    99        100 100  NONE CIV   NB1 0           
+NB1SHIA2 SHIA NB1    197       100 100  NONE CIV   NB1 0           
+    }
+
+
+    test attritnf-2.8 {f is CIV, units, overkill leaves 1 implicit} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN NB1SHIA1
+        ted unit location  NB1SHIA1 NB1
+        ted unit personnel NB1SHIA1 100
+    } -body {
+        aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
+        demog analyze
+
+        set a [ted query {SELECT * FROM demog_ng}]
+        set b [ted query {SELECT * FROM units}]
+
+        # 1 implicit left.
+        set c "$a$b"
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 999       0        0         1        1          
+NB1 SUNN 0         0        0         1000     1000       
+    
+u        g    origin personnel location a    gtype n   a_effective 
+-------- ---- ------ --------- -------- ---- ----- --- ----------- 
+NB1SHIA1 SHIA NB1    0         100 100  NONE CIV   NB1 0           
+    }
+
+
+    test attritnf-2.9 {f is CIV, units, overkill, attrition is saved} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN NB1SHIA1
+        ted unit location  NB1SHIA1 NB1
+        ted unit personnel NB1SHIA1 100
+    } -body {
+        aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
+        
+        ted query {SELECT * FROM attrit_nf}
+    } -cleanup {
+        cleanup
+    } -result {
+id n   f    casualties 
+-- --- ---- ---------- 
+1  NB1 SHIA 999        
+    }
+
+
+    test attritnf-2.10 {f is CIV, units, overkill, g1, g2 are saved} -setup {
+        ted create NB1 BLUE BRIT SHIA SUNN NB1SHIA NB1SUNN NB1SHIA1
+        ted unit location  NB1SHIA1 NB1
+        ted unit personnel NB1SHIA1 100
+    } -body {
+        aam mutate attritnf \
+            [list n NB1 f SHIA casualties 2000 g1 BLUE g2 BRIT]
+        
+        ted query {SELECT * FROM attrit_nfg}
+    } -cleanup {
+        cleanup
+    } -result {
+id n   f    g    casualties 
+-- --- ---- ---- ---------- 
+1  NB1 SHIA BLUE 999        
+2  NB1 SHIA BRIT 999        
+    }
+
+
+    test attritnf-2.11 {f is CIV, ::unit <Entity>} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN NB1SHIA1 NB1SHIA2
+        ted unit location  NB1SHIA1 NB1
+        ted unit location  NB1SHIA2 NB1
+
+        ted unit personnel NB1SHIA1 100
+        ted unit personnel NB1SHIA2 200
+    } -body {
+        ted notifier bind ::unit <Entity>
+        aam mutate attritnf [list n NB1 f SHIA casualties 15 g1 "" g2 ""]
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update NB1SHIA2}
+        {::unit <Entity> update NB1SHIA1}
+    }
+
+
+    test attritnf-2.12 {f is CIV, undo restores} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN NB1SHIA1 NB1SHIA2
+        ted unit location  NB1SHIA1 NB1
+        ted unit location  NB1SHIA2 NB1
+
+        ted unit personnel NB1SHIA1 100
+        ted unit personnel NB1SHIA2 200
+
+        set undo [list]
+        lappend undo [aam mutate attritnf \
+                          [list n NB1 f SHIA casualties 15 g1 BLUE g2 BRIT]]
+        lappend undo [demog analyze]
+    } -body {
+        eval [join $undo \n]
+
+        set a [ted query {SELECT * FROM demog_ng}]
+        set b [ted query {SELECT * FROM units}]
+        set c [ted query {SELECT * FROM attrit_nf}]
+        set d [ted query {SELECT * FROM attrit_nfg}]
+
+        set e "$a$b$c$d"
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 0         300      0         700      1000       
+NB1 SUNN 0         0        0         1000     1000       
+    
+u        g    origin personnel location a    gtype n   a_effective 
+-------- ---- ------ --------- -------- ---- ----- --- ----------- 
+NB1SHIA1 SHIA NB1    100       100 100  NONE CIV   NB1 0           
+NB1SHIA2 SHIA NB1    200       100 100  NONE CIV   NB1 0           
+    
+    
+    }
+
+
+    test attritnf-2.13 {f is CIV, ::unit <Entity> on undo} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN NB1SHIA1 NB1SHIA2
+        ted unit location  NB1SHIA1 NB1
+        ted unit location  NB1SHIA2 NB1
+
+        ted unit personnel NB1SHIA1 100
+        ted unit personnel NB1SHIA2 200
+
+        set undo [aam mutate attritnf \
+                      [list n NB1 f SHIA casualties 15 g1 "" g2 ""]]
+
+    } -body {
+        ted notifier bind ::unit <Entity>
+        eval $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update NB1SHIA2}
+        {::unit <Entity> update NB1SHIA1}
+    }
+
+
+    # 3.* -- All civilians in nbhood.
+
+    test attritnf-3.1 {nbhood, no units, normal} -setup {
+        ted create NB1 BLUE BLUE1 SHIA SUNN NB1SHIA NB1SUNN
+    } -body {
+        aam mutate attritnf [list n NB1 f CIV casualties 20 g1 "" g2 ""]
+        demog analyze
+
+        ted query {SELECT * FROM demog_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 10        0        0         990      990        
+NB1 SUNN 10        0        0         990      990        
+    }
+
+
+    test attritnf-3.2 {nbhood, no units, overkill leaves 1 per resident} -setup {
+        ted create NB1 BLUE BLUE1 SHIA SUNN NB1SHIA NB1SUNN
+    } -body {
+        aam mutate attritnf [list n NB1 f CIV casualties 3000  g1 "" g2 ""]
+        demog analyze
+
+        ted query {SELECT * FROM demog_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 999       0        0         1        1          
+NB1 SUNN 999       0        0         1        1          
+    }
+
+
+    test attritnf-3.3 {nbhood, no units, implicit = 1 per resident} -setup {
+        ted create NB1 BLUE BLUE1 SHIA SUNN NB1SHIA NB1SUNN
+        aam mutate attritnf [list n NB1 f CIV casualties 3000  g1 "" g2 ""]
+        demog analyze
+    } -body {
+        aam mutate attritnf [list n NB1 f CIV casualties 20  g1 "" g2 ""]
+        demog analyze
+
+        ted query {SELECT * FROM demog_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 999       0        0         1        1          
+NB1 SUNN 999       0        0         1        1          
+    }
+
+
+    test attritnf-3.4 {nbhood, units, attrition is proportional} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1SHIA1 NB1SHIA2 NB1SUNN1 NB1SUNN2
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SHIA2 NB1
+        ted unit location NB1SUNN1 NB1
+        ted unit location NB1SUNN2 NB1
+
+        ted unit personnel NB1SHIA1 100
+        ted unit personnel NB1SHIA2 200
+        ted unit personnel NB1SUNN1 200
+        ted unit personnel NB1SUNN2 100
+
+        demog analyze
+    } -body {
+        aam mutate attritnf [list n NB1 f CIV casualties 100  g1 "" g2 ""]
+        demog analyze
+
+        set a [ted query {SELECT * FROM demog_ng}]
+        set b [ted query {SELECT * FROM units}]
+        set c "$a$b"
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 50        285      0         665      950        
+NB1 SUNN 50        285      0         665      950        
+    
+u        g    origin personnel location a    gtype n   a_effective 
+-------- ---- ------ --------- -------- ---- ----- --- ----------- 
+NB1SHIA1 SHIA NB1    95        100 100  NONE CIV   NB1 0           
+NB1SHIA2 SHIA NB1    190       100 100  NONE CIV   NB1 0           
+NB1SUNN1 SUNN NB1    190       100 100  NONE CIV   NB1 0           
+NB1SUNN2 SUNN NB1    95        100 100  NONE CIV   NB1 0           
+    }
+
+
+    test attritnf-3.5 {nbhood, units, overkill leaves implicit 1} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1SHIA1 NB1SHIA2 NB1SUNN1 NB1SUNN2
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SHIA2 NB1
+        ted unit location NB1SUNN1 NB1
+        ted unit location NB1SUNN2 NB1
+
+        ted unit personnel NB1SHIA1 100
+        ted unit personnel NB1SHIA2 200
+        ted unit personnel NB1SUNN1 200
+        ted unit personnel NB1SUNN2 100
+
+        demog analyze
+    } -body {
+        aam mutate attritnf [list n NB1 f CIV casualties 10000  g1 "" g2 ""]
+        demog analyze
+
+        set a [ted query {SELECT * FROM demog_ng}]
+        set b [ted query {SELECT * FROM units}]
+        set c "$a$b"
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 999       0        0         1        1          
+NB1 SUNN 999       0        0         1        1          
+    
+u        g    origin personnel location a    gtype n   a_effective 
+-------- ---- ------ --------- -------- ---- ----- --- ----------- 
+NB1SHIA1 SHIA NB1    0         100 100  NONE CIV   NB1 0           
+NB1SHIA2 SHIA NB1    0         100 100  NONE CIV   NB1 0           
+NB1SUNN1 SUNN NB1    0         100 100  NONE CIV   NB1 0           
+NB1SUNN2 SUNN NB1    0         100 100  NONE CIV   NB1 0           
+    }
+
+
+    test attritnf-3.6 {nbhood, units, 1 goes to implicit} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1SHIA1 NB1SUNN1
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SUNN1 NB1
+
+        ted unit personnel NB1SHIA1 200
+        ted unit personnel NB1SUNN1 100
+
+        demog analyze
+    } -body {
+        aam mutate attritnf [list n NB1 f CIV casualties 1 g1 "" g2 ""]
+        demog analyze
+
+        set a [ted query {SELECT * FROM demog_ng}]
+        set b [ted query {SELECT * FROM units}]
+        set c "$a$b"
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 0         200      0         800      1000       
+NB1 SUNN 1         100      0         899      999        
+    
+u        g    origin personnel location a    gtype n   a_effective 
+-------- ---- ------ --------- -------- ---- ----- --- ----------- 
+NB1SHIA1 SHIA NB1    200       100 100  NONE CIV   NB1 0           
+NB1SUNN1 SUNN NB1    100       100 100  NONE CIV   NB1 0           
+    }
+
+
+    test attritnf-3.7 {nbhood, units, 1 goes to unit} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1SHIA1 NB1SUNN1
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SUNN1 NB1
+
+        ted unit personnel NB1SHIA1 200
+        ted unit personnel NB1SUNN1 900
+
+        demog analyze
+    } -body {
+        aam mutate attritnf [list n NB1 f CIV casualties 1 g1 "" g2 ""]
+        demog analyze
+
+        set a [ted query {SELECT * FROM demog_ng}]
+        set b [ted query {SELECT * FROM units}]
+        set c "$a$b"
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 0         200      0         800      1000       
+NB1 SUNN 1         899      0         100      999        
+    
+u        g    origin personnel location a    gtype n   a_effective 
+-------- ---- ------ --------- -------- ---- ----- --- ----------- 
+NB1SHIA1 SHIA NB1    200       100 100  NONE CIV   NB1 0           
+NB1SUNN1 SUNN NB1    899       100 100  NONE CIV   NB1 0           
+    }
+
+
+    test attritnf-3.8 {nbhood, displaced units attrit origin} -setup {
+        ted create NB1 NB2 SHIA SUNN NB1SHIA NB1SUNN NB2SHIA NB2SUNN
+        ted create NB1SHIA1 NB2SHIA1 NB1SUNN1 NB2SUNN1
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB2SHIA1 NB1
+        ted unit location NB1SUNN1 NB1
+        ted unit location NB2SUNN1 NB1
+
+        ted unit personnel NB1SHIA1 100
+        ted unit personnel NB2SHIA1 200
+        ted unit personnel NB1SUNN1 200
+        ted unit personnel NB2SUNN1 100
+
+        demog analyze
+    } -body {
+        aam mutate attritnf [list n NB1 f CIV casualties 100 g1 "" g2 ""]
+        demog analyze
+
+        set a [ted query {SELECT * FROM demog_ng}]
+        set b [ted query {SELECT * FROM units}]
+        set c "$a$b"
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 45        95       0         860      955        
+NB1 SUNN 44        191      0         765      956        
+NB2 SHIA 9         191      191       800      800        
+NB2 SUNN 2         98       98        900      900        
+    
+u        g    origin personnel location a    gtype n   a_effective 
+-------- ---- ------ --------- -------- ---- ----- --- ----------- 
+NB1SHIA1 SHIA NB1    95        100 100  NONE CIV   NB1 0           
+NB2SHIA1 SHIA NB2    191       100 100  NONE CIV   NB1 0           
+NB1SUNN1 SUNN NB1    191       100 100  NONE CIV   NB1 0           
+NB2SUNN1 SUNN NB2    98        100 100  NONE CIV   NB1 0           
+    }
+
+
+    test attritnf-3.9 {nbhood, units, attrition is saved} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1SHIA1 NB1SHIA2 NB1SUNN1 NB1SUNN2
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SHIA2 NB1
+        ted unit location NB1SUNN1 NB1
+        ted unit location NB1SUNN2 NB1
+
+        ted unit personnel NB1SHIA1 100
+        ted unit personnel NB1SHIA2 200
+        ted unit personnel NB1SUNN1 200
+        ted unit personnel NB1SUNN2 100
+
+        demog analyze
+    } -body {
+        aam mutate attritnf [list n NB1 f CIV casualties 10000 g1 BLUE g2 BRIT]
+        demog analyze
+
+        set a [ted query {SELECT * FROM attrit_nf}]
+        set b [ted query {SELECT * FROM attrit_nfg}]
+        set c "$a$b"
+    } -cleanup {
+        cleanup
+    } -result {
+id n   f    casualties 
+-- --- ---- ---------- 
+1  NB1 SUNN 999        
+2  NB1 SHIA 999        
+    
+id n   f    g    casualties 
+-- --- ---- ---- ---------- 
+1  NB1 SUNN BLUE 999        
+2  NB1 SUNN BRIT 999        
+3  NB1 SHIA BLUE 999        
+4  NB1 SHIA BRIT 999        
+    }
+
+
+    test attritnf-3.10 {nbhood, force, org units not attrited} -setup {
+        ted create NB1 SHIA SUNN NB1SHIA NB1SUNN BLUE USAID
+        ted create NB1SHIA1 NB1SHIA2 NB1SUNN1 NB1SUNN2 BLUE1 USAID1
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SHIA2 NB1
+        ted unit location NB1SUNN1 NB1
+        ted unit location NB1SUNN2 NB1
+        ted unit location BLUE1    NB1
+        ted unit location USAID1   NB1
+
+        ted unit personnel NB1SHIA1 100
+        ted unit personnel NB1SHIA2 200
+        ted unit personnel NB1SUNN1 200
+        ted unit personnel NB1SUNN2 100
+
+        demog analyze
+    } -body {
+        aam mutate attritnf [list n NB1 f CIV casualties 10000 g1 BLUE g2 BRIT]
+
+        ted query {SELECT * FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u        g     origin personnel location a    gtype n   a_effective 
+-------- ----- ------ --------- -------- ---- ----- --- ----------- 
+NB1SHIA1 SHIA  NB1    0         100 100  NONE CIV   NB1 0           
+NB1SHIA2 SHIA  NB1    0         100 100  NONE CIV   NB1 0           
+NB1SUNN1 SUNN  NB1    0         100 100  NONE CIV   NB1 0           
+NB1SUNN2 SUNN  NB1    0         100 100  NONE CIV   NB1 0           
+BLUE1    BLUE  NONE   15        100 100  NONE FRC   NB1 0           
+USAID1   USAID NONE   15        100 100  NONE ORG   NB1 0           
+    }
+
+
+    test attritnf-3.11 {nbhood, ::unit <Entity>} -setup {
+        ted create NB1 SHIA NB1SHIA
+        ted create NB1SHIA1 NB1SHIA2
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SHIA2 NB1
+
+        ted unit personnel NB1SHIA1 100
+        ted unit personnel NB1SHIA2 200
+
+        demog analyze
+    } -body {
+        ted notifier bind ::unit <Entity>
+        aam mutate attritnf [list n NB1 f SHIA casualties 100 g1 "" g2 ""]
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update NB1SHIA2}
+        {::unit <Entity> update NB1SHIA1}
+    }
+
+
+    test attritnf-3.12 {nbhood, undo restores} -setup {
+        ted create NB1 NB2 SHIA SUNN NB1SHIA NB1SUNN NB2SHIA NB2SUNN
+        ted create NB1SHIA1 NB2SHIA1 NB1SUNN1 NB2SUNN1
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB2SHIA1 NB1
+        ted unit location NB1SUNN1 NB1
+        ted unit location NB2SUNN1 NB1
+
+        ted unit personnel NB1SHIA1 100
+        ted unit personnel NB2SHIA1 200
+        ted unit personnel NB1SUNN1 200
+        ted unit personnel NB2SUNN1 100
+
+        demog analyze
+
+        set undo [list]
+        lappend undo [aam mutate attritnf \
+                          [list n NB1 f CIV casualties 100 g1 "" g2 ""]]
+        lappend undo [demog analyze]
+    } -body {
+        eval [join $undo \n]
+
+        set a [ted query {SELECT * FROM demog_ng}]
+        set b [ted query {SELECT * FROM units}]
+        set c [ted query {SELECT * FROM attrit_nf}]
+        set d [ted query {SELECT * FROM attrit_nfg}]
+        set e "$a$b$c$d"
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 0         100      0         900      1000       
+NB1 SUNN 0         200      0         800      1000       
+NB2 SHIA 0         200      200       800      800        
+NB2 SUNN 0         100      100       900      900        
+    
+u        g    origin personnel location a    gtype n   a_effective 
+-------- ---- ------ --------- -------- ---- ----- --- ----------- 
+NB1SHIA1 SHIA NB1    100       100 100  NONE CIV   NB1 0           
+NB2SHIA1 SHIA NB2    200       100 100  NONE CIV   NB1 0           
+NB1SUNN1 SUNN NB1    200       100 100  NONE CIV   NB1 0           
+NB2SUNN1 SUNN NB2    100       100 100  NONE CIV   NB1 0           
+    
+    
+    }
+
+
+    test attritnf-3.13 {nbhood, ::unit <Entity> on undo} -setup {
+        ted create NB1 SHIA NB1SHIA
+        ted create NB1SHIA1 NB1SHIA2
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SHIA2 NB1
+
+        ted unit personnel NB1SHIA1 100
+        ted unit personnel NB1SHIA2 200
+
+        demog analyze
+
+        set a [aam mutate attritnf \
+                   [list n NB1 f SHIA casualties 100 g1 "" g2 ""]]
+
+    } -body {
+        ted notifier bind ::unit <Entity>
+        eval $a
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::unit <Entity> update NB1SHIA2}
+        {::unit <Entity> update NB1SHIA1}
+    }
+
+    #-------------------------------------------------------------------
+    # mutate attritunit
+    #
+    # For CIV units, the unit's neighborhood group is attrited as well
+    # as the unit.  Otherwise, attrition is handled identically for
+    # all three kinds of unit.  Consequently, we'll attrit a FRC unit
+    # and an ORG unit to show that we can do it, and use CIV units
+    # for the rest.
+
+    test attritunit-1.1 {FRC unit is attrited} -setup {
+        ted create NB1 BLUE BLUE1 BLUE2
+
+        ted unit location BLUE1 NB1
+        ted unit location BLUE2 NB1
+    } -body {
+        aam mutate attritunit [list u BLUE2 casualties 5 g1 "" g2 ""]
+
+        # All units had 15 personnel to start.
+        # BLUE2 should be down 5.
+        ted query {SELECT u,personnel FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u     personnel 
+----- --------- 
+BLUE1 15        
+BLUE2 10        
+    }
+    
+
+    test attritunit-1.2 {ORG unit is attrited} -setup {
+        ted create NB1 USAID USAID1 USAID2
+
+        ted unit location USAID1 NB1
+        ted unit location USAID2 NB1
+    } -body {
+        aam mutate attritunit [list u USAID2 casualties 5 g1 "" g2 ""]
+
+        # All units had 15 personnel to start.
+        # USAID2 should be down 5.
+        ted query {SELECT u,personnel FROM units}
+    } -cleanup {
+        cleanup
+    }  -result {
+u      personnel 
+------ --------- 
+USAID1 15        
+USAID2 10        
+    }
+
+
+    test attritunit-1.3 {ORG unit is attrited, attrition saved} -setup {
+        ted create NB1 USAID USAID1 USAID2
+
+        ted unit location USAID1 NB1
+        ted unit location USAID2 NB1
+    } -body {
+        aam mutate attritunit [list u USAID1 casualties 20 g1 "" g2 ""]
+        aam mutate attritunit [list u USAID2 casualties 20 g1 "" g2 ""]
+
+        ted query {SELECT * FROM attrit_nf}
+    } -cleanup {
+        cleanup
+    }  -result {
+id n   f     casualties 
+-- --- ----- ---------- 
+1  NB1 USAID 15         
+2  NB1 USAID 15         
+    }
+
+
+    test attritunit-1.4 {CIV unit is attrited in home nbhood} -setup {
+        ted create NB1 BLUE BRIT SHIA NB1SHIA NB1SHIA1 NB1SHIA2
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SHIA2 NB1
+    } -body {
+        aam mutate attritunit [list u NB1SHIA2 casualties 5 g1 BLUE g2 BRIT]
+
+        # All units had 15 personnel to start.
+        # NB1SHIA2 should be down 5.
+        set a [ted query {SELECT u,personnel FROM units}]
+        set b [ted query {SELECT * FROM demog_ng}]
+        set c [ted query {SELECT * FROM attrit_nf}]
+        set d [ted query {SELECT * FROM attrit_nfg}]
+        set e "$a$b$c$d"
+    } -cleanup {
+        cleanup
+    }  -result {
+u        personnel 
+-------- --------- 
+NB1SHIA1 15        
+NB1SHIA2 10        
+    
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 5         30       0         970      1000       
+    
+id n   f    casualties 
+-- --- ---- ---------- 
+1  NB1 SHIA 5          
+    
+id n   f    g    casualties 
+-- --- ---- ---- ---------- 
+1  NB1 SHIA BLUE 5          
+2  NB1 SHIA BRIT 5          
+    }
+
+
+    test attritunit-1.5 {CIV unit is attrited in other nbhood} -setup {
+        ted create NB1 NB2 SHIA NB1SHIA NB1SHIA1 NB1SHIA2
+
+        ted unit location NB1SHIA1 NB2
+        ted unit location NB1SHIA2 NB2
+    } -body {
+        aam mutate attritunit [list u NB1SHIA2 casualties 5 g1 "" g2 ""]
+        demog analyze
+
+        # All units had 15 personnel to start.
+        # NB1SHIA2 should be down 5.
+        set a [ted query {SELECT u,personnel FROM units}]
+        set b [ted query {SELECT * FROM demog_ng}]
+        set c [ted query {SELECT * FROM attrit_nf}]
+        set d [ted query {SELECT * FROM attrit_nfg}]
+        set e "$a$b$c$d"
+    } -cleanup {
+        cleanup
+    }  -result {
+u        personnel 
+-------- --------- 
+NB1SHIA1 15        
+NB1SHIA2 10        
+    
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 5         25       25        970      970        
+    
+    
+    }
+
+
+    test attritunit-1.6 {Overkill leaves 0} -setup {
+        ted create NB1 SHIA NB1SHIA NB1SHIA1 NB1SHIA2
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SHIA2 NB1
+    } -body {
+        aam mutate attritunit [list u NB1SHIA2 casualties 20 g1 "" g2 ""]
+
+        # All units had 15 personnel to start.
+        # NB1SHIA2 should be down to 0
+        ted query {SELECT u,personnel FROM units}
+    } -cleanup {
+        cleanup
+    }  -result {
+u        personnel 
+-------- --------- 
+NB1SHIA1 15        
+NB1SHIA2 0         
+    }
+
+
+    test attritunit-1.7 {Unit has 0 personnel} -setup {
+        ted create NB1 SHIA NB1SHIA NB1SHIA1 NB1SHIA2
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SHIA2 NB1
+        ted unit personnel NB1SHIA2 0
+    } -body {
+        # No error; still at 0.
+        aam mutate attritunit [list u NB1SHIA2 casualties 20 g1 "" g2 ""]
+        
+        ted query {SELECT u,personnel FROM units}
+    } -cleanup {
+        cleanup
+    }  -result {
+u        personnel 
+-------- --------- 
+NB1SHIA1 15        
+NB1SHIA2 0         
+    }
+
+
+    test attritunit-1.8 {::unit <Entity>} -setup {
+        ted create NB1 SHIA NB1SHIA NB1SHIA1 NB1SHIA2
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SHIA2 NB1
+    } -body {
+        ted notifier bind ::unit <Entity>
+        aam mutate attritunit [list u NB1SHIA2 casualties 5 g1 "" g2 ""]
+        ted notifier received
+    } -cleanup {
+        cleanup
+    }  -result {
+        {::unit <Entity> update NB1SHIA2}
+    }
+
+
+    test attritunit-1.9 {Undo restores unit and nbgroup} -setup {
+        ted create NB1 SHIA NB1SHIA NB1SHIA1 NB1SHIA2
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SHIA2 NB1
+
+        set a [aam mutate attritunit \
+                   [list u NB1SHIA2 casualties 5 g1 "" g2 ""]]
+
+    } -body {
+        eval $a
+
+        set a [ted query {SELECT u,personnel FROM units}]
+        set b [ted query {SELECT * FROM demog_ng}]
+        set c [ted query {SELECT * FROM attrit_nf}]
+        set d [ted query {SELECT * FROM attrit_nfg}]
+        set e "$a$b$c$d"
+    } -cleanup {
+        cleanup
+    }  -result {
+u        personnel 
+-------- --------- 
+NB1SHIA1 15        
+NB1SHIA2 15        
+    
+n   g    attrition explicit displaced implicit population 
+--- ---- --------- -------- --------- -------- ---------- 
+NB1 SHIA 0         30       0         970      1000       
+    
+    
+    }
+
+
+    test attritunit-1.8 {::unit <Entity> on undo} -setup {
+        ted create NB1 SHIA NB1SHIA NB1SHIA1 NB1SHIA2
+
+        ted unit location NB1SHIA1 NB1
+        ted unit location NB1SHIA2 NB1
+
+        set a [aam mutate attritunit \
+                   [list u NB1SHIA2 casualties 5 g1 "" g2 ""]]
+
+    } -body {
+        ted notifier bind ::unit <Entity>
+        eval $a
+        ted notifier received
+    } -cleanup {
+        cleanup
+    }  -result {
+        {::unit <Entity> update NB1SHIA2}
+    }
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

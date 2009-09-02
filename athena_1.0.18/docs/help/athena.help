@@ -1,0 +1,145 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    athena.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Main Athena help(5) file
+#
+#-----------------------------------------------------------------------
+
+#=======================================================================
+# Images
+
+image athena "Sculpture of the Goddess Athena" athena.png
+
+
+#=======================================================================
+# Macros
+
+# Formats the title for an ordinary page.
+
+macro title {} {
+    <font size=7>[pageinfo title]</font><p>
+}
+
+# cmdref args
+#
+# args    The full name of an executive command, e.g., "parm set".
+#
+# Formats up a standard cref link to the command's help page.
+
+macro cmdref {args} {
+    set tag "cmd.[join $args .]"
+} {<b>[cref $tag $args]</b>}
+
+
+#-----------------------------------------------------------------------
+
+page home "Athena Help" {} {
+    <img src="athena" align="right">
+
+    This is the on-line help for <b>V<<version>></b> of the
+    Athena Stability & Recovery Operations Simulation.<p>
+
+    <ul>
+    <li> <<cref changelog>>
+    <li> <<cref about>>
+    <li> <<cref release>>
+    <li> <<cref using>>
+         <<childlinks using>>
+    <li> Athena Reference
+         <ul>
+         <li> <<cref menu>>
+         <li> <<cref tabs>>
+         <li> <<cref orders>>
+         <li> <<cref reports>>
+         <li> <<cref cmd>>
+         <li> <<cref parmdb>>
+         <li> <<cref prefs>>
+         <li> <<cref concepts>>
+         </ul>
+    </ul><p>
+
+    <hr>
+    <i>Help compiled <<clock format [clock seconds]>>
+}
+
+
+#-----------------------------------------------------------------------
+
+page about "About Athena" home {
+    <img src="athena" align="right">
+
+    <font size=7>Athena V<<version>></font><br>
+    Stability and Recovery Operations Simulation<p>
+
+    (C) 2009, California Institute of
+    Technology. ALL RIGHTS RESERVED. U.S. Government sponsorship
+    acknowledged. Any commercial use must be negotiated with the
+    Office of Technology Transfer at the California Institute of
+    Technology.<p>
+
+    This software is subject to U. S. export control laws and
+    regulations (22 C.F.R. 120-130 and 15 C.F.R. 730-774). To the
+    extent that the software is subject to U.S. export control laws
+    and regulations, the recipient has the responsibility to obtain
+    export licenses or other export authority as may be required
+    before exporting such information to foreign countries or
+    providing access to foreign nationals.<p>
+}
+
+#-----------------------------------------------------------------------
+
+page release "Release Notes" home {
+    <font size=7>Athena V<<version>> Release notes</font><p>
+
+    TBD.  These release notes should be filled in prior to delivery.<p>
+}
+
+
+#-----------------------------------------------------------------------
+
+page changelog "Change Log" home {
+    <<title>>
+    <<changelog>>
+    <<change 7/6/2009 New whd>>
+    Initial draft.
+    <</change>>
+    <</changelog>>
+}
+
+#======================================================================
+# Using Athena
+
+page using "Using Athena" {} {
+    <<title>>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+page using.prep "Scenario Preparation" using {
+    <<title>>
+    TBD:  This page will describe the "Scenario Prep" state, and how
+    to prepare an Athena scenario.
+}
+
+#======================================================================
+# The following sections are in separate files
+
+include menu.help
+include orders.help
+include reports.help
+include cmd.help
+include parmdb.help
+include prefs.help
+include concepts.help
+
+
+
+

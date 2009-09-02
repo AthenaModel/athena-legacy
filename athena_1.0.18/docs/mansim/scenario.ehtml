@@ -1,0 +1,191 @@
+<<manpage scenario(sim) "Scenario Manager">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+scenario(sim) is responsible for managing the current scenario for
+<<xref athena_sim(1)>>.  In particular, it is responsible for opening
+a scenario file, saving the scenario, keeping track of whether there
+are unsaved changes, and so forth.  As such, it is the glue between
+the rest of the application and the <<xref scenariodb(n)>> file.<p>
+
+<<section "COMMANDS">>
+
+scenario(sim) provides the following commands for use by the application.<p>
+
+<<deflist commands>>
+
+<<defitem "scenario dbfile" {scenario dbfile}>>
+
+Returns the full path name of the open scenario file, or "" if none.<p>
+
+<<defitem "scenario init" {scenario init ?-ignoredefaultparms <i>flag</i>?}>>
+
+Initializes the scenario, creating a working RDB.<p>
+
+Ordinarily, <<iref scenario new>> will initialize the scenario's model
+parameters with the user's defaults (see <<xref parmdb(n)>>).  If
+the value of <code>-ignoredefaultparms</code> is false, it will use
+the programmatic defaults, rather than the user defaults.  This option
+is used by <<xref athena_test(1)>>, so that the results of the test
+suite do not depend on the user's environment.<p>
+
+<<defitem "scenario mutate reconcile" {scenario mutate reconcile}>>
+
+This command aggregates the <b>mutate reconcile</b> mutators for the
+various scenario modules.  After an order creates or deletes an
+entity, it may call this command, and be confident that all required
+dependent entities have been created or deleted.<p>
+
+Sends <b>&lt;Reconcile&gt;</b>.<p>
+
+<<defitem "scenario new" {scenario new}>>
+
+Creates a new, blank, scenario, replacing whatever scenario was
+previously loaded.  Reconfigures the simulation modules.<p>
+
+Calls <<iref scenario reconfigure>> on success.<p>
+
+<<defitem "scenario open" {scenario open <i>filename</i>}>>
+
+Opens and loads the <<xref scenario(n)>> file called <i>filename</i>,
+remembering it as the current <<iref scenario dbfile>>, and
+reconfigures the simulation modules.<p>
+
+Calls <<iref scenario reconfigure>> on success.<p>
+
+<<defitem "scenario reconfigure" {scenario reconfigure}>>
+
+Notifies the simulation that the RDB contains a different scenario.
+This command directly reconfigures all simulation modules, in the
+appropriate sequence, and then sends <b>&lt;Reconfigure&gt;</b>
+to notify the GUI.<p>
+
+<<defitem "scenario save" {scenario save ?<i>filename</i>?}>>
+
+Saves the current scenario to disk.  If <i>filename</i> is given, the
+scenario will be saved under that name, which will be remembered as
+the current <<iref scenario dbfile>>; otherwise, the current
+<<iref scenario dbfile>> name is used.  It's an error if both
+<i>filename</i> and <<iref scenario dbfile>> are empty.<p>
+
+If there is already a file "<i>root</i><code>.ath</code>", then it is
+copied to "<i>root</i>.bak".<p>
+
+The process of saving the scenario is as follows:<p>
+
+<ul>
+  <li> First, scenario(sim) checkpoints every registered
+       <<xref saveable(i)>> module.
+  <li> Next, scenario(sim) sends <b>&lt;Saving&gt;</b> to all
+       subscribed simulation modules, allowing them to prepare for the
+       save.  The <<xref cif(sim)>> module, for example, clears all
+       undo information at this time.
+  <li> Finally, scenario(sim) saves the scenario data.
+</ul><p>
+
+Returns 1 on success and returns 0 on failure.<p>
+
+<<defitem "scenario unsaved" {scenario unsaved}>>
+
+Returns 1 if there are unsaved changes, and 0 otherwise.<p>
+
+<<defitem "scenario snapshot" {scenario snapshot <i>subcommand</i> ?<i>args...</i>?}>>
+
+This command provides the capability to manage snapshots of the
+simulation state.<p>
+
+<<deflist snapshot>>
+
+<<defitem "scenario snapshot save" {scenario snapshot save}>>
+
+Saves a snapshot of the simulation state as of the current simulation
+time.  The snapshot is an XML-string produced by exporting all of the
+tables in the RDB except <b>maps</b> (because of its size) and
+<b>snapshots</b> (because recursively saving snapshots is silly); it
+is saved in the <b>snapshots</b> table.<p>
+
+<<defitem "scenario snapshot load" {scenario snapshot load <i>tick</i>}>>
+
+Loads the snapshot saved at time <i>tick</i>.  It's an error if there
+is no such snapshot.  The caller must reconfigure the sim by calling
+<<xref sim(sim) "sim reconfigure">>.  (Since this call is used only by
+<<xref sim(sim)>> this is not an inconvenience.)<p>
+
+<<defitem "scenario snapshot list" {scenario snapshot list}>>
+
+Lists the sim times (in ticks) for which snapshots exist.<p>
+
+<<defitem "scenario snapshot purge" {scenario snapshot purge <i>after</i>}>>
+
+Deletes all snapshots with timestamps greater than <i>after</i>, which
+must be a sim time in ticks.<p>
+
+<<defitem "scenario snapshot current" {scenario snapshot current}>>
+
+Returns the index of the current snapshot, or -1 if there are no
+snapshots.  The time 0 snapshot has index 0; the index increments for
+each snapshot in simulation time order.<p>
+
+<<defitem "scenario snapshot latest" {scenario snapshot latest}>>
+
+Returns the simulation time stamp, in ticks, of the snapshot with the
+highest simulation time.  This snapshot represents the leading edge of
+the simulation.<p>
+
+<</deflist snapshot>>
+
+<</deflist commands>>
+
+<<section "NOTIFIER EVENTS">>
+
+scenario(sim) sends the following events, primarily to notify the GUI of
+significant changes to the scenario data.<p>
+
+<<deflist events>>
+
+
+<<defitem Reconcile    {&lt;Reconcile&gt;}>>
+
+Sent by <<iref scenario mutate reconcile>>; indicates that dependent entities
+have been created or deleted as need be for consistency with the
+primary entities.  This is expected to be used primarily for testing.<p>
+
+<<defitem Saving {&lt;Saving&gt;}>>
+
+Indicates that the scenario is about to be saved; see <<iref scenario save>>
+for more details.<p>
+
+<<defitem ScenarioSaved  {&lt;ScenarioSaved&gt;}>>
+
+Sent by <<iref scenario save>> when the scenario has been saved.  This allows
+the GUI to display the correct file name in window titles.<p>
+
+<</deflist events>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
+

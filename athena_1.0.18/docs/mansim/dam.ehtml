@@ -1,0 +1,394 @@
+<<manpage dam(sim) "Driver Assessment Model Infrastructure">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+dam(sim) provides the infrastructure for the Driver Assessment
+Model rules and rule sets, e.g., the activity and environmental situation
+rules.<p>
+
+<<subsection "Model Parameters">>
+
+<<xref parmdb(5)>> contains a large number of model parameters for use
+by dam(sim) and the DAM rules; all such parameters have names like
+"<code><b>dam.*</b></code>".<p>
+
+<<subsection "Drivers, Rule Sets, Rules, and Inputs">>
+
+A driver is an event or situation that drives change in the
+simulation.  At present, DAM assesses only attitude change
+(satisfaction and cooperation); eventually, we expect to assess other
+kinds of change as well.<p>
+
+Each kind of driver is associated with a rule set.  The rule set is
+called for instances of the driver, and assesses its implications.<p>
+
+Each rule set consists of one or more rules.  Each rule has a
+condition, based on the driver's attributes, scenario data, and model
+parameters.<p>
+
+When a rule's condition is met, it fires; this results in one or more
+inputs being entered into GRAM for the driver.<p>
+
+The intent of the dam(sim) infrastructure is to allow rules and rule
+sets to be both flexible and concise.  Rules and rule sets can contain
+arbitrary code.  Many important parameters, such as GRAM causes, near
+factors, and far factors, are read automatically from
+<<xref parmdb(5)>>.  Most parameters can be set at the level of the
+rule set, the individual rule, and the individual input.<p>
+
+For example, the near factor can be set at rule set level, and overridden
+for a particular rule or even a particular input.<p>
+
+<<subsection "Signatures">>
+
+Situations are assessed at every tick, so that any changes that might
+affect them are captured.  However, we don't want to have rules firing
+for every situation at every tick.  Consequently, every situation has
+what's called its "signature".  dam(sim) sets this signature to
+indicate the last rule that fired, along with any relevant driver
+parameters (e.g., an activity situation's coverage).  When the
+situation is next assessed, the new signature is determined and
+compared with the old; if they are identical, the rule does not fire.<p>
+
+<b>TBD:</b> If we write more complicated rule sets, in which multiple
+rules fire to capture all of the implications, we will need to
+generalize the signature and how it is used.  For example, we might
+need a signature for each rule subset.<p>
+
+
+<<section COMMANDS>>
+
+This section lists the commands provided by dam(sim).  There are two
+categories: commands for use by the application at large, and commands
+for use by rule sets.<p>
+
+<<subsection "Application-Level Commands">>
+
+The application-level commands are as follows:<p>
+
+<<deflist app>>
+
+<<defitem "dam init" {dam init}>>
+
+Initializes the module.<p>
+
+<</deflist app>>
+
+
+<<subsection "Rule Set Commands">>
+
+The following commands are used to define rule sets.<p>
+
+<<deflist ruleset>>
+
+<<defitem "dam ruleset" {dam ruleset <i>ruleset driver options...</i>}>>
+
+Indicates to dam(sim) that the code that follows is executing the rule
+set named <i>ruleset</i> for the specific <i>driver</i>.  The
+<i>options</i> establish a collection of defaults for the subsequent
+<<iref dam rule>> statements.<p>
+
+There is no statement to terminate a rule set; either rules fire or
+they don't.<p>
+
+The options are as follows:<p>
+
+<<deflist options>>
+
+<<defopt {-sit <i>sit</i>}>>
+
+For situations, the situation object command.  Since a rule set is
+intended to run to completion in the span of a single procedure call,
+it's safe to pass it in; there will be no opportunity for the object
+to be purged while the rule set is executing.<p>
+
+<<defopt {-doer <i>doerList</i>}>>
+
+A list of zero or more groups that are responsible for causing the
+driver to happen.  How this is used is to some extent up to the rule
+set; particular kinds of rule set may place additional constraints.
+The force activity rule sets, for example, require that this be
+exactly one force group.<p>
+
+<<defopt {-location <i>location</i>}>>
+
+The location of the driver as a coordinate pair, if any.  The location
+is displayed in the rule firing report.<p>
+
+<<defopt {-n <i>nbhood</i>}>>
+
+The neighborhood affected by the driver, or "*" for all neighborhoods.<p>
+
+<<defopt {-f <i>groupList</i>}>>
+
+A list of one or more groups (typically civilian) affected by the
+driver.<p>
+
+<<defopt {-cause <i>cause</i>}>>
+
+The GRAM "cause" associated with the driver, e.g., <b>HUNGER</b>.  An
+<<xref projtypes(n) ecause>> value.  Defaults to the value of 
+<<xref parmdb(5)>> parameter <b><code>dam.<i>ruleset</i>.cause</code></b>.<p>
+
+<<defopt {-p <i>nearFactor</i>}>>
+
+The GRAM near effects factor associate with the driver.  Defaults to the
+value of <<xref parmdb(5)>> parameter
+<b><code>dam.<i>ruleset</i>.nearFactor</code></b>.<p>
+
+<<defopt {-q <i>farFactor</i>}>>
+
+The GRAM far effects factor associate with the driver.  Defaults to the
+value of <<xref parmdb(5)>> parameter
+<b><code>dam.<i>ruleset</i>.farFactor</code></b>.<p>
+
+<</deflist options>>
+
+<<defitem "dam rule" {dam rule <i>rule </i>?<i>options...</i>? <i>expr body</i>}>>
+
+Defines a single rule within the current rule set.  The <i>rule</i>
+is the rule's name; it is typically a string like
+<i>ruleset-x-y</i>, where <i>x</i> is an integer indicating the subset
+of the rule set, and <i>y</i> is an integer indicating the rule within
+the subset.  The <<xref projtypes(n) edamrule>> enumeration lists all
+of the rule names.<p>
+
+The <i>expr</i> is a boolean Tcl expression stating the conditions
+under which the rule should fire, evaluated in the context of the caller.<p>
+
+The <i>body</i> is a script that indicates what should happen when the
+rule fires, also called in the context of the caller.<p>
+
+The rule can be called with the following options, which are seldom needed.<p>
+
+<<deflist options>>
+
+<<defopt {-description <i>text</i>}>>
+
+Gives a description of the rule, for use in the rule firing report.
+It defaults to the long name of the rule as given in the
+<<xref projtyeps(n) edamrule>> enumeration.<p>
+
+<<defopt {-doer <i>doerList</i>}>>
+<<defopt {-location <i>location</i>}>>
+<<defopt {-n <i>nbhood</i>}>>
+<<defopt {-f <i>groupList</i>}>>
+<<defopt {-cause <i>cause</i>}>>
+<<defopt {-p <i>nearFactor</i>}>>
+<<defopt {-q <i>farFactor</i>}>>
+
+Overrides the option values specified in the call to
+<<iref dam ruleset>>.<p>
+
+<</deflist options>>
+
+<<defitem "dam guard" {dam guard ?<i>text</i>?}>>
+
+This command is used in the body of an <<iref dam rule>> in situation
+rule sets; it prevents the rule from firing twice in succession when
+the outcome will be identical.  The <i>text</i>, if given, derives
+from the values of significant inputs to the rule, changes in which
+would cause the outcome to be different.  The <i>coverage</i> of
+activity situations is the canonical example.<p>
+
+<<defitem "dam sat level" {dam sat level ?<i>options</i>? <i>con limit days</i> ?<i>con limit days...</i>?}>>
+
+This routine is called within the body of a rule; it provides one or
+more satisfaction level inputs to GRAM.<p>
+
+The options are as follows; all of them override the defaults set by
+<<iref dam ruleset>> and <<iref dam rule>>.<p>
+
+<<deflist options>>
+
+<<defopt {-n <i>nbhood</i>}>>
+<<defopt {-f <i>groupList</i>}>>
+<<defopt {-cause <i>cause</i>}>>
+<<defopt {-p <i>nearFactor</i>}>>
+<<defopt {-q <i>farFactor</i>}>>
+
+<</deflist options>>
+
+The level inputs are all for the neighborhood specified by <code>-n</code>
+and the groups specified by <code>-f</code>.  Each input is further
+specified by a concern <i>con</i>, a magnitude <i>limit</i>, 
+specified as a <<xref mars:simtypes(n) qmag>> value, and a realization
+time in <i>days</i>.<p>
+
+
+<<defitem "dam sat slope" {dam sat slope ?<i>options</i>? <i>con slope</i> ?<i>con slope...</i>?}>>
+
+This routine is called within the body of a rule; it provides one or
+more satisfaction slope inputs to GRAM.<p>
+
+The options are as follows; all of them override the defaults set by
+<<iref dam ruleset>> and <<iref dam rule>>.<p>
+
+<<deflist options>>
+
+<<defopt {-n <i>nbhood</i>}>>
+<<defopt {-f <i>groupList</i>}>>
+<<defopt {-cause <i>cause</i>}>>
+<<defopt {-p <i>nearFactor</i>}>>
+<<defopt {-q <i>farFactor</i>}>>
+
+<</deflist options>>
+
+The slope inputs are all for the neighborhood specified by <code>-n</code>
+and the groups specified by <code>-f</code>.  Each input is further
+specified by a concern <i>con</i>, and a <i>slope</i> (points per day), 
+specified as a <<xref mars:simtypes(n) qmag>> value.<p>
+
+
+<<defitem "dam sat clear" {dam sat clear ?<i>options</i>? <i>con</i> ?<i>con...</i>?}>>
+
+This routine is called within the body of a rule; it terminates one or
+more satisfaction slope inputs to GRAM.<p>
+
+The options are as follows; all of them override the defaults set by
+<<iref dam ruleset>> and <<iref dam rule>>.<p>
+
+<<deflist options>>
+
+<<defopt {-n <i>nbhood</i>}>>
+<<defopt {-f <i>groupList</i>}>>
+<<defopt {-cause <i>cause</i>}>>
+
+<</deflist options>>
+
+Existing slope inputs are terminated (set to zero) for the
+neighborhood specified by <code>-n</code> and all of the groups
+specified by <code>-f</code> for each concern <i>con</i>.<p>
+
+
+
+<<defitem "dam coop level" {dam coop level ?<i>options</i>? <i>limit days</i>}>>
+
+This routine is called within the body of a rule; it provides one or
+more cooperation level inputs to GRAM.<p>
+
+The options are as follows; all of them override the defaults set by
+<<iref dam ruleset>> and <<iref dam rule>>.<p>
+
+<<deflist options>>
+
+<<defopt {-doer <i>groupList</i>}>>
+<<defopt {-n <i>nbhood</i>}>>
+<<defopt {-f <i>groupList</i>}>>
+<<defopt {-cause <i>cause</i>}>>
+<<defopt {-p <i>nearFactor</i>}>>
+<<defopt {-q <i>farFactor</i>}>>
+
+<</deflist options>>
+
+The level inputs are for for the neighborhood specified by <code>-n</code>
+and all groups specified by <code>-f</code> with the force groups
+specified by <code>-doer</code>.  (Non-force-groups listed in
+<code>-doer</code> are ignored.)  Each input has the given
+<i>limit</i>, 
+specified as a <<xref mars:simtypes(n) qmag>> value, and a realization
+time in <i>days</i>.<p>
+
+
+<<defitem "dam coop slope" {dam coop slope ?<i>options</i>? <i>slope</i>}>>
+
+This routine is called within the body of a rule; it provides one or
+more cooperation level inputs to GRAM.<p>
+
+The options are as follows; all of them override the defaults set by
+<<iref dam ruleset>> and <<iref dam rule>>.<p>
+
+<<deflist options>>
+
+<<defopt {-doer <i>groupList</i>}>>
+<<defopt {-n <i>nbhood</i>}>>
+<<defopt {-f <i>groupList</i>}>>
+<<defopt {-cause <i>cause</i>}>>
+<<defopt {-p <i>nearFactor</i>}>>
+<<defopt {-q <i>farFactor</i>}>>
+
+<</deflist options>>
+
+The level inputs are all for the neighborhood specified by <code>-n</code>
+and all groups specified by <code>-f</code> with the force groups
+specified by <code>-doer</code>.  (Non-force-groups listed in
+<code>-doer</code> are ignored.)  Each input has the specified
+<i>slope</i>, specified as a <<xref mars:simtypes(n) qmag>> value.<p>
+
+<<defitem "dam coop clear" {dam coop clear ?<i>options</i>?}>>
+
+This routine is called within the body of a rule; it terminates one or
+more cooperation slope inputs to GRAM.<p>
+
+The options are as follows; all of them override the defaults set by
+<<iref dam ruleset>> and <<iref dam rule>>.<p>
+
+<<deflist options>>
+
+<<defopt {-doer <i>groupList</i>}>>
+<<defopt {-n <i>nbhood</i>}>>
+<<defopt {-f <i>groupList</i>}>>
+<<defopt {-cause <i>cause</i>}>>
+
+<</deflist options>>
+
+Existing slope inputs are terminated (set to zero) for the
+neighborhood specified by <code>-n</code> and all of the groups
+specified by <code>-f</code> with all of the force groups specify by
+<code>-doer</code>.<p>
+
+<<defitem "dam count" {dam count}>>
+
+Returns the number of rules that have fired in this call of the rule set.<p>
+
+<<defitem "dam get" {dam get <i>name</i>}>>
+
+Retrieves data from dam(sim)'s internal "input" routine.  This is
+generally used by infrastructure particular to a particular kind of
+rule set.<p>
+
+
+<<defitem "dam rget" {dam rget <i>opt</i>}>>
+
+Retrieves the value of a rule option, whether it was specified
+explicitly by the rule or the rule set. This is
+generally used by infrastructure particular to a particular kind of
+rule set.<p>
+
+
+<<defitem "dam details" {dam details <i>text</i>}>>
+
+Appends the <i>text</i> to the "details" section of the rule-firing
+report.<p>
+
+
+
+
+<</deflist ruleset>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Derived from JNEM's jinrule(sim) package.
+
+<</manpage>>
+
+
+
+
+

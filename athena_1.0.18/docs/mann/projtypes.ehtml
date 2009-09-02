@@ -1,0 +1,281 @@
+<<manpage {projectlib(n) projtypes(n)} "Athena Data Types">>
+
+<<swallow {package require projectlib}>>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require projectlib 1.0
+namespace import ::projectlib::projtypes
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+This module defines data types used by the Athena code base.  Each
+type is defined as a type ensemble command.<p>
+
+<<section TYPES>>
+
+<<deflist types>>
+
+<<defitem "boolean validate" {boolean validate <i>flag</i>}>>
+
+Boolean flag type.  Accepts any of the standard Tcl boolean values.<p>
+
+Validates the <i>flag</i>, returning either 1 for true values and 0
+for false values.  On error, throws an error with <code>-errorcode</code>
+<b>INVALID</b>.<p>
+
+This call differs from <code>snit::boolean</code> in that it converts
+the value to canonical form, and throws <b>INVALID</b> on error.<p>
+
+
+<<defitem eattroe {eattroe <i>subcommand</i> ?<i>args</i>?}>>
+
+This <<xref mars:enum(n)>> type defines the set of attacking rules of
+engagement (ROEs) for uniformed (UF) and non-uniformed forces (NF).<p>
+
+<<::projectlib::eattroe html>>
+
+<<defitem eattroenf {eattroenf <i>subcommand</i> ?<i>args</i>?}>>
+
+This <<xref mars:enum(n)>> type defines the set of attacking rules of
+engagement (ROEs) for non-uniformed forces (NF).<p>
+
+<<::projectlib::eattroenf html>>
+
+<<defitem eattroeuf {eattroeuf <i>subcommand</i> ?<i>args</i>?}>>
+
+This <<xref mars:enum(n)>> type defines the set of attacking rules of
+engagement (ROEs) for uniformed (UF).<p>
+
+<<::projectlib::eattroeuf html>>
+
+
+<<defitem ecause {ecause <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the "causes" of GRAM
+attitude change.<p>
+
+<<::projectlib::ecause html>>
+
+
+<<defitem ecivconcern {ecivconcern <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the concerns of civilian
+groups.<p>
+
+<<::projectlib::ecivconcern html>>
+
+
+<<defitem econcern {econcern <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the concerns of all kinds
+of groups for which satisfaction is tracked.  It is simply the
+concatenation of <<iref ecivconcern>> and <<iref eorgconcern>>.<p>
+
+<<::projectlib::econcern html>>
+
+
+<<defitem edamrule {edamrule <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, enumerating the names and descriptions
+of all Athena Driver Assessment rules.<p>
+
+<<::projectlib::edamrule html>>
+
+
+<<defitem edamruleset {edamruleset <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, enumerating the names and descriptions
+of all Athena Driver Assessment rule sets.<p>
+
+<<::projectlib::edamruleset html>>
+
+<<defitem edefroeuf {edefroeuf <i>subcommand</i> ?<i>args</i>?}>>
+
+These <<xref mars:enum(n)>> types define the set of defending rules of
+engagement (ROEs) for uniformed (UF).<p>
+
+<<::projectlib::edefroeuf html>>
+
+
+<<defitem edemeanor {edemeanor <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing neighborhood group
+demeanor.<p>
+
+<<::projectlib::eforcetype html>>
+
+<<defitem eforcetype {eforcetype <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing force group types.<p>
+
+<<::projectlib::eforcetype html>>
+
+
+<<defitem eorgconcern {eorgconcern <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the concerns of organization
+groups.<p>
+
+<<::projectlib::eorgconcern html>>
+
+
+<<defitem eorgtype {eorgtype <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing organization group types.<p>
+
+<<::projectlib::eorgtype html>>
+
+
+<<defitem esitstate {esitstate <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the current state of a
+situation.<p>
+
+<<::projectlib::esitstate html>>
+
+
+<<defitem eurbanization {eurbanization <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing neighborhood urbanization
+levels.<p>
+
+<<::projectlib::eurbanization html>>
+
+<<defitem eyesno {eyesno <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing boolean "Yes" and "No" values.<p>
+
+<<::projectlib::eyesno html>>
+
+<<defitem "hexcolor validate" {hexcolor validate <i>color</i>}>>
+
+Hex color type.  A hex color specification is a string
+"<code>#<i>rrggbb</i></code>" where <i>rr</i>, <i>gg</i>, and
+<i>bb</i> are two-digit hexadecimal numbers representing the intensity
+of the RGB color channels.<p>
+
+Validates and returns the <i>color</i>; the hex-digits are
+upper-cased.  On error, throws an error with <code>-errorcode</code>
+<b>INVALID</b>.<p>
+
+<<defitem "idays validate" {idays validate <i>days</i>}>>
+
+Integer days type: a non-negative integer number.<p>
+
+Validates and returns <i>days</i>.  On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
+<<defitem "ident validate" {ident validate <i>name</i>}>>
+
+Identifier type.  An identifier is a string consisting only of letters
+and digits, beginning with a letter.<p>
+
+Validates and returns the <i>name</i>.  On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
+<<defitem "iminlines validate" {iminlines validate <i>quantity</i>}>>
+
+The minimum value for the
+<<xref prefs(5) cli.maxlines>> preferences parameter.  An integer
+number no less than 100.<p>
+
+Validates and returns <i>quantity</i>.  On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
+<<defitem "ipositive validate" {ipositive validate <i>quantity</i>}>>
+
+Integer quantity type: a positive integer number.<p>
+
+Validates and returns <i>quantity</i>.  On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
+<<defitem "iquantity validate" {iquantity validate <i>quantity</i>}>>
+
+Integer quantity type: a non-negative integer number.<p>
+
+Validates and returns <i>quantity</i>.  On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
+<<defitem "polygon validate" {polygon validate <i>coords</i>}>>
+
+Validates the polygon described by the <i>coords</i>, which is a flat
+list of <i>x</i> and <i>y</i> coordinates.  It may be passed as a
+single argument, or as one argument per coordinate.  On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
+<<defitem qsecurity qsecurity>>
+
+This quality is use to rate a group's security in a neighborhood.
+Numerically, <<iref qsecurity>> values are
+formatted as "<<::projectlib::qsecurity cget -format>>" and have the bounds
+shown in the following table:<p>
+
+<<::projectlib::qsecurity html>>
+
+<<defitem "rgain validate" {rgain validate <i>value</i>}>>
+
+A <<xref mars:range(n)>> representing a gain control
+setting: a non-negative floating-point value.   On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
+<<defitem "rgrouprel validate" {rgrouprel validate <i>value</i>}>>
+
+A <<xref mars:range(n)>> type used for group relationship values,
+which ranges from 
+<<::projectlib::rgrouprel format [::projectlib::rgrouprel cget -min]>> to
+<<::projectlib::rgrouprel format [::projectlib::rgrouprel cget -max]>>.<p>
+
+<<defitem "rrate validate" {rrate validate <i>value</i>}>>
+
+A <<xref mars:range(n)>> representing a rate, e.g.,
+events/day: a non-negative floating-point value.   On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
+<<defitem "unitname validate" {unitname validate <i>name</i>}>>
+
+Identifier type.  A unit name is a string consisting only of letters
+and digits, "-", or "/", beginning with a letter.<p>
+
+Validates and returns the <i>name</i>.  On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
+<<defitem "weight validate" {weight validate <i>value</i>}>>
+
+A weight is a non-negative floating-point value, used as a weighting factor.<p>
+
+Validates the <i>value</i>, returning it on success.  On error, throws
+an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
+<</deflist types>>
+
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
+
+
+
+

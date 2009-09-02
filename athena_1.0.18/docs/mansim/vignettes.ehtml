@@ -1,0 +1,1175 @@
+<<manpage vignettes(sim) "Vignettes">>
+
+<<section DESCRIPTION>>
+
+The modules in athena_sim(1) make great use of event notification to
+trigger application behavior.  For example, GUI updates are generally
+triggered by <<xref notifier(n)>> events sent by the simulation; and a
+variety of application behavior is triggered by GUI events.  This man
+page describes the most important vignettes using sequence
+diagrams.<p>
+
+<<subsection "Actors">>
+
+The names of most actors are simply the names the man pages for the
+relevant modules.  For modules within athena_sim(1), the "(sim)"
+suffix is omitted from the man page name.
+
+Names in ALL CAPS represent notional entities:
+
+<ul>
+  <li> <b>GUI</b>: The GUI in general.
+  <li> <b>SIM</b>: The simulation in general.  In specific cases,
+       might refer to some arbitrary module, or to any number of modules.
+</ul>
+
+<<subsection "Messages">>
+
+Message text follows one of the following patterns:<p>
+
+<b>Menu Items:</b> e.g., "File/Save Scenario".  Submenus are indicated
+by slashes, as shown.<p>
+
+<b>Simulation Orders:</b> E.g., NBHOOD:CREATE.  Orders are shown
+without parameters, unless it's significant for the control flow,
+since orders typicall have too many parameters to list.<p>
+
+<b>Tk and Notifier Events:</b> E.g., &lt;&lt;Nbhood-1&gt;&gt;,
+&lt;Reconfigure&gt;.  These are shown in angle brackets, as they
+appear in the code.  Parameters are shown as appropriate.  Implies
+that the receiving actor has a binding for the event.  These messages
+can be received by multiple actors.<p> 
+
+<b>Object Invocation:</b> Invocation of object methods, and indeed any
+other command, is indicated by writing the actual command, e.g.,
+"scenario open $filename".  Parameters are shown as appropriate.<p>
+
+<b>Generic Method Dispatch:</b> Some diagrams, e.g.,
+<<xref "Open Scenario">>, will indicate that the same method is called
+on multiple objects by using a generic object/actor name, e.g., "SIM
+reconfigure" indicates that the sending actor explicitly calls the
+"reconfigure" method for every simulation module that cares about it.<p>
+
+<<section "SCENARIO MANAGEMENT">>
+
+The vignettes in this section involve the management of scenario
+files, i.e., opening, saving, and so forth.<p>
+
+<<subsection "New Scenario">>
+
+The user wishes to begin work on a new scenario.<p>
+
+<<sequence -narration {
+actor GUI
+actor appwin
+actor scenario
+actor mapviewer
+actor SIM
+
+message GUI appwin "File/New Scenario"
+
+action appwin "Allow user to save unsaved data."
+
+message appwin scenario "scenario new"
+
+action scenario "Clears the scenario data."
+
+message scenario SIM "SIM reconfigure" {
+    All relevant simulation modules are reconfigured in appropriate sequence.
+}
+
+message scenario {appwin mapviewer} <Reconfigure>
+
+}>>
+
+<<subsection "Open Scenario">>
+
+The user wishes to open an existing scenario.<p>
+
+<<sequence -narration {
+actor GUI
+actor appwin
+actor scenario
+actor mapviewer
+actor SIM
+
+message GUI appwin "File/Open Scenario"
+
+action appwin "Allow user to save unsaved data."
+
+message appwin scenario "scenario open \$filename"
+
+action scenario "Loads the scenario data."
+
+message scenario SIM "SIM reconfigure" {
+    All relevant simulation modules are reconfigured in appropriate sequence.
+}
+
+message scenario {appwin mapviewer} <Reconfigure>
+
+}>>
+
+<<subsection "Save Scenario">>
+
+The user wishes to save the current scenario.<p>
+
+<<sequence -narration {
+actor GUI
+actor appwin
+actor scenario
+actor saveable(i)
+actor SIM
+
+message GUI appwin "File/Save Scenario"
+
+action appwin "Allow user to select the file name, if need be."
+
+message appwin scenario "scenario save \$filename"
+
+message scenario saveable(i) "checkpoint" {
+    Acquires the checkpoint data for each saveable(i) module.
+}
+
+message scenario SIM "<Saving>" {
+    Directs simulation modules to prepare for the save.
+}
+
+action scenario "Saves the scenario data to disk."
+
+message scenario appwin <ScenarioSaved>
+
+action appwin "Updates file name in window title."
+}>>
+
+<<subsection "Exit Application">>
+
+The user wishes to exit the application.<p>
+
+<<sequence -narration {
+actor GUI
+actor appwin
+actor app
+
+message GUI appwin "File/Exit"
+
+action appwin "Allow user to save unsaved data."
+
+message appwin app "app exit"
+
+action app "Shut down the application."
+}>>
+
+<<section "ORDER PROCESSING">>
+
+<<subsection "Order Sent by Dialog">>
+
+The following vignette describes the mechanism by which
+orders are entered using an order dialog.<p>
+
+<<sequence -narration {
+actor GUI
+actor ordergui
+actor order
+actor SIM
+
+message GUI ordergui "ordergui enter \$order"
+
+action ordergui "The user enters order parameter values"
+
+message ordergui order "order send \$order \$parmdict"
+
+action order "The order is validated."
+
+message order SIM ...
+
+action SIM "The order takes effect in the simulation."
+}>>
+
+<<subsection "Order Sent Directly">>
+
+Of course, the GUI can also send orders directly.<p>
+
+<<sequence -narration {
+actor GUI
+actor order
+actor SIM
+
+message GUI order "order send \$order \$parmdict"
+
+action order "The order is validated."
+
+message order SIM ...
+
+action SIM "The order takes effect in the simulation."
+}>>
+
+<<section "MAP:* ORDERS">>
+
+<<subsection "MAP:IMPORT">>
+
+The user wishes to import a new map into the current scenario.<p>
+
+<<sequence -narration {
+comment "On send: load the new map."
+
+actor GUI
+actor order
+actor map
+
+message GUI   order MAP:IMPORT
+message order map   "mutate import \$filename"
+
+message map   GUI   <MapChanged>
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous map."
+
+actor GUI
+actor cif
+actor map
+
+message GUI   cif   undo
+message cif   map   "UndoImport \$parmdict"
+action  map         "Restores the previous map data."
+message map   GUI   <MapChanged>
+
+}>>
+
+
+<<section "NBHOOD:* ORDERS">>
+
+<<subsection "NBHOOD:CREATE">>
+
+<<sequence -narration {
+comment "On send: create the new neighborhood and dependent entities."
+
+actor GUI
+actor order
+actor nbhood
+actor scenario
+actor ENTITY
+
+message GUI       order     NBHOOD:CREATE
+message order     nbhood    "mutate create \$parmdict"
+message nbhood    GUI       "<Entity> create \$n"
+message order     scenario  "mutate reconcile"
+message scenario  ENTITY    "mutate reconcile" {
+    For each dependent entity type.
+}
+message ENTITY    GUI       "<Entity> create \$id" {
+    For each new dependent entity.
+}
+}>>
+
+<<sequence -narration {
+comment "On undo: delete the neighborhood, and all dependent entities."
+
+actor GUI
+actor cif
+actor nbhood
+actor ENTITY
+
+message GUI    cif      undo
+message cif    nbhood   "mutate delete \$n"
+message nbhood GUI      "<Entity> delete \$n"
+message cif    ENTITY   "Delete \$id" {
+    For each deleted entity.
+}
+message ENTITY GUI      "<Entity> delete \$id"
+}>>
+
+<<subsection "NBHOOD:DELETE">>
+
+<<sequence -narration {
+comment "On send: delete the neighborhood, and all dependent entities."
+
+actor GUI
+actor order
+actor nbhood
+actor scenario
+actor ENTITY
+
+message GUI      order    NBHOOD:DELETE
+message order    nbhood   "mutate delete \$n"
+message nbhood   GUI      "<Entity> delete \$n"
+message order    scenario "mutate reconcile"
+message scenario ENTITY   "mutate reconcile" {
+    For each dependent entity type.
+}
+message ENTITY   GUI      "<Entity> delete \$id" {
+    For each deleted dependent entity.
+}
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the neighborhood, and dependent entities."
+
+actor GUI
+actor cif
+actor nbhood
+actor ENTITY
+
+message GUI     cif      undo
+message cif     nbhood   "Restore \$parmdict"
+message nbhood  GUI      "<Entity> create \$n"
+message cif     ENTITY   "Restore \$parmdict" {
+    For each restored entity:
+}
+message ENTITY  GUI      "<Entity> create \$id"
+}>>
+
+
+<<subsection "NBHOOD:UPDATE">>
+
+<<sequence -narration {
+comment "On send: update the neighborhood data."
+
+actor GUI
+actor order
+actor nbhood
+
+message GUI    order    NBHOOD:UPDATE
+message order  nbhood   "mutate update \$parmdict"
+message nbhood GUI      "<Entity> update \$n"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous neighborhood data."
+
+actor GUI
+actor cif
+actor nbhood
+
+message GUI    cif      undo
+message cif    nbhood   "mutate update \$parmdict"
+message nbhood GUI      "<Entity> update \$n"
+
+}>>
+
+<<subsection "NBHOOD:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the neighborhood data."
+
+actor GUI
+actor order
+actor nbhood
+
+message GUI    order    NBHOOD:UPDATE:MULTI
+action  order           "For all updated nbhoods:"
+message order  nbhood   "mutate update \$parmdict"
+message nbhood GUI      "<Entity> update \$n"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous neighborhood data."
+
+actor GUI
+actor cif
+actor nbhood
+
+message GUI    cif      undo
+action  cif             "For all updated nbhoods:"
+message cif    nbhood   "mutate update \$parmdict"
+message nbhood GUI      "<Entity> update \$n"
+
+}>>
+
+
+
+<<subsection "NBHOOD:LOWER">>
+
+<<sequence -narration {
+comment "On send: lower the neighborhood to the bottom of the stacking order."
+
+actor GUI
+actor order
+actor nbhood
+
+message GUI    order   NBHOOD:LOWER
+message order  nbhood  "mutate lower \$n"
+message nbhood GUI     "<Entity> stack"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the neighborhood to its previous position in the stacking order."
+
+actor GUI
+actor cif
+actor nbhood
+
+message GUI    cif     undo
+message cif    nbhood  "RestackNbhoods \$old"
+message nbhood GUI     "<Entity> stack"
+}>>
+
+
+<<subsection "NBHOOD:RAISE">>
+
+<<sequence -narration {
+actor GUI
+actor order
+actor nbhood
+
+comment "On send: raise the neighborhood to the top of the stacking order."
+message GUI    order   NBHOOD:RAISE
+message order  nbhood  "mutate raise \$n"
+message nbhood GUI     "<Entity> stack"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the neighborhood to its previous position in the stacking order."
+
+actor GUI
+actor cif
+actor nbhood
+
+message GUI    cif     undo
+message cif    nbhood  "RestackNbhoods \$old"
+message nbhood GUI     "<Entity> stack"
+}>>
+
+
+<<section "GROUP:CIVILIAN:* ORDERS">>
+
+<<subsection "GROUP:CIVILIAN:CREATE">>
+
+<<sequence -narration {
+comment "On send: create the new civilian group"
+
+actor GUI
+actor order
+actor civgroup
+actor scenario
+actor ENTITY
+
+message GUI       order     GROUP:CIVILIAN:CREATE
+message order     civgroup  "mutate create \$parmdict"
+message civgroup  GUI       "<Entity> create \$g"
+message order     scenario  "mutate reconcile"
+message scenario  ENTITY    "mutate reconcile" {
+    For each dependent entity type.
+}
+message ENTITY    GUI       "<Entity> create \$id" {
+    For each new dependent entity.
+}
+}>>
+
+<<sequence -narration {
+comment "On undo: delete the civilian group and all dependent entities."
+
+actor GUI
+actor cif
+actor civgroup
+actor ENTITY
+
+message GUI      cif       undo
+message cif      civgroup  "mutate delete \$g"
+message civgroup GUI       "<Entity> delete \$g"
+message cif      ENTITY    "Delete \$id" {
+    For each deleted entity.
+}
+message ENTITY   GUI       "<Entity> delete \$id"
+}>>
+
+
+<<subsection "GROUP:CIVILIAN:DELETE">>
+
+<<sequence -narration {
+comment "On send: delete the civilian group, and all dependent entities."
+
+actor GUI
+actor order
+actor civgroup
+actor nbgroup
+actor scenario
+actor ENTITY
+
+message GUI       order     GROUP:CIVILIAN:DELETE
+message order     civgroup  "mutate delete \$g"
+message civgroup  GUI       "<Entity> delete \$g"
+message order     scenario  "mutate reconcile"
+message scenario  ENTITY    "mutate reconcile" {
+    For each dependent entity type.
+}
+message ENTITY    GUI       "<Entity> delete \$id" {
+    For each deleted dependent entity.
+}
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the civilian group, and dependent entities."
+
+actor GUI
+actor cif
+actor civgroup
+actor ENTITY
+
+message GUI       cif       undo
+message cif       civgroup  "Restore \$parmdict"
+message civgroup  GUI       "<Entity> create \$g"
+message cif       ENTITY    "Restore \$parmdict" {
+    For each restored entity:
+}
+message ENTITY    GUI       "<Entity> create \$id"
+}>>
+
+
+<<subsection "GROUP:CIVILIAN:UPDATE">>
+
+<<sequence -narration {
+comment "On send: update the civilian group data."
+
+actor GUI
+actor order
+actor civgroup
+
+message GUI      order     GROUP:CIVILIAN:UPDATE
+message order    civgroup  "mutate update \$parmdict"
+message civgroup GUI       "<Entity> update \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous civilian group data."
+
+actor GUI
+actor cif
+actor civgroup
+
+message GUI      cif       undo
+message cif      civgroup  "mutate update \$parmdict"
+message civgroup GUI       "<Entity> update \$g"
+}>>
+
+
+<<subsection "GROUP:CIVILIAN:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the civilian group data."
+
+actor GUI
+actor order
+actor civgroup
+
+message GUI      order     GROUP:CIVILIAN:UPDATE:MULTI
+action  order              "For all updated groups:"
+message order    civgroup  "mutate update \$parmdict"
+message civgroup GUI       "<Entity> update \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous civilian group data."
+
+actor GUI
+actor cif
+actor civgroup
+
+message GUI      cif       undo
+action  cif                "For all updated groups:"
+message cif      civgroup  "mutate update \$parmdict"
+message civgroup GUI       "<Entity> update \$g"
+}>>
+
+
+<<section "GROUP:FORCE:* ORDERS">>
+
+<<subsection "GROUP:FORCE:CREATE">>
+
+<<sequence -narration {
+comment "On send: create the new force group and all dependent entities."
+
+actor GUI
+actor order
+actor frcgroup
+actor scenario
+actor ENTITY
+
+message GUI       order     GROUP:FORCE:CREATE
+message order     frcgroup  "mutate create \$parmdict"
+message frcgroup  GUI       "<Entity> create \$g"
+message order     scenario  "mutate reconcile"
+message scenario  ENTITY    "mutate reconcile" {
+    For each dependent entity type.
+}
+message ENTITY    GUI       "<Entity> create \$id" {
+    For each new dependent entity.
+}
+}>>
+
+<<sequence -narration {
+comment "On undo: delete the force group and all dependent entities."
+
+actor GUI
+actor cif
+actor frcgroup
+actor ENTITY
+
+message GUI      cif       undo
+message cif      frcgroup  "mutate delete \$g"
+message frcgroup GUI       "<Entity> delete \$g"
+message cif      ENTITY    "Delete \$id" {
+    For each deleted entity.
+}
+message ENTITY   GUI       "<Entity> delete \$id"
+}>>
+
+
+<<subsection "GROUP:FORCE:DELETE">>
+
+<<sequence -narration {
+comment "On send: delete the force group and all dependent entities."
+
+actor GUI
+actor order
+actor frcgroup
+actor scenario
+actor ENTITY
+
+message GUI       order     GROUP:FORCE:DELETE
+message order     frcgroup  "mutate delete \$g"
+message frcgroup  GUI       "<Entity> delete \$g"
+message order     scenario  "mutate reconcile"
+message scenario  ENTITY    "mutate reconcile" {
+    For each dependent entity type.
+}
+message ENTITY    GUI       "<Entity> delete \$id" {
+    For each deleted dependent entity.
+}
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the force group and all dependent entities."
+
+actor GUI
+actor cif
+actor frcgroup
+actor ENTITY
+
+message GUI       cif       undo
+message cif       frcgroup  "Restore \$parmdict"
+message frcgroup  GUI       "<Entity> create \$g"
+message cif     ENTITY   "Restore \$parmdict" {
+    For each restored entity:
+}
+message ENTITY  GUI      "<Entity> create \$id"
+}>>
+
+
+<<subsection "GROUP:FORCE:UPDATE">>
+
+<<sequence -narration {
+comment "On send: update the force group data."
+
+actor GUI
+actor order
+actor frcgroup
+
+message GUI      order     GROUP:FORCE:UPDATE
+message order    frcgroup  "mutate update \$parmdict"
+message frcgroup GUI       "<Entity> update \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous force group data."
+
+actor GUI
+actor cif
+actor frcgroup
+
+message GUI      cif       undo
+message cif      frcgroup  "mutate update \$parmdict"
+message frcgroup GUI       "<Entity> update \$g"
+}>>
+
+
+<<subsection "GROUP:FORCE:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the force group data."
+
+actor GUI
+actor order
+actor frcgroup
+
+message GUI      order     GROUP:FORCE:UPDATE
+action  order              "For all updated groups:"
+message order    frcgroup  "mutate update \$parmdict"
+message frcgroup GUI       "<Entity> update \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous force group data."
+
+actor GUI
+actor cif
+actor frcgroup
+
+message GUI      cif       undo
+action  cif                "For all updated groups:"
+message cif      frcgroup  "mutate update \$parmdict"
+message frcgroup GUI       "<Entity> update \$g"
+}>>
+
+<<section "GROUP:NBHOOD:* ORDERS">>
+
+<<subsection "GROUP:NBHOOD:CREATE">>
+
+<<sequence -narration {
+comment "On send: create the group and all dependent entities."
+
+actor GUI
+actor order
+actor nbgroup
+actor scenario
+actor ENTITY
+
+message GUI       order     GROUP:NBHOOD:CREATE
+message order     nbgroup   "mutate create \$parmdict"
+message nbgroup   GUI       "<Entity> create {\$n \$g}"
+message order     scenario  "mutate reconcile"
+message scenario  ENTITY    "mutate reconcile" {
+    For each dependent entity type.
+}
+message ENTITY    GUI       "<Entity> create \$id" {
+    For each new dependent entity.
+}
+}>>
+
+<<sequence -narration {
+comment "On undo: delete the group and all dependent entities."
+
+actor GUI
+actor cif
+actor nbgroup
+actor ENTITY
+
+message GUI      cif        undo
+message cif      nbgroup    "mutate delete {\$n \$g}"
+message nbgroup  GUI        "<Entity> delete {\$n \$g}"
+message cif      ENTITY     "Delete \$id" {
+    For each deleted entity.
+}
+message ENTITY   GUI        "<Entity> delete \$id"
+}>>
+
+
+<<subsection "GROUP:NBHOOD:DELETE">>
+
+<<sequence -narration {
+comment "On send: delete the group and all dependent entities."
+
+actor GUI
+actor order
+actor nbgroup
+actor scenario
+actor ENTITY
+
+message GUI      order      GROUP:NBHOOD:DELETE
+message order    nbgroup    "mutate delete {\$n \$g}"
+message nbgroup  GUI        "<Entity> delete {\$n \$g}"
+message order    scenario   "mutate reconcile"
+message scenario ENTITY     "mutate reconcile" {
+    For each dependent entity type.
+}
+message ENTITY   GUI        "<Entity> delete \$id" {
+    For each deleted dependent entity.
+}
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the group and all dependent entities."
+
+actor GUI
+actor cif
+actor nbgroup
+actor ENTITY
+
+message GUI     cif        undo
+message cif     nbgroup    "Restore \$parmdict"
+message nbgroup GUI        "<Entity> create {\$n \$g}"
+message cif     ENTITY   "Restore \$parmdict" {
+    For each restored entity:
+}
+message ENTITY  GUI      "<Entity> create \$id"
+}>>
+
+
+<<subsection "GROUP:NBHOOD:UPDATE">>
+
+<<sequence -narration {
+comment "On send: update the neighborhood group data."
+
+actor GUI
+actor order
+actor nbgroup
+
+message GUI     order    GROUP:NBHOOD:UPDATE
+message order   nbgroup  "mutate update \$parmdict"
+message nbgroup GUI      "<Entity> update {\$n \$g}"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous neighborhood group data."
+
+actor GUI
+actor cif
+actor nbgroup
+
+message GUI     cif      undo
+message cif     nbgroup  "mutate update \$parmdict"
+message nbgroup GUI      "<Entity> update {\$n \$g}"
+}>>
+
+
+<<subsection "GROUP:NBHOOD:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the neighborhood group data."
+
+actor GUI
+actor order
+actor nbgroup
+
+message GUI     order    GROUP:NBHOOD:UPDATE:MULTI
+action  order            "For all updated groups:"
+message order   nbgroup  "mutate update \$parmdict"
+message nbgroup GUI      "<Entity> update {\$n \$g}"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous neighborhood group data."
+
+actor GUI
+actor cif
+actor nbgroup
+
+message GUI     cif      undo
+action  cif              "For all updated groups:"
+message cif     nbgroup  "mutate update \$parmdict"
+message nbgroup GUI      "<Entity> update {\$n \$g}"
+}>>
+
+
+<<section "GROUP:ORGANIZATION:* ORDERS">>
+
+<<subsection "GROUP:ORGANIZATION:CREATE">>
+
+<<sequence -narration {
+comment "On send: create the new organization group and dependent entities."
+
+actor GUI
+actor order
+actor orggroup
+actor scenario
+actor ENTITY
+
+message GUI       order     GROUP:ORGANIZATION:CREATE
+message order     orggroup  "mutate create \$parmdict"
+message orggroup  GUI       "<Entity> create \$g"
+message order     scenario  "mutate reconcile"
+message scenario  ENTITY    "mutate reconcile" {
+    For each dependent entity type.
+}
+message ENTITY    GUI       "<Entity> create \$id" {
+    For each new dependent entity.
+}
+}>>
+
+<<sequence -narration {
+comment "On undo: delete the organization group and dependent entities."
+
+actor GUI
+actor cif
+actor orggroup
+actor ENTITY
+
+message GUI      cif        undo
+message cif      orggroup   "mutate delete \$g"
+message orggroup GUI        "<Entity> delete \$g"
+message cif      ENTITY     "Delete \$id" {
+    For each deleted entity.
+}
+message ENTITY   GUI        "<Entity> delete \$id"
+}>>
+
+
+<<subsection "GROUP:ORGANIZATION:DELETE">>
+
+<<sequence -narration {
+comment "On send: delete the organization group."
+
+actor GUI
+actor order
+actor orggroup
+actor scenario
+actor ENTITY
+
+message GUI      order      GROUP:ORGANIZATION:DELETE
+message order    orggroup   "mutate delete \$g"
+message orggroup GUI        "<Entity> delete \$g"
+message order    scenario   "mutate reconcile"
+message scenario ENTITY     "mutate reconcile" {
+    For each dependent entity type.
+}
+message ENTITY   GUI        "<Entity> delete \$id" {
+    For each deleted dependent entity.
+}
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the organization group."
+
+actor GUI
+actor cif
+actor orggroup
+actor ENTITY
+
+message GUI      cif        undo
+message cif      orggroup   "Restore \$parmdict"
+message orggroup GUI        "<Entity> create \$g"
+message cif      ENTITY     "Restore \$parmdict" {
+    For each restored entity:
+}
+message ENTITY   GUI        "<Entity> create \$id"
+}>>
+
+
+<<subsection "GROUP:ORGANIZATION:UPDATE">>
+
+<<sequence -narration {
+comment "On send: update the organization group data."
+
+actor GUI
+actor order
+actor orggroup
+
+message GUI      order     GROUP:ORGANIZATION:UPDATE
+message order    orggroup  "mutate update \$parmdict"
+message orggroup GUI       "<Entity> update \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous organization group data."
+
+actor GUI
+actor cif
+actor orggroup
+
+message GUI      cif       undo
+message cif      orggroup  "mutate update \$parmdict"
+message orggroup GUI       "<Entity> update \$g"
+}>>
+
+
+<<subsection "GROUP:ORGANIZATION:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the organization group data."
+
+actor GUI
+actor order
+actor orggroup
+
+message GUI      order     GROUP:ORGANIZATION:UPDATE:MULTI
+action  order              "For all updated groups:"
+message order    orggroup  "mutate update \$parmdict"
+message orggroup GUI       "<Entity> update \$g"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous organization group data."
+
+actor GUI
+actor cif
+actor orggroup
+
+message GUI      cif       undo
+action  cif                "For all updated groups:"
+message cif      orggroup  "mutate update \$parmdict"
+message orggroup GUI       "<Entity> update \$g"
+}>>
+
+<<section "SATISFACTION:* ORDERS">>
+
+<<subsection "SATISFACTION:UPDATE">>
+
+<<sequence -narration {
+comment "On send: update the satisfaction data."
+
+actor GUI
+actor order
+actor sat
+
+message GUI     order    SATISFACTION:UPDATE
+message order   sat      "mutate update \$parmdict"
+message sat     GUI      "<Entity> update {\$n \$g \$c}"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous satisfaction."
+
+actor GUI
+actor cif
+actor sat
+
+message GUI     cif      undo
+message cif     sat      "mutate update \$parmdict"
+message sat     GUI      "<Entity> update {\$n \$g \$c}"
+}>>
+
+<<subsection "SATISFACTION:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the satisfaction data."
+
+actor GUI
+actor order
+actor sat
+
+message GUI     order    SATISFACTION:UPDATE:MULTI
+action  order            "For all updated curves:"
+message order   sat      "mutate update \$parmdict"
+message sat     GUI      "<Entity> update {\$n \$g \$c}"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous satisfaction data."
+
+actor GUI
+actor cif
+actor sat
+
+message GUI     cif      undo
+action  cif              "For all updated curves:"
+message cif     sat      "mutate update \$parmdict"
+message sat     GUI      "<Entity> update {\$n \$g \$c}"
+}>>
+
+
+<<section "RELATIONSHIP:* ORDERS">>
+
+<<subsection "RELATIONSHIP:UPDATE">>
+
+<<sequence -narration {
+comment "On send: update the relationship data."
+
+actor GUI
+actor order
+actor rel
+
+message GUI     order    RELATIONSHIP:UPDATE
+message order   rel      "mutate update \$parmdict"
+message rel     GUI      "<Entity> update {\$n \$f \$g}"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous relationship data."
+
+actor GUI
+actor cif
+actor rel
+
+message GUI     cif      undo
+message cif     rel      "mutate update \$parmdict"
+message rel     GUI      "<Entity> update {\$n \$f \$g}"
+}>>
+
+<<subsection "RELATIONSHIP:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the relationship data."
+
+actor GUI
+actor order
+actor rel
+
+message GUI     order    RELATIONSHIP:UPDATE:MULTI
+action  order            "For all updated relationships:"
+message order   rel      "mutate update \$parmdict"
+message rel     GUI      "<Entity> update {\$n \$f \$g}"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous relationship data."
+
+actor GUI
+actor cif
+actor rel
+
+message GUI     cif      undo
+action  cif              "For all updated relationships:"
+message cif     rel      "mutate update \$parmdict"
+message rel     GUI      "<Entity> update {\$n \$f \$g}"
+}>>
+
+
+<<section "COOPERATION:* ORDERS">>
+
+<<subsection "COOPERATION:UPDATE">>
+
+<<sequence -narration {
+comment "On send: update the cooperation data."
+
+actor GUI
+actor order
+actor coop
+
+message GUI     order    COOPERATION:UPDATE
+message order   coop     "mutate update \$parmdict"
+message coop    GUI      "<Entity> update {\$n \$f \$g}"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous cooperation data."
+
+actor GUI
+actor cif
+actor coop
+
+message GUI     cif      undo
+message cif     coop     "mutate update \$parmdict"
+message coop    GUI      "<Entity> update {\$n \$f \$g}"
+}>>
+
+<<subsection "COOPERATION:UPDATE:MULTI">>
+
+<<sequence -narration {
+comment "On send: update the cooperation data."
+
+actor GUI
+actor order
+actor coop
+
+message GUI     order    COOPERATION:UPDATE:MULTI
+action  order            "For all updated cooperations:"
+message order   coop     "mutate update \$parmdict"
+message coop    GUI      "<Entity> update {\$n \$f \$g}"
+}>>
+
+<<sequence -narration {
+comment "On undo: restore the previous cooperation data."
+
+actor GUI
+actor cif
+actor coop
+
+message GUI     cif      undo
+action  cif              "For all updated cooperations:"
+message cif     coop     "mutate update \$parmdict"
+message coop    GUI      "<Entity> update {\$n \$f \$g}"
+}>>
+
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<</manpage>>
+
+
+
+
+
+
+

@@ -1,0 +1,329 @@
+<<manpage {projectlib(n) scenariodb(n)} "Scenario Database Object">>
+
+<<swallow {
+    package require marsutil
+    package require projectlib
+
+    proc sqlSectionLink {section} {
+        set title [$section sqlsection title]
+
+        if {[regexp {^\w+\([1-9in]\)$} $title]} {
+            set title [xref $title]
+        }
+
+        return $title
+    }
+
+    proc schemaDoc {} {
+        set out ""
+        foreach section [::marsutil::sqldocument sections] {
+            # FIRST, are there any schema definitions
+            set schema ""
+
+            if {[$section sqlsection schema] ne ""} {
+                lappend schema [$section sqlsection schema]
+            }
+
+            if {[$section sqlsection tempschema] ne ""} {
+                lappend schema [$section sqlsection tempschema]
+            }
+
+            if {[llength $schema] == 0} {
+                continue
+            }
+
+            # NEXT, document them.
+            set title [$section sqlsection title]
+            append out [subsection [list From $title]]
+            append out "\n\n"
+
+            # Make it a link, if appropriate
+            set title [sqlSectionLink $section]
+
+            append out \
+                "The following schema definitions are from $title.<p>\n\n"
+
+            append out "<pre>\n"
+            append out [join $schema "\n\n"]
+            append out "</pre>\n\n"
+        }
+
+        return $out
+    }
+
+    proc sqlFunctionsDoc {} {
+        set out ""
+
+        foreach section [::marsutil::sqldocument sections] {
+            # Skip functions defined by sqldatabase itself.
+            if {$section eq "::simlib::sqldatabase"} {
+                continue
+            }
+
+            set funcs [$section sqlsection functions]
+
+            if {[llength $funcs] > 0} {
+                append out "<li> From [sqlSectionLink $section]:</li>\n"
+                append out "<ul>\n"
+                foreach {func def} $funcs {
+                    append out "<li>${func}()</li>\n"
+                }
+                append out "</ul>\n"
+            }
+        }
+
+        return "<ul>\n$out</ul><p>"
+    }
+}>>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require projectlib 1.0
+namespace import ::projectlib::scenariodb
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+The scenariodb(n) type is responsible for Athena's scenario
+database format.  It is an SQLite3 format based on
+<<xref mars:sqldocument(n)>>; as such, it automatically includes all
+<<xref mars:sqlsection(i)>>s defined by the Mars infrastructure.  It
+also includes all tables, indices, and so forth defined explicitly for
+Mars.<p>
+
+<<xref athena_sim(1)>> uses scenariodb(n) to define its
+run-time database (RDB), and to save and load scenario data to and
+from external files.  By convention, these "scenario files" have a
+"<code>.adb</code>" (Athena Scenario) extension.<p>
+
+<<subsection "XML Schema">>
+
+There is no official XML DTD for this format; however, the schema
+is straightforward:<p>
+
+<pre>
+    &lt;database dbschema="<i>version</i>"&gt;
+        &lt;table name="<i>thetable</i>"&gt;
+            &lt;row&gt;
+                &lt;column name="<i>thecolumn</i>"&gt;
+                value
+                &lt;/column&gt;
+            &lt;/row&gt;
+        &lt;/table&gt;
+    &lt;/database&gt;
+</pre>
+
+The exported text is comprised of a single
+<code>&lt;database&gt;</code> element containing one
+<code>&lt;table&gt;</code> element per exported table.  Each
+<code>&lt;table&gt;</code> element contains one
+<code>&lt;row&gt;</code> per row, and each
+<code>&lt;row&gt;</code> element contains one
+<code>&lt;column&gt;</code> element per column.  This element,
+naturally, contains the column's value.<p>
+
+The <i>version</i> is the SQLite3 database's "PRAGMA user_version";
+this serves to indicate the version of the SQL schema.<p>
+
+BLOB data is written out as a hexadecimal string.<p>
+        
+<<section "SCHEMA">>
+
+scenariodb(n) adds the following definitions to the database
+schema:<p>
+
+Every <<xref scenariodb(n)>> database will contain at least the
+following schema definitions, in addition to those from any other
+<<xref sqlsection(i)>>'s loaded explicitly by the application.<p>
+
+<<schemaDoc>>
+
+<<section "SQL FUNCTIONS">>
+
+Every <<xref scenariodb(n)>> database will support at least the
+following SQL functions, in addition to those defined by SQLite3
+and those defined by <<xref mars:sqlsection(i)>> modules explicitly
+loaded by the application.<p>
+
+<<sqlFunctionsDoc>>
+
+<<section COMMANDS>>
+
+<<deflist commands>>
+
+<<defitem scenariodb {scenariodb <i>name</i> ?<i>options...?</i>}>>
+
+Creates a new scenariodb(n) object called <i>name</i>. The object is
+represented as a new Tcl command in the caller's scope;
+<<iref scenariodb>> returns the fully-qualified form of the
+<i>name</i>.<p>
+
+Before the new scenariodb(n) can be used, a database file must be
+<<iref open>>ed, and possibly <<iref clear>>ed.<p>
+
+The scenariodb(n) may be created with the following options:<p>
+
+<<deflist options>>
+
+<<defopt {-clock <i>clock</i>}>>
+
+Specifies a <<xref simclock(n)>> object, or the equivalent.  This
+option is delegated to the underlying <<xref sqldocument(n)>> object,
+which uses it to provide <<xref simclock(n)>>-related SQL functions.<p>
+
+<</deflist options>>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+Each instance of scenariodb(n) inherits all methods
+of the <<xref mars:sqldocument(n)>> object and the underlying SQLite3
+database handle.  In addition, it has the following subcommands:<p>
+
+<<deflist instance>>
+
+<<defitem clear {<i>obj</i> clear}>>
+
+Clears the contents of the database, establishing a fresh, empty scenario.
+Also, clears the <<iref unsaved>> flag.<p>
+
+<<defitem export {<i>obj</i> export ?-exclude? ?<i>tables</i>?}>>
+
+Exports the contents of the permanent database tables as an XML text
+string.  The XML text can be imported into a scenariodb(n) using
+<<iref import>>.  If <i>tables</i> is specified, it should be a list
+of the names of the tables to export.  If <code>-exclude</code> is
+given with <i>tables</i>, then <i>tables</i> is a list of tables that
+should <i>not</i> be exported.<p>
+
+See above for the <<xref "XML Schema">>.<p>
+
+<<defitem import {<i>obj</i> import <i>xmltext</i> ?<i>options...</i>?}>>
+
+Imports the <i>xmltext</i> into the database. Tables and columns that
+exist in the <i>xmltext</i> but not in the current schema are
+skipped.  The command can be called with the following options:<p>
+
+<<deflist options>>
+
+<<defopt {-clear}>>
+
+Clears the RDB, defining the current schema, prior to importing.<p.
+
+<<defopt {-logcmd <b>cmd</b>}>>
+
+Defines a command prefix expecting
+one additional argument, a message string.  <<iref import>> will
+call it with a human-readable message for each table and column
+that's imported or skipped.<p>
+
+<</deflist options>>
+
+
+<<defitem load {<i>obj</i> load <i>filename</i>}>>
+
+Loads the scenario file called <i>filename</i> into the database, and
+clears the <<iref unsaved>> flag.<p>
+
+<<defitem marksaved {<i>obj</i> marksaved}>>
+
+Marks the scenario saved.  This is generally useful if the application
+adds additional behavior on top of <<iref clear>>.<p>
+
+<<defitem open {<i>obj</i> open <i>filename</i>}>>
+
+Opens an existing scenario file, and clears the <<iref unsaved>>
+flag.  <<xref athena_sim(1)>> will usually use this to open a working
+RDB, into which the user's scenario file will be <<iref load>>ed.
+If <i>filename</i> is "<code>:memory:</code>", the database will be
+opened in memory rather than on the disk.<p>
+
+<<defitem safeeval {<i>obj</i> safeeval <i>args...</i>}>>
+
+This subcommand is just like <<xref sqldocument(n)>>'s "eval", but is
+prevented from changing the contents of the database.<p>
+
+<<defitem safequery {<i>obj</i> safequery <i>sql</i>}>>
+
+This subcommand is just like <<xref sqldocument(n)>>'s "query", but is
+prevented from changing the contents of the database.<p>
+
+<<defitem saveas {<i>obj</i> saveas <i>filename</i>}>>
+
+Saves the current contents of the database to the file with name
+<i>filename</i>, which conventionally should have a
+"<code>.ath</code>" extension.  Clears the <<iref unsaved>> flag.<p>
+
+<<defitem tclexport {<i>obj</i> tclexport ?-exclude? ?<i>tables</i>?}>>
+
+Exports the contents of the permanent database tables as a
+Tcl-formatted text
+string.  The text can be imported into a scenariodb(n) using
+<<iref tclimport>>.  If <i>tables</i> is specified, it should be a list
+of the names of the tables to export.  If <code>-exclude</code> is
+given with <i>tables</i>, then <i>tables</i> is a list of tables that
+should <i>not</i> be exported.<p>
+
+<<defitem tclimport {<i>obj</i> tclimport <i>text</i> ?<i>logcmd</i>?}>>
+
+Imports <i>text</i> saved by <<iref tclexport>> into the database.
+
+Tables and columns that
+exist in the <i>text</i> but not in the current schema are
+skipped.  The command can be called with the following options:<p>
+
+<<deflist options>>
+
+<<defopt {-clear}>>
+
+Clears the RDB, defining the current schema, prior to importing.<p.
+
+<<defopt {-logcmd <b>cmd</b>}>>
+
+Defines a command prefix expecting
+one additional argument, a message string.  <<iref tclimport>> will
+call it with a human-readable message for each table and column
+that's imported or skipped.<p>
+
+<</deflist options>>
+
+<<defitem unsaved {<i>obj</i> unsaved}>>
+
+Returns 1 if changes have been made to the database since the last
+<<iref clear>>, <<iref load>>, <<iref open>>, or <<iref saveas>>, and
+0 otherwise.  Applications can use this flag to determine whether
+there are unsaved changes, e.g., before shutting down.<p>
+
+<</deflist instance>>
+
+<<section "SEE ALSO">>
+
+<<xref mars:sqldocument(n)>>.
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
+
+
+
+
+
