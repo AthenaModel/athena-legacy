@@ -331,7 +331,7 @@ order define ::sat SAT:UPDATE:MULTI {
     title "Update Initial Satisfaction (Multi)"
     options -sendstates PREP -table gui_sat_ngc
 
-    parm ids       multi  "Curves"
+    parm ids       multi  "IDs"
     parm sat0      text   "Sat at T0"
     parm trend0    text   "Trend"
     parm saliency  text   "Saliency"
