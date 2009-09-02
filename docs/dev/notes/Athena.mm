@@ -56,6 +56,16 @@
 <node CREATED="1241215883249" ID="Freemind_Link_1735758744" MODIFIED="1241215886122" TEXT="Sat vs Coop"/>
 </node>
 <node CREATED="1247762885741" ID="Freemind_Link_1952865263" MODIFIED="1247762891249" TEXT="Smaller epsilons?"/>
+<node CREATED="1251486998445" ID="Freemind_Link_952373843" MODIFIED="1251487006508" TEXT="GRAM and RDBs">
+<node CREATED="1251487006830" ID="Freemind_Link_323083293" MODIFIED="1251487015511" TEXT="Suppose each instance of GRAM required its own RDB?"/>
+<node CREATED="1251487017517" ID="Freemind_Link_236967723" MODIFIED="1251487033367" TEXT="Could use multiple gram(n)&apos;s in an app by using multiple RDBs."/>
+<node CREATED="1251487033725" ID="Freemind_Link_1443512363" MODIFIED="1251487068151" TEXT="Could write queries across GRAMs by accessing both DBs in one SQLite3 handle"/>
+<node CREATED="1251487072974" ID="Freemind_Link_1771807132" MODIFIED="1251487084231" TEXT="gram(n) might be faster, and the queries would be simpler"/>
+<node CREATED="1251487102349" ID="Freemind_Link_1955038707" MODIFIED="1251487111451" TEXT="Only downside">
+<node CREATED="1251487111709" ID="Freemind_Link_1125217217" MODIFIED="1251487124407" TEXT="Checkpointing becomes more difficult if an app needs two gram(n)&apos;s."/>
+<node CREATED="1251487125213" ID="Freemind_Link_1693351642" MODIFIED="1251487156855" TEXT="Haven&apos;t needed two since combining CIV and ORG into one object."/>
+</node>
+</node>
 <node CREATED="1239210066312" ID="Freemind_Link_854754922" MODIFIED="1251396572166" TEXT="Slope effect thresholds">
 <node CREATED="1239210082792" ID="Freemind_Link_319482527" MODIFIED="1247762797557" TEXT="Threshold other than +/- 100"/>
 <node CREATED="1239210116617" ID="Freemind_Link_94705808" MODIFIED="1247762812375" TEXT="Effect does not contribute if level exceeds threshold"/>

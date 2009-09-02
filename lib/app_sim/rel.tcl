@@ -289,7 +289,7 @@ snit::type rel {
 # Updates existing relationships
 
 order define ::rel RELATIONSHIP:UPDATE {
-    title "Update Relationship"
+    title "Update Group Relationship"
     options -sendstates PREP -table gui_rel_nfg -tags nfg
 
     parm n    key   "Neighborhood"   -tags nbhood

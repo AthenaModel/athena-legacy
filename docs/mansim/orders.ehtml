@@ -71,25 +71,7 @@ These orders are now documented in the Athena help.<p>
 
 <<section "MAP:*">>
 
-The <code>MAP:*</code> orders relate to the map display, and are implemented
-by the <<xref map(sim)>> module.<p>
-
-<<deflist map>>
-
-<<defitem MAP:IMPORT {MAP:IMPORT}>>
-
-Imports a map image file into the scenario.  The parameters are as
-follows:<p>
-
-<<parmlist>>
-
-<<parm filename>> <b>Required.</b> The name of the image file to
-import and use as a map.<</parm>>
-
-<</parmlist>>
-
-<</deflist map>>
-
+These orders are now documented in the Athena help.<p>
 
 <<section "NBHOOD:*">>
 
@@ -105,49 +87,7 @@ These orders are now documented in the Athena help.<p>
 
 <<section "RELATIONSHIP:*">>
 
-The <code>RELATIONSHIP:*</code> orders are used to modify and
-manipulate the relationships between pairs of groups. Relationships
-exist at the <b>PLAYBOX</b> level between force and organization
-groups, and at the neighborhood level between neighborhood groups and
-other groups.<p>
-
-<<deflist rel>>
-
-<<defitem RELATIONSHIP:UPDATE {RELATIONSHIP:UPDATE}>>
-
-Updates the relationships between a pair of groups, in a neighborhood
-or at the playbox level.  Note that relationship entities come and go
-automatically as groups come and go.  The parameters are as follows:
-
-<<parmlist>>
-
-<<parm n>> <b>Required.</b>  A neighborhood name, or <b>PLAYBOX</b>.<</parm>>
-<<parm f>> <b>Required.</b>  A group name.<</parm>>
-<<parm g>> <b>Required.</b>  A group name.<</parm>>
-
-<<parm rel>>  The relationship between the two groups in the
-neighborhood, a decimal number between -1.0 and 1.0.  The relationship
-of a group with itself defaults to 1.0 and should generally not be
-changed.  Typical relationship values range from -0.5 to +0.8.<</parm>>
-
-<</parmlist>>
-
-<<defitem RELATIONSHIP:UPDATE:MULTI {RELATIONSHIP:UPDATE:MULTI}>>
-
-Updates neighborhood relationships for multiple pairs of
-groups.  The parameters are as follows:
-
-<<parmlist>>
-
-<<parm ids>> <b>Required.</b>  A list of <b>{n f g}</b> pairs, where
-<b>n</b> can be <b>PLAYBOX</b>.<</parm>>
-
-<<parm rel>> As for <<iref RELATIONSHIP:UPDATE>>.<</parm>>
-
-<</parmlist>>
-
-<</deflist rel>>
-
+These orders are now documented in the Athena help.<p>
 
 <<section "ROE:*">>
 
@@ -345,72 +285,7 @@ IDs.<</parm>>
 
 <<section "SAT:*">>
 
-The <code>SAT:*</code> orders are used to modify, and
-manipulate satisfaction curves.<p>
-
-<<deflist sat>>
-
-<<defitem SAT:UPDATE {SAT:UPDATE}>>
-
-Updates a satisfaction curve.  The parameters are as follows:<p>
-
-<<parmlist>>
-
-<<parm n>> <b>Required.</b> The curve's neighborhood ID.<</parm>>
-
-<<parm g>> <b>Required.</b> The curve's group ID.<</parm>>
-
-<<parm c>> <b>Required.</b> The curve's concern ID.<</parm>>
-
-<<parm sat0>>
-The initial value for this satisfaction curve, in either symbolic or
-numeric form; numeric values must be in the range -100.0 to +100.0:<p>
-
-<<::simlib::qsat html>>
-<</parm>>
-
-<<parm trend0>>
-The long-term trend for this satisfaction curve, in either symbolic or
-numeric form:<p>
-
-<<::simlib::qtrend html>>
-<</parm>>
-
-<<parm saliency>>
-The saliency of this concern to this group in this neighborhood, in
-either symbolic or numeric form; numeric values must be in the range
-0.0 to 1.0:<p>
-
-<<::simlib::qsaliency html>>
-<</parm>>
-
-<</parmlist>>
-
-
-<<defitem SAT:UPDATE:MULTI {SAT:UPDATE:MULTI}>>
-
-Updates multiple satisfaction curves.  The parameters are as
-follows:<p>
-
-<<parmlist>>
-
-<<parm ids>> <b>Required.</b>  A list of one or more satisfaction
-curve IDs.  A satisfaction curve ID is a Tcl list of IDs of the
-curve's neighborhood, group, and concern.  To update the AUT curve for
-group A in neighborhood N1 and group B in neighborhood N2,
-the value of <b>ids</b> would be as follows:
-
-<pre>    {N1 A AUT} {N2 B AUT}</pre>
-
-<</parm>>
-
-<<parm sat0>>     As for <<iref SAT:UPDATE>>. <</parm>>
-<<parm trend0>>   As for <<iref SAT:UPDATE>>. <</parm>>
-<<parm saliency>> As for <<iref SAT:UPDATE>>. <</parm>>
-
-<</parmlist>>
-
-<</deflist sat>>
+These orders are now documented in the Athena help.<p>
 
 <<section "SIM:*">>
 

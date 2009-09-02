@@ -29,10 +29,24 @@ page orders "Orders" {} {
     <<childlinks>>
 }
 
+# order name title text
+#
+# name     The order's name (but see below)
+# title    The order's title (e.g., menu item text)
+# text     The documentation of the order.
+#
+# Defines a help page for one order.  The order hierarchy is determined
+# automatically using the ":"'s in the order name.
+#
+# Sometimes a colon shouldn't add a new level to the order hierarchy,
+# e.g., orders FOO:UPDATE and FOO:UPDATE:MULTI are at the same level.
+# In this case, enter the latter as "FOO:UPDATE+MULTI".
+
 proc order {name title text} {
     set tokens [split $name :]
     set parent [join [lrange $tokens 0 end-1] :]:
-
+    set name [string map {+ :} $name]
+    
     set text "<<order.header>>\n\n$text"
     page $name $title $parent $text
 }
@@ -59,6 +73,12 @@ macro parm.longname {entity example} {
     $entity, e.g., "$example".  The long name must not be the
     same as the ID or long name of any existing
     neighborhood, group, etc.
+}
+
+macro parm.ids {entity} {
+    |<--
+    The IDs of two or more $entity entities.
+    The list of IDs isn't directly editable in the order dialog.
 }
 
 #-----------------------------------------------------------------------
@@ -1879,6 +1899,85 @@ order NBHOOD:RELATIONSHIP:UPDATE "Update Neighborhood Relationship" {
     presumes that there are no effects delays within a neighborhood 
     regardless of what the input data says.  This needs to be resolved.
 }
+
+#=======================================================================
+# Group Relationship Orders
+
+page RELATIONSHIP: "Group Relationship Orders" orders {
+    <<title>>
+
+    Groups can be friends, enemies, or neutrals, as determined by
+    their <i>relationship</i>, a number between -1.0 and 1.0.  
+    Relationships are established during <<cref using.prep>> and
+    are constant thereafter.<p>
+
+    Relationships with civilian groups exist at the neighborhood level; 
+    relationships between force and organization groups exist at the playbox 
+    level.  Athena creates the appropriate set of relationships as 
+    neighborhoods and groups are created.<p>
+
+    These orders are used to edit group relationships during
+    <<cref using.prep>>.
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order RELATIONSHIP:UPDATE "Update Group Relationship" {
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of a neighborhood, or <b>PLAYBOX</b>.
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  The name of a group.
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  The name of a group, possibly the same.
+    <</parm>>
+
+    <<parm rel "Relationship">>
+    <b>Optional.</b>  The relationship between the two groups in the
+    neighborhood, a decimal number between -1.0 and 1.0.  The relationship
+    of a group with itself defaults to 1.0 and should generally not be
+    changed.  Typical relationship values range from -0.5 to +0.8.  
+    A group always has a relationship of 1.0 with itself.
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order updates the relationship
+    of one group with another.  The combination <i>n</i>, <i>f</i>, <i>g</i> 
+    must identify an existing relationship; Athena creates the
+    appropriate set of relationships as groups and neighborhoods are
+    created.
+}
+
+
+#-----------------------------------------------------------------------
+
+order RELATIONSHIP:UPDATE+MULTI "Update Multiple Relationships" {
+    <<parmlist>>
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids relationship>>
+    <</parm>>
+
+    <<parm rel "Relationship">>
+    <b>Optional.</b>  The relationship between two groups in the
+    neighborhood, a decimal number between -1.0 and 1.0.  The relationship
+    of a group with itself defaults to 1.0 and should generally not be
+    changed.  Typical relationship values range from -0.5 to +0.8.  
+    A group always has a relationship of 1.0 with itself.
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order updates each of the
+    listed relationships.
+}
+
 
 
 #=======================================================================
