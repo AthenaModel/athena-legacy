@@ -77,8 +77,7 @@ macro parm.longname {entity example} {
 
 macro parm.ids {entity} {
     |<--
-    The IDs of two or more $entity entities.
-    The list of IDs isn't directly editable in the order dialog.
+    The IDs of two or more $entity entities, as selected in the GUI.
 }
 
 #-----------------------------------------------------------------------
@@ -291,6 +290,37 @@ order COOP:UPDATE "Update Initial Cooperation" {
     <b><<cref using.prep>> Only.</b>  This order updates the initial
     cooperation level of one group with another; this can only be done
     during the Scenario Preparation phase.<p>
+
+    (Use the <<cref MAD:>> to adjust or otherwise influence the 
+    current levels.)
+}
+
+#-----------------------------------------------------------------------
+
+order COOP:UPDATE+MULTI "Update Initial Cooperation (Multi)" {
+    <<parmlist>>
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids cooperation>><p>
+
+    Programmatically, each ID is a list {<i>n f g</i>} where <i>n</i>,
+    <i>f</i>, and <i>g</i> are defined as for the 
+    <<cref COOP:UPDATE>> order.
+    <</parm>>
+
+    <<parm coop0 "Cooperation">>
+    <b>Required.</b>  The initial cooperation level for the selected
+    curves.  Cooperation levels
+    run from 0.0 to 100.0, and are defined either numerically or using
+    the following rating scale:<p>
+
+    <<::simlib::qcooperation html>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order updates the initial
+    cooperation level for two or more cooperation curves, as selected 
+    in the GUI.<p>
 
     (Use the <<cref MAD:>> to adjust or otherwise influence the 
     current levels.)
@@ -689,6 +719,29 @@ order GROUP:CIVILIAN:UPDATE "Update Civilian Group" {
 }
 
 
+#-----------------------------------------------------------------------
+
+order GROUP:CIVILIAN:UPDATE+MULTI "Update Multiple Civilian Groups" {
+    <<parmlist>>
+    <<parm ids "Groups">>
+    <b>Required.</b>  <<parm.ids "civilian group">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Optional.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Optional.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of two or more civilian groups, as selected in the GUI.<p>
+}
+
+
 #=======================================================================
 # Neighborhood Group Orders
 
@@ -787,7 +840,7 @@ order GROUP:NBHOOD:DELETE "Delete Nbhood Group" {
 
 #-----------------------------------------------------------------------
 
-order GROUP:NBHOOD:UPDATE "Update Civilian Group" {
+order GROUP:NBHOOD:UPDATE "Update Nbhood Group" {
     <<parmlist>>
     <<parm n "Neighborhood">>
     <b>Required.</b>  <<NBHOOD.n>>
@@ -822,6 +875,46 @@ order GROUP:NBHOOD:UPDATE "Update Civilian Group" {
 
     <b><<cref using.prep>> Only.</b>  This order modifies the
     definition of an existing neighborhood group.<p>
+}
+
+
+#-----------------------------------------------------------------------
+
+order GROUP:NBHOOD:UPDATE+MULTI "Update Multiple Nbhood Groups" {
+    <<parmlist>>
+
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids "neighborhood group">><p>
+
+    Programmatically, each ID is a list {<i>n g</i>} where <i>n</i>,
+    and <i>g</i> are defined as for the 
+    <<cref GROUP:NBHOOD:UPDATE>> order.
+    <</parm>>
+
+    <<parm local_name "Local Name">>
+    <b>Optional.</b> <<GROUP:NBHOOD.local_name>>
+    <</parm>>
+
+    <<parm basepop "Base Population">>
+    <b>Optional.</b> <<GROUP:NBHOOD.basepop>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Optional.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm rollup_weight "Rollup Weight">>
+    <b>Optional.</b> <<GROUP.rollup_weight>>
+    <</parm>>
+
+    <<parm effects_factor "Effects Factor">>
+    <b>Optional.</b> <<GROUP.effects_factor>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of two or more neighborhood groups, as selected in the GUI.<p>
 }
 
 
@@ -985,10 +1078,52 @@ order GROUP:FORCE:UPDATE "Update Force Group" {
 }
 
 
+#-----------------------------------------------------------------------
+
+order GROUP:FORCE:UPDATE+MULTI "Update Multiple Force Groups" {
+    <<parmlist>>
+    <<parm ids "Groups">>
+    <b>Required.</b>  <<parm.ids "force group">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Optional.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Optional.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <<parm forcetype "Force Type">>
+    <b>Optional.</b> <<GROUP:FORCE.forcetype>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Optional.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm uniformed "Uniformed?">>
+    <b>Optional.</b>  <<GROUP:FORCE.uniformed>>
+    <</parm>>
+
+    <<parm local "Local Group?">>
+    <b>Optional.</b>  <<GROUP:FORCE.local>>
+    <</parm>>
+
+    <<parm coalition "Coalition Member?">>
+    <b>Optional.</b>  <<GROUP:FORCE.coalition>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of two or more force groups, as selected in the GUI.<p>
+}
+
+
 #=======================================================================
 # Organization Group Orders
 
-page GROUP:ORGANIZATION: "Organization Group Orders" orders {
+page GROUP:ORGANIZATION: "Organization Group Orders" GROUP: {
     Athena uses organization groups to model organizations that are
     active in the playbox and have a significant affect on civilian
     attitudes.  Such groups might include the Red Cross, Doctors Without
@@ -1109,6 +1244,44 @@ order GROUP:ORGANIZATION:UPDATE "Update Organization Group" {
 
     <b><<cref using.prep>> Only.</b>  This order modifies the
     definition of an existing organization group.<p>
+}
+
+#-----------------------------------------------------------------------
+
+order GROUP:ORGANIZATION:UPDATE+MULTI "Update Multiple Organization Groups" {
+    <<parmlist>>
+    <<parm ids "Groups">>
+    <b>Required.</b>  <<parm.ids "organization group">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Optional.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Optional.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <<parm orgtype "Organization Type">>
+    <b>Optional.</b> <<GROUP:ORGANIZATION.orgtype>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Optional.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm rollup_weight "Rollup Weight">>
+    <b>Optional.</b> <<GROUP.rollup_weight>>
+    <</parm>>
+
+    <<parm effects_factor "Effects Factor">>
+    <b>Optional.</b> <<GROUP.effects_factor>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of two or more organization groups, as selected in the GUI.<p>
 }
 
 #=======================================================================
@@ -1836,6 +2009,29 @@ order NBHOOD:UPDATE "Update Neighborhood" {
     the definition of an existing neighborhood.
 }
 
+#-----------------------------------------------------------------------
+
+order NBHOOD:UPDATE+MULTI "Update Multiple Neighborhoods" {
+    <<parmlist>>
+
+    <<parm ids "Neighborhoods">>
+    <b>Required.</b>  <<parm.ids neighborhood>>
+    <</parm>>
+
+    <<parm urbanization "Urbanization">>
+    <b>Optional.</b>  <<NBHOOD.urbanization>>
+    <</parm>>
+
+    <<parm vtygain "Volatility Gain">>
+    <b>Optional.</b>  <<NBHOOD.vtygain>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies
+    the definition of two or more neighborhoods, as selected in the GUI.
+}
+
 
 #=======================================================================
 # Neighborhood Orders
@@ -1893,6 +2089,50 @@ order NBHOOD:RELATIONSHIP:UPDATE "Update Neighborhood Relationship" {
 
     <b><<cref using.prep>> Only.</b>  This order modifies existing
     neighborhood relationships.<p>
+
+    <b>TBD:</b>  At present, Athena allows the user to enter non-zero
+    effects delays within a single neighborhood; however, GRAM
+    presumes that there are no effects delays within a neighborhood 
+    regardless of what the input data says.  This needs to be resolved.
+}
+
+#-------------------------------------------------------------------
+
+order NBHOOD:RELATIONSHIP:UPDATE+MULTI "Update Multiple Neighborhood Relationships" {
+    <<parmlist>>
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids "neighborhood relationship">>.<p>
+
+     Programmatically, each ID is a list {<i>m n</i>} where <i>m</i>
+    and <i>n</i> are defined as for the 
+    <<cref NBHOOD:RELATIONSHIP:UPDATE>> order.
+    <</parm>>
+
+    <<parm proximity "Proximity">>  
+    <b>Optional.</b> The proximity between the two neighborhoods from
+    <i>m</i>'s point of view:<p>
+
+    <<enumdoc ::simlib::eproximity>><p>
+
+    Every neighborhood has a proximity of <b>HERE</b> with itself;
+    this cannot be changed.  Two distinct neighborhoods can have a
+    proximity from <b>NEAR</b> to <b>REMOTE</b>.<p>
+
+    The attitude effects of events and situations in neighborhood <i>n</i>
+    diminish with distance, and vanish altogether in neighborhoods
+    <i>m</i> that consider <i>n</i> to be <b>REMOTE</b>.
+    <</parm>>
+
+    <<parm effects_delay "Effects Delay">> 
+    <b>Optional.</b> Decimal days.  The attitude effects of events and
+    situations in neighborhood <i>n</i> are felt in neighborhood
+    <i>m</i> only after this number of days.
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies two or more
+    neighborhood relationships, as selected in the GUI.<p>
 
     <b>TBD:</b>  At present, Athena allows the user to enter non-zero
     effects delays within a single neighborhood; however, GRAM
@@ -1961,7 +2201,11 @@ order RELATIONSHIP:UPDATE "Update Group Relationship" {
 order RELATIONSHIP:UPDATE+MULTI "Update Multiple Relationships" {
     <<parmlist>>
     <<parm ids "IDs">>
-    <b>Required.</b>  <<parm.ids relationship>>
+    <b>Required.</b>  <<parm.ids relationship>><p>
+
+    Programmatically, each ID is a list {<i>n f g</i>} where <i>n</i>,
+    <i>f</i>, and <i>g</i> are defined as for the 
+    <<cref RELATIONSHIP:UPDATE>> order.
     <</parm>>
 
     <<parm rel "Relationship">>
@@ -1974,8 +2218,8 @@ order RELATIONSHIP:UPDATE+MULTI "Update Multiple Relationships" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order updates each of the
-    listed relationships.
+    <b><<cref using.prep>> Only.</b>  This order updates two or more
+    relationships, as selected in the GUI.
 }
 
 
@@ -2052,6 +2296,56 @@ order SAT:UPDATE "Update Initial Satisfaction" {
     (Use the <<cref MAD:>> to adjust or otherwise influence the 
     current levels.)
 
+}
+
+
+#-----------------------------------------------------------------------
+
+order SAT:UPDATE+MULTI "Update Initial Satisfaction (Multi)" {
+    <<parmlist>>
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids satisfaction>><p>
+
+    Programmatically, each ID is a list {<i>n g c</i>} where <i>n</i>,
+    <i>g</i>, and <i>c</i> are defined as for the 
+    <<cref SAT:UPDATE>> order.
+    <</parm>>
+
+    <<parm sat0 "Sat at T0">>
+    <b>Optional.</b>  The initial satisfaction level of group <i>g</i>
+    with concern <i>c</i> in neighborhood <i>n</i>.  Satisfaction levels
+    run from -100.0 to 100.0, and are defined either numerically or using
+    the following rating scale:<p>
+
+    <<::simlib::qsat html>>
+    <</parm>>
+
+    <<parm trend0 "Trend">>
+    <b>Optional.</b>  The long-term trend for this satisfaction level,
+    a slope in points per day.  Trends should generally be 0.0 unless
+    there is a systematic reason why the level will trend positive
+    or negative.  Trends are defined either numerically or using
+    the following rating scale:<p>
+
+    <<::simlib::qtrend html>>
+    <</parm>>
+
+    <<parm saliency "Saliency">>
+    <b>Optional.</b>  The importance of concern <i>c</i> to the group.
+    Saliencies range from 0.0 to 1.0, and are defined either
+    numerically or using the following rating scale:<p>
+
+    <<::simlib::qsaliency html>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order updates two or more initial
+    satisfaction levels, as selected in the GUI; this can only be done
+    during the Scenario Preparation phase.<p>
+
+    (Use the <<cref MAD:>> to adjust or otherwise influence the 
+    current levels.)
 }
 
 #=======================================================================
