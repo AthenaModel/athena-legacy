@@ -11,6 +11,30 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.14, 2 September 2009</h3>
+
+The big ticket items in this build are the magic attitude adjustments
+and inputs, along with a number of bug fixes and a few small features.<p>
+
+This is the feature freeze build for Athena 1.1.<p>
+
+<ul>
+  <li> Bug 2221: athena_sim(1): Check order dialog validity when sim state changes
+  <li> Bug 2232: athena_sim(1): Magic Attitude Drivers (MADs)
+  <li> Bug 2233: athena_sim(1): Attitude Adjustments
+  <li> Bug 2237: bgerror: "specified time not in future" on undoing an ensit resolve
+  <li> Bug 2245: bgerror: no such situation when clearing an update ensit dialog
+  <li> Bug 2246: Athena Help Fixes
+  <li> Bug 2247: athena_sim(1): Some orders can only be scheduled
+  <li> Bug 2248: athena_sim(1): Schedule only valid orders
+  <li> Bug 2249: athena_sim(1): Magic Level and Slope Inputs
+  <li> Bug 2254: athena_sim(1): MADs have causes, factors
+  <li> Bug 2262: athena_sim(1): Save CLI scrollback buffer contents
+  <li> Bug 2263: athena_sim(1): Preference, size of CLI scrollback buffer
+  <li> Bug 2264: athena_sim(1): Executive command: "clear"
+  <li> Bug 2265: athena_sim(1): GRAM "dump" commands 
+</ul><p>
+
 <h3>Build 1.0.13, 10 August 2009</h3>
 
 This build contains a number of bug fixes, and the following new
