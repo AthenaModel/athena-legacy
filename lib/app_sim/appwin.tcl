@@ -211,7 +211,7 @@ snit::widget appwin {
         }
 
         gramt {
-            label  "GRAM"
+            label  "Attitudes"
             parent ""
             script ""
         }
