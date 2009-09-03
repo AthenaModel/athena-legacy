@@ -2082,18 +2082,16 @@ order NBHOOD:RELATIONSHIP:UPDATE "Update Neighborhood Relationship" {
     <<parm effects_delay "Effects Delay">> 
     <b>Optional.</b> Decimal days.  The attitude effects of events and
     situations in neighborhood <i>n</i> are felt in neighborhood
-    <i>m</i> only after this number of days.
+    <i>m</i> only after this number of days.<p>
+
+    Every neighborhood has a delay of 0.0 days with itself; this
+    cannot be changed.
     <</parm>>
 
     <</parmlist>>
 
     <b><<cref using.prep>> Only.</b>  This order modifies existing
     neighborhood relationships.<p>
-
-    <b>TBD:</b>  At present, Athena allows the user to enter non-zero
-    effects delays within a single neighborhood; however, GRAM
-    presumes that there are no effects delays within a neighborhood 
-    regardless of what the input data says.  This needs to be resolved.
 }
 
 #-------------------------------------------------------------------
@@ -2126,18 +2124,16 @@ order NBHOOD:RELATIONSHIP:UPDATE+MULTI "Update Multiple Neighborhood Relationshi
     <<parm effects_delay "Effects Delay">> 
     <b>Optional.</b> Decimal days.  The attitude effects of events and
     situations in neighborhood <i>n</i> are felt in neighborhood
-    <i>m</i> only after this number of days.
+    <i>m</i> only after this number of days.<p>
+
+    Every neighborhood has a delay of 0.0 days with itself; this
+    cannot be changed.
     <</parm>>
 
     <</parmlist>>
 
     <b><<cref using.prep>> Only.</b>  This order modifies two or more
     neighborhood relationships, as selected in the GUI.<p>
-
-    <b>TBD:</b>  At present, Athena allows the user to enter non-zero
-    effects delays within a single neighborhood; however, GRAM
-    presumes that there are no effects delays within a neighborhood 
-    regardless of what the input data says.  This needs to be resolved.
 }
 
 #=======================================================================

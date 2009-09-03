@@ -163,10 +163,6 @@
 <node CREATED="1241547225964" ID="Freemind_Link_1772608855" MODIFIED="1243546140842" TEXT="GRAM assumes effects_delay is 0 for HERE."/>
 <node CREATED="1243546142815" ID="Freemind_Link_1268107626" MODIFIED="1243546151992" TEXT="Require effects_delay to be 0.0 in Athena"/>
 </node>
-<node CREATED="1237477586106" ID="Freemind_Link_516563511" MODIFIED="1251396555078" TEXT="Require rel=1.0 when f=g">
-<icon BUILTIN="full-1"/>
-<node CREATED="1237477606906" ID="Freemind_Link_1462718131" MODIFIED="1243546199960" TEXT="Update the RELATIONSHIP:* orders and browser"/>
-</node>
 <node CREATED="1243546243278" ID="Freemind_Link_1855932461" MODIFIED="1243546308604" TEXT="&quot;local&quot; flag should be on CIV and ORG groups as well">
 <icon BUILTIN="help"/>
 </node>
