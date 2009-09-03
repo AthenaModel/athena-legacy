@@ -56,7 +56,7 @@ snit::widgetadaptor relbrowser {
 
         DynamicHelp::add $editbtn -text "Edit Selected Curve"
 
-        cond::orderIsValidMulti control $editbtn \
+        cond::orderIsValidCanUpdate control $editbtn \
             order   RELATIONSHIP:UPDATE          \
             browser $win
        
@@ -87,11 +87,35 @@ snit::widgetadaptor relbrowser {
         notifier forget $self
     }
 
+
     #-------------------------------------------------------------------
     # Public Methods
 
     delegate method * to hull
 
+
+    # canupdate
+    #
+    # Returns 1 if the current selection can be "updated" and 0 otherwise.
+    #
+    # The current selection can be updated if it is a single or multiple
+    # selection and none of the selected entries has f=g.
+
+    method canupdate {} {
+        # FIRST, there must be something selected
+        if {[llength [$self curselection]] > 0} {
+            foreach id [$self curselection] {
+                lassign $id n f g
+
+                if {$f eq $g} {
+                    return 0
+                }
+            }
+            return 1
+        } else {
+            return 0
+        }
+    }
 
     #-------------------------------------------------------------------
     # Private Methods
@@ -119,7 +143,7 @@ snit::widgetadaptor relbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidMulti update $editbtn
+        cond::orderIsValidCanUpdate update $editbtn
 
         # NEXT, if there's exactly one item selected, notify the
         # the app.
