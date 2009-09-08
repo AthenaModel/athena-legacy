@@ -75,7 +75,14 @@ snit::type ensit {
             # NEXT, if it's in the initial state, make it active.
             # As part of this, schedule related events.
             if {[$sit get state] eq "INITIAL"} {
+                # FIRST, set the state
                 $sit set state ACTIVE
+
+                # NEXT, set the start and change times to right now.
+                # TBD: This is a work-around, until we revise the
+                # order of events during a tick.
+                $sit set ts [simclock now]
+                $sit set tc [simclock now]
 
                 # NEXT, if it spawns, schedule the spawn
                 $sit ScheduleSpawn
@@ -706,9 +713,8 @@ snit::type ensitType {
         set spawnTicks [simclock fromDays $spawnTime]
 
         # NEXT, get the time at which the spawn should occur: spawnTicks
-        # after the ensit first begins to take effect, which is one tick
-        # after the situation is created.
-        let spawnTime {$binfo(ts) + $spawnTicks + 1}
+        # after the ensit first begins to take effect.
+        let spawnTime {$binfo(ts) + $spawnTicks}
 
         # NEXT, if this time has already passed, the ensit has
         # already spawned; don't reschedule it.
@@ -754,8 +760,7 @@ snit::type ensitType {
 
         # NEXT, get the time at which the resolution should occur:
         # rduration after the ensit first begins to take effect.  
-        # This is one tick after the situation is created.
-        let t {$binfo(ts) + $dinfo(rduration) + 1}
+        let t {$binfo(ts) + $dinfo(rduration)}
         eventq schedule ensitAutoResolve $t $binfo(s)
     }
 
