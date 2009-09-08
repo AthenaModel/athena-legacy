@@ -313,7 +313,8 @@ command "dump sat slope" {
 command "errtrace" {
     <<syntax>>
     Returns the stack trace associated with the last command which
-    returned an error. This command is a debugging aid, and has no
+    returned an error, and also saves it to the debugging log.
+    This command is a debugging aid, and has no
     effect on the execution of the program.
 }
 

@@ -296,6 +296,12 @@ snit::type executive {
     # returns the stack trace from the most recent evaluation error.
 
     typemethod errtrace {} {
+        if {$info(stackTrace) ne ""} {
+            log normal exec "errtrace:\n$info(stackTrace)"
+        } else {
+            log normal exec "errtrace: None"
+        }
+
         return $info(stackTrace)
     }
  
