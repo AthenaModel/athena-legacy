@@ -632,8 +632,8 @@ snit::type aam {
         }
 
         # NEXT, save ORG attrition for attitude assessment
-        if {$gtype eq "ORG"} {
-            lappend undo [$type SaveOrgAttrition $n $f $casualties]
+        if {$gtype eq "ORG"  && $actual > 0} {
+            lappend undo [$type SaveOrgAttrition $n $f $actual]
         }
 
         return [join $undo \n]
