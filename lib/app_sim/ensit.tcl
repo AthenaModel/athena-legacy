@@ -758,9 +758,14 @@ snit::type ensitType {
             return
         }
 
+        # NEXT, schedule the event.  First, get the resolution time in
+        # ticks.
+        set ticks [simclock fromDays $dinfo(rduration)]
+
+
         # NEXT, get the time at which the resolution should occur:
         # rduration after the ensit first begins to take effect.  
-        let t {$binfo(ts) + $dinfo(rduration)}
+        let t {$binfo(ts) + $ticks}
         eventq schedule ensitAutoResolve $t $binfo(s)
     }
 
