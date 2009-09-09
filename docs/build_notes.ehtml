@@ -11,6 +11,28 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.15, 9 September 2009</h3>
+
+This build contains some small cosmetic changes, a number of bug
+fixes, and additions to the on-line help.  The full set of changes
+is as follows:<p>
+
+<ul>
+  <li> Bug 2238: Ensit durations are 1 day (tick) longer than specified / expected
+  <li> Bug 2250: Rules Doc: Add details of Nominal Coverage factor and its effect
+  <li> Bug 2253: Log the output of 'errtrace'
+  <li> Bug 2267: athena_sim(1): Require rel.nfg=1.0 when f=g
+  <li> Bug 2268: athena_sim(1): require effects_delay=0 for m=n
+  <li> Bug 2269: athena_sim(1): GRAM tab should be Attitudes tab.
+  <li> Bug 2270: 'attrit_nf' table shows more casualties than actual for ORG groups
+  <li> Bug 2271: Athena Help: ROE, SIM, and UNIT orders
+  <li> Bug 2274: athena_sim(1): Ensit durations were treated as ticks
+  <li> Bug 2275: athena_sim(1): CIVCAS fires for 0 casualties
+  <li> Bug 2276: bgerror: expected floating-point number but got ""
+  <li> Bug 2277: Athena Help: Application Tabs (Part 1)
+  <li> Bug 2278: athena_sim(1): Rename Orders/History tab to Orders/Sent 
+</ul>
+
 <h3>Build 1.0.14, 2 September 2009</h3>
 
 The big ticket items in this build are the magic attitude adjustments
