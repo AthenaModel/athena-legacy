@@ -1,12 +1,12 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    orderhistorybrowser.tcl
+#    ordersentbrowser.tcl
 #
 # AUTHORS:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    orderhistorybrowser(sim) package: Order History browser.
+#    ordersentbrowser(sim) package: Order History browser.
 #
 #    This widget displays a formatted list of the orders that have
 #    already been executed.
@@ -18,7 +18,7 @@
 #-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widgetadaptor orderhistorybrowser {
+snit::widgetadaptor ordersentbrowser {
     #-------------------------------------------------------------------
     # Options
 
@@ -89,4 +89,5 @@ snit::widgetadaptor orderhistorybrowser {
         }
     }
 }
+
 

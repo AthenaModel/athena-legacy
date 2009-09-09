@@ -922,7 +922,7 @@ tab "Orders/Scheduled" {
 
 #-----------------------------------------------------------------------
 
-tab "Orders/History" {
+tab "Orders/Sent" {
     TBD
 }
 
