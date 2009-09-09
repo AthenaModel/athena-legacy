@@ -14,8 +14,19 @@
 #=======================================================================
 # Images
 
-image athena "Sculpture of the Goddess Athena" athena.png
-
+image athena          "Sculpture of the Goddess Athena" athena.png
+image button_a        "Button: A"                       button_a.png
+image button_axe      "Button: Axe"                     button_axe.png
+image button_check    "Button: Checkmark"               button_check.png
+image button_location "Button: Location Pointer"        button_location.png
+image button_man      "Button: Man"                     button_man.png
+image button_pencil   "Button: Pencil"                  button_pencil.png
+image button_plus     "Button: Plus"                    button_plus.png
+image button_totop    "Button: To Top"                  button_totop.png
+image button_tobottom "Button: To Bottom"               button_tobottom.png
+image button_x        "Button: X"                       button_x.png
+image filterbox       "Filter Box"                      filterbox.png
+image viewbox         "View Box"                        viewbox.png
 
 #=======================================================================
 # Macros
@@ -26,6 +37,15 @@ macro title {} {
     <font size=7>[pageinfo title]</font><p>
 }
 
+# seebelow anchor ?text?
+#
+# anchor     The href anchor
+# text       The link text; defaults to "below".
+#
+# Creates a link to an anchor on the same page.
+
+macro seebelow {anchor {text below}} {<a href="#$anchor">$text</a>}
+
 # cmdref args
 #
 # args    The full name of an executive command, e.g., "parm set".
@@ -35,6 +55,33 @@ macro title {} {
 macro cmdref {args} {
     set tag "cmd.[join $args .]"
 } {<b>[cref $tag $args]</b>}
+
+
+# menuref args
+#
+# args    The name of a menu or menu item
+#
+# Returns a cref-link to the help page.
+
+macro menuref {args} {
+    set replist [list " " "_"]
+    
+    set tag "menu/[string map $replist $args]"
+} {[cref $tag $args]}
+
+
+# tabref args
+#
+# args    The name of a tab or tab item
+#
+# Returns a cref-link to the help page.
+
+macro tabref {args} {
+    set replist [list " " "_"]
+    
+    set tag "tabs/[string map $replist $args]"
+} {[cref $tag "$args Tab"]}
+
 
 
 #-----------------------------------------------------------------------
@@ -133,6 +180,7 @@ page using.prep "Scenario Preparation" using {
 # The following sections are in separate files
 
 include menu.help
+include tabs.help
 include orders.help
 include reports.help
 include cmd.help

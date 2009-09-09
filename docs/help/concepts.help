@@ -37,6 +37,67 @@ page Causes "Causes" concepts {
     GRAM inputs.
 }
 
+#-------------------------------------------------------------------
+
+page Filter_Box "Filter Box" concepts {
+    <<title>>
+
+    <img src="filterbox"><p>
+
+    The various Athena data browsers all feature a filter box, which
+    is a control used to filter the contents of the browser.  For
+    example, to show only rows that contain the string "XYZ", type
+    "XYZ" into the filter box.  To clear the filter box (and thus stop
+    filtering the data), press the "circle-X" icon at the right-hand
+    end of the filter box.<p>
+
+    To modify the filter box's behavior, click on the "sieve" icon at
+    the left-hand of the filter box.  This pops up a menu with the
+    following choices:<p>
+
+    <<topiclist "Menu Item" "Description">>
+
+    <<topic "Exact">>
+    This item and the three that follow determine how the filter text
+    is used.<p>
+
+    Selects rows that match the filter text exactly; filters when the
+    user presses Enter. Choose this option if <b>Incremental</b> is
+    too slow.
+    <</topic>>
+
+    <<topic "Incremental">>
+    <b>Default.</b> Selects rows that match the filter text exactly;
+    filters as the user types the filter text.
+    <</topic>>
+
+    <<topic "Wildcard">>
+    Selects rows that match the filter text, using "*" as a wildcard
+    character; filters when the user presses Enter.
+    <</topic>>
+
+    <<topic "Regexp">>
+    Selects rows that match a regular expression; filters when the user
+    presses Enter.
+    <</topic>>
+
+    <<topic "Ignore Case">>
+    <b>Default.</b> If this item is selected, all matches ignore case.
+    Deselect this option for case-sensitive matching.
+    <</topic>>
+
+    <<topic "Include Matches">>
+    <b>Default.</b> If this item is selected, rows that match the filter
+    text will be displayed.
+    <</topic>>
+
+    <<topic "Exclude Matches">>
+    If this item is selected, rows that <b>do not</b>
+    match the filter text will be displayed.
+    <</topic>>
+
+    <</topiclist>>
+}
 
 #-------------------------------------------------------------------
 
@@ -111,6 +172,15 @@ page timespec "Time Specification String" concepts {
     <li> <b>+5</b>: Five ticks from now 
     <li> <b>5</b>: Day five.
     </ul>
+}
+
+#-----------------------------------------------------------------------
+
+page Volatility "Volatility" concepts {
+    <<title>>
+
+    TBD: Volatility of the neighborhood, with reference to
+    <<cref Neighborhood_Security>>.
 }
 
 #-----------------------------------------------------------------------

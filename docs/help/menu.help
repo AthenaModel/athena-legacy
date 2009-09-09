@@ -31,18 +31,6 @@ page menu "Application Menus" {} {
     <<childlinks>>
 }
 
-# menuref args
-#
-# args    The name of a menu or menu item
-#
-# Returns a cref-link to the help page.
-
-macro menuref {args} {
-    set replist [list " " "_"]
-    
-    set tag "menu/[string map $replist $args]"
-} {[cref $tag $args]}
-
 # menu name
 #
 # name     The name of the menu
