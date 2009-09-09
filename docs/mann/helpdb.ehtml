@@ -137,6 +137,12 @@ help page, or the empty list if the page does not exist.<p>
 
 <</deflist page>>
 
+<<defitem "search" {<i>obj</i> search <i>target</i>}>>
+
+Searches for <i>target</i>, which is an SQLite3 "full text search"
+search target, and returns the search results as an HTML text string,
+suitable for display in <<xref helpbrowser(n)>>.<p>
+
 <</deflist instance>>
 
 <<section "SEE ALSO">>

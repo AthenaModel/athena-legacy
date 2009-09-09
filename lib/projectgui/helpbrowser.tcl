@@ -95,6 +95,7 @@ snit::widget ::projectgui::helpbrowser {
     component backbtn   ;# Back one page button
     component fwdbtn    ;# Forward one page button
     component titlelab  ;# Title label
+    component searchbox ;# Search Box
 
     #-------------------------------------------------------------------
     # Options
@@ -168,11 +169,19 @@ snit::widget ::projectgui::helpbrowser {
         install titlelab using ttk::label $bar.title \
             -textvariable [myvar info(title)]
 
+        ttk::label $bar.searchlab \
+            -text "Search:"
 
-        pack $backbtn  -side left  -padx 1  -pady 1
-        pack $fwdbtn   -side left  -padx 1  -pady 1
-        pack $titlelab -side right -padx 1 -pady 1
+        install searchbox using commandentry $bar.searchbox \
+            -clearbtn  yes                                  \
+            -changecmd [mymethod DoSearch]
 
+
+        pack $backbtn       -side left  -padx 1 -pady 1
+        pack $fwdbtn        -side left  -padx 1 -pady 1
+        pack $titlelab      -side left  -padx 1 -pady 1
+        pack $searchbox     -side right -padx 1 -pady 1
+        pack $bar.searchlab -side right -padx 1 -pady 1
 
         # Separator
         frame $win.sep -height 2 -relief sunken -borderwidth 2
@@ -268,6 +277,16 @@ snit::widget ::projectgui::helpbrowser {
         $self showpage [$tree get]
     }
 
+    # DoSearch target
+    #
+    # target   Content of the search box
+    #
+    # Displays the search
+    
+    method DoSearch {target} {
+        $self showpage Search
+    }
+
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -324,7 +343,12 @@ snit::widget ::projectgui::helpbrowser {
 
     method ShowPageRef {page {frac 0.0}} {
         # FIRST, get the page data.
-        lassign [$hdb page title+text $page] info(title) text
+        if {$page eq "Search"} {
+            set info(title) Search
+            set text [$hdb search [$searchbox get]]
+        } else {
+            lassign [$hdb page title+text $page] info(title) text
+        }
 
         # NEXT, if not found get a pseudo page
         if {$info(title) eq ""} {

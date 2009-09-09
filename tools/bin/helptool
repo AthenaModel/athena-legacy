@@ -82,7 +82,10 @@ proc CompileInputFile {infile} {
         hdb eval {
             UPDATE helpdb_pages
             SET text = $newText
-            WHERE name=$pageInfo(name)
+            WHERE name=$pageInfo(name);
+
+            -- INSERT INTO helpdb_search(name,title,text)
+            -- VALUES($pageInfo(name),$pageInfo(title),$newText);
         }
     }
 }

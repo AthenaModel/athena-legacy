@@ -180,6 +180,58 @@ snit::type ::projectlib::helpdb {
             SELECT parent FROM helpdb_pages WHERE name=$name
         }]
     }
+
+    # search target
+    #
+    # target    A full-text search query string
+    #
+    # Returns HTML text of the search results.
+
+    method search {target} {
+        # FIRST, nothing gets you nothing.
+        if {$target eq ""} {
+            return "<b>No search target specified.</b>"
+        }
+
+        # NEXT, try to do the query.
+        set out ""
+
+        set code [catch {
+            set found [$db eval {
+                SELECT name, 
+                       title,
+                       snippet(helpdb_pages,"","") AS snippet
+                FROM helpdb_pages
+                WHERE text MATCH $target
+                ORDER BY title COLLATE NOCASE;
+            }]
+        } result]
+
+        if {$code} {
+            return "<b>Error in search term: \"<code>$target</code>\"</b>"
+        }
+
+        if {[llength $found] == 0} {
+            return "<b>No pages match '$target'.</b>"
+        }
+
+        set out "<b>Search results for '$target':</b><p>\n<dl>\n"
+
+        foreach {name title snippet} $found {
+            # FIRST, remove all HTML from the snippet
+            regsub -all -- {<[^>]+>} $snippet "" snippet
+            regsub -all -- {^[^>]+>} $snippet "" snippet
+            regsub -all -- {<[^>]+$} $snippet "" snippet
+
+            # NEXT, format the entry.
+            append out "<dt><a href=\"$name\">$title</a></dt>\n"
+            append out "<dd>$snippet<p></dd>\n\n"
+        }
+
+        append out "</dl>\n"
+
+        return $out
+    }
 }
 
 

@@ -16,23 +16,22 @@ PRAGMA user_version=1;
 ------------------------------------------------------------------------
 -- Help Pages
 
-CREATE TABLE helpdb_pages (
+CREATE VIRTUAL TABLE helpdb_pages USING fts3(
     -- Name of the page.  This is the name used in HREFs.
     -- It should contain no whitespace.
-    name   TEXT PRIMARY KEY,
+    name,
 
     -- Page title: This is what is displayed in the Help Tree and
     -- in the browser.
-    title  TEXT,
+    title,
 
     -- Name of parent page, or ''
-    parent TEXT,
+    parent,
 
     -- The HTML text of the page.
-    text   TEXT
+    text
 );
 
-CREATE INDEX helpdb_pages_parent ON helpdb_pages(parent);
 
 ------------------------------------------------------------------------
 -- Images
