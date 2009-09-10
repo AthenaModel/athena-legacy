@@ -21,6 +21,9 @@ image button_check    "Button: Checkmark"               button_check.png
 image button_location "Button: Location Pointer"        button_location.png
 image button_man      "Button: Man"                     button_man.png
 image button_pencil   "Button: Pencil"                  button_pencil.png
+image button_pencil0  "Button: Pencil 0"                button_pencil0.png
+image button_pencils  "Button: Pencil S"                button_pencils.png
+image button_pencila  "Button: Pencil A"                button_pencila.png
 image button_plus     "Button: Plus"                    button_plus.png
 image button_totop    "Button: To Top"                  button_totop.png
 image button_tobottom "Button: To Bottom"               button_tobottom.png

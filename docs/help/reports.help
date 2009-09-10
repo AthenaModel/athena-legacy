@@ -67,7 +67,7 @@ page REPORT:DRIVER "Attitude Driver Report" reports {
     ignored.<p>
 
     Note that this order cannot be sent while Athena is in the
-    <<cref "Scenario Preparation">> state, as GRAM has not yet been
+    <<cref using.prep>> state, as GRAM has not yet been
     initialized and so no data is available.<p>
 
     The following information is listed for each driver:<p>

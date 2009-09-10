@@ -184,7 +184,7 @@ tab "Units" {
 
 tab "Neighborhoods" {
     This tab collects data about the neighborhoods in the playbox.  It
-    has the following subtabs.
+    has the following subtabs.<p>
 
     <<childlinks>>
 }
@@ -463,27 +463,27 @@ tab "Neighborhoods/Activity" {
     affected by the activity.
     <</topic>>
 
-    <<topic SecFlag>><b>YES</b> if the unit has has sufficient
-    security to perform the activity, and <b>NO</b>; the required
+    <<topic SecFlag>><b>YES</b> if the unit has sufficient
+    security to perform the activity, and <b>NO</b> otherwise; the required
     security level depends on the activity.
     <</topic>>
 
-    <<topic "NomPers">>Nominal personnel. the number of the group's
+    <<topic "NomPers">>Nominal personnel: The number of the group's
     personnel assigned to this activity in this neighborhood.
     <</topic>>
 
-    <<topic "ActPers">>Actual personnel. the actual number of the
+    <<topic "ActPers">>Actual personnel: The actual number of the
     group's personnel actually performing the activity at any given
     time, given the shift schedule for the activity.
     <</topic>>
 
-    <<topic "EffPers">>Effective personnel. the number of personnel
+    <<topic "EffPers">>Effective personnel: The number of personnel
     who can effectively perform the activity at any given time, given
     security and (in theory) other factors.  The coverage is based on
     this number.
     <</topic>>
 
-    <<topic "SitType">>Situation type. If the activity has a coverage
+    <<topic "SitType">>Situation type: If the activity has a coverage
     greater than 0.0 it will engender an activity situation of this
     type.  See <<tabref Neighborhoods/ActSits>>.
     <</topic>>
@@ -536,7 +536,8 @@ tab "Neighborhoods/ActSits" {
     <b>INACTIVE</b> situation has previously been affecting attitudes,
     and might do so again; it currently cannot, probably because of
     security concerns.  A situation is <b>ENDED</b> when there are no
-    longer any units attempting to perform it in the neighborhood.<p>
+    longer any units attempting to perform the related activity in the
+    neighborhood.<p>
 
     Note that a new situation is always <b>ACTIVE</b>; no situation
     will be created until the activity begins to affect attitudes.
@@ -663,7 +664,7 @@ tab "Neighborhoods/EnSits" {
     <</topic>>
 
     <<topic "Resolve At">>The time at which the situation should be
-    automatically resolved.  Note that the analyst may resolved the 
+    automatically resolved.  Note that the analyst may resolve the 
     situation manually prior to that time.
     <</topic>>
 
@@ -729,7 +730,8 @@ tab "Neighborhoods/EnSits" {
 # Groups Tab
 
 tab "Groups" {
-    TBD
+    This tab collects data about the various groups in the playbox.
+    It has the following subtabs.<p>
 
     <<childlinks>>
 }
@@ -737,31 +739,407 @@ tab "Groups" {
 #-----------------------------------------------------------------------
 
 tab "Groups/CivGroups" {
-    TBD
+    This tab shows basic data about each top-level
+    <<cref GROUP:CIVILIAN: "civilian group">>, as entered
+    during <<cref using.prep>>.  Note that the top-level civilian
+    groups represent broad categories to which the neighborhood groups
+    belong; most civilian group data is at the 
+    <<cref GROUP:NBHOOD: "neighborhood group">> level.
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic ID>>The group's ID<</topic>>
+
+    <<topic "Long Name">>The human-readable name for the group.<</topic>>
+    
+    <<topic Color>>The color used for the group's units in the map
+    display, represented as a 48-bit hexadecimal color value,
+    "#<i>rrrrggggbbbb</i>".  Fortunately, the actual color is also
+    displayed.
+    <</topic>>
+
+    <<topic "Unit Shape">> Units can have three shapes on the
+    <<tabref Map>>: <b>FRIEND</b>
+    units are rectangles, <b>NEUTRAL</b> units are squares, and
+    <b>ENEMY</b> units are diamonds.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_plus">}>>
+    Pops up the <<cref GROUP:CIVILIAN:CREATE>> dialog.
+    <</topic>>
+
+    <<topic {<img src="button_pencil">}>>
+    If one or more rows are selected, pops up the 
+    <<cref GROUP:CIVILIAN:UPDATE>> or 
+    <<cref GROUP:CIVILIAN:UPDATE:MULTI>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic {<img src="button_x">}>>
+    If a single row is selected, deletes it using the
+    <<cref GROUP:CIVILIAN:DELETE>> order.
+    <</topic>>
+
+    <<topic {<img src="filterbox">}>>
+    The filter box filters the contents of the browser.  See
+    <<cref "Filter_Box">> for more details.
+    <</topic>>
+
+    <<topic "Column Headers">>
+    Click on a column header to sort the column in ascending or
+    descending order.
+    <</topic>>
+
+    <</topiclist>>
 }
 
 #-----------------------------------------------------------------------
 
 tab "Groups/NbGroups" {
-    TBD
+    This tab shows basic data about the civilian groups resident in
+    each neighborhood--the 
+    <<cref GROUP:NBHOOD: "neighborhood groups">>, 
+    as entered during <<cref using.prep>>.  Each such group is related
+    to a top-level <<cref GROUP:CIVILIAN: "civilian group">>.
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Nbhood">>The neighborhood in which the group resides.<</topic>>
+
+    <<topic "CivGroup">>The top-level civilian group.<</topic>>
+    
+    <<topic "Local Name">>The local name for the group in the
+    neighborhood, e.g., a tribal name.
+    <</topic>>
+
+    <<topic "BasePop">> Base Population: the population of the group
+    in this neighborhood at time 0, as entered during
+    <<cref using.prep>>.
+    <</topic>>
+
+    <<topic "CurrPop">> Current Population: the population of the group
+    at the current time, taking into account attrition and
+    displacement of population to other neighborhoods.  See also
+    the <<tabref Demog>>.
+    <</topic>>
+
+    <<topic "Mood at T0">>The composite satisfaction, or <i>mood</i>, of
+    the group, <b>as of time 0</b>.
+    This is computed when Athena leaves <<cref using.prep>>, and will
+    be 0.0 until then.
+    <</topic>>
+    
+    <<topic "Mood Now">>The composite satisfaction, or <i>mood</i>, of
+    the group, <b>as of the current time</b>.
+    This is computed when Athena leaves <<cref using.prep>>, and will
+    be 0.0 until then.
+    <</topic>>
+
+    <<topic "Demeanor">>The demeanor of the group, as represented by
+    the following enumeration:<p>
+
+    <<enumdoc ::projectlib::edemeanor>>
+    <</topic>>
+    
+    <<topic "RollupWeight">> A GRAM input used when computing
+    composite satisfaction across multiple groups.  If a particular
+    group's satisfaction ways more heavily than others, due to
+    population differences or social position, this weight can be used
+    to make it so.  Defaults to 1.0.
+    <</topic>>
+
+    <<topic "EffectsFactor">> A GRAM input used when computing
+    indirect effects on other groups in other neighborhoods of an
+    event or situation that affected this group.  If this group is
+    particularly important or unimportant to other groups, this multiplier
+    can be used to reflect this.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_plus">}>>
+    Pops up the <<cref GROUP:NBHOOD:CREATE>> dialog.
+    <</topic>>
+
+    <<topic {<img src="button_pencil">}>>
+    If one or more rows are selected, pops up the 
+    <<cref GROUP:NBHOOD:UPDATE>> or 
+    <<cref GROUP:NBHOOD:UPDATE:MULTI>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic {<img src="button_x">}>>
+    If a single row is selected, deletes it using the
+    <<cref GROUP:NBHOOD:DELETE>> order.
+    <</topic>>
+
+    <<topic {<img src="filterbox">}>>
+    The filter box filters the contents of the browser.  See
+    <<cref "Filter_Box">> for more details.
+    <</topic>>
+
+    <<topic "Column Headers">>
+    Click on a column header to sort the column in ascending or
+    descending order.
+    <</topic>>
+
+    <</topiclist>>
 }
 
 #-----------------------------------------------------------------------
 
 tab "Groups/FrcGroups" {
-    TBD
+    This tab shows basic data about the 
+    <<cref GROUP:FORCE: "force groups">> that are active
+    in the playbox.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic ID>>The group's ID<</topic>>
+
+    <<topic "Long Name">>The human-readable name for the group.<</topic>>
+    
+    <<topic Color>>The color used for the group's units in the map
+    display, represented as a 48-bit hexadecimal color value,
+    "#<i>rrrrggggbbbb</i>".  Fortunately, the actual color is also
+    displayed.
+    <</topic>>
+
+    <<topic "Unit Shape">> Units can have three shapes on the
+    <<tabref Map>>: <b>FRIEND</b>
+    units are rectangles, <b>NEUTRAL</b> units are squares, and
+    <b>ENEMY</b> units are diamonds.
+    <</topic>>
+
+    <<topic "Force Type">> The force type of this group:<p>
+
+    <<enumdoc ::projectlib::eforcetype>>
+    <</topic>>
+
+    <<topic "Demeanor">>The demeanor of the group, as represented by
+    the following enumeration:<p>
+
+    <<enumdoc ::projectlib::edemeanor>>
+    <</topic>>
+    
+    <<topic "Uniformed?">> <b>YES</b> if members of the group wear
+    uniforms, and <b>NO</b> if they do not, i.e., if they hide among
+    the general population.
+    <</topic>>
+
+    <<topic "Local?">> <b>YES</b> if the group is local to the
+    playbox, and <b>NO</b> otherwise.
+    <</topic>>
+
+    <<topic "Coalition?">> <b>YES</b> if the group is a member of a
+    US-led coalition, and <b>NO</b> otherwise.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_plus">}>>
+    Pops up the <<cref GROUP:FORCE:CREATE>> dialog.
+    <</topic>>
+
+    <<topic {<img src="button_pencil">}>>
+    If one or more rows are selected, pops up the 
+    <<cref GROUP:FORCE:UPDATE>> or 
+    <<cref GROUP:FORCE:UPDATE:MULTI>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic {<img src="button_x">}>>
+    If a single row is selected, deletes it using the
+    <<cref GROUP:FORCE:DELETE>> order.
+    <</topic>>
+
+    <<topic {<img src="filterbox">}>>
+    The filter box filters the contents of the browser.  See
+    <<cref "Filter_Box">> for more details.
+    <</topic>>
+
+    <<topic "Column Headers">>
+    Click on a column header to sort the column in ascending or
+    descending order.
+    <</topic>>
+
+    <</topiclist>>
 }
 
 #-----------------------------------------------------------------------
 
 tab "Groups/OrgGroups" {
-    TBD
+    This tab shows basic data about the 
+    <<cref GROUP:ORGANIZATION: "organization groups">> that are active
+    in the playbox.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic ID>>The group's ID<</topic>>
+
+    <<topic "Long Name">>The human-readable name for the group.<</topic>>
+    
+    <<topic Color>>The color used for the group's units in the map
+    display, represented as a 48-bit hexadecimal color value,
+    "#<i>rrrrggggbbbb</i>".  Fortunately, the actual color is also
+    displayed.
+    <</topic>>
+
+    <<topic "Unit Shape">> Units can have three shapes on the
+    <<tabref Map>>: <b>FRIEND</b>
+    units are rectangles, <b>NEUTRAL</b> units are squares, and
+    <b>ENEMY</b> units are diamonds.
+    <</topic>>
+
+    <<topic "Org Type">> The type of organization:<p>
+
+    <<enumdoc ::projectlib::eorgtype>>
+    <</topic>>
+
+    <<topic "Demeanor">>The demeanor of the group, as represented by
+    the following enumeration:<p>
+
+    <<enumdoc ::projectlib::edemeanor>>
+    <</topic>>
+    
+    <<topic "RollupWeight">> A GRAM input used when computing
+    composite satisfaction across multiple groups.  If a particular
+    group's satisfaction ways more heavily than others, due to
+    population differences or social position, this weight can be used
+    to make it so.  Defaults to 1.0.
+    <</topic>>
+
+    <<topic "EffectsFactor">> A GRAM input used when computing
+    indirect effects on other groups in other neighborhoods of an
+    event or situation that affected this group.  If this group is
+    particularly important or unimportant to other groups, this multiplier
+    can be used to reflect this.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_plus">}>>
+    Pops up the <<cref GROUP:ORGANIZATION:CREATE>> dialog.
+    <</topic>>
+
+    <<topic {<img src="button_pencil">}>>
+    If one or more rows are selected, pops up the 
+    <<cref GROUP:ORGANIZATION:UPDATE>> or 
+    <<cref GROUP:ORGANIZATION:UPDATE:MULTI>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic {<img src="button_x">}>>
+    If a single row is selected, deletes it using the
+    <<cref GROUP:ORGANIZATION:DELETE>> order.
+    <</topic>>
+
+    <<topic {<img src="filterbox">}>>
+    The filter box filters the contents of the browser.  See
+    <<cref "Filter_Box">> for more details.
+    <</topic>>
+
+    <<topic "Column Headers">>
+    Click on a column header to sort the column in ascending or
+    descending order.
+    <</topic>>
+
+    <</topiclist>>
 }
 
 #-----------------------------------------------------------------------
 
 tab "Groups/Relationships" {
-    TBD
+    This tab shows the relationship between the various pairs of
+    groups in the playbox.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Nbhood">>The neighborhood in which the groups are
+    located, or <b>PLAYBOX</b>.  All relationships with civilian
+    groups are tracked at the neighborhood level.  Relationships
+    between force and organization groups are tracked at the playbox
+    level.
+    <</topic>>
+
+    <<topic "Of Group F">>A group ID; this is the relationship of this
+    group with another group, from this group's point of view.<</topic>>
+    
+    <<topic "F Type">>The group type of group F:<p>
+
+    <<enumdoc ::simlib::egrouptype>>
+    <</topic>>
+
+    <<topic "With Group G">>Another group ID.<</topic>>
+    
+    <<topic "G Type">>The group type of group G:<p>
+
+    <<enumdoc ::simlib::egrouptype>>
+    <</topic>>
+
+    <<topic "Relationship">> The relationship between group F and
+    group G from F's point of view.  The relationship of a group with
+    itself is always 1.0; otherwise, it is a number drawn from the
+    following scale:<p>
+
+    <<::simlib::qrel html>>
+
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_pencil">}>>
+    If one or more rows are selected, pops up the 
+    <<cref RELATIONSHIP:UPDATE>> or 
+    <<cref RELATIONSHIP:UPDATE:MULTI>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic {<img src="filterbox">}>>
+    The filter box filters the contents of the browser.  See
+    <<cref "Filter_Box">> for more details.
+    <</topic>>
+
+    <<topic "Column Headers">>
+    Click on a column header to sort the column in ascending or
+    descending order.
+    <</topic>>
+
+    <</topiclist>>
 }
 
 
@@ -769,7 +1147,19 @@ tab "Groups/Relationships" {
 # ROE Tab
 
 tab "ROE" {
-    TBD
+    <<cref GROUP:FORCE: "Force groups">> will go into combat with each
+    other in a neighborhood based on the conditions in the
+    neighborhood and on their Rules of Engagement (ROEs).  (See the
+    <i>Athena Analyst's Guide</i> for full details on Athena's combat
+    and attrition model.)<p>
+
+    In Athena, a force group may be uniformed or non-uniformed; and
+    on this depends the kind of tactics that might be used by the
+    group.  In this version of Athena it is assumed that uniformed
+    force groups are primarily in conflict with non-uniformed force
+    groups, and <i>vice versa</i>.<p>
+
+    The subtabs of this tab list the ROEs of the various groups:<p>
 
     <<childlinks>>
 }
@@ -777,24 +1167,240 @@ tab "ROE" {
 #-----------------------------------------------------------------------
 
 tab "ROE/Attack (Uniformed)" {
-    TBD
+    A uniformed force group will attack a non-uniformed force group in
+    a particular neighborhood only if it has been given an ROE that
+    allows it do so. (Note: the group might be allowed to attack but
+    still be unable to do so for other reasons.)  By default, no group
+    will attack any other group.<p>
+
+    To enable a uniformed force group to attack a particular
+    non-uniformed force group in a neighborhood, create an Attacking
+    ROE with the ROE value set to <b>ATTACK</b>.  To prevent it from
+    attacking, set the ROE value to <b>DO_NOT_ATTACK</b>, or delete
+    the ROE altogether.<p>
+
+    The browser controls are described <<seebelow controls>>; the data
+    fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Nbhood">>The neighborhood in which the uniformed group
+    will try to attack.
+    <</topic>>
+
+    <<topic "Attacker">>The name of the attacking group<</topic>>
+    
+    <<topic "Attacked">>The name of the non-uniformed force group
+    being attacked.
+    <</topic>>
+
+    <<topic "ROE">>The ROE proper.<p>
+
+    If the ROE is <b>ATTACK</b> then
+    the attacker will attempt to hunt down and kill non-uniformed
+    cells belonging to the attacked group.<p>
+
+    If the ROE is <b>DO_NOT_ATTACK</b>, the attacker will never
+    attack.
+    <</topic>>
+    
+    <<topic "Coop. Limit">>Cooperation limit:  The cooperation of the
+    neighborhood with the attacking group must be at least this value,
+    or the attacker will not attempt to attack.  The value is a
+    symbol or real number from the following range:<p>
+
+    <<::simlib::qcooperation html>>
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_plus">}>>
+    Pops up the <<cref ROE:ATTACK:UNIFORMED:CREATE>> dialog.
+    <</topic>>
+
+    <<topic {<img src="button_pencil">}>>
+    If one or more rows are selected, pops up the 
+    <<cref ROE:ATTACK:UNIFORMED:UPDATE>> or 
+    <<cref ROE:ATTACK:UNIFORMED:UPDATE:MULTI>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic {<img src="button_x">}>>
+    If a single row is selected, deletes it using the
+    <<cref ROE:ATTACK:DELETE>> order.
+    <</topic>>
+
+    <<topic {<img src="filterbox">}>>
+    The filter box filters the contents of the browser.  See
+    <<cref "Filter_Box">> for more details.
+    <</topic>>
+
+    <<topic "Column Headers">>
+    Click on a column header to sort the column in ascending or
+    descending order.
+    <</topic>>
+
+    <</topiclist>>
 }
 
 #-----------------------------------------------------------------------
 
 tab "ROE/Attack (Non-Uniformed)" {
-    TBD<b>YES</b> if the unit's activity is affecting
-    the local population, and <b>NO</b> if not.  There are many
-    reasons why an activity might not be effective; see the Athena
-    Rules Document and the Athena Analyst's Guide for details.  Note:
-    this field is updated at each time advance; thus, changes to the
-    unit's activity will not be reflected until then.
+    A non-uniformed force group will attack a uniformed force group in
+    a particular neighborhood only if it has been given an ROE that
+    allows it do so. (Note: the group might be allowed to attack but
+    still be unable to do so for other reasons.)  By default, no group
+    will attack any other group.<p>
+
+    To enable a non-uniformed force group to attack a particular
+    uniformed force group in a neighborhood, create an Attacking
+    ROE with the ROE value set to <b>HIT_AND_RUN</b> or
+    <b>STAND_AND_FIGHT</b>.  To prevent it from 
+    attacking, set the ROE value to <b>DO_NOT_ATTACK</b>, or delete
+    the ROE altogether.<p>
+
+    The browser controls are described <<seebelow controls>>; the data
+    fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Nbhood">>The neighborhood in which the non-uniformed group
+    will try to attack.
+    <</topic>>
+
+    <<topic "Attacker">>The name of the attacking group<</topic>>
+    
+    <<topic "Attacked">>The name of the uniformed force group
+    being attacked.
+    <</topic>>
+
+    <<topic "ROE">>The ROE proper.<p>
+
+    If the ROE is <b>HIT_AND_RUN</b> then
+    the attacker will attempt to nibble away at the uniformed group's
+    personnel while taking minimal casualties to itself.<p>
+
+    If the ROE is <b>STAND_AND_FIGHT</b> then
+    the attacker will expend its personnel in an attempt to kill as
+    many of the uniformed group's personnel as possible.<p>
+
+    If the ROE is <b>DO_NOT_ATTACK</b>, the attacker will never
+    attack.
+    <</topic>>
+    
+    <<topic "Coop. Limit">>Cooperation limit:  The cooperation of the
+    neighborhood with the attacking group must be at least this value,
+    or the attacker will not attempt to attack.  The value is a
+    symbol or real number from the following range:<p>
+
+    <<::simlib::qcooperation html>>
+    <</topic>>
+
+    <<topic "Attacks/Day">>The rate at which the non-uniformed group
+    would prefer to carry out attacks, in attacks per day.  Note the
+    actual rate depends on a number of additional factors.
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_plus">}>>
+    Pops up the <<cref ROE:ATTACK:NONUNIFORMED:CREATE>> dialog.
+    <</topic>>
+
+    <<topic {<img src="button_pencil">}>>
+    If one or more rows are selected, pops up the 
+    <<cref ROE:ATTACK:NONUNIFORMED:UPDATE>> or 
+    <<cref ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic {<img src="button_x">}>>
+    If a single row is selected, deletes it using the
+    <<cref ROE:ATTACK:DELETE>> order.
+    <</topic>>
+
+    <<topic {<img src="filterbox">}>>
+    The filter box filters the contents of the browser.  See
+    <<cref "Filter_Box">> for more details.
+    <</topic>>
+
+    <<topic "Column Headers">>
+    Click on a column header to sort the column in ascending or
+    descending order.
+    <</topic>>
+
+    <</topiclist>>
 }
 
 #-----------------------------------------------------------------------
 
 tab "ROE/Defend" {
-    TBD
+    A uniformed force group's response to being attacked is determined
+    by its Defending ROE.  The choice of ROE affects the number of
+    casualties to both the attacking group and civilian bystanders.<p>
+
+    The browser controls are described <<seebelow controls>>; the data
+    fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Nbhood">>The neighborhood in which the uniformed group
+    will be defending.
+    <</topic>>
+
+    <<topic "Group">>The name of the defending uniformed group<</topic>>
+    
+    <<topic "ROE">>The ROE proper.<p>
+
+    If the ROE is <b>HOLD_FIRE</b> then
+    the group will never fire back at an attacker; no casualties will
+    be inflicted upon the attack, and there will be no civilian
+    collateral damage.<p>
+
+    If the ROE is <b>FIRE_BACK_IF_PRESSED</b>, the group will fire
+    back only if the attacker stands and fights.  In that case the
+    attacker will take casualties, and there will be civilian
+    collateral damage.<p>
+
+    If the ROE is <b>FIRE_BACK_IMMEDIATELY</b>, the group will always fire
+    back at the attacker.  The attacker will take casualties, and
+    there will be civilian collateral damage.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_pencil">}>>
+    If one or more rows are selected, pops up the 
+    <<cref ROE:DEFEND:UPDATE>> or 
+    <<cref ROE:DEFEND:UPDATE:MULTI>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic {<img src="filterbox">}>>
+    The filter box filters the contents of the browser.  See
+    <<cref "Filter_Box">> for more details.
+    <</topic>>
+
+    <<topic "Column Headers">>
+    Click on a column header to sort the column in ascending or
+    descending order.
+    <</topic>>
+
+    <</topiclist>>
 }
 
 
@@ -804,8 +1410,7 @@ tab "ROE/Defend" {
 tab "Demog" {
     The Demog tab displays the current demographics of the playbox.
     The browser controls are described 
-    <<cref tabs/Units\#controls below>>; 
-    the data fields are as follows:<p>
+    <<seebelow controls>>; the data fields are as follows:<p>
 
     <<topiclist Column Description>>
 
@@ -875,7 +1480,8 @@ tab "Demog" {
 # Attitudes
 
 tab "Attitudes" {
-    TBD
+    The subtabs of the Attitudes tab display various data related to the 
+    GRAM attitude model.  The full set of subtabs is as follows:<p>
 
     <<childlinks>>
 }
@@ -883,25 +1489,274 @@ tab "Attitudes" {
 #-----------------------------------------------------------------------
 
 tab "Attitudes/Satisfaction" {
-    TBD
+    This tab displays the full set of satisfaction curves for all
+    civilian and organization groups in all neighborhoods.    
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Nbhood>>A neighborhood name.<</topic>>
+
+    <<topic Group>>The name of an organization group, or of
+    a civilian group that's resident in
+    the neighborhood.<</topic>>
+    
+    <<topic "Concern">>A concern of the specified group, from
+    the following enumeration.  Note that civilian and organization
+    groups have different subsets of these concerns.<p>
+
+    <<enumdoc ::projectlib::econcern>>
+    <</topic>>
+
+    <<topic "Sat at T0">>The initial satisfaction value for this
+    curve, as set during <<cref using.prep>>.  It is a real number
+    taken from the following scale:<p>
+
+    <<::simlib::qsat html>>
+    <</topic>>
+    
+    <<topic "Sat Now">>The current satisfaction value for this curve.
+    <</topic>>
+
+    <<topic Trend>>The long-term trend for this curve, specified as a
+    slope in nominal satisfaction points per day.
+    <</topic>>
+
+    <<topic Saliency>>The importance of this concern to this group in
+    this neighborhood, a real number from the following scale:<p>
+
+    <<::simlib::qsaliency html>>
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_pencil0">}>>
+    If one or more rows are selected, pops up the 
+    <<cref SAT:UPDATE>> or <<cref SAT:UPDATE:MULTI>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic {<img src="button_pencils">}>>
+    If a single row is selected, pops up the 
+    <<cref MAD:SAT:SET>> dialog for the selected curve.
+    <</topic>>
+
+    <<topic {<img src="button_pencila">}>>
+    If a single row is selected, pops up the 
+    <<cref MAD:SAT:ADJUST>> dialog for the selected curve.
+    <</topic>>
+
+    <<topic {<img src="filterbox">}>>
+    The filter box filters the contents of the browser.  See
+    <<cref "Filter_Box">> for more details.
+    <</topic>>
+
+    <<topic "Column Headers">>
+    Click on a column header to sort the column in ascending or
+    descending order.
+    <</topic>>
+
+    <</topiclist>>
 }
 
 #-----------------------------------------------------------------------
 
 tab "Attitudes/Cooperation" {
-    TBD
+    This tab displays the full set of cooperation curves for all
+    civilian groups with all force groups in all neighborhoods.    
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Nbhood">>A neighborhood name.<</topic>>
+
+    <<topic "Of Group">>The name of a civilian group resident in the
+    neighborhood.
+    <</topic>>
+    
+    <<topic "With Group">>The name of a force group.
+    <</topic>>
+
+    <<topic "Coop at T0">>The initial cooperation value for this
+    curve, as set during <<cref using.prep>>.  It is a real number
+    taken from the following scale:<p>
+
+    <<::simlib::qcooperation html>>
+    <</topic>>
+    
+    <<topic "Coop Now">>The current cooperation value for this curve.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_pencil0">}>>
+    If one or more rows are selected, pops up the 
+    <<cref COOP:UPDATE>> or <<cref COOP:UPDATE:MULTI>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic {<img src="button_pencils">}>>
+    If a single row is selected, pops up the 
+    <<cref MAD:COOP:SET>> dialog for the selected curve.
+    <</topic>>
+
+    <<topic {<img src="button_pencila">}>>
+    If a single row is selected, pops up the 
+    <<cref MAD:COOP:ADJUST>> dialog for the selected curve.
+    <</topic>>
+
+    <<topic {<img src="filterbox">}>>
+    The filter box filters the contents of the browser.  See
+    <<cref "Filter_Box">> for more details.
+    <</topic>>
+
+    <<topic "Column Headers">>
+    Click on a column header to sort the column in ascending or
+    descending order.
+    <</topic>>
+
+    <</topiclist>>
 }
 
 #-----------------------------------------------------------------------
 
 tab "Attitudes/NbhoodCoop" {
-    TBD
+    This tab displays the cooperation of the residents of each
+    neighborhood with each force group.  This data is not available 
+    during <<cref using.prep>>, and so the tab is not populated with
+    data until the first time advance. The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Nbhood">>A neighborhood name.<</topic>>
+
+    <<topic "With Group">>The name of a force group.
+    <</topic>>
+
+    <<topic "Coop at T0">>The cooperation of the neighborhood
+    with the force group, as of time 0.  It is a real number
+    taken from the following scale:<p>
+
+    <<::simlib::qcooperation html>>
+    <</topic>>
+    
+    <<topic "Coop Now">>The cooperation of the neighborhood withthe
+    force group, at the current time.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="filterbox">}>>
+    The filter box filters the contents of the browser.  See
+    <<cref "Filter_Box">> for more details.
+    <</topic>>
+
+    <<topic "Column Headers">>
+    Click on a column header to sort the column in ascending or
+    descending order.
+    <</topic>>
+
+    <</topiclist>>
 }
 
 #-----------------------------------------------------------------------
 
 tab "Attitudes/Magic Attitude Drivers" {
-    TBD
+    Athena defines a number of drivers of attitude change, including
+    activity situations, environmental situations, and civilian
+    casualties.  It also allows the analyst to define their own
+    attitude drivers, with any desired affects.  Such drivers are
+    called <<cref MAD: "Magic Attitude Drivers">>, or "MADs".  This
+    tab lists the existing MADs.  The browser controls are
+    described <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "ID">>The ID of the Magic Attitude Driver<</topic>>
+
+    <<topic "Description">>A short one-line description of the driver,
+    e.g., as a memory-jogger for the analyst.
+    <</topic>>
+
+    <<topic "Cause">>The "cause" associated with the driver.  Every
+    input to GRAM is associated with a "cause"; inputs with different
+    causes are independent of one another.  The cause may be any of
+    the causes supported by Athena's Driver Assessment Model rule
+    sets, or <b>UNIQUE</b>, indicating that this driver's effects are
+    independent of all other drivers.
+    <</topic>>
+
+    <<topic "Near Factor (p)">>A GRAM input can have indirect effects
+    in <b>NEAR</b> neighborhoods.  The near factor is a real number
+    between 0.0 and 1.0 and determines the strength of these indirect
+    effects.  If 0.0, there will be no <b>NEAR</b> effects.
+    <</topic>>
+
+    <<topic "Far Factor (q)">>A GRAM input can have indirect effects
+    in <b>FAR</b> neighborhoods.  The far factor is a real number
+    between 0.0 and 1.0 and determines the strength of these indirect
+    effects.  If 0.0, there will be no <b>FAR</b> effects.
+    <</topic>>
+
+    <<topic "Driver">>The GRAM Driver ID associated with this MAD, or
+    -1 during <<cref using.prep>>.  This is the number that appears in
+    the <<cref REPORT:DRIVER>>. <</topic>>
+
+    <<topic "Inputs">>The number of satisfaction and cooperation
+    inputs and adjustments associated with this MAD.
+    <</topic>>
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_plus">}>>
+    Pops up the <<cref MAD:CREATE>> dialog.
+    <</topic>>
+
+    <<topic {<img src="button_pencil">}>>
+    If a single row is selected, pops up the 
+    <<cref MAD:UPDATE>> dialog for
+    the selected row.
+    <</topic>>
+
+    <<topic {<img src="button_x">}>>
+    If a single row is selected, deletes it
+    using the <<cref MAD:DELETE>> order.  Note that drivers with
+    associated inputs or adjustments cannot be deleted.
+    <</topic>>
+
+    <<topic {<img src="filterbox">}>>
+    The filter box filters the contents of the browser.  See
+    <<cref "Filter_Box">> for more details.
+    <</topic>>
+
+    <<topic "Column Headers">>
+    Click on a column header to sort the column in ascending or
+    descending order.
+    <</topic>>
+
+    <</topiclist>>
 }
 
 

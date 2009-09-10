@@ -1124,6 +1124,7 @@ order GROUP:FORCE:UPDATE+MULTI "Update Multiple Force Groups" {
 # Organization Group Orders
 
 page GROUP:ORGANIZATION: "Organization Group Orders" GROUP: {
+    <<title>>
     Athena uses organization groups to model organizations that are
     active in the playbox and have a significant affect on civilian
     attitudes.  Such groups might include the Red Cross, Doctors Without
@@ -2435,6 +2436,36 @@ order ROE:ATTACK:NONUNIFORMED:UPDATE "Update Attacking ROE (Non-Uniformed)" {
 }
 
 
+#-----------------------------------------------------------------------
+
+order ROE:ATTACK:NONUNIFORMED:UPDATE+MULTI "Update Multiple Attacking ROEs (Non-Uniformed)" {
+    <<parmlist>>
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids "Attacking ROE">><p>
+
+    Programmatically, each ID is a list {<i>n f g</i>} where <i>n</i>,
+    <i>f</i>, and <i>g</i> are defined as for the 
+    <<cref ROE:ATTACK:NONUNIFORMED:UPDATE>> order. 
+    <</parm>>
+
+    <<parm roe "ROE">>
+    <b>Optional.</b>  <<ROE:ATTACK:N.roe>>
+    <</parm>>
+
+    <<parm cooplimit "Cooperation Limit">>
+    <b>Optional.</b>  <<ROE:ATTACK.cooplimit>>
+    <</parm>>
+
+    <<parm rate "Attacks/Day">>
+    <b>Optional.</b>  <<ROE:ATTACK:N.rate>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Updates each of the selected ROEs.
+}
+
+
 #=======================================================================
 # Attacking ROEs: Uniformed
 
@@ -2520,6 +2551,30 @@ order ROE:ATTACK:UNIFORMED:UPDATE "Update Attacking ROE (Uniformed)" {
     non-uniformed force group.
 }
 
+#-----------------------------------------------------------------------
+
+order ROE:ATTACK:UNIFORMED:UPDATE+MULTI "Update Multiple Attacking ROEs (Uniformed)" {
+    <<parmlist>>
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids "Attacking ROE">><p>
+
+    Programmatically, each ID is a list {<i>n f g</i>} where <i>n</i>,
+    <i>f</i>, and <i>g</i> are defined as for the 
+    <<cref ROE:ATTACK:UNIFORMED:UPDATE>> order. 
+    <</parm>>
+
+    <<parm roe "ROE">>
+    <b>Optional.</b>  <<ROE:ATTACK:U.roe>>
+    <</parm>>
+
+    <<parm cooplimit "Cooperation Limit">>
+    <b>Optional.</b>  <<ROE:ATTACK.cooplimit>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Updates each of the selected ROEs.
+}
 
 #=======================================================================
 # Defending ROEs

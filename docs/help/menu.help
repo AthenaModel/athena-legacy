@@ -152,7 +152,7 @@ menuitem "File/Save Scenario As..." {
 menuitem "File/Export as XML..." {
     Saves the current scenario to disk in XML format.  Note that this
     can only be done while the simulation is in 
-    <<cref "Scenario Preparation">> state.
+    <<cref using.prep>> state.
 }
 
 menuitem "File/Save CLI Scrollback Buffer..." {
@@ -235,7 +235,7 @@ menu "Edit" {
 
 menuitem "Edit/Undo" {
     Undoes the most recent order, if possible.  The 
-    <<cref "Orders/History">> tab shows the orders that can be
+    <<tabref Orders/Sent>> shows the orders that can be
     undone (among other things).<p>
 
     The undo stack is cleared when the scenario is saved, and when 
