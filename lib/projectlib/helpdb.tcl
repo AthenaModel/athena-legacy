@@ -18,6 +18,10 @@
 #    helpdb(n) is both a wrapper for sqldocument(n) and an
 #    sqlsection(i) defining new database entities.
 #
+#    NOTE: helpdb(n) does NOT register itself as an sqlsection(i) with
+#    sqldocument(n); there's no need for its tables to be included in
+#    arbitrary RDBs, and in fact it causes problems if they are.
+#
 #-----------------------------------------------------------------------
 
 namespace eval ::projectlib:: {
@@ -33,9 +37,6 @@ snit::type ::projectlib::helpdb {
 
     typeconstructor {
         namespace import ::marsutil::*
-
-        # Register self as an sqlsection(i) module
-        sqldocument register $type
     }
 
     #-------------------------------------------------------------------
@@ -106,6 +107,19 @@ snit::type ::projectlib::helpdb {
 
     # Delegated methods
     delegate method * to db
+
+    # clear
+    #
+    # A wrapper for the sqldocument(n) clear command, that defines
+    # the helpdb schema.
+
+    method clear {} {
+        # FIRST, do the normal clear
+        $db clear
+
+        # NEXT, define the helpdb(n) schema
+        $db eval [$type sqlsection schema]
+    }
 
     # entity exists name
     #
