@@ -173,15 +173,16 @@ snit::widget ::projectgui::helpbrowser {
             -text "Search:"
 
         install searchbox using commandentry $bar.searchbox \
-            -clearbtn  yes                                  \
-            -changecmd [mymethod DoSearch]
+            -relief     sunken                              \
+            -clearbtn   yes                                 \
+            -changecmd  [mymethod DoSearch]
 
 
         pack $backbtn       -side left  -padx 1 -pady 1
         pack $fwdbtn        -side left  -padx 1 -pady 1
         pack $titlelab      -side left  -padx 1 -pady 1
-        pack $searchbox     -side right -padx 1 -pady 1
-        pack $bar.searchlab -side right -padx 1 -pady 1
+        pack $searchbox     -side right -padx 3 -pady 1
+        pack $bar.searchlab -side right -padx 0 -pady 1
 
         # Separator
         frame $win.sep -height 2 -relief sunken -borderwidth 2

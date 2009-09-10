@@ -200,15 +200,21 @@ snit::type ::projectlib::helpdb {
             set found [$db eval {
                 SELECT name, 
                        title,
-                       snippet(helpdb_pages,"","") AS snippet
-                FROM helpdb_pages
+                       snippet(helpdb_search) AS snippet
+                FROM helpdb_search
                 WHERE text MATCH $target
                 ORDER BY title COLLATE NOCASE;
             }]
         } result]
 
         if {$code} {
-            return "<b>Error in search term: \"<code>$target</code>\"</b>"
+            return [tsubst {
+                |<--
+                <b>Error in search term: "<code>$target</code>"</b>
+
+                Note that command options (e.g., <code>-info</code>)
+                should be entered in double quotes: <code>"-info"</code>.
+            }]
         }
 
         if {[llength $found] == 0} {
@@ -218,12 +224,6 @@ snit::type ::projectlib::helpdb {
         set out "<b>Search results for '$target':</b><p>\n<dl>\n"
 
         foreach {name title snippet} $found {
-            # FIRST, remove all HTML from the snippet
-            regsub -all -- {<[^>]+>} $snippet "" snippet
-            regsub -all -- {^[^>]+>} $snippet "" snippet
-            regsub -all -- {<[^>]+$} $snippet "" snippet
-
-            # NEXT, format the entry.
             append out "<dt><a href=\"$name\">$title</a></dt>\n"
             append out "<dd>$snippet<p></dd>\n\n"
         }

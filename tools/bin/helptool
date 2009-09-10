@@ -77,15 +77,20 @@ proc CompileInputFile {infile} {
     hdb eval {
         SELECT * FROM helpdb_pages
     } pageInfo {
+        # FIRST, get the expanded text
         set newText [ehtml expand $pageInfo(text)]
 
+        # NEXT, strip out the HTML, for searching
+        regsub -all -- {<[^>]+>} $newText "" searchText
+
+        # NEXT, save it in the database.
         hdb eval {
             UPDATE helpdb_pages
             SET text = $newText
             WHERE name=$pageInfo(name);
 
-            -- INSERT INTO helpdb_search(name,title,text)
-            -- VALUES($pageInfo(name),$pageInfo(title),$newText);
+            INSERT INTO helpdb_search(name,title,text)
+            VALUES($pageInfo(name),$pageInfo(title),$searchText);
         }
     }
 }
