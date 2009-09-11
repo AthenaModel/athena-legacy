@@ -1708,7 +1708,97 @@ tab "Orders/Sent" {
 # Reports
 
 tab "Reports" {
-    TBD
+    The Reports tab displays all of the 
+    <<cref reports reports>> produced by Athena.
+    Some reports are produced automatically as Athena runs, but most
+    are requested by the user via the <<menuref Reports>>.  Reports
+    can also be 
+    <<menuref "Reports/Save Hot List to Disk..." "saved to disk">>
+    in text format.<p>
+
+    The report browser contains the following elements:<p>
+
+    <ul>
+    <li> At the top, a tool bar containing the 
+         <<seebelow controls "browser controls">>.
+    <li> At the left, the <<seebelow bintree "bin tree">>.  The
+         browser automatically sorts reports into bins by report type.
+    <li> Below the tool bar, the 
+         <<seebelow replist "report list">>, which lists the times and
+         titles of the reports in the current bin.
+    <li> Below the report list, the text of the currently selected
+         report.
+    </ul><p>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="filterbox">}>>
+    The filter box filters the reports displayed in the 
+    <<seebelow replist "report list">> based on whether the reports
+    contain the filter text or not.  Click on the sieve icon to pull
+    down the filter menu; there are two choices:<p>
+
+    <ul>
+    <li> <b>Search Title and Text</b>
+    <li> <b>Search Titles Only</b>
+    </ul><p>
+
+    Note that the report browser's filter box differs from the
+    standard <<term filterbox>> used by most of the other browsers.
+    <</topic>>
+
+    <<topic {<img src="button_clock"}>>
+    <b>Show Recent.</b>  Toggle this button to show only the most
+    recent reports; untoggle 
+    it to show all of the reports in the bin.
+    <</topic>>
+
+    <<topic {<img src="button_autoscroll"}>>
+    <b>Auto-Scroll</b>.  Normally, the report browser automatically
+    jumps to the latest 
+    report in the current bin as new reports come in.  Toggle this
+    button to prevent the browser from jumping away from the current
+    report; untoggle it to restore the usual behavior.
+    <</topic>>
+
+    <<topic {<img src="control_hotlist"}>>
+    Check the box to add the currently displayed report to the
+    <<seebelow hotlist "Hot List">>.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="bintree">Bin Tree:</a></b>  Athena automatically sorts
+    all reports into bins by type, so that it is easier to find a
+    particular report later on.  Note that a report can appear in
+    multiple bins. There are three special bins.<p>
+
+    The <b>All Reports</b> bin contains all reports of every type.<p>
+
+    The <b>Requested</b> bin 
+    contains all reports requested by the user; whenever the user
+    requests a report, the browser automatically switches to this
+    bin.<p>
+
+    <b><a name="replist">The Report List:</a></b> This pane lists the
+    report ID number, <<term zulu>> and title of each report in the
+    current bin.  Click on a report title to display it in the
+    browser; double-click it to pop up a separate report viewer
+    window.<p>
+
+    The <b>Hot List</b> contains all reports the user has added to the 
+    <<seebelow hotlist "Hot List">>.<p>
+
+    <b><a name="hotlist">The Hot List:</a></b> The user can add
+    reports of particular interest to the Hot List by checking the
+    Hot List box that appears just above the text of the report.
+    These reports then appear in the <b>Hot List</b> bin.  The reports
+    in the Hot List can be 
+    <<menuref "Reports/Save Hot List to Disk..." "saved to disk">>
+    as a text file.<p>
 }
 
 

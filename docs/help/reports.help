@@ -19,7 +19,7 @@ page reports "Reports" {} {
     <<title>>
     As it runs, Athena produces a variety of text reports; in addition,
     the user may request a variety of reports.  This section describes
-    the available reports.<p>
+    the reports that the user can request.<p>
 
     <<childlinks>>
 }

@@ -14,22 +14,25 @@
 #=======================================================================
 # Images
 
-image athena          "Sculpture of the Goddess Athena" athena.png
-image button_a        "Button: A"                       button_a.png
-image button_axe      "Button: Axe"                     button_axe.png
-image button_check    "Button: Checkmark"               button_check.png
-image button_location "Button: Location Pointer"        button_location.png
-image button_man      "Button: Man"                     button_man.png
-image button_pencil   "Button: Pencil"                  button_pencil.png
-image button_pencil0  "Button: Pencil 0"                button_pencil0.png
-image button_pencils  "Button: Pencil S"                button_pencils.png
-image button_pencila  "Button: Pencil A"                button_pencila.png
-image button_plus     "Button: Plus"                    button_plus.png
-image button_totop    "Button: To Top"                  button_totop.png
-image button_tobottom "Button: To Bottom"               button_tobottom.png
-image button_x        "Button: X"                       button_x.png
-image filterbox       "Filter Box"                      filterbox.png
-image viewbox         "View Box"                        viewbox.png
+image athena            "Sculpture of the Athena"   athena.png
+image button_a          "Button: A"                 button_a.png
+image button_autoscroll "Button: Autoscroll"        button_autoscroll.png
+image button_axe        "Button: Axe"               button_axe.png
+image button_check      "Button: Checkmark"         button_check.png
+image button_clock      "Button: Clock"             button_clock.png
+image button_location   "Button: Location Pointer"  button_location.png
+image button_man        "Button: Man"               button_man.png
+image button_pencil     "Button: Pencil"            button_pencil.png
+image button_pencil0    "Button: Pencil 0"          button_pencil0.png
+image button_pencils    "Button: Pencil S"          button_pencils.png
+image button_pencila    "Button: Pencil A"          button_pencila.png
+image button_plus       "Button: Plus"              button_plus.png
+image button_totop      "Button: To Top"            button_totop.png
+image button_tobottom   "Button: To Bottom"         button_tobottom.png
+image button_x          "Button: X"                 button_x.png
+image control_hotlist   "Control: Hot List"         control_hotlist.png
+image filterbox         "Filter Box"                filterbox.png
+image viewbox           "View Box"                  viewbox.png
 
 #=======================================================================
 # Macros
