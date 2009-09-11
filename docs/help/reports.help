@@ -99,18 +99,17 @@ page REPORT:DRIVER "Attitude Driver Report" reports {
     <</topic>>
 
     <<topic "Start Time">>
-    The time at which the driver first started (or will first start)
+    The <<term zulu>> at which the driver first started (or will first start)
     to change attitudes in the playbox.
     <</topic>>
 
     <<topic "End Time">>
-    The time at which the driver stopped (or will stop) changing
+    The <<term zulu>> at which the driver stopped (or will stop) changing
     attitudes in the playbox.  For on-going situations, this column will
-    contain the word "On-going" instead of a Zulu time.
+    contain the word "On-going" instead of a zulu-time.
     <</topic>>
 
     <</topiclist>>
-
 }
 
 #-----------------------------------------------------------------------
@@ -202,12 +201,12 @@ page REPORT:SATISFACTION:CONTRIB "Contribution to Satisfaction Report" reports {
     <b>Optional.</b>  By default, the report includes all
     contributions from time 0 until the current simulation time.  The
     user can narrow the window by setting the start time to some time
-    after time 0.  The time is specified as a <<cref timespec>>.
+    after time 0.  The time is specified as a <<term timespec>>.
     <</parm>>
 
     <<parm end "End Time">>
     <b>Optional.</b>  Similarly, the user can set the end of the time
-    window to some <<cref timespec>> prior to the current simulation time.
+    window to some <<term timespec>> prior to the current simulation time.
     <</parm>>
 
     <</parmlist>>

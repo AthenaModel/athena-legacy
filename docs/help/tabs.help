@@ -73,6 +73,21 @@ macro tab.header {name} {
 }
 
 
+macro control.filterbox {} {
+    |<--
+    [topic {<img src="filterbox">}]
+    The [term filterbox] filters the contents of the browser.
+    [/topic]
+}
+
+macro control.headers {} {
+    |<--
+    [topic "Column Headers"]
+    Click on a column header to sort the column in ascending or
+    descending order.
+    [/topic]
+}
+
 #=======================================================================
 # Map Tab
 
@@ -108,7 +123,7 @@ tab "Units" {
     the origin is <b>NONE</b>.<</topic>>
     
     <<topic Location>>The unit's current location on the map,
-    expressed as a <<cref mapref "map reference string">>.  Note that
+    expressed as a <<term mapref>>.  Note that
     the location is used for only two purposes: to determine the
     neighborhood in which the unit is located, if any, and to allow
     the units to be spread out on the map, so as to be easier to see.
@@ -165,16 +180,8 @@ tab "Units" {
     <<cref UNIT:DELETE>> order.
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -222,10 +229,9 @@ tab "Neighborhoods/Neighborhoods" {
 
     <<topic VtyGain>>The volatility gain of this neighborhood, a
     multiplier that increases or decreases the 
-    <<cref Volatility>> of the
-    neighborhood.<</topic>>
+    <<term volatility>> of the neighborhood.<</topic>>
 
-    <<topic Volatility>>The current <<cref Volatility>> of this neighborhood.
+    <<topic Volatility>>The current <<term volatility>> of this neighborhood.
     This is computed when Athena laves <<cref using.prep>>, and will
     be 0.0 until then.
     <</topic>>
@@ -248,13 +254,12 @@ tab "Neighborhoods/Neighborhoods" {
 
     <<topic RefPoint>>The neighborhood's reference point, which is
     simply a point known to be somewhere in the neighborhood,
-    expressed as a <<cref mapref "map reference string">>.
+    expressed as a <<term mapref>>.
     <</topic>>
 
     <<topic Polygon>>The neighborhood's boundary polygon, expressed as
-    a list of <<cref mapref "map reference strings">>.
+    a list of <<term mapref>>s.
     <</topic>>
-
 
     <</topiclist>>
 
@@ -284,16 +289,8 @@ tab "Neighborhoods/Neighborhoods" {
     <<cref NBHOOD:DELETE>> order.
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -350,25 +347,16 @@ tab "Neighborhoods/Relationships" {
     edited.
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
 #-----------------------------------------------------------------------
 
 tab "Neighborhoods/Security" {
-    This tab shows the security of each group in each neighborhood.
-    See <<cref Neighborhood_Security>> for details of the security
-    model.  This browser is populated only after Athena leaves
+    This tab shows the <<term security>> of each group in each neighborhood.
+    This browser is populated only after Athena leaves
     <<cref using.prep>>.  The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
@@ -379,7 +367,7 @@ tab "Neighborhoods/Security" {
     <<topic "Group">>The ID of the civilian, force, or organization 
     group.  All groups are represented in each neighborhood.<</topic>>
     
-    <<topic Security>>The security of the group in the neighborhood,
+    <<topic Security>>The <<term security>> of the group in the neighborhood,
     expressed using the following scale:<p>
 
     <<projectlib::qsecurity html>>
@@ -395,10 +383,10 @@ tab "Neighborhoods/Security" {
     the total.
     <</topic>>
 
-    <<topic "Volatility">>A measure of the volatility of the
+    <<topic "Volatility">>A measure of the <<term volatility>> of the
     neighborhood, i.e., the likelihood that an individual will be
     caught up in violence in the neighborhood, as a number from 0 to
-    100.  The higher the volatility, the lower the security of all
+    100.  The higher the volatility, the lower the <<term security>> of all
     groups in the neighborhood.<p>
 
     This number reflects the volatility gain.<p>
@@ -407,13 +395,13 @@ tab "Neighborhoods/Security" {
     <</topic>>
 
     <<topic "VtyGain">>A multiplier that increases or decreases the
-    volatility in the neighborhood.  This number is constant across
+    <<term volatility>> in the neighborhood.  This number is constant across
     groups in a neighborhood, and can be edited during 
     <<cref using.prep>> using the <<cref NBHOOD:UPDATE>> order.
     <</topic>>
 
     <<topic "NomVty">>The nominal volatility, i.e., the volatility
-    computed by the security model before the volatility gain is
+    computed by the <<term security>> model before the volatility gain is
     applied.
     <</topic>>
 
@@ -423,16 +411,8 @@ tab "Neighborhoods/Security" {
     toolbar contains the following controls:<p>
 
     <<topiclist Control Description>>
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -464,8 +444,8 @@ tab "Neighborhoods/Activity" {
     <</topic>>
 
     <<topic SecFlag>><b>YES</b> if the unit has sufficient
-    security to perform the activity, and <b>NO</b> otherwise; the required
-    security level depends on the activity.
+    <<term security>> to perform the activity, and <b>NO</b>
+    otherwise; the required security level depends on the activity.
     <</topic>>
 
     <<topic "NomPers">>Nominal personnel: The number of the group's
@@ -479,8 +459,8 @@ tab "Neighborhoods/Activity" {
 
     <<topic "EffPers">>Effective personnel: The number of personnel
     who can effectively perform the activity at any given time, given
-    security and (in theory) other factors.  The coverage is based on
-    this number.
+    <<term security>> and (in theory) other factors.  The coverage is
+    based on this number.
     <</topic>>
 
     <<topic "SitType">>Situation type: If the activity has a coverage
@@ -499,16 +479,8 @@ tab "Neighborhoods/Activity" {
     toolbar contains the following controls:<p>
 
     <<topiclist Control Description>>
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -535,9 +507,9 @@ tab "Neighborhoods/ActSits" {
     currently affecting attitudes in the neighborhood.  An 
     <b>INACTIVE</b> situation has previously been affecting attitudes,
     and might do so again; it currently cannot, probably because of
-    security concerns.  A situation is <b>ENDED</b> when there are no
-    longer any units attempting to perform the related activity in the
-    neighborhood.<p>
+    <<term security>> concerns.  A situation is <b>ENDED</b> when
+    there are no longer any units attempting to perform the related
+    activity in the neighborhood.<p>
 
     Note that a new situation is always <b>ACTIVE</b>; no situation
     will be created until the activity begins to affect attitudes.
@@ -590,16 +562,8 @@ tab "Neighborhoods/ActSits" {
     </ul>
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -712,16 +676,8 @@ tab "Neighborhoods/EnSits" {
     </ul>
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -789,16 +745,8 @@ tab "Groups/CivGroups" {
     <<cref GROUP:CIVILIAN:DELETE>> order.
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -889,16 +837,8 @@ tab "Groups/NbGroups" {
     <<cref GROUP:NBHOOD:DELETE>> order.
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -975,16 +915,8 @@ tab "Groups/FrcGroups" {
     <<cref GROUP:FORCE:DELETE>> order.
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -1062,16 +994,8 @@ tab "Groups/OrgGroups" {
     <<cref GROUP:ORGANIZATION:DELETE>> order.
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -1129,16 +1053,8 @@ tab "Groups/Relationships" {
     the selected row(s).
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -1235,16 +1151,8 @@ tab "ROE/Attack (Uniformed)" {
     <<cref ROE:ATTACK:DELETE>> order.
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -1328,16 +1236,8 @@ tab "ROE/Attack (Non-Uniformed)" {
     <<cref ROE:ATTACK:DELETE>> order.
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -1390,16 +1290,8 @@ tab "ROE/Defend" {
     the selected row(s).
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -1462,16 +1354,8 @@ tab "Demog" {
 
     <<topiclist Control Description>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -1552,16 +1436,8 @@ tab "Attitudes/Satisfaction" {
     <<cref MAD:SAT:ADJUST>> dialog for the selected curve.
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -1617,16 +1493,8 @@ tab "Attitudes/Cooperation" {
     <<cref MAD:COOP:ADJUST>> dialog for the selected curve.
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -1663,17 +1531,8 @@ tab "Attitudes/NbhoodCoop" {
     toolbar contains the following controls:<p>
 
     <<topiclist Control Description>>
-
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 
@@ -1696,8 +1555,8 @@ tab "Attitudes/Magic Attitude Drivers" {
     e.g., as a memory-jogger for the analyst.
     <</topic>>
 
-    <<topic "Cause">>The "cause" associated with the driver.  Every
-    input to GRAM is associated with a "cause"; inputs with different
+    <<topic "Cause">>The <<term cause>> associated with the driver.  Every
+    input to GRAM is associated with a cause; inputs with different
     causes are independent of one another.  The cause may be any of
     the causes supported by Athena's Driver Assessment Model rule
     sets, or <b>UNIQUE</b>, indicating that this driver's effects are
@@ -1746,16 +1605,8 @@ tab "Attitudes/Magic Attitude Drivers" {
     associated inputs or adjustments cannot be deleted.
     <</topic>>
 
-    <<topic {<img src="filterbox">}>>
-    The filter box filters the contents of the browser.  See
-    <<cref "Filter_Box">> for more details.
-    <</topic>>
-
-    <<topic "Column Headers">>
-    Click on a column header to sort the column in ascending or
-    descending order.
-    <</topic>>
-
+    <<control.filterbox>>
+    <<control.headers>>
     <</topiclist>>
 }
 

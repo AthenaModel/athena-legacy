@@ -1,47 +1,65 @@
+# -*-tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    concepts.help
+#    glossary.help
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Athena Help Documentation: Concepts
+#    Athena Help Documentation: Glossary.  Terms defined in the
+#    glossary have an ID like "term.<tag>", and are referenced
+#    using the <<term <tag> >> macro.
 #
 #    This file is included into athena.help.
 #
 #-----------------------------------------------------------------------
 
-page concepts "Athena Concepts" {} {
+page glossary "Glossary" {} {
     <<title>>
-    This page describes a number of general concepts used by the
+    This page describes terms and concepts used by the
     Athena models and software.<p>
 
     <<childlinks>>
 }
 
-#-------------------------------------------------------------------
+# term tag term text
+#
+# tag      The term's tag, e.g., "mapref", used in references.
+# term     The full term, e.g., "map reference string".
+# text     The documentation of the term.
+#
+# Defines a help page for the term.
 
-page Activity_Priorities "Activity Priorities" concepts {
-    <<title>>
+proc term {tag term text} {
+    set text "<<term.header>>\n\n$text"
+    page term.$tag $term "glossary" $text
+}
 
-    TBD: This page will list the unit activities in priority order.
+# Formats the title for a glossary term
+macro term.header {} {
+    |<--
+    <font size=2>Glossary</font><br>
+    <font size=7>[pageinfo title]</font><p>
 }
 
 #-------------------------------------------------------------------
 
-page Causes "Causes" concepts {
-    <<title>>
+term activity_priority "activity priority" {
+    TBD: This page will list the unit activities in priority order.
+}
 
+
+#-------------------------------------------------------------------
+
+term cause "cause" {
     TBD: This page will explain the meaning of the "Cause" in
     GRAM inputs.
 }
 
 #-------------------------------------------------------------------
 
-page Filter_Box "Filter Box" concepts {
-    <<title>>
-
+term filterbox "filter box" {
     <img src="filterbox"><p>
 
     The various Athena data browsers all feature a filter box, which
@@ -101,8 +119,7 @@ page Filter_Box "Filter Box" concepts {
 
 #-------------------------------------------------------------------
 
-page mapref "Map Reference Strings" concepts {
-    <<title>>
+term mapref "map reference string" {
     A map reference string is a six-character string that represents
     a point on the scenario's map.  It has the form
     <b><i>AnnAnn</i></b> where <i>A</i> is a letter from "A" to "K"
@@ -132,17 +149,14 @@ page mapref "Map Reference Strings" concepts {
 
 #-----------------------------------------------------------------------
 
-page Neighborhood_Security "Neighborhood Security" concepts {
-    <<title>>
-
-    TBD: This page will describe the neighborhood security model.
+term security "security" {
+    TBD: This term will describe the neighborhood security model.
 }
+
 
 #-----------------------------------------------------------------------
 
-page timespec "Time Specification String" concepts {
-    <<title>>
-
+term timespec "time specification string" {
     A time specification string identifies a particular simulation
     time.  It has the form "<i>baseTime</i> +/- <i>offset</i>", where
     the offset is some number of ticks and the base time has one of
@@ -153,7 +167,7 @@ page timespec "Time Specification String" concepts {
     <li> <b>NOW</b>: The current simulation time.
     <li> <b><i>ticks</i></b>: The time as some number of ticks since
          <b>T0</b>.
-    <li> <b><i>zulu</i></b>: A <<cref zulu>>.
+    <li> <b><i>zulu</i></b>: A <<term zulu>>.
     </ul><p>
 
     (<b>Note:</b> The duration of a simulation time tick in days is
@@ -176,18 +190,15 @@ page timespec "Time Specification String" concepts {
 
 #-----------------------------------------------------------------------
 
-page Volatility "Volatility" concepts {
-    <<title>>
-
+term volatility "volatility" {
     TBD: Volatility of the neighborhood, with reference to
-    <<cref Neighborhood_Security>>.
+    <<term security>>.
 }
 
 #-----------------------------------------------------------------------
 
-page zulu "Zulu time string" concepts {
-    <<title>>
-    A "Zulu" time string, or date-time group, represents a particular
+term zulu "zulu-time" {
+    A zulu-time string, or date-time group, represents a particular
     date and time in this format:<p>
 
     <b><i>ddhhmm</i>Z<i>mmmyy</i></b><p>
@@ -219,6 +230,9 @@ page zulu "Zulu time string" concepts {
 
     <</topiclist>>
 }
+
+
+
 
 
 

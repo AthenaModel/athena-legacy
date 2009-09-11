@@ -151,10 +151,10 @@ order ATTRIT:GROUP "Magic Attrit Group" {
     attrited by the specified number of casualties.  Athena assumes
     that units doing more important activities will be reinforced from
     units doing less important activities; therefore, units are
-    attrited in priority order based on their activities, from lowest
+    attrited in <<term activity_priority>> order based on their activities, 
+    from lowest 
     priority to greatest priority.  For example, a unit with activity
-    <b>NONE</b> is attrited before one with activity <b>PATROL</b>.
-    The priority order is <<cref Activity_Priorities>>.<p>
+    <b>NONE</b> is attrited before one with activity <b>PATROL</b>.<p>
 
     <b>Civilian Groups:</b>  The group's units and implicit
     population are attrited proportionally to their size.<p>
@@ -357,7 +357,7 @@ macro ENSIT.initial {} {
 macro ENSIT.location {} {
     |<--
     The location of the situation, expressed as a 
-    [cref mapref "map reference string"].  The situation affects the
+    [term mapref].  The situation affects the
     neighborhood that contains this location, and so the location must
     lie within some neighborhood.
 }
@@ -1336,8 +1336,8 @@ macro MAD.days {} {
 
 macro MAD.cause {} {
     |<--
-    The "cause" for any magic attitude input input associated with
-    this MAD; see [cref Causes].  The cause
+    The [term cause] for any magic attitude input associated with
+    this MAD.  The cause
     may be <b>UNIQUE</b>, indicating that the effects of this MAD
     are independent of all other drivers, or it may be
     any cause from the following list:<p>
@@ -1868,14 +1868,14 @@ macro NBHOOD.vtygain {} {
     |<--
     The neighborhood's volatility gain, a real
     number no less than zero; it is used to dial up and down the
-    effect of neighborhood volatility on neighborhood security.
-    See [cref Neighborhood_Security] for more information.
+    effect of neighborhood [term volatility] 
+    on neighborhood [term security].
 }
 
 macro NBHOOD.refpoint {} {
     |<--
     The neighborhood's reference point, expressed as
-    a [cref mapref "map reference string"].  The reference point is
+    a [term mapref].  The reference point is
     a location within the neighborhood that is guaranteed not to be
     obscured by an overlapping or nested neighborhood.
 }
@@ -1883,7 +1883,7 @@ macro NBHOOD.refpoint {} {
 macro NBHOOD.polygon {} {
     |<--
     The neighborhood's boundary polygon, expressed as
-    a list of [cref mapref "map reference strings"].
+    a list of [term mapref].
 }
 
 #-----------------------------------------------------------------------
@@ -2798,7 +2798,7 @@ page SIM: "Simulation Control Orders" orders {
 order SIM:STARTDATE "Set Start Date" {
     <<parmlist>>
     <<parm startdate "Start Date">>
-    <b>Required.</b>  A <<cref zulu>> corresponding to 
+    <b>Required.</b>  A <<term zulu>> corresponding to 
     simulation time 0.  By convention, the hours and minutes 
     should be "0000".
     <</parm>>
@@ -2903,7 +2903,7 @@ order UNIT:CREATE "Create Unit" {
 
     <<parm location "Location">>
     <b>Required.</b>  The unit's location, expressed as
-    a <<cref mapref "map reference string">>.  The location determines
+    a <<term mapref>>.  The location determines
     the unit's neighborhood, and where precisely it is drawn on the
     map; it has no other function.
     <</parm>>
@@ -2941,7 +2941,7 @@ order UNIT:MOVE "Move Unit" {
 
     <<parm location "Location">>
     <b>Required.</b>  The unit's new location, expressed as
-    a <<cref mapref "map reference string">>.
+    a <<term mapref>>.
     <</parm>>
     <</parmlist>>
 
@@ -3106,7 +3106,7 @@ order ORDER:SCHEDULE "Schedule Order" {
 
     <<parm timespec "Time Spec">> 
     <b>Required.</b> The time at which the order should be scheduled
-    to execute, expressed as a <<cref timespec>>.  The time must be at
+    to execute, expressed as a <<term timespec>>.  The time must be at
     least "NOW+1".
     <</parm>>
 

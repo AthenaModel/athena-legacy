@@ -211,7 +211,7 @@ command "dump coop level" {
     Dumps a list of all direct and indirect cooperation 
     level effects that currently affect the cooperation of 
     civilian group <i>f</i> with force group <i>g</i> in neighborhood 
-    <i>n</i>.  The effects are grouped by cause, so that it is
+    <i>n</i>.  The effects are grouped by <<term cause>>, so that it is
     easy to determine that multiple effects with the same cause
     are handled properly.
 }
@@ -237,7 +237,7 @@ command "dump coop slope" {
     Dumps a list of all direct and indirect cooperation 
     slope effects that currently affect the cooperation of 
     civilian group <i>f</i> with force group <i>g</i> in neighborhood 
-    <i>n</i>.  The effects are grouped by cause, so that it is
+    <i>n</i>.  The effects are grouped by <<term cause>>, so that it is
     easy to determine that multiple effects with the same cause
     are handled properly.
 }
@@ -275,7 +275,7 @@ command "dump sat level" {
     Dumps a list of all direct and indirect satisfaction 
     level effects that currently affect the satisfaction of 
     civilian group <i>f</i> with force group <i>g</i> in neighborhood 
-    <i>n</i>.  The effects are grouped by cause, so that it is
+    <i>n</i>.  The effects are grouped by <<term cause>>, so that it is
     easy to determine that multiple effects with the same cause
     are handled properly.
 }
@@ -301,7 +301,7 @@ command "dump sat slope" {
     Dumps a list of all direct and indirect satisfaction 
     slope effects that currently affect the satisfaction of 
     civilian group <i>f</i> with force group <i>g</i> in neighborhood 
-    <i>n</i>.  The effects are grouped by cause, so that it is
+    <i>n</i>.  The effects are grouped by <<term cause>>, so that it is
     easy to determine that multiple effects with the same cause
     are handled properly.
 }

@@ -85,6 +85,14 @@ macro tabref {args} {
     set tag "tabs/[string map $replist $args]"
 } {[cref $tag "$args Tab"]}
 
+# term tag ?link?
+#
+# tag    The term's tag, as defined in glossary.help
+# link   The link text; the term's title is used by default.
+#
+# Returns a link to the term's page.
+
+macro term {tag {link ""}} {[cref term.$tag $link]}
 
 
 #-----------------------------------------------------------------------
@@ -110,7 +118,7 @@ page home "Athena Help" {} {
          <li> <<cref cmd>>
          <li> <<cref parmdb>>
          <li> <<cref prefs>>
-         <li> <<cref concepts>>
+         <li> <<cref glossary>>
          </ul>
     </ul><p>
 
@@ -189,7 +197,7 @@ include reports.help
 include cmd.help
 include parmdb.help
 include prefs.help
-include concepts.help
+include glossary.help
 
 
 
