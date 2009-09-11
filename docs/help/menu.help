@@ -18,8 +18,8 @@
 #    The page names are created automatically by prepending
 #    "menu/" and converting blanks to underscores.
 #    
-#    The menuref macro creates a link to a menu/menu item page
-#    given its label.
+#    The menuref macro (defined in athena.help) creates a link to a 
+#    menu/menu item page given its label.
 #
 #-----------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ macro menu.header {name} {
     append nameWithLinks [lindex $tTokens end]
 } {
     |<--
-    <h3>$nameWithLinks Menu</h3>
+    [title $nameWithLinks Menu]
 }
 
 proc menuitem {name text} {
@@ -100,7 +100,7 @@ macro menuitem.header {name} {
     append nameWithLinks [lindex $tTokens end]
 } {
     |<--
-    <h3>$nameWithLinks</h3>
+    [mktitle small "Menu Item" $nameWithLinks ""]
 }
 
 #=======================================================================
@@ -220,7 +220,7 @@ menuitem "File/Close" {
     Closes the current browser window.<p>
 
     This menu item appears only in browser windows created using the
-    <<menuref File/New Browser>> menu item.
+    <<menuref "File/New Browser">> menu item.
 }
 
 #=======================================================================

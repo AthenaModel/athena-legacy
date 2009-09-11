@@ -80,7 +80,7 @@ macro syntax {args} {
     
 } {
     |<--
-    <h3>$nametext $args</h3>
+    [mktitle small "Executive Command" "$nametext [join $args { }]" ""]
 }
 
 # cli text

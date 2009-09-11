@@ -54,8 +54,7 @@ proc order {name title text} {
 # Formats the title for an order page
 macro order.header {} {
     |<--
-    <font size=7>[pageinfo title]</font><br>
-    (<tt>[pageinfo name]</tt>)<p>
+    [mktitle normal "" [pageinfo title] "(<tt>[pageinfo name]</tt>)"]
 }
 
 macro parm.identifier {entity example} {
@@ -1822,7 +1821,7 @@ order MAP:IMPORT "Import Map" {
     the saved .adb file.<p>
 
     This order is usually sent indirectly, using the
-    <<menuref File/Import Map...>> menu item.  However, Athena should
+    <<menuref "File/Import Map...">> menu item.  However, Athena should
     eventually support order script, and it it is documented here for
     that purpose.
 }

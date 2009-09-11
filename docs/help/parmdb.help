@@ -83,8 +83,7 @@ macro parmdb.header {parm itemtype} {
     }
 } {
     |<--
-    <font size=2>Model Parameter</font><br>
-    <font size=4>$namelinks</font><p>
+    [mktitle small "Model Parameter" $namelinks ""]
 
     $defaultValue
 }

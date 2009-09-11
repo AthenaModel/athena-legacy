@@ -69,7 +69,7 @@ macro tab.header {name} {
     append nameWithLinks [lindex $tTokens end]
 } {
     |<--
-    <h3>$nameWithLinks Tab</h3>
+    [title $nameWithLinks Tab]
 }
 
 
@@ -1615,7 +1615,8 @@ tab "Attitudes/Magic Attitude Drivers" {
 # Orders
 
 tab "Orders" {
-    TBD
+    The subtabs of this tab are related to the <<term order>>s sent or 
+    scheduled by the user.  The full set of subtabs are as follows:
 
     <<childlinks>>
 }
@@ -1623,13 +1624,83 @@ tab "Orders" {
 #-----------------------------------------------------------------------
 
 tab "Orders/Scheduled" {
-    TBD
+    This tab shows the <<term order>>s that have been scheduled 
+    and are waiting to be executed.  The browser controls are
+    described <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "ID">>The ID of the scheduled order.<</topic>>
+
+    <<topic "Tick">>The time <<term tick>> at which the order will execute.
+    <</topic>>
+
+    <<topic "Zulu">>The <<term zulu>> at which the order will execute.
+    <</topic>>
+
+    <<topic "Order">>The symbolic name of the order.  Symbolic names
+    are shown on each <<cref orders "order's help page">>.
+    <</topic>>
+
+    <<topic "Parameters">>A list of the parameter names and values
+    entered by the user when the order was scheduled.  Symbolic
+    parameter names are shown on each <<cref orders "order's help page">>.
+    <</topic>>
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_x">}>>
+    If a single order is selected, cancels it
+    using the <<cref ORDER:CANCEL>> order.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
 }
 
 #-----------------------------------------------------------------------
 
 tab "Orders/Sent" {
-    TBD
+    This tab shows the <<term order>>s that have been sent
+    interactively by the user.  The browser controls are
+    described <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "ID">>The ID of the sent order.<</topic>>
+
+    <<topic "Tick">>The time <<term tick>> at which the order was sent.
+    <</topic>>
+
+    <<topic "Zulu">>The <<term zulu>> at which the order was sent.
+    <</topic>>
+
+    <<topic "Undo">><b>Yes</b> if the order can be 
+    <<menuref Edit/Undo undone>>, and <b>No</b> otherwise.
+    <</topic>>
+
+    <<topic "Order">>The symbolic name of the order.  Symbolic names
+    are shown on each <<cref orders "order's help page">>.
+    <</topic>>
+
+    <<topic "Parameters">>A list of the parameter names and values
+    entered by the user when the order was sent.  Symbolic
+    parameter names are shown on each <<cref orders "order's help page">>.
+    <</topic>>
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
 }
 
 

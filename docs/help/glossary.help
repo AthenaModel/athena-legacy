@@ -39,8 +39,7 @@ proc term {tag term text} {
 # Formats the title for a glossary term
 macro term.header {} {
     |<--
-    <font size=2>Glossary</font><br>
-    <font size=7>[pageinfo title]</font><p>
+    [mktitle normal "Glossary" [pageinfo title] ""]
 }
 
 #-------------------------------------------------------------------
@@ -149,10 +148,38 @@ term mapref "map reference string" {
 
 #-----------------------------------------------------------------------
 
+term order "order" {
+    Inputs to the Athena scenario and models are presented to Athena
+    as <<cref orders>>.<p>
+
+    Orders may be sent interactively by a variety
+    of methods; such orders can usually be 
+    <<menuref Edit/Undo undone>>.  The complete history of orders
+    sent interactively to Athena is shown on the 
+    <<tabref Orders/Sent>>.<p>
+
+    In addition, orders can be scheduled in advance.  Scheduled orders are
+    execute as time advances, and consequently cannot be undone.  The
+    full set of orders that are waiting for execution is shown on the 
+    <<tabref Orders/Scheduled>>.
+}
+
+
+#-----------------------------------------------------------------------
+
 term security "security" {
     TBD: This term will describe the neighborhood security model.
 }
 
+
+#-----------------------------------------------------------------------
+
+term tick "tick" {
+    Athena measures simulation time in integer ticks.  The size of a
+    time tick is set by the <<cref parm.sim.tickSize>> parameter; it
+    defaults to 1 day, and probably shouldn't be set to anything
+    smaller than that.
+}
 
 #-----------------------------------------------------------------------
 

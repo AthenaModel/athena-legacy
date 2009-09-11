@@ -83,7 +83,7 @@ macro prefs.header {parm itemtype} {
     }
 } {
     |<--
-    <h3>$namelinks</h3>
+    [mktitle small "User Preference" $namelinks ""]
 
     $defaultValue
 }
