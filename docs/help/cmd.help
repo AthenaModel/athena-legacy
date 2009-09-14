@@ -270,11 +270,11 @@ command "dump sat levels" {
 # dump sat level
 
 command "dump sat level" {
-    <<syntax <i>n f g</i> >>
+    <<syntax <i>n g c</i> >>
     
     Dumps a list of all direct and indirect satisfaction 
     level effects that currently affect the satisfaction of 
-    civilian group <i>f</i> with force group <i>g</i> in neighborhood 
+    group <i>g</i> with concern <i>c</i> in neighborhood 
     <i>n</i>.  The effects are grouped by <<term cause>>, so that it is
     easy to determine that multiple effects with the same cause
     are handled properly.
@@ -296,11 +296,11 @@ command "dump sat slopes" {
 # dump sat slope
 
 command "dump sat slope" {
-    <<syntax <i>n f g</i> >>
+    <<syntax <i>n g c</i> >>
     
     Dumps a list of all direct and indirect satisfaction 
     slope effects that currently affect the satisfaction of 
-    civilian group <i>f</i> with force group <i>g</i> in neighborhood 
+    group <i>g</i> with concern <i>c</i> in neighborhood 
     <i>n</i>.  The effects are grouped by <<term cause>>, so that it is
     easy to determine that multiple effects with the same cause
     are handled properly.
