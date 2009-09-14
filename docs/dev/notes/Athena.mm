@@ -139,16 +139,13 @@
 <node CREATED="1237568050726" ID="Freemind_Link_454367740" MODIFIED="1237568062559" TEXT="Like gtclient/gtserver, but within one app"/>
 </node>
 </node>
+<node CREATED="1252945495855" ID="Freemind_Link_400361736" MODIFIED="1252945498588" POSITION="right" TEXT="Attrition Model">
+<node CREATED="1252945498899" ID="Freemind_Link_1801105482" MODIFIED="1252945505420" TEXT="Much better reporting">
+<node CREATED="1252945506303" ID="Freemind_Link_1983158166" MODIFIED="1252945511192" TEXT="At present we&apos;re dependent on the log"/>
+<node CREATED="1252945511471" ID="Freemind_Link_1214987202" MODIFIED="1252945516456" TEXT="The log doesn&apos;t move with the scenario"/>
+</node>
+</node>
 <node CREATED="1239210064249" ID="Freemind_Link_1216819379" MODIFIED="1239210065909" POSITION="right" TEXT="GRAM">
-<node CREATED="1241215740273" ID="Freemind_Link_1519643380" MODIFIED="1251396569302" TEXT="Speed up gram_value update on cancel"/>
-<node CREATED="1241215767617" ID="Freemind_Link_1703805627" MODIFIED="1241215779674" TEXT="Accumulate acontrib directly into gram_contribs">
-<node CREATED="1241215785360" ID="Freemind_Link_276110028" MODIFIED="1241215789775" TEXT="If it&apos;s faster to do so."/>
-</node>
-<node CREATED="1241215865953" ID="Freemind_Link_731499049" MODIFIED="1241215878509" TEXT="More epsilons?">
-<node CREATED="1241215878848" ID="Freemind_Link_957640958" MODIFIED="1241215882778" TEXT="Level vs. Slope"/>
-<node CREATED="1241215883249" ID="Freemind_Link_1735758744" MODIFIED="1241215886122" TEXT="Sat vs Coop"/>
-</node>
-<node CREATED="1247762885741" ID="Freemind_Link_1952865263" MODIFIED="1247762891249" TEXT="Smaller epsilons?"/>
 <node CREATED="1251486998445" ID="Freemind_Link_952373843" MODIFIED="1251487006508" TEXT="GRAM and RDBs">
 <node CREATED="1251487006830" ID="Freemind_Link_323083293" MODIFIED="1251487015511" TEXT="Suppose each instance of GRAM required its own RDB?"/>
 <node CREATED="1251487017517" ID="Freemind_Link_236967723" MODIFIED="1251487033367" TEXT="Could use multiple gram(n)&apos;s in an app by using multiple RDBs."/>
@@ -170,6 +167,15 @@
 <node CREATED="1239210174983" ID="Freemind_Link_1430976267" MODIFIED="1239210183954" TEXT="Slope decreasing to 0.0"/>
 </node>
 </node>
+<node CREATED="1241215740273" ID="Freemind_Link_1519643380" MODIFIED="1251396569302" TEXT="Speed up gram_value update on cancel"/>
+<node CREATED="1241215767617" ID="Freemind_Link_1703805627" MODIFIED="1241215779674" TEXT="Accumulate acontrib directly into gram_contribs">
+<node CREATED="1241215785360" ID="Freemind_Link_276110028" MODIFIED="1241215789775" TEXT="If it&apos;s faster to do so."/>
+</node>
+<node CREATED="1241215865953" ID="Freemind_Link_731499049" MODIFIED="1241215878509" TEXT="More epsilons?">
+<node CREATED="1241215878848" ID="Freemind_Link_957640958" MODIFIED="1241215882778" TEXT="Level vs. Slope"/>
+<node CREATED="1241215883249" ID="Freemind_Link_1735758744" MODIFIED="1241215886122" TEXT="Sat vs Coop"/>
+</node>
+<node CREATED="1247762885741" ID="Freemind_Link_1952865263" MODIFIED="1247762891249" TEXT="Smaller epsilons?"/>
 <node CREATED="1251396967991" ID="Freemind_Link_499442037" MODIFIED="1251396990189" TEXT="Use numeric indices rather than strings when possible?">
 <icon BUILTIN="help"/>
 </node>
@@ -250,13 +256,13 @@
 </node>
 </node>
 <node CREATED="1237477511538" ID="Freemind_Link_894463638" MODIFIED="1237477524514" POSITION="right" TEXT="Scenario">
-<node CREATED="1243546243278" ID="Freemind_Link_1855932461" MODIFIED="1243546308604" TEXT="&quot;local&quot; flag should be on CIV and ORG groups as well">
-<icon BUILTIN="help"/>
-</node>
 <node CREATED="1237480308963" ID="Freemind_Link_1212698036" MODIFIED="1251396566598" TEXT="Reciprocal flag in *:UPDATE">
 <node CREATED="1237480368626" ID="Freemind_Link_285045741" MODIFIED="1237480382381" TEXT="Sets same value for mn and nm, nfg and ngf"/>
 <node CREATED="1237480331738" ID="Freemind_Link_1725501118" MODIFIED="1237480344757" TEXT="NBHOOD:RELATIONSHIP:UPDATE"/>
 <node CREATED="1237480346154" ID="Freemind_Link_377220162" MODIFIED="1237480349469" TEXT="RELATIONSHIP:UPDATE"/>
+</node>
+<node CREATED="1243546243278" ID="Freemind_Link_1855932461" MODIFIED="1243546308604" TEXT="&quot;local&quot; flag should be on CIV and ORG groups as well">
+<icon BUILTIN="help"/>
 </node>
 <node CREATED="1237480977571" FOLDED="true" ID="Freemind_Link_590980119" MODIFIED="1245882506254" TEXT="MAP:EXPORT">
 <icon BUILTIN="messagebox_warning"/>
@@ -300,10 +306,6 @@
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
 <node CREATED="1239723521749" ID="Freemind_Link_1093494342" MODIFIED="1245882542782" TEXT="Save sim speed, duration as prefs">
 <icon BUILTIN="messagebox_warning"/>
-</node>
-<node CREATED="1241215918369" ID="Freemind_Link_268023639" MODIFIED="1251996451206" TEXT="Stop button">
-<node CREATED="1241215931217" ID="Freemind_Link_1632396932" MODIFIED="1241215945706" TEXT="Enter time at tick 0"/>
-<node CREATED="1243546337742" ID="Freemind_Link_1648827364" MODIFIED="1243546346296" TEXT="Fast: no need to save snapshot at time t"/>
 </node>
 <node CREATED="1241215894576" ID="Freemind_Link_1711563604" MODIFIED="1241215901322" TEXT="More GRAM browsers">
 <node CREATED="1243546351758" ID="Freemind_Link_672128754" MODIFIED="1251396614478" TEXT="Drivers"/>
@@ -552,11 +554,11 @@
 </node>
 </node>
 <node CREATED="1238697459940" ID="Freemind_Link_946664107" MODIFIED="1238697464078" POSITION="right" TEXT="GUI Infrastructure">
-<node CREATED="1251397016743" FOLDED="true" ID="Freemind_Link_1167127" MODIFIED="1251397043233" TEXT="Help Browser Status Bar">
+<node CREATED="1251397016743" ID="Freemind_Link_1167127" MODIFIED="1251397043233" TEXT="Help Browser Status Bar">
 <node CREATED="1251397021144" ID="Freemind_Link_362409140" MODIFIED="1251397031361" TEXT="Add status bar that shows name of linked page"/>
 </node>
-<node CREATED="1251397054567" FOLDED="true" ID="Freemind_Link_1501672783" MODIFIED="1251397060357" TEXT="Help Browser Search">
-<node CREATED="1251397060599" ID="Freemind_Link_1483085231" MODIFIED="1251397066465" TEXT="Add full-text search to the help browser"/>
+<node CREATED="1252944651185" ID="Freemind_Link_353219562" MODIFIED="1252944656446" TEXT="Help Browser Link Colors">
+<node CREATED="1252944656880" ID="Freemind_Link_698260945" MODIFIED="1252944664087" TEXT="Color visited links purple"/>
 </node>
 <node CREATED="1237479433118" FOLDED="true" ID="Freemind_Link_491578520" MODIFIED="1245882780238" TEXT="Cell-based editing in browsers">
 <icon BUILTIN="messagebox_warning"/>
