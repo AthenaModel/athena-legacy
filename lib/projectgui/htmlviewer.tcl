@@ -139,15 +139,16 @@ snit::widgetadaptor ::projectgui::htmlviewer {
 
     constructor {args} {
         # FIRST, create the hull
-        installhull [html $win                  \
-                         -background     white  \
-                         -foreground     black  \
-                         -unvisitedcolor blue   \
-                         -borderwidth    0      \
-                         -relief         flat   \
-                         -tablerelief    flat   \
-                         -width          5i     \
-                         -height         4i     \
+        installhull [html $win                    \
+                         -background     white    \
+                         -foreground     black    \
+                         -unvisitedcolor \#1C1CF0 \
+                         -visitedcolor   \#561B8B \
+                         -borderwidth    0        \
+                         -relief         flat     \
+                         -tablerelief    flat     \
+                         -width          5i       \
+                         -height         4i       \
                          -fontcommand    [mymethod FontCommand]]
 
         $self configurelist $args

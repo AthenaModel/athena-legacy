@@ -129,6 +129,10 @@ snit::widget ::projectgui::helpbrowser {
         future  {}
     }
 
+    # Viewed: array of counts by page name.
+
+    variable viewed -array { }
+
     #-------------------------------------------------------------------
     # Constructor
 
@@ -208,6 +212,7 @@ snit::widget ::projectgui::helpbrowser {
         install hv using htmlviewer $win.paner.hvsw.hv \
             -takefocus        1                        \
             -hyperlinkcommand [mymethod HyperlinkCmd]  \
+            -isvisitedcommand [mymethod IsVisitedCmd]  \
             -imagecommand     [mymethod ImageCmd]
 
         $win.paner.hvsw setwidget $hv
@@ -247,6 +252,27 @@ snit::widget ::projectgui::helpbrowser {
 
         # NEXT, show it.
         $self showpage $name $anchor
+    }
+
+    # IsVisitedCmd uri
+    #
+    # uri     A URI of the form "<pageName>#<anchor>"
+    #
+    # Returns 1 if the Not clear what this should do.
+
+    method IsVisitedCmd {uri} {
+        # FIRST, get the page name and the anchor within the topic
+        set uri [lindex $uri 0]
+
+        if {[string index $uri 0] eq "#"} {
+            set uri "$info(current)$uri"
+        }
+
+        if {[info exists viewed($uri)]} {
+            return 1
+        } else {
+            return 0
+        }
     }
 
     # ImageCmd src width height dict dummy
@@ -324,9 +350,15 @@ snit::widget ::projectgui::helpbrowser {
             $self ShowPageRef $page 0.0
         }
 
-        # NEXT, scroll to the anchor, if any.
+        # NEXT, scroll to the anchor, if any.  At the same time,
+        # remember that we've been here.
         if {$anchor ne ""} {
             $hv yview $anchor
+            
+            set uri "$info(current)#$anchor"
+            incr viewed($uri)
+        } else {
+            incr viewed($info(current))
         }
 
         # NEXT, update the button state.
