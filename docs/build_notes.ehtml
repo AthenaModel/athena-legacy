@@ -11,6 +11,27 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.16, 14 September 2009</h3>
+
+This build contains bug fixes, additions to the on-line help, and two
+user-oriented features: full-text search in the help browser, and the
+ability to install and load code mods.  The full set of changes is as
+follows:<p>
+
+<ul>
+  <li> Bug 1943: Discarding changes fails to fill in 'Update' dialog as expected
+  <li> Bug 2181: Create NB Group dialog shows invalid choice
+  <li> Bug 2259: Dialogs allow scheduling of empty or incomplete orders
+  <li> Bug 2279: helpdb(n)/helpbrowser(n): Full Text Search
+  <li> Bug 2281: Can't save scenario: table helpdb_search_content already exists
+  <li> Bug 2283: Athena Help: Application Tabs (Part 2)
+  <li> Bug 2284: projectgui(n): "pencil0" icon
+  <li> Bug 2285: Athena Help: Application Tabs (Part 3)
+  <li> Bug 2286: athena_sim(1): Upgrade to SQLite 3.6.17
+  <li> Bug 2287: athena(1): Mod File Capability
+  <li> Bug 2288: Athena Help: Reports Tab 
+</ul><p>
+
 <h3>Build 1.0.15, 9 September 2009</h3>
 
 This build contains some small cosmetic changes, a number of bug
