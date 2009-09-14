@@ -42,21 +42,55 @@ macro term.header {} {
     [mktitle normal "Glossary" [pageinfo title] ""]
 }
 
-#-------------------------------------------------------------------
+#-----------------------------------------------------------------------
 
 term activity_priority "activity priority" {
     TBD: This page will list the unit activities in priority order.
 }
 
+#-----------------------------------------------------------------------
 
-#-------------------------------------------------------------------
+term bgerror "bgerror" {
+    When Athena encounters an unexpected run-time error, it does not
+    usually halt execution.  Instead, the error and a complete stack
+    trace are written to the <<tabref Log>>, and the user is
+    notified.  This is called a <i>background error</i>, or 
+    <i>bgerror</i> for short.<p>
+
+    It's usually wise to save the scenario under a new name after a 
+    bgerror, and then restart the application.  However, the only 
+    consequence of most bgerrors is that a particular feature is 
+    unavailable, or unavailable in certain circumstances.<p>
+
+    Background errors should be reported to the development team.  The
+    report should include the following items, insofar as this is
+    possible given security considerations:<p>
+
+    <ul>
+    <li> The bgerror and stack trace from the debugging log.  This is
+         the text with the orange background.
+    <li> The complete text of the log file, if possible.  Select
+         <b>detail</b> on the <b>Log</b> pulldown on the Log Browser
+         toolbar before cutting and pasting the log text.
+    <li> A description of what was happening immediately before the
+         bgerror occurred (if known).
+    <li> A detailed procedure for reproducing the error, if known.
+    </ul><p>
+
+    It is often wise to contact the development team with the bare
+    fact of the error prior to gathering all of the information, in
+    case it is a known problem.<p>
+}
+
+
+#-----------------------------------------------------------------------
 
 term cause "cause" {
     TBD: This page will explain the meaning of the "Cause" in
     GRAM inputs.
 }
 
-#-------------------------------------------------------------------
+#-----------------------------------------------------------------------
 
 term filterbox "filter box" {
     <img src="filterbox"><p>
@@ -116,7 +150,32 @@ term filterbox "filter box" {
     <</topiclist>>
 }
 
-#-------------------------------------------------------------------
+#-----------------------------------------------------------------------
+
+term loglevel "log level" {
+    Every entry written to the debugging log has an associated <i>log
+    level</i>, as follows:<p>
+
+    <ul>
+    <li> <b>fatal</b>:    Used when the program is about to halt.
+                          Displayed with a red background.
+    <li> <b>error</b>:    Used only for <<term bgerror>>s. Displayed
+                          with an orange background.
+    <li> <b>warning</b>:  Used when a potential problem is
+                          noticed. Displayed with a yellow background.
+    <li> <b>normal</b>:   Normal informational message.
+    <li> <b>detail</b>:   Detailed informational message.
+    <li> <b>debug</b>:    Debugging message, low-level details.
+    </ul><p>
+
+    Note that <b>debug</b> messages are only written to the log when
+    enabled by the developer.  By default, the <<tabref Log>> shows
+    <b>normal</b> messages of severity <b>normal</b> and above.
+}
+
+
+
+#-----------------------------------------------------------------------
 
 term mapref "map reference string" {
     A map reference string is a six-character string that represents
@@ -145,6 +204,22 @@ term mapref "map reference string" {
     have numeric map coordinates (999,499) and map reference string
     "K99E99".
 }
+
+#-----------------------------------------------------------------------
+
+term snapshot "snapshot" {
+    Each time the user presses the "Run Simulation" button, the
+    simulation saves a snapshot of its current state.  When the 
+    simulation is paused, the user can use the VCR buttons on the
+    main toolbar to return to any previous snapshot.  This is called
+    being in "snapshot mode".  While in snapshot mode, the user can
+    browse the various <<cref tabs>> freely.<p>
+
+    The most important snapshot is that taken at time 0; by 
+    returning to this snapshot and "re-entering the time stream", the
+    simulation returns to the <<cref using.prep>> state.<p>
+}
+
 
 #-----------------------------------------------------------------------
 

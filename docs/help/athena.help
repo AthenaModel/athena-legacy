@@ -31,6 +31,11 @@ image button_totop      "Button: To Top"            button_totop.png
 image button_tobottom   "Button: To Bottom"         button_tobottom.png
 image button_x          "Button: X"                 button_x.png
 image control_hotlist   "Control: Hot List"         control_hotlist.png
+image control_loglevel  "Control: Log Level"        control_loglevel.png
+image control_logtar    "Control: Log Target"       control_logtar.png
+image control_logsrch   "Control: Log Up/Down"      control_logsrch.png
+image control_logcnt    "Control: Log Count"        control_logcnt.png
+image control_logvcr    "Control: Log VCR"          control_logvcr.png
 image filterbox         "Filter Box"                filterbox.png
 image viewbox           "View Box"                  viewbox.png
 
