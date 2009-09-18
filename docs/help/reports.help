@@ -201,12 +201,14 @@ page REPORT:SATISFACTION:CONTRIB "Contribution to Satisfaction Report" reports {
     <b>Optional.</b>  By default, the report includes all
     contributions from time 0 until the current simulation time.  The
     user can narrow the window by setting the start time to some time
-    after time 0.  The time is specified as a <<term timespec>>.
+    after time 0 (but no later than the End Time).  The time is
+    specified as a <<term timespec>>.
     <</parm>>
 
     <<parm end "End Time">>
     <b>Optional.</b>  Similarly, the user can set the end of the time
-    window to some <<term timespec>> prior to the current simulation time.
+    window to some <<term timespec>> prior to the current simulation
+    time (but no earlier than the Start Time).
     <</parm>>
 
     <</parmlist>>

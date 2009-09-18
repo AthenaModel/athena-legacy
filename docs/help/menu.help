@@ -165,7 +165,7 @@ menuitem "File/Save CLI Scrollback Buffer..." {
 menuitem "File/Import Map..." {
     Imports an image file in JPEG, GIF, or PNG format to be used as
     a map background for the scenario.  Any image file can be used.
-    See <<cref "Using Maps">> for more information.
+    See <<cref using.maps>> for more information.
 }
 
 menu "File/Parameters" {

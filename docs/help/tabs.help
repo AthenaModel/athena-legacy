@@ -92,10 +92,137 @@ macro control.headers {} {
 # Map Tab
 
 tab "Map" {
-    The Map tab contains the Athena Map Viewer.<p>
+    The Map tab contains the Athena Map Viewer, the primary means of
+    visualizing Athena scenarios.  The Map Viewer is where 
+    <<cref NBHOOD: neighborhoods>> are drawn, <<cref UNIT: units>> and
+    <<cref SITUATION:ENVIRONMENTAL: "environmental situations">>  are 
+    created and positioned, and group moods are visualized.  The
+    browser controls are described <<seebelow controls>>.<p>
 
-    TBD: This is a big topic, which needs to be addressed on its own;
-    there will be many pages here.
+    <b>Basics:</b> For the most part, using the Map Viewer is
+    intuitive.  See <<cref using.maps>> for information on map
+    cooperations and importing a map background into the scenario.
+    See <<cref using.prep>> for information on defining a scenario.<p>
+
+    <b><a name="controls">Browser Controls:</a></b>  The Map Viewer
+    has two toolbars, the manipulation toolbar along the left-hand
+    side and the visualization toolbar across the top.  These toolbars
+    contain the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_arrow">}>>
+    Press this button to enable selection mode.  In this mode,
+    clicking on an object prints a brief description of the object to
+    the message line at the bottom of the window.  In addition, you
+    can control-click to drag units and environmental situations from
+    one place to another.  Simply press the <b>Ctrl</b> key, click on
+    the unit or situation, holding down the mouse button, and drag the
+    object to its new location.
+    <</topic>>
+
+    <<topic {<img src="button_pan">}>>
+    Press this button to enable panning mode.  In panning mode, click
+    and drag the map to pan from one part of the map to another.
+    Alternatively, use the scroll bars.
+    <</topic>>
+
+    <<topic {<img src="button_location">}>>
+    Press this button to enable location-entry mode, i.e., to enter a
+    <<term mapref>> into an order dialog or the CLI.<p>
+
+    It is rarely necessary to select this mode explicitly, as the
+    order dialogs select it automatically when the current order field
+    expects a <<term mapref>>. 
+    <</topic>>
+
+    <<topic {<img src="button_poly">}>>
+    Press this button to enable polygon-entry mode, i.e., to enter a
+    polygon (defined by a list of <<term mapref>>s) into an order
+    dialog or the CLI.<p>
+
+    It is rarely necessary to select this mode explicitly, as the
+    order dialogs select it automatically when the current order field
+    expects a polygon.
+    <</topic>>
+
+    <<topic {<img src="button_nbhood">}>>
+    Press this button to pop up the 
+    <<cref NBHOOD:CREATE>> order dialog.
+    <</topic>>
+
+    <<topic {<img src="button_unit">}>>
+    Press this button to pop up the <<cref UNIT:CREATE>> order
+    dialog.  Alternatively, right-click on the map and select
+    <<cref UNIT:CREATE>> from the context menu--this will pop up the
+    order dialog with the selected location already filled in.
+    <</topic>>
+
+    <<topic {<img src="button_ensit">}>>
+    Press this button to pop up the 
+    <<cref SITUATION:ENVIRONMENTAL:CREATE>> order
+    dialog.  Alternatively, right-click on the map and select
+    <<cref SITUATION:ENVIRONMENTAL:CREATE>> from the context
+    menu--this will pop up the order dialog with the selected location
+    already filled in.
+    <</topic>>
+
+    <<topic {<img src="control_mapref">}>>
+    This control shows the <<term mapref>> of the location under the
+    mouse pointer.
+    <</topic>>
+
+    <<topic {<img src="button_extmap">}>>
+    Map reference strings address a square region; if the map in use
+    is not a square, there is a strip of unused space on the
+    righthand-side or along the bottom.  If this button is selected,
+    this excess space is available as a place to position units or to
+    draw neighborhoods for remote regions.  Otherwise, all objects
+    must be on the map proper.
+    <</topic>>
+
+    <<topic {<img src="button_nbfill">}>>
+    By default, neighborhood polygons are transparent, revealing the
+    map background beneath.  If this button is selected, the polygons
+    will be filled with some color, nominally white.  See the
+    neighborhood fill type control, next, for other choices.
+    <</topic>>
+
+    <<topic {<img src="control_filltype">}>>
+    When the neighborhood fill button is selected, neighborhood
+    polygons are filled with some color.  This pulldown determines the
+    color.<p>
+
+    By default, or whenever Athena is in the <<cref using.prep>>
+    state, neighborhoods are filled with <b>white</b>.  The other
+    selections, which take effect only outside of 
+    <<cref using.prep>>, are <b>nbmood</b> and the names of the
+    civilian groups.<p>
+
+    When the name of a civilian group is selected, the background
+    of each neighborhood is filled according to the 
+    <<term mood>> of the selected group in the neighborhood.  Colors
+    shade from white (for a mood of 0.0) to green (for a mood of
+    +100.0) or to red (for a mood of -100.0).<p>
+
+    If <b>nbmood</b> is selected, the background is filled according
+    to the mood of the neighborhood as a whole, using the same color
+    scheme.
+
+    <</topic>>
+
+    <<topic {<img src="control_zoom">}>>
+    This pulldown controls the zoom level.  By default, the map is
+    drawn at 100%, its actual size.  Select one of the other zoom
+    levels to scale it up or down.  <b>Note:</b> the first time a
+    zoom level is chosen, there may be a delay as the map is scaled.
+    <</topic>>
+
+    <<topic "Context Menus">>Most objects drawn on the map have
+    context menus.  Right-click to pop up the menu.
+    <</topic>>
+
+    <</topiclist>>
 }
 
 
@@ -802,7 +929,7 @@ tab "Groups/NbGroups" {
     
     <<topic "RollupWeight">> A GRAM input used when computing
     composite satisfaction across multiple groups.  If a particular
-    group's satisfaction ways more heavily than others, due to
+    group's satisfaction weighs more heavily than others, due to
     population differences or social position, this weight can be used
     to make it so.  Defaults to 1.0.
     <</topic>>
@@ -959,7 +1086,7 @@ tab "Groups/OrgGroups" {
     
     <<topic "RollupWeight">> A GRAM input used when computing
     composite satisfaction across multiple groups.  If a particular
-    group's satisfaction ways more heavily than others, due to
+    group's satisfaction weighs more heavily than others, due to
     population differences or social position, this weight can be used
     to make it so.  Defaults to 1.0.
     <</topic>>

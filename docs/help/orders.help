@@ -1797,8 +1797,8 @@ page MAP: "Map Orders" orders {
 
     Athena allows the user to specify a map background to aid in both
     the construction of the scenario and the analysis and
-    visualization of the results.  (See <<cref "Using Maps">> for more
-    information.  The following orders manipulate
+    visualization of the results.  (See <<cref using.maps>> for more
+    information.)  The following orders manipulate
     the image used as the map background:<p>
 
     <<childlinks>>

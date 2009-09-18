@@ -473,7 +473,9 @@ snit::widget mapviewer {
         $self AddModeTool point  crosshair  "Point tool"
         $self AddModeTool poly   draw_poly  "Draw Polygon tool"
 
-        # TBD: Really need separator
+        # Separator
+        frame $win.vbar.sep -height 2 -relief sunken -borderwidth 2
+
         cond::orderIsValid control \
             [button $win.vbar.nbhood                          \
                  -relief  flat                                \
@@ -483,8 +485,6 @@ snit::widget mapviewer {
 
         DynamicHelp::add $win.vbar.nbhood \
             -text [order title NBHOOD:CREATE]
-
-        pack $win.vbar.nbhood -side top -fill x -padx 2
 
         cond::orderIsValid control \
             [button $win.vbar.newunit                         \
@@ -506,9 +506,10 @@ snit::widget mapviewer {
         DynamicHelp::add $win.vbar.newensit \
             -text [order title SITUATION:ENVIRONMENTAL:CREATE]
 
+        pack $win.vbar.sep       -side top -fill x -pady 2
         pack $win.vbar.nbhood    -side top -fill x -padx 2
         pack $win.vbar.newunit   -side top -fill x -padx 2
-        pack $win.vbar.newensit -side top -fill x -padx 2
+        pack $win.vbar.newensit  -side top -fill x -padx 2
 
         # Pack all of these components
         pack $win.hbar  -side top  -fill x

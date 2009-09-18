@@ -1,0 +1,59 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    using.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena help(5) file: How to use Athena
+#
+#-----------------------------------------------------------------------
+
+
+page using "Using Athena" {} {
+    <<title>>
+
+    This page groups together a number of topics related to using
+    Athena in general.  This is the place to begin getting to know
+    Athena before turning to the reference-oriented material elsewhere
+    in this on-line help document.<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+page using.gui "GUI Overview" using {
+    <<title>>
+    TBD:  This page will give an overview of the Athena GUI, with
+    links to other places (tabs, menus, etc.)
+}
+
+
+#-----------------------------------------------------------------------
+
+page using.prep "Scenario Preparation" using {
+    <<title>>
+    TBD:  This page will describe the "Scenario Prep" state, and how
+    to prepare an Athena scenario.
+}
+
+
+#-----------------------------------------------------------------------
+
+page using.maps "Using Maps" using {
+    <<title>>
+
+    TBD: This page will describe how Athena uses maps.
+}
+
+#-----------------------------------------------------------------------
+
+page using.simcontrols "Simulation Controls" using {
+    <<title>>
+
+    TBD: This page will describe the simulation control tool bar.
+}
+
