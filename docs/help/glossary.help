@@ -44,9 +44,76 @@ macro term.header {} {
 
 #-----------------------------------------------------------------------
 
-term activity_priority "activity priority" {
-    TBD: This page will list the unit activities in priority order.
+term activity "activity" {
+    An <i>activity</i> is an action that can be assigned to a
+    <<term unit>>; the unit is said to perform the activity.  
+    There are different sets of activities for units belonging to
+    <<term frcgroup>>s, <<term orggroup>>s, and 
+    <<term nbgroup>>s.  For the full list of activities, and the
+    meaning and effect of each, see the Athena Rules document, which
+    is delivered with the software.
 }
+
+
+#-----------------------------------------------------------------------
+
+term activity_priority "activity priority" {
+    Each activity assignable to a <<term unit>> has a priority; when
+    units are attrited, the units with less important activities are
+    attrited before units with more important activities.  (That is,
+    we assume that troops are rotated from less important activities
+    to more important activities as troops doing the more important
+    activities are killed.)<p>
+
+    The <<term frcgroup>> activities in priority order are as
+    follows:<p>
+
+    <ul>
+    <li> <b>NONE</b>
+    <li> <b>CMO_CONSTRUCTION</b>
+    <li> <b>CMO_DEVELOPMENT</b>
+    <li> <b>CMO_EDUCATION</b>
+    <li> <b>CMO_EMPLOYMENT</b>
+    <li> <b>CMO_INDUSTRY</b>
+    <li> <b>CMO_INFRASTRUCTURE</b>
+    <li> <b>CMO_LAW_ENFORCEMENT</b>
+    <li> <b>CMO_OTHER</b>
+    <li> <b>CMO_HEALTHCARE</b>
+    <li> <b>CRIMINAL_ACTIVITIES</b>
+    <li> <b>COERCION</b>
+    <li> <b>PSYOP</b>
+    <li> <b>CURFEW</b>
+    <li> <b>CHECKPOINT</b>
+    <li> <b>PATROL</b>
+    <li> <b>GUARD</b>
+    </ul><p>
+
+    The <<term orggroup>> activities in priority order are as
+    follows:<p>
+
+    <ul>
+    <li> <b>NONE</b>
+    <li> <b>CMO_CONSTRUCTION</b>
+    <li> <b>CMO_EDUCATION</b>
+    <li> <b>CMO_EMPLOYMENT</b>
+    <li> <b>CMO_INDUSTRY</b>
+    <li> <b>CMO_INFRASTRUCTURE</b>
+    <li> <b>CMO_OTHER</b>
+    <li> <b>CMO_HEALTHCARE</b>
+    </ul>
+}
+
+#-----------------------------------------------------------------------
+
+term attitude "attitude" {
+    An <i>attitude</i> of a particular <<term group>> toward
+    something, as tracked by <<model gram>>.  Attitudes include
+    group <<term satisfaction>> and the <<term cooperation>> of
+    <<term nbgroup>>s with <<term frcgroup>>s.  At present
+    group <<term relationship>>s are static, but it is likely that
+    they will be tracked as attitudes at some time in the future.
+}
+
 
 #-----------------------------------------------------------------------
 
@@ -86,8 +153,200 @@ term bgerror "bgerror" {
 #-----------------------------------------------------------------------
 
 term cause "cause" {
-    TBD: This page will explain the meaning of the "Cause" in
-    GRAM inputs.
+    Every <<model gram>> <<term driver>> has an associated
+    <i>cause</i>.  All inputs to GRAM for the driver will be tagged
+    with this cause; for example, the <b>DISEASE</b> and
+    <b>EPIDEMIC</b> <<term ensit>>s both have the cause
+    <b>SICKNESS</b>.<p>
+
+    The purpose of causes is to prevent multiple inputs of a similar
+    type from piling on in an unreasonable way.  For example, suppose
+    that there is a serious epidemic in neighborhood A which then
+    spreads to nearby neighborhood B.  While the epidemic remained in
+    A, the folks in B were somewhat unhappy about it (because it might
+    spread, and because they care about some or all of the people in
+    A).  Once the epidemic spreads to B, though, the people in B have
+    their own problems; it's unlikely to expect them to feel all that
+    bad about the situation in neighborhood A.<p>
+
+    Next, consider neighborhood C, which is near to both A and B.
+    The spread of the epidemic to B might heighten their alarm
+    somewhat, but it shouldn't double their alarm.<p>
+
+    In these cases, where there are multiple inputs to GRAM for a
+    given curve (say, group G's SFT in neighborhood C), the smaller
+    inputs get swamped by the larger rather than adding to them.<p>
+
+    The cause associated with each kind of driver can be found in the
+    Athena Rules document, delivered with the software.
+}
+
+#-----------------------------------------------------------------------
+
+term civgroup "civilian group" {
+    A <i>civilian <<term group>></i> is an identifiable collection of people
+    who reside in the <<term playbox>>.  The members of a civilian
+    group will share one or more characteristics that make them of
+    interest to the analyst: ethnicity, religious or political
+    affiliation, and so forth.  Civilian groups reside in
+    <<term nbhood>>s as <<term nbgroup>>s.<p>
+
+    Civilian groups are created on the 
+    <<tabref Groups/CivGroups>>, and manipulated using the
+    <<cref GROUP:CIVILIAN:>>.
+}
+
+#-----------------------------------------------------------------------
+
+term concern "concern" {
+    Athena tracks the <<term satisfaction>> of 
+    <<term nbgroup>>s and <<term orggroup>>s with respect to a number
+    of <i>concerns</i>, also known as <i>soft factors</i>.<p>
+
+    Civilians have the following four concerns; note that the
+    <<term saliency>> of a given concern will typically differ
+    from one <<term nbgroup>> to another.<p>
+
+    <<topiclist>>
+
+    <<topic "Autonomy (AUT)">>
+    Does the group feel it can maintain order and govern itself with a
+    stable government and a viable economy?
+    <</topic>>
+
+    <<topic "Safety (SFT)">>
+    Do members of the group fear for their lives, either from hostile
+    attack or from collateral damage from force activities?  This fear
+    includes environmental concerns such as life-threatening disease,
+    starvation, and dying of thirst.
+    <</topic>>
+
+    <<topic "Culture (CUL)">>
+    Does the group feel that its culture and religion, including
+    cultural and religious sites and artifacts, are respected or
+    denigrated?
+    <</topic>>
+
+    <<topic "Quality of Life (QOL)">>
+    QOL includes the physical plants that provide services, including
+    water, power, public transportation, commercial markets,
+    hospitals, etc., and those things associated with these services,
+    such as sanitation, health, education, employment, food, clothing,
+    and shelter.
+    <</topic>>
+
+    <</topiclist>><p>
+
+    Organizations have the following concern:<p>
+
+    <<topiclist>>
+
+    <<topic "Casualties (CAS)">>
+    How dangerous the organization group views its environment to be
+    in relationship to its members' willingness to risk (or continue
+    risking) their lives to do their work.  If CAS is sufficiently
+    low, members of the group might refuse to work.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+
+#-----------------------------------------------------------------------
+
+term cooperation "cooperation" {
+    A cooperation level is an <<term attitude>> that represents
+    the likelihood that a member of a <<term nbgroup>> will give
+    information to a member of a particular <<term frcgroup>>.
+    Cooperation levels are represented using the following scale:<p>
+
+    <<::simlib::qcooperation html>><p>
+
+    Athena creates the required cooperation curves automatically as 
+    groups are created.  The cooperation between groups
+    is viewed and modified on the <<tabref Attitudes/Cooperation>>
+    using the <<cref COOP:>> and <<cref MAD:COOP:>>.  Cooperation can
+    also be changed by <<term driver>>s that trigger Athena's
+    <<term damrules>>.
+}
+
+#-----------------------------------------------------------------------
+
+term coverage "coverage" {
+    Coverage is a measure of the fraction of a <<term nbhood>> that
+    is affected by something--a unit <<term activity>>, an
+    <<term ensit>>, etc.--expressed as a number between 0.0 and 1.0.
+    It is a common input to the <<term damrules>>.
+}
+
+
+
+#-----------------------------------------------------------------------
+
+term damrules "DAM Rules" {
+    Athena assesses the affect of simulation <<term driver>>s using a
+    collection of rule sets that belong to Athena's 
+    <<model dam>> (DAM); the rule sets are collectively known as the
+    <i>DAM Rules</i>.  The full set of rules and their effects are
+    defined in the Athena Rules document, delivered with the software.
+}
+
+
+
+#-----------------------------------------------------------------------
+
+term driver "driver" {
+    <b>1.</b> Any event or situation occuring in the
+    <<term playbox>> that causes a change in the <<term attitude>>s
+    of members of one or more <<term nbgroup>> or 
+    <<term orggroup>>.<p>
+
+    Examples of drivers include casualties to 
+    <<term civgroup>>s and <<term orggroup>>s, the presence
+    and activities of <<term frcgroup>> in <<term nbhood>>s, 
+    <<term ensit>>s, and <<term mad>>s.<p>
+
+    <b>2.</b> A <<term mad>>.<p>
+
+    <b>3.</b> A <<model gram>> driver ID.
+}
+
+#-----------------------------------------------------------------------
+
+term effects_delay "effects delay" {
+    The delay, in days, before the effects of a <<term driver>>
+    in <<term nbhood>> <i>n</i> are felt in neighborhood <i>m</i>;
+    closely related to <<term proximity>>.<p>
+    
+    A neighborhood always has a delay of 0.0 days with itself; 
+    <b>NEAR</b>, <b>FAR</b>, and <b>REMOTE</b> neighborhoods may have
+    longer delays.  Note that the delay need not be symmetric.<p>
+
+    The effects delay between two neighborhoods is edited on the
+    <<tabref Neighborhoods/Relationships>>, using the
+    <<cref NBHOOD:RELATIONSHIP:>>.
+}
+
+#-----------------------------------------------------------------------
+
+term ensit "environmental situation" {
+    An <i>environmental situation</i> is an on-going situation within
+    a <<term nbhood>>; it is an attitude <<term driver>>, and affects
+    all of the people living in the neighborhood.  It may also affect
+    surrounding neighborhoods.  For a complete list of situation
+    types, and the effect of each, see the Athena Rules document
+    delivered with the software.<p>
+
+    <b>Note:</b> Athena tracks the neighborhood in which each 
+    environmental situation is
+    located.  The precise location of a situation within a neighborhood
+    is meaningless.<p>
+
+    Environmental situations can be created and positioned using the 
+    controls on the <<tabref Map>>; the full set of situations
+    can browsed and edited on the 
+    <<tabref Neighborhoods/EnSits>>, using the 
+    <<cref SITUATION:ENVIRONMENTAL:>>.  
 }
 
 #-----------------------------------------------------------------------
@@ -152,6 +411,36 @@ term filterbox "filter box" {
 
 #-----------------------------------------------------------------------
 
+term frcgroup "force group" {
+    A <i>force <<term group>></i> is a group or organization that
+    exists to implement policy through the application of force.
+    Examples include the regular army, the local police, and
+    organized crime.<p>
+
+    Force groups are created on the 
+    <<tabref Groups/FrcGroups>>, and manipulated using the
+    <<cref GROUP:FORCE:>>.  In order to apply force, force group
+    personnel must exist in the  <<term playbox>> as <<term unit>>s.
+}
+
+#-----------------------------------------------------------------------
+
+term group "group" {
+    In Athena, a <i>group</i> is a collection of people with some
+    shared mission, origin, organization or goals.  There are three
+    kinds of groups in Athena:<p>
+
+    <ul>
+    <li> <<term civgroup>>s, which reside in 
+         <<term nbhood>>s as <<term nbgroup>>s.
+    <li> <<term frcgroup>>s
+    <li> <<term orggroup>>s
+    </ul>
+}
+
+
+#-----------------------------------------------------------------------
+
 term loglevel "log level" {
     Every entry written to the debugging log has an associated <i>log
     level</i>, as follows:<p>
@@ -173,6 +462,17 @@ term loglevel "log level" {
     <b>normal</b> messages of severity <b>normal</b> and above.
 }
 
+#-----------------------------------------------------------------------
+
+term mad "magic attitude driver" {
+    A <i>magic attitude driver</i> (MAD) is a "magic" 
+    <<term driver>> (event or situation) defined by the user; it
+    affects attitudes in any way the user determines, via the 
+    <<cref MAD:>>.<p>
+
+    Browse, create, and edit MADs on the 
+    <<tabref Attitudes/Magic Attitude Drivers>>.
+}
 
 
 #-----------------------------------------------------------------------
@@ -207,9 +507,206 @@ term mapref "map reference string" {
 
 #-----------------------------------------------------------------------
 
+term mood "mood" {
+    <b>1.</b> A <<term nbgroup>> or <<term orggroup>>'s 
+    <<term satisfaction>> averaged across its 
+    <<term concern>>s, and taking <<term saliency>> into account.  In
+    other words, how satisfied or dissatisfied the group is with
+    things in general.<p>
+
+    <b>2.</b> A <<term nbhood>>'s mood, i.e., the satisfaction of
+    all groups in the neighborhood with things in general.
+}
+
+
+#-----------------------------------------------------------------------
+
+term nbhood "neighborhood" {
+    The Athena <<term playbox>>, or region of interest, is divided up
+    into <i>neighborhoods</i>.  A neighborhood is a polygonal area on
+    the <<cref using.maps map>> containing <<term nbgroup>>s, 
+    <<term unit>>s of various kinds, <<term ensit>>s, and so forth.<p>
+
+    Neighborhoods can be created on the 
+    <<tabref Map>> during <<cref using.prep>>, and manipulated
+    on the <<tabref Neighborhoods/Neighborhoods>> and using the
+    <<cref NBHOOD:>>.
+}
+
+#-----------------------------------------------------------------------
+
+term nbgroup "neighborhood group" {
+    A <i>neighborhood <<term group>></i> is a 
+    <<term civgroup>> resident in a particular 
+    <<term nbhood>>, e.g, Punjabis living in a particular district
+    of Pakistan.<p>
+
+    Neighborhood groups are created on the 
+    <<tabref Groups/NbGroups>>, and manipulated using the
+    <<cref GROUP:NBHOOD:>>.
+}
+
+#-----------------------------------------------------------------------
+
+term orggroup "organization group" {
+    An <i>organization <<term group>></i> is an organization that
+    performs work (especially humanitarian relief) in the
+    <<term playbox>>.  Organization groups include Non-Governmental
+    Organizations (NGOs), such as the Red Cross, Inter-Governmental
+    Organizations (IGOs), such as UNICEF, and contractors, such as
+    Haliburton.<p>
+
+    Organization groups are created on the 
+    <<tabref Groups/OrgGroups>>, and manipulated using the
+    <<cref GROUP:ORGANIZATION:>>.  In order to work, organization
+    group personnel must exist in the <<term playbox>> as <<term unit>>s.
+}
+
+
+
+
+#-----------------------------------------------------------------------
+
+term playbox "playbox" {
+    The <i>playbox</i> is the region of interest to the analyst in 
+    the current scenario, i.e., the region for which
+    <<term nbhood>>s are defined.
+}
+
+
+#-----------------------------------------------------------------------
+
+term proximity "proximity" {
+    The <i>proximity</i> of one <<term nbhood>> with another is
+    expressed as one of the following four values,<b>HERE</b>, 
+    <b>NEAR</b>, <b>FAR</b>, and <b>REMOTE</b>, where <b>HERE</b>
+    represents the proximity of a neighborhood to itself.<p>
+
+    The attitudes of a <<term nbgroup>> can be affected by 
+    <<term driver>>s that occur <b>HERE</b> in the same neighborhood; to a
+    lesser degree by drivers occuring in a <b>NEAR</b>
+    neighborhood, even less by drivers in a <b>FAR</b>
+    neighborhood, and not at all by drivers in a <b>REMOTE</b>
+    neighborhood.<p>
+
+    The extent to which <b>NEAR</b> and <b>FAR</b> drivers have an
+    effect <b>HERE</b> varies from one kind of driver to another.<p>
+
+    Note that proximity is assigned by the analyst, and can take into
+    account physical distance, physical obstacles, psychological
+    distance, and so forth.  Further, it need not be symmetric:
+    neighborhood A might regard neighborhood B as <b>NEAR</b> while B
+    regards A as <b>FAR</b>, or even as <b>REMOTE</b>.<p>
+
+    The proximity between two neighborhoods is edited on the
+    <<tabref Neighborhoods/Relationships>>, using the
+    <<cref NBHOOD:RELATIONSHIP:>>.<p>
+
+
+    See also <<term effects_delay>>.
+}
+
+#-----------------------------------------------------------------------
+
+term relationship "relationship" {
+    <b>1.</b> The relationship between two <<term group>>s, expressed
+    using the following scale:<p>
+
+    <<::simlib::qrel html>><p>
+
+    Group relationships have effects throughout the Athena models.  
+    Every group has a relationship of 1.0 with itself and by default a
+    relationship of 0.0 with every other group.  Realistic
+    relationships between groups range from +0.6 to -0.3 or -0.4.<p>
+
+    Group relationships are edited on the 
+    <<tabref Groups/Relationships>>, using the 
+    <<cref RELATIONSHIP:>> orders.<p>
+
+    <b>2.</b> The relationship between two <<term nbhood>>s, expressed
+    as a <<term proximity>> and an <<term effects_delay>>.
+}
+
+#-----------------------------------------------------------------------
+
+term roe "ROE" {
+    In normal military usage, a unit's Rules of Engagement (ROEs) are
+    the rules given to them in their orders that determine when they
+    may engage the enemy.  In Athena, ROEs apply to a <<term frcgroup>>
+    in a <<term nbhood>> and determine when and how the group can 
+    engage other groups.  There will be no armed conflict, and hence
+    no attrition or civilian casualties, unless the user creates
+    the appropriate ROEs.<p>
+
+    There are several kinds of ROE; they are created, browsed, and
+    edited on the subtabs of the <<tabref ROE>>.  See the description
+    of the <<cref ROE:>> for more details.
+}
+
+
+
+#-----------------------------------------------------------------------
+
+term saliency "saliency" {
+    The <i>saliency</i> of a <<term concern>> to a 
+    <<term group>> is the importance of that concern to the group.
+    Some groups will value quality of life more than autonomy; for
+    others, culture will trump quality of life.  This comes into play
+    when computing a group or <<term nbhood>>'s <<term mood>>, and
+    when comparing  <<term satisfaction>> levels across groups.<p>
+    
+    Saliency is represented using the following scale:<p>
+
+    <<::simlib::qsaliency html>>
+
+    A group's saliency for each concern is set on the
+    <<tabref Attitudes/Satisfaction>> using the
+    <<cref SAT:>>.
+}
+
+
+
+#-----------------------------------------------------------------------
+
+term satisfaction "satisfaction" {
+    A satisfaction level is an <<term attitude>> that
+    represents a <<term group>>'s satisfaction with respect to some
+    <<term concern>>.  Satisfaction
+    levels are represented using the following scale:<p>
+
+    <<::simlib::qsat html>><p>
+
+    Athena creates the required satisfaction curves automatically as 
+    groups and <<term nbhood>>s are created.  A group's satisfaction
+    is viewed and modified on the <<tabref Attitudes/Satisfaction>>
+    using the <<cref SAT:>> and <<cref MAD:SAT:>>.  Satisfaction can
+    also be changed by <<term driver>>s that trigger Athena's
+    <<term damrules>>.
+}
+
+#-----------------------------------------------------------------------
+
+term scenariofile "scenario file" {
+    Athena is a document-centric application, rather like a word
+    processor or spreadsheet application.  An Athena "document" is
+    called an <i>Athena scenario file</i>.  The scenario file contains
+    the scenario data, the <<cref using.maps map>> (if any),
+    <<cref reports>>, <<term snapshot>>s, and in general everything
+    to do with the scenario.<p>
+
+    Most Athena scenario files are in ".adb" format; however, it is
+    possible to 
+    <<menuref "File/Export as XML..." export>> a scenario as an XML
+    file (provided) the simulation is in the <b>Prep</b> <<term state>>.
+}
+
+
+#-----------------------------------------------------------------------
+
 term snapshot "snapshot" {
-    Each time the user presses the "Run Simulation" button, the
-    simulation saves a snapshot of its current state.  When the 
+    Each time the user presses the 
+    <<cref using.simcontrols "Run Simulation">> button, the
+    simulation saves a snapshot of its current <<term state>>.  When the 
     simulation is paused, the user can use the VCR buttons on the
     main toolbar to return to any previous snapshot.  This is called
     being in "snapshot mode".  While in snapshot mode, the user can
@@ -219,6 +716,49 @@ term snapshot "snapshot" {
     returning to this snapshot and "re-entering the time stream", the
     simulation returns to the <<cref using.prep>> state.<p>
 }
+
+#-----------------------------------------------------------------------
+
+term state "state" {
+    <b>1.</b> The complete state of the simulation at a given time: all
+    data associated with the simulation.  This is what is saved in the
+    <<term scenariofile>>.<p>
+
+    <b>2.</b> The simulation mode in which Athena is currently operating.
+    The Athena simulation can be in one of the following states at
+    any given time:<p>
+
+    <ul>
+    <li> <b>Prep</b>
+    <li> <b>Running</b>
+    <li> <b>Paused</b>
+    <li> <b>Snapshot</b>
+    </ul>
+
+    When a scenario is first created, it is in the <b>Prep</b>, or
+    <<cref using.prep>> state.  This is where the most basic entities 
+    in the simulation are created: <<term nbhood>>s, <<term group>>s,
+    and so forth.<p>
+
+    The simulation remains in the <b>Prep</b> state until the user
+    first presses the <<cref using.simcontrols "Run Simulation">>
+    button, at
+    which time it enters the <b>Running</b> state.  The simulation
+    will continue to advance time until it reaches the stop time
+    selected by the user, or the user presses the 
+    <<cref using.simcontrols "Pause">> button.<p>
+
+    Once the simulation is <b>Paused</b>, the user can once again
+    enter <<term order>>s interactively.</p>
+
+    Each time the user presses the Run button, the simulation makes
+    a <<term snapshot>>; the user can return to these snapshots using
+    the <<cref using.simcontrols>>.  While looking at a snapshot, the
+    simulation is in the <b>Snapshot</b> state; orders cannot be
+    entered until the user returns to the <b>Prep</b> or <b>Paused</b>
+    state.
+}
+
 
 
 #-----------------------------------------------------------------------
@@ -243,7 +783,18 @@ term order "order" {
 #-----------------------------------------------------------------------
 
 term security "security" {
-    TBD: This term will describe the neighborhood security model.
+    A <<term group>>'s <i>security</i> is computed by the 
+    <<model force>> model.  It is a number that indicates how safe
+    members of the group are in a <<term nbhood>>, as opposed to
+    how satisfied they are with their safety.  <p>
+
+    Security is represented
+    by the following scale:<p>
+
+    <<::projectlib::qsecurity html>>
+
+    A group's security is affected by the <<term volatility>> of the
+    neighborhood.
 }
 
 
@@ -292,8 +843,39 @@ term timespec "time specification string" {
 
 #-----------------------------------------------------------------------
 
+term unit "unit" {
+    A <i>unit</i> is a collection of personnel belonging to some
+    <<term group>> that can be positioned in the <<term playbox>>
+    and displayed on the <<tabref Map>>.<p>
+
+    In conventional war games, units correspond to a Table of
+    Organization and Equipment (TOE); thus, a unit might be Company A
+    of such-and-such a battalion.  Athena borrows this term, but
+    changes it.  In Athena, a unit is really an allocation of
+    personnel to some purpose over a period of time, e.g., an
+    allocation of members of a <<term frcgroup>> to the 
+    <<term activity>> of law enforcement.<p>
+
+    <b>Note:</b> Athena tracks the neighborhood in which each unit is
+    located.  The precise location of a unit within a neighborhood
+    is meaningless.<p>
+
+    Units can be created and positioned using the controls on the
+    <<tabref Map>>.  The full set of units can browsed
+    and edited on the <<tabref Units>>, using the <<cref UNIT:>>.<p>
+}
+
+
+
+#-----------------------------------------------------------------------
+
 term volatility "volatility" {
-    TBD: Volatility of the neighborhood, with reference to
+    The <i>volatility</i> of each <<term nbhood>> is a number from 0
+    to 100 that indicates how likely it is that a random person in the
+    neighborhood will get caught up in violence unrelated to his
+    presence.  It is computed by the <<model force>> model.<p>
+
+    Volatility is a major component of a <<term group>>'s 
     <<term security>>.
 }
 
@@ -332,11 +914,4 @@ term zulu "zulu-time" {
 
     <</topiclist>>
 }
-
-
-
-
-
-
-
 
