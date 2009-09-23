@@ -11,6 +11,23 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.17, 23 September 2009</h3>
+
+This is likely the final 1.0.x build before splitting the baseline in
+preparation for delivery of Athena 1.1.  It contains a small number of
+bug fixes, and a lot of documentation updates, relating particularly
+to the on-line help.  The full set of changes is as follows:<p>
+
+<ul>
+  <li> Bug 2238: Ensit durations are 1 day (tick) longer than specified / expected
+  <li> Bug 2265: athena_sim(1): GRAM "dump" commands
+  <li> Bug 2289: Errors using 'dump' command
+  <li> Bug 2290: helpbrowser(n)/htmlviewer(n): Mark visited links
+  <li> Bug 2291: Athena Help: Log Tab
+  <li> Bug 2292: Athena Help: Map Tab, plus corrections
+  <li> Bug 2293: Athena Help: The Final Sprint 
+</ul><p>
+
 <h3>Build 1.0.16, 14 September 2009</h3>
 
 This build contains bug fixes, additions to the on-line help, and two
