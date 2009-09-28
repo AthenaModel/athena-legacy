@@ -196,7 +196,7 @@ model gram "GRAM" attitude {
 model dam "Driver Assessment Model" attitude {
     The Driver Assessment Model (DAM) is responsible for assessing the
     implications of events and situations (<<term driver>>s) that
-    occur Athena's other models as the simulation advances time.  It
+    occur in Athena's other models as the simulation advances time.  It
     consists of a large number of rule sets; each rule set is
     responsible for assessing the implications of one particular kind
     of driver.  The rule sets are documented in great detail in the
@@ -228,13 +228,13 @@ model demog "Demographics" "" {
     The Demographics model is responsible for tracking the civilian
     demographics: any breakdowns or divisions of the civilian
     population required by the other Athena models.  For example, it
-    will be the responsible of the Demographics model to determine the
+    will be the responsibility of the Demographics model to determine the
     size of the labor force, once we have an Economics model to plug
     it into.  Ultimately, the Demographics model will track births and
     deaths, and age cohorts by sex, for each <<term nbgroup>>.<p>
 
-    The preliminary Demographics model implemented in Athena
-    <<version>> has a much simpler task.  Each <<term nbgroup>> begins
+    The Demographics model implemented in the present version
+    has a much simpler task.  Each <<term nbgroup>> begins
     with a certain implicit population.  The model tracks what happens
     to this population as members of the population
     are moved into or out of <<term unit>>s, units are moved to and

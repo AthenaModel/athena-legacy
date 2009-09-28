@@ -355,11 +355,19 @@ term filterbox "filter box" {
     <img src="filterbox"><p>
 
     The various Athena data browsers all feature a filter box, which
-    is a control used to filter the contents of the browser.  For
-    example, to show only rows that contain the string "XYZ", type
-    "XYZ" into the filter box.  To clear the filter box (and thus stop
-    filtering the data), press the "circle-X" icon at the right-hand
-    end of the filter box.<p>
+    is a control used to limit what is shown in the browser to some
+    <i>ad hoc</i> set chosen by the user.<p>
+
+    For example, enter "FRED" in the filter box to show only rows that
+    contain the name "FRED" somewhere in the row.  To see all of the
+    rows again, click the "circle-X" icon at the right-hand end of the
+    filter box.<p>
+
+    The filter box's behavior can be modified in two ways.  First, you
+    can change the criteria that determines a "match"; in
+    every case, what's being matched is some portion of the text on
+    the row.  Second, you can
+    tell it to display only those rows that <b>do not</b> match.<p>
 
     To modify the filter box's behavior, click on the "sieve" icon at
     the left-hand of the filter box.  This pops up a menu with the
@@ -548,12 +556,31 @@ term nbgroup "neighborhood group" {
 
 #-----------------------------------------------------------------------
 
+term order "order" {
+    Inputs to the Athena scenario and models are presented to Athena
+    as <<cref orders>>.<p>
+
+    Orders may be sent interactively by a variety
+    of methods; such orders can usually be 
+    <<menuref Edit/Undo undone>>.  The complete history of orders
+    sent interactively to Athena is shown on the 
+    <<tabref Orders/Sent>>.<p>
+
+    In addition, orders can be scheduled in advance.  Scheduled orders are
+    execute as time advances, and consequently cannot be undone.  The
+    full set of orders that are waiting for execution is shown on the 
+    <<tabref Orders/Scheduled>>.
+}
+
+
+#-----------------------------------------------------------------------
+
 term orggroup "organization group" {
     An <i>organization <<term group>></i> is an organization that
     performs work (especially humanitarian relief) in the
     <<term playbox>>.  Organization groups include Non-Governmental
-    Organizations (NGOs), such as the Red Cross, Inter-Governmental
-    Organizations (IGOs), such as UNICEF, and contractors, such as
+    Organizations (NGOs) such as the Red Cross, Inter-Governmental
+    Organizations (IGOs) such as UNESCO, and contractors such as
     Haliburton.<p>
 
     Organization groups are created on the 
@@ -759,25 +786,6 @@ term state "state" {
     state.
 }
 
-
-
-#-----------------------------------------------------------------------
-
-term order "order" {
-    Inputs to the Athena scenario and models are presented to Athena
-    as <<cref orders>>.<p>
-
-    Orders may be sent interactively by a variety
-    of methods; such orders can usually be 
-    <<menuref Edit/Undo undone>>.  The complete history of orders
-    sent interactively to Athena is shown on the 
-    <<tabref Orders/Sent>>.<p>
-
-    In addition, orders can be scheduled in advance.  Scheduled orders are
-    execute as time advances, and consequently cannot be undone.  The
-    full set of orders that are waiting for execution is shown on the 
-    <<tabref Orders/Scheduled>>.
-}
 
 
 #-----------------------------------------------------------------------
