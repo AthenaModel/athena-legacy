@@ -198,12 +198,16 @@ proc main {argv} {
     # NEXT, make sure the current state meets the requirements for
     # this application.
 
+    # NEXT, we have the desired application.  Load its package.
+    package require [dict get $meta($appname) applib]
+
+    # NEXT, get the application directory in the host
+    # file system.
+    appdir init
+    
     # NEXT, load the mods from the mods directory, if any.
     ::athena_mods::load
 
-    # NEXT, we have the desired application.  Load its package.
-    package require [dict get $meta($appname) applib]
-    
     # NEXT, apply any applicable mods
     ::athena_mods::apply
 
@@ -331,7 +335,7 @@ proc ::athena_mods::load {} {
     $interp alias mod ::athena_mods::ModCmd
 
     # NEXT, get the mods directory
-    set moddir [file join $::appdir .. mods]
+    set moddir [appdir join mods]
 
     # NEXT, get a list of all of the mods in the directory
     foreach modfile [glob -nocomplain [file join $moddir *.tcl]] {
