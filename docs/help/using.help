@@ -37,10 +37,10 @@ page using.gui "GUI Overview" using {
     <li> The <<cref tabs "Tab Area">>: each tab or subtab gives a 
          different view on the Athena scenario, simulation results, or
          operation.
-    <li> <b>Main Window only:</b> The Command Line Interface, or
+    <li> <b>Main Window only:</b> The <<cref using.cli>>, or
          <i>CLI</i>.  Most Athena features are accessible through the GUI,
          but there are also a number of <<cref cmd>> that can be typed
-         as the CLI.
+         at the CLI's command prompt.
     </ul>
 }
 
@@ -225,3 +225,41 @@ page using.simcontrols "Simulation Controls" using {
 
 }
 
+page using.cli "Command Line Interface" using {
+    <<title>>
+
+    The <i>Command Line Interface</i>, or CLI, is found at the bottom
+    of the main window.  Most Athena features are accessible through
+    the GUI, but there are also a number of <<cref cmd>> that can be
+    typed at the CLI's command prompt.<p>
+
+    The CLI provides the following conveniences for entering
+    commands:<p>
+
+    <ul>
+    <li> <b>Full command-line editing.</b>  Use the left and right arrow keys
+         (or the mouse) to edit the text on the command-line before
+         executing it.<p>
+
+    <li> <b>Command-history.</b>  Use the up and down arrow keys to retrieve
+         the previous commands to the command-line for execution.  The
+         command history is preserved from one run of Athena to the next.<p>
+
+    <li> <b>Command-completion.</b>  Press the Tab key to expand a partial
+         command name into a full command name, e.g., type "err" and
+         press Tab to expand "err" into "errtrace".<p>
+
+    <li> <b>Standard cut, copy, and paste.</b>  Use Ctrl+X, Ctrl+C,
+         and Ctrl+V to cut, copy, and paste on the command line.  Use
+         the mouse to select older text in the shell (e.g., command
+         outputs) and copy it with Ctrl+C.<p>
+
+    <li> <b>Scrollback.</b>  Use the scroll bar to scroll back through
+         previous commands and their output.  The 
+         <<cref pref.cli.maxlines>> preference setting controls the maximum
+         size of the scrollback buffer, the 
+         <<menuref "File/Save CLI Scrollback Buffer...">> saves its 
+         content to disk, and the <<cmdref clear>> command clears it.<p>
+    </ul>
+
+}

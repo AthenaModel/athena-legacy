@@ -8,7 +8,7 @@
 
 <<deflist program>>
 
-<<defitem {athena sim} {athena sim ?<i>filename</i>.ath?}>>
+<<defitem {athena sim} {athena sim ?<i>filename</i>.adb?}>>
 
 <</deflist program>>
 
@@ -21,33 +21,8 @@ documents simulation operation only.<p>
 word-processor; here, however, the documents are Athena scenario
 files, which conventionally have a "<code>.adb</code>" extension.<p>
 
-<<section SHELL>>
-
-<b>TBD:</b> This needs to be copied to the on-line help.<p>
-
-The athena_sim(1) shell provides the following conveniences:<p>
-
-<ul>
-  <li> Full command-line editing.  Use the left and right arrow keys
-       (or the mouse) to edit the text on the command-line before
-       executing it.<p>
-
-  <li> Command-history.  Use the up and down arrow keys to retrieve
-       the previous commands to the command-line for execution.<p>
-
-  <li> Command-completion.  Press the Tab key to expand a partial
-       command name into a full command name, e.g., type "err" and
-       press Tab to expand "err" into "errtrace".<p>
-
-  <li> Standard cut, copy, and paste.  Use Ctrl+X, Ctrl+C, and Ctrl+V
-       to cut, copy, and paste on the command line.  Use the mouse to
-       select older text in the shell (e.g., command outputs) and copy
-       it with Ctrl+C.<p>
-</ul>
-
-The shell's command prompt is initially "<b>&gt;</b>"; in <b>super</b>
-mode, it changes to "<b>super&gt;</b>" instead.  See
-the <b>usermode</b> command in the on-line help for more details.<p>
+The application has extensive on-line help; invoke the application
+and see the <b>Help</b> menu.<p>
 
 <<section AUTHOR>>
 

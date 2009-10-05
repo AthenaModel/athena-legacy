@@ -2,7 +2,7 @@
 
 <<section DESCRIPTION>>
 
-Athena includes a number of development tools which are not available
+Athena includes a number of development tools which are <b>not</b> available
 when Athena is installed.  This man page serves to group them together
 in the automatically generated "index.html" file.<p>
 
