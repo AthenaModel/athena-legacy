@@ -1,5 +1,0 @@
-app_doc(n)
------------------------------------------------------------------
-
-This directory contains the app_doc(n) package, which
-implements the mars_doc(1) tool.

@@ -1,8 +1,0 @@
-app_replace(n)
------------------------------------------------------------------
-
-This directory contains the app_replace(n) package, which
-implements the mars_replace(1) tool.
-
-
-
