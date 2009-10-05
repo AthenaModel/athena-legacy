@@ -1,0 +1,70 @@
+<<manpage {marsutil(n) sequence(n)} "sequence(5) Processor">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require marsutil 1.0
+namespace import ::marsutil::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+sequence(n) defines a processor for <<xref sequence(5)>> format.
+It produces UML-like sequence diagrams from text input, as shown in
+the <<xref sequence(5)>> man page.<p>
+
+<b>NOTE:</b> Using the commands in this module will load the Pixane
+image processing library.<p>
+
+<<section COMMANDS>>
+
+<<deflist commands>>
+
+<<defitem render {sequence render <i>sequence</i>}>>
+
+Renders <i>sequence</i>, which must be valid <<xref sequence(5)>>
+input text, into a Pixane image; the name of the Pixane image is returned.
+The caller must destroy the image when it is no longer required.<p>
+
+<<defitem renderas {sequence renderas <i>filename sequence</i>}>>
+
+Renders the diagram defined by <i>sequence</i>, and saves the
+resulting image as a ".gif" file called <i>filename</i>.<p>
+
+<<defitem narration {sequence narration}>>
+
+<<xref sequence(5)>> input can include narrative text which does not
+appear in the finished diagram.  The input can include a block of
+narrative text that applies to the entire diagram, and message and
+action elements can also include narration.  This call returns a
+dictionary of narrative data for the previously rendered sequence.
+The keys are <b>diagram</b>, for the overall narrative, and the
+element index number (e.g., "1"), for message and action elements.
+Note that the index numbers appear in the diagram, so the narrative is
+naturally linked to the diagram by index number.<p>
+
+Elements with no narrative are not represented in the dictionary.<p>
+
+<</deflist commands>>
+
+<<section "SEE ALSO">>
+
+<<xref sequence(5)>>
+
+<<section ENVIRONMENT>>
+
+sequence(n) requires Tcl 8.5 or later, and Pixane.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package, inspired by the JNEM jnem_seq(1) tool.
+
+<</manpage>>
+
+

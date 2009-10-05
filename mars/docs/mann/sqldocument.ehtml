@@ -1,0 +1,338 @@
+<<manpage {marsutil(n) sqldocument(n)} "SQL Document Management">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require util 1.0
+namespace import ::marsutil::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<xref sqldocument(n)>> is a Tcl wrapper around SQLite3 database
+objects.  It provides access to all features of an SQLite3 database
+object; in addition:<p>
+
+<ul>
+  <li> By default, sqldocument(n) implements a commit-on-demand policy.
+       That is, updates to the database are accumulated until an
+       explicit commit is requested, instead of being committed
+       immediately.  This improves performance when many independent
+       transactions are done in rapid succession, at the expense of
+       concurrent access (which JNEM does not need).  This behavior
+       is controlled by the <code>-autotrans</code> option.<p>
+
+  <li> By default, sqldocument(n) disables SQLite3's rollback
+       capability, resulting in a performance gain.  If the ability to
+       roll back transactions is required, set <code>-rollback</code>
+       to "on".<p>
+
+  <li> Modules which adhere to the <<xref sqlsection(i)>> interface
+       can register themselves, thus including their schema and
+       function definitions in all databases subsequently created.<p>
+
+  <li> A number of useful operations from <<xref sqlib(n)>> are
+       provided as subcommands.<p>
+</ul>
+
+<b>NOTE:</b> The SQLite3 database file is closed when the
+sqldocument(n) object is destroyed--but updates are not committed.
+Call <<iref close>> explicitly!<p>
+
+<<section "SCHEMA">>
+
+sqldocument(n) adds the following definitions to the database
+schema:<p>
+
+<pre>
+<<::marsutil::sqldocument sqlsection schema>>
+</pre>
+
+<<section "SQL FUNCTIONS">>
+
+sqldocument(n) defines the following standard SQL functions, which
+may be used in addition to those defined by SQLite3:<p>
+
+<<deflist sql_functions>>
+
+<<defitem error {error(<i>errmsg</i>,...)}>>
+
+This function maps to the standard Tcl <code>error(n)</code> command.
+It's useful for throwing errors in queries (e.g., in lock triggers).<p>
+
+<<defitem format {format(<i>fmtstring</i>, <i>args...</i>)}>>
+
+This function maps to the standard Tcl <code>format(n)</code> command.
+It's useful for formatting retrieved values during queries.  For
+example,<p>
+
+<pre>
+  $db query {
+     SELECT id,format('%5.1f',magnitude) FROM nsat_levels
+  }
+</pre><p>
+
+<<defitem joinlist {joinlist(<i>list</i>, <i>delimiter</i>)}>>
+
+This function maps to the standard Tcl <code>join(n)</code> command.
+It's useful for formatting list-valued database columns.  For example,
+
+<pre>
+  $db query {
+     SELECT FED_ID,joinlist(DETAILS, ', ') FROM absits
+  }
+</pre><p>
+
+<<defitem nonempty {nonempty(<i>arg</i>,...)}>>
+
+Returns the value of the first argument which is neither NULL nor the
+empty string, or the empty string if no argument is non-empty.  This
+is a Tcl-friendly equivalent to COALESCE() which treats empty strings
+like NULLs.<p>
+
+<<defitem now {now(?<i>offset</i>?)}>>
+
+If <code>-clock</code> is specified, then <<iref now>> will be
+defined, and will return the current simulation time in ticks.  If
+<i>offset</i> is given, it's an offset in integer ticks; it will be
+added to the current simulation time, and returned.<p>
+
+<<defitem percent {percent(<i>frac</i>)}>>
+Displays the fraction as a percentage.  If the fraction
+is at least 0.005, displays it as an integer percentage, e.g.,
+1%, 10%, 25%.  If the fraction is <= 0.005 but greater than
+0.0, displays it as "~0%".
+<p>
+
+<<defitem tozulu {tozulu(<i>ticks</i>, ?<i>offset</i>?)}>>
+
+If <code>-clock</code> is specified, then <<iref tozulu>> will be
+defined.  Given a simulation time as <i>ticks</i> plus an optional
+<i>offset</i>, returns the resulting simulation time as a
+<<xref zulu(n)>> time string.<p>
+
+<<defitem wallclock {wallclock()}>>
+
+Returns the wall-clock time in Unix seconds.<p>
+
+<</deflist sql_functions>>
+
+<<section COMMANDS>>
+
+This module defines the following command:<p>
+
+<<deflist commands>>
+
+<<defitem sqldocument {sqldocument <i>name</i> ?<i>option value...</i>?}>>
+
+Creates a new <<iref sqldocument>> object named <i>name</i>. The object is
+represented as a new Tcl command in the caller's scope;
+<<iref sqldocument>> returns the fully-qualified form of the
+<i>name</i>.<p>
+
+After the object is created, a database file must still
+be <<iref open>>ed, and (if so desired) it must also be
+<<iref clear>>ed.<p>
+
+The object may be created with the following options:<p>
+
+<<deflist options>>
+
+<<defopt {-autotrans <i>boolean</i>}>>
+
+If <b>on</b>, the default, the sqldocument(n) always has an open
+transaction; changes are not committed until <<iref commit>> is
+called.  If <b>off</b>, the application can batch queries into
+transactions as it chooses, and <<iref commit>> has no effect.<p>
+
+<<defopt {-clock <i>simclock</i>}>>
+
+<b>Readonly.</b> The <i>simclock</i> must be an instance of
+<<xref simclock(n)>>.  If this option is given, the <<iref now>> and
+<<iref tozulu>> SQL functions will be defined.<p>
+
+<<defopt {-rollback <i>boolean</i>}>>
+
+If <b>on</b>, transactions can be rolled back instead of committed.
+If <b>off</b>, the default, they cannot.<p>
+
+<</deflist options>>
+
+<<defitem {sqldocument register} {sqldocument register <i>section</i>}>>
+
+Registers an <<xref sqlsection(i)>> module with sqldocument(n), where
+<i>section</i> is the fully-qualified name of the module.  Once
+registered, the <i>section</i>'s definitions will be included in new
+databases.<p>
+
+<<defitem {sqldocument sections} {sqldocument sections}>>
+
+Returns a list of the names of the registered <<xref sqlsection(i)>>
+modules.<p>
+
+<<defitem {sqldocument sqlsection} {sqldocument sqlsection <i>subcommand</i>}>>
+
+sqldocument(n) is itself an <<xref sqlsection(i)>>, as it defines
+schema entities (see <<xref SCHEMA>>) and SQL functions (see
+<<xref "SQL FUNCTIONS">>).  See <<xref sqlsection(i)>> for a description
+of this method's subcommands.<p>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+The created sqldocument(n) object has the following subcommands; in
+addition, it supports all of the methods of an SQLite3 database
+object (except as overridden here).<p>
+
+<<deflist instance>>
+
+<<defitem clear {$db clear}>>
+
+Initializes the contents of the database, deleting any existing
+data and re-defining the schema.<p>
+
+<<defitem close {$db close}>>
+
+Closes the database, first committing any updates.  The database
+cannot be accessed again unless it is first <<iref open>>ed
+explicitly.<p>
+
+<<defitem commit {$db commit}>>
+
+Saves all pending updates.  If <code>-autotrans</code> is off, this
+command has no effect.<p>
+
+<<defitem dbfile {$db dbfile}>>
+
+Returns the name of the last-opened database file, or "" if none.<p>
+
+<<defitem insert {$db insert <i>table dict</i>}>>
+
+Inserts the contents of dictionary <i>dict</i> into the database as a
+row in the named <i>table</i>.  The dictionary keys must be the same
+as the column names in the table.  <b>It's an error if a row already
+exists with the same key column values.</b><p>
+
+This will be less efficient than an explicit "INSERT INTO" with
+hardcoded column names, but where performance isn't an issue it wins
+on maintainability.<p>
+
+Compare to <<iref replace>>.<p>
+
+<<defitem islocked {$db islocked <i>table</i>}>>
+
+Returns 1 if the named table exists and is <<iref lock>>ed, and 0
+otherwise.<p>
+
+<<defitem isopen {$db isopen}>>
+
+Returns 1 if a database file is open, and 0 otherwise.<p>
+
+<<defitem lock {$db lock <i>tables</i>}>>
+
+Locks one more database tables, where <i>tables</i> is a list of the
+table names.  Locked tables are effectively read-only; attempts to
+update, insert, or delete rows will fail until the table
+is <<iref unlock>>ed again.  Note that locked tables can
+still be dropped in their entirety.<p>
+
+The tables to be locked must exist, and may be either persistent or
+temporary.  Note that tables in "attached" databases cannot be locked
+using this mechanism.<p>
+
+Locking a table that is already locked is <b>not</b> an error; the table
+simply remains locked.<p>
+
+<<defitem mat {$db mat <i>table iname jname ename</i> ?<i>options...</i>?}>>
+
+Extracts a <<xref mat(n)>> matrix from the database; the arguments and
+options are as for <<xref sqlib(n)>>'s <<xref sqlib(n) "sqlib mat">> method.<p>
+
+<<defitem open {$db open ?<i>filename</i>?}>>
+
+Opens (but does not <<iref clear>>) a database file with the specified
+<i>filename</i>.  If <i>filename</i> is missing, <<iref open>> will
+re-open the previously-opened database file, if any.<p>
+
+Call <<iref clear>> explicitly to initialize the database.<p>
+
+All temporary schema definitions and all SQL function definitions from
+all registered <<xref sqlsection(i)>> modules will be defined in
+the database as soon as it is <<iref open>>ed.  The persistent schema
+definitions will be not be defined in a newly created database until
+it is <<iref clear>>ed.</i>
+
+<<defitem query {$db query <i>sql</i> ?<i>options...</i>?}>>
+
+Queries the database and returns the results formatted for
+display.  The options are as for <<xref sqlib(n)>>'s
+<<xref sqlib(n) query>> method.<p>
+
+<b>Note:</b> use "eval", provided by the underlying SQLite object, for
+programmatic queries.<p>
+
+<<defitem replace {$db replace <i>table dict</i>}>>
+
+Inserts the contents of dictionary <i>dict</i> into the database as a
+row in the named <i>table</i>.  The dictionary keys must be the same
+as the column names in the table.  <b>If there's already a row with
+matching key columns, it will be replaced.</b><p>
+
+This will be less efficient than an explicit "INSERT OR REPLACE INTO" with
+hardcoded column names, but where performance isn't an issue it wins
+on maintainability.<p>
+
+Compare to <<iref insert>>.<p>
+
+<<defitem saveas {$db saveas <i>filename</i>}>>
+
+Saves a copy of the persistent contents of the database to a new
+database file called <i>filename</i>.  It's an error if there is
+already a file with that <i>filename</i>.<p>
+
+<<defitem schema {$db schema ?<i>table</i>?}>>
+
+Returns the SQL schema for the specified <i>table</i>, or for the
+database as a whole.  The output includes both persistent and
+temporary definitions.  The <i>table</i> may contain wildcards.<p>
+
+<<defitem tables {$db tables}>>
+
+Returns the names of the tables defined in the current database,
+including temporary tables and tables defined in attached databases.<p>
+
+<<defitem unlock {$db unlock <i>tables</i>}>>
+
+Unlocks one more <<iref lock>>ed database tables, where <i>tables</i>
+is a list of the table names.  Once unlocked, the tables are
+once again read-write, and rows can be updated, inserted, or deleted.<p>
+
+Unlocking a table that isn't locked is <b>not</b> an error; the table
+simply remains unlocked.<p>
+
+<</deflist instance>>
+
+<<section ENVIRONMENT>>
+
+This package requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
+
+
+

@@ -1,0 +1,60 @@
+<<manpage {marsgui(n) paner(n)} "Paned Window Widget">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require gui 1.0
+namespace import ::marsgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<xref marsgui(n)>> contains general-purpose (i.e.,
+non-application-specific) GUI code for use in Mars.<p>
+
+This module defines the ::marsgui::paner widget, which will manage
+two panes, allowing the user to resize the space allocated to each.
+Unlike the standard Tk panedwindow(n) widget, it ensures that
+the second (lower or righthand) pane will not disappear if the user
+resizes the toplevel window to be smaller than the first pane.<p>
+
+paner(n) is a drop-in replacement for the panedwindow(n) widget,
+with these differences:<p>
+
+<ul>
+  <li> The default appearance is changed to support a clean and flat
+       look.<p>
+
+  <li> The resize behavior is changed as described above.<p>
+
+  <li> Only two panes are supported.<p>
+</ul>
+
+The widget's options, subcommands, and patterns of use are
+otherwise identical to panedwindow(n); see the Tk panedwindow(n)
+man page for more details.<p>
+
+<<section ENVIRONMENT>>
+
+marsgui(n) requires Tcl 8.5 or later.
+
+To use marsgui(n) in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
