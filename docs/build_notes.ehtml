@@ -11,6 +11,79 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.18, 5 October 2009 -- Final 1.0.x build</h3>
+
+This is the final 1.0.x build, in preparation to splitting
+the Athena development baseline.  Athena 1.1.0 and Athena 2.0.0
+on the 1.1.x branch and trunk, respectively, will be essentially
+identical to this build.  The full set of changes is as follows:<p>
+
+<ul>
+  <li> Bug 2287: athena(1): Mod File Capability
+  <li> Bug 2294: Typos in Athena Online Help
+  <li> Bug 2296: Athena 1.0: Final Documentation Scrub 
+</ul><p>
+
+<h3>Build 1.0.17, 23 September 2009</h3>
+
+This is likely the final 1.0.x build before splitting the baseline in
+preparation for delivery of Athena 1.1.  It contains a small number of
+bug fixes, and a lot of documentation updates, relating particularly
+to the on-line help.  The full set of changes is as follows:<p>
+
+<ul>
+  <li> Bug 2238: Ensit durations are 1 day (tick) longer than specified / expected
+  <li> Bug 2265: athena_sim(1): GRAM "dump" commands
+  <li> Bug 2289: Errors using 'dump' command
+  <li> Bug 2290: helpbrowser(n)/htmlviewer(n): Mark visited links
+  <li> Bug 2291: Athena Help: Log Tab
+  <li> Bug 2292: Athena Help: Map Tab, plus corrections
+  <li> Bug 2293: Athena Help: The Final Sprint 
+</ul><p>
+
+<h3>Build 1.0.16, 14 September 2009</h3>
+
+This build contains bug fixes, additions to the on-line help, and two
+user-oriented features: full-text search in the help browser, and the
+ability to install and load code mods.  The full set of changes is as
+follows:<p>
+
+<ul>
+  <li> Bug 1943: Discarding changes fails to fill in 'Update' dialog as expected
+  <li> Bug 2181: Create NB Group dialog shows invalid choice
+  <li> Bug 2259: Dialogs allow scheduling of empty or incomplete orders
+  <li> Bug 2279: helpdb(n)/helpbrowser(n): Full Text Search
+  <li> Bug 2281: Can't save scenario: table helpdb_search_content already exists
+  <li> Bug 2283: Athena Help: Application Tabs (Part 2)
+  <li> Bug 2284: projectgui(n): "pencil0" icon
+  <li> Bug 2285: Athena Help: Application Tabs (Part 3)
+  <li> Bug 2286: athena_sim(1): Upgrade to SQLite 3.6.17
+  <li> Bug 2287: athena(1): Mod File Capability
+  <li> Bug 2288: Athena Help: Reports Tab 
+</ul><p>
+
+<h3>Build 1.0.15, 9 September 2009</h3>
+
+This build contains some small cosmetic changes, a number of bug
+fixes, and additions to the on-line help.  The full set of changes
+is as follows:<p>
+
+<ul>
+  <li> Bug 2238: Ensit durations are 1 day (tick) longer than specified / expected
+  <li> Bug 2250: Rules Doc: Add details of Nominal Coverage factor and its effect
+  <li> Bug 2253: Log the output of 'errtrace'
+  <li> Bug 2267: athena_sim(1): Require rel.nfg=1.0 when f=g
+  <li> Bug 2268: athena_sim(1): require effects_delay=0 for m=n
+  <li> Bug 2269: athena_sim(1): GRAM tab should be Attitudes tab.
+  <li> Bug 2270: 'attrit_nf' table shows more casualties than actual for ORG groups
+  <li> Bug 2271: Athena Help: ROE, SIM, and UNIT orders
+  <li> Bug 2274: athena_sim(1): Ensit durations were treated as ticks
+  <li> Bug 2275: athena_sim(1): CIVCAS fires for 0 casualties
+  <li> Bug 2276: bgerror: expected floating-point number but got ""
+  <li> Bug 2277: Athena Help: Application Tabs (Part 1)
+  <li> Bug 2278: athena_sim(1): Rename Orders/History tab to Orders/Sent 
+</ul>
+
 <h3>Build 1.0.14, 2 September 2009</h3>
 
 The big ticket items in this build are the magic attitude adjustments

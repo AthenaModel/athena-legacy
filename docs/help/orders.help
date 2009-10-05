@@ -54,8 +54,7 @@ proc order {name title text} {
 # Formats the title for an order page
 macro order.header {} {
     |<--
-    <font size=7>[pageinfo title]</font><br>
-    (<tt>[pageinfo name]</tt>)<p>
+    [mktitle normal "" [pageinfo title] "(<tt>[pageinfo name]</tt>)"]
 }
 
 macro parm.identifier {entity example} {
@@ -77,8 +76,7 @@ macro parm.longname {entity example} {
 
 macro parm.ids {entity} {
     |<--
-    The IDs of two or more $entity entities.
-    The list of IDs isn't directly editable in the order dialog.
+    The IDs of two or more $entity entities, as selected in the GUI.
 }
 
 #-----------------------------------------------------------------------
@@ -152,10 +150,10 @@ order ATTRIT:GROUP "Magic Attrit Group" {
     attrited by the specified number of casualties.  Athena assumes
     that units doing more important activities will be reinforced from
     units doing less important activities; therefore, units are
-    attrited in priority order based on their activities, from lowest
+    attrited in <<term activity_priority>> order based on their activities, 
+    from lowest 
     priority to greatest priority.  For example, a unit with activity
-    <b>NONE</b> is attrited before one with activity <b>PATROL</b>.
-    The priority order is <<cref Activity_Priorities>>.<p>
+    <b>NONE</b> is attrited before one with activity <b>PATROL</b>.<p>
 
     <b>Civilian Groups:</b>  The group's units and implicit
     population are attrited proportionally to their size.<p>
@@ -296,6 +294,37 @@ order COOP:UPDATE "Update Initial Cooperation" {
     current levels.)
 }
 
+#-----------------------------------------------------------------------
+
+order COOP:UPDATE+MULTI "Update Initial Cooperation (Multi)" {
+    <<parmlist>>
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids cooperation>><p>
+
+    Programmatically, each ID is a list {<i>n f g</i>} where <i>n</i>,
+    <i>f</i>, and <i>g</i> are defined as for the 
+    <<cref COOP:UPDATE>> order.
+    <</parm>>
+
+    <<parm coop0 "Cooperation">>
+    <b>Required.</b>  The initial cooperation level for the selected
+    curves.  Cooperation levels
+    run from 0.0 to 100.0, and are defined either numerically or using
+    the following rating scale:<p>
+
+    <<::simlib::qcooperation html>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order updates the initial
+    cooperation level for two or more cooperation curves, as selected 
+    in the GUI.<p>
+
+    (Use the <<cref MAD:>> to adjust or otherwise influence the 
+    current levels.)
+}
+
 #=======================================================================
 # Environmental Situation Orders
 
@@ -327,7 +356,7 @@ macro ENSIT.initial {} {
 macro ENSIT.location {} {
     |<--
     The location of the situation, expressed as a 
-    [cref mapref "map reference string"].  The situation affects the
+    [term mapref].  The situation affects the
     neighborhood that contains this location, and so the location must
     lie within some neighborhood.
 }
@@ -689,6 +718,29 @@ order GROUP:CIVILIAN:UPDATE "Update Civilian Group" {
 }
 
 
+#-----------------------------------------------------------------------
+
+order GROUP:CIVILIAN:UPDATE+MULTI "Update Multiple Civilian Groups" {
+    <<parmlist>>
+    <<parm ids "Groups">>
+    <b>Required.</b>  <<parm.ids "civilian group">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Optional.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Optional.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of two or more civilian groups, as selected in the GUI.<p>
+}
+
+
 #=======================================================================
 # Neighborhood Group Orders
 
@@ -787,7 +839,7 @@ order GROUP:NBHOOD:DELETE "Delete Nbhood Group" {
 
 #-----------------------------------------------------------------------
 
-order GROUP:NBHOOD:UPDATE "Update Civilian Group" {
+order GROUP:NBHOOD:UPDATE "Update Nbhood Group" {
     <<parmlist>>
     <<parm n "Neighborhood">>
     <b>Required.</b>  <<NBHOOD.n>>
@@ -822,6 +874,46 @@ order GROUP:NBHOOD:UPDATE "Update Civilian Group" {
 
     <b><<cref using.prep>> Only.</b>  This order modifies the
     definition of an existing neighborhood group.<p>
+}
+
+
+#-----------------------------------------------------------------------
+
+order GROUP:NBHOOD:UPDATE+MULTI "Update Multiple Nbhood Groups" {
+    <<parmlist>>
+
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids "neighborhood group">><p>
+
+    Programmatically, each ID is a list {<i>n g</i>} where <i>n</i>,
+    and <i>g</i> are defined as for the 
+    <<cref GROUP:NBHOOD:UPDATE>> order.
+    <</parm>>
+
+    <<parm local_name "Local Name">>
+    <b>Optional.</b> <<GROUP:NBHOOD.local_name>>
+    <</parm>>
+
+    <<parm basepop "Base Population">>
+    <b>Optional.</b> <<GROUP:NBHOOD.basepop>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Optional.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm rollup_weight "Rollup Weight">>
+    <b>Optional.</b> <<GROUP.rollup_weight>>
+    <</parm>>
+
+    <<parm effects_factor "Effects Factor">>
+    <b>Optional.</b> <<GROUP.effects_factor>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of two or more neighborhood groups, as selected in the GUI.<p>
 }
 
 
@@ -985,10 +1077,53 @@ order GROUP:FORCE:UPDATE "Update Force Group" {
 }
 
 
+#-----------------------------------------------------------------------
+
+order GROUP:FORCE:UPDATE+MULTI "Update Multiple Force Groups" {
+    <<parmlist>>
+    <<parm ids "Groups">>
+    <b>Required.</b>  <<parm.ids "force group">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Optional.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Optional.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <<parm forcetype "Force Type">>
+    <b>Optional.</b> <<GROUP:FORCE.forcetype>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Optional.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm uniformed "Uniformed?">>
+    <b>Optional.</b>  <<GROUP:FORCE.uniformed>>
+    <</parm>>
+
+    <<parm local "Local Group?">>
+    <b>Optional.</b>  <<GROUP:FORCE.local>>
+    <</parm>>
+
+    <<parm coalition "Coalition Member?">>
+    <b>Optional.</b>  <<GROUP:FORCE.coalition>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of two or more force groups, as selected in the GUI.<p>
+}
+
+
 #=======================================================================
 # Organization Group Orders
 
-page GROUP:ORGANIZATION: "Organization Group Orders" orders {
+page GROUP:ORGANIZATION: "Organization Group Orders" GROUP: {
+    <<title>>
     Athena uses organization groups to model organizations that are
     active in the playbox and have a significant affect on civilian
     attitudes.  Such groups might include the Red Cross, Doctors Without
@@ -1111,6 +1246,44 @@ order GROUP:ORGANIZATION:UPDATE "Update Organization Group" {
     definition of an existing organization group.<p>
 }
 
+#-----------------------------------------------------------------------
+
+order GROUP:ORGANIZATION:UPDATE+MULTI "Update Multiple Organization Groups" {
+    <<parmlist>>
+    <<parm ids "Groups">>
+    <b>Required.</b>  <<parm.ids "organization group">>
+    <</parm>>
+
+    <<parm color "Color">>
+    <b>Optional.</b> <<GROUP.color>>
+    <</parm>>
+
+    <<parm shape "Unit Shape">>
+    <b>Optional.</b> <<GROUP.shape>>
+    <</parm>>
+
+    <<parm orgtype "Organization Type">>
+    <b>Optional.</b> <<GROUP:ORGANIZATION.orgtype>>
+    <</parm>>
+
+    <<parm demeanor "Demeanor">>
+    <b>Optional.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm rollup_weight "Rollup Weight">>
+    <b>Optional.</b> <<GROUP.rollup_weight>>
+    <</parm>>
+
+    <<parm effects_factor "Effects Factor">>
+    <b>Optional.</b> <<GROUP.effects_factor>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of two or more organization groups, as selected in the GUI.<p>
+}
+
 #=======================================================================
 # Magic Attitude Driver Orders
 
@@ -1162,8 +1335,8 @@ macro MAD.days {} {
 
 macro MAD.cause {} {
     |<--
-    The "cause" for any magic attitude input input associated with
-    this MAD; see [cref Causes].  The cause
+    The [term cause] for any magic attitude input associated with
+    this MAD.  The cause
     may be <b>UNIQUE</b>, indicating that the effects of this MAD
     are independent of all other drivers, or it may be
     any cause from the following list:<p>
@@ -1624,8 +1797,8 @@ page MAP: "Map Orders" orders {
 
     Athena allows the user to specify a map background to aid in both
     the construction of the scenario and the analysis and
-    visualization of the results.  (See <<cref "Using Maps">> for more
-    information.  The following orders manipulate
+    visualization of the results.  (See <<cref using.maps>> for more
+    information.)  The following orders manipulate
     the image used as the map background:<p>
 
     <<childlinks>>
@@ -1648,7 +1821,7 @@ order MAP:IMPORT "Import Map" {
     the saved .adb file.<p>
 
     This order is usually sent indirectly, using the
-    <<menuref File/Import Map...>> menu item.  However, Athena should
+    <<menuref "File/Import Map...">> menu item.  However, Athena should
     eventually support order script, and it it is documented here for
     that purpose.
 }
@@ -1694,14 +1867,14 @@ macro NBHOOD.vtygain {} {
     |<--
     The neighborhood's volatility gain, a real
     number no less than zero; it is used to dial up and down the
-    effect of neighborhood volatility on neighborhood security.
-    See [cref Neighborhood_Security] for more information.
+    effect of neighborhood [term volatility] 
+    on neighborhood [term security].
 }
 
 macro NBHOOD.refpoint {} {
     |<--
     The neighborhood's reference point, expressed as
-    a [cref mapref "map reference string"].  The reference point is
+    a [term mapref].  The reference point is
     a location within the neighborhood that is guaranteed not to be
     obscured by an overlapping or nested neighborhood.
 }
@@ -1709,7 +1882,7 @@ macro NBHOOD.refpoint {} {
 macro NBHOOD.polygon {} {
     |<--
     The neighborhood's boundary polygon, expressed as
-    a list of [cref mapref "map reference strings"].
+    a list of [term mapref].
 }
 
 #-----------------------------------------------------------------------
@@ -1836,6 +2009,29 @@ order NBHOOD:UPDATE "Update Neighborhood" {
     the definition of an existing neighborhood.
 }
 
+#-----------------------------------------------------------------------
+
+order NBHOOD:UPDATE+MULTI "Update Multiple Neighborhoods" {
+    <<parmlist>>
+
+    <<parm ids "Neighborhoods">>
+    <b>Required.</b>  <<parm.ids neighborhood>>
+    <</parm>>
+
+    <<parm urbanization "Urbanization">>
+    <b>Optional.</b>  <<NBHOOD.urbanization>>
+    <</parm>>
+
+    <<parm vtygain "Volatility Gain">>
+    <b>Optional.</b>  <<NBHOOD.vtygain>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies
+    the definition of two or more neighborhoods, as selected in the GUI.
+}
+
 
 #=======================================================================
 # Neighborhood Orders
@@ -1886,18 +2082,58 @@ order NBHOOD:RELATIONSHIP:UPDATE "Update Neighborhood Relationship" {
     <<parm effects_delay "Effects Delay">> 
     <b>Optional.</b> Decimal days.  The attitude effects of events and
     situations in neighborhood <i>n</i> are felt in neighborhood
-    <i>m</i> only after this number of days.
+    <i>m</i> only after this number of days.<p>
+
+    Every neighborhood has a delay of 0.0 days with itself; this
+    cannot be changed.
     <</parm>>
 
     <</parmlist>>
 
     <b><<cref using.prep>> Only.</b>  This order modifies existing
     neighborhood relationships.<p>
+}
 
-    <b>TBD:</b>  At present, Athena allows the user to enter non-zero
-    effects delays within a single neighborhood; however, GRAM
-    presumes that there are no effects delays within a neighborhood 
-    regardless of what the input data says.  This needs to be resolved.
+#-------------------------------------------------------------------
+
+order NBHOOD:RELATIONSHIP:UPDATE+MULTI "Update Multiple Neighborhood Relationships" {
+    <<parmlist>>
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids "neighborhood relationship">>.<p>
+
+     Programmatically, each ID is a list {<i>m n</i>} where <i>m</i>
+    and <i>n</i> are defined as for the 
+    <<cref NBHOOD:RELATIONSHIP:UPDATE>> order.
+    <</parm>>
+
+    <<parm proximity "Proximity">>  
+    <b>Optional.</b> The proximity between the two neighborhoods from
+    <i>m</i>'s point of view:<p>
+
+    <<enumdoc ::simlib::eproximity>><p>
+
+    Every neighborhood has a proximity of <b>HERE</b> with itself;
+    this cannot be changed.  Two distinct neighborhoods can have a
+    proximity from <b>NEAR</b> to <b>REMOTE</b>.<p>
+
+    The attitude effects of events and situations in neighborhood <i>n</i>
+    diminish with distance, and vanish altogether in neighborhoods
+    <i>m</i> that consider <i>n</i> to be <b>REMOTE</b>.
+    <</parm>>
+
+    <<parm effects_delay "Effects Delay">> 
+    <b>Optional.</b> Decimal days.  The attitude effects of events and
+    situations in neighborhood <i>n</i> are felt in neighborhood
+    <i>m</i> only after this number of days.<p>
+
+    Every neighborhood has a delay of 0.0 days with itself; this
+    cannot be changed.
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies two or more
+    neighborhood relationships, as selected in the GUI.<p>
 }
 
 #=======================================================================
@@ -1961,7 +2197,11 @@ order RELATIONSHIP:UPDATE "Update Group Relationship" {
 order RELATIONSHIP:UPDATE+MULTI "Update Multiple Relationships" {
     <<parmlist>>
     <<parm ids "IDs">>
-    <b>Required.</b>  <<parm.ids relationship>>
+    <b>Required.</b>  <<parm.ids relationship>><p>
+
+    Programmatically, each ID is a list {<i>n f g</i>} where <i>n</i>,
+    <i>f</i>, and <i>g</i> are defined as for the 
+    <<cref RELATIONSHIP:UPDATE>> order.
     <</parm>>
 
     <<parm rel "Relationship">>
@@ -1974,10 +2214,443 @@ order RELATIONSHIP:UPDATE+MULTI "Update Multiple Relationships" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order updates each of the
-    listed relationships.
+    <b><<cref using.prep>> Only.</b>  This order updates two or more
+    relationships, as selected in the GUI.
 }
 
+
+#=======================================================================
+# ROE Orders
+
+page ROE: "Rules of Engagement Orders" orders {
+    <<title>>
+
+    A force group can be assigned Rules of Engagement (ROEs); these determine
+    how and when and whether it will attack other groups and respond
+    to attacks from other groups.  Force groups can be designated
+    uniformed or non-uniformed; uniformed force groups use
+    conventional tactics while non-uniformed force groups primarily
+    use unconventional tactics.  The ROEs applicable to a group depend
+    on whether it is a uniformed force (UF) or a non-uniformed force
+    (NF):<p>
+
+    <<childlinks>>
+}
+
+#=======================================================================
+# Attacking ROEs
+
+page ROE:ATTACK: "Attacking ROE Orders" ROE: {
+    <<title>>
+
+    An attacking ROE determines how and when a force group will try to
+    attack another force group in a particular neighborhood.  By
+    default, no force group will attack any other group; the analyst
+    must explicitly create the relevant Attacking ROEs.<p>
+
+    <<childlinks>>
+}
+
+macro ROE:ATTACK:U.roe {} {
+    |<--
+    The ROE proper, one of the following values:<p>
+
+    [enumdoc ::projectlib::eattroeuf]
+
+    If the ROE is <b>ATTACK</b>, then group <i>f</i> will attempt to
+    hunt down and destroy units of group <i>g</i> in neighborhood
+    <i>n</i>; and if not, not.  Note that there is no difference
+    between having an Attacking ROE of <b>DO_NOT_ATTACK</b> and not
+    having an Attacking ROE at all.
+}
+
+macro ROE:ATTACK:N.roe {} {
+    |<--
+    The ROE proper, one of the following values:<p>
+
+    [enumdoc ::projectlib::eattroenf]
+
+    If the ROE is <b>HIT_AND_RUN</b>, then group <i>f</i> will use
+    hit-and-run tactics against group <i>g</i>, trying on each attack
+    to nibble away at the uniformed force while taking minimal
+    losses.<p>
+
+    If the ROE is <b>STAND_AND_FIGHT</b>, then group <i>f</i> will
+    expend a pre-determined number of troops in order to kill as many
+    personnel of group <i>g</i> as possible.<p>
+
+    Otherwise, group <i>f</i> will not attempt to attack.  Note that
+    there is no difference between having an Attacking ROE of
+    <b>DO_NOT_ATTACK</b> and not having an Attacking ROE at all.
+}
+
+macro ROE:ATTACK.cooplimit {} {
+    |<--
+    Group <i>f</i> will not attack group <i>g</i>
+    unless it has sufficient cooperation from the residents of
+    neighborhood <i>n</i>.  This parameter determines the required
+    level of cooperation.  It is expressed as a real number between
+    0.0 and 100.0, or as one of the symbols from the following table:<p>
+
+    [::simlib::qcooperation html]
+}
+
+macro ROE:ATTACK:N.rate {} {
+    |<--
+    Given an ROE other than <b>DO_NOT_ATTACK</b>, group <i>f</i> will 
+    attempt to attack group <i>g</i> at a rate determined by this
+    parameter.<p>
+
+    <b>Note:</b> The actual rate should also be conditioned by the resources
+    available to the the attacking group; this, however, depends on
+    Athena's Economic and Political models, which have not yet been
+    implemented.
+}
+
+
+#-----------------------------------------------------------------------
+
+order ROE:ATTACK:DELETE "Delete Attacking ROE" {
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of a neighborhood.
+    <</parm>>
+
+    <<parm f "Attacking Group">>
+    <b>Required.</b>  The name of a force group.
+    <</parm>>
+
+    <<parm g "Attacked Group">>
+    <b>Required.</b>  The name of another force group.
+    <</parm>>
+
+    <</parmlist>>
+
+    Deletes the Attacking ROE currently in place for attacks by group
+    <i>f</i> on group <i>g</i> in neighborhood <i>n</i>.  (It is an
+    error if no such ROE exists.)<p>
+
+    Note that this is equivalent to setting the Attacking ROE to
+    <b>DO_NOT_ATTACK</b>; see 
+    <<cref ROE:ATTACK:NONUNIFORMED:UPDATE>> and 
+    <<cref ROE:ATTACK:UNIFORMED:UPDATE>>.
+}
+
+
+#=======================================================================
+# Attacking ROEs: Non-uniformed
+
+page ROE:ATTACK:NONUNIFORMED: "Attacking ROE (Non-Uniformed) Orders" ROE:ATTACK: {
+    <<title>>
+
+    Non-uniformed forces are those that hide among the local
+    population and use terrorist and other unconventional tactics.
+    This family of orders determines how and when non-uniformed forces
+    will attempt to find and destroy uniformed force personnel in 
+    a particular neighborhood.  (The response of the uniformed force
+    to being attacked is determined by the uniformed force's
+    <<cref ROE:DEFEND: "Defending ROE">>.)<p>
+
+    The orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order ROE:ATTACK:NONUNIFORMED:CREATE "Create Attacking ROE (Non-Uniformed)" {
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of a neighborhood.
+    <</parm>>
+
+    <<parm f "Attacking Group">>
+    <b>Required.</b>  The name of a uniformed force group.
+    <</parm>>
+
+    <<parm g "Attacked Group">>
+    <b>Required.</b>  The name of a non-uniformed force group.
+    <</parm>>
+
+    <<parm roe "ROE">>
+    <b>Required.</b>  <<ROE:ATTACK:N.roe>>
+    <</parm>>
+
+    <<parm cooplimit "Cooperation Limit">>
+    <b>Required.</b>  <<ROE:ATTACK.cooplimit>>
+    <</parm>>
+
+    <<parm rate "Attacks/Day">>
+    <b>Required.</b>  <<ROE:ATTACK:N.rate>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Creates a new Attacking ROE for a non-uniformed force group vs. a
+    uniformed force group.  Note that simply setting the ROE to
+    <b>ATTACK</b> doesn't guarantee that attacks will occur.  The
+    cooperation limit must be met, there must be units of the
+    uniformed force to attack, the attacker must be able to find
+    them, and so forth.<p>
+
+    Attacks can be terminated by setting the ROE to
+    <b>DO_NOT_ATTACK</b> using 
+    <<cref ROE:ATTACK:NONUNIFORMED:UPDATE>> or by deleting the ROE
+    altogether using <<cref ROE:ATTACK:DELETE>>.
+}
+
+
+#-----------------------------------------------------------------------
+
+order ROE:ATTACK:NONUNIFORMED:UPDATE "Update Attacking ROE (Non-Uniformed)" {
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of a neighborhood.
+    <</parm>>
+
+    <<parm f "Attacking Group">>
+    <b>Required.</b>  The name of a uniformed force group.
+    <</parm>>
+
+    <<parm g "Attacked Group">>
+    <b>Required.</b>  The name of a non-uniformed force group.
+    <</parm>>
+
+    <<parm roe "ROE">>
+    <b>Optional.</b>  <<ROE:ATTACK:N.roe>>
+    <</parm>>
+
+    <<parm cooplimit "Cooperation Limit">>
+    <b>Optional.</b>  <<ROE:ATTACK.cooplimit>>
+    <</parm>>
+
+    <<parm rate "Attacks/Day">>
+    <b>Optional.</b>  <<ROE:ATTACK:N.rate>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Updates an existing Attacking ROE for a non-uniformed force group vs. a
+    uniformed force group.
+}
+
+
+#-----------------------------------------------------------------------
+
+order ROE:ATTACK:NONUNIFORMED:UPDATE+MULTI "Update Multiple Attacking ROEs (Non-Uniformed)" {
+    <<parmlist>>
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids "Attacking ROE">><p>
+
+    Programmatically, each ID is a list {<i>n f g</i>} where <i>n</i>,
+    <i>f</i>, and <i>g</i> are defined as for the 
+    <<cref ROE:ATTACK:NONUNIFORMED:UPDATE>> order. 
+    <</parm>>
+
+    <<parm roe "ROE">>
+    <b>Optional.</b>  <<ROE:ATTACK:N.roe>>
+    <</parm>>
+
+    <<parm cooplimit "Cooperation Limit">>
+    <b>Optional.</b>  <<ROE:ATTACK.cooplimit>>
+    <</parm>>
+
+    <<parm rate "Attacks/Day">>
+    <b>Optional.</b>  <<ROE:ATTACK:N.rate>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Updates each of the selected ROEs.
+}
+
+
+#=======================================================================
+# Attacking ROEs: Uniformed
+
+page ROE:ATTACK:UNIFORMED: "Attacking ROE (Uniformed) Orders" ROE:ATTACK: {
+    <<title>>
+
+    Uniformed forces are those (like the U.S. military) that wear
+    uniforms and use conventional tactics.  This family of orders
+    determines how and when uniformed forces will attempt to find and
+    destroy non-uniformed force personnel in a particular
+    neighborhood.  The orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order ROE:ATTACK:UNIFORMED:CREATE "Create Attacking ROE (Uniformed)" {
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of a neighborhood.
+    <</parm>>
+
+    <<parm f "Attacking Group">>
+    <b>Required.</b>  The name of a uniformed force group.
+    <</parm>>
+
+    <<parm g "Attacked Group">>
+    <b>Required.</b>  The name of a non-uniformed force group.
+    <</parm>>
+
+    <<parm roe "ROE">>
+    <b>Required.</b>  <<ROE:ATTACK:U.roe>>
+    <</parm>>
+
+    <<parm cooplimit "Cooperation Limit">>
+    <b>Required.</b>  <<ROE:ATTACK.cooplimit>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Creates a new Attacking ROE for a uniformed force group vs. a
+    non-uniformed force group.  Note that simply setting the ROE to
+    <b>ATTACK</b> doesn't guarantee that attacks will occur.  The
+    cooperation limit must be met, there must be units of the
+    non-uniformed force to attack, the attacker must be able to find
+    them, and so forth.<p>
+
+    Attacks can be terminated by setting the ROE to
+    <b>DO_NOT_ATTACK</b> using 
+    <<cref ROE:ATTACK:UNIFORMED:UPDATE>> or by deleting the ROE
+    altogether using <<cref ROE:ATTACK:DELETE>>.
+}
+
+
+#-----------------------------------------------------------------------
+
+order ROE:ATTACK:UNIFORMED:UPDATE "Update Attacking ROE (Uniformed)" {
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of a neighborhood.
+    <</parm>>
+
+    <<parm f "Attacking Group">>
+    <b>Required.</b>  The name of a uniformed force group.
+    <</parm>>
+
+    <<parm g "Attacked Group">>
+    <b>Required.</b>  The name of a non-uniformed force group.
+    <</parm>>
+
+    <<parm roe "ROE">>
+    <b>Optional.</b>  <<ROE:ATTACK:U.roe>>
+    <</parm>>
+
+    <<parm cooplimit "Cooperation Limit">>
+    <b>Optional.</b>  <<ROE:ATTACK.cooplimit>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Updates an existing Attacking ROE for a uniformed force group vs. a
+    non-uniformed force group.
+}
+
+#-----------------------------------------------------------------------
+
+order ROE:ATTACK:UNIFORMED:UPDATE+MULTI "Update Multiple Attacking ROEs (Uniformed)" {
+    <<parmlist>>
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids "Attacking ROE">><p>
+
+    Programmatically, each ID is a list {<i>n f g</i>} where <i>n</i>,
+    <i>f</i>, and <i>g</i> are defined as for the 
+    <<cref ROE:ATTACK:UNIFORMED:UPDATE>> order. 
+    <</parm>>
+
+    <<parm roe "ROE">>
+    <b>Optional.</b>  <<ROE:ATTACK:U.roe>>
+    <</parm>>
+
+    <<parm cooplimit "Cooperation Limit">>
+    <b>Optional.</b>  <<ROE:ATTACK.cooplimit>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Updates each of the selected ROEs.
+}
+
+#=======================================================================
+# Defending ROEs
+
+page ROE:DEFEND: "Defending ROE Orders" ROE: {
+    <<title>>
+
+    Defending ROEs determine how a uniformed force group responds to
+    attack by a non-uniformed force group: do they shoot back, and if
+    so under what conditions.<p>
+
+    Every uniformed force group has an automatically-created Defending
+    ROE in every neighborhood; the ROE defaults to
+    <b>FIRE_BACK_IF_PRESSED</b>.  The orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+macro ROE:DEFEND.roe {} {
+    |<--
+    The ROE proper, one of the following values:<p>
+
+    [enumdoc ::projectlib::edefroeuf]
+
+    If the ROE is <b>HOLD_FIRE</b>, then the group will never fire
+    back at attackers.  If the ROE is <b>FIRE_BACK_IF_PRESSED</b>,
+    then the group will fire back only if the attacker continues to
+    press the attack after the initial engagement.  That is, the group
+    will <i>not</i> fire back if the attacker does a hit-and-run.  If
+    the ROE is <b>FIRE_BACK_IMMEDIATELY</b>, the group will always
+    fire back at its attackers.<p>
+
+    Note that the number of civilian casualties depends on whether or
+    not the group fires back at its attackers.
+}
+
+#-----------------------------------------------------------------------
+
+order ROE:DEFEND:UPDATE "Updating Defending ROE" {
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  The name of a neighborhood.
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  The name of a uniformed force group.
+    <</parm>>
+
+    <<parm roe "ROE">>
+    <b>Optional.</b>  <<ROE:DEFEND.roe>>
+    <</parm>>
+    <</parmlist>>
+
+    Updates the uniformed force group's ROE in the neighborhood.
+
+}
+
+
+#-----------------------------------------------------------------------
+
+order ROE:DEFEND:UPDATE+MULTI "Updating Multiple Defending ROEs" {
+    <<parmlist>>
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids "Defending ROE">><p>
+
+    Programmatically, each ID is a list {<i>n g</i>} where <i>n</i>
+    and <i>g</i> are defined as for the <<cref ROE:DEFEND:UPDATE>> order.
+    <</parm>>
+
+    <<parm roe "ROE">>
+    <b>Optional.</b>  <<ROE:DEFEND.roe>>
+    <</parm>>
+    <</parmlist>>
+
+    Updates the ROE for each of the specified uniformed force groups
+    and neighborhoods.
+}
 
 
 #=======================================================================
@@ -2052,6 +2725,269 @@ order SAT:UPDATE "Update Initial Satisfaction" {
     (Use the <<cref MAD:>> to adjust or otherwise influence the 
     current levels.)
 
+}
+
+
+#-----------------------------------------------------------------------
+
+order SAT:UPDATE+MULTI "Update Initial Satisfaction (Multi)" {
+    <<parmlist>>
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids satisfaction>><p>
+
+    Programmatically, each ID is a list {<i>n g c</i>} where <i>n</i>,
+    <i>g</i>, and <i>c</i> are defined as for the 
+    <<cref SAT:UPDATE>> order.
+    <</parm>>
+
+    <<parm sat0 "Sat at T0">>
+    <b>Optional.</b>  The initial satisfaction level of group <i>g</i>
+    with concern <i>c</i> in neighborhood <i>n</i>.  Satisfaction levels
+    run from -100.0 to 100.0, and are defined either numerically or using
+    the following rating scale:<p>
+
+    <<::simlib::qsat html>>
+    <</parm>>
+
+    <<parm trend0 "Trend">>
+    <b>Optional.</b>  The long-term trend for this satisfaction level,
+    a slope in points per day.  Trends should generally be 0.0 unless
+    there is a systematic reason why the level will trend positive
+    or negative.  Trends are defined either numerically or using
+    the following rating scale:<p>
+
+    <<::simlib::qtrend html>>
+    <</parm>>
+
+    <<parm saliency "Saliency">>
+    <b>Optional.</b>  The importance of concern <i>c</i> to the group.
+    Saliencies range from 0.0 to 1.0, and are defined either
+    numerically or using the following rating scale:<p>
+
+    <<::simlib::qsaliency html>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order updates two or more initial
+    satisfaction levels, as selected in the GUI; this can only be done
+    during the Scenario Preparation phase.<p>
+
+    (Use the <<cref MAD:>> to adjust or otherwise influence the 
+    current levels.)
+}
+
+#=======================================================================
+# Simulation Control Orders
+
+page SIM: "Simulation Control Orders" orders {
+    <<title>>
+
+    The orders in this set are used to control the simulation in
+    general.  Most of them are used implicitly, by various GUI
+    controls.  They are documented here for completeness.<p>
+
+    The full set of orders is as follows:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order SIM:STARTDATE "Set Start Date" {
+    <<parmlist>>
+    <<parm startdate "Start Date">>
+    <b>Required.</b>  A <<term zulu>> corresponding to 
+    simulation time 0.  By convention, the hours and minutes 
+    should be "0000".
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Athena generally reports
+    simulation time as a number of integer ticks and as a zulu-time.
+    This order determines how simulation time is translated to zulu-time.
+}
+
+
+order SIM:RUN "Run Simulation" {
+    <<parmlist>>
+    <<parm days "Days to Run">>
+    <b>Optional.</b>  An integer number of days.  If 0, or not
+    specified, the simulation will run until explicitly paused by the
+    user.  If greater than 0, the simulation will run for the
+    specified number of days, and then halt.
+    <</parm>>
+
+    <<parm block "Block?">>
+    <b>Optional.</b>  A boolean flag.  If true, the order will
+    block--that is, the simulation will run for the specified number
+    of days and then the order handler will return.  If false (the
+    default) the order handler returns immediately, and the simulation
+    runs forward under the control of the Tcl event loop.<p>
+    <</parm>>
+
+    <</parmlist>>
+
+    Advances simulation time.  This order is usually triggered by the
+    "play" button in the GUI.<p>
+
+    If the simulation is in the <<cref using.prep>> state, the order
+    does a sanity check on the scenario; time will not be allowed to
+    advance if the scenario is incomplete.
+}
+
+
+order SIM:PAUSE "Pause Simulation" {
+    Pauses the simulation at the next possible moment: immediately if
+    the simulation is waiting in the Tcl event loop between ticks, and
+    at the end of the current tick if it's in the middle of a tick.<p>
+
+    This order is usually triggered by the "pause" button in the GUI.
+}
+
+#=======================================================================
+# Unit Orders
+
+page UNIT: "Unit Orders" orders {
+    <<title>>
+
+    A unit is an object that represents some number of people in 
+    a particular neighborhood.  Every unit belongs to some group.
+    Force and organization group units are used to represent presence
+    of personnel belonging to the group within a particular
+    neighborhood, and also to assign group personnel to particular
+    activities.  Civilian units belong to particular neighborhood
+    groups, and are used to make the implicit population of the group
+    explicit on the map.<p>
+
+    Note that force group units are <i>not</i> units in the classic
+    sense: a particular company, platoon, etc.  Rather, they represent
+    the presence of troops and the allocation of troops to
+    activities.<p>
+
+    A unit's specific location within a neighborhood is immaterial.<p>
+
+    Units are created and modified using the following orders:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order UNIT:CREATE "Create Unit" {
+    <<parmlist>>
+    <<parm g "Group">>
+    <b>Required.</b>  The group to which the unit belongs.
+    <</parm>>
+
+    <<parm origin "Origin">>
+    <b>Required.</b>  For civilian groups only, the unit's
+    neighborhood of origin.  Group <i>g</i> must reside in this
+    neighborhood.
+    <</parm>>
+
+    <<parm u "Name">>
+    <b>Required.</b>  The unit's name.  Athena automatically generates
+    unit names, but the user can change them to any desired string.
+    Unit names may contain letters, numbers, underscores, hyphens, and
+    slashes.
+    <</parm>>
+
+    <<parm personnel "Personnel">>
+    <b>Required.</b>  The number of personnel in the group: a
+    non-negative integer.  For civilian units, the personnel are drawn
+    from the neighborhood group's implicit population.
+    <</parm>>
+
+    <<parm location "Location">>
+    <b>Required.</b>  The unit's location, expressed as
+    a <<term mapref>>.  The location determines
+    the unit's neighborhood, and where precisely it is drawn on the
+    map; it has no other function.
+    <</parm>>
+
+    <<parm a "Activity">>
+    <b>Required.</b>  The unit's activity.  The set of valid
+    activities depends on the group type.  If <b>NONE</b>, the unit's
+    personnel are doing nothing in particular.
+    <</parm>>
+    <</parmlist>>
+
+    Creates the unit with the specified parameters.
+}
+
+
+#-----------------------------------------------------------------------
+
+order UNIT:DELETE "Delete Unit" {
+    <<parmlist>>
+    <<parm u "Name">>
+    <b>Required.</b>  The name of the unit to delete.
+    <</parm>>
+    <</parmlist>>
+
+    Deletes the specified unit.
+}
+
+#-----------------------------------------------------------------------
+
+order UNIT:MOVE "Move Unit" {
+    <<parmlist>>
+    <<parm u "Name">>
+    <b>Required.</b>  The name of the unit to move.
+    <</parm>>
+
+    <<parm location "Location">>
+    <b>Required.</b>  The unit's new location, expressed as
+    a <<term mapref>>.
+    <</parm>>
+    <</parmlist>>
+
+    Moves the unit to its new location.
+}
+
+
+#-----------------------------------------------------------------------
+
+order UNIT:ACTIVITY "Set Unit Activity" {
+    <<parmlist>>
+    <<parm u "Name">>
+    <b>Required.</b>  The name of the unit to move.
+    <</parm>>
+
+    <<parm a "Activity">>
+    <b>Required.</b>  The unit's new activity.  The set of valid
+    activities depends on the group type.
+    <</parm>>
+    <</parmlist>>
+
+    Assigns the new activity to the unit.
+}
+
+
+#-----------------------------------------------------------------------
+
+order UNIT:PERSONNEL "Set Unit Personnel" {
+    <<parmlist>>
+    <<parm u "Name">>
+    <b>Required.</b>  The name of the unit to move.
+    <</parm>>
+
+    <<parm personnel "Personnel">>
+    <b>Required.</b>  The number of personnel in the group: a
+    non-negative integer.  For civilian units, the personnel are drawn
+    from the neighborhood group's implicit population.
+    <</parm>>
+
+    <</parmlist>>
+
+    Sets the number of personnel in the unit, and by extension the
+    number of personnel allocated to the unit's activity.<p>
+
+    Note that decreasing the number of personnel in a unit using this
+    order represents a re-allocation of personnel; it is not
+    <<cref ATTRIT: attrition>>.<p>
 }
 
 #=======================================================================
@@ -2169,7 +3105,7 @@ order ORDER:SCHEDULE "Schedule Order" {
 
     <<parm timespec "Time Spec">> 
     <b>Required.</b> The time at which the order should be scheduled
-    to execute, expressed as a <<cref timespec>>.  The time must be at
+    to execute, expressed as a <<term timespec>>.  The time must be at
     least "NOW+1".
     <</parm>>
 

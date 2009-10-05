@@ -2,6 +2,102 @@
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1237475113960" ID="Freemind_Link_868839690" MODIFIED="1237475134049" TEXT="Athena">
 <node CREATED="1237477449934" ID="Freemind_Link_919437009" MODIFIED="1237477452594" POSITION="right" TEXT="Simulation">
+<node CREATED="1251996476210" FOLDED="true" ID="Freemind_Link_1686975135" MODIFIED="1251996489047" TEXT="Revise order of tick activities">
+<node CREATED="1251410099062" FOLDED="true" ID="Freemind_Link_762389283" MODIFIED="1251925914706" TEXT="Current Model">
+<edge WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="12"/>
+<node CREATED="1251408341943" ID="Freemind_Link_1220449656" MODIFIED="1251410108319" TEXT="Concept">
+<node CREATED="1251410124262" ID="Freemind_Link_1774686228" MODIFIED="1251410133903" TEXT="Time 0 is used for PREP"/>
+<node CREATED="1251410134757" ID="Freemind_Link_179708848" MODIFIED="1251410149248" TEXT="When paused at tick T">
+<node CREATED="1251410149653" ID="Freemind_Link_1662568942" MODIFIED="1251410154191" TEXT="We are at the END of the tick"/>
+<node CREATED="1251410154453" ID="Freemind_Link_923140022" MODIFIED="1251410159599" TEXT="Tick T+1 is about to begin"/>
+</node>
+<node CREATED="1251410163413" ID="Freemind_Link_1766400968" MODIFIED="1251410330628" TEXT="Orders sent at tick T execute at the END &#xa;of the tick, and affect the simulation during &#xa;tick T+1."/>
+<node CREATED="1251408914903" ID="Freemind_Link_755870436" MODIFIED="1251410276799" TEXT="Orders scheduled for tick T execute at the BEGINNING &#xa;of the tick, and affect the simulation during tick T."/>
+<node CREATED="1251410345317" ID="Freemind_Link_980903685" MODIFIED="1251410352624" TEXT="Problems">
+<node CREATED="1251410353110" ID="Freemind_Link_4816119" MODIFIED="1251410370015" TEXT="An order&apos;s effect depends on whether it is sent or scheduled"/>
+<node CREATED="1251410371685" ID="Freemind_Link_708017082" MODIFIED="1251410431556" TEXT="The Zulu-time we display for a tick is at 12AM, e.g., &#xa;100000ZJAN10.  This implies that we are paused at the&#xa;beginning of the day, not the end of the day."/>
+</node>
+</node>
+<node CREATED="1251410437045" ID="Freemind_Link_1237496661" MODIFIED="1251410439392" TEXT="Design">
+<node CREATED="1251410439909" ID="Freemind_Link_315732319" MODIFIED="1251410451535" TEXT="Scenario prep is done at time 0"/>
+<node CREATED="1251410451972" ID="Freemind_Link_293377498" MODIFIED="1251410499909" TEXT="On pressing RUN at time T">
+<node CREATED="1251410466517" ID="Freemind_Link_1627262469" MODIFIED="1251410509887" TEXT="If T=0, GRAM (et al) is initialized"/>
+<node CREATED="1251410483045" ID="Freemind_Link_630817356" MODIFIED="1251410515519" TEXT="Advance time to T+1"/>
+<node CREATED="1251410515829" ID="Freemind_Link_1654142522" MODIFIED="1251410529503" TEXT="Execute orders scheduled to execute at time T"/>
+<node CREATED="1251410529829" ID="Freemind_Link_1029885094" MODIFIED="1251410534703" TEXT="NB Stats, analysis, etc."/>
+<node CREATED="1251410535093" ID="Freemind_Link_1423796758" MODIFIED="1251410537375" TEXT="Advance GRAM"/>
+<node CREATED="1251410537876" ID="Freemind_Link_1821150535" MODIFIED="1251410542623" TEXT="Do reactive events"/>
+<node CREATED="1251410544069" ID="Freemind_Link_659678321" MODIFIED="1251410555631" TEXT="Enter Paused, or keep running"/>
+</node>
+</node>
+</node>
+<node CREATED="1251410073941" FOLDED="true" ID="Freemind_Link_1256379730" MODIFIED="1251410075999" TEXT="New Model">
+<node CREATED="1251408408408" ID="Freemind_Link_352429651" MODIFIED="1251410084607" TEXT="Concept">
+<node CREATED="1251408412903" ID="Freemind_Link_268121624" MODIFIED="1251408433217" TEXT="When paused at tick T, tick T is about to begin."/>
+<node CREATED="1251408433863" ID="Freemind_Link_497937746" MODIFIED="1251408455937" TEXT="Orders entered at tick T will affect the simulation during the tick."/>
+<node CREATED="1251408986838" ID="Freemind_Link_1015586452" MODIFIED="1251409016481" TEXT="PREP is distinct from time 0"/>
+<node CREATED="1251409031686" ID="Freemind_Link_1464263287" MODIFIED="1251409043600" TEXT="Must explicitly leave PREP to run the simulation"/>
+</node>
+<node CREATED="1251409017495" ID="Freemind_Link_1673770944" MODIFIED="1251411439265" TEXT="Design A">
+<icon BUILTIN="clanbomber"/>
+<node CREATED="1251409054663" ID="Freemind_Link_565253073" MODIFIED="1251409059185" TEXT="On leaving PREP">
+<node CREATED="1251407984312" ID="Freemind_Link_1356516590" MODIFIED="1251407988914" TEXT="GRAM (et al) is initialized"/>
+<node CREATED="1251407989240" ID="Freemind_Link_1183138820" MODIFIED="1251407992338" TEXT="We enter time 0"/>
+<node CREATED="1251408018584" ID="Freemind_Link_955570512" MODIFIED="1251408026162" TEXT="We enter the PAUSED state."/>
+</node>
+<node CREATED="1251408031688" ID="Freemind_Link_465709864" MODIFIED="1251408043266" TEXT="Then, we can enter orders as of time 0."/>
+<node CREATED="1251409101638" ID="Freemind_Link_477677119" MODIFIED="1251409196832" TEXT="On pressing RUN at time T">
+<node CREATED="1251409132982" ID="Freemind_Link_1700544912" MODIFIED="1251409148608" TEXT="Execute orders scheduled to execute at time T"/>
+<node CREATED="1251409847206" ID="Freemind_Link_1202420002" MODIFIED="1251409854565" TEXT="NB Stats, analysis, etc."/>
+<node CREATED="1251409155383" ID="Freemind_Link_647667554" MODIFIED="1251409162272" TEXT="Advance GRAM (unless T=0)"/>
+<node CREATED="1251409163046" ID="Freemind_Link_192738219" MODIFIED="1251409175152" TEXT="Do reactive events"/>
+<node CREATED="1251409175863" ID="Freemind_Link_671426029" MODIFIED="1251409210720" TEXT="Advance time to T+1"/>
+<node CREATED="1251409211062" ID="Freemind_Link_1705296075" MODIFIED="1251409225904" TEXT="Enter PAUSED, or keep running"/>
+</node>
+<node CREATED="1251411753651" FOLDED="true" ID="Freemind_Link_308129986" MODIFIED="1251412996443" TEXT="Sequence within a time tick">
+<node CREATED="1251411640387" ID="Freemind_Link_3468453" MODIFIED="1251411645181" TEXT="Interactive driver changes">
+<node CREATED="1251412937505" ID="Freemind_Link_145294679" MODIFIED="1251412945787" TEXT="I.e., interactive orders"/>
+</node>
+<node CREATED="1251411634787" ID="Freemind_Link_609210083" MODIFIED="1251411640029" TEXT="Scheduled driver changes">
+<node CREATED="1251412910801" ID="Freemind_Link_365387592" MODIFIED="1251412917451" TEXT="I.e., event queue events"/>
+</node>
+<node CREATED="1251411645491" ID="Freemind_Link_1252261977" MODIFIED="1251411651389" TEXT="Analysis of driver changes"/>
+<node CREATED="1251413001553" ID="Freemind_Link_1507050968" MODIFIED="1251413007195" TEXT="Response to analysis"/>
+</node>
+</node>
+<node CREATED="1251409263799" ID="Freemind_Link_678719787" MODIFIED="1251411441705" TEXT="Design B">
+<icon BUILTIN="ksmiletris"/>
+<node CREATED="1251409054663" ID="Freemind_Link_1592157335" MODIFIED="1251409059185" TEXT="On leaving PREP">
+<node CREATED="1251407984312" ID="Freemind_Link_963783773" MODIFIED="1251407988914" TEXT="GRAM (et al) is initialized"/>
+<node CREATED="1251407989240" ID="Freemind_Link_1109066187" MODIFIED="1251407992338" TEXT="We enter time 0"/>
+<node CREATED="1251409306967" ID="Freemind_Link_542535415" MODIFIED="1251409313216" TEXT="Execute orders scheduled to execute at time 0"/>
+<node CREATED="1251408018584" ID="Freemind_Link_978527587" MODIFIED="1251408026162" TEXT="We enter the PAUSED state."/>
+</node>
+<node CREATED="1251408031688" ID="Freemind_Link_1489003545" MODIFIED="1251408043266" TEXT="Then, we can enter orders as of time 0."/>
+<node CREATED="1251409101638" ID="Freemind_Link_820785677" MODIFIED="1251409196832" TEXT="On pressing RUN at time T">
+<node CREATED="1251409378278" ID="Freemind_Link_411762691" MODIFIED="1251409388174" TEXT="NB Stats, etc."/>
+<node CREATED="1251409155383" ID="Freemind_Link_490858172" MODIFIED="1251409162272" TEXT="Advance GRAM (unless T=0)"/>
+<node CREATED="1251409163046" ID="Freemind_Link_1109189616" MODIFIED="1251409175152" TEXT="Do reactive events"/>
+<node CREATED="1251409175863" ID="Freemind_Link_326375714" MODIFIED="1251409210720" TEXT="Advance time to T+1"/>
+<node CREATED="1251409132982" ID="Freemind_Link_1375561956" MODIFIED="1251409326262" TEXT="Execute orders scheduled to execute at time T+1"/>
+<node CREATED="1251409211062" ID="Freemind_Link_408401591" MODIFIED="1251409225904" TEXT="Enter PAUSED, or keep running"/>
+</node>
+<node CREATED="1251412888593" ID="Freemind_Link_1366343636" MODIFIED="1251412903755" TEXT="Events within a time tick">
+<node CREATED="1251411634787" ID="Freemind_Link_196598956" MODIFIED="1251411640029" TEXT="Scheduled driver changes">
+<node CREATED="1251412910801" ID="Freemind_Link_1524990055" MODIFIED="1251412917451" TEXT="I.e., event queue events"/>
+</node>
+<node CREATED="1251411640387" ID="Freemind_Link_1974233332" MODIFIED="1251411645181" TEXT="Interactive driver changes">
+<node CREATED="1251412937505" ID="Freemind_Link_748422119" MODIFIED="1251412945787" TEXT="I.e., interactive orders"/>
+</node>
+<node CREATED="1251411645491" ID="Freemind_Link_1898197295" MODIFIED="1251411651389" TEXT="Analysis of driver changes">
+<node CREATED="1251412947969" ID="Freemind_Link_1965794733" MODIFIED="1251412967787" TEXT="Other calls during &quot;sim Tick&quot;"/>
+</node>
+<node CREATED="1251413028994" ID="Freemind_Link_1685536549" MODIFIED="1251413033819" TEXT="Response to analysis"/>
+</node>
+</node>
+</node>
+</node>
 <node CREATED="1243027998597" ID="Freemind_Link_1993004622" MODIFIED="1245882390862" TEXT="ORG active/inactive flag">
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1243028014804" ID="Freemind_Link_290938405" MODIFIED="1243028020317" TEXT="Set as in JOUT rules"/>
@@ -43,19 +139,13 @@
 <node CREATED="1237568050726" ID="Freemind_Link_454367740" MODIFIED="1237568062559" TEXT="Like gtclient/gtserver, but within one app"/>
 </node>
 </node>
+<node CREATED="1252945495855" ID="Freemind_Link_400361736" MODIFIED="1252945498588" POSITION="right" TEXT="Attrition Model">
+<node CREATED="1252945498899" ID="Freemind_Link_1801105482" MODIFIED="1252945505420" TEXT="Much better reporting">
+<node CREATED="1252945506303" ID="Freemind_Link_1983158166" MODIFIED="1252945511192" TEXT="At present we&apos;re dependent on the log"/>
+<node CREATED="1252945511471" ID="Freemind_Link_1214987202" MODIFIED="1252945516456" TEXT="The log doesn&apos;t move with the scenario"/>
+</node>
+</node>
 <node CREATED="1239210064249" ID="Freemind_Link_1216819379" MODIFIED="1239210065909" POSITION="right" TEXT="GRAM">
-<node CREATED="1245882571968" ID="Freemind_Link_1418176995" MODIFIED="1251396516822" TEXT="GRAM dump executive commands">
-<icon BUILTIN="full-1"/>
-</node>
-<node CREATED="1241215740273" ID="Freemind_Link_1519643380" MODIFIED="1251396569302" TEXT="Speed up gram_value update on cancel"/>
-<node CREATED="1241215767617" ID="Freemind_Link_1703805627" MODIFIED="1241215779674" TEXT="Accumulate acontrib directly into gram_contribs">
-<node CREATED="1241215785360" ID="Freemind_Link_276110028" MODIFIED="1241215789775" TEXT="If it&apos;s faster to do so."/>
-</node>
-<node CREATED="1241215865953" ID="Freemind_Link_731499049" MODIFIED="1241215878509" TEXT="More epsilons?">
-<node CREATED="1241215878848" ID="Freemind_Link_957640958" MODIFIED="1241215882778" TEXT="Level vs. Slope"/>
-<node CREATED="1241215883249" ID="Freemind_Link_1735758744" MODIFIED="1241215886122" TEXT="Sat vs Coop"/>
-</node>
-<node CREATED="1247762885741" ID="Freemind_Link_1952865263" MODIFIED="1247762891249" TEXT="Smaller epsilons?"/>
 <node CREATED="1251486998445" ID="Freemind_Link_952373843" MODIFIED="1251487006508" TEXT="GRAM and RDBs">
 <node CREATED="1251487006830" ID="Freemind_Link_323083293" MODIFIED="1251487015511" TEXT="Suppose each instance of GRAM required its own RDB?"/>
 <node CREATED="1251487017517" ID="Freemind_Link_236967723" MODIFIED="1251487033367" TEXT="Could use multiple gram(n)&apos;s in an app by using multiple RDBs."/>
@@ -77,6 +167,15 @@
 <node CREATED="1239210174983" ID="Freemind_Link_1430976267" MODIFIED="1239210183954" TEXT="Slope decreasing to 0.0"/>
 </node>
 </node>
+<node CREATED="1241215740273" ID="Freemind_Link_1519643380" MODIFIED="1251396569302" TEXT="Speed up gram_value update on cancel"/>
+<node CREATED="1241215767617" ID="Freemind_Link_1703805627" MODIFIED="1241215779674" TEXT="Accumulate acontrib directly into gram_contribs">
+<node CREATED="1241215785360" ID="Freemind_Link_276110028" MODIFIED="1241215789775" TEXT="If it&apos;s faster to do so."/>
+</node>
+<node CREATED="1241215865953" ID="Freemind_Link_731499049" MODIFIED="1241215878509" TEXT="More epsilons?">
+<node CREATED="1241215878848" ID="Freemind_Link_957640958" MODIFIED="1241215882778" TEXT="Level vs. Slope"/>
+<node CREATED="1241215883249" ID="Freemind_Link_1735758744" MODIFIED="1241215886122" TEXT="Sat vs Coop"/>
+</node>
+<node CREATED="1247762885741" ID="Freemind_Link_1952865263" MODIFIED="1247762891249" TEXT="Smaller epsilons?"/>
 <node CREATED="1251396967991" ID="Freemind_Link_499442037" MODIFIED="1251396990189" TEXT="Use numeric indices rather than strings when possible?">
 <icon BUILTIN="help"/>
 </node>
@@ -157,23 +256,13 @@
 </node>
 </node>
 <node CREATED="1237477511538" ID="Freemind_Link_894463638" MODIFIED="1237477524514" POSITION="right" TEXT="Scenario">
-<node CREATED="1241547209100" ID="Freemind_Link_874223123" MODIFIED="1251396550222" TEXT="nbrel effects_delay">
-<icon BUILTIN="full-1"/>
-<node CREATED="1241547214268" ID="Freemind_Link_741184539" MODIFIED="1241547235353" TEXT="Athena allows effects_delay to be non-zero for HERE."/>
-<node CREATED="1241547225964" ID="Freemind_Link_1772608855" MODIFIED="1243546140842" TEXT="GRAM assumes effects_delay is 0 for HERE."/>
-<node CREATED="1243546142815" ID="Freemind_Link_1268107626" MODIFIED="1243546151992" TEXT="Require effects_delay to be 0.0 in Athena"/>
-</node>
-<node CREATED="1237477586106" ID="Freemind_Link_516563511" MODIFIED="1251396555078" TEXT="Require rel=1.0 when f=g">
-<icon BUILTIN="full-1"/>
-<node CREATED="1237477606906" ID="Freemind_Link_1462718131" MODIFIED="1243546199960" TEXT="Update the RELATIONSHIP:* orders and browser"/>
-</node>
-<node CREATED="1243546243278" ID="Freemind_Link_1855932461" MODIFIED="1243546308604" TEXT="&quot;local&quot; flag should be on CIV and ORG groups as well">
-<icon BUILTIN="help"/>
-</node>
 <node CREATED="1237480308963" ID="Freemind_Link_1212698036" MODIFIED="1251396566598" TEXT="Reciprocal flag in *:UPDATE">
 <node CREATED="1237480368626" ID="Freemind_Link_285045741" MODIFIED="1237480382381" TEXT="Sets same value for mn and nm, nfg and ngf"/>
 <node CREATED="1237480331738" ID="Freemind_Link_1725501118" MODIFIED="1237480344757" TEXT="NBHOOD:RELATIONSHIP:UPDATE"/>
 <node CREATED="1237480346154" ID="Freemind_Link_377220162" MODIFIED="1237480349469" TEXT="RELATIONSHIP:UPDATE"/>
+</node>
+<node CREATED="1243546243278" ID="Freemind_Link_1855932461" MODIFIED="1243546308604" TEXT="&quot;local&quot; flag should be on CIV and ORG groups as well">
+<icon BUILTIN="help"/>
 </node>
 <node CREATED="1237480977571" FOLDED="true" ID="Freemind_Link_590980119" MODIFIED="1245882506254" TEXT="MAP:EXPORT">
 <icon BUILTIN="messagebox_warning"/>
@@ -186,13 +275,11 @@
 </node>
 </node>
 <node CREATED="1243547508955" ID="Freemind_Link_1801589990" MODIFIED="1243547510924" POSITION="right" TEXT="Reports">
-<node CREATED="1243547511644" ID="Freemind_Link_856756919" MODIFIED="1251396596622" TEXT="Scenario Report">
-<icon BUILTIN="full-1"/>
+<node CREATED="1243547511644" ID="Freemind_Link_856756919" MODIFIED="1251996429214" TEXT="Scenario Report">
 <node CREATED="1243547523500" ID="Freemind_Link_241253623" MODIFIED="1243547529589" TEXT="Documents Scenario in detail"/>
 <node CREATED="1243547530219" ID="Freemind_Link_1958129409" MODIFIED="1243547554469" TEXT="Possible not a report as such, but an HTML document like JNEM&apos;s dbdoc(n)"/>
 </node>
-<node CREATED="1243547558140" ID="Freemind_Link_1248382754" MODIFIED="1245882530670" TEXT="Contributions Report">
-<icon BUILTIN="full-2"/>
+<node CREATED="1243547558140" ID="Freemind_Link_1248382754" MODIFIED="1251996432006" TEXT="Contributions Report">
 <node CREATED="1243547565707" ID="Freemind_Link_1217705822" MODIFIED="1243547571125" TEXT="Like JNEM&apos;s satcurve report"/>
 <node CREATED="1249398777882" ID="Freemind_Link_1569066490" MODIFIED="1249398785036" TEXT="Still need contributions to cooperation"/>
 </node>
@@ -219,11 +306,6 @@
 <node CREATED="1237479428630" ID="Freemind_Link_1070564721" MODIFIED="1237479469634" POSITION="right" TEXT="GUI">
 <node CREATED="1239723521749" ID="Freemind_Link_1093494342" MODIFIED="1245882542782" TEXT="Save sim speed, duration as prefs">
 <icon BUILTIN="messagebox_warning"/>
-</node>
-<node CREATED="1241215918369" ID="Freemind_Link_268023639" MODIFIED="1245882547118" TEXT="Stop button">
-<icon BUILTIN="full-3"/>
-<node CREATED="1241215931217" ID="Freemind_Link_1632396932" MODIFIED="1241215945706" TEXT="Enter time at tick 0"/>
-<node CREATED="1243546337742" ID="Freemind_Link_1648827364" MODIFIED="1243546346296" TEXT="Fast: no need to save snapshot at time t"/>
 </node>
 <node CREATED="1241215894576" ID="Freemind_Link_1711563604" MODIFIED="1241215901322" TEXT="More GRAM browsers">
 <node CREATED="1243546351758" ID="Freemind_Link_672128754" MODIFIED="1251396614478" TEXT="Drivers"/>
@@ -291,38 +373,27 @@
 </node>
 <node CREATED="1237479990726" ID="Freemind_Link_1486904062" MODIFIED="1242242438803" POSITION="right" TEXT="Map GUI">
 <node CREATED="1243610985766" ID="Freemind_Link_1124965888" MODIFIED="1243611022272" TEXT="Can mapviewer(sim) be modularized?"/>
-<node CREATED="1237481843234" FOLDED="true" ID="Freemind_Link_1306844691" MODIFIED="1245882636814" TEXT="Set unit shapes based on relationships">
-<icon BUILTIN="full-4"/>
+<node CREATED="1237481843234" FOLDED="true" ID="Freemind_Link_1306844691" MODIFIED="1251996458571" TEXT="Set unit shapes based on relationships">
 <node CREATED="1237481854578" ID="Freemind_Link_720065925" MODIFIED="1237481862230" TEXT="WRT user-selected group"/>
 <node CREATED="1237481862754" ID="Freemind_Link_1299949235" MODIFIED="1237481887774" TEXT="qgrouprel defines FRIEND, NEUTRAL, ENEMY"/>
 </node>
-<node CREATED="1237482154410" ID="Freemind_Link_1362932509" MODIFIED="1245882932949" TEXT="Enable/disable map background">
-<icon BUILTIN="full-4"/>
-</node>
-<node CREATED="1237482166114" ID="Freemind_Link_639175641" MODIFIED="1245882932953" TEXT="Enable/disable nbhood display">
-<icon BUILTIN="full-4"/>
-</node>
-<node CREATED="1237482173858" ID="Freemind_Link_270558674" MODIFIED="1245882932952" TEXT="Enable/disable unit icons">
-<icon BUILTIN="full-4"/>
+<node CREATED="1237482154410" ID="Freemind_Link_1362932509" MODIFIED="1251996458568" TEXT="Enable/disable map background"/>
+<node CREATED="1237482166114" ID="Freemind_Link_639175641" MODIFIED="1251996458567" TEXT="Enable/disable nbhood display"/>
+<node CREATED="1237482173858" ID="Freemind_Link_270558674" MODIFIED="1251996458565" TEXT="Enable/disable unit icons">
 <node CREATED="1237482180474" ID="Freemind_Link_1659229339" MODIFIED="1237482185838" TEXT="By icon type"/>
 </node>
-<node CREATED="1242251888314" FOLDED="true" ID="Freemind_Link_540157612" MODIFIED="1245882932951" TEXT="Enable/disable envsit icons">
-<icon BUILTIN="full-4"/>
+<node CREATED="1242251888314" FOLDED="true" ID="Freemind_Link_540157612" MODIFIED="1251996458564" TEXT="Enable/disable envsit icons">
 <node CREATED="1242251898217" ID="Freemind_Link_901616595" MODIFIED="1242251900787" TEXT="All"/>
 <node CREATED="1242251901338" ID="Freemind_Link_1052726683" MODIFIED="1242251902755" TEXT="Current"/>
 <node CREATED="1242251903034" ID="Freemind_Link_1053169404" MODIFIED="1242251904515" TEXT="Ended"/>
 <node CREATED="1242251904841" ID="Freemind_Link_1296804293" MODIFIED="1242251908099" TEXT="None"/>
 </node>
-<node CREATED="1242251949130" FOLDED="true" ID="Freemind_Link_1306195532" MODIFIED="1245882972519" TEXT="Envsit context menu">
-<icon BUILTIN="full-4"/>
+<node CREATED="1242251949130" FOLDED="true" ID="Freemind_Link_1306195532" MODIFIED="1251996458562" TEXT="Envsit context menu">
 <node CREATED="1242251952906" ID="Freemind_Link_1286947887" MODIFIED="1242251956675" TEXT="Resolve Situation"/>
 <node CREATED="1242251956970" ID="Freemind_Link_184985576" MODIFIED="1242251960147" TEXT="Delete Situation"/>
 </node>
-<node CREATED="1241813623814" ID="Freemind_Link_1926362182" MODIFIED="1245882942989" TEXT="Spawned envsits should be offset from their parent&apos;s location">
-<icon BUILTIN="full-5"/>
-</node>
-<node CREATED="1242242263068" FOLDED="true" ID="Freemind_Link_812896575" MODIFIED="1245882948765" TEXT="Nbhood context menu">
-<icon BUILTIN="full-5"/>
+<node CREATED="1241813623814" ID="Freemind_Link_1926362182" MODIFIED="1251996458560" TEXT="Spawned envsits should be offset from their parent&apos;s location"/>
+<node CREATED="1242242263068" FOLDED="true" ID="Freemind_Link_812896575" MODIFIED="1251996458558" TEXT="Nbhood context menu">
 <node CREATED="1242242268299" ID="Freemind_Link_1520143269" MODIFIED="1242251988899" TEXT="Update Neighborhood"/>
 <node CREATED="1242242274059" ID="Freemind_Link_1324604126" MODIFIED="1242251993812" TEXT="Delete Neighborhood"/>
 </node>
@@ -402,9 +473,7 @@
 </node>
 </node>
 </node>
-<node CREATED="1237482195459" ID="Freemind_Link_1291634544" MODIFIED="1245882972517" TEXT="Display nbhood names near refpoint">
-<icon BUILTIN="full-4"/>
-</node>
+<node CREATED="1237482195459" ID="Freemind_Link_1291634544" MODIFIED="1251996461894" TEXT="Display nbhood names near refpoint"/>
 <node CREATED="1237480762290" ID="Freemind_Link_1647420652" MODIFIED="1242252017271" TEXT="Ability to drag reference points interactively">
 <icon BUILTIN="help"/>
 </node>
@@ -485,11 +554,11 @@
 </node>
 </node>
 <node CREATED="1238697459940" ID="Freemind_Link_946664107" MODIFIED="1238697464078" POSITION="right" TEXT="GUI Infrastructure">
-<node CREATED="1251397016743" FOLDED="true" ID="Freemind_Link_1167127" MODIFIED="1251397043233" TEXT="Help Browser Status Bar">
+<node CREATED="1251397016743" ID="Freemind_Link_1167127" MODIFIED="1251397043233" TEXT="Help Browser Status Bar">
 <node CREATED="1251397021144" ID="Freemind_Link_362409140" MODIFIED="1251397031361" TEXT="Add status bar that shows name of linked page"/>
 </node>
-<node CREATED="1251397054567" FOLDED="true" ID="Freemind_Link_1501672783" MODIFIED="1251397060357" TEXT="Help Browser Search">
-<node CREATED="1251397060599" ID="Freemind_Link_1483085231" MODIFIED="1251397066465" TEXT="Add full-text search to the help browser"/>
+<node CREATED="1252944651185" ID="Freemind_Link_353219562" MODIFIED="1252944656446" TEXT="Help Browser Link Colors">
+<node CREATED="1252944656880" ID="Freemind_Link_698260945" MODIFIED="1252944664087" TEXT="Color visited links purple"/>
 </node>
 <node CREATED="1237479433118" FOLDED="true" ID="Freemind_Link_491578520" MODIFIED="1245882780238" TEXT="Cell-based editing in browsers">
 <icon BUILTIN="messagebox_warning"/>

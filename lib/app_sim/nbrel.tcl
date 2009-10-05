@@ -222,14 +222,14 @@ snit::type nbrel {
     #-------------------------------------------------------------------
     # Order Helpers
 
-    # RefreshProximitySingle field parmdict
+    # RefreshProximityUpdate field parmdict
     #
     # field     The "proximity" field in a N:R:UPDATE dialog
     # parmdict  The current values of the various fields
     #
     # Updates the "proximity" field's state.
 
-    typemethod RefreshProximitySingle {field parmdict} {
+    typemethod RefreshProximityUpdate {field parmdict} {
         dict with parmdict {
             if {$m eq $n} {
                 $field configure -values HERE
@@ -238,6 +238,23 @@ snit::type nbrel {
             } else {
                 set values [lrange [eproximity names] 1 end]
                 $field configure -values $values
+            }
+        }
+    }
+
+    # RefreshDelayUpdate field parmdict
+    #
+    # field     The "effects_delay" field in a N:R:UPDATE dialog
+    # parmdict  The current values of the various fields
+    #
+    # Updates the "effects_delay" field's state.
+
+    typemethod RefreshDelayUpdate {field parmdict} {
+        dict with parmdict {
+            if {$m eq $n} {
+                $field configure -state disabled
+            } else {
+                $field configure -state normal
             }
         }
     }
@@ -280,6 +297,26 @@ snit::type nbrel {
             $field set ""
         }
     }
+
+    # RefreshDelayMulti field parmdict
+    #
+    # field     The "effects_delay" field in a N:R:UPDATE:MULTI dialog
+    # parmdict  The current values of the various fields
+    #
+    # Updates the "effects_delay" field's state.
+
+    typemethod RefreshDelayMulti {field parmdict} {
+        foreach id [dict get $parmdict ids] {
+            lassign $id m n
+
+            if {$m eq $n} {
+                $field configure -state disabled
+                return
+            }
+        }
+
+        $field configure -state normal
+    }
 }
 
 
@@ -299,8 +336,9 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE {
     parm n             key  "With Neighborhood"    -tags nbhood
 
     parm proximity     enum "Proximity" \
-        -refreshcmd {::nbrel RefreshProximitySingle}
-    parm effects_delay text "Effects Delay (Days)" 
+        -refreshcmd {::nbrel RefreshProximityUpdate}
+    parm effects_delay text "Effects Delay (Days)" \
+        -refreshcmd {::nbrel RefreshDelayUpdate}
 } {
     # FIRST, prepare the parameters
     prepare m             -toupper  -required -type nbhood
@@ -319,6 +357,15 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE {
                 "Proximity of $parms(m) to $parms(n) cannot be HERE"
         }
     }
+
+    # NEXT, effects_delay must be 0.0 if m=n
+    if {[valid effects_delay]} {
+        if {$parms(m) eq $parms(n) && $parms(effects_delay) != 0.0} {
+            reject effects_delay \
+                "Effects Delay cannot be non-zero for these neighborhoods."
+        }
+    }
+
 
     returnOnError -final
 
@@ -339,7 +386,8 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE:MULTI {
 
     parm proximity     enum   "Proximity" \
         -refreshcmd {::nbrel RefreshProximityMulti}
-    parm effects_delay text   "Effects Delay (Days)"
+    parm effects_delay text   "Effects Delay (Days)" \
+        -refreshcmd {::nbrel RefreshDelayMulti}
 } {
     # FIRST, prepare the parameters
     prepare ids           -toupper  -required -listof nbrel
@@ -348,7 +396,8 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE:MULTI {
 
     returnOnError
 
-    # NEXT, make sure that we're not changing the proximity
+    # NEXT, make sure that we're not changing the proximity when we
+    # shouldn't.
     if {[valid proximity]} {
         foreach id $parms(ids) {
             lassign $id parms(m) parms(n)
@@ -364,6 +413,21 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE:MULTI {
             }
         }
     }
+
+    # NEXT, make sure that we're not changing the effects_delay when we
+    # shouldn't.
+    if {[valid effects_delay]} {
+        foreach id $parms(ids) {
+            lassign $id parms(m) parms(n)
+            
+            if {$parms(m) eq $parms(n) && $parms(effects_delay) != 0.0} {
+                reject effects_delay \
+           "Effects Delay cannot be non-zero for these neighborhoods."
+                break
+            }
+        }
+    }
+
 
     returnOnError -final
 

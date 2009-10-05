@@ -119,17 +119,41 @@ snit::widget ::projectgui::helptree {
         $tree item delete 0 end
         array unset info
 
+        # NEXT, add the Search page.
+        set info(item-Search)   \
+            [$tree item create  \
+                 -parent root   \
+                 -button no]
+
+        $tree item element configure $info(item-Search) tree elemText \
+            -text "Search"
+
+        # NEXT, link the item to the page.
+        set info(name-$info(item-Search)) Search
+
+        # NEXT, get the children of each page
+        set children() [list]
+
+        $hdb eval {
+            SELECT name,title,parent FROM helpdb_pages
+        } {
+            lappend children($parent) $name
+            set children($name) [list]
+            set titles($name) $title
+            set parents($name) $parent
+        }
+
+
         # NEXT, Get the top-level names
-        set names [$hdb page children ""]
+        set names $children()
 
         # NEXT, loop over the names
         while {[llength $names] > 0} {
             set name [lshift names]
 
             # FIRST, Get the page's title, and its parent, or "root" if none
-            $hdb eval {
-                SELECT title,parent FROM helpdb_pages WHERE name=$name
-            } {}
+            set title $titles($name)
+            set parent $parents($name)
 
             if {$parent eq ""} {
                 set pitem root
@@ -138,7 +162,7 @@ snit::widget ::projectgui::helptree {
             }
 
             # NEXT, get the pages's children.
-            set kids [$hdb page children $name]
+            set kids $children($name)
 
             if {[llength $kids] > 0} {
                 lappend names {*}$kids

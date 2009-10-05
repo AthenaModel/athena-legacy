@@ -13,9 +13,41 @@
 <</deflist program>>
 
 The athena(1) command is the launcher for a number of Athena applications,
-including the Athena simulation proper, <<xref athena_sim(1)>>.  The
+including the Athena simulation proper, <<xref athena_sim(1)>>.
+Enter "athena" with no command line arguments to see a list of the
+available applications.<p>
+
+See the
 the <a href="index.html">section (1) index</a> for a complete list of
 applications.<p>
+
+<<section MODS>>
+
+It is possible to patch Athena post-delivery by means of Athena
+mod files.  To use a mod, just copy the mod file to the installation's
+<code>mods/</code> directory, typically <code>~/athena/mods</code>.<p>
+
+<<subsection "Mod Syntax">>
+
+A mod file is a Tcl-formatted file that may contain one or more mods.
+Each mod has this syntax:<p>
+
+<b>mod</b> <i>app version num title</i> {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>body</i><br>
+}<p>
+
+where <i>app</i> is the application name, e.g., "<b>sim</b>" for
+<<xref athena_sim(1)>>; <i>version</i> is the Athena version, e.g.,
+"<b>1.1.0</b>"; <i>num</i> is the serial number of this mod;
+<i>title</i> is a brief string that identifies the purpose of the mod;
+and <i>body</i> is the code to load into the Athena application.<p>
+
+Mods for other <i>app</i>'s are ignored. It's an error if the mod is
+written for a different version of Athena than the one attempting to
+load it, or if there are two mods present with the same <i>num</i>.<p>
+
+Mods are loaded in numerical order.<p.
+
 
 <<section AUTHOR>>
 

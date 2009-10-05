@@ -18,6 +18,10 @@
 #    helpdb(n) is both a wrapper for sqldocument(n) and an
 #    sqlsection(i) defining new database entities.
 #
+#    NOTE: helpdb(n) does NOT register itself as an sqlsection(i) with
+#    sqldocument(n); there's no need for its tables to be included in
+#    arbitrary RDBs, and in fact it causes problems if they are.
+#
 #-----------------------------------------------------------------------
 
 namespace eval ::projectlib:: {
@@ -33,9 +37,6 @@ snit::type ::projectlib::helpdb {
 
     typeconstructor {
         namespace import ::marsutil::*
-
-        # Register self as an sqlsection(i) module
-        sqldocument register $type
     }
 
     #-------------------------------------------------------------------
@@ -106,6 +107,19 @@ snit::type ::projectlib::helpdb {
 
     # Delegated methods
     delegate method * to db
+
+    # clear
+    #
+    # A wrapper for the sqldocument(n) clear command, that defines
+    # the helpdb schema.
+
+    method clear {} {
+        # FIRST, do the normal clear
+        $db clear
+
+        # NEXT, define the helpdb(n) schema
+        $db eval [$type sqlsection schema]
+    }
 
     # entity exists name
     #
@@ -179,6 +193,58 @@ snit::type ::projectlib::helpdb {
         return [$db onecolumn {
             SELECT parent FROM helpdb_pages WHERE name=$name
         }]
+    }
+
+    # search target
+    #
+    # target    A full-text search query string
+    #
+    # Returns HTML text of the search results.
+
+    method search {target} {
+        # FIRST, nothing gets you nothing.
+        if {$target eq ""} {
+            return "<b>No search target specified.</b>"
+        }
+
+        # NEXT, try to do the query.
+        set out ""
+
+        set code [catch {
+            set found [$db eval {
+                SELECT name, 
+                       title,
+                       snippet(helpdb_search) AS snippet
+                FROM helpdb_search
+                WHERE text MATCH $target
+                ORDER BY title COLLATE NOCASE;
+            }]
+        } result]
+
+        if {$code} {
+            return [tsubst {
+                |<--
+                <b>Error in search term: "<code>$target</code>"</b>
+
+                Note that command options (e.g., <code>-info</code>)
+                should be entered in double quotes: <code>"-info"</code>.
+            }]
+        }
+
+        if {[llength $found] == 0} {
+            return "<b>No pages match '$target'.</b>"
+        }
+
+        set out "<b>Search results for '$target':</b><p>\n<dl>\n"
+
+        foreach {name title snippet} $found {
+            append out "<dt><a href=\"$name\">$title</a></dt>\n"
+            append out "<dd>$snippet<p></dd>\n\n"
+        }
+
+        append out "</dl>\n"
+
+        return $out
     }
 }
 

@@ -1,0 +1,261 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    models.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena help(5) file: Athena Models
+#
+#-----------------------------------------------------------------------
+
+
+page models "Athena Model Reference" {} {
+    <<title>>
+
+    The Athena simulation contains a number of specific models, which
+    are divided into the following major areas.
+
+    <<childlinks>>
+
+    Full details of each model are contained in the Athena Analyst's
+    Guide, delivered with the Athena Software.
+}
+
+
+# model tag title ptag text
+#
+# tag      The model's tag, e.g., "ground", used in references.
+# title    The full name of the model, e.g., "Ground".
+# ptag     The parent's tag
+# text     The documentation of the model.
+#
+# Defines a help page for the model.
+
+proc model {tag title ptag text} {
+    if {$ptag eq ""} {
+        set ptag "models"
+    } else {
+        set ptag "model.$ptag"
+    }
+    set text "<<model.header>>\n\n$text"
+    page model.$tag $title $ptag $text
+}
+
+# Formats the title for a model
+macro model.header {} {
+    |<--
+    [mktitle normal "Model" [pageinfo title] ""]
+}
+
+#=======================================================================
+# Ground Model
+
+model ground "Ground" "" { 
+    Athena's Ground model is responsible for defining and maintaining
+    the Athena <<term playbox>>, including many of the things that
+    take place within it.  The Ground model includes the <<term nbhood>>s, 
+    <<term group>>s, <<term unit>>s, <<term ensit>>s, and so forth.
+    Most of the user's interactions with the Athena models take place
+    through one or another aspect of the Ground model.<p>
+
+    The Ground model includes the following sub-models:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+model force "Force Analysis" ground { 
+    Some <<term nbhood>>s are safer to be in than others; and this
+    depends largely on who you are and who is in the neighborhood with
+    you.  Athena analyzes the groups and units present in the
+    neighborhood, and the relationships between them, assessing the
+    amount of force each group can bring to bear and the amount of
+    force the group's enemies (if any) can bring to bear against it.
+    A group's <<term security>> depends on this balance of forces, and
+    also on the <<term volatility>> of the neighborhood.  The more
+    strongly opposed forces in the neighborhood, the higher the
+    volatility.<p>
+
+    Volatility can be decreased by bringing enough force to dominate
+    the neighborhood; this will also greatly improve the security of
+    the dominating force at the expense of that force's enemies.<p>
+
+    Security affects the <<model activity>> model; some activities
+    cannot be performed unless the group has adequate security.  It
+    also affects the <<model aam>>.<p>
+
+    Group security and volatility are displayed on the
+    <<tabref Neighborhoods/Security>>.  The force analysis model depends
+    on the <<cref parm.force>> model parameters.<p>
+}
+
+
+model activity "Unit Activities" ground {
+    The user can create <<term unit>>s, and assign 
+    <<term activity activities>> to them.  The Unit Activities model
+    analyzes the activities performed by each <<term group>>
+    in each <<term nbhood>>, and determines the following things:<p>
+
+    <ul>
+    <li> How many of the assigned personnel are actually trying to perform
+         the activity at any given time, based on the number of 
+         shifts defined for the activity.
+    <li> How many of the actual personal are effectively performing
+         the activity, given the group's <<term security>> and the
+         activity's security requirement.
+    <li> The group's <<term coverage>> for this activity.
+    </ul>
+
+    When an activity's coverage is non-zero, an <i>activity
+    situation</i> is created; this situation is a 
+    <<term driver>> that affects civilian attitudes via the
+    <<model dam>>.<p>
+    
+    The current activities and resulting activity situations are
+    displayed on the <<tabref Neighborhoods/Activity>> and
+    <<tabref Neighborhoods/ActSits>> respectively.  The Unit
+    Activities model depends on the <<cref parm.activity>> model
+    parameters.
+}
+
+#-----------------------------------------------------------------------
+
+model aam "Athena Attrition Model" ground {
+    The Athena user can place <<term frcgroup>>s in conflict in
+    <<term nbhood>>s by defining the appropriate 
+    <<term roe>>s.  Combat will ensue, and casualties will result, as
+    determined by the Athena Attrition Model (AAM).<p>
+
+    AAM assesses attrition to <<term unit>>s and <<term nbgroup>>s 
+    periodically, as determined by the 
+    <<cref parm.aam.ticksPerTock>> parameter (nominally, every 7 
+    <<term tick>>s).  Combat results in attrition to the attacking and
+    defending force units, and might also result in civilian
+    collateral damage.  Attrition can also occur magically, via the
+    <<cref ATTRIT:>>.  The further effects of the casualties are
+    determined by the <<model dam>>.<p>
+
+    Note that magic attrition can take place at any time, but the
+    resulting attitude changes are saved and assessed along with those
+    resulting from the next attrition assessment.<p>
+
+    The decrease in personnel and population resulting from attrition
+    can be seen in the <<tabref Map>>, the <<tabref Units>>, and the
+    <<tabref Demog>>.<p>
+
+    <<childlinks>>
+}
+
+model aam.unit "Attrition to Units" aam {
+    When a <<term group>>'s <<term unit>>s are attrited, the attrition
+    is not spread evenly across the units.  Rather, they are attrited
+    in the order of their <<term activity_priority>>, from least
+    priority to most priority.<p>
+
+    Remember that units represent an allocation of personnel to a
+    particular purpose, rather than a specific collection of people on
+    the ground at a particular place.  If a <<term frcgroup>> has
+    100 personnel in a unit assigned the <b>PATROL</b> activity, that
+    means that at any given time, 100 personnel are assigned that
+    activity, not that these 100 particular people are assigned that
+    activity.  Patrolling might go on for months, with troops being
+    rotated in and out.<p>
+
+    When attrition occurs, we presume that personnel will be rotated
+    from less important activities to more important activities to
+    fill in the gaps.  That is, while personnel on patrol are more likely
+    to get killed than personnel in the barracks, we assume that in
+    the long run, the number of troops patrolling will remain
+    constant: the attrition will be primarily felt in the barracks.
+}
+
+model attitude "Attitudes"  "" { 
+    The Attitudes model is responsible for tracking the
+    <<term attitude>>s 
+    (<<term satisfaction>> and <<term cooperation>>) of the 
+    <<term nbgroup>>s and <<term orggroup>>s present in the 
+    <<term playbox>>, and for making them change in response to
+    events and situations (<<term driver>>s) occuring in the
+    other models.  It consists of the following sub-models:<p>
+
+    <<childlinks>>
+}
+
+model gram "GRAM" attitude {
+    The <i>Generalized Regional Attitude Model</i>, or GRAM, is that
+    part of Athena which is responsible for tracking the
+    <<term attitude>>s of the various <<term group>>s within the
+    <<term playbox>>, and for making attitude changes determined by
+    the <<model dam>> play out over time across the playbox.<p>
+}
+
+model dam "Driver Assessment Model" attitude {
+    The Driver Assessment Model (DAM) is responsible for assessing the
+    implications of events and situations (<<term driver>>s) that
+    occur in Athena's other models as the simulation advances time.  It
+    consists of a large number of rule sets; each rule set is
+    responsible for assessing the implications of one particular kind
+    of driver.  The rule sets are documented in great detail in the
+    Athena Rules document, delivered with the software.  The rule sets
+    are often referred to as the  <<term damrules>>.<p>
+
+    Each time a rule set is triggered, and a rule fires, the effect of
+    the rule is output as a rule firing report.  These reports can be
+    browsed on the <<tabref Reports>>.<p>
+
+    Magic attitude inputs, as entered using the
+    <<cref MAD:SAT:>> and <<cref MAD:COOP:>>, are handled trivially by
+    DAM, via the <b>ADJUST</b> and <b>MAGIC</b> rule sets.  These rule
+    sets contain no actual rules, but rule firing reports are
+    presented to the user as though they did.<p>
+
+    The <<cref REPORT:SATISFACTION:CONTRIB>> lists the top drivers
+    contributing to a particular <<term satisfaction>> curve or
+    to a particular group's <<term mood>> in a neighborhood.<p>
+
+    At present, the DAM rule sets only assess changes to 
+    <<term satisfaction>> and <<term cooperation>> and give the
+    resulting inputs to <<model gram>>; as Athena evolves,
+    it is expected that the rule sets will acquire additional duties.
+
+}
+
+model demog "Demographics" "" {
+    The Demographics model is responsible for tracking the civilian
+    demographics: any breakdowns or divisions of the civilian
+    population required by the other Athena models.  For example, it
+    will be the responsibility of the Demographics model to determine the
+    size of the labor force, once we have an Economics model to plug
+    it into.  Ultimately, the Demographics model will track births and
+    deaths, and age cohorts by sex, for each <<term nbgroup>>.<p>
+
+    The Demographics model implemented in the present version
+    has a much simpler task.  Each <<term nbgroup>> begins
+    with a certain implicit population.  The model tracks what happens
+    to this population as members of the population
+    are moved into or out of <<term unit>>s, units are moved to and
+    from other neighborhoods, and civilians are attrited, either
+    magically or due to <<term frcgroup>> conflicts.<p>
+
+    Note that as a result of this bookkeeping, you can't create
+    civilians magically.  You start with a particular supply, and
+    civilians lost to attrition are gone.  Note that reducing the size
+    of a civilian unit by other means is not attrition; the personnel
+    simply return to the implicit population of their group.<p>
+
+    The implicit population of a neighborhood group cannot be reduced
+    to 0; at least one person will remain.  This constraint comes from 
+    <<model gram>>, which will not allow an existing group to vanish.<p>
+
+    The demographics of the playbox, as they are currently tracked,
+    are displayed on the <<tabref Demog>>.  See that help page for a
+    description of the field values.
+
+
+}
+
+

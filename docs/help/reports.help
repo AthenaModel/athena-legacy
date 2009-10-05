@@ -19,7 +19,7 @@ page reports "Reports" {} {
     <<title>>
     As it runs, Athena produces a variety of text reports; in addition,
     the user may request a variety of reports.  This section describes
-    the available reports.<p>
+    the reports that the user can request.<p>
 
     <<childlinks>>
 }
@@ -67,7 +67,7 @@ page REPORT:DRIVER "Attitude Driver Report" reports {
     ignored.<p>
 
     Note that this order cannot be sent while Athena is in the
-    <<cref "Scenario Preparation">> state, as GRAM has not yet been
+    <<cref using.prep>> state, as GRAM has not yet been
     initialized and so no data is available.<p>
 
     The following information is listed for each driver:<p>
@@ -99,18 +99,17 @@ page REPORT:DRIVER "Attitude Driver Report" reports {
     <</topic>>
 
     <<topic "Start Time">>
-    The time at which the driver first started (or will first start)
+    The <<term zulu>> at which the driver first started (or will first start)
     to change attitudes in the playbox.
     <</topic>>
 
     <<topic "End Time">>
-    The time at which the driver stopped (or will stop) changing
+    The <<term zulu>> at which the driver stopped (or will stop) changing
     attitudes in the playbox.  For on-going situations, this column will
-    contain the word "On-going" instead of a Zulu time.
+    contain the word "On-going" instead of a zulu-time.
     <</topic>>
 
     <</topiclist>>
-
 }
 
 #-----------------------------------------------------------------------
@@ -202,12 +201,14 @@ page REPORT:SATISFACTION:CONTRIB "Contribution to Satisfaction Report" reports {
     <b>Optional.</b>  By default, the report includes all
     contributions from time 0 until the current simulation time.  The
     user can narrow the window by setting the start time to some time
-    after time 0.  The time is specified as a <<cref timespec>>.
+    after time 0 (but no later than the End Time).  The time is
+    specified as a <<term timespec>>.
     <</parm>>
 
     <<parm end "End Time">>
     <b>Optional.</b>  Similarly, the user can set the end of the time
-    window to some <<cref timespec>> prior to the current simulation time.
+    window to some <<term timespec>> prior to the current simulation
+    time (but no earlier than the Start Time).
     <</parm>>
 
     <</parmlist>>

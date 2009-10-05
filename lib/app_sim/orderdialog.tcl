@@ -984,6 +984,7 @@ snit::widget orderdialog {
 
         # NEXT, there was no entity to recover.
         $self SetNonKeyFieldState disabled
+        $self NonKeyChange ""
     }
 
 

@@ -12,13 +12,20 @@
 
 <</deflist program>>
 
-Given a <i>scenario</i> file, <<xref athena_export(1)>> exports the
+Given a <i>scenario</i> (.adb) file, <<xref athena_export(1)>> exports the
 contents of the file's permanent SQL tables as XML text (see
 <<xref "XML Schema">> for details).  The XML text is written to
 standard output by default, or to the named <i>xmlfile</i>.<p>
 
 The XML text can be imported back into a scenario file using
 <<xref athena_sim(1)>>'s File/Open menu item.<p>
+
+<b>Warning:</b> <<xref athena_export(1)>> cannot export large
+scenarios containing significant history (i.e., scenarios in which
+time is advanced).  This is a known bug, and will be fixed in a future
+release.  For now, export scenarios that are still at time 0, or use
+<a href="http://sqlite.org">SQLite3</a> to access the .adb file
+directly.<p>
 
 <<subsection "XML Schema">>
 

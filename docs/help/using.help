@@ -1,0 +1,265 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    using.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena help(5) file: How to use Athena
+#
+#-----------------------------------------------------------------------
+
+
+page using "Using Athena" {} {
+    <<title>>
+
+    This page groups together a number of topics related to using
+    Athena in general.  This is the place to begin getting to know
+    Athena before turning to the reference-oriented material elsewhere
+    in this on-line help document.<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+page using.gui "GUI Overview" using {
+    <<title>>
+
+    The Athena GUI consists of the following things, from top to bottom.<p>
+
+    <ul>
+    <li> The <<cref menu "Menu Bar">>.
+    <li> The <<cref using.simcontrols>> Tool Bar, which is used to 
+         run the simulation.
+    <li> The <<cref tabs "Tab Area">>: each tab or subtab gives a 
+         different view on the Athena scenario, simulation results, or
+         operation.
+    <li> <b>Main Window only:</b> The <<cref using.cli>>, or
+         <i>CLI</i>.  Most Athena features are accessible through the GUI,
+         but there are also a number of <<cref cmd>> that can be typed
+         at the CLI's command prompt.
+    </ul>
+}
+
+
+#-----------------------------------------------------------------------
+
+page using.prep "Scenario Preparation" using {
+    <<title>>
+
+    New Athena scenarios are created in the <b>Prep</b>, or
+    <i>Scenario Preparation</i> <<term state>>.  A new Athena scenario
+    is a blank 
+    page.  It's impossible to run simulation time forward, as there is
+    nothing there to simulate; instead, it's necessary to first
+    prepare the scenario.  Conversely, once time has run forward there
+    are many things about the scenario that can no longer be changed.
+    (See <<cref using.simcontrols>> for how to run time forward and
+    then return to the <b>Prep</b> state.)<p>
+
+    Scenario preparation typically involves the following steps:<p>
+
+    <ol>
+    <li> Import a <<cref using.maps map>> of the region of interest.
+    <li> Create at least one <<term frcgroup>>.
+    <li> Create at least one <<term civgroup>>.
+    <li> Create at least one <<term orggroup>>.
+    <li> Create at least one <<term nbhood>>.
+    <li> Create at least one <<term nbgroup>>.
+    <li> At this point time can be run forward; however, there is more
+         work left to do.
+    <li> Define the <<term proximity>> and
+         <<term effects_delay>> between each pair of
+         neighborhoods.
+    <li> Define the <<term relationship>> between each pair of groups.
+    <li> Define the initial <<term satisfaction>> levels and 
+         <<term saliency saliencies>> for each neighborhood group and
+         each organization group.
+    <li> Define the initial <<term cooperation>> level between each
+         neighborhood group and each force group.
+    <li> If desired:
+         <ul>
+         <li> Create <<term unit>>s, and assign them 
+              <<term activity activities>>.
+         <li> Create <<term ensit>>s.
+         <li> Define <<term roe>>s for the force groups, thus enabling
+              armed conflict to occur.
+         </ul>
+    </ol>
+}
+
+
+#-----------------------------------------------------------------------
+
+page using.maps "Using Maps" using {
+    <<title>>
+
+    The <<tabref Map>> tab contains Athena's Map Viewer.  This is
+    where the analyst can draw <<term nbhood>> polygons, 
+    position <<term unit>>s, and so forth.<p>
+
+    <b>The Blank Map:</b> By default, the Map Viewer displays a blank
+    map: a white field with marks at intervals to provide a sense of
+    scale.  It's entirely possible to develop scenarios using only
+    the blank map.<p>
+
+    <b>Map Images:</b> Most users, however, will want to 
+    <<menuref "File/Import Map..." import>> a map image to use as the
+    map background.  Athena can use any JPEG, GIF, or PNG image
+    as a map image; note that the map data is saved in the 
+    <<term scenariofile>> itself.<p>
+
+    <b>Map Coordinates:</b> Athena is designed to work with any map
+    image whatsoever, from any source, including maps hand-drawn on a
+    sheet of paper and scanned.  Consequently, Athena does not use
+    geographic or UTM coordinates.  Instead, Athena divides the map
+    into squares, with 1000 squares on the long edge of the map.
+    Points on the map can then be represented as a coordinate pair,
+    each of which ranges from 0 to 999.  (These coordinates are
+    usually displayed as <<term mapref>>s.)<p>
+
+    At some future time, Athena will also support geo-registered maps
+    and MGRS grid references.<p>
+
+    <b>Map Size:</b>  Athena can zoom in and out on a map, but it will
+    always look best at its original size.  Thus, it's best to use a
+    standalone graphics package (e.g., the Gimp) to resize your map
+    image such that the 100% size is the one you'll use most often.<p>
+
+    Note that you can also create a number of versions of your map, at
+    different sizes; as long as the underlying image is unchanged, and
+    the aspect ratio is unchanged, Athena's map coordinates will apply
+    equally well to all of the different sizes.  Thus, you can
+    <<menuref "File/Import Map..." import>> the different sizes as 
+    needed.<p>
+}
+
+#-----------------------------------------------------------------------
+
+page using.simcontrols "Simulation Controls" using {
+    <<title>>
+
+    Execution of the Athena simulation is done via the simulation
+    control tool bar, which is immediately below the main menu bar.
+    It has the following controls.<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_play">&nbsp;&nbsp;<img src="button_pause"}>>
+    The Run button directs Athena to enter the <b>Running</b>
+    <<term state>> and begin to advance simulation time.  The button
+    will be replaced with the Pause button.  Time will continue to
+    advance until the user presses Pause, or the user-entered stop
+    time is reached (see below).<p>
+
+    If the Run button is pressed during <<cref using.prep>>, Athena
+    will do a sanity check of the current scenario.  If the check
+    fails, the failures will be displayed on the <<tabref Log>>, and
+    Athena will remain in <<cref using.prep>>.
+    <</topic>>
+
+    <<topic {<img src="button_peabody">}>>
+    If the user returns to a <<term snapshot>>, Athena enters the 
+    <b>Snapshot</b> <<term state>> and the Run/Pause button changes to
+    Mr. Peabody as shown.  It is impossible to enter orders or
+    otherwise change the scenario while in the <b>Snapshot</b> state.
+    The user must either return to the latest simulation time using
+    the snapshot controls (see below) or "re-enter the time stream" at
+    some snapshot by clicking on Mr. Peabody.  All simulation results
+    from later than the current snapshot will be deleted, and the
+    simulation will enter either the <b>Prep</b> or <b>Paused</b>
+    state depending on the simulation time.
+    <</topic>>
+
+    <<topic {<img src="control_stoptime">}>>
+    When the user presses the Run button, the simulation will continue
+    to advance time until the user presses Pause, or the simulation
+    has run for the number of days shown in this pull-down.
+    <</topic>>
+
+    <<topic {<img src="control_speed">}>>
+    Athena is a time-step simulation; it executes tick-by-tick.
+    During each tick, the simulation runs as fast as possible; between
+    ticks it delays for a moment to allow the user to interact with
+    the GUI.  The speed slider controls the length of this delay: the
+    faster the speed, the shorter the delay.<p>
+
+    <b>Warning:</b> This mechanism works satisfactorily for small
+    scenarios; but for large scenarios the time ticks are too long for
+    it to be useful.  When working with large scenarios, we advise
+    setting the stop time explicitly, and leaving the GUI alone while
+    time is advancing.
+    <</topic>>
+
+    <<topic {<img src="control_simvcr">}>>
+    Athena saves a <<term snapshot>> of the simulation state each time
+    the Run button is pressed.  These buttons allow the user to
+    re-visit the past snapshots.  The leftmost button returns to the
+    time 0 snapshot; the rightmost button returns to simulation to the
+    <b>Paused</b> state as of the latest simulation time achieved
+    during this run.  The middle buttons step forward and backward
+    through the snapshots.
+    <</topic>>
+
+
+    <<topic {<img src="control_state">}>>
+    Athena displays the current <<term state>> on the simulation
+    control toolbar.  When the state is <b>Running</b>, the stop time
+    is also shown; when the state is <b>Snapshot</b>, the simulation
+    time (in ticks) of the current snapshot is also shown.
+    <</topic>>
+
+    <<topic {<img src="control_simtime">}>>
+    The current simulation time is shown as a <<term zulu>>.
+    <</topic>>
+    
+    <<topic {<img src="control_simtick">}>>
+    The current simulation time is shown in ticks.
+    <</topic>>
+
+
+    <</topiclist>>
+
+}
+
+page using.cli "Command Line Interface" using {
+    <<title>>
+
+    The <i>Command Line Interface</i>, or CLI, is found at the bottom
+    of the main window.  Most Athena features are accessible through
+    the GUI, but there are also a number of <<cref cmd>> that can be
+    typed at the CLI's command prompt.<p>
+
+    The CLI provides the following conveniences for entering
+    commands:<p>
+
+    <ul>
+    <li> <b>Full command-line editing.</b>  Use the left and right arrow keys
+         (or the mouse) to edit the text on the command-line before
+         executing it.<p>
+
+    <li> <b>Command-history.</b>  Use the up and down arrow keys to retrieve
+         the previous commands to the command-line for execution.  The
+         command history is preserved from one run of Athena to the next.<p>
+
+    <li> <b>Command-completion.</b>  Press the Tab key to expand a partial
+         command name into a full command name, e.g., type "err" and
+         press Tab to expand "err" into "errtrace".<p>
+
+    <li> <b>Standard cut, copy, and paste.</b>  Use Ctrl+X, Ctrl+C,
+         and Ctrl+V to cut, copy, and paste on the command line.  Use
+         the mouse to select older text in the shell (e.g., command
+         outputs) and copy it with Ctrl+C.<p>
+
+    <li> <b>Scrollback.</b>  Use the scroll bar to scroll back through
+         previous commands and their output.  The 
+         <<cref pref.cli.maxlines>> preference setting controls the maximum
+         size of the scrollback buffer, the 
+         <<menuref "File/Save CLI Scrollback Buffer...">> saves its 
+         content to disk, and the <<cmdref clear>> command clears it.<p>
+    </ul>
+
+}

@@ -50,7 +50,6 @@ namespace eval ::projectlib:: {
         qsecurity     \
         rdays         \
         rgain         \
-        rgrouprel     \
         rnomcoverage  \
         rrate         \
         typewrapper   \
@@ -625,10 +624,6 @@ snit::type ::projectlib::typewrapper {
 
 # Gain setting
 ::marsutil::range ::projectlib::rgain -min 0.0
-
-# Group Relationships
-::marsutil::range ::projectlib::rgrouprel \
-    -min -1.0 -max 1.0 -format "%+4.1f"
 
 # Rate setting
 ::marsutil::range ::projectlib::rrate -min 0.0

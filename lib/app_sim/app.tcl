@@ -91,6 +91,11 @@ snit::type app {
             -logdir     [workdir join log app_sim]             \
             -newlogcmd  [list notifier send $type <AppLogNew>]
 
+        # NEXT, log any loaded mods
+        if {[namespace exists ::athena_mods::]} {
+            ::athena_mods::logmods
+        }
+
         # NEXT, initialize and load the user preferences
         prefs init
         

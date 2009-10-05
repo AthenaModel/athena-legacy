@@ -14,17 +14,110 @@
 #=======================================================================
 # Images
 
-image athena "Sculpture of the Goddess Athena" athena.png
-
+image athena            "Sculpture of Athena"       athena.png
+image button_a          "Button: A"                 button_a.png
+image button_arrow      "Button: Arrow"             button_arrow.png
+image button_autoscroll "Button: Autoscroll"        button_autoscroll.png
+image button_axe        "Button: Axe"               button_axe.png
+image button_check      "Button: Checkmark"         button_check.png
+image button_clock      "Button: Clock"             button_clock.png
+image button_ensit      "Button: New Ensit"         button_ensit.png
+image button_extmap     "Button: Extend Map"        button_extmap.png
+image button_location   "Button: Location Pointer"  button_location.png
+image button_man        "Button: Man"               button_man.png
+image button_nbfill     "Button: Fill Nbhood"       button_nbfill.png
+image button_nbhood     "Button: New Neighborhood"  button_nbhood.png
+image button_pan        "Button: Pan"               button_pan.png
+image button_pencil     "Button: Pencil"            button_pencil.png
+image button_pencil0    "Button: Pencil 0"          button_pencil0.png
+image button_pencils    "Button: Pencil S"          button_pencils.png
+image button_pencila    "Button: Pencil A"          button_pencila.png
+image button_pause      "Button: Pause"             button_pause.png
+image button_peabody    "Button: Peabody"           button_peabody.png
+image button_play       "Button: Play"              button_play.png
+image button_plus       "Button: Plus"              button_plus.png
+image button_poly       "Button: Polygon"           button_poly.png
+image button_totop      "Button: To Top"            button_totop.png
+image button_tobottom   "Button: To Bottom"         button_tobottom.png
+image button_unit       "Button: New Unit"          button_unit.png
+image button_x          "Button: X"                 button_x.png
+image control_filltype  "Control: Fill Type"        control_filltype.png
+image control_hotlist   "Control: Hot List"         control_hotlist.png
+image control_loglevel  "Control: Log Level"        control_loglevel.png
+image control_logtar    "Control: Log Target"       control_logtar.png
+image control_logsrch   "Control: Log Up/Down"      control_logsrch.png
+image control_logcnt    "Control: Log Count"        control_logcnt.png
+image control_logvcr    "Control: Log VCR"          control_logvcr.png
+image control_mapref    "Control: Map Ref"          control_mapref.png
+image control_simtick   "Control: Sim Tick"         control_simtick.png
+image control_simtime   "Control: Sim Time"         control_simtime.png
+image control_simvcr    "Control: Sim VCR"          control_simvcr.png
+image control_speed     "Control: Speed"            control_speed.png
+image control_state     "Control: State"            control_state.png
+image control_stoptime  "Control: Stop Time"        control_stoptime.png
+image control_zoom      "Control: Zoom"             control_zoom.png
+image filterbox         "Filter Box"                filterbox.png
+image viewbox           "View Box"                  viewbox.png
 
 #=======================================================================
 # Macros
 
-# Formats the title for an ordinary page.
+# mktitle size over title under
+#
+# size   normal | small
+# over   Small text to appear over the title, or ""
+# title  The title text proper
+# under  Small text to appear under the title, or ""
+# title ?text...?
+#
+# Formats the title in the standard way.  This macro is intended
+# for use in defining other macros.
 
-macro title {} {
-    <font size=7>[pageinfo title]</font><p>
+macro mktitle {size over title under} {
+    array set sizes {
+        normal 7
+        small  4
+        tiny   2
+    }
+} {
+    |<--
+    [tif {$over ne ""} {
+        |<--
+        <font size=$sizes(tiny)>$over</font><br>
+    }]
+    <font size=$sizes($size)><b>$title</b></font>
+    [tif {$under ne ""} {<br>$under}]<p>
 }
+
+# title ?text...?
+#
+# text    The title text
+#
+# Formats the title in the standard way.  The title text defaults
+# to the page's "title", but this can be overridden, e.g., to
+# insert links.
+
+macro title {args} {
+    if {[llength $args] == 1} {
+        set title [lindex $args 0]
+    } elseif {[llength $args] > 1} {
+        set title [join $args " "]
+    } else {
+        set title [pageinfo title]
+    }
+} {
+    |<--
+    [mktitle normal "" $title ""]
+}
+
+# seebelow anchor ?text?
+#
+# anchor     The href anchor
+# text       The link text; defaults to "below".
+#
+# Creates a link to an anchor on the same page.
+
+macro seebelow {anchor {text below}} {<a href="#$anchor">$text</a>}
 
 # cmdref args
 #
@@ -35,6 +128,52 @@ macro title {} {
 macro cmdref {args} {
     set tag "cmd.[join $args .]"
 } {<b>[cref $tag $args]</b>}
+
+
+# menuref name ?link?
+#
+# name   The name of a menu or menu item, e.g., Edit/Undo
+# link   Link text, which defaults to the name.
+#
+# Returns a cref-link to the help page.
+
+macro menuref {name {link ""}} {
+    set replist [list " " "_"]
+    
+    set tag "menu/[string map $replist $name]"
+} {[cref $tag $link]}
+
+
+# tabref args
+#
+# args    The name of a tab or tab item
+#
+# Returns a cref-link to the help page.
+
+macro tabref {args} {
+    set replist [list " " "_"]
+    
+    set tag "tabs/[string map $replist $args]"
+} {[cref $tag "$args Tab"]}
+
+# term tag ?link?
+#
+# tag    The term's tag, as defined in glossary.help
+# link   The link text; the term's title is used by default.
+#
+# Returns a link to the term's page.
+
+macro term {tag {link ""}} {[cref term.$tag $link]}
+
+
+# model tag ?link?
+#
+# tag    The model's tag, as defined in models.help
+# link   The link text; the model's title is used by default.
+#
+# Returns a link to the model's page.
+
+macro model {tag {link ""}} {[cref model.$tag $link]}
 
 
 #-----------------------------------------------------------------------
@@ -51,7 +190,9 @@ page home "Athena Help" {} {
     <li> <<cref release>>
     <li> <<cref using>>
          <<childlinks using>>
-    <li> Athena Reference
+    <li> <<cref models>>
+         <<childlinks models>>
+    <li> Athena Software Reference
          <ul>
          <li> <<cref menu>>
          <li> <<cref tabs>>
@@ -60,8 +201,8 @@ page home "Athena Help" {} {
          <li> <<cref cmd>>
          <li> <<cref parmdb>>
          <li> <<cref prefs>>
-         <li> <<cref concepts>>
          </ul>
+    <li> <<cref glossary>>
     </ul><p>
 
     <hr>
@@ -74,8 +215,9 @@ page home "Athena Help" {} {
 page about "About Athena" home {
     <img src="athena" align="right">
 
-    <font size=7>Athena V<<version>></font><br>
-    Stability and Recovery Operations Simulation<p>
+    <<mktitle normal "" "Athena V[version]" {
+        Stability and Recovery Operations Simulation
+    }>>
 
     (C) 2009, California Institute of
     Technology. ALL RIGHTS RESERVED. U.S. Government sponsorship
@@ -95,9 +237,10 @@ page about "About Athena" home {
 #-----------------------------------------------------------------------
 
 page release "Release Notes" home {
-    <font size=7>Athena V<<version>> Release notes</font><p>
+    <<title Athena V[version] Release notes>>
 
-    TBD.  These release notes should be filled in prior to delivery.<p>
+    This is the first delivery of Athena; hence there are no
+    significant changes to note.
 }
 
 
@@ -106,39 +249,25 @@ page release "Release Notes" home {
 page changelog "Change Log" home {
     <<title>>
     <<changelog>>
-    <<change 7/6/2009 New whd>>
+    <<change 10/9/2009 New whd>>
     Initial draft.
     <</change>>
     <</changelog>>
 }
 
 #======================================================================
-# Using Athena
-
-page using "Using Athena" {} {
-    <<title>>
-
-    <<childlinks>>
-}
-
-#-----------------------------------------------------------------------
-
-page using.prep "Scenario Preparation" using {
-    <<title>>
-    TBD:  This page will describe the "Scenario Prep" state, and how
-    to prepare an Athena scenario.
-}
-
-#======================================================================
 # The following sections are in separate files
 
+include using.help
+include models.help
 include menu.help
+include tabs.help
 include orders.help
 include reports.help
 include cmd.help
 include parmdb.help
 include prefs.help
-include concepts.help
+include glossary.help
 
 
 

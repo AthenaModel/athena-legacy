@@ -123,6 +123,18 @@ namespace eval ::athena_test::tests:: {
     }
 
 
+    test UPDATE-1.8 {effects_delay != 0, m == n} -setup {
+        setup
+    } -body {
+        ted order -reject NBHOOD:RELATIONSHIP:UPDATE \
+            m NB1 n NB1 effects_delay 0.1
+    } -cleanup {
+        cleanup
+    } -result {
+        effects_delay {Effects Delay cannot be non-zero for these neighborhoods.}
+    }
+
+
     test UPDATE-2.1 {values are updated} -setup {
         setup
     } -body {
@@ -273,6 +285,18 @@ NB2 NB2 HERE      0.0
         cleanup
     } -result {
         effects_delay {invalid value "-0.1", should be a real number no less than 0.0}
+    }
+
+
+    test UPDATE:MULTI-1.9 {effects_delay != 0.0 when m=n} -setup {
+        setup
+    } -body {
+        ted order -reject NBHOOD:RELATIONSHIP:UPDATE:MULTI \
+            ids {{NB1 NB2} {NB1 NB1}} effects_delay 0.1
+    } -cleanup {
+        cleanup
+    } -result {
+        effects_delay {Effects Delay cannot be non-zero for these neighborhoods.}
     }
 
     test UPDATE:MULTI-2.1 {one nbrel of several is updated} -setup {

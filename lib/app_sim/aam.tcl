@@ -632,8 +632,8 @@ snit::type aam {
         }
 
         # NEXT, save ORG attrition for attitude assessment
-        if {$gtype eq "ORG"} {
-            lappend undo [$type SaveOrgAttrition $n $f $casualties]
+        if {$gtype eq "ORG"  && $actual > 0} {
+            lappend undo [$type SaveOrgAttrition $n $f $actual]
         }
 
         return [join $undo \n]
@@ -839,7 +839,7 @@ snit::type aam {
             # update the demographics.
             incr attr([list $origin $g]) $kills
 
-            # NEXT, if it's not a unit were done in this loop.
+            # NEXT, if it's not a unit we're done in this loop.
             if {$u eq ""} {
                 continue
             }
@@ -864,7 +864,7 @@ snit::type aam {
 
             # NEXT, save the attrition for attitude assessment for
             # local groups
-            if {$m eq $n} {
+            if {$m eq $n && $attr($ng) > 0} {
                 lappend undo [$type SaveCivAttrition $n $f $attr($ng) $g1 $g2]
             }
 

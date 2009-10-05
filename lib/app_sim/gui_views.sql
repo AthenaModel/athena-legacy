@@ -276,7 +276,7 @@ SELECT s                        AS id,
        flist                    AS flist,
        resolver                 AS resolver,
        rduration                AS rduration,
-       tozulu(ts+rduration+1)   AS tr,
+       tozulu(ts+rduration)     AS tr,
        CASE inception WHEN 1 THEN 'YES' ELSE 'NO' END AS inception
 FROM ensits;
 

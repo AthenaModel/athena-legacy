@@ -912,8 +912,6 @@ order define ::sim SIM:STARTDATE {
     title "Set Start Date"
     options -sendstates PREP
 
-    # TBD: This should be a "zulu" field; but that's not working
-    # yet.
     parm startdate  text "Start Date" \
         -refreshcmd [list ::sim RefreshStartDate]
 } {

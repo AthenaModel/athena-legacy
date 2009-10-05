@@ -62,6 +62,7 @@ set patterns(install) {
     mars/docs/dev/*.pdf
     mars/docs/dev/*.doc
     mars/docs/dev/*.txt
+    mods/*
 }
 
 #-------------------------------------------------------------------

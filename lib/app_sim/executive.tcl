@@ -240,6 +240,8 @@ snit::type executive {
     # Capitalizes the arguments and forwards to GRAM.
 
     typemethod {dump coop level} {n f g} {
+        require {[simclock now] > 0} "This command is unavailable at time 0."
+        
         aram dump coop level \
             [string toupper $n] \
             [string toupper $f] \
@@ -251,6 +253,8 @@ snit::type executive {
     # Capitalizes the arguments and forwards to GRAM.
 
     typemethod {dump coop slope} {n f g} {
+        require {[simclock now] > 0} "This command is unavailable at time 0."
+
         aram dump coop slope \
             [string toupper $n] \
             [string toupper $f] \
@@ -262,6 +266,8 @@ snit::type executive {
     # Capitalizes the arguments and forwards to GRAM.
 
     typemethod {dump sat level} {n g c} {
+        require {[simclock now] > 0} "This command is unavailable at time 0."
+
         aram dump sat level \
             [string toupper $n] \
             [string toupper $g] \
@@ -273,6 +279,8 @@ snit::type executive {
     # Capitalizes the arguments and forwards to GRAM.
 
     typemethod {dump sat slope} {n g c} {
+        require {[simclock now] > 0} "This command is unavailable at time 0."
+
         aram dump sat slope \
             [string toupper $n] \
             [string toupper $g] \
@@ -296,6 +304,12 @@ snit::type executive {
     # returns the stack trace from the most recent evaluation error.
 
     typemethod errtrace {} {
+        if {$info(stackTrace) ne ""} {
+            log normal exec "errtrace:\n$info(stackTrace)"
+        } else {
+            log normal exec "errtrace: None"
+        }
+
         return $info(stackTrace)
     }
  

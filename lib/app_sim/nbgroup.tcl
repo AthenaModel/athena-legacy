@@ -291,6 +291,42 @@ snit::type nbgroup {
     #---------------------------------------------------------------
     # Order Helpers
 
+    # RefreshCreateN field parmdict
+    #
+    # field     The enumfield for G:N:CREATE's n parameter
+    # parmdict  The values of upstream parameters
+    #
+    # Sets the valid values to those neighborhoods for which 
+    # a group can be created.
+
+    typemethod RefreshCreateN {field parmdict} {
+        # FIRST, get the number of existing CIV groups
+        set civcount [llength [civgroup names]]
+
+        # NEXT, get a list of the names of the neighborhoods for
+        # which neighborhood groups cannot be defined.
+
+        set values [nbhood names]
+
+        rdb eval {
+            SELECT n
+            FROM nbgroups
+            GROUP BY n
+            HAVING count(g) = $civcount
+        } {
+            ldelete values $n
+        }
+
+        # NEXT, update the field.
+	$field configure -values $values
+
+        if {[llength $values] > 0} {
+	    $field configure -state normal
+        } else {
+            $field configure -state disabled
+        }
+    }
+
     # RefreshCreateG field parmdict
     #
     # field     The enumfield for G:N:CREATE's g parameter
@@ -335,8 +371,9 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
 
     options -sendstates PREP
 
-    parm n              enum "Neighborhood"   \
-        -type ::nbhood -tags nbhood
+    parm n              enum "Neighborhood"         \
+        -tags nbhood                                \
+        -refreshcmd [list ::nbgroup RefreshCreateN]
     parm g              enum "Civ Group" \
         -tags group -refreshcmd [list ::nbgroup RefreshCreateG]
     parm local_name     text "Local Name"

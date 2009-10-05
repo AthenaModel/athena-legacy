@@ -35,6 +35,23 @@ CREATE TABLE helpdb_pages (
 CREATE INDEX helpdb_pages_parent ON helpdb_pages(parent);
 
 ------------------------------------------------------------------------
+-- Searching
+
+CREATE VIRTUAL TABLE helpdb_search USING fts3(
+    -- Name of the page.  This is the name used in HREFs.
+    -- It should contain no whitespace.
+    name,
+
+    -- Page title: This is what is displayed in the Help Tree and
+    -- in the browser.
+    title,
+
+    -- The text of the page, with HTML stripped out.
+    text
+);
+
+
+------------------------------------------------------------------------
 -- Images
 
 CREATE TABLE helpdb_images (

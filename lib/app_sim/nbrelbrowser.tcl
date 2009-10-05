@@ -56,7 +56,7 @@ snit::widgetadaptor nbrelbrowser {
 
         DynamicHelp::add $editbtn -text "Edit Selected Relationship"
 
-        cond::orderIsValidMulti control $editbtn \
+        cond::orderIsValidCanUpdate control $editbtn \
             order   NBHOOD:RELATIONSHIP:UPDATE   \
             browser $win
 
@@ -91,6 +91,30 @@ snit::widgetadaptor nbrelbrowser {
 
     delegate method * to hull
 
+    # canupdate
+    #
+    # Returns 1 if the current selection can be "updated" and 0 otherwise.
+    #
+    # The current selection can be updated if it is a single or multiple
+    # selection and none of the selected entries has f=g.
+
+    method canupdate {} {
+        # FIRST, there must be something selected
+        if {[llength [$self curselection]] > 0} {
+            foreach id [$self curselection] {
+                lassign $id m n
+
+                if {$m eq $n} {
+                    return 0
+                }
+            }
+
+            return 1
+        } else {
+            return 0
+        }
+    }
+
     #-------------------------------------------------------------------
     # Private Methods
 
@@ -119,7 +143,7 @@ snit::widgetadaptor nbrelbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidMulti update $editbtn
+        cond::orderIsValidCanUpdate update $editbtn
 
         # NEXT, notify the app of the selection.
         if {[llength [$hull curselection]] == 1} {

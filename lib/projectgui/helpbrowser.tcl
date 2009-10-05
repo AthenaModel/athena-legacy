@@ -95,6 +95,7 @@ snit::widget ::projectgui::helpbrowser {
     component backbtn   ;# Back one page button
     component fwdbtn    ;# Forward one page button
     component titlelab  ;# Title label
+    component searchbox ;# Search Box
 
     #-------------------------------------------------------------------
     # Options
@@ -127,6 +128,10 @@ snit::widget ::projectgui::helpbrowser {
         history {}
         future  {}
     }
+
+    # Viewed: array of counts by page name.
+
+    variable viewed -array { }
 
     #-------------------------------------------------------------------
     # Constructor
@@ -168,11 +173,20 @@ snit::widget ::projectgui::helpbrowser {
         install titlelab using ttk::label $bar.title \
             -textvariable [myvar info(title)]
 
+        ttk::label $bar.searchlab \
+            -text "Search:"
 
-        pack $backbtn  -side left  -padx 1  -pady 1
-        pack $fwdbtn   -side left  -padx 1  -pady 1
-        pack $titlelab -side right -padx 1 -pady 1
+        install searchbox using commandentry $bar.searchbox \
+            -relief     sunken                              \
+            -clearbtn   yes                                 \
+            -changecmd  [mymethod DoSearch]
 
+
+        pack $backbtn       -side left  -padx 1 -pady 1
+        pack $fwdbtn        -side left  -padx 1 -pady 1
+        pack $titlelab      -side left  -padx 1 -pady 1
+        pack $searchbox     -side right -padx 3 -pady 1
+        pack $bar.searchlab -side right -padx 0 -pady 1
 
         # Separator
         frame $win.sep -height 2 -relief sunken -borderwidth 2
@@ -198,6 +212,7 @@ snit::widget ::projectgui::helpbrowser {
         install hv using htmlviewer $win.paner.hvsw.hv \
             -takefocus        1                        \
             -hyperlinkcommand [mymethod HyperlinkCmd]  \
+            -isvisitedcommand [mymethod IsVisitedCmd]  \
             -imagecommand     [mymethod ImageCmd]
 
         $win.paner.hvsw setwidget $hv
@@ -239,6 +254,27 @@ snit::widget ::projectgui::helpbrowser {
         $self showpage $name $anchor
     }
 
+    # IsVisitedCmd uri
+    #
+    # uri     A URI of the form "<pageName>#<anchor>"
+    #
+    # Returns 1 if the Not clear what this should do.
+
+    method IsVisitedCmd {uri} {
+        # FIRST, get the page name and the anchor within the topic
+        set uri [lindex $uri 0]
+
+        if {[string index $uri 0] eq "#"} {
+            set uri "$info(current)$uri"
+        }
+
+        if {[info exists viewed($uri)]} {
+            return 1
+        } else {
+            return 0
+        }
+    }
+
     # ImageCmd src width height dict dummy
     #
     # src     The image source
@@ -266,6 +302,16 @@ snit::widget ::projectgui::helpbrowser {
 
     method ShowTreePage {} {
         $self showpage [$tree get]
+    }
+
+    # DoSearch target
+    #
+    # target   Content of the search box
+    #
+    # Displays the search
+    
+    method DoSearch {target} {
+        $self showpage Search
     }
 
     #-------------------------------------------------------------------
@@ -304,9 +350,15 @@ snit::widget ::projectgui::helpbrowser {
             $self ShowPageRef $page 0.0
         }
 
-        # NEXT, scroll to the anchor, if any.
+        # NEXT, scroll to the anchor, if any.  At the same time,
+        # remember that we've been here.
         if {$anchor ne ""} {
             $hv yview $anchor
+            
+            set uri "$info(current)#$anchor"
+            incr viewed($uri)
+        } else {
+            incr viewed($info(current))
         }
 
         # NEXT, update the button state.
@@ -324,7 +376,12 @@ snit::widget ::projectgui::helpbrowser {
 
     method ShowPageRef {page {frac 0.0}} {
         # FIRST, get the page data.
-        lassign [$hdb page title+text $page] info(title) text
+        if {$page eq "Search"} {
+            set info(title) Search
+            set text [$hdb search [$searchbox get]]
+        } else {
+            lassign [$hdb page title+text $page] info(title) text
+        }
 
         # NEXT, if not found get a pseudo page
         if {$info(title) eq ""} {

@@ -111,7 +111,7 @@ bin: check_env src
 	        -pkgref "BWidget   -require 1.8"            \
                 -pkgref "Tktable"                           \
 		-pkgref "treectrl"                          \
-		-pkgref "sqlite3   -require 3.5"            \
+		-pkgref "sqlite3   -require 3.6.17"         \
 		-pkgref "tablelist -require 4.9"            \
 		-pkgref "tdom"                              \
 		-pkgref "textutil::expander"                \

@@ -278,6 +278,48 @@ snit::type rel {
             return [mytypemethod mutate update [array get undoData]]
         }
     }
+
+    #---------------------------------------------------------------
+    # Order Helpers
+
+    # RefreshRelUpdate field parmdict
+    #
+    # field     The "rel" field in an R:UPDATE order.
+    # parmdict  The current values of the various fields.
+    #
+    # Disables "rel" if f=g
+
+    typemethod RefreshRelUpdate {field parmdict} {
+        dict with parmdict {
+            if {$f ne $g} {
+                $field configure -state normal
+            } else {
+                $field configure -state disabled
+            }
+        }
+    }
+
+
+    # RefreshRelUpdateMulti field parmdict
+    #
+    # field     The "rel" field in an R:UPDATE:MULTI order.
+    # parmdict  The current values of the various fields.
+    #
+    # Disables "rel" if f=g for any f,g
+
+    typemethod RefreshRelUpdateMulti {field parmdict} {
+        dict with parmdict {
+            foreach id $ids {
+                lassign $id n f g
+                if {$f eq $g} {
+                    $field configure -state disabled
+                    return
+                }
+            }
+                    
+            $field configure -state normal
+        }
+    }
 }
 
 
@@ -295,19 +337,29 @@ order define ::rel RELATIONSHIP:UPDATE {
     parm n    key   "Neighborhood"   -tags nbhood
     parm f    key   "Of Group"       -tags group
     parm g    key   "With Group"     -tags group
-    parm rel  text  "Relationship"   ;# TBD: Might want -refreshcmd
+    parm rel  text  "Relationship"   \
+        -refreshcmd {::rel RefreshRelUpdate}
 } {
     # FIRST, prepare the parameters
     prepare n        -toupper  -required -type [list ::rel nbhood]
     prepare f        -toupper  -required -type group
     prepare g        -toupper  -required -type group
-    prepare rel      -toupper            -type rgrouprel
+    prepare rel      -toupper            -type qrel
 
     returnOnError
 
     # NEXT, do cross-validation
     validate g {
         rel validate [list $parms(n) $parms(f) $parms(g)]
+    }
+
+    validate rel {
+        if {$parms(f) eq $parms(g) &&
+            $parms(rel) != 1.0
+        } {
+            reject rel \
+              "invalid value \"$parms(rel)\", a group's relationship with itself must be 1.0"
+        }
     }
 
     returnOnError -final
@@ -326,12 +378,27 @@ order define ::rel RELATIONSHIP:UPDATE:MULTI {
     options -sendstates PREP -table gui_rel_nfg
 
     parm ids  multi  "IDs"
-    parm rel  text   "Relationship"  ;# TBD: Might want -refreshcmd
+    parm rel  text   "Relationship" \
+        -refreshcmd {::rel RefreshRelUpdateMulti}
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof rel
 
-    prepare rel      -toupper            -type rgrouprel
+    prepare rel      -toupper            -type qrel
+
+    returnOnError
+
+    # Cross-validate
+    validate rel {
+        foreach id $parms(ids) {
+            lassign $id n f g
+ 
+            if {$f eq $g && $parms(rel) != 1.0} {
+                reject rel \
+                "invalid value \"$parms(rel)\", a group's relationship with itself must be 1.0"
+            }
+        }
+    }
 
     returnOnError -final
 

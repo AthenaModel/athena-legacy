@@ -18,8 +18,8 @@
 #    The page names are created automatically by prepending
 #    "menu/" and converting blanks to underscores.
 #    
-#    The menuref macro creates a link to a menu/menu item page
-#    given its label.
+#    The menuref macro (defined in athena.help) creates a link to a 
+#    menu/menu item page given its label.
 #
 #-----------------------------------------------------------------------
 
@@ -30,18 +30,6 @@ page menu "Application Menus" {} {
 
     <<childlinks>>
 }
-
-# menuref args
-#
-# args    The name of a menu or menu item
-#
-# Returns a cref-link to the help page.
-
-macro menuref {args} {
-    set replist [list " " "_"]
-    
-    set tag "menu/[string map $replist $args]"
-} {[cref $tag $args]}
 
 # menu name
 #
@@ -80,7 +68,7 @@ macro menu.header {name} {
     append nameWithLinks [lindex $tTokens end]
 } {
     |<--
-    <h3>$nameWithLinks Menu</h3>
+    [title $nameWithLinks Menu]
 }
 
 proc menuitem {name text} {
@@ -112,7 +100,7 @@ macro menuitem.header {name} {
     append nameWithLinks [lindex $tTokens end]
 } {
     |<--
-    <h3>$nameWithLinks</h3>
+    [mktitle small "Menu Item" $nameWithLinks ""]
 }
 
 #=======================================================================
@@ -164,7 +152,7 @@ menuitem "File/Save Scenario As..." {
 menuitem "File/Export as XML..." {
     Saves the current scenario to disk in XML format.  Note that this
     can only be done while the simulation is in 
-    <<cref "Scenario Preparation">> state.
+    <<cref using.prep>> state.
 }
 
 menuitem "File/Save CLI Scrollback Buffer..." {
@@ -177,7 +165,7 @@ menuitem "File/Save CLI Scrollback Buffer..." {
 menuitem "File/Import Map..." {
     Imports an image file in JPEG, GIF, or PNG format to be used as
     a map background for the scenario.  Any image file can be used.
-    See <<cref "Using Maps">> for more information.
+    See <<cref using.maps>> for more information.
 }
 
 menu "File/Parameters" {
@@ -232,7 +220,7 @@ menuitem "File/Close" {
     Closes the current browser window.<p>
 
     This menu item appears only in browser windows created using the
-    <<menuref File/New Browser>> menu item.
+    <<menuref "File/New Browser">> menu item.
 }
 
 #=======================================================================
@@ -247,7 +235,7 @@ menu "Edit" {
 
 menuitem "Edit/Undo" {
     Undoes the most recent order, if possible.  The 
-    <<cref "Orders/History">> tab shows the orders that can be
+    <<tabref Orders/Sent>> shows the orders that can be
     undone (among other things).<p>
 
     The undo stack is cleared when the scenario is saved, and when 

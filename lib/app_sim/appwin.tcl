@@ -211,7 +211,7 @@ snit::widget appwin {
         }
 
         gramt {
-            label  "GRAM"
+            label  "Attitudes"
             parent ""
             script ""
         }
@@ -255,10 +255,10 @@ snit::widget appwin {
         }
 
         ordhist {
-            label  "History"
+            label  "Sent"
             parent orderst
             script { 
-                orderhistorybrowser %W
+                ordersentbrowser %W
             }
         }
 
@@ -1955,6 +1955,7 @@ snit::widget appwin {
         $cli clear
     }
 }
+
 
 
 
