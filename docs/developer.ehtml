@@ -12,7 +12,7 @@
 <h2>Start Here</h2>
 
 <ul>
-  <li> <a href="dev/install.txt">Installation Instructions</a>
+  <li> <a href="install.txt">Installation Instructions</a>
   <li> <<xref athena(1)>>: Introduction to Athena
   <li> <<xref athena_sim(1)>>: The Athena simulation.
   <li> <a href="build_notes.html">Build Notes</a>: Details of each
