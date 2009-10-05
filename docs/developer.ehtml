@@ -47,10 +47,12 @@
 <h2>Modeling Documents</h2>
 
 <ul>
-  <li> Athena Analyst's Guide (<a href="dev/aag.odt">OpenOffice
-       Writer</a>)
-  <li> Athena Rules Document (<a href="dev/rules.odt">OpenOffice
-       Writer</a>)
+  <li> Athena Analyst's Guide
+       (<a href="dev/aag.pdf">PDF</a>)
+       (<a href="dev/aag.odt">OpenOffice Writer</a>)
+  <li> Athena Rules Document
+       (<a href="dev/rules.pdf">PDF</a>)
+       (<a href="dev/rules.odt">OpenOffice Writer</a>)
 </ul>
 
 <h2>Copyright</h2>
