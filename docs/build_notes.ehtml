@@ -11,6 +11,11 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 2.0.0, 5 October 2009 -- Baseline 2.0.x Build</h3>
+
+This is the baseline for 2.0.x development; it is equivalent to
+1.0.18.<p>
+
 <h3>Build 1.0.18, 5 October 2009 -- Final 1.0.x build</h3>
 
 This is the final 1.0.x build, in preparation to splitting
