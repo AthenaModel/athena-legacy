@@ -1,0 +1,110 @@
+<<manpage {marsgui(n) mkicon(n)} "Tk Icon Maker">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require marsgui 1.0
+namespace import ::marsgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<xref mkicon(n)>> provides a commands for creating small icon images
+from text input.  The images can be created as Tk image commands, or
+as image files.<p>
+
+<<section COMMANDS>>
+
+This module defines the following commands:<p>
+
+<<deflist commands>>
+
+<<defitem "mkicon" {mkicon <i>cmd charmap colors</i>}>>
+
+This command creates a Tk image given the <i>charmap</i>, a text
+representation of the pixels, and <i>colors</i>, which relates
+characters in the <i>charmap</i> to specific colors.  The <i>cmd</i>
+is the name to be given to the new image command; if it is the empty
+string, a name is automatically generated.  If it is not a
+fully-qualified name, it is presumed to be in the caller's
+namespace.<p>
+
+The name of the new image command is returned to the caller.<p>
+
+The <i>charmap</i> is a list of strings, each string denoting one row
+of pixels.  The strings are usually formatted in successive lines.
+Each character represents a color. The <i>colors</i> argument is
+simply a dictionary of characters and Tk color specifications, with
+one addition: the pseudo-color name <b>trans</b>.  Pixels mapped to
+<b>trans</b> will be transparent.<p>
+
+For example, the follow command defines an image similar to a mouse
+pointer arrow with a black foreground and a transparent background.<p>
+
+<pre>
+mkicon left_ptr {
+    ......................
+    ......................
+    .....X................
+    .....XX...............
+    .....XXX..............
+    .....XXXX.............
+    .....XXXXX............
+    .....XXXXXX...........
+    .....XXXXXXX..........
+    .....XXXXXXXX.........
+    .....XXXXXXXXX........
+    .....XXXXXXXXXX.......
+    .....XXXXXXXXXXX......
+    .....XXXXXXX..........
+    .....XXX.XXXX.........
+    .....XX..XXXX.........
+    .....X....XXXX........
+    ..........XXXX........
+    ...........XXXX.......
+    ...........XXXX.......
+    ......................
+    ......................
+} {
+    .  trans
+    X  #000000
+}
+</pre>
+
+<<defitem mkiconfile {mkiconfile <i>name fmt charmap colors</i>}>>
+
+This command takes the same input as <<iref mkicon>>, but saves it
+to a disk file called <i>name</i> instead of creating a Tk image.
+The file will have the specified format, typically <b>gif</b> or
+<b>png</b>.  Returns the absolute file name of the new file.<p>
+
+<</deflist commands>>
+
+<<section ENVIRONMENT>>
+
+This package requires Tcl/Tk 8.5 or later.
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,520 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    marsmisc.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Tcltest test suite for marsutil(n) marsmisc.tcl
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Initialize tcltest(n)
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest 2.2 
+    eval ::tcltest::configure $argv
+}
+ 
+#-----------------------------------------------------------------------
+# Load the package to be tested
+
+package require marsutil 1.0
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::marsutil::test {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Import the code to be tested
+    namespace import ::marsutil::*
+
+    #-------------------------------------------------------------------
+    # assert
+
+    test assert-1.1 {Assertion succeeds} -body {
+        assert {1 == 1}
+    } -result {}
+
+    test assert-1.2 {Assertion fails} -body {
+        global errorCode
+        catch {assert {1 == 2}} result
+        list $errorCode $result
+    } -result {ASSERT {Assertion failed: 1 == 2}}
+
+    #-------------------------------------------------------------------
+    # bgcatch
+
+    test bgcatch-1.1 {Script called in caller's context} -body {
+        set a [clock clicks]
+        bgcatch {set b $a}
+        expr {$a == $b}
+    } -result {1}
+
+    test bgcatch-1.2 {Script called in caller's context} -setup {
+        proc ::bgerror {msg} {
+            puts -nonewline "bgerror: $msg"
+        }
+    } -body {
+        bgcatch {error "Simulated Error"}
+    } -cleanup {
+        rename ::bgerror ""
+    } -output {bgerror: Simulated Error}
+
+    #-------------------------------------------------------------------
+    # callwith
+
+    test callwith-1.1 {call with no arguments} -body {
+        callwith [list expr {1+1}]
+    } -result {2}
+
+    test callwith-1.2 {call with one complex argument} -body {
+        callwith expr {2 + 2}
+    } -result {4}
+
+    test callwith-1.3 {call with several arguments} -body {
+        callwith [list string is] integer -strict {foo bar}
+    } -result {0}
+
+    test callwith-1.4 {call with error} -body {
+        callwith expr {2 + xyz}
+    } -returnCodes {
+        error
+    } -result {invalid bareword "xyz"
+in expression "2 + xyz";
+should be "$xyz" or "{xyz}" or "xyz(...)" or ...}
+
+    test callwith-1.5 {call with empty prefix} -body {
+        callwith "" a b c d
+    } -result {}
+
+
+    #-------------------------------------------------------------------
+    # require
+
+    test require-1.1 {Assertion succeeds} -body {
+        require {1 == 1} "Dummy message"
+    } -result {}
+
+    test require-1.2 {Assertion fails} -body {
+        global errorCode
+        catch {require {1 == 2} "Dummy message"} result
+        list $errorCode $result
+    } -result {ASSERT {Dummy message}}
+
+    #-------------------------------------------------------------------
+    # lmaxlen
+
+    test lmaxlen-1.1 {lmaxlen: empty list} -body {
+        lmaxlen {}
+    } -result {0}
+
+    test lmaxlen-1.2 {lmaxlen: normal list} -body {
+        lmaxlen [list a bb ccc dd e]
+    } -result {3}
+
+    #-----------------------------------------------------------------------
+    # lshift
+
+    test lshift-1.1 {lshift: normal list} -body {
+        set list {a b c}
+        set value [lshift list]
+        list $value $list
+    } -result {a {b c}}
+
+    test lshift-1.2 {lshift: list with one element} -body {
+        set list {a}
+        set value [lshift list]
+        list $value $list
+    } -result {a {}}
+
+    test lshift-1.3 {lshift: list with no elements} -body {
+        set list {}
+        set value [lshift list]
+        list $value $list
+    } -result {{} {}}
+
+    #-------------------------------------------------------------------
+    # lsearchi
+
+    test lsearchi-1.1 {lsearchi: matched first item} -body {
+        lsearchi {Foo Bar Baz} foo
+    } -result 0
+
+    test lsearchi-1.2 {lsearchi: matched last item} -body {
+        lsearchi {Foo Bar Baz} baz
+    } -result 2
+
+    test lsearchi-1.3 {lsearchi: matched no item} -body {
+        lsearchi {Foo Bar Baz} quux
+    } -result -1
+
+    test lsearchi-1.4 {lsearchi: empty list} -body {
+        lsearchi {} foo
+    } -result -1
+
+    #-------------------------------------------------------------------
+    # lformat
+
+    test lformat-1.1 {lformat: empty list} -body {
+        lformat %s {}
+    } -result {}
+
+    test lformat-1.2 {lformat: list with one number} -body {
+        lformat %.1f {1.18}
+    } -result {1.2}
+
+    test lformat-1.3 {lformat: list with two numbers} -body {
+        lformat  %.1f {1.18 2.11}
+    } -result {1.2 2.1}
+
+    #-------------------------------------------------------------------
+    # ladd
+
+    test ladd-1.1 {value is not yet in list} -body {
+        set a {foo bar}
+        set b [ladd a baz]
+        list $a $b
+    } -result {{foo bar baz} {foo bar baz}}
+
+    test ladd-1.2 {value is already in list} -body {
+        set a {foo bar}
+        set b [ladd a bar]
+        list $a $b
+    } -result {{foo bar} {foo bar}}
+
+    test ladd-1.3 {List doesn't yet exist} -body {
+        set b [ladd nonesuch bar]
+        list $nonesuch $b
+    } -cleanup {
+        unset nonesuch
+    } -result {bar bar}
+
+    #-------------------------------------------------------------------
+    # ldelete
+
+    test ldelete-1.1 {value is not in list} -body {
+        set a {foo bar}
+        set b [ldelete a baz]
+        list $a $b
+    } -result {{foo bar} {foo bar}}
+
+    test ldelete-1.2 {value is in list} -body {
+        set a {foo bar baz}
+        set b [ldelete a baz]
+        list $a $b
+    } -result {{foo bar} {foo bar}}
+
+    #-------------------------------------------------------------------
+    # lmerge
+
+    test lmerge-1.1 {empty list} -body {
+        set a {foo bar baz}
+        set b {}
+
+        lmerge a $b
+        lsort $a
+    } -result {bar baz foo}
+
+    test lmerge-1.2 {empty listvar} -body {
+        set a {}
+        set b {foo bar baz}
+
+        lmerge a $b
+        lsort $a
+    } -result {bar baz foo}
+
+    test lmerge-1.3 {disjoint lists} -body {
+        set a {foo bar baz}
+        set b {bing bang bong}
+
+        lmerge a $b
+        lsort $a
+    } -result {bang bar baz bing bong foo}
+
+    test lmerge-1.4 {duplicate lists} -body {
+        set a {bing bang bong}
+        set b {bing bang bong}
+
+        lmerge a $b
+        lsort $a
+    } -result {bang bing bong}
+
+    test lmerge-1.5 {duplicates in second list} -body {
+        set a {bing bang bong}
+        set b {foo foo foo}
+
+        lmerge a $b
+        lsort $a
+    } -result {bang bing bong foo}
+
+    test lmerge-1.6 {listvar names non-existent variable} -body {
+        unset a
+        lmerge a {foo bar baz}
+        lsort $a
+    } -result {bar baz foo}
+
+    #-------------------------------------------------------------------
+    # let
+
+    test let-1.1 {constant expression} -body {
+        let x {1 + 1}
+    } -result {2}
+
+    test let-1.2 {variable expression} -body {
+        set a 5
+        let x {$a}
+    } -result {5}
+
+    #-------------------------------------------------------------------
+    # min
+
+    test min-1.1 {min: x < y} -body {
+        min 1.0 2.0
+    } -result {1.0}
+
+    test min-1.2 {min: x == y} -body {
+        min 2.0 2.0
+    } -result {2.0}
+
+    test min-1.3 {min: x > y} -body {
+        min 2.0 1.0
+    } -result {1.0}
+
+    #-------------------------------------------------------------------
+    # max
+
+    test max-1.1 {max: x < y} -body {
+        max 1.0 2.0
+    } -result {2.0}
+
+    test max-1.2 {max: x == y} -body {
+        max 2.0 2.0
+    } -result {2.0}
+
+    test max-1.3 {max: x > y} -body {
+        max 2.0 1.0
+    } -result {2.0}
+
+    #-------------------------------------------------------------------
+    # gettimeofday
+
+    test gettimeofday-1.1 {compare with clock seconds} -body {
+        # FIRST, get the time by both methods.
+        set t0 [gettimeofday]
+        set t1 [clock seconds]
+
+        # NEXT, convert t0 to an integer.
+        set t0 [expr {int($t0)}]
+
+        # NEXT, t1 might be 1 second later than t0, since it was
+        # called later.
+        expr {$t0 == $t1 || $t0 == $t1 - 1}
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # percent
+    test percent-1.1 {shows ~0.0 for small values} -body {
+
+        set vals ""
+        foreach frac {
+            0.0
+            0.001
+            0.003
+            0.005
+            0.0051
+            0.009
+            0.01
+            0.02
+            0.1
+        } {
+            append vals [percent $frac]
+        }
+        set vals
+        
+    } -result {  0% ~0% ~0% ~0%  1%  1%  1%  2% 10%}
+
+    #-------------------------------------------------------------------
+    # pickfrom
+    #
+    # This is difficult to test, as the result is random.
+
+    test pickfrom-1.1 {result is always in list} -body {
+        set count 0
+        set choices {a b c d}
+
+        for {set i 0} {$i < 1000} {incr i} {
+            set choice [pickfrom $choices]
+
+            if {[lsearch $choices $choice] != -1} {
+                incr count
+            }
+        }
+
+        set count
+    } -result {1000}
+
+    #-------------------------------------------------------------------
+    # poisson
+    #
+    # This function is difficult to test; we really need a statistical
+    # analysis.  For now, sample it once and verify that the result
+    # is an integer.
+
+    test poisson-1.1 {non-negative result} -body {
+        string is integer -strict [poisson 5]
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # discrete
+    #
+    # This function is similarly difficult to test.
+    # For now sample it a number of times and verify that the values
+    # are within the desired range.
+
+    test discrete-1.1 {results in range} -body {
+        set samples 10
+        set count 0
+        for {set i 0} {$i < $samples} {incr i} {
+            set n [discrete {0.1 0.2 0.3 0.4}]
+
+            if {$n >= 0 && $n < 4} {
+                incr count
+            }
+        }
+
+        expr {$count == $samples}
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # identifier
+
+    test identifier-1.1 {identifier validates valid values} -body {
+        identifier validate abc_ABC_123 
+    } -result {}
+
+    test identifier-1.2 {identifier fails on the empty string} -body {
+        identifier validate ""
+    } -returnCodes {
+        error
+    } -result {invalid value ""}
+
+    test identifier-1.3 {identifier fails on a string with whitespace} -body {
+        identifier validate "abc 123"
+    } -returnCodes {
+        error
+    } -result {invalid value "abc 123"}
+
+    test identifier-1.4 {identifier fails on a string with punctuation} -body {
+        identifier validate "abc.123"
+    } -returnCodes {
+        error
+    } -result {invalid value "abc.123"}
+
+    #-------------------------------------------------------------------
+    # hexquote
+
+    test hexquote-1.1 {all characters are quoted} -body {
+        hexquote "X\x0AY\x00Z"
+    } -result {\x58\x0A\x59\x00\x5A}
+
+    test hexquote-1.2 {input can be recreated} -body {
+        set a "A\x0A\B\x00\C\[\]\$X"
+        set b [subst -nocommands -novariables [hexquote $a]]
+        expr {$a eq $b}
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # normalize
+
+    test normalize-1.1 {strips whitespace} -body {
+        normalize "   abc   def \n ghi \t "
+    } -result {abc def ghi}
+
+    #-------------------------------------------------------------------
+    # outdent
+
+    test outdent-1.1 {outdent: empty block} -body {
+        outdent {}
+    } -result {}
+    
+    test outdent-1.2 {outdent: leading blank line} -body {
+        outdent {
+                  Now that we have this,
+                  we can make things
+                  look a lot nicer.}
+    } -result {Now that we have this,
+we can make things
+look a lot nicer.}
+
+    test outdent-1.3 {outdent: trailing blank line} -body {
+        outdent {Now that we have this,
+                  we can make things
+                  look a lot nicer.
+                }
+    } -result {Now that we have this,
+                  we can make things
+                  look a lot nicer.}
+	       
+    #-------------------------------------------------------------------
+    # optval
+
+    test optval-1.1 {optval: option exists} -body {
+        set arglist "foo bar -name Fred baz"
+        set name [optval arglist -name]
+        list $name $arglist
+    } -result {Fred {foo bar baz}}
+
+    test optval-1.2 {optval: option does not exist; no defvalue} -body {
+        set arglist "foo bar baz"
+        set name [optval arglist -name]
+        list $name $arglist
+    } -result {{} {foo bar baz}}
+
+    test optval-1.3 {optval: option does not exist; defvalue} -body {
+        set arglist "foo bar baz"
+        set name [optval arglist -name Fred]
+        list $name $arglist
+    } -result {Fred {foo bar baz}}
+
+    #-------------------------------------------------------------------
+    # wildToRegexp
+
+    test wildToRegexp-1.1 {wildToRegexp: plain text} -body {
+        wildToRegexp {asdf1234}
+    } -result {asdf1234}
+    
+    test wildToRegexp-1.2 {wildToRegexp: regexp characters} -body {
+        wildToRegexp {asdf[^]\+.}
+    } -result {asdf\[\^\]\\\+\.}
+    
+    test wildToRegexp-1.3 {wildToRegexp: wildcard characters} -body {
+        wildToRegexp {asdf\[\*]1234?}
+    } -result {asdf\\\[\\.*\]1234.}
+
+
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::marsutil::test
+
+
+
+
+

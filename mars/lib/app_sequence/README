@@ -1,0 +1,9 @@
+app_sequence(n)
+-----------------------------------------------------------------
+
+This directory contains the app_sequence(n) package, which
+implements the mars_sequence(1) tool.
+
+
+
+

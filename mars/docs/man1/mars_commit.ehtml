@@ -1,0 +1,88 @@
+<<manpage {mars(1) mars_commit(1)} "Mars Bugfix Commit Tool">>
+
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<deflist program>>
+
+<<defitem "mars commit" {mars commit [<i>bugnum</i>]}>>
+
+<</deflist program>>
+
+mars_commit(1) is a program for committing code changes related to a
+particular bug fix into a Subversion repository. In particular, 
+it ensures that the files are committed with a comment 
+that references the bug number.<p>
+
+mars_commit(1) is run in a Subversion working copy containing the
+files to commit. When invoked, it displays a window containing the
+following information:<p>
+
+<ul>
+  <li> The bug number.  The bug number may be entered on the command
+       line, or it may be typed into the "Bug Number:" field in the
+       mars_commit(1) window.<p>
+
+  <li> A "Changes:" pane showing the <b>svn status</b> output for this
+       work area.  This shows, one per line, all modified or unversioned
+       files in the work area.<p>
+       
+  <li> A "Log Entry:" pane, into which the user can enter a detailed
+       description of the code change being committed.<p>
+</ul>
+
+The "Changes:" pane frequently reveals that there's more work to be
+done: new files to add to the repository, man pages to write, and so
+forth.  After making such changes, press the "Refresh" button" to
+update the "Changes:" pane.<p>
+
+To commit all changes shown in the "Changes:" pane, enter a comment
+in the "Log Entry:" pane and press the "Commit" button.  All modified
+files will be committed; unversioned files (those marked with "?")
+will be ignored.<p>
+
+To commit a subset of the changes shown in the "Changes:" pane, select
+just the particular files of interest.  Then enter a comment
+in the "Log Entry:" pane and press the "Commit" button.  Note that it
+is an error to select any of the unversioned files.<p>
+
+When you press "Commit", mars_commit(1) will pop up a message box
+telling you whether the commit was successful or not.  In addition,
+the "svn commit" command, the message included with the commit, and
+the output of running "svn commit" will be written to the terminal
+from which mars_commit(1) was invoked.<p>
+
+The commit message will begin with the following text:<p>
+
+<code>Fixed Bug #{<i>bugnum</i>}</code><p>
+
+This allows developers to relate the check-in to specific
+Bugzilla bugs.<p>
+
+
+<<section ENVIRONMENT>>
+
+mars_commit(1) requires Tcl 8.5 or later.
+
+To execute mars_commit(1), the standard <tt>tclsh8.5(1)</tt> must be
+available on the <code>PATH</code>.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original application.<p>
+
+<</manpage>>
+
+
+
+
+
+
+

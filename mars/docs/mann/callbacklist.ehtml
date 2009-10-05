@@ -1,0 +1,82 @@
+<<manpage {marsutil(n) callbacklist(n)} "Callback List Manager">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require util 1.0
+namespace import ::marsutil::callbacklist
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+callbacklist(n) defines an object that allows clients to register
+zero or more callback commands, all of which can then be called
+as a group.  Individual callbacks can be cancelled.<p>
+
+<<section COMMANDS>>
+
+<<deflist commands>>
+
+<<defitem callbacklist {callbacklist <i>name</i>}>>
+
+Creates a new callbacklist(n) object called <i>name</i>. The object is
+represented as a new Tcl command in the caller's scope;
+<<iref callbacklist>> returns the fully-qualified form of the
+<i>name</i>.<p>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+Each instance of the <<iref callbacklist>> object has the following
+subcommands:<p>
+
+<<deflist instance>>
+
+<<defitem register {$cb register <i>command</i>}>>
+
+Registers the <i>command</i> with the callback list, and returns a
+callback ID which may be used to cancel the callback (i.e., remove
+it from the callback list) at a later time.<p>
+
+<<defitem cancel {$cb cancel <i>id</i>}>>
+
+Cancels a callback command using the <i>id</i> returned by
+<<iref register>>.  The command will no longer be called.  Note that a
+callback can be cancelled at any time; a callback can even cancel
+itself.<p>
+
+<<defitem call {$cb call ?<i>args...</i>?}>>
+
+Calls all callback commands registered with the callback list, passing
+each of them the specified arguments.  Callback commands are always
+called at the global scope.<p>
+
+<</deflist instance>>
+
+<<section "SEE ALSO">>
+
+<<xref timeout(n)>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+

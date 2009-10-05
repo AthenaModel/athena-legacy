@@ -1,0 +1,111 @@
+<<manpage marsgui(n) "Mars Graphical User Interface Library">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require gui 1.0
+namespace import ::marsgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+marsgui(n) is a package of non-application-specific graphical user
+interface code for use in Mars GUI applications.  In addition
+to including a number of useful widgets, it also sets a number
+of Tk settings to new default values.  See <<xref DETAILS>> for
+more.
+
+<<section MODULES>>
+
+marsgui(n) includes the following submodules:<p>
+
+<ul>
+  <li> <<xref cli(n)>> -- Command-Line Interface Widget</li>
+  <li> <<xref commandentry(n)>> -- Command Entry Widget</li>
+  <li> <<xref datagrid(n)>> -- Grid-based Data Frame</li>
+  <li> <<xref debugger(n)>> -- Debugging Console</li>
+  <li> <<xref filter(n)>> -- Text Filter Control Widget</li>
+  <li> <<xref finder(n)>> -- Text Search Widget</li>
+  <li> <<xref gradient(n)>> -- Color Gradient Computer</li>
+  <li> <<xref logdisplay(n)>> -- Log Display Widget</li>
+  <li> <<xref loglist(n)>> -- Log List Widget</li>
+  <li> <<xref messageline(n)>> -- Message Line Widget</li>
+  <li> <<xref paner(n)>> -- Paned Window Widget</li>
+  <li> <<xref rotext(n)>> -- Read-only Text Widget</li>
+  <li> <<xref scrollinglog(n)>> -- File Logging Widget</li>
+  <li> <<xref subwin(n)>> -- Subordinate Window Widget</li>
+  <li> <<xref texteditor(n)>> -- Simple Text Editor</li>
+  <li> <<xref zuluspinbox(n)>> -- Zulu-Time Spinbox Widget</li>
+</ul>
+
+<<section IMAGES>>
+
+marsgui(n) includes the following images, all of which are loaded as
+Tk bitmaps and can be used by name.  Note that the image names are
+not exported from the <code>::marsgui::</code> namespace; the name should
+always be given as shown.<p>
+
+<b>TBD:</b> This needs to be updated.<p>
+
+<<deflist images>>
+
+<<defitem folder_icon {::marsgui::folder_icon}>>
+
+A 16x16 pixel bitmap of a folder.<p>
+
+<<defitem page_icon {::marsgui::page_icon}>>
+
+A 16x16 pixel bitmap of a page with one corner folded down.<p>
+
+<</deflist images>>
+
+<<section DETAILS>>
+
+In addition to the modules and commands listed above, marsgui(n) affects
+standard Tk as follows:<p>
+
+<ul>
+  <li> Sets the Tk scaling factor so that fonts display properly.<p>
+
+  <li> Defines the Control-x, Control-c, and Control-v as the
+       standard cut, copy, and paste keys.<p>
+
+  <li> Defines Shift-Control-a as the standard "select all" key.
+       Widgets must support the &lt;&lt;SelectAll&gt;&gt; virtual event.<p>
+
+  <li> Defines two standard monospace fonts, "codefont" and
+       "codefontbold".<p>
+
+  <li> Adds a number of definitions to the option database to
+       improve the appearance of the Tk widgets.  See the code for
+       specifics.<p>
+</ul>
+
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
+
+
+
