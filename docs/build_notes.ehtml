@@ -11,6 +11,19 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 1.0.18, 5 October 2009 -- Final 1.0.x build</h3>
+
+This is the final 1.0.x build, in preparation to splitting
+the Athena development baseline.  Athena 1.1.0 and Athena 2.0.0
+on the 1.1.x branch and trunk, respectively, will be essentially
+identical to this build.  The full set of changes is as follows:<p>
+
+<ul>
+  <li> Bug 2287: athena(1): Mod File Capability
+  <li> Bug 2294: Typos in Athena Online Help
+  <li> Bug 2296: Athena 1.0: Final Documentation Scrub 
+</ul><p>
+
 <h3>Build 1.0.17, 23 September 2009</h3>
 
 This is likely the final 1.0.x build before splitting the baseline in
