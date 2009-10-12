@@ -325,7 +325,7 @@ snit::type ::report {
                     -title     $title                       \
                     -text      $text                        \
                     -requested 1                            \
-                    -type      GRAM                         \
+                    -rtype     GRAM                         \
                     -subtype   COOP]
 
         return [list reporter delete $id]
@@ -445,7 +445,7 @@ snit::type ::report {
                     -title     $title                       \
                     -text      $text                        \
                     -requested 1                            \
-                    -type      GRAM                         \
+                    -rtype     GRAM                         \
                     -subtype   COOP]
 
         return [list reporter delete $id]
@@ -503,7 +503,7 @@ snit::type ::report {
                     -title     "Attitude Drivers ($state)"  \
                     -text      $text                        \
                     -requested 1                            \
-                    -type      GRAM                         \
+                    -rtype     GRAM                         \
                     -subtype   DRIVER]
 
         return [list reporter delete $id]
@@ -575,7 +575,7 @@ snit::type ::report {
                     -title     "Model Parameters ($title)"  \
                     -text      "$header\n\n$text"           \
                     -requested 1                            \
-                    -type      SCENARIO                     \
+                    -rtype     SCENARIO                     \
                     -subtype   PARMDB]
 
         return [list reporter delete $id]
@@ -767,7 +767,7 @@ snit::type ::report {
                     -title     $title                       \
                     -text      $text                        \
                     -requested 1                            \
-                    -type      GRAM                         \
+                    -rtype     GRAM                         \
                     -subtype   SAT                          \
                     -meta1     ${gtype}]
 
@@ -899,7 +899,7 @@ snit::type ::report {
                         -title     $title                       \
                         -text      $text                        \
                         -requested 1                            \
-                        -type      GRAM                         \
+                        -rtype     GRAM                         \
                         -subtype   SATCONTRIB]
         }
 

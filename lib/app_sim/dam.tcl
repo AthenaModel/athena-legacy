@@ -589,7 +589,7 @@ snit::type dam {
 
         # Save the report to the console/workstation
         report save                  \
-            -type    DAM             \
+            -rtype    DAM            \
             -subtype $input(ruleset) \
             -meta1   $input(rule)    \
             -title   $input(title)   \

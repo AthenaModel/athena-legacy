@@ -60,7 +60,6 @@ source [file join $::projectlib::library appdir.tcl         ]
 source [file join $::projectlib::library workdir.tcl        ]
 source [file join $::projectlib::library verman.tcl         ]
 source [file join $::projectlib::library statecontroller.tcl]
-source [file join $::projectlib::library reporter.tcl       ]
 source [file join $::projectlib::library helpdb.tcl         ]
 
 

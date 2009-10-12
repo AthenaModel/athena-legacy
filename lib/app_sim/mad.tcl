@@ -338,7 +338,7 @@ snit::type mad {
 
         set reportid \
             [report save \
-                 -type    DAM                                       \
+                 -rtype   DAM                                       \
                  -subtype MAGIC                                     \
                  -meta1   ADJUST-3-1                                \
                  -title   "MAGIC-3-1: [edamrule longname MAGIC-3-1]" \
@@ -395,7 +395,7 @@ snit::type mad {
 
             set reportid \
                 [report save \
-                     -type    DAM                                          \
+                     -rtype   DAM                                          \
                      -subtype ADJUST                                       \
                      -meta1   ADJUST-1-1                                   \
                      -title   "ADJUST-1-1: [edamrule longname ADJUST-1-1]" \
@@ -460,7 +460,7 @@ snit::type mad {
 
             set reportid \
                 [report save \
-                     -type    DAM                                          \
+                     -rtype   DAM                                          \
                      -subtype ADJUST                                       \
                      -meta1   ADJUST-1-2                                   \
                      -title   "ADJUST-1-2: [edamrule longname ADJUST-1-2]"  \
@@ -627,7 +627,7 @@ snit::type mad {
 
             set reportid \
                 [report save \
-                     -type    DAM                                          \
+                     -rtype   DAM                                          \
                      -subtype ADJUST                                       \
                      -meta1   ADJUST-2-1                                   \
                      -title   "ADJUST-2-1: [edamrule longname ADJUST-2-1]" \
@@ -693,7 +693,7 @@ snit::type mad {
 
             set reportid \
                 [report save \
-                     -type    DAM                                          \
+                     -rtype   DAM                                          \
                      -subtype ADJUST                                       \
                      -meta1   ADJUST-2-2                                   \
                      -title   "ADJUST-2-2: [edamrule longname ADJUST-2-2]" \
