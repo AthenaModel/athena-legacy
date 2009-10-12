@@ -4,6 +4,15 @@
     package require marsutil
     package require projectlib
 
+    proc sqlsections {} {
+        return {
+            ::marsutil::eventq
+            ::marsutil::reporter
+            ::simlib::gram
+            ::projectlib::scenariodb
+        }
+    }
+
     proc sqlSectionLink {section} {
         set title [$section sqlsection title]
 
@@ -16,7 +25,7 @@
 
     proc schemaDoc {} {
         set out ""
-        foreach section [::marsutil::sqldocument sections] {
+        foreach section [sqlsections] {
             # FIRST, are there any schema definitions
             set schema ""
 
@@ -54,12 +63,7 @@
     proc sqlFunctionsDoc {} {
         set out ""
 
-        foreach section [::marsutil::sqldocument sections] {
-            # Skip functions defined by sqldatabase itself.
-            if {$section eq "::simlib::sqldatabase"} {
-                continue
-            }
-
+        foreach section [sqlsections] {
             set funcs [$section sqlsection functions]
 
             if {[llength $funcs] > 0} {

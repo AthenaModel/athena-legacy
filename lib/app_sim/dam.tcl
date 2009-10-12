@@ -32,9 +32,6 @@ snit::type dam {
         namespace import ::marsutil::* 
         namespace import ::simlib::*
         namespace import ::projectlib::* 
-
-        # Register self as an sqlsection(i) module
-        sqldocument register $type
     }
 
     #-------------------------------------------------------------------

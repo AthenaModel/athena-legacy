@@ -67,6 +67,7 @@ snit::type scenario {
         # NEXT, create the a clean working RDB.
         set rdb [scenariodb ::rdb \
                     -clock ::marsutil::simclock]
+        rdb register ::dam
 
         InitializeRuntimeData
     }

@@ -44,9 +44,6 @@ snit::type ::projectlib::scenariodb {
 
     typeconstructor {
         namespace import ::marsutil::*
-
-        # Register self as an sqlsection(i) module
-        sqldocument register $type
     }
 
     #-------------------------------------------------------------------
@@ -318,6 +315,12 @@ snit::type ::projectlib::scenariodb {
                     -clock     [from args -clock] \
                     -autotrans off                 \
                     -rollback  on]
+
+        # NEXT, register the schema sections
+        $db register ::marsutil::eventq
+        $db register ::marsutil::reporter
+        $db register ::simlib::gram
+        $db register $type
     }
 
     #-------------------------------------------------------------------

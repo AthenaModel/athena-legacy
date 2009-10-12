@@ -100,6 +100,9 @@ snit::type ::projectlib::helpdb {
         set db [sqldocument ${selfns}::db          \
                     -autotrans off                 \
                     -rollback  off]
+
+        # NEXT, register this type as an sqlsection
+        $db register $type
     }
 
     #-------------------------------------------------------------------
@@ -107,19 +110,6 @@ snit::type ::projectlib::helpdb {
 
     # Delegated methods
     delegate method * to db
-
-    # clear
-    #
-    # A wrapper for the sqldocument(n) clear command, that defines
-    # the helpdb schema.
-
-    method clear {} {
-        # FIRST, do the normal clear
-        $db clear
-
-        # NEXT, define the helpdb(n) schema
-        $db eval [$type sqlsection schema]
-    }
 
     # entity exists name
     #
