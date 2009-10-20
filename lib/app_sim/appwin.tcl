@@ -1796,7 +1796,7 @@ snit::widget appwin {
             $win.toolbar.duration configure -state disabled
         } elseif {[sim state] eq "SNAPSHOT"} {
             $win.toolbar.runpause configure \
-                -image ::projectgui::icon::peabody32
+                -image ::marsgui::icon::peabody32
             DynamicHelp::add $win.toolbar.runpause -text "Leave Snapshot Mode"
 
             $win.toolbar.duration configure -state disabled

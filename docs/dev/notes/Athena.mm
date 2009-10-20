@@ -146,16 +146,6 @@
 </node>
 </node>
 <node CREATED="1239210064249" ID="Freemind_Link_1216819379" MODIFIED="1239210065909" POSITION="right" TEXT="GRAM">
-<node CREATED="1251486998445" ID="Freemind_Link_952373843" MODIFIED="1251487006508" TEXT="GRAM and RDBs">
-<node CREATED="1251487006830" ID="Freemind_Link_323083293" MODIFIED="1251487015511" TEXT="Suppose each instance of GRAM required its own RDB?"/>
-<node CREATED="1251487017517" ID="Freemind_Link_236967723" MODIFIED="1251487033367" TEXT="Could use multiple gram(n)&apos;s in an app by using multiple RDBs."/>
-<node CREATED="1251487033725" ID="Freemind_Link_1443512363" MODIFIED="1251487068151" TEXT="Could write queries across GRAMs by accessing both DBs in one SQLite3 handle"/>
-<node CREATED="1251487072974" ID="Freemind_Link_1771807132" MODIFIED="1251487084231" TEXT="gram(n) might be faster, and the queries would be simpler"/>
-<node CREATED="1251487102349" ID="Freemind_Link_1955038707" MODIFIED="1251487111451" TEXT="Only downside">
-<node CREATED="1251487111709" ID="Freemind_Link_1125217217" MODIFIED="1251487124407" TEXT="Checkpointing becomes more difficult if an app needs two gram(n)&apos;s."/>
-<node CREATED="1251487125213" ID="Freemind_Link_1693351642" MODIFIED="1251487156855" TEXT="Haven&apos;t needed two since combining CIV and ORG into one object."/>
-</node>
-</node>
 <node CREATED="1239210066312" ID="Freemind_Link_854754922" MODIFIED="1251396572166" TEXT="Slope effect thresholds">
 <node CREATED="1239210082792" ID="Freemind_Link_319482527" MODIFIED="1247762797557" TEXT="Threshold other than +/- 100"/>
 <node CREATED="1239210116617" ID="Freemind_Link_94705808" MODIFIED="1247762812375" TEXT="Effect does not contribute if level exceeds threshold"/>
@@ -556,9 +546,6 @@
 <node CREATED="1238697459940" ID="Freemind_Link_946664107" MODIFIED="1238697464078" POSITION="right" TEXT="GUI Infrastructure">
 <node CREATED="1251397016743" ID="Freemind_Link_1167127" MODIFIED="1251397043233" TEXT="Help Browser Status Bar">
 <node CREATED="1251397021144" ID="Freemind_Link_362409140" MODIFIED="1251397031361" TEXT="Add status bar that shows name of linked page"/>
-</node>
-<node CREATED="1252944651185" ID="Freemind_Link_353219562" MODIFIED="1252944656446" TEXT="Help Browser Link Colors">
-<node CREATED="1252944656880" ID="Freemind_Link_698260945" MODIFIED="1252944664087" TEXT="Color visited links purple"/>
 </node>
 <node CREATED="1237479433118" FOLDED="true" ID="Freemind_Link_491578520" MODIFIED="1245882780238" TEXT="Cell-based editing in browsers">
 <icon BUILTIN="messagebox_warning"/>

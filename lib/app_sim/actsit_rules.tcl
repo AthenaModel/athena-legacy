@@ -1885,7 +1885,7 @@ snit::type actsit_rules {
     proc rel {n f g} {
         set rel [rdb eval {
             SELECT rel FROM gram_nfg
-            WHERE object='::aram' AND n=$n AND f=$f AND g=$g
+            WHERE n=$n AND f=$f AND g=$g
         }]
 
         require {[string is double -strict $rel]} \
@@ -1987,14 +1987,12 @@ snit::type actsit_rules {
         if {$n eq "*"} {
             set sat [rdb eval {
                 SELECT sat FROM gram_gc 
-                WHERE object='::aram' 
-                AND   g=$g AND c=$c
+                WHERE g=$g AND c=$c
             }]
         } else {
             set sat [rdb eval {
                 SELECT sat FROM gram_sat 
-                WHERE object='::aram' 
-                AND   n=$n AND g=$g AND c=$c
+                WHERE n=$n AND g=$g AND c=$c
             }]
         }
 

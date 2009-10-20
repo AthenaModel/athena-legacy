@@ -836,7 +836,6 @@ snit::widget mapviewer {
             # Get the mood of each nbhood, if known
             array set moods [rdb eval {
                 SELECT n, sat FROM gram_n
-                WHERE object='::aram'
             }]
         } else {
             set fill mood

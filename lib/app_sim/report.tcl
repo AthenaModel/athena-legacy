@@ -347,31 +347,30 @@ snit::type ::report {
 
         # NEXT, Determine the effects of the arguments.
         set modifiers [list]
+        
+        set where1 [list]
+        set where2 [list]
 
         if {$f ne "ALL"} {
-            set andF "AND f='$f'"
+            lappend where2 "f='$f'"
 
             lappend modifiers "of $f"
-        } else {
-            set andF ""
         }
 
         if {$g ne "ALL"} {
-            set andG "AND g='$g'"
+            lappend where1 "g='$g'"
+            lappend where2 "g='$g'"
 
             lappend modifiers "with $g"
-        } else {
-            set andG ""
         }
 
         if {$n ne "ALL"} {
-            set andN "AND n='$n'"
+            lappend where1 "n='$n'"
+            lappend where2 "n='$n'"
 
             lappend modifiers "in $n"
-        } else {
-            set andN ""
         }
-
+        
         # NEXT, add the modifiers (if any) to the title
         if {[llength $modifiers] > 0} {
             set title "$title ([join $modifiers { }])"
@@ -399,9 +398,7 @@ snit::type ::report {
                        gram_frc_ng.coop - gram_frc_ng.coop0, 
                        gram_frc_ng.coop0
                 FROM gram_frc_ng
-                WHERE object='::aram'
-                $andN
-                $andG;
+                [tif {$where1 ne ""} {WHERE [join $where1 { AND }]}];
             "
         }
 
@@ -415,10 +412,7 @@ snit::type ::report {
                    coop - coop0, 
                    coop0
             FROM gram_coop
-            WHERE object='::aram'
-            $andN
-            $andF
-            $andG;
+            [tif {$where2 ne ""} {WHERE [join $where2 { AND }]}];
         "
 
         # NEXT, format the report for all groups or group-specific
@@ -696,7 +690,7 @@ snit::type ::report {
                        sat-sat0, 
                        sat0
                 FROM gram_g
-                WHERE object='::aram' AND gtype=\$gtype
+                WHERE gtype=\$gtype
                 $andGroup;
               
 
@@ -709,7 +703,7 @@ snit::type ::report {
                        gram_gc.sat-gram_gc.sat0, 
                        gram_gc.sat0
                 FROM gram_gc JOIN gram_g USING (object, g)
-                WHERE object='::aram' AND gtype=\$gtype
+                WHERE gtype=\$gtype
                 $andGroup;
             "
         }
@@ -725,7 +719,7 @@ snit::type ::report {
                    gram_ng.sat - gram_ng.sat0, 
                    gram_ng.sat0
             FROM gram_ng JOIN gram_g USING (object, g)
-            WHERE object='::aram' AND gtype=\$gtype AND sat_tracked=1
+            WHERE gtype=\$gtype AND sat_tracked=1
             $andNbhood
             $andGroup;
           
@@ -738,7 +732,7 @@ snit::type ::report {
                    sat - sat0, 
                    sat0
             FROM gram_sat
-            WHERE object='::aram' AND gtype=\$gtype
+            WHERE gtype=\$gtype
             $andNbhood
             $andGroup;
         "
@@ -816,8 +810,7 @@ snit::type ::report {
                 SELECT driver,
                        acontrib
                 FROM gram_sat_drivers
-                WHERE object='::aram'
-                AND   n=\$n AND g=\$g AND c=\$c
+                WHERE n=\$n AND g=\$g AND c=\$c
                 ORDER BY abs(acontrib) DESC
                 LIMIT $top
             "
@@ -829,8 +822,7 @@ snit::type ::report {
             set totContrib [rdb onecolumn {
                 SELECT total(abs(acontrib))
                 FROM gram_sat_drivers
-                WHERE object='::aram'
-                AND   n=$n AND g=$g AND c=$c
+                WHERE n=$n AND g=$g AND c=$c
             }]
 
             # NEXT, get the total contribution represented by the report.
@@ -851,8 +843,7 @@ snit::type ::report {
                        name,
                        oneliner
                 FROM temp_satcontribs
-                JOIN gram_driver USING (driver)
-                WHERE gram_driver.object='::aram';
+                JOIN gram_driver USING (driver);
 
                 DROP TABLE temp_satcontribs;
             }  -maxcolwidth 0 -labels {

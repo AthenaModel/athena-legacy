@@ -20,9 +20,6 @@
 namespace eval ::projectgui::icon:: {
     namespace import ::marsgui::mkicon
 
-    image create photo ::projectgui::icon::peabody32 \
-        -file [file join $::projectgui::library MrPeabody.gif]
-
     mkicon ::projectgui::icon::pencil22 {
         ......................
         ......................
