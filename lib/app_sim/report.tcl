@@ -702,7 +702,7 @@ snit::type ::report {
                        gram_gc.sat,
                        gram_gc.sat-gram_gc.sat0, 
                        gram_gc.sat0
-                FROM gram_gc JOIN gram_g USING (object, g)
+                FROM gram_gc JOIN gram_g USING (g)
                 WHERE gtype=\$gtype
                 $andGroup;
             "
@@ -718,7 +718,7 @@ snit::type ::report {
                    gram_ng.sat,
                    gram_ng.sat - gram_ng.sat0, 
                    gram_ng.sat0
-            FROM gram_ng JOIN gram_g USING (object, g)
+            FROM gram_ng JOIN gram_g USING (g)
             WHERE gtype=\$gtype AND sat_tracked=1
             $andNbhood
             $andGroup;
