@@ -90,13 +90,17 @@ src: check_env
 BASE_KIT = $(TOP_DIR)/tools/basekits/base-tk-thread-linux-ix86
 ARCHIVE = $(ATHENA_TCL_HOME)/lib/teapot
 
-
+# tclapp has a nasty habit of not halting the build on error, and
+# the error messages get lost for some reason.  So explicitly delete
+# the binary before calling tclapp, so that on error we don't have
+# a binary.
 bin: check_env src
 	@ echo ""
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	@ echo "+              Building Athena Executable           +"
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	@ echo ""
+	-rm $(TOP_DIR)/bin/athena
 	tclapp $(TOP_DIR)/bin/athena.tcl                    \
 		$(TOP_DIR)/lib/*/*                          \
 		$(TOP_DIR)/mars/lib/*/*                     \
