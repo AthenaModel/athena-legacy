@@ -370,7 +370,6 @@ snit::type scenario {
             maps 
             gram_sat_influence
             gram_coop_influence
-            gram_values 
             gram_contribs
         }]
 
@@ -439,7 +438,6 @@ snit::type scenario {
         # a timestamp of $t are from the previous time advance.
         rdb eval {
             DELETE FROM snapshots WHERE tick >= $t;
-            DELETE FROM gram_values WHERE time > $t;
             DELETE FROM gram_contribs WHERE time > $t;
         }
     }

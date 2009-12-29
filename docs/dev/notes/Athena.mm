@@ -507,12 +507,7 @@
 <node CREATED="1251473879616" ID="Freemind_Link_801988434" MODIFIED="1251473892330" TEXT="When saving the scenario, snapshots can be saved in the snapshots table, as now."/>
 </node>
 <node CREATED="1251396942520" ID="Freemind_Link_51373887" MODIFIED="1251396950321" TEXT="Delete unneeded init/reconfigure methods"/>
-<node CREATED="1241215963136" ID="Freemind_Link_651437895" MODIFIED="1245882765790" TEXT="editcode command">
-<icon BUILTIN="messagebox_warning"/>
-<node CREATED="1241215972800" ID="Freemind_Link_1463898670" MODIFIED="1241215982895" TEXT="Use built-in editor; accumulate changes."/>
-<node CREATED="1241215991169" ID="Freemind_Link_365239223" MODIFIED="1241215998114" TEXT="Can save changes to disk"/>
-</node>
-<node CREATED="1237479880174" FOLDED="true" ID="Freemind_Link_640139219" MODIFIED="1245882768934" TEXT="notifier(n) introspection">
+<node CREATED="1237479880174" ID="Freemind_Link_640139219" MODIFIED="1245882768934" TEXT="notifier(n) introspection">
 <icon BUILTIN="messagebox_warning"/>
 <node CREATED="1237479886358" ID="Freemind_Link_1497195308" MODIFIED="1237479891074" TEXT="Dump subscription info"/>
 <node CREATED="1237479891694" ID="Freemind_Link_67855834" MODIFIED="1237479901642" TEXT="Predict effect of sending an event"/>
@@ -536,7 +531,7 @@
 <node CREATED="1237481552226" ID="Freemind_Link_539355180" MODIFIED="1237481590830" TEXT="Event executes as idle handler or zero timeout"/>
 <node CREATED="1237481591466" ID="Freemind_Link_1737535748" MODIFIED="1237481597262" TEXT="Such events must be queued"/>
 </node>
-<node CREATED="1237481629010" FOLDED="true" ID="Freemind_Link_541729179" MODIFIED="1237481666014" TEXT="Spreadsheet-style model framework">
+<node CREATED="1237481629010" ID="Freemind_Link_541729179" MODIFIED="1237481666014" TEXT="Spreadsheet-style model framework">
 <icon BUILTIN="help"/>
 <node CREATED="1237481638490" ID="Freemind_Link_1455778469" MODIFIED="1237481646893" TEXT="Named cells containing formulas"/>
 <node CREATED="1237481647402" ID="Freemind_Link_1584051598" MODIFIED="1237481655934" TEXT="Formulas can depend on other cells"/>

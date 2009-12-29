@@ -27,7 +27,7 @@
 <node CREATED="1244494827185" ID="Freemind_Link_1066979579" MODIFIED="1244495760340" TEXT="A number picked by the analyst"/>
 </node>
 </node>
-<node CREATED="1244493378578" FOLDED="true" ID="Freemind_Link_237596859" MODIFIED="1244493403453" TEXT="Information">
+<node CREATED="1244493378578" ID="Freemind_Link_237596859" MODIFIED="1244493403453" TEXT="Information">
 <node CREATED="1244663752592" ID="Freemind_Link_1937757880" MODIFIED="1244663874075" TEXT="Control of media outlets, etc."/>
 <node CREATED="1245255420709" ID="Freemind_Link_339706804" MODIFIED="1245255430536" TEXT="Catalyzes the others"/>
 <node CREATED="1244493895340" ID="Freemind_Link_550368414" MODIFIED="1244495752655" TEXT="What assets?">
@@ -40,7 +40,7 @@
 <node CREATED="1244494827185" ID="Freemind_Link_1287860591" MODIFIED="1244495760340" TEXT="A number picked by the analyst"/>
 </node>
 </node>
-<node CREATED="1244493372210" FOLDED="true" ID="Freemind_Link_697510736" MODIFIED="1244493374014" TEXT="Military">
+<node CREATED="1244493372210" ID="Freemind_Link_697510736" MODIFIED="1244493374014" TEXT="Military">
 <node CREATED="1244493895340" ID="Freemind_Link_1808503795" MODIFIED="1244496577516" TEXT="What assets?">
 <node CREATED="1244665024089" ID="Freemind_Link_1552229547" MODIFIED="1244666131985" TEXT="Force groups can have relationships with actors."/>
 <node CREATED="1244666133206" ID="Freemind_Link_114479784" MODIFIED="1244666269289" TEXT="A positive relationship (0.0 to 1.0) indicates the &#xa;extent to which the group will take orders from the actor"/>
