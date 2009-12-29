@@ -111,20 +111,17 @@ snit::widget ::projectgui::enumfield {
 
     constructor {args} {
         # FIRST, install the hull
-        install combo using ttk::combobox $win.combo \
+        install combo using menubox $win.combo \
             -exportselection yes                     \
-            -state           readonly                \
             -takefocus       1                       \
             -width           20                      \
-            -postcommand     [mymethod GetValues]
+            -postcommand     [mymethod GetValues]    \
+            -command         [mymethod DetectChange]
 
         pack $combo -fill both -expand yes
 
         # NEXT, configure the arguments
         $self configurelist $args
-
-        # NEXT, prepare to signal changes
-        bind $combo <<ComboboxSelected>> [mymethod DetectChange]
     }
 
     #-------------------------------------------------------------------
