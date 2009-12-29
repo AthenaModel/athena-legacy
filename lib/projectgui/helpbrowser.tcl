@@ -50,10 +50,8 @@ snit::widget ::projectgui::helpbrowser {
             ......................
             ......................
             ......................
-        } {
-            .  trans
-            X  #000000
-        }
+        } { . trans  X  black } d { X gray }
+
 
         mkicon ${type}::icon::forward {
             ......................
@@ -78,10 +76,7 @@ snit::widget ::projectgui::helpbrowser {
             ......................
             ......................
             ......................
-        } {
-            .  trans
-            X  #000000
-        }
+        } { . trans  X  black } d { X gray }
     }
 
     #-------------------------------------------------------------------
@@ -149,22 +144,22 @@ snit::widget ::projectgui::helpbrowser {
         # Toolbar
         install bar using ttk::frame $win.bar
 
-        install backbtn using button $bar.back \
-            -image      ${type}::icon::back    \
-            -relief     flat                   \
-            -overrelief raised                 \
-            -state      disabled               \
-            -command    [mymethod back]
+        install backbtn using ttk::button $bar.back         \
+            -style   Toolbutton                             \
+            -image   [list                                  \
+                                   ${type}::icon::back      \
+                          disabled ${type}::icon::backd]    \
+            -command [mymethod back]
 
         DynamicHelp::add $backbtn -text "Go back one page"
 
 
-        install fwdbtn using button $bar.forward \
-            -image      ${type}::icon::forward   \
-            -relief     flat                     \
-            -overrelief raised                   \
-            -state      disabled                 \
-            -command    [mymethod forward]
+        install fwdbtn using ttk::button $bar.forward       \
+            -style   Toolbutton                             \
+            -image   [list                                  \
+                                   ${type}::icon::forward   \
+                          disabled ${type}::icon::forwardd] \
+            -command [mymethod forward]
 
         pack $backbtn  -side right -padx 1 -pady 1
 
@@ -189,39 +184,39 @@ snit::widget ::projectgui::helpbrowser {
         pack $bar.searchlab -side right -padx 0 -pady 1
 
         # Separator
-        frame $win.sep -height 2 -relief sunken -borderwidth 2
+        ttk::separator $win.sep -orient horizontal
 
         # Paner
-        ::marsgui::paner $win.paner \
-            -orient     horizontal \
-            -showhandle 1
-
+        ttk::panedwindow $win.paner -orient horizontal
 
         # Help Tree
 
         install tree using ::projectgui::helptree $win.paner.tree \
             -helpdb $hdb
-        $win.paner add $win.paner.tree -sticky nsew -minsize 60
+        $win.paner add $win.paner.tree -weight 0
 
         # HTML Viewer
-        ScrolledWindow $win.paner.hvsw \
-            -borderwidth 0             \
-            -auto        horizontal
-        $win.paner add $win.paner.hvsw -sticky nsew -minsize 60
+        ttk::frame $win.paner.frm
+        $win.paner add $win.paner.frm -weight 1
         
-        install hv using htmlviewer $win.paner.hvsw.hv \
-            -takefocus        1                        \
-            -hyperlinkcommand [mymethod HyperlinkCmd]  \
-            -isvisitedcommand [mymethod IsVisitedCmd]  \
-            -imagecommand     [mymethod ImageCmd]
+        install hv using htmlviewer $win.paner.frm.hv          \
+            -takefocus        1                                \
+            -hyperlinkcommand [mymethod HyperlinkCmd]          \
+            -isvisitedcommand [mymethod IsVisitedCmd]          \
+            -imagecommand     [mymethod ImageCmd]              \
+            -yscrollcommand   [list $win.paner.frm.scroll set]
 
-        $win.paner.hvsw setwidget $hv
+        ttk::scrollbar $win.paner.frm.scroll \
+            -command [list $hv yview]
+
+        pack $win.paner.frm.scroll -side right -fill y
+        pack $win.paner.frm.hv                 -fill both -expand yes
 
         grid rowconfigure    $win 2 -weight 1
         grid columnconfigure $win 0 -weight 1
 
         grid $win.bar   -row 0 -column 0 -sticky ew
-        grid $win.sep   -row 1 -column 0 -sticky ew
+        grid $win.sep   -row 1 -column 0 -sticky ew -pady 1
         grid $win.paner -row 2 -column 0 -sticky nsew
 
         # NEXT, get the options
