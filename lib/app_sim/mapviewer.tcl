@@ -85,10 +85,7 @@ snit::widget mapviewer {
             ...........XXXX.......
             ......................
             ......................
-        } {
-            .  trans
-            X  #000000
-        }
+        } { . trans  X black } d { X gray }
 
         mkicon ${type}::icon::fleur {
             ...........X..........
@@ -113,10 +110,7 @@ snit::widget mapviewer {
             ..........XXX.........
             ...........X..........
             ......................
-        } {
-            .  trans
-            X  #000000
-        }
+        } { . trans  X black } d { X gray }
 
         mkicon ${type}::icon::crosshair {
             ......................
@@ -141,10 +135,7 @@ snit::widget mapviewer {
             ..........XX..........
             ......................
             ......................
-        } {
-            .  trans
-            X  #000000
-        }
+        } { . trans  X black } d { X gray }
 
         mkicon ${type}::icon::draw_poly {
             ......................
@@ -169,10 +160,7 @@ snit::widget mapviewer {
             .....X..XXX...........
             .....XXX..............
             ......................
-        } {
-            .  trans
-            X  #000000
-        }
+        } { . trans  X black } d { X gray }
 
         mkicon ${type}::icon::fill_poly {
             ......................
@@ -227,11 +215,7 @@ snit::widget mapviewer {
             .....XXX..............
             ......................
             ......................
-        } {
-            .  trans
-            X  #000000
-        }
-
+        } { . trans  X black } d { X gray }
 
         mkicon ${type}::icon::newunit {
             ......................
@@ -256,10 +240,7 @@ snit::widget mapviewer {
             ......................
             ......................
             ......................
-        } {
-            .  trans
-            X  #000000
-        }
+        } { . trans  X black } d { X gray }
 
 
         mkicon ${type}::icon::envpoly {
@@ -285,11 +266,7 @@ snit::widget mapviewer {
             .....XXX..............
             ......................
             ......................
-        } {
-            .  trans
-            X  #000000
-        }
-
+        } { . trans  X black } d { X gray }
 
         mkicon ${type}::icon::extend {
             ......................
@@ -377,33 +354,42 @@ snit::widget mapviewer {
 
         # NEXT, create the components.
 
-        # ScrolledWindow to contain the canvas
-        ScrolledWindow $win.mapsw \
-            -borderwidth 0        \
-            -relief      flat     \
-            -auto        none
+        # Frame to contain the canvas
+        ttk::frame $win.mapsw
 
         # Map canvas
-        install canvas using mapcanvas $win.mapsw.canvas \
-            -background     white                        \
-            -modevariable   [myvar info(mode)]           \
-            -refvariable    [myvar info(ref)]
+        install canvas using mapcanvas $win.mapsw.canvas  \
+            -background     white                         \
+            -modevariable   [myvar info(mode)]            \
+            -refvariable    [myvar info(ref)]             \
+            -xscrollcommand [list $win.mapsw.xscroll set] \
+            -yscrollcommand [list $win.mapsw.yscroll set]
 
-        $win.mapsw setwidget $canvas
+        ttk::scrollbar $win.mapsw.xscroll \
+            -orient  horizontal           \
+            -command [list $canvas xview]
+
+        ttk::scrollbar $win.mapsw.yscroll \
+            -command [list $canvas yview]
+
+        grid columnconfigure $win.mapsw 0 -weight 1
+        grid rowconfigure    $win.mapsw 0 -weight 1
+        
+        grid $win.mapsw.canvas  -row 0 -column 0 -sticky nsew
+        grid $win.mapsw.yscroll -row 0 -column 1 -sticky ns
+        grid $win.mapsw.xscroll -row 1 -column 0 -sticky ew
 
         # Horizontal tool bar
-        frame $win.hbar \
-            -relief flat
+        ttk::frame $win.hbar
 
         # MapRef
-        label $win.hbar.ref \
+        ttk::label $win.hbar.ref \
             -textvariable [myvar info(ref)] \
-            -width 8
+            -width        8
 
         # Extended scroll region toggle
-        checkbutton $win.hbar.extend                \
-            -indicatoron no                         \
-            -offrelief   flat                       \
+        ttk::checkbutton $win.hbar.extend           \
+            -style       Toolbutton                 \
             -onvalue     extended                   \
             -offvalue    normal                     \
             -variable    [myvar view(region)]       \
@@ -414,9 +400,8 @@ snit::widget mapviewer {
             -text "Enable the extended scroll region"
 
         # Nbhood fill toggle
-        checkbutton $win.hbar.fillpoly              \
-            -indicatoron no                         \
-            -offrelief   flat                       \
+        ttk::checkbutton $win.hbar.fillpoly         \
+            -style       Toolbutton                 \
             -variable    [myvar view(fillpoly)]     \
             -image       ${type}::icon::fill_poly   \
             -command     [mymethod NbhoodFill]
@@ -425,48 +410,41 @@ snit::widget mapviewer {
             -text "Display neighborhood polygons with an opaque fill"
 
         # Nbhood fill criteria
-        install fillbox using ComboBox $win.hbar.fillbox \
-            -textvariable [myvar view(filltag)]       \
-            -font          codefont                   \
-            -editable      0                          \
-            -width         8                          \
-            -justify       left                       \
-            -values        {white nbmood}             \
-            -takefocus     no                         \
-            -modifycmd     [mymethod NbhoodFill]
+        install fillbox using menubox $win.hbar.fillbox \
+            -textvariable [myvar view(filltag)]         \
+            -font          codefont                     \
+            -width         8                            \
+            -values        {white nbmood}               \
+            -command       [mymethod NbhoodFill]
 
         DynamicHelp::add $win.hbar.fillbox \
             -text "Select the neighborhood fill criteria"
 
-        # Spacer
-        label $win.hbar.spacer1
-
         # Zoom Box
-        ComboBox $win.hbar.zoombox \
-            -textvariable [myvar view(zoom)]                           \
-            -font          codefont                                    \
-            -editable      0                                           \
-            -width         4                                           \
-            -justify       right                                       \
-            -values        {25% 50% 75% 100% 125% 150% 200% 250% 300%} \
-            -takefocus     no                                          \
-            -modifycmd     [mymethod ZoomBoxSet]
+        menubox $win.hbar.zoombox                                     \
+            -textvariable [myvar view(zoom)]                          \
+            -font         codefont                                    \
+            -width        4                                           \
+            -justify      right                                       \
+            -values       {25% 50% 75% 100% 125% 150% 200% 250% 300%} \
+            -command      [mymethod ZoomBoxSet]
 
         DynamicHelp::add $win.hbar.zoombox \
             -text "Select zoom factor for the map display"
 
-        pack $win.hbar.zoombox  -side right
-        pack $win.hbar.spacer1  -side right -padx 1
+        pack $win.hbar.zoombox  -side right -padx {5 0}
         pack $win.hbar.fillbox  -side right
         pack $win.hbar.fillpoly -side right
         pack $win.hbar.extend   -side right
         pack $win.hbar.ref      -side right
 
-        # Separator
-        frame $win.sep -height 2 -relief sunken -borderwidth 2
+        # Separators
+        ttk::separator $win.sep1
+        ttk::separator $win.sep2 \
+            -orient vertical
 
         # Vertical tool bar
-        frame $win.vbar -relief flat
+        ttk::frame $win.vbar
 
         $self AddModeTool browse left_ptr   "Browse tool"
         $self AddModeTool pan    fleur      "Pan tool"
@@ -474,32 +452,35 @@ snit::widget mapviewer {
         $self AddModeTool poly   draw_poly  "Draw Polygon tool"
 
         # Separator
-        frame $win.vbar.sep -height 2 -relief sunken -borderwidth 2
+        ttk::separator $win.vbar.sep
 
         cond::orderIsValid control \
-            [button $win.vbar.nbhood                          \
-                 -relief  flat                                \
-                 -image   ${type}::icon::nbpoly               \
-                 -command [list order enter NBHOOD:CREATE]]   \
+            [ttk::button $win.vbar.nbhood                       \
+                 -style   Toolbutton                            \
+                 -image   [list ${type}::icon::nbpoly           \
+                               disabled ${type}::icon::nbpolyd] \
+                 -command [list order enter NBHOOD:CREATE]]     \
             order NBHOOD:CREATE
 
         DynamicHelp::add $win.vbar.nbhood \
             -text [order title NBHOOD:CREATE]
 
         cond::orderIsValid control \
-            [button $win.vbar.newunit                         \
-                 -relief  flat                                \
-                 -image   ${type}::icon::newunit              \
-                 -command [list order enter UNIT:CREATE]]     \
+            [ttk::button $win.vbar.newunit                       \
+                 -style   Toolbutton                             \
+                 -image   [list ${type}::icon::newunit           \
+                               disabled ${type}::icon::newunitd] \
+                 -command [list order enter UNIT:CREATE]]        \
             order UNIT:CREATE
 
         DynamicHelp::add $win.vbar.newunit \
             -text [order title UNIT:CREATE]
 
         cond::orderIsValid control \
-            [button $win.vbar.newensit                                     \
-                 -relief  flat                                              \
-                 -image   ${type}::icon::envpoly                            \
+            [ttk::button $win.vbar.newensit                                  \
+                 -style   Toolbutton                                         \
+                 -image   [list ${type}::icon::envpoly                       \
+                               disabled ${type}::icon::envpolyd]             \
                  -command [list order enter SITUATION:ENVIRONMENTAL:CREATE]] \
             order SITUATION:ENVIRONMENTAL:CREATE
 
@@ -513,8 +494,9 @@ snit::widget mapviewer {
 
         # Pack all of these components
         pack $win.hbar  -side top  -fill x
-        pack $win.sep   -side top  -fill x
-        pack $win.vbar  -side left -fill y 
+        pack $win.sep1  -side top  -fill x
+        pack $win.vbar  -side left -fill y
+        pack $win.sep2  -side left -fill y
         pack $win.mapsw            -fill both -expand yes
 
         # NEXT, Create the context menus
@@ -561,15 +543,14 @@ snit::widget mapviewer {
     # tooltip    Dynamic help string
 
     method AddModeTool {mode icon tooltip} {
-        radiobutton $win.vbar.$mode                \
-            -indicatoron no                        \
-            -offrelief   flat                      \
+        ttk::radiobutton $win.vbar.$mode           \
+            -style       Toolbutton                \
             -variable    [myvar info(mode)]        \
             -image       ${type}::icon::$icon      \
             -value       $mode                     \
             -command     [list $canvas mode $mode]
 
-        pack $win.vbar.$mode -side top -fill x -padx 2
+        pack $win.vbar.$mode -side top -fill x -padx {2 3} -pady 3
 
         DynamicHelp::add $win.vbar.$mode -text $tooltip
     }
