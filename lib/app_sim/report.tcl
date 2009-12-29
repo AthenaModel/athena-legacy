@@ -457,29 +457,54 @@ snit::type ::report {
     # automatically.
 
     typemethod {imp driver} {state} {
-        # FIRST, produce the query.
+        # FIRST, get summary statistics
+        rdb eval {
+            DROP TABLE IF EXISTS temp_report_driver_effects;
+            DROP TABLE IF EXISTS temp_report_driver_contribs;
+
+            CREATE TEMPORARY TABLE temp_report_driver_effects AS
+            SELECT driver, 
+                   CASE WHEN min(ts) IS NULL THEN 0
+                                             ELSE 1 END AS has_effects,
+                   CASE WHEN min(ts) NOT NULL    THEN tozulu(min(ts)) 
+                                                 ELSE '' END AS ts,
+                   CASE WHEN max(te) IS NULL     THEN ''
+                        WHEN max(te) != 99999999 THEN tozulu(max(te)) 
+                                                 ELSE 'On-going' END AS te
+            FROM gram_driver LEFT OUTER JOIN gram_effects USING (driver)
+            GROUP BY driver;
+
+            CREATE TEMPORARY TABLE temp_report_driver_contribs AS
+            SELECT driver, 
+                   CASE WHEN min(time) IS NULL THEN 0
+                                               ELSE 1 END AS has_contribs
+            FROM gram_driver LEFT OUTER JOIN gram_contribs USING (driver)
+            GROUP BY driver;
+        }
+
+        # NEXT, produce the query.
         if {$state eq "all"} {
             set clause ""
         } else {
-            set clause "HAVING state = '$state'"
+            set clause "WHERE state = '$state'"
         }
 
         set query "
-            SELECT driver, 
+            SELECT gram_driver.driver AS driver, 
                    dtype, 
                    name, 
                    oneliner,
-                   CASE WHEN min(ts) IS NULL     THEN 'empty'
-                        WHEN total(active) = 0   THEN 'inactive'
-                                                 ELSE 'active'   END AS state,
-                   CASE WHEN min(ts) NOT NULL    THEN tozulu(min(ts)) 
-                                                 ELSE '' END,
-                   CASE WHEN max(te) IS NULL     THEN ''
-                        WHEN max(te) != 99999999 THEN tozulu(max(te)) 
-                                                 ELSE 'On-going' END
+                   CASE WHEN NOT has_effects AND NOT has_contribs 
+                        THEN 'empty'
+                        WHEN NOT has_effects AND has_contribs  
+                        THEN 'inactive'
+                        ELSE 'active'
+                        END AS state,
+                   ts,
+                   te
             FROM gram_driver
-            LEFT OUTER JOIN gram_effects USING (driver)
-            GROUP BY driver
+            JOIN temp_report_driver_effects USING (driver)
+            JOIN temp_report_driver_contribs USING (driver)
             $clause
             ORDER BY driver DESC;
         "
