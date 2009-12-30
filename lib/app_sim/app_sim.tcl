@@ -94,6 +94,7 @@ source [file join $::app_sim::library ensit.tcl              ]
 source [file join $::app_sim::library ensit_rules.tcl        ]
 
 # GUI
+source [file join $::app_sim::library toolbutton.tcl         ]
 source [file join $::app_sim::library helpbrowserwin.tcl     ]
 source [file join $::app_sim::library orderdialog.tcl        ]
 source [file join $::app_sim::library appwin.tcl             ]

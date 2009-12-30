@@ -49,7 +49,7 @@ namespace eval ::projectgui::icon:: {
         e  #E77F7F
         ,  #EFB311
         w  #BDA565
-    }
+    } d { X gray  e gray  w gray82  , gray82 }
 
     mkicon ::projectgui::icon::pencil022 {
         ......................
@@ -167,10 +167,7 @@ namespace eval ::projectgui::icon:: {
         ......................
         ......................
         ......................
-    } {
-        .  trans
-        X  #000000
-    }
+    } { . trans  X black } d { X gray }
 
 
     mkicon ::projectgui::icon::help22 {
@@ -224,10 +221,7 @@ namespace eval ::projectgui::icon:: {
         ......................
         ......................
         ......................
-    } {
-        .  trans
-        X  #FF0000
-    }
+    } { . trans  X  "#FF0000" } d { X gray }
 
     mkicon ::projectgui::icon::check22 {
         ......................
@@ -252,10 +246,7 @@ namespace eval ::projectgui::icon:: {
         ......................
         ......................
         ......................
-    } {
-        .  trans
-        X  #009900
-    }
+    } { . trans  X "#009900" } d { X gray }
 
     mkicon ::projectgui::icon::play22 {
         ......................

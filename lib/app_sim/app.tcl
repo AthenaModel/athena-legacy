@@ -29,6 +29,15 @@ snit::type app {
     pragma -hastypedestroy 0 -hasinstances 0
 
     #-------------------------------------------------------------------
+    # Global Lookup Variables
+
+    # derivedfg
+    #
+    # The foreground color for derived data (as opposed to input data).
+
+    typevariable derivedfg "#008800"
+
+    #-------------------------------------------------------------------
     # Type Variables
 
     # Application options
