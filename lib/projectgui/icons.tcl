@@ -361,10 +361,7 @@ namespace eval ::projectgui::icon:: {
         ................
         ................
         ................
-    } {
-        .  trans
-        X  #000000
-    }
+    } { .  trans  X black } d { X gray }
 
 
     mkicon ::projectgui::icon::prev16 {
@@ -384,10 +381,7 @@ namespace eval ::projectgui::icon:: {
         ................
         ................
         ................
-    } {
-        .  trans
-        X  #000000
-    }
+    } { .  trans  X black } d { X gray }
 
 
     mkicon ::projectgui::icon::next16 {
@@ -407,10 +401,7 @@ namespace eval ::projectgui::icon:: {
         ................
         ................
         ................
-    } {
-        .  trans
-        X  #000000
-    }
+    } { .  trans  X black } d { X gray }
 
 
     mkicon ::projectgui::icon::last16 {
@@ -430,11 +421,7 @@ namespace eval ::projectgui::icon:: {
         ................
         ................
         ................
-    } {
-        .  trans
-        X  #000000
-    }
-
+    } { .  trans  X black } d { X gray }
 }
 
 

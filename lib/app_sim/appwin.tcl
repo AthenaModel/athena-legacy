@@ -316,7 +316,6 @@ snit::widget appwin {
         $self configurelist $args
 
         # NEXT, set the default window title
-        # TBD: Not here.
         wm title $win "Untitled - Athena [version]"
 
         # NEXT, Exit the app when this window is closed, if it's a 
@@ -355,12 +354,12 @@ snit::widget appwin {
         bind $content <<NotebookTabChanged>> [mymethod Reconfigure]
 
         bind $viewer <<Unit-1>>       [mymethod Unit-1   %d]
-        bind $viewer <<Ensit-1>>     [mymethod Ensit-1 %d]
+        bind $viewer <<Ensit-1>>      [mymethod Ensit-1  %d]
         bind $viewer <<Nbhood-1>>     [mymethod Nbhood-1 %d]
 
         # NEXT, prepare to append pucked points, etc., to the CLI
         if {$options(-main)} {
-            bind $viewer <<Point-1>>      [mymethod Point-1 %d]
+            bind $viewer <<Point-1>>      [mymethod Point-1      %d]
             bind $viewer <<PolyComplete>> [mymethod PolyComplete %d]
         }
 
@@ -790,48 +789,31 @@ snit::widget appwin {
 
         # ROW 0, add a separator between the menu bar and the rest of the
         # window.
-        frame $win.sep0 -height 2 -relief sunken -borderwidth 2
+        ttk::separator $win.sep0
 
         # ROW 1, add a simulation toolbar
-        frame $win.toolbar        \
-            -relief flat          \
-            -borderwidth        0 \
-            -highlightthickness 0
+        ttk::frame $win.toolbar
 
         # RunPause
-        button $win.toolbar.runpause  \
-            -height     32                            \
-            -width      32                            \
+        ttk::button $win.toolbar.runpause             \
+            -style      Toolbutton                    \
             -image      ::projectgui::icon::play22    \
-            -relief     flat                          \
-            -overrelief raised                        \
-            -state      normal                        \
             -command    [mymethod RunPause]
 
         # Duration
 
-        ttk::combobox $win.toolbar.duration   \
+        menubox $win.toolbar.duration   \
             -justify   left                   \
-            -state     readonly               \
             -width     12                     \
             -takefocus 0                      \
             -values    [dict keys $durations]
 
-        $win.toolbar.duration set [lindex [dict keys $durations] 0]
+        $win.toolbar.duration set [lindex [dict keys $durations] 1]
 
         DynamicHelp::add $win.toolbar.duration -text "Duration of run"
 
-        bind $win.toolbar.duration <<ComboboxSelected>> \
-            [list $win.toolbar.duration selection clear]
-
-
-        # Spacer
-        label $win.toolbar.spacer1 \
-            -text "  "
-
-
         # Simulation Speed
-        label $win.toolbar.slower \
+        ttk::label $win.toolbar.slower \
             -text "Slower"
 
         ttk::scale $win.toolbar.speed        \
@@ -845,12 +827,8 @@ snit::widget appwin {
 
         DynamicHelp::add $win.toolbar.speed -text "Simulation Speed"
 
-        label $win.toolbar.faster \
+        ttk::label $win.toolbar.faster \
             -text "Faster"
-
-        # Spacer
-        label $win.toolbar.spacer2 \
-            -text "  "
 
         # First Snapshot
         $self AddToolbarButton first first16 "Time 0 Snapshot" \
@@ -869,78 +847,66 @@ snit::widget appwin {
             [list ::sim snapshot last]
 
 
-        # Spacer
-        label $win.toolbar.spacer3 \
-            -text "  "
-
         # Sim State
-        label $win.toolbar.state                       \
+        ttk::label $win.toolbar.state                  \
             -text "State:"
 
-        label $win.toolbar.simstate                    \
-            -highlightthickness 0                      \
+        ttk::label $win.toolbar.simstate               \
             -font               codefont               \
             -width              26                     \
             -anchor             w                      \
             -textvariable       [myvar info(simstate)]
 
         # Zulu time
-        label $win.toolbar.time                        \
+        ttk::label $win.toolbar.time                   \
             -text "Time:"
 
-        label $win.toolbar.zulutime                    \
-            -highlightthickness 0                      \
+        ttk::label $win.toolbar.zulutime               \
             -font               codefont               \
             -width              12                     \
             -textvariable       [myvar info(zulutime)]
 
         # Tick
-        label $win.toolbar.ticklab                     \
+        ttk::label $win.toolbar.ticklab                \
             -text "Tick:"
 
-        label $win.toolbar.tick                        \
-            -highlightthickness 0                      \
+        ttk::label $win.toolbar.tick                   \
             -font               codefont               \
             -width              4                      \
             -textvariable       [myvar info(tick)]
 
         pack $win.toolbar.runpause -side left    
-        pack $win.toolbar.duration -side left
-        pack $win.toolbar.spacer1  -side left
+        pack $win.toolbar.duration -side left -padx {0 15}
         pack $win.toolbar.slower   -side left
-        pack $win.toolbar.speed    -side left  -padx 2
-        pack $win.toolbar.faster   -side left
-        pack $win.toolbar.spacer2  -side left
+        pack $win.toolbar.speed    -side left -padx 2
+        pack $win.toolbar.faster   -side left -padx {0 15}
         pack $win.toolbar.first    -side left
         pack $win.toolbar.prev     -side left
         pack $win.toolbar.next     -side left
         pack $win.toolbar.last     -side left
-        pack $win.toolbar.spacer3  -side left
         pack $win.toolbar.tick     -side right -padx 2 
         pack $win.toolbar.ticklab  -side right
         pack $win.toolbar.zulutime -side right -padx 2 
         pack $win.toolbar.time     -side right
         pack $win.toolbar.simstate -side right -padx 2 
-        pack $win.toolbar.state    -side right
+        pack $win.toolbar.state    -side right -padx {15 0}
 
         # ROW 2, add a separator between the tool bar and the content
         # window.
-        frame $win.sep2 -height 2 -relief sunken -borderwidth 2
+        ttk::separator $win.sep2
 
         # ROW 3, create the content widgets.  If this is a main window,
         # then we have a paner containing the content notebook with 
         # a CLI underneath.  Otherwise, we get just the content
         # notebook.
         if {$options(-main)} {
-            paner $win.paner -orient vertical -showhandle 1
+            ttk::panedwindow $win.paner -orient vertical
+
             install content using ttk::notebook $win.paner.content \
                 -padding 2 
 
             $win.paner add $content \
-                -sticky  nsew       \
-                -minsize 120        \
-                -stretch always
-
+                -weight 1
             set row3 $win.paner
         } else {
             install content using ttk::notebook $win.content \
@@ -950,13 +916,11 @@ snit::widget appwin {
         }
 
         # ROW 4, add a separator
-        frame $win.sep4 -height 2 -relief sunken -borderwidth 2
+        ttk::separator $win.sep4
 
         # ROW 5, Create the Status Line frame.
-        frame $win.status         \
-            -relief flat          \
-            -borderwidth        2 \
-            -highlightthickness 0
+        ttk::frame $win.status    \
+            -borderwidth        2 
 
         # Message line
         install msgline using messageline $win.status.msgline
@@ -989,10 +953,7 @@ snit::widget appwin {
                 -promptcmd [mymethod CliPrompt]     \
                 -evalcmd   [list ::executive eval]
             
-            $win.paner add $win.paner.cli \
-                -sticky  nsew             \
-                -minsize 60               \
-                -stretch never
+            $win.paner add $win.paner.cli
 
             # Load the CLI command history
             $self LoadCliHistory
@@ -1028,12 +989,12 @@ snit::widget appwin {
     # Creates a toolbar button with standard style
 
     method AddToolbarButton {name icon tooltip command} {
-        button $win.toolbar.$name \
-            -image      ::projectgui::icon::$icon \
-            -relief     flat                      \
-            -overrelief raised                    \
-            -state      normal                    \
-            -command    $command
+        ttk::button $win.toolbar.$name \
+            -style   Toolbutton        \
+            -state   normal            \
+            -command $command          \
+            -image   [list ::projectgui::icon::$icon \
+                          disabled ::projectgui::icon::${icon}d]
 
         DynamicHelp::add $win.toolbar.$name -text $tooltip
     }
@@ -1796,7 +1757,7 @@ snit::widget appwin {
             $win.toolbar.duration configure -state disabled
         } elseif {[sim state] eq "SNAPSHOT"} {
             $win.toolbar.runpause configure \
-                -image ::marsgui::icon::peabody32
+                -image ::projectgui::icon::rewind22
             DynamicHelp::add $win.toolbar.runpause -text "Leave Snapshot Mode"
 
             $win.toolbar.duration configure -state disabled
