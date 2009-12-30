@@ -303,12 +303,11 @@ snit::widget orderdialog {
             -padding       4
 
         # NEXT, create the help button
-        button $win.tbar.help   \
-            -image      ::projectgui::icon::help22 \
-            -relief     flat                   \
-            -overrelief raised                 \
-            -state      normal                 \
-            -command    [mymethod Help]
+        ttk::button $win.tbar.help              \
+            -style   Toolbutton                 \
+            -image   ::projectgui::icon::help22 \
+            -state   normal                     \
+            -command [mymethod Help]
 
         DynamicHelp::add $win.tbar.help -text "Get help!"
 
@@ -347,9 +346,6 @@ snit::widget orderdialog {
             -width   6                        \
             -command [mymethod Clear]
 
-        label $win.buttons.spacer             \
-            -text "   "
-
         install schedBtn using ttk::button $win.buttons.schedule \
             -text    "Schedule"                                  \
             -width   8                                           \
@@ -375,9 +371,7 @@ snit::widget orderdialog {
             $whenFld set "+1"
         }
         
-        pack $win.buttons.clear     -side left  -padx 2
-        pack $win.buttons.spacer    -side left
-
+        pack $win.buttons.clear     -side left  -padx {2 15}
         pack $win.buttons.sendclose -side right -padx 2
         pack $win.buttons.send      -side right -padx 2
         pack $win.buttons.when      -side right -padx 2
