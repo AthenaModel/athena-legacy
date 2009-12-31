@@ -9,7 +9,7 @@
 #    ensitbrowser(sim) package: Environmental Situation browser.
 #
 #    This widget displays a formatted list of ensits.
-#    It is a variation of browser_base(n).
+#    It is a wrapper around sqlbrowser(n).
 #
 #-----------------------------------------------------------------------
 
@@ -22,6 +22,26 @@ snit::widgetadaptor ensitbrowser {
 
     # Options delegated to the hull
     delegate option * to hull
+
+    # Layout
+    #
+    # %D is replaced with the color for derived columns.
+
+    typevariable layout {
+        { id       "ID"          -sortmode integer                }
+        { change   "Change"                        -foreground %D }
+        { state    "State"                         -foreground %D }
+        { stype    "Type"                                         }
+        { n        "Nbhood"                        -foreground %D }
+        { location "Location"                                     }
+        { coverage "Coverage"    -sortmode real    -foreground %D }
+        { ts       "Began At"                      -foreground %D }
+        { tc       "Changed At"                    -foreground %D }
+        { g        "Caused By"                                    }
+        { resolver "Resolved By"                                  }
+        { tr       "Resolve At"                    -foreground %D }
+        { driver   "Driver"      -sortmode integer -foreground %D }
+    }
 
     #-------------------------------------------------------------------
     # Components
@@ -36,73 +56,60 @@ snit::widgetadaptor ensitbrowser {
 
     constructor {args} {
         # FIRST, Install the hull
-        installhull using browser_base                \
-            -tickreload   yes                         \
-            -table        "gui_ensits_current"       \
-            -keycol       "id"                        \
-            -keycolnum    0                           \
+        installhull using sqlbrowser                  \
+            -db           ::rdb                       \
+            -view         gui_ensits_current          \
+            -uid          id                          \
             -titlecolumns 1                           \
-            -displaycmd   [mymethod DisplayData]      \
             -selectioncmd [mymethod SelectionChanged] \
-            -views        {
-                "All"      gui_ensits
-                "Current"  gui_ensits_current
-                "Ended"    gui_ensits_ended
+            -reloadon {
+                ::sim <Reconfigure>
+                ::sim <Tick>
+            } -layout [string map [list %D $::app::derivedfg] $layout] \
+            -views {
+                gui_ensits         "All"
+                gui_ensits_current "Current"
+                gui_ensits_ended   "Ended"
             }
 
-
-        # FIRST, get the options.
+        # NEXT, get the options.
         $self configurelist $args
 
         # NEXT, create the toolbar buttons
         set bar [$hull toolbar]
 
-        install addbtn using button $bar.add   \
-            -image      ::projectgui::icon::plus22 \
-            -relief     flat                   \
-            -overrelief raised                 \
-            -state      normal                 \
-            -command    [mymethod AddEntity]
-
-        DynamicHelp::add $addbtn -text "Add Situation"
+        install addbtn using mkaddbutton $bar.add \
+            "Add Situation"                       \
+            -state   normal                       \
+            -command [mymethod AddEntity]
 
         cond::orderIsValid control $addbtn \
             order SITUATION:ENVIRONMENTAL:CREATE
 
-        install editbtn using button $bar.edit   \
-            -image      ::projectgui::icon::pencil22 \
-            -relief     flat                     \
-            -overrelief raised                   \
-            -state      disabled                 \
-            -command    [mymethod EditSelected]
 
-        DynamicHelp::add $editbtn -text "Edit Selected Situation"
+        install editbtn using mkeditbutton $bar.edit \
+            "Edit Selected Situation"                \
+            -state   disabled                        \
+            -command [mymethod EditSelected]
 
-        cond::orderIsValidCanUpdate control $editbtn   \
-            order   SITUATION:ENVIRONMENTAL:UPDATE \
+        cond::orderIsValidCanUpdate control $editbtn \
+            order   SITUATION:ENVIRONMENTAL:UPDATE   \
             browser $win
 
-        install resolvebtn using button $bar.resolve   \
-            -image      ::projectgui::icon::check22 \
-            -relief     flat                     \
-            -overrelief raised                   \
-            -state      disabled                 \
-            -command    [mymethod ResolveSelected]
-
-        DynamicHelp::add $resolvebtn -text "Resolve Selected Situation"
+        install resolvebtn using mktoolbutton $bar.resolve \
+            ::projectgui::icon::check22                    \
+            "Resolve Selected Situation"                   \
+            -state   disabled                              \
+            -command [mymethod ResolveSelected]
 
         cond::orderIsValidCanResolve control $resolvebtn  \
             order   SITUATION:ENVIRONMENTAL:RESOLVE   \
             browser $win
 
-        install deletebtn using button $bar.delete \
-            -image      ::projectgui::icon::x22    \
-            -relief     flat                       \
-            -overrelief raised                     \
-            -state      disabled                   \
-            -command    [mymethod DeleteSelected]
-
-        DynamicHelp::add $deletebtn -text "Delete Selected Situation"
+        install deletebtn using mkdeletebutton $bar.delete \
+            "Delete Selected Situation"                    \
+            -state   disabled                              \
+            -command [mymethod DeleteSelected]
 
         cond::orderIsValidCanDelete control $deletebtn \
             order   SITUATION:ENVIRONMENTAL:DELETE  \
@@ -114,43 +121,8 @@ snit::widgetadaptor ensitbrowser {
         pack $deletebtn  -side right
         pack $resolvebtn -side right
 
-        # NEXT, create the columns and labels.
-        $hull insertcolumn end 0 {ID}
-        $hull columnconfigure end -sortmode integer
-        $hull insertcolumn end 0 {Change}
-        $hull columnconfigure end \
-            -foreground $::browser_base::derivedfg
-        $hull insertcolumn end 0 {State}
-        $hull columnconfigure end \
-            -foreground $::browser_base::derivedfg
-        $hull insertcolumn end 0 {Type}
-        $hull insertcolumn end 0 {Nbhood}
-        $hull columnconfigure end \
-            -foreground $::browser_base::derivedfg
-        $hull insertcolumn end 0 {Location}
-        $hull insertcolumn end 0 {Coverage}
-        $hull columnconfigure end -sortmode real
-        $hull insertcolumn end 0 {Began At}
-        $hull columnconfigure end \
-            -foreground $::browser_base::derivedfg
-        $hull insertcolumn end 0 {Changed At}
-        $hull columnconfigure end \
-            -foreground $::browser_base::derivedfg
-        $hull insertcolumn end 0 {Caused By}
-        $hull insertcolumn end 0 {Resolved By}
-        $hull insertcolumn end 0 {Resolve At}
-        $hull columnconfigure end \
-            -foreground $::browser_base::derivedfg
-        $hull insertcolumn end 0 {Driver}
-        $hull columnconfigure end \
-            -sortmode   integer   \
-            -foreground $::browser_base::derivedfg
-
-        # NEXT, sort on column 0 by default
-        $hull sortbycolumn 0 -increasing
-
         # NEXT, update individual entities when they change.
-        notifier bind ::ensit <Entity> $self $self
+        notifier bind ::ensit <Entity> $self [mymethod uid]
     }
 
     destructor {
@@ -167,8 +139,8 @@ snit::widgetadaptor ensitbrowser {
     # Returns 1 if the current selection is deletable.
     
     method candelete {} {
-        if {[llength [$self curselection]] == 1} {
-            set id [lindex [$self curselection] 0]
+        if {[llength [$self uid curselection]] == 1} {
+            set id [lindex [$self uid curselection] 0]
 
             if {$id in [ensit initial names]} {
                 return 1
@@ -184,8 +156,8 @@ snit::widgetadaptor ensitbrowser {
     # Returns 1 if the current selection is updateable.
     
     method canupdate {} {
-        if {[llength [$self curselection]] == 1} {
-            set id [lindex [$self curselection] 0]
+        if {[llength [$self uid curselection]] == 1} {
+            set id [lindex [$self uid curselection] 0]
 
             if {$id in [ensit initial names]} {
                 return 1
@@ -201,8 +173,8 @@ snit::widgetadaptor ensitbrowser {
     # Returns 1 if the current selection is resolveable.
     
     method canresolve {} {
-        if {[llength [$self curselection]] == 1} {
-            set id [lindex [$self curselection] 0]
+        if {[llength [$self uid curselection]] == 1} {
+            set id [lindex [$self uid curselection] 0]
 
             if {$id in [ensit live names]} {
                 return 1
@@ -214,24 +186,6 @@ snit::widgetadaptor ensitbrowser {
 
     #-------------------------------------------------------------------
     # Private Methods
-
-    # DisplayData dict
-    # 
-    # dict   the data dictionary that contains the entity information
-    #
-    # This method converts the entity data dictionary to a list
-    # that contains just the information to be displayed in the table browser.
-
-    method DisplayData {dict} {
-        # FIRST, extract each field
-        dict with dict {
-            lappend fields $id $change $state $stype $n $location $coverage
-            lappend fields $ts $tc $g $resolver $tr $driver
-
-            $hull setdata $id $fields
-        }
-    }
-
 
     # SelectionChanged
     #
@@ -245,8 +199,8 @@ snit::widgetadaptor ensitbrowser {
         cond::orderIsValidCanDelete  update $deletebtn
 
         # NEXT, notify the app of the selection.
-        if {[llength [$hull curselection]] == 1} {
-            set s [lindex [$hull curselection] 0]
+        if {[llength [$hull uid curselection]] == 1} {
+            set s [lindex [$hull uid curselection] 0]
 
             notifier send ::app <ObjectSelect> [list situation $s]
         }
@@ -268,7 +222,7 @@ snit::widgetadaptor ensitbrowser {
 
     method EditSelected {} {
         # FIRST, there should be only one selected.
-        set id [lindex [$hull curselection] 0]
+        set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Pop up the order dialog.
         order enter SITUATION:ENVIRONMENTAL:UPDATE s $id
@@ -281,7 +235,7 @@ snit::widgetadaptor ensitbrowser {
 
     method ResolveSelected {} {
         # FIRST, there should be only one selected.
-        set id [lindex [$hull curselection] 0]
+        set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Pop up the order dialog.
         order enter SITUATION:ENVIRONMENTAL:RESOLVE s $id
@@ -294,7 +248,7 @@ snit::widgetadaptor ensitbrowser {
 
     method DeleteSelected {} {
         # FIRST, there should be only one selected.
-        set id [lindex [$hull curselection] 0]
+        set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Send the delete order.
         order send gui SITUATION:ENVIRONMENTAL:DELETE s $id

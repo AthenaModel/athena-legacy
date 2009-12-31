@@ -52,7 +52,7 @@ snit::widgetadaptor activitybrowser {
             -db                 ::rdb             \
             -view               gui_activity_nga  \
             -uid                id                \
-            -titlecolumns       4                 \
+            -titlecolumns       3                 \
             -reloadon {
                 ::sim <Tick>
                 ::sim <Reconfigure

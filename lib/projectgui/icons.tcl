@@ -80,7 +80,7 @@ namespace eval ::projectgui::icon:: {
         e  #E77F7F
         ,  #EFB311
         w  #BDA565
-    }
+    } d { X gray  e gray  w gray82  , gray82 }
 
     mkicon ::projectgui::icon::pencils22 {
         ......................
@@ -111,7 +111,7 @@ namespace eval ::projectgui::icon:: {
         e  #E77F7F
         ,  #EFB311
         w  #BDA565
-    }
+    } d { X gray  e gray  w gray82  , gray82 }
 
     mkicon ::projectgui::icon::pencila22 {
         ......................
@@ -142,7 +142,7 @@ namespace eval ::projectgui::icon:: {
         e  #E77F7F
         ,  #EFB311
         w  #BDA565
-    }
+    } d { X gray  e gray  w gray82  , gray82 }
 
     mkicon ::projectgui::icon::plus22 {
         ......................

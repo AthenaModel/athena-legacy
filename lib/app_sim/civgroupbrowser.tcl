@@ -119,7 +119,7 @@ snit::widgetadaptor civgroupbrowser {
     # Sets the cell background color for the color cells.
 
     method DisplayData {rindex values} {
-        $hull uid setcellbg [lindex $values 0] color [lindex $values 2]
+        $hull cellconfigure $rindex,2 -background [lindex $values 2]
     }
 
 

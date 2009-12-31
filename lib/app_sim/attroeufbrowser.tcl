@@ -54,7 +54,7 @@ snit::widgetadaptor attroeufbrowser {
             -db           ::rdb                       \
             -view         gui_attroeuf_nfg            \
             -uid          id                          \
-            -titlecolumns 4                           \
+            -titlecolumns 3                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
                 ::sim <Reconfigure>
