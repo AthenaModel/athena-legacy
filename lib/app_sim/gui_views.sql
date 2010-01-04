@@ -202,15 +202,16 @@ FROM units;
 
 -- A force_ng view for use by the GUI
 CREATE TEMPORARY VIEW gui_security AS
-SELECT n || ' ' || g      AS id,
-       n                  AS n,
-       g                  AS g,
-       security           AS security,
-       pct_force          AS pct_force,
-       pct_enemy          AS pct_enemy,
-       volatility         AS volatility,
-       volatility_gain    AS volatility_gain,
-       nominal_volatility AS nominal_volatility
+SELECT n || ' ' || g                  AS id,
+       n                              AS n,
+       g                              AS g,
+       security                       AS security,
+       qsecurity('longname',security) AS symbol,
+       pct_force                      AS pct_force,
+       pct_enemy                      AS pct_enemy,
+       volatility                     AS volatility,
+       volatility_gain                AS volatility_gain,
+       nominal_volatility             AS nominal_volatility
 FROM force_ng JOIN force_n USING (n)
 ORDER BY n, g;
 

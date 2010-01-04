@@ -10,7 +10,7 @@
 #    nbhoodbrowser(sim) package: Neighborhood browser.
 #
 #    This widget displays a formatted list of neighborhood records.
-#    It is a variation of browser_base(n).
+#    It is a wrapper around sqlbrowser(n).
 #
 #-----------------------------------------------------------------------
 
@@ -49,10 +49,7 @@ snit::widgetadaptor nbhoodbrowser {
             ...XXXXXXXXXXXXXXXX...
             ......................
             ......................
-        } {
-            .  trans
-            X  #000000
-        }
+        } { . trans  X black } d { X gray }
 
         mkicon ${type}::icon::raise {
             ......................
@@ -77,10 +74,7 @@ snit::widgetadaptor nbhoodbrowser {
             ......................
             ......................
             ......................
-        } {
-            .  trans
-            X  #000000
-        }
+        } { . trans  X black } d { X gray }
     }
 
     #-------------------------------------------------------------------
@@ -88,6 +82,28 @@ snit::widgetadaptor nbhoodbrowser {
 
     # Options delegated to the hull
     delegate option * to hull
+ 
+    #-------------------------------------------------------------------
+    # Lookup Tables
+
+    # Layout
+    #
+    # %D is replaced with the color for derived columns.
+
+    typevariable layout {
+        { n              "ID"                                            }
+        { longname       "Neighborhood"                                  }
+        { urbanization   "Urbanization"                                  }
+        { population     "Population"   -sortmode integer -foreground %D }
+        { mood0          "Mood at T0"   -sortmode real                   }
+        { mood           "Mood Now"     -sortmode real -foreground %D    }
+        { vtygain        "VtyGain"      -sortmode real                   }
+        { volatility     "Vty"          -sortmode integer -foreground %D }
+        { stacking_order "StkOrd"       -sortmode integer -foreground %D } 
+        { obscured_by    "ObscuredBy"   -foreground %D                   }
+        { refpoint       "RefPoint"                                      }
+        { polygon        "Polygon"      -stretchable yes                 }
+    }
 
     #-------------------------------------------------------------------
     # Components
@@ -102,14 +118,17 @@ snit::widgetadaptor nbhoodbrowser {
 
     constructor {args} {
         # FIRST, Install the hull
-        installhull using browser_base                \
-            -tickreload   yes                         \
-            -table        "gui_nbhoods"               \
-            -keycol       "id"                        \
-            -keycolnum    0                           \
+        installhull using sqlbrowser                  \
+            -db           ::rdb                       \
+            -view         gui_nbhoods                 \
+            -uid          id                          \
             -titlecolumns 1                           \
-            -displaycmd   [mymethod DisplayData]      \
-            -selectioncmd [mymethod SelectionChanged]
+            -selectioncmd [mymethod SelectionChanged] \
+            -reloadon {
+                ::sim <Reconfigure>
+                ::sim <Tick>
+                ::demog <Update>
+            } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
         $self configurelist $args
@@ -117,14 +136,10 @@ snit::widgetadaptor nbhoodbrowser {
         # NEXT, create the toolbar buttons
         set bar [$hull toolbar]
 
-        install editbtn using button $bar.edit   \
-            -image      ::projectgui::icon::pencil22 \
-            -relief     flat                     \
-            -overrelief raised                   \
-            -state      disabled                 \
-            -command    [mymethod EditSelected]
-
-        DynamicHelp::add $editbtn -text "Edit Selected Neighborhood"
+        install editbtn using mkeditbutton $bar.edit \
+            "Edit Selected Neighborhood"             \
+            -state   disabled                        \
+            -command [mymethod EditSelected]
 
         # Assumes that *:UPDATE and *:UPDATE:MULTI always have the
         # the same validity.
@@ -133,42 +148,32 @@ snit::widgetadaptor nbhoodbrowser {
             browser $win
 
 
-        install raisebtn using button $bar.raise  \
-            -image      ${type}::icon::raise      \
-            -relief     flat                      \
-            -overrelief raised                    \
-            -state      disabled                  \
-            -command    [mymethod RaiseSelected]
-
-        DynamicHelp::add $raisebtn -text "Bring Neighborhood to Front"
+        install raisebtn using mktoolbutton $bar.raise \
+            ${type}::icon::raise                       \
+            "Bring Neighborhood to Front"              \
+            -state   disabled                          \
+            -command [mymethod RaiseSelected]
 
         cond::orderIsValidSingle control $raisebtn \
             order   NBHOOD:RAISE                   \
             browser $win
 
 
-        install lowerbtn using button $bar.lower  \
-            -image      ${type}::icon::lower      \
-            -relief     flat                      \
-            -overrelief raised                    \
-            -state      disabled                  \
-            -command    [mymethod LowerSelected]
-
-        DynamicHelp::add $lowerbtn -text "Send Neighborhood to Back"
+        install lowerbtn using mktoolbutton $bar.lower \
+            ${type}::icon::lower                       \
+            "Send Neighborhood to Back"                \
+            -state   disabled                          \
+            -command [mymethod LowerSelected]
 
         cond::orderIsValidSingle control $lowerbtn \
             order   NBHOOD:LOWER                   \
             browser $win
 
 
-        install deletebtn using button $bar.delete \
-            -image      ::projectgui::icon::x22        \
-            -relief     flat                       \
-            -overrelief raised                     \
-            -state      disabled                   \
-            -command    [mymethod DeleteSelected]
-
-        DynamicHelp::add $deletebtn -text "Delete Selected Neighborhood"
+        install deletebtn using mkdeletebutton $bar.delete \
+            "Delete Selected Neighborhood"                 \
+            -state   disabled                              \
+            -command [mymethod DeleteSelected]
 
         cond::orderIsValidSingle control $deletebtn \
             order   NBHOOD:DELETE                   \
@@ -179,47 +184,8 @@ snit::widgetadaptor nbhoodbrowser {
         pack $lowerbtn  -side left
         pack $deletebtn -side right
 
-        # NEXT, create the columns and labels.
-        $hull insertcolumn end 0 {ID}
-        $hull insertcolumn end 0 {Neighborhood}
-        $hull insertcolumn end 0 {Urbanization}
-        $hull insertcolumn end 0 {Population}
-        $hull columnconfigure end \
-            -sortmode   integer   \
-            -foreground $::browser_base::derivedfg
-        $hull insertcolumn end 0 {Mood at T0}
-        $hull columnconfigure end -sortmode real
-        $hull insertcolumn end 0 {Mood Now}
-        $hull columnconfigure end \
-            -sortmode   real      \
-            -foreground $::browser_base::derivedfg
-        $hull insertcolumn end 0 {VtyGain}
-        $hull columnconfigure end -sortmode real
-        $hull insertcolumn end 0 {Vty}
-        $hull columnconfigure end \
-            -sortmode   integer   \
-            -foreground $::browser_base::derivedfg
-        $hull insertcolumn end 0 {StkOrd}
-        $hull columnconfigure end \
-            -sortmode   integer   \
-            -foreground $::browser_base::derivedfg
-        $hull insertcolumn end 0 {ObscuredBy}
-        $hull columnconfigure end \
-            -sortmode   integer   \
-            -foreground $::browser_base::derivedfg
-        $hull insertcolumn end 0 {RefPoint}
-        $hull insertcolumn end 0 {Polygon}
-
-        # NEXT, the last column fills extra space
-        $hull columnconfigure end -stretchable yes
-
         # NEXT, Respond to simulation updates
-        notifier bind ::nbhood <Entity> $self $self
-        notifier bind ::demog  <Update> $self [mymethod reload]
-    }
-
-    destructor {
-        notifier forget $self
+        notifier bind ::nbhood <Entity> $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------
@@ -227,45 +193,17 @@ snit::widgetadaptor nbhoodbrowser {
 
     delegate method * to hull
 
-    # stack
+    # uid stack
     #
     # Reloads all data items when the neighborhood stacking order
     # changes in response to "<Entity> stack"
 
-    method stack {} {
+    method {uid stack} {} {
         $self reload
     }
 
     #-------------------------------------------------------------------
     # Private Methods
-
-    # DisplayData dict
-    # 
-    # dict   the data dictionary that contains the entity information
-    #
-    # This method converts the entity data dictionary to a list
-    # that contains just the information to be displayed in the table browser.
-
-    method DisplayData {dict} {
-        # FIRST, extract each field
-        dict with dict {
-            $hull setdata $n [list \
-                                $n                             \
-                                $longname                      \
-                                $urbanization                  \
-                                $population                    \
-                                $mood0                         \
-                                $mood                          \
-                                $vtygain                       \
-                                $volatility                    \
-                                [format "%3d" $stacking_order] \
-                                $obscured_by                   \
-                                $refpoint                      \
-                                $polygon                       ]
-                                
-        }
-    }
-
 
     # SelectionChanged
     #
@@ -278,8 +216,8 @@ snit::widgetadaptor nbhoodbrowser {
         cond::orderIsValidMulti  update $editbtn
 
         # NEXT, notify the app of the selection.
-        if {[llength [$hull curselection]] == 1} {
-            set n [lindex [$hull curselection] 0]
+        if {[llength [$hull uid curselection]] == 1} {
+            set n [lindex [$hull uid curselection] 0]
 
             notifier send ::app <ObjectSelect> \
                 [list nbhood $n]
@@ -292,7 +230,7 @@ snit::widgetadaptor nbhoodbrowser {
     # Called when the user wants to edit the selected entity
 
     method EditSelected {} {
-        set ids [$hull curselection]
+        set ids [$hull uid curselection]
 
         if {[llength $ids] == 1} {
             set id [lindex $ids 0]
@@ -310,7 +248,7 @@ snit::widgetadaptor nbhoodbrowser {
 
     method RaiseSelected {} {
         # FIRST, there should be only one selected.
-        set id [lindex [$hull curselection] 0]
+        set id [lindex [$hull uid curselection] 0]
 
         # NEXT, bring it to the front.
         order send gui NBHOOD:RAISE [list n $id]
@@ -323,7 +261,7 @@ snit::widgetadaptor nbhoodbrowser {
 
     method LowerSelected {} {
         # FIRST, there should be only one selected.
-        set id [lindex [$hull curselection] 0]
+        set id [lindex [$hull uid curselection] 0]
 
         # NEXT, bring it to the front.
         order send gui NBHOOD:LOWER [list n $id]
@@ -336,7 +274,7 @@ snit::widgetadaptor nbhoodbrowser {
 
     method DeleteSelected {} {
         # FIRST, there should be only one selected.
-        set id [lindex [$hull curselection] 0]
+        set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Send the order.
         order send gui NBHOOD:DELETE n $id

@@ -49,7 +49,6 @@ namespace eval ::projectgui:: {
 
 source [file join $::projectgui::library icons.tcl           ]
 source [file join $::projectgui::library mapcanvas.tcl       ]
-source [file join $::projectgui::library tablebrowser.tcl    ]
 source [file join $::projectgui::library enumfield.tcl       ]
 source [file join $::projectgui::library multifield.tcl      ]
 source [file join $::projectgui::library textfield.tcl       ]

@@ -9,7 +9,7 @@
 #    orderbrowser(sim) package: Order browser.
 #
 #    This widget displays a formatted list of scheduled orders.
-#    It is a variation of browser_base(n).
+#    It is a wrapper around sqlbrowser(n).
 #
 #-----------------------------------------------------------------------
 
@@ -24,6 +24,21 @@ snit::widgetadaptor orderbrowser {
     delegate option * to hull
 
     #-------------------------------------------------------------------
+    # Lookup Tables
+
+    # Layout
+    #
+    # %D is replaced with the color for derived columns.
+
+    typevariable layout {
+        { id       "ID"         -sortmode integer }
+        { tick     "Tick"       -sortmode integer }
+        { zulu     "Zulu"                         }
+        { name     "Order"                        }
+        { parmdict "Parameters" -stretchable yes  }
+    }
+
+    #-------------------------------------------------------------------
     # Components
 
     component cancelbtn   ;# The "Cancel" button
@@ -33,14 +48,17 @@ snit::widgetadaptor orderbrowser {
 
     constructor {args} {
         # FIRST, Install the hull
-        installhull using browser_base                \
-            -tickreload   yes                         \
-            -table        "gui_orders"                \
-            -keycol       "id"                        \
-            -keycolnum    0                           \
+        installhull using sqlbrowser                  \
+            -db           ::rdb                       \
+            -view         gui_orders                  \
+            -uid          id                          \
             -titlecolumns 3                           \
-            -displaycmd   [mymethod DisplayData]      \
-            -selectioncmd [mymethod SelectionChanged]
+            -selectioncmd [mymethod SelectionChanged] \
+            -reloadon {
+                ::sim <Reconfigure>
+                ::sim <Tick>
+                ::order <Queue>
+            } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
         $self configurelist $args
@@ -49,39 +67,16 @@ snit::widgetadaptor orderbrowser {
         set bar [$hull toolbar]
 
         # Cancel Button
-        install cancelbtn using button $bar.cancel \
-            -image      ::projectgui::icon::x22    \
-            -relief     flat                       \
-            -overrelief raised                     \
-            -state      disabled                   \
-            -command    [mymethod CancelSelected]
-
-        DynamicHelp::add $cancelbtn -text "Cancel Selected Order"
+        install cancelbtn using mkdeletebutton $bar.cancel \
+            "Cancel Selected Order"                        \
+            -state   disabled                              \
+            -command [mymethod CancelSelected]
 
         cond::orderIsValidSingle control $cancelbtn \
             order   ORDER:CANCEL                     \
             browser $win
 
         pack $cancelbtn -side right
-
-
-        # NEXT, create the columns and labels.
-        $hull insertcolumn end 0 {ID}
-        $hull columnconfigure end -sortmode integer
-        $hull insertcolumn end 0 {Tick}
-        $hull columnconfigure end -sortmode integer
-        $hull insertcolumn end 0 {Zulu}
-        $hull insertcolumn end 0 {Order}
-        $hull insertcolumn end 0 {Parameters}
-
-        $hull sortbycolumn 1 -increasing
-
-        # NEXT, update individual entities when they change.
-        notifier bind ::order <Queue> $self [mymethod reload]
-    }
-
-    destructor {
-        notifier forget $self
     }
 
     #-------------------------------------------------------------------
@@ -91,22 +86,6 @@ snit::widgetadaptor orderbrowser {
 
     #-------------------------------------------------------------------
     # Private Methods
-
-    # DisplayData dict
-    # 
-    # dict   the data dictionary that contains the entity information
-    #
-    # This method converts the entity data dictionary to a list
-    # that contains just the information to be displayed in the table browser.
-
-    method DisplayData {dict} {
-        # FIRST, extract each field
-        dict with dict {
-            $hull setdata $id \
-                [list $id $tick $zulu $name $parmdict]
-        }
-    }
-
 
     # SelectionChanged
     #
@@ -126,7 +105,7 @@ snit::widgetadaptor orderbrowser {
 
     method CancelSelected {} {
         # FIRST, there should be only one selected.
-        set id [lindex [$hull curselection] 0]
+        set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Send the cancel order.
         order send gui ORDER:CANCEL id $id

@@ -9,7 +9,7 @@
 #    unitbrowser(sim) package: Unit browser.
 #
 #    This widget displays a formatted list of unit records.
-#    It is a variation of browser_base(n).
+#    It is a wrapper around sqlbrowser(n).
 #
 #-----------------------------------------------------------------------
 
@@ -48,10 +48,7 @@ snit::widgetadaptor unitbrowser {
             ..........XX..........
             ......................
             ......................
-        } {
-            .  trans
-            X  #000000
-        }
+        } { . trans  X black } d { X gray }
 
 
         mkicon ${type}::icon::activity {
@@ -77,10 +74,7 @@ snit::widgetadaptor unitbrowser {
             ......................
             ......................
             ......................
-        } {
-            .  trans
-            X  #000000
-        }
+        } { . trans  X black } d { X gray }
 
 
         mkicon ${type}::icon::personnel {
@@ -106,10 +100,8 @@ snit::widgetadaptor unitbrowser {
             ......................
             ......................
             ......................
-        } {
-            .  trans
-            X  #000000
-        }
+        } { . trans  X black } d { X gray }
+
 
         mkicon ${type}::icon::attrition {
             ......................
@@ -135,10 +127,7 @@ snit::widgetadaptor unitbrowser {
             ................XXX...
             ......................
             ......................
-        } {
-            .  trans
-            X  #000000
-        }
+        } { . trans  X black } d { X gray }
     }
 
     #-------------------------------------------------------------------
@@ -146,6 +135,25 @@ snit::widgetadaptor unitbrowser {
 
     # Options delegated to the hull
     delegate option * to hull
+
+    #-------------------------------------------------------------------
+    # Lookup Tables
+
+    # Layout
+    #
+    # %D is replaced with the color for derived columns.
+
+    typevariable layout {
+        { u           "ID"                                         }
+        { gtype       "GType"                                      } 
+        { g           "Group"                                      }
+        { origin      "Origin"                                     }
+        { location    "Location"                                   }
+        { n           "Nbhood"                      -foreground %D }
+        { personnel   "Personnel" -sortmode integer                }
+        { a           "Activity"                                   }
+        { a_effective "Effective"                   -foreground %D }
+    }
 
     #-------------------------------------------------------------------
     # Components
@@ -162,14 +170,16 @@ snit::widgetadaptor unitbrowser {
 
     constructor {args} {
         # FIRST, Install the hull
-        installhull using browser_base                \
-            -tickreload   yes                         \
-            -table        "gui_units"                 \
-            -keycol       "id"                        \
-            -keycolnum    0                           \
+        installhull using sqlbrowser                  \
+            -db           ::rdb                       \
+            -view         gui_units                   \
+            -uid          id                          \
             -titlecolumns 1                           \
-            -displaycmd   [mymethod DisplayData]      \
-            -selectioncmd [mymethod SelectionChanged]
+            -selectioncmd [mymethod SelectionChanged] \
+            -reloadon {
+                ::sim <Reconfigure>
+                ::sim <Tick>
+            } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
         $self configurelist $args
@@ -178,44 +188,33 @@ snit::widgetadaptor unitbrowser {
         set bar [$hull toolbar]
 
         # Add Button
-        install addbtn using button $bar.add   \
-            -image      ::projectgui::icon::plus22 \
-            -relief     flat                   \
-            -overrelief raised                 \
-            -state      normal                 \
-            -command    [mymethod AddEntity]
-
-        DynamicHelp::add $addbtn -text "Add Unit"
+        install addbtn using mkaddbutton $bar.add \
+            "Add Unit"                            \
+            -state    normal                      \
+            -command [mymethod AddEntity]
 
         cond::orderIsValid control $addbtn \
             order UNIT:CREATE
 
 
         # Activity Button
-        install actbtn using button $bar.act         \
-            -image      ${type}::icon::activity      \
-            -relief     flat                         \
-            -overrelief raised                       \
-            -state      disabled                     \
-            -command    [mymethod SetActivitySelected]
-
-        DynamicHelp::add $actbtn -text "Set Activity for Selected Unit"
+        install actbtn using mktoolbutton $bar.act \
+            ${type}::icon::activity                \
+            "Set Activity for Selected Unit"       \
+            -state   disabled                      \
+            -command [mymethod SetActivitySelected]
 
         cond::orderIsValidSingle control $actbtn     \
             order   UNIT:ACTIVITY                    \
             browser $win
 
 
-
         # Personnel Button
-        install perbtn using button $bar.per         \
-            -image      ${type}::icon::personnel     \
-            -relief     flat                         \
-            -overrelief raised                       \
-            -state      disabled                     \
-            -command    [mymethod SetPersonnelSelected]
-
-        DynamicHelp::add $perbtn -text "Set Personnel for Selected Unit"
+        install perbtn using mktoolbutton $bar.per   \
+            ${type}::icon::personnel                 \
+            "Set Personnel for Selected Unit"        \
+            -state    disabled                       \
+            -command [mymethod SetPersonnelSelected]
 
         cond::orderIsValidSingle control $perbtn    \
             order   UNIT:PERSONNEL                  \
@@ -223,14 +222,11 @@ snit::widgetadaptor unitbrowser {
 
 
         # Attrition Button
-        install attbtn using button $bar.att         \
-            -image      ${type}::icon::attrition     \
-            -relief     flat                         \
-            -overrelief raised                       \
-            -state      disabled                     \
-            -command    [mymethod AttritSelected]
-
-        DynamicHelp::add $attbtn -text "Attrit Selected Unit"
+        install attbtn using mktoolbutton $bar.att \
+            ${type}::icon::attrition               \
+            "Attrit Selected Unit"                 \
+            -state   disabled                      \
+            -command [mymethod AttritSelected]
 
         cond::orderIsValidSingle control $attbtn    \
             order   ATTRIT:UNIT                     \
@@ -238,14 +234,11 @@ snit::widgetadaptor unitbrowser {
 
 
         # Move Button
-        install movebtn using button $bar.move       \
-            -image      ${type}::icon::crosshair     \
-            -relief     flat                         \
-            -overrelief raised                       \
-            -state      disabled                     \
-            -command    [mymethod MoveSelected]
-
-        DynamicHelp::add $movebtn -text "Move Selected Unit"
+        install movebtn using mktoolbutton $bar.move \
+            ${type}::icon::crosshair                 \
+            "Move Selected Unit"                     \
+            -state   disabled                        \
+            -command [mymethod MoveSelected]
 
         cond::orderIsValidSingle control $movebtn    \
             order   UNIT:MOVE                        \
@@ -253,14 +246,10 @@ snit::widgetadaptor unitbrowser {
 
 
         # Delete Button
-        install deletebtn using button $bar.delete \
-            -image      ::projectgui::icon::x22    \
-            -relief     flat                       \
-            -overrelief raised                     \
-            -state      disabled                   \
-            -command    [mymethod DeleteSelected]
-
-        DynamicHelp::add $deletebtn -text "Delete Selected Unit"
+        install deletebtn using mkdeletebutton $bar.delete \
+            "Delete Selected Unit"                         \
+            -state   disabled                              \
+            -command [mymethod DeleteSelected]
 
         cond::orderIsValidSingle control $deletebtn \
             order   UNIT:DELETE                     \
@@ -274,29 +263,8 @@ snit::widgetadaptor unitbrowser {
         pack $movebtn   -side left
         pack $deletebtn -side right
 
-
-        # NEXT, create the columns and labels.
-        $hull insertcolumn end 0 {ID}
-        $hull insertcolumn end 0 {GType}
-        $hull insertcolumn end 0 {Group}
-        $hull insertcolumn end 0 {Origin}
-        $hull insertcolumn end 0 {Location}
-        $hull insertcolumn end 0 {Nbhood}
-        $hull columnconfigure end \
-            -foreground $::browser_base::derivedfg
-        $hull insertcolumn end 0 {Personnel}
-        $hull columnconfigure end -sortmode integer
-        $hull insertcolumn end 0 {Activity}
-        $hull insertcolumn end 0 {Effective}
-        $hull columnconfigure end \
-            -foreground $::browser_base::derivedfg
-
         # NEXT, update individual entities when they change.
-        notifier bind ::unit <Entity> $self $self
-    }
-
-    destructor {
-        notifier forget $self
+        notifier bind ::unit <Entity> $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------
@@ -306,23 +274,6 @@ snit::widgetadaptor unitbrowser {
 
     #-------------------------------------------------------------------
     # Private Methods
-
-    # DisplayData dict
-    # 
-    # dict   the data dictionary that contains the entity information
-    #
-    # This method converts the entity data dictionary to a list
-    # that contains just the information to be displayed in the table browser.
-
-    method DisplayData {dict} {
-        # FIRST, extract each field
-        dict with dict {
-            $hull setdata $u \
-                [list $u $gtype $g $origin $location $n $personnel $a \
-                     $a_effective]
-        }
-    }
-
 
     # SelectionChanged
     #
@@ -335,8 +286,8 @@ snit::widgetadaptor unitbrowser {
             [list $movebtn $actbtn $perbtn $attbtn $deletebtn]
 
         # NEXT, notify the app of the selection.
-        if {[llength [$hull curselection]] == 1} {
-            set u [lindex [$hull curselection] 0]
+        if {[llength [$hull uid curselection]] == 1} {
+            set u [lindex [$hull uid curselection] 0]
 
             notifier send ::app <ObjectSelect> [list unit $u]
         }
@@ -358,7 +309,7 @@ snit::widgetadaptor unitbrowser {
     # Called when the user wants to move the selected unit
 
     method MoveSelected {} {
-        set id [lindex [$hull curselection] 0]
+        set id [lindex [$hull uid curselection] 0]
 
         order enter UNIT:MOVE u $id
     }
@@ -369,7 +320,7 @@ snit::widgetadaptor unitbrowser {
     # Called when the user wants to set the unit's activity
 
     method SetActivitySelected {} {
-        set id [lindex [$hull curselection] 0]
+        set id [lindex [$hull uid curselection] 0]
 
         order enter UNIT:ACTIVITY u $id
     }
@@ -380,7 +331,7 @@ snit::widgetadaptor unitbrowser {
     # Called when the user wants to set the unit's personnel
 
     method SetPersonnelSelected {} {
-        set id [lindex [$hull curselection] 0]
+        set id [lindex [$hull uid curselection] 0]
 
         order enter UNIT:PERSONNEL u $id
     }
@@ -391,7 +342,7 @@ snit::widgetadaptor unitbrowser {
     # Called when the user wants to attrit the unit's personnel
 
     method AttritSelected {} {
-        set id [lindex [$hull curselection] 0]
+        set id [lindex [$hull uid curselection] 0]
 
         order enter ATTRIT:UNIT u $id
     }
@@ -403,7 +354,7 @@ snit::widgetadaptor unitbrowser {
 
     method DeleteSelected {} {
         # FIRST, there should be only one selected.
-        set id [lindex [$hull curselection] 0]
+        set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Send the delete order.
         order send gui UNIT:DELETE u $id

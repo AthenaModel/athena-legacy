@@ -23,6 +23,9 @@ snit::widgetadaptor frcgroupbrowser {
     # Options delegated to the hull
     delegate option * to hull
 
+    #-------------------------------------------------------------------
+    # Look-up Tables
+
     # Layout
     #
     # %D is replaced with the color for derived columns.

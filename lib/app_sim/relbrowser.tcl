@@ -24,6 +24,22 @@ snit::widgetadaptor relbrowser {
     delegate option * to hull
 
     #-------------------------------------------------------------------
+    # Lookup Tables
+
+    # Layout
+    #
+    # %D is replaced with the color for derived columns.
+
+    typevariable layout {
+        {n     "Nbhood"                      }
+        {f     "Of Group F"                  }
+        {ftype "F Type"                      }
+        {g     "With Group G"                }
+        {gtype "G Type"                      }
+        {rel   "Relationship" -sortmode real }
+    }
+
+    #-------------------------------------------------------------------
     # Components
 
     component editbtn     ;# The "Edit" button
@@ -33,13 +49,15 @@ snit::widgetadaptor relbrowser {
 
     constructor {args} {
         # FIRST, Install the hull
-        installhull using browser_base                \
-            -table        "gui_rel_nfg"               \
-            -keycol       "id"                        \
-            -keycolnum    0                           \
-            -titlecolumns 6                           \
-            -displaycmd   [mymethod DisplayData]      \
-            -selectioncmd [mymethod SelectionChanged]
+        installhull using sqlbrowser                  \
+            -db           ::rdb                       \
+            -view         gui_rel_nfg                 \
+            -uid          id                          \
+            -titlecolumns 5                           \
+            -selectioncmd [mymethod SelectionChanged] \
+            -reloadon {
+                ::sim <Reconfigure>
+            } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
         $self configurelist $args
@@ -47,14 +65,10 @@ snit::widgetadaptor relbrowser {
         # NEXT, create the toolbar buttons
         set bar [$hull toolbar]
 
-        install editbtn using button $bar.edit       \
-            -image      ::projectgui::icon::pencil22 \
-            -relief     flat                         \
-            -overrelief raised                       \
-            -state      disabled                     \
-            -command    [mymethod EditSelected]
-
-        DynamicHelp::add $editbtn -text "Edit Selected Curve"
+        install editbtn using mkeditbutton $bar.edit \
+            "Edit Selected Relationship"             \
+            -state   disabled                        \
+            -command [mymethod EditSelected]
 
         cond::orderIsValidCanUpdate control $editbtn \
             order   RELATIONSHIP:UPDATE          \
@@ -62,31 +76,9 @@ snit::widgetadaptor relbrowser {
        
         pack $editbtn   -side left
 
-        # NEXT, create the columns and labels.  Create and hide the
-        # ID column; it will be used to reference rows as "$n $g", but
-        # we don't want to display it.
-
-        $hull insertcolumn end 0 {ID}
-        $hull columnconfigure end -hide yes
-        $hull insertcolumn end 0 {Nbhood}
-        $hull insertcolumn end 0 {Of Group F}
-        $hull insertcolumn end 0 {F Type}
-        $hull insertcolumn end 0 {With Group G}
-        $hull insertcolumn end 0 {G Type}
-        $hull insertcolumn end 0 {Relationship}
-        $hull columnconfigure end -sortmode real
-
-        # NEXT, sort on column 1 by default
-        $hull sortbycolumn 1 -increasing
-
         # NEXT, update individual entities when they change.
-        notifier bind ::rel <Entity> $self $self
+        notifier bind ::rel <Entity> $self [mymethod uid]
     }
-
-    destructor {
-        notifier forget $self
-    }
-
 
     #-------------------------------------------------------------------
     # Public Methods
@@ -103,8 +95,8 @@ snit::widgetadaptor relbrowser {
 
     method canupdate {} {
         # FIRST, there must be something selected
-        if {[llength [$self curselection]] > 0} {
-            foreach id [$self curselection] {
+        if {[llength [$self uid curselection]] > 0} {
+            foreach id [$self uid curselection] {
                 lassign $id n f g
 
                 if {$f eq $g} {
@@ -120,22 +112,6 @@ snit::widgetadaptor relbrowser {
     #-------------------------------------------------------------------
     # Private Methods
 
-    # DisplayData dict
-    # 
-    # dict   the data dictionary that contains the entity information
-    #
-    # This method converts the entity data dictionary to a list
-    # that contains just the information to be displayed in the table browser.
-
-    method DisplayData {dict} {
-        # FIRST, extract each field
-        dict with dict {
-            $hull setdata $id \
-                [list $id $n $f $ftype $g $gtype $rel]
-        }
-    }
-
-
     # SelectionChanged
     #
     # Enables/disables toolbar controls based on the current selection,
@@ -147,8 +123,8 @@ snit::widgetadaptor relbrowser {
 
         # NEXT, if there's exactly one item selected, notify the
         # the app.
-        if {[llength [$hull curselection]] == 1} {
-            set id [lindex [$hull curselection] 0]
+        if {[llength [$hull uid curselection]] == 1} {
+            set id [lindex [$hull uid curselection] 0]
             lassign $id n f g
 
             notifier send ::app <ObjectSelect> \
@@ -162,7 +138,7 @@ snit::widgetadaptor relbrowser {
     # Called when the user wants to edit the selected entities.
 
     method EditSelected {} {
-        set ids [$hull curselection]
+        set ids [$hull uid curselection]
 
         if {[llength $ids] == 1} {
             lassign [lindex $ids 0] n f g

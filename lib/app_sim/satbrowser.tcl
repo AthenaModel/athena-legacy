@@ -9,7 +9,7 @@
 #    satbrowser(sim) package: Satisfaction browser.
 #
 #    This widget displays a formatted list of satisfaction curve records.
-#    It is a variation of browser_base(n).
+#    It is a wrapper around sqlbrowser(n).
 #
 #-----------------------------------------------------------------------
 
@@ -24,6 +24,23 @@ snit::widgetadaptor satbrowser {
     delegate option * to hull
 
     #-------------------------------------------------------------------
+    # Lookup Tables
+
+    # Layout
+    #
+    # %D is replaced with the color for derived columns.
+
+    typevariable layout {
+        { n        "Nbhood"                                  }
+        { g        "Group"                                   }
+        { c        "Concern"                                 }
+        { sat0     "Sat at T0" -sortmode real                }
+        { sat      "Sat Now"   -sortmode real -foreground %D }
+        { trend0   "Trend"     -sortmode real                }
+        { saliency "Saliency"  -sortmode real                }
+    }
+
+    #-------------------------------------------------------------------
     # Components
 
     component editbtn     ;# The "Edit" button
@@ -35,14 +52,16 @@ snit::widgetadaptor satbrowser {
 
     constructor {args} {
         # FIRST, Install the hull
-        installhull using browser_base                \
-            -tickreload   yes                         \
-            -table        "gui_sat_ngc"               \
-            -keycol       "id"                        \
-            -keycolnum    0                           \
-            -titlecolumns 4                           \
-            -displaycmd   [mymethod DisplayData]      \
-            -selectioncmd [mymethod SelectionChanged]
+        installhull using sqlbrowser                  \
+            -db           ::rdb                       \
+            -view         gui_sat_ngc                 \
+            -uid          id                          \
+            -titlecolumns 3                           \
+            -selectioncmd [mymethod SelectionChanged] \
+            -reloadon {
+                ::sim <Reconfigure>
+                ::sim <Tick>
+            } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
         $self configurelist $args
@@ -50,42 +69,32 @@ snit::widgetadaptor satbrowser {
         # NEXT, create the toolbar buttons
         set bar [$hull toolbar]
 
-        install editbtn using button $bar.edit   \
-            -image      ::projectgui::icon::pencil022 \
-            -relief     flat                     \
-            -overrelief raised                   \
-            -state      disabled                 \
-            -command    [mymethod EditSelected]
-
-        DynamicHelp::add $editbtn -text "Edit Initial Curve"
+        install editbtn using mkeditbutton $bar.edit \
+            "Edit Initial Curve"                     \
+            -state   disabled                        \
+            -command [mymethod EditSelected]
 
         cond::orderIsValidMulti control $editbtn \
             order   SAT:UPDATE          \
             browser $win
 
        
-        install setbtn using button $bar.set   \
-            -image      ::projectgui::icon::pencils22 \
-            -relief     flat                     \
-            -overrelief raised                   \
-            -state      disabled                 \
-            -command    [mymethod SetSelected]
-
-        DynamicHelp::add $setbtn -text "Magic Set Satisfaction Level"
+        install setbtn using mktoolbutton $bar.set \
+            ::projectgui::icon::pencils22          \
+            "Magic Set Satisfaction Level"         \
+            -state   disabled                      \
+            -command [mymethod SetSelected]
 
         cond::orderIsValidSingle control $setbtn \
             order   MAD:SAT:SET                  \
             browser $win
        
 
-        install adjbtn using button $bar.adj   \
-            -image      ::projectgui::icon::pencila22 \
-            -relief     flat                     \
-            -overrelief raised                   \
-            -state      disabled                 \
-            -command    [mymethod AdjustSelected]
-
-        DynamicHelp::add $adjbtn -text "Magic Adjust Satisfaction Level"
+        install adjbtn using mktoolbutton $bar.adj \
+            ::projectgui::icon::pencila22          \
+            "Magic Adjust Satisfaction Level"      \
+            -state   disabled                      \
+            -command [mymethod AdjustSelected]
 
         cond::orderIsValidSingle control $adjbtn \
             order   MAD:SAT:ADJUST               \
@@ -95,35 +104,8 @@ snit::widgetadaptor satbrowser {
         pack $setbtn    -side left
         pack $adjbtn    -side left
 
-        # NEXT, create the columns and labels.  Create and hide the
-        # ID column; it will be used to reference rows as "$n $g", but
-        # we don't want to display it.
-
-        $hull insertcolumn end 0 {ID}
-        $hull columnconfigure end -hide yes
-        $hull insertcolumn end 0 {Nbhood}
-        $hull insertcolumn end 0 {Group}
-        $hull insertcolumn end 0 {Concern}
-        $hull insertcolumn end 0 {Sat at T0}
-        $hull columnconfigure end -sortmode real
-        $hull insertcolumn end 0 {Sat Now}
-        $hull columnconfigure end \
-            -sortmode   real      \
-            -foreground $::browser_base::derivedfg
-        $hull insertcolumn end 0 {Trend}
-        $hull columnconfigure end -sortmode real
-        $hull insertcolumn end 0 {Saliency}
-        $hull columnconfigure end -sortmode real
-
-        # NEXT, sort on column 1 by default
-        $hull sortbycolumn 1 -increasing
-
         # NEXT, update individual entities when they change.
-        notifier bind ::sat <Entity> $self $self
-    }
-
-    destructor {
-        notifier forget $self
+        notifier bind ::sat <Entity> $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------
@@ -134,24 +116,6 @@ snit::widgetadaptor satbrowser {
 
     #-------------------------------------------------------------------
     # Private Methods
-
-    # DisplayData dict
-    # 
-    # dict   the data dictionary that contains the group information
-    #
-    # This method converts the group data dictionary to a list
-    # that contains just the information to be displayed in the table browser.
-
-    method DisplayData {dict} {
-        # FIRST, extract each field
-        dict with dict {
-            set id [list $n $g $c]
-
-            $hull setdata $id \
-                [list $id $n $g $c $sat0 $sat $trend0 $saliency]
-        }
-    }
-
 
     # SelectionChanged
     #
@@ -165,8 +129,8 @@ snit::widgetadaptor satbrowser {
 
         # NEXT, if there's exactly one item selected, notify the
         # the app.
-        if {[llength [$hull curselection]] == 1} {
-            set id [lindex [$hull curselection] 0]
+        if {[llength [$hull uid curselection]] == 1} {
+            set id [lindex [$hull uid curselection] 0]
             lassign $id n g c
 
             notifier send ::app <ObjectSelect> \
@@ -180,7 +144,7 @@ snit::widgetadaptor satbrowser {
     # Called when the user wants to edit the selected entities
 
     method EditSelected {} {
-        set ids [$hull curselection]
+        set ids [$hull uid curselection]
 
         if {[llength $ids] == 1} {
             lassign [lindex $ids 0] n g c
@@ -197,7 +161,7 @@ snit::widgetadaptor satbrowser {
     # Called when the user wants to set the selected level
 
     method SetSelected {} {
-        set ids [$hull curselection]
+        set ids [$hull uid curselection]
 
         lassign [lindex $ids 0] n g c
 
@@ -209,7 +173,7 @@ snit::widgetadaptor satbrowser {
     # Called when the user wants to adjust the selected level
 
     method AdjustSelected {} {
-        set ids [$hull curselection]
+        set ids [$hull uid curselection]
 
         lassign [lindex $ids 0] n g c
 
