@@ -9,7 +9,7 @@
 #    madbrowser(sim) package: Magic Attitude Driver browser.
 #
 #    This widget displays a formatted list of MADs.
-#    It is a variation of browser_base(n).
+#    It is a wrapper around sqlbrowser(n).
 #
 #-----------------------------------------------------------------------
 
@@ -24,6 +24,23 @@ snit::widgetadaptor madbrowser {
     delegate option * to hull
 
     #-------------------------------------------------------------------
+    # Lookup Tables
+
+    # Layout
+    #
+    # %D is replaced with the color for derived columns.
+
+    typevariable layout {
+        { id       "ID"              -sortmode integer                }
+        { oneliner "Description"                                      }
+        { cause    "Cause "                                           }
+        { p        "Near Factor (p)" -sortmode real                   }
+        { q        "Far Factor (q)"  -sortmode real                   }
+        { driver   "Driver"          -sortmode integer -foreground %D }
+        { inputs   "Inputs"          -sortmode integer -foreground %D }
+    }
+
+    #-------------------------------------------------------------------
     # Components
 
     component addbtn      ;# The "Add" button
@@ -35,55 +52,46 @@ snit::widgetadaptor madbrowser {
 
     constructor {args} {
         # FIRST, Install the hull
-        installhull using browser_base                \
-            -tickreload   yes                         \
-            -table        "gui_mads"                  \
-            -keycol       "id"                        \
-            -keycolnum    0                           \
+        installhull using sqlbrowser                  \
+            -db           ::rdb                       \
+            -view         gui_mads                    \
+            -uid          id                          \
             -titlecolumns 1                           \
-            -displaycmd   [mymethod DisplayData]      \
-            -selectioncmd [mymethod SelectionChanged]
+            -selectioncmd [mymethod SelectionChanged] \
+            -reloadon {
+                ::sim <Reconfigure>
+                ::sim <Tick>
+            } -layout [string map [list %D $::app::derivedfg] $layout]
 
-
-        # FIRST, get the options.
+        # NEXT, get the options.
         $self configurelist $args
 
         # NEXT, create the toolbar buttons
         set bar [$hull toolbar]
 
-        install addbtn using button $bar.add   \
-            -image      ::projectgui::icon::plus22 \
-            -relief     flat                   \
-            -overrelief raised                 \
-            -state      normal                 \
-            -command    [mymethod AddEntity]
-
-        DynamicHelp::add $addbtn -text "Add Driver"
+        install addbtn using mkaddbutton $bar.add \
+            "Add Driver"                          \
+            -state   normal                       \
+            -command [mymethod AddEntity]
 
         cond::orderIsValid control $addbtn \
             order MAD:CREATE
 
-        install editbtn using button $bar.edit   \
-            -image      ::projectgui::icon::pencil22 \
-            -relief     flat                     \
-            -overrelief raised                   \
-            -state      disabled                 \
-            -command    [mymethod EditSelected]
 
-        DynamicHelp::add $editbtn -text "Edit Selected Driver"
+        install editbtn using mkeditbutton $bar.edit \
+            "Edit Selected Driver"                   \
+            -state   disabled                        \
+            -command [mymethod EditSelected]
 
         cond::orderIsValidSingle control $editbtn   \
             order   MAD:UPDATE \
             browser $win
 
-        install deletebtn using button $bar.delete \
-            -image      ::projectgui::icon::x22    \
-            -relief     flat                       \
-            -overrelief raised                     \
-            -state      disabled                   \
-            -command    [mymethod DeleteSelected]
 
-        DynamicHelp::add $deletebtn -text "Delete Selected Driver"
+        install deletebtn using mkdeletebutton $bar.delete \
+            "Delete Selected Driver"                       \
+            -state   disabled                              \
+            -command [mymethod DeleteSelected]
 
         cond::orderIsValidCanDelete control $deletebtn \
             order   MAD:DELETE  \
@@ -94,31 +102,8 @@ snit::widgetadaptor madbrowser {
         pack $editbtn    -side left
         pack $deletebtn  -side right
 
-        # NEXT, create the columns and labels.
-        $hull insertcolumn end 0 {ID}
-        $hull columnconfigure end -sortmode integer
-        $hull insertcolumn end 0 {Description}
-        $hull insertcolumn end 0 {Cause}
-        $hull insertcolumn end 0 {Near Factor (p)}
-        $hull columnconfigure end                  \
-            -sortmode   real
-        $hull insertcolumn end 0 {Far Factor (q)}
-        $hull columnconfigure end                  \
-            -sortmode   real
-        $hull insertcolumn end 0 {Driver}
-        $hull columnconfigure end                  \
-            -sortmode   integer                    \
-            -foreground $::browser_base::derivedfg 
-        $hull insertcolumn end 0 {Inputs}
-        $hull columnconfigure end                  \
-            -sortmode   integer                    \
-            -foreground $::browser_base::derivedfg
-
-        # NEXT, sort on column 0 by default
-        $hull sortbycolumn 0 -decreasing
-
         # NEXT, update individual entities when they change.
-        notifier bind ::mad <Entity> $self $self
+        notifier bind ::mad <Entity> $self [mymethod uid]
     }
 
     destructor {
@@ -135,8 +120,8 @@ snit::widgetadaptor madbrowser {
     # Returns 1 if the current selection is deletable.
     
     method candelete {} {
-        if {[llength [$self curselection]] == 1} {
-            set id [lindex [$self curselection] 0]
+        if {[llength [$self uid curselection]] == 1} {
+            set id [lindex [$self uid curselection] 0]
 
             if {$id in [mad initial names]} {
                 return 1
@@ -150,22 +135,6 @@ snit::widgetadaptor madbrowser {
     #-------------------------------------------------------------------
     # Private Methods
 
-    # DisplayData dict
-    # 
-    # dict   the data dictionary that contains the entity information
-    #
-    # This method converts the entity data dictionary to a list
-    # that contains just the information to be displayed in the table browser.
-
-    method DisplayData {dict} {
-        # FIRST, extract each field
-        dict with dict {
-            $hull setdata $id \
-                [list $id $oneliner $cause $p $q $driver $inputs]
-        }
-    }
-
-
     # SelectionChanged
     #
     # Enables/disables toolbar controls based on the current selection,
@@ -177,13 +146,12 @@ snit::widgetadaptor madbrowser {
         cond::orderIsValidCanDelete  update $deletebtn
 
         # NEXT, notify the app of the selection.
-        if {[llength [$hull curselection]] == 1} {
-            set s [lindex [$hull curselection] 0]
+        if {[llength [$hull uid curselection]] == 1} {
+            set s [lindex [$hull uid curselection] 0]
 
             notifier send ::app <ObjectSelect> [list mad $s]
         }
     }
-
 
     # AddEntity
     #
@@ -200,7 +168,7 @@ snit::widgetadaptor madbrowser {
 
     method EditSelected {} {
         # FIRST, there should be only one selected.
-        set id [lindex [$hull curselection] 0]
+        set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Pop up the order dialog.
         order enter MAD:UPDATE id $id
@@ -213,7 +181,7 @@ snit::widgetadaptor madbrowser {
 
     method DeleteSelected {} {
         # FIRST, there should be only one selected.
-        set id [lindex [$hull curselection] 0]
+        set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Send the delete order.
         order send gui MAD:DELETE id $id
