@@ -67,7 +67,7 @@ snit::type situation {
     #-------------------------------------------------------------------
     # Non-checkpointed Variables
 
-    # Array: situation object commands by id
+    # Array, situation object commands by id
     typevariable cache -array {}
 
     #-------------------------------------------------------------------

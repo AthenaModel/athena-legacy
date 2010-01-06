@@ -651,9 +651,9 @@ CREATE TABLE ensits_t (
     -- The following columns are set when the GRAM implications of the
     -- situation need to be assessed at the next time tick.
 
-    -- Flag: 1 if this is a new situation, and inception effects should 
-    -- be assessed; 0 otherwise.  (This will be set to 0 for situations
-    -- that are on-going at time 0.)
+    -- Inception Flag: 1 if this is a new situation, and inception 
+    -- effects should be assessed, and 0 otherwise.  (This will be set 
+    -- to 0 for situations that are on-going at time 0.)
     inception  INTEGER,
 
     -- Resolving group: name of the group that resolved/will resolve

@@ -1,19 +1,16 @@
 #-----------------------------------------------------------------------
-# TITLE:
-#    app.tcl
+# FILE: app.tcl
+#
+#   Application Ensemble.
+#
+# PACKAGE:
+#   app_sim(n) -- athena_sim(1) implementation package
+#
+# PROJECT:
+#   Athena S&RO Simulation
 #
 # AUTHOR:
 #    Will Duquette
-#
-# DESCRIPTION:
-#    app_sim(n) Application Ensemble
-#
-#    This module defines app, the application ensemble.  app encapsulates 
-#    all of the functionality of athena_sim(1), including the application's 
-#    start-up behavior.  To invoke the  application,
-#
-#        package require app_sim
-#        app init $argv
 #
 #-----------------------------------------------------------------------
 
@@ -23,39 +20,76 @@
 # All needed packages are required in app_sim.tcl.
  
 #-----------------------------------------------------------------------
-# app ensemble
+# Module: app
+#
+# app_sim(n) Application Ensemble
+#
+# This module defines app, the application ensemble.  app encapsulates 
+# all of the functionality of athena_sim(1), including the application's 
+# start-up behavior.  To invoke the  application,
+#
+# > package require app_sim
+# > app init $argv
+#
+# The app_sim(n) package can be invoked by athena(1) and by 
+# athena_test(1).
 
 snit::type app {
     pragma -hastypedestroy 0 -hasinstances 0
 
     #-------------------------------------------------------------------
-    # Global Lookup Variables
+    # Section: Global Lookup Variables
 
-    # derivedfg
+    # Type Variable: derivedfg
     #
     # The foreground color for derived data (as opposed to input data).
+    # This color is used by a variety of data browsers throughout the
+    # application.  TBD: Consider making this a preference.
 
     typevariable derivedfg "#008800"
 
     #-------------------------------------------------------------------
-    # Type Variables
+    # Section: Type Variables
 
-    # Application options
+    # Type Variable: opts
     #
-    # -ignoreuser     If yes, ignore user preferences, etc.
+    # Application command-line options.
+    #
+    # -ignoreuser -  Boolean. If yes, ignore user preferences, etc.
+    #                Used for testing.
 
     typevariable opts -array {
         -ignoreuser no
     }
 
     #-------------------------------------------------------------------
-    # Application Initializer
+    # Section: Application Initialization
 
-    # init argv
+    # Type Method: init
     #
-    # argv  Command line arguments (if any)
+    # Initializes the application.  This routine should be called once
+    # at application start-up, and passed the arguments from the
+    # shell command line.  In particular, it:
     #
-    # Initializes the application.
+    # * Determines where the application is installed.
+    # * Creates a working directory.
+    # * Opens the debugging log.
+    # * Logs any loaded mods.
+    # * Loads the user preferences, unless -ignoreuser is specified.
+    # * Purges old working directories.
+    # * Initializes the various application modules.
+    # * Creates a number of statecontroller(n) objects to enable and
+    #   disable various GUI components as application state changes.
+    # * Sets the application icon.
+    # * Opens the scenario specified on the command line, if any.
+    #
+    # Syntax:
+    #   init _argv_
+    #
+    #   argv - Command line arguments (if any)
+    #
+    # See <usage> for the definition of the arguments.
+    
     typemethod init {argv} {
         # FIRST, Process the command line.
         while {[string match "-*" [lindex $argv 0]]} {
@@ -253,6 +287,7 @@ snit::type app {
         appwin .main -main yes
 
         # NEXT, set the icon for this and subsequent windows.
+        # TBD: Should this be done in appwin?
         set icon [image create photo \
                       -file [file join $::app_sim::library icon.png]]
         wm iconphoto .main -default $icon
@@ -274,9 +309,22 @@ snit::type app {
         }
     }
 
-    # NotifierTrace subject event eargs objects
+    # Type Method: usage
     #
-    # A notifier(n) trace command
+    # Displays the application's command-line syntax.
+    
+    typemethod usage {} {
+        puts "Usage: athena sim ?-ignoreuser? ?scenario.adb?"
+        puts ""
+        puts "See athena_sim(1) for more information."
+    }
+
+    # Type Method: NotifierTrace
+    #
+    # A notifier(n) trace command that logs all notifier events.
+    #
+    # Syntax:
+    #   NotifierTrace _subject event eargs objects_
 
     proc NotifierTrace {subject event eargs objects} {
         set objects [join $objects ", "]
@@ -285,34 +333,33 @@ snit::type app {
 
 
     #-------------------------------------------------------------------
-    # Utility Type Methods
-
-    # usage
+    # Section: Utility Type Methods
     #
-    # Displays the application's command-line syntax
-    
-    typemethod usage {} {
-        puts "Usage: athena sim ?scenario.adb?"
-        puts ""
-        puts "See athena_sim(1) for more information."
-    }
+    # This routines are application-specific utilities provided to the
+    # rest of the application.
 
-    # help ?page?
-    #
-    # page    A helpdb(n) page ID
+    # Type Method: help
     #
     # Pops up the helpbrowserwin on the specified page.
+    #
+    # Syntax: 
+    #   help _?page?_
+    #
+    #   page - A helpdb(n) page ID
 
     typemethod help {{page home}} {
         helpbrowserwin showhelp $page
     }
 
-    # cmdhelp ?command?
-    #
-    # command    An executive command name
+    # Type Method: cmdhelp
     #
     # Pops up the helpbrowserwin on the specified command,
     # or the Executive Commands page if no command was specified.
+    #
+    # Syntax:
+    #   cmdhelp _?command?_
+    #
+    #   command - An executive command name
 
     typemethod cmdhelp {{command {}}} {
         # FIRST, just pop up the command help if no particular
@@ -333,11 +380,14 @@ snit::type app {
     }
 
 
-    # puts text
+    # Type Method: puts
     #
-    # text     A text string
+    # Writes the _text_ to the message line of the topmost appwin.
     #
-    # Writes the text to the message line of the topmost appwin.
+    # Syntax: 
+    #   puts _text_
+    #
+    #   text - A text string
 
     typemethod puts {text} {
         set topwin [app topwin]
@@ -347,11 +397,14 @@ snit::type app {
         }
     }
 
-    # error text
+    # Type Method: error
     #
-    # text       A tsubst'd text string
+    # Displays the error _text_ in a message box
     #
-    # Displays the error in a message box
+    # Syntax:
+    #   error _text_
+    #
+    #   text - A tsubst'd text string
 
     typemethod error {text} {
         set topwin [app topwin]
@@ -363,11 +416,15 @@ snit::type app {
         }
     }
 
-    # exit ?text?
+    # Type Method: exit
     #
-    # Optional error message, tsubst'd
+    # Exits the program,writing the text (if any) to standard output.
+    # Saves the CLI's command history for the next session.
     #
-    # Exits the program
+    # Syntax:
+    #   exit _?text?_
+    #
+    #   text - Optional error message, tsubst'd
 
     typemethod exit {{text ""}} {
         # FIRST, output the text.
@@ -384,13 +441,16 @@ snit::type app {
         exit
     }
 
-    # topwin ?subcommand...?
-    #
-    # subcommand    A subcommand of the topwin, as one argument or many
+    # Type Method: topwin
     #
     # If there's no subcommand, returns the name of the topmost appwin.
     # Otherwise, delegates the subcommand to the top win.  If there is
     # no top win, this is a noop.
+    #
+    # Syntax:
+    #   topwin _?subcommand...?_
+    #
+    #   subcommand - A subcommand of the topwin, as one argument or many
 
     typemethod topwin {args} {
         # FIRST, determine the topwin
@@ -415,17 +475,21 @@ snit::type app {
 
 
 #-----------------------------------------------------------------------
-# Miscellaneous Application Utilities
+# Section: Miscellaneous Application Utility Procs
 
-# profile command ?args...?
-#
-# command    A command
-# args       Arguments to the command
+# Proc: profile
 #
 # Calls the command once using [time], in the caller's context,
 # and logs the outcome, returning the command's return value.
 # In other words, you can stick "profile" before any command name
 # and profile that call without changing code or adding new routines.
+# TBD: Possibly, this should go in a "misc" module.
+#
+# Syntax:
+#   profile _command ?args...?_
+#
+#   command - A command
+#   args    - Arguments to the command
 
 proc profile {args} {
     set msec [lindex [time {
@@ -437,9 +501,12 @@ proc profile {args} {
 }
 
 
-# bgerror msg
+# Proc: bgerror
 #
 # Logs background errors; the errorInfo is stored in ::bgErrorInfo
+#
+# Syntax:
+#   bgerror _msg_
 
 proc bgerror {msg} {
     global errorInfo

@@ -1,12 +1,18 @@
 #-----------------------------------------------------------------------
-# TITLE:
-#    app_sim.tcl
+# FILE: app_sim.tcl
+#
+#   Package loader.  This file provides the package, requires all
+#   other packages upon which this package depends, and sources in
+#   all of the package's modules.
+#
+# PACKAGE:
+#   app_sim(n) -- athena_sim(1) implementation package
+#
+# PROJECT:
+#   Athena S&RO Simulation
 #
 # AUTHOR:
 #    Will Duquette
-#
-# DESCRIPTION:
-#    Athena: app_sim(n) loader
 #
 #-----------------------------------------------------------------------
 
