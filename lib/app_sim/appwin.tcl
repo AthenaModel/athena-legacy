@@ -794,15 +794,21 @@ snit::widget appwin {
         # ROW 1, add a simulation toolbar
         ttk::frame $win.toolbar
 
+        # Prep Lock/Unlock
+        ttk::button $win.toolbar.preplock            \
+            -style    Toolbutton                     \
+            -image    ::projectgui::icon::unlocked22 \
+            -command  [mymethod PrepLock]
+
         # RunPause
-        ttk::button $win.toolbar.runpause             \
-            -style      Toolbutton                    \
-            -image      ::projectgui::icon::play22    \
-            -command    [mymethod RunPause]
+        ttk::button $win.toolbar.runpause       \
+            -style   Toolbutton                 \
+            -image   ::projectgui::icon::play22 \
+            -command [mymethod RunPause]
 
         # Duration
 
-        menubox $win.toolbar.duration   \
+        menubox $win.toolbar.duration         \
             -justify   left                   \
             -width     12                     \
             -takefocus 0                      \
@@ -875,6 +881,7 @@ snit::widget appwin {
             -width              4                      \
             -textvariable       [myvar info(tick)]
 
+        pack $win.toolbar.preplock -side left
         pack $win.toolbar.runpause -side left    
         pack $win.toolbar.duration -side left -padx {0 15}
         pack $win.toolbar.slower   -side left
@@ -1591,6 +1598,8 @@ snit::widget appwin {
                 order send gui SIM:RUN \
                     days [dict get $durations [$win.toolbar.duration get]]
             } result opts]} {
+                # TBD: The sanity check should be done by SIM:LOCK, not
+                # by SIM:RUN.
                 # order(sim) should ensure that this is a REJECT; but 
                 # let's make sure
                 assert {[dict get $opts -errorcode] eq "REJECT"}
@@ -1603,6 +1612,40 @@ snit::widget appwin {
                     -title   "Not ready to run" \
                     -message $message 
             }
+        }
+    }
+
+
+    # PrepLock
+    #
+    # Sends SIM:LOCK or SIM:UNLOCK, depending on state.
+
+    method PrepLock {} {
+        # FIRST, if we're in PREP then it's time to leave it.
+        if {[sim state] eq "PREP"} {
+            order send gui SIM:LOCK
+            return
+        }
+
+        # NEXT, we're not in PREP; we want to return to it.  But
+        # give the user the option.
+        set answer [messagebox popup \
+                        -parent    $win                  \
+                        -icon      warning               \
+                        -title     "Are you sure?"       \
+                        -ignoretag "sim_unlock"          \
+                        -default   cancel                \
+                        -buttons   {
+                            ok      "Return to Prep"
+                            cancel  "Cancel"
+                        } -message [normalize {
+                            If you return to Scenario Preparation, you 
+                            will lose any changes made since leaving
+                            Scenario Preparation.
+                        }]]
+
+        if {$answer eq "ok"} {
+            order send gui SIM:UNLOCK
         }
     }
 
@@ -1748,28 +1791,64 @@ snit::widget appwin {
         } else {
             set info(simstate) [esimstate longname [sim state]]
         }
+        
+        # NEXT, update the Prep Lock button
+        if {[sim state] eq "PREP"} {
+            $win.toolbar.preplock configure \
+                -image ::projectgui::icon::unlocked22
+            DynamicHelp::add $win.toolbar.preplock \
+                -text "Lock Scenario Preparation"
+        } else {
+            $win.toolbar.preplock configure -image {
+                ::projectgui::icon::locked22
+                disabled ::projectgui::icon::locked22d
+            }
+
+            if {[sim state] eq "RUNNING"} {
+                $win.toolbar.preplock configure -state disabled
+            } else {
+                $win.toolbar.preplock configure -state normal
+            }
+                    
+            DynamicHelp::add $win.toolbar.preplock \
+                -text "Unlock Scenario Preparation"
+        }
 
         # NEXT, Update Run/Pause button and the Duration
         if {[sim state] eq "RUNNING"} {
-            $win.toolbar.runpause configure -image ::projectgui::icon::pause22
+            $win.toolbar.runpause configure \
+                -image ::projectgui::icon::pause22 \
+                -state normal
             DynamicHelp::add $win.toolbar.runpause -text "Pause Simulation"
 
             $win.toolbar.duration configure -state disabled
         } elseif {[sim state] eq "SNAPSHOT"} {
             $win.toolbar.runpause configure \
-                -image ::projectgui::icon::rewind22
+                -image ::projectgui::icon::rewind22 \
+                -state normal
             DynamicHelp::add $win.toolbar.runpause -text "Leave Snapshot Mode"
 
             $win.toolbar.duration configure -state disabled
-        } else {
-            $win.toolbar.runpause configure -image ::projectgui::icon::play22
+        } elseif {[sim state] eq "PAUSED"} {
+            $win.toolbar.runpause configure \
+                -image ::projectgui::icon::play22 \
+                -state normal
             DynamicHelp::add $win.toolbar.runpause -text "Run Simulation"
 
             $win.toolbar.duration configure -state readonly
+        } else {
+            # PREP
+            $win.toolbar.runpause configure \
+                -image ::projectgui::icon::play22d \
+                -state disabled
+            DynamicHelp::add $win.toolbar.runpause -text "Run Simulation"
+
+            $win.toolbar.duration configure -state disabled
+
         }
 
         # NEXT, Update the snapshot buttons.
-        if {[sim state] eq "RUNNING"} {
+        if {[sim state] in {"PREP" "RUNNING"}} {
             $win.toolbar.first  configure -state disabled
             $win.toolbar.prev   configure -state disabled
             $win.toolbar.next   configure -state disabled

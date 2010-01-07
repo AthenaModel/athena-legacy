@@ -192,6 +192,7 @@ snit::widgetadaptor nbhoodbrowser {
     # Public Methods
 
     delegate method * to hull
+    delegate method {uid *} to hull using "%c uid %m"
 
     # uid stack
     #

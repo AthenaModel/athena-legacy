@@ -74,8 +74,8 @@ snit::type sim {
     #
     # Initializes the simulation proper, to the extent that this can
     # be done at application initialization.  True initialization
-    # happens just before the first time advance from time 0, when
-    # the simulation state moves from PREP to RUNNING.
+    # happens when scenario preparation is locked, when 
+    # the simulation state moves from PREP to PAUSED.
 
     typemethod init {} {
         # FIRST, register with scenario(sim) as a saveable
@@ -213,11 +213,7 @@ snit::type sim {
     # Reloads snapshot 0, and enters.
 
     typemethod restart {} {
-        sim snapshot first
-
-        if {$info(state) eq "SNAPSHOT"} {
-            sim snapshot enter
-        }
+        sim mutate unlock
     }
 
     #-------------------------------------------------------------------
@@ -227,7 +223,7 @@ snit::type sim {
     #
     # Loads the tick 0 snapshot, which resets the simulation as a 
     # whole to the moment before it first 
-    # transitioned from PREP to RUNNING.
+    # transitioned from PAUSED to RUNNING.
 
     typemethod {snapshot first} {} {
         $type LoadSnapshot 0
@@ -298,9 +294,8 @@ snit::type sim {
     #
     # tick        The timestamp of the snapshot to load
     #
-    # Loads the snapshot; if the tick is 0, makes sure we're
-    # in the PREP state.  If the time now is later the latest checkpoint,
-    # saves one.
+    # Loads the snapshot.  If the time now is later than 
+    # the latest checkpoint, saves one so that we can return.
 
     typemethod LoadSnapshot {tick} {
         assert {[sim state] in {PAUSED SNAPSHOT}}
@@ -317,13 +312,8 @@ snit::type sim {
         # NEXT, PAUSED if we're at the 
         # last snapshot, and SNAPSHOT otherwise.
         if {$tick == [scenario snapshot latest]} {
-            if {$tick == 0} {
-                $type SetState PREP
-                log newlog prep
-            } else {
-                $type SetState PAUSED
-                log newlog latest
-            }
+            $type SetState PAUSED
+            log newlog latest
         } else {
             $type SetState SNAPSHOT
             log newlog snapshot
@@ -356,11 +346,7 @@ snit::type sim {
         scenario snapshot purge $now
 
         # NEXT, set state
-        if {$now == 0} {
-            $type SetState PREP
-        } else {
-            $type SetState PAUSED
-        }
+        $type SetState PAUSED
 
         # NEXT, log it.
         log newlog latest
@@ -476,7 +462,7 @@ snit::type sim {
 
     # check ?-log?
     #
-    # Does a sanity check of the model: can we advance time from PREP?
+    # Does a sanity check of the model: can leave PREP for PAUSED?
     # Returns 1 if sane and 0 otherwise.  If -log is specified, then the 
     # results are logged.
 
@@ -635,6 +621,57 @@ snit::type sim {
         return [mytypemethod mutate startdate $oldDate]
     }
 
+    # mutate lock
+    #
+    # Causes the simulation to transition from PREP to PAUSED in time 0.
+
+    typemethod {mutate lock} {} {
+        assert {$info(state) eq "PREP"}
+
+        # FIRST, save a PREP checkpoint.
+        scenario snapshot save -prep
+
+        # NEXT, initialize the ARAM, etc.
+        aram     init -reload
+        nbstat   init
+        mad      getdrivers
+
+        # NEXT, set the state to PAUSED
+        $type SetState PAUSED
+
+        # NEXT, return "", as this can't be undone.
+        return ""
+    }
+
+    # mutate unlock
+    #
+    # Causes the simulation to transition from PAUSED or SNAPSHOT
+    # to PREP.
+
+    typemethod {mutate unlock} {} {
+        assert {$info(state) in {PAUSED SNAPSHOT}}
+
+        # FIRST, load the PREP snapshot
+        scenario snapshot load -prep
+
+        # NEXT, purge future snapshots
+        scenario snapshot purge 0
+
+        # NEXT, set state
+        $type SetState PREP
+
+        # NEXT, log it.
+        log newlog prep
+        log normal sim "Unlocked Scenario Preparation"
+
+        # NEXT, reconfigure
+        # TBD: Is this needed?
+        $type reconfigure
+
+        # NEXT, return "", as this can't be undone.
+        return ""
+    }
+
     # mutate run ?options...?
     #
     # -ticks ticks       Run until now + ticks
@@ -688,6 +725,10 @@ snit::type sim {
         assert {$info(stoptime) == 0 || $info(stoptime) > [simclock now]}
         assert {!$blocking || $info(stoptime) != 0}
 
+        # NEXT, save a snapshot, purging any later snapshots.
+        scenario snapshot purge [simclock now]
+        scenario snapshot save
+
         # NEXT, set the state to running.  This will initialize the
         # models, if need be.
         $type SetState RUNNING
@@ -695,15 +736,7 @@ snit::type sim {
         # NEXT, Either execute the first tick and schedule the next,
         # or run in blocking mode until the stop time.
         if {!$blocking} {
-            # FIRST, run a tick immediately.  This has two effects:
-            # 
-            # * Single-stepping is quick no matter what the sim speed
-            #   is.
-            #
-            # * The user is never PAUSED in time 0; this prevents
-            #   Athena from overwriting a PREP tick 0 snapshot with
-            #   a PAUSED tick 0 snapshot.
-
+            # FIRST, run a tick immediately.
             $type Tick
 
             # NEXT, if we didn't pause as a result of the first
@@ -733,12 +766,8 @@ snit::type sim {
 
         # NEXT, set the state to paused, if we're running
         if {$info(state) eq "RUNNING"} {
-            if {[simclock now] > 0} {
-                set info(stoptime) 0
-                $type SetState PAUSED
-            } else {
-                $type SetState PREP
-            }
+            set info(stoptime) 0
+            $type SetState PAUSED
         }
 
         # NEXT, cannot be undone.
@@ -808,28 +837,9 @@ snit::type sim {
     # state    The simulation state
     #
     # Sets the current simulation state, and reports it as <State>.
-    # On transition to RUNNING, saves snapshot
 
     typemethod SetState {state} {
-        # FIRST, save the old state, and determine
-        # whether or not this is a state transition.
-        set oldState   $info(state)
-        let transition {$state ne $oldState}
-
-        # FIRST, save snapshot if need be, purging any later snapshots.
-        if {$transition && $state eq "RUNNING"} {
-            scenario snapshot purge [simclock now]
-            scenario snapshot save
-
-            if {$oldState eq "PREP"} {
-                # FIRST, initialize ARAM, other sim models
-                aram     init -reload
-                nbstat   init
-                mad      getdrivers
-            }
-        }
-
-        # NEXT, transition to the new state.
+        # FIRST, transition to the new state.
         set info(state) $state
         log normal sim "Simulation state is $info(state)"
 
@@ -844,14 +854,17 @@ snit::type sim {
     # Returns a checkpoint of the non-RDB simulation data.
 
     typemethod checkpoint {{option ""}} {
+        assert {$info(state) ne "RUNNING"}
+
         if {$option eq "-saved"} {
             set info(changed) 0
         }
 
         set checkpoint [dict create]
-
-        dict set checkpoint t0   [simclock cget -t0]
-        dict set checkpoint now  [simclock now]
+        
+        dict set checkpoint state $info(state)
+        dict set checkpoint t0    [simclock cget -t0]
+        dict set checkpoint now   [simclock now]
     }
 
     # restore checkpoint ?-saved?
@@ -860,20 +873,20 @@ snit::type sim {
     
     typemethod restore {checkpoint {option ""}} {
         # FIRST, restore the checkpoint data
-        simclock configure -t0 [dict get $checkpoint t0]
-        simclock reset
-        simclock advance [dict get $checkpoint now]
+        dict with checkpoint {
+            simclock configure -t0 $t0
+            simclock reset
+            simclock advance $now
 
-        # Don't use SetState, as we'll be reconfiguring immediately.
-        set latest [scenario snapshot latest]
-
-        if {[simclock now] < $latest} {
-            set info(state) SNAPSHOT
-        } elseif {[simclock now] == 0} {
-            set info(state) PREP
-        } else {
-            set info(state) PAUSED
+            if {[info exists state]} {
+                set info(state) $state
+            } elseif {$now == 0} {
+                set info(state) PREP
+            } else {
+                set info(state) PAUSED
+            }
         }
+
 
         if {$option eq "-saved"} {
             set info(changed) 0
@@ -926,13 +939,60 @@ order define ::sim SIM:STARTDATE {
     setundo [join $undo \n]
 }
 
+# SIM:LOCK
+#
+# Locks scenario preparation and transitions from PREP to PAUSED.
+
+order define ::sim SIM:LOCK {
+    title "Lock Scenario Preparation"
+    options -sendstates {PREP}
+} {
+    # FIRST, do the sanity check.
+    if {![sim check -log]} {
+        reject * {
+            Scenario sanity check failed; time cannot advance.
+            Fix the error, and try again.
+            Please see the log for details.
+        }
+
+        if {[interface] eq "gui"} {
+            [app topwin] tab view slog
+        }
+    }
+
+    returnOnError -final
+
+    # NEXT, lock scenario prep.
+    lappend undo [$type mutate lock]
+
+    setundo [join $undo \n]
+}
+
+
+# SIM:UNLOCK
+#
+# Locks scenario preparation and transitions from PREP to PAUSED.
+
+order define ::sim SIM:UNLOCK {
+    title "Unlock Scenario Preparation"
+    options -sendstates {PAUSED SNAPSHOT}
+} {
+    returnOnError -final
+
+    # NEXT, unlock scenario prep.
+    lappend undo [$type mutate unlock]
+
+    setundo [join $undo \n]
+}
+
+
 # SIM:RUN
 #
 # Starts the simulation going.
 
 order define ::sim SIM:RUN {
     title "Run Simulation"
-    options -sendstates {PREP PAUSED}
+    options -sendstates {PAUSED}
 
     parm days  text "Days to Run"
     parm block enum "Block?"         -type eyesno -defval NO
@@ -952,26 +1012,11 @@ order define ::sim SIM:RUN {
         }
     }
 
-    returnOnError
+    returnOnError -final
 
     if {$parms(block) eq ""} {
         set parms(block) 0
     }
-
-    # NEXT, do the sanity check (if we're in the PREP state)
-    if {[sim state] eq "PREP" && ![sim check -log]} {
-        reject * {
-            Scenario sanity check failed; time cannot advance.
-            Fix the error, and try again.
-            Please see the log for details.
-        }
-
-        if {[interface] eq "gui"} {
-            [app topwin] tab view slog
-        }
-    }
-
-    returnOnError -final
 
     # NEXT, start the simulation and return the undo script
 

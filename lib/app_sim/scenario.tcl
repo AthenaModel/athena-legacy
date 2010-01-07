@@ -347,7 +347,7 @@ snit::type scenario {
     #-------------------------------------------------------------------
     # Snapshot Management
 
-    # snapshot save
+    # snapshot save ?-prep?
     #
     # Saves a snapshot as of the current sim time.  The snapshot is
     # an XML string of everything but the "maps" and "snapshots" tables.
@@ -359,8 +359,11 @@ snit::type scenario {
     # anyway) and the GRAM history table entries never change after they
     # are written.  We can leave them in place, and truncate the tables
     # if we re-enter the time-stream.
+    #
+    # If the -prep flag is given, then the snapshot is saved for
+    # time "-1", indicating that it's a PREP-state snapshot.
 
-    typemethod {snapshot save} {} {
+    typemethod {snapshot save} {{opt -now}} {
         # FIRST, save the saveables
         $type SaveSaveables
 
@@ -376,7 +379,12 @@ snit::type scenario {
         log detail scenario "Snapshot size=[string length $snapshot]"
 
         # NEXT, save it into the RDB
-        set tick [sim now]
+        if {$opt eq "-prep"} {
+            assert {[sim now] == 0}
+            set tick -1
+        } else {
+            set tick [sim now]
+        }
 
         rdb eval {
             INSERT OR REPLACE INTO snapshots(tick,snapshot)
@@ -389,19 +397,25 @@ snit::type scenario {
 
     # snapshot load tick
     #
-    # tick     The tick of the snapshot to load
+    # tick     The tick of the snapshot to load, or -prep.
     #
     # Loads the specified snapshot.  The caller should
     # reconfigure the sim.
 
     typemethod {snapshot load} {tick} {
-        require {$tick in [scenario snapshot list]} \
+        require {$tick eq "-prep" || $tick in [scenario snapshot list]} \
             "No snapshot at tick $tick"
 
         # FIRST, get the snapshot
+        if {$tick eq "-prep"} {
+            set t -1
+        } else {
+            set t $tick
+        }
+
         set snapshot [rdb onecolumn {
             SELECT snapshot FROM snapshots 
-            WHERE tick=$tick
+            WHERE tick=$t
         }]
 
         # NEXT, import it.
@@ -420,6 +434,7 @@ snit::type scenario {
     typemethod {snapshot list} {} {
         rdb eval {
             SELECT tick FROM snapshots
+            WHERE tick >= 0
             ORDER BY tick
         }
     }
