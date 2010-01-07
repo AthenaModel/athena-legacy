@@ -636,6 +636,9 @@ snit::type sim {
         nbstat   init
         mad      getdrivers
 
+        # NEXT, execute events scheduled at time 0.
+        eventq advance 0
+
         # NEXT, set the state to PAUSED
         $type SetState PAUSED
 
@@ -780,25 +783,9 @@ snit::type sim {
     # Tick
     #
     # This command is executed at each time tick.
-    #
-    # TBD: The precise sequence of events during a Tick has yet
-    # to be fully determined.  At present, though, we are presuming
-    # that scheduled events are executed at the *beginning* of the
-    # tick.  Models that require proper sequencing relative to
-    # other models during the tick are called subsequently.
 
     typemethod Tick {} {
-        # FIRST, advance time one tick.
-        simclock tick
-
-        notifier send $type <Time>
-        log normal sim "Tick [simclock now]"
-        set info(changed) 1
-        
-        # NEXT, execute eventq events
-        eventq advance [simclock now]
-
-        # NEXT, advance models
+        # FIRST, advance models
         ensit assess
         nbstat analyze
         actsit analyze
@@ -816,6 +803,16 @@ snit::type sim {
 
         # NEXT, check Reactive Decision Conditions (RDCs)
         # TBD: None yet
+
+        # NEXT, advance time one tick.
+        simclock tick
+
+        notifier send $type <Time>
+        log normal sim "Tick [simclock now]"
+        set info(changed) 1
+        
+        # NEXT, execute eventq events
+        eventq advance [simclock now]
 
         # NEXT, pause if it's the pause time.
         if {$info(stoptime) != 0 &&
@@ -881,12 +878,13 @@ snit::type sim {
             if {[info exists state]} {
                 set info(state) $state
             } elseif {$now == 0} {
+                # Fix up older scenario files, in which state was not
+                # checkpointed.
                 set info(state) PREP
             } else {
                 set info(state) PAUSED
             }
         }
-
 
         if {$option eq "-saved"} {
             set info(changed) 0

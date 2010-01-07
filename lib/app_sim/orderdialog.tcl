@@ -368,7 +368,13 @@ snit::widget orderdialog {
         # Can't do this above, as it sets the state of the
         # send and sendclose buttons.
         if {[order cget $options(-order) -schedulestates] ne ""} {
-            $whenFld set "+1"
+            if {[order state] eq "PREP"} {
+                # Orders must be scheduled in advance; but in the
+                # PREP state, time 0 hasn't yet occurred.
+                $whenFld set "+0"
+            } else {
+                $whenFld set "+1"
+            }
         }
         
         pack $win.buttons.clear     -side left  -padx {2 15}
@@ -1364,8 +1370,10 @@ snit::widget orderdialog {
 
             set timespec [$whenFld get]
 
+            # If we're in the PREP state then a time of now (0) is 
+            # valid; otherwise, we need it list now+1.
             if {![catch {simclock future validate $timespec} t]  &&
-                $t > [simclock now]
+                ([order state] eq "PREP" || $t > [simclock now])
             } {
                 $schedBtn configure -state normal
             } else {

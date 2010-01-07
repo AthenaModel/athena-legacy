@@ -1369,7 +1369,11 @@ order define ::order ORDER:SCHEDULE {
 
     # NEXT, time must be later than now.
     validate timespec {
-        if {$parms(timespec) == [simclock now]} {
+        if {$parms(timespec) < [simclock now]} {
+            reject timespec "The scheduled time must not be in the past."
+        }
+
+        if {[order state] ne "PREP" && $parms(timespec) == [simclock now]} {
             reject timespec \
                 "The scheduled time must be strictly in the future."
         }

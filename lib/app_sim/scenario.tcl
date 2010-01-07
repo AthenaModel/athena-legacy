@@ -162,6 +162,16 @@ snit::type scenario {
         # NEXT, restore the saveables
         $type RestoreSaveables -saved
 
+        # NEXT, An Egregiously Ugly Hack.  In Bug 2399, eventq
+        # was modified so that the initial time was -1, allowing
+        # events to be scheduled at time 0.  But older scenario files
+        # have it checkpointed as 0.  If the scenario is in
+        # the PREP state, this hack puts the eventq time to -1.
+
+        if {[sim state] eq "PREP"} {
+            set ::marsutil::eventq::info(time) -1
+        }
+
         # NEXT, save the name.
         if {[file extension $filename] ne ".xml"} {
             set info(dbfile) $filename
@@ -430,6 +440,7 @@ snit::type scenario {
     # snapshot list
     #
     # Returns a list of the ticks for which snapshots are available.
+    # Skip the -prep snapshot.
 
     typemethod {snapshot list} {} {
         rdb eval {
