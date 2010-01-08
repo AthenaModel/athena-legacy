@@ -57,7 +57,7 @@ namespace eval ::athena_test::tests:: {
         ted create NB1 BLUE USAID SHIA NB1SHIA
 
         scenario mutate reconcile
-
+        ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
     }
 

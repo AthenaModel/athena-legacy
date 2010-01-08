@@ -693,7 +693,7 @@ snit::type sim {
     # -ticks or -until.
 
     typemethod {mutate run} {args} {
-        assert {$info(state) ne "RUNNING"}
+        assert {$info(state) eq "PAUSED"}
 
         # FIRST, get the pause time
         set info(stoptime) 0
@@ -794,12 +794,15 @@ snit::type sim {
             aam assess
         }
 
-        # NEXT, advance GRAM; but first give it the latest
+        # NEXT, advance GRAM (if t > 0); but first give it the latest
         # population data.
-        aram update population {*}[rdb eval {
-            SELECT n,g,population FROM demog_ng
-        }]
-        aram advance
+        if {[simclock now] > 0} {
+            aram update population {*}[rdb eval {
+                SELECT n,g,population FROM demog_ng
+            }]
+
+            aram advance
+        }
 
         # NEXT, check Reactive Decision Conditions (RDCs)
         # TBD: None yet

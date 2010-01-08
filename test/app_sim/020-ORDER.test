@@ -72,12 +72,17 @@ namespace eval ::athena_test::tests:: {
         timespec {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
     }
 
-
-    test SCHEDULE-1.3 {Invalid timespec: not in future} -body {
+    test SCHEDULE-1.3 {Invalid timespec: not in future} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        ted order SIM:LOCK
+        ted order SIM:RUN days 1 block yes
+    } -body {
         ted order -reject ORDER:SCHEDULE {
             timespec NOW
             name     UNIT:MOVE
         }
+    } -cleanup {
+        ted cleanup
     } -result {
         timespec {The scheduled time must be strictly in the future.}
     }
@@ -164,13 +169,13 @@ id tick zulu         name      parmdict
 
     test SCHEDULE-3.1 {Scheduled order is rejected} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
-
         ted order ORDER:SCHEDULE {
             timespec +1
             name     UNIT:MOVE
             parmdict {u U1 location A00A00}
         }
     } -body {        
+        ted order SIM:LOCK
         ted order SIM:RUN days 5 block YES
         simclock now
     } -cleanup {
@@ -186,6 +191,7 @@ id tick zulu         name      parmdict
             parmdict {u BLUE1 location B00B00}
         }
     } -body {        
+        ted order SIM:LOCK
         ted order SIM:RUN days 5 block YES
         ted query {SELECT u, location FROM gui_units}
     } -cleanup {
@@ -205,6 +211,7 @@ BLUE1 B00B00
             parmdict {u BLUE1 location B00B00}
         }
     } -body {        
+        ted order SIM:LOCK
         ted order SIM:RUN days 5 block YES
         simclock now
     } -cleanup {

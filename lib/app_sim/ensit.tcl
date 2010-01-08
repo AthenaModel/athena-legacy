@@ -79,10 +79,9 @@ snit::type ensit {
                 $sit set state ACTIVE
 
                 # NEXT, set the start and change times to right now.
-                # TBD: This is a work-around, until we revise the
-                # order of events during a tick.
-                $sit set ts [simclock now]
-                $sit set tc [simclock now]
+                # TBD: This probably isn't necessary
+                # $sit set ts [simclock now]
+                # $sit set tc [simclock now]
 
                 # NEXT, if it spawns, schedule the spawn
                 $sit ScheduleSpawn

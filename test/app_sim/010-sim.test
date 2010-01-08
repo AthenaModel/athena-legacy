@@ -143,6 +143,7 @@ namespace eval ::athena_test::tests:: {
     test mutate_runpause-1.1 {No stop time} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
     } -body {
+        sim mutate lock
         sim mutate run
         sim stoptime
     } -cleanup {
@@ -153,6 +154,7 @@ namespace eval ::athena_test::tests:: {
     test mutate_runpause-1.2 {Run for -ticks} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
     } -body {
+        sim mutate lock
         sim mutate run -ticks 5
         sim stoptime
     } -cleanup {
@@ -162,6 +164,7 @@ namespace eval ::athena_test::tests:: {
     test mutate_runpause-1.3 {Run -until} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
     } -body {
+        sim mutate lock
         sim mutate run -until 10
         sim stoptime
     } -cleanup {
@@ -171,6 +174,7 @@ namespace eval ::athena_test::tests:: {
     test mutate_runpause-1.4 {Sets state to "RUNNING"} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
     } -body {
+        sim mutate lock
         sim mutate run
         sim state
     } -cleanup {
@@ -178,21 +182,23 @@ namespace eval ::athena_test::tests:: {
     } -result {RUNNING}
 
 
-    test mutate_runpause-1.5 {Can't run if "RUNNING"} -setup {
+    test mutate_runpause-1.5 {Can't run unless "PAUSED"} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
     } -body {
+        sim mutate lock
         sim mutate run
         sim mutate run
     } -returnCodes {
         error
     } -cleanup {
         cleanup
-    } -result {Assertion failed: $info(state) ne "RUNNING"}
+    } -result {Assertion failed: $info(state) eq "PAUSED"}
 
 
     test mutate_runpause-1.6 {Sends <State>} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
     } -body {
+        sim mutate lock
         ted notifier bind ::sim <State>
         sim mutate run
         ted notifier received
@@ -206,6 +212,7 @@ namespace eval ::athena_test::tests:: {
     test mutate_runpause-1.7 {Returns undo script} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
     } -body {
+        sim mutate lock
         sim mutate run
     } -cleanup {
         cleanup
@@ -215,6 +222,7 @@ namespace eval ::athena_test::tests:: {
     test mutate_runpause-2.1 {Pauses if running} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
     } -body {
+        sim mutate lock
         sim mutate run
         simclock tick
         sim mutate pause
@@ -227,6 +235,7 @@ namespace eval ::athena_test::tests:: {
     test mutate_runpause-2.2 {Sends <State>} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
     } -body {
+        sim mutate lock
         sim mutate run
         ted notifier bind ::sim <State>
         sim mutate pause
@@ -250,6 +259,7 @@ namespace eval ::athena_test::tests:: {
     test mutate_runpause-2.4 {Runs for some number of ticks} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
     } -body {
+        sim mutate lock
         sim mutate run -ticks 5 -block yes
         list [simclock now] [sim state]
     } -cleanup {
@@ -271,7 +281,9 @@ namespace eval ::athena_test::tests:: {
         ted create NB1 BLUE SHIA NB1SHIA
     } -body {
         set states [list]
-
+        
+        lappend states [sim state]
+        sim mutate lock
         lappend states [sim state]
         sim mutate run
         simclock tick
@@ -284,7 +296,7 @@ namespace eval ::athena_test::tests:: {
         set states
     } -cleanup {
         cleanup
-    } -result {PREP RUNNING PAUSED PREP}
+    } -result {PREP PAUSED RUNNING PAUSED PREP}
 
 
     #-------------------------------------------------------------------
@@ -297,6 +309,7 @@ namespace eval ::athena_test::tests:: {
 
         lappend times [sim stoptime]
 
+        sim mutate lock
         sim mutate run
         lappend times [sim stoptime]
         sim mutate pause
@@ -323,6 +336,7 @@ namespace eval ::athena_test::tests:: {
 
     test restart-1.1 {Check results} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
+        sim mutate lock
         sim mutate run
         simclock advance 5
         sim mutate pause
