@@ -110,6 +110,41 @@ namespace eval ::athena_test::tests:: {
     }
     
     #-------------------------------------------------------------------
+    # SIM:LOCK
+
+    
+    test LOCK-1.1 {sanity check fails} -body {
+        ted order -reject SIM:LOCK
+    } -cleanup {
+        cleanup
+    } -result {
+        * {Scenario sanity check failed; time cannot advance. Fix the error, and try again. Please see the log for details.}
+    }
+
+    test LOCK-2.1 {locks the scenario} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
+        ted order SIM:LOCK
+        sim state
+    } -cleanup {
+        cleanup
+    } -result {PAUSED}
+
+    test LOCK-2.2 {Sends <State>} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
+        ted notifier bind ::sim <State>
+        ted order SIM:LOCK
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sim <State>}
+    }
+
+
+
+    #-------------------------------------------------------------------
     # SIM:RUN
 
     
@@ -239,6 +274,35 @@ namespace eval ::athena_test::tests:: {
     } -result {
         {::sim <State>}
     }
+
+    #-------------------------------------------------------------------
+    # SIM:UNLOCK
+
+    
+    test LOCK-1.1 {unlocks the scenario} -setup {
+        setup
+    } -body {
+        ted order SIM:UNLOCK
+        sim state
+    } -cleanup {
+        cleanup
+    } -result {PREP}
+
+    test LOCK-1.2 {Sends <State>} -setup {
+        setup
+    } -body {
+        ted notifier bind ::sim <State>
+        ted order SIM:UNLOCK
+        ted notifier received
+        # Event is sent twice, once when state is set, and then
+        # as part of "sim reconfigure".
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sim <State>}
+        {::sim <State>}
+    }
+
 
 
     #-------------------------------------------------------------------

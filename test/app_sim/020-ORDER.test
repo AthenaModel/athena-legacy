@@ -167,6 +167,40 @@ id tick zulu         name      parmdict
         {::order <Queue>}
     }
 
+
+    test SCHEDULE-2.5 {Can schedule order at +0 while in PREP} -body {
+        ted order ORDER:SCHEDULE {
+            timespec +0
+            name     UNIT:MOVE
+            parmdict {u U1 location A00A00}
+        }
+        
+        ted query {SELECT * FROM gui_orders}
+    } -cleanup {
+        cleanup
+    } -result {
+id tick zulu         name      parmdict             
+-- ---- ------------ --------- -------------------- 
+1  0    100000ZJAN10 UNIT:MOVE u U1 location A00A00 
+    }
+
+
+    test SCHEDULE-2.6 {Cannot schedule order at +0 while in PREP} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        ted order SIM:LOCK
+    } -body {
+        ted order ORDER:SCHEDULE {
+            timespec +0
+            name     UNIT:MOVE
+            parmdict {u U1 location A00A00}
+        }
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {timespec {The scheduled time must be strictly in the future.}}
+
+
     test SCHEDULE-3.1 {Scheduled order is rejected} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
         ted order ORDER:SCHEDULE {

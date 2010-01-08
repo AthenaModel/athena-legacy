@@ -135,6 +135,69 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {1}
 
+    #-------------------------------------------------------------------
+    # mutate lock
+
+    test mutate_lock-1.1 {lock sets state to PAUSED} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
+        sim mutate lock
+
+        sim state
+    } -cleanup {
+        cleanup
+    } -result {PAUSED}
+
+
+    test mutate_lock-1.2 {must be in PREP} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        sim mutate lock
+    } -body {
+        sim mutate lock
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Assertion failed: $info(state) eq "PREP"}
+
+    test mutate_lock-1.3 {Saves a PREP snapshot} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
+        sim mutate lock
+
+        rdb eval {SELECT tick FROM snapshots}
+    } -cleanup {
+        cleanup
+    } -result {-1}
+
+    test mutate_lock-1.4 {Initializes GRAM} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+    } -body {
+        sim mutate lock
+
+        rdb eval {SELECT driver FROM gram_driver}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test mutate_lock-1.5 {Executes events scheduled at time 0} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        ted order ORDER:SCHEDULE {
+            timespec +0
+            name     REPORT:SATISFACTION:CIVILIAN
+            parmdict {n ALL g ALL}
+        }
+    } -body {
+        sim mutate lock
+
+        ted query {SELECT time, rtype, subtype FROM reports}
+    } -cleanup {
+        cleanup
+    } -result {
+time rtype subtype 
+---- ----- ------- 
+0    GRAM  SAT     
+    }
 
     #-------------------------------------------------------------------
     # mutate run/mutate pause
@@ -265,6 +328,49 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {5 PAUSED}
+
+    #-------------------------------------------------------------------
+    # mutate unlock
+
+    test mutate_unlock-1.1 {Can't unlock in PREP} -body {
+        sim mutate unlock
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Assertion failed: $info(state) in {PAUSED SNAPSHOT}}
+
+    test mutate_unlock-1.2 {Sets state to PREP} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        sim mutate lock
+    } -body {
+        sim mutate unlock
+        sim state
+    } -cleanup {
+        cleanup
+    } -result {PREP}
+
+    test mutate_unlock-1.3 {Restores PREP snapshot} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        sim mutate lock
+        ted order REPORT:SATISFACTION:CIVILIAN n ALL g ALL
+    } -body {
+        sim mutate unlock
+        rdb eval {SELECT count(*) FROM reports}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test mutate_unlock-1.4 {Purges future snapshots} -setup {
+        ted create NB1 BLUE SHIA NB1SHIA
+        sim mutate lock
+        sim mutate run -ticks 1 -block yes
+    } -body {
+        sim mutate unlock
+        rdb eval {SELECT tick FROM snapshots}
+    } -cleanup {
+        cleanup
+    } -result {-1}
 
     #-------------------------------------------------------------------
     # now
