@@ -15,7 +15,7 @@
 
 package require snit
 package require sqlite3
-package require pixane
+package require Img
 package require tablelist
 package require treectrl  2.2.6
 package require Tkhtml 2.0

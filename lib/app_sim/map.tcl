@@ -105,21 +105,17 @@ snit::type map {
 
     typemethod load {filename} {
         # FIRST, is it a real image?
-        set img [pixane create]
-
         if {[catch {
-            pixane load $img -file $filename
+            set img [image create photo -file $filename]
         } result]} {
-            pixane delete $img
-
             error "Could not open the specified file as a map image"
         }
         
         # NEXT, get the image data, and save it in the RDB
         set tail [file tail $filename]
-        set data [pixane save $img -format jpeg]
-        set width [pixane width $img]
-        set height [pixane height $img]
+        set data [$img data -format jpeg]
+        set width [image width $img]
+        set height [image height $img]
 
         rdb eval {
             INSERT OR REPLACE
@@ -127,7 +123,7 @@ snit::type map {
             VALUES(1,$tail,$width,$height,$data);
         }
 
-        pixane delete $img
+        image delete $img
 
         # NEXT, load the new map
         $type reconfigure

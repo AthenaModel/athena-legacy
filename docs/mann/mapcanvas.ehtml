@@ -20,7 +20,7 @@ features are supported.<p>
 
 The map is a single image file, defining the map background for the
 entire playbox at 100% zoom.  The mapcanvas(n) has the ability to zoom
-in and out on this background.<p>
+in and out on this background for a variety of <<iref zoomfactors>>.<p>
 
 <<subsection "Coordinate Systems">>
 
@@ -378,8 +378,6 @@ is updated accordingly; it may be expressed as a
 list of map reference strings or map coordinates, and as one argument or as
 multiple arguments.<p>
 
-
-
 <</deflist nbhood>>
 
 <<defitem refresh {<i>pathName</i> refresh}>>
@@ -402,11 +400,16 @@ arguments, or as a single argument, a list of two coordinates.<p>
 <<defitem zoom {<i>pathName</i> zoom ?<i>factor</i>?}>>
 
 Called with no argument, queries the current zoom factor.  Otherwise,
-the <i>factor</i> must be a valid zoom factor, an integer percentage,
-e.g., 100 indicates a 100% zoom, i.e., full-size.<p>
+the <i>factor</i> must be a valid zoom factor, an integer percentage
+from the list returned by <<iref zoomfactors>>.  For example,
+100 indicates a 100% zoom, i.e., full-size.<p>
 
 If the zoom <i>factor</i> is changed, mapcanvas(n) scales the
 <code>-map</code> and caches and displays the result.<p>
+
+<<defitem zoomfactors {<i>pathName</i> zoomfactors}>>
+
+Returns the list of valid zoom factors for use with <<iref zoom>>.<p>
 
 <<defitem c2m {<i>pathName</i> c2m <i>cx cy</i>}>>
 

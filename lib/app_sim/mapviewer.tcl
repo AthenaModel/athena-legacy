@@ -394,12 +394,17 @@ snit::widget mapviewer {
             -text "Select the neighborhood fill criteria"
 
         # Zoom Box
-        menubox $win.hbar.zoombox                                     \
-            -textvariable [myvar view(zoom)]                          \
-            -font         codefont                                    \
-            -width        4                                           \
-            -justify      right                                       \
-            -values       {25% 50% 75% 100% 125% 150% 200% 250% 300%} \
+        set factors [list]
+        foreach factor [$canvas zoomfactors] {
+            lappend factors "$factor%"
+        }
+
+        menubox $win.hbar.zoombox               \
+            -textvariable [myvar view(zoom)]    \
+            -font         codefont              \
+            -width        4                     \
+            -justify      right                 \
+            -values       $factors              \
             -command      [mymethod ZoomBoxSet]
 
         DynamicHelp::add $win.hbar.zoombox \

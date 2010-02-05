@@ -129,6 +129,21 @@ snit::widgetadaptor ::projectgui::mapcanvas {
     #-------------------------------------------------------------------
     # Lookup Tables
 
+    # Zoom Factors: Dictionary of -zoom/-subsample values, by zoom
+    # percentage
+
+    typevariable zoomfactors {
+        25  {1 4}
+        50  {1 2}
+        75  {3 4}
+        100 {1 1}
+        125 {5 4}
+        150 {3 2}
+        200 {2 1}
+        250 {5 2}
+        300 {3 1}
+    }
+
     # Mode data, by mode name
     #
     #    cursor    Name of the Tk cursor for this mode
@@ -298,8 +313,8 @@ snit::widgetadaptor ::projectgui::mapcanvas {
 
     # zooms array
     #
-    # Array of images by zoom factor.  The zoom factor is an
-    # integer percentage, e.g., 100% is full size.
+    # Array of images by zoom factor.  The zoom factor is one of
+    # the keys in the zoomfactors() array, e.g., 100 is full size.
 
     variable zooms -array {
         100 {}
@@ -384,14 +399,14 @@ snit::widgetadaptor ::projectgui::mapcanvas {
 
         # NEXT, clear the zoom cache
         foreach factor [array names zooms] {
-            if {$factor != 100} {
+            if {$factor ne "100"} {
                 image delete $zooms($factor)
             }
         }
         
         array unset zooms
 
-        # NEXT, set the zoom to 100
+        # NEXT, set the zoom to 100%
         set info(zoom) 100
         set zooms(100) $options(-map)
 
@@ -401,7 +416,7 @@ snit::widgetadaptor ::projectgui::mapcanvas {
 
     # zoom ?factor?
     #
-    # factor    The zoom factor, as an integer percentage.
+    # factor    The zoom factor
     #
     # Sets/queries the zoom factor.  Changing the zoom factor creates
     # a new zoom image (if needed) and refreshes the screen.
@@ -419,7 +434,10 @@ snit::widgetadaptor ::projectgui::mapcanvas {
         }
 
         # NEXT, validate the zoom factor
-        zoomfactor validate $factor
+        if {$factor ni [dict keys $zoomfactors]} {
+            return -code error -errorcode INVALID \
+                "Invalid zoom factor, should be one of: [join [dict keys $zoomfactors] {, }]"
+        }
 
         # NEXT, scale the image, if needed.
         if {$options(-map) ne "" &&
@@ -442,6 +460,14 @@ snit::widgetadaptor ::projectgui::mapcanvas {
         
         # FINALLY, return the zoom factor
         return $info(zoom)
+    }
+
+    # zoomfactors
+    #
+    # Returns the list of valid zoomfactors
+    
+    method zoomfactors {} {
+        return [dict keys $zoomfactors]
     }
 
     # refresh
@@ -1778,26 +1804,21 @@ snit::widgetadaptor ::projectgui::mapcanvas {
         $hull configure -cursor watch
         update idletasks
 
+        # NEXT, get the base image, and the upsample/downsample figures
+        set img $options(-map)
+        lassign [dict get $zoomfactors $factor] up down
 
-        # NEXT, get the base map
-        set base [pixcopy $options(-map)]
+        # NEXT, upsample, if necessary
+        set temp [image create photo]
+        $temp copy $img -zoom $up
 
-        # NEXT, create the scaled copy
-        set mult [expr {$factor/100.0}]
+        # NEXT, downsample, if necessary
+        set final [image create photo]
+        $final copy $temp -subsample $down
 
-        set newmap [pixane create]
-        
-        pixane resize $newmap                           \
-            [expr {int($mult * [pixane width  $base])}] \
-            [expr {int($mult * [pixane height $base])}]
-            
-        pixane scale $newmap $base
-
-        # NEXT, save the new image
-        set zooms($factor) [pixcopy $newmap]
-
-        # NEXT, delete the pixane images
-        pixane delete $base $newmap
+        # NEXT, delete the temp image and save the new image.
+        image delete $temp
+        set zooms($factor) $final
 
         # NEXT, restore the cursor
         $hull configure -cursor $oldCursor

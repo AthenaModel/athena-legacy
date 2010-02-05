@@ -104,7 +104,6 @@ bin: check_env src
 	tclapp $(TOP_DIR)/bin/athena.tcl                    \
 		$(TOP_DIR)/lib/*/*                          \
 		$(TOP_DIR)/mars/lib/*/*                     \
-		$(TOP_DIR)/mars/lib/pixane/*/*              \
 		-out $(TOP_DIR)/bin/athena                  \
 		-prefix $(BASE_KIT)                         \
 		-archive $(ARCHIVE)                         \
