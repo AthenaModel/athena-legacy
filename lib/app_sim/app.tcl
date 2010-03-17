@@ -38,7 +38,7 @@ snit::type app {
     pragma -hastypedestroy 0 -hasinstances 0
 
     #-------------------------------------------------------------------
-    # Section: Global Lookup Variables
+    # Group: Global Lookup Variables
 
     # Type Variable: derivedfg
     #
@@ -49,7 +49,7 @@ snit::type app {
     typevariable derivedfg "#008800"
 
     #-------------------------------------------------------------------
-    # Section: Type Variables
+    # Group: Type Variables
 
     # Type Variable: opts
     #
@@ -63,7 +63,7 @@ snit::type app {
     }
 
     #-------------------------------------------------------------------
-    # Section: Application Initialization
+    # Group: Application Initialization
 
     # Type Method: init
     #
@@ -168,6 +168,7 @@ snit::type app {
         report    init
         dam       init
         demog     init
+        econ      init
         aam       init
         aam_rules init
         mad       init
@@ -333,7 +334,7 @@ snit::type app {
 
 
     #-------------------------------------------------------------------
-    # Section: Utility Type Methods
+    # Group: Utility Type Methods
     #
     # This routines are application-specific utilities provided to the
     # rest of the application.

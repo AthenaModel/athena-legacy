@@ -88,6 +88,7 @@ source [file join $::app_sim::library mad.tcl                ]
 # Non-GUI: Simulation
 source [file join $::app_sim::library sim.tcl                ]
 source [file join $::app_sim::library demog.tcl              ]
+source [file join $::app_sim::library econ.tcl               ]
 source [file join $::app_sim::library aam.tcl                ]
 source [file join $::app_sim::library aam_rules.tcl          ]
 source [file join $::app_sim::library nbstat.tcl             ]

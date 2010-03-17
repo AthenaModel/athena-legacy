@@ -1594,12 +1594,22 @@ snit::widget appwin {
                 sim snapshot enter
             }
         } else {
+            order send gui SIM:RUN \
+                days [dict get $durations [$win.toolbar.duration get]]
+        }
+    }
+
+
+    # PrepLock
+    #
+    # Sends SIM:LOCK or SIM:UNLOCK, depending on state.
+
+    method PrepLock {} {
+        # FIRST, if we're in PREP then it's time to leave it.
+        if {[sim state] eq "PREP"} {
             if {[catch {
-                order send gui SIM:RUN \
-                    days [dict get $durations [$win.toolbar.duration get]]
+                order send gui SIM:LOCK
             } result opts]} {
-                # TBD: The sanity check should be done by SIM:LOCK, not
-                # by SIM:RUN.
                 # order(sim) should ensure that this is a REJECT; but 
                 # let's make sure
                 assert {[dict get $opts -errorcode] eq "REJECT"}
@@ -1612,18 +1622,6 @@ snit::widget appwin {
                     -title   "Not ready to run" \
                     -message $message 
             }
-        }
-    }
-
-
-    # PrepLock
-    #
-    # Sends SIM:LOCK or SIM:UNLOCK, depending on state.
-
-    method PrepLock {} {
-        # FIRST, if we're in PREP then it's time to leave it.
-        if {[sim state] eq "PREP"} {
-            order send gui SIM:LOCK
             return
         }
 

@@ -619,6 +619,19 @@ snit::type ::projectlib::parmdb {
                 valid range is 0.1 to 1.0.
         }
 
+        # Economic Model parameters
+
+        $ps subset econ {
+            Parameters which affect the Athena Economic Model.
+        }
+
+        $ps define econ.ticksPerTock ::projectlib::ipositive 7 {
+            Defines the size of the economic model "tock", in ticks.  
+            At each tock, Athena updates the economic model with the
+            latest demographic data, etc., and computes the new
+            state of the economy.
+        }
+
         # Ensit global parameters
         $ps subset dam.ensit {
             Parameters for the environmental situation rule sets in general.

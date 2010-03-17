@@ -634,6 +634,8 @@ snit::type sim {
         # NEXT, initialize the ARAM, etc.
         aram     init -reload
         nbstat   init
+        econ     calibrate
+        # TBD: demog should probably do something here.
         mad      getdrivers
 
         # NEXT, execute events scheduled at time 0.
@@ -792,6 +794,10 @@ snit::type sim {
         
         if {[simclock now] % [parmdb get aam.ticksPerTock] == 0} {
             aam assess
+        }
+
+        if {[simclock now] % [parmdb get econ.ticksPerTock] == 0} {
+            econ advance
         }
 
         # NEXT, advance GRAM (if t > 0); but first give it the latest
