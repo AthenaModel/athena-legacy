@@ -21,18 +21,6 @@ snit::type aam {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Initialization
-
-    # init
-    #
-    # Initializes the module before the simulation first starts to run.
-
-    typemethod init {} {
-        # NEXT, AAM is up.
-        log normal aam "Initialized"
-    }
-
-    #-------------------------------------------------------------------
     # Attrition Assessment
 
     # assess

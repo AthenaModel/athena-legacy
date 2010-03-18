@@ -49,12 +49,6 @@ snit::type actsit {
     #-------------------------------------------------------------------
     # Initialization method
 
-    typemethod init {} {
-        # FIRST, actsit is up.
-        log normal actsit "Initialized"
-    }
-
-
     # table
     #
     # Return the name of the RDB table for this type.

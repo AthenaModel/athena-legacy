@@ -62,7 +62,7 @@ snit::widgetadaptor nbgroupbrowser {
             -titlecolumns 2                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
-                ::sim <Reconfigure>
+                ::sim <DbSyncB>
                 ::sim <Tick>
                 ::demog <Update>
             } -layout [string map [list %D $::app::derivedfg] $layout]
@@ -178,4 +178,5 @@ snit::widgetadaptor nbgroupbrowser {
         order send gui GROUP:NBHOOD:DELETE n $n g $g
     }
 }
+
 

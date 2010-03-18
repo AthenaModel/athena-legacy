@@ -57,7 +57,7 @@ snit::widgetadaptor ordersentbrowser {
             -uid          id                          \
             -titlecolumns 3                           \
             -reloadon {
-                ::sim <Reconfigure>
+                ::sim <DbSyncB>
                 ::sim <Tick>
                 ::cif <Update>
             } -layout [string map [list %D $::app::derivedfg] $layout]
@@ -75,5 +75,6 @@ snit::widgetadaptor ordersentbrowser {
 
     delegate method * to hull
 }
+
 
 

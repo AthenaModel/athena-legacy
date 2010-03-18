@@ -61,7 +61,7 @@ snit::widgetadaptor orggroupbrowser {
             -selectioncmd [mymethod SelectionChanged] \
             -displaycmd   [mymethod DisplayData]      \
             -reloadon {
-                ::sim <Reconfigure>
+                ::sim <DbSyncB>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
@@ -185,6 +185,7 @@ snit::widgetadaptor orggroupbrowser {
         order send gui GROUP:ORGANIZATION:DELETE g $id
     }
 }
+
 
 
 

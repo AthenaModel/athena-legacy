@@ -146,17 +146,6 @@ snit::type ensit_rules {
     }
 
     #-------------------------------------------------------------------
-    # Initialization method
-
-    typemethod init {} {
-        # FIRST, check requirements
-        require {[info commands log]  ne ""} "log is not defined."
-
-        # NEXT, DAM Rules is up.
-        log normal envr "Initialized"
-    }
-
-    #-------------------------------------------------------------------
     # Public Typemethods
 
     # isactive ruleset

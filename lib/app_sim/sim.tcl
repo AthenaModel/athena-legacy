@@ -78,6 +78,8 @@ snit::type sim {
     # the simulation state moves from PREP to PAUSED.
 
     typemethod init {} {
+        log normal sim "init"
+
         # FIRST, register with scenario(sim) as a saveable
         scenario register $type
 
@@ -114,10 +116,11 @@ snit::type sim {
 
         scenario register ::aram
 
-        # NEXT, initialize the situation modules
+        # NEXT, initialize the simulation modules
+        econ      init
         situation init
 
-        log normal sim "Initialized"
+        log normal sim "init complete"
     }
 
     # LoadAram gram
@@ -205,7 +208,7 @@ snit::type sim {
         set info(changed) 0
         set info(state)   PREP
 
-        $type reconfigure
+        $type dbsync
     }
 
     # restart
@@ -326,8 +329,8 @@ snit::type sim {
         log normal sim $message
         app puts $message
 
-        # NEXT, reconfigure the app.
-        $type reconfigure
+        # NEXT, resync the app with the RDB
+        $type dbsync
 
         return
     }
@@ -357,43 +360,32 @@ snit::type sim {
         log normal sim $message
         app puts $message
 
-        # NEXT, reconfigure the app.
-        # TBD: Is this needed?
-        $type reconfigure
+        # NEXT, resync the app with the RDB
+        $type dbsync
     }
 
     #-------------------------------------------------------------------
-    # Simulation Reconfiguration
+    # RDB Synchronization
 
-    # reconfigure
+    # dbsync
     #
-    # Reconfiguration occurs when a brand new scenario is created or
+    # Database synchronization occurs when the RDB changes out from under
+    # the application, i.e., brand new scenario is created or
     # loaded.  All application modules must re-initialize themselves
     # at this time.
     #
-    # * Simulation modules are reconfigured directly by this routine.
-    # * User interface modules are reconfigured on receipt of the
-    #   <Reconfigure> event.
+    # * Non-GUI modules subscribe to the <DbSyncA> event.
+    # * GUI modules subscribe to the <DbSyncB> event.
+    #
+    # This guarantees that the "model" is in a consistent state
+    # before the "view" is updated.
 
-    typemethod reconfigure {} {
-        # FIRST, Reconfigure the simulation
-        cif       reconfigure
-        map       reconfigure
-        nbhood    reconfigure
-        nbrel     reconfigure
-        group     reconfigure
-        civgroup  reconfigure
-        frcgroup  reconfigure
-        orggroup  reconfigure
-        nbgroup   reconfigure
-        sat       reconfigure
-        rel       reconfigure
-        coop      reconfigure
-        unit      reconfigure
-        situation reconfigure
+    typemethod dbsync {} {
+        # FIRST, Sync the simulation
+        notifier send $type <DbSyncA>
 
-        # NEXT, Reconfigure the GUI
-        notifier send $type <Reconfigure>
+        # NEXT, Sync the GUI
+        notifier send $type <DbSyncB>
         notifier send $type <Time>
         notifier send $type <Speed>
         notifier send $type <State>
@@ -632,11 +624,12 @@ snit::type sim {
         scenario snapshot save -prep
 
         # NEXT, initialize the ARAM, etc.
-        aram     init -reload
-        nbstat   init
-        econ     calibrate
+        aram   init -reload
+        nbstat start
+        econ   start
+
         # TBD: demog should probably do something here.
-        mad      getdrivers
+        mad getdrivers
 
         # NEXT, execute events scheduled at time 0.
         eventq advance 0
@@ -669,9 +662,8 @@ snit::type sim {
         log newlog prep
         log normal sim "Unlocked Scenario Preparation"
 
-        # NEXT, reconfigure
-        # TBD: Is this needed?
-        $type reconfigure
+        # NEXT, resync the sim with the RDB
+        $type dbsync
 
         # NEXT, return "", as this can't be undone.
         return ""
@@ -797,7 +789,7 @@ snit::type sim {
         }
 
         if {[simclock now] % [parmdb get econ.ticksPerTock] == 0} {
-            econ advance
+            econ tock
         }
 
         # NEXT, advance GRAM (if t > 0); but first give it the latest
@@ -1055,4 +1047,5 @@ order define ::sim SIM:PAUSE {
 
     setundo [join $undo \n]
 }
+
 

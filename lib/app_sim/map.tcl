@@ -33,43 +33,27 @@ snit::type map {
     # Initialization
 
     typemethod init {} {
+        log detail map "init"
+
         # FIRST, there's no map yet.
         set mapimage   ""
         set projection [mapref ${type}::proj]
 
-        log detail map "Initialized"
+        # NEXT, register to receive dbsync events.
+        notifier bind ::sim <DbSyncA> $type [mytypemethod DbSync]
+
+        log detail map "init complete"
     }
 
     #-------------------------------------------------------------------
-    # Public Typemethods
+    # Event handlers
 
-    delegate typemethod box   to projection
-    delegate typemethod ref2m to projection
-    delegate typemethod m2ref to projection
-    delegate typemethod ref   to projection
-
-    # image 
-    #
-    # Returns the current map image, or ""
-    
-    typemethod image {} {
-        return $mapimage
-    }
-
-    # projection
-    #
-    # Returns the current map projection, or [myproc NoMap].
-
-    typemethod projection {} {
-        return $projection
-    }
-
-    # reconfigure
+    # DbSync
     #
     # Loads the current map, gets the right projection, and notifies the
     # app.
 
-    typemethod reconfigure {} {
+    typemethod DbSync {} {
         # FIRST, delete the old map image.
         if {$mapimage ne ""} {
             # FIRST, delete the image
@@ -96,6 +80,31 @@ snit::type map {
                 -height $height
         }
     }
+
+    #-------------------------------------------------------------------
+    # Public Typemethods
+
+    delegate typemethod box   to projection
+    delegate typemethod ref2m to projection
+    delegate typemethod m2ref to projection
+    delegate typemethod ref   to projection
+
+    # image 
+    #
+    # Returns the current map image, or ""
+    
+    typemethod image {} {
+        return $mapimage
+    }
+
+    # projection
+    #
+    # Returns the current map projection, or [myproc NoMap].
+
+    typemethod projection {} {
+        return $projection
+    }
+
 
     # load filename
     #
@@ -126,7 +135,7 @@ snit::type map {
         image delete $img
 
         # NEXT, load the new map
-        $type reconfigure
+        $type DbSync
     }
 
     #-------------------------------------------------------------------
@@ -191,7 +200,7 @@ snit::type map {
         }
 
         # NEXT, load the restored image
-        $type reconfigure
+        $type DbSync
 
         # NEXT, log it
         set filename [dict get $dict filename]

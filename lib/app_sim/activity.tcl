@@ -20,11 +20,13 @@ snit::type activity {
     #-------------------------------------------------------------------
     # Initialization
 
-    # init
+    # start
     #
     # Initializes the module before the simulation first starts to run.
 
-    typemethod init {} {
+    typemethod start {} {
+        log normal activity "start"
+
         # FIRST, Initialize activity_nga.
         rdb eval {
             DELETE FROM activity_nga;
@@ -46,7 +48,7 @@ snit::type activity {
         activity analyze
 
         # NEXT, Activity is up.
-        log normal activity "Initialized"
+        log normal activity "start complete"
     }
 
     # clear

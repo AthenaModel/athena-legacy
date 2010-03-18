@@ -45,7 +45,7 @@ snit::type ::report {
     # Initialization
     
     typemethod init {} {
-        log normal report "Initializing"
+        log normal report "init"
 
         # FIRST, support delegation to reporter(n)
         set reporter ::projectlib::reporter
@@ -131,6 +131,8 @@ snit::type ::report {
                 SELECT * FROM reports WHERE rtype='DAM' AND subtype='$ruleset'
             "
         }
+
+        log normal report "init complete"
     }
 
     #-------------------------------------------------------------------

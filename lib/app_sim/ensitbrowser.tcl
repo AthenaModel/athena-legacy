@@ -63,7 +63,7 @@ snit::widgetadaptor ensitbrowser {
             -titlecolumns 1                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
-                ::sim <Reconfigure>
+                ::sim <DbSyncB>
                 ::sim <Tick>
             } -layout [string map [list %D $::app::derivedfg] $layout] \
             -views {
@@ -255,5 +255,6 @@ snit::widgetadaptor ensitbrowser {
     }
 
 }
+
 
 

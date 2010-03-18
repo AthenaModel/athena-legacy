@@ -101,6 +101,8 @@ snit::widget orderdialog {
     # Initializes the order GUI.
 
     typemethod init {} {
+        log detail odlg "init"
+
         # FIRST, create the necessary fonts.
         # TBD: This probably shouldn't go here, but it needs to go 
         # somewhere.
@@ -116,7 +118,7 @@ snit::widget orderdialog {
         # NEXT, note that we're initialized
         set info(initialized) 1
         
-        log detail orderdlg "Initialized"
+        log detail odlg "init complete"
     }
 
     # InitOrderData order

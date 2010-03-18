@@ -31,18 +31,26 @@ snit::type nbhood {
     # Initialization
 
     typemethod init {} {
+        log detail nbhood "init"
+
         # FIRST, create the geoset
         set geo [geoset ${type}::geo]
 
-        log detail nbhood "Initialized"
+        # NEXT, register to receive dbsync events.
+        notifier bind ::sim <DbSyncA> $type [mytypemethod DbSync]
+
+        log detail nbhood "init complete"
     }
 
-    # reconfigure
+    #-------------------------------------------------------------------
+    # Notifier Event Handlers
+
+    # DbSync
     #
     # Refreshes the geoset with the current neighborhood data from
     # the database.
     
-    typemethod reconfigure {} {
+    typemethod DbSync {} {
         # FIRST, populate the geoset
         $geo clear
 
@@ -261,9 +269,9 @@ snit::type nbhood {
         rdb insert nbhoods $parmdict1
         rdb insert demog_n $parmdict2
 
-        # NEXT, reconfigure: this will update the geoset and the stacking
-        # order.
-        $type reconfigure
+        # NEXT, resync with the RDB: this will update the geoset and the 
+        # stacking order.
+        $type DbSync
 
         # NEXT, notify the app.
         notifier send ::nbhood <Entity> create [dict get $parmdict1 n]
@@ -333,7 +341,7 @@ snit::type nbhood {
         }
 
         # NEXT, refresh the geoset and set the "obscured_by" field
-        $type reconfigure
+        $type DbSync
         
         # NEXT, notify the GUI of the change.
         notifier send ::nbhood <Entity> stack
@@ -381,7 +389,7 @@ snit::type nbhood {
 
             # NEXT, if the polygon has changed update the geoset, etc.
             if {$polygon ne ""} {
-                $type reconfigure
+                $type DbSync
             }
 
             # NEXT, notify the app.

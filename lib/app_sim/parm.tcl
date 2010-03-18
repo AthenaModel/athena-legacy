@@ -39,6 +39,8 @@ snit::type parm {
             return
         }
 
+        log detail parm "init"
+
         # FIRST, initialize parmdb(n), and delegate to it.
         parmdb init
 
@@ -49,6 +51,8 @@ snit::type parm {
 
         # FINALLY, register this type as a saveable
         scenario register ::parm
+
+        log detail parm "init complete"
     }
 
     #-------------------------------------------------------------------

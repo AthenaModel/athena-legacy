@@ -18,13 +18,6 @@ snit::type mad {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Initialization
-
-    typemethod init {} {
-        log detail mad "Initialized"
-    }
-
-    #-------------------------------------------------------------------
     # Queries
     #
     # These routines query information about the entities; they are

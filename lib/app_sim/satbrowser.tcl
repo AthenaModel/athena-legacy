@@ -59,7 +59,7 @@ snit::widgetadaptor satbrowser {
             -titlecolumns 3                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
-                ::sim <Reconfigure>
+                ::sim <DbSyncB>
                 ::sim <Tick>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
@@ -180,6 +180,7 @@ snit::widgetadaptor satbrowser {
         order enter MAD:SAT:ADJUST n $n g $g c $c
     }
 }
+
 
 
 

@@ -21,18 +21,6 @@ snit::type demog {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Initialization
-
-    # init
-    #
-    # Initializes the module before the simulation first starts to run.
-
-    typemethod init {} {
-        # NEXT, Demog is up.
-        log normal demog "Initialized"
-    }
-
-    #-------------------------------------------------------------------
     # Analysis
 
     # analyze

@@ -31,20 +31,18 @@ snit::type nbstat {
     pragma -hastypedestroy 0 -hasinstances 0
     
     #-------------------------------------------------------------------
-    # Initialization method
+    # Start method
 
-    typemethod init {} {
-        # FIRST, check requirements
-        require {[info commands ::log]  ne ""} "log is not defined."
-        require {[info commands ::rdb]  ne ""} "rdb is not defined."
+    typemethod start {} {
+        log normal nbstat "start"
 
         # NEXT, initialize the sub-modules; this will cause each to
         # do an analysis.
-        security init
-        activity init
+        security start
+        activity start
 
         # NEXT, Nbstat is up.
-        log normal nbstat "Initialized"
+        log normal nbstat "start complete"
     }
 
     # clear

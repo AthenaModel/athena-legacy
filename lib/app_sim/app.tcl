@@ -166,22 +166,7 @@ snit::type app {
         cif       init
         order     init
         report    init
-        dam       init
-        demog     init
-        econ      init
-        aam       init
-        aam_rules init
-        mad       init
         nbhood    init
-        nbrel     init
-        group     init
-        civgroup  init
-        frcgroup  init
-        orggroup  init
-        nbgroup   init
-        sat       init
-        rel       init
-        coop      init
         sim       init
 
         # NEXT, bind components together
@@ -306,7 +291,7 @@ snit::type app {
         } else {
             # This makes sure that the notifier events are sent that
             # initialize the user interface.
-            sim reconfigure
+            sim dbsync
         }
     }
 

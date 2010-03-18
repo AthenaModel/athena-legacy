@@ -21,18 +21,6 @@ snit::type aam_rules {
     pragma -hasinstances 0
     
     #-------------------------------------------------------------------
-    # Initialization method
-
-    typemethod init {} {
-        # FIRST, check requirements
-        require {[info commands log]  ne ""} "log is not defined."
-
-        # NEXT, AAM Rules is up.
-        log normal aamr "Initialized"
-    }
-
-
-    #-------------------------------------------------------------------
     # Public Typemethods
 
     # isactive ruleset

@@ -32,17 +32,6 @@ snit::type actsit_rules {
     }
 
     #-------------------------------------------------------------------
-    # Initialization method
-
-    typemethod init {} {
-        # FIRST, check requirements
-        require {[info commands log] ne ""} "log is not defined."
-
-        # NEXT, Actsit Rules is up.
-        log normal actr "Initialized"
-    }
-
-    #-------------------------------------------------------------------
     # Public Typemethods
 
     # monitor sit

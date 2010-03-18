@@ -55,7 +55,7 @@ snit::widgetadaptor orderbrowser {
             -titlecolumns 3                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
-                ::sim <Reconfigure>
+                ::sim <DbSyncB>
                 ::sim <Tick>
                 ::order <Queue>
             } -layout [string map [list %D $::app::derivedfg] $layout]
@@ -111,4 +111,5 @@ snit::widgetadaptor orderbrowser {
         order send gui ORDER:CANCEL id $id
     }
 }
+
 

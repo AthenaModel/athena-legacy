@@ -43,7 +43,7 @@ snit::type executive {
     # Initialization
     
     typemethod init {} {
-        log normal exec "Initializing"
+        log normal exec "init"
 
         # FIRST, create the interpreter.  It's a safe interpreter but
         # most Tcl commands are retained, to allow scripting.  Allow
@@ -230,6 +230,8 @@ snit::type executive {
         # usermode
         $interp smartalias {usermode} 0 1 {?mode?} \
             [list ::executive usermode]
+
+        log normal exec "init complete"
     }
 
     #-------------------------------------------------------------------

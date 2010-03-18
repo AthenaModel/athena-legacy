@@ -53,7 +53,7 @@ snit::widgetadaptor nbcoopbrowser {
             -uid          id                          \
             -titlecolumns 2                           \
             -reloadon {
-                ::sim <Reconfigure>
+                ::sim <DbSyncB>
                 ::sim <Tick>
                 ::coop <Entity>
             } -layout [string map [list %D $::app::derivedfg] $layout]
@@ -67,4 +67,5 @@ snit::widgetadaptor nbcoopbrowser {
 
     delegate method * to hull
 }
+
 

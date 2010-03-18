@@ -13,6 +13,7 @@
 #    Will Duquette
 #
 #-----------------------------------------------------------------------
+
 #-----------------------------------------------------------------------
 # Module: econ
 #
@@ -43,6 +44,8 @@ snit::type econ {
     # Initializes the module before the simulation first starts to run.
 
     typemethod init {} {
+        log normal econ "init"
+
         # FIRST, create the CGE.
         cellmodel cge
         cge load [readfile [file join $::app_sim::library eco3x3.cm]]
@@ -50,16 +53,19 @@ snit::type econ {
         require {[cge sane]} "The econ model's CGE (eco3x3.cm) is not sane."
 
         # NEXT, Econ is up.
-        log normal econ "Initialized"
+        log normal econ "init complete"
     }
 
-    # Type Method: calibrate
+    # Type Method: start
     #
     # Calibrates the CGE.  This is done when the simulation leaves
     # the PREP state and enters time 0.
 
-    typemethod calibrate {} {
+    typemethod start {} {
+        log normal econ "start"
+
         # FIRST, set the input parameters
+        cge reset
         # TBD
 
         # NEXT, calibrate the CGE.
@@ -70,17 +76,19 @@ snit::type econ {
             error "Failed to calibrate economic model."
         }
 
-        log normal econ "Calibrated"
+        log normal econ "start complete"
     }
 
     #-------------------------------------------------------------------
     # Group: Time Advance
 
-    # Type Method: advance
+    # Type Method: tock
     #
     # Updates the CGE at each econ tock.
 
-    typemethod advance {} {
+    typemethod tock {} {
+        log normal econ "tock"
+
         # FIRST, set the input parameters
         # TBD
 
@@ -92,7 +100,7 @@ snit::type econ {
             error "Failed to advance economic model"
         }
 
-        log normal econ "Advanced"
+        log normal econ "tock complete"
     }
 }
 

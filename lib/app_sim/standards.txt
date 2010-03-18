@@ -1,0 +1,41 @@
+Title: Standards
+
+Application standard practices.
+
+File:
+   standard.txt
+
+Package:
+   app_sim(n) -- athena_sim(1) implementation package
+
+Project:
+   Athena S&RO Simulation
+
+Author:
+   Will Duquette
+
+#-------------------------------------------------------------------
+Group: Standard Method Names
+
+Athena application modules use the following standard method names.
+
+dbsync - Database synchronization.  This takes place when the RDB is
+         changed out from under the module, and the module needs to
+         resynchronize itself with the database.  This name is used
+         only if the method needs to be public; most modules will
+         dbsync in response to a notifier event.
+
+init   - Module initializer; can be used by any module.  Called once 
+         at application start-up.
+
+start  - Model initializer; used by simulation modules.  It is called
+         when the simulation transitions from the Scenario Preparation
+         (PREP) state to the PAUSED state at time 0.
+
+tock   - Model updater; used by simulation modules.  It is called
+         during the simulation tick to advance the module's model(s) to
+         the current simulation time.  (The existing modules use a
+         variety of names for this purpose, including "analyze",
+         "assess", and "advance".  Over time, we want to standardize on
+         "tock".)
+

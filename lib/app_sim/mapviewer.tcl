@@ -495,7 +495,7 @@ snit::widget mapviewer {
         bind $canvas <<PolyComplete>> [mymethod PolyComplete %d]
 
         # NEXT, Subscribe to application notifier(n) events.
-        notifier bind ::sim      <Reconfigure> $self [mymethod refresh]
+        notifier bind ::sim      <DbSyncB> $self [mymethod refresh]
         notifier bind ::sim      <Tick>        $self [mymethod NbhoodFill]
         notifier bind ::map      <MapChanged>  $self [mymethod refresh]
         notifier bind ::order    <OrderEntry>  $self [mymethod OrderEntry]
@@ -1583,6 +1583,7 @@ snit::widget mapviewer {
         }
     }
 }
+
 
 
 

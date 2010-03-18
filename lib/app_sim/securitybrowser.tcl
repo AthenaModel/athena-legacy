@@ -59,7 +59,7 @@ snit::widgetadaptor securitybrowser {
             -uid          id                          \
             -titlecolumns 2                           \
             -reloadon {
-                ::sim <Reconfigure>
+                ::sim <DbSyncB>
                 ::sim <Tick>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
@@ -72,4 +72,5 @@ snit::widgetadaptor securitybrowser {
 
     delegate method * to hull
 }
+
 

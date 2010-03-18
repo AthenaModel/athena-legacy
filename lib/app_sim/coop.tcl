@@ -40,21 +40,6 @@ snit::type coop {
     # TBD
 
     #-------------------------------------------------------------------
-    # Initialization
-
-    typemethod init {} {
-        log detail coop "Initialized"
-    }
-
-    # reconfigure
-    #
-    # Reconfigures the module's in-memory data from the database.
-    
-    typemethod reconfigure {} {
-        # Nothing to do
-    }
-
-    #-------------------------------------------------------------------
     # Queries
 
     # validate id

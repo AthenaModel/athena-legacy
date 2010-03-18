@@ -125,7 +125,7 @@ snit::widgetadaptor nbhoodbrowser {
             -titlecolumns 1                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
-                ::sim <Reconfigure>
+                ::sim <DbSyncB>
                 ::sim <Tick>
                 ::demog <Update>
             } -layout [string map [list %D $::app::derivedfg] $layout]
@@ -281,4 +281,5 @@ snit::widgetadaptor nbhoodbrowser {
         order send gui NBHOOD:DELETE n $id
     }
 }
+
 

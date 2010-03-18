@@ -53,7 +53,7 @@ snit::widgetadaptor defroebrowser {
             -titlecolumns 2                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
-                ::sim <Reconfigure>
+                ::sim <DbSyncB>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
@@ -123,6 +123,7 @@ snit::widgetadaptor defroebrowser {
         }
     }
 }
+
 
 
 

@@ -138,18 +138,6 @@ snit::type dam {
     }
 
     #-------------------------------------------------------------------
-    # Initialization method
-
-    typemethod init {} {
-        # FIRST, check requirements
-        require {[info commands log]  ne ""} "log is not defined."
-
-        # NEXT, dam is up.
-        log normal dam "Initialized"
-    }
-
-
-    #-------------------------------------------------------------------
     # Management
     #
     # The following methods are used by the DAM Rules to bracket sets

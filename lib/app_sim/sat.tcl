@@ -37,21 +37,6 @@ snit::type sat {
     # TBD
 
     #-------------------------------------------------------------------
-    # Initialization
-
-    typemethod init {} {
-        log detail sat "Initialized"
-    }
-
-    # reconfigure
-    #
-    # Reconfigures the module's in-memory data from the database.
-    
-    typemethod reconfigure {} {
-        # Nothing to do
-    }
-
-    #-------------------------------------------------------------------
     # Queries
 
     # validate id

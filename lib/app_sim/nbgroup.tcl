@@ -28,21 +28,6 @@ snit::type nbgroup {
     # TBD
 
     #-------------------------------------------------------------------
-    # Initialization
-
-    typemethod init {} {
-        log detail nbgroup "Initialized"
-    }
-
-    # reconfigure
-    #
-    # Reconfigures the module's in-memory data from the database.
-    
-    typemethod reconfigure {} {
-        # Nothing to do
-    }
-
-    #-------------------------------------------------------------------
     # Queries
 
     # exists n g

@@ -49,6 +49,8 @@ snit::type scenario {
     # Initializes the scenario RDB.
 
     typemethod init {args} {
+        log normal scenario "init"
+
         # FIRST, process options
         while {[llength $args] > 0} {
             set opt [lshift args]
@@ -70,6 +72,8 @@ snit::type scenario {
         rdb register ::dam
 
         InitializeRuntimeData
+
+        log normal scenario "init complete"
     }
 
     #-------------------------------------------------------------------
@@ -104,8 +108,8 @@ snit::type scenario {
         # NEXT, there is no dbfile.
         set info(dbfile) ""
 
-        # NEXT, Restart the simulation.  This also reconfigures
-        # the app.
+        # NEXT, Restart the simulation.  This also resyncs the app
+        # with the RDB.
         sim new
     }
 
@@ -185,8 +189,8 @@ snit::type scenario {
 
         app puts "Opened Scenario [file tail $filename]"
 
-        # NEXT, Reconfigure the app
-        sim reconfigure
+        # NEXT, Resync the app with the RDB.
+        sim dbsync
     }
 
     # save ?filename?
@@ -410,7 +414,7 @@ snit::type scenario {
     # tick     The tick of the snapshot to load, or -prep.
     #
     # Loads the specified snapshot.  The caller should
-    # reconfigure the sim.
+    # dbsync the sim.
 
     typemethod {snapshot load} {tick} {
         require {$tick eq "-prep" || $tick in [scenario snapshot list]} \

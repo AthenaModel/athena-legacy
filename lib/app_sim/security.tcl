@@ -30,7 +30,9 @@ snit::type security {
     #-------------------------------------------------------------------
     # Initialization method
 
-    typemethod init {} {
+    typemethod start {} {
+        log normal security "start"
+
         # FIRST, check requirements
         require {[info commands ::log]  ne ""} "log is not defined."
         require {[info commands ::rdb]  ne ""} "rdb is not defined."
@@ -55,7 +57,7 @@ snit::type security {
         security analyze
 
         # NEXT, Security is up.
-        log normal security "Initialized"
+        log normal security "start complete"
     }
 
     # clear

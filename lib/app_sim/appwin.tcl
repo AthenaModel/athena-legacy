@@ -340,7 +340,7 @@ snit::widget appwin {
         grid propagate $win off
 
         # NEXT, Prepare to receive notifier events.
-        notifier bind ::sim      <Reconfigure>   $self [mymethod Reconfigure]
+        notifier bind ::sim      <DbSyncB>       $self [mymethod Reconfigure]
         notifier bind ::scenario <ScenarioSaved> $self [mymethod Reconfigure]
         notifier bind ::sim      <State>         $self [mymethod SimState]
         notifier bind ::sim      <Time>          $self [mymethod SimTime]

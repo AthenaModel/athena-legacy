@@ -72,7 +72,7 @@
 #
 #      * Otherwise, if the error is unexpected and the interface is "gui",
 #        the stack trace is logged and a detailed error message is displayed
-#        in a popup.  The scenario is then reconfigured.
+#        in a popup.  The scenario is then resync'd with the RDB.
 #  
 #      * "cli" is handled in all cases just like "gui", except that
 #        REJECT messages are formatted for display at the CLI.
@@ -195,7 +195,7 @@ snit::type order {
 
     typemethod init {} {
         # FIRST, evaluate all of the existing definition scripts.
-        log detail order "Initializing"
+        log detail order "init"
 
         foreach name $orders(names) {
             DefineOrder $name
@@ -206,7 +206,7 @@ snit::type order {
 
         # NEXT, Order processing is up.
         set info(initialized) 1
-        log detail order "Initialized"
+        log detail order "init complete"
     }
 
     # initialized
@@ -830,7 +830,7 @@ snit::type order {
                     sim mutate pause
                 }
 
-                sim reconfigure
+                sim dbsync
                 
                 return "Unexpected error while handling order."
             }

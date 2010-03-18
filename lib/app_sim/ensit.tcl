@@ -43,15 +43,6 @@ snit::type ensit {
     # Make it an ensemble
     pragma -hasinstances 0
 
-   
-    #-------------------------------------------------------------------
-    # Initialization method
-
-    typemethod init {} {
-        # FIRST, ensit is up.
-        log normal ensit "Initialized"
-    }
-
     #-------------------------------------------------------------------
     # Assessment of Attitudinal Effects
 

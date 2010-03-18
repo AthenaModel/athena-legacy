@@ -74,21 +74,18 @@ snit::type situation {
     # Initialization method
 
     typemethod init {} {
-        # FIRST, initialize the specific situation types
-        actsit       init
-        actsit_rules init
-        ensit       init
-        ensit_rules init
+        log normal situation "init"
 
-        # NEXT, register this module as a saveable, so that the
+        # FIRST, register this module as a saveable, so that the
         # cache is flushed as appropriate.
         scenario register $type
 
         # NEXT, prepare to receive simulation events
-        notifier bind ::sim <State> $type [mytypemethod SimState]
+        notifier bind ::sim <State>   $type [mytypemethod SimState]
+        notifier bind ::sim <DbSyncA> $type [mytypemethod DbSync]
 
         # NEXT, the module is up.
-        log normal situation "Initialized"
+        log normal situation "init complete"
     }
 
     #-------------------------------------------------------------------
@@ -121,6 +118,13 @@ snit::type situation {
         }
     }
 
+    # DbSync
+    #
+    # Resets the in-memory state to reflect the RDB.
+
+    typemethod DbSync {} {
+        $type FlushCache
+    }
 
     #-------------------------------------------------------------------
     # Public Typemethods
@@ -234,14 +238,6 @@ snit::type situation {
             $cache($s) destroy
             unset cache($s)
         }
-    }
-
-    # reconfigure
-    #
-    # Resets the in-memory state to reflect the RDB.
-
-    typemethod reconfigure {} {
-        $type FlushCache
     }
 
     #-------------------------------------------------------------------

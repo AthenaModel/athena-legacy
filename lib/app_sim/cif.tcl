@@ -35,26 +35,15 @@ snit::type cif {
     # Initialization
 
     typemethod init {} {
+        log detail cif "init"
+
         # FIRST, prepare to receive events
-        notifier bind ::scenario <Saving> $type [mytypemethod ClearUndo]
-        notifier bind ::sim      <Tick>   $type [mytypemethod ClearUndo]
+        notifier bind ::scenario <Saving>  $type [mytypemethod ClearUndo]
+        notifier bind ::sim      <Tick>    $type [mytypemethod ClearUndo]
+        notifier bind ::sim      <DbSyncA> $type [mytypemethod DbSync]
 
         # NEXT, log that we're saved.
-        log detail cif "Initialized"
-    }
-
-    # reconfigure
-    #
-    # Reconfigures the CIF stack from the database.
-
-    typemethod reconfigure {} {
-        if {[rdb exists {SELECT * FROM cif}]} {
-            set info(nextid) [rdb onecolumn {
-                SELECT max(id) + 1 FROM cif
-            }]
-        } else {
-            set info(nextid) 0
-        }
+        log detail cif "init complete"
     }
 
     #-------------------------------------------------------------------
@@ -72,6 +61,20 @@ snit::type cif {
         }
 
         notifier send ::cif <Update>
+    }
+
+    # DbSync
+    #
+    # Syncs the CIF stack with the database.
+
+    typemethod DbSync {} {
+        if {[rdb exists {SELECT * FROM cif}]} {
+            set info(nextid) [rdb onecolumn {
+                SELECT max(id) + 1 FROM cif
+            }]
+        } else {
+            set info(nextid) 0
+        }
     }
 
     #-------------------------------------------------------------------
@@ -226,7 +229,7 @@ snit::type cif {
 
             # NEXT, Reconfigure all modules from the database: 
             # this should clean up any problems in Tcl memory.
-            sim reconfigure
+            sim dbsync
         } else {
             # FIRST, no error; update the top of the stack.
             incr info(nextid) -1

@@ -177,7 +177,7 @@ snit::widgetadaptor unitbrowser {
             -titlecolumns 1                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
-                ::sim <Reconfigure>
+                ::sim <DbSyncB>
                 ::sim <Tick>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
@@ -360,4 +360,5 @@ snit::widgetadaptor unitbrowser {
         order send gui UNIT:DELETE u $id
     }
 }
+
 

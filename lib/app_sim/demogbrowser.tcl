@@ -53,7 +53,7 @@ snit::widgetadaptor demogbrowser {
             -uid          id                          \
             -titlecolumns 2                           \
             -reloadon {
-                ::sim <Reconfigure>
+                ::sim <DbSyncB>
                 ::demog <Update>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
@@ -66,4 +66,5 @@ snit::widgetadaptor demogbrowser {
 
     delegate method * to hull
 }
+
 

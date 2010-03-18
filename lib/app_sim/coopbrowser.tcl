@@ -57,7 +57,7 @@ snit::widgetadaptor coopbrowser {
             -titlecolumns 3                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
-                ::sim <Reconfigure>
+                ::sim <DbSyncB>
                 ::sim <Tick>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
@@ -177,5 +177,6 @@ snit::widgetadaptor coopbrowser {
         order enter MAD:COOP:ADJUST n $n f $f g $g
     }
 }
+
 
 

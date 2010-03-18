@@ -28,21 +28,6 @@ snit::type unit {
     # TBD
 
     #-------------------------------------------------------------------
-    # Initialization
-
-    typemethod init {} {
-        log detail unit "Initialized"
-    }
-
-    # reconfigure
-    #
-    # Reconfigures the module's in-memory data from the database.
-    
-    typemethod reconfigure {} {
-        # Nothing to do
-    }
-
-    #-------------------------------------------------------------------
     # Queries
     #
     # These routines query information about the entities; they are

@@ -40,21 +40,6 @@ snit::type rel {
     # TBD
 
     #-------------------------------------------------------------------
-    # Initialization
-
-    typemethod init {} {
-        log detail rel "Initialized"
-    }
-
-    # reconfigure
-    #
-    # Reconfigures the module's in-memory data from the database.
-    
-    typemethod reconfigure {} {
-        # Nothing to do
-    }
-
-    #-------------------------------------------------------------------
     # Queries
 
     # validate id
