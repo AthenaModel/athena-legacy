@@ -108,6 +108,7 @@ snit::type ted {
         defentity NB1 ::nbhood {
             n            NB1
             longname     "Here"
+            local        1
             urbanization URBAN
             vtygain      1.0
             refpoint     {100 100}
@@ -117,6 +118,7 @@ snit::type ted {
         defentity OV1 ::nbhood {
             n            OV1
             longname     "Over Here"
+            local        1
             urbanization SUBURBAN
             vtygain      1.0
             refpoint     {101 101}
@@ -126,6 +128,7 @@ snit::type ted {
         defentity NB2 ::nbhood {
             n            NB2
             longname     "There"
+            local        1
             urbanization RURAL
             vtygain      1.0
             refpoint     {300 300}
@@ -136,6 +139,7 @@ snit::type ted {
         defentity NB3 ::nbhood {
             n            NB3
             longname     "County"
+            local        1
             urbanization RURAL
             vtygain      1.0
             refpoint     {500 500}
@@ -145,6 +149,7 @@ snit::type ted {
         defentity NB4 ::nbhood {
             n            NB4
             longname     "Town"
+            local        1
             urbanization URBAN
             vtygain      1.0
             refpoint     {700 700}

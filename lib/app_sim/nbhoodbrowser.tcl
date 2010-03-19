@@ -93,6 +93,7 @@ snit::widgetadaptor nbhoodbrowser {
     typevariable layout {
         { n              "ID"                                            }
         { longname       "Neighborhood"                                  }
+        { local          "Local?"                                        }
         { urbanization   "Urbanization"                                  }
         { population     "Population"   -sortmode integer -foreground %D }
         { mood0          "Mood at T0"   -sortmode real                   }

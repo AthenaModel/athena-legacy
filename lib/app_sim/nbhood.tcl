@@ -167,6 +167,7 @@ snit::type nbhood {
     #
     #    n              The neighborhood's ID
     #    longname       The neighborhood's long name
+    #    local          The nbhood's local flag
     #    urbanization   eurbanization level
     #    vtygain        Volatility gain (rgain)
     #    refpoint       Reference point, map coordinates
@@ -180,10 +181,11 @@ snit::type nbhood {
         dict with parmdict {
             # FIRST, Put the neighborhood in the database
             rdb eval {
-                INSERT INTO nbhoods(n,longname,urbanization,vtygain,
+                INSERT INTO nbhoods(n,longname,local,urbanization,vtygain,
                                     refpoint,polygon)
                 VALUES($n,
                        $longname,
+                       $local,
                        $urbanization,
                        $vtygain,
                        $refpoint,
@@ -356,6 +358,7 @@ snit::type nbhood {
     #
     #    n              A neighborhood short name
     #    longname       A new long name, or ""
+    #    local          A new local flag, or ""
     #    urbanization   A new eurbanization level, or ""
     #    vtygain        A new volatility gain, or ""
     #    refpoint       A new reference point, or ""
@@ -380,6 +383,7 @@ snit::type nbhood {
             rdb eval {
                 UPDATE nbhoods
                 SET longname     = nonempty($longname,     longname),
+                    local        = nonempty($local,        local),
                     urbanization = nonempty($urbanization, urbanization),
                     vtygain      = nonempty($vtygain,      vtygain),
                     refpoint     = nonempty($refpoint,     refpoint),
@@ -414,14 +418,16 @@ order define ::nbhood NBHOOD:CREATE {
 
     parm n            text "Neighborhood"
     parm longname     text "Long Name"
-    parm urbanization enum "Urbanization"     -type eurbanization
-    parm vtygain      text "Volatility Gain"  -defval 1.0
-    parm refpoint     text "Reference Point"  -tags point
-    parm polygon      text "Polygon"          -tags polygon
+    parm local        enum "Local Neighborhood?" -type eyesno
+    parm urbanization enum "Urbanization"        -type eurbanization
+    parm vtygain      text "Volatility Gain"     -defval 1.0
+    parm refpoint     text "Reference Point"     -tags point
+    parm polygon      text "Polygon"             -tags polygon
 } {
     # FIRST, prepare the parameters
     prepare n             -toupper            -required -unused -type ident
     prepare longname      -normalize          -required -unused
+    prepare local         -toupper            -required -type boolean
     prepare urbanization  -toupper            -required -type eurbanization
     prepare vtygain                           -required -type rgain
     prepare refpoint      -toupper            -required -type refpoint
@@ -566,12 +572,13 @@ order define ::nbhood NBHOOD:UPDATE {
     title "Update Neighborhood"
     options -sendstates PREP -table gui_nbhoods
 
-    parm n            key   "Neighborhood"     -tags nbhood
+    parm n            key   "Neighborhood"        -tags nbhood
     parm longname     text  "Long Name"
-    parm urbanization enum  "Urbanization"     -type eurbanization
+    parm local        enum  "Local Neighborhood?" -type eyesno
+    parm urbanization enum  "Urbanization"        -type eurbanization
     parm vtygain      text  "Volatility Gain"
-    parm refpoint     text  "Reference Point"  -tags point
-    parm polygon      text  "Polygon"          -tags polygon
+    parm refpoint     text  "Reference Point"     -tags point
+    parm polygon      text  "Polygon"             -tags polygon
 } {
     # FIRST, prepare the parameters
     prepare n            -toupper       -required -type nbhood
@@ -581,6 +588,7 @@ order define ::nbhood NBHOOD:UPDATE {
     }]
 
     prepare longname     -normalize           -oldvalue $oldname -unused
+    prepare local        -toupper             -type boolean
     prepare urbanization -toupper             -type eurbanization
     prepare vtygain                           -type rgain
     prepare refpoint     -toupper             -type refpoint
@@ -656,12 +664,14 @@ order define ::nbhood NBHOOD:UPDATE:MULTI {
     title "Update Multiple Neighborhoods"
     options -sendstates PREP -table gui_nbhoods
 
-    parm ids          multi  "Neighborhoods"
-    parm urbanization enum   "Urbanization"    -type eurbanization
-    parm vtygain      text   "Volatility Gain"
+    parm ids          multi "Neighborhoods"
+    parm local        enum  "Local Neighborhood?" -type eyesno
+    parm urbanization enum  "Urbanization"        -type eurbanization
+    parm vtygain      text  "Volatility Gain"
 } {
     # FIRST, prepare the parameters
     prepare ids          -toupper -required -listof nbhood
+    prepare local        -toupper           -type   boolean
     prepare urbanization -toupper           -type   eurbanization
     prepare vtygain                         -type   rgain
 

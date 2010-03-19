@@ -20,6 +20,7 @@ CREATE TEMPORARY VIEW gui_nbhoods AS
 SELECT nbhoods.n                                  AS id,
        nbhoods.n                                  AS n,
        longname                                   AS longname,
+       CASE local WHEN 1 THEN 'YES' ELSE 'NO' END AS local,
        urbanization                               AS urbanization,
        format('%4.1f',vtygain)                    AS vtygain,                
        stacking_order                             AS stacking_order,

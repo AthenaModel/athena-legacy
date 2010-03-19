@@ -1857,6 +1857,13 @@ macro NBHOOD.n {} {
     The ID of an existing neighborhood.
 }
 
+macro NBHOOD.local {} {
+    |<--
+    Whether or not the neighborhood's labor force and production 
+    capabilities contribute to the economy of the region of interest:
+    [enumdoc ::projectlib::eyesno]
+}
+
 macro NBHOOD.urbanization {} {
     |<--
     The neighborhood's urbanization level:
@@ -1896,6 +1903,10 @@ order NBHOOD:CREATE "Create Neighborhood" {
 
     <<parm longname "Long Name">>
     <b>Required.</b>  <<parm.longname neighborhood "Peshawar">>
+    <</parm>>
+
+    <<parm local "Local Neighborhood?">>
+    <b>Required.</b>  <<NBHOOD.local>>
     <</parm>>
 
     <<parm urbanization "Urbanization">>
@@ -1987,6 +1998,10 @@ order NBHOOD:UPDATE "Update Neighborhood" {
     <b>Optional.</b>  <<parm.longname neighborhood "Peshawar">>
     <</parm>>
 
+    <<parm local "Local Neighborhood?">>
+    <b>Optional.</b>  <<NBHOOD.local>>
+    <</parm>>
+
     <<parm urbanization "Urbanization">>
     <b>Optional.</b>  <<NBHOOD.urbanization>>
     <</parm>>
@@ -2016,6 +2031,10 @@ order NBHOOD:UPDATE+MULTI "Update Multiple Neighborhoods" {
 
     <<parm ids "Neighborhoods">>
     <b>Required.</b>  <<parm.ids neighborhood>>
+    <</parm>>
+
+    <<parm local "Local Neighborhood?">>
+    <b>Optional.</b>  <<NBHOOD.local>>
     <</parm>>
 
     <<parm urbanization "Urbanization">>

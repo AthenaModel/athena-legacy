@@ -32,6 +32,7 @@ namespace eval ::athena_test::tests:: {
     set nb1 {
         n            NB1
         longname     "Here"
+        local        YES
         urbanization URBAN
         vtygain      1.0
         refpoint     B00B00
@@ -41,6 +42,7 @@ namespace eval ::athena_test::tests:: {
     set overnb1 {
         n            OV1
         longname     "Over"
+        local        YES
         urbanization SUBURBAN
         vtygain      1.0
         refpoint     B01B01
@@ -50,6 +52,7 @@ namespace eval ::athena_test::tests:: {
     set nb2 {
         n            NB2
         longname     "There"
+        local        YES
         urbanization RURAL
         vtygain      1.0
         refpoint     D00D00
@@ -72,6 +75,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
         n {required value}
         longname {required value}
+        local {required value}
         urbanization {required value}
         vtygain {required value}
         refpoint {required value}
@@ -167,12 +171,21 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.9 {refpoint not in polygon} -body {
+    test CREATE-1.10 {refpoint not in polygon} -body {
         ted order -reject NBHOOD:CREATE [dict merge $nb1 {
             refpoint A00A00
         }]
     } -result {
         refpoint {not in polygon}
+    }
+
+
+    test CREATE-1.11 {local: invalid boolean} -body {
+        ted order -reject NBHOOD:CREATE [dict merge $nb1 {
+            local NONESUCH
+        }]
+    } -result {
+        local {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
 
@@ -183,9 +196,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-n   longname urbanization vtygain refpoint polygon              
---- -------- ------------ ------- -------- -------------------- 
-NB1 Here     URBAN        1.0     100 100  80 80 120 80 100 120 
+n   longname local urbanization vtygain refpoint polygon              
+--- -------- ----- ------------ ------- -------- -------------------- 
+NB1 Here     1     URBAN        1.0     100 100  80 80 120 80 100 120 
     }
 
 
@@ -495,12 +508,23 @@ OV1 Over     2
         refpoint {not in polygon}
     }
 
+    test UPDATE-1.11 {invalid local} -setup {
+        ted order NBHOOD:CREATE $nb1
+    } -body {
+        ted order -reject NBHOOD:UPDATE n NB1 local NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        local {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
     test UPDATE-2.1 {nbhood is updated} -setup {
         ted order NBHOOD:CREATE $nb1
     } -body {
         ted order NBHOOD:UPDATE {
             n            NB1
             longname     "Not Here"
+            local        NO
             urbanization RURAL
             vtygain      2.0
             refpoint     A05A05
@@ -512,9 +536,9 @@ OV1 Over     2
     } -cleanup {
         cleanup
     } -result {
-n   longname urbanization vtygain refpoint polygon             
---- -------- ------------ ------- -------- ------------------- 
-NB1 Not Here RURAL        2.0     5 5      0 0 10 0 10 10 0 10 
+n   longname local urbanization vtygain refpoint polygon             
+--- -------- ----- ------------ ------- -------- ------------------- 
+NB1 Not Here 0     RURAL        2.0     5 5      0 0 10 0 10 10 0 10 
     }
 
 

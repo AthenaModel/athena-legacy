@@ -96,6 +96,9 @@ CREATE TABLE nbhoods (
     -- Full neighborhood name
     longname       TEXT,
 
+    -- 1 if Local (e.g., part of the region of interest), 0 o.w.
+    local          INTEGER DEFAULT 1.0,
+
     -- Stacking order: 1 is low, N is high
     stacking_order INTEGER,
 
