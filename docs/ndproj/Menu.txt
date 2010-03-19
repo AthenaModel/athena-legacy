@@ -48,10 +48,19 @@ Format: 1.4
 
 Group: App_sim  {
 
-   File: Standards  (app_sim/standards.txt)
-   File: app_sim.tcl  (app_sim/app_sim.tcl)
-   File: app.tcl  (app_sim/app.tcl)
-   File: econ.tcl  (app_sim/econ.tcl)
+   Group: Application  {
+
+      File: Standards  (app_sim/standards.txt)
+      File: app_sim.tcl  (app_sim/app_sim.tcl)
+      File: app.tcl  (app_sim/app.tcl)
+      }  # Group: Application
+
+   Group: Models  {
+
+      File: demog.tcl  (app_sim/demog.tcl)
+      File: econ.tcl  (app_sim/econ.tcl)
+      }  # Group: Models
+
    }  # Group: App_sim
 
 Group: Index  {

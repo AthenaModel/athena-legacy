@@ -63,12 +63,9 @@ index j {goods pop else}
 # Scenario Inputs
 
 # Population Figures
-let BasePopulation = 1e6
-let BaseWFFrac     = 0.4
+let BasePopulation = 1e6    ;# People
 let BaseUR         = 0.05   ;# Base unemployment rate as fraction of workforce.
-let BaseWF         = {
-    [BasePopulation]*[BaseWFFrac]
-}                           ;# Base work force, in work-years
+let BaseWF         = 400000 ;# Work-years
 
 #  f.i.j is the fraction of j's revenue that is spent in sector i.
 

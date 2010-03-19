@@ -1,18 +1,30 @@
 #-----------------------------------------------------------------------
-# TITLE:
-#    demog.tcl
+# FILE: demog.tcl
+#
+#   Athena Demographics Model singleton
+#
+# PACKAGE:
+#   app_sim(n) -- athena_sim(1) implementation package
+#
+# PROJECT:
+#   Athena S&RO Simulation
 #
 # AUTHOR:
 #    Will Duquette
 #
-# DESCRIPTION:
-#    athena_sim(1): Demographic Model, main module.
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Module: demog
 #
-#    This module is responsible for computing demographics for neighborhoods
-#    and neighborhood groups.  The data is stored in the demog_n and
-#    demog_ng tables; entries in these tables are created and deleted by
-#    nbhood(sim) and nbgroups(sim) respectively, as neighborhoods and
-#    neighborhood groups come and go.
+# athena_sim(1): Demographic Model, main module.
+#
+# This module is responsible for computing demographics for neighborhoods
+# and neighborhood groups.  The data is stored in the demog_ng, demog_n,
+# and demog_local tables.  Entries in the demog_n and demog_ng tables
+# are created and deleted by nbhood(sim) and nbgroups(sim) respectively, 
+# as neighborhoods and neighborhood groups come and go.  The (single)
+# entry in the demog_local table is created/replaced on <analyze>.
 #
 #-----------------------------------------------------------------------
 
@@ -21,24 +33,37 @@ snit::type demog {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Analysis
+    # Group: Analysis
 
-    # analyze
+    # Type Method: analyze
     #
-    # Computes demog_ng(n,g) and demog_n(n) for all n, g.
+    # Computes demog_ng(n,g), demog_n(n), and demog_local for all n, g.
+    # This routine is called by other modules when something happens to
+    # neighborhood population.
     #
-    # This acts as a mutator, to make it easier to use
+    # This command acts as a mutator, to make it easier to use
     # in undo scripts.
+    #
+    # Syntax:
+    #   analyze
 
     typemethod analyze {} {
         $type ComputeNG
         $type ComputeN
+        $type ComputeLocal
 
         # Notify the GUI that demographics may have changed.
         notifier send $type <Update>
 
         return [mytypemethod analyze]
     }
+
+    # Type Method: ComputeNG
+    #
+    # Computes the population statistics for each neighborhood group.
+    #
+    # Syntax:
+    #   ComputeNG
 
     typemethod ComputeNG {} {
         # FIRST, get explicit and displaced personnel.
@@ -80,6 +105,14 @@ snit::type demog {
             }
         }
     }
+
+    # Type Method: ComputeN
+    #
+    # Computes the population statistics and labor force for each
+    # neighborhood.
+    #
+    # Syntax:
+    #   ComputeN
 
     typemethod ComputeN {} {
         # FIRST, initialize the pop() and labor() arrays
@@ -125,16 +158,44 @@ snit::type demog {
         }
     }
 
-    #-------------------------------------------------------------------
-    # Queries
+    # Type Method: ComputeLocal
+    #
+    # Computes the population statistics and labor force for the
+    # local region of interest.
+    #
+    # Syntax:
+    #   ComputeLocal
 
-    # getng n g ?parm?
+    typemethod ComputeLocal {} {
+        # FIRST, compute and save the total population and
+        # labor force in the local region.
+
+        rdb eval {
+            DELETE FROM demog_local;
+
+            INSERT INTO demog_local
+            SELECT total(population), total(labor_force)
+            FROM demog_n
+            JOIN nbhoods USING (n)
+            WHERE nbhoods.local = 1;
+        }
+    }
+
+
+    #-------------------------------------------------------------------
+    # Group: Queries
+
+    # Type Method: getng
     #
-    # n     A neighborhood
-    # g     A group in the neighborhood
-    # parm  A demog_ng column
+    # Retrieves a row dictionary, or a particular column value, from
+    # demog_ng.
     #
-    # Retrieves a row dictionary, or a particular column value.
+    # Syntax:
+    #   getng _n g ?parm?_
+    #
+    #   n    - A neighborhood
+    #   g    - A group in the neighborhood
+    #   parm - A demog_ng column name
 
     typemethod getng {n g {parm ""}} {
         # FIRST, get the data
@@ -151,16 +212,46 @@ snit::type demog {
     }
 
 
-    # getn n ?parm?
+    # Type Method: getn
     #
-    # n     A neighborhood
-    # parm  A demog_n column
+    # Retrieves a row dictionary, or a particular column value, from
+    # demog_n.
     #
-    # Retrieves a row dictionary, or a particular column value.
+    # Syntax:
+    #   getn _n ?parm?_
+    #
+    #   n    - A neighborhood
+    #   parm - A demog_n column name
 
     typemethod getn {n {parm ""}} {
         # FIRST, get the data
         rdb eval {SELECT * FROM demog_n WHERE n=$n} row {
+            if {$parm ne ""} {
+                return $row($parm)
+            } else {
+                unset row(*)
+                return [array get row]
+            }
+        }
+
+        return ""
+    }
+
+    # Type Method: getlocal
+    #
+    # Retrieves a row dictionary, or a particular column value, from
+    # demog_local.
+    #
+    # Syntax:
+    #   getlocal _?parm?_
+    #
+    #   parm - A demog_local column name
+
+    typemethod getlocal {{parm ""}} {
+        # FIRST, get the data
+        rdb eval {
+            SELECT * FROM demog_local LIMIT 1
+        } row {
             if {$parm ne ""} {
                 return $row($parm)
             } else {

@@ -62,7 +62,9 @@ snit::type econ {
         log normal econ "init"
 
         # FIRST, create the CGE.
-        set cge [cellmodel cge]
+        set cge [cellmodel cge \
+                     -maxiters 1000 \
+                     -tracecmd [mytypemethod TraceCGE]]
         cge load [readfile [file join $::app_sim::library eco3x3.cm]]
         
         require {[cge sane]} "The econ model's CGE (eco3x3.cm) is not sane."
@@ -72,6 +74,19 @@ snit::type econ {
 
         # NEXT, Econ is up.
         log normal econ "init complete"
+    }
+
+    # Type Method: TraceCGE
+    #
+    # The cellmodel(n) -tracecmd for the <cge> component.  It simply
+    # logs its arguments.
+
+    typemethod TraceCGE {args} {
+        if {[lindex $args 0] eq "converge"} {
+            log detail econ "solve trace: $args"
+        } else {
+            log debug econ "solve trace: $args"
+        }
     }
 
     # Type Method: start
@@ -84,7 +99,14 @@ snit::type econ {
 
         # FIRST, set the input parameters
         cge reset
-        cge set [list in::population 2e6]
+
+        array set data [demog getlocal]
+
+        cge set [list \
+                     BasePopulation $data(population)  \
+                     BaseWF         $data(labor_force) \
+                     in::population $data(population)  \
+                     in::CAP.pop    $data(labor_force)]
 
         # NEXT, calibrate the CGE.
         set result [cge solve]
@@ -112,7 +134,11 @@ snit::type econ {
         log normal econ "tock"
 
         # FIRST, set the input parameters
-        # TBD
+        array set data [demog getlocal]
+
+        cge set [list \
+                     in::population $data(population)  \
+                     in::CAP.pop    $data(labor_force)]
 
         # NEXT, update the CGE.
         set result [cge solve in]

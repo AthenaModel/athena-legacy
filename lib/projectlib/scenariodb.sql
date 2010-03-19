@@ -715,6 +715,18 @@ CREATE TABLE mads (
 -- The following tables are used to track the demographics of each
 -- neighborhood.
 
+-- Demographics of the region of interest (i.e., of nbhoods for
+-- which local=1)
+
+CREATE TABLE demog_local (
+    -- Total population (e.g., consumers) in the neighborhood at the
+    -- current time.
+    population   INTEGER DEFAULT 0,
+
+    -- Total labor force in the neighborhood at the current time
+    labor_force  INTEGER DEFAULT 0
+);
+
 -- Demographics of the neighborhood as a whole
 
 CREATE TABLE demog_n (
