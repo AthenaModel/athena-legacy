@@ -107,6 +107,10 @@ snit::type executive {
         $interp smartalias {dump coop slope} 3 3 {n f g} \
             [mytypemethod dump coop slope]
 
+        # dump econ
+        $interp smartalias {dump econ} 0 1 {?page?} \
+            [list ::econ dump]
+
         # dump sat
         $interp ensemble {dump sat}
 

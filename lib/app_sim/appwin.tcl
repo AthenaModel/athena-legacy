@@ -737,7 +737,7 @@ snit::widget appwin {
         $helpmenu add command                    \
             -label       "Command Reference"     \
             -underline   0                       \
-            -command     [list app help commands]
+            -command     [list app help cmd]
 
         $helpmenu add command                    \
             -label       "Release Notes"         \

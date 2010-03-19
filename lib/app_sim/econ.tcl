@@ -168,6 +168,23 @@ snit::type econ {
 
     delegate typemethod get to cge
 
+    # Type Method: dump
+    #
+    # Dumps the cell values and formulas for one or all pages.  If 
+    # no _page_ is specified, only the *out* page is included.
+
+    typemethod dump {{page out}} {
+        set pages [linsert [cge pages] 0 all]
+
+        if {$page ni $pages} {
+            set pages [join $pages ", "]
+            return -code error -errorcode invalid \
+                "Invalid page name \"$page\", should be one of: $pages"
+        }
+
+        cge dump $page
+    }
+
     #-------------------------------------------------------------------
     # Group: saveable(i) interface
 

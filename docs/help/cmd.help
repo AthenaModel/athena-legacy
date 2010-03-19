@@ -243,6 +243,24 @@ command "dump coop slope" {
 }
 
 #-----------------------------------------------------------------------
+# dump econ
+
+command "dump econ" {
+    <<syntax ?<i>page</i>?>>
+    
+    Dumps the Economic model's cell values and formulas.  By default,
+    <i>page</i> defaults to <b>out</b>, the model's output page.  
+    To see all pages, enter<p>
+
+    <pre>
+        dump econ all
+    </pre>
+
+    You can also request any particular page, e.g., <b>null</b>, <b>in</i>, 
+    <b>out</b>.
+}
+
+#-----------------------------------------------------------------------
 # dump sat
 
 command "dump sat" {
