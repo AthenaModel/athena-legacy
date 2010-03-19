@@ -69,6 +69,8 @@ snit::type parm {
         } else {
             parmdb lock sim.tickSize
             parmdb lock aam.ticksPerTock
+            parmdb lock econ.ticksPerTock
+            parmdb lock econ.baseUnemployment
         }
     }
 

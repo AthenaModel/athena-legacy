@@ -63,7 +63,8 @@ snit::type econ {
 
         # FIRST, create the CGE.
         set cge [cellmodel cge \
-                     -maxiters 1000 \
+                     -epsilon  0.000001 \
+                     -maxiters 1000     \
                      -tracecmd [mytypemethod TraceCGE]]
         cge load [readfile [file join $::app_sim::library eco3x3.cm]]
         
@@ -103,9 +104,10 @@ snit::type econ {
         array set data [demog getlocal]
 
         cge set [list \
-                     BasePopulation $data(population)  \
-                     BaseWF         $data(labor_force) \
-                     in::population $data(population)  \
+                     BasePopulation $data(population)                  \
+                     BaseWF         $data(labor_force)                 \
+                     BaseUR         [parmdb get econ.baseUnemployment] \
+                     in::population $data(population)                  \
                      in::CAP.pop    $data(labor_force)]
 
         # NEXT, calibrate the CGE.

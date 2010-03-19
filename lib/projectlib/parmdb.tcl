@@ -632,6 +632,11 @@ snit::type ::projectlib::parmdb {
             state of the economy.
         }
 
+        $ps define econ.baseUnemployment ::simlib::rfraction 0.05 {
+            The unemployment rate as of time 0, expressed as a 
+            decimal fraction of the labor force.
+        }
+
         # Ensit global parameters
         $ps subset dam.ensit {
             Parameters for the environmental situation rule sets in general.
