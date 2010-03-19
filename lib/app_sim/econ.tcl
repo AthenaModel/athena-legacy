@@ -37,6 +37,21 @@ snit::type econ {
     typecomponent cge
 
     #-------------------------------------------------------------------
+    # Group: Non-Checkpointed Type Variables
+
+    # Type Variable: info
+    #
+    # Miscellaneous non-checkpointed scalar values.
+    #
+    # changed - 1 if there is unsaved data, and 0 otherwise.
+
+    typevariable info -array {
+        changed 0
+    }
+
+
+
+    #-------------------------------------------------------------------
     # Group: Initialization
 
     # Type Method: init
@@ -47,10 +62,13 @@ snit::type econ {
         log normal econ "init"
 
         # FIRST, create the CGE.
-        cellmodel cge
+        set cge [cellmodel cge]
         cge load [readfile [file join $::app_sim::library eco3x3.cm]]
         
         require {[cge sane]} "The econ model's CGE (eco3x3.cm) is not sane."
+
+        # NEXT, register this type as a saveable
+        scenario register ::econ
 
         # NEXT, Econ is up.
         log normal econ "init complete"
@@ -66,11 +84,15 @@ snit::type econ {
 
         # FIRST, set the input parameters
         cge reset
-        # TBD
+        cge set [list in::population 2e6]
 
         # NEXT, calibrate the CGE.
         set result [cge solve]
 
+        # NEXT, the data has changed.
+        set info(changed) 1
+
+        # NEXT, handle failures.
         if {$result ne "ok"} {
             log warning econ "Failed to calibrate"
             error "Failed to calibrate economic model."
@@ -95,6 +117,10 @@ snit::type econ {
         # NEXT, update the CGE.
         set result [cge solve in]
 
+        # NEXT, the data has changed.
+        set info(changed) 1
+
+        # NEXT, handle failures
         if {$result ne "ok"} {
             log warning econ "Failed to advance economic model"
             error "Failed to advance economic model"
@@ -102,5 +128,68 @@ snit::type econ {
 
         log normal econ "tock complete"
     }
+
+    #-------------------------------------------------------------------
+    # Group: Queries
+
+    # Type Methods: Delegated
+    #
+    # Methods delegated to the <cge> component
+    #
+    # - get
+
+    delegate typemethod get to cge
+
+    #-------------------------------------------------------------------
+    # Group: saveable(i) interface
+
+    # Type Method: checkpoint
+    #
+    # Returns a checkpoint of the non-RDB simulation data.  If 
+    # -saved is specified, the data is marked unchanged.
+    #
+    # Syntax:
+    #   checkpoint ?-saved?
+
+
+    typemethod checkpoint {{option ""}} {
+        if {$option eq "-saved"} {
+            set info(changed) 0
+        }
+
+        return [cge get]
+    }
+
+    # Type Method: restore
+    #
+    # Restores the non-RDB state of the module to that contained
+    # in the _checkpoint_.  If -saved is specified, the data is marked
+    # unchanged.
+    #
+    # Syntax:
+    #   restore _checkpoint_ ?-saved?
+    #
+    #   checkpoint - A string returned by the checkpoint typemethod
+    
+    typemethod restore {checkpoint {option ""}} {
+        # FIRST, restore the checkpoint data
+        cge set $checkpoint
+
+        if {$option eq "-saved"} {
+            set info(changed) 0
+        }
+    }
+
+    # Type Method: changed
+    #
+    # Returns 1 if saveable(i) data has changed, and 0 otherwise.
+    #
+    # Syntax:
+    #   changed
+
+    typemethod changed {} {
+        return $info(changed)
+    }
+
 }
 

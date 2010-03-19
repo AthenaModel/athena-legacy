@@ -863,6 +863,8 @@ snit::type sim {
         dict set checkpoint state $info(state)
         dict set checkpoint t0    [simclock cget -t0]
         dict set checkpoint now   [simclock now]
+
+        return $checkpoint
     }
 
     # restore checkpoint ?-saved?
