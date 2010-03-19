@@ -295,7 +295,7 @@ namespace eval ::athena_test::tests:: {
         ted order SIM:UNLOCK
         ted notifier received
         # Event is sent twice, once when state is set, and then
-        # as part of "sim reconfigure".
+        # as part of "sim dbsync".
     } -cleanup {
         cleanup
     } -result {

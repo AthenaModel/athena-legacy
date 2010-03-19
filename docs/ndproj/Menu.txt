@@ -48,8 +48,9 @@ Format: 1.4
 
 Group: App_sim  {
 
-   File: app.tcl  (app_sim/app.tcl)
+   File: Standards  (app_sim/standards.txt)
    File: app_sim.tcl  (app_sim/app_sim.tcl)
+   File: app.tcl  (app_sim/app.tcl)
    File: econ.tcl  (app_sim/econ.tcl)
    }  # Group: App_sim
 

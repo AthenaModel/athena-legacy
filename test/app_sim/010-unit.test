@@ -777,17 +777,6 @@ U2
         cleanup
     } -result {NB2}
 
-
-    #-------------------------------------------------------------------
-    # reconfigure
-
-    test reconfigure-1.1 {can be called} -body {
-        # This is currently a no-op
-        unit reconfigure
-    } -result {}
-    
-
-
     #-------------------------------------------------------------------
     # Cleanup
 

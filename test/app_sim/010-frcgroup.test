@@ -422,17 +422,6 @@ BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE 0         1  
         cleanup
     } -result {ALQ}
 
-
-    #-------------------------------------------------------------------
-    # reconfigure
-
-    test reconfigure-1.1 {can be called} -body {
-        # This is currently a no-op
-        frcgroup reconfigure
-    } -result {}
-    
-
-
     #-------------------------------------------------------------------
     # Cleanup
 

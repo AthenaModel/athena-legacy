@@ -303,16 +303,6 @@ SHIA Shia Folk #ff0000 FRIEND civilian CIV
 
 
     #-------------------------------------------------------------------
-    # reconfigure
-
-    test reconfigure-1.1 {can be called} -body {
-        # This is currently a no-op
-        civgroup reconfigure
-    } -result {}
-    
-
-
-    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests

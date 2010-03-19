@@ -52,20 +52,13 @@ snit::type ted {
         mads
     }
 
-    # cleanupModules -- list of modules that need to be reconfigured
-    # after a test.lib/app_sim/
+    # cleanupModules -- list of modules that need to be resync'd
+    # after a test.
+    #
+    # TBD: Why don't we dbsync cif?  Should we "sim dbsync" instead?
 
     typevariable cleanupModules {
         nbhood
-        nbrel
-        civgroup
-        nbgroup
-        frcgroup
-        orggroup
-        sat
-        rel
-        coop
-        unit
         situation
     }
 
@@ -518,7 +511,7 @@ snit::type ted {
     #
     # * Forgets notifier binds
     # * Deletes all records from the $cleanupTables
-    # * Reconfigures the $cleanupModules
+    # * Resyncs the $cleanupModules with the RDB
     # * Clears the CIF
     # * Resets the parms
     # * Restarts the eventq(n) queue
@@ -539,7 +532,7 @@ snit::type ted {
         }
 
         foreach module $cleanupModules {
-            {*}$module reconfigure
+            {*}$module dbsync
         }
 
         cif    clear

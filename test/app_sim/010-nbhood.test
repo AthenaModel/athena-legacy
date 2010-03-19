@@ -510,7 +510,7 @@ NB2 2
 
 
     #-------------------------------------------------------------------
-    # reconfigure
+    # dbsync
 
     # This is effectively tested by the lower and raise tests.
     

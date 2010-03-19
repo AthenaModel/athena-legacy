@@ -325,17 +325,6 @@ USAID Red Cross #ff0000 FRIEND organization ORG   IGO     APATHETIC 0.1         
         cleanup
     } -result {HAL}
 
-
-    #-------------------------------------------------------------------
-    # reconfigure
-
-    test reconfigure-1.1 {can be called} -body {
-        # This is currently a no-op
-        orggroup reconfigure
-    } -result {}
-    
-
-
     #-------------------------------------------------------------------
     # Cleanup
 

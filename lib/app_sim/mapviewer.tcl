@@ -495,19 +495,19 @@ snit::widget mapviewer {
         bind $canvas <<PolyComplete>> [mymethod PolyComplete %d]
 
         # NEXT, Subscribe to application notifier(n) events.
-        notifier bind ::sim      <DbSyncB> $self [mymethod refresh]
+        notifier bind ::sim      <DbSyncB>     $self [mymethod dbsync]
         notifier bind ::sim      <Tick>        $self [mymethod NbhoodFill]
-        notifier bind ::map      <MapChanged>  $self [mymethod refresh]
+        notifier bind ::map      <MapChanged>  $self [mymethod dbsync]
         notifier bind ::order    <OrderEntry>  $self [mymethod OrderEntry]
         notifier bind ::nbhood   <Entity>      $self [mymethod EntityNbhood]
         notifier bind ::unit     <Entity>      $self [mymethod EntityUnit]
-        notifier bind ::ensit   <Entity>      $self [mymethod EntityEnsit]
+        notifier bind ::ensit    <Entity>      $self [mymethod EntityEnsit]
         notifier bind ::civgroup <Entity>      $self [mymethod EntityCivGrp]
         notifier bind ::frcgroup <Entity>      $self [mymethod EntityFrcGrp]
         notifier bind ::orggroup <Entity>      $self [mymethod EntityOrgGrp]
 
         # NEXT, draw everything for the current map, whatever it is.
-        $self refresh
+        $self dbsync
     }
 
     destructor {
@@ -660,11 +660,11 @@ snit::widget mapviewer {
 
     delegate method * to canvas
 
-    # refresh
+    # dbsync
     #
     # Clears the map; and redraws the scenario features
 
-    method refresh {} {
+    method dbsync {} {
         # FIRST, get the current map and projection
         $canvas configure -map        [map image]
         $canvas configure -projection [map projection]

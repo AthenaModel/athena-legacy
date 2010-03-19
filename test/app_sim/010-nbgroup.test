@@ -381,17 +381,6 @@ NB1 SHIA John Doe   5000    APATHETIC 0.1           0.2
         cleanup
     } -result {NB1 SHIA}
 
-
-    #-------------------------------------------------------------------
-    # reconfigure
-
-    test reconfigure-1.1 {can be called} -body {
-        # This is currently a no-op
-        nbgroup reconfigure
-    } -result {}
-    
-
-
     #-------------------------------------------------------------------
     # Cleanup
 

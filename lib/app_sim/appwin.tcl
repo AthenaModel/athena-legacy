@@ -340,8 +340,8 @@ snit::widget appwin {
         grid propagate $win off
 
         # NEXT, Prepare to receive notifier events.
-        notifier bind ::sim      <DbSyncB>       $self [mymethod Reconfigure]
-        notifier bind ::scenario <ScenarioSaved> $self [mymethod Reconfigure]
+        notifier bind ::sim      <DbSyncB>       $self [mymethod DbSync]
+        notifier bind ::scenario <ScenarioSaved> $self [mymethod DbSync]
         notifier bind ::sim      <State>         $self [mymethod SimState]
         notifier bind ::sim      <Time>          $self [mymethod SimTime]
         notifier bind ::sim      <Speed>         $self [mymethod SimSpeed]
@@ -351,7 +351,7 @@ snit::widget appwin {
         }
 
         # NEXT, Prepare to receive window events
-        bind $content <<NotebookTabChanged>> [mymethod Reconfigure]
+        bind $content <<NotebookTabChanged>> [mymethod DbSync]
 
         bind $viewer <<Unit-1>>       [mymethod Unit-1   %d]
         bind $viewer <<Ensit-1>>      [mymethod Ensit-1  %d]
@@ -363,8 +363,8 @@ snit::widget appwin {
             bind $viewer <<PolyComplete>> [mymethod PolyComplete %d]
         }
 
-        # NEXT, Reconfigure self on creation
-        $self Reconfigure
+        # NEXT, Sync with RDB on creation
+        $self DbSync
     }
 
     destructor {
@@ -1729,11 +1729,11 @@ snit::widget appwin {
     #-------------------------------------------------------------------
     # Notifier Event Handlers
 
-    # Reconfigure
+    # DbSync
     #
-    # Reconfigure the window given the new scenario
+    # Syncs with the RDB.
 
-    method Reconfigure {} {
+    method DbSync {} {
         # FIRST, set the window title
 
         set dbfile [file tail [scenario dbfile]]

@@ -82,7 +82,7 @@ snit::type situation {
 
         # NEXT, prepare to receive simulation events
         notifier bind ::sim <State>   $type [mytypemethod SimState]
-        notifier bind ::sim <DbSyncA> $type [mytypemethod DbSync]
+        notifier bind ::sim <DbSyncA> $type [mytypemethod dbsync]
 
         # NEXT, the module is up.
         log normal situation "init complete"
@@ -118,11 +118,11 @@ snit::type situation {
         }
     }
 
-    # DbSync
+    # dbsync
     #
     # Resets the in-memory state to reflect the RDB.
 
-    typemethod DbSync {} {
+    typemethod dbsync {} {
         $type FlushCache
     }
 

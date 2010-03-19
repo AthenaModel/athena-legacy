@@ -534,17 +534,6 @@ NB1 SHIA SFT 0.0  0.0    1.0
         cleanup
     } -result {SHIA USAID}
 
-
-    #-------------------------------------------------------------------
-    # reconfigure
-
-    test reconfigure-1.1 {can be called} -body {
-        # This is currently a no-op
-        sat reconfigure
-    } -result {}
-    
-
-
     #-------------------------------------------------------------------
     # Cleanup
 

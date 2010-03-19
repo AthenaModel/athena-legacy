@@ -414,17 +414,6 @@ NB1 SHIA BLUE 50.0
         cleanup
     } -result {NB1 SHIA BLUE}
 
-
-    #-------------------------------------------------------------------
-    # reconfigure
-
-    test reconfigure-1.1 {can be called} -body {
-        # This is currently a no-op
-        coop reconfigure
-    } -result {}
-    
-
-
     #-------------------------------------------------------------------
     # Cleanup
 
