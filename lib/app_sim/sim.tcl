@@ -637,6 +637,9 @@ snit::type sim {
         # NEXT, set the state to PAUSED
         $type SetState PAUSED
 
+        # NEXT, resync the GUI, since much has changed.
+        notifier send $type <DbSyncB>
+
         # NEXT, return "", as this can't be undone.
         return ""
     }

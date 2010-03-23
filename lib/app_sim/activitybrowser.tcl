@@ -55,7 +55,7 @@ snit::widgetadaptor activitybrowser {
             -titlecolumns       3                 \
             -reloadon {
                 ::sim <Tick>
-                ::sim <Reconfigure
+                ::sim <DbSyncB>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
 

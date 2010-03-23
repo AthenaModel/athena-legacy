@@ -56,7 +56,7 @@ snit::widgetadaptor actsitbrowser {
             -titlecolumns       1                 \
             -reloadon {
                 ::sim <Tick>
-                ::sim <Reconfigure
+                ::sim <DbSyncB>
             } -views        {
                 gui_actsits          "All"
                 gui_actsits_current  "Current"
