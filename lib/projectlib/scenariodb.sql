@@ -769,3 +769,39 @@ CREATE TABLE demog_ng (
    
     PRIMARY KEY (n, g)
 );
+
+------------------------------------------------------------------------
+-- Economic Model
+--
+-- The following tables are used by the Economic model to track 
+-- neighborhood inputs and outputs.
+
+-- Neighborhood inputs and outputs.  
+--
+-- NOTE: All production capacities and related factors concern the 
+-- "goods" sector; when we add additional kinds of production, we'll
+-- probably need to elaborate this scheme considerably.
+
+CREATE TABLE econ_n (
+    -- Symbolic neighborhood name
+    n          TEXT PRIMARY KEY,
+
+    -- The following columns can be ignored if nbhoods.local == 0.    
+
+    -- Input, Production Capacity Factor (PCF)
+    pcf        DOUBLE DEFAULT 1.0,
+
+    -- Output, Capacity Calibration Factor (CCF)
+    ccf        DOUBLE DEFAULT 0.0,
+
+    -- Output, Production Capacity at time 0
+    cap0       DOUBLE DEFAULT 0,
+
+    -- Output, Production Capacity at time t
+    cap        DOUBLE DEFAULT 0
+);
+
+-- A view of only those econ_n records that correspond to local
+-- neighborhoods.
+CREATE VIEW econ_n_view AS
+SELECT * FROM nbhoods JOIN econ_n USING (n) WHERE nbhoods.local = 1;

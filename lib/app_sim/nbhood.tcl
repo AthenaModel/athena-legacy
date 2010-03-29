@@ -192,6 +192,7 @@ snit::type nbhood {
                        $polygon);
 
                 INSERT INTO demog_n(n) VALUES($n);
+                INSERT INTO econ_n(n)  VALUES($n);
             } {}
 
             # NEXT, set the stacking order
@@ -240,10 +241,17 @@ snit::type nbhood {
             unset row2(*)
         }
 
+        rdb eval {
+            SELECT * FROM econ_n WHERE n=$n
+        } row3 {
+            unset row3(*)
+        }
+
         # FIRST, delete it.
         rdb eval {
             DELETE FROM nbhoods WHERE n=$n;
-            DELETE FROM demog_n WHERE n=$n
+            DELETE FROM demog_n WHERE n=$n;
+            DELETE FROM econ_n  WHERE n=$n;
         }
 
         $geo delete $n
@@ -256,23 +264,26 @@ snit::type nbhood {
         notifier send ::nbhood <Entity> delete $n
 
         # NEXT, return aggregate undo script.
-        return [mytypemethod Restore [array get row1] [array get row2]]
+        return [mytypemethod Restore \
+                    [array get row1] [array get row2] [array get row3]]
     }
 
-    # Restore parmdict1 parmdict2
+    # Restore parmdict1 parmdict2 parmdict3
     #
     # parmdict1    A complete nbhoods row, to be restored as is.
     # parmdict2    A complete demog_n row, to be restored as is.
+    # parmdict3    A complete econ_n row, to be restored as is.
     #
     # Restores a neighborhood.
 
-    typemethod Restore {parmdict1 parmdict2} {
+    typemethod Restore {parmdict1 parmdict2 parmdict3} {
         # FIRST, restore the database row
         rdb insert nbhoods $parmdict1
         rdb insert demog_n $parmdict2
+        rdb insert econ_n  $parmdict3
 
         # NEXT, resync with the RDB: this will update the geoset and the 
-        # stacking order.
+        # stacking order, as well as the demog_n and econ_n changes.
         $type dbsync
 
         # NEXT, notify the app.
