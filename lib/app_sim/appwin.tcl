@@ -210,6 +210,12 @@ snit::widget appwin {
             script { demogbrowser %W }
         }
 
+        econ {
+            label  "Econ"
+            parent ""
+            script { econnbrowser %W }
+        }
+
         gramt {
             label  "Attitudes"
             parent ""
@@ -688,6 +694,13 @@ snit::widget appwin {
         $self AddOrder $submenu MAD:SAT:SET
         $self AddOrder $submenu MAD:SAT:LEVEL
         $self AddOrder $submenu MAD:SAT:SLOPE
+
+        # Orders/Economics Menu
+        set submenu [menu $ordersmenu.econ]
+        $ordersmenu add cascade -label "Economics" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu ECON:UPDATE
 
         # Reports menu
         set reportsmenu [menu $menubar.reports]

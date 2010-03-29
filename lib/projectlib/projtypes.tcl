@@ -26,8 +26,7 @@ namespace eval ::projectlib:: {
         edamruleset   \
         edefroeuf     \
         edemeanor     \
-        eensit       \
-        leensit      \
+        eensit        \
         eforcetype    \
         efrcactivity  \
         eorgactivity  \
@@ -45,12 +44,13 @@ namespace eval ::projectlib:: {
         ioptdays      \
         ipositive     \
         iquantity     \
-        leensit      \
+        leensit       \
         polygon       \
         qsecurity     \
         rdays         \
         rgain         \
         rnomcoverage  \
+        rnonneg       \
         rrate         \
         typewrapper   \
         unitname      \
@@ -624,6 +624,9 @@ snit::type ::projectlib::typewrapper {
 
 # Gain setting
 ::marsutil::range ::projectlib::rgain -min 0.0
+
+# Non-negative real number
+::marsutil::range ::projectlib::rnonneg -min 0.0
 
 # Rate setting
 ::marsutil::range ::projectlib::rrate -min 0.0

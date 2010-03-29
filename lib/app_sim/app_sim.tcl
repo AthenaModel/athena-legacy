@@ -129,8 +129,9 @@ source [file join $::app_sim::library attroenfbrowser.tcl    ]
 source [file join $::app_sim::library defroebrowser.tcl      ]
 source [file join $::app_sim::library unitbrowser.tcl        ]
 source [file join $::app_sim::library orderbrowser.tcl       ]
-source [file join $::app_sim::library ordersentbrowser.tcl]
+source [file join $::app_sim::library ordersentbrowser.tcl   ]
 source [file join $::app_sim::library madbrowser.tcl         ]
+source [file join $::app_sim::library econnbrowser.tcl       ]
 
 
 

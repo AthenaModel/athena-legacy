@@ -335,6 +335,23 @@ LEFT OUTER JOIN gram_driver USING (driver);
 CREATE TEMPORARY VIEW gui_mads_initial AS
 SELECT * FROM gui_mads WHERE inputs = 0;
 
+------------------------------------------------------------------------
+-- Economic Model views
+
+-- An econ_n view for use by the GUI
+CREATE TEMPORARY VIEW gui_econ_n AS
+SELECT E.n                                          AS id,
+       E.n                                          AS n,
+       E.longname                                   AS longname,
+       CASE E.local WHEN 1 THEN 'YES' ELSE 'NO' END AS local,
+       E.urbanization                               AS urbanization,
+       COALESCE(D.population,0)                     AS population,
+       format('%.2f',E.pcf)                         AS pcf,
+       format('%.1f',E.ccf)                         AS ccf,
+       format('%.1f',E.cap0)                        AS cap0,
+       format('%.1f',E.cap)                         AS cap
+FROM econ_n_view AS E
+JOIN demog_n as D using (n);
 
 ------------------------------------------------------------------------
 -- Primary Entities

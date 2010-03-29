@@ -50,6 +50,7 @@ snit::type ted {
         demog_n
         demog_ng
         mads
+        econ_n
     }
 
     # cleanupModules -- list of modules that need to be resync'd

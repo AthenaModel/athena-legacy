@@ -186,6 +186,54 @@ snit::type econ {
     }
 
     #-------------------------------------------------------------------
+    # Mutators
+    #
+    # Mutators are used to implement orders that change the scenario in
+    # some way.  Mutators assume that their inputs are valid, and returns
+    # a script of one or more commands that will undo the change.  When
+    # change cannot be undone, the mutator returns the empty string.
+
+    # mutate update parmdict
+    #
+    # parmdict     A dictionary of group parms
+    #
+    #    n                Neighborhood ID
+    #    pcf              Production capacity factor for n
+    #
+    # Updates neighborhood economic inputs given the parms, which are 
+    # presumed to be valid.
+
+    typemethod {mutate update} {parmdict} {
+        # FIRST, use the dict
+        dict with parmdict {
+            # FIRST, get the undo information
+            rdb eval {
+                SELECT * FROM econ_n
+                WHERE n=$n
+            } undoData {
+                unset undoData(*)
+            }
+
+            # NEXT, Update the group
+            rdb eval {
+                UPDATE econ_n
+                SET pcf = nonempty($pcf, pcf)
+                WHERE n=$n;
+
+                UPDATE econ_n
+                SET cap = pcf*cap0
+                WHERE n=$n;
+            } {}
+
+            # NEXT, notify the app.
+            notifier send ::econ <Entity> update $n
+
+            # NEXT, Return the undo command
+            return [mytypemethod mutate update [array get undoData]]
+        }
+    }
+
+    #-------------------------------------------------------------------
     # Group: saveable(i) interface
 
     # Type Method: checkpoint
@@ -235,6 +283,59 @@ snit::type econ {
     typemethod changed {} {
         return $info(changed)
     }
-
 }
 
+#-------------------------------------------------------------------
+# Orders: ECON:*
+
+# ECON:UPDATE
+#
+# Updates existing neighborhood economic inputs
+
+
+order define ::econ ECON:UPDATE {
+    title "Update Neighborhood Economic Inputs"
+    options -sendstates {PREP PAUSED} -table gui_econ_n -tags n
+
+    parm n    key  "Neighborhood"           -tags nbhood
+    parm pcf  text "Prod. Capacity Factor"
+} {
+    # FIRST, prepare the parameters
+    prepare n   -toupper  -required -type nbhood
+    prepare pcf -toupper            -type rnonneg
+
+    returnOnError -final
+
+    # NEXT, modify the record
+    setundo [$type mutate update [array get parms]]
+}
+
+# ECON:UPDATE:MULTI
+#
+# Updates economic inputs for multiple existing neighborhoods
+
+
+order define ::econ ECON:UPDATE:MULTI {
+    title "Update Economic Inputs for Multiple Neighborhoods"
+    options -sendstates {PREP PAUSED} -table gui_econ_n
+
+    parm ids  multi "IDs"
+    parm pcf  text  "Prod. Capacity Factor"
+} {
+    # FIRST, prepare the parameters
+    prepare ids -toupper  -required -listof nbhood
+    prepare pcf -toupper            -type   rnonneg
+
+    returnOnError -final
+
+    # NEXT, modify the records
+    set undo [list]
+
+    foreach n $parms(ids) {
+        set parms(n) $n
+
+        lappend undo [$type mutate update [array get parms]]
+    }
+
+    setundo [join $undo \n]
+}
