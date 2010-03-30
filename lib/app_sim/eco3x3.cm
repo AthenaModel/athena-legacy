@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco3x3.cm, version a
+#    eco3x3.cm, version b
 #
 # AUTHOR:
 #    Bob Chamberlain
@@ -38,6 +38,13 @@
 #          (e.g., unemployment).
 #
 # HISTORY:
+#    Version b: Set in::CAP.goods and in::CAP.pop to 1e15 initially;
+#               they are set by econ(sim) and should be effectively
+#               infinite until then.
+#
+#               Copied X.i.j, Q.i.j, P.i, Q.i, REV.i, EXP.i from C
+#               to out, to make them visible to econ(sim).
+#
 #    Version a: Based on prototype cd3x3r.cm.
 #               Added in:: page, distinguished between base case inputs
 #               and dynamic inputs (e.g., BasePopulation and 
@@ -263,12 +270,14 @@ page in
 # Population Figure
 let population = 1e6          ;# People
 
-# Max capacity for each sector.
+# Max capacity for each sector.  These are set by Athena; the initial
+# values are intended to be effectively infinite.
+
 # NOTE: Because else includes the rest of the world, it is presumed to
 # have unlimited capacity.
 
-let CAP.goods  = 8e8          ;# goodsBKT/year
-let CAP.pop    = 380000       ;# work-years/year
+let CAP.goods  = 1e15         ;# goodsBKT/year
+let CAP.pop    = 1e15         ;# work-years/year
 
 
 #-----------------------------------------------------------------------
@@ -312,8 +321,18 @@ let Q.pop    = [CQ.i pop]   -value 380000
 
 page out
 
-# TBD: Copy all desired outputs from page C, e.g.,
-# let Output = {[C::Output]}
+# Copy outputs from C
+foreach i {goods pop else} {
+    let P.$i   = {[C::P.$i]}
+    let Q.$i   = {[C::Q.$i]}
+    let REV.$i = {[C::REV.$i]}
+    let EXP.$i = {[C::REV.$i]}
+
+    foreach j {goods pop else} {
+        let Q.$i.$j = {[C::Q.$i.$j]}
+        let X.$i.$j = {[C::X.$i.$j]}
+    }
+}
 
 # goods shortages and overages: goodsBKT/year
 let OVERAGE.goods  = {max(0.0, [C::Q.goods]     - [U::Q.goods])}

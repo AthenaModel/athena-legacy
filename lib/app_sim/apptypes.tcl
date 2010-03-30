@@ -23,6 +23,10 @@ enum esimstate {
     SNAPSHOT Snapshot
 }
 
+# rpcf0: The range for the Production Capacity Factor at time 0.
+
+::marsutil::range rpcf0 -min 0.1 -max 1.0
+
 # satgradient: A fill color gradient for satisfaction levels
 
 ::marsgui::gradient satgradient \

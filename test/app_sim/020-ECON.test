@@ -72,6 +72,17 @@ namespace eval ::athena_test::tests:: {
     }
 
 
+    test UPDATE-1.4 {invalid PCF: > 1.0 during PREP} -setup {
+        setup
+    } -body {
+        ted order -reject ECON:UPDATE \
+            n NB1 pcf 2.0
+    } -cleanup {
+        cleanup
+    } -result {
+        pcf {invalid value "2.0", should be a real number in range 0.1, 1.0}
+    }
+
     test UPDATE-2.1 {values are updated} -setup {
         setup
     } -body {
@@ -90,8 +101,27 @@ NB1 0.5 0.0 0.0  0.0
 NB2 1.0 0.0 0.0  0.0 
     }
 
+    test UPDATE-2.2 {PCF range is wider after PREP} -setup {
+        setup
+        ted create BLUE SHIA NB1SHIA NB2SHIA
+        ted order SIM:LOCK
+    } -body {
+        ted order ECON:UPDATE {
+            n   NB1
+            pcf 2.0
+        }
 
-    test UPDATE-2.2 {<Entity> update} -setup {
+        ted query {SELECT * FROM econ_n}
+    } -cleanup {
+        cleanup
+    } -result {
+n   pcf ccf cap0 cap 
+--- --- --- ---- --- 
+NB1 2.0 0.0 0.0  0.0 
+NB2 1.0 0.0 0.0  0.0 
+    }
+
+    test UPDATE-2.3 {<Entity> update} -setup {
         setup
     } -body {
         ted notifier bind ::econ <Entity>

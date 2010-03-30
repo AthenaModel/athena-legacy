@@ -39,6 +39,9 @@ namespace eval ::projectlib:: {
 ::marsutil::range ::projectlib::parmdb_posdays \
     -min 0.1 -format "%.2f"
 
+# Idle Fraction
+::marsutil::range ::projectlib::parmdb_idlefrac \
+    -min 0.0 -max 0.9 -format "%.2f"
 
 #-------------------------------------------------------------------
 # parm
@@ -635,6 +638,12 @@ snit::type ::projectlib::parmdb {
         $ps define econ.baseUnemployment ::simlib::rfraction 0.05 {
             The unemployment rate as of time 0, expressed as a 
             decimal fraction of the labor force.
+        }
+
+        $ps define econ.idleFrac ::simlib::rfraction 0.25 {
+            The idle production capacity for goods, expressed as
+            a decimal fraction of the total production capacity.  This 
+            value can range from 0.0 to 0.9.
         }
 
         # Ensit global parameters

@@ -122,6 +122,47 @@ snit::type econ {
             error "Failed to calibrate economic model."
         }
 
+        # NEXT, Compute the initial CAP.goods.
+        array set out [cge get out -bare]
+
+        let CAPgoods {
+            $out(Q.goods) / (1.0-[parm get econ.idleFrac])
+        }
+
+        # NEXT, compute CCF.n, the capacity fraction for each neighborhood.
+        set sum 0.0
+
+        rdb eval {
+            SELECT nbhoods.n          AS n,
+                   demog_n.population AS population, 
+                   econ_n.pcf         AS pcf
+            FROM nbhoods
+            JOIN demog_n USING (n)
+            JOIN econ_n  USING (n)
+            WHERE local = 1
+        } {
+            set pcfs($n) $pcf
+            let cf($n) {$pcf * $population}
+            let sum    {$sum + $cf($n)}
+        }
+
+        foreach n [array names cf] {
+            let cf($n) {$cf($n) / $sum}
+            let cap0 {$CAPgoods * $cf($n)}
+            let ccf {$cap0/$pcfs($n)}
+                
+            rdb eval {
+                UPDATE econ_n
+                SET ccf  = $ccf,
+                    cap0 = $cap0,
+                    cap  = $cap0
+                WHERE n = $n
+            }
+        }
+
+        # NEXT, save the initial CAP.goods
+        cge set [list in::CAP.goods $CAPgoods]
+
         log normal econ "start complete"
     }
 
@@ -138,9 +179,15 @@ snit::type econ {
         # FIRST, set the input parameters
         array set data [demog getlocal]
 
+        set CAPgoods [rdb onecolumn {
+            SELECT total(pcf*ccf)
+            FROM econ_n
+        }]
+
         cge set [list \
                      in::population $data(population)  \
-                     in::CAP.pop    $data(labor_force)]
+                     in::CAP.pop    $data(labor_force) \
+                     in::CAP.goods  $CAPgoods]
 
         # NEXT, update the CGE.
         set result [cge solve in]
@@ -304,6 +351,15 @@ order define ::econ ECON:UPDATE {
     prepare n   -toupper  -required -type nbhood
     prepare pcf -toupper            -type rnonneg
 
+    returnOnError
+
+    # During PREP, the pcf is limited to the range 0.1 to 1.0.
+    if {[order state] eq "PREP"} {
+        validate pcf {
+            rpcf0 validate $parms(pcf)
+        }
+    }
+
     returnOnError -final
 
     # NEXT, modify the record
@@ -325,6 +381,15 @@ order define ::econ ECON:UPDATE:MULTI {
     # FIRST, prepare the parameters
     prepare ids -toupper  -required -listof nbhood
     prepare pcf -toupper            -type   rnonneg
+
+    returnOnError
+
+    # During PREP, the pcf is limited to the range 0.1 to 1.0.
+    if {[order state] eq "PREP"} {
+        validate pcf {
+            rpcf0 validate $parms(pcf)
+        }
+    }
 
     returnOnError -final
 
