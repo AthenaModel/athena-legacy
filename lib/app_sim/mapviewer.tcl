@@ -276,6 +276,19 @@ snit::widget mapviewer {
     }
 
     #-------------------------------------------------------------------
+    # Look-up tables
+
+    # Default fill specs
+
+    typevariable defaultFills {
+        none
+        nbmood
+        pcf
+    }
+
+
+
+    #-------------------------------------------------------------------
     # Widget Options
 
     # All options are delegated to the mapcanvas(n).
@@ -311,7 +324,7 @@ snit::widget mapviewer {
 
     variable view -array {
         fillpoly 0
-        filltag  white
+        filltag  none
         region   normal
         zoom     "100%"
     }
@@ -386,8 +399,8 @@ snit::widget mapviewer {
         install fillbox using menubox $win.hbar.fillbox \
             -textvariable [myvar view(filltag)]         \
             -font          codefont                     \
-            -width         8                            \
-            -values        {white nbmood}               \
+            -width         16                           \
+            -values        $defaultFills                \
             -command       [mymethod NbhoodFill]
 
         DynamicHelp::add $win.hbar.fillbox \
@@ -505,6 +518,7 @@ snit::widget mapviewer {
         notifier bind ::civgroup <Entity>      $self [mymethod EntityCivGrp]
         notifier bind ::frcgroup <Entity>      $self [mymethod EntityFrcGrp]
         notifier bind ::orggroup <Entity>      $self [mymethod EntityOrgGrp]
+        notifier bind ::econ     <Entity>      $self [mymethod EntityEcon]
 
         # NEXT, draw everything for the current map, whatever it is.
         $self dbsync
@@ -686,6 +700,49 @@ snit::widget mapviewer {
         $self NbhoodUpdateFillTags
     }
 
+    # Method: nbfill
+    #
+    # Directs the mapviewer to use the specified 
+    # neighborhood variable to determine the fill color for each 
+    # neighborhood, and enables filling.  Rejects the variable
+    # if it:
+    #
+    #   - Is clearly invalid, or
+    #   - Has no associated gradient (required for filling), or
+    #   - Has no associated data in the RDB.
+    #
+    # If the variable is accepted, it is added to the nbfill picklist,
+    # possible displacing older picks.
+
+    method nbfill {varname} {
+        # FIRST, validate the varname and put it in canonical form.
+        set varname [view nbhood validate $varname]
+
+        # NEXT, get the view dict.
+        array set vdict [view nbhood get $varname]
+
+        # NEXT, does it have a gradient?
+        if {$vdict(gradient) eq ""} {
+            return -code error -errorcode INVALID \
+      "can't use variable as fill: no associated color gradient: \"$varname\""
+        }
+
+        if {![rdb exists "SELECT * FROM $vdict(view)"]} {
+            return -code error -errorcode INVALID \
+                "variable has no associated data in the database: \"$varname\""
+        }
+
+        # NEXT, if the variable name is not on the global picklist, add it,
+        # and prune old picks.
+        # TBD
+
+        # NEXT, ask the mapviewer to enable filling, and fill!
+        set view(fillpoly) [expr {$varname ne "none"}]
+        set view(filltag)  $varname
+
+        $self NbhoodFill
+    }
+    
 
     #===================================================================
     # Neighborhood Display and Behavior
@@ -787,43 +844,31 @@ snit::widget mapviewer {
         # FIRST, get the fill type, and retrieve nbhood moods if need be.
         if {!$view(fillpoly)} {
             set fill ""
-        } elseif {$view(filltag) eq "white"} {
-            set fill white
-        } elseif {$view(filltag) eq "nbmood"} {
-            set fill mood
-
-            # Get the mood of each nbhood, if known
-            array set moods [rdb eval {
-                SELECT n, sat FROM gram_n
-            }]
         } else {
-            set fill mood
+            set fill data
 
-            # filltag is a civ group.  Get the mood of each nbgroup
-            array set moods [rdb eval {
-                SELECT n, mood FROM gui_nbgroups
-                WHERE g=$view(filltag)
-            }]
+            array set vdict [view nbhood get $view(filltag)]
+
+            array set data [rdb eval "SELECT n, x FROM $vdict(view)"]
         }
         
         # NEXT, fill the nbhoods
         foreach id [$canvas nbhood ids] {
             set n $nbhoods(n-$id)
 
-            if {$fill eq "mood"} {
-                if {[info exists moods($n)]} {
-                    set color [satgradient color $moods($n)]
+            if {$fill eq "data"} {
+                if {[info exists data($n)]} {
+                    set color [$vdict(gradient) color $data($n)]
                 } else {
                     set color white
                 }
             } else {
-                set color $fill
+                set color ""
             }
 
             $canvas nbhood configure $id -fill $color
         }
     }
-
 
     # NbhoodShowObscured
     #
@@ -847,10 +892,18 @@ snit::widget mapviewer {
     # Updates the list of nbhood fill tags on the toolbar
 
     method NbhoodUpdateFillTags {} {
-        set tags [concat {white nbmood} [lsort [civgroup names]]]
+        set tags $defaultFills
+
+        foreach g [civgroup names] {
+            lappend tags "mood.$g"
+        }
+
+        foreach g [frcgroup names] {
+            lappend tags "nbcoop.$g"
+        }
 
         if {$view(filltag) ni $tags} {
-            set view(filltag) white
+            set view(filltag) none
 
             if {$view(fillpoly)} {
                 $self NbhoodFill
@@ -1582,8 +1635,19 @@ snit::widget mapviewer {
             $self UnitDrawAll
         }
     }
+
+    #===================================================================
+    # Economics Entity Event Handlers
+
+    # EntityEcon op n
+    #
+    # op   The operation
+    # n    The nbhood ID
+    #
+    # If nbhood data was changed for the economic model, update the
+    # nbhood colors.
+
+    method EntityEcon {op g} {
+        $self NbhoodFill
+    }
 }
-
-
-
-

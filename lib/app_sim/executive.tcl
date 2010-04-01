@@ -139,6 +139,10 @@ snit::type executive {
         $interp smartalias help 0 - {?-info? ?command...?} \
             [mytypemethod help]
 
+        # nbfill
+        $interp smartalias nbfill 1 1 {varname} \
+            [list .main nbfill]
+
         # parm
         $interp ensemble parm
 

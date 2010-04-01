@@ -233,7 +233,7 @@ snit::type econ {
     }
 
     #-------------------------------------------------------------------
-    # Mutators
+    # Group: Mutators
     #
     # Mutators are used to implement orders that change the scenario in
     # some way.  Mutators assume that their inputs are valid, and returns

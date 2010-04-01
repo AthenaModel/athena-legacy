@@ -46,7 +46,6 @@ snit::widget appwin {
         "90 days"       90
     }
 
-
     #-------------------------------------------------------------------
     # Components
 
@@ -1959,9 +1958,10 @@ snit::widget appwin {
         [$self tab win report] refresh
     }
 
-
     #-------------------------------------------------------------------
     # Utility Methods
+
+    delegate method nbfill to viewer
 
     # new ?option value...?
     #
@@ -2006,7 +2006,3 @@ snit::widget appwin {
         $cli clear
     }
 }
-
-
-
-

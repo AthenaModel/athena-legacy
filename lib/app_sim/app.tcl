@@ -67,7 +67,7 @@ snit::type app {
 
     # Type Method: init
     #
-    # Initializes the application.  This routine should be called once
+    # Initializes the applieconcation.  This routine should be called once
     # at application start-up, and passed the arguments from the
     # shell command line.  In particular, it:
     #
@@ -162,6 +162,7 @@ snit::type app {
         executive init
         parm      init
         map       init
+        view      init
         scenario  init -ignoredefaultparms $opts(-ignoreuser)
         cif       init
         order     init

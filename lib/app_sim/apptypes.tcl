@@ -23,9 +23,33 @@ enum esimstate {
     SNAPSHOT Snapshot
 }
 
+# rpcf: The range for the Production Capacity Factor
+
+::marsutil::range rpcf -min 0.0
+
 # rpcf0: The range for the Production Capacity Factor at time 0.
 
 ::marsutil::range rpcf0 -min 0.1 -max 1.0
+
+# coopgradient: A fill color gradient for satisfaction levels
+
+::marsgui::gradient coopgradient \
+    -mincolor \#FF0000          \
+    -midcolor \#FFFFFF          \
+    -maxcolor \#00FF00          \
+    -minlevel 0.0               \
+    -midlevel 50.0              \
+    -maxlevel 100.0
+
+# pcfgradient: A fill color gradient for econ_n pcf's
+
+::marsgui::gradient pcfgradient \
+    -mincolor \#FF0000          \
+    -midcolor \#FFFFFF          \
+    -maxcolor \#00FF00          \
+    -minlevel 0.0               \
+    -midlevel 1.0               \
+    -maxlevel 2.0
 
 # satgradient: A fill color gradient for satisfaction levels
 
