@@ -1,0 +1,165 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    vars.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: Display Variables
+#
+#    This file is included into athena.help.
+#
+#    Individual variables have page names like
+#
+#       var.<domain>.<variable>
+#
+#-----------------------------------------------------------------------
+
+page vars "Display Variables" {} {
+    <<title>>
+    Athena provides the ability to plot or otherwise visualize a 
+    wide variety of <i>display variables</i>.  There are two kinds:<p>
+
+    <ul>
+    <li> <<cref var.n>>
+    <li> <<cref var.t>>
+    </ul>
+
+    Every display variable name consists of a variable type, possibly 
+    followed by one or more index values.  For example, the
+    neighborhood variable <b>sat.SHIA.SFT</b> is the satisfaction of 
+    of the SHIA group with respect to its SFT concern across
+    neighborhoods.<p>
+
+    The valid index values generally vary from scenario to scenario;
+    thus, this documentation describes families of variables like
+    this:<p>
+
+    <b>sat.<i>g.c</i></b><p>
+
+    is the satisfaction of group <i>g</i> with concern <i>c</i> across
+    neighborhoods.
+}
+
+proc var {domain varname text} {
+    set tag "var.$domain.$varname"
+    set ptag "var.$domain"
+
+    page $tag $varname $ptag $text
+}
+
+# vartitle ?index...?
+#
+# index...   The variable type's indices
+#
+# Formats the header for the command, including a link to the parent
+# page.
+
+macro vartitle {args} {
+    set namelist [split [pageinfo name] .]
+    lassign $namelist dummy domain vartype
+
+    if {$domain eq "n"} {
+        set dtext [cref var.$domain "Neighborhood Variable"]
+    } elseif {$domain eq "t"} {
+        set dtext [cref var.$domain "Time Series Variable"]
+    } else {
+        error "Unexpected variable domain: \"$domain\""
+    }
+
+    set pattern $vartype
+
+    foreach index $args {
+        append pattern ".<i>$index</i>"
+    }
+    
+} {
+    |<--
+    [mktitle small $dtext $pattern ""]
+}
+
+
+#=======================================================================
+# Neighborhood Variables
+
+page var.n "Neighborhood Variables" vars {
+    <<title>>
+    A <i>neighborhood variable</i> is a
+    <<cref vars "display variable">> whose value varies across
+    neighborhoods. For example, the
+    neighborhood variable <b>sat.SHIA.SFT</b> is the satisfaction of 
+    of the SHIA group with respect to its SFT concern across
+    neighborhoods.<p>
+
+    The available variable types are as follows:<p>
+
+    <<childlinks>>
+}
+
+var n cap {
+    <<vartitle>>
+    The production capacity for goods of each neighborhood, in
+    goodsBKT/year.
+}
+
+var n coop {
+    <<vartitle f g>>
+    The cooperation of group <i>f</i> with group <i>g</i> across
+    neighborhoods.
+}
+
+var n mood {
+    <<vartitle g>>
+    The mood (composite satisfaction) of group <i>g</i> across
+    neighborhoods.
+}
+
+var n nbcoop {
+    <<vartitle g>>
+    The overall cooperation of each neighborhood with group <i>g</i>.
+}
+
+var n nbmood {
+    <<vartitle>>
+    The overall mood (composite satisfaction) across neighborhoods.
+}
+
+var n none {
+    <<vartitle>>
+    A null variable, 0 for all neighborhoods.
+}
+
+var n pcf {
+    <<vartitle>>
+    The production capacity factor for goods across neighborhoods.
+    A number less than 1.0 indicates that production
+    capacity has been destroyed or disabled; a number greater than
+    1.0 indicates that new capacity has been built.
+}
+
+var n sat {
+    <<vartitle g c>>
+    The satisfaction of group <i>g</i> with respect to concern
+    <i>c</i> across neighborhoods.
+}
+
+
+
+#=======================================================================
+# Time Series Variables
+
+page var.t "Time Series Variables" vars {
+    <<title>>
+    A <i>time series variable</i> is a
+    <<cref vars "display variable">> whose value varies with time.
+    For example, the
+    time series variable <b>sat.N1.SHIA.SFT</b> is the satisfaction of 
+    of the SHIA group in neighborhood N1 with respect to its SFT
+    concern over time.<p>
+
+    The available variable types are as follows:<p>
+
+    <<childlinks>>
+}

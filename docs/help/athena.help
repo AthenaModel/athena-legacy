@@ -198,6 +198,7 @@ page home "Athena Help" {} {
          <li> <<cref tabs>>
          <li> <<cref orders>>
          <li> <<cref reports>>
+         <li> <<cref vars>>
          <li> <<cref cmd>>
          <li> <<cref parmdb>>
          <li> <<cref prefs>>
@@ -264,6 +265,7 @@ include menu.help
 include tabs.help
 include orders.help
 include reports.help
+include vars.help
 include cmd.help
 include parmdb.help
 include prefs.help

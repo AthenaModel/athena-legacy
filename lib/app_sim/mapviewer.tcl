@@ -321,10 +321,12 @@ snit::widget mapviewer {
     #    fillpoly       1 if polygons should be filled, and 0 otherwise.
     #    region         normal | extended
     #    zoom           Current zoom factor show in the zoombox
+    #    filltags       Recently selected fill tags
 
     variable view -array {
         fillpoly 0
         filltag  none
+        filltags {}
         region   normal
         zoom     "100%"
     }
@@ -732,15 +734,20 @@ snit::widget mapviewer {
                 "variable has no associated data in the database: \"$varname\""
         }
 
-        # NEXT, if the variable name is not on the global picklist, add it,
-        # and prune old picks.
-        # TBD
-
         # NEXT, ask the mapviewer to enable filling, and fill!
         set view(fillpoly) [expr {$varname ne "none"}]
         set view(filltag)  $varname
 
         $self NbhoodFill
+
+        # NEXT, if the variable name is not on the global picklist, add it,
+        # and prune old picks.
+        if {$varname ni $view(filltags)} {
+            set view(filltags) \
+                [lrange [linsert $view(filltags) 0 $varname] 0 9]
+
+            $self NbhoodUpdateFillTags
+        }
     }
     
 
@@ -892,14 +899,22 @@ snit::widget mapviewer {
     # Updates the list of nbhood fill tags on the toolbar
 
     method NbhoodUpdateFillTags {} {
-        set tags $defaultFills
+        set standards $defaultFills
 
         foreach g [civgroup names] {
-            lappend tags "mood.$g"
+            lappend standards "mood.$g"
         }
 
         foreach g [frcgroup names] {
-            lappend tags "nbcoop.$g"
+            lappend standards "nbcoop.$g"
+        }
+
+        set tags $view(filltags)
+
+        foreach tag $standards {
+            if {$tag ni $view(filltags)} {
+                lappend tags $tag
+            }
         }
 
         if {$view(filltag) ni $tags} {

@@ -190,24 +190,14 @@ tab "Map" {
 
     <<topic {<img src="control_filltype">}>>
     When the neighborhood fill button is selected, neighborhood
-    polygons are filled with some color.  This pulldown determines the
-    color.<p>
+    polygons are filled with color based on some 
+    <<cref var.n "Neighborhood Variable">>.  This pulldown determines the
+    which variable is used.  Note that some variables are unavailable
+    during <<cref using.prep>>.<p>
 
-    By default, or whenever Athena is in the <<cref using.prep>>
-    state, neighborhoods are filled with <b>white</b>.  The other
-    selections, which take effect only outside of 
-    <<cref using.prep>>, are <b>nbmood</b> and the names of the
-    civilian groups.<p>
-
-    When the name of a civilian group is selected, the background
-    of each neighborhood is filled according to the 
-    <<term mood>> of the selected group in the neighborhood.  Colors
-    shade from white (for a mood of 0.0) to green (for a mood of
-    +100.0) or to red (for a mood of -100.0).<p>
-
-    If <b>nbmood</b> is selected, the background is filled according
-    to the mood of the neighborhood as a whole, using the same color
-    scheme.
+    The pulldown is initially populated with a number of neighborhood
+    variables; others can be requested using the <<cmdref nbfill>> 
+    command.
 
     <</topic>>
 

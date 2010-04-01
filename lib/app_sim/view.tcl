@@ -149,7 +149,7 @@ snit::type view {
         }
 
         n,nbcoop {
-            indices {f}
+            indices {g}
             rtype qcoop
             query {
                 SELECT n, coop AS x

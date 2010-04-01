@@ -365,6 +365,17 @@ command "help" {
     implementation info to the CLI.
 }
 
+#=======================================================================
+# nbfill command
+
+command "nbfill" {
+    <<syntax <i>varname</i> >>
+
+    This command directs the <<tabref Map>> tab to fill neighborhood
+    polygons with a color based on the value of a particular 
+    <<cref var.n "Neighborhood Variable">>.  See the link for a list
+    of the available variables.
+}
 
 #=======================================================================
 # parm commands
