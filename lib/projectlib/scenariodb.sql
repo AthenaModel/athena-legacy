@@ -436,7 +436,7 @@ CREATE TABLE coop_nfg (
     g           TEXT,
 
     -- cooperation of f with g at time 0.
-    coop0       DOUBLE DEFAULT 0.0,
+    coop0       DOUBLE DEFAULT 50.0,
 
     PRIMARY KEY (n, f, g)
 );
