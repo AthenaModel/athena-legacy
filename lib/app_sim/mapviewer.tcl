@@ -286,7 +286,18 @@ snit::widget mapviewer {
         pcf
     }
 
+    #-------------------------------------------------------------------
+    # Type Variables
 
+    # Shared pick list info.
+    #
+    # recentFills    Recently selected fill tags
+    # filltags       Current set of filltags for fillbox pulldown
+
+    typevariable picklist -array {
+        recentFills {}
+        filltags    {}
+    }
 
     #-------------------------------------------------------------------
     # Widget Options
@@ -321,14 +332,15 @@ snit::widget mapviewer {
     #    fillpoly       1 if polygons should be filled, and 0 otherwise.
     #    region         normal | extended
     #    zoom           Current zoom factor show in the zoombox
-    #    filltags       Recently selected fill tags
+    #    filltag        Current fill tag (neighborhood variable)
 
     variable view -array {
-        fillpoly 0
-        filltag  none
-        filltags {}
-        region   normal
-        zoom     "100%"
+        fillpoly     0
+        filltag     none
+        recentFills {}
+        filltags    {}
+        region      normal
+        zoom        "100%"
     }
 
     #-------------------------------------------------------------------
@@ -403,6 +415,7 @@ snit::widget mapviewer {
             -font          codefont                     \
             -width         16                           \
             -values        $defaultFills                \
+            -postcommand   [mymethod FillBoxPost]       \
             -command       [mymethod NbhoodFill]
 
         DynamicHelp::add $win.hbar.fillbox \
@@ -567,6 +580,14 @@ snit::widget mapviewer {
 
     method ButtonExtend {} {
         $canvas region $view(region)
+    }
+
+    # FillBoxPost
+    #
+    # Sets the values for the fillbox on post.
+
+    method FillBoxPost {} {
+        $fillbox configure -values $picklist(filltags)
     }
 
     #-------------------------------------------------------------------
@@ -742,9 +763,9 @@ snit::widget mapviewer {
 
         # NEXT, if the variable name is not on the global picklist, add it,
         # and prune old picks.
-        if {$varname ni $view(filltags)} {
-            set view(filltags) \
-                [lrange [linsert $view(filltags) 0 $varname] 0 9]
+        if {$varname ni $picklist(recentFills)} {
+            set picklist(recentFills) \
+                [lrange [linsert $picklist(recentFills) 0 $varname] 0 9]
 
             $self NbhoodUpdateFillTags
         }
@@ -909,10 +930,10 @@ snit::widget mapviewer {
             lappend standards "nbcoop.$g"
         }
 
-        set tags $view(filltags)
+        set tags $picklist(recentFills)
 
         foreach tag $standards {
-            if {$tag ni $view(filltags)} {
+            if {$tag ni $picklist(recentFills)} {
                 lappend tags $tag
             }
         }
@@ -925,7 +946,7 @@ snit::widget mapviewer {
             }
         }
 
-        $fillbox configure -values $tags
+        set picklist(filltags) $tags
     }
 
     #-------------------------------------------------------------------
