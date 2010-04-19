@@ -739,13 +739,15 @@ snit::widget mapviewer {
 
     method nbfill {varname} {
         # FIRST, validate the varname and put it in canonical form.
-        set varname [view nbhood validate $varname]
+        set varname [view n validate $varname]
 
         # NEXT, get the view dict.
-        array set vdict [view nbhood get $varname]
+        array set vdict [view n get $varname]
 
         # NEXT, does it have a gradient?
-        if {$vdict(gradient) eq ""} {
+        set gradient [dict get $vdict(meta) $varname gradient]
+
+        if {$gradient eq ""} {
             return -code error -errorcode INVALID \
       "can't use variable as fill: no associated color gradient: \"$varname\""
         }
@@ -875,9 +877,11 @@ snit::widget mapviewer {
         } else {
             set fill data
 
-            array set vdict [view nbhood get $view(filltag)]
+            array set vdict [view n get $view(filltag)]
 
-            array set data [rdb eval "SELECT n, x FROM $vdict(view)"]
+            array set data [rdb eval "SELECT n, x0 FROM $vdict(view)"]
+
+            set gradient [dict get $vdict(meta) $view(filltag) gradient]
         }
         
         # NEXT, fill the nbhoods
@@ -886,7 +890,7 @@ snit::widget mapviewer {
 
             if {$fill eq "data"} {
                 if {[info exists data($n)]} {
-                    set color [$vdict(gradient) color $data($n)]
+                    set color [$gradient color $data($n)]
                 } else {
                     set color white
                 }

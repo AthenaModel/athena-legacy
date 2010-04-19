@@ -101,7 +101,7 @@ source [file join $::app_sim::library actsit_rules.tcl       ]
 source [file join $::app_sim::library ensit.tcl              ]
 source [file join $::app_sim::library ensit_rules.tcl        ]
 
-# GUI
+# GUI: Infrastructure
 source [file join $::app_sim::library toolbutton.tcl         ]
 source [file join $::app_sim::library helpbrowserwin.tcl     ]
 source [file join $::app_sim::library orderdialog.tcl        ]
@@ -110,6 +110,10 @@ source [file join $::app_sim::library mapviewer.tcl          ]
 source [file join $::app_sim::library mapicons.tcl           ]
 source [file join $::app_sim::library mapicon_unit.tcl       ]
 source [file join $::app_sim::library mapicon_situation.tcl  ]
+source [file join $::app_sim::library nbchart.tcl            ]
+source [file join $::app_sim::library plotviewer.tcl         ]
+
+# GUI: Browsers
 source [file join $::app_sim::library activitybrowser.tcl    ]
 source [file join $::app_sim::library actsitbrowser.tcl      ]
 source [file join $::app_sim::library ensitbrowser.tcl       ]

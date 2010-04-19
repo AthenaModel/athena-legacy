@@ -26,6 +26,9 @@
 #   - Time series variables, each of which is a single value that
 #     varies with time.
 #
+#   - Eventually there will be a number of other view types:
+#     *g* for groups, *u* for units, etc.
+#
 # The application requests a view given a variable name, and receives
 # a dictionary of information about variable, including the view name.
 # Each created view has a name like "tv$count", has two columns,
@@ -72,34 +75,42 @@ snit::type view {
     # the view dictionaries.  The values that should be defined for
     # each range type are as follows.
     #
-    #   min      - The lower bound for the range type, or "" if none.
-    #   max      - The upper bound for the range type, or "" if none.
+    #   rmin     - The lower bound for the range type, or "" if none.
+    #   rmax     - The upper bound for the range type, or "" if none.
     #   gradient - A gradient(n) appropriate for visualizing this
     #              range type, or "" if none.
 
     typevariable rangeInfo -array {
         qcoop {
-            min      0.0
-            max      100.0
+            rmin     0.0
+            rmax     100.0
             gradient coopgradient
+            units    Cooperation
+            decimals 1
         }
 
         qsat {
-            min      -100.0
-            max      100.0
+            rmin     -100.0
+            rmax     100.0
             gradient satgradient
+            units    Satisfaction
+            decimals 1
         }
 
         rcap {
-            min      0
-            max      ""
+            rmin     0
+            rmax     ""
             gradient ""
+            units    goodsBKT
+            decimals 1
         }
 
         rpcf {
-            min      0
-            max      ""
+            rmin     0
+            rmax     ""
             gradient pcfgradient
+            units    PCF
+            decimals 2
         }
     }
 
@@ -116,14 +127,14 @@ snit::type view {
     #   query   - The SELECT statement used to define the view, with
     #             with variables $1, $2, etc., for the parameters.
     #             It must have a column with the same name as the _domain_,
-    #             and an "x" column for the range.
+    #             and an "x0" column for the range.
 
     typevariable viewdef -array {
         n,cap {
             indices {}
             rtype rcap
             query {
-                SELECT n, cap AS x
+                SELECT n, cap AS x0
                 FROM econ_n
             }
         }
@@ -132,7 +143,7 @@ snit::type view {
             indices {f g}
             rtype qcoop
             query {
-                SELECT n, coop AS x
+                SELECT n, coop AS x0
                 FROM gram_coop
                 WHERE f='$1' AND g='$2'
             }
@@ -142,7 +153,7 @@ snit::type view {
             indices {g}
             rtype qsat
             query {
-                SELECT n, mood AS x 
+                SELECT n, mood AS x0
                 FROM gui_nbgroups
                 WHERE g='$1'
             }
@@ -152,7 +163,7 @@ snit::type view {
             indices {g}
             rtype qcoop
             query {
-                SELECT n, coop AS x
+                SELECT n, coop AS x0
                 FROM gram_frc_ng
                 WHERE g='$1'
             }
@@ -162,7 +173,7 @@ snit::type view {
             indices {}
             rtype qsat
             query {
-                SELECT n, sat AS x 
+                SELECT n, sat AS x0 
                 FROM gram_n
             }
         }
@@ -171,7 +182,7 @@ snit::type view {
             indices {}
             rtype qsat
             query {
-                SELECT n, 0.0 AS x
+                SELECT n, 0.0 AS x0
                 FROM nbhoods
             }
         }
@@ -180,7 +191,7 @@ snit::type view {
             indices {}
             rtype rpcf
             query {
-                SELECT n, pcf AS x
+                SELECT n, pcf AS x0
                 FROM econ_n
             }
         }
@@ -189,7 +200,7 @@ snit::type view {
             indices {g c}
             rtype qsat
             query {
-                SELECT n, sat AS x
+                SELECT n, sat AS x0
                 FROM gui_sat_ngc
                 WHERE g='$1' AND c='$2'
             }
@@ -239,43 +250,64 @@ snit::type view {
     # Group: View Queries
     #
     # Each of the commands in this section returns a view dictionary
-    # given the variable name.  Applications should always request
-    # a new view dictionary prior to using the view; created views
+    # given one or more variable names.  Applications should always 
+    # request a new view dictionary prior to using the view; created views
     # are cached for speed.
+    #
+    # View Dictionary:
     #
     #  view     - SQLite view name
     #  domain   - Domain, *t* or *n*.
-    #  min      - Minimum X value
-    #  max      - Maximum X value
-    #  varname  - Variable name
-    #  gradient - Variable gradient command
-
-    # Type Method: nbhood get
+    #  count    - Number of variables included
+    #  varnames - List of variable names.
+    #  meta     - Variable metadata; key is a variable name, value is a 
+    #             dictionary of variable info.
     #
-    # Returns a view dictionary for the neighborhood variable
-    # with the given _varname_.
+    # Variable Dictionary:
+    #
+    #  varname  - Name of the variable 
+    #  rtype    - Variable range type
+    #  units    - Units: human readable text
+    #  decimals - Number of decimal places for this kind of data
+    #  rmin     - Range min, or "" if none.
+    #  rmax     - Range max, or "" if none.
+    #  gradient - Gradient(n) for this range type.
+
+    # Type Method: n get
+    #
+    # Returns a view dictionary for the given neighborhood _varnames_.
     #
     # Syntax:
-    #   nbhood get _varname_
+    #   n get _varnames_
     #
-    #   varname - A variable name for the neighborhood domain.
+    #   varnames - A list of one or more variable names for the 
+    #              neighborhood domain.
 
-    typemethod "nbhood get" {varname} {
-        return [$type GetView n $varname]
+    typemethod "n get" {varnames} {
+        if {[llength $varnames] == 1} {
+            return [$type GetView n [lindex $varnames 0]]
+        } else {
+            return [$type GetCompositeView n $varnames]
+        }
     }
 
-    # Type Method: series get
+    # Type Method: t get
     #
-    # Returns a view dictionary for the time series variable
-    # with the given _varname_.
+    # Returns a view dictionary for the time series variable(s)
+    # with the given _varnames_.
     #
     # Syntax:
-    #   series get _varname_
+    #   t get _varnames_
     #
-    #   varname - A variable name for the time series domain.
+    #   varnames - A list of one or more variable names for the 
+    #              time series domain.
 
-    typemethod "series get" {varname} {
-        return [$type GetView t $varname]
+    typemethod "t get" {varnames} {
+        if {[llength $varnames] == 1} {
+            return [$type GetView t [lindex $varnames 0]]
+        } else {
+            return [$type GetCompositeView t $varnames]
+        }
     }
 
     # Type Method: GetView
@@ -311,41 +343,121 @@ snit::type view {
 
         rdb eval "CREATE TEMPORARY VIEW $vid AS [subst $query]"
 
-        set views($domain,$varname) $rangeInfo($rtype)
-        dict set views($domain,$varname) view    $vid
-        dict set views($domain,$varname) domain  $domain
-        dict set views($domain,$varname) varname $varname
-        dict set views($domain,$varname) rtype   $rtype
+        set vdict [dict create]
+        dict set vdict view     $vid
+        dict set vdict domain   $domain
+        dict set vdict count    1
+
+        dict set vdict meta $varname $rangeInfo($rtype)
+        dict set vdict meta $varname rtype $rtype
+
+        set views($domain,$varname) $vdict
 
         # NEXT, return the ID
-        return $views(n,$varname)
+        return $views($domain,$varname)
     }
 
-    # Type Method: nbhood validate
+    # Type Method: GetCompositeView
+    #
+    # Returns a view dictionary for the _domain_ variables
+    # with the given _varnames_.  The created view will 
+    # have columns x0, x1, etc.
+    #
+    # Syntax:
+    #   GetCompositeView _domain varnames_
+    #
+    #   domain   - *n* (neighborhood) or *t* (time in ticks)
+    #   varnames - A list of variable names for the specified domain.
+
+    typemethod GetCompositeView {domain varnames} {
+        # FIRST, get the composite variable name.
+        set composite [join $varnames ,]
+
+        # FIRST, if the view already exists, return it.
+        if {[info exists views($domain,$composite)]} {
+            return $views($domain,$composite)
+        }
+
+        # NEXT, create a new view ID and begin to fill in the
+        # view dictionary.
+        set vid "tv[incr data(viewCounter)]"
+        
+        set vdict [dict create \
+                       view   $vid                \
+                       domain $domain             \
+                       count  [llength $varnames]]
+                       
+
+        # NEXT, get a view for each variable.
+        set vids [list]
+
+        foreach varname $varnames {
+            set tdict [$type GetView $domain $varname]
+
+            lappend vids [dict get $tdict view]
+            
+            dict set vdict meta $varname \
+                [dict get $tdict meta $varname]
+        }
+
+        # NEXT, create the new view
+        set i 0
+        set columns [list]
+        set joins ""
+
+        foreach v $vids {
+            # FIRST, get the column name
+            lappend columns "$v.x0 AS x$i"
+            incr i
+
+            # NEXT, set up the joins.
+            if {$joins eq ""} {
+                set joins "$v"
+            } else {
+                append joins " JOIN $v USING ($domain)"
+            }
+        }
+
+        set sql "
+            CREATE TEMPORARY VIEW $vid AS
+            SELECT [lindex $vids 0].$domain,[join $columns ,]
+            FROM $joins
+        "
+
+        rdb eval $sql
+
+        # NEXT, save the view dict.
+        set views($domain,$composite) $vdict
+
+        # NEXT, return the view dict
+        return $views($domain,$composite)
+    }
+
+    # Type Method: n validate
     #
     # Validates a _varname_ for the neighborhood domain.
     # Returns the validated varname, which is in canonical form.
     #
     # Syntax:
-    #   nbhood validate _varname_
+    #   n validate _varname_
     #
     #   varname - The neighborhood variable name.
 
-    typemethod "nbhood validate" {varname} {
+    typemethod "n validate" {varname} {
         return [$type ValidateVarname n $varname]
     }
 
-    # Type Method: series validate
+    # Type Method: t validate
     #
     # Validates a _varname_ for the time series domain.
     # Returns the validated varname, which is in canonical form.
     #
     # Syntax:
-    #   series validate _varname_
+    #   t validate _varname_
     #
     #   varname - The time series variable name.
 
-    typemethod "series validate" {varname} {
+    typemethod "t validate" {varname} {
         return [$type ValidateVarname t $varname]
     }
 
@@ -429,7 +541,6 @@ snit::type view {
 
         return $pattern
     }
-
 
     #-------------------------------------------------------------------
     # Checkpoint/Restore

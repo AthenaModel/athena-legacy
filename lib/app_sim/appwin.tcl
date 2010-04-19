@@ -267,6 +267,14 @@ snit::widget appwin {
             }
         }
 
+        plot {
+            label  "Plots"
+            parent ""
+            script { 
+                plotviewer %W
+            }
+        }
+
         report {
             label  "Reports"
             parent ""
