@@ -46,6 +46,12 @@ snit::widget plotviewer {
 
     component newbtn
 
+    # Component: helpbtn
+    #
+    # Help browser button
+
+    component helpbtn
+
     # Component: man
     #
     # pwinman(n) pseudo-window manager
@@ -85,7 +91,15 @@ snit::widget plotviewer {
             -state   normal                       \
             -command [mymethod NewPlot]
   
-        pack $newbtn -side left
+        install helpbtn using ttk::button $bar.help \
+            -style   Toolbutton                     \
+            -image   ::projectgui::icon::help22     \
+            -command [list helpbrowserwin showhelp vars]
+
+        DynamicHelp::add $helpbtn -text "Help on Display Variables"
+
+        pack $newbtn  -side left
+        pack $helpbtn -side right
 
         # Separator
         ttk::separator $win.sep1
@@ -117,7 +131,7 @@ snit::widget plotviewer {
         $pwin configure -title $num
 
         nbchart $f.chart \
-            -title    "Chart #$num"               \
+            -title    "Chart #$num"                             \
             -yscrollcommand [list $f.yscroll set]
 
         ttk::scrollbar $f.yscroll \
@@ -125,7 +139,6 @@ snit::widget plotviewer {
 
         pack $f.yscroll -side right -fill y
         pack $f.chart  -fill both -expand yes
-
     }
 
 

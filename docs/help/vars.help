@@ -116,6 +116,12 @@ var n mood {
     neighborhoods.
 }
 
+var n mood0 {
+    <<vartitle g>>
+    The mood (composite satisfaction) of group <i>g</i> across
+    neighborhoods at time 0.
+}
+
 var n nbcoop {
     <<vartitle g>>
     The overall cooperation of each neighborhood with group <i>g</i>.
@@ -124,6 +130,12 @@ var n nbcoop {
 var n nbmood {
     <<vartitle>>
     The overall mood (composite satisfaction) across neighborhoods.
+}
+
+var n nbmood0 {
+    <<vartitle>>
+    The overall mood (composite satisfaction) across neighborhoods at 
+    time 0.
 }
 
 var n none {
@@ -145,6 +157,11 @@ var n sat {
     <i>c</i> across neighborhoods.
 }
 
+var n sat0 {
+    <<vartitle g c>>
+    The satisfaction of group <i>g</i> with respect to concern
+    <i>c</i> across neighborhoods at time 0.
+}
 
 
 #=======================================================================

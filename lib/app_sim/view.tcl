@@ -159,6 +159,16 @@ snit::type view {
             }
         }
 
+        n,mood0 {
+            indices {g}
+            rtype qsat
+            query {
+                SELECT n, mood0 AS x0
+                FROM gui_nbgroups
+                WHERE g='$1'
+            }
+        }
+
         n,nbcoop {
             indices {g}
             rtype qcoop
@@ -174,6 +184,15 @@ snit::type view {
             rtype qsat
             query {
                 SELECT n, sat AS x0 
+                FROM gram_n
+            }
+        }
+
+        n,nbmood0 {
+            indices {}
+            rtype qsat
+            query {
+                SELECT n, sat0 AS x0 
                 FROM gram_n
             }
         }
@@ -201,6 +220,16 @@ snit::type view {
             rtype qsat
             query {
                 SELECT n, sat AS x0
+                FROM gui_sat_ngc
+                WHERE g='$1' AND c='$2'
+            }
+        }
+
+        n,sat0 {
+            indices {g c}
+            rtype qsat
+            query {
+                SELECT n, sat0 AS x0
                 FROM gui_sat_ngc
                 WHERE g='$1' AND c='$2'
             }
