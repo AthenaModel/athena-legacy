@@ -135,15 +135,19 @@ snit::type view {
     # View definition dictionaries.  For each _domain,vartype_,
     # we have the following keys.
     #
-    #   indices - A list of the names of the indices, e.g., {g c}
+    #   indices    - A dictionary of index names and validation types
+    #                e.g., {f civgroups g frcgroups}
     #
-    #   rtype   - The range type, used to key into the rangeInfo
-    #             array.  It might or might not be a genuine data type.
+    #   validation - A private typemethod that validates the combination
+    #                of indices (optional)
     #
-    #   query   - The SELECT statement used to define the view, with
-    #             with variables $1, $2, etc., for the parameters.
-    #             It must have a column with the same name as the _domain_,
-    #             and an "x0" column for the range.
+    #   rtype      - The range type, used to key into the rangeInfo
+    #                array.  It might or might not be a genuine data type.
+    #
+    #   query      - The SELECT statement used to define the view, with
+    #                with variables $1, $2, etc., for the parameters.
+    #                It must have a column with the same name as the 
+    #                _domain_, and an "x0" column for the range.
     #
     # NOTE: All views should span the entire _domain_, with NULL in
     # x0 for missing values.
@@ -160,6 +164,7 @@ snit::type view {
 
         n,coop {
             indices {f g}
+            validation fg_coop
             rtype qcoop
             query {
                 -- Ensure we get NULL x0's in neighborhoods
@@ -180,6 +185,7 @@ snit::type view {
 
         n,coop0 {
             indices {f g}
+            validation fg_coop
             rtype qcoop
             query {
                 -- Ensure we get NULL x0's in neighborhoods
@@ -200,6 +206,7 @@ snit::type view {
 
         n,cov {
             indices {g a}
+            validation ga
             rtype rcoverage
             query {
                 SELECT n, coverage AS x0
@@ -210,6 +217,7 @@ snit::type view {
 
         n,mood {
             indices {g}
+            validation g_sat
             rtype qsat
             query {
                 -- Ensure we get NULL x0's in neighborhoods
@@ -224,6 +232,7 @@ snit::type view {
 
         n,mood0 {
             indices {g}
+            validation g_sat
             rtype qsat
             query {
                 -- Ensure we get NULL x0's in neighborhoods
@@ -238,6 +247,7 @@ snit::type view {
 
         n,nbcoop {
             indices {g}
+            validation g_frc
             rtype qcoop
             query {
                 SELECT n, coop AS x0
@@ -284,6 +294,7 @@ snit::type view {
 
         n,sat {
             indices {g c}
+            validation gc
             rtype qsat
             query {
                 -- Ensure we get NULL x0's in neighborhoods
@@ -304,6 +315,7 @@ snit::type view {
 
         n,sat0 {
             indices {g c}
+            validation gc
             rtype qsat
             query {
                 -- Ensure we get NULL x0's in neighborhoods
@@ -324,6 +336,7 @@ snit::type view {
 
         n,sec {
             indices {g}
+            validation g
             rtype qsecurity
             query {
                 SELECT n, security AS x0
@@ -587,6 +600,12 @@ snit::type view {
         return [$type ValidateVarname t $varname]
     }
 
+    #-------------------------------------------------------------------
+    # Group: Validation
+    #
+    # This section contains private validation methods for use when 
+    # validating variable names.
+
     # Type Method: ValidateVarname
     #
     # Validates a _varname_ for the particular _domain_.
@@ -610,10 +629,10 @@ snit::type view {
     #   varname - The variable name.
 
     typemethod ValidateVarname {domain varname} {
-        # FIRST, split the varname into tokens.
+        # FIRST, split the varname into canonical tokens.
         set varlist [split $varname .]
-        lassign $varlist vartype 1 2 3 4 5 6 7 8 9
-        set vartype [string tolower $vartype]
+        set vartype [string tolower [lindex $varlist 0]]
+        set ivalues [string toupper [lrange $varlist 1 end]]
 
         # NEXT, verify the domain and var type.
         if {![info exists viewdef($domain,$vartype)]} {
@@ -621,30 +640,23 @@ snit::type view {
             "Invalid $domains($domain) variable type: \"$vartype\""
         }
 
-        # NEXT, validate the number of arguments.
+        # NEXT, get the view definition for this var type.
         set def $viewdef($domain,$vartype)
         set indices [dict get $def indices]
 
-        if {[llength $varlist] - 1 != [llength $indices]} {
+        # NEXT, validate the number of index values.
+        if {[llength $ivalues] != [llength $indices]} {
             set pattern [VartypePattern $vartype $indices]
 
             return -code error -errorcode INVALID \
  "Invalid $domains($domain) variable: expected \"$pattern\", got \"$varname\""
         }
 
-        # NEXT, validate the syntax of the index values.
-        set outlist [list $vartype]
+        # NEXT, validate the index values.
+        [dict get $def validation] $domain $vartype {*}$ivalues
 
-        foreach value [lrange $varlist 1 end] {
-            if {[regexp {['\";,]} $value]} {
-                return -code error -errorcode INVALID \
-   "Invalid $domains($domain) variable index value: \"$value\" in \"$varname\""
-            }
-
-            lappend outlist [string toupper $value]
-        }
-
-        return [join $outlist .]
+        # NEXT, return the canonicalized var name
+        return "$vartype.[join $ivalues .]"
     }
 
     # Proc: VartypePattern
@@ -667,6 +679,114 @@ snit::type view {
 
         return $pattern
     }
+
+    # proc: ValidateIndex
+    #
+    # Validates a single index value, producing a good error message.
+    # Executes the script; if it is caught, and the code is INVALID,
+    # Throws INVALID with the full error message.  Otherwise,
+    # any error is rethrown.
+    #
+    # Syntax:
+    #   ValidateIndex _domain vartype index script_
+    #
+    #    domain  - The domain
+    #    vartype - The variable type, e.g., "sat"
+    #    index   - The specific index, e.g., "g"
+    #    value   - The index value
+    #    script  - A validation script.
+
+    proc ValidateIndex {domain vartype index value script} {
+        if {[catch {
+            uplevel 1 $script
+        } result opts]} {
+            # FIRST, rethrow programming errors
+            if {[lindex [dict get $opts -errorcode] 0] ne "INVALID"} {
+                return {*}$opts $result
+            }
+
+            # NEXT, produce the error message.
+            set def     $viewdef($domain,$vartype)
+            set indices [dict get $def indices]
+            set pattern [VartypePattern $vartype $indices]
+            
+            return -code error -errorcode INVALID \
+                "$pattern: <$index>=\"$value\", $result"
+        }
+
+        return
+    }
+    
+
+    # Proc: fg_coop
+    #
+    # Validates {f g} for cooperation
+    
+    proc fg_coop {domain vartype f g} {
+        ValidateIndex $domain $vartype f $f {civgroup validate $f}
+        ValidateIndex $domain $vartype g $g {frcgroup validate $g}
+    }
+
+    # Proc: ga
+    #
+    # Validates {g a} where is an activity.
+    
+    proc ga {domain vartype g a} {
+        ValidateIndex $domain $vartype g $g {group validate $g}
+        ValidateIndex $domain $vartype a $a {
+            set gtype [group gtype $g]
+
+            switch -exact -- $gtype {
+                CIV     { activity civ validate $a }
+                FRC     { activity frc validate $a }
+                ORG     { activity org validate $a }
+                default { error "Unexpected gtype: \"$gtype\""   }
+            }
+        }
+    }
+
+    # Proc: gc
+    #
+    # Validates {g c} where is g is a sat group and c is an appropriate
+    # concern.
+    
+    proc gc {domain vartype g c} {
+        ValidateIndex $domain $vartype g $g {ptype satg validate $g}
+        ValidateIndex $domain $vartype c $c {
+            set gtype [group gtype $g]
+
+            switch -exact -- $gtype {
+                CIV     { ptype civc validate $c }
+                ORG     { ptype orgc validate $c }
+                default { error "Unexpected gtype: \"$gtype\""   }
+            }
+        }
+    }
+
+    # Proc: g
+    #
+    # Validates {g} as a group
+    
+    proc g {domain vartype g} {
+        ValidateIndex $domain $vartype g $g {group validate $g}
+    }
+
+    # Proc: g_sat
+    #
+    # Validates {g} as a satisfaction group
+    
+    proc g_sat {domain vartype g} {
+        ValidateIndex $domain $vartype g $g {ptype satg validate $g}
+    }
+
+    # Proc: g_frc
+    #
+    # Validates {g} as a force group
+    
+    proc g_frc {domain vartype g} {
+        ValidateIndex $domain $vartype g $g {frcgroup validate $g}
+    }
+
 
     #-------------------------------------------------------------------
     # Checkpoint/Restore
