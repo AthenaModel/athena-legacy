@@ -135,11 +135,10 @@ snit::type view {
     # View definition dictionaries.  For each _domain,vartype_,
     # we have the following keys.
     #
-    #   indices    - A dictionary of index names and validation types
-    #                e.g., {f civgroups g frcgroups}
+    #   indices    - A list of index names, e.g., {f g}
     #
-    #   validation - A private typemethod that validates the combination
-    #                of indices (optional)
+    #   validation - A proc that validates the combination
+    #                of indices.  See, for example, "fg_coop", below.
     #
     #   rtype      - The range type, used to key into the rangeInfo
     #                array.  It might or might not be a genuine data type.
