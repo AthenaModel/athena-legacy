@@ -81,6 +81,14 @@ snit::type view {
     #              range type, or "" if none.
 
     typevariable rangeInfo -array {
+        rcoverage {
+            rmin     0.0
+            rmax     1.0
+            gradient covgradient
+            units    Coverage
+            decimals 2
+        }
+
         qcoop {
             rmin     0.0
             rmax     100.0
@@ -94,6 +102,14 @@ snit::type view {
             rmax     100.0
             gradient satgradient
             units    Satisfaction
+            decimals 1
+        }
+
+        qsecurity {
+            rmin     -100.0
+            rmax     100.0
+            gradient secgradient
+            units    Security
             decimals 1
         }
 
@@ -128,6 +144,9 @@ snit::type view {
     #             with variables $1, $2, etc., for the parameters.
     #             It must have a column with the same name as the _domain_,
     #             and an "x0" column for the range.
+    #
+    # NOTE: All views should span the entire _domain_, with NULL in
+    # x0 for missing values.
 
     typevariable viewdef -array {
         n,cap {
@@ -143,9 +162,49 @@ snit::type view {
             indices {f g}
             rtype qcoop
             query {
-                SELECT n, coop AS x0
-                FROM gram_coop
-                WHERE f='$1' AND g='$2'
+                -- Ensure we get NULL x0's in neighborhoods
+                -- where group f does not reside.
+                SELECT nbhoods.n      AS n,
+                       gram_coop.coop AS x0
+                FROM nbhoods
+                JOIN groups
+                JOIN frcgroups
+                LEFT OUTER JOIN gram_coop
+                ON (gram_coop.n = nbhoods.n AND 
+                    gram_coop.f = groups.g AND
+                    gram_coop.g = frcgroups.g)
+                WHERE groups.g = '$1'
+                AND frcgroups.g = '$2'
+            }
+        }
+
+        n,coop0 {
+            indices {f g}
+            rtype qcoop
+            query {
+                -- Ensure we get NULL x0's in neighborhoods
+                -- where group f does not reside.
+                SELECT nbhoods.n       AS n,
+                       gram_coop.coop0 AS x0
+                FROM nbhoods
+                JOIN groups
+                JOIN frcgroups
+                LEFT OUTER JOIN gram_coop
+                ON (gram_coop.n = nbhoods.n AND 
+                    gram_coop.f = groups.g AND
+                    gram_coop.g = frcgroups.g)
+                WHERE groups.g = '$1'
+                AND frcgroups.g = '$2'
+            }
+        }
+
+        n,cov {
+            indices {g a}
+            rtype rcoverage
+            query {
+                SELECT n, coverage AS x0
+                FROM activity_nga
+                WHERE g='$1' AND a='$2'
             }
         }
 
@@ -153,8 +212,12 @@ snit::type view {
             indices {g}
             rtype qsat
             query {
-                SELECT n, mood AS x0
-                FROM gui_nbgroups
+                -- Ensure we get NULL x0's in neighborhoods
+                -- where group g does not reside.
+                SELECT n,
+                       CASE WHEN population > 0 
+                       THEN sat ELSE NULL END AS x0
+                FROM gram_ng
                 WHERE g='$1'
             }
         }
@@ -163,8 +226,12 @@ snit::type view {
             indices {g}
             rtype qsat
             query {
-                SELECT n, mood0 AS x0
-                FROM gui_nbgroups
+                -- Ensure we get NULL x0's in neighborhoods
+                -- where group g does not reside.
+                SELECT n,
+                       CASE WHEN population > 0 
+                       THEN sat0 ELSE NULL END AS x0
+                FROM gram_ng
                 WHERE g='$1'
             }
         }
@@ -219,9 +286,19 @@ snit::type view {
             indices {g c}
             rtype qsat
             query {
-                SELECT n, sat AS x0
-                FROM gui_sat_ngc
-                WHERE g='$1' AND c='$2'
+                -- Ensure we get NULL x0's in neighborhoods
+                -- where group g does not reside.
+                SELECT nbhoods.n      AS n,
+                       gram_sat.sat   AS x0
+                FROM nbhoods
+                JOIN groups
+                JOIN concerns
+                LEFT OUTER JOIN gram_sat
+                ON (gram_sat.n = nbhoods.n AND 
+                    gram_sat.g = groups.g AND
+                    gram_sat.c = concerns.c)
+                WHERE groups.g = '$1'
+                AND concerns.c = '$2'
             }
         }
 
@@ -229,9 +306,29 @@ snit::type view {
             indices {g c}
             rtype qsat
             query {
-                SELECT n, sat0 AS x0
-                FROM gui_sat_ngc
-                WHERE g='$1' AND c='$2'
+                -- Ensure we get NULL x0's in neighborhoods
+                -- where group g does not reside.
+                SELECT nbhoods.n      AS n,
+                       gram_sat.sat0  AS x0
+                FROM nbhoods
+                JOIN groups
+                JOIN concerns
+                LEFT OUTER JOIN gram_sat
+                ON (gram_sat.n = nbhoods.n AND 
+                    gram_sat.g = groups.g AND
+                    gram_sat.c = concerns.c)
+                WHERE groups.g = '$1'
+                AND concerns.c = '$2'
+            }
+        }
+
+        n,sec {
+            indices {g}
+            rtype qsecurity
+            query {
+                SELECT n, security AS x0
+                FROM force_ng
+                WHERE g='$1'
             }
         }
     }

@@ -29,7 +29,7 @@ page vars "Display Variables" {} {
 
     Every display variable name consists of a variable type, possibly 
     followed by one or more index values.  For example, the
-    neighborhood variable <b>sat.SHIA.SFT</b> is the satisfaction of 
+    neighborhood variable <b>sat.SHIA.SFT</b> is the <<term satisfaction>> of 
     of the SHIA group with respect to its SFT concern across
     neighborhoods.<p>
 
@@ -39,7 +39,7 @@ page vars "Display Variables" {} {
 
     <b>sat.<i>g.c</i></b><p>
 
-    is the satisfaction of group <i>g</i> with concern <i>c</i> across
+    is the <<term satisfaction>> of group <i>g</i> with concern <i>c</i> across
     neighborhoods.
 }
 
@@ -89,7 +89,7 @@ page var.n "Neighborhood Variables" vars {
     A <i>neighborhood variable</i> is a
     <<cref vars "display variable">> whose value varies across
     neighborhoods. For example, the
-    neighborhood variable <b>sat.SHIA.SFT</b> is the satisfaction of 
+    neighborhood variable <b>sat.SHIA.SFT</b> is the <<term satisfaction>> of 
     of the SHIA group with respect to its SFT concern across
     neighborhoods.<p>
 
@@ -106,36 +106,49 @@ var n cap {
 
 var n coop {
     <<vartitle f g>>
-    The cooperation of group <i>f</i> with group <i>g</i> across
+    The <<term cooperation>> of group <i>f</i> with group <i>g</i> across
     neighborhoods.
+}
+
+var n coop0 {
+    <<vartitle f g>>
+    The <<term cooperation>> of group <i>f</i> with group <i>g</i> across
+    neighborhoods at time 0.
+}
+
+var n cov {
+    <<vartitle g a>>
+    The <<term coverage>> fraction for <<term activity>> <i>a</i> by 
+    group <i>g</i>.
 }
 
 var n mood {
     <<vartitle g>>
-    The mood (composite satisfaction) of group <i>g</i> across
-    neighborhoods.
+    The <<term mood>> (composite <<term satisfaction>>) of group
+    <i>g</i> across neighborhoods.
 }
 
 var n mood0 {
     <<vartitle g>>
-    The mood (composite satisfaction) of group <i>g</i> across
-    neighborhoods at time 0.
+    The <<term mood>> (composite <<term satisfaction>>) of group
+    <i>g</i> across neighborhoods at time 0.
 }
 
 var n nbcoop {
     <<vartitle g>>
-    The overall cooperation of each neighborhood with group <i>g</i>.
+    The overall <<term cooperation>> of each neighborhood with group <i>g</i>.
 }
 
 var n nbmood {
     <<vartitle>>
-    The overall mood (composite satisfaction) across neighborhoods.
+    The overall <<term mood>> (composite <<term satisfaction>>) across
+    neighborhoods.
 }
 
 var n nbmood0 {
     <<vartitle>>
-    The overall mood (composite satisfaction) across neighborhoods at 
-    time 0.
+    The overall <<term mood>> (composite <<term satisfaction>>) across
+    neighborhoods at time 0.
 }
 
 var n none {
@@ -153,14 +166,19 @@ var n pcf {
 
 var n sat {
     <<vartitle g c>>
-    The satisfaction of group <i>g</i> with respect to concern
+    The <<term satisfaction>> of group <i>g</i> with respect to concern
     <i>c</i> across neighborhoods.
 }
 
 var n sat0 {
     <<vartitle g c>>
-    The satisfaction of group <i>g</i> with respect to concern
+    The <<term satisfaction>> of group <i>g</i> with respect to concern
     <i>c</i> across neighborhoods at time 0.
+}
+
+var n sec {
+    <<vartitle g>>
+    The <<term security>> of group <i>g</i> across neighborhoods.
 }
 
 
@@ -172,7 +190,7 @@ page var.t "Time Series Variables" vars {
     A <i>time series variable</i> is a
     <<cref vars "display variable">> whose value varies with time.
     For example, the
-    time series variable <b>sat.N1.SHIA.SFT</b> is the satisfaction of 
+    time series variable <b>sat.N1.SHIA.SFT</b> is the <<term satisfaction>>
     of the SHIA group in neighborhood N1 with respect to its SFT
     concern over time.<p>
 

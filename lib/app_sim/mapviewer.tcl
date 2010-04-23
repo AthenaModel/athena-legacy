@@ -771,6 +771,8 @@ snit::widget mapviewer {
 
             $self NbhoodUpdateFillTags
         }
+
+        return
     }
     
 
@@ -889,10 +891,10 @@ snit::widget mapviewer {
             set n $nbhoods(n-$id)
 
             if {$fill eq "data"} {
-                if {[info exists data($n)]} {
+                if {[info exists data($n)] && $data($n) ne ""} {
                     set color [$gradient color $data($n)]
                 } else {
-                    set color white
+                    set color ""
                 }
             } else {
                 set color ""

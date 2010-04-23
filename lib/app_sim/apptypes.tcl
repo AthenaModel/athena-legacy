@@ -23,6 +23,10 @@ enum esimstate {
     SNAPSHOT Snapshot
 }
 
+# rcoverage: The range for the coverage fractions
+
+::marsutil::range rcov -min 0.0 -max 1.0
+
 # rpcf: The range for the Production Capacity Factor
 
 ::marsutil::range rpcf -min 0.0
@@ -41,6 +45,16 @@ enum esimstate {
     -midlevel 50.0              \
     -maxlevel 100.0
 
+# covgradient: A fill color gradient for coverage fractions
+
+::marsgui::gradient covgradient \
+    -mincolor \#FFFFFF          \
+    -midcolor \#FFFFFF          \
+    -maxcolor \#FF00FF          \
+    -minlevel 0.0               \
+    -midlevel 0.0               \
+    -maxlevel 1.0
+
 # pcfgradient: A fill color gradient for econ_n pcf's
 
 ::marsgui::gradient pcfgradient \
@@ -54,6 +68,16 @@ enum esimstate {
 # satgradient: A fill color gradient for satisfaction levels
 
 ::marsgui::gradient satgradient \
+    -mincolor \#FF0000          \
+    -midcolor \#FFFFFF          \
+    -maxcolor \#00FF00          \
+    -minlevel -100.0            \
+    -midlevel 0.0               \
+    -maxlevel 100.0
+
+# secgradient: A fill color gradient for security levels
+
+::marsgui::gradient secgradient \
     -mincolor \#FF0000          \
     -midcolor \#FFFFFF          \
     -maxcolor \#00FF00          \
