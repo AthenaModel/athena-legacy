@@ -54,7 +54,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
 n   f    g    coop0 
 --- ---- ---- ----- 
-NB1 SHIA BLUE 0.0   
+NB1 SHIA BLUE 50.0  
     }
 
     test reconcile-1.2 {<Entity> create} -setup {
@@ -109,7 +109,7 @@ NB1 SHIA BLUE 0.0
     } -result {
 n   f    g    coop0 
 --- ---- ---- ----- 
-NB1 SHIA BRIT 0.0   
+NB1 SHIA BRIT 50.0  
     }
 
 
@@ -127,7 +127,7 @@ NB1 SHIA BRIT 0.0
     } -result {
 n   f    g    coop0 
 --- ---- ---- ----- 
-NB1 SUNN BLUE 0.0   
+NB1 SUNN BLUE 50.0  
     }
 
 

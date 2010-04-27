@@ -11,6 +11,24 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 2.0.2, 27 April 2009</h3>
+
+This build contains significant new work.  In particular, it contains
+the initial stages of the Athena Economic Model, and of the new data
+plotting capability.  The full set of changes is as follows:<p>
+
+<ul>
+  <li> Bug 2396: athena_sim(1): Natural Docs
+  <li> Bug 2398: athena_sim(1): Tick Scheduling
+  <li> Bug 2409: athena_sim(1): Img/Pixane Conflict
+  <li> Bug 2424: athena_sim(1): Economic Model, Part I
+  <li> Bug 2431: athena_sim(1): Raise, lower neighborhood causes bgerror
+  <li> Bug 2433: athena_sim(1): Fill neighborhoods based on neighborhood variables
+  <li> Bug 2434: athena_sim(1): Cooperation levels default to 50.0
+  <li> Bug 2452: athena_sim(1): Initial Plot Viewer Code
+  <li> Bug 2465: athena_sim(1): Revised 3x3 Economic Model 
+</ul>
+
 <h3>Build 2.0.1, 5 January 2009</h3>
 
 This build contains all of the maintenance work done since delivery of
