@@ -50,7 +50,7 @@ enum esimstate {
 ::marsgui::gradient covgradient \
     -mincolor \#FFFFFF          \
     -midcolor \#FFFFFF          \
-    -maxcolor \#FF00FF          \
+    -maxcolor \#0000FF          \
     -minlevel 0.0               \
     -midlevel 0.0               \
     -maxlevel 1.0

@@ -830,7 +830,7 @@ snit::widget appwin {
 
         menubox $win.toolbar.duration         \
             -justify   left                   \
-            -width     12                     \
+            -width     10                     \
             -takefocus 0                      \
             -values    [dict keys $durations]
 
@@ -872,6 +872,10 @@ snit::widget appwin {
         $self AddToolbarButton last last16 "Latest Snapshot" \
             [list ::sim snapshot last]
 
+        # Analyze
+        $self AddToolbarButton analyze a22 \
+            "Analyze without time advance"  \
+            [list ::sim analyze]
 
         # Sim State
         ttk::label $win.toolbar.state                  \
@@ -911,6 +915,7 @@ snit::widget appwin {
         pack $win.toolbar.prev     -side left
         pack $win.toolbar.next     -side left
         pack $win.toolbar.last     -side left
+        pack $win.toolbar.analyze  -side left
         pack $win.toolbar.tick     -side right -padx 2 
         pack $win.toolbar.ticklab  -side right
         pack $win.toolbar.zulutime -side right -padx 2 
@@ -1891,6 +1896,13 @@ snit::widget appwin {
                 $win.toolbar.next configure -state disabled
                 $win.toolbar.last configure -state disabled
             }
+        }
+
+        # NEXT, update the Analyze button
+        if {[sim state] eq "PAUSED"} {
+            $win.toolbar.analyze configure -state normal
+        } else {
+            $win.toolbar.analyze configure -state disabled
         }
 
         # NEXT, set the -recentlimit on the report browser, so that

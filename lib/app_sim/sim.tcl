@@ -775,6 +775,22 @@ snit::type sim {
     }
 
     #-------------------------------------------------------------------
+    # Analyze
+
+    # analyze
+    #
+    # Does all analysis that can be done without time advancing,
+    # each security and activity coverage.
+
+    typemethod analyze {} {
+        nbstat analyze
+
+        notifier send $type <DbSyncB>
+    }
+
+
+
+    #-------------------------------------------------------------------
     # Tick
 
     # Tick
