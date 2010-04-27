@@ -105,10 +105,8 @@ snit::type econ {
 
         cge set [list \
                      BasePopulation $data(population)                  \
-                     BaseWF         $data(labor_force)                 \
-                     BaseUR         [parmdb get econ.baseUnemployment] \
-                     in::population $data(population)                  \
-                     in::CAP.pop    $data(labor_force)]
+                     In::Population $data(population)                  \
+                     In::CAP.pop    $data(labor_force)]
 
         # NEXT, calibrate the CGE.
         set result [cge solve]
@@ -123,10 +121,10 @@ snit::type econ {
         }
 
         # NEXT, Compute the initial CAP.goods.
-        array set out [cge get out -bare]
+        array set out [cge get Out -bare]
 
         let CAPgoods {
-            $out(Q.goods) / (1.0-[parm get econ.idleFrac])
+            $out(BQS.goods) / (1.0-[parm get econ.idleFrac])
         }
 
         # NEXT, compute CCF.n, the capacity fraction for each neighborhood.
@@ -161,7 +159,7 @@ snit::type econ {
         }
 
         # NEXT, save the initial CAP.goods
-        cge set [list in::CAP.goods $CAPgoods]
+        cge set [list In::CAP.goods $CAPgoods]
 
         log normal econ "start complete"
     }
@@ -185,12 +183,12 @@ snit::type econ {
         }]
 
         cge set [list \
-                     in::population $data(population)  \
-                     in::CAP.pop    $data(labor_force) \
-                     in::CAP.goods  $CAPgoods]
+                     In::population $data(population)  \
+                     In::CAP.pop    $data(labor_force) \
+                     In::CAP.goods  $CAPgoods]
 
         # NEXT, update the CGE.
-        set result [cge solve in]
+        set result [cge solve In]
 
         # NEXT, the data has changed.
         set info(changed) 1
