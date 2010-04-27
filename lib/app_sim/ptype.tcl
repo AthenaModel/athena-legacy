@@ -202,6 +202,81 @@ snit::type ptype {
         EnumVal "cause" [$type ecause+unique names] $value
     }
 
+    # civa
+    #
+    # All assignable civilian unit activities
+
+    typemethod {civa names} {} {
+        activity civ names
+    }
+
+    typemethod {civa validate} {value} {
+        EnumVal "civilian activity" [$type civa names] $value
+    }
+
+    # orga
+    #
+    # All assignable org unit activities
+
+    typemethod {orga names} {} {
+        activity org names
+    }
+
+    typemethod {orga validate} {value} {
+        EnumVal "organization activity" [$type orga names] $value
+    }
+
+
+    # frca
+    #
+    # All assignable force unit activities
+
+    typemethod {frca names} {} {
+        activity frc names
+    }
+
+    typemethod {frca validate} {value} {
+        EnumVal "force activity" [$type frca names] $value
+    }
+
+    # civa+cov
+    #
+    # All civilian unit activities with coverage
+
+    typemethod {civa+cov names} {} {
+        lrange [activity civ names] 1 end
+    }
+
+    typemethod {civa+cov validate} {value} {
+        EnumVal "civilian activity" [$type civa+cov names] $value
+    }
+
+    # orga+cov
+    #
+    # All org unit activities with coverage
+
+    typemethod {orga+cov names} {} {
+        lrange [activity org names] 1 end
+    }
+
+    typemethod {orga+cov validate} {value} {
+        EnumVal "organization activity" [$type orga+cov names] $value
+    }
+
+
+    # frca+cov
+    #
+    # All force unit activities with coverage
+
+    typemethod {frca+cov names} {} {
+        linsert [lrange [activity frc names] 1 end] 0 PRESENCE
+    }
+
+    typemethod {frca+cov validate} {value} {
+        EnumVal "force activity" [$type frca+cov names] $value
+    }
+
+
     #-------------------------------------------------------------------
     # Helper Routines
 

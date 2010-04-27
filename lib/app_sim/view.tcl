@@ -154,6 +154,7 @@ snit::type view {
     typevariable viewdef -array {
         n,cap {
             indices {}
+            validation {}
             rtype rcap
             query {
                 SELECT n, cap AS x0
@@ -257,6 +258,7 @@ snit::type view {
 
         n,nbmood {
             indices {}
+            validation {}
             rtype qsat
             query {
                 SELECT n, sat AS x0 
@@ -266,6 +268,7 @@ snit::type view {
 
         n,nbmood0 {
             indices {}
+            validation {}
             rtype qsat
             query {
                 SELECT n, sat0 AS x0 
@@ -275,6 +278,7 @@ snit::type view {
 
         n,none {
             indices {}
+            validation {}
             rtype qsat
             query {
                 SELECT n, 0.0 AS x0
@@ -284,6 +288,7 @@ snit::type view {
 
         n,pcf {
             indices {}
+            validation {}
             rtype rpcf
             query {
                 SELECT n, pcf AS x0
@@ -652,10 +657,14 @@ snit::type view {
         }
 
         # NEXT, validate the index values.
-        [dict get $def validation] $domain $vartype {*}$ivalues
+        set valcmd [dict get $def validation]
+
+        if {$valcmd ne ""} {
+            $valcmd $domain $vartype {*}$ivalues
+        }
 
         # NEXT, return the canonicalized var name
-        return "$vartype.[join $ivalues .]"
+        return [join [linsert $ivalues 0 $vartype] .]
     }
 
     # Proc: VartypePattern
@@ -736,9 +745,9 @@ snit::type view {
             set gtype [group gtype $g]
 
             switch -exact -- $gtype {
-                CIV     { activity civ validate $a }
-                FRC     { activity frc validate $a }
-                ORG     { activity org validate $a }
+                CIV     { ptype civa+cov validate $a }
+                FRC     { ptype frca+cov validate $a }
+                ORG     { ptype orga+cov validate $a }
                 default { error "Unexpected gtype: \"$gtype\""   }
             }
         }
