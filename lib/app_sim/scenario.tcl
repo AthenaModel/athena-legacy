@@ -464,11 +464,10 @@ snit::type scenario {
 
     typemethod {snapshot purge} {t} {
         # Note: this code presumes that we have a single
-        # instance of GRAM.  Also, GRAM history values with
-        # a timestamp of $t are from the previous time advance.
+        # instance of GRAM.
         rdb eval {
             DELETE FROM snapshots WHERE tick >= $t;
-            DELETE FROM gram_contribs WHERE time > $t;
+            DELETE FROM gram_contribs WHERE time >= $t;
         }
     }
 
