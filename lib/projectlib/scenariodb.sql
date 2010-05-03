@@ -805,3 +805,64 @@ CREATE TABLE econ_n (
 -- neighborhoods.
 CREATE VIEW econ_n_view AS
 SELECT * FROM nbhoods JOIN econ_n USING (n) WHERE nbhoods.local = 1;
+
+------------------------------------------------------------------------
+-- History
+--
+-- The following tables are used to save time series variable data
+-- for plotting, etc.  Each table has a name like "history_<vartype>"
+-- where <vartype> is a time series variable type.  In some cases,
+-- one table might contain multiple variables; in that case it will
+-- be named after the primary one.
+
+-- sat.n.g.c
+CREATE TABLE hist_sat (
+    t   INTEGER,
+    n   TEXT,
+    g   TEXT,
+    c   TEXT,
+    sat DOUBLE,
+
+    PRIMARY KEY (t,n,g,c)
+);
+
+-- mood.n.g
+CREATE TABLE hist_mood (
+    t   INTEGER,
+    n   TEXT,
+    g   TEXT,
+    sat DOUBLE,
+
+    PRIMARY KEY (t,n,g)
+);
+
+-- nbmood.n
+CREATE TABLE hist_nbmood (
+    t   INTEGER,
+    n   TEXT,
+    sat DOUBLE,
+
+    PRIMARY KEY (t,n)
+);
+
+-- coop.n.f.g
+CREATE TABLE hist_coop (
+    t    INTEGER,
+    n    TEXT,
+    f    TEXT,
+    g    TEXT,
+    coop DOUBLE,
+
+    PRIMARY KEY (t,n,f,g)
+);
+
+-- nbcoop.n.g
+CREATE TABLE hist_nbcoop (
+    t      INTEGER,
+    n      TEXT,
+    g      TEXT,
+    nbcoop DOUBLE,
+
+    PRIMARY KEY (t,n,g)
+);
+

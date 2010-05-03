@@ -382,12 +382,17 @@ snit::type scenario {
         $type SaveSaveables
 
         # NEXT, get the snapshot text
-        set snapshot [profile rdb tclexport -exclude {
+        set snapshot [rdb tclexport -exclude {
             snapshots 
             maps 
             gram_sat_influence
             gram_coop_influence
             gram_contribs
+            hist_coop
+            hist_mood
+            hist_nbcoop
+            hist_nbmood
+            hist_sat
         }]
 
         log detail scenario "Snapshot size=[string length $snapshot]"
@@ -469,6 +474,8 @@ snit::type scenario {
             DELETE FROM snapshots WHERE tick >= $t;
             DELETE FROM gram_contribs WHERE time >= $t;
         }
+
+        hist purge $t
     }
 
     # snapshot current

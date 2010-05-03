@@ -348,6 +348,66 @@ snit::type view {
                 WHERE g='$1'
             }
         }
+
+        t,coop {
+            indices {n f g}
+            validation nfg_coop
+            rtype qcoop
+            query {
+                SELECT t    AS t,
+                       coop AS x0
+                FROM hist_coop
+                WHERE n='$1' AND f='$2' AND g='$3'
+            }
+        }
+
+        t,nbcoop {
+            indices {n g}
+            validation ng_coop
+            rtype qcoop
+            query {
+                SELECT t    AS t,
+                       coop AS x0
+                FROM hist_nbcoop
+                WHERE n='$1' AND g='$2'
+            }
+        }
+
+        t,sat {
+            indices {n g c}
+            validation ngc_sat
+            rtype qsat
+            query {
+                SELECT t   AS t,
+                       sat AS x0
+                FROM hist_sat
+                WHERE n='$1' AND g='$2' AND c='$3'
+            }
+        }
+
+        t,mood {
+            indices {n g}
+            validation ng_sat
+            rtype qsat
+            query {
+                SELECT t   AS t,
+                       sat AS x0
+                FROM hist_mood
+                WHERE n='$1' AND g='$2'
+            }
+        }
+
+        t,nbmood {
+            indices {n}
+            validation n
+            rtype qsat
+            query {
+                SELECT t   AS t,
+                       sat AS x0
+                FROM hist_nbmood
+                WHERE n='$1'
+            }
+        }
     }
 
 
@@ -795,6 +855,73 @@ snit::type view {
         ValidateIndex $domain $vartype g $g {frcgroup validate $g}
     }
 
+    # Proc: n
+    #
+    # Validates {n} as a nbhood
+    
+    proc n {domain vartype n} {
+        ValidateIndex $domain $vartype n $n {nbhood validate $n}
+    }
+
+    # Proc: nfg_coop
+    #
+    # Validates {n f g} for cooperation
+    
+    proc nfg_coop {domain vartype n f g} {
+        ValidateIndex $domain $vartype n $n {nbhood   validate $n}
+        ValidateIndex $domain $vartype f $f {nbgroup  validate [list $n $f]}
+        ValidateIndex $domain $vartype g $g {frcgroup validate $g}
+    }
+
+    # Proc: ng_coop
+    #
+    # Validates {n g} for cooperation
+    
+    proc ng_coop {domain vartype n g} {
+        ValidateIndex $domain $vartype n $n {nbhood   validate $n}
+        ValidateIndex $domain $vartype g $g {frcgroup validate $g}
+    }
+
+    # Proc: ngc_sat
+    #
+    # Validates {n g c} as a satisfaction curve
+    
+    proc ngc_sat {domain vartype n g c} {
+        set gtype [group gtype $g]
+
+        ValidateIndex $domain $vartype n $n {nbhood validate $n}
+        ValidateIndex $domain $vartype g $g {
+            if {$gtype eq "CIV"} {
+                nbgroup validate [list $n $g]
+            } else {
+                ptype satg validate $g
+            }
+        }
+        ValidateIndex $domain $vartype c $c {
+            switch -exact -- $gtype {
+                CIV     { ptype civc validate $c }
+                ORG     { ptype orgc validate $c }
+                default { error "Unexpected gtype: \"$gtype\""   }
+            }
+        }
+    }
+
+    # Proc: ng_sat
+    #
+    # Validates {n g} as a satisfaction group
+    
+    proc ng_sat {domain vartype n g} {
+        ValidateIndex $domain $vartype n $n {nbhood validate $n}
+        ValidateIndex $domain $vartype g $g {
+            set gtype [group gtype $g]
+
+            if {$gtype eq "CIV"} {
+                nbgroup validate [list $n $g]
+            } else {
+                ptype satg validate $g
+            }
+        }
+    }
 
     #-------------------------------------------------------------------
     # Checkpoint/Restore

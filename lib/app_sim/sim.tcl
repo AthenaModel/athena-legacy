@@ -824,6 +824,9 @@ snit::type sim {
         # NEXT, check Reactive Decision Conditions (RDCs)
         # TBD: None yet
 
+        # NEXT, save the history for this tick.
+        hist tick
+
         # NEXT, advance time one tick.
         simclock tick
 

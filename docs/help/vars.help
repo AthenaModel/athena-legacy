@@ -198,3 +198,34 @@ page var.t "Time Series Variables" vars {
 
     <<childlinks>>
 }
+
+var t coop {
+    <<vartitle n f g>>
+    The <<term cooperation>> of civilian group <i>f</i> with force
+    group <i>g</i> in neighborhood <i>n</i> over time.
+}
+
+var t mood {
+    <<vartitle n g>>
+    The <<term mood>> of group <i>g</i> in neighborhood <i>n</i> 
+    over time.
+}
+
+var t nbcoop {
+    <<vartitle n g>>
+    The <<term cooperation>> of the civilians in neighborhood <i>n</i>
+    with force group <i>g</i> over time.
+}
+
+var t nbmood {
+    <<vartitle n>>
+    The <<term mood>> of the civilians in neighborhood <i>n</i> 
+    over time.
+}
+
+var t sat {
+    <<vartitle n g c>>
+    The <<term satisfaction>> of group <i>g</i> with respect to
+    <<term concern>> <i>c</i> in neighborhood <i>n</i> 
+    over time.
+}
