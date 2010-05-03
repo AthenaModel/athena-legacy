@@ -366,8 +366,8 @@ snit::type view {
             validation ng_coop
             rtype qcoop
             query {
-                SELECT t    AS t,
-                       coop AS x0
+                SELECT t      AS t,
+                       nbcoop AS x0
                 FROM hist_nbcoop
                 WHERE n='$1' AND g='$2'
             }

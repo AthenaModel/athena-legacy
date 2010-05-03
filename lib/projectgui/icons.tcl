@@ -502,7 +502,27 @@ namespace eval ::projectgui::icon:: {
         ........xXXx........
     } { . trans  X black x gray} d { X gray x trans }
 
-
+        mkicon ::projectgui::icon::nbpoly {
+            ..XX..........
+            ..X.XX........
+            ..X...XX......
+            ..X.....XX....
+            .X........XX..
+            .X..........XX
+            .X...........X
+            .X..X.....X..X
+            X...XX....X..X
+            X...X.X...X..X
+            X...X..X..X..X
+            X...X...X.X..X
+            .X..X....XX..X
+            .X..X.....X..X
+            .X...........X
+            .X.........XXX
+            ..X.....XXX...
+            ..X..XXX......
+            ..XXX.........
+        } { . trans  X black } d { X gray }
 }
 
 

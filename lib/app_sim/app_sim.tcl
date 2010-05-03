@@ -112,6 +112,7 @@ source [file join $::app_sim::library mapicons.tcl           ]
 source [file join $::app_sim::library mapicon_unit.tcl       ]
 source [file join $::app_sim::library mapicon_situation.tcl  ]
 source [file join $::app_sim::library nbchart.tcl            ]
+source [file join $::app_sim::library timechart.tcl          ]
 source [file join $::app_sim::library plotviewer.tcl         ]
 
 # GUI: Browsers

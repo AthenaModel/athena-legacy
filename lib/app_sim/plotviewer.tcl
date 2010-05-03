@@ -40,17 +40,23 @@ snit::widget plotviewer {
 
     component bar
 
-    # Component: newbtn
+    # Component: bnbhood
     #
-    # New plot button.
+    # New neighborhood chart button.
 
-    component newbtn
+    component bnbhood
 
-    # Component: helpbtn
+    # Component: btime
+    #
+    # New time plot button.
+
+    component btime
+
+    # Component: bhelp
     #
     # Help browser button
 
-    component helpbtn
+    component bhelp
 
     # Component: man
     #
@@ -74,8 +80,6 @@ snit::widget plotviewer {
     
     variable pwinCounter 0
 
-
-
     #--------------------------------------------------------------------
     # Constructor
 
@@ -85,21 +89,33 @@ snit::widget plotviewer {
         # Toolbar
         install bar using ttk::frame $win.bar
 
-        # New Plot Button
-        install newbtn using mkaddbutton $bar.new \
-            "New Plot"                            \
-            -state   normal                       \
-            -command [mymethod NewPlot]
+        # New Neighborhood Chart
+        install bnbhood using ttk::button $bar.nbhood \
+            -style   Toolbutton                         \
+            -image   ::projectgui::icon::nbpoly         \
+            -command [mymethod NewNbhoodPlot]
+
+        DynamicHelp::add $bnbhood -text "New Neighborhood Bar Chart"
   
-        install helpbtn using ttk::button $bar.help \
+        # New Neighborhood Chart
+        install btime using ttk::button $bar.time \
+            -style   Toolbutton                      \
+            -image   ::marsgui::icon::clock          \
+            -command [mymethod NewTimePlot]
+
+        DynamicHelp::add $btime -text "New Time Series Plot"
+
+        # Help
+        install bhelp using ttk::button $bar.help \
             -style   Toolbutton                     \
             -image   ::projectgui::icon::help22     \
             -command [list helpbrowserwin showhelp vars]
 
-        DynamicHelp::add $helpbtn -text "Help on Display Variables"
+        DynamicHelp::add $bhelp -text "Help on Display Variables"
 
-        pack $newbtn  -side left
-        pack $helpbtn -side right
+        pack $bnbhood  -side left
+        pack $btime    -side left
+        pack $bhelp    -side right
 
         # Separator
         ttk::separator $win.sep1
@@ -118,12 +134,11 @@ snit::widget plotviewer {
     #-------------------------------------------------------------------
     # Event Handlers
 
-    # Method: NewPlot
+    # Method: NewNbhoodPlot
     #
-    # The user wants to create a new plot.  Query the user for the
-    # requisite variable name(s).
+    # The user wants to create a new nbhood plot.
 
-    method NewPlot {} {
+    method NewNbhoodPlot {} {
         set pwin [$man insert 0]
         set f    [$pwin frame]
 
@@ -131,13 +146,30 @@ snit::widget plotviewer {
         $pwin configure -title $num
 
         nbchart $f.chart \
-            -title    "Chart #$num"                             \
+            -title    "Nbhood Chart #$num"        \
             -yscrollcommand [list $f.yscroll set]
 
         ttk::scrollbar $f.yscroll \
             -command [list $f.chart yview]
 
         pack $f.yscroll -side right -fill y
+        pack $f.chart  -fill both -expand yes
+    }
+
+    # Method: NewTimePlot
+    #
+    # The user wants to create a new time plot.
+
+    method NewTimePlot {} {
+        set pwin [$man insert 0]
+        set f    [$pwin frame]
+
+        set num [incr pwinCounter]
+        $pwin configure -title $num
+
+        timechart $f.chart \
+            -title    "Time Plot #$num"
+
         pack $f.chart  -fill both -expand yes
     }
 
