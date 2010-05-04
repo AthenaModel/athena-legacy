@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco3x3.cm, version h
+#    eco3x3.cm, version i
 #
 # AUTHOR:
 #    Bob Chamberlain
@@ -9,7 +9,7 @@
 #
 # DESCRIPTION:
 #    Prototype CGE for the Athena Economics Model.  This is a
-#    3x3 Cobb-Douglas model, based on Sue Wing's example.
+#    3x3 Cobb-Douglas model, based on Ian Sue Wing's MIT paper.
 #
 #    Criteria for success:
 #
@@ -46,6 +46,11 @@
 #    pages.
 #
 # HISTORY:
+#    Version i: Added computation of labor market turbulence as a 
+#               percentage of the labor force.  Added explicit
+#               computation of the non-turbulent, "real",
+#               unemployment.  Made minor cosmetic improvements.
+#
 #    Version h: Re-integration of version g into Athena.
 #               * Added Out::BQS.goods = Cal::QS.goods, to support the
 #                 CAP.goods calibration.
@@ -56,8 +61,7 @@
 #               endogenous by calibrating the per capita demands on
 #               the null page, then assuming jobs will be driven by the
 #               demand for labor, but limited by the possibly changing
-#               workforce statistics (population, available work force,
-#               normal turbulence in employment).
+#               workforce statistics (population, available work force).
 #
 #    Version e: Made the CPI the numeraire.  Assumed the demographics 
 #               model will compute both CAP.pop and QS.pop, i.e., the
@@ -111,10 +115,9 @@ index j   {goods pop else}
 # not be changed.  In principle, many of these parameters are "calibrated"
 # from a Social Accounting Matrix (SAM).
 
-# Normal turbulence in employment parameters
+# Normal turbulence in employment
 
-let turbJ = 0.02  ;# Average fraction of jobs "temporarily" unfilled
-let turbW = 0.02  ;# Average fraction of workers "temporarily" unemployed
+let TurFrac = 0.04 ;# Average fraction of workers "temporarily" unemployed
 
 # SAM-based Parameters
 #
@@ -131,10 +134,11 @@ let turbW = 0.02  ;# Average fraction of workers "temporarily" unemployed
 #
 # Then compute:
 #
-#   BREV.i  = sum.j BX.i.j
-#   BEXP.j  = sum.i BX.i.j
-#   BQD.i.j = BX.i.j/BP.i
-#   f.i.j   = BX.i.j/BREV.j
+#   BREV.i      = sum.j BX.i.j
+#   BEXP.j      = sum.i BX.i.j
+#   BQD.i.j     = BX.i.j/BP.i
+#   f.i.j       = BX.i.j/BREV.j
+#   A.goods.pop = BQD.goods.pop/BasePopulation
 #
 # If there is no SAM, we need to input BasePopulation, A.goods.pop, 
 # f.i.j, and BP.j.
@@ -186,7 +190,7 @@ let BP.else  = 1       ;# $/elseBKT
 # the "size" of the economy depends on A.goods.pop and the population.
 
 let A.goods.pop    =  114    ;# Direct consumption of goods, in 
-                              # goodsBKT/year, per capita
+                              # goodsBKT/year per capita
 
 let BQD.goods.pop  =  {
     [BasePopulation]*[A.goods.pop]
@@ -213,11 +217,11 @@ let BQD.else.pop   =  {
 # Cobb-Douglas production function coefficients.  The following
 # formulas compute the calibrated Cobb-Douglas coefficients A.i that
 # should yield the P.i = BP.i when the model is solved.
-
-# TBD: A.goods is not used; shall we delete it?
-let A.goods = {
-    <:prod i {([BP.$i]/[f.$i.goods])**[f.$i.goods]}:> / [BP.goods]
-} -value 31.54786723
+#
+# The A.j's describe the technology via the production function
+# (and the utility via the utility function).  Athena might want to
+# change these assumptions eventually, especially for different kinds
+# of sectors.
 
 let A.pop = {
     <:prod i {([BP.$i]/[f.$i.pop])**[f.$i.pop]}:> / [BP.pop]
@@ -249,8 +253,9 @@ page Cal
 # REV.i is the income of sector i: the product of P.i * QS.i, where 
 # QS.i is the quantity supplied of i's product.
 #
-# EXP.j is the expenditures by sector j on the products of the various
-# sectors i: sum of the X.i.j's down the columns.
+# EXP.j is the expenditures by sector j on the various
+# sectors i: sum of the X.i.j's down the column.  At present, it is
+# used only for output, to verify that EXP.j=REV.j.
 
 # REV.i = P.i * QS.i
 # EXP.j = sum.i X.i.j
@@ -341,12 +346,13 @@ let QS.else  = {[QD.else]}      -value 3.99e8
 #
 # into the condition that REV.j=EXP.j, where REV.j is the product of
 # the price, P.j, and the quantity supplied, QS.j, and EXP.j is computed
-# by summing the expenses.  WE use the Cobb-Douglas production function, 
+# by summing the expenses.  We use the Cobb-Douglas production function, 
 #
 #   QS.j = A.j * PROD.i (QD.i.j ** f.i.j)
 #
 # to express the supplied quantity in terms of the quantities of
-# ingredients, and then solve for P.j.  The solution is
+# ingredients, and insert the expressions for those quantities.  The
+# QS.j drop out of the equation and we solve for P.j.  The solution is
 #
 #   P.j = (PROD.i (P.i/f.i.j)**f.i.j)/A.j.
 #
@@ -448,8 +454,13 @@ let Population = 1e6          ;# people.
 # Max production rate for goods
 let CAP.goods  = 1e15         ;# goodsBKT/year
 
-# Number of people who want to work
-let CAP.pop    = 400000       ;# work-years/year
+# Work Force: Number of people who want to be employed
+let WF         = 400000       ;# work-years/year
+
+# Due to the normal turbulence, some of those in the Work Force
+# are temporarily unemployed and hence not available to work. Thus,
+# CAP.pop is the WF less this turbulence.
+let CAP.pop = {[WF]*(1 - [TurFrac])}
 
 # NOTE: Because else includes the rest of the world, it is presumed to
 # have unlimited capacity even in the constrained case.
@@ -531,15 +542,14 @@ let IDLECAP.goods  = {max(0,0, ediff([In::CAP.goods], [C::QS.goods]))}
 
 # pop shortages and overages: work-years/year
 let OVERAGE.pop    = {max(0.0, ediff([C::QS.pop], [U::QD.pop]))}
-let SHORTAGE.pop   = {
-    max(0.0, ediff([U::QD.pop], [C::QS.pop]))   + [turbJ]*[U::QS.pop]
-}
-let IDLECAP.pop    = {
-    max(0,0, ediff([In::CAP.pop], [C::QS.pop])) + [turbW]*[In::CAP.pop] 
-}
-let Turbulence     = {[turbJ]*[C::QS.pop] + [turbW]*[In::CAP.pop]}
-let Unemployment   = {
-    (max(0.0, ediff([In::CAP.pop],[C::QS.pop])) + [Turbulence])/
-    [In::CAP.pop]
-}
+let SHORTAGE.pop   = {max(0.0, ediff([U::QD.pop], [C::QS.pop]))}
+let IDLECAP.pop    = {max(0,0, ediff([In::CAP.pop], [C::QS.pop]))}
 
+# Unemployment Statistics
+let RealUnemployment = {max(0.0, ediff([In::CAP.pop],[C::QS.pop]))}  ;# People
+let Turbulence       = {[TurFrac]*[In::WF]}                          ;# People
+let Unemployment     = {[RealUnemployment] + [Turbulence]}           ;# People
+
+# Unemployment Rates, real and reported
+let RealUR = {100.0 * [RealUnemployment]/[In::WF]} ;# Percentage
+let UR     = {100.0 * [Unemployment]/[In::WF]}     ;# Percentage

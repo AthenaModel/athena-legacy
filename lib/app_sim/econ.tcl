@@ -106,7 +106,7 @@ snit::type econ {
         cge set [list \
                      BasePopulation $data(population)                  \
                      In::Population $data(population)                  \
-                     In::CAP.pop    $data(labor_force)]
+                     In::WF         $data(labor_force)]
 
         # NEXT, calibrate the CGE.
         set result [cge solve]
@@ -184,7 +184,7 @@ snit::type econ {
 
         cge set [list \
                      In::population $data(population)  \
-                     In::CAP.pop    $data(labor_force) \
+                     In::WF         $data(labor_force) \
                      In::CAP.goods  $CAPgoods]
 
         # NEXT, update the CGE.
@@ -218,7 +218,7 @@ snit::type econ {
     # Dumps the cell values and formulas for one or all pages.  If 
     # no _page_ is specified, only the *out* page is included.
 
-    typemethod dump {{page out}} {
+    typemethod dump {{page Out}} {
         set pages [linsert [cge pages] 0 all]
 
         if {$page ni $pages} {
