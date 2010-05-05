@@ -27,6 +27,16 @@
 
 snit::widgetadaptor timechart {
     #-------------------------------------------------------------------
+    # Components
+
+    # Component: lu
+    #
+    # Lazy updater; makes sure that the widget doesn't update itself
+    # too often.
+    
+    component lu
+
+    #-------------------------------------------------------------------
     # Group: Options
     # 
     # Unknown options are delegated to the hull
@@ -57,7 +67,7 @@ snit::widgetadaptor timechart {
         set options($opt) $val
 
         # NEXT, Reset the bar chart.
-        $self Reset
+        $lu update
     }
 
     #-------------------------------------------------------------------
@@ -88,6 +98,11 @@ snit::widgetadaptor timechart {
             -xtext       "Time"          \
             -xformatcmd  [myproc tozulu]
         
+        # NEXT, create the lazy updater
+        install lu using lazyupdater ${selfns}::lu \
+            -window   $win                         \
+            -command  [mymethod Reset]
+        
         # NEXT, get the options.
         $self configurelist $args
 
@@ -102,7 +117,7 @@ snit::widgetadaptor timechart {
         notifier bind ::sim <DbSyncB>   $win [mymethod update]
 
         # NEXT, draw the chart.
-        $self Reset
+        $lu update
     }
 
     # Method: CreateContextMenu
@@ -365,23 +380,13 @@ snit::widgetadaptor timechart {
     proc tozulu {t} {
         simclock toZulu [tcl::mathfunc::int $t]
     }
-
-
-    
+   
 
     #-------------------------------------------------------------------
     # Group: Public Methods
 
-    delegate method * to hull
-
-    # Method: update
-    #
-    # Retrieves and plots the latest data.
-
-    method update {} {
-        $self Reset
-    }
-
+    delegate method *      to hull
+    delegate method update to lu
 }
 
 

@@ -27,6 +27,16 @@
 
 snit::widgetadaptor nbchart {
     #-------------------------------------------------------------------
+    # Components
+
+    # Component: lu
+    #
+    # Lazy updater; makes sure that the widget doesn't update itself
+    # too often.
+    
+    component lu
+
+    #-------------------------------------------------------------------
     # Group: Options
     # 
     # Unknown options are delegated to the hull
@@ -57,7 +67,7 @@ snit::widgetadaptor nbchart {
         set options($opt) $val
 
         # NEXT, Reset the bar chart.
-        $self Reset
+        $lu update
     }
 
     #-------------------------------------------------------------------
@@ -87,6 +97,11 @@ snit::widgetadaptor nbchart {
         installhull using hbarchart \
             -ylabels [list "no data"] \
             -ytext   "Neighborhoods"
+
+        # NEXT, create the lazy updater
+        install lu using lazyupdater ${selfns}::lu \
+            -window   $win                         \
+            -command  [mymethod Reset]
         
         # NEXT, get the options.
         $self configurelist $args
@@ -109,7 +124,7 @@ snit::widgetadaptor nbchart {
         notifier bind ::coop <Entity>   $win [mymethod update]
 
         # NEXT, draw the chart.
-        $self Reset
+        $lu update
     }
 
     # Method: CreateContextMenu
@@ -332,16 +347,6 @@ snit::widgetadaptor nbchart {
         return $varname
     }
 
-    # Method: VarHelp
-    #
-    # Pops up help on neighborhood variables
-    
-    method VarHelp {} {
-        app help var.n
-    }
-
-
-
     # Method: SetTitle
     #
     # Prompts the user to enter a new title.
@@ -386,16 +391,8 @@ snit::widgetadaptor nbchart {
     #-------------------------------------------------------------------
     # Public Methods
 
-    delegate method * to hull
-
-    # Method: update
-    #
-    # Retrieves and plots the latest data.
-
-    method update {} {
-        $self Reset
-    }
-
+    delegate method *      to hull
+    delegate method update to lu
 }
 
 
