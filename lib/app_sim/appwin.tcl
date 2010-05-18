@@ -641,6 +641,7 @@ snit::widget appwin {
         
         $self AddOrder $submenu GROUP:NBHOOD:CREATE
         $self AddOrder $submenu GROUP:NBHOOD:UPDATE
+        $self AddOrder $submenu GROUP:NBHOOD:UPDATE:POSTPREP
         $self AddOrder $submenu GROUP:NBHOOD:DELETE
 
         # Orders/Force Group

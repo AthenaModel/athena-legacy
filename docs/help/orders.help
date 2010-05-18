@@ -771,6 +771,12 @@ macro GROUP:NBHOOD.basepop {} {
     attrition.  An integer number no less than 1.
 }
 
+macro GROUP:NBHOOD.sap {} {
+    |<--
+    The percentage of the population that supports itself by 
+    subsistence agriculture, and hence does not participate in the
+    regional economy.  An integer number from 0 to 100.
+}
 
 #-----------------------------------------------------------------------
 
@@ -792,6 +798,10 @@ order GROUP:NBHOOD:CREATE "Create Nbhood Group" {
 
     <<parm basepop "Base Population">>
     <b>Required.</b> <<GROUP:NBHOOD.basepop>>
+    <</parm>>
+
+    <<parm sap "Subsistence Agriculture Percentage">>
+    <b>Required.</b> <<GROUP:NBHOOD.sap>>
     <</parm>>
 
     <<parm demeanor "Demeanor">>
@@ -858,6 +868,10 @@ order GROUP:NBHOOD:UPDATE "Update Nbhood Group" {
     <b>Optional.</b> <<GROUP:NBHOOD.basepop>>
     <</parm>>
 
+    <<parm sap "Subsistence Agriculture Percentage">>
+    <b>Required.</b> <<GROUP:NBHOOD.sap>>
+    <</parm>>
+
     <<parm demeanor "Demeanor">>
     <b>Optional.</b> <<GROUP.demeanor>>
     <</parm>>
@@ -874,6 +888,30 @@ order GROUP:NBHOOD:UPDATE "Update Nbhood Group" {
 
     <b><<cref using.prep>> Only.</b>  This order modifies the
     definition of an existing neighborhood group.<p>
+}
+
+
+#-----------------------------------------------------------------------
+
+order GROUP:NBHOOD:UPDATE+POSTPREP "Update Nbhood Group (Post-PREP)" {
+    <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+
+    <<parm g "Civ Group">>
+    <b>Required.</b>  <<GROUP.g civilian>>   There must be
+    a neighborhood group for this <b>n</b> and <b>g</b>.
+    <</parm>>
+
+    <<parm sap "Subsistence Agriculture Percentage">>
+    <b>Required.</b> <<GROUP:NBHOOD.sap>>
+    <</parm>>
+    <</parmlist>>
+
+    This order modifies the definition of an existing neighborhood
+    group after leaving <<cref using.prep>>.  Only a subset of the
+    group attributes can be edited.<p>
 }
 
 
@@ -898,6 +936,10 @@ order GROUP:NBHOOD:UPDATE+MULTI "Update Multiple Nbhood Groups" {
     <b>Optional.</b> <<GROUP:NBHOOD.basepop>>
     <</parm>>
 
+    <<parm sap "Subsistence Agriculture Percentage">>
+    <b>Required.</b> <<GROUP:NBHOOD.sap>>
+    <</parm>>
+
     <<parm demeanor "Demeanor">>
     <b>Optional.</b> <<GROUP.demeanor>>
     <</parm>>
@@ -914,6 +956,31 @@ order GROUP:NBHOOD:UPDATE+MULTI "Update Multiple Nbhood Groups" {
 
     <b><<cref using.prep>> Only.</b>  This order modifies the
     definition of two or more neighborhood groups, as selected in the GUI.<p>
+}
+
+#-----------------------------------------------------------------------
+
+order GROUP:NBHOOD:UPDATE+POSTPREP+MULTI "Update Multiple Nbhood Groups (Post-PREP)" {
+    <<parmlist>>
+
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids "neighborhood group">><p>
+
+    Programmatically, each ID is a list {<i>n g</i>} where <i>n</i>,
+    and <i>g</i> are defined as for the 
+    <<cref GROUP:NBHOOD:UPDATE>> order.
+    <</parm>>
+
+    <<parm sap "Subsistence Agriculture Percentage">>
+    <b>Required.</b> <<GROUP:NBHOOD.sap>>
+    <</parm>>
+
+    <</parmlist>>
+
+    This order modifies the
+    definition of two or more neighborhood groups, as selected in the
+    GUI, after leaving <<cref using.prep>>.  Only a subset of the 
+    group attributes can be edited.<p>
 }
 
 

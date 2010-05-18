@@ -36,6 +36,7 @@ snit::widgetadaptor nbgroupbrowser {
         { local_name     "Local Name"                                     }
         { basepop        "BasePop"       -sortmode integer                }
         { population     "CurrPop"       -sortmode integer -foreground %D }
+        { sap            "SA%"           -sortmode integer                }
         { mood0          "Mood at T0"    -sortmode real                   }
         { mood           "Mood Now"      -sortmode real    -foreground %D }
         { demeanor       "Demeanor"                                       }
@@ -88,7 +89,7 @@ snit::widgetadaptor nbgroupbrowser {
             -command [mymethod EditSelected]
 
         cond::orderIsValidMulti control $editbtn \
-            order   GROUP:NBHOOD:UPDATE          \
+            order   GROUP:NBHOOD:UPDATE:POSTPREP \
             browser $win
 
 
@@ -159,9 +160,17 @@ snit::widgetadaptor nbgroupbrowser {
         if {[llength $ids] == 1} {
             lassign [lindex $ids 0] n g
 
-            order enter GROUP:NBHOOD:UPDATE n $n g $g
+            if {[order state] eq "PREP"} {
+                order enter GROUP:NBHOOD:UPDATE n $n g $g
+            } else {
+                order enter GROUP:NBHOOD:UPDATE:POSTPREP n $n g $g
+            }
         } else {
-            order enter GROUP:NBHOOD:UPDATE:MULTI ids $ids
+            if {[order state] eq "PREP"} {
+                order enter GROUP:NBHOOD:UPDATE:MULTI ids $ids
+            } else {
+                order enter GROUP:NBHOOD:UPDATE:POSTPREP:MULTI ids $ids
+            }
         }
     }
 

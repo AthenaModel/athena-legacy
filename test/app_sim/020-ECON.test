@@ -111,14 +111,14 @@ NB2 1.0 0.0 0.0  0.0
             pcf 2.0
         }
 
-        ted query {SELECT * FROM econ_n}
+        ted query {SELECT n, pcf FROM econ_n}
     } -cleanup {
         cleanup
     } -result {
-n   pcf ccf cap0 cap 
---- --- --- ---- --- 
-NB1 2.0 0.0 0.0  0.0 
-NB2 1.0 0.0 0.0  0.0 
+n   pcf 
+--- --- 
+NB1 2.0 
+NB2 1.0 
     }
 
     test UPDATE-2.3 {<Entity> update} -setup {

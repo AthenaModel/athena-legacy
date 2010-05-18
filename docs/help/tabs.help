@@ -899,6 +899,12 @@ tab "Groups/NbGroups" {
     the <<tabref Demog>>.
     <</topic>>
 
+    <<topic "SA%">> Subsistence Agriculture Percentage: the percentage
+    of the group's population that makes its living by subsistence
+    agriculture, and hence does not participate in the regional
+    economy.<p>
+    <</topic>>
+
     <<topic "Mood at T0">>The composite satisfaction, or <i>mood</i>, of
     the group, <b>as of time 0</b>.
     This is computed when Athena leaves <<cref using.prep>>, and will

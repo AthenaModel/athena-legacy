@@ -42,6 +42,7 @@ namespace eval ::projectlib:: {
         ident         \
         ingpopulation \
         ioptdays      \
+        ipercent      \
         ipositive     \
         iquantity     \
         leensit       \
@@ -607,6 +608,9 @@ snit::type ::projectlib::typewrapper {
 
 # ioptdays: days with -1 as sentinal
 ::projectlib::typewrapper ::projectlib::ioptdays snit::integer -min -1
+
+# ipercent: integer percentages
+::projectlib::typewrapper ::projectlib::ipercent snit::integer -min 0 -max 100
 
 
 #-------------------------------------------------------------------

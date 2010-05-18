@@ -18,16 +18,6 @@ snit::type nbgroup {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Type Components
-
-    # TBD
-
-    #-------------------------------------------------------------------
-    # Type Variables
-
-    # TBD
-
-    #-------------------------------------------------------------------
     # Queries
 
     # exists n g
@@ -107,6 +97,7 @@ snit::type nbgroup {
     #    g                The civgroup ID
     #    local_name       The nbgroup's local name
     #    basepop          The nbgroup's base population
+    #    sap              The nbgroup's subsistence agriculture percentage
     #    demeanor         The nbgroup's demeanor (edemeanor(n))
     #    rollup_weight    The group's rollup weight (JRAM)
     #    effects_factor   The group's indirect effects factor (JRAM)
@@ -121,12 +112,13 @@ snit::type nbgroup {
         dict with parmdict {
             # FIRST, Put the group in the database
             rdb eval {
-                INSERT INTO nbgroups(n,g,local_name,basepop,demeanor,
+                INSERT INTO nbgroups(n,g,local_name,basepop,sap,demeanor,
                                      rollup_weight,effects_factor)
                 VALUES($n,
                        $g,
                        $local_name,
                        $basepop,
+                       $sap,
                        $demeanor,
                        $rollup_weight,
                        $effects_factor);
@@ -204,6 +196,7 @@ snit::type nbgroup {
     #    g                Group ID of nbgroup
     #    local_name       A new local name, or ""
     #    basepop          A new basepop, or ""
+    #    sap              A new sap, or ""
     #    demeanor         A new demeanor, or ""
     #    rollup_weight    A new rollup weight, or ""
     #    effects_factor   A new effects factor, or ""
@@ -227,6 +220,7 @@ snit::type nbgroup {
                 UPDATE nbgroups
                 SET local_name     = nonempty($local_name,     local_name),
                     basepop        = nonempty($basepop,        basepop),
+                    sap            = nonempty($sap,            sap),
                     demeanor       = nonempty($demeanor,       demeanor),
                     rollup_weight  = nonempty($rollup_weight,  rollup_weight),
                     effects_factor = nonempty($effects_factor, effects_factor)
@@ -363,6 +357,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
         -tags group -refreshcmd [list ::nbgroup RefreshCreateG]
     parm local_name     text "Local Name"
     parm basepop        text "Base Population"
+    parm sap            text "Subs. Agri. %"  -defval 0
     parm demeanor       enum "Demeanor"       -type edemeanor
     parm rollup_weight  text "Rollup Weight"  -defval 1.0
     parm effects_factor text "Effects Factor" -defval 1.0
@@ -372,6 +367,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
     prepare g              -toupper -required -type civgroup
     prepare local_name     -normalize
     prepare basepop                 -required -type ingpopulation
+    prepare sap                     -required -type ipercent
     prepare demeanor       -toupper -required -type edemeanor
     prepare rollup_weight           -required -type weight
     prepare effects_factor          -required -type weight
@@ -470,6 +466,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
     parm g              key  "Civ Group"     -tags group
     parm local_name     text "Local Name"
     parm basepop        text "Base Population"
+    parm sap            text "Subs. Agri. %" 
     parm demeanor       enum "Demeanor"      -type edemeanor
     parm rollup_weight  text "Rollup Weight"
     parm effects_factor text "Effects Factor"
@@ -479,6 +476,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
     prepare g              -toupper  -required -type civgroup
     prepare local_name     -normalize      
     prepare basepop                  -type ingpopulation
+    prepare sap                      -type ipercent
     prepare demeanor       -toupper  -type edemeanor
     prepare rollup_weight            -type weight
     prepare effects_factor           -type weight
@@ -512,6 +510,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
     parm ids            multi "Groups"
     parm local_name     text  "Local Name"
     parm basepop        text  "Base Population"
+    parm sap            text  "Subs. Agri. %"
     parm demeanor       enum  "Demeanor"       -type edemeanor
     parm rollup_weight  text  "RollupWeight"
     parm effects_factor text  "EffectsFactor"
@@ -520,9 +519,78 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
     prepare ids            -toupper  -required -listof nbgroup
     prepare local_name     -normalize      
     prepare basepop                  -type ingpopulation
+    prepare sap                      -type ipercent
     prepare demeanor       -toupper  -type edemeanor
     prepare rollup_weight            -type weight
     prepare effects_factor           -type weight
+
+    returnOnError -final
+
+    # NEXT, modify the group
+    set undo [list]
+
+    foreach id $parms(ids) {
+        lassign $id parms(n) parms(g)
+        lappend undo [$type mutate update [array get parms]]
+    }
+
+    lappend undo [demog analyze]
+
+    setundo [join $undo \n]
+
+    return
+}
+
+# GROUP:NBHOOD:UPDATE:POSTPREP
+#
+# Updates existing groups outside the PREP state.
+
+order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP {
+    title "Update Nbhood Group (Post-PREP)"
+    options -sendstates {PREP PAUSED} -table gui_nbgroups -tags ng
+
+    parm n              key  "Neighborhood"  -tags nbhood
+    parm g              key  "Civ Group"     -tags group
+    parm sap            text "Subs. Agri. %" 
+} {
+    # FIRST, prepare the parameters
+    prepare n              -toupper  -required -type nbhood
+    prepare g              -toupper  -required -type civgroup
+    prepare sap                      -type ipercent
+
+    returnOnError
+
+    # NEXT, do cross-validation
+    validate g {
+        $type validate [list $parms(n) $parms(g)]
+    }
+
+    returnOnError -final
+
+    # NEXT, modify the group
+    lappend undo [$type mutate update [array get parms]]
+    lappend undo [demog analyze]
+
+    setundo [join $undo \n]
+    return
+}
+
+
+# GROUP:NBHOOD:UPDATE:POSTPREP:MULTI
+#
+# Updates multiple groups.
+
+order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP:MULTI {
+    title "Update Multiple Nbhood Groups (Post-PREP)"
+    options -sendstates {PREP PAUSED} -table gui_nbgroups
+
+    parm ids            multi "Groups"
+    parm sap            text  "Subs. Agri. %"
+} {
+    # FIRST, prepare the parameters
+    prepare ids            -toupper  -required -listof nbgroup
+    prepare local_name     -normalize      
+    prepare sap                      -type ipercent
 
     returnOnError -final
 

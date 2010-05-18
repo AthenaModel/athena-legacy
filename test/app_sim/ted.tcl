@@ -195,6 +195,7 @@ snit::type ted {
             g              SHIA
             local_name     "NB1 Shias"
             basepop        1000
+            sap            10
             demeanor       AVERAGE
             rollup_weight  1.0
             effects_factor 1.1
@@ -205,6 +206,7 @@ snit::type ted {
             g              SUNN
             local_name     "NB1 Sunnis"
             basepop        1000
+            sap            0
             demeanor       AGGRESSIVE
             rollup_weight  1.2
             effects_factor 1.3
@@ -215,6 +217,7 @@ snit::type ted {
             g              SHIA
             local_name     "NB2 Shias"
             basepop        1000
+            sap            10
             demeanor       AVERAGE
             rollup_weight  2.0
             effects_factor 2.1
@@ -225,6 +228,7 @@ snit::type ted {
             g              SUNN
             local_name     "NB2 Sunnis"
             basepop        1000
+            sap            0
             demeanor       AGGRESSIVE
             rollup_weight  2.2
             effects_factor 2.3

@@ -243,6 +243,9 @@ CREATE TABLE nbgroups (
     -- Indirect effects multiplier (non-negative) (JRAM input)
     effects_factor DOUBLE DEFAULT 1.0,
 
+    -- Subsistence Agriculture Percentage
+    sap            INTEGER DEFAULT 0,
+
     PRIMARY KEY (n,g)
 );
 
