@@ -25,6 +25,7 @@ CREATE TEMP TABLE dam_inputs (
     climit,           -- Limit (LEVEL)
     days,             -- Days value (LEVEL)
     cause,            -- Cause name (ecause)
+    s,                -- Here effects multiplier
     p,                -- Near effects multiplier
     q                 -- Far effects multiplier
 );
