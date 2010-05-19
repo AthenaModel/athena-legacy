@@ -188,7 +188,7 @@ snit::type econ {
                      In::CAP.goods  $CAPgoods]
 
         # NEXT, update the CGE.
-        set result [cge solve In]
+        set result [cge solve In Out]
 
         # NEXT, the data has changed.
         set info(changed) 1
