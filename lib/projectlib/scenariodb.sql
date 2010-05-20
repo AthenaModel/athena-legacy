@@ -701,6 +701,9 @@ CREATE TABLE mads (
    -- Cause: an ecause(n) value, or 'UNIQUE'
    cause         TEXT DEFAULT 'UNIQUE',
 
+   -- Here Factor (s), a real fraction (0.0 to 1.0)
+   s             DOUBLE DEFAULT 1.0,
+
    -- Near Factor (p), a real fraction (0.0 to 1.0)
    p             DOUBLE DEFAULT 0.0,
 

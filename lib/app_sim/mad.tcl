@@ -110,6 +110,7 @@ snit::type mad {
     #
     #    oneliner       The MAD's description.
     #    cause          "UNIQUE", or an ecause(n) value
+    #    s              A fraction
     #    p              A fraction
     #    q              A fraction
     #
@@ -125,10 +126,11 @@ snit::type mad {
 
             # FIRST, Put the MAD in the database
             rdb eval {
-                INSERT INTO mads(id,oneliner,cause,p,q)
+                INSERT INTO mads(id,oneliner,cause,s,p,q)
                 VALUES($id,
                        $oneliner,
                        $cause,
+                       $s,
                        $p,
                        $q);
             }
@@ -204,6 +206,7 @@ snit::type mad {
     #   id           The MAD's ID
     #   oneliner     A new description, or ""
     #   cause        "UNIQUE", or an ecause(n) value, or ""
+    #   s            A fraction, or ""
     #   p            A fraction, or ""
     #   q            A fraction, or ""
     #
@@ -228,6 +231,7 @@ snit::type mad {
                 UPDATE mads
                 SET oneliner = nonempty($oneliner, oneliner),
                     cause    = nonempty($cause,    cause),
+                    s        = nonempty($s,        s),
                     p        = nonempty($p,        p),
                     q        = nonempty($q,        q)
                 WHERE id=$id
@@ -331,9 +335,9 @@ snit::type mad {
 
         set reportid \
             [report save \
-                 -rtype   DAM                                       \
-                 -subtype MAGIC                                     \
-                 -meta1   ADJUST-3-1                                \
+                 -rtype   DAM                                        \
+                 -subtype MAGIC                                      \
+                 -meta1   MAGIC-3-1                                  \
                  -title   "MAGIC-3-1: [edamrule longname MAGIC-3-1]" \
                  -text    $text]
 
@@ -500,7 +504,7 @@ snit::type mad {
         dict with parmdict {
             # FIRST, get the GRAM driver ID
             rdb eval {
-                SELECT driver,oneliner,cause,p,q FROM mads WHERE id=$mad
+                SELECT driver,oneliner,cause,s,p,q FROM mads WHERE id=$mad
             } {}
 
             # NEXT, get the cause.
@@ -512,6 +516,7 @@ snit::type mad {
                 -n     $n             \
                 -f     $g             \
                 -cause $cause         \
+                -s     $s             \
                 -p     $p             \
                 -q     $q
 
@@ -545,7 +550,7 @@ snit::type mad {
         dict with parmdict {
             # FIRST, get the GRAM driver ID
             rdb eval {
-                SELECT driver,oneliner,cause,p,q FROM mads WHERE id=$mad
+                SELECT driver,oneliner,cause,s,p,q FROM mads WHERE id=$mad
             } {}
 
             # NEXT, get the cause.
@@ -557,6 +562,7 @@ snit::type mad {
                 -n     $n             \
                 -f     $g             \
                 -cause $cause         \
+                -s     $s             \
                 -p     $p             \
                 -q     $q
 
@@ -733,7 +739,7 @@ snit::type mad {
         dict with parmdict {
             # FIRST, get the GRAM driver ID
             rdb eval {
-                SELECT driver,oneliner,cause,p,q FROM mads WHERE id=$mad
+                SELECT driver,oneliner,cause,s,p,q FROM mads WHERE id=$mad
             } {}
 
             # NEXT, get the cause.
@@ -746,6 +752,7 @@ snit::type mad {
                 -f     $f             \
                 -doer  $g             \
                 -cause $cause         \
+                -s     $s             \
                 -p     $p             \
                 -q     $q
 
@@ -779,7 +786,7 @@ snit::type mad {
         dict with parmdict {
             # FIRST, get the GRAM driver ID
             rdb eval {
-                SELECT driver,oneliner,cause,p,q FROM mads WHERE id=$mad
+                SELECT driver,oneliner,cause,s,p,q FROM mads WHERE id=$mad
             } {}
 
             # NEXT, get the cause.
@@ -792,6 +799,7 @@ snit::type mad {
                 -f     $f             \
                 -doer  $g             \
                 -cause $cause         \
+                -s     $s             \
                 -p     $p             \
                 -q     $q
 
@@ -822,7 +830,7 @@ snit::type mad {
 
     # RefreshUpdateParm field parmdict
     #
-    # field     The "cause", "p", or "q" field in MAD:UPDATE
+    # field     The "cause", "s", "p", or "q" field in MAD:UPDATE
     # parmdict  The current values of the various fields
     #
     # These fields can only be updated if there are no inputs for
@@ -889,6 +897,7 @@ order define ::mad MAD:CREATE {
     parm oneliner  text  "Description" 
     parm cause     enum  "Cause"         -type {ptype ecause+unique} \
         -defval UNIQUE
+    parm s         text  "Here Factor"   -defval 1.0
     parm p         text  "Near Factor"   -defval 0.0
     parm q         text  "Far Factor"    -defval 0.0
 
@@ -896,6 +905,7 @@ order define ::mad MAD:CREATE {
     # FIRST, prepare and validate the parameters
     prepare oneliner          -required
     prepare cause    -toupper -required -type {ptype ecause+unique}
+    prepare s                 -required -type rfraction
     prepare p                 -required -type rfraction
     prepare q                 -required -type rfraction
 
@@ -969,6 +979,8 @@ order define ::mad MAD:UPDATE {
     parm oneliner text  "Description"
     parm cause    enum  "Cause"         -type {ptype ecause+unique} \
         -refreshcmd {::mad RefreshUpdateParm}
+    parm s        text  "Here Factor" \
+        -refreshcmd {::mad RefreshUpdateParm}
     parm p        text  "Near Factor" \
         -refreshcmd {::mad RefreshUpdateParm}
     parm q        text  "Far Factor" \
@@ -979,12 +991,13 @@ order define ::mad MAD:UPDATE {
     prepare id       -required -type mad
     prepare oneliner
     prepare cause    -toupper -type {ptype ecause+unique}
+    prepare s                 -type rfraction
     prepare p                 -type rfraction
     prepare q                 -type rfraction
 
     returnOnError
 
-    # NEXT, cause, p, and q should only be changed if there are no
+    # NEXT, cause, s, p, and q should only be changed if there are no
     # inputs.
     set inputs [rdb onecolumn {SELECT inputs FROM gui_mads WHERE id=$id}]
 
@@ -992,6 +1005,13 @@ order define ::mad MAD:UPDATE {
         if {$inputs > 0} {
             reject cause \
                 "Cannot change cause once magic inputs have been made."
+        }
+    }
+
+    validate s {
+        if {$inputs > 0} {
+            reject s \
+                "Cannot change here factor once magic inputs have been made."
         }
     }
 

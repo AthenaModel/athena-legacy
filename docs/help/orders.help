@@ -1411,6 +1411,13 @@ macro MAD.cause {} {
     [enumdoc ::projectlib::ecause]
 }
 
+macro MAD.s {} {
+    |<--
+    Indirect effects of magic attitude inputs for this MAD in the same
+    neighborhood as the input are multiplied by this factor.  
+    If it is 0.0, there will be no such indirect effects.
+}
+
 macro MAD.p {} {
     |<--
     Indirect effects of magic attitude inputs for this MAD in <b>NEAR</b>
@@ -1438,6 +1445,10 @@ order MAD:CREATE "Create Magic Attitude Driver" {
 
     <<parm cause "Cause">>
     <b>Required.</b> <<MAD.cause>>
+    <</parm>>
+
+    <<parm s "Here Factor">>
+    <b>Required.</b> <<MAD.s>>
     <</parm>>
 
     <<parm p "Near Factor">>
@@ -1493,6 +1504,10 @@ order MAD:UPDATE "Update Magic Attitude Driver" {
     <b>Optional.</b> <<MAD.cause>>
     <</parm>>
 
+    <<parm s "Here Factor">>
+    <b>Optional.</b> <<MAD.s>>
+    <</parm>>
+
     <<parm p "Near Factor">>
     <b>Optional.</b> <<MAD.p>>
     <</parm>>
@@ -1503,7 +1518,8 @@ order MAD:UPDATE "Update Magic Attitude Driver" {
     
     <</parmlist>>
 
-    Updates the MAD's definition.
+    Updates the MAD's definition.  Note that only the description can
+    be changed once magic inputs have been entered for this MAD.
 }
 
 #-------------------------------------------------------------------

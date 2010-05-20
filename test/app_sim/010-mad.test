@@ -31,6 +31,7 @@ namespace eval ::athena_test::tests:: {
     set m1 {
         oneliner "The First MAD" 
         cause    UNIQUE
+        s        1.0
         p        1.0
         q        0.9
     }
@@ -38,6 +39,7 @@ namespace eval ::athena_test::tests:: {
     set m2 {
         oneliner "The Second MAD"
         cause    CIVCAS
+        s        0.9
         p        0.8
         q        0.7
     }
@@ -45,6 +47,7 @@ namespace eval ::athena_test::tests:: {
     set m3 {
         oneliner "The Third MAD"
         cause    PATROL
+        s        0.7
         p        0.6
         q        0.5
     }
@@ -86,11 +89,11 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-id oneliner       cause  p   q   driver 
--- -------------- ------ --- --- ------ 
-1  The First MAD  UNIQUE 1.0 0.9 -1     
-2  The Second MAD CIVCAS 0.8 0.7 -1     
-3  The Third MAD  PATROL 0.6 0.5 -1     
+id oneliner       cause  s   p   q   driver 
+-- -------------- ------ --- --- --- ------ 
+1  The First MAD  UNIQUE 1.0 1.0 0.9 -1     
+2  The Second MAD CIVCAS 0.9 0.8 0.7 -1     
+3  The Third MAD  PATROL 0.7 0.6 0.5 -1     
     }
 
 
@@ -105,11 +108,11 @@ id oneliner       cause  p   q   driver
     } -cleanup {
         cleanup
     } -result {
-id oneliner       cause  p   q   driver 
--- -------------- ------ --- --- ------ 
-1  The First MAD  UNIQUE 1.0 0.9 1      
-2  The Second MAD CIVCAS 0.8 0.7 2      
-3  The Third MAD  PATROL 0.6 0.5 3      
+id oneliner       cause  s   p   q   driver 
+-- -------------- ------ --- --- --- ------ 
+1  The First MAD  UNIQUE 1.0 1.0 0.9 1      
+2  The Second MAD CIVCAS 0.9 0.8 0.7 2      
+3  The Third MAD  PATROL 0.7 0.6 0.5 3      
     }
 
 
@@ -219,9 +222,9 @@ driver oneliner
     } -cleanup {
         cleanup
     } -result {
-id oneliner      cause  p   q   driver 
--- ------------- ------ --- --- ------ 
-1  The First MAD UNIQUE 1.0 0.9 -1     
+id oneliner      cause  s   p   q   driver 
+-- ------------- ------ --- --- --- ------ 
+1  The First MAD UNIQUE 1.0 1.0 0.9 -1     
     }
 
 
@@ -266,6 +269,7 @@ driver oneliner
             id       1 
             oneliner Modified
             cause    HUNGER
+            s        0.5
             p        0.1
             q        0.0
         }
@@ -274,9 +278,9 @@ driver oneliner
     } -cleanup {
         cleanup
     } -result {
-id oneliner cause  p   q   driver 
--- -------- ------ --- --- ------ 
-1  Modified HUNGER 0.1 0.0 -1     
+id oneliner cause  s   p   q   driver 
+-- -------- ------ --- --- --- ------ 
+1  Modified HUNGER 0.5 0.1 0.0 -1     
     }
 
 

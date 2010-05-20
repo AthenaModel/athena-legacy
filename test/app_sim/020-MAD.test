@@ -31,6 +31,7 @@ namespace eval ::athena_test::tests:: {
     set m1 {
         oneliner "The First MAD" 
         cause    UNIQUE
+        s        1.0
         p        1.0
         q        0.9
     }
@@ -38,6 +39,7 @@ namespace eval ::athena_test::tests:: {
     set m2 {
         oneliner "The Second MAD"
         cause    CIVCAS
+        s        0.9
         p        0.8
         q        0.7
     }
@@ -45,12 +47,12 @@ namespace eval ::athena_test::tests:: {
     set m3 {
         oneliner "The Third MAD"
         cause    PATROL
+        s        0.7
         p        0.6
         q        0.5
     }
 
     # Set up for magic inputs
-
     proc advance {} {
         variable m1
 
@@ -76,6 +78,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
         oneliner {required value}
         cause {required value}
+        s {required value}
         p {required value}
         q {required value}
     }
@@ -92,7 +95,18 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.3 {invalid p} -setup {
+    test CREATE-1.3 {invalid s} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:CREATE [dict merge $m1 {s NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        s {invalid value "NONESUCH", should be a real number in range 0.0, 1.0}
+    }
+
+
+    test CREATE-1.4 {invalid p} -setup {
         advance
     } -body {
         ted order -reject MAD:CREATE [dict merge $m1 {p NONESUCH}]
@@ -103,7 +117,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.4 {invalid q} -setup {
+    test CREATE-1.5 {invalid q} -setup {
         advance
     } -body {
         ted order -reject MAD:CREATE [dict merge $m1 {q NONESUCH}]
@@ -126,11 +140,11 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-id oneliner       cause  p   q   driver 
--- -------------- ------ --- --- ------ 
-1  The First MAD  UNIQUE 1.0 0.9 -1     
-2  The Second MAD CIVCAS 0.8 0.7 -1     
-3  The Third MAD  PATROL 0.6 0.5 -1     
+id oneliner       cause  s   p   q   driver 
+-- -------------- ------ --- --- --- ------ 
+1  The First MAD  UNIQUE 1.0 1.0 0.9 -1     
+2  The Second MAD CIVCAS 0.9 0.8 0.7 -1     
+3  The Third MAD  PATROL 0.7 0.6 0.5 -1     
     }
 
 
@@ -245,7 +259,18 @@ id oneliner       cause  p   q   driver
     }
 
 
-    test UPDATE-1.4 {invalid p} -setup {
+    test UPDATE-1.4 {invalid s} -setup {
+        advance
+    } -body {
+        ted order -reject MAD:UPDATE id 1 s NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        s {invalid value "NONESUCH", should be a real number in range 0.0, 1.0}
+    }
+
+
+    test UPDATE-1.5 {invalid p} -setup {
         advance
     } -body {
         ted order -reject MAD:UPDATE id 1 p NONESUCH
@@ -256,7 +281,7 @@ id oneliner       cause  p   q   driver
     }
 
 
-    test UPDATE-1.5 {invalid q} -setup {
+    test UPDATE-1.6 {invalid q} -setup {
         advance
     } -body {
         ted order -reject MAD:UPDATE id 1 q NONESUCH
@@ -274,6 +299,7 @@ id oneliner       cause  p   q   driver
             id       1 
             oneliner "MAD the First"
             cause    GUARD
+            s        0.5
             p        0.1
             q        0.0
         }
@@ -282,9 +308,9 @@ id oneliner       cause  p   q   driver
     } -cleanup {
         cleanup
     } -result {
-id oneliner      cause p   q   driver 
--- ------------- ----- --- --- ------ 
-1  MAD the First GUARD 0.1 0.0 -1     
+id oneliner      cause s   p   q   driver 
+-- ------------- ----- --- --- --- ------ 
+1  MAD the First GUARD 0.5 0.1 0.0 -1     
     }
 
 
