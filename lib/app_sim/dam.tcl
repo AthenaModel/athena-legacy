@@ -385,57 +385,53 @@ snit::type dam {
 
         rdb eval {
             SELECT id, itype, etype, n, f, g, c, slope, climit, days,
-                   cause, s, p, q
+                   cause, s, p, q, athresh, dthresh
             FROM dam_inputs
         } {
             incr got($itype)
 
+            set opts [list \
+                          -cause   $cause    \
+                          -s       $s        \
+                          -p       $p        \
+                          -q       $q        \
+                          -athresh $athresh  \
+                          -dthresh $dthresh]
+
             if {$itype eq "sat" && $etype eq "LEVEL"} {
                 set dinput [aram sat level $input(driver) \
-                               [simclock now]          \
-                               $n                      \
-                               $f                      \
-                               $c                      \
-                               $climit                 \
-                               $days                   \
-                               -s     $s               \
-                               -p     $p               \
-                               -q     $q               \
-                               -cause $cause]
+                                [simclock now]            \
+                                $n                        \
+                                $f                        \
+                                $c                        \
+                                $climit                   \
+                                $days                     \
+                                {*}$opts]
             } elseif {$itype eq "sat" && $etype eq "SLOPE"} {
                 set dinput [aram sat slope $input(driver) \
-                               [simclock now]          \
-                               $n                      \
-                               $f                      \
-                               $c                      \
-                               $slope                  \
-                               -s     $s               \
-                               -p     $p               \
-                               -q     $q               \
-                               -cause $cause]
+                                [simclock now]            \
+                                $n                        \
+                                $f                        \
+                                $c                        \
+                                $slope                    \
+                                {*}$opts]
             } elseif {$itype eq "coop" && $etype eq "LEVEL"} {
                 set dinput [aram coop level $input(driver) \
-                               [simclock now]           \
-                               $n                       \
-                               $f                       \
-                               $g                       \
-                               $climit                  \
-                               $days                    \
-                               -s     $s                \
-                               -p     $p                \
-                               -q     $q                \
-                               -cause $cause]
+                                [simclock now]             \
+                                $n                         \
+                                $f                         \
+                                $g                         \
+                                $climit                    \
+                                $days                      \
+                                {*}$opts]
             } elseif {$itype eq "coop" && $etype eq "SLOPE"} {
                 set dinput [aram coop slope $input(driver) \
-                               [simclock now]           \
-                               $n                       \
-                               $f                       \
-                               $g                       \
-                               $slope                   \
-                               -s     $s                \
-                               -p     $p                \
-                               -q     $q                \
-                               -cause $cause]
+                                [simclock now]             \
+                                $n                         \
+                                $f                         \
+                                $g                         \
+                                $slope                     \
+                                {*}$opts]
             }
 
             # NEXT, add the inputId to the dam_inputs
@@ -499,12 +495,14 @@ snit::type dam {
                        format('%g days',days),
                        format('%4.2f',s),
                        format('%4.2f',p),
-                       format('%4.2f',q)
+                       format('%4.2f',q),
+                       format('%6.2f', athresh),
+                       format('%6.2f', dthresh)
                 FROM dam_inputs
                 WHERE itype = 'sat' AND etype = 'LEVEL'
             } -labels {
                 "Input" "Nbhood" "Group" "Con" "Cause" "Limit" "Days" 
-                "Here" "Near" "Far"
+                "Here" "Near" "Far" "AThresh" "DThresh"
             }]
         
         if {$table ne ""} {
@@ -523,12 +521,14 @@ snit::type dam {
                        format('%6.2f (%s)',slope,qmag('name',slope)),
                        format('%4.2f',s),
                        format('%4.2f',p),
-                       format('%4.2f',q)
+                       format('%4.2f',q),
+                       format('%6.2f', athresh),
+                       format('%6.2f', dthresh)
                 FROM dam_inputs
                 WHERE itype = 'sat' AND etype = 'SLOPE'
             } -labels {
                 "Input" "Nbhood" "Group" "Con" "Cause" "Slope"
-                "Here" "Near" "Far"
+                "Here" "Near" "Far" "AThresh" "DThresh"
             }]
 
         if {$table ne ""} {
@@ -548,12 +548,14 @@ snit::type dam {
                        format('%g days',days),
                        format('%4.2f',s),
                        format('%4.2f',p),
-                       format('%4.2f',q)
+                       format('%4.2f',q),
+                       format('%6.2f', athresh),
+                       format('%6.2f', dthresh)
                 FROM dam_inputs
                 WHERE itype = 'coop' AND etype = 'LEVEL'
             } -labels {
                 "Input" "Nbhood" "Civ" "Frc" "Cause" "Limit" "Days" 
-                "Here" "Near" "Far"
+                "Here" "Near" "Far" "AThresh" "DThresh"
             }]
         
         if {$table ne ""} {
@@ -572,12 +574,14 @@ snit::type dam {
                        format('%6.2f (%s)',slope,qmag('name',slope)),
                        format('%4.2f',s),
                        format('%4.2f',p),
-                       format('%4.2f',q)
+                       format('%4.2f',q),
+                       format('%6.2f', athresh),
+                       format('%6.2f', dthresh)
                 FROM dam_inputs
                 WHERE itype = 'coop' AND etype = 'SLOPE'
             } -labels {
                 "Input" "Nbhood" "Civ" "Frc" "Cause" "Slope"
-                "Here" "Near" "Far"
+                "Here" "Near" "Far" "AThresh" "DThresh"
             }]
 
         if {$table ne ""} {
@@ -645,14 +649,16 @@ snit::type dam {
     # Options:
     #   The following default to values given for "rule".
     #
-    #     -n      Name of affected neighborhood, or *.  Required if
-    #             not specified by "ruleset" or "rule".
-    #     -f      Name of affected group or groups.  Required if
-    #             not specified by "ruleset" or "rule".
-    #     -cause  Cause of this input (ecause)
-    #     -s      Here effects multiplier
-    #     -p      Near effects multiplier
-    #     -q      Far effects multiplier
+    #     -n        Name of affected neighborhood, or *.  Required if
+    #               not specified by "ruleset" or "rule".
+    #     -f        Name of affected group or groups.  Required if
+    #               not specified by "ruleset" or "rule".
+    #     -cause    Cause of this input (ecause)
+    #     -s        Here effects multiplier
+    #     -p        Near effects multiplier
+    #     -q        Far effects multiplier
+    #     -athresh  Ascending threshold
+    #     -dthresh  Descending threshold
     #
     # Adds a level effect to a set of inputs.
 
@@ -661,7 +667,9 @@ snit::type dam {
         LogFiring
 
         # NEXT, get the option defaults and values
-        set opts [GetOpts args $input(ruledefs)]
+        set opts [GetOpts args \
+                      [dict merge $input(ruledefs) \
+                           [list -athresh 100.0 -dthresh -100.0]]]
 
         set n     [dict get $opts -n]
         set flist [dict get $opts -f]
@@ -678,24 +686,26 @@ snit::type dam {
                     [dict get $opts -cause]      \
                     [dict get $opts -s]          \
                     [dict get $opts -p]          \
-                    [dict get $opts -q]
+                    [dict get $opts -q]          \
+                    [dict get $opts -athresh]    \
+                    [dict get $opts -dthresh]
 
             }
         }
     }
 
-    # SatLevel n f c limit days cause s p q
+    # SatLevel n f c limit days cause s p q athresh dthresh
     #
     # Saves a single GRAM input
 
-    proc SatLevel {n f c limit days cause s p q} {
+    proc SatLevel {n f c limit days cause s p q athresh dthresh} {
         # NEXT, update the level per the input gain.
         let limit {[parmdb get dam.$input(rule).satgain] * [qmag value $limit]}
 
         # NEXT, add this input to the dam_inputs
         rdb eval {
             INSERT INTO dam_inputs(
-                itype,etype,n,f,c,cause,climit,days,s,p,q
+                itype,etype,n,f,c,cause,climit,days,s,p,q,athresh,dthresh
             ) VALUES(
                 'sat',
                 'LEVEL',
@@ -707,7 +717,9 @@ snit::type dam {
                 $days,
                 $s,
                 $p,
-                $q
+                $q,
+                $athresh,
+                $dthresh
             );
         }
     }
@@ -720,14 +732,16 @@ snit::type dam {
     # Options: 
     #   The following default to values given for "rule".
     #
-    #     -n      Name of affected neighborhood, or *.  Required if
-    #             not specified by "ruleset" or "rule".
-    #     -f      Name of affected group or groups.  Required if
-    #             not specified by "ruleset" or "rule".
-    #     -cause  Cause of this input (ecause)
-    #     -s      Here effects multiplier
-    #     -p      Near effects multiplier
-    #     -q      Far effects multiplier
+    #     -n        Name of affected neighborhood, or *.  Required if
+    #               not specified by "ruleset" or "rule".
+    #     -f        Name of affected group or groups.  Required if
+    #               not specified by "ruleset" or "rule".
+    #     -cause    Cause of this input (ecause)
+    #     -s        Here effects multiplier
+    #     -p        Near effects multiplier
+    #     -q        Far effects multiplier
+    #     -athresh  Ascending threshold
+    #     -dthresh  Descending threshold
     #
     # Adds a slope effect to a set of inputs, and submits it to GRAM
 
@@ -736,7 +750,9 @@ snit::type dam {
         LogFiring
 
         # NEXT, get the option defaults and values
-        set opts [GetOpts args $input(ruledefs)]
+        set opts [GetOpts args \
+                      [dict merge $input(ruledefs) \
+                           [list -athresh 100.0 -dthresh -100.0]]]
 
         set n     [dict get $opts -n]
         set flist [dict get $opts -f]
@@ -749,27 +765,29 @@ snit::type dam {
         # NEXT, do each of the inputs
         foreach f $flist {
             foreach {con slope} $args {
-                SatSlope $n $f $con $slope   \
-                    [dict get $opts -cause]  \
-                    [dict get $opts -s]      \
-                    [dict get $opts -p]      \
-                    [dict get $opts -q]
+                SatSlope $n $f $con $slope    \
+                    [dict get $opts -cause]   \
+                    [dict get $opts -s]       \
+                    [dict get $opts -p]       \
+                    [dict get $opts -q]       \
+                    [dict get $opts -athresh] \
+                    [dict get $opts -dthresh]
             }
         }
     }
 
-    # SatSlope n f c slope cause s p q
+    # SatSlope n f c slope cause s p q athresh dthresh
     #
     # Saves a single GRAM input
 
-    proc SatSlope {n f c slope cause s p q} {
+    proc SatSlope {n f c slope cause s p q athresh dthresh} {
         # FIRST, update the slope per the input gain.
         let slope {[parmdb get dam.$input(rule).satgain] * [qmag value $slope]}
 
         # NEXT, add this input to the dam_inputs
         rdb eval {
             INSERT INTO dam_inputs(
-                itype,etype,n,f,c,cause,slope,s,p,q
+                itype,etype,n,f,c,cause,slope,s,p,q,athresh,dthresh
             ) VALUES(
                 'sat',
                 'SLOPE',
@@ -780,7 +798,9 @@ snit::type dam {
                 $slope,
                 $s,
                 $p,
-                $q
+                $q,
+                $athresh,
+                $dthresh
             );
         }
     }
@@ -819,7 +839,7 @@ snit::type dam {
             foreach con $args {
                 SatSlope $n $f $con 0       \
                     [dict get $opts -cause] \
-                    0 0 0
+                    0 0 0 100.0 -100.0
             }
         }
     }
@@ -835,15 +855,17 @@ snit::type dam {
     # Options:
     #   The following default to values given for "rule".
     #
-    #     -doer   Names of the doing groups
-    #     -n      Name of affected neighborhood, or *.  Required if
-    #             not specified by "ruleset" or "rule".
-    #     -f      Name of affected group or groups.  Required if
-    #             not specified by "ruleset" or "rule".
-    #     -cause  Cause of this input (ecause)
-    #     -s      Here effects multiplier
-    #     -p      Near effects multiplier
-    #     -q      Far effects multiplier
+    #     -doer     Names of the doing groups
+    #     -n        Name of affected neighborhood, or *.  Required if
+    #               not specified by "ruleset" or "rule".
+    #     -f        Name of affected group or groups.  Required if
+    #               not specified by "ruleset" or "rule".
+    #     -cause    Cause of this input (ecause)
+    #     -s        Here effects multiplier
+    #     -p        Near effects multiplier
+    #     -q        Far effects multiplier
+    #     -athresh  Ascending threshold
+    #     -dthresh  Descending threshold
     #
     # Adds a level effect to a set of inputs, and submits it to GRAM.
 
@@ -852,7 +874,9 @@ snit::type dam {
         LogFiring
 
         # NEXT, get the option defaults and values
-        set opts [GetOpts args $input(ruledefs)]
+        set opts [GetOpts args \
+                      [dict merge $input(ruledefs) \
+                           [list -athresh 100.0 -dthresh 0.0]]]
 
         set n     [dict get $opts -n]
         set flist [dict get $opts -f]
@@ -868,21 +892,23 @@ snit::type dam {
                 foreach doer [dict get $opts -doer] {
                     if {$doer in [frcgroup names]} {
                         CoopLevel $n $f $doer $limit $days \
-                            [dict get $opts -cause]         \
-                            [dict get $opts -s]             \
-                            [dict get $opts -p]             \
-                            [dict get $opts -q]
+                            [dict get $opts -cause]        \
+                            [dict get $opts -s]            \
+                            [dict get $opts -p]            \
+                            [dict get $opts -q]            \
+                            [dict get $opts -athresh]      \
+                            [dict get $opts -dthresh]
                     }
                 }
             }
         }
     }
 
-    # CoopLevel n f g limit days cause s p q
+    # CoopLevel n f g limit days cause s p q athresh dthresh
     #
     # Enters a single GRAM input
 
-    proc CoopLevel {n f g limit days cause s p q} {
+    proc CoopLevel {n f g limit days cause s p q athresh dthresh} {
         # NEXT, update the level per the input gain
         let limit {
             [parmdb get dam.$input(rule).coopgain] * [qmag value $limit]
@@ -891,7 +917,7 @@ snit::type dam {
         # NEXT, add this input to the dam_inputs
         rdb eval {
             INSERT INTO dam_inputs(
-                itype,etype,n,f,g,cause,climit,days,s,p,q
+                itype,etype,n,f,g,cause,climit,days,s,p,q,athresh,dthresh
             ) VALUES(
                 'coop',
                 'LEVEL',
@@ -903,7 +929,9 @@ snit::type dam {
                 $days,
                 $s,
                 $p,
-                $q
+                $q,
+                $athresh,
+                $dthresh
             );
         }
     }
@@ -915,15 +943,17 @@ snit::type dam {
     # Options: 
     #   The following default to values given for "rule".
     #
-    #     -doer   Names of the doing groups
-    #     -n      Name of affected neighborhood, or *.  Required if
-    #             not specified by "ruleset" or "rule".
-    #     -f      Name of affected group or groups.  Required if
-    #             not specified by "ruleset" or "rule".
-    #     -cause  Cause of this input (ecause)
-    #     -s      Near effects multiplier
-    #     -p      Near effects multiplier
-    #     -q      Far effects multiplier
+    #     -doer     Names of the doing groups
+    #     -n        Name of affected neighborhood, or *.  Required if
+    #               not specified by "ruleset" or "rule".
+    #     -f        Name of affected group or groups.  Required if
+    #               not specified by "ruleset" or "rule".
+    #     -cause    Cause of this input (ecause)
+    #     -s        Near effects multiplier
+    #     -p        Near effects multiplier
+    #     -q        Far effects multiplier
+    #     -athresh  Ascending threshold
+    #     -dthresh  Descending threshold
     #
     # Adds a slope effect to a set of inputs, and submits it to GRAM
 
@@ -932,7 +962,9 @@ snit::type dam {
         LogFiring
 
         # NEXT, get the option defaults and values
-        set opts [GetOpts args $input(ruledefs)]
+        set opts [GetOpts args \
+                      [dict merge $input(ruledefs) \
+                           [list -athresh 100.0 -dthresh 0.0]]]
 
         set n     [dict get $opts -n]
         set flist [dict get $opts -f]
@@ -952,17 +984,19 @@ snit::type dam {
                         [dict get $opts -cause]   \
                         [dict get $opts -s]       \
                         [dict get $opts -p]       \
-                        [dict get $opts -q]
+                        [dict get $opts -q]       \
+                        [dict get $opts -athresh] \
+                        [dict get $opts -dthresh]
                 }
             }
         }
     }
 
-    # CoopSlope n f g slope cause p q
+    # CoopSlope n f g slope cause p q athresh dthresh
     #
     # Saves a single GRAM input
 
-    proc CoopSlope {n f g slope cause s p q} {
+    proc CoopSlope {n f g slope cause s p q athresh dthresh} {
         # FIRST, update the slope per the input gain.
         let slope {
             [parmdb get dam.$input(rule).coopgain] * [qmag value $slope]
@@ -970,7 +1004,7 @@ snit::type dam {
 
         rdb eval {
             INSERT INTO dam_inputs(
-                itype,etype,n,f,g,cause,slope,s,p,q
+                itype,etype,n,f,g,cause,slope,s,p,q,athresh,dthresh
             ) VALUES(
                 'coop',
                 'SLOPE',
@@ -981,7 +1015,9 @@ snit::type dam {
                 $slope,
                 $s,
                 $p,
-                $q
+                $q,
+                $athresh,
+                $dthresh
             );
         }
     }
@@ -1020,7 +1056,7 @@ snit::type dam {
                 if {$doer in [frcgroup names]} {
                     CoopSlope $n $f $doer 0 \
                         [dict get $opts -cause] \
-                        0 0 0
+                        0 0 0 100.0 0.0
                 }
             }
         }

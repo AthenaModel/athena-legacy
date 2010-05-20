@@ -27,6 +27,8 @@ CREATE TEMP TABLE dam_inputs (
     cause,            -- Cause name (ecause)
     s,                -- Here effects multiplier
     p,                -- Near effects multiplier
-    q                 -- Far effects multiplier
+    q,                -- Far effects multiplier
+    athresh,          -- Ascending threshold
+    dthresh           -- Descending threshold
 );
 
