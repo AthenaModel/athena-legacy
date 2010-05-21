@@ -640,18 +640,19 @@ NB1 SHIA AUT 0.0
         mad mutate create $m1
     } -body {
         mad mutate satlevel {
-            n NB1 g SHIA c AUT mad 1 limit 5 days 1
+            n NB1 g SHIA c AUT mad 1 limit 5 days 1 athresh 50 dthresh -50
         }
 
         ted query {
-            SELECT etype,cause,ts,n,g,c,llimit,days FROM gram_sat_effects
+            SELECT etype,cause,ts,n,g,c,llimit,days,athresh,dthresh
+            FROM gram_sat_effects
         }
     } -cleanup {
         cleanup
     } -result {
-etype cause   ts n   g    c   llimit days 
------ ------- -- --- ---- --- ------ ---- 
-L     MAD0001 1  NB1 SHIA AUT 5.0    1.0  
+etype cause   ts n   g    c   llimit days athresh dthresh 
+----- ------- -- --- ---- --- ------ ---- ------- ------- 
+L     MAD0001 1  NB1 SHIA AUT 5.0    1.0  50.0    -50.0   
     }
 
 
@@ -661,7 +662,7 @@ L     MAD0001 1  NB1 SHIA AUT 5.0    1.0
         mad mutate create $m1
     } -body {
         mad mutate satlevel {
-            n NB1 g SHIA c AUT mad 1 limit 5 days 1
+            n NB1 g SHIA c AUT mad 1 limit 5 days 1 athresh 50 dthresh -50
         }
 
         rdb eval {
@@ -681,18 +682,19 @@ L     MAD0001 1  NB1 SHIA AUT 5.0    1.0
         mad mutate create $m1
     } -body {
         mad mutate satslope {
-            n NB1 g SHIA c AUT mad 1 slope 5
+            n NB1 g SHIA c AUT mad 1 slope 5 athresh 50 dthresh -50
         }
 
         ted query {
-            SELECT etype,cause,ts,n,g,c,slope FROM gram_sat_effects
+            SELECT etype,cause,ts,n,g,c,slope,athresh,dthresh 
+            FROM gram_sat_effects
         }
     } -cleanup {
         cleanup
     } -result {
-etype cause   ts n   g    c   slope 
------ ------- -- --- ---- --- ----- 
-S     MAD0001 1  NB1 SHIA AUT 5.0   
+etype cause   ts n   g    c   slope athresh dthresh 
+----- ------- -- --- ---- --- ----- ------- ------- 
+S     MAD0001 1  NB1 SHIA AUT 5.0   50.0    -50.0   
     }
 
 
@@ -702,7 +704,7 @@ S     MAD0001 1  NB1 SHIA AUT 5.0
         mad mutate create $m1
     } -body {
         mad mutate satslope {
-            n NB1 g SHIA c AUT mad 1 slope 5
+            n NB1 g SHIA c AUT mad 1 slope 5 athresh 50 dthresh -50
         }
 
         rdb eval {
@@ -974,18 +976,19 @@ NB1 SHIA BLUE 0.0
         mad mutate create $m1
     } -body {
         mad mutate cooplevel {
-            n NB1 f SHIA g BLUE mad 1 limit 5 days 1
+            n NB1 f SHIA g BLUE mad 1 limit 5 days 1 athresh 50 dthresh 10
         }
 
         ted query {
-            SELECT etype,cause,ts,n,f,g,llimit,days FROM gram_coop_effects
+            SELECT etype,cause,ts,n,f,g,llimit,days,athresh,dthresh
+            FROM gram_coop_effects
         }
     } -cleanup {
         cleanup
     } -result {
-etype cause   ts n   f    g    llimit days 
------ ------- -- --- ---- ---- ------ ---- 
-L     MAD0001 1  NB1 SHIA BLUE 5.0    1.0  
+etype cause   ts n   f    g    llimit days athresh dthresh 
+----- ------- -- --- ---- ---- ------ ---- ------- ------- 
+L     MAD0001 1  NB1 SHIA BLUE 5.0    1.0  50.0    10.0    
     }
 
 
@@ -995,7 +998,7 @@ L     MAD0001 1  NB1 SHIA BLUE 5.0    1.0
         mad mutate create $m1
     } -body {
         mad mutate cooplevel {
-            n NB1 f SHIA g BLUE mad 1 limit 5 days 1
+            n NB1 f SHIA g BLUE mad 1 limit 5 days 1 athresh 50 dthresh 10
         }
 
         rdb eval {
@@ -1015,18 +1018,19 @@ L     MAD0001 1  NB1 SHIA BLUE 5.0    1.0
         mad mutate create $m1
     } -body {
         mad mutate coopslope {
-            n NB1 f SHIA g BLUE mad 1 slope 5
+            n NB1 f SHIA g BLUE mad 1 slope 5 athresh 50 dthresh 10
         }
 
         ted query {
-            SELECT etype,cause,ts,n,f,g,slope FROM gram_coop_effects
+            SELECT etype,cause,ts,n,f,g,slope,athresh,dthresh
+            FROM gram_coop_effects
         }
     } -cleanup {
         cleanup
     } -result {
-etype cause   ts n   f    g    slope 
------ ------- -- --- ---- ---- ----- 
-S     MAD0001 1  NB1 SHIA BLUE 5.0   
+etype cause   ts n   f    g    slope athresh dthresh 
+----- ------- -- --- ---- ---- ----- ------- ------- 
+S     MAD0001 1  NB1 SHIA BLUE 5.0   50.0    10.0    
     }
 
 
@@ -1036,7 +1040,7 @@ S     MAD0001 1  NB1 SHIA BLUE 5.0
         mad mutate create $m1
     } -body {
         mad mutate coopslope {
-            n NB1 f SHIA g BLUE mad 1 slope 5
+            n NB1 f SHIA g BLUE mad 1 slope 5 athresh 50 dthresh 10
         }
 
         rdb eval {
@@ -1056,11 +1060,11 @@ S     MAD0001 1  NB1 SHIA BLUE 5.0
         mad mutate create $m2
 
         mad mutate satslope {
-            n NB1 g SHIA c AUT mad 1 slope 5
+            n NB1 g SHIA c AUT mad 1 slope 5 athresh 50 dthresh -50
         }
 
         mad mutate satslope {
-            n NB1 g SHIA c QOL mad 2 slope 5
+            n NB1 g SHIA c QOL mad 2 slope 5 athresh 50 dthresh -50
         }
     } -body {
         mad mutate terminate 1

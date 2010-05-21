@@ -497,6 +497,8 @@ snit::type mad {
     #    mad              MAD ID
     #    level            A qmag(n) value
     #    days             An rdays(n) value
+    #    athresh          Ascending threshold, a qsat(n) value
+    #    dthresh          Descending threshold, a qsat(n) value
     #
     # Makes the MAGIC-1-1 rule fire for the given input.
     
@@ -525,7 +527,10 @@ snit::type mad {
             detail "GRAM Driver ID:"        $driver
 
             dam rule MAGIC-1-1 {1} {
-                dam sat level $c $limit $days
+                dam sat level         \
+                    -athresh $athresh \
+                    -dthresh $dthresh \
+                    $c $limit $days
             }
         }
 
@@ -543,6 +548,8 @@ snit::type mad {
     #    c                Concern
     #    mad              MAD ID
     #    slope            A qmag(n) value
+    #    athresh          Ascending threshold, a qsat(n) value
+    #    dthresh          Descending threshold, a qsat(n) value
     #
     # Makes the MAGIC-1-2 rule fire for the given input.
     
@@ -571,7 +578,10 @@ snit::type mad {
             detail "GRAM Driver ID:"        $driver
 
             dam rule MAGIC-1-2 {1} {
-                dam sat slope $c $slope
+                dam sat slope         \
+                    -athresh $athresh \
+                    -dthresh $dthresh \
+                    $c $slope
             }
         }
 
@@ -732,6 +742,8 @@ snit::type mad {
     #    mad              MAD ID
     #    level            A qmag(n) value
     #    days             An rdays(n) value
+    #    athresh          Ascending threshold, a qcooperation(n) value
+    #    dthresh          Descending threshold, a qcooperation(n) value
     #
     # Makes the MAGIC-2-1 rule fire for the given input.
     
@@ -761,7 +773,10 @@ snit::type mad {
             detail "GRAM Driver ID:"        $driver
 
             dam rule MAGIC-2-1 {1} {
-                dam coop level -- $limit $days
+                dam coop level        \
+                    -athresh $athresh \
+                    -dthresh $dthresh \
+                    -- $limit $days
             }
         }
 
@@ -779,6 +794,8 @@ snit::type mad {
     #    g                Force Group ID
     #    mad              MAD ID
     #    slope            A qmag(n) value
+    #    athresh          Ascending threshold, a qcooperation(n) value
+    #    dthresh          Descending threshold, a qcooperation(n) value
     #
     # Makes the MAGIC-2-2 rule fire for the given input.
     
@@ -808,7 +825,10 @@ snit::type mad {
             detail "GRAM Driver ID:"        $driver
 
             dam rule MAGIC-2-2 {1} {
-                dam coop slope -- $slope
+                dam coop slope        \
+                    -athresh $athresh \
+                    -dthresh $dthresh \
+                    -- $slope
             }
         }
 
@@ -1160,15 +1180,19 @@ order define ::mad MAD:SAT:LEVEL {
         -refreshcmd [list ::mad RefreshConcern]
     parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
     parm limit     text  "Limit"
-    parm days      text  "Realization Time" -defval 2.0
+    parm days      text  "Realization Time"    -defval 2.0
+    parm athresh   text  "Ascending Theshold"  -defval 100.0
+    parm dthresh   text  "Descending Theshold" -defval -100.0
 } {
     # FIRST, prepare the parameters
-    prepare n     -toupper -required -type nbhood
-    prepare g     -toupper -required -type {ptype satg}
-    prepare c     -toupper -required -type {ptype c}
-    prepare mad            -required -type mad
-    prepare limit -toupper -required -type qmag -xform [list qmag value]
-    prepare days           -required -type rdays
+    prepare n       -toupper -required -type nbhood
+    prepare g       -toupper -required -type {ptype satg}
+    prepare c       -toupper -required -type {ptype c}
+    prepare mad              -required -type mad
+    prepare limit   -toupper -required -type qmag -xform [list qmag value]
+    prepare days             -required -type rdays
+    prepare athresh          -required -type qsat -xform [list qsat value]
+    prepare dthresh          -required -type qsat -xform [list qsat value]
 
     returnOnError
 
@@ -1209,13 +1233,17 @@ order define ::mad MAD:SAT:SLOPE {
         -refreshcmd [list ::mad RefreshConcern]
     parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
     parm slope     text  "Slope"
+    parm athresh   text  "Ascending Theshold"  -defval 100.0
+    parm dthresh   text  "Descending Theshold" -defval -100.0
 } {
     # FIRST, prepare the parameters
-    prepare n     -toupper -required -type nbhood
-    prepare g     -toupper -required -type {ptype satg}
-    prepare c     -toupper -required -type {ptype c}
-    prepare mad            -required -type mad
-    prepare slope -toupper -required -type qmag -xform [list qmag value]
+    prepare n       -toupper -required -type nbhood
+    prepare g       -toupper -required -type {ptype satg}
+    prepare c       -toupper -required -type {ptype c}
+    prepare mad              -required -type mad
+    prepare slope   -toupper -required -type qmag -xform [list qmag value]
+    prepare athresh          -required -type qsat -xform [list qsat value]
+    prepare dthresh          -required -type qsat -xform [list qsat value]
 
     returnOnError
 
@@ -1337,14 +1365,20 @@ order define ::mad MAD:COOP:LEVEL {
     parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
     parm limit     text  "Limit"
     parm days      text  "Days"                       -defval 2.0
+    parm athresh   text  "Ascending Theshold"  -defval 100.0
+    parm dthresh   text  "Descending Theshold" -defval 0.0
 } {
     # FIRST, prepare the parameters
-    prepare n     -toupper -required -type nbhood
-    prepare f     -toupper -required -type civgroup
-    prepare g     -toupper -required -type frcgroup
-    prepare mad            -required -type mad
-    prepare limit -toupper -required -type qmag -xform [list qmag value]
-    prepare days           -required -type rdays
+    prepare n       -toupper -required -type nbhood
+    prepare f       -toupper -required -type civgroup
+    prepare g       -toupper -required -type frcgroup
+    prepare mad              -required -type mad
+    prepare limit   -toupper -required -type qmag -xform [list qmag value]
+    prepare days             -required -type rdays
+    prepare athresh          -required -type qcooperation \
+        -xform [list qcooperation value]
+    prepare dthresh          -required -type qcooperation \
+        -xform [list qcooperation value]
 
     returnOnError -final
 
@@ -1370,13 +1404,19 @@ order define ::mad MAD:COOP:SLOPE {
     parm g         enum  "With Group"    -tags group -type frcgroup
     parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
     parm slope     text  "Slope"
+    parm athresh   text  "Ascending Theshold"  -defval 100.0
+    parm dthresh   text  "Descending Theshold" -defval 0.0
 } {
     # FIRST, prepare the parameters
-    prepare n     -toupper -required -type nbhood
-    prepare f     -toupper -required -type civgroup
-    prepare g     -toupper -required -type frcgroup
-    prepare mad            -required -type mad
-    prepare slope -toupper -required -type qmag -xform [list qmag value]
+    prepare n       -toupper -required -type nbhood
+    prepare f       -toupper -required -type civgroup
+    prepare g       -toupper -required -type frcgroup
+    prepare mad              -required -type mad
+    prepare slope   -toupper -required -type qmag -xform [list qmag value]
+    prepare athresh          -required -type qcooperation \
+        -xform [list qcooperation value]
+    prepare dthresh          -required -type qcooperation \
+        -xform [list qcooperation value]
 
     returnOnError -final
 

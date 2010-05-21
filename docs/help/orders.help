@@ -1400,6 +1400,20 @@ macro MAD.days {} {
     effect over this number of days.
 }
 
+macro MAD.athresh {} {
+    |<--
+    The ascending threshold for this input, in points.  The input
+    will have no affect on curves whose value is greater than this
+    amount.
+}
+
+macro MAD.dthresh {} {
+    |<--
+    The descending threshold for this input, in points.  The input
+    will have no affect on curves whose value is less than this
+    amount.
+}
+
 macro MAD.cause {} {
     |<--
     The [term cause] for any magic attitude input associated with
@@ -1653,6 +1667,14 @@ order MAD:SAT:LEVEL "Magic Satisfaction Level Input" {
     <b>Required.</b>  <<MAD.days>>
     <</parm>>
 
+    <<parm athresh "Ascending Threshold">>
+    <b>Required.</b>  <<MAD.athresh>>
+    <</parm>>
+
+    <<parm dthresh "Descending Threshold">>
+    <b>Required.</b>  <<MAD.dthresh>>
+    <</parm>>
+
     <</parmlist>>
 
     <b>This order must be scheduled in advance.</b>
@@ -1685,6 +1707,14 @@ order MAD:SAT:SLOPE "Magic Satisfaction Slope Input" {
 
     <<parm slope "Slope">>
     <b>Required.</b>  <<MAD.slope>>
+    <</parm>>
+
+    <<parm athresh "Ascending Threshold">>
+    <b>Required.</b>  <<MAD.athresh>>
+    <</parm>>
+
+    <<parm dthresh "Descending Threshold">>
+    <b>Required.</b>  <<MAD.dthresh>>
     <</parm>>
 
     <</parmlist>>
@@ -1818,6 +1848,14 @@ order MAD:COOP:LEVEL "Magic Cooperation Level Input" {
     <b>Required.</b>  <<MAD.days>>
     <</parm>>
 
+    <<parm athresh "Ascending Threshold">>
+    <b>Required.</b>  <<MAD.athresh>>
+    <</parm>>
+
+    <<parm dthresh "Descending Threshold">>
+    <b>Required.</b>  <<MAD.dthresh>>
+    <</parm>>
+
     <</parmlist>>
 
     <b>This order must be scheduled in advance.</b>
@@ -1851,6 +1889,14 @@ order MAD:COOP:SLOPE "Magic Cooperation Slope Input" {
 
     <<parm slope "Slope">>
     <b>Required.</b>  <<MAD.slope>>
+    <</parm>>
+
+    <<parm athresh "Ascending Threshold">>
+    <b>Required.</b>  <<MAD.athresh>>
+    <</parm>>
+
+    <<parm dthresh "Descending Threshold">>
+    <b>Required.</b>  <<MAD.dthresh>>
     <</parm>>
 
     <</parmlist>>
