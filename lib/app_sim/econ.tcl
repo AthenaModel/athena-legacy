@@ -230,6 +230,15 @@ snit::type econ {
         cge dump $page
     }
 
+    # Type Method: cge
+    #
+    # Returns the cellmodel object for the CGE, for use by 
+    # browsers.
+
+    typemethod cge {} {
+        return $cge
+    }
+
     #-------------------------------------------------------------------
     # Group: Mutators
     #

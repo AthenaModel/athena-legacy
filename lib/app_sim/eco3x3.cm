@@ -102,9 +102,10 @@
 #-----------------------------------------------------------------------
 # Indices
 
-index i   {goods pop else}
-index ing {pop else}
-index j   {goods pop else}
+index i     {goods pop else}
+index ing   {pop else}
+index j     {goods pop else}
+index imost {goods pop}
 
 #=======================================================================
 # Null Page

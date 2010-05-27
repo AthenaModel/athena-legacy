@@ -109,13 +109,13 @@ bin: check_env src
 		-archive $(ARCHIVE)                         \
 		-follow                                     \
 		-pkgref "comm"                              \
-		-pkgref "Img       -require 1.3"            \
-	        -pkgref "snit      -require 2.2"            \
-	        -pkgref "BWidget   -require 1.8"            \
+		-pkgref "Img       -require 1.4"            \
+	        -pkgref "snit      -require 2.3"            \
+	        -pkgref "BWidget   -require 1.9"            \
                 -pkgref "Tktable"                           \
 		-pkgref "treectrl"                          \
-		-pkgref "sqlite3   -require 3.6.17"         \
-		-pkgref "tablelist -require 4.9"            \
+		-pkgref "sqlite3   -require 3.6.23"         \
+		-pkgref "tablelist -require 4.12"           \
 		-pkgref "tdom"                              \
 		-pkgref "textutil::expander"                \
 		-pkgref "Plotchart"                         \

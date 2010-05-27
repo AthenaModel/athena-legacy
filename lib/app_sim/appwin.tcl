@@ -209,9 +209,21 @@ snit::widget appwin {
             script { demogbrowser %W }
         }
 
-        econ {
+        econt {
             label  "Econ"
             parent ""
+            script ""
+        }
+
+        econov {
+            label  "Overview"
+            parent "econt"
+            script { econsheet %W }
+        }
+
+        econcap {
+            label  "Capacity"
+            parent "econt"
             script { econnbrowser %W }
         }
 
