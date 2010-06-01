@@ -158,8 +158,9 @@ snit::type econ {
             }
         }
 
-        # NEXT, save the initial CAP.goods
-        cge set [list In::CAP.goods $CAPgoods]
+        # NEXT, Recompute In through Out given the initial
+        # goods capacity.
+        $type tock
 
         log normal econ "start complete"
     }
