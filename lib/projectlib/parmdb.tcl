@@ -1054,7 +1054,8 @@ snit::type ::projectlib::parmdb {
             "
         }
 
-        
+        $ps setdefault demog.laborForceFraction.DISPLACED 0.4
+        $ps setdefault demog.laborForceFraction.IN_CAMP   0.0
 
         # ensit.* parameters
         $ps subset ensit {

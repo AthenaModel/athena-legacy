@@ -1423,7 +1423,15 @@ tab "ROE/Defend" {
 # Demog
 
 tab "Demog" {
-    The Demog tab displays the current demographics of the playbox.
+    This tab displays the current demographics of the playbox.  It
+    has the following subtabs.<p>
+
+    <<childlinks>>
+}
+
+
+tab "Demog/NbGroup" {
+    This tab displays the current demographics of each neighborhood group.
     The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
@@ -1447,6 +1455,20 @@ tab "Demog" {
     neighborhood: the sum of the implicit and explicit population.
     <</topic>>
 
+    <<topic Subsist.>>The number of people in the group that support
+    themselves by subsistence agriculture, and hence do not
+    participate in the regional economy.
+    <</topic>>
+
+    <<topic Consumers>>The number of people in the group that consume
+    goods and services and hence 
+    <i>do</i> participate in the regional economy.
+    <</topic>>
+
+    <<topic LaborForce>>The number of people in the group that
+    seek paid employment (though they might not find it).
+    <</topic>>
+
     <<topic Implicit>>The implicit population of the group in the 
     neighborhood: those members of the base population who are still
     alive and are not represented as personnel in civilian units.
@@ -1468,6 +1490,62 @@ tab "Demog" {
 
     <<topic Attrition>>The number of personnel lost to this 
     neighborhood group through attrition since time 0.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Demog/Nbhoods" {
+    This tab displays the current demographics of each neighborhood.
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Nbhood>>A neighborhood name.<</topic>>
+
+    <<topic "Local">>Whether the neighborhood is part of the local
+    region or not.  Neighborhoods outside the region do not
+    participate in the regional economy.
+    <</topic>>
+
+    <<topic Population>>The current population of the neighborhood, 
+    including both resident neighborhood groups and displaced personnel.
+    <</topic>>
+    
+    <<topic Subsistence>>The number of people in the neighborhood that
+    support themselves by subsistence agriculture, and hence do not
+    participate in its regional economy.
+    <</topic>>
+
+    <<topic Consumers>>The number of people in the neighborhood that
+    consume goods and services, and hence <i>do</i>
+    participate in its regional economy,  including
+    both neighborhood groups and displaced personnel.
+    <</topic>>
+
+    <<topic LaborForce>>The number of people in the neighborhood that
+    seek paid employment (though they might not find it) including
+    both neighborhood groups and displaced personnel.
+    <</topic>>
+
+    <<topic Displaced>>The total personnel in units that are displaced
+    into this neighborhood from their neighborhood of origin.
+    <</topic>>
+
+    <<topic DispLF>>The number of people in displaced units in this
+    neighborhood that seek paid employment.
     <</topic>>
 
     <</topiclist>>

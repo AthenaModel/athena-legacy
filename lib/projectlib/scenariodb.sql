@@ -725,11 +725,13 @@ CREATE TABLE mads (
 -- which local=1)
 
 CREATE TABLE demog_local (
-    -- Total population (e.g., consumers) in the neighborhood at the
-    -- current time.
+    -- Total population in local neighborhoods at the current time.
     population   INTEGER DEFAULT 0,
 
-    -- Total labor force in the neighborhood at the current time
+    -- Total consumers in local neighborhoods at the current time.
+    consumers    INTEGER DEFAULT 0,
+
+    -- Total labor force in local neighborhoods at the current time
     labor_force  INTEGER DEFAULT 0
 );
 
@@ -739,11 +741,25 @@ CREATE TABLE demog_n (
     -- Symbolic neighborhood name
     n            TEXT PRIMARY KEY,
 
-    -- Total population (e.g., consumers) in the neighborhood at the
-    -- current time.
+    -- Total displaced population in the neighborhood at the current time.
+    displaced    INTEGER DEFAULT 0,
+
+    -- Total displaced labor force in the neighborhood at the current time.
+    displaced_labor_force INTEGER DEFAULT 0,
+
+    -- Total population in the neighborhood at the current time
+    -- (nbgroups + displaced)
     population   INTEGER DEFAULT 0,
 
+    -- Total subsistence population in the neighborhood at the current time
+    subsistence  INTEGER DEFAULT 0,
+
+    -- Total consumers in the neighborhood at the current time
+    -- (nbgroups + displaced)
+    consumers    INTEGER DEFAULT 0,
+
     -- Total labor force in the neighborhood at the current time
+    -- (nbgroups + displaced)
     labor_force  INTEGER DEFAULT 0
 );
 
@@ -767,6 +783,16 @@ CREATE TABLE demog_ng (
 
     -- Implicit population: population implicit in the neighborhood
     implicit       INTEGER DEFAULT 0,
+
+    -- Subsistence population: population doing subsistence agriculture
+    -- and outside the regional economy.
+    subsistence    INTEGER DEFAULT 0,
+
+    -- Consumer population: population within the regional economy
+    consumers      INTEGER DEFAULT 0,
+
+    -- Labor Force: workers available to the regional economy
+    labor_force    INTEGER DEFAULT 0,
 
     -- Total population of this nbgroup in this neighborhood at the
     -- current time.

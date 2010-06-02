@@ -1,14 +1,14 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    demogbrowser.tcl
+#    demognbrowser.tcl
 #
 # AUTHORS:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    demogbrowser(sim) package: Nbhood Group Demographics browser.
+#    demognbrowser(sim) package: Nbhood Demographics browser.
 #
-#    This widget displays a formatted list of demog_ng records.
+#    This widget displays a formatted list of demog_n records.
 #    It is a wrapper around sqlbrowser(n).
 #
 #-----------------------------------------------------------------------
@@ -16,7 +16,7 @@
 #-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widgetadaptor demogbrowser {
+snit::widgetadaptor demognbrowser {
     #-------------------------------------------------------------------
     # Options
 
@@ -31,18 +31,14 @@ snit::widgetadaptor demogbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { n           "Nbhood"                                      }
-        { g           "CivGroup"                                    }
-        { local_name  "Local Name"                                  }
-        { basepop     "BasePop"    -sortmode integer                }
-        { population  "CurrPop"    -sortmode integer -foreground %D }
-        { subsistence "Subsist."   -sortmode integer -foreground %D }
-        { consumers   "Consumers"  -sortmode integer -foreground %D }
-        { labor_force "LaborForce" -sortmode integer -foreground %D }
-        { implicit    "Implicit"   -sortmode integer -foreground %D }
-        { explicit    "Explicit"   -sortmode integer -foreground %D }
-        { displaced   "Displaced"  -sortmode integer -foreground %D }
-        { attrition   "Attrition"  -sortmode integer -foreground %D }
+        { n           "Nbhood"                                       }
+        { local       "Local"                                        }
+        { population  "Population"  -sortmode integer -foreground %D }
+        { subsistence "Subsistence" -sortmode integer -foreground %D }
+        { consumers   "Consumers"   -sortmode integer -foreground %D }
+        { labor_force "LaborForce"  -sortmode integer -foreground %D }
+        { displaced   "Displaced"   -sortmode integer -foreground %D }
+        { dlf         "DispLF"      -sortmode integer -foreground %D }
     }
 
     #--------------------------------------------------------------------
@@ -52,9 +48,9 @@ snit::widgetadaptor demogbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_nbgroups                \
+            -view         gui_nbhoods                 \
             -uid          id                          \
-            -titlecolumns 2                           \
+            -titlecolumns 1                           \
             -reloadon {
                 ::sim <DbSyncB>
                 ::demog <Update>

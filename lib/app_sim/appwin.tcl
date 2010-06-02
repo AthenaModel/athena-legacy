@@ -203,10 +203,22 @@ snit::widget appwin {
             script { defroebrowser %W }
         }
 
-        demog {
-            label  "Demog"
+        demogt {
+            label "Demog"
             parent ""
+            script ""
+        }
+
+        demogng {
+            label  "NbGroups"
+            parent "demogt"
             script { demogbrowser %W }
+        }
+
+        demogn {
+            label  "Nbhoods"
+            parent "demogt"
+            script { demognbrowser %W }
         }
 
         econt {

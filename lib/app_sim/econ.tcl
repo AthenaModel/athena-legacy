@@ -104,8 +104,8 @@ snit::type econ {
         array set data [demog getlocal]
 
         cge set [list \
-                     BasePopulation $data(population)                  \
-                     In::Population $data(population)                  \
+                     BasePopulation $data(consumers)    \
+                     In::Population $data(consumers)    \
                      In::WF         $data(labor_force)]
 
         # NEXT, calibrate the CGE.
@@ -184,7 +184,7 @@ snit::type econ {
         }]
 
         cge set [list \
-                     In::population $data(population)  \
+                     In::population $data(consumers)   \
                      In::WF         $data(labor_force) \
                      In::CAP.goods  $CAPgoods]
 

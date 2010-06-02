@@ -69,8 +69,9 @@ snit::type demog {
         # FIRST, get explicit and displaced personnel.
         rdb eval {
             UPDATE demog_ng
-            SET explicit =  0,
-                displaced = 0
+            SET explicit    = 0,
+                displaced   = 0,
+                labor_force = 0;
         }
 
         rdb eval {
@@ -82,6 +83,7 @@ snit::type demog {
                        THEN personnel ELSE 0 END
                    )                                 AS displaced
             FROM units
+            WHERE origin != 'NONE'
             GROUP BY origin, g
         } {
             rdb eval {
@@ -92,16 +94,49 @@ snit::type demog {
             }
         }
 
-        # NEXT, compute implicit and population
+        # NEXT, Add labor force in units.  Don't adjust for
+        # subsistence; we'll do that when we add in the 
+        # implicit population's contribution.
         rdb eval {
-            SELECT n, g, basepop
+            SELECT n, g, total(personnel) AS personnel, a
+            FROM units
+            WHERE origin = n
+            GROUP by n, g, a
+        } {
+            set LFF [parm get demog.laborForceFraction.$a]
+
+            if {$LFF == 0} {
+                continue
+            }
+
+            rdb eval {
+                UPDATE demog_ng
+                SET labor_force = labor_force + $personnel*$LFF
+                WHERE n=$n AND g=$g;
+            }
+        }
+
+
+        # NEXT, compute implicit, population, subsistence, 
+        # consumers, and implicit labor force.
+        set LFF [parm get demog.laborForceFraction.NONE]
+
+        rdb eval {
+            SELECT n, g, basepop, sap
             FROM nbgroups
         } {
             rdb eval {
                 UPDATE demog_ng
                 SET implicit   = $basepop - explicit  - attrition,
                     population = $basepop - displaced - attrition
-                WHERE n=$n AND g=$g
+                WHERE n=$n AND g=$g;
+
+                UPDATE demog_ng
+                SET subsistence = population*$sap/100.0,
+                    consumers   = population - population*$sap/100.0,
+                    labor_force = (labor_force + implicit * $LFF) *
+                                  (100.0 - $sap)/100.0
+                WHERE n=$n AND g=$g;
             }
         }
     }
@@ -115,47 +150,54 @@ snit::type demog {
     #   ComputeN
 
     typemethod ComputeN {} {
-        # FIRST, initialize the pop() and labor() arrays
-        set dict [rdb eval {SELECT n, 0 FROM nbhoods}]
-        array set pop $dict
-        array set labor $dict
-
-        # NEXT, get total implicit population and labor force
-        set lff [parmdb get demog.laborForceFraction.NONE]
-
+        # FIRST, compute the displaced populationa and displaced 
+        # labor force for each neighborhood.
         rdb eval {
-            SELECT n, total(implicit) AS implicit
-            FROM demog_ng
-            GROUP BY n
-        } {
-            set pop($n) $implicit
-            set labor($n) [expr {$lff * $implicit}]
+            UPDATE demog_n
+            SET displaced             = 0,
+                displaced_labor_force = 0;
         }
 
-        # NEXT, get total personnel
         rdb eval {
             SELECT n, a, total(personnel) AS personnel
             FROM units
-            WHERE gtype='CIV' AND n != ''
+            WHERE gtype='CIV' AND n != origin AND n != ''
             GROUP BY n, a
         } {
-            set pop($n) [expr {$pop($n) + $personnel}]
-            set lff [parmdb get demog.laborForceFraction.$a]
-            set labor($n) [expr {$labor($n) + $lff * $personnel}]
-        }
-
-        # NEXT, save pop and labor
-        foreach n [array names pop] {
-            set P $pop($n)
-            set L $labor($n)
+            set LFF [parm get demog.laborForceFraction.$a]
 
             rdb eval {
                 UPDATE demog_n
-                SET population  = $P,
-                    labor_force = $L
-                WHERE n = $n
+                SET displaced = displaced + $personnel,
+                    displaced_labor_force = 
+                        displaced_labor_force + $LFF*$personnel
+                WHERE n=$n
             }
         }
+
+        # NEXT, compute neighborhood population, consumers, and
+        # labor force given the neighborhood groups and the
+        # displaced personnel.
+        rdb eval {
+            SELECT n,
+                   total(population)  AS population,
+                   total(subsistence) AS subsistence,
+                   total(consumers)   AS consumers, 
+                   total(labor_force) AS labor_force
+            FROM demog_ng
+            GROUP BY n
+        } {
+            rdb eval {
+                UPDATE demog_n
+                SET population  = displaced + $population,
+                    subsistence = $subsistence,
+                    consumers   = displaced + $consumers,
+                    labor_force = displaced_labor_force + $labor_force
+                WHERE n=$n
+            }
+        }
+
+        return
     }
 
     # Type Method: ComputeLocal
@@ -174,7 +216,7 @@ snit::type demog {
             DELETE FROM demog_local;
 
             INSERT INTO demog_local
-            SELECT total(population), total(labor_force)
+            SELECT total(population), total(consumers), total(labor_force)
             FROM demog_n
             JOIN nbhoods USING (n)
             WHERE nbhoods.local = 1;
