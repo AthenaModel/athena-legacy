@@ -33,6 +33,14 @@ namespace eval ::athena_test::tests:: {
         ted cleanup
     }
 
+    proc pprint_demog_ng {} {
+        ted query {
+            SELECT n, g, attrition, explicit, displaced, implicit,
+                   population
+            FROM demog_ng
+        }
+    }
+
     #-------------------------------------------------------------------
     # mutate attritnf
 
@@ -255,7 +263,7 @@ BRIT1 15
         aam mutate attritnf [list n NB1 f SHIA casualties 20 g1 "" g2 ""]
 
         # No error
-        ted query {SELECT * FROM demog_ng}
+        pprint_demog_ng
     } -cleanup {
         cleanup
     } -result {
@@ -270,7 +278,7 @@ NB1 SUNN 0         0        0         1000     1000
         aam mutate attritnf [list n NB1 f SHIA casualties 20 g1 "" g2 ""]
         demog analyze
 
-        ted query {SELECT * FROM demog_ng}
+        pprint_demog_ng
     } -cleanup {
         cleanup
     } -result {
@@ -287,7 +295,7 @@ NB1 SUNN 0         0        0         1000     1000
         aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
         demog analyze
 
-        ted query {SELECT * FROM demog_ng}
+        pprint_demog_ng
     } -cleanup {
         cleanup
     } -result {
@@ -308,7 +316,7 @@ NB1 SUNN 0         0        0         1000     1000
         demog analyze
 
         # No change
-        ted query {SELECT * FROM demog_ng}
+        pprint_demog_ng
     } -cleanup {
         cleanup
     } -result {
@@ -325,7 +333,7 @@ NB1 SUNN 0         0        0         1000     1000
         aam mutate attritnf [list n NB1 f SHIA casualties 1 g1 "" g2 ""]
         demog analyze
 
-        set a [ted query {SELECT * FROM demog_ng}]
+        set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
 
         # Unit should be untouched.
@@ -352,7 +360,7 @@ NB1SHIA1 SHIA NB1    15        100 100  NONE CIV   NB1 0
         aam mutate attritnf [list n NB1 f SHIA casualties 1 g1 "" g2 ""]
         demog analyze
 
-        set a [ted query {SELECT * FROM demog_ng}]
+        set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
 
         # Unit should take the attrition
@@ -382,7 +390,7 @@ NB1SHIA1 SHIA NB1    699       100 100  NONE CIV   NB1 0
         aam mutate attritnf [list n NB1 f SHIA casualties 15 g1 "" g2 ""]
         demog analyze
 
-        set a [ted query {SELECT * FROM demog_ng}]
+        set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
 
         # Unit should take 1
@@ -410,7 +418,7 @@ NB1SHIA2 SHIA NB1    197       100 100  NONE CIV   NB1 0
         aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
         demog analyze
 
-        set a [ted query {SELECT * FROM demog_ng}]
+        set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
 
         # 1 implicit left.
@@ -499,7 +507,7 @@ id n   f    g    casualties
     } -body {
         eval [join $undo \n]
 
-        set a [ted query {SELECT * FROM demog_ng}]
+        set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
         set c [ted query {SELECT * FROM attrit_nf}]
         set d [ted query {SELECT * FROM attrit_nfg}]
@@ -553,7 +561,7 @@ NB1SHIA2 SHIA NB1    200       100 100  NONE CIV   NB1 0
         aam mutate attritnf [list n NB1 f CIV casualties 20 g1 "" g2 ""]
         demog analyze
 
-        ted query {SELECT * FROM demog_ng}
+        pprint_demog_ng
     } -cleanup {
         cleanup
     } -result {
@@ -570,7 +578,7 @@ NB1 SUNN 10        0        0         990      990
         aam mutate attritnf [list n NB1 f CIV casualties 3000  g1 "" g2 ""]
         demog analyze
 
-        ted query {SELECT * FROM demog_ng}
+        pprint_demog_ng
     } -cleanup {
         cleanup
     } -result {
@@ -589,7 +597,7 @@ NB1 SUNN 999       0        0         1        1
         aam mutate attritnf [list n NB1 f CIV casualties 20  g1 "" g2 ""]
         demog analyze
 
-        ted query {SELECT * FROM demog_ng}
+        pprint_demog_ng
     } -cleanup {
         cleanup
     } -result {
@@ -619,7 +627,7 @@ NB1 SUNN 999       0        0         1        1
         aam mutate attritnf [list n NB1 f CIV casualties 100  g1 "" g2 ""]
         demog analyze
 
-        set a [ted query {SELECT * FROM demog_ng}]
+        set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
         set c "$a$b"
     } -cleanup {
@@ -658,7 +666,7 @@ NB1SUNN2 SUNN NB1    95        100 100  NONE CIV   NB1 0
         aam mutate attritnf [list n NB1 f CIV casualties 10000  g1 "" g2 ""]
         demog analyze
 
-        set a [ted query {SELECT * FROM demog_ng}]
+        set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
         set c "$a$b"
     } -cleanup {
@@ -693,7 +701,7 @@ NB1SUNN2 SUNN NB1    0         100 100  NONE CIV   NB1 0
         aam mutate attritnf [list n NB1 f CIV casualties 1 g1 "" g2 ""]
         demog analyze
 
-        set a [ted query {SELECT * FROM demog_ng}]
+        set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
         set c "$a$b"
     } -cleanup {
@@ -726,7 +734,7 @@ NB1SUNN1 SUNN NB1    100       100 100  NONE CIV   NB1 0
         aam mutate attritnf [list n NB1 f CIV casualties 1 g1 "" g2 ""]
         demog analyze
 
-        set a [ted query {SELECT * FROM demog_ng}]
+        set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
         set c "$a$b"
     } -cleanup {
@@ -763,7 +771,7 @@ NB1SUNN1 SUNN NB1    899       100 100  NONE CIV   NB1 0
         aam mutate attritnf [list n NB1 f CIV casualties 100 g1 "" g2 ""]
         demog analyze
 
-        set a [ted query {SELECT * FROM demog_ng}]
+        set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
         set c "$a$b"
     } -cleanup {
@@ -905,7 +913,7 @@ USAID1   USAID NONE   15        100 100  NONE ORG   NB1 0
     } -body {
         eval [join $undo \n]
 
-        set a [ted query {SELECT * FROM demog_ng}]
+        set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
         set c [ted query {SELECT * FROM attrit_nf}]
         set d [ted query {SELECT * FROM attrit_nfg}]
@@ -1039,7 +1047,7 @@ id n   f     casualties
         # All units had 15 personnel to start.
         # NB1SHIA2 should be down 5.
         set a [ted query {SELECT u,personnel FROM units}]
-        set b [ted query {SELECT * FROM demog_ng}]
+        set b [pprint_demog_ng]
         set c [ted query {SELECT * FROM attrit_nf}]
         set d [ted query {SELECT * FROM attrit_nfg}]
         set e "$a$b$c$d"
@@ -1078,7 +1086,7 @@ id n   f    g    casualties
         # All units had 15 personnel to start.
         # NB1SHIA2 should be down 5.
         set a [ted query {SELECT u,personnel FROM units}]
-        set b [ted query {SELECT * FROM demog_ng}]
+        set b [pprint_demog_ng]
         set c [ted query {SELECT * FROM attrit_nf}]
         set d [ted query {SELECT * FROM attrit_nfg}]
         set e "$a$b$c$d"
@@ -1169,7 +1177,7 @@ NB1SHIA2 0
         eval $a
 
         set a [ted query {SELECT u,personnel FROM units}]
-        set b [ted query {SELECT * FROM demog_ng}]
+        set b [pprint_demog_ng]
         set c [ted query {SELECT * FROM attrit_nf}]
         set d [ted query {SELECT * FROM attrit_nfg}]
         set e "$a$b$c$d"
