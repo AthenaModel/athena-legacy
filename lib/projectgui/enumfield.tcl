@@ -164,6 +164,9 @@ snit::widget ::projectgui::enumfield {
             set ds ""
         }
 
+        array unset v2d
+        array unset d2v
+
         foreach v $vs d $ds {
             set v2d($v) $d
             set d2v($d) $v
