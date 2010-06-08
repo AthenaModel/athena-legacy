@@ -108,7 +108,6 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    # TBD: The error message is wrong due to Snit bug (reported).
     test UPDATE-1.8 {invalid dtrend: out of range} -setup {
         setup
     } -body {
@@ -116,7 +115,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        dtrend {invalid value "5.0", expected double}
+        dtrend {invalid value "5.0", expected double no greater than 0.0}
     }
 
 
@@ -296,7 +295,7 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
     } -cleanup {
         cleanup
     } -result {
-        dtrend {invalid value "5.0", expected double}
+        dtrend {invalid value "5.0", expected double no greater than 0.0}
     }
 
 

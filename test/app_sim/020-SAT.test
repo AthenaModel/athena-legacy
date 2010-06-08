@@ -139,8 +139,6 @@ namespace eval ::athena_test::tests:: {
         athresh {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
     }
 
-    # NOTE: The error message *should* say "expected double no greater 
-    # than 0.0".  This is a Snit bug.
     test UPDATE-1.10 {invalid dtrend} -setup {
         setup
     } -body {
@@ -148,7 +146,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        dtrend {invalid value "1.0", expected double}
+        dtrend {invalid value "1.0", expected double no greater than 0.0}
     }
 
     test UPDATE-1.11 {invalid dthresh} -setup {
@@ -362,7 +360,7 @@ NB1 SHIA SFT 80.0 0.85     2.0    -5.0    -1.0   10.0
     } -cleanup {
         cleanup
     } -result {
-        dtrend {invalid value "5", expected double}
+        dtrend {invalid value "5", expected double no greater than 0.0}
     }
 
     test UPDATE:MULTI-1.13 {invalid dthresh} -setup {
