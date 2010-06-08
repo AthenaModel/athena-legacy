@@ -156,9 +156,8 @@ snit::type sim {
             ORDER BY n,g
         }]
 
-        # Load trend as 0, as we'll be doing something different.
         $gram load sat {*}[rdb eval {
-            SELECT n, g, c, sat0, saliency, 0
+            SELECT n, g, c, sat0, saliency
             FROM sat_ngc JOIN groups USING (g)
             ORDER BY n, gtype, g, c
         }]
