@@ -193,10 +193,10 @@ id oneliner       cause  s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-driver oneliner                     
------- ---------------------------- 
-0      Satisfaction Long-Term Trend 
-2      The Second MAD               
+driver oneliner         
+------ ---------------- 
+0      Long-Term Trends 
+2      The Second MAD   
     }
 
 
@@ -239,10 +239,10 @@ id oneliner      cause  s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-driver oneliner                     
------- ---------------------------- 
-0      Satisfaction Long-Term Trend 
-1      The First MAD                
+driver oneliner         
+------ ---------------- 
+0      Long-Term Trends 
+1      The First MAD    
     }
 
 
@@ -295,10 +295,10 @@ id oneliner cause  s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-driver oneliner                     
------- ---------------------------- 
-0      Satisfaction Long-Term Trend 
-1      Modified                     
+driver oneliner         
+------ ---------------- 
+0      Long-Term Trends 
+1      Modified         
     }
 
 
@@ -1073,11 +1073,11 @@ S     MAD0001 1  NB1 SHIA BLUE 5.0   50.0    10.0
     } -cleanup {
         cleanup
     } -result {
-Input DN  DG   Cause   E Start Time   End Time     Nbhd Grp  Con Slope Nominal Actual 
------ --- ---- ------- - ------------ ------------ ---- ---- --- ----- ------- ------ 
-1.2   NB1 SHIA MAD0001 D 110000ZJAN10 110000ZJAN10 NB1  SHIA AUT   5.0   0.0     0.0  
-"     "   "    "       D 110000ZJAN10 n/a          NB1  SHIA AUT   0.0   0.0     0.0  
-2.1   "   "    CIVCAS  D 110000ZJAN10 n/a          NB1  SHIA QOL   5.0   0.0     0.0  
+Input DN  DG   Cause   E Start Time   End Time     Nbhd Grp  Con Slope AThresh DThresh Nominal Actual 
+----- --- ---- ------- - ------------ ------------ ---- ---- --- ----- ------- ------- ------- ------ 
+1.2   NB1 SHIA MAD0001 D 110000ZJAN10 110000ZJAN10 NB1  SHIA AUT   5.0  50.0   -50.0     0.0     0.0  
+"     "   "    "       D 110000ZJAN10 n/a          NB1  SHIA AUT   0.0  50.0   -50.0     0.0     0.0  
+2.1   "   "    CIVCAS  D 110000ZJAN10 n/a          NB1  SHIA QOL   5.0  50.0   -50.0     0.0     0.0  
     }
 
 
