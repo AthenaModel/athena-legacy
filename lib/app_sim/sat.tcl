@@ -37,6 +37,40 @@ snit::type sat {
     # TBD
 
     #-------------------------------------------------------------------
+    # Simulation
+
+    # start
+    #
+    # Starts the ascending and descending trends for satisfaction curves.
+
+    typemethod start {} {
+        log normal sat "start"
+
+        rdb eval {
+            SELECT * FROM sat_ngc
+            WHERE atrend > 0.0 OR dtrend < 0.0
+        } row {
+            if {$row(atrend) > 0.0} {
+                aram sat slope 0 0 $row(n) $row(g) $row(c) $row(atrend) \
+                    -cause   ATREND        \
+                    -s       0.0           \
+                    -athresh $row(athresh)
+            }
+
+            if {$row(dtrend) < 0.0} {
+                aram sat slope 0 0 $row(n) $row(g) $row(c) $row(dtrend) \
+                    -cause   DTREND        \
+                    -s       0.0           \
+                    -dthresh $row(dthresh)
+            }
+        }
+        
+        log normal sat "start complete"
+    }
+
+
+
+    #-------------------------------------------------------------------
     # Queries
 
     # validate id
@@ -228,8 +262,11 @@ snit::type sat {
     #    g                Group ID
     #    c                Concern
     #    sat0             A new initial satisfaction, or ""
-    #    trend0           A new long-term trend, or ""
     #    saliency         A new saliency, or ""
+    #    atrend           A new ascending trend, or ""
+    #    athresh          A new ascending threshold, or ""
+    #    dtrend           A new descending trend, or ""
+    #    dthresh          A new descending threshold, or ""
     #
     # Updates a satisfaction level the parms, which are presumed to be
     # valid.
@@ -249,8 +286,11 @@ snit::type sat {
             rdb eval {
                 UPDATE sat_ngc
                 SET sat0     = nonempty($sat0,     sat0),
-                    trend0   = nonempty($trend0,   trend0),
-                    saliency = nonempty($saliency, saliency)
+                    saliency = nonempty($saliency, saliency),
+                    atrend   = nonempty($atrend,   atrend),
+                    athresh  = nonempty($athresh,  athresh),
+                    dtrend   = nonempty($dtrend,   dtrend),
+                    dthresh  = nonempty($dthresh,  dthresh)
                 WHERE n=$n AND g=$g AND c=$c
             } {}
 
@@ -275,24 +315,27 @@ order define ::sat SAT:UPDATE {
     title "Update Initial Satisfaction"
     options -sendstates PREP -table gui_sat_ngc -tags ngc
 
-    parm n         key   "Neighborhood"  -tags nbhood
-    parm g         key   "Group"         -tags group
-    parm c         key   "Concern"       -tags concern
+    parm n         key   "Neighborhood"    -tags nbhood
+    parm g         key   "Group"           -tags group
+    parm c         key   "Concern"         -tags concern
     parm sat0      text  "Sat at T0"
-    parm trend0    text  "Trend"
     parm saliency  text  "Saliency"
+    parm atrend    text  "Ascending Trend"
+    parm athresh   text  "Asc. Threshold"
+    parm dtrend    text  "Descending Trend"
+    parm dthresh   text  "Desc. Threshold"
 } {
     # FIRST, prepare the parameters
     prepare n        -toupper  -required -type nbhood
     prepare g        -toupper  -required -type [list sat group]
     prepare c        -toupper  -required -type econcern
 
-    prepare sat0     -toupper \
-        -type qsat      -xform [list qsat value]
-    prepare trend0   -toupper \
-        -type qtrend    -xform [list qtrend value]
-    prepare saliency -toupper \
-        -type qsaliency -xform [list qsaliency value]
+    prepare sat0     -toupper -type qsat      -xform [list qsat value]
+    prepare saliency -toupper -type qsaliency -xform [list qsaliency value]
+    prepare atrend   -toupper -type ratrend
+    prepare athresh  -toupper -type qsat      -xform [list qsat value]
+    prepare dtrend   -toupper -type rdtrend
+    prepare dthresh  -toupper -type qsat      -xform [list qsat value]
 
     returnOnError
 
@@ -318,15 +361,21 @@ order define ::sat SAT:UPDATE:MULTI {
 
     parm ids       multi  "IDs"
     parm sat0      text   "Sat at T0"
-    parm trend0    text   "Trend"
     parm saliency  text   "Saliency"
+    parm atrend    text   "Ascending Trend"
+    parm athresh   text   "Asc. Threshold"
+    parm dtrend    text   "Descending Trend"
+    parm dthresh   text   "Desc. Threshold"
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof sat
 
     prepare sat0     -toupper -type qsat      -xform [list qsat value]
-    prepare trend0   -toupper -type qtrend    -xform [list qtrend value]
     prepare saliency -toupper -type qsaliency -xform [list qsaliency value]
+    prepare atrend   -toupper -type ratrend
+    prepare athresh  -toupper -type qsat      -xform [list qsat value]
+    prepare dtrend   -toupper -type rdtrend
+    prepare dthresh  -toupper -type qsat      -xform [list qsat value]
 
     returnOnError -final
 

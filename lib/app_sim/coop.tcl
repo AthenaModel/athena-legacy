@@ -40,6 +40,38 @@ snit::type coop {
     # TBD
 
     #-------------------------------------------------------------------
+    # Simulation
+
+    # start
+    #
+    # Starts the ascending and descending trends for cooperation curves.
+
+    typemethod start {} {
+        log normal coop "start"
+
+        rdb eval {
+            SELECT * FROM coop_nfg
+            WHERE atrend > 0.0 OR dtrend < 0.0
+        } row {
+            if {$row(atrend) > 0.0} {
+                aram coop slope 0 0 $row(n) $row(f) $row(g) $row(atrend) \
+                    -cause   ATREND        \
+                    -s       0.0           \
+                    -athresh $row(athresh)
+            }
+
+            if {$row(dtrend) < 0.0} {
+                aram coop slope 0 0 $row(n) $row(f) $row(g) $row(dtrend) \
+                    -cause   DTREND        \
+                    -s       0.0           \
+                    -dthresh $row(dthresh)
+            }
+        }
+        
+        log normal coop "start complete"
+    }
+
+    #-------------------------------------------------------------------
     # Queries
 
     # validate id
@@ -193,6 +225,10 @@ snit::type coop {
     #    f                Group ID
     #    g                Group ID
     #    coop0            Cooperation of f with g in n at time 0.
+    #    atrend           A new ascending trend, or ""
+    #    athresh          A new ascending threshold, or ""
+    #    dtrend           A new descending trend, or ""
+    #    dthresh          A new descending threshold, or ""
     #
     # Updates a cooperation given the parms, which are presumed to be
     # valid.
@@ -211,7 +247,11 @@ snit::type coop {
             # NEXT, Update the group
             rdb eval {
                 UPDATE coop_nfg
-                SET coop0 = nonempty($coop0, coop0)
+                SET coop0    = nonempty($coop0,   coop0),
+                    atrend   = nonempty($atrend,  atrend),
+                    athresh  = nonempty($athresh, athresh),
+                    dtrend   = nonempty($dtrend,  dtrend),
+                    dthresh  = nonempty($dthresh, dthresh)
                 WHERE n=$n AND f=$f AND g=$g
             } {}
 
@@ -236,16 +276,27 @@ order define ::coop COOP:UPDATE {
     title "Update Initial Cooperation"
     options -sendstates PREP -table gui_coop_nfg -tags nfg
 
-    parm n      key   "Neighborhood"  -tags nbhood
-    parm f      key   "Of Group"      -tags group
-    parm g      key   "With Group"    -tags group
-    parm coop0  text  "Cooperation"
+    parm n       key   "Neighborhood"     -tags nbhood
+    parm f       key   "Of Group"         -tags group
+    parm g       key   "With Group"       -tags group
+    parm coop0   text  "Cooperation"
+    parm atrend  text  "Ascending Trend"
+    parm athresh text  "Asc. Threshold"
+    parm dtrend  text  "Descending Trend"
+    parm dthresh text  "Desc. Threshold"
 } {
     # FIRST, prepare the parameters
     prepare n        -toupper  -required -type nbhood
     prepare f        -toupper  -required -type civgroup
     prepare g        -toupper  -required -type frcgroup
-    prepare coop0    -toupper            -type qcooperation
+    prepare coop0    -toupper            -type qcooperation \
+        -xform [list qcooperation value]
+    prepare atrend   -toupper            -type ratrend
+    prepare athresh  -toupper            -type qcooperation \
+        -xform [list qcooperation value]
+    prepare dtrend   -toupper            -type rdtrend
+    prepare dthresh  -toupper            -type qcooperation \
+        -xform [list qcooperation value]
 
     returnOnError
 
@@ -269,13 +320,24 @@ order define ::coop COOP:UPDATE:MULTI {
     title "Update Initial Cooperation (Multi)"
     options -sendstates PREP -table gui_coop_nfg
  
-    parm ids    multi  "IDs"
-    parm coop0  text   "Cooperation"
+    parm ids     multi  "IDs"
+    parm coop0   text   "Cooperation"
+    parm atrend  text   "Ascending Trend"
+    parm athresh text   "Asc. Threshold"
+    parm dtrend  text   "Descending Trend"
+    parm dthresh text   "Desc. Threshold"
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof coop
 
-    prepare coop0    -toupper            -type qcooperation
+    prepare coop0    -toupper            -type qcooperation \
+        -xform [list qcooperation value]
+    prepare atrend   -toupper            -type ratrend
+    prepare athresh  -toupper            -type qcooperation \
+        -xform [list qcooperation value]
+    prepare dtrend   -toupper            -type rdtrend
+    prepare dthresh  -toupper            -type qcooperation \
+        -xform [list qcooperation value]
 
     returnOnError -final
 

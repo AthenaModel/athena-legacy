@@ -146,8 +146,11 @@ SELECT n || ' ' || g || ' ' || c                      AS id,
        c                                              AS c,
        format('%.3f', coalesce(gram.sat0, main.sat0)) AS sat0,
        format('%.3f', coalesce(gram.sat, main.sat0))  AS sat,
-       format('%.3f', main.trend0)                    AS trend0,
-       format('%.2f', main.saliency)                  AS saliency
+       format('%.2f', main.saliency)                  AS saliency,
+       format('%.2f', main.atrend)                    AS atrend,
+       format('%.1f', main.athresh)                   AS athresh,
+       format('%.2f', main.dtrend)                    AS dtrend,
+       format('%.1f', main.dthresh)                   AS dthresh
 FROM sat_ngc AS main 
 LEFT OUTER JOIN gram_sat AS gram USING (n,g,c);
 
@@ -172,7 +175,11 @@ SELECT n || ' ' || f || ' ' || g                         AS id,
        f                                                 AS f,
        g                                                 AS g,
        format('%5.1f', coalesce(gram.coop0, main.coop0)) AS coop0,
-       format('%5.1f', coalesce(gram.coop, main.coop0))  AS coop
+       format('%5.1f', coalesce(gram.coop, main.coop0))  AS coop,
+       format('%.2f', main.atrend)                       AS atrend,
+       format('%.1f', main.athresh)                      AS athresh,
+       format('%.2f', main.dtrend)                       AS dtrend,
+       format('%.1f', main.dthresh)                      AS dthresh
 FROM coop_nfg AS main 
 LEFT OUTER JOIN gram_coop AS gram USING (n,f,g);
 

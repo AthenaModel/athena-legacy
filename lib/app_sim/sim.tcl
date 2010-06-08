@@ -156,8 +156,9 @@ snit::type sim {
             ORDER BY n,g
         }]
 
+        # Load trend as 0, as we'll be doing something different.
         $gram load sat {*}[rdb eval {
-            SELECT n, g, c, sat0, saliency, trend0
+            SELECT n, g, c, sat0, saliency, 0
             FROM sat_ngc JOIN groups USING (g)
             ORDER BY n, gtype, g, c
         }]
@@ -625,6 +626,8 @@ snit::type sim {
 
         # NEXT, initialize the ARAM, etc.
         aram   init -reload
+        sat    start
+        coop   start
         nbstat start
         econ   start
 

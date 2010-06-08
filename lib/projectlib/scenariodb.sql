@@ -368,11 +368,16 @@ CREATE TABLE sat_ngc (
     -- Initial satisfaction value
     sat0       DOUBLE DEFAULT 0.0,
 
-    -- Long-term Trend
-    trend0     DOUBLE DEFAULT 0.0,
-
     -- Saliency of concern c to group g in nbhood n
     saliency   DOUBLE DEFAULT 1.0,
+
+    -- Ascending trend and threshold
+    atrend     DOUBLE DEFAULT 0.0,
+    athresh    DOUBLE DEFAULT 0.0,
+
+    -- Descending trend and threshold
+    dtrend     DOUBLE DEFAULT 0.0,
+    dthresh    DOUBLE DEFAULT 0.0,
 
     PRIMARY KEY (n, g, c)
 );
@@ -440,6 +445,14 @@ CREATE TABLE coop_nfg (
 
     -- cooperation of f with g at time 0.
     coop0       DOUBLE DEFAULT 50.0,
+
+    -- Ascending trend and threshold
+    atrend     DOUBLE DEFAULT 0.0,
+    athresh    DOUBLE DEFAULT 50.0,
+
+    -- Descending trend and threshold
+    dtrend     DOUBLE DEFAULT 0.0,
+    dthresh    DOUBLE DEFAULT 50.0,
 
     PRIMARY KEY (n, f, g)
 );

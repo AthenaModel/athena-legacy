@@ -97,18 +97,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test UPDATE-1.6 {invalid trend0: symbol} -setup {
-        setup
-    } -body {
-        ted order -reject SAT:UPDATE n NB1 g SHIA c SFT trend0 NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        trend0 {invalid value "NONESUCH", should be a real number, or one of: VH, H, N, L, VL}
-    }
-
-
-    test UPDATE-1.7 {invalid saliency: symbol} -setup {
+    test UPDATE-1.6 {invalid saliency: symbol} -setup {
         setup
     } -body {
         ted order -reject SAT:UPDATE n NB1 g SHIA c SFT saliency NONESUCH
@@ -119,7 +108,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test UPDATE-1.8 {invalid saliency: out of range} -setup {
+    test UPDATE-1.7 {invalid saliency: out of range} -setup {
         setup
     } -body {
         ted order -reject SAT:UPDATE n NB1 g SHIA c SFT saliency -0.1
@@ -130,6 +119,48 @@ namespace eval ::athena_test::tests:: {
     }
 
 
+    test UPDATE-1.8 {invalid atrend} -setup {
+        setup
+    } -body {
+        ted order -reject SAT:UPDATE n NB1 g SHIA c SFT atrend -1.0
+    } -cleanup {
+        cleanup
+    } -result {
+        atrend {invalid value "-1.0", expected double no less than 0.0}
+    }
+
+    test UPDATE-1.9 {invalid athresh} -setup {
+        setup
+    } -body {
+        ted order -reject SAT:UPDATE n NB1 g SHIA c SFT athresh NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        athresh {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
+    }
+
+    # NOTE: The error message *should* say "expected double no greater 
+    # than 0.0".  This is a Snit bug.
+    test UPDATE-1.10 {invalid dtrend} -setup {
+        setup
+    } -body {
+        ted order -reject SAT:UPDATE n NB1 g SHIA c SFT dtrend 1.0
+    } -cleanup {
+        cleanup
+    } -result {
+        dtrend {invalid value "1.0", expected double}
+    }
+
+    test UPDATE-1.11 {invalid dthresh} -setup {
+        setup
+    } -body {
+        ted order -reject SAT:UPDATE n NB1 g SHIA c SFT dthresh NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        dthresh {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
+    }
+
     test UPDATE-2.1 {sat is updated} -setup {
         setup
     } -body {
@@ -138,8 +169,11 @@ namespace eval ::athena_test::tests:: {
             g              SHIA
             c              SFT
             sat0           VS
-            trend0         VH
             saliency       VI
+            atrend         2
+            athresh        -5
+            dtrend         -1
+            dthresh        10
         }
         ted query {
             SELECT * FROM sat_ngc
@@ -147,12 +181,12 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-n   g    c   sat0 trend0 saliency 
---- ---- --- ---- ------ -------- 
-NB1 SHIA AUT 0.0  0.0    1.0      
-NB1 SHIA CUL 0.0  0.0    1.0      
-NB1 SHIA QOL 0.0  0.0    1.0      
-NB1 SHIA SFT 80.0 8.0    0.85     
+n   g    c   sat0 saliency atrend athresh dtrend dthresh 
+--- ---- --- ---- -------- ------ ------- ------ ------- 
+NB1 SHIA AUT 0.0  1.0      0.0    0.0     0.0    0.0     
+NB1 SHIA CUL 0.0  1.0      0.0    0.0     0.0    0.0     
+NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0     
+NB1 SHIA SFT 80.0 0.85     2.0    -5.0    -1.0   10.0    
     }
 
 
@@ -177,8 +211,11 @@ NB1 SHIA SFT 80.0 8.0    0.85
             g              SHIA
             c              SFT
             sat0           VS
-            trend0         VH
             saliency       VI
+            atrend         2
+            athresh        -5
+            dtrend         -1
+            dthresh        10
         }
     } -body {
         ted notifier bind ::sat <Entity>
@@ -274,18 +311,7 @@ NB1 SHIA SFT 80.0 8.0    0.85
     }
 
 
-    test UPDATE:MULTI-1.8 {invalid trend0: symbol} -setup {
-        setup
-    } -body {
-        ted order -reject SAT:UPDATE:MULTI ids {{NB1 SHIA SFT}} trend0 NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        trend0 {invalid value "NONESUCH", should be a real number, or one of: VH, H, N, L, VL}
-    }
-
-
-    test UPDATE:MULTI-1.9 {invalid saliency: symbol} -setup {
+    test UPDATE:MULTI-1.8 {invalid saliency: symbol} -setup {
         setup
     } -body {
         ted order -reject SAT:UPDATE:MULTI \
@@ -297,7 +323,7 @@ NB1 SHIA SFT 80.0 8.0    0.85
     }
 
 
-    test UPDATE:MULTI-1.10 {invalid saliency: out of range} -setup {
+    test UPDATE:MULTI-1.9 {invalid saliency: out of range} -setup {
         setup
     } -body {
         ted order -reject SAT:UPDATE:MULTI ids \
@@ -309,6 +335,46 @@ NB1 SHIA SFT 80.0 8.0    0.85
     }
 
 
+    test UPDATE:MULTI-1.10 {invalid atrend} -setup {
+        setup
+    } -body {
+        ted order -reject SAT:UPDATE:MULTI ids {{NB1 SHIA SFT}} atrend -5
+    } -cleanup {
+        cleanup
+    } -result {
+        atrend {invalid value "-5", expected double no less than 0.0}
+    }
+
+    test UPDATE:MULTI-1.11 {invalid athresh} -setup {
+        setup
+    } -body {
+        ted order -reject SAT:UPDATE:MULTI ids {{NB1 SHIA SFT}} athresh NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        athresh {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
+    }
+
+    test UPDATE:MULTI-1.12 {invalid dtrend} -setup {
+        setup
+    } -body {
+        ted order -reject SAT:UPDATE:MULTI ids {{NB1 SHIA SFT}} dtrend 5
+    } -cleanup {
+        cleanup
+    } -result {
+        dtrend {invalid value "5", expected double}
+    }
+
+    test UPDATE:MULTI-1.13 {invalid dthresh} -setup {
+        setup
+    } -body {
+        ted order -reject SAT:UPDATE:MULTI ids {{NB1 SHIA SFT}} dthresh NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        dthresh {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
+    }
+
     test UPDATE:MULTI-2.1 {one curve of several is updated} -setup {
         setup
     } -body {
@@ -317,8 +383,11 @@ NB1 SHIA SFT 80.0 8.0    0.85
         ted order SAT:UPDATE:MULTI {
             ids       {{NB1 SHIA SFT}}
             sat0      VS
-            trend0    VH
             saliency  VI
+            atrend    2
+            athresh   -5
+            dtrend    -1
+            dthresh   10
         }
 
         ted notifier received
@@ -352,8 +421,11 @@ NB1 SHIA SFT 80.0 8.0    0.85
         ted order SAT:UPDATE:MULTI {
             ids        {{NB1 SHIA SFT} {NB1 SHIA CUL}}
             sat0       VS
-            trend0     VH
             saliency   VI
+            atrend     2
+            athresh    -5
+            dtrend     -1
+            dthresh    10
         }
     } -body {
         ted notifier bind ::sat <Entity>

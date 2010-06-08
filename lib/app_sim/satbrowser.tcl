@@ -36,8 +36,11 @@ snit::widgetadaptor satbrowser {
         { c        "Concern"                                 }
         { sat0     "Sat at T0" -sortmode real                }
         { sat      "Sat Now"   -sortmode real -foreground %D }
-        { trend0   "Trend"     -sortmode real                }
         { saliency "Saliency"  -sortmode real                }
+        { atrend   "ATrend"    -sortmode real                }
+        { athresh  "AThresh"   -sortmode real                }
+        { dtrend   "DTrend"    -sortmode real                }
+        { dthresh  "DThresh"   -sortmode real                }
     }
 
     #-------------------------------------------------------------------

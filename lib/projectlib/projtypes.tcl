@@ -48,6 +48,8 @@ namespace eval ::projectlib:: {
         leensit       \
         polygon       \
         qsecurity     \
+        ratrend       \
+        rdtrend       \
         rdays         \
         rgain         \
         rnomcoverage  \
@@ -61,6 +63,9 @@ namespace eval ::projectlib:: {
 #-------------------------------------------------------------------
 # Type Wrapper -- wraps snit::<type> instances so they throw
 #                 -errorcode INVALID
+
+# TBD: This is no longer strictly necessary; Snit types now have
+# the correct behavior.
 
 snit::type ::projectlib::typewrapper {
     #---------------------------------------------------------------
@@ -615,6 +620,10 @@ snit::type ::projectlib::typewrapper {
 
 #-------------------------------------------------------------------
 # Ranges
+
+# Ascending/Descending trends
+::snit::double ::projectlib::ratrend -min 0.0
+::snit::double ::projectlib::rdtrend -max 0.0
 
 # Duration in decimal days
 

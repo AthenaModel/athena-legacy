@@ -1604,14 +1604,44 @@ tab "Attitudes/Satisfaction" {
     <<topic "Sat Now">>The current satisfaction value for this curve.
     <</topic>>
 
-    <<topic Trend>>The long-term trend for this curve, specified as a
-    slope in nominal satisfaction points per day.
-    <</topic>>
-
     <<topic Saliency>>The importance of this concern to this group in
     this neighborhood, a real number from the following scale:<p>
 
     <<::simlib::qsaliency html>>
+    <</topic>>
+
+    <<topic ATrend>>The ascending trend for this curve, specified as a
+    non-negative slope in nominal satisfaction points per day, as set
+    during <<cref using.prep>>.  The
+    ascending trend is applied whenever "Sat Now" is less than the
+    ascending threshold.  If this value is 0.0, there is no ascending
+    trend for this curve.
+    <</topic>>
+
+    <<topic AThresh>>The ascending threshold for this curve, a
+    satisfaction value specified during <<cref using.prep>>.  The
+    ascending trend, "ATrend", takes effect only when "Sat Now" is
+    less than this value.  It is a real number
+    taken from the following scale:<p>
+
+    <<::simlib::qsat html>>
+    <</topic>>
+
+    <<topic DTrend>>The descending trend for this curve, specified as a
+    non-positive slope in nominal satisfaction points per day, as set
+    during <<cref using.prep>>.  The
+    descending trend is applied whenever "Sat Now" is greater than the
+    descending threshold.  If this value is 0.0, there is no descending
+    trend for this curve.
+    <</topic>>
+
+    <<topic DThresh>>The descending threshold for this curve, a
+    satisfaction value specified during <<cref using.prep>>.  The
+    descending trend, "DTrend", takes effect only when "Sat Now" is
+    greater than this value.   It is a real number
+    taken from the following scale:<p>
+
+    <<::simlib::qsat html>>
     <</topic>>
 
     <</topiclist>>
@@ -1671,6 +1701,39 @@ tab "Attitudes/Cooperation" {
     <<topic "Coop Now">>The current cooperation value for this curve.
     <</topic>>
 
+    <<topic ATrend>>The ascending trend for this curve, specified as a
+    non-negative slope in nominal cooperation points per day, as set
+    during <<cref using.prep>>.  The
+    ascending trend is applied whenever "Coop Now" is less than the
+    ascending threshold.  If this value is 0.0, there is no ascending
+    trend for this curve.
+    <</topic>>
+
+    <<topic AThresh>>The ascending threshold for this curve, a
+    cooperation value specified during <<cref using.prep>>.  The
+    ascending trend, "ATrend", takes effect only when "Coop Now" is
+    less than this value.  It is a real number
+    taken from the following scale:<p>
+
+    <<::simlib::qcooperation html>>
+    <</topic>>
+
+    <<topic DTrend>>The descending trend for this curve, specified as a
+    non-positive slope in nominal cooperation points per day, as set
+    during <<cref using.prep>>.  The
+    descending trend is applied whenever "Coop Now" is greater than the
+    descending threshold.  If this value is 0.0, there is no descending
+    trend for this curve.
+    <</topic>>
+
+    <<topic DThresh>>The descending threshold for this curve, a
+    cooperation value specified during <<cref using.prep>>.  The
+    descending trend, "DTrend", takes effect only when "Coop Now" is
+    greater than this value.   It is a real number
+    taken from the following scale:<p>
+
+    <<::simlib::qcooperation html>>
+    <</topic>>
     <</topiclist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's

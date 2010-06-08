@@ -31,11 +31,16 @@ snit::widgetadaptor coopbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        {n     "Nbhood"                                   }
-        {f     "Of Group"                                 }
-        {g     "With Group"                               }
-        {coop0 "Coop at T0" -sortmode real                }
-        {coop  "Coop Now"   -sortmode real -foreground %D }
+        { n        "Nbhood"                                   }
+        { f        "Of Group"                                 }
+        { g        "With Group"                               }
+        { coop0    "Coop at T0" -sortmode real                }
+        { coop     "Coop Now"   -sortmode real -foreground %D }
+        { atrend   "ATrend"     -sortmode real                }
+        { athresh  "AThresh"    -sortmode real                }
+        { dtrend   "DTrend"     -sortmode real                }
+        { dthresh  "DThresh"    -sortmode real                }
+
     }
 
     #-------------------------------------------------------------------
