@@ -246,7 +246,37 @@ snit::widgetadaptor ::projectgui::mapcanvas {
     #
     # Tk photo image of the map
     
-    option -map -type ::projectgui::mapimage
+    option -map                                 \
+        -type            ::projectgui::mapimage \
+        -configuremethod ConfigMap
+
+    method ConfigMap {opt val} {
+        # FIRST, save the map value
+        if {$val eq $options(-map)} {
+            return
+        }
+
+        set options(-map) $val
+
+        # NEXT, clear the zoom cache
+        foreach factor [array names zooms] {
+            if {$factor ne "100"} {
+                image delete $zooms($factor)
+            }
+        }
+        
+        array unset zooms
+
+        # NEXT, set the zoom to 100%
+        set zooms(100) $options(-map)
+
+        if {$info(zoom) != 100} {
+            $self ScaleMap $info(zoom)
+        }
+
+
+        # TBD: Might want to schedule a refresh....
+    }
 
     # -projection
     #
@@ -364,16 +394,15 @@ snit::widgetadaptor ::projectgui::mapcanvas {
         set ndx [lsearch -exact $tags Canvas]
         bindtags $win [lreplace $tags $ndx $ndx Mapcanvas]
 
-        # NEXT, save the options
-        $self configurelist $args
-
         # NEXT, create the namespace for icon commands
         namespace eval ${selfns}::icons {}
 
+        # NEXT, save the options
+        $self configurelist $args
 
         # NEXT, display the initial map image; this also sets
         # the initial interaction mode.
-        $self clear
+        $self refresh
     }
 
     #-------------------------------------------------------------------
@@ -396,19 +425,6 @@ snit::widgetadaptor ::projectgui::mapcanvas {
 
         # Icons
         $self icon delete all
-
-        # NEXT, clear the zoom cache
-        foreach factor [array names zooms] {
-            if {$factor ne "100"} {
-                image delete $zooms($factor)
-            }
-        }
-        
-        array unset zooms
-
-        # NEXT, set the zoom to 100%
-        set info(zoom) 100
-        set zooms(100) $options(-map)
 
         # NEXT, refresh the screen
         $self refresh
