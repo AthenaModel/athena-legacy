@@ -836,18 +836,22 @@ snit::type sim {
 
         # nbstat cannot be done during scenario prep
         if {$info(state) ne "PREP"} {
+            app puts "Computing group security and unit activity coverage."
             nbstat analyze
         }
 
         # econ analysis can always be done; but while in 
         # PREP we're doing calibration.
         if {$info(state) eq "PREP"} {
+            app puts "Calibrating the initial state of the economy"
             econ analyze -calibrate
         } else {
+            app puts "Analyzing the current state of the economy"
             econ analyze
         }
 
         # demographic results of the economy can always be done.
+        app puts "Disaggregating economic results to the neighborhoods."
         demog analyze econ
 
         set info(analysisNeeded) 0
