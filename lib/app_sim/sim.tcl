@@ -800,6 +800,20 @@ snit::type sim {
     # Sets the analysis requested flag.
 
     typemethod AnalysisNeeded {args} {
+        # FIRST, we need to have at least *some* population before this
+        # makes any sense.
+        set localConsumers [rdb onecolumn {
+            SELECT consumers FROM demog_local
+        }]
+
+        if {$localConsumers eq "" ||
+            $localConsumers eq 0
+        } {
+            return
+        }
+        
+
+        # NEXT, it makes sense.
         set info(analysisNeeded) 1
         notifier send $type <AnalysisNeeded>
     }
