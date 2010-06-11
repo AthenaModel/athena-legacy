@@ -24,7 +24,7 @@
 # and demog_local tables.  Entries in the demog_n and demog_ng tables
 # are created and deleted by nbhood(sim) and nbgroups(sim) respectively, 
 # as neighborhoods and neighborhood groups come and go.  The (single)
-# entry in the demog_local table is created/replaced on <analyze>.
+# entry in the demog_local table is created/replaced on <analyze pop>.
 #
 #-----------------------------------------------------------------------
 
@@ -35,19 +35,19 @@ snit::type demog {
     #-------------------------------------------------------------------
     # Group: Analysis
 
-    # Type Method: analyze
+    # Type Method: analyze pop
     #
-    # Computes demog_ng(n,g), demog_n(n), and demog_local for all n, g.
-    # This routine is called by other modules when something happens to
-    # neighborhood population.
+    # Computes the population statistics in demog_ng(n,g), demog_n(n), 
+    # and demog_local for all n, g.  This routine is called by other 
+    # modules when something happens to neighborhood population.
     #
     # This command acts as a mutator, to make it easier to use
     # in undo scripts.
     #
     # Syntax:
-    #   analyze
+    #   analyze pop
 
-    typemethod analyze {} {
+    typemethod "analyze pop" {} {
         $type ComputeNG
         $type ComputeN
         $type ComputeLocal
@@ -55,7 +55,23 @@ snit::type demog {
         # Notify the GUI that demographics may have changed.
         notifier send $type <Update>
 
-        return [mytypemethod analyze]
+        return [mytypemethod analyze pop]
+    }
+
+    # Type Method: analyze econ
+    #
+    # Computes the effects of the economy on the population.
+    #
+    # Syntax:
+    #   analyze econ
+
+    typemethod "analyze econ" {} {
+        # TBD: Not yet implemented
+
+        # Notify the GUI that demographics may have changed.
+        notifier send $type <Update>
+
+        return
     }
 
     # Type Method: ComputeNG

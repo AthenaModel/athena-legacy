@@ -512,7 +512,7 @@ snit::type ted {
         # TBD: This is REALLY unclean.  I should be using
         # the create orders instead, I fear, but since I'm
         # not I need to work around it.
-        demog analyze
+        demog analyze pop
     }
 
     # cleanup

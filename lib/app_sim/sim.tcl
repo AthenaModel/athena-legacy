@@ -51,20 +51,25 @@ snit::type sim {
         10    50
     }
 
-    # info -- scalar info array
+    # info -- scalar info array        # NEXT, update the Analyze button
     #
-    # changed    1 if saveable(i) data has changed, and 0 otherwise.
-    # state      The current simulation state, a simstate value
-    # stoptime   The time tick at which the simulation should pause,
-    #            or 0 if there's no limit.
-    # speed      The speed at which the simulation should run.
-    #            (This should probably be saved with the GUI settings.)
+    # changed        - 1 if saveable(i) data has changed, and 0 
+    #                  otherwise.
+    # state          - The current simulation state, a simstate value
+    # stoptime       - The time tick at which the simulation should 
+    #                  pause, or 0 if there's no limit.
+    # speed          - The speed at which the simulation should run.
+    #                  (This should probably be saved with the GUI 
+    #                  settings.)
+    # analysisNeeded - 1 if <analyze> can profitably be called by the
+    #                  the user, and 0 otherwise.
 
     typevariable info -array {
-        changed   0
-        state     PREP
-        stoptime  0
-        speed     5
+        changed        0
+        state          PREP
+        stoptime       0
+        speed          5
+        analysisNeeded 0
     }
 
     #-------------------------------------------------------------------
@@ -119,6 +124,12 @@ snit::type sim {
         # NEXT, initialize the simulation modules
         econ      init
         situation init
+
+        # NEXT, prepare to flag when analysis is requested.
+        notifier bind ::demog <Update> $type [mytypemethod AnalysisNeeded]
+        notifier bind ::econ  <Entity> $type [mytypemethod AnalysisNeeded]
+        notifier bind ::unit  <Entity> $type [mytypemethod AnalysisNeeded]
+        notifier bind ::parm  <Update> $type [mytypemethod AnalysisNeeded]
 
         log normal sim "init complete"
     }
@@ -636,6 +647,9 @@ snit::type sim {
         # NEXT, execute events scheduled at time 0.
         eventq advance 0
 
+        # NEXT, no analysis is needed.
+        set info(analysisNeeded) 0
+
         # NEXT, set the state to PAUSED
         $type SetState PAUSED
 
@@ -777,7 +791,26 @@ snit::type sim {
     }
 
     #-------------------------------------------------------------------
-    # Analyze
+    # Analysis
+
+    # AnalysisNeeded ?args...?
+    #
+    # args...     Ignored.
+    #
+    # Sets the analysis requested flag.
+
+    typemethod AnalysisNeeded {args} {
+        set info(analysisNeeded) 1
+        notifier send $type <AnalysisNeeded>
+    }
+
+    # analyze?
+    #
+    # Returns the analysis needed flag.
+
+    typemethod analyze? {} {
+        return $info(analysisNeeded)
+    }
 
     # analyze
     #
@@ -785,8 +818,27 @@ snit::type sim {
     # each security and activity coverage.
 
     typemethod analyze {} {
-        nbstat analyze
+        # FIRST, do the relevant analysis
 
+        # nbstat cannot be done during scenario prep
+        if {$info(state) ne "PREP"} {
+            nbstat analyze
+        }
+
+        # econ analysis can always be done; but while in 
+        # PREP we're doing calibration.
+        if {$info(state) eq "PREP"} {
+            econ analyze -calibrate
+        } else {
+            econ analyze
+        }
+
+        # demographic results of the economy can always be done.
+        demog analyze econ
+
+        set info(analysisNeeded) 0
+        
+        # Notify the sim.  TBD: <DbSyncB> is probably overkill.
         notifier send $type <DbSyncB>
     }
 
@@ -838,6 +890,9 @@ snit::type sim {
         
         # NEXT, execute eventq events
         eventq advance [simclock now]
+
+        # NEXT, no analysis is needed.
+        set info(analysisNeeded) 0
 
         # NEXT, pause if it's the pause time.
         if {$info(stoptime) != 0 &&

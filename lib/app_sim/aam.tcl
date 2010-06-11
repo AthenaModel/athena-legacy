@@ -106,7 +106,7 @@ snit::type aam {
         }
 
         # NEXT, refresh the demographics
-        demog analyze
+        demog analyze pop
     }
 
     # AssessAttitudeImplications
@@ -548,7 +548,7 @@ snit::type aam {
     # in the neighborhood, in proportion to their population.  Also,
     # g1 and g2 will be given responsibility for the attrition.
     #
-    # NOTE: the caller should be sure to call "demog analyze"
+    # NOTE: the caller should be sure to call "demog analyze pop"
     # after all attrition is done.
 
     typemethod {mutate attritnf} {parmdict} {
@@ -977,7 +977,7 @@ snit::type aam {
     #
     # If u is a CIV unit, the attrition is counted against the
     # unit's neighborhood group.  In this case, the caller should 
-    # be sure to call "demog analyze".
+    # be sure to call "demog analyze pop".
 
     typemethod {mutate attritunit} {parmdict} {
         dict with parmdict {
@@ -1177,7 +1177,7 @@ order define ::aam ATTRIT:NBHOOD {
     # NEXT, attrit the civilians in the neighborhood
     set parms(f) "CIV"
     lappend undo [$type mutate attritnf [array get parms]]
-    lappend undo [demog analyze]
+    lappend undo [demog analyze pop]
 
     setundo [join $undo \n]
 }
@@ -1240,7 +1240,7 @@ order define ::aam ATTRIT:GROUP {
 
     # NEXT, if it's a civilian group, update the demographics
     if {$gtype eq "CIV"} {
-        lappend undo [demog analyze]
+        lappend undo [demog analyze pop]
     }
 
     setundo [join $undo \n]
@@ -1297,7 +1297,7 @@ order define ::aam ATTRIT:UNIT {
 
     # NEXT, if it's a civilian unit, update the demographics
     if {$gtype eq "CIV"} {
-        lappend undo [demog analyze]
+        lappend undo [demog analyze pop]
     }
 
     setundo [join $undo \n]

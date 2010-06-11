@@ -161,6 +161,8 @@ snit::type parm {
         
         app puts "Imported Parameters: $filename"
 
+        notifier send $type <Update>
+
         # NEXT, Return the undo script
         return $undo
     }
@@ -209,6 +211,8 @@ snit::type parm {
             app puts "Reset Parameters (except for locked parameters, see log)"
         }
 
+        notifier send $type <Update>
+
         # NEXT, Return the undo script
         return $undo
     }
@@ -227,6 +231,8 @@ snit::type parm {
 
         # NEXT, try to set the parameter
         $ps set $parm $value
+
+        notifier send $type <Update>
 
         # NEXT, return the undo script
         return $undo

@@ -90,6 +90,9 @@ snit::type econ {
         }
     }
 
+    #-------------------------------------------------------------------
+    # Group: Assessment Routines
+
     # Type Method: start
     #
     # Calibrates the CGE.  This is done when the simulation leaves
@@ -98,75 +101,10 @@ snit::type econ {
     typemethod start {} {
         log normal econ "start"
 
-        # FIRST, set the input parameters
-        cge reset
-
-        array set data [demog getlocal]
-
-        cge set [list \
-                     BasePopulation $data(consumers)    \
-                     In::Population $data(consumers)    \
-                     In::WF         $data(labor_force)]
-
-        # NEXT, calibrate the CGE.
-        set result [cge solve]
-
-        # NEXT, the data has changed.
-        set info(changed) 1
-
-        # NEXT, handle failures.
-        if {$result ne "ok"} {
-            log warning econ "Failed to calibrate"
-            error "Failed to calibrate economic model."
-        }
-
-        # NEXT, Compute the initial CAP.goods.
-        array set out [cge get Out -bare]
-
-        let CAPgoods {
-            $out(BQS.goods) / (1.0-[parm get econ.idleFrac])
-        }
-
-        # NEXT, compute CCF.n, the capacity fraction for each neighborhood.
-        set sum 0.0
-
-        rdb eval {
-            SELECT nbhoods.n          AS n,
-                   demog_n.population AS population, 
-                   econ_n.pcf         AS pcf
-            FROM nbhoods
-            JOIN demog_n USING (n)
-            JOIN econ_n  USING (n)
-            WHERE local = 1
-        } {
-            set pcfs($n) $pcf
-            let cf($n) {$pcf * $population}
-            let sum    {$sum + $cf($n)}
-        }
-
-        foreach n [array names cf] {
-            let cf($n) {$cf($n) / $sum}
-            let cap0 {$CAPgoods * $cf($n)}
-            let ccf {$cap0/$pcfs($n)}
-                
-            rdb eval {
-                UPDATE econ_n
-                SET ccf  = $ccf,
-                    cap0 = $cap0,
-                    cap  = $cap0
-                WHERE n = $n
-            }
-        }
-
-        # NEXT, Recompute In through Out given the initial
-        # goods capacity.
-        $type tock
+        $type analyze -calibrate
 
         log normal econ "start complete"
     }
-
-    #-------------------------------------------------------------------
-    # Group: Time Advance
 
     # Type Method: tock
     #
@@ -175,7 +113,94 @@ snit::type econ {
     typemethod tock {} {
         log normal econ "tock"
 
-        # FIRST, set the input parameters
+        $type analyze
+
+        log normal econ "tock complete"
+    }
+
+    #-------------------------------------------------------------------
+    # Group: Analysis
+
+
+    # Type Method: analyze
+    #
+    # Solves the CGE to convergence.  If the -calibrate flag is given,
+    # then the CGE is first calibrated; this is normally only done during
+    # PREP, or during the transition from PREP to PAUSED at time 0.
+    #
+    # Syntax:
+    #   analyze ?-calibrate?
+
+    typemethod analyze {{opt ""}} {
+        log detail econ "analyze $opt"
+
+        # FIRST, calibrate if requested.
+        if {$opt eq "-calibrate"} {
+            # FIRST, set the input parameters
+            cge reset
+
+            array set data [demog getlocal]
+
+            cge set [list \
+                         BasePopulation $data(consumers)    \
+                         In::Population $data(consumers)    \
+                         In::WF         $data(labor_force)]
+
+            # NEXT, calibrate the CGE.
+            set result [cge solve]
+
+            # NEXT, the data has changed.
+            set info(changed) 1
+
+            # NEXT, handle failures.
+            if {$result ne "ok"} {
+                log warning econ "Failed to calibrate"
+                error "Failed to calibrate economic model."
+            }
+
+            # NEXT, Compute the initial CAP.goods.
+            array set out [cge get Out -bare]
+
+            let CAPgoods {
+                $out(BQS.goods) / (1.0-[parm get econ.idleFrac])
+            }
+
+            # NEXT, compute CCF.n, the capacity fraction for each neighborhood.
+            set sum 0.0
+
+            rdb eval {
+                SELECT nbhoods.n          AS n,
+                demog_n.population AS population, 
+                econ_n.pcf         AS pcf
+                FROM nbhoods
+                JOIN demog_n USING (n)
+                JOIN econ_n  USING (n)
+                WHERE local = 1
+            } {
+                set pcfs($n) $pcf
+                let cf($n) {$pcf * $population}
+                let sum    {$sum + $cf($n)}
+            }
+
+            foreach n [array names cf] {
+                let cf($n) {$cf($n) / $sum}
+                let cap0 {$CAPgoods * $cf($n)}
+                let ccf {$cap0/$pcfs($n)}
+                
+                rdb eval {
+                    UPDATE econ_n
+                    SET ccf  = $ccf,
+                    cap0 = $cap0,
+                    cap  = $cap0
+                    WHERE n = $n
+                }
+            }
+        }
+
+        # NEXT, Recompute In through Out given the initial
+        # goods capacity.
+
+        # Set the input parameters
         array set data [demog getlocal]
 
         set CAPgoods [rdb onecolumn {
@@ -188,20 +213,22 @@ snit::type econ {
                      In::WF         $data(labor_force) \
                      In::CAP.goods  $CAPgoods]
 
-        # NEXT, update the CGE.
+        # Update the CGE.
         set result [cge solve In Out]
 
-        # NEXT, the data has changed.
+        # The data has changed.
         set info(changed) 1
 
         # NEXT, handle failures
         if {$result ne "ok"} {
-            log warning econ "Failed to advance economic model"
-            error "Failed to advance economic model"
+            log warning econ "Economic analysis failed"
+            error "Economic analysis failed"
         }
 
-        log normal econ "tock complete"
+        log detail econ "analysis complete"
     }
+
+
 
     #-------------------------------------------------------------------
     # Group: Queries

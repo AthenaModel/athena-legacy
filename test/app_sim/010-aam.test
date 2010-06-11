@@ -276,7 +276,7 @@ NB1 SUNN 0         0        0         1000     1000
         ted create NB1 SHIA SUNN NB1SHIA NB1SUNN
     } -body {
         aam mutate attritnf [list n NB1 f SHIA casualties 20 g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         pprint_demog_ng
     } -cleanup {
@@ -293,7 +293,7 @@ NB1 SUNN 0         0        0         1000     1000
         ted create NB1 SHIA SUNN NB1SHIA NB1SUNN
     } -body {
         aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         pprint_demog_ng
     } -cleanup {
@@ -310,10 +310,10 @@ NB1 SUNN 0         0        0         1000     1000
         ted create NB1 SHIA SUNN NB1SHIA NB1SUNN
         # use overkill to get down to that point
         aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
     } -body {
         aam mutate attritnf [list n NB1 f SHIA casualties 20 g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         # No change
         pprint_demog_ng
@@ -331,7 +331,7 @@ NB1 SUNN 0         0        0         1000     1000
         ted unit location NB1SHIA1 NB1
     } -body {
         aam mutate attritnf [list n NB1 f SHIA casualties 1 g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
@@ -358,7 +358,7 @@ NB1SHIA1 SHIA NB1    15        100 100  NONE CIV   NB1 0
         ted unit personnel NB1SHIA1 700
     } -body {
         aam mutate attritnf [list n NB1 f SHIA casualties 1 g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
@@ -388,7 +388,7 @@ NB1SHIA1 SHIA NB1    699       100 100  NONE CIV   NB1 0
         ted unit personnel NB1SHIA2 200
     } -body {
         aam mutate attritnf [list n NB1 f SHIA casualties 15 g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
@@ -416,7 +416,7 @@ NB1SHIA2 SHIA NB1    197       100 100  NONE CIV   NB1 0
         ted unit personnel NB1SHIA1 100
     } -body {
         aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
@@ -503,7 +503,7 @@ id n   f    g    casualties
         set undo [list]
         lappend undo [aam mutate attritnf \
                           [list n NB1 f SHIA casualties 15 g1 BLUE g2 BRIT]]
-        lappend undo [demog analyze]
+        lappend undo [demog analyze pop]
     } -body {
         eval [join $undo \n]
 
@@ -559,7 +559,7 @@ NB1SHIA2 SHIA NB1    200       100 100  NONE CIV   NB1 0
         ted create NB1 BLUE BLUE1 SHIA SUNN NB1SHIA NB1SUNN
     } -body {
         aam mutate attritnf [list n NB1 f CIV casualties 20 g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         pprint_demog_ng
     } -cleanup {
@@ -576,7 +576,7 @@ NB1 SUNN 10        0        0         990      990
         ted create NB1 BLUE BLUE1 SHIA SUNN NB1SHIA NB1SUNN
     } -body {
         aam mutate attritnf [list n NB1 f CIV casualties 3000  g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         pprint_demog_ng
     } -cleanup {
@@ -592,10 +592,10 @@ NB1 SUNN 999       0        0         1        1
     test attritnf-3.3 {nbhood, no units, implicit = 1 per resident} -setup {
         ted create NB1 BLUE BLUE1 SHIA SUNN NB1SHIA NB1SUNN
         aam mutate attritnf [list n NB1 f CIV casualties 3000  g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
     } -body {
         aam mutate attritnf [list n NB1 f CIV casualties 20  g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         pprint_demog_ng
     } -cleanup {
@@ -622,10 +622,10 @@ NB1 SUNN 999       0        0         1        1
         ted unit personnel NB1SUNN1 200
         ted unit personnel NB1SUNN2 100
 
-        demog analyze
+        demog analyze pop
     } -body {
         aam mutate attritnf [list n NB1 f CIV casualties 100  g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
@@ -661,10 +661,10 @@ NB1SUNN2 SUNN NB1    95        100 100  NONE CIV   NB1 0
         ted unit personnel NB1SUNN1 200
         ted unit personnel NB1SUNN2 100
 
-        demog analyze
+        demog analyze pop
     } -body {
         aam mutate attritnf [list n NB1 f CIV casualties 10000  g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
@@ -696,10 +696,10 @@ NB1SUNN2 SUNN NB1    0         100 100  NONE CIV   NB1 0
         ted unit personnel NB1SHIA1 200
         ted unit personnel NB1SUNN1 100
 
-        demog analyze
+        demog analyze pop
     } -body {
         aam mutate attritnf [list n NB1 f CIV casualties 1 g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
@@ -729,10 +729,10 @@ NB1SUNN1 SUNN NB1    100       100 100  NONE CIV   NB1 0
         ted unit personnel NB1SHIA1 200
         ted unit personnel NB1SUNN1 900
 
-        demog analyze
+        demog analyze pop
     } -body {
         aam mutate attritnf [list n NB1 f CIV casualties 1 g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
@@ -766,10 +766,10 @@ NB1SUNN1 SUNN NB1    899       100 100  NONE CIV   NB1 0
         ted unit personnel NB1SUNN1 200
         ted unit personnel NB2SUNN1 100
 
-        demog analyze
+        demog analyze pop
     } -body {
         aam mutate attritnf [list n NB1 f CIV casualties 100 g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         set a [pprint_demog_ng]
         set b [ted query {SELECT * FROM units}]
@@ -807,10 +807,10 @@ NB2SUNN1 SUNN NB2    98        100 100  NONE CIV   NB1 0
         ted unit personnel NB1SUNN1 200
         ted unit personnel NB1SUNN2 100
 
-        demog analyze
+        demog analyze pop
     } -body {
         aam mutate attritnf [list n NB1 f CIV casualties 10000 g1 BLUE g2 BRIT]
-        demog analyze
+        demog analyze pop
 
         set a [ted query {SELECT * FROM attrit_nf}]
         set b [ted query {SELECT * FROM attrit_nfg}]
@@ -848,7 +848,7 @@ id n   f    g    casualties
         ted unit personnel NB1SUNN1 200
         ted unit personnel NB1SUNN2 100
 
-        demog analyze
+        demog analyze pop
     } -body {
         aam mutate attritnf [list n NB1 f CIV casualties 10000 g1 BLUE g2 BRIT]
 
@@ -877,7 +877,7 @@ USAID1   USAID NONE   15        100 100  NONE ORG   NB1 0
         ted unit personnel NB1SHIA1 100
         ted unit personnel NB1SHIA2 200
 
-        demog analyze
+        demog analyze pop
     } -body {
         ted notifier bind ::unit <Entity>
         aam mutate attritnf [list n NB1 f SHIA casualties 100 g1 "" g2 ""]
@@ -904,12 +904,12 @@ USAID1   USAID NONE   15        100 100  NONE ORG   NB1 0
         ted unit personnel NB1SUNN1 200
         ted unit personnel NB2SUNN1 100
 
-        demog analyze
+        demog analyze pop
 
         set undo [list]
         lappend undo [aam mutate attritnf \
                           [list n NB1 f CIV casualties 100 g1 "" g2 ""]]
-        lappend undo [demog analyze]
+        lappend undo [demog analyze pop]
     } -body {
         eval [join $undo \n]
 
@@ -949,7 +949,7 @@ NB2SUNN1 SUNN NB2    100       100 100  NONE CIV   NB1 0
         ted unit personnel NB1SHIA1 100
         ted unit personnel NB1SHIA2 200
 
-        demog analyze
+        demog analyze pop
 
         set a [aam mutate attritnf \
                    [list n NB1 f SHIA casualties 100 g1 "" g2 ""]]
@@ -1081,7 +1081,7 @@ id n   f    g    casualties
         ted unit location NB1SHIA2 NB2
     } -body {
         aam mutate attritunit [list u NB1SHIA2 casualties 5 g1 "" g2 ""]
-        demog analyze
+        demog analyze pop
 
         # All units had 15 personnel to start.
         # NB1SHIA2 should be down 5.

@@ -391,7 +391,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
     # NEXT, create the group and dependent entities.
     lappend undo [$type mutate create [array get parms]]
     lappend undo [scenario mutate reconcile]
-    lappend undo [demog analyze]
+    lappend undo [demog analyze pop]
     
     setundo [join $undo \n]
 
@@ -446,7 +446,7 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
     # NEXT, delete the group and dependent entities
     lappend undo [$type mutate delete $parms(n) $parms(g)]
     lappend undo [scenario mutate reconcile]
-    lappend undo [demog analyze]
+    lappend undo [demog analyze pop]
     
     setundo [join $undo \n]
 
@@ -492,7 +492,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
 
     # NEXT, modify the group
     lappend undo [$type mutate update [array get parms]]
-    lappend undo [demog analyze]
+    lappend undo [demog analyze pop]
 
     setundo [join $undo \n]
     return
@@ -534,7 +534,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
         lappend undo [$type mutate update [array get parms]]
     }
 
-    lappend undo [demog analyze]
+    lappend undo [demog analyze pop]
 
     setundo [join $undo \n]
 
@@ -569,7 +569,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP {
 
     # NEXT, modify the group
     lappend undo [$type mutate update [array get parms]]
-    lappend undo [demog analyze]
+    lappend undo [demog analyze pop]
 
     setundo [join $undo \n]
     return
@@ -602,7 +602,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP:MULTI {
         lappend undo [$type mutate update [array get parms]]
     }
 
-    lappend undo [demog analyze]
+    lappend undo [demog analyze pop]
 
     setundo [join $undo \n]
 

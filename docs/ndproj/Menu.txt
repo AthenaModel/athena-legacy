@@ -53,6 +53,13 @@ Group: App_sim  {
       File: Standards  (app_sim/standards.txt)
       File: app_sim.tcl  (app_sim/app_sim.tcl)
       File: app.tcl  (app_sim/app.tcl)
+      File: econsheet.tcl  (app_sim/econsheet.tcl)
+      File: hist.tcl  (app_sim/hist.tcl)
+      File: nbchart.tcl  (app_sim/nbchart.tcl)
+      File: nbfill  (app_sim/mapviewer.tcl)
+      File: plotviewer.tcl  (app_sim/plotviewer.tcl)
+      File: timechart.tcl  (app_sim/timechart.tcl)
+      File: view.tcl  (app_sim/view.tcl)
       }  # Group: Application
 
    Group: Models  {
@@ -69,7 +76,9 @@ Group: Index  {
    File Index: Files
    Method Index: Methods
    Module Index: Modules
+   Option Index: Options
    Proc Index: Procs
    Variable Index: Variables
+   Widget Index: Widgets
    }  # Group: Index
 

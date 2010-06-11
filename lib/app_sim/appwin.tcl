@@ -901,6 +901,7 @@ snit::widget appwin {
         $self AddToolbarButton analyze a22 \
             "Analyze without time advance"  \
             [list ::sim analyze]
+        cond::simAnalysisNeeded control $win.toolbar.analyze
 
         # Sim State
         ttk::label $win.toolbar.state                  \
@@ -1921,13 +1922,6 @@ snit::widget appwin {
                 $win.toolbar.next configure -state disabled
                 $win.toolbar.last configure -state disabled
             }
-        }
-
-        # NEXT, update the Analyze button
-        if {[sim state] eq "PAUSED"} {
-            $win.toolbar.analyze configure -state normal
-        } else {
-            $win.toolbar.analyze configure -state disabled
         }
 
         # NEXT, set the -recentlimit on the report browser, so that

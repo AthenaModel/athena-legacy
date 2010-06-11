@@ -613,7 +613,7 @@ order define ::unit UNIT:CREATE {
 
     # NEXT, if it's a civilian unit, update the demographics
     if {$gtype eq "CIV"} {
-        lappend undo [demog analyze]
+        lappend undo [demog analyze pop]
     }
 
     setundo [join $undo \n]
@@ -664,7 +664,7 @@ order define ::unit UNIT:DELETE {
 
     # NEXT, if it's a civilian unit, update the demographics
     if {$gtype eq "CIV"} {
-        lappend undo [demog analyze]
+        lappend undo [demog analyze pop]
     }
 
     setundo [join $undo \n]
@@ -699,7 +699,7 @@ order define ::unit UNIT:MOVE {
 
     # NEXT, if it's a civilian unit, update the demographics
     if {$gtype eq "CIV"} {
-        lappend undo [demog analyze]
+        lappend undo [demog analyze pop]
     }
 
     setundo [join $undo \n]
@@ -742,7 +742,7 @@ order define ::unit UNIT:ACTIVITY {
 
     # NEXT, if it's a civilian unit, update the demographics
     if {$gtype eq "CIV"} {
-        lappend undo [demog analyze]
+        lappend undo [demog analyze pop]
     }
 
     setundo [join $undo \n]
@@ -794,7 +794,7 @@ order define ::unit UNIT:PERSONNEL {
 
     # NEXT, if it's a civilian unit update the demographics
     if {$old(gtype) eq "CIV"} {
-        lappend undo [demog analyze]
+        lappend undo [demog analyze pop]
     }
 
     setundo [join $undo \n]
