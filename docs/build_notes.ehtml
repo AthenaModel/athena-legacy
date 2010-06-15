@@ -11,6 +11,46 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 2.0.3, 15 June 2009</h3>
+
+This build contains significant new work, much of it related to the
+economic, demographic and attitude models.<p>
+
+With regard to the attitude
+model, the ascending and descending threshold are now fully integrated
+into Athena's infrastructure.  (None of the rule sets have yet been
+updated to specify thresholds, as the SMEs haven't given us any
+thresholds yet.)  Also, the long-term trend has been replaced by
+ascending and descending trends with thresholds.<p>
+
+The demographic model now takes subsistence agriculture into account
+when computing the labor force; in addition, it now determines the
+extent to which unemployment affects the neighborhood groups.  (UNEMP
+situations and the UNEMP rule sets remain to be implemented.)
+
+<ul>
+  <li> Bug 2408: athena_sim(1): dam(sim) allows "-s" to be specified
+  <li> Bug 2470: Unexpected error running up from snapshot
+  <li> Bug 2472: athena_sim(1): Time Charts
+  <li> Bug 2473: athena_sim(1): eco3x3i
+  <li> Bug 2477: athena_sim(1): nbchart(sim) and timechart(sim) should use lazyupdater(n)
+  <li> Bug 2482: athena_sim(1): Subsistence Agriculture Percentage
+  <li> Bug 2484: athena_sim(1): Respond to cellmodel(n) change
+  <li> Bug 2486: athena_sim(1): dam(sim) allows -athresh, -dthresh to be specified.
+  <li> Bug 2487: athena_sim(1): MADs support -s
+  <li> Bug 2488: athena_sim(1): Magic inputs support athresh and dthresh
+  <li> Bug 2493: Upgrade Athena to ATEE 2010 Q2
+  <li> Bug 2498: athena_sim(1): Econ Overview Spreadsheet
+  <li> Bug 2500: athena_sim(1): CAP.goods is ignored at start
+  <li> Bug 2503: athena_sim(1): Compute consumers, labor force given subsistence agriculture
+  <li> Bug 2506: enumfield(n): drop down contents too large
+  <li> Bug 2509: athena_sim(1): Replace long-term trend with ascending/descending trends
+  <li> Bug 2511: athena_sim(1): Response to Bug 2510
+  <li> Bug 2513: athena_sim(1): Test Suite Failures due to Bug 2512
+  <li> Bug 2516: athena_sim(1): Clarifying Analysis vs. Assessment
+  <li> Bug 2518: athena_sim(1): Unemployment Attitude Factor 
+</ul>
+
 <h3>Build 2.0.2, 27 April 2009</h3>
 
 This build contains significant new work.  In particular, it contains
