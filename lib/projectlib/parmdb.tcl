@@ -1057,6 +1057,14 @@ snit::type ::projectlib::parmdb {
         $ps setdefault demog.laborForceFraction.DISPLACED 0.4
         $ps setdefault demog.laborForceFraction.IN_CAMP   0.0
 
+        $ps define demog.Zuaf ::marsutil::zcurve {0.0 5.0 15.0 2.0} {
+            Z-curve for the unemployment attitude factor (UAF).  
+            The input is the unemployed per capita (UPC), which is
+            expressed as a percentage of the total population.
+            The output is a coefficient used in the
+            UNEMP rule set; it should range from 0.0 to 2.0.
+        }
+
         # ensit.* parameters
         $ps subset ensit {
             Environmental situation parameters, by ensit type.

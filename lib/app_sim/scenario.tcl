@@ -582,6 +582,7 @@ snit::type scenario {
         rdb function m2ref     [myproc M2Ref]
         rdb function ciftop    [list ::cif mark]
         rdb function qsecurity ::projectlib::qsecurity
+        rdb function moneyfmt  ::marsutil::moneyfmt
 
         # NEXT, define the GUI Views
         rdb eval [readfile [file join $::app_sim::library gui_views.sql]]

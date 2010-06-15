@@ -389,6 +389,70 @@ order COOP:UPDATE+MULTI "Update Initial Cooperation (Multi)" {
 }
 
 #=======================================================================
+# Econ Model Orders
+
+page ECON: "Economic Model Orders" orders {
+    <<title>>
+
+    This section describes the orders used to configure Athena's
+    Economic Model.
+}
+
+macro ECON.pcf {} {
+    |<--
+    The production capacity factor (PCF) for the neighborhood, a
+    non-negative real number.  This is a 
+    multiplier used to dial up and down the production capacity for
+    goods in a neighborhood. A factor of 1.0 usually indicates the
+    production capacity at the beginning of the scenario; a factor
+    less than 1.0 indicates that production capacity (e.g., factories)
+    have been damaged, and a factor greater than 1.0 indicates that
+    new production capacity has been built.<p>
+
+    It is possible to being the scenario with a PCF less than 1.0,
+    indicating that the neighborhood's capacity has already been
+    seriously damaged as the scenario begins.
+}
+
+
+order ECON:UPDATE "Update Neighborhood Economic Inputs" {
+    <<parmlist>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
+
+    <<parm pcf "Proc. Capacity Factor">>
+    <b>Optional.</b>  <<ECON.pcf>>
+    <</parm>>
+    <</parmlist>>
+
+    Updates the economic inputs for a single neighborhood.
+}
+
+#-----------------------------------------------------------------------
+
+order ECON:UPDATE+MULTI "Update Economic Inputs for Multiple Neighborhoods" {
+    <<parmlist>>
+
+    <<parm ids "Neighborhoods">>
+    <b>Required.</b>  <<parm.ids neighborhood>>
+    <</parm>>
+
+    <<parm pcf "Proc. Capacity Factor">>
+    <b>Optional.</b>  <<ECON.pcf>>
+    <</parm>>
+    <</parmlist>>
+
+    Updates the economic inputs for multiple neighborhoods.
+}
+
+
+
+
+
+
+#=======================================================================
 # Environmental Situation Orders
 
 page SITUATION:ENVIRONMENTAL: "Environmental Situation Orders" orders {

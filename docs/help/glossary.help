@@ -873,7 +873,13 @@ term unit "unit" {
     and edited on the <<tabref Units>>, using the <<cref UNIT:>>.<p>
 }
 
+#-----------------------------------------------------------------------
 
+term urbanization "urbanization" {
+    The urbanization level of the neighborhood:<p>
+
+    <<enumdoc ::projectlib::eurbanization>><p>
+}
 
 #-----------------------------------------------------------------------
 

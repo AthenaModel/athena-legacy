@@ -1,12 +1,12 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    econnbrowser.tcl
+#    econcapbrowser.tcl
 #
 # AUTHORS:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    econnbrowser(sim) package: Neighborhood browser.
+#    econcapbrowser(sim) package: Neighborhood browser.
 #
 #    This widget displays a formatted list of neighborhood economic
 #    data.  It is a wrapper around sqlbrowser(n).
@@ -16,7 +16,7 @@
 #-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widgetadaptor econnbrowser {
+snit::widgetadaptor econcapbrowser {
     #-------------------------------------------------------------------
     # Options
 
@@ -34,7 +34,6 @@ snit::widgetadaptor econnbrowser {
         { n              "ID"                                            }
         { longname       "Neighborhood"                                  }
         { urbanization   "Urbanization"                                  }
-        { population     "Population"   -sortmode integer -foreground %D }
         { pcf            "Prod. Cap."   -sortmode real                   }
         { ccf            "Cap. Cal."    -sortmode real    -foreground %D }
         { cap0           "Cap at T0"    -sortmode real    -foreground %D }

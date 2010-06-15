@@ -326,7 +326,17 @@ tab "Neighborhoods/Neighborhoods" {
 
     <<topic ID>>The neighborhood's ID<</topic>>
 
-    <<topic Neighborhood>>The neighborhood's human-readable name<</topic>>
+    <<topic Neighborhood>>The neighborhood's human-readable
+    name<</topic>>
+
+    <<topic Local>>Whether the neighborhood belongs to the local
+    region or not.  Local neighborhoods participate in the regional
+    economy; other neighborhoods do not.
+    <</topic>>
+
+    <<topic Urbanization>>The <<term urbanization>> of the
+    neighborhood.
+    <</topic>>
     
     <<topic Population>>The total civilian population of the
     neighborhood, as computed by the Demographics model.
@@ -1430,7 +1440,7 @@ tab "Demog" {
 }
 
 
-tab "Demog/NbGroup" {
+tab "Demog/NbGroups" {
     This tab displays the current demographics of each neighborhood group.
     The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
@@ -1453,20 +1463,6 @@ tab "Demog/NbGroup" {
     
     <<topic CurrPop>>The current population of the group in the
     neighborhood: the sum of the implicit and explicit population.
-    <</topic>>
-
-    <<topic Subsist.>>The number of people in the group that support
-    themselves by subsistence agriculture, and hence do not
-    participate in the regional economy.
-    <</topic>>
-
-    <<topic Consumers>>The number of people in the group that consume
-    goods and services and hence 
-    <i>do</i> participate in the regional economy.
-    <</topic>>
-
-    <<topic LaborForce>>The number of people in the group that
-    seek paid employment (though they might not find it).
     <</topic>>
 
     <<topic Implicit>>The implicit population of the group in the 
@@ -1559,6 +1555,183 @@ tab "Demog/Nbhoods" {
     <<control.headers>>
     <</topiclist>>
 }
+
+#=======================================================================
+# Econ
+
+tab "Econ" {
+    The subtabs of the Econ tab display various data related to the 
+    GRAM Economics model.  The full set of subtabs is as follows:<p>
+
+    <<childlinks>>
+}
+
+tab "Econ/Overview" {
+    An overview of the economy.  Description TBD.
+}
+
+tab "Econ/Capacity" {
+    This tab displays the production capacity statistics for
+    each local neighborhood.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic ID>>A neighborhood ID.<</topic>>
+
+    <<topic "Neighborhood">>The neighborhood's long name.
+    <</topic>>
+
+    <<topic Urbanization>>The <<term urbanization>> of the neighborhood.
+    <</topic>>
+    
+    <<topic "Prod. Cap.">>The neighborhood's production capacity
+    factor, or PCF.
+    The production capacity of the neighborhood can be increased or
+    decreased by changing this number, which is nominally 1.0.
+    <</topic>>
+
+    <<topic "Cap. Cal.">>The calibration capacity factor, or CCF.
+    This figure represents the capacity of the neighborhood at time 0,
+    in goods baskets, given the PCF at time 0.
+    <</topic>>
+
+    <<topic "Cap at T0">>The production capacity at time 0, in 
+    goods baskets.
+    <</topic>>
+
+    <<topic "Cap Now">>The current production capacity, in goods baskets.
+    <</topic>>
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_pencil">}>>
+    Pops up the <<cref ECON:UPDATE>> or <<cref ECON:UPDATE:MULTI>> dialog for
+    the selected neighborhood(s).
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+
+tab "Econ/Population" {
+    This tab displays the economic statistics for the population
+    of each local neighborhood.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic ID>>A neighborhood ID.<</topic>>
+
+    <<topic "Neighborhood">>The neighborhood's long name.
+    <</topic>>
+
+    <<topic Population>>The current population of the neighborhood, 
+    including both resident neighborhood groups and displaced personnel.
+    <</topic>>
+    
+    <<topic Subsistence>>The number of people in the neighborhood that
+    support themselves by subsistence agriculture, and hence do not
+    participate in its regional economy.
+    <</topic>>
+
+    <<topic Consumers>>The number of people in the neighborhood that
+    consume goods and services, and hence <i>do</i>
+    participate in its regional economy,  including
+    both neighborhood groups and displaced personnel.
+    <</topic>>
+
+    <<topic LaborForce>>The number of people in the neighborhood that
+    seek paid employment (though they might not find it) including
+    both neighborhood groups and displaced personnel.
+    <</topic>>
+
+    <<topic Unemployed>>The total number of unemployed workers in the
+    neighborhood.
+    <</topic>>
+
+    <<topic UnempPerCap%>>The number of unemployed workers in the 
+    neighborhood, per capita (UPC), expressed as a percentage.
+    <</topic>>
+
+    <<topic UAFactor>>The neighborhood's unemployment attitude factor (UAF), 
+    a multiplier used in the UNEMP rule set.  It is computed from the UPC.
+    <</topic>>
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+tab "Econ/NbGroups" {
+    This tab displays the effect of the current economy on the
+    neighborhood groups.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Nbhood>>A neighborhood name.<</topic>>
+
+    <<topic CivGroup>>The name of a civilian group that's resident in
+    the neighborhood.<</topic>>
+    
+    <<topic "Local Name">>The local name of the group within the
+    neighborhood.
+    <</topic>>
+
+    <<topic Population>>The current population of the group in the
+    neighborhood.
+    <</topic>>
+
+    <<topic Subsist.>>The number of people in the group that support
+    themselves by subsistence agriculture, and hence do not
+    participate in the regional economy.
+    <</topic>>
+
+    <<topic Consumers>>The number of people in the group that consume
+    goods and services and hence 
+    <i>do</i> participate in the regional economy.
+    <</topic>>
+
+    <<topic LaborForce>>The number of people in the group that
+    seek paid employment (though they might not find it).
+    <</topic>>
+
+    <<topic Unemployed>>The number of unemployed workers in the group.
+    <</topic>>
+
+    <<topic UnempPerCap%>>The number of unemployed workers in the group, 
+    per capita (UPC), expressed as a percentage.
+    <</topic>>
+
+    <<topic UAFactor>>The group's unemployment attitude factor, a 
+    multiplier used in the UNEMP rule set.  It is computed from the UPC.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
 
 
 #=======================================================================

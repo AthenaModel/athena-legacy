@@ -580,6 +580,9 @@ snit::type sim {
                 "people in units for $n $g."
         }
 
+        # NEXT, there must be at least 1 local consumer.
+        # TBD
+
         # NEXT, report on sanity
         if {$option eq "-log"} {
             if {$sane} {
@@ -881,6 +884,7 @@ snit::type sim {
 
         if {[simclock now] % [parmdb get econ.ticksPerTock] == 0} {
             econ tock
+            demog analyze econ
         }
 
         # NEXT, advance GRAM (if t > 0); but first give it the latest

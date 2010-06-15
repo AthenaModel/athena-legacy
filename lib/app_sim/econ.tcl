@@ -238,8 +238,10 @@ snit::type econ {
     # Methods delegated to the <cge> component
     #
     # - get
+    # - value
 
-    delegate typemethod get to cge
+    delegate typemethod get   to cge
+    delegate typemethod value to cge
 
     # Type Method: dump
     #

@@ -773,7 +773,16 @@ CREATE TABLE demog_n (
 
     -- Total labor force in the neighborhood at the current time
     -- (nbgroups + displaced)
-    labor_force  INTEGER DEFAULT 0
+    labor_force  INTEGER DEFAULT 0,
+
+    -- Unemployed workers in the neighborhood.
+    unemployed   INTEGER DEFAULT 0,
+
+    -- Unemployed per capita (percentage)
+    upc          DOUBLE DEFAULT 0.0,
+
+    -- Unemployment Attitude Factor
+    uaf          DOUBLE DEFAULT 0.0
 );
 
 -- Demographics of particular nbgroups
@@ -810,6 +819,15 @@ CREATE TABLE demog_ng (
     -- Total population of this nbgroup in this neighborhood at the
     -- current time.
     population     INTEGER DEFAULT 0,
+
+    -- Unemployed workers in the neighborhood.
+    unemployed     INTEGER DEFAULT 0,
+
+    -- Unemployed per capita (percentage)
+    upc            DOUBLE DEFAULT 0.0,
+
+    -- Unemployment Attitude Factor
+    uaf            DOUBLE DEFAULT 0.0,
 
    
     PRIMARY KEY (n, g)

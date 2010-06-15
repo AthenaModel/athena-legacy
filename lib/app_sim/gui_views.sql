@@ -94,6 +94,9 @@ SELECT main.n || ' ' || main.g                       AS id,
        demog_ng.subsistence                          AS subsistence,
        demog_ng.consumers                            AS consumers,
        demog_ng.labor_force                          AS labor_force,
+       demog_ng.unemployed                           AS unemployed,
+       format('%.1f', demog_ng.upc)                  AS upc,
+       format('%.2f', demog_ng.uaf)                  AS uaf,
        main.sap                                      AS sap,
        demeanor                                      AS demeanor,
        format('%.3f', coalesce(gram.sat0, 0.0))      AS mood0,
@@ -361,13 +364,28 @@ SELECT E.n                                          AS id,
        E.longname                                   AS longname,
        CASE E.local WHEN 1 THEN 'YES' ELSE 'NO' END AS local,
        E.urbanization                               AS urbanization,
-       COALESCE(D.population,0)                     AS population,
        format('%.2f',E.pcf)                         AS pcf,
-       format('%.1f',E.ccf)                         AS ccf,
-       format('%.1f',E.cap0)                        AS cap0,
-       format('%.1f',E.cap)                         AS cap
+       moneyfmt(E.ccf)                              AS ccf,
+       moneyfmt(E.cap0)                             AS cap0,
+       moneyfmt(E.cap)                              AS cap,
+       COALESCE(D.population,0)                     AS population,
+       COALESCE(D.subsistence,0)                    AS subsistence,
+       COALESCE(D.consumers,0)                      AS consumers,
+       COALESCE(D.labor_force,0)                    AS labor_force,
+       D.unemployed                                 AS unemployed,
+       format('%.1f', D.upc)                        AS upc,
+       format('%.2f', D.uaf)                        AS uaf
 FROM econ_n_view AS E
-JOIN demog_n as D using (n);
+JOIN demog_n as D using (n)
+JOIN nbhoods AS N using (n)
+WHERE N.local;
+
+-- An demog_ng view for econ data, used by the GUI
+CREATE TEMPORARY VIEW gui_econ_ng AS
+SELECT * FROM gui_nbgroups 
+JOIN nbhoods USING (n)
+WHERE nbhoods.local;
+
 
 ------------------------------------------------------------------------
 -- Primary Entities

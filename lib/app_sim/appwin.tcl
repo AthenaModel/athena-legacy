@@ -236,7 +236,19 @@ snit::widget appwin {
         econcap {
             label  "Capacity"
             parent "econt"
-            script { econnbrowser %W }
+            script { econcapbrowser %W }
+        }
+
+        econpop {
+            label  "Population"
+            parent "econt"
+            script { econpopbrowser %W }
+        }
+
+        econng {
+            label  "Nbgroups"
+            parent "econt"
+            script { econngbrowser %W }
         }
 
         gramt {

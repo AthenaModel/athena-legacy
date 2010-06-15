@@ -33,7 +33,7 @@ snit::type demog {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Group: Analysis
+    # Group: Analysis of Population
 
     # Type Method: analyze pop
     #
@@ -48,9 +48,9 @@ snit::type demog {
     #   analyze pop
 
     typemethod "analyze pop" {} {
-        $type ComputeNG
-        $type ComputeN
-        $type ComputeLocal
+        $type ComputePopNG
+        $type ComputePopN
+        $type ComputePopLocal
 
         # Notify the GUI that demographics may have changed.
         notifier send $type <Update>
@@ -74,14 +74,14 @@ snit::type demog {
         return
     }
 
-    # Type Method: ComputeNG
+    # Type Method: ComputePopNG
     #
     # Computes the population statistics for each neighborhood group.
     #
     # Syntax:
-    #   ComputeNG
+    #   ComputePopNG
 
-    typemethod ComputeNG {} {
+    typemethod ComputePopNG {} {
         # FIRST, get explicit and displaced personnel.
         rdb eval {
             UPDATE demog_ng
@@ -157,15 +157,15 @@ snit::type demog {
         }
     }
 
-    # Type Method: ComputeN
+    # Type Method: ComputePopN
     #
     # Computes the population statistics and labor force for each
     # neighborhood.
     #
     # Syntax:
-    #   ComputeN
+    #   ComputePopN
 
-    typemethod ComputeN {} {
+    typemethod ComputePopN {} {
         # FIRST, compute the displaced populationa and displaced 
         # labor force for each neighborhood.
         rdb eval {
@@ -216,15 +216,15 @@ snit::type demog {
         return
     }
 
-    # Type Method: ComputeLocal
+    # Type Method: ComputePopLocal
     #
     # Computes the population statistics and labor force for the
     # local region of interest.
     #
     # Syntax:
-    #   ComputeLocal
+    #   ComputePopLocal
 
-    typemethod ComputeLocal {} {
+    typemethod ComputePopLocal {} {
         # FIRST, compute and save the total population and
         # labor force in the local region.
 
@@ -239,6 +239,83 @@ snit::type demog {
         }
     }
 
+
+    #-------------------------------------------------------------------
+    # Group: Analysis of Economic Effects on the Population
+
+    # Type Method: analyze econ
+    #
+    # Computes the effects of the economy on the population.
+    #
+    # Syntax:
+    #   analyze econ
+
+    typemethod "analyze econ" {} {
+        # FIRST, get the unemployment rate and the Unemployment
+        # Factor Z-curve.
+        set ur   [econ value Out::UR]
+        set zuaf [parmdb get demog.Zuaf]
+
+        # NEXT, compute the neighborhood group statistics
+        foreach {n g population labor_force} [rdb eval {
+            SELECT n, g, population, labor_force
+            FROM demog_ng
+            JOIN nbhoods USING (n)
+            WHERE nbhoods.local
+        }] {
+            # number of unemployed workers
+            let unemployed {round($labor_force * $ur / 100.0)}
+
+            # unemployed per capita
+            let upc {100.0 * $unemployed / $population}
+
+            # Unemployment Attitude Factor
+            set uaf [zcurve eval $zuaf $upc]
+
+            # Save results
+            rdb eval {
+                UPDATE demog_ng
+                SET unemployed = $unemployed,
+                    upc        = $upc,
+                    uaf        = $uaf
+                WHERE n=$n AND g=$g;
+            }
+        }
+
+        # NEXT, compute the neighborhood statistics.  These aren't
+        # simply a roll-up of the nbgroup stats because the nbhood
+        # might contain displaced personnel.
+        foreach {n population labor_force} [rdb eval {
+            SELECT n, population, labor_force
+            FROM demog_n
+            JOIN nbhoods USING (n)
+            WHERE nbhoods.local
+        }] {
+            # number of unemployed workers
+            let unemployed {round($labor_force * $ur / 100.0)}
+
+            # unemployed per capita
+            let upc {100.0 * $unemployed / $population}
+
+            # Unemployment Attitude Factor
+            set uaf [zcurve eval $zuaf $upc]
+
+            # Save results
+            rdb eval {
+                UPDATE demog_n
+                SET unemployed = $unemployed,
+                    upc        = $upc,
+                    uaf        = $uaf
+                WHERE n=$n;
+            }
+        }
+
+
+        # NEXT, Notify the GUI that demographics may have changed.
+        notifier send $type <Update>
+
+        return
+    }
 
     #-------------------------------------------------------------------
     # Group: Queries

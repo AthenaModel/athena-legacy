@@ -139,8 +139,10 @@ source [file join $::app_sim::library unitbrowser.tcl        ]
 source [file join $::app_sim::library orderbrowser.tcl       ]
 source [file join $::app_sim::library ordersentbrowser.tcl   ]
 source [file join $::app_sim::library madbrowser.tcl         ]
-source [file join $::app_sim::library econnbrowser.tcl       ]
 source [file join $::app_sim::library econsheet.tcl          ]
+source [file join $::app_sim::library econcapbrowser.tcl     ]
+source [file join $::app_sim::library econpopbrowser.tcl     ]
+source [file join $::app_sim::library econngbrowser.tcl      ]
 
 
 
