@@ -698,6 +698,30 @@ CREATE VIEW ensits_current AS
 SELECT * FROM situations JOIN ensits_t USING (s)
 WHERE state != 'ENDED' OR change != '';
 
+-- Demographic Situations
+CREATE TABLE demsits_t (
+    -- Situation ID
+    s         INTEGER PRIMARY KEY,
+
+    -- Factors
+
+    -- Neighborhood factor
+    nfactor   DOUBLE,
+
+    -- Neighborhood group factor
+    ngfactor  DOUBLE
+);
+
+-- Demographic Situations View
+CREATE VIEW demsits AS
+SELECT * FROM situations JOIN demsits_t USING (s);
+
+-- Current Demographic Situations View: i.e., situations of current
+-- interest to the analyst
+CREATE VIEW demsits_current AS
+SELECT * FROM situations JOIN demsits_t USING (s)
+WHERE state != 'ENDED' OR change != '';
+
 ------------------------------------------------------------------------
 -- Magic Attitude Drivers (MADs)
 --
@@ -829,9 +853,32 @@ CREATE TABLE demog_ng (
     -- Unemployment Attitude Factor
     uaf            DOUBLE DEFAULT 0.0,
 
-   
+    -- Demographic Situation ID.  This is the ID of the
+    -- demsit associated with this record, if
+    -- any, and 0 otherwise.
+    --
+    -- NOTE: This implementation is fine so long as we have
+    -- only *one* kind of demsit.  If we add more, we'll need
+    -- to do something different.  The right answer depends on
+    -- what demsits turn out to have in common.
+    s              INTEGER  DEFAULT 0,
+
     PRIMARY KEY (n, g)
 );
+
+-- Demographic Situation Context View
+--
+-- This view identifies the neighborhood groups that can have
+-- demographic situations, and pulls in required context from
+-- other tables.
+CREATE VIEW demog_context AS
+SELECT DG.n              AS n,
+       DG.g              AS g,
+       DG.uaf            AS ngfactor,
+       DG.s              AS s,
+       DN.uaf            AS nfactor
+FROM demog_ng AS DG
+JOIN demog_n AS DN USING (n);
 
 ------------------------------------------------------------------------
 -- Economic Model

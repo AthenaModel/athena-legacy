@@ -837,6 +837,10 @@ snit::type sim {
     typemethod analyze {} {
         # FIRST, do the relevant analysis
 
+        # If they've changed parameters, the demog pop analysis may
+        # be out of date wrt to labor force.  Re-do it.
+        demog analyze pop
+
         # nbstat cannot be done during scenario prep
         if {$info(state) ne "PREP"} {
             app puts "Computing group security and unit activity coverage."
@@ -874,9 +878,10 @@ snit::type sim {
 
     typemethod Tick {} {
         # FIRST, advance models
+        demog analyze pop
         ensit assess
         nbstat analyze
-        actsit analyze
+        actsit assess
         
         if {[simclock now] % [parmdb get aam.ticksPerTock] == 0} {
             aam assess
@@ -886,6 +891,8 @@ snit::type sim {
             econ tock
             demog analyze econ
         }
+
+        demsit assess
 
         # NEXT, advance GRAM (if t > 0); but first give it the latest
         # population data.

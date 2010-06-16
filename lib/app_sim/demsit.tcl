@@ -1,47 +1,55 @@
 #-----------------------------------------------------------------------
-# TITLE:
-#    actsit.tcl
+# FILE: demsit.tcl
+#
+#   Athena Demographic Situation module
+#
+# PACKAGE:
+#   app_sim(n) -- athena_sim(1) implementation package
+#
+# PROJECT:
+#   Athena S&RO Simulation
 #
 # AUTHOR:
 #    Will Duquette
 #
-# DESCRIPTION:
-#    athena_sim(1) Activity Situation module
-#
-#    This module defines a singleton, "actsit", which is used to
-#    manage the collection of activity situation objects, or actsits.
-#    Actsits are situations; see situation(sim) for additional details.
-#
-#    Entities defined in this file:
-#
-#    actsit      -- The actsit ensemble
-#    actsitType  -- The type for the actsit objects.
-#
-#    A single snit::type could do both jobs--but at the expense
-#    of accidentally creating an actsit object if an incorrect actsit
-#    method name is used.
-#
-#    * Actsits are created, updated, and deleted by the "actsit assess" 
-#      command, which detects new actsits, deletes vanished actsits, and 
-#      calls the actsit rule sets as appropriate.  Actsit analysis is
-#      driven by the neighborhood status computed by nbstat(sim).
-#
-#    * This module calls the actsit rule sets when it detects 
-#      relevant state transitions during [actsit assess].
-#
-# EVENT NOTIFICATIONS:
-#    The ::actsit module sends the following notifier(n) events:
-#
-#    <Entity> op s
-#        When called, the op will be one of 'create', 'update' or 'delete',
-#        and s will be the ID of the situation.
-#
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# actsit singleton
+# Module: demsit
+#
+# athena_sim(1) Demographic Situation module
+#
+# This module defines a singleton, "demsit", which is used to
+# manage the collection of demographic situation objects, or demsits.
+# Demsits are situations; see situation(sim) for additional details.
+#
+# Entities defined in this file.
+#
+# <demsit>      - The demsit ensemble
+# <demsitType>  - The instance type for the demsit objects.
+#
+# A single snit::type could do both jobs--but at the expense
+# of accidentally creating a demsit object if an incorrect demsit
+# method name is used.
+#
+# - Demsits are created, updated, and deleted by the "demsit assess" 
+#   command, which detects new demsits, deletes demsits, and 
+#   calls the demsit rule sets as appropriate.  Demsit assessment is
+#   driven by the demographic statistics computed by demog(sim).
+#
+# - This module calls the demsit rule sets when it detects 
+#   relevant state transitions during [demsit assess].
+#
+# Event Notifications:
+#
+#    The ::demsit module sends the following notifier(n) events.
+#
+#    <Entity> op s - When called, the _op_ will be one of 'create', 
+#                    'update' or 'delete', and _s_ will be the ID of 
+#                    the situation.
+#-----------------------------------------------------------------------
 
-snit::type actsit {
+snit::type demsit {
     # Make it an ensemble
     pragma -hasinstances 0
 
@@ -54,7 +62,7 @@ snit::type actsit {
     # Return the name of the RDB table for this type.
 
     typemethod table {} {
-        return "actsits_t"
+        return "demsits_t"
     }
 
 
@@ -63,52 +71,51 @@ snit::type actsit {
     # This method should be called periodically, just before the
     # GRAM advance.  It looks for new, vanished, and
     # changed situations, performs the related housekeeping, and calls
-    # the actsit rule sets as appropriate.
+    # the demsit rule sets as appropriate.
 
     typemethod assess {} {
-        # FIRST, look for new activity situations.
+        # FIRST, look for new UNEMP situations.
         rdb eval {
-            SELECT * FROM activity_nga
+            SELECT * FROM demog_context
             WHERE s = 0
-            AND   coverage > 0.0
+            AND   (ngfactor > 0.0 OR nfactor > 0.0)
         } row {
             # FIRST, Create the situation
             set s [situation create $type       \
-                       stype    $row(stype)     \
+                       stype    "UNEMP"         \
                        n        $row(n)         \
                        g        $row(g)         \
-                       coverage $row(coverage)  \
                        state    ACTIVE]
 
             rdb eval {
-                INSERT INTO actsits_t(s,a)
-                VALUES($s,$row(a))
+                INSERT INTO demsits_t(s,ngfactor,nfactor)
+                VALUES($s,$row(ngfactor),$row(nfactor))
             }
 
-            log detail actsit "$s: created for $row(n),$row(g),$row(a)"
+            log detail demsit "$s: UNEMP created for $row(n),$row(g)"
 
             # NEXT, remember that it's new this time around.
             set new($s) 1
 
-            # NEXT, get an actsit object to manipulate the data.
+            # NEXT, get a demsit object to manipulate the data.
             set sit [situation get $s]
 
             # NEXT, create a GRAM driver for this situation
             $sit set driver [aram driver add \
-                                 -dtype    $row(stype) \
-                                 -name     "Sit $s"    \
+                                 -dtype    "UNEMP"          \
+                                 -name     "Sit $s"         \
                                  -oneliner [$sit oneliner]]
 
-            # NEXT, link it to the activity_nga object.
+            # NEXT, link it to the demog_ng object.
             rdb eval {
-                UPDATE activity_nga
+                UPDATE demog_ng
                 SET s = $s
-                WHERE n=$row(n) AND g=$row(g) AND a=$row(a)
+                WHERE n=$row(n) AND g=$row(g)
             }
 
             # NEXT, assess the satisfaction implications of this new
             # situation.
-            actsit_rules monitor $sit
+            # demsit_rules monitor $sit
 
             # NEXT, inform all clients about the new object.
             # Always do this after running the rules,
@@ -117,19 +124,19 @@ snit::type actsit {
         }
 
         # NEXT, call the relevant rule sets for all pre-existing
-        # live actsits.
+        # live demsits.
         rdb eval {
             SELECT s                              AS s,
-                   activity_nga.coverage          AS coverage,
-                   activity_nga.nominal           AS nominal
-            FROM actsits JOIN activity_nga USING (s)
+                   demog_context.ngfactor         AS ngfactor,
+                   demog_context.nfactor          AS nfactor
+            FROM demsits JOIN demog_context USING (s)
             WHERE state != 'ENDED'
         } {
-            log detail actsit "$s: reviewing"
+            log detail demsit "$s: reviewing"
 
             # FIRST, If we just created this one, continue.
             if {[info exists new($s)]} {
-                log detail actsit "$s: brand new, skipping"
+                log detail demsit "$s: brand new, skipping"
                 continue
             }
 
@@ -137,29 +144,29 @@ snit::type actsit {
             set sit [situation get $s]
 
             # NEXT, If the coverage has changed, check the state.
-            if {$coverage ne [$sit get coverage]} {
-                # FIRST, save the coverage, and set the state if appropriate.
-                $sit set coverage $coverage
+            if {$ngfactor != [$sit get ngfactor] ||
+                $nfactor  != [$sit get nfactor]
+            } {
+                # FIRST, save the factors, and set the state if appropriate.
+                $sit set ngfactor $ngfactor
+                $sit set nfactor  $nfactor
 
-                if {$coverage > 0} {
+                if {$ngfactor > 0 || $nfactor > 0} {
                     $sit set state ACTIVE
                     $sit set change UPDATED
-                } elseif {$nominal == 0} {
-                    # The situation ends when the coverage is 0 and there
-                    # are no personnel assigned to the activity.
+                } else {
+                    # The situation ends when there is no significant
+                    # unemployment in the neighborhood.
                     $sit set state ENDED
                     $sit set change ENDED
                     
                     rdb eval {
-                        UPDATE activity_nga
+                        UPDATE demog_ng
                         SET s = 0
                         WHERE s = $s;
                     }
                     
-                    log normal actsit "$s: end"
-                } else {
-                    $sit set state INACTIVE
-                    $sit set change UPDATED
+                    log normal demsit "$s: end"
                 }
 
                 # NEXT, the situation has changed in some way; note the time.
@@ -170,7 +177,7 @@ snit::type actsit {
             }
 
             # NEXT, call the monitor rule set.
-            actsit_rules monitor $sit
+            # demsit_rules monitor $sit
         }
     }
 
@@ -188,7 +195,7 @@ snit::type actsit {
         set sit [situation get $s $opt]
 
         if {$sit ne "" && [$sit kind] ne $type} {
-            error "no such activity situation: \"$s\""
+            error "no such demographic situation: \"$s\""
         }
 
         return $sit
@@ -196,14 +203,17 @@ snit::type actsit {
 }
 
 #-----------------------------------------------------------------------
-# actsitType
+# Type: demsitType
+#
+# The instance type for demographic situations.
+#
+#-----------------------------------------------------------------------
 
-snit::type actsitType {
+snit::type demsitType {
     #-------------------------------------------------------------------
     # Components
 
     component base   ;# situationType instance
-
 
     #-------------------------------------------------------------------
     # Instance Variables
@@ -219,7 +229,7 @@ snit::type actsitType {
     constructor {s} {
         # FIRST, create the base situation object; this will retrieve
         # the data from disk.
-        set base [situationType ${selfns}::base ::actsit $s]
+        set base [situationType ${selfns}::base ::demsit $s]
 
         # NEXT, alias our arrays to the base arrays.
         upvar 0 [$base info vars binfo] ${selfns}::binfo

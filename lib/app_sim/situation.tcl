@@ -12,7 +12,7 @@
 #    manage situations in general, and a type, "situationType", which
 #    is an abstract base type for situation objects.  A single
 #    snit::type could do both jobs--but at the expense of accidentally
-#    creating a situationactsit object if an incorrect method name is used.
+#    creating a situation object if an incorrect method name is used.
 #
 #    All situation objects use the Database-backed Objects pattern.  
 #    Situation objects come into being as needed, and may be used to
@@ -32,15 +32,15 @@
 #      commands do not cache the command name.
 #
 #      NEVER save the name of a situation object across Tcl events; each
-#      time you return to the event loop there's the possibility of a
-#      restore, which will delete all actsit objects from memory.
+#      time you return to the event loop there's the possibility of an
+#      event that will delete all situation objects from memory.
 #
 #    * All updates to the situation tables should be done through the 
-#      situation command, the actsit command, the ensit command,
-#      or through a situation object.
+#      situation command, the actsit command, the ensit command, the
+#      demsit command, or through a situation object.
 #
 #      * Create records in the situation tables using 
-#        [ensit mutate create] or [actsit analyze].
+#        [ensit mutate create], [actsit assess], or [demsit assess].
 #
 #      * Update field values by using [$o set], where $o is a situation
 #        object.
@@ -426,16 +426,3 @@ snit::type situationType {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

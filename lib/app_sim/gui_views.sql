@@ -280,6 +280,31 @@ WHERE state != 'ENDED' OR change != '';
 CREATE TEMPORARY VIEW gui_actsits_ended AS
 SELECT * FROM gui_actsits WHERE state == 'ENDED';
 
+-- A demsits view for use by the GUI: All demsits
+CREATE TEMPORARY VIEW gui_demsits AS
+SELECT s                        AS id,
+       s                        AS s,
+       change                   AS change,
+       state                    AS state,
+       driver                   AS driver,
+       stype                    AS stype,
+       n                        AS n,
+       g                        AS g,
+       format('%4.2f',ngfactor) AS ngfactor,
+       format('%4.2f',nfactor)  AS nfactor,
+       tozulu(ts)               AS ts,
+       tozulu(tc)               AS tc
+FROM demsits;
+
+-- Demsits view: current demsits: live or freshly ended
+CREATE TEMPORARY VIEW gui_demsits_current AS
+SELECT * FROM gui_demsits 
+WHERE state != 'ENDED' OR change != '';
+       
+--Demsits view: ended demsits
+CREATE TEMPORARY VIEW gui_demsits_ended AS
+SELECT * FROM gui_demsits WHERE state == 'ENDED';
+
 -- An ensits view for use by the GUI
 CREATE TEMPORARY VIEW gui_ensits AS
 SELECT s                        AS id,

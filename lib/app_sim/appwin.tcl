@@ -137,6 +137,12 @@ snit::widget appwin {
             script  { actsitbrowser %W }
         }
 
+        demsit {
+            label   "DemSits"
+            parent  nbhoodst
+            script  { demsitbrowser %W }
+        }
+
         ensit {
             label   "EnSits"
             parent  nbhoodst
