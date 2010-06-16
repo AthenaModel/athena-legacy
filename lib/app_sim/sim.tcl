@@ -470,7 +470,12 @@ snit::type sim {
     # results are logged.
 
     typemethod check {{option -nolog}} {
-        # FIRST, presume that the model is sane.
+        # FIRST, run whatever analyses we can run, if need be.
+        if {[sim analyze?]} {
+            sim analyze
+        }
+        
+        # NEXT, presume that the model is sane.
         set sane 1
 
         set results [list]
@@ -581,7 +586,16 @@ snit::type sim {
         }
 
         # NEXT, there must be at least 1 local consumer.
-        # TBD
+        rdb eval {
+            SELECT consumers FROM demog_local
+            WHERE consumers = 0
+        } {
+            set sane 0
+            lappend results \
+                "There are no consumers in the local economy.  At least" \
+                "one neighborhood group needs to have non-subsistence" \
+                "population."
+        }
 
         # NEXT, report on sanity
         if {$option eq "-log"} {
@@ -803,20 +817,6 @@ snit::type sim {
     # Sets the analysis requested flag.
 
     typemethod AnalysisNeeded {args} {
-        # FIRST, we need to have at least *some* population before this
-        # makes any sense.
-        set localConsumers [rdb onecolumn {
-            SELECT consumers FROM demog_local
-        }]
-
-        if {$localConsumers eq "" ||
-            $localConsumers eq 0
-        } {
-            return
-        }
-        
-
-        # NEXT, it makes sense.
         set info(analysisNeeded) 1
         notifier send $type <AnalysisNeeded>
     }
@@ -847,19 +847,21 @@ snit::type sim {
             nbstat analyze
         }
 
-        # econ analysis can always be done; but while in 
-        # PREP we're doing calibration.
-        if {$info(state) eq "PREP"} {
-            app puts "Calibrating the initial state of the economy"
-            econ analyze -calibrate
-        } else {
-            app puts "Analyzing the current state of the economy"
-            econ analyze
-        }
+        # econ analysis can only be done if we have consumers.
+        if {[rdb onecolumn {SELECT consumers FROM demog_local}] > 0} {
+            # In PREP we're doing calibration.
+            if {$info(state) eq "PREP"} {
+                app puts "Calibrating the initial state of the economy"
+                econ analyze -calibrate
+            } else {
+                app puts "Analyzing the current state of the economy"
+                econ analyze
+            }
 
-        # demographic results of the economy can always be done.
-        app puts "Disaggregating economic results to the neighborhoods."
-        demog analyze econ
+            # demographic results of the economy.
+            app puts "Disaggregating economic results to the neighborhoods."
+            demog analyze econ
+        }
 
         set info(analysisNeeded) 0
         
