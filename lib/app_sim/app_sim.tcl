@@ -100,6 +100,7 @@ source [file join $::app_sim::library situation.tcl          ]
 source [file join $::app_sim::library actsit.tcl             ]
 source [file join $::app_sim::library actsit_rules.tcl       ]
 source [file join $::app_sim::library demsit.tcl             ]
+source [file join $::app_sim::library demsit_rules.tcl       ]
 source [file join $::app_sim::library ensit.tcl              ]
 source [file join $::app_sim::library ensit_rules.tcl        ]
 

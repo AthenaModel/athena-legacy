@@ -622,30 +622,6 @@ snit::type ::projectlib::parmdb {
                 valid range is 0.1 to 1.0.
         }
 
-        # Economic Model parameters
-
-        $ps subset econ {
-            Parameters which affect the Athena Economic Model.
-        }
-
-        $ps define econ.ticksPerTock ::projectlib::ipositive 7 {
-            Defines the size of the economic model "tock", in ticks.  
-            At each tock, Athena updates the economic model with the
-            latest demographic data, etc., and computes the new
-            state of the economy.
-        }
-
-        $ps define econ.baseUnemployment ::simlib::rfraction 0.05 {
-            The unemployment rate as of time 0, expressed as a 
-            decimal fraction of the labor force.
-        }
-
-        $ps define econ.idleFrac ::simlib::rfraction 0.25 {
-            The idle production capacity for goods, expressed as
-            a decimal fraction of the total production capacity.  This 
-            value can range from 0.0 to 0.9.
-        }
-
         # Ensit global parameters
         $ps subset dam.ensit {
             Parameters for the environmental situation rule sets in general.
@@ -985,6 +961,11 @@ snit::type ::projectlib::parmdb {
             ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE
         }
 
+        # Rule Set: UNEMP
+        $ps setdefault dam.UNEMP.cause            UNEMP
+        $ps setdefault dam.UNEMP.nearFactor       0.2
+        $ps setdefault dam.UNEMP.farFactor        0.0
+
         # Rule Set: PATROL
         $ps setdefault dam.PATROL.cause           PATROL
         $ps setdefault dam.PATROL.nearFactor      0.5
@@ -1063,6 +1044,30 @@ snit::type ::projectlib::parmdb {
             expressed as a percentage of the total population.
             The output is a coefficient used in the
             UNEMP rule set; it should range from 0.0 to 2.0.
+        }
+
+        # Economic Model parameters
+
+        $ps subset econ {
+            Parameters which affect the Athena Economic Model.
+        }
+
+        $ps define econ.ticksPerTock ::projectlib::ipositive 7 {
+            Defines the size of the economic model "tock", in ticks.  
+            At each tock, Athena updates the economic model with the
+            latest demographic data, etc., and computes the new
+            state of the economy.
+        }
+
+        $ps define econ.baseUnemployment ::simlib::rfraction 0.05 {
+            The unemployment rate as of time 0, expressed as a 
+            decimal fraction of the labor force.
+        }
+
+        $ps define econ.idleFrac ::simlib::rfraction 0.25 {
+            The idle production capacity for goods, expressed as
+            a decimal fraction of the total production capacity.  This 
+            value can range from 0.0 to 0.9.
         }
 
         # ensit.* parameters

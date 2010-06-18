@@ -58,22 +58,6 @@ snit::type demog {
         return [mytypemethod analyze pop]
     }
 
-    # Type Method: analyze econ
-    #
-    # Computes the effects of the economy on the population.
-    #
-    # Syntax:
-    #   analyze econ
-
-    typemethod "analyze econ" {} {
-        # TBD: Not yet implemented
-
-        # Notify the GUI that demographics may have changed.
-        notifier send $type <Update>
-
-        return
-    }
-
     # Type Method: ComputePopNG
     #
     # Computes the population statistics for each neighborhood group.
@@ -291,14 +275,21 @@ snit::type demog {
             JOIN nbhoods USING (n)
             WHERE nbhoods.local
         }] {
-            # number of unemployed workers
-            let unemployed {round($labor_force * $ur / 100.0)}
+            if {$population > 0.0} {
+                # number of unemployed workers
+                let unemployed {round($labor_force * $ur / 100.0)}
 
-            # unemployed per capita
-            let upc {100.0 * $unemployed / $population}
+                # unemployed per capita
+                let upc {100.0 * $unemployed / $population}
 
-            # Unemployment Attitude Factor
-            set uaf [zcurve eval $zuaf $upc]
+                # Unemployment Attitude Factor
+                set uaf [zcurve eval $zuaf $upc]
+            } else {
+                set unemployed 0
+                set upc        0.0
+                set uaf        0.0
+                
+            }
 
             # Save results
             rdb eval {

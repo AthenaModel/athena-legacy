@@ -115,7 +115,7 @@ snit::type demsit {
 
             # NEXT, assess the satisfaction implications of this new
             # situation.
-            # demsit_rules monitor $sit
+            demsit_rules monitor $sit
 
             # NEXT, inform all clients about the new object.
             # Always do this after running the rules,
@@ -177,7 +177,7 @@ snit::type demsit {
             }
 
             # NEXT, call the monitor rule set.
-            # demsit_rules monitor $sit
+            demsit_rules monitor $sit
         }
     }
 

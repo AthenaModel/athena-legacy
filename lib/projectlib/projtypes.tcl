@@ -361,6 +361,9 @@ snit::type ::projectlib::typewrapper {
     SEWAGE-2-2    "Sewage is no longer pooled in the streets"
     SEWAGE-3-1    "Sewage is cleaned up by outsiders"
     SEWAGE-3-2    "Sewage is cleaned up by locals"
+
+    UNEMP-1-1     "Group suffering from unemployment"
+    UNEMP-2-1     "Group no longer suffering from unemployment"
 }
 
 # DAM Rule Sets
@@ -413,6 +416,7 @@ snit::type ::projectlib::typewrapper {
     PSYOP     "PSYOP"
     REFINERY  "Oil Refinery Fire"
     SEWAGE    "Sewage Spill"
+    UNEMP     "Unemployment"
 }
 
 # DAM Rule Set Causes
@@ -460,6 +464,7 @@ snit::type ::projectlib::typewrapper {
     SEWAGE    "Sewage Spill"
     SICKNESS  "Sickness"
     THIRST    "Thirst"
+    UNEMP     "Unemployment"
 }
 
 
