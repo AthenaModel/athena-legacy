@@ -1,0 +1,225 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    calpattern.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Tcltest test suite for projectlib(n), calpattern.tcl
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Initialize tcltest(n)
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest 2.2 
+    eval ::tcltest::configure $argv
+}
+ 
+#-----------------------------------------------------------------------
+# Load the package to be tested
+
+package require projectlib 1.0
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::projectlib::test {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Import the code to be tested
+    namespace import ::marsutil::*
+    namespace import ::projectlib::*
+
+    simclock configure -tick {1 day}
+
+    #-------------------------------------------------------------------
+    # dayofweek
+
+    test dayofweek-1.1 {Retrieve day of week for a given tick} -body {
+        # 1 January 1970, the Unix epoch, was a Thursday.
+        list [calpattern dayofweek 0] [calpattern dayofweek 1]
+    } -result {Th F}
+
+    #-------------------------------------------------------------------
+    # validate
+
+    test validate-1.1 {Unknown pattern symbol} -body {
+        calpattern validate NONESUCH
+    } -returnCodes {
+        error
+    } -result {invalid value "NONESUCH", should be one of: daily, byweekday, once}
+
+    test validate-1.2 {daily with args} -body {
+        calpattern validate {daily A B C}
+    } -returnCodes {
+        error
+    } -result {Pattern "daily" takes no arguments}
+
+    test validate-1.3 {once with args} -body {
+        calpattern validate {once A B C}
+    } -returnCodes {
+        error
+    } -result {Pattern "once" takes no arguments}
+
+    test validate-1.4 {byweekday without args} -body {
+        calpattern validate {byweekday}
+    } -returnCodes {
+        error
+    } -result {No day names given for "byweekday" pattern}
+
+    test validate-1.5 {byweekday with invalid arg} -body {
+        calpattern validate {byweekday NONESUCH}
+    } -returnCodes {
+        error
+    } -result {invalid value "NONESUCH", should be one of: Su, M, T, W, Th, F, Sa}
+
+    test validate-2.1 {daily is valid} -body {
+        calpattern validate DAILY
+    } -result {daily}
+
+    test validate-2.2 {once is valid} -body {
+        calpattern validate ONCE
+    } -result {once}
+
+    test validate-2.3 {byweekday is valid} -body {
+        calpattern validate {ByWeekDay M SA}
+    } -result {byweekday M Sa}
+
+
+    #-------------------------------------------------------------------
+    # isactive
+
+    test isactive-1.1 {daily, now < start} -body {
+        calpattern isactive daily 5 0
+    } -result {0}
+
+    test isactive-1.2 {daily, now = start} -body {
+        calpattern isactive daily 5 5
+    } -result {1}
+
+    test isactive-2.1 {once, now < start} -body {
+        calpattern isactive once 5 0
+    } -result {0}
+
+    test isactive-2.2 {once, now = start} -body {
+        calpattern isactive once 5 5
+    } -result {1}
+
+    test isactive-3.1 {byweekday, now < start} -body {
+        calpattern isactive {byweekday M T W} 5 0
+    } -result {0}
+
+    test isactive-3.2 {byweekday, now >= start, Su} -body {
+        calpattern isactive {byweekday M T W} 0 3
+    } -result {0}
+
+    test isactive-3.3 {byweekday, now >= start, M} -body {
+        calpattern isactive {byweekday M T W} 0 4
+    } -result {1}
+
+    test isactive-3.4 {byweekday, now >= start, W} -body {
+        calpattern isactive {byweekday M T W} 0 6
+    } -result {1}
+
+    test isactive-3.5 {byweekday, now >= start, Th} -body {
+        calpattern isactive {byweekday M T W} 0 7
+    } -result {0}
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {daily, start = now, finish = start} -body {
+        calpattern narrative daily 0 0
+    } -result {Today}
+
+    test narrative-1.2 {daily, start != now, finish = start} -body {
+        calpattern narrative daily 1 1
+    } -result {On 020000ZJAN70}
+
+    test narrative-1.3 {daily, start = now, finish > start} -body {
+        calpattern narrative daily 0 5
+    } -result {Daily from now until 060000ZJAN70}
+
+    test narrative-1.4 {daily, start != now, finish > start} -body {
+        calpattern narrative daily 1 5
+    } -result {Daily from 020000ZJAN70 until 060000ZJAN70}
+
+    test narrative-1.5 {daily, start = now, finish = never} -body {
+        calpattern narrative daily 0 ""
+    } -result {Daily from now on}
+
+    test narrative-1.6 {daily, start != now, finish = never} -body {
+        calpattern narrative daily 1 ""
+    } -result {Daily from 020000ZJAN70 on}
+
+    test narrative-2.1 {once, start = now, finish = start} -body {
+        calpattern narrative once 0 0
+    } -result {Once today (no restaffing)}
+
+    test narrative-2.2 {once, start != now, finish = start} -body {
+        calpattern narrative once 1 1
+    } -result {Once on 020000ZJAN70 (no restaffing)}
+
+    test narrative-2.3 {once, start = now, finish > start} -body {
+        calpattern narrative once 0 5
+    } -result {Once today returning 060000ZJAN70 (no restaffing)}
+
+    test narrative-2.4 {once, start != now, finish > start} -body {
+        calpattern narrative once 1 5
+    } -result {Once on 020000ZJAN70 returning 060000ZJAN70 (no restaffing)}
+
+    test narrative-2.5 {once, start = now, finish = never} -body {
+        calpattern narrative once 0 ""
+    } -result {Once today with no return (no restaffing)}
+
+    test narrative-2.6 {once, start != now, finish = never} -body {
+        calpattern narrative once 1 ""
+    } -result {Once on 020000ZJAN70 with no return (no restaffing)}
+
+
+    test narrative-3.1 {byweekday, start = now, finish = start} -body {
+        calpattern narrative {byweekday M T W} 0 0
+    } -result {Every M, T, W from now until 010000ZJAN70}
+
+    test narrative-3.2 {byweekday, start != now, finish = start} -body {
+        calpattern narrative {byweekday M T W} 1 1
+    } -result {Every M, T, W from 020000ZJAN70 until 020000ZJAN70}
+
+    test narrative-3.3 {byweekday, start = now, finish > start} -body {
+        calpattern narrative {byweekday M T W} 0 5
+    } -result {Every M, T, W from now until 060000ZJAN70}
+
+    test narrative-3.4 {byweekday, start != now, finish > start} -body {
+        calpattern narrative {byweekday M T W} 1 5
+    } -result {Every M, T, W from 020000ZJAN70 until 060000ZJAN70}
+
+    test narrative-3.5 {byweekday, start = now, finish = never} -body {
+        calpattern narrative {byweekday M T W} 0 ""
+    } -result {Every M, T, W from now on}
+
+    test narrative-3.6 {byweekday, start != now, finish = never} -body {
+        calpattern narrative {byweekday M T W} 1 ""
+    } -result {Every M, T, W from 020000ZJAN70 on}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::projectlib::test
+
+
+

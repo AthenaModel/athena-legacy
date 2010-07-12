@@ -85,6 +85,42 @@ snit::type nbhood {
         return [$geo find [list $mx $my] nbhood]
     }
 
+    # randloc n
+    #
+    # n       A neighborhood short name
+    #
+    # Tries to get a random location from the neighborhood.
+    # If it fails after ten tries, returns the neighborhood's 
+    # reference point.
+
+    typemethod randloc {n} {
+        # FIRST, get the neighborhood polygon's bounding box
+        foreach {x1 y1 x2 y2} [$geo bbox $n] {}
+
+        # NEXT, no more than 10 tries
+        for {set i 0} {$i < 10} {incr i} {
+            # Get a random lat/lon
+            let x {($x2 - $x1)*rand() + $x1}
+            let y {($y2 - $y1)*rand() + $y1}
+
+            # Is it in the neighborhood (taking stacking order
+            # into account)?
+            set pt [list $x $y]
+
+            if {[geo find $pt] eq $n} {
+                return $pt
+            }
+        }
+
+        # Didn't find one; just return the refpoint.
+        return [rdb onecolumn {
+            SELECT refpoint FROM nbhoods
+            WHERE n=$n
+        }]
+    }
+
+
+
     # names
     #
     # Returns the list of neighborhood names

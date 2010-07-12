@@ -1,0 +1,127 @@
+<<manpage {projectlib(n) calpattern(n)} "Calendar scheduling patterns">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require projectlib 1.0
+namespace import ::projectlib::calpattern
+namespace import ::projectlib::ecalpattern
+namespace import ::projectlib::edayname
+</pre>
+
+<<swallow {package require projectlib}>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+The <<xref calpattern(n)>> data validation type is used to validate
+and manipulate calendar scheduling pattern values.<p>
+
+<<subsection "Scheduling Patterns">>
+
+A scheduling pattern specifies the days in a particular range of days
+upon which some activity is scheduled.  Note that
+<<xref calpattern(n)>> assumes that the default instance of
+<<xref simclock(n)>> is in use as the simulation clock, and that the
+<b>-tick</b> size is "1 day".<p>
+
+
+The following patterns are
+defined:<p>
+
+<<deflist patterns>>
+
+<<defitem daily {daily}>>
+
+The scheduled activity happens daily on each day in the range of days.<p>
+
+<<defitem once {once}>>
+
+The scheduled activity begins on the first day of the range and
+continues until the final day (or until it is cancelled).<p>
+
+
+<<defitem byweekday {byweekday <i>day</i> ?<i>day...</i>?}>>
+
+The scheduled activity happens on each listed week <i>day</i> within
+the range of days, where each <i>day</i> is an <<iref edayname>> value.<p>
+
+<</deflist patterns>>
+
+
+<<section COMMANDS>>
+
+<<deflist commands>>
+
+<<defitem calpattern {calpattern <i>subcommand</i> ?<i>args...</i>?}>>
+
+The <<iref calpattern>> command has the following subcommands.<p>
+
+<<deflist calpattern>>
+
+<<defitem dayofweek {calpattern dayofweek <i>tick</i>}>>
+
+Returns the week day corresponding to the given <i>tick</i> as an
+<<iref edayname>> value.<p>
+
+<<defitem isactive {calpattern isactive <i>pattern start tick</i>}>>
+
+Returns 1 if the specified <i>pattern</i> is active on a day specified
+by the given <<xref simclock(n)>> <i>tick</i>, presuming that the
+calendar item's range of days begins on <i>start</i>, and 0
+otherwise.  It is up to the application to check the finish date.<p>
+
+<<defitem narrative {calpattern narrative <i>pattern start finish</i>}>>
+
+Returns an English-language string which describes the <i>pattern</i>
+and range of days from <i>start</i> to <i>finish</i>.  The
+<i>start</i> must be a <<xref simclock(n)>> tick; the <i>finish</i>
+may be a tick or the empty string, indicating that there is no finish
+date.<p>
+
+<<defitem validate {calpattern validate <i>pattern</i>}>>
+
+Validates the <i>pattern</i>, returning the pattern in canonical form
+if valid and throwing an error with error code <i>INVALID</i> if
+not.<p>
+
+<</deflist calpattern>>
+
+<<defitem ecalpattern {ecalpattern <i>subcommand</i> ?<i>args...</i>?}>>
+
+<<iref ecalpattern>> is a <<xref mars:enum(n)>> type:<p>
+
+<<::projectlib::ecalpattern html>>
+
+<<defitem edayname {edayname <i>subcommand</i> ?<i>args...</i>?}>>
+
+<<iref edayname>> is a <<xref mars:enum(n)>> type:<p>
+
+<<::projectlib::edayname html>>
+
+<</deflist commands>>
+
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
+

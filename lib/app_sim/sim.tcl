@@ -61,15 +61,12 @@ snit::type sim {
     # speed          - The speed at which the simulation should run.
     #                  (This should probably be saved with the GUI 
     #                  settings.)
-    # analysisNeeded - 1 if <analyze> can profitably be called by the
-    #                  the user, and 0 otherwise.
 
     typevariable info -array {
         changed        0
         state          PREP
         stoptime       0
         speed          5
-        analysisNeeded 0
     }
 
     #-------------------------------------------------------------------
@@ -124,12 +121,6 @@ snit::type sim {
         # NEXT, initialize the simulation modules
         econ      init
         situation init
-
-        # NEXT, prepare to flag when analysis is requested.
-        notifier bind ::demog <Update> $type [mytypemethod AnalysisNeeded]
-        notifier bind ::econ  <Entity> $type [mytypemethod AnalysisNeeded]
-        notifier bind ::unit  <Entity> $type [mytypemethod AnalysisNeeded]
-        notifier bind ::parm  <Update> $type [mytypemethod AnalysisNeeded]
 
         log normal sim "init complete"
     }
@@ -470,12 +461,7 @@ snit::type sim {
     # results are logged.
 
     typemethod check {{option -nolog}} {
-        # FIRST, run whatever analyses we can run, if need be.
-        if {[sim analyze?]} {
-            sim analyze
-        }
-        
-        # NEXT, presume that the model is sane.
+        # FIRST, presume that the model is sane.
         set sane 1
 
         set results [list]
@@ -573,23 +559,14 @@ snit::type sim {
                 "Duplicate ensits of type $stype in neighborhood $n"
         }
 
-        # NEXT, all implicit population figures must be at least 1
-        rdb eval {
-            SELECT n,g,implicit FROM demog_ng
-            WHERE implicit < 1
-        } {
-            set sane 0
-            lappend results \
-                "Implicit population < 1 for group $g in neighborhood $n." \
-                "Increase the base population, or reduce the number of" \
-                "people in units for $n $g."
-        }
+        # NEXT, there must be at least 1 local consumer; and hence, there
+        # must be at least one local nbgroup with a sap less than 100.
 
-        # NEXT, there must be at least 1 local consumer.
-        rdb eval {
-            SELECT consumers FROM demog_local
-            WHERE consumers = 0
-        } {
+        if {![rdb exists {
+            SELECT sap 
+            FROM nbgroups JOIN nbhoods USING (n)
+            WHERE local AND sap < 100
+        }]} {
             set sane 0
             lappend results \
                 "There are no consumers in the local economy.  At least" \
@@ -651,21 +628,22 @@ snit::type sim {
         # FIRST, save a PREP checkpoint.
         scenario snapshot save -prep
 
-        # NEXT, initialize the ARAM, etc.
-        aram   init -reload
-        sat    start
-        coop   start
-        nbstat start
-        econ   start
+        # NEXT, do initial analyses, and initialize modules that
+        # begin to work at this time.
+        aram     init -reload
+        activity analyze staffing  ;# Add "start"?
+        demog    analyze pop       ;# Add "start"?
+        sat      start
+        coop     start
+        nbstat   start
+        econ     start
+        demog    analyze econ
 
         # TBD: demog should probably do something here.
         mad getdrivers
 
         # NEXT, execute events scheduled at time 0.
         eventq advance 0
-
-        # NEXT, no analysis is needed.
-        set info(analysisNeeded) 0
 
         # NEXT, set the state to PAUSED
         $type SetState PAUSED
@@ -808,70 +786,6 @@ snit::type sim {
     }
 
     #-------------------------------------------------------------------
-    # Analysis
-
-    # AnalysisNeeded ?args...?
-    #
-    # args...     Ignored.
-    #
-    # Sets the analysis requested flag.
-
-    typemethod AnalysisNeeded {args} {
-        set info(analysisNeeded) 1
-        notifier send $type <AnalysisNeeded>
-    }
-
-    # analyze?
-    #
-    # Returns the analysis needed flag.
-
-    typemethod analyze? {} {
-        return $info(analysisNeeded)
-    }
-
-    # analyze
-    #
-    # Does all analysis that can be done without time advancing,
-    # each security and activity coverage.
-
-    typemethod analyze {} {
-        # FIRST, do the relevant analysis
-
-        # If they've changed parameters, the demog pop analysis may
-        # be out of date wrt to labor force.  Re-do it.
-        demog analyze pop
-
-        # nbstat cannot be done during scenario prep
-        if {$info(state) ne "PREP"} {
-            app puts "Computing group security and unit activity coverage."
-            nbstat analyze
-        }
-
-        # econ analysis can only be done if we have consumers.
-        if {[rdb onecolumn {SELECT consumers FROM demog_local}] > 0} {
-            # In PREP we're doing calibration.
-            if {$info(state) eq "PREP"} {
-                app puts "Calibrating the initial state of the economy"
-                econ analyze -calibrate
-            } else {
-                app puts "Analyzing the current state of the economy"
-                econ analyze
-            }
-
-            # demographic results of the economy.
-            app puts "Disaggregating economic results to the neighborhoods."
-            demog analyze econ
-        }
-
-        set info(analysisNeeded) 0
-        
-        # Notify the sim.  TBD: <DbSyncB> is probably overkill.
-        notifier send $type <DbSyncB>
-    }
-
-
-
-    #-------------------------------------------------------------------
     # Tick
 
     # Tick
@@ -880,7 +794,6 @@ snit::type sim {
 
     typemethod Tick {} {
         # FIRST, advance models
-        demog analyze pop
         ensit assess
         nbstat analyze
         actsit assess
@@ -898,6 +811,8 @@ snit::type sim {
 
         # NEXT, advance GRAM (if t > 0); but first give it the latest
         # population data.
+        #
+        # TBD: This is nuts.
         if {[simclock now] > 0} {
             aram update population {*}[rdb eval {
                 SELECT n,g,population FROM demog_ng
@@ -922,8 +837,8 @@ snit::type sim {
         # NEXT, execute eventq events
         eventq advance [simclock now]
 
-        # NEXT, no analysis is needed.
-        set info(analysisNeeded) 0
+        # NEXT, do staffing.
+        activity analyze staffing
 
         # NEXT, pause if it's the pause time.
         if {$info(stoptime) != 0 &&
@@ -931,6 +846,11 @@ snit::type sim {
         } {
             log normal sim "Stop time reached"
             $type mutate pause
+
+            # Update demographics and nbstats, in case the user
+            # wants to look at them.
+            demog    analyze pop
+            nbstat   analyze
         }
 
         # NEXT, notify the application that the tick has occurred.

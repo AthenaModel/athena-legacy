@@ -31,11 +31,12 @@ snit::widgetadaptor orderbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { id       "ID"         -sortmode integer }
-        { tick     "Tick"       -sortmode integer }
-        { zulu     "Zulu"                         }
-        { name     "Order"                        }
-        { parmdict "Parameters" -stretchable yes  }
+        { id        "ID"         -sortmode integer                  }
+        { tick      "Tick"       -sortmode integer                  }
+        { zulu      "Zulu"                                          }
+        { narrative "Narrative"  -width 50 -wrap 1                  }
+        { name      "Order"                                         }
+        { parmdict  "Parameters" -width 70 -wrap 1 }
     }
 
     #-------------------------------------------------------------------

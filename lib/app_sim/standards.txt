@@ -15,39 +15,6 @@ Author:
    Will Duquette
 
 #-----------------------------------------------------------------------
-Section: Computation Types
-
-The Athena simulation contains three kinds of model-related
-computations.
-
-Direct Consequences - When a user enters an order, the computations
-           that *must* be done to complete the order are called its
-           direct consequences.
-
-Analysis - An analysis is a computation that needs to be done at some
-           point, as later computations will need the results; but it
-           can reasonably be done at any time before then.  In
-           particular, an analysis can be run multiple times, if
-           desired, without harming anything.  Because analyses can be
-           computationally expensive, it's often desirable to delay
-           them as long as possible, i.e., until the results are 
-           required by the software or the user wishes to browse the
-           results.  Analyses usually compute implications of the 
-           current state of the model.
-
-Assessment - An assessment computation determines the consequences
-           of the current state of the model, usually based on
-           analyses, and takes action based on those consequences,
-           e.g., gives attitude inputs to GRAM.  Assessments are only
-           done as part of a time advance.
-
-The <sim> module keeps track of events that occur in between
-simulation ticks that might cause the user to want to request that
-analyses be run, so as to update the data displayed in the various
-browsers.
-
-
-#-----------------------------------------------------------------------
 Section: Standard Method Names
 
 Athena application modules use the following standard method names.
@@ -66,7 +33,8 @@ mutate * - Mutator method: modifies the model's data, supporting
            direct consequences of orders.
 
 analyze  - An analysis routine; if the module does multiple
-           Analysis steps, this routine may have subcommands.
+           Analysis steps, this routine may have subcommands.  Analyze
+           routines are called at start and during advances.
 
 start    - Model initializer; used by simulation modules.  It is called
            when the simulation transitions from the Scenario Preparation
@@ -76,7 +44,7 @@ start    - Model initializer; used by simulation modules.  It is called
 tock     - Model updater; used by simulation modules.  It is called
            during the simulation tick to advance the module's model(s) to
            the current simulation time.  A "tock" routine can also
-           call Analysis and <Assessment> routines.
+           call Analysis and Assessment routines.
 
 tick     - Like "tock", but a tick routine would be called every time tick.
 

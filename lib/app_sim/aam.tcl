@@ -68,45 +68,17 @@ snit::type aam {
             $type mutate attritnf [array get row]
         }
 
-        # NEXT, Scale the collateral damage if it exceeds the population of
-        # the neighborhood.
-
-        rdb eval {
-            SELECT aam_pending_n.n,
-                   total(casualties) AS casualties,
-                   population
-            FROM aam_pending_n JOIN demog_n USING (n)
-            GROUP BY aam_pending_n.n
-        } {
-            if {$casualties <= $population} {
-                continue
-            }
-
-            let factor { double($population)/$casualties }
-            
-            log detail aam \
-            "Scaling collateral damage in $n: cas=$casualties pop=$population"
-            rdb eval {
-                UPDATE aam_pending_n
-                SET casualties = round($factor * casualties)
-                WHERE n = $n
-            }
-        }
 
         # NEXT, apply the collateral damage.
         rdb eval {
             SELECT n,
-                   'CIV'       AS f,
                    casualties,
                    attacker    AS g1,
                    defender    AS g2
             FROM aam_pending_n
         } row {
-            $type mutate attritnf [array get row]
+            $type mutate attritn [array get row]
         }
-
-        # NEXT, refresh the demographics
-        demog analyze pop
     }
 
     # AssessAttitudeImplications
@@ -201,7 +173,6 @@ snit::type aam {
         set cellSize  [parmdb get aam.UFvsNF.NF.cellSize]
 
         # NEXT, step over all attacking ROEs.
-        # TBD: Can use force_ng.personnel instead of activity_nga.effective.
         rdb eval {
             SELECT A.n                       AS n,
                    A.f                       AS uf, 
@@ -504,11 +475,6 @@ snit::type aam {
 
 
     #-------------------------------------------------------------------
-    # Queries
-
-    # TBD
-
-    #-------------------------------------------------------------------
     # Mutators
     #
     # Mutators are used to implement orders that change the simulation in
@@ -522,8 +488,7 @@ snit::type aam {
     # parmdict      Dictionary of order parms
     #
     #   n           Neighborhood in which attrition occurs
-    #   f           Group taking attrition, or "CIV" for civilian
-    #               collateral damage.
+    #   f           Group taking attrition.
     #   casualties  Number of casualties taken by the group.
     #   g1          Responsible force group, or ""
     #   g2          Responsible force group, or "".
@@ -531,107 +496,250 @@ snit::type aam {
     # Attrits the specified group in the specified neighborhood
     # by the specified number of casualties (all of which are kills).
     #
-    # FRC and ORG Attrition
+    # The group's units are attrited in proportion to their size.
     #
-    # If f is a FRC or ORG group, the group's units are attrited in
-    # the attrit_order of their activities, and by size; given the
-    # same activity, larger units are attrited before smaller ones.
-    #
-    # CIV Attrition
-    #
-    # If f is a civilian group, the group's implicit population is
-    # attrited and units are attrited proportionally.
-    #
-    # If f is "CIV", meaning civilian collateral damage,
-    # then the casualties are allocated to the implicit population of
-    # all groups in the neighborhood, and to all civilian units
-    # in the neighborhood, in proportion to their population.  Also,
-    # g1 and g2 will be given responsibility for the attrition.
-    #
-    # NOTE: the caller should be sure to call "demog analyze pop"
-    # after all attrition is done.
+    # g1 and g2 are used only for attrition to a civilian group.
 
     typemethod {mutate attritnf} {parmdict} {
         dict with parmdict {
             log normal aam "mutate attritnf $n $f $casualties $g1 $g2"
 
-            # FIRST, determine what kind of attrition we're doing.
-            if {$f eq "CIV"} {
-                return [$type AttritNbhood $n $casualties $g1 $g2]
-            } else {
-                if {[group gtype $f] eq "CIV"} {
-                    return [$type AttritNbgroup $n $f $casualties $g1 $g2]
-                } else {
-                    return [$type AttritFrcOrgUnits $n $f $casualties]
-                }
-            }
+            # FIRST, determine the set of units to attrit.
+            set units [rdb eval {
+                UPDATE units
+                SET attrit_flag = 0;
+
+                UPDATE units
+                SET attrit_flag = 1
+                WHERE n=$n 
+                AND   g=$f
+                AND   personnel > 0
+            }]
+
+            # NEXT, attrit the units
+            return [$type AttritUnits $casualties $g1 $g2]
         }
     }
 
-    # AttritFrcOrgUnits n f casualties
+    # mutate attritn parmdict
     #
-    # n           Neighborhood in which attrition occurs
-    # f           Group to which attrition occurs
-    # casualties  The number of casualties
+    # parmdict      Dictionary of order parms
     #
-    # Removes the specified number of casualties from the 
-    # group in the neighborhood, if possible.
+    #   n           Neighborhood in which attrition occurs
+    #   casualties  Number of casualties taken by the group.
+    #   g1          Responsible force group, or "".
+    #   g2          Responsible force group, or "".
+    #
+    # Attrits all civilian units in the specified neighborhood
+    # by the specified number of casualties (all of which are kills).
+    # Units are attrited in proportion to their size.
 
-    typemethod AttritFrcOrgUnits {n f casualties} {
-        # FIRST, prepare to undo
-        set undo [list]
+    typemethod {mutate attritn} {parmdict} {
+        dict with parmdict {
+            log normal aam "mutate attritn $n $casualties $g1 $g2"
 
-        # FIRST, attrit units until there are no more units with
-        # personnel or all of the casualties have been taken.
-        set remaining $casualties
-        set gtype ""
+            # FIRST, determine the set of units to attrit (all
+            # the CIV units in the neighborhood).
+            set units [rdb eval {
+                UPDATE units
+                SET attrit_flag = 0;
+
+                UPDATE units
+                SET attrit_flag = 1
+                WHERE n=$n 
+                AND   gtype='CIV'
+                AND   personnel > 0
+            }]
+
+            # NEXT, attrit the units
+            return [$type AttritUnits $casualties $g1 $g2]
+        }
+    }
+
+    # mutate attritunit parmdict
+    #
+    # parmdict      Dictionary of order parms
+    #
+    #   u           Unit to be attrited.
+    #   casualties  Number of casualties taken by the unit.
+    #   g1          Responsible group
+    #   g2          Responsible group
+    #
+    # Attrits the specified unit by the specified number of 
+    # casualties (all of which are kills).
+
+    typemethod {mutate attritunit} {parmdict} {
+        dict with parmdict {
+            log normal aam "mutate attritunit $u $casualties $g1 $g2"
+
+            # FIRST, prepare to undo
+            set undo [list]
+
+            # NEXT, retrieve the unit.
+            set unit [unit get $u]
+
+            dict with unit {
+                # FIRST, get the actual number of casualties the
+                # unit can take.
+                let actual {min($casualties,$personnel)}
+
+                if {$actual == 0} {
+                    log normal aam \
+                        "Overkill; no casualties can be inflicted."
+                    return "# Nothing to undo"
+                } elseif {$actual < $casualties} {
+                    log normal aam \
+                        "Overkill; only $actual casualties can be inflicted."
+                }
+
+                set casualties $actual
+            }
+        }
+
+        # NEXT, attrit the unit
+        set parmdict [dict merge $parmdict $unit]
+        lappend undo [$type AttritUnit $parmdict]
+
+        return [join $undo \n]
+    }
+
+    # AttritUnits casualties g1 g2
+    #
+    # casualties  Number of casualties taken by the group.
+    # g1          Responsible force group, or "".
+    # g2          Responsible force group, or "".
+    #
+    # Attrits the units marked with the attrition flag 
+    # proportional to their size until
+    # all casualites are inflicted or the units have no personnel.
+    # The actual work is performed by mutate attritunit.
+
+    typemethod AttritUnits {casualties g1 g2} {
+        # FIRST, determine the number of personnel in the attrited units
+        set total [rdb eval {
+            SELECT total(personnel) FROM units
+            WHERE attrit_flag
+        }]
+
+        # NEXT, compute the actual number of casualties.
+        let actual {min($casualties, $total)}
+
+        if {$actual == 0} {
+            log normal aam \
+                "Overkill; no casualties can be inflicted."
+            return "# Nothing to undo"
+        } elseif {$actual < $casualties} {
+            log normal aam \
+                "Overkill; only $actual casualties can be inflicted."
+        }
+        
+        # NEXT, apply attrition to the units, in order of size.
+        set remaining $actual
 
         rdb eval {
-            SELECT u,personnel,units.gtype AS gtype
-            FROM units JOIN activity_gtype USING (a,gtype)
-            WHERE n=$n AND g=$f AND personnel > 0
-            ORDER BY attrit_order ASC, personnel DESC
-        } {
-            # FIRST, determine how many of the casualties the
-            # unit can take.
-            let take {min($personnel, $remaining)}
-            let personnel {$personnel - $take}
-            let remaining {$remaining - $take}
+            SELECT u                                   AS u,
+                   g                                   AS g,
+                   gtype                               AS gtype,
+                   personnel                           AS personnel,
+                   n                                   AS n,
+                   origin                              AS origin,
+                   $actual*(CAST (personnel AS REAL)/$total) 
+                                                       AS share
+            FROM units
+            WHERE attrit_flag
+            ORDER BY share DESC
+        } row {
+            # FIRST, allocate the share to this body of people.
+            let kills     {int(min($remaining, ceil($row(share))))}
+            let remaining {$remaining - $kills}
 
-            # NEXT, apply the casualties to the unit
-            log normal aam \
-                "Unit $u takes $take casualties, leaving $personnel personnel"
-            
-            lappend undo [unit mutate personnel $u $personnel]
+            # NEXT, compute the attrition.
+            let take {int(min($row(personnel), $kills))}
 
-            # NEXT, if there are no more casualties, we're done
+            # NEXT, attrit the unit
+            set row(g1)         $g1
+            set row(g2)         $g2
+            set row(casualties) $take
+
+            lappend undo [$type AttritUnit [array get row]]
+
+            # NEXT, we might have finished early
             if {$remaining == 0} {
                 break
             }
         }
 
-        # NEXT, if casualties is not zero, we attrited more than were
-        # available.
-        let actual {$casualties - $remaining}
+        return [join $undo \n]
+    }
 
-        if {$remaining > 0} {
+    # AttritUnit parmdict
+    #
+    # parmdict      Dictionary of unit data, plus g1 and g2
+    #
+    # Attrits the specified unit by the specified number of 
+    # casualties (all of which are kills); also decrements
+    # the unit's staffing pool.  This is the fundamental attrition
+    # routine; the others all flow down to this.
+    #
+    # CIV Attrition
+    #
+    # If u is a CIV unit, the attrition is counted against the
+    # unit's neighborhood of origin.
+
+    typemethod AttritUnit {parmdict} {
+        dict with parmdict {
+            # FIRST, prepare to undo
+            set undo [list]
+
+            # NEXT, log the attrition
+            let personnel {$personnel - $casualties}
+
             log normal aam \
-                "Overkill; only $actual casualties could be taken by $f in $n."
-        }
+          "Unit $u takes $casualties casualties, leaving $personnel personnel"
+            
+            # NEXT, update the unit.
+            lappend undo [unit mutate personnel $u $personnel]
 
-        # NEXT, save ORG attrition for attitude assessment
-        if {$gtype eq "ORG"  && $actual > 0} {
-            lappend undo [$type SaveOrgAttrition $n $f $actual]
+            # NEXT, if this is a CIV unit, attrit the unit's
+            # group of origin.
+            if {$gtype eq "CIV"} {
+                # FIRST, attrit the group of origin
+                set parms [list n $origin g $g casualties $casualties]
+
+                if {$n eq $origin} {
+                    lappend undo [demog mutate attritResident $parms]
+                } else {
+                    lappend undo [demog mutate attritDisplaced $parms]
+                }
+
+                # NEXT, save the attrition for attitude assessment
+                lappend undo \
+                    [$type SaveCivAttrition $origin $g $casualties $g1 $g2] 
+            } else {
+                # FIRST, It's a force or org unit.  Attrit its pool in
+                # its neighborhood of origin.
+
+                set parms [list n $origin g $g delta -$casualties]
+
+                lappend undo [personnel mutate adjust $parms]
+
+                # FIRST, if this is an ORG unit, save the attrition
+                # in the neighborhood of operation for attitude
+                # assessment.
+                if {$gtype eq "ORG"} {
+                    lappend undo [$type SaveOrgAttrition $n $g $casualties] 
+                }
+            }
         }
 
         return [join $undo \n]
     }
 
-
+    
     # SaveOrgAttrition n f casualties
     #
     # n           The neighborhood in which the attrition took place.
-    # f           The CIV group receiving the attrition
+    # f           The ORG group receiving the attrition
     # casualties  The number of casualties
     #
     # Accumulates the attrition for later attitude assessment.
@@ -649,224 +757,6 @@ snit::type aam {
         set id [rdb last_insert_rowid]
 
         lappend undo [mytypemethod DeleteAttritNF $id]
-
-        return [join $undo \n]
-    }
-
-
-    # AttritNbgroup n f casualties g1 g2
-    #
-    # n           Neighborhood in which attrition occurs
-    # f           Group to which attrition occurs
-    # casualties  The number of casualties
-    # g1          Responsible group
-    # g2          Responsible group
-    #
-    # Attrits the group, returning an undo script
-
-    typemethod AttritNbgroup {n f casualties g1 g2} {
-        # FIRST, prepare to undo
-        set undo [list]
-
-        # NEXT, get the group's data
-        set dict [demog getng $n $f]
-
-        if {[dict size $dict] == 0} {
-            log warning demog \
-                "mutate attrit -- $f is not resident in $n"
-            return "# Nothing to undo"
-        }
-
-        # NEXT, attrit the group.
-        dict with dict {
-            # FIRST, How many casualties can we actually take?  We have
-            # to leave at least one person in the implicit population,
-            # but the units can all go to zero.
-            #
-            # Note that "population" is in fact the implicit population
-            # plus the non-displaced personnel.
-            let actual {min($casualties, $population - 1)}
-
-            if {$actual == 0} {
-                log normal aam \
-                    "Overkill; no casualties can be inflicted."
-                return
-            } elseif {$actual < $casualties} {
-                log normal aam \
-                    "Overkill; only $actual casualties can be inflicted."
-            }
-
-
-            # NEXT, apply the actual casualties to the group, saving the
-            # undo command.
-            lappend undo [mytypemethod SetNbgroupAttrition $n $f $attrition]
-
-            let newAttrition {$attrition + $actual}
-
-            $type SetNbgroupAttrition $n $f $newAttrition
-
-            # NEXT, save the casualties for later attitude assessment.
-            lappend undo [$type SaveCivAttrition $n $f $actual $g1 $g2] 
-
-            # NEXT, apply attrition to the bodies, in order of size.
-            set remaining $actual
-
-            rdb eval {
-                SELECT ''                                  AS u,
-                       implicit - 1                        AS personnel,
-                       $actual*(CAST (implicit AS REAL)/$population)  
-                                                           AS share
-                FROM demog_ng 
-                WHERE n=$n AND g=$f AND implicit > 1
-                UNION
-                SELECT u                               AS u,
-                       personnel                       AS personnel,
-                       $actual*(CAST (personnel AS REAL)/$population) 
-                                                       AS share
-                FROM units
-                WHERE n=$n AND g=$f AND n=origin AND personnel > 0
-                ORDER BY share DESC
-            } {
-                # FIRST, allocate the share to this body of people.
-                let kills     {int(min($remaining, ceil($share), $personnel))}
-                let remaining {$remaining - $kills}
-
-                # NEXT, if it's the implicit personnel, we're
-                # done.
-                if {$u eq ""} {
-                    continue
-                }
-
-                # NEXT, it's a unit; attrit it.
-                let personnel {int($personnel - $kills)}
-
-
-                # NEXT, apply the casualties to the unit
-                log normal aam \
-                "Unit $u takes $kills casualties, leaving $personnel personnel"
-            
-                lappend undo [unit mutate personnel $u $personnel]
-
-                # NEXT, we might have finished early
-                if {$remaining == 0} {
-                    break
-                }
-            }
-        }
-
-        return [join $undo \n]
-    }
-
-
-    # AttritNbhood n casualties g1 g2
-    #
-    # n           Neighborhood in which attrition occurs
-    # casualties  The number of casualties
-    # g1          A responsible force group
-    # g2          A responsible force group
-    #
-    # Attrits the civilian groups and units in the neighborhood, 
-    # returning an undo script.
-
-    typemethod AttritNbhood {n casualties g1 g2} {
-        # FIRST, prepare to undo
-        set undo [list]
-
-        # NEXT, get the neighborhood's population
-        set nbpop [demog getn $n population]
-
-        # NEXT, we have to leave at least one person in each
-        # group's implicit personnel.  How many resident
-        # groups are there?
-        set numResident [llength [nbgroup gIn $n]]
-
-        # NEXT, compute the actual number of casualties.
-        let actual {min($casualties, $nbpop - $numResident)}
-
-        if {$actual == 0} {
-            log normal aam \
-                "Overkill; no casualties can be inflicted."
-            return
-        } elseif {$actual < $casualties} {
-            log normal aam \
-                "Overkill; only $actual casualties can be inflicted."
-        }
-        
-        # NEXT, apply attrition to the bodies, in order of size.
-        set remaining $actual
-
-        rdb eval {
-            SELECT ''                                  AS u,
-                   g                                   AS g,
-                   implicit - 1                        AS personnel,
-                   $n                                  AS origin,
-                   $actual*(CAST ((implicit-1) AS REAL)/$nbpop)  
-                                                       AS share
-            FROM demog_ng 
-            WHERE n=$n AND implicit > 1
-            UNION
-            SELECT u                                   AS u,
-                   g                                   AS g,
-                   personnel                           AS personnel,
-                   origin                              AS origin,
-                   $actual*(CAST (personnel AS REAL)/$nbpop) 
-                                                       AS share
-            FROM units
-            WHERE gtype='CIV' AND n=$n AND personnel > 0
-            ORDER BY share DESC
-        } {
-            # FIRST, allocate the share to this body of people.
-            let kills     {int(min($remaining, ceil($share)))}
-            let remaining {$remaining - $kills}
-
-            # NEXT, compute the attrition.
-            let take {int(min($personnel, $kills))}
-            let personnel {int($personnel - $take)}
-
-            # NEXT, prepare to save the proper group's attrition, to
-            # update the demographics.
-            incr attr([list $origin $g]) $kills
-
-            # NEXT, if it's not a unit we're done in this loop.
-            if {$u eq ""} {
-                continue
-            }
-
-            # NEXT, apply the casualties to the unit
-            log normal aam \
-                "Unit $u takes $take casualties, leaving $personnel personnel"
-            
-            lappend undo [unit mutate personnel $u $personnel]
-
-            # NEXT, we might have finished early
-            if {$remaining == 0} {
-                break
-            }
-        }
-
-        # NEXT, apply the accumulated attrition to each group in the
-        # neighborhood, saving the undo command.
-        foreach ng [array names attr] {
-            # FIRST, get the group and neighborhood.
-            lassign $ng m f
-
-            # NEXT, save the attrition for attitude assessment for
-            # local groups
-            if {$m eq $n && $attr($ng) > 0} {
-                lappend undo [$type SaveCivAttrition $n $f $attr($ng) $g1 $g2]
-            }
-
-            # NEXT, update the attrition model.
-            set oldAttrition [demog getng $m $f attrition]
-
-            lappend undo \
-                [mytypemethod SetNbgroupAttrition $m $f $oldAttrition]
-
-            let newAttrition {$oldAttrition + $attr($ng)}
-
-            $type SetNbgroupAttrition $m $f $newAttrition
-        }
-            
 
         return [join $undo \n]
     }
@@ -945,104 +835,6 @@ snit::type aam {
         }
     }
 
-    # SetNbgroupAttrition n f attrition
-    #
-    # n           Neighborhood
-    # f           Group resident in n
-    # attrition   New accumulated attrition value
-    #
-    # Sets the cumulative attrition value for the n and f
-
-    typemethod SetNbgroupAttrition {n f attrition} {
-        rdb eval {
-            UPDATE demog_ng
-            SET attrition = $attrition
-            WHERE n=$n AND g=$f
-        }
-    }
-    
-    # mutate attritunit parmdict
-    #
-    # parmdict      Dictionary of order parms
-    #
-    #   u           Unit to be attrited.
-    #   casualties  Number of casualties taken by the unit.
-    #   g1          Responsible group
-    #   g2          Responsible group
-    #
-    # Attrits the specified unit by the specified number of 
-    # casualties (all of which are kills).
-    #
-    # CIV Attrition
-    #
-    # If u is a CIV unit, the attrition is counted against the
-    # unit's neighborhood group.  In this case, the caller should 
-    # be sure to call "demog analyze pop".
-
-    typemethod {mutate attritunit} {parmdict} {
-        dict with parmdict {
-            log normal aam "mutate attritunit $u $casualties $g1 $g2"
-
-            # FIRST, prepare to undo
-            set undo [list]
-
-            # NEXT, retrieve the unit.
-            set unit [unit get $u]
-
-            dict with unit {
-                # FIRST, get the actual number of casualties the
-                # unit can take.
-                let actual {min($casualties,$personnel)}
-
-                if {$actual == 0} {
-                    log normal aam \
-                        "Overkill; no casualties can be inflicted."
-                    return
-                } elseif {$actual < $casualties} {
-                    log normal aam \
-                        "Overkill; only $actual casualties can be inflicted."
-                }
-
-                # NEXT, attrit the unit
-                let personnel {$personnel - $actual}
-
-                log normal aam \
-              "Unit $u takes $actual casualties, leaving $personnel personnel"
-            
-                lappend undo [unit mutate personnel $u $personnel]
-
-                # NEXT, if this is a CIV unit, attrit the unit's
-                # group of origin.
-                if {$gtype eq "CIV"} {
-                    # FIRST, attrit the group of origin
-                    set oldAttrition [demog getng $origin $g attrition]
-
-                    lappend undo \
-                        [mytypemethod SetNbgroupAttrition \
-                             $origin $g $oldAttrition]
-
-                    let newAttrition {$oldAttrition + $actual}
-
-                    $type SetNbgroupAttrition $origin $g $newAttrition
-
-                    # NEXT, save the attrition for attitude assessment,
-                    # if the unit is in its neighborhood of origin.
-                    if {$origin eq $n} {
-                        lappend undo \
-                            [$type SaveCivAttrition $n $g $actual $g1 $g2] 
-                    }
-                }
-
-                # NEXT, if this is an ORG unit, save the attrition.
-                if {$gtype eq "ORG"} {
-                    lappend undo \
-                        [$type SaveOrgAttrition $n $g $actual] 
-                }
-            }
-        }
-
-        return [join $undo \n]
-    }
 
     #-------------------------------------------------------------------
     # Order Helpers
@@ -1059,12 +851,7 @@ snit::type aam {
             set groups [rdb eval {
                 SELECT DISTINCT g
                 FROM units
-                WHERE n=$n AND gtype != 'CIV'
-                UNION
-                SELECT DISTINCT g
-                FROM demog_ng
                 WHERE n=$n
-                AND   population > 1
                 ORDER BY g
             }]
 
@@ -1153,7 +940,7 @@ order define ::aam ATTRIT:NBHOOD {
     options \
         -alwaysunsaved                \
         -schedulestates {PREP PAUSED} \
-        -sendstates     {PREP PAUSED}
+        -sendstates     {PAUSED}
 
     parm n          enum  "Neighborhood" -type nbhood -tags nbhood
     parm casualties text  "Casualties" 
@@ -1175,9 +962,7 @@ order define ::aam ATTRIT:NBHOOD {
     }
 
     # NEXT, attrit the civilians in the neighborhood
-    set parms(f) "CIV"
-    lappend undo [$type mutate attritnf [array get parms]]
-    lappend undo [demog analyze pop]
+    lappend undo [$type mutate attritn [array get parms]]
 
     setundo [join $undo \n]
 }
@@ -1192,7 +977,7 @@ order define ::aam ATTRIT:GROUP {
     options \
         -alwaysunsaved                \
         -schedulestates {PREP PAUSED} \
-        -sendstates     {PREP PAUSED}
+        -sendstates     {PAUSED}
 
     parm n          enum  "Neighborhood"  -type nbhood  -tags nbhood
     parm f          enum  "To Group"      -tags group \
@@ -1238,11 +1023,6 @@ order define ::aam ATTRIT:GROUP {
     # NEXT, attrit the group
     lappend undo [$type mutate attritnf [array get parms]]
 
-    # NEXT, if it's a civilian group, update the demographics
-    if {$gtype eq "CIV"} {
-        lappend undo [demog analyze pop]
-    }
-
     setundo [join $undo \n]
 }
 
@@ -1256,7 +1036,7 @@ order define ::aam ATTRIT:UNIT {
     options \
         -alwaysunsaved                \
         -schedulestates {PREP PAUSED} \
-        -sendstates     {PREP PAUSED}
+        -sendstates     {PAUSED}
 
     parm u          enum  "Unit"       -type unit -tags unit
     parm casualties text  "Casualties" 
@@ -1294,11 +1074,6 @@ order define ::aam ATTRIT:UNIT {
 
     # NEXT, attrit the unit
     lappend undo [$type mutate attritunit [array get parms]]
-
-    # NEXT, if it's a civilian unit, update the demographics
-    if {$gtype eq "CIV"} {
-        lappend undo [demog analyze pop]
-    }
 
     setundo [join $undo \n]
 }

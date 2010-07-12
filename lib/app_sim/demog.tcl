@@ -38,11 +38,8 @@ snit::type demog {
     # Type Method: analyze pop
     #
     # Computes the population statistics in demog_ng(n,g), demog_n(n), 
-    # and demog_local for all n, g.  This routine is called by other 
-    # modules when something happens to neighborhood population.
-    #
-    # This command acts as a mutator, to make it easier to use
-    # in undo scripts.
+    # and demog_local for all n, g.  This routine depends on the
+    # units staffed by activity(sim).
     #
     # Syntax:
     #   analyze pop
@@ -55,7 +52,7 @@ snit::type demog {
         # Notify the GUI that demographics may have changed.
         notifier send $type <Update>
 
-        return [mytypemethod analyze pop]
+        return
     }
 
     # Type Method: ComputePopNG
@@ -66,42 +63,56 @@ snit::type demog {
     #   ComputePopNG
 
     typemethod ComputePopNG {} {
-        # FIRST, get explicit and displaced personnel.
+        # FIRST, get resident and subsistence population
         rdb eval {
-            UPDATE demog_ng
-            SET explicit    = 0,
-                displaced   = 0,
-                labor_force = 0;
+            SELECT nbgroups.n             AS n,
+                   nbgroups.g             AS g,
+                   nbgroups.sap           AS sap,
+                   total(units.personnel) AS population
+            FROM nbgroups
+            JOIN units
+            ON (nbgroups.n=units.origin AND nbgroups.g=units.g)
+            WHERE units.n = units.origin AND units.personnel > 0
+            GROUP BY nbgroups.n, nbgroups.g
+        } {
+            let subsistence {int($population*$sap/100.0)}
+            let consumers   {$population - $subsistence}
+
+            rdb eval {
+                UPDATE demog_ng
+                SET population  = $population,
+                    subsistence = $subsistence,
+                    consumers   = $consumers,
+                    labor_force = 0
+                WHERE n=$n and g=$g;
+            }
         }
 
+        # NEXT, get displaced population.
         rdb eval {
-            SELECT origin                            AS origin,
-                   g                                 AS g,
-                   total(personnel)                  AS explicit,
-                   total(
-                       CASE WHEN n != origin
-                       THEN personnel ELSE 0 END
-                   )                                 AS displaced
+            SELECT origin, g, total(personnel) AS displaced
             FROM units
-            WHERE origin != 'NONE'
+            WHERE gtype='CIV' AND n != origin AND personnel > 0
             GROUP BY origin, g
         } {
             rdb eval {
                 UPDATE demog_ng
-                SET explicit  = $explicit,
-                    displaced = $displaced
-                WHERE n=$origin AND g=$g
+                SET displaced  = $displaced
+                WHERE n=$origin and g=$g;
             }
         }
 
-        # NEXT, Add labor force in units.  Don't adjust for
-        # subsistence; we'll do that when we add in the 
-        # implicit population's contribution.
+        # NEXT, accumulate labor force.
         rdb eval {
-            SELECT n, g, total(personnel) AS personnel, a
-            FROM units
-            WHERE origin = n
-            GROUP by n, g, a
+            SELECT nbgroups.n             AS n,
+                   nbgroups.g             AS g, 
+                   nbgroups.sap           AS sap, 
+                   units.a                AS a, 
+                   total(units.personnel) AS personnel
+            FROM nbgroups 
+            JOIN units ON (nbgroups.n=units.origin AND nbgroups.g=units.g)
+            WHERE units.n=units.origin
+            GROUP BY n,g,a
         } {
             set LFF [parm get demog.laborForceFraction.$a]
 
@@ -109,33 +120,12 @@ snit::type demog {
                 continue
             }
 
+
+            let LF {round($LFF* $personnel * (100 - $sap)/100.0)}
+
             rdb eval {
                 UPDATE demog_ng
-                SET labor_force = labor_force + $personnel*$LFF
-                WHERE n=$n AND g=$g;
-            }
-        }
-
-
-        # NEXT, compute implicit, population, subsistence, 
-        # consumers, and implicit labor force.
-        set LFF [parm get demog.laborForceFraction.NONE]
-
-        rdb eval {
-            SELECT n, g, basepop, sap
-            FROM nbgroups
-        } {
-            rdb eval {
-                UPDATE demog_ng
-                SET implicit   = $basepop - explicit  - attrition,
-                    population = $basepop - displaced - attrition
-                WHERE n=$n AND g=$g;
-
-                UPDATE demog_ng
-                SET subsistence = population*$sap/100.0,
-                    consumers   = population - population*$sap/100.0,
-                    labor_force = (labor_force + implicit * $LFF) *
-                                  (100.0 - $sap)/100.0
+                SET labor_force = labor_force + $LF
                 WHERE n=$n AND g=$g;
             }
         }
@@ -147,7 +137,7 @@ snit::type demog {
     # neighborhood.
     #
     # Syntax:
-    #   ComputePopN
+    #   ComputePopNtest/app_sim/
 
     typemethod ComputePopN {} {
         # FIRST, compute the displaced populationa and displaced 
@@ -161,7 +151,7 @@ snit::type demog {
         rdb eval {
             SELECT n, a, total(personnel) AS personnel
             FROM units
-            WHERE gtype='CIV' AND n != origin AND n != ''
+            WHERE gtype='CIV' AND n != origin
             GROUP BY n, a
         } {
             set LFF [parm get demog.laborForceFraction.$a]
@@ -387,6 +377,107 @@ snit::type demog {
         }
 
         return ""
+    }
+
+    #-------------------------------------------------------------------
+    # Mutators
+
+    # mutate attritResident parmdict
+    #
+    # parmdict     A dictionary of group parms
+    #
+    #    n                Neighborhood ID
+    #    g                Group ID
+    #    casualties       A number of casualites to attrit
+    #
+    # Updates a demog_ng record given the parms, which are presumed to be
+    # valid.
+
+    typemethod {mutate attritResident} {parmdict} {
+        # FIRST, use the dict
+        dict with parmdict {
+            # FIRST, get the undo information
+            rdb eval {
+                SELECT population,attrition FROM demog_ng
+                WHERE n=$n AND g=$g
+            } {}
+
+            if {$casualties >= 0} {
+                let casualties {min($casualties, $population - 1)}
+                let undoCasualties {-$casualties}
+                set undoing 0
+            } else {
+                set undoing 1
+            }
+
+            # NEXT, Update the group
+            rdb eval {
+                UPDATE demog_ng
+                SET attrition = attrition + $casualties,
+                    population = population - $casualties
+                WHERE n=$n AND g=$g
+            } {}
+
+            # NEXT, notify the app.
+            notifier send ::demog <Update>
+
+            # NEXT, If we're not undoing, return the undo command.
+            if {!$undoing} {
+                return [mytypemethod mutate attritResident \
+                        [list n $n g $g casualties $undoCasualties]]
+            } else {
+                return
+            }
+        }
+    }
+    
+    # mutate attritDisplaced parmdict
+    #
+    # parmdict     A dictionary of group parms
+    #
+    #    n                Neighborhood ID
+    #    g                Group ID
+    #    casualties       A number of casualites to attrit
+    #
+    # Updates a demog_ng record given the parms, which are presumed to be
+    # valid.
+
+    typemethod {mutate attritDisplaced} {parmdict} {
+        # FIRST, use the dict
+        dict with parmdict {
+            # FIRST, get the undo information
+            rdb eval {
+                SELECT displaced,attrition FROM demog_ng
+                WHERE n=$n AND g=$g
+            } {}
+
+            if {$casualties >= 0} {
+                let casualties {min($casualties, $displaced)}
+                let undoCasualties {-$casualties}
+                set undoing 0
+            } else {
+                set undoing 1
+            }
+
+            # NEXT, Update the group
+            rdb eval {
+                UPDATE demog_ng
+                SET attrition = attrition + $casualties,
+                    displaced = displaced - $casualties
+                WHERE n=$n AND g=$g
+            } {}
+
+            # NEXT, notify the app.
+            notifier send ::demog <Update>
+
+            # NEXT, If we're not undoing, return the undo command.
+            if {!$undoing} {
+                return [mytypemethod mutate attritDisplaced \
+                        [list n $n g $g casualties $undoCasualties]]
+            } else {
+                return
+            }
+        }
     }
 }
 

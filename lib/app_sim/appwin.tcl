@@ -95,6 +95,24 @@ snit::widget appwin {
             script { mapviewer %W -width 600 -height 600 }
         }
 
+        plant {
+            label "Plan"
+            parent ""
+            script ""
+        }
+
+        planforce {
+            label "Force Levels"
+            parent plant
+            script { planforcebrowser %W }
+        }
+
+        schedule {
+            label "Schedule"
+            parent plant
+            script { schedulebrowser %W }
+        }
+
         units {
             label   "Units"
             parent  ""
@@ -183,6 +201,12 @@ snit::widget appwin {
             label   "Relationships"
             parent  groupst
             script  { relbrowser %W }
+        }
+
+        personnel {
+            label   "Personnel"
+            parent  groupst
+            script  { personnelbrowser %W }
         }
 
         roet {
@@ -355,12 +379,14 @@ snit::widget appwin {
     # simstate    Current simulation state
     # tick        Current sim time as a four-digit tick
     # zulutime    Current sim time as a zulu time string
+    # dayofweek   Day of week (edayname value)      
 
     variable info -array {
-        simspeed 5
-        simstate ""
-        tick     "0000"
-        zulutime ""
+        simspeed  5
+        simstate  ""
+        tick      "0000"
+        zulutime  ""
+        dayofweek "??"
     }
 
     #-------------------------------------------------------------------
@@ -605,16 +631,29 @@ snit::widget appwin {
         
         $self AddOrder $submenu SIM:STARTDATE
 
+        # Orders/Personnel
+        set submenu [menu $ordersmenu.personnel]
+        $ordersmenu add cascade -label "Personnel" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu PERSONNEL:SET
+        $self AddOrder $submenu PERSONNEL:ADJUST
+
+        # Orders/Activity
+        set submenu [menu $ordersmenu.activity]
+        $ordersmenu add cascade -label "Activity" \
+            -underline 4 -menu $submenu
+        
+        $self AddOrder $submenu ACTIVITY:SCHEDULE
+        $self AddOrder $submenu ACTIVITY:UPDATE
+        $self AddOrder $submenu ACTIVITY:CANCEL
+
         # Orders/Unit
         set submenu [menu $ordersmenu.unit]
         $ordersmenu add cascade -label "Unit" \
             -underline 0 -menu $submenu
         
-        $self AddOrder $submenu UNIT:CREATE
-        $self AddOrder $submenu UNIT:DELETE
         $self AddOrder $submenu UNIT:MOVE
-        $self AddOrder $submenu UNIT:ACTIVITY
-        $self AddOrder $submenu UNIT:PERSONNEL
         $self AddOrder $submenu ATTRIT:UNIT
 
         # Orders/Attrition
@@ -915,12 +954,6 @@ snit::widget appwin {
         $self AddToolbarButton last last16 "Latest Snapshot" \
             [list ::sim snapshot last]
 
-        # Analyze
-        $self AddToolbarButton analyze a22 \
-            "Analyze without time advance"  \
-            [list ::sim analyze]
-        cond::simAnalysisNeeded control $win.toolbar.analyze
-
         # Sim State
         ttk::label $win.toolbar.state                  \
             -text "State:"
@@ -940,6 +973,11 @@ snit::widget appwin {
             -width              12                     \
             -textvariable       [myvar info(zulutime)]
 
+        ttk::label $win.toolbar.dayofweek              \
+            -font               codefont               \
+            -width              4                      \
+            -textvariable       [myvar info(dayofweek)]
+
         # Tick
         ttk::label $win.toolbar.ticklab                \
             -text "Tick:"
@@ -949,23 +987,23 @@ snit::widget appwin {
             -width              4                      \
             -textvariable       [myvar info(tick)]
 
-        pack $win.toolbar.preplock -side left
-        pack $win.toolbar.runpause -side left    
-        pack $win.toolbar.duration -side left -padx {0 15}
-        pack $win.toolbar.slower   -side left
-        pack $win.toolbar.speed    -side left -padx 2
-        pack $win.toolbar.faster   -side left -padx {0 15}
-        pack $win.toolbar.first    -side left
-        pack $win.toolbar.prev     -side left
-        pack $win.toolbar.next     -side left
-        pack $win.toolbar.last     -side left
-        pack $win.toolbar.analyze  -side left
-        pack $win.toolbar.tick     -side right -padx 2 
-        pack $win.toolbar.ticklab  -side right
-        pack $win.toolbar.zulutime -side right -padx 2 
-        pack $win.toolbar.time     -side right
-        pack $win.toolbar.simstate -side right -padx 2 
-        pack $win.toolbar.state    -side right -padx {15 0}
+        pack $win.toolbar.preplock  -side left
+        pack $win.toolbar.runpause  -side left    
+        pack $win.toolbar.duration  -side left -padx {0 15}
+        pack $win.toolbar.slower    -side left
+        pack $win.toolbar.speed     -side left -padx 2
+        pack $win.toolbar.faster    -side left -padx {0 15}
+        pack $win.toolbar.first     -side left
+        pack $win.toolbar.prev      -side left
+        pack $win.toolbar.next      -side left
+        pack $win.toolbar.last      -side left
+        pack $win.toolbar.tick      -side right -padx 2 
+        pack $win.toolbar.ticklab   -side right
+        pack $win.toolbar.dayofweek -side right -padx 2 
+        pack $win.toolbar.zulutime  -side right -padx 2 
+        pack $win.toolbar.time      -side right
+        pack $win.toolbar.simstate  -side right -padx 2 
+        pack $win.toolbar.state     -side right -padx {15 0}
 
         # ROW 2, add a separator between the tool bar and the content
         # window.
@@ -1958,6 +1996,11 @@ snit::widget appwin {
         # Display current sim time.
         set info(tick)     [format "%04d" [simclock now]]
         set info(zulutime) [simclock asZulu]
+        
+        # Get day of week
+        set cs [zulu tosec $info(zulutime)]
+        set dayIndex [clock format $cs -format %w -timezone :UTC]
+        set info(dayofweek) "([lindex [edayname names] $dayIndex])"
     }
 
     # SimSpeed

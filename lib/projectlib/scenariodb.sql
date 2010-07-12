@@ -56,6 +56,9 @@ CREATE TABLE cif (
     -- Order name
     name     TEXT,
 
+    -- Order narrative
+    narrative TEXT default '',
+
     -- Parameter Dictionary
     parmdict TEXT,
 
@@ -253,6 +256,25 @@ CREATE VIEW nbgroups_view AS
 SELECT * FROM groups JOIN nbgroups USING (g);
 
 ------------------------------------------------------------------------
+-- Personnel Table
+--
+-- FRC and ORG personnel reside in this table, instead of in units.
+
+CREATE TABLE personnel_ng (
+    -- Symbolic neighborhood name
+    n          TEXT,
+
+    -- Symbolic group name
+    g          TEXT,
+
+    -- Personnel
+    personnel  INTEGER DEFAULT 0,
+    
+    PRIMARY KEY (n,g)
+);
+
+
+------------------------------------------------------------------------
 -- Athena Attrition Model: ROE tables
 
 -- Attacking ROE table: Uniformed and Non-uniformed Forces
@@ -309,7 +331,8 @@ CREATE TABLE attrit_nf (
     -- Unique ID, assigned automatically.
     id         INTEGER PRIMARY KEY,
 
-    -- Neighborhood in which the attrition occurred
+    -- Neighborhood.  For ORG's the nbhood which the attrition occurred.
+    -- For CIV's, the nbhood of origin (which is usually the same thing).
     n          TEXT,
    
     -- Group to which the attrition occurred
@@ -321,7 +344,7 @@ CREATE TABLE attrit_nf (
 
 CREATE INDEX attrit_nf_index_nf ON attrit_nf(n,f);
 
--- Total attrition to a group in a neighborhood by responsible group, 
+-- Total attrition to a CIV group in a neighborhood by responsible group, 
 -- as accumulated between attrition tocks.  Note that multiple groups
 -- can be responsible for the same casualty, e.g., in a fire fight
 -- between two force groups, both can be blamed for collateral damage.
@@ -331,10 +354,10 @@ CREATE TABLE attrit_nfg (
     -- Unique ID, assigned automatically.
     id         INTEGER PRIMARY KEY,
 
-    -- Neighborhood in which the attrition occurred
+    -- Neighborhood of origin of the attrited personnel.
     n          TEXT,
    
-    -- Group to which the attrition occurred
+    -- CIV group to which the attrition occurred
     f          TEXT,
 
     -- Responsible group.
@@ -465,34 +488,47 @@ CREATE TABLE units (
     -- Symbolic unit name
     u                TEXT PRIMARY KEY,
 
+    -- Calendar Item ID, or 0 if a = NONE
+    cid              INTEGER,
+
+    -- Active flag: 1 if active, 0 otherwise.  A unit is active if it
+    -- is currently scheduled.
+    active           INTEGER,
+
+    -- Neighborhood to which unit is deployed
+    n                TEXT,
+
     -- Group to which the unit belongs
     g                TEXT,
 
-    -- Neighborhood of Origin, or 'NONE'
-    origin           TEXT DEFAULT 'NONE',
+    -- Group type
+    gtype            TEXT,
+
+    -- Neighborhood of Origin
+    origin           TEXT,
+
+    -- Unit activity: eactivity(n) value
+    a                TEXT,
 
     -- Total Personnel
     personnel        INTEGER DEFAULT 0,
 
-    -- Location, in map coordinates
+    -- Location, in map coordinates, within n
     location         TEXT,
 
-    -- Unit activity: eactivity(n) value
-    a                TEXT DEFAULT 'NONE',
-
-    --------------------------------------------------------------------
-    -- Computed parameters
-
-    -- Group type (for convenience)
-    gtype            TEXT DEFAULT '',
-
-    -- Neighborhood in which unit is currently located, a nbhood ID or ""
-    -- if outside all neighborhoods.
-    n                TEXT DEFAULT '',
-
     -- Activity effective flag: 1 if activity is effective, and 0 otherwise.
-    a_effective      INTEGER DEFAULT 0
+    -- TBD: Not set; might go away.
+    a_effective      INTEGER DEFAULT 0,
+
+    -- Attrition Flag: 1 if the unit is about to be attrited.
+    attrit_flag      INTEGER DEFAULT 0
 );
+
+CREATE INDEX units_ngoa_index ON
+units(n,g,origin,a);
+
+CREATE INDEX units_ngap_index ON
+units(n,g,a,personnel);
 
 --------------------------------------------------------------------
 -- Force and Security Tables
@@ -561,11 +597,11 @@ CREATE TABLE activity_nga (
     -- and 0 otherwise.
     can_do              INTEGER  DEFAULT 0,
 
-    -- Number of personnel in units in nbhood n belonging to 
+    -- Number of personnel in nbhood n belonging to 
     -- group g which are assigned activity a.
     nominal             INTEGER  DEFAULT 0,
 
-    -- Number of personnel in units in nbhood n belonging to 
+    -- Number of personnel in nbhood n belonging to 
     -- group g which can actively pursue a given the assigned-to-active
     -- ratio.
     active              INTEGER  DEFAULT 0,
@@ -588,6 +624,53 @@ CREATE TABLE activity_nga (
 
     PRIMARY KEY (n,g,a)
 );
+
+-- Activity calendar
+CREATE TABLE calendar (
+    -- Calendar Item ID
+    cid          INTEGER PRIMARY KEY,
+
+    -- Scheduled activity
+    n            TEXT,     -- Symbolic nbhoods name
+    g            TEXT,     -- Symbolic groups name
+    a            TEXT,     -- Symbolic activity name
+    tn           TEXT,     -- Target nbhood name.           
+
+    -- Number personnel scheduled.
+    personnel    INTEGER,
+
+    -- Priority of this item
+    priority     INTEGER DEFAULT 0,
+
+    -- Time tick at which item takes effect.
+    start        INTEGER,
+
+    -- Time tick at which item ceases, or ''  
+    finish       INTEGER,  
+
+    -- Pattern, calpattern(sim) value
+    pattern      TEXT DEFAULT 'daily'
+);
+
+CREATE INDEX calendar_nga_index 
+ON calendar(n,g,a);
+
+-- footprint Table.
+--
+-- All personnel are stationed in some neighborhood n, and operate
+-- in some neighborhood tn, based on activity staffing.  This 
+-- table contains the actual number of g's personnel based in n that
+-- are active in tn.  It is populated only when personnel > 0.
+
+CREATE TABLE footprint (
+    n           TEXT,                   -- Nbhood of origin
+    g           TEXT,                   -- Group
+    tn          TEXT,                   -- Nbhood of operation
+    personnel   INTEGER DEFAULT 0,      -- Number of personnel.
+
+    PRIMARY KEY (n,g,tn)
+);
+
 
 
 ------------------------------------------------------------------------
@@ -821,14 +904,12 @@ CREATE TABLE demog_ng (
     -- Attrition to this nbgroup (total killed)
     attrition      INTEGER DEFAULT 0,
 
-    -- Explicit population: personnel in units regardless of location
-    explicit       INTEGER DEFAULT 0,
-
     -- Displaced population: personnel in units in other neighborhoods
     displaced      INTEGER DEFAULT 0,
 
-    -- Implicit population: population implicit in the neighborhood
-    implicit       INTEGER DEFAULT 0,
+    -- Total resident of this nbgroup in this neighborhood at the
+    -- current time.
+    population     INTEGER DEFAULT 0,
 
     -- Subsistence population: population doing subsistence agriculture
     -- and outside the regional economy.
@@ -839,10 +920,6 @@ CREATE TABLE demog_ng (
 
     -- Labor Force: workers available to the regional economy
     labor_force    INTEGER DEFAULT 0,
-
-    -- Total population of this nbgroup in this neighborhood at the
-    -- current time.
-    population     INTEGER DEFAULT 0,
 
     -- Unemployed workers in the neighborhood.
     unemployed     INTEGER DEFAULT 0,

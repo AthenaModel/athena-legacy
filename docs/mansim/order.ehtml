@@ -271,6 +271,11 @@ conjunction with <<iref order nullmode>>.<p>
 
 Returns a list of the names of the currently defined orders.<p>
 
+<<defitem "order narrative" {order narrative <i>name pdict</i>}>>
+
+Returns a narrative description of an order given its <i>name</i> and
+parameter dictionary <i>pdict</i>.<p>
+
 <<defitem "order nullmode" {order nullmode <i>flag</i>}>>
 
 Sets and clears "null mode".  In null mode the order is not executed,
@@ -370,6 +375,13 @@ reasonable to send the same order twice in a row.  If this option is
 specified, the order dialog is presumed to always contain unsaved
 changes.<p>
 
+<<defopt {-narrativecmd <i>cmd</i>}>>
+
+Specifies a command that returns this order's narrative text.
+The <i>cmd</i> will be called with two additional arguments, the
+order's name and parameter dictionary.  If <i>cmd</i> is the empty
+string, the narrative will just be the order's title.<p>
+
 <<defopt {-schedulestates <i>states</i>}>>
 
 Specifies a list of application <i>states</i> in which the order can
@@ -428,6 +440,9 @@ possibilities are as follows:<p>
 <ul>
   <li> <b>color</b>:  The value is a color specified in
        hexadecimal RGB; it will be edited using a GUI color picker.<p>
+
+  <li> <b>cpat</b>:  The value is a <<xref calpattern(n)>> value,
+       edited using a <<xref calpatternfield(n)>> widget.<p>
 
   <li> <b>enum</b>: The value is chosen from an enumerated list using
        a pull-down.  The set of possible values can be dynamic, and is

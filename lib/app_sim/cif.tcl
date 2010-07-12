@@ -123,9 +123,11 @@ snit::type cif {
         # TBD: there should be an SQL function for this!
         set now [simclock now]
 
+        set narrative [order narrative $order $parmdict]
+
         rdb eval {
-            INSERT INTO cif(id,time,name,parmdict,undo)
-            VALUES($info(nextid), $now, $order, $parmdict, $undo);
+            INSERT INTO cif(id,time,name,narrative,parmdict,undo)
+            VALUES($info(nextid), $now, $order, $narrative, $parmdict, $undo);
         }
 
         incr info(nextid)
@@ -142,6 +144,7 @@ snit::type cif {
         # FIRST, get the undo information
         rdb eval {
             SELECT name,
+                   narrative,
                    undo == '' AS noUndo
             FROM cif 
             WHERE id=$info(nextid) - 1
@@ -150,7 +153,7 @@ snit::type cif {
                 return ""
             }
 
-            return [order title $name]
+            return $narrative
         }
 
         return
@@ -242,17 +245,17 @@ snit::type cif {
 
     # canredo
     #
-    # If there's an undone order on the stack, returns its title;
+    # If there's an undone order on the stack, returns its narrative;
     # and "" otherwise.
 
     typemethod canredo {} {
         # FIRST, get the redo information
         rdb eval {
-            SELECT name
+            SELECT name, narrative
             FROM cif 
             WHERE id=$info(nextid)
         } {
-            return [order title $name]
+            return $narrative
         }
 
         return

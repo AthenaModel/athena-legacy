@@ -36,6 +36,7 @@ snit::widgetadaptor econngbrowser {
         { g           "CivGroup"                                       }
         { local_name  "Local Name"                                     }
         { population  "Population"    -sortmode integer -foreground %D }
+        { sap         "SA%"           -sortmode integer                }
         { subsistence "Subsist."      -sortmode integer -foreground %D }
         { consumers   "Consumers"     -sortmode integer -foreground %D }
         { labor_force "LaborForce"    -sortmode integer -foreground %D }

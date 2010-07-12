@@ -1,0 +1,220 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-PERSONNEL.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) PERSONNEL:* order tests.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    proc setup {} {
+        ted create NB1 NB2 BLUE BRIT SHIA NB1SHIA
+        personnel mutate reconcile
+    }
+
+
+    #-------------------------------------------------------------------
+    # PERSONNEL:SET
+
+    test SET-1.1 {required parms} -setup {
+        setup
+    } -body {
+        ted order -reject PERSONNEL:SET {}
+    } -cleanup {
+        cleanup
+    } -result {
+        n {required value}
+        g {required value}
+        personnel {required value}
+    }
+    
+    test SET-1.2 {unknown nbhood} -setup {
+        setup
+    } -body {
+        ted order -reject PERSONNEL:SET {n NONESUCH g BLUE personnel 10}
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+    test SET-1.3 {unknown group} -setup {
+        setup
+    } -body {
+        ted order -reject PERSONNEL:SET {n NB1 g NONESUCH personnel 10}
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid group, should be one of: BLUE, BRIT, SHIA}
+    }
+
+    test SET-1.4 {bad n/g combo} -setup {
+        setup
+    } -body {
+        ted order -reject PERSONNEL:SET {n NB1 g SHIA personnel 10}
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Group SHIA is neither a FRC nor an ORG group.}
+    }
+
+    test SET-1.5 {bad personnel} -setup {
+        setup
+    } -body {
+        ted order -reject PERSONNEL:SET {n NB1 g BLUE personnel -1}
+    } -cleanup {
+        cleanup
+    } -result {
+        personnel {invalid value "-1", expected integer no less than 0}
+    }
+
+    test SET-2.1 {order sets personnel} -setup {
+        setup
+    } -body {
+        ted order PERSONNEL:SET {n NB1 g BLUE personnel 30}
+        ted query {SELECT * FROM personnel_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel 
+--- ---- --------- 
+NB1 BLUE 30        
+NB1 BRIT 0         
+NB2 BLUE 0         
+NB2 BRIT 0         
+    }
+
+    test SET-2.2 {order can be undone} -setup {
+        setup
+        ted order PERSONNEL:SET {n NB1 g BLUE personnel 30}
+    } -body {
+        ted notifier bind ::personnel <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::personnel <Entity> update {NB1 BLUE}}
+    }
+
+    #-------------------------------------------------------------------
+    # PERSONNEL:ADJUST
+
+    test ADJUST-1.1 {required parms} -setup {
+        setup
+    } -body {
+        ted order -reject PERSONNEL:ADJUST {}
+    } -cleanup {
+        cleanup
+    } -result {
+        n {required value}
+        g {required value}
+        delta {required value}
+    }
+    
+    test ADJUST-1.2 {unknown nbhood} -setup {
+        setup
+    } -body {
+        ted order -reject PERSONNEL:ADJUST {n NONESUCH g BLUE delta 10}
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+    test ADJUST-1.3 {unknown group} -setup {
+        setup
+    } -body {
+        ted order -reject PERSONNEL:ADJUST {n NB1 g NONESUCH delta 10}
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid group, should be one of: BLUE, BRIT, SHIA}
+    }
+
+    test ADJUST-1.4 {bad n/g combo} -setup {
+        setup
+    } -body {
+        ted order -reject PERSONNEL:ADJUST {n NB1 g SHIA delta 10}
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Group SHIA is neither a FRC nor an ORG group.}
+    }
+
+    test ADJUST-1.5 {bad delta} -setup {
+        setup
+    } -body {
+        ted order -reject PERSONNEL:ADJUST {n NB1 g BLUE delta NONESUCH}
+    } -cleanup {
+        cleanup
+    } -result {
+        delta {invalid value "NONESUCH", expected integer}
+    }
+
+    test ADJUST-2.1 {order adjust personnel} -setup {
+        setup
+        ted order PERSONNEL:SET {n NB1 g BLUE personnel 30}
+    } -body {
+        ted order PERSONNEL:ADJUST {n NB1 g BLUE delta -40}
+        ted query {SELECT * FROM personnel_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel 
+--- ---- --------- 
+NB1 BLUE 0         
+NB1 BRIT 0         
+NB2 BLUE 0         
+NB2 BRIT 0         
+    }
+
+    test ADJUST-2.2 {order can be undone} -setup {
+        setup
+        ted order PERSONNEL:ADJUST {n NB1 g BLUE delta 30}
+    } -body {
+        ted notifier bind ::personnel <Entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::personnel <Entity> update {NB1 BLUE}}
+    }
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

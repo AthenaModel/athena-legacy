@@ -36,24 +36,16 @@ snit::type nbstat {
     typemethod start {} {
         log normal nbstat "start"
 
-        # NEXT, initialize the sub-modules; this will cause each to
-        # do an analysis.
+        # FIRST, initialize the sub-modules.
         security start
         activity start
+
+        # NEXT, do the initial analysis
+        nbstat analyze
 
         # NEXT, Nbstat is up.
         log normal nbstat "start complete"
     }
-
-    # clear
-    #
-    # Clears the model data.
-
-    typemethod clear {} {
-        security clear
-        activity clear
-    }
-
 
     #-------------------------------------------------------------------
     # analyze
@@ -66,7 +58,7 @@ snit::type nbstat {
     typemethod analyze {} {
         # FIRST, call the submodules
         security analyze
-        activity analyze
+        activity analyze coverage
     }
 }
 

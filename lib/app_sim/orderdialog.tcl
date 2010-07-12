@@ -253,6 +253,7 @@ snit::widget orderdialog {
     # current           Name of current parameter, or ""
     # saved             Dictionary of "saved" field values
     # valid             1 if current values are valid, and 0 otherwise.
+    # ftype-$parm       Field type, e.g., text, enum, key, etc.
     # field-$parm       Name of field widget
     # icon-$parm        Name of status icon widget
 
@@ -373,9 +374,9 @@ snit::widget orderdialog {
             if {[order state] eq "PREP"} {
                 # Orders must be scheduled in advance; but in the
                 # PREP state, time 0 hasn't yet occurred.
-                $whenFld set "+0"
+                $whenFld set "T0"
             } else {
-                $whenFld set "+1"
+                $whenFld set "NOW+1"
             }
         }
         
@@ -446,13 +447,13 @@ snit::widget orderdialog {
             set pdict [order parm $order $parm]
 
             # NEXT, get the field type
-            set ftype [dict get $pdict -fieldtype]
+            set my(ftype-$parm) [dict get $pdict -fieldtype]
 
             # NEXT, get the current grid row, and see if we need to 
             # insert a separator before the non-key fields
             incr row
 
-            if {$ftype eq "key"} {
+            if {$my(ftype-$parm) eq "key"} {
                 set keyrow [expr {$row + 1}]
             } elseif {$row == $keyrow} {
                 # Add the separator and move on
@@ -469,7 +470,7 @@ snit::widget orderdialog {
             # NEXT, create the field widget
             set my(field-$parm) $win.fields.f$row
 
-            $self CreateField $ftype $parm
+            $self CreateField $my(ftype-$parm) $parm
 
             # NEXT, Detect when the field widget receives focus.
             bind $my(field-$parm) <FocusIn>  [mymethod FieldIn $parm]
@@ -486,6 +487,20 @@ snit::widget orderdialog {
                 -padx 2 -pady 4
             grid $win.fields.icon$row  -row $row -column 2 -sticky nsew
         }
+    }
+
+    # CreateField disp parm
+    #
+    # parm    The parameter name
+    #
+    # Creates the field widget
+
+    method {CreateField disp} {parm} {
+        # FIRST, remember that this is not a key
+        lappend my(nonkeys) $parm
+
+        # NEXT, create the field widget
+        dispfield $my(field-$parm)
     }
 
     # CreateField color parm
@@ -529,6 +544,22 @@ snit::widget orderdialog {
 
         # NEXT, create the field widget
         enumfield $my(field-$parm) {*}$opts \
+            -changecmd [mymethod NonKeyChange $parm]
+    }
+
+
+    # CreateField cpat parm
+    #
+    # parm    The parameter name
+    #
+    # Creates the field widget
+
+    method {CreateField cpat} {parm} {
+        # FIRST, remember that this is not a key
+        lappend my(nonkeys) $parm
+
+        # NEXT, create the field widget
+        calpatternfield $my(field-$parm) \
             -changecmd [mymethod NonKeyChange $parm]
     }
 
@@ -1468,7 +1499,10 @@ snit::widget orderdialog {
 
     method get {} {
         foreach parm $my(parms) {
-            dict set parmdict $parm [$my(field-$parm) get]
+            # Ignore "disp" fields, as they are for display only.
+            if {$my(ftype-$parm) ne "disp"} {
+                dict set parmdict $parm [$my(field-$parm) get]
+            }
         }
 
         return $parmdict

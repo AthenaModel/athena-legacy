@@ -66,7 +66,7 @@ namespace eval ::athena_test::tests:: {
     test SCHEDULE-1.2 {Invalid timespec} -body {
         ted order -reject ORDER:SCHEDULE {
             timespec NONESUCH 
-            name     UNIT:MOVE
+            name     PERSONNEL:SET
         }
     } -result {
         timespec {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
@@ -79,7 +79,7 @@ namespace eval ::athena_test::tests:: {
     } -body {
         ted order -reject ORDER:SCHEDULE {
             timespec NOW
-            name     UNIT:MOVE
+            name     PERSONNEL:SET
         }
     } -cleanup {
         ted cleanup
@@ -108,17 +108,17 @@ namespace eval ::athena_test::tests:: {
     test SCHEDULE-2.1 {Order is scheduled} -body {
         ted order ORDER:SCHEDULE {
             timespec +1
-            name     UNIT:MOVE
-            parmdict {u U1 location A00A00}
+            name     PERSONNEL:SET
+            parmdict {n NB1 g BLUE personnel 10}
         }
         
         ted query {SELECT * FROM gui_orders}
     } -cleanup {
         cleanup
     } -result {
-id tick zulu         name      parmdict             
--- ---- ------------ --------- -------------------- 
-1  1    110000ZJAN10 UNIT:MOVE u U1 location A00A00 
+id tick zulu         name          narrative                      parmdict                  
+-- ---- ------------ ------------- ------------------------------ ------------------------- 
+1  1    110000ZJAN10 PERSONNEL:SET Assign 10 BLUE personnel, t... n NB1 g BLUE personnel 10 
     }
 
 
@@ -126,8 +126,8 @@ id tick zulu         name      parmdict
         ted notifier bind ::order <Queue>
         ted order ORDER:SCHEDULE {
             timespec +1
-            name     UNIT:MOVE
-            parmdict {u U1 location A00A00}
+            name     PERSONNEL:SET
+            parmdict {n NB1 g BLUE personnel 10}
         }
         ted notifier received
     } -cleanup {
@@ -140,8 +140,8 @@ id tick zulu         name      parmdict
     test SCHEDULE-2.3 {undo cancels order} -setup {
         ted order ORDER:SCHEDULE {
             timespec +1
-            name     UNIT:MOVE
-            parmdict {u U1 location A00A00}
+            name     PERSONNEL:SET
+            parmdict {n NB1 g BLUE personnel 10}
         }
     } -body {
         cif undo
@@ -154,8 +154,8 @@ id tick zulu         name      parmdict
     test SCHEDULE-2.4 {::order <Queue> on undo} -setup {
         ted order ORDER:SCHEDULE {
             timespec +1
-            name     UNIT:MOVE
-            parmdict {u U1 location A00A00}
+            name     PERSONNEL:SET
+            parmdict {n NB1 g BLUE personnel 10}
         }
     } -body {
         ted notifier bind ::order <Queue>
@@ -171,17 +171,17 @@ id tick zulu         name      parmdict
     test SCHEDULE-2.5 {Can schedule order at +0 while in PREP} -body {
         ted order ORDER:SCHEDULE {
             timespec +0
-            name     UNIT:MOVE
-            parmdict {u U1 location A00A00}
+            name     PERSONNEL:SET
+            parmdict {n NB1 g BLUE personnel 10}
         }
         
         ted query {SELECT * FROM gui_orders}
     } -cleanup {
         cleanup
     } -result {
-id tick zulu         name      parmdict             
--- ---- ------------ --------- -------------------- 
-1  0    100000ZJAN10 UNIT:MOVE u U1 location A00A00 
+id tick zulu         name          narrative                      parmdict                  
+-- ---- ------------ ------------- ------------------------------ ------------------------- 
+1  0    100000ZJAN10 PERSONNEL:SET Assign 10 BLUE personnel, t... n NB1 g BLUE personnel 10 
     }
 
 
@@ -191,8 +191,8 @@ id tick zulu         name      parmdict
     } -body {
         ted order ORDER:SCHEDULE {
             timespec +0
-            name     UNIT:MOVE
-            parmdict {u U1 location A00A00}
+            name     PERSONNEL:SET
+            parmdict {n NB1 g BLUE personnel 10}
         }
     } -returnCodes {
         error
@@ -205,8 +205,8 @@ id tick zulu         name      parmdict
         ted create NB1 BLUE SHIA NB1SHIA
         ted order ORDER:SCHEDULE {
             timespec +1
-            name     UNIT:MOVE
-            parmdict {u U1 location A00A00}
+            name     PERSONNEL:SET
+            parmdict {n NB2 g BLUE personnel 10}
         }
     } -body {        
         ted order SIM:LOCK
@@ -217,32 +217,34 @@ id tick zulu         name      parmdict
     } -result {1}
 
     test SCHEDULE-3.2 {Scheduled order is accepted; has effect} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA BLUE1
+        ted create NB1 BLUE SHIA NB1SHIA
+        scenario mutate reconcile
 
         ted order ORDER:SCHEDULE {
             timespec +1
-            name     UNIT:MOVE
-            parmdict {u BLUE1 location B00B00}
+            name     PERSONNEL:SET
+            parmdict {n NB1 g BLUE personnel 10}
         }
     } -body {        
         ted order SIM:LOCK
         ted order SIM:RUN days 5 block YES
-        ted query {SELECT u, location FROM gui_units}
+        ted query {SELECT u, personnel FROM gui_units}
     } -cleanup {
         cleanup
     } -result {
-u     location 
------ -------- 
-BLUE1 B00B00   
+u             personnel 
+------------- --------- 
+SHIA-NB1/0000 1000      
+BLUE-NB1/0000 10        
     }
 
     test SCHEDULE-3.3 {Scheduled order is accepted; time passes} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA BLUE1
+        ted create NB1 BLUE SHIA NB1SHIA
 
         ted order ORDER:SCHEDULE {
             timespec +1
-            name     UNIT:MOVE
-            parmdict {u BLUE1 location B00B00}
+            name     PERSONNEL:SET
+            parmdict {n NB1 g BLUE personnel 10}
         }
     } -body {        
         ted order SIM:LOCK
@@ -271,8 +273,8 @@ BLUE1 B00B00
     test CANCEL-2.1 {Order is canceled} -setup {
         ted order ORDER:SCHEDULE {
             timespec +1
-            name     UNIT:MOVE
-            parmdict {u U1 location A00A00}
+            name     PERSONNEL:SET
+            parmdict {n NB1 g BLUE personnel 10}
         }
     } -body {
         ted order ORDER:CANCEL id [newest]
@@ -286,8 +288,8 @@ BLUE1 B00B00
     test CANCEL-2.2 {::order <Queue>} -setup {
         ted order ORDER:SCHEDULE {
             timespec +1
-            name     UNIT:MOVE
-            parmdict {u U1 location A00A00}
+            name     PERSONNEL:SET
+            parmdict {n NB1 g BLUE personnel 10}
         }
     } -body {
         ted notifier bind ::order <Queue>
@@ -303,8 +305,8 @@ BLUE1 B00B00
     test CANCEL-2.3 {undo restores order} -setup {
         ted order ORDER:SCHEDULE {
             timespec +1
-            name     UNIT:MOVE
-            parmdict {u U1 location A00A00}
+            name     PERSONNEL:SET
+            parmdict {n NB1 g BLUE personnel 10}
         }
         ted order ORDER:CANCEL id [newest]
     } -body {
@@ -313,16 +315,16 @@ BLUE1 B00B00
     } -cleanup {
         cleanup
     } -result {
-id tick zulu         name      parmdict             
--- ---- ------------ --------- -------------------- 
-1  1    110000ZJAN10 UNIT:MOVE u U1 location A00A00 
+id tick zulu         name          narrative                      parmdict                  
+-- ---- ------------ ------------- ------------------------------ ------------------------- 
+1  1    110000ZJAN10 PERSONNEL:SET Assign 10 BLUE personnel, t... n NB1 g BLUE personnel 10 
     }
 
     test CANCEL-2.4 {::order <Queue> on undo} -setup {
         ted order ORDER:SCHEDULE {
             timespec +1
-            name     UNIT:MOVE
-            parmdict {u U1 location A00A00}
+            name     PERSONNEL:SET
+            parmdict {n NB1 g BLUE personnel 10}
         }
         ted order ORDER:CANCEL id [newest]
     } -body {

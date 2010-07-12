@@ -87,8 +87,6 @@ SELECT main.n || ' ' || main.g                       AS id,
        local_name                                    AS local_name,
        main.basepop                                  AS basepop,
        demog_ng.population                           AS population,
-       demog_ng.explicit                             AS explicit,
-       demog_ng.implicit                             AS implicit,
        demog_ng.displaced                            AS displaced,
        demog_ng.attrition                            AS attrition,
        demog_ng.subsistence                          AS subsistence,
@@ -109,6 +107,15 @@ FROM groups
 JOIN nbgroups AS main USING (g)
 JOIN demog_ng USING(n,g)
 LEFT OUTER JOIN gram_ng AS gram USING(n,g);
+
+-- A personnel_ng view for use by the GUI.
+CREATE TEMPORARY VIEW gui_personnel_ng AS
+SELECT n || ' ' || g                                 AS id,
+       n                                             AS n,
+       g                                             AS g,
+       personnel                                     AS personnel
+FROM personnel_ng;
+       
 
 -- An attroe_nfg view for use by the GUI
 CREATE TEMPORARY VIEW gui_attroe_nfg AS
@@ -209,15 +216,17 @@ FROM nbrel_mn;
 CREATE TEMPORARY VIEW gui_units AS
 SELECT u                                                AS id,
        u                                                AS u,
+       cid                                              AS cid,
+       n                                                AS n,
        g                                                AS g,
        gtype                                            AS gtype,
        origin                                           AS origin,
-       n                                                AS n,
+       a                                                AS a,
        personnel                                        AS personnel,
        m2ref(location)                                  AS location,
-       a                                                AS a,
        CASE a_effective WHEN 1 THEN 'YES' ELSE 'NO' END AS a_effective
-FROM units;
+FROM units
+WHERE active;
 
 
 -- A force_ng view for use by the GUI
@@ -225,6 +234,7 @@ CREATE TEMPORARY VIEW gui_security AS
 SELECT n || ' ' || g                  AS id,
        n                              AS n,
        g                              AS g,
+       force_ng.personnel             AS personnel,
        security                       AS security,
        qsecurity('longname',security) AS symbol,
        pct_force                      AS pct_force,
@@ -235,6 +245,30 @@ SELECT n || ' ' || g                  AS id,
 FROM force_ng JOIN force_n USING (n)
 ORDER BY n, g;
 
+-- An activity calendar view for use by the GUI
+CREATE TEMPORARY VIEW gui_calendar AS
+SELECT C.cid                                            AS cid,
+       C.n                                              AS n,
+       C.g                                              AS g,
+       C.a                                              AS a,
+       C.tn                                             AS tn,
+       C.personnel                                      AS personnel,
+       C.priority                                       AS priority,
+       C.start                                          AS start_tick,
+       CASE WHEN C.start == now()     THEN 'NOW'
+            WHEN C.start == now() + 1 THEN 'NOW+1'
+            ELSE tozulu(C.start)      END               AS start,
+       C.finish                                         AS finish_tick,
+       CASE WHEN C.finish == ''        THEN 'NEVER'
+            WHEN C.finish == now()     THEN 'NOW'
+            WHEN C.finish == now() + 1 THEN 'NOW+1'
+            ELSE tozulu(C.finish)      END              AS finish,
+       C.pattern                                        AS pattern,
+       calpattern_narrative(C.pattern,C.start,C.finish) AS narrative,
+       U.u                                              AS u
+FROM calendar AS C
+LEFT OUTER JOIN units AS U USING (cid)
+ORDER BY priority, g, n, a, tn;
 
 -- An activity_nga view for use by the GUI
 CREATE TEMPORARY VIEW gui_activity_nga AS
@@ -347,8 +381,20 @@ SELECT id        AS id,
        t         AS tick,
        tozulu(t) AS zulu,
        name      AS name,
+       narrative AS narrative,
        parmdict  AS parmdict
 FROM eventq_queue_orderExecute;
+
+--View of scheduled force level orders
+CREATE TEMPORARY VIEW gui_plan_force_level_orders AS
+SELECT id        AS id,
+       t         AS tick,
+       tozulu(t) AS zulu,
+       name      AS name,
+       narrative AS narrative,
+       parmdict  AS parmdict
+FROM eventq_queue_orderExecute
+WHERE name GLOB 'PERSONNEL:*';
 
 -- View of the CIF
 CREATE TEMPORARY VIEW gui_cif AS
@@ -356,10 +402,12 @@ SELECT id                                            AS id,
        time                                          AS tick,
        tozulu(time)                                  AS zulu,
        name                                          AS name,
+       narrative                                     AS narrative,
        parmdict                                      AS parmdict,
        undo                                          AS undo,
        CASE WHEN undo != '' THEN 'Yes' ELSE 'No' END AS canUndo
-FROM cif WHERE id <= ciftop();
+FROM cif WHERE id <= ciftop()
+ORDER BY id DESC;
 
 -- View of MADs for use in browsers and order dialogs
 

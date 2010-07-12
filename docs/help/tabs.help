@@ -76,7 +76,8 @@ macro tab.header {name} {
 macro control.filterbox {} {
     |<--
     [topic {<img src="filterbox">}]
-    The [term filterbox] filters the contents of the browser.
+    The [term filterbox] filters the contents of the browser; only
+    entries that match or do not match a given text string are displayed.
     [/topic]
 }
 
@@ -94,9 +95,10 @@ macro control.headers {} {
 tab "Map" {
     The Map tab contains the Athena Map Viewer, the primary means of
     visualizing Athena scenarios.  The Map Viewer is where 
-    <<cref NBHOOD: neighborhoods>> are drawn, <<cref UNIT: units>> and
+    <<cref NBHOOD: neighborhoods>> and <<cref UNIT: units>> are drawn,
     <<cref SITUATION:ENVIRONMENTAL: "environmental situations">>  are 
-    created and positioned, and group moods are visualized.  The
+    created and positioned, and group moods and other <<cref var.n>>
+    are visualized.  The
     browser controls are described <<seebelow controls>>.<p>
 
     <b>Basics:</b> For the most part, using the Map Viewer is
@@ -149,13 +151,6 @@ tab "Map" {
     <<topic {<img src="button_nbhood">}>>
     Press this button to pop up the 
     <<cref NBHOOD:CREATE>> order dialog.
-    <</topic>>
-
-    <<topic {<img src="button_unit">}>>
-    Press this button to pop up the <<cref UNIT:CREATE>> order
-    dialog.  Alternatively, right-click on the map and select
-    <<cref UNIT:CREATE>> from the context menu--this will pop up the
-    order dialog with the selected location already filled in.
     <</topic>>
 
     <<topic {<img src="button_ensit">}>>
@@ -215,50 +210,136 @@ tab "Map" {
     <</topiclist>>
 }
 
-
 #=======================================================================
-# Units Tab
+# Plan Tab
 
-tab "Units" {
-    The Units tab contains the Units Browser, which lists all Athena
-    <<cref UNIT: units>>.  The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
+tab "Plan" {
+    The Plan tab is where the analyst plans out courses of action for
+    the next 1 to 3 month game turn.  Force and organization group force 
+    levels are entered on the <<tabref Plan/Force Levels>> tab, and 
+    activities are scheduled on the <<tabref Plan/Schedule>> tab.<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Plan/Force Levels" {
+    The Force Levels tab contains two panes, the Planned Force Level
+    Changes browser and the Current Force Level browser, and is where
+    the analyst views and edits current 
+    and future force levels for the force and organization groups.<p>
+
+    The Current Force Levels browser is simply a duplicate of the
+    information provided on the <<tabref Groups/Personnel>> tab, and
+    is provided here as a convenience.<p>
+
+    The Planned Force Level Changes browser lists any scheduled 
+    <<cref PERSONNEL:SET>> and <<cref PERSONNEL:ADJUST>> orders,
+    providing the analyst with a convenient way to browse the projected
+    force levels for a given neighborhood and group.  The browser's
+    controls are described  <<seebelow controls>>; the data fields are
+    as follows:<p>
 
     <<topiclist Column Description>>
 
-    <<topic ID>>The unit's ID<</topic>>
-
-    <<topic GType>>The unit's group type: <b>CIV</b>, <b>FRC</b>, or
-    <b>ORG</b><</topic>>
-    
-    <<topic Group>>The name of the group to which the unit belongs.
+    <<topic "Zulu">>The <<term zulu>> at which the order will execute.
     <</topic>>
 
-    <<topic Origin>>For <b>CIV</b> units only, the name of the unit's
-    neighborhood of origin.  In other words, the origin and group taken
-    together name the unit's neighborhood group.  For all other units,
-    the origin is <b>NONE</b>.<</topic>>
-    
-    <<topic Location>>The unit's current location on the map,
-    expressed as a <<term mapref>>.  Note that
-    the location is used for only two purposes: to determine the
-    neighborhood in which the unit is located, if any, and to allow
-    the units to be spread out on the map, so as to be easier to see.
+    <<topic "Tick">>The time <<term tick>> at which the order will execute.
     <</topic>>
 
-    <<topic Nbhood>>The neighborhood in which the unit is currently
-    located, or blank if none.<</topic>>
+    <<topic "Narrative">>A human-readable description of the order,
+    e.g., "Add 500 BLUE personnel to nbhood NB1".
+    <</topic>>
 
-    <<topic Activity>>The activity to which the unit is currently
-    assigned.  See the Athena Rules Document for more on the effects
-    of assigning activities to units.<</topic>>
+    <</topiclist>>
 
-    <<topic Effective>><b>YES</b> if the unit's activity is affecting
-    the local population, and <b>NO</b> if not.  There are many
-    reasons why an activity might not be effective; see the Athena
-    Rules Document and the Athena Analyst's Guide for details.  Note:
-    this field is updated at each time advance; thus, changes to the
-    unit's activity will not be reflected until then.
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_pencils">}>>
+    If a single row is selected, pops up the 
+    <<cref PERSONNEL:SET>> dialog for the selected neighborhood and
+    group.  Use the <b>Send</b> or <b>Send &amp; Close</b> button to
+    set the current force level; use the <b>Schedule</b> button to
+    schedule the order for some future date.
+    <</topic>>
+
+    <<topic {<img src="button_pencila">}>>
+    If a single row is selected, pops up the 
+    <<cref PERSONNEL:ADJUST>> dialog for the selected neighborhood and
+    group.  Use the <b>Send</b> or <b>Send &amp; Close</b> button to
+    adjust the current force level; use the <b>Schedule</b> button to
+    schedule the order for some future date.
+    <</topic>>
+
+    <<topic {<img src="button_x">}>>
+    If a single row is selected, cancels the scheduled order.
+    <</topic>>
+
+    <<topic {<img src="control_gfilter">}>>
+    Allows the analyst to filter the displayed orders by group.
+    <</topic>>
+
+    <<topic {<img src="control_infilter">}>>
+    Allows the analyst to filter the displayed orders by the neighborhood
+    in which the personnel will be stationed.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Plan/Schedule" {
+    The Schedule tab contains the Activity Schedule browser.  This is
+    where the analyst schedules group activities and browses the
+    current schedule.  The browser's
+    controls are described  <<seebelow controls>>; the data fields are
+    as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "CID">>The calendar item ID for the scheduled item.
+    <</topic>>
+
+    <<topic "Prio">>The priority of the scheduled item.  For each
+    group and neighborhood, priorities run from 1 (highest) to N
+    (lowest), where N is the number of scheduled items.
+    <</topic>>
+
+
+    <<topic "Group">>The group for which the activity is scheduled.
+    <</topic>>
+
+    <<topic "From">>The neighborhood from which personnel are to be
+    drawn to staff the activity (the neighborhood of origin).
+    <</topic>>
+
+    <<topic "Activity">>The scheduled activity.
+    <</topic>>
+
+    <<topic "In">>The neighborhood of operation, in which the activity
+    is to be performed.
+    <</topic>>
+
+    <<topic "Personnel">>The number of personnel to perform the
+    activity, available personnel permitting.
+    <</topic>>
+
+    <<topic "When">>Precisely when the activity is scheduled, e.g., 
+    "Daily from now on" or "Every M, W, F from 150000ZJAN11 to
+    300000ZMAR11".
+    <</topic>>
+
+    <<topic "Unit">>The name of the unit that will do the activity, if
+    known.  This field will be blank until the activity is first
+    staffed.
     <</topic>>
 
     <</topiclist>>
@@ -269,18 +350,112 @@ tab "Units" {
     <<topiclist Control Description>>
 
     <<topic {<img src="button_plus">}>>
-    Pops up the <<cref UNIT:CREATE>> dialog.
+    Pops up the <<cref ACTIVITY:SCHEDULE>> dialog, allowing the
+    analyst to schedule a new activity.
     <</topic>>
 
-    <<topic {<img src="button_a">}>>
-    If a single unit is selected, pops up the
-    <<cref UNIT:ACTIVITY>> dialog for the selected unit.
+    <<topic {<img src="button_pencil">}>>
+    If a single calendar item is selected, pops up the 
+    <<cref ACTIVITY:UPDATE>> dialog for the selected item.  The user
+    can edite the number of personnel and when the activity is
+    scheduled; the other details are fixed.
     <</topic>>
 
-    <<topic {<img src="button_man">}>>
-    If a single unit is selected, pops up the
-    <<cref UNIT:PERSONNEL>> dialog for the selected unit.
+    <<topic {<img src="button_totop">}>>
+    Gives the selected calendar item top priority over all other items
+    scheduled for the same group and neighborhood.  It will now be
+    staffed first.
     <</topic>>
+
+    <<topic {<img src="button_raise">}>>
+    Raises the priority of the selected calendar item by one notch, 
+    putting it just above its immediate predecessor for the same group
+    and neighborhood.
+    <</topic>>
+
+    <<topic {<img src="button_lower">}>>
+    Lowers the priority of the selected calendar item by one notch, 
+    putting it just below its immediate successor for the same group
+    and neighborhood.
+    <</topic>>
+
+    <<topic {<img src="button_tobottom">}>>
+    Gives the selected calendar item bottom priority below all other items
+    scheduled for the same group and neighborhood.  It will now be
+    staffed last.
+    <</topic>>
+
+    <<topic {<img src="button_x">}>>
+    If a single item is selected, cancels the scheduled item.
+    <</topic>>
+
+    <<topic {<img src="control_gfilter">}>>
+    Allows the analyst to filter the displayed calendar items by group.
+    <</topic>>
+
+    <<topic {<img src="control_fromfilter">}>>
+    Allows the analyst to filter the displayed calendar items by the 
+    neighborhood from which the personnel will be drawn (the
+    neighborhood of origin).
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+
+
+#=======================================================================
+# Units Tab
+
+tab "Units" {
+    The Units tab contains the Units Browser, which lists all Athena
+    <<term unit units>>.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic ID>>The unit's ID<</topic>>
+
+    <<topic CID>>The unit's Calendar ID: the ID of the schedule item
+    (shown on the <<tabref Plan/Schedule>> tab) for which this unit
+    was created.  Units representing unassigned personnel have a
+    CID of 0.<</topic>>
+
+    <<topic Group>>The name of the group to which the unit belongs.
+    <</topic>>
+
+    <<topic Origin>>The name of the unit's
+    neighborhood of origin, i.e., the neighborhood from which the unit's
+    personnel came.<</topic>>
+    
+    <<topic Nbhood>>The neighborhood in which the unit is 
+    located.  For unassigned personnel, this is always the neighborhood
+    of origin; for other units, it's the neighborhood of assignment.<</topic>>
+
+    <<topic Activity>>The activity to which the unit is currently
+    assigned.  See the Athena Rules Document for more on the effects
+    of assigning activities to units.<</topic>>
+
+    <<topic Personnel>>The number of personnel in the unit.<</topic>>
+
+    <<topic GType>>The unit's group type: <b>CIV</b>, <b>FRC</b>, or
+    <b>ORG</b><</topic>>
+    
+    <<topic Location>>The unit's current location on the map,
+    expressed as a <<term mapref>>.  Note that
+    the location is used for only one purpose: to allow
+    the units to be spread out on the map, so as to be easier to see.
+    <</topic>>
+
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
 
     <<topic {<img src="button_axe">}>>
     If a single unit is selected, pops up the
@@ -290,11 +465,6 @@ tab "Units" {
     <<topic {<img src="button_location">}>>
     If a single unit is selected, pops up the
     <<cref UNIT:MOVE>> dialog for the selected unit.
-    <</topic>>
-
-    <<topic {<img src="button_x">}>>
-    If a single unit is selected, deletes it using the
-    <<cref UNIT:DELETE>> order.
     <</topic>>
 
     <<control.filterbox>>
@@ -493,9 +663,18 @@ tab "Neighborhoods/Security" {
 
     <<topic "Group">>The ID of the civilian, force, or organization 
     group.  All groups are represented in each neighborhood.<</topic>>
+
+    <<topic "Personnel">>The number of the group's personnel present
+    in the neighborhood.<</topic>>
     
     <<topic Security>>The <<term security>> of the group in the neighborhood,
-    expressed using the following scale:<p>
+    expressed as number using the following scale:<p>
+
+    <<projectlib::qsecurity html>>
+    <</topic>>
+
+    <<topic Symbol>>The <<term security>> of the group in the neighborhood,
+    expressed as a symbol from the following scale:<p>
 
     <<projectlib::qsecurity html>>
     <</topic>>
@@ -549,8 +728,8 @@ tab "Neighborhoods/Activity" {
     This tab shows the coverage of the various activities assigned to
     units in the neighborhoods of the playbox.  All force units
     contribute to the <b>PRESENCE</b> activity of their group; in addition,
-    all units can be assigned activities via the
-    <<cref UNIT:ACTIVITY>> order.  This browser is populated only
+    group personnel can be assigned activities via the
+    <<cref ACTIVITY:>>.  This browser is populated only
     after Athena leaves <<cref using.prep>>.  The browser controls are
     described <<seebelow controls>>; the data fields are as follows:<p>
 
@@ -1192,6 +1371,50 @@ tab "Groups/Relationships" {
 }
 
 
+#-----------------------------------------------------------------------
+
+tab "Groups/Personnel" {
+    This tab displays the personnel stationed in each neighborhood for
+    each force and organization group.  Although these values can be
+    edited from this tab, it is more usual to set force levels from
+    the <<tabref Plan/Force Levels>> tab.<p>
+    
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Nbhood>>A neighborhood name.<</topic>>
+
+    <<topic Group>>The name of a force or organization group.<</topic>>
+    
+    <<topic "Personnel">>The number of the group's personnel currently
+    stationed in the neighborhood.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_pencils">}>>
+    If a single row is selected, pops up the 
+    <<cref PERSONNEL:SET>> dialog for the selected neighborhood and group.
+    <</topic>>
+
+    <<topic {<img src="button_pencila">}>>
+    If a single row is selected, pops up the 
+    <<cref PERSONNEL:ADJUST>> dialog for the selected neighborhood and
+    group.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
 #=======================================================================
 # ROE Tab
 
@@ -1459,29 +1682,18 @@ tab "Demog/NbGroups" {
     <<topic BasePop>>The base population of the group in the
     neighborhood, i.e., the number of group members resident in the
     neighborhood at time 0, as set by the 
-    <<cref NBHOOD:CREATE>> order.<</topic>>
+    <<cref GROUP:NBHOOD:CREATE>> order.<</topic>>
     
     <<topic CurrPop>>The current population of the group in the
-    neighborhood: the sum of the implicit and explicit population.
-    <</topic>>
-
-    <<topic Implicit>>The implicit population of the group in the 
-    neighborhood: those members of the base population who are still
-    alive and are not represented as personnel in civilian units.
-    <</topic>>
-
-    <<topic Explicit>>The explicit population of the group in the
-    neighborhood: those members of the base population who are
-    represented as personnel in civilian units, where those units
-    are located <b>in their neighborhood of origin</b>.
+    neighborhood: the base population less displaced population and
+    attrition.
     <</topic>>
 
     <<topic Displaced>>The displaced population of the group in the
     neighborhood: those members of the base population who are
-    represented as personnel in civilian units, where those units
-    are located <b>outside of their neighborhood of origin</b>.
-    Displaced personnel do not count toward the current population of
-    this group in this neighborhood.
+    currently assigned to activities (e.g., <b>DISPLACED</b>) in other
+    neighborhoods.  Displaced personnel do not count toward the 
+    current population of this group in this neighborhood.
     <</topic>>
 
     <<topic Attrition>>The number of personnel lost to this 
@@ -2075,6 +2287,12 @@ tab "Orders/Scheduled" {
     <<topic "Zulu">>The <<term zulu>> at which the order will execute.
     <</topic>>
 
+    <<topic "Narrative">>A human-readable description of the order.
+    Often this is just the order's title-string; in some cases, it
+    will describe the order's action in terms of its significant
+    parameters.
+    <</topic>>
+
     <<topic "Order">>The symbolic name of the order.  Symbolic names
     are shown on each <<cref orders "order's help page">>.
     <</topic>>
@@ -2119,6 +2337,12 @@ tab "Orders/Sent" {
 
     <<topic "Undo">><b>Yes</b> if the order can be 
     <<menuref Edit/Undo undone>>, and <b>No</b> otherwise.
+    <</topic>>
+
+    <<topic "Narrative">>A human-readable description of the order.
+    Often this is just the order's title-string; in some cases, it
+    will describe the order's action in terms of its significant
+    parameters.
     <</topic>>
 
     <<topic "Order">>The symbolic name of the order.  Symbolic names

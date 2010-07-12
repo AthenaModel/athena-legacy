@@ -472,17 +472,6 @@ snit::widget mapviewer {
             -text [order title NBHOOD:CREATE]
 
         cond::orderIsValid control \
-            [ttk::button $win.vbar.newunit                       \
-                 -style   Toolbutton                             \
-                 -image   [list ${type}::icon::newunit           \
-                               disabled ${type}::icon::newunitd] \
-                 -command [list order enter UNIT:CREATE]]        \
-            order UNIT:CREATE
-
-        DynamicHelp::add $win.vbar.newunit \
-            -text [order title UNIT:CREATE]
-
-        cond::orderIsValid control \
             [ttk::button $win.vbar.newensit                                  \
                  -style   Toolbutton                                         \
                  -image   [list ${type}::icon::envpoly                       \
@@ -495,7 +484,6 @@ snit::widget mapviewer {
 
         pack $win.vbar.sep       -side top -fill x -pady 2
         pack $win.vbar.nbhood    -side top -fill x -padx 2
-        pack $win.vbar.newunit   -side top -fill x -padx 2
         pack $win.vbar.newensit  -side top -fill x -padx 2
 
         # Pack all of these components
@@ -524,7 +512,7 @@ snit::widget mapviewer {
 
         # NEXT, Subscribe to application notifier(n) events.
         notifier bind ::sim      <DbSyncB>     $self [mymethod dbsync]
-        notifier bind ::sim      <Tick>        $self [mymethod NbhoodFill]
+        notifier bind ::sim      <Tick>        $self [mymethod dbsync]
         notifier bind ::map      <MapChanged>  $self [mymethod dbsync]
         notifier bind ::order    <OrderEntry>  $self [mymethod OrderEntry]
         notifier bind ::nbhood   <Entity>      $self [mymethod EntityNbhood]
@@ -966,11 +954,6 @@ snit::widget mapviewer {
         set mnu [menu $canvas.nbhoodmenu]
 
         cond::orderIsValid control \
-            [menuitem $mnu command "Create Unit"           \
-                 -command [mymethod NbhoodCreateUnitHere]] \
-            order UNIT:CREATE
-        
-        cond::orderIsValid control \
             [menuitem $mnu command "Create Environmental Situation" \
                  -command [mymethod NbhoodCreateEnsitHere]]         \
             order SITUATION:ENVIRONMENTAL:CREATE
@@ -991,15 +974,6 @@ snit::widget mapviewer {
             [menuitem $mnu command "Send Neighborhood to Back" \
                  -command [mymethod NbhoodSendToBack]]         \
             order NBHOOD:LOWER
-    }
-
-
-    # NbhoodCreateUnitHere
-    #
-    # Pops up the create unit dialog with this location filled in.
-
-    method NbhoodCreateUnitHere {} {
-        order enter UNIT:CREATE location $nbhoods(transref)
     }
 
 
@@ -1324,11 +1298,11 @@ snit::widget mapviewer {
     method IconMoved {cid} {
         switch -exact $icons(itype-$cid) {
             unit {
-                if {[order isvalid UNIT:MOVE]} {
+                if {[catch {
                     order send gui UNIT:MOVE             \
-                        u $icons(sid-$cid)               \
+                        u        $icons(sid-$cid)        \
                         location [$canvas icon ref $cid]
-                } else {
+                }]} {
                     $self UnitDrawSingle $icons(sid-$cid)
                 }
             }
@@ -1359,6 +1333,7 @@ snit::widget mapviewer {
     method UnitDrawAll {} {
         rdb eval {
             SELECT * FROM units JOIN groups USING (g)
+            WHERE active
         } row {
             $self UnitDraw [array get row]
         } 
@@ -1426,27 +1401,9 @@ snit::widget mapviewer {
         set mnu [menu $canvas.unitmenu]
 
         cond::orderIsValid control \
-            [menuitem $mnu command "Set Unit Activity" \
-                 -command [mymethod UpdateUnit ACTIVITY]] \
-            order UNIT:ACTIVITY
-
-        cond::orderIsValid control \
-            [menuitem $mnu command "Set Unit Personnel" \
-                 -command [mymethod UpdateUnit PERSONNEL]] \
-            order UNIT:PERSONNEL
-
-        cond::orderIsValid control \
             [menuitem $mnu command "Magic Attrit Unit" \
                  -command [mymethod AttritUnit]] \
             order ATTRIT:UNIT
-    }
-
-    # UpdateUnit suffix
-    #
-    # Pops up the relevant order dialog for this unit
-
-    method UpdateUnit {suffix} {
-        order enter UNIT:$suffix u $icons(context)
     }
 
     # AttritUnit

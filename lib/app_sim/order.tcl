@@ -303,6 +303,7 @@ snit::type order {
         set orders(title-$name) ""
         set orders(opts-$name) {
             -alwaysunsaved  0
+            -narrativecmd   {}
             -schedulestates {}
             -sendstates     {}
             -table          ""
@@ -345,6 +346,13 @@ snit::type order {
     #     If set, the dialog "Send" buttons will not be disabled when 
     #     there is no "unsaved" data.
     #
+    # -narrativecmd cmd
+    #     Specifies a command that should return a human-readable
+    #     description of the order's effect.  The command will be
+    #     called with two additional arguments, the order name and
+    #     the parm dict.  If no -narrativecmd is given, the order's
+    #     narrative is simply its title.
+    #
     # -schedulestates states     
     #     States in which the order can be scheduled.  If clear, the 
     #     order cannot be scheduled.  (Note: controls the act of 
@@ -377,6 +385,7 @@ snit::type order {
                     dict set odict $opt 1
                 }
 
+                -narrativecmd   -
                 -schedulestates -
                 -sendstates     -
                 -table          -
@@ -620,6 +629,22 @@ snit::type order {
         return $orders(title-$name)
     }
 
+    # narrative name pdict
+    #
+    # name     The name of an order
+    # pdict    The parameter dictionary for the order
+    #
+    # Returns the order's narrative.
+
+    typemethod narrative {name pdict} {
+        set cmd [order cget $name -narrativecmd]
+
+        if {$cmd eq ""} {
+            return [order title $name]
+        } else {
+            return [{*}$cmd $name $pdict]
+        }
+    }
     
     # cget name ?opt?
     # 
@@ -1257,8 +1282,11 @@ snit::type order {
 
     typemethod {mutate schedule} {dict} {
         dict with dict {
-            log normal order "at $timespec, schedule [list $name: $parmdict]"
-            set id [eventq schedule orderExecute $timespec $name $parmdict]
+            set narrative [order narrative $name $parmdict]
+
+            log normal order "at $timespec, schedule $narrative\n[list $name: $parmdict]"
+            set id [eventq schedule orderExecute \
+                        $timespec $name $narrative $parmdict]
 
             notifier send ::order <Queue>
             
@@ -1316,7 +1344,7 @@ snit::type order {
 #-------------------------------------------------------------------
 # orderExecute event
 
-eventq define orderExecute {name parmdict} {
+eventq define orderExecute {name narrative parmdict} {
     if {[catch {
         order send sim $name $parmdict
     } result]} {

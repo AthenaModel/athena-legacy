@@ -508,15 +508,15 @@ snit::type scenario {
     typemethod {mutate reconcile} {} {
         set undo [list]
 
-        lappend undo [nbrel   mutate reconcile]
-        lappend undo [nbgroup mutate reconcile]
-        lappend undo [sat     mutate reconcile]
-        lappend undo [rel     mutate reconcile]
-        lappend undo [coop    mutate reconcile]
-        lappend undo [attroe  mutate reconcile]
-        lappend undo [defroe  mutate reconcile]
-        lappend undo [unit    mutate reconcile]
-        lappend undo [ensit   mutate reconcile]
+        lappend undo [nbrel     mutate reconcile]
+        lappend undo [nbgroup   mutate reconcile]
+        lappend undo [personnel mutate reconcile]
+        lappend undo [sat       mutate reconcile]
+        lappend undo [rel       mutate reconcile]
+        lappend undo [coop      mutate reconcile]
+        lappend undo [attroe    mutate reconcile]
+        lappend undo [defroe    mutate reconcile]
+        lappend undo [ensit     mutate reconcile]
 
         notifier send $type <Reconcile>
 
@@ -579,10 +579,11 @@ snit::type scenario {
 
     proc DefineTempSchema {} {
         # FIRST, define SQL functions
-        rdb function m2ref     [myproc M2Ref]
-        rdb function ciftop    [list ::cif mark]
-        rdb function qsecurity ::projectlib::qsecurity
-        rdb function moneyfmt  ::marsutil::moneyfmt
+        rdb function m2ref                [myproc M2Ref]
+        rdb function ciftop               [list ::cif mark]
+        rdb function qsecurity            ::projectlib::qsecurity
+        rdb function moneyfmt             ::marsutil::moneyfmt
+        rdb function calpattern_narrative [list ::calpattern narrative]
 
         # NEXT, define the GUI Views
         rdb eval [readfile [file join $::app_sim::library gui_views.sql]]

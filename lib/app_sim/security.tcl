@@ -53,22 +53,8 @@ snit::type security {
             FROM nbhoods JOIN groups;
         }
 
-        # NEXT, do an initial analysis.
-        security analyze
-
         # NEXT, Security is up.
         log normal security "start complete"
-    }
-
-    # clear
-    #
-    # Clears the data from the activity_nga table
-
-    typemethod clear {} {
-        rdb eval { 
-            DELETE FROM force_n;
-            DELETE FROM force_ng;
-        }
     }
 
 
@@ -83,11 +69,11 @@ snit::type security {
     typemethod analyze {} {
         # FIRST, compute the "force" values for each group in each 
         # neighborhood.
-        security ComputeOwnForce
-        security ComputeLocalFriendsAndEnemies
-        security ComputeAllFriendsAndEnemies
-        security ComputeTotalForce
-        security ComputePercentForce
+        $type ComputeOwnForce
+        $type ComputeLocalFriendsAndEnemies
+        $type ComputeAllFriendsAndEnemies
+        $type ComputeTotalForce
+        $type ComputePercentForce
 
         # NEXT, compute the volatility for each neighborhood.
         security ComputeVolatility
@@ -95,6 +81,7 @@ snit::type security {
         # NEXT, compute the security for each group in each nbhood.
         security ComputeSecurity
     }
+
 
     # ComputeOwnForce
     #
@@ -111,27 +98,26 @@ snit::type security {
         #---------------------------------------------------------------
         # CIV Groups
 
-        # Population force.  Note that in Athena (contra JNEM), unit
-        # personnel and implicit population are interchangeable.  Further,
-        # demog_ng.population includes both implicit and explicit
-        # population for group ng in neighborhood n.
+        # Population force.
         #
-        # TBD: Note that "displaced units", i.e., civilian units outside
-        # their neighborhood of origin, are excluded from this calculation.
-        # It's not clear what to do with them.  In JNEM, units had no
-        # neighborhood of origin, and a unit of group g in nbhood n 
-        # was presumed to belong to group "n,g".  In Athena, that's not
-        # obviously the right thing to do.  We'll leave it for now.
+        # TBD: Note that "displaced civilian personnel", i.e., civilian
+        # personnel assigned to activities outside their neighborhood of 
+        # origin, are excluded from this calculation.
+        # It's not clear what to do with them.  They have "own" force,
+        # but nowhere to put it; it certainly isn't clear that they
+        # belong to the corresponding group in this neighborhood, if any.
 
         rdb eval {
             SELECT nbgroups.n              AS n,
                    nbgroups.g              AS g,
                    nbgroups.demeanor       AS demeanor,
                    gram_ng.sat             AS mood,
-                   demog_ng.population     AS population
+                   total(units.personnel)  AS P
             FROM nbgroups
             JOIN gram_ng USING (n,g)
-            JOIN demog_ng USING (n,g)
+            JOIN units ON (units.origin=nbgroups.n AND units.g=nbgroups.g)
+            WHERE units.n = units.origin
+            GROUP BY nbgroups.n,nbgroups.g
         } {
             set a [parmdb get force.population]
             set D [parmdb get force.demeanor.$demeanor]
@@ -139,26 +125,28 @@ snit::type security {
             set b    [parmdb get force.mood]
             let M    {1.0 - $b*$mood/100.0}
 
-            let pop_force {int(ceil($a*$D*$M*$population))}
+            let pop_force {int(ceil($a*$D*$M*$P))}
 
             rdb eval {
                 UPDATE force_ng
-                SET own_force = $pop_force
+                SET own_force = $pop_force,
+                    personnel = $P
                 WHERE n = $n AND g = $g
             }
         }
-        
 
         #---------------------------------------------------------------
         # FRC Groups
+
+        # The relevant personnel is just the PRESENCE.
         rdb eval {
-            SELECT n, 
+            SELECT n,
                    g,
                    total(personnel) AS P,
                    demeanor,
                    forcetype
             FROM units JOIN frcgroups USING (g)
-            WHERE n != ''
+            WHERE personnel > 0
             GROUP BY n, g 
         } {
             set D [parmdb get force.demeanor.$demeanor]
@@ -176,6 +164,7 @@ snit::type security {
 
         #---------------------------------------------------------------
         # ORG Groups
+
         rdb eval {
             SELECT n,
                    g,
@@ -183,7 +172,7 @@ snit::type security {
                    demeanor,
                    orgtype
             FROM units JOIN orggroups USING (g)
-            WHERE n != ''
+            WHERE personnel > 0
             GROUP BY n, g 
         } {
             set D [parmdb get force.demeanor.$demeanor]

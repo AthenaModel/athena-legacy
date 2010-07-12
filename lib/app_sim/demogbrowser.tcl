@@ -37,8 +37,6 @@ snit::widgetadaptor demogbrowser {
         { local_name  "Local Name"                                  }
         { basepop     "BasePop"    -sortmode integer                }
         { population  "CurrPop"    -sortmode integer -foreground %D }
-        { implicit    "Implicit"   -sortmode integer -foreground %D }
-        { explicit    "Explicit"   -sortmode integer -foreground %D }
         { displaced   "Displaced"  -sortmode integer -foreground %D }
         { attrition   "Attrition"  -sortmode integer -foreground %D }
     }

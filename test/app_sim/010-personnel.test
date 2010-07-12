@@ -1,0 +1,338 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-personnel.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    personnel(sim) tests.
+#
+#    This test suite tests the personnel(sim) mutators and queries
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    proc setup {} {
+        ted create NB1 NB2 BLUE BRIT
+        personnel mutate reconcile
+    }
+
+
+    #-------------------------------------------------------------------
+    # mutate reconcile
+
+    test reconcile-1.1 {reconcile creates personnel_ng records} -body {
+        ted create NB1 NB2 BLUE BRIT
+        personnel mutate reconcile
+        ted query {SELECT * FROM personnel_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel 
+--- ---- --------- 
+NB1 BLUE 0         
+NB1 BRIT 0         
+NB2 BLUE 0         
+NB2 BRIT 0         
+    }
+
+    test reconcile-1.2 {reconcile notifies app on create} -body {
+        ted create NB1 NB2 BLUE BRIT
+        ted notifier bind ::personnel <Entity>
+        personnel mutate reconcile
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::personnel <Entity> create {NB1 BLUE}}
+        {::personnel <Entity> create {NB1 BRIT}}
+        {::personnel <Entity> create {NB2 BLUE}}
+        {::personnel <Entity> create {NB2 BRIT}}
+    }
+
+    test reconcile-1.3 {undo deletes created records} -setup {
+        ted create NB1 NB2 BLUE BRIT
+        set undo [personnel mutate reconcile]
+    } -body {
+        namespace eval :: $undo
+        ted query {SELECT * FROM personnel_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+    }
+
+    test reconcile-1.4 {undo notifies app on delete} -setup {
+        ted create NB1 NB2 BLUE BRIT
+        set undo [personnel mutate reconcile]
+    } -body {
+        ted notifier bind ::personnel <Entity>
+        namespace eval :: $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::personnel <Entity> delete {NB1 BLUE}}
+        {::personnel <Entity> delete {NB1 BRIT}}
+        {::personnel <Entity> delete {NB2 BLUE}}
+        {::personnel <Entity> delete {NB2 BRIT}}
+    }
+
+    test reconcile-2.1 {reconcile deletes unneeded records} -body {
+        setup
+        rdb eval {DELETE FROM nbhoods WHERE n='NB2'}
+        personnel mutate reconcile
+        ted query {SELECT * FROM personnel_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel 
+--- ---- --------- 
+NB1 BLUE 0         
+NB1 BRIT 0         
+    }
+
+    test reconcile-2.2 {reconcile notifies app on delete} -body {
+        setup
+        rdb eval {DELETE FROM nbhoods WHERE n='NB2'}
+        ted notifier bind ::personnel <Entity>
+        personnel mutate reconcile
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::personnel <Entity> delete {NB2 BLUE}}
+        {::personnel <Entity> delete {NB2 BRIT}}
+    }
+
+    test reconcile-2.3 {undo restores deleted records} -setup {
+        setup
+        rdb eval {DELETE FROM nbhoods WHERE n='NB2'}
+        set undo [personnel mutate reconcile]
+    } -body {
+        namespace eval :: $undo
+        ted query {SELECT * FROM personnel_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel 
+--- ---- --------- 
+NB1 BLUE 0         
+NB1 BRIT 0         
+NB2 BLUE 0         
+NB2 BRIT 0         
+    }
+
+    test reconcile-2.4 {undo notifies app on restore} -setup {
+        setup
+        rdb eval {DELETE FROM nbhoods WHERE n='NB2'}
+        set undo [personnel mutate reconcile]
+    } -body {
+        ted notifier bind ::personnel <Entity>
+        namespace eval :: $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::personnel <Entity> create {NB2 BLUE}}
+        {::personnel <Entity> create {NB2 BRIT}}
+    }
+
+    #-------------------------------------------------------------------
+    # mutate create -- used only by mutate reconcile and tested there.
+
+    #-------------------------------------------------------------------
+    # mutate delete -- used only by mutate reconcile and tested there.
+
+    #-------------------------------------------------------------------
+    # mutate set
+
+    test set-1.1 {set updates the personnel count} -setup {
+        setup
+    } -body {
+        personnel mutate set {n NB1 g BLUE personnel 30}
+        ted query {SELECT * FROM personnel_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel 
+--- ---- --------- 
+NB1 BLUE 30        
+NB1 BRIT 0         
+NB2 BLUE 0         
+NB2 BRIT 0         
+    }
+
+    test set-1.2 {set notifies app} -setup {
+        setup
+    } -body {
+        ted notifier bind ::personnel <Entity>
+        personnel mutate set {n NB1 g BLUE personnel 30}
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::personnel <Entity> update {NB1 BLUE}}
+    }
+
+    test set-2.1 {undo undoes the change} -setup {
+        setup
+    } -body {
+        set a [ted query {SELECT * FROM personnel_ng}]
+        set undo [personnel mutate set {n NB1 g BLUE personnel 30}]
+        namespace eval :: $undo
+        set b [ted query {SELECT * FROM personnel_ng}]
+        
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test set-2.2 {undo notifies the app} -setup {
+        setup
+        set undo [personnel mutate set {n NB1 g BLUE personnel 30}]
+    } -body {
+        ted notifier bind ::personnel <Entity>
+        namespace eval :: $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::personnel <Entity> update {NB1 BLUE}}
+    }
+
+    #-------------------------------------------------------------------
+    # mutate adjust
+
+    test adjust-1.1 {adjust updates the personnel count} -setup {
+        setup
+    } -body {
+        personnel mutate adjust {n NB1 g BLUE delta 30}
+        ted query {SELECT * FROM personnel_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel 
+--- ---- --------- 
+NB1 BLUE 30        
+NB1 BRIT 0         
+NB2 BLUE 0         
+NB2 BRIT 0         
+    }
+
+    test adjust-1.2 {negative adjusts down to zero} -setup {
+        setup
+        personnel mutate adjust {n NB1 g BLUE delta 30}
+    } -body {
+        personnel mutate adjust {n NB1 g BLUE delta -40}
+        ted query {SELECT * FROM personnel_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel 
+--- ---- --------- 
+NB1 BLUE 0         
+NB1 BRIT 0         
+NB2 BLUE 0         
+NB2 BRIT 0         
+    }
+
+    test adjust-1.3 {adjust notifies app} -setup {
+        setup
+    } -body {
+        ted notifier bind ::personnel <Entity>
+        personnel mutate adjust {n NB1 g BLUE delta 30}
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::personnel <Entity> update {NB1 BLUE}}
+    }
+
+    test adjust-2.1 {undo undoes the change} -setup {
+        setup
+    } -body {
+        set a [ted query {SELECT * FROM personnel_ng}]
+        set undo [personnel mutate adjust {n NB1 g BLUE delta 30}]
+        namespace eval :: $undo
+        set b [ted query {SELECT * FROM personnel_ng}]
+        
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test adjust-2.2 {undo restores truncated value} -setup {
+        setup
+        personnel mutate adjust {n NB1 g BLUE delta 30}
+    } -body {
+        set a [ted query {SELECT * FROM personnel_ng}]
+        set undo [personnel mutate adjust {n NB1 g BLUE delta -40}]
+        namespace eval :: $undo
+        set b [ted query {SELECT * FROM personnel_ng}]
+        
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test adjust-2.3 {joined undo's yield the right answer} -setup {
+        setup
+    } -body {
+        set a [ted query {SELECT * FROM personnel_ng}]
+        set undo [list]
+        lappend undo [personnel mutate adjust {n NB1 g BLUE delta 30}]
+        lappend undo [personnel mutate adjust {n NB1 g BLUE delta 15}]
+        namespace eval :: [join $undo \n]
+        set b [ted query {SELECT * FROM personnel_ng}]
+        
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test adjust-2.4 {undo notifies the app} -setup {
+        setup
+        set undo [personnel mutate adjust {n NB1 g BLUE delta 30}]
+    } -body {
+        ted notifier bind ::personnel <Entity>
+        namespace eval :: $undo
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::personnel <Entity> update {NB1 BLUE}}
+    }
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

@@ -267,18 +267,6 @@ snit::type app {
             [$browser canresolve]
         }
 
-        # Analysis has been requested.
-
-        statecontroller ::cond::simAnalysisNeeded -events {
-            ::sim <AnalysisNeeded>
-            ::sim <DbSyncB>
-            ::sim <Tick>
-            ::sim <State>
-        } -condition {
-            [::sim analyze?]
-        }
-
-
         # NEXT, Withdraw the default toplevel window, and create 
         # the main GUI components.
         wm withdraw .

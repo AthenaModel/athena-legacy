@@ -81,6 +81,237 @@ macro parm.ids {entity} {
 
 #-----------------------------------------------------------------------
 
+page ACTIVITY: "Activity Scheduling Orders" orders {
+    <<title>>
+
+    The analyst assigns activities to personnel according to a schedule;
+    each day, units are staffed to do the activities from the available 
+    personnel.  These orders are used to schedule activities and
+    manipulate the schedule.<p>
+
+    These orders <b>do not</b> check whether sufficient personnel
+    are available, as the number of personnel available can change
+    dynamically as the simulation runs forward.  However, each
+    scheduled activity has a priority, and activities are staffed in
+    priority order.<p>
+
+    <<childlinks>>
+}
+
+
+macro ACTIVITY.personnel {tag} {
+    |<--
+    [parm personnel "Personnel"]
+    <b>$tag.</b> The number of personnel assigned to the
+    activity.  Note that the activity will only be fully-staffed on
+    any given day if sufficient personnel remain after all
+    higher-priority activities are staffed.
+    [/parm]
+}
+
+macro ACTIVITY.start {tag} {
+    |<--
+    [parm start "Start"]
+    <b>$tag.</b> The first day on which the activity is scheduled,
+    as a [term timespec].  While in [cref using.prep], the
+    activity may be scheduled at time 0 ("<b>NOW</b>" or "<b>T0</b>");
+    while in the <b>Paused</b> state, the earliest the activity can be
+    scheduled is day following the current day ("<b>NOW+1</b>").
+    [/parm]
+}
+
+macro ACTIVITY.finish {tag} {
+    |<--
+    [parm finish "Finish"]
+    <b>$tag.</b> The last day on which the activity is scheduled,
+    as a [term timespec], or <b>NEVER</b>, indicating that the
+    activity is scheduled for the indefinite future.
+    [/parm]
+}
+
+macro ACTIVITY.pattern {tag} {
+    |<--
+    [parm pattern "Schedule"]
+    <b>$tag.</b> A [term calpattern] that determines the days (from
+    <i>start</i> to <i>finish</i>) on which the activity is actually
+    scheduled, e.g., e.g., daily or on particular days of the week.
+    [/parm]
+}
+
+
+
+#-----------------------------------------------------------------------
+
+order ACTIVITY:SCHEDULE "Schedule Activity" {
+    <<parmlist>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  The name of an existing civilian, force, or
+    organization group that will do the activity.
+    <</parm>>
+
+    <<parm n "From Nbhood">>
+    <b>Required.</b>  The neighborhood from which the scheduled 
+    personnel will be drawn.  For civilian groups, this is the 
+    neighborhood of residence; for force and organization groups, it
+    is the neighborhood in which the personnel are stationed (see
+    the <<cref PERSONNEL:>>).
+    <</parm>>
+
+    <<parm a "Activity">>
+    <b>Required.</b>  The name of the activity to be scheduled.  It
+    must be appropriate for group <i>g</i>.
+    <</parm>>
+
+    <<parm tn "In Nbhood">>
+    <b>Required.</b>  The neighborhood in which the activity will be 
+    conducted; defaults to neighborhood <i>n</i>.
+    <</parm>>
+
+    <<ACTIVITY.personnel "Required">>
+    <<ACTIVITY.start     "Required">>
+    <<ACTIVITY.finish    "Optional">>
+    <<ACTIVITY.pattern   "Required">>
+
+    <<parm priority "Priority">>
+    <b>Optional.</b> Indicates the initial priority of this calendar
+    item.  If <b>top</b>, the item will have priority over all other
+    activities scheduled for group <i>g</i> from neighborhood
+    <i>n</i> on a given day; if <b>bottom</b>, it will the lowest
+    priority.  The priority can be changed using the
+    <<cref ACTIVITY:PRIORITY>> order.
+    <</parm>>
+
+    <</parmlist>>
+
+    Schedules a new activity <i>a</i> for group <i>g</i> in neighborhood
+    <i>tn</i>, drawing the specified number of <i>personnel</i> from
+    neighborhood <i>n</i>.  The activity is scheduled from day
+    <i>start</i> to day <i>finish</i>, as indicated by the calendar
+    <i>pattern</i>.  It will have the given <i>priority</i> with respect to
+    other activities previously scheduled for group <i>g</i> and
+    neighborhood <i>n</i>.<p>
+
+    Note that the analyst can create two calendar items for the same
+    group, activity, and pair of neighborhoods; if both are scheduled
+    on the same day, and there is sufficient personnel, both will be
+    staffed.
+}
+
+order ACTIVITY:UPDATE "Update Scheduled Activity" {
+    <<parmlist>>
+
+    <<parm cid "Item ID">>
+    <b>Required.</b> The calendar item ID of the scheduled activity.
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Display only.</b>  The name of the civilian, force, or
+    organization group that will do the activity.
+    <</parm>>
+
+    <<parm n "From Nbhood">>
+    <b>Display only.</b>  The neighborhood from which the scheduled 
+    personnel are drawn.  For civilian groups, this is the 
+    neighborhood of residence; for force and organization groups, it
+    is the neighborhood in which the personnel are stationed (see
+    the <<cref PERSONNEL:>>).
+    <</parm>>
+
+    <<parm a "Activity">>
+    <b>Display only.</b>  The name of the scheduled activity.
+    <</parm>>
+
+    <<parm tn "In Nbhood">>
+    <b>Display only.</b>  The neighborhood in which the activity is
+    scheduled to be conducted.
+    <</parm>>
+
+    <<ACTIVITY.personnel "Required">>
+    <<ACTIVITY.start     "Required">>
+    <<ACTIVITY.finish    "Optional">>
+    <<ACTIVITY.pattern   "Required">>
+    
+    <</parmlist>>
+
+    Allows the analyst to modify a scheduled activity.  The group,
+    activity, and neighborhoods are shown as a convenience, but once
+    an activity is scheduled they are fixed and cannot be changed; if
+    they are incorrect, use <<cref ACTIVITY:CANCEL>> to cancel the
+    activity and schedule a new one.<p>
+
+    Note that when editing an activity that started at some point in
+    the past, the <i>start</i> parameter must be updated to no earlier
+    than <b>NOW+1</b>.<p>
+}
+
+order ACTIVITY:CANCEL "Cancel Scheduled Activity" {
+    <<parmlist>>
+
+    <<parm cid "Item ID">>
+    <b>Required.</b> The calendar item ID of the scheduled activity.
+    <</parm>>
+
+    <<parm g "Group">>
+    <b>Display only.</b>  The name of the civilian, force, or
+    organization group that will do the activity.
+    <</parm>>
+
+    <<parm n "From Nbhood">>
+    <b>Display only.</b>  The neighborhood from which the scheduled 
+    personnel are drawn.  For civilian groups, this is the 
+    neighborhood of residence; for force and organization groups, it
+    is the neighborhood in which the personnel are stationed (see
+    the <<cref PERSONNEL:>>).
+    <</parm>>
+
+    <<parm a "Activity">>
+    <b>Display only.</b>  The name of the scheduled activity.
+    <</parm>>
+
+    <<parm tn "In Nbhood">>
+    <b>Display only.</b>  The neighborhood in which the activity is
+    scheduled to be conducted.
+    <</parm>>
+
+    <<parm personnel "Personnel">>
+    <b>Display only.</b> The number of personnel assigned to the
+    activity.
+    <</parm>>
+
+    <<parm narrative "Schedule">>
+    <b>Display only.</b> An English sentence summarizing the time
+    interval and <<term calpattern>> for which the activity is scheduled.
+    <</parmlist>>
+
+    Allows the analyst to cancel a scheduled activity.
+}
+
+order ACTIVITY:PRIORITY "Prioritize Scheduled Activity" {
+    <<parmlist>>
+
+    <<parm cid "Item ID">>
+    <b>Required.</b> The calendar item ID of the scheduled activity.
+    <</parm>>
+
+    <<parm priority "Priority">>
+    <b>Required only.</b>  The item's new priority with respect to
+    other activities having the same group and neighborhood of origin.
+    Possible values are <b>top</b>, <b>bottom</b>, <b>raise</b>, and
+    <b>lower</b>.  The values <b>top</b> and <b>bottom</b> give the
+    item the highest or lowest priority among the scheduled
+    activities; the values <b>raise</b> and <b>lower</b> move the item
+    up or down one step.
+    <</parm>>
+
+    <</parmlist>>
+
+    Allows the analyst to change the priority of a scheduled activity.
+}
+
+
+#-----------------------------------------------------------------------
+
 page ATTRIT: "Attrition Orders" orders {
     <<title>>
 
@@ -109,8 +340,18 @@ macro ATTRIT.responsible {} {
     [/parm]
 }
 
-macro ATTRIT.attitude {} {
+macro ATTRIT.general {} {
     |<--
+    <b>Staffing Pools:</b>  Every unit is staffed from a staffing
+    pool.  For civilian units, the staffing pool is the base
+    population of the group in its neighborhood of origin; for force
+    and organization units, the staffing pool is the number of
+    personnel stationed in the unit's neighborhood of origin.
+    
+    Attrition reduces not only the number of personnel in the affected
+    units, but also the number of personnel available in the group's
+    staffing pool.<p>
+
     <b>Attitude Implications:</b>  Civilian and organization
     casualties affect the satisfaction of the relevant groups.  If
     responsible force groups are specified, then civilian casualties
@@ -142,33 +383,20 @@ order ATTRIT:GROUP "Magic Attrit Group" {
 
     <</parmlist>>
 
-    This order magically inflicts casualties upon a selected group in
-    a selected neighborhood.  The effect depends on the kind of
-    group.<p>
+    This order magically inflicts casualties upon a selected group's
+    units in a selected neighborhood.  The group's units are attrited
+    proportional to their size, i.e., a unit twice as big as another
+    will take twice the casualties.  Additional effects depend on
+    the kind of group.<p>
 
-    <b>Force and Organization Groups:</b>  The group's units are
-    attrited by the specified number of casualties.  Athena assumes
-    that units doing more important activities will be reinforced from
-    units doing less important activities; therefore, units are
-    attrited in <<term activity_priority>> order based on their activities, 
-    from lowest 
-    priority to greatest priority.  For example, a unit with activity
-    <b>NONE</b> is attrited before one with activity <b>PATROL</b>.<p>
+    <<ATTRIT.general>>
 
-    <b>Civilian Groups:</b>  The group's units and implicit
-    population are attrited proportionally to their size.<p>
-
-    If the requested number of casualties exceeds the group's population in
-    the neighborhood, then all of the group's units in the
-    neighborhood will drop to zero personnel, and the group's implicit
-    population will drop to one person.  (A group's implicit
-    population may not be zero.)<p>
-
-    If the group does not reside in the neighborhood, this order has
-    no effect; therefore, civilian units outside their neighborhood of
-    origin are never attrited by this order.<p>
-
-    <<ATTRIT.attitude>>
+    <b>Displaced Civilian Units:</b>
+    
+    If civilian group <i>g</i> is attrited, and the neighborhood
+    contains personnel from group <i>g</i> displaced from other
+    neighborhoods, the displaced personnel will be attrited along
+    with the local residents.<p>
 }
 
 #-----------------------------------------------------------------------
@@ -189,20 +417,12 @@ order ATTRIT:NBHOOD "Magic Attrit Neighborhood" {
 
     <</parmlist>>
 
-    Attrits all civilians in the neighborhood by the specified number
-    of casualties.  All civilian units and implicit populations are
-    attrited proportionally to their size.  <b>Note:</b> unlike
-    the <<cref ATTRIT:GROUP>> order, this order attrits civilian units
-    from other neighborhoods along with those from this
-    neighborhood.<p>
+    Attrits all civilian units in the neighborhood by the specified number
+    of casualties.  Units are attrited proportionally to their size,
+    i.e., a unit twice as big as another will take twice the
+    casualties.<p>
 
-    If the neighborhood's total population is less than the requested
-    number of casualties, then all of the civilian units in the
-    neighborhood will be reduced to zero personnel and the implicit
-    population of each neighborhood group will drop to one person.  (A
-    neighborhood group's implicit population may not be zero.)<p>
-
-    <<ATTRIT.attitude>>
+    <<ATTRIT.general>>
 }
 
 #-----------------------------------------------------------------------
@@ -227,15 +447,7 @@ order ATTRIT:UNIT "Magic Attrit Unit" {
     casualties are presumed to be dead, and are deducted from the
     unit's personnel.<p>
 
-    <ul>
-    <li> Unit attrition, and particularly civilian casualties, can
-         affect civilian attitudes.
-         
-    <li> To change the number of personnel in the unit for reasons
-         other than attrition, use the <<cref UNIT:PERSONNEL>> order.
-    </ul><p>
-
-    <<ATTRIT.attitude>>
+    <<ATTRIT.general>>
 }
 
 #=======================================================================
@@ -1123,10 +1335,9 @@ page GROUP:FORCE: "Force Group Orders" GROUP: {
 
     <<childlinks>>
 
-    Then, the <<cref UNIT:>> can be used to create units belonging
-    to these groups.
-
-    <<childlinks UNIT:>>
+    Then, the <<cref PERSONNEL:>> can be used to establish force
+    levels in various neighborhoods, and the <<cref ACTIVITY:>> can be 
+    used to schedule various activities by the group's personnel.
 }
 
 macro GROUP:FORCE.forcetype {} {
@@ -1326,10 +1537,9 @@ page GROUP:ORGANIZATION: "Organization Group Orders" GROUP: {
 
     <<childlinks>>
 
-    Then, the <<cref UNIT:>> can be used to create units belonging
-    to these groups.
-
-    <<childlinks UNIT:>>
+    Then, the <<cref PERSONNEL:>> can be used to establish force
+    levels in various neighborhoods, and the <<cref ACTIVITY:>> can be 
+    used to schedule various activities by the group's personnel.
 }
 
 macro GROUP:ORGANIZATION.orgtype {} {
@@ -3169,85 +3379,14 @@ order SIM:PAUSE "Pause Simulation" {
 page UNIT: "Unit Orders" orders {
     <<title>>
 
-    A unit is an object that represents some number of people in 
-    a particular neighborhood.  Every unit belongs to some group.
-    Force and organization group units are used to represent presence
-    of personnel belonging to the group within a particular
-    neighborhood, and also to assign group personnel to particular
-    activities.  Civilian units belong to particular neighborhood
-    groups, and are used to make the implicit population of the group
-    explicit on the map.<p>
+    A <<term unit>> is an object that represents some number of people in 
+    a particular neighborhood, typically performing some activity.
 
-    Note that force group units are <i>not</i> units in the classic
-    sense: a particular company, platoon, etc.  Rather, they represent
-    the presence of troops and the allocation of troops to
-    activities.<p>
-
-    A unit's specific location within a neighborhood is immaterial.<p>
-
-    Units are created and modified using the following orders:<p>
+    Units are modified using the following orders:<p>
 
     <<childlinks>>
 }
 
-#-----------------------------------------------------------------------
-
-order UNIT:CREATE "Create Unit" {
-    <<parmlist>>
-    <<parm g "Group">>
-    <b>Required.</b>  The group to which the unit belongs.
-    <</parm>>
-
-    <<parm origin "Origin">>
-    <b>Required.</b>  For civilian groups only, the unit's
-    neighborhood of origin.  Group <i>g</i> must reside in this
-    neighborhood.
-    <</parm>>
-
-    <<parm u "Name">>
-    <b>Required.</b>  The unit's name.  Athena automatically generates
-    unit names, but the user can change them to any desired string.
-    Unit names may contain letters, numbers, underscores, hyphens, and
-    slashes.
-    <</parm>>
-
-    <<parm personnel "Personnel">>
-    <b>Required.</b>  The number of personnel in the group: a
-    non-negative integer.  For civilian units, the personnel are drawn
-    from the neighborhood group's implicit population.
-    <</parm>>
-
-    <<parm location "Location">>
-    <b>Required.</b>  The unit's location, expressed as
-    a <<term mapref>>.  The location determines
-    the unit's neighborhood, and where precisely it is drawn on the
-    map; it has no other function.
-    <</parm>>
-
-    <<parm a "Activity">>
-    <b>Required.</b>  The unit's activity.  The set of valid
-    activities depends on the group type.  If <b>NONE</b>, the unit's
-    personnel are doing nothing in particular.
-    <</parm>>
-    <</parmlist>>
-
-    Creates the unit with the specified parameters.
-}
-
-
-#-----------------------------------------------------------------------
-
-order UNIT:DELETE "Delete Unit" {
-    <<parmlist>>
-    <<parm u "Name">>
-    <b>Required.</b>  The name of the unit to delete.
-    <</parm>>
-    <</parmlist>>
-
-    Deletes the specified unit.
-}
-
-#-----------------------------------------------------------------------
 
 order UNIT:MOVE "Move Unit" {
     <<parmlist>>
@@ -3261,50 +3400,80 @@ order UNIT:MOVE "Move Unit" {
     <</parm>>
     <</parmlist>>
 
-    Moves the unit to its new location.
+    Moves the unit to its new location, which must be within the same 
+    neighborhood.
 }
 
 
-#-----------------------------------------------------------------------
 
-order UNIT:ACTIVITY "Set Unit Activity" {
-    <<parmlist>>
-    <<parm u "Name">>
-    <b>Required.</b>  The name of the unit to move.
-    <</parm>>
+#=======================================================================
+# Order Orders
 
-    <<parm a "Activity">>
-    <b>Required.</b>  The unit's new activity.  The set of valid
-    activities depends on the group type.
-    <</parm>>
-    <</parmlist>>
+page ORDER: "Order Scheduling Orders" orders {
+    <<title>>
 
-    Assigns the new activity to the unit.
+    Athena allows certain orders to be scheduled to execute at some
+    later time.  These orders are used to schedule orders for
+    execution, and to cancel the scheduled orders.<p>
+
+    The user will usually use these orders indirectly, via the
+    the "Schedule" button on the various order dialogs, and the "X" 
+    button on the Orders browser;  Athena <<version>> provides no 
+    other way for the user to access them.  They are documented here 
+    for completeness' sake.<p>
+
+    In the long-run, it is likely that Athena will be able to execute
+    order scripts; at that time, the user will be able to enter these
+    orders directly into the scripts.<p>
+
+    The orders are as follows:<p>
+
+    <<childlinks>>
 }
 
+#-------------------------------------------------------------------
 
-#-----------------------------------------------------------------------
-
-order UNIT:PERSONNEL "Set Unit Personnel" {
+order ORDER:CANCEL "Cancel Scheduled Order" {
     <<parmlist>>
-    <<parm u "Name">>
-    <b>Required.</b>  The name of the unit to move.
-    <</parm>>
 
-    <<parm personnel "Personnel">>
-    <b>Required.</b>  The number of personnel in the group: a
-    non-negative integer.  For civilian units, the personnel are drawn
-    from the neighborhood group's implicit population.
+    <<parm id "Order ID">> 
+    <b>Required.</b>  The ID of the scheduled order, as shown in 
+    the Orders browser.
     <</parm>>
 
     <</parmlist>>
 
-    Sets the number of personnel in the unit, and by extension the
-    number of personnel allocated to the unit's activity.<p>
+    This order cancels a scheduled order given its ID.
+}
 
-    Note that decreasing the number of personnel in a unit using this
-    order represents a re-allocation of personnel; it is not
-    <<cref ATTRIT: attrition>>.<p>
+#-------------------------------------------------------------------
+
+order ORDER:SCHEDULE "Schedule Order" {
+    <<parmlist>>
+
+    <<parm timespec "Time Spec">> 
+    <b>Required.</b> The time at which the order should be scheduled
+    to execute, expressed as a <<term timespec>>.  The time must be at
+    least "NOW+1".
+    <</parm>>
+
+    <<parm name "Order Name">>
+    <b>Required.</b> The name of the order, as shown on the second
+    line of the order's help page.  For example, the name of this
+    order (as opposed to its title) is <b>ORDER:SCHEDULE</b>.
+
+    <<parm parmdict "Parm Dict">>
+    A Tcl dictionary of parameter names and values, using the 
+    parameter names shown in parentheses on the order's help page.
+    The name of this parameter, for example, is <b>parmdict</b>.
+    <</parm>>
+
+    <</parmlist>>
+
+    This order schedules the order to execute at the specified time.
+    It does not ensure that the order will be accepted; a valid order
+    might become invalid by the time it executes, and an invalid order
+    might (in particular cases) become valid.
 }
 
 #=======================================================================
@@ -3376,71 +3545,61 @@ order PARM:SET "Set Parameter Value" {
 }
 
 #=======================================================================
-# Order Orders
+# Personnel Orders
 
-page ORDER: "Order Scheduling Orders" orders {
+page PERSONNEL: "Personnel Orders" orders {
     <<title>>
 
-    Athena allows certain orders to be scheduled to execute at some
-    later time.  These orders are used to schedule orders for
-    execution, and to cancel the scheduled orders.<p>
-
-    The user will usually use these orders indirectly, via the
-    the "Schedule" button on the various order dialogs, and the "X" 
-    button on the Orders browser;  Athena <<version>> provides no 
-    other way for the user to access them.  They are documented here 
-    for completeness' sake.<p>
-
-    In the long-run, it is likely that Athena will be able to execute
-    order scripts; at that time, the user will be able to enter these
-    orders directly into the scripts.<p>
-
-    The orders are as follows:<p>
+    In Athena, force and organization personnel must be stationed in 
+    a neighborhood before they can be assigned
+    <<cref ACTIVITY: "activities">>.  These orders are used to 
+    manage these "force levels".<p>
 
     <<childlinks>>
 }
 
-#-------------------------------------------------------------------
 
-order ORDER:CANCEL "Cancel Scheduled Order" {
+order PERSONNEL:SET "Set Group Personnel" {
     <<parmlist>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
+    <</parm>>
 
-    <<parm id "Order ID">> 
-    <b>Required.</b>  The ID of the scheduled order, as shown in 
-    the Orders browser.
+    <<parm g "Group">>
+    <b>Required.</b>  The name of a force or organization group.
+    <</parm>>
+
+    <<parm personnel "Personnel">>
+    <b>Required.</b> The number of group <i>g's</i> personnel to
+    assign to neighborhood <i>n</i>.
     <</parm>>
 
     <</parmlist>>
 
-    This order cancels a scheduled order given its ID.
+    Assigns the specified number of personnel to the neighborhood.
+    By default, no force or organization personnel are assigned to 
+    any neighborhood.<p>
 }
 
-#-------------------------------------------------------------------
 
-order ORDER:SCHEDULE "Schedule Order" {
+order PERSONNEL:ADJUST "Adjust Group Personnel" {
     <<parmlist>>
-
-    <<parm timespec "Time Spec">> 
-    <b>Required.</b> The time at which the order should be scheduled
-    to execute, expressed as a <<term timespec>>.  The time must be at
-    least "NOW+1".
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<NBHOOD.n>>
     <</parm>>
 
-    <<parm name "Order Name">>
-    <b>Required.</b> The name of the order, as shown on the second
-    line of the order's help page.  For example, the name of this
-    order (as opposed to its title) is <b>ORDER:SCHEDULE</b>.
+    <<parm g "Group">>
+    <b>Required.</b>  The name of a force or organization group.
+    <</parm>>
 
-    <<parm parmdict "Parm Dict">>
-    A Tcl dictionary of parameter names and values, using the 
-    parameter names shown in parentheses on the order's help page.
-    The name of this parameter, for example, is <b>parmdict</b>.
+    <<parm delta "Delta Personnel">>
+    <b>Required.</b> The number of personnel by which the group's
+    force level will be increased or decreased.
     <</parm>>
 
     <</parmlist>>
 
-    This order schedules the order to execute at the specified time.
-    It does not ensure that the order will be accepted; a valid order
-    might become invalid by the time it executes, and an invalid order
-    might (in particular cases) become valid.
+    Increases or decreases the number of group <i>g</i>'s personnel 
+    stationed in neighborhood <i>n</i> by the specified amount.<p>
 }
+

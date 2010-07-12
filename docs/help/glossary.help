@@ -149,6 +149,42 @@ term bgerror "bgerror" {
     case it is a known problem.<p>
 }
 
+#-----------------------------------------------------------------------
+
+term calpattern "calendar pattern" {
+    A <i>calendar pattern</i> determines how some activity is
+    scheduled and staffed over an interval of time.  A pattern
+    is specified as a token, possibly followed by modifiers.
+    The following patterns are available:<p>
+
+    <<topiclist>>
+
+    <<topic "daily">>
+    The activity is scheduled to occur every day during the interval,
+    and is restaffed with fresh personnel every day.
+    <</topic>>
+
+    <<topic "once">>
+    The activity is scheduled to occur every day during the interval, 
+    but is staffed only once, on the first day of the interval.  The
+    assigned personnel remain assigned to the given activity until the
+    the interval ends or the activity is cancelled or modified.
+    <</topic>>
+
+    <<topic "byweekday&nbsp;<i>dayname...</i>">>
+    The activity is scheduled on the specified week days.  The day
+    names are specified as  <b>Su</b>, <b>M</b>, <b>T</b>, <b>W</b>,
+    <b>Th</b>, <b>F</b>,  <b>Sa</b>.  For example, to specify that
+    an activity occurs on Monday, Wednesday, and Friday, the pattern
+    is<p>
+
+    <pre>
+    byweekday M W F
+    </pre>
+    <</topic>>
+
+    <</topiclist>>
+}
 
 #-----------------------------------------------------------------------
 
@@ -856,6 +892,27 @@ term unit "unit" {
     <<term group>> that can be positioned in the <<term playbox>>
     and displayed on the <<tabref Map>>.<p>
 
+    Units come into existence automatically to represent the
+    neighborhood population; to represent force and organization group
+    personnel stationed in neighborhoods by the <<cref PERSONNEL:>>; 
+    and also to represent personnel assigned to particular activities
+    by the <<cref ACTIVITY:>>.  Thus, every unit belongs to some group
+    and represents personnel drawn from some particular neighborhood.
+
+    Each unit is tied to a particular neighborhood and can be moved
+    about within that neighborhood for the purposes of visualization;
+    however, a unit's specific location within a neighborhood has no
+    effect on the simulation.  Units cannot be moved from one 
+    neighborhood to another.<p>
+
+    A unit's name has the form "<i>group-nbhood/nnnn</i>" where
+    <i>group</i> is the group name and <i>nbhood</i> is the unit's
+    neighborhood of origin (which isn't necessarily the same as the
+    neighborhood in which the unit is located).  The number
+    <i>nnnn</i> is "0000" for personnel not allocated to any
+    particular activity, and the ID of the relevant
+    <<cref ACTIVITY: "calendar entry">> for units doing an activity.<p>
+
     In conventional war games, units correspond to a Table of
     Organization and Equipment (TOE); thus, a unit might be Company A
     of such-and-such a battalion.  Athena borrows this term, but
@@ -864,11 +921,7 @@ term unit "unit" {
     allocation of members of a <<term frcgroup>> to the 
     <<term activity>> of law enforcement.<p>
 
-    <b>Note:</b> Athena tracks the neighborhood in which each unit is
-    located.  The precise location of a unit within a neighborhood
-    is meaningless.<p>
-
-    Units can be created and positioned using the controls on the
+    Units can be positioned using the controls on the
     <<tabref Map>>.  The full set of units can browsed
     and edited on the <<tabref Units>>, using the <<cref UNIT:>>.<p>
 }

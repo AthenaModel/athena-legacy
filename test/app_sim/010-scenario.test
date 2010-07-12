@@ -50,11 +50,9 @@ namespace eval ::athena_test::tests:: {
         ted notifier bind ::coop    <Entity>
         ted notifier bind ::attroe  <Entity>
         ted notifier bind ::defroe  <Entity>
-        ted notifier bind ::unit    <Entity>
         ted notifier bind ::scenario <Reconcile>
 
-        ted create BLUE USAID NB1 SHIA NB1SHIA BLUE1
-        ted unit location BLUE1 NB1
+        ted create BLUE USAID NB1 SHIA NB1SHIA
 
         scenario mutate reconcile
 
@@ -67,8 +65,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {
         {::nbgroup <Entity> create {NB1 SHIA}}
-        {::unit <Entity> create BLUE1}
-        {::unit <Entity> update BLUE1}
         {::nbrel <Entity> create {NB1 NB1}}
         {::sat <Entity> create {NB1 SHIA AUT}}
         {::sat <Entity> create {NB1 SHIA CUL}}
@@ -101,13 +97,12 @@ namespace eval ::athena_test::tests:: {
         {::rel <Entity> delete {NB1 SHIA USAID}}
         {::coop <Entity> delete {NB1 SHIA BLUE}}
         {::defroe <Entity> delete {NB1 BLUE}}
-        {::unit <Entity> update BLUE1}
         {::scenario <Reconcile>}
     }
 
 
     test reconcile-1.2 {On undo: <Entity> create} -body {
-        ted create BLUE USAID NB1 SHIA NB1SHIA BLUE1
+        ted create BLUE USAID NB1 SHIA NB1SHIA
 
         scenario mutate reconcile
 
@@ -122,7 +117,6 @@ namespace eval ::athena_test::tests:: {
         ted notifier bind ::rel      <Entity>
         ted notifier bind ::coop     <Entity>
         ted notifier bind ::defroe  <Entity>
-        ted notifier bind ::unit     <Entity>
         ted notifier bind ::scenario <Reconcile>
         
         eval $undo
@@ -148,7 +142,6 @@ namespace eval ::athena_test::tests:: {
         {::rel <Entity> create {PLAYBOX USAID BLUE}}
         {::coop <Entity> create {NB1 SHIA BLUE}}
         {::defroe <Entity> create {NB1 BLUE}}
-        {::unit <Entity> create BLUE1}
     }
 
     #-------------------------------------------------------------------

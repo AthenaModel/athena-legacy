@@ -52,6 +52,7 @@ if {[file exists $binlib]} {
 # Load projectlib(n) submodules
 
 source [file join $::projectlib::library projtypes.tcl      ]
+source [file join $::projectlib::library calpattern.tcl     ]
 source [file join $::projectlib::library prefs.tcl          ]
 source [file join $::projectlib::library parmdb.tcl         ]
 source [file join $::projectlib::library mapref.tcl         ]

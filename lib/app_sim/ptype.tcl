@@ -65,6 +65,19 @@ snit::type ptype {
     }
 
 
+    # g+all
+    #
+    # Group names + ALL
+
+    typemethod {g+all names} {} {
+        linsert [lsort [group names]] 0 ALL
+    }
+
+    typemethod {g+all validate} {value} {
+        EnumVal "group" [$type g+all names] $value
+    }
+
+
     # civg+all
     #
     # Civilian group names + ALL
@@ -101,6 +114,18 @@ snit::type ptype {
 
     typemethod {orgg+all validate} {value} {
         EnumVal "organization group" [$type orgg+all names] $value
+    }
+
+    # fog+all
+    #
+    # Force/ORG group names + ALL
+
+    typemethod {fog+all names} {} {
+        linsert [lsort [concat [frcgroup names] [orggroup names]]] 0 ALL
+    }
+
+    typemethod {fog+all validate} {value} {
+        EnumVal "force/org group" [$type fog+all names] $value
     }
 
     # satg

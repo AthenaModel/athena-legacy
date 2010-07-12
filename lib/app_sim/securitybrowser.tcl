@@ -34,6 +34,7 @@ snit::widgetadaptor securitybrowser {
     typevariable layout {
         { n                  "Nbhood"                                      }
         { g                  "Group"                                       }
+        { personnel          "Personnel"  -sortmode integer -foreground %D }
         { security           "Security"   -sortmode integer -foreground %D }
         { symbol             "Symbol"                                      }
         { pct_force          "%Force"     -sortmode integer -foreground %D }

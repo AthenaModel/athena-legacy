@@ -84,7 +84,7 @@ snit::type ::projectlib::scenariodb {
         activity_gtype {
             { a NONE                 
                 gtype        CIV 
-                assignable   1 
+                assignable   0 
                 stype        {}       
                 attrit_order 0}
             { a DISPLACED            
@@ -100,7 +100,7 @@ snit::type ::projectlib::scenariodb {
 
             { a NONE                 
                 gtype        FRC 
-                assignable   1 
+                assignable   0 
                 stype        {}       
                 attrit_order 0}
             { a CHECKPOINT           
@@ -191,7 +191,7 @@ snit::type ::projectlib::scenariodb {
             
             { a NONE                 
                 gtype        ORG 
-                assignable   1 
+                assignable   0 
                 stype        {}       
                 attrit_order 0}
             { a CMO_CONSTRUCTION     
@@ -275,7 +275,7 @@ snit::type ::projectlib::scenariodb {
     # Returns a dictionary of function names and command prefixes
 
     typemethod {sqlsection functions} {} {
-        return { 
+        return {
             qcoop     ::simlib::qcooperation
             qmag      ::simlib::qmag
             qsat      ::simlib::qsat

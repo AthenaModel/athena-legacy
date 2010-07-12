@@ -52,6 +52,9 @@ snit::type ted {
         demog_ng
         mads
         econ_n
+        calendar
+        activity_nga
+        personnel_ng
     }
 
     # cleanupModules -- list of modules that need to be resync'd
@@ -502,6 +505,7 @@ snit::type ted {
     # name     The name of an entity
     #
     # Calls "$module mutate create" for each named entity.
+    # NOTE: This is really unclean.  I should be using orders, instead.
 
     typemethod create {args} {
         foreach name $args {
@@ -509,11 +513,6 @@ snit::type ted {
 
             {*}$module mutate create $parmdict
         }
-
-        # TBD: This is REALLY unclean.  I should be using
-        # the create orders instead, I fear, but since I'm
-        # not I need to work around it.
-        demog analyze pop
     }
 
     # cleanup
@@ -733,66 +732,6 @@ snit::type ted {
 
     typemethod query {sql} {
         return "\n[rdb query $sql]    "
-    }
-
-    #-------------------------------------------------------------------
-    # Unit Routines
-
-    # unit location u ?location?
-    #
-    # u     The unit ID
-    # loc   A neighborhood id, a mapref
-    #
-    # Sets/queries the unit's location. 
-    # Moves the unit to the neighborhood's refpoint, or to the
-    # mapref.
-
-    typemethod {unit location} {u {location ""}} {
-        # FIRST, get the location
-        if {$location ne ""} {
-            if {$location in [nbhood names]} {
-                set location [rdb onecolumn {
-                    SELECT refpoint FROM gui_nbhoods WHERE n=$location
-                }]
-            }
-
-            # NEXT, move the unit.
-            ted order UNIT:MOVE u $u location $location
-        }
-
-        rdb onecolumn {SELECT location FROM gui_units WHERE u=$u}
-    }
-
-
-    # unit activity u ?a?
-    #
-    # u     The unit ID
-    # a     The activity
-    #
-    # Sets/queries the unit's activity
-
-    typemethod {unit activity} {u {a ""}} {
-        if {$a ne ""} {
-            ted order UNIT:ACTIVITY u $u a $a
-        }
-
-        rdb onecolumn {SELECT a FROM gui_units WHERE u=$u}
-    }
-
-
-    # unit personnel u ?num?
-    #
-    # u     The unit ID
-    # num   Some number of personnel
-    #
-    # Sets/queries the unit's personnel
-
-    typemethod {unit personnel} {u {num ""}} {
-        if {$num ne ""} {
-            ted order UNIT:PERSONNEL u $u personnel $num
-        }
-
-        rdb onecolumn {SELECT personnel FROM gui_units WHERE u=$u}
     }
 
     #-------------------------------------------------------------------
