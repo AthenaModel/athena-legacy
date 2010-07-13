@@ -11,6 +11,25 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 2.0.4, 13 July 2009</h3>
+
+This build contains few new packages, but many significant changes.
+First of all, unemployment in neighborhoods now affects civilian
+attitudes.  Unemployment spawns "UNEMP" demographic situations
+(demsits); attitude changes are assessed by the new UNEMP rule set.<p>
+
+The most important package is Bug 2534, which represents a major
+change in how Athena represents units and unit activities.  See
+Bug 2534 for details, and if necessary I can give a chalk talk.<p>
+
+<ul>
+  <li> Bug 2519: athena_sim(1): Demographic Situations
+  <li> Bug 2520: athena_sim(1): Sanity Check, no consumers
+  <li> Bug 2521: athena_sim(1): UNEMP Rule Set
+  <li> Bug 2534: athena_sim(1): New Planning Paradigm
+  <li> Bug 2535: Athena installation tarball excludes .odt files 
+</ul>
+
 <h3>Build 2.0.3, 15 June 2009</h3>
 
 This build contains significant new work, much of it related to the
