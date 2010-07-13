@@ -1141,7 +1141,6 @@ snit::type ::projectlib::parmdb {
 
         $ps setdefault ensit.REFINERY.duration             5
 
-        $ps setdefault ensit.REFINERY.duration             60
         $ps setdefault ensit.SEWAGE.spawns                 DISEASE
         $ps setdefault ensit.SEWAGE.spawnTime              30
 
