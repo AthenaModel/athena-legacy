@@ -89,6 +89,11 @@ option is ignored.<p>
 If <code>-displaylong</code> is true, then <i>values</i> is a flat
 list of application value/displayed value pairs.<p>
 
+<<defopt {-width <i>width</i>}>>
+
+Specifies the approximate width of the widget in characters of the
+current font.<p>
+
 <</deflist commands>>
 
 <<section "INSTANCE COMMAND">>
