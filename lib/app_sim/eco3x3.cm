@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco3x3.cm, version i
+#    eco3x3.cm, version n
 #
 # AUTHOR:
 #    Bob Chamberlain
@@ -46,6 +46,33 @@
 #    pages.
 #
 # HISTORY:
+#    Version n: Corrected the price adjustment equations so they
+#               correctly use the optimal Cobb-Douglas demands to
+#               adjust prices so that demand equals supply (i.e.,
+#               markets clear).  Changed numeraire to P.pop, the
+#               average wage.  Revised QD.goods.pop to maintain
+#               f.goods.pop under reduced production.
+#
+#    Version m: The price adjustments in version l affect the CPI, so
+#               the P.goods implied by the base case CPI, U::P.goods,
+#               is used as the numeraire instead of the CPI.
+#  
+#    Version l: Adjusts prices when production constraints are encountered
+#               on page C until demand reduces enough to achieve market 
+#               clearance.  Based on version j, not on version k.
+#
+#    Version k: Attempted to achieve market clearance when production is
+#               constrained by simply limiting QD.i.j.  Didn't work;
+#               some QD.i.j went negative during iteration.
+#               Constraining QD.i.j >= 0.0 still didn't work.  Attempt
+#               abandoned for further analysis.
+#
+#    Version j: Replaced [Cal::SUM] in U::P.goods with [SUM]; [SUM]
+#               is now computed as part of pages U and C.  In addition,
+#               SHORTAGE.i is really the latent demand for the product
+#               of section i, so it is renamed LATENTDEMAND.i.  OVERAGE.i
+#               turns out not to be useful, so it has been removed.
+#
 #    Version i: Added computation of labor market turbulence as a 
 #               percentage of the labor force.  Added explicit
 #               computation of the non-turbulent, "real",
@@ -107,6 +134,7 @@ index ing   {pop else}
 index j     {goods pop else}
 index imost {goods pop}
 
+
 #=======================================================================
 # Null Page
 #
@@ -152,9 +180,6 @@ let TurFrac = 0.04 ;# Average fraction of workers "temporarily" unemployed
 
 #-----------------------------------------------------------------------
 # Scenario Inputs
-
-# Non-SAM Base Case Data (not supplied by the SAM, even if there is
-# one).
 
 let BasePopulation = 1e6     ;# people
 
@@ -370,10 +395,10 @@ let P.else  = [P.j else]  -value 1.0
 
 # However, the price equations are homogeneous, so one of them is
 # useless, and the above equation for P.goods is not used. Instead,
-# we use the CPI (consumer price index) as the numeraire that
+# we use the BCPI (base case consumer price index) as the numeraire that
 # defines the value of the $ in terms of a weighted sum of prices, 
 # where the weights are consumption by consumers in a base case.
-# Solving CPI=1 for P.goods gives:
+# Solving BCPI=1 for P.goods gives:
 
 let C       = {<:sum i {[BP.$i] * [BQD.$i.pop]}:>}      -value 1.52e8
 let SUM     = {<:sum ing {[P.$ing] * [BQD.$ing.pop]}:>} -value 3.8e7
@@ -443,8 +468,8 @@ let deltaP.else  = {<:deltaP.i else:>}
 
 page In
 
-# Current Consumer Price Index
-let CPI        = 1.0
+# Current Consumer Price Inflator
+let Inflator   = 1.0
 
 # Number of people currently in the population.
 let Population = 1e6          ;# people.
@@ -476,7 +501,6 @@ let CAP.pop = {[WF]*(1 - [TurFrac])}
 
 page U -copy Cal -except {
     C 
-    SUM 
     deltaQD.goods.pop
     deltaQD.pop.pop
     deltaQD.else.pop
@@ -486,9 +510,9 @@ page U -copy Cal -except {
 # from the base population.
 let QD.goods.pop = {[A.goods.pop]*[In::Population]} -value 1.14e8
 
-# P.goods is now based on the current CPI, rather than the 
-# Base CPI.
-let P.goods = {([Cal::C]*[In::CPI] - [Cal::SUM])/[BQD.goods.pop]} -value 1
+# P.goods is now based on the current Consumer Price Inflator, rather 
+# than the Base CPI.
+let P.goods = {([Cal::C]*[In::Inflator] - [SUM])/[BQD.goods.pop]} -value 1
 
 
 #-----------------------------------------------------------------------
@@ -498,22 +522,51 @@ let P.goods = {([Cal::C]*[In::CPI] - [Cal::SUM])/[BQD.goods.pop]} -value 1
 # the current labor force and production capacity into account and may
 # therefore impose limits on the Quantity Supplied (QS.i) by the 
 # goods and pop sectors, as compared with the unconstrained solution.
+# When demand exceeds capacity, prices increase to force market clearance.
 #
 # Otherwise, the model is the same as on the U page.
 
 page C -copy U
 
-define CQS.i {i} {
-    min([In::CAP.$i], [QD.$i])
-}
+let QD.goods.pop = {
+    [f.goods.pop]*[REV.pop]/[P.goods]
+} -value 1.14e8
 
-let QS.goods  = {<:CQS.i goods:>} -value 2.92125e8
-let QS.pop    = {<:CQS.i pop:>}   -value 380000
+# P.goods is already inflated by the In::Inflator.
 
-# NOTE: The following isn't really a change; the capacity of the else 
-# sector is assumed to be unconstrained, and this entry makes this 
-# assumption explicit.
+let P.goods = {
+    ([f.goods.pop]*[REV.pop] + [f.goods.else]*[REV.else]) /
+    ((1.0 - [f.goods.goods])*[QS.goods])
+} -value 1
+
+# The value of P.pop implied by CPI=1 in the unconstrained case
+# is the numeraire for the constrained case.
+let P.pop = {[U::P.pop]} -value 400
+
+let P.else = {
+    ([f.else.goods]*[REV.goods] + [f.else.pop]*[REV.pop]) /
+    ((1.0 - [f.else.else])*[QS.else])
+} -value 1
+
+
+# The quantity supplied is constrained by the production capacity
+let QS.goods = {
+    min([In::CAP.goods], [QD.goods])
+} -value 2.92125e8
+
+let QS.pop = {
+    min([In::CAP.pop], [QD.pop])
+} -value 380000
+
+# The capacity of else is unconstrained.  This entry doesn't really
+# change anything, but it makes the assumption explicit.
 let QS.else   = {[QD.else]}   -value 3.99e8
+
+
+let CPI = {
+    [In::Inflator] * 
+    <:sum i {[P.$i]  * [Cal::QD.$i]}:> / <:sum i {[BP.$i] * [Cal::QD.$i]}:>
+} -value 1.0
 
 #=======================================================================
 # Page Out: The outputs.
@@ -537,14 +590,12 @@ foreach i {goods pop else} {
 }
 
 # goods shortages and overages: goodsBKT/year
-let OVERAGE.goods  = {max(0.0, ediff([C::QS.goods], [U::QD.goods]))}
-let SHORTAGE.goods = {max(0.0, ediff([U::QD.goods], [C::QS.goods]))}
-let IDLECAP.goods  = {max(0,0, ediff([In::CAP.goods], [C::QS.goods]))}
+let LATENTDEMAND.goods = {max(0.0, ediff([U::QD.goods],   [C::QS.goods]))}
+let IDLECAP.goods      = {max(0,0, ediff([In::CAP.goods], [C::QS.goods]))}
 
 # pop shortages and overages: work-years/year
-let OVERAGE.pop    = {max(0.0, ediff([C::QS.pop], [U::QD.pop]))}
-let SHORTAGE.pop   = {max(0.0, ediff([U::QD.pop], [C::QS.pop]))}
-let IDLECAP.pop    = {max(0,0, ediff([In::CAP.pop], [C::QS.pop]))}
+let LATENTDEMAND.pop   = {max(0.0, ediff([U::QD.pop],   [C::QS.pop]))}
+let IDLECAP.pop        = {max(0,0, ediff([In::CAP.pop], [C::QS.pop]))}
 
 # Unemployment Statistics
 let RealUnemployment = {max(0.0, ediff([In::CAP.pop],[C::QS.pop]))}  ;# People

@@ -122,9 +122,8 @@ snit::widget econsheet {
         let rsubt   {$ns + 2}
         let rgoods  {$ns + 3}
         let rpop    {$ns + 4}
-        let cover   0
-        let cshort  1
-        let cidle   2
+        let clatent 0
+        let cidle   1
 
         # NEXT, create the cmsheet(n), which is readonly.
         install sheet using cmsheet $win.sheet \
@@ -197,15 +196,14 @@ snit::widget econsheet {
 
         # NEXT, Overages/Shortages
         $sheet empty $rblank,-1 $rblank,$cunits
-        $sheet empty $rsubt,3   $rpop,$cunits
+        $sheet empty $rsubt,2   $rpop,$cunits
 
-        $sheet textrow $rsubt,0 {Overage Shortage IdleCap} title
+        $sheet textrow $rsubt,0 {LatentDmd IdleCap} title
 
         $sheet textcol $rgoods,-1 [$cge index imost]
 
-        $sheet mapcol $rgoods,$cover  imost Out::OVERAGE.%imost  q
-        $sheet mapcol $rgoods,$cshort imost Out::SHORTAGE.%imost q
-        $sheet mapcol $rgoods,$cidle  imost Out::IDLECAP.%imost  q
+        $sheet mapcol $rgoods,$clatent imost Out::LATENTDEMAND.%imost q
+        $sheet mapcol $rgoods,$cidle   imost Out::IDLECAP.%imost  q
 
         # NEXT, prepare for updates.
         notifier bind ::sim <DbSyncB> $self [mymethod refresh]
