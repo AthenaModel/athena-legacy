@@ -671,7 +671,7 @@ s kind    stype    driver n   coverage state ts tc change   flist g    signature
         ensit absentFromNbhood NB1
     } -cleanup {
         cleanup
-    } -result {BADFOOD COMMOUT DISASTER DISEASE DMGCULT DMGSACRED EPIDEMIC FOODSHRT FUELSHRT GARBAGE INDSPILL MINEFIELD NOWATER ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE}
+    } -result {BADFOOD COMMOUT CULSITE DISASTER DISEASE EPIDEMIC FOODSHRT FUELSHRT GARBAGE INDSPILL MINEFIELD NOWATER ORDNANCE PIPELINE POWEROUT REFINERY RELSITE SEWAGE}
 
     
     #-------------------------------------------------------------------
@@ -915,7 +915,7 @@ id t etype      s
 s kind    stype    driver n   coverage state  ts tc change flist g    signature         location inception resolver rduration rdriver 
 - ------- -------- ------ --- -------- ------ -- -- ------ ----- ---- ----------------- -------- --------- -------- --------- ------- 
 1 ::ensit BADWATER 1      NB1 1.0      ACTIVE 0  0         ALL   BLUE BADWATER-2-1 none 100 100  0         NONE     5         0       
-3 ::ensit DISEASE  3      NB1 1.0      ACTIVE 1  1  NEW    ALL   BLUE DISEASE-2-1 none  100 100  0         NONE     30        0       
+2 ::ensit DISEASE  2      NB1 1.0      ACTIVE 1  1  NEW    ALL   BLUE DISEASE-2-1 none  100 100  0         NONE     30        0       
     }
 
 
@@ -1004,7 +1004,7 @@ id t etype            s
     } -result {
 s kind    stype   driver n   coverage state ts tc change   flist g    signature   location inception resolver rduration rdriver 
 - ------- ------- ------ --- -------- ----- -- -- -------- ----- ---- ----------- -------- --------- -------- --------- ------- 
-1 ::ensit COMMOUT 1      NB1 0.5      ENDED 0  2  RESOLVED ALL   NONE COMMOUT-3-1 100 100  0         BLUE     2         3       
+1 ::ensit COMMOUT 1      NB1 0.5      ENDED 0  2  RESOLVED ALL   NONE COMMOUT-3-1 100 100  0         BLUE     2         2       
     }
 
 

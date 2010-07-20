@@ -149,7 +149,9 @@ snit::type aam_rules {
         # The rule fires trivially
         dam rule CIVCAS-1-1 {1} {
             # FIRST, apply the satisfaction effects
+            dam sat level AUT [mag* $mult L-]  2
             dam sat level SFT [mag* $mult XL-] 2
+            dam sat level QOL [mag* $mult L-]  2
         }
     }
 
@@ -237,7 +239,7 @@ snit::type aam_rules {
         dam rule ORGCAS-1-1 {
             $orgtype eq "NGO"
         } {
-            dam sat level CAS [mag* $mult XXXL-] 2
+            dam sat level CAS [mag* $mult XXL-] 2
         }
 
         dam rule ORGCAS-1-2 {
@@ -249,7 +251,7 @@ snit::type aam_rules {
         dam rule ORGCAS-1-3 {
             $orgtype eq "CTR"
         } {
-            dam sat level CAS [mag* $mult L-] 2
+            dam sat level CAS [mag* $mult M-] 2
         }
     }
 

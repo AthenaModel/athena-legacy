@@ -96,7 +96,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        stype {invalid value "NONESUCH", should be one of: BADFOOD, BADWATER, COMMOUT, DISASTER, DISEASE, DMGCULT, DMGSACRED, EPIDEMIC, FOODSHRT, FUELSHRT, GARBAGE, INDSPILL, MINEFIELD, NOWATER, ORDNANCE, PIPELINE, POWEROUT, REFINERY, SEWAGE}
+        stype {invalid value "NONESUCH", should be one of: BADFOOD, BADWATER, COMMOUT, CULSITE, DISASTER, DISEASE, EPIDEMIC, FOODSHRT, FUELSHRT, GARBAGE, INDSPILL, MINEFIELD, NOWATER, ORDNANCE, PIPELINE, POWEROUT, REFINERY, RELSITE, SEWAGE}
     }
 
 
@@ -316,7 +316,7 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
     } -cleanup {
         cleanup
     } -result {
-        stype {invalid value "NONESUCH", should be one of: BADFOOD, BADWATER, COMMOUT, DISASTER, DISEASE, DMGCULT, DMGSACRED, EPIDEMIC, FOODSHRT, FUELSHRT, GARBAGE, INDSPILL, MINEFIELD, NOWATER, ORDNANCE, PIPELINE, POWEROUT, REFINERY, SEWAGE}
+        stype {invalid value "NONESUCH", should be one of: BADFOOD, BADWATER, COMMOUT, CULSITE, DISASTER, DISEASE, EPIDEMIC, FOODSHRT, FUELSHRT, GARBAGE, INDSPILL, MINEFIELD, NOWATER, ORDNANCE, PIPELINE, POWEROUT, REFINERY, RELSITE, SEWAGE}
     }
 
 

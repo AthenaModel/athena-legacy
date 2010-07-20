@@ -178,7 +178,7 @@ snit::type actsit_rules {
         dam rule DISPLACED-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.1f $cov]
+            dam guard [format %.2f $cov]
 
             # While there is a DISPLACED situation
             #     with COVERAGE > 0.0
@@ -243,18 +243,18 @@ snit::type actsit_rules {
         dam rule PRESENCE-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.1f $cov]
+            dam guard [format %.2f $cov]
 
             # While there is a PRESENCE situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
                 satslope $cov $f \
-                    AUT quad S+ \
-                    SFT quad S+ \
-                    QOL quad S+
+                    AUT quad XXS+ \
+                    SFT quad XXS+ \
+                    QOL quad XXS+
 
-                coopslope $f $cov quad S+
+                coopslope $f $cov quad XXS+
             }
 
         }
@@ -310,7 +310,7 @@ snit::type actsit_rules {
         dam rule CHKPOINT-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.1f $cov]
+            dam guard [format %.2f $cov]
 
             # While there is a CHKPOINT situation
             #     with COVERAGE > 0.0
@@ -394,14 +394,14 @@ snit::type actsit_rules {
                 set stops 1
             }
 
-            dam guard [format "%.1f %s" $cov $stops]
+            dam guard [format "%.2f %s" $cov $stops]
 
             # While there is a CMOCONST situation
             #     with COVERAGE > 0.0
             # For each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
                 satslope $cov $f \
-                    AUT constant [mag+ $stops S+]  \
+                    AUT quad     [mag+ $stops S+]  \
                     SFT constant [mag+ $stops S+]  \
                     CUL constant [mag+ $stops XS+] \
                     QOL constant [mag+ $stops L+] 
@@ -454,7 +454,7 @@ snit::type actsit_rules {
         dam rule CMODEV-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.1f $cov]
+            dam guard [format %.2f $cov]
 
             # While there is a CMODEV situation
             #     with COVERAGE > 0.0
@@ -524,16 +524,16 @@ snit::type actsit_rules {
                 set stops 1
             }
 
-            dam guard [format "%.1f %s" $cov $stops]
+            dam guard [format "%.2f %s" $cov $stops]
 
             # While there is a CMOEDU situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
                 satslope $cov $f \
-                    AUT constant [mag+ $stops S+]   \
+                    AUT quad     [mag+ $stops S+]   \
                     SFT constant [mag+ $stops XXS+] \
-                    CUL constant [mag+ $stops XXS+] \
+                    CUL quad     [mag+ $stops XXS+] \
                     QOL constant [mag+ $stops L+]
 
                 coopslope $f $cov frmore [mag+ $stops M+]
@@ -594,14 +594,14 @@ snit::type actsit_rules {
                 set stops 1
             }
 
-            dam guard [format "%.1f %s" $cov $stops]
+            dam guard [format "%.2f %s" $cov $stops]
 
             # While there is a CMOEMP situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
                 satslope $cov $f \
-                    AUT constant [mag+ $stops S+]   \
+                    AUT quad     [mag+ $stops S+]   \
                     SFT constant [mag+ $stops XXS+] \
                     CUL constant [mag+ $stops XXS+] \
                     QOL constant [mag+ $stops L+]
@@ -664,14 +664,14 @@ snit::type actsit_rules {
                 set stops 1
             }
 
-            dam guard [format "%.1f %s" $cov $stops]
+            dam guard [format "%.2f %s" $cov $stops]
 
             # While there is a CMOIND situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
                 satslope $cov $f \
-                    AUT constant [mag+ $stops S+]   \
+                    AUT quad     [mag+ $stops S+]   \
                     SFT constant [mag+ $stops XXS+] \
                     CUL constant [mag+ $stops XXS+] \
                     QOL constant [mag+ $stops L+]
@@ -734,14 +734,14 @@ snit::type actsit_rules {
                 set stops 1
             }
 
-            dam guard [format "%.1f %s" $cov $stops]
+            dam guard [format "%.2f %s" $cov $stops]
 
             # While there is a CMOINF situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
                 satslope $cov $f \
-                    AUT constant [mag+ $stops S+]   \
+                    AUT quad     [mag+ $stops S+]   \
                     SFT constant [mag+ $stops XXS+] \
                     CUL constant [mag+ $stops XXS+] \
                     QOL constant [mag+ $stops M+]
@@ -794,7 +794,7 @@ snit::type actsit_rules {
        dam rule CMOLAW-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.1f $cov]
+            dam guard [format %.2f $cov]
 
             # While there is a CMOLAW situation
             #     with COVERAGE > 0.0
@@ -862,16 +862,15 @@ snit::type actsit_rules {
                 set stops 1
             }
 
-            dam guard [format "%.1f %s" $cov $stops]
+            dam guard [format "%.2f %s" $cov $stops]
 
             # While there is a CMOMED situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
                 satslope $cov $f \
-                    AUT constant [mag+ $stops S+]   \
+                    AUT quad     [mag+ $stops S+]   \
                     SFT constant [mag+ $stops XXS+] \
-                    CUL constant [mag+ $stops XXS+] \
                     QOL constant [mag+ $stops L+]
 
                 coopslope $f $cov frmore [mag+ $stops L+]
@@ -932,14 +931,14 @@ snit::type actsit_rules {
                 set stops 1
             }
 
-            dam guard [format "%.1f %s" $cov $stops]
+            dam guard [format "%.2f %s" $cov $stops]
 
             # While there is a CMOOTHER situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
             foreach f [nbgroup gIn $n] {
                 satslope $cov $f \
-                    AUT constant [mag+ $stops S+]  \
+                    AUT quad     [mag+ $stops S+]  \
                     SFT constant [mag+ $stops S+]  \
                     CUL constant [mag+ $stops XS+] \
                     QOL constant [mag+ $stops L+]
@@ -993,7 +992,7 @@ snit::type actsit_rules {
         dam rule COERCION-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.1f $cov]
+            dam guard [format %.2f $cov]
 
             # While there is a COERCION situation
             #     with COVERAGE > 0.0
@@ -1054,7 +1053,7 @@ snit::type actsit_rules {
         dam rule CRIMINAL-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.1f $cov]
+            dam guard [format %.2f $cov]
 
             # While there is a CRIMINAL situation
             #     with COVERAGE > 0.0
@@ -1110,7 +1109,7 @@ snit::type actsit_rules {
         dam rule CURFEW-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.1f $cov]
+            dam guard [format %.2f $cov]
 
             # While there is a CURFEW situation
             #     with COVERAGE > 0.0
@@ -1185,7 +1184,7 @@ snit::type actsit_rules {
         dam rule GUARD-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.1f $cov]
+            dam guard [format %.2f $cov]
 
             # While there is a GUARD situation
             #     with COVERAGE > 0.0
@@ -1246,7 +1245,7 @@ snit::type actsit_rules {
         dam rule PATROL-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.1f $cov]
+            dam guard [format %.2f $cov]
 
             # While there is a PATROL situation
             #     with COVERAGE > 0.0
@@ -1306,7 +1305,7 @@ snit::type actsit_rules {
         dam rule PSYOP-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.1f $cov]
+            dam guard [format %.2f $cov]
 
             # While there is a PSYOP situation
             #     with COVERAGE > 0.0
@@ -1402,7 +1401,7 @@ snit::type actsit_rules {
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            dam guard [format "%.1f %d" $cov $stops]
+            dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGCONST situation
             #     with COVERAGE > 0.0
@@ -1474,7 +1473,7 @@ snit::type actsit_rules {
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            dam guard [format "%.1f %d" $cov $stops]
+            dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGEDU situation
             #     with COVERAGE > 0.0
@@ -1546,7 +1545,7 @@ snit::type actsit_rules {
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
             
-            dam guard [format "%.1f %d" $cov $stops]
+            dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGEMP situation
             #     with COVERAGE > 0.0
@@ -1618,7 +1617,7 @@ snit::type actsit_rules {
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            dam guard [format "%.1f %d" $cov $stops]
+            dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGIND situation
             #     with COVERAGE > 0.0
@@ -1690,7 +1689,7 @@ snit::type actsit_rules {
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            dam guard [format "%.1f %d" $cov $stops]
+            dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGINF situation
             #     with COVERAGE > 0.0
@@ -1762,7 +1761,7 @@ snit::type actsit_rules {
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            dam guard [format "%.1f %d" $cov $stops]
+            dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGMED situation
             #     with COVERAGE > 0.0
@@ -1834,7 +1833,7 @@ snit::type actsit_rules {
                 detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
-            dam guard [format "%.1f %d" $cov $stops]
+            dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGOTHER situation
             #     with COVERAGE > 0.0

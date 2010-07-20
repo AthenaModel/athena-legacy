@@ -54,9 +54,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-s kind     stype    driver n   coverage           state  ts tc change flist g    signature        a        
-- -------- -------- ------ --- ------------------ ------ -- -- ------ ----- ---- ---------------- -------- 
-1 ::actsit PRESENCE 1      NB1 0.4827181420282134 ACTIVE 0  0  NEW    ALL   BLUE PRESENCE-1-1 0.5 PRESENCE 
+s kind     stype    driver n   coverage           state  ts tc change flist g    signature         a        
+- -------- -------- ------ --- ------------------ ------ -- -- ------ ----- ---- ----------------- -------- 
+1 ::actsit PRESENCE 1      NB1 0.4827181420282134 ACTIVE 0  0  NEW    ALL   BLUE PRESENCE-1-1 0.48 PRESENCE 
     }
 
 
@@ -93,9 +93,9 @@ s change
     } -cleanup {
         cleanup
     } -result {
-s kind     stype    driver n   coverage           state  ts tc change  flist g    signature        a        
-- -------- -------- ------ --- ------------------ ------ -- -- ------- ----- ---- ---------------- -------- 
-1 ::actsit PRESENCE 1      NB1 0.7324194794132565 ACTIVE 0  2  UPDATED ALL   BLUE PRESENCE-1-1 0.7 PRESENCE 
+s kind     stype    driver n   coverage           state  ts tc change  flist g    signature         a        
+- -------- -------- ------ --- ------------------ ------ -- -- ------- ----- ---- ----------------- -------- 
+1 ::actsit PRESENCE 1      NB1 0.7324194794132565 ACTIVE 0  2  UPDATED ALL   BLUE PRESENCE-1-1 0.73 PRESENCE 
     }
 
 
@@ -141,17 +141,17 @@ s kind     stype    driver n   coverage state ts tc change flist g    signature 
     } -cleanup {
         cleanup
     } -result {
-s kind     stype    driver n   coverage           state  ts tc change flist g    signature        a        
-- -------- -------- ------ --- ------------------ ------ -- -- ------ ----- ---- ---------------- -------- 
-1 ::actsit GUARD    1      NB1 0.4827181420282134 ACTIVE 0  0  NEW    ALL   BLUE GUARD-1-1 0.5    GUARD    
-2 ::actsit PATROL   2      NB1 0.4827181420282134 ACTIVE 0  0  NEW    ALL   BLUE PATROL-1-1 0.5   PATROL   
-3 ::actsit PRESENCE 3      NB1 0.7324194794132565 ACTIVE 0  0  NEW    ALL   BLUE PRESENCE-1-1 0.7 PRESENCE 
+s kind     stype    driver n   coverage           state  ts tc change flist g    signature         a        
+- -------- -------- ------ --- ------------------ ------ -- -- ------ ----- ---- ----------------- -------- 
+1 ::actsit GUARD    1      NB1 0.4827181420282134 ACTIVE 0  0  NEW    ALL   BLUE GUARD-1-1 0.48    GUARD    
+2 ::actsit PATROL   2      NB1 0.4827181420282134 ACTIVE 0  0  NEW    ALL   BLUE PATROL-1-1 0.48   PATROL   
+3 ::actsit PRESENCE 3      NB1 0.7324194794132565 ACTIVE 0  0  NEW    ALL   BLUE PRESENCE-1-1 0.73 PRESENCE 
     
-s kind     stype    driver n   coverage           state  ts tc change flist g    signature        a        
-- -------- -------- ------ --- ------------------ ------ -- -- ------ ----- ---- ---------------- -------- 
-1 ::actsit GUARD    1      NB1 0.4827181420282134 ACTIVE 0  0         ALL   BLUE GUARD-1-1 0.5    GUARD    
-2 ::actsit PATROL   2      NB1 0.4827181420282134 ACTIVE 0  0         ALL   BLUE PATROL-1-1 0.5   PATROL   
-3 ::actsit PRESENCE 3      NB1 0.7324194794132565 ACTIVE 0  0         ALL   BLUE PRESENCE-1-1 0.7 PRESENCE 
+s kind     stype    driver n   coverage           state  ts tc change flist g    signature         a        
+- -------- -------- ------ --- ------------------ ------ -- -- ------ ----- ---- ----------------- -------- 
+1 ::actsit GUARD    1      NB1 0.4827181420282134 ACTIVE 0  0         ALL   BLUE GUARD-1-1 0.48    GUARD    
+2 ::actsit PATROL   2      NB1 0.4827181420282134 ACTIVE 0  0         ALL   BLUE PATROL-1-1 0.48   PATROL   
+3 ::actsit PRESENCE 3      NB1 0.7324194794132565 ACTIVE 0  0         ALL   BLUE PRESENCE-1-1 0.73 PRESENCE 
     
 s kind     stype    driver n   coverage state ts tc change flist g    signature         a        
 - -------- -------- ------ --- -------- ----- -- -- ------ ----- ---- ----------------- -------- 

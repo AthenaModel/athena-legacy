@@ -747,9 +747,9 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.CMOCONST.nearFactor    0.75
         $ps setdefault dam.CMOCONST.farFactor     0.25
         $ps setdefault dam.CMOCONST.mitigates     {
-            BADFOOD  BADWATER COMMOUT  DISASTER DISEASE  DMGCULT DMGSACRED
-            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD NOWATER 
-            ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE
+            BADFOOD  BADWATER COMMOUT  CULSITE  DISASTER DISEASE  
+            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD 
+            NOWATER  ORDNANCE PIPELINE POWEROUT REFINERY RELSITE   SEWAGE
         }
 
         # Rule Set: CMODEV
@@ -804,9 +804,10 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.CMOOTHER.nearFactor    0.25
         $ps setdefault dam.CMOOTHER.farFactor     0.1
         $ps setdefault dam.CMOOTHER.mitigates     {
-            BADFOOD  BADWATER COMMOUT  DISASTER DISEASE  DMGCULT DMGSACRED
-            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD NOWATER
-            ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE
+            BADFOOD  BADWATER COMMOUT  CULSITE  DISASTER DISEASE  
+            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD 
+            NOWATER  ORDNANCE PIPELINE POWEROUT REFINERY RELSITE   
+            SEWAGE
         }
 
         # Rule Set: COERCION
@@ -829,10 +830,15 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.CURFEW.nearFactor      0.5
         $ps setdefault dam.CURFEW.farFactor       0.0
 
+        # Rule Set: CULSITE
+        $ps setdefault dam.CULSITE.cause          CULSITE
+        $ps setdefault dam.CULSITE.nearFactor     0.1
+        $ps setdefault dam.CULSITE.farFactor      0.1
+
         # Rule Set: DISASTER
         $ps setdefault dam.DISASTER.cause         DISASTER
-        $ps setdefault dam.DISASTER.nearFactor    0.5
-        $ps setdefault dam.DISASTER.farFactor     0.25
+        $ps setdefault dam.DISASTER.nearFactor    0.0
+        $ps setdefault dam.DISASTER.farFactor     0.0
 
         # Rule Set: DISEASE
         $ps setdefault dam.DISEASE.cause          SICKNESS
@@ -844,16 +850,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.DISPLACED.nearFactor   0.25
         $ps setdefault dam.DISPLACED.farFactor    0.0
 
-        # Rule Set: DMGCULT
-        $ps setdefault dam.DMGCULT.cause          DMGCULT
-        $ps setdefault dam.DMGCULT.nearFactor     0.2
-        $ps setdefault dam.DMGCULT.farFactor      0.1
-
-        # Rule Set: DMGSACRED
-        $ps setdefault dam.DMGSACRED.cause        DMGSACRED
-        $ps setdefault dam.DMGSACRED.nearFactor   0.2
-        $ps setdefault dam.DMGSACRED.farFactor    0.1
-
         # Rule Set: EPIDEMIC
         $ps setdefault dam.EPIDEMIC.cause         SICKNESS
         $ps setdefault dam.EPIDEMIC.nearFactor    0.5
@@ -861,17 +857,17 @@ snit::type ::projectlib::parmdb {
 
         # Rule Set: FOODSHRT
         $ps setdefault dam.FOODSHRT.cause         HUNGER
-        $ps setdefault dam.FOODSHRT.nearFactor    0.0
+        $ps setdefault dam.FOODSHRT.nearFactor    0.1
         $ps setdefault dam.FOODSHRT.farFactor     0.0
 
         # Rule Set: FUELSHRT
         $ps setdefault dam.FUELSHRT.cause         FUELSHRT
-        $ps setdefault dam.FUELSHRT.nearFactor    0.0
+        $ps setdefault dam.FUELSHRT.nearFactor    0.1
         $ps setdefault dam.FUELSHRT.farFactor     0.0
 
         # Rule Set: GARBAGE
         $ps setdefault dam.GARBAGE.cause          GARBAGE
-        $ps setdefault dam.GARBAGE.nearFactor     0.2
+        $ps setdefault dam.GARBAGE.nearFactor     0.0
         $ps setdefault dam.GARBAGE.farFactor      0.0
 
         # Rule Set: GUARD
@@ -891,12 +887,12 @@ snit::type ::projectlib::parmdb {
 
         # Rule Set: NOWATER
         $ps setdefault dam.NOWATER.cause          THIRST
-        $ps setdefault dam.NOWATER.nearFactor     0.0
+        $ps setdefault dam.NOWATER.nearFactor     0.1
         $ps setdefault dam.NOWATER.farFactor      0.0
 
         # Rule Set: ORDNANCE
         $ps setdefault dam.ORDNANCE.cause         ORDNANCE
-        $ps setdefault dam.ORDNANCE.nearFactor    0.2
+        $ps setdefault dam.ORDNANCE.nearFactor    0.0
         $ps setdefault dam.ORDNANCE.farFactor     0.0
 
         # Rule Set: ORGCAS
@@ -909,9 +905,10 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.ORGCONST.nearFactor    0.75
         $ps setdefault dam.ORGCONST.farFactor     0.25
         $ps setdefault dam.ORGCONST.mitigates     {
-            BADFOOD  BADWATER COMMOUT  DISASTER DISEASE  DMGCULT DMGSACRED
-            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD NOWATER 
-            ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE
+            BADFOOD  BADWATER COMMOUT  CULSITE  DISASTER DISEASE
+            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD 
+            NOWATER  ORDNANCE PIPELINE POWEROUT REFINERY RELSITE
+            SEWAGE
         }
 
         # Rule Set: ORGEDU
@@ -956,9 +953,10 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.ORGOTHER.nearFactor    0.25
         $ps setdefault dam.ORGOTHER.farFactor     0.1
         $ps setdefault dam.ORGOTHER.mitigates     {
-            BADFOOD  BADWATER COMMOUT  DISASTER DISEASE  DMGCULT DMGSACRED
-            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD NOWATER 
-            ORDNANCE PIPELINE POWEROUT REFINERY SEWAGE
+            BADFOOD  BADWATER COMMOUT  CULSITE  DISASTER DISEASE
+            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD 
+            NOWATER  ORDNANCE PIPELINE POWEROUT REFINERY RELSITE
+            SEWAGE
         }
 
         # Rule Set: UNEMP
@@ -995,6 +993,11 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.REFINERY.cause         REFINERY
         $ps setdefault dam.REFINERY.nearFactor    0.0
         $ps setdefault dam.REFINERY.farFactor     0.0
+
+        # Rule Set: RELSITE
+        $ps setdefault dam.RELSITE.cause          RELSITE
+        $ps setdefault dam.RELSITE.nearFactor     0.1
+        $ps setdefault dam.RELSITE.farFactor      0.1
 
         # Rule Set: SEWAGE
         $ps setdefault dam.SEWAGE.cause           SEWAGE
@@ -1107,13 +1110,11 @@ snit::type ::projectlib::parmdb {
 
         $ps setdefault ensit.COMMOUT.duration              7
 
+        $ps setdefault ensit.CULSITE.duration              45
+
         $ps setdefault ensit.DISASTER.duration             45
 
         $ps setdefault ensit.DISEASE.duration              30
-
-        $ps setdefault ensit.DMGCULT.duration              45
-
-        $ps setdefault ensit.DMGSACRED.duration            45
 
         $ps setdefault ensit.EPIDEMIC.duration             360
 
@@ -1122,6 +1123,8 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ensit.FUELSHRT.duration             30
 
         $ps setdefault ensit.GARBAGE.duration              45
+        $ps setdefault ensit.GARBAGE.spawns                DISEASE
+        $ps setdefault ensit.GARBAGE.spawnTime             2
 
         $ps setdefault ensit.INDSPILL.duration             90
         $ps setdefault ensit.INDSPILL.spawns               DISEASE
@@ -1131,7 +1134,7 @@ snit::type ::projectlib::parmdb {
 
         $ps setdefault ensit.NOWATER.duration              3
         $ps setdefault ensit.NOWATER.spawns                DISEASE
-        $ps setdefault ensit.NOWATER.spawnTime             1
+        $ps setdefault ensit.NOWATER.spawnTime             2
 
         $ps setdefault ensit.ORDNANCE.duration             540
 
@@ -1140,6 +1143,8 @@ snit::type ::projectlib::parmdb {
         $ps setdefault ensit.POWEROUT.duration             60
 
         $ps setdefault ensit.REFINERY.duration             5
+
+        $ps setdefault ensit.RELSITE.duration              45
 
         $ps setdefault ensit.SEWAGE.spawns                 DISEASE
         $ps setdefault ensit.SEWAGE.spawnTime              30

@@ -64,6 +64,11 @@ snit::type ensit_rules {
         COMMOUT.monitor         COMMOUT-2
         COMMOUT.resolution      COMMOUT-3
 
+        CULSITE.setup           setup
+        CULSITE.inception       CULSITE-1
+        CULSITE.monitor         CULSITE-2
+        CULSITE.resolution      CULSITE-3
+
         DISASTER.setup          setup
         DISASTER.inception      DISASTER-1
         DISASTER.monitor        DISASTER-2
@@ -74,25 +79,15 @@ snit::type ensit_rules {
         DISEASE.monitor         DISEASE-2
         DISEASE.resolution      DISEASE-3
 
-        DMGCULT.setup           setup
-        DMGCULT.inception       DMGCULT-1
-        DMGCULT.monitor         DMGCULT-2
-        DMGCULT.resolution      DMGCULT-3
-
-        DMGSACRED.setup         setup
-        DMGSACRED.inception     DMGSACRED-1
-        DMGSACRED.monitor       DMGSACRED-2
-        DMGSACRED.resolution    DMGSACRED-3
-
         EPIDEMIC.setup          setup
         EPIDEMIC.inception      EPIDEMIC-1
         EPIDEMIC.monitor        EPIDEMIC-2
         EPIDEMIC.resolution     EPIDEMIC-3
 
         FOODSHRT.setup          setup
-        FOODSHRT.inception      {}
-        FOODSHRT.monitor        FOODSHRT-1
-        FOODSHRT.resolution     FOODSHRT-2
+        FOODSHRT.inception      FOODSHRT-1
+        FOODSHRT.monitor        FOODSHRT-2
+        FOODSHRT.resolution     FOODSHRT-3
 
         FUELSHRT.setup          setup
         FUELSHRT.inception      FUELSHRT-1
@@ -138,6 +133,11 @@ snit::type ensit_rules {
         REFINERY.inception      REFINERY-1
         REFINERY.monitor        REFINERY-2
         REFINERY.resolution     REFINERY-3
+
+        RELSITE.setup           setup
+        RELSITE.inception       RELSITE-1
+        RELSITE.monitor         RELSITE-2
+        RELSITE.resolution      RELSITE-3
 
         SEWAGE.setup            setup
         SEWAGE.inception        SEWAGE-1
@@ -292,8 +292,7 @@ snit::type ensit_rules {
             1
         } {
             satlevel $sit   \
-                AUT L-   2  \
-                QOL XXL- 2
+                QOL L- 2
         }
     }
 
@@ -315,8 +314,9 @@ snit::type ensit_rules {
             dam guard
 
             satslope $sit \
-                AUT L-    \
-                QOL XXL- 
+                AUT M-    \
+                SFT XXXS- \
+                QOL L- 
         }
 
         # BADFOOD-2-2:
@@ -329,7 +329,7 @@ snit::type ensit_rules {
         } {
             dam guard
 
-            dam sat clear AUT QOL
+            dam sat clear AUT SFT QOL
         }
     }
 
@@ -355,9 +355,9 @@ snit::type ensit_rules {
         dam rule BADFOOD-3-1 {
             !$gIsLocal
         } {
-            satlevel $sit    \
-                AUT XL+   2  \
-                QOL XXXL+ 2
+            satlevel $sit   \
+                AUT M+   2  \
+                QOL XL+  2
         }
 
         # BADFOOD-3-2:
@@ -369,9 +369,9 @@ snit::type ensit_rules {
         dam rule BADFOOD-3-2 {
             $gIsLocal
         } {
-            satlevel $sit    \
-                AUT XXXL+ 2  \
-                QOL XXXL+ 2
+            satlevel $sit  \
+                AUT L+  2  \
+                QOL XL+ 2
         }
     }
 
@@ -398,8 +398,7 @@ snit::type ensit_rules {
             1
         } {
             satlevel $sit \
-                AUT L-    2   \
-                QOL XXXL- 2
+                QOL L- 2
         }
     }
 
@@ -421,8 +420,9 @@ snit::type ensit_rules {
             dam guard
 
             satslope $sit  \
-                AUT L-     \
-                QOL XXL-
+                AUT M-     \
+                SFT XXXS-  \
+                QOL L-
         }
 
         # BADWATER-2-2:
@@ -435,7 +435,7 @@ snit::type ensit_rules {
         } {
             dam guard
 
-            dam sat clear AUT QOL
+            dam sat clear AUT SFT QOL
         }
     }
 
@@ -461,9 +461,9 @@ snit::type ensit_rules {
         dam rule BADWATER-3-1 {
             !$gIsLocal
         } {
-            satlevel $sit   \
-                AUT XL+   2 \
-                QOL XXXL+ 2
+            satlevel $sit \
+                AUT M+  2 \
+                QOL XL+ 2
         }
 
         # BADWATER-3-2:
@@ -476,8 +476,8 @@ snit::type ensit_rules {
             $gIsLocal
         } {
             satlevel $sit \
-                AUT XXXL+ 2   \
-                QOL XXXL+ 2
+                AUT L+  2 \
+                QOL XL+ 2
         }
     }
 
@@ -504,10 +504,10 @@ snit::type ensit_rules {
         dam rule COMMOUT-1-1 {
             1
         } {
-            satlevel $sit   \
-                AUT M-   2  \
-                SFT S-   2  \
-                QOL XL-  2
+            satlevel $sit \
+                SFT S-  2 \
+                CUL XS- 2 \
+                QOL M-  2
         }
     }
 
@@ -528,10 +528,10 @@ snit::type ensit_rules {
         } {
             dam guard
 
-            satslope $sit  \
-                AUT M-     \
-                SFT S-     \
-                QOL L-
+            satslope $sit \
+                SFT S-    \
+                CUL S-    \
+                QOL XL-
         }
 
         # COMMOUT-2-2:
@@ -542,7 +542,7 @@ snit::type ensit_rules {
         dam rule COMMOUT-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            dam sat clear AUT SFT QOL
+            dam sat clear SFT CUL QOL
         }
     }
 
@@ -569,8 +569,8 @@ snit::type ensit_rules {
             !$gIsLocal
         } {
             satlevel $sit   \
-                AUT L+   2  \
-                SFT XL+  2  \
+                SFT M+   2  \
+                CUL M+   2  \
                 QOL XXL+ 2
         }
 
@@ -584,9 +584,114 @@ snit::type ensit_rules {
             $gIsLocal
         } {
             satlevel $sit   \
-                AUT XXL+ 2  \
-                SFT XL+  2  \
+                SFT M+   2  \
+                CUL M+   2  \
                 QOL XXL+ 2
+        }
+    }
+
+    #-------------------------------------------------------------------
+    # Rule Set: CULSITE: Damage to Cultural Site/Artifact
+    #
+    # Environmental Situation: A cultural site or artifact is
+    # damaged, presumably due to kinetic action.
+ 
+    # CULSITE-1 sit
+    #
+    # sit     Ensit object
+    #
+    # Situation inception rules; level effects only.
+
+    typemethod CULSITE-1 {sit} {
+        log detail envr [list CULSITE-1 [$sit get s]]
+
+        # CULSITE-1-1:
+        #
+        # If there is a new CULSITE situation
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        dam rule CULSITE-1-1 {
+            1
+        } {
+            satlevel $sit   \
+                CUL XL-   2 \
+                QOL XXXS- 2
+        }
+
+    }
+
+    # CULSITE-2 sit
+    #
+    # sit       Ensit object
+    #
+    # The situation continues.
+
+    typemethod CULSITE-2 {sit} {
+        # CULSITE-2-1:
+        #
+        # While there is a CULSITE situation
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        dam rule CULSITE-2-1 {
+            [$sit get state] ne "ENDED"
+        } {
+            dam guard
+
+            satslope $sit \
+                CUL XL-
+        }
+
+        # CULSITE-2-2:
+        #
+        # When there is no longer a CULSITE situation
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        dam rule CULSITE-2-2 {
+            [$sit get state] eq "ENDED"
+        } {
+            dam sat clear CUL
+        }
+    }
+
+    # CULSITE-3 sit
+    #
+    # sit         Ensit object 
+    #
+    # Situation resolution
+
+    typemethod CULSITE-3 {sit} {
+        log detail envr [list CULSITE-3 [$sit get s]]
+
+        # FIRST, make the data available
+        set g        [$sit get resolver]
+        set gIsLocal [resolverIsLocal $g]
+
+        # CULSITE-3-1:
+        #
+        # If there is a CULSITE situation
+        #     and resolving group g is unknown or not local,
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        dam rule CULSITE-3-1 {
+            !$gIsLocal
+        } {
+            satlevel $sit   \
+                CUL M+    2 \
+                QOL XXXS+ 2
+        }
+
+        # CULSITE-3-2:
+        #
+        # If there is a CULSITE situation
+        #     and resolving group g is local,
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        dam rule CULSITE-3-2 {
+            $gIsLocal
+        } {
+            satlevel $sit   \
+                CUL M+    2 \
+                QOL XXXS+ 2
         }
     }
 
@@ -612,9 +717,9 @@ snit::type ensit_rules {
         dam rule DISASTER-1-1 {
             1
         } {
-            satlevel $sit     \
-                SFT L-     2  \
-                QOL XXL-   2
+            satlevel $sit \
+                SFT L-  2 \
+                QOL XL- 2
         }
     }
 
@@ -636,7 +741,6 @@ snit::type ensit_rules {
             dam guard
 
             satslope $sit  \
-                AUT L-     \
                 SFT L-     \
                 QOL XXL-
         }
@@ -649,7 +753,7 @@ snit::type ensit_rules {
         dam rule DISASTER-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            dam sat clear AUT SFT QOL
+            dam sat clear SFT QOL
         }
     }
 
@@ -675,10 +779,10 @@ snit::type ensit_rules {
         dam rule DISASTER-3-1 {
             !$gIsLocal
         } {
-            satlevel $sit   \
-                AUT L+    2 \
-                SFT XL+   2 \
-                QOL L+    2
+            satlevel $sit  \
+                AUT L+   2 \
+                SFT XL+  2 \
+                QOL XXL+ 2
         }
 
         # DISASTER-3-2:
@@ -690,10 +794,10 @@ snit::type ensit_rules {
         dam rule DISASTER-3-2 {
             $gIsLocal
         } {
-            satlevel $sit   \
-                AUT XL+   2 \
-                SFT XL+   2 \
-                QOL L+    2
+            satlevel $sit  \
+                AUT XL+  2 \
+                SFT XL+  2 \
+                QOL XXL+ 2
         }
     }
 
@@ -719,10 +823,10 @@ snit::type ensit_rules {
         dam rule DISEASE-1-1 {
             1
         } {
-            satlevel $sit  \
-                AUT S-   2 \
-                SFT L-   2 \
-                QOL XL-  2
+            satlevel $sit \
+                AUT S- 2  \
+                SFT M- 2  \
+                QOL L- 2
         }
     }
 
@@ -783,10 +887,10 @@ snit::type ensit_rules {
         dam rule DISEASE-3-1 {
             !$gIsLocal
         } {
-            satlevel $sit   \
-                AUT XL+   2 \
-                SFT XXXL+ 2 \
-                QOL XXXL+ 2
+            satlevel $sit  \
+                AUT L+   2 \
+                SFT XXL+ 2 \
+                QOL XXL+ 2
         }
 
         # DISEASE-3-2:
@@ -798,238 +902,10 @@ snit::type ensit_rules {
         dam rule DISEASE-3-2 {
             $gIsLocal
         } {
-            satlevel $sit   \
-                AUT XXXL+ 2 \
-                SFT XXXL+ 2 \
-                QOL XXXL+ 2
-        }
-    }
-
-    #-------------------------------------------------------------------
-    # Rule Set: DMGCULT: Damage to Cultural Site/Artifact
-    #
-    # Environmental Situation: A cultural site or artifact is
-    # damaged, presumably due to kinetic action.
- 
-    # DMGCULT-1 sit
-    #
-    # sit     Ensit object
-    #
-    # Situation inception rules; level effects only.
-
-    typemethod DMGCULT-1 {sit} {
-        log detail envr [list DMGCULT-1 [$sit get s]]
-
-        # DMGCULT-1-1:
-        #
-        # If there is a new DMGCULT situation
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        dam rule DMGCULT-1-1 {
-            1
-        } {
-            satlevel $sit   \
-                AUT XS-   2 \
-                SFT S-    2 \
-                CUL XL-   2 \
-                QOL XS-   2
-        }
-
-    }
-
-    # DMGCULT-2 sit
-    #
-    # sit       Ensit object
-    #
-    # The situation continues.
-
-    typemethod DMGCULT-2 {sit} {
-        # DMGCULT-2-1:
-        #
-        # While there is a DMGCULT situation
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        dam rule DMGCULT-2-1 {
-            [$sit get state] ne "ENDED"
-        } {
-            dam guard
-
-            satslope $sit  \
-                AUT XS-    \
-                SFT S-     \
-                CUL L-     \
-                QOL XS-
-        }
-
-        # DMGCULT-2-2:
-        #
-        # When there is no longer a DMGCULT situation
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        dam rule DMGCULT-2-2 {
-            [$sit get state] eq "ENDED"
-        } {
-            dam sat clear AUT SFT CUL QOL
-        }
-    }
-
-    # DMGCULT-3 sit
-    #
-    # sit         Ensit object 
-    #
-    # Situation resolution
-
-    typemethod DMGCULT-3 {sit} {
-        log detail envr [list DMGCULT-3 [$sit get s]]
-
-        # FIRST, make the data available
-        set g        [$sit get resolver]
-        set gIsLocal [resolverIsLocal $g]
-
-        # DMGCULT-3-1:
-        #
-        # If there is a DMGCULT situation
-        #     and resolving group g is unknown or not local,
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        dam rule DMGCULT-3-1 {
-            !$gIsLocal
-        } {
-            satlevel $sit   \
-                AUT M+    2 \
-                SFT L+    2 \
-                CUL XXL+  2 \
-                QOL L+    2
-        }
-
-        # DMGCULT-3-2:
-        #
-        # If there is a DMGCULT situation
-        #     and resolving group g is local,
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        dam rule DMGCULT-3-2 {
-            $gIsLocal
-        } {
-            satlevel $sit   \
-                AUT XL+   2 \
-                SFT L+    2 \
-                CUL XXL+  2 \
-                QOL L+    2
-        }
-    }
-
-    #-------------------------------------------------------------------
-    # Rule Set: DMGSACRED: Damage to Sacred Site/Artifact
-    #
-    # Environmental Situation: A sacred site or artifact is
-    # damaged, presumably due to kinetic action.
- 
-    # DMGSACRED-1 sit
-    #
-    # sit     Ensit object
-    #
-    # Situation inception rules; level effects only.
-
-    typemethod DMGSACRED-1 {sit} {
-        log detail envr [list DMGSACRED-1 [$sit get s]]
-
-        # DMGSACRED-1-1:
-        #
-        # If there is a new DMGSACRED situation
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        dam rule DMGSACRED-1-1 {
-            1
-        } {
-            satlevel $sit   \
-                AUT S-    2 \
-                SFT M-    2 \
-                CUL XXL-  2 \
-                QOL S-    2
-        }
-
-    }
-
-    # DMGSACRED-2 sit
-    #
-    # sit       Ensit object
-    #
-    # The situation continues.
-
-    typemethod DMGSACRED-2 {sit} {
-        # DMGSACRED-2-1:
-        #
-        # While there is a DMGSACRED situation
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        dam rule DMGSACRED-2-1 {
-            [$sit get state] ne "ENDED"
-        } {
-            dam guard
-
-            satslope $sit  \
-                AUT S-     \
-                SFT M-     \
-                CUL XL-    \
-                QOL S-
-        }
-
-        # DMGSACRED-2-2:
-        #
-        # When there is no longer a DMGSACRED situation
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        dam rule DMGSACRED-2-2 {
-            [$sit get state] eq "ENDED"
-        } {
-            dam sat clear AUT SFT CUL QOL
-        }
-    }
-
-    # DMGSACRED-3 sit
-    #
-    # sit         Ensit object 
-    #
-    # Situation resolution
-
-    typemethod DMGSACRED-3 {sit} {
-        log detail envr [list DMGSACRED-3 [$sit get s]]
-
-        # FIRST, make the data available
-        set g        [$sit get resolver]
-        set gIsLocal [resolverIsLocal $g]
-
-        # DMGSACRED-3-1:
-        #
-        # If there is a DMGSACRED situation
-        #     and resolving group g is unknown or not local,
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        dam rule DMGSACRED-3-1 {
-            !$gIsLocal
-        } {
-            satlevel $sit   \
-                AUT L+    2 \
-                SFT XL+   2 \
-                CUL XXXL+ 2 \
-                QOL XL+   2
-        }
-
-        # DMGSACRED-3-2:
-        #
-        # If there is a DMGSACRED situation
-        #     and resolving group g is local,
-        # Then for each CIV pgroup f with non-zero population in the nbhood,
-
-        dam rule DMGSACRED-3-2 {
-            $gIsLocal
-        } {
-            satlevel $sit   \
-                AUT XXL+  2 \
-                SFT XL+   2 \
-                CUL XXXL+ 2 \
-                QOL XL+   2
+            satlevel $sit  \
+                AUT XXL+ 2 \
+                SFT XXL+ 2 \
+                QOL XXL+ 2
         }
     }
 
@@ -1055,10 +931,10 @@ snit::type ensit_rules {
         dam rule EPIDEMIC-1-1 {
             1
         } {
-            satlevel $sit     \
-                AUT L-    2   \
-                SFT L-    2   \
-                QOL XXXL- 2
+            satlevel $sit \
+                AUT L-  2 \
+                SFT M-  2 \
+                QOL XL- 2
         }
     }
 
@@ -1082,7 +958,7 @@ snit::type ensit_rules {
             satslope $sit  \
                 AUT L-     \
                 SFT L-     \
-                QOL XL-
+                QOL XXL-
         }
 
         # EPIDEMIC-2-2:
@@ -1119,10 +995,10 @@ snit::type ensit_rules {
         dam rule EPIDEMIC-3-1 {
             !$gIsLocal
         } {
-            satlevel $sit   \
-                AUT XXL+  2 \
-                SFT XXXL+ 2 \
-                QOL XXXL+ 2
+            satlevel $sit  \
+                AUT XL+  2 \
+                SFT XXL+ 2 \
+                QOL XXL+ 2
         }
 
         # EPIDEMIC-3-2:
@@ -1134,10 +1010,10 @@ snit::type ensit_rules {
         dam rule EPIDEMIC-3-2 {
             $gIsLocal
         } {
-            satlevel $sit   \
-                AUT XXXL+ 2 \
-                SFT XXXL+ 2 \
-                QOL XXXL+ 2
+            satlevel $sit  \
+                AUT XXL+ 2 \
+                SFT XXL+ 2 \
+                QOL XXL+ 2
         }
     }
 
@@ -1148,58 +1024,80 @@ snit::type ensit_rules {
  
     # FOODSHRT-1 sit
     #
+    # sit     Ensit object
+    #
+    # Situation inception rules; level effects only.
+
+    typemethod FOODSHRT-1 {sit} {
+        log detail envr [list FOODSHRT-1 [$sit get s]]
+
+        # FOODSHRT-1-1:
+        #
+        # If there is a new FOODSHRT situation
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        dam rule FOODSHRT-1-1 {
+            1
+        } {
+            satlevel $sit \
+                QOL S- 2
+        }
+    }
+
+    # FOODSHRT-2 sit
+    #
     # sit       Ensit object
     #
     # The situation continues.
 
-    typemethod FOODSHRT-1 {sit} {
-        # FOODSHRT-1-1:
+    typemethod FOODSHRT-2 {sit} {
+        # FOODSHRT-2-1:
         #
         # While there is a FOODSHRT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        dam rule FOODSHRT-1-1 {
+        dam rule FOODSHRT-2-1 {
             [$sit get state] ne "ENDED"
         } {
             dam guard
 
             satslope $sit \
                 AUT M-    \
-                QOL XL-
+                QOL L-
         }
 
-        # FOODSHRT-1-2:
+        # FOODSHRT-2-2:
         #
         # When there is no longer a FOODSHRT situation
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        dam rule FOODSHRT-1-2 {
+        dam rule FOODSHRT-2-2 {
             [$sit get state] eq "ENDED"
         } {
             dam sat clear AUT QOL
         }
     }
 
-    # FOODSHRT-2 sit
+    # FOODSHRT-3 sit
     #
     # sit         Ensit object 
     #
     # Situation resolution
 
-    typemethod FOODSHRT-2 {sit} {
-        log detail envr [list FOODSHRT-2 [$sit get s]]
+    typemethod FOODSHRT-3 {sit} {
+        log detail envr [list FOODSHRT-3 [$sit get s]]
 
         # FIRST, make the data available
         set g        [$sit get resolver]
         set gIsLocal [resolverIsLocal $g]
 
-        # FOODSHRT-2-1:
+        # FOODSHRT-3-1:
         #
         # If there is a FOODSHRT situation
         #     and resolving group g is unknown or not local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        dam rule FOODSHRT-2-1 {
+        dam rule FOODSHRT-3-1 {
             !$gIsLocal
         } {
             satlevel $sit  \
@@ -1207,13 +1105,13 @@ snit::type ensit_rules {
                 QOL XL+ 2
         }
 
-        # FOODSHRT-2-2:
+        # FOODSHRT-3-2:
         #
         # If there is a FOODSHRT situation
         #     and resolving group g is local,
         # Then for each CIV pgroup f with non-zero population in the nbhood,
 
-        dam rule FOODSHRT-2-2 {
+        dam rule FOODSHRT-3-2 {
             $gIsLocal
         } {
             satlevel $sit \
@@ -1245,8 +1143,6 @@ snit::type ensit_rules {
             1
         } {
             satlevel $sit \
-                AUT M- 2  \
-                SFT S- 2  \
                 QOL L- 2
         }
     }
@@ -1270,7 +1166,6 @@ snit::type ensit_rules {
 
             satslope $sit  \
                 AUT M-     \
-                SFT S-     \
                 QOL XL-
         }
 
@@ -1282,7 +1177,7 @@ snit::type ensit_rules {
         dam rule FUELSHRT-2-2 {
             [$sit get state] eq "ENDED"
         } {
-            dam sat clear AUT SFT QOL
+            dam sat clear AUT QOL
         }
     }
 
@@ -1310,7 +1205,6 @@ snit::type ensit_rules {
         } {
             satlevel $sit  \
                 AUT L+   2 \
-                SFT XL+  2 \
                 QOL XXL+ 2
         }
 
@@ -1324,8 +1218,7 @@ snit::type ensit_rules {
             $gIsLocal
         } {
             satlevel $sit  \
-                AUT XXL+ 2 \
-                SFT XL+  2 \
+                AUT XL+  2 \
                 QOL XXL+ 2
         }
     }
@@ -1353,9 +1246,9 @@ snit::type ensit_rules {
             1
         } {
             satlevel $sit  \
-                AUT S- 2   \
-                SFT S- 2   \
-                QOL S- 2
+                AUT XXS- 2 \
+                SFT S-   2 \
+                QOL S-   2
         }
     }
 
@@ -1376,10 +1269,10 @@ snit::type ensit_rules {
         } {
             dam guard
 
-            satslope $sit  \
-                AUT XS-    \
-                SFT M-     \
-                QOL S-
+            satslope $sit \
+                AUT M-    \
+                SFT M-    \
+                QOL L-
         }
 
         # GARBAGE-2-2:
@@ -1416,10 +1309,10 @@ snit::type ensit_rules {
         dam rule GARBAGE-3-1 {
             !$gIsLocal
         } {
-            satlevel $sit  \
-                AUT L+   2 \
-                SFT XL+  2 \
-                QOL XL+  2
+            satlevel $sit \
+                AUT L+  2 \
+                SFT L+  2 \
+                QOL XL+ 2
         }
 
         # GARBAGE-3-2:
@@ -1431,10 +1324,10 @@ snit::type ensit_rules {
         dam rule GARBAGE-3-2 {
             $gIsLocal
         } {
-            satlevel $sit  \
-                AUT XXL+ 2 \
-                SFT XL+  2 \
-                QOL XL+  2
+            satlevel $sit \
+                AUT XL+ 2 \
+                SFT L+  2 \
+                QOL XL+ 2
         }
     }
 
@@ -1461,10 +1354,9 @@ snit::type ensit_rules {
         dam rule INDSPILL-1-1 {
             1
         } {
-            satlevel $sit  \
-                AUT S-  2  \
-                SFT M-  2  \
-                QOL XL- 2
+            satlevel $sit \
+                SFT L- 2  \
+                QOL L- 2
         }
     }
 
@@ -1485,9 +1377,9 @@ snit::type ensit_rules {
         } {
             dam guard
 
-            satslope $sit  \
-                AUT S-     \
-                SFT M-     \
+            satslope $sit \
+                AUT M-    \
+                SFT S-    \
                 QOL L-
         }
 
@@ -1525,10 +1417,10 @@ snit::type ensit_rules {
         dam rule INDSPILL-3-1 {
             !$gIsLocal
         } {
-            satlevel $sit   \
-                AUT XL+   2 \
-                SFT XXL+  2 \
-                QOL XXXL+ 2
+            satlevel $sit  \
+                AUT M+   2 \
+                SFT XXL+ 2 \
+                QOL XXL+ 2
         }
 
         # INDSPILL-3-2:
@@ -1540,10 +1432,10 @@ snit::type ensit_rules {
         dam rule INDSPILL-3-2 {
             $gIsLocal
         } {
-            satlevel $sit   \
-                AUT XXXL+ 2 \
-                SFT XXL+  2 \
-                QOL XXXL+ 2
+            satlevel $sit  \
+                AUT XL+  2 \
+                SFT XXL+ 2 \
+                QOL XXL+ 2
         }
     }
 
@@ -1679,9 +1571,9 @@ snit::type ensit_rules {
         dam rule NOWATER-1-1 {
             1
         } {
-            satlevel $sit   \
-                AUT XL-  2  \
-                QOL XXL- 2
+            satlevel $sit \
+                AUT M-  2 \
+                QOL XL- 2
         }
     }
 
@@ -1703,8 +1595,8 @@ snit::type ensit_rules {
             dam guard
 
             satslope $sit \
-                AUT XL-   \
-                QOL XL-
+                AUT L-    \
+                QOL XXXL-
         }
 
         # NOWATER-2-2:
@@ -1756,7 +1648,7 @@ snit::type ensit_rules {
             $gIsLocal
         } {
             satlevel $sit   \
-                AUT XXXL+ 2 \
+                AUT XXL+  2 \
                 QOL XXXL+ 2
         }
     }
@@ -1785,10 +1677,10 @@ snit::type ensit_rules {
         dam rule ORDNANCE-1-1 {
             1
         } {
-            satlevel $sit   \
-                AUT L-    2 \
-                SFT XXL-  2 \
-                QOL XXXL- 2
+            satlevel $sit  \
+                AUT S-   2 \
+                SFT XXL- 2 \
+                QOL XXL- 2
         }
     }
 
@@ -1850,7 +1742,7 @@ snit::type ensit_rules {
             !$gIsLocal
         } {
             satlevel $sit   \
-                AUT M+    2 \
+                AUT L+    2 \
                 SFT XXXL+ 2 \
                 QOL XXXL+ 2
         }
@@ -1865,7 +1757,7 @@ snit::type ensit_rules {
             $gIsLocal
         } {
             satlevel $sit   \
-                AUT XXXL+ 2 \
+                AUT XL+   2 \
                 SFT XXXL+ 2 \
                 QOL XXXL+ 2
         }
@@ -1894,10 +1786,10 @@ snit::type ensit_rules {
         dam rule PIPELINE-1-1 {
             1
         } {
-            satlevel $sit \
-                AUT S-  2 \
-                SFT S-  2 \
-                QOL XL- 2
+            satlevel $sit  \
+                AUT S-   2 \
+                SFT XXS- 2 \
+                QOL XL-  2
         }
     }
 
@@ -1919,9 +1811,9 @@ snit::type ensit_rules {
             dam guard
 
             satslope $sit \
-                AUT S-    \
-                SFT S-    \
-                QOL L-
+                AUT M-    \
+                SFT XXS-  \
+                QOL XXL-
         }
 
         # PIPELINE-2-2:
@@ -1960,7 +1852,7 @@ snit::type ensit_rules {
         } {
             satlevel $sit   \
                 AUT L+    2 \
-                SFT XXL+  2 \
+                SFT L+    2 \
                 QOL XXXL+ 2
         }
 
@@ -1974,8 +1866,8 @@ snit::type ensit_rules {
             $gIsLocal
         } {
             satlevel $sit   \
-                AUT XXL+  2 \
-                SFT XXL+  2 \
+                AUT XL+   2 \
+                SFT L+    2 \
                 QOL XXXL+ 2
         }
     }
@@ -2005,7 +1897,7 @@ snit::type ensit_rules {
             satlevel $sit \
                 AUT S-  2 \
                 SFT S-  2 \
-                QOL L-  2
+                QOL M-  2
         }
     }
 
@@ -2027,7 +1919,7 @@ snit::type ensit_rules {
             dam guard
 
             satslope $sit  \
-                AUT S-     \
+                AUT M-     \
                 SFT S-     \
                 QOL L-
         }
@@ -2066,10 +1958,10 @@ snit::type ensit_rules {
         dam rule POWEROUT-3-1 {
             !$gIsLocal
         } {
-            satlevel $sit   \
-                AUT L+    2 \
-                SFT XL+   2 \
-                QOL XL+   2
+            satlevel $sit \
+                AUT L+  2 \
+                SFT L+  2 \
+                QOL XL+ 2
         }
 
         # POWEROUT-3-2:
@@ -2081,10 +1973,10 @@ snit::type ensit_rules {
         dam rule POWEROUT-3-2 {
             $gIsLocal
         } {
-            satlevel $sit   \
-                AUT XXL+  2 \
-                SFT XL+   2 \
-                QOL XL+   2
+            satlevel $sit  \
+                AUT XXL+ 2 \
+                SFT L+   2 \
+                QOL XL+  2
         }
     }
 
@@ -2112,7 +2004,7 @@ snit::type ensit_rules {
             1
         } {
             satlevel $sit   \
-                AUT S-   2  \
+                AUT M-   2  \
                 SFT S-   2  \
                 QOL XL-  2
         }
@@ -2136,9 +2028,9 @@ snit::type ensit_rules {
             dam guard
 
             satslope $sit  \
-                AUT S-     \
-                SFT S-     \
-                QOL L-
+                AUT L-     \
+                SFT M-     \
+                QOL XXL-
         }
 
         # REFINERY-2-2:
@@ -2198,6 +2090,120 @@ snit::type ensit_rules {
     }
 
     #-------------------------------------------------------------------
+    # Rule Set: RELSITE: Damage to Religious Site/Artifact
+    #
+    # Environmental Situation: A religious site or artifact is
+    # damaged, presumably due to kinetic action.
+ 
+    # RELSITE-1 sit
+    #
+    # sit     Ensit object
+    #
+    # Situation inception rules; level effects only.
+
+    typemethod RELSITE-1 {sit} {
+        log detail envr [list RELSITE-1 [$sit get s]]
+
+        # RELSITE-1-1:
+        #
+        # If there is a new RELSITE situation
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        dam rule RELSITE-1-1 {
+            1
+        } {
+            satlevel $sit \
+                AUT S-  2 \
+                SFT M-  2 \
+                CUL XL- 2 \
+                QOL M-  2
+        }
+
+    }
+
+    # RELSITE-2 sit
+    #
+    # sit       Ensit object
+    #
+    # The situation continues.
+
+    typemethod RELSITE-2 {sit} {
+        # RELSITE-2-1:
+        #
+        # While there is a RELSITE situation
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        dam rule RELSITE-2-1 {
+            [$sit get state] ne "ENDED"
+        } {
+            dam guard
+
+            satslope $sit  \
+                AUT S-     \
+                SFT S-     \
+                CUL XL-    \
+                QOL XS-
+        }
+
+        # RELSITE-2-2:
+        #
+        # When there is no longer a RELSITE situation
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        dam rule RELSITE-2-2 {
+            [$sit get state] eq "ENDED"
+        } {
+            dam sat clear AUT SFT CUL QOL
+        }
+    }
+
+    # RELSITE-3 sit
+    #
+    # sit         Ensit object 
+    #
+    # Situation resolution
+
+    typemethod RELSITE-3 {sit} {
+        log detail envr [list RELSITE-3 [$sit get s]]
+
+        # FIRST, make the data available
+        set g        [$sit get resolver]
+        set gIsLocal [resolverIsLocal $g]
+
+        # RELSITE-3-1:
+        #
+        # If there is a RELSITE situation
+        #     and resolving group g is unknown or not local,
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        dam rule RELSITE-3-1 {
+            !$gIsLocal
+        } {
+            satlevel $sit \
+                AUT M+  2 \
+                SFT XL+ 2 \
+                CUL M+  2 \
+                QOL M+  2
+        }
+
+        # RELSITE-3-2:
+        #
+        # If there is a RELSITE situation
+        #     and resolving group g is local,
+        # Then for each CIV pgroup f with non-zero population in the nbhood,
+
+        dam rule RELSITE-3-2 {
+            $gIsLocal
+        } {
+            satlevel $sit \
+                AUT XL+ 2 \
+                SFT XL+ 2 \
+                CUL M+  2 \
+                QOL M+  2
+        }
+    }
+
+    #-------------------------------------------------------------------
     # Rule Set: SEWAGE: Sewage Spill
     #
     # Environmental Situation: Sewage is pooling in the streets.
@@ -2220,8 +2226,8 @@ snit::type ensit_rules {
             1
         } {
             satlevel $sit \
-                AUT S-  2 \
-                QOL XL- 2
+                AUT S- 2  \
+                QOL L- 2
         }
     }
 
@@ -2243,8 +2249,8 @@ snit::type ensit_rules {
             dam guard
 
             satslope $sit \
-                AUT XS-   \
-                QOL L-
+                AUT M-    \
+                QOL XL-
         }
 
         # SEWAGE-2-2:
@@ -2281,9 +2287,9 @@ snit::type ensit_rules {
         dam rule SEWAGE-3-1 {
             !$gIsLocal
         } {
-            satlevel $sit   \
-                AUT XL+   2 \
-                QOL XXXL+ 2
+            satlevel $sit  \
+                AUT L+   2 \
+                QOL XXL+ 2
         }
 
         # SEWAGE-3-2:
@@ -2295,9 +2301,9 @@ snit::type ensit_rules {
         dam rule SEWAGE-3-2 {
             $gIsLocal
         } {
-            satlevel $sit   \
-                AUT XXXL+ 2 \
-                QOL XXXL+ 2
+            satlevel $sit  \
+                AUT XL+  2 \
+                QOL XXL+ 2
         }
     }
 
@@ -2385,14 +2391,3 @@ snit::type ensit_rules {
         dam sat slope {*}$result
     }
 }
-
-
-
-
-
-
-
-
-
-
-
