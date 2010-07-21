@@ -89,26 +89,6 @@ snit::type ::projectlib::parmdb {
         scenariodb $tempdb
         $tempdb open :memory:
 
-        # NEXT, define the "sim" parameters
-
-        $ps subset sim {
-            Parameters which affect the behavior of the simulation in
-            general.
-        }
-
-        $ps define sim.tickSize ::marsutil::ticktype {1 day} {
-            Defines the size of the simulation time tick, i.e., the 
-            resolution of the simulation clock.  The time tick can be 
-            (within reason) any positive number of minutes, hours, or days, 
-            expressed as "<i>number</i> <i>units</i>", e.g., 
-            "1 minute", "2 minutes", 
-            "1 hour", "2 hours", "1 day", "2 days"; however, the Athena
-            models are designed for a tick size of approximately one
-            day.<p>  
-
-            This parameter cannot be changed at run-time.
-        }
-
         # NEXT, Athena Attrition Model parameters
 
         $ps subset aam {
