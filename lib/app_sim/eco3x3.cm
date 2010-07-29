@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco3x3.cm, version n
+#    eco3x3.cm, version q
 #
 # AUTHOR:
 #    Bob Chamberlain
@@ -46,11 +46,33 @@
 #    pages.
 #
 # HISTORY:
+#    Version q: Added CSF and LSF, so that low security can decrease
+#               both consumption and the labor supply.
+#               Added ediff() to the deltaQ.i and deltaREV.i formulas, 
+#               so that it's easier to see whether they are met or not.
+#               Copied the values of deltaQ.i and deltaREV.i to the 
+#               Out page, in case we want the application to keep
+#               an eye on them.  Note that CSF has no affect at this time.
+#
+#    Version p: Corrected computation of CPI on page C to be based on
+#               consumer purchases rather than all purchases.  Removed
+#               CAP.else once again, as it is no longer needed.
+#               Renamed the names BasePopulation and In::population
+#               with the correct names BaseConsumers and
+#               In::Consumers.  Added computation of GDP.
+#
+#    Version o: Added capacity limits for the else sector to facilitate
+#               further testing.  Deleted the "deltaP" parameters, as
+#               they aren't needed.  Other cosmetic changes.
+#
 #    Version n: Corrected the price adjustment equations so they
 #               correctly use the optimal Cobb-Douglas demands to
 #               adjust prices so that demand equals supply (i.e.,
-#               markets clear).  Changed numeraire to P.pop, the
-#               average wage.  Revised QD.goods.pop to maintain
+#               markets clear).  This is justified by the assumption
+#               that there are no economies of scale in any sector.
+#               Changed numeraire for the price equations on the C
+#               page to U::P.pop, the average wage in the
+#               unconstrained case.  Revised QD.goods.pop to maintain
 #               f.goods.pop under reduced production.
 #
 #    Version m: The price adjustments in version l affect the CPI, so
@@ -134,7 +156,6 @@ index ing   {pop else}
 index j     {goods pop else}
 index imost {goods pop}
 
-
 #=======================================================================
 # Null Page
 #
@@ -167,9 +188,9 @@ let TurFrac = 0.04 ;# Average fraction of workers "temporarily" unemployed
 #   BEXP.j      = sum.i BX.i.j
 #   BQD.i.j     = BX.i.j/BP.i
 #   f.i.j       = BX.i.j/BREV.j
-#   A.goods.pop = BQD.goods.pop/BasePopulation
+#   A.goods.pop = BQD.goods.pop/BaseConsumers
 #
-# If there is no SAM, we need to input BasePopulation, A.goods.pop, 
+# If there is no SAM, we need to input BaseConsumers, A.goods.pop, 
 # f.i.j, and BP.j.
 #
 # Since the SAM specifies both "size" and "shape", whereas the
@@ -181,7 +202,7 @@ let TurFrac = 0.04 ;# Average fraction of workers "temporarily" unemployed
 #-----------------------------------------------------------------------
 # Scenario Inputs
 
-let BasePopulation = 1e6     ;# people
+let BaseConsumers = 1e6     ;# Number of consumers in the inital population.
 
 #  f.i.j is the fraction of j's revenue that is spent in sector i.
 
@@ -207,7 +228,7 @@ let BP.else  = 1       ;# $/elseBKT
 # Base quantities demanded by pop.  The population spends its 
 # income, BREV.pop, on the sectors according to the f.i.pop's.
 # We begin with the per-capita consumption of goods, A.goods.pop,
-# and the base population.  From this, we compute BQD.goods.pop.
+# and the base number of consumers.  From this, we compute BQD.goods.pop.
 # Given the price of goods and the fraction that the population
 # spends on goods, we get BREV.pop.  We then use the f.i.pop's and
 # P.j's to compute the other BQD.i.pop's.
@@ -219,7 +240,7 @@ let A.goods.pop    =  114    ;# Direct consumption of goods, in
                               # goodsBKT/year per capita
 
 let BQD.goods.pop  =  {
-    [BasePopulation]*[A.goods.pop]
+    [BaseConsumers]*[A.goods.pop]
 } -value 1.14e8    ;# goodsBKT/year
 
 let BREV.pop       =  {
@@ -257,7 +278,8 @@ let A.else = {
     <:prod i {([BP.$i]/[f.$i.else])**[f.$i.else]}:> / [BP.else]
 } -value 2.975941843
 
-# Base CPI; indexes the CPI to the start of the simulation.
+# Base CPI: defines the CPI for the base case; indexes the CPI to the
+# start of the simulation. 
 let BCPI = 1.0
 
 #=======================================================================
@@ -339,7 +361,7 @@ let QD.else.else   = {<:QD.i.j else else:>}   -value 2.5935e8
 # economy, so we have chosen to size the economy (in the unconstrained
 # case) based on the per capita consumer demand for goods.
 
-# NOTE: We'll redefine this in U as A.goods.pop*population.
+# NOTE: We'll redefine this in U as A.goods.pop*In::consumers
 let QD.goods.pop = {[BQD.goods.pop]} -value 1.14e8
 
 # QD.i is the demand for the product of sector i in the sector's units.
@@ -422,35 +444,27 @@ let deltaQD.goods.pop = {<:deltaQD.i.pop goods:>}
 let deltaQD.pop.pop   = {<:deltaQD.i.pop pop:>}
 let deltaQD.else.pop  = {<:deltaQD.i.pop else:>}
 
-# deltaQ.i: Verifies that QS.i = SUM.j QD.i.j
+# deltaQ.i: Verifies that QS.i = SUM.j QD.i.j.  The value of deltaQ.i 
+# should be within an epsilon of 0.0.
 
 define deltaQ.i {i} {
-    1.0 - <:sum j {[QD.$i.$j]}:>/[QS.$i]
+    ediff(0.0, 1.0 - <:sum j {[QD.$i.$j]}:>/[QS.$i])
 }
 
 let deltaQ.goods = {<:deltaQ.i goods:>}
 let deltaQ.pop   = {<:deltaQ.i pop:>}
 let deltaQ.else  = {<:deltaQ.i else:>}
 
-# deltaREV.i: Verifies that REV.i = SUM.j X.i.j
+# deltaREV.i: Verifies that REV.i = SUM.j X.i.j.  The value of deltaREV.i
+# would be within an epsilon of 0.0.
 
 define deltaREV.i {i} {
-    ([REV.$i] - <:sum j {[X.$i.$j]}:>)/[REV.$i]
+    ediff(0.0, ([REV.$i] - <:sum j {[X.$i.$j]}:>)/[REV.$i])
 }
 
 let deltaREV.goods = {<:deltaREV.i goods:>}
 let deltaREV.pop   = {<:deltaREV.i pop:>}
 let deltaREV.else  = {<:deltaREV.i else:>}
-
-# deltaP.i: Compares P.i with BP.i
-
-define deltaP.i {i} {
-    1 - ([P.$i]/[BP.$i])
-}
-
-let deltaP.goods = {<:deltaP.i goods:>}
-let deltaP.pop   = {<:deltaP.i pop:>}
-let deltaP.else  = {<:deltaP.i else:>}
 
 #=======================================================================
 # Dynamic Pages
@@ -471,8 +485,16 @@ page In
 # Current Consumer Price Inflator
 let Inflator   = 1.0
 
-# Number of people currently in the population.
-let Population = 1e6          ;# people.
+# Consumption Security Factor: decreases consumption due to low
+# neighborhood group security.
+let CSF        = 1.0
+
+# Labor Security Factor: decreases labor due to low neighborhood group
+# security.
+let LSF        = 1.0
+
+# Number of consumers currently in the population.
+let Consumers = 1e6          ;# people.
 
 # Max capacity for each sector.  These are set by Athena; the initial
 # values are intended to be effectively infinite.
@@ -485,11 +507,16 @@ let WF         = 400000       ;# work-years/year
 
 # Due to the normal turbulence, some of those in the Work Force
 # are temporarily unemployed and hence not available to work. Thus,
-# CAP.pop is the WF less this turbulence.
-let CAP.pop = {[WF]*(1 - [TurFrac])}
+# CAP.pop is the WF less this turbulence.  In addition, low security
+# can reduce the effective workforce because people are afraid to
+# go to work.
+let CAP.pop = {[WF]*[LSF]*(1 - [TurFrac])}
 
 # NOTE: Because else includes the rest of the world, it is presumed to
-# have unlimited capacity even in the constrained case.
+# have unlimited capacity even in the constrained case.  Hence, there
+# is no CAP.else.
+
+# let CAP.else = 1e15
 
 
 #-----------------------------------------------------------------------
@@ -499,7 +526,9 @@ let CAP.pop = {[WF]*(1 - [TurFrac])}
 # equations copied from the Cal page, sizing the economy based on
 # demand for goods by the current population.
 
-page U -copy Cal -except {
+page U 
+
+copypage Cal -except {
     C 
     deltaQD.goods.pop
     deltaQD.pop.pop
@@ -508,11 +537,19 @@ page U -copy Cal -except {
 
 # QD.goods.pop is now computed from the current population, not 
 # from the base population.
-let QD.goods.pop = {[A.goods.pop]*[In::Population]} -value 1.14e8
+let QD.goods.pop = {[A.goods.pop]*[In::Consumers]} -value 1.14e8
 
-# P.goods is now based on the current Consumer Price Inflator, rather 
+# P.goods is now based on the current Consumer Price Index, rather 
 # than the Base CPI.
 let P.goods = {([Cal::C]*[In::Inflator] - [SUM])/[BQD.goods.pop]} -value 1
+
+let CPI = {
+    <:sum i {[P.$i]  * [BQD.$i.pop]}:> / <:sum i {[BP.$i] * [BQD.$i.pop]}:>
+} -value 1.0
+
+let deltaCPI = {
+    ([CPI] - [In::Inflator])/[In::Inflator]
+}
 
 
 #-----------------------------------------------------------------------
@@ -526,28 +563,12 @@ let P.goods = {([Cal::C]*[In::Inflator] - [SUM])/[BQD.goods.pop]} -value 1
 #
 # Otherwise, the model is the same as on the U page.
 
-page C -copy U
+page C
+copypage U
 
 let QD.goods.pop = {
     [f.goods.pop]*[REV.pop]/[P.goods]
 } -value 1.14e8
-
-# P.goods is already inflated by the In::Inflator.
-
-let P.goods = {
-    ([f.goods.pop]*[REV.pop] + [f.goods.else]*[REV.else]) /
-    ((1.0 - [f.goods.goods])*[QS.goods])
-} -value 1
-
-# The value of P.pop implied by CPI=1 in the unconstrained case
-# is the numeraire for the constrained case.
-let P.pop = {[U::P.pop]} -value 400
-
-let P.else = {
-    ([f.else.goods]*[REV.goods] + [f.else.pop]*[REV.pop]) /
-    ((1.0 - [f.else.else])*[QS.else])
-} -value 1
-
 
 # The quantity supplied is constrained by the production capacity
 let QS.goods = {
@@ -560,13 +581,24 @@ let QS.pop = {
 
 # The capacity of else is unconstrained.  This entry doesn't really
 # change anything, but it makes the assumption explicit.
-let QS.else   = {[QD.else]}   -value 3.99e8
+let QS.else = {[QD.else]}   -value 3.99e8
 
+let P.goods = {
+    ([f.goods.pop]*[REV.pop] + [f.goods.else]*[REV.else]) /
+    ((1.0 - [f.goods.goods])*[QS.goods])
+} -value 1
 
-let CPI = {
-    [In::Inflator] * 
-    <:sum i {[P.$i]  * [Cal::QD.$i]}:> / <:sum i {[BP.$i] * [Cal::QD.$i]}:>
-} -value 1.0
+# The value of P.pop implied by CPI=1 in the unconstrained case is the
+# numeraire for the constrained case.  Note that P.pop is already
+# inflated by the In::Inflator.
+
+let P.pop = {[U::P.pop]} -value 400
+
+let P.else = {
+    ([f.else.goods]*[REV.goods] + [f.else.pop]*[REV.pop]) /
+    ((1.0 - [f.else.else])*[QS.else])
+} -value 1
+
 
 #=======================================================================
 # Page Out: The outputs.
@@ -578,16 +610,20 @@ let BQS.goods = {[Cal::QS.goods]}
 
 # Copy outputs from C
 foreach i {goods pop else} {
-    let P.$i   = {[C::P.$i]}
-    let QS.$i  = {[C::QS.$i]}
-    let REV.$i = {[C::REV.$i]}
-    let EXP.$i = {[C::REV.$i]}
+    let P.$i        = {[C::P.$i]}
+    let QS.$i       = {[C::QS.$i]}
+    let REV.$i      = {[C::REV.$i]}
+    let EXP.$i      = {[C::EXP.$i]}
+    let deltaQ.$i   = {[C::deltaQ.$i]}
+    let deltaREV.$i = {[C::deltaREV.$i]}
 
     foreach j {goods pop else} {
         let QD.$i.$j = {[C::QD.$i.$j]}
         let X.$i.$j  = {[C::X.$i.$j]}
     }
 }
+
+let CPI = {[C::CPI]}
 
 # goods shortages and overages: goodsBKT/year
 let LATENTDEMAND.goods = {max(0.0, ediff([U::QD.goods],   [C::QS.goods]))}
@@ -605,3 +641,12 @@ let Unemployment     = {[RealUnemployment] + [Turbulence]}           ;# People
 # Unemployment Rates, real and reported
 let RealUR = {100.0 * [RealUnemployment]/[In::WF]} ;# Percentage
 let UR     = {100.0 * [Unemployment]/[In::WF]}     ;# Percentage
+
+# Gross Domestic Product, GDP
+
+let GDP  = {
+    [X.goods.pop] + [X.pop.pop] + [X.goods.else] + [X.pop.else]
+}
+
+# GDP deflated by CPI, which is used as a proxy for the GDP deflator.
+let DGDP = {[GDP]/[CPI]}
