@@ -565,6 +565,7 @@ let deltaCPI = {
 
 page C
 copypage U
+initfrom U
 
 let QD.goods.pop = {
     [f.goods.pop]*[REV.pop]/[P.goods]

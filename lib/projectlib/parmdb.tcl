@@ -1053,6 +1053,43 @@ snit::type ::projectlib::parmdb {
             value can range from 0.0 to 0.9.
         }
 
+        $ps subset econ.secFactor {
+            Parameters relating to the effect of security on the economy.
+        }
+
+        $ps subset econ.secFactor.consumption {
+            A set of factors that decrease a neighborhood group's
+            consumption due to the the group's current security level.
+        }
+
+        $ps subset econ.secFactor.labor {
+            A set of factors that decrease a neighborhood group's
+            contribution to the labor force to the the group's current
+            security level.
+        }
+
+        foreach level [qsecurity names] {
+            $ps define econ.secFactor.consumption.$level \
+                ::simlib::rfraction 1.0 "
+                    Fraction of consumption when a group's security
+                    level is $level.
+                "
+
+            $ps define econ.secFactor.labor.$level \
+                ::simlib::rfraction 1.0 "
+                    Fraction of labor force when a group's security
+                    level is $level.
+                "
+        }
+
+        $ps setdefault econ.secFactor.consumption.M 0.95
+        $ps setdefault econ.secFactor.consumption.L 0.5
+        $ps setdefault econ.secFactor.consumption.N 0.2
+
+        $ps setdefault econ.secFactor.labor.M 0.95
+        $ps setdefault econ.secFactor.labor.L 0.5
+        $ps setdefault econ.secFactor.labor.N 0.2
+
         # ensit.* parameters
         $ps subset ensit {
             Environmental situation parameters, by ensit type.

@@ -134,7 +134,10 @@ snit::type econ {
     typemethod analyze {{opt ""}} {
         log detail econ "analyze $opt"
 
-        # FIRST, calibrate if requested.
+        # FIRST, get labor security factor
+        set LSF [$type ComputeLaborSecurityFactor]
+
+        # NEXT, calibrate if requested.
         if {$opt eq "-calibrate"} {
             # FIRST, set the input parameters
             cge reset
@@ -142,9 +145,10 @@ snit::type econ {
             array set data [demog getlocal]
 
             cge set [list \
-                         BasePopulation $data(consumers)    \
-                         In::Population $data(consumers)    \
-                         In::WF         $data(labor_force)]
+                         BaseConsumers $data(consumers)    \
+                         In::Consumers $data(consumers)    \
+                         In::WF        $data(labor_force)  \
+                         In::LSF       $LSF]
 
             # NEXT, calibrate the CGE.
             set result [cge solve]
@@ -209,9 +213,10 @@ snit::type econ {
         }]
 
         cge set [list \
-                     In::population $data(consumers)   \
-                     In::WF         $data(labor_force) \
-                     In::CAP.goods  $CAPgoods]
+                     In::Consumers $data(consumers)   \
+                     In::WF        $data(labor_force) \
+                     In::CAP.goods $CAPgoods          \
+                     In::LSF       $LSF]
 
         # Update the CGE.
         set result [cge solve In Out]
@@ -226,6 +231,41 @@ snit::type econ {
         }
 
         log detail econ "analysis complete"
+    }
+
+    # Type Method: ComputeLaborSecurityFactor
+    #
+    # Computes the labor security factor given the security of
+    # each local neighborhood group.
+
+    typemethod ComputeLaborSecurityFactor {} {
+        # FIRST, get the total number of workers
+        set totalLabor [rdb onecolumn {
+            SELECT labor_force FROM demog_local
+        }]
+
+        # NEXT, get the number of workers who are working given the
+        # security levels.
+
+        set numerator 0.0
+
+        rdb eval {
+            SELECT labor_force,
+                   security
+            FROM demog_ng
+            JOIN force_ng using (n,g)
+            JOIN nbhoods using (n)
+            WHERE nbhoods.local
+        } {
+            set security [qsecurity name $security]
+            set factor [parmdb get econ.secFactor.labor.$security]
+            let numerator {$numerator + $factor*$labor_force}
+        }
+
+        # NEXT, compute the LSF
+        let LSF {$numerator/$totalLabor}
+
+        return $LSF
     }
 
 
