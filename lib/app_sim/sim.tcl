@@ -575,6 +575,56 @@ snit::type sim {
                 "population."
         }
 
+        # NEXT, The econ(sim) CGE Cobb-Douglas parameters must sum to 
+        # 1.0.  Therefore, econ.f.*.goods and econ.f.*.pop must sum to
+        # <= 1.0, since f.else.goods and f.else.pop can be 0.0, and
+        # f.*.else must sum to no more than 0.95, so that f.else.else
+        # isn't 0.0.
+
+        let sum {
+            [parmdb get econ.f.goods.goods] + 
+            [parmdb get econ.f.pop.goods]
+        }
+
+        if {$sum > 1.0} {
+            set sane 0
+            lappend results \
+                "econ.f.goods.goods + econ.f.pop.goods > 1.0.  However," \
+                "Cobb-Douglas parameters must sum to 1.0.  Therefore,"   \
+                "the following must be the case:"                        \
+                "econ.f.goods.goods + econ.f.pop.goods <= 1.0"
+        }
+
+        let sum {
+            [parmdb get econ.f.goods.pop] + 
+            [parmdb get econ.f.pop.pop]
+        }
+
+        if {$sum > 1.0} {
+            set sane 0
+            lappend results \
+                "econ.f.goods.pop + econ.f.pop.pop > 1.0.  However," \
+                "Cobb-Douglas parameters must sum to 1.0.  Therefore,"   \
+                "the following must be the case:"                        \
+                "econ.f.goods.pop + econ.f.pop.pop <= 1.0"
+        }
+
+
+        let sum {
+            [parmdb get econ.f.goods.else] + 
+            [parmdb get econ.f.pop.else]
+        }
+
+        if {$sum > 0.95} {
+            set sane 0
+            lappend results \
+                "econ.f.goods.pop + econ.f.pop.pop > 1.0.  However,"   \
+                "Cobb-Douglas parameters must sum to 1.0.  Also, the " \
+                "value of f.else.else cannot be 0.0.  Therefore,"      \
+                "the following must be the case:"                      \
+                "econ.f.goods.else + econ.f.pop.else <= 0.95"
+        }
+
         # NEXT, report on sanity
         if {$option eq "-log"} {
             if {$sane} {

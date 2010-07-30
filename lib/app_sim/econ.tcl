@@ -145,9 +145,17 @@ snit::type econ {
             array set data [demog getlocal]
 
             cge set [list \
-                         BaseConsumers $data(consumers)    \
-                         In::Consumers $data(consumers)    \
-                         In::WF        $data(labor_force)  \
+                         BP.pop        [parmdb get econ.BaseWage]         \
+                         A.goods.pop   [parmdb get econ.GBasketPerCapita] \
+                         f.goods.goods [parmdb get econ.f.goods.goods]    \
+                         f.pop.goods   [parmdb get econ.f.pop.goods]      \
+                         f.goods.pop   [parmdb get econ.f.goods.pop]      \
+                         f.pop.pop     [parmdb get econ.f.pop.pop]        \
+                         f.goods.else  [parmdb get econ.f.goods.else]     \
+                         f.pop.else    [parmdb get econ.f.pop.else]       \
+                         BaseConsumers $data(consumers)                   \
+                         In::Consumers $data(consumers)                   \
+                         In::WF        $data(labor_force)                 \
                          In::LSF       $LSF]
 
             # NEXT, calibrate the CGE.

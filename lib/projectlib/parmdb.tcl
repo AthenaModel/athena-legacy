@@ -43,6 +43,11 @@ namespace eval ::projectlib:: {
 ::marsutil::range ::projectlib::parmdb_idlefrac \
     -min 0.0 -max 0.9 -format "%.2f"
 
+# Positive Cobb-Douglas parameter
+::marsutil::range ::projectlib::parmdb_posCD \
+    -min 0.05 -max 1.0 -format "%.2f"
+
+
 #-------------------------------------------------------------------
 # parm
 
@@ -1053,10 +1058,48 @@ snit::type ::projectlib::parmdb {
             state of the economy.
         }
 
-        $ps define econ.baseUnemployment ::simlib::rfraction 0.05 {
-            The unemployment rate as of time 0, expressed as a 
-            decimal fraction of the labor force.
+        $ps define econ.BaseWage ::projectlib::ipositive 400 {
+            The base wage, in dollars per work-year.  This value
+            appears in the CGE as BP.pop.
         }
+
+        $ps define econ.GBasketPerCapita ::projectlib::ipositive 114 {
+            The direct consumption of goods by the population, expressed
+            in GBaskets per capita per year.  This value appears
+            in the CGE as A.goods.pop.
+        }
+
+        $ps subset econ.f {
+            Cobb-Douglas parameters for the CGE, except for the 
+            f.else.j parameters which are computed from the others.
+            Note that the sum over i of f.i.j must be 1.0.
+        }
+
+        foreach i {goods pop} {
+            $ps subset econ.f.$i "
+                Fraction of each sector's revenue spent in sector \"$i\".
+            "
+
+            foreach j {goods pop else} {
+                if {$i eq $j || ($i eq "goods" && $j eq "pop")} {
+                    set mytype ::projectlib::parmdb_posCD
+                } else {
+                    set mytype ::simlib::rfraction
+                }
+
+                $ps define econ.f.$i.$j $mytype 0.1 {
+                    Fraction of sector \"$j\"'s revenue that is spent in
+                    sector \"$i\".
+                }
+            }
+        }
+
+        $ps setdefault econ.f.goods.goods 0.2
+        $ps setdefault econ.f.pop.goods   0.4
+        $ps setdefault econ.f.goods.pop   0.75
+        $ps setdefault econ.f.pop.pop     0.1
+        $ps setdefault econ.f.goods.else  0.3
+        $ps setdefault econ.f.goods.else  0.05
 
         $ps define econ.idleFrac ::simlib::rfraction 0.25 {
             The idle production capacity for goods, expressed as

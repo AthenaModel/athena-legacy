@@ -69,7 +69,14 @@ snit::type parm {
         } else {
             parmdb lock aam.ticksPerTock
             parmdb lock econ.ticksPerTock
-            parmdb lock econ.baseUnemployment
+            parmdb lock econ.BaseWage
+            parmdb lock econ.GBasketPerCapita
+            parmdb lock econ.f.goods.goods
+            parmdb lock econ.f.pop.goods
+            parmdb lock econ.f.goods.pop
+            parmdb lock econ.f.pop.pop
+            parmdb lock econ.f.goods.else
+            parmdb lock econ.f.pop.else
         }
     }
 
