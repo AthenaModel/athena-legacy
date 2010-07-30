@@ -902,6 +902,7 @@ id t etype      s
 
 
     test spawn-1.5 {Ensits spawn at spawn time} -setup {
+        parmdb set demsit.disable yes
         ted create NB1 BLUE SHIA NB1SHIA
         ensit mutate create $s1
     } -body {
@@ -992,6 +993,7 @@ id t etype            s
 
 
     test auto-resolve-1.5 {Ensits auto-resolve at auto-resolve time} -setup {
+        parm set demsit.disable yes
         ted create NB1 BLUE SHIA NB1SHIA
         ensit mutate create [dict merge $s2 [list rduration 2]]
     } -body {

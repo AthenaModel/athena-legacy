@@ -74,53 +74,59 @@ snit::type demsit {
     # the demsit rule sets as appropriate.
 
     typemethod assess {} {
-        # FIRST, look for new UNEMP situations.
-        rdb eval {
-            SELECT * FROM demog_context
-            WHERE s = 0
-            AND   (ngfactor > 0.0 OR nfactor > 0.0)
-        } row {
-            # FIRST, Create the situation
-            set s [situation create $type       \
-                       stype    "UNEMP"         \
-                       n        $row(n)         \
-                       g        $row(g)         \
-                       state    ACTIVE]
+        set disabled [parmdb get demsit.disable]
 
+        # FIRST, don't look for new situations if demsits are
+        # disabled.
+        if {!$disabled} {
+            # FIRST, look for new UNEMP situations.
             rdb eval {
-                INSERT INTO demsits_t(s,ngfactor,nfactor)
-                VALUES($s,$row(ngfactor),$row(nfactor))
+                SELECT * FROM demog_context
+                WHERE s = 0
+                AND   (ngfactor > 0.0 OR nfactor > 0.0)
+            } row {
+                # FIRST, Create the situation
+                set s [situation create $type       \
+                           stype    "UNEMP"         \
+                           n        $row(n)         \
+                           g        $row(g)         \
+                           state    ACTIVE]
+
+                rdb eval {
+                    INSERT INTO demsits_t(s,ngfactor,nfactor)
+                    VALUES($s,$row(ngfactor),$row(nfactor))
+                }
+
+                log detail demsit "$s: UNEMP created for $row(n),$row(g)"
+
+                # NEXT, remember that it's new this time around.
+                set new($s) 1
+                
+                # NEXT, get a demsit object to manipulate the data.
+                set sit [situation get $s]
+                
+                # NEXT, create a GRAM driver for this situation
+                $sit set driver [aram driver add \
+                                     -dtype    "UNEMP"          \
+                                     -name     "Sit $s"         \
+                                     -oneliner [$sit oneliner]]
+                
+                # NEXT, link it to the demog_ng object.
+                rdb eval {
+                    UPDATE demog_ng
+                    SET s = $s
+                    WHERE n=$row(n) AND g=$row(g)
+                }
+                
+                # NEXT, assess the satisfaction implications of this new
+                # situation.
+                demsit_rules monitor $sit
+
+                # NEXT, inform all clients about the new object.
+                # Always do this after running the rules,
+                # because the object will be changed if a rule fired.
+                notifier send $type <Entity> create $s
             }
-
-            log detail demsit "$s: UNEMP created for $row(n),$row(g)"
-
-            # NEXT, remember that it's new this time around.
-            set new($s) 1
-
-            # NEXT, get a demsit object to manipulate the data.
-            set sit [situation get $s]
-
-            # NEXT, create a GRAM driver for this situation
-            $sit set driver [aram driver add \
-                                 -dtype    "UNEMP"          \
-                                 -name     "Sit $s"         \
-                                 -oneliner [$sit oneliner]]
-
-            # NEXT, link it to the demog_ng object.
-            rdb eval {
-                UPDATE demog_ng
-                SET s = $s
-                WHERE n=$row(n) AND g=$row(g)
-            }
-
-            # NEXT, assess the satisfaction implications of this new
-            # situation.
-            demsit_rules monitor $sit
-
-            # NEXT, inform all clients about the new object.
-            # Always do this after running the rules,
-            # because the object will be changed if a rule fired.
-            notifier send $type <Entity> create $s
         }
 
         # NEXT, call the relevant rule sets for all pre-existing
@@ -140,6 +146,12 @@ snit::type demsit {
                 continue
             }
 
+            # NEXT, if demsits are disabled set the factors to zero
+            if {$disabled} {
+                set ngfactor 0.0
+                set nfactor  0.0
+            }
+
             # NEXT, get its object.
             set sit [situation get $s]
 
@@ -156,7 +168,7 @@ snit::type demsit {
                     $sit set change UPDATED
                 } else {
                     # The situation ends when there is no significant
-                    # unemployment in the neighborhood.
+                    # unemployment in the neighborhood
                     $sit set state ENDED
                     $sit set change ENDED
                     

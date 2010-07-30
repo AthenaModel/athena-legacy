@@ -999,6 +999,17 @@ snit::type ::projectlib::parmdb {
             "
         }
 
+        # demsit.* parameters
+        $ps subset demsit {
+            Demographic Situation Module parameters.
+        }
+
+        $ps define demsit.disable ::projectlib::boolean no {
+            If yes, demographic situations are disabled.  If set to
+            yes during the run, all existing demsits will be removed
+            at the next demsit assess.
+        }
+
         # demog.* parameters
         $ps subset demog {
             Demographics Model parameters.
