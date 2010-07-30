@@ -181,16 +181,16 @@ snit::type econ {
             set sum 0.0
 
             rdb eval {
-                SELECT nbhoods.n          AS n,
-                demog_n.population AS population, 
-                econ_n.pcf         AS pcf
+                SELECT nbhoods.n    AS n,
+                demog_n.labor_force AS labor_force, 
+                econ_n.pcf          AS pcf
                 FROM nbhoods
                 JOIN demog_n USING (n)
                 JOIN econ_n  USING (n)
                 WHERE local = 1
             } {
                 set pcfs($n) $pcf
-                let cf($n) {$pcf * $population}
+                let cf($n) {$pcf * $labor_force}
                 let sum    {$sum + $cf($n)}
             }
 
