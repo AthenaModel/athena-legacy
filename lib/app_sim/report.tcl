@@ -115,8 +115,22 @@ snit::type ::report {
             SELECT * FROM reports WHERE rtype='SCENARIO'
         }
 
+        reporter bin define scenario_sanity "Sanity Check" scenario {
+            SELECT * FROM reports WHERE rtype='SCENARIO' AND subtype='SANITY'
+        }
+
+        reporter bin define scenario_sanity_lock "On Lock" scenario_sanity {
+            SELECT * FROM reports WHERE rtype='SCENARIO' AND subtype='SANITY'
+            AND meta1='ONLOCK'
+        }
+
+        reporter bin define scenario_sanity_tick "On Tick" scenario_sanity {
+            SELECT * FROM reports WHERE rtype='SCENARIO' AND subtype='SANITY'
+            AND meta1='ONTICK'
+        }
+
         reporter bin define scenario_parmdb "Model Parameters" scenario {
-            SELECT * FROM reports WHERE rtype='SCENARIO' AND subtype="PARMDB"
+            SELECT * FROM reports WHERE rtype='SCENARIO' AND subtype='PARMDB'
         }
 
         reporter bin define dam "DAM Rule Firings" "" {

@@ -51,7 +51,7 @@ snit::type sim {
         10    50
     }
 
-    # info -- scalar info array        # NEXT, update the Analyze button
+    # info -- scalar info array
     #
     # changed        - 1 if saveable(i) data has changed, and 0 
     #                  otherwise.
@@ -67,6 +67,14 @@ snit::type sim {
         state          PREP
         stoptime       0
         speed          5
+    }
+
+    # trans -- transient data array
+    #
+    #  buffer  - Buffer used to build up long strings.
+
+    typevariable trans -array {
+        buffer {}
     }
 
     #-------------------------------------------------------------------
@@ -455,24 +463,45 @@ snit::type sim {
     #-------------------------------------------------------------------
     # Model Sanity Check
 
-    # check ?-log?
+    # check ?-report? ?-log?
     #
     # Does a sanity check of the model: can leave PREP for PAUSED?
-    # Returns 1 if sane and 0 otherwise.  If -log is specified, then the 
-    # results are logged.
+    # Returns 1 if sane and 0 otherwise.  If -report is specified, then 
+    # a SCENARIO SANITY ONLOCK report is written.
 
-    typemethod check {{option -nolog}} {
-        # FIRST, presume that the model is sane.
+    typemethod check {args} {
+        # FIRST, get options.
+        array set opts {
+            -log    0
+            -report 0
+        }
+
+        foreach opt $args {
+            switch -exact -- $opt {
+                -log    -
+                -report {
+                    set opts($opt) 1
+                }
+
+                default {
+                    error "Unknown option: \"$opt\""
+                }
+            }
+        }
+
+        # NEXT, presume that the model is sane.
         set sane 1
 
-        set results [list]
+        # NEXT, initialize the buffer
+        set trans(buffer) {}
 
         # NEXT, Require at least one neighborhood:
         if {[llength [nbhood names]] == 0} {
             set sane 0
 
-            lappend results \
-                "No neighborhoods are defined; at least one is required"
+            $type CheckTopic "No neighborhoods are defined." \
+                "At least one neighborhood is required."     \
+                "Create neighborhoods on the Map tab."
         }
 
         # NEXT, verify that neighborhoods are properly stacked
@@ -482,24 +511,28 @@ snit::type sim {
         } {
             set sane 0
 
-            lappend results \
-                "Neighborhood $n is obscured by neighborhood $obscured_by"
+            $type CheckTopic "Neighborhood Stacking Error." \
+                "Neighborhood $n is obscured by neighborhood $obscured_by." \
+                "Fix the stacking order on the Neighborhoods/Neighborhoods" \
+                "tab."
         }
 
         # NEXT, Require at least one force group
         if {[llength [frcgroup names]] == 0} {
             set sane 0
 
-            lappend results \
-                "No force groups are defined; at least one is required"
+            $type CheckTopic "No force groups are defined."           \
+                "At least one force group is required.  Create force" \
+                "groups on the Groups/FrcGroups tab."
         }
 
         # NEXT, Require at least one civ group
         if {[llength [civgroup names]] == 0} {
             set sane 0
 
-            lappend results \
-                "No civilian groups are defined; at least one is required"
+            $type CheckTopic "No civilian groups are defined."              \
+                "At least one civilian group is required.  Create civilian" \
+                "groups on the Groups/CivGroups tab."
         }
 
         # NEXT, collect data on neighborhood groups
@@ -517,8 +550,10 @@ snit::type sim {
             if {![info exists gInN($n)]} {
                 set sane 0
 
-                lappend results \
-              "Neighborhood $n contains no groups; at least one is required"
+                $type CheckTopic "Neighborhood has no residents"       \
+                    "Neighborhood $n contains no neighborhood groups;" \
+                    "at least one is required.  Create neighborhood"   \
+                    "groups on the Groups/NbGroups tab."
             }
         }
 
@@ -528,8 +563,11 @@ snit::type sim {
             if {![info exists nForG($g)]} {
                 set sane 0
 
-                lappend results \
-      "Civilian group $g resides in no neighborhoods; at least one is required"
+                $type CheckTopic "Pointless Civilian Group"             \
+                    "Civilian group $g resides in no neighborhoods; it" \
+                    "must reside in at least one.  Either delete group" \
+                    "$g on the Groups/CivGroups tab, or add $g to a"    \
+                    "neighborhood on the Groups/NbGroups tab."
             }
         }
 
@@ -543,8 +581,11 @@ snit::type sim {
             set sane 0
 
             set ids [join $ids ", "]
-            lappend results \
-                "The following ensits are outside any neighborhood:\n $ids"
+
+            $type CheckTopic "Homeless Environmental Situations"           \
+                "The following ensits are outside any neighborhood: $ids." \
+                "Either add neighborhoods around them on the Map tab,"     \
+                "or delete them on the Neighborhoods/EnSits tab."
         }
 
         # NEXT, you can't have more than one ensit of a type in a 
@@ -556,8 +597,11 @@ snit::type sim {
             HAVING count > 1
         } {
             set sane 0
-            lappend results \
-                "Duplicate ensits of type $stype in neighborhood $n"
+
+            $type CheckTopic "Duplicate Environmental Situations"     \
+                "There are duplicate ensits of type $stype in"        \
+                "neighborhood $n.  Delete all but one of them on the" \
+                "Neighborhoods/EnSits tab."
         }
 
         # NEXT, there must be at least 1 local consumer; and hence, there
@@ -569,10 +613,13 @@ snit::type sim {
             WHERE local AND sap < 100
         }]} {
             set sane 0
-            lappend results \
+
+            $type CheckTopic "No consumers in local economy"             \
                 "There are no consumers in the local economy.  At least" \
-                "one neighborhood group needs to have non-subsistence" \
-                "population."
+                "one neighborhood group in a \"local\" neighborhood"     \
+                "needs to have non-subsistence"                          \
+                "population.  Add or edit neighborhood groups on the"    \
+                "Groups/NbGroups tab."
         }
 
         # NEXT, The econ(sim) CGE Cobb-Douglas parameters must sum to 
@@ -588,11 +635,13 @@ snit::type sim {
 
         if {$sum > 1.0} {
             set sane 0
-            lappend results \
+
+            $type CheckTopic "Invalid Cobb-Douglas Parameters"           \
                 "econ.f.goods.goods + econ.f.pop.goods > 1.0.  However," \
                 "Cobb-Douglas parameters must sum to 1.0.  Therefore,"   \
                 "the following must be the case:"                        \
-                "econ.f.goods.goods + econ.f.pop.goods <= 1.0"
+                "econ.f.goods.goods + econ.f.pop.goods <= 1.0.  Use the" \
+                "\"parm set\" command to edit the parameter values."
         }
 
         let sum {
@@ -602,11 +651,12 @@ snit::type sim {
 
         if {$sum > 1.0} {
             set sane 0
-            lappend results \
-                "econ.f.goods.pop + econ.f.pop.pop > 1.0.  However," \
-                "Cobb-Douglas parameters must sum to 1.0.  Therefore,"   \
-                "the following must be the case:"                        \
-                "econ.f.goods.pop + econ.f.pop.pop <= 1.0"
+            $type CheckTopic "Invalid Cobb-Douglas Parameters"         \
+                "econ.f.goods.pop + econ.f.pop.pop > 1.0.  However,"   \
+                "Cobb-Douglas parameters must sum to 1.0.  Therefore," \
+                "the following must be the case:"                      \
+                "econ.f.goods.pop + econ.f.pop.pop <= 1.0  Use the"    \
+                "\"parm set\" command to edit the parameter values."
         }
 
 
@@ -617,26 +667,82 @@ snit::type sim {
 
         if {$sum > 0.95} {
             set sane 0
-            lappend results \
+            $type CheckTopic "Invalid Cobb-Douglas Parameters"         \
                 "econ.f.goods.pop + econ.f.pop.pop > 1.0.  However,"   \
                 "Cobb-Douglas parameters must sum to 1.0.  Also, the " \
                 "value of f.else.else cannot be 0.0.  Therefore,"      \
                 "the following must be the case:"                      \
-                "econ.f.goods.else + econ.f.pop.else <= 0.95"
+                "econ.f.goods.else + econ.f.pop.else <= 0.95  Use the" \
+                "\"parm set\" command to edit the parameter values."
         }
 
-        # NEXT, report on sanity
-        if {$option eq "-log"} {
+        # NEXT, log sanity
+        if {$opts(-log)} {
             if {$sane} {
-                log normal sim "Scenario Sanity Check: OK"
+                log normal sim "On-Lock Sanity Check: OK"
             } else {
                 log warning sim \
-                    "Scenario Sanity Check: FAILED\n[join $results \n]"
+                    "Scenario Sanity Check: FAILED\n$trans(buffer)"
             }
         }
 
+        # NEXT, report on sanity
+        if {$opts(-report)} {
+            if {$sane} {
+                report save                             \
+                    -rtype   SCENARIO                   \
+                    -subtype SANITY                     \
+                    -meta1   ONLOCK                     \
+                    -title   "On-Lock Sanity Check: OK" \
+                    -text    "The scenario is sane."
+            } else {
+                report save                                 \
+                    -rtype   SCENARIO                       \
+                    -subtype SANITY                         \
+                    -meta1   ONLOCK                         \
+                    -title   "On-Lock Sanity Check: FAILED" \
+                    -text    $trans(buffer)
+
+            }
+        }
+
+        # NEXT, clear the buffer
+        set trans(buffer) ""
+
         # NEXT, return the result
         return $sane
+    }
+
+    # CheckTopic header lines...
+    #
+    # header     A header string for a sanity check failure
+    # lines      Zero or more lines of body text
+    #
+    # Formats the topic as a left-justified header with an
+    # indented body.  Adds the topic to the buffer.  Blank lines
+    # separate topics.
+
+    typemethod CheckTopic {header args} {
+        # FIRST, add a blank line, if needed.
+        if {[string length $trans(buffer)] > 0} {
+            append trans(buffer) "\n\n"
+        }
+
+        # NEXT, append the header.
+        append trans(buffer) [normalize $header]
+
+        # NEXT, format and append the body, if any.
+        if {[llength $args] > 0} {
+            set body [normalize [join $args \n]]
+            
+            append trans(buffer) \n
+            append trans(buffer) \
+                [textutil::adjust::indent \
+                     [textutil::adjust::adjust $body -length 55] \
+                     "    "]
+        }
+
+        return
     }
 
     #-------------------------------------------------------------------
@@ -1031,7 +1137,7 @@ order define ::sim SIM:LOCK {
 } {
     # FIRST, do the sanity check.
     if {![sim check -log]} {
-        reject * {
+        return * {
             Scenario sanity check failed; time cannot advance.
             Fix the error, and try again.
             Please see the log for details.
@@ -1040,6 +1146,7 @@ order define ::sim SIM:LOCK {
         if {[interface] eq "gui"} {
             [app topwin] tab view slog
         }
+        return
     }
 
     returnOnError -final

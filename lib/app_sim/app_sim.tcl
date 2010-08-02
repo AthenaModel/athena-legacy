@@ -35,8 +35,9 @@ package provide app_sim 1.0
 # Require packages
 
 # From ActiveTclEE
-package require snit     2.2
-package require sqlite3  3.5
+package require snit             2.2
+package require sqlite3          3.5
+package require textutil::adjust 0.7
 
 # From Mars
 package require marsutil

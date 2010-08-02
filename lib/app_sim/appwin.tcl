@@ -1714,21 +1714,23 @@ snit::widget appwin {
     method PrepLock {} {
         # FIRST, if we're in PREP then it's time to leave it.
         if {[sim state] eq "PREP"} {
-            if {[catch {
-                order send gui SIM:LOCK
-            } result opts]} {
-                # order(sim) should ensure that this is a REJECT; but 
-                # let's make sure
-                assert {[dict get $opts -errorcode] eq "REJECT"}
-
-                set message [dict get $result [lindex [dict keys $result] 0]]
-
+            if {![sim check -report]} {
                 messagebox popup \
                     -parent  $win               \
                     -icon    error              \
                     -title   "Not ready to run" \
-                    -message $message 
+                    -message [normalize {
+            Scenario sanity check failed; time cannot advance.
+            Fix the error, and try again.
+            Please see the On-Lock Sanity Check report for details.
+                    }]
+
+                [app topwin] tab view report
+
+                return
             }
+
+            order send gui SIM:LOCK
             return
         }
 
