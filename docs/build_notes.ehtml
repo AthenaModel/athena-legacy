@@ -11,7 +11,33 @@
 
 <h2>Build Notes</h2>
 
-<h3>Build 2.0.4, 13 July 2009</h3>
+<h3>Build 2.0.5, 2 August 2010</h3>
+
+This build contains a number of changes, most of which involve the
+economic model.  We now have the (possibly) final version of the
+3-sector CGE for this release.  Neighborhood security now affects the
+economy by reducing the labor force when security is bad, and it is now
+possible to edit the "shape" of the economy during scenario prep via
+the model parameter database.  Finally, the Athena rule sets have been
+updated to be consistent with the JNEM rule sets of the same names;
+see <code>docs/rules.odt</code>.<p>
+
+<ul>
+  <li> Bug 2329: REFINERY auto-resolves in 60 days, rules say 5 days
+  <li> Bug 2336: athena_sim(1): ORG effects_factor and rollup_weight are ignored
+  <li> Bug 2505: enumfield(n): man page errors
+  <li> Bug 2538: athena_sim(1): Rule Set Changes
+  <li> Bug 2539: athena_sim(1): eco3x3.cm, Version n
+  <li> Bug 2546: athena_sim(1): Remove sim.tickSize
+  <li> Bug 2547: parmdb(5): demsit.disable
+  <li> Bug 2550: athena_sim(1): Integrate eco3x3q.cm
+  <li> Bug 2552: athena_sim(1): Labor Security Factor
+  <li> Bug 2553: athena_sim(1): Add Econ "shape" parameters to parmdb(5)
+  <li> Bug 2554: econ(sim) disaggregates production capacity by total population
+  <li> Bug 2556: scenariodb(n): Schema version
+</ul>
+
+<h3>Build 2.0.4, 13 July 2010</h3>
 
 This build contains few new packages, but many significant changes.
 First of all, unemployment in neighborhoods now affects civilian
@@ -30,7 +56,7 @@ Bug 2534 for details, and if necessary I can give a chalk talk.<p>
   <li> Bug 2535: Athena installation tarball excludes .odt files 
 </ul>
 
-<h3>Build 2.0.3, 15 June 2009</h3>
+<h3>Build 2.0.3, 15 June 2010</h3>
 
 This build contains significant new work, much of it related to the
 economic, demographic and attitude models.<p>
@@ -70,7 +96,7 @@ situations and the UNEMP rule sets remain to be implemented.)
   <li> Bug 2518: athena_sim(1): Unemployment Attitude Factor 
 </ul>
 
-<h3>Build 2.0.2, 27 April 2009</h3>
+<h3>Build 2.0.2, 27 April 2010</h3>
 
 This build contains significant new work.  In particular, it contains
 the initial stages of the Athena Economic Model, and of the new data
@@ -88,7 +114,7 @@ plotting capability.  The full set of changes is as follows:<p>
   <li> Bug 2465: athena_sim(1): Revised 3x3 Economic Model 
 </ul>
 
-<h3>Build 2.0.1, 5 January 2009</h3>
+<h3>Build 2.0.1, 5 January 2010</h3>
 
 This build contains all of the maintenance work done since delivery of
 Athena 1.1.1.<p>
