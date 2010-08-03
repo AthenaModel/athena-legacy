@@ -49,7 +49,14 @@ snit::type econ {
         changed 0
     }
 
+    #-------------------------------------------------------------------
+    # Group: Checkpointed Type Variables
 
+    # Type Variable: startdict
+    #
+    # Dictionary of initial CGE cell values, as of "econ start".
+
+    typevariable startdict {}
 
     #-------------------------------------------------------------------
     # Group: Initialization
@@ -102,20 +109,25 @@ snit::type econ {
         log normal econ "start"
 
         $type analyze -calibrate
+        
+        set startdict [$cge get]
 
         log normal econ "start complete"
     }
 
     # Type Method: tock
     #
-    # Updates the CGE at each econ tock.
+    # Updates the CGE at each econ tock.  Returns 1 if the CGE
+    # converged, and 0 otherwise.
 
     typemethod tock {} {
         log normal econ "tock"
 
-        $type analyze
+        set result [$type analyze]
 
         log normal econ "tock complete"
+
+        return $result
     }
 
     #-------------------------------------------------------------------
@@ -127,6 +139,8 @@ snit::type econ {
     # Solves the CGE to convergence.  If the -calibrate flag is given,
     # then the CGE is first calibrated; this is normally only done during
     # PREP, or during the transition from PREP to PAUSED at time 0.
+    #
+    # Returns 1 on success, and 0 otherwise.
     #
     # Syntax:
     #   analyze ?-calibrate?
@@ -235,10 +249,12 @@ snit::type econ {
         # NEXT, handle failures
         if {$result ne "ok"} {
             log warning econ "Economic analysis failed"
-            error "Economic analysis failed"
+
+            return 0
         }
 
         log detail econ "analysis complete"
+        return 1
     }
 
     # Type Method: ComputeLaborSecurityFactor
@@ -290,6 +306,7 @@ snit::type econ {
 
     delegate typemethod get   to cge
     delegate typemethod value to cge
+    delegate typemethod eval  to cge
 
     # Type Method: dump
     #
@@ -315,6 +332,14 @@ snit::type econ {
 
     typemethod cge {} {
         return $cge
+    }
+
+    # Type Method: getstart
+    #
+    # Returns a dictionary of the starting values for the CGE cells.
+
+    typemethod getstart {} {
+        return $startdict
     }
 
     #-------------------------------------------------------------------
@@ -382,7 +407,7 @@ snit::type econ {
             set info(changed) 0
         }
 
-        return [cge get]
+        return [list cge [cge get] startdict $startdict]
     }
 
     # Type Method: restore
@@ -398,7 +423,8 @@ snit::type econ {
     
     typemethod restore {checkpoint {option ""}} {
         # FIRST, restore the checkpoint data
-        cge set $checkpoint
+        cge set [dict get $checkpoint cge]
+        set startdict [dict get $checkpoint startdict]
 
         if {$option eq "-saved"} {
             set info(changed) 0

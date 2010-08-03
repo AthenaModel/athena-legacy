@@ -61,12 +61,15 @@ snit::type sim {
     # speed          - The speed at which the simulation should run.
     #                  (This should probably be saved with the GUI 
     #                  settings.)
+    # econOK         - 1 if the econ CGE is converging, and 0 if it is
+    #                  diverging.
 
     typevariable info -array {
         changed        0
         state          PREP
         stoptime       0
         speed          5
+        econOK         1
     }
 
     # trans -- transient data array
@@ -463,13 +466,15 @@ snit::type sim {
     #-------------------------------------------------------------------
     # Model Sanity Check
 
-    # check ?-report? ?-log?
+    # check onlock ?-report? ?-log?
     #
-    # Does a sanity check of the model: can leave PREP for PAUSED?
+    # Does a sanity check of the model: can we lock the scenario (leave 
+    # PREP for PAUSED?)
+    # 
     # Returns 1 if sane and 0 otherwise.  If -report is specified, then 
     # a SCENARIO SANITY ONLOCK report is written.
 
-    typemethod check {args} {
+    typemethod "check onlock" {args} {
         # FIRST, get options.
         array set opts {
             -log    0
@@ -713,6 +718,203 @@ snit::type sim {
         return $sane
     }
 
+    # check ontick ?-report?
+    #
+    # Does an on-tick sanity check of the model: can we advance time?
+    # 
+    # Returns 1 if sane and 0 otherwise.  If -report is specified, and
+    # the check fails, a SCENARIO SANITY ONTICK report is written.
+
+    typemethod "check ontick" {args} {
+        # FIRST, get options.
+        array set opts {
+            -report 0
+        }
+
+        foreach opt $args {
+            switch -exact -- $opt {
+                -report {
+                    set opts($opt) 1
+                }
+
+                default {
+                    error "Unknown option: \"$opt\""
+                }
+            }
+        }
+
+        # NEXT, presume that the model is sane.
+        set sane 1
+
+        # NEXT, initialize the buffer
+        set trans(buffer) {}
+
+        # NEXT, Some help for the reader
+        $type CheckTopic "Sanity Check(s) Failed" {
+            One or more of Athena's on-tick sanity checks has failed; the
+            entries below give complete details.  Most checks depend on 
+            the economic model; hence, setting the "econ.disable" parameter
+            to "yes" will disable them and allow the simulation to proceed,
+            at the cost of ignoring the economy.  (See "Model Parameters"
+            in the on-line help for information on how to browse and
+            set model parameters.)
+        }
+
+        # NEXT, Check econ CGE convergence.
+        if {!$info(econOK)} {
+            set sane 0
+
+            $type CheckTopic "Economy: Diverged" {
+                The economic model uses a system of equations called
+                a CGE.  The system of equations could not be solved.
+                This might be an error in the CGE; alternatively, the
+                economy might really be in chaos.
+            }
+        }
+
+        # NEXT, check a variety of econ result constraints.
+        array set cells [econ get]
+        array set start [econ getstart]
+
+        if {$cells(Out::SUM.QS) == 0.0} {
+            set sane 0
+
+            $type CheckTopic "Economy: Zero Production" {
+                The economy has converged to the zero point, i.e., there
+                is no consumption or production, and hence no economy.
+                Enter "dump econ In" at the CLI to see the current 
+                inputs to the economy; it's likely that there are no
+                consumers.
+            }
+        }
+
+        if {!$cells(Out::FLAG.QS.NONNEG)} {
+            set sane 0
+
+            $type CheckTopic "Economy: Negative Quantity Supplied" {
+                One of the QS.i cells has a negative value; this implies
+                an error in the CGE.  Enter "dump econ" at the CLI to
+                see the full list of CGE outputs.  Consider setting
+                the "econ.disable" parameter to "yes", since the
+                economic model is clearly malfunctioning.
+            }
+        }
+
+        if {!$cells(Out::FLAG.P.POS)} {
+            set sane 0
+
+            $type CheckTopic "Economy: Non-Positive Prices" {
+                One of the P.i price cells is negative or zero; this implies
+                an error in the CGE.  Enter "dump econ" at the CLI to
+                see the full list of CGE outputs.  Consider setting
+                the "econ.disable" parameter to "yes", since the
+                economic model is clearly malfunctioning.
+            }
+        }
+
+        if {!$cells(Out::FLAG.DELTAQ.ZERO)} {
+            set sane 0
+
+            $type CheckTopic "Economy: Delta-Q non-zero" {
+                One of the deltaQ.i cells is negative or zero; this implies
+                an error in the CGE.  Enter "dump econ" at the CLI to
+                see the full list of CGE outputs.  Consider setting
+                the "econ.disable" parameter to "yes", since the
+                economic model is clearly malfunctioning.
+            }
+        }
+
+        set limit [parmdb get econ.check.MinConsumerFrac]
+        if {$cells(In::Consumers)/$start(In::Consumers) < $limit} {
+            set sane 0
+
+            $type CheckTopic "Number of consumers has declined alarmingly" {
+                The current number of consumers in the local economy,
+            } $cells(In::Consumers), {
+                is less than 
+            } $limit {
+                of the starting number.  To change the limit, set the
+                value of the "econ.check.MinConsumerFrac" model parameter.
+            }
+        }
+
+        set limit [parmdb get econ.check.MinLaborFrac]
+        if {$cells(In::WF)/$start(In::WF) < $limit} {
+            set sane 0
+
+            $type CheckTopic "Number of workers has declined alarmingly" {
+                The current number of workers in the local labor force,
+            } $cells(In::WF), { 
+                is less than
+            } $limit {
+                of the starting number.  To change the limit, set the 
+                value of the "econ.check.MinLaborFrac" model parameter.
+            }
+        }
+
+        set limit [parmdb get econ.check.MaxUR]
+        if {$cells(Out::UR) > $limit} {
+            set sane 0
+
+            $type CheckTopic "Unemployment skyrockets" {
+                The unemployment rate, 
+            } [format "%.1f%%," $cells(Out::UR)] {
+                exceeds the limit of 
+            } [format "%.1f%%." $limit] {
+                To change the limit, set the value of the 
+                "econ.check.MaxUR" model parameter.
+            }
+        }
+
+        set limit [parmdb get econ.check.MinDgdpFrac]
+        if {$cells(Out::DGDP)/$start(Out::DGDP) < $limit} {
+            set sane 0
+
+            $type CheckTopic "DGDP Plummets" {
+                The Deflated Gross Domestic Product (DGDP),
+            } \$[moneyfmt $cells(Out::DGDP)], {
+                is less than 
+            } $limit {
+                of its starting value.  To change the limit, set the
+                value of the "econ.check.MinDgdpFrac" model parameter.
+            }
+        }
+
+        set min [parmdb get econ.check.MinCPI]
+        set max [parmdb get econ.check.MaxCPI]
+        if {$cells(Out::CPI) < $min || $cells(Out::CPI) > $max} {
+            set sane 0
+
+            $type CheckTopic "CPI beyond limits" {
+                The Consumer Price Index (CPI), 
+            } [format "%4.2f," $cells(Out::CPI)] {
+                is outside the expected range of
+            } [format "(%4.2f, %4.2f)." $min $max] {
+                To change the bounds, set the values of the 
+                "econ.check.MinCPI" and "econ.check.MaxCPI" model
+                parameters.
+            }
+        }
+
+        
+
+        # NEXT, report on sanity
+        if {$opts(-report) && !$sane} {
+            report save                                 \
+                -rtype   SCENARIO                       \
+                -subtype SANITY                         \
+                -meta1   ONTICK                         \
+                -title   "On-Tick Sanity Check: FAILED" \
+                -text    $trans(buffer)
+        }
+
+        # NEXT, clear the buffer
+        set trans(buffer) ""
+
+        # NEXT, return the result
+        return $sane
+    }
+
     # CheckTopic header lines...
     #
     # header     A header string for a sanity check failure
@@ -738,7 +940,7 @@ snit::type sim {
             append trans(buffer) \n
             append trans(buffer) \
                 [textutil::adjust::indent \
-                     [textutil::adjust::adjust $body -length 55] \
+                     [textutil::adjust::adjust $body -length 70] \
                      "    "]
         }
 
@@ -804,6 +1006,8 @@ snit::type sim {
 
         # NEXT, set the state to PAUSED
         $type SetState PAUSED
+
+        set info(econOK) 1
 
         # NEXT, resync the GUI, since much has changed.
         notifier send $type <DbSyncB>
@@ -960,8 +1164,11 @@ snit::type sim {
         }
 
         if {[simclock now] % [parmdb get econ.ticksPerTock] == 0} {
-            econ tock
-            demog analyze econ
+            set info(econOK) [econ tock]
+
+            if {$info(econOK)} {
+                demog analyze econ
+            }
         }
 
         demsit assess
@@ -969,7 +1176,7 @@ snit::type sim {
         # NEXT, advance GRAM (if t > 0); but first give it the latest
         # population data.
         #
-        # TBD: This is nuts.
+        # TBD: This mechanism is nuts.
         if {[simclock now] > 0} {
             aram update population {*}[rdb eval {
                 SELECT n,g,population FROM demog_ng
@@ -977,9 +1184,6 @@ snit::type sim {
 
             aram advance
         }
-
-        # NEXT, check Reactive Decision Conditions (RDCs)
-        # TBD: None yet
 
         # NEXT, save the history for this tick.
         hist tick
@@ -997,11 +1201,34 @@ snit::type sim {
         # NEXT, do staffing.
         activity analyze staffing
 
-        # NEXT, pause if it's the pause time.
+        # NEXT, pause if it's the pause time, or checks failed.
+        set stopping 0
+
+        if {![sim check ontick -report]} {
+            if {[winfo exists .main]} {
+                messagebox popup \
+                    -parent  [app topwin]         \
+                    -icon    error                \
+                    -title   "Simulation Stopped" \
+                    -message [normalize {
+            On-tick sanity check failed; simulation stopped.
+            Please see the On-Tick Sanity Check report for details.
+                    }]
+
+                [app topwin] tab view report
+            }
+
+            set stopping 1
+        }
+
         if {$info(stoptime) != 0 &&
             [simclock now] >= $info(stoptime)
         } {
             log normal sim "Stop time reached"
+            set stopping 1
+        }
+
+        if {$stopping} {
             $type mutate pause
 
             # Update demographics and nbstats, in case the user
@@ -1136,7 +1363,7 @@ order define ::sim SIM:LOCK {
     options -sendstates {PREP}
 } {
     # FIRST, do the sanity check.
-    if {![sim check -log]} {
+    if {![sim check onlock -log]} {
         return * {
             Scenario sanity check failed; time cannot advance.
             Fix the error, and try again.

@@ -1144,6 +1144,50 @@ snit::type ::projectlib::parmdb {
         $ps setdefault econ.secFactor.labor.L 0.5
         $ps setdefault econ.secFactor.labor.N 0.2
 
+        $ps subset econ.check {
+            Parameters that control Athena's on-going sanity checks for
+            economic model.
+        }
+
+        $ps define econ.check.MinConsumerFrac ::simlib::rfraction 0.4 {
+            The on-tick sanity check will fail if the total number of
+            consumers in the local economy drops to below this 
+            fraction of its starting value.  Set it to 0.0 to disable 
+            the check.
+            
+        }
+
+        $ps define econ.check.MinLaborFrac ::simlib::rfraction 0.4 {
+            The on-tick sanity check will fail if the total number of
+            workers in the local labor force drops to below this 
+            fraction of its starting value.  Set it to 0.0 to disable 
+            the check.
+        }
+
+        $ps define econ.check.MaxUR ::projectlib::iquantity 50 {
+            The on-tick sanity check will fail if unemployment
+            rate exceeds this value.  Set it to 100 to disable the
+            check.
+        }
+
+        $ps define econ.check.MinDgdpFrac ::simlib::rfraction 0.5 {
+            The on-tick sanity check will fail if the DGDP 
+            (Deflated Gross Domestic Product) falls drops to below
+            this fraction of its starting value.  Set it to 0.0 to
+            disable the check.
+        }
+
+        $ps define econ.check.MinCPI ::projectlib::parmdb_rquantity 0.7 {
+            The on-tick sanity check will fail if the CPI drops
+            to below this value.  Set it to 0.0 to disable the check.
+        }
+        
+        $ps define econ.check.MaxCPI ::projectlib::parmdb_rquantity 1.5 {
+            The on-tick sanity check will fail if the CPI rises to
+            above this value.  Set it to some large number (e.g., 100.0)
+            to effectively disable the check.
+        }
+
         # ensit.* parameters
         $ps subset ensit {
             Environmental situation parameters, by ensit type.

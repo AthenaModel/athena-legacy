@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco3x3.cm, version q
+#    eco3x3.cm, version r
 #
 # AUTHOR:
 #    Bob Chamberlain
@@ -46,6 +46,9 @@
 #    pages.
 #
 # HISTORY:
+#    Version r: Added a number of diagnostic cells to the Out page, to
+#               support the application's sanity check of the results.
+#
 #    Version q: Added CSF and LSF, so that low security can decrease
 #               both consumption and the labor supply.
 #               Added ediff() to the deltaQ.i and deltaREV.i formulas, 
@@ -651,3 +654,20 @@ let GDP  = {
 
 # GDP deflated by CPI, which is used as a proxy for the GDP deflator.
 let DGDP = {[GDP]/[CPI]}
+
+# Sanity Check Values
+let SUM.QS = {
+    ediff([QS.goods] + [QS.pop] + [QS.else], 0.0)
+}
+
+let FLAG.QS.NONNEG = {
+    [QS.goods] >= 0.0 || [QS.pop] >= 0.0 || [QS.else] >= 0.0
+}
+
+let FLAG.P.POS = {
+    [P.goods] > 0.0 || [P.pop] > 0.0 || [P.else] > 0.0
+}
+
+let FLAG.DELTAQ.ZERO = {
+    [deltaQ.goods] == 0.0 && [deltaQ.pop] == 0.0 && [deltaQ.else] == 0.0
+}

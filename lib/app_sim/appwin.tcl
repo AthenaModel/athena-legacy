@@ -1714,7 +1714,7 @@ snit::widget appwin {
     method PrepLock {} {
         # FIRST, if we're in PREP then it's time to leave it.
         if {[sim state] eq "PREP"} {
-            if {![sim check -report]} {
+            if {![sim check onlock -report]} {
                 messagebox popup \
                     -parent  $win               \
                     -icon    error              \
