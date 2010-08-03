@@ -226,8 +226,15 @@ snit::type demog {
 
     typemethod "analyze econ" {} {
         # FIRST, get the unemployment rate and the Unemployment
-        # Factor Z-curve.
-        set ur   [econ value Out::UR]
+        # Factor Z-curve.  Assume no unemployment if the econ
+        # model is disabled.
+
+        if {![parmdb get econ.disable]} {
+            set ur [econ value Out::UR]
+        } else {
+            set ur 0
+        }
+
         set zuaf [parmdb get demog.Zuaf]
 
         # NEXT, compute the neighborhood group statistics

@@ -746,6 +746,9 @@ snit::type sim {
         # NEXT, presume that the model is sane.
         set sane 1
 
+        # NEXT, has the econ model been disabled?
+        let gotEcon {![parmdb get econ.disable]}
+
         # NEXT, initialize the buffer
         set trans(buffer) {}
 
@@ -761,7 +764,7 @@ snit::type sim {
         }
 
         # NEXT, Check econ CGE convergence.
-        if {!$info(econOK)} {
+        if {$gotEcon && !$info(econOK)} {
             set sane 0
 
             $type CheckTopic "Economy: Diverged" {
@@ -776,7 +779,7 @@ snit::type sim {
         array set cells [econ get]
         array set start [econ getstart]
 
-        if {$cells(Out::SUM.QS) == 0.0} {
+        if {$gotEcon && $cells(Out::SUM.QS) == 0.0} {
             set sane 0
 
             $type CheckTopic "Economy: Zero Production" {
@@ -788,7 +791,7 @@ snit::type sim {
             }
         }
 
-        if {!$cells(Out::FLAG.QS.NONNEG)} {
+        if {$gotEcon && !$cells(Out::FLAG.QS.NONNEG)} {
             set sane 0
 
             $type CheckTopic "Economy: Negative Quantity Supplied" {
@@ -800,7 +803,7 @@ snit::type sim {
             }
         }
 
-        if {!$cells(Out::FLAG.P.POS)} {
+        if {$gotEcon && !$cells(Out::FLAG.P.POS)} {
             set sane 0
 
             $type CheckTopic "Economy: Non-Positive Prices" {
@@ -812,7 +815,7 @@ snit::type sim {
             }
         }
 
-        if {!$cells(Out::FLAG.DELTAQ.ZERO)} {
+        if {$gotEcon && !$cells(Out::FLAG.DELTAQ.ZERO)} {
             set sane 0
 
             $type CheckTopic "Economy: Delta-Q non-zero" {
@@ -825,7 +828,7 @@ snit::type sim {
         }
 
         set limit [parmdb get econ.check.MinConsumerFrac]
-        if {$cells(In::Consumers)/$start(In::Consumers) < $limit} {
+        if {$gotEcon && $cells(In::Consumers)/$start(In::Consumers) < $limit} {
             set sane 0
 
             $type CheckTopic "Number of consumers has declined alarmingly" {
@@ -839,7 +842,7 @@ snit::type sim {
         }
 
         set limit [parmdb get econ.check.MinLaborFrac]
-        if {$cells(In::WF)/$start(In::WF) < $limit} {
+        if {$gotEcon && $cells(In::WF)/$start(In::WF) < $limit} {
             set sane 0
 
             $type CheckTopic "Number of workers has declined alarmingly" {
@@ -853,7 +856,7 @@ snit::type sim {
         }
 
         set limit [parmdb get econ.check.MaxUR]
-        if {$cells(Out::UR) > $limit} {
+        if {$gotEcon && $cells(Out::UR) > $limit} {
             set sane 0
 
             $type CheckTopic "Unemployment skyrockets" {
@@ -867,7 +870,7 @@ snit::type sim {
         }
 
         set limit [parmdb get econ.check.MinDgdpFrac]
-        if {$cells(Out::DGDP)/$start(Out::DGDP) < $limit} {
+        if {$gotEcon && $cells(Out::DGDP)/$start(Out::DGDP) < $limit} {
             set sane 0
 
             $type CheckTopic "DGDP Plummets" {
@@ -882,7 +885,7 @@ snit::type sim {
 
         set min [parmdb get econ.check.MinCPI]
         set max [parmdb get econ.check.MaxCPI]
-        if {$cells(Out::CPI) < $min || $cells(Out::CPI) > $max} {
+        if {$gotEcon && $cells(Out::CPI) < $min || $cells(Out::CPI) > $max} {
             set sane 0
 
             $type CheckTopic "CPI beyond limits" {

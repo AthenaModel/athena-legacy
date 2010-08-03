@@ -108,11 +108,21 @@ snit::type econ {
     typemethod start {} {
         log normal econ "start"
 
-        $type analyze -calibrate
+        if {![parmdb get econ.disable]} {
+            $type analyze -calibrate
         
-        set startdict [$cge get]
+            set startdict [$cge get]
+            log normal econ "start complete"
+        } else {
+            log warning econ "disabled"
 
-        log normal econ "start complete"
+            # Lock the parameter; if the economic model is disabled
+            # at start, it can't be re-enabled.
+            parmdb lock econ.disable
+
+
+        }
+
     }
 
     # Type Method: tock
@@ -123,9 +133,14 @@ snit::type econ {
     typemethod tock {} {
         log normal econ "tock"
 
-        set result [$type analyze]
+        if {![parmdb get econ.disable]} {
+            set result [$type analyze]
 
-        log normal econ "tock complete"
+            log normal econ "tock complete"
+        } else {
+            log warning econ "disabled"
+            set result 1
+        }
 
         return $result
     }

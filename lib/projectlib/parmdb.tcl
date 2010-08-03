@@ -1010,7 +1010,7 @@ snit::type ::projectlib::parmdb {
         }
 
         $ps define demsit.disable ::projectlib::boolean no {
-            If yes, demographic situations are disabled.  If set to
+            If "yes", demographic situations are disabled.  If set to
             yes during the run, all existing demsits will be removed
             at the next demsit assess.
         }
@@ -1049,6 +1049,12 @@ snit::type ::projectlib::parmdb {
 
         $ps subset econ {
             Parameters which affect the Athena Economic Model.
+        }
+
+        $ps define econ.disable ::projectlib::boolean no {
+            If yes, the Athena economic model is disabled.  The
+            economy will not be computed, and economic results will not
+            be used.
         }
 
         $ps define econ.ticksPerTock ::projectlib::ipositive 7 {
