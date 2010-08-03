@@ -46,7 +46,11 @@
 #    pages.
 #
 # HISTORY:
-#    Version r: Added a number of diagnostic cells to the Out page, to
+#    Version r: Revised the formulas for C::QS.goods and C::QS.pop so that
+#               in the absence of binding constraints they will be at least
+#               as big as on the U page.
+#
+#               Added a number of diagnostic cells to the Out page, to
 #               support the application's sanity check of the results.
 #
 #    Version q: Added CSF and LSF, so that low security can decrease
@@ -56,6 +60,11 @@
 #               Copied the values of deltaQ.i and deltaREV.i to the 
 #               Out page, in case we want the application to keep
 #               an eye on them.  Note that CSF has no affect at this time.
+#
+#               Added a new command to initialize the C page from the
+#               U page each time C is solved.  The C page does not
+#               stand alone; it is explicitly an adjustment of the 
+#               unconstrained result.
 #
 #    Version p: Corrected computation of CPI on page C to be based on
 #               consumer purchases rather than all purchases.  Removed
@@ -574,13 +583,15 @@ let QD.goods.pop = {
     [f.goods.pop]*[REV.pop]/[P.goods]
 } -value 1.14e8
 
-# The quantity supplied is constrained by the production capacity
+# The quantity supplied is constrained by the production capacity; if
+# the constraint is not binding, it should be at least as big as on
+# the U page.
 let QS.goods = {
-    min([In::CAP.goods], [QD.goods])
+    min([In::CAP.goods], max([QD.goods], [U::QD.goods]))
 } -value 2.92125e8
 
 let QS.pop = {
-    min([In::CAP.pop], [QD.pop])
+    min([In::CAP.pop], max([QD.pop], [U::QD.pop]))
 } -value 380000
 
 # The capacity of else is unconstrained.  This entry doesn't really
