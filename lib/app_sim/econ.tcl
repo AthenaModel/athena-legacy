@@ -77,6 +77,9 @@ snit::type econ {
         
         require {[cge sane]} "The econ model's CGE (eco3x3.cm) is not sane."
 
+        # NEXT, bind to set shape parameters during Prep
+        notifier bind ::parm <Update> ::econ [mytypemethod UpdateShape]
+
         # NEXT, register this type as a saveable
         scenario register ::econ
 
@@ -95,6 +98,31 @@ snit::type econ {
         } else {
             log debug econ "solve trace: $args"
         }
+    }
+
+    # Type Method: UpdateShape
+    #
+    # Updates the shape cells if the relevant parms are changed during
+    # prep.
+
+    typemethod UpdateShape {} {
+        # FIRST, Skip if we're not in PREP.
+        if {[sim state] ne "PREP"} {
+            return
+        }
+
+        # NEXT, update the cge.
+        cge set [list \
+                     BP.pop        [parmdb get econ.BaseWage]         \
+                     A.goods.pop   [parmdb get econ.GBasketPerCapita] \
+                     f.goods.goods [parmdb get econ.f.goods.goods]    \
+                     f.pop.goods   [parmdb get econ.f.pop.goods]      \
+                     f.goods.pop   [parmdb get econ.f.goods.pop]      \
+                     f.pop.pop     [parmdb get econ.f.pop.pop]        \
+                     f.goods.else  [parmdb get econ.f.goods.else]     \
+                     f.pop.else    [parmdb get econ.f.pop.else]]
+
+        notifier send ::econ <Shape>
     }
 
     #-------------------------------------------------------------------
