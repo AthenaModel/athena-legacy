@@ -165,9 +165,11 @@ snit::type ::report {
                 -buttons  {cancel "Cancel"}     \
                 -parent   [app topwin]          \
                 -message  [normalize {
-                    No reports are currently on the Report Hot List.
-                    To add reports to the Hot List, check the Hot List
-                    in the Reports tab for each specific report.
+                    No reports have been added to the Report Hot List,
+                    so there's nothing to save.  To add a report to the 
+                    Hot List, view the report in the Report Browser, 
+                    and check the "Hot List" check box on the toolbar
+                    above the report's header.
                 }]
 
             return
