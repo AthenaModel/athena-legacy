@@ -1182,8 +1182,9 @@ order define ::activity ACTIVITY:CANCEL {
     title "Cancel Scheduled Activity"
 
     options \
-        -table      gui_calendar  \
-        -sendstates {PREP PAUSED}
+        -table          gui_calendar  \
+        -sendstates     {PREP PAUSED} \
+        -alwaysunsaved
 
     parm cid       key  "Item ID"
     parm g         disp "Group"
