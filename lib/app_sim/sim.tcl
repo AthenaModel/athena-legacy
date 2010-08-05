@@ -1158,6 +1158,7 @@ snit::type sim {
 
     typemethod Tick {} {
         # FIRST, advance models
+        demog analyze pop
         ensit assess
         nbstat analyze
         actsit assess
