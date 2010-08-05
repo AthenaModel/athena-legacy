@@ -1105,7 +1105,7 @@ snit::type ::projectlib::parmdb {
         $ps setdefault econ.f.goods.pop   0.75
         $ps setdefault econ.f.pop.pop     0.1
         $ps setdefault econ.f.goods.else  0.3
-        $ps setdefault econ.f.goods.else  0.05
+        $ps setdefault econ.f.pop.else    0.05
 
         $ps define econ.idleFrac ::simlib::rfraction 0.25 {
             The idle production capacity for goods, expressed as
