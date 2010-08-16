@@ -11,6 +11,42 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 2.0.6, 16 August 2010</h3>
+
+This build fixes a number of significant bugs; in addition, it adds
+the following new features:<p>
+
+<ul>
+  <li> A failed sanity check when locking the scenario now results in
+       a report, rather than a dump to the log.  And the report is
+       more explicit on how to resolve problems.<p>
+
+  <li> There is a new sanity check done every tick that handles
+       failures similarly.<p>
+
+  <li> The economic model uses the latest CGE.<p>
+
+  <li> The economic model can be disabled.<p>
+
+  <li> The current state of the economic model, including all
+       significant inputs, is now shown by the Econ/Overview tab.<p>
+</ul>
+
+The Bugzilla packages are as follows:<p>
+
+<ul>
+  <li> Bug 2540: Cancelled Scheduled Activity does not work
+  <li> Bug 2541: Poor Error Message
+  <li> Bug 2543: Skipped Econ Tocks
+  <li> Bug 2557: athena_sim(1): Sanity Check Report
+  <li> Bug 2559: Econ Parmeter Input Values Incorrect
+  <li> Bug 2560: athena_sim(1): On-Tick Sanity Check
+  <li> Bug 2561: athena_sim(1): Integrate eco3x3r.cm
+  <li> Bug 2562: athena_sim(1): econ.disable
+  <li> Bug 2564: athena_sim(1): Econ Overview GUI 
+</ul><p>
+
+
 <h3>Build 2.0.5, 2 August 2010</h3>
 
 This build contains a number of changes, most of which involve the
