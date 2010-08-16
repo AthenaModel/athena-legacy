@@ -107,6 +107,7 @@ bin: check_env src
 		-out $(TOP_DIR)/bin/athena                  \
 		-prefix $(BASE_KIT)                         \
 		-archive $(ARCHIVE)                         \
+		-force                                      \
 		-follow                                     \
 		-pkgref "comm"                              \
 		-pkgref "Img       -require 1.4"            \

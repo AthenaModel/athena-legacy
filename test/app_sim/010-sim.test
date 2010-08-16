@@ -465,14 +465,14 @@ time rtype subtype
     # check
 
     test check-1.1 {Fails sanity check initially} -body {
-        sim check
+        sim check onlock
     } -result {0}
 
     
     test check-1.2 {Check succeeds} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
     } -body {
-        sim check
+        sim check onlock
     } -cleanup {
         cleanup
     } -result {1}
@@ -481,9 +481,9 @@ time rtype subtype
     test check-1.3 {Badly stacked neighborhoods} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
     }  -body {
-        set a [sim check]
+        set a [sim check onlock]
         ted create OV1
-        set b [sim check]
+        set b [sim check onlock]
 
         list $a $b
     } -cleanup {
@@ -504,7 +504,7 @@ time rtype subtype
             inception 1
         }
 
-        set a [sim check]
+        set a [sim check onlock]
 
         ensit mutate create {
             stype     BADFOOD
@@ -516,7 +516,7 @@ time rtype subtype
             inception 1
         }
         
-        set b [sim check]
+        set b [sim check onlock]
 
         list $a $b
     } -cleanup {
@@ -537,11 +537,11 @@ time rtype subtype
             resolver  NONE                       \
             rduration ""
 
-        set a [sim check]
+        set a [sim check onlock]
 
         ted order NBHOOD:DELETE n NB2
 
-        set b [sim check]
+        set b [sim check onlock]
 
         list $a $b
     } -cleanup {

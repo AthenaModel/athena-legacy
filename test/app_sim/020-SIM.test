@@ -279,7 +279,7 @@ namespace eval ::athena_test::tests:: {
     # SIM:UNLOCK
 
     
-    test LOCK-1.1 {unlocks the scenario} -setup {
+    test UNLOCK-1.1 {unlocks the scenario} -setup {
         setup
     } -body {
         ted order SIM:UNLOCK
@@ -288,7 +288,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {PREP}
 
-    test LOCK-1.2 {Sends <State>} -setup {
+    test UNLOCK-1.2 {Sends <State>} -setup {
         setup
     } -body {
         ted notifier bind ::sim <State>

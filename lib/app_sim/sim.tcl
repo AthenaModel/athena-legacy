@@ -1368,7 +1368,7 @@ order define ::sim SIM:LOCK {
 } {
     # FIRST, do the sanity check.
     if {![sim check onlock -log]} {
-        return * {
+        reject * {
             Scenario sanity check failed; time cannot advance.
             Fix the error, and try again.
             Please see the log for details.
@@ -1377,7 +1377,8 @@ order define ::sim SIM:LOCK {
         if {[interface] eq "gui"} {
             [app topwin] tab view slog
         }
-        return
+
+        returnOnError
     }
 
     returnOnError -final
