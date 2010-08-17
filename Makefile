@@ -118,6 +118,7 @@ bin: check_env src
 		-pkgref "tablelist -require 4.12"           \
 		-pkgref "tdom"                              \
 		-pkgref "textutil::expander"                \
+		-pkgref "textutil::adjust"                  \
 		-pkgref "Plotchart"                         \
 		-pkgref "Tkhtml    -require 2.0"
 
