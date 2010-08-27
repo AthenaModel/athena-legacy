@@ -115,13 +115,13 @@ snit::widgetadaptor nbchart {
         # NEXT, bind to receive updates.
         # TBD: Do we want a new notifier event, to indicate that
         # neighborhood data in general might have changed?
-        notifier bind ::sim <Tick>      $win [mymethod update]
-        notifier bind ::sim <DbSyncB>   $win [mymethod update]
-        notifier bind ::demog <Entity>  $win [mymethod update]
-        notifier bind ::nbhood <Entity> $win [mymethod update]
-        notifier bind ::econn  <Entity> $win [mymethod update]
-        notifier bind ::sat <Entity>    $win [mymethod update]
-        notifier bind ::coop <Entity>   $win [mymethod update]
+        notifier bind ::sim <Tick>      $win [mymethod UpdateEvent]
+        notifier bind ::sim <DbSyncB>   $win [mymethod UpdateEvent]
+        notifier bind ::demog <Entity>  $win [mymethod UpdateEvent]
+        notifier bind ::nbhood <Entity> $win [mymethod UpdateEvent]
+        notifier bind ::econn  <Entity> $win [mymethod UpdateEvent]
+        notifier bind ::sat <Entity>    $win [mymethod UpdateEvent]
+        notifier bind ::coop <Entity>   $win [mymethod UpdateEvent]
 
         # NEXT, draw the chart.
         $lu update
@@ -385,6 +385,14 @@ snit::widgetadaptor nbchart {
         }
 
         return $text
+    }
+
+    # Method: UpdateEvent
+    #
+    # Calls update when an event is received.  Any arguments are ignored.
+
+    method UpdateEvent {args} {
+        $self update
     }
     
 
