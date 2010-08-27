@@ -116,16 +116,9 @@ snit::widgetadaptor ::projectgui::htmlviewer {
         2    -10
         3    -12
         4    -14
-        5    -16
-        6    -18
-        7    -20
-    }
-
-    #-------------------------------------------------------------------
-    # Instance Variables
-
-    typevariable fonts -array {
-        fixed     "Courier"
+        5    -18
+        6    -20
+        7    -22
     }
 
     #-------------------------------------------------------------------
@@ -152,13 +145,6 @@ snit::widgetadaptor ::projectgui::htmlviewer {
                          -fontcommand    [mymethod FontCommand]]
 
         $self configurelist $args
-
-        # NEXT, get some fonts
-        set families [font families]
-
-        if {"Luxi Mono" in $families} {
-            set fonts(fixed) "Luxi Mono"
-        }
     }
 
     # FontCommand size font
@@ -170,18 +156,15 @@ snit::widgetadaptor ::projectgui::htmlviewer {
     # right thing for roman text; "fixed" is the problem.
 
     method FontCommand {size font} {
-        # FIRST, we're only doing "fixed".
-        if {"fixed"  ni $font} { 
-            return ""
+        if {"fixed" in $font} {
+            set basefont TkFixedFont
+            set font ""
+        } else {
+            set basefont TkTextFont
         }
 
-        set fontspec [list $fonts(fixed)]
-
-        lappend fontspec $pixels($size)
-
-        # TBD: It appears that these never appear with "fixed".  Oh, well.
-        if {"bold"   in $font} { lappend fontspec bold }
-        if {"italic" in $font} { lappend fontspec italic }
+        set family   [dict get [font actual $basefont] -family]
+        set fontspec [list $family $pixels($size) {*}$font]
 
         return $fontspec
     }
