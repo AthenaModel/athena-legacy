@@ -136,13 +136,24 @@ snit::type activity {
                 dict set pers $row(n) $row(g) $avail
 
                 # NEXT, deploy units.
+                #
+                # * If there's no unit already existing, and the activity
+                #   is staffed, create the unit.
+                #
+                # * Otherwise, if the activity is staffed, update the unit's
+                #   personnel.
+                #
+                # * If the activity is not staffed, deactivate the unit.
+
                 if {$row(u) eq ""} {
                     if {$staff > 0} {
                         set row(personnel) $staff
                         unit create [array get row]
                     } 
-                } else {
+                } elseif {$staff > 0} {
                     unit mutate personnel $row(u) $staff
+                } else {
+                    unit deactivate $row(u)
                 }
             } else {
                 # FIRST, The item is inactive.  We need to deactivate the
