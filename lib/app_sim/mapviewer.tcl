@@ -1203,6 +1203,14 @@ snit::widget mapviewer {
         set icons(context) ""
     }
 
+    # IconExists sid
+    #
+    # Returns 1 if there's an icon with the given sid, and 0 otherwise.
+
+    method IconExists {sid} {
+        return [info exists icons(cid-$sid)]
+    }
+
 
 
     #-------------------------------------------------------------------
@@ -1435,7 +1443,10 @@ snit::widget mapviewer {
     # Delete the unit from the mapcanvas.
 
     method {EntityUnit delete} {u} {
-        $self IconDelete $u
+        # There's an icon only if the unit is currently active.
+        if {[$self IconExists $u]} {
+            $self IconDelete $u
+        }
     }
       
     # EntityUnit update n
