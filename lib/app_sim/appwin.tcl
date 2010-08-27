@@ -827,26 +827,46 @@ snit::widget appwin {
         bind $win <F1> [list app help]
 
         $helpmenu add command                    \
-            -label       "Order Reference"       \
+            -label       "Application Menus"     \
+            -underline   0                       \
+            -command     [list app help menu]
+
+        $helpmenu add command                    \
+            -label       "Application Tabs"      \
+            -underline   0                       \
+            -command     [list app help tabs]
+
+        $helpmenu add command                    \
+            -label       "Orders"                \
             -underline   0                       \
             -command     [list app help orders]
 
         $helpmenu add command                    \
-            -label       "Report Reference"      \
+            -label       "Reports"               \
             -underline   0                       \
             -command     [list app help reports]
 
         $helpmenu add command                    \
-            -label       "Command Reference"     \
+            -label       "Display Variables"     \
+            -underline   0                       \
+            -command     [list app help vars]
+
+        $helpmenu add command                    \
+            -label       "Executive Commands"    \
             -underline   0                       \
             -command     [list app help cmd]
+
+        $helpmenu add command                    \
+            -label       "Model Parameters"      \
+            -underline   0                       \
+            -command     [list app help parmdb]
+
+        $helpmenu add separator
 
         $helpmenu add command                    \
             -label       "Release Notes"         \
             -underline   0                       \
             -command     [list app help release]
-
-        $helpmenu add separator
 
         $helpmenu add command                    \
             -label       "About Athena"          \
