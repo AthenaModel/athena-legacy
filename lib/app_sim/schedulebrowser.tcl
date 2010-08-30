@@ -54,6 +54,8 @@ snit::widgetadaptor schedulebrowser {
     component cancelbtn   ;# The "Cancel" button.
     component nbox        ;# Nbhood menu box
     component gbox        ;# Group menu box
+    component frombox     ;# From time
+    component tobox       ;# To time
 
     #--------------------------------------------------------------------
     # Constructor
@@ -154,7 +156,7 @@ snit::widgetadaptor schedulebrowser {
 
         # Nbhood/Group Pulldowns
         ttk::label $bar.glab \
-            -text "Group"
+            -text "Grp"
         
         install gbox using enumfield $bar.gbox \
             -width     8                       \
@@ -162,13 +164,30 @@ snit::widgetadaptor schedulebrowser {
             -changecmd [mymethod FilterChanged]
 
         ttk::label $bar.nlab \
-            -text "From"
+            -text "Nb"
 
         install nbox using enumfield $bar.nbox  \
             -width     8                        \
             -valuecmd  {::ptype n+all names}    \
             -changecmd [mymethod FilterChanged]
 
+        # Time Interval Entries
+        ttk::label $bar.fromlab \
+            -text "From"
+        
+        install frombox using textfield $bar.from \
+            -width     12                         \
+            -changecmd [mymethod FilterChanged]
+
+        $frombox set T0
+        
+        ttk::label $bar.tolab \
+            -text "To"
+        
+        install tobox using textfield $bar.to  \
+            -width     12                      \
+            -changecmd [mymethod FilterChanged]
+        
         pack $addbtn    -side left
         pack $editbtn   -side left
         pack $topbtn    -side left
@@ -177,11 +196,15 @@ snit::widgetadaptor schedulebrowser {
         pack $bottombtn -side left
 
 
-        pack $nbox      -side right -padx {0 5}
-        pack $bar.nlab  -side right
-        pack $gbox      -side right -padx {0 5}
-        pack $bar.glab  -side right
-        pack $cancelbtn -side right -padx {0 5}
+        pack $tobox       -side right -padx {0 5}
+        pack $bar.tolab   -side right
+        pack $frombox     -side right -padx {0 5}
+        pack $bar.fromlab -side right
+        pack $nbox        -side right -padx {0 5}
+        pack $bar.nlab    -side right
+        pack $gbox        -side right -padx {0 5}
+        pack $bar.glab    -side right
+        pack $cancelbtn   -side right -padx {0 5}
 
         # NEXT, update individual entities when they change.
         notifier bind ::activity <Entity> $self [mymethod uid]
@@ -209,17 +232,14 @@ snit::widgetadaptor schedulebrowser {
     #
     # args    Ignored
     #
-    # Filter on the selected neighborhood and group.
+    # Filter on the selected neighborhood, group, and time interval.
 
     method FilterChanged {args} {
-        # FIRST, if both are set to ALL, clear the filters.
-        set n [$nbox get]
-        set g [$gbox get]
-
-        if {$n in {"ALL" ""} && $g in {"ALL" ""}} {
-            $hull configure -where ""
-            return
-        }
+        # FIRST, get the filter values.
+        set n    [$nbox get]
+        set g    [$gbox get]
+        set from [$self GetTime $frombox]
+        set to   [$self GetTime $tobox]
 
         # NEXT, prepare to build up the queries
         set conds [list]
@@ -232,8 +252,51 @@ snit::widgetadaptor schedulebrowser {
             lappend conds "g='$g'"
         }
 
-        $hull configure -where [join $conds " AND "]
+        if {$from ni {0 ""}} {
+            lappend conds "(finish_tick == '' OR finish_tick >= $from)"
+        }
+
+        if {$to ne ""} {
+            lappend conds "start_tick <= $to"
+        }
+
+        if {[llength $conds] > 0} {
+            $hull configure -where [join $conds " AND "]
+        } else {
+            $hull configure -where ""
+        }
     }
+
+    # GetTime w
+    #
+    # w        The entry widget
+    #
+    # Gets and validates a time value from the frombox or tobox.
+
+    method GetTime {w} {
+        if {$w eq ""} {
+            return ""
+        }
+
+        # FIRST, validate the time, and set it to RED if
+        # invalid.
+        set spec [string trim [string toupper [$w get]]]
+
+        set tick ""
+
+        if {$spec ne ""} {
+            if {![catch {simclock timespec validate $spec}]} {
+                $w configure -foreground black
+                set tick [simclock fromTimeSpec $spec]
+            } else {
+                $w configure -foreground red
+            }
+        }
+
+        return $tick
+    }
+
+
 
     # SelectionChanged
     #
