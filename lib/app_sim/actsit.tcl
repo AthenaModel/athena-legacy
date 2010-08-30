@@ -123,7 +123,6 @@ snit::type actsit {
                    activity_nga.coverage          AS coverage,
                    activity_nga.nominal           AS nominal
             FROM actsits JOIN activity_nga USING (s)
-            WHERE state != 'ENDED'
         } {
             log detail actsit "$s: reviewing"
 
@@ -149,12 +148,6 @@ snit::type actsit {
                     # are no personnel assigned to the activity.
                     $sit set state ENDED
                     $sit set change ENDED
-                    
-                    rdb eval {
-                        UPDATE activity_nga
-                        SET s = 0
-                        WHERE s = $s;
-                    }
                     
                     log normal actsit "$s: end"
                 } else {
