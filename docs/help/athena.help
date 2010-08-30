@@ -44,7 +44,8 @@ image button_tobottom    "Button: To Bottom"           button_tobottom.png
 image button_unit        "Button: New Unit"            button_unit.png
 image button_x           "Button: X"                   button_x.png
 image control_filltype   "Control: Fill Type"          control_filltype.png
-image control_fromfilter "Control: From Nbhood Filter" control_fromfilter.png
+image control_fromtime   "Control: From Time"          control_fromtime.png
+image control_nfilter    "Control: Nbhood Filter"      control_nfilter.png
 image control_gfilter    "Control: Group Filter"       control_gfilter.png
 image control_hotlist    "Control: Hot List"           control_hotlist.png
 image control_infilter   "Control: In Nbhood Filter"   control_infilter.png
@@ -60,6 +61,7 @@ image control_simvcr     "Control: Sim VCR"            control_simvcr.png
 image control_speed      "Control: Speed"              control_speed.png
 image control_state      "Control: State"              control_state.png
 image control_stoptime   "Control: Stop Time"          control_stoptime.png
+image control_totime     "Control: To Time"            control_totime.png
 image control_zoom       "Control: Zoom"               control_zoom.png
 image filterbox          "Filter Box"                  filterbox.png
 image viewbox            "View Box"                    viewbox.png

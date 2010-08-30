@@ -393,10 +393,22 @@ tab "Plan/Schedule" {
     Allows the analyst to filter the displayed calendar items by group.
     <</topic>>
 
-    <<topic {<img src="control_fromfilter">}>>
+    <<topic {<img src="control_nfilter">}>>
     Allows the analyst to filter the displayed calendar items by the 
     neighborhood from which the personnel will be drawn (the
     neighborhood of origin).
+    <</topic>>
+
+    <<topic {<img src="control_fromtime">}>>
+    Specifies the "from time" as a 
+    <<term timespec>>.  Filters out all calendar items that end prior 
+    to this time.
+    <</topic>>
+
+    <<topic {<img src="control_totime">}>>
+    Specifies the "to time" as a 
+    <<term timespec>>.  Filters out all calendar items that start after
+    this time.
     <</topic>>
 
     <<control.filterbox>>
