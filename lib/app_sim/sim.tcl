@@ -1001,13 +1001,14 @@ snit::type sim {
         # NEXT, do initial analyses, and initialize modules that
         # begin to work at this time.
         aram     init -reload
-        activity analyze staffing  ;# Add "start"?
-        demog    analyze pop       ;# Add "start"?
+        activity analyze staffing
+        demog    analyze pop     
         sat      start
         coop     start
         nbstat   start
         econ     start
         demog    analyze econ
+        demsit   assess
 
         # TBD: demog should probably do something here.
         mad getdrivers

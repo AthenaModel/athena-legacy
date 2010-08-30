@@ -18,6 +18,11 @@
 
 snit::widgetadaptor demsitbrowser {
     #-------------------------------------------------------------------
+    # Components
+
+    component disflag    ;# demsit.disable indicator
+
+    #-------------------------------------------------------------------
     # Options
 
     # Options delegated to the hull
@@ -65,7 +70,34 @@ snit::widgetadaptor demsitbrowser {
 
         # NEXT, get the options.
         $self configurelist $args
+
+        # NEXT, get the toolbar and add the "disabled flag" label.
+        set bar [$hull toolbar]
+
+        install disflag using ttk::label $bar.disflag \
+            -text ""
+
+        pack $disflag -side left
+
+        notifier bind ::parm <Update> $win [mymethod UpdateDisFlag]
     }
+
+    destructor {
+        notifier forget $win
+    }
+
+    # UpdateDisFlag
+    #
+    # Sets the "disabled" label appropriately.
+
+    method UpdateDisFlag {} {
+        if {[parmdb get demsit.disable]} {
+            $disflag configure -text "*DISABLED*"
+        } else {
+            $disflag configure -text ""
+        }
+    }
+
 
     #-------------------------------------------------------------------
     # Public Methods
