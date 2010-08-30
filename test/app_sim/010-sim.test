@@ -175,12 +175,13 @@ namespace eval ::athena_test::tests:: {
     } -body {
         sim mutate lock
 
-        rdb eval {SELECT driver FROM gram_driver}
+        rdb onecolumn {SELECT n FROM gram_n}
     } -cleanup {
         cleanup
-    } -result {0}
+    } -result {NB1}
 
     test mutate_lock-1.5 {Executes events scheduled at time 0} -setup {
+        parm set demsit.disable yes
         ted create NB1 BLUE SHIA NB1SHIA
         ted order ORDER:SCHEDULE {
             timespec +0
