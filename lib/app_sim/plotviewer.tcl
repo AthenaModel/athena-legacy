@@ -52,6 +52,18 @@ snit::widget plotviewer {
 
     component btime
 
+    # Component: frombox
+    #
+    # "From" time entry
+
+    component frombox
+
+    # Component: tobox
+    #
+    # "To" time entry
+
+    component tobox
+
     # Component: bhelp
     #
     # Help browser button
@@ -80,6 +92,12 @@ snit::widget plotviewer {
     
     variable pwinCounter 0
 
+    # Variable: timeCharts
+    #
+    # List of currently displayed timechart widgets.
+
+    variable timeCharts {}
+
     #--------------------------------------------------------------------
     # Constructor
 
@@ -105,6 +123,24 @@ snit::widget plotviewer {
 
         DynamicHelp::add $btime -text "New Time Series Plot"
 
+        # Time Interval Entries
+        ttk::label $bar.fromlab \
+            -text "From"
+        
+        install frombox using textfield $bar.from \
+            -width     12                         \
+            -changecmd [mymethod FilterChanged]
+
+        $frombox set T0
+        
+        ttk::label $bar.tolab \
+            -text "To"
+        
+        install tobox using textfield $bar.to  \
+            -width     12                      \
+            -changecmd [mymethod FilterChanged]
+        
+
         # Help
         install bhelp using ttk::button $bar.help \
             -style   Toolbutton                     \
@@ -113,9 +149,14 @@ snit::widget plotviewer {
 
         DynamicHelp::add $bhelp -text "Help on Display Variables"
 
-        pack $bnbhood  -side left
-        pack $btime    -side left
-        pack $bhelp    -side right
+        pack $bnbhood     -side left
+        pack $btime       -side left
+        pack $bhelp       -side right
+        pack $tobox       -side right -padx {0 5}
+        pack $bar.tolab   -side right
+        pack $frombox     -side right -padx {0 5}
+        pack $bar.fromlab -side right
+
 
         # Separator
         ttk::separator $win.sep1
@@ -171,8 +212,73 @@ snit::widget plotviewer {
             -title    "Time Plot #$num"
 
         pack $f.chart  -fill both -expand yes
+
+        lappend timeCharts $f.chart
+        bind $f.chart <Destroy> [mymethod TimeChartDestroyed %W]
     }
 
+    # Method: TimeChartDestroyed
+    #
+    # Removes a destroyed timechart from the timeCharts list.
+    #
+    # Syntax:
+    #   TimeChartDestroyed _w_
+    #
+    #   w - The timechart's widget name.
+
+    method TimeChartDestroyed {w} {
+        ldelete timeCharts $w
+    }
+
+
+    # Method: FilterChanged
+    #
+    # The from/to times have changed.
+    #
+    # Syntax:
+    #   FilterChanged _?args?_
+    #
+    #   args - Ignored.
+
+    method FilterChanged {args} {
+        # FIRST, get the filter values.
+        set from [$self GetTime $frombox]
+        set to   [$self GetTime $tobox]
+
+        # NEXT, pass them to all timecharts in the program.
+        foreach w $timeCharts {
+            $w configure -from $from -to $to
+        }
+    }
+
+    # GetTime w
+    #
+    # w        The entry widget
+    #
+    # Gets and validates a time value from the frombox or tobox.
+
+    method GetTime {w} {
+        if {$w eq ""} {
+            return ""
+        }
+
+        # FIRST, validate the time, and set it to RED if
+        # invalid.
+        set spec [string trim [string toupper [$w get]]]
+
+        set tick ""
+
+        if {$spec ne ""} {
+            if {![catch {simclock timespec validate $spec}]} {
+                $w configure -foreground black
+                set tick [simclock fromTimeSpec $spec]
+            } else {
+                $w configure -foreground red
+            }
+        }
+
+        return $tick
+    }
 
 
     #-------------------------------------------------------------------

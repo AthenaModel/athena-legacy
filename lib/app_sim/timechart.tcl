@@ -51,6 +51,22 @@ snit::widgetadaptor timechart {
         -default         {}             \
         -configuremethod ConfigAndReset
 
+    # Option: -from
+    #
+    # Start of time interval to display, in ticks, or "" for T0.
+
+    option -from \
+        -default         {}             \
+        -configuremethod ConfigAndReset
+
+    # Option: -to
+    #
+    # End of time interval to display, in ticks, or "" for NOW.
+
+    option -to \
+        -default         {}             \
+        -configuremethod ConfigAndReset
+
     # Method: ConfigAndReset
     #
     # Option configuration method; saves the option value, and 
@@ -172,6 +188,34 @@ snit::widgetadaptor timechart {
 
         # NEXT, get the view and the data.
         if {$options(-varnames) ne ""} {
+            # FIRST, get the time interval.
+            set conds [list]
+
+            if {$options(-from) ne ""} {
+                set ts $options(-from)
+                lappend conds "t >= \$ts"
+            } else {
+                set ts 0
+            }
+
+            if {$options(-to) ne ""} {
+                # Make sure that -to is greater than -from
+                if {$options(-to) > $ts} {
+                    set te $options(-to)
+                } else {
+                    let te {$ts + 1}
+                }
+
+                lappend conds "t <= \$te"
+            }
+
+            if {[llength $conds] > 0} {
+                set where "WHERE [join $conds { AND }]"
+            } else {
+                set where ""
+            }
+
+            # NEXT, get the view
             array set vdict [view t get $options(-varnames)]
 
             # NEXT, get the data
@@ -179,7 +223,7 @@ snit::widgetadaptor timechart {
                 set data($varname) [list]
             }
 
-            rdb eval "SELECT * FROM $vdict(view) ORDER BY t" row {
+            rdb eval "SELECT * FROM $vdict(view) $where ORDER BY t" row {
                 for {set i 0} {$i < $vdict(count)} {incr i} {
                     lappend data([lindex $options(-varnames) $i]) \
                         $row(t) $row(x$i)
