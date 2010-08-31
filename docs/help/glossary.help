@@ -822,7 +822,32 @@ term state "state" {
     state.
 }
 
+#-----------------------------------------------------------------------
 
+term sector "sector" {
+    Athena's Economic Model divides the economy into three sectors:
+
+    <<topiclist>>
+    <<topic "goods">>
+    Production of goods and services in the local economy, in 
+    "Goods Baskets" (GBasket).  The unit of production is
+    a basket of goods and services with a price of approximately
+    $1.
+    <</topic>>
+
+    <<topic "pop">>
+    Provision of labor by the population.  The unit of production is
+    a work-year of an "average" worker.
+    <</topic>>
+
+    <<topic "else">>
+    Everything else: imports, exports, etc., in "Else Baskets" (EBasket).
+    The unit of production is a basket of goods and services
+    traded outside the region.
+    <</topic>>
+  
+    <</topiclist>>
+}
 
 #-----------------------------------------------------------------------
 

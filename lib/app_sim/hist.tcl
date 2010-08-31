@@ -44,11 +44,14 @@ snit::type hist {
 
     typemethod purge {t} {
         rdb eval {
-            DELETE FROM hist_sat    WHERE t >= $t;
-            DELETE FROM hist_mood   WHERE t >= $t;
-            DELETE FROM hist_nbmood WHERE t >= $t;
-            DELETE FROM hist_coop   WHERE t >= $t;
-            DELETE FROM hist_nbcoop WHERE t >= $t;
+            DELETE FROM hist_sat     WHERE t >= $t;
+            DELETE FROM hist_mood    WHERE t >= $t;
+            DELETE FROM hist_nbmood  WHERE t >= $t;
+            DELETE FROM hist_coop    WHERE t >= $t;
+            DELETE FROM hist_nbcoop  WHERE t >= $t;
+            DELETE FROM hist_econ    WHERE t >= $t;
+            DELETE FROM hist_econ_i  WHERE t >= $t;
+            DELETE FROM hist_econ_ij WHERE t >= $t;
         }
     }
 
@@ -87,5 +90,46 @@ snit::type hist {
         }
     }
 
+    # Type Method: econ
+    #
+    # This method is called at each econ tock, and preserves data
+    # values that change tock-by-tock.
 
+    typemethod econ {} {
+        # FIRST, if the econ model has been disabled we're done.
+        if {[parm get econ.disable]} {
+            return
+        }
+
+        # NEXT, get the data and save it.
+        array set inputs  [econ get In  -bare]
+        array set outputs [econ get Out -bare]
+
+        rdb eval {
+            -- hist_econ
+            INSERT INTO hist_econ(t, consumers, labor, 
+                                  lsf, cpi, dgdp, ur)
+            VALUES(now(), 
+                   $inputs(Consumers), $inputs(WF), $inputs(LSF), 
+                   $outputs(CPI), $outputs(DGDP), $outputs(UR));
+        }
+
+        foreach i {goods pop else} {
+            rdb eval "
+                -- hist_econ_i
+                INSERT INTO hist_econ_i(t, i, p, qs, rev)
+                VALUES(now(), upper(\$i), \$outputs(P.$i), \$outputs(QS.$i), 
+                       \$outputs(REV.$i));
+            "
+
+            foreach j {goods pop else} {
+                rdb eval "
+                    -- hist_econ_ij
+                    INSERT INTO hist_econ_ij(t, i, j, x, qd)
+                    VALUES(now(), upper(\$i), upper(\$j), 
+                           \$outputs(X.$i.$j), \$outputs(QD.$i.$j)); 
+                "
+            }
+        }
+    }
 }

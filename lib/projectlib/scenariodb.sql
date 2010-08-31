@@ -1053,3 +1053,35 @@ CREATE TABLE hist_nbcoop (
     PRIMARY KEY (t,n,g)
 );
 
+-- econ
+CREATE TABLE hist_econ (
+    t           INTEGER PRIMARY KEY,
+    consumers   INTEGER,
+    labor       INTEGER,
+    lsf         DOUBLE,
+    cpi         DOUBLE,
+    dgdp        DOUBLE,
+    ur          DOUBLE
+);
+
+-- econ.i
+CREATE TABLE hist_econ_i (
+    t           INTEGER,
+    i           TEXT,
+    p           DOUBLE,
+    qs          DOUBLE,
+    rev         DOUBLE,
+
+    PRIMARY KEY (t,i)
+);
+
+-- econ.i.j
+CREATE TABLE hist_econ_ij (
+    t           INTEGER,
+    i           TEXT,
+    j           TEXT,
+    x           DOUBLE,
+    qd          DOUBLE,
+
+    PRIMARY KEY (t,i,j)        
+);

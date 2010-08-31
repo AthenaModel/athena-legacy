@@ -199,10 +199,40 @@ page var.t "Time Series Variables" vars {
     <<childlinks>>
 }
 
+var t consumers {
+    <<vartitle>>
+    The number of non-subsistence consumers in the economy over time, 
+    measured at each update of the economic model.
+}
+
 var t coop {
     <<vartitle n f g>>
     The <<term cooperation>> of civilian group <i>f</i> with force
     group <i>g</i> in neighborhood <i>n</i> over time.
+}
+
+var t cpi {
+    <<vartitle>>
+    The Consumer Price Index (CPI) of the economy, measured 
+    at each update of the economic model.
+}
+
+var t dgdp {
+    <<vartitle>>
+    The Deflated Gross Domestic Product (DGDP) of the economy, 
+    measured at each update of the economic model.
+}
+
+var t labor {
+    <<vartitle>>
+    The number of non-subsistence workers in the economy, measured 
+    at each update of the economic model.
+}
+
+var t lsf {
+    <<vartitle>>
+    The Labor Security Factor (LSF) of the economy, measured 
+    at each update of the economic model.
 }
 
 var t mood {
@@ -223,9 +253,46 @@ var t nbmood {
     over time.
 }
 
+var t price {
+    <<vartitle i>>
+    The price of one unit of <<term sector>> <i>i</i>,
+    measured at each update of the economic model.
+}
+
+var t qd {
+    <<vartitle i j>>
+    The quantity/year of <<term sector>> <i>i</i>'s units purchased by
+    sector <i>j</i>, measured at each update of the economic model.
+}
+
+var t qs {
+    <<vartitle i>>
+    The quantity/year produced by <<term sector>> <i>i</i> in <i>i</i>'s units,
+    measured at each update of the economic model.
+}
+
+var t rev {
+    <<vartitle i>>
+    The revenue in $/year received by <<term sector>> <i>i</i>,
+    measured at each update of the economic model.
+}
+
 var t sat {
     <<vartitle n g c>>
     The <<term satisfaction>> of group <i>g</i> with respect to
     <<term concern>> <i>c</i> in neighborhood <i>n</i> 
     over time.
 }
+
+var t ur {
+    <<vartitle>>
+    The unemployment rate as a percentage of the labor force,
+    measured at each update of the economic model.
+}
+
+var t x {
+    <<vartitle i j>>
+    The payment in $/year from <<term sector>> <i>j</i> to
+    sector <i>i</i>, measured at each update of the economic model.
+}
+

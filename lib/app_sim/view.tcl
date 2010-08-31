@@ -121,12 +121,60 @@ snit::type view {
             decimals 1
         }
 
+        rcpi {
+            rmin     0
+            rmax     ""
+            gradient pcfgradient
+            units    CPI
+            decimals 2
+        }
+
+        rdollars {
+            rmin     0
+            rmax     ""
+            gradient {}
+            units    $
+            decimals 2
+        }
+
+        rfraction {
+            rmin     0.0
+            rmax     1.0
+            gradient covgradient
+            units    Fraction
+            decimals 2
+        }
+
         rpcf {
             rmin     0
             rmax     ""
             gradient pcfgradient
             units    PCF
             decimals 2
+        }
+
+        rpercent {
+            rmin     0.0
+            rmax     100.0
+            gradient {}
+            units    Percent
+            decimals 1
+        }
+
+        rpop {
+            rmin     0
+            rmax     ""
+            gradient ""
+            units    people
+            decimals 0
+        }
+
+        runits {
+            rmin     0
+            rmax     ""
+            gradient ""
+            units    Units
+            decimals 1
         }
     }
 
@@ -349,6 +397,17 @@ snit::type view {
             }
         }
 
+        t,consumers {
+            indices {}
+            validation {}
+            rtype rpop
+            query {
+                SELECT t    AS t,
+                       consumers AS x0
+                FROM hist_econ
+            }
+        }
+
         t,coop {
             indices {n f g}
             validation nfg_coop
@@ -361,27 +420,48 @@ snit::type view {
             }
         }
 
-        t,nbcoop {
-            indices {n g}
-            validation ng_coop
-            rtype qcoop
+        t,cpi {
+            indices {}
+            validation {}
+            rtype rcpi
             query {
-                SELECT t      AS t,
-                       nbcoop AS x0
-                FROM hist_nbcoop
-                WHERE n='$1' AND g='$2'
+                SELECT t   AS t,
+                       cpi AS x0
+                FROM hist_econ
             }
         }
 
-        t,sat {
-            indices {n g c}
-            validation ngc_sat
-            rtype qsat
+        t,dgdp {
+            indices {}
+            validation {}
+            rtype rdollars
+            query {
+                SELECT t    AS t,
+                       dgdp AS x0
+                FROM hist_econ
+            }
+        }
+
+
+        t,labor {
+            indices {}
+            validation {}
+            rtype rpop
+            query {
+                SELECT t    AS t,
+                       labor AS x0
+                FROM hist_econ
+            }
+        }
+
+        t,lsf {
+            indices {}
+            validation {}
+            rtype rfraction
             query {
                 SELECT t   AS t,
-                       sat AS x0
-                FROM hist_sat
-                WHERE n='$1' AND g='$2' AND c='$3'
+                       lsf AS x0
+                FROM hist_econ
             }
         }
 
@@ -397,6 +477,18 @@ snit::type view {
             }
         }
 
+        t,nbcoop {
+            indices {n g}
+            validation ng_coop
+            rtype qcoop
+            query {
+                SELECT t      AS t,
+                       nbcoop AS x0
+                FROM hist_nbcoop
+                WHERE n='$1' AND g='$2'
+            }
+        }
+
         t,nbmood {
             indices {n}
             validation n
@@ -408,6 +500,90 @@ snit::type view {
                 WHERE n='$1'
             }
         }
+
+        t,price {
+            indices {i}
+            validation i
+            rtype rdollars
+            query {
+                SELECT t      AS t,
+                       p      AS x0
+                FROM hist_econ_i
+                WHERE i='$1'
+            }
+        }
+
+        t,qd {
+            indices {i j}
+            validation ij
+            rtype rdollars
+            query {
+                SELECT t      AS t,
+                       qd     AS x0
+                FROM hist_econ_ij
+                WHERE i='$1' AND j='$2'
+            }
+        }
+
+        t,qs {
+            indices {i}
+            validation i
+            rtype runits
+            query {
+                SELECT t      AS t,
+                       qs     AS x0
+                FROM hist_econ_i
+                WHERE i='$1'
+            }
+        }
+
+        t,rev {
+            indices {i}
+            validation i
+            rtype rdollars
+            query {
+                SELECT t      AS t,
+                       rev    AS x0
+                FROM hist_econ_i
+                WHERE i='$1'
+            }
+        }
+
+        t,sat {
+            indices {n g c}
+            validation ngc_sat
+            rtype qsat
+            query {
+                SELECT t   AS t,
+                       sat AS x0
+                FROM hist_sat
+                WHERE n='$1' AND g='$2' AND c='$3'
+            }
+        }
+
+        t,ur {
+            indices {}
+            validation {}
+            rtype rpercent
+            query {
+                SELECT t    AS t,
+                       ur   AS x0
+                FROM hist_econ
+            }
+        }
+
+        t,x {
+            indices {i j}
+            validation ij
+            rtype rdollars
+            query {
+                SELECT t      AS t,
+                       x      AS x0
+                FROM hist_econ_ij
+                WHERE i='$1' AND j='$2'
+            }
+        }
+
     }
 
 
@@ -854,6 +1030,32 @@ snit::type view {
     proc g_frc {domain vartype g} {
         ValidateIndex $domain $vartype g $g {frcgroup validate $g}
     }
+
+    # Proc: i
+    #
+    # Validates {i} as a sector
+    
+    proc i {domain vartype i} {
+        ValidateIndex $domain $vartype i $i {econ sector validate $i}
+    }
+
+    # Proc: i
+    #
+    # Validates {i} as a sector
+    
+    proc i {domain vartype i} {
+        ValidateIndex $domain $vartype i $i {esector validate $i}
+    }
+
+    # Proc: ij
+    #
+    # Validates {i} as a sector
+    
+    proc ij {domain vartype i j} {
+        ValidateIndex $domain $vartype i $i {esector validate $i}
+        ValidateIndex $domain $vartype j $j {esector validate $j}
+    }
+
 
     # Proc: n
     #

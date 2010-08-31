@@ -113,7 +113,7 @@ snit::type sim {
         set ticker [timeout ${type}::ticker              \
                         -interval   $speeds($info(speed)) \
                         -repetition yes                  \
-                        -command    [mytypemethod Tick]]
+                        -command    {profile sim Tick}]
 
         # NEXT, initialize the event queue
         eventq init ::rdb
@@ -1199,7 +1199,11 @@ snit::type sim {
         }
 
         # NEXT, save the history for this tick.
-        hist tick
+        profile hist tick
+
+        if {[simclock now] % [parmdb get econ.ticksPerTock] == 0} {
+            profile hist econ
+        }
 
         # NEXT, advance time one tick.
         simclock tick

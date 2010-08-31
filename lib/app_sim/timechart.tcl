@@ -112,7 +112,8 @@ snit::widgetadaptor timechart {
         # FIRST, Install the hull
         installhull using stripchart     \
             -xtext       "Time"          \
-            -xformatcmd  [myproc tozulu]
+            -xformatcmd  [myproc tozulu] \
+            -yformatcmd  moneyfmt
         
         # NEXT, create the lazy updater
         install lu using lazyupdater ${selfns}::lu \
@@ -215,19 +216,14 @@ snit::widgetadaptor timechart {
                 set where ""
             }
 
-            # NEXT, get the view
-            array set vdict [view t get $options(-varnames)]
-
             # NEXT, get the data
             foreach varname $options(-varnames) {
-                set data($varname) [list]
-            }
+                set vdict($varname) [view t get $varname]
+                set v [dict get $vdict($varname) view]
 
-            rdb eval "SELECT * FROM $vdict(view) $where ORDER BY t" row {
-                for {set i 0} {$i < $vdict(count)} {incr i} {
-                    lappend data([lindex $options(-varnames) $i]) \
-                        $row(t) $row(x$i)
-                }
+                set data($varname) [rdb eval "
+                    SELECT t, x0 FROM $v $where ORDER BY t
+                "]
             }
         }
 
@@ -237,7 +233,7 @@ snit::widgetadaptor timechart {
         set maxDecimals 0
 
         foreach varname $options(-varnames) {
-            set vardict [dict get $vdict(meta) $varname]
+            set vardict [dict get $vdict($varname) meta $varname]
 
             dict with vardict {
                 ladd unitList $units
@@ -260,9 +256,15 @@ snit::widgetadaptor timechart {
 
         }
 
-        $hull configure \
-            -ytext   $ytext              \
-            -yformatcmd [list format %.${maxDecimals}f]
+        if {$maxDecimals > 2} {
+            $hull configure \
+                -ytext   $ytext              \
+                -yformatcmd [list format %.${maxDecimals}f]
+        } else {
+            $hull configure \
+                -ytext   $ytext              \
+                -yformatcmd moneyfmt
+        }
     }
 
     # Method: ContextMenu

@@ -23,6 +23,15 @@ enum esimstate {
     SNAPSHOT Snapshot
 }
 
+# esector: Econ Model sectors, used for the economic display variables
+# in view(sim).
+
+enum esector {
+    GOODS goods
+    POP   pop
+    ELSE  else
+}
+
 # rcoverage: The range for the coverage fractions
 
 ::marsutil::range rcov -min 0.0 -max 1.0

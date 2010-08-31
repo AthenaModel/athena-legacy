@@ -481,7 +481,7 @@ proc profile {args} {
     set msec [lindex [time {
         set result [uplevel 1 $args]
     } 1] 0]
-    log normal app "profile [list $args] $msec"
+    log detail app "profile [list $args] $msec"
 
     return $result
 }
