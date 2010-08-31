@@ -270,7 +270,9 @@ snit::type activity {
                    total(personnel) AS nominal,
                    gtype
             FROM units
-            WHERE a != "NONE" AND personnel > 0
+            JOIN activity_gtype USING (a,gtype)
+            WHERE stype != ''
+            AND personnel > 0
             GROUP BY n,g,a
         } {
             # FIRST, how many of the nominal personnel are active given 
