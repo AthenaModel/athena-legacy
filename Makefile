@@ -108,6 +108,7 @@ bin: check_env src
 		-prefix $(BASE_KIT)                         \
 		-archive $(ARCHIVE)                         \
 		-follow                                     \
+		-force					    \
 		-pkgref "comm"                              \
 		-pkgref "Img       -require 1.4"            \
 	        -pkgref "snit      -require 2.3"            \

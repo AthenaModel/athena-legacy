@@ -11,6 +11,32 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 2.0.7, 1 September 2010 (Feature Freeze)</h3>
+
+This build represents the feature freeze for Athena 2.  Only bug
+fixes and documentation updates will be added to Athena 2 after this
+time.<p>
+
+This build contains a number of bug fixes and the last few feature
+changes.  In particular, the activity schedule and the time plots can
+now be filtered using a "From"/"To" time interval, and there are many
+new time variables from the economic model for use with plots.<p>
+
+<ul>
+  <li> Bug 2573: Bgerror when editing neighborhood in PREP with plot open
+  <li> Bug 2575: On-Tick Sanity Check Failure Failure
+  <li> Bug 2576: New Bgerror (activities)
+  <li> Bug 2577: Unwanted Gray Map Unit Icons
+  <li> Bug 2578: athena_sim(1): Update Help Menu
+  <li> Bug 2579: htmlviewer(n): Standard Fonts
+  <li> Bug 2580: athena_sim(1): Show *DISABLED* on Neighborhoods/DemSits tab
+  <li> Bug 2581: Another Bgerror
+  <li> Bug 2582: athena_sim(1): Re-use Activity Situations
+  <li> Bug 2583: athena_sim(1): Add "From" and "To" entries to Plan/Schedule tab
+  <li> Bug 2584: athena_sim(1): Add "From" and "To" entries to Plots tab
+  <li> Bug 2585: athena_sim(1): New display variables 
+</ul><p>
+
 <h3>Build 2.0.6, 16 August 2010</h3>
 
 This build fixes a number of significant bugs; in addition, it adds
