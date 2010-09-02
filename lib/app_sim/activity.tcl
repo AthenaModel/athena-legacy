@@ -760,13 +760,6 @@ snit::type activity {
             WHERE cid=$cid;
         }
 
-        # NEXT, if there's a related unit, delete it as well.
-        set u [rdb onecolumn {SELECT u FROM units WHERE cid=$cid}]
-
-        if {$u ne ""} {
-            lappend undo [unit mutate delete $u]
-        }
-
         # NEXT, notify the app
         notifier send ::activity <Entity> delete $cid
 
