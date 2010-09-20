@@ -331,11 +331,20 @@ snit::type security {
             SELECT n, total_force
             FROM force_n
         } {
-            rdb eval {
-                UPDATE force_ng
-                SET pct_force = 100*force/$total_force,
-                    pct_enemy = 100*enemy/$total_force
-                WHERE n = $n
+            if {$total_force > 1.0} {
+                rdb eval {
+                    UPDATE force_ng
+                    SET pct_force = 100*force/$total_force,
+                        pct_enemy = 100*enemy/$total_force
+                    WHERE n = $n
+                }
+            } else {
+                rdb eval {
+                    UPDATE force_ng
+                    SET pct_force = 0.0,
+                        pct_enemy = 0.0
+                    WHERE n = $n
+                }
             }
         }
     }
@@ -357,8 +366,16 @@ snit::type security {
             let total_force {double($total_force)}
             let tfSquared {$total_force * $total_force}
 
-            let nominal_volatility {
-                int(ceil(100*$conflicts/$tfSquared))
+            # Volatility depends on there being significant force
+            # in the neighborhood.  If there's no force, there's
+            # no volatility.
+
+            if {$tfSquared > 1.0} {
+                let nominal_volatility {
+                    int(ceil(100*$conflicts/$tfSquared))
+                }
+            } else {
+                set nominal_volatility 0.0
             }
 
             let volatility {
