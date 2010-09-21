@@ -162,8 +162,17 @@ snit::type activity {
                     unit deactivate $row(u)
                 }
             }
+        }
 
-
+        # NEXT, Find any units whose activity has been cancelled, and
+        # deactivate them.
+        rdb eval {
+            SELECT u
+            FROM units LEFT OUTER JOIN calendar USING (cid)
+            WHERE cid > 0
+            AND calendar.a IS NULL
+        } {
+            unit deactivate $u
         }
 
         # NEXT, staff the NONE activity for all remaining personnel
