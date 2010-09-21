@@ -11,6 +11,19 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 2.0.8, 21 September 2010</h3>
+
+This build contains four bug fixes, and a new draft of the Athena
+Analyst's Guide.  The bugs were:<p>
+
+<ul>
+  <li> Bug 2587: Plot Bgerror
+  <li> Bug 2588: Cancel Scheduled Activities Affects Coverage
+  <li> Bug 2592: Nbhood Stack Bgerror
+  <li> Bug 2593: Homeless Activity Bgerror 
+</ul><p>
+  
+
 <h3>Build 2.0.7, 1 September 2010 (Feature Freeze)</h3>
 
 This build represents the feature freeze for Athena 2.  Only bug
