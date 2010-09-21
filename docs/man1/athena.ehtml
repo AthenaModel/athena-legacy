@@ -38,7 +38,7 @@ Each mod has this syntax:<p>
 
 where <i>app</i> is the application name, e.g., "<b>sim</b>" for
 <<xref athena_sim(1)>>; <i>version</i> is the Athena version, e.g.,
-"<b>1.1.0</b>"; <i>num</i> is the serial number of this mod;
+"<b>2.1.0</b>"; <i>num</i> is the serial number of this mod;
 <i>title</i> is a brief string that identifies the purpose of the mod;
 and <i>body</i> is the code to load into the Athena application.<p>
 

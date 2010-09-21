@@ -46,27 +46,15 @@
 
 <h2>Modeling Documents</h2>
 
-Note: the full Analyst's Guide has not yet been updated for version
-2.0.  However, particular sections have been pulled out and updated
-separately; these are listed below.  Eventually, they will be
-integrated back into the full document.<p>
-
 <ul>
-  <li> Athena Analyst's Guide (for Athena 1.0) (<a
-       href="dev/aag.odt">OpenOffice Writer</a>)
-  <li> Athena Analyst's Guide: Activities (for Athena 2.0) (<a
-       href="dev/aag_Activities.odt">OpenOffice Writer</a>)
-  <li> Athena Analyst's Guide: Attrition (for Athena 2.0) (<a
-       href="dev/aag_AAM.odt">OpenOffice Writer</a>)
-  <li> Athena Analyst's Guide: Demographics (For Athena 2.0) (<a
-       href="dev/aag_DEMOG.odt">OpenOffice Writer</a>)
-  <li> Athena Rules Document (<a href="dev/rules.odt">OpenOffice
-       Writer</a>)
+  <li> Athena Analyst's Guide (<a href="dev/aag.odt">OpenOffice Writer</a>)
+  <li> Athena Rules Document (<a href="dev/rules.odt">OpenOffice Writer</a>)
 </ul>
 
 <h2>Copyright</h2>
 
-(C) 2009. California Institute of Technology.  ALL RIGHTS RESERVED.
+(C) 2008-<<clock format [clock seconds] -format %Y>>.
+California Institute of Technology.  ALL RIGHTS RESERVED.
 U.S. Government sponsorship acknowledged. Any commercial use must be
 negotiated with the Office of Technology Transfer at the California
 Institute of Technology.<p>

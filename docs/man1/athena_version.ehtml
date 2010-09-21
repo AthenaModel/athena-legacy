@@ -28,14 +28,14 @@ version <i>x.y.z</i> is made active by creating a symlink from
 
 <<section EXAMPLE>>
 
-Suppose versions 1.1.2 and 1.1.3 of Athena are installed, and version
-1.1.2 is currently active.  The $HOME directory will have the
+Suppose versions 2.1.2 and 2.1.3 of Athena are installed, and version
+2.1.2 is currently active.  The $HOME directory will have the
 following subdirectories:<p>
 
 <ul>
-  <li> <code>$HOME/athena_pkgs/athena_1.1.2</code>
-  <li> <code>$HOME/athena_pkgs/athena_1.1.3</code>
-  <li> <code>$HOME/athena &rarr; $HOME/athena_pkgs/athena_1.1.2</code>
+  <li> <code>$HOME/athena_pkgs/athena_2.1.2</code>
+  <li> <code>$HOME/athena_pkgs/athena_2.1.3</code>
+  <li> <code>$HOME/athena &rarr; $HOME/athena_pkgs/athena_2.1.2</code>
 </ul><p>
 
 Invoking <<xref athena_version(1)>> with no arguments will produce the following
@@ -43,19 +43,19 @@ output:<p>
 
 <pre>
     $ athena version
-    Athena Version: 1.1.2  (~/athena -> /home/athena/athena_pkgs/athena_1.1.2)
+    Athena Version: 2.1.2  (~/athena -> /home/athena/athena_pkgs/athena_2.1.2)
 
     Available Versions:
-        1.1.2
-        1.1.3
+        2.1.2
+        2.1.3
     $
 </pre>
 
-Version 1.1.3 can be activated as follows:<p>
+Version 2.1.3 can be activated as follows:<p>
 
 <pre>
-    $ athena version 1.1.3
-    Athena Version: 1.1.3 ~/athena -> /home/athena/athena_pkgs/athena_1.1.3)
+    $ athena version 2.1.3
+    Athena Version: 2.1.3 ~/athena -> /home/athena/athena_pkgs/athena_2.1.3)
 </pre>
 
 <<section DEVELOPMENT>>
@@ -70,9 +70,9 @@ In fact, any subdirectory name of the form "athena_<i>name</i>" can be
 used.  Here are some typical names:
 
 <ul>
-  <li> "athena_1.0.x" -- main line development
-  <li> "athena_1.1.x" -- release branch 1.1.x development
-  <li> "athena_1.0.expr" -- experimental branch development
+  <li> "athena_2.0.x" -- main line development
+  <li> "athena_2.1.x" -- release branch 2.1.x development
+  <li> "athena_2.0.expr" -- experimental branch development
 </ul>
 
 <<section AUTHOR>>
