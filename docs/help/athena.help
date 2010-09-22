@@ -24,6 +24,7 @@ image button_clock       "Button: Clock"               button_clock.png
 image button_ensit       "Button: New Ensit"           button_ensit.png
 image button_extmap      "Button: Extend Map"          button_extmap.png
 image button_location    "Button: Location Pointer"    button_location.png
+image button_lockprep    "Button: Lock Prep"           button_lockprep.png 
 image button_lower       "Button: Lower"               button_lower.png
 image button_man         "Button: Man"                 button_man.png
 image button_nbfill      "Button: Fill Nbhood"         button_nbfill.png
@@ -39,9 +40,11 @@ image button_play        "Button: Play"                button_play.png
 image button_plus        "Button: Plus"                button_plus.png
 image button_poly        "Button: Polygon"             button_poly.png
 image button_raise       "Button: Raise"               button_raise.png
+image button_rewind      "Button: Rewind"              button_rewind.png
 image button_totop       "Button: To Top"              button_totop.png
 image button_tobottom    "Button: To Bottom"           button_tobottom.png
 image button_unit        "Button: New Unit"            button_unit.png
+image button_unlockprep  "Button: Unlock Prep"         button_unlockprep.png 
 image button_x           "Button: X"                   button_x.png
 image control_filltype   "Control: Fill Type"          control_filltype.png
 image control_fromtime   "Control: From Time"          control_fromtime.png
@@ -62,6 +65,7 @@ image control_speed      "Control: Speed"              control_speed.png
 image control_state      "Control: State"              control_state.png
 image control_stoptime   "Control: Stop Time"          control_stoptime.png
 image control_totime     "Control: To Time"            control_totime.png
+image control_weekday    "Control: Weekday"            control_weekday.png
 image control_zoom       "Control: Zoom"               control_zoom.png
 image filterbox          "Filter Box"                  filterbox.png
 image viewbox            "View Box"                    viewbox.png
@@ -217,6 +221,21 @@ page home "Athena Help" {} {
     <i>Help compiled <<clock format [clock seconds]>>
 }
 
+#-----------------------------------------------------------------------
+
+page changelog "Change Log" home {
+    <<title>>
+    <<changelog>>
+    <<change 9/22/2010 New whd>>
+    Updated for Athena 2.
+    <</change>>
+    <<change 10/9/2009 New whd>>
+    Initial draft.
+    <</change>>
+    <</changelog>>
+}
+
+
 
 #-----------------------------------------------------------------------
 
@@ -227,7 +246,8 @@ page about "About Athena" home {
         Stability and Recovery Operations Simulation
     }>>
 
-    (C) 2009, California Institute of
+    (C) 2008-<<clock format [clock seconds] -format %Y>>, 
+    California Institute of
     Technology. ALL RIGHTS RESERVED. U.S. Government sponsorship
     acknowledged. Any commercial use must be negotiated with the
     Office of Technology Transfer at the California Institute of
@@ -247,21 +267,53 @@ page about "About Athena" home {
 page release "Release Notes" home {
     <<title Athena V[version] Release notes>>
 
-    This is the first delivery of Athena; hence there are no
-    significant changes to note.
+    The <i>Athena Analyst's Guide</i> gives a complete list of 
+    model-related changes for Athena V<<version>>.  This page gives an
+    overview of the changes.<p>
+
+    <b>Ground Model:</b> Personnel and population are represented
+    differently than in Athena V1.1.  Previously, force and
+    organization group personnel were represented only by units, and
+    most of the civilian population was implicit.  In this version:<p>
+
+    <ul>
+    <li> Force and organization group personnel are now explicitly
+    stationed in particular neighborhoods.  These force levels can be
+    modified over time.<p>
+
+    <li> Activities are controlled by an activity schedule.  Each
+    "morning", the activities for the day are staffed from the
+    available personnel.  Staffed activities are represented as units,
+    and any residual personnel are represented by a "base" unit.  This
+    applies to civilians as well.<p>
+
+    <li> Thus, there is no longer as strong a distinction between 
+    personnel and population as there was in 
+    Athena V1.1.  
+    </ul><p>
+
+    <b>Economics Model:</b> There is a new Economics model.  See the 
+    <i>Athena Analyst's Guide</i> for details.<p>
+
+    <b>Demographics Model:</b> The bookkeeping done by the
+    Demographics model has changed to accommodate the needs of the
+    other models.  In particular:<p>
+
+    <ul>
+    <li> The neighborhood population is now broken down according to
+    the needs of the Economics model.  Each neighborhood group is
+    broken into the <<term sapop>> and
+    the <<term "consumer">> population.  The consumers are further
+    broken down into workers and non-workers.<p>
+
+    <li> The Demographics model can create <b>UNEMP</b> situations in
+    response to high unemployment rates.
+    </ul><p>
+
+    <b>Attitudes Model:</b> The Driver Assessment Model rule sets have
+    been revised to be consistent with the latest JNEM rule set changes.<p>
 }
 
-
-#-----------------------------------------------------------------------
-
-page changelog "Change Log" home {
-    <<title>>
-    <<changelog>>
-    <<change 10/9/2009 New whd>>
-    Initial draft.
-    <</change>>
-    <</changelog>>
-}
 
 #======================================================================
 # The following sections are in separate files

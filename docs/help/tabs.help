@@ -1785,7 +1785,7 @@ tab "Demog/Nbhoods" {
 
 tab "Econ" {
     The subtabs of the Econ tab display various data related to the 
-    GRAM Economics model.  The full set of subtabs is as follows:<p>
+    Economics model.  The full set of subtabs is as follows:<p>
 
     <<childlinks>>
 }

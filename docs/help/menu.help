@@ -151,7 +151,7 @@ menuitem "File/Save Scenario As..." {
 
 menuitem "File/Export as XML..." {
     Saves the current scenario to disk in XML format.  Note that this
-    can only be done while the simulation is in 
+    can only be done while the simulation is in the
     <<cref using.prep>> state.
 }
 
@@ -340,19 +340,41 @@ menuitem "Help/Help Contents" {
     <<cref home "table of contents">>.
 }
 
-menuitem "Help/Order Reference" {
+menuitem "Help/Application Menus" {
+    This menu item pops up the on-line help for the <<cref menu>>, 
+    which you are currently reading.
+}
+
+menuitem "Help/Application Tabs" {
+    This menu item pops up the on-line help for the various <<cref tabs>>
+    used to browse the current state of the simulation.
+}
+
+menuitem "Help/Orders" {
     This menu item pops up the reference material for each of
     Athena's simulation <<cref orders>>.
 }
 
-menuitem "Help/Report Reference" {
+menuitem "Help/Reports" {
     This menu item pops up the reference material for each of
     Athena's <<cref reports>>.
 }
 
-menuitem "Help/Command Reference" {
+menuitem "Help/Display Variables" {
+    This menu item pops up the refernece material for each of the
+    neighborhood and time-related <<cref vars>> that can be plotted
+    on the <<tabref Plots>> and used to color neighborhoods on
+    the <<tabref Map>>.
+}
+
+menuitem "Help/Executive Commands" {
     This menu item pops up the reference material for each of 
     Athena's <<cref cmd>>.
+}
+
+menuitem "Help/Model Parameters" {
+    This menu item pops up the reference material for each of 
+    the <<cref parmdb>> used to calibrate Athena's models.
 }
 
 menuitem "Help/Release Notes" {

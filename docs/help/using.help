@@ -55,10 +55,11 @@ page using.prep "Scenario Preparation" using {
     is a blank 
     page.  It's impossible to run simulation time forward, as there is
     nothing there to simulate; instead, it's necessary to first
-    prepare the scenario.  Conversely, once time has run forward there
-    are many things about the scenario that can no longer be changed.
-    (See <<cref using.simcontrols>> for how to run time forward and
-    then return to the <b>Prep</b> state.)<p>
+    prepare and lock the scenario.  Conversely, once the
+    scenario has been locked there  
+    are many things that can no longer be changed.
+    See <<cref using.simcontrols>> for how to lock and unlock
+    secnenario preparation.<p>
 
     Scenario preparation typically involves the following steps:<p>
 
@@ -82,11 +83,12 @@ page using.prep "Scenario Preparation" using {
          neighborhood group and each force group.
     <li> If desired:
          <ul>
-         <li> Create <<term unit>>s, and assign them 
-              <<term activity activities>>.
+         <li> Schedule group <term activity activities>>.
          <li> Create <<term ensit>>s.
          <li> Define <<term roe>>s for the force groups, thus enabling
               armed conflict to occur.
+         <li> Calibrate the Economy, as described in the 
+              <i>Athena Analyst's Guide</i>.
          </ul>
     </ol>
 }
@@ -97,7 +99,7 @@ page using.prep "Scenario Preparation" using {
 page using.maps "Using Maps" using {
     <<title>>
 
-    The <<tabref Map>> tab contains Athena's Map Viewer.  This is
+    The <<tabref Map>> contains Athena's Map Viewer.  This is
     where the analyst can draw <<term nbhood>> polygons, 
     position <<term unit>>s, and so forth.<p>
 
@@ -148,6 +150,17 @@ page using.simcontrols "Simulation Controls" using {
 
     <<topiclist Control Description>>
 
+    <<topic {<img src="button_lockprep">&nbsp;&nbsp;<img src="button_unlockprep"}>>
+    During <<cref using.prep>> the scenario is "unlocked", as shown by
+    the state of the Scenario Lock button.  When preparation is
+    complete, press the Lock button to lock the scenario.  If the "on
+    lock" sanity check succeeds, the button will change to show that
+    the scenario is locked; you can now run time forward.  To return
+    to <<cref using.prep>>, press the button again.  Note that this
+    will return the scenario to time 0, and delete all simulation
+    results.
+    <</topic>>
+
     <<topic {<img src="button_play">&nbsp;&nbsp;<img src="button_pause"}>>
     The Run button directs Athena to enter the <b>Running</b>
     <<term state>> and begin to advance simulation time.  The button
@@ -161,17 +174,17 @@ page using.simcontrols "Simulation Controls" using {
     Athena will remain in <<cref using.prep>>.
     <</topic>>
 
-    <<topic {<img src="button_peabody">}>>
+    <<topic {<img src="button_rewind">}>>
     If the user returns to a <<term snapshot>>, Athena enters the 
     <b>Snapshot</b> <<term state>> and the Run/Pause button changes to
-    Mr. Peabody as shown.  It is impossible to enter orders or
+    the Rewind button as shown.  It is impossible to enter orders or
     otherwise change the scenario while in the <b>Snapshot</b> state.
     The user must either return to the latest simulation time using
-    the snapshot controls (see below) or "re-enter the time stream" at
-    some snapshot by clicking on Mr. Peabody.  All simulation results
+    the snapshot controls (see below), unlock the scenario by clicking
+    on the Lock button, or rewind simulated time to the snapshot time
+    by pressing on the Rewind button.  All simulation results
     from later than the current snapshot will be deleted, and the
-    simulation will enter either the <b>Prep</b> or <b>Paused</b>
-    state depending on the simulation time.
+    simulation will enter the <b>Paused</b> state.
     <</topic>>
 
     <<topic {<img src="control_stoptime">}>>
@@ -214,6 +227,10 @@ page using.simcontrols "Simulation Controls" using {
 
     <<topic {<img src="control_simtime">}>>
     The current simulation time is shown as a <<term zulu>>.
+    <</topic>>
+
+    <<topic {<img src="control_weekday">}>>
+    The current week day (in simulation time): Su, M, T, W, Th, F, Sa.
     <</topic>>
     
     <<topic {<img src="control_simtick">}>>

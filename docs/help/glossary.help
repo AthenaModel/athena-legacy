@@ -45,63 +45,18 @@ macro term.header {} {
 #-----------------------------------------------------------------------
 
 term activity "activity" {
-    An <i>activity</i> is an action that can be assigned to a
-    <<term unit>>; the unit is said to perform the activity.  
-    There are different sets of activities for units belonging to
-    <<term frcgroup>>s, <<term orggroup>>s, and 
-    <<term nbgroup>>s.  For the full list of activities, and the
-    meaning and effect of each, see the Athena Rules document, which
+    An <i>activity</i> is an action that a <<term group>> can
+    perform in a <<term nbhood>>.  Activities are scheduled on the
+    <<tabref Plan/Schedule>> and are staffed from available personnel
+    each <<term morning>>.  Personnel assigned to an activity
+    appear as a <<term unit>> on the <<tabref Map>>; the unit is said to 
+    perform the activity. There are different sets of activities for the
+    different group types: <<term frcgroup>>s, <<term orggroup>>s, and 
+    <<term nbgroup>>s.  nightFor the full list of activities, and the
+    meaning and effect of each, see the <i>Athena Rules</i> document, which
     is delivered with the software.
 }
 
-
-#-----------------------------------------------------------------------
-
-term activity_priority "activity priority" {
-    Each activity assignable to a <<term unit>> has a priority; when
-    units are attrited, the units with less important activities are
-    attrited before units with more important activities.  (That is,
-    we assume that troops are rotated from less important activities
-    to more important activities as troops doing the more important
-    activities are killed.)<p>
-
-    The <<term frcgroup>> activities in priority order are as
-    follows:<p>
-
-    <ul>
-    <li> <b>NONE</b>
-    <li> <b>CMO_CONSTRUCTION</b>
-    <li> <b>CMO_DEVELOPMENT</b>
-    <li> <b>CMO_EDUCATION</b>
-    <li> <b>CMO_EMPLOYMENT</b>
-    <li> <b>CMO_INDUSTRY</b>
-    <li> <b>CMO_INFRASTRUCTURE</b>
-    <li> <b>CMO_LAW_ENFORCEMENT</b>
-    <li> <b>CMO_OTHER</b>
-    <li> <b>CMO_HEALTHCARE</b>
-    <li> <b>CRIMINAL_ACTIVITIES</b>
-    <li> <b>COERCION</b>
-    <li> <b>PSYOP</b>
-    <li> <b>CURFEW</b>
-    <li> <b>CHECKPOINT</b>
-    <li> <b>PATROL</b>
-    <li> <b>GUARD</b>
-    </ul><p>
-
-    The <<term orggroup>> activities in priority order are as
-    follows:<p>
-
-    <ul>
-    <li> <b>NONE</b>
-    <li> <b>CMO_CONSTRUCTION</b>
-    <li> <b>CMO_EDUCATION</b>
-    <li> <b>CMO_EMPLOYMENT</b>
-    <li> <b>CMO_INDUSTRY</b>
-    <li> <b>CMO_INFRASTRUCTURE</b>
-    <li> <b>CMO_OTHER</b>
-    <li> <b>CMO_HEALTHCARE</b>
-    </ul>
-}
 
 #-----------------------------------------------------------------------
 
@@ -111,7 +66,7 @@ term attitude "attitude" {
     group <<term satisfaction>> and the <<term cooperation>> of
     <<term nbgroup>>s with <<term frcgroup>>s.  At present
     group <<term relationship>>s are static, but it is likely that
-    they will be tracked as attitudes at some time in the future.
+    they will become dynamic at some time in the future.
 }
 
 
@@ -151,8 +106,18 @@ term bgerror "bgerror" {
 
 #-----------------------------------------------------------------------
 
+term calibration "calibration" {
+    Athena's models can be calibrated for a particular setting by 
+    tweaking Athena's <<cref parmdb>>.  This is particularly important
+    for the <<model econ>> model; see the <i>Athena Analyst's
+    Guide</i> for the steps to calibrate the economy.
+}
+
+#-----------------------------------------------------------------------
+
 term calpattern "calendar pattern" {
-    A <i>calendar pattern</i> determines how some activity is
+    A <i>calendar pattern</i> determines how some 
+    <<term activity>> is
     scheduled and staffed over an interval of time.  A pattern
     is specified as a token, possibly followed by modifiers.
     The following patterns are available:<p>
@@ -184,6 +149,22 @@ term calpattern "calendar pattern" {
     <</topic>>
 
     <</topiclist>>
+}
+
+
+#-----------------------------------------------------------------------
+
+term capacity "capacity" {
+    Each <<term sector>> in the <<model econ>> model has a maximum
+    size, or <i>capacity</i>.  The size of the <b>pop</b> sector is 
+    limited by the size of the labor force, for example.<p>
+
+    Usually when we speak of capacity, however, we mean the
+    capacity of the <b>goods</b> sector: the ability of the economy 
+    to produce goods and services.  This capacity is set when the
+    scenario is locked and can then be increased or decreased 
+    <<term nbhood>> by neighborhood by setting the Production 
+    Capacity Factor (PCF) on the <<tabref Econ/Capacity>>.
 }
 
 #-----------------------------------------------------------------------
@@ -287,6 +268,17 @@ term concern "concern" {
     <</topiclist>>
 }
 
+#-----------------------------------------------------------------------
+
+term consumer "consumer" {
+    A <i>consumer</i> is a member of the civilian population who
+    consumes goods produced by the <<term local_economy>>.
+    Consumers are distinguished from members of the
+    <<term sapop>> who live off of
+    their own land and do not participate in the cash economy.<p>
+
+    <<term worker "Workers">> are a subset of <<term consumer>>s.<p>
+}
 
 #-----------------------------------------------------------------------
 
@@ -310,7 +302,7 @@ term cooperation "cooperation" {
 
 term coverage "coverage" {
     Coverage is a measure of the fraction of a <<term nbhood>> that
-    is affected by something--a unit <<term activity>>, an
+    is affected by something--a group <<term activity>>, an
     <<term ensit>>, etc.--expressed as a number between 0.0 and 1.0.
     It is a common input to the <<term damrules>>.
 }
@@ -327,7 +319,19 @@ term damrules "DAM Rules" {
     defined in the Athena Rules document, delivered with the software.
 }
 
+#-----------------------------------------------------------------------
 
+term demsit "demographic situation" {
+    A <i>demographic situation</i> is an on-going situation involving
+    the residents of a neighborhood as detected by the 
+    <<model demog>> model.  It is an attitude <<term driver>>.
+    At present, there is only one type of demographic situation, the
+    Unemployment (UNEMP) situation; see the <i>Athena Rules</i>
+    document for details.<p>
+
+    Existing demographic situations can be seen on the 
+    <<tabref Neighborhoods/DemSits>>.
+}
 
 #-----------------------------------------------------------------------
 
@@ -340,7 +344,7 @@ term driver "driver" {
     Examples of drivers include casualties to 
     <<term civgroup>>s and <<term orggroup>>s, the presence
     and activities of <<term frcgroup>> in <<term nbhood>>s, 
-    <<term ensit>>s, and <<term mad>>s.<p>
+    <<term ensit>>s, <<term demsit>>s, and <<term mad>>s.<p>
 
     <b>2.</b> A <<term mad>>.<p>
 
@@ -370,7 +374,7 @@ term ensit "environmental situation" {
     a <<term nbhood>>; it is an attitude <<term driver>>, and affects
     all of the people living in the neighborhood.  It may also affect
     surrounding neighborhoods.  For a complete list of situation
-    types, and the effect of each, see the Athena Rules document
+    types, and the effect of each, see the <i>Athena Rules</i> document
     delivered with the software.<p>
 
     <b>Note:</b> Athena tracks the neighborhood in which each 
@@ -383,6 +387,13 @@ term ensit "environmental situation" {
     can browsed and edited on the 
     <<tabref Neighborhoods/EnSits>>, using the 
     <<cref SITUATION:ENVIRONMENTAL:>>.  
+}
+
+#-----------------------------------------------------------------------
+
+term evening "evening" {
+    The end of a simulated day, when the current state of affairs is
+    assessed.  See <<term tick>>.
 }
 
 #-----------------------------------------------------------------------
@@ -464,7 +475,9 @@ term frcgroup "force group" {
     Force groups are created on the 
     <<tabref Groups/FrcGroups>>, and manipulated using the
     <<cref GROUP:FORCE:>>.  In order to apply force, force group
-    personnel must exist in the  <<term playbox>> as <<term unit>>s.
+    personnel must be assigned to neighborhoods on the 
+    <<tabref Plan/Force Levels>> and assigned to
+    <<term activity "activities">> on the <<tabref Plan/Schedule>>.
 }
 
 #-----------------------------------------------------------------------
@@ -482,6 +495,16 @@ term group "group" {
     </ul>
 }
 
+#-----------------------------------------------------------------------
+
+term local_economy "local economy" {
+    Athena's <<model econ>> model concerns the economy of a region: a
+    single country, part of that country, or perhaps several small
+    countries taken together.  Athena's <<term nbhood>>s can be 
+    "local", i.e., part of the economic region of interest, or
+    non-local, outside the region.  The <i>local economy</i> is then
+    the economy of this local region of interest.
+}
 
 #-----------------------------------------------------------------------
 
@@ -562,6 +585,14 @@ term mood "mood" {
     all groups in the neighborhood with things in general.
 }
 
+#-------------------------------------------------------------------
+
+term morning "morning" {
+    The beginning of a simulated day, when scheduled orders are
+    executed and <<term activity "activities">> are staffed.  
+    See <<term tick>>.
+}
+
 
 #-----------------------------------------------------------------------
 
@@ -588,6 +619,14 @@ term nbgroup "neighborhood group" {
     Neighborhood groups are created on the 
     <<tabref Groups/NbGroups>>, and manipulated using the
     <<cref GROUP:NBHOOD:>>.
+}
+
+#-------------------------------------------------------------------
+
+term noon "noon" {
+    The middle of a simulated day, when (if the simulation enters
+    the <b>PAUSED</b> state) the user has the opportunity to enter
+    <<cref orders>>.  See <<term tick>>.
 }
 
 #-----------------------------------------------------------------------
@@ -624,9 +663,6 @@ term orggroup "organization group" {
     <<cref GROUP:ORGANIZATION:>>.  In order to work, organization
     group personnel must exist in the <<term playbox>> as <<term unit>>s.
 }
-
-
-
 
 #-----------------------------------------------------------------------
 
@@ -766,6 +802,50 @@ term scenariofile "scenario file" {
 
 #-----------------------------------------------------------------------
 
+term sector "sector" {
+    Athena's Economic Model divides the economy into three sectors:
+
+    <<topiclist>>
+    <<topic "goods">>
+    Production of goods and services in the local economy, in 
+    "Goods Baskets" (GBasket).  The unit of production is
+    a basket of goods and services with a price of approximately
+    $1.
+    <</topic>>
+
+    <<topic "pop">>
+    Provision of labor by the population.  The unit of production is
+    a work-year of an "average" worker.
+    <</topic>>
+
+    <<topic "else">>
+    Everything else: imports, exports, etc., in "Else Baskets" (EBasket).
+    The unit of production is a basket of goods and services
+    traded outside the region.
+    <</topic>>
+  
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+term security "security" {
+    A <<term group>>'s <i>security</i> is computed by the 
+    <<model force>> model.  It is a number that indicates how safe
+    members of the group are in a <<term nbhood>>, as opposed to
+    how satisfied they are with their safety.  <p>
+
+    Security is represented
+    by the following scale:<p>
+
+    <<::projectlib::qsecurity html>>
+
+    A group's security is affected by the <<term volatility>> of the
+    neighborhood.
+}
+
+#-----------------------------------------------------------------------
+
 term snapshot "snapshot" {
     Each time the user presses the 
     <<cref using.simcontrols "Run Simulation">> button, the
@@ -824,54 +904,35 @@ term state "state" {
 
 #-----------------------------------------------------------------------
 
-term sector "sector" {
-    Athena's Economic Model divides the economy into three sectors:
-
-    <<topiclist>>
-    <<topic "goods">>
-    Production of goods and services in the local economy, in 
-    "Goods Baskets" (GBasket).  The unit of production is
-    a basket of goods and services with a price of approximately
-    $1.
-    <</topic>>
-
-    <<topic "pop">>
-    Provision of labor by the population.  The unit of production is
-    a work-year of an "average" worker.
-    <</topic>>
-
-    <<topic "else">>
-    Everything else: imports, exports, etc., in "Else Baskets" (EBasket).
-    The unit of production is a basket of goods and services
-    traded outside the region.
-    <</topic>>
-  
-    <</topiclist>>
+term sapop "subsistence agriculture population" {
+    That part of the population that lives by subsistence agriculture,
+    whether farming or herding, and hence does not participate in the
+    cash economy.  Athena assumes that there is a hard line between
+    the subsistence farmers and the <<term consumer>>s, although there
+    is certainly some overlap in reality.
 }
-
-#-----------------------------------------------------------------------
-
-term security "security" {
-    A <<term group>>'s <i>security</i> is computed by the 
-    <<model force>> model.  It is a number that indicates how safe
-    members of the group are in a <<term nbhood>>, as opposed to
-    how satisfied they are with their safety.  <p>
-
-    Security is represented
-    by the following scale:<p>
-
-    <<::projectlib::qsecurity html>>
-
-    A group's security is affected by the <<term volatility>> of the
-    neighborhood.
-}
-
 
 #-----------------------------------------------------------------------
 
 term tick "tick" {
     Athena measures simulation time in integer ticks; each tick
-    represents one day of calendar time.
+    represents one day of calendar time.<p>
+
+    Athena does not track any time interval shorter than one day;
+    however, it is often convenient to speak of the sequence of
+    events during a simulated day in terms of <<term morning>>,
+    <<term noon>>, and <<term evening>>:<p>
+
+    Time can be thought to advance at midnight.  After the time
+    advance, in the "morning", Athena executes all scheduled orders,
+    and staffs <<term activity "activities">> from the available
+    personnel.  At "noon", if Athena enters the <b>PAUSED</b> state,
+    the user has the opportunity to send <<cref orders>>.  In the
+    "evening", the current state of affairs is assessed: 
+    <<term security>> and <<term coverage>> are computed, 
+    <<model dam>> rules fire, and so forth.  Then, at midnight,
+    time advances, and the cycle continues.<p>
+    
 }
 
 #-----------------------------------------------------------------------
@@ -965,6 +1026,14 @@ term volatility "volatility" {
 
     Volatility is a major component of a <<term group>>'s 
     <<term security>>.
+}
+
+#-----------------------------------------------------------------------
+
+term worker "worker" {
+    A member of the labor force, as determined by the
+    <<model demog>> model.  All workers are 
+    <<term consumer>>s.
 }
 
 #-----------------------------------------------------------------------
