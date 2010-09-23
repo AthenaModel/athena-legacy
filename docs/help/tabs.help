@@ -887,6 +887,88 @@ tab "Neighborhoods/ActSits" {
 
 #-----------------------------------------------------------------------
 
+tab "Neighborhoods/DemSits" {
+    This tab shows the demographic situations created in response to 
+    population effects. This browser is populated only
+    after Athena leaves <<cref using.prep>>.  The browser controls are
+    described <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "ID">>The ID of the situation<</topic>>
+
+    <<topic "Change">>This field indicates the situations that changed
+    during the last major time step, and how they changed, i.e., were
+    they created, did they end, and so forth.
+    <</topic>>
+
+    <<topic "State">>The state of the situation, one of <b>ACTIVE</b>,
+    or <b>ENDED</b>.  An <b>ACTIVE</b> situation is
+    currently affecting attitudes in the neighborhood.
+    A situation is <b>ENDED</b> when it is no longer affecting
+    attitudes in the neighborhood.<p>
+
+    Note that a new situation is always <b>ACTIVE</b>; no situation
+    will be created until attitudes are affected.
+    <</topic>>
+
+    <<topic "Type">>The situation type.  At present, there is only one kind 
+    of demographic situation: Unemployment, which is abbreviated "UNEMP".
+    <</topic>>
+
+    <<topic "Nbhood">>The ID of the neighborhood in which the situation
+    is taking place.<</topic>>
+
+    <<topic "Group">>The ID of the civilian group affected by the
+    situation.<</topic>>
+    
+    <<topic "NG UAF">>The Unemployment Attitude Factor for the affected
+    neighborhood group.  This is a number from 0.0 to 2.0 used as 
+    a multiplier in the UNEMP rule set.<</topic>>
+
+    <<topic "N UAF">>The Unemployment Attitude Factor for the neighborhood
+    as a whole.  This is a number from 0.0 to 2.0 used as 
+    a multiplier in the UNEMP rule set.<</topic>>
+
+    <<topic "Began At">>The simulation time at which the situation
+    began to affect attitudes.
+    <</topic>>
+
+    <<topic "Changed At">>The simulation time at which the situation
+    last changed.
+    <</topic>>
+
+    <<topic "Driver">>The GRAM driver ID associated with the situation.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="viewbox">}>>
+    The view box determines which set of entities is to be displayed.
+    The following sets may be selected from the pulldown:<p>
+
+    <ul>
+    <li> <b>All</b>: All situations, whether <b>Current</b> or
+    <b>Ended</b>.
+    <li> <b>Current</b>: Situations which are currently <b>ACTIVE</b>
+    or have <b>ENDED</b> during the last major
+    time step.
+    <li> <b>Ended</b>: Situations which have <b>ENDED</b>.
+    </ul>
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
 tab "Neighborhoods/EnSits" {
     This tab shows the environmental situations present in the
     playbox.  The browser controls are
@@ -2376,6 +2458,112 @@ tab "Orders/Sent" {
     <</topiclist>>
 }
 
+#=======================================================================
+# Plots
+
+tab "Plots" {
+    The Plots tab displays a vertical list of 
+    <<cref plots.nbhood>>s and <<cref plots.time>>s, which are used to 
+    plot <<cref var.n>> and <<cref var.t>> respectively.  Individual plots 
+    can be resized vertically by dragging the sash in between.<p>
+
+    The tab's controls are as follows; the controls for each individual
+    plot are described <<seebelow plot>>.<p>
+
+    <b><a name="controls">Tab Controls:</a></b>  The tab's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+    <<topic {<img src="button_nbhood">}>>
+    Creates a new <<cref plots.nbhood>> and places it at the top of the
+    list of plots.
+    <</topic>>
+
+    <<topic {<img src="button_clock">}>>
+    Creates a new <<cref plots.time>> and places it at the top of the
+    list of plots.
+    <</topic>>
+
+    <<topic {<img src="control_fromtime">}>>
+    Specifies the "from time" as a <<term timespec>>: this is the
+    lower bound for the T-axis for all <<cref plots.time>>s.
+    <</topic>>
+
+    <<topic {<img src="control_totime">}>>
+    Specifies the "to time" as a <<term timespec>>: this is the
+    upper bound for the T-axis for all <<cref plots.time>>s.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="plot">Plot Controls:</a></b>  Each plot is contained in a 
+    frame with the following controls:<p>
+
+    <<topiclist Control Description>>
+    <<topic {<img src="button_updown">}>>
+    Clicking one of the arrows moves the plot up or down in the stack of
+    plots.
+    <</topic>>
+
+    <<topic {<img src="button_closex">}>>
+    Clicking the X closes the particular plot.
+    <</topic>>
+
+    <<topic {Click for Legend}>>
+    To see a legend showing the plot color for each plotted
+    <<cref vars "display variable">>, click on the words
+    "Click for Legend" in the upper right corner of the plot.
+    The resulting legend box can be dragged to any convenient
+    spot on the face of the plot.
+    <</topic>>
+
+
+    <<topic {Add Variable...}>>
+    To add a <<cref vars "display variable">> to any plot, right-click
+    on the plot and 
+    select "Add Variable..." from the context menu.  Then, 
+    enter the variable's name in the resulting dialog box.
+    <</topic>>
+
+    <<topic {Remove Variable...}>>
+    To remove a <<cref vars "display variable">>
+    from a plot, right-click on the plot and 
+    select the variable name from the context menu's "Remove Variable" 
+    submenu.
+    <</topic>>
+
+    <<topic {Set Title...}>>
+    To set a plot's title, right-click on the plot and 
+    select "Set Title..." from the context menu.  Then, enter the
+    new title in the resulting dialog box.
+    <</topic>>
+
+    <</topiclist>>
+    
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+page plots.nbhood "Neighborhood Chart" tabs/Plots {
+    A neighborhood chart displays a bar chart of one or more 
+    <<cref var.n>> over all the neighborhoods in the playbox.  The
+    X axis will be the maximum required by the set of displayed
+    variables.
+}
+
+#-----------------------------------------------------------------------
+
+page plots.time "Time Chart" tabs/Plots {
+    A time chart displays one or more <<cref var.t>> plotted over 
+    time.  The time interval defaults to the full length of the
+    simulation run, from time 0 to the latest time reached; the
+    "from" and "to" box in on the toolbar of the 
+    <<tabref Plots>> can be used to narrow the interval.  The
+    Y-axis will be as large as necessary to for the set of 
+    variables being plotted.
+}
 
 #=======================================================================
 # Reports

@@ -21,6 +21,7 @@ image button_autoscroll  "Button: Autoscroll"          button_autoscroll.png
 image button_axe         "Button: Axe"                 button_axe.png
 image button_check       "Button: Checkmark"           button_check.png
 image button_clock       "Button: Clock"               button_clock.png
+image button_closex      "Button: Close X"             button_closex.png
 image button_ensit       "Button: New Ensit"           button_ensit.png
 image button_extmap      "Button: Extend Map"          button_extmap.png
 image button_location    "Button: Location Pointer"    button_location.png
@@ -44,6 +45,7 @@ image button_rewind      "Button: Rewind"              button_rewind.png
 image button_totop       "Button: To Top"              button_totop.png
 image button_tobottom    "Button: To Bottom"           button_tobottom.png
 image button_unit        "Button: New Unit"            button_unit.png
+image button_updown      "Button: Up/Down"             button_updown.png
 image button_unlockprep  "Button: Unlock Prep"         button_unlockprep.png 
 image button_x           "Button: X"                   button_x.png
 image control_filltype   "Control: Fill Type"          control_filltype.png

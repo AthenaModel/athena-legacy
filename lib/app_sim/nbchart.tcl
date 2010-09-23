@@ -148,12 +148,15 @@ snit::widgetadaptor nbchart {
             -label   "Set Title..." \
             -command [mymethod SetTitle]
 
-        $mnu add separator
+        # Bookmarks not implemented
+        if 0 {
+            $mnu add separator
 
-        $mnu add command \
-            -state   disabled              \
-            -label   "Bookmark this chart" \
-            -command BookmarkChart
+            $mnu add command \
+                -state   disabled              \
+                -label   "Bookmark this chart" \
+                -command BookmarkChart
+        }
 
     }
 
