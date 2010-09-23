@@ -283,7 +283,7 @@ snit::type ::report {
                         }]]
 
         if {$answer eq "cancel"} {
-            cancel
+            return
         }
 
         reporter hotlist set all 0
