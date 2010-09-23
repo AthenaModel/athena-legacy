@@ -11,6 +11,17 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 2.0.9, 23 September 2010</h3>
+
+This build contains documentation updates and three bug fixes.<p>
+
+<ul>
+  <li> Bug 2600: Athena 2.0 Doc Tree Scrub
+  <li> Bug 2601: Activities Not Cancelling
+  <li> Bug 2602: Nbgroups Not Deleting When Nbhood is Deleted
+  <li> Bug 2604: Clear Hot List Bgerror 
+</ul><p>
+
 <h3>Build 2.0.8, 21 September 2010</h3>
 
 This build contains four bug fixes, and a new draft of the Athena
