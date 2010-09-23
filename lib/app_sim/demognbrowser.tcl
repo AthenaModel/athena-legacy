@@ -54,6 +54,7 @@ snit::widgetadaptor demognbrowser {
             -reloadon {
                 ::sim <DbSyncB>
                 ::demog <Update>
+                ::nbhood <Entity>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
