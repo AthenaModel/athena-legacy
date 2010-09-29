@@ -11,6 +11,19 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 2.0.10, 29 September 2010 -- Final 2.0.x Build</h3>
+
+This build is the final 2.0.x build; it will be the starting point
+for the Athena 2.1.x release branch, and except for its version number
+will be identical to Athena 2.1.0.  It contains only documentation
+changes:<p>
+
+<ul>
+  <li> Bug 2606: Online Help Glossary Typos
+  <li> Bug 2607: More Online Help Typos
+  <li> Bug 2608: Update Athena installation guide 
+</ul><p>
+
 <h3>Build 2.0.9, 23 September 2010</h3>
 
 This build contains documentation updates and three bug fixes.<p>
