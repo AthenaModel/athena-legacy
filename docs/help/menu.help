@@ -202,7 +202,7 @@ menuitem "File/Parameters/Save as Default..." {
 menuitem "File/Parameters/Clear Defaults..." {
     Clears the user's default <<cref parmdb "model parameter">>
     settings; new scenarios will be created using the installation
-    defaults instead.  <b>Note:</b> Using this menu item will no
+    defaults instead.  <b>Note:</b> Using this menu item will have no
     effect on the current scenario.<p>
 
     This menu item is equivalent to the <<cmdref parm defaults clear>>

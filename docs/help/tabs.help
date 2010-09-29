@@ -357,7 +357,7 @@ tab "Plan/Schedule" {
     <<topic {<img src="button_pencil">}>>
     If a single calendar item is selected, pops up the 
     <<cref ACTIVITY:UPDATE>> dialog for the selected item.  The user
-    can edite the number of personnel and when the activity is
+    can edit the number of personnel and when the activity is
     scheduled; the other details are fixed.
     <</topic>>
 
@@ -509,7 +509,7 @@ tab "Neighborhoods/Neighborhoods" {
     <<topic ID>>The neighborhood's ID<</topic>>
 
     <<topic Neighborhood>>The neighborhood's human-readable
-    name<</topic>>
+    name.<</topic>>
 
     <<topic Local>>Whether the neighborhood belongs to the local
     region or not.  Local neighborhoods participate in the regional
@@ -813,7 +813,7 @@ tab "Neighborhoods/ActSits" {
 
     <<topiclist Column Description>>
 
-    <<topic "ID">>The ID of the situation<</topic>>
+    <<topic "ID">>The ID of the situation.<</topic>>
 
     <<topic "Change">>This field indicates the situations that changed
     during the last major time step, and how they changed, i.e., were
@@ -895,7 +895,7 @@ tab "Neighborhoods/DemSits" {
 
     <<topiclist Column Description>>
 
-    <<topic "ID">>The ID of the situation<</topic>>
+    <<topic "ID">>The ID of the situation.<</topic>>
 
     <<topic "Change">>This field indicates the situations that changed
     during the last major time step, and how they changed, i.e., were
@@ -976,7 +976,7 @@ tab "Neighborhoods/EnSits" {
 
     <<topiclist Column Description>>
 
-    <<topic "ID">>The ID of the situation<</topic>>
+    <<topic "ID">>The ID of the situation.<</topic>>
 
     <<topic "Change">>This field indicates the situations that changed
     during the last major time step, and how they changed, i.e., were
@@ -1106,7 +1106,7 @@ tab "Groups/CivGroups" {
 
     <<topiclist Column Description>>
 
-    <<topic ID>>The group's ID<</topic>>
+    <<topic ID>>The group's ID.<</topic>>
 
     <<topic "Long Name">>The human-readable name for the group.<</topic>>
     
@@ -1258,7 +1258,7 @@ tab "Groups/FrcGroups" {
 
     <<topiclist Column Description>>
 
-    <<topic ID>>The group's ID<</topic>>
+    <<topic ID>>The group's ID.<</topic>>
 
     <<topic "Long Name">>The human-readable name for the group.<</topic>>
     
@@ -1336,7 +1336,7 @@ tab "Groups/OrgGroups" {
 
     <<topiclist Column Description>>
 
-    <<topic ID>>The group's ID<</topic>>
+    <<topic ID>>The group's ID.<</topic>>
 
     <<topic "Long Name">>The human-readable name for the group.<</topic>>
     
@@ -1554,7 +1554,7 @@ tab "ROE/Attack (Uniformed)" {
     will try to attack.
     <</topic>>
 
-    <<topic "Attacker">>The name of the attacking group<</topic>>
+    <<topic "Attacker">>The name of the attacking group.<</topic>>
     
     <<topic "Attacked">>The name of the non-uniformed force group
     being attacked.
@@ -1631,7 +1631,7 @@ tab "ROE/Attack (Non-Uniformed)" {
     will try to attack.
     <</topic>>
 
-    <<topic "Attacker">>The name of the attacking group<</topic>>
+    <<topic "Attacker">>The name of the attacking group.<</topic>>
     
     <<topic "Attacked">>The name of the uniformed force group
     being attacked.
@@ -1707,7 +1707,7 @@ tab "ROE/Defend" {
     will be defending.
     <</topic>>
 
-    <<topic "Group">>The name of the defending uniformed group<</topic>>
+    <<topic "Group">>The name of the defending uniformed group.<</topic>>
     
     <<topic "ROE">>The ROE proper.<p>
 
@@ -2549,7 +2549,7 @@ tab "Plots" {
 page plots.nbhood "Neighborhood Chart" tabs/Plots {
     A neighborhood chart displays a bar chart of one or more 
     <<cref var.n>> over all the neighborhoods in the playbox.  The
-    X axis will be the maximum required by the set of displayed
+    X-axis will be the maximum required by the set of displayed
     variables.
 }
 
