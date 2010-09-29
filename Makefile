@@ -108,6 +108,7 @@ bin: check_env src
 		-prefix $(BASE_KIT)                         \
 		-archive $(ARCHIVE)                         \
 		-follow                                     \
+		-force                                      \
 		-pkgref "comm"                              \
 		-pkgref "Img       -require 1.4"            \
 	        -pkgref "snit      -require 2.3"            \
@@ -176,6 +177,7 @@ INSTALLDIRS = \
 
 installdocs: $(INSTALLDIRS)
 	-cp docs/index.html            $(ATHENA_DOCS)/docs
+	-cp docs/install.txt           $(ATHENA_DOCS)/docs
 	-cp docs/developer.html        $(ATHENA_DOCS)/docs
 	-cp docs/build_notes.html      $(ATHENA_DOCS)/docs
 	-cp docs/dev/*.html            $(ATHENA_DOCS)/docs/dev
