@@ -11,6 +11,13 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 2.1.0, 29 September 2010</h3>
+
+This build is the the first Athena 2.1 release candidate, and (unless
+significant problems are found with it) also the release build.  It
+contains no changes except for those involved in marking it as
+Athena 2.1.<p>
+
 <h3>Build 2.0.10, 29 September 2010 -- Final 2.0.x Build</h3>
 
 This build is the final 2.0.x build; it will be the starting point
