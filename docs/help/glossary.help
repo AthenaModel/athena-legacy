@@ -52,7 +52,7 @@ term activity "activity" {
     appear as a <<term unit>> on the <<tabref Map>>; the unit is said to 
     perform the activity. There are different sets of activities for the
     different group types: <<term frcgroup>>s, <<term orggroup>>s, and 
-    <<term nbgroup>>s.  nightFor the full list of activities, and the
+    <<term nbgroup>>s.  For the full list of activities, and the
     meaning and effect of each, see the <i>Athena Rules</i> document, which
     is delivered with the software.
 }
@@ -677,7 +677,7 @@ term playbox "playbox" {
 
 term proximity "proximity" {
     The <i>proximity</i> of one <<term nbhood>> with another is
-    expressed as one of the following four values,<b>HERE</b>, 
+    expressed as one of the following four values, <b>HERE</b>, 
     <b>NEAR</b>, <b>FAR</b>, and <b>REMOTE</b>, where <b>HERE</b>
     represents the proximity of a neighborhood to itself.<p>
 
@@ -951,7 +951,7 @@ term timespec "time specification string" {
     <li> <b><i>zulu</i></b>: A <<term zulu>>.
     </ul><p>
 
-    (<b>Note:</b> One tick is one day.<p>
+    <b>Note:</b> One tick is one day.<p>
 
     Either the base time or the offset may be omitted.  If the base
     time is omitted, it defaults to <b>NOW</b>; if the offset is
@@ -960,7 +960,7 @@ term timespec "time specification string" {
     <ul>
     <li> <b>NOW</b>: The current simulation time.
     <li> <b>NOW+30</b>: 30 ticks (days) from now.
-    <li> <b>200000ZFEB10+7</b>: 7 ticks after 20 February 20010.
+    <li> <b>200000ZFEB10+7</b>: 7 ticks after 20 February 2010.
     <li> <b>-5</b>: Five ticks ago
     <li> <b>+5</b>: Five ticks from now 
     <li> <b>5</b>: Day five.
