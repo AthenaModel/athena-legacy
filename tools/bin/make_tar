@@ -45,6 +45,7 @@ set patterns(install) {
     bin/athena
     docs/README
     docs/*.html
+    docs/*.txt
     docs/man*/*.html
     docs/man*/*.gif
     docs/dev/*.html
@@ -74,6 +75,7 @@ set patterns(install) {
 
 set patterns(docs) {
     docs/*.html
+    docs/*.txt
     docs/man*/*.html
     docs/man*/*.gif
     docs/dev/*.html
