@@ -1,0 +1,155 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    callbacklist.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Tcltest test suite for marsutil(n) callbacklist(n)
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Initialize tcltest(n)
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest 2.2 
+    eval ::tcltest::configure $argv
+}
+ 
+#-----------------------------------------------------------------------
+# Load the package to be tested
+
+package require marsutil 1.0
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::marsutil::test {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Import the code to be tested
+    namespace import ::marsutil::*
+
+    variable sum 0
+    variable product 0
+    variable cancelId ""
+
+    proc add {a b c} {
+        variable sum
+        
+        set sum [expr {$a + $b + $c}]
+    }
+
+    proc mult {a b c} {
+        variable product
+
+        set product [expr {$a * $b * $c}]
+    }
+
+    proc canceller {} {
+        variable cancelId
+        variable sum
+
+        set sum 1
+        cb cancel $cancelId
+    }
+
+    #-------------------------------------------------------------------
+    # register/cancel
+
+    test callbacklist_registercancel-1.1 {can't cancel unknown id} -setup {
+        callbacklist cb
+    } -body {
+        cb cancel 5
+    } -returnCodes {
+        error
+    } -cleanup {
+        cb destroy
+    } -result {cannot cancel id '5': no such callback}
+
+    test callbacklist_registercancel-1.2 {can cancel known ids} -setup {
+        callbacklist cb
+    } -body {
+        set id1 [cb register A]
+        set id2 [cb register B]
+        cb cancel $id1
+        cb cancel $id2
+    } -cleanup {
+        cb destroy
+    } -result {}
+
+    #-------------------------------------------------------------------
+    # call
+
+    test callbacklist_call-1.1 {call callbacks} -setup {
+        callbacklist cb
+        
+        set sum 0
+        set product 0
+    } -body {
+        cb register [list [namespace current]::add 4]
+        cb register [list [namespace current]::mult 2]
+        cb call 3 5
+        list $sum $product
+    } -cleanup {
+        cb destroy
+    } -result {12 30}
+
+    test callbacklist_call-1.2 {cancelling prevents calls} -setup {
+        callbacklist cb
+    } -body {
+        set id1 [cb register [list [namespace current]::add 1]]
+
+        set sum 0
+        cb call 2 3
+        set sum1 $sum
+
+        cb cancel $id1
+
+        set sum 0
+        cb call 4 5
+
+        list $sum1 $sum
+    } -cleanup {
+        cb destroy
+    } -result {6 0}
+
+    test callbacklist_call-1.3 {A callback can cancel itself.} -setup {
+        callbacklist cb
+    } -body {
+        set cancelId [cb register [namespace current]::canceller]
+
+        set sum 0
+        cb call
+        set sum1 $sum
+
+        set sum 0
+        cb call
+
+        list $sum1 $sum
+    } -cleanup {
+        cb destroy
+    } -result {1 0}
+
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::marsutil::test
+
+
+

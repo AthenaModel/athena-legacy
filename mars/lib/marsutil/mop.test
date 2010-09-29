@@ -1,0 +1,807 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    mop.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Tcltest test suite for marsutil(n) mop(n)
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Initialize tcltest(n)
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest 2.2 
+    eval ::tcltest::configure $argv
+}
+ 
+#-----------------------------------------------------------------------
+# Load the package to be tested
+
+package require marsutil 1.0
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::marsutil::test {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Import the code to be tested
+    namespace import ::marsutil::*
+
+    #-------------------------------------------------------------------
+    # Setup/Cleanup
+
+    # Faux modules
+    snit::type ::marsutil::test::mod1 {
+        typevariable tv1 "value of tv1"
+    }
+
+    snit::type ::marsutil::test::mod2 {
+        typevariable tv2 "value of tv2"
+    }
+
+    # Enum type
+
+    ::marsutil::enum ::marsutil::test::goodness {
+        GOOD Good
+        BAD  Bad
+    }
+
+    # codecatch cmd....
+    #
+    # Catches result of calling the command, expecting an error,
+    # and returns the error message prefixed with the errorcode.
+
+    proc codecatch {args} {
+        if {![catch $args result]} {
+            error "Expected error, got ok"
+        }
+
+        return "$::errorCode $result"
+    }
+
+    # Setup
+    #
+    # Prepare the -logcmd and -ordercmd
+
+    proc Setup {} {
+        variable Log
+        variable Orders
+
+        mop configure -logcmd   ::marsutil::test::LogCmd
+        mop configure -ordercmd ::marsutil::test::OrderCmd
+        set Log [list]
+        set Orders [list]
+    }
+
+    # CleanUp
+    #
+    # Reset the mop(n) module.
+    proc CleanUp {} {
+        variable Log
+        variable Orders
+
+        mop reset
+        set Log [list]
+        set Orders [list]
+    }
+
+    # LogCmd args
+    #
+    # Add entry to Log.
+    proc LogCmd {args} {
+        variable Log
+        
+        lappend Log $args
+    }
+
+    # OrderCmd args
+    #
+    # Add entry to Orders
+    proc OrderCmd {args} {
+        variable Orders
+        
+        lappend Orders $args
+    }
+
+    #-------------------------------------------------------------------
+    # configure
+
+    test mop_configure-1.1 {-logcmd default} -body {
+        mop configure -logcmd
+    }  -cleanup {
+        CleanUp
+    } -result {}
+
+    test mop_configure-1.2 {-logcmd set} -body {
+        set a [mop configure -logcmd nonesuch]
+        set b [mop configure -logcmd]
+
+        list $a $b
+    }  -cleanup {
+        CleanUp
+    } -result {{} nonesuch}
+
+    test mop_configure-2.1 {-ordercmd default} -body {
+        mop configure -ordercmd
+    }  -cleanup {
+        CleanUp
+    } -result {}
+
+    test mop_configure-2.2 {-ordercmd set} -body {
+        set a [mop configure -ordercmd nonesuch]
+        set b [mop configure -ordercmd]
+
+        list $a $b
+    }  -cleanup {
+        CleanUp
+    } -result {{} nonesuch}
+
+    test mop_configure-3.1 {Configure multiple options} -body {
+        set a [mop configure -logcmd foo -ordercmd bar]
+        set b [mop configure -logcmd]
+        set c [mop configure -ordercmd]
+
+        list $a $b $c
+    }  -cleanup {
+        CleanUp
+    } -result {{} foo bar}
+
+    #-------------------------------------------------------------------
+    # define
+
+    test mop_define-1.1 {Module is not a snit::type} -body {
+        mop define NONESUCH MY:ORDER {a b c} { }
+    } -returnCodes {
+        error
+    } -cleanup {
+        CleanUp
+    } -result {Module is not a snit::type with -hasinfo: "NONESUCH"}
+
+
+    test mop_define-2.1 {order exists} -body {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b c} {}
+        mop exists MY:ORDER
+    } -cleanup {
+        CleanUp
+    } -result {1}
+
+
+    test mop_define-2.2 {parm names are saved} -body {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b c} {}
+        mop parms MY:ORDER
+    } -cleanup {
+        CleanUp
+    } -result {a b c}
+
+
+    test mop_define-2.3 {module's orders namespace exists} -body {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b c} {}
+        namespace exists ::marsutil::test::mod1::orders
+    } -cleanup {
+        CleanUp
+    } -result {1}
+
+
+    test mop_define-2.4 {namespace path is set} -body {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b c} {}
+        namespace eval ::marsutil::test::mod1::orders {namespace path}
+    } -cleanup {
+        CleanUp
+    } -result {::marsutil::test::mod1 ::marsutil::mop}
+
+
+    test mop_define-2.5 {handler proc is defined} -body {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b c} {}
+        info command ::marsutil::test::mod1::orders::MY:ORDER
+    } -cleanup {
+        CleanUp
+    } -result {::marsutil::test::mod1::orders::MY:ORDER}
+
+
+    test mop_define-2.6 {handler proc includes variable declarations} -body {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b c} {}
+        string trim [info body ::marsutil::test::mod1::orders::MY:ORDER]
+    } -cleanup {
+        CleanUp
+    } -result {namespace upvar ::marsutil::mop ::marsutil::mop::parms parms
+    namespace upvar ::marsutil::test::mod1 ::marsutil::test::mod1::tv1 tv1
+    set type ::marsutil::test::mod1}
+
+    
+    #-------------------------------------------------------------------
+    # names
+
+    test mop_names-1.1 {No orders defined} -body {
+        mop names
+    } -cleanup {
+        CleanUp
+    } -result {}
+    
+    test mop_names-1.2 {Orders defined} -body {
+        mop define ::marsutil::test::mod1 MY:FIRST {a b c} {}
+        mop define ::marsutil::test::mod2 MY:SECOND {d e} {}
+        lsort [mop names]
+    } -cleanup {
+        CleanUp
+    } -result {MY:FIRST MY:SECOND}
+
+    #-------------------------------------------------------------------
+    # validate
+
+    test mop_validate-1.1 {No orders defined} -body {
+        codecatch mop validate MY:ORDER
+    } -cleanup {
+        CleanUp
+    } -result {INVALID order does not exist: "MY:ORDER"}
+    
+    test mop_validate-1.2 {Order validated} -body {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b c} {}
+        mop validate MY:ORDER
+    } -cleanup {
+        CleanUp
+    } -result {MY:ORDER}
+
+    #-------------------------------------------------------------------
+    # exists
+
+    test mop_exists-1.1 {No orders defined} -body {
+        mop exists MY:ORDER
+    } -cleanup {
+        CleanUp
+    } -result {0}
+    
+    test mop_exists-1.2 {Order exists} -body {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b c} {}
+        mop define ::marsutil::test::mod2 MY:OTHER:ORDER {d e f} {}
+        mop exists MY:ORDER
+    } -cleanup {
+        CleanUp
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # parms
+
+    test mop_parms-1.1 {Order not defined} -body {
+        codecatch mop parms MY:ORDER
+    } -cleanup {
+        CleanUp
+    } -result {INVALID order does not exist: "MY:ORDER"}
+    
+    test mop_parms-1.2 {Order exists} -body {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b c} {}
+        mop define ::marsutil::test::mod2 MY:OTHER:ORDER {d e f} {}
+        mop parms MY:ORDER
+    } -cleanup {
+        CleanUp
+    } -result {a b c}
+
+    #-------------------------------------------------------------------
+    # mop_send
+
+    test mop_send-1.1 {order unknown} -body {
+        codecatch mop send test NONESUCH a b c
+    } -cleanup {
+        CleanUp
+    } -result {ASSERT Undefined order: NONESUCH}
+
+
+    test mop_send-1.2 {unknown parm names} -body {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b c} {}
+        codecatch mop send test MY:ORDER d 1 e 2
+    } -cleanup {
+        CleanUp
+    } -result {ASSERT Unknown parameter: "d"}
+
+    test mop_send-2.1 {parms passed through: syntax 1} -body {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b c} {
+            array get parms
+        }
+        mop send test MY:ORDER a 1 b 2 c 3
+    } -cleanup {
+        CleanUp
+    } -result {a 1 b 2 _order MY:ORDER c 3}
+
+    test mop_send-2.2 {parms passed through: syntax 2} -body {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b c} {
+            array get parms
+        }
+        mop send test MY:ORDER [list a 1 b 2 c 3]
+    } -cleanup {
+        CleanUp
+    } -result {a 1 b 2 _order MY:ORDER c 3}
+
+    test mop_send-3.1 {REJECT error} -body {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b c} {
+            return -code error -errorcode REJECT "Simulated Rejection"
+        }
+        codecatch mop send test MY:ORDER a 1 b 2 c 3
+    } -cleanup {
+        CleanUp
+    } -result {REJECT Simulated Rejection}
+
+    test mop_send-3.2 {REJECT error} -body {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b c} {
+            return -code error -errorcode CANCEL "Simulated Cancellation"
+        }
+        codecatch mop send test MY:ORDER a 1 b 2 c 3
+    } -cleanup {
+        CleanUp
+    } -result {CANCEL Simulated Cancellation}
+
+    test mop_send-3.3 {Unexpected error} -body {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b c} {
+            return -code error "Simulated Error"
+        }
+        codecatch mop send test MY:ORDER a 1 b 2 c 3
+    } -cleanup {
+        CleanUp
+    } -result {NONE Unexpected error in MY:ORDER:
+Simulated Error}
+
+    #-------------------------------------------------------------------
+    # -logcmd
+
+    test logcmd-1.1 {Successful Order} -setup {
+        mop configure -logcmd   ::marsutil::test::LogCmd
+        mop define ::marsutil::test::mod1 MY:ORDER {code} {
+            return
+        }
+    } -body {
+        mop send test MY:ORDER code ""
+        set Log
+    } -cleanup {
+        CleanUp
+    } -result {{normal mop {MY:ORDER from 'test': {code {}}}}}
+
+    test logcmd-1.2 {REJECT/CANCEL} -setup {
+        mop configure -logcmd   ::marsutil::test::LogCmd
+        mop define ::marsutil::test::mod1 MY:ORDER {code} {
+            return -code error -errorcode REJECT "Simulated Error"
+        }
+    } -body {
+        catch {mop send test MY:ORDER code REJECT}
+        set Log
+    } -cleanup {
+        CleanUp
+    } -result {{normal mop {MY:ORDER from 'test': {code REJECT}}} {warning mop {Simulated Error}}}
+
+    test logcmd-1.3 {Unexpected Error} -setup {
+        mop configure -logcmd   ::marsutil::test::LogCmd
+        mop define ::marsutil::test::mod1 MY:ORDER {code} {
+            return -code error "Simulated Error"
+        }
+    } -body {
+        catch {mop send test MY:ORDER code NONE}
+        set Log
+    } -cleanup {
+        CleanUp
+    } -result {{normal mop {MY:ORDER from 'test': {code NONE}}}}
+
+    #-------------------------------------------------------------------
+    # -ordercmd
+
+    test ordercmd-1.1 {Successful Order} -setup {
+        mop configure -ordercmd   ::marsutil::test::OrderCmd
+        mop define ::marsutil::test::mod1 MY:ORDER {code} {
+            setundo undo
+            return
+        }
+    } -body {
+        mop send test MY:ORDER code ""
+        set Orders
+    } -cleanup {
+        CleanUp
+    } -result {{test MY:ORDER {code {}} undo}}
+
+    test ordercmd-1.2 {REJECT/CANCEL} -setup {
+        mop configure -ordercmd   ::marsutil::test::OrderCmd
+        mop define ::marsutil::test::mod1 MY:ORDER {code} {
+            return -code error -errorcode REJECT "Simulated Error"
+        }
+    } -body {
+        catch {mop send test MY:ORDER code REJECT}
+        set Orders
+    } -cleanup {
+        CleanUp
+    } -result {}
+
+
+    #-------------------------------------------------------------------
+    # interface
+
+    test interface-1.1 {Interface passed through} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {code} {
+            interface
+        }
+    } -body {
+        mop send test MY:ORDER code ""
+    } -cleanup {
+        CleanUp
+    } -result {test}
+
+    #-------------------------------------------------------------------
+    # prepare
+
+    test prepare-1.1 {Adds missing parameter to parms} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a
+        }
+    } -body {
+        mop send test MY:ORDER
+        mop lastparms
+    } -result {a {} _order MY:ORDER}
+
+    test prepare-1.2 {Value is trimmed} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a
+        }
+    } -body {
+        mop send test MY:ORDER a " my  value "
+        mop lastparms
+    } -result {a {my  value} _order MY:ORDER}
+
+    test prepare-1.3 {prepare -toupper} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -toupper
+        }
+    } -body {
+        mop send test MY:ORDER a value
+        mop lastparms
+    } -result {a VALUE _order MY:ORDER}
+
+    test prepare-1.4 {prepare -toupper} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -tolower
+        }
+    } -body {
+        mop send test MY:ORDER a VALUE
+        mop lastparms
+    } -result {a value _order MY:ORDER}
+
+    test prepare-1.5 {prepare -normalize} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -normalize
+        }
+    } -body {
+        mop send test MY:ORDER a " my  value "
+        mop lastparms
+    } -result {a {my value} _order MY:ORDER}
+
+    test prepare-1.6 {prepare -required, abset} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -required
+            returnOnError
+        }
+    } -body {
+        codecatch mop send test MY:ORDER
+    } -cleanup {
+        CleanUp
+    } -result {REJECT a {required value}}
+
+    test prepare-1.7 {prepare -required, present} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -required
+            returnOnError
+
+            return OK
+        }
+    } -body {
+        mop send test MY:ORDER a value
+    } -cleanup {
+        CleanUp
+    } -result {OK}
+
+
+    test prepare-1.8 {prepare -oldvalue, match} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -oldvalue "my value"
+        }
+    } -body {
+        mop send test MY:ORDER a "my value"
+        mop lastparms
+    } -result {a {} _order MY:ORDER}
+
+    test prepare-1.9 {prepare -oldvalue, no match} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -oldvalue "my value"
+        }
+    } -body {
+        mop send test MY:ORDER a "my new value"
+        mop lastparms
+    } -result {a {my new value} _order MY:ORDER}
+
+    test prepare-1.10 {prepare -oldnum, no match} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -oldnum 8
+        }
+    } -body {
+        mop send test MY:ORDER a 8
+        mop lastparms
+    } -result {a {} _order MY:ORDER}
+
+    test prepare-1.11 {prepare -oldnum, no match} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -oldnum 8
+        }
+    } -body {
+        mop send test MY:ORDER a 10
+        mop lastparms
+    } -result {a 10 _order MY:ORDER}
+
+    test prepare-1.12 {prepare -oldnum, no match} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -oldnum 8
+        }
+    } -body {
+        mop send test MY:ORDER a 10
+        mop lastparms
+    } -result {a 10 _order MY:ORDER}
+
+    test prepare-1.13 {prepare -type, valid} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -type ::marsutil::test::goodness
+            returnOnError
+            return OK
+        }
+    } -body {
+        mop send test MY:ORDER a GOOD
+    } -result {OK}
+
+    test prepare-1.14 {prepare -type, invalid} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -type ::marsutil::test::goodness
+            returnOnError
+            return OK
+        }
+    } -body {
+        codecatch mop send test MY:ORDER a UGLY
+    } -result {REJECT a {invalid value "UGLY", should be one of: GOOD, BAD}}
+
+    test prepare-1.15 {prepare -listof, valid} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -listof ::marsutil::test::goodness
+            returnOnError
+            return OK
+        }
+    } -body {
+        mop send test MY:ORDER a {GOOD BAD GOOD}
+    } -result {OK}
+
+    test prepare-1.15 {prepare -listof, invalid} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -listof ::marsutil::test::goodness
+            returnOnError
+            return OK
+        }
+    } -body {
+        codecatch mop send test MY:ORDER a {GOOD BAD UGLY}
+    } -result {REJECT a {invalid value "UGLY", should be one of: GOOD, BAD}}
+
+    test prepare-1.16 {prepare -xform} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -xform {string toupper}
+        }
+    } -body {
+        mop send test MY:ORDER a value
+        mop lastparms
+    } -result {a VALUE _order MY:ORDER}
+
+    #-------------------------------------------------------------------
+    # reject
+
+    test reject-1.1 {Reject adds to messages} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b} {
+            reject a "Bad A"
+            reject b "Worse B"
+            returnOnError
+        }
+    } -body {
+        codecatch mop send test MY:ORDER a 1 b 2
+    } -cleanup {
+        CleanUp
+    } -result {REJECT a {Bad A} b {Worse B}}
+
+
+    #-------------------------------------------------------------------
+    # cancel
+
+    test cancel-1.1 {Cancel ends order} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b} {
+            cancel
+        }
+    } -body {
+        codecatch mop send test MY:ORDER a 1 b 2
+    } -cleanup {
+        CleanUp
+    } -result {CANCEL The order was cancelled.}
+
+    #-------------------------------------------------------------------
+    # valid
+
+    test valid-1.1 {Valid if not rejected and not ""} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b} {
+            valid a
+        }
+    } -body {
+        mop send test MY:ORDER a 1 b 2
+    } -cleanup {
+        CleanUp
+    } -result {1}
+    
+    test valid-1.2 {Invalid if ""} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b} {
+            valid a
+        }
+    } -body {
+        mop send test MY:ORDER a "" b 2
+    } -cleanup {
+        CleanUp
+    } -result {0}
+    
+    test valid-1.3 {Invalid if rejected} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b} {
+            reject a "Simulated Error"
+            valid a
+        }
+    } -body {
+        mop send test MY:ORDER a 1 b 2
+    } -cleanup {
+        CleanUp
+    } -result {0}
+    
+
+    #-------------------------------------------------------------------
+    # validate
+
+    test validate-1.1 {Rejected if script throws INVALID} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b} {
+            validate a {
+                return -code error -errorcode INVALID "Invalid a"
+            }
+
+            returnOnError
+
+            return
+        }
+    } -body {
+        codecatch mop send test MY:ORDER a 1 b 2
+    } -cleanup {
+        CleanUp
+    } -result {REJECT a {Invalid a}}
+
+    test validate-1.2 {Unexpected error if throws anything else} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b} {
+            validate a {
+                return -code error "Simulated Error"
+            }
+
+            returnOnError
+
+            return
+        }
+    } -body {
+        codecatch mop send test MY:ORDER a 1 b 2
+    } -cleanup {
+        CleanUp
+    } -result {NONE Unexpected error in MY:ORDER:
+Simulated Error}
+
+    test validate-1.3 {Otherwise, valid} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a b} {
+            validate a {
+                # Nothing
+            }
+
+            returnOnError
+
+            valid a
+        }
+    } -body {
+        mop send test MY:ORDER a 1 b 2
+    } -cleanup {
+        CleanUp
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # returnOnError
+    #
+    # This command is tested by the other tests.
+
+    #-------------------------------------------------------------------
+    # setundo
+    #
+    # Any undo script passed to setundo is passed to the -ordercmd; this
+    # is tested by the ordercmd test, above.
+
+
+    #-------------------------------------------------------------------
+    # mop_formatRejection
+
+    test mop_formatRejection-1.1 {* alone} -body {
+        mop formatRejection {* "The message"}
+    } -result {The message}
+
+    test mop_formatRejection-1.2 {parms alone} -body {
+        mop formatRejection {a "Message A" b "Message B"}
+    } -result {a: Message A
+b: Message B}
+
+    test mop_formatRejection-1.2 {* and parms} -body {
+        mop formatRejection {* "The Message" a "Message A" b "Message B"}
+    } -result {The Message
+a: Message A
+b: Message B}
+
+    #-------------------------------------------------------------------
+    # mop_check
+
+    test mop_check-1.1 {order is invalid} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -type ::marsutil::test::goodness
+            returnOnError -final
+            return OK
+        }
+    } -body {
+        codecatch mop check MY:ORDER a NONESUCH
+    } -result {REJECT a {invalid value "NONESUCH", should be one of: GOOD, BAD}}
+
+    test mop_check-1.2 {order is valid} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -type ::marsutil::test::goodness
+            returnOnError -final
+            return OK
+        }
+    } -body {
+        mop check MY:ORDER a GOOD
+    } -result {}
+
+
+    #-------------------------------------------------------------------
+    # mop_nullmode
+
+    test mop_nullmode-1.1 {null mode works} -setup {
+        mop define ::marsutil::test::mod1 MY:ORDER {a} {
+            prepare a -type ::marsutil::test::goodness
+            returnOnError -final
+            return OK
+        }
+    } -body {
+        mop nullmode yes
+        mop send test MY:ORDER a NONESUCH
+    } -result {}
+
+
+
+    #-------------------------------------------------------------------
+    # mop_lastparms
+    #
+    # This routine is checked in use by the other tests.
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::marsutil::test
+
+
+
+
+
+
+

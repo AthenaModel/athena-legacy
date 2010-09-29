@@ -1,0 +1,113 @@
+<<manpage {marsgui(n) pwin(n)} "Pseudo-window Widget">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require gui 1.0
+namespace import ::marsgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+The pwin(n) widget is a fancy window frame for "pseudo-windows" added
+to a <<xref pwinman(n)>> widget.  The window frame includes three
+buttons: one to close the pseudo-window, one to move the pseudo-window
+upwards in the <<xref pwinman(n)>>'s stack of windows, and one to move
+it down in the stack.  The pwin(n) contains a
+<<xref tk:frame(n)>> widget, to which the application can add any
+desired widgets.<p>
+
+<<section OPTIONS>>
+
+The widget has the following options, in addition to the usual options
+for a <<xref tk:frame(n)>> widget.  Note that these are usually set
+by the <<xref pwinman(n)>>; the application should have no reason to
+touch them.<p>
+
+<<deflist options>>
+
+<<defopt {-command <i>command</i>}>>
+
+A command to be called when one of the frame buttons is pressed.
+It will be called with one addition argument, one of <b>up</b>,
+<b>down</b>, or <b>close</b>.<p>
+
+<<defopt {-closestate <i>state</i>}>>
+<<defopt {-downstate <i>state</i>}>>
+<<defopt {-upstate <i>state</i>}>>
+
+Sets the state of the <b>close</b>, <b>down</b>, or
+<b>up</b> frame buttons to <b>normal</b> or
+<b>disabled</b>.<p>
+
+<<defopt {-title <i>text</i>}>>
+
+Specifies the title string to go in the pwin(n)'s title bar.  Defaults
+to the empty string.<p>
+
+<<defopt {-titlefont <i>text</i>}>>
+
+Specifies the font to use for the <b>-title</b>.  Defaults to the normal
+label font.<p>
+
+<</deflist>>
+
+<<section COMMANDS>>
+
+This module defines the following command:<p>
+
+<<deflist commands>>
+
+<<defitem pwin {pwin <i>pathName</i> ?<i>options...</i>?}>>
+
+Creates a new pwin widget named <i>pathName</i>.<p>
+
+Note that pwin(n) widgets are usually created by a
+<<xref pwinman(n)>>; there's little reason for the application to
+create one directly.<p>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+<<deflist instance>>
+
+<<defitem cget {<i>win</i> cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem configure {<i>win</i> configure <i>option value...</i>}>>
+
+Sets the values of the specified <i>options</i>.  The widget will
+redraw the chart accordingly.<p>
+
+<<defitem frame {<i>win</i> frame}>>
+
+Returns the name of a <<xref tk:frame(n)>> widget, into which the
+application can place content.<p>
+<</deflist>>
+
+<<section ENVIRONMENT>>
+
+This package requires Tcl/Tk 8.5 or later.
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

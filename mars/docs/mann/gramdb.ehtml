@@ -1,0 +1,107 @@
+<<manpage {simlib(n) gramdb(n)} "gramdb(5) Parser">>
+
+<<swallow {package require simlib}>>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require simlib 1.0
+namespace import ::simlib::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+gramdb(n) defines a parser for <<xref gramdb(5)>> files.  gramdb(n)
+loads <<xref gramdb(5)>> data into an <<xref sqldocument(n)>> or
+other SQLite3 database.  gramdb(n) adheres to the
+<<xref sqlsection(i)>> interface.<p>
+
+<<section "DATABASE SCHEMA">>
+
+gramdb(n) registers the following schema definitions:<p>
+
+<pre>
+<<::simlib::gramdb sqlsection schema>>
+</pre>
+
+<<section COMMANDS>>
+
+This module defines the following command:<p>
+
+<<deflist commands>>
+
+<<defitem loadfile {gramdb loadfile <i>dbfile</i> ?<i>db</i>?}>>
+
+Parses the content of the file named <i>dbfile</i>, and stores the
+data in the relevant tables in the <<xref sqldocument(n)>> called
+<i>db</i>.<p>
+
+If <i>db</i> is specified, the schema must already
+be initialized.  The relevant tables will be cleared prior to
+loading the data.<p>
+
+If no <i>db</i> is specified, <<iref loadfile>> will create,
+initialize, and return an in-memory <<xref sqldocument(n)>> object.
+In this case, it is the caller's responsibility to destroy the
+database object when it is no longer needed.<p>
+
+<<defitem load {gramdb load <i>text</i> ?<i>db</i>?}>>
+
+Identical to <<iref loadfile>>, but parses <<xref gramdb(5)>> text from
+string <i>text</i> rather than a file.<p>
+
+<<defitem loader {gramdb loader <i>db gram</i>}>>
+
+Loads the <<xref gramdb(5)>> data found in the
+<<xref sqldocument(n)>> object <i>db</i> into <i>gram</i>, an
+instance of <<xref gram(n)>>.  This command is to be used as a
+<<xref gram(n)>> <b>-loadcmd</b>, like so:<p>
+
+<pre>
+gram ::mygram \
+    -loadcmd [list ::simlib::gramdb loader $db] \
+      .
+      .
+      .
+</pre>
+
+where <b>$db</b> is the name of the <<xref sqldocument(n)>> containing the
+data.  Note that calling it in any other way simply won't work.<p>
+
+<<defitem sqlsection {gramdb sqlsection <i>subcommand</i>}>>
+
+gramdb(n) is an <<xref sqlsection(i)>>, as it defines
+schema entities (see <<xref "DATABASE SCHEMA">>).
+See <<xref sqlsection(i)>> for a description
+of this method's subcommands.<p>
+
+<</deflist commands>>
+
+<<section ENVIRONMENT>>
+
+This package requires Tcl 8.5 or later.
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+gramdb(n) is a simplification and modification of JNEM's
+simdb(n) module, tailored specifically to the needs of
+<<xref gram(n)>>.<p>
+
+<</manpage>>
+
+
+
+
+
+
+

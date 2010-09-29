@@ -1,0 +1,451 @@
+<<manpage {marsutil(n) mop(n)} "Mars Order Processor">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require marsutil 1.0
+namespace import ::marsutil::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+An <i>order</i>, in the sense of this man page, is an input to the
+application that changes the application's state in some way.  It's
+frequently desirable to track such inputs.  In a simulation with
+checkpoint/restore/run-up, for example, it's necessary 
+to maintain a Critical Input File (CIF) to support running-up the
+simulation after a restore.  In an application with global undo/redo,
+it's similarly necessary to track all such inputs.  This kind of
+tracking is facilitated by routing all such inputs through a single
+mechanism.  mop(n) provides such a mechanism.  Moreover, such inputs
+need to be carefully validated, and relevant and detailed error
+information provided to the user.  mop(n) includes a variety of tools
+to make such validation and error reporting easy.<p>
+
+mop(n) allows the application to define orders.  Each order consists
+of:
+
+<ul>
+  <li> A name.  Order names are conventionally in uppercase with
+       colons as word separators, e.g., "UNIT:UPDATE".  The tokens
+       in the name are usually used to group related orders; thus, all
+       unit order names might begin with "UNIT:".<p>
+
+  <li> A list of parameter names.  When an order is sent, the input
+       data is provided as a dictionary of parameter names and values;
+       the parameter names must match this list.<p>
+
+  <li> A body, a script that validates the inputs and then finally
+       carries out the work of the order.<p>
+</ul>
+
+In essence, then, an order is a specialized kind of command that's
+registered with the order processor and has a stylized interface that
+allows the order processor and other tools to manipulate it
+programmatically.<p>
+
+Orders are usually related to specific application modules, and can be
+defined as part of those modules.<p>
+
+<<subsection "Order Bodies">>
+
+An order's body is primarily responsible for validating the order data
+and providing high-quality error messages for any invalid parameters.
+The actual work is usually handed off to one or more "mutator" commands
+implemented by the relevant modules.<p>
+
+mop(n) supports the application's multi-level undo/redo stack.
+Those orders which are undoable will submit an undo script to mop(n)
+as their last action.  Typically, each mutator called by the body
+returns a script that undoes the mutator's effect; the order body
+aggregates these into a single undo script.<p>
+
+Because orders are defined relative to particular modules (i.e.,
+snit::types), order bodies can refer to any of the module's type
+variables.<p>
+
+<<subsection "Error Handling">>
+
+When an order is sent, there are four possibilities.<p>
+
+First, it might be rejected due to errors in the order's parameter
+values.  In this case the order has no effect on the application.
+<<iref mop send>> will throw an error with error code <b>REJECT</b> and
+a result that is a dictionary of error messages by parameter name.  If
+the order is rejected for some cause that's independent of any
+particular parameter, the error dictionary will include the error
+message as the value of key "*".<p>
+
+Second, it might be cancelled.  In this case, <<iref mop send>> will
+throw an error with error code <b>CANCEL</b>.<p>
+
+Third, it might fail due to an unexpected error (i.e., a bug).<p>
+
+In each of these three cases, the error is propagated normally and
+must be handled by the application.<p>
+
+Finally, it may be successful, in which case the <b>-ordercmd</b> is
+called and <<iref mop send>> returns the order body's return value.<p>
+
+<<subsection "Order Interfaces">>
+
+How the application handles an error in an order usually depends on
+the interface from which the order was sent.  An error in an order
+received as in input from some other application over an IPC link
+should typically be logged in detail; errors in an order received as
+input from an interactive user sitting at the application GUI should
+be presented to the user in some appropriate way.<p>
+
+Other behaviors can depend on the interface as well.  An order
+received from user input at the application GUI might need to pop up a
+confirmation dialog; the same order received from the application test
+suite should not.  An order received from the user might go on the
+undo stack or be entered into a Critical Input File; an order received
+from the application's internals, possibly as the result of some other
+order, should not.<p>
+
+The interfaces and the appropriate responses to them are naturally
+application-specific.  mop(n) consequently accepts an <i>interface</i>
+argument when an order is sent, and makes it available to both the
+order's body and to the <b>-ordercmd</b> call back, as a convenience
+to the application author.<p>
+
+
+<<section COMMANDS>>
+
+This section lists the commands provided by mop(n).  There are
+two categories:  <<xref "Application Commands">>, which are used to
+define and send orders, and to query order metadata;
+and <<xref "Order Body Commands">> which are used in order bodies.<p>
+
+<<subsection "Application Commands">>
+
+The application-level commands are as follows:<p>
+
+<<deflist app>>
+
+<<defitem "mop configure" {mop configure <i>option</i> ?<i>value</i>? ?<i>option value...</i>?}>>
+
+Sets and queries mop(n)'s configuration options, which are as
+follows:<p>
+
+<<deflist options>>
+
+<<defopt {-logcmd <i>cmd</i>}>>
+
+If defined, <i>cmd</i> must be a command prefix equivalent to a
+<<xref logger(n)>> instance command.  mop(n) will use the <i>cmd</i>
+to write to the application's debugging.  If <i>cmd</i> is the empty
+string, no logging is done.<p>
+
+<<defopt {-ordercmd <i>cmd</i>}>>
+
+If defined, <i>cmd</i> will be called for each order that is
+successfully executed by <<iref mop send>>.  The <i>cmd</i> must be a
+prefix to which will be appended four additional arguments:<p>
+
+<ul>
+  <li> The <i>interface</i>.
+  <li> The order <i>name</i>.
+  <li> The <i>parmdict</i>.
+  <li> The undo script, or "" if none.
+</ul><p>
+
+<</deflist options>>
+
+<<defitem "mop check" {mop check <i>name parmdict</i>}>>
+<<defitem "mop check" {mop check <i>name parm value</i> ?<i>parm value...</i>?}>>
+
+Checks whether the specified parameter values are valid for the named
+order, throwing <b>REJECT</b> if not.
+The order's parameters are specified as one argument, a
+dictionary, or as multiple parameter names and values.<p>
+
+This command behaves identically to <<iref mop send>>, except that the
+order is not executed if the parameters are valid.<p>
+
+<<defitem "mop define" {mop define <i>module name parmlist body</i>}>>
+
+Defines an order.  Orders are typically defined at file scope in
+application modules; they can also be defined (and redefined) at any time.<p>
+
+The <i>module</i> is the fully-qualified name of the application
+module that implements the order.  It must be a
+<code>snit::type</code>.<p>
+
+The <i>name</i> is the name of the order.<p>
+
+The <i>parmlist</i> is a list of the names of the parameters of this
+order.<p>
+
+The <i>body</i> is the script that implements the order.  It is
+effectively the body of a <<xref tcl:proc(n) proc>> defined within
+the <i>module</i>, with these differences:<p>
+
+<ul>
+  <li> The <i>parms</i> array is a predefined variable; it contains the
+       order parameters and their values.<p>
+
+  <li> It may use the <<xref "Order Body Commands">>.<p>
+</ul>
+
+<<defitem "mop exists" {mop exists <i>name</i>}>>
+
+Returns 1 if there is an order with the specified <i>name</i>, and 0
+otherwise.<p>
+
+<<defitem "mop formatRejection" {mop formatRejection <i>errdict</i>}>>
+
+When an order is rejected, the error result is not a simple error
+message, as is usually the case, but rather a dictionary of parameter
+names and values.  This routine takes in such an error dictionary, and
+returns a single string suitable for output to a console, CLI, or log.<p>
+
+<<defitem "mop lastparms" {mop lastparms}>>
+
+Returns the parameter dictionary of the last order sent.  The
+dictionary will include one additional key, <b>_order</b>, whose value
+is the name of the order.  This is usually used in test code in
+conjunction with <<iref mop nullmode>>.<p>
+
+<<defitem "mop names" {mop names}>>
+
+Returns a list of the names of the currently defined orders.<p>
+
+<<defitem "mop nullmode" {mop nullmode <i>flag</i>}>>
+
+Sets and clears "null mode".  In null mode the order is not executed,
+but the parameters are available by calling <<iref mop lastparms>>.
+This is used for testing code that sends orders, e.g., executive
+commands that translate user command-line input into application
+orders, to verify that the user inputs are translated properly.<p>
+
+<<defitem "mop parms" {mop parms <i>name</i>}>>
+
+Returns a list of the names of the parameters of the named order.<p>
+
+<<defitem "mop send" {mop send <i>interface name parmdict</i>}>>
+<<defitem "mop send" {mop send <i>interface name parm value</i> ?<i>parm value...</i>?}>>
+
+Sends order <i>name</i> to the application.  The order is sent by the
+specified <i>interface</i>, which is a token supplied by the
+application and passed through to the order handler and the
+<b>-ordercmd</b>.  The order's parameters are specified as one
+argument, a dictionary, or as multiple parameter names and values.<p>
+
+<<defitem "mop validate" {mop validate <i>name</i>}>>
+
+Validates <i>name</i> as the name of an order.  Returns
+<i>name</i> on success and throws <b>INVALID</b> on error.<p>
+
+<</deflist app>>
+
+<<subsection "Order Body Commands">>
+
+The following commands are intended for use in order bodies.  None of
+them are strictly essential, but they allow orders to be written
+concisely.<p>
+
+Before the order body is called, <<iref mop send>> will make sure
+that its parameter dictionary does not refer to any unknown
+parameters.  The dictionary is then assigned to the
+<code>parms()</code> array.  The body will access the
+<code>parms()</code> directly, and many of these body commands do so
+implicitly.<p>
+
+The order body will typically begin with a <<iref prepare>>
+command for each parameter; after that, it varies.<p>
+
+<<deflist body>>
+
+<<defitem cancel {cancel}>>
+
+Cancels the order. This is rarely used.  It throws an error with
+error code <b>CANCEL</b>, which allows the order dialog to respond
+appropriately.<p>
+
+<<defitem interface {interface}>>
+
+Returns the interface by which the order was sent, as passed to
+<<iref mop send>> or <<iref mop check>>.  The body can use this
+information to, for example, determine whether it should pop up
+a confirmation dialog before deleting something.  This command should
+be used sparingly.<p>
+
+<<defitem prepare {prepare <i>parm</i> ?<i>options...</i>?}>>
+
+It is customary to begin each order's body with a succesion of
+<<iref prepare>> commands, one for each parameter.  Called with no
+options, <<iref prepare>> does the following:<p>
+
+<ul>
+  <li> It ensures that <i>parm</i> has an entry in the
+       <code>parms()</code> array, setting it to the empty string if
+       it is missing.<p>
+
+  <li> It trims extraneous white space characters from the beginning
+       and end of the parameter's value.<p>
+</ul>
+
+Most of the useful work is done by the options, which are processed in
+order.  The options are as follows:<p>
+
+<<deflist options>>
+
+<<defopt {-toupper}>>
+
+Converts the parameter's value to all uppercase.<p>
+
+<<defopt {-tolower}>>
+
+Converts the parameter's value to all lowercase.<p>
+
+<<defopt {-normalize}>>
+
+Normalizes internal whitespace: all internal whitespace sequences are
+replaced with single spaces.<p>
+
+<<defopt {-required}>>
+
+If the parameter's value is the empty string, it is <<iref reject>>ed.<p>
+
+<<defopt {-oldvalue <i>oldValue</i>}>>
+
+Sets the parameter's value to the empty string if it is
+<code><b>eq</b></code> to 
+<i>oldValue</i>.  This is useful for optional parameters that might
+be passed unchanged by an order GUI; it allows the body to focus on
+those parameters that have really changed.<p>
+
+<<defopt {-oldnum <i>oldNumber</i>}>>
+
+Sets the parameter's value to the empty string if it is
+<code><b>==</b></code> to 
+<i>oldNumber</i>.  This is similar to <b>-oldvalue</b>, but is useful
+when numeric comparison is required.<p>
+
+<<defopt {-type <i>valtype</i>}>>
+
+Indicates that the value of the parameter must belong to a validation
+type called <i>valtype</i>.  Specifying this option is essentially the
+same as including the following code snippet in the order body:<p>
+
+<pre>
+    validate $parm {
+        {*}$valtype validate $parms($parm)
+    }
+</pre>
+
+<<defopt {-listof <i>valtype</i>}>>
+
+This is similar to <code>-type</code>.  It indicates that the value is
+a list of which every element must be a member of the specified
+validation type.  If any element fails, the parameter is
+<<iref reject>>ed.<p>
+
+<<defopt {-xform <i>cmd</i>}>>
+
+If the parameter's value is <<iref valid>>, the value is transformed
+by passing it to the specified command.<p>
+
+<</deflist>>
+
+<<defitem reject {reject <i>parm msg</i>}>>
+
+This command explicitly rejects the order because of an error
+involving the value of parameter <i>parm</i>; the <i>msg</i> details
+the error.  The <i>msg</i> text is <<xref marsmisc(n) normalize>>d.<p>
+
+<b>NOTE:</b> Calling <<iref reject>> doesn't terminate the execution
+of the order body; it's common to validate multiple parameters before
+returning.  See <<iref returnOnError>>.<p>
+
+<<defitem returnOnError {returnOnError ?-final?}>>
+
+If any parameters have been <<iref reject>>ed, this command returns
+control to <<iref mop send>> or <<iref mop check>>.<p>
+
+A call to <<iref returnOnError>> with the <code>-final</code> option
+will also terminate processing if the order handler was called from
+<<iref mop check>>.  Every order must contain such a call as its final
+<<iref returnOnError>>, or <<iref mop check>> might erroneously
+execute the order.<p>
+
+<<defitem setundo {setundo <i>script</i>}>>
+
+Tells mop(n) that the order's effect is undoable. The
+<i>script</i> must be a Tcl script that undoes the effect of the
+order.  If this routine is not called, or if the <i>script</i> is the
+empty string, mop(n) presumes that the order is <b>not</b>
+undoable.<p>
+
+Generally, it's assumed that if an order is not undoable it's because
+it has changed the application state in some non-trivial way.
+Consequently, previous orders can no longer be undone either.  In the
+unlikely event that the order has no effect to undo, the undo script
+can be a comment, e.g.,<p>
+
+<pre>
+    # No-op
+</pre>
+
+This will allow the order to be (trivially) undone.<p>
+
+<<defitem valid {valid <i>parm</i>}>>
+
+This command returns 1 if the named parameter's value is thought to be
+valid, and 0 otherwise.<p>
+
+A parameter's value is thought be valid if it is not the empty string,
+and if it has not been <<iref reject>>ed.  (Some parameters are
+optional; a missing parameter is indicated by setting the parameter's
+value to the empty string.)
+
+This is used to ensure that a validation check is skipped if the
+parameter's value is missing or has already been <<iref reject>>ed.<p>
+
+<<defitem validate {validate <i>parm script</i>}>>
+
+Mars and its clients define many "validation types"; Each such type
+has a <b>validation</b> subcommand which can be
+used to determine whether or not a data value belongs to a particular
+type.  If it does not, the subcommand throws an error with
+error code <b>INVALID</b> and a detailed message string.<p>
+
+The <<iref validate>> command executes its <i>script</i>; if the
+script throws an error with error code <b>INVALID</b>, it
+automatically <<iref reject>>s the named <i>parm</i>.  If any
+other error code is thrown, it is treated as an unexpected error.<p>
+
+For example,<p>
+
+<pre>
+    validate sat {
+        qsat validate $parms(sat)
+    }
+</pre>
+
+The <i>script</i> can contain any number of commands.<p>
+
+<</deflist body>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Generalized version of Athena's order processor.<p>
+
+<</manpage>>
+
+
+
+
+

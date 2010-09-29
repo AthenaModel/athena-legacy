@@ -1,0 +1,132 @@
+<<manpage {marsgui(n) timeline(n)} "Timeline Display Widget">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require marsgui 1.0
+namespace import ::marsgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+This module defines the <code>::marsgui::timeline</code>, which
+can be used to display the start, end and duration of time based
+data. It provides an interface that allows for interactive addition,
+deletion and configuration of bars that represent the data. It also 
+provides a vertical, movable line that shows the time at it's 
+current location.<p>
+
+timeline(n) is a Tk canvas widgetadaptor that wraps the Plotchart::timechart.
+Options and commands not explicitly documented here are delegated to the 
+Tk canvas.<p>
+
+<<section COMMANDS>>
+
+This module defines the following command:<p>
+
+<<deflist commands>>
+
+<<defitem timeline {timeline <i>win ?options...?</i>}>>
+
+Creates a new <<iref timeline>> widget named <i>win</i>.<p>
+
+The <<iref timeline>> widget may be created with the following options:<p>
+
+<<deflist timeline options>>
+
+<<defopt {-simclock <i>clock</i>}>>
+Specifies a simclock(n) object that is used for time conversions.<p>
+
+<<defopt {-selectedcolor <i>color</i>}>>
+Specifies the color to use for the bar in the timeline when it is clicked. 
+Default is black.<p>
+
+<<defopt {-vscrollbar <i>scrollbar</i>}>>
+Specifies a scrollbar widget that is used for vertical scrolling.<p>
+
+<<defopt {-leftmargin <i>pixels</i>}>>
+Specifies the width in pixels that the left margin of the <<iref timeline>>
+should be. This leaves space for labeling the bars. The default is 100 and
+the minimum is 60 pixels.
+
+<</deflist timeline options>>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+<<deflist instance>>
+
+<<defitem cget {<i>win</i> cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem configure {<i>win</i> configure <i>option value...</i>}>>
+
+Sets the values of the specified <i>options</i>.<p>
+
+<<defitem clear {<i>win</i> clear}>>
+
+Clears the contents of the timeline display and deletes all data associated
+with the bars.<p>
+
+<<defitem numbars {<i>win</i> numbars}>>
+
+Returns the number of bars currently displayed on the timeline.<p>
+
+<<defitem bar {<i>win</i> bar <i>subcommand</i> ?<i>args...</i>?}>>
+
+The subcommands for <<iref bar>> are used to manage the content of the 
+timeline.<p>
+
+<<deflist bar>>
+
+<<defitem {bar add} {<i>win</i> bar add <i>id range option value...</i>}>>
+
+Adds a bar to the display with the specified <i>id</i>. <i>range</i> is a
+two element list with start and end times in ticks.<p>
+
+Valid options:
+<<deflist {bar add} options>>
+<<defopt {-name <i>name</i>}>>
+The name to appear in the left margin. If not specified, the <i>id</i> 
+is used.<p>
+
+<<defopt {-color <i>color</i>}>>
+The color of the bar. Default is <code>black</code>.<p>
+<</deflist {bar add}>>
+
+<<defitem {bar delete} {<i>win</i> bar delete <i>id</i>}>>
+Deletes the bar with the specified <i>id</i> from the display. Any bars below
+it are shifted up to fill in the space left by the deleted bar.<p>
+
+<<defitem {bar select} {<i>win</i> bar select <i>id</i>}>>
+Displays the bar with the specified <i>id</i> using the -selectedcolor
+option. If <i>id</i> is the empty string, all bars are shows as unselected.<p>
+
+<<defitem {bar configure} {<i>win</i> bar configure <i>id option value...</i>}>>
+Configures the bar with the specified <i>id</i> using the supplied option-value
+pairs. Valid options are the same as those for the <<iref bar add>> command.
+
+<</deflist instance>>
+
+<<section ENVIRONMENT>>
+
+timeline(n) requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Dave Hanks<p>
+
+<<section HISTORY>>
+
+timeline(n) is an original package.
+
+<</manpage>>
+
+
+
+
+

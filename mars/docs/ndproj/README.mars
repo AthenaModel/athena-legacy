@@ -1,0 +1,12 @@
+The following files implement customizations to NaturalDocs for
+use in Mars and dependent projects:
+
+* Languages.txt
+* Topics.txt
+* MyCss.css
+
+To use the Mars customizations in another Tcl/Snit-based project,
+create an ndproj directory in the project, and copy these files
+to it.  Then, use it the ndproj directory as the "-p" directory
+on the NaturalDocs command line.  See mars/docs/Makefile for
+details on how to call NaturalDocs.

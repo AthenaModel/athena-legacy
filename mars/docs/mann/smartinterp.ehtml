@@ -1,0 +1,220 @@
+<<manpage {marsutil(n) smartinterp(n)} "Smart Tcl Interpreter">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require util 1.0
+namespace import ::marsutil::smartinterp
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+smartinterp(n) defines an object that wraps and adds intelligence to
+standard Tcl <b>interp</b> objects.  An <b>interp</b> is a slave
+interpreter, under the control of the application's interpreter; they
+are commonly used for parsing data files (such as <<xref parmset(n)>>'s
+parameter files) and for implementing command languages safely.<p>
+
+The usual technique for defining such file formats and command
+languages is to alias commands into a "safe" <b>interp</b>.  
+The primary shortcoming of using Tcl <b>interp</b>s in this way is
+the handling of standard error messages, i.e., the messages Tcl
+generates when a command has the wrong number of arguments.
+In particular,<p>
+
+<ul>
+  <li> The error messages reference the command in the master
+       interpreter, not its alias in the slave.  As these often are
+       very different, much confusion results.<p>
+
+  <li> The argument syntax Tcl generates automatically for procs
+       with variable length argument lists is almost never what you
+       want a user to see.<p>
+</ul>
+
+smartinterp(n) extends the standard <b>interp</b> with a range of
+subcommands for defining commands within the interpreter, and in
+particular for defining "smart aliases".  When defining a smart alias,
+the programmer specifies the valid minimum and maximum number of
+arguments, and also the precise argument syntax string to use in
+error messages.  The programmer can also implement ensembles of
+smart aliases, and ensembles with sub-ensembles, all with complete
+generality.<p>
+
+<<subsection "Smart Aliases and Ensembles">>
+
+This section shows how to define a number of typical commands using
+smart aliases and ensembles.  The discussion presumes that all of the commands
+are aliased to subcommands of an object called "<b>::sim</b>":<p>
+
+A command called <b>shutdown</b> which takes no arguments:<p>
+
+<pre>    $interp smartalias shutdown 0 0 {} [list ::sim ShutDown]</pre>
+
+A command called <b>ratio</b> which takes one optional argument:<p>
+
+<pre>    $interp smartalias ratio 0 1 {?value?} [list ::sim Ratio]</pre>
+
+A command called <b>magic aggroe</b> which takes some variable number
+of options and values:<p>
+
+<pre>
+    $interp ensemble magic
+
+    $interp smartalias "magic aggroe" 2 - {option value ?option value...?} \
+        [list ::sim MagicAggroe]
+</pre>
+
+<<section COMMANDS>>
+
+<<deflist commands>>
+
+<<defitem smartinterp {smartinterp <i>name</i> ?<i>options...</i>?}>>
+
+Creates a new smartinterp(n) object called <i>name</i>. The object is
+represented as a new Tcl command in the caller's scope;
+<<iref smartinterp>> returns the fully-qualified form of the
+<i>name</i>.<p>
+
+The <<iref smartinterp>> may be created with the following options:<p>
+
+<<deflist options>>
+
+<<defopt {-cli <i>bool</i>}>>
+
+Here, <i>bool</i> is a boolean flag indicating whether or not the interp
+is connected to a command line interface (CLI).  If not (the default)
+then the error messages produced for invalid commands by the interp
+mimic those of Tcl itself, e.g., "wrong # args: should be...".  If
+<i>bool</i> is true, though, then the error messages will be worded
+and formatted to be easily read by the human operator.<p>
+
+<<defopt {-trusted <i>bool</i>}>>
+
+Here, <i>bool</i> is a boolean flag indicating whether the interp is
+trusted or not; it defaults to <b>no</b>.  If the smartinterp(n) is
+untrusted, the default case, then the underlying Tcl interpreter is a
+"safe" interpreter; otherwise a trusted slave will be created.<p>
+
+This option can only be set at object creation, and cannot be
+changed thereafter.<p>
+
+This option switches the sense of the <code>-safe</code> option used
+to create a "safe" interp because safety should be the default case
+and trust the exception.<p>
+
+<</deflist>>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+Each instance of the <<iref smartinterp>> object has the following
+subcommands:<p>
+
+<<deflist instance>>
+
+<<defitem cget {$obj cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem configure {$obj configure <i>option value...</i>}>>
+
+Sets the value of one or more of the object's options.<p>
+
+<<defitem alias {$obj alias <i>srcToken</i>}>>
+<<defitem alias {$obj alias <i>srcToken</i> {}}>>
+<<defitem alias {$obj alias <i>srcCmd targetCmd</i> ?<i>arg...</i>?}>>
+<<defitem alias {$obj alias <i>srcCmd targetCmd</i> ?<i>arg...</i>?}>>
+<<defitem eval {$obj eval <i>arg</i> ?<i>arg...</i>?}>>
+<<defitem expose {$obj expose <i>hiddenName</i> ?<i>exposedCmdName</i>?}>>
+<<defitem hide {$obj hide <i>exposedCmdName</i> ?<i>hiddenCmdName</i>?}>>
+<<defitem hidden {$obj hidden}>>
+<<defitem invokehidden {$obj invokehidden ?-global? <i>hiddenName</i> ?<i>arg...</i>?}>>
+
+These subcommands are delegated to the underlying Tcl <b>interp</b>;
+see interp(n) for details.<p>
+
+<<defitem proc {$obj proc <i>name arglist body</i>}>>
+
+Defines a proc within the interp.  This is shorthand for<p>
+
+<pre>$obj eval [list proc <i>name arglist body</i>]</pre>
+
+<<defitem ensemble {$obj ensemble <i>alias</i>}>>
+
+Defines an ensemble alias, called <i>alias</i>, to which subcommands
+will be added with  <<iref smartalias>>.  If the <i>alias</i> contains
+multiple tokens, the final token is taken to be a sub-ensemble. In
+this case, the leading tokens must have previously been defined as
+an <<iref ensemble>>.<p>
+
+See <<xref "Smart Aliases and Ensembles">> for examples.<p>
+
+<<defitem smartalias {$obj smartalias <i>alias min max argsyn prefix</i>}>>
+
+Defines an alias called <i>alias</i> which must take at least
+<i>min</i> but no more than <i>max</i> arguments.  If <i>max</i> is
+"<b>-</b>" then the number of arguments is unlimited.  If the alias
+is called with a number of arguments outside the valid range, the
+following error will be thrown:<p>
+
+<pre>wrong # args: should be "<i>alias</i> <i>argsyn</i>"</pre>
+
+When the <i>alias</i> is called in the <<iref smartinterp>>, its arguments
+will be concatenated with the specified command <i>prefix</i>, and
+the result will be called in the parent interpreter.<p>
+
+If <i>alias</i> contains multiple tokens, the final token is taken
+to be a subcommand of the ensemble alias named by the leading tokens.  This
+ensemble alias must already have been defined using the
+<<iref ensemble>> subcommand.<p>
+
+See <<xref "Smart Aliases and Ensembles">> for examples.<p>
+
+<<defitem help {$obj help <i>alias</i>}>>
+
+Returns a short "help" message for the named <i>alias</i>, which may
+be a <<iref smartinterp>> or <<iref ensemble>>.  The message will
+include the command syntax; for ensembles, it will also include the
+list of valid subcommands.<p>
+
+If <i>alias</i> is not known to the <<iref smartinterp>>, then
+it will throw the error 'No help found: \"<i>alias</i>\"'.<p>
+
+The "help" message is used as part of the <<iref smartinterp>>-generated
+error messages when <code>-cli</code> is enabled.<p>
+
+<<defitem cmdinfo {$obj cmdinfo <i>alias</i>}>>
+
+Returns detailed information about the definition of the alias,
+including the minimum and maximum number of arguments and the command
+prefix to which it maps.  If the alias is an ensemble, information
+information about each subcommand is included.  The command is
+recursive; if the alias is an ensemble with sub-ensembles, the entire
+tree is returned.<p>
+
+<</deflist instance>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
