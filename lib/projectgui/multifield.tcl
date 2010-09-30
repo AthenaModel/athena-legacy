@@ -100,3 +100,7 @@ snit::widgetadaptor ::projectgui::multifield {
     }
 }
 
+#-------------------------------------------------------------------
+# Register the field.
+
+::formlib::form register multi ::projectgui::multifield

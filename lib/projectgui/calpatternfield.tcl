@@ -249,3 +249,8 @@ snit::widget ::projectgui::calpatternfield {
     }
 }
 
+#-------------------------------------------------------------------
+# Register the field.
+
+::formlib::form register calpattern ::projectgui::calpatternfield
+

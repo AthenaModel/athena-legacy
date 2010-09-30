@@ -123,3 +123,7 @@ snit::widgetadaptor ::projectgui::zulufield {
     }
 }
 
+#-------------------------------------------------------------------
+# Register the field.
+
+::formlib::form register zulu ::projectgui::zulufield

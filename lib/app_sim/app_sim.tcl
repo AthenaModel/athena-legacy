@@ -42,6 +42,7 @@ package require textutil::adjust 0.7
 # From Mars
 package require marsutil
 package require marsgui
+package require formlib
 package require simlib
 
 # From Athena
@@ -50,6 +51,7 @@ package require projectgui
         
 namespace import ::marsutil::* 
 namespace import ::marsgui::*
+namespace import ::formlib::*
 namespace import ::simlib::*
 namespace import ::projectlib::*
 namespace import ::projectgui::*

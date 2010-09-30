@@ -26,6 +26,7 @@ package require Tkhtml 2.0
 
 package require marsutil
 package require marsgui
+package require formlib
 package require projectlib
 
 #-----------------------------------------------------------------------
@@ -41,6 +42,7 @@ namespace eval ::projectgui:: {
 
     namespace import ::marsutil::* 
     namespace import ::marsgui::*
+    namespace import ::formlib::*
     namespace import ::projectlib::*
 }
 
@@ -49,10 +51,7 @@ namespace eval ::projectgui:: {
 
 source [file join $::projectgui::library icons.tcl           ]
 source [file join $::projectgui::library mapcanvas.tcl       ]
-source [file join $::projectgui::library dispfield.tcl       ]
-source [file join $::projectgui::library enumfield.tcl       ]
 source [file join $::projectgui::library multifield.tcl      ]
-source [file join $::projectgui::library textfield.tcl       ]
 source [file join $::projectgui::library zulufield.tcl       ]
 source [file join $::projectgui::library calpatternfield.tcl ]
 source [file join $::projectgui::library htmlviewer.tcl      ]

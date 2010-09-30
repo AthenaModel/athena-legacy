@@ -11,7 +11,7 @@ namespace import ::projectgui::*
 
 <<section DESCRIPTION>>
 
-The calpatternfield(n) widget is a data entry <<xref field(i)>>
+The calpatternfield(n) widget is a data entry <<xref mars:field(i)>>
 for entering <<xref calpattern(n)>> values.<p>
 
 <<section COMMANDS>>
@@ -30,14 +30,14 @@ options:<p>
 
 <<defopt {-changecmd <i>command</i>}>>
 
-From <<xref field(i)>>.  Specifies a <i>command</i> to be called
+From <<xref mars:field(i)>>.  Specifies a <i>command</i> to be called
 whenever the field's value changes, for any reason whatsoever
 (including explicit calls to <<iref set>>.  The new value is appended
 to the <i>command</i> as an argument.<p>
 
 <<defopt {-state <i>state</i>}>>
 
-From <<xref field(i)>>.  calpatternfield(i) widgets have states, just as the
+From <<xref mars:field(i)>>.  calpatternmars:field(i) widgets have states, just as the
 normal <code>tk::</code> and <code>ttk::</code> widgets do.  The valid
 states are <b>normal</b> and <b>disabled</b>.<p>
 
@@ -53,20 +53,20 @@ calpatternfield(n) widgets have the following subcommands:<p>
 
 <<defitem cget {<i>pathName</i> cget <i>option</i>}>>
 
-From <<xref field(i)>>.  Returns the value of the specified <i>option</i>.<p>
+From <<xref mars:field(i)>>.  Returns the value of the specified <i>option</i>.<p>
 
 <<defitem configure {<i>pathName</i> configure <i>option value...</i>}>>
 
-From <<xref field(i)>>.  Sets the value of one or more of the object's
+From <<xref mars:field(i)>>.  Sets the value of one or more of the object's
 options.<p>
 
 <<defitem get {<i>pathName</i> get}>>
 
-From <<xref field(i)>>.  Returns the field's current value.<p>
+From <<xref mars:field(i)>>.  Returns the field's current value.<p>
 
 <<defitem set {<i>pathName</i> set <i>value</i>}>>
 
-From <<xref field(i)>>.  Explicitly sets the field's <i>value</i>, and
+From <<xref mars:field(i)>>.  Explicitly sets the field's <i>value</i>, and
 calls the <code>-changecmd</code> if the value has really changed,
 i.e., successive calls to <<iref set>> with the same <i>value</i> will
 result in at most one call to the <code>-changecmd</code>.<p>
