@@ -322,7 +322,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
     
     options -sendstates PREP
 
-    parm g          text  "ID"
+    parm g          text  "Group"
     parm longname   text  "Long Name"
     parm color      color "Color"
     parm shape      enum  "Unit Shape"        -type eunitshape -defval NEUTRAL
@@ -363,9 +363,9 @@ order define ::frcgroup GROUP:FORCE:CREATE {
 
 order define ::frcgroup GROUP:FORCE:DELETE {
     title "Delete Force Group"
-    options -sendstates PREP -table gui_frcgroups
+    options -sendstates PREP
 
-    parm g  key "Group" -tags group
+    parm g  key "Group" -tags group -table gui_frcgroups -key g
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type frcgroup
@@ -408,9 +408,11 @@ order define ::frcgroup GROUP:FORCE:DELETE {
 
 order define ::frcgroup GROUP:FORCE:UPDATE {
     title "Update Force Group"
-    options -sendstates PREP -table gui_frcgroups
+    options -sendstates PREP \
+        -refreshcmd {orderdialog refreshForKey g *}
 
-    parm g          key   "ID"                 -tags group
+    parm g          key   "Group"                \
+        -table gui_frcgroups -key g -tags group 
     parm longname   text  "Long Name"
     parm color      color "Color"
     parm shape      enum  "Unit Shape"         -type eunitshape
@@ -453,9 +455,11 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
 
 order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
     title "Update Multiple Force Groups"
-    options -sendstates PREP -table gui_frcgroups
+    options \
+        -sendstates PREP                                  \
+        -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids        multi "Groups"
+    parm ids        multi "Groups" -table gui_frcgroups -key g
     parm color      color "Color"
     parm shape      enum  "Unit Shape"         -type eunitshape
     parm forcetype  enum  "Force Type"         -type eforcetype

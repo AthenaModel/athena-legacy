@@ -936,6 +936,45 @@ snit::widget orderdialog {
     }
 
     #-------------------------------------------------------------------
+    # Refresh Callbacks
+
+    # refreshForKey key fields  dlg changedFields fdict
+    #
+    # key        Name of a key field
+    # fields     Fields to be loaded for the key field.
+    # dlg, etc.  -refreshcmd arguments
+    #
+    # A -refreshcmd that simply loads field values when a key 
+    # field's value changes.  The user defines the -refreshcmd
+    # like this:
+    #
+    #   -refreshcmd {orderdialog refreshForKey g *}
+
+    typemethod refreshForKey {key fields dlg changedFields fdict} {
+        if {$key in $changedFields} {
+            $dlg loadForKey $key $fields
+        }
+    }
+
+    # refreshForMulti multi fields  dlg changedFields fdict
+    #
+    # multi      Name of a multi field
+    # fields     Fields to be loaded for the multi field.
+    # dlg, etc.  -refreshcmd arguments
+    #
+    # A -refreshcmd that simply loads field values when a multi 
+    # field's value changes.  The user defines the -refreshcmd
+    # like this:
+    #
+    #   -refreshcmd {orderdialog refreshForMulti ids *}
+
+    typemethod refreshForMulti {multi fields dlg changedFields fdict} {
+        if {$multi in $changedFields} {
+            $dlg loadForMulti $multi $fields
+        }
+    }
+
+    #-------------------------------------------------------------------
     # Edit Commands
 
     # colorpicker fwin color

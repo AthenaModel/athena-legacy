@@ -190,39 +190,6 @@ snit::type civgroup {
             return [mytypemethod mutate update [array get undoData]]
         }
     }
-
-    #-------------------------------------------------------------------
-    # Order Helpers
-
-    # Refresh_GCU dlg fields fdict
-    #
-    # dlg       The order dialog
-    # fields    List of field names
-    # fdict     Dictionary of field values.
-    #
-    # Refreshes the contents of the GROUP:CIVILIAN:UPDATE order when
-    # the "g" field is updated.
-
-    proc Refresh_GCU {dlg fields fdict} {
-        if {"g" in $fields} {
-            $dlg loadForKey g
-        }
-    }
-
-    # Refresh_GCUM dlg fields fdict
-    #
-    # dlg       The order dialog
-    # fields    List of field names
-    # fdict     Dictionary of field values.
-    #
-    # Refreshes the contents of the GROUP:CIVILIAN:UPDATE:MULTI order when
-    # the "ids" field is updated.
-
-    proc Refresh_GCUM {dlg fields fdict} {
-        if {"ids" in $fields} {
-            $dlg loadForMulti ids
-        }
-    }
 }
 
 #-----------------------------------------------------------------------
@@ -238,7 +205,7 @@ order define ::civgroup GROUP:CIVILIAN:CREATE {
     options -sendstates PREP
 
     #    name      field  label
-    parm g         text   "ID"
+    parm g         text   "Group"
     parm longname  text   "Long Name"
     parm color     color  "Color"
     parm shape     enum   "Unit Shape" -type eunitshape -defval NEUTRAL
@@ -315,9 +282,8 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
 order define ::civgroup GROUP:CIVILIAN:UPDATE {
     title "Update Civilian Group"
     options \
-        -sendstates PREP \
-        -refreshcmd ::civgroup::Refresh_GCU
-
+        -sendstates PREP                             \
+        -refreshcmd {orderdialog refreshForKey g *}
 
     parm g         key    "ID"         \
         -table civgroups_view -key g -tags group
@@ -343,9 +309,9 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE {
 order define ::civgroup GROUP:CIVILIAN:UPDATE:MULTI {
     title "Update Multiple Civilian Groups"
     options -sendstates PREP \
-        -refreshcmd ::civgroup::Refresh_GCUM
+        -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids    multi  "Groups"  -table gui_civgroups -key id
+    parm ids    multi  "Groups"  -table gui_civgroups -key g
     parm color  color  "Color"
     parm shape  enum   "Unit Shape" -type eunitshape
 } {
