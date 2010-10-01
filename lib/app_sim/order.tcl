@@ -304,6 +304,7 @@ snit::type order {
         set orders(opts-$name) {
             -alwaysunsaved  0
             -narrativecmd   {}
+            -refreshcmd     {}
             -schedulestates {}
             -sendstates     {}
             -table          ""
@@ -345,6 +346,7 @@ snit::type order {
     # -alwaysunsaved             
     #     If set, the dialog "Send" buttons will not be disabled when 
     #     there is no "unsaved" data.
+    #     TBD: Obsolete.
     #
     # -narrativecmd cmd
     #     Specifies a command that should return a human-readable
@@ -352,6 +354,12 @@ snit::type order {
     #     called with two additional arguments, the order name and
     #     the parm dict.  If no -narrativecmd is given, the order's
     #     narrative is simply its title.
+    #
+    # -refreshcmd cmd
+    #     Specifies a command to be called to refresh the order dialog
+    #     when field values change. It should take two additional 
+    #     arguments: the name of the dialog widget and the list of 
+    #     changed fields.
     #
     # -schedulestates states     
     #     States in which the order can be scheduled.  If clear, the 
@@ -366,9 +374,11 @@ snit::type order {
     #
     # -table tableName  
     #     Name of an RDB table or view associated with this order.
+    #     TBD: OBSOLETE
     #
     # -tags taglist
     #     Entity tags (requires -table)
+    #     TBD: OBSOLETE
     #
     # Sets the order's options.
 
@@ -386,6 +396,7 @@ snit::type order {
                 }
 
                 -narrativecmd   -
+                -refreshcmd     -
                 -schedulestates -
                 -sendstates     -
                 -table          -
@@ -399,14 +410,6 @@ snit::type order {
             }
         }
 
-        # NEXT, check constraints
-
-        # -tags requires -table.
-        if {[dict get $odict -tags]  ne "" &&
-            [dict get $odict -table] eq ""} {
-            error "order option -tags requires -table"
-        }
-
         # NEXT, save the accumulated options
         set orders(opts-$deftrans(order)) $odict
     }
@@ -415,17 +418,26 @@ snit::type order {
     # parm name fieldType label ?option...?
     #
     # name        The parameter's name
-    # fieldType   The field type, e.g., color, enum, key, multi, text, zulu
+    # fieldType   The field type, e.g., color, enum, key, multi, text
     # label       The parameter's label string
     # 
     # -defval value      Default value
-    # -tags taglist      <SelectionChanged> tags
-    # -type enumtype     fieldType enum only, the enum(n) type.
-    # -displaylong       enum only, with -type, display long names
-    # -display column    key only, display $column rather than $name
+    # -tags taglist      <ObjectSelect> tags
     # -schedwheninvalid  Order can be scheduled even if this field is 
     #                    invalid.
     # -refreshcmd cmd    Command to update the field when refreshed.
+    #
+    # enum field options:
+    #
+    # -type enumtype     The enum(n) type.
+    # -displaylong       With -type, display long names
+    #
+    # key field options:
+    #
+    # -display column    key only, display $column rather than $name
+    #                    TBD: Huh?
+    # -table table       Table or view
+    # -keys names        List of key column names
     #
     # Defines the parameter.  Most of the data feeds the generic
     # order dialog code.
@@ -441,11 +453,14 @@ snit::type order {
                        -fieldtype        $fieldType \
                        -label            $label     \
                        -defval           {}         \
+                       -keys             {}         \
+                       -table            {}         \
                        -tags             {}         \
                        -type             {}         \
                        -displaylong      0          \
                        -display          ""         \
                        -schedwheninvalid 0          \
+                       -widths           {}         \
                        -refreshcmd       {}]
 
         # NEXT, accumulate the pdict
@@ -454,8 +469,11 @@ snit::type order {
 
             switch -exact -- $opt {
                 -defval      -
+                -keys        -
+                -table       -
                 -tags        -
                 -type        -
+                -widths      -
                 -refreshcmd  -
                 -display     {
                     dict set pdict $opt [lshift args] 
@@ -473,27 +491,18 @@ snit::type order {
 
         # NEXT, check constraints
 
-        # -type requires "enum"
-        if {[dict get $pdict -type] ne "" &&
-            $fieldType ne "enum"
+        # Certain options require certain field types.
+        foreach {opt ftypes} {
+            -keys     key
+            -table    key
+            -widths   key
+            -type     enum
         } {
-            error "-type is invalid for this field type: \"$name\""
-        }
-
-        # An enum parameter must have a -type or a -refreshcmd.
-        if {$fieldType eq "enum" &&
-            [dict get $pdict -type]       eq "" &&
-            [dict get $pdict -refreshcmd] eq ""
-        } {
-            error \
-                "field type \"enum\" requires -type, or -refreshcmd: \"$name\""
-        }
-
-        # -displaylong requires -type
-        if {[dict get $pdict -displaylong] &&
-            [dict get $pdict -type] eq ""
-        } {
-            error "-displaylong requires enum with -type: \"$name\""
+            if {[dict get $pdict $opt] ne "" &&
+                $fieldType ni $ftypes
+            } {
+                error "$opt is invalid for this field type: \"$name\""
+            }
         }
 
         # -display requires key
@@ -503,8 +512,15 @@ snit::type order {
             error "-display requires key field: \"$name\""
         }
 
-        # key and multi parameters requires a "table".
-        if {$fieldType in {key multi} && 
+        # -displaylong requires -type
+        if {[dict get $pdict -displaylong] &&
+            [dict get $pdict -type] eq ""
+        } {
+            error "-displaylong requires enum with -type: \"$name\""
+        }
+
+        # multi parameters require a "table".
+        if {$fieldType eq "multi" && 
             [dict get $orders(opts-$order) -table] eq ""
         } {
             error \
@@ -518,31 +534,9 @@ snit::type order {
             }
         }
 
-        # A key parameter can only be preceded by key parameters.
-        if {$fieldType eq "key"} {
-            foreach p $orders(parms-$order) {
-                if {$p eq $name} {
-                    break
-                }
-
-                if {[dict get $orders(pdict-$order-$p) -fieldtype] ne "key"} {
-                    error \
-    "misplaced key parameter, must precede all non-key parameters: \"$name\""
-                }
-            }
-        }
-
-        # Key and multi parameters cannot have -refreshcmd.
-        if {$fieldType in {key multi} && 
-            [dict get $pdict -refreshcmd] ne ""
-        } {
-            error "field type \"$fieldType\" does not allow -refreshcmd"
-        }
-
         # NEXT, save the accumulated pdict
         set orders(pdict-$order-$name) $pdict
     }
-
 
     #-------------------------------------------------------------------
     # Order Queries

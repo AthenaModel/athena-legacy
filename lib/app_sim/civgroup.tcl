@@ -283,7 +283,8 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE {
     title "Update Civilian Group"
     options -sendstates PREP -table civgroups_view
 
-    parm g         key    "ID"         -tags group
+    parm g         key    "ID"         \
+        -table civgroups_view -keys g -tags group
     parm longname  text   "Long Name"
     parm color     color  "Color"
     parm shape     enum   "Unit Shape" -type eunitshape

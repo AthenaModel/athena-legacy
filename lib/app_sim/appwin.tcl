@@ -799,7 +799,6 @@ snit::widget appwin {
         $self AddOrder $reportsmenu REPORT:SATISFACTION:CIVILIAN
         $self AddOrder $reportsmenu REPORT:SATISFACTION:CONTRIB
         $self AddOrder $reportsmenu REPORT:COOPERATION
-        $self AddOrder $reportsmenu REPORT:SATISFACTION:ORGANIZATION
         $self AddOrder $reportsmenu REPORT:PARMDB
 
         $reportsmenu add separator

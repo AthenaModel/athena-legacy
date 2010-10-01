@@ -17,61 +17,6 @@
 
 snit::widget orderdialog {
     #===================================================================
-    # Type Constructor: Type Icons
-
-    typeconstructor {
-        mkicon ${type}::error_x {
-            XX......XX
-            XXX....XXX
-            .XXX..XXX.
-            ..XXXXXX..
-            ...XXXX...
-            ...XXXX...
-            ..XXXXXX..
-            .XXX..XXX.
-            XXX....XXX
-            XX......XX
-        } {
-            X red
-            . trans
-        }
-
-        mkicon ${type}::left_arrow {
-            ....XX....
-            ...XXX....
-            ..XXX.....
-            .XXX......
-            XXXXXXXXXX
-            XXXXXXXXXX
-            .XXX......
-            ..XXX.....
-            ...XXX....
-            ....XX....
-        } {
-            X black
-            . trans
-        }
-
-        mkicon ${type}::blank10x10 {
-            ..........
-            ..........
-            ..........
-            ..........
-            ..........
-            ..........
-            ..........
-            ..........
-            ..........
-            ..........
-        } {
-            X black
-            . trans
-        }
-    }
-
-
-
-    #===================================================================
     # Dialog Management
     #
     # This section contains code that manages the collection of dialogs.
@@ -114,6 +59,10 @@ snit::widget orderdialog {
         foreach order [order names] {
             $type InitOrderData $order
         }
+
+        # NEXT, create the color field type.
+        form register color ::formlib::textfield \
+            -editcmd [mytypemethod colorpicker]
 
         # NEXT, note that we're initialized
         set info(initialized) 1
@@ -170,7 +119,7 @@ snit::widget orderdialog {
 
         # NEXT, if it doesn't exist, create it.
         #
-        # MOTE: If at some point we need special dialogs for some
+        # NOTE: If at some point we need special dialogs for some
         # orders, we can add a query to order metadata here.
 
         if {![$type isactive $order]} {
@@ -181,7 +130,6 @@ snit::widget orderdialog {
 
         # NEXT, give the parms and the focus
         $info(win-$order) EnterDialog $parmdict
-
     }
 
 
@@ -235,6 +183,7 @@ snit::widget orderdialog {
     #-------------------------------------------------------------------
     # Components
 
+    component form       ;# The form(n) widget
     component whenFld    ;# textfield, time to schedule
     component schedBtn   ;# Schedule button
 
@@ -246,26 +195,13 @@ snit::widget orderdialog {
     # my array -- scalars and field data
     #
     # parms             Names of all parms.
-    # multi             Name of "multi" parm, or ""
-    # keys              Names of "key" parms, or {}
-    # nonkeys           Names of non-key parms, or {}
     # table             Name of associated RDB table/view, or ""
-    # current           Name of current parameter, or ""
-    # saved             Dictionary of "saved" field values
     # valid             1 if current values are valid, and 0 otherwise.
-    # ftype-$parm       Field type, e.g., text, enum, key, etc.
-    # field-$parm       Name of field widget
-    # icon-$parm        Name of status icon widget
 
     variable my -array {
-        parms    {}
-        multi    ""
-        keys     {}
-        nonkeys  {}
-        table    ""
-        current  ""
-        saved    {}
-        valid    0
+        parms {}
+        table ""
+        valid 0
     }
 
     # ferrors -- Array of field errors by parm name
@@ -317,16 +253,19 @@ snit::widget orderdialog {
         pack $win.tbar.title -side left
         pack $win.tbar.help  -side right
 
-        # NEXT, create the frame to hold the fields
-        ttk::frame $win.fields  \
-            -borderwidth 1      \
-            -relief      raised \
-            -padding     2
+        # NEXT, create the form to hold the fields
+        install form using form $win.form       \
+            -borderwidth 1                        \
+            -relief      raised                   \
+            -padding     2                        \
+            -currentcmd  [mymethod CurrentField]  \
+            -changecmd   [mymethod FormChange] 
         
-        grid columnconfigure $win.fields 1 -weight 1
+        grid columnconfigure $form 1 -weight 1
 
         # NEXT, create the fields
-        $self CreateParameterFields
+        $self CreateFields
+        $form layout
 
         # NEXT, create the message display
         rotext $win.message                                \
@@ -388,8 +327,8 @@ snit::widget orderdialog {
 
 
         # NEXT, pack components
-        pack $win.tbar   -side top -fill x
-        pack $win.fields  -side top -fill x -padx 4 -pady 4
+        pack $win.tbar    -side top -fill x
+        pack $win.form    -side top -fill x -padx 4 -pady 4
         pack $win.message -side top -fill x -padx 4
         pack $win.buttons -side top -fill x -pady 4
 
@@ -415,10 +354,6 @@ snit::widget orderdialog {
         notifier bind ::order <Accepted>     $win [mymethod RefreshDialog]
         notifier bind ::cif   <Update>       $win [mymethod RefreshDialog]
 
-        # NEXT, save the current (empty) values, so that EnterDialog
-        # won't complain about them.
-        $self MarkSaved
-
         # NEXT, wait for visibility.
         update idletasks
     }
@@ -427,11 +362,11 @@ snit::widget orderdialog {
         notifier forget $win
     }
 
-    # CreateParameterFields
+    # CreateFields
     #
     # Creates the data entry fields
 
-    method CreateParameterFields {} {
+    method CreateFields {} {
         # FIRST, save some variables
         set order     $options(-order)
         set my(parms) [order parms $order]
@@ -439,92 +374,45 @@ snit::widget orderdialog {
         set my(valid) 0
 
         # NEXT, Create the fields
-        set row    -1
-        set keyrow -1
-
         foreach parm $my(parms) {
             # FIRST, get the parameter dictionary
             set pdict [order parm $order $parm]
 
-            # NEXT, get the field type
-            set my(ftype-$parm) [dict get $pdict -fieldtype]
+            # NEXT, create the field
+            set ftype [dict get $pdict -fieldtype]
 
-            # NEXT, get the current grid row, and see if we need to 
-            # insert a separator before the non-key fields
-            incr row
+            set opts [dict create]
 
-            if {$my(ftype-$parm) eq "key"} {
-                set keyrow [expr {$row + 1}]
-            } elseif {$row == $keyrow} {
-                # Add the separator and move on
-                ttk::label $win.fields.label$row -text " "
-                grid $win.fields.label$row -column 0
+            switch -exact -- $ftype {
+                enum {
+                    set enumtype [dict get $pdict -type]
+        
+                    if {$enumtype ne ""} {
+                        dict set opts -enumtype $enumtype
+                    }
 
-                incr row
+                    dict set opts -displaylong \
+                        [dict get $pdict -displaylong]
+                    
+                }
+
+                key {
+                    dict set opts -db     ::rdb
+                    dict set opts -table  [dict get $pdict -table]
+                    dict set opts -keys   [dict get $pdict -keys]
+                    dict set opts -widths [dict get $pdict -widths]
+                }
             }
 
-            # NEXT, create the label widget.
-            ttk::label $win.fields.label$row \
-                -text   "[dict get $pdict -label]:"
-
-            # NEXT, create the field widget
-            set my(field-$parm) $win.fields.f$row
-
-            $self CreateField $my(ftype-$parm) $parm
-
-            # NEXT, Detect when the field widget receives focus.
-            bind $my(field-$parm) <FocusIn>  [mymethod FieldIn $parm]
-
-            # NEXT, Create the status icon
-            set my(icon-$parm) $win.fields.icon$row
-
-            ttk::label $my(icon-$parm) \
-                -image ${type}::blank10x10
-            
-            # NEXT, Grid the fields
-            grid $win.fields.label$row -row $row -column 0 -sticky w
-            grid $win.fields.f$row     -row $row -column 1 -sticky ew \
-                -padx 2 -pady 4
-            grid $win.fields.icon$row  -row $row -column 2 -sticky nsew
+            $form field create $parm [dict get $pdict -label] $ftype {*}$opts
         }
     }
-
-    # CreateField disp parm
-    #
-    # parm    The parameter name
-    #
-    # Creates the field widget
-
-    method {CreateField disp} {parm} {
-        # FIRST, remember that this is not a key
-        lappend my(nonkeys) $parm
-
-        # NEXT, create the field widget
-        dispfield $my(field-$parm)
-    }
-
-    # CreateField color parm
-    #
-    # parm    The parameter name
-    #
-    # Creates the field widget
-
-    method {CreateField color} {parm} {
-        # FIRST, remember that this is not a key
-        lappend my(nonkeys) $parm
-
-        # NEXT, create the field widget
-        textfield $my(field-$parm) \
-            -changecmd [mymethod NonKeyChange $parm] \
-            -editcmd   [mymethod colorpicker]
-    }
-
 
     # CreateField enum parm
     #
     # parm    The parameter name
     #
-    # Creates the field widget
+    # TBD: Obsoletek
 
     method {CreateField enum} {parm} {
         # FIRST, remember that this is not a key
@@ -548,43 +436,13 @@ snit::widget orderdialog {
     }
 
 
-    # CreateField cpat parm
-    #
-    # parm    The parameter name
-    #
-    # Creates the field widget
-
-    method {CreateField cpat} {parm} {
-        # FIRST, remember that this is not a key
-        lappend my(nonkeys) $parm
-
-        # NEXT, create the field widget
-        calpatternfield $my(field-$parm) \
-            -changecmd [mymethod NonKeyChange $parm]
-    }
-
-
-    # CreateField zulu parm
-    #
-    # parm    The parameter name
-    #
-    # Creates the field widget
-
-    method {CreateField zulu} {parm} {
-        # FIRST, remember that this is not a key
-        lappend my(nonkeys) $parm
-
-        # NEXT, create the field widget
-        zulufield $my(field-$parm) \
-            -changecmd [mymethod NonKeyChange $parm]
-    }
-
-
     # CreateField key parm
     #
     # parm    The parameter name
     #
     # Creates the field widget
+    #
+    # TBD: Obsolete
 
     method {CreateField key} {parm} {
         assert {$my(table) ne ""}
@@ -603,39 +461,6 @@ snit::widget orderdialog {
             -changecmd [mymethod KeyChange $parm]
     }
 
-
-    # CreateField multi parm
-    #
-    # parm    The parameter name
-    #
-    # Creates the field widget
-
-    method {CreateField multi} {parm} {
-        # FIRST, remember that this is a multi.
-        set my(multi) $parm
-
-        # NEXT, create the field.  We'll fill in the 
-        # value on focus.
-        multifield $my(field-$parm) \
-            -changecmd [mymethod MultiChange $parm]
-    }
-
-
-    # CreateField text parm
-    #
-    # parm    The parameter name
-    #
-    # Creates the field widget
-
-    method {CreateField text} {parm} {
-        # FIRST, remember that this is not a key
-        lappend my(nonkeys) $parm
-
-        # NEXT, create the field widget
-        textfield $my(field-$parm) \
-            -changecmd [mymethod NonKeyChange $parm]
-    }
-
     #-------------------------------------------------------------------
     # Event Handlers: Entering the Dialog
 
@@ -647,29 +472,14 @@ snit::widget orderdialog {
     # This is used by "orderdialog enter".
 
     method EnterDialog {parmdict} {
-        # FIRST, throw an error if this is a "multi" order and the
-        # "multi" parm is not included.
-        if {$my(multi) ne "" && 
-            (![dict exists $parmdict $my(multi)] ||
-             [llength [dict get $parmdict $my(multi)]] == 0)
-        } {
-            error "Required parm $my(multi) not specified."
-        }
-
-        # NEXT, make the window visible
+        # FIRST, make the window visible
         raise $win
-
-        # NEXT, re-entering the dialog will clear any unsaved
-        # changes.  Ask if this is what they want.
-        if {[$self Unsaved] && ![$self DiscardUnsaved]} {
-            return
-        }
 
         # NEXT, fill in the data
         $self Clear
 
         if {[dict size $parmdict] > 0} {
-            $self set $parmdict
+            $form set $parmdict
 
             # NEXT, focus on the first editable field
             $self SetFocus
@@ -681,16 +491,31 @@ snit::widget orderdialog {
     # Sets the focus to the first editable field.
 
     method SetFocus {} {
-        foreach parm $my(parms) {
-            if {$parm ne $my(multi) &&
-                [$my(field-$parm) cget -state] ne "disabled"
-            } {
-                focus $my(field-$parm)
-                break
-            }
-        }
+        # TBD: Set the focus to the first editable, non-disabled
+        # field.
     }
 
+    #-------------------------------------------------------------------
+    # Event Handlers: Form Change
+
+    # FormChange fields
+    #
+    # fields   A list of one or more field names
+    #
+    # The data in the form has changed.  Validate the order, and set
+    # the button state.
+
+    method FormChange {fields} {
+        # FIRST, refresh the contents of the form given the changed
+        # fields.
+        $self RefreshFields $fields
+
+        # NEXT, validate the order.
+        $self CheckValidity
+
+        # NEXT, set the button state
+        $self SetButtonState
+    }
 
     #-------------------------------------------------------------------
     # Event Handlers: Object Selection
@@ -707,90 +532,7 @@ snit::widget orderdialog {
     # active order dialog.
 
     method ObjectSelect {tagdict} {
-        # FIRST, Is this the active dialog?
-        if {[$type topwin] ne $win} {
-            return
-        }
-
-        # NEXT, get the current field.  If there is none,
-        # just leave.
-
-        if {$my(current) eq ""} {
-            return
-        }
-
-        # NEXT, are there unsaved parameters?
-        set unsaved [$self Unsaved] 
-
-
-        # NEXT, if the current field is a key field, and the order itself
-        # has an overall tag, and there's a matching tag in the tagdict,
-        # update the keys using it if possible.  If not, proceed.
-
-        if {!$unsaved && $my(current) in $my(keys)} {
-            foreach otag [order cget $options(-order) -tags] {
-                # FIRST, is this tag present?
-                if {![dict exists $tagdict $otag]} {
-                    continue
-                }
-                
-                # NEXT, It is.  Does it have the right number of tokens?
-                # If not, skip it.
-                set id [dict get $tagdict $otag]
-
-                if {[llength $my(keys)] ne [llength $id]} {
-                    continue
-                }
-
-                # NEXT, If we load it, we're done.
-                if {[rdb exists "SELECT id FROM $my(table) WHERE id=\$id"]} {
-                    foreach parm $my(keys) value $id {
-                        $self set $parm $value
-                    }
-
-                    return
-                }
-            }
-        }
-
-
-        # NEXT, get the tags for the current field.  If there are none,
-        # just leave.
-
-        set tags [order parm $options(-order) $my(current) -tags]
-
-        if {[llength $tags] == 0} {
-            return
-        }
-
-        # NEXT, get the new value, if any
-        set newValue ""
-
-        foreach {tag value} $tagdict {
-            if {$tag in $tags} {
-                set newValue $value
-                break
-            }
-        }
-
-        if {$newValue eq ""} {
-            return
-        }
-
-        # NEXT, if this is a key or multi field, and dialog data is
-        # unsaved, we can only save this value if the user requests it.
-
-        set ftype [order parm $options(-order) $my(current) -fieldtype]
-
-        if {$ftype in {key multi} 
-            && $unsaved
-            && ![$self DiscardUnsaved $my(current)]
-        } {
-            return
-        }
-
-        # NEXT, save the value
-        $self set $my(current) $newValue
+        # TBD
     }
 
     #-------------------------------------------------------------------
@@ -807,266 +549,26 @@ snit::widget orderdialog {
     # triggered by any notifier(n) event.
 
     method RefreshDialog {args} {
-        # If the first field is a key, refresh it as a key;
-        # otherwise, refresh it as a non-key.
-
-        if {[llength $my(keys)] != 0} {
-            $self RefreshKey [lindex $my(keys) 0]
-        } else {
-            $self NonKeyChange ""
-        }
+        $self RefreshFields $my(parms)
     }
 
-    #-------------------------------------------------------------------
-    # Event Handlers: Multi Management
+    # RefreshFields fields
     #
-    # When the multi field's value is set, the downstream fields need
-    # to be populated.
-
-    # MultiChange parm ?value?
-    #
-    # parm     The parm that changed, e.g., my(multi)
-    # value    Its new value (ignored)
-    #
-    # When the "multi" field's value changes, refresh the other
-    # fields.
-
-    method MultiChange {parm {value ""}} {
-        # FIRST, get the IDs
-        set ids [$my(field-$my(multi)) get]
-
-        # NEXT, if there are no IDs, clear the data; we're done.
-        if {[llength $ids] == 0} {
-            $self Clear
-            return
-        }
-
-        # NEXT, refresh all fields with -refreshcmds.
-        $self NonKeyChange ""
-
-        # NEXT, retrieve the first entity's data
-        set id [lshift ids]
-
-        rdb eval "
-            SELECT * FROM $my(table) WHERE id=\$id
-        " prev {}
-
-        # NEXT, retrieve the remaining entities, looking for
-        # mismatches
-        foreach id $ids {
-            rdb eval "
-                SELECT * FROM $my(table) WHERE id=\$id
-            " current {}
-
-            foreach parm [array names current] {
-                if {$prev($parm) ne $current($parm)} {
-                    set prev($parm) ""
-                }
-            }
-        }
-
-        unset prev(*)
-
-        # NEXT, update the values
-        foreach parm $my(nonkeys) {
-            $my(field-$parm) set $prev($parm)
-        }
-
-        # NEXT, everything has been refreshed; there are no unsaved
-        # values.
-        $self MarkSaved
-    }
-
-
-
-
-    #-------------------------------------------------------------------
-    # Event Handlers: Key Management
-    #
-    # When a key field's value is set, downstream keys and non-key
-    # fields are updated.  These routines manage this process.
-
-
-    # RefreshKey key
-    #
-    # key    Name of a key parameter
+    # fields   A list of the fields to refresh.  Generally, all fields
+    #          downstream of a changed field.
     # 
-    # Retrieves the list of valid values for this key, given the
-    # values of the previous keys.
+    # Refreshes the named fields.
+    
+    method RefreshFields {fields} {
+        # FIRST, call the order's -refreshcmd, if any.
+        callwith [order cget $options(-order) -refreshcmd] $self $fields
 
-    method RefreshKey {key} {
-        # FIRST, get the current values of the fields.
-        array set values [$self get]
-
-        # NEXT, build the query
-        set keytests [list]
-
-        foreach parm $my(keys) {
-            if {$parm eq $key} {
-                break
-            }
-
-            # Add it to the set of tests.
-            lappend keytests "$parm=\$values($parm)"
-        }
-
-        set keytests [join $keytests " AND "]
-
-        if {$keytests ne ""} {
-            set where "WHERE $keytests"
-        } else {
-            set where ""
-        }
-
-        # NEXT, get the list of values
-        set displayColumn [order parm $options(-order) $key -display]
-
-        if {$displayColumn ne ""} {
-            set list [rdb eval "
-                SELECT DISTINCT $key,$displayColumn 
-                FROM $my(table) 
-                $where
-                ORDER BY $key
-            "]
-        } else {
-            set list [rdb eval "
-                SELECT DISTINCT $key 
-                FROM $my(table) 
-                $where
-                ORDER BY $key
-            "]
-        }
-
-        # NEXT, update the pulldown list
-        $my(field-$key) configure -values $list
-
-        # NEXT, the value might or might not have changed; but
-        # treat it like a key change.  The will cause the subsequent
-        # parms to get updated properly.
-        $self KeyChange $key
-    }
-
-
-    # KeyChange parm ?value?
-    #
-    # parm   Name of a key parameter
-    # value  The new value, which is ignored.
-    #
-    # Called when the user has selected a new value for this key.
-    #
-    # If this is the last of the keys, we must refresh and enable
-    # the other fields.  Otherwise, we must refresh the next key.
-
-    method KeyChange {parm {value ""}} {
-        set last [expr {[llength $my(keys)] - 1}]
-        set ndx  [lsearch -exact $my(keys) $parm]
-
-        if {$ndx == $last} {
-            # FIRST, if there are non-key fields, refresh them, and 
-            # mark the dialog saved; we've just loaded the non-key
-            # fields from the database, and so there are no unsaved fields.
-            # Otherwise, check for validity and enable/disable buttons
-            if {[llength $my(nonkeys)] > 0} {
-                $self RefreshNonKeyFields
-                $self MarkSaved
-            } else {
-                $self CheckValidity
-                $self SetButtonState
-            }
-        } else {
-            $self RefreshKey [lindex $my(keys) $ndx+1]
-        }
-    }
-
-
-    # RefreshNonKeyFields
-    #
-    # Fills in the non-key parameters with data from the database
-
-    method RefreshNonKeyFields {} {
-        # FIRST, get the current values of the fields.
-        array set values [$self get]
-
-        # NEXT, build the key queries
-        foreach parm $my(keys) {
-            lappend keytests "$parm=\$values($parm)"
-        }
-
-        set keytests [join $keytests " AND "]
-
-        set query "SELECT * FROM $my(table) WHERE $keytests"
-
-        # NEXT, get the data from the table
-        rdb eval $query row {
-            # FIRST, enable all key fields
-            $self SetNonKeyFieldState normal
-
-            # NEXT, refresh all fields with -refreshcmds.
-            $self NonKeyChange ""
-
-            # NEXT, update the values for fields matching the loaded
-            # data.
-            foreach parm $my(nonkeys) {
-                if {[info exists row($parm)]} {
-                    $my(field-$parm) set $row($parm)
-                }
-            }
-
-            return
-        }
-
-        # NEXT, there was no entity to recover.
-        $self SetNonKeyFieldState disabled
-        $self NonKeyChange ""
-    }
-
-
-    # SetNonKeyFieldState state
-    #
-    # state         normal | disabled
-    #
-    # Sets the -state of all non-key fields.
-
-    method SetNonKeyFieldState {state} {
-        foreach parm $my(nonkeys) {
-            $my(field-$parm) configure -state $state
-
-            if {$state eq "disabled"} {
-                $my(field-$parm) set ""
-            }
-        }
-    }
-
-
-    #-------------------------------------------------------------------
-    # Event Handlers: Non-Key Management
-
-    # NonKeyChange parm ?value?
-    #
-    # parm      The name of a non-key parm, or ""
-    # value     The new value (ignored)
-    #
-    # The value of the parameter has changed; refresh all downstream
-    # fields with -refreshcmd's.  If parm is "", refresh all
-    # non-key fields.
-
-    method NonKeyChange {parm {value ""}} {
-        # FIRST, get the list of downstream fields
-        set ndx        [lsearch $my(nonkeys) $parm]
-        set downstream [lrange $my(nonkeys) $ndx+1 end]
-        
-        # NEXT, refresh all downstream fields that have a -refreshcmd.
-        foreach p $downstream {
-            set cmd [order parm $options(-order) $p -refreshcmd]
-            if {$cmd ne ""} {
-                {*}$cmd $my(field-$p) [$self get]
-            }
-        }
-
-        # NEXT, validate at end of refresh
+        # NEXT, since fields might have changed, check the validity
+        # and set the button state.
         $self CheckValidity
         $self SetButtonState
     }
+
 
     #-------------------------------------------------------------------
     # Order Validation
@@ -1076,38 +578,33 @@ snit::widget orderdialog {
     # Checks the current parameters; on error, reveals the error.
 
     method CheckValidity {} {
-        # FIRST, clear the error X's and messages
-        foreach parm $my(parms) {
-            if {[$my(icon-$parm) cget -image] eq "${type}::error_x"} {
-                $my(icon-$parm) configure -image ${type}::blank10x10
-            }
-        }
-
+        # FIRST, clear the error messages.
         array unset ferrors
+        $form invalid {}
 
         # NEXT, check the order, and handle any errors
         if {[catch {
-            order check $options(-order) [$self get]
+            order check $options(-order) [$form get]
         } result opts]} {
             # FIRST, if it's unexpected let the app handle it.
             if {[dict get $opts -errorcode] ne "REJECT"} {
                 return {*}$opts $result
             }
 
-            # NEXT, mark the bad parms.
-            foreach {parm msg} $result {
-                if {$parm ne "*"} {
-                    $my(icon-$parm) configure -image ${type}::error_x
-                }
-            }
-
             # NEXT, save the error text
             array set ferrors $result
 
+            # NEXT, mark the bad parms.
+            dict unset result *
+
+            $form invalid [dict keys $result]
+
             # NEXT, show the current error message
-            if {$my(current) ne "" && [info exists ferrors($my(current))]} {
-                set label [order parm $options(-order) $my(current) -label]
-                $self Message "$label: $ferrors($my(current))"
+            set current [$form field current]
+
+            if {$current ne "" && [info exists ferrors($current)]} {
+                set label [order parm $options(-order) $current -label]
+                $self Message "$label: $ferrors($current)"
             } elseif {[dict exists $result *]} {
                 $self Message "Error in order: [dict get $result *]"
             } else {
@@ -1132,20 +629,23 @@ snit::widget orderdialog {
 
     method Clear {} {
         # FIRST, clear the parameter values.  Skip "multi" fields.
-        foreach parm [concat $my(keys) $my(nonkeys)] {
-            $my(field-$parm) set \
-                [order parm $options(-order) $parm -defval]
+        set dict [dict create]
+
+        foreach parm $my(parms) {
+            if {[$form field ftype $parm] ne "multi"} {
+                dict set dict $parm \
+                    [order parm $options(-order) $parm -defval]
+            }
         }
+
+        $form set $dict
+
 
         # NEXT, refresh all of the fields.
         $self RefreshDialog
 
         # NEXT, set the focus to first editable field
         $self SetFocus
-
-        # NEXT, save the current field values, so that we can check
-        # whether there are unsaved changes.
-        $self MarkSaved
 
         # NEXT, notify the app that the dialog has been cleared; this
         # will allow it to clear up any entry artifacts.
@@ -1184,25 +684,24 @@ snit::widget orderdialog {
     method Send {} {
         # FIRST, clear the error text from the previous order.
         array unset ferrors
+        $form invalid {}
 
         # NEXT, send the order, and handle any errors
         if {[catch {
-            order send gui $options(-order) [$self get]
+            order send gui $options(-order) [$form get]
         } result opts]} {
             # FIRST, if it's unexpected let the app handle it.
             if {[dict get $opts -errorcode] ne "REJECT"} {
                 return {*}$opts $result
             }
 
-            # NEXT, mark the bad parms.
-            foreach {parm msg} $result {
-                if {$parm ne "*"} {
-                    $my(icon-$parm) configure -image ${type}::error_x
-                }
-            }
-
             # NEXT, save the error text
             array set ferrors $result
+
+            # NEXT, mark the bad parms.
+            dict unset result *
+
+            $form invalid [dict keys $result]
 
             # NEXT, if it's not shown, show the message box
             if {[dict exists $result *]} {
@@ -1222,10 +721,6 @@ snit::widget orderdialog {
         } else {
             $self Message "The order was accepted."
         }
-
-        # NEXT, save the current values, so that we can check whether
-        # there are changes.
-        $self MarkSaved
 
         # NEXT, notify the app that no order entry is being done; this
         # will allow it to clear up any entry artifacts.
@@ -1284,7 +779,7 @@ snit::widget orderdialog {
         order send gui ORDER:SCHEDULE \
             timespec [$whenFld get]   \
             name     $options(-order) \
-            parmdict [$self get]
+            parmdict [$form get]
 
         $self Message "Order Scheduled"
     }
@@ -1293,29 +788,14 @@ snit::widget orderdialog {
     #-------------------------------------------------------------------
     # Event Handlers: Other
 
-    # FieldIn parm
+    # CurrentField parm
     #
     # parm    The parameter name
     #
     # Updates the display when the user is on a particular field.
 
-    method FieldIn {parm} {
-        # FIRST, clear the previous parm's icon
-        if {$my(current) ne ""} {
-            set p $my(current)
-            if {[info exists ferrors($p)]} {
-                $my(icon-$p) configure -image ${type}::error_x
-            } else {
-                $my(icon-$p) configure -image ${type}::blank10x10
-            }
-        }
-
-        # NEXT, set the status icon
-        set my(current) $parm
-
-        $my(icon-$parm) configure -image ${type}::left_arrow
-
-        # NEXT, if there's an error message, display it.
+    method CurrentField {parm} {
+        # FIRST, if there's an error message, display it.
         if {[info exists ferrors($parm)]} {
             set label [order parm $options(-order) $parm -label]
             $self Message "$label: $ferrors($parm)"
@@ -1333,40 +813,6 @@ snit::widget orderdialog {
         notifier send ::order <OrderEntry> $tags
     }
 
-    #-------------------------------------------------------------------
-    # Saved/Unsaved Values
-    #
-    # There are certain points where we know there are no unsaved
-    # user changes:
-    #
-    # * When Clear is called.
-    # * When Send is successful.
-    # * When the content has been refreshed due to a key or multi field
-    #   change.
-    #
-    # When there are no unsaved changes, the Send and SendClose buttons
-    # should be disabled.
-
-    # MarkSaved
-    #
-    # Saves the current field values, and disables the Send buttons.
-
-    method MarkSaved {} {
-        # FIRST, if the order is always unsaved, ignore this.
-        if {[order cget $options(-order) -alwaysunsaved]} {
-            return 1
-        }
-
-        # NEXT, save the current values, so we check whether 
-        # there's anything unsaved.
-        set my(saved) [$self get]
-
-        # NEXT, disable the buttons
-        $win.buttons.send      configure -state disabled
-        $win.buttons.sendclose configure -state disabled
-    }
-
-
     # SetButtonState
     #
     # Enables/disables the send and schedule buttons based on 
@@ -1377,7 +823,6 @@ snit::widget orderdialog {
         # FIRST, the order can be sent if it is valid in this state,
         # there is unsaved data, and the field values are valid.
         if {[order cansend $options(-order)] &&
-            [$self Unsaved]                  && 
             $my(valid)
         } {
             $win.buttons.send      configure -state normal
@@ -1418,58 +863,6 @@ snit::widget orderdialog {
         }
     }
 
-    # Unsaved
-    #
-    # Returns 1 if there are unsaved field values, and 0 otherwise.
-
-    method Unsaved {} {
-        expr {[order cget $options(-order) -alwaysunsaved]  ||
-              [$self get] ne $my(saved)}
-    }
-
-    # DiscardUnsaved ?parm?
-    #
-    # parm   Name of a key or multi partm
-    #
-    # Asks the user if they want to discard unsaved changes.  Returns
-    # 1 if so and 0 otherwise.
-    #
-
-    method DiscardUnsaved {{parm ""}} {
-        # FIRST, if the order is always unsaved, ignore this.
-        if {[order cget $options(-order) -alwaysunsaved]} {
-            return 1
-        }
-
-        # NEXT, If the dialog has no nonkey fields, it returns 1 immediately.
-        if {[llength $my(nonkeys)] == 0} {
-            return 1
-        }
-
-        if {$parm ne ""} {
-            set label [order parm $options(-order) $my(current) -label]
-            
-            set message "You have selected a new $label, but the"
-        } else {
-            set message "The"
-        }
-        
-        append message " dialog contains unsaved changes.  Discard them?"
-
-        set answer [messagebox popup \
-                        -icon          warning                    \
-                        -message       [normalize $message]       \
-                        -parent        $win                       \
-                        -title         "Unsaved Changes"          \
-                        -default       ok                         \
-                        -buttons       {
-                            ok     "Discard" 
-                            cancel "Go Back"
-                        }]
-
-        return [expr {$answer eq "ok"}]
-    }
-
     #-------------------------------------------------------------------
     # Utility Methods
 
@@ -1493,42 +886,10 @@ snit::widget orderdialog {
     #-------------------------------------------------------------------
     # Public methods
 
-    # get
-    #
-    # Returns a parmdict of the current values
-
-    method get {} {
-        foreach parm $my(parms) {
-            # Ignore "disp" fields, as they are for display only.
-            if {$my(ftype-$parm) ne "disp"} {
-                dict set parmdict $parm [$my(field-$parm) get]
-            }
-        }
-
-        return $parmdict
-    }
-
-    # set parmdict
-    # set parm value ?parm value...?
-    #
-    # Fills in the specified fields
-
-    method set {args} {
-        # FIRST, get the parmdict
-        if {[llength $args] > 1} {
-            set parmdict $args
-        } else {
-            set parmdict [lindex $args 0]
-        }
-
-        # NEXT, set the values, from upstream to downstream.
-        foreach parm [concat $my(multi) $my(keys) $my(nonkeys)] {
-            if {[dict exists $parmdict $parm]} {
-                # FIRST, set the field value
-                $my(field-$parm) set [dict get $parmdict $parm]
-            }
-        }
-    }
+    delegate method field    to form
+    delegate method get      to form
+    delegate method disabled to form
+    delegate method set      to form
 
     #-------------------------------------------------------------------
     # Edit Commands
@@ -1540,8 +901,10 @@ snit::widget orderdialog {
     # Pops up a color picker dialog, displaying the specified color,
     # and allows the user to choose a new color.  Returns the new
     # color, or ""
+    #
+    # TBD: Make this a "color" field based on textfield.
 
-    method colorpicker {color} {
+    typemethod colorpicker {color} {
         if {$color ne ""} {
             set opts [list -color $color]
         } else {

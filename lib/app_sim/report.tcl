@@ -948,50 +948,34 @@ snit::type ::report {
     #-------------------------------------------------------------------
     # Order Helper procs
 
-    # RefreshRSContrib_g field parmdict
+    # Refresh_RSC_g dlg fields
     #
-    # field     The field to refresh.
-    # parmdict  The values of upstream parameters
+    # dlg       The order dialog
+    # fields    List of field names
     #
-    # Sets the list of g values.
+    # Refreshes the g and c fields when the upstream fields change.
 
-    proc RefreshRSContrib_g {field parmdict} {
+    proc Refresh_RSC {dlg fields} {
+        set parmdict [$dlg get]
+        set disabled [list]
+
         dict with parmdict {
-            set values [concat [nbgroup gIn $n] [orggroup names]]
+            # Refresh g
+            if {"n" in $fields} {
+                ladd fields g
 
-            if {[llength $values] != 0} {
-                $field configure -values $values -state normal
-            } else {
-                $field configure -values {} -state disabled
+                set values [nbgroup gIn $n]
+
+                $dlg field configure g -values $values
+
+                if {[llength $values] == 0} {
+                    lappend disabled g
+                }
             }
         }
+
+        $dlg disabled $disabled
     }
-
-    # RefreshRSContrib_c field parmdict
-    #
-    # field     The field to refresh.
-    # parmdict  The values of upstream parameters
-    #
-    # Sets the list of c values.
-
-    proc RefreshRSContrib_c {field parmdict} {
-        dict with parmdict {
-            set gtype [group gtype $g]
-
-            if {$gtype eq "CIV"} {
-                set values [ptype civc+mood names]
-            } else {
-                set values [ptype orgc+mood names]
-            }
-
-            if {[llength $values] != 0} {
-                $field configure -values $values -state normal
-            } else {
-                $field configure -values {} -state disabled
-            }
-        }
-    }
-
 }
 
 
@@ -1005,7 +989,6 @@ snit::type ::report {
 order define ::report REPORT:COOPERATION {
     title "Cooperation Report"
     options \
-        -alwaysunsaved                \
         -schedulestates {PREP PAUSED} \
         -sendstates     PAUSED
 
@@ -1038,7 +1021,6 @@ order define ::report REPORT:COOPERATION {
 order define ::report REPORT:DRIVER {
     title "Attitude Driver Report"
     options \
-        -alwaysunsaved                \
         -schedulestates {PREP PAUSED} \
         -sendstates     PAUSED
 
@@ -1065,7 +1047,6 @@ order define ::report REPORT:DRIVER {
 order define ::report REPORT:PARMDB {
     title "Model Parameters Report"
     options \
-        -alwaysunsaved                \
         -schedulestates {PREP PAUSED} \
         -sendstates     {PREP PAUSED}
 
@@ -1092,14 +1073,11 @@ order define ::report REPORT:PARMDB {
 order define ::report REPORT:SATISFACTION:CIVILIAN {
     title "Civilian Satisfaction Report"
     options \
-        -alwaysunsaved                \
         -schedulestates {PREP PAUSED} \
         -sendstates     PAUSED
 
-    parm n enum  "Neighborhood"  -type {::ptype n+all} \
-        -defval ALL
-    parm g enum  "Group"         -type {::ptype civg+all} \
-        -defval ALL
+    parm n enum  "Neighborhood"  -type {::ptype n+all}     -defval ALL
+    parm g enum  "Group"         -type {::ptype civg+all}  -defval ALL
 } {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type {::ptype n+all}
@@ -1122,16 +1100,14 @@ order define ::report REPORT:SATISFACTION:CIVILIAN {
 order define ::report REPORT:SATISFACTION:CONTRIB {
     title "Contribution to Satisfaction Report"
     options \
-        -alwaysunsaved                \
-        -schedulestates {PREP PAUSED} \
-        -sendstates     PAUSED
+        -schedulestates {PREP PAUSED}          \
+        -sendstates     PAUSED                 \
+        -refreshcmd     ::report::Refresh_RSC
 
 
-    parm n      enum  "Neighborhood"  -type {ptype n}
-    parm g      enum  "Group" \
-        -refreshcmd ::report::RefreshRSContrib_g
-    parm c      enum  "Concern"       \
-        -refreshcmd ::report::RefreshRSContrib_c
+    parm n      enum  "Nbhood"        -type {ptype n}
+    parm g      enum  "Group"
+    parm c      enum  "Concern"       -type {ptype civc+mood} -defval "MOOD"
     parm top    text  "Number"        -defval 20
     parm start  text  "Start Time"    -defval "T0"
     parm end    text  "End Time"      -defval "NOW"
@@ -1191,32 +1167,4 @@ order define ::report REPORT:SATISFACTION:CONTRIB {
 }
 
 
-# REPORT:SATISFACTION:ORGANIZATION
-#
-# Produces a Organization Satisfaction Report
-
-order define ::report REPORT:SATISFACTION:ORGANIZATION {
-    title "Organization Satisfaction Report"
-    options \
-        -alwaysunsaved                \
-        -schedulestates {PREP PAUSED} \
-        -sendstates     PAUSED
-
-    parm n enum  "Neighborhood"  -type {::ptype n+all} \
-        -defval ALL
-    parm g enum  "Group"         -type {::ptype orgg+all} \
-        -defval ALL
-} {
-    # FIRST, prepare the parameters
-    prepare n  -toupper -required -type {::ptype n+all}
-    prepare g  -toupper -required -type {::ptype orgg+all}
-
-    returnOnError -final
-
-    # NEXT, produce the report
-    set undo [list]
-    lappend undo [$type imp sat ORG $parms(n) $parms(g)]
-
-    setundo [join $undo \n]
-}
 
