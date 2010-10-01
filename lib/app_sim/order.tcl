@@ -357,9 +357,9 @@ snit::type order {
     #
     # -refreshcmd cmd
     #     Specifies a command to be called to refresh the order dialog
-    #     when field values change. It should take two additional 
-    #     arguments: the name of the dialog widget and the list of 
-    #     changed fields.
+    #     when field values change. It should take three additional 
+    #     arguments: the name of the dialog widget, the list of 
+    #     changed fields, and a dictionary of the current field values.
     #
     # -schedulestates states     
     #     States in which the order can be scheduled.  If clear, the 

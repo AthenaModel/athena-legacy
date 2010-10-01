@@ -561,7 +561,11 @@ snit::widget orderdialog {
     
     method RefreshFields {fields} {
         # FIRST, call the order's -refreshcmd, if any.
-        callwith [order cget $options(-order) -refreshcmd] $self $fields
+        set cmd [order cget $options(-order) -refreshcmd]
+        
+        if {$cmd ne ""} {
+            {*}$cmd $self $fields [$form get]
+        }
 
         # NEXT, since fields might have changed, check the validity
         # and set the button state.
@@ -891,29 +895,74 @@ snit::widget orderdialog {
     delegate method disabled to form
     delegate method set      to form
 
+    # loadForKey key ?fields?
+    #
+    # key     Name of a key field.
+    # fields  Fields whose values should be loaded given the key field.
+    #         If "*", all fields are loaded.  Defaults to "*".
+    #
+    # Reads the named fields from the key's -table given the key's
+    # current value.
+
+    method loadForKey {key {fields *}} {
+        # FIRST, get the table name.
+        set table  [$form field cget $key -table]
+        set keyval [$form field get $key]
+
+        # NEXT, get the list of fields
+        if {$fields eq "*"} {
+            set fields [$form field names]
+        }
+
+        # NEXT, retrieve the record.
+        rdb eval "
+            SELECT [join $fields ,] FROM $table
+            WHERE $key=\$keyval
+        " row {
+            unset row(*)
+
+            $form set [array get row]
+        }
+    }
+
+    # loadForMulti key ?fields?
+    #
+    # key     Name of a multi field.
+    # fields  Fields whose values should be loaded given the multi field's
+    #         value.  If "*", all fields are loaded.  Defaults to "*".
+    #
+    # Reads the named fields from the key's -table given the key's
+    # current list of values.  Builds a dictionary of values common
+    # to all records, and clears the others.
+
+    method loadForMulti {key {fields *}} {
+        # TBD
+    }
+
     #-------------------------------------------------------------------
     # Edit Commands
 
-    # colorpicker color
+    # colorpicker fwin color
     #
+    # fwin        The field window
     # color       A hex color value, or ""
     #
     # Pops up a color picker dialog, displaying the specified color,
     # and allows the user to choose a new color.  Returns the new
     # color, or ""
     #
-    # TBD: Make this a "color" field based on textfield.
+    # TBD: Have formlib(n) implement this.
 
-    typemethod colorpicker {color} {
+    typemethod colorpicker {fwin color} {
         if {$color ne ""} {
             set opts [list -color $color]
         } else {
             set opts ""
         }
 
-        set out [SelectColor::dialog $win.colorpicker \
-                     -type   dialog                   \
-                     -parent $win                     \
+        set out [SelectColor::dialog $fwin.colorpicker \
+                     -type   dialog                    \
+                     -parent $fwin                     \
                      {*}$opts]
 
         return $out

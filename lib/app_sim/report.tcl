@@ -952,18 +952,16 @@ snit::type ::report {
     #
     # dlg       The order dialog
     # fields    List of field names
+    # fdict     Dictionary of field values.
     #
     # Refreshes the g and c fields when the upstream fields change.
 
-    proc Refresh_RSC {dlg fields} {
-        set parmdict [$dlg get]
+    proc Refresh_RSC {dlg fields fdict} {
         set disabled [list]
 
-        dict with parmdict {
+        dict with fdict {
             # Refresh g
             if {"n" in $fields} {
-                ladd fields g
-
                 set values [nbgroup gIn $n]
 
                 $dlg field configure g -values $values

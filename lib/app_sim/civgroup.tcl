@@ -190,9 +190,27 @@ snit::type civgroup {
             return [mytypemethod mutate update [array get undoData]]
         }
     }
+
+    #-------------------------------------------------------------------
+    # Order Helpers
+
+    # Refresh_GCU dlg fields fdict
+    #
+    # dlg       The order dialog
+    # fields    List of field names
+    # fdict     Dictionary of field values.
+    #
+    # Refreshes the contents of the GROUP:CIVILIAN:UPDATE order when
+    # the "g" field is updated.
+
+    proc Refresh_GCU {dlg fields fdict} {
+        if {"g" in $fields} {
+            $dlg loadForKey g
+        }
+    }
 }
 
-#-------------------------------------------------------------------
+#-----------------------------------------------------------------------
 # Orders: GROUP:CIVILIAN:*
 
 # GROUP:CIVILIAN:CREATE
@@ -236,9 +254,9 @@ order define ::civgroup GROUP:CIVILIAN:CREATE {
 
 order define ::civgroup GROUP:CIVILIAN:DELETE {
     title "Delete Civilian Group"
-    options -sendstates PREP -table civgroups_view
+    options -sendstates PREP
 
-    parm g  key  "Group"  -tags group
+    parm g  key  "Group"  -tags group -table civgroups_view -keys g
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type civgroup
@@ -281,7 +299,10 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
 
 order define ::civgroup GROUP:CIVILIAN:UPDATE {
     title "Update Civilian Group"
-    options -sendstates PREP -table civgroups_view
+    options \
+        -sendstates PREP \
+        -refreshcmd ::civgroup::Refresh_GCU
+
 
     parm g         key    "ID"         \
         -table civgroups_view -keys g -tags group
@@ -331,11 +352,4 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
-
-
-
-
-
-
-
 
