@@ -208,6 +208,21 @@ snit::type civgroup {
             $dlg loadForKey g
         }
     }
+
+    # Refresh_GCUM dlg fields fdict
+    #
+    # dlg       The order dialog
+    # fields    List of field names
+    # fdict     Dictionary of field values.
+    #
+    # Refreshes the contents of the GROUP:CIVILIAN:UPDATE:MULTI order when
+    # the "ids" field is updated.
+
+    proc Refresh_GCUM {dlg fields fdict} {
+        if {"ids" in $fields} {
+            $dlg loadForMulti ids
+        }
+    }
 }
 
 #-----------------------------------------------------------------------
@@ -256,7 +271,7 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
     title "Delete Civilian Group"
     options -sendstates PREP
 
-    parm g  key  "Group"  -tags group -table civgroups_view -keys g
+    parm g  key  "Group"  -tags group -table civgroups_view -key g
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type civgroup
@@ -305,7 +320,7 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE {
 
 
     parm g         key    "ID"         \
-        -table civgroups_view -keys g -tags group
+        -table civgroups_view -key g -tags group
     parm longname  text   "Long Name"
     parm color     color  "Color"
     parm shape     enum   "Unit Shape" -type eunitshape
@@ -327,9 +342,10 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE {
 
 order define ::civgroup GROUP:CIVILIAN:UPDATE:MULTI {
     title "Update Multiple Civilian Groups"
-    options -sendstates PREP -table gui_civgroups
+    options -sendstates PREP \
+        -refreshcmd ::civgroup::Refresh_GCUM
 
-    parm ids    multi  "Groups"
+    parm ids    multi  "Groups"  -table gui_civgroups -key id
     parm color  color  "Color"
     parm shape  enum   "Unit Shape" -type eunitshape
 } {

@@ -399,66 +399,18 @@ snit::widget orderdialog {
                 key {
                     dict set opts -db     ::rdb
                     dict set opts -table  [dict get $pdict -table]
-                    dict set opts -keys   [dict get $pdict -keys]
+                    dict set opts -keys   [dict get $pdict -key]
                     dict set opts -widths [dict get $pdict -widths]
+                }
+
+                multi {
+                    dict set opts -table  [dict get $pdict -table]
+                    dict set opts -key    [dict get $pdict -key]
                 }
             }
 
             $form field create $parm [dict get $pdict -label] $ftype {*}$opts
         }
-    }
-
-    # CreateField enum parm
-    #
-    # parm    The parameter name
-    #
-    # TBD: Obsoletek
-
-    method {CreateField enum} {parm} {
-        # FIRST, remember that this is not a key
-        lappend my(nonkeys) $parm
-
-        # NEXT, do have an enumtype?
-        set opts [dict create]
-
-        set enumtype [order parm $options(-order) $parm -type]
-        
-        if {$enumtype ne ""} {
-            dict set opts -enumtype $enumtype
-        }
-
-        dict set opts -displaylong \
-            [order parm $options(-order) $parm -displaylong]
-
-        # NEXT, create the field widget
-        enumfield $my(field-$parm) {*}$opts \
-            -changecmd [mymethod NonKeyChange $parm]
-    }
-
-
-    # CreateField key parm
-    #
-    # parm    The parameter name
-    #
-    # Creates the field widget
-    #
-    # TBD: Obsolete
-
-    method {CreateField key} {parm} {
-        assert {$my(table) ne ""}
-        
-        # FIRST, remember that this is a key
-        set opts [dict create]
-
-        lappend my(keys) $parm
-
-        if {[order parm $options(-order) $parm -display] ne ""} {
-            dict set opts -displaylong 1
-        }
-
-        # NEXT, create the field widget
-        enumfield $my(field-$parm) {*}$opts \
-            -changecmd [mymethod KeyChange $parm]
     }
 
     #-------------------------------------------------------------------
@@ -646,6 +598,7 @@ snit::widget orderdialog {
 
 
         # NEXT, refresh all of the fields.
+        # TBD: Is this necessary?
         $self RefreshDialog
 
         # NEXT, set the focus to first editable field
@@ -925,18 +878,61 @@ snit::widget orderdialog {
         }
     }
 
-    # loadForMulti key ?fields?
+    # loadForMulti multi ?fields?
     #
-    # key     Name of a multi field.
+    # multi     Name of a multi field.
     # fields  Fields whose values should be loaded given the multi field's
     #         value.  If "*", all fields are loaded.  Defaults to "*".
     #
-    # Reads the named fields from the key's -table given the key's
+    # Reads the named fields from the multi's -table given the multi's
     # current list of values.  Builds a dictionary of values common
     # to all records, and clears the others.
 
-    method loadForMulti {key {fields *}} {
-        # TBD
+    method loadForMulti {multi {fields *}} {
+        # FIRST, get the table name, the key column name, and
+        # the list of key values.
+        set table   [$form field cget $multi -table]
+        set keycol  [$form field cget $multi -key]
+        set keyvals [$form field get $multi]
+
+        # NEXT, if the list of key values is empty, clear the values;
+        # we're done.
+        if {[llength $keyvals] == 0} {
+            # TBD: Should clear the set of values, probably.
+            return
+        }
+        
+        # NEXT, get the list of fields
+        if {$fields eq "*"} {
+            set fields [$form field names]
+            ldelete fields $multi
+        }
+
+        # NEXT, retrieve the first entity's data.
+        set key [lshift keyvals]
+
+        set query "
+            SELECT [join $fields ,] FROM $table WHERE $keycol=\$key
+        "
+
+        rdb eval $query prev {}
+        unset prev(*)
+
+        # NEXT, retrieve the remaining entities, looking for
+        # mismatches
+        foreach key $keyvals {
+            rdb eval $query current {}
+
+            foreach field $fields {
+                if {$prev($field) ne $current($field)} {
+                    set prev($field) ""
+                }
+            }
+        }
+
+
+        # NEXT, save the values.
+        $form set [array get prev]
     }
 
     #-------------------------------------------------------------------

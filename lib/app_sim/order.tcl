@@ -434,10 +434,16 @@ snit::type order {
     #
     # key field options:
     #
-    # -display column    key only, display $column rather than $name
-    #                    TBD: Huh?
     # -table table       Table or view
-    # -keys names        List of key column names
+    # -key  names        List of key column names
+    # -widths widths     List of column widths
+    # -display column    key only, display the named $column's
+    #                    value rather than the key column's value.
+    #
+    # multi field options:
+    #
+    # -table table       Table or view
+    # -key  names        List of key column names
     #
     # Defines the parameter.  Most of the data feeds the generic
     # order dialog code.
@@ -453,7 +459,7 @@ snit::type order {
                        -fieldtype        $fieldType \
                        -label            $label     \
                        -defval           {}         \
-                       -keys             {}         \
+                       -key              {}         \
                        -table            {}         \
                        -tags             {}         \
                        -type             {}         \
@@ -469,7 +475,7 @@ snit::type order {
 
             switch -exact -- $opt {
                 -defval      -
-                -keys        -
+                -key         -
                 -table       -
                 -tags        -
                 -type        -
@@ -493,8 +499,8 @@ snit::type order {
 
         # Certain options require certain field types.
         foreach {opt ftypes} {
-            -keys     key
-            -table    key
+            -key      {key multi}
+            -table    {key multi}
             -widths   key
             -type     enum
         } {
@@ -517,21 +523,6 @@ snit::type order {
             [dict get $pdict -type] eq ""
         } {
             error "-displaylong requires enum with -type: \"$name\""
-        }
-
-        # multi parameters require a "table".
-        if {$fieldType eq "multi" && 
-            [dict get $orders(opts-$order) -table] eq ""
-        } {
-            error \
-                "missing table, field type $fieldType requires it: \"$name\""
-        } 
-
-        # A multi parameter must be the first parameter.
-        if {$fieldType eq "multi"} {
-            if {[llength $orders(parms-$order)] > 1} {
-                error "misplaced multi parameter, must be first: \"$name\""
-            }
         }
 
         # NEXT, save the accumulated pdict

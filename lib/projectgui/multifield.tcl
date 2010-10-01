@@ -46,6 +46,22 @@ snit::widgetadaptor ::projectgui::multifield {
     option -changecmd \
         -default ""
 
+    # -table table
+    #
+    # Specifies the name of the table or view containing the selected entities
+    # (only if needed by orderdialog's loadWithMulti command).
+
+    option -table \
+        -readonly yes
+
+    # -key name
+    #
+    # Specifies the name of the table column corresponding to the
+    # list of IDs (only if needed by orderdialog's loadWithMulti command).
+
+    option -key \
+        -readonly yes
+
     #-------------------------------------------------------------------
     # Instance variables
 
