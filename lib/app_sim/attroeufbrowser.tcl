@@ -156,9 +156,7 @@ snit::widgetadaptor attroeufbrowser {
         set ids [$hull uid curselection]
 
         if {[llength $ids] == 1} {
-            lassign [lindex $ids 0] n f g
-
-            order enter ROE:ATTACK:UNIFORMED:UPDATE n $n f $f g $g
+            order enter ROE:ATTACK:UNIFORMED:UPDATE id [lindex $ids 0]
         } else {
             order enter ROE:ATTACK:UNIFORMED:UPDATE:MULTI ids $ids
         }
@@ -169,11 +167,9 @@ snit::widgetadaptor attroeufbrowser {
     # Called when the user wants to delete the selected entity.
 
     method DeleteSelected {} {
-        # FIRST, there should be only one selected.
-        lassign [lindex [$hull uid curselection] 0] n f g
-
-        # NEXT, Pop up the dialog, and select this entity
-        order send gui ROE:ATTACK:DELETE n $n f $f g $g
+        # FIRST, There should be only one selected.
+        order send gui ROE:ATTACK:DELETE \
+            id [lindex [$hull uid curselection] 0]
     }
 }
 

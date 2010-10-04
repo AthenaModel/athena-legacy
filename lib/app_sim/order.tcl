@@ -437,8 +437,15 @@ snit::type order {
     # -table table       Table or view
     # -key  names        List of key column names
     # -widths widths     List of column widths
-    # -display column    key only, display the named $column's
+    # -display column    Display the named $column's
     #                    value rather than the key column's value.
+    #
+    # newkey field options:
+    #
+    # -table table       Table or view
+    # -key  names        List of key column names
+    # -widths widths     List of column widths
+    # -labels strings    List of key column labels.
     #
     # multi field options:
     #
@@ -461,12 +468,14 @@ snit::type order {
                        -defval           {}         \
                        -key              {}         \
                        -table            {}         \
+                       -universe         {}         \
                        -tags             {}         \
                        -type             {}         \
                        -displaylong      0          \
                        -display          ""         \
                        -schedwheninvalid 0          \
                        -widths           {}         \
+                       -labels           {}         \
                        -refreshcmd       {}]
 
         # NEXT, accumulate the pdict
@@ -477,9 +486,11 @@ snit::type order {
                 -defval      -
                 -key         -
                 -table       -
+                -universe    -
                 -tags        -
                 -type        -
                 -widths      -
+                -labels      -
                 -refreshcmd  -
                 -display     {
                     dict set pdict $opt [lshift args] 
@@ -499,9 +510,11 @@ snit::type order {
 
         # Certain options require certain field types.
         foreach {opt ftypes} {
-            -key      {key multi}
-            -table    {key multi}
-            -widths   key
+            -key      {key newkey multi}
+            -table    {key newkey multi}
+            -universe newkey
+            -widths   {key newkey}
+            -labels   {key newkey}
             -type     enum
         } {
             if {[dict get $pdict $opt] ne "" &&

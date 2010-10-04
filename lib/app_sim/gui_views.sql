@@ -134,10 +134,40 @@ CREATE TEMPORARY VIEW gui_attroeuf_nfg AS
 SELECT *
 FROM gui_attroe_nfg WHERE uniformed;
 
+-- A universe attroeuf view, for use when creating new ROEs with
+-- f uniformed.
+
+CREATE TEMPORARY VIEW gui_attroeuf_univ AS
+SELECT nbhoods.n || ' ' || F.g || ' ' || G.g          AS id,
+       nbhoods.n                                      AS n,
+       F.g                                            AS f,
+       G.g                                            AS g
+FROM nbhoods 
+JOIN frcgroups AS F
+JOIN frcgroups AS G
+WHERE F.uniformed = 1
+AND   G.uniformed = 0;
+
+
 -- An attroe_nfg view for use by the GUI; f is non-uniformed
 CREATE TEMPORARY VIEW gui_attroenf_nfg AS
 SELECT *
 FROM gui_attroe_nfg WHERE NOT uniformed;
+
+-- A universe attroenf view, for use when creating new ROEs with
+-- f non-uniformed.
+
+CREATE TEMPORARY VIEW gui_attroenf_univ AS
+SELECT nbhoods.n || ' ' || F.g || ' ' || G.g          AS id,
+       nbhoods.n                                      AS n,
+       F.g                                            AS f,
+       G.g                                            AS g
+FROM nbhoods 
+JOIN frcgroups AS F
+JOIN frcgroups AS G
+WHERE F.uniformed = 0
+AND   G.uniformed = 1;
+
 
 -- A defroe_ng view for use by the GUI
 CREATE TEMPORARY VIEW gui_defroe_ng AS

@@ -403,6 +403,15 @@ snit::widget orderdialog {
                     dict set opts -widths [dict get $pdict -widths]
                 }
 
+                newkey {
+                    dict set opts -db       ::rdb
+                    dict set opts -table    [dict get $pdict -table]
+                    dict set opts -universe [dict get $pdict -universe]
+                    dict set opts -keys     [dict get $pdict -key]
+                    dict set opts -widths   [dict get $pdict -widths]
+                    dict set opts -labels   [dict get $pdict -labels]
+                }
+
                 multi {
                     dict set opts -table  [dict get $pdict -table]
                     dict set opts -key    [dict get $pdict -key]
