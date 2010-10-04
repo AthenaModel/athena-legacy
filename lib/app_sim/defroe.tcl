@@ -164,12 +164,14 @@ snit::type ::defroe {
     typemethod {mutate update} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
+            lassign $id n g
             # FIRST, get the undo information
             rdb eval {
                 SELECT * FROM defroe_ng
                 WHERE n=$n AND g=$g
             } undoData {
                 unset undoData(*)
+                set undoData(id) $id
             }
 
             # NEXT, Update the group
@@ -180,7 +182,7 @@ snit::type ::defroe {
             } {}
 
             # NEXT, notify the app.
-            notifier send ::defroe <Entity> update [list $n $g]
+            notifier send ::defroe <Entity> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]
@@ -198,17 +200,17 @@ snit::type ::defroe {
 order define ::defroe ROE:DEFEND:UPDATE {
     title "Update Defending ROE"
     options \
-        -table          gui_defroe_ng \
-        -schedulestates {PREP PAUSED} \
-        -sendstates     {PREP PAUSED}
+        -schedulestates {PREP PAUSED}                     \
+        -sendstates     {PREP PAUSED}                     \
+        -refreshcmd     {orderdialog refreshForKey id *}
 
-    parm n    key   "Neighborhood"   -tags nbhood
-    parm g    key   "Group"          -tags group
+    parm id   key   "Defender"       -table  gui_defroe_ng \
+                                     -key    {n g}         \
+                                     -labels {"In" "Grp"}
     parm roe  enum  "ROE"            -type edefroeuf   
 } {
     # FIRST, prepare the parameters
-    prepare n        -toupper  -required -type nbhood
-    prepare g        -toupper  -required -type {frcgroup uniformed}
+    prepare id       -toupper  -required -type defroe
     prepare roe      -toupper            -type edefroeuf
 
     returnOnError -final
@@ -225,11 +227,12 @@ order define ::defroe ROE:DEFEND:UPDATE {
 order define ::defroe ROE:DEFEND:UPDATE:MULTI {
     title "Update Multiple Defending ROEs"
     options \
-        -table          gui_defroe_ng \
         -schedulestates {PREP PAUSED} \
-        -sendstates     {PREP PAUSED}
+        -sendstates     {PREP PAUSED} \
+        -refreshcmd     {orderdialog refreshForMulti ids *}
 
-    parm ids  multi  "IDs"
+    parm ids  multi  "IDs" -table gui_defroe_ng \
+                           -key id
     parm roe  enum   "ROE" -type edefroeuf   
 } {
     # FIRST, prepare the parameters
@@ -242,9 +245,7 @@ order define ::defroe ROE:DEFEND:UPDATE:MULTI {
     # NEXT, modify the curves
     set undo [list]
 
-    foreach id $parms(ids) {
-        lassign $id parms(n) parms(g)
-
+    foreach parms(id) $parms(ids) {
         lappend undo [$type mutate update [array get parms]]
     }
 

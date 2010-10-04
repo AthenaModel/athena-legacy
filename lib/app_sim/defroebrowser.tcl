@@ -115,9 +115,7 @@ snit::widgetadaptor defroebrowser {
         set ids [$hull uid curselection]
 
         if {[llength $ids] == 1} {
-            lassign [lindex $ids 0] n g
-
-            order enter ROE:DEFEND:UPDATE n $n g $g
+            order enter ROE:DEFEND:UPDATE id [lindex $ids 0]
         } else {
             order enter ROE:DEFEND:UPDATE:MULTI ids $ids
         }
