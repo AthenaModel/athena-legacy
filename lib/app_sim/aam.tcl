@@ -839,91 +839,127 @@ snit::type aam {
     #-------------------------------------------------------------------
     # Order Helpers
 
-    # RefreshGroup field parmdict
+    # Refresh_AN dlg fields fdict
     #
-    # field     The "Group" field in an A:GROUP order.
-    # parmdict  The current values of the various fields.
+    # dlg       The order dialog
+    # fields    The fields that changed.
+    # fdict     The current values of the various fields.
     #
-    # Sets the valid group values, if it's not set.
+    # Refreshes g2 when g1 changes, so that g2 doesn't
+    # contain the value of g1.
 
-    typemethod RefreshGroup {field parmdict} {
-        dict with parmdict {
-            set groups [rdb eval {
-                SELECT DISTINCT g
-                FROM units
-                WHERE n=$n
-                ORDER BY g
-            }]
-
-            $field configure -values $groups
-
-            if {[llength $groups] > 0} {
-                $field configure -state normal
-            } else {
-                $field configure -state disabled
+    typemethod Refresh_AN {dlg fields fdict} {
+        if {"g1" in $fields} {
+            dict with fdict {
+                if {$g1 eq ""} {
+                    $dlg disabled g2
+                    $dlg set g2 ""
+                } else {
+                    set groups [frcgroup names]
+                    ldelete groups $g1
+                    
+                    $dlg field configure g2 -values $groups
+                    $dlg disabled {}
+                }
             }
         }
     }
 
-    # RefreshAG_Group1 field parmdict
+    # Refresh_AG dlg fields fdict
     #
-    # field     The "g1" field in any A:GROUP order.
-    # parmdict  The current values of the various fields.
+    # dlg       The order dialog
+    # fields    The fields that changed.
+    # fdict     The current values of the various fields.
     #
-    # g1 is valid only for CIV groups.
+    # Refreshes the ATTRIT:GROUP dialog fields when field values
+    # change.
 
-    typemethod RefreshAG_Group1 {field parmdict} {
-        dict with parmdict {
-            if {$f ne "" && [group gtype $f] eq "CIV"} {
-                $field configure -values [frcgroup names]
-                $field configure -state normal
-            } else {
-                $field configure -values {}
-                $field configure -state disabled
+    typemethod Refresh_AG {dlg fields fdict} {
+        set disabled [list]
+
+        dict with fdict {
+            if {"n" in $fields} {
+                # Update the list of groups to attrit
+                set groups [rdb eval {
+                    SELECT DISTINCT g
+                    FROM units
+                    WHERE n=$n
+                    ORDER BY g
+                }]
+                
+                $dlg field configure f -values $groups
+
+                if {[llength $groups] == 0} {
+                    lappend disabled f
+                }
+
+                # Get value, as it might have changed.
+                set f [$dlg field get f]
+                ladd fields f
             }
-        }
-    }
 
-    # RefreshAU_Group1 field parmdict
-    #
-    # field     The "g1" field in A:UNIT order.
-    # parmdict  The current values of the various fields.
-    #
-    # g1 is valid only for CIV units.
-
-    typemethod RefreshAU_Group1 {field parmdict} {
-        dict with parmdict {
-            if {$u ne "" && [unit get $u gtype] eq "CIV"} {
-                $field configure -values [frcgroup names]
-                $field configure -state normal
-            } else {
-                $field configure -values {}
-                $field configure -state disabled
+            if {"f" in $fields} {
+                # Update g1
+                if {$f eq "" || [group gtype $f] ne "CIV"} {
+                    lappend disabled g1
+                    set g1 ""
+                    $dlg set g1 $g1
+                }
             }
-        }
-    }
 
-    # RefreshRespGroup2 field parmdict
-    #
-    # field     The "g2" field in any attrition order.
-    # parmdict  The current values of the various fields.
-    #
-    # Sets the valid group values: force groups not including
-    # g1.
-
-    typemethod RefreshRespGroup2 {field parmdict} {
-        dict with parmdict {
+            # Update g2
             if {$g1 eq ""} {
-                $field configure -values {}
-                $field configure -state disabled
+                lappend disabled g2
+                $dlg set g2 ""
             } else {
                 set groups [frcgroup names]
                 ldelete groups $g1
                 
-                $field configure -values $groups
-                $field configure -state normal
+                $dlg field configure g2 -values $groups
             }
         }
+
+        $dlg disabled $disabled
+    }
+
+    # Refresh_AU dlg fields fdict
+    #
+    # dlg       The order dialog
+    # fields    The fields that changed.
+    # fdict     The current values of the various fields.
+    #
+    # Refreshes the ATTRIT:UNIT dialog fields when field values
+    # change.
+
+    typemethod Refresh_AU {dlg fields fdict} {
+        set disabled [list]
+
+        dict with fdict {
+            if {"u" in $fields} {
+                # Update g1
+                if {$u eq "" || [unit get $u gtype] ne "CIV"} {
+                    lappend disabled g1
+                    set g1 ""
+                    $dlg set g1 $g1
+                    ladd fields g1
+                }
+            }
+
+            if {"g1" in $fields} {
+                # Update g2
+                if {$g1 eq ""} {
+                    lappend disabled g2
+                    $dlg set g2 ""
+                } else {
+                    set groups [frcgroup names]
+                    ldelete groups $g1
+                    
+                    $dlg field configure g2 -values $groups
+                }
+            }
+        }
+
+        $dlg disabled $disabled
     }
 }
 
@@ -938,15 +974,15 @@ snit::type aam {
 order define ::aam ATTRIT:NBHOOD {
     title "Magic Attrit Neighborhood"
     options \
-        -alwaysunsaved                \
         -schedulestates {PREP PAUSED} \
-        -sendstates     {PAUSED}
+        -sendstates     {PAUSED}      \
+        -refreshcmd     [list ::aam Refresh_AN]
 
-    parm n          enum  "Neighborhood" -type nbhood -tags nbhood
-    parm casualties text  "Casualties" 
-    parm g1         enum  "Responsible Group" -type frcgroup -tags group
-    parm g2         enum  "Responsible Group" -tags group \
-        -refreshcmd [list ::aam RefreshRespGroup2]
+    parm n          key  "Neighborhood" -table nbhoods -key n -tags nbhood
+    parm casualties text "Casualties" 
+    parm g1         key  "Responsible Group" -table frcgroups -key g \
+        -tags group
+    parm g2         enum "Responsible Group" -tags group
 } {
     # FIRST, prepare the parameters
     prepare n          -toupper -required -type nbhood
@@ -975,18 +1011,17 @@ order define ::aam ATTRIT:NBHOOD {
 order define ::aam ATTRIT:GROUP {
     title "Magic Attrit Group"
     options \
-        -alwaysunsaved                \
         -schedulestates {PREP PAUSED} \
-        -sendstates     {PAUSED}
+        -sendstates     {PAUSED}      \
+        -refreshcmd     [list ::aam Refresh_AG]
 
-    parm n          enum  "Neighborhood"  -type nbhood  -tags nbhood
-    parm f          enum  "To Group"      -tags group \
-        -refreshcmd [list ::aam RefreshGroup]
+    parm n          key   "Neighborhood"      -table nbhoods -key n \
+                                              -tags nbhood
+    parm f          enum  "To Group"          -tags group 
     parm casualties text  "Casualties" 
-    parm g1         enum  "Responsible Group" -tags group \
-        -refreshcmd [list ::aam RefreshAG_Group1]
-    parm g2         enum  "Responsible Group" -tags group \
-        -refreshcmd [list ::aam RefreshRespGroup2]
+    parm g1         key   "Responsible Group" -table frcgroups -key g \
+                                              -tags group
+    parm g2         enum  "Responsible Group" -tags group
 } {
     # FIRST, prepare the parameters
     prepare n          -toupper -required -type nbhood
@@ -1034,16 +1069,16 @@ order define ::aam ATTRIT:GROUP {
 order define ::aam ATTRIT:UNIT {
     title "Magic Attrit Unit"
     options \
-        -alwaysunsaved                \
-        -schedulestates {PREP PAUSED} \
-        -sendstates     {PAUSED}
+        -schedulestates {PREP PAUSED}           \
+        -sendstates     {PAUSED}                \
+        -refreshcmd     [list ::aam Refresh_AU]
 
-    parm u          enum  "Unit"       -type unit -tags unit
+    parm u          key   "Unit"              -table units     -key u \
+                                              -tags unit
     parm casualties text  "Casualties" 
-    parm g1         enum  "Responsible Group" -tags group \
-        -refreshcmd [list ::aam RefreshAU_Group1]
-    parm g2         enum  "Responsible Group" -tags group \
-        -refreshcmd [list ::aam RefreshRespGroup2]
+    parm g1         key   "Responsible Group" -table frcgroups -key g \
+                                              -tags  group
+    parm g2         enum  "Responsible Group" -tags  group
 } {
     # FIRST, prepare the parameters
     prepare u          -toupper -required -type unit
