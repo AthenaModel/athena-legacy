@@ -150,9 +150,7 @@ snit::widgetadaptor coopbrowser {
         set ids [$hull uid curselection]
 
         if {[llength $ids] == 1} {
-            lassign [lindex $ids 0] n f g
-
-            order enter COOP:UPDATE n $n f $f g $g
+            order enter COOP:UPDATE id [lindex $ids 0]
         } else {
             order enter COOP:UPDATE:MULTI ids $ids
         }

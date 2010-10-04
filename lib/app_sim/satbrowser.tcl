@@ -150,9 +150,9 @@ snit::widgetadaptor satbrowser {
         set ids [$hull uid curselection]
 
         if {[llength $ids] == 1} {
-            lassign [lindex $ids 0] n g c
+            set id [lindex $ids 0]
 
-            order enter SAT:UPDATE n $n g $g c $c
+            order enter SAT:UPDATE id $id
         } else {
             order enter SAT:UPDATE:MULTI ids $ids
         }

@@ -258,9 +258,7 @@ snit::type sat {
     #
     # parmdict     A dictionary of group parms
     #
-    #    n                Neighborhood ID
-    #    g                Group ID
-    #    c                Concern
+    #    id               list {n g c}
     #    sat0             A new initial satisfaction, or ""
     #    saliency         A new saliency, or ""
     #    atrend           A new ascending trend, or ""
@@ -274,12 +272,15 @@ snit::type sat {
     typemethod {mutate update} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
+            lassign $id n g c
+
             # FIRST, get the undo information
             rdb eval {
                 SELECT * FROM sat_ngc
                 WHERE n=$n AND g=$g AND c=$c
             } undoData {
                 unset undoData(*)
+                set undoData(id) $id
             }
 
             # NEXT, Update the group
@@ -295,7 +296,7 @@ snit::type sat {
             } {}
 
             # NEXT, notify the app.
-            notifier send ::sat <Entity> update [list $n $g $c]
+            notifier send ::sat <Entity> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]
@@ -313,11 +314,11 @@ snit::type sat {
 
 order define ::sat SAT:UPDATE {
     title "Update Initial Satisfaction"
-    options -sendstates PREP -table gui_sat_ngc -tags ngc
+    options -sendstates PREP -tags ngc \
+        -refreshcmd {orderdialog refreshForKey id *}
 
-    parm n         key   "Neighborhood"    -tags nbhood
-    parm g         key   "Group"           -tags group
-    parm c         key   "Concern"         -tags concern
+    parm id        key   "Curve"     -table gui_sat_ngc -key {n g c} \
+        -widths {10 10 10}
     parm sat0      text  "Sat at T0"
     parm saliency  text  "Saliency"
     parm atrend    text  "Ascending Trend"
@@ -326,9 +327,7 @@ order define ::sat SAT:UPDATE {
     parm dthresh   text  "Desc. Threshold"
 } {
     # FIRST, prepare the parameters
-    prepare n        -toupper  -required -type nbhood
-    prepare g        -toupper  -required -type [list sat group]
-    prepare c        -toupper  -required -type econcern
+    prepare id       -toupper  -required -type ::sat
 
     prepare sat0     -toupper -type qsat      -xform [list qsat value]
     prepare saliency -toupper -type qsaliency -xform [list qsaliency value]
@@ -337,14 +336,9 @@ order define ::sat SAT:UPDATE {
     prepare dtrend   -toupper -type rdtrend
     prepare dthresh  -toupper -type qsat      -xform [list qsat value]
 
-    returnOnError
-
-    # NEXT, do cross-validation
-    validate c {
-        sat validate [list $parms(n) $parms(g) $parms(c)]
-    }
-
     returnOnError -final
+
+    parray parms
 
     # NEXT, modify the curve
     setundo [$type mutate update [array get parms]]
@@ -357,9 +351,11 @@ order define ::sat SAT:UPDATE {
 
 order define ::sat SAT:UPDATE:MULTI {
     title "Update Initial Satisfaction (Multi)"
-    options -sendstates PREP -table gui_sat_ngc
+    options \
+        -sendstates PREP                                  \
+        -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids       multi  "IDs"
+    parm ids       multi  "Curves" -table gui_sat_ngc -key id
     parm sat0      text   "Sat at T0"
     parm saliency  text   "Saliency"
     parm atrend    text   "Ascending Trend"
@@ -383,9 +379,7 @@ order define ::sat SAT:UPDATE:MULTI {
     # NEXT, modify the curves
     set undo [list]
 
-    foreach id $parms(ids) {
-        lassign $id parms(n) parms(g) parms(c)
-
+    foreach parms(id) $parms(ids) {
         lappend undo [$type mutate update [array get parms]]
     }
 

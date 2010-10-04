@@ -18,16 +18,6 @@ snit::type orggroup {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Type Components
-
-    # TBD
-
-    #-------------------------------------------------------------------
-    # Type Variables
-
-    # TBD
-
-    #-------------------------------------------------------------------
     # Queries
     #
     # These routines query information about the entities; they are
@@ -264,9 +254,9 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
 
 order define ::orggroup GROUP:ORGANIZATION:DELETE {
     title "Delete Organization Group"
-    options -sendstates PREP -table gui_orggroups
+    options -sendstates PREP
 
-    parm g  key "Group" -tags group
+    parm g  key "Group" -tags group -table gui_orggroups -key g
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type orggroup
@@ -309,9 +299,11 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
 
 order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     title "Update Organization Group"
-    options -sendstates PREP -table gui_orggroups
+    options -sendstates PREP \
+        -refreshcmd {orderdialog refreshForKey g *}
 
-    parm g              key   "ID"                 -tags group
+    parm g              key   "ID" \
+        -table gui_orggroups -key g -tags group 
     parm longname       text  "Long Name"
     parm color          color "Color"
     parm shape          enum  "Unit Shape"         -type eunitshape
@@ -346,9 +338,11 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
 
 order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
     title "Update Multiple Organization Groups"
-    options -sendstates PREP -table gui_orggroups
+    options \
+        -sendstates PREP                                  \
+        -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids            multi "Groups"
+    parm ids            multi "Groups" -table gui_orggroups -key g
     parm color          color "Color"
     parm shape          enum  "Unit Shape"         -type eunitshape
     parm orgtype        enum  "Organization Type"  -type eorgtype

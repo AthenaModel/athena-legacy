@@ -30,16 +30,6 @@ snit::type coop {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Type Components
-
-    # TBD
-
-    #-------------------------------------------------------------------
-    # Type Variables
-
-    # TBD
-
-    #-------------------------------------------------------------------
     # Simulation
 
     # start
@@ -221,9 +211,7 @@ snit::type coop {
     #
     # parmdict     A dictionary of group parms
     #
-    #    n                Neighborhood ID
-    #    f                Group ID
-    #    g                Group ID
+    #    id               list {n f g}
     #    coop0            Cooperation of f with g in n at time 0.
     #    atrend           A new ascending trend, or ""
     #    athresh          A new ascending threshold, or ""
@@ -236,12 +224,15 @@ snit::type coop {
     typemethod {mutate update} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
+            lassign $id n f g
+
             # FIRST, get the undo information
             rdb eval {
                 SELECT * FROM coop_nfg
                 WHERE n=$n AND f=$f AND g=$g
             } undoData {
                 unset undoData(*)
+                set undoData(id) $id
             }
 
             # NEXT, Update the group
@@ -256,7 +247,7 @@ snit::type coop {
             } {}
 
             # NEXT, notify the app.
-            notifier send ::coop <Entity> update [list $n $f $g]
+            notifier send ::coop <Entity> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]
@@ -274,11 +265,11 @@ snit::type coop {
 
 order define ::coop COOP:UPDATE {
     title "Update Initial Cooperation"
-    options -sendstates PREP -table gui_coop_nfg -tags nfg
+    options -sendstates PREP -tags nfg \
+        -refreshcmd {orderdialog refreshForKey id *}
 
-    parm n       key   "Neighborhood"     -tags nbhood
-    parm f       key   "Of Group"         -tags group
-    parm g       key   "With Group"       -tags group
+    parm id      key   "Curve" \
+        -table gui_coop_nfg -key {n f g}
     parm coop0   text  "Cooperation"
     parm atrend  text  "Ascending Trend"
     parm athresh text  "Asc. Threshold"
@@ -286,9 +277,7 @@ order define ::coop COOP:UPDATE {
     parm dthresh text  "Desc. Threshold"
 } {
     # FIRST, prepare the parameters
-    prepare n        -toupper  -required -type nbhood
-    prepare f        -toupper  -required -type civgroup
-    prepare g        -toupper  -required -type frcgroup
+    prepare id       -toupper  -required -type coop
     prepare coop0    -toupper            -type qcooperation \
         -xform [list qcooperation value]
     prepare atrend   -toupper            -type ratrend
@@ -297,13 +286,6 @@ order define ::coop COOP:UPDATE {
     prepare dtrend   -toupper            -type rdtrend
     prepare dthresh  -toupper            -type qcooperation \
         -xform [list qcooperation value]
-
-    returnOnError
-
-    # NEXT, do cross-validation
-    validate g {
-        coop validate [list $parms(n) $parms(f) $parms(g)]
-    }
 
     returnOnError -final
 
@@ -318,9 +300,11 @@ order define ::coop COOP:UPDATE {
 
 order define ::coop COOP:UPDATE:MULTI {
     title "Update Initial Cooperation (Multi)"
-    options -sendstates PREP -table gui_coop_nfg
+    options \
+        -sendstates PREP                                  \
+        -refreshcmd {orderdialog refreshForMulti ids *}
  
-    parm ids     multi  "IDs"
+    parm ids     multi  "IDs" -table gui_coop_nfg -key id
     parm coop0   text   "Cooperation"
     parm atrend  text   "Ascending Trend"
     parm athresh text   "Asc. Threshold"
@@ -345,9 +329,7 @@ order define ::coop COOP:UPDATE:MULTI {
     # NEXT, modify the curves
     set undo [list]
 
-    foreach id $parms(ids) {
-        lassign $id parms(n) parms(f) parms(g)
-
+    foreach parms(id) $parms(ids) {
         lappend undo [$type mutate update [array get parms]]
     }
 
