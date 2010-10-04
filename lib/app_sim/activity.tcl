@@ -943,23 +943,6 @@ snit::type activity {
     #-------------------------------------------------------------------
     # Refresh Commands
 
-    # RefreshStartNew field parmdict
-    #
-    # field     The field for A:SCHEDULE's start parameter
-    # parmdict  The values of upstream parameters
-    #
-    # Initialize Start to NOW in PREP or NOW+1 in PAUSED.
-
-    typemethod RefreshStartNew {field parmdict} {
-        if {[$field get] eq ""} {
-            if {[order state] eq "PREP"} {
-                $field set "NOW"
-            } else {
-                $field set "NOW+1"
-            }
-        }
-    }
-
     # RefreshStartUpdate field parmdict
     #
     # field     The field for A:UPDATE's start parameter
@@ -985,6 +968,72 @@ snit::type activity {
         } else {
             if {$timespec eq "" || $timespec <= [simclock now]} {
                 $field set "NOW+1"
+            }
+        }
+    }
+
+    
+    # Refresh_AS dlg fields fdict
+    #
+    # dlg       The order dialog
+    # fields    The fields that changed.
+    # fdict     The current values of the various fields.
+    #
+    # Refreshes the fields for ACTIVITY:SCHEDULE
+
+    typemethod Refresh_AS {dlg fields fdict} {
+        dict with fdict {
+            # Configure a
+            if {$g ne ""} {
+                set gtype [string tolower [group gtype $g]]
+                set values [activity $gtype names]
+                $dlg field configure a -values $values
+                $dlg disabled {}
+            } else {
+                $dlg disabled a
+                $dlg set a ""
+            }
+
+            # Configure start
+            if {$start eq ""} {
+                if {[order state] eq "PREP"} {
+                    $dlg set start "NOW"
+                } else {
+                    $dlg set start "NOW+1"
+                }
+            }
+        }
+    }
+
+    # Refresh_AU dlg fields fdict
+    #
+    # dlg       The order dialog
+    # fields    The fields that changed.
+    # fdict     The current values of the various fields.
+    #
+    # Refreshes the fields for ACTIVITY:UPDATE
+
+    typemethod Refresh_AU {dlg fields fdict} {
+        $dlg loadForKey cid *
+
+        set fdict [$dlg get]
+
+        dict with fdict {
+            if {[catch {
+                set start [simclock timespec validate $start]
+            }]} {
+                set start ""
+            }
+
+            
+            if {[order state] eq "PREP"} {
+                if {$start eq ""} {
+                    $dlg set start "NOW"
+                }
+            } else {
+                if {$start eq "" || $start <= [simclock now]} {
+                    $dlg set start "NOW+1"
+                }
             }
         }
     }
@@ -1023,15 +1072,15 @@ order define ::activity ACTIVITY:SCHEDULE {
     title "Schedule Activity"
 
     options \
-        -sendstates {PREP PAUSED}
+        -sendstates {PREP PAUSED}           \
+        -refreshcmd {::activity Refresh_AS}
 
-    parm g         enum "Group"            -type group
-    parm n         enum "From Nbhood"      -type nbhood
-    parm a         enum "Activity"         -type {activity asched}
-    parm tn        enum "In Nbhood"        -type nbhood
+    parm g         key  "Group"        -table groups -key g
+    parm n         key  "From Nbhood"  -table nbhoods -key n
+    parm a         enum "Activity"
+    parm tn        key  "In Nbhood"    -table nbhoods -key n
     parm personnel text "Personnel"
-    parm start     text "Start"            \
-        -refreshcmd {activity RefreshStartNew}
+    parm start     text "Start"
     parm finish    text "Finish"           -defval Never
     parm pattern   cpat "Schedule"         -defval daily
     parm priority  enum "Priority"         -type ePrioSched -displaylong \
@@ -1118,17 +1167,16 @@ order define ::activity ACTIVITY:UPDATE {
     title "Update Scheduled Activity"
 
     options \
-        -table      gui_calendar  \
-        -sendstates {PREP PAUSED}
+        -sendstates {PREP PAUSED}           \
+        -refreshcmd {::activity Refresh_AU}
 
-    parm cid       key  "Item ID"
+    parm cid       key  "Item ID" -table gui_calendar -key cid
     parm g         disp "Group"
     parm n         disp "From Nbhood"
     parm a         disp "Activity"
     parm tn        disp "In Nbhood"
     parm personnel text "Personnel"
-    parm start     text "Start"                     \
-        -refreshcmd {activity RefreshStartUpdate}
+    parm start     text "Start"
     parm finish    text "Finish"
     parm pattern   cpat "Schedule"
 } {
@@ -1197,11 +1245,10 @@ order define ::activity ACTIVITY:CANCEL {
     title "Cancel Scheduled Activity"
 
     options \
-        -table          gui_calendar  \
-        -sendstates     {PREP PAUSED} \
-        -alwaysunsaved
+        -sendstates {PREP PAUSED} \
+        -refreshcmd {orderdialog refreshForKey cid *}
 
-    parm cid       key  "Item ID"
+    parm cid       key  "Item ID" -table gui_calendar -key cid
     parm g         disp "Group"
     parm n         disp "From Nbhood"
     parm a         disp "Activity"
@@ -1226,10 +1273,11 @@ order define ::activity ACTIVITY:PRIORITY {
     title "Prioritize Scheduled Activity"
 
     options \
-        -sendstates {PREP PAUSED}
+        -sendstates {PREP PAUSED} \
+        -refreshcmd {orderdialog refreshForKey cid *}
 
-    parm cid       text "Item ID"
-    parm priority  text "Priority"
+    parm cid       key  "Item ID"  -table gui_calendar -key cid
+    parm priority  enum "Priority" -type ePrioUpdate
 } {
     # FIRST, prepare and validate the parameters
     prepare cid      -required          -type {activity cal}

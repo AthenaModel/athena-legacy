@@ -252,5 +252,5 @@ snit::widget ::projectgui::calpatternfield {
 #-------------------------------------------------------------------
 # Register the field.
 
-::formlib::form register calpattern ::projectgui::calpatternfield
+::formlib::form register cpat ::projectgui::calpatternfield
 
