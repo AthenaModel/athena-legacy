@@ -358,7 +358,8 @@ snit::type ::attroe {
 order define ::attroe ROE:ATTACK:UNIFORMED:CREATE {
     title "Create Attacking ROE (Uniformed)"
 
-    options -sendstates {PREP PAUSED}
+    options \
+        -sendstates {PREP PAUSED}
 
     parm id         newkey "Combatants"   -universe gui_attroeuf_univ    \
                                           -table gui_attroeuf_nfg        \
@@ -392,7 +393,8 @@ order define ::attroe ROE:ATTACK:UNIFORMED:CREATE {
 order define ::attroe ROE:ATTACK:NONUNIFORMED:CREATE {
     title "Create Attacking ROE (Non-Uniformed)"
 
-    options -sendstates {PREP PAUSED}
+    options \
+        -sendstates {PREP PAUSED}
 
     parm id         newkey "Combatants"  -universe gui_attroenf_univ    \
                                          -table gui_attroenf_nfg        \
@@ -582,8 +584,6 @@ order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE:MULTI {
 order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI {
     title "Update Multiple Attacking ROEs (Non-Uniformed)"
     options \
-        -table          gui_attroenf_nfg \
-        -tags           nfg              \
         -schedulestates {PREP PAUSED}    \
         -sendstates     {PREP PAUSED}
 

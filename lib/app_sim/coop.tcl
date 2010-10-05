@@ -265,11 +265,11 @@ snit::type coop {
 
 order define ::coop COOP:UPDATE {
     title "Update Initial Cooperation"
-    options -sendstates PREP -tags nfg \
+    options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey id *}
 
-    parm id      key   "Curve" \
-        -table gui_coop_nfg -key {n f g}
+    parm id      key   "Curve"           -table gui_coop_nfg \
+                                         -key {n f g}
     parm coop0   text  "Cooperation"
     parm atrend  text  "Ascending Trend"
     parm athresh text  "Asc. Threshold"
@@ -304,7 +304,8 @@ order define ::coop COOP:UPDATE:MULTI {
         -sendstates PREP                                  \
         -refreshcmd {orderdialog refreshForMulti ids *}
  
-    parm ids     multi  "IDs" -table gui_coop_nfg -key id
+    parm ids     multi  "IDs"              -table gui_coop_nfg \
+                                           -key id
     parm coop0   text   "Cooperation"
     parm atrend  text   "Ascending Trend"
     parm athresh text   "Asc. Threshold"

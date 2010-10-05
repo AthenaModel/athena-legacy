@@ -1163,7 +1163,6 @@ order define ::mad MAD:SAT:LEVEL {
 order define ::mad MAD:SAT:SLOPE {
     title "Magic Satisfaction Slope Input"
     options \
-        -alwaysunsaved                 \
         -sendstates     {}             \
         -schedulestates {PREP PAUSED}
 

@@ -302,13 +302,10 @@ snit::type order {
         # FIRST, initialize the data values
         set orders(title-$name) ""
         set orders(opts-$name) {
-            -alwaysunsaved  0
             -narrativecmd   {}
             -refreshcmd     {}
             -schedulestates {}
             -sendstates     {}
-            -table          ""
-            -tags           {}
         }
         set orders(parms-$name) ""
         array unset orders pdict-$name-*
@@ -343,11 +340,6 @@ snit::type order {
 
     # options option...
     #
-    # -alwaysunsaved             
-    #     If set, the dialog "Send" buttons will not be disabled when 
-    #     there is no "unsaved" data.
-    #     TBD: Obsolete.
-    #
     # -narrativecmd cmd
     #     Specifies a command that should return a human-readable
     #     description of the order's effect.  The command will be
@@ -372,14 +364,6 @@ snit::type order {
     #     States in which the order can be sent.  If clear, the order 
     #     cannot be sent.
     #
-    # -table tableName  
-    #     Name of an RDB table or view associated with this order.
-    #     TBD: OBSOLETE
-    #
-    # -tags taglist
-    #     Entity tags (requires -table)
-    #     TBD: OBSOLETE
-    #
     # Sets the order's options.
 
     proc define::options {args} {
@@ -391,16 +375,10 @@ snit::type order {
             set opt [lshift args]
 
             switch -exact -- $opt {
-                -alwaysunsaved {
-                    dict set odict $opt 1
-                }
-
                 -narrativecmd   -
                 -refreshcmd     -
                 -schedulestates -
-                -sendstates     -
-                -table          -
-                -tags           { 
+                -sendstates     { 
                     dict set odict $opt [lshift args] 
                 }
 
@@ -425,7 +403,6 @@ snit::type order {
     # -tags taglist      <ObjectSelect> tags
     # -schedwheninvalid  Order can be scheduled even if this field is 
     #                    invalid.
-    # -refreshcmd cmd    Command to update the field when refreshed.
     #
     # enum field options:
     #
@@ -439,12 +416,12 @@ snit::type order {
     # -dispcols names    Display the values of the named columns instead
     #                    of the values in the key columns.
     # -widths widths     List of column widths
-    # -display column    Display the named $column's
-    #                    value rather than the key column's value. TBD
+    # -labels strings    List of key column labels.
     #
     # newkey field options:
     #
     # -table table       Table or view
+    # -universe table    Universe table or view
     # -key  names        List of key column names
     # -widths widths     List of column widths
     # -labels strings    List of key column labels.
@@ -475,11 +452,9 @@ snit::type order {
                        -tags             {}         \
                        -type             {}         \
                        -displaylong      0          \
-                       -display          ""         \
                        -schedwheninvalid 0          \
                        -widths           {}         \
-                       -labels           {}         \
-                       -refreshcmd       {}]
+                       -labels           {}]
 
         # NEXT, accumulate the pdict
         while {[llength $args] > 0} {
@@ -495,8 +470,7 @@ snit::type order {
                 -type        -
                 -widths      -
                 -labels      -
-                -refreshcmd  -
-                -display     {
+                -refreshcmd  {
                     dict set pdict $opt [lshift args] 
                 }
 
@@ -504,6 +478,7 @@ snit::type order {
                 -schedwheninvalid {
                     dict set pdict $opt 1
                 }
+
                 default {
                     error "Unknown option: $opt"
                 }
@@ -527,13 +502,6 @@ snit::type order {
             } {
                 error "$opt is invalid for this field type: \"$name\""
             }
-        }
-
-        # -display requires key
-        if {[dict get $pdict -display] ne "" &&
-            $fieldType ne "key"
-        } {
-            error "-display requires key field: \"$name\""
         }
 
         # -displaylong requires -type

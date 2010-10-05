@@ -304,11 +304,11 @@ snit::type sat {
 
 order define ::sat SAT:UPDATE {
     title "Update Initial Satisfaction"
-    options -sendstates PREP -tags ngc \
+    options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey id *}
 
-    parm id        key   "Curve"     -table gui_sat_ngc -key {n g c} \
-        -widths {10 10 10}
+    parm id        key   "Curve"            -table gui_sat_ngc \
+                                            -key   {n g c}
     parm sat0      text  "Sat at T0"
     parm saliency  text  "Saliency"
     parm atrend    text  "Ascending Trend"
@@ -345,7 +345,8 @@ order define ::sat SAT:UPDATE:MULTI {
         -sendstates PREP                                  \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids       multi  "Curves" -table gui_sat_ngc -key id
+    parm ids       multi  "Curves"           -table gui_sat_ngc \
+                                             -key id
     parm sat0      text   "Sat at T0"
     parm saliency  text   "Saliency"
     parm atrend    text   "Ascending Trend"
