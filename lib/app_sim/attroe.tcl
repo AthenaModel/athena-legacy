@@ -427,7 +427,6 @@ order define ::attroe ROE:ATTACK:NONUNIFORMED:CREATE {
 order define ::attroe ROE:ATTACK:DELETE {
     title "Delete Attacking ROE"
     options \
-        -table      gui_attroe_nfg        \
         -sendstates {PREP PAUSED}
 
     parm id key  "Combatants"    -table gui_attroe_nfg          \

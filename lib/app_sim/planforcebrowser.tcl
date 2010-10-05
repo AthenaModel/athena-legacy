@@ -271,21 +271,10 @@ snit::widget planforcebrowser {
             set rid [lindex $rids 0]
             lassign [$status get $rid] g n
 
-            set parmlist [list g $g n $n]
+            set parmlist [list id [list $n $g]]
         } else {
             # Otherwise, look at the filter boxes.
-            set parmlist [list]
-
-            set n [$nbox get]
-            set g [$gbox get]
-
-            if {[$nbox get] ni {"" "ALL"}} {
-                lappend parmlist n [$nbox get]
-            }
-
-            if {[$gbox get] ni {"" "ALL"}} {
-                lappend parmlist g [$gbox get]
-            }
+            set parmlist [list id [list [$nbox get] [$gbox get]]]
         }
 
         # NEXT, enter the order dialog.

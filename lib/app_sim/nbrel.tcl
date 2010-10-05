@@ -169,8 +169,7 @@ snit::type nbrel {
     #
     # parmdict     A dictionary of group parms
     #
-    #    m                Neighborhood ID
-    #    n                Neighborhood ID
+    #    id               list {m n}
     #    proximity        Proximity of m to n from m's point of view
     #    effects_delay    Delay in days for effects to reach m from n
     #
@@ -180,12 +179,15 @@ snit::type nbrel {
     typemethod {mutate update} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
+            lassign $id m n
+
             # FIRST, get the undo information
             rdb eval {
                 SELECT * FROM nbrel_mn
                 WHERE m=$m AND n=$n
             } undoData {
                 unset undoData(*)
+                set undoData(id) $id
             }
 
             # NEXT, Update the group
@@ -197,7 +199,7 @@ snit::type nbrel {
             } {}
 
             # NEXT, notify the app.
-            notifier send ::nbrel <Entity> update [list $m $n]
+            notifier send ::nbrel <Entity> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]
@@ -207,55 +209,64 @@ snit::type nbrel {
     #-------------------------------------------------------------------
     # Order Helpers
 
-    # RefreshProximityUpdate field parmdict
+    # Refresh_NRU dlg fields fdict
     #
-    # field     The "proximity" field in a N:R:UPDATE dialog
-    # parmdict  The current values of the various fields
+    # dlg       The order dialog
+    # fields    Names of fields that changed
+    # fdict     Current field values
     #
-    # Updates the "proximity" field's state.
+    # Refreshes the data in the NBHOOD:RELATIONSHIP:UPDATE dialog
+    # when field values change.
 
-    typemethod RefreshProximityUpdate {field parmdict} {
-        dict with parmdict {
-            if {$m eq $n} {
-                $field configure -values HERE
-                $field set HERE
-                $field configure -state disabled
-            } else {
-                set values [lrange [eproximity names] 1 end]
-                $field configure -values $values
+    typemethod Refresh_NRU {dlg fields fdict} {
+        # FIRST, if the id changed, refresh the fields.
+        dict with fdict {
+            if {"id" in $fields} {
+                lassign $id m n
+                set disabled [list]
+
+                # NEXT, refresh proximity
+                if {$m eq $n} {
+                    $dlg field configure proximity -values HERE
+                    lappend disabled proximity
+                } else {
+                    set values [lrange [eproximity names] 1 end]
+                    $dlg field configure proximity -values $values
+                }
+                
+                # NEXT, refresh effects_delay
+                if {$m eq $n} {
+                    lappend disabled effects_delay
+                }
+
+                $dlg disabled $disabled
+
+                # NEXT, load the current data.
+                $dlg loadForKey id
             }
         }
     }
 
-    # RefreshDelayUpdate field parmdict
+    # Refresh_NRUM dlg fields fdict
     #
-    # field     The "effects_delay" field in a N:R:UPDATE dialog
-    # parmdict  The current values of the various fields
+    # dlg       The order dialog
+    # fields    Names of fields that changed
+    # fdict     Current field values
     #
-    # Updates the "effects_delay" field's state.
+    # Refreshes the data in the NBHOOD:RELATIONSHIP:UPDATE:MULTI dialog
+    # when field values change.
 
-    typemethod RefreshDelayUpdate {field parmdict} {
-        dict with parmdict {
-            if {$m eq $n} {
-                $field configure -state disabled
-            } else {
-                $field configure -state normal
-            }
+    typemethod Refresh_NRUM {dlg fields fdict} {
+        if {"ids" ni $fields} {
+            return
         }
-    }
 
-    # RefreshProximityMulti field parmdict
-    #
-    # field     The "proximity" field in a N:R:UPDATE:MULTI dialog
-    # parmdict  The current values of the various fields
-    #
-    # Updates the "proximity" field's state.
+        set disabled [list]
 
-    typemethod RefreshProximityMulti {field parmdict} {
         set same 0
         set diff 0
 
-        foreach id [dict get $parmdict ids] {
+        foreach id [dict get $fdict ids] {
             lassign $id m n
 
             if {$m eq $n} {
@@ -267,40 +278,28 @@ snit::type nbrel {
 
         if {$same > 0 && $diff > 0} {
             # Mixed bag
-            $field set ""
-            $field configure -state disabled
+            # $dlg set proximity ""
+            lappend disabled proximity
         } elseif {$same > 0} {
             # All are HERE
-            $field configure -values HERE
-            $field set HERE
-            $field configure -state disabled
+            $dlg field configure proximity -values HERE
+            # $dlg set proximity HERE
+            lappend disabled proximity
         } else {
             # None are HERE
             set values [lrange [eproximity names] 1 end]
-            $field configure -values $values
+            $dlg field configure proximity -values $values
 
-            $field set ""
-        }
-    }
-
-    # RefreshDelayMulti field parmdict
-    #
-    # field     The "effects_delay" field in a N:R:UPDATE:MULTI dialog
-    # parmdict  The current values of the various fields
-    #
-    # Updates the "effects_delay" field's state.
-
-    typemethod RefreshDelayMulti {field parmdict} {
-        foreach id [dict get $parmdict ids] {
-            lassign $id m n
-
-            if {$m eq $n} {
-                $field configure -state disabled
-                return
-            }
+            # $dlg set proximity ""
         }
 
-        $field configure -state normal
+        if {$same > 0} {
+            lappend disabled effects_delay
+        }
+
+        $dlg disabled $disabled
+
+        $dlg loadForMulti ids
     }
 }
 
@@ -315,37 +314,38 @@ snit::type nbrel {
 
 order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE {
     title "Update Neighborhood Relationship"
-    options -sendstates PREP -table gui_nbrel_mn -tags mn
+    options \
+        -sendstates PREP \
+        -refreshcmd {::nbrel Refresh_NRU}
 
-    parm m             key  "Of Neighborhood"      -tags nbhood
-    parm n             key  "With Neighborhood"    -tags nbhood
-
-    parm proximity     enum "Proximity" \
-        -refreshcmd {::nbrel RefreshProximityUpdate}
-    parm effects_delay text "Effects Delay (Days)" \
-        -refreshcmd {::nbrel RefreshDelayUpdate}
+    parm id            key  "Neighborhood"       -table  gui_nbrel_mn  \
+                                                 -key    {m n}         \
+                                                 -labels {"Of" "With"}
+    parm proximity     enum "Proximity"
+    parm effects_delay text "Effects Delay (Days)"
 } {
     # FIRST, prepare the parameters
-    prepare m             -toupper  -required -type nbhood
-    prepare n             -toupper  -required -type nbhood
+    prepare id            -toupper  -required -type nbrel
     prepare proximity     -toupper            -type eproximity
     prepare effects_delay -toupper            -type rdays
 
     returnOnError
 
     # NEXT, can't change HERE for a neighborhood with itself
+    lassign $parms(id) m n
+
     if {[valid proximity]} {
-        if {$parms(m) eq $parms(n) && $parms(proximity) ne "HERE"} { 
-            reject proximity "Proximity of $parms(m) to itself must be HERE"
-        } elseif {$parms(m) ne $parms(n) && $parms(proximity) eq "HERE"} { 
+        if {$m eq $n && $parms(proximity) ne "HERE"} { 
+            reject proximity "Proximity of $m to itself must be HERE"
+        } elseif {$m ne $n && $parms(proximity) eq "HERE"} { 
             reject proximity \
-                "Proximity of $parms(m) to $parms(n) cannot be HERE"
+                "Proximity of $m to $n cannot be HERE"
         }
     }
 
     # NEXT, effects_delay must be 0.0 if m=n
     if {[valid effects_delay]} {
-        if {$parms(m) eq $parms(n) && $parms(effects_delay) != 0.0} {
+        if {$m eq $n && $parms(effects_delay) != 0.0} {
             reject effects_delay \
                 "Effects Delay cannot be non-zero for these neighborhoods."
         }
@@ -365,14 +365,15 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE {
 
 order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE:MULTI {
     title "Update Multiple Neighborhood Relationships"
-    options -sendstates PREP -table gui_nbrel_mn
+    options \
+        -sendstates PREP                   \
+        -refreshcmd {::nbrel Refresh_NRUM}
 
-    parm ids           multi  "IDs"
+    parm ids           multi  "IDs"                  -table gui_nbrel_mn \
+                                                     -key   id
 
-    parm proximity     enum   "Proximity" \
-        -refreshcmd {::nbrel RefreshProximityMulti}
-    parm effects_delay text   "Effects Delay (Days)" \
-        -refreshcmd {::nbrel RefreshDelayMulti}
+    parm proximity     enum   "Proximity"
+    parm effects_delay text   "Effects Delay (Days)"
 } {
     # FIRST, prepare the parameters
     prepare ids           -toupper  -required -listof nbrel
@@ -385,13 +386,13 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE:MULTI {
     # shouldn't.
     if {[valid proximity]} {
         foreach id $parms(ids) {
-            lassign $id parms(m) parms(n)
+            lassign $id m n
             
-            if {$parms(m) eq $parms(n) && $parms(proximity) ne "HERE"} {
+            if {$m eq $n && $parms(proximity) ne "HERE"} {
                 reject proximity \
            "Proximity cannot be HERE for these neighborhoods."
                 break
-            } elseif {$parms(m) ne $parms(n) && $parms(proximity) eq "HERE"} {
+            } elseif {$m ne $n && $parms(proximity) eq "HERE"} {
                 reject proximity \
            "Proximity cannot be $parms(proximity) for these neighborhoods."
                 break
@@ -403,9 +404,9 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE:MULTI {
     # shouldn't.
     if {[valid effects_delay]} {
         foreach id $parms(ids) {
-            lassign $id parms(m) parms(n)
+            lassign $id m n
             
-            if {$parms(m) eq $parms(n) && $parms(effects_delay) != 0.0} {
+            if {$m eq $n && $parms(effects_delay) != 0.0} {
                 reject effects_delay \
            "Effects Delay cannot be non-zero for these neighborhoods."
                 break
@@ -419,9 +420,7 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE:MULTI {
     # NEXT, modify the curves
     set undo [list]
 
-    foreach id $parms(ids) {
-        lassign $id parms(m) parms(n)
-
+    foreach parms(id) $parms(ids) {
         lappend undo [$type mutate update [array get parms]]
     }
 

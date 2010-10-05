@@ -141,21 +141,9 @@ snit::widgetadaptor relbrowser {
         set ids [$hull uid curselection]
 
         if {[llength $ids] == 1} {
-            lassign [lindex $ids 0] n f g
-
-            order enter RELATIONSHIP:UPDATE n $n f $f g $g
+            order enter RELATIONSHIP:UPDATE id [lindex $ids 0]
         } else {
             order enter RELATIONSHIP:UPDATE:MULTI ids $ids
         }
     }
 }
-
-
-
-
-
-
-
-
-
-

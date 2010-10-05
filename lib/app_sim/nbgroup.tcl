@@ -80,6 +80,27 @@ snit::type nbgroup {
         return [list $n $g]
     }
 
+    # unsed validate id
+    #
+    # id      A group ID, [list $n $g]
+    #
+    # Validates an nbgroup ID as a possible ID, and verifies that it isn't
+    # in use.
+
+    typemethod {unused validate} {id} {
+        lassign $id n g
+
+        set n [nbhood   validate $n]
+        set g [civgroup validate $g]
+
+        if {[$type exists $n $g]} { 
+            return -code error -errorcode INVALID \
+                "Group $g already resides in neighborhood $n"
+        }
+
+        return [list $n $g]
+    }
+
     #-------------------------------------------------------------------
     # Mutators
     #
@@ -93,8 +114,7 @@ snit::type nbgroup {
     #
     # parmdict     A dictionary of group parms
     #
-    #    n                The neighborhood ID
-    #    g                The civgroup ID
+    #    id               list {n g}
     #    local_name       The nbgroup's local name
     #    basepop          The nbgroup's base population
     #    sap              The nbgroup's subsistence agriculture percentage
@@ -110,6 +130,8 @@ snit::type nbgroup {
 
     typemethod {mutate create} {parmdict} {
         dict with parmdict {
+            lassign $id n g
+
             # FIRST, Put the group in the database
             rdb eval {
                 INSERT INTO nbgroups(n,g,local_name,basepop,sap,demeanor,
@@ -129,7 +151,7 @@ snit::type nbgroup {
             }
 
             # NEXT, notify the app.
-            notifier send ::nbgroup <Entity> create [list $n $g]
+            notifier send ::nbgroup <Entity> create $id
 
             # NEXT, Return the undo command
             set undo [list]
@@ -189,8 +211,7 @@ snit::type nbgroup {
     #
     # parmdict     A dictionary of group parms
     #
-    #    n                Neighborhood ID of nbgroup
-    #    g                Group ID of nbgroup
+    #    id               list {n g}
     #    local_name       A new local name, or ""
     #    basepop          A new basepop, or ""
     #    sap              A new sap, or ""
@@ -204,12 +225,15 @@ snit::type nbgroup {
     typemethod {mutate update} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
+            lassign $id n g
+
             # FIRST, get the undo information
             rdb eval {
                 SELECT * FROM nbgroups
                 WHERE n=$n AND g=$g
             } undoData {
                 unset undoData(*)
+                set undoData(id) $id
             }
 
             # NEXT, Update the group
@@ -263,76 +287,6 @@ snit::type nbgroup {
 
         return [join $undo \n]
     }
-
-    #---------------------------------------------------------------
-    # Order Helpers
-
-    # RefreshCreateN field parmdict
-    #
-    # field     The enumfield for G:N:CREATE's n parameter
-    # parmdict  The values of upstream parameters
-    #
-    # Sets the valid values to those neighborhoods for which 
-    # a group can be created.
-
-    typemethod RefreshCreateN {field parmdict} {
-        # FIRST, get the number of existing CIV groups
-        set civcount [llength [civgroup names]]
-
-        # NEXT, get a list of the names of the neighborhoods for
-        # which neighborhood groups cannot be defined.
-
-        set values [nbhood names]
-
-        rdb eval {
-            SELECT n
-            FROM nbgroups
-            GROUP BY n
-            HAVING count(g) = $civcount
-        } {
-            ldelete values $n
-        }
-
-        # NEXT, update the field.
-	$field configure -values $values
-
-        if {[llength $values] > 0} {
-	    $field configure -state normal
-        } else {
-            $field configure -state disabled
-        }
-    }
-
-    # RefreshCreateG field parmdict
-    #
-    # field     The enumfield for G:N:CREATE's g parameter
-    # parmdict  The values of upstream parameters
-    #
-    # Sets the valid values to those for which no group exists.
-
-    typemethod RefreshCreateG {field parmdict} {
-        # FIRST, get the list of existing g's
-        set n [dict get $parmdict n]
-
-        set nbgs [rdb eval {SELECT g FROM nbgroups WHERE n=$n}]
-
-        # NEXT, build a list of the missing civ groups
-        set values [list]
-        foreach g [civgroup names] {
-            if {$g ni $nbgs} {
-                lappend values $g
-            }
-        }
-
-        # NEXT, update the field.
-	$field configure -values $values
-
-        if {[llength $values] > 0} {
-	    $field configure -state normal
-        } else {
-            $field configure -state disabled
-        }
-    }
 }
 
 #-------------------------------------------------------------------
@@ -347,21 +301,18 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
 
     options -sendstates PREP
 
-    parm n              enum "Neighborhood"         \
-        -tags nbhood                                \
-        -refreshcmd [list ::nbgroup RefreshCreateN]
-    parm g              enum "Civ Group" \
-        -tags group -refreshcmd [list ::nbgroup RefreshCreateG]
+    parm id             newkey "Nbhood Group"  -universe nbgroups_univ \
+                                               -table    nbgroups      \
+                                               -key      {n g}
     parm local_name     text "Local Name"
     parm basepop        text "Base Population"
-    parm sap            text "Subs. Agri. %"  -defval 0
-    parm demeanor       enum "Demeanor"       -type edemeanor
-    parm rollup_weight  text "Rollup Weight"  -defval 1.0
-    parm effects_factor text "Effects Factor" -defval 1.0
+    parm sap            text "Subs. Agri. %"   -defval 0
+    parm demeanor       enum "Demeanor"        -type edemeanor
+    parm rollup_weight  text "Rollup Weight"   -defval 1.0
+    parm effects_factor text "Effects Factor"  -defval 1.0
 } {
     # FIRST, prepare and validate the parameters
-    prepare n              -toupper -required -type nbhood
-    prepare g              -toupper -required -type civgroup
+    prepare id             -toupper -required -type {nbgroup unused}
     prepare local_name     -normalize
     prepare basepop                 -required -type ingpopulation
     prepare sap                     -required -type ipercent
@@ -369,19 +320,13 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
     prepare rollup_weight           -required -type weight
     prepare effects_factor          -required -type weight
 
-    returnOnError
-
-    # NEXT, do cross-validation
-    if {[$type exists $parms(n) $parms(g)]} {
-        reject g "Group $parms(g) already resides in $parms(n)"
-    }
-
     returnOnError -final
 
     # NEXT, if local_name is not given, use the group's long name
     if {$parms(local_name) eq ""} {
+        lassign $parms(id) n g
         set parms(local_name) [rdb onecolumn {
-            SELECT longname FROM groups WHERE g=$parms(g)
+            SELECT longname FROM groups WHERE g=$g
         }]
     }
 
@@ -398,21 +343,14 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
 
 order define ::nbgroup GROUP:NBHOOD:DELETE {
     title "Delete Nbhood Group"
-    options -sendstates PREP -table gui_nbgroups -tags ng
+    options \
+        -sendstates PREP
 
-    parm n  key  "Neighborhood"  -tags nbhood
-    parm g  key  "Civ Group"     -tags group
+    parm id key  "Nbhood Group"  -table gui_nbgroups \
+                                 -key {n g}
 } {
     # FIRST, prepare the parameters
-    prepare n -toupper -required -type nbhood
-    prepare g -toupper -required -type civgroup
-
-    returnOnError
-
-    # NEXT, do cross-validation
-    validate g {
-        $type validate [list $parms(n) $parms(g)]
-    }
+    prepare id -toupper -required -type nbgroup
 
     returnOnError -final
 
@@ -440,7 +378,7 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
     }
 
     # NEXT, delete the group and dependent entities
-    lappend undo [$type mutate delete $parms(n) $parms(g)]
+    lappend undo [$type mutate delete {*}$parms(id)]
     lappend undo [scenario mutate reconcile]
     
     setundo [join $undo \n]
@@ -455,33 +393,27 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
 
 order define ::nbgroup GROUP:NBHOOD:UPDATE {
     title "Update Nbhood Group"
-    options -sendstates PREP -table gui_nbgroups -tags ng
+    options \
+        -sendstates PREP                               \
+        -refreshcmd {::orderdialog refreshForKey id *}
 
-    parm n              key  "Neighborhood"  -tags nbhood
-    parm g              key  "Civ Group"     -tags group
+    parm id             key  "Nbhood Group"    -table gui_nbgroups \
+                                               -key {n g}
     parm local_name     text "Local Name"
     parm basepop        text "Base Population"
     parm sap            text "Subs. Agri. %" 
-    parm demeanor       enum "Demeanor"      -type edemeanor
+    parm demeanor       enum "Demeanor"        -type edemeanor
     parm rollup_weight  text "Rollup Weight"
     parm effects_factor text "Effects Factor"
 } {
     # FIRST, prepare the parameters
-    prepare n              -toupper  -required -type nbhood
-    prepare g              -toupper  -required -type civgroup
+    prepare id             -toupper  -required -type nbgroup
     prepare local_name     -normalize      
     prepare basepop                  -type ingpopulation
     prepare sap                      -type ipercent
     prepare demeanor       -toupper  -type edemeanor
     prepare rollup_weight            -type weight
     prepare effects_factor           -type weight
-
-    returnOnError
-
-    # NEXT, do cross-validation
-    validate g {
-        $type validate [list $parms(n) $parms(g)]
-    }
 
     returnOnError -final
 
@@ -499,13 +431,16 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
 
 order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
     title "Update Multiple Nbhood Groups"
-    options -sendstates PREP -table gui_nbgroups
+    options \
+        -sendstates PREP                                  \
+        -refreshcmd {::orderdialog refreshForMulti ids *}
 
-    parm ids            multi "Groups"
+    parm ids            multi "Groups"          -table gui_nbgroups \
+                                                -key   id
     parm local_name     text  "Local Name"
     parm basepop        text  "Base Population"
     parm sap            text  "Subs. Agri. %"
-    parm demeanor       enum  "Demeanor"       -type edemeanor
+    parm demeanor       enum  "Demeanor"        -type edemeanor
     parm rollup_weight  text  "RollupWeight"
     parm effects_factor text  "EffectsFactor"
 } {
@@ -523,8 +458,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
     # NEXT, modify the group
     set undo [list]
 
-    foreach id $parms(ids) {
-        lassign $id parms(n) parms(g)
+    foreach parms(id) $parms(ids) {
         lappend undo [$type mutate update [array get parms]]
     }
 
@@ -539,23 +473,17 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
 
 order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP {
     title "Update Nbhood Group (Post-PREP)"
-    options -sendstates {PREP PAUSED} -table gui_nbgroups -tags ng
+    options \
+        -sendstates PAUSED                             \
+        -refreshcmd {::orderdialog refreshForKey id *}
 
-    parm n              key  "Neighborhood"  -tags nbhood
-    parm g              key  "Civ Group"     -tags group
+    parm id             key  "Nbhood Group"    -table gui_nbgroups \
+                                               -key {n g}
     parm sap            text "Subs. Agri. %" 
 } {
     # FIRST, prepare the parameters
-    prepare n              -toupper  -required -type nbhood
-    prepare g              -toupper  -required -type civgroup
+    prepare id             -toupper  -required -type nbgroup
     prepare sap                      -type ipercent
-
-    returnOnError
-
-    # NEXT, do cross-validation
-    validate g {
-        $type validate [list $parms(n) $parms(g)]
-    }
 
     returnOnError -final
 
@@ -573,9 +501,12 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP {
 
 order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP:MULTI {
     title "Update Multiple Nbhood Groups (Post-PREP)"
-    options -sendstates {PREP PAUSED} -table gui_nbgroups
+    options \
+        -sendstates PAUSED                                  \
+        -refreshcmd {::orderdialog refreshForMulti ids *}
 
-    parm ids            multi "Groups"
+    parm ids            multi "Groups"          -table gui_nbgroups \
+                                                -key   id
     parm sap            text  "Subs. Agri. %"
 } {
     # FIRST, prepare the parameters
@@ -588,8 +519,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP:MULTI {
     # NEXT, modify the group
     set undo [list]
 
-    foreach id $parms(ids) {
-        lassign $id parms(n) parms(g)
+    foreach parms(id) $parms(ids) {
         lappend undo [$type mutate update [array get parms]]
     }
 

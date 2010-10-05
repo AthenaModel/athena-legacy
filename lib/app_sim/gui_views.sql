@@ -108,6 +108,11 @@ JOIN nbgroups AS main USING (g)
 JOIN demog_ng USING(n,g)
 LEFT OUTER JOIN gram_ng AS gram USING(n,g);
 
+-- Universe of possible nbgroups
+CREATE TEMPORARY VIEW nbgroups_univ AS
+SELECT n, g
+FROM nbhoods JOIN civgroups_view;
+
 -- A personnel_ng view for use by the GUI.
 CREATE TEMPORARY VIEW gui_personnel_ng AS
 SELECT n || ' ' || g                                 AS id,

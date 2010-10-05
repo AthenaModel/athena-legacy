@@ -156,8 +156,7 @@ snit::type personnel {
     #
     # parmdict     A dictionary of group parms
     #
-    #    n                Neighborhood ID
-    #    g                Group ID
+    #    id               list {n g}
     #    personnel        A new personnel, or ""
     #
     # Updates a personnel record given the parms, which are presumed to be
@@ -166,12 +165,15 @@ snit::type personnel {
     typemethod {mutate set} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
+            lassign $id n g
+
             # FIRST, get the undo information
             rdb eval {
                 SELECT * FROM personnel_ng
                 WHERE n=$n AND g=$g
             } undoData {
                 unset undoData(*)
+                set undoData(id) $id
             }
 
             # NEXT, Update the group
@@ -182,7 +184,7 @@ snit::type personnel {
             } {}
 
             # NEXT, notify the app.
-            notifier send ::personnel <Entity> update [list $n $g]
+            notifier send ::personnel <Entity> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod mutate set [array get undoData]]
@@ -193,8 +195,7 @@ snit::type personnel {
     #
     # parmdict     A dictionary of group parms
     #
-    #    n                Neighborhood ID
-    #    g                Group ID
+    #    id               list {n g}
     #    delta            A delta to personnel
     #
     # Updates a personnel record given the parms, which are presumed to be
@@ -203,6 +204,8 @@ snit::type personnel {
     typemethod {mutate adjust} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
+            lassign $id n g
+
             # FIRST, get the undo information
             rdb eval {
                 SELECT personnel FROM personnel_ng
@@ -220,11 +223,11 @@ snit::type personnel {
             } {}
 
             # NEXT, notify the app.
-            notifier send ::personnel <Entity> update [list $n $g]
+            notifier send ::personnel <Entity> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod mutate adjust \
-                        [list n $n g $g delta $undoDelta]]
+                        [list id $id delta $undoDelta]]
         }
     }
 
@@ -242,30 +245,21 @@ order define ::personnel PERSONNEL:SET {
     options \
         -sendstates     {PREP PAUSED}     \
         -schedulestates {PREP PAUSED}     \
-        -table          gui_personnel_ng  \
-        -tags           ng                \
         -narrativecmd   {apply {{name pdict} {
             dict with pdict {
+                lassign $id n g
                 return "Assign $personnel $g personnel, total, to nbhood $n"
             }
         }}}
 
 
-    parm n              key  "Neighborhood"  -tags nbhood
-    parm g              key  "Group"         -tags group
+    parm id             key  "Nbhood/Group"  -table gui_personnel_ng \
+                                             -key {n g}
     parm personnel      text "Personnel"
 } {
     # FIRST, prepare the parameters
-    prepare n              -toupper  -required -type nbhood
-    prepare g              -toupper  -required -type group
+    prepare id             -toupper  -required -type personnel
     prepare personnel                -required -type iquantity
-
-    returnOnError
-
-    # NEXT, do cross-validation
-    validate g {
-        $type validate [list $parms(n) $parms(g)]
-    }
 
     returnOnError -final
 
@@ -285,10 +279,9 @@ order define ::personnel PERSONNEL:ADJUST {
     options \
         -sendstates     {PREP PAUSED}     \
         -schedulestates {PREP PAUSED}     \
-        -table          gui_personnel_ng  \
-        -tags           ng                \
         -narrativecmd   {apply {{name pdict} {
             dict with pdict {
+                lassign $id n g
                 if {$delta >= 0} {
                     return "Add $delta $g personnel to nbhood $n"
                 } else {
@@ -298,21 +291,13 @@ order define ::personnel PERSONNEL:ADJUST {
         }}}
 
 
-    parm n              key  "Neighborhood"     -tags nbhood
-    parm g              key  "Group"            -tags group
+    parm id             key  "Nbhood/Group"    -table gui_personnel_ng \
+                                               -key {n g}
     parm delta          text "Delta Personnel"
 } {
     # FIRST, prepare the parameters
-    prepare n              -toupper  -required -type nbhood
-    prepare g              -toupper  -required -type group
+    prepare id             -toupper  -required -type personnel
     prepare delta                    -required -type snit::integer
-
-    returnOnError
-
-    # NEXT, do cross-validation
-    validate g {
-        $type validate [list $parms(n) $parms(g)]
-    }
 
     returnOnError -final
 

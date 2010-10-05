@@ -126,9 +126,7 @@ snit::widgetadaptor personnelbrowser {
     method SetSelected {} {
         set ids [$hull uid curselection]
 
-        lassign [lindex $ids 0] n g
-
-        order enter PERSONNEL:SET n $n g $g
+        order enter PERSONNEL:SET id [lindex $ids 0]
     }
 
     # AdjustSelected
@@ -138,9 +136,7 @@ snit::widgetadaptor personnelbrowser {
     method AdjustSelected {} {
         set ids [$hull uid curselection]
 
-        lassign [lindex $ids 0] n g
-
-        order enter PERSONNEL:ADJUST n $n g $g
+        order enter PERSONNEL:ADJUST id [lindex $ids 0]
     }
 }
 

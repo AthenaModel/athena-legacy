@@ -30,16 +30,6 @@ snit::type rel {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Type Components
-
-    # TBD
-
-    #-------------------------------------------------------------------
-    # Type Variables
-
-    # TBD
-
-    #-------------------------------------------------------------------
     # Queries
 
     # validate id
@@ -230,9 +220,7 @@ snit::type rel {
     #
     # parmdict     A dictionary of group parms
     #
-    #    n                Neighborhood ID
-    #    f                Group ID
-    #    g                Group ID
+    #    id               list {n f g}
     #    rel              Relationship of f with g in n.
     #
     # Updates a relationship given the parms, which are presumed to be
@@ -241,12 +229,15 @@ snit::type rel {
     typemethod {mutate update} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
+            lassign $id n f g
+
             # FIRST, get the undo information
             rdb eval {
                 SELECT * FROM rel_nfg
                 WHERE n=$n AND f=$f AND g=$g
             } undoData {
                 unset undoData(*)
+                set undoData(id) $id
             }
 
             # NEXT, Update the group
@@ -257,7 +248,7 @@ snit::type rel {
             } {}
 
             # NEXT, notify the app.
-            notifier send ::rel <Entity> update [list $n $f $g]
+            notifier send ::rel <Entity> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]
@@ -267,42 +258,53 @@ snit::type rel {
     #---------------------------------------------------------------
     # Order Helpers
 
-    # RefreshRelUpdate field parmdict
+    # Refresh_RU dlg fields fdict
     #
-    # field     The "rel" field in an R:UPDATE order.
-    # parmdict  The current values of the various fields.
+    # dlg        The order dialog
+    # fields     Names of the fields that changed
+    # fdict      Current field values.
     #
     # Disables "rel" if f=g
 
-    typemethod RefreshRelUpdate {field parmdict} {
-        dict with parmdict {
-            if {$f ne $g} {
-                $field configure -state normal
-            } else {
-                $field configure -state disabled
+    typemethod Refresh_RU {dlg fields fdict} {
+        if {"id" in $fields} {
+            dict with fdict {
+                lassign $id n f g
+
+                $dlg loadForKey id
+
+                if {$f ne $g} {
+                    $dlg disabled {}
+                } else {
+                    $dlg disabled rel
+                }
             }
         }
     }
 
-
-    # RefreshRelUpdateMulti field parmdict
+    # Refresh_RUM dlg fields fdict
     #
-    # field     The "rel" field in an R:UPDATE:MULTI order.
-    # parmdict  The current values of the various fields.
+    # dlg        The order dialog
+    # fields     Names of the fields that changed
+    # fdict      Current field values.
     #
-    # Disables "rel" if f=g for any f,g
+    # Disables "rel" if f=g
 
-    typemethod RefreshRelUpdateMulti {field parmdict} {
-        dict with parmdict {
-            foreach id $ids {
-                lassign $id n f g
-                if {$f eq $g} {
-                    $field configure -state disabled
-                    return
+    typemethod Refresh_RUM {dlg fields fdict} {
+        if {"ids" in $fields} {
+            $dlg loadForMulti ids
+
+            dict with fdict {
+                foreach id $ids {
+                    lassign $id n f g
+                    if {$f eq $g} {
+                        $dlg disabled rel
+                        return
+                    }
                 }
             }
-                    
-            $field configure -state normal
+
+            $dlg disabled {}
         }
     }
 }
@@ -317,30 +319,26 @@ snit::type rel {
 
 order define ::rel RELATIONSHIP:UPDATE {
     title "Update Group Relationship"
-    options -sendstates PREP -table gui_rel_nfg -tags nfg
+    options \
+        -sendstates PREP \
+        -refreshcmd {::rel Refresh_RU}
 
-    parm n    key   "Neighborhood"   -tags nbhood
-    parm f    key   "Of Group"       -tags group
-    parm g    key   "With Group"     -tags group
-    parm rel  text  "Relationship"   \
-        -refreshcmd {::rel RefreshRelUpdate}
+    parm id   key   "Groups"         -table  gui_rel_nfg \
+                                     -key    {n f g} \
+                                     -labels {In Of With}
+    parm rel  text  "Relationship"
 } {
     # FIRST, prepare the parameters
-    prepare n        -toupper  -required -type [list ::rel nbhood]
-    prepare f        -toupper  -required -type group
-    prepare g        -toupper  -required -type group
+    prepare id       -toupper  -required -type rel
     prepare rel      -toupper            -type qrel
 
     returnOnError
 
     # NEXT, do cross-validation
-    validate g {
-        rel validate [list $parms(n) $parms(f) $parms(g)]
-    }
+    lassign $parms(id) n f g
 
     validate rel {
-        if {$parms(f) eq $parms(g) &&
-            $parms(rel) != 1.0
+        if {$f eq $g && $parms(rel) != 1.0
         } {
             reject rel \
               "invalid value \"$parms(rel)\", a group's relationship with itself must be 1.0"
@@ -360,11 +358,13 @@ order define ::rel RELATIONSHIP:UPDATE {
 
 order define ::rel RELATIONSHIP:UPDATE:MULTI {
     title "Update Multiple Relationships"
-    options -sendstates PREP -table gui_rel_nfg
+    options \
+        -sendstates PREP \
+        -refreshcmd {::rel Refresh_RUM}
 
-    parm ids  multi  "IDs"
-    parm rel  text   "Relationship" \
-        -refreshcmd {::rel RefreshRelUpdateMulti}
+    parm ids  multi  "IDs"           -table gui_rel_nfg \
+                                     -key   id
+    parm rel  text   "Relationship"
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof rel
@@ -391,9 +391,7 @@ order define ::rel RELATIONSHIP:UPDATE:MULTI {
     # NEXT, modify the curves
     set undo [list]
 
-    foreach id $parms(ids) {
-        lassign $id parms(n) parms(f) parms(g)
-
+    foreach parms(id) $parms(ids) {
         lappend undo [$type mutate update [array get parms]]
     }
 

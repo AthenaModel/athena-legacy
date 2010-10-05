@@ -23,11 +23,6 @@ snit::type nbhood {
     typecomponent geo   ;# A geoset, for polygon computations
 
     #-------------------------------------------------------------------
-    # Type Variables
-    
-    # TBD
-
-    #-------------------------------------------------------------------
     # Initialization
 
     typemethod init {} {
@@ -533,9 +528,11 @@ order define ::nbhood NBHOOD:CREATE {
 
 order define ::nbhood NBHOOD:DELETE {
     title "Delete Neighborhood"
-    options -sendstates PREP -table gui_nbhoods
+    options -sendstates PREP
 
-    parm n  key  "Neighborhood"   -tags nbhood
+    parm n  key  "Neighborhood"   -table nbhoods \
+                                  -key   n       \
+                                  -tags  nbhood
 } {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type nbhood
@@ -572,12 +569,15 @@ order define ::nbhood NBHOOD:DELETE {
 }
 
 # NBHOOD:LOWER
+# NBHOOD:UPDATE
 
 order define ::nbhood NBHOOD:LOWER {
     title "Lower Neighborhood"
-    options -sendstates PREP -table gui_nbhoods
+    options -sendstates PREP
 
-    parm n key "Neighborhood"     -tags nbhood
+    parm n  key  "Neighborhood"   -table nbhoods \
+                                  -key   n       \
+                                  -tags  nbhood
 } {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type nbhood
@@ -595,9 +595,11 @@ order define ::nbhood NBHOOD:LOWER {
 
 order define ::nbhood NBHOOD:RAISE {
     title "Raise Neighborhood"
-    options -sendstates PREP -table gui_nbhoods
+    options -sendstates PREP
 
-    parm n key "Neighborhood"     -tags nbhood
+    parm n  key  "Neighborhood"   -table nbhoods \
+                                  -key   n       \
+                                  -tags  nbhood
 } {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type nbhood
@@ -617,15 +619,19 @@ order define ::nbhood NBHOOD:RAISE {
 
 order define ::nbhood NBHOOD:UPDATE {
     title "Update Neighborhood"
-    options -sendstates PREP -table gui_nbhoods
+    options \
+        -sendstates PREP                              \
+        -refreshcmd {::orderdialog refreshForKey n *}
 
-    parm n            key   "Neighborhood"        -tags nbhood
+    parm n            key  "Neighborhood"         -table gui_nbhoods \
+                                                  -key   n           \
+                                                  -tags  nbhood
     parm longname     text  "Long Name"
-    parm local        enum  "Local Neighborhood?" -type eyesno
-    parm urbanization enum  "Urbanization"        -type eurbanization
+    parm local        enum  "Local Neighborhood?" -type  eyesno
+    parm urbanization enum  "Urbanization"        -type  eurbanization
     parm vtygain      text  "Volatility Gain"
-    parm refpoint     text  "Reference Point"     -tags point
-    parm polygon      text  "Polygon"             -tags polygon
+    parm refpoint     text  "Reference Point"     -tags  point
+    parm polygon      text  "Polygon"             -tags  polygon
 } {
     # FIRST, prepare the parameters
     prepare n            -toupper       -required -type nbhood
@@ -709,9 +715,12 @@ order define ::nbhood NBHOOD:UPDATE {
 
 order define ::nbhood NBHOOD:UPDATE:MULTI {
     title "Update Multiple Neighborhoods"
-    options -sendstates PREP -table gui_nbhoods
+    options \
+        -sendstates PREP                              \
+        -refreshcmd {::orderdialog refreshForMulti ids *}
 
-    parm ids          multi "Neighborhoods"
+    parm ids          multi "Neighborhoods"       -table gui_nbhoods \
+                                                  -key id
     parm local        enum  "Local Neighborhood?" -type eyesno
     parm urbanization enum  "Urbanization"        -type eurbanization
     parm vtygain      text  "Volatility Gain"

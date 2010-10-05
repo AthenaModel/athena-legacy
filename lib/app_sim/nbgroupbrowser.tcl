@@ -158,12 +158,10 @@ snit::widgetadaptor nbgroupbrowser {
         set ids [$hull uid curselection]
 
         if {[llength $ids] == 1} {
-            lassign [lindex $ids 0] n g
-
             if {[order state] eq "PREP"} {
-                order enter GROUP:NBHOOD:UPDATE n $n g $g
+                order enter GROUP:NBHOOD:UPDATE          id [lindex $ids 0]
             } else {
-                order enter GROUP:NBHOOD:UPDATE:POSTPREP n $n g $g
+                order enter GROUP:NBHOOD:UPDATE:POSTPREP id [lindex $ids 0]
             }
         } else {
             if {[order state] eq "PREP"} {
@@ -181,10 +179,10 @@ snit::widgetadaptor nbgroupbrowser {
 
     method DeleteSelected {} {
         # FIRST, there should be only one selected.
-        lassign [lindex [$hull uid curselection] 0] n g
+        set ids [$hull uid curselection]
 
         # NEXT, Pop up the dialog, and select this entity
-        order send gui GROUP:NBHOOD:DELETE n $n g $g
+        order send gui GROUP:NBHOOD:DELETE id [lindex $ids 0]
     }
 }
 
