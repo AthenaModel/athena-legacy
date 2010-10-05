@@ -496,9 +496,12 @@ snit::type econ {
 
 order define ::econ ECON:UPDATE {
     title "Update Neighborhood Economic Inputs"
-    options -sendstates {PREP PAUSED} -table gui_econ_n -tags n
+    options -sendstates {PREP PAUSED} \
+        -refreshcmd {orderdialog refreshForKey n *}
 
-    parm n    key  "Neighborhood"           -tags nbhood
+    parm n    key  "Neighborhood"            -table gui_econ_n \
+                                             -key   n          \
+                                             -tags  nbhood
     parm pcf  text "Prod. Capacity Factor"
 } {
     # FIRST, prepare the parameters
@@ -527,9 +530,12 @@ order define ::econ ECON:UPDATE {
 
 order define ::econ ECON:UPDATE:MULTI {
     title "Update Economic Inputs for Multiple Neighborhoods"
-    options -sendstates {PREP PAUSED} -table gui_econ_n
+    options -sendstates {PREP PAUSED}  \
+        -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids  multi "IDs"
+
+    parm ids  multi "IDs"                    -table gui_econ_n \
+                                             -key   n
     parm pcf  text  "Prod. Capacity Factor"
 } {
     # FIRST, prepare the parameters
@@ -550,9 +556,7 @@ order define ::econ ECON:UPDATE:MULTI {
     # NEXT, modify the records
     set undo [list]
 
-    foreach n $parms(ids) {
-        set parms(n) $n
-
+    foreach parms(n) $parms(ids) {
         lappend undo [$type mutate update [array get parms]]
     }
 

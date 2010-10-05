@@ -34,6 +34,7 @@ snit::widgetadaptor madbrowser {
         { id       "ID"              -sortmode integer                }
         { oneliner "Description"                                      }
         { cause    "Cause "                                           }
+        { s        "Here Factor (s)" -sortmode real                   }
         { p        "Near Factor (p)" -sortmode real                   }
         { q        "Far Factor (q)"  -sortmode real                   }
         { driver   "Driver"          -sortmode integer -foreground %D }

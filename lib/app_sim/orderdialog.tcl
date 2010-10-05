@@ -397,10 +397,11 @@ snit::widget orderdialog {
                 }
 
                 key {
-                    dict set opts -db     ::rdb
-                    dict set opts -table  [dict get $pdict -table]
-                    dict set opts -keys   [dict get $pdict -key]
-                    dict set opts -widths [dict get $pdict -widths]
+                    dict set opts -db       ::rdb
+                    dict set opts -table    [dict get $pdict -table]
+                    dict set opts -keys     [dict get $pdict -key]
+                    dict set opts -dispcols [dict get $pdict -dispcols]
+                    dict set opts -widths   [dict get $pdict -widths]
                 }
 
                 newkey {
@@ -413,8 +414,8 @@ snit::widget orderdialog {
                 }
 
                 multi {
-                    dict set opts -table  [dict get $pdict -table]
-                    dict set opts -key    [dict get $pdict -key]
+                    dict set opts -table    [dict get $pdict -table]
+                    dict set opts -key      [dict get $pdict -key]
                 }
             }
 
@@ -493,7 +494,44 @@ snit::widget orderdialog {
     # active order dialog.
 
     method ObjectSelect {tagdict} {
-        # TBD
+        # FIRST, Is this the active dialog?
+        if {[$type topwin] ne $win} {
+            return
+        }
+
+        # NEXT, get the current field.  If there is none,
+        # we're done.
+        set current [$form field current]
+
+        if {$current eq ""} {
+            return
+        }
+
+        # NEXT, get the tags for the current field.  If there are none,
+        # we're done.
+
+        set tags [order parm $options(-order) $current -tags]
+
+        if {[llength $tags] == 0} {
+            return
+        }
+
+        # NEXT, get the new value, if any.  If none, we're done.
+        set newValue ""
+
+        foreach {tag value} $tagdict {
+            if {$tag in $tags} {
+                set newValue $value
+                break
+            }
+        }
+
+        if {$newValue eq ""} {
+            return
+        }
+
+        # NEXT, save the value
+        $form set $current $newValue
     }
 
     #-------------------------------------------------------------------

@@ -554,6 +554,7 @@ snit::type scenario {
         mad mutate create {
             oneliner "Adjustments" 
             cause    UNIQUE
+            s        1.0
             p        0.0
             q        0.0
         }

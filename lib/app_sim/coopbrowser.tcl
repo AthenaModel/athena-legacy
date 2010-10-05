@@ -163,9 +163,7 @@ snit::widgetadaptor coopbrowser {
     method SetSelected {} {
         set ids [$hull uid curselection]
 
-        lassign [lindex $ids 0] n f g
-
-        order enter MAD:COOP:SET n $n f $f g $g
+        order enter MAD:COOP:SET id [lindex $ids 0]
     }
 
     # AdjustSelected
@@ -175,9 +173,7 @@ snit::widgetadaptor coopbrowser {
     method AdjustSelected {} {
         set ids [$hull uid curselection]
 
-        lassign [lindex $ids 0] n f g
-
-        order enter MAD:COOP:ADJUST n $n f $f g $g
+        order enter MAD:COOP:ADJUST id [lindex $ids 0]
     }
 }
 

@@ -612,24 +612,38 @@ snit::type ensit {
     # Order Helpers
 
 
-    # RefreshUpdateStype field parmdict
+    # Refresh_SEU dlg fields fdict
     #
-    # field     The stype field in an S:E:UPDATE dialog
-    # parmdict  The current values of the various fields
+    # dlg       The order dialog
+    # fields    A list of the fields that have changed.
+    # fdict     The current field values.
     #
-    # Updates the field's state.
+    # Refreshes the SITUATION:ENVIRONMENTAL:UPDATE dialog.
 
-    typemethod RefreshUpdateStype {field parmdict} {
-        dict with parmdict {
+    typemethod Refresh_SEU {dlg fields fdict} {
+        # FIRST, if the selected situation changed, load the 
+        # rest of the fields.
+        if {"s" in $fields} {
+            # FIRST, set the list of valid values for the stype
+            # field; if it's empty, we won't be able to load this
+            # situation's stype.
+            $dlg field configure stype -values [eensit names]
+
+            # NEXT, load the ensit's data.
+            $dlg loadForKey s
+        }
+
+        # NEXT, update the list of valid situation types.
+        dict with fdict {
             if {$s ne ""} {
                 set sit [situation get $s]
 
                 set stypes [$type absentFromNbhood [$sit get n]]
 
                 if {[llength $stypes] > 0} {
-                    $field configure \
+                    $dlg field configure stype \
                         -values [lsort [concat [$sit get stype] $stypes]]
-                    $field configure -state normal
+                    $dlg disabled {}
 
                     return
                 }
@@ -638,8 +652,8 @@ snit::type ensit {
 
         # There is no situation selected, or there are no valid
         # stypes remaining.
-        $field configure -values {}
-        $field configure -state disabled
+        $dlg field configure stype -values {}
+        $dlg disabled stype
     }
 }
 
@@ -922,10 +936,11 @@ order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
 order define ::ensit SITUATION:ENVIRONMENTAL:DELETE {
     title "Delete Environmental Situation"
     options \
-        -table      gui_ensits_initial     \
         -sendstates {PREP PAUSED}
 
-    parm s  key  "Situation"  -tags situation
+    parm s  key  "Situation"  -table gui_ensits_initial \
+                              -key   s                  \
+                              -tags  situation
 } {
     # FIRST, prepare the parameters
     prepare s -required -type {ensit initial}
@@ -968,18 +983,18 @@ order define ::ensit SITUATION:ENVIRONMENTAL:DELETE {
 order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
     title "Update Environmental Situation"
     options \
-        -table      gui_ensits_initial     \
-        -sendstates {PREP PAUSED}
+        -sendstates {PREP PAUSED} \
+        -refreshcmd {ensit Refresh_SEU}
 
-    parm s          key   "Situation"   -tags situation
-    parm location   text  "Location"    -tags nbpoint
-
-    parm stype      enum  "Type" \
-        -refreshcmd [list ::ensit RefreshUpdateStype]
+    parm s          key  "Situation"    -table gui_ensits_initial \
+                                        -key   s                  \
+                                        -tags  situation
+    parm location   text  "Location"    -tags  nbpoint
+    parm stype      enum  "Type"
     parm coverage   text  "Coverage"
-    parm inception  enum  "Inception?"  -type eyesno
-    parm g          enum  "Caused By"   -type {ptype g+none}
-    parm resolver   enum  "Resolved By" -type {ptype g+none}
+    parm inception  enum  "Inception?"  -type  eyesno
+    parm g          enum  "Caused By"   -type  {ptype g+none}
+    parm resolver   enum  "Resolved By" -type  {ptype g+none}
     parm rduration  text  "Duration"    
 
 } {
@@ -1043,10 +1058,11 @@ order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
 order define ::ensit SITUATION:ENVIRONMENTAL:MOVE {
     title "Move Environmental Situation"
     options \
-        -table      gui_ensits           \
         -sendstates {PREP PAUSED}
 
-    parm s          key   "Situation"   -tags situation
+    parm s          key  "Situation"    -table gui_ensits_initial \
+                                        -key   s                  \
+                                        -tags  situation
     parm location   text  "Location"    -tags nbpoint
 } {
     # FIRST, check the situation
@@ -1114,12 +1130,13 @@ order define ::ensit SITUATION:ENVIRONMENTAL:MOVE {
 order define ::ensit SITUATION:ENVIRONMENTAL:RESOLVE {
     title "Resolve Environmental Situation"
     options \
-        -table          gui_ensits    \
-        -alwaysunsaved                \
-        -schedulestates {PREP PAUSED} \
-        -sendstates     {PREP PAUSED}
+        -schedulestates {PREP PAUSED}                    \
+        -sendstates     {PREP PAUSED}                    \
+        -refreshcmd     {orderdialog refreshForKey s *}
 
-    parm s         key   "Situation"    -tags situation
+    parm s          key  "Situation"    -table gui_ensits_initial \
+                                        -key   s                  \
+                                        -tags  situation
     parm resolver  enum  "Resolved By"  -type {ptype g+none}
 } {
     # FIRST, prepare the parameters

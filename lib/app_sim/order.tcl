@@ -436,9 +436,11 @@ snit::type order {
     #
     # -table table       Table or view
     # -key  names        List of key column names
+    # -dispcols names    Display the values of the named columns instead
+    #                    of the values in the key columns.
     # -widths widths     List of column widths
     # -display column    Display the named $column's
-    #                    value rather than the key column's value.
+    #                    value rather than the key column's value. TBD
     #
     # newkey field options:
     #
@@ -467,6 +469,7 @@ snit::type order {
                        -label            $label     \
                        -defval           {}         \
                        -key              {}         \
+                       -dispcols         {}         \
                        -table            {}         \
                        -universe         {}         \
                        -tags             {}         \
@@ -485,6 +488,7 @@ snit::type order {
             switch -exact -- $opt {
                 -defval      -
                 -key         -
+                -dispcols    -
                 -table       -
                 -universe    -
                 -tags        -
@@ -511,6 +515,7 @@ snit::type order {
         # Certain options require certain field types.
         foreach {opt ftypes} {
             -key      {key newkey multi}
+            -dispcols key
             -table    {key newkey multi}
             -universe newkey
             -widths   {key newkey}

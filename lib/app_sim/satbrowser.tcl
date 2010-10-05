@@ -166,9 +166,7 @@ snit::widgetadaptor satbrowser {
     method SetSelected {} {
         set ids [$hull uid curselection]
 
-        lassign [lindex $ids 0] n g c
-
-        order enter MAD:SAT:SET n $n g $g c $c
+        order enter MAD:SAT:SET id [lindex $ids 0]
     }
 
     # AdjustSelected
@@ -178,9 +176,7 @@ snit::widgetadaptor satbrowser {
     method AdjustSelected {} {
         set ids [$hull uid curselection]
 
-        lassign [lindex $ids 0] n g c
-
-        order enter MAD:SAT:ADJUST n $n g $g c $c
+        order enter MAD:SAT:ADJUST id [lindex $ids 0]
     }
 }
 

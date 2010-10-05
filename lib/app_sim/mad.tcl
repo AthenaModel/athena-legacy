@@ -350,9 +350,7 @@ snit::type mad {
     #
     # parmdict    A dictionary of order parameters
     #
-    #    n                Neighborhood ID
-    #    g                Group ID
-    #    c                Concern
+    #    id               list {n g c}
     #    mad              MAD ID
     #    delta            Delta to the level, a qmag(n) value.
     #
@@ -362,6 +360,8 @@ snit::type mad {
     typemethod {mutate satadjust} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
+            lassign $id n g c
+
             # FIRST, get the undo information
             set oldSat [aram sat.ngc $n $g $c]
 
@@ -402,7 +402,7 @@ snit::type mad {
             # Note: need to update ::sat since current sat has changed,
             # and need to update ::mad since number of inputs for this
             # MAD has changed.
-            notifier send ::sat <Entity> update [list $n $g $c]
+            notifier send ::sat <Entity> update $id
             notifier send ::mad <Entity> update $mad
 
             # NEXT, Return the undo command
@@ -415,9 +415,7 @@ snit::type mad {
     #
     # parmdict    A dictionary of order parameters
     #
-    #    n                Neighborhood ID
-    #    g                Group ID
-    #    c                Concern
+    #    id               list {n g c}
     #    mad              MAD ID
     #    sat              New qsat(n) value
     #
@@ -427,6 +425,8 @@ snit::type mad {
     typemethod {mutate satset} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
+            lassign $id n g c
+
             # FIRST, get the undo information
             set oldSat [aram sat.ngc $n $g $c]
 
@@ -467,7 +467,7 @@ snit::type mad {
             # Note: need to update ::sat since current sat has changed,
             # and need to update ::mad since number of inputs for this
             # MAD has changed.
-            notifier send ::sat <Entity> update [list $n $g $c]
+            notifier send ::sat <Entity> update $id
             notifier send ::mad <Entity> update $mad
 
             # NEXT, Return the undo command
@@ -594,9 +594,7 @@ snit::type mad {
     #
     # parmdict    A dictionary of order parameters
     #
-    #    n                Neighborhood ID
-    #    f                CIV group ID
-    #    g                FRC group ID
+    #    id               list {n f g}
     #    mad              MAD ID
     #    delta            Delta to the level, a qmag(n) value.
     #
@@ -606,6 +604,8 @@ snit::type mad {
     typemethod {mutate coopadjust} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
+            lassign $id n f g
+
             # FIRST, get the undo information
             set oldCoop [aram coop.nfg $n $f $g]
 
@@ -646,7 +646,7 @@ snit::type mad {
             # Note: need to update ::sat since current sat has changed,
             # and need to update ::mad since number of inputs for this
             # MAD has changed.
-            notifier send ::coop <Entity> update [list $n $f $g]
+            notifier send ::coop <Entity> update $id
             notifier send ::mad <Entity> update $mad
 
             # NEXT, Return the undo command
@@ -660,9 +660,7 @@ snit::type mad {
     #
     # parmdict    A dictionary of order parameters
     #
-    #    n                Neighborhood ID
-    #    f                CIV group ID
-    #    g                FRC group ID
+    #    id               list {n f g}
     #    mad              MAD ID
     #    coop             New level, a qcooperation(n) value.
     #
@@ -672,6 +670,7 @@ snit::type mad {
     typemethod {mutate coopset} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
+            lassign $id n f g
             # FIRST, get the undo information
             set oldCoop [aram coop.nfg $n $f $g]
 
@@ -712,7 +711,7 @@ snit::type mad {
             # Note: need to update ::sat since current sat has changed,
             # and need to update ::mad since number of inputs for this
             # MAD has changed.
-            notifier send ::coop <Entity> update [list $n $f $g]
+            notifier send ::coop <Entity> update $id
             notifier send ::mad <Entity> update $mad
 
             # NEXT, Return the undo command
@@ -848,55 +847,33 @@ snit::type mad {
         dam details [format "%-22s %s\n" $label $value]
     }
 
-    # RefreshUpdateParm field parmdict
+    # Refresh_MU dlg fields fdict
     #
-    # field     The "cause", "s", "p", or "q" field in MAD:UPDATE
-    # parmdict  The current values of the various fields
+    # dlg       The order dialog
+    # fields    A list of the fields that have changed
+    # fdict     A dict of the current field values.
     #
-    # These fields can only be updated if there are no inputs for
-    # this MAD.
+    # Loads fields for the current MAD.  Also, the cause, s, p, and q 
+    # fields must be disabled if there are inputs for this MAD.
 
-    typemethod RefreshUpdateParm {field parmdict} {
-        dict with parmdict {
-            if {$id eq ""} {
-                return
-            }
-
-            set inputs [rdb onecolumn {
-                SELECT inputs FROM gui_mads WHERE id=$id
-            }]
-
-            if {$inputs == 0} {
-                $field configure -state normal
-            } else {
-                $field configure -state disabled
-            }
+    typemethod Refresh_MU {dlg fields fdict} {
+        # FIRST, update fields if the MAD has changed.
+        if {"id" in $fields} {
+            $dlg loadForKey id
         }
-    }
 
-    # RefreshConcern field parmdict
-    #
-    # field     The "c" field in MAD:SAT:LEVEL or MAD:SAT:SLOPE
-    # parmdict  The current values of the various fields
-    #
-    # Sets the valid concern values given "g".
+        # NEXT, handle the cause, s, p, and q fields.
+        $dlg disabled {}
 
-    typemethod RefreshConcern {field parmdict} {
-        dict with parmdict {
-            set gtype [group gtype $g]
-            
-            switch -exact -- $gtype {
-                CIV     {set values [ptype civc names]}
-                ORG     {set values [ptype orgc names]}
-                default {set values [list]}
-            }
+        dict with fdict {
+            if {$id ne ""} {
+                set inputs [rdb onecolumn {
+                    SELECT inputs FROM gui_mads WHERE id=$id
+                }]
 
-            $field configure -values $values
-
-            if {[llength $values] > 0} {
-                $field configure -state normal
-            } else {
-                $field configure -state disabled
+                if {$inputs > 0} {
+                    $dlg disabled cause s p q
+                }
             }
         }
     }
@@ -915,8 +892,8 @@ order define ::mad MAD:CREATE {
     options -sendstates {PREP PAUSED}
 
     parm oneliner  text  "Description" 
-    parm cause     enum  "Cause"         -type {ptype ecause+unique} \
-        -defval UNIQUE
+    parm cause     enum  "Cause"         -type   {ptype ecause+unique} \
+                                         -defval UNIQUE
     parm s         text  "Here Factor"   -defval 1.0
     parm p         text  "Near Factor"   -defval 0.0
     parm q         text  "Far Factor"    -defval 0.0
@@ -945,11 +922,12 @@ order define ::mad MAD:CREATE {
 order define ::mad MAD:DELETE {
     title "Delete Magic Attitude Driver"
     options \
-        -table      gui_mads_initial \
         -sendstates {PREP PAUSED}
 
 
-    parm id key "MAD ID" -tags mad -display longid
+    parm id key "MAD ID" -table    gui_mads_initial \
+                         -key      id               \
+                         -dispcols longid
 } {
     # FIRST, prepare the parameters
     prepare id -toupper -required -type {mad initial}
@@ -992,20 +970,17 @@ order define ::mad MAD:DELETE {
 order define ::mad MAD:UPDATE {
     title "Update Magic Attitude Driver"
     options \
-        -table       gui_mads  \
-        -sendstates  {PREP PAUSED}
+        -sendstates  {PREP PAUSED}      \
+        -refreshcmd  {::mad Refresh_MU}
 
-    parm id       key   "MAD ID"       -tags mad -display longid
+    parm id       key   "MAD ID"        -table    gui_mads \
+                                        -key      id       \
+                                        -dispcols longid
     parm oneliner text  "Description"
-    parm cause    enum  "Cause"         -type {ptype ecause+unique} \
-        -refreshcmd {::mad RefreshUpdateParm}
-    parm s        text  "Here Factor" \
-        -refreshcmd {::mad RefreshUpdateParm}
-    parm p        text  "Near Factor" \
-        -refreshcmd {::mad RefreshUpdateParm}
-    parm q        text  "Far Factor" \
-        -refreshcmd {::mad RefreshUpdateParm}
-
+    parm cause    enum  "Cause"         -type     {ptype ecause+unique}
+    parm s        text  "Here Factor"
+    parm p        text  "Near Factor"
+    parm q        text  "Far Factor" 
 } {
     # FIRST, prepare the parameters
     prepare id       -required -type mad
@@ -1064,13 +1039,12 @@ order define ::mad MAD:UPDATE {
 order define ::mad MAD:TERMINATE {
     title "Terminate Magic Slope Inputs"
     options \
-        -alwaysunsaved                 \
         -sendstates     {}             \
-        -schedulestates {PREP PAUSED}  \
-        -table          gui_mads       \
-        -tags           id
+        -schedulestates {PREP PAUSED}
 
-    parm id       key  "MAD ID"   -tags mad -display longid
+    parm id       key   "MAD ID"        -table    gui_mads  \
+                                        -key      id        \
+                                        -dispcols longid
 } {
     # FIRST, prepare the parameters
     prepare id            -required -type mad
@@ -1090,31 +1064,20 @@ order define ::mad MAD:TERMINATE {
 order define ::mad MAD:SAT:ADJUST {
     title "Magic Adjust Satisfaction Level"
     options \
-        -alwaysunsaved                 \
         -sendstates     PAUSED         \
-        -schedulestates {PREP PAUSED}  \
-        -table          gui_sat_ngc    \
-        -tags           ngc
+        -schedulestates {PREP PAUSED}
 
-    parm n         key   "Neighborhood"  -tags nbhood
-    parm g         key   "Group"         -tags group
-    parm c         key   "Concern"       -tags concern
-    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm id        key   "Curve"     -table gui_sat_ngc  \
+                                     -key {n g c}
+    parm mad       key   "MAD ID"    -table    gui_mads  \
+                                     -key      id        \
+                                     -dispcols longid
     parm delta     text  "Delta"
 } {
     # FIRST, prepare the parameters
-    prepare n     -toupper -required -type nbhood
-    prepare g     -toupper -required -type [list sat group]
-    prepare c     -toupper -required -type econcern
+    prepare id    -toupper -required -type sat
     prepare mad            -required -type mad
     prepare delta -toupper -required -type qmag -xform [list qmag value]
-
-    returnOnError
-
-    # NEXT, do cross-validation
-    validate c {
-        sat validate [list $parms(n) $parms(g) $parms(c)]
-    }
 
     returnOnError -final
 
@@ -1130,31 +1093,20 @@ order define ::mad MAD:SAT:ADJUST {
 order define ::mad MAD:SAT:SET {
     title "Magic Set Satisfaction Level"
     options \
-        -alwaysunsaved                 \
         -sendstates     PAUSED         \
-        -schedulestates {PREP PAUSED}  \
-        -table          gui_sat_ngc    \
-        -tags           ngc
+        -schedulestates {PREP PAUSED}
 
-    parm n         key   "Neighborhood"  -tags nbhood
-    parm g         key   "Group"         -tags group
-    parm c         key   "Concern"       -tags concern
-    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm id        key   "Curve"     -table gui_sat_ngc  \
+                                     -key {n g c}
+    parm mad       key   "MAD ID"    -table    gui_mads  \
+                                     -key      id        \
+                                     -dispcols longid
     parm sat       text  "New Value"
 } {
     # FIRST, prepare the parameters
-    prepare n     -toupper -required -type nbhood
-    prepare g     -toupper -required -type [list sat group]
-    prepare c     -toupper -required -type econcern
+    prepare id    -toupper -required -type sat
     prepare mad            -required -type mad
     prepare sat   -toupper -required -type qsat -xform [list qsat value]
-
-    returnOnError
-
-    # NEXT, do cross-validation
-    validate c {
-        sat validate [list $parms(n) $parms(g) $parms(c)]
-    }
 
     returnOnError -final
 
@@ -1170,15 +1122,16 @@ order define ::mad MAD:SAT:SET {
 order define ::mad MAD:SAT:LEVEL {
     title "Magic Satisfaction Level Input"
     options \
-        -alwaysunsaved                 \
         -sendstates     {}             \
         -schedulestates {PREP PAUSED}
 
-    parm n         enum  "Neighborhood"  -tags nbhood  -type nbhood
-    parm g         enum  "Group"         -tags group   -type {ptype satg}
-    parm c         enum  "Concern"       -tags concern \
-        -refreshcmd [list ::mad RefreshConcern]
-    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm n         enum  "Neighborhood"        -type     nbhood       \
+                                               -tags     nbhood
+    parm g         enum  "Group"               -type     civgroup
+    parm c         enum  "Concern"             -type     {ptype civc}
+    parm mad       key   "MAD ID"              -table    gui_mads     \
+                                               -key      id           \
+                                               -dispcols longid
     parm limit     text  "Limit"
     parm days      text  "Realization Time"    -defval 2.0
     parm athresh   text  "Ascending Theshold"  -defval 100.0
@@ -1186,26 +1139,13 @@ order define ::mad MAD:SAT:LEVEL {
 } {
     # FIRST, prepare the parameters
     prepare n       -toupper -required -type nbhood
-    prepare g       -toupper -required -type {ptype satg}
-    prepare c       -toupper -required -type {ptype c}
+    prepare g       -toupper -required -type civgroup
+    prepare c       -toupper -required -type {ptype civc}
     prepare mad              -required -type mad
     prepare limit   -toupper -required -type qmag -xform [list qmag value]
     prepare days             -required -type rdays
     prepare athresh          -required -type qsat -xform [list qsat value]
     prepare dthresh          -required -type qsat -xform [list qsat value]
-
-    returnOnError
-
-    # NEXT, do cross-validation
-    validate c {
-        set gtype [group gtype $parms(g)]
-        
-        switch -exact -- $gtype {
-            CIV     { ptype civc validate $parms(c) }
-            ORG     { ptype orgc validate $parms(c) }
-            default { error "Unexpected gtype: \"$gtype\""   }
-        }
-    }
 
     returnOnError -final
 
@@ -1227,36 +1167,25 @@ order define ::mad MAD:SAT:SLOPE {
         -sendstates     {}             \
         -schedulestates {PREP PAUSED}
 
-    parm n         enum  "Neighborhood"  -tags nbhood  -type nbhood
-    parm g         enum  "Group"         -tags group   -type {ptype satg}
-    parm c         enum  "Concern"       -tags concern \
-        -refreshcmd [list ::mad RefreshConcern]
-    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm n         enum  "Neighborhood"        -type     nbhood       \
+                                               -tags nbhood  
+    parm g         enum  "Group"               -type     civgroup
+    parm c         enum  "Concern"             -type     {ptype civc}
+    parm mad       key   "MAD ID"              -table    gui_mads     \
+                                               -key      id           \
+                                               -dispcols longid
     parm slope     text  "Slope"
     parm athresh   text  "Ascending Theshold"  -defval 100.0
     parm dthresh   text  "Descending Theshold" -defval -100.0
 } {
     # FIRST, prepare the parameters
     prepare n       -toupper -required -type nbhood
-    prepare g       -toupper -required -type {ptype satg}
-    prepare c       -toupper -required -type {ptype c}
+    prepare g       -toupper -required -type civgroup
+    prepare c       -toupper -required -type {ptype civc}
     prepare mad              -required -type mad
     prepare slope   -toupper -required -type qmag -xform [list qmag value]
     prepare athresh          -required -type qsat -xform [list qsat value]
     prepare dthresh          -required -type qsat -xform [list qsat value]
-
-    returnOnError
-
-    # NEXT, do cross-validation
-    validate c {
-        set gtype [group gtype $parms(g)]
-        
-        switch -exact -- $gtype {
-            CIV     { ptype civc validate $parms(c) }
-            ORG     { ptype orgc validate $parms(c) }
-            default { error "Unexpected gtype: \"$gtype\""   }
-        }
-    }
 
     returnOnError -final
 
@@ -1274,31 +1203,20 @@ order define ::mad MAD:SAT:SLOPE {
 order define ::mad MAD:COOP:ADJUST {
     title "Magic Adjust Cooperation Level"
     options \
-        -alwaysunsaved                 \
         -sendstates     PAUSED         \
-        -schedulestates {PREP PAUSED}  \
-        -table          gui_coop_nfg   \
-        -tags           nfg
+        -schedulestates {PREP PAUSED}
 
-    parm n         key   "Neighborhood"  -tags nbhood
-    parm f         key   "Of Group"      -tags group
-    parm g         key   "With Group"    -tags group
-    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm id        key   "Curve"     -table gui_coop_nfg  \
+                                     -key {n f g}
+    parm mad       key   "MAD ID"    -table    gui_mads  \
+                                     -key      id        \
+                                     -dispcols longid
     parm delta     text  "Delta"
 } {
     # FIRST, prepare the parameters
-    prepare n     -toupper -required -type nbhood
-    prepare f     -toupper -required -type civgroup
-    prepare g     -toupper -required -type frcgroup
+    prepare id    -toupper -required -type coop
     prepare mad            -required -type mad
     prepare delta -toupper -required -type qmag -xform [list qmag value]
-
-    returnOnError
-
-    # NEXT, do cross-validation
-    validate f {
-        coop validate [list $parms(n) $parms(f) $parms(g)]
-    }
 
     returnOnError -final
 
@@ -1314,32 +1232,21 @@ order define ::mad MAD:COOP:ADJUST {
 order define ::mad MAD:COOP:SET {
     title "Magic Set Cooperation Level"
     options \
-        -alwaysunsaved                 \
         -sendstates     PAUSED         \
-        -schedulestates {PREP PAUSED}  \
-        -table          gui_coop_nfg   \
-        -tags           nfg
+        -schedulestates {PREP PAUSED}
 
-    parm n         key   "Neighborhood"  -tags nbhood
-    parm f         key   "Of Group"      -tags group
-    parm g         key   "With Group"    -tags group
-    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm id        key   "Curve"     -table gui_coop_nfg  \
+                                     -key {n f g}
+    parm mad       key   "MAD ID"    -table    gui_mads  \
+                                     -key      id        \
+                                     -dispcols longid
     parm coop      text  "New Value"
 } {
     # FIRST, prepare the parameters
-    prepare n     -toupper -required -type nbhood
-    prepare f     -toupper -required -type civgroup
-    prepare g     -toupper -required -type frcgroup
+    prepare id    -toupper -required -type coop
     prepare mad            -required -type mad
     prepare coop  -toupper -required -type qcooperation \
         -xform [list qcooperation value]
-
-    returnOnError
-
-    # NEXT, do cross-validation
-    validate f {
-        coop validate [list $parms(n) $parms(f) $parms(g)]
-    }
 
     returnOnError -final
 
@@ -1355,16 +1262,18 @@ order define ::mad MAD:COOP:SET {
 order define ::mad MAD:COOP:LEVEL {
     title "Magic Cooperation Level Input"
     options \
-        -alwaysunsaved                 \
         -sendstates     {}             \
         -schedulestates {PREP PAUSED}
 
-    parm n         enum  "Neighborhood"  -tags nbhood -type nbhood
-    parm f         enum  "Of Group"      -tags group  -type civgroup
-    parm g         enum  "With Group"    -tags group  -type frcgroup
-    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm n         enum  "Neighborhood"        -type     nbhood   \
+                                               -tags     nbhood 
+    parm f         enum  "Of Group"            -type     civgroup
+    parm g         enum  "With Group"          -type     frcgroup
+    parm mad       key   "MAD ID"              -table    gui_mads \
+                                               -key      id       \
+                                               -dispcols longid
     parm limit     text  "Limit"
-    parm days      text  "Days"                       -defval 2.0
+    parm days      text  "Days"                -defval 2.0
     parm athresh   text  "Ascending Theshold"  -defval 100.0
     parm dthresh   text  "Descending Theshold" -defval 0.0
 } {
@@ -1395,14 +1304,16 @@ order define ::mad MAD:COOP:LEVEL {
 order define ::mad MAD:COOP:SLOPE {
     title "Magic Cooperation Slope Input"
     options \
-        -alwaysunsaved                 \
         -sendstates     {}             \
         -schedulestates {PREP PAUSED}
 
-    parm n         enum  "Neighborhood"  -tags nbhood -type nbhood
-    parm f         enum  "Of Group"      -tags group -type civgroup
-    parm g         enum  "With Group"    -tags group -type frcgroup
-    parm mad       enum  "MAD ID"        -tags mad -type mad -displaylong
+    parm n         enum  "Neighborhood"        -type     nbhood   \
+                                               -tags     nbhood 
+    parm f         enum  "Of Group"            -type     civgroup
+    parm g         enum  "With Group"          -type     frcgroup
+    parm mad       key   "MAD ID"              -table    gui_mads \
+                                               -key      id       \
+                                               -dispcols longid
     parm slope     text  "Slope"
     parm athresh   text  "Ascending Theshold"  -defval 100.0
     parm dthresh   text  "Descending Theshold" -defval 0.0
