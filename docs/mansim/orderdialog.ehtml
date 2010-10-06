@@ -69,6 +69,26 @@ otherwise.<p>
 
 Returns the window path of the topmost order dialog, or "" if none.<p>
 
+<<defitem refreshForKey {orderdialog refreshForKey <i>key fields dlg changedFields fdict</i>}>>
+
+The command is intended to be used as an <<xref order(sim)>>
+<code>-refreshcmd</code> callback; it simply calls
+<<iref loadForKey>> for the specified <i>key</i> and <i>fields</i>,
+provided that the <i>key</i> is one of the <i>changedFields</i>.<p>
+
+In other words, use this callback to populate an order dialog when a key
+field changes.<p>
+
+<<defitem refreshForMulti {orderdialog refreshForMulti <i>multi fields dlg changedFields fdict</i>}>>
+
+The command is intended to be used as an <<xref order(sim)>>
+<code>-refreshcmd</code> callback; it simply calls
+<<iref loadForMulti>> for the specified <i>multi</i> and <i>fields</i>,
+provided that the <i>multi</i> is one of the <i>changedFields</i>.<p>
+
+In other words, use this callback to populate an order dialog when a multi
+field changes.<p>
+
 <</deflist commands>>
 
 <<section "INSTANCE COMMAND">>
@@ -87,6 +107,16 @@ Sets the value of the specified options.<p>
 
 Returns the value of the specified <i>option</i>.<p>
 
+<<defitem disabled {<i>pathName</i> disabled ?<i>args...</i>?}>>
+
+Allows the caller to enable and disable particular fields.  The
+command is delegated to the <<xref mars:form(n)>> widget.<p>
+
+<<defitem field {<i>pathName</i> field <i>subcommand</i> ?<i>args...</i>?}>>
+
+Allows access to the dialog's fields.  The command is delegated to the
+<<xref mars:form(n)>> widget.<p>
+
 <<defitem get {<i>pathName</i> get}>>
 
 Returns a dictionary of the values of the dialog's fields, by
@@ -98,6 +128,31 @@ parameter name.<p>
 Sets the values of one or more of the dialog's fields given a
 dictionary of the parameter names and values.  Downstream fields are
 refreshed as appropriate.<p>
+
+<<defitem loadForKey {<i>pathName</i> loadForKey <i>key</i> ?<i>fields</i>?}>>
+
+Given the name of a <i>key</i> field, loads the values of the named
+<i>fields</i> from the matching row in the <i>key</i> field's database
+table.  The <i>fields</i> argument defaults to "<b>*</b>", meaning
+that all fields should be loaded from the table.<p>
+
+This command is intended for use in order <code>-refreshcmd</code>
+callbacks.  Unless there is additional logic for the callback to
+perform, one can use <<iref refreshForKey>> instead.<p>
+
+<<defitem loadForMulti {<i>pathName</i> loadForMulti <i>multi</i> ?<i>fields</i>?}>>
+
+Given the name of a <i>multi</i> field, loads the values of the named
+<i>fields</i> from the matching rows in the <i>key</i> field's database
+table.  The <i>fields</i> argument defaults to "<b>*</b>", meaning
+that all fields should be loaded from the table.<p>
+
+Fields will contain the loaded value if all matched rows contain the
+same value, and will be blank otherwise.<p>
+
+This command is intended for use in order <code>-refreshcmd</code>
+callbacks.  Unless there is additional logic for the callback to
+perform, one can use <<iref refreshForMulti>> instead.<p>
 
 <</deflist instance>>
 

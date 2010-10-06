@@ -226,7 +226,7 @@ effectively the body of a <<xref tcl:proc(n) proc>> defined within
 the <i>module</i>, with these differences:<p>
 
 <ul>
-  <li> The <i>parms</i> array is predefined; it contains the
+  <li> The <i>parms</i> array is a predefined argument; it contains the
        order parameters and their values.<p>
 
   <li> It may use the <<xref "Order Body Commands">>.<p>
@@ -366,21 +366,22 @@ options are as follows:<p>
 
 <<deflist options>>
 
-<<defopt {-alwaysunsaved}>>
-
-By default, an order dialog will not send the order unless
-its fields contain unsaved changes.  This is appropriate for orders
-that create or edit entities.  For other orders, it might be
-reasonable to send the same order twice in a row.  If this option is
-specified, the order dialog is presumed to always contain unsaved
-changes.<p>
-
 <<defopt {-narrativecmd <i>cmd</i>}>>
 
 Specifies a command that returns this order's narrative text.
 The <i>cmd</i> will be called with two additional arguments, the
 order's name and parameter dictionary.  If <i>cmd</i> is the empty
 string, the narrative will just be the order's title.<p>
+
+<<defopt {-refreshcmd <i>cmd</i>}>>
+
+Specifies a command to apply any desired logic to the order dialog's
+contents when a dialog field's value changes.
+The <i>cmd</i> is called with three additional arguments: the name
+of the <<xref orderdialog(sim)>> widget, a list of the names of the
+fields that have changed, and a dictionary of the current field
+values.  The command may set field values, enable and disable fields,
+and so forth.<p>
 
 <<defopt {-schedulestates <i>states</i>}>>
 
@@ -397,31 +398,6 @@ If this option is omitted, or <i>states</i> is the empty list, the
 order cannot be sent in any state.  See
 <<xref "Application States">> for more information.<p>
 
-<<defopt {-table <i>tableName</i>}>>
-
-Orders intended to create, update, or otherwise manipulate database
-entities can be associated with a particular RDB table or view.  This
-option specifies the <i>tableName</i> of this table or view.<p>
-
-Such an order will usually have either one or more <b>key</b>
-parameters or a <b>multi</b> parameter; see <<iref parm>>, below.<p>
-
-<<defopt {-tags <i>taglist</i>}>>
-
-Specifies a list of data type tags associated with this order.
-This feature allows the user to fill in the order's keys as a set
-by clicking elsewhere in the interface.  If the user clicks on a
-satisfaction curve, for example, and the order dialog is keyed on
-neighborhood, group, and concern, the order dialog will be populated
-with the relevant data, provided that the selected entity is contained
-in the order's <code>-table</code>.<p>
-
-This option requires that <code>-table</code> also be set; and it will
-have no effect unless the order has <b>key</b> parameters.<p>
-
-order(sim) does not define any particular set of order tags; commonly used
-ones include <b>ngc</b> and <b>nfg</b>.<p>
-
 <</deflist options>>
 
 
@@ -434,47 +410,17 @@ dialog's functioning.  This is especially true for <b>multi</b> and
 <b>key</b> fields (see below) but can also affect other parameters
 (see <code>-refresh</code> and <code>-refreshcmd</code>, below).<p>
 
-The <i>fieldType</i> indicates how the data is edited.  The
-possibilities are as follows:<p>
-
-<ul>
-  <li> <b>color</b>:  The value is a color specified in
-       hexadecimal RGB; it will be edited using a GUI color picker.<p>
-
-  <li> <b>cpat</b>:  The value is a <<xref calpattern(n)>> value,
-       edited using a <<xref calpatternfield(n)>> widget.<p>
-
-  <li> <b>enum</b>: The value is chosen from an enumerated list using
-       a pull-down.  The set of possible values can be dynamic, and is
-       determined by the <i>options</i>.<p>
-
-  <li> <b>key</b>: The value corresponds to a key column of the
-       same <i>name</i> in the associated <i>table</i>.  The set of
-       possible values is read dynamically from the <i>table</i>, and
-       is presented using a pull-down.  If the order has <b>key</b>
-       parameters, they must precede all other parameters.<p>
-
-  <li> <b>multi</b>: The value is a list of entity IDs from the
-       associated <i>table</i>.  (An entity ID is a list of the key
-       field values for that row in the table).  This is used when
-       editing multiple entities, usually from a GUI entity browser.
-       If the order has a <b>multi</b> parameter, it must be the first
-       parameter.<p>
-
-       When <<iref order enter>> is used to pop up the order's dialog,
-       the value of the <b>multi</b> parameter must be provided to the
-       command; it cannot be edited by the user within the dialog itself.<p>
-
-  <li> <b>text</b>: The value is edited as a one-line text string.<p>
-</ul>
+The <i>fieldType</i> indicates how the data is edited; see
+<<xref "Field Types">> for a complete list.<p>
 
 The <i>label</i> is the label string used for this parameter's field
 in the order dialog.<p>
 
-The options are as shown in the following list.  Note that when using
-<b>order parm</b> to query this metadata, the <i>fieldType</i> and
-<i>label</i> are retrieved as the values of the <code>-fieldtype</code> and
-<code>-label</code> options.<p>
+Options available for all field types are as shown in the following
+list.  (Note that when using <b>order parm</b> to query this metadata,
+the <i>fieldType</i> and <i>label</i> are retrieved as the values of
+the <code>-fieldtype</code> and <code>-label</code> options.)
+Particular <<xref "Field Types">> can take additional options.<p>
 
 <<deflist option>>
 
@@ -482,9 +428,7 @@ The options are as shown in the following list.  Note that when using
 
 Specifies a default value for the parameter's field in the order
 dialog.  If <code>-defval</code> is not given, the field will typically
-be blank.  If there's a <i>table</i> associated with the order, this
-option is irrelevant, as all fields will be populated from the
-<i>table</i>.<p>
+be blank.<p>
 
 <<defopt {-tags <i>taglist</i>}>>
 
@@ -495,16 +439,59 @@ the map viewer, for example, and the current field in the order dialog
 has <b>nbhood</b> in its list of <code>-tags</code>, the
 neighborhood's ID will appear in the field.<p>
 
-If the parameter is an <b>enum</b> parameter, the value will only
-appear in the dialog if it is contained in the field's list of valid
-values.<p>
+<<defopt {-schedwheninvalid}>>
 
-order(sim) does not define any particular set of tags; commonly used
-ones include <b>group</b>, <b>nbhood</b>, <b>point</b>, and <b>polygon</b>.<p>
+By default, the user can only schedule an order to execute at a later
+time if the order is valid.  There are a few cases where it's
+reasonable to schedule an order with invalid fields; this option
+marks the field as one that can be invalid when the order is
+scheduled.<p>
+
+<</deflist option>>
+
+<<defitem layout {layout <i>spec</i>}>>
+
+The <i>spec</i> is a <<xref mars:form(n)>> layout specification; it
+can be used to customize the layout of the fields in the dialog.<p>
+
+<</deflist metadata>>
+
+<<subsection "Field Types">>
+
+The <<iref parm>> command defines an order parameter, and also
+describes how that parameter is to be edited in the order dialog.
+The following field types are available:<p>
+
+<<deflist ftypes>>
+
+<<defitem color {color}>>
+
+The value is a color specified in hexadecimal RGB; it will be edited
+using a GUI color picker.<p>
+
+<<defitem cpat {cpat}>>
+
+The value is a <<xref calpattern(n)>> calendar pattern value,
+edited using a <<xref calpatternfield(n)>> widget.<p>
+
+<<defitem disp {disp}>>
+
+The <b>disp</b> field type displays a read-only text string; it is
+useful for loading read-only values from a database record to provide
+context.<p>
+
+<<defitem enum {enum}>>
+
+The value is chosen from an enumerated list using a pull-down.  The
+set of possible values can be dynamic, and is determined by the field's
+options and the order's <code>-refreshcmd</code>.  The field takes
+these additional options:<p>
+
+<<deflist option>>
 
 <<defopt {-type <i>enumType</i>}>>
 
-For <b>enum</b> parameters only, this is the name of an
+This is the name of an
 <<xref mars:enum(n)>> object (or any command with a <b>names</b>
 subcommand, really).  The field's pull-down will retrieve its values
 dynamically by calling
@@ -513,74 +500,106 @@ dynamically by calling
     {*}$enumType names
 </pre>
 
+If this option is not given, then the order's <code>-refreshcmd</code>
+is responsible for setting the field's list of <code>-values</code>
+explicitly.<p>
+
 <<defopt {-displaylong}>>
 
-For <b>enum</b> parameters only, this option indicates that the order
-dialog should use the <<xref mars:enum(n)>>
-<<xref mars:enum(n) longname>> command to retrieve the displayed
-values.  The value the dialog passes to the order will still be the
-short name.<p>
+This option indicates that the field should display the
+<<xref mars:enum(n)>> <<xref mars:enum(n) longname>> command to
+retrieve list of values displayed in the pulldown.  The value passed
+to the order handler will still be the short name.<p>
 
-<<defopt {-display <i>column</i>}>>
-
-For <b>key</b> parameters only, this option indicates that the order
-dialog should display the value of the named <i>column</i> rather than
-the actual key value.  (Note that the key value is still used for everything
-<i>but</i> display.)<p>
-
-<<defopt {-refreshcmd <i>cmd</i>}>>
-
-Defining a <code>-refreshcmd</code> allows the behaviour of a
-parameter's field to depend on the values of the "upstream"
-fields--those which are defined earlier in the list of parameters and
-appear above it in the order dialog.
-
-The <b>NBHOOD:RELATIONSHIP:UPDATE</b> order, for example, allows the user
-to update the proximity of a pair of neighborhoods.  However, the
-proximity of a neighborhood to itself is always <b>HERE</b>, and the
-proximity of one neighborhood to another can never be <b>HERE</b>.
-The behavior of the field must change as the key values change.<p>
-
-The <i>cmd</i> accepts two arguments, the name of the parameter's field
-widget, and a dictionary of the values of all fields.  The command
-may:<p>
-
-<ul>
-  <li> Set the state of the field to <b>normal</b> or <b>disabled</b>.<p>
-  <li> Set or clear the value in the field.<p>
-  <li> For <b>enum</b> fields, set the list of possible values.<p>
-</ul>
-
-Although the current values of all fields are included in the
-dictionary, the command should properly look at the values of its own
-parameter and of those upstream.<p>
-
-This option cannot be set for <b>key</b> or <b>multi</b> parameters.<p>
-
-<<defopt {-refresh}>>
-
-Changes to <b>multi</b> and <b>key</b> parameters automatically
-trigger a refresh of all non-key fields for which
-<code>-refreshcmd</code> is defined.  On occasion, it's convenient for
-changes to a non-key field's value to trigger a refresh of down-stream
-parameters.  This is enabled by specifying the <code>-refresh</code>
-option.<p>
-
-<b>Note:</b> at present, <code>-refresh</code> is supported only for
-<b>enum</b> and <b>text</b> parameters, but other types could
-easily be supported as well.<p>
-
-<<defopt {-schedwheninvalid}>>
-
-By default, the user can only schedule an order to execute at a later
-time if the order is valid.  There are a few cases where it's
-reasonable to schedule an order with invalid fields; this option
-marks the field as one that can be invalid when the order is scheduled.<p>
+This option can only be used if the <code>-type</code> is specified.<p>
 
 <</deflist option>>
 
+<<defitem key {key}>>
 
-<</deflist metadata>>
+The field allows the user to select the key (possibly multi-column) of
+a row in a database table.  The field contains one pulldown per column
+in the key value.  The following options are available:<p>
+
+<<deflist options>>
+
+<<defopt {-table <i>table</i>}>>
+
+Specifies the name of a table or view in the RDB.<p>
+
+<<defopt {-key <i>keynames</i>}>>
+
+Specifies the name(s) of the key field or fields in the
+<code>-table</code>.<p>
+
+<<defopt {-dispcols <i>colnames</i>}>>
+
+Key values sometimes have an internal form and a human-readable form.
+The <code>-key</code> option should list the name(s) of the column(s)
+containing the internal form of the key; this option should list the
+name(s) of matching column(s) that contain the human-readable form.
+The pulldowns will then containing the human-readable text, but the
+internal form will be passed to the order handler.<p>
+
+<<defopt {-labels <i>strings</i>}>>
+
+By default, the key field consists of 1 to N unlabeled pulldowns.  If this
+option is given, it contains one label for each key column; the labels
+are placed just to the left of each pulldown.<p>
+
+<<defopt {-widths <i>widths</i>}>>
+
+A list that specifies the width, in characters, of each key pulldown.<p>
+
+<</deflist options>>
+
+<<defitem newkey {newkey}>>
+
+The field allows the user to select a valid but <i>unused</i> key
+(possibly multi-column) from some universe of valid key values.  This
+is used when selecting a new entity to create; the selected value is
+guaranteed not to exist in the specified <code>-table</code>.  The
+field contains one pulldown per column in the key value.  The
+following options are available:<p>
+
+<<deflist options>>
+
+<<defopt {-table <i>table</i>}>>
+
+Specifies the name of a table or view in the RDB.  The entity to
+create will be a new row in this table.<p>
+
+<<defopt {-key <i>keynames</i>}>>
+
+Specifies the name(s) of the key field or fields in the
+<code>-table</code>.<p>
+
+<<defopt {-universe <i>table</i>}>>
+
+Specifies the name of a table or view in the RDB that defines the
+universe of valid keys for the <code>-table</code>.  The field will
+allow the user to select a key that appears in the
+<code>-universe</code> but not in the <code>-table</code>.<p>
+
+<<defopt {-labels <i>strings</i>}>>
+
+By default, the field consists of 1 to N unlabeled pulldowns.  If this
+option is given, it contains one label for each key column; the labels
+are placed just to the left of each pulldown.<p>
+
+<<defopt {-widths <i>widths</i>}>>
+
+A list that specifies the width, in characters, of each pulldown.<p>
+
+<</deflist options>>
+
+
+<<defitem text {text}>>
+
+The value is a one-line text string.<p>
+
+<</deflist ftypes>>
+
 
 <<subsection "Order Body Commands">>
 

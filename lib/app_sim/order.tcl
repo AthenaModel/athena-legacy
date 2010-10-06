@@ -479,8 +479,7 @@ snit::type order {
                 -tags        -
                 -type        -
                 -widths      -
-                -labels      -
-                -refreshcmd  {
+                -labels      {
                     dict set pdict $opt [lshift args] 
                 }
 

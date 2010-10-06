@@ -349,7 +349,7 @@ snit::widget orderdialog {
         
         # NEXT, prepare to receive selected objects from the application.
         notifier bind ::app   <ObjectSelect> $win [mymethod ObjectSelect]
-        notifier bind ::sim   <Tick>         $win [mymethod RefreshDialog]
+        notifier bind ::sim   <Tick>    are layed out.      $win [mymethod RefreshDialog]
         notifier bind ::order <State>        $win [mymethod RefreshDialog]
         notifier bind ::order <Accepted>     $win [mymethod RefreshDialog]
         notifier bind ::cif   <Update>       $win [mymethod RefreshDialog]
