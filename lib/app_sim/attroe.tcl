@@ -52,7 +52,7 @@ snit::type ::attroe {
         set f [frcgroup validate $f]
         set g [frcgroup validate $g]
 
-        if {![$type exists $n $f $g]} {
+        if {![$type exists $id]} {
             return -code error -errorcode INVALID \
                "Group $f has no ROE for group $g in $n."
         }
@@ -60,15 +60,15 @@ snit::type ::attroe {
         return [list $n $f $g]
     }
 
-    # exists n f g
+    # exists id
     #
-    # n       A nbhood ID
-    # f       A force group ID
-    # g       A force group ID
+    # id      list {n f g}
     #
     # Returns 1 if f has an attroe with g in n
 
-    typemethod exists {n f g} {
+    typemethod exists {id} {
+        lassign $id n f g
+
         rdb exists {
             SELECT * FROM attroe_nfg WHERE n=$n AND f=$f AND g=$g
         }
@@ -89,7 +89,7 @@ snit::type ::attroe {
         set f [frcgroup uniformed validate $f]
         set g [frcgroup nonuniformed validate $g]
 
-        if {![$type exists $n $f $g]} {
+        if {![$type exists $id]} {
             return -code error -errorcode INVALID \
                "Group $f has no ROE for group $g in $n."
         }
@@ -112,7 +112,7 @@ snit::type ::attroe {
         set f [frcgroup uniformed validate $f]
         set g [frcgroup nonuniformed validate $g]
 
-        if {[$type exists $n $f $g]} {
+        if {[$type exists $id]} {
             return -code error -errorcode INVALID \
                 "Group $f already has an ROE with group $g in $n"
         }
@@ -135,7 +135,7 @@ snit::type ::attroe {
         set f [frcgroup nonuniformed validate $f]
         set g [frcgroup uniformed validate $g]
 
-        if {![$type exists $n $f $g]} {
+        if {![$type exists $id]} {
             return -code error -errorcode INVALID \
                "Group $f has no ROE for group $g in $n."
         }
@@ -158,7 +158,7 @@ snit::type ::attroe {
         set f [frcgroup nonuniformed validate $f]
         set g [frcgroup uniformed validate $g]
 
-        if {[$type exists $n $f $g]} {
+        if {[$type exists $id]} {
             return -code error -errorcode INVALID \
                 "Group $f already has an ROE with group $g in $n"
         }

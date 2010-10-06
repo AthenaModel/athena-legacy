@@ -391,7 +391,7 @@ driver oneliner
         mad mutate create $m1
     } -body {
         mad mutate satadjust {
-            n NB1 g SHIA c AUT mad 1 delta 5
+            id {NB1 SHIA AUT} mad 1 delta 5
         }
 
         ted query {
@@ -415,7 +415,7 @@ NB1 SHIA AUT 5.0
         mad mutate create $m1
     } -body {
         mad mutate satadjust {
-            n NB1 g SHIA c AUT mad 1 delta 5
+            id {NB1 SHIA AUT} mad 1 delta 5
         }
 
         rdb eval {
@@ -435,7 +435,7 @@ NB1 SHIA AUT 5.0
         ted notifier bind ::mad <Entity>
 
         mad mutate satadjust {
-            n NB1 g SHIA c AUT mad 1 delta 5
+            id {NB1 SHIA AUT} mad 1 delta 5
         }
         
         ted notifier received
@@ -453,7 +453,7 @@ NB1 SHIA AUT 5.0
         mad mutate create $m1
     } -body {
         set undo [mad mutate satadjust {
-            n NB1 g SHIA c AUT mad 1 delta 5
+            id {NB1 SHIA AUT} mad 1 delta 5
         }]
 
         eval $undo
@@ -479,7 +479,7 @@ NB1 SHIA AUT 0.0
         mad mutate create $m1
 
         set undo [mad mutate satadjust {
-            n NB1 g SHIA c AUT mad 1 delta 5
+            id {NB1 SHIA AUT} mad 1 delta 5
         }]
     } -body {
         eval $undo
@@ -500,7 +500,7 @@ NB1 SHIA AUT 0.0
         mad mutate create $m1
 
         set undo [mad mutate satadjust {
-            n NB1 g SHIA c AUT mad 1 delta 5
+            id {NB1 SHIA AUT} mad 1 delta 5
         }]
     } -body {
         ted notifier bind ::sat <Entity>
@@ -524,7 +524,7 @@ NB1 SHIA AUT 0.0
         mad mutate create $m1
     } -body {
         mad mutate satset {
-            n NB1 g SHIA c AUT mad 1 sat 5
+            id {NB1 SHIA AUT} mad 1 sat 5
         }
 
         ted query {
@@ -547,7 +547,7 @@ NB1 SHIA AUT 5.0
         mad mutate create $m1
     } -body {
         mad mutate satset {
-            n NB1 g SHIA c AUT mad 1 sat 5
+            id {NB1 SHIA AUT} mad 1 sat 5
         }
 
         rdb eval {
@@ -567,7 +567,7 @@ NB1 SHIA AUT 5.0
         ted notifier bind ::mad <Entity>
 
         mad mutate satset {
-            n NB1 g SHIA c AUT mad 1 sat 5
+            id {NB1 SHIA AUT} mad 1 sat 5
         }
         
         ted notifier received
@@ -584,7 +584,7 @@ NB1 SHIA AUT 5.0
         mad mutate create $m1
     } -body {
         set undo [mad mutate satset {
-            n NB1 g SHIA c AUT mad 1 sat 5
+            id {NB1 SHIA AUT} mad 1 sat 5
         }]
 
         eval $undo
@@ -609,7 +609,7 @@ NB1 SHIA AUT 0.0
         mad mutate create $m1
 
         set undo [mad mutate satset {
-            n NB1 g SHIA c AUT mad 1 sat 5
+            id {NB1 SHIA AUT} mad 1 sat 5
         }]
     } -body {
         eval $undo
@@ -629,7 +629,7 @@ NB1 SHIA AUT 0.0
         mad mutate create $m1
 
         set undo [mad mutate satset {
-            n NB1 g SHIA c AUT mad 1 sat 5
+            id {NB1 SHIA AUT} mad 1 sat 5
         }]
     } -body {
         ted notifier bind ::sat <Entity>
@@ -741,7 +741,7 @@ S     MAD0001 1  NB1 SHIA AUT 5.0   50.0    -50.0
         mad mutate create $m1
     } -body {
         mad mutate coopadjust {
-            n NB1 f SHIA g BLUE mad 1 delta 5
+            id {NB1 SHIA BLUE} mad 1 delta 5
         }
 
         ted query {
@@ -764,7 +764,7 @@ NB1 SHIA BLUE 5.0
         mad mutate create $m1
     } -body {
         mad mutate coopadjust {
-            n NB1 f SHIA g BLUE mad 1 delta 5
+            id {NB1 SHIA BLUE} mad 1 delta 5
         }
 
         rdb eval {
@@ -784,7 +784,7 @@ NB1 SHIA BLUE 5.0
         ted notifier bind ::mad <Entity>
 
         mad mutate coopadjust {
-            n NB1 f SHIA g BLUE mad 1 delta 5
+            id {NB1 SHIA BLUE} mad 1 delta 5
         }
         
         ted notifier received
@@ -801,7 +801,7 @@ NB1 SHIA BLUE 5.0
         mad mutate create $m1
     } -body {
         set undo [mad mutate coopadjust {
-            n NB1 f SHIA g BLUE mad 1 delta 5
+            id {NB1 SHIA BLUE} mad 1 delta 5
         }]
 
         eval $undo
@@ -826,7 +826,7 @@ NB1 SHIA BLUE 0.0
         mad mutate create $m1
 
         set undo [mad mutate coopadjust {
-            n NB1 f SHIA g BLUE mad 1 delta 5
+            id {NB1 SHIA BLUE} mad 1 delta 5
         }]
     } -body {
         eval $undo
@@ -845,7 +845,7 @@ NB1 SHIA BLUE 0.0
         mad mutate create $m1
 
         set undo [mad mutate coopadjust {
-            n NB1 f SHIA g BLUE mad 1 delta 5
+            id {NB1 SHIA BLUE} mad 1 delta 5
         }]
     } -body {
         ted notifier bind ::coop <Entity>
@@ -869,7 +869,7 @@ NB1 SHIA BLUE 0.0
         mad mutate create $m1
     } -body {
         mad mutate coopset {
-            n NB1 f SHIA g BLUE mad 1 coop 5
+            id {NB1 SHIA BLUE} mad 1 coop 5
         }
 
         ted query {
@@ -892,7 +892,7 @@ NB1 SHIA BLUE -45.0
         mad mutate create $m1
     } -body {
         mad mutate coopset {
-            n NB1 f SHIA g BLUE mad 1 coop 5
+            id {NB1 SHIA BLUE} mad 1 coop 5
         }
 
         rdb eval {
@@ -912,7 +912,7 @@ NB1 SHIA BLUE -45.0
         ted notifier bind ::mad <Entity>
 
         mad mutate coopset {
-            n NB1 f SHIA g BLUE mad 1 coop 5
+            id {NB1 SHIA BLUE} mad 1 coop 5
         }
         
         ted notifier received
@@ -929,7 +929,7 @@ NB1 SHIA BLUE -45.0
         mad mutate create $m1
     } -body {
         set undo [mad mutate coopset {
-            n NB1 f SHIA g BLUE mad 1 coop 5
+            id {NB1 SHIA BLUE} mad 1 coop 5
         }]
 
         eval $undo
@@ -954,7 +954,7 @@ NB1 SHIA BLUE 0.0
         mad mutate create $m1
 
         set undo [mad mutate coopset {
-            n NB1 f SHIA g BLUE mad 1 coop 5
+            id {NB1 SHIA BLUE} mad 1 coop 5
         }]
     } -body {
         eval $undo
@@ -973,7 +973,7 @@ NB1 SHIA BLUE 0.0
         mad mutate create $m1
 
         set undo [mad mutate coopset {
-            n NB1 f SHIA g BLUE mad 1 coop 5
+            id {NB1 SHIA BLUE} mad 1 coop 5
         }]
     } -body {
         ted notifier bind ::coop <Entity>

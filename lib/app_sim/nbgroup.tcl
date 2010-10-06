@@ -474,7 +474,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
 order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP {
     title "Update Nbhood Group (Post-PREP)"
     options \
-        -sendstates PAUSED                             \
+        -sendstates {PREP PAUSED}                      \
         -refreshcmd {::orderdialog refreshForKey id *}
 
     parm id             key  "Nbhood Group"    -table gui_nbgroups \
@@ -502,7 +502,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP {
 order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP:MULTI {
     title "Update Multiple Nbhood Groups (Post-PREP)"
     options \
-        -sendstates PAUSED                                  \
+        -sendstates {PREP PAUSED}                         \
         -refreshcmd {::orderdialog refreshForMulti ids *}
 
     parm ids            multi "Groups"          -table gui_nbgroups \

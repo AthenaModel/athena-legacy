@@ -33,9 +33,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     set uf {
-        n         NB1
-        f         BLUE
-        g         ALQ
+        id        {NB1 BLUE ALQ}
         uniformed 1
         roe       ATTACK
         cooplimit 30
@@ -43,9 +41,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     set nf {
-        n         NB1
-        f         ALQ
-        g         BRIT
+        id        {NB1 ALQ BRIT}
         uniformed 0
         roe       HIT_AND_RUN
         cooplimit 40
@@ -134,7 +130,7 @@ NB1 ALQ BRIT 0         HIT_AND_RUN 40.0      0.5
         attroe mutate create $uf
         attroe mutate create $nf
     } -body {
-        attroe mutate delete NB1 BLUE ALQ
+        attroe mutate delete {NB1 BLUE ALQ}
 
         # Is it gone?
         rdb eval {SELECT n,f,g FROM attroe_nfg}
@@ -148,7 +144,7 @@ NB1 ALQ BRIT 0         HIT_AND_RUN 40.0      0.5
         attroe mutate create $uf
     } -body {
         ted notifier bind ::attroe <Entity>
-        attroe mutate delete NB1 BLUE ALQ
+        attroe mutate delete {NB1 BLUE ALQ}
         ted notifier received
     } -cleanup {
         cleanup
@@ -160,7 +156,7 @@ NB1 ALQ BRIT 0         HIT_AND_RUN 40.0      0.5
     test delete-2.1 {Undo restores group} -setup {
         setup
         attroe mutate create $uf
-        set undo [attroe mutate delete NB1 BLUE ALQ]
+        set undo [attroe mutate delete {NB1 BLUE ALQ}]
     } -body {
         eval $undo
         ted query {SELECT * FROM attroe_nfg}
@@ -176,7 +172,7 @@ NB1 BLUE ALQ 1         ATTACK 30.0
     test delete-2.2 {On undo, <Entity> create} -setup {
         setup
         attroe mutate create $uf
-        set undo [attroe mutate delete NB1 BLUE ALQ]
+        set undo [attroe mutate delete {NB1 BLUE ALQ}]
     } -body {
         ted notifier bind ::attroe <Entity>
         eval $undo
@@ -195,9 +191,7 @@ NB1 BLUE ALQ 1         ATTACK 30.0
         attroe mutate create $nf
     } -body {
         attroe mutate update {
-            n         NB1
-            f         ALQ
-            g         BRIT
+            id        {NB1 ALQ BRIT}
             roe       STAND_AND_FIGHT
             cooplimit 50
             rate      1.0
@@ -236,9 +230,7 @@ NB1 ALQ BRIT 0         STAND_AND_FIGHT 50.0      1.0
         set a [ted query {SELECT * FROM attroe_nfg}]
 
         attroe mutate update  {
-            n         NB1
-            f         ALQ
-            g         BRIT
+            id        {NB1 ALQ BRIT}
             roe       ""
             cooplimit ""
             rate      ""
@@ -258,9 +250,7 @@ NB1 ALQ BRIT 0         STAND_AND_FIGHT 50.0      1.0
     } -body {
         ted notifier bind ::attroe <Entity>
         attroe mutate update {
-            n         NB1
-            f         ALQ
-            g         BRIT
+            id        {NB1 ALQ BRIT}
             roe       STAND_AND_FIGHT
             cooplimit 50
             rate      1.0
@@ -281,9 +271,7 @@ NB1 ALQ BRIT 0         STAND_AND_FIGHT 50.0      1.0
         set a [ted query {SELECT * FROM attroe_nfg}]
 
         set undo [attroe mutate update {
-            n         NB1
-            f         ALQ
-            g         BRIT
+            id        {NB1 ALQ BRIT}
             roe       STAND_AND_FIGHT
             cooplimit 50
             rate      1.0
@@ -303,9 +291,7 @@ NB1 ALQ BRIT 0         STAND_AND_FIGHT 50.0      1.0
         attroe mutate create $nf
     } -body {
         set undo [attroe mutate update {
-            n         NB1
-            f         ALQ
-            g         BRIT
+            id        {NB1 ALQ BRIT}
             roe       STAND_AND_FIGHT
             cooplimit 50
             rate      1.0
@@ -381,7 +367,7 @@ NB1 ALQ BRIT 0         STAND_AND_FIGHT 50.0      1.0
     test exists-1.1 {No ROE exists} -setup {
         setup
     } -body {
-        attroe exists NB1 BLUE ALQ
+        attroe exists {NB1 BLUE ALQ}
     } -cleanup {
         cleanup
     } -result {0}
@@ -392,7 +378,7 @@ NB1 ALQ BRIT 0         STAND_AND_FIGHT 50.0      1.0
         attroe mutate create $uf
         attroe mutate create $nf
     } -body {
-        attroe exists NB1 BLUE ALQ
+        attroe exists {NB1 BLUE ALQ}
     } -cleanup {
         cleanup
     } -result {1}

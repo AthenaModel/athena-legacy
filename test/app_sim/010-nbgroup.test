@@ -147,8 +147,7 @@ NB1 SHIA NB1 Shias  1000    AVERAGE  1.0           1.1            10
         ted create NB1SHIA
     } -body {
         nbgroup mutate update {
-            n              NB1
-            g              SHIA
+            id             {NB1 SHIA}
             local_name     "John Doe"
             basepop        5000
             sap            20
@@ -188,8 +187,7 @@ NB1 SHIA John Doe   5000    APATHETIC 0.1           0.2            20
         set a [ted query {SELECT * FROM nbgroups}]
 
         nbgroup mutate update  {
-            n              NB1
-            g              SHIA
+            id             {NB1 SHIA}
             local_name     ""
             basepop        ""
             sap            ""
@@ -211,8 +209,7 @@ NB1 SHIA John Doe   5000    APATHETIC 0.1           0.2            20
     } -body {
         ted notifier bind ::nbgroup <Entity>
         nbgroup mutate update  {
-            n              NB1
-            g              SHIA
+            id             {NB1 SHIA}
             local_name     ""
             basepop        ""
             sap            ""
@@ -235,8 +232,7 @@ NB1 SHIA John Doe   5000    APATHETIC 0.1           0.2            20
         set a [ted query {SELECT * FROM nbgroups}]
 
         set undo [nbgroup mutate update {
-            n              NB1
-            g              SHIA
+            id             {NB1 SHIA}
             local_name     "John Doe"
             basepop        5000
             sap            20
@@ -258,8 +254,7 @@ NB1 SHIA John Doe   5000    APATHETIC 0.1           0.2            20
         ted create NB1SHIA
     } -body {
         set undo [nbgroup mutate update {
-            n              NB1
-            g              SHIA
+            id             {NB1 SHIA}
             local_name     ""
             basepop        ""
             sap            ""

@@ -45,40 +45,36 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.1 {required parms} -body {
         ted order -reject SAT:UPDATE {}
     } -result {
-        n {required value}
-        g {required value}
-        c {required value}
+        id {required value}
     }
     
 
     test UPDATE-1.2 {invalid n, g, c} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE n NONESUCH1 g NONESUCH2 c NONESUCH3
+        ted order -reject SAT:UPDATE id {NONESUCH NONESUCH NONESUCH}
     } -cleanup {
         cleanup
     } -result {
-        n {Invalid neighborhood, should be one of: NB1}
-        g {Invalid satisfaction group, should be one of: SHIA, SUNN}
-        c {invalid value "NONESUCH3", should be one of: AUT, SFT, CUL, QOL, CAS}
+        id {Invalid neighborhood, should be one of: NB1}
     }
 
 
     test UPDATE-1.3 {undefined curve} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE n NB1 g SUNN c AUT
+        ted order -reject SAT:UPDATE id {NB1 SUNN AUT}
     } -cleanup {
         cleanup
     } -result {
-        c {Satisfaction is not tracked for group SUNN's AUT in NB1.}
+        id {Satisfaction is not tracked for group SUNN's AUT in NB1.}
     }
 
 
     test UPDATE-1.4 {invalid sat0: symbol} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE n NB1 g SHIA c SFT sat0 NONESUCH
+        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} sat0 NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -89,7 +85,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.5 {} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE n NB1 g SHIA c SFT sat0 101.0
+        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} sat0 101.0
     } -cleanup {
         cleanup
     } -result {
@@ -100,7 +96,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.6 {invalid saliency: symbol} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE n NB1 g SHIA c SFT saliency NONESUCH
+        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} saliency NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -111,7 +107,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.7 {invalid saliency: out of range} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE n NB1 g SHIA c SFT saliency -0.1
+        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} saliency -0.1
     } -cleanup {
         cleanup
     } -result {
@@ -122,7 +118,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.8 {invalid atrend} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE n NB1 g SHIA c SFT atrend -1.0
+        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} atrend -1.0
     } -cleanup {
         cleanup
     } -result {
@@ -132,7 +128,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.9 {invalid athresh} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE n NB1 g SHIA c SFT athresh NONESUCH
+        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} athresh NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -142,7 +138,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.10 {invalid dtrend} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE n NB1 g SHIA c SFT dtrend 1.0
+        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} dtrend 1.0
     } -cleanup {
         cleanup
     } -result {
@@ -152,7 +148,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.11 {invalid dthresh} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE n NB1 g SHIA c SFT dthresh NONESUCH
+        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} dthresh NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -163,9 +159,7 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         ted order SAT:UPDATE {
-            n              NB1
-            g              SHIA
-            c              SFT
+            id             {NB1 SHIA SFT}
             sat0           VS
             saliency       VI
             atrend         2
@@ -192,7 +186,7 @@ NB1 SHIA SFT 80.0 0.85     2.0    -5.0    -1.0   10.0
         setup
     } -body {
         ted notifier bind ::sat <Entity>
-        ted order SAT:UPDATE n NB1 g SHIA c SFT sat0 4.0
+        ted order SAT:UPDATE id {NB1 SHIA SFT} sat0 4.0
         ted notifier received
     } -cleanup {
         cleanup
@@ -205,9 +199,7 @@ NB1 SHIA SFT 80.0 0.85     2.0    -5.0    -1.0   10.0
         setup
 
         ted order SAT:UPDATE {
-            n              NB1
-            g              SHIA
-            c              SFT
+            id             {NB1 SHIA SFT}
             sat0           VS
             saliency       VI
             atrend         2

@@ -45,8 +45,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.1 {required parms} -body {
         ted order -reject NBHOOD:RELATIONSHIP:UPDATE {}
     } -result {
-        m {required value}
-        n {required value}
+        id {required value}
     }
     
 
@@ -54,12 +53,11 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         ted order -reject NBHOOD:RELATIONSHIP:UPDATE \
-            m NONESUCH n NONESUCH
+            id {NONESUCH NONESUCH}
     } -cleanup {
         cleanup
     } -result {
-        m {Invalid neighborhood, should be one of: NB1, NB2}
-        n {Invalid neighborhood, should be one of: NB1, NB2}
+        id {Invalid neighborhood, should be one of: NB1, NB2}
     }
 
 
@@ -67,7 +65,7 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         ted order -reject NBHOOD:RELATIONSHIP:UPDATE \
-            m NB1 n NB2 proximity NONESUCH
+            id {NB1 NB2} proximity NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -79,7 +77,7 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         ted order -reject NBHOOD:RELATIONSHIP:UPDATE \
-            m NB1 n NB2 proximity HERE
+            id {NB1 NB2} proximity HERE
     } -cleanup {
         cleanup
     } -result {
@@ -91,7 +89,7 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         ted order -reject NBHOOD:RELATIONSHIP:UPDATE \
-            m NB1 n NB1 proximity FAR
+            id {NB1 NB1} proximity FAR
     } -cleanup {
         cleanup
     } -result {
@@ -103,7 +101,7 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         ted order -reject NBHOOD:RELATIONSHIP:UPDATE \
-            m NB1 n NB1 effects_delay NONESUCH
+            id {NB1 NB2} effects_delay NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -115,7 +113,7 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         ted order -reject NBHOOD:RELATIONSHIP:UPDATE \
-            m NB1 n NB1 effects_delay -0.1
+            id {NB1 NB2} effects_delay -0.1
     } -cleanup {
         cleanup
     } -result {
@@ -127,7 +125,7 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         ted order -reject NBHOOD:RELATIONSHIP:UPDATE \
-            m NB1 n NB1 effects_delay 0.1
+            id {NB1 NB1} effects_delay 0.1
     } -cleanup {
         cleanup
     } -result {
@@ -139,8 +137,7 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         ted order NBHOOD:RELATIONSHIP:UPDATE {
-            m             NB1
-            n             NB2
+            id            {NB1 NB2}
             proximity     NEAR
             effects_delay 1.0
         }
@@ -162,7 +159,7 @@ NB2 NB2 HERE      0.0
         setup
     } -body {
         ted notifier bind ::nbrel <Entity>
-        ted order NBHOOD:RELATIONSHIP:UPDATE m NB1 n NB2
+        ted order NBHOOD:RELATIONSHIP:UPDATE id {NB1 NB2}
         ted notifier received
     } -cleanup {
         cleanup
@@ -175,8 +172,7 @@ NB2 NB2 HERE      0.0
         setup
 
         ted order NBHOOD:RELATIONSHIP:UPDATE {
-            m             NB1
-            n             NB2
+            id            {NB1 NB2}
             proximity     NEAR
             effects_delay 1.0
         }

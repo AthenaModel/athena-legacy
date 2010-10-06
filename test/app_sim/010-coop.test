@@ -153,7 +153,7 @@ NB1 SUNN BLUE 50.0  0.0    50.0    0.0    50.0
         coop mutate reconcile
 
         # NEXT, update one, so that we can see that it's restored
-        coop mutate update [list n NB1 f SHIA g BLUE coop0 40.0]
+        coop mutate update [list id {NB1 SHIA BLUE} coop0 40.0]
 
         # NEXT, delete the groups and cooperations, and get the
         # undo script.
@@ -214,9 +214,7 @@ NB1 SHIA BLUE 40.0  0.0    50.0    0.0    50.0
         coop mutate reconcile
     } -body {
         coop mutate update {
-            n       NB1
-            f       SHIA
-            g       BLUE
+            id      {NB1 SHIA BLUE}
             coop0   40.0
             atrend  5.0
             athresh 40
@@ -238,9 +236,7 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
         ted create NB1 BLUE SHIA NB1SHIA
         coop mutate reconcile
         set parmdict {
-            n       NB1
-            f       SHIA
-            g       BLUE
+            id      {NB1 SHIA BLUE}
             coop0   40.0
             atrend  5.0
             athresh 40
@@ -269,9 +265,7 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
         set a [ted query {SELECT * FROM coop_nfg}]
 
         coop mutate update  {
-            n       NB1
-            f       SHIA
-            g       BLUE
+            id      {NB1 SHIA BLUE}
             coop0   ""
             atrend  ""
             athresh ""
@@ -293,9 +287,7 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
     } -body {
         ted notifier bind ::coop <Entity>
         coop mutate update  {
-            n       NB1
-            f       SHIA
-            g       BLUE
+            id      {NB1 SHIA BLUE}
             coop0   50.0
             atrend  ""
             athresh ""
@@ -318,9 +310,7 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
         set a [ted query {SELECT * FROM coop_nfg}]
 
         set undo [coop mutate update {
-            n       NB1
-            f       SHIA
-            g       BLUE
+            id      {NB1 SHIA BLUE}
             coop0   40.0
             atrend  5.0
             athresh 40
@@ -343,9 +333,7 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
         coop mutate reconcile
     } -body {
         set undo [coop mutate update {
-            n       NB1
-            f       SHIA
-            g       BLUE
+            id      {NB1 SHIA BLUE}
             coop0   40.0
             atrend  5.0
             athresh 40

@@ -47,45 +47,34 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        n {required value}
-        g {required value}
+        id {required value}
         personnel {required value}
     }
     
     test SET-1.2 {unknown nbhood} -setup {
         setup
     } -body {
-        ted order -reject PERSONNEL:SET {n NONESUCH g BLUE personnel 10}
+        ted order -reject PERSONNEL:SET {id {NONESUCH BLUE} personnel 10}
     } -cleanup {
         cleanup
     } -result {
-        n {Invalid neighborhood, should be one of: NB1, NB2}
-    }
-
-    test SET-1.3 {unknown group} -setup {
-        setup
-    } -body {
-        ted order -reject PERSONNEL:SET {n NB1 g NONESUCH personnel 10}
-    } -cleanup {
-        cleanup
-    } -result {
-        g {Invalid group, should be one of: BLUE, BRIT, SHIA}
+        id {Invalid neighborhood, should be one of: NB1, NB2}
     }
 
     test SET-1.4 {bad n/g combo} -setup {
         setup
     } -body {
-        ted order -reject PERSONNEL:SET {n NB1 g SHIA personnel 10}
+        ted order -reject PERSONNEL:SET {id {NB1 SHIA} personnel 10}
     } -cleanup {
         cleanup
     } -result {
-        g {Group SHIA is neither a FRC nor an ORG group.}
+        id {Group SHIA is neither a FRC nor an ORG group.}
     }
 
     test SET-1.5 {bad personnel} -setup {
         setup
     } -body {
-        ted order -reject PERSONNEL:SET {n NB1 g BLUE personnel -1}
+        ted order -reject PERSONNEL:SET {id {NB1 BLUE} personnel -1}
     } -cleanup {
         cleanup
     } -result {
@@ -95,7 +84,7 @@ namespace eval ::athena_test::tests:: {
     test SET-2.1 {order sets personnel} -setup {
         setup
     } -body {
-        ted order PERSONNEL:SET {n NB1 g BLUE personnel 30}
+        ted order PERSONNEL:SET {id {NB1 BLUE} personnel 30}
         ted query {SELECT * FROM personnel_ng}
     } -cleanup {
         cleanup
@@ -110,7 +99,7 @@ NB2 BRIT 0
 
     test SET-2.2 {order can be undone} -setup {
         setup
-        ted order PERSONNEL:SET {n NB1 g BLUE personnel 30}
+        ted order PERSONNEL:SET {id {NB1 BLUE} personnel 30}
     } -body {
         ted notifier bind ::personnel <Entity>
         cif undo -test
@@ -131,45 +120,34 @@ NB2 BRIT 0
     } -cleanup {
         cleanup
     } -result {
-        n {required value}
-        g {required value}
+        id {required value}
         delta {required value}
     }
     
     test ADJUST-1.2 {unknown nbhood} -setup {
         setup
     } -body {
-        ted order -reject PERSONNEL:ADJUST {n NONESUCH g BLUE delta 10}
+        ted order -reject PERSONNEL:ADJUST {id {NONESUCH BLUE} delta 10}
     } -cleanup {
         cleanup
     } -result {
-        n {Invalid neighborhood, should be one of: NB1, NB2}
-    }
-
-    test ADJUST-1.3 {unknown group} -setup {
-        setup
-    } -body {
-        ted order -reject PERSONNEL:ADJUST {n NB1 g NONESUCH delta 10}
-    } -cleanup {
-        cleanup
-    } -result {
-        g {Invalid group, should be one of: BLUE, BRIT, SHIA}
+        id {Invalid neighborhood, should be one of: NB1, NB2}
     }
 
     test ADJUST-1.4 {bad n/g combo} -setup {
         setup
     } -body {
-        ted order -reject PERSONNEL:ADJUST {n NB1 g SHIA delta 10}
+        ted order -reject PERSONNEL:ADJUST {id {NB1 SHIA} delta 10}
     } -cleanup {
         cleanup
     } -result {
-        g {Group SHIA is neither a FRC nor an ORG group.}
+        id {Group SHIA is neither a FRC nor an ORG group.}
     }
 
     test ADJUST-1.5 {bad delta} -setup {
         setup
     } -body {
-        ted order -reject PERSONNEL:ADJUST {n NB1 g BLUE delta NONESUCH}
+        ted order -reject PERSONNEL:ADJUST {id {NB1 BLUE} delta NONESUCH}
     } -cleanup {
         cleanup
     } -result {
@@ -178,9 +156,9 @@ NB2 BRIT 0
 
     test ADJUST-2.1 {order adjust personnel} -setup {
         setup
-        ted order PERSONNEL:SET {n NB1 g BLUE personnel 30}
+        ted order PERSONNEL:SET {id {NB1 BLUE} personnel 30}
     } -body {
-        ted order PERSONNEL:ADJUST {n NB1 g BLUE delta -40}
+        ted order PERSONNEL:ADJUST {id {NB1 BLUE} delta -40}
         ted query {SELECT * FROM personnel_ng}
     } -cleanup {
         cleanup
@@ -195,7 +173,7 @@ NB2 BRIT 0
 
     test ADJUST-2.2 {order can be undone} -setup {
         setup
-        ted order PERSONNEL:ADJUST {n NB1 g BLUE delta 30}
+        ted order PERSONNEL:ADJUST {id {NB1 BLUE} delta 30}
     } -body {
         ted notifier bind ::personnel <Entity>
         cif undo -test

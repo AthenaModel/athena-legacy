@@ -109,16 +109,16 @@ namespace eval ::athena_test::tests:: {
         ted order ORDER:SCHEDULE {
             timespec +1
             name     PERSONNEL:SET
-            parmdict {n NB1 g BLUE personnel 10}
+            parmdict {id {NB1 BLUE} personnel 10}
         }
         
         ted query {SELECT * FROM gui_orders}
     } -cleanup {
         cleanup
     } -result {
-id tick zulu         name          narrative                      parmdict                  
--- ---- ------------ ------------- ------------------------------ ------------------------- 
-1  1    110000ZJAN10 PERSONNEL:SET Assign 10 BLUE personnel, t... n NB1 g BLUE personnel 10 
+id tick zulu         name          narrative                      parmdict                   
+-- ---- ------------ ------------- ------------------------------ -------------------------- 
+1  1    110000ZJAN10 PERSONNEL:SET Assign 10 BLUE personnel, t... id {NB1 BLUE} personnel 10 
     }
 
 
@@ -127,7 +127,7 @@ id tick zulu         name          narrative                      parmdict
         ted order ORDER:SCHEDULE {
             timespec +1
             name     PERSONNEL:SET
-            parmdict {n NB1 g BLUE personnel 10}
+            parmdict {id {NB1 BLUE} personnel 10}
         }
         ted notifier received
     } -cleanup {
@@ -141,7 +141,7 @@ id tick zulu         name          narrative                      parmdict
         ted order ORDER:SCHEDULE {
             timespec +1
             name     PERSONNEL:SET
-            parmdict {n NB1 g BLUE personnel 10}
+            parmdict {id {NB1 BLUE} personnel 10}
         }
     } -body {
         cif undo
@@ -155,7 +155,7 @@ id tick zulu         name          narrative                      parmdict
         ted order ORDER:SCHEDULE {
             timespec +1
             name     PERSONNEL:SET
-            parmdict {n NB1 g BLUE personnel 10}
+            parmdict {id {NB1 BLUE} personnel 10}
         }
     } -body {
         ted notifier bind ::order <Queue>
@@ -172,16 +172,16 @@ id tick zulu         name          narrative                      parmdict
         ted order ORDER:SCHEDULE {
             timespec +0
             name     PERSONNEL:SET
-            parmdict {n NB1 g BLUE personnel 10}
+            parmdict {id {NB1 BLUE} personnel 10}
         }
         
         ted query {SELECT * FROM gui_orders}
     } -cleanup {
         cleanup
     } -result {
-id tick zulu         name          narrative                      parmdict                  
--- ---- ------------ ------------- ------------------------------ ------------------------- 
-1  0    100000ZJAN10 PERSONNEL:SET Assign 10 BLUE personnel, t... n NB1 g BLUE personnel 10 
+id tick zulu         name          narrative                      parmdict                   
+-- ---- ------------ ------------- ------------------------------ -------------------------- 
+1  0    100000ZJAN10 PERSONNEL:SET Assign 10 BLUE personnel, t... id {NB1 BLUE} personnel 10 
     }
 
 
@@ -192,7 +192,7 @@ id tick zulu         name          narrative                      parmdict
         ted order ORDER:SCHEDULE {
             timespec +0
             name     PERSONNEL:SET
-            parmdict {n NB1 g BLUE personnel 10}
+            parmdict {id {NB1 BLUE} personnel 10}
         }
     } -returnCodes {
         error
@@ -206,7 +206,7 @@ id tick zulu         name          narrative                      parmdict
         ted order ORDER:SCHEDULE {
             timespec +1
             name     PERSONNEL:SET
-            parmdict {n NB2 g BLUE personnel 10}
+            parmdict {id {NB2 BLUE} personnel 10}
         }
     } -body {        
         ted order SIM:LOCK
@@ -223,7 +223,7 @@ id tick zulu         name          narrative                      parmdict
         ted order ORDER:SCHEDULE {
             timespec +1
             name     PERSONNEL:SET
-            parmdict {n NB1 g BLUE personnel 10}
+            parmdict {id {NB1 BLUE} personnel 10}
         }
     } -body {        
         ted order SIM:LOCK
@@ -244,7 +244,7 @@ BLUE-NB1/0000 10
         ted order ORDER:SCHEDULE {
             timespec +1
             name     PERSONNEL:SET
-            parmdict {n NB1 g BLUE personnel 10}
+            parmdict {id {NB1 BLUE} personnel 10}
         }
     } -body {        
         ted order SIM:LOCK
@@ -274,7 +274,7 @@ BLUE-NB1/0000 10
         ted order ORDER:SCHEDULE {
             timespec +1
             name     PERSONNEL:SET
-            parmdict {n NB1 g BLUE personnel 10}
+            parmdict {id {NB1 BLUE} personnel 10}
         }
     } -body {
         ted order ORDER:CANCEL id [newest]
@@ -289,7 +289,7 @@ BLUE-NB1/0000 10
         ted order ORDER:SCHEDULE {
             timespec +1
             name     PERSONNEL:SET
-            parmdict {n NB1 g BLUE personnel 10}
+            parmdict {id {NB1 BLUE} personnel 10}
         }
     } -body {
         ted notifier bind ::order <Queue>
@@ -306,7 +306,7 @@ BLUE-NB1/0000 10
         ted order ORDER:SCHEDULE {
             timespec +1
             name     PERSONNEL:SET
-            parmdict {n NB1 g BLUE personnel 10}
+            parmdict {id {NB1 BLUE} personnel 10}
         }
         ted order ORDER:CANCEL id [newest]
     } -body {
@@ -315,16 +315,16 @@ BLUE-NB1/0000 10
     } -cleanup {
         cleanup
     } -result {
-id tick zulu         name          narrative                      parmdict                  
--- ---- ------------ ------------- ------------------------------ ------------------------- 
-1  1    110000ZJAN10 PERSONNEL:SET Assign 10 BLUE personnel, t... n NB1 g BLUE personnel 10 
+id tick zulu         name          narrative                      parmdict                   
+-- ---- ------------ ------------- ------------------------------ -------------------------- 
+1  1    110000ZJAN10 PERSONNEL:SET Assign 10 BLUE personnel, t... id {NB1 BLUE} personnel 10 
     }
 
     test CANCEL-2.4 {::order <Queue> on undo} -setup {
         ted order ORDER:SCHEDULE {
             timespec +1
             name     PERSONNEL:SET
-            parmdict {n NB1 g BLUE personnel 10}
+            parmdict {id {NB1 BLUE} personnel 10}
         }
         ted order ORDER:CANCEL id [newest]
     } -body {

@@ -227,7 +227,7 @@ PLAYBOX BLUE BLUE 1.0
         rel mutate reconcile
 
         # NEXT, update one, so that we can see that it's restored
-        rel mutate update [list n NB1 f BLUE g SHIA rel 0.5]
+        rel mutate update [list id {NB1 BLUE SHIA} rel 0.5]
 
         # NEXT, delete the groups and relationships, and get the
         # undo script.
@@ -305,9 +305,7 @@ PLAYBOX USAID USAID 1.0
         rel mutate reconcile
     } -body {
         rel mutate update {
-            n    PLAYBOX
-            f    BLUE
-            g    BRIT
+            id   {PLAYBOX BLUE BRIT}
             rel  0.5
         }
 
@@ -328,9 +326,7 @@ PLAYBOX BRIT BRIT 1.0
         ted create BLUE BRIT
         rel mutate reconcile
         set parmdict {
-            n    PLAYBOX
-            f    BLUE
-            g    BRIT
+            id   {PLAYBOX BLUE BRIT}
             rel  0.5
         }
 
@@ -355,9 +351,7 @@ PLAYBOX BRIT BRIT 1.0
         set a [ted query {SELECT * FROM rel_nfg}]
 
         rel mutate update  {
-            n    PLAYBOX
-            f    BLUE
-            g    BRIT
+            id   {PLAYBOX BLUE BRIT}
             rel  ""
         }
 
@@ -375,9 +369,7 @@ PLAYBOX BRIT BRIT 1.0
     } -body {
         ted notifier bind ::rel <Entity>
         rel mutate update  {
-            n    PLAYBOX
-            f    BLUE
-            g    BRIT
+            id   {PLAYBOX BLUE BRIT}
             rel  ""
         }
         ted notifier received
@@ -396,9 +388,7 @@ PLAYBOX BRIT BRIT 1.0
         set a [ted query {SELECT * FROM rel_nfg}]
 
         set undo [rel mutate update {
-            n    PLAYBOX
-            f    BLUE
-            g    BRIT
+            id   {PLAYBOX BLUE BRIT}
             rel  0.5
         }]
 
@@ -417,9 +407,7 @@ PLAYBOX BRIT BRIT 1.0
         rel mutate reconcile
     } -body {
         set undo [rel mutate update {
-            n    PLAYBOX
-            f    BLUE
-            g    BRIT
+            id   {PLAYBOX BLUE BRIT}
             rel  ""
         }]
 

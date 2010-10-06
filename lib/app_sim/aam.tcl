@@ -719,7 +719,7 @@ snit::type aam {
                 # FIRST, It's a force or org unit.  Attrit its pool in
                 # its neighborhood of origin.
 
-                set parms [list n $origin g $g delta -$casualties]
+                set parms [list id [list $origin $g] delta -$casualties]
 
                 lappend undo [personnel mutate adjust $parms]
 

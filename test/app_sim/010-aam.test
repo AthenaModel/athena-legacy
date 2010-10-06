@@ -112,9 +112,9 @@ namespace eval ::athena_test::tests:: {
                     SELECT * FROM personnel_ng
                     WHERE n=$n AND g=$g
                 }]} {
-                    personnel mutate set [list n $n g $g personnel $personnel]
+                    personnel mutate set [list id [list $n $g] personnel $personnel]
                 } else {
-                    personnel mutate adjust [list n $n g $g delta $personnel]
+                    personnel mutate adjust [list id [list $n $g] delta $personnel]
                 }
             }
         }
@@ -565,8 +565,8 @@ id n   f    g    casualties
     test attritn-1.6 {nbhood, force, org units not attrited} -setup {
         ted create NB1 BLUE USAID SHIA SUNN NB1SHIA NB1SUNN
         personnel mutate reconcile
-        ted order PERSONNEL:SET n NB1 g BLUE personnel 15
-        ted order PERSONNEL:SET n NB1 g USAID personnel 15
+        ted order PERSONNEL:SET id {NB1 BLUE}  personnel 15
+        ted order PERSONNEL:SET id {NB1 USAID} personnel 15
         ted order SIM:LOCK
     } -body {
         aam mutate attritn [list n NB1 casualties 10000 g1 BLUE g2 BRIT]

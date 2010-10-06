@@ -328,8 +328,6 @@ order define ::sat SAT:UPDATE {
 
     returnOnError -final
 
-    parray parms
-
     # NEXT, modify the curve
     setundo [$type mutate update [array get parms]]
 }

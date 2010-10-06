@@ -45,7 +45,7 @@ namespace eval ::athena_test::tests:: {
     test analyze-1.1 {Create a situation} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
         scenario mutate reconcile
-        ted order PERSONNEL:SET n NB1 g BLUE personnel 15
+        ted order PERSONNEL:SET id {NB1 BLUE} personnel 15
     } -body {
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
@@ -63,7 +63,7 @@ s kind     stype    driver n   coverage           state  ts tc change flist g   
     test analyze-1.2 {Change marks are erased on next run} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
         scenario mutate reconcile
-        ted order PERSONNEL:SET n NB1 g BLUE personnel 15
+        ted order PERSONNEL:SET id {NB1 BLUE} personnel 15
     } -body {
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
@@ -81,11 +81,11 @@ s change
     test analyze-1.3 {Change in coverage updates} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
         scenario mutate reconcile
-        ted order PERSONNEL:SET n NB1 g BLUE personnel 15
+        ted order PERSONNEL:SET id {NB1 BLUE} personnel 15
     } -body {
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
-        ted order PERSONNEL:SET n NB1 g BLUE personnel 30
+        ted order PERSONNEL:SET id {NB1 BLUE} personnel 30
         # Run for two days; staffing change doesn't take effect until "morning"
         ted order SIM:RUN days 2 block yes
 
@@ -102,11 +102,11 @@ s kind     stype    driver n   coverage           state  ts tc change  flist g  
     test analyze-1.4 {Nominal personnel = 0 terminates} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
         scenario mutate reconcile
-        ted order PERSONNEL:SET n NB1 g BLUE personnel 15
+        ted order PERSONNEL:SET id {NB1 BLUE} personnel 15
     } -body {
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
-        ted order PERSONNEL:SET n NB1 g BLUE personnel 0
+        ted order PERSONNEL:SET id {NB1 BLUE} personnel 0
         ted order SIM:RUN days 2 block yes
 
         ted query {SELECT * FROM actsits}
@@ -122,7 +122,7 @@ s kind     stype    driver n   coverage state ts tc change flist g    signature 
     test analyze-1.5 {Can have multiple} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
         scenario mutate reconcile
-        ted order PERSONNEL:SET n NB1 g BLUE personnel 30
+        ted order PERSONNEL:SET id {NB1 BLUE} personnel 30
         ted order ACTIVITY:SCHEDULE n NB1 g BLUE a PATROL personnel 15 start +0 pattern daily
         ted order ACTIVITY:SCHEDULE n NB1 g BLUE a GUARD  personnel 15 start +0 pattern daily
     } -body {
@@ -133,7 +133,7 @@ s kind     stype    driver n   coverage state ts tc change flist g    signature 
         ted order SIM:RUN days 1 block yes
         append out [ted query {SELECT * FROM actsits}]
 
-        ted order PERSONNEL:SET n NB1 g BLUE personnel 0
+        ted order PERSONNEL:SET id {NB1 BLUE} personnel 0
         ted order SIM:RUN days 2 block yes
         append out [ted query {SELECT * FROM actsits}]
 
@@ -166,7 +166,7 @@ s kind     stype    driver n   coverage state ts tc change flist g    signature 
     test get-1.1 {get -all} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
         scenario mutate reconcile
-        ted order PERSONNEL:SET n NB1 g BLUE personnel 30
+        ted order PERSONNEL:SET id {NB1 BLUE} personnel 30
     } -body {
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
@@ -181,10 +181,10 @@ s kind     stype    driver n   coverage state ts tc change flist g    signature 
     test get-1.2 {get -live} -setup {
         ted create NB1 BLUE SHIA NB1SHIA
         scenario mutate reconcile
-        ted order PERSONNEL:SET n NB1 g BLUE personnel 30
+        ted order PERSONNEL:SET id {NB1 BLUE} personnel 30
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
-        ted order PERSONNEL:SET n NB1 g BLUE personnel 0
+        ted order PERSONNEL:SET id {NB1 BLUE} personnel 0
         ted order SIM:RUN days 2 block yes
     } -body {
         set sit [actsit get 1 -live]

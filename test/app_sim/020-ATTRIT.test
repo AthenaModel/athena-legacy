@@ -76,7 +76,7 @@ namespace eval ::athena_test::tests:: {
 
     test UNIT-1.3 {invalid casualties} -setup {
         setup {
-            ted order PERSONNEL:SET n NB1 g BLUE personnel 100
+            ted order PERSONNEL:SET id {NB1 BLUE} personnel 100
         }
     } -body {
         ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties NONESUCH
@@ -89,7 +89,7 @@ namespace eval ::athena_test::tests:: {
 
     test UNIT-1.4 {negative casualties} -setup {
         setup {
-            ted order PERSONNEL:SET n NB1 g BLUE personnel 100
+            ted order PERSONNEL:SET id {NB1 BLUE} personnel 100
         }
     } -body {
         ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties -1
@@ -102,7 +102,7 @@ namespace eval ::athena_test::tests:: {
 
     test UNIT-1.5 {invalid g1: unknown} -setup {
         setup {
-            ted order PERSONNEL:SET n NB1 g BLUE personnel 100
+            ted order PERSONNEL:SET id {NB1 BLUE} personnel 100
         }
     } -body {
         ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties 10 g1 NONESUCH
@@ -115,7 +115,7 @@ namespace eval ::athena_test::tests:: {
 
     test UNIT-1.6 {invalid g1: u not CIV} -setup {
         setup {
-            ted order PERSONNEL:SET n NB1 g BLUE personnel 100
+            ted order PERSONNEL:SET id {NB1 BLUE} personnel 100
         }
     } -body {
         ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties 10 g1 BLUE
@@ -128,7 +128,7 @@ namespace eval ::athena_test::tests:: {
 
     test UNIT-1.7 {invalid g2: unknown} -setup {
         setup {
-            ted order PERSONNEL:SET n NB1 g BLUE personnel 100
+            ted order PERSONNEL:SET id {NB1 BLUE} personnel 100
         }
     } -body {
         ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties 10 g2 NONESUCH
@@ -141,7 +141,7 @@ namespace eval ::athena_test::tests:: {
 
     test UNIT-1.8 {invalid g2: u not CIV} -setup {
         setup {
-            ted order PERSONNEL:SET n NB1 g BLUE personnel 100
+            ted order PERSONNEL:SET id {NB1 BLUE} personnel 100
         }
     } -body {
         ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties 10 g2 BLUE
@@ -394,7 +394,7 @@ namespace eval ::athena_test::tests:: {
 
     test GROUP-2.1 {FRC units are attrited} -setup {
         setup {
-            ted order PERSONNEL:SET n NB1 g BLUE personnel 100
+            ted order PERSONNEL:SET id {NB1 BLUE} personnel 100
         }
     } -body {
         ted notifier bind ::unit <Entity>
@@ -411,7 +411,7 @@ namespace eval ::athena_test::tests:: {
 
     test GROUP-2.2 {ORG units are attrited} -setup {
         setup {
-            ted order PERSONNEL:SET n NB1 g USAID personnel 100
+            ted order PERSONNEL:SET id {NB1 USAID} personnel 100
         }
     } -body {
         ted notifier bind ::unit <Entity>

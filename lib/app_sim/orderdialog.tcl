@@ -370,7 +370,6 @@ snit::widget orderdialog {
         # FIRST, save some variables
         set order     $options(-order)
         set my(parms) [order parms $order]
-        set my(table) [order cget $order -table]
         set my(valid) 0
 
         # NEXT, Create the fields

@@ -195,8 +195,7 @@ snit::type ted {
         # Neighborhood Groups
 
         defentity NB1SHIA ::nbgroup {
-            n              NB1
-            g              SHIA
+            id             {NB1 SHIA}
             local_name     "NB1 Shias"
             basepop        1000
             sap            10
@@ -206,8 +205,7 @@ snit::type ted {
         }
 
         defentity NB1SUNN ::nbgroup {
-            n              NB1
-            g              SUNN
+            id             {NB1 SUNN}
             local_name     "NB1 Sunnis"
             basepop        1000
             sap            0
@@ -217,8 +215,7 @@ snit::type ted {
         }
 
         defentity NB2SHIA ::nbgroup {
-            n              NB2
-            g              SHIA
+            id             {NB2 SHIA}
             local_name     "NB2 Shias"
             basepop        1000
             sap            10
@@ -228,8 +225,7 @@ snit::type ted {
         }
 
         defentity NB2SUNN ::nbgroup {
-            n              NB2
-            g              SUNN
+            id             {NB2 SUNN}
             local_name     "NB2 Sunnis"
             basepop        1000
             sap            0

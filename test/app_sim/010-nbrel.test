@@ -140,7 +140,7 @@ NB2 NB2 HERE      0.0
         nbrel mutate reconcile
 
         # NEXT, update one, so that we can see that it's restored
-        nbrel mutate update [list m NB1 n NB2 proximity NEAR]
+        nbrel mutate update [list id {NB1 NB2} proximity NEAR]
 
         # NEXT, delete a neighborhood, and get the undo script.
         nbhood mutate delete NB1
@@ -204,8 +204,7 @@ NB2 NB1 REMOTE    0.0
         nbrel mutate reconcile
     } -body {
         nbrel mutate update {
-            m             NB1
-            n             NB2
+            id            {NB1 NB2}
             proximity     NEAR
             effects_delay 1.0
         }
@@ -227,8 +226,7 @@ NB2 NB2 HERE      0.0
         ted create NB1 NB2
         nbrel mutate reconcile
         set parmdict {
-            m             NB1
-            n             NB2
+            id            {NB1 NB2}
             proximity     NEAR
             effects_delay 1.0
         }
@@ -254,8 +252,7 @@ NB2 NB2 HERE      0.0
         set a [ted query {SELECT * FROM nbrel_mn}]
 
         nbrel mutate update  {
-            m             NB1
-            n             NB2
+            id            {NB1 NB2}
             proximity     ""
             effects_delay ""
         }
@@ -274,8 +271,7 @@ NB2 NB2 HERE      0.0
     } -body {
         ted notifier bind ::nbrel <Entity>
         nbrel mutate update  {
-            m             NB1
-            n             NB2
+            id            {NB1 NB2}
             proximity     ""
             effects_delay ""
         }
@@ -295,8 +291,7 @@ NB2 NB2 HERE      0.0
         set a [ted query {SELECT * FROM nbrel_mn}]
 
         set undo [nbrel mutate update {
-            m             NB1
-            n             NB2
+            id            {NB1 NB2}
             proximity     NEAR
             effects_delay 1.0
         }]
@@ -316,8 +311,7 @@ NB2 NB2 HERE      0.0
         nbrel mutate reconcile
     } -body {
         set undo [nbrel mutate update {
-            m             NB1
-            n             NB2
+            id            {NB1 NB2}
             proximity     ""
             effects_delay ""
         }]

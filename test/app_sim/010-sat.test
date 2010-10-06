@@ -205,7 +205,7 @@ NB1 SUNN SFT 0.0  1.0      0.0    0.0     0.0    0.0
 
         # NEXT, update one, so that we can see that it's restored
         sat mutate update \
-            [list n NB1 g SHIA c AUT sat0 1.0 trend0 2.0 saliency 0.5]
+            [list id {NB1 SHIA AUT} sat0 1.0 trend0 2.0 saliency 0.5]
 
         # NEXT, delete the groups and related curves, and get the
         # undo script.
@@ -278,9 +278,7 @@ NB2 USAID CAS 0.0  1.0      0.0    0.0     0.0    0.0
         sat mutate reconcile
     } -body {
         sat mutate update {
-            n              NB1
-            g              SHIA
-            c              AUT
+            id             {NB1 SHIA AUT}
             sat0           1.0
             saliency       0.5
             atrend         2.0
@@ -306,9 +304,7 @@ NB1 SHIA SFT 0.0  1.0      0.0    0.0     0.0    0.0
         ted create NB1SHIA
         sat mutate reconcile
         set parmdict {
-            n              NB1
-            g              SHIA
-            c              AUT
+            id             {NB1 SHIA AUT}
             sat0           1.0
             saliency       0.5
             atrend         2.0
@@ -339,9 +335,7 @@ NB1 SHIA SFT 0.0  1.0      0.0    0.0     0.0    0.0
         set a [ted query {SELECT * FROM sat_ngc}]
 
         sat mutate update  {
-            n              NB1
-            g              SHIA
-            c              SFT
+            id             {NB1 SHIA SFT}
             sat0           ""
             saliency       ""
             atrend         ""
@@ -364,9 +358,7 @@ NB1 SHIA SFT 0.0  1.0      0.0    0.0     0.0    0.0
     } -body {
         ted notifier bind ::sat <Entity>
         sat mutate update  {
-            n              NB1
-            g              SHIA
-            c              SFT
+            id             {NB1 SHIA SFT}
             sat0           ""
             saliency       ""
             atrend         ""
@@ -390,9 +382,7 @@ NB1 SHIA SFT 0.0  1.0      0.0    0.0     0.0    0.0
         set a [ted query {SELECT * FROM sat_ngc}]
 
         set undo [sat mutate update {
-            n              NB1
-            g              SHIA
-            c              SFT
+            id             {NB1 SHIA SFT}
             sat0           1.0
             saliency       0.5
             atrend         2.0
@@ -415,9 +405,7 @@ NB1 SHIA SFT 0.0  1.0      0.0    0.0     0.0    0.0
         sat mutate reconcile
     } -body {
         set undo [sat mutate update {
-            n              NB1
-            g              SHIA
-            c              SFT
+            id             {NB1 SHIA SFT}
             sat0           ""
             trend0         ""
             saliency       ""
