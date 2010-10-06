@@ -265,7 +265,7 @@ snit::widget orderdialog {
 
         # NEXT, create the fields
         $self CreateFields
-        $form layout
+        $form layout [order cget $options(-order) -layout]
 
         # NEXT, create the message display
         rotext $win.message                                \

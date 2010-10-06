@@ -302,6 +302,7 @@ snit::type order {
         # FIRST, initialize the data values
         set orders(title-$name) ""
         set orders(opts-$name) {
+            -layout         {}
             -narrativecmd   {}
             -refreshcmd     {}
             -schedulestates {}
@@ -337,6 +338,15 @@ snit::type order {
         set orders(title-$deftrans(order)) $titleText
     }
     
+    # layout spec
+    #
+    # spec    form(n) layout specification
+    #
+    # Sets the order's layout.  Defaults to "".
+
+    proc define::layout {spec} {
+        dict set orders(opts-$deftrans(order)) -layout $spec
+    }
 
     # options option...
     #
