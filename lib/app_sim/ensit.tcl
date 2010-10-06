@@ -612,6 +612,48 @@ snit::type ensit {
     # Order Helpers
 
 
+    # Refresh_SEC dlg fields fdict
+    #
+    # dlg       The order dialog
+    # fields    A list of the fields that have changed.
+    # fdict     The current field values.
+    #
+    # Refreshes the SITUATION:ENVIRONMENTAL:CREATE dialog.
+
+    typemethod Refresh_SEC {dlg fields fdict} {
+        # FIRST, if the location changed, determine the valid ensit
+        # types
+        if {"location" in $fields} {
+            # NEXT, update the list of valid situation types.
+            dict with fdict {
+                puts "location is $location"
+
+                if {$location ne "" && 
+                    ![catch {
+                        set mxy [map ref2m $location]
+                        set n [nbhood find {*}$mxy]
+                    }]
+                } {
+                    puts "$location is in nbhood $n"
+                    set stypes [$type absentFromNbhood $n]
+                    puts "The stypes are <$stypes>"
+                    if {[llength $stypes] > 0} {
+                        $dlg field configure stype \
+                            -values [lsort $stypes]
+
+                        $dlg disabled {}
+                        return
+                    }
+                }
+            }
+
+            # NEXT, there's no valid location, or all ensits have
+            # been created.  SO disable the stype
+            $dlg set stype ""
+            $dlg disabled stype
+        }
+    }
+
     # Refresh_SEU dlg fields fdict
     #
     # dlg       The order dialog
@@ -871,11 +913,12 @@ eventq define ensitAutoResolve {s} {
 order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
     title "Create Environmental Situation"
     options \
-        -schedulestates {PREP PAUSED} \
-        -sendstates     {PREP PAUSED}
+        -schedulestates {PREP PAUSED}         \
+        -sendstates     {PREP PAUSED}         \
+        -refreshcmd     {::ensit Refresh_SEC}
 
     parm location   text  "Location"      -tags nbpoint
-    parm stype      enum  "Type"          -type eensit -schedwheninvalid
+    parm stype      enum  "Type"          -schedwheninvalid
     parm coverage   text  "Coverage"      -defval 1.0
     parm inception  enum  "Inception?"    -type eyesno -defval "YES"
     parm g          enum  "Caused By"     -type {ptype g+none} \
@@ -938,9 +981,10 @@ order define ::ensit SITUATION:ENVIRONMENTAL:DELETE {
     options \
         -sendstates {PREP PAUSED}
 
-    parm s  key  "Situation"  -table gui_ensits_initial \
-                              -key   s                  \
-                              -tags  situation
+    parm s  key  "Situation"  -table    gui_ensits_initial \
+                              -key      s                  \
+                              -dispcols longid             \
+                              -tags     situation
 } {
     # FIRST, prepare the parameters
     prepare s -required -type {ensit initial}
@@ -986,15 +1030,16 @@ order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
         -sendstates {PREP PAUSED} \
         -refreshcmd {ensit Refresh_SEU}
 
-    parm s          key  "Situation"    -table gui_ensits_initial \
-                                        -key   s                  \
-                                        -tags  situation
-    parm location   text  "Location"    -tags  nbpoint
+    parm s          key  "Situation"    -table    gui_ensits_initial \
+                                        -key      s                  \
+                                        -dispcols longid             \
+                                        -tags     situation
+    parm location   text  "Location"    -tags     nbpoint
     parm stype      enum  "Type"
     parm coverage   text  "Coverage"
-    parm inception  enum  "Inception?"  -type  eyesno
-    parm g          enum  "Caused By"   -type  {ptype g+none}
-    parm resolver   enum  "Resolved By" -type  {ptype g+none}
+    parm inception  enum  "Inception?"  -type     eyesno
+    parm g          enum  "Caused By"   -type     {ptype g+none}
+    parm resolver   enum  "Resolved By" -type     {ptype g+none}
     parm rduration  text  "Duration"    
 
 } {
@@ -1060,10 +1105,11 @@ order define ::ensit SITUATION:ENVIRONMENTAL:MOVE {
     options \
         -sendstates {PREP PAUSED}
 
-    parm s          key  "Situation"    -table gui_ensits_initial \
-                                        -key   s                  \
-                                        -tags  situation
-    parm location   text  "Location"    -tags nbpoint
+    parm s          key   "Situation"   -table    gui_ensits \
+                                        -key      s          \
+                                        -dispcols longid     \
+                                        -tags     situation
+    parm location   text  "Location"    -tags     nbpoint
 } {
     # FIRST, check the situation
     prepare s                    -required -type ensit
@@ -1134,10 +1180,11 @@ order define ::ensit SITUATION:ENVIRONMENTAL:RESOLVE {
         -sendstates     {PREP PAUSED}                    \
         -refreshcmd     {orderdialog refreshForKey s *}
 
-    parm s          key  "Situation"    -table gui_ensits_initial \
-                                        -key   s                  \
-                                        -tags  situation
-    parm resolver  enum  "Resolved By"  -type {ptype g+none}
+    parm s          key  "Situation"    -table    gui_ensits \
+                                        -key      s          \
+                                        -dispcols longid     \
+                                        -tags     situation
+    parm resolver  enum  "Resolved By"  -type     {ptype g+none}
 } {
     # FIRST, prepare the parameters
     prepare s         -required -type {ensit live}
