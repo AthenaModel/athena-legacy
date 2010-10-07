@@ -474,17 +474,10 @@ page COOP: "Cooperation Orders" orders {
 
 order COOP:UPDATE "Update Initial Cooperation" {
     <<parmlist>>
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  The name of a neighborhood.
-    <</parm>>
-
-    <<parm f "Of Group">>
-    <b>Required.</b>  The name of a civilian group resident in
-    neighborhood <i>n</i>.
-    <</parm>>
-
-    <<parm g "With Group">>
-    <b>Required.</b>  The name of a force group.
+    <<parm id "Curve">>
+    <b>Required.</b>  A cooperation curve ID, which is a list 
+    {<i>n f g</i>} where <i>n</i> is a neighborhood, <i>f</i> is a
+    civilian group residing in <i>n</i>, and <i>g</i> is a force group.
     <</parm>>
 
     <<parm coop0 "Cooperation">>
@@ -991,7 +984,7 @@ page GROUP:CIVILIAN: "Civilian Group Orders" GROUP: {
 
 order GROUP:CIVILIAN:CREATE "Create Civilian Group" {
     <<parmlist>>
-    <<parm g "ID">>
+    <<parm g "Group">>
     <b>Required.</b>  <<parm.identifier group PASH>>
     <</parm>>
 
@@ -1034,7 +1027,7 @@ order GROUP:CIVILIAN:DELETE "Delete Civilian Group" {
 
 order GROUP:CIVILIAN:UPDATE "Update Civilian Group" {
     <<parmlist>>
-    <<parm g "ID">>
+    <<parm g "Group">>
     <b>Required.</b>  <<GROUP.g civilian>>
     <</parm>>
 
@@ -1121,13 +1114,11 @@ macro GROUP:NBHOOD.sap {} {
 
 order GROUP:NBHOOD:CREATE "Create Nbhood Group" {
     <<parmlist>>
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  <<NBHOOD.n>>
-    <</parm>>
-
-    <<parm g "Civ Group">>
-    <b>Required.</b>  <<GROUP.g civilian>>  There must not already be
-    a neighborhood group for this <b>n</b> and <b>g</b>.
+    <<parm id "Nbhood Group">>
+    <b>Required.</b>  A neighborhood group ID, specified as a list
+    {<i>n g</i>}, where <i>n</i> is a neighborhood and <i>g</i> is a
+    civilian group.  There must not already be a neighborhood group
+    with this ID.
     <</parm>>
 
     <<parm local_name "Local Name">>
@@ -1170,19 +1161,16 @@ order GROUP:NBHOOD:CREATE "Create Nbhood Group" {
 order GROUP:NBHOOD:DELETE "Delete Nbhood Group" {
     <<parmlist>>
 
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  <<NBHOOD.n>>
-    <</parm>>
-
-    <<parm g "Civ Group">>
-    <b>Required.</b>  <<GROUP.g civilian>>  There must be
-    a neighborhood group for this <b>n</b> and <b>g</b>.
+    <<parm id "Nbhood Group">>
+    <b>Required.</b>  A neighborhood group ID, specified as a list
+    {<i>n g</i>}, where <i>n</i> is a neighborhood and <i>g</i> is a
+    civilian group resident in <i>n</i>.
     <</parm>>
 
     <</parmlist>>
 
     <b><<cref using.prep>> Only.</b>  Deletes an existing
-    neighborhood group, along with all entities (e.g., civilian units,
+    neighborhood group, along with all entities (e.g., 
     satisfaction levels) that depend upon it.<p>
 }
 
@@ -1190,13 +1178,10 @@ order GROUP:NBHOOD:DELETE "Delete Nbhood Group" {
 
 order GROUP:NBHOOD:UPDATE "Update Nbhood Group" {
     <<parmlist>>
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  <<NBHOOD.n>>
-    <</parm>>
-
-    <<parm g "Civ Group">>
-    <b>Required.</b>  <<GROUP.g civilian>>   There must be
-    a neighborhood group for this <b>n</b> and <b>g</b>.
+    <<parm id "Nbhood Group">>
+    <b>Required.</b>  A neighborhood group ID, specified as a list
+    {<i>n g</i>}, where <i>n</i> is a neighborhood and <i>g</i> is a
+    civilian group resident in <i>n</i>.
     <</parm>>
 
     <<parm local_name "Local Name">>
@@ -1234,8 +1219,10 @@ order GROUP:NBHOOD:UPDATE "Update Nbhood Group" {
 
 order GROUP:NBHOOD:UPDATE+POSTPREP "Update Nbhood Group (Post-PREP)" {
     <<parmlist>>
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  <<NBHOOD.n>>
+    <<parm id "Nbhood Group">>
+    <b>Required.</b>  A neighborhood group ID, specified as a list
+    {<i>n g</i>}, where <i>n</i> is a neighborhood and <i>g</i> is a
+    civilian group resident in <i>n</i>.
     <</parm>>
 
     <<parm g "Civ Group">>
@@ -1377,7 +1364,7 @@ macro GROUP:FORCE.coalition {} {
 
 order GROUP:FORCE:CREATE "Create Force Group" {
     <<parmlist>>
-    <<parm g "ID">>
+    <<parm g "Group">>
     <b>Required.</b>  <<parm.identifier group BLUE>>
     <</parm>>
 
@@ -1440,7 +1427,7 @@ order GROUP:FORCE:DELETE "Delete Force Group" {
 
 order GROUP:FORCE:UPDATE "Update Force Group" {
     <<parmlist>>
-    <<parm g "ID">>
+    <<parm g "Group">>
     <b>Required.</b>  <<GROUP.g force>>
     <</parm>>
 
@@ -1554,7 +1541,7 @@ macro GROUP:ORGANIZATION.orgtype {} {
 
 order GROUP:ORGANIZATION:CREATE "Create Organization Group" {
     <<parmlist>>
-    <<parm g "ID">>
+    <<parm g "Group">>
     <b>Required.</b>  <<parm.identifier group RC>>
     <</parm>>
 
@@ -1612,7 +1599,7 @@ order GROUP:ORGANIZATION:DELETE "Delete Organization Group" {
 
 order GROUP:ORGANIZATION:UPDATE "Update Organization Group" {
     <<parmlist>>
-    <<parm g "ID">>
+    <<parm g "Group">>
     <b>Required.</b>  <<GROUP.g organization>>
     <</parm>>
 
@@ -1910,17 +1897,10 @@ page MAD:SAT: "Magic Satisfaction Orders" MAD: {
 order MAD:SAT:ADJUST "Magic Adjust Satisfaction Level" {
     <<parmlist>>
     
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  A neighborhood ID.
-    <</parm>>
-
-    <<parm g "Group">>
-    <b>Required.</b>  An organization group, or a civilian group
-    resident in neighborhood <i>n</i>.
-    <</parm>>
-
-    <<parm c "Concern">>
-    <b>Required.</b>  One of group <i>g</i>'s concerns.
+    <<parm id "Curve">>
+    <b>Required.</b>  A satisfaction curve ID, which is a list 
+    {<i>n g c</i>} where <i>n</i> is a neighborhood, <i>g</i> is a
+    civilian group residing in <i>n</i>, and <i>c</i> is a concern.
     <</parm>>
 
     <<parm mad "MAD ID">>
@@ -1945,17 +1925,10 @@ order MAD:SAT:ADJUST "Magic Adjust Satisfaction Level" {
 order MAD:SAT:SET "Magic Set Satisfaction Level" {
     <<parmlist>>
     
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  A neighborhood ID.
-    <</parm>>
-
-    <<parm g "Group">>
-    <b>Required.</b>  An organization group, or a civilian group
-    resident in neighborhood <i>n</i>.
-    <</parm>>
-
-    <<parm c "Concern">>
-    <b>Required.</b>  One of group <i>g</i>'s concerns.
+    <<parm id "Curve">>
+    <b>Required.</b>  A satisfaction curve ID, which is a list 
+    {<i>n g c</i>} where <i>n</i> is a neighborhood, <i>g</i> is a
+    civilian group residing in <i>n</i>, and <i>c</i> is a concern.
     <</parm>>
 
     <<parm mad "MAD ID">>
@@ -2092,17 +2065,10 @@ page MAD:COOP: "Magic Cooperation Orders" MAD: {
 order MAD:COOP:ADJUST "Magic Adjust Cooperation Level" {
     <<parmlist>>
     
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  A neighborhood ID.
-    <</parm>>
-
-    <<parm f "Of Group">>
-    <b>Required.</b>  A civilian group
-    resident in neighborhood <i>n</i>.
-    <</parm>>
-
-    <<parm g "With Group">>
-    <b>Required.</b>  A force group.
+    <<parm id "Curve">>
+    <b>Required.</b>  A cooperation curve ID, which is a list 
+    {<i>n f g</i>} where <i>n</i> is a neighborhood, <i>f</i> is a
+    civilian group residing in <i>n</i>, and <i>g</i> is a force group.
     <</parm>>
 
     <<parm mad "MAD ID">>
@@ -2127,17 +2093,10 @@ order MAD:COOP:ADJUST "Magic Adjust Cooperation Level" {
 order MAD:COOP:SET "Magic Set Cooperation Level" {
     <<parmlist>>
     
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  A neighborhood ID.
-    <</parm>>
-
-    <<parm f "Of Group">>
-    <b>Required.</b>  A civilian group
-    resident in neighborhood <i>n</i>.
-    <</parm>>
-
-    <<parm g "With Group">>
-    <b>Required.</b>  A force group.
+    <<parm id "Curve">>
+    <b>Required.</b>  A cooperation curve ID, which is a list 
+    {<i>n f g</i>} where <i>n</i> is a neighborhood, <i>f</i> is a
+    civilian group residing in <i>n</i>, and <i>g</i> is a force group.
     <</parm>>
 
     <<parm mad "MAD ID">>
@@ -2541,12 +2500,11 @@ page NBHOOD:RELATIONSHIP: "Neighborhood Relationship Orders" orders {
 
 order NBHOOD:RELATIONSHIP:UPDATE "Update Neighborhood Relationship" {
     <<parmlist>>
-    <<parm m "Of Neighborhood">> 
-    <b>Required.</b>  A neighborhood name.
-    <</parm>>
-
-    <<parm n "With Neighborhood">> 
-    <b>Required.</b>  Another neighborhood name.
+    <<parm m "Neighborhood">> 
+    <b>Required.</b>  A neighborhood relationship ID, specified as
+    a list {<i>m</i>, <i>n</i>} where <i>m</i> and <i>n</i> are
+    neighborhoods and the data is <i>m</i>'s relationship with
+    <i>n</i>.
     <</parm>>
 
     <<parm proximity "Proximity">>  
@@ -2647,16 +2605,11 @@ page RELATIONSHIP: "Group Relationship Orders" orders {
 
 order RELATIONSHIP:UPDATE "Update Group Relationship" {
     <<parmlist>>
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  The name of a neighborhood, or <b>PLAYBOX</b>.
-    <</parm>>
-
-    <<parm f "Of Group">>
-    <b>Required.</b>  The name of a group.
-    <</parm>>
-
-    <<parm g "With Group">>
-    <b>Required.</b>  The name of a group, possibly the same.
+    <<parm id "Groups">>
+    <b>Required.</b>  A group relationship ID, specified as a 
+    list {<i>n f g</i>} where <i>n</i> is name of a neighborhood, or
+    <b>PLAYBOX</b>, and <i>f</i> and <i>g</i> are two groups.  The
+    associated relationship is <i>f</i>'s relationship with <i>g</i>.
     <</parm>>
 
     <<parm rel "Relationship">>
@@ -2797,16 +2750,11 @@ macro ROE:ATTACK:N.rate {} {
 
 order ROE:ATTACK:DELETE "Delete Attacking ROE" {
     <<parmlist>>
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  The name of a neighborhood.
-    <</parm>>
-
-    <<parm f "Attacking Group">>
-    <b>Required.</b>  The name of a force group.
-    <</parm>>
-
-    <<parm g "Attacked Group">>
-    <b>Required.</b>  The name of another force group.
+    <<parm id "Combatants">>
+    <b>Required.</b>  A list {<i>n f g</i>} where <i>n</i> is the name 
+    of a neighborhood, <i>f</i> is the name of a force
+    group, and <i>g</i> is the name of the force group
+    to be attacked.
     <</parm>>
 
     <</parmlist>>
@@ -2845,16 +2793,11 @@ page ROE:ATTACK:NONUNIFORMED: "Attacking ROE (Non-Uniformed) Orders" ROE:ATTACK:
 
 order ROE:ATTACK:NONUNIFORMED:CREATE "Create Attacking ROE (Non-Uniformed)" {
     <<parmlist>>
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  The name of a neighborhood.
-    <</parm>>
-
-    <<parm f "Attacking Group">>
-    <b>Required.</b>  The name of a uniformed force group.
-    <</parm>>
-
-    <<parm g "Attacked Group">>
-    <b>Required.</b>  The name of a non-uniformed force group.
+    <<parm id "Combatants">>
+    <b>Required.</b>  A list {<i>n f g</i>} where <i>n</i> is the name 
+    of a neighborhood, <i>f</i> is the name of a non-uniformed force
+    group, and <i>g</i> is the name of the uniformed force group
+    to be attacked.
     <</parm>>
 
     <<parm roe "ROE">>
@@ -2889,16 +2832,11 @@ order ROE:ATTACK:NONUNIFORMED:CREATE "Create Attacking ROE (Non-Uniformed)" {
 
 order ROE:ATTACK:NONUNIFORMED:UPDATE "Update Attacking ROE (Non-Uniformed)" {
     <<parmlist>>
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  The name of a neighborhood.
-    <</parm>>
-
-    <<parm f "Attacking Group">>
-    <b>Required.</b>  The name of a uniformed force group.
-    <</parm>>
-
-    <<parm g "Attacked Group">>
-    <b>Required.</b>  The name of a non-uniformed force group.
+    <<parm id "Combatants">>
+    <b>Required.</b>  A list {<i>n f g</i>} where <i>n</i> is the name 
+    of a neighborhood, <i>f</i> is the name of a non-uniformed force
+    group, and <i>g</i> is the name of the uniformed force group
+    to be attacked.
     <</parm>>
 
     <<parm roe "ROE">>
@@ -2969,16 +2907,11 @@ page ROE:ATTACK:UNIFORMED: "Attacking ROE (Uniformed) Orders" ROE:ATTACK: {
 
 order ROE:ATTACK:UNIFORMED:CREATE "Create Attacking ROE (Uniformed)" {
     <<parmlist>>
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  The name of a neighborhood.
-    <</parm>>
-
-    <<parm f "Attacking Group">>
-    <b>Required.</b>  The name of a uniformed force group.
-    <</parm>>
-
-    <<parm g "Attacked Group">>
-    <b>Required.</b>  The name of a non-uniformed force group.
+    <<parm id "Combatants">>
+    <b>Required.</b>  A list {<i>n f g</i>} where <i>n</i> is the name 
+    of a neighborhood, <i>f</i> is the name of a uniformed force
+    group, and <i>g</i> is the name of the non-uniformed force group
+    to be attacked.
     <</parm>>
 
     <<parm roe "ROE">>
@@ -3009,16 +2942,11 @@ order ROE:ATTACK:UNIFORMED:CREATE "Create Attacking ROE (Uniformed)" {
 
 order ROE:ATTACK:UNIFORMED:UPDATE "Update Attacking ROE (Uniformed)" {
     <<parmlist>>
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  The name of a neighborhood.
-    <</parm>>
-
-    <<parm f "Attacking Group">>
-    <b>Required.</b>  The name of a uniformed force group.
-    <</parm>>
-
-    <<parm g "Attacked Group">>
-    <b>Required.</b>  The name of a non-uniformed force group.
+    <<parm id "Combatants">>
+    <b>Required.</b>  A list {<i>n f g</i>} where <i>n</i> is the name 
+    of a neighborhood, <i>f</i> is the name of a uniformed force
+    group, and <i>g</i> is the name of the non-uniformed force group
+    to be attacked.
     <</parm>>
 
     <<parm roe "ROE">>
@@ -3099,12 +3027,10 @@ macro ROE:DEFEND.roe {} {
 
 order ROE:DEFEND:UPDATE "Updating Defending ROE" {
     <<parmlist>>
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  The name of a neighborhood.
-    <</parm>>
-
-    <<parm g "Group">>
-    <b>Required.</b>  The name of a uniformed force group.
+    <<parm id "Defender">>
+    <b>Required.</b>  The defending group, specified as a 
+    list {<i>n g</i>}, where <i>g</i> is the name of a uniformed
+    force group and <i>n</i> is the neighborhood in which it is defending.
     <</parm>>
 
     <<parm roe "ROE">>
@@ -3160,18 +3086,10 @@ page SAT: "Satisfaction Orders" orders {
 
 order SAT:UPDATE "Update Initial Satisfaction" {
     <<parmlist>>
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  The name of a neighborhood.
-    <</parm>>
-
-    <<parm g "Group">>
-    <b>Required.</b>  The name of an organization group, or
-    of a civilian group resident in neighborhood <i>n</i>.
-    <</parm>>
-
-    <<parm c "Concern">>
-    <b>Required.</b>  The name of a civilian or organization
-    concern, as appropriate.
+    <<parm id "Curve">>
+    <b>Required.</b>  A satisfaction curve ID, which is a list 
+    {<i>n g c</i>} where <i>n</i> is a neighborhood, <i>g</i> is a
+    civilian group residing in <i>n</i>, and <i>c</i> is a concern.
     <</parm>>
 
     <<parm sat0 "Sat at T0">>
@@ -3561,12 +3479,10 @@ page PERSONNEL: "Personnel Orders" orders {
 
 order PERSONNEL:SET "Set Group Personnel" {
     <<parmlist>>
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  <<NBHOOD.n>>
-    <</parm>>
-
-    <<parm g "Group">>
-    <b>Required.</b>  The name of a force or organization group.
+    <<parm id "Nbhood/Group">>
+    <b>Required.</b>  A list {<i>n g</i>} where <i>n</i> is the name
+    of a neighborhood and <i>g</i> is the name of a a force or
+    organization group.
     <</parm>>
 
     <<parm personnel "Personnel">>
@@ -3584,12 +3500,10 @@ order PERSONNEL:SET "Set Group Personnel" {
 
 order PERSONNEL:ADJUST "Adjust Group Personnel" {
     <<parmlist>>
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  <<NBHOOD.n>>
-    <</parm>>
-
-    <<parm g "Group">>
-    <b>Required.</b>  The name of a force or organization group.
+    <<parm id "Nbhood/Group">>
+    <b>Required.</b>  A list {<i>n g</i>} where <i>n</i> is the name
+    of a neighborhood and <i>g</i> is the name of a a force or
+    organization group.
     <</parm>>
 
     <<parm delta "Delta Personnel">>

@@ -1337,14 +1337,16 @@ snit::type sim {
     #-------------------------------------------------------------------
     # Order Helper Routines
 
-    # RefreshStartDate
+    # Refresh_SS dlg fields fdict
     #
     # Initializes the startdate parameter of SIM:STARTDATE when the
     # the order is cleared.
     
-    typemethod RefreshStartDate {field parmdict} {
-        if {[$field get] eq ""} {
-            $field set [simclock cget -t0]
+    typemethod Refresh_SS {dlg fields fdict} {
+        dict with fdict {
+            if {$startdate eq ""} {
+                $dlg set startdate [simclock cget -t0]
+            }
         }
     }
 }
@@ -1355,10 +1357,10 @@ snit::type sim {
 
 order define ::sim SIM:STARTDATE {
     title "Set Start Date"
-    options -sendstates PREP
+    options -sendstates PREP \
+        -refreshcmd {::sim Refresh_SS}
 
-    parm startdate  text "Start Date" \
-        -refreshcmd [list ::sim RefreshStartDate]
+    parm startdate  text "Start Date"
 } {
     # FIRST, prepare the parameters
     prepare startdate -toupper -required -type zulu

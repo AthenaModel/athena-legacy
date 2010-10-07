@@ -204,7 +204,6 @@ order define ::civgroup GROUP:CIVILIAN:CREATE {
 
     options -sendstates PREP
 
-    #    name      field  label
     parm g         text   "Group"
     parm longname  text   "Long Name"
     parm color     color  "Color"
@@ -285,7 +284,7 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE {
         -sendstates PREP                             \
         -refreshcmd {orderdialog refreshForKey g *}
 
-    parm g         key    "ID"         \
+    parm g         key    "Group"         \
         -table civgroups_view -key g -tags group
     parm longname  text   "Long Name"
     parm color     color  "Color"

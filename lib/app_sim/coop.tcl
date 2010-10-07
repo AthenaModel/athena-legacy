@@ -139,7 +139,8 @@ snit::type coop {
         } row {
             unset -nocomplain row(*)
 
-            set id [list $row(n) $row(f) $row(g)]
+            set id [list $row(n) $row(f          \
+                                     -labels   {"" "Of" "With"}) $row(g)]
 
             if {[dict exists $valid $id]} {
                 dict incr valid $id
@@ -268,8 +269,9 @@ order define ::coop COOP:UPDATE {
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey id *}
 
-    parm id      key   "Curve"           -table gui_coop_nfg \
-                                         -key {n f g}
+    parm id      key   "Curve"           -table  gui_coop_nfg     \
+                                         -key    {n f g}          \
+                                         -labels {"" "Of" "With"}
     parm coop0   text  "Cooperation"
     parm atrend  text  "Ascending Trend"
     parm athresh text  "Asc. Threshold"

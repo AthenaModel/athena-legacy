@@ -215,7 +215,7 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
     title "Create Organization Group"
     options -sendstates PREP
 
-    parm g              text  "ID"
+    parm g              text  "Group"
     parm longname       text  "Long Name"
     parm color          color "Color"
     parm shape          enum  "Unit Shape"    -type eunitshape -defval NEUTRAL
@@ -302,7 +302,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey g *}
 
-    parm g              key   "ID" \
+    parm g              key   "Group" \
         -table gui_orggroups -key g -tags group 
     parm longname       text  "Long Name"
     parm color          color "Color"

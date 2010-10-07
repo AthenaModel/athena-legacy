@@ -307,8 +307,9 @@ order define ::sat SAT:UPDATE {
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey id *}
 
-    parm id        key   "Curve"            -table gui_sat_ngc \
-                                            -key   {n g c}
+    parm id        key   "Curve"            -table  gui_sat_ngc \
+                                            -key    {n g c}     \
+                                            -labels {"" "Grp" "Con"}
     parm sat0      text  "Sat at T0"
     parm saliency  text  "Saliency"
     parm atrend    text  "Ascending Trend"

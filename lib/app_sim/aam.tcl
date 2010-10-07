@@ -978,7 +978,9 @@ order define ::aam ATTRIT:NBHOOD {
         -sendstates     {PAUSED}      \
         -refreshcmd     [list ::aam Refresh_AN]
 
-    parm n          key  "Neighborhood" -table nbhoods -key n -tags nbhood
+    parm n          key  "Neighborhood"      -table nbhoods   \
+                                             -key n           \
+                                             -tags nbhood
     parm casualties text "Casualties" 
     parm g1         key  "Responsible Group" -table frcgroups -key g \
         -tags group

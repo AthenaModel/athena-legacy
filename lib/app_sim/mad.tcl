@@ -1067,10 +1067,11 @@ order define ::mad MAD:SAT:ADJUST {
         -sendstates     PAUSED         \
         -schedulestates {PREP PAUSED}
 
-    parm id        key   "Curve"     -table gui_sat_ngc  \
-                                     -key {n g c}
-    parm mad       key   "MAD ID"    -table    gui_mads  \
-                                     -key      id        \
+    parm id        key   "Curve"     -table    gui_sat_ngc \
+                                     -key      {n g c}     \
+                                     -labels   {"" "Grp" "Con"}
+    parm mad       key   "MAD ID"    -table    gui_mads    \
+                                     -key      id          \
                                      -dispcols longid
     parm delta     text  "Delta"
 } {
@@ -1096,10 +1097,11 @@ order define ::mad MAD:SAT:SET {
         -sendstates     PAUSED         \
         -schedulestates {PREP PAUSED}
 
-    parm id        key   "Curve"     -table gui_sat_ngc  \
-                                     -key {n g c}
-    parm mad       key   "MAD ID"    -table    gui_mads  \
-                                     -key      id        \
+    parm id        key   "Curve"     -table    gui_sat_ngc  \
+                                     -key      {n g c}      \
+                                     -labels   {"" "Grp" "Con"}
+    parm mad       key   "MAD ID"    -table    gui_mads     \
+                                     -key      id           \
                                      -dispcols longid
     parm sat       text  "New Value"
 } {
@@ -1205,8 +1207,9 @@ order define ::mad MAD:COOP:ADJUST {
         -sendstates     PAUSED         \
         -schedulestates {PREP PAUSED}
 
-    parm id        key   "Curve"     -table gui_coop_nfg  \
-                                     -key {n f g}
+    parm id        key   "Curve"     -table    gui_coop_nfg     \
+                                     -key      {n f g}          \
+                                     -labels   {"" "Of" "With"}
     parm mad       key   "MAD ID"    -table    gui_mads  \
                                      -key      id        \
                                      -dispcols longid
@@ -1234,8 +1237,9 @@ order define ::mad MAD:COOP:SET {
         -sendstates     PAUSED         \
         -schedulestates {PREP PAUSED}
 
-    parm id        key   "Curve"     -table gui_coop_nfg  \
-                                     -key {n f g}
+    parm id        key   "Curve"     -table    gui_coop_nfg     \
+                                     -key      {n f g}          \
+                                     -labels   {"" "Of" "With"}
     parm mad       key   "MAD ID"    -table    gui_mads  \
                                      -key      id        \
                                      -dispcols longid
