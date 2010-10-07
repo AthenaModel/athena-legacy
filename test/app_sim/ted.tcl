@@ -200,8 +200,6 @@ snit::type ted {
             basepop        1000
             sap            10
             demeanor       AVERAGE
-            rollup_weight  1.0
-            effects_factor 1.1
         }
 
         defentity NB1SUNN ::nbgroup {
@@ -210,8 +208,6 @@ snit::type ted {
             basepop        1000
             sap            0
             demeanor       AGGRESSIVE
-            rollup_weight  1.2
-            effects_factor 1.3
         }
 
         defentity NB2SHIA ::nbgroup {
@@ -220,8 +216,6 @@ snit::type ted {
             basepop        1000
             sap            10
             demeanor       AVERAGE
-            rollup_weight  2.0
-            effects_factor 2.1
         }
 
         defentity NB2SUNN ::nbgroup {
@@ -230,8 +224,6 @@ snit::type ted {
             basepop        1000
             sap            0
             demeanor       AGGRESSIVE
-            rollup_weight  2.2
-            effects_factor 2.3
         }
 
         # Force Groups
@@ -293,8 +285,6 @@ snit::type ted {
             shape          NEUTRAL
             orgtype        NGO
             demeanor       AVERAGE
-            rollup_weight  1.0
-            effects_factor 1.1
         }
 
         defentity HAL ::orggroup {
@@ -304,8 +294,6 @@ snit::type ted {
             shape          NEUTRAL
             orgtype        CTR
             demeanor       AVERAGE
-            rollup_weight  1.2
-            effects_factor 1.3
         }
 
         # Units

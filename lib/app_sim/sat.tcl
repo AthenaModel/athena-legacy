@@ -73,9 +73,9 @@ snit::type sat {
     typemethod validate {id} {
         lassign $id n g c
 
-        set n [nbhood    validate $n]
-        set g [sat group validate $g]
-        set c [econcern  validate $c]
+        set n [nbhood   validate $n]
+        set g [civgroup validate $g]
+        set c [econcern validate $c]
 
 
         if {![$type exists $n $g $c]} {
@@ -100,40 +100,6 @@ snit::type sat {
         }
     }
 
-    # group validate g
-    #
-    # g    A group name
-    #
-    # Throws INVALID if g is not the name of a group for which 
-    # satisfaction can be tracked.
-
-    typemethod {group validate} {g} {
-        set groups [$type group names]
-
-        if {[llength $groups] == 0} {
-            return -code error -errorcode INVALID \
-                "Invalid satisfaction group, none are defined"
-        } elseif {$g ni $groups} {
-            return -code error -errorcode INVALID \
-                "Invalid satisfaction group, should be one of: [join $groups {, }]"
-        }
-
-        return $g
-    }
-
-    # group names
-    #
-    # Returns a list of the names of the satisfaction groups.
-
-    typemethod {group names} {} {
-        return [rdb eval {
-            SELECT g FROM groups
-            WHERE gtype IN ('CIV', 'ORG')
-        }]
-
-        return $g
-    }
-
     #-------------------------------------------------------------------
     # Mutators
     #
@@ -154,14 +120,6 @@ snit::type sat {
         rdb eval {
             -- Civilian
             SELECT n,g,c FROM nbgroups JOIN concerns
-            WHERE concerns.gtype = 'CIV'
-
-            UNION
-
-            -- Organization
-            SELECT n,g,c FROM nbhoods JOIN orggroups JOIN concerns
-            WHERE concerns.gtype = 'ORG'
-
         } {
             dict set valid [list $n $g $c] 0
         }

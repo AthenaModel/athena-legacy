@@ -119,8 +119,6 @@ snit::type nbgroup {
     #    basepop          The nbgroup's base population
     #    sap              The nbgroup's subsistence agriculture percentage
     #    demeanor         The nbgroup's demeanor (edemeanor(n))
-    #    rollup_weight    The group's rollup weight (JRAM)
-    #    effects_factor   The group's indirect effects factor (JRAM)
     #
     # Creates a nbhood group given the parms, which are presumed to be
     # valid.
@@ -134,16 +132,13 @@ snit::type nbgroup {
 
             # FIRST, Put the group in the database
             rdb eval {
-                INSERT INTO nbgroups(n,g,local_name,basepop,sap,demeanor,
-                                     rollup_weight,effects_factor)
+                INSERT INTO nbgroups(n,g,local_name,basepop,sap,demeanor)
                 VALUES($n,
                        $g,
                        $local_name,
                        $basepop,
                        $sap,
-                       $demeanor,
-                       $rollup_weight,
-                       $effects_factor);
+                       $demeanor);
 
                 -- All population is implicit, initially.
                 INSERT INTO demog_ng(n,g) 
@@ -216,8 +211,6 @@ snit::type nbgroup {
     #    basepop          A new basepop, or ""
     #    sap              A new sap, or ""
     #    demeanor         A new demeanor, or ""
-    #    rollup_weight    A new rollup weight, or ""
-    #    effects_factor   A new effects factor, or ""
     #
     # Updates a nbgroup given the parms, which are presumed to be
     # valid.
@@ -242,9 +235,7 @@ snit::type nbgroup {
                 SET local_name     = nonempty($local_name,     local_name),
                     basepop        = nonempty($basepop,        basepop),
                     sap            = nonempty($sap,            sap),
-                    demeanor       = nonempty($demeanor,       demeanor),
-                    rollup_weight  = nonempty($rollup_weight,  rollup_weight),
-                    effects_factor = nonempty($effects_factor, effects_factor)
+                    demeanor       = nonempty($demeanor,       demeanor)
                 WHERE n=$n AND g=$g
             } {}
 
@@ -308,8 +299,6 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
     parm basepop        text "Base Population"
     parm sap            text "Subs. Agri. %"   -defval 0
     parm demeanor       enum "Demeanor"        -type edemeanor
-    parm rollup_weight  text "Rollup Weight"   -defval 1.0
-    parm effects_factor text "Effects Factor"  -defval 1.0
 } {
     # FIRST, prepare and validate the parameters
     prepare id             -toupper -required -type {nbgroup unused}
@@ -317,8 +306,6 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
     prepare basepop                 -required -type ingpopulation
     prepare sap                     -required -type ipercent
     prepare demeanor       -toupper -required -type edemeanor
-    prepare rollup_weight           -required -type weight
-    prepare effects_factor          -required -type weight
 
     returnOnError -final
 
@@ -403,8 +390,6 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
     parm basepop        text "Base Population"
     parm sap            text "Subs. Agri. %" 
     parm demeanor       enum "Demeanor"        -type edemeanor
-    parm rollup_weight  text "Rollup Weight"
-    parm effects_factor text "Effects Factor"
 } {
     # FIRST, prepare the parameters
     prepare id             -toupper  -required -type nbgroup
@@ -412,8 +397,6 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
     prepare basepop                  -type ingpopulation
     prepare sap                      -type ipercent
     prepare demeanor       -toupper  -type edemeanor
-    prepare rollup_weight            -type weight
-    prepare effects_factor           -type weight
 
     returnOnError -final
 
@@ -441,8 +424,6 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
     parm basepop        text  "Base Population"
     parm sap            text  "Subs. Agri. %"
     parm demeanor       enum  "Demeanor"        -type edemeanor
-    parm rollup_weight  text  "RollupWeight"
-    parm effects_factor text  "EffectsFactor"
 } {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof nbgroup
@@ -450,8 +431,6 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
     prepare basepop                  -type ingpopulation
     prepare sap                      -type ipercent
     prepare demeanor       -toupper  -type edemeanor
-    prepare rollup_weight            -type weight
-    prepare effects_factor           -type weight
 
     returnOnError -final
 

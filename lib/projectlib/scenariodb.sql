@@ -204,13 +204,7 @@ CREATE TABLE orggroups (
     orgtype        TEXT DEFAULT 'NGO',
 
     -- Group demeanor: edemeanor
-    demeanor       TEXT DEFAULT 'AVERAGE',
-
-    -- Group rollup-weight (non-negative) (JRAM input)
-    rollup_weight  DOUBLE DEFAULT 1.0,
-
-    -- Indirect effects multiplier (non-negative) (JRAM input)
-    effects_factor DOUBLE DEFAULT 1.0
+    demeanor       TEXT DEFAULT 'AVERAGE'
 );
 
 -- Org Group View: joins groups with orggroups.
@@ -239,12 +233,6 @@ CREATE TABLE nbgroups (
 
     -- Group demeanor: edemeanor
     demeanor       TEXT DEFAULT 'AVERAGE',
-
-    -- Group rollup-weight (non-negative) (JRAM input)
-    rollup_weight  DOUBLE DEFAULT 1.0,
-
-    -- Indirect effects multiplier (non-negative) (JRAM input)
-    effects_factor DOUBLE DEFAULT 1.0,
 
     -- Subsistence Agriculture Percentage
     sap            INTEGER DEFAULT 0,
@@ -374,9 +362,8 @@ CREATE INDEX attrit_nfg_index_nfg ON attrit_nfg(n,f,g);
 -- Initial Satisfaction Data
 
 
--- Neighborhood/pgroup/concern triples (n,g,c) for both nbhood groups
--- and org groups.  This table contains the data used to initialize
--- JRAM.
+-- Neighborhood/pgroup/concern triples (n,g,c) for nbhood groups
+-- This table contains the data used to initialize GRAM.
 
 CREATE TABLE sat_ngc (
     -- Symbolic nbhoods name

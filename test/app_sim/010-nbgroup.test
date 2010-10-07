@@ -43,9 +43,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-n   g    local_name basepop demeanor rollup_weight effects_factor sap 
---- ---- ---------- ------- -------- ------------- -------------- --- 
-NB1 SHIA NB1 Shias  1000    AVERAGE  1.0           1.1            10  
+n   g    local_name basepop demeanor sap 
+--- ---- ---------- ------- -------- --- 
+NB1 SHIA NB1 Shias  1000    AVERAGE  10  
     }
 
 
@@ -120,9 +120,9 @@ NB1 SHIA NB1 Shias  1000    AVERAGE  1.0           1.1            10
     } -cleanup {
         cleanup
     } -result {
-n   g    local_name basepop demeanor rollup_weight effects_factor sap 
---- ---- ---------- ------- -------- ------------- -------------- --- 
-NB1 SHIA NB1 Shias  1000    AVERAGE  1.0           1.1            10  
+n   g    local_name basepop demeanor sap 
+--- ---- ---------- ------- -------- --- 
+NB1 SHIA NB1 Shias  1000    AVERAGE  10  
     }
 
 
@@ -152,17 +152,15 @@ NB1 SHIA NB1 Shias  1000    AVERAGE  1.0           1.1            10
             basepop        5000
             sap            20
             demeanor       APATHETIC
-            rollup_weight  0.1
-            effects_factor 0.2
         }
 
         ted query {SELECT * FROM nbgroups}
     } -cleanup {
         cleanup
     } -result {
-n   g    local_name basepop demeanor  rollup_weight effects_factor sap 
---- ---- ---------- ------- --------- ------------- -------------- --- 
-NB1 SHIA John Doe   5000    APATHETIC 0.1           0.2            20  
+n   g    local_name basepop demeanor  sap 
+--- ---- ---------- ------- --------- --- 
+NB1 SHIA John Doe   5000    APATHETIC 20  
     }
 
 
@@ -192,8 +190,6 @@ NB1 SHIA John Doe   5000    APATHETIC 0.1           0.2            20
             basepop        ""
             sap            ""
             demeanor       ""
-            rollup_weight  ""
-            effects_factor ""
         }
 
         set b [ted query {SELECT * FROM nbgroups}]
@@ -214,8 +210,6 @@ NB1 SHIA John Doe   5000    APATHETIC 0.1           0.2            20
             basepop        ""
             sap            ""
             demeanor       ""
-            rollup_weight  ""
-            effects_factor ""
         }
         ted notifier received
     } -cleanup {
@@ -237,8 +231,6 @@ NB1 SHIA John Doe   5000    APATHETIC 0.1           0.2            20
             basepop        5000
             sap            20
             demeanor       APATHETIC
-            rollup_weight  0.1
-            effects_factor 0.2
         }]
 
         eval $undo
@@ -259,8 +251,6 @@ NB1 SHIA John Doe   5000    APATHETIC 0.1           0.2            20
             basepop        ""
             sap            ""
             demeanor       ""
-            rollup_weight  ""
-            effects_factor ""
         }]
 
         ted notifier bind ::nbgroup <Entity>

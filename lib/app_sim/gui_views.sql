@@ -73,9 +73,7 @@ SELECT g                                             AS id,
        color                                         AS color,
        shape                                         AS shape,
        orgtype                                       AS orgtype,
-       demeanor                                      AS demeanor,
-       format('%.2f', rollup_weight)                 AS rollup_weight,
-       format('%.2f', effects_factor)                AS effects_factor
+       demeanor                                      AS demeanor
 FROM groups JOIN orggroups USING (g);
 
 -- An NB Groups view for use by the GUI
@@ -98,11 +96,7 @@ SELECT main.n || ' ' || main.g                       AS id,
        main.sap                                      AS sap,
        demeanor                                      AS demeanor,
        format('%.3f', coalesce(gram.sat0, 0.0))      AS mood0,
-       format('%.3f', coalesce(gram.sat,  0.0))      AS mood,
-       format('%.2f', coalesce(gram.rollup_weight, 
-                               main.rollup_weight))  AS rollup_weight,
-       format('%.2f', coalesce(gram.effects_factor,
-                               main.effects_factor)) AS effects_factor
+       format('%.3f', coalesce(gram.sat,  0.0))      AS mood
 FROM groups 
 JOIN nbgroups AS main USING (g)
 JOIN demog_ng USING(n,g)

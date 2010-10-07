@@ -208,24 +208,6 @@ HAL-NB1/0000   15
     }
 
 
-    test attritnf-1.5 {f is ORG, attitude data is saved} -setup {
-        ted create NB1 USAID HAL
-        mkunits USAID-NB1/0000 USAID-NB1/0001 HAL-NB1/0000
-    } -body {
-        aam mutate attritnf [list n NB1 f USAID casualties 20 g1 "" g2 ""]
-
-        # USAID has 20 accumulated casualties
-        ted query {SELECT * FROM attrit_nf}
-    } -cleanup {
-        cleanup
-    } -result {
-id n   f     casualties 
--- --- ----- ---------- 
-1  NB1 USAID 10         
-2  NB1 USAID 10         
-    }
-
-
     test attritnf-1.6 {f is FRC, ::unit <Entity>} -setup {
         ted create NB1 BLUE BRIT
         mkunits BLUE-NB1/0000 BLUE-NB1/0001 BRIT-NB1/0000
@@ -693,24 +675,6 @@ u              personnel
 -------------- --------- 
 USAID-NB1/0000 15        
 USAID-NB1/0001 10        
-    }
-
-
-    test attritunit-2.2 {ORG unit is attrited, attrition saved} -setup {
-        ted create NB1 USAID
-        mkunits USAID-NB1/0000 USAID-NB1/0001
-    } -body {
-        aam mutate attritunit [list u USAID-NB1/0000 casualties 20 g1 "" g2 ""]
-        aam mutate attritunit [list u USAID-NB1/0001 casualties 10 g1 "" g2 ""]
-
-        ted query {SELECT * FROM attrit_nf}
-    } -cleanup {
-        cleanup
-    }  -result {
-id n   f     casualties 
--- --- ----- ---------- 
-1  NB1 USAID 15         
-2  NB1 USAID 10         
     }
 
 

@@ -176,9 +176,9 @@ namespace eval ::athena_test::tests:: {
 n   g    c   sat0 saliency atrend athresh dtrend dthresh 
 --- ---- --- ---- -------- ------ ------- ------ ------- 
 NB1 SHIA AUT 0.0  1.0      0.0    0.0     0.0    0.0     
+NB1 SHIA SFT 80.0 0.85     2.0    -5.0    -1.0   10.0    
 NB1 SHIA CUL 0.0  1.0      0.0    0.0     0.0    0.0     
 NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0     
-NB1 SHIA SFT 80.0 0.85     2.0    -5.0    -1.0   10.0    
     }
 
 
@@ -251,7 +251,7 @@ NB1 SHIA SFT 80.0 0.85     2.0    -5.0    -1.0   10.0
     } -cleanup {
         cleanup
     } -result {
-        ids {Invalid satisfaction group, should be one of: SHIA, SUNN}
+        ids {Invalid civilian group, should be one of: SHIA, SUNN}
     }
 
 
@@ -263,7 +263,7 @@ NB1 SHIA SFT 80.0 0.85     2.0    -5.0    -1.0   10.0
     } -cleanup {
         cleanup
     } -result {
-        ids {invalid value "NONESUCH", should be one of: AUT, SFT, CUL, QOL, CAS}
+        ids {invalid value "NONESUCH", should be one of: AUT, SFT, CUL, QOL}
     }
 
 

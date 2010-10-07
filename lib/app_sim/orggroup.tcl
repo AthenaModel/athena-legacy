@@ -77,8 +77,6 @@ snit::type orggroup {
     #    shape            The group's unit shape (eunitshape(n))
     #    orgtype          The group's eorgtype
     #    demeanor         The group's demeanor (edemeanor(n))
-    #    rollup_weight    The group's rollup weight (JRAM)
-    #    effects_factor   The group's indirect effects factor (JRAM)
     #
     # Creates a organization group given the parms, which are presumed to be
     # valid.
@@ -98,13 +96,10 @@ snit::type orggroup {
                        'organization',
                        'ORG');
 
-                INSERT INTO orggroups(g,orgtype,demeanor,rollup_weight,
-                                      effects_factor)
+                INSERT INTO orggroups(g,orgtype,demeanor)
                 VALUES($g,
                        $orgtype,
-                       $demeanor,
-                       $rollup_weight,
-                       $effects_factor);
+                       $demeanor);
             }
 
             # NEXT, notify the app.
@@ -163,8 +158,6 @@ snit::type orggroup {
     #    shape            A new shape, or ""
     #    orgtype          A new orgtype, or ""
     #    demeanor         A new demeanor, or ""
-    #    rollup_weight    A new rollup weight, or ""
-    #    effects_factor   A new effects factor, or ""
     #
     # Updates a orggroup given the parms, which are presumed to be
     # valid.
@@ -189,9 +182,7 @@ snit::type orggroup {
 
                 UPDATE orggroups
                 SET orgtype        = nonempty($orgtype,        orgtype),
-                    demeanor       = nonempty($demeanor,       demeanor),
-                    rollup_weight  = nonempty($rollup_weight,  rollup_weight),
-                    effects_factor = nonempty($effects_factor, effects_factor)
+                    demeanor       = nonempty($demeanor,       demeanor)
                 WHERE g=$g
             } {}
 
@@ -221,8 +212,6 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
     parm shape          enum  "Unit Shape"    -type eunitshape -defval NEUTRAL
     parm orgtype        enum  "Organization Type" -type eorgtype
     parm demeanor       enum  "Demeanor"          -type edemeanor
-    parm rollup_weight  text  "Rollup Weight"     -defval 1.0
-    parm effects_factor text  "Effects Factor"    -defval 1.0
 } {
     # FIRST, prepare and validate the parameters
     prepare g              -toupper   -required -unused -type ident
@@ -231,8 +220,6 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
     prepare shape          -toupper   -required -type eunitshape
     prepare orgtype        -toupper   -required -type eorgtype
     prepare demeanor       -toupper   -required -type edemeanor
-    prepare rollup_weight             -required -type weight
-    prepare effects_factor            -required -type weight
 
     returnOnError
 
@@ -309,8 +296,6 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     parm shape          enum  "Unit Shape"         -type eunitshape
     parm orgtype        enum  "Organization Type"  -type eorgtype
     parm demeanor       enum  "Demeanor"           -type edemeanor
-    parm rollup_weight  text  "Rollup Weight"  
-    parm effects_factor text  "Effects Factor" 
 } {
     # FIRST, prepare the parameters
     prepare g              -toupper  -required -type orggroup
@@ -322,8 +307,6 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     prepare shape          -toupper  -type eunitshape
     prepare orgtype        -toupper  -type eorgtype
     prepare demeanor       -toupper  -type edemeanor
-    prepare rollup_weight            -type weight
-    prepare effects_factor           -type weight
 
     returnOnError -final
 
@@ -347,17 +330,13 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
     parm shape          enum  "Unit Shape"         -type eunitshape
     parm orgtype        enum  "Organization Type"  -type eorgtype
     parm demeanor       enum  "Demeanor"           -type edemeanor
-    parm rollup_weight  text  "Rollup Weight"  
-    parm effects_factor text  "Effects Factor" 
 } {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof orggroup
     prepare color          -tolower            -type   hexcolor
     prepare shape          -toupper            -type   eunitshape
     prepare orgtype        -toupper            -type   eorgtype
-    prepare demeanor       -toupper            -type edemeanor
-    prepare rollup_weight                      -type   weight
-    prepare effects_factor                     -type   weight
+    prepare demeanor       -toupper            -type   edemeanor
 
     returnOnError -final
 

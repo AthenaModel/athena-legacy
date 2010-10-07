@@ -55,7 +55,6 @@ snit::type ::projectlib::scenariodb {
             { c SFT longname "Physical Safety" gtype CIV }
             { c CUL longname "Culture"         gtype CIV }
             { c QOL longname "Quality of Life" gtype CIV }
-            { c CAS longname "Casualties"      gtype ORG }
         }
 
         activity {

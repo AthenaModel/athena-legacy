@@ -1130,7 +1130,7 @@ order define ::mad MAD:SAT:LEVEL {
     parm n         enum  "Neighborhood"        -type     nbhood       \
                                                -tags     nbhood
     parm g         enum  "Group"               -type     civgroup
-    parm c         enum  "Concern"             -type     {ptype civc}
+    parm c         enum  "Concern"             -type     {ptype c}
     parm mad       key   "MAD ID"              -table    gui_mads     \
                                                -key      id           \
                                                -dispcols longid
@@ -1142,7 +1142,7 @@ order define ::mad MAD:SAT:LEVEL {
     # FIRST, prepare the parameters
     prepare n       -toupper -required -type nbhood
     prepare g       -toupper -required -type civgroup
-    prepare c       -toupper -required -type {ptype civc}
+    prepare c       -toupper -required -type {ptype c}
     prepare mad              -required -type mad
     prepare limit   -toupper -required -type qmag -xform [list qmag value]
     prepare days             -required -type rdays
@@ -1171,7 +1171,7 @@ order define ::mad MAD:SAT:SLOPE {
     parm n         enum  "Neighborhood"        -type     nbhood       \
                                                -tags nbhood  
     parm g         enum  "Group"               -type     civgroup
-    parm c         enum  "Concern"             -type     {ptype civc}
+    parm c         enum  "Concern"             -type     {ptype c}
     parm mad       key   "MAD ID"              -table    gui_mads     \
                                                -key      id           \
                                                -dispcols longid
@@ -1182,7 +1182,7 @@ order define ::mad MAD:SAT:SLOPE {
     # FIRST, prepare the parameters
     prepare n       -toupper -required -type nbhood
     prepare g       -toupper -required -type civgroup
-    prepare c       -toupper -required -type {ptype civc}
+    prepare c       -toupper -required -type {ptype c}
     prepare mad              -required -type mad
     prepare slope   -toupper -required -type qmag -xform [list qmag value]
     prepare athresh          -required -type qsat -xform [list qsat value]

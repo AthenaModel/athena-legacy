@@ -128,20 +128,6 @@ snit::type ptype {
         EnumVal "force/org group" [$type fog+all names] $value
     }
 
-    # satg
-    #
-    # Satisfaction groups (CIV/ORG)
-
-    typemethod {satg names} {} {
-        rdb eval {
-            SELECT g FROM groups WHERE gtype IN ('CIV', 'ORG');
-        }
-    }
-
-    typemethod {satg validate} {value} {
-        EnumVal "group" [$type satg names] $value
-    }
-
     # c
     #
     # Concern names, CIV and ORG
@@ -154,33 +140,9 @@ snit::type ptype {
         EnumVal "concern" [$type c names] $value
     }
 
-    # civc
-    #
-    # Concern names, CIV
-
-    typemethod {civc names} {} {
-        rdb eval {SELECT c FROM concerns WHERE gtype='CIV'}
-    }
-
-    typemethod {civc validate} {value} {
-        EnumVal "civilian concern" [$type civc names] $value
-    }
-
-    # orgc
-    #
-    # Concern names, ORG
-
-    typemethod {orgc names} {} {
-        rdb eval {SELECT c FROM concerns WHERE gtype='ORG'}
-    }
-
-    typemethod {orgc validate} {value} {
-        EnumVal "organization concern" [$type orgc names] $value
-    }
-
     # c+mood
     #
-    # Concern names (CIV and ORG), plus "MOOD"
+    # Concern names, plus "MOOD"
 
     typemethod {c+mood names} {} {
         linsert [ptype c names] 0 MOOD
@@ -188,31 +150,6 @@ snit::type ptype {
 
     typemethod {c+mood validate} {value} {
         EnumVal "concern" [$type c+mood names] $value
-    }
-
-    # civc+mood
-    #
-    # Concern names (CIV), plus "MOOD"
-
-    typemethod {civc+mood names} {} {
-        linsert [ptype civc names] 0 MOOD
-    }
-
-    typemethod {civc+mood validate} {value} {
-        EnumVal "civilian concern" [$type civc+mood names] $value
-    }
-
-
-    # orgc+mood
-    #
-    # Concern names (CIV), plus "MOOD"
-
-    typemethod {orgc+mood names} {} {
-        linsert [ptype orgc names] 0 MOOD
-    }
-
-    typemethod {orgc+mood validate} {value} {
-        EnumVal "organization concern" [$type orgc+mood names] $value
     }
 
     # ecause+unique

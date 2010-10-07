@@ -1105,33 +1105,20 @@ order define ::report REPORT:SATISFACTION:CONTRIB {
 
     parm n      enum  "Nbhood"        -type {ptype n}
     parm g      enum  "Group"
-    parm c      enum  "Concern"       -type {ptype civc+mood} -defval "MOOD"
+    parm c      enum  "Concern"       -type {ptype c+mood} -defval "MOOD"
     parm top    text  "Number"        -defval 20
     parm start  text  "Start Time"    -defval "T0"
     parm end    text  "End Time"      -defval "NOW"
 } {
     # FIRST, prepare the parameters
     prepare n      -toupper -required -type {ptype n}
-    prepare g      -toupper -required -type {ptype satg}
+    prepare g      -toupper -required -type civgroup
     prepare c      -toupper -required -type {ptype c+mood}
     prepare top                       -type ipositive
     prepare start  -toupper           -type {simclock past}
     prepare end    -toupper           -type {simclock past}
 
     returnOnError
-
-    # NEXT, verify that g and c are consistent.
-    validate c {
-        if {$parms(c) ne "MOOD"} {
-            set gtype [group gtype $parms(g)]
-
-            if {![rdb exists {
-                SELECT c FROM concerns WHERE c=$parms(c) AND gtype=$gtype
-            }]} {
-                reject c "not a $gtype concern"
-            }
-        }
-    }
 
     # NEXT, validate the start and end times.
 

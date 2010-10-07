@@ -35,8 +35,6 @@ namespace eval ::athena_test::tests:: {
         shape          NEUTRAL
         orgtype        NGO
         demeanor       AVERAGE
-        rollup_weight  1.0
-        effects_factor 1.1
     }
 
     set hal {
@@ -46,8 +44,6 @@ namespace eval ::athena_test::tests:: {
         shape          NEUTRAL
         orgtype        CTR
         demeanor       AVERAGE
-        rollup_weight  1.2
-        effects_factor 1.3
     }
 
 
@@ -70,8 +66,6 @@ namespace eval ::athena_test::tests:: {
         shape {required value}
         orgtype {required value}
         demeanor {required value}
-        rollup_weight {required value}
-        effects_factor {required value}
     }
 
     
@@ -149,42 +143,6 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.9 {invalid rollup_weight 1} -body {
-        ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
-            rollup_weight NONESUCH
-        }]
-    } -result {
-        rollup_weight {invalid value "NONESUCH", expected double}
-    }
-
-
-    test CREATE-1.10 {invalid rollup_weight 2} -body {
-        ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
-            rollup_weight -0.1
-        }]
-    } -result {
-        rollup_weight {invalid value "-0.1", expected double no less than 0.0}
-    }
-
-
-    test CREATE-1.11 {invalid effects_factor 1} -body {
-        ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
-            effects_factor NONESUCH
-        }]
-    } -result {
-        effects_factor {invalid value "NONESUCH", expected double}
-    }
-
-
-    test CREATE-1.12 {invalid effects_factor 2} -body {
-        ted order -reject GROUP:ORGANIZATION:CREATE [dict merge $usaid {
-            effects_factor -0.1
-        }]
-    } -result {
-        effects_factor {invalid value "-0.1", expected double no less than 0.0}
-    }
-
-
     test CREATE-2.1 {orggroup is created} -body {
         ted order GROUP:ORGANIZATION:CREATE $usaid
         ted order GROUP:ORGANIZATION:CREATE $hal
@@ -192,10 +150,10 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g     longname   color   shape   symbol       gtype orgtype demeanor rollup_weight effects_factor 
------ ---------- ------- ------- ------------ ----- ------- -------- ------------- -------------- 
-USAID US Aid     #00ff00 NEUTRAL organization ORG   NGO     AVERAGE  1.0           1.1            
-HAL   Haliburton #ffff00 NEUTRAL organization ORG   CTR     AVERAGE  1.2           1.3            
+g     longname   color   shape   symbol       gtype orgtype demeanor 
+----- ---------- ------- ------- ------------ ----- ------- -------- 
+USAID US Aid     #00ff00 NEUTRAL organization ORG   NGO     AVERAGE  
+HAL   Haliburton #ffff00 NEUTRAL organization ORG   CTR     AVERAGE  
     }
 
 
@@ -348,50 +306,6 @@ HAL   Haliburton #ffff00 NEUTRAL organization ORG   CTR     AVERAGE  1.2        
     }
 
 
-    test UPDATE-1.8 {invalid rollup_weight 1} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        ted order -reject GROUP:ORGANIZATION:UPDATE g USAID rollup_weight NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        rollup_weight {invalid value "NONESUCH", expected double}
-    }
-
-
-    test UPDATE-1.9 {invalid rollup_weight 2} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        ted order -reject GROUP:ORGANIZATION:UPDATE g USAID rollup_weight -0.1
-    } -cleanup {
-        cleanup
-    } -result {
-        rollup_weight {invalid value "-0.1", expected double no less than 0.0}
-    }
-
-
-    test UPDATE-1.10 {invalid effects_factor 1} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        ted order -reject GROUP:ORGANIZATION:UPDATE g USAID effects_factor NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        effects_factor {invalid value "NONESUCH", expected double}
-    }
-
-
-    test UPDATE-1.11 {invalid effects_factor 2} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        ted order -reject GROUP:ORGANIZATION:UPDATE g USAID effects_factor -0.1
-    } -cleanup {
-        cleanup
-    } -result {
-        effects_factor {invalid value "-0.1", expected double no less than 0.0}
-    }
-
-
     test UPDATE-2.1 {orggroup is updated} -setup {
         ted order GROUP:ORGANIZATION:CREATE $usaid
     } -body {
@@ -402,17 +316,15 @@ HAL   Haliburton #ffff00 NEUTRAL organization ORG   CTR     AVERAGE  1.2        
             shape          ENEMY
             orgtype        IGO
             demeanor       AGGRESSIVE
-            rollup_weight  0.1
-            effects_factor 0.2
         }
 
         ted query {SELECT * FROM orggroups_view}
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   shape symbol       gtype orgtype demeanor   rollup_weight effects_factor 
------ --------- ------- ----- ------------ ----- ------- ---------- ------------- -------------- 
-USAID Red Cross #ff0000 ENEMY organization ORG   IGO     AGGRESSIVE 0.1           0.2            
+g     longname  color   shape symbol       gtype orgtype demeanor   
+----- --------- ------- ----- ------------ ----- ------- ---------- 
+USAID Red Cross #ff0000 ENEMY organization ORG   IGO     AGGRESSIVE 
     }
 
 
@@ -514,54 +426,6 @@ USAID Red Cross #ff0000 ENEMY organization ORG   IGO     AGGRESSIVE 0.1         
         cleanup
     } -result {
         demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
-    }
-
-
-    test UPDATE:MULTI-1.8 {invalid rollup_weight 1} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
-            ids USAID rollup_weight NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        rollup_weight {invalid value "NONESUCH", expected double}
-    }
-
-
-    test UPDATE:MULTI-1.9 {invalid rollup_weight 2} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
-            ids USAID rollup_weight -0.1
-    } -cleanup {
-        cleanup
-    } -result {
-        rollup_weight {invalid value "-0.1", expected double no less than 0.0}
-    }
-
-
-    test UPDATE:MULTI-1.10 {invalid effects_factor 1} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
-            ids USAID effects_factor NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        effects_factor {invalid value "NONESUCH", expected double}
-    }
-
-
-    test UPDATE:MULTI-1.11 {invalid effects_factor 2} -setup {
-        ted order GROUP:ORGANIZATION:CREATE $usaid
-    } -body {
-        ted order -reject GROUP:ORGANIZATION:UPDATE:MULTI \
-            ids USAID effects_factor -0.1
-    } -cleanup {
-        cleanup
-    } -result {
-        effects_factor {invalid value "-0.1", expected double no less than 0.0}
     }
 
 

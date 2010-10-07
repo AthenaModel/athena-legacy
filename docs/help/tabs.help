@@ -1206,20 +1206,6 @@ tab "Groups/NbGroups" {
     <<enumdoc ::projectlib::edemeanor>>
     <</topic>>
     
-    <<topic "RollupWeight">> A GRAM input used when computing
-    composite satisfaction across multiple groups.  If a particular
-    group's satisfaction weighs more heavily than others, due to
-    population differences or social position, this weight can be used
-    to make it so.  Defaults to 1.0.
-    <</topic>>
-
-    <<topic "EffectsFactor">> A GRAM input used when computing
-    indirect effects on other groups in other neighborhoods of an
-    event or situation that affected this group.  If this group is
-    particularly important or unimportant to other groups, this multiplier
-    can be used to reflect this.
-    <</topic>>
-
     <</topiclist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's
@@ -1363,20 +1349,6 @@ tab "Groups/OrgGroups" {
     <<enumdoc ::projectlib::edemeanor>>
     <</topic>>
     
-    <<topic "RollupWeight">> A GRAM input used when computing
-    composite satisfaction across multiple groups.  If a particular
-    group's satisfaction weighs more heavily than others, due to
-    population differences or social position, this weight can be used
-    to make it so.  Defaults to 1.0.
-    <</topic>>
-
-    <<topic "EffectsFactor">> A GRAM input used when computing
-    indirect effects on other groups in other neighborhoods of an
-    event or situation that affected this group.  If this group is
-    particularly important or unimportant to other groups, this multiplier
-    can be used to reflect this.
-    <</topic>>
-
     <</topiclist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's
@@ -2054,7 +2026,7 @@ tab "Attitudes" {
 
 tab "Attitudes/Satisfaction" {
     This tab displays the full set of satisfaction curves for all
-    civilian and organization groups in all neighborhoods.    
+    neighborhood groups.
     The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
@@ -2062,13 +2034,11 @@ tab "Attitudes/Satisfaction" {
 
     <<topic Nbhood>>A neighborhood name.<</topic>>
 
-    <<topic Group>>The name of an organization group, or of
-    a civilian group that's resident in
+    <<topic Group>>The name of a civilian group that's resident in
     the neighborhood.<</topic>>
     
     <<topic "Concern">>A concern of the specified group, from
-    the following enumeration.  Note that civilian and organization
-    groups have different subsets of these concerns.<p>
+    the following enumeration.<p>
 
     <<enumdoc ::projectlib::econcern>>
     <</topic>>

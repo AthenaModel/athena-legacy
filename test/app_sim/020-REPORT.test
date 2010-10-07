@@ -319,7 +319,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        g {Invalid group "NONESUCH", should be one of: SHIA, USAID}
+        g {Invalid civilian group, should be one of: SHIA}
     }
 
 
@@ -330,18 +330,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        c {Invalid concern "NONESUCH", should be one of: MOOD, AUT, SFT, CUL, QOL, CAS}
-    }
-
-
-    test SATISFACTION:CONTRIB-1.6 {group/concern mismatch} -setup {
-        setup
-    } -body {
-        ted order -reject REPORT:SATISFACTION:CONTRIB n NB1 g SHIA c CAS
-    } -cleanup {
-        cleanup
-    } -result {
-        c {not a CIV concern}
+        c {Invalid concern "NONESUCH", should be one of: MOOD, AUT, SFT, CUL, QOL}
     }
 
 

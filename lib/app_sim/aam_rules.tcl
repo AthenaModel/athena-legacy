@@ -88,30 +88,6 @@ snit::type aam_rules {
         aam_rules CIVCAS-2 $dict
     }
 
-
-    # orgsat dict
-    #
-    # dict  Dictionary of aggregate event attributes:
-    #
-    #       n            The neighborhood
-    #       f            The ORG group
-    #       casualties   The number of casualties
-    #       driver       The GRAM driver ID
-    #
-    # Calls ORGCAS to assess the satisfaction implications of the event.
-
-    typemethod orgsat {dict} {
-        log normal aamr "event ORGCAS [list $dict]"
-
-        if {![aam_rules isactive ORGCAS]} {
-            log warning aamr "event ORGCAS: ruleset has been deactivated"
-            return
-        }
-
-        aam_rules ORGCAS $dict
-    }
-
-
     #-------------------------------------------------------------------
     # Rule Set: CIVCAS: Civilian Casualties
     #
@@ -195,66 +171,6 @@ snit::type aam_rules {
             dam coop level -- [mag* $mult M-] 2
         }
     }
-
-
-    #-------------------------------------------------------------------
-    # Rule Set: ORGCAS: ORG Personnel Casualties
-    #
-    # Aggregate Event.  This rule set determines the effect of a week's
-    # worth of civilian casualties on a neighborhood group.
-
-    # ORGCAS dict
-    #
-    # dict  Dictionary of input parameters
-    #
-    #       n            The neighborhood
-    #       f            The ORG group
-    #       casualties   The number of casualties
-    #       driver       The GRAM driver ID
-    #
-    # Assesses the satisfaction implications of the casualties
-
-    typemethod ORGCAS {dict} {
-        array set data $dict
-
-        dam ruleset ORGCAS $data(driver)                   \
-            -n        $data(n)                             \
-            -f        $data(f)
-
-        # NEXT, computed the casualty multiplier
-        set zsat [parmdb get dam.ORGCAS.Zsat]
-        set mult [zcurve eval $zsat $data(casualties)]
-
-        # NEXT, add the details
-        detail "Casualties:" $data(casualties)
-        detail "Cas. Mult.:" [format "%.2f" $mult]
-
-        # NEXT, get the organization type
-        set orgtype [rdb onecolumn {
-            SELECT orgtype FROM orggroups 
-            WHERE g=$data(f)
-        }]
-
-
-        dam rule ORGCAS-1-1 {
-            $orgtype eq "NGO"
-        } {
-            dam sat level CAS [mag* $mult XXL-] 2
-        }
-
-        dam rule ORGCAS-1-2 {
-            $orgtype eq "IGO"
-        } {
-            dam sat level CAS [mag* $mult L-] 2
-        }
-
-        dam rule ORGCAS-1-3 {
-            $orgtype eq "CTR"
-        } {
-            dam sat level CAS [mag* $mult M-] 2
-        }
-    }
-
 
     #-------------------------------------------------------------------
     # Utility Procs

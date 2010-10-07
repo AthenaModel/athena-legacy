@@ -101,24 +101,13 @@ snit::type aam {
 
             # TBD: Consider defining a driver -name, using some kind of
             # serial number, e.g., "Evt 1" or "Att 1" or "AAM 1"
-            if {$row(gtype) eq "CIV"} {
-                set row(driver) \
-                    [aram driver add      \
-                         -dtype    CIVCAS \
-                         -oneliner "Casualties to nbhood group $row(n) $row(f)"]
+            set row(driver) \
+                [aram driver add      \
+                     -dtype    CIVCAS \
+                     -oneliner "Casualties to nbhood group $row(n) $row(f)"]
 
-                set driver([list $row(n) $row(f)]) $row(driver)
-                aam_rules civsat [array get row]
-            } elseif {$row(gtype) eq "ORG"} {
-                set row(driver) \
-                    [aram driver add      \
-                         -dtype    ORGCAS \
-                         -oneliner "Casualties to group $row(f) in nbhood $row(n)"]
-
-                aam_rules orgsat [array get row]
-            } else {
-                error "Unexpected group type: \"$row(gtype)\""
-            }
+            set driver([list $row(n) $row(f)]) $row(driver)
+            aam_rules civsat [array get row]
         }
 
         # NEXT, assess the cooperation implications
@@ -722,13 +711,6 @@ snit::type aam {
                 set parms [list id [list $origin $g] delta -$casualties]
 
                 lappend undo [personnel mutate adjust $parms]
-
-                # FIRST, if this is an ORG unit, save the attrition
-                # in the neighborhood of operation for attitude
-                # assessment.
-                if {$gtype eq "ORG"} {
-                    lappend undo [$type SaveOrgAttrition $n $g $casualties] 
-                }
             }
         }
 
@@ -736,31 +718,6 @@ snit::type aam {
     }
 
     
-    # SaveOrgAttrition n f casualties
-    #
-    # n           The neighborhood in which the attrition took place.
-    # f           The ORG group receiving the attrition
-    # casualties  The number of casualties
-    #
-    # Accumulates the attrition for later attitude assessment.
-
-    typemethod SaveOrgAttrition {n f casualties} {
-        # FIRST, prepare to accumulated undo info
-        set undo [list]
-
-        # NEXT, save nf casualties for satisfaction.
-        rdb eval {
-            INSERT INTO attrit_nf(n,f,casualties)
-            VALUES($n,$f,$casualties);
-        }
-
-        set id [rdb last_insert_rowid]
-
-        lappend undo [mytypemethod DeleteAttritNF $id]
-
-        return [join $undo \n]
-    }
-
     # SaveCivAttrition n f casualties g1 g2
     #
     # n           The neighborhood in which the attrition took place.

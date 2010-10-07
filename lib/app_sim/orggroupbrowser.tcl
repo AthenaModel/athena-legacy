@@ -37,8 +37,6 @@ snit::widgetadaptor orggroupbrowser {
         { shape          "Unit Shape"                   }
         { orgtype        "Org Type"                     }
         { demeanor       "Demeanor"                     }
-        { rollup_weight  "RollupWeight"  -sortmode real }
-        { effects_factor "EffectsFactor" -sortmode real }
     }
 
     #-------------------------------------------------------------------

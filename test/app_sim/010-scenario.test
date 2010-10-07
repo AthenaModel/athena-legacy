@@ -67,10 +67,9 @@ namespace eval ::athena_test::tests:: {
         {::nbgroup <Entity> create {NB1 SHIA}}
         {::nbrel <Entity> create {NB1 NB1}}
         {::sat <Entity> create {NB1 SHIA AUT}}
+        {::sat <Entity> create {NB1 SHIA SFT}}
         {::sat <Entity> create {NB1 SHIA CUL}}
         {::sat <Entity> create {NB1 SHIA QOL}}
-        {::sat <Entity> create {NB1 SHIA SFT}}
-        {::sat <Entity> create {NB1 USAID CAS}}
         {::rel <Entity> create {NB1 BLUE SHIA}}
         {::rel <Entity> create {NB1 SHIA BLUE}}
         {::rel <Entity> create {NB1 SHIA SHIA}}
@@ -86,10 +85,9 @@ namespace eval ::athena_test::tests:: {
         {::nbrel <Entity> delete {NB1 NB1}}
         {::nbgroup <Entity> delete {NB1 SHIA}}
         {::sat <Entity> delete {NB1 SHIA AUT}}
+        {::sat <Entity> delete {NB1 SHIA SFT}}
         {::sat <Entity> delete {NB1 SHIA CUL}}
         {::sat <Entity> delete {NB1 SHIA QOL}}
-        {::sat <Entity> delete {NB1 SHIA SFT}}
-        {::sat <Entity> delete {NB1 USAID CAS}}
         {::rel <Entity> delete {NB1 BLUE SHIA}}
         {::rel <Entity> delete {NB1 SHIA BLUE}}
         {::rel <Entity> delete {NB1 SHIA SHIA}}
@@ -128,10 +126,9 @@ namespace eval ::athena_test::tests:: {
         {::nbrel <Entity> create {NB1 NB1}}
         {::nbgroup <Entity> create {NB1 SHIA}}
         {::sat <Entity> create {NB1 SHIA AUT}}
+        {::sat <Entity> create {NB1 SHIA SFT}}
         {::sat <Entity> create {NB1 SHIA CUL}}
         {::sat <Entity> create {NB1 SHIA QOL}}
-        {::sat <Entity> create {NB1 SHIA SFT}}
-        {::sat <Entity> create {NB1 USAID CAS}}
         {::rel <Entity> create {NB1 BLUE SHIA}}
         {::rel <Entity> create {NB1 SHIA BLUE}}
         {::rel <Entity> create {NB1 SHIA SHIA}}

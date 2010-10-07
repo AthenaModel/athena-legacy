@@ -34,8 +34,6 @@ namespace eval ::athena_test::tests:: {
         basepop        1000
         sap            10
         demeanor       AVERAGE
-        rollup_weight  1.0
-        effects_factor 1.1
     }
 
     set nb1sunn {
@@ -44,8 +42,6 @@ namespace eval ::athena_test::tests:: {
         basepop        1000
         sap            0
         demeanor       AGGRESSIVE
-        rollup_weight  1.2
-        effects_factor 1.3
     }
 
 
@@ -67,8 +63,6 @@ namespace eval ::athena_test::tests:: {
         basepop {required value}
         sap {required value}
         demeanor {required value}
-        rollup_weight {required value}
-        effects_factor {required value}
     }
 
     test CREATE-1.2 {n is not a nbhood} -setup {
@@ -144,58 +138,6 @@ namespace eval ::athena_test::tests:: {
         demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
-    test CREATE-1.8 {invalid rollup_weight 1} -setup {
-        ted create NB1 SHIA
-    } -body {
-        ted order -reject GROUP:NBHOOD:CREATE [dict merge $nb1shia {
-            rollup_weight NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        rollup_weight {invalid value "NONESUCH", expected double}
-    }
-
-
-    test CREATE-1.9 {invalid rollup_weight 2} -setup {
-        ted create NB1 SHIA
-    } -body {
-        ted order -reject GROUP:NBHOOD:CREATE [dict merge $nb1shia {
-            rollup_weight -0.1
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        rollup_weight {invalid value "-0.1", expected double no less than 0.0}
-    }
-
-
-    test CREATE-1.10 {invalid effects_factor 1} -setup {
-        ted create NB1 SHIA
-    } -body {
-        ted order -reject GROUP:NBHOOD:CREATE [dict merge $nb1shia {
-            effects_factor NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        effects_factor {invalid value "NONESUCH", expected double}
-    }
-
-
-    test CREATE-1.11 {invalid effects_factor 2} -setup {
-        ted create NB1 SHIA
-    } -body {
-        ted order -reject GROUP:NBHOOD:CREATE [dict merge $nb1shia {
-            effects_factor -0.1
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        effects_factor {invalid value "-0.1", expected double no less than 0.0}
-    }
-
-
     test CREATE-1.12 {invalid sap 1} -setup {
         ted create NB1 SHIA
     } -body {
@@ -230,10 +172,10 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape   symbol   gtype n   local_name basepop demeanor   rollup_weight effects_factor sap 
----- -------- ------- ------- -------- ----- --- ---------- ------- ---------- ------------- -------------- --- 
-SHIA Shia     #c00001 NEUTRAL civilian CIV   NB1 NB1 Shias  1000    AVERAGE    1.0           1.1            10  
-SUNN Sunni    #c00002 NEUTRAL civilian CIV   NB1 NB1 Sunnis 1000    AGGRESSIVE 1.2           1.3            0   
+g    longname color   shape   symbol   gtype n   local_name basepop demeanor   sap 
+---- -------- ------- ------- -------- ----- --- ---------- ------- ---------- --- 
+SHIA Shia     #c00001 NEUTRAL civilian CIV   NB1 NB1 Shias  1000    AVERAGE    10  
+SUNN Sunni    #c00002 NEUTRAL civilian CIV   NB1 NB1 Sunnis 1000    AGGRESSIVE 0   
     }
 
 
@@ -414,55 +356,6 @@ NB1 SHIA Shia
     }
 
 
-    test UPDATE-1.7 {invalid rollup_weight 1} -setup {
-        ted create NB1 SHIA
-        ted order GROUP:NBHOOD:CREATE $nb1shia
-    } -body {
-        ted order -reject GROUP:NBHOOD:UPDATE \
-            id {NB1 SHIA} rollup_weight NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        rollup_weight {invalid value "NONESUCH", expected double}
-    }
-
-
-    test UPDATE-1.8 {invalid rollup_weight 2} -setup {
-        ted create NB1 SHIA
-        ted order GROUP:NBHOOD:CREATE $nb1shia
-    } -body {
-        ted order -reject GROUP:NBHOOD:UPDATE id {NB1 SHIA} rollup_weight -0.1
-    } -cleanup {
-        cleanup
-    } -result {
-        rollup_weight {invalid value "-0.1", expected double no less than 0.0}
-    }
-
-
-    test UPDATE-1.9 {invalid effects_factor 1} -setup {
-        ted create NB1 SHIA
-        ted order GROUP:NBHOOD:CREATE $nb1shia
-    } -body {
-        ted order -reject GROUP:NBHOOD:UPDATE id {NB1 SHIA} effects_factor NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        effects_factor {invalid value "NONESUCH", expected double}
-    }
-
-
-    test UPDATE-1.10 {invalid effects_factor 2} -setup {
-        ted create NB1 SHIA
-        ted order GROUP:NBHOOD:CREATE $nb1shia
-    } -body {
-        ted order -reject GROUP:NBHOOD:UPDATE id {NB1 SHIA} effects_factor -0.1
-    } -cleanup {
-        cleanup
-    } -result {
-        effects_factor {invalid value "-0.1", expected double no less than 0.0}
-    }
-
-
     test UPDATE-1.11 {invalid sap 1} -setup {
         ted create NB1 SHIA
         ted order GROUP:NBHOOD:CREATE $nb1shia
@@ -497,17 +390,15 @@ NB1 SHIA Shia
             basepop        2000
             sap            20
             demeanor       APATHETIC
-            rollup_weight  0.1
-            effects_factor 0.2
         }
 
         ted query {SELECT * FROM nbgroups}
     } -cleanup {
         cleanup
     } -result {
-n   g    local_name basepop demeanor  rollup_weight effects_factor sap 
---- ---- ---------- ------- --------- ------------- -------------- --- 
-NB1 SHIA John Doe   2000    APATHETIC 0.1           0.2            20  
+n   g    local_name basepop demeanor  sap 
+--- ---- ---------- ------- --------- --- 
+NB1 SHIA John Doe   2000    APATHETIC 20  
     }
 
 
@@ -534,8 +425,6 @@ NB1 SHIA John Doe   2000    APATHETIC 0.1           0.2            20
             basepop        2000
             sap            20
             demeanor       APATHETIC
-            rollup_weight  0.1
-            effects_factor 0.2
         }
     } -body {
         ted notifier bind ::nbgroup <Entity>
@@ -615,9 +504,9 @@ NB1 SHIA John Doe   2000    APATHETIC 0.1           0.2            20
     } -cleanup {
         cleanup
     } -result {
-n   g    local_name basepop demeanor rollup_weight effects_factor sap 
---- ---- ---------- ------- -------- ------------- -------------- --- 
-NB1 SHIA NB1 Shias  1000    AVERAGE  1.0           1.1            20  
+n   g    local_name basepop demeanor sap 
+--- ---- ---------- ------- -------- --- 
+NB1 SHIA NB1 Shias  1000    AVERAGE  20  
     }
 
 
@@ -735,58 +624,6 @@ NB1 SHIA NB1 Shias  1000    AVERAGE  1.0           1.1            20
     }
 
 
-    test UPDATE:MULTI-1.8 {invalid rollup_weight 1} -setup {
-        ted create NB1 SHIA
-        ted order GROUP:NBHOOD:CREATE $nb1shia
-    } -body {
-        ted order -reject GROUP:NBHOOD:UPDATE:MULTI \
-            ids {{NB1 SHIA}} rollup_weight NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        rollup_weight {invalid value "NONESUCH", expected double}
-    }
-
-
-    test UPDATE:MULTI-1.9 {invalid rollup_weight 2} -setup {
-        ted create NB1 SHIA
-        ted order GROUP:NBHOOD:CREATE $nb1shia
-    } -body {
-        ted order -reject GROUP:NBHOOD:UPDATE:MULTI \
-            ids {{NB1 SHIA}} rollup_weight -0.1
-    } -cleanup {
-        cleanup
-    } -result {
-        rollup_weight {invalid value "-0.1", expected double no less than 0.0}
-    }
-
-
-    test UPDATE:MULTI-1.10 {invalid effects_factor 1} -setup {
-        ted create NB1 SHIA
-        ted order GROUP:NBHOOD:CREATE $nb1shia
-    } -body {
-        ted order -reject GROUP:NBHOOD:UPDATE:MULTI \
-            ids {{NB1 SHIA}} effects_factor NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        effects_factor {invalid value "NONESUCH", expected double}
-    }
-
-
-    test UPDATE:MULTI-1.11 {invalid effects_factor 2} -setup {
-        ted create NB1 SHIA
-        ted order GROUP:NBHOOD:CREATE $nb1shia
-    } -body {
-        ted order -reject GROUP:NBHOOD:UPDATE:MULTI \
-            ids {{NB1 SHIA}} effects_factor -0.1
-    } -cleanup {
-        cleanup
-    } -result {
-        effects_factor {invalid value "-0.1", expected double no less than 0.0}
-    }
-
-
     test UPDATE:MULTI-1.12 {invalid sap 1} -setup {
         ted create NB1 SHIA
         ted order GROUP:NBHOOD:CREATE $nb1shia
@@ -826,8 +663,6 @@ NB1 SHIA NB1 Shias  1000    AVERAGE  1.0           1.1            20
             basepop        2000
             sap            20
             demeanor       APATHETIC
-            rollup_weight  0.1
-            effects_factor 0.2
         }
 
         ted notifier received
@@ -851,8 +686,6 @@ NB1 SHIA NB1 Shias  1000    AVERAGE  1.0           1.1            20
             basepop        2000
             sap            20
             demeanor       APATHETIC
-            rollup_weight  0.1
-            effects_factor 0.2
         }
 
         ted notifier received

@@ -100,7 +100,7 @@ namespace eval ::athena_test::tests:: {
     proc advance {} {
         variable m1
 
-        ted create NB1 NB2 BLUE USAID SHIA SUNN NB1SHIA NB2SUNN
+        ted create NB1 NB2 BLUE SHIA SUNN NB1SHIA NB2SUNN
         scenario mutate reconcile
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
@@ -174,7 +174,7 @@ namespace eval ::athena_test::tests:: {
 
 
     test CREATE-2.1 {MAD is created} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted create NB1 BLUE SHIA NB1SHIA
     } -body {
         ted order MAD:CREATE $m1
         ted order MAD:CREATE $m2
@@ -373,7 +373,7 @@ id oneliner      cause s   p   q   driver
 
 
     test UPDATE-3.1 {undo undoes the change} -setup {
-        ted create BLUE USAID
+        ted create BLUE
         ted order MAD:CREATE $m1
         ted order MAD:UPDATE id 1 oneliner "MAD the FIRST"
     } -body {
@@ -635,7 +635,7 @@ id oneliner      cause s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-        c {Invalid civilian concern "NONESUCH", should be one of: AUT, SFT, CUL, QOL}
+        c {Invalid concern "NONESUCH", should be one of: AUT, SFT, CUL, QOL}
     }
 
 
@@ -697,18 +697,6 @@ id oneliner      cause s   p   q   driver
         dthresh {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
     }
 
-    test SAT:LEVEL-1.10 {group type mismatch} -setup {
-        advance
-    } -body {
-        ted schedule -reject +1 MAD:SAT:LEVEL \
-            [dict merge $satlevel {c CAS}]
-    } -cleanup {
-        cleanup
-    } -result {
-        c {Invalid civilian concern "CAS", should be one of: AUT, SFT, CUL, QOL}
-    }
-
-
     test SAT:LEVEL-2.1 {Order is accepted} -setup {
         advance
     } -body {
@@ -767,7 +755,7 @@ id oneliner      cause s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-        c {Invalid civilian concern "NONESUCH", should be one of: AUT, SFT, CUL, QOL}
+        c {Invalid concern "NONESUCH", should be one of: AUT, SFT, CUL, QOL}
     }
 
 
@@ -816,18 +804,6 @@ id oneliner      cause s   p   q   driver
     } -result {
         dthresh {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
     }
-
-    test SAT:SLOPE-1.9 {group type mismatch} -setup {
-        advance
-    } -body {
-        ted schedule -reject +1 MAD:SAT:SLOPE \
-            [dict merge $satslope {c CAS}]
-    } -cleanup {
-        cleanup
-    } -result {
-        c {Invalid civilian concern "CAS", should be one of: AUT, SFT, CUL, QOL}
-    }
-
 
     test SAT:SLOPE-2.1 {Order is accepted} -setup {
         advance

@@ -43,9 +43,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   symbol       gtype orgtype demeanor rollup_weight effects_factor 
------ -------- ------- ------- ------------ ----- ------- -------- ------------- -------------- 
-USAID US Aid   #000001 NEUTRAL organization ORG   NGO     AVERAGE  1.0           1.1            
+g     longname color   shape   symbol       gtype orgtype demeanor 
+----- -------- ------- ------- ------------ ----- ------- -------- 
+USAID US Aid   #000001 NEUTRAL organization ORG   NGO     AVERAGE  
     }
 
 
@@ -120,9 +120,9 @@ USAID US Aid   #000001 NEUTRAL organization ORG   NGO     AVERAGE  1.0          
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   symbol       gtype orgtype demeanor rollup_weight effects_factor 
------ -------- ------- ------- ------------ ----- ------- -------- ------------- -------------- 
-USAID US Aid   #000001 NEUTRAL organization ORG   NGO     AVERAGE  1.0           1.1            
+g     longname color   shape   symbol       gtype orgtype demeanor 
+----- -------- ------- ------- ------------ ----- ------- -------- 
+USAID US Aid   #000001 NEUTRAL organization ORG   NGO     AVERAGE  
     }
 
 
@@ -153,17 +153,15 @@ USAID US Aid   #000001 NEUTRAL organization ORG   NGO     AVERAGE  1.0          
             shape          FRIEND
             orgtype        IGO
             demeanor       APATHETIC
-            rollup_weight  0.1
-            effects_factor 0.2
         }
 
         ted query {SELECT * FROM orggroups_view}
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   shape  symbol       gtype orgtype demeanor  rollup_weight effects_factor 
------ --------- ------- ------ ------------ ----- ------- --------- ------------- -------------- 
-USAID Red Cross #ff0000 FRIEND organization ORG   IGO     APATHETIC 0.1           0.2            
+g     longname  color   shape  symbol       gtype orgtype demeanor  
+----- --------- ------- ------ ------------ ----- ------- --------- 
+USAID Red Cross #ff0000 FRIEND organization ORG   IGO     APATHETIC 
     }
 
 
@@ -194,8 +192,6 @@ USAID Red Cross #ff0000 FRIEND organization ORG   IGO     APATHETIC 0.1         
             shape          ""
             orgtype        ""
             demeanor       ""
-            rollup_weight  ""
-            effects_factor ""
         }
 
         set b [ted query {SELECT * FROM orggroups_view}]
@@ -217,8 +213,6 @@ USAID Red Cross #ff0000 FRIEND organization ORG   IGO     APATHETIC 0.1         
             shape          ""
             orgtype        ""
             demeanor       ""
-            rollup_weight  ""
-            effects_factor ""
         }
         ted notifier received
     } -cleanup {
@@ -241,8 +235,6 @@ USAID Red Cross #ff0000 FRIEND organization ORG   IGO     APATHETIC 0.1         
             shape          FRIEND
             orgtype        IGO
             demeanor       AGGRESSIVE
-            rollup_weight  0.1
-            effects_factor 0.2
         }]
 
         {*}$undo
@@ -264,8 +256,6 @@ USAID Red Cross #ff0000 FRIEND organization ORG   IGO     APATHETIC 0.1         
             shape          ""
             orgtype        ""
             demeanor       ""
-            rollup_weight  ""
-            effects_factor ""
         }]
 
         ted notifier bind ::orggroup <Entity>

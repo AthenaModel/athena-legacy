@@ -991,20 +991,12 @@ snit::type view {
 
     # Proc: gc
     #
-    # Validates {g c} where is g is a sat group and c is an appropriate
+    # Validates {g c} where is g is a CIV group and c is a
     # concern.
     
     proc gc {domain vartype g c} {
-        ValidateIndex $domain $vartype g $g {ptype satg validate $g}
-        ValidateIndex $domain $vartype c $c {
-            set gtype [group gtype $g]
-
-            switch -exact -- $gtype {
-                CIV     { ptype civc validate $c }
-                ORG     { ptype orgc validate $c }
-                default { error "Unexpected gtype: \"$gtype\""   }
-            }
-        }
+        ValidateIndex $domain $vartype g $g {civgroup validate $g}
+        ValidateIndex $domain $vartype c $c {ptype c validate $c}
     }
 
     # Proc: g
@@ -1020,7 +1012,7 @@ snit::type view {
     # Validates {g} as a satisfaction group
     
     proc g_sat {domain vartype g} {
-        ValidateIndex $domain $vartype g $g {ptype satg validate $g}
+        ValidateIndex $domain $vartype g $g {civgroup validate $g}
     }
 
     # Proc: g_frc
@@ -1092,20 +1084,8 @@ snit::type view {
         set gtype [group gtype $g]
 
         ValidateIndex $domain $vartype n $n {nbhood validate $n}
-        ValidateIndex $domain $vartype g $g {
-            if {$gtype eq "CIV"} {
-                nbgroup validate [list $n $g]
-            } else {
-                ptype satg validate $g
-            }
-        }
-        ValidateIndex $domain $vartype c $c {
-            switch -exact -- $gtype {
-                CIV     { ptype civc validate $c }
-                ORG     { ptype orgc validate $c }
-                default { error "Unexpected gtype: \"$gtype\""   }
-            }
-        }
+        ValidateIndex $domain $vartype g $g {nbgroup validate [list $n $g]}
+        ValidateIndex $domain $vartype c $c {ptype c validate $c}
     }
 
     # Proc: ng_sat
@@ -1114,15 +1094,7 @@ snit::type view {
     
     proc ng_sat {domain vartype n g} {
         ValidateIndex $domain $vartype n $n {nbhood validate $n}
-        ValidateIndex $domain $vartype g $g {
-            set gtype [group gtype $g]
-
-            if {$gtype eq "CIV"} {
-                nbgroup validate [list $n $g]
-            } else {
-                ptype satg validate $g
-            }
-        }
+        ValidateIndex $domain $vartype g $g {nbgroup validate [list $n $g]}
     }
 
     #-------------------------------------------------------------------

@@ -273,47 +273,7 @@ page release "Release Notes" home {
     model-related changes for Athena V<<version>>.  This page gives an
     overview of the changes.<p>
 
-    <b>Ground Model:</b> Personnel and population are represented
-    differently than in Athena V1.1.  Previously, force and
-    organization group personnel were represented only by units, and
-    most of the civilian population was implicit.  In this version:<p>
-
-    <ul>
-    <li> Force and organization group personnel are now explicitly
-    stationed in particular neighborhoods.  These force levels can be
-    modified over time.<p>
-
-    <li> Activities are controlled by an activity schedule.  Each
-    "morning", the activities for the day are staffed from the
-    available personnel.  Staffed activities are represented as units,
-    and any residual personnel are represented by a "base" unit.  This
-    applies to civilians as well.<p>
-
-    <li> Thus, there is no longer as strong a distinction between 
-    personnel and population as there was in 
-    Athena V1.1.  
-    </ul><p>
-
-    <b>Economics Model:</b> There is a new Economics model.  See the 
-    <i>Athena Analyst's Guide</i> for details.<p>
-
-    <b>Demographics Model:</b> The bookkeeping done by the
-    Demographics model has changed to accommodate the needs of the
-    other models.  In particular:<p>
-
-    <ul>
-    <li> The neighborhood population is now broken down according to
-    the needs of the Economics model.  Each neighborhood group is
-    broken into the <<term sapop>> and
-    the <<term "consumer">> population.  The consumers are further
-    broken down into workers and non-workers.<p>
-
-    <li> The Demographics model can create <b>UNEMP</b> situations in
-    response to high unemployment rates.
-    </ul><p>
-
-    <b>Attitudes Model:</b> The Driver Assessment Model rule sets have
-    been revised to be consistent with the latest JNEM rule set changes.<p>
+    TBD.<p>
 }
 
 

@@ -1395,12 +1395,6 @@ snit::type actsit_rules {
                 incr stops +1
             }
 
-            # -1 stops if g's CAS=D.
-            if {[orgsat $n $g CAS] eq "D"} {
-                incr stops -1
-                detail "Mood:" "$g is dissatisfied with its CAS concern"
-            }
-
             dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGCONST situation
@@ -1465,12 +1459,6 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
-            }
-
-            # -1 stops if g's CAS=D.
-            if {[orgsat $n $g CAS] eq "D"} {
-                incr stops -1
-                detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
             dam guard [format "%.2f %d" $cov $stops]
@@ -1539,12 +1527,6 @@ snit::type actsit_rules {
                 incr stops +1
             }
 
-            # -1 stops if g's CAS=D.
-            if {[orgsat $n $g CAS] eq "D"} {
-                incr stops -1
-                detail "Mood:" "$g is dissatisfied with its CAS concern"
-            }
-            
             dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGEMP situation
@@ -1609,12 +1591,6 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
-            }
-
-            # -1 stops if g's CAS=D.
-            if {[orgsat $n $g CAS] eq "D"} {
-                incr stops -1
-                detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
             dam guard [format "%.2f %d" $cov $stops]
@@ -1683,12 +1659,6 @@ snit::type actsit_rules {
                 incr stops +1
             }
 
-            # -1 stops if g's CAS=D.
-            if {[orgsat $n $g CAS] eq "D"} {
-                incr stops -1
-                detail "Mood:" "$g is dissatisfied with its CAS concern"
-            }
-
             dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGINF situation
@@ -1755,12 +1725,6 @@ snit::type actsit_rules {
                 incr stops +1
             }
 
-            # -1 stops if g's CAS=D.
-            if {[orgsat $n $g CAS] eq "D"} {
-                incr stops -1
-                detail "Mood:" "$g is dissatisfied with its CAS concern"
-            }
-
             dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGMED situation
@@ -1825,12 +1789,6 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
-            }
-
-            # -1 stops if g's CAS=D.
-            if {[orgsat $n $g CAS] eq "D"} {
-                incr stops -1
-                detail "Mood:" "$g is dissatisfied with its CAS concern"
             }
 
             dam guard [format "%.2f %d" $cov $stops]
@@ -1960,32 +1918,6 @@ snit::type actsit_rules {
         expr {$stops * [qmag value $mag]}
     }
 
-    # orgsat n g c
-    #
-    # n    A nbhood name or "*"
-    # g    A group name
-    # c    A concern name
-    #
-    # Returns the ORG group's current satisfaction with the concern as a
-    # qsat symbol.  If n is "*", the toplevel satisfaction is used.
-
-    proc orgsat {n g c} {
-        set sat ""
-
-        if {$n eq "*"} {
-            set sat [rdb eval {
-                SELECT sat FROM gram_gc 
-                WHERE g=$g AND c=$c
-            }]
-        } else {
-            set sat [rdb eval {
-                SELECT sat FROM gram_sat 
-                WHERE n=$n AND g=$g AND c=$c
-            }]
-        }
-
-        return [qsat name $sat]
-    }
 }
 
 

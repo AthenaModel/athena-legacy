@@ -700,13 +700,6 @@ snit::type ::projectlib::parmdb {
             casualties.
         }
 
-        $ps define dam.ORGCAS.Zsat ::marsutil::zcurve {0.3 1.0 100.0 2.0} {
-            Z-curve used to compute the casualty multiplier used in
-            the ORGCAS rule set from the number of organization
-            casualties.
-        }
-
-
         # Rule Set: BADFOOD
         $ps setdefault dam.BADFOOD.cause          HUNGER
         $ps setdefault dam.BADFOOD.nearFactor     0.0
@@ -879,11 +872,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.ORDNANCE.cause         ORDNANCE
         $ps setdefault dam.ORDNANCE.nearFactor    0.0
         $ps setdefault dam.ORDNANCE.farFactor     0.0
-
-        # Rule Set: ORGCAS
-        $ps setdefault dam.ORGCAS.cause           ORGCAS
-        $ps setdefault dam.ORGCAS.nearFactor      0.25
-        $ps setdefault dam.ORGCAS.farFactor       0.1
 
         # Rule Set: ORGCONST
         $ps setdefault dam.ORGCONST.cause         ORGCONST

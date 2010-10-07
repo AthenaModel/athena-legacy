@@ -163,11 +163,8 @@ snit::type sim {
         }]
 
         $gram load nbgroups {*}[rdb eval {
-            SELECT n, g, basepop, rollup_weight, effects_factor
+            SELECT n, g, basepop, 1.0, 1.0
             FROM nbgroups
-            UNION
-            SELECT n, g, 0, rollup_weight, effects_factor
-            FROM nbhoods JOIN orggroups
         }]
 
         $gram load sat {*}[rdb eval {

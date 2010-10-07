@@ -217,7 +217,7 @@ term civgroup "civilian group" {
 
 term concern "concern" {
     Athena tracks the <<term satisfaction>> of 
-    <<term nbgroup>>s and <<term orggroup>>s with respect to a number
+    <<term nbgroup>>s with respect to a number
     of <i>concerns</i>, also known as <i>soft factors</i>.<p>
 
     Civilians have the following four concerns; note that the
@@ -253,19 +253,6 @@ term concern "concern" {
     <</topic>>
 
     <</topiclist>><p>
-
-    Organizations have the following concern:<p>
-
-    <<topiclist>>
-
-    <<topic "Casualties (CAS)">>
-    How dangerous the organization group views its environment to be
-    in relationship to its members' willingness to risk (or continue
-    risking) their lives to do their work.  If CAS is sufficiently
-    low, members of the group might refuse to work.
-    <</topic>>
-
-    <</topiclist>>
 }
 
 #-----------------------------------------------------------------------
@@ -338,11 +325,10 @@ term demsit "demographic situation" {
 term driver "driver" {
     <b>1.</b> Any event or situation occuring in the
     <<term playbox>> that causes a change in the <<term attitude>>s
-    of members of one or more <<term nbgroup>> or 
-    <<term orggroup>>.<p>
+    of members of one or more <<term nbgroup>>s.<p>
 
     Examples of drivers include casualties to 
-    <<term civgroup>>s and <<term orggroup>>s, the presence
+    <<term civgroup>>s, the presence
     and activities of <<term frcgroup>> in <<term nbhood>>s, 
     <<term ensit>>s, <<term demsit>>s, and <<term mad>>s.<p>
 
@@ -575,7 +561,7 @@ term mapref "map reference string" {
 #-----------------------------------------------------------------------
 
 term mood "mood" {
-    <b>1.</b> A <<term nbgroup>> or <<term orggroup>>'s 
+    <b>1.</b> A <<term nbgroup>>'s
     <<term satisfaction>> averaged across its 
     <<term concern>>s, and taking <<term saliency>> into account.  In
     other words, how satisfied or dissatisfied the group is with

@@ -299,10 +299,6 @@ snit::type ::projectlib::typewrapper {
     ORDNANCE-3-1  "Unexploded ordnance is removed by outsiders"
     ORDNANCE-3-2  "Unexploded ordnance is removed by locals"
 
-    ORGCAS-1-1    "NGO personnel killed"
-    ORGCAS-1-2    "IGO personnel killed"
-    ORGCAS-1-3    "CTR personnel killed"
-
     ORGCONST-1-1  "ORG units are doing construction work"
     ORGCONST-2-1  "ORG units no longer doing construction work"
 
@@ -489,25 +485,13 @@ snit::type ::projectlib::typewrapper {
 
 
 
-# Civilian Concerns
-::marsutil::enum ::projectlib::ecivconcern {
+# Concerns
+::marsutil::enum ::projectlib::econcern {
     AUT "Autonomy"
     SFT "Physical Safety"
     CUL "Culture"
     QOL "Quality of Life"
 }
-
-
-# Organization Concerns
-::marsutil::enum ::projectlib::eorgconcern {
-    CAS "Casualties"
-}
-
-
-# All Concerns
-::marsutil::enum ::projectlib::econcern \
-    [concat [::projectlib::ecivconcern deflist] [::projectlib::eorgconcern deflist]]
-
 
 # Civilian Group Demeanor
 ::marsutil::enum ::projectlib::edemeanor {

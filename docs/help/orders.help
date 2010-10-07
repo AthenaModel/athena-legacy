@@ -943,22 +943,6 @@ macro GROUP.demeanor {} {
     [enumdoc ::projectlib::edemeanor]
 }
 
-macro GROUP.rollup_weight {} {
-    |<--
-    The weight given to this group when rolling up satisfaction levels
-    across groups to get neighborhood moods or playbox satisfaction
-    levels.  It must be a non-negative real value, nominally 1.0.
-    Reasonable values range from 0.5 to 2.0.
-}
-
-macro GROUP.effects_factor {} {
-    |<--
-    A factor used to scale the indirect effects on other
-    groups of satisfaction effects on this group.
-    across groups to get neighborhood moods or playbox satisfaction
-    levels.  It must be a non-negative real value, nominally 1.0.
-    Reasonable values range from 0.5 to 2.0.
-}
 
 #=======================================================================
 # Civilian Group Orders
@@ -1138,14 +1122,6 @@ order GROUP:NBHOOD:CREATE "Create Nbhood Group" {
     <b>Required.</b> <<GROUP.demeanor>>
     <</parm>>
 
-    <<parm rollup_weight "Rollup Weight">>
-    <b>Required.</b> <<GROUP.rollup_weight>>
-    <</parm>>
-
-    <<parm effects_factor "Effects Factor">>
-    <b>Required.</b> <<GROUP.effects_factor>>
-    <</parm>>
-
     <</parmlist>>
 
     <b><<cref using.prep>> Only.</b>  This order creates a
@@ -1198,14 +1174,6 @@ order GROUP:NBHOOD:UPDATE "Update Nbhood Group" {
 
     <<parm demeanor "Demeanor">>
     <b>Optional.</b> <<GROUP.demeanor>>
-    <</parm>>
-
-    <<parm rollup_weight "Rollup Weight">>
-    <b>Optional.</b> <<GROUP.rollup_weight>>
-    <</parm>>
-
-    <<parm effects_factor "Effects Factor">>
-    <b>Optional.</b> <<GROUP.effects_factor>>
     <</parm>>
 
     <</parmlist>>
@@ -1268,14 +1236,6 @@ order GROUP:NBHOOD:UPDATE+MULTI "Update Multiple Nbhood Groups" {
 
     <<parm demeanor "Demeanor">>
     <b>Optional.</b> <<GROUP.demeanor>>
-    <</parm>>
-
-    <<parm rollup_weight "Rollup Weight">>
-    <b>Optional.</b> <<GROUP.rollup_weight>>
-    <</parm>>
-
-    <<parm effects_factor "Effects Factor">>
-    <b>Optional.</b> <<GROUP.effects_factor>>
     <</parm>>
 
     <</parmlist>>
@@ -1565,14 +1525,6 @@ order GROUP:ORGANIZATION:CREATE "Create Organization Group" {
     <b>Required.</b> <<GROUP.demeanor>>
     <</parm>>
 
-    <<parm rollup_weight "Rollup Weight">>
-    <b>Required.</b> <<GROUP.rollup_weight>>
-    <</parm>>
-
-    <<parm effects_factor "Effects Factor">>
-    <b>Required.</b> <<GROUP.effects_factor>>
-    <</parm>>
-
     <</parmlist>>
 
     <b><<cref using.prep>> Only.</b>  This order creates a
@@ -1623,14 +1575,6 @@ order GROUP:ORGANIZATION:UPDATE "Update Organization Group" {
     <b>Optional.</b> <<GROUP.demeanor>>
     <</parm>>
 
-    <<parm rollup_weight "Rollup Weight">>
-    <b>Optional.</b> <<GROUP.rollup_weight>>
-    <</parm>>
-
-    <<parm effects_factor "Effects Factor">>
-    <b>Optional.</b> <<GROUP.effects_factor>>
-    <</parm>>
-
     <</parmlist>>
 
     <b><<cref using.prep>> Only.</b>  This order modifies the
@@ -1659,14 +1603,6 @@ order GROUP:ORGANIZATION:UPDATE+MULTI "Update Multiple Organization Groups" {
 
     <<parm demeanor "Demeanor">>
     <b>Optional.</b> <<GROUP.demeanor>>
-    <</parm>>
-
-    <<parm rollup_weight "Rollup Weight">>
-    <b>Optional.</b> <<GROUP.rollup_weight>>
-    <</parm>>
-
-    <<parm effects_factor "Effects Factor">>
-    <b>Optional.</b> <<GROUP.effects_factor>>
     <</parm>>
 
     <</parmlist>>

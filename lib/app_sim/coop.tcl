@@ -139,8 +139,7 @@ snit::type coop {
         } row {
             unset -nocomplain row(*)
 
-            set id [list $row(n) $row(f          \
-                                     -labels   {"" "Of" "With"}) $row(g)]
+            set id [list $row(n) $row(f) $row(g)]
 
             if {[dict exists $valid $id]} {
                 dict incr valid $id
