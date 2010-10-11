@@ -11,6 +11,17 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.1, 11 October 2010</h3>
+
+This build contains a major overhaul of Athena's order dialog
+infrastructure.  The packages are as follows:<p>
+
+
+<ul>
+  <li> Bug 2611: Order Dialog Overhaul
+  <li> Bug 2614: athena_sim(1): Prepare for GRAM changes 
+</ul><p>
+
 <h3>Build 3.0.0, 29 September 2010 -- Baseline Build</h3>
 
 This build is the 3.0.0 baseline build; it is identical to
