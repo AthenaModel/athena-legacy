@@ -62,19 +62,10 @@ attitude change.<p>
 <<::projectlib::ecause html>>
 
 
-<<defitem ecivconcern {ecivconcern <i>subcommand</i> ?<i>args</i>?}>>
-
-An <<xref mars:enum(n)>> type, representing the concerns of civilian
-groups.<p>
-
-<<::projectlib::ecivconcern html>>
-
-
 <<defitem econcern {econcern <i>subcommand</i> ?<i>args</i>?}>>
 
-An <<xref mars:enum(n)>> type, representing the concerns of all kinds
-of groups for which satisfaction is tracked.  It is simply the
-concatenation of <<iref ecivconcern>> and <<iref eorgconcern>>.<p>
+An <<xref mars:enum(n)>> type, representing the concerns
+of groups for which satisfaction is tracked.<p>
 
 <<::projectlib::econcern html>>
 
@@ -114,14 +105,6 @@ demeanor.<p>
 An <<xref mars:enum(n)>> type, representing force group types.<p>
 
 <<::projectlib::eforcetype html>>
-
-
-<<defitem eorgconcern {eorgconcern <i>subcommand</i> ?<i>args</i>?}>>
-
-An <<xref mars:enum(n)>> type, representing the concerns of organization
-groups.<p>
-
-<<::projectlib::eorgconcern html>>
 
 
 <<defitem eorgtype {eorgtype <i>subcommand</i> ?<i>args</i>?}>>
