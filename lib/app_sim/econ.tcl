@@ -494,7 +494,7 @@ snit::type econ {
 # Updates existing neighborhood economic inputs
 
 
-order define ::econ ECON:UPDATE {
+order define ECON:UPDATE {
     title "Update Neighborhood Economic Inputs"
     options -sendstates {PREP PAUSED} \
         -refreshcmd {orderdialog refreshForKey n *}
@@ -520,7 +520,7 @@ order define ::econ ECON:UPDATE {
     returnOnError -final
 
     # NEXT, modify the record
-    setundo [$type mutate update [array get parms]]
+    setundo [econ mutate update [array get parms]]
 }
 
 # ECON:UPDATE:MULTI
@@ -528,7 +528,7 @@ order define ::econ ECON:UPDATE {
 # Updates economic inputs for multiple existing neighborhoods
 
 
-order define ::econ ECON:UPDATE:MULTI {
+order define ECON:UPDATE:MULTI {
     title "Update Economic Inputs for Multiple Neighborhoods"
     options -sendstates {PREP PAUSED}  \
         -refreshcmd {orderdialog refreshForMulti ids *}
@@ -557,7 +557,7 @@ order define ::econ ECON:UPDATE:MULTI {
     set undo [list]
 
     foreach parms(n) $parms(ids) {
-        lappend undo [$type mutate update [array get parms]]
+        lappend undo [econ mutate update [array get parms]]
     }
 
     setundo [join $undo \n]

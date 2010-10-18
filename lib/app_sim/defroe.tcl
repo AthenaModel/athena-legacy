@@ -197,7 +197,7 @@ snit::type ::defroe {
 #
 # Updates existing relationships
 
-order define ::defroe ROE:DEFEND:UPDATE {
+order define ROE:DEFEND:UPDATE {
     title "Update Defending ROE"
     options \
         -schedulestates {PREP PAUSED}                     \
@@ -216,7 +216,7 @@ order define ::defroe ROE:DEFEND:UPDATE {
     returnOnError -final
 
     # NEXT, modify the entity
-    setundo [$type mutate update [array get parms]]
+    setundo [defroe mutate update [array get parms]]
 }
 
 
@@ -224,7 +224,7 @@ order define ::defroe ROE:DEFEND:UPDATE {
 #
 # Updates multiple existing relationships
 
-order define ::defroe ROE:DEFEND:UPDATE:MULTI {
+order define ROE:DEFEND:UPDATE:MULTI {
     title "Update Multiple Defending ROEs"
     options \
         -schedulestates {PREP PAUSED} \
@@ -246,7 +246,7 @@ order define ::defroe ROE:DEFEND:UPDATE:MULTI {
     set undo [list]
 
     foreach parms(id) $parms(ids) {
-        lappend undo [$type mutate update [array get parms]]
+        lappend undo [defroe mutate update [array get parms]]
     }
 
     setundo [join $undo \n]

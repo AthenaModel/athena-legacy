@@ -263,7 +263,7 @@ snit::type coop {
 #
 # Updates existing cooperations
 
-order define ::coop COOP:UPDATE {
+order define COOP:UPDATE {
     title "Update Initial Cooperation"
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey id *}
@@ -291,7 +291,7 @@ order define ::coop COOP:UPDATE {
     returnOnError -final
 
     # NEXT, modify the curve
-    setundo [$type mutate update [array get parms]]
+    setundo [coop mutate update [array get parms]]
 }
 
 
@@ -299,7 +299,7 @@ order define ::coop COOP:UPDATE {
 #
 # Updates multiple existing cooperations
 
-order define ::coop COOP:UPDATE:MULTI {
+order define COOP:UPDATE:MULTI {
     title "Update Initial Cooperation (Multi)"
     options \
         -sendstates PREP                                  \
@@ -332,7 +332,7 @@ order define ::coop COOP:UPDATE:MULTI {
     set undo [list]
 
     foreach parms(id) $parms(ids) {
-        lappend undo [$type mutate update [array get parms]]
+        lappend undo [coop mutate update [array get parms]]
     }
 
     setundo [join $undo \n]

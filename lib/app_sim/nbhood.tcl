@@ -454,7 +454,7 @@ snit::type nbhood {
 #
 # Creates new neighborhoods.
 
-order define ::nbhood NBHOOD:CREATE {
+order define NBHOOD:CREATE {
     title "Create Neighborhood"
     options -sendstates PREP
 
@@ -518,7 +518,7 @@ order define ::nbhood NBHOOD:CREATE {
     returnOnError -final
 
     # NEXT, create the neighborhood and dependent entities
-    lappend undo [$type mutate create [array get parms]]
+    lappend undo [nbhood mutate create [array get parms]]
     lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
@@ -526,7 +526,7 @@ order define ::nbhood NBHOOD:CREATE {
 
 # NBHOOD:DELETE
 
-order define ::nbhood NBHOOD:DELETE {
+order define NBHOOD:DELETE {
     title "Delete Neighborhood"
     options -sendstates PREP
 
@@ -562,7 +562,7 @@ order define ::nbhood NBHOOD:DELETE {
     }
 
     # NEXT, delete the neighborhood and dependent entities
-    lappend undo [$type mutate delete $parms(n)]
+    lappend undo [nbhood mutate delete $parms(n)]
     lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
@@ -571,7 +571,7 @@ order define ::nbhood NBHOOD:DELETE {
 # NBHOOD:LOWER
 # NBHOOD:UPDATE
 
-order define ::nbhood NBHOOD:LOWER {
+order define NBHOOD:LOWER {
     title "Lower Neighborhood"
     options -sendstates PREP
 
@@ -585,7 +585,7 @@ order define ::nbhood NBHOOD:LOWER {
     returnOnError -final
 
     # NEXT, raise the neighborhood
-    lappend undo [$type mutate lower $parms(n)]
+    lappend undo [nbhood mutate lower $parms(n)]
     lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
@@ -593,7 +593,7 @@ order define ::nbhood NBHOOD:LOWER {
 
 # NBHOOD:RAISE
 
-order define ::nbhood NBHOOD:RAISE {
+order define NBHOOD:RAISE {
     title "Raise Neighborhood"
     options -sendstates PREP
 
@@ -607,7 +607,7 @@ order define ::nbhood NBHOOD:RAISE {
     returnOnError -final
 
     # NEXT, raise the neighborhood
-    lappend undo [$type mutate raise $parms(n)]
+    lappend undo [nbhood mutate raise $parms(n)]
     lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
@@ -617,7 +617,7 @@ order define ::nbhood NBHOOD:RAISE {
 #
 # Updates existing neighborhoods.
 
-order define ::nbhood NBHOOD:UPDATE {
+order define NBHOOD:UPDATE {
     title "Update Neighborhood"
     options \
         -sendstates PREP                              \
@@ -703,7 +703,7 @@ order define ::nbhood NBHOOD:UPDATE {
     returnOnError -final
 
     # NEXT, modify the neighborhood
-    lappend undo [$type mutate update [array get parms]]
+    lappend undo [nbhood mutate update [array get parms]]
     lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
@@ -713,7 +713,7 @@ order define ::nbhood NBHOOD:UPDATE {
 #
 # Updates multiple neighborhoods.
 
-order define ::nbhood NBHOOD:UPDATE:MULTI {
+order define NBHOOD:UPDATE:MULTI {
     title "Update Multiple Neighborhoods"
     options \
         -sendstates PREP                              \
@@ -742,7 +742,7 @@ order define ::nbhood NBHOOD:UPDATE:MULTI {
     set undo [list]
 
     foreach parms(n) $parms(ids) {
-        lappend undo [$type mutate update [array get parms]]
+        lappend undo [nbhood mutate update [array get parms]]
     }
 
     lappend undo [scenario mutate reconcile]

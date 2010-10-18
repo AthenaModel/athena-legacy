@@ -206,14 +206,10 @@ dictionary, or as multiple parameter names and values.<p>
 This command behaves identically to <<iref order send>>, except that the
 order is not executed if the parameters are valid.<p>
 
-<<defitem "order define" {order define <i>module name metadata body</i>}>>
+<<defitem "order define" {order define <i>name metadata body</i>}>>
 
 Defines an order.  Orders are typically defined at file scope in
 application modules; they can also be defined (and redefined) at any time.<p>
-
-The <i>module</i> is the fully-qualified name of the application
-module that implements the order.  It must be a
-<code>snit::type</code>.<p>
 
 The <i>name</i> is the name of the order, as described in 
 <<xref "Application Orders">>, above.<p>
@@ -222,8 +218,8 @@ The <i>metadata</i> is a script that defines the order's title and
 parameters using the <<xref "Metadata Definition Commands">>.<p>
 
 The <i>body</i> is the script that implements the handler.  It is
-effectively the body of a <<xref tcl:proc(n) proc>> defined within
-the <i>module</i>, with these differences:<p>
+effectively the body of a <<xref tcl:proc(n) proc>> with these
+differences:<p>
 
 <ul>
   <li> The <i>parms</i> array is a predefined argument; it contains the

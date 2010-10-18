@@ -220,47 +220,30 @@ snit::type order {
     #-------------------------------------------------------------------
     # Order Definition
 
-    # define module name metadata body
+    # define name metadata body
     #
-    # module      The name of a module (a snit::type)
     # name        The name of the order
     # defscript   The order's definition script 
     # body        The body of the order
     #
-    # Defines a proc within the module::orders namespace in which all
-    # type variables appear.  This allows orders to be defined
-    # outside the order.tcl file.
+    # Defines a proc within the ::orders namespace with access to the
+    # ::order helper routines.  This allows orders to be defined outside
+    # the ::order namespace.
 
-    typemethod define {module name defscript body} {
+    typemethod define {name defscript body} {
         # FIRST, save the defscript
         order DefMeta $name $defscript
 
-        # NEXT, get the module variables
-        set modVarList [$module info typevars]
-
-        if {[llength $modVarList] > 0} {
-            set modvars [list namespace upvar $module]
-
-            foreach tv [$module info typevars] {
-                lappend modvars $tv [namespace tail $tv]
-            }
-        } else {
-            set modvars [list]
-        }
-
         # NEXT, define the namespace and set up the namespace path
-        namespace eval ${module}::orders:: \
-            [list namespace path [list ${module} ::order::]]
+        namespace eval ::orders:: [list namespace path ::order::]
 
         # NEXT, save the handler name
-        set handler($name) ${module}::orders::$name
+        set handler($name) ::orders::$name
 
         # NEXT, define the handler
         proc $handler($name) {} [tsubst {
         |<--
             namespace upvar $type ${type}::parms parms
-            $modvars
-            set type $module
 
             $body
         }]
@@ -1358,7 +1341,7 @@ eventq define orderExecute {name narrative parmdict} {
 #
 # Schedules an order to be executed in the future.
 
-order define ::order ORDER:SCHEDULE {
+order define ORDER:SCHEDULE {
     title "Schedule Order"
     options -sendstates {PREP PAUSED}
 
@@ -1405,7 +1388,7 @@ order define ::order ORDER:SCHEDULE {
 #
 # Cancels a scheduled order.
 
-order define ::order ORDER:CANCEL {
+order define ORDER:CANCEL {
     title "Cancel Scheduled Order"
     options -sendstates {PREP PAUSED}
 

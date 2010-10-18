@@ -260,7 +260,7 @@ snit::type sat {
 #
 # Updates existing curves
 
-order define ::sat SAT:UPDATE {
+order define SAT:UPDATE {
     title "Update Initial Satisfaction"
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey id *}
@@ -288,7 +288,7 @@ order define ::sat SAT:UPDATE {
     returnOnError -final
 
     # NEXT, modify the curve
-    setundo [$type mutate update [array get parms]]
+    setundo [sat mutate update [array get parms]]
 }
 
 
@@ -296,7 +296,7 @@ order define ::sat SAT:UPDATE {
 #
 # Updates multiple existing curves
 
-order define ::sat SAT:UPDATE:MULTI {
+order define SAT:UPDATE:MULTI {
     title "Update Initial Satisfaction (Multi)"
     options \
         -sendstates PREP                                  \
@@ -328,7 +328,7 @@ order define ::sat SAT:UPDATE:MULTI {
     set undo [list]
 
     foreach parms(id) $parms(ids) {
-        lappend undo [$type mutate update [array get parms]]
+        lappend undo [sat mutate update [array get parms]]
     }
 
     setundo [join $undo \n]

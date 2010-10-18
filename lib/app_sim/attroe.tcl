@@ -355,7 +355,7 @@ snit::type ::attroe {
 #
 # Creates new attacking ROEs for UF vs NF.
 
-order define ::attroe ROE:ATTACK:UNIFORMED:CREATE {
+order define ROE:ATTACK:UNIFORMED:CREATE {
     title "Create Attacking ROE (Uniformed)"
 
     options \
@@ -379,7 +379,7 @@ order define ::attroe ROE:ATTACK:UNIFORMED:CREATE {
     set parms(uniformed) 1
     set parms(rate)      ""
 
-    lappend undo [$type mutate create [array get parms]]
+    lappend undo [attroe mutate create [array get parms]]
     
     setundo [join $undo \n]
 
@@ -390,7 +390,7 @@ order define ::attroe ROE:ATTACK:UNIFORMED:CREATE {
 #
 # Creates new attacking ROEs for NF vs UF
 
-order define ::attroe ROE:ATTACK:NONUNIFORMED:CREATE {
+order define ROE:ATTACK:NONUNIFORMED:CREATE {
     title "Create Attacking ROE (Non-Uniformed)"
 
     options \
@@ -416,7 +416,7 @@ order define ::attroe ROE:ATTACK:NONUNIFORMED:CREATE {
     # NEXT, create the ROE
     set parms(uniformed) 0
 
-    lappend undo [$type mutate create [array get parms]]
+    lappend undo [attroe mutate create [array get parms]]
     
     setundo [join $undo \n]
 
@@ -426,7 +426,7 @@ order define ::attroe ROE:ATTACK:NONUNIFORMED:CREATE {
 
 # ROE:ATTACK:DELETE
 
-order define ::attroe ROE:ATTACK:DELETE {
+order define ROE:ATTACK:DELETE {
     title "Delete Attacking ROE"
     options \
         -sendstates {PREP PAUSED}
@@ -462,7 +462,7 @@ order define ::attroe ROE:ATTACK:DELETE {
     }
 
     # NEXT, delete the ROE
-    lappend undo [$type mutate delete $parms(id)]
+    lappend undo [attroe mutate delete $parms(id)]
     
     setundo [join $undo \n]
 
@@ -474,7 +474,7 @@ order define ::attroe ROE:ATTACK:DELETE {
 #
 # Updates existing ROEs for UF vs NF
 
-order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE {
+order define ROE:ATTACK:UNIFORMED:UPDATE {
     title "Update Attacking ROE (Uniformed)"
     options \
         -schedulestates {PREP PAUSED}                    \
@@ -496,7 +496,7 @@ order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE {
 
     # NEXT, modify the group
     set parms(rate) ""
-    lappend undo [$type mutate update [array get parms]]
+    lappend undo [attroe mutate update [array get parms]]
 
     setundo [join $undo \n]
 
@@ -508,7 +508,7 @@ order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE {
 #
 # Updates existing ROEs for NF vs UF
 
-order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE {
+order define ROE:ATTACK:NONUNIFORMED:UPDATE {
     title "Update Attacking ROE (Non-Uniformed)"
     options \
         -schedulestates {PREP PAUSED}                    \
@@ -532,7 +532,7 @@ order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE {
     returnOnError -final
 
     # NEXT, modify the group
-    lappend undo [$type mutate update [array get parms]]
+    lappend undo [attroe mutate update [array get parms]]
 
     setundo [join $undo \n]
 
@@ -544,7 +544,7 @@ order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE {
 #
 # Updates multiple ROEs (UF vs NF)
 
-order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE:MULTI {
+order define ROE:ATTACK:UNIFORMED:UPDATE:MULTI {
     title "Update Multiple Attacking ROEs (Uniformed)"
     options \
         -schedulestates {PREP PAUSED}    \
@@ -568,7 +568,7 @@ order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE:MULTI {
     set parms(rate) ""
 
     foreach parms(id) $parms(ids) {
-        lappend undo [$type mutate update [array get parms]]
+        lappend undo [attroe mutate update [array get parms]]
     }
 
     setundo [join $undo \n]
@@ -581,7 +581,7 @@ order define ::attroe ROE:ATTACK:UNIFORMED:UPDATE:MULTI {
 #
 # Updates multiple ROEs (NF vs UF)
 
-order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI {
+order define ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI {
     title "Update Multiple Attacking ROEs (Non-Uniformed)"
     options \
         -schedulestates {PREP PAUSED}    \
@@ -605,7 +605,7 @@ order define ::attroe ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI {
     set undo [list]
 
     foreach parms(id) $parms(ids) {
-        lappend undo [$type mutate update [array get parms]]
+        lappend undo [attroe mutate update [array get parms]]
     }
 
     setundo [join $undo \n]

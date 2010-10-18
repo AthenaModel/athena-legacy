@@ -202,7 +202,7 @@ snit::type orggroup {
 #
 # Creates new organization groups.
 
-order define ::orggroup GROUP:ORGANIZATION:CREATE {
+order define GROUP:ORGANIZATION:CREATE {
     title "Create Organization Group"
     options -sendstates PREP
 
@@ -231,7 +231,7 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
     returnOnError -final
 
     # NEXT, create the group and dependent entities
-    lappend undo [$type mutate create [array get parms]]
+    lappend undo [orggroup mutate create [array get parms]]
     lappend undo [scenario mutate reconcile]
     
     setundo [join $undo \n]
@@ -239,7 +239,7 @@ order define ::orggroup GROUP:ORGANIZATION:CREATE {
 
 # GROUP:ORGANIZATION:DELETE
 
-order define ::orggroup GROUP:ORGANIZATION:DELETE {
+order define GROUP:ORGANIZATION:DELETE {
     title "Delete Organization Group"
     options -sendstates PREP
 
@@ -273,7 +273,7 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
     }
 
     # NEXT, Delete the group and dependent entities
-    lappend undo [$type mutate delete $parms(g)]
+    lappend undo [orggroup mutate delete $parms(g)]
     lappend undo [scenario mutate reconcile]
     
     setundo [join $undo \n]
@@ -284,7 +284,7 @@ order define ::orggroup GROUP:ORGANIZATION:DELETE {
 #
 # Updates existing groups.
 
-order define ::orggroup GROUP:ORGANIZATION:UPDATE {
+order define GROUP:ORGANIZATION:UPDATE {
     title "Update Organization Group"
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey g *}
@@ -311,7 +311,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
     returnOnError -final
 
     # NEXT, modify the group
-    setundo [$type mutate update [array get parms]]
+    setundo [orggroup mutate update [array get parms]]
 }
 
 
@@ -319,7 +319,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE {
 #
 # Updates multiple groups.
 
-order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
+order define GROUP:ORGANIZATION:UPDATE:MULTI {
     title "Update Multiple Organization Groups"
     options \
         -sendstates PREP                                  \
@@ -347,7 +347,7 @@ order define ::orggroup GROUP:ORGANIZATION:UPDATE:MULTI {
     set undo [list]
 
     foreach parms(g) $parms(ids) {
-        lappend undo [$type mutate update [array get parms]]
+        lappend undo [orggroup mutate update [array get parms]]
     }
 
     setundo [join $undo \n]

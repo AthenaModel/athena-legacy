@@ -287,7 +287,7 @@ snit::type nbgroup {
 #
 # Creates new nbhood groups.
 
-order define ::nbgroup GROUP:NBHOOD:CREATE {
+order define GROUP:NBHOOD:CREATE {
     title "Create Nbhood Group"
 
     options -sendstates PREP
@@ -318,7 +318,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
     }
 
     # NEXT, create the group and dependent entities.
-    lappend undo [$type mutate create [array get parms]]
+    lappend undo [nbgroup mutate create [array get parms]]
     lappend undo [scenario mutate reconcile]
     
     setundo [join $undo \n]
@@ -328,7 +328,7 @@ order define ::nbgroup GROUP:NBHOOD:CREATE {
 
 # GROUP:NBHOOD:DELETE
 
-order define ::nbgroup GROUP:NBHOOD:DELETE {
+order define GROUP:NBHOOD:DELETE {
     title "Delete Nbhood Group"
     options \
         -sendstates PREP
@@ -365,7 +365,7 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
     }
 
     # NEXT, delete the group and dependent entities
-    lappend undo [$type mutate delete {*}$parms(id)]
+    lappend undo [nbgroup mutate delete {*}$parms(id)]
     lappend undo [scenario mutate reconcile]
     
     setundo [join $undo \n]
@@ -378,7 +378,7 @@ order define ::nbgroup GROUP:NBHOOD:DELETE {
 #
 # Updates existing groups.
 
-order define ::nbgroup GROUP:NBHOOD:UPDATE {
+order define GROUP:NBHOOD:UPDATE {
     title "Update Nbhood Group"
     options \
         -sendstates PREP                               \
@@ -401,7 +401,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
     returnOnError -final
 
     # NEXT, modify the group
-    lappend undo [$type mutate update [array get parms]]
+    lappend undo [nbgroup mutate update [array get parms]]
 
     setundo [join $undo \n]
     return
@@ -412,7 +412,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE {
 #
 # Updates multiple groups.
 
-order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
+order define GROUP:NBHOOD:UPDATE:MULTI {
     title "Update Multiple Nbhood Groups"
     options \
         -sendstates PREP                                  \
@@ -438,7 +438,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
     set undo [list]
 
     foreach parms(id) $parms(ids) {
-        lappend undo [$type mutate update [array get parms]]
+        lappend undo [nbgroup mutate update [array get parms]]
     }
 
     setundo [join $undo \n]
@@ -450,7 +450,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:MULTI {
 #
 # Updates existing groups outside the PREP state.
 
-order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP {
+order define GROUP:NBHOOD:UPDATE:POSTPREP {
     title "Update Nbhood Group (Post-PREP)"
     options \
         -sendstates {PREP PAUSED}                      \
@@ -467,7 +467,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP {
     returnOnError -final
 
     # NEXT, modify the group
-    lappend undo [$type mutate update [array get parms]]
+    lappend undo [nbgroup mutate update [array get parms]]
 
     setundo [join $undo \n]
     return
@@ -478,7 +478,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP {
 #
 # Updates multiple groups.
 
-order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP:MULTI {
+order define GROUP:NBHOOD:UPDATE:POSTPREP:MULTI {
     title "Update Multiple Nbhood Groups (Post-PREP)"
     options \
         -sendstates {PREP PAUSED}                         \
@@ -499,7 +499,7 @@ order define ::nbgroup GROUP:NBHOOD:UPDATE:POSTPREP:MULTI {
     set undo [list]
 
     foreach parms(id) $parms(ids) {
-        lappend undo [$type mutate update [array get parms]]
+        lappend undo [nbgroup mutate update [array get parms]]
     }
 
     setundo [join $undo \n]

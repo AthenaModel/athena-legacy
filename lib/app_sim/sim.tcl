@@ -1352,7 +1352,7 @@ snit::type sim {
 #
 # Sets the zulu-time corresponding to time 0
 
-order define ::sim SIM:STARTDATE {
+order define SIM:STARTDATE {
     title "Set Start Date"
     options -sendstates PREP \
         -refreshcmd {::sim Refresh_SS}
@@ -1365,7 +1365,7 @@ order define ::sim SIM:STARTDATE {
     returnOnError -final
 
     # NEXT, set the start date
-    lappend undo [$type mutate startdate $parms(startdate)]
+    lappend undo [sim mutate startdate $parms(startdate)]
 
     setundo [join $undo \n]
 }
@@ -1374,7 +1374,7 @@ order define ::sim SIM:STARTDATE {
 #
 # Locks scenario preparation and transitions from PREP to PAUSED.
 
-order define ::sim SIM:LOCK {
+order define SIM:LOCK {
     title "Lock Scenario Preparation"
     options -sendstates {PREP}
 } {
@@ -1396,7 +1396,7 @@ order define ::sim SIM:LOCK {
     returnOnError -final
 
     # NEXT, lock scenario prep.
-    lappend undo [$type mutate lock]
+    lappend undo [sim mutate lock]
 
     setundo [join $undo \n]
 }
@@ -1406,14 +1406,14 @@ order define ::sim SIM:LOCK {
 #
 # Locks scenario preparation and transitions from PREP to PAUSED.
 
-order define ::sim SIM:UNLOCK {
+order define SIM:UNLOCK {
     title "Unlock Scenario Preparation"
     options -sendstates {PAUSED SNAPSHOT}
 } {
     returnOnError -final
 
     # NEXT, unlock scenario prep.
-    lappend undo [$type mutate unlock]
+    lappend undo [sim mutate unlock]
 
     setundo [join $undo \n]
 }
@@ -1423,7 +1423,7 @@ order define ::sim SIM:UNLOCK {
 #
 # Starts the simulation going.
 
-order define ::sim SIM:RUN {
+order define SIM:RUN {
     title "Run Simulation"
     options -sendstates {PAUSED}
 
@@ -1454,11 +1454,11 @@ order define ::sim SIM:RUN {
     # NEXT, start the simulation and return the undo script
 
     if {$parms(days) eq "" || $parms(days) == 0} {
-        lappend undo [$type mutate run]
+        lappend undo [sim mutate run]
     } else {
         set ticks [simclock fromDays $parms(days)]
 
-        lappend undo [$type mutate run -ticks $ticks -block $parms(block)]
+        lappend undo [sim mutate run -ticks $ticks -block $parms(block)]
     }
 
     setundo [join $undo \n]
@@ -1470,14 +1470,14 @@ order define ::sim SIM:RUN {
 # Pauses the simulation.  It's an error if the simulation is not
 # running.
 
-order define ::sim SIM:PAUSE {
+order define SIM:PAUSE {
     title "Pause Simulation"
     options -sendstates RUNNING
 } {
     returnOnError -final
 
     # FIRST, pause the simulation and return the undo script
-    lappend undo [$type mutate pause]
+    lappend undo [sim mutate pause]
 
     setundo [join $undo \n]
 }

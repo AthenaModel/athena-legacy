@@ -910,7 +910,7 @@ eventq define ensitAutoResolve {s} {
 #
 # Creates new ensits.
 
-order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
+order define SITUATION:ENVIRONMENTAL:CREATE {
     title "Create Environmental Situation"
     options \
         -schedulestates {PREP PAUSED}         \
@@ -966,7 +966,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
     returnOnError -final
 
     # NEXT, create the situation.
-    lappend undo [$type mutate create [array get parms]]
+    lappend undo [ensit mutate create [array get parms]]
     
     setundo [join $undo \n]
 }
@@ -976,7 +976,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:CREATE {
 #
 # Deletes an ensit.
 
-order define ::ensit SITUATION:ENVIRONMENTAL:DELETE {
+order define SITUATION:ENVIRONMENTAL:DELETE {
     title "Delete Environmental Situation"
     options \
         -sendstates {PREP PAUSED}
@@ -1014,7 +1014,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:DELETE {
 
 
     # NEXT, delete the situation.
-    lappend undo [$type mutate delete $parms(s)]
+    lappend undo [ensit mutate delete $parms(s)]
     
     setundo [join $undo \n]
 }
@@ -1024,7 +1024,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:DELETE {
 #
 # Updates existing ensits.
 
-order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
+order define SITUATION:ENVIRONMENTAL:UPDATE {
     title "Update Environmental Situation"
     options \
         -sendstates {PREP PAUSED} \
@@ -1092,7 +1092,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
     returnOnError -final
 
     # NEXT, modify the group
-    setundo [$type mutate update [array get parms]]
+    setundo [ensit mutate update [array get parms]]
 }
 
 
@@ -1100,7 +1100,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:UPDATE {
 #
 # Moves an existing ensit.
 
-order define ::ensit SITUATION:ENVIRONMENTAL:MOVE {
+order define SITUATION:ENVIRONMENTAL:MOVE {
     title "Move Environmental Situation"
     options \
         -sendstates {PREP PAUSED}
@@ -1165,7 +1165,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:MOVE {
     }
 
     # NEXT, modify the group
-    setundo [$type mutate update [array get parms]]
+    setundo [ensit mutate update [array get parms]]
 }
 
 
@@ -1173,7 +1173,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:MOVE {
 #
 # Resolves an ensit.
 
-order define ::ensit SITUATION:ENVIRONMENTAL:RESOLVE {
+order define SITUATION:ENVIRONMENTAL:RESOLVE {
     title "Resolve Environmental Situation"
     options \
         -schedulestates {PREP PAUSED}                    \
@@ -1193,7 +1193,7 @@ order define ::ensit SITUATION:ENVIRONMENTAL:RESOLVE {
     returnOnError -final
 
     # NEXT, resolve the situation.
-    lappend undo [$type mutate resolve [array get parms]]
+    lappend undo [ensit mutate resolve [array get parms]]
     
     setundo [join $undo \n]
 }

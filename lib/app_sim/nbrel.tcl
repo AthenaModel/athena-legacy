@@ -312,7 +312,7 @@ snit::type nbrel {
 # Updates existing neighborhood relationships
 
 
-order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE {
+order define NBHOOD:RELATIONSHIP:UPDATE {
     title "Update Neighborhood Relationship"
     options \
         -sendstates PREP \
@@ -355,7 +355,7 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE {
     returnOnError -final
 
     # NEXT, modify the curve
-    setundo [$type mutate update [array get parms]]
+    setundo [nbrel mutate update [array get parms]]
 }
 
 
@@ -363,7 +363,7 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE {
 #
 # Updates multiple existing neighborhood relationships
 
-order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE:MULTI {
+order define NBHOOD:RELATIONSHIP:UPDATE:MULTI {
     title "Update Multiple Neighborhood Relationships"
     options \
         -sendstates PREP                   \
@@ -421,7 +421,7 @@ order define ::nbrel NBHOOD:RELATIONSHIP:UPDATE:MULTI {
     set undo [list]
 
     foreach parms(id) $parms(ids) {
-        lappend undo [$type mutate update [array get parms]]
+        lappend undo [nbrel mutate update [array get parms]]
     }
 
     setundo [join $undo \n]

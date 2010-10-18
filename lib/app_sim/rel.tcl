@@ -317,7 +317,7 @@ snit::type rel {
 #
 # Updates existing relationships
 
-order define ::rel RELATIONSHIP:UPDATE {
+order define RELATIONSHIP:UPDATE {
     title "Update Group Relationship"
     options \
         -sendstates PREP \
@@ -348,7 +348,7 @@ order define ::rel RELATIONSHIP:UPDATE {
     returnOnError -final
 
     # NEXT, modify the curve
-    setundo [$type mutate update [array get parms]]
+    setundo [rel mutate update [array get parms]]
 }
 
 
@@ -356,7 +356,7 @@ order define ::rel RELATIONSHIP:UPDATE {
 #
 # Updates multiple existing relationships
 
-order define ::rel RELATIONSHIP:UPDATE:MULTI {
+order define RELATIONSHIP:UPDATE:MULTI {
     title "Update Multiple Relationships"
     options \
         -sendstates PREP \
@@ -392,7 +392,7 @@ order define ::rel RELATIONSHIP:UPDATE:MULTI {
     set undo [list]
 
     foreach parms(id) $parms(ids) {
-        lappend undo [$type mutate update [array get parms]]
+        lappend undo [rel mutate update [array get parms]]
     }
 
     setundo [join $undo \n]

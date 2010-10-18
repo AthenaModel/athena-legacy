@@ -240,7 +240,7 @@ snit::type personnel {
 #
 # Sets the total personnel for a group in a neighborhood.
 
-order define ::personnel PERSONNEL:SET {
+order define PERSONNEL:SET {
     title "Set Group Personnel"
     options \
         -sendstates     {PREP PAUSED}     \
@@ -264,7 +264,7 @@ order define ::personnel PERSONNEL:SET {
     returnOnError -final
 
     # NEXT, modify the group
-    lappend undo [$type mutate set [array get parms]]
+    lappend undo [personnel mutate set [array get parms]]
 
     setundo [join $undo \n]
     return
@@ -274,7 +274,7 @@ order define ::personnel PERSONNEL:SET {
 #
 # Sets the total personnel for a group in a neighborhood.
 
-order define ::personnel PERSONNEL:ADJUST {
+order define PERSONNEL:ADJUST {
     title "Adjust Group Personnel"
     options \
         -sendstates     {PREP PAUSED}     \
@@ -302,7 +302,7 @@ order define ::personnel PERSONNEL:ADJUST {
     returnOnError -final
 
     # NEXT, modify the group
-    lappend undo [$type mutate adjust [array get parms]]
+    lappend undo [personnel mutate adjust [array get parms]]
 
     setundo [join $undo \n]
     return

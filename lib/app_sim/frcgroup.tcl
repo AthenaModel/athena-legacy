@@ -317,7 +317,7 @@ snit::type frcgroup {
 #
 # Creates new force groups.
 
-order define ::frcgroup GROUP:FORCE:CREATE {
+order define GROUP:FORCE:CREATE {
     title "Create Force Group"
     
     options -sendstates PREP
@@ -353,7 +353,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
     returnOnError -final
 
     # NEXT, create the group and dependent entities
-    lappend undo [$type mutate create [array get parms]]
+    lappend undo [frcgroup mutate create [array get parms]]
     lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
@@ -361,7 +361,7 @@ order define ::frcgroup GROUP:FORCE:CREATE {
 
 # GROUP:FORCE:DELETE
 
-order define ::frcgroup GROUP:FORCE:DELETE {
+order define GROUP:FORCE:DELETE {
     title "Delete Force Group"
     options -sendstates PREP
 
@@ -395,7 +395,7 @@ order define ::frcgroup GROUP:FORCE:DELETE {
     }
 
     # NEXT, Delete the group and dependent entities
-    lappend undo [$type mutate delete $parms(g)]
+    lappend undo [frcgroup mutate delete $parms(g)]
     lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
@@ -406,7 +406,7 @@ order define ::frcgroup GROUP:FORCE:DELETE {
 #
 # Updates existing groups.
 
-order define ::frcgroup GROUP:FORCE:UPDATE {
+order define GROUP:FORCE:UPDATE {
     title "Update Force Group"
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey g *}
@@ -440,7 +440,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
 
     # NEXT, modify the group.
     set undo [list]
-    lappend undo [$type mutate update [array get parms]]
+    lappend undo [frcgroup mutate update [array get parms]]
 
     # NEXT, If the uniformed flag is changed, the
     # defending ROEs could be different.
@@ -453,7 +453,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE {
 #
 # Updates multiple groups.
 
-order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
+order define GROUP:FORCE:UPDATE:MULTI {
     title "Update Multiple Force Groups"
     options \
         -sendstates PREP                                  \
@@ -487,7 +487,7 @@ order define ::frcgroup GROUP:FORCE:UPDATE:MULTI {
     set undo [list]
 
     foreach parms(g) $parms(ids) {
-        lappend undo [$type mutate update [array get parms]]
+        lappend undo [frcgroup mutate update [array get parms]]
     }
 
     # NEXT, If the uniformed flag is changed, the

@@ -984,7 +984,7 @@ snit::type ::report {
 #
 # Produces a Cooperation Report
 
-order define ::report REPORT:COOPERATION {
+order define REPORT:COOPERATION {
     title "Cooperation Report"
     options \
         -schedulestates {PREP PAUSED} \
@@ -1006,7 +1006,7 @@ order define ::report REPORT:COOPERATION {
 
     # NEXT, produce the report
     set undo [list]
-    lappend undo [$type imp coop $parms(n) $parms(f) $parms(g)]
+    lappend undo [report imp coop $parms(n) $parms(f) $parms(g)]
 
     setundo [join $undo \n]
 }
@@ -1016,7 +1016,7 @@ order define ::report REPORT:COOPERATION {
 #
 # Produces an Attitude Driver Report.
 
-order define ::report REPORT:DRIVER {
+order define REPORT:DRIVER {
     title "Attitude Driver Report"
     options \
         -schedulestates {PREP PAUSED} \
@@ -1032,7 +1032,7 @@ order define ::report REPORT:DRIVER {
 
     # NEXT, produce the report
     set undo [list]
-    lappend undo [$type imp driver $parms(state)]
+    lappend undo [report imp driver $parms(state)]
 
     setundo [join $undo \n]
 }
@@ -1042,7 +1042,7 @@ order define ::report REPORT:DRIVER {
 #
 # Produces a parmdb(5) report.
 
-order define ::report REPORT:PARMDB {
+order define REPORT:PARMDB {
     title "Model Parameters Report"
     options \
         -schedulestates {PREP PAUSED} \
@@ -1059,7 +1059,7 @@ order define ::report REPORT:PARMDB {
 
     # NEXT, produce the report
     set undo [list]
-    lappend undo [$type imp parmdb $parms(state) $parms(wildcard)]
+    lappend undo [report imp parmdb $parms(state) $parms(wildcard)]
 
     setundo [join $undo \n]
 }
@@ -1068,7 +1068,7 @@ order define ::report REPORT:PARMDB {
 #
 # Produces a Civilian Satisfaction Report
 
-order define ::report REPORT:SATISFACTION:CIVILIAN {
+order define REPORT:SATISFACTION:CIVILIAN {
     title "Civilian Satisfaction Report"
     options \
         -schedulestates {PREP PAUSED} \
@@ -1085,7 +1085,7 @@ order define ::report REPORT:SATISFACTION:CIVILIAN {
 
     # NEXT, produce the report
     set undo [list]
-    lappend undo [$type imp sat CIV $parms(n) $parms(g)]
+    lappend undo [report imp sat CIV $parms(n) $parms(g)]
 
     setundo [join $undo \n]
 }
@@ -1095,7 +1095,7 @@ order define ::report REPORT:SATISFACTION:CIVILIAN {
 #
 # Produces a Contribution to Satisfaction Report
 
-order define ::report REPORT:SATISFACTION:CONTRIB {
+order define REPORT:SATISFACTION:CONTRIB {
     title "Contribution to Satisfaction Report"
     options \
         -schedulestates {PREP PAUSED}          \
@@ -1146,7 +1146,7 @@ order define ::report REPORT:SATISFACTION:CONTRIB {
 
     # NEXT, produce the report
     set undo [list]
-    lappend undo [$type imp satcontrib [array get parms]]
+    lappend undo [report imp satcontrib [array get parms]]
 
     setundo [join $undo \n]
 }

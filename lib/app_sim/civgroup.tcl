@@ -199,7 +199,7 @@ snit::type civgroup {
 #
 # Creates new civilian groups.
 
-order define ::civgroup GROUP:CIVILIAN:CREATE {
+order define GROUP:CIVILIAN:CREATE {
     title "Create Civilian Group"
 
     options -sendstates PREP
@@ -225,7 +225,7 @@ order define ::civgroup GROUP:CIVILIAN:CREATE {
     returnOnError -final
 
     # NEXT, create the group and dependent entities
-    lappend undo [$type mutate create [array get parms]]
+    lappend undo [civgroup mutate create [array get parms]]
     lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
@@ -233,7 +233,7 @@ order define ::civgroup GROUP:CIVILIAN:CREATE {
 
 # GROUP:CIVILIAN:DELETE
 
-order define ::civgroup GROUP:CIVILIAN:DELETE {
+order define GROUP:CIVILIAN:DELETE {
     title "Delete Civilian Group"
     options -sendstates PREP
 
@@ -267,7 +267,7 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
     }
 
     # NEXT, Delete the group and dependent entities
-    lappend undo [$type mutate delete $parms(g)]
+    lappend undo [civgroup mutate delete $parms(g)]
     lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
@@ -278,7 +278,7 @@ order define ::civgroup GROUP:CIVILIAN:DELETE {
 #
 # Updates existing groups.
 
-order define ::civgroup GROUP:CIVILIAN:UPDATE {
+order define GROUP:CIVILIAN:UPDATE {
     title "Update Civilian Group"
     options \
         -sendstates PREP                             \
@@ -302,10 +302,10 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE {
     returnOnError -final
 
     # NEXT, modify the group
-    setundo [$type mutate update [array get parms]]
+    setundo [civgroup mutate update [array get parms]]
 }
 
-order define ::civgroup GROUP:CIVILIAN:UPDATE:MULTI {
+order define GROUP:CIVILIAN:UPDATE:MULTI {
     title "Update Multiple Civilian Groups"
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForMulti ids *}
@@ -328,7 +328,7 @@ order define ::civgroup GROUP:CIVILIAN:UPDATE:MULTI {
     set undo [list]
 
     foreach parms(g) $parms(ids) {
-        lappend undo [$type mutate update [array get parms]]
+        lappend undo [civgroup mutate update [array get parms]]
     }
 
     setundo [join $undo \n]

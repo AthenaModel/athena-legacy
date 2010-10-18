@@ -928,7 +928,7 @@ snit::type aam {
 #
 # Attrits all civilians in a neighborhood.
 
-order define ::aam ATTRIT:NBHOOD {
+order define ATTRIT:NBHOOD {
     title "Magic Attrit Neighborhood"
     options \
         -schedulestates {PREP PAUSED} \
@@ -957,7 +957,7 @@ order define ::aam ATTRIT:NBHOOD {
     }
 
     # NEXT, attrit the civilians in the neighborhood
-    lappend undo [$type mutate attritn [array get parms]]
+    lappend undo [aam mutate attritn [array get parms]]
 
     setundo [join $undo \n]
 }
@@ -967,7 +967,7 @@ order define ::aam ATTRIT:NBHOOD {
 #
 # Attrits a group in a neighborhood.
 
-order define ::aam ATTRIT:GROUP {
+order define ATTRIT:GROUP {
     title "Magic Attrit Group"
     options \
         -schedulestates {PREP PAUSED} \
@@ -1015,7 +1015,7 @@ order define ::aam ATTRIT:GROUP {
     }
 
     # NEXT, attrit the group
-    lappend undo [$type mutate attritnf [array get parms]]
+    lappend undo [aam mutate attritnf [array get parms]]
 
     setundo [join $undo \n]
 }
@@ -1025,7 +1025,7 @@ order define ::aam ATTRIT:GROUP {
 #
 # Attrits a single unit.
 
-order define ::aam ATTRIT:UNIT {
+order define ATTRIT:UNIT {
     title "Magic Attrit Unit"
     options \
         -schedulestates {PREP PAUSED}           \
@@ -1067,7 +1067,7 @@ order define ::aam ATTRIT:UNIT {
 
 
     # NEXT, attrit the unit
-    lappend undo [$type mutate attritunit [array get parms]]
+    lappend undo [aam mutate attritunit [array get parms]]
 
     setundo [join $undo \n]
 }

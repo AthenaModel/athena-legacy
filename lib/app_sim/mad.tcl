@@ -886,7 +886,7 @@ snit::type mad {
 #
 # Creates a new MAD.
 
-order define ::mad MAD:CREATE {
+order define MAD:CREATE {
     title "Create Magic Attitude Driver"
 
     options -sendstates {PREP PAUSED}
@@ -909,7 +909,7 @@ order define ::mad MAD:CREATE {
     returnOnError -final
 
     # NEXT, create the mad
-    lappend undo [$type mutate create [array get parms]]
+    lappend undo [mad mutate create [array get parms]]
 
     setundo [join $undo \n]
 }
@@ -919,7 +919,7 @@ order define ::mad MAD:CREATE {
 #
 # Deletes a MAD in the initial state
 
-order define ::mad MAD:DELETE {
+order define MAD:DELETE {
     title "Delete Magic Attitude Driver"
     options \
         -sendstates {PREP PAUSED}
@@ -957,7 +957,7 @@ order define ::mad MAD:DELETE {
     }
 
     # NEXT, Delete the mad
-    lappend undo [$type mutate delete $parms(id)]
+    lappend undo [mad mutate delete $parms(id)]
 
     setundo [join $undo \n]
 }
@@ -967,7 +967,7 @@ order define ::mad MAD:DELETE {
 #
 # Updates an existing mad's description
 
-order define ::mad MAD:UPDATE {
+order define MAD:UPDATE {
     title "Update Magic Attitude Driver"
     options \
         -sendstates  {PREP PAUSED}      \
@@ -1027,7 +1027,7 @@ order define ::mad MAD:UPDATE {
     returnOnError -final
 
     # NEXT, update the MAD
-    lappend undo [$type mutate update [array get parms]]
+    lappend undo [mad mutate update [array get parms]]
 
     setundo [join $undo \n]
 }
@@ -1036,7 +1036,7 @@ order define ::mad MAD:UPDATE {
 #
 # Terminates all magic slope inputs for a MAD.
 
-order define ::mad MAD:TERMINATE {
+order define MAD:TERMINATE {
     title "Terminate Magic Slope Inputs"
     options \
         -sendstates     {}             \
@@ -1052,7 +1052,7 @@ order define ::mad MAD:TERMINATE {
     returnOnError -final
 
     # NEXT, modify the curve
-    $type mutate terminate $parms(id)
+    mad mutate terminate $parms(id)
 
     return
 }
@@ -1061,7 +1061,7 @@ order define ::mad MAD:TERMINATE {
 #
 # Adjusts a satisfaction curve by some delta.
 
-order define ::mad MAD:SAT:ADJUST {
+order define MAD:SAT:ADJUST {
     title "Magic Adjust Satisfaction Level"
     options \
         -sendstates     PAUSED         \
@@ -1083,7 +1083,7 @@ order define ::mad MAD:SAT:ADJUST {
     returnOnError -final
 
     # NEXT, modify the curve
-    setundo [$type mutate satadjust [array get parms]]
+    setundo [mad mutate satadjust [array get parms]]
 }
 
 
@@ -1091,7 +1091,7 @@ order define ::mad MAD:SAT:ADJUST {
 #
 # Sets a satisfaction curve to some value.
 
-order define ::mad MAD:SAT:SET {
+order define MAD:SAT:SET {
     title "Magic Set Satisfaction Level"
     options \
         -sendstates     PAUSED         \
@@ -1113,7 +1113,7 @@ order define ::mad MAD:SAT:SET {
     returnOnError -final
 
     # NEXT, modify the curve
-    setundo [$type mutate satset [array get parms]]
+    setundo [mad mutate satset [array get parms]]
 }
 
 
@@ -1121,7 +1121,7 @@ order define ::mad MAD:SAT:SET {
 #
 # Enters a magic satisfaction level input.
 
-order define ::mad MAD:SAT:LEVEL {
+order define MAD:SAT:LEVEL {
     title "Magic Satisfaction Level Input"
     options \
         -sendstates     {}             \
@@ -1152,7 +1152,7 @@ order define ::mad MAD:SAT:LEVEL {
     returnOnError -final
 
     # NEXT, modify the curve
-    $type mutate satlevel [array get parms]
+    mad mutate satlevel [array get parms]
 
     return
 }
@@ -1162,7 +1162,7 @@ order define ::mad MAD:SAT:LEVEL {
 #
 # Enters a magic satisfaction slope input.
 
-order define ::mad MAD:SAT:SLOPE {
+order define MAD:SAT:SLOPE {
     title "Magic Satisfaction Slope Input"
     options \
         -sendstates     {}             \
@@ -1191,7 +1191,7 @@ order define ::mad MAD:SAT:SLOPE {
     returnOnError -final
 
     # NEXT, modify the curve
-    $type mutate satslope [array get parms]
+    mad mutate satslope [array get parms]
 
     return
 }
@@ -1201,7 +1201,7 @@ order define ::mad MAD:SAT:SLOPE {
 #
 # Adjusts a cooperation curve by some delta.
 
-order define ::mad MAD:COOP:ADJUST {
+order define MAD:COOP:ADJUST {
     title "Magic Adjust Cooperation Level"
     options \
         -sendstates     PAUSED         \
@@ -1223,7 +1223,7 @@ order define ::mad MAD:COOP:ADJUST {
     returnOnError -final
 
     # NEXT, modify the curve
-    setundo [$type mutate coopadjust [array get parms]]
+    setundo [mad mutate coopadjust [array get parms]]
 }
 
 
@@ -1231,7 +1231,7 @@ order define ::mad MAD:COOP:ADJUST {
 #
 # Sets a cooperation curve to some value.
 
-order define ::mad MAD:COOP:SET {
+order define MAD:COOP:SET {
     title "Magic Set Cooperation Level"
     options \
         -sendstates     PAUSED         \
@@ -1254,7 +1254,7 @@ order define ::mad MAD:COOP:SET {
     returnOnError -final
 
     # NEXT, modify the curve
-    setundo [$type mutate coopset [array get parms]]
+    setundo [mad mutate coopset [array get parms]]
 }
 
 
@@ -1262,7 +1262,7 @@ order define ::mad MAD:COOP:SET {
 #
 # Enters a magic cooperation level input.
 
-order define ::mad MAD:COOP:LEVEL {
+order define MAD:COOP:LEVEL {
     title "Magic Cooperation Level Input"
     options \
         -sendstates     {}             \
@@ -1295,7 +1295,7 @@ order define ::mad MAD:COOP:LEVEL {
     returnOnError -final
 
     # NEXT, modify the curve
-    $type mutate cooplevel [array get parms]
+    mad mutate cooplevel [array get parms]
 
     return
 }
@@ -1304,7 +1304,7 @@ order define ::mad MAD:COOP:LEVEL {
 #
 # Enters a magic cooperation slope input.
 
-order define ::mad MAD:COOP:SLOPE {
+order define MAD:COOP:SLOPE {
     title "Magic Cooperation Slope Input"
     options \
         -sendstates     {}             \
@@ -1335,7 +1335,7 @@ order define ::mad MAD:COOP:SLOPE {
     returnOnError -final
 
     # NEXT, modify the curve
-    $type mutate coopslope [array get parms]
+    mad mutate coopslope [array get parms]
 
     return
 }

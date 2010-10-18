@@ -373,7 +373,7 @@ snit::type unit {
 #
 # Moves an existing unit.
 
-order define ::unit UNIT:MOVE {
+order define UNIT:MOVE {
     title "Move Unit"
     options \
         -sendstates {PREP PAUSED}                     \
@@ -400,7 +400,7 @@ order define ::unit UNIT:MOVE {
     returnOnError -final
 
     # NEXT, move the unit
-    lappend undo [$type mutate move $parms(u) $parms(location)]
+    lappend undo [unit mutate move $parms(u) $parms(location)]
 
 
     setundo [join $undo \n]

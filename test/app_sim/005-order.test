@@ -27,7 +27,7 @@ namespace eval ::athena_test::tests:: {
     # Import tcltest(n)
     namespace import ::tcltest::*
 
-    order define ::order DUMMY:ORDER {
+    order define DUMMY:ORDER {
         title "Dummy Order"
         parm this text "This Parm"
         parm that text "That Parm"

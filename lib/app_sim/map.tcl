@@ -220,7 +220,7 @@ snit::type map {
 #
 # Imports a map into the scenario
 
-order define ::map MAP:IMPORT {
+order define MAP:IMPORT {
     title "Import Map"
     options -sendstates {PREP PAUSED SNAPSHOT}
 
@@ -236,7 +236,7 @@ order define ::map MAP:IMPORT {
     # NEXT, validate the parameters
     if {[catch {
         # In this case, simply try it.
-        setundo [$type mutate import $parms(filename)]
+        setundo [map mutate import $parms(filename)]
     } result]} {
         reject filename $result
     }

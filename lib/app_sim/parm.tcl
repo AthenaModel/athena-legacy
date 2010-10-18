@@ -252,7 +252,7 @@ snit::type parm {
 #
 # Imports the contents of a parmdb file into the scenario.
 
-order define ::parm PARM:IMPORT {
+order define PARM:IMPORT {
     title "Import Parameter File"
 
     options -sendstates {PREP RUNNING PAUSED}
@@ -269,7 +269,7 @@ order define ::parm PARM:IMPORT {
     # NEXT, validate the parameters
     if {[catch {
         # In this case, simply try it.
-        setundo [$type mutate import $parms(filename)]
+        setundo [parm mutate import $parms(filename)]
     } result]} {
         reject filename $result
     }
@@ -282,7 +282,7 @@ order define ::parm PARM:IMPORT {
 #
 # Imports the contents of a parmdb file into the scenario.
 
-order define ::parm PARM:RESET {
+order define PARM:RESET {
     title "Reset Parameters to Defaults"
 
     options -sendstates {PREP RUNNING PAUSED}
@@ -292,7 +292,7 @@ order define ::parm PARM:RESET {
     # FIRST, try to do it.
     if {[catch {
         # In this case, simply try it.
-        setundo [$type mutate reset]
+        setundo [parm mutate reset]
     } result]} {
         reject * $result
     }
@@ -305,7 +305,7 @@ order define ::parm PARM:RESET {
 #
 # Sets the value of a parameter.
 
-order define ::parm PARM:SET {
+order define PARM:SET {
     title "Set Parameter Value"
 
     options -sendstates {PREP RUNNING PAUSED}
@@ -323,7 +323,7 @@ order define ::parm PARM:SET {
     # NEXT, validate the parameters
     if {[catch {
         # In this case, simply try it.
-        setundo [$type mutate set $parms(parm) $parms(value)]
+        setundo [parm mutate set $parms(parm) $parms(value)]
     } result]} {
         reject * $result
     }
