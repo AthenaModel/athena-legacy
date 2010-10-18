@@ -1068,7 +1068,7 @@ enum ePrioUpdate {
 #
 # Schedules a new activity.
 
-order define ::activity ACTIVITY:SCHEDULE {
+order define ACTIVITY:SCHEDULE {
     title "Schedule Activity"
 
     options \
@@ -1108,7 +1108,7 @@ order define ::activity ACTIVITY:SCHEDULE {
 
     # g and a are consistent
     validate a {
-        $type check $parms(g) $parms(a)
+        activity check $parms(g) $parms(a)
     }
 
     # tn defaults to n
@@ -1163,7 +1163,7 @@ order define ::activity ACTIVITY:SCHEDULE {
 #
 # Updates an existing calendar item.
 
-order define ::activity ACTIVITY:UPDATE {
+order define ACTIVITY:UPDATE {
     title "Update Scheduled Activity"
 
     options \
@@ -1241,7 +1241,7 @@ order define ::activity ACTIVITY:UPDATE {
 #
 # Cancels an existing calendar item.
 
-order define ::activity ACTIVITY:CANCEL {
+order define ACTIVITY:CANCEL {
     title "Cancel Scheduled Activity"
 
     options \
@@ -1269,7 +1269,7 @@ order define ::activity ACTIVITY:CANCEL {
 #
 # Re-prioritizes a calendar item.
 
-order define ::activity ACTIVITY:PRIORITY {
+order define ACTIVITY:PRIORITY {
     title "Prioritize Scheduled Activity"
 
     options \
