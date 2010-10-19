@@ -164,39 +164,39 @@ snit::type sim {
 
         $gram load nbgroups {*}[rdb eval {
             SELECT n, g, basepop, 1.0, 1.0
-            FROM nbgroups
+            FROM civgroups
         }]
 
         $gram load sat {*}[rdb eval {
             SELECT n, g, c, sat0, saliency
-            FROM sat_ngc JOIN groups USING (g)
-            ORDER BY n, gtype, g, c
+            FROM sat_gc JOIN civgroups USING (g)
+            ORDER BY n, g, c
         }]
 
-        # relationships are difficult: need to convert PLAYBOX
-        # to all nbhoods
+        # Relationships: for now, just duplicate all relationships
+        # in all neighborhoods.
         set records [list]
         set nbhoods [nbhood names]
 
         rdb eval {
-            SELECT n, f, g, rel
-            FROM rel_nfg
-            ORDER BY n, f, g
+            SELECT f, g, rel
+            FROM rel_fg
+            ORDER BY f, g
         } {
-            if {$n ne "PLAYBOX"} {
+            foreach n $nbhoods {
                 lappend records $n $f $g $rel
-            } else {
-                foreach n $nbhoods {
-                    lappend records $n $f $g $rel
-                }
             }
         }
 
         $gram load rel {*}$records
 
         $gram load coop {*}[rdb eval {
-            SELECT n, f, g, coop0
-            FROM coop_nfg
+            SELECT civgroups.n   AS n,
+                   coop_fg.f     AS f,
+                   coop_fg.g     AS g,
+                   coop_fg.coop0 AS coop0
+            FROM coop_fg
+            JOIN civgroups ON (civgroups.g = coop_fg.f)
             ORDER BY n, f, g
         }]
     }
@@ -537,12 +537,11 @@ snit::type sim {
                 "groups on the Groups/CivGroups tab."
         }
 
-        # NEXT, collect data on neighborhood groups
+        # NEXT, collect data on groups and neighborhoods
         rdb eval {
-            SELECT n,g FROM nbgroups
+            SELECT g,n FROM civgroups
         } {
             lappend gInN($n)  $g
-            lappend nForG($g) $n
         }
 
         # NEXT, Every neighborhood must have at least one group
@@ -552,24 +551,11 @@ snit::type sim {
             if {![info exists gInN($n)]} {
                 set sane 0
 
-                $type CheckTopic "Neighborhood has no residents"       \
-                    "Neighborhood $n contains no neighborhood groups;" \
-                    "at least one is required.  Create neighborhood"   \
-                    "groups on the Groups/NbGroups tab."
-            }
-        }
-
-        # NEXT, Every CIV group must reside in at least one nbhood.
-        # TBD: Is this really required?
-        foreach g [civgroup names] {
-            if {![info exists nForG($g)]} {
-                set sane 0
-
-                $type CheckTopic "Pointless Civilian Group"             \
-                    "Civilian group $g resides in no neighborhoods; it" \
-                    "must reside in at least one.  Either delete group" \
-                    "$g on the Groups/CivGroups tab, or add $g to a"    \
-                    "neighborhood on the Groups/NbGroups tab."
+                $type CheckTopic "Neighborhood has no residents"   \
+                    "Neighborhood $n contains no civilian groups;" \
+                    "at least one is required.  Create civilian"   \
+                    "groups and assign them to neighborhoods"      \
+                    "on the Groups/CivGroups tab."
             }
         }
 
@@ -611,17 +597,17 @@ snit::type sim {
 
         if {![rdb exists {
             SELECT sap 
-            FROM nbgroups JOIN nbhoods USING (n)
+            FROM civgroups JOIN nbhoods USING (n)
             WHERE local AND sap < 100
         }]} {
             set sane 0
 
             $type CheckTopic "No consumers in local economy"             \
                 "There are no consumers in the local economy.  At least" \
-                "one neighborhood group in a \"local\" neighborhood"     \
+                "one civilian group in a \"local\" neighborhood"     \
                 "needs to have non-subsistence"                          \
-                "population.  Add or edit neighborhood groups on the"    \
-                "Groups/NbGroups tab."
+                "population.  Add or edit civilian groups on the"    \
+                "Groups/CivGroups tab."
         }
 
         # NEXT, The econ(sim) CGE Cobb-Douglas parameters must sum to 
@@ -999,13 +985,13 @@ snit::type sim {
         # begin to work at this time.
         aram     init -reload
         activity analyze staffing
-        demog    analyze pop     
-        sat      start
-        coop     start
+        demog    analyze pop
+        sat      start                 ;# TBD: check results (need trends)
+        coop     start                 ;# TBD: check results (need trends)
         nbstat   start
         econ     start
         demog    analyze econ
-        demsit   assess
+        demsit   assess                ;# TBD
 
         # TBD: demog should probably do something here.
         mad getdrivers

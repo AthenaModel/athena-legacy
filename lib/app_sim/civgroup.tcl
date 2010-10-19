@@ -58,6 +58,44 @@ snit::type civgroup {
         return $g
     }
 
+    # gInN g n
+    #
+    # g       A group ID
+    # n       A neighborhood ID
+    #
+    # Returns 1 if g resides in n, and 0 otherwise.
+
+    typemethod exists {g n} {
+        rdb exists {
+            SELECT * FROM civgroups WHERE g=$g AND n=$n
+        }
+    }
+
+    # Type Method: getg
+    #
+    # Retrieves a row dictionary, or a particular column value, from
+    # civgroups.
+    #
+    # Syntax:
+    #   getg _g ?parm?_
+    #
+    #   g    - A group in the neighborhood
+    #   parm - A civgroups column name
+
+    typemethod getg {g {parm ""}} {
+        # FIRST, get the data
+        rdb eval {SELECT * FROM civgroups WHERE g=$g} row {
+            if {$parm ne ""} {
+                return $row($parm)
+            } else {
+                unset row(*)
+                return [array get row]
+            }
+        }
+
+        return ""
+    }
+
 
     #-------------------------------------------------------------------
     # Mutators

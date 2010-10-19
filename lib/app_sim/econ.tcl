@@ -319,8 +319,8 @@ snit::type econ {
         rdb eval {
             SELECT labor_force,
                    security
-            FROM demog_ng
-            JOIN force_ng using (n,g)
+            FROM demog_g
+            JOIN force_ng using (g)
             JOIN nbhoods using (n)
             WHERE nbhoods.local
         } {

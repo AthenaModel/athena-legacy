@@ -20,10 +20,10 @@
 # athena_sim(1): Demographic Model, main module.
 #
 # This module is responsible for computing demographics for neighborhoods
-# and neighborhood groups.  The data is stored in the demog_ng, demog_n,
-# and demog_local tables.  Entries in the demog_n and demog_ng tables
-# are created and deleted by nbhood(sim) and nbgroups(sim) respectively, 
-# as neighborhoods and neighborhood groups come and go.  The (single)
+# and neighborhood groups.  The data is stored in the demog_g, demog_n,
+# and demog_local tables.  Entries in the demog_n and demog_g tables
+# are created and deleted by nbhood(sim) and civgroups(sim) respectively, 
+# as neighborhoods and civilian groups come and go.  The (single)
 # entry in the demog_local table is created/replaced on <analyze pop>.
 #
 #-----------------------------------------------------------------------
@@ -37,7 +37,7 @@ snit::type demog {
 
     # Type Method: analyze pop
     #
-    # Computes the population statistics in demog_ng(n,g), demog_n(n), 
+    # Computes the population statistics in demog_g(g), demog_n(n), 
     # and demog_local for all n, g.  This routine depends on the
     # units staffed by activity(sim).
     #
@@ -45,7 +45,7 @@ snit::type demog {
     #   analyze pop
 
     typemethod "analyze pop" {} {
-        $type ComputePopNG
+        $type ComputePopG
         $type ComputePopN
         $type ComputePopLocal
 
@@ -55,36 +55,36 @@ snit::type demog {
         return
     }
 
-    # Type Method: ComputePopNG
+    # Type Method: ComputePopG
     #
-    # Computes the population statistics for each neighborhood group.
+    # Computes the population statistics for each civilian group.
     #
     # Syntax:
-    #   ComputePopNG
+    #   ComputePopG
 
-    typemethod ComputePopNG {} {
+    typemethod ComputePopG {} {
         # FIRST, get resident and subsistence population
         rdb eval {
-            SELECT nbgroups.n             AS n,
-                   nbgroups.g             AS g,
-                   nbgroups.sap           AS sap,
+            SELECT civgroups.n            AS n,
+                   civgroups.g            AS g,
+                   civgroups.sap          AS sap,
                    total(units.personnel) AS population
-            FROM nbgroups
+            FROM civgroups
             JOIN units
-            ON (nbgroups.n=units.origin AND nbgroups.g=units.g)
+            ON (civgroups.n=units.origin AND civgroups.g=units.g)
             WHERE units.n = units.origin AND units.personnel > 0
-            GROUP BY nbgroups.n, nbgroups.g
+            GROUP BY civgroups.g
         } {
             let subsistence {int($population*$sap/100.0)}
             let consumers   {$population - $subsistence}
 
             rdb eval {
-                UPDATE demog_ng
+                UPDATE demog_g
                 SET population  = $population,
                     subsistence = $subsistence,
                     consumers   = $consumers,
                     labor_force = 0
-                WHERE n=$n and g=$g;
+                WHERE g=$g;
             }
         }
 
@@ -96,23 +96,23 @@ snit::type demog {
             GROUP BY origin, g
         } {
             rdb eval {
-                UPDATE demog_ng
+                UPDATE demog_g
                 SET displaced  = $displaced
-                WHERE n=$origin and g=$g;
+                WHERE g=$g;
             }
         }
 
         # NEXT, accumulate labor force.
         rdb eval {
-            SELECT nbgroups.n             AS n,
-                   nbgroups.g             AS g, 
-                   nbgroups.sap           AS sap, 
-                   units.a                AS a, 
-                   total(units.personnel) AS personnel
-            FROM nbgroups 
-            JOIN units ON (nbgroups.n=units.origin AND nbgroups.g=units.g)
+            SELECT civgroups.n             AS n,
+                   civgroups.g             AS g, 
+                   civgroups.sap           AS sap, 
+                   units.a                 AS a, 
+                   total(units.personnel)  AS personnel
+            FROM civgroups 
+            JOIN units ON (civgroups.n=units.origin AND civgroups.g=units.g)
             WHERE units.n=units.origin
-            GROUP BY n,g,a
+            GROUP BY g,a
         } {
             set LFF [parm get demog.laborForceFraction.$a]
 
@@ -124,9 +124,9 @@ snit::type demog {
             let LF {round($LFF* $personnel * (100 - $sap)/100.0)}
 
             rdb eval {
-                UPDATE demog_ng
+                UPDATE demog_g
                 SET labor_force = labor_force + $LF
-                WHERE n=$n AND g=$g;
+                WHERE g=$g;
             }
         }
     }
@@ -137,7 +137,7 @@ snit::type demog {
     # neighborhood.
     #
     # Syntax:
-    #   ComputePopNtest/app_sim/
+    #   ComputePopN
 
     typemethod ComputePopN {} {
         # FIRST, compute the displaced populationa and displaced 
@@ -174,7 +174,8 @@ snit::type demog {
                    total(subsistence) AS subsistence,
                    total(consumers)   AS consumers, 
                    total(labor_force) AS labor_force
-            FROM demog_ng
+            FROM demog_g
+            JOIN civgroups USING (g)
             GROUP BY n
         } {
             rdb eval {
@@ -240,9 +241,11 @@ snit::type demog {
         # NEXT, compute the neighborhood group statistics
         foreach {n g population labor_force} [rdb eval {
             SELECT n, g, population, labor_force
-            FROM demog_ng
+            FROM demog_g
+            JOIN civgroups USING (g)
             JOIN nbhoods USING (n)
             WHERE nbhoods.local
+            GROUP BY g
         }] {
             # number of unemployed workers
             let unemployed {round($labor_force * $ur / 100.0)}
@@ -255,11 +258,11 @@ snit::type demog {
 
             # Save results
             rdb eval {
-                UPDATE demog_ng
+                UPDATE demog_g
                 SET unemployed = $unemployed,
                     upc        = $upc,
                     uaf        = $uaf
-                WHERE n=$n AND g=$g;
+                WHERE g=$g;
             }
         }
 
@@ -308,21 +311,20 @@ snit::type demog {
     #-------------------------------------------------------------------
     # Group: Queries
 
-    # Type Method: getng
+    # Type Method: getg
     #
     # Retrieves a row dictionary, or a particular column value, from
-    # demog_ng.
+    # demog_g.
     #
     # Syntax:
-    #   getng _n g ?parm?_
+    #   getg _g ?parm?_
     #
-    #   n    - A neighborhood
     #   g    - A group in the neighborhood
-    #   parm - A demog_ng column name
+    #   parm - A demog_g column name
 
-    typemethod getng {n g {parm ""}} {
+    typemethod getg {g {parm ""}} {
         # FIRST, get the data
-        rdb eval {SELECT * FROM demog_ng WHERE n=$n AND g=$g} row {
+        rdb eval {SELECT * FROM demog_g WHERE g=$g} row {
             if {$parm ne ""} {
                 return $row($parm)
             } else {
@@ -393,11 +395,10 @@ snit::type demog {
     #
     # parmdict     A dictionary of group parms
     #
-    #    n                Neighborhood ID
     #    g                Group ID
     #    casualties       A number of casualites to attrit
     #
-    # Updates a demog_ng record given the parms, which are presumed to be
+    # Updates a demog_g record given the parms, which are presumed to be
     # valid.
 
     typemethod {mutate attritResident} {parmdict} {
@@ -405,8 +406,8 @@ snit::type demog {
         dict with parmdict {
             # FIRST, get the undo information
             rdb eval {
-                SELECT population,attrition FROM demog_ng
-                WHERE n=$n AND g=$g
+                SELECT population,attrition FROM demog_g
+                WHERE g=$g
             } {}
 
             if {$casualties >= 0} {
@@ -419,10 +420,10 @@ snit::type demog {
 
             # NEXT, Update the group
             rdb eval {
-                UPDATE demog_ng
+                UPDATE demog_g
                 SET attrition = attrition + $casualties,
                     population = population - $casualties
-                WHERE n=$n AND g=$g
+                WHERE g=$g
             } {}
 
             # NEXT, notify the app.
@@ -431,7 +432,7 @@ snit::type demog {
             # NEXT, If we're not undoing, return the undo command.
             if {!$undoing} {
                 return [mytypemethod mutate attritResident \
-                        [list n $n g $g casualties $undoCasualties]]
+                        [list g $g casualties $undoCasualties]]
             } else {
                 return
             }
@@ -442,11 +443,10 @@ snit::type demog {
     #
     # parmdict     A dictionary of group parms
     #
-    #    n                Neighborhood ID
     #    g                Group ID
     #    casualties       A number of casualites to attrit
     #
-    # Updates a demog_ng record given the parms, which are presumed to be
+    # Updates a demog_g record given the parms, which are presumed to be
     # valid.
 
     typemethod {mutate attritDisplaced} {parmdict} {
@@ -454,8 +454,8 @@ snit::type demog {
         dict with parmdict {
             # FIRST, get the undo information
             rdb eval {
-                SELECT displaced,attrition FROM demog_ng
-                WHERE n=$n AND g=$g
+                SELECT displaced,attrition FROM demog_g
+                WHERE g=$g
             } {}
 
             if {$casualties >= 0} {
@@ -468,10 +468,10 @@ snit::type demog {
 
             # NEXT, Update the group
             rdb eval {
-                UPDATE demog_ng
+                UPDATE demog_g
                 SET attrition = attrition + $casualties,
                     displaced = displaced - $casualties
-                WHERE n=$n AND g=$g
+                WHERE g=$g
             } {}
 
             # NEXT, notify the app.
@@ -480,7 +480,7 @@ snit::type demog {
             # NEXT, If we're not undoing, return the undo command.
             if {!$undoing} {
                 return [mytypemethod mutate attritDisplaced \
-                        [list n $n g $g casualties $undoCasualties]]
+                        [list g $g casualties $undoCasualties]]
             } else {
                 return
             }

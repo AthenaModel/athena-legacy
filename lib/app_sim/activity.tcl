@@ -77,7 +77,7 @@ snit::type activity {
                    P.g                     AS g, 
                    P.basepop - P.attrition AS bp,
                    U.personnel             AS up
-            FROM gui_nbgroups AS P
+            FROM gui_civgroups AS P
             LEFT OUTER JOIN units AS U
             ON (U.n = P.n AND U.g = P.g AND U.cid = 0)
             WHERE bp > 0 OR up > 0
@@ -982,15 +982,30 @@ snit::type activity {
     # Refreshes the fields for ACTIVITY:SCHEDULE
 
     typemethod Refresh_AS {dlg fields fdict} {
+        set disabled [list]
+
         dict with fdict {
             # Configure a
             if {$g ne ""} {
                 set gtype [string tolower [group gtype $g]]
+
+                # n field
+                if {$gtype eq "civ"} {
+                    set n [civgroup getg $g n]
+                    $dlg field configure n -values [list $n]
+                    $dlg set n $n
+                    lappend disabled n
+                } else {
+                    $dlg field configure n -values [nbhood names]
+                }
+
+                # a field
                 set values [activity $gtype names]
                 $dlg field configure a -values $values
-                $dlg disabled {}
+
             } else {
-                $dlg disabled a
+                lappend disabled n a
+                $dlg set n ""
                 $dlg set a ""
             }
 
@@ -1003,6 +1018,8 @@ snit::type activity {
                 }
             }
         }
+
+        $dlg disabled $disabled
     }
 
     # Refresh_AU dlg fields fdict
@@ -1075,10 +1092,10 @@ order define ACTIVITY:SCHEDULE {
         -sendstates {PREP PAUSED}           \
         -refreshcmd {::activity Refresh_AS}
 
-    parm g         key  "Group"        -table groups -key g
-    parm n         key  "From Nbhood"  -table nbhoods -key n
+    parm g         key  "Group"            -table groups -key g
+    parm n         enum "From Nbhood"  
     parm a         enum "Activity"
-    parm tn        key  "In Nbhood"    -table nbhoods -key n
+    parm tn        key  "In Nbhood"        -table nbhoods -key n
     parm personnel text "Personnel"
     parm start     text "Start"
     parm finish    text "Finish"           -defval Never
@@ -1101,8 +1118,11 @@ order define ACTIVITY:SCHEDULE {
 
     # g and a are consistent
     validate g {
-        if {[group gtype $parms(g)] eq "CIV"} {
-            nbgroup validate [list $parms(n) $parms(g)]
+        if {[group gtype $parms(g)] eq "CIV"      &&
+            ![civgroups gInN $parms(g) $parms(n)]
+        } {
+            reject n \
+                "Group $parms(g) does not reside in neighborhood $parms(n)"
         }
     }
 

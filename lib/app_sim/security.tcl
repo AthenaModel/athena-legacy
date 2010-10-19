@@ -108,16 +108,16 @@ snit::type security {
         # belong to the corresponding group in this neighborhood, if any.
 
         rdb eval {
-            SELECT nbgroups.n              AS n,
-                   nbgroups.g              AS g,
-                   nbgroups.demeanor       AS demeanor,
+            SELECT civgroups.n             AS n,
+                   civgroups.g             AS g,
+                   civgroups.demeanor      AS demeanor,
                    gram_ng.sat             AS mood,
                    total(units.personnel)  AS P
-            FROM nbgroups
+            FROM civgroups_view AS civgroups
             JOIN gram_ng USING (n,g)
-            JOIN units ON (units.origin=nbgroups.n AND units.g=nbgroups.g)
+            JOIN units ON (units.origin=civgroups.n AND units.g=civgroups.g)
             WHERE units.n = units.origin
-            GROUP BY nbgroups.n,nbgroups.g
+            GROUP BY civgroups.n,civgroups.g
         } {
             set a [parmdb get force.population]
             set D [parmdb get force.demeanor.$demeanor]
@@ -145,7 +145,7 @@ snit::type security {
                    total(personnel) AS P,
                    demeanor,
                    forcetype
-            FROM units JOIN frcgroups USING (g)
+            FROM units JOIN frcgroups_view USING (g)
             WHERE personnel > 0
             GROUP BY n, g 
         } {
@@ -171,7 +171,7 @@ snit::type security {
                    total(personnel) AS P,
                    demeanor,
                    orgtype
-            FROM units JOIN orggroups USING (g)
+            FROM units JOIN orggroups_view USING (g)
             WHERE personnel > 0
             GROUP BY n, g 
         } {
