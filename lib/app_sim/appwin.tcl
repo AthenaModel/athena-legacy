@@ -179,12 +179,6 @@ snit::widget appwin {
             script  { civgroupbrowser %W }
         }
 
-        nbgroups {
-            label   "NbGroups"
-            parent  groupst
-            script  { nbgroupbrowser %W }
-        }
-
         frcgroups {
             label   "FrcGroups"
             parent  groupst
@@ -239,8 +233,8 @@ snit::widget appwin {
             script ""
         }
 
-        demogng {
-            label  "NbGroups"
+        demogg {
+            label  "Groups"
             parent "demogt"
             script { demogbrowser %W }
         }

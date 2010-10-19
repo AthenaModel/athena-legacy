@@ -9,18 +9,11 @@
 #    athena_sim(1): Relationship Manager
 #
 #    This module is responsible for managing relationships between
-#    groups as groups come and ago, and for allowing the analyst
+#    groups as groups come and go, and for allowing the analyst
 #    to update particular relationships.
 #
-#    Every frc and org group has a bidirectional relationship with 
-#    every other frc and org group; these are stored in the rel_fg
-#    table.
-#
-#    Every frc and org group has a bidirectional relationship with
-#    every neighborhood group; these are stored in the rel_nfg table.
-#
-#    Every civ group has a relationship with every other civ group
-#    in every neighborhood.
+#    Every group has a bidirectional relationship with every other
+#    group.
 #   
 #
 #-----------------------------------------------------------------------
@@ -34,55 +27,31 @@ snit::type rel {
 
     # validate id
     #
-    # id     An nfg relationship ID, [list $n $f $g]
+    # id     An fg relationship ID, [list $f $g]
     #
     # Throws INVALID if there's no relationship for the 
     # specified combination.
 
     typemethod validate {id} {
-        lassign $id n f g
+        lassign $id f g
 
-        set n [rel nbhood validate $n]
         set f [group validate $f]
         set g [group validate $g]
 
-        if {![$type exists $n $f $g]} {
-            return -code error -errorcode INVALID \
-               "Relationship is not tracked for $f with $g in $n."
-        }
-
-        return [list $n $f $g]
+        return [list $f $g]
     }
 
-    # exists n f g
+    # exists f g
     #
-    # n       A nbhood ID, or PLAYBOX
     # f       A group ID
     # g       A group ID
     #
-    # Returns 1 if relationship is tracked between f and g in n.
+    # Returns 1 if relationship is tracked between f and g
 
-    typemethod exists {n f g} {
+    typemethod exists {f g} {
         rdb exists {
-            SELECT * FROM rel_nfg WHERE n=$n AND f=$f AND g=$g
+            SELECT * FROM rel_fg WHERE f=$f AND g=$g
         }
-    }
-
-    # nbhood validate n
-    #
-    # n     A possible neighborhood name, or "PLAYBOX"
-    #
-    # Validates and returns n.
-
-    typemethod {nbhood validate} {n} {
-        set nbhoods [concat PLAYBOX [nbhood names]]
-
-        if {$n ni $nbhoods} {
-            return -code error -errorcode INVALID \
-                "Invalid neighborhood, should be one of: [join $nbhoods {, }]"
-        }
-
-        return $n
     }
 
     #-------------------------------------------------------------------
@@ -97,33 +66,21 @@ snit::type rel {
     #
     # Determines which relationships should exist, and 
     # adds or deletes them, returning an undo script.
+    #
+    # TBD: Since every pair of groups now has a relationships, it
+    # might be possible to simplify this code.
 
     typemethod {mutate reconcile} {} {
         # FIRST, List required relationships
         set valid [dict create]
 
         rdb eval {
-            -- Force/Org vs. Force/Org
-            SELECT 'PLAYBOX' AS n, 
-                   F.g       AS f, 
+            SELECT F.g       AS f, 
                    G.g       AS g
             FROM groups AS F
             JOIN groups AS G
-            WHERE F.gtype IN ('FRC', 'ORG')
-            AND   G.gtype IN ('FRC', 'ORG')
-
-            UNION
-
-            -- Nbgroup with all other groups
-            SELECT nbgroups.n AS n, 
-                   groups.g   AS f, 
-                   nbgroups.g AS g
-            FROM nbgroups JOIN groups
         } {
-            # Some of these will be set more often than is necessary,
-            # but that's OK.
-            dict set valid [list $n $f $g] 0
-            dict set valid [list $n $g $f] 0
+            dict set valid [list $f $g] 0
         }
 
         # NEXT, Begin the undo script.
@@ -134,11 +91,11 @@ snit::type rel {
         # *do* exist.
 
         rdb eval {
-            SELECT * FROM rel_nfg
+            SELECT * FROM rel_fg
         } row {
             unset -nocomplain row(*)
 
-            set id [list $row(n) $row(f) $row(g)]
+            set id [list $row(f) $row(g)]
 
             if {[dict exists $valid $id]} {
                 dict incr valid $id
@@ -146,8 +103,8 @@ snit::type rel {
                 lappend undo [mytypemethod Restore [array get row]]
 
                 rdb eval {
-                    DELETE FROM rel_nfg
-                    WHERE n=$row(n) AND f=$row(f) AND g=$row(g)
+                    DELETE FROM rel_fg
+                    WHERE f=$row(f) AND g=$row(g)
                 }
 
                 notifier send ::rel <Entity> delete $id
@@ -160,24 +117,24 @@ snit::type rel {
                 continue
             }
 
-            lassign $id n f g
+            lassign $id f g
 
             if {$f eq $g} {
                 # Every group has a relationship of 1.0 with itself.
                 rdb eval {
-                    INSERT INTO rel_nfg(n,f,g,rel)
-                    VALUES($n,$f,$g,1.0)
+                    INSERT INTO rel_fg(f,g,rel)
+                    VALUES($f,$g,1.0)
                 }
 
             } else {
                 # Otherwise, we get the default relationship.
                 rdb eval {
-                    INSERT INTO rel_nfg(n,f,g)
-                    VALUES($n,$f,$g)
+                    INSERT INTO rel_fg(f,g)
+                    VALUES($f,$g)
                 }
             }
 
-            lappend undo [mytypemethod Delete $n $f $g]
+            lappend undo [mytypemethod Delete $f $g]
 
             notifier send ::rel <Entity> create $id
         }
@@ -194,25 +151,25 @@ snit::type rel {
     # Restores the entity in the database
 
     typemethod Restore {parmdict} {
-        rdb insert rel_nfg $parmdict
+        rdb insert rel_fg $parmdict
         dict with parmdict {
-            notifier send ::rel <Entity> create [list $n $f $g]
+            notifier send ::rel <Entity> create [list $f $g]
         }
     }
 
 
-    # Delete n f g
+    # Delete f g
     #
-    # n,f,g    The indices of the entity
+    # f,g    The indices of the entity
     #
     # Deletes the entity.  Used only in undo scripts.
     
-    typemethod Delete {n f g} {
+    typemethod Delete {f g} {
         rdb eval {
-            DELETE FROM rel_nfg WHERE n=$n AND f=$f AND g=$g
+            DELETE FROM rel_fg WHERE f=$f AND g=$g
         }
 
-        notifier send ::rel <Entity> delete [list $n $f $g]
+        notifier send ::rel <Entity> delete [list $f $g]
     }
 
 
@@ -220,8 +177,8 @@ snit::type rel {
     #
     # parmdict     A dictionary of group parms
     #
-    #    id               list {n f g}
-    #    rel              Relationship of f with g in n.
+    #    id               list {f g}
+    #    rel              Relationship of f with g
     #
     # Updates a relationship given the parms, which are presumed to be
     # valid.
@@ -229,12 +186,12 @@ snit::type rel {
     typemethod {mutate update} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
-            lassign $id n f g
+            lassign $id f g
 
             # FIRST, get the undo information
             rdb eval {
-                SELECT * FROM rel_nfg
-                WHERE n=$n AND f=$f AND g=$g
+                SELECT * FROM rel_fg
+                WHERE f=$f AND g=$g
             } undoData {
                 unset undoData(*)
                 set undoData(id) $id
@@ -242,9 +199,9 @@ snit::type rel {
 
             # NEXT, Update the group
             rdb eval {
-                UPDATE rel_nfg
+                UPDATE rel_fg
                 SET rel = nonempty($rel, rel)
-                WHERE n=$n AND f=$f AND g=$g
+                WHERE f=$f AND g=$g
             } {}
 
             # NEXT, notify the app.
@@ -269,7 +226,7 @@ snit::type rel {
     typemethod Refresh_RU {dlg fields fdict} {
         if {"id" in $fields} {
             dict with fdict {
-                lassign $id n f g
+                lassign $id f g
 
                 $dlg loadForKey id
 
@@ -296,7 +253,7 @@ snit::type rel {
 
             dict with fdict {
                 foreach id $ids {
-                    lassign $id n f g
+                    lassign $id f g
                     if {$f eq $g} {
                         $dlg disabled rel
                         return
@@ -323,9 +280,9 @@ order define RELATIONSHIP:UPDATE {
         -sendstates PREP \
         -refreshcmd {::rel Refresh_RU}
 
-    parm id   key   "Groups"         -table  gui_rel_nfg \
-                                     -key    {n f g} \
-                                     -labels {In Of With}
+    parm id   key   "Groups"         -table  gui_rel_fg \
+                                     -key    {f g}      \
+                                     -labels {Of With}
     parm rel  text  "Relationship"
 } {
     # FIRST, prepare the parameters
@@ -335,7 +292,7 @@ order define RELATIONSHIP:UPDATE {
     returnOnError
 
     # NEXT, do cross-validation
-    lassign $parms(id) n f g
+    lassign $parms(id) f g
 
     validate rel {
         if {$f eq $g && $parms(rel) != 1.0
@@ -362,7 +319,7 @@ order define RELATIONSHIP:UPDATE:MULTI {
         -sendstates PREP \
         -refreshcmd {::rel Refresh_RUM}
 
-    parm ids  multi  "IDs"           -table gui_rel_nfg \
+    parm ids  multi  "IDs"           -table gui_rel_fg \
                                      -key   id
     parm rel  text   "Relationship"
 } {
@@ -376,7 +333,7 @@ order define RELATIONSHIP:UPDATE:MULTI {
     # Cross-validate
     validate rel {
         foreach id $parms(ids) {
-            lassign $id n f g
+            lassign $id f g
  
             if {$f eq $g && $parms(rel) != 1.0} {
                 reject rel \

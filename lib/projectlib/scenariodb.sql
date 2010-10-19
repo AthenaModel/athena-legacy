@@ -165,9 +165,31 @@ CREATE TABLE groups (
     -- Unit Symbol (list of eunitsymbol(n), or '')
     symbol      TEXT DEFAULT '',
 
+    -- Group demeanor: edemeanor
+    demeanor    TEXT DEFAULT 'AVERAGE',
+
     -- Group type, CIV, FRC, ORG
     gtype       TEXT 
 );
+
+-- Civ Groups
+CREATE TABLE civgroups (
+    -- Symbolic group name
+    g           TEXT PRIMARY KEY,
+
+    -- Symbolic neighborhood name for neighborhood of residence.
+    n              TEXT,
+
+    -- Base Population in n.
+    basepop        INTEGER DEFAULT 1,
+
+    -- Subsistence Agriculture Percentage in n.
+    sap            INTEGER DEFAULT 0
+);
+
+-- Civ Groups View: joins groups with civgroups.
+CREATE VIEW civgroups_view AS
+SELECT * FROM groups JOIN civgroups USING (g);
 
 -- Force Groups
 CREATE TABLE frcgroups (
@@ -176,9 +198,6 @@ CREATE TABLE frcgroups (
 
     -- Force Type
     forcetype   TEXT,
-
-    -- Group demeanor: edemeanor
-    demeanor    TEXT DEFAULT 'AVERAGE',
 
     -- Uniformed or Non-uniformed: 1 or 0
     uniformed   INTEGER DEFAULT 1,
@@ -201,47 +220,12 @@ CREATE TABLE orggroups (
     g              TEXT PRIMARY KEY,
 
     -- Organization type: eorgtype
-    orgtype        TEXT DEFAULT 'NGO',
-
-    -- Group demeanor: edemeanor
-    demeanor       TEXT DEFAULT 'AVERAGE'
+    orgtype        TEXT DEFAULT 'NGO'
 );
 
 -- Org Group View: joins groups with orggroups.
 CREATE VIEW orggroups_view AS
 SELECT * FROM groups JOIN orggroups USING (g);
-
--- Civ Group View: Limits groups to CIV groups
--- (There's no CIV-specific group data at the top-level.)
-
-CREATE VIEW civgroups_view AS
-SELECT * FROM groups WHERE gtype='CIV';
-
--- Neighborhood Groups: Civilian Groups in Neighborhoods
-CREATE TABLE nbgroups (
-    -- Symbolic neighborhood name
-    n              TEXT,
-
-    -- Symbolic civgroup name
-    g              TEXT,
-
-    -- Local name: human readable name
-    local_name     TEXT,
-
-    -- Base Population
-    basepop        INTEGER DEFAULT 1,
-
-    -- Group demeanor: edemeanor
-    demeanor       TEXT DEFAULT 'AVERAGE',
-
-    -- Subsistence Agriculture Percentage
-    sap            INTEGER DEFAULT 0,
-
-    PRIMARY KEY (n,g)
-);
-
-CREATE VIEW nbgroups_view AS
-SELECT * FROM groups JOIN nbgroups USING (g);
 
 ------------------------------------------------------------------------
 -- Personnel Table
@@ -362,13 +346,10 @@ CREATE INDEX attrit_nfg_index_nfg ON attrit_nfg(n,f,g);
 -- Initial Satisfaction Data
 
 
--- Neighborhood/pgroup/concern triples (n,g,c) for nbhood groups
+-- Group/concern pairs (g,c) for civilian groups
 -- This table contains the data used to initialize GRAM.
 
-CREATE TABLE sat_ngc (
-    -- Symbolic nbhoods name
-    n          TEXT,
-
+CREATE TABLE sat_gc (
     -- Symbolic groups name
     g          TEXT,
 
@@ -389,38 +370,17 @@ CREATE TABLE sat_ngc (
     dtrend     DOUBLE DEFAULT 0.0,
     dthresh    DOUBLE DEFAULT 0.0,
 
-    PRIMARY KEY (n, g, c)
+    PRIMARY KEY (g, c)
 );
 
 
 ------------------------------------------------------------------------
 -- Initial Relationship Data
 
--- rel_nfg: Group f's relationship with group g in neighborhood n, from
+-- rel_fg: Group f's relationship with group g, from
 -- f's point of view.
---
--- Relationships between force and org groups are at the playbox level,
--- indicated by setting n='PLAYBOX'.  This is a special token, used 
--- to indicate non-neighborhood-specific relationships.
---
--- All relationships with civilian groups occur at the neighborhood
--- level.
---
--- Thus, the table is populated as follows:
---
--- At the PLAYBOX level: all frc/org groups f with all all frc/org groups g.
---
--- For each nbhood n:
---    For all civ groups f and all civ groups g, provided that there's at
---    least one civ group resident in n.
---    For each civ group f resident in n with with all frc/org groups g
---    For all frc/org groups f with each civ group g resident in n.
 
-
-CREATE TABLE rel_nfg (
-    -- Symbolic nbhood name, or 'PLAYBOX'.
-    n           TEXT,
-
+CREATE TABLE rel_fg (
     -- Symbolic group name: group f
     f           TEXT,
 
@@ -430,23 +390,20 @@ CREATE TABLE rel_nfg (
     -- Group relationship, from f's point of view.
     rel         DOUBLE DEFAULT 0.0,
 
-    PRIMARY KEY (n, f, g)
+    PRIMARY KEY (f, g)
 );
 
 
 ------------------------------------------------------------------------
 -- Initial Cooperation Data
 
--- coop_nfg: Group f's cooperation with group g in neighborhood n, that
+-- coop_fg: Group f's cooperation with group gn, that
 -- is, the likelihood that f will provide intel to g.
 --
 -- At present, cooperation is defined only between all
--- nbgroups nf and all force groups g.
+-- civgroups f and all force groups g.
 
-CREATE TABLE coop_nfg (
-    -- Symbolic nbhood name.
-    n           TEXT,
-
+CREATE TABLE coop_fg (
     -- Symbolic civ group name: group f
     f           TEXT,
 
@@ -464,7 +421,7 @@ CREATE TABLE coop_nfg (
     dtrend     DOUBLE DEFAULT 0.0,
     dthresh    DOUBLE DEFAULT 50.0,
 
-    PRIMARY KEY (n, f, g)
+    PRIMARY KEY (f, g)
 );
 
 ------------------------------------------------------------------------
@@ -879,22 +836,19 @@ CREATE TABLE demog_n (
     uaf          DOUBLE DEFAULT 0.0
 );
 
--- Demographics of particular nbgroups
+-- Demographics of particular civgroups
 
-CREATE TABLE demog_ng (
-    -- Symbolic neighborhood name
-    n              TEXT,
-
+CREATE TABLE demog_g (
     -- Symbolic civgroup name
-    g              TEXT,
+    g              TEXT PRIMARY KEY,
 
-    -- Attrition to this nbgroup (total killed)
+    -- Attrition to this group (total killed)
     attrition      INTEGER DEFAULT 0,
 
     -- Displaced population: personnel in units in other neighborhoods
     displaced      INTEGER DEFAULT 0,
 
-    -- Total resident of this nbgroup in this neighborhood at the
+    -- Total residents of this group in its home neighborhood at the
     -- current time.
     population     INTEGER DEFAULT 0,
 
@@ -908,7 +862,7 @@ CREATE TABLE demog_ng (
     -- Labor Force: workers available to the regional economy
     labor_force    INTEGER DEFAULT 0,
 
-    -- Unemployed workers in the neighborhood.
+    -- Unemployed workers in the home neighborhood.
     unemployed     INTEGER DEFAULT 0,
 
     -- Unemployed per capita (percentage)
@@ -925,10 +879,9 @@ CREATE TABLE demog_ng (
     -- only *one* kind of demsit.  If we add more, we'll need
     -- to do something different.  The right answer depends on
     -- what demsits turn out to have in common.
-    s              INTEGER  DEFAULT 0,
-
-    PRIMARY KEY (n, g)
+    s              INTEGER  DEFAULT 0
 );
+
 
 -- Demographic Situation Context View
 --
@@ -936,13 +889,14 @@ CREATE TABLE demog_ng (
 -- demographic situations, and pulls in required context from
 -- other tables.
 CREATE VIEW demog_context AS
-SELECT DG.n              AS n,
+SELECT CG.n              AS n,
        DG.g              AS g,
        DG.uaf            AS ngfactor,
        DG.s              AS s,
        DN.uaf            AS nfactor
-FROM demog_ng AS DG
-JOIN demog_n AS DN USING (n);
+FROM demog_g   AS DG
+JOIN civgroups AS CG USING (g)
+JOIN demog_n   AS DN USING (n);
 
 ------------------------------------------------------------------------
 -- Economic Model
@@ -1071,4 +1025,157 @@ CREATE TABLE hist_econ_ij (
     qd          DOUBLE,
 
     PRIMARY KEY (t,i,j)        
+);
+
+
+------------------------------------------------------------------------
+-- Obsolete
+--
+-- The following tables, etc., will be deleted once I've finished updating
+-- the code.
+
+-- Demographics of particular nbgroups
+
+-- Neighborhood Groups: Civilian Groups in Neighborhoods
+CREATE TABLE nbgroups (
+    -- Symbolic neighborhood name
+    n              TEXT,
+
+    -- Symbolic civgroup name
+    g              TEXT,
+
+    -- Local name: human readable name
+    local_name     TEXT,
+
+    -- Base Population
+    basepop        INTEGER DEFAULT 1,
+
+    -- Subsistence Agriculture Percentage
+    sap            INTEGER DEFAULT 0,
+
+    PRIMARY KEY (n,g)
+);
+
+CREATE VIEW nbgroups_view AS
+SELECT * FROM groups JOIN nbgroups USING (g);
+
+CREATE TABLE demog_ng (
+    -- Symbolic neighborhood name
+    n              TEXT,
+
+    -- Symbolic civgroup name
+    g              TEXT,
+
+    -- Attrition to this nbgroup (total killed)
+    attrition      INTEGER DEFAULT 0,
+
+    -- Displaced population: personnel in units in other neighborhoods
+    displaced      INTEGER DEFAULT 0,
+
+    -- Total resident of this nbgroup in this neighborhood at the
+    -- current time.
+    population     INTEGER DEFAULT 0,
+
+    -- Subsistence population: population doing subsistence agriculture
+    -- and outside the regional economy.
+    subsistence    INTEGER DEFAULT 0,
+
+    -- Consumer population: population within the regional economy
+    consumers      INTEGER DEFAULT 0,
+
+    -- Labor Force: workers available to the regional economy
+    labor_force    INTEGER DEFAULT 0,
+
+    -- Unemployed workers in the neighborhood.
+    unemployed     INTEGER DEFAULT 0,
+
+    -- Unemployed per capita (percentage)
+    upc            DOUBLE DEFAULT 0.0,
+
+    -- Unemployment Attitude Factor
+    uaf            DOUBLE DEFAULT 0.0,
+
+    -- Demographic Situation ID.  This is the ID of the
+    -- demsit associated with this record, if
+    -- any, and 0 otherwise.
+    --
+    -- NOTE: This implementation is fine so long as we have
+    -- only *one* kind of demsit.  If we add more, we'll need
+    -- to do something different.  The right answer depends on
+    -- what demsits turn out to have in common.
+    s              INTEGER  DEFAULT 0,
+
+    PRIMARY KEY (n, g)
+);
+
+
+-- Neighborhood/pgroup/concern triples (n,g,c) for nbhood groups
+-- This table contains the data used to initialize GRAM.
+
+CREATE TABLE sat_ngc (
+    -- Symbolic nbhoods name
+    n          TEXT,
+
+    -- Symbolic groups name
+    g          TEXT,
+
+    -- Symbolic concerns name
+    c          TEXT,
+
+    -- Initial satisfaction value
+    sat0       DOUBLE DEFAULT 0.0,
+
+    -- Saliency of concern c to group g in nbhood n
+    saliency   DOUBLE DEFAULT 1.0,
+
+    -- Ascending trend and threshold
+    atrend     DOUBLE DEFAULT 0.0,
+    athresh    DOUBLE DEFAULT 0.0,
+
+    -- Descending trend and threshold
+    dtrend     DOUBLE DEFAULT 0.0,
+    dthresh    DOUBLE DEFAULT 0.0,
+
+    PRIMARY KEY (n, g, c)
+);
+
+
+CREATE TABLE rel_nfg (
+    -- Symbolic nbhood name, or 'PLAYBOX'.
+    n           TEXT,
+
+    -- Symbolic group name: group f
+    f           TEXT,
+
+    -- Symbolic group name: group g
+    g           TEXT,
+
+    -- Group relationship, from f's point of view.
+    rel         DOUBLE DEFAULT 0.0,
+
+    PRIMARY KEY (n, f, g)
+);
+
+CREATE TABLE coop_nfg (
+    -- Symbolic nbhood name.
+    n           TEXT,
+
+    -- Symbolic civ group name: group f
+    f           TEXT,
+
+    -- Symbolic frc group name: group g
+    g           TEXT,
+
+    -- cooperation of f with g at time 0.
+    coop0       DOUBLE DEFAULT 50.0,
+
+    -- Ascending trend and threshold
+    atrend     DOUBLE DEFAULT 0.0,
+    athresh    DOUBLE DEFAULT 50.0,
+
+    -- Descending trend and threshold
+    dtrend     DOUBLE DEFAULT 0.0,
+    dthresh    DOUBLE DEFAULT 50.0,
+
+    PRIMARY KEY (n, f, g)
 );

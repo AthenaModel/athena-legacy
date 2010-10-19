@@ -31,9 +31,9 @@ snit::widgetadaptor satbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { n        "Nbhood"                                  }
         { g        "Group"                                   }
         { c        "Concern"                                 }
+        { n        "Nbhood"                                  }
         { sat0     "Sat at T0" -sortmode real                }
         { sat      "Sat Now"   -sortmode real -foreground %D }
         { saliency "Saliency"  -sortmode real                }
@@ -57,9 +57,9 @@ snit::widgetadaptor satbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_sat_ngc                 \
+            -view         gui_sat_gc                  \
             -uid          id                          \
-            -titlecolumns 3                           \
+            -titlecolumns 2                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
                 ::sim <DbSyncB>
@@ -129,16 +129,6 @@ snit::widgetadaptor satbrowser {
         # FIRST, update buttons
         cond::orderIsValidMulti update $editbtn
         cond::orderIsValidSingle update [list $setbtn $adjbtn]
-
-        # NEXT, if there's exactly one item selected, notify the
-        # the app.
-        if {[llength [$hull uid curselection]] == 1} {
-            set id [lindex [$hull uid curselection] 0]
-            lassign $id n g c
-
-            notifier send ::app <ObjectSelect> \
-                [list ngc $id  nbhood $n group $g concern $c]
-        }
     }
 
 

@@ -42,14 +42,32 @@ LEFT OUTER JOIN force_n ON (force_n.n = nbhoods.n)
 LEFT OUTER JOIN gram_n  ON (gram_n.n  = nbhoods.n);
 
 
--- A Force Groups view for use by the GUI
+-- A CIV Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_civgroups AS
-SELECT g                                              AS id,
-       g                                              AS g,
-       longname                                       AS longname,
-       color                                          AS color,
-       shape                                          AS shape
-FROM civgroups_view;
+SELECT CG.g                                          AS id,
+       CG.g                                          AS g,
+       CG.n                                          AS n,
+       G.longname                                    AS longname,
+       G.color                                       AS color,
+       G.shape                                       AS shape,
+       G.demeanor                                    AS demeanor,
+       CG.basepop                                    AS basepop,
+       CG.sap                                        AS sap,
+       DG.population                                 AS population,
+       DG.displaced                                  AS displaced,
+       DG.attrition                                  AS attrition,
+       DG.subsistence                                AS subsistence,
+       DG.consumers                                  AS consumers,
+       DG.labor_force                                AS labor_force,
+       DG.unemployed                                 AS unemployed,
+       format('%.1f', DG.upc)                        AS upc,
+       format('%.2f', DG.uaf)                        AS uaf,
+       format('%.3f', coalesce(gram.sat0, 0.0))      AS mood0,
+       format('%.3f', coalesce(gram.sat,  0.0))      AS mood
+FROM groups    AS G
+JOIN civgroups AS CG USING (g)
+JOIN demog_g   AS DG USING (g)
+LEFT OUTER JOIN gram_ng AS gram ON (CG.g = gram.g AND CG.n = gram.n);
 
 -- A Force Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_frcgroups AS
@@ -101,11 +119,6 @@ FROM groups
 JOIN nbgroups AS main USING (g)
 JOIN demog_ng USING(n,g)
 LEFT OUTER JOIN gram_ng AS gram USING(n,g);
-
--- Universe of possible nbgroups
-CREATE TEMPORARY VIEW nbgroups_univ AS
-SELECT n, g
-FROM nbhoods JOIN civgroups_view;
 
 -- A personnel_ng view for use by the GUI.
 CREATE TEMPORARY VIEW gui_personnel_ng AS
@@ -176,6 +189,25 @@ SELECT n || ' ' || g                                  AS id,
        roe                                            AS roe
 FROM defroe_ng;
 
+-- A sat_gc view for use by the GUI: 
+-- NOTE: presumes there is a single gram(n)!
+CREATE TEMPORARY VIEW gui_sat_gc AS
+SELECT main.g || ' ' || main.c                        AS id,
+       main.g                                         AS g,
+       main.c                                         AS c,
+       CG.n                                           AS n,
+       format('%.3f', coalesce(gram.sat0, main.sat0)) AS sat0,
+       format('%.3f', coalesce(gram.sat, main.sat0))  AS sat,
+       format('%.2f', main.saliency)                  AS saliency,
+       format('%.2f', main.atrend)                    AS atrend,
+       format('%.1f', main.athresh)                   AS athresh,
+       format('%.2f', main.dtrend)                    AS dtrend,
+       format('%.1f', main.dthresh)                   AS dthresh
+FROM sat_gc AS main
+JOIN civgroups AS CG ON (main.g = CG.g) 
+LEFT OUTER JOIN gram_sat AS gram ON (main.g = gram.g AND main.c = gram.c);
+
+
 -- A sat_ngc view for use by the GUI: 
 -- NOTE: presumes there is a single gram(n)!
 CREATE TEMPORARY VIEW gui_sat_ngc AS
@@ -193,6 +225,18 @@ SELECT n || ' ' || g || ' ' || c                      AS id,
 FROM sat_ngc AS main 
 LEFT OUTER JOIN gram_sat AS gram USING (n,g,c);
 
+-- A rel_fg view for use by the GUI
+CREATE TEMPORARY VIEW gui_rel_fg AS
+SELECT R.f || ' ' || R.g                             AS id,
+       R.f                                           AS f,
+       F.gtype                                       AS ftype,
+       R.g                                           AS g,
+       G.gtype                                       AS gtype,
+       format('%+4.1f', R.rel)                       AS rel
+FROM rel_fg AS R
+JOIN groups AS F ON (F.g = R.f)
+JOIN groups as G on (G.g = R.g);
+
 -- A rel_nfg view for use by the GUI
 CREATE TEMPORARY VIEW gui_rel_nfg AS
 SELECT R.n || ' ' || R.f || ' ' || R.g               AS id,
@@ -205,6 +249,21 @@ SELECT R.n || ' ' || R.f || ' ' || R.g               AS id,
 FROM rel_nfg AS R
 JOIN groups AS F ON (F.g = R.f)
 JOIN groups as G on (G.g = R.g);
+
+-- A coop_fg view for use by the GUI:
+-- NOTE: presumes there is a single gram(n)!
+CREATE TEMPORARY VIEW gui_coop_fg AS
+SELECT f || ' ' || g                                     AS id,
+       f                                                 AS f,
+       g                                                 AS g,
+       format('%5.1f', coalesce(gram.coop0, main.coop0)) AS coop0,
+       format('%5.1f', coalesce(gram.coop, main.coop0))  AS coop,
+       format('%.2f', main.atrend)                       AS atrend,
+       format('%.1f', main.athresh)                      AS athresh,
+       format('%.2f', main.dtrend)                       AS dtrend,
+       format('%.1f', main.dthresh)                      AS dthresh
+FROM coop_fg AS main 
+LEFT OUTER JOIN gram_coop AS gram USING (f,g);
 
 -- A coop_nfg view for use by the GUI:
 -- NOTE: presumes there is a single gram(n)!

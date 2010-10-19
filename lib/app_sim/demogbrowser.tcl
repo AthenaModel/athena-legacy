@@ -8,7 +8,7 @@
 # DESCRIPTION:
 #    demogbrowser(sim) package: Nbhood Group Demographics browser.
 #
-#    This widget displays a formatted list of demog_ng records,
+#    This widget displays a formatted list of demog_g records,
 #    focussing on the population statistics.
 #    It is a wrapper around sqlbrowser(n).
 #
@@ -32,9 +32,8 @@ snit::widgetadaptor demogbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
+        { g           "Group"                                       }
         { n           "Nbhood"                                      }
-        { g           "CivGroup"                                    }
-        { local_name  "Local Name"                                  }
         { basepop     "BasePop"    -sortmode integer                }
         { population  "CurrPop"    -sortmode integer -foreground %D }
         { displaced   "Displaced"  -sortmode integer -foreground %D }
@@ -48,14 +47,14 @@ snit::widgetadaptor demogbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_nbgroups                \
+            -view         gui_civgroups               \
             -uid          id                          \
-            -titlecolumns 2                           \
+            -titlecolumns 1                           \
             -reloadon {
                 ::sim <DbSyncB>
                 ::demog <Update>
                 ::nbhood <Entity>
-                ::nbgroup <Entity>
+                ::civgroup <Entity>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.

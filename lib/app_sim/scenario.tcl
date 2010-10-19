@@ -509,7 +509,7 @@ snit::type scenario {
         set undo [list]
 
         lappend undo [nbrel     mutate reconcile]
-        lappend undo [nbgroup   mutate reconcile]
+        lappend undo [civgroup  mutate reconcile]
         lappend undo [personnel mutate reconcile]
         lappend undo [sat       mutate reconcile]
         lappend undo [rel       mutate reconcile]

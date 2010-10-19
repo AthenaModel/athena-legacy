@@ -9,16 +9,9 @@
 #    athena_sim(1): Satisfaction Curve Inputs Manager
 #
 #    This module is responsible for managing the scenario's satisfaction
-#    curve inputs as groups come and ago, and for allowing the analyst
-#    to update particular satisfaction levels.
-#
-#    Civilian Satisfaction curves are created and deleted when nbgroups 
-#    are created and deleted.
-#
-#    Organization Satisfaction curves are created and deleted:
-#
-#    * For each neighborhood when an org group is created/deleted.
-#    * For each org group when a neighborhood is created/deleted.
+#    curve inputs as CIV groups come and ago, and for allowing the analyst
+#    to update particular satisfaction levels.  Curves are created and
+#    deleted when civ groups are created and deleted.
 #
 #-----------------------------------------------------------------------
 
@@ -37,7 +30,9 @@ snit::type sat {
         log normal sat "start"
 
         rdb eval {
-            SELECT * FROM sat_ngc
+            SELECT * 
+            FROM sat_gc
+            JOIN civgroups USING (g)
             WHERE atrend > 0.0 OR dtrend < 0.0
         } row {
             if {$row(atrend) > 0.0} {
@@ -65,38 +60,30 @@ snit::type sat {
 
     # validate id
     #
-    # id     A curve ID, [list $n $g $c]
+    # id     A curve ID, [list $g $c]
     #
     # Throws INVALID if there's no satisfaction level for the 
     # specified combination.
 
     typemethod validate {id} {
-        lassign $id n g c
+        lassign $id g c
 
-        set n [nbhood   validate $n]
         set g [civgroup validate $g]
         set c [econcern validate $c]
 
-
-        if {![$type exists $n $g $c]} {
-            return -code error -errorcode INVALID \
-                "Satisfaction is not tracked for group $g's $c in $n."
-        }
-
-        return [list $n $g $c]
+        return [list $g $c]
     }
 
-    # exists n g c
+    # exists g c
     #
-    # n       A neighborhood ID
     # g       A group ID
     # c       A concern ID
     #
     # Returns 1 if there is such a satisfaction curve, and 0 otherwise.
 
-    typemethod exists {n g c} {
+    typemethod exists {g c} {
         rdb exists {
-            SELECT * FROM sat_ngc WHERE n=$n AND g=$g AND c=$c
+            SELECT * FROM sat_gc WHERE g=$g AND c=$c
         }
     }
 
@@ -112,6 +99,9 @@ snit::type sat {
     #
     # Determines which satisfaction curves should exist, and 
     # adds or deletes them, returning an undo script.
+    #
+    # TBD: Since all civgroups have all concerns under the new 
+    # model, I think this routine can be simplified.
 
     typemethod {mutate reconcile} {} {
         # FIRST, List required curves
@@ -119,9 +109,9 @@ snit::type sat {
 
         rdb eval {
             -- Civilian
-            SELECT n,g,c FROM nbgroups JOIN concerns
+            SELECT g,c FROM civgroups JOIN concerns
         } {
-            dict set valid [list $n $g $c] 0
+            dict set valid [list $g $c] 0
         }
 
         # NEXT, Begin the undo script.
@@ -132,11 +122,11 @@ snit::type sat {
         # *do* exist.
 
         rdb eval {
-            SELECT * FROM sat_ngc
+            SELECT * FROM sat_gc
         } row {
             unset -nocomplain row(*)
 
-            set id [list $row(n) $row(g) $row(c)]
+            set id [list $row(g) $row(c)]
 
             if {[dict exists $valid $id]} {
                 dict incr valid $id
@@ -144,8 +134,8 @@ snit::type sat {
                 lappend undo [mytypemethod Restore [array get row]]
 
                 rdb eval {
-                    DELETE FROM sat_ngc
-                    WHERE n=$row(n) AND g=$row(g) AND c=$row(c)
+                    DELETE FROM sat_gc
+                    WHERE g=$row(g) AND c=$row(c)
                 }
 
                 notifier send ::sat <Entity> delete $id
@@ -158,14 +148,14 @@ snit::type sat {
                 continue
             }
 
-            lassign $id n g c
+            lassign $id g c
 
             rdb eval {
-                INSERT INTO sat_ngc(n,g,c)
-                VALUES($n,$g,$c)
+                INSERT INTO sat_gc(g,c)
+                VALUES($g,$c)
             }
 
-            lappend undo [mytypemethod Delete $n $g $c]
+            lappend undo [mytypemethod Delete $g $c]
 
             notifier send ::sat <Entity> create $id
         }
@@ -181,24 +171,24 @@ snit::type sat {
     # Restores the entity in the database
 
     typemethod Restore {parmdict} {
-        rdb insert sat_ngc $parmdict
+        rdb insert sat_gc $parmdict
         dict with parmdict {
-            notifier send ::sat <Entity> create [list $n $g $c]
+            notifier send ::sat <Entity> create [list $g $c]
         }
     }
 
-    # Delete n g c
+    # Delete g c
     #
-    # n,g,c    The indices of the curve
+    # g,c    The indices of the curve
     #
     # Deletes the curve.  Used only in undo scripts.
     
-    typemethod Delete {n g c} {
+    typemethod Delete {g c} {
         rdb eval {
-            DELETE FROM sat_ngc WHERE n=$n AND g=$g AND c=$c
+            DELETE FROM sat_gc WHERE g=$g AND c=$c
         }
 
-        notifier send ::sat <Entity> delete [list $n $g $c]
+        notifier send ::sat <Entity> delete [list $g $c]
     }
 
 
@@ -206,7 +196,7 @@ snit::type sat {
     #
     # parmdict     A dictionary of group parms
     #
-    #    id               list {n g c}
+    #    id               list {g c}
     #    sat0             A new initial satisfaction, or ""
     #    saliency         A new saliency, or ""
     #    atrend           A new ascending trend, or ""
@@ -220,12 +210,12 @@ snit::type sat {
     typemethod {mutate update} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
-            lassign $id n g c
+            lassign $id g c
 
             # FIRST, get the undo information
             rdb eval {
-                SELECT * FROM sat_ngc
-                WHERE n=$n AND g=$g AND c=$c
+                SELECT * FROM sat_gc
+                WHERE g=$g AND c=$c
             } undoData {
                 unset undoData(*)
                 set undoData(id) $id
@@ -233,14 +223,14 @@ snit::type sat {
 
             # NEXT, Update the group
             rdb eval {
-                UPDATE sat_ngc
+                UPDATE sat_gc
                 SET sat0     = nonempty($sat0,     sat0),
                     saliency = nonempty($saliency, saliency),
                     atrend   = nonempty($atrend,   atrend),
                     athresh  = nonempty($athresh,  athresh),
                     dtrend   = nonempty($dtrend,   dtrend),
                     dthresh  = nonempty($dthresh,  dthresh)
-                WHERE n=$n AND g=$g AND c=$c
+                WHERE g=$g AND c=$c
             } {}
 
             # NEXT, notify the app.
@@ -265,9 +255,9 @@ order define SAT:UPDATE {
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey id *}
 
-    parm id        key   "Curve"            -table  gui_sat_ngc \
-                                            -key    {n g c}     \
-                                            -labels {"" "Grp" "Con"}
+    parm id        key   "Curve"            -table  gui_sat_gc    \
+                                            -key    {g c}         \
+                                            -labels {"Grp" "Con"}
     parm sat0      text  "Sat at T0"
     parm saliency  text  "Saliency"
     parm atrend    text  "Ascending Trend"
@@ -302,7 +292,7 @@ order define SAT:UPDATE:MULTI {
         -sendstates PREP                                  \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids       multi  "Curves"           -table gui_sat_ngc \
+    parm ids       multi  "Curves"           -table gui_sat_gc \
                                              -key id
     parm sat0      text   "Sat at T0"
     parm saliency  text   "Saliency"

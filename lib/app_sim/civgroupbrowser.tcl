@@ -31,10 +31,14 @@ snit::widgetadaptor civgroupbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        {g         "ID"         }
-        {longname  "Long Name"  }
-        {color     "Color"      }
-        {shape     "Unit Shape" }
+        { g         "ID"                              }
+        { longname  "Long Name"                       }
+        { n         "Nbhood"                          }
+        { color     "Color"                           }
+        { shape     "Unit Shape"                      }
+        { demeanor  "Demeanor"                        }
+        { basepop   "BasePop"       -sortmode integer }
+        { sap       "SA%"           -sortmode integer }
     }
 
     #-------------------------------------------------------------------
@@ -119,7 +123,7 @@ snit::widgetadaptor civgroupbrowser {
     # Sets the cell background color for the color cells.
 
     method DisplayData {rindex values} {
-        $hull cellconfigure $rindex,2 -background [lindex $values 2]
+        $hull cellconfigure $rindex,3 -background [lindex $values 3]
     }
 
 

@@ -31,7 +31,6 @@ snit::widgetadaptor coopbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { n        "Nbhood"                                   }
         { f        "Of Group"                                 }
         { g        "With Group"                               }
         { coop0    "Coop at T0" -sortmode real                }
@@ -57,9 +56,9 @@ snit::widgetadaptor coopbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_coop_nfg                \
+            -view         gui_coop_fg                 \
             -uid          id                          \
-            -titlecolumns 3                           \
+            -titlecolumns 2                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
                 ::sim <DbSyncB>
@@ -130,15 +129,6 @@ snit::widgetadaptor coopbrowser {
         # FIRST, update buttons
         cond::orderIsValidMulti  update $editbtn
         cond::orderIsValidSingle update [list $setbtn $adjbtn]
-
-        # NEXT, notify the app of the selection.
-        if {[llength [$hull uid curselection]] == 1} {
-            set id [lindex [$hull uid curselection] 0]
-            lassign $id n f g
-
-            notifier send ::app <ObjectSelect> \
-                [list nfg $id nbhood $n group $f]
-        }
     }
 
 

@@ -118,7 +118,6 @@ snit::type nbgroup {
     #    local_name       The nbgroup's local name
     #    basepop          The nbgroup's base population
     #    sap              The nbgroup's subsistence agriculture percentage
-    #    demeanor         The nbgroup's demeanor (edemeanor(n))
     #
     # Creates a nbhood group given the parms, which are presumed to be
     # valid.
@@ -132,13 +131,12 @@ snit::type nbgroup {
 
             # FIRST, Put the group in the database
             rdb eval {
-                INSERT INTO nbgroups(n,g,local_name,basepop,sap,demeanor)
+                INSERT INTO nbgroups(n,g,local_name,basepop,sap)
                 VALUES($n,
                        $g,
                        $local_name,
                        $basepop,
-                       $sap,
-                       $demeanor);
+                       $sap);
 
                 -- All population is implicit, initially.
                 INSERT INTO demog_ng(n,g) 
@@ -210,7 +208,6 @@ snit::type nbgroup {
     #    local_name       A new local name, or ""
     #    basepop          A new basepop, or ""
     #    sap              A new sap, or ""
-    #    demeanor         A new demeanor, or ""
     #
     # Updates a nbgroup given the parms, which are presumed to be
     # valid.
@@ -234,8 +231,7 @@ snit::type nbgroup {
                 UPDATE nbgroups
                 SET local_name     = nonempty($local_name,     local_name),
                     basepop        = nonempty($basepop,        basepop),
-                    sap            = nonempty($sap,            sap),
-                    demeanor       = nonempty($demeanor,       demeanor)
+                    sap            = nonempty($sap,            sap)
                 WHERE n=$n AND g=$g
             } {}
 
@@ -298,14 +294,12 @@ order define GROUP:NBHOOD:CREATE {
     parm local_name     text "Local Name"
     parm basepop        text "Base Population"
     parm sap            text "Subs. Agri. %"   -defval 0
-    parm demeanor       enum "Demeanor"        -type edemeanor
 } {
     # FIRST, prepare and validate the parameters
     prepare id             -toupper -required -type {nbgroup unused}
     prepare local_name     -normalize
     prepare basepop                 -required -type ingpopulation
     prepare sap                     -required -type ipercent
-    prepare demeanor       -toupper -required -type edemeanor
 
     returnOnError -final
 
@@ -389,14 +383,12 @@ order define GROUP:NBHOOD:UPDATE {
     parm local_name     text "Local Name"
     parm basepop        text "Base Population"
     parm sap            text "Subs. Agri. %" 
-    parm demeanor       enum "Demeanor"        -type edemeanor
 } {
     # FIRST, prepare the parameters
     prepare id             -toupper  -required -type nbgroup
     prepare local_name     -normalize      
     prepare basepop                  -type ingpopulation
     prepare sap                      -type ipercent
-    prepare demeanor       -toupper  -type edemeanor
 
     returnOnError -final
 
@@ -423,14 +415,12 @@ order define GROUP:NBHOOD:UPDATE:MULTI {
     parm local_name     text  "Local Name"
     parm basepop        text  "Base Population"
     parm sap            text  "Subs. Agri. %"
-    parm demeanor       enum  "Demeanor"        -type edemeanor
 } {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof nbgroup
     prepare local_name     -normalize      
     prepare basepop                  -type ingpopulation
     prepare sap                      -type ipercent
-    prepare demeanor       -toupper  -type edemeanor
 
     returnOnError -final
 

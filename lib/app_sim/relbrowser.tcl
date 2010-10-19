@@ -31,10 +31,9 @@ snit::widgetadaptor relbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        {n     "Nbhood"                      }
         {f     "Of Group F"                  }
-        {ftype "F Type"                      }
         {g     "With Group G"                }
+        {ftype "F Type"                      }
         {gtype "G Type"                      }
         {rel   "Relationship" -sortmode real }
     }
@@ -51,9 +50,9 @@ snit::widgetadaptor relbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_rel_nfg                 \
+            -view         gui_rel_fg                  \
             -uid          id                          \
-            -titlecolumns 5                           \
+            -titlecolumns 2                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
                 ::sim <DbSyncB>
@@ -97,7 +96,7 @@ snit::widgetadaptor relbrowser {
         # FIRST, there must be something selected
         if {[llength [$self uid curselection]] > 0} {
             foreach id [$self uid curselection] {
-                lassign $id n f g
+                lassign $id f g
 
                 if {$f eq $g} {
                     return 0
@@ -120,16 +119,6 @@ snit::widgetadaptor relbrowser {
     method SelectionChanged {} {
         # FIRST, update buttons
         cond::orderIsValidCanUpdate update $editbtn
-
-        # NEXT, if there's exactly one item selected, notify the
-        # the app.
-        if {[llength [$hull uid curselection]] == 1} {
-            set id [lindex [$hull uid curselection] 0]
-            lassign $id n f g
-
-            notifier send ::app <ObjectSelect> \
-                [list nfg $id  nbhood $n group $f]
-        }
     }
 
 

@@ -18,16 +18,6 @@ snit::type civgroup {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Type Components
-
-    # TBD
-
-    #-------------------------------------------------------------------
-    # Type Variables
-
-    # TBD
-
-    #-------------------------------------------------------------------
     # Queries
     #
     # These routines query information about the entities; they are
@@ -82,9 +72,13 @@ snit::type civgroup {
     # parmdict     A dictionary of group parms
     #
     #    g              The group's ID
+    #    n              The group's nbhood
     #    longname       The group's long name
     #    color          The group's color
     #    shape          The group's unit shape (eunitshape(n))
+    #    demeanor       The group's demeanor (edemeanor(n))
+    #    basepop        The group's base population
+    #    sap            The group's subsistence agriculture percentage 
     #
     # Creates a civilian group given the parms, which are presumed to be
     # valid.
@@ -95,13 +89,25 @@ snit::type civgroup {
         dict with parmdict {
             # FIRST, Put the group in the database
             rdb eval {
-                INSERT INTO groups(g,longname,color,shape,symbol,gtype)
+                INSERT INTO 
+                groups(g,longname,color,shape,symbol,demeanor,gtype)
                 VALUES($g,
                        $longname,
                        $color,
                        $shape,
                        'civilian',
+                       $demeanor,
                        'CIV');
+
+                INSERT INTO
+                civgroups(g,n,basepop,sap)
+                VALUES($g,
+                       $n,
+                       $basepop,
+                       $sap);
+
+                INSERT INTO demog_g(g)
+                VALUES($g);
             }
 
             # NEXT, notify the app.
@@ -120,35 +126,39 @@ snit::type civgroup {
 
     typemethod {mutate delete} {g} {
         # FIRST, get the undo information
-        rdb eval {
-            SELECT * FROM civgroups_view
-            WHERE g=$g
-        } row {
-            unset row(*)
-        }
+        rdb eval {SELECT * FROM groups    WHERE g=$g} row1 { unset row1(*) }
+        rdb eval {SELECT * FROM civgroups WHERE g=$g} row2 { unset row2(*) }
+        rdb eval {SELECT * FROM demog_g   WHERE g=$g} row3 { unset row3(*) }
 
         # NEXT, delete it.
         rdb eval {
-            DELETE FROM groups WHERE g=$g;
+            DELETE FROM groups    WHERE g=$g;
+            DELETE FROM civgroups WHERE g=$g;
+            DELETE FROM demog_g   WHERE g=$g;
         }
 
         # NEXT, notify the app
         notifier send ::civgroup <Entity> delete $g
 
-        # NEXT, return aggregate undo script.
-        return [mytypemethod Restore [array get row]]
+        # NEXT, Return the undo script
+        return [mytypemethod Restore \
+                    [array get row1] [array get row2] [array get row3]]
     }
 
 
-    # Restore parmdict
+    # Restore gdict cdict ddict
     #
-    # parmdict     row dict for deleted entity
+    # gdict    row dict for deleted entity in groups
+    # cdict    row dict for deleted entity in civgroups
+    # ddict    row dict for deleted entity in demog_g
     #
-    # Restores the entity in the database
+    # Restores the rows to the database
 
-    typemethod Restore {parmdict} {
-        rdb insert groups $parmdict
-        notifier send ::civgroup <Entity> create [dict get $parmdict g]
+    typemethod Restore {gdict cdict ddict} {
+        rdb insert groups    $gdict
+        rdb insert civgroups $cdict
+        rdb insert demog_g   $ddict
+        notifier send ::civgroup <Entity> create [dict get $gdict g]
     }
 
 
@@ -157,9 +167,13 @@ snit::type civgroup {
     # parmdict     A dictionary of group parms
     #
     #    g              A group short name
+    #    n              A new nbhood, or ""
     #    longname       A new long name, or ""
     #    color          A new color, or ""
     #    shape          A new shape, or ""
+    #    demeanor       The group's demeanor (edemeanor(n))
+    #    basepop        A new basepop, or ""
+    #    sap            A new sap, or ""
     #
     # Updates a civgroup given the parms, which are presumed to be
     # valid.
@@ -179,8 +193,16 @@ snit::type civgroup {
                 UPDATE groups
                 SET longname  = nonempty($longname,  longname),
                     color     = nonempty($color,     color),
-                    shape     = nonempty($shape,     shape)
+                    shape     = nonempty($shape,     shape),
+                    demeanor  = nonempty($demeanor,  demeanor)
                 WHERE g=$g;
+
+                UPDATE civgroups
+                SET n       = nonempty($n, n),
+                    basepop = nonempty($basepop, basepop),
+                    sap     = nonempty($sap, sap)
+                WHERE g=$g
+
             } {}
 
             # NEXT, notify the app.
@@ -189,6 +211,29 @@ snit::type civgroup {
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]
         }
+    }
+
+    # mutate reconcile
+    #
+    # Deletes civgroups for which the neighborhood no longer exists.
+
+    typemethod {mutate reconcile} {} {
+        # FIRST, delete the ones that are no longer valid, accumulating
+        # an undo script.
+
+        set undo [list]
+
+        set nbhoods [nbhood names]
+
+        rdb eval {
+            SELECT g,n FROM civgroups            
+        } {
+            if {$n ni $nbhoods} {
+                lappend undo [$type mutate delete $g]
+            }
+        }
+
+        return [join $undo \n]
     }
 }
 
@@ -206,14 +251,23 @@ order define GROUP:CIVILIAN:CREATE {
 
     parm g         text   "Group"
     parm longname  text   "Long Name"
+    parm n         enum   "Nbhood"          -type nbhood
     parm color     color  "Color"
-    parm shape     enum   "Unit Shape" -type eunitshape -defval NEUTRAL
+    parm shape     enum   "Unit Shape"      -type eunitshape -defval NEUTRAL
+    parm demeanor  enum   "Demeanor"        -type edemeanor
+    parm basepop   text   "Base Pop."
+    parm sap       text   "Subs. Agri. %"   -defval 0
 } {
     # FIRST, prepare and validate the parameters
     prepare g        -toupper   -required -unused -type ident
     prepare longname -normalize -required -unused
+    prepare n        -toupper   -required         -type nbhood
     prepare color    -tolower   -required         -type hexcolor
     prepare shape    -toupper   -required         -type eunitshape
+    prepare demeanor -toupper   -required         -type edemeanor
+    prepare basepop             -required         -type ingpopulation
+    prepare sap                 -required         -type ipercent
+
 
     returnOnError
 
@@ -287,8 +341,12 @@ order define GROUP:CIVILIAN:UPDATE {
     parm g         key    "Group"         \
         -table civgroups_view -key g -tags group
     parm longname  text   "Long Name"
+    parm n         enum   "Nbhood"     -type nbhood
     parm color     color  "Color"
-    parm shape     enum   "Unit Shape" -type eunitshape
+    parm shape     enum   "Unit Shape"       -type eunitshape
+    parm demeanor  enum   "Demeanor"         -type edemeanor
+    parm basepop   text   "Base Population"
+    parm sap       text   "Subs. Agri. %"  
 } {
     # FIRST, prepare the parameters
     prepare g         -toupper  -required -type civgroup
@@ -296,8 +354,12 @@ order define GROUP:CIVILIAN:UPDATE {
     set oldname [rdb onecolumn {SELECT longname FROM groups WHERE g=$parms(g)}]
 
     prepare longname  -normalize      -oldvalue $oldname -unused
+    prepare n         -toupper  -type nbhood
     prepare color     -tolower  -type hexcolor
     prepare shape     -toupper  -type eunitshape
+    prepare demeanor  -toupper  -type edemeanor
+    prepare basepop             -type ingpopulation
+    prepare sap                 -type ipercent
 
     returnOnError -final
 
@@ -310,14 +372,22 @@ order define GROUP:CIVILIAN:UPDATE:MULTI {
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids    multi  "Groups"  -table gui_civgroups -key g
-    parm color  color  "Color"
-    parm shape  enum   "Unit Shape" -type eunitshape
+    parm ids      multi  "Groups"  -table gui_civgroups -key g
+    parm n        enum   "Nbhood"     -type nbhood
+    parm color    color  "Color"
+    parm shape    enum   "Unit Shape" -type eunitshape
+    parm demeanor enum   "Demeanor"   -type edemeanor
+    parm basepop  text   "Base Population"
+    parm sap      text   "Subs. Agri. %"  
 } {
     # FIRST, prepare the parameters
-    prepare ids    -toupper -required -listof civgroup
-    prepare color  -tolower           -type   hexcolor
-    prepare shape  -toupper           -type   eunitshape
+    prepare ids      -toupper -required -listof civgroup
+    prepare n        -toupper           -type nbhood
+    prepare color    -tolower           -type   hexcolor
+    prepare shape    -toupper           -type   eunitshape
+    prepare demeanor -toupper           -type   edemeanor
+    prepare basepop                     -type ingpopulation
+    prepare sap                         -type ipercent
 
     returnOnError -final
 

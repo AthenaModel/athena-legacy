@@ -186,19 +186,19 @@ snit::type frcgroup {
 
             # NEXT, Put the group in the database
             rdb eval {
-                INSERT INTO groups(g,longname,color,shape,symbol,gtype)
+                INSERT INTO 
+                groups(g,longname,color,shape,symbol,demeanor,gtype)
                 VALUES($g,
                        $longname,
                        $color,
                        $shape,
                        $symbol,
+                       $demeanor,
                        'FRC');
 
-                INSERT INTO frcgroups(g,forcetype,demeanor,
-                                      uniformed,local,coalition)
+                INSERT INTO frcgroups(g,forcetype,uniformed,local,coalition)
                 VALUES($g,
                        $forcetype,
-                       $demeanor,
                        $uniformed,
                        $local,
                        $coalition);
@@ -289,12 +289,12 @@ snit::type frcgroup {
                 SET longname  = nonempty($longname,  longname),
                     color     = nonempty($color,     color),
                     shape     = nonempty($shape,     shape),
-                    symbol    = nonempty($symbol,    symbol)
+                    symbol    = nonempty($symbol,    symbol),
+                    demeanor  = nonempty($demeanor,  demeanor)
                 WHERE g=$g;
 
                 UPDATE frcgroups
                 SET forcetype = nonempty($forcetype, forcetype),
-                    demeanor  = nonempty($demeanor,  demeanor),
                     uniformed = nonempty($uniformed, uniformed),
                     local     = nonempty($local,     local),
                     coalition = nonempty($coalition, coalition)

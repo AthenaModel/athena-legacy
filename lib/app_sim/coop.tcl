@@ -12,16 +12,7 @@
 #    groups as groups come and ago, and for allowing the analyst
 #    to update particular cooperations.
 #
-#    Every frc and org group has a bidirectional cooperation with 
-#    every other frc and org group; these are stored in the coop_fg
-#    table.
-#
-#    Every frc and org group has a bidirectional cooperation with
-#    every neighborhood group; these are stored in the coop_nfg table.
-#
-#    Every civ group has a cooperation with every other civ group
-#    in every neighborhood.
-#   
+#    Every civ group has a cooperation with every frc group.
 #
 #-----------------------------------------------------------------------
 
@@ -40,7 +31,8 @@ snit::type coop {
         log normal coop "start"
 
         rdb eval {
-            SELECT * FROM coop_nfg
+            SELECT * FROM coop_fg
+            JOIN civgroups ON (coop_fg.f = civgroups.g)
             WHERE atrend > 0.0 OR dtrend < 0.0
         } row {
             if {$row(atrend) > 0.0} {
@@ -66,37 +58,30 @@ snit::type coop {
 
     # validate id
     #
-    # id     An nfg cooperation ID, [list $n $f $g]
+    # id     An fg cooperation ID, [list $f $g]
     #
     # Throws INVALID if there's no cooperation for the 
     # specified combination.
 
     typemethod validate {id} {
-        lassign $id n f g
+        lassign $id f g
 
-        set n [nbhood validate $n]
         set f [civgroup validate $f]
         set g [frcgroup validate $g]
 
-        if {![$type exists $n $f $g]} {
-            return -code error -errorcode INVALID \
-               "Cooperation is not tracked for $f with $g in $n."
-        }
-
-        return [list $n $f $g]
+        return [list $f $g]
     }
 
-    # exists n f g
+    # exists f g
     #
-    # n       A nbhood ID, or PLAYBOX
     # f       A group ID
     # g       A group ID
     #
-    # Returns 1 if cooperation is tracked between f and g in n.
+    # Returns 1 if cooperation is tracked between f and g.
 
-    typemethod exists {n f g} {
+    typemethod exists {f g} {
         rdb exists {
-            SELECT * FROM coop_nfg WHERE n=$n AND f=$f AND g=$g
+            SELECT * FROM coop_fg WHERE f=$f AND g=$g
         }
     }
 
@@ -112,19 +97,20 @@ snit::type coop {
     #
     # Determines which cooperations should exist, and 
     # adds or deletes them, returning an undo script.
+    #
+    # TBD: Since all civgroups have coop with all frcgroups, this code
+    # can probably be simplified.
 
     typemethod {mutate reconcile} {} {
         # FIRST, List required cooperations
         set valid [dict create]
 
         rdb eval {
-            -- Nbgroup with force groups
-            SELECT nbgroups.n  AS n, 
-                   nbgroups.g  AS f,
+            SELECT civgroups.g AS f,
                    frcgroups.g AS g
-            FROM nbgroups JOIN frcgroups
+            FROM civgroups JOIN frcgroups
         } {
-            dict set valid [list $n $f $g] 0
+            dict set valid [list $f $g] 0
         }
 
         # NEXT, Begin the undo script.
@@ -135,11 +121,11 @@ snit::type coop {
         # *do* exist.
 
         rdb eval {
-            SELECT * FROM coop_nfg
+            SELECT * FROM coop_fg
         } row {
             unset -nocomplain row(*)
 
-            set id [list $row(n) $row(f) $row(g)]
+            set id [list $row(f) $row(g)]
 
             if {[dict exists $valid $id]} {
                 dict incr valid $id
@@ -147,8 +133,8 @@ snit::type coop {
                 lappend undo [mytypemethod Restore [array get row]]
 
                 rdb eval {
-                    DELETE FROM coop_nfg
-                    WHERE n=$row(n) AND f=$row(f) AND g=$row(g)
+                    DELETE FROM coop_fg
+                    WHERE f=$row(f) AND g=$row(g)
                 }
 
                 notifier send ::coop <Entity> delete $id
@@ -161,14 +147,14 @@ snit::type coop {
                 continue
             }
 
-            lassign $id n f g
+            lassign $id f g
 
             rdb eval {
-                INSERT INTO coop_nfg(n,f,g)
-                VALUES($n,$f,$g)
+                INSERT INTO coop_fg(f,g)
+                VALUES($f,$g)
             }
 
-            lappend undo [mytypemethod Delete $n $f $g]
+            lappend undo [mytypemethod Delete $f $g]
 
             notifier send ::coop <Entity> create $id
         }
@@ -185,25 +171,25 @@ snit::type coop {
     # Restores the entity in the database
 
     typemethod Restore {parmdict} {
-        rdb insert coop_nfg $parmdict
+        rdb insert coop_fg $parmdict
         dict with parmdict {
-            notifier send ::coop <Entity> create [list $n $f $g]
+            notifier send ::coop <Entity> create [list $f $g]
         }
     }
 
 
-    # Delete n f g
+    # Delete f g
     #
-    # n,f,g    The indices of the entity
+    # f,g    The indices of the entity
     #
     # Deletes the entity.  Used only in undo scripts.
     
-    typemethod Delete {n f g} {
+    typemethod Delete {f g} {
         rdb eval {
-            DELETE FROM coop_nfg WHERE n=$n AND f=$f AND g=$g
+            DELETE FROM coop_fg WHERE f=$f AND g=$g
         }
 
-        notifier send ::coop <Entity> delete [list $n $f $g]
+        notifier send ::coop <Entity> delete [list $f $g]
     }
 
 
@@ -211,8 +197,8 @@ snit::type coop {
     #
     # parmdict     A dictionary of group parms
     #
-    #    id               list {n f g}
-    #    coop0            Cooperation of f with g in n at time 0.
+    #    id               list {f g}
+    #    coop0            Cooperation of f with g at time 0.
     #    atrend           A new ascending trend, or ""
     #    athresh          A new ascending threshold, or ""
     #    dtrend           A new descending trend, or ""
@@ -224,12 +210,12 @@ snit::type coop {
     typemethod {mutate update} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
-            lassign $id n f g
+            lassign $id f g
 
             # FIRST, get the undo information
             rdb eval {
-                SELECT * FROM coop_nfg
-                WHERE n=$n AND f=$f AND g=$g
+                SELECT * FROM coop_fg
+                WHERE f=$f AND g=$g
             } undoData {
                 unset undoData(*)
                 set undoData(id) $id
@@ -237,13 +223,13 @@ snit::type coop {
 
             # NEXT, Update the group
             rdb eval {
-                UPDATE coop_nfg
+                UPDATE coop_fg
                 SET coop0    = nonempty($coop0,   coop0),
                     atrend   = nonempty($atrend,  atrend),
                     athresh  = nonempty($athresh, athresh),
                     dtrend   = nonempty($dtrend,  dtrend),
                     dthresh  = nonempty($dthresh, dthresh)
-                WHERE n=$n AND f=$f AND g=$g
+                WHERE f=$f AND g=$g
             } {}
 
             # NEXT, notify the app.
@@ -268,9 +254,9 @@ order define COOP:UPDATE {
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey id *}
 
-    parm id      key   "Curve"           -table  gui_coop_nfg     \
-                                         -key    {n f g}          \
-                                         -labels {"" "Of" "With"}
+    parm id      key   "Curve"           -table  gui_coop_fg    \
+                                         -key    {f g}          \
+                                         -labels {"Of" "With"}
     parm coop0   text  "Cooperation"
     parm atrend  text  "Ascending Trend"
     parm athresh text  "Asc. Threshold"
@@ -305,7 +291,7 @@ order define COOP:UPDATE:MULTI {
         -sendstates PREP                                  \
         -refreshcmd {orderdialog refreshForMulti ids *}
  
-    parm ids     multi  "IDs"              -table gui_coop_nfg \
+    parm ids     multi  "IDs"              -table gui_coop_fg \
                                            -key id
     parm coop0   text   "Cooperation"
     parm atrend  text   "Ascending Trend"

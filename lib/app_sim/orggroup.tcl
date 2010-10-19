@@ -88,18 +88,19 @@ snit::type orggroup {
         dict with parmdict {
             # FIRST, Put the group in the database
             rdb eval {
-                INSERT INTO groups(g,longname,color,shape,symbol,gtype)
+                INSERT INTO 
+                groups(g,longname,color,shape,symbol,demeanor,gtype)
                 VALUES($g,
                        $longname,
                        $color,
                        $shape,
                        'organization',
+                       $demeanor,
                        'ORG');
 
-                INSERT INTO orggroups(g,orgtype,demeanor)
+                INSERT INTO orggroups(g,orgtype)
                 VALUES($g,
-                       $orgtype,
-                       $demeanor);
+                       $orgtype);
             }
 
             # NEXT, notify the app.
@@ -177,12 +178,12 @@ snit::type orggroup {
                 UPDATE groups
                 SET longname  = nonempty($longname,  longname),
                     color     = nonempty($color,     color),
+                    demeanor  = nonempty($demeanor,  demeanor),
                     shape     = nonempty($shape,     shape)
                 WHERE g=$g;
 
                 UPDATE orggroups
-                SET orgtype        = nonempty($orgtype,        orgtype),
-                    demeanor       = nonempty($demeanor,       demeanor)
+                SET orgtype   = nonempty($orgtype,   orgtype)
                 WHERE g=$g
             } {}
 
