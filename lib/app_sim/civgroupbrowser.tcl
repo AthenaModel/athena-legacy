@@ -39,9 +39,9 @@ snit::widgetadaptor civgroupbrowser {
         { demeanor   "Demeanor"                                       }
         { basepop    "BasePop"       -sortmode integer                }
         { population "CurrPop"       -sortmode integer -foreground %D }
+        { sap        "SA%"           -sortmode integer                }
         { mood0      "Mood at T0"    -sortmode real                   }
         { mood       "Mood Now"      -sortmode real    -foreground %D }
-        { sap        "SA%"           -sortmode integer                }
     }
 
     #-------------------------------------------------------------------

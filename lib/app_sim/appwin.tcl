@@ -269,8 +269,8 @@ snit::widget appwin {
             script { econpopbrowser %W }
         }
 
-        econng {
-            label  "Nbgroups"
+        econg {
+            label  "Groups"
             parent "econt"
             script { econngbrowser %W }
         }

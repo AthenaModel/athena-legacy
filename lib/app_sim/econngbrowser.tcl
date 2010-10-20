@@ -32,9 +32,9 @@ snit::widgetadaptor econngbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { n           "Nbhood"                                         }
         { g           "CivGroup"                                       }
-        { local_name  "Local Name"                                     }
+        { long_name   "Long Name"                                      }
+        { n           "Nbhood"                                         }
         { population  "Population"    -sortmode integer -foreground %D }
         { sap         "SA%"           -sortmode integer                }
         { subsistence "Subsist."      -sortmode integer -foreground %D }
@@ -54,7 +54,7 @@ snit::widgetadaptor econngbrowser {
             -db           ::rdb                       \
             -view         gui_econ_ng                 \
             -uid          id                          \
-            -titlecolumns 2                           \
+            -titlecolumns 1                           \
             -reloadon {
                 ::sim <DbSyncB>
                 ::demog <Update>
