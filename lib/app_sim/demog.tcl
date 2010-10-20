@@ -267,7 +267,7 @@ snit::type demog {
         }
 
         # NEXT, compute the neighborhood statistics.  These aren't
-        # simply a roll-up of the nbgroup stats because the nbhood
+        # simply a roll-up of the civgroup stats because the nbhood
         # might contain displaced personnel.
         foreach {n population labor_force} [rdb eval {
             SELECT n, population, labor_force

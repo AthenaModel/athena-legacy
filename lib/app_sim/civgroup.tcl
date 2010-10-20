@@ -65,11 +65,26 @@ snit::type civgroup {
     #
     # Returns 1 if g resides in n, and 0 otherwise.
 
-    typemethod exists {g n} {
+    typemethod gInN {g n} {
         rdb exists {
             SELECT * FROM civgroups WHERE g=$g AND n=$n
         }
     }
+
+    # gIn n
+    #
+    # n      A neighborhood ID
+    #
+    # Returns a list of the civ groups that reside in the neighborhood.
+
+    typemethod gIn {n} {
+        rdb eval {
+            SELECT g FROM civgroups WHERE n=$n
+            ORDER BY g
+        }
+    }
+
+
 
     # Type Method: getg
     #
@@ -84,7 +99,7 @@ snit::type civgroup {
 
     typemethod getg {g {parm ""}} {
         # FIRST, get the data
-        rdb eval {SELECT * FROM civgroups WHERE g=$g} row {
+        rdb eval {SELECT * FROM civgroups_view WHERE g=$g} row {
             if {$parm ne ""} {
                 return $row($parm)
             } else {
@@ -405,6 +420,10 @@ order define GROUP:CIVILIAN:UPDATE {
     setundo [civgroup mutate update [array get parms]]
 }
 
+# GROUP:CIVILIAN:UPDATE:MULTI
+#
+# Updates existing groups.
+
 order define GROUP:CIVILIAN:UPDATE:MULTI {
     title "Update Multiple Civilian Groups"
     options -sendstates PREP \
@@ -442,3 +461,54 @@ order define GROUP:CIVILIAN:UPDATE:MULTI {
     setundo [join $undo \n]
 }
 
+# GROUP:CIVILIAN:UPDATE:POSTPREP
+#
+# Updates existing groups.
+
+order define GROUP:CIVILIAN:UPDATE:POSTPREP {
+    title "Update Civilian Group (Post-PREP)"
+    options \
+        -sendstates {PREP PAUSED}                   \
+        -refreshcmd {orderdialog refreshForKey g *}
+
+    parm g         key    "Group"         \
+        -table civgroups_view -key g -tags group
+    parm sap       text   "Subs. Agri. %"  
+} {
+    # FIRST, prepare the parameters
+    prepare g         -toupper  -required -type civgroup
+    prepare sap                 -type ipercent
+
+    returnOnError -final
+
+    # NEXT, modify the group
+    setundo [civgroup mutate update [array get parms]]
+}
+
+# GROUP:CIVILIAN:UPDATE:MULTI:POSTPREP
+#
+# Updates existing groups.
+
+order define GROUP:CIVILIAN:UPDATE:MULTI:POSTPREP {
+    title "Update Multiple Civilian Groups (Post-PREP)"
+    options -sendstates {PREP PAUSED} \
+        -refreshcmd {orderdialog refreshForMulti ids *}
+
+    parm ids      multi  "Groups"  -table gui_civgroups -key g
+    parm sap      text   "Subs. Agri. %"  
+} {
+    # FIRST, prepare the parameters
+    prepare ids      -toupper -required -listof civgroup
+    prepare sap                         -type ipercent
+
+    returnOnError -final
+
+    # NEXT, modify the group
+    set undo [list]
+
+    foreach parms(g) $parms(ids) {
+        lappend undo [civgroup mutate update [array get parms]]
+    }
+
+    setundo [join $undo \n]
+}

@@ -350,7 +350,7 @@ snit::type mad {
     #
     # parmdict    A dictionary of order parameters
     #
-    #    id               list {n g c}
+    #    id               list {g c}
     #    mad              MAD ID
     #    delta            Delta to the level, a qmag(n) value.
     #
@@ -360,7 +360,8 @@ snit::type mad {
     typemethod {mutate satadjust} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
-            lassign $id n g c
+            lassign $id g c
+            set n [civgroup getg $g n]
 
             # FIRST, get the undo information
             set oldSat [aram sat.ngc $n $g $c]
@@ -415,7 +416,7 @@ snit::type mad {
     #
     # parmdict    A dictionary of order parameters
     #
-    #    id               list {n g c}
+    #    id               list {g c}
     #    mad              MAD ID
     #    sat              New qsat(n) value
     #
@@ -425,7 +426,8 @@ snit::type mad {
     typemethod {mutate satset} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
-            lassign $id n g c
+            lassign $id g c
+            set n [civgroup getg $g n]
 
             # FIRST, get the undo information
             set oldSat [aram sat.ngc $n $g $c]
@@ -483,7 +485,7 @@ snit::type mad {
     typemethod RestoreSat {mad driver n g c sat reportid} {
         aram sat set $driver $n $g $c $sat -undo
         reporter delete $reportid
-        notifier send ::sat <Entity> update [list $n $g $c]
+        notifier send ::sat <Entity> update [list $g $c]
         notifier send ::mad <Entity> update $mad
     }
 
@@ -491,7 +493,6 @@ snit::type mad {
     #
     # parmdict    A dictionary of order parameters
     #
-    #    n                Neighborhood ID
     #    g                Group ID
     #    c                Concern
     #    mad              MAD ID
@@ -504,6 +505,8 @@ snit::type mad {
     
     typemethod {mutate satlevel} {parmdict} {
         dict with parmdict {
+            set n [civgroup getg $g n]
+
             # FIRST, get the GRAM driver ID
             rdb eval {
                 SELECT driver,oneliner,cause,s,p,q FROM mads WHERE id=$mad
@@ -543,7 +546,6 @@ snit::type mad {
     #
     # parmdict    A dictionary of order parameters
     #
-    #    n                Neighborhood ID
     #    g                Group ID
     #    c                Concern
     #    mad              MAD ID
@@ -555,6 +557,8 @@ snit::type mad {
     
     typemethod {mutate satslope} {parmdict} {
         dict with parmdict {
+            set n [civgroup getg $g n]
+
             # FIRST, get the GRAM driver ID
             rdb eval {
                 SELECT driver,oneliner,cause,s,p,q FROM mads WHERE id=$mad
@@ -594,7 +598,7 @@ snit::type mad {
     #
     # parmdict    A dictionary of order parameters
     #
-    #    id               list {n f g}
+    #    id               list {f g}
     #    mad              MAD ID
     #    delta            Delta to the level, a qmag(n) value.
     #
@@ -604,7 +608,8 @@ snit::type mad {
     typemethod {mutate coopadjust} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
-            lassign $id n f g
+            lassign $id f g
+            set n [civgroup getg $f n]
 
             # FIRST, get the undo information
             set oldCoop [aram coop.nfg $n $f $g]
@@ -660,7 +665,7 @@ snit::type mad {
     #
     # parmdict    A dictionary of order parameters
     #
-    #    id               list {n f g}
+    #    id               list {f g}
     #    mad              MAD ID
     #    coop             New level, a qcooperation(n) value.
     #
@@ -670,7 +675,9 @@ snit::type mad {
     typemethod {mutate coopset} {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
-            lassign $id n f g
+            lassign $id f g
+            set n [civgroup getg $f n]
+
             # FIRST, get the undo information
             set oldCoop [aram coop.nfg $n $f $g]
 
@@ -727,7 +734,7 @@ snit::type mad {
     typemethod RestoreCoop {mad driver n f g coop reportid} {
         aram coop set $driver $n $f $g $coop -undo
         reporter delete $reportid
-        notifier send ::coop <Entity> update [list $n $f $g]
+        notifier send ::coop <Entity> update [list $f $g]
         notifier send ::mad <Entity> update $mad
     }
 
@@ -735,7 +742,6 @@ snit::type mad {
     #
     # parmdict    A dictionary of order parameters
     #
-    #    n                Neighborhood ID
     #    f                Civilian Group ID
     #    g                Force Group ID
     #    mad              MAD ID
@@ -748,6 +754,8 @@ snit::type mad {
     
     typemethod {mutate cooplevel} {parmdict} {
         dict with parmdict {
+            set n [civgroup getg $f n]
+
             # FIRST, get the GRAM driver ID
             rdb eval {
                 SELECT driver,oneliner,cause,s,p,q FROM mads WHERE id=$mad
@@ -788,7 +796,6 @@ snit::type mad {
     #
     # parmdict    A dictionary of order parameters
     #
-    #    n                Neighborhood ID
     #    f                Civilian Group ID
     #    g                Force Group ID
     #    mad              MAD ID
@@ -800,6 +807,8 @@ snit::type mad {
     
     typemethod {mutate coopslope} {parmdict} {
         dict with parmdict {
+            set n [civgroup getg $f n]
+
             # FIRST, get the GRAM driver ID
             rdb eval {
                 SELECT driver,oneliner,cause,s,p,q FROM mads WHERE id=$mad
@@ -1067,8 +1076,8 @@ order define MAD:SAT:ADJUST {
         -sendstates     PAUSED         \
         -schedulestates {PREP PAUSED}
 
-    parm id        key   "Curve"     -table    gui_sat_ngc \
-                                     -key      {n g c}     \
+    parm id        key   "Curve"     -table    gui_sat_gc      \
+                                     -key      {g c}           \
                                      -labels   {"" "Grp" "Con"}
     parm mad       key   "MAD ID"    -table    gui_mads    \
                                      -key      id          \
@@ -1097,8 +1106,8 @@ order define MAD:SAT:SET {
         -sendstates     PAUSED         \
         -schedulestates {PREP PAUSED}
 
-    parm id        key   "Curve"     -table    gui_sat_ngc  \
-                                     -key      {n g c}      \
+    parm id        key   "Curve"     -table    gui_sat_gc      \
+                                     -key      {g c}           \
                                      -labels   {"" "Grp" "Con"}
     parm mad       key   "MAD ID"    -table    gui_mads     \
                                      -key      id           \
@@ -1127,8 +1136,6 @@ order define MAD:SAT:LEVEL {
         -sendstates     {}             \
         -schedulestates {PREP PAUSED}
 
-    parm n         enum  "Neighborhood"        -type     nbhood       \
-                                               -tags     nbhood
     parm g         enum  "Group"               -type     civgroup
     parm c         enum  "Concern"             -type     {ptype c}
     parm mad       key   "MAD ID"              -table    gui_mads     \
@@ -1140,7 +1147,6 @@ order define MAD:SAT:LEVEL {
     parm dthresh   text  "Descending Theshold" -defval -100.0
 } {
     # FIRST, prepare the parameters
-    prepare n       -toupper -required -type nbhood
     prepare g       -toupper -required -type civgroup
     prepare c       -toupper -required -type {ptype c}
     prepare mad              -required -type mad
@@ -1168,8 +1174,6 @@ order define MAD:SAT:SLOPE {
         -sendstates     {}             \
         -schedulestates {PREP PAUSED}
 
-    parm n         enum  "Neighborhood"        -type     nbhood       \
-                                               -tags nbhood  
     parm g         enum  "Group"               -type     civgroup
     parm c         enum  "Concern"             -type     {ptype c}
     parm mad       key   "MAD ID"              -table    gui_mads     \
@@ -1180,7 +1184,6 @@ order define MAD:SAT:SLOPE {
     parm dthresh   text  "Descending Theshold" -defval -100.0
 } {
     # FIRST, prepare the parameters
-    prepare n       -toupper -required -type nbhood
     prepare g       -toupper -required -type civgroup
     prepare c       -toupper -required -type {ptype c}
     prepare mad              -required -type mad
@@ -1207,8 +1210,8 @@ order define MAD:COOP:ADJUST {
         -sendstates     PAUSED         \
         -schedulestates {PREP PAUSED}
 
-    parm id        key   "Curve"     -table    gui_coop_nfg     \
-                                     -key      {n f g}          \
+    parm id        key   "Curve"     -table    gui_coop_fg     \
+                                     -key      {f g}           \
                                      -labels   {"" "Of" "With"}
     parm mad       key   "MAD ID"    -table    gui_mads  \
                                      -key      id        \
@@ -1237,8 +1240,8 @@ order define MAD:COOP:SET {
         -sendstates     PAUSED         \
         -schedulestates {PREP PAUSED}
 
-    parm id        key   "Curve"     -table    gui_coop_nfg     \
-                                     -key      {n f g}          \
+    parm id        key   "Curve"     -table    gui_coop_fg      \
+                                     -key      {f g}            \
                                      -labels   {"" "Of" "With"}
     parm mad       key   "MAD ID"    -table    gui_mads  \
                                      -key      id        \
@@ -1268,8 +1271,6 @@ order define MAD:COOP:LEVEL {
         -sendstates     {}             \
         -schedulestates {PREP PAUSED}
 
-    parm n         enum  "Neighborhood"        -type     nbhood   \
-                                               -tags     nbhood 
     parm f         enum  "Of Group"            -type     civgroup
     parm g         enum  "With Group"          -type     frcgroup
     parm mad       key   "MAD ID"              -table    gui_mads \
@@ -1281,7 +1282,6 @@ order define MAD:COOP:LEVEL {
     parm dthresh   text  "Descending Theshold" -defval 0.0
 } {
     # FIRST, prepare the parameters
-    prepare n       -toupper -required -type nbhood
     prepare f       -toupper -required -type civgroup
     prepare g       -toupper -required -type frcgroup
     prepare mad              -required -type mad
@@ -1310,8 +1310,6 @@ order define MAD:COOP:SLOPE {
         -sendstates     {}             \
         -schedulestates {PREP PAUSED}
 
-    parm n         enum  "Neighborhood"        -type     nbhood   \
-                                               -tags     nbhood 
     parm f         enum  "Of Group"            -type     civgroup
     parm g         enum  "With Group"          -type     frcgroup
     parm mad       key   "MAD ID"              -table    gui_mads \
@@ -1322,7 +1320,6 @@ order define MAD:COOP:SLOPE {
     parm dthresh   text  "Descending Theshold" -defval 0.0
 } {
     # FIRST, prepare the parameters
-    prepare n       -toupper -required -type nbhood
     prepare f       -toupper -required -type civgroup
     prepare g       -toupper -required -type frcgroup
     prepare mad              -required -type mad

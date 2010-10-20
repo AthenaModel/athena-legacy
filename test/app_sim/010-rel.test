@@ -39,71 +39,32 @@ namespace eval ::athena_test::tests:: {
 
     # Create relationships
 
-    test reconcile-1.1 {FRC/ORG with FRC/ORG} -setup {
-        ted create BLUE BRIT USAID HAL
+    test reconcile-1.1 {Relationships created} -setup {
+        ted create BLUE USAID SHIA
     } -body {
         rel mutate reconcile
 
         # Every group is 1.0 with itself and 0.0 with every other.
-        ted query {SELECT * FROM rel_nfg}
+        ted query {SELECT * FROM rel_fg}
     } -cleanup {
         cleanup
     } -result {
-n       f     g     rel 
-------- ----- ----- --- 
-PLAYBOX BLUE  BLUE  1.0 
-PLAYBOX BLUE  BRIT  0.0 
-PLAYBOX BRIT  BLUE  0.0 
-PLAYBOX BLUE  HAL   0.0 
-PLAYBOX HAL   BLUE  0.0 
-PLAYBOX BLUE  USAID 0.0 
-PLAYBOX USAID BLUE  0.0 
-PLAYBOX BRIT  BRIT  1.0 
-PLAYBOX BRIT  HAL   0.0 
-PLAYBOX HAL   BRIT  0.0 
-PLAYBOX BRIT  USAID 0.0 
-PLAYBOX USAID BRIT  0.0 
-PLAYBOX HAL   HAL   1.0 
-PLAYBOX HAL   USAID 0.0 
-PLAYBOX USAID HAL   0.0 
-PLAYBOX USAID USAID 1.0 
+f     g     rel 
+----- ----- --- 
+BLUE  BLUE  1.0 
+BLUE  USAID 0.0 
+BLUE  SHIA  0.0 
+USAID BLUE  0.0 
+USAID USAID 1.0 
+USAID SHIA  0.0 
+SHIA  BLUE  0.0 
+SHIA  USAID 0.0 
+SHIA  SHIA  1.0 
     }
 
-    test reconcile-1.2 {nbgroups with all other groups} -setup {
-        ted create NB1 NB2 BLUE USAID SHIA SUNN KURD NB1SHIA 
-    } -body {
-        rel mutate reconcile
-        
-        # Note that: 
-        #
-        # * There are no relationships in NB2, because there are 
-        #   no nbgroups in NB2
-        #
-        # * SUNN and KURD have relationships only with SHIA in
-        #   NB1, since NB1SUNN and NB2KURD don't exist.
-        ted query {SELECT * FROM rel_nfg}
-    } -cleanup {
-        cleanup
-    } -result {
-n       f     g     rel 
-------- ----- ----- --- 
-NB1     BLUE  SHIA  0.0 
-NB1     SHIA  BLUE  0.0 
-NB1     KURD  SHIA  0.0 
-NB1     SHIA  KURD  0.0 
-NB1     SHIA  SHIA  1.0 
-NB1     SUNN  SHIA  0.0 
-NB1     SHIA  SUNN  0.0 
-NB1     USAID SHIA  0.0 
-NB1     SHIA  USAID 0.0 
-PLAYBOX BLUE  BLUE  1.0 
-PLAYBOX BLUE  USAID 0.0 
-PLAYBOX USAID BLUE  0.0 
-PLAYBOX USAID USAID 1.0 
-    }
 
-    test reconcile-1.3 {<Entity> create} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
+    test reconcile-1.2 {<Entity> create} -setup {
+        ted create NB1 BLUE USAID SHIA
     } -body {
         ted notifier bind ::rel <Entity>
         rel mutate reconcile
@@ -111,31 +72,31 @@ PLAYBOX USAID USAID 1.0
     } -cleanup {
         cleanup
     } -result {
-        {::rel <Entity> create {NB1 BLUE SHIA}}
-        {::rel <Entity> create {NB1 SHIA BLUE}}
-        {::rel <Entity> create {NB1 SHIA SHIA}}
-        {::rel <Entity> create {NB1 USAID SHIA}}
-        {::rel <Entity> create {NB1 SHIA USAID}}
-        {::rel <Entity> create {PLAYBOX BLUE BLUE}}
-        {::rel <Entity> create {PLAYBOX BLUE USAID}}
-        {::rel <Entity> create {PLAYBOX USAID BLUE}}
-        {::rel <Entity> create {PLAYBOX USAID USAID}}
+        {::rel <Entity> create {BLUE BLUE}}
+        {::rel <Entity> create {BLUE USAID}}
+        {::rel <Entity> create {BLUE SHIA}}
+        {::rel <Entity> create {USAID BLUE}}
+        {::rel <Entity> create {USAID USAID}}
+        {::rel <Entity> create {USAID SHIA}}
+        {::rel <Entity> create {SHIA BLUE}}
+        {::rel <Entity> create {SHIA USAID}}
+        {::rel <Entity> create {SHIA SHIA}}
     }
 
 
-    test reconcile-1.4 {Created curves are undone} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
+    test reconcile-1.3 {Created curves are undone} -setup {
+        ted create NB1 BLUE USAID SHIA
         set undo [rel mutate reconcile]
     } -body {
         eval $undo
-        rdb query {SELECT * FROM rel_nfg}
+        rdb query {SELECT * FROM rel_fg}
     } -cleanup {
         cleanup
     } -result {}
     
 
-    test reconcile-1.5 {On undo: <Entity> delete} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
+    test reconcile-1.4 {On undo: <Entity> delete} -setup {
+        ted create NB1 BLUE USAID SHIA
         set undo [rel mutate reconcile]
     } -body {
         ted notifier bind ::rel <Entity>
@@ -144,64 +105,42 @@ PLAYBOX USAID USAID 1.0
     } -cleanup {
         cleanup
     } -result {
-        {::rel <Entity> delete {NB1 BLUE SHIA}}
-        {::rel <Entity> delete {NB1 SHIA BLUE}}
-        {::rel <Entity> delete {NB1 SHIA SHIA}}
-        {::rel <Entity> delete {NB1 USAID SHIA}}
-        {::rel <Entity> delete {NB1 SHIA USAID}}
-        {::rel <Entity> delete {PLAYBOX BLUE BLUE}}
-        {::rel <Entity> delete {PLAYBOX BLUE USAID}}
-        {::rel <Entity> delete {PLAYBOX USAID BLUE}}
-        {::rel <Entity> delete {PLAYBOX USAID USAID}}
+        {::rel <Entity> delete {BLUE BLUE}}
+        {::rel <Entity> delete {BLUE USAID}}
+        {::rel <Entity> delete {BLUE SHIA}}
+        {::rel <Entity> delete {USAID BLUE}}
+        {::rel <Entity> delete {USAID USAID}}
+        {::rel <Entity> delete {USAID SHIA}}
+        {::rel <Entity> delete {SHIA BLUE}}
+        {::rel <Entity> delete {SHIA USAID}}
+        {::rel <Entity> delete {SHIA SHIA}}
     }
 
     
-    test reconcile-2.1 {FRC/ORG relationships deleted with group} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
+    test reconcile-2.1 {relationships deleted with group} -setup {
+        ted create NB1 BLUE USAID SHIA
         rel mutate reconcile
     } -body {
         frcgroup mutate delete BLUE
-        orggroup mutate delete USAID
         rel mutate reconcile
 
-        # NB1SHIA curves are left
-        ted query {SELECT * FROM rel_nfg}
+        # USAID and SHIA relationships are left
+        ted query {SELECT * FROM rel_fg}
     } -cleanup {
         cleanup
     } -result {
-n   f    g    rel 
---- ---- ---- --- 
-NB1 SHIA SHIA 1.0 
+f     g     rel 
+----- ----- --- 
+USAID USAID 1.0 
+USAID SHIA  0.0 
+SHIA  USAID 0.0 
+SHIA  SHIA  1.0 
     }
 
-
-    test reconcile-2.2 {nbgroup relationships deleted with group} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA NB1SUNN
+    test reconcile-2.2 {<Entity> Delete} -setup {
+        ted create NB1 BLUE USAID SHIA
         rel mutate reconcile
     } -body {
-        nbgroup mutate delete NB1 SHIA
-        rel mutate reconcile
-
-        # SHIA has no relationship with itself or BLUE in NB1.
-        ted query {SELECT * FROM rel_nfg}
-    } -cleanup {
-        cleanup
-    } -result {
-n       f    g    rel 
-------- ---- ---- --- 
-NB1     BLUE SUNN 0.0 
-NB1     SUNN BLUE 0.0 
-NB1     SHIA SUNN 0.0 
-NB1     SUNN SHIA 0.0 
-PLAYBOX BLUE BLUE 1.0 
-    }
-
-
-    test reconcile-2.4 {<Entity> Delete} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
-        rel mutate reconcile
-    } -body {
-        nbgroup mutate delete NB1 SHIA
         orggroup mutate delete USAID
 
         ted notifier bind ::rel <Entity>
@@ -210,60 +149,55 @@ PLAYBOX BLUE BLUE 1.0
     } -cleanup {
         cleanup
     } -result {
-        {::rel <Entity> delete {NB1 BLUE SHIA}}
-        {::rel <Entity> delete {NB1 SHIA BLUE}}
-        {::rel <Entity> delete {NB1 SHIA SHIA}}
-        {::rel <Entity> delete {NB1 USAID SHIA}}
-        {::rel <Entity> delete {NB1 SHIA USAID}}
-        {::rel <Entity> delete {PLAYBOX BLUE USAID}}
-        {::rel <Entity> delete {PLAYBOX USAID BLUE}}
-        {::rel <Entity> delete {PLAYBOX USAID USAID}}
+        {::rel <Entity> delete {BLUE USAID}}
+        {::rel <Entity> delete {USAID BLUE}}
+        {::rel <Entity> delete {USAID USAID}}
+        {::rel <Entity> delete {USAID SHIA}}
+        {::rel <Entity> delete {SHIA USAID}}
     }
 
 
-    test reconcile-2.5 {On undo: deleted relationships are restored} -setup {
+    test reconcile-2.3 {On undo: deleted relationships are restored} -setup {
         # FIRST, create the groups and relationships
-        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted create NB1 BLUE USAID SHIA
         rel mutate reconcile
 
         # NEXT, update one, so that we can see that it's restored
-        rel mutate update [list id {NB1 BLUE SHIA} rel 0.5]
+        rel mutate update [list id {BLUE SHIA} rel 0.5]
 
         # NEXT, delete the groups and relationships, and get the
         # undo script.
-        nbgroup mutate delete NB1 SHIA
-        orggroup mutate delete USAID
+        civgroup mutate delete SHIA
 
         set undo [rel mutate reconcile]
     } -body {
         eval $undo
-        ted query {SELECT * FROM rel_nfg}
+        ted query {SELECT * FROM rel_fg}
     } -cleanup {
         cleanup
     } -result {
-n       f     g     rel 
-------- ----- ----- --- 
-PLAYBOX BLUE  BLUE  1.0 
-NB1     BLUE  SHIA  0.5 
-NB1     SHIA  BLUE  0.0 
-NB1     SHIA  SHIA  1.0 
-NB1     USAID SHIA  0.0 
-NB1     SHIA  USAID 0.0 
-PLAYBOX BLUE  USAID 0.0 
-PLAYBOX USAID BLUE  0.0 
-PLAYBOX USAID USAID 1.0 
+f     g     rel 
+----- ----- --- 
+BLUE  BLUE  1.0 
+BLUE  USAID 0.0 
+USAID BLUE  0.0 
+USAID USAID 1.0 
+BLUE  SHIA  0.5 
+USAID SHIA  0.0 
+SHIA  BLUE  0.0 
+SHIA  USAID 0.0 
+SHIA  SHIA  1.0 
     }
 
 
-    test reconcile-2.6 {On undo: <Entity> create} -setup {
+    test reconcile-2.4 {On undo: <Entity> create} -setup {
         # FIRST, create the groups and relationships
-        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted create NB1 BLUE USAID SHIA
         rel mutate reconcile
 
         # NEXT, delete the groups and relationships, and get the
         # undo script.
-        nbgroup mutate delete NB1 SHIA
-        orggroup mutate delete USAID
+        civgroup mutate delete SHIA
 
         set undo [rel mutate reconcile]
     } -body {
@@ -273,19 +207,16 @@ PLAYBOX USAID USAID 1.0
     } -cleanup {
         cleanup
     } -result {
-        {::rel <Entity> create {NB1 BLUE SHIA}}
-        {::rel <Entity> create {NB1 SHIA BLUE}}
-        {::rel <Entity> create {NB1 SHIA SHIA}}
-        {::rel <Entity> create {NB1 USAID SHIA}}
-        {::rel <Entity> create {NB1 SHIA USAID}}
-        {::rel <Entity> create {PLAYBOX BLUE USAID}}
-        {::rel <Entity> create {PLAYBOX USAID BLUE}}
-        {::rel <Entity> create {PLAYBOX USAID USAID}}
+        {::rel <Entity> create {BLUE SHIA}}
+        {::rel <Entity> create {USAID SHIA}}
+        {::rel <Entity> create {SHIA BLUE}}
+        {::rel <Entity> create {SHIA USAID}}
+        {::rel <Entity> create {SHIA SHIA}}
     }
 
 
-    test reconcile-3.1 {Reconcile doesn't affect valid curves} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
+    test reconcile-3.1 {Reconcile doesn't affect valid rows} -setup {
+        ted create NB1 BLUE USAID SHIA
         rel mutate reconcile
     } -body {
         ted notifier bind ::rel <Entity>
@@ -305,20 +236,20 @@ PLAYBOX USAID USAID 1.0
         rel mutate reconcile
     } -body {
         rel mutate update {
-            id   {PLAYBOX BLUE BRIT}
+            id   {BLUE BRIT}
             rel  0.5
         }
 
-        ted query {SELECT * FROM rel_nfg}
+        ted query {SELECT * FROM rel_fg}
     } -cleanup {
         cleanup
     } -result {
-n       f    g    rel 
-------- ---- ---- --- 
-PLAYBOX BLUE BLUE 1.0 
-PLAYBOX BLUE BRIT 0.5 
-PLAYBOX BRIT BLUE 0.0 
-PLAYBOX BRIT BRIT 1.0 
+f    g    rel 
+---- ---- --- 
+BLUE BLUE 1.0 
+BLUE BRIT 0.5 
+BRIT BLUE 0.0 
+BRIT BRIT 1.0 
     }
 
 
@@ -326,17 +257,17 @@ PLAYBOX BRIT BRIT 1.0
         ted create BLUE BRIT
         rel mutate reconcile
         set parmdict {
-            id   {PLAYBOX BLUE BRIT}
+            id   {BLUE BRIT}
             rel  0.5
         }
 
         rel mutate update $parmdict
     } -body {
-        set a [ted query {SELECT * FROM rel_nfg}]
+        set a [ted query {SELECT * FROM rel_fg}]
         
         rel mutate update $parmdict
 
-        set b [ted query {SELECT * FROM rel_nfg}]
+        set b [ted query {SELECT * FROM rel_fg}]
 
         expr {$a eq $b}
     } -cleanup {
@@ -348,14 +279,14 @@ PLAYBOX BRIT BRIT 1.0
         ted create BLUE BRIT
         rel mutate reconcile
     } -body {
-        set a [ted query {SELECT * FROM rel_nfg}]
+        set a [ted query {SELECT * FROM rel_fg}]
 
         rel mutate update  {
-            id   {PLAYBOX BLUE BRIT}
+            id   {BLUE BRIT}
             rel  ""
         }
 
-        set b [ted query {SELECT * FROM rel_nfg}]
+        set b [ted query {SELECT * FROM rel_fg}]
 
         expr {$a eq $b}
     } -cleanup {
@@ -369,14 +300,14 @@ PLAYBOX BRIT BRIT 1.0
     } -body {
         ted notifier bind ::rel <Entity>
         rel mutate update  {
-            id   {PLAYBOX BLUE BRIT}
+            id   {BLUE BRIT}
             rel  ""
         }
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rel <Entity> update {PLAYBOX BLUE BRIT}}
+        {::rel <Entity> update {BLUE BRIT}}
     }
 
 
@@ -385,16 +316,16 @@ PLAYBOX BRIT BRIT 1.0
         rel mutate reconcile
     } -body {
 
-        set a [ted query {SELECT * FROM rel_nfg}]
+        set a [ted query {SELECT * FROM rel_fg}]
 
         set undo [rel mutate update {
-            id   {PLAYBOX BLUE BRIT}
+            id   {BLUE BRIT}
             rel  0.5
         }]
 
         eval $undo
 
-        set b [ted query {SELECT * FROM rel_nfg}]
+        set b [ted query {SELECT * FROM rel_fg}]
 
         expr {$a eq $b}
     } -cleanup {
@@ -407,7 +338,7 @@ PLAYBOX BRIT BRIT 1.0
         rel mutate reconcile
     } -body {
         set undo [rel mutate update {
-            id   {PLAYBOX BLUE BRIT}
+            id   {BLUE BRIT}
             rel  ""
         }]
 
@@ -417,14 +348,14 @@ PLAYBOX BRIT BRIT 1.0
     } -cleanup {
         cleanup
     } -result {
-        {::rel <Entity> update {PLAYBOX BLUE BRIT}}
+        {::rel <Entity> update {BLUE BRIT}}
     }
 
     #-------------------------------------------------------------------
     # exists
 
     test exists-1.1 {rel does not exist} -body {
-        rel exists NONESUCH NONESUCH NONESUCH
+        rel exists NONESUCH NONESUCH
     } -cleanup {
         cleanup
     } -result {0}
@@ -434,7 +365,7 @@ PLAYBOX BRIT BRIT 1.0
         ted create BLUE BRIT
         rel mutate reconcile
     } -body {
-        rel exists PLAYBOX BLUE BRIT
+        rel exists BLUE BRIT
     } -cleanup {
         cleanup
     } -result {1}
@@ -443,85 +374,32 @@ PLAYBOX BRIT BRIT 1.0
     #-------------------------------------------------------------------
     # validate
 
-    test validate-1.1 {invalid nbhood} -body {
-        rel validate {NONESUCH NONESUCH NONESUCH}
+    test validate-1.1 {invalid group f} -body {
+        rel validate {NONESUCH NONESUCH}
     } -returnCodes {
         error
-    } -cleanup {
-        cleanup
-    } -result {Invalid neighborhood, should be one of: PLAYBOX}
-
-
-    test validate-1.2 {invalid group f} -setup {
-        ted create NB1
-    } -body {
-        rel validate {NB1 NONESUCH NONESUCH}
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
     } -result {Invalid group, none are defined}
 
 
-    test validate-1.3 {Invalid group g} -setup {
-        ted create NB1 BLUE
+    test validate-1.2 {Invalid group g} -setup {
+        ted create BLUE BRIT
     } -body {
-        rel validate {NB1 BLUE NONESUCH}
+        rel validate {BLUE NONESUCH}
     } -returnCodes {
         error
     } -cleanup {
         cleanup
-    } -result {Invalid group, should be one of: BLUE}
-
-
-    test validate-1.4 {Invalid relationship} -setup {
-        ted create NB1 BLUE
-    } -body {
-        rel validate {NB1 BLUE BLUE}
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {Relationship is not tracked for BLUE with BLUE in NB1.}
+    } -result {Invalid group, should be one of: BLUE, BRIT}
 
 
     test validate-2.1 {Valid group} -setup {
-        ted create NB1 BLUE
+        ted create BLUE BRIT
         rel mutate reconcile
     } -body {
-        rel validate {PLAYBOX BLUE BLUE}
+        rel validate {BLUE BRIT}
     } -cleanup {
         cleanup
-    } -result {PLAYBOX BLUE BLUE}
-
-    #-------------------------------------------------------------------
-    # nbhood validate
-
-    test nbhood_validate-1.1 {Invalid neighborhood} -setup {
-        ted create NB1
-    } -body {
-        rel nbhood validate NONESUCH
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {Invalid neighborhood, should be one of: PLAYBOX, NB1}
-    
-    test nbhood_validate-2.1 {PLAYBOX is valid} -setup {
-        ted create NB1
-    } -body {
-        rel nbhood validate PLAYBOX
-    } -cleanup {
-        cleanup
-    } -result {PLAYBOX}
-
-    test nbhood_validate-2.2 {NB1 is valid} -setup {
-        ted create NB1
-    } -body {
-        rel nbhood validate NB1
-    } -cleanup {
-        cleanup
-    } -result {NB1}
+    } -result {BLUE BRIT}
 
     #-------------------------------------------------------------------
     # Cleanup

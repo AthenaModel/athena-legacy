@@ -43,9 +43,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   gtype forcetype demeanor uniformed local coalition 
----- -------- ------- ------ -------- ----- --------- -------- --------- ----- --------- 
-BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   AVERAGE  1         0     1         
+g    longname color   shape  symbol   demeanor gtype forcetype uniformed local coalition 
+---- -------- ------- ------ -------- -------- ----- --------- --------- ----- --------- 
+BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1         
     }
 
 
@@ -120,9 +120,9 @@ BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   AVERAGE  1         0     1
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   gtype forcetype demeanor uniformed local coalition 
----- -------- ------- ------ -------- ----- --------- -------- --------- ----- --------- 
-BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   AVERAGE  1         0     1         
+g    longname color   shape  symbol   demeanor gtype forcetype uniformed local coalition 
+---- -------- ------- ------ -------- -------- ----- --------- --------- ----- --------- 
+BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1         
     }
 
 
@@ -162,9 +162,9 @@ BLUE US Army  #f00001 FRIEND infantry FRC   REGULAR   AVERAGE  1         0     1
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol gtype forcetype demeanor   uniformed local coalition 
----- ----------- ------- ------- ------ ----- --------- ---------- --------- ----- --------- 
-BLUE Blue Angels #ff0000 NEUTRAL police FRC   POLICE    AGGRESSIVE 0         1     0         
+g    longname    color   shape   symbol demeanor   gtype forcetype uniformed local coalition 
+---- ----------- ------- ------- ------ ---------- ----- --------- --------- ----- --------- 
+BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1     0         
     }
 
 

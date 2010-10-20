@@ -117,14 +117,14 @@ namespace eval ::athena_test::tests:: {
     }
 
     test SCHEDULE-1.4 {CIV g doesn't reside in n} -setup {
-        ted create NB1 NB2 SHIA NB1SHIA
+        ted create NB1 NB2 SHIA KURD
     } -body {
         ted order -reject ACTIVITY:SCHEDULE \
             [dict merge $c4 [list n NB2]]
     } -cleanup {
         cleanup
     } -result {
-        g {Group SHIA does not reside in neighborhood NB2}
+        n {Group SHIA does not reside in neighborhood NB2}
     }
 
     test SCHEDULE-1.5 {a is unknown} -setup {
@@ -209,7 +209,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     test SCHEDULE-1.12 {state is PAUSED, start is not in future} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         ted order SIM:LOCK
     } -body {
         ted order -reject ACTIVITY:SCHEDULE [dict merge $c1 {
@@ -296,7 +296,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     test SCHEDULE-2.1 {activities are scheduled} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted create NB1 BLUE USAID SHIA
     } -body {
         ted order ACTIVITY:SCHEDULE $c1
         ted order ACTIVITY:SCHEDULE $c2
@@ -317,7 +317,7 @@ cid n   g     a              tn  personnel priority start finish pattern
 
 
     test SCHEDULE-2.2 {tn can be different than n} -setup {
-        ted create NB1 NB2 BLUE USAID SHIA NB1SHIA
+        ted create NB1 NB2 BLUE USAID SHIA
     } -body {
         ted order ACTIVITY:SCHEDULE {*}$c1 tn NB2
         ted order ACTIVITY:SCHEDULE {*}$c2 tn NB2
@@ -414,7 +414,7 @@ cid n   g     a              tn  personnel priority start finish pattern
     }
 
     test UPDATE-1.5 {state is PREP, start is negative} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted create NB1 BLUE USAID SHIA
         ted order ACTIVITY:SCHEDULE $c1
         ted order ACTIVITY:SCHEDULE $c2
     } -body {
@@ -426,7 +426,7 @@ cid n   g     a              tn  personnel priority start finish pattern
     }
 
     test UPDATE-1.6 {state is PAUSED, start is not in future} -setup {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted create NB1 BLUE USAID SHIA
         ted order ACTIVITY:SCHEDULE $c1
         ted order ACTIVITY:SCHEDULE $c2
         ted order SIM:LOCK

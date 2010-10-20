@@ -57,7 +57,7 @@ namespace eval ::athena_test::tests:: {
     # Advance time during setup
     
     proc advance {} {
-        ted create NB1 BLUE USAID SHIA NB1SHIA
+        ted create NB1 BLUE USAID SHIA
 
         scenario mutate reconcile
         ted order SIM:LOCK
@@ -391,7 +391,7 @@ driver oneliner
         mad mutate create $m1
     } -body {
         mad mutate satadjust {
-            id {NB1 SHIA AUT} mad 1 delta 5
+            id {SHIA AUT} mad 1 delta 5
         }
 
         ted query {
@@ -415,7 +415,7 @@ NB1 SHIA AUT 5.0
         mad mutate create $m1
     } -body {
         mad mutate satadjust {
-            id {NB1 SHIA AUT} mad 1 delta 5
+            id {SHIA AUT} mad 1 delta 5
         }
 
         rdb eval {
@@ -435,14 +435,14 @@ NB1 SHIA AUT 5.0
         ted notifier bind ::mad <Entity>
 
         mad mutate satadjust {
-            id {NB1 SHIA AUT} mad 1 delta 5
+            id {SHIA AUT} mad 1 delta 5
         }
         
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::sat <Entity> update {SHIA AUT}}
         {::mad <Entity> update 1}
     }
 
@@ -453,7 +453,7 @@ NB1 SHIA AUT 5.0
         mad mutate create $m1
     } -body {
         set undo [mad mutate satadjust {
-            id {NB1 SHIA AUT} mad 1 delta 5
+            id {SHIA AUT} mad 1 delta 5
         }]
 
         eval $undo
@@ -479,7 +479,7 @@ NB1 SHIA AUT 0.0
         mad mutate create $m1
 
         set undo [mad mutate satadjust {
-            id {NB1 SHIA AUT} mad 1 delta 5
+            id {SHIA AUT} mad 1 delta 5
         }]
     } -body {
         eval $undo
@@ -500,7 +500,7 @@ NB1 SHIA AUT 0.0
         mad mutate create $m1
 
         set undo [mad mutate satadjust {
-            id {NB1 SHIA AUT} mad 1 delta 5
+            id {SHIA AUT} mad 1 delta 5
         }]
     } -body {
         ted notifier bind ::sat <Entity>
@@ -512,7 +512,7 @@ NB1 SHIA AUT 0.0
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::sat <Entity> update {SHIA AUT}}
         {::mad <Entity> update 1}
     }
 
@@ -524,7 +524,7 @@ NB1 SHIA AUT 0.0
         mad mutate create $m1
     } -body {
         mad mutate satset {
-            id {NB1 SHIA AUT} mad 1 sat 5
+            id {SHIA AUT} mad 1 sat 5
         }
 
         ted query {
@@ -547,7 +547,7 @@ NB1 SHIA AUT 5.0
         mad mutate create $m1
     } -body {
         mad mutate satset {
-            id {NB1 SHIA AUT} mad 1 sat 5
+            id {SHIA AUT} mad 1 sat 5
         }
 
         rdb eval {
@@ -567,14 +567,14 @@ NB1 SHIA AUT 5.0
         ted notifier bind ::mad <Entity>
 
         mad mutate satset {
-            id {NB1 SHIA AUT} mad 1 sat 5
+            id {SHIA AUT} mad 1 sat 5
         }
         
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::sat <Entity> update {SHIA AUT}}
         {::mad <Entity> update 1}
     }
 
@@ -584,7 +584,7 @@ NB1 SHIA AUT 5.0
         mad mutate create $m1
     } -body {
         set undo [mad mutate satset {
-            id {NB1 SHIA AUT} mad 1 sat 5
+            id {SHIA AUT} mad 1 sat 5
         }]
 
         eval $undo
@@ -609,7 +609,7 @@ NB1 SHIA AUT 0.0
         mad mutate create $m1
 
         set undo [mad mutate satset {
-            id {NB1 SHIA AUT} mad 1 sat 5
+            id {SHIA AUT} mad 1 sat 5
         }]
     } -body {
         eval $undo
@@ -629,7 +629,7 @@ NB1 SHIA AUT 0.0
         mad mutate create $m1
 
         set undo [mad mutate satset {
-            id {NB1 SHIA AUT} mad 1 sat 5
+            id {SHIA AUT} mad 1 sat 5
         }]
     } -body {
         ted notifier bind ::sat <Entity>
@@ -641,7 +641,7 @@ NB1 SHIA AUT 0.0
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::sat <Entity> update {SHIA AUT}}
         {::mad <Entity> update 1}
     }
 
@@ -654,7 +654,7 @@ NB1 SHIA AUT 0.0
         mad mutate create $m1
     } -body {
         mad mutate satlevel {
-            n NB1 g SHIA c AUT mad 1 limit 5 days 1 athresh 50 dthresh -50
+            g SHIA c AUT mad 1 limit 5 days 1 athresh 50 dthresh -50
         }
 
         ted query {
@@ -677,7 +677,7 @@ L     MAD0001 1  NB1 SHIA AUT 5.0    1.0  50.0    -50.0
         mad mutate create $m1
     } -body {
         mad mutate satlevel {
-            n NB1 g SHIA c AUT mad 1 limit 5 days 1 athresh 50 dthresh -50
+            g SHIA c AUT mad 1 limit 5 days 1 athresh 50 dthresh -50
         }
 
         rdb eval {
@@ -698,7 +698,7 @@ L     MAD0001 1  NB1 SHIA AUT 5.0    1.0  50.0    -50.0
         mad mutate create $m1
     } -body {
         mad mutate satslope {
-            n NB1 g SHIA c AUT mad 1 slope 5 athresh 50 dthresh -50
+            g SHIA c AUT mad 1 slope 5 athresh 50 dthresh -50
         }
 
         ted query {
@@ -721,7 +721,7 @@ S     MAD0001 1  NB1 SHIA AUT 5.0   50.0    -50.0
         mad mutate create $m1
     } -body {
         mad mutate satslope {
-            n NB1 g SHIA c AUT mad 1 slope 5 athresh 50 dthresh -50
+            g SHIA c AUT mad 1 slope 5 athresh 50 dthresh -50
         }
 
         rdb eval {
@@ -741,7 +741,7 @@ S     MAD0001 1  NB1 SHIA AUT 5.0   50.0    -50.0
         mad mutate create $m1
     } -body {
         mad mutate coopadjust {
-            id {NB1 SHIA BLUE} mad 1 delta 5
+            id {SHIA BLUE} mad 1 delta 5
         }
 
         ted query {
@@ -764,7 +764,7 @@ NB1 SHIA BLUE 5.0
         mad mutate create $m1
     } -body {
         mad mutate coopadjust {
-            id {NB1 SHIA BLUE} mad 1 delta 5
+            id {SHIA BLUE} mad 1 delta 5
         }
 
         rdb eval {
@@ -784,14 +784,14 @@ NB1 SHIA BLUE 5.0
         ted notifier bind ::mad <Entity>
 
         mad mutate coopadjust {
-            id {NB1 SHIA BLUE} mad 1 delta 5
+            id {SHIA BLUE} mad 1 delta 5
         }
         
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::coop <Entity> update {SHIA BLUE}}
         {::mad <Entity> update 1}
     }
 
@@ -801,7 +801,7 @@ NB1 SHIA BLUE 5.0
         mad mutate create $m1
     } -body {
         set undo [mad mutate coopadjust {
-            id {NB1 SHIA BLUE} mad 1 delta 5
+            id {SHIA BLUE} mad 1 delta 5
         }]
 
         eval $undo
@@ -826,7 +826,7 @@ NB1 SHIA BLUE 0.0
         mad mutate create $m1
 
         set undo [mad mutate coopadjust {
-            id {NB1 SHIA BLUE} mad 1 delta 5
+            id {SHIA BLUE} mad 1 delta 5
         }]
     } -body {
         eval $undo
@@ -845,7 +845,7 @@ NB1 SHIA BLUE 0.0
         mad mutate create $m1
 
         set undo [mad mutate coopadjust {
-            id {NB1 SHIA BLUE} mad 1 delta 5
+            id {SHIA BLUE} mad 1 delta 5
         }]
     } -body {
         ted notifier bind ::coop <Entity>
@@ -857,7 +857,7 @@ NB1 SHIA BLUE 0.0
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::coop <Entity> update {SHIA BLUE}}
         {::mad <Entity> update 1}
     }
 
@@ -869,7 +869,7 @@ NB1 SHIA BLUE 0.0
         mad mutate create $m1
     } -body {
         mad mutate coopset {
-            id {NB1 SHIA BLUE} mad 1 coop 5
+            id {SHIA BLUE} mad 1 coop 5
         }
 
         ted query {
@@ -892,7 +892,7 @@ NB1 SHIA BLUE -45.0
         mad mutate create $m1
     } -body {
         mad mutate coopset {
-            id {NB1 SHIA BLUE} mad 1 coop 5
+            id {SHIA BLUE} mad 1 coop 5
         }
 
         rdb eval {
@@ -912,14 +912,14 @@ NB1 SHIA BLUE -45.0
         ted notifier bind ::mad <Entity>
 
         mad mutate coopset {
-            id {NB1 SHIA BLUE} mad 1 coop 5
+            id {SHIA BLUE} mad 1 coop 5
         }
         
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::coop <Entity> update {SHIA BLUE}}
         {::mad <Entity> update 1}
     }
 
@@ -929,7 +929,7 @@ NB1 SHIA BLUE -45.0
         mad mutate create $m1
     } -body {
         set undo [mad mutate coopset {
-            id {NB1 SHIA BLUE} mad 1 coop 5
+            id {SHIA BLUE} mad 1 coop 5
         }]
 
         eval $undo
@@ -954,7 +954,7 @@ NB1 SHIA BLUE 0.0
         mad mutate create $m1
 
         set undo [mad mutate coopset {
-            id {NB1 SHIA BLUE} mad 1 coop 5
+            id {SHIA BLUE} mad 1 coop 5
         }]
     } -body {
         eval $undo
@@ -973,7 +973,7 @@ NB1 SHIA BLUE 0.0
         mad mutate create $m1
 
         set undo [mad mutate coopset {
-            id {NB1 SHIA BLUE} mad 1 coop 5
+            id {SHIA BLUE} mad 1 coop 5
         }]
     } -body {
         ted notifier bind ::coop <Entity>
@@ -985,7 +985,7 @@ NB1 SHIA BLUE 0.0
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::coop <Entity> update {SHIA BLUE}}
         {::mad <Entity> update 1}
     }
 
@@ -998,7 +998,7 @@ NB1 SHIA BLUE 0.0
         mad mutate create $m1
     } -body {
         mad mutate cooplevel {
-            n NB1 f SHIA g BLUE mad 1 limit 5 days 1 athresh 50 dthresh 10
+            f SHIA g BLUE mad 1 limit 5 days 1 athresh 50 dthresh 10
         }
 
         ted query {
@@ -1020,7 +1020,7 @@ L     MAD0001 1  NB1 SHIA BLUE 5.0    1.0  50.0    10.0
         mad mutate create $m1
     } -body {
         mad mutate cooplevel {
-            n NB1 f SHIA g BLUE mad 1 limit 5 days 1 athresh 50 dthresh 10
+            f SHIA g BLUE mad 1 limit 5 days 1 athresh 50 dthresh 10
         }
 
         rdb eval {
@@ -1041,7 +1041,7 @@ L     MAD0001 1  NB1 SHIA BLUE 5.0    1.0  50.0    10.0
         mad mutate create $m1
     } -body {
         mad mutate coopslope {
-            n NB1 f SHIA g BLUE mad 1 slope 5 athresh 50 dthresh 10
+            f SHIA g BLUE mad 1 slope 5 athresh 50 dthresh 10
         }
 
         ted query {
@@ -1063,7 +1063,7 @@ S     MAD0001 1  NB1 SHIA BLUE 5.0   50.0    10.0
         mad mutate create $m1
     } -body {
         mad mutate coopslope {
-            n NB1 f SHIA g BLUE mad 1 slope 5 athresh 50 dthresh 10
+            f SHIA g BLUE mad 1 slope 5 athresh 50 dthresh 10
         }
 
         rdb eval {
@@ -1085,11 +1085,11 @@ S     MAD0001 1  NB1 SHIA BLUE 5.0   50.0    10.0
         mad mutate create $m2
 
         mad mutate satslope {
-            n NB1 g SHIA c AUT mad 1 slope 5 athresh 50 dthresh -50
+            g SHIA c AUT mad 1 slope 5 athresh 50 dthresh -50
         }
 
         mad mutate satslope {
-            n NB1 g SHIA c QOL mad 2 slope 5 athresh 50 dthresh -50
+            g SHIA c QOL mad 2 slope 5 athresh 50 dthresh -50
         }
     } -body {
         mad mutate terminate 1

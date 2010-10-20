@@ -31,14 +31,17 @@ snit::widgetadaptor civgroupbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { g         "ID"                              }
-        { longname  "Long Name"                       }
-        { n         "Nbhood"                          }
-        { color     "Color"                           }
-        { shape     "Unit Shape"                      }
-        { demeanor  "Demeanor"                        }
-        { basepop   "BasePop"       -sortmode integer }
-        { sap       "SA%"           -sortmode integer }
+        { g          "ID"                                             }
+        { longname   "Long Name"                                      }
+        { n          "Nbhood"                                         }
+        { color      "Color"                                          }
+        { shape      "Unit Shape"                                     }
+        { demeanor   "Demeanor"                                       }
+        { basepop    "BasePop"       -sortmode integer                }
+        { population "CurrPop"       -sortmode integer -foreground %D }
+        { mood0      "Mood at T0"    -sortmode real                   }
+        { mood       "Mood Now"      -sortmode real    -foreground %D }
+        { sap        "SA%"           -sortmode integer                }
     }
 
     #-------------------------------------------------------------------
@@ -62,6 +65,8 @@ snit::widgetadaptor civgroupbrowser {
             -displaycmd   [mymethod DisplayData]      \
             -reloadon {
                 ::sim <DbSyncB>
+                ::sim <Tick>
+                ::demog <Update>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
@@ -81,8 +86,8 @@ snit::widgetadaptor civgroupbrowser {
             -state   disabled                                              \
             -command [mymethod EditSelected]
 
-        cond::orderIsValidMulti control $editbtn \
-            order   GROUP:CIVILIAN:UPDATE        \
+        cond::orderIsValidMulti control $editbtn   \
+            order   GROUP:CIVILIAN:UPDATE:POSTPREP \
             browser $win
 
 
@@ -136,14 +141,6 @@ snit::widgetadaptor civgroupbrowser {
         # FIRST, update buttons
         cond::orderIsValidSingle update $deletebtn
         cond::orderIsValidMulti  update $editbtn
-
-        # NEXT, notify the app of the selection.
-        if {[llength [$hull uid curselection]] == 1} {
-            set g [lindex [$hull uid curselection] 0]
-
-            notifier send ::app <ObjectSelect> \
-                [list group $g]
-        }
     }
 
 
@@ -167,9 +164,17 @@ snit::widgetadaptor civgroupbrowser {
         if {[llength $ids] == 1} {
             set id [lindex $ids 0]
 
-            order enter GROUP:CIVILIAN:UPDATE g $id
+            if {[order state] eq "PREP"} {
+                order enter GROUP:CIVILIAN:UPDATE g $id
+            } else {
+                order enter GROUP:CIVILIAN:UPDATE:POSTPREP g $id
+            }
         } else {
-            order enter GROUP:CIVILIAN:UPDATE:MULTI ids $ids
+            if {[order state] eq "PREP"} {
+                order enter GROUP:CIVILIAN:UPDATE:MULTI ids $ids
+            } else {
+                order enter GROUP:CIVILIAN:UPDATE:MULTI:POSTPREP ids $ids
+            }
         }
     }
 

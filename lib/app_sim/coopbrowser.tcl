@@ -8,7 +8,7 @@
 # DESCRIPTION:
 #    coopbrowser(sim) package: Cooperation browser.
 #
-#    This widget displays a formatted list of coop_nfg records.
+#    This widget displays a formatted list of coop_fg records.
 #    It is a wrapper around sqlbrowser(n).
 #
 #-----------------------------------------------------------------------

@@ -33,12 +33,12 @@ snit::type ted {
         nbhoods
         nbrel_mn
         groups
-        nbgroups
+        civgroups
         frcgroups
         orggroups
-        sat_ngc
-        rel_nfg
-        coop_nfg
+        sat_gc
+        rel_fg
+        coop_fg
         attroe_nfg
         defroe_ng
         attrit_nf
@@ -49,7 +49,7 @@ snit::type ted {
         actsits_t
         demog_local
         demog_n
-        demog_ng
+        demog_g
         mads
         econ_n
         calendar
@@ -169,6 +169,10 @@ snit::type ted {
             longname "Shia"
             color    "#c00001"
             shape    NEUTRAL
+            n        NB1
+            basepop  1000
+            sap      10
+            demeanor AVERAGE
         }
 
         defentity SUNN ::civgroup {
@@ -176,6 +180,10 @@ snit::type ted {
             longname "Sunni"
             color    "#c00002"
             shape    NEUTRAL
+            n        NB1
+            basepop  1000
+            sap      0
+            demeanor AGGRESSIVE
         }
 
         defentity KURD ::civgroup {
@@ -183,47 +191,10 @@ snit::type ted {
             longname "Kurd"
             color    "#c00003"
             shape    NEUTRAL
-        }
-
-        defentity PASH ::civgroup {
-            g        PASH
-            longname "Pashtuns"
-            color    "#c00004"
-            shape    NEUTRAL
-        }
-
-        # Neighborhood Groups
-
-        defentity NB1SHIA ::nbgroup {
-            id             {NB1 SHIA}
-            local_name     "NB1 Shias"
-            basepop        1000
-            sap            10
-            demeanor       AVERAGE
-        }
-
-        defentity NB1SUNN ::nbgroup {
-            id             {NB1 SUNN}
-            local_name     "NB1 Sunnis"
-            basepop        1000
-            sap            0
-            demeanor       AGGRESSIVE
-        }
-
-        defentity NB2SHIA ::nbgroup {
-            id             {NB2 SHIA}
-            local_name     "NB2 Shias"
-            basepop        1000
-            sap            10
-            demeanor       AVERAGE
-        }
-
-        defentity NB2SUNN ::nbgroup {
-            id             {NB2 SUNN}
-            local_name     "NB2 Sunnis"
-            basepop        1000
-            sap            0
-            demeanor       AGGRESSIVE
+            n        NB2
+            basepop  1000
+            sap      0
+            demeanor AGGRESSIVE
         }
 
         # Force Groups

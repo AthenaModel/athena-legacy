@@ -43,7 +43,7 @@ namespace eval ::athena_test::tests:: {
     # analyze
 
     test analyze-1.1 {Create a situation} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         scenario mutate reconcile
         ted order PERSONNEL:SET id {NB1 BLUE} personnel 15
     } -body {
@@ -61,7 +61,7 @@ s kind     stype    driver n   coverage           state  ts tc change flist g   
 
 
     test analyze-1.2 {Change marks are erased on next run} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         scenario mutate reconcile
         ted order PERSONNEL:SET id {NB1 BLUE} personnel 15
     } -body {
@@ -79,7 +79,7 @@ s change
     }
 
     test analyze-1.3 {Change in coverage updates} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         scenario mutate reconcile
         ted order PERSONNEL:SET id {NB1 BLUE} personnel 15
     } -body {
@@ -100,7 +100,7 @@ s kind     stype    driver n   coverage           state  ts tc change  flist g  
 
 
     test analyze-1.4 {Nominal personnel = 0 terminates} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         scenario mutate reconcile
         ted order PERSONNEL:SET id {NB1 BLUE} personnel 15
     } -body {
@@ -120,7 +120,7 @@ s kind     stype    driver n   coverage state ts tc change flist g    signature 
 
 
     test analyze-1.5 {Can have multiple} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         scenario mutate reconcile
         ted order PERSONNEL:SET id {NB1 BLUE} personnel 30
         ted order ACTIVITY:SCHEDULE n NB1 g BLUE a PATROL personnel 15 start +0 pattern daily
@@ -164,7 +164,7 @@ s kind     stype    driver n   coverage state ts tc change flist g    signature 
     # get
 
     test get-1.1 {get -all} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         scenario mutate reconcile
         ted order PERSONNEL:SET id {NB1 BLUE} personnel 30
     } -body {
@@ -179,7 +179,7 @@ s kind     stype    driver n   coverage state ts tc change flist g    signature 
 
 
     test get-1.2 {get -live} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         scenario mutate reconcile
         ted order PERSONNEL:SET id {NB1 BLUE} personnel 30
         ted order SIM:LOCK

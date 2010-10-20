@@ -280,27 +280,6 @@ snit::type unit {
         }
     }
 
-    # RefreshUnitOrigin field parmdict
-    #
-    # field     The "origin" field in a U:CREATE order.
-    # parmdict  The current values of the various fields.
-    #
-    # Sets the valid origin values, if it's not set.
-
-    typemethod RefreshUnitOrigin {field parmdict} {
-        dict with parmdict {
-            set gtype [group gtype $g]
-
-            if {$gtype eq "CIV"} {
-                $field configure -values [nbgroup nFor $g] -state normal
-            } else {
-                $field configure -values [list NONE]
-                $field set NONE
-                $field configure -state disabled
-            }
-        }
-    }
-
     # RefreshUnitName field parmdict
     #
     # field     The "u" field in a U:CREATE order.

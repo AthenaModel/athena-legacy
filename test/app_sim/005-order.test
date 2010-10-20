@@ -51,12 +51,18 @@ namespace eval ::athena_test::tests:: {
         order check GROUP:CIVILIAN:CREATE
     } -returnCodes {
         error
-    } -result {g {required value} longname {required value} color {required value} shape {required value}}
+    } -result {g {required value} longname {required value} n {required value} color {required value} shape {required value} demeanor {required value} basepop {required value} sap {required value}}
 
     test check-1.2 {valid order doesn't execute} -body {
-        order check GROUP:CIVILIAN:CREATE \
-            g SHIA longname "Local Shia" color "#000000" shape NEUTRAL
-        civgroup names
+        order check GROUP:ORGANIZATION:CREATE {
+            g        USAID 
+            longname "US Aid" 
+            color    "#000000" 
+            shape    NEUTRAL 
+            demeanor AVERAGE
+            orgtype  IGO
+        }
+        orggroup names
     } -result {}
 
 

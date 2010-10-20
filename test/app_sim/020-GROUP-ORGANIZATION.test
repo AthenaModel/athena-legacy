@@ -150,10 +150,10 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g     longname   color   shape   symbol       gtype orgtype demeanor 
------ ---------- ------- ------- ------------ ----- ------- -------- 
-USAID US Aid     #00ff00 NEUTRAL organization ORG   NGO     AVERAGE  
-HAL   Haliburton #ffff00 NEUTRAL organization ORG   CTR     AVERAGE  
+g     longname   color   shape   symbol       demeanor gtype orgtype 
+----- ---------- ------- ------- ------------ -------- ----- ------- 
+USAID US Aid     #00ff00 NEUTRAL organization AVERAGE  ORG   NGO     
+HAL   Haliburton #ffff00 NEUTRAL organization AVERAGE  ORG   CTR     
     }
 
 
@@ -322,9 +322,9 @@ HAL   Haliburton #ffff00 NEUTRAL organization ORG   CTR     AVERAGE
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   shape symbol       gtype orgtype demeanor   
------ --------- ------- ----- ------------ ----- ------- ---------- 
-USAID Red Cross #ff0000 ENEMY organization ORG   IGO     AGGRESSIVE 
+g     longname  color   shape symbol       demeanor   gtype orgtype 
+----- --------- ------- ----- ------------ ---------- ----- ------- 
+USAID Red Cross #ff0000 ENEMY organization AGGRESSIVE ORG   IGO     
     }
 
 

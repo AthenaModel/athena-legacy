@@ -43,9 +43,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape   symbol   gtype 
----- -------- ------- ------- -------- ----- 
-SHIA Shia     #c00001 NEUTRAL civilian CIV   
+g    longname color   shape   symbol   demeanor gtype n   basepop sap 
+---- -------- ------- ------- -------- -------- ----- --- ------- --- 
+SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10  
     }
 
 
@@ -120,9 +120,9 @@ SHIA Shia     #c00001 NEUTRAL civilian CIV
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape   symbol   gtype 
----- -------- ------- ------- -------- ----- 
-SHIA Shia     #c00001 NEUTRAL civilian CIV   
+g    longname color   shape   symbol   demeanor gtype n   basepop sap 
+---- -------- ------- ------- -------- -------- ----- --- ------- --- 
+SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10  
     }
 
 
@@ -157,9 +157,9 @@ SHIA Shia     #c00001 NEUTRAL civilian CIV
     } -cleanup {
         cleanup
     } -result {
-g    longname  color   shape  symbol   gtype 
----- --------- ------- ------ -------- ----- 
-SHIA Shia Folk #ff0000 FRIEND civilian CIV   
+g    longname  color   shape  symbol   demeanor gtype n   basepop sap 
+---- --------- ------- ------ -------- -------- ----- --- ------- --- 
+SHIA Shia Folk #ff0000 FRIEND civilian AVERAGE  CIV   NB1 1000    10  
     }
 
 
@@ -253,6 +253,39 @@ SHIA Shia Folk #ff0000 FRIEND civilian CIV
         {::civgroup <Entity> update SHIA}
     }
 
+    #-------------------------------------------------------------------
+    # mutate reconcile
+
+    test reconcile-1.1 {valid groups remain} -setup {
+        ted create NB1 SHIA
+    } -body {
+        civgroup mutate reconcile
+        rdb eval {SELECT n,g FROM civgroups}
+    } -cleanup {
+        cleanup
+    } -result {NB1 SHIA}
+
+
+    test reconcile-1.2 {group deleted when nbhood is gone} -setup {
+        ted create SHIA
+    } -body {
+        civgroup mutate reconcile
+        rdb eval {SELECT n,g FROM civgroups}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test reconcile-2.1 {groups restored on undo} -setup {
+        ted create SHIA KURD
+    } -body {
+        set undo [civgroup mutate reconcile]
+        eval $undo
+        rdb eval {SELECT n,g FROM civgroups}
+    } -cleanup {
+        cleanup
+    } -result {NB1 SHIA NB2 KURD}
+
 
     #-------------------------------------------------------------------
     # names
@@ -300,6 +333,56 @@ SHIA Shia Folk #ff0000 FRIEND civilian CIV
     } -cleanup {
         cleanup
     } -result {SUNN}
+
+    #-------------------------------------------------------------------
+    # gInN
+
+    test gInN-1.1 {g resides in n} -setup {
+        ted create NB1 NB2 SHIA KURD
+    } -body {
+        civgroup gInN SHIA NB1
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test gInN-1.1 {g does not reside in n} -setup {
+        ted create NB1 NB2 SHIA KURD
+    } -body {
+        civgroup gInN KURD NB1
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    #-------------------------------------------------------------------
+    # gIn
+
+    test gIn-1.1 {get groups in n} -setup {
+        ted create NB1 NB2 SHIA SUNN KURD
+    } -body {
+        civgroup gIn NB1
+    } -cleanup {
+        cleanup
+    } -result {SHIA SUNN}
+
+
+    #-------------------------------------------------------------------
+    # getg
+
+    test getg-1.1 {get group dict} -setup {
+        ted create NB1 SHIA
+    } -body {
+        civgroup getg SHIA
+    } -cleanup {
+        cleanup
+    } -result "sap 10 gtype CIV shape NEUTRAL longname Shia basepop 1000 n NB1 symbol civilian demeanor AVERAGE color #c00001 g SHIA"
+
+    test getg-1.2 {get group attribute} -setup {
+        ted create NB1 SHIA
+    } -body {
+        civgroup getg SHIA n
+    } -cleanup {
+        cleanup
+    } -result {NB1}
 
 
     #-------------------------------------------------------------------

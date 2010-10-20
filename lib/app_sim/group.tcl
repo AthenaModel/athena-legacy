@@ -9,24 +9,14 @@
 #    athena_sim(1): Group Manager
 #
 #    This module is responsible for managing groups in general.
-#    Most of the relevant code is in the frcgroup, orggroup, civgroup,
-#    and nbgroup modules; this is just a few things that apply to all.
+#    Most of the relevant code is in the frcgroup, orggroup, and civgroup
+#    modules; this is just a few things that apply to all.
 #
 #-----------------------------------------------------------------------
 
 snit::type group {
     # Make it a singleton
     pragma -hasinstances no
-
-    #-------------------------------------------------------------------
-    # Type Components
-
-    # TBD
-
-    #-------------------------------------------------------------------
-    # Type Variables
-
-    # TBD
 
     #-------------------------------------------------------------------
     # Queries

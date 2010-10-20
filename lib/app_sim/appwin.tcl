@@ -707,17 +707,8 @@ snit::widget appwin {
         
         $self AddOrder $submenu GROUP:CIVILIAN:CREATE
         $self AddOrder $submenu GROUP:CIVILIAN:UPDATE
+        $self AddOrder $submenu GROUP:CIVILIAN:UPDATE:POSTPREP
         $self AddOrder $submenu GROUP:CIVILIAN:DELETE
-
-        # Orders/Nbhood Group
-        set submenu [menu $ordersmenu.nbgroup]
-        $ordersmenu add cascade -label "Nbhood Group" \
-            -underline 0 -menu $submenu
-        
-        $self AddOrder $submenu GROUP:NBHOOD:CREATE
-        $self AddOrder $submenu GROUP:NBHOOD:UPDATE
-        $self AddOrder $submenu GROUP:NBHOOD:UPDATE:POSTPREP
-        $self AddOrder $submenu GROUP:NBHOOD:DELETE
 
         # Orders/Force Group
         set submenu [menu $ordersmenu.frcgroup]

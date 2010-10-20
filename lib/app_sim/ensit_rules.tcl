@@ -184,7 +184,7 @@ snit::type ensit_rules {
             -doer      $g               \
             -location  $location        \
             -n         $n               \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent [$sit get coverage]]]
     }

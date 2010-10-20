@@ -133,14 +133,6 @@ snit::widgetadaptor orggroupbrowser {
         # FIRST, update buttons
         cond::orderIsValidSingle update $deletebtn
         cond::orderIsValidMulti  update $editbtn
-
-        # NEXT, notify the app of the selection.
-        if {[llength [$hull uid curselection]] == 1} {
-            set g [lindex [$hull uid curselection] 0]
-
-            notifier send ::app <ObjectSelect> \
-                [list group $g]
-        }
     }
 
 

@@ -55,7 +55,6 @@ namespace eval ::athena_test::tests:: {
     # Standard Magic Inputs
 
     set satlevel {
-        n       NB1 
         g       SHIA 
         c       AUT
         mad     1 
@@ -66,7 +65,6 @@ namespace eval ::athena_test::tests:: {
     }
 
     set satslope {
-        n       NB1 
         g       SHIA 
         c       AUT 
         mad     1 
@@ -76,7 +74,6 @@ namespace eval ::athena_test::tests:: {
     }
 
     set cooplevel {
-        n       NB1 
         f       SHIA 
         g       BLUE 
         mad     1 
@@ -87,7 +84,6 @@ namespace eval ::athena_test::tests:: {
     }
 
     set coopslope {
-        n       NB1 
         f       SHIA 
         g       BLUE 
         mad     1 
@@ -100,7 +96,7 @@ namespace eval ::athena_test::tests:: {
     proc advance {} {
         variable m1
 
-        ted create NB1 NB2 BLUE SHIA SUNN NB1SHIA NB2SUNN
+        ted create NB1 NB2 BLUE SHIA KURD
         scenario mutate reconcile
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
@@ -174,7 +170,7 @@ namespace eval ::athena_test::tests:: {
 
 
     test CREATE-2.1 {MAD is created} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         ted order MAD:CREATE $m1
         ted order MAD:CREATE $m2
@@ -394,6 +390,8 @@ id oneliner      cause s   p   q   driver
         advance
     } -body {
         ted order -reject MAD:SAT:ADJUST {}
+    } -cleanup {
+        cleanup
     } -result {
         id {required value}
         mad {required value}
@@ -401,22 +399,11 @@ id oneliner      cause s   p   q   driver
     }
     
 
-    test SAT:ADJUST-1.2 {invalid n} -body {
-        ted order -reject MAD:SAT:ADJUST {
-            id {NONESUCH SHIA AUT} mad 1 delta 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        id {Invalid neighborhood, should be one of: NB1, NB2}
-    }
-
-
-    test SAT:ADJUST-1.3 {invalid MAD} -setup {
+    test SAT:ADJUST-1.2 {invalid MAD} -setup {
         advance
     } -body {
         ted order -reject MAD:SAT:ADJUST {
-            id {NB1 SHIA AUT} mad 2 delta 5
+            id {SHIA AUT} mad 2 delta 5
         }
     } -cleanup {
         cleanup
@@ -425,29 +412,16 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test SAT:ADJUST-1.6 {invalid delta} -setup {
+    test SAT:ADJUST-1.3 {invalid delta} -setup {
         advance
     } -body {
         ted order -reject MAD:SAT:ADJUST {
-            id {NB1 SHIA AUT} mad 1 delta NONESUCH
+            id {SHIA AUT} mad 1 delta NONESUCH
         }
     } -cleanup {
         cleanup
     } -result {
         delta {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
-    }
-
-
-    test SAT:ADJUST-1.7 {g does not reside in n} -setup {
-        advance
-    } -body {
-        ted order -reject MAD:SAT:ADJUST {
-            id {NB1 SUNN AUT} mad 1 delta 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        id {Satisfaction is not tracked for group SUNN's AUT in NB1.}
     }
 
 
@@ -457,13 +431,13 @@ id oneliner      cause s   p   q   driver
         ted notifier bind ::sat <Entity>
         ted notifier bind ::mad <Entity>
         ted order MAD:SAT:ADJUST {
-            id {NB1 SHIA AUT} mad 1 delta 5
+            id {SHIA AUT} mad 1 delta 5
         }
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::sat <Entity> update {SHIA AUT}}
         {::mad <Entity> update 1}
     }
 
@@ -472,7 +446,7 @@ id oneliner      cause s   p   q   driver
         advance
 
         ted order MAD:SAT:ADJUST {
-            id {NB1 SHIA AUT} mad 1 delta 5
+            id {SHIA AUT} mad 1 delta 5
         }
     } -body {
         ted notifier bind ::sat <Entity>
@@ -482,7 +456,7 @@ id oneliner      cause s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::sat <Entity> update {SHIA AUT}}
         {::mad <Entity> update 1}
     }
 
@@ -494,6 +468,8 @@ id oneliner      cause s   p   q   driver
         advance
     } -body {
         ted order -reject MAD:SAT:SET {}
+    } -cleanup {
+        cleanup
     } -result {
         id {required value}
         mad {required value}
@@ -501,22 +477,11 @@ id oneliner      cause s   p   q   driver
     }
     
 
-    test SAT:SET-1.2 {invalid n} -body {
-        ted order -reject MAD:SAT:SET {
-            id {NONESUCH SHIA AUT} mad 1 sat 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        id {Invalid neighborhood, should be one of: NB1, NB2}
-    }
-
-
-    test SAT:SET-1.5 {invalid MAD} -setup {
+    test SAT:SET-1.2 {invalid MAD} -setup {
         advance
     } -body {
         ted order -reject MAD:SAT:SET {
-            id {NB1 SHIA AUT} mad 2 sat 5
+            id {SHIA AUT} mad 2 sat 5
         }
     } -cleanup {
         cleanup
@@ -525,29 +490,16 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test SAT:SET-1.6 {invalid sat} -setup {
+    test SAT:SET-1.3 {invalid sat} -setup {
         advance
     } -body {
         ted order -reject MAD:SAT:SET {
-            id {NB1 SHIA AUT} mad 1 sat NONESUCH
+            id {SHIA AUT} mad 1 sat NONESUCH
         }
     } -cleanup {
         cleanup
     } -result {
         sat {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
-    }
-
-
-    test SAT:SET-1.7 {g does not reside in n} -setup {
-        advance
-    } -body {
-        ted order -reject MAD:SAT:SET {
-            id {NB1 SUNN AUT} mad 1 sat 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        id {Satisfaction is not tracked for group SUNN's AUT in NB1.}
     }
 
 
@@ -557,13 +509,13 @@ id oneliner      cause s   p   q   driver
         ted notifier bind ::sat <Entity>
         ted notifier bind ::mad <Entity>
         ted order MAD:SAT:SET {
-            id {NB1 SHIA AUT} mad 1 sat 5
+            id {SHIA AUT} mad 1 sat 5
         }
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::sat <Entity> update {SHIA AUT}}
         {::mad <Entity> update 1}
     }
 
@@ -572,7 +524,7 @@ id oneliner      cause s   p   q   driver
         advance
 
         ted order MAD:SAT:SET {
-            id {NB1 SHIA AUT} mad 1 sat 5
+            id {SHIA AUT} mad 1 sat 5
         }
     } -body {
         ted notifier bind ::sat <Entity>
@@ -582,7 +534,7 @@ id oneliner      cause s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {NB1 SHIA AUT}}
+        {::sat <Entity> update {SHIA AUT}}
         {::mad <Entity> update 1}
     }
 
@@ -593,8 +545,9 @@ id oneliner      cause s   p   q   driver
         advance
     } -body {
         ted schedule -reject +1 MAD:SAT:LEVEL {}
+    } -cleanup {
+        cleanup
     } -result {
-        n {required value}
         g {required value}
         c {required value}
         mad {required value}
@@ -605,17 +558,7 @@ id oneliner      cause s   p   q   driver
     }
     
 
-    test SAT:LEVEL-1.2 {invalid n} -body {
-        ted schedule -reject +1 MAD:SAT:LEVEL \
-            [dict merge $satlevel {n NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        n {Invalid neighborhood, should be one of: NB1, NB2}
-    }
-
-
-    test SAT:LEVEL-1.3 {invalid g} -setup {
+    test SAT:LEVEL-1.2 {invalid g} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:SAT:LEVEL \
@@ -623,11 +566,11 @@ id oneliner      cause s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-        g {Invalid civilian group, should be one of: SHIA, SUNN}
+        g {Invalid civilian group, should be one of: SHIA, KURD}
     }
 
 
-    test SAT:LEVEL-1.4 {invalid c} -setup {
+    test SAT:LEVEL-1.3 {invalid c} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:SAT:LEVEL \
@@ -639,7 +582,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test SAT:LEVEL-1.5 {invalid MAD} -setup {
+    test SAT:LEVEL-1.4 {invalid MAD} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:SAT:LEVEL \
@@ -651,7 +594,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test SAT:LEVEL-1.6 {invalid limit} -setup {
+    test SAT:LEVEL-1.5 {invalid limit} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:SAT:LEVEL \
@@ -663,7 +606,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test SAT:LEVEL-1.7 {invalid days} -setup {
+    test SAT:LEVEL-1.6 {invalid days} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:SAT:LEVEL \
@@ -675,7 +618,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test SAT:LEVEL-1.8 {invalid athresh} -setup {
+    test SAT:LEVEL-1.7 {invalid athresh} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:SAT:LEVEL \
@@ -686,7 +629,7 @@ id oneliner      cause s   p   q   driver
         athresh {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
     }
 
-    test SAT:LEVEL-1.9 {invalid dthresh} -setup {
+    test SAT:LEVEL-1.8 {invalid dthresh} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:SAT:LEVEL \
@@ -714,8 +657,9 @@ id oneliner      cause s   p   q   driver
         advance
     } -body {
         ted schedule -reject +1 MAD:SAT:SLOPE {}
+    } -cleanup {
+        cleanup
     } -result {
-        n {required value}
         g {required value}
         c {required value}
         mad {required value}
@@ -725,17 +669,7 @@ id oneliner      cause s   p   q   driver
     }
     
 
-    test SAT:SLOPE-1.2 {invalid n} -body {
-        ted schedule -reject +1 MAD:SAT:SLOPE \
-            [dict merge $satslope {n NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        n {Invalid neighborhood, should be one of: NB1, NB2}
-    }
-
-
-    test SAT:SLOPE-1.3 {invalid g} -setup {
+    test SAT:SLOPE-1.2 {invalid g} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:SAT:SLOPE \
@@ -743,11 +677,11 @@ id oneliner      cause s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-        g {Invalid civilian group, should be one of: SHIA, SUNN}
+        g {Invalid civilian group, should be one of: SHIA, KURD}
     }
 
 
-    test SAT:SLOPE-1.4 {invalid c} -setup {
+    test SAT:SLOPE-1.3 {invalid c} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:SAT:SLOPE \
@@ -759,7 +693,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test SAT:SLOPE-1.5 {invalid MAD} -setup {
+    test SAT:SLOPE-1.4 {invalid MAD} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:SAT:SLOPE \
@@ -771,7 +705,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test SAT:SLOPE-1.6 {invalid slope} -setup {
+    test SAT:SLOPE-1.5 {invalid slope} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:SAT:SLOPE \
@@ -783,7 +717,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test SAT:SLOPE-1.7 {invalid athresh} -setup {
+    test SAT:SLOPE-1.6 {invalid athresh} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:SAT:SLOPE \
@@ -794,7 +728,7 @@ id oneliner      cause s   p   q   driver
         athresh {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
     }
 
-    test SAT:SLOPE-1.8 {invalid dthresh} -setup {
+    test SAT:SLOPE-1.7 {invalid dthresh} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:SAT:SLOPE \
@@ -822,6 +756,8 @@ id oneliner      cause s   p   q   driver
         advance
     } -body {
         ted order -reject MAD:COOP:ADJUST {}
+    } -cleanup {
+        cleanup
     } -result {
         id {required value}
         mad {required value}
@@ -829,22 +765,11 @@ id oneliner      cause s   p   q   driver
     }
     
 
-    test COOP:ADJUST-1.2 {invalid n} -body {
-        ted order -reject MAD:COOP:ADJUST {
-            id {NONESUCH SHIA BLUE} mad 1 delta 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        id {Invalid neighborhood, should be one of: NB1, NB2}
-    }
-
-
-    test COOP:ADJUST-1.5 {invalid MAD} -setup {
+    test COOP:ADJUST-1.2 {invalid MAD} -setup {
         advance
     } -body {
         ted order -reject MAD:COOP:ADJUST {
-            id {NB1 SHIA BLUE} mad 2 delta 5
+            id {SHIA BLUE} mad 2 delta 5
         }
     } -cleanup {
         cleanup
@@ -853,29 +778,16 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test COOP:ADJUST-1.6 {invalid delta} -setup {
+    test COOP:ADJUST-1.3 {invalid delta} -setup {
         advance
     } -body {
         ted order -reject MAD:COOP:ADJUST {
-            id {NB1 SHIA BLUE} mad 1 delta NONESUCH
+            id {SHIA BLUE} mad 1 delta NONESUCH
         }
     } -cleanup {
         cleanup
     } -result {
         delta {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
-    }
-
-
-    test COOP:ADJUST-1.7 {f does not reside in n} -setup {
-        advance
-    } -body {
-        ted order -reject MAD:COOP:ADJUST {
-            id {NB1 SUNN BLUE} mad 1 delta 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        id {Cooperation is not tracked for SUNN with BLUE in NB1.}
     }
 
 
@@ -885,13 +797,13 @@ id oneliner      cause s   p   q   driver
         ted notifier bind ::coop <Entity>
         ted notifier bind ::mad <Entity>
         ted order MAD:COOP:ADJUST {
-            id {NB1 SHIA BLUE} mad 1 delta 5
+            id {SHIA BLUE} mad 1 delta 5
         }
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::coop <Entity> update {SHIA BLUE}}
         {::mad <Entity> update 1}
     }
 
@@ -900,7 +812,7 @@ id oneliner      cause s   p   q   driver
         advance
 
         ted order MAD:COOP:ADJUST {
-            id {NB1 SHIA BLUE} mad 1 delta 5
+            id {SHIA BLUE} mad 1 delta 5
         }
     } -body {
         ted notifier bind ::coop <Entity>
@@ -910,7 +822,7 @@ id oneliner      cause s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::coop <Entity> update {SHIA BLUE}}
         {::mad <Entity> update 1}
     }
 
@@ -922,28 +834,19 @@ id oneliner      cause s   p   q   driver
         advance
     } -body {
         ted order -reject MAD:COOP:SET {}
+    } -cleanup {
+        cleanup
     } -result {
         id {required value}
         mad {required value}
         coop {required value}
     }
     
-
-    test COOP:SET-1.2 {invalid n} -body {
-        ted order -reject MAD:COOP:SET {
-            id {NONESUCH SHIA BLUE} mad 1 coop 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        id {Invalid neighborhood, should be one of: NB1, NB2}
-    }
-
-    test COOP:SET-1.5 {invalid MAD} -setup {
+    test COOP:SET-1.2 {invalid MAD} -setup {
         advance
     } -body {
         ted order -reject MAD:COOP:SET {
-            id {NB1 SHIA BLUE} mad 2 coop 5
+            id {SHIA BLUE} mad 2 coop 5
         }
     } -cleanup {
         cleanup
@@ -952,29 +855,16 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test COOP:SET-1.6 {invalid coop} -setup {
+    test COOP:SET-1.3 {invalid coop} -setup {
         advance
     } -body {
         ted order -reject MAD:COOP:SET {
-            id {NB1 SHIA BLUE} mad 1 coop NONESUCH
+            id {SHIA BLUE} mad 1 coop NONESUCH
         }
     } -cleanup {
         cleanup
     } -result {
         coop {invalid value "NONESUCH", should be a real number in range 0.0, 100.0, or one of: AC, VC, C, MC, U, VU, NC}
-    }
-
-
-    test COOP:SET-1.7 {f does not reside in n} -setup {
-        advance
-    } -body {
-        ted order -reject MAD:COOP:SET {
-            id {NB1 SUNN BLUE} mad 1 coop 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        id {Cooperation is not tracked for SUNN with BLUE in NB1.}
     }
 
 
@@ -984,13 +874,13 @@ id oneliner      cause s   p   q   driver
         ted notifier bind ::coop <Entity>
         ted notifier bind ::mad <Entity>
         ted order MAD:COOP:SET {
-            id {NB1 SHIA BLUE} mad 1 coop 5
+            id {SHIA BLUE} mad 1 coop 5
         }
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::coop <Entity> update {SHIA BLUE}}
         {::mad <Entity> update 1}
     }
 
@@ -999,7 +889,7 @@ id oneliner      cause s   p   q   driver
         advance
 
         ted order MAD:COOP:SET {
-            id {NB1 SHIA BLUE} mad 1 coop 5
+            id {SHIA BLUE} mad 1 coop 5
         }
     } -body {
         ted notifier bind ::coop <Entity>
@@ -1009,7 +899,7 @@ id oneliner      cause s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::coop <Entity> update {SHIA BLUE}}
         {::mad <Entity> update 1}
     }
 
@@ -1020,8 +910,9 @@ id oneliner      cause s   p   q   driver
         advance
     } -body {
         ted schedule -reject +1 MAD:COOP:LEVEL {}
+    } -cleanup {
+        cleanup
     } -result {
-        n {required value}
         f {required value}
         g {required value}
         mad {required value}
@@ -1031,18 +922,7 @@ id oneliner      cause s   p   q   driver
         dthresh {required value}
     }
     
-
-    test COOP:LEVEL-1.2 {invalid n} -body {
-        ted schedule -reject +1 MAD:COOP:LEVEL \
-            [dict merge $cooplevel {n NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        n {Invalid neighborhood, should be one of: NB1, NB2}
-    }
-
-
-    test COOP:LEVEL-1.3 {invalid f} -setup {
+    test COOP:LEVEL-1.2 {invalid f} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:COOP:LEVEL \
@@ -1050,11 +930,11 @@ id oneliner      cause s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-        f {Invalid civilian group, should be one of: SHIA, SUNN}
+        f {Invalid civilian group, should be one of: SHIA, KURD}
     }
 
 
-    test COOP:LEVEL-1.4 {invalid g} -setup {
+    test COOP:LEVEL-1.3 {invalid g} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:COOP:LEVEL \
@@ -1066,7 +946,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test COOP:LEVEL-1.5 {invalid MAD} -setup {
+    test COOP:LEVEL-1.4 {invalid MAD} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:COOP:LEVEL \
@@ -1078,7 +958,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test COOP:LEVEL-1.6 {invalid limit} -setup {
+    test COOP:LEVEL-1.5 {invalid limit} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:COOP:LEVEL \
@@ -1090,7 +970,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test COOP:LEVEL-1.7 {invalid days} -setup {
+    test COOP:LEVEL-1.6 {invalid days} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:COOP:LEVEL \
@@ -1102,7 +982,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test COOP:LEVEL-1.8 {invalid athresh} -setup {
+    test COOP:LEVEL-1.7 {invalid athresh} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:COOP:LEVEL \
@@ -1113,7 +993,7 @@ id oneliner      cause s   p   q   driver
         athresh {invalid value "NONESUCH", should be a real number in range 0.0, 100.0, or one of: AC, VC, C, MC, U, VU, NC}
     }
 
-    test COOP:LEVEL-1.9 {invalid dthresh} -setup {
+    test COOP:LEVEL-1.8 {invalid dthresh} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:COOP:LEVEL \
@@ -1141,8 +1021,9 @@ id oneliner      cause s   p   q   driver
         advance
     } -body {
         ted schedule -reject +1 MAD:COOP:SLOPE {}
+    } -cleanup {
+        cleanup
     } -result {
-        n {required value}
         f {required value}
         g {required value}
         mad {required value}
@@ -1151,18 +1032,7 @@ id oneliner      cause s   p   q   driver
         dthresh {required value}
     }
     
-
-    test COOP:SLOPE-1.2 {invalid n} -body {
-        ted schedule -reject +1 MAD:COOP:SLOPE \
-            [dict merge $coopslope {n NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        n {Invalid neighborhood, should be one of: NB1, NB2}
-    }
-
-
-    test COOP:SLOPE-1.3 {invalid f} -setup {
+    test COOP:SLOPE-1.2 {invalid f} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:COOP:SLOPE \
@@ -1170,11 +1040,11 @@ id oneliner      cause s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-        f {Invalid civilian group, should be one of: SHIA, SUNN}
+        f {Invalid civilian group, should be one of: SHIA, KURD}
     }
 
 
-    test COOP:SLOPE-1.4 {invalid g} -setup {
+    test COOP:SLOPE-1.3 {invalid g} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:COOP:SLOPE \
@@ -1186,7 +1056,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test COOP:SLOPE-1.5 {invalid MAD} -setup {
+    test COOP:SLOPE-1.4 {invalid MAD} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:COOP:SLOPE \
@@ -1198,7 +1068,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test COOP:SLOPE-1.6 {invalid slope} -setup {
+    test COOP:SLOPE-1.5 {invalid slope} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:COOP:SLOPE \
@@ -1210,7 +1080,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test COOP:SLOPE-1.7 {invalid athresh} -setup {
+    test COOP:SLOPE-1.6 {invalid athresh} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:COOP:SLOPE \
@@ -1222,7 +1092,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test COOP:SLOPE-1.9 {invalid dthresh} -setup {
+    test COOP:SLOPE-1.7 {invalid dthresh} -setup {
         advance
     } -body {
         ted schedule -reject +1 MAD:COOP:SLOPE \

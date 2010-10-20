@@ -27,7 +27,7 @@ namespace eval ::athena_test::tests:: {
     namespace import ::tcltest::*
 
     proc setup {} {
-        ted create BLUE NB1 SHIA SUNN NB1SHIA
+        ted create BLUE NB1 SHIA SUNN
         coop mutate reconcile
     }
 
@@ -56,14 +56,14 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        id {Invalid neighborhood, should be one of: NB1}
+        id {Invalid civilian group, should be one of: SHIA, SUNN}
     }
 
 
     test UPDATE-1.3 {invalid coop0: out of range} -setup {
         setup
     } -body {
-        ted order -reject COOP:UPDATE id {NB1 SHIA BLUE} coop0 100.1
+        ted order -reject COOP:UPDATE id {SHIA BLUE} coop0 100.1
     } -cleanup {
         cleanup
     } -result {
@@ -74,7 +74,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.4 {invalid atrend: out of range} -setup {
         setup
     } -body {
-        ted order -reject COOP:UPDATE id {NB1 SHIA BLUE} atrend -5.0
+        ted order -reject COOP:UPDATE id {SHIA BLUE} atrend -5.0
     } -cleanup {
         cleanup
     } -result {
@@ -85,7 +85,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.5 {invalid athresh: out of range} -setup {
         setup
     } -body {
-        ted order -reject COOP:UPDATE id {NB1 SHIA BLUE} athresh NONESUCH
+        ted order -reject COOP:UPDATE id {SHIA BLUE} athresh NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -96,7 +96,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.6 {invalid dtrend: out of range} -setup {
         setup
     } -body {
-        ted order -reject COOP:UPDATE id {NB1 SHIA BLUE} dtrend 5.0
+        ted order -reject COOP:UPDATE id {SHIA BLUE} dtrend 5.0
     } -cleanup {
         cleanup
     } -result {
@@ -107,7 +107,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.7 {invalid dthresh: out of range} -setup {
         setup
     } -body {
-        ted order -reject COOP:UPDATE id {NB1 SHIA BLUE} dthresh NONESUCH
+        ted order -reject COOP:UPDATE id {SHIA BLUE} dthresh NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -119,7 +119,7 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         ted order COOP:UPDATE {
-            id      {NB1 SHIA BLUE}
+            id      {SHIA BLUE}
             coop0   40.0
             atrend  5.0
             athresh 40
@@ -127,13 +127,14 @@ namespace eval ::athena_test::tests:: {
             dthresh 60
         }
 
-        ted query {SELECT * FROM coop_nfg}
+        ted query {SELECT * FROM coop_fg}
     } -cleanup {
         cleanup
     } -result {
-n   f    g    coop0 atrend athresh dtrend dthresh 
---- ---- ---- ----- ------ ------- ------ ------- 
-NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0    
+f    g    coop0 atrend athresh dtrend dthresh 
+---- ---- ----- ------ ------- ------ ------- 
+SHIA BLUE 40.0  5.0    40.0    -5.0   60.0    
+SUNN BLUE 50.0  0.0    50.0    0.0    50.0    
     }
 
 
@@ -141,12 +142,12 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
         setup
     } -body {
         ted notifier bind ::coop <Entity>
-        ted order COOP:UPDATE id {NB1 SHIA BLUE} coop0 50.0
+        ted order COOP:UPDATE id {SHIA BLUE} coop0 50.0
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::coop <Entity> update {SHIA BLUE}}
     }
 
 
@@ -154,7 +155,7 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
         setup
 
         ted order COOP:UPDATE {
-            id      {NB1 SHIA BLUE}
+            id      {SHIA BLUE}
             coop0   40.0
             atrend  5.0
             athresh 40
@@ -168,7 +169,7 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::coop <Entity> update {SHIA BLUE}}
     }
 
     #-------------------------------------------------------------------
@@ -189,29 +190,18 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
         setup
     } -body {
         ted order -reject COOP:UPDATE:MULTI \
-            ids {NONESUCH1 {NB1 SHIA BLUE}}
+            ids {NONESUCH1 {SHIA BLUE}}
     } -cleanup {
         cleanup
     } -result {
-        ids {Invalid neighborhood, should be one of: NB1}
+        ids {Invalid civilian group, should be one of: SHIA, SUNN}
     }
 
-    test UPDATE:MULTI-1.3 {undefined cooperation} -setup {
-        setup
-    } -body {
-        ted order -reject COOP:UPDATE:MULTI ids {{NB1 SUNN BLUE}}
-    } -cleanup {
-        cleanup
-    } -result {
-        ids {Cooperation is not tracked for SUNN with BLUE in NB1.}
-    }
-
-
-    test UPDATE:MULTI-1.4 {invalid coop: out of range} -setup {
+    test UPDATE:MULTI-1.3 {invalid coop: out of range} -setup {
         setup
     } -body {
         ted order -reject COOP:UPDATE:MULTI \
-            ids {{NB1 SHIA BLUE}} coop0 100.1
+            ids {{SHIA BLUE}} coop0 100.1
     } -cleanup {
         cleanup
     } -result {
@@ -219,11 +209,11 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
     }
 
 
-    test UPDATE:MULTI-1.5 {invalid atrend: out of range} -setup {
+    test UPDATE:MULTI-1.4 {invalid atrend: out of range} -setup {
         setup
     } -body {
         ted order -reject COOP:UPDATE:MULTI \
-            ids {{NB1 SHIA BLUE}} atrend -5.0
+            ids {{SHIA BLUE}} atrend -5.0
     } -cleanup {
         cleanup
     } -result {
@@ -231,11 +221,11 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
     }
 
 
-    test UPDATE:MULTI-1.8 {invalid athresh} -setup {
+    test UPDATE:MULTI-1.5 {invalid athresh} -setup {
         setup
     } -body {
         ted order -reject COOP:UPDATE:MULTI \
-            ids {{NB1 SHIA BLUE}} athresh NONESUCH
+            ids {{SHIA BLUE}} athresh NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -247,7 +237,7 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
         setup
     } -body {
         ted order -reject COOP:UPDATE:MULTI \
-            ids {{NB1 SHIA BLUE}} dtrend 5.0
+            ids {{SHIA BLUE}} dtrend 5.0
     } -cleanup {
         cleanup
     } -result {
@@ -259,7 +249,7 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
         setup
     } -body {
         ted order -reject COOP:UPDATE:MULTI \
-            ids {{NB1 SHIA BLUE}} dthresh NONESUCH
+            ids {{SHIA BLUE}} dthresh NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -273,7 +263,7 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
         ted notifier bind ::coop <Entity>
 
         ted order COOP:UPDATE:MULTI {
-            ids       {{NB1 SHIA BLUE}}
+            ids       {{SHIA BLUE}}
             coop0     40.0
             atrend    5.0
             athresh   40
@@ -285,18 +275,17 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {NB1 SHIA BLUE}}
+        {::coop <Entity> update {SHIA BLUE}}
     }
 
 
     test UPDATE:MULTI-2.2 {several cooperations are updated} -setup {
         setup
-        ted create NB1SUNN
         coop mutate reconcile
     } -body {
         ted notifier bind ::coop <Entity>
         ted order COOP:UPDATE:MULTI {
-            ids       {{NB1 SHIA BLUE} {NB1 SUNN BLUE}} 
+            ids       {{SHIA BLUE} {SUNN BLUE}} 
             coop0     40.0
             atrend    5.0
             athresh   40
@@ -307,18 +296,17 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {NB1 SHIA BLUE}}
-        {::coop <Entity> update {NB1 SUNN BLUE}}
+        {::coop <Entity> update {SHIA BLUE}}
+        {::coop <Entity> update {SUNN BLUE}}
     }
 
 
     test UPDATE:MULTI-3.1 {undo undoes the change} -setup {
         setup
-        ted create NB1SUNN
         coop mutate reconcile
 
         ted order COOP:UPDATE:MULTI {
-            ids       {{NB1 SHIA BLUE} {NB1 SUNN BLUE}}
+            ids       {{SHIA BLUE} {SUNN BLUE}}
             coop0     40.0
             atrend    5.0
             athresh   40
@@ -332,8 +320,8 @@ NB1 SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {NB1 SHIA BLUE}}
-        {::coop <Entity> update {NB1 SUNN BLUE}}
+        {::coop <Entity> update {SHIA BLUE}}
+        {::coop <Entity> update {SUNN BLUE}}
     }
 
 

@@ -33,10 +33,10 @@ namespace eval ::athena_test::tests:: {
         ted cleanup
     }
 
-    proc pprint_demog_ng {} {
+    proc pprint_demog_g {} {
         ted query {
-            SELECT n, g, attrition, displaced, population
-            FROM demog_ng
+            SELECT g, attrition, displaced, population
+            FROM demog_g
         }
     }
 
@@ -281,61 +281,64 @@ BRIT-NB1/0000 15
 
 
 
-    # 2.* -- Attrition to a particular neighborhood group
+    # 2.* -- Attrition to a particular civ group
 
     test attritnf-2.1 {f is CIV, not resident in n} -setup {
-        ted create NB1 SHIA SUNN NB1SUNN
+        ted create NB1 NB2 BLUE SHIA KURD 
+        ted order SIM:LOCK
     } -body {
-        aam mutate attritnf [list n NB1 f SHIA casualties 20 g1 "" g2 ""]
+        aam mutate attritnf [list n NB1 f KURD casualties 20 g1 "" g2 ""]
+        demog analyze pop
 
         # No error
-        pprint_demog_ng
+        pprint_demog_g
     } -cleanup {
         cleanup
     } -result {
-n   g    attrition displaced population 
---- ---- --------- --------- ---------- 
-NB1 SUNN 0         0         0          
+g    attrition displaced population 
+---- --------- --------- ---------- 
+SHIA 0         0         1000       
+KURD 0         0         1000       
     }
 
     test attritnf-2.2 {f is CIV, no units in n, normal} -setup {
-        ted create NB1 BLUE SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1 BLUE SHIA SUNN
         ted order SIM:LOCK
     } -body {
         aam mutate attritnf [list n NB1 f SHIA casualties 20 g1 "" g2 ""]
         demog analyze pop
 
-        pprint_demog_ng
+        pprint_demog_g
     } -cleanup {
         cleanup
     } -result {
-n   g    attrition displaced population 
---- ---- --------- --------- ---------- 
-NB1 SHIA 20        0         980        
-NB1 SUNN 0         0         1000       
+g    attrition displaced population 
+---- --------- --------- ---------- 
+SHIA 20        0         980        
+SUNN 0         0         1000       
     }
 
 
     test attritnf-2.3 {f is CIV, no units in n, overkill leaves 1} -setup {
-        ted create NB1 BLUE SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1 BLUE SHIA SUNN
         ted order SIM:LOCK
     } -body {
         aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
         demog analyze pop
 
-        pprint_demog_ng
+        pprint_demog_g
     } -cleanup {
         cleanup
     } -result {
-n   g    attrition displaced population 
---- ---- --------- --------- ---------- 
-NB1 SHIA 999       0         1          
-NB1 SUNN 0         0         1000       
+g    attrition displaced population 
+---- --------- --------- ---------- 
+SHIA 999       0         1          
+SUNN 0         0         1000       
     }
 
 
     test attritnf-2.4 {f is CIV, no units in n, implicit = 1} -setup {
-        ted create NB1 BLUE SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1 BLUE SHIA SUNN
         ted order SIM:LOCK
         # use overkill to get down to that point
         aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
@@ -345,18 +348,18 @@ NB1 SUNN 0         0         1000
         demog analyze pop
 
         # No change
-        pprint_demog_ng
+        pprint_demog_g
     } -cleanup {
         cleanup
     } -result {
-n   g    attrition displaced population 
---- ---- --------- --------- ---------- 
-NB1 SHIA 999       0         1          
-NB1 SUNN 0         0         1000       
+g    attrition displaced population 
+---- --------- --------- ---------- 
+SHIA 999       0         1          
+SUNN 0         0         1000       
     }
 
     test attritnf-2.5 {f is CIV, overkill, attrition is saved} -setup {
-        ted create NB1 BLUE SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1 BLUE SHIA SUNN
         ted order SIM:LOCK
     } -body {
         # There are only 1000 in the nbgroup, and 1 should remain.  However,
@@ -374,7 +377,7 @@ id n   f    casualties
 
 
     test attritnf-2.6 {f is CIV, overkill, g1, g2 are saved} -setup {
-        ted create NB1 BLUE BRIT SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1 BLUE BRIT SHIA SUNN
         ted order SIM:LOCK
     } -body {
         aam mutate attritnf \
@@ -391,7 +394,7 @@ id n   f    g    casualties
     }
 
     test attritnf-2.7 {f is CIV, undo restores} -setup {
-        ted create NB1 BLUE SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1 BLUE SHIA SUNN
         ted order SIM:LOCK
         set undo [list]
         lappend undo [aam mutate attritnf \
@@ -399,7 +402,7 @@ id n   f    g    casualties
     } -body {
         eval [join $undo \n]
 
-        set a [pprint_demog_ng]
+        set a [pprint_demog_g]
         set b [ted query {SELECT u,personnel FROM units}]
         set c [ted query {SELECT * FROM attrit_nf}]
         set d [ted query {SELECT * FROM attrit_nfg}]
@@ -408,10 +411,10 @@ id n   f    g    casualties
     } -cleanup {
         cleanup
     } -result {
-n   g    attrition displaced population 
---- ---- --------- --------- ---------- 
-NB1 SHIA 0         0         1000       
-NB1 SUNN 0         0         1000       
+g    attrition displaced population 
+---- --------- --------- ---------- 
+SHIA 0         0         1000       
+SUNN 0         0         1000       
     
 u             personnel 
 ------------- --------- 
@@ -430,58 +433,58 @@ SUNN-NB1/0000 1000
     # 1.* -- All civilians in nbhood.
 
     test attritn-1.1 {All civilians in nbhood} -setup {
-        ted create NB1 BLUE SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1 BLUE SHIA SUNN
         ted order SIM:LOCK
     } -body {
         aam mutate attritn [list n NB1 casualties 20 g1 "" g2 ""]
         demog analyze pop
 
-        pprint_demog_ng
+        pprint_demog_g
     } -cleanup {
         cleanup
     } -result {
-n   g    attrition displaced population 
---- ---- --------- --------- ---------- 
-NB1 SHIA 10        0         990        
-NB1 SUNN 10        0         990        
+g    attrition displaced population 
+---- --------- --------- ---------- 
+SHIA 10        0         990        
+SUNN 10        0         990        
     }
 
 
     test attritn-1.2 {nbhood, overkill leaves 1 per resident} -setup {
-        ted create NB1 BLUE SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1 BLUE SHIA SUNN
         ted order SIM:LOCK
     } -body {
         aam mutate attritn [list n NB1 casualties 3000  g1 "" g2 ""]
         demog analyze pop
 
-        pprint_demog_ng
+        pprint_demog_g
     } -cleanup {
         cleanup
     } -result {
-n   g    attrition displaced population 
---- ---- --------- --------- ---------- 
-NB1 SHIA 999       0         1          
-NB1 SUNN 999       0         1          
+g    attrition displaced population 
+---- --------- --------- ---------- 
+SHIA 999       0         1          
+SUNN 999       0         1          
     }
 
 
     test attritn-1.3 {nbhood, attrition is proportional} -setup {
-        ted create NB1 BLUE SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1 BLUE SHIA SUNN
         ted order SIM:LOCK
     } -body {
         aam mutate attritn [list n NB1 casualties 100  g1 "" g2 ""]
         demog analyze pop
 
-        set a [pprint_demog_ng]
+        set a [pprint_demog_g]
         set b [ted query {SELECT u,personnel FROM units}]
         set c "$a$b"
     } -cleanup {
         cleanup
     } -result {
-n   g    attrition displaced population 
---- ---- --------- --------- ---------- 
-NB1 SHIA 50        0         950        
-NB1 SUNN 50        0         950        
+g    attrition displaced population 
+---- --------- --------- ---------- 
+SHIA 50        0         950        
+SUNN 50        0         950        
     
 u             personnel 
 ------------- --------- 
@@ -490,35 +493,35 @@ SUNN-NB1/0000 950
     }
 
     test attritn-1.4 {nbhood, displaced units attrit origin} -setup {
-        ted create NB1 NB2 BLUE SHIA SUNN NB1SHIA NB2SUNN
-        ted order ACTIVITY:SCHEDULE n NB2 g SUNN a DISPLACED tn NB1 \
+        ted create NB1 NB2 BLUE SHIA KURD
+        ted order ACTIVITY:SCHEDULE n NB2 g KURD a DISPLACED tn NB1 \
             personnel 100 start 0 finish NEVER pattern daily
         ted order SIM:LOCK
     } -body {
         aam mutate attritn [list n NB1 casualties 100 g1 "" g2 ""]
         demog analyze pop
 
-        set a [pprint_demog_ng]
+        set a [pprint_demog_g]
         set b [ted query {SELECT u,personnel FROM units}]
         set c "$a$b"
     } -cleanup {
         cleanup
     } -result {
-n   g    attrition displaced population 
---- ---- --------- --------- ---------- 
-NB1 SHIA 91        0         909        
-NB2 SUNN 9         91        900        
+g    attrition displaced population 
+---- --------- --------- ---------- 
+SHIA 91        0         909        
+KURD 9         91        900        
     
 u             personnel 
 ------------- --------- 
-SUNN-NB2/0001 91        
+KURD-NB2/0001 91        
 SHIA-NB1/0000 909       
-SUNN-NB2/0000 900       
+KURD-NB2/0000 900       
     }
 
 
     test attritn-1.5 {nbhood, attrition is saved} -setup {
-        ted create NB1 BLUE SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1 BLUE SHIA SUNN
         ted order SIM:LOCK
     } -body {
         aam mutate attritn [list n NB1 casualties 10000 g1 BLUE g2 BRIT]
@@ -545,7 +548,7 @@ id n   f    g    casualties
 
 
     test attritn-1.6 {nbhood, force, org units not attrited} -setup {
-        ted create NB1 BLUE USAID SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1 BLUE USAID SHIA SUNN
         personnel mutate reconcile
         ted order PERSONNEL:SET id {NB1 BLUE}  personnel 15
         ted order PERSONNEL:SET id {NB1 USAID} personnel 15
@@ -567,7 +570,7 @@ USAID-NB1/0000 15
 
 
     test attritn-1.7 {nbhood, ::unit <Entity>} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         ted order SIM:LOCK
     } -body {
         ted notifier bind ::unit <Entity>
@@ -581,7 +584,7 @@ USAID-NB1/0000 15
 
 
     test attritn-1.8 {nbhood, undo restores} -setup {
-        ted create NB1 BLUE SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1 BLUE SHIA SUNN
         ted order SIM:LOCK
 
         set undo [list]
@@ -590,7 +593,7 @@ USAID-NB1/0000 15
     } -body {
         eval [join $undo \n]
 
-        set a [pprint_demog_ng]
+        set a [pprint_demog_g]
         set b [ted query {SELECT u,personnel FROM units}]
         set c [ted query {SELECT * FROM attrit_nf}]
         set d [ted query {SELECT * FROM attrit_nfg}]
@@ -598,10 +601,10 @@ USAID-NB1/0000 15
     } -cleanup {
         cleanup
     } -result {
-n   g    attrition displaced population 
---- ---- --------- --------- ---------- 
-NB1 SHIA 0         0         1000       
-NB1 SUNN 0         0         1000       
+g    attrition displaced population 
+---- --------- --------- ---------- 
+SHIA 0         0         1000       
+SUNN 0         0         1000       
     
 u             personnel 
 ------------- --------- 
@@ -613,7 +616,7 @@ SUNN-NB1/0000 1000
 
 
     test attritn-1.9 {nbhood, ::unit <Entity> on undo} -setup {
-        ted create NB1 BLUE SHIA SUNN NB1SHIA NB1SUNN
+        ted create NB1 BLUE SHIA SUNN
         ted order SIM:LOCK
 
         set a [aam mutate attritn \
@@ -679,13 +682,13 @@ USAID-NB1/0001 10
 
 
     test attritunit-3.1 {CIV unit is attrited in home nbhood} -setup {
-        ted create NB1 BLUE BRIT SHIA NB1SHIA
+        ted create NB1 BLUE BRIT SHIA
         ted order SIM:LOCK
     } -body {
         aam mutate attritunit [list u SHIA-NB1/0000 casualties 5 g1 BLUE g2 BRIT]
 
         set a [ted query {SELECT u,personnel FROM units}]
-        set b [pprint_demog_ng]
+        set b [pprint_demog_g]
         set c [ted query {SELECT * FROM attrit_nf}]
         set d [ted query {SELECT * FROM attrit_nfg}]
         set e "$a$b$c$d"
@@ -696,9 +699,9 @@ u             personnel
 ------------- --------- 
 SHIA-NB1/0000 995       
     
-n   g    attrition displaced population 
---- ---- --------- --------- ---------- 
-NB1 SHIA 5         0         995        
+g    attrition displaced population 
+---- --------- --------- ---------- 
+SHIA 5         0         995        
     
 id n   f    casualties 
 -- --- ---- ---------- 
@@ -711,7 +714,7 @@ id n   f    g    casualties
     }
 
     test attritunit-4.1 {::unit <Entity>} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         ted order SIM:LOCK
     } -body {
         ted notifier bind ::unit <Entity>
@@ -725,7 +728,7 @@ id n   f    g    casualties
 
 
     test attritunit-4.2 {Undo restores unit and nbgroup} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         ted order SIM:LOCK
 
         set a [aam mutate attritunit \
@@ -735,7 +738,7 @@ id n   f    g    casualties
         eval $a
 
         set a [ted query {SELECT u,personnel FROM units}]
-        set b [pprint_demog_ng]
+        set b [pprint_demog_g]
         set c [ted query {SELECT * FROM attrit_nf}]
         set d [ted query {SELECT * FROM attrit_nfg}]
         set e "$a$b$c$d"
@@ -746,16 +749,16 @@ u             personnel
 ------------- --------- 
 SHIA-NB1/0000 1000      
     
-n   g    attrition displaced population 
---- ---- --------- --------- ---------- 
-NB1 SHIA 0         0         1000       
+g    attrition displaced population 
+---- --------- --------- ---------- 
+SHIA 0         0         1000       
     
     
     }
 
 
     test attritunit-4.3 {::unit <Entity> on undo} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         ted order SIM:LOCK
 
         set a [aam mutate attritunit \

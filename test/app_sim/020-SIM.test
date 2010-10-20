@@ -31,7 +31,7 @@ namespace eval ::athena_test::tests:: {
     # Set up to run
 
     proc setup {} {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         ted order SIM:LOCK
     }
 
@@ -122,7 +122,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     test LOCK-2.1 {locks the scenario} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         ted order SIM:LOCK
         sim state
@@ -131,7 +131,7 @@ namespace eval ::athena_test::tests:: {
     } -result {PAUSED}
 
     test LOCK-2.2 {Sends <State>} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         ted notifier bind ::sim <State>
         ted order SIM:LOCK

@@ -79,7 +79,7 @@ snit::type actsit_rules {
 
         assert {[llength $args] != 0 && [llength $args] % 3 == 0}
 
-        set rel [rel $n $f $g]
+        set rel [rel $f $g]
 
         set result [list]
 
@@ -116,7 +116,7 @@ snit::type actsit_rules {
         set g       [dam rget -doer]
         set nomCov  [parmdb get dam.actsit.nominalCoverage]
 
-        set rel [rel $n $f $g]
+        set rel [rel $f $g]
 
         let mult {[rmf $rmf $rel] * $cov / $nomCov}
 
@@ -171,7 +171,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -183,7 +183,7 @@ snit::type actsit_rules {
             # While there is a DISPLACED situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f      \
                     AUT enmore   S-   \
                     SFT enmore   L-   \
@@ -236,7 +236,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
         
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -248,7 +248,7 @@ snit::type actsit_rules {
             # While there is a PRESENCE situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT quad XXS+ \
                     SFT quad XXS+ \
@@ -303,7 +303,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -315,8 +315,8 @@ snit::type actsit_rules {
             # While there is a CHKPOINT situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
-                set rel [rel $n $f $g]
+            foreach f [civgroup gIn $n] {
+                set rel [rel $f $g]
 
                 if {$rel >= 0} {
                     # FRIENDS
@@ -379,7 +379,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -399,7 +399,7 @@ snit::type actsit_rules {
             # While there is a CMOCONST situation
             #     with COVERAGE > 0.0
             # For each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT quad     [mag+ $stops S+]  \
                     SFT constant [mag+ $stops S+]  \
@@ -447,7 +447,7 @@ snit::type actsit_rules {
             -sit       $sit                                      \
             -doer      $g                                        \
             -n         $n                                        \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
         
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -459,7 +459,7 @@ snit::type actsit_rules {
             # While there is a CMODEV situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f  \
                     AUT quad M+   \
                     SFT quad S+   \
@@ -509,7 +509,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -529,7 +529,7 @@ snit::type actsit_rules {
             # While there is a CMOEDU situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT quad     [mag+ $stops S+]   \
                     SFT constant [mag+ $stops XXS+] \
@@ -579,7 +579,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
        
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -599,7 +599,7 @@ snit::type actsit_rules {
             # While there is a CMOEMP situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT quad     [mag+ $stops S+]   \
                     SFT constant [mag+ $stops XXS+] \
@@ -649,7 +649,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -669,7 +669,7 @@ snit::type actsit_rules {
             # While there is a CMOIND situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT quad     [mag+ $stops S+]   \
                     SFT constant [mag+ $stops XXS+] \
@@ -719,7 +719,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -739,7 +739,7 @@ snit::type actsit_rules {
             # While there is a CMOINF situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT quad     [mag+ $stops S+]   \
                     SFT constant [mag+ $stops XXS+] \
@@ -787,7 +787,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -799,7 +799,7 @@ snit::type actsit_rules {
             # While there is a CMOLAW situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT quad M+  \
                     SFT quad S+
@@ -847,7 +847,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -867,7 +867,7 @@ snit::type actsit_rules {
             # While there is a CMOMED situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT quad     [mag+ $stops S+]   \
                     SFT constant [mag+ $stops XXS+] \
@@ -916,7 +916,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -936,7 +936,7 @@ snit::type actsit_rules {
             # While there is a CMOOTHER situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT quad     [mag+ $stops S+]  \
                     SFT constant [mag+ $stops S+]  \
@@ -985,7 +985,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -997,7 +997,7 @@ snit::type actsit_rules {
             # While there is a COERCION situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT enquad XL-  \
                     SFT enquad XXL- \
@@ -1046,7 +1046,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -1058,7 +1058,7 @@ snit::type actsit_rules {
             # While there is a CRIMINAL situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT enquad L-  \
                     SFT enquad XL- \
@@ -1102,7 +1102,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -1114,8 +1114,8 @@ snit::type actsit_rules {
             # While there is a CURFEW situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
-                set rel [rel $n $f $g]
+            foreach f [civgroup gIn $n] {
+                set rel [rel $f $g]
 
                 if {$rel >= 0} {
                     # Friends
@@ -1177,7 +1177,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -1189,7 +1189,7 @@ snit::type actsit_rules {
             # While there is a GUARD situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f  \
                     AUT enmore L- \
                     SFT enmore L- \
@@ -1238,7 +1238,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -1250,7 +1250,7 @@ snit::type actsit_rules {
             # While there is a PATROL situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f  \
                     AUT enmore M- \
                     SFT enmore M- \
@@ -1298,7 +1298,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -1310,8 +1310,8 @@ snit::type actsit_rules {
             # While there is a PSYOP situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
-                set rel [rel $n $f $g]
+            foreach f [civgroup gIn $n] {
+                set rel [rel $f $g]
 
                 if {$rel >= 0} {
                     # Friends
@@ -1380,7 +1380,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -1400,7 +1400,7 @@ snit::type actsit_rules {
             # While there is a ORGCONST situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT constant [mag+ $stops S+]  \
                     SFT constant [mag+ $stops S+]  \
@@ -1446,7 +1446,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -1466,7 +1466,7 @@ snit::type actsit_rules {
             # While there is a ORGEDU situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT constant [mag+ $stops S+]   \
                     SFT constant [mag+ $stops XXS+] \
@@ -1512,7 +1512,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -1532,7 +1532,7 @@ snit::type actsit_rules {
             # While there is a ORGEMP situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT constant [mag+ $stops S+]   \
                     SFT constant [mag+ $stops XXS+] \
@@ -1578,7 +1578,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -1598,7 +1598,7 @@ snit::type actsit_rules {
             # While there is a ORGIND situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT constant [mag+ $stops S+]   \
                     SFT constant [mag+ $stops XXS+] \
@@ -1644,7 +1644,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -1664,7 +1664,7 @@ snit::type actsit_rules {
             # While there is a ORGINF situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT constant [mag+ $stops S+]   \
                     SFT constant [mag+ $stops XXS+] \
@@ -1710,7 +1710,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -1730,7 +1730,7 @@ snit::type actsit_rules {
             # While there is a ORGMED situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT constant [mag+ $stops S+]   \
                     SFT constant [mag+ $stops XXS+] \
@@ -1776,7 +1776,7 @@ snit::type actsit_rules {
             -sit       $sit                                        \
             -doer      $g                                          \
             -n         $n                                          \
-            -f         [nbgroup gIn $n]
+            -f         [civgroup gIn $n]
 
         detail "Nbhood Coverage:" [string trim [percent $cov]]
 
@@ -1796,7 +1796,7 @@ snit::type actsit_rules {
             # While there is a ORGOTHER situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [nbgroup gIn $n] {
+            foreach f [civgroup gIn $n] {
                 satslope $cov $f \
                     AUT constant [mag+ $stops S+]  \
                     SFT constant [mag+ $stops S+]  \
@@ -1820,22 +1820,18 @@ snit::type actsit_rules {
     #-------------------------------------------------------------------
     # Utility Procs
 
-    # rel n f g
+    # rel f g
     #
-    # n    A neighborhood
     # f    A CIV group f
     # g    A FRC or ORG group g
     #
     # Returns the relationship between the groups.
 
-    proc rel {n f g} {
+    proc rel {f g} {
         set rel [rdb eval {
-            SELECT rel FROM gram_nfg
-            WHERE n=$n AND f=$f AND g=$g
+            SELECT rel FROM rel_fg
+            WHERE f=$f AND g=$g
         }]
-
-        require {[string is double -strict $rel]} \
-            "Invalid group pair f=$f, g=$g"
 
         return $rel
     }

@@ -8,7 +8,7 @@
 # DESCRIPTION:
 #    relbrowser(sim) package: Relationship browser.
 #
-#    This widget displays a formatted list of rel_nfg records.
+#    This widget displays a formatted list of rel_fg records.
 #    It is a variation of browser_base(n).
 #
 #-----------------------------------------------------------------------

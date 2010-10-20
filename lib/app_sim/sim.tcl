@@ -593,7 +593,7 @@ snit::type sim {
         }
 
         # NEXT, there must be at least 1 local consumer; and hence, there
-        # must be at least one local nbgroup with a sap less than 100.
+        # must be at least one local civ group with a sap less than 100.
 
         if {![rdb exists {
             SELECT sap 
@@ -1175,7 +1175,9 @@ snit::type sim {
         # TBD: This mechanism is nuts.
         if {[simclock now] > 0} {
             aram update population {*}[rdb eval {
-                SELECT n,g,population FROM demog_ng
+                SELECT n,g,population 
+                FROM demog_g
+                JOIN civgroups USING (g)
             }]
 
             aram advance

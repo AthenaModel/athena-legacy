@@ -43,16 +43,16 @@ namespace eval ::athena_test::tests:: {
    
 
     test reconcile-1.1 {All entities are reconciled} -body {
-        ted notifier bind ::nbrel   <Entity>
-        ted notifier bind ::nbgroup <Entity>
-        ted notifier bind ::sat     <Entity>
-        ted notifier bind ::rel     <Entity>
-        ted notifier bind ::coop    <Entity>
-        ted notifier bind ::attroe  <Entity>
-        ted notifier bind ::defroe  <Entity>
+        ted notifier bind ::nbrel    <Entity>
+        ted notifier bind ::civgroup <Entity>
+        ted notifier bind ::sat      <Entity>
+        ted notifier bind ::rel      <Entity>
+        ted notifier bind ::coop     <Entity>
+        ted notifier bind ::attroe   <Entity>
+        ted notifier bind ::defroe   <Entity>
         ted notifier bind ::scenario <Reconcile>
 
-        ted create BLUE USAID NB1 SHIA NB1SHIA
+        ted create BLUE USAID NB1 SHIA
 
         scenario mutate reconcile
 
@@ -64,43 +64,43 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        {::nbgroup <Entity> create {NB1 SHIA}}
+        {::civgroup <Entity> create SHIA}
         {::nbrel <Entity> create {NB1 NB1}}
-        {::sat <Entity> create {NB1 SHIA AUT}}
-        {::sat <Entity> create {NB1 SHIA SFT}}
-        {::sat <Entity> create {NB1 SHIA CUL}}
-        {::sat <Entity> create {NB1 SHIA QOL}}
-        {::rel <Entity> create {NB1 BLUE SHIA}}
-        {::rel <Entity> create {NB1 SHIA BLUE}}
-        {::rel <Entity> create {NB1 SHIA SHIA}}
-        {::rel <Entity> create {NB1 USAID SHIA}}
-        {::rel <Entity> create {NB1 SHIA USAID}}
-        {::rel <Entity> create {PLAYBOX BLUE BLUE}}
-        {::rel <Entity> create {PLAYBOX BLUE USAID}}
-        {::rel <Entity> create {PLAYBOX USAID BLUE}}
-        {::rel <Entity> create {PLAYBOX USAID USAID}}
-        {::coop <Entity> create {NB1 SHIA BLUE}}
+        {::sat <Entity> create {SHIA AUT}}
+        {::sat <Entity> create {SHIA SFT}}
+        {::sat <Entity> create {SHIA CUL}}
+        {::sat <Entity> create {SHIA QOL}}
+        {::rel <Entity> create {BLUE BLUE}}
+        {::rel <Entity> create {BLUE USAID}}
+        {::rel <Entity> create {BLUE SHIA}}
+        {::rel <Entity> create {USAID BLUE}}
+        {::rel <Entity> create {USAID USAID}}
+        {::rel <Entity> create {USAID SHIA}}
+        {::rel <Entity> create {SHIA BLUE}}
+        {::rel <Entity> create {SHIA USAID}}
+        {::rel <Entity> create {SHIA SHIA}}
+        {::coop <Entity> create {SHIA BLUE}}
         {::defroe <Entity> create {NB1 BLUE}}
         {::scenario <Reconcile>}
         {::nbrel <Entity> delete {NB1 NB1}}
-        {::nbgroup <Entity> delete {NB1 SHIA}}
-        {::sat <Entity> delete {NB1 SHIA AUT}}
-        {::sat <Entity> delete {NB1 SHIA SFT}}
-        {::sat <Entity> delete {NB1 SHIA CUL}}
-        {::sat <Entity> delete {NB1 SHIA QOL}}
-        {::rel <Entity> delete {NB1 BLUE SHIA}}
-        {::rel <Entity> delete {NB1 SHIA BLUE}}
-        {::rel <Entity> delete {NB1 SHIA SHIA}}
-        {::rel <Entity> delete {NB1 USAID SHIA}}
-        {::rel <Entity> delete {NB1 SHIA USAID}}
-        {::coop <Entity> delete {NB1 SHIA BLUE}}
+        {::civgroup <Entity> delete SHIA}
+        {::sat <Entity> delete {SHIA AUT}}
+        {::sat <Entity> delete {SHIA SFT}}
+        {::sat <Entity> delete {SHIA CUL}}
+        {::sat <Entity> delete {SHIA QOL}}
+        {::rel <Entity> delete {BLUE SHIA}}
+        {::rel <Entity> delete {USAID SHIA}}
+        {::rel <Entity> delete {SHIA BLUE}}
+        {::rel <Entity> delete {SHIA USAID}}
+        {::rel <Entity> delete {SHIA SHIA}}
+        {::coop <Entity> delete {SHIA BLUE}}
         {::defroe <Entity> delete {NB1 BLUE}}
         {::scenario <Reconcile>}
     }
 
 
     test reconcile-1.2 {On undo: <Entity> create} -body {
-        ted create BLUE USAID NB1 SHIA NB1SHIA
+        ted create BLUE USAID NB1 SHIA
 
         scenario mutate reconcile
 
@@ -110,7 +110,7 @@ namespace eval ::athena_test::tests:: {
         set undo [scenario mutate reconcile]
 
         ted notifier bind ::nbrel    <Entity>
-        ted notifier bind ::nbgroup  <Entity>
+        ted notifier bind ::civgroup <Entity>
         ted notifier bind ::sat      <Entity>
         ted notifier bind ::rel      <Entity>
         ted notifier bind ::coop     <Entity>
@@ -124,20 +124,20 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {
         {::nbrel <Entity> create {NB1 NB1}}
-        {::nbgroup <Entity> create {NB1 SHIA}}
-        {::sat <Entity> create {NB1 SHIA AUT}}
-        {::sat <Entity> create {NB1 SHIA SFT}}
-        {::sat <Entity> create {NB1 SHIA CUL}}
-        {::sat <Entity> create {NB1 SHIA QOL}}
-        {::rel <Entity> create {NB1 BLUE SHIA}}
-        {::rel <Entity> create {NB1 SHIA BLUE}}
-        {::rel <Entity> create {NB1 SHIA SHIA}}
-        {::rel <Entity> create {NB1 USAID SHIA}}
-        {::rel <Entity> create {NB1 SHIA USAID}}
-        {::rel <Entity> create {PLAYBOX BLUE BLUE}}
-        {::rel <Entity> create {PLAYBOX BLUE USAID}}
-        {::rel <Entity> create {PLAYBOX USAID BLUE}}
-        {::coop <Entity> create {NB1 SHIA BLUE}}
+        {::civgroup <Entity> create SHIA}
+        {::sat <Entity> create {SHIA AUT}}
+        {::sat <Entity> create {SHIA SFT}}
+        {::sat <Entity> create {SHIA CUL}}
+        {::sat <Entity> create {SHIA QOL}}
+        {::rel <Entity> create {BLUE BLUE}}
+        {::rel <Entity> create {BLUE USAID}}
+        {::rel <Entity> create {BLUE SHIA}}
+        {::rel <Entity> create {USAID BLUE}}
+        {::rel <Entity> create {USAID SHIA}}
+        {::rel <Entity> create {SHIA BLUE}}
+        {::rel <Entity> create {SHIA USAID}}
+        {::rel <Entity> create {SHIA SHIA}}
+        {::coop <Entity> create {SHIA BLUE}}
         {::defroe <Entity> create {NB1 BLUE}}
     }
 

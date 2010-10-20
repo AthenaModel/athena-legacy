@@ -27,7 +27,7 @@ namespace eval ::athena_test::tests:: {
     namespace import ::tcltest::*
 
     proc setup {} {
-        ted create NB1 NB2 BLUE SHIA NB1SHIA NB2SHIA USAID
+        ted create NB1 NB2 BLUE SHIA KURD USAID
         sim mutate lock
         sim mutate run -ticks 1 -block yes
     }
@@ -84,7 +84,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        f {Invalid civilian group "NONESUCH", should be one of: ALL, SHIA}
+        f {Invalid civilian group "NONESUCH", should be one of: ALL, SHIA, KURD}
     }
 
     test COOPERATION-1.5 {invalid frc group} -setup {
@@ -238,7 +238,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        g {Invalid civilian group "NONESUCH", should be one of: ALL, SHIA}
+        g {Invalid civilian group "NONESUCH", should be one of: ALL, SHIA, KURD}
     }
 
 
@@ -319,7 +319,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        g {Invalid civilian group, should be one of: SHIA}
+        g {Invalid civilian group, should be one of: SHIA, KURD}
     }
 
 

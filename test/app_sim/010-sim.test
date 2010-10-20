@@ -139,7 +139,7 @@ namespace eval ::athena_test::tests:: {
     # mutate lock
 
     test mutate_lock-1.1 {lock sets state to PAUSED} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         sim mutate lock
 
@@ -150,7 +150,7 @@ namespace eval ::athena_test::tests:: {
 
 
     test mutate_lock-1.2 {must be in PREP} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         sim mutate lock
     } -body {
         sim mutate lock
@@ -161,7 +161,7 @@ namespace eval ::athena_test::tests:: {
     } -result {Assertion failed: $info(state) eq "PREP"}
 
     test mutate_lock-1.3 {Saves a PREP snapshot} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         sim mutate lock
 
@@ -171,7 +171,7 @@ namespace eval ::athena_test::tests:: {
     } -result {-1}
 
     test mutate_lock-1.4 {Initializes GRAM} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         sim mutate lock
 
@@ -182,7 +182,7 @@ namespace eval ::athena_test::tests:: {
 
     test mutate_lock-1.5 {Executes events scheduled at time 0} -setup {
         parm set demsit.disable yes
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         ted order ORDER:SCHEDULE {
             timespec +0
             name     REPORT:SATISFACTION:CIVILIAN
@@ -205,7 +205,7 @@ time rtype subtype
 
 
     test mutate_runpause-1.1 {No stop time} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         sim mutate lock
         sim mutate run
@@ -216,7 +216,7 @@ time rtype subtype
 
     
     test mutate_runpause-1.2 {Run for -ticks} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         sim mutate lock
         sim mutate run -ticks 5
@@ -226,7 +226,7 @@ time rtype subtype
     } -result {5}
 
     test mutate_runpause-1.3 {Run -until} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         sim mutate lock
         sim mutate run -until 10
@@ -236,7 +236,7 @@ time rtype subtype
     } -result {10}
 
     test mutate_runpause-1.4 {Sets state to "RUNNING"} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         sim mutate lock
         sim mutate run
@@ -247,7 +247,7 @@ time rtype subtype
 
 
     test mutate_runpause-1.5 {Can't run unless "PAUSED"} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         sim mutate lock
         sim mutate run
@@ -260,7 +260,7 @@ time rtype subtype
 
 
     test mutate_runpause-1.6 {Sends <State>} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         sim mutate lock
         ted notifier bind ::sim <State>
@@ -274,7 +274,7 @@ time rtype subtype
 
 
     test mutate_runpause-1.7 {Returns undo script} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         sim mutate lock
         sim mutate run
@@ -284,7 +284,7 @@ time rtype subtype
 
 
     test mutate_runpause-2.1 {Pauses if running} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         sim mutate lock
         sim mutate run
@@ -297,7 +297,7 @@ time rtype subtype
 
 
     test mutate_runpause-2.2 {Sends <State>} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         sim mutate lock
         sim mutate run
@@ -312,7 +312,7 @@ time rtype subtype
 
     
     test mutate_runpause-2.3 {Returns undo script} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         sim mutate pause
     } -cleanup {
@@ -321,7 +321,7 @@ time rtype subtype
 
 
     test mutate_runpause-2.4 {Runs for some number of ticks} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         sim mutate lock
         sim mutate run -ticks 5 -block yes
@@ -342,7 +342,7 @@ time rtype subtype
     } -result {Assertion failed: $info(state) in {PAUSED SNAPSHOT}}
 
     test mutate_unlock-1.2 {Sets state to PREP} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         sim mutate lock
     } -body {
         sim mutate unlock
@@ -352,7 +352,7 @@ time rtype subtype
     } -result {PREP}
 
     test mutate_unlock-1.3 {Restores PREP snapshot} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         sim mutate lock
         ted order REPORT:SATISFACTION:CIVILIAN n ALL g ALL
     } -body {
@@ -363,7 +363,7 @@ time rtype subtype
     } -result {0}
 
     test mutate_unlock-1.4 {Purges future snapshots} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         sim mutate lock
         sim mutate run -ticks 1 -block yes
     } -body {
@@ -385,7 +385,7 @@ time rtype subtype
     # state
 
     test state-1.1 {Returns current state} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         set states [list]
         
@@ -410,7 +410,7 @@ time rtype subtype
     # stoptime
 
     test stoptime-1.1 {Returns current stoptime} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         set times [list]
 
@@ -442,7 +442,7 @@ time rtype subtype
     # process and by the other tests.
 
     test restart-1.1 {Check results} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
         sim mutate lock
         sim mutate run
         simclock advance 5
@@ -471,7 +471,7 @@ time rtype subtype
 
     
     test check-1.2 {Check succeeds} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     } -body {
         sim check onlock
     } -cleanup {
@@ -480,7 +480,7 @@ time rtype subtype
 
 
     test check-1.3 {Badly stacked neighborhoods} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     }  -body {
         set a [sim check onlock]
         ted create OV1
@@ -493,7 +493,7 @@ time rtype subtype
 
 
     test check-1.4 {Two ensits of the same type in a neighborhood} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA
+        ted create NB1 BLUE SHIA
     }  -body {
         ensit mutate create {
             stype     BADFOOD
@@ -526,7 +526,7 @@ time rtype subtype
 
 
     test check-1.5 {Ensit with no neighborhood} -setup {
-        ted create NB1 BLUE SHIA NB1SHIA NB2 NB2SHIA
+        ted create NB1 BLUE SHIA NB2 KURD
         set loc [dict get [ted entity NB2] refpoint]
     }  -body {
         ted order SITUATION:ENVIRONMENTAL:CREATE \

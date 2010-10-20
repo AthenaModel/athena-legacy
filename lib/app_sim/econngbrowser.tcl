@@ -9,7 +9,7 @@
 #    econngbrowser(sim) package: Nbhood Group economics
 #    browser.
 #
-#    This widget displays a formatted list of demog_ng records,
+#    This widget displays a formatted list of demog_g records,
 #    focussing on the labor statistics. It is a wrapper around sqlbrowser(n).
 #
 #-----------------------------------------------------------------------
@@ -59,7 +59,7 @@ snit::widgetadaptor econngbrowser {
                 ::sim <DbSyncB>
                 ::demog <Update>
                 ::nbhood <Entity>
-                ::nbgroup <Entity>
+                ::civgroup <Entity>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.

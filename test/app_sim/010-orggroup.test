@@ -43,9 +43,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   symbol       gtype orgtype demeanor 
------ -------- ------- ------- ------------ ----- ------- -------- 
-USAID US Aid   #000001 NEUTRAL organization ORG   NGO     AVERAGE  
+g     longname color   shape   symbol       demeanor gtype orgtype 
+----- -------- ------- ------- ------------ -------- ----- ------- 
+USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO     
     }
 
 
@@ -120,9 +120,9 @@ USAID US Aid   #000001 NEUTRAL organization ORG   NGO     AVERAGE
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   symbol       gtype orgtype demeanor 
------ -------- ------- ------- ------------ ----- ------- -------- 
-USAID US Aid   #000001 NEUTRAL organization ORG   NGO     AVERAGE  
+g     longname color   shape   symbol       demeanor gtype orgtype 
+----- -------- ------- ------- ------------ -------- ----- ------- 
+USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO     
     }
 
 
@@ -159,9 +159,9 @@ USAID US Aid   #000001 NEUTRAL organization ORG   NGO     AVERAGE
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   shape  symbol       gtype orgtype demeanor  
------ --------- ------- ------ ------------ ----- ------- --------- 
-USAID Red Cross #ff0000 FRIEND organization ORG   IGO     APATHETIC 
+g     longname  color   shape  symbol       demeanor  gtype orgtype 
+----- --------- ------- ------ ------------ --------- ----- ------- 
+USAID Red Cross #ff0000 FRIEND organization APATHETIC ORG   IGO     
     }
 
 
@@ -322,8 +322,3 @@ USAID Red Cross #ff0000 FRIEND organization ORG   IGO     APATHETIC
 }
 
 namespace delete ::athena_test::tests::
-
-
-
-
-

@@ -113,9 +113,9 @@ snit::type demsit {
                 
                 # NEXT, link it to the demog_ng object.
                 rdb eval {
-                    UPDATE demog_ng
+                    UPDATE demog_g
                     SET s = $s
-                    WHERE n=$row(n) AND g=$row(g)
+                    WHERE g=$row(g)
                 }
                 
                 # NEXT, assess the satisfaction implications of this new
@@ -173,7 +173,7 @@ snit::type demsit {
                     $sit set change ENDED
                     
                     rdb eval {
-                        UPDATE demog_ng
+                        UPDATE demog_g
                         SET s = 0
                         WHERE s = $s;
                     }

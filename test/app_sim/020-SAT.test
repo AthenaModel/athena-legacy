@@ -27,7 +27,7 @@ namespace eval ::athena_test::tests:: {
     namespace import ::tcltest::*
 
     proc setup {} {
-        ted create NB1 SHIA SUNN NB1SHIA
+        ted create NB1 SHIA SUNN
         sat mutate reconcile
     }
 
@@ -49,32 +49,21 @@ namespace eval ::athena_test::tests:: {
     }
     
 
-    test UPDATE-1.2 {invalid n, g, c} -setup {
+    test UPDATE-1.2 {invalid g, c} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE id {NONESUCH NONESUCH NONESUCH}
+        ted order -reject SAT:UPDATE id {NONESUCH NONESUCH}
     } -cleanup {
         cleanup
     } -result {
-        id {Invalid neighborhood, should be one of: NB1}
+        id {Invalid civilian group, should be one of: SHIA, SUNN}
     }
 
 
-    test UPDATE-1.3 {undefined curve} -setup {
+    test UPDATE-1.3 {invalid sat0: symbol} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE id {NB1 SUNN AUT}
-    } -cleanup {
-        cleanup
-    } -result {
-        id {Satisfaction is not tracked for group SUNN's AUT in NB1.}
-    }
-
-
-    test UPDATE-1.4 {invalid sat0: symbol} -setup {
-        setup
-    } -body {
-        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} sat0 NONESUCH
+        ted order -reject SAT:UPDATE id {SHIA SFT} sat0 NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -82,10 +71,10 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test UPDATE-1.5 {} -setup {
+    test UPDATE-1.4 {} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} sat0 101.0
+        ted order -reject SAT:UPDATE id {SHIA SFT} sat0 101.0
     } -cleanup {
         cleanup
     } -result {
@@ -93,10 +82,10 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test UPDATE-1.6 {invalid saliency: symbol} -setup {
+    test UPDATE-1.5 {invalid saliency: symbol} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} saliency NONESUCH
+        ted order -reject SAT:UPDATE id {SHIA SFT} saliency NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -104,10 +93,10 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test UPDATE-1.7 {invalid saliency: out of range} -setup {
+    test UPDATE-1.6 {invalid saliency: out of range} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} saliency -0.1
+        ted order -reject SAT:UPDATE id {SHIA SFT} saliency -0.1
     } -cleanup {
         cleanup
     } -result {
@@ -115,40 +104,40 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test UPDATE-1.8 {invalid atrend} -setup {
+    test UPDATE-1.7 {invalid atrend} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} atrend -1.0
+        ted order -reject SAT:UPDATE id {SHIA SFT} atrend -1.0
     } -cleanup {
         cleanup
     } -result {
         atrend {invalid value "-1.0", expected double no less than 0.0}
     }
 
-    test UPDATE-1.9 {invalid athresh} -setup {
+    test UPDATE-1.8 {invalid athresh} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} athresh NONESUCH
+        ted order -reject SAT:UPDATE id {SHIA SFT} athresh NONESUCH
     } -cleanup {
         cleanup
     } -result {
         athresh {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
     }
 
-    test UPDATE-1.10 {invalid dtrend} -setup {
+    test UPDATE-1.9 {invalid dtrend} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} dtrend 1.0
+        ted order -reject SAT:UPDATE id {SHIA SFT} dtrend 1.0
     } -cleanup {
         cleanup
     } -result {
         dtrend {invalid value "1.0", expected double no greater than 0.0}
     }
 
-    test UPDATE-1.11 {invalid dthresh} -setup {
+    test UPDATE-1.10 {invalid dthresh} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE id {NB1 SHIA SFT} dthresh NONESUCH
+        ted order -reject SAT:UPDATE id {SHIA SFT} dthresh NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -159,7 +148,7 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         ted order SAT:UPDATE {
-            id             {NB1 SHIA SFT}
+            id             {SHIA SFT}
             sat0           VS
             saliency       VI
             atrend         2
@@ -168,17 +157,21 @@ namespace eval ::athena_test::tests:: {
             dthresh        10
         }
         ted query {
-            SELECT * FROM sat_ngc
+            SELECT * FROM sat_gc
         }
     } -cleanup {
         cleanup
     } -result {
-n   g    c   sat0 saliency atrend athresh dtrend dthresh 
---- ---- --- ---- -------- ------ ------- ------ ------- 
-NB1 SHIA AUT 0.0  1.0      0.0    0.0     0.0    0.0     
-NB1 SHIA SFT 80.0 0.85     2.0    -5.0    -1.0   10.0    
-NB1 SHIA CUL 0.0  1.0      0.0    0.0     0.0    0.0     
-NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0     
+g    c   sat0 saliency atrend athresh dtrend dthresh 
+---- --- ---- -------- ------ ------- ------ ------- 
+SHIA AUT 0.0  1.0      0.0    0.0     0.0    0.0     
+SHIA SFT 80.0 0.85     2.0    -5.0    -1.0   10.0    
+SHIA CUL 0.0  1.0      0.0    0.0     0.0    0.0     
+SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0     
+SUNN AUT 0.0  1.0      0.0    0.0     0.0    0.0     
+SUNN SFT 0.0  1.0      0.0    0.0     0.0    0.0     
+SUNN CUL 0.0  1.0      0.0    0.0     0.0    0.0     
+SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0     
     }
 
 
@@ -186,12 +179,12 @@ NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
         setup
     } -body {
         ted notifier bind ::sat <Entity>
-        ted order SAT:UPDATE id {NB1 SHIA SFT} sat0 4.0
+        ted order SAT:UPDATE id {SHIA SFT} sat0 4.0
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {NB1 SHIA SFT}}
+        {::sat <Entity> update {SHIA SFT}}
     }
 
 
@@ -199,7 +192,7 @@ NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
         setup
 
         ted order SAT:UPDATE {
-            id             {NB1 SHIA SFT}
+            id             {SHIA SFT}
             sat0           VS
             saliency       VI
             atrend         2
@@ -214,7 +207,7 @@ NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {NB1 SHIA SFT}}
+        {::sat <Entity> update {SHIA SFT}}
     }
 
     #-------------------------------------------------------------------
@@ -231,23 +224,11 @@ NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
     }
     
 
-    test UPDATE:MULTI-1.2 {invalid n in ids} -setup {
+    test UPDATE:MULTI-1.2 {invalid g in ids} -setup {
         setup
     } -body {
         ted order -reject SAT:UPDATE:MULTI \
-            ids {{NONESUCH1 SHIA SFT}}
-    } -cleanup {
-        cleanup
-    } -result {
-        ids {Invalid neighborhood, should be one of: NB1}
-    }
-
-
-    test UPDATE:MULTI-1.3 {invalid g in ids} -setup {
-        setup
-    } -body {
-        ted order -reject SAT:UPDATE:MULTI \
-            ids {{NB1 NONESUCH SFT}}
+            ids {{NONESUCH SFT}}
     } -cleanup {
         cleanup
     } -result {
@@ -255,11 +236,11 @@ NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
     }
 
 
-    test UPDATE:MULTI-1.4 {invalid c in ids} -setup {
+    test UPDATE:MULTI-1.3 {invalid c in ids} -setup {
         setup
     } -body {
         ted order -reject SAT:UPDATE:MULTI \
-            ids {{NB1 SHIA NONESUCH}}
+            ids {{SHIA NONESUCH}}
     } -cleanup {
         cleanup
     } -result {
@@ -267,22 +248,11 @@ NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
     }
 
 
-    test UPDATE:MULTI-1.5 {undefined curve} -setup {
-        setup
-    } -body {
-        ted order -reject SAT:UPDATE:MULTI ids {{NB1 SUNN AUT}}
-    } -cleanup {
-        cleanup
-    } -result {
-        ids {Satisfaction is not tracked for group SUNN's AUT in NB1.}
-    }
-
-
-    test UPDATE:MULTI-1.6 {invalid sat0: symbol} -setup {
+    test UPDATE:MULTI-1.5 {invalid sat0: symbol} -setup {
         setup
     } -body {
         ted order -reject SAT:UPDATE:MULTI \
-            ids {{NB1 SHIA SFT}} sat0 NONESUCH
+            ids {{SHIA SFT}} sat0 NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -290,10 +260,10 @@ NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
     }
 
 
-    test UPDATE:MULTI-1.7 {invalid sat0: out of range} -setup {
+    test UPDATE:MULTI-1.6 {invalid sat0: out of range} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE:MULTI ids {{NB1 SHIA SFT}} sat0 101.0
+        ted order -reject SAT:UPDATE:MULTI ids {{SHIA SFT}} sat0 101.0
     } -cleanup {
         cleanup
     } -result {
@@ -301,11 +271,11 @@ NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
     }
 
 
-    test UPDATE:MULTI-1.8 {invalid saliency: symbol} -setup {
+    test UPDATE:MULTI-1.7 {invalid saliency: symbol} -setup {
         setup
     } -body {
         ted order -reject SAT:UPDATE:MULTI \
-            ids {{NB1 SHIA SFT}} saliency NONESUCH
+            ids {{SHIA SFT}} saliency NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -313,11 +283,11 @@ NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
     }
 
 
-    test UPDATE:MULTI-1.9 {invalid saliency: out of range} -setup {
+    test UPDATE:MULTI-1.8 {invalid saliency: out of range} -setup {
         setup
     } -body {
         ted order -reject SAT:UPDATE:MULTI ids \
-            {{NB1 SHIA SFT}} saliency -0.1
+            {{SHIA SFT}} saliency -0.1
     } -cleanup {
         cleanup
     } -result {
@@ -325,40 +295,40 @@ NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
     }
 
 
-    test UPDATE:MULTI-1.10 {invalid atrend} -setup {
+    test UPDATE:MULTI-1.9 {invalid atrend} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE:MULTI ids {{NB1 SHIA SFT}} atrend -5
+        ted order -reject SAT:UPDATE:MULTI ids {{SHIA SFT}} atrend -5
     } -cleanup {
         cleanup
     } -result {
         atrend {invalid value "-5", expected double no less than 0.0}
     }
 
-    test UPDATE:MULTI-1.11 {invalid athresh} -setup {
+    test UPDATE:MULTI-1.10 {invalid athresh} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE:MULTI ids {{NB1 SHIA SFT}} athresh NONESUCH
+        ted order -reject SAT:UPDATE:MULTI ids {{SHIA SFT}} athresh NONESUCH
     } -cleanup {
         cleanup
     } -result {
         athresh {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
     }
 
-    test UPDATE:MULTI-1.12 {invalid dtrend} -setup {
+    test UPDATE:MULTI-1.11 {invalid dtrend} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE:MULTI ids {{NB1 SHIA SFT}} dtrend 5
+        ted order -reject SAT:UPDATE:MULTI ids {{SHIA SFT}} dtrend 5
     } -cleanup {
         cleanup
     } -result {
         dtrend {invalid value "5", expected double no greater than 0.0}
     }
 
-    test UPDATE:MULTI-1.13 {invalid dthresh} -setup {
+    test UPDATE:MULTI-1.12 {invalid dthresh} -setup {
         setup
     } -body {
-        ted order -reject SAT:UPDATE:MULTI ids {{NB1 SHIA SFT}} dthresh NONESUCH
+        ted order -reject SAT:UPDATE:MULTI ids {{SHIA SFT}} dthresh NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -371,7 +341,7 @@ NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
         ted notifier bind ::sat <Entity>
 
         ted order SAT:UPDATE:MULTI {
-            ids       {{NB1 SHIA SFT}}
+            ids       {{SHIA SFT}}
             sat0      VS
             saliency  VI
             atrend    2
@@ -384,7 +354,7 @@ NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {NB1 SHIA SFT}}
+        {::sat <Entity> update {SHIA SFT}}
     }
 
 
@@ -393,15 +363,15 @@ NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
     } -body {
         ted notifier bind ::sat <Entity>
         ted order SAT:UPDATE:MULTI {
-            ids   {{NB1 SHIA SFT} {NB1 SHIA CUL}} 
+            ids   {{SHIA SFT} {SHIA CUL}} 
             sat0  4.0
         }
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {NB1 SHIA SFT}}
-        {::sat <Entity> update {NB1 SHIA CUL}}
+        {::sat <Entity> update {SHIA SFT}}
+        {::sat <Entity> update {SHIA CUL}}
     }
 
 
@@ -409,7 +379,7 @@ NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
         setup
 
         ted order SAT:UPDATE:MULTI {
-            ids        {{NB1 SHIA SFT} {NB1 SHIA CUL}}
+            ids        {{SHIA SFT} {SHIA CUL}}
             sat0       VS
             saliency   VI
             atrend     2
@@ -424,8 +394,8 @@ NB1 SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {NB1 SHIA SFT}}
-        {::sat <Entity> update {NB1 SHIA CUL}}
+        {::sat <Entity> update {SHIA SFT}}
+        {::sat <Entity> update {SHIA CUL}}
     }
 
 

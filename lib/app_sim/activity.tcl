@@ -1119,7 +1119,7 @@ order define ACTIVITY:SCHEDULE {
     # g and a are consistent
     validate g {
         if {[group gtype $parms(g)] eq "CIV"      &&
-            ![civgroups gInN $parms(g) $parms(n)]
+            ![civgroup gInN $parms(g) $parms(n)]
         } {
             reject n \
                 "Group $parms(g) does not reside in neighborhood $parms(n)"
