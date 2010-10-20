@@ -70,7 +70,7 @@ snit::widgetadaptor relbrowser {
             -command [mymethod EditSelected]
 
         cond::orderIsValidCanUpdate control $editbtn \
-            order   RELATIONSHIP:UPDATE          \
+            order   REL:UPDATE          \
             browser $win
        
         pack $editbtn   -side left
@@ -130,9 +130,10 @@ snit::widgetadaptor relbrowser {
         set ids [$hull uid curselection]
 
         if {[llength $ids] == 1} {
-            order enter RELATIONSHIP:UPDATE id [lindex $ids 0]
+            order enter REL:UPDATE id [lindex $ids 0]
         } else {
-            order enter RELATIONSHIP:UPDATE:MULTI ids $ids
+            order enter REL:UPDATE:MULTI ids $ids
         }
     }
 }
+

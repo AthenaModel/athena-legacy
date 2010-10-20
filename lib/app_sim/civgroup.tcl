@@ -291,13 +291,13 @@ snit::type civgroup {
 }
 
 #-----------------------------------------------------------------------
-# Orders: GROUP:CIVILIAN:*
+# Orders: CIVGROUP:*
 
-# GROUP:CIVILIAN:CREATE
+# CIVGROUP:CREATE
 #
 # Creates new civilian groups.
 
-order define GROUP:CIVILIAN:CREATE {
+order define CIVGROUP:CREATE {
     title "Create Civilian Group"
 
     options -sendstates PREP
@@ -338,9 +338,9 @@ order define GROUP:CIVILIAN:CREATE {
     setundo [join $undo \n]
 }
 
-# GROUP:CIVILIAN:DELETE
+# CIVGROUP:DELETE
 
-order define GROUP:CIVILIAN:DELETE {
+order define CIVGROUP:DELETE {
     title "Delete Civilian Group"
     options -sendstates PREP
 
@@ -359,7 +359,7 @@ order define GROUP:CIVILIAN:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
-                        -ignoretag     GROUP:CIVILIAN:DELETE            \
+                        -ignoretag     CIVGROUP:DELETE            \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {
@@ -381,11 +381,11 @@ order define GROUP:CIVILIAN:DELETE {
 }
 
 
-# GROUP:CIVILIAN:UPDATE
+# CIVGROUP:UPDATE
 #
 # Updates existing groups.
 
-order define GROUP:CIVILIAN:UPDATE {
+order define CIVGROUP:UPDATE {
     title "Update Civilian Group"
     options \
         -sendstates PREP                             \
@@ -420,11 +420,11 @@ order define GROUP:CIVILIAN:UPDATE {
     setundo [civgroup mutate update [array get parms]]
 }
 
-# GROUP:CIVILIAN:UPDATE:MULTI
+# CIVGROUP:UPDATE:MULTI
 #
 # Updates existing groups.
 
-order define GROUP:CIVILIAN:UPDATE:MULTI {
+order define CIVGROUP:UPDATE:MULTI {
     title "Update Multiple Civilian Groups"
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForMulti ids *}
@@ -461,11 +461,11 @@ order define GROUP:CIVILIAN:UPDATE:MULTI {
     setundo [join $undo \n]
 }
 
-# GROUP:CIVILIAN:UPDATE:POSTPREP
+# CIVGROUP:UPDATE:POSTPREP
 #
 # Updates existing groups.
 
-order define GROUP:CIVILIAN:UPDATE:POSTPREP {
+order define CIVGROUP:UPDATE:POSTPREP {
     title "Update Civilian Group (Post-PREP)"
     options \
         -sendstates {PREP PAUSED}                   \
@@ -485,11 +485,11 @@ order define GROUP:CIVILIAN:UPDATE:POSTPREP {
     setundo [civgroup mutate update [array get parms]]
 }
 
-# GROUP:CIVILIAN:UPDATE:MULTI:POSTPREP
+# CIVGROUP:UPDATE:MULTI:POSTPREP
 #
 # Updates existing groups.
 
-order define GROUP:CIVILIAN:UPDATE:MULTI:POSTPREP {
+order define CIVGROUP:UPDATE:MULTI:POSTPREP {
     title "Update Multiple Civilian Groups (Post-PREP)"
     options -sendstates {PREP PAUSED} \
         -refreshcmd {orderdialog refreshForMulti ids *}
@@ -512,3 +512,4 @@ order define GROUP:CIVILIAN:UPDATE:MULTI:POSTPREP {
 
     setundo [join $undo \n]
 }
+

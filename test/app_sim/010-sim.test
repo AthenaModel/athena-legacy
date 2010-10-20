@@ -185,7 +185,7 @@ namespace eval ::athena_test::tests:: {
         ted create NB1 BLUE SHIA
         ted order ORDER:SCHEDULE {
             timespec +0
-            name     REPORT:SATISFACTION:CIVILIAN
+            name     REPORT:SAT:CURRENT
             parmdict {n ALL g ALL}
         }
     } -body {
@@ -354,7 +354,7 @@ time rtype subtype
     test mutate_unlock-1.3 {Restores PREP snapshot} -setup {
         ted create NB1 BLUE SHIA
         sim mutate lock
-        ted order REPORT:SATISFACTION:CIVILIAN n ALL g ALL
+        ted order REPORT:SAT:CURRENT n ALL g ALL
     } -body {
         sim mutate unlock
         rdb eval {SELECT count(*) FROM reports}
@@ -529,7 +529,7 @@ time rtype subtype
         ted create NB1 BLUE SHIA NB2 KURD
         set loc [dict get [ted entity NB2] refpoint]
     }  -body {
-        ted order SITUATION:ENVIRONMENTAL:CREATE \
+        ted order ENSIT:CREATE \
             stype     BADFOOD                    \
             location  [map m2ref {*}$loc]        \
             coverage  1.0                        \
@@ -556,5 +556,8 @@ time rtype subtype
 }
 
 namespace delete ::athena_test::tests::
+
+
+
 
 

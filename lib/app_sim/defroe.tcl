@@ -191,13 +191,13 @@ snit::type ::defroe {
 }
 
 #-------------------------------------------------------------------
-# Orders: ROE:DEFEND:*
+# Orders: DEFROE:*
 
-# ROE:DEFEND:UPDATE
+# DEFROE:UPDATE
 #
 # Updates existing relationships
 
-order define ROE:DEFEND:UPDATE {
+order define DEFROE:UPDATE {
     title "Update Defending ROE"
     options \
         -schedulestates {PREP PAUSED}                     \
@@ -220,11 +220,11 @@ order define ROE:DEFEND:UPDATE {
 }
 
 
-# ROE:DEFEND:UPDATE:MULTI
+# DEFROE:UPDATE:MULTI
 #
 # Updates multiple existing relationships
 
-order define ROE:DEFEND:UPDATE:MULTI {
+order define DEFROE:UPDATE:MULTI {
     title "Update Multiple Defending ROEs"
     options \
         -schedulestates {PREP PAUSED} \
@@ -251,4 +251,5 @@ order define ROE:DEFEND:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 

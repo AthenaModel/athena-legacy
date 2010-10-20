@@ -980,11 +980,11 @@ snit::type ::report {
 #-----------------------------------------------------------------------
 # Orders
 
-# REPORT:COOPERATION
+# REPORT:COOP
 #
 # Produces a Cooperation Report
 
-order define REPORT:COOPERATION {
+order define REPORT:COOP {
     title "Cooperation Report"
     options \
         -schedulestates {PREP PAUSED} \
@@ -1064,11 +1064,11 @@ order define REPORT:PARMDB {
     setundo [join $undo \n]
 }
 
-# REPORT:SATISFACTION:CIVILIAN
+# REPORT:SAT:CURRENT
 #
 # Produces a Civilian Satisfaction Report
 
-order define REPORT:SATISFACTION:CIVILIAN {
+order define REPORT:SAT:CURRENT {
     title "Civilian Satisfaction Report"
     options \
         -schedulestates {PREP PAUSED} \
@@ -1091,11 +1091,11 @@ order define REPORT:SATISFACTION:CIVILIAN {
 }
 
 
-# REPORT:SATISFACTION:CONTRIB
+# REPORT:SAT:CONTRIB
 #
 # Produces a Contribution to Satisfaction Report
 
-order define REPORT:SATISFACTION:CONTRIB {
+order define REPORT:SAT:CONTRIB {
     title "Contribution to Satisfaction Report"
     options \
         -schedulestates {PREP PAUSED}          \
@@ -1150,6 +1150,9 @@ order define REPORT:SATISFACTION:CONTRIB {
 
     setundo [join $undo \n]
 }
+
+
+
 
 
 

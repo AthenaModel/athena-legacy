@@ -664,23 +664,23 @@ snit::widget appwin {
         $ordersmenu add cascade -label "ROE" \
             -underline 0 -menu $submenu
         
-        $self AddOrder $submenu ROE:DEFEND:UPDATE
-        $self AddOrder $submenu ROE:ATTACK:UNIFORMED:CREATE
-        $self AddOrder $submenu ROE:ATTACK:NONUNIFORMED:CREATE
-        $self AddOrder $submenu ROE:ATTACK:UNIFORMED:UPDATE
-        $self AddOrder $submenu ROE:ATTACK:NONUNIFORMED:UPDATE
-        $self AddOrder $submenu ROE:ATTACK:DELETE
+        $self AddOrder $submenu DEFROE:UPDATE
+        $self AddOrder $submenu ATTROE:UF:CREATE
+        $self AddOrder $submenu ATTROE:NF:CREATE
+        $self AddOrder $submenu ATTROE:UF:UPDATE
+        $self AddOrder $submenu ATTROE:NF:UPDATE
+        $self AddOrder $submenu ATTROE:DELETE
 
         # Orders/Situation
         set submenu [menu $ordersmenu.sit]
         $ordersmenu add cascade -label "Situation" \
             -underline 0 -menu $submenu
         
-        $self AddOrder $submenu SITUATION:ENVIRONMENTAL:CREATE
-        $self AddOrder $submenu SITUATION:ENVIRONMENTAL:MOVE
-        $self AddOrder $submenu SITUATION:ENVIRONMENTAL:DELETE
-        $self AddOrder $submenu SITUATION:ENVIRONMENTAL:RESOLVE
-        $self AddOrder $submenu SITUATION:ENVIRONMENTAL:UPDATE
+        $self AddOrder $submenu ENSIT:CREATE
+        $self AddOrder $submenu ENSIT:MOVE
+        $self AddOrder $submenu ENSIT:DELETE
+        $self AddOrder $submenu ENSIT:RESOLVE
+        $self AddOrder $submenu ENSIT:UPDATE
 
         # Orders/Magic Attitude Drivers
         set submenu [menu $ordersmenu.mad]
@@ -705,28 +705,28 @@ snit::widget appwin {
         $ordersmenu add cascade -label "Civilian Group" \
             -underline 0 -menu $submenu
         
-        $self AddOrder $submenu GROUP:CIVILIAN:CREATE
-        $self AddOrder $submenu GROUP:CIVILIAN:UPDATE
-        $self AddOrder $submenu GROUP:CIVILIAN:UPDATE:POSTPREP
-        $self AddOrder $submenu GROUP:CIVILIAN:DELETE
+        $self AddOrder $submenu CIVGROUP:CREATE
+        $self AddOrder $submenu CIVGROUP:UPDATE
+        $self AddOrder $submenu CIVGROUP:UPDATE:POSTPREP
+        $self AddOrder $submenu CIVGROUP:DELETE
 
         # Orders/Force Group
         set submenu [menu $ordersmenu.frcgroup]
         $ordersmenu add cascade -label "Force Group" \
             -underline 0 -menu $submenu
         
-        $self AddOrder $submenu GROUP:FORCE:CREATE
-        $self AddOrder $submenu GROUP:FORCE:UPDATE
-        $self AddOrder $submenu GROUP:FORCE:DELETE
+        $self AddOrder $submenu FRCGROUP:CREATE
+        $self AddOrder $submenu FRCGROUP:UPDATE
+        $self AddOrder $submenu FRCGROUP:DELETE
 
         # Orders/Org Group
         set submenu [menu $ordersmenu.orggroup]
         $ordersmenu add cascade -label "Org Group" \
             -underline 0 -menu $submenu
         
-        $self AddOrder $submenu GROUP:ORGANIZATION:CREATE
-        $self AddOrder $submenu GROUP:ORGANIZATION:UPDATE
-        $self AddOrder $submenu GROUP:ORGANIZATION:DELETE
+        $self AddOrder $submenu ORGGROUP:CREATE
+        $self AddOrder $submenu ORGGROUP:UPDATE
+        $self AddOrder $submenu ORGGROUP:DELETE
 
         # Orders/Neighborhood Menu
         set submenu [menu $ordersmenu.nbhood]
@@ -738,14 +738,14 @@ snit::widget appwin {
         $self AddOrder $submenu NBHOOD:LOWER
         $self AddOrder $submenu NBHOOD:RAISE
         $self AddOrder $submenu NBHOOD:DELETE
-        $self AddOrder $submenu NBHOOD:RELATIONSHIP:UPDATE
+        $self AddOrder $submenu NBREL:UPDATE
 
         # Orders/Relationship Menu
         set submenu [menu $ordersmenu.rel]
         $ordersmenu add cascade -label "Relationship" \
             -underline 0 -menu $submenu
         
-        $self AddOrder $submenu RELATIONSHIP:UPDATE
+        $self AddOrder $submenu REL:UPDATE
 
         # Orders/Cooperation Menu
         set submenu [menu $ordersmenu.coop]
@@ -781,9 +781,9 @@ snit::widget appwin {
         $menubar add cascade -label "Reports" -underline 0 -menu $reportsmenu
 
         $self AddOrder $reportsmenu REPORT:DRIVER
-        $self AddOrder $reportsmenu REPORT:SATISFACTION:CIVILIAN
-        $self AddOrder $reportsmenu REPORT:SATISFACTION:CONTRIB
-        $self AddOrder $reportsmenu REPORT:COOPERATION
+        $self AddOrder $reportsmenu REPORT:SAT:CURRENT
+        $self AddOrder $reportsmenu REPORT:SAT:CONTRIB
+        $self AddOrder $reportsmenu REPORT:COOP
         $self AddOrder $reportsmenu REPORT:PARMDB
 
         $reportsmenu add separator
@@ -2112,3 +2112,16 @@ snit::widget appwin {
         $cli clear
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

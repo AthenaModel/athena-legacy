@@ -84,7 +84,7 @@ snit::widgetadaptor ensitbrowser {
             -command [mymethod AddEntity]
 
         cond::orderIsValid control $addbtn \
-            order SITUATION:ENVIRONMENTAL:CREATE
+            order ENSIT:CREATE
 
 
         install editbtn using mkeditbutton $bar.edit \
@@ -93,7 +93,7 @@ snit::widgetadaptor ensitbrowser {
             -command [mymethod EditSelected]
 
         cond::orderIsValidCanUpdate control $editbtn \
-            order   SITUATION:ENVIRONMENTAL:UPDATE   \
+            order   ENSIT:UPDATE   \
             browser $win
 
         install resolvebtn using mktoolbutton $bar.resolve \
@@ -103,7 +103,7 @@ snit::widgetadaptor ensitbrowser {
             -command [mymethod ResolveSelected]
 
         cond::orderIsValidCanResolve control $resolvebtn  \
-            order   SITUATION:ENVIRONMENTAL:RESOLVE   \
+            order   ENSIT:RESOLVE   \
             browser $win
 
         install deletebtn using mkdeletebutton $bar.delete \
@@ -112,7 +112,7 @@ snit::widgetadaptor ensitbrowser {
             -command [mymethod DeleteSelected]
 
         cond::orderIsValidCanDelete control $deletebtn \
-            order   SITUATION:ENVIRONMENTAL:DELETE  \
+            order   ENSIT:DELETE  \
             browser $win
 
 
@@ -213,7 +213,7 @@ snit::widgetadaptor ensitbrowser {
 
     method AddEntity {} {
         # FIRST, Pop up the dialog
-        order enter SITUATION:ENVIRONMENTAL:CREATE
+        order enter ENSIT:CREATE
     }
 
     # EditSelected
@@ -225,7 +225,7 @@ snit::widgetadaptor ensitbrowser {
         set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Pop up the order dialog.
-        order enter SITUATION:ENVIRONMENTAL:UPDATE s $id
+        order enter ENSIT:UPDATE s $id
     }
 
 
@@ -238,7 +238,7 @@ snit::widgetadaptor ensitbrowser {
         set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Pop up the order dialog.
-        order enter SITUATION:ENVIRONMENTAL:RESOLVE s $id
+        order enter ENSIT:RESOLVE s $id
     }
 
 
@@ -251,10 +251,11 @@ snit::widgetadaptor ensitbrowser {
         set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Send the delete order.
-        order send gui SITUATION:ENVIRONMENTAL:DELETE s $id
+        order send gui ENSIT:DELETE s $id
     }
 
 }
+
 
 
 

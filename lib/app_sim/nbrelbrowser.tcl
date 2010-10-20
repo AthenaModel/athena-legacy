@@ -69,7 +69,7 @@ snit::widgetadaptor nbrelbrowser {
             -command [mymethod EditSelected]
 
         cond::orderIsValidCanUpdate control $editbtn \
-            order   NBHOOD:RELATIONSHIP:UPDATE   \
+            order   NBREL:UPDATE   \
             browser $win
 
         pack $editbtn   -side left
@@ -138,12 +138,13 @@ snit::widgetadaptor nbrelbrowser {
         set ids [$hull uid curselection]
 
         if {[llength $ids] == 1} {
-            order enter NBHOOD:RELATIONSHIP:UPDATE id [lindex $ids 0]
+            order enter NBREL:UPDATE id [lindex $ids 0]
         } else {
-            order enter NBHOOD:RELATIONSHIP:UPDATE:MULTI ids $ids
+            order enter NBREL:UPDATE:MULTI ids $ids
         }
     }
 }
+
 
 
 

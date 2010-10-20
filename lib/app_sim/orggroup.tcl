@@ -197,13 +197,13 @@ snit::type orggroup {
 }
 
 #-------------------------------------------------------------------
-# Orders: GROUP:ORGANIZATION:*
+# Orders: ORGGROUP:*
 
-# GROUP:ORGANIZATION:CREATE
+# ORGGROUP:CREATE
 #
 # Creates new organization groups.
 
-order define GROUP:ORGANIZATION:CREATE {
+order define ORGGROUP:CREATE {
     title "Create Organization Group"
     options -sendstates PREP
 
@@ -238,9 +238,9 @@ order define GROUP:ORGANIZATION:CREATE {
     setundo [join $undo \n]
 }
 
-# GROUP:ORGANIZATION:DELETE
+# ORGGROUP:DELETE
 
-order define GROUP:ORGANIZATION:DELETE {
+order define ORGGROUP:DELETE {
     title "Delete Organization Group"
     options -sendstates PREP
 
@@ -259,7 +259,7 @@ order define GROUP:ORGANIZATION:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
-                        -ignoretag     GROUP:ORGANIZATION:DELETE        \
+                        -ignoretag     ORGGROUP:DELETE        \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {
@@ -281,11 +281,11 @@ order define GROUP:ORGANIZATION:DELETE {
 }
 
 
-# GROUP:ORGANIZATION:UPDATE
+# ORGGROUP:UPDATE
 #
 # Updates existing groups.
 
-order define GROUP:ORGANIZATION:UPDATE {
+order define ORGGROUP:UPDATE {
     title "Update Organization Group"
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey g *}
@@ -316,11 +316,11 @@ order define GROUP:ORGANIZATION:UPDATE {
 }
 
 
-# GROUP:ORGANIZATION:UPDATE:MULTI
+# ORGGROUP:UPDATE:MULTI
 #
 # Updates multiple groups.
 
-order define GROUP:ORGANIZATION:UPDATE:MULTI {
+order define ORGGROUP:UPDATE:MULTI {
     title "Update Multiple Organization Groups"
     options \
         -sendstates PREP                                  \
@@ -353,6 +353,7 @@ order define GROUP:ORGANIZATION:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 
 
 

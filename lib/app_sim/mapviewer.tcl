@@ -476,11 +476,11 @@ snit::widget mapviewer {
                  -style   Toolbutton                                         \
                  -image   [list ${type}::icon::envpoly                       \
                                disabled ${type}::icon::envpolyd]             \
-                 -command [list order enter SITUATION:ENVIRONMENTAL:CREATE]] \
-            order SITUATION:ENVIRONMENTAL:CREATE
+                 -command [list order enter ENSIT:CREATE]] \
+            order ENSIT:CREATE
 
         DynamicHelp::add $win.vbar.newensit \
-            -text [order title SITUATION:ENVIRONMENTAL:CREATE]
+            -text [order title ENSIT:CREATE]
 
         pack $win.vbar.sep       -side top -fill x -pady 2
         pack $win.vbar.nbhood    -side top -fill x -padx 2
@@ -956,7 +956,7 @@ snit::widget mapviewer {
         cond::orderIsValid control \
             [menuitem $mnu command "Create Environmental Situation" \
                  -command [mymethod NbhoodCreateEnsitHere]]         \
-            order SITUATION:ENVIRONMENTAL:CREATE
+            order ENSIT:CREATE
 
         $mnu add separator
 
@@ -982,7 +982,7 @@ snit::widget mapviewer {
     # Pops up the create ensit dialog with this location filled in.
 
     method NbhoodCreateEnsitHere {} {
-        order enter SITUATION:ENVIRONMENTAL:CREATE location $nbhoods(transref)
+        order enter ENSIT:CREATE location $nbhoods(transref)
     }
 
 
@@ -1317,7 +1317,7 @@ snit::widget mapviewer {
 
             situation {
                 if {[catch {
-                    order send gui SITUATION:ENVIRONMENTAL:MOVE \
+                    order send gui ENSIT:MOVE \
                         s        $icons(sid-$cid)                 \
                         location [$canvas icon ref $cid]
                 }]} {
@@ -1551,7 +1551,7 @@ snit::widget mapviewer {
         cond::orderIsValidCanUpdate control \
             [menuitem $mnu command "Update Situation" \
                  -command [mymethod UpdateEnsit]] \
-            order SITUATION:ENVIRONMENTAL:UPDATE browser $win
+            order ENSIT:UPDATE browser $win
     }
 
     # UpdateEnsit
@@ -1559,7 +1559,7 @@ snit::widget mapviewer {
     # Pops up the "Update Environmental Situation" dialog for this unit
 
     method UpdateEnsit {} {
-        order enter SITUATION:ENVIRONMENTAL:UPDATE s $icons(context)
+        order enter ENSIT:UPDATE s $icons(context)
     }
 
     #-------------------------------------------------------------------
@@ -1661,3 +1661,4 @@ snit::widget mapviewer {
         $self NbhoodFill
     }
 }
+

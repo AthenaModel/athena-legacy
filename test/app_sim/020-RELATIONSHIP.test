@@ -7,7 +7,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    app_sim(1) RELATIONSHIP:* order tests.
+#    app_sim(1) REL:* order tests.
 #
 #    This test suite tests the relationship-related orders.
 #
@@ -40,10 +40,10 @@ namespace eval ::athena_test::tests:: {
 
 
     #-------------------------------------------------------------------
-    # RELATIONSHIP:UPDATE
+    # REL:UPDATE
 
     test UPDATE-1.1 {required parms} -body {
-        ted order -reject RELATIONSHIP:UPDATE {}
+        ted order -reject REL:UPDATE {}
     } -result {
         id {required value}
     }
@@ -52,7 +52,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.2 {invalid f, g} -setup {
         setup
     } -body {
-        ted order -reject RELATIONSHIP:UPDATE id {NONESUCH NONESUCH}
+        ted order -reject REL:UPDATE id {NONESUCH NONESUCH}
     } -cleanup {
         cleanup
     } -result {
@@ -63,7 +63,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.3 {invalid rel: out of range} -setup {
         setup
     } -body {
-        ted order -reject RELATIONSHIP:UPDATE id {SHIA BLUE} rel 1.1
+        ted order -reject REL:UPDATE id {SHIA BLUE} rel 1.1
     } -cleanup {
         cleanup
     } -result {
@@ -74,7 +74,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.4 {f=g but rel != 1.0} -setup {
         setup
     } -body {
-        ted order -reject RELATIONSHIP:UPDATE id {SHIA SHIA} rel 0.5
+        ted order -reject REL:UPDATE id {SHIA SHIA} rel 0.5
     } -cleanup {
         cleanup
     } -result {
@@ -85,7 +85,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-2.1 {rel is updated} -setup {
         setup
     } -body {
-        ted order RELATIONSHIP:UPDATE {
+        ted order REL:UPDATE {
             id    {SHIA BLUE}
             rel   0.5
         }
@@ -112,7 +112,7 @@ SUNN SUNN 1.0
         setup
     } -body {
         ted notifier bind ::rel <Entity>
-        ted order RELATIONSHIP:UPDATE id {SHIA BLUE} rel 0.5
+        ted order REL:UPDATE id {SHIA BLUE} rel 0.5
         ted notifier received
     } -cleanup {
         cleanup
@@ -124,7 +124,7 @@ SUNN SUNN 1.0
     test UPDATE-3.1 {undo undoes the change} -setup {
         setup
 
-        ted order RELATIONSHIP:UPDATE {
+        ted order REL:UPDATE {
             id    {SHIA BLUE}
             rel   0.5
         }
@@ -139,12 +139,12 @@ SUNN SUNN 1.0
     }
 
     #-------------------------------------------------------------------
-    # RELATIONSHIP:UPDATE:MULTI
+    # REL:UPDATE:MULTI
 
     test UPDATE:MULTI-1.1 {required parms} -setup {
         setup
     } -body {
-        ted order -reject RELATIONSHIP:UPDATE:MULTI {}
+        ted order -reject REL:UPDATE:MULTI {}
     } -cleanup {
         cleanup
     } -result {
@@ -155,7 +155,7 @@ SUNN SUNN 1.0
     test UPDATE:MULTI-1.2 {invalid f in ids} -setup {
         setup
     } -body {
-        ted order -reject RELATIONSHIP:UPDATE:MULTI \
+        ted order -reject REL:UPDATE:MULTI \
             ids {{NONESUCH BLUE}}
     } -cleanup {
         cleanup
@@ -167,7 +167,7 @@ SUNN SUNN 1.0
     test UPDATE:MULTI-1.3 {invalid g in ids} -setup {
         setup
     } -body {
-        ted order -reject RELATIONSHIP:UPDATE:MULTI \
+        ted order -reject REL:UPDATE:MULTI \
             ids {{SHIA NONESUCH}}
     } -cleanup {
         cleanup
@@ -179,7 +179,7 @@ SUNN SUNN 1.0
     test UPDATE:MULTI-1.5 {invalid rel: out of range} -setup {
         setup
     } -body {
-        ted order -reject RELATIONSHIP:UPDATE:MULTI \
+        ted order -reject REL:UPDATE:MULTI \
             ids {{SHIA BLUE}} rel 1.1
     } -cleanup {
         cleanup
@@ -191,7 +191,7 @@ SUNN SUNN 1.0
     test UPDATE:MULTI-1.6 {f=g but rel != 1.0} -setup {
         setup
     } -body {
-        ted order -reject RELATIONSHIP:UPDATE:MULTI \
+        ted order -reject REL:UPDATE:MULTI \
             ids {{SHIA SHIA} {SHIA BLUE}} rel 0.5
     } -cleanup {
         cleanup
@@ -205,7 +205,7 @@ SUNN SUNN 1.0
     } -body {
         ted notifier bind ::rel <Entity>
 
-        ted order RELATIONSHIP:UPDATE:MULTI {
+        ted order REL:UPDATE:MULTI {
             ids       {{SHIA BLUE}}
             rel       0.5
         }
@@ -222,7 +222,7 @@ SUNN SUNN 1.0
         setup
     } -body {
         ted notifier bind ::rel <Entity>
-        ted order RELATIONSHIP:UPDATE:MULTI {
+        ted order REL:UPDATE:MULTI {
             ids   {{SHIA BLUE} {BLUE SHIA}} 
             rel   0.5
         }
@@ -238,7 +238,7 @@ SUNN SUNN 1.0
     test UPDATE:MULTI-3.1 {undo undoes the change} -setup {
         setup
 
-        ted order RELATIONSHIP:UPDATE:MULTI {
+        ted order REL:UPDATE:MULTI {
             ids        {{SHIA BLUE} {BLUE SHIA}}
             rel        0.5
         }
@@ -261,6 +261,7 @@ SUNN SUNN 1.0
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

@@ -22,7 +22,7 @@
 #    method name is used.
 #
 #    * Ensits are created, updated, and deleted via the "mutate *" 
-#      commands and the SITUATION:ENVIRONMENTAL:* orders.
+#      commands and the ENSIT:* orders.
 #
 #    * This module calls the ensit rule on "ensit assess", which is 
 #      done as part of the time advance.
@@ -618,7 +618,7 @@ snit::type ensit {
     # fields    A list of the fields that have changed.
     # fdict     The current field values.
     #
-    # Refreshes the SITUATION:ENVIRONMENTAL:CREATE dialog.
+    # Refreshes the ENSIT:CREATE dialog.
 
     typemethod Refresh_SEC {dlg fields fdict} {
         # FIRST, if the location changed, determine the valid ensit
@@ -660,7 +660,7 @@ snit::type ensit {
     # fields    A list of the fields that have changed.
     # fdict     The current field values.
     #
-    # Refreshes the SITUATION:ENVIRONMENTAL:UPDATE dialog.
+    # Refreshes the ENSIT:UPDATE dialog.
 
     typemethod Refresh_SEU {dlg fields fdict} {
         # FIRST, if the selected situation changed, load the 
@@ -906,11 +906,11 @@ eventq define ensitAutoResolve {s} {
 #-------------------------------------------------------------------
 # Orders
 
-# SITUATION:ENVIRONMENTAL:CREATE
+# ENSIT:CREATE
 #
 # Creates new ensits.
 
-order define SITUATION:ENVIRONMENTAL:CREATE {
+order define ENSIT:CREATE {
     title "Create Environmental Situation"
     options \
         -schedulestates {PREP PAUSED}         \
@@ -972,11 +972,11 @@ order define SITUATION:ENVIRONMENTAL:CREATE {
 }
 
 
-# SITUATION:ENVIRONMENTAL:DELETE
+# ENSIT:DELETE
 #
 # Deletes an ensit.
 
-order define SITUATION:ENVIRONMENTAL:DELETE {
+order define ENSIT:DELETE {
     title "Delete Environmental Situation"
     options \
         -sendstates {PREP PAUSED}
@@ -999,7 +999,7 @@ order define SITUATION:ENVIRONMENTAL:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
-                        -ignoretag     SITUATION:ENVIRONMENTAL:DELETE   \
+                        -ignoretag     ENSIT:DELETE   \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {
@@ -1020,11 +1020,11 @@ order define SITUATION:ENVIRONMENTAL:DELETE {
 }
 
 
-# SITUATION:ENVIRONMENTAL:UPDATE
+# ENSIT:UPDATE
 #
 # Updates existing ensits.
 
-order define SITUATION:ENVIRONMENTAL:UPDATE {
+order define ENSIT:UPDATE {
     title "Update Environmental Situation"
     options \
         -sendstates {PREP PAUSED} \
@@ -1096,11 +1096,11 @@ order define SITUATION:ENVIRONMENTAL:UPDATE {
 }
 
 
-# SITUATION:ENVIRONMENTAL:MOVE
+# ENSIT:MOVE
 #
 # Moves an existing ensit.
 
-order define SITUATION:ENVIRONMENTAL:MOVE {
+order define ENSIT:MOVE {
     title "Move Environmental Situation"
     options \
         -sendstates {PREP PAUSED}
@@ -1169,11 +1169,11 @@ order define SITUATION:ENVIRONMENTAL:MOVE {
 }
 
 
-# SITUATION:ENVIRONMENTAL:RESOLVE
+# ENSIT:RESOLVE
 #
 # Resolves an ensit.
 
-order define SITUATION:ENVIRONMENTAL:RESOLVE {
+order define ENSIT:RESOLVE {
     title "Resolve Environmental Situation"
     options \
         -schedulestates {PREP PAUSED}                    \
@@ -1197,6 +1197,7 @@ order define SITUATION:ENVIRONMENTAL:RESOLVE {
     
     setundo [join $undo \n]
 }
+
 
 
 

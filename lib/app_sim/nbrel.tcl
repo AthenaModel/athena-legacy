@@ -215,7 +215,7 @@ snit::type nbrel {
     # fields    Names of fields that changed
     # fdict     Current field values
     #
-    # Refreshes the data in the NBHOOD:RELATIONSHIP:UPDATE dialog
+    # Refreshes the data in the NBREL:UPDATE dialog
     # when field values change.
 
     typemethod Refresh_NRU {dlg fields fdict} {
@@ -253,7 +253,7 @@ snit::type nbrel {
     # fields    Names of fields that changed
     # fdict     Current field values
     #
-    # Refreshes the data in the NBHOOD:RELATIONSHIP:UPDATE:MULTI dialog
+    # Refreshes the data in the NBREL:UPDATE:MULTI dialog
     # when field values change.
 
     typemethod Refresh_NRUM {dlg fields fdict} {
@@ -305,14 +305,14 @@ snit::type nbrel {
 
 
 #-------------------------------------------------------------------
-# Orders: NBHOOD:RELATIONSHIP:*
+# Orders: NBREL:*
 
-# NBHOOD:RELATIONSHIP:UPDATE
+# NBREL:UPDATE
 #
 # Updates existing neighborhood relationships
 
 
-order define NBHOOD:RELATIONSHIP:UPDATE {
+order define NBREL:UPDATE {
     title "Update Neighborhood Relationship"
     options \
         -sendstates PREP \
@@ -359,11 +359,11 @@ order define NBHOOD:RELATIONSHIP:UPDATE {
 }
 
 
-# NBHOOD:RELATIONSHIP:UPDATE:MULTI
+# NBREL:UPDATE:MULTI
 #
 # Updates multiple existing neighborhood relationships
 
-order define NBHOOD:RELATIONSHIP:UPDATE:MULTI {
+order define NBREL:UPDATE:MULTI {
     title "Update Multiple Neighborhood Relationships"
     options \
         -sendstates PREP                   \
@@ -426,4 +426,5 @@ order define NBHOOD:RELATIONSHIP:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 

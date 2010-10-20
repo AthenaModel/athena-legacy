@@ -71,7 +71,7 @@ snit::widgetadaptor attroeufbrowser {
             -command [mymethod AddEntity]
 
         cond::orderIsValid control $addbtn \
-            order ROE:ATTACK:UNIFORMED:CREATE
+            order ATTROE:UF:CREATE
 
         pack $addbtn   -side left
 
@@ -81,7 +81,7 @@ snit::widgetadaptor attroeufbrowser {
             -command [mymethod EditSelected]
 
         cond::orderIsValidMulti control $editbtn \
-            order   ROE:ATTACK:UNIFORMED:UPDATE  \
+            order   ATTROE:UF:UPDATE  \
             browser $win
        
         pack $editbtn   -side left
@@ -93,7 +93,7 @@ snit::widgetadaptor attroeufbrowser {
             -command [mymethod DeleteSelected]
 
         cond::orderIsValidSingle control $deletebtn \
-            order   ROE:ATTACK:DELETE               \
+            order   ATTROE:DELETE               \
             browser $win
 
         pack $deletebtn   -side right
@@ -144,7 +144,7 @@ snit::widgetadaptor attroeufbrowser {
 
     method AddEntity {} {
         # FIRST, Pop up the dialog
-        order enter ROE:ATTACK:UNIFORMED:CREATE
+        order enter ATTROE:UF:CREATE
     }
 
 
@@ -156,9 +156,9 @@ snit::widgetadaptor attroeufbrowser {
         set ids [$hull uid curselection]
 
         if {[llength $ids] == 1} {
-            order enter ROE:ATTACK:UNIFORMED:UPDATE id [lindex $ids 0]
+            order enter ATTROE:UF:UPDATE id [lindex $ids 0]
         } else {
-            order enter ROE:ATTACK:UNIFORMED:UPDATE:MULTI ids $ids
+            order enter ATTROE:UF:UPDATE:MULTI ids $ids
         }
     }
 
@@ -168,10 +168,12 @@ snit::widgetadaptor attroeufbrowser {
 
     method DeleteSelected {} {
         # FIRST, There should be only one selected.
-        order send gui ROE:ATTACK:DELETE \
+        order send gui ATTROE:DELETE \
             id [lindex [$hull uid curselection] 0]
     }
 }
+
+
 
 
 

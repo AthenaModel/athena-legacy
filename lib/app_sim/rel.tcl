@@ -268,13 +268,13 @@ snit::type rel {
 
 
 #-------------------------------------------------------------------
-# Orders: RELATIONSHIP:*
+# Orders: REL:*
 
-# RELATIONSHIP:UPDATE
+# REL:UPDATE
 #
 # Updates existing relationships
 
-order define RELATIONSHIP:UPDATE {
+order define REL:UPDATE {
     title "Update Group Relationship"
     options \
         -sendstates PREP \
@@ -309,11 +309,11 @@ order define RELATIONSHIP:UPDATE {
 }
 
 
-# RELATIONSHIP:UPDATE:MULTI
+# REL:UPDATE:MULTI
 #
 # Updates multiple existing relationships
 
-order define RELATIONSHIP:UPDATE:MULTI {
+order define REL:UPDATE:MULTI {
     title "Update Multiple Relationships"
     options \
         -sendstates PREP \
@@ -354,4 +354,5 @@ order define RELATIONSHIP:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 

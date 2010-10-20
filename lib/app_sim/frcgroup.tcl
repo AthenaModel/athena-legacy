@@ -311,13 +311,13 @@ snit::type frcgroup {
 }
 
 #-------------------------------------------------------------------
-# Orders: GROUP:FORCE:*
+# Orders: FRCGROUP:*
 
-# GROUP:FORCE:CREATE
+# FRCGROUP:CREATE
 #
 # Creates new force groups.
 
-order define GROUP:FORCE:CREATE {
+order define FRCGROUP:CREATE {
     title "Create Force Group"
     
     options -sendstates PREP
@@ -359,9 +359,9 @@ order define GROUP:FORCE:CREATE {
     setundo [join $undo \n]
 }
 
-# GROUP:FORCE:DELETE
+# FRCGROUP:DELETE
 
-order define GROUP:FORCE:DELETE {
+order define FRCGROUP:DELETE {
     title "Delete Force Group"
     options -sendstates PREP
 
@@ -380,7 +380,7 @@ order define GROUP:FORCE:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
-                        -ignoretag     GROUP:FORCE:DELETE                    \
+                        -ignoretag     FRCGROUP:DELETE                    \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {
@@ -402,11 +402,11 @@ order define GROUP:FORCE:DELETE {
 }
 
 
-# GROUP:FORCE:UPDATE
+# FRCGROUP:UPDATE
 #
 # Updates existing groups.
 
-order define GROUP:FORCE:UPDATE {
+order define FRCGROUP:UPDATE {
     title "Update Force Group"
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey g *}
@@ -449,11 +449,11 @@ order define GROUP:FORCE:UPDATE {
     setundo [join $undo \n]
 }
 
-# GROUP:FORCE:UPDATE:MULTI
+# FRCGROUP:UPDATE:MULTI
 #
 # Updates multiple groups.
 
-order define GROUP:FORCE:UPDATE:MULTI {
+order define FRCGROUP:UPDATE:MULTI {
     title "Update Multiple Force Groups"
     options \
         -sendstates PREP                                  \
@@ -496,3 +496,4 @@ order define GROUP:FORCE:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+

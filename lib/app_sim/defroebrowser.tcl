@@ -68,7 +68,7 @@ snit::widgetadaptor defroebrowser {
             -command [mymethod EditSelected]
 
         cond::orderIsValidMulti control $editbtn \
-            order   ROE:DEFEND:UPDATE          \
+            order   DEFROE:UPDATE          \
             browser $win
        
         pack $editbtn   -side left
@@ -115,12 +115,13 @@ snit::widgetadaptor defroebrowser {
         set ids [$hull uid curselection]
 
         if {[llength $ids] == 1} {
-            order enter ROE:DEFEND:UPDATE id [lindex $ids 0]
+            order enter DEFROE:UPDATE id [lindex $ids 0]
         } else {
-            order enter ROE:DEFEND:UPDATE:MULTI ids $ids
+            order enter DEFROE:UPDATE:MULTI ids $ids
         }
     }
 }
+
 
 
 

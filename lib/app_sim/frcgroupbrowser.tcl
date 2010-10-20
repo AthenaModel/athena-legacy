@@ -77,7 +77,7 @@ snit::widgetadaptor frcgroupbrowser {
             -command [mymethod AddEntity]
 
         cond::orderIsValid control $addbtn \
-            order GROUP:FORCE:CREATE
+            order FRCGROUP:CREATE
 
 
         install editbtn using mkeditbutton $bar.edit \
@@ -86,7 +86,7 @@ snit::widgetadaptor frcgroupbrowser {
             -command [mymethod EditSelected]
 
         cond::orderIsValidMulti control $editbtn \
-            order   GROUP:FORCE:UPDATE           \
+            order   FRCGROUP:UPDATE           \
             browser $win
 
 
@@ -96,7 +96,7 @@ snit::widgetadaptor frcgroupbrowser {
             -command [mymethod DeleteSelected]
 
         cond::orderIsValidSingle control $deletebtn \
-            order   GROUP:FORCE:DELETE              \
+            order   FRCGROUP:DELETE              \
             browser $win
 
        
@@ -150,7 +150,7 @@ snit::widgetadaptor frcgroupbrowser {
 
     method AddEntity {} {
         # FIRST, Pop up the dialog
-        order enter GROUP:FORCE:CREATE
+        order enter FRCGROUP:CREATE
     }
 
 
@@ -164,9 +164,9 @@ snit::widgetadaptor frcgroupbrowser {
         if {[llength $ids] == 1} {
             set id [lindex $ids 0]
 
-            order enter GROUP:FORCE:UPDATE g $id
+            order enter FRCGROUP:UPDATE g $id
         } else {
-            order enter GROUP:FORCE:UPDATE:MULTI ids $ids
+            order enter FRCGROUP:UPDATE:MULTI ids $ids
         }
     }
 
@@ -180,8 +180,9 @@ snit::widgetadaptor frcgroupbrowser {
         set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Pop up the dialog, and select this entity
-        order send gui GROUP:FORCE:DELETE g $id
+        order send gui FRCGROUP:DELETE g $id
     }
 }
+
 
 

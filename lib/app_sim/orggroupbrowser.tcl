@@ -74,7 +74,7 @@ snit::widgetadaptor orggroupbrowser {
             -command [mymethod AddEntity]
 
         cond::orderIsValid control $addbtn \
-            order GROUP:ORGANIZATION:CREATE
+            order ORGGROUP:CREATE
 
 
         install editbtn using mkeditbutton $bar.edit \
@@ -83,7 +83,7 @@ snit::widgetadaptor orggroupbrowser {
             -command [mymethod EditSelected]
 
         cond::orderIsValidMulti control $editbtn \
-            order   GROUP:ORGANIZATION:UPDATE    \
+            order   ORGGROUP:UPDATE    \
             browser $win
 
 
@@ -93,7 +93,7 @@ snit::widgetadaptor orggroupbrowser {
             -command [mymethod DeleteSelected]
         
         cond::orderIsValidSingle control $deletebtn \
-            order   GROUP:ORGANIZATION:DELETE       \
+            order   ORGGROUP:DELETE       \
             browser $win
 
 
@@ -142,7 +142,7 @@ snit::widgetadaptor orggroupbrowser {
 
     method AddEntity {} {
         # FIRST, Pop up the dialog
-        order enter GROUP:ORGANIZATION:CREATE
+        order enter ORGGROUP:CREATE
     }
 
 
@@ -156,9 +156,9 @@ snit::widgetadaptor orggroupbrowser {
         if {[llength $ids] == 1} {
             set id [lindex $ids 0]
 
-            order enter GROUP:ORGANIZATION:UPDATE g $id
+            order enter ORGGROUP:UPDATE g $id
         } else {
-            order enter GROUP:ORGANIZATION:UPDATE:MULTI ids $ids
+            order enter ORGGROUP:UPDATE:MULTI ids $ids
         }
     }
 
@@ -172,9 +172,10 @@ snit::widgetadaptor orggroupbrowser {
         set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Send the order
-        order send gui GROUP:ORGANIZATION:DELETE g $id
+        order send gui ORGGROUP:DELETE g $id
     }
 }
+
 
 
 

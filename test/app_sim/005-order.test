@@ -48,13 +48,13 @@ namespace eval ::athena_test::tests:: {
     # check
 
     test check-1.1 {invalid order returns error} -body {
-        order check GROUP:CIVILIAN:CREATE
+        order check CIVGROUP:CREATE
     } -returnCodes {
         error
     } -result {g {required value} longname {required value} n {required value} color {required value} shape {required value} demeanor {required value} basepop {required value} sap {required value}}
 
     test check-1.2 {valid order doesn't execute} -body {
-        order check GROUP:ORGANIZATION:CREATE {
+        order check ORGGROUP:CREATE {
             g        USAID 
             longname "US Aid" 
             color    "#000000" 
@@ -73,6 +73,8 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
+
 
 
 

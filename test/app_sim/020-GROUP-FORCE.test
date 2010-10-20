@@ -7,7 +7,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    app_sim(1) GROUP:FORCE:* order tests.
+#    app_sim(1) FRCGROUP:* order tests.
 #
 #    This test suite tests the frcgroup-related orders.
 #
@@ -61,10 +61,10 @@ namespace eval ::athena_test::tests:: {
     }
 
     #-------------------------------------------------------------------
-    # GROUP:FORCE:CREATE
+    # FRCGROUP:CREATE
 
     test CREATE-1.1 {required parms} -body {
-        ted order -reject GROUP:FORCE:CREATE {}
+        ted order -reject FRCGROUP:CREATE {}
     } -result {
         g {required value}
         longname {required value}
@@ -79,9 +79,9 @@ namespace eval ::athena_test::tests:: {
     
 
     test CREATE-1.2 {Duplicate g, longname} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:CREATE $blue
+        ted order -reject FRCGROUP:CREATE $blue
     } -cleanup {
         cleanup
     } -result {
@@ -91,7 +91,7 @@ namespace eval ::athena_test::tests:: {
 
 
     test CREATE-1.3 {longname duplicates n} -body {
-        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+        ted order -reject FRCGROUP:CREATE [dict merge $blue {
             longname BLUE
         }]
     } -cleanup {
@@ -102,7 +102,7 @@ namespace eval ::athena_test::tests:: {
 
 
     test CREATE-1.4 {g is not an ident} -body {
-        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+        ted order -reject FRCGROUP:CREATE [dict merge $blue {
             g "BL&E"
         }]
     } -cleanup {
@@ -113,7 +113,7 @@ namespace eval ::athena_test::tests:: {
 
 
     test CREATE-1.5 {invalid color} -body {
-        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+        ted order -reject FRCGROUP:CREATE [dict merge $blue {
             color NONESUCH
         }]
     } -cleanup {
@@ -124,7 +124,7 @@ namespace eval ::athena_test::tests:: {
 
 
     test CREATE-1.6 {invalid shape} -body {
-        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+        ted order -reject FRCGROUP:CREATE [dict merge $blue {
             shape NONESUCH
         }]
     } -cleanup {
@@ -135,7 +135,7 @@ namespace eval ::athena_test::tests:: {
 
 
     test CREATE-1.7 {invalid forcetype} -body {
-        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+        ted order -reject FRCGROUP:CREATE [dict merge $blue {
             forcetype NONESUCH
         }]
     } -result {
@@ -143,7 +143,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     test CREATE-1.8 {invalid demeanor} -body {
-        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+        ted order -reject FRCGROUP:CREATE [dict merge $blue {
             demeanor NONESUCH
         }]
     } -result {
@@ -151,7 +151,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     test CREATE-1.9 {invalid uniformed} -body {
-        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+        ted order -reject FRCGROUP:CREATE [dict merge $blue {
             uniformed NONESUCH
         }]
     } -result {
@@ -159,7 +159,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     test CREATE-1.10 {invalid local} -body {
-        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+        ted order -reject FRCGROUP:CREATE [dict merge $blue {
             local NONESUCH
         }]
     } -result {
@@ -167,7 +167,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     test CREATE-1.11 {invalid coalition} -body {
-        ted order -reject GROUP:FORCE:CREATE [dict merge $blue {
+        ted order -reject FRCGROUP:CREATE [dict merge $blue {
             coalition NONESUCH
         }]
     } -result {
@@ -176,7 +176,7 @@ namespace eval ::athena_test::tests:: {
 
 
     test CREATE-2.1 {frcgroup is created} -body {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
 
         ted query {SELECT * FROM frcgroups_view}
     } -cleanup {
@@ -191,7 +191,7 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
     test CREATE-2.2 {Effects} -body {
         ted notifier bind ::frcgroup <Entity>
         ted notifier bind ::scenario <Reconcile>
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
         ted notifier received
     } -cleanup {
         cleanup
@@ -202,7 +202,7 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
 
 
     test CREATE-3.1 {undo effects} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
         ted notifier bind ::frcgroup <Entity>
         cif undo -test
@@ -215,28 +215,28 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
 
 
     #-------------------------------------------------------------------
-    # GROUP:FORCE:DELETE
+    # FRCGROUP:DELETE
 
     test DELETE-1.1 {required parms} -body {
-        ted order -reject GROUP:FORCE:DELETE {}
+        ted order -reject FRCGROUP:DELETE {}
     } -result {
         g {required value}
     }
 
     
     test DELETE-1.2 {unknown g} -body {
-        ted order -reject GROUP:FORCE:DELETE g NONESUCH
+        ted order -reject FRCGROUP:DELETE g NONESUCH
     } -result {
         g {Invalid force group, none are defined}
     }
 
 
     test DELETE-2.1 {Effects} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
         ted notifier bind ::frcgroup <Entity>
         ted notifier bind ::scenario <Reconcile>
-        ted order GROUP:FORCE:DELETE g BLUE
+        ted order FRCGROUP:DELETE g BLUE
         ted notifier received
     } -cleanup {
         cleanup
@@ -247,8 +247,8 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
 
 
     test DELETE-3.1 {Undo effects} -setup {
-        ted order GROUP:FORCE:CREATE $blue
-        ted order GROUP:FORCE:DELETE g BLUE
+        ted order FRCGROUP:CREATE $blue
+        ted order FRCGROUP:DELETE g BLUE
     } -body {
         ted notifier bind ::frcgroup <Entity>
         cif undo -test
@@ -261,20 +261,20 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
 
 
     #-------------------------------------------------------------------
-    # GROUP:FORCE:UPDATE
+    # FRCGROUP:UPDATE
 
     test UPDATE-1.1 {required parms} -body {
-        ted order -reject GROUP:FORCE:UPDATE {}
+        ted order -reject FRCGROUP:UPDATE {}
     } -result {
         g {required value}
     }
     
 
     test UPDATE-1.2 {Duplicate longname} -setup {
-        ted order GROUP:FORCE:CREATE $blue
-        ted order GROUP:FORCE:CREATE $brit
+        ted order FRCGROUP:CREATE $blue
+        ted order FRCGROUP:CREATE $brit
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE g BLUE longname "British Forces"
+        ted order -reject FRCGROUP:UPDATE g BLUE longname "British Forces"
     } -cleanup {
         cleanup
     } -result {
@@ -283,10 +283,10 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
 
 
     test UPDATE-1.3 {longname duplicates some g} -setup {
-        ted order GROUP:FORCE:CREATE $blue
-        ted order GROUP:FORCE:CREATE $brit
+        ted order FRCGROUP:CREATE $blue
+        ted order FRCGROUP:CREATE $brit
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE g BLUE longname BRIT
+        ted order -reject FRCGROUP:UPDATE g BLUE longname BRIT
     } -cleanup {
         cleanup
     } -result {
@@ -295,9 +295,9 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
 
 
     test UPDATE-1.4 {invalid color} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE g BLUE color NONESUCH
+        ted order -reject FRCGROUP:UPDATE g BLUE color NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -306,9 +306,9 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
 
 
     test UPDATE-1.5 {invalid shape} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE g BLUE shape NONESUCH
+        ted order -reject FRCGROUP:UPDATE g BLUE shape NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -317,9 +317,9 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
 
 
     test UPDATE-1.6 {invalid forcetype} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE g BLUE forcetype NONESUCH
+        ted order -reject FRCGROUP:UPDATE g BLUE forcetype NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -328,9 +328,9 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
 
 
     test UPDATE-1.7 {invalid demeanor} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE g BLUE demeanor NONESUCH
+        ted order -reject FRCGROUP:UPDATE g BLUE demeanor NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -339,9 +339,9 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
 
 
     test UPDATE-1.8 {invalid uniformed} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE g BLUE uniformed NONESUCH
+        ted order -reject FRCGROUP:UPDATE g BLUE uniformed NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -350,9 +350,9 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
 
 
     test UPDATE-1.9 {invalid local} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE g BLUE local NONESUCH
+        ted order -reject FRCGROUP:UPDATE g BLUE local NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -361,9 +361,9 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
 
 
     test UPDATE-1.10 {invalid coalition} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE g BLUE coalition NONESUCH
+        ted order -reject FRCGROUP:UPDATE g BLUE coalition NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -372,9 +372,9 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
 
 
     test UPDATE-2.1 {frcgroup is updated} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order GROUP:FORCE:UPDATE {
+        ted order FRCGROUP:UPDATE {
             g            BLUE
             longname     "Blue Angels"
             color        "#ff0000"
@@ -397,10 +397,10 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
 
 
     test UPDATE-2.2 {<Entity> update} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
         ted notifier bind ::frcgroup <Entity>
-        ted order GROUP:FORCE:UPDATE g BLUE longname "Blue Angels"
+        ted order FRCGROUP:UPDATE g BLUE longname "Blue Angels"
         ted notifier received
     } -cleanup {
         cleanup
@@ -410,8 +410,8 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
 
 
     test UPDATE-3.1 {undo undoes the change} -setup {
-        ted order GROUP:FORCE:CREATE $blue
-        ted order GROUP:FORCE:UPDATE {
+        ted order FRCGROUP:CREATE $blue
+        ted order FRCGROUP:UPDATE {
             g            BLUE
             longname     "Blue Angels"
             color        "#ff0000"
@@ -432,26 +432,26 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
     }
 
     #-------------------------------------------------------------------
-    # GROUP:FORCE:UPDATE:MULTI
+    # FRCGROUP:UPDATE:MULTI
 
     test UPDATE:MULTI-1.1 {required parms} -body {
-        ted order -reject GROUP:FORCE:UPDATE:MULTI {}
+        ted order -reject FRCGROUP:UPDATE:MULTI {}
     } -result {
         ids {required value}
     }
     
 
     test UPDATE:MULTI-1.2 {invalid ids, no groups} -body {
-        ted order -reject GROUP:FORCE:UPDATE:MULTI ids NONESUCH
+        ted order -reject FRCGROUP:UPDATE:MULTI ids NONESUCH
     } -result {
         ids {Invalid force group, none are defined}
     }
 
 
     test UPDATE:MULTI-1.3 {invalid ids, groups} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE:MULTI ids NONESUCH
+        ted order -reject FRCGROUP:UPDATE:MULTI ids NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -460,9 +460,9 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
 
 
     test UPDATE:MULTI-1.4 {invalid color} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE color NONESUCH
+        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE color NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -471,9 +471,9 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
 
 
     test UPDATE:MULTI-1.5 {invalid shape} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE shape NONESUCH
+        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE shape NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -482,9 +482,9 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
 
 
     test UPDATE:MULTI-1.6 {invalid forcetype} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE forcetype NONESUCH
+        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE forcetype NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -493,9 +493,9 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
 
 
     test UPDATE:MULTI-1.7 {invalid demeanor} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE demeanor NONESUCH
+        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE demeanor NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -504,9 +504,9 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
 
 
     test UPDATE:MULTI-1.8 {invalid uniformed} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE uniformed NONESUCH
+        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE uniformed NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -515,9 +515,9 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
 
 
     test UPDATE:MULTI-1.9 {invalid local} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE local NONESUCH
+        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE local NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -526,9 +526,9 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
 
 
     test UPDATE:MULTI-1.10 {invalid coalition} -setup {
-        ted order GROUP:FORCE:CREATE $blue
+        ted order FRCGROUP:CREATE $blue
     } -body {
-        ted order -reject GROUP:FORCE:UPDATE:MULTI ids BLUE coalition NONESUCH
+        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE coalition NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -537,12 +537,12 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
 
 
     test UPDATE:MULTI-2.1 {one group of several is updated} -setup {
-        ted order GROUP:FORCE:CREATE $blue
-        ted order GROUP:FORCE:CREATE $brit
+        ted order FRCGROUP:CREATE $blue
+        ted order FRCGROUP:CREATE $brit
     } -body {
         ted notifier bind ::frcgroup <Entity>
 
-        ted order GROUP:FORCE:UPDATE:MULTI {
+        ted order FRCGROUP:UPDATE:MULTI {
             ids       BLUE 
             color     "#ff0000"
             shape     NEUTRAL
@@ -562,12 +562,12 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
 
 
     test UPDATE:MULTI-2.2 {several groups are updated} -setup {
-        ted order GROUP:FORCE:CREATE $blue
-        ted order GROUP:FORCE:CREATE $brit
+        ted order FRCGROUP:CREATE $blue
+        ted order FRCGROUP:CREATE $brit
     } -body {
         ted notifier bind ::frcgroup <Entity>
 
-        ted order GROUP:FORCE:UPDATE:MULTI {
+        ted order FRCGROUP:UPDATE:MULTI {
             ids       {BLUE BRIT}
             color     "#ff0000"
             shape     NEUTRAL
@@ -589,9 +589,9 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
 
 
     test UPDATE:MULTI-3.1 {undo effects} -setup {
-        ted order GROUP:FORCE:CREATE $blue
-        ted order GROUP:FORCE:CREATE $brit
-        ted order GROUP:FORCE:UPDATE:MULTI {
+        ted order FRCGROUP:CREATE $blue
+        ted order FRCGROUP:CREATE $brit
+        ted order FRCGROUP:UPDATE:MULTI {
             ids       {BLUE BRIT}
             color     "#ff0000"
         }
@@ -613,6 +613,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

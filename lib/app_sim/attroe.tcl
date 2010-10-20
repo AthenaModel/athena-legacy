@@ -349,13 +349,13 @@ snit::type ::attroe {
 
 
 #-------------------------------------------------------------------
-# Orders: ROE:ATTACK:*
+# Orders: ATTROE:*
 
-# ROE:ATTACK:UNIFORMED:CREATE
+# ATTROE:UF:CREATE
 #
 # Creates new attacking ROEs for UF vs NF.
 
-order define ROE:ATTACK:UNIFORMED:CREATE {
+order define ATTROE:UF:CREATE {
     title "Create Attacking ROE (Uniformed)"
 
     options \
@@ -386,11 +386,11 @@ order define ROE:ATTACK:UNIFORMED:CREATE {
     return
 }
 
-# ROE:ATTACK:NONUNIFORMED:CREATE
+# ATTROE:NF:CREATE
 #
 # Creates new attacking ROEs for NF vs UF
 
-order define ROE:ATTACK:NONUNIFORMED:CREATE {
+order define ATTROE:NF:CREATE {
     title "Create Attacking ROE (Non-Uniformed)"
 
     options \
@@ -424,9 +424,9 @@ order define ROE:ATTACK:NONUNIFORMED:CREATE {
 }
 
 
-# ROE:ATTACK:DELETE
+# ATTROE:DELETE
 
-order define ROE:ATTACK:DELETE {
+order define ATTROE:DELETE {
     title "Delete Attacking ROE"
     options \
         -sendstates {PREP PAUSED}
@@ -448,7 +448,7 @@ order define ROE:ATTACK:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
-                        -ignoretag     ROE:ATTACK:DELETE                \
+                        -ignoretag     ATTROE:DELETE                \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {
@@ -470,11 +470,11 @@ order define ROE:ATTACK:DELETE {
 }
 
 
-# ROE:ATTACK:UNIFORMED:UPDATE
+# ATTROE:UF:UPDATE
 #
 # Updates existing ROEs for UF vs NF
 
-order define ROE:ATTACK:UNIFORMED:UPDATE {
+order define ATTROE:UF:UPDATE {
     title "Update Attacking ROE (Uniformed)"
     options \
         -schedulestates {PREP PAUSED}                    \
@@ -504,11 +504,11 @@ order define ROE:ATTACK:UNIFORMED:UPDATE {
 }
 
 
-# ROE:ATTACK:NONUNIFORMED:UPDATE
+# ATTROE:NF:UPDATE
 #
 # Updates existing ROEs for NF vs UF
 
-order define ROE:ATTACK:NONUNIFORMED:UPDATE {
+order define ATTROE:NF:UPDATE {
     title "Update Attacking ROE (Non-Uniformed)"
     options \
         -schedulestates {PREP PAUSED}                    \
@@ -540,11 +540,11 @@ order define ROE:ATTACK:NONUNIFORMED:UPDATE {
 }
 
 
-# ROE:ATTACK:UNIFORMED:UPDATE:MULTI
+# ATTROE:UF:UPDATE:MULTI
 #
 # Updates multiple ROEs (UF vs NF)
 
-order define ROE:ATTACK:UNIFORMED:UPDATE:MULTI {
+order define ATTROE:UF:UPDATE:MULTI {
     title "Update Multiple Attacking ROEs (Uniformed)"
     options \
         -schedulestates {PREP PAUSED}    \
@@ -577,11 +577,11 @@ order define ROE:ATTACK:UNIFORMED:UPDATE:MULTI {
 }
 
 
-# ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI
+# ATTROE:NF:UPDATE:MULTI
 #
 # Updates multiple ROEs (NF vs UF)
 
-order define ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI {
+order define ATTROE:NF:UPDATE:MULTI {
     title "Update Multiple Attacking ROEs (Non-Uniformed)"
     options \
         -schedulestates {PREP PAUSED}    \
@@ -612,4 +612,7 @@ order define ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI {
 
     return
 }
+
+
+
 

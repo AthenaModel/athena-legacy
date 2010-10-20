@@ -79,7 +79,7 @@ snit::widgetadaptor civgroupbrowser {
             -command [mymethod AddEntity]
 
         cond::orderIsValid control $addbtn \
-            order GROUP:CIVILIAN:CREATE
+            order CIVGROUP:CREATE
 
 
         install editbtn using mkeditbutton $bar.edit "Edit Selected Group" \
@@ -87,7 +87,7 @@ snit::widgetadaptor civgroupbrowser {
             -command [mymethod EditSelected]
 
         cond::orderIsValidMulti control $editbtn   \
-            order   GROUP:CIVILIAN:UPDATE:POSTPREP \
+            order   CIVGROUP:UPDATE:POSTPREP \
             browser $win
 
 
@@ -97,7 +97,7 @@ snit::widgetadaptor civgroupbrowser {
             -command [mymethod DeleteSelected]
 
         cond::orderIsValidSingle control $deletebtn \
-            order   GROUP:CIVILIAN:DELETE           \
+            order   CIVGROUP:DELETE           \
             browser $win
 
         pack $addbtn    -side left
@@ -150,7 +150,7 @@ snit::widgetadaptor civgroupbrowser {
 
     method AddEntity {} {
         # FIRST, Pop up the dialog
-        order enter GROUP:CIVILIAN:CREATE
+        order enter CIVGROUP:CREATE
     }
 
 
@@ -165,15 +165,15 @@ snit::widgetadaptor civgroupbrowser {
             set id [lindex $ids 0]
 
             if {[order state] eq "PREP"} {
-                order enter GROUP:CIVILIAN:UPDATE g $id
+                order enter CIVGROUP:UPDATE g $id
             } else {
-                order enter GROUP:CIVILIAN:UPDATE:POSTPREP g $id
+                order enter CIVGROUP:UPDATE:POSTPREP g $id
             }
         } else {
             if {[order state] eq "PREP"} {
-                order enter GROUP:CIVILIAN:UPDATE:MULTI ids $ids
+                order enter CIVGROUP:UPDATE:MULTI ids $ids
             } else {
-                order enter GROUP:CIVILIAN:UPDATE:MULTI:POSTPREP ids $ids
+                order enter CIVGROUP:UPDATE:MULTI:POSTPREP ids $ids
             }
         }
     }
@@ -187,8 +187,9 @@ snit::widgetadaptor civgroupbrowser {
         set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Pop up the dialog, and select this entity
-        order send gui GROUP:CIVILIAN:DELETE g $id
+        order send gui CIVGROUP:DELETE g $id
     }
 }
+
 
 
