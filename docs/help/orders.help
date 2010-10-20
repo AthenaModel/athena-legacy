@@ -653,7 +653,7 @@ order ECON:UPDATE+MULTI "Update Economic Inputs for Multiple Neighborhoods" {
 #=======================================================================
 # Environmental Situation Orders
 
-page SITUATION:ENVIRONMENTAL: "Environmental Situation Orders" orders {
+page ENSIT: "Environmental Situation Orders" orders {
     <<title>>
 
     Athena models a variety of on-going conditions within
@@ -727,7 +727,7 @@ macro ENSIT.rduration {} {
 
 #-----------------------------------------------------------------------
 
-order SITUATION:ENVIRONMENTAL:CREATE "Create Environmental Situation" {
+order ENSIT:CREATE "Create Environmental Situation" {
     <<parmlist>>
     <<parm location "Location">>
     <b>Required.</b>  <<ENSIT.location>>
@@ -764,14 +764,14 @@ order SITUATION:ENVIRONMENTAL:CREATE "Create Environmental Situation" {
     <</parmlist>>
 
     This order creates a new environmental situation.  Note that the
-    <<cref SITUATION:ENVIRONMENTAL:UPDATE>> order can be used to
+    <<cref ENSIT:UPDATE>> order can be used to
     edit any of these values so long as the situation has not yet
     become active, i.e., up until the next time advance.<p>
 }
 
 #-----------------------------------------------------------------------
 
-order SITUATION:ENVIRONMENTAL:DELETE "Delete Environmental Situation" {
+order ENSIT:DELETE "Delete Environmental Situation" {
     <<parmlist>>
 
     <<parm s "Situation">>
@@ -784,7 +784,7 @@ order SITUATION:ENVIRONMENTAL:DELETE "Delete Environmental Situation" {
 
 #-----------------------------------------------------------------------
 
-order SITUATION:ENVIRONMENTAL:UPDATE "Update Environmental Situation" {
+order ENSIT:UPDATE "Update Environmental Situation" {
     <<parmlist>>
 
     <<parm s "Situation">>
@@ -832,7 +832,7 @@ order SITUATION:ENVIRONMENTAL:UPDATE "Update Environmental Situation" {
 
 #-----------------------------------------------------------------------
 
-order SITUATION:ENVIRONMENTAL:MOVE "Move Environmental Situation" {
+order ENSIT:MOVE "Move Environmental Situation" {
     <<parmlist>>
 
     <<parm s "Situation">>
@@ -852,7 +852,7 @@ order SITUATION:ENVIRONMENTAL:MOVE "Move Environmental Situation" {
 }
 
 
-order SITUATION:ENVIRONMENTAL:RESOLVE "Resolve Environmental Situation" {
+order ENSIT:RESOLVE "Resolve Environmental Situation" {
     <<parmlist>>
 
     <<parm s "Situation">>
@@ -865,7 +865,7 @@ order SITUATION:ENVIRONMENTAL:RESOLVE "Resolve Environmental Situation" {
     population will consider responsible for resolving this situation,
     or <b>NONE</b> if none.  If specified, overrides the group name
     given when the situation was 
-    <<cref SITUATION:ENVIRONMENTAL:CREATE created>>.
+    <<cref ENSIT:CREATE created>>.
     <</parm>>
 
     <</parmlist>>
@@ -878,20 +878,6 @@ order SITUATION:ENVIRONMENTAL:RESOLVE "Resolve Environmental Situation" {
 
 #=======================================================================
 # Group Orders
-
-page GROUP: "Group Orders" orders {
-    <<title>>
-
-    Athena models collections of people as <i>groups</i>.  There are
-    three kinds of groups: <i>force groups</i>, which exist to apply
-    and use force; <i>organization groups</i>, such as the Red Cross,
-    USAID, and Haliburton; and <i>civilian groups</i>, such as
-    Pashtuns and Punjabis.<p> 
-
-    Each kind of group has its own set of orders:<p>
-
-    <<childlinks>>
-}
 
 macro GROUP.g {flavor} {
     |<--
@@ -957,7 +943,7 @@ macro GROUP.sap {} {
 #=======================================================================
 # Civilian Group Orders
 
-page GROUP:CIVILIAN: "Civilian Group Orders" GROUP: {
+page CIVGROUP: "Civilian Group Orders" orders {
     <<title>>
 
     Athena uses civilian groups to model identifiable collections of
@@ -969,7 +955,7 @@ page GROUP:CIVILIAN: "Civilian Group Orders" GROUP: {
 
 #-----------------------------------------------------------------------
 
-order GROUP:CIVILIAN:CREATE "Create Civilian Group" {
+order CIVGROUP:CREATE "Create Civilian Group" {
     <<parmlist>>
     <<parm g "Group">>
     <b>Required.</b>  <<parm.identifier group PASH>>
@@ -1012,7 +998,7 @@ order GROUP:CIVILIAN:CREATE "Create Civilian Group" {
 
 #-----------------------------------------------------------------------
 
-order GROUP:CIVILIAN:DELETE "Delete Civilian Group" {
+order CIVGROUP:DELETE "Delete Civilian Group" {
     <<parmlist>>
 
     <<parm g "Group">>
@@ -1027,7 +1013,7 @@ order GROUP:CIVILIAN:DELETE "Delete Civilian Group" {
 
 #-----------------------------------------------------------------------
 
-order GROUP:CIVILIAN:UPDATE "Update Civilian Group" {
+order CIVGROUP:UPDATE "Update Civilian Group" {
     <<parmlist>>
     <<parm g "Group">>
     <b>Required.</b>  <<GROUP.g civilian>>
@@ -1070,7 +1056,7 @@ order GROUP:CIVILIAN:UPDATE "Update Civilian Group" {
 
 #-----------------------------------------------------------------------
 
-order GROUP:CIVILIAN:UPDATE+MULTI "Update Multiple Civilian Groups" {
+order CIVGROUP:UPDATE+MULTI "Update Multiple Civilian Groups" {
     <<parmlist>>
     <<parm ids "Groups">>
     <b>Required.</b>  <<parm.ids "civilian group">>
@@ -1108,7 +1094,7 @@ order GROUP:CIVILIAN:UPDATE+MULTI "Update Multiple Civilian Groups" {
 
 #-----------------------------------------------------------------------
 
-order GROUP:CIVILIAN:UPDATE+POSTPREP "Update Civilian Group (Post-PREP)" {
+order CIVGROUP:UPDATE+POSTPREP "Update Civilian Group (Post-PREP)" {
     <<parmlist>>
     <<parm g "Group">>
     <b>Required.</b> <<GROUP.g civilian>>
@@ -1126,7 +1112,7 @@ order GROUP:CIVILIAN:UPDATE+POSTPREP "Update Civilian Group (Post-PREP)" {
 
 #-----------------------------------------------------------------------
 
-order GROUP:CIVILIAN:UPDATE+POSTPREP+MULTI "Update Multiple Civilian Groups (Post-PREP)" {
+order CIVGROUP:UPDATE+POSTPREP+MULTI "Update Multiple Civilian Groups (Post-PREP)" {
     <<parmlist>>
 
     <<parm ids "Groups">>
@@ -1149,7 +1135,7 @@ order GROUP:CIVILIAN:UPDATE+POSTPREP+MULTI "Update Multiple Civilian Groups (Pos
 #=======================================================================
 # Force Group Orders
 
-page GROUP:FORCE: "Force Group Orders" GROUP: {
+page FRCGROUP: "Force Group Orders" orders {
     <<title>>
 
     Athena uses force groups to model groups and organizations that 
@@ -1163,7 +1149,7 @@ page GROUP:FORCE: "Force Group Orders" GROUP: {
     used to schedule various activities by the group's personnel.
 }
 
-macro GROUP:FORCE.forcetype {} {
+macro FRCGROUP.forcetype {} {
     |<--
     The force type: regular military, paramilitary (e.g., national
     police), police, irregular military (e.g., militias), or
@@ -1172,7 +1158,7 @@ macro GROUP:FORCE.forcetype {} {
     [enumdoc ::projectlib::eforcetype]
 }
 
-macro GROUP:FORCE.uniformed {} {
+macro FRCGROUP.uniformed {} {
     |<--
     Boolean flag (e.g., "Yes" or "No").  Indicates whether or not the
     group's personnel wear recognizeable uniforms.  This affects the
@@ -1180,14 +1166,14 @@ macro GROUP:FORCE.uniformed {} {
 }
 
 
-macro GROUP:FORCE.local {} {
+macro FRCGROUP.local {} {
     |<--
     Boolean flag (e.g., "Yes" or "No").  Indicates whether or not the
     group is perceived as being local to the playbox.
 }
 
 
-macro GROUP:FORCE.coalition {} {
+macro FRCGROUP.coalition {} {
     |<--
     Boolean flag (e.g., "Yes" or "No").  Indicates whether or not the
     group is perceived as belonging to the U.S.-led coalition.<p>
@@ -1198,7 +1184,7 @@ macro GROUP:FORCE.coalition {} {
 
 #-----------------------------------------------------------------------
 
-order GROUP:FORCE:CREATE "Create Force Group" {
+order FRCGROUP:CREATE "Create Force Group" {
     <<parmlist>>
     <<parm g "Group">>
     <b>Required.</b>  <<parm.identifier group BLUE>>
@@ -1217,7 +1203,7 @@ order GROUP:FORCE:CREATE "Create Force Group" {
     <</parm>>
 
     <<parm forcetype "Force Type">>
-    <b>Required.</b> <<GROUP:FORCE.forcetype>>
+    <b>Required.</b> <<FRCGROUP.forcetype>>
     <</parm>>
 
     <<parm demeanor "Demeanor">>
@@ -1225,15 +1211,15 @@ order GROUP:FORCE:CREATE "Create Force Group" {
     <</parm>>
 
     <<parm uniformed "Uniformed?">>
-    <b>Required.</b>  <<GROUP:FORCE.uniformed>>
+    <b>Required.</b>  <<FRCGROUP.uniformed>>
     <</parm>>
 
     <<parm local "Local Group?">>
-    <b>Required.</b>  <<GROUP:FORCE.local>>
+    <b>Required.</b>  <<FRCGROUP.local>>
     <</parm>>
 
     <<parm coalition "Coalition Member?">>
-    <b>Required.</b>  <<GROUP:FORCE.coalition>>
+    <b>Required.</b>  <<FRCGROUP.coalition>>
     <</parm>>
 
 
@@ -1246,7 +1232,7 @@ order GROUP:FORCE:CREATE "Create Force Group" {
 
 #-----------------------------------------------------------------------
 
-order GROUP:FORCE:DELETE "Delete Force Group" {
+order FRCGROUP:DELETE "Delete Force Group" {
     <<parmlist>>
 
     <<parm g "Group">>
@@ -1261,7 +1247,7 @@ order GROUP:FORCE:DELETE "Delete Force Group" {
 
 #-----------------------------------------------------------------------
 
-order GROUP:FORCE:UPDATE "Update Force Group" {
+order FRCGROUP:UPDATE "Update Force Group" {
     <<parmlist>>
     <<parm g "Group">>
     <b>Required.</b>  <<GROUP.g force>>
@@ -1280,7 +1266,7 @@ order GROUP:FORCE:UPDATE "Update Force Group" {
     <</parm>>
 
     <<parm forcetype "Force Type">>
-    <b>Optional.</b> <<GROUP:FORCE.forcetype>>
+    <b>Optional.</b> <<FRCGROUP.forcetype>>
     <</parm>>
 
     <<parm demeanor "Demeanor">>
@@ -1288,15 +1274,15 @@ order GROUP:FORCE:UPDATE "Update Force Group" {
     <</parm>>
 
     <<parm uniformed "Uniformed?">>
-    <b>Optional.</b>  <<GROUP:FORCE.uniformed>>
+    <b>Optional.</b>  <<FRCGROUP.uniformed>>
     <</parm>>
 
     <<parm local "Local Group?">>
-    <b>Optional.</b>  <<GROUP:FORCE.local>>
+    <b>Optional.</b>  <<FRCGROUP.local>>
     <</parm>>
 
     <<parm coalition "Coalition Member?">>
-    <b>Optional.</b>  <<GROUP:FORCE.coalition>>
+    <b>Optional.</b>  <<FRCGROUP.coalition>>
     <</parm>>
     <</parmlist>>
 
@@ -1307,7 +1293,7 @@ order GROUP:FORCE:UPDATE "Update Force Group" {
 
 #-----------------------------------------------------------------------
 
-order GROUP:FORCE:UPDATE+MULTI "Update Multiple Force Groups" {
+order FRCGROUP:UPDATE+MULTI "Update Multiple Force Groups" {
     <<parmlist>>
     <<parm ids "Groups">>
     <b>Required.</b>  <<parm.ids "force group">>
@@ -1322,7 +1308,7 @@ order GROUP:FORCE:UPDATE+MULTI "Update Multiple Force Groups" {
     <</parm>>
 
     <<parm forcetype "Force Type">>
-    <b>Optional.</b> <<GROUP:FORCE.forcetype>>
+    <b>Optional.</b> <<FRCGROUP.forcetype>>
     <</parm>>
 
     <<parm demeanor "Demeanor">>
@@ -1330,15 +1316,15 @@ order GROUP:FORCE:UPDATE+MULTI "Update Multiple Force Groups" {
     <</parm>>
 
     <<parm uniformed "Uniformed?">>
-    <b>Optional.</b>  <<GROUP:FORCE.uniformed>>
+    <b>Optional.</b>  <<FRCGROUP.uniformed>>
     <</parm>>
 
     <<parm local "Local Group?">>
-    <b>Optional.</b>  <<GROUP:FORCE.local>>
+    <b>Optional.</b>  <<FRCGROUP.local>>
     <</parm>>
 
     <<parm coalition "Coalition Member?">>
-    <b>Optional.</b>  <<GROUP:FORCE.coalition>>
+    <b>Optional.</b>  <<FRCGROUP.coalition>>
     <</parm>>
     <</parmlist>>
 
@@ -1350,7 +1336,7 @@ order GROUP:FORCE:UPDATE+MULTI "Update Multiple Force Groups" {
 #=======================================================================
 # Organization Group Orders
 
-page GROUP:ORGANIZATION: "Organization Group Orders" GROUP: {
+page ORGGROUP: "Organization Group Orders" orders {
     <<title>>
     Athena uses organization groups to model organizations that are
     active in the playbox and have a significant affect on civilian
@@ -1365,7 +1351,7 @@ page GROUP:ORGANIZATION: "Organization Group Orders" GROUP: {
     used to schedule various activities by the group's personnel.
 }
 
-macro GROUP:ORGANIZATION.orgtype {} {
+macro ORGGROUP.orgtype {} {
     |<--
     The organization type.
 
@@ -1375,7 +1361,7 @@ macro GROUP:ORGANIZATION.orgtype {} {
 
 #-----------------------------------------------------------------------
 
-order GROUP:ORGANIZATION:CREATE "Create Organization Group" {
+order ORGGROUP:CREATE "Create Organization Group" {
     <<parmlist>>
     <<parm g "Group">>
     <b>Required.</b>  <<parm.identifier group RC>>
@@ -1394,7 +1380,7 @@ order GROUP:ORGANIZATION:CREATE "Create Organization Group" {
     <</parm>>
 
     <<parm orgtype "Organization Type">>
-    <b>Required.</b> <<GROUP:ORGANIZATION.orgtype>>
+    <b>Required.</b> <<ORGGROUP.orgtype>>
     <</parm>>
 
     <<parm demeanor "Demeanor">>
@@ -1410,7 +1396,7 @@ order GROUP:ORGANIZATION:CREATE "Create Organization Group" {
 
 #-----------------------------------------------------------------------
 
-order GROUP:ORGANIZATION:DELETE "Delete Organization Group" {
+order ORGGROUP:DELETE "Delete Organization Group" {
     <<parmlist>>
 
     <<parm g "Group">>
@@ -1425,7 +1411,7 @@ order GROUP:ORGANIZATION:DELETE "Delete Organization Group" {
 
 #-----------------------------------------------------------------------
 
-order GROUP:ORGANIZATION:UPDATE "Update Organization Group" {
+order ORGGROUP:UPDATE "Update Organization Group" {
     <<parmlist>>
     <<parm g "Group">>
     <b>Required.</b>  <<GROUP.g organization>>
@@ -1444,7 +1430,7 @@ order GROUP:ORGANIZATION:UPDATE "Update Organization Group" {
     <</parm>>
 
     <<parm orgtype "Organization Type">>
-    <b>Optional.</b> <<GROUP:ORGANIZATION.orgtype>>
+    <b>Optional.</b> <<ORGGROUP.orgtype>>
     <</parm>>
 
     <<parm demeanor "Demeanor">>
@@ -1459,7 +1445,7 @@ order GROUP:ORGANIZATION:UPDATE "Update Organization Group" {
 
 #-----------------------------------------------------------------------
 
-order GROUP:ORGANIZATION:UPDATE+MULTI "Update Multiple Organization Groups" {
+order ORGGROUP:UPDATE+MULTI "Update Multiple Organization Groups" {
     <<parmlist>>
     <<parm ids "Groups">>
     <b>Required.</b>  <<parm.ids "organization group">>
@@ -1474,7 +1460,7 @@ order GROUP:ORGANIZATION:UPDATE+MULTI "Update Multiple Organization Groups" {
     <</parm>>
 
     <<parm orgtype "Organization Type">>
-    <b>Optional.</b> <<GROUP:ORGANIZATION.orgtype>>
+    <b>Optional.</b> <<ORGGROUP.orgtype>>
     <</parm>>
 
     <<parm demeanor "Demeanor">>
@@ -1500,7 +1486,7 @@ page MAD: "Magic Attitude Driver Orders" orders {
     (MADs).  Once a MAD is created, the analyst may associate with it a
     variety of attitude adjustments and inputs; and the effects of
     these inputs will be associated with the MAD in the 
-    <<cref REPORT:SATISFACTION:CONTRIB>>.<p>
+    <<cref REPORT:SAT:CONTRIB>>.<p>
 
     The following orders are used to create and manipulate MADs:<p>
 
@@ -2276,7 +2262,7 @@ order NBHOOD:UPDATE+MULTI "Update Multiple Neighborhoods" {
 #=======================================================================
 # Neighborhood Orders
 
-page NBHOOD:RELATIONSHIP: "Neighborhood Relationship Orders" orders {
+page NBREL: "Neighborhood Relationship Orders" orders {
     <<title>>
 
     The Athena playbox, or region of interest, is divided into 
@@ -2294,7 +2280,7 @@ page NBHOOD:RELATIONSHIP: "Neighborhood Relationship Orders" orders {
 
 #-------------------------------------------------------------------
 
-order NBHOOD:RELATIONSHIP:UPDATE "Update Neighborhood Relationship" {
+order NBREL:UPDATE "Update Neighborhood Relationship" {
     <<parmlist>>
     <<parm m "Neighborhood">> 
     <b>Required.</b>  A neighborhood relationship ID, specified as
@@ -2335,14 +2321,14 @@ order NBHOOD:RELATIONSHIP:UPDATE "Update Neighborhood Relationship" {
 
 #-------------------------------------------------------------------
 
-order NBHOOD:RELATIONSHIP:UPDATE+MULTI "Update Multiple Neighborhood Relationships" {
+order NBREL:UPDATE+MULTI "Update Multiple Neighborhood Relationships" {
     <<parmlist>>
     <<parm ids "IDs">>
     <b>Required.</b>  <<parm.ids "neighborhood relationship">>.<p>
 
      Programmatically, each ID is a list {<i>m n</i>} where <i>m</i>
     and <i>n</i> are defined as for the 
-    <<cref NBHOOD:RELATIONSHIP:UPDATE>> order.
+    <<cref NBREL:UPDATE>> order.
     <</parm>>
 
     <<parm proximity "Proximity">>  
@@ -2378,7 +2364,7 @@ order NBHOOD:RELATIONSHIP:UPDATE+MULTI "Update Multiple Neighborhood Relationshi
 #=======================================================================
 # Group Relationship Orders
 
-page RELATIONSHIP: "Group Relationship Orders" orders {
+page REL: "Group Relationship Orders" orders {
     <<title>>
 
     Groups can be friends, enemies, or neutrals, as determined by
@@ -2399,7 +2385,7 @@ page RELATIONSHIP: "Group Relationship Orders" orders {
 
 #-----------------------------------------------------------------------
 
-order RELATIONSHIP:UPDATE "Update Group Relationship" {
+order REL:UPDATE "Update Group Relationship" {
     <<parmlist>>
     <<parm id "Groups">>
     <b>Required.</b>  A group relationship ID, specified as a 
@@ -2424,14 +2410,14 @@ order RELATIONSHIP:UPDATE "Update Group Relationship" {
 
 #-----------------------------------------------------------------------
 
-order RELATIONSHIP:UPDATE+MULTI "Update Multiple Relationships" {
+order REL:UPDATE+MULTI "Update Multiple Relationships" {
     <<parmlist>>
     <<parm ids "IDs">>
     <b>Required.</b>  <<parm.ids relationship>><p>
 
     Programmatically, each ID is a list {<i>f g</i>} where
     <i>f</i> and <i>g</i> are defined as for the 
-    <<cref RELATIONSHIP:UPDATE>> order.
+    <<cref REL:UPDATE>> order.
     <</parm>>
 
     <<parm rel "Relationship">>
@@ -2452,7 +2438,7 @@ order RELATIONSHIP:UPDATE+MULTI "Update Multiple Relationships" {
 #=======================================================================
 # ROE Orders
 
-page ROE: "Rules of Engagement Orders" orders {
+page roe "Rules of Engagement Orders" orders {
     <<title>>
 
     A force group can be assigned Rules of Engagement (ROEs); these determine
@@ -2470,7 +2456,7 @@ page ROE: "Rules of Engagement Orders" orders {
 #=======================================================================
 # Attacking ROEs
 
-page ROE:ATTACK: "Attacking ROE Orders" ROE: {
+page ATTROE: "Attacking ROE Orders" roe {
     <<title>>
 
     An attacking ROE determines how and when a force group will try to
@@ -2481,7 +2467,7 @@ page ROE:ATTACK: "Attacking ROE Orders" ROE: {
     <<childlinks>>
 }
 
-macro ROE:ATTACK:U.roe {} {
+macro ATTROE:U.roe {} {
     |<--
     The ROE proper, one of the following values:<p>
 
@@ -2494,7 +2480,7 @@ macro ROE:ATTACK:U.roe {} {
     having an Attacking ROE at all.
 }
 
-macro ROE:ATTACK:N.roe {} {
+macro ATTROE:N.roe {} {
     |<--
     The ROE proper, one of the following values:<p>
 
@@ -2514,7 +2500,7 @@ macro ROE:ATTACK:N.roe {} {
     <b>DO_NOT_ATTACK</b> and not having an Attacking ROE at all.
 }
 
-macro ROE:ATTACK.cooplimit {} {
+macro ATTROE.cooplimit {} {
     |<--
     Group <i>f</i> will not attack group <i>g</i>
     unless it has sufficient cooperation from the residents of
@@ -2525,7 +2511,7 @@ macro ROE:ATTACK.cooplimit {} {
     [::simlib::qcooperation html]
 }
 
-macro ROE:ATTACK:N.rate {} {
+macro ATTROE:N.rate {} {
     |<--
     Given an ROE other than <b>DO_NOT_ATTACK</b>, group <i>f</i> will 
     attempt to attack group <i>g</i> at a rate determined by this
@@ -2540,7 +2526,7 @@ macro ROE:ATTACK:N.rate {} {
 
 #-----------------------------------------------------------------------
 
-order ROE:ATTACK:DELETE "Delete Attacking ROE" {
+order ATTROE:DELETE "Delete Attacking ROE" {
     <<parmlist>>
     <<parm id "Combatants">>
     <b>Required.</b>  A list {<i>n f g</i>} where <i>n</i> is the name 
@@ -2557,15 +2543,15 @@ order ROE:ATTACK:DELETE "Delete Attacking ROE" {
 
     Note that this is equivalent to setting the Attacking ROE to
     <b>DO_NOT_ATTACK</b>; see 
-    <<cref ROE:ATTACK:NONUNIFORMED:UPDATE>> and 
-    <<cref ROE:ATTACK:UNIFORMED:UPDATE>>.
+    <<cref ATTROE:NF:UPDATE>> and 
+    <<cref ATTROE:UF:UPDATE>>.
 }
 
 
 #=======================================================================
 # Attacking ROEs: Non-uniformed
 
-page ROE:ATTACK:NONUNIFORMED: "Attacking ROE (Non-Uniformed) Orders" ROE:ATTACK: {
+page ATTROE:NF: "Attacking ROE (Non-Uniformed) Orders" ATTROE: {
     <<title>>
 
     Non-uniformed forces are those that hide among the local
@@ -2574,7 +2560,7 @@ page ROE:ATTACK:NONUNIFORMED: "Attacking ROE (Non-Uniformed) Orders" ROE:ATTACK:
     will attempt to find and destroy uniformed force personnel in 
     a particular neighborhood.  (The response of the uniformed force
     to being attacked is determined by the uniformed force's
-    <<cref ROE:DEFEND: "Defending ROE">>.)<p>
+    <<cref DEFROE: "Defending ROE">>.)<p>
 
     The orders are as follows:<p>
 
@@ -2583,7 +2569,7 @@ page ROE:ATTACK:NONUNIFORMED: "Attacking ROE (Non-Uniformed) Orders" ROE:ATTACK:
 
 #-----------------------------------------------------------------------
 
-order ROE:ATTACK:NONUNIFORMED:CREATE "Create Attacking ROE (Non-Uniformed)" {
+order ATTROE:NF:CREATE "Create Attacking ROE (Non-Uniformed)" {
     <<parmlist>>
     <<parm id "Combatants">>
     <b>Required.</b>  A list {<i>n f g</i>} where <i>n</i> is the name 
@@ -2593,15 +2579,15 @@ order ROE:ATTACK:NONUNIFORMED:CREATE "Create Attacking ROE (Non-Uniformed)" {
     <</parm>>
 
     <<parm roe "ROE">>
-    <b>Required.</b>  <<ROE:ATTACK:N.roe>>
+    <b>Required.</b>  <<ATTROE:N.roe>>
     <</parm>>
 
     <<parm cooplimit "Cooperation Limit">>
-    <b>Required.</b>  <<ROE:ATTACK.cooplimit>>
+    <b>Required.</b>  <<ATTROE.cooplimit>>
     <</parm>>
 
     <<parm rate "Attacks/Day">>
-    <b>Required.</b>  <<ROE:ATTACK:N.rate>>
+    <b>Required.</b>  <<ATTROE:N.rate>>
     <</parm>>
 
     <</parmlist>>
@@ -2615,14 +2601,14 @@ order ROE:ATTACK:NONUNIFORMED:CREATE "Create Attacking ROE (Non-Uniformed)" {
 
     Attacks can be terminated by setting the ROE to
     <b>DO_NOT_ATTACK</b> using 
-    <<cref ROE:ATTACK:NONUNIFORMED:UPDATE>> or by deleting the ROE
-    altogether using <<cref ROE:ATTACK:DELETE>>.
+    <<cref ATTROE:NF:UPDATE>> or by deleting the ROE
+    altogether using <<cref ATTROE:DELETE>>.
 }
 
 
 #-----------------------------------------------------------------------
 
-order ROE:ATTACK:NONUNIFORMED:UPDATE "Update Attacking ROE (Non-Uniformed)" {
+order ATTROE:NF:UPDATE "Update Attacking ROE (Non-Uniformed)" {
     <<parmlist>>
     <<parm id "Combatants">>
     <b>Required.</b>  A list {<i>n f g</i>} where <i>n</i> is the name 
@@ -2632,15 +2618,15 @@ order ROE:ATTACK:NONUNIFORMED:UPDATE "Update Attacking ROE (Non-Uniformed)" {
     <</parm>>
 
     <<parm roe "ROE">>
-    <b>Optional.</b>  <<ROE:ATTACK:N.roe>>
+    <b>Optional.</b>  <<ATTROE:N.roe>>
     <</parm>>
 
     <<parm cooplimit "Cooperation Limit">>
-    <b>Optional.</b>  <<ROE:ATTACK.cooplimit>>
+    <b>Optional.</b>  <<ATTROE.cooplimit>>
     <</parm>>
 
     <<parm rate "Attacks/Day">>
-    <b>Optional.</b>  <<ROE:ATTACK:N.rate>>
+    <b>Optional.</b>  <<ATTROE:N.rate>>
     <</parm>>
 
     <</parmlist>>
@@ -2652,26 +2638,26 @@ order ROE:ATTACK:NONUNIFORMED:UPDATE "Update Attacking ROE (Non-Uniformed)" {
 
 #-----------------------------------------------------------------------
 
-order ROE:ATTACK:NONUNIFORMED:UPDATE+MULTI "Update Multiple Attacking ROEs (Non-Uniformed)" {
+order ATTROE:NF:UPDATE+MULTI "Update Multiple Attacking ROEs (Non-Uniformed)" {
     <<parmlist>>
     <<parm ids "IDs">>
     <b>Required.</b>  <<parm.ids "Attacking ROE">><p>
 
     Programmatically, each ID is a list {<i>n f g</i>} where <i>n</i>,
     <i>f</i>, and <i>g</i> are defined as for the 
-    <<cref ROE:ATTACK:NONUNIFORMED:UPDATE>> order. 
+    <<cref ATTROE:NF:UPDATE>> order. 
     <</parm>>
 
     <<parm roe "ROE">>
-    <b>Optional.</b>  <<ROE:ATTACK:N.roe>>
+    <b>Optional.</b>  <<ATTROE:N.roe>>
     <</parm>>
 
     <<parm cooplimit "Cooperation Limit">>
-    <b>Optional.</b>  <<ROE:ATTACK.cooplimit>>
+    <b>Optional.</b>  <<ATTROE.cooplimit>>
     <</parm>>
 
     <<parm rate "Attacks/Day">>
-    <b>Optional.</b>  <<ROE:ATTACK:N.rate>>
+    <b>Optional.</b>  <<ATTROE:N.rate>>
     <</parm>>
 
     <</parmlist>>
@@ -2683,7 +2669,7 @@ order ROE:ATTACK:NONUNIFORMED:UPDATE+MULTI "Update Multiple Attacking ROEs (Non-
 #=======================================================================
 # Attacking ROEs: Uniformed
 
-page ROE:ATTACK:UNIFORMED: "Attacking ROE (Uniformed) Orders" ROE:ATTACK: {
+page ATTROE:UF: "Attacking ROE (Uniformed) Orders" ATTROE: {
     <<title>>
 
     Uniformed forces are those (like the U.S. military) that wear
@@ -2697,7 +2683,7 @@ page ROE:ATTACK:UNIFORMED: "Attacking ROE (Uniformed) Orders" ROE:ATTACK: {
 
 #-----------------------------------------------------------------------
 
-order ROE:ATTACK:UNIFORMED:CREATE "Create Attacking ROE (Uniformed)" {
+order ATTROE:UF:CREATE "Create Attacking ROE (Uniformed)" {
     <<parmlist>>
     <<parm id "Combatants">>
     <b>Required.</b>  A list {<i>n f g</i>} where <i>n</i> is the name 
@@ -2707,11 +2693,11 @@ order ROE:ATTACK:UNIFORMED:CREATE "Create Attacking ROE (Uniformed)" {
     <</parm>>
 
     <<parm roe "ROE">>
-    <b>Required.</b>  <<ROE:ATTACK:U.roe>>
+    <b>Required.</b>  <<ATTROE:U.roe>>
     <</parm>>
 
     <<parm cooplimit "Cooperation Limit">>
-    <b>Required.</b>  <<ROE:ATTACK.cooplimit>>
+    <b>Required.</b>  <<ATTROE.cooplimit>>
     <</parm>>
 
     <</parmlist>>
@@ -2725,14 +2711,14 @@ order ROE:ATTACK:UNIFORMED:CREATE "Create Attacking ROE (Uniformed)" {
 
     Attacks can be terminated by setting the ROE to
     <b>DO_NOT_ATTACK</b> using 
-    <<cref ROE:ATTACK:UNIFORMED:UPDATE>> or by deleting the ROE
-    altogether using <<cref ROE:ATTACK:DELETE>>.
+    <<cref ATTROE:UF:UPDATE>> or by deleting the ROE
+    altogether using <<cref ATTROE:DELETE>>.
 }
 
 
 #-----------------------------------------------------------------------
 
-order ROE:ATTACK:UNIFORMED:UPDATE "Update Attacking ROE (Uniformed)" {
+order ATTROE:UF:UPDATE "Update Attacking ROE (Uniformed)" {
     <<parmlist>>
     <<parm id "Combatants">>
     <b>Required.</b>  A list {<i>n f g</i>} where <i>n</i> is the name 
@@ -2742,11 +2728,11 @@ order ROE:ATTACK:UNIFORMED:UPDATE "Update Attacking ROE (Uniformed)" {
     <</parm>>
 
     <<parm roe "ROE">>
-    <b>Optional.</b>  <<ROE:ATTACK:U.roe>>
+    <b>Optional.</b>  <<ATTROE:U.roe>>
     <</parm>>
 
     <<parm cooplimit "Cooperation Limit">>
-    <b>Optional.</b>  <<ROE:ATTACK.cooplimit>>
+    <b>Optional.</b>  <<ATTROE.cooplimit>>
     <</parm>>
 
     <</parmlist>>
@@ -2757,22 +2743,22 @@ order ROE:ATTACK:UNIFORMED:UPDATE "Update Attacking ROE (Uniformed)" {
 
 #-----------------------------------------------------------------------
 
-order ROE:ATTACK:UNIFORMED:UPDATE+MULTI "Update Multiple Attacking ROEs (Uniformed)" {
+order ATTROE:UF:UPDATE+MULTI "Update Multiple Attacking ROEs (Uniformed)" {
     <<parmlist>>
     <<parm ids "IDs">>
     <b>Required.</b>  <<parm.ids "Attacking ROE">><p>
 
     Programmatically, each ID is a list {<i>n f g</i>} where <i>n</i>,
     <i>f</i>, and <i>g</i> are defined as for the 
-    <<cref ROE:ATTACK:UNIFORMED:UPDATE>> order. 
+    <<cref ATTROE:UF:UPDATE>> order. 
     <</parm>>
 
     <<parm roe "ROE">>
-    <b>Optional.</b>  <<ROE:ATTACK:U.roe>>
+    <b>Optional.</b>  <<ATTROE:U.roe>>
     <</parm>>
 
     <<parm cooplimit "Cooperation Limit">>
-    <b>Optional.</b>  <<ROE:ATTACK.cooplimit>>
+    <b>Optional.</b>  <<ATTROE.cooplimit>>
     <</parm>>
 
     <</parmlist>>
@@ -2783,7 +2769,7 @@ order ROE:ATTACK:UNIFORMED:UPDATE+MULTI "Update Multiple Attacking ROEs (Uniform
 #=======================================================================
 # Defending ROEs
 
-page ROE:DEFEND: "Defending ROE Orders" ROE: {
+page DEFROE: "Defending ROE Orders" roe {
     <<title>>
 
     Defending ROEs determine how a uniformed force group responds to
@@ -2797,7 +2783,7 @@ page ROE:DEFEND: "Defending ROE Orders" ROE: {
     <<childlinks>>
 }
 
-macro ROE:DEFEND.roe {} {
+macro DEFROE.roe {} {
     |<--
     The ROE proper, one of the following values:<p>
 
@@ -2817,7 +2803,7 @@ macro ROE:DEFEND.roe {} {
 
 #-----------------------------------------------------------------------
 
-order ROE:DEFEND:UPDATE "Updating Defending ROE" {
+order DEFROE:UPDATE "Updating Defending ROE" {
     <<parmlist>>
     <<parm id "Defender">>
     <b>Required.</b>  The defending group, specified as a 
@@ -2826,7 +2812,7 @@ order ROE:DEFEND:UPDATE "Updating Defending ROE" {
     <</parm>>
 
     <<parm roe "ROE">>
-    <b>Optional.</b>  <<ROE:DEFEND.roe>>
+    <b>Optional.</b>  <<DEFROE.roe>>
     <</parm>>
     <</parmlist>>
 
@@ -2837,17 +2823,17 @@ order ROE:DEFEND:UPDATE "Updating Defending ROE" {
 
 #-----------------------------------------------------------------------
 
-order ROE:DEFEND:UPDATE+MULTI "Updating Multiple Defending ROEs" {
+order DEFROE:UPDATE+MULTI "Updating Multiple Defending ROEs" {
     <<parmlist>>
     <<parm ids "IDs">>
     <b>Required.</b>  <<parm.ids "Defending ROE">><p>
 
     Programmatically, each ID is a list {<i>n g</i>} where <i>n</i>
-    and <i>g</i> are defined as for the <<cref ROE:DEFEND:UPDATE>> order.
+    and <i>g</i> are defined as for the <<cref DEFROE:UPDATE>> order.
     <</parm>>
 
     <<parm roe "ROE">>
-    <b>Optional.</b>  <<ROE:DEFEND.roe>>
+    <b>Optional.</b>  <<DEFROE.roe>>
     <</parm>>
     <</parmlist>>
 
@@ -3308,4 +3294,19 @@ order PERSONNEL:ADJUST "Adjust Group Personnel" {
     Increases or decreases the number of group <i>g</i>'s personnel 
     stationed in neighborhood <i>n</i> by the specified amount.<p>
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

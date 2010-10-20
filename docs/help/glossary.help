@@ -209,7 +209,7 @@ term civgroup "civilian group" {
 
     Civilian groups are created on the 
     <<tabref Groups/CivGroups>>, and manipulated using the
-    <<cref GROUP:CIVILIAN:>>.
+    <<cref CIVGROUP:>>.
 }
 
 #-----------------------------------------------------------------------
@@ -349,7 +349,7 @@ term effects_delay "effects delay" {
 
     The effects delay between two neighborhoods is edited on the
     <<tabref Neighborhoods/Relationships>>, using the
-    <<cref NBHOOD:RELATIONSHIP:>>.
+    <<cref NBREL:>>.
 }
 
 #-----------------------------------------------------------------------
@@ -371,7 +371,7 @@ term ensit "environmental situation" {
     controls on the <<tabref Map>>; the full set of situations
     can browsed and edited on the 
     <<tabref Neighborhoods/EnSits>>, using the 
-    <<cref SITUATION:ENVIRONMENTAL:>>.  
+    <<cref ENSIT:>>.  
 }
 
 #-----------------------------------------------------------------------
@@ -459,7 +459,7 @@ term frcgroup "force group" {
 
     Force groups are created on the 
     <<tabref Groups/FrcGroups>>, and manipulated using the
-    <<cref GROUP:FORCE:>>.  In order to apply force, force group
+    <<cref FRCGROUP:>>.  In order to apply force, force group
     personnel must be assigned to neighborhoods on the 
     <<tabref Plan/Force Levels>> and assigned to
     <<term activity "activities">> on the <<tabref Plan/Schedule>>.
@@ -632,7 +632,7 @@ term orggroup "organization group" {
 
     Organization groups are created on the 
     <<tabref Groups/OrgGroups>>, and manipulated using the
-    <<cref GROUP:ORGANIZATION:>>.  In order to work, organization
+    <<cref ORGGROUP:>>.  In order to work, organization
     group personnel must exist in the <<term playbox>> as <<term unit>>s.
 }
 
@@ -671,7 +671,7 @@ term proximity "proximity" {
 
     The proximity between two neighborhoods is edited on the
     <<tabref Neighborhoods/Relationships>>, using the
-    <<cref NBHOOD:RELATIONSHIP:>>.<p>
+    <<cref NBREL:>>.<p>
 
 
     See also <<term effects_delay>>.
@@ -692,7 +692,7 @@ term relationship "relationship" {
 
     Group relationships are edited on the 
     <<tabref Groups/Relationships>>, using the 
-    <<cref RELATIONSHIP:>> orders.<p>
+    <<cref REL:>> orders.<p>
 
     <b>2.</b> The relationship between two <<term nbhood>>s, expressed
     as a <<term proximity>> and an <<term effects_delay>>.
@@ -711,7 +711,7 @@ term roe "ROE" {
 
     There are several kinds of ROE; they are created, browsed, and
     edited on the subtabs of the <<tabref ROE>>.  See the description
-    of the <<cref ROE:>> for more details.
+    of the <<cref roe>> for more details.
 }
 
 
@@ -1043,4 +1043,10 @@ term zulu "zulu-time" {
 
     <</topiclist>>
 }
+
+
+
+
+
+
 

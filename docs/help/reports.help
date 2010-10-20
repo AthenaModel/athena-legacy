@@ -114,7 +114,7 @@ page REPORT:DRIVER "Attitude Driver Report" reports {
 
 #-----------------------------------------------------------------------
 
-page REPORT:SATISFACTION:CIVILIAN "Civilian Satisfaction Report" reports {
+page REPORT:SAT:CURRENT "Civilian Satisfaction Report" reports {
     <<order.header>>
     <<parmlist>>
 
@@ -175,7 +175,7 @@ page REPORT:SATISFACTION:CIVILIAN "Civilian Satisfaction Report" reports {
 
 #-----------------------------------------------------------------------
 
-page REPORT:SATISFACTION:CONTRIB "Contribution to Satisfaction Report" reports {
+page REPORT:SAT:CONTRIB "Contribution to Satisfaction Report" reports {
     <<order.header>>
     <<parmlist>>
 
@@ -253,7 +253,7 @@ page REPORT:SATISFACTION:CONTRIB "Contribution to Satisfaction Report" reports {
 
 #-----------------------------------------------------------------------
 
-page REPORT:COOPERATION "Cooperation Report" reports {
+page REPORT:COOP "Cooperation Report" reports {
     <<order.header>>
     <<parmlist>>
 
@@ -353,6 +353,9 @@ page REPORT:PARMDB "Model Parameter Report" reports {
     Second, the report will include only parameters whose names match
     the specified wildcard.  (Wildcard-matching is case-insensitive.)
 }
+
+
+
 
 
 

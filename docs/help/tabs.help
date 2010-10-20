@@ -96,7 +96,7 @@ tab "Map" {
     The Map tab contains the Athena Map Viewer, the primary means of
     visualizing Athena scenarios.  The Map Viewer is where 
     <<cref NBHOOD: neighborhoods>> and <<cref UNIT: units>> are drawn,
-    <<cref SITUATION:ENVIRONMENTAL: "environmental situations">>  are 
+    <<cref ENSIT: "environmental situations">>  are 
     created and positioned, and group moods and other <<cref var.n>>
     are visualized.  The
     browser controls are described <<seebelow controls>>.<p>
@@ -155,9 +155,9 @@ tab "Map" {
 
     <<topic {<img src="button_ensit">}>>
     Press this button to pop up the 
-    <<cref SITUATION:ENVIRONMENTAL:CREATE>> order
+    <<cref ENSIT:CREATE>> order
     dialog.  Alternatively, right-click on the map and select
-    <<cref SITUATION:ENVIRONMENTAL:CREATE>> from the context
+    <<cref ENSIT:CREATE>> from the context
     menu--this will pop up the order dialog with the selected location
     already filled in.
     <</topic>>
@@ -607,7 +607,7 @@ tab "Neighborhoods/Neighborhoods" {
 
 tab "Neighborhoods/Relationships" {
     This tab shows the relationship between pairs of
-    <<cref NBHOOD:RELATIONSHIP: neighborhoods>>, as entered
+    <<cref NBREL: neighborhoods>>, as entered
     during <<cref using.prep>>.  The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
@@ -648,8 +648,8 @@ tab "Neighborhoods/Relationships" {
 
     <<topic {<img src="button_pencil">}>>
     If one or more editable relationships are selected, pops up the 
-    <<cref NBHOOD:RELATIONSHIP:UPDATE>> or 
-    <<cref NBHOOD:RELATIONSHIP:UPDATE:MULTI>> dialog for
+    <<cref NBREL:UPDATE>> or 
+    <<cref NBREL:UPDATE:MULTI>> dialog for
     the selected relationship(s).<p>
 
     Note that the relationship of a neighborhood with itself cannot be
@@ -1043,23 +1043,23 @@ tab "Neighborhoods/EnSits" {
     <<topiclist Control Description>>
 
     <<topic {<img src="button_plus">}>>
-    Pops up the <<cref SITUATION:ENVIRONMENTAL:CREATE>> dialog.
+    Pops up the <<cref ENSIT:CREATE>> dialog.
     <</topic>>
 
     <<topic {<img src="button_pencil">}>>
     If a single <b>INITIAL</b> situation is selected, pops up the 
-    <<cref SITUATION:ENVIRONMENTAL:UPDATE>> dialog for
+    <<cref ENSIT:UPDATE>> dialog for
     the selected situation.
     <</topic>>
 
     <<topic {<img src="button_check">}>>
     If a single unresolved situation is selected, resolves it
-    using the <<cref SITUATION:ENVIRONMENTAL:RESOLVE>> order.
+    using the <<cref ENSIT:RESOLVE>> order.
     <</topic>>
 
     <<topic {<img src="button_x">}>>
     If a single <b>INITIAL</b> situation is selected, deletes it
-    using the <<cref SITUATION:ENVIRONMENTAL:DELETE>> order.
+    using the <<cref ENSIT:DELETE>> order.
     <</topic>>
 
     <<topic {<img src="viewbox">}>>
@@ -1096,7 +1096,7 @@ tab "Groups" {
 
 tab "Groups/CivGroups" {
     This tab shows basic data about each 
-    <<cref GROUP:CIVILIAN: "civilian group">>, as entered
+    <<cref CIVGROUP: "civilian group">>, as entered
     during <<cref using.prep>>.
     The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
@@ -1164,19 +1164,19 @@ tab "Groups/CivGroups" {
     <<topiclist Control Description>>
 
     <<topic {<img src="button_plus">}>>
-    Pops up the <<cref GROUP:CIVILIAN:CREATE>> dialog.
+    Pops up the <<cref CIVGROUP:CREATE>> dialog.
     <</topic>>
 
     <<topic {<img src="button_pencil">}>>
     If one or more rows are selected, pops up the 
-    <<cref GROUP:CIVILIAN:UPDATE>> or 
-    <<cref GROUP:CIVILIAN:UPDATE:MULTI>> dialog for
+    <<cref CIVGROUP:UPDATE>> or 
+    <<cref CIVGROUP:UPDATE:MULTI>> dialog for
     the selected row(s).
     <</topic>>
 
     <<topic {<img src="button_x">}>>
     If a single row is selected, deletes it using the
-    <<cref GROUP:CIVILIAN:DELETE>> order.
+    <<cref CIVGROUP:DELETE>> order.
     <</topic>>
 
     <<control.filterbox>>
@@ -1188,7 +1188,7 @@ tab "Groups/CivGroups" {
 
 tab "Groups/FrcGroups" {
     This tab shows basic data about the 
-    <<cref GROUP:FORCE: "force groups">> that are active
+    <<cref FRCGROUP: "force groups">> that are active
     in the playbox.  The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
@@ -1242,19 +1242,19 @@ tab "Groups/FrcGroups" {
     <<topiclist Control Description>>
 
     <<topic {<img src="button_plus">}>>
-    Pops up the <<cref GROUP:FORCE:CREATE>> dialog.
+    Pops up the <<cref FRCGROUP:CREATE>> dialog.
     <</topic>>
 
     <<topic {<img src="button_pencil">}>>
     If one or more rows are selected, pops up the 
-    <<cref GROUP:FORCE:UPDATE>> or 
-    <<cref GROUP:FORCE:UPDATE:MULTI>> dialog for
+    <<cref FRCGROUP:UPDATE>> or 
+    <<cref FRCGROUP:UPDATE:MULTI>> dialog for
     the selected row(s).
     <</topic>>
 
     <<topic {<img src="button_x">}>>
     If a single row is selected, deletes it using the
-    <<cref GROUP:FORCE:DELETE>> order.
+    <<cref FRCGROUP:DELETE>> order.
     <</topic>>
 
     <<control.filterbox>>
@@ -1266,7 +1266,7 @@ tab "Groups/FrcGroups" {
 
 tab "Groups/OrgGroups" {
     This tab shows basic data about the 
-    <<cref GROUP:ORGANIZATION: "organization groups">> that are active
+    <<cref ORGGROUP: "organization groups">> that are active
     in the playbox.  The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
@@ -1307,19 +1307,19 @@ tab "Groups/OrgGroups" {
     <<topiclist Control Description>>
 
     <<topic {<img src="button_plus">}>>
-    Pops up the <<cref GROUP:ORGANIZATION:CREATE>> dialog.
+    Pops up the <<cref ORGGROUP:CREATE>> dialog.
     <</topic>>
 
     <<topic {<img src="button_pencil">}>>
     If one or more rows are selected, pops up the 
-    <<cref GROUP:ORGANIZATION:UPDATE>> or 
-    <<cref GROUP:ORGANIZATION:UPDATE:MULTI>> dialog for
+    <<cref ORGGROUP:UPDATE>> or 
+    <<cref ORGGROUP:UPDATE:MULTI>> dialog for
     the selected row(s).
     <</topic>>
 
     <<topic {<img src="button_x">}>>
     If a single row is selected, deletes it using the
-    <<cref GROUP:ORGANIZATION:DELETE>> order.
+    <<cref ORGGROUP:DELETE>> order.
     <</topic>>
 
     <<control.filterbox>>
@@ -1376,8 +1376,8 @@ tab "Groups/Relationships" {
 
     <<topic {<img src="button_pencil">}>>
     If one or more rows are selected, pops up the 
-    <<cref RELATIONSHIP:UPDATE>> or 
-    <<cref RELATIONSHIP:UPDATE:MULTI>> dialog for
+    <<cref REL:UPDATE>> or 
+    <<cref REL:UPDATE:MULTI>> dialog for
     the selected row(s).
     <</topic>>
 
@@ -1435,7 +1435,7 @@ tab "Groups/Personnel" {
 # ROE Tab
 
 tab "ROE" {
-    <<cref GROUP:FORCE: "Force groups">> will go into combat with each
+    <<cref FRCGROUP: "Force groups">> will go into combat with each
     other in a neighborhood based on the conditions in the
     neighborhood and on their Rules of Engagement (ROEs).  (See the
     <i>Athena Analyst's Guide</i> for full details on Athena's combat
@@ -1508,19 +1508,19 @@ tab "ROE/Attack (Uniformed)" {
     <<topiclist Control Description>>
 
     <<topic {<img src="button_plus">}>>
-    Pops up the <<cref ROE:ATTACK:UNIFORMED:CREATE>> dialog.
+    Pops up the <<cref ATTROE:UF:CREATE>> dialog.
     <</topic>>
 
     <<topic {<img src="button_pencil">}>>
     If one or more rows are selected, pops up the 
-    <<cref ROE:ATTACK:UNIFORMED:UPDATE>> or 
-    <<cref ROE:ATTACK:UNIFORMED:UPDATE:MULTI>> dialog for
+    <<cref ATTROE:UF:UPDATE>> or 
+    <<cref ATTROE:UF:UPDATE:MULTI>> dialog for
     the selected row(s).
     <</topic>>
 
     <<topic {<img src="button_x">}>>
     If a single row is selected, deletes it using the
-    <<cref ROE:ATTACK:DELETE>> order.
+    <<cref ATTROE:DELETE>> order.
     <</topic>>
 
     <<control.filterbox>>
@@ -1593,19 +1593,19 @@ tab "ROE/Attack (Non-Uniformed)" {
     <<topiclist Control Description>>
 
     <<topic {<img src="button_plus">}>>
-    Pops up the <<cref ROE:ATTACK:NONUNIFORMED:CREATE>> dialog.
+    Pops up the <<cref ATTROE:NF:CREATE>> dialog.
     <</topic>>
 
     <<topic {<img src="button_pencil">}>>
     If one or more rows are selected, pops up the 
-    <<cref ROE:ATTACK:NONUNIFORMED:UPDATE>> or 
-    <<cref ROE:ATTACK:NONUNIFORMED:UPDATE:MULTI>> dialog for
+    <<cref ATTROE:NF:UPDATE>> or 
+    <<cref ATTROE:NF:UPDATE:MULTI>> dialog for
     the selected row(s).
     <</topic>>
 
     <<topic {<img src="button_x">}>>
     If a single row is selected, deletes it using the
-    <<cref ROE:ATTACK:DELETE>> order.
+    <<cref ATTROE:DELETE>> order.
     <</topic>>
 
     <<control.filterbox>>
@@ -1657,8 +1657,8 @@ tab "ROE/Defend" {
 
     <<topic {<img src="button_pencil">}>>
     If one or more rows are selected, pops up the 
-    <<cref ROE:DEFEND:UPDATE>> or 
-    <<cref ROE:DEFEND:UPDATE:MULTI>> dialog for
+    <<cref DEFROE:UPDATE>> or 
+    <<cref DEFROE:UPDATE:MULTI>> dialog for
     the selected row(s).
     <</topic>>
 
@@ -1698,7 +1698,7 @@ tab "Demog/Groups" {
     <<topic BasePop>>The base population of the group in the
     neighborhood, i.e., the number of group members resident in the
     neighborhood at time 0, as set by the 
-    <<cref GROUP:CIVILIAN:CREATE>> order.<</topic>>
+    <<cref CIVGROUP:CREATE>> order.<</topic>>
     
     <<topic CurrPop>>The current population of the group in the
     neighborhood: the base population less displaced population and
@@ -2698,4 +2698,14 @@ tab "Log" {
     <</topiclist>>
 
 }
+
+
+
+
+
+
+
+
+
+
 

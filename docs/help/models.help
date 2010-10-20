@@ -209,7 +209,7 @@ model dam "Driver Assessment Model" attitude {
     sets contain no actual rules, but rule firing reports are
     presented to the user as though they did.<p>
 
-    The <<cref REPORT:SATISFACTION:CONTRIB>> lists the top drivers
+    The <<cref REPORT:SAT:CONTRIB>> lists the top drivers
     contributing to a particular <<term satisfaction>> curve or
     to a particular group's <<term mood>> in a neighborhood.<p>
 
@@ -282,5 +282,6 @@ model econ "Economics" "" {
     The Economics model depends on the <<cref parm.econ>> model
     parameters.<p>
 }
+
 
 
