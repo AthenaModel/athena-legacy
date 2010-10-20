@@ -61,7 +61,7 @@ page REPORT:DRIVER "Attitude Driver Report" reports {
 
     Some few drivers will be "empty", having had no effect at all.
     For example, the effect of force group presence depends on the
-    relationship between the neighborhood groups and the force group;
+    relationship between the civilian groups and the force group;
     if the relationships are all zero, the PRESENCE rules will fire
     but all of the attitude inputs will be 0.0, and hence will be
     ignored.<p>
@@ -272,7 +272,7 @@ page REPORT:COOPERATION "Cooperation Report" reports {
     <</parmlist>>
 
     By default, this order displays the cooperation (and delta since
-    time 0) of each neighborhood group with each force group, along
+    time 0) of each civilian with each force group, along
     with the composite cooperation of each neighborhood with each
     force group.  The user can elect to limit the output to a 
     particular neighborhood, civilian group, force group, or

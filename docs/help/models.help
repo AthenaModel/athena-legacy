@@ -173,7 +173,7 @@ model attitude "Attitudes"  "" {
     The Attitudes model is responsible for tracking the
     <<term attitude>>s 
     (<<term satisfaction>> and <<term cooperation>>) of the 
-    <<term nbgroup>>s and <<term orggroup>>s present in the 
+    <<term civgroup>>s present in the 
     <<term playbox>>, and for making them change in response to
     events and situations (<<term driver>>s) occuring in the
     other models.  It consists of the following sub-models:<p>
@@ -242,7 +242,7 @@ model demog "Demographics" "" {
     particular population, and civilians lost to attrition are simply
     gone.<p>
 
-    The population of a neighborhood group cannot be reduced
+    The population of a civilian group cannot be reduced
     to 0; at least one person will remain.  This constraint comes from 
     <<model gram>>, which will not allow an existing group to vanish.<p>
 

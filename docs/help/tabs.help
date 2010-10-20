@@ -922,8 +922,8 @@ tab "Neighborhoods/DemSits" {
     <<topic "Group">>The ID of the civilian group affected by the
     situation.<</topic>>
     
-    <<topic "NG UAF">>The Unemployment Attitude Factor for the affected
-    neighborhood group.  This is a number from 0.0 to 2.0 used as 
+    <<topic "G UAF">>The Unemployment Attitude Factor for the affected
+    group.  This is a number from 0.0 to 2.0 used as 
     a multiplier in the UNEMP rule set.<</topic>>
 
     <<topic "N UAF">>The Unemployment Attitude Factor for the neighborhood
@@ -1095,12 +1095,9 @@ tab "Groups" {
 #-----------------------------------------------------------------------
 
 tab "Groups/CivGroups" {
-    This tab shows basic data about each top-level
+    This tab shows basic data about each 
     <<cref GROUP:CIVILIAN: "civilian group">>, as entered
-    during <<cref using.prep>>.  Note that the top-level civilian
-    groups represent broad categories to which the neighborhood groups
-    belong; most civilian group data is at the 
-    <<cref GROUP:NBHOOD: "neighborhood group">> level.
+    during <<cref using.prep>>.
     The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
@@ -1110,6 +1107,8 @@ tab "Groups/CivGroups" {
 
     <<topic "Long Name">>The human-readable name for the group.<</topic>>
     
+    <<topic "Nbhood">>The neighborhood in which the group resides.<</topic>>
+
     <<topic Color>>The color used for the group's units in the map
     display, represented as a 48-bit hexadecimal color value,
     "#<i>rrrrggggbbbb</i>".  Fortunately, the actual color is also
@@ -1122,53 +1121,10 @@ tab "Groups/CivGroups" {
     <b>ENEMY</b> units are diamonds.
     <</topic>>
 
-    <</topiclist>>
+    <<topic "Demeanor">>The demeanor of the group, as represented by
+    the following enumeration:<p>
 
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic {<img src="button_plus">}>>
-    Pops up the <<cref GROUP:CIVILIAN:CREATE>> dialog.
-    <</topic>>
-
-    <<topic {<img src="button_pencil">}>>
-    If one or more rows are selected, pops up the 
-    <<cref GROUP:CIVILIAN:UPDATE>> or 
-    <<cref GROUP:CIVILIAN:UPDATE:MULTI>> dialog for
-    the selected row(s).
-    <</topic>>
-
-    <<topic {<img src="button_x">}>>
-    If a single row is selected, deletes it using the
-    <<cref GROUP:CIVILIAN:DELETE>> order.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Groups/NbGroups" {
-    This tab shows basic data about the civilian groups resident in
-    each neighborhood--the 
-    <<cref GROUP:NBHOOD: "neighborhood groups">>, 
-    as entered during <<cref using.prep>>.  Each such group is related
-    to a top-level <<cref GROUP:CIVILIAN: "civilian group">>.
-    The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Nbhood">>The neighborhood in which the group resides.<</topic>>
-
-    <<topic "CivGroup">>The top-level civilian group.<</topic>>
-    
-    <<topic "Local Name">>The local name for the group in the
-    neighborhood, e.g., a tribal name.
+    <<enumdoc ::projectlib::edemeanor>>
     <</topic>>
 
     <<topic "BasePop">> Base Population: the population of the group
@@ -1200,12 +1156,6 @@ tab "Groups/NbGroups" {
     be 0.0 until then.
     <</topic>>
 
-    <<topic "Demeanor">>The demeanor of the group, as represented by
-    the following enumeration:<p>
-
-    <<enumdoc ::projectlib::edemeanor>>
-    <</topic>>
-    
     <</topiclist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's
@@ -1214,19 +1164,19 @@ tab "Groups/NbGroups" {
     <<topiclist Control Description>>
 
     <<topic {<img src="button_plus">}>>
-    Pops up the <<cref GROUP:NBHOOD:CREATE>> dialog.
+    Pops up the <<cref GROUP:CIVILIAN:CREATE>> dialog.
     <</topic>>
 
     <<topic {<img src="button_pencil">}>>
     If one or more rows are selected, pops up the 
-    <<cref GROUP:NBHOOD:UPDATE>> or 
-    <<cref GROUP:NBHOOD:UPDATE:MULTI>> dialog for
+    <<cref GROUP:CIVILIAN:UPDATE>> or 
+    <<cref GROUP:CIVILIAN:UPDATE:MULTI>> dialog for
     the selected row(s).
     <</topic>>
 
     <<topic {<img src="button_x">}>>
     If a single row is selected, deletes it using the
-    <<cref GROUP:NBHOOD:DELETE>> order.
+    <<cref GROUP:CIVILIAN:DELETE>> order.
     <</topic>>
 
     <<control.filterbox>>
@@ -1729,7 +1679,7 @@ tab "Demog" {
 }
 
 
-tab "Demog/NbGroups" {
+tab "Demog/Groups" {
     This tab displays the current demographics of each neighborhood group.
     The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
@@ -1748,7 +1698,7 @@ tab "Demog/NbGroups" {
     <<topic BasePop>>The base population of the group in the
     neighborhood, i.e., the number of group members resident in the
     neighborhood at time 0, as set by the 
-    <<cref GROUP:NBHOOD:CREATE>> order.<</topic>>
+    <<cref GROUP:CIVILIAN:CREATE>> order.<</topic>>
     
     <<topic CurrPop>>The current population of the group in the
     neighborhood: the base population less displaced population and
@@ -1763,7 +1713,7 @@ tab "Demog/NbGroups" {
     <</topic>>
 
     <<topic Attrition>>The number of personnel lost to this 
-    neighborhood group through attrition since time 0.
+    civilian group through attrition since time 0.
     <</topic>>
 
     <</topiclist>>
@@ -1795,7 +1745,7 @@ tab "Demog/Nbhoods" {
     <</topic>>
 
     <<topic Population>>The current population of the neighborhood, 
-    including both resident neighborhood groups and displaced personnel.
+    including both resident civilian groups and displaced personnel.
     <</topic>>
     
     <<topic Subsistence>>The number of people in the neighborhood that
@@ -1806,12 +1756,12 @@ tab "Demog/Nbhoods" {
     <<topic Consumers>>The number of people in the neighborhood that
     consume goods and services, and hence <i>do</i>
     participate in its regional economy,  including
-    both neighborhood groups and displaced personnel.
+    both civilian groups and displaced personnel.
     <</topic>>
 
     <<topic LaborForce>>The number of people in the neighborhood that
     seek paid employment (though they might not find it) including
-    both neighborhood groups and displaced personnel.
+    both civilian groups and displaced personnel.
     <</topic>>
 
     <<topic Displaced>>The total personnel in units that are displaced
@@ -1911,7 +1861,7 @@ tab "Econ/Population" {
     <</topic>>
 
     <<topic Population>>The current population of the neighborhood, 
-    including both resident neighborhood groups and displaced personnel.
+    including both resident civilian groups and displaced personnel.
     <</topic>>
     
     <<topic Subsistence>>The number of people in the neighborhood that
@@ -1922,12 +1872,12 @@ tab "Econ/Population" {
     <<topic Consumers>>The number of people in the neighborhood that
     consume goods and services, and hence <i>do</i>
     participate in its regional economy,  including
-    both neighborhood groups and displaced personnel.
+    both civilian groups and displaced personnel.
     <</topic>>
 
     <<topic LaborForce>>The number of people in the neighborhood that
     seek paid employment (though they might not find it) including
-    both neighborhood groups and displaced personnel.
+    both civilian groups and displaced personnel.
     <</topic>>
 
     <<topic Unemployed>>The total number of unemployed workers in the
@@ -1953,21 +1903,21 @@ tab "Econ/Population" {
     <</topiclist>>
 }
 
-tab "Econ/NbGroups" {
+tab "Econ/Groups" {
     This tab displays the effect of the current economy on the
-    neighborhood groups.  The browser controls are described 
+    civiliand groups.  The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
     <<topiclist Column Description>>
 
-    <<topic Nbhood>>A neighborhood name.<</topic>>
-
     <<topic CivGroup>>The name of a civilian group that's resident in
     the neighborhood.<</topic>>
     
-    <<topic "Local Name">>The local name of the group within the
+    <<topic "Long Name">>The local name of the group within the
     neighborhood.
     <</topic>>
+
+    <<topic Nbhood>>A neighborhood name.<</topic>>
 
     <<topic Population>>The current population of the group in the
     neighborhood.
@@ -2026,13 +1976,11 @@ tab "Attitudes" {
 
 tab "Attitudes/Satisfaction" {
     This tab displays the full set of satisfaction curves for all
-    neighborhood groups.
+    civilian groups.
     The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
     <<topiclist Column Description>>
-
-    <<topic Nbhood>>A neighborhood name.<</topic>>
 
     <<topic Group>>The name of a civilian group that's resident in
     the neighborhood.<</topic>>
@@ -2042,6 +1990,8 @@ tab "Attitudes/Satisfaction" {
 
     <<enumdoc ::projectlib::econcern>>
     <</topic>>
+
+    <<topic Nbhood>>A neighborhood name.<</topic>>
 
     <<topic "Sat at T0">>The initial satisfaction value for this
     curve, as set during <<cref using.prep>>.  It is a real number
@@ -2130,8 +2080,6 @@ tab "Attitudes/Cooperation" {
     <<seebelow controls>>; the data fields are as follows:<p>
 
     <<topiclist Column Description>>
-
-    <<topic "Nbhood">>A neighborhood name.<</topic>>
 
     <<topic "Of Group">>The name of a civilian group resident in the
     neighborhood.

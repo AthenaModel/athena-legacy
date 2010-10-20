@@ -65,11 +65,10 @@ page using.prep "Scenario Preparation" using {
 
     <ol>
     <li> Import a <<cref using.maps map>> of the region of interest.
+    <li> Create at least one <<term nbhood>>.
     <li> Create at least one <<term frcgroup>>.
     <li> Create at least one <<term civgroup>>.
     <li> Create at least one <<term orggroup>>.
-    <li> Create at least one <<term nbhood>>.
-    <li> Create at least one <<term nbgroup>>.
     <li> At this point time can be run forward; however, there is more
          work left to do.
     <li> Define the <<term proximity>> and
@@ -77,10 +76,10 @@ page using.prep "Scenario Preparation" using {
          neighborhoods.
     <li> Define the <<term relationship>> between each pair of groups.
     <li> Define the initial <<term satisfaction>> levels and 
-         <<term saliency saliencies>> for each neighborhood group and
+         <<term saliency saliencies>> for each civilian group and
          each organization group.
     <li> Define the initial <<term cooperation>> level between each
-         neighborhood group and each force group.
+         civilian and each force group.
     <li> If desired:
          <ul>
          <li> Schedule group <<term activity activities>>.

@@ -52,7 +52,7 @@ term activity "activity" {
     appear as a <<term unit>> on the <<tabref Map>>; the unit is said to 
     perform the activity. There are different sets of activities for the
     different group types: <<term frcgroup>>s, <<term orggroup>>s, and 
-    <<term nbgroup>>s.  For the full list of activities, and the
+    <<term civgroup>>s.  For the full list of activities, and the
     meaning and effect of each, see the <i>Athena Rules</i> document, which
     is delivered with the software.
 }
@@ -64,7 +64,7 @@ term attitude "attitude" {
     An <i>attitude</i> of a particular <<term group>> toward
     something, as tracked by <<model gram>>.  Attitudes include
     group <<term satisfaction>> and the <<term cooperation>> of
-    <<term nbgroup>>s with <<term frcgroup>>s.  At present
+    <<term civgroup>>s with <<term frcgroup>>s.  At present
     group <<term relationship>>s are static, but it is likely that
     they will become dynamic at some time in the future.
 }
@@ -202,11 +202,10 @@ term cause "cause" {
 
 term civgroup "civilian group" {
     A <i>civilian <<term group>></i> is an identifiable collection of people
-    who reside in the <<term playbox>>.  The members of a civilian
+    who reside in a <<term nbhood>>.  The members of a civilian
     group will share one or more characteristics that make them of
     interest to the analyst: ethnicity, religious or political
-    affiliation, and so forth.  Civilian groups reside in
-    <<term nbhood>>s as <<term nbgroup>>s.<p>
+    affiliation, and so forth.<p>
 
     Civilian groups are created on the 
     <<tabref Groups/CivGroups>>, and manipulated using the
@@ -217,12 +216,12 @@ term civgroup "civilian group" {
 
 term concern "concern" {
     Athena tracks the <<term satisfaction>> of 
-    <<term nbgroup>>s with respect to a number
+    <<term civgroup>>s with respect to a number
     of <i>concerns</i>, also known as <i>soft factors</i>.<p>
 
     Civilians have the following four concerns; note that the
     <<term saliency>> of a given concern will typically differ
-    from one <<term nbgroup>> to another.<p>
+    from one <<term civgroup>> to another.<p>
 
     <<topiclist>>
 
@@ -271,7 +270,7 @@ term consumer "consumer" {
 
 term cooperation "cooperation" {
     A cooperation level is an <<term attitude>> that represents
-    the likelihood that a member of a <<term nbgroup>> will give
+    the likelihood that a member of a <<term civgroup>> will give
     information to a member of a particular <<term frcgroup>>.
     Cooperation levels are represented using the following scale:<p>
 
@@ -325,7 +324,7 @@ term demsit "demographic situation" {
 term driver "driver" {
     <b>1.</b> Any event or situation occuring in the
     <<term playbox>> that causes a change in the <<term attitude>>s
-    of members of one or more <<term nbgroup>>s.<p>
+    of members of one or more <<term civgroup>>s.<p>
 
     Examples of drivers include casualties to 
     <<term civgroup>>s, the presence
@@ -475,7 +474,7 @@ term group "group" {
 
     <ul>
     <li> <<term civgroup>>s, which reside in 
-         <<term nbhood>>s as <<term nbgroup>>s.
+         <<term nbhood>>s as <<term civgroup>>s.
     <li> <<term frcgroup>>s
     <li> <<term orggroup>>s
     </ul>
@@ -561,7 +560,7 @@ term mapref "map reference string" {
 #-----------------------------------------------------------------------
 
 term mood "mood" {
-    <b>1.</b> A <<term nbgroup>>'s
+    <b>1.</b> A <<term civgroup>>'s
     <<term satisfaction>> averaged across its 
     <<term concern>>s, and taking <<term saliency>> into account.  In
     other words, how satisfied or dissatisfied the group is with
@@ -585,26 +584,13 @@ term morning "morning" {
 term nbhood "neighborhood" {
     The Athena <<term playbox>>, or region of interest, is divided up
     into <i>neighborhoods</i>.  A neighborhood is a polygonal area on
-    the <<cref using.maps map>> containing <<term nbgroup>>s, 
+    the <<cref using.maps map>> containing <<term civgroup>>s, 
     <<term unit>>s of various kinds, <<term ensit>>s, and so forth.<p>
 
     Neighborhoods can be created on the 
     <<tabref Map>> during <<cref using.prep>>, and manipulated
     on the <<tabref Neighborhoods/Neighborhoods>> and using the
     <<cref NBHOOD:>>.
-}
-
-#-----------------------------------------------------------------------
-
-term nbgroup "neighborhood group" {
-    A <i>neighborhood <<term group>></i> is a 
-    <<term civgroup>> resident in a particular 
-    <<term nbhood>>, e.g, Punjabis living in a particular district
-    of Pakistan.<p>
-
-    Neighborhood groups are created on the 
-    <<tabref Groups/NbGroups>>, and manipulated using the
-    <<cref GROUP:NBHOOD:>>.
 }
 
 #-------------------------------------------------------------------
@@ -667,7 +653,7 @@ term proximity "proximity" {
     <b>NEAR</b>, <b>FAR</b>, and <b>REMOTE</b>, where <b>HERE</b>
     represents the proximity of a neighborhood to itself.<p>
 
-    The attitudes of a <<term nbgroup>> can be affected by 
+    The attitudes of a <<term civgroup>> can be affected by 
     <<term driver>>s that occur <b>HERE</b> in the same neighborhood; to a
     lesser degree by drivers occuring in a <b>NEAR</b>
     neighborhood, even less by drivers in a <b>FAR</b>
