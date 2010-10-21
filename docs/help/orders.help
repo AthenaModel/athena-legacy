@@ -320,7 +320,7 @@ page ATTRIT: "Attrition Orders" orders {
     the analyst can cause magic attrition to unit personnel and to the 
     civilian population at any time.<p>
 
-    <b>Note:</b> magic attrition takes effect immediately; however, the
+    <b>Note:</b> Magic attrition takes effect immediately; however, the
     attitude effects resulting from magic attrition are assessed as
     part of the regular weekly attrition assessment.<p>
 
@@ -1353,7 +1353,7 @@ page ORGGROUP: "Organization Group Orders" orders {
 
 macro ORGGROUP.orgtype {} {
     |<--
-    The organization type.
+    The organization type.<p>
 
     [enumdoc ::projectlib::eorgtype]
 }
@@ -2067,13 +2067,13 @@ macro NBHOOD.n {} {
 macro NBHOOD.local {} {
     |<--
     Whether or not the neighborhood's labor force and production 
-    capabilities contribute to the economy of the region of interest:
+    capabilities contribute to the economy of the region of interest:<p>
     [enumdoc ::projectlib::eyesno]
 }
 
 macro NBHOOD.urbanization {} {
     |<--
-    The neighborhood's urbanization level:
+    The neighborhood's urbanization level:<p>
     [enumdoc ::projectlib::eurbanization]
 }
 
@@ -2324,7 +2324,7 @@ order NBREL:UPDATE "Update Neighborhood Relationship" {
 order NBREL:UPDATE+MULTI "Update Multiple Neighborhood Relationships" {
     <<parmlist>>
     <<parm ids "IDs">>
-    <b>Required.</b>  <<parm.ids "neighborhood relationship">>.<p>
+    <b>Required.</b>  <<parm.ids "neighborhood relationship">><p>
 
      Programmatically, each ID is a list {<i>m n</i>} where <i>m</i>
     and <i>n</i> are defined as for the 
