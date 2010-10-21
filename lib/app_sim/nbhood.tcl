@@ -414,7 +414,7 @@ snit::type nbhood {
         dict with parmdict {
             # FIRST, get the undo information
             rdb eval {
-                SELECT n, longname, refpoint, polygon, urbanization 
+                SELECT *
                 FROM nbhoods
                 WHERE n=$n
             } row {
