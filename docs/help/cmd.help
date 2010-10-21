@@ -337,6 +337,19 @@ command "errtrace" {
 }
 
 #=======================================================================
+# export command
+
+command "export" {
+    <<syntax <i>scriptFile</i>>>
+    Exports the orders shown on <<tabref Orders/Sent>> to a script file
+    that can be executed to reproduce the current scenario at the
+    current simulation time.  Execute the script in a new, empty 
+    scenario using the <<cmdref call>> command.<p>
+
+    The script file will be saved in the current working directory.<p>
+}
+
+#=======================================================================
 # help command
 
 command "help" {

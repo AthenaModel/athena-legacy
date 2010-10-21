@@ -62,7 +62,6 @@ snit::type executive {
             uplevel 1 [list source [file join [pwd] $script]]
         }
 
-        # TBD: See if we like it!
         $interp proc select {args} {
             set query "SELECT $args"
             
@@ -130,10 +129,13 @@ snit::type executive {
         $interp smartalias {dump sat slope} 3 3 {n g c} \
             [mytypemethod dump sat slope]
 
-
         # errtrace
         $interp smartalias errtrace 0 0 {} \
             [mytypemethod errtrace]
+
+        # export
+        $interp smartalias export 1 1 {scriptFile} \
+            [myproc export]
 
         # help
         $interp smartalias help 0 - {?-info? ?command...?} \
@@ -409,6 +411,94 @@ snit::type executive {
     #---------------------------------------------------------------
     # Procs
 
+    # export scriptFile
+    #
+    # scriptFile    Name of a file relative to the current working
+    #               directory.
+    #
+    # Creates a script of "send" commands from the orders in the
+    # CIF.  "SIM:UNLOCK" is explicitly ignored, as it gets left
+    # behind in the CIF on unlock, and would break scripts.
+
+    proc export {scriptFile} {
+        # FIRST, get a list of the order data.  Skip SIM:UNLOCK, and 
+        # prepare to fix up SIM:RUN and SIM:PAUSE
+        set orders [list]
+        set lastRun(index) ""
+        set lastRun(time)  ""
+
+        rdb eval {
+            SELECT time,name,parmdict
+            FROM cif
+            WHERE name != 'SIM:UNLOCK'
+            ORDER BY id
+        } {
+            # SIM:RUN requires special handling.
+            if {$name eq "SIM:RUN"} {
+                # FIRST, all SIM:RUN's should be blocking.
+                dict set parmdict block yes
+
+                # NEXT, we might need to fix up the days; save this order's
+                # index into the orders list.
+                set lastRun(index) [llength $orders]
+                set lastRun(time)  $time
+            }
+
+            # SIM:PAUSE updates previous SIM:RUN
+            if {$name eq "SIM:PAUSE"} {
+                # FIRST, update the previous SIM:RUN
+                let days {$time - $lastRun(time) + 1}
+
+                lassign [lindex $orders $lastRun(index)] runOrder runParms
+                dict set runParms days $days
+                lset orders $lastRun(index) [list $runOrder $runParms]
+
+                # NEXT, the sim will stop running automatically now,
+                # so no PAUSE is needed.
+                continue
+            }
+
+            # Save the current order.
+            lappend orders [list $name $parmdict]
+        }
+
+        # NEXT, if there are no orders, do nothing.
+        if {[llength $orders] == 0} {
+            error "no orders to export"
+        }
+
+        # NEXT, get file handle.  We'll throw an error if they
+        # use a bad name; that's OK.
+        set fullname [file join [pwd] $scriptFile]
+
+        set f [open $fullname w]
+
+
+        # NEXT, turn the orders into commands, and save them.
+        foreach entry $orders {
+            lassign $entry name parmdict
+
+            # FIRST, build option list.  Include only parameters with
+            # non-default values.
+            set cmd [list send $name]
+
+            dict for {parm value} $parmdict {
+                if {$value ne [order parm $name $parm -defval]} {
+                    lappend cmd -$parm $value
+                }
+            }
+
+            puts $f $cmd
+        }
+
+        close $f
+
+        log normal exec "Exported orders as $fullname."
+
+        return
+    }
+    
+
     # send order ?option value...?
     #
     # order     The name of an order(sim) order.
@@ -462,7 +552,7 @@ snit::type executive {
         } result]} {
             set wid [lmaxlen [dict keys $pdict]]
 
-            set text ""
+            set text "$order rejected:\n"
 
             # FIRST, add the parms in error.
             dict for {parm msg} $result {

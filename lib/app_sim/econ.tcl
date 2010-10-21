@@ -320,9 +320,11 @@ snit::type econ {
             SELECT labor_force,
                    security
             FROM demog_g
+            JOIN civgroups using (g)
             JOIN force_ng using (g)
             JOIN nbhoods using (n)
-            WHERE nbhoods.local
+            WHERE force_ng.n = civgroups.n
+            AND   nbhoods.local
         } {
             set security [qsecurity name $security]
             set factor [parmdb get econ.secFactor.labor.$security]
