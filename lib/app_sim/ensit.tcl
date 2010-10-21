@@ -626,17 +626,14 @@ snit::type ensit {
         if {"location" in $fields} {
             # NEXT, update the list of valid situation types.
             dict with fdict {
-                puts "location is $location"
-
                 if {$location ne "" && 
                     ![catch {
                         set mxy [map ref2m $location]
                         set n [nbhood find {*}$mxy]
                     }]
                 } {
-                    puts "$location is in nbhood $n"
                     set stypes [$type absentFromNbhood $n]
-                    puts "The stypes are <$stypes>"
+
                     if {[llength $stypes] > 0} {
                         $dlg field configure stype \
                             -values [lsort $stypes]
