@@ -715,6 +715,20 @@ command "select" {
 }
 
 #=======================================================================
+# send command
+
+command "send" {
+    <<syntax <i>order</i> ?<i>option value...</i>? >>
+
+    Sends the named <i>order</i> to the simulation given the set of
+    options and values.  The option names are simply the parameter
+    names as documented on the relevant <<cref orders>> page,
+    <b>prefixed with a hyphen (-)</b>.  If the order is rejected, the 
+    error message is pretty-printed.
+}
+
+
+#=======================================================================
 # set command
 
 command "set" {

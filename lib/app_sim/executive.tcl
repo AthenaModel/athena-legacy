@@ -231,6 +231,10 @@ snit::type executive {
         $interp smartalias {rdb tables} 0 0 {} \
             [list ::rdb tables]
 
+        # send
+        $interp smartalias send 1 - {order ?option value...?} \
+            [myproc send]
+
         # super
         $interp smartalias super 1 - {arg ?arg...?} \
             [myproc super]
@@ -405,12 +409,98 @@ snit::type executive {
     #---------------------------------------------------------------
     # Procs
 
+    # send order ?option value...?
+    #
+    # order     The name of an order(sim) order.
+    # option    One of order's parameter names, prefixed with "-"
+    # value     The parameter's value
+    #
+    # This routine provides a convenient way to enter orders from
+    # the command line or a script.  The order name is converted
+    # to upper case automatically.  The parameter names are validated,
+    # and a parameter dictionary is created.  The order is sent.
+    # Any error message is pretty-printed.
+
+    proc send {order args} {
+        # FIRST, build the parameter dictionary, validating the
+        # parameter names as we go.
+        set order [string toupper $order]
+
+        order validate $order
+
+        set parms [order parms $order]
+        set pdict [dict create]
+
+        foreach parm [order parms $order] {
+            dict set pdict $parm [order parm $order $parm -defval]
+        }
+
+        set userParms [list]
+
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+
+            set parm [string range $opt 1 end]
+
+            if {![string match "-*" $opt] ||
+                $parm ni $parms
+            } {
+                error "unknown option: $opt"
+            }
+
+            if {[llength $args] == 0} {
+                error "missing value for option $opt"
+            }
+
+            dict set pdict $parm [lshift args]
+            lappend userParms $parm
+        }
+
+        # NEXT, send the order, and handle errors.
+        if {[catch {
+            order send gui $order $pdict
+        } result]} {
+            set wid [lmaxlen [dict keys $pdict]]
+
+            set text ""
+
+            # FIRST, add the parms in error.
+            dict for {parm msg} $result {
+                append text [format "-%-*s   %s\n" $wid $parm $msg]
+            }
+
+            # NEXT, add the defaulted parms
+            set defaulted [list]
+            dict for {parm value} $pdict {
+                if {$parm ni $userParms &&
+                    ![dict exists $result $parm]
+                } {
+                    lappend defaulted $parm
+                }
+            }
+
+            if {[llength $defaulted] > 0} {
+                append text "\nDefaulted Parameters:\n"
+                dict for {parm value} $pdict {
+                    if {$parm in $defaulted} {
+                        append text [format "-%-*s   %s\n" $wid $parm $value]
+                    }
+                }
+            }
+
+            error $text
+        }
+
+        return ""
+    }
+
     # super args
     #
     # Executes args as a command in the global namespace
     proc super {args} {
         namespace eval :: $args
     }
+
 }
 
 #-------------------------------------------------------------------

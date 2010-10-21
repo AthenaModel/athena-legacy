@@ -326,11 +326,11 @@ order define FRCGROUP:CREATE {
     parm longname   text  "Long Name"
     parm color      color "Color"
     parm shape      enum  "Unit Shape"        -type eunitshape -defval NEUTRAL
-    parm forcetype  enum  "Force Type"        -type eforcetype
-    parm demeanor   enum  "Demeanor"          -type edemeanor
-    parm uniformed  enum  "Uniformed?"        -type eyesno
-    parm local      enum  "Local Group?"      -type eyesno
-    parm coalition  enum  "Coalition Member?" -type eyesno
+    parm forcetype  enum  "Force Type"        -type eforcetype -defval REGULAR
+    parm demeanor   enum  "Demeanor"          -type edemeanor  -defval AVERAGE
+    parm uniformed  enum  "Uniformed?"        -type eyesno     -defval yes
+    parm local      enum  "Local Group?"      -type eyesno     -defval no
+    parm coalition  enum  "Coalition Member?" -type eyesno     -defval no
 } {
     # FIRST, prepare and validate the parameters
     prepare g          -toupper   -required -unused -type ident
