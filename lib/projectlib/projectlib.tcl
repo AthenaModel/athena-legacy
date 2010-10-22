@@ -46,6 +46,10 @@ set binlib [file join $::projectlib::library libVersion.so]
 
 if {[file exists $binlib]} {
     load $binlib
+} else {
+    proc version {} {
+        return "x.y.z"
+    }
 }
 
 #-----------------------------------------------------------------------

@@ -92,7 +92,7 @@ snit::widget appwin {
         viewer {
             label "Map"
             parent ""
-            script { mapviewer %W -width 600 -height 600 }
+            script { mapviewer %W -width 600 -height 400 }
         }
 
         plant {
@@ -350,7 +350,7 @@ snit::widget appwin {
             script {
                 scrollinglog %W \
                     -relief        flat                \
-                    -height        30                  \
+                    -height        20                  \
                     -logcmd        [mymethod puts]     \
                     -loglevel      "normal"            \
                     -showloglist   yes                 \
@@ -1065,7 +1065,7 @@ snit::widget appwin {
         # NEXT, add the CLI to the paner, if needed.
         if {$options(-main)} {
             install cli using cli $win.paner.cli    \
-                -height    8                        \
+                -height    5                        \
                 -relief    flat                     \
                 -maxlines  [prefs get cli.maxlines] \
                 -promptcmd [mymethod CliPrompt]     \
