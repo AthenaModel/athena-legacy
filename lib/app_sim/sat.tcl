@@ -36,14 +36,14 @@ snit::type sat {
             WHERE atrend > 0.0 OR dtrend < 0.0
         } row {
             if {$row(atrend) > 0.0} {
-                aram sat slope 0 0 $row(n) $row(g) $row(c) $row(atrend) \
+                aram sat slope 0 0 $row(g) $row(c) $row(atrend) \
                     -cause   ATREND        \
                     -s       0.0           \
                     -athresh $row(athresh)
             }
 
             if {$row(dtrend) < 0.0} {
-                aram sat slope 0 0 $row(n) $row(g) $row(c) $row(dtrend) \
+                aram sat slope 0 0 $row(g) $row(c) $row(dtrend) \
                     -cause   DTREND        \
                     -s       0.0           \
                     -dthresh $row(dthresh)

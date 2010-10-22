@@ -33,7 +33,7 @@ snit::widgetadaptor econngbrowser {
 
     typevariable layout {
         { g           "CivGroup"                                       }
-        { long_name   "Long Name"                                      }
+        { longname    "Long Name"                                      }
         { n           "Nbhood"                                         }
         { population  "Population"    -sortmode integer -foreground %D }
         { sap         "SA%"           -sortmode integer                }
@@ -52,7 +52,7 @@ snit::widgetadaptor econngbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_econ_ng                 \
+            -view         gui_econ_g                  \
             -uid          id                          \
             -titlecolumns 1                           \
             -reloadon {

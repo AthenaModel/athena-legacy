@@ -385,9 +385,9 @@ snit::type scenario {
         set snapshot [rdb tclexport -exclude {
             snapshots 
             maps 
-            gram_sat_influence
-            gram_coop_influence
+            gram_fg
             gram_contribs
+            gram_deltas
             hist_coop
             hist_mood
             hist_nbcoop
@@ -473,6 +473,7 @@ snit::type scenario {
         rdb eval {
             DELETE FROM snapshots WHERE tick >= $t;
             DELETE FROM gram_contribs WHERE time >= $t;
+            DELETE FROM gram_deltas WHERE time >= $t;
         }
 
         hist purge $t

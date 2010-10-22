@@ -146,58 +146,59 @@ snit::type sim {
             ORDER BY n
         }]
 
-        $gram load groups {*}[rdb eval {
-            SELECT g, gtype FROM groups
-            ORDER BY gtype,g
-        }]
-
-        $gram load concerns {*}[rdb eval {
-            SELECT c, gtype FROM concerns
-            ORDER BY gtype,c
-        }]
-
         $gram load nbrel {*}[rdb eval {
             SELECT m, n, proximity, effects_delay 
             FROM nbrel_mn
             ORDER BY m,n
         }]
 
-        $gram load nbgroups {*}[rdb eval {
-            SELECT n, g, basepop, 1.0, 1.0
-            FROM civgroups
+        $gram load civg {*}[rdb eval {
+            SELECT g,n,basepop FROM civgroups
+            ORDER BY g
+        }]
+
+        $gram load civrel {*}[rdb eval {
+            SELECT R.f,
+                   R.g,
+                   R.rel
+            FROM rel_fg AS R
+            JOIN civgroups AS F ON (F.g = R.f)
+            JOIN civgroups as G on (G.g = R.g)
+            ORDER BY R.f, R.g
+        }]
+
+        $gram load concerns {*}[rdb eval {
+            SELECT c FROM concerns
+            ORDER BY c
         }]
 
         $gram load sat {*}[rdb eval {
-            SELECT n, g, c, sat0, saliency
-            FROM sat_gc JOIN civgroups USING (g)
-            ORDER BY n, g, c
+            SELECT g, c, sat0, saliency
+            FROM sat_gc
+            ORDER BY g, c
         }]
 
-        # Relationships: for now, just duplicate all relationships
-        # in all neighborhoods.
-        set records [list]
-        set nbhoods [nbhood names]
+        $gram load frcg {*}[rdb eval {
+            SELECT g FROM frcgroups
+            ORDER BY g
+        }]
 
-        rdb eval {
-            SELECT f, g, rel
-            FROM rel_fg
-            ORDER BY f, g
-        } {
-            foreach n $nbhoods {
-                lappend records $n $f $g $rel
-            }
-        }
-
-        $gram load rel {*}$records
+        $gram load frcrel {*}[rdb eval {
+            SELECT R.f,
+                   R.g,
+                   R.rel
+            FROM rel_fg AS R
+            JOIN frcgroups AS F ON (F.g = R.f)
+            JOIN frcgroups as G on (G.g = R.g)
+            ORDER BY R.f, R.g
+        }]
 
         $gram load coop {*}[rdb eval {
-            SELECT civgroups.n   AS n,
-                   coop_fg.f     AS f,
-                   coop_fg.g     AS g,
-                   coop_fg.coop0 AS coop0
+            SELECT f,
+                   g,
+                   coop0
             FROM coop_fg
-            JOIN civgroups ON (civgroups.g = coop_fg.f)
-            ORDER BY n, f, g
+            ORDER BY f, g
         }]
     }
 

@@ -62,16 +62,15 @@ snit::type hist {
 
     typemethod tick {} {
         rdb eval {
-            -- sat.n.g.c
+            -- sat.g.c
             INSERT INTO hist_sat
-            SELECT now() AS t, n, g, c, sat 
+            SELECT now() AS t, g, c, sat 
             FROM gram_sat;
 
-            -- mood.n.g
+            -- mood.g
             INSERT INTO hist_mood
-            SELECT now() AS t, n, g, sat
-            FROM gram_ng
-            WHERE sat_tracked = 1;
+            SELECT now() AS t, g, sat
+            FROM gram_g;
 
             -- nbmood.n
             INSERT INTO hist_nbmood
@@ -80,7 +79,7 @@ snit::type hist {
 
             -- coop.n.f.g
             INSERT INTO hist_coop
-            SELECT now() AS t, n, f, g, coop
+            SELECT now() AS t, f, g, coop
             FROM gram_coop;
 
             -- nbcoop.n.g

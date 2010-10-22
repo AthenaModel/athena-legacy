@@ -156,7 +156,7 @@ snit::type aam_rules {
         # NEXT, compute the multiplier
         set zsat [parmdb get dam.CIVCAS.Zcoop]
         set cmult [zcurve eval $zsat $data(casualties)]
-        set rmult [rmf enmore [rel $data(n) $data(f) $data(g)]]
+        set rmult [rmf enmore [rel $data(f) $data(g)]]
         let mult {$cmult * $rmult}
 
         # NEXT, add the details
@@ -191,22 +191,18 @@ snit::type aam_rules {
         return $result
     }
 
-    # rel n f g
+    # rel f g
     #
-    # n    A neighborhood
     # f    A CIV group f
     # g    A FRC or ORG group g
     #
     # Returns the relationship between the groups.
 
-    proc rel {n f g} {
+    proc rel {f g} {
         set rel [rdb eval {
-            SELECT rel FROM gram_nfg
-            WHERE n=$n AND f=$f AND g=$g
+            SELECT rel FROM rel_fg
+            WHERE f=$f AND g=$g
         }]
-
-        require {[string is double -strict $rel]} \
-            "Invalid group pair f=$f, g=$g"
 
         return $rel
     }

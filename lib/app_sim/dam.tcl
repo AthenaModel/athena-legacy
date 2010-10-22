@@ -401,7 +401,6 @@ snit::type dam {
             if {$itype eq "sat" && $etype eq "LEVEL"} {
                 set dinput [aram sat level $input(driver) \
                                 [simclock now]            \
-                                $n                        \
                                 $f                        \
                                 $c                        \
                                 $climit                   \
@@ -410,7 +409,6 @@ snit::type dam {
             } elseif {$itype eq "sat" && $etype eq "SLOPE"} {
                 set dinput [aram sat slope $input(driver) \
                                 [simclock now]            \
-                                $n                        \
                                 $f                        \
                                 $c                        \
                                 $slope                    \
@@ -418,7 +416,6 @@ snit::type dam {
             } elseif {$itype eq "coop" && $etype eq "LEVEL"} {
                 set dinput [aram coop level $input(driver) \
                                 [simclock now]             \
-                                $n                         \
                                 $f                         \
                                 $g                         \
                                 $climit                    \
@@ -427,7 +424,6 @@ snit::type dam {
             } elseif {$itype eq "coop" && $etype eq "SLOPE"} {
                 set dinput [aram coop slope $input(driver) \
                                 [simclock now]             \
-                                $n                         \
                                 $f                         \
                                 $g                         \
                                 $slope                     \

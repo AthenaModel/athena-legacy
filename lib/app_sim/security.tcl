@@ -111,10 +111,10 @@ snit::type security {
             SELECT civgroups.n             AS n,
                    civgroups.g             AS g,
                    civgroups.demeanor      AS demeanor,
-                   gram_ng.sat             AS mood,
+                   gram_g.sat              AS mood,
                    total(units.personnel)  AS P
             FROM civgroups_view AS civgroups
-            JOIN gram_ng USING (n,g)
+            JOIN gram_g USING (g)
             JOIN units ON (units.origin=civgroups.n AND units.g=civgroups.g)
             WHERE units.n = units.origin
             GROUP BY civgroups.n,civgroups.g
@@ -201,17 +201,17 @@ snit::type security {
         }
 
         # NEXT, iterate over all pairs of groups in each neighborhood.
-        # TBD: Assumes that there's only one GRAM!
         rdb eval {
-            SELECT gram_nfg.n           AS n, 
-                   gram_nfg.f           AS f,
-                   gram_nfg.g           AS g,
-                   gram_nfg.rel         AS rel,
-                   force_ng.own_force   AS f_own_force
-            FROM gram_nfg 
-            JOIN force_ng 
-            ON (force_ng.n = gram_nfg.n AND force_ng.g = gram_nfg.f)
+            SELECT NF.n         AS n,
+                   NF.g         AS f,
+                   NF.own_force AS f_own_force,
+                   G.g          AS g,
+                   FG.rel       AS rel
+            FROM force_ng AS NF
+            JOIN groups AS G
+            JOIN rel_fg AS FG ON (FG.f = NF.g AND FG.g = G.g)
             WHERE rel != 0.0
+            
         } {
             if {$rel > 0} {
                 let friends {int(ceil($f_own_force*$rel))}

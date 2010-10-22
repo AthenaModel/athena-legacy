@@ -201,14 +201,14 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # REPORT:SAT:CURRENT
 
-    test SATISFACTION:CIVILIAN-1.1 {not in prep} -body {
+    test SATISFACTION:CURRENT-1.1 {not in prep} -body {
         ted order -reject REPORT:SAT:CURRENT {}
     } -result {
         * {Simulation state is PREP, but order is valid only in these states: PAUSED}
     }
 
 
-    test SATISFACTION:CIVILIAN-1.2 {required parms} -setup {
+    test SATISFACTION:CURRENT-1.2 {required parms} -setup {
         setup
     } -body {
         ted order -reject REPORT:SAT:CURRENT {}
@@ -220,7 +220,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test SATISFACTION:CIVILIAN-1.3 {invalid neighborhood} -setup {
+    test SATISFACTION:CURRENT-1.3 {invalid neighborhood} -setup {
         setup
     } -body {
         ted order -reject REPORT:SAT:CURRENT n NONESUCH g SHIA
@@ -231,7 +231,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test SATISFACTION:CIVILIAN-1.4 {invalid group} -setup {
+    test SATISFACTION:CURRENT-1.4 {invalid group} -setup {
         setup
     } -body {
         ted order -reject REPORT:SAT:CURRENT n NB1 g NONESUCH
@@ -242,7 +242,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test SATISFACTION:CIVILIAN-2.1 {n ALL g ALL} -setup {
+    test SATISFACTION:CURRENT-2.1 {n ALL g ALL} -setup {
         setup
     } -body {
         ted order REPORT:SAT:CURRENT n ALL g ALL
@@ -251,7 +251,7 @@ namespace eval ::athena_test::tests:: {
     } -result {}
 
 
-    test SATISFACTION:CIVILIAN-2.2 {n ALL g SHIA} -setup {
+    test SATISFACTION:CURRENT-2.2 {n ALL g SHIA} -setup {
         setup
     } -body {
         ted order REPORT:SAT:CURRENT n ALL g SHIA
@@ -260,7 +260,7 @@ namespace eval ::athena_test::tests:: {
     } -result {}
 
 
-    test SATISFACTION:CIVILIAN-2.3 {n NB1 g ALL} -setup {
+    test SATISFACTION:CURRENT-2.3 {n NB1 g ALL} -setup {
         setup
     } -body {
         ted order REPORT:SAT:CURRENT n NB1 g ALL
@@ -269,7 +269,7 @@ namespace eval ::athena_test::tests:: {
     } -result {}
 
 
-    test SATISFACTION:CIVILIAN-2.4 {n NB1 g SHIA} -setup {
+    test SATISFACTION:CURRENT-2.4 {n NB1 g SHIA} -setup {
         setup
     } -body {
         ted order REPORT:SAT:CURRENT n NB1 g SHIA

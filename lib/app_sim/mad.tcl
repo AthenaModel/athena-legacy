@@ -364,7 +364,7 @@ snit::type mad {
             set n [civgroup getg $g n]
 
             # FIRST, get the undo information
-            set oldSat [aram sat.ngc $n $g $c]
+            set oldSat [aram sat.gc $g $c]
 
             # NEXT, get the GRAM driver ID.
             rdb eval {
@@ -372,7 +372,7 @@ snit::type mad {
             } {}
 
             # NEXT, Adjust the level
-            set inputId [aram sat adjust $driver $n $g $c $delta]
+            set inputId [aram sat adjust $driver $g $c $delta]
 
             # NEXT, send ADJUST-1-1 report
             set text [edamrule longname ADJUST-1-1]
@@ -407,7 +407,7 @@ snit::type mad {
             notifier send ::mad <Entity> update $mad
 
             # NEXT, Return the undo command
-            return [mytypemethod RestoreSat $mad $driver $n $g $c $oldSat \
+            return [mytypemethod RestoreSat $mad $driver $g $c $oldSat \
                        $reportid]
         }
     }
@@ -430,7 +430,7 @@ snit::type mad {
             set n [civgroup getg $g n]
 
             # FIRST, get the undo information
-            set oldSat [aram sat.ngc $n $g $c]
+            set oldSat [aram sat.gc $g $c]
 
             # NEXT, get the GRAM driver ID.
             rdb eval {
@@ -438,7 +438,7 @@ snit::type mad {
             } {}
 
             # NEXT, Set the level
-            set inputId [aram sat set $driver $n $g $c $sat]
+            set inputId [aram sat set $driver $g $c $sat]
 
             # NEXT, send ADJUST-1-2 report
             set text [edamrule longname ADJUST-1-2]
@@ -473,17 +473,17 @@ snit::type mad {
             notifier send ::mad <Entity> update $mad
 
             # NEXT, Return the undo command
-            return [mytypemethod RestoreSat $mad $driver $n $g $c $oldSat \
+            return [mytypemethod RestoreSat $mad $driver $g $c $oldSat \
                        $reportid]
         }
     }
 
-    # RestoreSat mad driver n g c sat reportid
+    # RestoreSat mad driver g c sat reportid
     #
     # Restores a satisfaction level to its previous value on undo.
 
-    typemethod RestoreSat {mad driver n g c sat reportid} {
-        aram sat set $driver $n $g $c $sat -undo
+    typemethod RestoreSat {mad driver g c sat reportid} {
+        aram sat set $driver $g $c $sat -undo
         reporter delete $reportid
         notifier send ::sat <Entity> update [list $g $c]
         notifier send ::mad <Entity> update $mad
@@ -612,7 +612,7 @@ snit::type mad {
             set n [civgroup getg $f n]
 
             # FIRST, get the undo information
-            set oldCoop [aram coop.nfg $n $f $g]
+            set oldCoop [aram coop.fg $f $g]
 
             # NEXT, get the GRAM driver ID.
             rdb eval {
@@ -620,7 +620,7 @@ snit::type mad {
             } {}
 
             # NEXT, Adjust the level
-            set inputId [aram coop adjust $driver $n $f $g $delta]
+            set inputId [aram coop adjust $driver $f $g $delta]
 
             # NEXT, send ADJUST-2-1 report
             set text [edamrule longname ADJUST-2-1]
@@ -655,7 +655,7 @@ snit::type mad {
             notifier send ::mad <Entity> update $mad
 
             # NEXT, Return the undo command
-            return [mytypemethod RestoreCoop $mad $driver $n $f $g $oldCoop \
+            return [mytypemethod RestoreCoop $mad $driver $f $g $oldCoop \
                        $reportid]
         }
     }
@@ -679,7 +679,7 @@ snit::type mad {
             set n [civgroup getg $f n]
 
             # FIRST, get the undo information
-            set oldCoop [aram coop.nfg $n $f $g]
+            set oldCoop [aram coop.fg $f $g]
 
             # NEXT, get the GRAM driver ID.
             rdb eval {
@@ -687,7 +687,7 @@ snit::type mad {
             } {}
 
             # NEXT, Set the level
-            set inputId [aram coop set $driver $n $f $g $coop]
+            set inputId [aram coop set $driver $f $g $coop]
 
             # NEXT, send ADJUST-2-2 report
             set text [edamrule longname ADJUST-2-2]
@@ -722,17 +722,17 @@ snit::type mad {
             notifier send ::mad <Entity> update $mad
 
             # NEXT, Return the undo command
-            return [mytypemethod RestoreCoop $mad $driver $n $f $g $oldCoop \
+            return [mytypemethod RestoreCoop $mad $driver $f $g $oldCoop \
                        $reportid]
         }
     }
 
-    # RestoreCoop mad driver n f g coop reportid
+    # RestoreCoop mad driver f g coop reportid
     #
     # Restores a cooperation level to its previous value on undo.
 
-    typemethod RestoreCoop {mad driver n f g coop reportid} {
-        aram coop set $driver $n $f $g $coop -undo
+    typemethod RestoreCoop {mad driver f g coop reportid} {
+        aram coop set $driver $f $g $coop -undo
         reporter delete $reportid
         notifier send ::coop <Entity> update [list $f $g]
         notifier send ::mad <Entity> update $mad

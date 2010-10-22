@@ -62,12 +62,12 @@ SELECT CG.g                                          AS id,
        DG.unemployed                                 AS unemployed,
        format('%.1f', DG.upc)                        AS upc,
        format('%.2f', DG.uaf)                        AS uaf,
-       format('%.3f', coalesce(gram.sat0, 0.0))      AS mood0,
-       format('%.3f', coalesce(gram.sat,  0.0))      AS mood
+       format('%.3f', coalesce(gram_g.sat0, 0.0))    AS mood0,
+       format('%.3f', coalesce(gram_g.sat,  0.0))    AS mood
 FROM groups    AS G
 JOIN civgroups AS CG USING (g)
 JOIN demog_g   AS DG USING (g)
-LEFT OUTER JOIN gram_ng AS gram ON (CG.g = gram.g AND CG.n = gram.n);
+LEFT OUTER JOIN gram_g USING (g);
 
 -- A Force Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_frcgroups AS
@@ -473,7 +473,7 @@ JOIN nbhoods AS N using (n)
 WHERE N.local;
 
 -- A civgroups view for econ data, used by the GUI
-CREATE TEMPORARY VIEW gui_econ_ng AS
+CREATE TEMPORARY VIEW gui_econ_g AS
 SELECT * FROM gui_civgroups 
 JOIN nbhoods USING (n)
 WHERE nbhoods.local;

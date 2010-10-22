@@ -36,14 +36,14 @@ snit::type coop {
             WHERE atrend > 0.0 OR dtrend < 0.0
         } row {
             if {$row(atrend) > 0.0} {
-                aram coop slope 0 0 $row(n) $row(f) $row(g) $row(atrend) \
+                aram coop slope 0 0 $row(f) $row(g) $row(atrend) \
                     -cause   ATREND        \
                     -s       0.0           \
                     -athresh $row(athresh)
             }
 
             if {$row(dtrend) < 0.0} {
-                aram coop slope 0 0 $row(n) $row(f) $row(g) $row(dtrend) \
+                aram coop slope 0 0 $row(f) $row(g) $row(dtrend) \
                     -cause   DTREND        \
                     -s       0.0           \
                     -dthresh $row(dthresh)

@@ -943,25 +943,23 @@ SELECT * FROM nbhoods JOIN econ_n USING (n) WHERE nbhoods.local = 1;
 -- one table might contain multiple variables; in that case it will
 -- be named after the primary one.
 
--- sat.n.g.c
+-- sat.g.c
 CREATE TABLE hist_sat (
     t   INTEGER,
-    n   TEXT,
     g   TEXT,
     c   TEXT,
     sat DOUBLE,
 
-    PRIMARY KEY (t,n,g,c)
+    PRIMARY KEY (t,g,c)
 );
 
--- mood.n.g
+-- mood.g
 CREATE TABLE hist_mood (
     t   INTEGER,
-    n   TEXT,
     g   TEXT,
     sat DOUBLE,
 
-    PRIMARY KEY (t,n,g)
+    PRIMARY KEY (t,g)
 );
 
 -- nbmood.n
@@ -973,15 +971,14 @@ CREATE TABLE hist_nbmood (
     PRIMARY KEY (t,n)
 );
 
--- coop.n.f.g
+-- coop.f.g
 CREATE TABLE hist_coop (
     t    INTEGER,
-    n    TEXT,
     f    TEXT,
     g    TEXT,
     coop DOUBLE,
 
-    PRIMARY KEY (t,n,f,g)
+    PRIMARY KEY (t,f,g)
 );
 
 -- nbcoop.n.g

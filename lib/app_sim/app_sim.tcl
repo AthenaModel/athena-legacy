@@ -43,7 +43,7 @@ package require textutil::adjust 0.7
 package require marsutil
 package require marsgui
 package require formlib
-package require simlib
+package require simlib 2.0
 
 # From Athena
 package require projectlib

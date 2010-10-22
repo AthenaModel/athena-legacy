@@ -91,26 +91,6 @@ snit::type ::report {
             SELECT * FROM reports WHERE rtype='GRAM' AND subtype='SATCONTRIB'
         }
 
-        reporter bin define civ "Civilian" "" {
-            SELECT * FROM reports WHERE meta1='CIV'
-        }
-
-        reporter bin define civ_coop "Cooperation" civ {
-            SELECT * FROM reports WHERE rtype='GRAM' AND subtype='COOP'
-        }
-
-        reporter bin define civ_sat "Satisfaction" civ {
-            SELECT * FROM reports WHERE meta1='CIV' AND subtype='SAT'
-        }
-
-        reporter bin define org "Organization" "" {
-            SELECT * FROM reports WHERE meta1='ORG'
-        }
-
-        reporter bin define org_sat "Satisfaction" org {
-            SELECT * FROM reports WHERE meta1='ORG' AND subtype='SAT'
-        }
-
         reporter bin define scenario "Scenario" "" {
             SELECT * FROM reports WHERE rtype='SCENARIO'
         }
@@ -298,56 +278,6 @@ snit::type ::report {
     #
     # Each of these methods is a mutator, in that it adds a report to
     # the RDB, and returns an undo script.
-
-    # imp coop n f g
-    #
-    # n    Neighborhood, or "ALL"
-    # f    Civilian Group, or "ALL"
-    # g    Force Group, or "ALL"
-    #
-    # Generates a detailed report of group cooperation.
-
-    typemethod {imp coop} {n f g} {
-        # FIRST, Set the title
-        set modifiers [list]
-
-        if {$f ne "ALL"} {
-            lappend modifiers "of $f"
-        } else {
-            set f "*"
-        }
-
-        if {$g ne "ALL"} {
-            lappend modifiers "with $g"
-        } else {
-            set g "*"
-        }
-
-        if {$n ne "ALL"} {
-            lappend modifiers "in $n"
-        } else {
-            set n "*"
-        }
-
-        set title "Cooperation Report"
-
-        if {[llength $modifiers] > 0} {
-            append title " ([join $modifiers { }])"
-        }
-
-        # NEXT, get the text
-        set text [aram dump coop.nfg -nbhood $n -civ $f -frc $g]
-
-        # NEXT, save the report
-        set id [reporter save \
-                    -title     $title                       \
-                    -text      $text                        \
-                    -requested 1                            \
-                    -rtype     GRAM                         \
-                    -subtype   COOP]
-
-        return [list reporter delete $id]
-    }
 
 
     # imp coop n f g
@@ -669,26 +599,17 @@ snit::type ::report {
         return [join $lines $leader]
     }
 
-    # imp sat gtype n g
+    # imp sat n g
     #
-    # gtype   Group type, CIV or ORG
     # n       Neighborhood, or "ALL"
     # g       Group, or "ALL"
     #
     # Generates a detailed report of group satisfaction, including mood
-    # and deltas from time 0.
+    # and deltas from time 0.  If n is not ALL, includes only groups
+    # in neighborhood n.
 
-    typemethod {imp sat} {gtype n g} {
-        # FIRST, CIV or ORG
-        if {$gtype eq "CIV"} {
-            set title "Civilian Satisfaction"
-        } elseif {$gtype eq "ORG"} {
-            set title "Organization Satisfaction"
-        } else {
-            error "Expected CIV or ORG group type, got:\"$gtype\""
-        }
-
-        # NEXT, Determine the effects of the arguments.
+    typemethod {imp sat} {n g} {
+        # FIRST, Determine the effects of the arguments.
         set modifiers [list]
 
         if {$g ne "ALL"} {
@@ -707,8 +628,10 @@ snit::type ::report {
             set andNbhood ""
         }
 
+        set title "Current Satisfaction"
+
         if {[llength $modifiers] > 0} {
-            set title "$title ([join $modifiers { }])"
+            append title " ([join $modifiers { }])"
         }
 
         # NEXT, we need to accumulate the desired data.  Create a 
@@ -720,69 +643,38 @@ snit::type ::report {
             );
         }
 
-        # NEXT, If we're spanning neighborhoods, include the playbox data.
-
-        if {$n eq "ALL"} {
-            rdb eval "
-                -- Playbox moods
-                INSERT INTO temp_sat_report_table(n,g,c,sat,delta,sat0)
-                SELECT '*', 
-                       g, 
-                       '*', 
-                       sat,
-                       sat-sat0, 
-                       sat0
-                FROM gram_g
-                WHERE gtype=\$gtype
-                $andGroup;
-              
-
-                -- Playbox satisfaction levels
-                INSERT INTO temp_sat_report_table(n,g,c,sat,delta,sat0)
-                SELECT '*', 
-                       g, 
-                       c, 
-                       gram_gc.sat,
-                       gram_gc.sat-gram_gc.sat0, 
-                       gram_gc.sat0
-                FROM gram_gc JOIN gram_g USING (g)
-                WHERE gtype=\$gtype
-                $andGroup;
-            "
-        }
-
-        # NEXT, include the neighborhood data
         rdb eval "
-            -- Nbhood moods
+            -- Moods
             INSERT INTO temp_sat_report_table(n,g,c,sat,delta,sat0)
             SELECT n, 
                    g, 
                    '*', 
-                   gram_ng.sat,
-                   gram_ng.sat - gram_ng.sat0, 
-                   gram_ng.sat0
-            FROM gram_ng JOIN gram_g USING (g)
-            WHERE gtype=\$gtype AND sat_tracked=1
+                   sat,
+                   sat-sat0, 
+                   sat0
+            FROM gram_g
+            WHERE 1=1
             $andNbhood
             $andGroup;
-          
-             -- Nbhood satisfaction levels
+              
+
+            -- Satisfaction levels
             INSERT INTO temp_sat_report_table(n,g,c,sat,delta,sat0)
             SELECT n, 
                    g, 
                    c, 
                    sat,
-                   sat - sat0, 
+                   sat-sat0, 
                    sat0
-            FROM gram_sat
-            WHERE gtype=\$gtype
-            $andNbhood
-            $andGroup;
+                FROM gram_sat
+                WHERE 1=1
+                $andNbhood
+                $andGroup;
         "
 
         # NEXT, format the report for all groups or group-specific
         set text [rdb query {
-            SELECT CASE WHEN n='*' THEN 'Playbox' ELSE n END,
+            SELECT n,
                    g,
                    CASE WHEN c='*' THEN 'Mood' ELSE c END,
                    format('%7.2f = %-2s', sat,  qsat('name',sat)),
@@ -805,13 +697,10 @@ snit::type ::report {
                     -text      $text                        \
                     -requested 1                            \
                     -rtype     GRAM                         \
-                    -subtype   SAT                          \
-                    -meta1     ${gtype}]
+                    -subtype   SAT]
 
         return [list reporter delete $id]
     }
-
-
 
     # imp satcontrib parmdict
     #
@@ -962,7 +851,7 @@ snit::type ::report {
         dict with fdict {
             # Refresh g
             if {"n" in $fields} {
-                set values [nbgroup gIn $n]
+                set values [civgroup gIn $n]
 
                 $dlg field configure g -values $values
 
@@ -1066,15 +955,15 @@ order define REPORT:PARMDB {
 
 # REPORT:SAT:CURRENT
 #
-# Produces a Civilian Satisfaction Report
+# Produces a Current Satisfaction Report
 
 order define REPORT:SAT:CURRENT {
-    title "Civilian Satisfaction Report"
+    title "Current Satisfaction Report"
     options \
         -schedulestates {PREP PAUSED} \
         -sendstates     PAUSED
 
-    parm n enum  "Neighborhood"  -type {::ptype n+all}     -defval ALL
+    parm n enum  "Nbhood"        -type {::ptype n+all}     -defval ALL
     parm g enum  "Group"         -type {::ptype civg+all}  -defval ALL
 } {
     # FIRST, prepare the parameters
@@ -1085,7 +974,7 @@ order define REPORT:SAT:CURRENT {
 
     # NEXT, produce the report
     set undo [list]
-    lappend undo [report imp sat CIV $parms(n) $parms(g)]
+    lappend undo [report imp sat $parms(n) $parms(g)]
 
     setundo [join $undo \n]
 }
