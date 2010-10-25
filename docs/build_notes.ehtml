@@ -11,6 +11,37 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.2, 25 October 2010</h3>
+
+This build contains a number of minor bug fixes, and two significant
+changes.  First, Athena now supports scripting of simulation orders.
+A script can send orders, and the complete order history can be saved
+as a script.  In aid of this, the longer order names have been
+considerably shortened; the SITUATION:ENVIRONMENTAL:* orders, for
+example, are now the ENSIT:* orders.<p>
+
+Second, the model architecture has been significantly changed: each
+civilian group now resides in exactly one neighborhood.  There is no
+longer a distinction between toplevel civilian groups and neighborhood
+groups.  Groups that would have been neighborhood groups of the same
+toplevel group are now modeled as civilian groups with a strong
+positive relationship.<p>
+
+The full list of packages is as follows:<p>
+
+<ul>
+  <li> Bug 2610: More Online Help Glossary Typos
+  <li> Bug 2613: athena_sim(1): In NBHOOD:UPDATE:*, vtygain changes are not undone.
+  <li> Bug 2621: athena_sim(1): Each civ group resides in one neighborhood
+  <li> Bug 2622: Update Scheduled Activity Bgerror
+  <li> Bug 2624: EnSit Info Appears on Terminal Window
+  <li> Bug 2625: athena_sim(1): Order renaming
+  <li> Bug 2626: athena_sim(1): "send" executive command
+  <li> Bug 2630: athena_sim(1): "export" command
+  <li> Bug 2631: athena_sim(1): Execute on OS X
+  <li> Bug 2633: athena_sim(1): Integrate gram2 into Athena 
+</ul><p>
+
 <h3>Build 3.0.1, 11 October 2010</h3>
 
 This build contains a major overhaul of Athena's order dialog
