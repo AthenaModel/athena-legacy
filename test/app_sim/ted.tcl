@@ -208,7 +208,6 @@ snit::type ted {
             demeanor  AVERAGE
             uniformed 1
             local     0
-            coalition 1
         }
 
         defentity BRIT ::frcgroup {
@@ -220,7 +219,6 @@ snit::type ted {
             demeanor  AVERAGE
             uniformed 1
             local     0
-            coalition 1
         }
         
         defentity ALQ ::frcgroup {
@@ -232,7 +230,6 @@ snit::type ted {
             demeanor  AGGRESSIVE
             uniformed 0
             local     0
-            coalition 0
         }
         
         defentity TAL ::frcgroup {
@@ -244,7 +241,6 @@ snit::type ted {
             demeanor  AGGRESSIVE
             uniformed 0
             local     1
-            coalition 0
         }
         
         # Organization Groups

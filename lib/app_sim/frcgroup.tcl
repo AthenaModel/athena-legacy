@@ -171,7 +171,6 @@ snit::type frcgroup {
     #    demeanor       The group's demeanor (edemeanor(n))
     #    uniformed      The group's uniformed flag
     #    local          The group's local flag
-    #    coalition      The group's coalition flag
     #
     # Creates a force group given the parms, which are presumed to be
     # valid.
@@ -196,12 +195,11 @@ snit::type frcgroup {
                        $demeanor,
                        'FRC');
 
-                INSERT INTO frcgroups(g,forcetype,uniformed,local,coalition)
+                INSERT INTO frcgroups(g,forcetype,uniformed,local)
                 VALUES($g,
                        $forcetype,
                        $uniformed,
-                       $local,
-                       $coalition);
+                       $local);
             }
 
             # NEXT, notify the app.
@@ -261,7 +259,6 @@ snit::type frcgroup {
     #    demeanor       A new demeanor, or ""
     #    uniformed      A new uniformed flag, or ""
     #    local          A new local flag, or ""
-    #    coalition      A new coalition flag, or ""
     #
     # Updates a frcgroup given the parms, which are presumed to be
     # valid.
@@ -296,8 +293,7 @@ snit::type frcgroup {
                 UPDATE frcgroups
                 SET forcetype = nonempty($forcetype, forcetype),
                     uniformed = nonempty($uniformed, uniformed),
-                    local     = nonempty($local,     local),
-                    coalition = nonempty($coalition, coalition)
+                    local     = nonempty($local,     local)
                 WHERE g=$g
             } {}
 
@@ -330,7 +326,6 @@ order define FRCGROUP:CREATE {
     parm demeanor   enum  "Demeanor"          -type edemeanor  -defval AVERAGE
     parm uniformed  enum  "Uniformed?"        -type eyesno     -defval yes
     parm local      enum  "Local Group?"      -type eyesno     -defval no
-    parm coalition  enum  "Coalition Member?" -type eyesno     -defval no
 } {
     # FIRST, prepare and validate the parameters
     prepare g          -toupper   -required -unused -type ident
@@ -341,7 +336,6 @@ order define FRCGROUP:CREATE {
     prepare demeanor   -toupper   -required -type edemeanor
     prepare uniformed  -toupper   -required -type boolean
     prepare local      -toupper   -required -type boolean
-    prepare coalition  -toupper   -required -type boolean
 
     returnOnError
 
@@ -420,7 +414,6 @@ order define FRCGROUP:UPDATE {
     parm demeanor   enum  "Demeanor"           -type edemeanor
     parm uniformed  enum  "Uniformed?"         -type eyesno
     parm local      enum  "Local Group?"       -type eyesno
-    parm coalition  enum  "Coalition Member?"  -type eyesno
 } {
     # FIRST, prepare the parameters
     prepare g         -toupper  -required -type frcgroup
@@ -434,7 +427,6 @@ order define FRCGROUP:UPDATE {
     prepare demeanor  -toupper   -type edemeanor
     prepare uniformed -toupper   -type boolean
     prepare local     -toupper   -type boolean
-    prepare coalition -toupper   -type boolean
 
     returnOnError -final
 
@@ -466,7 +458,6 @@ order define FRCGROUP:UPDATE:MULTI {
     parm demeanor   enum  "Demeanor"           -type edemeanor
     parm uniformed  enum  "Uniformed?"         -type eyesno
     parm local      enum  "Local Group?"       -type eyesno
-    parm coalition  enum  "Coalition Member?"  -type eyesno
 } {
     # FIRST, prepare the parameters
     prepare ids       -toupper  -required -listof frcgroup
@@ -476,7 +467,6 @@ order define FRCGROUP:UPDATE:MULTI {
     prepare demeanor  -toupper            -type   edemeanor
     prepare uniformed -toupper            -type   boolean
     prepare local     -toupper            -type   boolean
-    prepare coalition -toupper            -type   boolean
 
     returnOnError -final
 

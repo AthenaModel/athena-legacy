@@ -1173,15 +1173,6 @@ macro FRCGROUP.local {} {
 }
 
 
-macro FRCGROUP.coalition {} {
-    |<--
-    Boolean flag (e.g., "Yes" or "No").  Indicates whether or not the
-    group is perceived as belonging to the U.S.-led coalition.<p>
-
-    <b>NOTE:</b> This flag was inherited from JNEM; it is not
-    currently used for anything, and might be deleted.
-}
-
 #-----------------------------------------------------------------------
 
 order FRCGROUP:CREATE "Create Force Group" {
@@ -1217,11 +1208,6 @@ order FRCGROUP:CREATE "Create Force Group" {
     <<parm local "Local Group?">>
     <b>Required.</b>  <<FRCGROUP.local>>
     <</parm>>
-
-    <<parm coalition "Coalition Member?">>
-    <b>Required.</b>  <<FRCGROUP.coalition>>
-    <</parm>>
-
 
     <</parmlist>>
 
@@ -1281,9 +1267,6 @@ order FRCGROUP:UPDATE "Update Force Group" {
     <b>Optional.</b>  <<FRCGROUP.local>>
     <</parm>>
 
-    <<parm coalition "Coalition Member?">>
-    <b>Optional.</b>  <<FRCGROUP.coalition>>
-    <</parm>>
     <</parmlist>>
 
     <b><<cref using.prep>> Only.</b>  This order modifies the
@@ -1323,9 +1306,6 @@ order FRCGROUP:UPDATE+MULTI "Update Multiple Force Groups" {
     <b>Optional.</b>  <<FRCGROUP.local>>
     <</parm>>
 
-    <<parm coalition "Coalition Member?">>
-    <b>Optional.</b>  <<FRCGROUP.coalition>>
-    <</parm>>
     <</parmlist>>
 
     <b><<cref using.prep>> Only.</b>  This order modifies the

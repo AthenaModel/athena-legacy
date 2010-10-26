@@ -39,7 +39,6 @@ snit::widgetadaptor frcgroupbrowser {
         { demeanor  "Demeanor"   }
         { uniformed "Uniformed?" }
         { local     "Local?"     }
-        { coalition "Coalition?" }
     }
 
     #-------------------------------------------------------------------

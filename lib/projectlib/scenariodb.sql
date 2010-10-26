@@ -203,10 +203,7 @@ CREATE TABLE frcgroups (
     uniformed   INTEGER DEFAULT 1,
 
     -- Local or foreign: 1 if local, 0 if foreign
-    local       INTEGER,
-
-    -- Member of US-led coalition: 1 if member, 0 otherwise
-    coalition   INTEGER
+    local       INTEGER
 );
 
 -- Force Group View: joins groups with frcgroups.

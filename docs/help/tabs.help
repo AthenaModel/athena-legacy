@@ -1230,10 +1230,6 @@ tab "Groups/FrcGroups" {
     playbox, and <b>NO</b> otherwise.
     <</topic>>
 
-    <<topic "Coalition?">> <b>YES</b> if the group is a member of a
-    US-led coalition, and <b>NO</b> otherwise.
-    <</topic>>
-
     <</topiclist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's

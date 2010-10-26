@@ -37,7 +37,6 @@ namespace eval ::athena_test::tests:: {
         demeanor  AVERAGE
         uniformed yes
         local     no
-        coalition yes
     }
 
     set brit {
@@ -49,7 +48,6 @@ namespace eval ::athena_test::tests:: {
         demeanor  AVERAGE
         uniformed yes
         local     no
-        coalition yes
     }
 
 
@@ -74,7 +72,6 @@ namespace eval ::athena_test::tests:: {
         demeanor {required value}
         uniformed {required value}
         local {required value}
-        coalition {required value}
     }
     
 
@@ -166,15 +163,6 @@ namespace eval ::athena_test::tests:: {
         local {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test CREATE-1.11 {invalid coalition} -body {
-        ted order -reject FRCGROUP:CREATE [dict merge $blue {
-            coalition NONESUCH
-        }]
-    } -result {
-        coalition {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
-    }
-
-
     test CREATE-2.1 {frcgroup is created} -body {
         ted order FRCGROUP:CREATE $blue
 
@@ -182,9 +170,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor gtype forcetype uniformed local coalition 
----- -------- ------- ------ -------- -------- ----- --------- --------- ----- --------- 
-BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1         
+g    longname color   shape  symbol   demeanor gtype forcetype uniformed local 
+---- -------- ------- ------ -------- -------- ----- --------- --------- ----- 
+BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     
     }
 
 
@@ -360,17 +348,6 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
     }
 
 
-    test UPDATE-1.10 {invalid coalition} -setup {
-        ted order FRCGROUP:CREATE $blue
-    } -body {
-        ted order -reject FRCGROUP:UPDATE g BLUE coalition NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        coalition {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
-    }
-
-
     test UPDATE-2.1 {frcgroup is updated} -setup {
         ted order FRCGROUP:CREATE $blue
     } -body {
@@ -383,16 +360,15 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     1
             demeanor     AGGRESSIVE
             uniformed    no
             local        yes
-            coalition    no
         }
 
         ted query {SELECT * FROM frcgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol demeanor   gtype forcetype uniformed local coalition 
----- ----------- ------- ------- ------ ---------- ----- --------- --------- ----- --------- 
-BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1     0         
+g    longname    color   shape   symbol demeanor   gtype forcetype uniformed local 
+---- ----------- ------- ------- ------ ---------- ----- --------- --------- ----- 
+BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1     
     }
 
 
@@ -419,7 +395,6 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
             demeanor     AGGRESSIVE
             local        yes
             uniformed    no
-            coalition    no
         }
     } -body {
         ted notifier bind ::frcgroup <Entity>
@@ -525,17 +500,6 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
     }
 
 
-    test UPDATE:MULTI-1.10 {invalid coalition} -setup {
-        ted order FRCGROUP:CREATE $blue
-    } -body {
-        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE coalition NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        coalition {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
-    }
-
-
     test UPDATE:MULTI-2.1 {one group of several is updated} -setup {
         ted order FRCGROUP:CREATE $blue
         ted order FRCGROUP:CREATE $brit
@@ -550,7 +514,6 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
             demeanor  AGGRESSIVE
             uniformed no
             local     yes
-            coalition no
         }
 
         ted notifier received
@@ -575,7 +538,6 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1  
             demeanor  AGGRESSIVE
             uniformed no
             local     yes
-            coalition no
         }
 
         ted notifier received
