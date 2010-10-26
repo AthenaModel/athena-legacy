@@ -305,11 +305,13 @@ order define CIVGROUP:CREATE {
     parm g         text   "Group"
     parm longname  text   "Long Name"
     parm n         enum   "Nbhood"          -type nbhood
-    parm color     color  "Color"
-    parm shape     enum   "Unit Shape"      -type eunitshape -defval NEUTRAL
-    parm demeanor  enum   "Demeanor"        -type edemeanor
-    parm basepop   text   "Base Pop."
-    parm sap       text   "Subs. Agri. %"   -defval 0
+    parm color     color  "Color"           -defval \#45DD11
+    parm shape     enum   "Unit Shape"      -type eunitshape \
+                                            -defval NEUTRAL
+    parm demeanor  enum   "Demeanor"        -type edemeanor \
+                                            -defval AVERAGE
+    parm basepop   text   "Base Pop."       -defval 10000
+    parm sap       pct    "Subs. Agri. %"   -defval 0
 } {
     # FIRST, prepare and validate the parameters
     prepare g        -toupper   -required -unused -type ident
@@ -320,7 +322,6 @@ order define CIVGROUP:CREATE {
     prepare demeanor -toupper   -required         -type edemeanor
     prepare basepop             -required         -type ingpopulation
     prepare sap                 -required         -type ipercent
-
 
     returnOnError
 
@@ -399,7 +400,7 @@ order define CIVGROUP:UPDATE {
     parm shape     enum   "Unit Shape"       -type eunitshape
     parm demeanor  enum   "Demeanor"         -type edemeanor
     parm basepop   text   "Base Population"
-    parm sap       text   "Subs. Agri. %"  
+    parm sap       pct    "Subs. Agri. %"  
 } {
     # FIRST, prepare the parameters
     prepare g         -toupper  -required -type civgroup
@@ -435,14 +436,14 @@ order define CIVGROUP:UPDATE:MULTI {
     parm shape    enum   "Unit Shape" -type eunitshape
     parm demeanor enum   "Demeanor"   -type edemeanor
     parm basepop  text   "Base Population"
-    parm sap      text   "Subs. Agri. %"  
+    parm sap      pct    "Subs. Agri. %"  
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper -required -listof civgroup
     prepare n        -toupper           -type nbhood
-    prepare color    -tolower           -type   hexcolor
-    prepare shape    -toupper           -type   eunitshape
-    prepare demeanor -toupper           -type   edemeanor
+    prepare color    -tolower           -type hexcolor
+    prepare shape    -toupper           -type eunitshape
+    prepare demeanor -toupper           -type edemeanor
     prepare basepop                     -type ingpopulation
     prepare sap                         -type ipercent
 
@@ -473,7 +474,7 @@ order define CIVGROUP:UPDATE:POSTPREP {
 
     parm g         key    "Group"         \
         -table civgroups_view -key g -tags group
-    parm sap       text   "Subs. Agri. %"  
+    parm sap       pct    "Subs. Agri. %"  
 } {
     # FIRST, prepare the parameters
     prepare g         -toupper  -required -type civgroup
@@ -495,7 +496,7 @@ order define CIVGROUP:UPDATE:MULTI:POSTPREP {
         -refreshcmd {orderdialog refreshForMulti ids *}
 
     parm ids      multi  "Groups"  -table gui_civgroups -key g
-    parm sap      text   "Subs. Agri. %"  
+    parm sap      pct    "Subs. Agri. %"  
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper -required -listof civgroup

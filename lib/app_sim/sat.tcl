@@ -258,12 +258,12 @@ order define SAT:UPDATE {
     parm id        key   "Curve"            -table  gui_sat_gc    \
                                             -key    {g c}         \
                                             -labels {"Grp" "Con"}
-    parm sat0      text  "Sat at T0"
-    parm saliency  text  "Saliency"
+    parm sat0      sat   "Sat at T0"
+    parm saliency  frac  "Saliency"
     parm atrend    text  "Ascending Trend"
-    parm athresh   text  "Asc. Threshold"
+    parm athresh   sat   "Asc. Threshold"
     parm dtrend    text  "Descending Trend"
-    parm dthresh   text  "Desc. Threshold"
+    parm dthresh   sat   "Desc. Threshold"
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type ::sat
@@ -294,12 +294,12 @@ order define SAT:UPDATE:MULTI {
 
     parm ids       multi  "Curves"           -table gui_sat_gc \
                                              -key id
-    parm sat0      text   "Sat at T0"
-    parm saliency  text   "Saliency"
+    parm sat0      sat    "Sat at T0"
+    parm saliency  frac   "Saliency"
     parm atrend    text   "Ascending Trend"
-    parm athresh   text   "Asc. Threshold"
+    parm athresh   sat    "Asc. Threshold"
     parm dtrend    text   "Descending Trend"
-    parm dthresh   text   "Desc. Threshold"
+    parm dthresh   sat    "Desc. Threshold"
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof sat

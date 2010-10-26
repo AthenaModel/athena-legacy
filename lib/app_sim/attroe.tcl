@@ -366,7 +366,7 @@ order define ATTROE:UF:CREATE {
                                           -key   {n f g}                 \
                                           -labels {"In" "Frc" "Attacks"}
     parm roe        enum   "ROE"          -type eattroeuf -defval "ATTACK"
-    parm cooplimit  text   "Coop. Limit"  -defval 50.0
+    parm cooplimit  coop   "Coop. Limit"  -defval 50.0
 } {
     # FIRST, prepare and validate the parameters
     prepare id             -toupper -required -type {attroe uf_unused}
@@ -402,7 +402,7 @@ order define ATTROE:NF:CREATE {
                                          -labels {"In" "Frc" "Attacks"}
     parm roe        enum   "ROE"         -type eattroenf \
                                          -defval "HIT_AND_RUN"
-    parm cooplimit  text   "Coop. Limit" -defval 50.0
+    parm cooplimit  coop   "Coop. Limit" -defval 50.0
     parm rate       text   "Attacks/Day" -defval 0.5
 } {
     # FIRST, prepare and validate the parameters
@@ -485,7 +485,7 @@ order define ATTROE:UF:UPDATE {
                                        -key    {n f g}                \
                                        -labels {"In" "Frc" "Attacks"}
     parm roe        enum "ROE"         -type   eattroeuf
-    parm cooplimit  text "Coop. Limit"
+    parm cooplimit  coop "Coop. Limit"
 } {
     # FIRST, prepare the parameters
     prepare id             -toupper -required -type {attroe uniformed}
@@ -519,7 +519,7 @@ order define ATTROE:NF:UPDATE {
                                        -key    {n f g}                \
                                        -labels {"In" "Frc" "Attacks"}
     parm roe        enum "ROE"         -type eattroenf
-    parm cooplimit  text "Coop. Limit"
+    parm cooplimit  coop "Coop. Limit"
     parm rate       text "Attacks/Day"
 
 } {
@@ -553,7 +553,7 @@ order define ATTROE:UF:UPDATE:MULTI {
     parm ids        multi "Combatants"   -table gui_attroeuf_nfg \
                                          -key id
     parm roe        enum  "ROE"          -type  eattroeuf
-    parm cooplimit  text  "Coop. Limit"
+    parm cooplimit  coop  "Coop. Limit"
 } {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof {attroe uniformed}
@@ -590,7 +590,7 @@ order define ATTROE:NF:UPDATE:MULTI {
     parm ids        multi "Combatants"  -table gui_attroenf_nfg \
                                         -key id
     parm roe        enum  "ROE"         -type eattroenf
-    parm cooplimit  text  "Coop. Limit"
+    parm cooplimit  coop  "Coop. Limit"
     parm rate       text  "Attacks/Day"
 } {
     # FIRST, prepare the parameters

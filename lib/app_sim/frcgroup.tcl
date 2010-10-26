@@ -324,7 +324,7 @@ order define FRCGROUP:CREATE {
 
     parm g          text  "Group"
     parm longname   text  "Long Name"
-    parm color      color "Color"
+    parm color      color "Color"             -defval \#3B61FF
     parm shape      enum  "Unit Shape"        -type eunitshape -defval NEUTRAL
     parm forcetype  enum  "Force Type"        -type eforcetype -defval REGULAR
     parm demeanor   enum  "Demeanor"          -type edemeanor  -defval AVERAGE

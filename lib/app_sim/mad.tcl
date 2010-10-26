@@ -903,9 +903,9 @@ order define MAD:CREATE {
     parm oneliner  text  "Description" 
     parm cause     enum  "Cause"         -type   {ptype ecause+unique} \
                                          -defval UNIQUE
-    parm s         text  "Here Factor"   -defval 1.0
-    parm p         text  "Near Factor"   -defval 0.0
-    parm q         text  "Far Factor"    -defval 0.0
+    parm s         frac  "Here Factor"   -defval 1.0
+    parm p         frac  "Near Factor"   -defval 0.0
+    parm q         frac  "Far Factor"    -defval 0.0
 
 } {
     # FIRST, prepare and validate the parameters
@@ -987,9 +987,9 @@ order define MAD:UPDATE {
                                         -dispcols longid
     parm oneliner text  "Description"
     parm cause    enum  "Cause"         -type     {ptype ecause+unique}
-    parm s        text  "Here Factor"
-    parm p        text  "Near Factor"
-    parm q        text  "Far Factor" 
+    parm s        frac  "Here Factor"
+    parm p        frac  "Near Factor"
+    parm q        frac  "Far Factor" 
 } {
     # FIRST, prepare the parameters
     prepare id       -required -type mad
@@ -1143,8 +1143,8 @@ order define MAD:SAT:LEVEL {
                                                -dispcols longid
     parm limit     text  "Limit"
     parm days      text  "Realization Time"    -defval 2.0
-    parm athresh   text  "Ascending Theshold"  -defval 100.0
-    parm dthresh   text  "Descending Theshold" -defval -100.0
+    parm athresh   sat   "Ascending Theshold"  -defval 100.0
+    parm dthresh   sat   "Descending Theshold" -defval -100.0
 } {
     # FIRST, prepare the parameters
     prepare g       -toupper -required -type civgroup
@@ -1180,8 +1180,8 @@ order define MAD:SAT:SLOPE {
                                                -key      id           \
                                                -dispcols longid
     parm slope     text  "Slope"
-    parm athresh   text  "Ascending Theshold"  -defval 100.0
-    parm dthresh   text  "Descending Theshold" -defval -100.0
+    parm athresh   sat   "Ascending Theshold"  -defval 100.0
+    parm dthresh   sat   "Descending Theshold" -defval -100.0
 } {
     # FIRST, prepare the parameters
     prepare g       -toupper -required -type civgroup
@@ -1278,8 +1278,8 @@ order define MAD:COOP:LEVEL {
                                                -dispcols longid
     parm limit     text  "Limit"
     parm days      text  "Days"                -defval 2.0
-    parm athresh   text  "Ascending Theshold"  -defval 100.0
-    parm dthresh   text  "Descending Theshold" -defval 0.0
+    parm athresh   coop  "Ascending Theshold"  -defval 100.0
+    parm dthresh   coop  "Descending Theshold" -defval 0.0
 } {
     # FIRST, prepare the parameters
     prepare f       -toupper -required -type civgroup
@@ -1316,8 +1316,8 @@ order define MAD:COOP:SLOPE {
                                                -key      id       \
                                                -dispcols longid
     parm slope     text  "Slope"
-    parm athresh   text  "Ascending Theshold"  -defval 100.0
-    parm dthresh   text  "Descending Theshold" -defval 0.0
+    parm athresh   coop  "Ascending Theshold"  -defval 100.0
+    parm dthresh   coop  "Descending Theshold" -defval 0.0
 } {
     # FIRST, prepare the parameters
     prepare f       -toupper -required -type civgroup

@@ -916,13 +916,13 @@ order define ENSIT:CREATE {
 
     parm location   text  "Location"      -tags nbpoint
     parm stype      enum  "Type"          -schedwheninvalid
-    parm coverage   text  "Coverage"      -defval 1.0
+    parm coverage   frac  "Coverage"      -defval 1.0
     parm inception  enum  "Inception?"    -type eyesno -defval "YES"
     parm g          enum  "Caused By"     -type {ptype g+none} \
         -defval NONE
     parm resolver   enum  "Resolved By"   -type {ptype g+none} \
         -defval NONE
-    parm rduration  text  "Duration"
+    parm rduration  text  "Duration"      -defval 5
 } {
     # FIRST, prepare and validate the parameters
     prepare location  -toupper   -required -type refpoint
@@ -1033,7 +1033,7 @@ order define ENSIT:UPDATE {
                                         -tags     situation
     parm location   text  "Location"    -tags     nbpoint
     parm stype      enum  "Type"
-    parm coverage   text  "Coverage"
+    parm coverage   frac  "Coverage"
     parm inception  enum  "Inception?"  -type     eyesno
     parm g          enum  "Caused By"   -type     {ptype g+none}
     parm resolver   enum  "Resolved By" -type     {ptype g+none}

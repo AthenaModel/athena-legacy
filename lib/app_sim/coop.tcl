@@ -257,11 +257,11 @@ order define COOP:UPDATE {
     parm id      key   "Curve"           -table  gui_coop_fg    \
                                          -key    {f g}          \
                                          -labels {"Of" "With"}
-    parm coop0   text  "Cooperation"
+    parm coop0   coop  "Cooperation"
     parm atrend  text  "Ascending Trend"
-    parm athresh text  "Asc. Threshold"
+    parm athresh coop  "Asc. Threshold"
     parm dtrend  text  "Descending Trend"
-    parm dthresh text  "Desc. Threshold"
+    parm dthresh coop  "Desc. Threshold"
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type coop
@@ -293,11 +293,11 @@ order define COOP:UPDATE:MULTI {
  
     parm ids     multi  "IDs"              -table gui_coop_fg \
                                            -key id
-    parm coop0   text   "Cooperation"
+    parm coop0   coop   "Cooperation"
     parm atrend  text   "Ascending Trend"
-    parm athresh text   "Asc. Threshold"
+    parm athresh coop   "Asc. Threshold"
     parm dtrend  text   "Descending Trend"
-    parm dthresh text   "Desc. Threshold"
+    parm dthresh coop   "Desc. Threshold"
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof coop

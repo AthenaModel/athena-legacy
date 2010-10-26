@@ -283,7 +283,7 @@ order define REL:UPDATE {
     parm id   key   "Groups"         -table  gui_rel_fg \
                                      -key    {f g}      \
                                      -labels {Of With}
-    parm rel  text  "Relationship"
+    parm rel  rel   "Relationship"
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type rel
@@ -321,7 +321,7 @@ order define REL:UPDATE:MULTI {
 
     parm ids  multi  "IDs"           -table gui_rel_fg \
                                      -key   id
-    parm rel  text   "Relationship"
+    parm rel  rel    "Relationship"
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof rel

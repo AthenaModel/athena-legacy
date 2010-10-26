@@ -209,10 +209,13 @@ order define ORGGROUP:CREATE {
 
     parm g              text  "Group"
     parm longname       text  "Long Name"
-    parm color          color "Color"
-    parm shape          enum  "Unit Shape"    -type eunitshape -defval NEUTRAL
-    parm orgtype        enum  "Organization Type" -type eorgtype
-    parm demeanor       enum  "Demeanor"          -type edemeanor
+    parm color          color "Color"             -defval \#10DDD7
+    parm shape          enum  "Unit Shape"        -type   eunitshape \
+                                                  -defval NEUTRAL
+    parm orgtype        enum  "Organization Type" -type   eorgtype   \
+                                                  -defval NGO
+    parm demeanor       enum  "Demeanor"          -type   edemeanor  \
+                                                  -defval AVERAGE
 } {
     # FIRST, prepare and validate the parameters
     prepare g              -toupper   -required -unused -type ident

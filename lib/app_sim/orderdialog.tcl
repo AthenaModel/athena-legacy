@@ -64,6 +64,24 @@ snit::widget orderdialog {
         form register color ::formlib::textfield \
             -editcmd [mytypemethod colorpicker]
 
+        form register coop ::formlib::rangefield \
+            -type        ::qcooperation          \
+            -showsymbols yes
+
+        form register frac ::formlib::rangefield \
+            -type        ::rfraction
+
+        form register pct  ::formlib::rangefield \
+            -type        ::ipercent
+
+        form register rel ::formlib::rangefield \
+            -type        ::qrel                 \
+            -resolution  0.1
+
+        form register sat ::formlib::rangefield \
+            -type        ::qsat                 \
+            -showsymbols yes
+
         # NEXT, note that we're initialized
         set info(initialized) 1
         
@@ -383,6 +401,10 @@ snit::widget orderdialog {
             set opts [dict create]
 
             switch -exact -- $ftype {
+                coop {
+                    dict set opts -resetvalue [dict get $pdict -defval]
+                }
+
                 enum {
                     set enumtype [dict get $pdict -type]
         
@@ -413,10 +435,15 @@ snit::widget orderdialog {
                     dict set opts -labels   [dict get $pdict -labels]
                 }
 
+                pct {
+                    dict set opts -resetvalue [dict get $pdict -defval]
+                }
+
                 multi {
                     dict set opts -table    [dict get $pdict -table]
                     dict set opts -key      [dict get $pdict -key]
                 }
+
             }
 
             $form field create $parm [dict get $pdict -label] $ftype {*}$opts

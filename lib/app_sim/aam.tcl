@@ -938,7 +938,7 @@ order define ATTRIT:NBHOOD {
     parm n          key  "Neighborhood"      -table nbhoods   \
                                              -key n           \
                                              -tags nbhood
-    parm casualties text "Casualties" 
+    parm casualties text "Casualties"        -defval 1
     parm g1         key  "Responsible Group" -table frcgroups -key g \
         -tags group
     parm g2         enum "Responsible Group" -tags group
@@ -977,7 +977,7 @@ order define ATTRIT:GROUP {
     parm n          key   "Neighborhood"      -table nbhoods -key n \
                                               -tags nbhood
     parm f          enum  "To Group"          -tags group 
-    parm casualties text  "Casualties" 
+    parm casualties text  "Casualties"        -defval 1
     parm g1         key   "Responsible Group" -table frcgroups -key g \
                                               -tags group
     parm g2         enum  "Responsible Group" -tags group
@@ -1034,7 +1034,7 @@ order define ATTRIT:UNIT {
 
     parm u          key   "Unit"              -table units     -key u \
                                               -tags unit
-    parm casualties text  "Casualties" 
+    parm casualties text  "Casualties"        -defval 1
     parm g1         key   "Responsible Group" -table frcgroups -key g \
                                               -tags  group
     parm g2         enum  "Responsible Group" -tags  group
