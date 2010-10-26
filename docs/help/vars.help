@@ -106,14 +106,14 @@ var n cap {
 
 var n coop {
     <<vartitle f g>>
-    The <<term cooperation>> of group <i>f</i> with group <i>g</i> across
-    neighborhoods.
+    The <<term cooperation>> of group <i>f</i> with group <i>g</i> in
+    <i>f</i>'s neighborhood.
 }
 
 var n coop0 {
     <<vartitle f g>>
-    The <<term cooperation>> of group <i>f</i> with group <i>g</i> across
-    neighborhoods at time 0.
+    The <<term cooperation>> of group <i>f</i> with group <i>g</i> 
+    in <i>f</i>'s neighborhood at time 0.
 }
 
 var n cov {
@@ -125,13 +125,13 @@ var n cov {
 var n mood {
     <<vartitle g>>
     The <<term mood>> (composite <<term satisfaction>>) of group
-    <i>g</i> across neighborhoods.
+    <i>g</i> in <i>g</i>'s neighborhood.
 }
 
 var n mood0 {
     <<vartitle g>>
     The <<term mood>> (composite <<term satisfaction>>) of group
-    <i>g</i> across neighborhoods at time 0.
+    <i>g</i> in <i>g</i>'s neighborhood at time 0.
 }
 
 var n nbcoop {
@@ -167,13 +167,13 @@ var n pcf {
 var n sat {
     <<vartitle g c>>
     The <<term satisfaction>> of group <i>g</i> with respect to concern
-    <i>c</i> across neighborhoods.
+    <i>c</i> in <i>g</i>'s neighborhood.
 }
 
 var n sat0 {
     <<vartitle g c>>
     The <<term satisfaction>> of group <i>g</i> with respect to concern
-    <i>c</i> across neighborhoods at time 0.
+    <i>c</i> in <i>g</i>'s neighborhood.
 }
 
 var n sec {
@@ -206,9 +206,9 @@ var t consumers {
 }
 
 var t coop {
-    <<vartitle n f g>>
+    <<vartitle f g>>
     The <<term cooperation>> of civilian group <i>f</i> with force
-    group <i>g</i> in neighborhood <i>n</i> over time.
+    group <i>g</i> over time.
 }
 
 var t cpi {
@@ -236,9 +236,8 @@ var t lsf {
 }
 
 var t mood {
-    <<vartitle n g>>
-    The <<term mood>> of group <i>g</i> in neighborhood <i>n</i> 
-    over time.
+    <<vartitle g>>
+    The <<term mood>> of group <i>g</i> over time.
 }
 
 var t nbcoop {
@@ -278,10 +277,9 @@ var t rev {
 }
 
 var t sat {
-    <<vartitle n g c>>
+    <<vartitle g c>>
     The <<term satisfaction>> of group <i>g</i> with respect to
-    <<term concern>> <i>c</i> in neighborhood <i>n</i> 
-    over time.
+    <<term concern>> <i>c</i> over time.
 }
 
 var t ur {

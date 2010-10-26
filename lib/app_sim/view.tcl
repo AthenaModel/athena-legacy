@@ -270,11 +270,14 @@ snit::type view {
             query {
                 -- Ensure we get NULL x0's in neighborhoods
                 -- where group g does not reside.
-                SELECT n,
-                       CASE WHEN population > 0 
-                       THEN sat ELSE NULL END AS x0
-                FROM gram_ng
-                WHERE g='$1'
+                SELECT n, x0 
+                FROM nbhoods
+                LEFT OUTER JOIN
+                 (SELECT n,
+                         CASE WHEN population > 0 
+                         THEN sat ELSE NULL END AS x0
+                  FROM gram_g WHERE g='$1')
+                USING (n)
             }
         }
 
@@ -283,13 +286,14 @@ snit::type view {
             validation g_sat
             rtype qsat
             query {
-                -- Ensure we get NULL x0's in neighborhoods
-                -- where group g does not reside.
-                SELECT n,
-                       CASE WHEN population > 0 
-                       THEN sat0 ELSE NULL END AS x0
-                FROM gram_ng
-                WHERE g='$1'
+                SELECT n, x0 
+                FROM nbhoods
+                LEFT OUTER JOIN
+                 (SELECT n,
+                         CASE WHEN population > 0 
+                         THEN sat0 ELSE NULL END AS x0
+                  FROM gram_g WHERE g='$1')
+                USING (n)
             }
         }
 
@@ -409,14 +413,14 @@ snit::type view {
         }
 
         t,coop {
-            indices {n f g}
-            validation nfg_coop
+            indices {f g}
+            validation fg_coop
             rtype qcoop
             query {
                 SELECT t    AS t,
                        coop AS x0
                 FROM hist_coop
-                WHERE n='$1' AND f='$2' AND g='$3'
+                WHERE f='$1' AND g='$2'
             }
         }
 
@@ -466,14 +470,14 @@ snit::type view {
         }
 
         t,mood {
-            indices {n g}
-            validation ng_sat
+            indices {g}
+            validation g_sat
             rtype qsat
             query {
                 SELECT t   AS t,
                        sat AS x0
                 FROM hist_mood
-                WHERE n='$1' AND g='$2'
+                WHERE g='$1'
             }
         }
 
@@ -550,14 +554,14 @@ snit::type view {
         }
 
         t,sat {
-            indices {n g c}
-            validation ngc_sat
+            indices {g c}
+            validation gc_sat
             rtype qsat
             query {
                 SELECT t   AS t,
                        sat AS x0
                 FROM hist_sat
-                WHERE n='$1' AND g='$2' AND c='$3'
+                WHERE g='$1' AND c='$2'
             }
         }
 
@@ -1057,13 +1061,12 @@ snit::type view {
         ValidateIndex $domain $vartype n $n {nbhood validate $n}
     }
 
-    # Proc: nfg_coop
+    # Proc: fg_coop
     #
-    # Validates {n f g} for cooperation
+    # Validates {f g} for cooperation
     
-    proc nfg_coop {domain vartype n f g} {
-        ValidateIndex $domain $vartype n $n {nbhood   validate $n}
-        ValidateIndex $domain $vartype f $f {nbgroup  validate [list $n $f]}
+    proc fg_coop {domain vartype f g} {
+        ValidateIndex $domain $vartype f $f {civgroup validate $f}
         ValidateIndex $domain $vartype g $g {frcgroup validate $g}
     }
 
@@ -1076,25 +1079,13 @@ snit::type view {
         ValidateIndex $domain $vartype g $g {frcgroup validate $g}
     }
 
-    # Proc: ngc_sat
+    # Proc: gc_sat
     #
     # Validates {n g c} as a satisfaction curve
     
-    proc ngc_sat {domain vartype n g c} {
-        set gtype [group gtype $g]
-
-        ValidateIndex $domain $vartype n $n {nbhood validate $n}
-        ValidateIndex $domain $vartype g $g {nbgroup validate [list $n $g]}
+    proc gc_sat {domain vartype g c} {
+        ValidateIndex $domain $vartype g $g {civgroup validate $g}
         ValidateIndex $domain $vartype c $c {ptype c validate $c}
-    }
-
-    # Proc: ng_sat
-    #
-    # Validates {n g} as a satisfaction group
-    
-    proc ng_sat {domain vartype n g} {
-        ValidateIndex $domain $vartype n $n {nbhood validate $n}
-        ValidateIndex $domain $vartype g $g {nbgroup validate [list $n $g]}
     }
 
     #-------------------------------------------------------------------
