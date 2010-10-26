@@ -206,12 +206,12 @@ command "dump coop levels" {
 # dump coop level
 
 command "dump coop level" {
-    <<syntax <i>n f g</i> >>
+    <<syntax <i>f g</i> >>
     
     Dumps a list of all direct and indirect cooperation 
     level effects that currently affect the cooperation of 
-    civilian group <i>f</i> with force group <i>g</i> in neighborhood 
-    <i>n</i>.  The effects are grouped by <<term cause>>, so that it is
+    civilian group <i>f</i> with force group <i>g</i>.  The effects
+    are grouped by <<term cause>>, so that it is  
     easy to determine that multiple effects with the same cause
     are handled properly.
 }
@@ -232,12 +232,12 @@ command "dump coop slopes" {
 # dump coop slope
 
 command "dump coop slope" {
-    <<syntax <i>n f g</i> >>
+    <<syntax <i>f g</i> >>
     
     Dumps a list of all direct and indirect cooperation 
     slope effects that currently affect the cooperation of 
-    civilian group <i>f</i> with force group <i>g</i> in neighborhood 
-    <i>n</i>.  The effects are grouped by <<term cause>>, so that it is
+    civilian group <i>f</i> with force group <i>g</i>.  
+    The effects are grouped by <<term cause>>, so that it is
     easy to determine that multiple effects with the same cause
     are handled properly.
 }
@@ -288,12 +288,12 @@ command "dump sat levels" {
 # dump sat level
 
 command "dump sat level" {
-    <<syntax <i>n g c</i> >>
+    <<syntax <i>g c</i> >>
     
     Dumps a list of all direct and indirect satisfaction 
     level effects that currently affect the satisfaction of 
-    group <i>g</i> with concern <i>c</i> in neighborhood 
-    <i>n</i>.  The effects are grouped by <<term cause>>, so that it is
+    group <i>g</i> with concern <i>c</i>.  
+    The effects are grouped by <<term cause>>, so that it is
     easy to determine that multiple effects with the same cause
     are handled properly.
 }
@@ -314,12 +314,12 @@ command "dump sat slopes" {
 # dump sat slope
 
 command "dump sat slope" {
-    <<syntax <i>n g c</i> >>
+    <<syntax <i>g c</i> >>
     
     Dumps a list of all direct and indirect satisfaction 
     slope effects that currently affect the satisfaction of 
-    group <i>g</i> with concern <i>c</i> in neighborhood 
-    <i>n</i>.  The effects are grouped by <<term cause>>, so that it is
+    group <i>g</i> with concern <i>c</i>.  The effects are grouped by
+    <<term cause>>, so that it is
     easy to determine that multiple effects with the same cause
     are handled properly.
 }

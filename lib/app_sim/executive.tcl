@@ -95,7 +95,7 @@ snit::type executive {
             [list ::aram dump coop levels]
 
         # dump coop level
-        $interp smartalias {dump coop level} 3 3 {n f g} \
+        $interp smartalias {dump coop level} 2 2 {f g} \
             [mytypemethod dump coop level]
 
         # dump coop slopes
@@ -103,7 +103,7 @@ snit::type executive {
             [list ::aram dump coop slopes]
 
         # dump coop slope
-        $interp smartalias {dump coop slope} 3 3 {n f g} \
+        $interp smartalias {dump coop slope} 2 2 {f g} \
             [mytypemethod dump coop slope]
 
         # dump econ
@@ -118,7 +118,7 @@ snit::type executive {
             [list ::aram dump sat levels]
 
         # dump sat level
-        $interp smartalias {dump sat level} 3 3 {n g c} \
+        $interp smartalias {dump sat level} 2 2 {g c} \
             [mytypemethod dump sat level]
 
         # dump sat slopes
@@ -126,9 +126,9 @@ snit::type executive {
             [list ::aram dump sat slopes]
 
         # dump sat slope
-        $interp smartalias {dump sat slope} 3 3 {n g c} \
+        $interp smartalias {dump sat slope} 2 2 {g c} \
             [mytypemethod dump sat slope]
-
+        
         # errtrace
         $interp smartalias errtrace 0 0 {} \
             [mytypemethod errtrace]
@@ -251,54 +251,54 @@ snit::type executive {
     #-------------------------------------------------------------------
     # Private typemethods
 
-    # dump coop level n f g
+    # dump coop level f g
     #
     # Capitalizes the arguments and forwards to GRAM.
 
-    typemethod {dump coop level} {n f g} {
-        require {[simclock now] > 0} "This command is unavailable at time 0."
+    typemethod {dump coop level} {f g} {
+        require {[sim state] ne "PREP"} \
+            "This command is unavailable in the PREP state."
         
         aram dump coop level \
-            [string toupper $n] \
             [string toupper $f] \
             [string toupper $g]
     }
 
-    # dump coop slope n f g
+    # dump coop slope f g
     #
     # Capitalizes the arguments and forwards to GRAM.
 
-    typemethod {dump coop slope} {n f g} {
-        require {[simclock now] > 0} "This command is unavailable at time 0."
+    typemethod {dump coop slope} {f g} {
+        require {[sim state] ne "PREP"} \
+            "This command is unavailable in the PREP state."
 
         aram dump coop slope \
-            [string toupper $n] \
             [string toupper $f] \
             [string toupper $g]
     }
 
-    # dump sat level n g c
+    # dump sat level g c
     #
     # Capitalizes the arguments and forwards to GRAM.
 
-    typemethod {dump sat level} {n g c} {
-        require {[simclock now] > 0} "This command is unavailable at time 0."
+    typemethod {dump sat level} {g c} {
+        require {[sim state] ne "PREP"} \
+            "This command is unavailable in the PREP state."
 
         aram dump sat level \
-            [string toupper $n] \
             [string toupper $g] \
             [string toupper $c]
     }
 
-    # dump sat slope n g c
+    # dump sat slope g c
     #
     # Capitalizes the arguments and forwards to GRAM.
 
-    typemethod {dump sat slope} {n g c} {
-        require {[simclock now] > 0} "This command is unavailable at time 0."
+    typemethod {dump sat slope} {g c} {
+        require {[sim state] ne "PREP"} \
+            "This command is unavailable in the PREP state."
 
         aram dump sat slope \
-            [string toupper $n] \
             [string toupper $g] \
             [string toupper $c]
     }
