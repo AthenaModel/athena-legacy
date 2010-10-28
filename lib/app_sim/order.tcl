@@ -39,7 +39,11 @@
 #    specifiers:
 #
 #    gui  -- Order originates from the GUI (i.e., the user)
-#    cli  -- Order originates from the CLI (i.e., the user)
+#    cli  -- Order originates from the CLI via an executive command
+#            implemented in terms of an order.  Error results are
+#            specially formatted.
+#    raw  -- Order originates from the user, but there are no
+#            GUI error pop-ups nor any special error formatting.
 #    test -- Order originates from the test suite
 #    sim  -- Order originates elsewhere in the simulation
 #
@@ -75,7 +79,11 @@
 #        in a popup.  The scenario is then resync'd with the RDB.
 #  
 #      * "cli" is handled in all cases just like "gui", except that
-#        REJECT messages are formatted for display at the CLI.
+#        REJECT messages are formatted for display at the CLI, and
+#        GUI warnings do not pop up.
+#
+#      * "raw" is handled in all cases just like "gui", except that
+#        GUI warnings do not pop up.
 #
 #      * Otherwise, the error is simply rethrown.
 #
@@ -683,7 +691,7 @@ snit::type order {
     # send interface name parmdict
     # send interface name parm value ?parm value...?
     #
-    # interface       gui|cli|test|sim
+    # interface       gui|cli|raw|test|sim
     # name            The order's name
     # parmdict        The order's parameter dictionary
     # parm,value...   The parameter dictionary passed as separate args.
@@ -706,7 +714,7 @@ snit::type order {
         require {[info exists handler($name)]} "Undefined order: $name"
 
         # NEXT, is the interface valid?
-        if {$interface ni {gui cli test sim}} {
+        if {$interface ni {gui cli raw test sim}} {
             error \
      "Unexpected error in $name, invalid interface spec: \"$interface\""
         }
@@ -790,7 +798,7 @@ snit::type order {
                 return "Order was cancelled."
             }
 
-            if {$interface in {gui cli sim}} {
+            if {$interface in {gui cli raw sim}} {
                 log error order "Unexpected error in $name:\n$result"
                 log error order "Stack Trace:\n$einfo"
 
@@ -1174,7 +1182,7 @@ snit::type order {
 
     # schedule interface timespec name parmdict
     #
-    # interface    gui, cli, test, sim
+    # interface    gui, cli, raw, test, sim
     # timespec     A time specification string
     # name         The name of the order
     # parmdict     The parmdict for the order.

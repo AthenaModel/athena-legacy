@@ -85,62 +85,66 @@ history, and (if undoable) can be undone and redone.<p>
 
 <<subsection "Order Interfaces">>
 
-At present, order(sim) accepts orders from three sources: the GUI
-(i.e., the user), the <<xref athena_test(1)>> test suite, or from
-within the simulation itself.  (Other interfaces may be added in the
-future, e.g., a bridge to federated simulations.)<p>
-
-The sending interface primarily affects the handling of 
-rejections and unexpected errors.  If order was sent by the GUI, for
-example, order(sim) can report the order through the GUI.  The precise
-details are as follows:<p>
+Every order is sent from some particular interface.  At present, the
+following interfaces are defined:<p>
 
 <ul>
-  <li> Orders can modify their behavior depending on the
-       interface.  If the interface is <b>gui</b>, for example, an
-       order can pop up a confirmation dialog if need be.<p>
+  <li> <b>sim</b>: The order is being sent to the simulation by the
+       simulation itself, simply for ease of implementation.<p>
 
-  <li> Sometimes it's convenient for the <b>sim</b> to send an order
-       directly.  In this case the order isn't really an input to the
-       simulation from the outside; it's more of a fancy procedure
-       call.  Consequently,<p>
+  <li> <b>test</b>: The order is being sent to the simulation by the
+       test suite.<p>
 
-       <ul>
-         <li> If such an order is rejected that's a bug; all errors
-              are unexpected.  Therefore, all order handling errors
-              propagate like errors in a normal procedure call.<p>
+  <li> <b>gui</b>: The order is being sent by the user via the GUI,
+       e.g., by pressing "Send" in an order dialog, pressing a button,
+       etc.<p>
 
-         <li> Normally, successful orders are added to the order
-              history.  Since <b>sim</b> orders are not really inputs,
-              they are omitted.<p>
-       </ul>
+  <li> <b>cli</b>: The order is being sent by the user via an
+       executive command entered at the CLI (or from a script executed
+       at the CLI).<p>
 
-  <li> Ordinarily, the call to the order's body is wrapped in an SQL
-       transaction, so that unexpected errors do not corrupt the
-       scenario database.  When the interface is <b>test</b> we omit
-       this step, so that the effects of unexpected errors remain in
-       place as an aid to debugging.<p>
-
-  <li> Errors are handled as follows:<p>
-
-       <ul>
-         <li> Errors in <b>sim</b> orders are handled as described
-              above.<p>
-
-         <li> Otherwise, rejections are logged and the error is
-              rethrown.  The presumption is that the sender will do
-              something useful with the rejection dictionary (e.g.,
-              the order dialog will display the error messages to the
-              user).<p>
-
-         <li> Unexpected errors in <b>gui</b> orders are logged in
-              detail, and a detailed error message is displayed in a
-              popup.<p>
-
-         <li> Unexpected errors in <b>test</b> orders are simply
-              rethrown.<p>
-       </ul>
+  <li> <b>raw</b>: The order is being sent by the user via some other
+       mechanism.<p>
 </ul>
+
+The sending interface affects four things:<p>
+
+<ul>
+  <li> Whether order handlers can pop up GUI confirmation dialogs or
+       not (<b>gui</b> only).<p>
+
+  <li> Whether orders are recorded in the order history and can be
+       undone and redone (<b>gui</b>, <b>cli</b>, and <b>raw</b>).<p>
+
+  <li> How unexpected errors are handled.<p>
+
+  <li> How order rejections are handled.<p>
+</ul>
+
+Error-handling is the area of greatest variety, and needs some
+additional description.<p>
+
+For the <b>sim</b> interface, the order is just a fancy procedure
+call; unexpected errors and order rejections both propagate to the
+caller in the usual way.<p>
+
+<b>Unexpected Errors:</b>
+For the user interfaces (<b>gui</b>, <b>cli</b>, and <b>raw</b>),
+the call to the order handler is wrapped in an SQL
+transaction, so that unexpected errors do not corrupt the
+scenario database.  Further, unexpected errors are logged in detail,
+and a detailed error message is show to the user in a popup dialog.
+
+The <b>test</b> interface does <b>not</b> wrap the order handler in an
+SQL transaction, so that the effects of unexpected errors remain in
+place as an aid to debugging.  In addition, unexpected errors
+propagate normally, as popping up a dialog would interrupt the test
+suite.<p>
+
+<b>Order Rejections:</b>
+The <b>cli</b> interface formats the error return value for display at
+the user interface.  The other interfaces just use the error
+dictionary, as described above.<p>
 
 <<subsection "Application States">>
 

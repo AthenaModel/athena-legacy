@@ -548,7 +548,7 @@ snit::type executive {
 
         # NEXT, send the order, and handle errors.
         if {[catch {
-            order send gui $order $pdict
+            order send raw $order $pdict
         } result]} {
             set wid [lmaxlen [dict keys $pdict]]
 
