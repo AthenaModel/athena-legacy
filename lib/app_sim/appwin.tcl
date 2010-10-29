@@ -376,7 +376,7 @@ snit::widget appwin {
     # dayofweek   Day of week (edayname value)      
 
     variable info -array {
-        simspeed  5
+        simspeed  10
         simstate  ""
         tick      "0000"
         zulutime  ""

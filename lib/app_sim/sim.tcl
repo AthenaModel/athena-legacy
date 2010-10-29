@@ -68,7 +68,7 @@ snit::type sim {
         changed        0
         state          PREP
         stoptime       0
-        speed          5
+        speed          10
         econOK         1
     }
 
