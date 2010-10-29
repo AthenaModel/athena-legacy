@@ -1031,7 +1031,9 @@ snit::type activity {
     # Refreshes the fields for ACTIVITY:UPDATE
 
     typemethod Refresh_AU {dlg fields fdict} {
-        $dlg loadForKey cid *
+        if {"cid" in $fields} {
+            $dlg loadForKey cid *
+        }
 
         set fdict [$dlg get]
 
