@@ -37,7 +37,6 @@ namespace eval ::projectlib:: {
         eunitshape    \
         eunitsymbol   \
         eyesno        \
-        hexcolor      \
         idays         \
         ident         \
         ingpopulation \
@@ -664,34 +663,6 @@ snit::type ::projectlib::boolean {
         }
     }
 }
-
-
-#-----------------------------------------------------------------------
-# hexcolor type
-
-snit::type ::projectlib::hexcolor {
-    # Make it a singleton
-    pragma -hasinstances no
-
-    #-------------------------------------------------------------------
-    # Public Type Methods
-
-    # validate color
-    #
-    # color    Possibly, a hex color
-    #
-    # Hex colors begin with a "#" followed by up to 12 hex digits.
-
-    typemethod validate {name} {
-        if {![regexp {^\#[[:xdigit:]]{1,12}$} $name]} {
-            return -code error -errorcode INVALID \
-                "Invalid hexadecimal color specifier, should be \"#RRGGBB\""
-        }
-
-        return [string tolower $name]
-    }
-}
-
 
 #-----------------------------------------------------------------------
 # ident type

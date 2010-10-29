@@ -61,9 +61,6 @@ snit::widget orderdialog {
         }
 
         # NEXT, create the color field type.
-        form register color ::formlib::textfield \
-            -editcmd [mytypemethod colorpicker]
-
         form register coop ::formlib::rangefield \
             -type        ::qcooperation          \
             -showsymbols yes
@@ -1048,32 +1045,4 @@ snit::widget orderdialog {
         }
     }
 
-    #-------------------------------------------------------------------
-    # Edit Commands
-
-    # colorpicker fwin color
-    #
-    # fwin        The field window
-    # color       A hex color value, or ""
-    #
-    # Pops up a color picker dialog, displaying the specified color,
-    # and allows the user to choose a new color.  Returns the new
-    # color, or ""
-    #
-    # TBD: Have formlib(n) implement this.
-
-    typemethod colorpicker {fwin color} {
-        if {$color ne ""} {
-            set opts [list -color $color]
-        } else {
-            set opts ""
-        }
-
-        set out [SelectColor::dialog $fwin.colorpicker \
-                     -type   dialog                    \
-                     -parent $fwin                     \
-                     {*}$opts]
-
-        return $out
-    }
 }
