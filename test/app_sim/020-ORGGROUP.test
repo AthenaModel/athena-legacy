@@ -110,7 +110,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
     }
 
 
@@ -152,8 +152,8 @@ namespace eval ::athena_test::tests:: {
     } -result {
 g     longname   color   shape   symbol       demeanor gtype orgtype 
 ----- ---------- ------- ------- ------------ -------- ----- ------- 
-USAID US Aid     #00ff00 NEUTRAL organization AVERAGE  ORG   NGO     
-HAL   Haliburton #ffff00 NEUTRAL organization AVERAGE  ORG   CTR     
+USAID US Aid     #00FF00 NEUTRAL organization AVERAGE  ORG   NGO     
+HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR     
     }
 
 
@@ -269,7 +269,7 @@ HAL   Haliburton #ffff00 NEUTRAL organization AVERAGE  ORG   CTR
     } -cleanup {
         cleanup
     } -result {
-        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
     }
 
 
@@ -324,7 +324,7 @@ HAL   Haliburton #ffff00 NEUTRAL organization AVERAGE  ORG   CTR
     } -result {
 g     longname  color   shape symbol       demeanor   gtype orgtype 
 ----- --------- ------- ----- ------------ ---------- ----- ------- 
-USAID Red Cross #ff0000 ENEMY organization AGGRESSIVE ORG   IGO     
+USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO     
     }
 
 
@@ -390,7 +390,7 @@ USAID Red Cross #ff0000 ENEMY organization AGGRESSIVE ORG   IGO
     } -cleanup {
         cleanup
     } -result {
-        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
     }
 
 

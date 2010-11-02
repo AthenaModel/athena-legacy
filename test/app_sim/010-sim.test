@@ -67,7 +67,7 @@ namespace eval ::athena_test::tests:: {
             [sim stoptime]    \
             [simclock asZulu]
         
-    } -result {0 PREP 5 0 100000ZJAN10}
+    } -result {0 PREP 10 0 100000ZJAN10}
 
     #-------------------------------------------------------------------
     # speed
