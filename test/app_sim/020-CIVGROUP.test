@@ -128,7 +128,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
     }
 
 
@@ -215,7 +215,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
 g    longname    color   shape   symbol   demeanor gtype n   basepop sap 
 ---- ----------- ------- ------- -------- -------- ----- --- ------- --- 
-SHIA Shia Locals #ffff00 NEUTRAL civilian AVERAGE  CIV   NB1 10000   0   
+SHIA Shia Locals #FFFF00 NEUTRAL civilian AVERAGE  CIV   NB1 10000   0   
     }
 
 
@@ -339,7 +339,7 @@ SHIA Shia Locals #ffff00 NEUTRAL civilian AVERAGE  CIV   NB1 10000   0
     } -cleanup {
         cleanup
     } -result {
-        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
     }
 
 
@@ -431,7 +431,7 @@ SHIA Shia Locals #ffff00 NEUTRAL civilian AVERAGE  CIV   NB1 10000   0
     } -result {
 g    longname  color   shape symbol   demeanor  gtype n   basepop sap 
 ---- --------- ------- ----- -------- --------- ----- --- ------- --- 
-SHIA Shia Folk #ff0000 ENEMY civilian APATHETIC CIV   NB2 5000    50  
+SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC CIV   NB2 5000    50  
     }
 
 
@@ -579,7 +579,7 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    5
     } -cleanup {
         cleanup
     } -result {
-        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
     }
 
     test UPDATE:MULTI-1.6 {invalid shape} -setup {

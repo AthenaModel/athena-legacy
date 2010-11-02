@@ -116,7 +116,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
     }
 
 
@@ -172,7 +172,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
 g    longname color   shape  symbol   demeanor gtype forcetype uniformed local 
 ---- -------- ------- ------ -------- -------- ----- --------- --------- ----- 
-BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0     
+BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0     
     }
 
 
@@ -289,7 +289,7 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0
     } -cleanup {
         cleanup
     } -result {
-        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
     }
 
 
@@ -368,7 +368,7 @@ BLUE US Army  #0000ff FRIEND infantry AVERAGE  FRC   REGULAR   1         0
     } -result {
 g    longname    color   shape   symbol demeanor   gtype forcetype uniformed local 
 ---- ----------- ------- ------- ------ ---------- ----- --------- --------- ----- 
-BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1     
+BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1     
     }
 
 
@@ -441,7 +441,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
     } -cleanup {
         cleanup
     } -result {
-        color {Invalid hexadecimal color specifier, should be "#RRGGBB"}
+        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
     }
 
 
