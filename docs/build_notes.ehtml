@@ -11,6 +11,24 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.3, 2 November 2010</h3>
+
+This build contains a number of user interface improvements.
+In particular, editing group colors is streamlined.  The full
+set of changes is as follows:<p>
+
+<ul>
+  <li> Bug 2306: Constrain unit colors to a small set
+  <li> Bug 2622: Update Scheduled Activity Bgerror
+  <li> Bug 2636: athena_sim(1): Update to display variables
+  <li> Bug 2637: athena_sim(1): Default values and range fields
+  <li> Bug 2640: athena_sim(1): Remove force group "coalition" flag
+  <li> Bug 2643: athena_sim(1): dump coop/sat level/slope commands
+  <li> Bug 2648: Update Athena to ATEE 2010Q3
+  <li> Bug 2653: athena_sim(1): "send" executive command pops up GUI confirmation
+  <li> Bug 2655: athena_sim(1): Default sim speed is 10 
+</ul><p>
+
 <h3>Build 3.0.2, 25 October 2010</h3>
 
 This build contains a number of minor bug fixes, and two significant
