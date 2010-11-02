@@ -23,9 +23,11 @@
 
 <ul>
   <li> Athena Analyst's Guide (<a href="dev/aag.odt">OpenOffice
-       Writer</a>)
+       Writer</a>) (<a href="dev/aag.pdf">PDF</a>)
   <li> Athena Rules Document (<a href="dev/rules.odt">OpenOffice
-       Writer</a>)
+       Writer</a>) (<a href="dev/rules.pdf">PDF</a>)
+  <li> Mars Analyst's Guide (<<link mars/docs/dev/mag.odt "Open Office Writer">>)
+       (<<link ../mars/docs/dev/mag.pdf PDF>>)</li>
 </ul>
 
 
