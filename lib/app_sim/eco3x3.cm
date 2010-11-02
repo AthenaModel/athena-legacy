@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco3x3.cm, version r
+#    eco3x3.cm, version s
 #
 # AUTHOR:
 #    Bob Chamberlain
@@ -46,6 +46,11 @@
 #    pages.
 #
 # HISTORY:
+#    Version s: Workers who stay home from work due to low security 
+#               decrease CAP.pop but are not considered to be 
+#               unemployed.  Also, added labor turbulence to 
+#               to LATENTDEMAND.pop.
+#
 #    Version r: Revised the formulas for C::QS.goods and C::QS.pop so that
 #               in the absence of binding constraints they will be at least
 #               as big as on the U page.
@@ -521,8 +526,12 @@ let WF         = 400000       ;# work-years/year
 # are temporarily unemployed and hence not available to work. Thus,
 # CAP.pop is the WF less this turbulence.  In addition, low security
 # can reduce the effective workforce because people are afraid to
-# go to work.
-let CAP.pop = {[WF]*[LSF]*(1 - [TurFrac])}
+# go to work.  In a later version, WorkersAtHome can include strikers,
+# who also limit capacity but are not considered to be unemployed.
+
+let Turbulence    = {[WF]*[TurFrac]}
+let WorkersAtHome = {([WF] - [Turbulence])*(1.0 - [LSF])}
+let CAP.pop       = {[WF] - [Turbulence] - [WorkersAtHome]}
 
 # NOTE: Because else includes the rest of the world, it is presumed to
 # have unlimited capacity even in the constrained case.  Hence, there
@@ -644,14 +653,18 @@ let CPI = {[C::CPI]}
 let LATENTDEMAND.goods = {max(0.0, ediff([U::QD.goods],   [C::QS.goods]))}
 let IDLECAP.goods      = {max(0,0, ediff([In::CAP.goods], [C::QS.goods]))}
 
-# pop shortages and overages: work-years/year
-let LATENTDEMAND.pop   = {max(0.0, ediff([U::QD.pop],   [C::QS.pop]))}
-let IDLECAP.pop        = {max(0,0, ediff([In::CAP.pop], [C::QS.pop]))}
-
 # Unemployment Statistics
-let RealUnemployment = {max(0.0, ediff([In::CAP.pop],[C::QS.pop]))}  ;# People
-let Turbulence       = {[TurFrac]*[In::WF]}                          ;# People
-let Unemployment     = {[RealUnemployment] + [Turbulence]}           ;# People
+let RealUnemployment = {
+    max(0.0, ediff([In::CAP.pop] + [In::WorkersAtHome],[C::QS.pop]))
+}  ;# People
+
+let Unemployment     = {[RealUnemployment] + [In::Turbulence]} ;# People
+
+# pop shortages and overages: work-years/year
+let LATENTDEMAND.pop   = {
+    max(0.0, ediff([U::QD.pop],   [C::QS.pop])) + [In::Turbulence]
+}
+let IDLECAP.pop        = {max(0,0, ediff([In::CAP.pop], [C::QS.pop]))}
 
 # Unemployment Rates, real and reported
 let RealUR = {100.0 * [RealUnemployment]/[In::WF]} ;# Percentage
