@@ -11,6 +11,29 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 2.1.1, 2 November 2010</h3>
+
+This build corrects two problems.  First, the Analyst's Guide and
+Rules documents were delivered only in OpenOffice format; now they are
+also included as PDF files.<p>
+
+Second, the Economic model mishandled the
+accounting for workers who stay home from their jobs in fear for their
+lives.  Such workers were treated as having left the work force
+altogether, which caused unemployment to be understated.  The current
+version treats such workers as having quit their jobs, and hence as
+being unemployed.  This tends to overstate unemployment, but is far
+preferable.  It may be wise to increase the values of the
+econ.secFactor.label.* model parameters so that the effect of low
+security isn't quite so drastic.<p>
+
+The complete list of changes is as follows:<p>
+
+<ul>
+  <li> Bug 2658: athena_sim(1): Unemployment affected by LSF
+  <li> Bug 2659: PDF Documentation 
+</ul><p>
+
 <h3>Build 2.1.0, 29 September 2010</h3>
 
 This build is the the first Athena 2.1 release candidate, and (unless
@@ -18,228 +41,6 @@ significant problems are found with it) also the release build.  It
 contains no changes except for those involved in marking it as
 Athena 2.1.<p>
 
-<h3>Build 2.0.10, 29 September 2010 -- Final 2.0.x Build</h3>
-
-This build is the final 2.0.x build; it will be the starting point
-for the Athena 2.1.x release branch, and except for its version number
-will be identical to Athena 2.1.0.  It contains only documentation
-changes:<p>
-
-<ul>
-  <li> Bug 2606: Online Help Glossary Typos
-  <li> Bug 2607: More Online Help Typos
-  <li> Bug 2608: Update Athena installation guide 
-</ul><p>
-
-<h3>Build 2.0.9, 23 September 2010</h3>
-
-This build contains documentation updates and three bug fixes.<p>
-
-<ul>
-  <li> Bug 2600: Athena 2.0 Doc Tree Scrub
-  <li> Bug 2601: Activities Not Cancelling
-  <li> Bug 2602: Nbgroups Not Deleting When Nbhood is Deleted
-  <li> Bug 2604: Clear Hot List Bgerror 
-</ul><p>
-
-<h3>Build 2.0.8, 21 September 2010</h3>
-
-This build contains four bug fixes, and a new draft of the Athena
-Analyst's Guide.  The bugs were:<p>
-
-<ul>
-  <li> Bug 2587: Plot Bgerror
-  <li> Bug 2588: Cancel Scheduled Activities Affects Coverage
-  <li> Bug 2592: Nbhood Stack Bgerror
-  <li> Bug 2593: Homeless Activity Bgerror 
-</ul><p>
-  
-
-<h3>Build 2.0.7, 1 September 2010 (Feature Freeze)</h3>
-
-This build represents the feature freeze for Athena 2.  Only bug
-fixes and documentation updates will be added to Athena 2 after this
-time.<p>
-
-This build contains a number of bug fixes and the last few feature
-changes.  In particular, the activity schedule and the time plots can
-now be filtered using a "From"/"To" time interval, and there are many
-new time variables from the economic model for use with plots.<p>
-
-<ul>
-  <li> Bug 2573: Bgerror when editing neighborhood in PREP with plot open
-  <li> Bug 2575: On-Tick Sanity Check Failure Failure
-  <li> Bug 2576: New Bgerror (activities)
-  <li> Bug 2577: Unwanted Gray Map Unit Icons
-  <li> Bug 2578: athena_sim(1): Update Help Menu
-  <li> Bug 2579: htmlviewer(n): Standard Fonts
-  <li> Bug 2580: athena_sim(1): Show *DISABLED* on Neighborhoods/DemSits tab
-  <li> Bug 2581: Another Bgerror
-  <li> Bug 2582: athena_sim(1): Re-use Activity Situations
-  <li> Bug 2583: athena_sim(1): Add "From" and "To" entries to Plan/Schedule tab
-  <li> Bug 2584: athena_sim(1): Add "From" and "To" entries to Plots tab
-  <li> Bug 2585: athena_sim(1): New display variables 
-</ul><p>
-
-<h3>Build 2.0.6, 16 August 2010</h3>
-
-This build fixes a number of significant bugs; in addition, it adds
-the following new features:<p>
-
-<ul>
-  <li> A failed sanity check when locking the scenario now results in
-       a report, rather than a dump to the log.  And the report is
-       more explicit on how to resolve problems.<p>
-
-  <li> There is a new sanity check done every tick that handles
-       failures similarly.<p>
-
-  <li> The economic model uses the latest CGE.<p>
-
-  <li> The economic model can be disabled.<p>
-
-  <li> The current state of the economic model, including all
-       significant inputs, is now shown by the Econ/Overview tab.<p>
-</ul>
-
-The Bugzilla packages are as follows:<p>
-
-<ul>
-  <li> Bug 2540: Cancelled Scheduled Activity does not work
-  <li> Bug 2541: Poor Error Message
-  <li> Bug 2543: Skipped Econ Tocks
-  <li> Bug 2557: athena_sim(1): Sanity Check Report
-  <li> Bug 2559: Econ Parmeter Input Values Incorrect
-  <li> Bug 2560: athena_sim(1): On-Tick Sanity Check
-  <li> Bug 2561: athena_sim(1): Integrate eco3x3r.cm
-  <li> Bug 2562: athena_sim(1): econ.disable
-  <li> Bug 2564: athena_sim(1): Econ Overview GUI 
-</ul><p>
-
-
-<h3>Build 2.0.5, 2 August 2010</h3>
-
-This build contains a number of changes, most of which involve the
-economic model.  We now have the (possibly) final version of the
-3-sector CGE for this release.  Neighborhood security now affects the
-economy by reducing the labor force when security is bad, and it is now
-possible to edit the "shape" of the economy during scenario prep via
-the model parameter database.  Finally, the Athena rule sets have been
-updated to be consistent with the JNEM rule sets of the same names;
-see <code>docs/rules.odt</code>.<p>
-
-<ul>
-  <li> Bug 2329: REFINERY auto-resolves in 60 days, rules say 5 days
-  <li> Bug 2336: athena_sim(1): ORG effects_factor and rollup_weight are ignored
-  <li> Bug 2505: enumfield(n): man page errors
-  <li> Bug 2538: athena_sim(1): Rule Set Changes
-  <li> Bug 2539: athena_sim(1): eco3x3.cm, Version n
-  <li> Bug 2546: athena_sim(1): Remove sim.tickSize
-  <li> Bug 2547: parmdb(5): demsit.disable
-  <li> Bug 2550: athena_sim(1): Integrate eco3x3q.cm
-  <li> Bug 2552: athena_sim(1): Labor Security Factor
-  <li> Bug 2553: athena_sim(1): Add Econ "shape" parameters to parmdb(5)
-  <li> Bug 2554: econ(sim) disaggregates production capacity by total population
-  <li> Bug 2556: scenariodb(n): Schema version
-</ul>
-
-<h3>Build 2.0.4, 13 July 2010</h3>
-
-This build contains few new packages, but many significant changes.
-First of all, unemployment in neighborhoods now affects civilian
-attitudes.  Unemployment spawns "UNEMP" demographic situations
-(demsits); attitude changes are assessed by the new UNEMP rule set.<p>
-
-The most important package is Bug 2534, which represents a major
-change in how Athena represents units and unit activities.  See
-Bug 2534 for details, and if necessary I can give a chalk talk.<p>
-
-<ul>
-  <li> Bug 2519: athena_sim(1): Demographic Situations
-  <li> Bug 2520: athena_sim(1): Sanity Check, no consumers
-  <li> Bug 2521: athena_sim(1): UNEMP Rule Set
-  <li> Bug 2534: athena_sim(1): New Planning Paradigm
-  <li> Bug 2535: Athena installation tarball excludes .odt files 
-</ul>
-
-<h3>Build 2.0.3, 15 June 2010</h3>
-
-This build contains significant new work, much of it related to the
-economic, demographic and attitude models.<p>
-
-With regard to the attitude
-model, the ascending and descending threshold are now fully integrated
-into Athena's infrastructure.  (None of the rule sets have yet been
-updated to specify thresholds, as the SMEs haven't given us any
-thresholds yet.)  Also, the long-term trend has been replaced by
-ascending and descending trends with thresholds.<p>
-
-The demographic model now takes subsistence agriculture into account
-when computing the labor force; in addition, it now determines the
-extent to which unemployment affects the neighborhood groups.  (UNEMP
-situations and the UNEMP rule sets remain to be implemented.)
-
-<ul>
-  <li> Bug 2408: athena_sim(1): dam(sim) allows "-s" to be specified
-  <li> Bug 2470: Unexpected error running up from snapshot
-  <li> Bug 2472: athena_sim(1): Time Charts
-  <li> Bug 2473: athena_sim(1): eco3x3i
-  <li> Bug 2477: athena_sim(1): nbchart(sim) and timechart(sim) should use lazyupdater(n)
-  <li> Bug 2482: athena_sim(1): Subsistence Agriculture Percentage
-  <li> Bug 2484: athena_sim(1): Respond to cellmodel(n) change
-  <li> Bug 2486: athena_sim(1): dam(sim) allows -athresh, -dthresh to be specified.
-  <li> Bug 2487: athena_sim(1): MADs support -s
-  <li> Bug 2488: athena_sim(1): Magic inputs support athresh and dthresh
-  <li> Bug 2493: Upgrade Athena to ATEE 2010 Q2
-  <li> Bug 2498: athena_sim(1): Econ Overview Spreadsheet
-  <li> Bug 2500: athena_sim(1): CAP.goods is ignored at start
-  <li> Bug 2503: athena_sim(1): Compute consumers, labor force given subsistence agriculture
-  <li> Bug 2506: enumfield(n): drop down contents too large
-  <li> Bug 2509: athena_sim(1): Replace long-term trend with ascending/descending trends
-  <li> Bug 2511: athena_sim(1): Response to Bug 2510
-  <li> Bug 2513: athena_sim(1): Test Suite Failures due to Bug 2512
-  <li> Bug 2516: athena_sim(1): Clarifying Analysis vs. Assessment
-  <li> Bug 2518: athena_sim(1): Unemployment Attitude Factor 
-</ul>
-
-<h3>Build 2.0.2, 27 April 2010</h3>
-
-This build contains significant new work.  In particular, it contains
-the initial stages of the Athena Economic Model, and of the new data
-plotting capability.  The full set of changes is as follows:<p>
-
-<ul>
-  <li> Bug 2396: athena_sim(1): Natural Docs
-  <li> Bug 2398: athena_sim(1): Tick Scheduling
-  <li> Bug 2409: athena_sim(1): Img/Pixane Conflict
-  <li> Bug 2424: athena_sim(1): Economic Model, Part I
-  <li> Bug 2431: athena_sim(1): Raise, lower neighborhood causes bgerror
-  <li> Bug 2433: athena_sim(1): Fill neighborhoods based on neighborhood variables
-  <li> Bug 2434: athena_sim(1): Cooperation levels default to 50.0
-  <li> Bug 2452: athena_sim(1): Initial Plot Viewer Code
-  <li> Bug 2465: athena_sim(1): Revised 3x3 Economic Model 
-</ul>
-
-<h3>Build 2.0.1, 5 January 2010</h3>
-
-This build contains all of the maintenance work done since delivery of
-Athena 1.1.1.<p>
-
-<ul>
-  <li> Bug 2315: reporter(n), etc., moved to Mars
-  <li> Bug 2316: scenariodb(n): register sqlsections
-  <li> Bug 2320: athena_sim(1) Delete "object" column from gram(n) schema
-  <li> Bug 2333: Update Athena 2.0 to ATEE 2009Q3
-  <li> Bug 2348: Delete bin/athena before building replacement
-  <li> Bug 2388: athena_sim(1): Regression error, gram_values table no longer exists.
-  <li> Bug 2389: athena_sim(1): REPORT:DRIVER
-  <li> Bug 2390: Athena GUI Scrub
-</ul>
-
-<h3>Build 2.0.0, 5 October 2009 -- Baseline 2.0.x Build</h3>
-
-This is the baseline for 2.0.x development; it is equivalent to
-1.0.18.<p>
 
 <hr>
 
