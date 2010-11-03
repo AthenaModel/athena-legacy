@@ -226,7 +226,8 @@ SELECT m || ' ' || n                                 AS id,
        n                                             AS n,
        proximity                                     AS proximity,
        format('%5.1f', effects_delay)                AS effects_delay
-FROM nbrel_mn;
+FROM nbrel_mn
+WHERE m != n;
 
 -- A units view for use by the GUI
 CREATE TEMPORARY VIEW gui_units AS

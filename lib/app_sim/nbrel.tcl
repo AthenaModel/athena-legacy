@@ -20,16 +20,6 @@ snit::type nbrel {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Type Components
-
-    # TBD
-
-    #-------------------------------------------------------------------
-    # Type Variables
-
-    # TBD
-
-    #-------------------------------------------------------------------
     # Queries
 
     # validate id
@@ -217,6 +207,9 @@ snit::type nbrel {
     #
     # Refreshes the data in the NBREL:UPDATE dialog
     # when field values change.
+    #
+    # NOTE: The gui_nbrel_mn view is now defined such
+    # that m != n.
 
     typemethod Refresh_NRU {dlg fields fdict} {
         # FIRST, if the id changed, refresh the fields.
@@ -315,42 +308,28 @@ snit::type nbrel {
 order define NBREL:UPDATE {
     title "Update Neighborhood Relationship"
     options \
-        -sendstates PREP \
-        -refreshcmd {::nbrel Refresh_NRU}
+        -sendstates PREP                               \
+        -refreshcmd {::orderdialog refreshForKey id *}
 
     parm id            key  "Neighborhood"       -table  gui_nbrel_mn  \
                                                  -key    {m n}         \
                                                  -labels {"Of" "With"}
-    parm proximity     enum "Proximity"
+    parm proximity     enum "Proximity"          -type   {ptype prox-HERE}
     parm effects_delay text "Effects Delay (Days)"
 } {
     # FIRST, prepare the parameters
     prepare id            -toupper  -required -type nbrel
-    prepare proximity     -toupper            -type eproximity
+    prepare proximity     -toupper            -type {ptype prox-HERE}
     prepare effects_delay -toupper            -type rdays
 
     returnOnError
 
-    # NEXT, can't change HERE for a neighborhood with itself
+    # NEXT, can't change relationship of a neighborhood with itself
     lassign $parms(id) m n
 
-    if {[valid proximity]} {
-        if {$m eq $n && $parms(proximity) ne "HERE"} { 
-            reject proximity "Proximity of $m to itself must be HERE"
-        } elseif {$m ne $n && $parms(proximity) eq "HERE"} { 
-            reject proximity \
-                "Proximity of $m to $n cannot be HERE"
-        }
+    if {$m eq $n} {
+        reject id "Cannot change the relationship of a neighborhood to itself."
     }
-
-    # NEXT, effects_delay must be 0.0 if m=n
-    if {[valid effects_delay]} {
-        if {$m eq $n && $parms(effects_delay) != 0.0} {
-            reject effects_delay \
-                "Effects Delay cannot be non-zero for these neighborhoods."
-        }
-    }
-
 
     returnOnError -final
 
@@ -366,54 +345,31 @@ order define NBREL:UPDATE {
 order define NBREL:UPDATE:MULTI {
     title "Update Multiple Neighborhood Relationships"
     options \
-        -sendstates PREP                   \
-        -refreshcmd {::nbrel Refresh_NRUM}
+        -sendstates PREP                                  \
+        -refreshcmd {::orderdialog refreshForMulti ids *}
 
     parm ids           multi  "IDs"                  -table gui_nbrel_mn \
                                                      -key   id
 
-    parm proximity     enum   "Proximity"
+    parm proximity     enum   "Proximity"            -type  {ptype prox-HERE}
     parm effects_delay text   "Effects Delay (Days)"
 } {
     # FIRST, prepare the parameters
     prepare ids           -toupper  -required -listof nbrel
-    prepare proximity     -toupper            -type eproximity
+    prepare proximity     -toupper            -type {ptype prox-HERE}
     prepare effects_delay -toupper            -type rdays
 
     returnOnError
 
-    # NEXT, make sure that we're not changing the proximity when we
-    # shouldn't.
-    if {[valid proximity]} {
-        foreach id $parms(ids) {
-            lassign $id m n
+    # NEXT, make sure that m != n.
+    foreach id $parms(ids) {
+        lassign $id m n
             
-            if {$m eq $n && $parms(proximity) ne "HERE"} {
-                reject proximity \
-           "Proximity cannot be HERE for these neighborhoods."
-                break
-            } elseif {$m ne $n && $parms(proximity) eq "HERE"} {
-                reject proximity \
-           "Proximity cannot be $parms(proximity) for these neighborhoods."
-                break
-            }
+        if {$m eq $n} {
+            reject ids \
+                "Cannot change the relationship of a neighborhood to itself."
         }
     }
-
-    # NEXT, make sure that we're not changing the effects_delay when we
-    # shouldn't.
-    if {[valid effects_delay]} {
-        foreach id $parms(ids) {
-            lassign $id m n
-            
-            if {$m eq $n && $parms(effects_delay) != 0.0} {
-                reject effects_delay \
-           "Effects Delay cannot be non-zero for these neighborhoods."
-                break
-            }
-        }
-    }
-
 
     returnOnError -final
 

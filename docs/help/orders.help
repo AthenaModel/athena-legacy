@@ -2262,11 +2262,12 @@ page NBREL: "Neighborhood Relationship Orders" orders {
 
 order NBREL:UPDATE "Update Neighborhood Relationship" {
     <<parmlist>>
-    <<parm m "Neighborhood">> 
+    <<parm id "Neighborhood">> 
     <b>Required.</b>  A neighborhood relationship ID, specified as
     a list {<i>m</i>, <i>n</i>} where <i>m</i> and <i>n</i> are
     neighborhoods and the data is <i>m</i>'s relationship with
-    <i>n</i>.
+    <i>n</i>.  Note that a neighborhood's relationship with itself
+    is fixed, so <i>m</i> cannot equal <i>n</i>.
     <</parm>>
 
     <<parm proximity "Proximity">>  

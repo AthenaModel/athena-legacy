@@ -238,6 +238,17 @@ snit::type ptype {
         EnumVal "force activity" [$type frca+cov names] $value
     }
 
+    # prox-HERE
+    #
+    # All proximities but HERE
+
+    typemethod {prox-HERE names} {} {
+        lrange [eproximity names] 1 end
+    }
+
+    typemethod {prox-HERE validate} {value} {
+        EnumVal "proximity" [$type prox-HERE names] $value
+    }
 
     #-------------------------------------------------------------------
     # Helper Routines
