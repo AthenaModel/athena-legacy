@@ -47,6 +47,7 @@ namespace eval ::marsutil:: {
         min             \
         moneyfmt        \
         moneyscan       \
+        moneysort       \
         normalize       \
         optval          \
 	outdent         \
@@ -553,6 +554,26 @@ proc ::marsutil::moneyscan {value} {
     }
 
     return [expr {$value * $factor($lastchar)}]
+}
+
+# moneysort a b
+#
+# a      A value formatted by moneyfmt
+# b      A value formatted by moneyfmt
+#
+# Returns -1 if a < b, 0 if a == b, and 1 if a > b
+
+proc ::marsutil::moneysort {a b} {
+    set a [moneyscan $a]
+    set b [moneyscan $b]
+
+    if {$a < $b} {
+        return -1
+    } elseif {$a > $b} {
+        return 1
+    } else {
+        return 0
+    }
 }
 
 # pickfrom list

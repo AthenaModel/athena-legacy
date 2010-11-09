@@ -215,6 +215,33 @@ should be "$xyz" or "{xyz}" or "xyz(...)" or ...}
     } -result {-12345000000000.0}
 
     #-------------------------------------------------------------------
+    # moneysort
+
+    test moneysort-1.1 {Invalid a} -body {
+        moneysort 1.1Q 2
+    } -returnCodes {
+        error
+    } -result {Invalid input: "1.1Q"}
+
+    test moneysort-1.2 {Invalid b} -body {
+        moneysort 1 2.2Q
+    } -returnCodes {
+        error
+    } -result {Invalid input: "2.2Q"}
+
+    test moneysort-2.1 {a < b} -body {
+        moneysort 1.1M 2.2M
+    } -result {-1}
+
+    test moneysort-2.2 {a == b} -body {
+        moneysort 1M 1.00M
+    } -result {0}
+
+    test moneysort-2.3 {a > b} -body {
+        moneysort 2.2M 1.1M
+    } -result {1}
+
+    #-------------------------------------------------------------------
     # require
 
     test require-1.1 {Assertion succeeds} -body {

@@ -189,6 +189,12 @@ Converts numbers as formatted by <<iref moneyfmt>> back into standard
 real values: commas are stripped, and if the value ends in "M", "B",
 or "T" it is multiplied by the appropriate factor.<p>
 
+<<defitem moneysort {moneysort <i>a b</i>}>>
+
+Compares two values <i>a</i> and <i>b</i> formatted by <<iref moneyfmt>>
+and returns -1 if <i>a</i> &lt; <i>b</i>, 0 if <i>a</i> == <i>b</i>,
+and +1 if <i>a</i> &gt; <i>b</i>.<p>
+
 <<defitem roundrange {roundrange <i>min max</i>}>>
 
 Given a range of numbers (<i>min, max</i>), rounds <i>min</i> down and
