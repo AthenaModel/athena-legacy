@@ -35,9 +35,15 @@ snit::widgetadaptor econcapbrowser {
         { longname       "Neighborhood"                                  }
         { urbanization   "Urbanization"                                  }
         { pcf            "Prod. Cap."   -sortmode real                   }
-        { ccf            "Cap. Cal."    -sortmode real    -foreground %D }
-        { cap0           "Cap at T0"    -sortmode real    -foreground %D }
-        { cap            "Cap Now"      -sortmode real    -foreground %D }
+        { ccf            "Cap. Cal."    -sortmode command 
+                                        -sortcommand ::marsutil::moneysort 
+                                        -foreground %D                   }
+        { cap0           "Cap at T0"    -sortmode command
+                                        -sortcommand ::marsutil::moneysort
+                                        -foreground %D                   }
+        { cap            "Cap Now"      -sortmode command
+                                        -sortcommand ::marsutil::moneysort
+                                        -foreground %D                   }
     }
 
     #-------------------------------------------------------------------
