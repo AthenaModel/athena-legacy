@@ -11,6 +11,18 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 2.1.2, 10 November 2010</h3>
+
+This build corrects two problems.  First, clicking on the column headers
+in the Econ/Capacity browser could cause a bgerror; second, creating
+a new scenario with plots open in the Plots tab could also cause
+a bgerror.  The specific packages are as follows:<p>
+
+<ul>
+  <li> Bug 2668: Bgerror while sorting econ browser columns
+  <li> Bug 2671: Plot Tab Bgerror 
+</ul><p>
+
 <h3>Build 2.1.1, 2 November 2010</h3>
 
 This build corrects two problems.  First, the Analyst's Guide and
