@@ -621,13 +621,21 @@ snit::type view {
     typemethod init {} {
         log detail view "init"
 
-        # FIRST, register this module as a saveable, so that the
-        # cache is flushed as appropriate.
-        scenario register $type
+        # FIRST, Flush the cache whenever the scenario is reloaded.
+        notifier bind ::sim <DbSyncA> ::view [mytypemethod FlushCache]
 
         # NEXT, the module is up.
         log detail view "init complete"
     }
+
+    # FlushCache
+    #
+    # Flushes the view cache when the RDB changes out from under it.
+
+    typemethod FlushCache {} {
+        array unset views
+    }
+
 
     #-------------------------------------------------------------------
     # Group: View Queries
@@ -1086,37 +1094,5 @@ snit::type view {
     proc gc_sat {domain vartype g c} {
         ValidateIndex $domain $vartype g $g {civgroup validate $g}
         ValidateIndex $domain $vartype c $c {ptype c validate $c}
-    }
-
-    #-------------------------------------------------------------------
-    # Checkpoint/Restore
-
-    # checkpoint ?-saved?
-    #
-    # Returns the component's checkpoint information as a string.
-
-    typemethod checkpoint {{flag ""}} {
-        # No checkpointed data
-        return ""
-    }
-
-    # restore checkpoint ?-saved?
-    #
-    # checkpoint      A checkpoint string returned by "checkpoint"
-    #
-    # Restores the component's state to the checkpoint.  In this case,
-    # the persistent situation state is stored wholly in the RDB...but we 
-    # need to flush the cache of existing situation objects.
-
-    typemethod restore {checkpoint {flag ""}} {
-        array unset views
-    }
-
-    # changed
-    #
-    # Indicates that the nothing needs to be saved.
-
-    typemethod changed {} {
-        return 0
     }
 }
