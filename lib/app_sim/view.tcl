@@ -617,13 +617,21 @@ snit::type view {
     typemethod init {} {
         log detail view "init"
 
-        # FIRST, register this module as a saveable, so that the
-        # cache is flushed as appropriate.
-        scenario register $type
+        # FIRST, Flush the cache whenever the scenario is reloaded.
+        notifier bind ::sim <DbSyncA> ::view [mytypemethod FlushCache]
 
         # NEXT, the module is up.
         log detail view "init complete"
     }
+
+    # FlushCache
+    #
+    # Flushes the view cache when the RDB changes out from under it.
+
+    typemethod FlushCache {} {
+        array unset views
+    }
+
 
     #-------------------------------------------------------------------
     # Group: View Queries
@@ -1125,8 +1133,12 @@ snit::type view {
         }
     }
 
+
     #-------------------------------------------------------------------
     # Checkpoint/Restore
+    #
+    # TBD: This is no longer needed, but leave it in place so as not
+    # to invalidate existing .adb files.
 
     # checkpoint ?-saved?
     #
