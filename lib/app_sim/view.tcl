@@ -834,6 +834,25 @@ snit::type view {
         return [$type ValidateVarname n $varname]
     }
 
+    # Type Method: n exists
+    #
+    # Returns 1 if there is a neighborhood variable called
+    #  _varname_, and 0 otherwise.
+    #
+    # Syntax:
+    #   n exists _varname_
+    #
+    #   varname - The neighborhood variable name.
+
+    typemethod "n exists" {varname} {
+        if {[catch {$type n validate $varname}]} {
+            return 0
+        }
+
+        return 1
+    }
+
+
     # Type Method: t validate
     #
     # Validates a _varname_ for the time series domain.
@@ -846,6 +865,25 @@ snit::type view {
 
     typemethod "t validate" {varname} {
         return [$type ValidateVarname t $varname]
+    }
+
+
+    # Type Method: t exists
+    #
+    # Returns 1 if there is a time series variable called
+    #  _varname_, and 0 otherwise.
+    #
+    # Syntax:
+    #   t exists _varname_
+    #
+    #   varname - The time series variable name.
+
+    typemethod "t exists" {varname} {
+        if {[catch {$type t validate $varname}]} {
+            return 0
+        }
+
+        return 1
     }
 
     #-------------------------------------------------------------------

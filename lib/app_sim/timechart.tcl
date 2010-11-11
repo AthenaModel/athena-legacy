@@ -189,6 +189,19 @@ snit::widgetadaptor timechart {
         # FIRST, clear the content of the chart.
         $hull clear
 
+        # NEXT, make sure the variables are still valid; strip out the
+        # ones that aren't.
+        set goodNames [list]
+
+        foreach varname $options(-varnames) {
+            if {[view t exists $varname]} {
+                lappend goodNames $varname
+            }
+        }
+
+        set options(-varnames) $goodNames
+
+
         # NEXT, get the view and the data.
         if {$options(-varnames) ne ""} {
             # FIRST, get the time interval.
