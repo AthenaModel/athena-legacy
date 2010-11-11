@@ -487,41 +487,53 @@ WHERE nbhoods.local;
 -- used to check this, and to retrieve the entity type for a given ID.
 
 CREATE TEMPORARY VIEW entities AS
-SELECT 'PLAYBOX'  AS id, 
-       'Playbox'  AS longname, 
-       'reserved' AS etype
+SELECT 'PLAYBOX'      AS id, 
+       'Playbox'      AS longname, 
+       'reserved'     AS etype
 UNION
-SELECT 'ALL'      AS id, 
-       'All'      AS longname, 
-       'reserved' AS etype
+SELECT 'CIV'          AS id, 
+       'Civilian'     AS longname, 
+       'reserved'     AS etype
 UNION
-SELECT 'NONE'     AS id, 
-       'None'     AS longname, 
-       'reserved' AS etype
+SELECT 'FRC'          AS id, 
+       'Force'        AS longname, 
+       'reserved'     AS etype
 UNION
-SELECT n         AS id, 
-       longname  AS longname, 
-       'nbhood'  AS etype 
+SELECT 'ORG'          AS id, 
+       'Organization' AS longname, 
+       'reserved'     AS etype
+UNION
+SELECT 'ALL'          AS id, 
+       'All'          AS longname, 
+       'reserved'     AS etype
+UNION
+SELECT 'NONE'         AS id, 
+       'None'         AS longname, 
+       'reserved'     AS etype
+UNION
+SELECT n              AS id, 
+       longname       AS longname, 
+       'nbhood'       AS etype 
 FROM nbhoods
 UNION
-SELECT g         AS id, 
-       longname  AS longname, 
-       'group'   AS etype 
+SELECT g              AS id, 
+       longname       AS longname, 
+       'group'        AS etype 
 FROM groups
 UNION
-SELECT c         AS id, 
-       longname  AS longname, 
-       'concern' AS etype 
+SELECT c              AS id, 
+       longname       AS longname, 
+       'concern'      AS etype 
 FROM concerns
 UNION
-SELECT a          AS id, 
-       longname   AS longname, 
-       'activity' AS etype 
+SELECT a              AS id, 
+       longname       AS longname, 
+       'activity'     AS etype 
 FROM activity
 UNION
-SELECT u         AS id,
-       u         AS longname,
-       'unit'    AS etype
+SELECT u              AS id,
+       u              AS longname,
+       'unit'         AS etype
 FROM units;
 
 
