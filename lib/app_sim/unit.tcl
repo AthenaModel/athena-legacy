@@ -155,11 +155,22 @@ snit::type unit {
         }
     }
 
+    # delete u
+    #
+    # u    A unit name
+    #
+    # Deletes the unit altogether.
+
+    typemethod delete {u} {
+        $type mutate delete $u
+        return
+    }
+
     #-------------------------------------------------------------------
     # Mutators
     #
     # Mutators are used to implement orders that change the scenario in
-    # some way.  test/app_sim/Mutators assume that their inputs are valid, and returns
+    # some way.  Mutators assume that their inputs are valid, and returns
     # a script of one or more commands that will undo the change.  When
     # a change cannot be undone, the mutator returns the empty string.
 
