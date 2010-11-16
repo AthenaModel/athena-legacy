@@ -109,6 +109,18 @@ cid n   g    a      tn  personnel priority start finish pattern
         {::activity <Entity> create 1}
     }
 
+    test create-1.3 {Item IDs are not re-used.} -body {
+        activity mutate create $c1
+        set a [rdb onecolumn {SELECT cid FROM calendar}]
+        activity mutate delete $a
+        activity mutate create $c1
+        set b [rdb onecolumn {SELECT cid FROM calendar}]
+
+        expr {$a != $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
 
     test create-2.1 {undo deletes the activity} -setup {
         ted create NB1 BLUE

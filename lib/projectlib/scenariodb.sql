@@ -569,7 +569,7 @@ CREATE TABLE activity_nga (
 -- Activity calendar
 CREATE TABLE calendar (
     -- Calendar Item ID
-    cid          INTEGER PRIMARY KEY,
+    cid          INTEGER PRIMARY KEY AUTOINCREMENT,
 
     -- Scheduled activity
     n            TEXT,     -- Symbolic nbhoods name
@@ -595,23 +595,6 @@ CREATE TABLE calendar (
 
 CREATE INDEX calendar_nga_index 
 ON calendar(n,g,a);
-
--- footprint Table.
---
--- All personnel are stationed in some neighborhood n, and operate
--- in some neighborhood tn, based on activity staffing.  This 
--- table contains the actual number of g's personnel based in n that
--- are active in tn.  It is populated only when personnel > 0.
-
-CREATE TABLE footprint (
-    n           TEXT,                   -- Nbhood of origin
-    g           TEXT,                   -- Group
-    tn          TEXT,                   -- Nbhood of operation
-    personnel   INTEGER DEFAULT 0,      -- Number of personnel.
-
-    PRIMARY KEY (n,g,tn)
-);
-
 
 
 ------------------------------------------------------------------------

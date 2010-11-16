@@ -472,6 +472,7 @@ snit::type ted {
     #
     # * Forgets notifier binds
     # * Deletes all records from the $cleanupTables
+    # * Clears the SQLITE_SEQUENCE table
     # * Resyncs the $cleanupModules with the RDB
     # * Clears the CIF
     # * Resets the parms
@@ -491,6 +492,9 @@ snit::type ted {
         foreach table $cleanupTables {
             rdb eval "DELETE FROM $table;" 
         }
+
+        # So that automatically generated IDs start over at 1.
+        rdb eval {DELETE FROM main.sqlite_sequence}
 
         foreach module $cleanupModules {
             {*}$module dbsync

@@ -13,7 +13,7 @@
 
 -- Temporary Table: DAM Inputs
 CREATE TEMP TABLE dam_inputs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY,
     input,            -- GRAM input ID
     itype,            -- sat, coop
     etype,            -- LEVEL, SLOPE
