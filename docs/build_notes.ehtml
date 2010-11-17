@@ -11,6 +11,19 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 2.1.3, 17 November 2010</h3>
+
+This build corrects two problems.  First, it fixes a problem in which
+the Plot tab can cause a bgerror if the scenario is changed significantly
+while plots are displayed; and it fixes a bug with the activity
+staffing algorithm which could in rare cases cause the incorrect
+activity to be staffed.  The specific packages are as follows:<p>
+
+<ul>
+  <li> Bug 2678: New Plot Tab Bgerror
+  <li> Bug 2685: Displaced Civgroups Going to Wrong Nbhood 
+</ul><p>
+
 <h3>Build 2.1.2, 10 November 2010</h3>
 
 This build corrects two problems.  First, clicking on the column headers
