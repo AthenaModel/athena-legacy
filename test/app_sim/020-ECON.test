@@ -104,7 +104,7 @@ NB2 1.0 0.0 0.0  0.0
     test UPDATE-2.2 {PCF range is wider after PREP} -setup {
         setup
         ted create BLUE SHIA KURD
-        ted order SIM:LOCK
+        ted lock
     } -body {
         ted order ECON:UPDATE {
             n   NB1

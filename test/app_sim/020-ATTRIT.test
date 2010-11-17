@@ -37,7 +37,7 @@ namespace eval ::athena_test::tests:: {
             uplevel 1 $script
         }
 
-        ted order SIM:LOCK
+        ted lock
     }
 
     # Clean up after a test

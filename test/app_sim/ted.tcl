@@ -466,6 +466,16 @@ snit::type ted {
         }
     }
 
+    # lock
+    #
+    # Reconciles the scenario, so that all implied entities are
+    # created, and sends SIM:LOCK.
+
+    typemethod lock {} {
+        scenario mutate reconcile
+        ted order SIM:LOCK
+    }
+
     # cleanup
     #
     # Cleans up after a test:

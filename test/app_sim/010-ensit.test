@@ -849,7 +849,7 @@ s kind    stype    driver n   coverage state ts tc change   flist g    signature
         ted create NB1 BLUE SHIA
         ensit mutate create $s3
     } -body {
-        ted order SIM:LOCK
+        ted lock
         ted order SIM:RUN days 1 block yes
         ted query {SELECT * FROM eventq_queue_ensitSpawn}
     } -cleanup {
@@ -864,7 +864,7 @@ id t etype      s
     test spawn-1.3 {spawn is canceled on resolve} -setup {
         ted create NB1 BLUE SHIA
         ensit mutate create $s3
-        ted order SIM:LOCK
+        ted lock
         ted order SIM:RUN days 1 block yes
     } -body {
         ensit mutate resolve {
@@ -882,7 +882,7 @@ id t etype      s
     test spawn-1.4 {undo restores scheduled spawn} -setup {
         ted create NB1 BLUE SHIA
         ensit mutate create $s3
-        ted order SIM:LOCK
+        ted lock
         ted order SIM:RUN days 1 block yes
         set undo [ensit mutate resolve {
             s        1
@@ -906,7 +906,7 @@ id t etype      s
         ted create NB1 BLUE SHIA
         ensit mutate create $s1
     } -body {
-        ted order SIM:LOCK
+        ted lock
         ted order SIM:RUN days 3 block yes
 
         ted query {SELECT * FROM ensits}
@@ -940,7 +940,7 @@ s kind    stype    driver n   coverage state  ts tc change flist g    signature 
         ted create NB1 BLUE SHIA
         ensit mutate create $s1
     } -body {
-        ted order SIM:LOCK
+        ted lock
         ted order SIM:RUN days 1 block yes
         ted query {SELECT * FROM eventq_queue_ensitAutoResolve}
     } -cleanup {
@@ -955,7 +955,7 @@ id t etype            s
     test auto-resolve-1.3 {auto-resolve is canceled on resolve} -setup {
         ted create NB1 BLUE SHIA
         ensit mutate create $s1
-        ted order SIM:LOCK
+        ted lock
         ted order SIM:RUN days 1 block yes
     } -body {
         ensit mutate resolve {
@@ -973,7 +973,7 @@ id t etype            s
     test auto-resolve-1.4 {undo restores scheduled auto-resolve} -setup {
         ted create NB1 BLUE SHIA
         ensit mutate create $s1
-        ted order SIM:LOCK
+        ted lock
         ted order SIM:RUN days 1 block yes
         set undo [ensit mutate resolve {
             s        1
@@ -997,7 +997,7 @@ id t etype            s
         ted create NB1 BLUE SHIA
         ensit mutate create [dict merge $s2 [list rduration 2]]
     } -body {
-        ted order SIM:LOCK
+        ted lock
         ted order SIM:RUN days 4 block yes
 
         ted query {SELECT * FROM ensits}

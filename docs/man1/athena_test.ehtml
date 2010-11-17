@@ -74,7 +74,12 @@ used to create them, and <<iref ted entity>> is used to retrieve the
 parameters with which they are created.  Note that these parameters
 are defined to be used with the relevant "<b>mutate create</b>"
 commands, not with the <b>*:CREATE</b> orders (i.e., data values are
-in canonical internal form).  The <<iref ted cleanup>> command will
+in canonical internal form).
+
+The command <<iref ted lock>> will reconcile the scenario, thus
+creating all dependent entities, and send the <b>SIM:LOCK</b> order.<p>
+
+The <<iref ted cleanup>> command will
 delete all entities created using <<iref ted create>>, among other things.<p>
 
 <<section "OPTIONS">>
@@ -162,6 +167,12 @@ Returns a "<b>mutate create</b>" parameter dictionary for the
 named entity.  If additional parameters are provided, either as a
 single <i>dict</i> or as individual keys and values, they are merged
 into the returned dictionary.<p>
+
+<<defitem "ted lock" {ted lock}>>
+
+Locks the scenario so that time can advance, but first calls
+<b>scenario reconcile</b> so that all dependent entities are
+created.<p>
 
 <<defitem "ted notifier" {ted notifier <i>subcommand</i> ?<i>args...</i>?}>>
 

@@ -74,7 +74,7 @@ namespace eval ::athena_test::tests:: {
 
     test SCHEDULE-1.3 {Invalid timespec: not in future} -setup {
         ted create NB1 BLUE SHIA
-        ted order SIM:LOCK
+        ted lock
         ted order SIM:RUN days 1 block yes
     } -body {
         ted order -reject ORDER:SCHEDULE {
@@ -187,7 +187,7 @@ id tick zulu         name          narrative                      parmdict
 
     test SCHEDULE-2.6 {Cannot schedule order at +0 while in PREP} -setup {
         ted create NB1 BLUE SHIA
-        ted order SIM:LOCK
+        ted lock
     } -body {
         ted order ORDER:SCHEDULE {
             timespec +0
@@ -209,7 +209,7 @@ id tick zulu         name          narrative                      parmdict
             parmdict {id {NB2 BLUE} personnel 10}
         }
     } -body {        
-        ted order SIM:LOCK
+        ted lock
         ted order SIM:RUN days 5 block YES
         simclock now
     } -cleanup {
@@ -226,7 +226,7 @@ id tick zulu         name          narrative                      parmdict
             parmdict {id {NB1 BLUE} personnel 10}
         }
     } -body {        
-        ted order SIM:LOCK
+        ted lock
         ted order SIM:RUN days 5 block YES
         ted query {SELECT u, personnel FROM gui_units}
     } -cleanup {
@@ -247,7 +247,7 @@ BLUE-NB1/0000 10
             parmdict {id {NB1 BLUE} personnel 10}
         }
     } -body {        
-        ted order SIM:LOCK
+        ted lock
         ted order SIM:RUN days 5 block YES
         simclock now
     } -cleanup {

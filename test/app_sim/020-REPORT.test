@@ -28,7 +28,7 @@ namespace eval ::athena_test::tests:: {
 
     proc setup {} {
         ted create NB1 NB2 BLUE SHIA KURD USAID
-        sim mutate lock
+        ted lock
         sim mutate run -ticks 1 -block yes
     }
 

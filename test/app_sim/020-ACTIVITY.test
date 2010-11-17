@@ -210,7 +210,7 @@ namespace eval ::athena_test::tests:: {
 
     test SCHEDULE-1.12 {state is PAUSED, start is not in future} -setup {
         ted create NB1 BLUE SHIA
-        ted order SIM:LOCK
+        ted lock
     } -body {
         ted order -reject ACTIVITY:SCHEDULE [dict merge $c1 {
             start 0
@@ -429,7 +429,7 @@ cid n   g     a              tn  personnel priority start finish pattern
         ted create NB1 BLUE USAID SHIA
         ted order ACTIVITY:SCHEDULE $c1
         ted order ACTIVITY:SCHEDULE $c2
-        ted order SIM:LOCK
+        ted lock
     } -body {
         ted order -reject ACTIVITY:UPDATE cid 1 start 0
     } -cleanup {

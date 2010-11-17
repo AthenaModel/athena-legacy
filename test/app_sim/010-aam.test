@@ -285,7 +285,7 @@ BRIT-NB1/0000 15
 
     test attritnf-2.1 {f is CIV, not resident in n} -setup {
         ted create NB1 NB2 BLUE SHIA KURD 
-        ted order SIM:LOCK
+        ted lock
     } -body {
         aam mutate attritnf [list n NB1 f KURD casualties 20 g1 "" g2 ""]
         demog analyze pop
@@ -303,7 +303,7 @@ KURD 0         0         1000
 
     test attritnf-2.2 {f is CIV, no units in n, normal} -setup {
         ted create NB1 BLUE SHIA SUNN
-        ted order SIM:LOCK
+        ted lock
     } -body {
         aam mutate attritnf [list n NB1 f SHIA casualties 20 g1 "" g2 ""]
         demog analyze pop
@@ -321,7 +321,7 @@ SUNN 0         0         1000
 
     test attritnf-2.3 {f is CIV, no units in n, overkill leaves 1} -setup {
         ted create NB1 BLUE SHIA SUNN
-        ted order SIM:LOCK
+        ted lock
     } -body {
         aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
         demog analyze pop
@@ -339,7 +339,7 @@ SUNN 0         0         1000
 
     test attritnf-2.4 {f is CIV, no units in n, implicit = 1} -setup {
         ted create NB1 BLUE SHIA SUNN
-        ted order SIM:LOCK
+        ted lock
         # use overkill to get down to that point
         aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
         demog analyze pop
@@ -360,7 +360,7 @@ SUNN 0         0         1000
 
     test attritnf-2.5 {f is CIV, overkill, attrition is saved} -setup {
         ted create NB1 BLUE SHIA SUNN
-        ted order SIM:LOCK
+        ted lock
     } -body {
         # There are only 1000 in the nbgroup, and 1 should remain.  However,
         # we'll count the 1 as a casualty anyway.
@@ -378,7 +378,7 @@ id n   f    casualties
 
     test attritnf-2.6 {f is CIV, overkill, g1, g2 are saved} -setup {
         ted create NB1 BLUE BRIT SHIA SUNN
-        ted order SIM:LOCK
+        ted lock
     } -body {
         aam mutate attritnf \
             [list n NB1 f SHIA casualties 2000 g1 BLUE g2 BRIT]
@@ -395,7 +395,7 @@ id n   f    g    casualties
 
     test attritnf-2.7 {f is CIV, undo restores} -setup {
         ted create NB1 BLUE SHIA SUNN
-        ted order SIM:LOCK
+        ted lock
         set undo [list]
         lappend undo [aam mutate attritnf \
                           [list n NB1 f SHIA casualties 15 g1 BLUE g2 BRIT]]
@@ -434,7 +434,7 @@ SUNN-NB1/0000 1000
 
     test attritn-1.1 {All civilians in nbhood} -setup {
         ted create NB1 BLUE SHIA SUNN
-        ted order SIM:LOCK
+        ted lock
     } -body {
         aam mutate attritn [list n NB1 casualties 20 g1 "" g2 ""]
         demog analyze pop
@@ -452,7 +452,7 @@ SUNN 10        0         990
 
     test attritn-1.2 {nbhood, overkill leaves 1 per resident} -setup {
         ted create NB1 BLUE SHIA SUNN
-        ted order SIM:LOCK
+        ted lock
     } -body {
         aam mutate attritn [list n NB1 casualties 3000  g1 "" g2 ""]
         demog analyze pop
@@ -470,7 +470,7 @@ SUNN 999       0         1
 
     test attritn-1.3 {nbhood, attrition is proportional} -setup {
         ted create NB1 BLUE SHIA SUNN
-        ted order SIM:LOCK
+        ted lock
     } -body {
         aam mutate attritn [list n NB1 casualties 100  g1 "" g2 ""]
         demog analyze pop
@@ -496,7 +496,7 @@ SUNN-NB1/0000 950
         ted create NB1 NB2 BLUE SHIA KURD
         ted order ACTIVITY:SCHEDULE n NB2 g KURD a DISPLACED tn NB1 \
             personnel 100 start 0 finish NEVER pattern daily
-        ted order SIM:LOCK
+        ted lock
     } -body {
         aam mutate attritn [list n NB1 casualties 100 g1 "" g2 ""]
         demog analyze pop
@@ -522,7 +522,7 @@ KURD-NB2/0000 900
 
     test attritn-1.5 {nbhood, attrition is saved} -setup {
         ted create NB1 BLUE SHIA SUNN
-        ted order SIM:LOCK
+        ted lock
     } -body {
         aam mutate attritn [list n NB1 casualties 10000 g1 BLUE g2 BRIT]
         demog analyze pop
@@ -552,7 +552,7 @@ id n   f    g    casualties
         personnel mutate reconcile
         ted order PERSONNEL:SET id {NB1 BLUE}  personnel 15
         ted order PERSONNEL:SET id {NB1 USAID} personnel 15
-        ted order SIM:LOCK
+        ted lock
     } -body {
         aam mutate attritn [list n NB1 casualties 10000 g1 BLUE g2 BRIT]
 
@@ -571,7 +571,7 @@ USAID-NB1/0000 15
 
     test attritn-1.7 {nbhood, ::unit <Entity>} -setup {
         ted create NB1 BLUE SHIA
-        ted order SIM:LOCK
+        ted lock
     } -body {
         ted notifier bind ::unit <Entity>
         aam mutate attritn [list n NB1 casualties 100 g1 "" g2 ""]
@@ -585,7 +585,7 @@ USAID-NB1/0000 15
 
     test attritn-1.8 {nbhood, undo restores} -setup {
         ted create NB1 BLUE SHIA SUNN
-        ted order SIM:LOCK
+        ted lock
 
         set undo [list]
         lappend undo [aam mutate attritn \
@@ -617,7 +617,7 @@ SUNN-NB1/0000 1000
 
     test attritn-1.9 {nbhood, ::unit <Entity> on undo} -setup {
         ted create NB1 BLUE SHIA SUNN
-        ted order SIM:LOCK
+        ted lock
 
         set a [aam mutate attritn \
                    [list n NB1 casualties 100 g1 "" g2 ""]]
@@ -683,7 +683,7 @@ USAID-NB1/0001 10
 
     test attritunit-3.1 {CIV unit is attrited in home nbhood} -setup {
         ted create NB1 BLUE BRIT SHIA
-        ted order SIM:LOCK
+        ted lock
     } -body {
         aam mutate attritunit [list u SHIA-NB1/0000 casualties 5 g1 BLUE g2 BRIT]
 
@@ -715,7 +715,7 @@ id n   f    g    casualties
 
     test attritunit-4.1 {::unit <Entity>} -setup {
         ted create NB1 BLUE SHIA
-        ted order SIM:LOCK
+        ted lock
     } -body {
         ted notifier bind ::unit <Entity>
         aam mutate attritunit [list u SHIA-NB1/0000 casualties 5 g1 "" g2 ""]
@@ -729,7 +729,7 @@ id n   f    g    casualties
 
     test attritunit-4.2 {Undo restores unit and nbgroup} -setup {
         ted create NB1 BLUE SHIA
-        ted order SIM:LOCK
+        ted lock
 
         set a [aam mutate attritunit \
                    [list u SHIA-NB1/0000 casualties 5 g1 "" g2 ""]]
@@ -757,9 +757,9 @@ SHIA 0         0         1000
     }
 
 
-    test attritunit-4.3 {::unit <Entity> on undo} -setup {
+    test attritunit-4.3 {::unit <Entityco> on undo} -setup {
         ted create NB1 BLUE SHIA
-        ted order SIM:LOCK
+        ted lock
 
         set a [aam mutate attritunit \
                    [list u SHIA-NB1/0000 casualties 5 g1 "" g2 ""]]
