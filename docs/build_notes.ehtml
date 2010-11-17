@@ -11,6 +11,22 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.4, 17 November 2010</h3>
+
+This package fixes a number of bugs found in the last couple of weeks,
+but no new functionality; all current development work has been on
+gram2(n).<p>
+
+<ul>
+  <li> Bug 2660: Plot Tab Bgerror
+  <li> Bug 2661: athena_sim(1): Remove "HERE" rows from nbrel(sim)/nbrelbrowser(sim)
+  <li> Bug 2669: Bgerror while sorting econ browser columns
+  <li> Bug 2677: athena_sim(1): Can create groups called "CIV", "FRC", and "ORG"
+  <li> Bug 2679: Open New Scenario Plot Bgerror
+  <li> Bug 2684: In Camp Civilians Going to Wrong Nbhood
+  <li> Bug 2688: athena_test(1): Update for Bug 2687 
+</ul>
+
 <h3>Build 3.0.3, 2 November 2010</h3>
 
 This build contains a number of user interface improvements.
