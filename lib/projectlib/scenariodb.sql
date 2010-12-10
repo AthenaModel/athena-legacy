@@ -19,7 +19,7 @@ PRAGMA user_version=3;
 -- used for at the moment is as a flag that this is a scenario file.
 
 CREATE TABLE scenario (
-    parm  TEXT PRIMARY KEY REFERENCES foobar(baz),
+    parm  TEXT PRIMARY KEY,
     value TEXT DEFAULT ''
 );
 
