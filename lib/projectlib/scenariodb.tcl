@@ -310,10 +310,15 @@ snit::type ::projectlib::scenariodb {
         # FIRST, create the sqldocument, naming it so that it
         # will be automatically destroyed.  We don't want
         # automatic transaction batching.
-        set db [sqldocument ${selfns}::db          \
-                    -clock     [from args -clock] \
-                    -autotrans off                 \
-                    -rollback  on]
+        #
+        # TBD: Turn off foreign key checking for now; I want to 
+        # get all foreign key relationships in place and then 
+        # start refactoring the code.
+        set db [sqldocument ${selfns}::db           \
+                    -clock       [from args -clock] \
+                    -autotrans   off                \
+                    -rollback    on                 \
+                    -foreignkeys off]
 
         # NEXT, register the schema sections
         $db register ::marsutil::eventq
@@ -642,7 +647,7 @@ snit::type ::projectlib::scenariodb {
             $db clear
         }
 
-        # NEXT, import the tables
+        # NEXT, import the tables.
         foreach {table content} $text {
             $self ImportTableFromTcl $table $content $opts(-logcmd)
         }

@@ -19,7 +19,7 @@ PRAGMA user_version=3;
 -- used for at the moment is as a flag that this is a scenario file.
 
 CREATE TABLE scenario (
-    parm  TEXT PRIMARY KEY,
+    parm  TEXT PRIMARY KEY REFERENCES foobar(baz),
     value TEXT DEFAULT ''
 );
 
@@ -48,6 +48,7 @@ CREATE TABLE snapshots (
 
 CREATE TABLE cif (
     -- Unique ID; used for ordering
+    -- TBD: Why isn't this an INTEGER PRIMARY KEY?
     id       INTEGER UNIQUE,
 
     -- Simulation time at which the order was entered.
@@ -66,6 +67,7 @@ CREATE TABLE cif (
     undo     TEXT DEFAULT ''
 );
 
+-- TBD: Is this index really useful?
 CREATE INDEX cif_index ON cif(time,id);
 
 
@@ -76,6 +78,7 @@ CREATE INDEX cif_index ON cif(time,id);
 
 CREATE TABLE maps (
     -- ID
+    -- TBD: Make this map_id.
     id       INTEGER PRIMARY KEY,
 
     -- Original file name of this map
@@ -100,13 +103,13 @@ CREATE TABLE nbhoods (
     longname       TEXT,
 
     -- 1 if Local (e.g., part of the region of interest), 0 o.w.
-    local          INTEGER DEFAULT 1.0,
+    local          INTEGER DEFAULT 1,
 
     -- Stacking order: 1 is low, N is high
     stacking_order INTEGER,
 
     -- Urbanization: eurbanization
-    urbanization   TEXT,
+    urbanization   TEXT DEFAULT 'RURAL',
 
     -- Volatility gain: rgain
     vtygain        REAL DEFAULT 1.0,
@@ -119,7 +122,9 @@ CREATE TABLE nbhoods (
 
     -- If refpoint is obscured by another neighborhood, the name
     -- of the neighborhood; otherwise ''.
-    obscured_by    TEXT DEFAULT ''
+    -- TBD: REFERENCES nbhoods(n); fix this after fixing snapshots
+    -- to use grab/ungrab.
+    obscured_by    TEXT DEFAULT '' 
 );
 
 ------------------------------------------------------------------------
@@ -128,10 +133,10 @@ CREATE TABLE nbhoods (
 -- Neighborhood relationships from m's point of view
 CREATE TABLE nbrel_mn (
     -- Symbolic nbhood name
-    m             TEXT,
+    m             TEXT REFERENCES nbhoods(n),
 
     -- Symbolic nbhood name
-    n             TEXT,
+    n             TEXT REFERENCES nbhoods(n),
 
     -- Proximity of m to n from m's point of view: eproximity value
     -- By default, a direct effect in n has no indirect effects in m,
@@ -163,28 +168,30 @@ CREATE TABLE groups (
     shape       TEXT DEFAULT 'NEUTRAL',
 
     -- Unit Symbol (list of eunitsymbol(n), or '')
+    -- TBD: NOT NULL? or allow NULL, and not allow ''?
     symbol      TEXT DEFAULT '',
 
     -- Group demeanor: edemeanor
     demeanor    TEXT DEFAULT 'AVERAGE',
 
     -- Group type, CIV, FRC, ORG
-    gtype       TEXT 
+    -- TBD: Add group type table for this to reference?
+    gtype       TEXT
 );
 
 -- Civ Groups
 CREATE TABLE civgroups (
     -- Symbolic group name
-    g           TEXT PRIMARY KEY,
+    g           TEXT PRIMARY KEY REFERENCES groups(g),
 
     -- Symbolic neighborhood name for neighborhood of residence.
-    n              TEXT,
+    n           TEXT REFERENCES nbhoods(n),
 
     -- Base Population in n.
-    basepop        INTEGER DEFAULT 1,
+    basepop     INTEGER DEFAULT 1,
 
     -- Subsistence Agriculture Percentage in n.
-    sap            INTEGER DEFAULT 0
+    sap         INTEGER DEFAULT 0
 );
 
 -- Civ Groups View: joins groups with civgroups.
@@ -194,9 +201,10 @@ SELECT * FROM groups JOIN civgroups USING (g);
 -- Force Groups
 CREATE TABLE frcgroups (
     -- Symbolic group name
-    g           TEXT PRIMARY KEY,
+    g           TEXT PRIMARY KEY REFERENCES groups(g),
 
     -- Force Type
+    -- TBD: Add force type table?
     forcetype   TEXT,
 
     -- Uniformed or Non-uniformed: 1 or 0
@@ -214,9 +222,10 @@ SELECT * FROM groups JOIN frcgroups USING (g);
 -- Org Groups
 CREATE TABLE orggroups (
     -- Symbolic group name
-    g              TEXT PRIMARY KEY,
+    g              TEXT PRIMARY KEY REFERENCES groups(g),
 
     -- Organization type: eorgtype
+    -- TBD: define orgtype table?
     orgtype        TEXT DEFAULT 'NGO'
 );
 
@@ -231,10 +240,11 @@ SELECT * FROM groups JOIN orggroups USING (g);
 
 CREATE TABLE personnel_ng (
     -- Symbolic neighborhood name
-    n          TEXT,
+    n          TEXT REFERENCES nbhoods(n),
 
     -- Symbolic group name
-    g          TEXT,
+    -- Note: FRC and ORG groups only.
+    g          TEXT REFERENCES groups(g),
 
     -- Personnel
     personnel  INTEGER DEFAULT 0,
@@ -250,15 +260,16 @@ CREATE TABLE personnel_ng (
 
 CREATE TABLE attroe_nfg (
     -- Neighborhood in which to attack
-    n          TEXT,
+    n          TEXT REFERENCES nbhoods(n),
 
     -- Attacking force group
-    f          TEXT,
+    f          TEXT REFERENCES frcgroups(g),
 
     -- Attacked force group
-    g          TEXT,
+    g          TEXT REFERENCES frcgroups(g),
 
     -- 1 if f is uniformed, and 0 otherwise.
+    -- TBD: denormalized; should it be?
     uniformed  INTEGER,
 
     -- ROE: eattroenf for non-uniformed forces, eattroeuf for uniformed
@@ -281,10 +292,10 @@ CREATE TABLE attroe_nfg (
 
 CREATE TABLE defroe_ng (
     -- Neighborhood in which to defend
-    n          TEXT,
+    n          TEXT REFERENCES nbhoods(n),
 
     -- Defending force group
-    g          TEXT,
+    g          TEXT REFERENCES frcgroups(g),
 
     -- ROE: edefroeuf.
     roe        TEXT DEFAULT 'FIRE_BACK_IF_PRESSED',
@@ -302,10 +313,10 @@ CREATE TABLE attrit_nf (
 
     -- Neighborhood.  For ORG's the nbhood which the attrition occurred.
     -- For CIV's, the nbhood of origin (which is usually the same thing).
-    n          TEXT,
+    n          TEXT REFERENCES nbhoods(n),
    
     -- Group to which the attrition occurred
-    f          TEXT,
+    f          TEXT REFERENCES groups(g),
 
     -- Total attrition (in personnel) to group f.
     casualties INTEGER
@@ -324,13 +335,13 @@ CREATE TABLE attrit_nfg (
     id         INTEGER PRIMARY KEY,
 
     -- Neighborhood of origin of the attrited personnel.
-    n          TEXT,
+    n          TEXT REFERENCES nbhoods(n),
    
     -- CIV group to which the attrition occurred
-    f          TEXT,
+    f          TEXT REFERENCES civgroups(g),
 
     -- Responsible group.
-    g          TEXT,
+    g          TEXT REFERENCES groups(g),
 
     -- Total attrition (in personnel) to group f.
     casualties INTEGER
@@ -348,10 +359,10 @@ CREATE INDEX attrit_nfg_index_nfg ON attrit_nfg(n,f,g);
 
 CREATE TABLE sat_gc (
     -- Symbolic groups name
-    g          TEXT,
+    g          TEXT REFERENCES civgroups(g),
 
     -- Symbolic concerns name
-    c          TEXT,
+    c          TEXT REFERENCES concerns(c),
 
     -- Initial satisfaction value
     sat0       DOUBLE DEFAULT 0.0,
@@ -379,10 +390,10 @@ CREATE TABLE sat_gc (
 
 CREATE TABLE rel_fg (
     -- Symbolic group name: group f
-    f           TEXT,
+    f           TEXT REFERENCES groups(g),
 
     -- Symbolic group name: group g
-    g           TEXT,
+    g           TEXT REFERENCES groups(g),
 
     -- Group relationship, from f's point of view.
     rel         DOUBLE DEFAULT 0.0,
@@ -402,10 +413,10 @@ CREATE TABLE rel_fg (
 
 CREATE TABLE coop_fg (
     -- Symbolic civ group name: group f
-    f           TEXT,
+    f           TEXT REFERENCES groups(g),
 
     -- Symbolic frc group name: group g
-    g           TEXT,
+    g           TEXT REFERENCES groups(g),
 
     -- cooperation of f with g at time 0.
     coop0       DOUBLE DEFAULT 50.0,
@@ -430,25 +441,29 @@ CREATE TABLE units (
     u                TEXT PRIMARY KEY,
 
     -- Calendar Item ID, or 0 if a = NONE
-    cid              INTEGER,
+    -- TBD: Once foreign keys are enabled, can purge old units by
+    -- deleting where NULL.  Need flag to identify base units.
+    cid              INTEGER
+                     REFERENCES calendar(cid) ON DELETE SET NULL,
 
     -- Active flag: 1 if active, 0 otherwise.  A unit is active if it
     -- is currently scheduled.
     active           INTEGER,
 
     -- Neighborhood to which unit is deployed
-    n                TEXT,
+    n                TEXT REFERENCES nbhoods(n),
 
     -- Group to which the unit belongs
-    g                TEXT,
+    g                TEXT REFERENCES groups(g),
 
     -- Group type
     gtype            TEXT,
 
     -- Neighborhood of Origin
-    origin           TEXT,
+    origin           TEXT REFERENCES nbhoods(n),
 
     -- Unit activity: eactivity(n) value
+    -- TBD: reference activity table?
     a                TEXT,
 
     -- Total Personnel
@@ -477,7 +492,7 @@ units(n,g,a,personnel);
 -- nbstat Table: Total Force and Volatility in neighborhoods
 CREATE TABLE force_n (
     -- Symbolic nbhood name
-    n                   TEXT    PRIMARY KEY,
+    n                   TEXT    PRIMARY KEY REFERENCES nbhoods(n),
 
     -- Total force in nbhood, including nearby.
     total_force         INTEGER DEFAULT 0,
@@ -494,8 +509,10 @@ CREATE TABLE force_n (
 
 -- nbstat Table: Group force in neighborhoods
 CREATE TABLE force_ng (
-    n           TEXT,         -- Symbolic nbhood name
-    g           TEXT,         -- Symbolic group name
+    n             TEXT        -- Symbolic nbhood name
+                  REFERENCES nbhoods(n),
+    g             TEXT        -- Symbolic group name
+                  REFERENCES groups(g),
 
     personnel     INTEGER     -- Group's personnel
         DEFAULT 0,
@@ -526,8 +543,10 @@ CREATE TABLE force_ng (
 -- Note that "a" is constrained to match g's gtype, as indicated
 -- in the temporary activity_gtype table.
 CREATE TABLE activity_nga (
-    n                   TEXT,     -- Symbolic nbhoods name
-    g                   TEXT,     -- Symbolic groups name
+    n                   TEXT     -- Symbolic nbhoods name
+                        REFERENCES nbhoods(n),
+    g                   TEXT      -- Symbolic groups name
+                        REFERENCES groups(g),
     a                   TEXT,     -- Symbolic activity name
          
     -- 1 if there's enough security to conduct the activity,
@@ -555,11 +574,14 @@ CREATE TABLE activity_nga (
     coverage            DOUBLE   DEFAULT 0.0,
 
     -- Type of activity situation associated with this activity
+    -- TBD: How is this set?  Why is it needed?
+    -- Should it reference an activity type table?
     stype               TEXT,
 
     -- Activity Situation ID.  This is the ID of the
     -- Activity Situation associated with this activity, if
     -- any, and 0 otherwise.
+    -- TBD: Should reference actsits, and be NULL otherwise!
     s                   INTEGER  DEFAULT 0,
 
 
@@ -572,10 +594,13 @@ CREATE TABLE calendar (
     cid          INTEGER PRIMARY KEY AUTOINCREMENT,
 
     -- Scheduled activity
-    n            TEXT,     -- Symbolic nbhoods name
-    g            TEXT,     -- Symbolic groups name
+    n            TEXT      -- Symbolic nbhoods name
+                 REFERENCES nbhoods(n),
+    g            TEXT      -- Symbolic groups name
+                 REFERENCES groups(g),
     a            TEXT,     -- Symbolic activity name
-    tn           TEXT,     -- Target nbhood name.           
+    tn           TEXT      -- Target nbhood name.           
+                 REFERENCES nbhoods(n),
 
     -- Number personnel scheduled.
     personnel    INTEGER,
@@ -587,6 +612,7 @@ CREATE TABLE calendar (
     start        INTEGER,
 
     -- Time tick at which item ceases, or ''  
+    -- TBD: Should be NULL if no finish
     finish       INTEGER,  
 
     -- Pattern, calpattern(sim) value
@@ -620,7 +646,7 @@ CREATE TABLE situations (
     driver    INTEGER DEFAULT -1,
 
     -- Neighborhood
-    n         TEXT,
+    n         TEXT REFERENCES nbhoods(n),
 
     -- Coverage: fraction of neighborhood affected.
     coverage  DOUBLE DEFAULT 1.0,
@@ -641,6 +667,7 @@ CREATE TABLE situations (
     flist     TEXT DEFAULT 'ALL',
 
     -- Causing Group, or 'NONE'
+    -- TBD: Should reference group or NULL
     g         TEXT DEFAULT 'NONE',
 
     -- Signature (used by Athena Driver Assessment rules)
@@ -650,7 +677,7 @@ CREATE TABLE situations (
 -- Activity Situations
 CREATE TABLE actsits_t (
     -- Situation ID
-    s         INTEGER PRIMARY KEY,
+    s         INTEGER PRIMARY KEY REFERENCES situations(s),
 
     -- Activity
     a         TEXT
@@ -684,7 +711,8 @@ CREATE TABLE ensits_t (
 
     -- Resolving group: name of the group that resolved/will resolve
     -- the situation, or 'NONE'
-    resolver   TEXT DEFAULT 'NONE',
+    -- TBD: Should be NULL or group
+    resolver   TEXT DEFAULT 'NONE' REFERENCES groups(g),
 
     -- Auto-resolution duration: 0 if the situation will not auto-resolve,
     -- and a duration in ticks otherwise.
@@ -692,6 +720,7 @@ CREATE TABLE ensits_t (
 
     -- Resolution Driver; 0 if the situation's resolution has not been
     -- assessed, and a GRAM driver ID if it has.
+    -- TBD: Should be NULL or driver ID
     rdriver    INTEGER DEFAULT 0
 );
 
@@ -708,7 +737,7 @@ WHERE state != 'ENDED' OR change != '';
 -- Demographic Situations
 CREATE TABLE demsits_t (
     -- Situation ID
-    s         INTEGER PRIMARY KEY,
+    s         INTEGER PRIMARY KEY REFERENCES situations(s),
 
     -- Factors
 
@@ -755,6 +784,7 @@ CREATE TABLE mads (
    q             DOUBLE DEFAULT 0.0,
 
    -- GRAM Driver ID
+   -- TBD: Should be driver ID or NULL
    driver        INTEGER DEFAULT -1
 );
 
@@ -783,7 +813,7 @@ CREATE TABLE demog_local (
 
 CREATE TABLE demog_n (
     -- Symbolic neighborhood name
-    n            TEXT PRIMARY KEY,
+    n            TEXT PRIMARY KEY REFERENCES nbhoods(n),
 
     -- Total displaced population in the neighborhood at the current time.
     displaced    INTEGER DEFAULT 0,
@@ -820,7 +850,7 @@ CREATE TABLE demog_n (
 
 CREATE TABLE demog_g (
     -- Symbolic civgroup name
-    g              TEXT PRIMARY KEY,
+    g              TEXT PRIMARY KEY REFERENCES civgroups(g),
 
     -- Attrition to this group (total killed)
     attrition      INTEGER DEFAULT 0,
@@ -859,7 +889,9 @@ CREATE TABLE demog_g (
     -- only *one* kind of demsit.  If we add more, we'll need
     -- to do something different.  The right answer depends on
     -- what demsits turn out to have in common.
-    s              INTEGER  DEFAULT 0
+    --
+    -- TBD: Also, should be s ID or NULL, not 0.
+    s              INTEGER  DEFAULT 0 REFERENCES demsits_t
 );
 
 
@@ -892,7 +924,7 @@ JOIN demog_n   AS DN USING (n);
 
 CREATE TABLE econ_n (
     -- Symbolic neighborhood name
-    n          TEXT PRIMARY KEY,
+    n          TEXT PRIMARY KEY REFERENCES nbhoods(n),
 
     -- The following columns can be ignored if nbhoods.local == 0.    
 
@@ -926,8 +958,8 @@ SELECT * FROM nbhoods JOIN econ_n USING (n) WHERE nbhoods.local = 1;
 -- sat.g.c
 CREATE TABLE hist_sat (
     t   INTEGER,
-    g   TEXT,
-    c   TEXT,
+    g   TEXT REFERENCES civgroups(g),
+    c   TEXT REFERENCES concerns(c),
     sat DOUBLE,
 
     PRIMARY KEY (t,g,c)
@@ -936,7 +968,7 @@ CREATE TABLE hist_sat (
 -- mood.g
 CREATE TABLE hist_mood (
     t   INTEGER,
-    g   TEXT,
+    g   TEXT REFERENCES civgroups(g),
     sat DOUBLE,
 
     PRIMARY KEY (t,g)
@@ -945,7 +977,7 @@ CREATE TABLE hist_mood (
 -- nbmood.n
 CREATE TABLE hist_nbmood (
     t   INTEGER,
-    n   TEXT,
+    n   TEXT REFERENCES nbhoods(n),
     sat DOUBLE,
 
     PRIMARY KEY (t,n)
@@ -954,8 +986,8 @@ CREATE TABLE hist_nbmood (
 -- coop.f.g
 CREATE TABLE hist_coop (
     t    INTEGER,
-    f    TEXT,
-    g    TEXT,
+    f    TEXT REFERENCES civgroups(g),
+    g    TEXT REFERENCES frcgroups(g),
     coop DOUBLE,
 
     PRIMARY KEY (t,f,g)
@@ -964,8 +996,8 @@ CREATE TABLE hist_coop (
 -- nbcoop.n.g
 CREATE TABLE hist_nbcoop (
     t      INTEGER,
-    n      TEXT,
-    g      TEXT,
+    n      TEXT REFERENCES nbhoods(n),
+    g      TEXT REFERENCES frcgroups(g),
     nbcoop DOUBLE,
 
     PRIMARY KEY (t,n,g)
