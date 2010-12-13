@@ -319,6 +319,7 @@ snit::type ::projectlib::scenariodb {
         $db register ::marsutil::eventq
         $db register ::marsutil::reporter
         $db register ::simlib::gram
+        $db register ::simlib::mam
         $db register $type
     }
 
@@ -637,14 +638,26 @@ snit::type ::projectlib::scenariodb {
             }
         }
 
-        # NEXT, clear the DB, if desired
-        if {$opts(-clear)} {
-            $db clear
-        }
+        # NEXT, do the work in a transaction; deferred 
+        # foreign key constraints will be checked at the end.
 
-        # NEXT, import the tables
-        foreach {table content} $text {
-            $self ImportTableFromTcl $table $content $opts(-logcmd)
+        $db transaction {
+            # NEXT, clear the DB, if desired; otherwise, clear
+            # the tables being loaded.
+            if {$opts(-clear)} {
+                $db clear
+            } else {
+                foreach {table content} $text {
+                    if {[$db exists "PRAGMA table_info('$table')"]} {
+                        $db eval "DELETE FROM $table;"                
+                    }
+                }
+            }
+
+            # NEXT, import the tables
+            foreach {table content} $text {
+                $self ImportTableFromTcl $table $content $opts(-logcmd)
+            }
         }
     }
 
@@ -656,9 +669,6 @@ snit::type ::projectlib::scenariodb {
         }
 
         callwith $logcmd "Importing $table"
-
-        # NEXT, delete the contents of the table.
-        $db eval "DELETE FROM $table;"
 
         # NEXT, if the contents is empty we're done.
         if {[llength $content] == 0} {
