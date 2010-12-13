@@ -179,9 +179,7 @@ snit::type civgroup {
 
     typemethod {mutate delete} {g} {
         # FIRST, get the undo information
-        rdb eval {SELECT * FROM groups    WHERE g=$g} row1 { unset row1(*) }
-        rdb eval {SELECT * FROM civgroups WHERE g=$g} row2 { unset row2(*) }
-        rdb eval {SELECT * FROM demog_g   WHERE g=$g} row3 { unset row3(*) }
+        set data [rdb grab groups {g=$g} civgroups {g=$g} demog_g {g=$g}]
 
         # NEXT, delete it.
         rdb eval {
@@ -194,24 +192,21 @@ snit::type civgroup {
         notifier send ::civgroup <Entity> delete $g
 
         # NEXT, Return the undo script
-        return [mytypemethod Restore \
-                    [array get row1] [array get row2] [array get row3]]
+        return [mytypemethod Restore $g create $data]
     }
 
 
-    # Restore gdict cdict ddict
+    # Restore g op data
     #
-    # gdict    row dict for deleted entity in groups
-    # cdict    row dict for deleted entity in civgroups
-    # ddict    row dict for deleted entity in demog_g
+    # g      - A group name
+    # op     - Operation: create | delete
+    # data   - A "grab" data set to be restored.
     #
-    # Restores the rows to the database
+    # Restores the data to the database, and notifies the GUI.
 
-    typemethod Restore {gdict cdict ddict} {
-        rdb insert groups    $gdict
-        rdb insert civgroups $cdict
-        rdb insert demog_g   $ddict
-        notifier send ::civgroup <Entity> create [dict get $gdict g]
+    typemethod Restore {g op data} {
+        rdb ungrab $data
+        notifier send ::civgroup <Entity> $op $g
     }
 
 
@@ -234,12 +229,7 @@ snit::type civgroup {
     typemethod {mutate update} {parmdict} {
         dict with parmdict {
             # FIRST, get the undo information
-            rdb eval {
-                SELECT * FROM civgroups_view
-                WHERE g=$g
-            } undoData {
-                unset undoData(*)
-            }
+            set data [rdb grab groups {g=$g} civgroups {g=$g}]
 
             # NEXT, Update the group
             rdb eval {
@@ -262,7 +252,7 @@ snit::type civgroup {
             notifier send ::civgroup <Entity> update $g
 
             # NEXT, Return the undo command
-            return [mytypemethod mutate update [array get undoData]]
+            return [mytypemethod Restore $g update $data]
         }
     }
 

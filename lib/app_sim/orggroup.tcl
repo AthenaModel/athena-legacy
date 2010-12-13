@@ -120,8 +120,7 @@ snit::type orggroup {
 
     typemethod {mutate delete} {g} {
         # FIRST, get the undo information
-        rdb eval {SELECT * FROM groups    WHERE g=$g} row1 { unset row1(*) }
-        rdb eval {SELECT * FROM orggroups WHERE g=$g} row2 { unset row2(*) }
+        set data [rdb grab groups {g=$g} orggroups {g=$g}]
 
         # NEXT, delete it.
         rdb eval {
@@ -133,20 +132,20 @@ snit::type orggroup {
         notifier send ::orggroup <Entity> delete $g
 
         # NEXT, Return the undo script
-        return [mytypemethod Restore [array get row1] [array get row2]]
+        return [mytypemethod Restore $g create $data]
     }
 
-    # Restore gdict odict
+    # Restore g op data
     #
-    # gdict    row dict for deleted entity in groups
-    # odict    row dict for deleted entity in orggroups
+    # g      - A group name
+    # op     - Operation: create | delete
+    # data   - A "grab" data set to be restored.
     #
-    # Restores the rows to the database
+    # Restores the data to the database, and notifies the GUI.
 
-    typemethod Restore {gdict odict} {
-        rdb insert groups    $gdict
-        rdb insert orggroups $odict
-        notifier send ::orggroup <Entity> create [dict get $gdict g]
+    typemethod Restore {g op data} {
+        rdb ungrab $data
+        notifier send ::orggroup <Entity> $op $g
     }
 
     # mutate update parmdict
@@ -166,12 +165,7 @@ snit::type orggroup {
     typemethod {mutate update} {parmdict} {
         dict with parmdict {
             # FIRST, get the undo information
-            rdb eval {
-                SELECT * FROM orggroups_view
-                WHERE g=$g
-            } undoData {
-                unset undoData(*)
-            }
+            set data [rdb grab groups {g=$g} orggroups {g=$g}]
 
             # NEXT, Update the group
             rdb eval {
@@ -191,7 +185,7 @@ snit::type orggroup {
             notifier send ::orggroup <Entity> update $g
 
             # NEXT, Return the undo command
-            return [mytypemethod mutate update [array get undoData]]
+            return [mytypemethod Restore $g update $data]
         }
     }
 }
