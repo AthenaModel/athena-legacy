@@ -238,6 +238,75 @@ clears the <<iref unsaved>> flag.<p>
 Marks the scenario saved.  This is generally useful if the application
 adds additional behavior on top of <<iref clear>>.<p>
 
+<<defitem monitor {<i>obj</i> monitor <i>subcommand</i> ?<i>args...</i>?}>>
+
+The <<iref monitor>> family of commands is used to monitor changes to
+RDB tables, row by row.  The subcommands are as follows:<p>
+
+<<deflist monitor>>
+
+<<defitem "monitor add" {<i>obj</i> monitor add <i>table keynames</i>}>>
+
+Requests monitoring of the specified <i>table</i>.  The
+<i>keynames</i> argument should a list of one or more column names;
+these are the columns used to identify the modified rows.<p>
+
+<<defitem "monitor remove" {<i>obj</i> monitor remove <i>table</i>}>>
+
+Disables monitoring for the specified <i>table</i>.<p>
+
+<<defitem "monitor transaction" {<i>obj</i> monitor transaction <i>body</i>}>>
+
+This command executes <i>body</i>, a Tcl script, in the context of an
+SQL transaction.  Before <i>body</i> is executed, monitoring is
+enabled for all of the requested tables; after <i>body</i> is
+executed, a <<xref mars:notifier(n)>> event is sent for every
+monitored database row that changed, and monitoring is disabled
+again.<p>
+
+Each notifier event will have the scenariodb(n) object as its
+subject and the table name (quoted in angle brackets) as its event.
+The event will have two arguments: the operation (<b>update</b> or
+<b>delete</b>) and a key value indicating the row that changed.<p>
+
+For example, if the <b>rel_fg</b> table is monitored and the
+relationship for group G1's relationship with G2 is modified, the
+following event will be sent:<p>
+
+<pre>
+    notifier send $db <rel_fg> update {G1 G2}
+</pre>
+
+Note the the operation is <b>update</b> even when a new record is
+added.  In practice, both new records and updated records are handled
+much the same way by the GUI, and it is difficult to get SQLite3 to be
+precise about whether a change is an addition or an update.  (SQLite3
+can distinguish clearly between an INSERT statement and an UPDATE
+statement; but an INSERT OR REPLACE can do either an insert or
+an update, and there's no easy way to tell which.)<p>
+
+<<defitem "monitor prepare" {<i>obj</i> monitor prepare}>>
+<<defitem "monitor notify" {<i>obj</i> monitor notify}>>
+
+These commands are provided for when monitoring is desired
+without an actual SQL transaction.  In general,<p>
+
+<pre>
+    $db monitor prepare
+    $db transaction { ... }
+    $db monitor notify
+</pre>
+
+is equivalent to<p>
+
+<pre>
+    $db monitor transaction { ... }
+</pre>
+
+<</deflist monitor>>
+
+
+
 <<defitem open {<i>obj</i> open <i>filename</i>}>>
 
 Opens an existing scenario file, and clears the <<iref unsaved>>

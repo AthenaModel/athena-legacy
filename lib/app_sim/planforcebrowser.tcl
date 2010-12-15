@@ -157,9 +157,9 @@ snit::widget planforcebrowser {
         $self configurelist $args
 
         # NEXT, bind to notifier events, to update the widgets.
-        notifier bind ::sim       <DbSyncB> $self [mymethod reload]
-        notifier bind ::sim       <Tick>    $self [mymethod reload]
-        notifier bind ::personnel <Entity>  $self [mymethod uid]
+        notifier bind ::sim <DbSyncB>       $self [mymethod reload]
+        notifier bind ::sim <Tick>          $self [mymethod reload]
+        notifier bind ::rdb <personnel_ng>  $self [mymethod uid]
     }
 
     destructor {

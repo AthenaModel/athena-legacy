@@ -189,26 +189,26 @@ id oneliner       cause  s   p   q   driver
 
 
     test CREATE-2.2 {Effects} -body {
-        ted notifier bind ::mad <Entity>
+        ted notifier bind ::rdb <mads>
         ted order MAD:CREATE $m1
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::mad <Entity> create 1}
+        {::rdb <mads> update 1}
     }
 
 
     test CREATE-3.1 {undo effects} -setup {
         ted order MAD:CREATE $m1
     } -body {
-        ted notifier bind ::mad <Entity>
+        ted notifier bind ::rdb <mads>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::mad <Entity> delete 1}
+        {::rdb <mads> delete 1}
     }
 
 
@@ -244,13 +244,13 @@ id oneliner       cause  s   p   q   driver
         ted create BLUE
         ted order MAD:CREATE $m1
     } -body {
-        ted notifier bind ::mad <Entity>
+        ted notifier bind ::rdb <mads>
         ted order MAD:DELETE id 1
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::mad <Entity> delete 1}
+        {::rdb <mads> delete 1}
     }
 
 
@@ -259,13 +259,13 @@ id oneliner       cause  s   p   q   driver
         ted order MAD:CREATE $m1
         ted order MAD:DELETE id 1
     } -body {
-        ted notifier bind ::mad <Entity>
+        ted notifier bind ::rdb <mads>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::mad <Entity> create 1}
+        {::rdb <mads> update 1}
     }
 
 
@@ -358,13 +358,13 @@ id oneliner      cause s   p   q   driver
         ted create BLUE
         ted order MAD:CREATE $m1
     } -body {
-        ted notifier bind ::mad <Entity>
+        ted notifier bind ::rdb <mads>
         ted order MAD:UPDATE id 1 oneliner "MAD the FIRST"
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::mad <Entity> update 1}
+        {::rdb <mads> update 1}
     }
 
 
@@ -373,13 +373,13 @@ id oneliner      cause s   p   q   driver
         ted order MAD:CREATE $m1
         ted order MAD:UPDATE id 1 oneliner "MAD the FIRST"
     } -body {
-        ted notifier bind ::mad <Entity>
+        ted notifier bind ::rdb <mads>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::mad <Entity> update 1}
+        {::rdb <mads> update 1}
     }
 
 
@@ -428,8 +428,7 @@ id oneliner      cause s   p   q   driver
     test SAT:ADJUST-2.1 {<Entity> updates} -setup {
         advance
     } -body {
-        ted notifier bind ::sat <Entity>
-        ted notifier bind ::mad <Entity>
+        ted notifier bind ::mad <Sat>
         ted order MAD:SAT:ADJUST {
             id {SHIA AUT} mad 1 delta 5
         }
@@ -437,8 +436,7 @@ id oneliner      cause s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {SHIA AUT}}
-        {::mad <Entity> update 1}
+        {::mad <Sat> update {SHIA AUT}}
     }
 
 
@@ -449,15 +447,13 @@ id oneliner      cause s   p   q   driver
             id {SHIA AUT} mad 1 delta 5
         }
     } -body {
-        ted notifier bind ::sat <Entity>
-        ted notifier bind ::mad <Entity>
+        ted notifier bind ::mad <Sat>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {SHIA AUT}}
-        {::mad <Entity> update 1}
+        {::mad <Sat> update {SHIA AUT}}
     }
 
 
@@ -506,8 +502,7 @@ id oneliner      cause s   p   q   driver
     test SAT:SET-2.1 {<Entity> updates} -setup {
         advance
     } -body {
-        ted notifier bind ::sat <Entity>
-        ted notifier bind ::mad <Entity>
+        ted notifier bind ::mad <Sat>
         ted order MAD:SAT:SET {
             id {SHIA AUT} mad 1 sat 5
         }
@@ -515,8 +510,7 @@ id oneliner      cause s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {SHIA AUT}}
-        {::mad <Entity> update 1}
+        {::mad <Sat> update {SHIA AUT}}
     }
 
 
@@ -527,15 +521,13 @@ id oneliner      cause s   p   q   driver
             id {SHIA AUT} mad 1 sat 5
         }
     } -body {
-        ted notifier bind ::sat <Entity>
-        ted notifier bind ::mad <Entity>
+        ted notifier bind ::mad <Sat>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {SHIA AUT}}
-        {::mad <Entity> update 1}
+        {::mad <Sat> update {SHIA AUT}}
     }
 
     #-------------------------------------------------------------------
@@ -794,8 +786,7 @@ id oneliner      cause s   p   q   driver
     test COOP:ADJUST-2.1 {<Entity> updates} -setup {
         advance
     } -body {
-        ted notifier bind ::coop <Entity>
-        ted notifier bind ::mad <Entity>
+        ted notifier bind ::mad <Coop>
         ted order MAD:COOP:ADJUST {
             id {SHIA BLUE} mad 1 delta 5
         }
@@ -803,8 +794,7 @@ id oneliner      cause s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {SHIA BLUE}}
-        {::mad <Entity> update 1}
+        {::mad <Coop> update {SHIA BLUE}}
     }
 
 
@@ -815,15 +805,13 @@ id oneliner      cause s   p   q   driver
             id {SHIA BLUE} mad 1 delta 5
         }
     } -body {
-        ted notifier bind ::coop <Entity>
-        ted notifier bind ::mad <Entity>
+        ted notifier bind ::mad <Coop>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {SHIA BLUE}}
-        {::mad <Entity> update 1}
+        {::mad <Coop> update {SHIA BLUE}}
     }
 
 
@@ -871,8 +859,7 @@ id oneliner      cause s   p   q   driver
     test COOP:SET-2.1 {<Entity> updates} -setup {
         advance
     } -body {
-        ted notifier bind ::coop <Entity>
-        ted notifier bind ::mad <Entity>
+        ted notifier bind ::mad <Coop>
         ted order MAD:COOP:SET {
             id {SHIA BLUE} mad 1 coop 5
         }
@@ -880,8 +867,7 @@ id oneliner      cause s   p   q   driver
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {SHIA BLUE}}
-        {::mad <Entity> update 1}
+        {::mad <Coop> update {SHIA BLUE}}
     }
 
 
@@ -892,15 +878,13 @@ id oneliner      cause s   p   q   driver
             id {SHIA BLUE} mad 1 coop 5
         }
     } -body {
-        ted notifier bind ::coop <Entity>
-        ted notifier bind ::mad <Entity>
+        ted notifier bind ::mad <Coop>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {SHIA BLUE}}
-        {::mad <Entity> update 1}
+        {::mad <Coop> update {SHIA BLUE}}
     }
 
     #-------------------------------------------------------------------

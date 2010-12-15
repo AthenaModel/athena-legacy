@@ -208,21 +208,6 @@ HAL-NB1/0000   15
     }
 
 
-    test attritnf-1.6 {f is FRC, ::unit <Entity>} -setup {
-        ted create NB1 BLUE BRIT
-        mkunits BLUE-NB1/0000 BLUE-NB1/0001 BRIT-NB1/0000
-    } -body {
-        ted notifier bind ::unit <Entity>
-        aam mutate attritnf [list n NB1 f BLUE casualties 20 g1 "" g2 ""]
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::unit <Entity> update BLUE-NB1/0000}
-        {::unit <Entity> update BLUE-NB1/0001}
-    }
-
-
     test attritnf-1.7 {f is FRC, undo restores} -setup {
         ted create NB1 BLUE BRIT
         mkunits BLUE-NB1/0000 BLUE-NB1/0001 BRIT-NB1/0000
@@ -260,25 +245,6 @@ BRIT-NB1/0000 15
         cleanup
     } -result {
     }
-
-
-    test attritnf-1.9 {f is FRC, ::unit <Entity> on undo} -setup {
-        ted create NB1 BLUE
-        mkunits BLUE-NB1/0000 BLUE-NB1/0001 BRIT-NB1/0000
-
-        set undo [aam mutate attritnf \
-                      [list n NB1 f BLUE casualties 20 g1 "" g2 ""]]
-    } -body {
-        ted notifier bind ::unit <Entity>
-        eval $undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::unit <Entity> update BLUE-NB1/0000}
-        {::unit <Entity> update BLUE-NB1/0001}
-    }
-
 
 
     # 2.* -- Attrition to a particular civ group
@@ -569,20 +535,6 @@ USAID-NB1/0000 15
     }
 
 
-    test attritn-1.7 {nbhood, ::unit <Entity>} -setup {
-        ted create NB1 BLUE SHIA
-        ted lock
-    } -body {
-        ted notifier bind ::unit <Entity>
-        aam mutate attritn [list n NB1 casualties 100 g1 "" g2 ""]
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::unit <Entity> update SHIA-NB1/0000}
-    }
-
-
     test attritn-1.8 {nbhood, undo restores} -setup {
         ted create NB1 BLUE SHIA SUNN
         ted lock
@@ -614,24 +566,6 @@ SUNN-NB1/0000 1000
     
     }
 
-
-    test attritn-1.9 {nbhood, ::unit <Entity> on undo} -setup {
-        ted create NB1 BLUE SHIA SUNN
-        ted lock
-
-        set a [aam mutate attritn \
-                   [list n NB1 casualties 100 g1 "" g2 ""]]
-
-    } -body {
-        ted notifier bind ::unit <Entity>
-        eval $a
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::unit <Entity> update SHIA-NB1/0000}
-        {::unit <Entity> update SUNN-NB1/0000}
-    }
 
     #-------------------------------------------------------------------
     # mutate attritunit
@@ -713,19 +647,6 @@ id n   f    g    casualties
 2  NB1 SHIA BRIT 5          
     }
 
-    test attritunit-4.1 {::unit <Entity>} -setup {
-        ted create NB1 BLUE SHIA
-        ted lock
-    } -body {
-        ted notifier bind ::unit <Entity>
-        aam mutate attritunit [list u SHIA-NB1/0000 casualties 5 g1 "" g2 ""]
-        ted notifier received
-    } -cleanup {
-        cleanup
-    }  -result {
-        {::unit <Entity> update SHIA-NB1/0000}
-    }
-
 
     test attritunit-4.2 {Undo restores unit and nbgroup} -setup {
         ted create NB1 BLUE SHIA
@@ -756,23 +677,6 @@ SHIA 0         0         1000
     
     }
 
-
-    test attritunit-4.3 {::unit <Entityco> on undo} -setup {
-        ted create NB1 BLUE SHIA
-        ted lock
-
-        set a [aam mutate attritunit \
-                   [list u SHIA-NB1/0000 casualties 5 g1 "" g2 ""]]
-
-    } -body {
-        ted notifier bind ::unit <Entity>
-        eval $a
-        ted notifier received
-    } -cleanup {
-        cleanup
-    }  -result {
-        {::unit <Entity> update SHIA-NB1/0000}
-    }
 
     #-------------------------------------------------------------------
     # Cleanup

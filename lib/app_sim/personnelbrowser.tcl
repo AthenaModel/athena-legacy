@@ -88,7 +88,7 @@ snit::widgetadaptor personnelbrowser {
         pack $adjbtn   -side left
 
         # NEXT, Respond to simulation updates
-        notifier bind ::personnel <Entity> $self [mymethod uid]
+        notifier bind ::rdb <personnel_ng> $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------

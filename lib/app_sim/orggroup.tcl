@@ -103,9 +103,6 @@ snit::type orggroup {
                        $orgtype);
             }
 
-            # NEXT, notify the app.
-            notifier send ::orggroup <Entity> create $g
-
             # NEXT, Return the undo command
             return [mytypemethod mutate delete $g]
         }
@@ -128,9 +125,6 @@ snit::type orggroup {
             DELETE FROM orggroups WHERE g=$g;
         }
 
-        # NEXT, notify the app
-        notifier send ::orggroup <Entity> delete $g
-
         # NEXT, Return the undo script
         return [mytypemethod Restore $g create $data]
     }
@@ -145,7 +139,6 @@ snit::type orggroup {
 
     typemethod Restore {g op data} {
         rdb ungrab $data
-        notifier send ::orggroup <Entity> $op $g
     }
 
     # mutate update parmdict
@@ -180,9 +173,6 @@ snit::type orggroup {
                 SET orgtype   = nonempty($orgtype,   orgtype)
                 WHERE g=$g
             } {}
-
-            # NEXT, notify the app.
-            notifier send ::orggroup <Entity> update $g
 
             # NEXT, Return the undo command
             return [mytypemethod Restore $g update $data]

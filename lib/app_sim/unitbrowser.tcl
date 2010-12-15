@@ -211,7 +211,7 @@ snit::widgetadaptor unitbrowser {
         pack $movebtn   -side left
 
         # NEXT, update individual entities when they change.
-        notifier bind ::unit <Entity> $self [mymethod uid]
+        notifier bind ::rdb <units> $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------

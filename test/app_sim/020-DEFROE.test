@@ -95,13 +95,13 @@ NB2 BRIT FIRE_BACK_IF_PRESSED
     test UPDATE-2.2 {<Entity> update} -setup {
         setup
     } -body {
-        ted notifier bind ::defroe <Entity>
+        ted notifier bind ::rdb <defroe_ng>
         ted order DEFROE:UPDATE id {NB1 BLUE} roe HOLD_FIRE
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::defroe <Entity> update {NB1 BLUE}}
+        {::rdb <defroe_ng> update {NB1 BLUE}}
     }
 
 
@@ -113,13 +113,13 @@ NB2 BRIT FIRE_BACK_IF_PRESSED
             roe   HOLD_FIRE
         }
     } -body {
-        ted notifier bind ::defroe <Entity>
+        ted notifier bind ::rdb <defroe_ng>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::defroe <Entity> update {NB1 BLUE}}
+        {::rdb <defroe_ng> update {NB1 BLUE}}
     }
 
     #-------------------------------------------------------------------
@@ -175,7 +175,7 @@ NB2 BRIT FIRE_BACK_IF_PRESSED
     test UPDATE:MULTI-2.1 {one ROE of several is updated} -setup {
         setup
     } -body {
-        ted notifier bind ::defroe <Entity>
+        ted notifier bind ::rdb <defroe_ng>
 
         ted order DEFROE:UPDATE:MULTI {
             ids       {{NB1 BLUE}}
@@ -186,14 +186,14 @@ NB2 BRIT FIRE_BACK_IF_PRESSED
     } -cleanup {
         cleanup
     } -result {
-        {::defroe <Entity> update {NB1 BLUE}}
+        {::rdb <defroe_ng> update {NB1 BLUE}}
     }
 
 
     test UPDATE:MULTI-2.2 {several ROEs are updated} -setup {
         setup
     } -body {
-        ted notifier bind ::defroe <Entity>
+        ted notifier bind ::rdb <defroe_ng>
         ted order DEFROE:UPDATE:MULTI {
             ids   {{NB1 BLUE} {NB1 BRIT}} 
             roe   HOLD_FIRE
@@ -202,8 +202,8 @@ NB2 BRIT FIRE_BACK_IF_PRESSED
     } -cleanup {
         cleanup
     } -result {
-        {::defroe <Entity> update {NB1 BLUE}}
-        {::defroe <Entity> update {NB1 BRIT}}
+        {::rdb <defroe_ng> update {NB1 BLUE}}
+        {::rdb <defroe_ng> update {NB1 BRIT}}
     }
 
 
@@ -215,14 +215,14 @@ NB2 BRIT FIRE_BACK_IF_PRESSED
             roe        HOLD_FIRE
         }
     } -body {
-        ted notifier bind ::defroe <Entity>
+        ted notifier bind ::rdb <defroe_ng>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::defroe <Entity> update {NB1 BLUE}}
-        {::defroe <Entity> update {NB1 BRIT}}
+        {::rdb <defroe_ng> update {NB1 BLUE}}
+        {::rdb <defroe_ng> update {NB1 BRIT}}
     }
 
 

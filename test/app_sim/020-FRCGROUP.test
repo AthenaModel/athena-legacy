@@ -177,28 +177,28 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0
 
 
     test CREATE-2.2 {Effects} -body {
-        ted notifier bind ::frcgroup <Entity>
+        ted notifier bind ::rdb <frcgroups>
         ted notifier bind ::scenario <Reconcile>
         ted order FRCGROUP:CREATE $blue
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::frcgroup <Entity> create BLUE}
         {::scenario <Reconcile>}
+        {::rdb <frcgroups> update BLUE}
     }
 
 
     test CREATE-3.1 {undo effects} -setup {
         ted order FRCGROUP:CREATE $blue
     } -body {
-        ted notifier bind ::frcgroup <Entity>
+        ted notifier bind ::rdb <frcgroups>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::frcgroup <Entity> delete BLUE}
+        {::rdb <frcgroups> delete BLUE}
     }
 
 
@@ -222,15 +222,15 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0
     test DELETE-2.1 {Effects} -setup {
         ted order FRCGROUP:CREATE $blue
     } -body {
-        ted notifier bind ::frcgroup <Entity>
+        ted notifier bind ::rdb <frcgroups>
         ted notifier bind ::scenario <Reconcile>
         ted order FRCGROUP:DELETE g BLUE
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::frcgroup <Entity> delete BLUE}
         {::scenario <Reconcile>}
+        {::rdb <frcgroups> delete BLUE}
     }
 
 
@@ -238,13 +238,13 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0
         ted order FRCGROUP:CREATE $blue
         ted order FRCGROUP:DELETE g BLUE
     } -body {
-        ted notifier bind ::frcgroup <Entity>
+        ted notifier bind ::rdb <frcgroups>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::frcgroup <Entity> create BLUE}
+        {::rdb <frcgroups> update BLUE}
     }
 
 
@@ -375,13 +375,13 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
     test UPDATE-2.2 {<Entity> update} -setup {
         ted order FRCGROUP:CREATE $blue
     } -body {
-        ted notifier bind ::frcgroup <Entity>
+        ted notifier bind ::rdb <frcgroups>
         ted order FRCGROUP:UPDATE g BLUE longname "Blue Angels"
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::frcgroup <Entity> update BLUE}
+        {::rdb <frcgroups> update BLUE}
     }
 
 
@@ -397,13 +397,13 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
             uniformed    no
         }
     } -body {
-        ted notifier bind ::frcgroup <Entity>
+        ted notifier bind ::rdb <frcgroups>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::frcgroup <Entity> update BLUE}
+        {::rdb <frcgroups> update BLUE}
     }
 
     #-------------------------------------------------------------------
@@ -504,7 +504,7 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
         ted order FRCGROUP:CREATE $blue
         ted order FRCGROUP:CREATE $brit
     } -body {
-        ted notifier bind ::frcgroup <Entity>
+        ted notifier bind ::rdb <frcgroups>
 
         ted order FRCGROUP:UPDATE:MULTI {
             ids       BLUE 
@@ -520,7 +520,7 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
     } -cleanup {
         cleanup
     } -result {
-        {::frcgroup <Entity> update BLUE}
+        {::rdb <frcgroups> update BLUE}
     }
 
 
@@ -528,7 +528,7 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
         ted order FRCGROUP:CREATE $blue
         ted order FRCGROUP:CREATE $brit
     } -body {
-        ted notifier bind ::frcgroup <Entity>
+        ted notifier bind ::rdb <frcgroups>
 
         ted order FRCGROUP:UPDATE:MULTI {
             ids       {BLUE BRIT}
@@ -544,8 +544,8 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
     } -cleanup {
         cleanup
     } -result {
-        {::frcgroup <Entity> update BLUE}
-        {::frcgroup <Entity> update BRIT}
+        {::rdb <frcgroups> update BLUE}
+        {::rdb <frcgroups> update BRIT}
     }
 
 
@@ -558,14 +558,14 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
             color     "#ff0000"
         }
     } -body {
-        ted notifier bind ::frcgroup <Entity>
+        ted notifier bind ::rdb <frcgroups>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::frcgroup <Entity> update BLUE}
-        {::frcgroup <Entity> update BRIT}
+        {::rdb <frcgroups> update BLUE}
+        {::rdb <frcgroups> update BRIT}
     }
 
     #-------------------------------------------------------------------

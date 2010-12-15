@@ -101,13 +101,13 @@ NB2 BRIT 0
         setup
         ted order PERSONNEL:SET {id {NB1 BLUE} personnel 30}
     } -body {
-        ted notifier bind ::personnel <Entity>
+        ted notifier bind ::rdb <personnel_ng>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::personnel <Entity> update {NB1 BLUE}}
+        {::rdb <personnel_ng> update {NB1 BLUE}}
     }
 
     #-------------------------------------------------------------------
@@ -175,13 +175,13 @@ NB2 BRIT 0
         setup
         ted order PERSONNEL:ADJUST {id {NB1 BLUE} delta 30}
     } -body {
-        ted notifier bind ::personnel <Entity>
+        ted notifier bind ::rdb <personnel_ng>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::personnel <Entity> update {NB1 BLUE}}
+        {::rdb <personnel_ng> update {NB1 BLUE}}
     }
 
     #-------------------------------------------------------------------

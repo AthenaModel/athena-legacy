@@ -248,9 +248,6 @@ snit::type ::attroe {
                        $rate);
             }
 
-            # NEXT, notify the app.
-            notifier send ::attroe <Entity> create $id
-
             # NEXT, Return the undo command
             set undo [list]
             lappend undo [mytypemethod mutate delete $id]
@@ -281,9 +278,6 @@ snit::type ::attroe {
             DELETE FROM attroe_nfg WHERE n=$n AND f=$f AND g=$g;
         }
 
-        # NEXT, notify the app.
-        notifier send ::attroe <Entity> delete $id
-
         # NEXT, Return the undo script
         return [mytypemethod Restore [array get row]]
     }
@@ -296,10 +290,6 @@ snit::type ::attroe {
 
     typemethod Restore {parmdict} {
         rdb insert attroe_nfg $parmdict
-
-        dict with parmdict {
-            notifier send ::attroe <Entity> create [list $n $f $g]
-        }
     }
 
 
@@ -337,9 +327,6 @@ snit::type ::attroe {
                     rate      = nonempty($rate,      rate)
                 WHERE n=$n AND f=$f AND g=$g
             } {}
-
-            # NEXT, notify the app.
-            notifier send ::attroe <Entity> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]

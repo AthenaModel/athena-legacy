@@ -158,28 +158,28 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR
 
 
     test CREATE-2.2 {Effects} -body {
-        ted notifier bind ::orggroup <Entity>
+        ted notifier bind ::rdb <orggroups>
         ted notifier bind ::scenario <Reconcile>
         ted order ORGGROUP:CREATE $usaid
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::orggroup <Entity> create USAID}
         {::scenario <Reconcile>}
+        {::rdb <orggroups> update USAID}
     }
 
 
     test CREATE-3.1 {Undo effects} -setup {
         ted order ORGGROUP:CREATE $usaid
     } -body {
-        ted notifier bind ::orggroup <Entity>
+        ted notifier bind ::rdb <orggroups>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::orggroup <Entity> delete USAID}
+        {::rdb <orggroups> delete USAID}
     }
 
 
@@ -203,15 +203,15 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR
     test DELETE-2.1 {Effects} -setup {
         ted order ORGGROUP:CREATE $usaid
     } -body {
-        ted notifier bind ::orggroup <Entity>
+        ted notifier bind ::rdb <orggroups>
         ted notifier bind ::scenario <Reconcile>
         ted order ORGGROUP:DELETE g USAID
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::orggroup <Entity> delete USAID}
         {::scenario <Reconcile>}
+        {::rdb <orggroups> delete USAID}
     }
 
 
@@ -219,13 +219,13 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR
         ted order ORGGROUP:CREATE $usaid
         ted order ORGGROUP:DELETE g USAID
     } -body {
-        ted notifier bind ::orggroup <Entity>
+        ted notifier bind ::rdb <orggroups>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::orggroup <Entity> create USAID}
+        {::rdb <orggroups> update USAID}
     }
 
 
@@ -331,13 +331,13 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
     test UPDATE-2.2 {<Entity> update} -setup {
         ted order ORGGROUP:CREATE $usaid
     } -body {
-        ted notifier bind ::orggroup <Entity>
+        ted notifier bind ::rdb <orggroups>
         ted order ORGGROUP:UPDATE g USAID longname "Red Cross"
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::orggroup <Entity> update USAID}
+        {::rdb <orggroups> update USAID}
     }
 
 
@@ -349,13 +349,13 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
             color          "#ff0000"
         }
     } -body {
-        ted notifier bind ::orggroup <Entity>
+        ted notifier bind ::rdb <orggroups>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::orggroup <Entity> update USAID}
+        {::rdb <orggroups> update USAID}
     }
 
     #-------------------------------------------------------------------
@@ -433,7 +433,7 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
         ted order ORGGROUP:CREATE $usaid
         ted order ORGGROUP:CREATE $hal
     } -body {
-        ted notifier bind ::orggroup <Entity>
+        ted notifier bind ::rdb <orggroups>
 
         ted order ORGGROUP:UPDATE:MULTI {
             ids            USAID 
@@ -445,14 +445,14 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
     } -cleanup {
         cleanup
     } -result {
-        {::orggroup <Entity> update USAID}
+        {::rdb <orggroups> update USAID}
     }
 
     test UPDATE:MULTI-2.2 {several orggroups are updated} -setup {
         ted order ORGGROUP:CREATE $usaid
         ted order ORGGROUP:CREATE $hal
     } -body {
-        ted notifier bind ::orggroup <Entity>
+        ted notifier bind ::rdb <orggroups>
 
         ted order ORGGROUP:UPDATE:MULTI {
             ids            {USAID HAL}
@@ -464,8 +464,8 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
     } -cleanup {
         cleanup
     } -result {
-        {::orggroup <Entity> update USAID}
-        {::orggroup <Entity> update HAL}
+        {::rdb <orggroups> update USAID}
+        {::rdb <orggroups> update HAL}
     }
 
 
@@ -475,14 +475,14 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
         ted order ORGGROUP:UPDATE:MULTI \
             ids {USAID HAL} color "#ff0000"
     } -body {
-        ted notifier bind ::orggroup <Entity>
+        ted notifier bind ::rdb <orggroups>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::orggroup <Entity> update USAID}
-        {::orggroup <Entity> update HAL}
+        {::rdb <orggroups> update USAID}
+        {::rdb <orggroups> update HAL}
     }
 
 

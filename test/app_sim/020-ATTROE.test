@@ -184,13 +184,13 @@ NB1 BLUE TAL 1         ATTACK 40.0
     test U-CREATE-2.2 {Effects} -setup {
         setup
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
         ted order ATTROE:UF:CREATE $blue_alq
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> create {NB1 BLUE ALQ}}
+        {::rdb <attroe_nfg> update {NB1 BLUE ALQ}}
     }
 
 
@@ -198,13 +198,13 @@ NB1 BLUE TAL 1         ATTACK 40.0
         setup
         ted order ATTROE:UF:CREATE $blue_alq
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> delete {NB1 BLUE ALQ}}
+        {::rdb <attroe_nfg> delete {NB1 BLUE ALQ}}
     }
 
 
@@ -244,13 +244,13 @@ NB1 BLUE TAL 1         ATTACK 40.0
         setup
         ted order ATTROE:UF:CREATE $blue_alq
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
         ted order ATTROE:DELETE id {NB1 BLUE ALQ}
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> delete {NB1 BLUE ALQ}}
+        {::rdb <attroe_nfg> delete {NB1 BLUE ALQ}}
     }
 
 
@@ -259,13 +259,13 @@ NB1 BLUE TAL 1         ATTACK 40.0
         ted order ATTROE:UF:CREATE $blue_alq
         ted order ATTROE:DELETE id {NB1 BLUE ALQ}
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> create {NB1 BLUE ALQ}}
+        {::rdb <attroe_nfg> update {NB1 BLUE ALQ}}
     }
 
 
@@ -366,14 +366,14 @@ NB1 BLUE ALQ 1         DO_NOT_ATTACK 20.0
         setup
         ted order ATTROE:UF:CREATE $blue_alq
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
         ted order ATTROE:UF:UPDATE \
             id {NB1 BLUE ALQ} roe DO_NOT_ATTACK
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> update {NB1 BLUE ALQ}}
+        {::rdb <attroe_nfg> update {NB1 BLUE ALQ}}
     }
 
 
@@ -386,13 +386,13 @@ NB1 BLUE ALQ 1         DO_NOT_ATTACK 20.0
             cooplimit      20
         }
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> update {NB1 BLUE ALQ}}
+        {::rdb <attroe_nfg> update {NB1 BLUE ALQ}}
     }
 
     #-------------------------------------------------------------------
@@ -484,7 +484,7 @@ NB1 BLUE ALQ 1         DO_NOT_ATTACK 20.0
         ted order ATTROE:UF:CREATE $blue_alq
         ted order ATTROE:UF:CREATE $blue_tal
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
 
         ted order ATTROE:UF:UPDATE:MULTI {
             ids            {{NB1 BLUE ALQ}}
@@ -496,7 +496,7 @@ NB1 BLUE ALQ 1         DO_NOT_ATTACK 20.0
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> update {NB1 BLUE ALQ}}
+        {::rdb <attroe_nfg> update {NB1 BLUE ALQ}}
     }
 
 
@@ -505,7 +505,7 @@ NB1 BLUE ALQ 1         DO_NOT_ATTACK 20.0
         ted order ATTROE:UF:CREATE $blue_alq
         ted order ATTROE:UF:CREATE $blue_tal
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
 
         ted order ATTROE:UF:UPDATE:MULTI {
             ids            {{NB1 BLUE ALQ} {NB1 BLUE TAL}}
@@ -517,8 +517,8 @@ NB1 BLUE ALQ 1         DO_NOT_ATTACK 20.0
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> update {NB1 BLUE ALQ}}
-        {::attroe <Entity> update {NB1 BLUE TAL}}
+        {::rdb <attroe_nfg> update {NB1 BLUE ALQ}}
+        {::rdb <attroe_nfg> update {NB1 BLUE TAL}}
     }
 
 
@@ -532,14 +532,14 @@ NB1 BLUE ALQ 1         DO_NOT_ATTACK 20.0
             roe            DO_NOT_ATTACK
         }
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> update {NB1 BLUE ALQ}}
-        {::attroe <Entity> update {NB1 BLUE TAL}}
+        {::rdb <attroe_nfg> update {NB1 BLUE ALQ}}
+        {::rdb <attroe_nfg> update {NB1 BLUE TAL}}
     }
 
     #-------------------------------------------------------------------
@@ -687,13 +687,13 @@ NB1 TAL BLUE 0         STAND_AND_FIGHT 30.0      0.25
     test N-CREATE-2.2 {Effects} -setup {
         setup
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
         ted order ATTROE:NF:CREATE $alq_blue
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> create {NB1 ALQ BLUE}}
+        {::rdb <attroe_nfg> update {NB1 ALQ BLUE}}
     }
 
 
@@ -701,13 +701,13 @@ NB1 TAL BLUE 0         STAND_AND_FIGHT 30.0      0.25
         setup
         ted order ATTROE:NF:CREATE $alq_blue
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> delete {NB1 ALQ BLUE}}
+        {::rdb <attroe_nfg> delete {NB1 ALQ BLUE}}
     }
 
 
@@ -835,14 +835,14 @@ NB1 ALQ BLUE 0         DO_NOT_ATTACK 20.0      0.6
         setup
         ted order ATTROE:NF:CREATE $alq_blue
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
         ted order ATTROE:NF:UPDATE \
             id {NB1 ALQ BLUE} roe DO_NOT_ATTACK
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> update {NB1 ALQ BLUE}}
+        {::rdb <attroe_nfg> update {NB1 ALQ BLUE}}
     }
 
 
@@ -856,13 +856,13 @@ NB1 ALQ BLUE 0         DO_NOT_ATTACK 20.0      0.6
             rate           0.6
         }
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> update {NB1 ALQ BLUE}}
+        {::rdb <attroe_nfg> update {NB1 ALQ BLUE}}
     }
 
     #-------------------------------------------------------------------
@@ -967,7 +967,7 @@ NB1 ALQ BLUE 0         DO_NOT_ATTACK 20.0      0.6
         ted order ATTROE:NF:CREATE $alq_blue
         ted order ATTROE:NF:CREATE $tal_blue
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
 
         ted order ATTROE:NF:UPDATE:MULTI {
             ids            {{NB1 ALQ BLUE}}
@@ -980,7 +980,7 @@ NB1 ALQ BLUE 0         DO_NOT_ATTACK 20.0      0.6
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> update {NB1 ALQ BLUE}}
+        {::rdb <attroe_nfg> update {NB1 ALQ BLUE}}
     }
 
 
@@ -989,7 +989,7 @@ NB1 ALQ BLUE 0         DO_NOT_ATTACK 20.0      0.6
         ted order ATTROE:NF:CREATE $alq_blue
         ted order ATTROE:NF:CREATE $tal_blue
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
 
         ted order ATTROE:NF:UPDATE:MULTI {
             ids            {{NB1 ALQ BLUE} {NB1 TAL BLUE}}
@@ -1002,8 +1002,8 @@ NB1 ALQ BLUE 0         DO_NOT_ATTACK 20.0      0.6
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> update {NB1 ALQ BLUE}}
-        {::attroe <Entity> update {NB1 TAL BLUE}}
+        {::rdb <attroe_nfg> update {NB1 ALQ BLUE}}
+        {::rdb <attroe_nfg> update {NB1 TAL BLUE}}
     }
 
 
@@ -1017,14 +1017,14 @@ NB1 ALQ BLUE 0         DO_NOT_ATTACK 20.0      0.6
             roe            DO_NOT_ATTACK
         }
     } -body {
-        ted notifier bind ::attroe <Entity>
+        ted notifier bind ::rdb <attroe_nfg>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::attroe <Entity> update {NB1 ALQ BLUE}}
-        {::attroe <Entity> update {NB1 TAL BLUE}}
+        {::rdb <attroe_nfg> update {NB1 ALQ BLUE}}
+        {::rdb <attroe_nfg> update {NB1 TAL BLUE}}
     }
 
 

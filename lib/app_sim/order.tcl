@@ -768,7 +768,10 @@ snit::type order {
                 }
             }
             
-            # NEXT, call the handler
+            # NEXT, call the handler, monitoring database updates
+            # and notifying the application on change.
+            rdb monitor prepare
+
             if {$interface ne "test"} {
                 rdb transaction {
                     $handler($name)
@@ -778,6 +781,8 @@ snit::type order {
                 # debugging easier.
                 $handler($name)
             }
+
+            rdb monitor notify
         } result opts]} {
             # FIRST, get the error info
             set einfo [dict get $opts -errorinfo]

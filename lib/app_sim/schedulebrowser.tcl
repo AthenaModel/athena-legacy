@@ -207,23 +207,13 @@ snit::widgetadaptor schedulebrowser {
         pack $cancelbtn   -side right -padx {0 5}
 
         # NEXT, update individual entities when they change.
-        notifier bind ::activity <Entity> $self [mymethod uid]
+        notifier bind ::rdb <calendar> $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------
     # Public Methods
 
     delegate method * to hull
-    delegate method {uid *} to hull using "%c uid %m"
-
-    # uid priority
-    #
-    # Reloads all data when item priority changes in response
-    # to "<Entity> priority".
-
-    method {uid priority} {} {
-        $self reload
-    }
 
     #-------------------------------------------------------------------
     # Private Methods

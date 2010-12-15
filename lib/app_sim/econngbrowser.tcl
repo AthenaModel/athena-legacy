@@ -59,7 +59,8 @@ snit::widgetadaptor econngbrowser {
                 ::sim <DbSyncB>
                 ::demog <Update>
                 ::nbhood <Entity>
-                ::civgroup <Entity>
+                ::rdb <groups>
+                ::rdb <civgroups>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.

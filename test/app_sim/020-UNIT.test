@@ -106,13 +106,13 @@ BLUE-NB1/0991 101 101
         ted create NB1 BLUE
         unit create $u1
     } -body {
-        ted notifier bind ::unit <Entity>
+        ted notifier bind ::rdb <units>
         ted order UNIT:MOVE u BLUE-NB1/0991 location B01B01
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::unit <Entity> update BLUE-NB1/0991}
+        {::rdb <units> update BLUE-NB1/0991}
     }
 
 
@@ -121,13 +121,13 @@ BLUE-NB1/0991 101 101
         unit create $u1
         ted order UNIT:MOVE u BLUE-NB1/0991 location B01B01
     } -body {
-        ted notifier bind ::unit <Entity>
+        ted notifier bind ::rdb <units>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::unit <Entity> update BLUE-NB1/0991}
+        {::rdb <units> update BLUE-NB1/0991}
     }
 
 

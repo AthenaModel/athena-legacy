@@ -184,7 +184,7 @@ snit::type cif {
         log normal cif "undo: $name $parmdict"
 
         if {[catch {
-            rdb transaction {
+            rdb monitor transaction {
                 uplevel \#0 $undo
             }
         } result opts]} {

@@ -75,7 +75,7 @@ snit::widgetadaptor nbrelbrowser {
         pack $editbtn   -side left
 
         # NEXT, update individual entities when they change.
-        notifier bind ::nbrel <Entity> $self [mymethod uid]
+        notifier bind ::rdb <nbrel_mn> $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------

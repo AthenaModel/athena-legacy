@@ -71,6 +71,23 @@ snit::type scenario {
                     -clock ::marsutil::simclock]
         rdb register ::dam
 
+        # NEXT, monitor tables. 
+        rdb monitor add attroe_nfg   {n f g}
+        rdb monitor add calendar     {cid}
+        rdb monitor add civgroups    {g}
+        rdb monitor add coop_fg      {f g}
+        rdb monitor add defroe_ng    {n g}
+        rdb monitor add frcgroups    {g}
+        rdb monitor add gram_driver  {driver}
+        rdb monitor add groups       {g}
+        rdb monitor add mads         {id}
+        rdb monitor add nbrel_mn     {m n}
+        rdb monitor add orggroups    {g}
+        rdb monitor add personnel_ng {n g}
+        rdb monitor add rel_fg       {f g}
+        rdb monitor add sat_gc       {g c}
+        rdb monitor add units        {u}
+
         InitializeRuntimeData
 
         log normal scenario "init complete"

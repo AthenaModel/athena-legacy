@@ -104,7 +104,10 @@ snit::widgetadaptor madbrowser {
         pack $deletebtn  -side right
 
         # NEXT, update individual entities when they change.
-        notifier bind ::mad <Entity> $self [mymethod uid]
+        # We get most changes from table monitoring, but 
+        # gram_driver-related changes come through mad.tcl
+        notifier bind ::rdb <mads>        $self [mymethod uid]
+        notifier bind ::rdb <gram_driver> $self [mymethod gd_uid]
     }
 
     destructor {
@@ -130,6 +133,21 @@ snit::widgetadaptor madbrowser {
         }
 
         return 0
+    }
+
+    # gd_uid op uid
+    #
+    # op     create, update, delete
+    # uid    A gram_driver ID
+    #
+    # Converts the driver ID into a mad ID, and calls uid *
+    
+    method gd_uid {op uid} {
+        set id [rdb onecolumn {
+            SELECT id FROM mads WHERE driver=$uid 
+        }]
+
+        $hull uid $op $id
     }
 
 

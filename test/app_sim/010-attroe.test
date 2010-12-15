@@ -87,17 +87,6 @@ NB1 ALQ BRIT 0         HIT_AND_RUN 40.0      0.5
     }
 
 
-    test create-1.3 {<Entity> create} -body {
-        ted notifier bind ::attroe <Entity>
-        attroe mutate create $uf
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::attroe <Entity> create {NB1 BLUE ALQ}}
-    }
-
-
     test create-2.1 {undo deletes the attroe} -setup {
         attroe mutate create $uf
         set undo [attroe mutate create $nf]
@@ -107,19 +96,6 @@ NB1 ALQ BRIT 0         HIT_AND_RUN 40.0      0.5
     } -cleanup {
         cleanup
     } -result {NB1 BLUE ALQ}
-
-
-    test create-2.2 {On undo, <Entity> delete} -setup {
-        set undo [attroe mutate create $uf]
-    } -body {
-        ted notifier bind ::attroe <Entity>
-        eval $undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::attroe <Entity> delete {NB1 BLUE ALQ}}
-    }
 
 
     #-------------------------------------------------------------------
@@ -139,20 +115,6 @@ NB1 ALQ BRIT 0         HIT_AND_RUN 40.0      0.5
     } -result {NB1 ALQ BRIT}
 
 
-    test delete-1.2 {<Entity> delete} -setup {
-        setup
-        attroe mutate create $uf
-    } -body {
-        ted notifier bind ::attroe <Entity>
-        attroe mutate delete {NB1 BLUE ALQ}
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::attroe <Entity> delete {NB1 BLUE ALQ}}
-    }
-
-
     test delete-2.1 {Undo restores group} -setup {
         setup
         attroe mutate create $uf
@@ -168,20 +130,6 @@ n   f    g   uniformed roe    cooplimit rate
 NB1 BLUE ALQ 1         ATTACK 30.0           
     }
 
-
-    test delete-2.2 {On undo, <Entity> create} -setup {
-        setup
-        attroe mutate create $uf
-        set undo [attroe mutate delete {NB1 BLUE ALQ}]
-    } -body {
-        ted notifier bind ::attroe <Entity>
-        eval $undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::attroe <Entity> create {NB1 BLUE ALQ}}
-    }
 
     #-------------------------------------------------------------------
     # mutate update
@@ -244,25 +192,6 @@ NB1 ALQ BRIT 0         STAND_AND_FIGHT 50.0      1.0
     } -result {1}
 
 
-    test update-1.4 {<Entity> update} -setup {
-        setup
-        attroe mutate create $nf
-    } -body {
-        ted notifier bind ::attroe <Entity>
-        attroe mutate update {
-            id        {NB1 ALQ BRIT}
-            roe       STAND_AND_FIGHT
-            cooplimit 50
-            rate      1.0
-        }
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::attroe <Entity> update {NB1 ALQ BRIT}}
-    }
-
-
     test update-2.1 {undo undoes the change} -setup {
         setup
         attroe mutate create $nf
@@ -285,26 +214,6 @@ NB1 ALQ BRIT 0         STAND_AND_FIGHT 50.0      1.0
     } -cleanup {
         cleanup
     } -result {1}
-
-    test update-2.2 {undo sends <Entity> update} -setup {
-        setup
-        attroe mutate create $nf
-    } -body {
-        set undo [attroe mutate update {
-            id        {NB1 ALQ BRIT}
-            roe       STAND_AND_FIGHT
-            cooplimit 50
-            rate      1.0
-        }]
-
-        ted notifier bind ::attroe <Entity>
-        eval $undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::attroe <Entity> update {NB1 ALQ BRIT}}
-    }
 
     #-------------------------------------------------------------------
     # mutate reconcile

@@ -99,7 +99,7 @@ snit::widgetadaptor attroeufbrowser {
         pack $deletebtn   -side right
 
         # NEXT, update individual entities when they change.
-        notifier bind ::attroe <Entity> $self [mymethod uid]
+        notifier bind ::rdb <attroe_nfg> $self [mymethod uid]
     }
 
     destructor {

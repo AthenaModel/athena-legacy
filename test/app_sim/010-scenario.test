@@ -43,63 +43,63 @@ namespace eval ::athena_test::tests:: {
    
 
     test reconcile-1.1 {All entities are reconciled} -body {
-        ted notifier bind ::nbrel    <Entity>
-        ted notifier bind ::civgroup <Entity>
-        ted notifier bind ::sat      <Entity>
-        ted notifier bind ::rel      <Entity>
-        ted notifier bind ::coop     <Entity>
-        ted notifier bind ::attroe   <Entity>
-        ted notifier bind ::defroe   <Entity>
+        ted notifier bind ::rdb      <nbrel_mn>
+        ted notifier bind ::rdb      <civgroups>
+        ted notifier bind ::rdb      <sat_gc>
+        ted notifier bind ::rdb      <rel_fg>
+        ted notifier bind ::rdb      <coop_fg>
+        ted notifier bind ::rdb      <attroe_nfg>
+        ted notifier bind ::rdb      <defroe_fg>
         ted notifier bind ::scenario <Reconcile>
 
-        ted create BLUE USAID NB1 SHIA
+        rdb monitor transaction {
+            ted create BLUE USAID NB1 SHIA
 
-        scenario mutate reconcile
+            scenario mutate reconcile
 
-        nbhood mutate delete NB1
+            nbhood mutate delete NB1
 
-        scenario mutate reconcile
+            scenario mutate reconcile
+        }
 
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::civgroup <Entity> create SHIA}
-        {::nbrel <Entity> create {NB1 NB1}}
-        {::sat <Entity> create {SHIA AUT}}
-        {::sat <Entity> create {SHIA SFT}}
-        {::sat <Entity> create {SHIA CUL}}
-        {::sat <Entity> create {SHIA QOL}}
-        {::rel <Entity> create {BLUE BLUE}}
-        {::rel <Entity> create {BLUE USAID}}
-        {::rel <Entity> create {BLUE SHIA}}
-        {::rel <Entity> create {USAID BLUE}}
-        {::rel <Entity> create {USAID USAID}}
-        {::rel <Entity> create {USAID SHIA}}
-        {::rel <Entity> create {SHIA BLUE}}
-        {::rel <Entity> create {SHIA USAID}}
-        {::rel <Entity> create {SHIA SHIA}}
-        {::coop <Entity> create {SHIA BLUE}}
-        {::defroe <Entity> create {NB1 BLUE}}
         {::scenario <Reconcile>}
-        {::nbrel <Entity> delete {NB1 NB1}}
-        {::civgroup <Entity> delete SHIA}
-        {::sat <Entity> delete {SHIA AUT}}
-        {::sat <Entity> delete {SHIA SFT}}
-        {::sat <Entity> delete {SHIA CUL}}
-        {::sat <Entity> delete {SHIA QOL}}
-        {::rel <Entity> delete {BLUE SHIA}}
-        {::rel <Entity> delete {USAID SHIA}}
-        {::rel <Entity> delete {SHIA BLUE}}
-        {::rel <Entity> delete {SHIA USAID}}
-        {::rel <Entity> delete {SHIA SHIA}}
-        {::coop <Entity> delete {SHIA BLUE}}
-        {::defroe <Entity> delete {NB1 BLUE}}
         {::scenario <Reconcile>}
+        {::rdb <civgroups> update SHIA}
+        {::rdb <nbrel_mn> update {NB1 NB1}}
+        {::rdb <sat_gc> update {SHIA AUT}}
+        {::rdb <sat_gc> update {SHIA SFT}}
+        {::rdb <sat_gc> update {SHIA CUL}}
+        {::rdb <sat_gc> update {SHIA QOL}}
+        {::rdb <rel_fg> update {BLUE BLUE}}
+        {::rdb <rel_fg> update {BLUE USAID}}
+        {::rdb <rel_fg> update {BLUE SHIA}}
+        {::rdb <rel_fg> update {USAID BLUE}}
+        {::rdb <rel_fg> update {USAID USAID}}
+        {::rdb <rel_fg> update {USAID SHIA}}
+        {::rdb <rel_fg> update {SHIA BLUE}}
+        {::rdb <rel_fg> update {SHIA USAID}}
+        {::rdb <rel_fg> update {SHIA SHIA}}
+        {::rdb <coop_fg> update {SHIA BLUE}}
+        {::rdb <nbrel_mn> delete {NB1 NB1}}
+        {::rdb <civgroups> delete SHIA}
+        {::rdb <sat_gc> delete {SHIA AUT}}
+        {::rdb <sat_gc> delete {SHIA SFT}}
+        {::rdb <sat_gc> delete {SHIA CUL}}
+        {::rdb <sat_gc> delete {SHIA QOL}}
+        {::rdb <rel_fg> delete {BLUE SHIA}}
+        {::rdb <rel_fg> delete {USAID SHIA}}
+        {::rdb <rel_fg> delete {SHIA BLUE}}
+        {::rdb <rel_fg> delete {SHIA USAID}}
+        {::rdb <rel_fg> delete {SHIA SHIA}}
+        {::rdb <coop_fg> delete {SHIA BLUE}}
     }
 
 
-    test reconcile-1.2 {On undo: <Entity> create} -body {
+    test reconcile-1.2 {On undo: unreconcile} -body {
         ted create BLUE USAID NB1 SHIA
 
         scenario mutate reconcile
@@ -109,36 +109,37 @@ namespace eval ::athena_test::tests:: {
 
         set undo [scenario mutate reconcile]
 
-        ted notifier bind ::nbrel    <Entity>
-        ted notifier bind ::civgroup <Entity>
-        ted notifier bind ::sat      <Entity>
-        ted notifier bind ::rel      <Entity>
-        ted notifier bind ::coop     <Entity>
-        ted notifier bind ::defroe  <Entity>
+        ted notifier bind ::rdb      <nbrel_mn>
+        ted notifier bind ::rdb      <civgroups>
+        ted notifier bind ::rdb      <sat_gc>
+        ted notifier bind ::rdb      <rel_fg>
+        ted notifier bind ::rdb      <coop_fg>
+        ted notifier bind ::rdb      <defroe_fg>
         ted notifier bind ::scenario <Reconcile>
-        
-        eval $undo
+
+        rdb monitor transaction {
+            eval $undo
+        }
         
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::nbrel <Entity> create {NB1 NB1}}
-        {::civgroup <Entity> create SHIA}
-        {::sat <Entity> create {SHIA AUT}}
-        {::sat <Entity> create {SHIA SFT}}
-        {::sat <Entity> create {SHIA CUL}}
-        {::sat <Entity> create {SHIA QOL}}
-        {::rel <Entity> create {BLUE BLUE}}
-        {::rel <Entity> create {BLUE USAID}}
-        {::rel <Entity> create {BLUE SHIA}}
-        {::rel <Entity> create {USAID BLUE}}
-        {::rel <Entity> create {USAID SHIA}}
-        {::rel <Entity> create {SHIA BLUE}}
-        {::rel <Entity> create {SHIA USAID}}
-        {::rel <Entity> create {SHIA SHIA}}
-        {::coop <Entity> create {SHIA BLUE}}
-        {::defroe <Entity> create {NB1 BLUE}}
+        {::rdb <nbrel_mn> update {NB1 NB1}}
+        {::rdb <civgroups> update SHIA}
+        {::rdb <sat_gc> update {SHIA AUT}}
+        {::rdb <sat_gc> update {SHIA SFT}}
+        {::rdb <sat_gc> update {SHIA CUL}}
+        {::rdb <sat_gc> update {SHIA QOL}}
+        {::rdb <rel_fg> update {BLUE BLUE}}
+        {::rdb <rel_fg> update {BLUE USAID}}
+        {::rdb <rel_fg> update {BLUE SHIA}}
+        {::rdb <rel_fg> update {USAID BLUE}}
+        {::rdb <rel_fg> update {USAID SHIA}}
+        {::rdb <rel_fg> update {SHIA BLUE}}
+        {::rdb <rel_fg> update {SHIA USAID}}
+        {::rdb <rel_fg> update {SHIA SHIA}}
+        {::rdb <coop_fg> update {SHIA BLUE}}
     }
 
     #-------------------------------------------------------------------

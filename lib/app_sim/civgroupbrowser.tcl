@@ -105,7 +105,8 @@ snit::widgetadaptor civgroupbrowser {
         pack $deletebtn -side right
 
         # NEXT, update individual entities when they change.
-       notifier bind ::civgroup <Entity> $self [mymethod uid]
+       notifier bind ::rdb <groups>    $self [mymethod uid]
+       notifier bind ::rdb <civgroups> $self [mymethod uid]
     }
 
     destructor {

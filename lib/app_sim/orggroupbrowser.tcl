@@ -102,7 +102,8 @@ snit::widgetadaptor orggroupbrowser {
         pack $deletebtn -side right
 
         # NEXT, update individual entities when they change.
-        notifier bind ::orggroup <Entity> $self [mymethod uid]
+        notifier bind ::rdb <groups>    $self [mymethod uid]
+        notifier bind ::rdb <orggroups> $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------

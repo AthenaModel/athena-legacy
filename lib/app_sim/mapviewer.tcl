@@ -516,11 +516,9 @@ snit::widget mapviewer {
         notifier bind ::map      <MapChanged>  $self [mymethod dbsync]
         notifier bind ::order    <OrderEntry>  $self [mymethod OrderEntry]
         notifier bind ::nbhood   <Entity>      $self [mymethod EntityNbhood]
-        notifier bind ::unit     <Entity>      $self [mymethod EntityUnit]
+        notifier bind ::rdb      <units>       $self [mymethod EntityUnit]
         notifier bind ::ensit    <Entity>      $self [mymethod EntityEnsit]
-        notifier bind ::civgroup <Entity>      $self [mymethod EntityCivGrp]
-        notifier bind ::frcgroup <Entity>      $self [mymethod EntityFrcGrp]
-        notifier bind ::orggroup <Entity>      $self [mymethod EntityOrgGrp]
+        notifier bind ::rdb      <groups>      $self [mymethod EntityGroup]
         notifier bind ::econ     <Entity>      $self [mymethod EntityEcon]
 
         # NEXT, draw everything for the current map, whatever it is.
@@ -1599,48 +1597,23 @@ snit::widget mapviewer {
     #===================================================================
     # Group Entity Event Handlers
 
-    # EntityCivGrp op g
+    # EntityGroup op g
     #
     # op    The operation
     # g     The group ID
     #
-    # A CIV group was created/updated/deleted.
+    # A group was created/updated/deleted.
     #
     # * Update the list of nbhood fill tags.
     # * If the group was updated, redraw units; their shapes or
     #   colors might have changed.
+    #
+    # TBD: It appears that these things can change in PREP only,
+    # when it doesn't matter.
 
-    method EntityCivGrp {op g} { 
+    method EntityGroup {op g} { 
         $self NbhoodUpdateFillTags
 
-        if {$op eq "update"} {
-            $self UnitDrawAll
-        }
-    }
-
-    # EntityFrcGrp op g
-    #
-    # op   The operation
-    # g    The group ID
-    #
-    # If a FRC group was updated, redraw units; their shapes or
-    # colors might have changed.
-
-    method EntityFrcGrp {op g} { 
-        if {$op eq "update"} {
-            $self UnitDrawAll
-        }
-    }
-
-    # EntityOrgGrp op g
-    #
-    # op   The operation
-    # g    The group ID
-    #
-    # If an ORG group was updated, redraw units; their shapes or
-    # colors might have changed.
-
-    method EntityOrgGrp {op g} { 
         if {$op eq "update"} {
             $self UnitDrawAll
         }

@@ -155,15 +155,15 @@ namespace eval ::athena_test::tests:: {
     test UNIT-2.1 {unit and nbgroup are attrited} -setup {
         setup
     } -body {
-        ted notifier bind ::unit <Entity>
+        ted notifier bind ::rdb <units>
         ted notifier bind ::demog <Update>
         ted order ATTRIT:UNIT u SHIA-NB1/0000 casualties 5 g1 BLUE g2 BRIT
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::unit <Entity> update SHIA-NB1/0000}
         {::demog <Update>}
+        {::rdb <units> update SHIA-NB1/0000}
     }
 
 
@@ -171,15 +171,15 @@ namespace eval ::athena_test::tests:: {
         setup
         ted order ATTRIT:UNIT u SHIA-NB1/0000 casualties 5
     } -body {
-        ted notifier bind ::unit <Entity>
+        ted notifier bind ::rdb <units>
         ted notifier bind ::demog <Update>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::unit <Entity> update SHIA-NB1/0000}
         {::demog <Update>}
+        {::rdb <units> update SHIA-NB1/0000}
     }
 
 
@@ -256,34 +256,39 @@ namespace eval ::athena_test::tests:: {
     test NBHOOD-2.1 {units are attrited} -setup {
         setup
     } -body {
-        ted notifier bind ::unit <Entity>
+        ted notifier bind ::rdb <units>
         ted notifier bind ::demog <Update>
         ted order ATTRIT:NBHOOD n NB1 casualties 1000 g1 BLUE g2 BRIT
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::unit <Entity> update SHIA-NB1/0000}
         {::demog <Update>}
-        {::unit <Entity> update SUNN-NB1/0000}
         {::demog <Update>}
+        {::rdb <units> update SHIA-NB1/0000}
+        {::rdb <units> update SUNN-NB1/0000}
+        {::rdb <units> update KURD-NB2/0000}
+        {::rdb <units> update SHIA-NB1/0000}
+        {::rdb <units> update SUNN-NB1/0000}
+        {::rdb <units> update SHIA-NB1/0000}
+        {::rdb <units> update SUNN-NB1/0000}
     }
 
     test NBHOOD-3.1 {undo undoes the change} -setup {
         setup 
         ted order ATTRIT:NBHOOD n NB1 casualties 1000
     } -body {
-        ted notifier bind ::unit <Entity>
+        ted notifier bind ::rdb <units>
         ted notifier bind ::demog <Update>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::unit <Entity> update SHIA-NB1/0000}
         {::demog <Update>}
-        {::unit <Entity> update SUNN-NB1/0000}
         {::demog <Update>}
+        {::rdb <units> update SHIA-NB1/0000}
+        {::rdb <units> update SUNN-NB1/0000}
     }
 
 
@@ -397,15 +402,20 @@ namespace eval ::athena_test::tests:: {
             ted order PERSONNEL:SET id {NB1 BLUE} personnel 100
         }
     } -body {
-        ted notifier bind ::unit <Entity>
-        ted notifier bind ::personnel <Entity>
+        ted notifier bind ::rdb <units>
+        ted notifier bind ::rdb <personnel_ng>
         ted order ATTRIT:GROUP n NB1 f BLUE casualties 100
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::unit <Entity> update BLUE-NB1/0000}
-        {::personnel <Entity> update {NB1 BLUE}}
+        {::rdb <units> update BLUE-NB1/0000}
+        {::rdb <units> update SHIA-NB1/0000}
+        {::rdb <units> update SUNN-NB1/0000}
+        {::rdb <units> update KURD-NB2/0000}
+        {::rdb <units> update BLUE-NB1/0000}
+        {::rdb <units> update BLUE-NB1/0000}
+        {::rdb <personnel_ng> update {NB1 BLUE}}
     }
 
 
@@ -414,45 +424,54 @@ namespace eval ::athena_test::tests:: {
             ted order PERSONNEL:SET id {NB1 USAID} personnel 100
         }
     } -body {
-        ted notifier bind ::unit <Entity>
-        ted notifier bind ::personnel <Entity>
+        ted notifier bind ::rdb <units>
+        ted notifier bind ::rdb <personnel_ng>
         ted order ATTRIT:GROUP n NB1 f USAID casualties 100
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::unit <Entity> update USAID-NB1/0000}
-        {::personnel <Entity> update {NB1 USAID}}
+        {::rdb <units> update SHIA-NB1/0000}
+        {::rdb <units> update SUNN-NB1/0000}
+        {::rdb <units> update USAID-NB1/0000}
+        {::rdb <units> update KURD-NB2/0000}
+        {::rdb <units> update USAID-NB1/0000}
+        {::rdb <units> update USAID-NB1/0000}
+        {::rdb <personnel_ng> update {NB1 USAID}}
     }
 
 
     test GROUP-2.3 {CIV units are attrited} -setup {
         setup
     } -body {
-        ted notifier bind ::unit <Entity>
+        ted notifier bind ::rdb <units>
         ted notifier bind ::demog <Update>
         ted order ATTRIT:GROUP n NB1 f SHIA casualties 1000 g1 BLUE g2 BRIT
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::unit <Entity> update SHIA-NB1/0000}
         {::demog <Update>}
+        {::rdb <units> update SHIA-NB1/0000}
+        {::rdb <units> update SUNN-NB1/0000}
+        {::rdb <units> update KURD-NB2/0000}
+        {::rdb <units> update SHIA-NB1/0000}
+        {::rdb <units> update SHIA-NB1/0000}
     }
 
     test GROUP-3.1 {undo undoes the change} -setup {
         setup 
         ted order ATTRIT:GROUP n NB1 f SHIA casualties 1000
     } -body {
-        ted notifier bind ::unit <Entity>
+        ted notifier bind ::rdb <units>
         ted notifier bind ::demog <Update>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::unit <Entity> update SHIA-NB1/0000}
         {::demog <Update>}
+        {::rdb <units> update SHIA-NB1/0000}
     }
 
     #-------------------------------------------------------------------

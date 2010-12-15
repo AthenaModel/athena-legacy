@@ -135,9 +135,6 @@ snit::type mad {
                        $q);
             }
 
-            # NEXT, notify the app.
-            notifier send ::mad <Entity> create $id
-
             # NEXT, if we are not in PREP, get the GRAM driver
             set undo [list]
 
@@ -174,9 +171,6 @@ snit::type mad {
             aram cancel $row1(driver) -delete
         }
 
-        # NEXT, notify the app
-        notifier send ::mad <Entity> delete $id
-
         # NEXT, Return the undo script
         return [mytypemethod RestoreDeletedMAD \
                     [array get row1] [array get row2]]
@@ -195,8 +189,6 @@ snit::type mad {
         if {$dict2 ne ""} {
             rdb insert gram_driver $dict2
         }
-
-        notifier send ::mad <Entity> create [dict get $dict1 id]
     }
 
     # mutate update parmdict
@@ -245,9 +237,6 @@ snit::type mad {
                 aram driver configure $row(driver) -oneliner $oneliner
             }
 
-            # NEXT, notify the app.
-            notifier send ::mad <Entity> update $id
-            
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get row]]
         }
@@ -275,8 +264,6 @@ snit::type mad {
             UPDATE mads SET driver=$driver WHERE id=$mad;
         }
 
-        notifier send ::mad <Entity> update $mad
-
         return [mytypemethod UndoGetDriver $mad $driver]
     }
 
@@ -296,8 +283,6 @@ snit::type mad {
         rdb eval {
             UPDATE mads SET driver=-1 WHERE id=$mad
         }
-        
-        notifier send ::mad <Entity> update $mad
     }
 
 
@@ -400,11 +385,8 @@ snit::type mad {
                      -text    $text]
 
             # NEXT, notify the app.
-            # Note: need to update ::sat since current sat has changed,
-            # and need to update ::mad since number of inputs for this
-            # MAD has changed.
-            notifier send ::sat <Entity> update $id
-            notifier send ::mad <Entity> update $mad
+            # Note: need to update <Sat> since current sat has changed.
+            notifier send ::mad <Sat> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod RestoreSat $mad $driver $g $c $oldSat \
@@ -466,11 +448,8 @@ snit::type mad {
                      -text    $text]
 
             # NEXT, notify the app.
-            # Note: need to update ::sat since current sat has changed,
-            # and need to update ::mad since number of inputs for this
-            # MAD has changed.
-            notifier send ::sat <Entity> update $id
-            notifier send ::mad <Entity> update $mad
+            # Note: need to update ::sat since current sat has changed.
+            notifier send ::mad <Sat> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod RestoreSat $mad $driver $g $c $oldSat \
@@ -485,8 +464,7 @@ snit::type mad {
     typemethod RestoreSat {mad driver g c sat reportid} {
         aram sat set $driver $g $c $sat -undo
         reporter delete $reportid
-        notifier send ::sat <Entity> update [list $g $c]
-        notifier send ::mad <Entity> update $mad
+        notifier send ::mad <Sat> update [list $g $c]
     }
 
     # mutate satlevel parmdict
@@ -648,11 +626,7 @@ snit::type mad {
                      -text    $text]
 
             # NEXT, notify the app.
-            # Note: need to update ::sat since current sat has changed,
-            # and need to update ::mad since number of inputs for this
-            # MAD has changed.
-            notifier send ::coop <Entity> update $id
-            notifier send ::mad <Entity> update $mad
+            notifier send ::mad <Coop> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod RestoreCoop $mad $driver $f $g $oldCoop \
@@ -715,11 +689,7 @@ snit::type mad {
                      -text    $text]
 
             # NEXT, notify the app.
-            # Note: need to update ::sat since current sat has changed,
-            # and need to update ::mad since number of inputs for this
-            # MAD has changed.
-            notifier send ::coop <Entity> update $id
-            notifier send ::mad <Entity> update $mad
+            notifier send ::mad <Coop> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod RestoreCoop $mad $driver $f $g $oldCoop \
@@ -734,8 +704,7 @@ snit::type mad {
     typemethod RestoreCoop {mad driver f g coop reportid} {
         aram coop set $driver $f $g $coop -undo
         reporter delete $reportid
-        notifier send ::coop <Entity> update [list $f $g]
-        notifier send ::mad <Entity> update $mad
+        notifier send ::mad <Coop> update [list $f $g]
     }
 
     # mutate cooplevel parmdict

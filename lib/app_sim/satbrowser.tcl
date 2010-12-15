@@ -108,7 +108,8 @@ snit::widgetadaptor satbrowser {
         pack $adjbtn    -side left
 
         # NEXT, update individual entities when they change.
-        notifier bind ::sat <Entity> $self [mymethod uid]
+        notifier bind ::rdb <sat_gc> $self [mymethod uid]
+        notifier bind ::mad <Sat>    $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------

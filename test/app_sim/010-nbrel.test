@@ -54,22 +54,6 @@ NB2 NB2 HERE      0.0
     }
 
 
-    test reconcile-1.2 {<Entity> create} -setup {
-        ted create NB1 NB2
-    } -body {
-        ted notifier bind ::nbrel <Entity>
-        nbrel mutate reconcile
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::nbrel <Entity> create {NB1 NB1}}
-        {::nbrel <Entity> create {NB1 NB2}}
-        {::nbrel <Entity> create {NB2 NB1}}
-        {::nbrel <Entity> create {NB2 NB2}}
-    }
-
-
     test reconcile-1.3 {Created curves are undone} -setup {
         ted create NB1 NB2
         set undo [nbrel mutate reconcile]
@@ -81,23 +65,6 @@ NB2 NB2 HERE      0.0
     } -result {}
     
 
-    test reconcile-1.4 {On undo: <Entity> delete} -setup {
-        ted create NB1 NB2
-        set undo [nbrel mutate reconcile]
-    } -body {
-        ted notifier bind ::nbrel <Entity>
-        eval $undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::nbrel <Entity> delete {NB1 NB1}}
-        {::nbrel <Entity> delete {NB1 NB2}}
-        {::nbrel <Entity> delete {NB2 NB1}}
-        {::nbrel <Entity> delete {NB2 NB2}}
-    }
-
-    
     test reconcile-2.1 {nb relations deleted with nbhood} -setup {
         ted create NB1 NB2
         nbrel mutate reconcile
@@ -113,24 +80,6 @@ NB2 NB2 HERE      0.0
 m   n   proximity effects_delay 
 --- --- --------- ------------- 
 NB2 NB2 HERE      0.0           
-    }
-
-
-    test reconcile-2.2 {<Entity> delete} -setup {
-        ted create NB1 NB2
-        nbrel mutate reconcile
-    } -body {
-        nbhood mutate delete NB1
-
-        ted notifier bind ::nbrel <Entity>
-        nbrel mutate reconcile
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::nbrel <Entity> delete {NB1 NB1}}
-        {::nbrel <Entity> delete {NB1 NB2}}
-        {::nbrel <Entity> delete {NB2 NB1}}
     }
 
 
@@ -159,40 +108,6 @@ NB1 NB1 HERE      0.0
 NB1 NB2 NEAR      0.0           
 NB2 NB1 REMOTE    0.0           
     }
-
-
-    test reconcile-2.4 {On undo: <Entity> create} -setup {
-        # FIRST, create the nbhoods and relationships
-        ted create NB1 NB2
-        nbrel mutate reconcile
-
-        # NEXT, delete a neighborhood, and get the undo script.
-        nbhood mutate delete NB1
-
-        set undo [nbrel mutate reconcile]
-    } -body {
-        ted notifier bind ::nbrel <Entity>
-        eval $undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::nbrel <Entity> create {NB1 NB1}}
-        {::nbrel <Entity> create {NB1 NB2}}
-        {::nbrel <Entity> create {NB2 NB1}}
-    }
-
-
-    test reconcile-3.1 {Reconcile doesn't affect valid entities} -setup {
-        ted create NB1 NB2
-        nbrel mutate reconcile
-    } -body {
-        ted notifier bind ::nbrel <Entity>
-        nbrel mutate reconcile
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {}
 
 
     #-------------------------------------------------------------------
@@ -265,23 +180,6 @@ NB2 NB2 HERE      0.0
     } -result {1}
 
 
-    test update-1.4 {<Entity> update} -setup {
-        ted create NB1 NB2
-        nbrel mutate reconcile
-    } -body {
-        ted notifier bind ::nbrel <Entity>
-        nbrel mutate update  {
-            id            {NB1 NB2}
-            proximity     ""
-            effects_delay ""
-        }
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::nbrel <Entity> update {NB1 NB2}}
-    }
-
 
     test update-2.1 {undo undoes the change} -setup {
         ted create NB1 NB2
@@ -305,25 +203,6 @@ NB2 NB2 HERE      0.0
         cleanup
     } -result {1}
 
-
-    test update-2.2 {undo sends <Entity> update} -setup {
-        ted create NB1 NB2
-        nbrel mutate reconcile
-    } -body {
-        set undo [nbrel mutate update {
-            id            {NB1 NB2}
-            proximity     ""
-            effects_delay ""
-        }]
-
-        ted notifier bind ::nbrel <Entity>
-        eval $undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::nbrel <Entity> update {NB1 NB2}}
-    }
 
     #-------------------------------------------------------------------
     # validate

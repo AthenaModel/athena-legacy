@@ -109,7 +109,8 @@ snit::widgetadaptor coopbrowser {
         pack $adjbtn    -side left
 
         # NEXT, update individual entities when they change.
-        notifier bind ::coop  <Entity> $self [mymethod uid]
+        notifier bind ::rdb <coop_fg> $self [mymethod uid]
+        notifier bind ::mad <Coop>    $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------

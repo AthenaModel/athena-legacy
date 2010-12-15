@@ -94,8 +94,6 @@ snit::type ::defroe {
                     DELETE FROM defroe_ng
                     WHERE n=$row(n) AND g=$row(g)
                 }
-
-                notifier send ::defroe <Entity> delete $id
             }
         }
 
@@ -113,8 +111,6 @@ snit::type ::defroe {
             }
 
             lappend undo [mytypemethod Delete $n $g]
-
-            notifier send ::defroe <Entity> create $id
         }
 
         # NEXT, return the undo script
@@ -129,10 +125,6 @@ snit::type ::defroe {
 
     typemethod Restore {parmdict} {
         rdb insert defroe_ng $parmdict
-
-        dict with parmdict {
-            notifier send ::defroe <Entity> create [list $n $g]
-        }
     }
 
 
@@ -146,8 +138,6 @@ snit::type ::defroe {
         rdb eval {
             DELETE FROM defroe_ng WHERE n=$n AND g=$g
         }
-
-        notifier send ::defroe <Entity> delete [list $n $g]
     }
 
     # mutate update parmdict
@@ -180,9 +170,6 @@ snit::type ::defroe {
                 SET roe = nonempty($roe, roe)
                 WHERE n=$n AND g=$g
             } {}
-
-            # NEXT, notify the app.
-            notifier send ::defroe <Entity> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]

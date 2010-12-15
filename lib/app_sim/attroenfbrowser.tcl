@@ -104,7 +104,7 @@ snit::widgetadaptor attroenfbrowser {
         # we don't want to display it.
 
         # NEXT, update individual entities when they change.
-        notifier bind ::attroe <Entity> $self [mymethod uid]
+        notifier bind ::rdb <attroe_nfg> $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------

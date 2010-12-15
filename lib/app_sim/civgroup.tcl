@@ -163,9 +163,6 @@ snit::type civgroup {
                 VALUES($g);
             }
 
-            # NEXT, notify the app.
-            notifier send ::civgroup <Entity> create $g
-
             # NEXT, Return undo command.
             return [list $type mutate delete $g]
         }
@@ -188,9 +185,6 @@ snit::type civgroup {
             DELETE FROM demog_g   WHERE g=$g;
         }
 
-        # NEXT, notify the app
-        notifier send ::civgroup <Entity> delete $g
-
         # NEXT, Return the undo script
         return [mytypemethod Restore $g create $data]
     }
@@ -202,11 +196,10 @@ snit::type civgroup {
     # op     - Operation: create | delete
     # data   - A "grab" data set to be restored.
     #
-    # Restores the data to the database, and notifies the GUI.
+    # Restores the data to the database.
 
     typemethod Restore {g op data} {
         rdb ungrab $data
-        notifier send ::civgroup <Entity> $op $g
     }
 
 
@@ -247,9 +240,6 @@ snit::type civgroup {
                 WHERE g=$g
 
             } {}
-
-            # NEXT, notify the app.
-            notifier send ::civgroup <Entity> update $g
 
             # NEXT, Return the undo command
             return [mytypemethod Restore $g update $data]

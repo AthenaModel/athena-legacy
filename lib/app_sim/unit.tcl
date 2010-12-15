@@ -190,9 +190,6 @@ snit::type unit {
             DELETE FROM units WHERE u=$u;
         }
 
-        # NEXT, notify the app
-        notifier send ::unit <Entity> delete $u
-
         # NEXT, Return the undo script
         return [mytypemethod Restore [array get row]]
     }
@@ -205,8 +202,6 @@ snit::type unit {
 
     typemethod Restore {udict} {
         rdb insert units $udict
-
-        notifier send ::unit <Entity> create [dict get $udict u]
     }
 
     # mutate move u location
@@ -230,9 +225,6 @@ snit::type unit {
             SET location = $location
             WHERE u=$u
         }
-
-        # NEXT, notify the app.
-        notifier send ::unit <Entity> update $u
 
         # NEXT, Return the undo command
         return [mytypemethod mutate move $u $oldLocation]
@@ -260,9 +252,6 @@ snit::type unit {
                   active    = 1
             WHERE u=$u
         }
-
-        # NEXT, notify the app.
-        notifier send ::unit <Entity> update $u
 
         # NEXT, Return the undo command
         return [mytypemethod mutate personnel $u $oldPersonnel]

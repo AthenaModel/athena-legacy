@@ -202,9 +202,6 @@ snit::type frcgroup {
                        $local);
             }
 
-            # NEXT, notify the app.
-            notifier send ::frcgroup <Entity> create $g
-
             # NEXT, Return the undo command
             return [mytypemethod mutate delete $g]
         }
@@ -227,9 +224,6 @@ snit::type frcgroup {
             DELETE FROM frcgroups WHERE g=$g;
         }
 
-        # NEXT, notify the app
-        notifier send ::frcgroup <Entity> delete $g
-
         # NEXT, Return the undo script
         return [mytypemethod Restore [array get row1] [array get row2]]
     }
@@ -244,7 +238,6 @@ snit::type frcgroup {
     typemethod Restore {gdict fdict} {
         rdb insert groups    $gdict
         rdb insert frcgroups $fdict
-        notifier send ::frcgroup <Entity> create [dict get $gdict g]
     }
 
     # mutate update parmdict
@@ -296,9 +289,6 @@ snit::type frcgroup {
                     local     = nonempty($local,     local)
                 WHERE g=$g
             } {}
-
-            # NEXT, notify the app.
-            notifier send ::frcgroup <Entity> update $g
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]

@@ -63,27 +63,6 @@ SHIA  SHIA  1.0
     }
 
 
-    test reconcile-1.2 {<Entity> create} -setup {
-        ted create NB1 BLUE USAID SHIA
-    } -body {
-        ted notifier bind ::rel <Entity>
-        rel mutate reconcile
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rel <Entity> create {BLUE BLUE}}
-        {::rel <Entity> create {BLUE USAID}}
-        {::rel <Entity> create {BLUE SHIA}}
-        {::rel <Entity> create {USAID BLUE}}
-        {::rel <Entity> create {USAID USAID}}
-        {::rel <Entity> create {USAID SHIA}}
-        {::rel <Entity> create {SHIA BLUE}}
-        {::rel <Entity> create {SHIA USAID}}
-        {::rel <Entity> create {SHIA SHIA}}
-    }
-
-
     test reconcile-1.3 {Created curves are undone} -setup {
         ted create NB1 BLUE USAID SHIA
         set undo [rel mutate reconcile]
@@ -95,28 +74,6 @@ SHIA  SHIA  1.0
     } -result {}
     
 
-    test reconcile-1.4 {On undo: <Entity> delete} -setup {
-        ted create NB1 BLUE USAID SHIA
-        set undo [rel mutate reconcile]
-    } -body {
-        ted notifier bind ::rel <Entity>
-        eval $undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rel <Entity> delete {BLUE BLUE}}
-        {::rel <Entity> delete {BLUE USAID}}
-        {::rel <Entity> delete {BLUE SHIA}}
-        {::rel <Entity> delete {USAID BLUE}}
-        {::rel <Entity> delete {USAID USAID}}
-        {::rel <Entity> delete {USAID SHIA}}
-        {::rel <Entity> delete {SHIA BLUE}}
-        {::rel <Entity> delete {SHIA USAID}}
-        {::rel <Entity> delete {SHIA SHIA}}
-    }
-
-    
     test reconcile-2.1 {relationships deleted with group} -setup {
         ted create NB1 BLUE USAID SHIA
         rel mutate reconcile
@@ -136,26 +93,6 @@ USAID SHIA  0.0
 SHIA  USAID 0.0 
 SHIA  SHIA  1.0 
     }
-
-    test reconcile-2.2 {<Entity> Delete} -setup {
-        ted create NB1 BLUE USAID SHIA
-        rel mutate reconcile
-    } -body {
-        orggroup mutate delete USAID
-
-        ted notifier bind ::rel <Entity>
-        rel mutate reconcile
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rel <Entity> delete {BLUE USAID}}
-        {::rel <Entity> delete {USAID BLUE}}
-        {::rel <Entity> delete {USAID USAID}}
-        {::rel <Entity> delete {USAID SHIA}}
-        {::rel <Entity> delete {SHIA USAID}}
-    }
-
 
     test reconcile-2.3 {On undo: deleted relationships are restored} -setup {
         # FIRST, create the groups and relationships
@@ -188,43 +125,6 @@ SHIA  BLUE  0.0
 SHIA  USAID 0.0 
 SHIA  SHIA  1.0 
     }
-
-
-    test reconcile-2.4 {On undo: <Entity> create} -setup {
-        # FIRST, create the groups and relationships
-        ted create NB1 BLUE USAID SHIA
-        rel mutate reconcile
-
-        # NEXT, delete the groups and relationships, and get the
-        # undo script.
-        civgroup mutate delete SHIA
-
-        set undo [rel mutate reconcile]
-    } -body {
-        ted notifier bind ::rel <Entity>
-        eval $undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rel <Entity> create {BLUE SHIA}}
-        {::rel <Entity> create {USAID SHIA}}
-        {::rel <Entity> create {SHIA BLUE}}
-        {::rel <Entity> create {SHIA USAID}}
-        {::rel <Entity> create {SHIA SHIA}}
-    }
-
-
-    test reconcile-3.1 {Reconcile doesn't affect valid rows} -setup {
-        ted create NB1 BLUE USAID SHIA
-        rel mutate reconcile
-    } -body {
-        ted notifier bind ::rel <Entity>
-        rel mutate reconcile
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {}
 
 
     #-------------------------------------------------------------------
@@ -294,23 +194,6 @@ BRIT BRIT 1.0
     } -result {1}
 
 
-    test update-1.4 {<Entity> update} -setup {
-        ted create BLUE BRIT
-        rel mutate reconcile
-    } -body {
-        ted notifier bind ::rel <Entity>
-        rel mutate update  {
-            id   {BLUE BRIT}
-            rel  ""
-        }
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rel <Entity> update {BLUE BRIT}}
-    }
-
-
     test update-2.1 {undo undoes the change} -setup {
         ted create BLUE BRIT
         rel mutate reconcile
@@ -332,24 +215,6 @@ BRIT BRIT 1.0
         cleanup
     } -result {1}
 
-
-    test update-2.2 {undo sends <Entity> update} -setup {
-        ted create BLUE BRIT
-        rel mutate reconcile
-    } -body {
-        set undo [rel mutate update {
-            id   {BLUE BRIT}
-            rel  ""
-        }]
-
-        ted notifier bind ::rel <Entity>
-        eval $undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rel <Entity> update {BLUE BRIT}}
-    }
 
     #-------------------------------------------------------------------
     # exists

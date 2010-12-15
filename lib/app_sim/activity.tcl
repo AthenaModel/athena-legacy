@@ -741,9 +741,6 @@ snit::type activity {
             lappend undo [mytypemethod mutate delete $cid]
             lappend undo [$type mutate priority $cid $priority]
 
-            # NEXT, notify the app.
-            notifier send ::activity <Entity> create $cid
-
             # NEXT, Return the undo command
             return [join $undo \n]
         }
@@ -769,9 +766,6 @@ snit::type activity {
             WHERE cid=$cid;
         }
 
-        # NEXT, notify the app
-        notifier send ::activity <Entity> delete $cid
-
         # NEXT, Return the undo script
         return [join $undo \n]
     }
@@ -784,8 +778,6 @@ snit::type activity {
 
     typemethod Restore {dict} {
         rdb insert calendar $dict
-
-        notifier send ::activity <Entity> create [dict get $dict cid]
     }
 
     # mutate update parmdict
@@ -829,9 +821,6 @@ snit::type activity {
                 WHERE cid=$cid
             } {}
 
-            # NEXT, notify the app.
-            notifier send ::activity <Entity> update $cid
-
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get row]]
         }
@@ -873,9 +862,6 @@ snit::type activity {
             }
             incr prio
         }
-
-        # NEXT, notify the app
-        notifier send ::activity <Entity> priority
         
         # NEXT, return the undo script
         return [mytypemethod RestorePriority $oldRanking]
@@ -896,9 +882,6 @@ snit::type activity {
                 WHERE cid=$id
             }
         }
-
-        # NEXT, notify the app
-        notifier send ::activity <Entity> priority
     }
 
     #-------------------------------------------------------------------

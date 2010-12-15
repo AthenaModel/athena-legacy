@@ -90,8 +90,6 @@ snit::type nbrel {
                     DELETE FROM nbrel_mn
                     WHERE m=$row(m) AND n=$row(n)
                 }
-
-                notifier send ::nbrel <Entity> delete $id
             }
         }
 
@@ -117,8 +115,6 @@ snit::type nbrel {
             }
 
             lappend undo [mytypemethod Delete $m $n]
-
-            notifier send ::nbrel <Entity> create $id
         }
 
         # NEXT, return the undo script
@@ -134,9 +130,6 @@ snit::type nbrel {
 
     typemethod Restore {parmdict} {
         rdb insert nbrel_mn $parmdict
-        dict with parmdict {
-            notifier send ::nbrel <Entity> create [list $m $n]
-        }
     }
 
 
@@ -150,8 +143,6 @@ snit::type nbrel {
         rdb eval {
             DELETE FROM nbrel_mn WHERE m=$m AND n=$n
         }
-
-        notifier send ::nbrel <Entity> delete [list $m $n]
     }
 
 
@@ -187,9 +178,6 @@ snit::type nbrel {
                     effects_delay = nonempty($effects_delay, effects_delay)
                 WHERE m=$m AND n=$n
             } {}
-
-            # NEXT, notify the app.
-            notifier send ::nbrel <Entity> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]

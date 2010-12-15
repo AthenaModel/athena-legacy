@@ -104,7 +104,8 @@ snit::widgetadaptor frcgroupbrowser {
         pack $deletebtn -side right
 
         # NEXT, update individual entities when they change.
-        notifier bind ::frcgroup <Entity> $self [mymethod uid]
+        notifier bind ::rdb <groups>    $self [mymethod uid]
+        notifier bind ::rdb <frcgroups> $self [mymethod uid]
     }
 
     destructor {

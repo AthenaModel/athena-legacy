@@ -76,7 +76,7 @@ snit::widgetadaptor relbrowser {
         pack $editbtn   -side left
 
         # NEXT, update individual entities when they change.
-        notifier bind ::rel <Entity> $self [mymethod uid]
+        notifier bind ::rdb <rel_fg> $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------

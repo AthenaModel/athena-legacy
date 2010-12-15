@@ -49,17 +49,6 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
     }
 
 
-    test create-1.2 {<Entity> create} -body {
-        ted notifier bind ::civgroup <Entity>
-        civgroup mutate create [ted entity SHIA]
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::civgroup <Entity> create SHIA}
-    }
-
-
     test create-2.1 {undo deletes the civgroup} -setup {
         civgroup mutate create [ted entity SHIA]
         set undo [civgroup mutate create [ted entity SUNN]]
@@ -70,18 +59,6 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
         cleanup
     } -result {SHIA}
 
-
-    test create-2.2 {On undo, <Entity> delete} -setup {
-        set undo [civgroup mutate create [ted entity SHIA]]
-    } -body {
-        ted notifier bind ::civgroup <Entity>
-        {*}$undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::civgroup <Entity> delete SHIA}
-    }
 
     #-------------------------------------------------------------------
     # mutate delete
@@ -98,19 +75,6 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
     } -result {SUNN}
 
 
-    test delete-1.2 {<Entity> delete} -setup {
-        ted create SHIA
-    } -body {
-        ted notifier bind ::civgroup <Entity>
-        civgroup mutate delete SHIA
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::civgroup <Entity> delete SHIA}
-    }
-
-
     test delete-2.1 {Undo restores group} -setup {
         ted create SHIA
         set undo [civgroup mutate delete SHIA]
@@ -125,19 +89,6 @@ g    longname color   shape   symbol   demeanor gtype n   basepop sap
 SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10  
     }
 
-
-    test delete-2.2 {On undo, <Entity> create} -setup {
-        ted create SHIA
-        set undo [civgroup mutate delete SHIA]
-    } -body {
-        ted notifier bind ::civgroup <Entity>
-        {*}$undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::civgroup <Entity> create SHIA}
-    }
 
     #-------------------------------------------------------------------
     # mutate update
@@ -197,23 +148,6 @@ SHIA Shia Folk #ff0000 FRIEND civilian AVERAGE  CIV   NB1 1000    10
     } -result {1}
 
 
-    test update-1.4 {<Entity> update} -setup {
-        ted create SHIA
-    } -body {
-        ted notifier bind ::civgroup <Entity>
-        civgroup mutate update  {
-            g            SHIA
-            longname     ""
-            color        ""
-        }
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::civgroup <Entity> update SHIA}
-    }
-
-
     test update-2.1 {undo undoes the change} -setup {
         ted create SHIA
     } -body {
@@ -234,24 +168,6 @@ SHIA Shia Folk #ff0000 FRIEND civilian AVERAGE  CIV   NB1 1000    10
     } -cleanup {
         cleanup
     } -result {1}
-
-    test update-2.2 {undo sends <Entity> update} -setup {
-        ted create SHIA
-    } -body {
-        set undo [civgroup mutate update {
-            g            SHIA
-            longname     ""
-            color        ""
-        }]
-
-        ted notifier bind ::civgroup <Entity>
-        {*}$undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::civgroup <Entity> update SHIA}
-    }
 
     #-------------------------------------------------------------------
     # mutate reconcile

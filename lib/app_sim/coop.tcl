@@ -136,8 +136,6 @@ snit::type coop {
                     DELETE FROM coop_fg
                     WHERE f=$row(f) AND g=$row(g)
                 }
-
-                notifier send ::coop <Entity> delete $id
             }
         }
 
@@ -155,8 +153,6 @@ snit::type coop {
             }
 
             lappend undo [mytypemethod Delete $f $g]
-
-            notifier send ::coop <Entity> create $id
         }
 
         # NEXT, return the undo script
@@ -172,9 +168,6 @@ snit::type coop {
 
     typemethod Restore {parmdict} {
         rdb insert coop_fg $parmdict
-        dict with parmdict {
-            notifier send ::coop <Entity> create [list $f $g]
-        }
     }
 
 
@@ -188,8 +181,6 @@ snit::type coop {
         rdb eval {
             DELETE FROM coop_fg WHERE f=$f AND g=$g
         }
-
-        notifier send ::coop <Entity> delete [list $f $g]
     }
 
 
@@ -231,9 +222,6 @@ snit::type coop {
                     dthresh  = nonempty($dthresh, dthresh)
                 WHERE f=$f AND g=$g
             } {}
-
-            # NEXT, notify the app.
-            notifier send ::coop <Entity> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]

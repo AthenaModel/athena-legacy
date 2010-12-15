@@ -138,16 +138,16 @@ SUNN BLUE 50.0  0.0    50.0    0.0    50.0
     }
 
 
-    test UPDATE-2.2 {<Entity> update} -setup {
+    test UPDATE-2.2 {<coop_fg> update} -setup {
         setup
     } -body {
-        ted notifier bind ::coop <Entity>
+        ted notifier bind ::rdb <coop_fg>
         ted order COOP:UPDATE id {SHIA BLUE} coop0 50.0
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {SHIA BLUE}}
+        {::rdb <coop_fg> update {SHIA BLUE}}
     }
 
 
@@ -163,13 +163,13 @@ SUNN BLUE 50.0  0.0    50.0    0.0    50.0
             dthresh 60
         }
     } -body {
-        ted notifier bind ::coop <Entity>
+        ted notifier bind ::rdb <coop_fg>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {SHIA BLUE}}
+        {::rdb <coop_fg> update {SHIA BLUE}}
     }
 
     #-------------------------------------------------------------------
@@ -260,7 +260,7 @@ SUNN BLUE 50.0  0.0    50.0    0.0    50.0
     test UPDATE:MULTI-2.1 {one cooperation of several is updated} -setup {
         setup
     } -body {
-        ted notifier bind ::coop <Entity>
+        ted notifier bind ::rdb <coop_fg>
 
         ted order COOP:UPDATE:MULTI {
             ids       {{SHIA BLUE}}
@@ -275,7 +275,7 @@ SUNN BLUE 50.0  0.0    50.0    0.0    50.0
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {SHIA BLUE}}
+        {::rdb <coop_fg> update {SHIA BLUE}}
     }
 
 
@@ -283,7 +283,7 @@ SUNN BLUE 50.0  0.0    50.0    0.0    50.0
         setup
         coop mutate reconcile
     } -body {
-        ted notifier bind ::coop <Entity>
+        ted notifier bind ::rdb <coop_fg>
         ted order COOP:UPDATE:MULTI {
             ids       {{SHIA BLUE} {SUNN BLUE}} 
             coop0     40.0
@@ -296,8 +296,8 @@ SUNN BLUE 50.0  0.0    50.0    0.0    50.0
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {SHIA BLUE}}
-        {::coop <Entity> update {SUNN BLUE}}
+        {::rdb <coop_fg> update {SHIA BLUE}}
+        {::rdb <coop_fg> update {SUNN BLUE}}
     }
 
 
@@ -314,14 +314,14 @@ SUNN BLUE 50.0  0.0    50.0    0.0    50.0
             dthresh   60
         }
     } -body {
-        ted notifier bind ::coop <Entity>
+        ted notifier bind ::rdb <coop_fg>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::coop <Entity> update {SHIA BLUE}}
-        {::coop <Entity> update {SUNN BLUE}}
+        {::rdb <coop_fg> update {SHIA BLUE}}
+        {::rdb <coop_fg> update {SUNN BLUE}}
     }
 
 

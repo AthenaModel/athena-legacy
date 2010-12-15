@@ -49,17 +49,6 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
     }
 
 
-    test create-1.2 {<Entity> create} -body {
-        ted notifier bind ::frcgroup <Entity>
-        frcgroup mutate create [ted entity BLUE]
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::frcgroup <Entity> create BLUE}
-    }
-
-
     test create-3.1 {undo deletes the frcgroup} -setup {
         frcgroup mutate create [ted entity BLUE]
         set undo [frcgroup mutate create [ted entity BRIT]]
@@ -70,18 +59,6 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
         cleanup
     } -result {BLUE}
 
-
-    test create-3.2 {On undo, <Entity> delete} -setup {
-        set undo [frcgroup mutate create [ted entity BLUE]]
-    } -body {
-        ted notifier bind ::frcgroup <Entity>
-        {*}$undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::frcgroup <Entity> delete BLUE}
-    }
 
     #-------------------------------------------------------------------
     # mutate delete
@@ -98,19 +75,6 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
     } -result {BRIT}
 
 
-    test delete-1.2 {<Entity> delete} -setup {
-        ted create BLUE
-    } -body {
-        ted notifier bind ::frcgroup <Entity>
-        frcgroup mutate delete BLUE
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::frcgroup <Entity> delete BLUE}
-    }
-
-
     test delete-2.1 {Undo restores group} -setup {
         ted create BLUE
         set undo [frcgroup mutate delete BLUE]
@@ -125,19 +89,6 @@ g    longname color   shape  symbol   demeanor gtype forcetype uniformed local
 BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0     
     }
 
-
-    test delete-2.2 {On undo, <Entity> create} -setup {
-        ted create BLUE
-        set undo [frcgroup mutate delete BLUE]
-    } -body {
-        ted notifier bind ::frcgroup <Entity>
-        {*}$undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::frcgroup <Entity> create BLUE}
-    }
 
     #-------------------------------------------------------------------
     # mutate update
@@ -205,27 +156,6 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
     } -result {1}
 
 
-    test update-1.4 {<Entity> update} -setup {
-        ted create BLUE
-    } -body {
-        ted notifier bind ::frcgroup <Entity>
-        frcgroup mutate update  {
-            g            BLUE
-            longname     ""
-            color        ""
-            forcetype    ""
-            demeanor     ""
-            uniformed    ""
-            local        ""
-        }
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::frcgroup <Entity> update BLUE}
-    }
-
-
     test update-2.1 {undo undoes the change} -setup {
         ted create BLUE
     } -body {
@@ -250,29 +180,6 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
     } -cleanup {
         cleanup
     } -result {1}
-
-    test update-2.2 {undo sends <Entity> update} -setup {
-        ted create BLUE
-    } -body {
-        set undo [frcgroup mutate update {
-            g            BLUE
-            longname     "Blue Angels"
-            color        ""
-            forcetype    ""
-            demeanor     ""
-            uniformed    ""
-            local        ""
-        }]
-
-        ted notifier bind ::frcgroup <Entity>
-        {*}$undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::frcgroup <Entity> update BLUE}
-    }
-
 
     #-------------------------------------------------------------------
     # names

@@ -49,17 +49,6 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO
     }
 
 
-    test create-1.2 {<Entity> create} -body {
-        ted notifier bind ::orggroup <Entity>
-        orggroup mutate create [ted entity USAID]
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::orggroup <Entity> create USAID}
-    }
-
-
     test create-2.1 {undo deletes the orggroup} -setup {
         orggroup mutate create [ted entity USAID]
         set undo [orggroup mutate create [ted entity HAL]]
@@ -70,18 +59,6 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO
         cleanup
     } -result {USAID}
 
-
-    test create-2.2 {On undo, <Entity> delete} -setup {
-        set undo [orggroup mutate create [ted entity USAID]]
-    } -body {
-        ted notifier bind ::orggroup <Entity>
-        {*}$undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::orggroup <Entity> delete USAID}
-    }
 
     #-------------------------------------------------------------------
     # mutate delete
@@ -98,19 +75,6 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO
     } -result {HAL}
 
 
-    test delete-1.2 {<Entity> delete} -setup {
-        ted create USAID
-    } -body {
-        ted notifier bind ::orggroup <Entity>
-        orggroup mutate delete USAID
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::orggroup <Entity> delete USAID}
-    }
-
-
     test delete-2.1 {Undo restores group} -setup {
         ted create USAID
         set undo [orggroup mutate delete USAID]
@@ -125,19 +89,6 @@ g     longname color   shape   symbol       demeanor gtype orgtype
 USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO     
     }
 
-
-    test delete-2.2 {On undo, <Entity> create} -setup {
-        ted create USAID
-        set undo [orggroup mutate delete USAID]
-    } -body {
-        ted notifier bind ::orggroup <Entity>
-        {*}$undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::orggroup <Entity> create USAID}
-    }
 
     #-------------------------------------------------------------------
     # mutate update
@@ -202,26 +153,6 @@ USAID Red Cross #ff0000 FRIEND organization APATHETIC ORG   IGO
     } -result {1}
 
 
-    test update-1.4 {<Entity> update} -setup {
-        ted create USAID
-    } -body {
-        ted notifier bind ::orggroup <Entity>
-        orggroup mutate update  {
-            g              USAID
-            longname       ""
-            color          ""
-            shape          ""
-            orgtype        ""
-            demeanor       ""
-        }
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::orggroup <Entity> update USAID}
-    }
-
-
     test update-2.1 {undo undoes the change} -setup {
         ted create USAID
     } -body {
@@ -245,27 +176,6 @@ USAID Red Cross #ff0000 FRIEND organization APATHETIC ORG   IGO
     } -cleanup {
         cleanup
     } -result {1}
-
-    test update-2.2 {undo sends <Entity> update} -setup {
-        ted create USAID
-    } -body {
-        set undo [orggroup mutate update {
-            g              USAID
-            longname       ""
-            color          ""
-            shape          ""
-            orgtype        ""
-            demeanor       ""
-        }]
-
-        ted notifier bind ::orggroup <Entity>
-        {*}$undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::orggroup <Entity> update USAID}
-    }
 
 
     #-------------------------------------------------------------------

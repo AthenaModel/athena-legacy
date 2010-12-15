@@ -137,8 +137,6 @@ snit::type sat {
                     DELETE FROM sat_gc
                     WHERE g=$row(g) AND c=$row(c)
                 }
-
-                notifier send ::sat <Entity> delete $id
             }
         }
 
@@ -156,8 +154,6 @@ snit::type sat {
             }
 
             lappend undo [mytypemethod Delete $g $c]
-
-            notifier send ::sat <Entity> create $id
         }
 
         # NEXT, return the undo script
@@ -172,9 +168,6 @@ snit::type sat {
 
     typemethod Restore {parmdict} {
         rdb insert sat_gc $parmdict
-        dict with parmdict {
-            notifier send ::sat <Entity> create [list $g $c]
-        }
     }
 
     # Delete g c
@@ -187,8 +180,6 @@ snit::type sat {
         rdb eval {
             DELETE FROM sat_gc WHERE g=$g AND c=$c
         }
-
-        notifier send ::sat <Entity> delete [list $g $c]
     }
 
 
@@ -232,9 +223,6 @@ snit::type sat {
                     dthresh  = nonempty($dthresh,  dthresh)
                 WHERE g=$g AND c=$c
             } {}
-
-            # NEXT, notify the app.
-            notifier send ::sat <Entity> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]

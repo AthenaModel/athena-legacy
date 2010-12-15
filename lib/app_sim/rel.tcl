@@ -106,8 +106,6 @@ snit::type rel {
                     DELETE FROM rel_fg
                     WHERE f=$row(f) AND g=$row(g)
                 }
-
-                notifier send ::rel <Entity> delete $id
             }
         }
 
@@ -135,8 +133,6 @@ snit::type rel {
             }
 
             lappend undo [mytypemethod Delete $f $g]
-
-            notifier send ::rel <Entity> create $id
         }
 
         # NEXT, return the undo script
@@ -152,9 +148,6 @@ snit::type rel {
 
     typemethod Restore {parmdict} {
         rdb insert rel_fg $parmdict
-        dict with parmdict {
-            notifier send ::rel <Entity> create [list $f $g]
-        }
     }
 
 
@@ -168,8 +161,6 @@ snit::type rel {
         rdb eval {
             DELETE FROM rel_fg WHERE f=$f AND g=$g
         }
-
-        notifier send ::rel <Entity> delete [list $f $g]
     }
 
 
@@ -203,9 +194,6 @@ snit::type rel {
                 SET rel = nonempty($rel, rel)
                 WHERE f=$f AND g=$g
             } {}
-
-            # NEXT, notify the app.
-            notifier send ::rel <Entity> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]

@@ -74,7 +74,7 @@ snit::widgetadaptor defroebrowser {
         pack $editbtn   -side left
 
         # NEXT, update individual entities when they change.
-        notifier bind ::defroe <Entity> $self [mymethod uid]
+        notifier bind ::rdb <defroe_ng> $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------

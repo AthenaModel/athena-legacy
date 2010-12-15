@@ -47,6 +47,7 @@ snit::widgetadaptor nbcoopbrowser {
 
     constructor {args} {
         # FIRST, Install the hull
+        # TBD: the binding to ::rdb <coop_fg> might not be needed.
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
             -view         gui_coop_ng                 \
@@ -55,7 +56,7 @@ snit::widgetadaptor nbcoopbrowser {
             -reloadon {
                 ::sim <DbSyncB>
                 ::sim <Tick>
-                ::coop <Entity>
+                ::rdb <coop_fg>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.

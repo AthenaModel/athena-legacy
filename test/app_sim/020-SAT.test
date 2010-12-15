@@ -178,13 +178,13 @@ SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0
     test UPDATE-2.2 {<Entity> update} -setup {
         setup
     } -body {
-        ted notifier bind ::sat <Entity>
+        ted notifier bind ::rdb <sat_gc>
         ted order SAT:UPDATE id {SHIA SFT} sat0 4.0
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {SHIA SFT}}
+        {::rdb <sat_gc> update {SHIA SFT}}
     }
 
 
@@ -201,13 +201,13 @@ SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0
             dthresh        10
         }
     } -body {
-        ted notifier bind ::sat <Entity>
+        ted notifier bind ::rdb <sat_gc>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {SHIA SFT}}
+        {::rdb <sat_gc> update {SHIA SFT}}
     }
 
     #-------------------------------------------------------------------
@@ -338,7 +338,7 @@ SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0
     test UPDATE:MULTI-2.1 {one curve of several is updated} -setup {
         setup
     } -body {
-        ted notifier bind ::sat <Entity>
+        ted notifier bind ::rdb <sat_gc>
 
         ted order SAT:UPDATE:MULTI {
             ids       {{SHIA SFT}}
@@ -354,14 +354,14 @@ SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {SHIA SFT}}
+        {::rdb <sat_gc> update {SHIA SFT}}
     }
 
 
     test UPDATE:MULTI-2.2 {several curves are updated} -setup {
         setup
     } -body {
-        ted notifier bind ::sat <Entity>
+        ted notifier bind ::rdb <sat_gc>
         ted order SAT:UPDATE:MULTI {
             ids   {{SHIA SFT} {SHIA CUL}} 
             sat0  4.0
@@ -370,8 +370,8 @@ SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {SHIA SFT}}
-        {::sat <Entity> update {SHIA CUL}}
+        {::rdb <sat_gc> update {SHIA SFT}}
+        {::rdb <sat_gc> update {SHIA CUL}}
     }
 
 
@@ -388,14 +388,14 @@ SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0
             dthresh    10
         }
     } -body {
-        ted notifier bind ::sat <Entity>
+        ted notifier bind ::rdb <sat_gc>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::sat <Entity> update {SHIA SFT}}
-        {::sat <Entity> update {SHIA CUL}}
+        {::rdb <sat_gc> update {SHIA SFT}}
+        {::rdb <sat_gc> update {SHIA CUL}}
     }
 
 

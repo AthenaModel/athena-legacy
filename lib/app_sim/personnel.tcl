@@ -104,9 +104,6 @@ snit::type personnel {
             VALUES($n,$g)
         }
 
-        # NEXT, notify the app.
-        notifier send ::personnel <Entity> create [list $n $g]
-
         # NEXT, Return the undo command
         set undo [list]
         lappend undo [mytypemethod mutate delete $n $g]
@@ -131,9 +128,6 @@ snit::type personnel {
             DELETE FROM personnel_ng WHERE n=$n AND g=$g;
         }
 
-        # NEXT, notify the app.
-        notifier send ::personnel <Entity> delete [list $n $g]
-
         # NEXT, Return the undo script
         return [mytypemethod Restore [array get row]]
     }
@@ -146,10 +140,6 @@ snit::type personnel {
 
     typemethod Restore {parmdict} {
         rdb insert personnel_ng $parmdict
-
-        dict with parmdict {
-            notifier send ::personnel <Entity> create [list $n $g]
-        }
     }
 
     # mutate set parmdict
@@ -182,9 +172,6 @@ snit::type personnel {
                 SET personnel = nonempty($personnel, personnel)
                 WHERE n=$n AND g=$g
             } {}
-
-            # NEXT, notify the app.
-            notifier send ::personnel <Entity> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod mutate set [array get undoData]]
@@ -221,9 +208,6 @@ snit::type personnel {
                 SET personnel = $newPersonnel
                 WHERE n=$n AND g=$g
             } {}
-
-            # NEXT, notify the app.
-            notifier send ::personnel <Entity> update $id
 
             # NEXT, Return the undo command
             return [mytypemethod mutate adjust \

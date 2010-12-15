@@ -117,20 +117,6 @@ BLUE-NB1/0991 0         0
     } -result {USAID-NB2/0000}
 
 
-    test delete-1.2 {<Entity> delete} -setup {
-        ted create NB1 BLUE
-        unit create $u1
-    } -body {
-        ted notifier bind ::unit <Entity>
-        unit mutate delete BLUE-NB1/0991
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::unit <Entity> delete BLUE-NB1/0991}
-    }
-
-
     test delete-2.1 {Undo restores unit} -setup {
         ted create NB1 BLUE
         unit create $u1
@@ -144,20 +130,6 @@ BLUE-NB1/0991 0         0
     } -cleanup {
         cleanup
     } -result {1}
-
-    test delete-2.2 {On undo, <Entity> create} -setup {
-        ted create NB1 BLUE
-        unit create $u1
-        set undo [unit mutate delete BLUE-NB1/0991]
-    } -body {
-        ted notifier bind ::unit <Entity>
-        {*}$undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::unit <Entity> create BLUE-NB1/0991}
-    }
 
     #-------------------------------------------------------------------
     # mutate move
@@ -178,20 +150,6 @@ BLUE-NB1/0991 2 2
     }
 
 
-    test move-1.2 {<Entity> update} -setup {
-        ted create NB1 BLUE
-        unit create $u1
-    } -body {
-        ted notifier bind ::unit <Entity>
-        unit mutate move BLUE-NB1/0991 {3 3}
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::unit <Entity> update BLUE-NB1/0991}
-    }
-
-
     test move-2.1 {undo undoes the change} -setup {
         ted create NB1 BLUE
         unit create $u1
@@ -206,22 +164,6 @@ BLUE-NB1/0991 2 2
     } -cleanup {
         cleanup
     } -result {1}
-
-
-    test move-2.2 {undo sends <Entity> update} -setup {
-        ted create NB1 BLUE
-        unit create $u1
-    } -body {
-        set undo [unit mutate move BLUE-NB1/0991 {3 3}]
-
-        ted notifier bind ::unit <Entity>
-        namespace eval :: $undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::unit <Entity> update BLUE-NB1/0991}
-    }
 
 
     #-------------------------------------------------------------------
@@ -242,20 +184,6 @@ BLUE-NB1/0991 2 2
 u             personnel 
 ------------- --------- 
 BLUE-NB1/0991 3         
-    }
-
-
-    test personnel-1.2 {<Entity> update} -setup {
-        ted create NB1 BLUE
-        unit create $u1
-    } -body {
-        ted notifier bind ::unit <Entity>
-        unit mutate personnel  BLUE-NB1/0991 25
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::unit <Entity> update BLUE-NB1/0991}
     }
 
 
@@ -292,22 +220,6 @@ BLUE-NB1/0991 3         1
     } -cleanup {
         cleanup
     } -result {1}
-
-    test personnel-2.2 {undo sends <Entity> update} -setup {
-        ted create NB1 BLUE
-        unit create $u1
-    } -body {
-        set undo [unit mutate personnel BLUE-NB1/0991 25]
-
-        ted notifier bind ::unit <Entity>
-        namespace eval :: $undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::unit <Entity> update BLUE-NB1/0991}
-    }
-
 
     #-------------------------------------------------------------------
     # names
