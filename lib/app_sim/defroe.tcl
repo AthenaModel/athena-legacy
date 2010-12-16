@@ -155,14 +155,9 @@ snit::type ::defroe {
         # FIRST, use the dict
         dict with parmdict {
             lassign $id n g
+
             # FIRST, get the undo information
-            rdb eval {
-                SELECT * FROM defroe_ng
-                WHERE n=$n AND g=$g
-            } undoData {
-                unset undoData(*)
-                set undoData(id) $id
-            }
+            set data [rdb grab defroe_ng {n=$n AND g=$g}]
 
             # NEXT, Update the group
             rdb eval {
@@ -172,7 +167,7 @@ snit::type ::defroe {
             } {}
 
             # NEXT, Return the undo command
-            return [mytypemethod mutate update [array get undoData]]
+            return [list rdb ungrab $data]
         }
     }
 }

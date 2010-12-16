@@ -409,12 +409,7 @@ snit::type econ {
         # FIRST, use the dict
         dict with parmdict {
             # FIRST, get the undo information
-            rdb eval {
-                SELECT * FROM econ_n
-                WHERE n=$n
-            } undoData {
-                unset undoData(*)
-            }
+            set data [rdb grab econ_n {n=$n}]
 
             # NEXT, Update the group
             rdb eval {
@@ -428,7 +423,7 @@ snit::type econ {
             } {}
 
             # NEXT, Return the undo command
-            return [mytypemethod mutate update [array get undoData]]
+            return [list rdb ungrab $data]
         }
     }
 

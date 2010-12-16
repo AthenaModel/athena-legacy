@@ -118,28 +118,11 @@ snit::type personnel {
     # Deletes the record, including all references.
 
     typemethod {mutate delete} {n g} {
-        # FIRST, get the undo information
-        rdb eval {SELECT * FROM personnel_ng WHERE n=$n AND g=$g} row {
-            unset row(*)
-        }
+        # FIRST, delete the record, grabbing the undo information
+        set data [rdb delete -grab personnel_ng {n=$n AND g=$g}]
 
-        # NEXT, delete it.
-        rdb eval {
-            DELETE FROM personnel_ng WHERE n=$n AND g=$g;
-        }
-
-        # NEXT, Return the undo script
-        return [mytypemethod Restore [array get row]]
-    }
-
-    # Restore parmdict
-    #
-    # parmdict     row dict for deleted entity
-    #
-    # Restores the entity in the database
-
-    typemethod Restore {parmdict} {
-        rdb insert personnel_ng $parmdict
+        # NEXT, return the undo script
+        return [list rdb ungrab $data]
     }
 
     # mutate set parmdict
@@ -158,13 +141,7 @@ snit::type personnel {
             lassign $id n g
 
             # FIRST, get the undo information
-            rdb eval {
-                SELECT * FROM personnel_ng
-                WHERE n=$n AND g=$g
-            } undoData {
-                unset undoData(*)
-                set undoData(id) $id
-            }
+            set data [rdb grab personnel_ng {n=$n AND g=$g}]
 
             # NEXT, Update the group
             rdb eval {
@@ -174,7 +151,7 @@ snit::type personnel {
             } {}
 
             # NEXT, Return the undo command
-            return [mytypemethod mutate set [array get undoData]]
+            return [list rdb ungrab $data]
         }
     }
 

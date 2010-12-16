@@ -215,8 +215,7 @@ snit::type frcgroup {
 
     typemethod {mutate delete} {g} {
         # FIRST, get the undo information
-        rdb eval {SELECT * FROM groups    WHERE g=$g} row1 { unset row1(*) }
-        rdb eval {SELECT * FROM frcgroups WHERE g=$g} row2 { unset row2(*) }
+        set data [rdb grab groups {g=$g} frcgroups {g=$g}]
 
         # NEXT, delete it.
         rdb eval {
@@ -225,19 +224,7 @@ snit::type frcgroup {
         }
 
         # NEXT, Return the undo script
-        return [mytypemethod Restore [array get row1] [array get row2]]
-    }
-
-    # Restore gdict fdict
-    #
-    # gdict    row dict for deleted entity in groups
-    # fdict    row dict for deleted entity in frcgroups
-    #
-    # Restores the rows to the database
-
-    typemethod Restore {gdict fdict} {
-        rdb insert groups    $gdict
-        rdb insert frcgroups $fdict
+        return [list rdb ungrab $data]
     }
 
     # mutate update parmdict
@@ -259,12 +246,7 @@ snit::type frcgroup {
     typemethod {mutate update} {parmdict} {
         dict with parmdict {
             # FIRST, get the undo information
-            rdb eval {
-                SELECT * FROM frcgroups_view
-                WHERE g=$g
-            } undoData {
-                unset undoData(*)
-            }
+            set data [rdb grab groups {g=$g} frcgroups {g=$g}]
             
             # NEXT, get the new unit symbol, if need be.
             if {$forcetype ne ""} {
@@ -291,7 +273,7 @@ snit::type frcgroup {
             } {}
 
             # NEXT, Return the undo command
-            return [mytypemethod mutate update [array get undoData]]
+            return [list rdb ungrab $data]
         }
     }
 }

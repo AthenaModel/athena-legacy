@@ -176,30 +176,11 @@ snit::type civgroup {
 
     typemethod {mutate delete} {g} {
         # FIRST, get the undo information
-        set data [rdb grab groups {g=$g} civgroups {g=$g} demog_g {g=$g}]
-
-        # NEXT, delete it.
-        rdb eval {
-            DELETE FROM groups    WHERE g=$g;
-            DELETE FROM civgroups WHERE g=$g;
-            DELETE FROM demog_g   WHERE g=$g;
-        }
+        set data [rdb delete -grab \
+                      groups {g=$g} civgroups {g=$g} demog_g {g=$g}]
 
         # NEXT, Return the undo script
-        return [mytypemethod Restore $g create $data]
-    }
-
-
-    # Restore g op data
-    #
-    # g      - A group name
-    # op     - Operation: create | delete
-    # data   - A "grab" data set to be restored.
-    #
-    # Restores the data to the database.
-
-    typemethod Restore {g op data} {
-        rdb ungrab $data
+        return [list rdb ungrab $data]
     }
 
 
@@ -242,7 +223,7 @@ snit::type civgroup {
             } {}
 
             # NEXT, Return the undo command
-            return [mytypemethod Restore $g update $data]
+            return [list rdb ungrab $data]
         }
     }
 

@@ -204,13 +204,7 @@ snit::type sat {
             lassign $id g c
 
             # FIRST, get the undo information
-            rdb eval {
-                SELECT * FROM sat_gc
-                WHERE g=$g AND c=$c
-            } undoData {
-                unset undoData(*)
-                set undoData(id) $id
-            }
+            set data [rdb grab sat_gc {g=$g AND c=$c}]
 
             # NEXT, Update the group
             rdb eval {
@@ -225,7 +219,7 @@ snit::type sat {
             } {}
 
             # NEXT, Return the undo command
-            return [mytypemethod mutate update [array get undoData]]
+            return [list rdb ungrab $data]
         }
     }
 

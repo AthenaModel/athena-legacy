@@ -256,32 +256,12 @@ snit::type nbhood {
     # Deletes the neighborhood, including all references.
 
     typemethod {mutate delete} {n} {
-        # FIRST, get this neighborhood's undo information
-        rdb eval {
-            SELECT * FROM nbhoods WHERE n=$n
-        } row1 {
-            unset row1(*)
-        }
+        # FIRST, get this neighborhood's undo information and
+        # delete the relevant records.
+        set data [rdb delete -grab \
+                      nbhoods {n=$n} demog_n {n=$n} econ_n {n=$n}]
 
-        rdb eval {
-            SELECT * FROM demog_n WHERE n=$n
-        } row2 {
-            unset row2(*)
-        }
-
-        rdb eval {
-            SELECT * FROM econ_n WHERE n=$n
-        } row3 {
-            unset row3(*)
-        }
-
-        # FIRST, delete it.
-        rdb eval {
-            DELETE FROM nbhoods WHERE n=$n;
-            DELETE FROM demog_n WHERE n=$n;
-            DELETE FROM econ_n  WHERE n=$n;
-        }
-
+        # NEXT, update the $geo module
         $geo delete $n
 
         # NEXT, recompute the obscured_by field; this nbhood might
@@ -289,23 +269,18 @@ snit::type nbhood {
         $type SetObscuredBy
 
         # NEXT, return aggregate undo script.
-        return [mytypemethod Restore \
-                    [array get row1] [array get row2] [array get row3]]
+        return [mytypemethod Restore $data]
     }
 
-    # Restore parmdict1 parmdict2 parmdict3
+    # Restore grabData
     #
-    # parmdict1    A complete nbhoods row, to be restored as is.
-    # parmdict2    A complete demog_n row, to be restored as is.
-    # parmdict3    A complete econ_n row, to be restored as is.
+    # grabData     nbhoods, demog_n, and econ_n rows to be restored.
     #
     # Restores a neighborhood.
 
-    typemethod Restore {parmdict1 parmdict2 parmdict3} {
-        # FIRST, restore the database row
-        rdb insert nbhoods $parmdict1
-        rdb insert demog_n $parmdict2
-        rdb insert econ_n  $parmdict3
+    typemethod Restore {grabData} {
+        # FIRST, restore the database rows
+        rdb ungrab $grabData
 
         # NEXT, resync with the RDB: this will update the geoset and the 
         # stacking order, as well as the demog_n and econ_n changes.

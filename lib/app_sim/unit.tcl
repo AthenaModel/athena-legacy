@@ -182,26 +182,11 @@ snit::type unit {
     # Deletes the unit.
 
     typemethod {mutate delete} {u} {
-        # FIRST, get the undo information
-        rdb eval {SELECT * FROM units WHERE u=$u} row { unset row(*) }
-
-        # NEXT, delete it.
-        rdb eval {
-            DELETE FROM units WHERE u=$u;
-        }
+        # FIRST, delete the unit, grabbing the undo information
+        set data [rdb delete -grab units {u=$u}]
 
         # NEXT, Return the undo script
-        return [mytypemethod Restore [array get row]]
-    }
-
-    # Restore udict
-    #
-    # udict    row dict for deleted entity in units
-    #
-    # Restores the rows to the database
-
-    typemethod Restore {udict} {
-        rdb insert units $udict
+        return [list rdb ungrab $data]
     }
 
     # mutate move u location

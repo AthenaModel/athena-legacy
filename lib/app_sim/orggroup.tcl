@@ -126,19 +126,7 @@ snit::type orggroup {
         }
 
         # NEXT, Return the undo script
-        return [mytypemethod Restore $g create $data]
-    }
-
-    # Restore g op data
-    #
-    # g      - A group name
-    # op     - Operation: create | delete
-    # data   - A "grab" data set to be restored.
-    #
-    # Restores the data to the database, and notifies the GUI.
-
-    typemethod Restore {g op data} {
-        rdb ungrab $data
+        return [list rdb ungrab $data]
     }
 
     # mutate update parmdict
@@ -175,7 +163,7 @@ snit::type orggroup {
             } {}
 
             # NEXT, Return the undo command
-            return [mytypemethod Restore $g update $data]
+            return [list rdb ungrab $data]
         }
     }
 }

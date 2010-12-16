@@ -17,21 +17,6 @@ snit::type ::attroe {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Type Components
-
-    # TBD
-
-    #-------------------------------------------------------------------
-    # Type Variables
-
-    # TBD
-
-    #-------------------------------------------------------------------
-    # Initialization
-
-    # TBD: nothing to do
-
-    #-------------------------------------------------------------------
     # Queries
     #
     # These routines query information about the entities; they are
@@ -264,35 +249,14 @@ snit::type ::attroe {
     # Deletes the entry.
 
     typemethod {mutate delete} {id} {
-        # FIRST, get the undo information
+        # FIRST, delete the entity grabbing the undo information
         lassign $id n f g
-
-        rdb eval {
-            SELECT * FROM attroe_nfg WHERE n=$n AND f=$f AND g=$g
-        } row {
-            unset row(*)
-        }
-
-        # NEXT, delete it.
-        rdb eval {
-            DELETE FROM attroe_nfg WHERE n=$n AND f=$f AND g=$g;
-        }
+        
+        set data [rdb delete -grab attroe_nfg {n=$n AND f=$f AND g=$g}]
 
         # NEXT, Return the undo script
-        return [mytypemethod Restore [array get row]]
+        return [list rdb ungrab $data]
     }
-
-    # Restore parmdict
-    #
-    # parmdict     row dict for deleted entity
-    #
-    # Restores the entity in the database
-
-    typemethod Restore {parmdict} {
-        rdb insert attroe_nfg $parmdict
-    }
-
-
 
     # mutate update parmdict
     #
@@ -311,13 +275,7 @@ snit::type ::attroe {
         dict with parmdict {
             lassign $id n f g
             # FIRST, get the undo information
-            rdb eval {
-                SELECT * FROM attroe_nfg
-                WHERE n=$n AND f=$f AND g=$g
-            } undoData {
-                unset undoData(*)
-                set undoData(id) $id
-            }
+            set data [rdb grab attroe_nfg {n=$n AND f=$f AND g=$g}]
 
             # NEXT, Update the entry
             rdb eval {
@@ -329,7 +287,7 @@ snit::type ::attroe {
             } {}
 
             # NEXT, Return the undo command
-            return [mytypemethod mutate update [array get undoData]]
+            return [list rdb ungrab $data]
         }
     }
 }

@@ -163,13 +163,7 @@ snit::type nbrel {
             lassign $id m n
 
             # FIRST, get the undo information
-            rdb eval {
-                SELECT * FROM nbrel_mn
-                WHERE m=$m AND n=$n
-            } undoData {
-                unset undoData(*)
-                set undoData(id) $id
-            }
+            set data [rdb grab nbrel_mn {m=$m AND n=$n}]
 
             # NEXT, Update the group
             rdb eval {
@@ -177,10 +171,10 @@ snit::type nbrel {
                 SET proximity     = nonempty($proximity,     proximity),
                     effects_delay = nonempty($effects_delay, effects_delay)
                 WHERE m=$m AND n=$n
-            } {}
+            }
 
             # NEXT, Return the undo command
-            return [mytypemethod mutate update [array get undoData]]
+            return [list rdb ungrab $data]
         }
     }
 

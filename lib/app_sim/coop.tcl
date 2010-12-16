@@ -204,13 +204,7 @@ snit::type coop {
             lassign $id f g
 
             # FIRST, get the undo information
-            rdb eval {
-                SELECT * FROM coop_fg
-                WHERE f=$f AND g=$g
-            } undoData {
-                unset undoData(*)
-                set undoData(id) $id
-            }
+            set data [rdb grab coop_fg {f=$f AND g=$g}]
 
             # NEXT, Update the group
             rdb eval {
@@ -224,7 +218,7 @@ snit::type coop {
             } {}
 
             # NEXT, Return the undo command
-            return [mytypemethod mutate update [array get undoData]]
+            return [list rdb ungrab $data]
         }
     }
 }

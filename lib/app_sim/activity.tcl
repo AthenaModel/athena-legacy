@@ -753,31 +753,11 @@ snit::type activity {
     # Deletes the item
 
     typemethod {mutate delete} {cid} {
-        # FIRST, get the undo information
-        rdb eval {SELECT * FROM calendar WHERE cid=$cid} row { 
-            unset row(*) 
-        }
-
-        lappend undo [mytypemethod Restore [array get row]]
-
-        # NEXT, delete it.
-        rdb eval {
-            DELETE FROM calendar 
-            WHERE cid=$cid;
-        }
+        # FIRST, delete the item, grabbing the undo information
+        set data [rdb delete -grab calendar {cid=$cid}]
 
         # NEXT, Return the undo script
-        return [join $undo \n]
-    }
-
-    # Restore dict
-    #
-    # dict    row dict for deleted entity
-    #
-    # Restores the rows to the database
-
-    typemethod Restore {dict} {
-        rdb insert calendar $dict
+        return [list rdb ungrab $data]
     }
 
     # mutate update parmdict
@@ -797,32 +777,31 @@ snit::type activity {
         # FIRST, use the dict
         dict with parmdict {
             # FIRST, get the undo information
-            rdb eval {
-                SELECT * FROM calendar
-                WHERE cid=$cid
-            } row {
-                unset row(*)
-            }
+            set data [rdb grab calendar {cid=$cid}]
 
-            # NEXT, finish is special
-            if {$finish eq ""} {
-                set finish $row(finish)
-            } elseif {$finish eq "NEVER"} {
-                set finish ""
-            }
-
-            # NEXT, Update the group
+            # NEXT, Update the group; finish is special.
             rdb eval {
                 UPDATE calendar
                 SET personnel = nonempty($personnel, personnel),
                     start     = nonempty($start,     start),
-                    finish    = $finish,
                     pattern   = nonempty($pattern,   pattern)
                 WHERE cid=$cid
-            } {}
+            }
+
+            if {$finish ne ""} {
+                if {$finish eq "NEVER"} {
+                    set finish ""
+                }
+
+                rdb eval {
+                    UPDATE calendar
+                    SET finish=$finish
+                    WHERE cid=$cid
+                }
+            }
 
             # NEXT, Return the undo command
-            return [mytypemethod mutate update [array get row]]
+            return [list rdb ungrab $data]
         }
     }
 

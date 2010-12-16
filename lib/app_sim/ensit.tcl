@@ -406,36 +406,14 @@ snit::type ensit {
     # situation is in the INITIAL state.
 
     typemethod {mutate delete} {s} {
-        # FIRST, get the undo information
-        rdb eval {SELECT * FROM situations WHERE s=$s} row1 { unset row1(*) }
-        rdb eval {SELECT * FROM ensits_t  WHERE s=$s} row2 { unset row2(*) }
-
-        # NEXT, remove it from the object cache
+        # FIRST, remove it from the object cache
         situation uncache $s
 
-        # NEXT, delete it.
-        rdb eval {
-            DELETE FROM situations WHERE s=$s;
-            DELETE FROM ensits_t  WHERE s=$s;
-        }
+        # NEXT, delete the records, grabbing the undo information
+        set data [rdb delete -grab situations {s=$s} ensits_t {s=$s}]
 
         # NEXT, Return the undo script
-        return [mytypemethod Restore [array get row1] [array get row2]]
-    }
-
-    # Restore bdict ddict
-    #
-    # bdict    row dict for base entity
-    # ddict    row dict for derived entity
-    #
-    # Restores the rows to the database
-
-    typemethod Restore {bdict ddict} {
-        rdb insert situations $bdict
-        rdb insert ensits_t  $ddict
-
-        set s [dict get $bdict s]
-        situation uncache $s
+        return [list rdb ungrab $data]
     }
 
     # mutate update parmdict
