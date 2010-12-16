@@ -40,13 +40,6 @@
 # - This module calls the demsit rule sets when it detects 
 #   relevant state transitions during [demsit assess].
 #
-# Event Notifications:
-#
-#    The ::demsit module sends the following notifier(n) events.
-#
-#    <Entity> op s - When called, the _op_ will be one of 'create', 
-#                    'update' or 'delete', and _s_ will be the ID of 
-#                    the situation.
 #-----------------------------------------------------------------------
 
 snit::type demsit {
@@ -121,11 +114,6 @@ snit::type demsit {
                 # NEXT, assess the satisfaction implications of this new
                 # situation.
                 demsit_rules monitor $sit
-
-                # NEXT, inform all clients about the new object.
-                # Always do this after running the rules,
-                # because the object will be changed if a rule fired.
-                notifier send $type <Entity> create $s
             }
         }
 
@@ -183,9 +171,6 @@ snit::type demsit {
 
                 # NEXT, the situation has changed in some way; note the time.
                 $sit set tc [simclock now]
-
-                # NEXT, inform all clients about the update
-                notifier send $type <Entity> update $s
             }
 
             # NEXT, call the monitor rule set.

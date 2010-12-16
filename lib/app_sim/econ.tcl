@@ -427,9 +427,6 @@ snit::type econ {
                 WHERE n=$n;
             } {}
 
-            # NEXT, notify the app.
-            notifier send ::econ <Entity> update $n
-
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get undoData]]
         }

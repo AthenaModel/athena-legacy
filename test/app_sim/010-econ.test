@@ -95,22 +95,6 @@ NB2 1.0 0.0 0.0  0.0
     } -result {1}
 
 
-    test update-1.4 {<Entity> update} -setup {
-        ted create NB1 NB2
-    } -body {
-        ted notifier bind ::econ <Entity>
-        econ mutate update {
-            n   NB1
-            pcf 2.0
-        }
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::econ <Entity> update NB1}
-    }
-
-
     test update-2.1 {undo undoes the change} -setup {
         ted create NB1 NB2
     } -body {
@@ -131,23 +115,6 @@ NB2 1.0 0.0 0.0  0.0
         cleanup
     } -result {1}
 
-
-    test update-2.2 {undo sends <Entity> update} -setup {
-        ted create NB1 NB2
-    } -body {
-        set undo [econ mutate update {
-            n   NB1
-            pcf 2.0
-        }]
-
-        ted notifier bind ::econ <Entity>
-        eval $undo
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::econ <Entity> update NB1}
-    }
 
     #-------------------------------------------------------------------
     # Cleanup

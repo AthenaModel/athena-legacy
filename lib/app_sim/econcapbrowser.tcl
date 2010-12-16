@@ -87,25 +87,14 @@ snit::widgetadaptor econcapbrowser {
         pack $editbtn   -side left
 
         # NEXT, Respond to simulation updates
-        notifier bind ::econ   <Entity> $self [mymethod uid]
-        notifier bind ::nbhood <Entity> $self [mymethod uid]
+        notifier bind ::rdb <econ_n>  $self [mymethod uid]
+        notifier bind ::rdb <nbhoods> $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------
     # Public Methods
 
     delegate method * to hull
-    delegate method {uid *} to hull using "%c uid %m"
-
-    # uid stack
-    #
-    # Reloads all data items when the neighborhood stacking order
-    # changes in response to "<Entity> stack".  This is needed only 
-    # because the module binds to the ::nbhood <Entity> command.
-
-    method {uid stack} {} {
-        $self reload
-    }
 
     #-------------------------------------------------------------------
     # Private Methods

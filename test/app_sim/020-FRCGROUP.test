@@ -372,7 +372,7 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
     }
 
 
-    test UPDATE-2.2 {<Entity> update} -setup {
+    test UPDATE-2.2 {table monitor event} -setup {
         ted order FRCGROUP:CREATE $blue
     } -body {
         ted notifier bind ::rdb <frcgroups>
@@ -575,6 +575,7 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

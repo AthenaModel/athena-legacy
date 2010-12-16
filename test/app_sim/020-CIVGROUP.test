@@ -435,7 +435,7 @@ SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC CIV   NB2 5000    50
     }
 
 
-    test UPDATE-2.2 {<Entity> update} -setup {
+    test UPDATE-2.2 {table monitor event} -setup {
         ted create NB1 SHIA
     } -body {
         ted notifier bind ::rdb <civgroups>
@@ -510,7 +510,7 @@ g    longname color   shape   symbol   demeanor gtype n   basepop sap
 SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    5   
     }
 
-    test UPDATE:POSTPREP-2.2 {<Entity> update} -setup {
+    test UPDATE:POSTPREP-2.2 {table monitor event} -setup {
         ted create NB1 SHIA
     } -body {
         ted notifier bind ::rdb <civgroups>
@@ -791,6 +791,7 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    5
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

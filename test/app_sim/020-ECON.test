@@ -121,16 +121,17 @@ NB1 2.0
 NB2 1.0 
     }
 
-    test UPDATE-2.3 {<Entity> update} -setup {
+    test UPDATE-2.3 {table monitor event} -setup {
         setup
     } -body {
-        ted notifier bind ::econ <Entity>
+        ted notifier bind ::rdb <econ_n>
         ted order ECON:UPDATE n NB1 pcf 0.5
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::econ <Entity> update NB1}
+        {::rdb <econ_n> update NB1}
+        {::rdb <econ_n> update NB1}
     }
 
 
@@ -142,13 +143,14 @@ NB2 1.0
             pcf 0.5
         }
     } -body {
-        ted notifier bind ::econ <Entity>
+        ted notifier bind ::rdb <econ_n>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::econ <Entity> update NB1}
+        {::rdb <econ_n> update NB1}
+        {::rdb <econ_n> update NB1}
     }
 
     #-------------------------------------------------------------------
@@ -192,7 +194,7 @@ NB2 1.0
     test UPDATE:MULTI-2.1 {one econ of several is updated} -setup {
         setup
     } -body {
-        ted notifier bind ::econ <Entity>
+        ted notifier bind ::rdb <econ_n>
 
         ted order ECON:UPDATE:MULTI {
             ids  NB1
@@ -203,14 +205,15 @@ NB2 1.0
     } -cleanup {
         cleanup
     } -result {
-        {::econ <Entity> update NB1}
+        {::rdb <econ_n> update NB1}
+        {::rdb <econ_n> update NB1}
     }
 
 
     test UPDATE:MULTI-2.2 {several are updated} -setup {
         setup
     } -body {
-        ted notifier bind ::econ <Entity>
+        ted notifier bind ::rdb <econ_n>
 
         ted order ECON:UPDATE:MULTI {
             ids  {NB1 NB2}
@@ -221,8 +224,10 @@ NB2 1.0
     } -cleanup {
         cleanup
     } -result {
-        {::econ <Entity> update NB1}
-        {::econ <Entity> update NB2}
+        {::rdb <econ_n> update NB1}
+        {::rdb <econ_n> update NB1}
+        {::rdb <econ_n> update NB2}
+        {::rdb <econ_n> update NB2}
     }
 
 
@@ -234,14 +239,16 @@ NB2 1.0
             pcf  0.5
         }
     } -body {
-        ted notifier bind ::econ <Entity>
+        ted notifier bind ::rdb <econ_n>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::econ <Entity> update NB1}
-        {::econ <Entity> update NB2}
+        {::rdb <econ_n> update NB1}
+        {::rdb <econ_n> update NB1}
+        {::rdb <econ_n> update NB2}
+        {::rdb <econ_n> update NB2}
     }
 
 
@@ -252,6 +259,7 @@ NB2 1.0
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

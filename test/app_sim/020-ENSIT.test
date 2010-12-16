@@ -199,13 +199,13 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
     test CREATE-2.2 {Effects} -setup {
         ted create NB1 BLUE
     } -body {
-        ted notifier bind ::ensit <Entity>
+        ted notifier bind ::rdb <ensits_t>
         ted order ENSIT:CREATE $s1
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::ensit <Entity> create 1}
+        {::rdb <ensits_t> update 1}
     }
 
 
@@ -213,13 +213,13 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
         ted create NB1 BLUE
         ted order ENSIT:CREATE $s1
     } -body {
-        ted notifier bind ::ensit <Entity>
+        ted notifier bind ::rdb <ensits_t>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::ensit <Entity> delete 1}
+        {::rdb <ensits_t> delete 1}
     }
 
 
@@ -258,13 +258,13 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
         ted create NB1 BLUE
         ted order ENSIT:CREATE $s1
     } -body {
-        ted notifier bind ::ensit <Entity>
+        ted notifier bind ::rdb <ensits_t>
         ted order ENSIT:DELETE s 1
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::ensit <Entity> delete 1}
+        {::rdb <ensits_t> delete 1}
     }
 
 
@@ -273,13 +273,13 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
         ted order ENSIT:CREATE $s1
         ted order ENSIT:DELETE s 1
     } -body {
-        ted notifier bind ::ensit <Entity>
+        ted notifier bind ::rdb <ensits_t>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::ensit <Entity> create 1}
+        {::rdb <ensits_t> update 1}
     }
 
 
@@ -435,17 +435,18 @@ s kind    stype   driver n   coverage state   ts tc change flist g    signature 
     }
 
 
-    test UPDATE-2.2 {<Entity> update} -setup {
+    test UPDATE-2.2 {table monitor event} -setup {
         ted create NB1 BLUE
         ted order ENSIT:CREATE $s1
     } -body {
-        ted notifier bind ::ensit <Entity>
+        ted notifier bind ::rdb <ensits_t>
+        ted notifier bind ::rdb <situations>
         ted order ENSIT:UPDATE s 1 stype COMMOUT
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::ensit <Entity> update 1}
+        {::rdb <situations> update 1}
     }
 
 
@@ -460,13 +461,13 @@ s kind    stype   driver n   coverage state   ts tc change flist g    signature 
             g         BLUE
         }
     } -body {
-        ted notifier bind ::ensit <Entity>
+        ted notifier bind ::rdb <ensits_t>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::ensit <Entity> update 1}
+        {::rdb <ensits_t> update 1}
     }
 
 
@@ -538,17 +539,17 @@ s location
     }
 
 
-    test MOVE-2.2 {<Entity> update} -setup {
+    test MOVE-2.2 {table monitor event} -setup {
         ted create NB1 BLUE
         ted order ENSIT:CREATE $s1
     } -body {
-        ted notifier bind ::ensit <Entity>
+        ted notifier bind ::rdb <ensits_t>
         ted order ENSIT:MOVE s 1 location B01B01
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::ensit <Entity> update 1}
+        {::rdb <ensits_t> update 1}
     }
 
 
@@ -560,13 +561,13 @@ s location
             location  B01B01
         }
     } -body {
-        ted notifier bind ::ensit <Entity>
+        ted notifier bind ::rdb <ensits_t>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::ensit <Entity> update 1}
+        {::rdb <ensits_t> update 1}
     }
 
 
@@ -636,17 +637,20 @@ s kind    stype    driver n   coverage state ts tc change   flist g    signature
     }
 
 
-    test RESOLVE-2.3 {<Entity> update} -setup {
+    test RESOLVE-2.3 {table monitor event} -setup {
         ted create NB1 BLUE
         ted order ENSIT:CREATE $s1
     } -body {
-        ted notifier bind ::ensit <Entity>
+        ted notifier bind ::rdb <ensits_t>
+        ted notifier bind ::rdb <situations>
         ted order ENSIT:RESOLVE s 1
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::ensit <Entity> update 1}
+        {::rdb <situations> update 1}
+        {::rdb <situations> update 1}
+        {::rdb <situations> update 1}
     }
 
 
@@ -655,13 +659,13 @@ s kind    stype    driver n   coverage state ts tc change   flist g    signature
         ted order ENSIT:CREATE $s1
         ted order ENSIT:RESOLVE s 1 resolver BLUE
     } -body {
-        ted notifier bind ::ensit <Entity>
+        ted notifier bind ::rdb <ensits_t>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::ensit <Entity> update 1}
+        {::rdb <ensits_t> update 1}
     }
 
     #-------------------------------------------------------------------
@@ -671,6 +675,7 @@ s kind    stype    driver n   coverage state ts tc change   flist g    signature
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

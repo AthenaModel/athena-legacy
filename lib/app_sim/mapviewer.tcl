@@ -515,11 +515,13 @@ snit::widget mapviewer {
         notifier bind ::sim      <Tick>        $self [mymethod dbsync]
         notifier bind ::map      <MapChanged>  $self [mymethod dbsync]
         notifier bind ::order    <OrderEntry>  $self [mymethod OrderEntry]
-        notifier bind ::nbhood   <Entity>      $self [mymethod EntityNbhood]
+        notifier bind ::rdb      <nbhoods>     $self [mymethod EntityNbhood]
+        notifier bind ::nbhood   <Stack>       $self [mymethod NbhoodStack]
         notifier bind ::rdb      <units>       $self [mymethod EntityUnit]
-        notifier bind ::ensit    <Entity>      $self [mymethod EntityEnsit]
+        notifier bind ::rdb      <ensit_t>     $self [mymethod EntityEnsit]
+        notifier bind ::rdb      <situations>  $self [mymethod EntityEnsit]
         notifier bind ::rdb      <groups>      $self [mymethod EntityGroup]
-        notifier bind ::econ     <Entity>      $self [mymethod EntityEcon]
+        notifier bind ::rdb      <econ_n>      $self [mymethod EntityEcon]
 
         # NEXT, draw everything for the current map, whatever it is.
         $self dbsync
@@ -1047,30 +1049,34 @@ snit::widget mapviewer {
     #-------------------------------------------------------------------
     # Event Handlers: notifier(n)
 
-    # EntityNbhood create n
-    #
-    # n     The neighborhood ID
-    #
-    # There's a new neighborhood; display it.
-
-    method {EntityNbhood create} {n} {
-        # FIRST, get the nbhood data we care about
-        rdb eval {SELECT refpoint, polygon FROM nbhoods WHERE n=$n} {}
-
-        # NEXT, draw it; this will delete any previous neighborhood
-        # with the same name.
-        $self NbhoodDraw $n $refpoint $polygon
-
-        # NEXT, show refpoints obscured by the change
-        $self NbhoodShowObscured
-    }
-
-
     # EntityNbhood delete n
     #
     # n     The neighborhood ID
     #
     # Delete the neighborhood from the mapcanvas.
+
+    # EntityNbhood update n
+    #
+    # n     The neighborhood ID
+    #
+    # Something changed about neighborhood n.  Update it.
+
+    method {EntityNbhood update} {n} {
+        # FIRST, get the nbhood data we care about
+        rdb eval {SELECT refpoint, polygon FROM nbhoods WHERE n=$n} {}
+
+        # NEXT, if this is a new neighborhood, just draw it;
+        # otherwise, update the refpoint and polygon
+        if {![info exists nbhoods(id-$n)]} {
+            $self NbhoodDraw $n $refpoint $polygon
+        } else {
+            $canvas nbhood point $nbhoods(id-$n)   $refpoint
+            $canvas nbhood polygon $nbhoods(id-$n) $polygon
+        }
+
+        # NEXT, show refpoints obscured by the change
+        $self NbhoodShowObscured
+    }
 
     method {EntityNbhood delete} {n} {
         # FIRST, delete it from the canvas
@@ -1086,35 +1092,12 @@ snit::widget mapviewer {
     }
       
 
-    # EntityNbhood update n
-    #
-    # n     The neighborhood ID
-    #
-    # Something changed about neighborhood n.  Update it.
-
-    method {EntityNbhood update} {n} {
-        # FIRST, get the nbhood data we care about
-        rdb eval {SELECT refpoint, polygon FROM nbhoods WHERE n=$n} {}
-
-        # NEXT, update the refpoint and polygon
-        $canvas nbhood point $nbhoods(id-$n)   $refpoint
-        $canvas nbhood polygon $nbhoods(id-$n) $polygon
-
-        # NEXT, show refpoints obscured by the change
-        $self NbhoodShowObscured
-    }
-
-
-    # EntityNbhood stack
+    # NbhoodStack
     #
     # The neighborhood stacking order has changed; redraw all
     # neighborhoods
 
-    method {EntityNbhood stack} {} {
-        # TBD: This could be optimized to just raise and lower the
-        # existing nbhoods; but this is simple and appears to be
-        # fast enough.
-
+    method NbhoodStack {} {
         $self NbhoodRedrawAll
     }
 
@@ -1423,14 +1406,14 @@ snit::widget mapviewer {
     #-------------------------------------------------------------------
     # Event Handlers: notifier(n)
 
-    # EntityUnit create u
+    # EntityUnit update n
     #
-    # u     The unit ID
+    # n     The unit ID
     #
-    # There's a new unit; display it.
+    # Something changed about unit n.  Update it.
 
-    method {EntityUnit create} {u} {
-        $self EntityUnit update $u
+    method {EntityUnit update} {u} {
+        $self UnitDrawSingle $u
     }
 
 
@@ -1447,17 +1430,6 @@ snit::widget mapviewer {
         }
     }
       
-    # EntityUnit update n
-    #
-    # n     The unit ID
-    #
-    # Something changed about unit n.  Update it.
-
-    method {EntityUnit update} {u} {
-        $self UnitDrawSingle $u
-    }
-
-
     #===================================================================
     # Ensit Display and Behavior
 
@@ -1518,6 +1490,9 @@ snit::widget mapviewer {
     #
     # Redraws just ensit s.  Use this when only a single ensit is
     # to be redrawn.
+    # 
+    # Note that s might be any situation; make sure that non-ensits
+    # are ignored.
 
     method EnsitDrawSingle {s} {
         # FIRST, draw it, if it's current.
@@ -1563,37 +1538,35 @@ snit::widget mapviewer {
     #-------------------------------------------------------------------
     # Event Handlers: notifier(n)
 
-    # EntityEnsit create s
+    # EntityEnsit update s
     #
     # s     The ensit ID
     #
-    # There's a new ensit; display it.
+    # Something changed about ensit s.  Update it.
+    #
+    # Note that s might be any situation; make sure that non-ensits
+    # are ignored.
 
-    method {EntityEnsit create} {s} {
-        $self EntityEnsit update $s
+    method {EntityEnsit update} {s} {
+        $self EnsitDrawSingle $s
     }
-
 
     # EntityEnsit delete s
     #
     # s     The ensit ID
     #
     # Delete the ensit from the mapcanvas.
+    #
+    # Note that s might be any situation; make sure that non-ensits
+    # are ignored.
 
     method {EntityEnsit delete} {s} {
-        $self IconDelete $s
+        # FIRST, Delete the icon only if it actually exists.
+        if {[info exists icons(cid-$s)]} {
+            $self IconDelete $s
+        }
     }
       
-    # EntityEnsit update s
-    #
-    # s     The ensit ID
-    #
-    # Something changed about ensit s.  Update it.
-
-    method {EntityEnsit update} {s} {
-        $self EnsitDrawSingle $s
-    }
-
     #===================================================================
     # Group Entity Event Handlers
 

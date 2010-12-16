@@ -328,7 +328,7 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
     }
 
 
-    test UPDATE-2.2 {<Entity> update} -setup {
+    test UPDATE-2.2 {table monitor event} -setup {
         ted order ORGGROUP:CREATE $usaid
     } -body {
         ted notifier bind ::rdb <orggroups>
@@ -493,6 +493,7 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

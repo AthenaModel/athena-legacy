@@ -175,7 +175,7 @@ SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0
     }
 
 
-    test UPDATE-2.2 {<Entity> update} -setup {
+    test UPDATE-2.2 {table monitor event} -setup {
         setup
     } -body {
         ted notifier bind ::rdb <sat_gc>
@@ -406,6 +406,7 @@ SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

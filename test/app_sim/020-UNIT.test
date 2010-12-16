@@ -102,7 +102,7 @@ BLUE-NB1/0991 101 101
     }
 
 
-    test MOVE-2.2 {<Entity> update} -setup {
+    test MOVE-2.2 {table monitor event} -setup {
         ted create NB1 BLUE
         unit create $u1
     } -body {
@@ -139,6 +139,7 @@ BLUE-NB1/0991 101 101
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

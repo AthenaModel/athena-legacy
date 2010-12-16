@@ -122,7 +122,8 @@ snit::widgetadaptor ensitbrowser {
         pack $resolvebtn -side right
 
         # NEXT, update individual entities when they change.
-        notifier bind ::ensit <Entity> $self [mymethod uid]
+        notifier bind ::rdb <situations> $self [mymethod uid]
+        notifier bind ::rdb <ensit_t>    $self [mymethod uid]
     }
 
     destructor {

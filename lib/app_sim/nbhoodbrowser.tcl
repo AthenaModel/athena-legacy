@@ -128,23 +128,13 @@ snit::widgetadaptor nbhoodbrowser {
         pack $deletebtn -side right
 
         # NEXT, Respond to simulation updates
-        notifier bind ::nbhood <Entity> $self [mymethod uid]
+        notifier bind ::rdb <nbhoods> $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------
     # Public Methods
 
     delegate method * to hull
-    delegate method {uid *} to hull using "%c uid %m"
-
-    # uid stack
-    #
-    # Reloads all data items when the neighborhood stacking order
-    # changes in response to "<Entity> stack"
-
-    method {uid stack} {} {
-        $self reload
-    }
 
     #-------------------------------------------------------------------
     # Private Methods

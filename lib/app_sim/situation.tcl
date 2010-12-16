@@ -112,9 +112,6 @@ snit::type situation {
         rdb eval {SELECT s, kind FROM situations WHERE change != ''} {
             set sit [$type get $s]
             $sit set change ""
-            
-            # NEXT, send out the notifier event for the change in data
-            notifier send $kind <Entity> update $s
         }
     }
 

@@ -108,7 +108,7 @@ SUNN SUNN 1.0
     }
 
 
-    test UPDATE-2.2 {<Entity> update} -setup {
+    test UPDATE-2.2 {table monitor event} -setup {
         setup
     } -body {
         ted notifier bind ::rdb <rel_fg>
@@ -261,6 +261,7 @@ SUNN SUNN 1.0
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

@@ -27,13 +27,6 @@
 #    * This module calls the ensit rule on "ensit assess", which is 
 #      done as part of the time advance.
 #
-# EVENT NOTIFICATIONS:
-#    The ::ensit module sends the following notifier(n) events:
-#
-#    <Entity> op s
-#        When called, the op will be one of 'create', 'update' or 'delete',
-#        and s will be the ID of the situation.
-#
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
@@ -79,9 +72,6 @@ snit::type ensit {
 
                 # NEXT, if it auto-resolves, schedule the auto-resolution.
                 $sit ScheduleAutoResolve
-                
-                # NEXT, notify the app that the state has changed.
-                notifier send $type <Entity> update $s
             }
 
             # NEXT, create a driver if it lacks one.
@@ -96,7 +86,6 @@ snit::type ensit {
             if {[$sit get inception]} {
                 $sit set inception 0
                 ensit_rules inception $sit
-                notifier send $type <Entity> update $s
             }
 
             # NEXT, it's on going; monitor its coverage
@@ -110,7 +99,6 @@ snit::type ensit {
                                      -oneliner "Resolution of [$sit oneliner]"]
 
                 ensit_rules resolution $sit
-                notifier send $type <Entity> update $s
             }
         }
     }
@@ -342,8 +330,6 @@ snit::type ensit {
                 $sit set n $newNbhood
 
                 lappend undo [mytypemethod RestoreNbhood $s $n]
-
-                notifier send ::ensit <Entity> update $s
             }
         }
 
@@ -359,12 +345,10 @@ snit::type ensit {
     # Sets the ensit's nbhood.
 
     typemethod RestoreNbhood {s n} {
-        # FIRST, save it, and notify the app.
+        # FIRST, save it
         set sit [ensit get $s]
 
         $sit set n $n
-
-        notifier send ::ensit <Entity> update $s
     }
 
 
@@ -408,7 +392,6 @@ snit::type ensit {
 
             # NEXT, inform all clients about the new object.
             log detail ensit "$s: created for $n,$stype,$coverage"
-            notifier send $type <Entity> create $s
 
             # NEXT, Return the undo command
             return [mytypemethod mutate delete $s]
@@ -436,9 +419,6 @@ snit::type ensit {
             DELETE FROM ensits_t  WHERE s=$s;
         }
 
-        # NEXT, notify the app
-        notifier send $type <Entity> delete $s
-
         # NEXT, Return the undo script
         return [mytypemethod Restore [array get row1] [array get row2]]
     }
@@ -456,8 +436,6 @@ snit::type ensit {
 
         set s [dict get $bdict s]
         situation uncache $s
-
-        notifier send $type <Entity> create $s
     }
 
     # mutate update parmdict
@@ -534,9 +512,6 @@ snit::type ensit {
                 }
             }
 
-            # NEXT, notify the app.
-            notifier send $type <Entity> update $s
-
             # NEXT, Return the undo command
             return [mytypemethod Replace [array get row1] [array get row2]]
         }
@@ -575,8 +550,6 @@ snit::type ensit {
             $sit CancelSpawn
             $sit CancelAutoResolve
 
-            # NEXT, notify the app
-            notifier send $type <Entity> update $s
         }
 
         # NEXT, Return the undo script
@@ -604,8 +577,6 @@ snit::type ensit {
             $sit ScheduleSpawn
             $sit ScheduleAutoResolve
         }
-
-        notifier send $type <Entity> update $s
     }
 
     #-------------------------------------------------------------------

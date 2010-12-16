@@ -29,13 +29,6 @@
 #    * This module calls the actsit rule sets when it detects 
 #      relevant state transitions during [actsit assess].
 #
-# EVENT NOTIFICATIONS:
-#    The ::actsit module sends the following notifier(n) events:
-#
-#    <Entity> op s
-#        When called, the op will be one of 'create', 'update' or 'delete',
-#        and s will be the ID of the situation.
-#
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
@@ -109,11 +102,6 @@ snit::type actsit {
             # NEXT, assess the satisfaction implications of this new
             # situation.
             actsit_rules monitor $sit
-
-            # NEXT, inform all clients about the new object.
-            # Always do this after running the rules,
-            # because the object will be changed if a rule fired.
-            notifier send $type <Entity> create $s
         }
 
         # NEXT, call the relevant rule sets for all pre-existing
@@ -157,9 +145,6 @@ snit::type actsit {
 
                 # NEXT, the situation has changed in some way; note the time.
                 $sit set tc [simclock now]
-
-                # NEXT, inform all clients about the update
-                notifier send $type <Entity> update $s
             }
 
             # NEXT, call the monitor rule set.

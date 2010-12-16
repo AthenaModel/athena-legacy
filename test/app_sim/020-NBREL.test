@@ -128,7 +128,7 @@ NB2 NB2 HERE      0.0
     }
 
 
-    test UPDATE-2.2 {<Entity> update} -setup {
+    test UPDATE-2.2 {table monitor event} -setup {
         setup
     } -body {
         ted notifier bind ::rdb <nbrel_mn>
@@ -311,6 +311,7 @@ NB2 NB2 HERE      0.0
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

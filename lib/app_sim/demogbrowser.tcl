@@ -53,7 +53,7 @@ snit::widgetadaptor demogbrowser {
             -reloadon {
                 ::sim <DbSyncB>
                 ::demog <Update>
-                ::nbhood <Entity>
+                ::rdb <nbhoods>
                 ::rdb <civgroups>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 

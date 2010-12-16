@@ -244,9 +244,6 @@ snit::type nbhood {
             # have obscured some other neighborhood's refpoint.
             $type SetObscuredBy
 
-            # NEXT, notify the app.
-            notifier send ::nbhood <Entity> create $n
-
             # NEXT, Set the undo command
             return [mytypemethod mutate delete $n]
         }
@@ -291,9 +288,6 @@ snit::type nbhood {
         # have obscured some other neighborhood's refpoint.
         $type SetObscuredBy
 
-        # NEXT, notify the app
-        notifier send ::nbhood <Entity> delete $n
-
         # NEXT, return aggregate undo script.
         return [mytypemethod Restore \
                     [array get row1] [array get row2] [array get row3]]
@@ -316,9 +310,6 @@ snit::type nbhood {
         # NEXT, resync with the RDB: this will update the geoset and the 
         # stacking order, as well as the demog_n and econ_n changes.
         $type dbsync
-
-        # NEXT, notify the app.
-        notifier send ::nbhood <Entity> create [dict get $parmdict1 n]
     }
 
     # mutate lower n
@@ -388,7 +379,7 @@ snit::type nbhood {
         $type dbsync
         
         # NEXT, notify the GUI of the change.
-        notifier send ::nbhood <Entity> stack
+        notifier send ::nbhood <Stack>
 
         # NEXT, set the undo information
         return [mytypemethod RestackNbhoods $old]
@@ -437,9 +428,6 @@ snit::type nbhood {
             if {$polygon ne ""} {
                 $type dbsync
             }
-
-            # NEXT, notify the app.
-            notifier send ::nbhood <Entity> update $n
 
             # NEXT, Set the undo command
             return [mytypemethod mutate update [array get row]]

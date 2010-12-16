@@ -354,7 +354,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test UPDATE-2.2 {<Entity> update} -setup {
+    test UPDATE-2.2 {table monitor event} -setup {
         ted create BLUE
         ted order MAD:CREATE $m1
     } -body {
@@ -425,7 +425,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test SAT:ADJUST-2.1 {<Entity> updates} -setup {
+    test SAT:ADJUST-2.1 {table monitor events} -setup {
         advance
     } -body {
         ted notifier bind ::mad <Sat>
@@ -499,7 +499,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test SAT:SET-2.1 {<Entity> updates} -setup {
+    test SAT:SET-2.1 {table monitor events} -setup {
         advance
     } -body {
         ted notifier bind ::mad <Sat>
@@ -783,7 +783,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test COOP:ADJUST-2.1 {<Entity> updates} -setup {
+    test COOP:ADJUST-2.1 {table monitor events} -setup {
         advance
     } -body {
         ted notifier bind ::mad <Coop>
@@ -856,7 +856,7 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test COOP:SET-2.1 {<Entity> updates} -setup {
+    test COOP:SET-2.1 {table monitor events} -setup {
         advance
     } -body {
         ted notifier bind ::mad <Coop>
@@ -1105,6 +1105,7 @@ id oneliner      cause s   p   q   driver
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

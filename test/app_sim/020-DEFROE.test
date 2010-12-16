@@ -92,7 +92,7 @@ NB2 BRIT FIRE_BACK_IF_PRESSED
     }
 
 
-    test UPDATE-2.2 {<Entity> update} -setup {
+    test UPDATE-2.2 {table monitor event} -setup {
         setup
     } -body {
         ted notifier bind ::rdb <defroe_ng>
@@ -233,6 +233,7 @@ NB2 BRIT FIRE_BACK_IF_PRESSED
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 
