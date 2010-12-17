@@ -69,9 +69,8 @@ macro parm.identifier {entity example} {
 macro parm.longname {entity example} {
     |<--
     A short human-readable name for the
-    $entity, e.g., "$example".  The long name must not be the
-    same as the ID or long name of any existing
-    neighborhood, group, etc.
+    $entity, e.g., "$example".  If left empty on creation, the long 
+    name defaults to the ${entity} ID.
 }
 
 macro parm.ids {entity} {
@@ -962,7 +961,7 @@ order CIVGROUP:CREATE "Create Civilian Group" {
     <</parm>>
 
     <<parm longname "Long Name">>
-    <b>Required.</b> <<parm.longname group "Urban Pashtuns">>
+    <b>Optional.</b> <<parm.longname group "Urban Pashtuns">>
     <</parm>>
 
     <<parm n "Neighborhood">>
@@ -1182,7 +1181,7 @@ order FRCGROUP:CREATE "Create Force Group" {
     <</parm>>
 
     <<parm longname "Long Name">>
-    <b>Required.</b> <<parm.longname group "US Army">>
+    <b>Optional.</b> <<parm.longname group "US Army">>
     <</parm>>
 
     <<parm color "Color">>
@@ -1348,7 +1347,7 @@ order ORGGROUP:CREATE "Create Organization Group" {
     <</parm>>
 
     <<parm longname "Long Name">>
-    <b>Required.</b> <<parm.longname group "Red Cross">>
+    <b>Optional.</b> <<parm.longname group "Red Cross">>
     <</parm>>
 
     <<parm color "Color">>
@@ -2089,7 +2088,7 @@ order NBHOOD:CREATE "Create Neighborhood" {
     <</parm>>
 
     <<parm longname "Long Name">>
-    <b>Required.</b>  <<parm.longname neighborhood "Peshawar">>
+    <b>Optional.</b>  <<parm.longname neighborhood "Peshawar">>
     <</parm>>
 
     <<parm local "Local Neighborhood?">>

@@ -482,57 +482,50 @@ WHERE nbhoods.local;
 ------------------------------------------------------------------------
 -- Primary Entities
 --
--- Anything with an ID and a long name is a primary entity.  All IDs and 
--- long names of primary entities must be unique.  The following view is 
--- used to check this, and to retrieve the entity type for a given ID.
+-- Any primary entity's ID must be unique in the scenario.  This
+-- view creates a list of primary entity IDs, so that we can verify 
+-- this, and retrieve the entity type for a given ID.  The list
+-- includes a number of reserved words.
+--
+-- TBD: Should we just have an "entities" table and insert a row
+-- into it for each entity?
 
 CREATE TEMPORARY VIEW entities AS
 SELECT 'PLAYBOX'      AS id, 
-       'Playbox'      AS longname, 
        'reserved'     AS etype
 UNION
 SELECT 'CIV'          AS id, 
-       'Civilian'     AS longname, 
        'reserved'     AS etype
 UNION
 SELECT 'FRC'          AS id, 
-       'Force'        AS longname, 
        'reserved'     AS etype
 UNION
 SELECT 'ORG'          AS id, 
-       'Organization' AS longname, 
        'reserved'     AS etype
 UNION
 SELECT 'ALL'          AS id, 
-       'All'          AS longname, 
        'reserved'     AS etype
 UNION
 SELECT 'NONE'         AS id, 
-       'None'         AS longname, 
        'reserved'     AS etype
 UNION
 SELECT n              AS id, 
-       longname       AS longname, 
        'nbhood'       AS etype 
 FROM nbhoods
 UNION
 SELECT g              AS id, 
-       longname       AS longname, 
        'group'        AS etype 
 FROM groups
 UNION
 SELECT c              AS id, 
-       longname       AS longname, 
        'concern'      AS etype 
 FROM concerns
 UNION
 SELECT a              AS id, 
-       longname       AS longname, 
        'activity'     AS etype 
 FROM activity
 UNION
 SELECT u              AS id,
-       u              AS longname,
        'unit'         AS etype
 FROM units;
 

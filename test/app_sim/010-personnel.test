@@ -128,10 +128,10 @@ NB2 BRIT 0
     test set-2.1 {undo undoes the change} -setup {
         setup
     } -body {
-        set a [ted query {SELECT * FROM personnel_ng}]
+        set a [ted query {SELECT * FROM personnel_ng ORDER BY n,g}]
         set undo [personnel mutate set {id {NB1 BLUE} personnel 30}]
         namespace eval :: $undo
-        set b [ted query {SELECT * FROM personnel_ng}]
+        set b [ted query {SELECT * FROM personnel_ng ORDER BY n,g}]
         
         expr {$a eq $b}
     } -cleanup {

@@ -433,7 +433,7 @@ order define NBHOOD:CREATE {
 } {
     # FIRST, prepare the parameters
     prepare n             -toupper            -required -unused -type ident
-    prepare longname      -normalize          -required -unused
+    prepare longname      -normalize
     prepare local         -toupper            -required -type boolean
     prepare urbanization  -toupper            -required -type eurbanization
     prepare vtygain                           -required -type rgain
@@ -444,11 +444,6 @@ order define NBHOOD:CREATE {
 
     # NEXT, perform custom checks
 
-    # n vs. longname
-    if {$parms(n) eq $parms(longname)} {
-        reject longname "longname must not be identical to ID"
-    }
-    
     # polygon
     #
     # Must be unique.
@@ -481,6 +476,11 @@ order define NBHOOD:CREATE {
     }
     
     returnOnError -final
+
+    # NEXT, If longname is "", defaults to ID.
+    if {$parms(longname) eq ""} {
+        set parms(longname) $parms(n)
+    }
 
     # NEXT, create the neighborhood and dependent entities
     lappend undo [nbhood mutate create [array get parms]]
@@ -599,13 +599,8 @@ order define NBHOOD:UPDATE {
     parm polygon      text  "Polygon"             -tags  polygon
 } {
     # FIRST, prepare the parameters
-    prepare n            -toupper       -required -type nbhood
-
-    set oldname [rdb onecolumn {
-        SELECT longname FROM nbhoods WHERE n=$parms(n)
-    }]
-
-    prepare longname     -normalize           -oldvalue $oldname -unused
+    prepare n            -toupper   -required -type nbhood
+    prepare longname     -normalize
     prepare local        -toupper             -type boolean
     prepare urbanization -toupper             -type eurbanization
     prepare vtygain                           -type rgain

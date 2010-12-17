@@ -1035,13 +1035,6 @@ snit::type order {
                     }]} {
                         reject $parm "An entity with this ID already exists"
                     }
-
-                    if {[rdb exists {
-                        SELECT longname FROM entities 
-                        WHERE longname=$name
-                    }]} {
-                        reject $parm "An entity with this name already exists"
-                    }
                 }
                 -type {
                     set parmtype [lshift args]

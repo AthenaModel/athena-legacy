@@ -276,7 +276,7 @@ order define CIVGROUP:CREATE {
 } {
     # FIRST, prepare and validate the parameters
     prepare g        -toupper   -required -unused -type ident
-    prepare longname -normalize -required -unused
+    prepare longname -normalize
     prepare n        -toupper   -required         -type nbhood
     prepare color    -tolower   -required         -type hexcolor
     prepare shape    -toupper   -required         -type eunitshape
@@ -284,14 +284,12 @@ order define CIVGROUP:CREATE {
     prepare basepop             -required         -type ingpopulation
     prepare sap                 -required         -type ipercent
 
-    returnOnError
-
-    # NEXT, do cross-validation
-    if {$parms(g) eq $parms(longname)} {
-        reject longname "longname must not be identical to ID"
-    }
-
     returnOnError -final
+
+    # NEXT, If longname is "", defaults to ID.
+    if {$parms(longname) eq ""} {
+        set parms(longname) $parms(g)
+    }
 
     # NEXT, create the group and dependent entities
     lappend undo [civgroup mutate create [array get parms]]
@@ -364,17 +362,14 @@ order define CIVGROUP:UPDATE {
     parm sap       pct    "Subs. Agri. %"  
 } {
     # FIRST, prepare the parameters
-    prepare g         -toupper  -required -type civgroup
-
-    set oldname [rdb onecolumn {SELECT longname FROM groups WHERE g=$parms(g)}]
-
-    prepare longname  -normalize      -oldvalue $oldname -unused
-    prepare n         -toupper  -type nbhood
-    prepare color     -tolower  -type hexcolor
-    prepare shape     -toupper  -type eunitshape
-    prepare demeanor  -toupper  -type edemeanor
-    prepare basepop             -type ingpopulation
-    prepare sap                 -type ipercent
+    prepare g         -toupper   -required -type civgroup
+    prepare longname  -normalize
+    prepare n         -toupper   -type nbhood
+    prepare color     -tolower   -type hexcolor
+    prepare shape     -toupper   -type eunitshape
+    prepare demeanor  -toupper   -type edemeanor
+    prepare basepop              -type ingpopulation
+    prepare sap                  -type ipercent
 
     returnOnError -final
 

@@ -191,20 +191,18 @@ order define ORGGROUP:CREATE {
 } {
     # FIRST, prepare and validate the parameters
     prepare g              -toupper   -required -unused -type ident
-    prepare longname       -normalize -required -unused
+    prepare longname       -normalize
     prepare color          -tolower   -required -type hexcolor
     prepare shape          -toupper   -required -type eunitshape
     prepare orgtype        -toupper   -required -type eorgtype
     prepare demeanor       -toupper   -required -type edemeanor
 
-    returnOnError
-
-    # NEXT, do cross-validation
-    if {$parms(g) eq $parms(longname)} {
-        reject longname "longname must not be identical to ID"
-    }
-
     returnOnError -final
+
+    # NEXT, If longname is "", defaults to ID.
+    if {$parms(longname) eq ""} {
+        set parms(longname) $parms(g)
+    }
 
     # NEXT, create the group and dependent entities
     lappend undo [orggroup mutate create [array get parms]]
@@ -274,15 +272,12 @@ order define ORGGROUP:UPDATE {
     parm demeanor       enum  "Demeanor"           -type edemeanor
 } {
     # FIRST, prepare the parameters
-    prepare g              -toupper  -required -type orggroup
-
-    set oldname [rdb onecolumn {SELECT longname FROM groups WHERE g=$parms(g)}]
-
-    prepare longname       -normalize      -oldvalue $oldname -unused
-    prepare color          -tolower  -type hexcolor
-    prepare shape          -toupper  -type eunitshape
-    prepare orgtype        -toupper  -type eorgtype
-    prepare demeanor       -toupper  -type edemeanor
+    prepare g              -toupper   -required -type orggroup
+    prepare longname       -normalize 
+    prepare color          -tolower   -type hexcolor
+    prepare shape          -toupper   -type eunitshape
+    prepare orgtype        -toupper   -type eorgtype
+    prepare demeanor       -toupper   -type edemeanor
 
     returnOnError -final
 

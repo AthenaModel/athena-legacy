@@ -51,7 +51,7 @@ namespace eval ::athena_test::tests:: {
         order check CIVGROUP:CREATE
     } -returnCodes {
         error
-    } -result {g {required value} longname {required value} n {required value} color {required value} shape {required value} demeanor {required value} basepop {required value} sap {required value}}
+    } -result {g {required value} n {required value} color {required value} shape {required value} demeanor {required value} basepop {required value} sap {required value}}
 
     test check-1.2 {valid order doesn't execute} -body {
         order check ORGGROUP:CREATE {

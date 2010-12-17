@@ -187,7 +187,7 @@ NB2 BLUE FIRE_BACK_IF_PRESSED
         defroe mutate reconcile
     } -body {
 
-        set a [ted query {SELECT * FROM defroe_ng}]
+        set a [ted query {SELECT * FROM defroe_ng ORDER BY n,g}]
 
         set undo [defroe mutate update {
             id      {NB1 BLUE}
@@ -196,7 +196,7 @@ NB2 BLUE FIRE_BACK_IF_PRESSED
 
         eval $undo
 
-        set b [ted query {SELECT * FROM defroe_ng}]
+        set b [ted query {SELECT * FROM defroe_ng ORDER BY n,g}]
 
         expr {$a eq $b}
     } -cleanup {

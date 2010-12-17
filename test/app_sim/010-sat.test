@@ -210,7 +210,7 @@ SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
         sat mutate reconcile
     } -body {
 
-        set a [ted query {SELECT * FROM sat_gc}]
+        set a [ted query {SELECT * FROM sat_gc ORDER BY g,c}]
 
         set undo [sat mutate update {
             id             {SHIA SFT}
@@ -224,7 +224,7 @@ SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
 
         eval $undo
 
-        set b [ted query {SELECT * FROM sat_gc}]
+        set b [ted query {SELECT * FROM sat_gc ORDER BY g,c}]
 
         expr {$a eq $b}
     } -cleanup {

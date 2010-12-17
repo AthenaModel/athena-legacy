@@ -150,7 +150,6 @@ NB2 1.0
         cleanup
     } -result {
         {::rdb <econ_n> update NB1}
-        {::rdb <econ_n> update NB1}
     }
 
     #-------------------------------------------------------------------
@@ -246,8 +245,6 @@ NB2 1.0
         cleanup
     } -result {
         {::rdb <econ_n> update NB1}
-        {::rdb <econ_n> update NB1}
-        {::rdb <econ_n> update NB2}
         {::rdb <econ_n> update NB2}
     }
 

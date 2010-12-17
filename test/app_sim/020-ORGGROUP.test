@@ -61,7 +61,6 @@ namespace eval ::athena_test::tests:: {
         ted order -reject ORGGROUP:CREATE {}
     } -result {
         g {required value}
-        longname {required value}
         color {required value}
         shape {required value}
         orgtype {required value}
@@ -69,7 +68,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     
-    test CREATE-1.2 {Duplicate g, longname} -setup {
+    test CREATE-1.2 {Duplicate g} -setup {
         ted order ORGGROUP:CREATE $usaid
     } -body {
         ted order -reject ORGGROUP:CREATE $usaid
@@ -77,18 +76,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {
         g {An entity with this ID already exists}
-        longname {An entity with this name already exists}
-    }
-
-
-    test CREATE-1.3 {longname duplicates n} -body {
-        ted order -reject ORGGROUP:CREATE [dict merge $usaid {
-            longname USAID
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        longname {longname must not be identical to ID}
     }
 
 
@@ -156,8 +143,15 @@ USAID US Aid     #00FF00 NEUTRAL organization AVERAGE  ORG   NGO
 HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR     
     }
 
+    test CREATE-2.2 {longname defaults to ID} -body {
+        ted order ORGGROUP:CREATE [dict merge $usaid {longname ""}]
 
-    test CREATE-2.2 {Effects} -body {
+        rdb onecolumn {SELECT longname FROM orggroups_view}
+    } -cleanup {
+        cleanup
+    } -result {USAID}
+
+    test CREATE-2.3 {Effects} -body {
         ted notifier bind ::rdb <orggroups>
         ted notifier bind ::scenario <Reconcile>
         ted order ORGGROUP:CREATE $usaid
@@ -238,30 +232,6 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR
         g {required value}
     }
     
-    test UPDATE-1.2 {Duplicate longname} -setup {
-        ted order ORGGROUP:CREATE $usaid
-        ted order ORGGROUP:CREATE $hal
-    } -body {
-        ted order -reject ORGGROUP:UPDATE g USAID longname "Haliburton"
-    } -cleanup {
-        cleanup
-    } -result {
-        longname {An entity with this name already exists}
-    }
-
-
-    test UPDATE-1.3 {longname duplicates some g} -setup {
-        ted order ORGGROUP:CREATE $usaid
-        ted order ORGGROUP:CREATE $hal
-    } -body {
-        ted order -reject ORGGROUP:UPDATE g USAID longname HAL
-    } -cleanup {
-        cleanup
-    } -result {
-        longname {An entity with this ID already exists}
-    }
-
-
     test UPDATE-1.4 {invalid color} -setup {
         ted order ORGGROUP:CREATE $usaid
     } -body {

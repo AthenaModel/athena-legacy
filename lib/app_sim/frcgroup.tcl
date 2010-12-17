@@ -301,7 +301,7 @@ order define FRCGROUP:CREATE {
 } {
     # FIRST, prepare and validate the parameters
     prepare g          -toupper   -required -unused -type ident
-    prepare longname   -normalize -required -unused
+    prepare longname   -normalize
     prepare color      -tolower   -required -type hexcolor
     prepare shape      -toupper   -required -type eunitshape
     prepare forcetype  -toupper   -required -type eforcetype
@@ -309,14 +309,12 @@ order define FRCGROUP:CREATE {
     prepare uniformed  -toupper   -required -type boolean
     prepare local      -toupper   -required -type boolean
 
-    returnOnError
-
-    # NEXT, do cross-validation
-    if {$parms(g) eq $parms(longname)} {
-        reject longname "longname must not be identical to ID"
-    }
-
     returnOnError -final
+
+    # NEXT, If longname is "", defaults to ID.
+    if {$parms(longname) eq ""} {
+        set parms(longname) $parms(g)
+    }
 
     # NEXT, create the group and dependent entities
     lappend undo [frcgroup mutate create [array get parms]]
@@ -388,11 +386,8 @@ order define FRCGROUP:UPDATE {
     parm local      enum  "Local Group?"       -type eyesno
 } {
     # FIRST, prepare the parameters
-    prepare g         -toupper  -required -type frcgroup
-
-    set oldname [rdb onecolumn {SELECT longname FROM groups WHERE g=$parms(g)}]
-
-    prepare longname  -normalize -oldvalue $oldname -unused
+    prepare g         -toupper   -required -type frcgroup
+    prepare longname  -normalize
     prepare color     -tolower   -type hexcolor
     prepare shape     -toupper   -type eunitshape
     prepare forcetype -toupper   -type eforcetype
