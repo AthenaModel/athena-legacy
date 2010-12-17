@@ -308,6 +308,91 @@ order ACTIVITY:PRIORITY "Prioritize Scheduled Activity" {
     Allows the analyst to change the priority of a scheduled activity.
 }
 
+#=======================================================================
+# Actor Orders
+
+macro ACTOR.a {} {
+    |<--
+    The ID of an existing actor.
+}
+
+macro ACTOR.budget {} {
+    |<--
+    The actor's budget, in dollars per year.  This limits the
+    actor's tactics.<p>
+
+    This parameter is temporary, and will go away once the economic 
+    model is providing the budgets to each actor. 
+}
+
+page ACTOR: "Actor Orders" orders {
+    <<title>>
+
+    Athena uses actors to model political actors of various kinds:
+    political leaders, important parties, foreign countries, and so forth.
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order ACTOR:CREATE "Create Actor" {
+    <<parmlist>>
+    <<parm a "Actor">>
+    <b>Required.</b>  <<parm.identifier actor USA>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Optional.</b> <<parm.longname actor "United States">>
+    <</parm>>
+
+    <<parm budget "Budget $/Yr">>
+    <b>Optional.</b> <<ACTOR.budget>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order creates a
+    new actor.
+}
+
+
+#-----------------------------------------------------------------------
+
+order ACTOR:DELETE "Delete Actor" {
+    <<parmlist>>
+
+    <<parm a "Actor">>
+    <b>Required.</b>  <<ACTOR.a>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    actor, along with all entities (e.g., beliefs)
+    that depend upon it.<p>
+}
+
+#-----------------------------------------------------------------------
+
+order ACTOR:UPDATE "Update Actor" {
+    <<parmlist>>
+    <<parm a "Actor">>
+    <b>Required.</b>  <<ACTOR.a>>
+    <</parm>>
+
+    <<parm longname "Long Name">>
+    <b>Optional.</b> <<parm.longname actor "United States">>
+    <</parm>>
+
+    <<parm budget "Budget $/Yr">>
+    <b>Optional.</b> <<ACTOR.budget>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of an existing actor.<p>
+}
 
 #-----------------------------------------------------------------------
 

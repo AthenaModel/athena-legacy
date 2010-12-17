@@ -1086,10 +1086,55 @@ tab "Neighborhoods/EnSits" {
 # Groups Tab
 
 tab "Groups" {
-    This tab collects data about the various groups in the playbox.
-    It has the following subtabs.<p>
+    This tab collects data about the various actors and groups in the 
+    playbox.  It has the following subtabs.<p>
 
     <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Groups/Actors" {
+    This tab shows basic data about each 
+    <<cref ACTOR: "actor">>, as entered
+    during <<cref using.prep>>.
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic ID>>The actor's ID.<</topic>>
+
+    <<topic "Long Name">>The human-readable name for the actor.<</topic>>
+    
+    <<topic "Budget $/yr">>The actor's operating budget in dollars per 
+    year.<</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_plus">}>>
+    Pops up the <<cref ACTOR:CREATE>> dialog.
+    <</topic>>
+
+    <<topic {<img src="button_pencil">}>>
+    If a single row is selected, pops up the 
+    <<cref ACTOR:UPDATE>> dialog for
+    the selected row.
+    <</topic>>
+
+    <<topic {<img src="button_x">}>>
+    If a single row is selected, deletes it using the
+    <<cref ACTOR:DELETE>> order.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
 }
 
 #-----------------------------------------------------------------------

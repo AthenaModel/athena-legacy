@@ -32,6 +32,28 @@ enum esector {
     ELSE  else
 }
 
+# money: money values
+snit::type money {
+    pragma -hasinstances no
+
+    typemethod validate {value} {
+        if {[catch {
+            set newValue [::marsutil::moneyscan $value]
+        } result]} {
+            set scanErr 1
+        } else {
+            set scanErr 0
+        }
+
+        if {$scanErr || $newValue < 0.0} {
+            return -code error -errorcode INVALID \
+                "invalid money value \"$value\", expected positive numeric value with optional K, M, or B suffix"
+        }
+
+        return $newValue
+    }
+}
+
 # rcoverage: The range for the coverage fractions
 
 ::marsutil::range rcov -min 0.0 -max 1.0

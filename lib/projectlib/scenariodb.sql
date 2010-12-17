@@ -146,6 +146,21 @@ CREATE TABLE nbrel_mn (
 );
 
 ------------------------------------------------------------------------
+-- Actor Tables
+
+-- Actor Data
+CREATE TABLE actors (
+    -- Symbolic actor name
+    a           TEXT PRIMARY KEY,
+
+    -- Full actor name
+    longname    TEXT,
+
+    -- Yearly budget, in $
+    budget      DOUBLE DEFAULT 0
+);
+
+------------------------------------------------------------------------
 -- Group Tables
 
 -- Generic Group Data

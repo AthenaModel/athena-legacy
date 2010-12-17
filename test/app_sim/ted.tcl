@@ -30,6 +30,7 @@ snit::type ted {
     # a test.
 
     typevariable cleanupTables {
+        actors
         nbhoods
         nbrel_mn
         groups
@@ -161,6 +162,19 @@ snit::type ted {
             polygon      {600 600 600 800 800 800 800 600}
         }
 
+        # Actors
+        
+        defentity JOE ::actor {
+            a        JOE
+            longname "Joe the Actor"
+            budget   1000000
+        }
+
+        defentity BOB ::actor {
+            a        BOB
+            longname "Bob the Actor"
+            budget   100000
+        }
 
         # Civ Groups
         

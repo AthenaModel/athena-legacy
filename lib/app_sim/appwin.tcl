@@ -173,6 +173,12 @@ snit::widget appwin {
             script  ""
         }
 
+        actors {
+            label   "Actors"
+            parent  groupst
+            script  { actorbrowser %W }
+        }
+
         civgroups {
             label   "CivGroups"
             parent  groupst
@@ -699,6 +705,15 @@ snit::widget appwin {
         $self AddOrder $submenu MAD:SAT:SET
         $self AddOrder $submenu MAD:SAT:LEVEL
         $self AddOrder $submenu MAD:SAT:SLOPE
+
+        # Orders/Actors
+        set submenu [menu $ordersmenu.actor]
+        $ordersmenu add cascade -label "Actors" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu ACTOR:CREATE
+        $self AddOrder $submenu ACTOR:UPDATE
+        $self AddOrder $submenu ACTOR:DELETE
 
         # Orders/Civilian Group
         set submenu [menu $ordersmenu.civgroup]

@@ -72,6 +72,7 @@ snit::type scenario {
         rdb register ::dam
 
         # NEXT, monitor tables. 
+        rdb monitor add actors       {a}
         rdb monitor add attroe_nfg   {n f g}
         rdb monitor add calendar     {cid}
         rdb monitor add civgroups    {g}
@@ -603,6 +604,8 @@ snit::type scenario {
 
     proc DefineTempSchema {} {
         # FIRST, define SQL functions
+        # TBD: qsecurity should be added to scenariodb(n).
+        # TBD: moneyfmt should be added to sqldocument(n).
         rdb function m2ref                [myproc M2Ref]
         rdb function ciftop               [list ::cif mark]
         rdb function qsecurity            ::projectlib::qsecurity

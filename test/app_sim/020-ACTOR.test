@@ -1,0 +1,265 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-ACTOR.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) ACTOR:* order tests.
+#
+#    This test suite tests the actor-related orders.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Standard actors
+
+    set joe {
+        a        JOE
+        longname "Joe the Actor"
+        budget   1000000
+    }
+
+    set bob {
+        a        BOB
+        longname "Bob the Actor"
+        budget   100000
+    }
+
+
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # ACTOR:CREATE
+
+    test CREATE-1.1 {required parms} -body {
+        ted order -reject ACTOR:CREATE {}
+    } -result {
+        a {required value}
+    }
+    
+    test CREATE-1.2 {Duplicate a} -setup {
+        ted order ACTOR:CREATE $joe
+    } -body {
+        ted order -reject ACTOR:CREATE $joe
+    } -cleanup {
+        cleanup
+    } -result {
+        a {An entity with this ID already exists}
+    }
+
+    test CREATE-1.3 {a is not an ident} -body {
+        ted order -reject ACTOR:CREATE [dict merge $joe {
+            a "JOE&BOB"
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        a {Identifiers begin with a letter and contain only letters and digits.}
+    }
+
+    test CREATE-1.4 {invalid budget} -body {
+        ted order -reject ACTOR:CREATE [dict merge $joe {
+            budget NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        budget {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+    
+
+
+    test CREATE-2.1 {actor is created} -body {
+        ted order ACTOR:CREATE $joe
+        
+        ted query {SELECT * FROM actors}
+    } -cleanup {
+        cleanup
+    } -result {
+a   longname      budget    
+--- ------------- --------- 
+JOE Joe the Actor 1000000.0 
+    }
+
+
+    test CREATE-2.2 {longname defaults to ID} -body {
+        ted order ACTOR:CREATE [dict merge $joe {longname ""}]
+        
+        ted query {SELECT * FROM actors}
+    } -cleanup {
+        cleanup
+    } -result {
+a   longname budget    
+--- -------- --------- 
+JOE JOE      1000000.0 
+    }
+
+    test CREATE-2.3 {effects} -body {
+        ted notifier bind ::rdb <actors>
+        ted order ACTOR:CREATE $joe
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <actors> update JOE}
+    }
+
+
+    test CREATE-3.1 {effects are undone} -setup {
+        ted order ACTOR:CREATE $joe
+    } -body {
+        ted notifier bind ::rdb <actors>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <actors> delete JOE}
+    }
+
+    #-------------------------------------------------------------------
+    # ACTOR:DELETE
+
+    test DELETE-1.1 {required parms} -body {
+        ted order -reject ACTOR:DELETE {}
+    } -result {
+        a {required value}
+    }
+    
+
+    test DELETE-1.2 {unknown a} -body {
+        ted order -reject ACTOR:DELETE a NONESUCH
+    } -result {
+        a {Invalid actor, none are defined}
+    }
+
+
+    test DELETE-2.1 {Effects} -setup {
+        ted create JOE
+    } -body {
+        ted notifier bind ::rdb <actors>
+        ted order ACTOR:DELETE a JOE
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <actors> delete JOE}
+    }
+
+
+    test DELETE-3.1 {Effects on undo} -setup {
+        ted create JOE
+        ted order ACTOR:DELETE a JOE
+    } -body {
+        ted notifier bind ::rdb <actors>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <actors> update JOE}
+    }
+
+    #-------------------------------------------------------------------
+    # ACTOR:UPDATE
+
+    test UPDATE-1.1 {required parms} -body {
+        ted order -reject ACTOR:UPDATE {}
+    } -result {
+        a {required value}
+    }
+
+    
+    test UPDATE-1.2 {invalid budget} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:UPDATE a JOE budget NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        budget {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test UPDATE-2.1 {actor is updated} -setup {
+        ted create JOE
+    } -body {
+        ted order ACTOR:UPDATE {
+            a            JOE
+            longname     "Joe the Actress"
+            budget       0
+        }
+
+        ted query {SELECT * FROM actors}
+    } -cleanup {
+        cleanup
+    } -result {
+a   longname        budget 
+--- --------------- ------ 
+JOE Joe the Actress 0.0    
+    }
+
+
+    test UPDATE-2.2 {table monitor event} -setup {
+        ted create JOE
+    } -body {
+        ted notifier bind ::rdb <actors>
+        ted order ACTOR:UPDATE a JOE longname "Joe the Actress"
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <actors> update JOE}
+    }
+
+
+    test UPDATE-3.1 {undo effects} -setup {
+        ted create NB1 JOE
+        ted order ACTOR:UPDATE {
+            a            JOE
+            longname     "Joe the Actress"
+        }
+    } -body {
+        ted notifier bind ::rdb <actors>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <actors> update JOE}
+    }
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+

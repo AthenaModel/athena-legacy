@@ -41,6 +41,14 @@ JOIN demog_n ON (demog_n.n = nbhoods.n)
 LEFT OUTER JOIN force_n ON (force_n.n = nbhoods.n)
 LEFT OUTER JOIN gram_n  ON (gram_n.n  = nbhoods.n);
 
+-- An Actors view for use by the GUI
+CREATE TEMPORARY VIEW gui_actors AS
+SELECT a                  AS id,
+       a                  AS a,
+       longname           AS longname,
+       moneyfmt(budget)   AS budget
+FROM actors;
+
 
 -- A CIV Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_civgroups AS
@@ -491,42 +499,17 @@ WHERE nbhoods.local;
 -- into it for each entity?
 
 CREATE TEMPORARY VIEW entities AS
-SELECT 'PLAYBOX'      AS id, 
-       'reserved'     AS etype
-UNION
-SELECT 'CIV'          AS id, 
-       'reserved'     AS etype
-UNION
-SELECT 'FRC'          AS id, 
-       'reserved'     AS etype
-UNION
-SELECT 'ORG'          AS id, 
-       'reserved'     AS etype
-UNION
-SELECT 'ALL'          AS id, 
-       'reserved'     AS etype
-UNION
-SELECT 'NONE'         AS id, 
-       'reserved'     AS etype
-UNION
-SELECT n              AS id, 
-       'nbhood'       AS etype 
-FROM nbhoods
-UNION
-SELECT g              AS id, 
-       'group'        AS etype 
-FROM groups
-UNION
-SELECT c              AS id, 
-       'concern'      AS etype 
-FROM concerns
-UNION
-SELECT a              AS id, 
-       'activity'     AS etype 
-FROM activity
-UNION
-SELECT u              AS id,
-       'unit'         AS etype
-FROM units;
+SELECT 'PLAYBOX' AS id, 'reserved' AS etype               UNION
+SELECT 'CIV'     AS id, 'reserved' AS etype               UNION
+SELECT 'FRC'     AS id, 'reserved' AS etype               UNION
+SELECT 'ORG'     AS id, 'reserved' AS etype               UNION
+SELECT 'ALL'     AS id, 'reserved' AS etype               UNION
+SELECT 'NONE'    AS id, 'reserved' AS etype               UNION
+SELECT n         AS id, 'nbhood'   AS etype FROM nbhoods  UNION
+SELECT a         AS id, 'actor'    AS etype FROM actors   UNION
+SELECT g         AS id, 'group'    AS etype FROM groups   UNION
+SELECT c         AS id, 'concern'  AS etype FROM concerns UNION
+SELECT a         AS id, 'activity' AS etype FROM activity UNION
+SELECT u         AS id, 'unit'     AS etype FROM units;
 
 
