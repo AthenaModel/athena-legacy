@@ -37,7 +37,6 @@ snit::type ted {
         civgroups
         frcgroups
         orggroups
-        sat_gc
         rel_fg
         coop_fg
         attroe_nfg
@@ -49,10 +48,8 @@ snit::type ted {
         ensits_t
         actsits_t
         demog_local
-        demog_n
         demog_g
         mads
-        econ_n
         calendar
         activity_nga
         personnel_ng

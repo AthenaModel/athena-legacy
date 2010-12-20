@@ -33,82 +33,6 @@ namespace eval ::athena_test::tests:: {
         ted cleanup
     }
 
-    #-------------------------------------------------------------------
-    # mutate reconcile
-
-    test reconcile-1.1 {create nb relationships} -setup {
-        ted create NB1 NB2
-    } -body {
-        nbrel mutate reconcile
-        
-        ted query {SELECT * FROM nbrel_mn}
-    } -cleanup {
-        cleanup
-    } -result {
-m   n   proximity effects_delay 
---- --- --------- ------------- 
-NB1 NB1 HERE      0.0           
-NB1 NB2 REMOTE    0.0           
-NB2 NB1 REMOTE    0.0           
-NB2 NB2 HERE      0.0           
-    }
-
-
-    test reconcile-1.3 {Created curves are undone} -setup {
-        ted create NB1 NB2
-        set undo [nbrel mutate reconcile]
-    } -body {
-        eval $undo
-        rdb query {SELECT * FROM nbrel_mn}
-    } -cleanup {
-        cleanup
-    } -result {}
-    
-
-    test reconcile-2.1 {nb relations deleted with nbhood} -setup {
-        ted create NB1 NB2
-        nbrel mutate reconcile
-    } -body {
-        nbhood mutate delete NB1
-        nbrel mutate reconcile
-
-        # NB2 remains
-        ted query {SELECT * FROM nbrel_mn}
-    } -cleanup {
-        cleanup
-    } -result {
-m   n   proximity effects_delay 
---- --- --------- ------------- 
-NB2 NB2 HERE      0.0           
-    }
-
-
-    test reconcile-2.3 {On undo: deleted nbrels are restored} -setup {
-        # FIRST, create the nbhoods and relationships
-        ted create NB1 NB2
-        nbrel mutate reconcile
-
-        # NEXT, update one, so that we can see that it's restored
-        nbrel mutate update [list id {NB1 NB2} proximity NEAR]
-
-        # NEXT, delete a neighborhood, and get the undo script.
-        nbhood mutate delete NB1
-
-        set undo [nbrel mutate reconcile]
-    } -body {
-        eval $undo
-        ted query {SELECT * FROM nbrel_mn}
-    } -cleanup {
-        cleanup
-    } -result {
-m   n   proximity effects_delay 
---- --- --------- ------------- 
-NB2 NB2 HERE      0.0           
-NB1 NB1 HERE      0.0           
-NB1 NB2 NEAR      0.0           
-NB2 NB1 REMOTE    0.0           
-    }
-
 
     #-------------------------------------------------------------------
     # mutate update
@@ -116,7 +40,6 @@ NB2 NB1 REMOTE    0.0
 
     test update-1.1 {nbrel is updated} -setup {
         ted create NB1 NB2
-        nbrel mutate reconcile
     } -body {
         nbrel mutate update {
             id            {NB1 NB2}
@@ -124,7 +47,7 @@ NB2 NB1 REMOTE    0.0
             effects_delay 1.0
         }
 
-        ted query {SELECT * FROM nbrel_mn}
+        ted query {SELECT * FROM nbrel_mn ORDER BY m,n}
     } -cleanup {
         cleanup
     } -result {
@@ -139,7 +62,6 @@ NB2 NB2 HERE      0.0
 
     test update-1.2 {identical values are OK} -setup {
         ted create NB1 NB2
-        nbrel mutate reconcile
         set parmdict {
             id            {NB1 NB2}
             proximity     NEAR
@@ -162,7 +84,6 @@ NB2 NB2 HERE      0.0
 
     test update-1.3 {empty values are OK} -setup {
         ted create NB1 NB2
-        nbrel mutate reconcile
     } -body {
         set a [ted query {SELECT * FROM nbrel_mn}]
 
@@ -183,7 +104,6 @@ NB2 NB2 HERE      0.0
 
     test update-2.1 {undo undoes the change} -setup {
         ted create NB1 NB2
-        nbrel mutate reconcile
     } -body {
 
         set a [ted query {SELECT * FROM nbrel_mn ORDER BY m,n}]

@@ -222,6 +222,15 @@ snit::type nbhood {
                        $refpoint,
                        $polygon);
 
+                INSERT INTO nbrel_mn(m,n)
+                SELECT $n, n FROM nbhoods WHERE n != $n;
+
+                INSERT INTO nbrel_mn(m,n)
+                SELECT n, $n FROM nbhoods WHERE n != $n;
+
+                INSERT INTO nbrel_mn(m,n,proximity)
+                VALUES($n,$n,'HERE');
+
                 INSERT INTO demog_n(n) VALUES($n);
                 INSERT INTO econ_n(n)  VALUES($n);
             } {}
@@ -258,8 +267,7 @@ snit::type nbhood {
     typemethod {mutate delete} {n} {
         # FIRST, get this neighborhood's undo information and
         # delete the relevant records.
-        set data [rdb delete -grab \
-                      nbhoods {n=$n} demog_n {n=$n} econ_n {n=$n}]
+        set data [rdb delete -grab nbhoods {n=$n}]
 
         # NEXT, update the $geo module
         $geo delete $n
@@ -269,16 +277,16 @@ snit::type nbhood {
         $type SetObscuredBy
 
         # NEXT, return aggregate undo script.
-        return [mytypemethod Restore $data]
+        return [mytypemethod UndoDelete $data]
     }
 
-    # Restore grabData
+    # UndoDelete grabData
     #
-    # grabData     nbhoods, demog_n, and econ_n rows to be restored.
+    # grabData     Rows to be restored.
     #
     # Restores a neighborhood.
 
-    typemethod Restore {grabData} {
+    typemethod UndoDelete {grabData} {
         # FIRST, restore the database rows
         rdb ungrab $grabData
 

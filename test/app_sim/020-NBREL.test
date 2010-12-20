@@ -28,7 +28,6 @@ namespace eval ::athena_test::tests:: {
 
     proc setup {} {
         ted create NB1 NB2
-        nbrel mutate reconcile
     }
 
 
@@ -115,7 +114,7 @@ namespace eval ::athena_test::tests:: {
             effects_delay 1.0
         }
 
-        ted query {SELECT * FROM nbrel_mn}
+        ted query {SELECT * FROM nbrel_mn ORDER BY m,n}
     } -cleanup {
         cleanup
     } -result {

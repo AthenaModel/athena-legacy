@@ -531,7 +531,6 @@ snit::type scenario {
     typemethod {mutate reconcile} {} {
         set undo [list]
 
-        lappend undo [nbrel     mutate reconcile]
         lappend undo [civgroup  mutate reconcile]
         lappend undo [personnel mutate reconcile]
         lappend undo [rel       mutate reconcile]

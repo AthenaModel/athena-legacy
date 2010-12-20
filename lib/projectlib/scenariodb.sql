@@ -128,10 +128,14 @@ CREATE TABLE nbhoods (
 -- Neighborhood relationships from m's point of view
 CREATE TABLE nbrel_mn (
     -- Symbolic nbhood name
-    m             TEXT,
+    m             TEXT REFERENCES nbhoods(n)
+                  ON DELETE CASCADE
+                  DEFERRABLE INITIALLY DEFERRED,
 
     -- Symbolic nbhood name
-    n             TEXT,
+    n             TEXT REFERENCES nbhoods(n)
+                  ON DELETE CASCADE
+                  DEFERRABLE INITIALLY DEFERRED,
 
     -- Proximity of m to n from m's point of view: eproximity value
     -- By default, a direct effect in n has no indirect effects in m,
@@ -800,7 +804,9 @@ CREATE TABLE demog_local (
 
 CREATE TABLE demog_n (
     -- Symbolic neighborhood name
-    n            TEXT PRIMARY KEY,
+    n            TEXT PRIMARY KEY REFERENCES nbhoods(n)
+                 ON DELETE CASCADE
+                 DEFERRABLE INITIALLY DEFERRED,
 
     -- Total displaced population in the neighborhood at the current time.
     displaced    INTEGER DEFAULT 0,
@@ -909,7 +915,9 @@ JOIN demog_n   AS DN USING (n);
 
 CREATE TABLE econ_n (
     -- Symbolic neighborhood name
-    n          TEXT PRIMARY KEY,
+    n          TEXT PRIMARY KEY REFERENCES nbhoods(n)
+               ON DELETE CASCADE
+               DEFERRABLE INITIALLY DEFERRED,
 
     -- The following columns can be ignored if nbhoods.local == 0.    
 
