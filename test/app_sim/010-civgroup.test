@@ -55,6 +55,13 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
         cleanup
     } -result {SHIA}
 
+    test create-1.3 {sat curves are created} -body {
+        civgroup mutate create [ted entity SHIA]
+        rdb eval {SELECT c FROM sat_gc WHERE g='SHIA' ORDER BY c}
+    } -cleanup {
+        cleanup
+    } -result {AUT CUL QOL SFT}
+
     test create-2.1 {undo deletes the civgroup} -setup {
         civgroup mutate create [ted entity SHIA]
         set undo [civgroup mutate create [ted entity SUNN]]
@@ -74,6 +81,15 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
     } -cleanup {
         cleanup
     } -result {SHIA}
+
+    test create-2.3 {undo deletes the sat curves} -setup {
+        set undo [civgroup mutate create [ted entity SUNN]]
+    } -body {
+        {*}$undo
+        rdb eval {SELECT c FROM sat_gc WHERE g='SHIA' ORDER BY c}
+    } -cleanup {
+        cleanup
+    } -result {}
 
     #-------------------------------------------------------------------
     # mutate delete
@@ -102,6 +118,17 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
     } -result {SUNN}
 
 
+    test delete-1.3 {sat curves are deleted} -setup {
+        ted create SHIA
+    } -body {
+        civgroup mutate delete SHIA
+
+        rdb eval {SELECT c FROM sat_gc WHERE g='SHIA' ORDER BY c}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
     test delete-2.1 {Undo restores group} -setup {
         ted create SHIA
         set undo [civgroup mutate delete SHIA]
@@ -116,7 +143,7 @@ g    longname color   shape   symbol   demeanor gtype n   basepop sap
 SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10  
     }
 
-    test delete-2.1 {Undo restores bsystem entity} -setup {
+    test delete-2.2 {Undo restores bsystem entity} -setup {
         ted create SHIA SUNN
         set undo [civgroup mutate delete SHIA]
     } -body {
@@ -125,6 +152,16 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
     } -cleanup {
         cleanup
     } -result {SHIA SUNN}
+
+    test delete-2.3 {Undo restores sat curves} -setup {
+        ted create SHIA
+        set undo [civgroup mutate delete SHIA]
+    } -body {
+        {*}$undo
+        rdb eval {SELECT c FROM sat_gc WHERE g='SHIA' ORDER BY c}
+    } -cleanup {
+        cleanup
+    } -result {AUT CUL QOL SFT}
 
     #-------------------------------------------------------------------
     # mutate update

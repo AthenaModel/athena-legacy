@@ -28,7 +28,6 @@ namespace eval ::athena_test::tests:: {
 
     proc setup {} {
         ted create NB1 SHIA SUNN
-        sat mutate reconcile
     }
 
 

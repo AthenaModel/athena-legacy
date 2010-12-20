@@ -224,8 +224,8 @@ snit::type sim {
         # NEXT, clear the event queue
         eventq restart
 
-        # NEXT, clear the mam(n).
-        belief clear
+        # NEXT, clear the belief system
+        bsystem clear
 
         # NEXT, set the simulation status
         set info(changed) 0

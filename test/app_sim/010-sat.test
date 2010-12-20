@@ -34,101 +34,12 @@ namespace eval ::athena_test::tests:: {
         ted cleanup
     }
 
-    #-------------------------------------------------------------------
-    # mutate reconcile
-
-    test reconcile-1.1 {nbgroup curves are populated} -setup {
-        ted create NB1 SHIA SUNN
-    } -body {
-        sat mutate reconcile
-        ted query {SELECT * FROM sat_gc}
-    } -cleanup {
-        cleanup
-    } -result {
-g    c   sat0 saliency atrend athresh dtrend dthresh 
----- --- ---- -------- ------ ------- ------ ------- 
-SHIA AUT 0.0  1.0      0.0    0.0     0.0    0.0     
-SHIA SFT 0.0  1.0      0.0    0.0     0.0    0.0     
-SHIA CUL 0.0  1.0      0.0    0.0     0.0    0.0     
-SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0     
-SUNN AUT 0.0  1.0      0.0    0.0     0.0    0.0     
-SUNN SFT 0.0  1.0      0.0    0.0     0.0    0.0     
-SUNN CUL 0.0  1.0      0.0    0.0     0.0    0.0     
-SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0     
-    }
-
-    test reconcile-1.3 {Created curves are undone} -setup {
-        ted create NB1 SHIA
-        set undo [sat mutate reconcile]
-    } -body {
-        eval $undo
-        rdb query {SELECT * FROM sat_gc}
-    } -cleanup {
-        cleanup
-    } -result {}
-    
-
-    test reconcile-2.1 {CIV curves deleted with group} -setup {
-        ted create NB1 SHIA SUNN
-        sat mutate reconcile
-    } -body {
-        civgroup mutate delete SHIA
-        sat mutate reconcile
-
-        # SUNN remains
-        ted query {SELECT * FROM sat_gc}
-    } -cleanup {
-        cleanup
-    } -result {
-g    c   sat0 saliency atrend athresh dtrend dthresh 
----- --- ---- -------- ------ ------- ------ ------- 
-SUNN AUT 0.0  1.0      0.0    0.0     0.0    0.0     
-SUNN SFT 0.0  1.0      0.0    0.0     0.0    0.0     
-SUNN CUL 0.0  1.0      0.0    0.0     0.0    0.0     
-SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0     
-    }
-
-
-    test reconcile-2.3 {On undo: deleted curves are restored} -setup {
-        # FIRST, create the groups and related curves
-        ted create NB1 NB2 SHIA KURD
-        sat mutate reconcile
-
-        # NEXT, update one, so that we can see that it's restored
-        sat mutate update \
-            [list id {SHIA AUT} sat0 1.0 trend0 2.0 saliency 0.5]
-
-        # NEXT, delete the groups and related curves, and get the
-        # undo script.
-        civgroup mutate delete SHIA
-
-        set undo [sat mutate reconcile]
-    } -body {
-        eval $undo
-        ted query {SELECT * FROM sat_gc}
-    } -cleanup {
-        cleanup
-    } -result {
-g    c   sat0 saliency atrend athresh dtrend dthresh 
----- --- ---- -------- ------ ------- ------ ------- 
-KURD AUT 0.0  1.0      0.0    0.0     0.0    0.0     
-KURD SFT 0.0  1.0      0.0    0.0     0.0    0.0     
-KURD CUL 0.0  1.0      0.0    0.0     0.0    0.0     
-KURD QOL 0.0  1.0      0.0    0.0     0.0    0.0     
-SHIA AUT 1.0  0.5      0.0    0.0     0.0    0.0     
-SHIA SFT 0.0  1.0      0.0    0.0     0.0    0.0     
-SHIA CUL 0.0  1.0      0.0    0.0     0.0    0.0     
-SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0     
-    }
-
 
     #-------------------------------------------------------------------
     # mutate update
 
-
     test update-1.1 {sat is updated} -setup {
         ted create NB1 SHIA
-        sat mutate reconcile
     } -body {
         sat mutate update {
             id             {SHIA AUT}
@@ -155,7 +66,7 @@ SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
 
     test update-1.2 {identical values are OK} -setup {
         ted create NB1 SHIA
-        sat mutate reconcile
+
         set parmdict {
             id             {SHIA AUT}
             sat0           1.0
@@ -183,7 +94,6 @@ SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
 
     test update-1.3 {empty values are OK} -setup {
         ted create NB1 SHIA
-        sat mutate reconcile
     } -body {
         set a [ted query {SELECT * FROM sat_gc}]
 
@@ -207,7 +117,6 @@ SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
 
     test update-2.1 {undo undoes the change} -setup {
         ted create NB1 SHIA
-        sat mutate reconcile
     } -body {
 
         set a [ted query {SELECT * FROM sat_gc ORDER BY g,c}]
@@ -242,7 +151,6 @@ SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
 
     test exists-1.2 {sat exists} -setup {
         ted create NB1 SHIA
-        sat mutate reconcile
     } -body {
         sat exists SHIA SFT
     } -cleanup {
@@ -275,7 +183,6 @@ SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
 
     test validate-2.1 {Valid group} -setup {
         ted create NB1 SHIA
-        sat mutate reconcile
     } -body {
         sat validate {SHIA SFT}
     } -cleanup {

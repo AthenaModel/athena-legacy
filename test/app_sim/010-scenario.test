@@ -45,7 +45,6 @@ namespace eval ::athena_test::tests:: {
     test reconcile-1.1 {All entities are reconciled} -body {
         ted notifier bind ::rdb      <nbrel_mn>
         ted notifier bind ::rdb      <civgroups>
-        ted notifier bind ::rdb      <sat_gc>
         ted notifier bind ::rdb      <rel_fg>
         ted notifier bind ::rdb      <coop_fg>
         ted notifier bind ::rdb      <attroe_nfg>
@@ -70,10 +69,6 @@ namespace eval ::athena_test::tests:: {
         {::scenario <Reconcile>}
         {::rdb <civgroups> update SHIA}
         {::rdb <nbrel_mn> update {NB1 NB1}}
-        {::rdb <sat_gc> update {SHIA AUT}}
-        {::rdb <sat_gc> update {SHIA SFT}}
-        {::rdb <sat_gc> update {SHIA CUL}}
-        {::rdb <sat_gc> update {SHIA QOL}}
         {::rdb <rel_fg> update {BLUE BLUE}}
         {::rdb <rel_fg> update {BLUE USAID}}
         {::rdb <rel_fg> update {BLUE SHIA}}
@@ -86,10 +81,6 @@ namespace eval ::athena_test::tests:: {
         {::rdb <coop_fg> update {SHIA BLUE}}
         {::rdb <nbrel_mn> delete {NB1 NB1}}
         {::rdb <civgroups> delete SHIA}
-        {::rdb <sat_gc> delete {SHIA AUT}}
-        {::rdb <sat_gc> delete {SHIA SFT}}
-        {::rdb <sat_gc> delete {SHIA CUL}}
-        {::rdb <sat_gc> delete {SHIA QOL}}
         {::rdb <rel_fg> delete {BLUE SHIA}}
         {::rdb <rel_fg> delete {USAID SHIA}}
         {::rdb <rel_fg> delete {SHIA BLUE}}
@@ -111,7 +102,6 @@ namespace eval ::athena_test::tests:: {
 
         ted notifier bind ::rdb      <nbrel_mn>
         ted notifier bind ::rdb      <civgroups>
-        ted notifier bind ::rdb      <sat_gc>
         ted notifier bind ::rdb      <rel_fg>
         ted notifier bind ::rdb      <coop_fg>
         ted notifier bind ::rdb      <defroe_fg>
@@ -127,10 +117,6 @@ namespace eval ::athena_test::tests:: {
     } -result {
         {::rdb <nbrel_mn> update {NB1 NB1}}
         {::rdb <civgroups> update SHIA}
-        {::rdb <sat_gc> update {SHIA AUT}}
-        {::rdb <sat_gc> update {SHIA SFT}}
-        {::rdb <sat_gc> update {SHIA CUL}}
-        {::rdb <sat_gc> update {SHIA QOL}}
         {::rdb <rel_fg> update {BLUE BLUE}}
         {::rdb <rel_fg> update {BLUE USAID}}
         {::rdb <rel_fg> update {BLUE SHIA}}

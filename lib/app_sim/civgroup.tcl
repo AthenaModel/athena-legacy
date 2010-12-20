@@ -161,6 +161,9 @@ snit::type civgroup {
 
                 INSERT INTO demog_g(g)
                 VALUES($g);
+
+                INSERT INTO sat_gc(g,c)
+                SELECT $g, c FROM concerns;
             }
 
             # NEXT, create a bsystem entity

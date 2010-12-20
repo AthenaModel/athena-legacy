@@ -363,7 +363,9 @@ CREATE INDEX attrit_nfg_index_nfg ON attrit_nfg(n,f,g);
 
 CREATE TABLE sat_gc (
     -- Symbolic groups name
-    g          TEXT,
+    g          TEXT REFERENCES civgroups(g) 
+               ON DELETE CASCADE
+               DEFERRABLE INITIALLY DEFERRED,
 
     -- Symbolic concerns name
     c          TEXT,
