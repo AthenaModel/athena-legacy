@@ -398,6 +398,11 @@ If this option is omitted, or <i>states</i> is the empty list, the
 order cannot be sent in any state.  See
 <<xref "Application States">> for more information.<p>
 
+<<defopt {-monitor <i>flag</i>}>>
+
+If true (the default) then RDB row monitoring will be enabled as the
+order executes.  If false, then it will not be.<p>
+
 <</deflist options>>
 
 

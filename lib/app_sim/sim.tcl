@@ -1408,7 +1408,9 @@ order define SIM:LOCK {
 
 order define SIM:UNLOCK {
     title "Unlock Scenario Preparation"
-    options -sendstates {PAUSED SNAPSHOT}
+    options \
+        -sendstates {PAUSED SNAPSHOT} \
+        -monitor    no
 } {
     returnOnError -final
 

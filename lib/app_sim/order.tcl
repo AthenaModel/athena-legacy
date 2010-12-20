@@ -298,6 +298,7 @@ snit::type order {
             -refreshcmd     {}
             -schedulestates {}
             -sendstates     {}
+            -monitor        1
         }
         set orders(parms-$name) ""
         array unset orders pdict-$name-*
@@ -365,6 +366,10 @@ snit::type order {
     #     States in which the order can be sent.  If clear, the order 
     #     cannot be sent.
     #
+    # -monitor flag
+    #     If yes (the default) perform row monitoring when the order
+    #     is sent.  If not, don't.
+    #
     # Sets the order's options.
 
     proc define::options {args} {
@@ -381,6 +386,11 @@ snit::type order {
                 -schedulestates -
                 -sendstates     { 
                     dict set odict $opt [lshift args] 
+                }
+
+                -monitor { 
+                    dict set odict $opt \
+                        [snit::boolean validate [lshift args]]
                 }
 
                 default {
@@ -770,7 +780,9 @@ snit::type order {
             
             # NEXT, call the handler, monitoring database updates
             # and notifying the application on change.
-            rdb monitor prepare
+            if {[order cget $name -monitor]} {
+                rdb monitor prepare
+            }
 
             if {$interface ne "test"} {
                 rdb transaction {
@@ -782,7 +794,9 @@ snit::type order {
                 $handler($name)
             }
 
-            rdb monitor notify
+            if {[order cget $name -monitor]} {
+                rdb monitor notify
+            }
         } result opts]} {
             # FIRST, get the error info
             set einfo [dict get $opts -errorinfo]
