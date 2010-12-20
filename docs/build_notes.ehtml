@@ -11,6 +11,28 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.5, 20 December 2010</h3>
+
+The bulk of the changes in this build involve streamlining some of the
+low-level data handling in Athena.  In particular, Athena modules are
+no longer responsible for sending out <Entity> events when entities
+(e.g., neighborhoods or groups) change in some way; instead, given
+that the relevant changes are all in the RDB, RDB triggers are used to
+do automatic row monitoring.<p>
+
+In addition, this build contains the first occurrence of actors in
+Athena.  At present, Actors can be created, updated, and modified, but
+they don't actually do anything.<p>
+
+<ul>
+  <li> Bug 2721: athena_sim(1): Undo cleanup
+  <li> Bug 2722: scenariodb(n): Include mam(n) schema
+  <li> Bug 2723: athena_sim(1): Automatic row monitoring
+  <li> Bug 2726: athena_sim(1): Automatic row monitoring, part II
+  <li> Bug 2729: athena_sim(1): longnames no longer require uniqueness
+  <li> Bug 2730: athena_sim(1): Actors 
+</ul><p>
+
 <h3>Build 3.0.4, 17 November 2010</h3>
 
 This package fixes a number of bugs found in the last couple of weeks,
