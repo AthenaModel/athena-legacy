@@ -524,9 +524,10 @@ snit::type ted {
             {*}$module dbsync
         }
 
-        cif    clear
-        parm   reset
-        eventq restart
+        cif     clear
+        parm    reset
+        eventq  restart
+        bsystem clear
     }
 
     # sendex ?-error? command...

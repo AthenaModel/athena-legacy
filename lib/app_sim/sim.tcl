@@ -129,9 +129,17 @@ snit::type sim {
 
         scenario register ::aram
 
+        # NEXT, create a MAM; arrange for it to clear undo info
+        # before the scenario is saved.
+        mam ::bsystem \
+            -rdb ::rdb
+
+        notifier bind ::scenario <Saving> ::bsystem [list ::bsystem edit reset]
+
         # NEXT, initialize the simulation modules
         econ      init
         situation init
+
 
         log normal sim "init complete"
     }
@@ -215,6 +223,9 @@ snit::type sim {
 
         # NEXT, clear the event queue
         eventq restart
+
+        # NEXT, clear the mam(n).
+        belief clear
 
         # NEXT, set the simulation status
         set info(changed) 0

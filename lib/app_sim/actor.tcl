@@ -114,10 +114,28 @@ snit::type actor {
                 VALUES($a, $longname, $budget)
             }
 
+            # NEXT, create a matching bsystem entity
+            bsystem entity add $a
+
             # NEXT, Return undo command.
-            return [list $type mutate delete $a]
+            return [mytypemethod UndoCreate $a]
         }
     }
+
+    # UndoCreate a
+    #
+    # a - An actor short name
+    #
+    # Undoes the creation of the actor.
+
+    typemethod UndoCreate {a} {
+        # FIRST, undo the belief system change
+        bsystem edit undo
+        
+        # NEXT, delete the actor record.
+        rdb delete actors {a=$a}
+    }
+
 
     # mutate delete a
     #
@@ -128,11 +146,25 @@ snit::type actor {
     typemethod {mutate delete} {a} {
         # FIRST, get the undo information
         set data [rdb delete -grab actors {a=$a}]
+        
+        # NEXT, delete the bsystem entity
+        bsystem entity delete $a
 
         # NEXT, Return the undo script
-        return [list rdb ungrab $data]
+        return [mytypemethod UndoDelete $data]
     }
 
+    # UndoDelete data
+    #
+    # data - An RDB grab data set
+    #
+    # Restores the data into the RDB, and undoes the bsystem change.
+    
+    typemethod UndoDelete {data} {
+        bsystem edit undo
+        rdb ungrab $data
+    }
+    
 
     # mutate update parmdict
     #
@@ -193,9 +225,7 @@ order define ACTOR:CREATE {
     }
 
     # NEXT, create the actor
-    lappend undo [actor mutate create [array get parms]]
-
-    setundo [join $undo \n]
+    setundo [actor mutate create [array get parms]]
 }
 
 # ACTOR:DELETE
@@ -234,9 +264,9 @@ order define ACTOR:DELETE {
     }
 
     # NEXT, Delete the actor and dependent entities
-    lappend undo [actor mutate delete $parms(a)]
+    lappend undo 
 
-    setundo [join $undo \n]
+    setundo [actor mutate delete $parms(a)]
 }
 
 

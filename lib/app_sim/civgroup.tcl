@@ -163,9 +163,24 @@ snit::type civgroup {
                 VALUES($g);
             }
 
+            # NEXT, create a bsystem entity
+            bsystem entity add $g
+
             # NEXT, Return undo command.
-            return [list $type mutate delete $g]
+            return [mytypemethod UndoCreate $g]
         }
+    }
+
+    # UndoCreate g
+    #
+    # g - A group short name
+    #
+    # Undoes creation of the group.
+
+    typemethod UndoCreate {g} {
+        bsystem edit undo
+        rdb delete groups {g=$g} civgroups {g=$g} demog_g {g=$g}
+
     }
 
     # mutate delete g
@@ -175,12 +190,26 @@ snit::type civgroup {
     # Deletes the group.
 
     typemethod {mutate delete} {g} {
-        # FIRST, get the undo information
+        # FIRST, delete the group, grabbing the undo information
         set data [rdb delete -grab \
                       groups {g=$g} civgroups {g=$g} demog_g {g=$g}]
 
+        # NEXT, delete the bsystem entity.
+        bsystem entity delete $g
+
         # NEXT, Return the undo script
-        return [list rdb ungrab $data]
+        return [mytypemethod UndoDelete $data]
+    }
+
+    # UndoDelete data
+    #
+    # data - An RDB grab data set
+    #
+    # Restores the data into the RDB, and undoes the bsystem change.
+    
+    typemethod UndoDelete {data} {
+        bsystem edit undo
+        rdb ungrab $data
     }
 
 

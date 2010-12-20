@@ -48,6 +48,12 @@ g    longname color   shape   symbol   demeanor gtype n   basepop sap
 SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10  
     }
 
+    test create-1.2 {bsystem entity is created} -body {
+        civgroup mutate create [ted entity SHIA]
+        bsystem entity names
+    } -cleanup {
+        cleanup
+    } -result {SHIA}
 
     test create-2.1 {undo deletes the civgroup} -setup {
         civgroup mutate create [ted entity SHIA]
@@ -59,6 +65,15 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
         cleanup
     } -result {SHIA}
 
+    test create-2.2 {undo deletes the bsystem entity} -setup {
+        civgroup mutate create [ted entity SHIA]
+        set undo [civgroup mutate create [ted entity SUNN]]
+    } -body {
+        {*}$undo
+        bsystem entity names
+    } -cleanup {
+        cleanup
+    } -result {SHIA}
 
     #-------------------------------------------------------------------
     # mutate delete
@@ -70,6 +85,18 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
 
         # Is SHIA gone?
         rdb eval {SELECT g FROM civgroups_view}
+    } -cleanup {
+        cleanup
+    } -result {SUNN}
+
+
+    test delete-1.2 {Bsystem entity is deleted} -setup {
+        ted create SHIA SUNN
+    } -body {
+        civgroup mutate delete SHIA
+
+        # Is SHIA gone?
+        bsystem entity names
     } -cleanup {
         cleanup
     } -result {SUNN}
@@ -89,6 +116,15 @@ g    longname color   shape   symbol   demeanor gtype n   basepop sap
 SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10  
     }
 
+    test delete-2.1 {Undo restores bsystem entity} -setup {
+        ted create SHIA SUNN
+        set undo [civgroup mutate delete SHIA]
+    } -body {
+        {*}$undo
+        bsystem entity names
+    } -cleanup {
+        cleanup
+    } -result {SHIA SUNN}
 
     #-------------------------------------------------------------------
     # mutate update
