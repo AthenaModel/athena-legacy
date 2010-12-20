@@ -258,29 +258,6 @@ snit::type civgroup {
             return [list rdb ungrab $data]
         }
     }
-
-    # mutate reconcile
-    #
-    # Deletes civgroups for which the neighborhood no longer exists.
-
-    typemethod {mutate reconcile} {} {
-        # FIRST, delete the ones that are no longer valid, accumulating
-        # an undo script.
-
-        set undo [list]
-
-        set nbhoods [nbhood names]
-
-        rdb eval {
-            SELECT g,n FROM civgroups            
-        } {
-            if {$n ni $nbhoods} {
-                lappend undo [$type mutate delete $g]
-            }
-        }
-
-        return [join $undo \n]
-    }
 }
 
 #-----------------------------------------------------------------------

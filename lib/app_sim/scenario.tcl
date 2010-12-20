@@ -527,18 +527,27 @@ snit::type scenario {
     # This routine aggregates the various "mutate reconcile" routines,
     # returning the accumulated undo script, so that order handlers
     # don't need to be aware of which other modules require reconciliation.
+    #
+    # TBD: This routine is on the way out.  See notes in the
+    # body of the routine.
 
     typemethod {mutate reconcile} {} {
         set undo [list]
 
-        lappend undo [civgroup  mutate reconcile]
         lappend undo [personnel mutate reconcile]
         lappend undo [rel       mutate reconcile]
         lappend undo [coop      mutate reconcile]
         lappend undo [attroe    mutate reconcile]
         lappend undo [defroe    mutate reconcile]
-        lappend undo [ensit     mutate reconcile]
         lappend undo [activity  mutate reconcile]
+
+        # Can't remove yet; sets the g and resolver fields to 
+        # "NONE" if the named groups no longer exist.  Cascading
+        # delete can't do this.  It should be handled using 
+        # ON DELETE SET NULL; but we need to revise the snapshot
+        # handling to make that work, as well as allowing NULL in
+        # those fields.
+        lappend undo [ensit     mutate reconcile]
 
         notifier send $type <Reconcile>
 

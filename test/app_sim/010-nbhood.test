@@ -110,7 +110,7 @@ NB2 NB2 HERE      0.0
         nbhood mutate create [ted entity NB1]
     } -body {
         set undo [nbhood mutate create [ted entity NB2]]
-        {*}$undo
+        namespace eval :: $undo
 
         # Is NB2 gone?
         rdb eval {SELECT n FROM nbhoods}
@@ -123,7 +123,7 @@ NB2 NB2 HERE      0.0
         nbhood mutate create [ted entity NB1]
         set undo [nbhood mutate create [ted entity OV1]]
     } -body {
-        {*}$undo
+        namespace eval :: $undo
         rdb eval "SELECT n,obscured_by FROM nbhoods"
     } -cleanup {
         cleanup
@@ -133,7 +133,7 @@ NB2 NB2 HERE      0.0
         nbhood mutate create [ted entity NB1]
     } -body {
         set undo [nbhood mutate create [ted entity NB2]]
-        {*}$undo
+        namespace eval :: $undo
 
         # Is NB2 gone?
         ted query {SELECT * FROM nbrel_mn}
@@ -150,7 +150,7 @@ NB1 NB1 HERE      0.0
         nbhood mutate create [ted entity NB1]
     } -body {
         set undo [nbhood mutate create [ted entity NB2]]
-        {*}$undo
+        namespace eval :: $undo
 
         # Is NB2 gone?
         rdb eval {SELECT n FROM demog_n}
@@ -163,7 +163,7 @@ NB1 NB1 HERE      0.0
         nbhood mutate create [ted entity NB1]
     } -body {
         set undo [nbhood mutate create [ted entity NB2]]
-        {*}$undo
+        namespace eval :: $undo
 
         # Is NB2 gone?
         rdb eval {SELECT n FROM econ_n}
@@ -230,11 +230,22 @@ NB1 NB1 HERE      0.0
         cleanup
     } -result {NB1}
 
+
+    test delete-1.6 {resident civilian groups deleted} -setup {
+        ted create NB1 SHIA
+    } -body {
+        nbhood mutate delete NB1
+        rdb eval {SELECT g FROM civgroups}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
     test delete-2.1 {Undo restores nbhood} -setup {
         ted create NB1
         set undo [nbhood mutate delete NB1]
     } -body {
-        {*}$undo
+        namespace eval :: $undo
         ted query {SELECT * FROM nbhoods WHERE n='NB1'}
     } -cleanup {
         cleanup
@@ -250,7 +261,7 @@ NB1 Here     1     1              URBAN        1.0     100 100  80 80 120 80 100
         ted create OV1
         set undo [nbhood mutate delete NB1]
     } -body {
-        {*}$undo
+        namespace eval :: $undo
         ted query {SELECT n,stacking_order,obscured_by FROM nbhoods}
     } -cleanup {
         cleanup
@@ -266,7 +277,7 @@ NB1 1              OV1
         ted create NB1
         set undo [nbhood mutate delete NB1]
     } -body {
-        {*}$undo
+        namespace eval :: $undo
         ted query {SELECT * FROM nbrel_mn ORDER BY m,n}
     } -cleanup {
         cleanup
@@ -281,7 +292,7 @@ NB1 NB1 HERE      0.0
         ted create NB1
         set undo [nbhood mutate delete NB1]
     } -body {
-        {*}$undo
+        namespace eval :: $undo
         rdb eval {SELECT n FROM demog_n ORDER BY n}
     } -cleanup {
         cleanup
@@ -292,11 +303,21 @@ NB1 NB1 HERE      0.0
         ted create NB1
         set undo [nbhood mutate delete NB1]
     } -body {
-        {*}$undo
+        namespace eval :: $undo
         rdb eval {SELECT n FROM econ_n ORDER BY n}
     } -cleanup {
         cleanup
     } -result {NB1}
+
+    test delete-2.6 {Undo restores resident civgroups} -setup {
+        ted create NB1 SHIA
+        set undo [nbhood mutate delete NB1]
+    } -body {
+        namespace eval :: $undo
+        rdb eval {SELECT g FROM civgroups}
+    } -cleanup {
+        cleanup
+    } -result {SHIA}
 
     #-------------------------------------------------------------------
     # mutate lower
@@ -336,7 +357,7 @@ OV1 1              NB1
 
         set undo [nbhood mutate lower OV1]
 
-        {*}$undo
+        namespace eval :: $undo
 
         set after  [ted query {SELECT * FROM nbhoods}]
 
@@ -383,7 +404,7 @@ OV1 1              NB1
 
         set undo [nbhood mutate raise NB1]
 
-        {*}$undo
+        namespace eval :: $undo
 
         set after  [ted query {SELECT * FROM nbhoods}]
 
@@ -465,7 +486,7 @@ NB2 2
 
         set undo [nbhood mutate update [ted entity NB2 n NB1]]
 
-        {*}$undo
+        namespace eval :: $undo
 
         set after [ted query {SELECT * FROM nbhoods}]
 
@@ -483,7 +504,7 @@ NB2 2
         # Move NB2 over NB1
         set undo [nbhood mutate update [ted entity OV1 n NB2]]
         
-        {*}$undo
+        namespace eval :: $undo
 
         set after [ted query {SELECT * FROM nbhoods}]
 

@@ -268,6 +268,16 @@ snit::type nbhood {
         # FIRST, get this neighborhood's undo information and
         # delete the relevant records.
         set data [rdb delete -grab nbhoods {n=$n}]
+        lappend undo [mytypemethod UndoDelete $data]
+
+        # NEXT, delete all CIV groups that depend on this
+        # neighborhood.
+        foreach g [rdb eval {
+            SELECT g FROM civgroups
+            WHERE n=$n
+        }] {
+            lappend undo [civgroup mutate delete $g]
+        }
 
         # NEXT, update the $geo module
         $geo delete $n
@@ -277,7 +287,7 @@ snit::type nbhood {
         $type SetObscuredBy
 
         # NEXT, return aggregate undo script.
-        return [mytypemethod UndoDelete $data]
+        return [join $undo \n]
     }
 
     # UndoDelete grabData

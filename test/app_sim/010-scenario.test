@@ -43,7 +43,6 @@ namespace eval ::athena_test::tests:: {
    
 
     test reconcile-1.1 {All entities are reconciled} -body {
-        ted notifier bind ::rdb      <civgroups>
         ted notifier bind ::rdb      <rel_fg>
         ted notifier bind ::rdb      <coop_fg>
         ted notifier bind ::rdb      <attroe_nfg>
@@ -66,7 +65,6 @@ namespace eval ::athena_test::tests:: {
     } -result {
         {::scenario <Reconcile>}
         {::scenario <Reconcile>}
-        {::rdb <civgroups> update SHIA}
         {::rdb <rel_fg> update {BLUE BLUE}}
         {::rdb <rel_fg> update {BLUE USAID}}
         {::rdb <rel_fg> update {BLUE SHIA}}
@@ -77,7 +75,6 @@ namespace eval ::athena_test::tests:: {
         {::rdb <rel_fg> update {SHIA USAID}}
         {::rdb <rel_fg> update {SHIA SHIA}}
         {::rdb <coop_fg> update {SHIA BLUE}}
-        {::rdb <civgroups> delete SHIA}
         {::rdb <rel_fg> delete {BLUE SHIA}}
         {::rdb <rel_fg> delete {USAID SHIA}}
         {::rdb <rel_fg> delete {SHIA BLUE}}
@@ -97,7 +94,6 @@ namespace eval ::athena_test::tests:: {
 
         set undo [scenario mutate reconcile]
 
-        ted notifier bind ::rdb      <civgroups>
         ted notifier bind ::rdb      <rel_fg>
         ted notifier bind ::rdb      <coop_fg>
         ted notifier bind ::rdb      <defroe_fg>
@@ -111,7 +107,6 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <civgroups> update SHIA}
         {::rdb <rel_fg> update {BLUE BLUE}}
         {::rdb <rel_fg> update {BLUE USAID}}
         {::rdb <rel_fg> update {BLUE SHIA}}

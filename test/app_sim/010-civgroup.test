@@ -243,40 +243,6 @@ SHIA Shia Folk #ff0000 FRIEND civilian AVERAGE  CIV   NB1 1000    10
     } -result {1}
 
     #-------------------------------------------------------------------
-    # mutate reconcile
-
-    test reconcile-1.1 {valid groups remain} -setup {
-        ted create NB1 SHIA
-    } -body {
-        civgroup mutate reconcile
-        rdb eval {SELECT n,g FROM civgroups}
-    } -cleanup {
-        cleanup
-    } -result {NB1 SHIA}
-
-
-    test reconcile-1.2 {group deleted when nbhood is gone} -setup {
-        ted create SHIA
-    } -body {
-        civgroup mutate reconcile
-        rdb eval {SELECT n,g FROM civgroups}
-    } -cleanup {
-        cleanup
-    } -result {}
-
-
-    test reconcile-2.1 {groups restored on undo} -setup {
-        ted create SHIA KURD
-    } -body {
-        set undo [civgroup mutate reconcile]
-        eval $undo
-        rdb eval {SELECT n,g FROM civgroups}
-    } -cleanup {
-        cleanup
-    } -result {NB1 SHIA NB2 KURD}
-
-
-    #-------------------------------------------------------------------
     # names
 
     test names-1.1 {Returns names: none defined} -body {
