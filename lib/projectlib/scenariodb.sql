@@ -423,10 +423,14 @@ CREATE TABLE rel_fg (
 
 CREATE TABLE coop_fg (
     -- Symbolic civ group name: group f
-    f           TEXT,
+    f           TEXT REFERENCES civgroups(g)
+                ON DELETE CASCADE
+                DEFERRABLE INITIALLY DEFERRED,
 
     -- Symbolic frc group name: group g
-    g           TEXT,
+    g           TEXT REFERENCES frcgroups(g)
+                ON DELETE CASCADE
+                DEFERRABLE INITIALLY DEFERRED,
 
     -- cooperation of f with g at time 0.
     coop0       DOUBLE DEFAULT 50.0,

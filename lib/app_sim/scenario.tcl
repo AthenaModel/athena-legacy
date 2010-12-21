@@ -535,10 +535,18 @@ snit::type scenario {
         set undo [list]
 
         lappend undo [personnel mutate reconcile]
+
+        # Requires creation in the three group modules, cascading 
+        # deletes on f and g, and testing in the three group modules.
+        # BUT, it should probably be left alone until we know for sure
+        # how affinity will affect things.
         lappend undo [rel       mutate reconcile]
-        lappend undo [coop      mutate reconcile]
         lappend undo [attroe    mutate reconcile]
         lappend undo [defroe    mutate reconcile]
+
+        # Requires only cascading deletes on n, tn, and g in
+        # calendar table.  Requires testing with neighborhoods (n and tn)
+        # and all three group types.
         lappend undo [activity  mutate reconcile]
 
         # Can't remove yet; sets the g and resolver fields to 

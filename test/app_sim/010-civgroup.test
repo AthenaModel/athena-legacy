@@ -62,11 +62,20 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
         cleanup
     } -result {AUT CUL QOL SFT}
 
+    test create-1.4 {coop curves are created} -setup {
+        ted create BLUE
+    } -body {
+        civgroup mutate create [ted entity SHIA]
+        rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {SHIA BLUE}
+
     test create-2.1 {undo deletes the civgroup} -setup {
         civgroup mutate create [ted entity SHIA]
         set undo [civgroup mutate create [ted entity SUNN]]
     } -body {
-        {*}$undo
+        namespace eval :: $undo
         rdb eval {SELECT g FROM civgroups_view}
     } -cleanup {
         cleanup
@@ -76,7 +85,7 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
         civgroup mutate create [ted entity SHIA]
         set undo [civgroup mutate create [ted entity SUNN]]
     } -body {
-        {*}$undo
+        namespace eval :: $undo
         bsystem entity names
     } -cleanup {
         cleanup
@@ -85,8 +94,19 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
     test create-2.3 {undo deletes the sat curves} -setup {
         set undo [civgroup mutate create [ted entity SUNN]]
     } -body {
-        {*}$undo
+        namespace eval :: $undo
         rdb eval {SELECT c FROM sat_gc WHERE g='SHIA' ORDER BY c}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test create-1.5 {undo deletes the coop curves} -setup {
+        ted create BLUE
+    } -body {
+        set undo [civgroup mutate create [ted entity SHIA]]
+
+        namespace eval :: $undo
+        rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {}
@@ -129,11 +149,21 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
     } -result {}
 
 
+    test delete-1.4 {coop curves are deleted} -setup {
+        ted create BLUE SHIA
+    } -body {
+        civgroup mutate delete SHIA
+
+        rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {}
+
     test delete-2.1 {Undo restores group} -setup {
         ted create SHIA
         set undo [civgroup mutate delete SHIA]
     } -body {
-        {*}$undo
+        namespace eval :: $undo
         ted query {SELECT * FROM civgroups_view}
     } -cleanup {
         cleanup
@@ -147,7 +177,7 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
         ted create SHIA SUNN
         set undo [civgroup mutate delete SHIA]
     } -body {
-        {*}$undo
+        namespace eval :: $undo
         bsystem entity names
     } -cleanup {
         cleanup
@@ -157,11 +187,21 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
         ted create SHIA
         set undo [civgroup mutate delete SHIA]
     } -body {
-        {*}$undo
+        namespace eval :: $undo
         rdb eval {SELECT c FROM sat_gc WHERE g='SHIA' ORDER BY c}
     } -cleanup {
         cleanup
     } -result {AUT CUL QOL SFT}
+
+    test delete-2.4 {Undo restores coop curves} -setup {
+        ted create BLUE SHIA
+        set undo [civgroup mutate delete SHIA]
+    } -body {
+        namespace eval :: $undo
+        rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {SHIA BLUE}
 
     #-------------------------------------------------------------------
     # mutate update
@@ -233,7 +273,7 @@ SHIA Shia Folk #ff0000 FRIEND civilian AVERAGE  CIV   NB1 1000    10
             color        "#ff0000"
         }]
 
-        {*}$undo
+        namespace eval :: $undo
 
         set b [ted query {SELECT * FROM civgroups_view}]
 

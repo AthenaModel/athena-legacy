@@ -48,8 +48,16 @@ g    longname color   shape  symbol   demeanor gtype forcetype uniformed local
 BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0     
     }
 
+    test create-1.2 {coop curves are created} -setup {
+        ted create SHIA
+    } -body {
+        frcgroup mutate create [ted entity BLUE]
+        rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {SHIA BLUE}
 
-    test create-3.1 {undo deletes the frcgroup} -setup {
+    test create-2.1 {undo deletes the frcgroup} -setup {
         frcgroup mutate create [ted entity BLUE]
         set undo [frcgroup mutate create [ted entity BRIT]]
     } -body {
@@ -58,6 +66,17 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
     } -cleanup {
         cleanup
     } -result {BLUE}
+
+    test create-2.2 {undo deletes the coop curves} -setup {
+        ted create SHIA
+    } -body {
+        set undo [civgroup mutate create [ted entity BLUE]]
+
+        namespace eval :: $undo
+        rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {}
 
 
     #-------------------------------------------------------------------
@@ -74,6 +93,16 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
         cleanup
     } -result {BRIT}
 
+    test delete-1.2 {coop curves are deleted} -setup {
+        ted create BLUE SHIA
+    } -body {
+        frcgroup mutate delete BLUE
+
+        rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {}
+
 
     test delete-2.1 {Undo restores group} -setup {
         ted create BLUE
@@ -89,6 +118,15 @@ g    longname color   shape  symbol   demeanor gtype forcetype uniformed local
 BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0     
     }
 
+    test delete-2.2 {Undo restores coop curves} -setup {
+        ted create BLUE SHIA
+        set undo [civgroup mutate delete BLUE]
+    } -body {
+        namespace eval :: $undo
+        rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {SHIA BLUE}
 
     #-------------------------------------------------------------------
     # mutate update

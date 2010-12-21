@@ -164,6 +164,9 @@ snit::type civgroup {
 
                 INSERT INTO sat_gc(g,c)
                 SELECT $g, c FROM concerns;
+
+                INSERT INTO coop_fg(f,g)
+                SELECT $g, g FROM frcgroups;
             }
 
             # NEXT, create a bsystem entity

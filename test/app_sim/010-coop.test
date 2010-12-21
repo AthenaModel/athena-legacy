@@ -34,105 +34,11 @@ namespace eval ::athena_test::tests:: {
     }
 
     #-------------------------------------------------------------------
-    # mutate reconcile
-
-    # Create cooperations
-
-
-    test reconcile-1.1 {civ groups with force groups} -setup {
-        ted create NB1 NB2 BLUE USAID SHIA SUNN KURD
-    } -body {
-        coop mutate reconcile
-        
-        ted query {SELECT * FROM coop_fg}
-    } -cleanup {
-        cleanup
-    } -result {
-f    g    coop0 atrend athresh dtrend dthresh 
----- ---- ----- ------ ------- ------ ------- 
-SHIA BLUE 50.0  0.0    50.0    0.0    50.0    
-SUNN BLUE 50.0  0.0    50.0    0.0    50.0    
-KURD BLUE 50.0  0.0    50.0    0.0    50.0    
-    }
-
-    test reconcile-1.3 {Created curves are undone} -setup {
-        ted create NB1 BLUE SHIA
-        set undo [coop mutate reconcile]
-    } -body {
-        eval $undo
-        rdb query {SELECT * FROM coop_fg}
-    } -cleanup {
-        cleanup
-    } -result {}
-    
-
-    test reconcile-2.1 {cooperations deleted with frc group} -setup {
-        ted create NB1 BLUE BRIT SHIA
-        coop mutate reconcile
-    } -body {
-        frcgroup mutate delete BLUE
-        coop mutate reconcile
-
-        # SHIA with BLUE remains
-        ted query {SELECT * FROM coop_fg}
-    } -cleanup {
-        cleanup
-    } -result {
-f    g    coop0 atrend athresh dtrend dthresh 
----- ---- ----- ------ ------- ------ ------- 
-SHIA BRIT 50.0  0.0    50.0    0.0    50.0    
-    }
-
-
-    test reconcile-2.2 {cooperations deleted with group} -setup {
-        ted create NB1 BLUE SHIA SUNN
-        coop mutate reconcile
-    } -body {
-        civgroup mutate delete SHIA
-        coop mutate reconcile
-
-        # SUNN remains
-        ted query {SELECT * FROM coop_fg}
-    } -cleanup {
-        cleanup
-    } -result {
-f    g    coop0 atrend athresh dtrend dthresh 
----- ---- ----- ------ ------- ------ ------- 
-SUNN BLUE 50.0  0.0    50.0    0.0    50.0    
-    }
-
-
-    test reconcile-2.4 {On undo: deleted cooperations are restored} -setup {
-        # FIRST, create the groups and cooperations
-        ted create NB1 BLUE SHIA
-        coop mutate reconcile
-
-        # NEXT, update one, so that we can see that it's restored
-        coop mutate update [list id {SHIA BLUE} coop0 40.0]
-
-        # NEXT, delete the groups and cooperations, and get the
-        # undo script.
-        civgroup mutate delete SHIA
-
-        set undo [coop mutate reconcile]
-    } -body {
-        eval $undo
-        ted query {SELECT * FROM coop_fg}
-    } -cleanup {
-        cleanup
-    } -result {
-f    g    coop0 atrend athresh dtrend dthresh 
----- ---- ----- ------ ------- ------ ------- 
-SHIA BLUE 40.0  0.0    50.0    0.0    50.0    
-    }
-
-    #-------------------------------------------------------------------
     # mutate update
 
 
     test update-1.1 {coop is updated} -setup {
         ted create NB1 BLUE SHIA
-        coop mutate reconcile
     } -body {
         coop mutate update {
             id      {SHIA BLUE}
@@ -155,7 +61,6 @@ SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
 
     test update-1.2 {identical values are OK} -setup {
         ted create NB1 BLUE SHIA
-        coop mutate reconcile
         set parmdict {
             id      {SHIA BLUE}
             coop0   40.0
@@ -181,7 +86,6 @@ SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
 
     test update-1.3 {empty values are OK} -setup {
         ted create NB1 BLUE SHIA
-        coop mutate reconcile
     } -body {
         set a [ted query {SELECT * FROM coop_fg}]
 
@@ -204,7 +108,6 @@ SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
 
     test update-2.1 {undo undoes the change} -setup {
         ted create NB1 BLUE SHIA
-        coop mutate reconcile
     } -body {
 
         set a [ted query {SELECT * FROM coop_fg}]
@@ -240,7 +143,6 @@ SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
 
     test exists-1.2 {coop exists} -setup {
         ted create NB1 BLUE SHIA
-        coop mutate reconcile
     } -body {
         coop exists SHIA BLUE
     } -cleanup {
@@ -275,7 +177,6 @@ SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
 
     test validate-2.1 {Valid group} -setup {
         ted create NB1 BLUE SHIA
-        coop mutate reconcile
     } -body {
         coop validate {SHIA BLUE}
     } -cleanup {

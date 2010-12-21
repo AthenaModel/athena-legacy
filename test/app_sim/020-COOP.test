@@ -28,7 +28,6 @@ namespace eval ::athena_test::tests:: {
 
     proc setup {} {
         ted create BLUE NB1 SHIA SUNN
-        coop mutate reconcile
     }
 
 
@@ -281,7 +280,6 @@ SUNN BLUE 50.0  0.0    50.0    0.0    50.0
 
     test UPDATE:MULTI-2.2 {several cooperations are updated} -setup {
         setup
-        coop mutate reconcile
     } -body {
         ted notifier bind ::rdb <coop_fg>
         ted order COOP:UPDATE:MULTI {
@@ -303,7 +301,6 @@ SUNN BLUE 50.0  0.0    50.0    0.0    50.0
 
     test UPDATE:MULTI-3.1 {undo undoes the change} -setup {
         setup
-        coop mutate reconcile
 
         ted order COOP:UPDATE:MULTI {
             ids       {{SHIA BLUE} {SUNN BLUE}}

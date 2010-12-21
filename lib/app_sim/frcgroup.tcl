@@ -200,6 +200,9 @@ snit::type frcgroup {
                        $forcetype,
                        $uniformed,
                        $local);
+
+                INSERT INTO coop_fg(f,g)
+                SELECT g, $g FROM civgroups;
             }
 
             # NEXT, Return the undo command
@@ -214,14 +217,8 @@ snit::type frcgroup {
     # Deletes the group, including all references.
 
     typemethod {mutate delete} {g} {
-        # FIRST, get the undo information
-        set data [rdb grab groups {g=$g} frcgroups {g=$g}]
-
-        # NEXT, delete it.
-        rdb eval {
-            DELETE FROM groups    WHERE g=$g;
-            DELETE FROM frcgroups WHERE g=$g;
-        }
+        # FIRST, Delete the group, grabbing the undo information
+        set data [rdb delete -grab groups {g=$g} frcgroups {g=$g}]
 
         # NEXT, Return the undo script
         return [list rdb ungrab $data]
