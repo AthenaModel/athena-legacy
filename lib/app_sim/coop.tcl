@@ -14,6 +14,12 @@
 #
 #    Every civ group has a cooperation with every frc group.
 #
+# CREATION/DELETION:
+#    coop_fg records are created explicitly by the civgroup(sim)
+#    and frcgroup(sim) modules when groups of these types are deleted,
+#    and are destroyed via cascading delete when groups of these
+#    types are destroyed.
+#
 #-----------------------------------------------------------------------
 
 snit::type coop {

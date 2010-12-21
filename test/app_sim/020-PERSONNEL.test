@@ -33,7 +33,6 @@ namespace eval ::athena_test::tests:: {
 
     proc setup {} {
         ted create NB1 NB2 BLUE BRIT SHIA KURD
-        personnel mutate reconcile
     }
 
 
@@ -85,7 +84,7 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         ted order PERSONNEL:SET {id {NB1 BLUE} personnel 30}
-        ted query {SELECT * FROM personnel_ng}
+        ted query {SELECT * FROM personnel_ng ORDER BY n,g}
     } -cleanup {
         cleanup
     } -result {
@@ -159,7 +158,7 @@ NB2 BRIT 0
         ted order PERSONNEL:SET {id {NB1 BLUE} personnel 30}
     } -body {
         ted order PERSONNEL:ADJUST {id {NB1 BLUE} delta -40}
-        ted query {SELECT * FROM personnel_ng}
+        ted query {SELECT * FROM personnel_ng ORDER BY n,g}
     } -cleanup {
         cleanup
     } -result {

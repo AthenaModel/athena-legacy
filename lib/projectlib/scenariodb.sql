@@ -250,10 +250,14 @@ SELECT * FROM groups JOIN orggroups USING (g);
 
 CREATE TABLE personnel_ng (
     -- Symbolic neighborhood name
-    n          TEXT,
+    n          TEXT REFERENCES nbhoods(n)
+               ON DELETE CASCADE
+               DEFERRABLE INITIALLY DEFERRED,
 
     -- Symbolic group name
-    g          TEXT,
+    g          TEXT REFERENCES groups(g)
+               ON DELETE CASCADE
+               DEFERRABLE INITIALLY DEFERRED,
 
     -- Personnel
     personnel  INTEGER DEFAULT 0,

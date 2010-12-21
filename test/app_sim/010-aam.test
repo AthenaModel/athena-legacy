@@ -102,8 +102,6 @@ namespace eval ::athena_test::tests:: {
     proc mkunits {args} {
         variable units
 
-        personnel mutate reconcile
-
         foreach unit $args {
             unit create $units($unit)
 
@@ -515,7 +513,7 @@ id n   f    g    casualties
 
     test attritn-1.6 {nbhood, force, org units not attrited} -setup {
         ted create NB1 BLUE USAID SHIA SUNN
-        personnel mutate reconcile
+
         ted order PERSONNEL:SET id {NB1 BLUE}  personnel 15
         ted order PERSONNEL:SET id {NB1 USAID} personnel 15
         ted lock

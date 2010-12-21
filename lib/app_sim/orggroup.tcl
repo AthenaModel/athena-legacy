@@ -101,6 +101,9 @@ snit::type orggroup {
                 INSERT INTO orggroups(g,orgtype)
                 VALUES($g,
                        $orgtype);
+
+                INSERT INTO personnel_ng(n,g)
+                SELECT n, $g FROM nbhoods;
             }
 
             # NEXT, Return the undo command
@@ -116,14 +119,8 @@ snit::type orggroup {
     # Deletes the group, including all references.
 
     typemethod {mutate delete} {g} {
-        # FIRST, get the undo information
-        set data [rdb grab groups {g=$g} orggroups {g=$g}]
-
-        # NEXT, delete it.
-        rdb eval {
-            DELETE FROM groups    WHERE g=$g;
-            DELETE FROM orggroups WHERE g=$g;
-        }
+        # FIRST, delete the records, grabbing the undo information
+        set data [rdb delete -grab groups {g=$g} orggroups {g=$g}]
 
         # NEXT, Return the undo script
         return [list rdb ungrab $data]

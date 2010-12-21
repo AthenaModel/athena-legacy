@@ -13,6 +13,10 @@
 #    analyst to update particular neighborhood relationships.
 #    These relationships come and go as neighborhoods come and go.
 #
+# CREATION/DELETION:
+#    nbrel_mn records are created by nbhood(sim) as neighborhoods
+#    are created, and deleted by cascading delete.
+#
 #-----------------------------------------------------------------------
 
 snit::type nbrel {

@@ -106,6 +106,15 @@ NB2 NB2 HERE      0.0
         cleanup
     } -result {NB1}
 
+    test create-1.7 {personnel_ng records are created} -setup {
+        ted create BLUE USAID
+    } -body {
+        nbhood mutate create [ted entity NB1]
+        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
+    } -cleanup {
+        cleanup
+    } -result {NB1 BLUE NB1 USAID}
+
     test create-2.1 {undo deletes the nbhood} -setup {
         nbhood mutate create [ted entity NB1]
     } -body {
@@ -170,6 +179,19 @@ NB1 NB1 HERE      0.0
     } -cleanup {
         cleanup
     } -result {NB1}
+
+    test create-2.6 {undo deletes the personnel_ng records} -setup {
+        ted create BLUE USAID
+        nbhood mutate create [ted entity NB1]
+    } -body {
+        set undo [nbhood mutate create [ted entity NB2]]
+        namespace eval :: $undo
+
+        # Is NB2 gone?
+        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
+    } -cleanup {
+        cleanup
+    } -result {NB1 BLUE NB1 USAID}
 
     #-------------------------------------------------------------------
     # mutate delete
@@ -239,6 +261,16 @@ NB1 NB1 HERE      0.0
     } -cleanup {
         cleanup
     } -result {}
+
+
+    test delete-1.7 {personnel_ng records are deleted} -setup {
+        ted create NB1 NB2 BLUE USAID
+    } -body {
+        nbhood mutate delete NB2
+        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
+    } -cleanup {
+        cleanup
+    } -result {NB1 BLUE NB1 USAID}
 
 
     test delete-2.1 {Undo restores nbhood} -setup {
@@ -318,6 +350,16 @@ NB1 NB1 HERE      0.0
     } -cleanup {
         cleanup
     } -result {SHIA}
+
+    test delete-2.7 {Undo restores personnel_ng} -setup {
+        ted create NB1 BLUE USAID
+        set undo [nbhood mutate delete NB1]
+    } -body {
+        namespace eval :: $undo
+        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
+    } -cleanup {
+        cleanup
+    } -result {NB1 BLUE NB1 USAID}
 
     #-------------------------------------------------------------------
     # mutate lower

@@ -22,6 +22,10 @@
 # <init>, to be called at start-up; <calibrate>, which calibrates the 
 # model when the simulation leaves the PREP state and enters time 0, 
 # and <advance>, to be called when time is advanced for the economic model.
+#
+# CREATION/DELETION:
+#    econ_n records are created explicitly by nbhood(sim) as 
+#    neighborhoods are created, and are deleted by cascading delete.
 
 snit::type econ {
     # Make it a singleton

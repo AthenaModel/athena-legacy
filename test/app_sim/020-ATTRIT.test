@@ -31,7 +31,6 @@ namespace eval ::athena_test::tests:: {
     proc setup {{script ""}} {
         ted create NB1 NB2 BLUE BRIT USAID HAL
         ted create SHIA SUNN KURD
-        personnel mutate reconcile
 
         if {$script ne ""} {
             uplevel 1 $script

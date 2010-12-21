@@ -534,20 +534,31 @@ snit::type scenario {
     typemethod {mutate reconcile} {} {
         set undo [list]
 
-        lappend undo [personnel mutate reconcile]
-
         # Requires creation in the three group modules, cascading 
         # deletes on f and g, and testing in the three group modules.
         # BUT, it should probably be left alone until we know for sure
-        # how affinity will affect things.
-        lappend undo [rel       mutate reconcile]
-        lappend undo [attroe    mutate reconcile]
-        lappend undo [defroe    mutate reconcile]
+        # how affinity will affect things.  Do we populate rel_fg from
+        # mam_affinity?  Is rel_fg a view on mam_affinity?  If so, how
+        # do we handle the indirection?  Could add an "affinity entity"
+        # to the groups table; this would be the actor for FRC and ORG
+        # groups, and the group itself for the CIV groups.  rel_fg
+        # would then just be a join on mam_affinity using groups to
+        # translate from group names to entity names.  In that case,
+        # rel_fg just goes away.  I *like* that.
+        lappend undo [rel mutate reconcile]
+
+        # Requires creation in nbhood and frcgroup modules; cascading
+        # deletes on n, f, and g; and testing in the two modules.
+        lappend undo [attroe mutate reconcile]
+
+        # Requires creation in nbhood and frcgroup modules; cascading
+        # deletes on n and g; and testing in the two modules.
+        lappend undo [defroe mutate reconcile]
 
         # Requires only cascading deletes on n, tn, and g in
         # calendar table.  Requires testing with neighborhoods (n and tn)
         # and all three group types.
-        lappend undo [activity  mutate reconcile]
+        lappend undo [activity mutate reconcile]
 
         # Can't remove yet; sets the g and resolver fields to 
         # "NONE" if the named groups no longer exist.  Cascading
@@ -555,7 +566,7 @@ snit::type scenario {
         # ON DELETE SET NULL; but we need to revise the snapshot
         # handling to make that work, as well as allowing NULL in
         # those fields.
-        lappend undo [ensit     mutate reconcile]
+        lappend undo [ensit mutate reconcile]
 
         notifier send $type <Reconcile>
 

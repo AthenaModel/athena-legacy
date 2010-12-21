@@ -57,6 +57,15 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
         cleanup
     } -result {SHIA BLUE}
 
+    test create-1.3 {personnel_ng curves are created} -setup {
+        ted create NB1
+    } -body {
+        frcgroup mutate create [ted entity BLUE]
+        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
+    } -cleanup {
+        cleanup
+    } -result {NB1 BLUE}
+
     test create-2.1 {undo deletes the frcgroup} -setup {
         frcgroup mutate create [ted entity BLUE]
         set undo [frcgroup mutate create [ted entity BRIT]]
@@ -74,6 +83,17 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
 
         namespace eval :: $undo
         rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test create-2.3 {undo deletes the personnel_ng records} -setup {
+        ted create NB1
+    } -body {
+        set undo [civgroup mutate create [ted entity BLUE]]
+
+        namespace eval :: $undo
+        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
     } -cleanup {
         cleanup
     } -result {}
@@ -103,6 +123,15 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
         cleanup
     } -result {}
 
+    test delete-1.3 {personnel_ng records are deleted} -setup {
+        ted create BLUE NB1
+    } -body {
+        frcgroup mutate delete BLUE
+
+        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
+    } -cleanup {
+        cleanup
+    } -result {}
 
     test delete-2.1 {Undo restores group} -setup {
         ted create BLUE
@@ -120,13 +149,23 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
 
     test delete-2.2 {Undo restores coop curves} -setup {
         ted create BLUE SHIA
-        set undo [civgroup mutate delete BLUE]
+        set undo [frcgroup mutate delete BLUE]
     } -body {
         namespace eval :: $undo
         rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {SHIA BLUE}
+
+    test delete-2.3 {Undo restores personnel_ng} -setup {
+        ted create NB1 BLUE
+        set undo [frcgroup mutate delete BLUE]
+    } -body {
+        namespace eval :: $undo
+        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
+    } -cleanup {
+        cleanup
+    } -result {NB1 BLUE}
 
     #-------------------------------------------------------------------
     # mutate update

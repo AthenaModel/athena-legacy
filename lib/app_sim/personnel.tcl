@@ -11,6 +11,11 @@
 #    This module is responsible for managing personnel of FRC and ORG
 #    groups in neighborhoods.
 #
+# CREATION/DELETION:
+#    personnel_ng records are created explicitly by the 
+#    nbhood(sim), frcgroup(sim), and orggroup(sim) modules, and
+#    deleted by cascading delete.
+#
 #-----------------------------------------------------------------------
 
 snit::type personnel {
@@ -47,83 +52,6 @@ snit::type personnel {
     # some way.  Mutators assume that their inputs are valid, and returns
     # a script of one or more commands that will undo the change.  When
     # change cannot be undone, the mutator returns the empty string.
-
-    # mutate reconcile
-    #
-    # Deletes records for which either the neighborhood or the
-    # group no longer exists, and adds records that should exist but
-    # don't.
-
-    typemethod {mutate reconcile} {} {
-        # FIRST, get the set of possible personnel records
-        set valid [dict create]
-
-        rdb eval {
-            SELECT n, g 
-            FROM nbhoods 
-            JOIN groups
-            WHERE gtype IN ('FRC','ORG')
-        } {
-            dict set valid [list $n $g] 0
-        }
-
-        # NEXT, delete the ones that are no longer valid, accumulating
-        # an undo script.
-        set undo [list]
-
-        rdb eval {
-            SELECT n,g FROM personnel_ng
-        } {
-            # If it's unknown, create it; and if it is know, remove it.
-            if {![dict exists $valid [list $n $g]]} {
-                lappend undo [$type mutate delete $n $g]
-            } else {
-                set valid [dict remove $valid [list $n $g]]
-            }
-        }
-
-        # NEXT, create ones that are needed.
-        foreach ng [dict keys $valid] {
-            lappend undo [$type mutate create {*}$ng]
-        }
-
-        return [join $undo \n]
-    }
-
-    # mutate create n g
-    #
-    # n   The neighborhood ID
-    # g   The group ID
-    #
-    # Creates a record
-
-    typemethod {mutate create} {n g} {
-        # FIRST, Put the group in the database
-        rdb eval {
-            INSERT INTO personnel_ng(n,g)
-            VALUES($n,$g)
-        }
-
-        # NEXT, Return the undo command
-        set undo [list]
-        lappend undo [mytypemethod mutate delete $n $g]
-
-        return [join $undo \n]
-    }
-
-    # mutate delete n g
-    #
-    # n g     A personnel_ng ID
-    #
-    # Deletes the record, including all references.
-
-    typemethod {mutate delete} {n g} {
-        # FIRST, delete the record, grabbing the undo information
-        set data [rdb delete -grab personnel_ng {n=$n AND g=$g}]
-
-        # NEXT, return the undo script
-        return [list rdb ungrab $data]
-    }
 
     # mutate set parmdict
     #

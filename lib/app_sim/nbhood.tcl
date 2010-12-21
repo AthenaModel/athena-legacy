@@ -233,6 +233,9 @@ snit::type nbhood {
 
                 INSERT INTO demog_n(n) VALUES($n);
                 INSERT INTO econ_n(n)  VALUES($n);
+
+                INSERT INTO personnel_ng(n,g)
+                SELECT $n, g FROM groups WHERE gtype IN ('FRC', 'ORG');
             } {}
 
             # NEXT, set the stacking order
