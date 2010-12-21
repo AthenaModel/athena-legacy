@@ -662,47 +662,6 @@ snit::type activity {
     # some way.  Mutators assume that their inputs are valid, and returns
     # a script of one or more commands that will undo the change.  When
     # change cannot be undone, the mutator returns the empty string.
-
-    # mutate reconcile
-    #
-    # Deletes calendar items for which the owning neighborhood or group 
-    # no longer exists.
-
-    typemethod {mutate reconcile} {} {
-        # FIRST, delete orphaned calendar items.
-        set undo [list]
-
-        rdb eval {
-            SELECT cid
-            FROM calendar
-            LEFT OUTER JOIN groups USING (g)
-            WHERE longname IS NULL
-        } {
-            
-            lappend undo [$type mutate delete $cid]
-        }
-
-        rdb eval {
-            SELECT cid
-            FROM calendar
-            LEFT OUTER JOIN nbhoods USING (n)
-            WHERE longname IS NULL
-        } {
-            lappend undo [$type mutate delete $cid]
-        }
-
-        rdb eval {
-            SELECT cid
-            FROM calendar
-            LEFT OUTER JOIN nbhoods ON (nbhoods.n == calendar.tn)
-            WHERE longname IS NULL
-        } {
-            lappend undo [$type mutate delete $cid]
-        }
-
-        return [join $undo \n]
-    }
-
     # mutate create parmdict
     #
     # parmdict     A dictionary of calendar item parms

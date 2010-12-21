@@ -129,6 +129,51 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO
         cleanup
     } -result {NB1 USAID}
 
+    test delete-3.1 {calendar items with g are deleted} -setup {
+        ted create NB1 USAID
+
+        activity mutate create {
+            n         NB1
+            g         USAID
+            a         CMO_INDUSTRY
+            tn        NB1
+            personnel 70
+            start     0
+            finish    never
+            pattern   daily
+            priority  bottom
+        }
+    } -body {
+        orggroup mutate delete USAID
+        rdb eval {SELECT n,g,a,tn FROM calendar}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-3.2 {undoing restores items with g} -setup {
+        ted create NB1 USAID
+
+        activity mutate create {
+            n         NB1
+            g         USAID
+            a         CMO_INDUSTRY
+            tn        NB1
+            personnel 70
+            start     0
+            finish    never
+            pattern   daily
+            priority  bottom
+        }
+
+        set undo [orggroup mutate delete USAID]
+
+    } -body {
+        namespace eval :: $undo
+        rdb eval {SELECT n,g,a,tn FROM calendar}
+    } -cleanup {
+        cleanup
+    } -result {NB1 USAID CMO_INDUSTRY NB1}
+
     #-------------------------------------------------------------------
     # mutate update
 

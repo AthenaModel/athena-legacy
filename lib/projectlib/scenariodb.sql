@@ -611,10 +611,24 @@ CREATE TABLE calendar (
     cid          INTEGER PRIMARY KEY AUTOINCREMENT,
 
     -- Scheduled activity
-    n            TEXT,     -- Symbolic nbhoods name
-    g            TEXT,     -- Symbolic groups name
-    a            TEXT,     -- Symbolic activity name
-    tn           TEXT,     -- Target nbhood name.           
+
+    -- Neighborhood in which personnel are based
+    n            TEXT REFERENCES nbhoods(n)
+                 ON DELETE CASCADE
+                 DEFERRABLE INITIALLY DEFERRED,
+
+    -- Group providing personnel
+    g            TEXT REFERENCES groups(g)
+                 ON DELETE CASCADE
+                 DEFERRABLE INITIALLY DEFERRED,
+
+    -- Activity being performed        
+    a            TEXT,
+
+    -- Neighborhood targetted by activity
+    tn           TEXT REFERENCES nbhoods(n)
+                 ON DELETE CASCADE
+                 DEFERRABLE INITIALLY DEFERRED,
 
     -- Number personnel scheduled.
     personnel    INTEGER,

@@ -547,11 +547,6 @@ snit::type scenario {
         # rel_fg just goes away.  I *like* that.
         lappend undo [rel mutate reconcile]
 
-        # Requires only cascading deletes on n, tn, and g in
-        # calendar table.  Requires testing with neighborhoods (n and tn)
-        # and all three group types.
-        lappend undo [activity mutate reconcile]
-
         # Can't remove yet; sets the g and resolver fields to 
         # "NONE" if the named groups no longer exist.  Cascading
         # delete can't do this.  It should be handled using 
