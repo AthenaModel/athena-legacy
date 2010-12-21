@@ -208,6 +208,14 @@ snit::type frcgroup {
                 SELECT n, $g FROM nbhoods;
             }
 
+            if {$uniformed} {
+                rdb eval {
+                    INSERT INTO defroe_ng(n,g)
+                    SELECT n, $g FROM nbhoods;
+
+                }
+            }
+
             # NEXT, Return the undo command
             return [mytypemethod mutate delete $g]
         }

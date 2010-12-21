@@ -310,10 +310,14 @@ CREATE TABLE attroe_nfg (
 
 CREATE TABLE defroe_ng (
     -- Neighborhood in which to defend
-    n          TEXT,
+    n          TEXT REFERENCES nbhoods(n)
+               ON DELETE CASCADE
+               DEFERRABLE INITIALLY DEFERRED,
 
     -- Defending force group
-    g          TEXT,
+    g          TEXT REFERENCES frcgroups(g)
+               ON DELETE CASCADE
+               DEFERRABLE INITIALLY DEFERRED,
 
     -- ROE: edefroeuf.
     roe        TEXT DEFAULT 'FIRE_BACK_IF_PRESSED',

@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    020-ROE-DEFEND.test
+#    020-DEFROE.test
 #
 # AUTHOR:
 #    Will Duquette
@@ -28,7 +28,6 @@ namespace eval ::athena_test::tests:: {
 
     proc setup {} {
         ted create NB1 NB2 BLUE BRIT ALQ
-        defroe mutate reconcile
     }
 
 
@@ -79,7 +78,7 @@ namespace eval ::athena_test::tests:: {
             roe   HOLD_FIRE
         }
 
-        ted query {SELECT * FROM defroe_ng}
+        ted query {SELECT * FROM defroe_ng ORDER BY n,g}
     } -cleanup {
         cleanup
     } -result {

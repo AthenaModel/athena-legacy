@@ -547,14 +547,6 @@ snit::type scenario {
         # rel_fg just goes away.  I *like* that.
         lappend undo [rel mutate reconcile]
 
-        # Requires creation in nbhood and frcgroup modules; cascading
-        # deletes on n, f, and g; and testing in the two modules.
-        # lappend undo [attroe mutate reconcile]
-
-        # Requires creation in nbhood and frcgroup modules; cascading
-        # deletes on n and g; and testing in the two modules.
-        lappend undo [defroe mutate reconcile]
-
         # Requires only cascading deletes on n, tn, and g in
         # calendar table.  Requires testing with neighborhoods (n and tn)
         # and all three group types.

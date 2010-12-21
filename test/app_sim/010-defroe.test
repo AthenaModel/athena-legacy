@@ -34,88 +34,6 @@ namespace eval ::athena_test::tests:: {
         ted cleanup
     }
 
-    #-------------------------------------------------------------------
-    # mutate reconcile
-
-    test reconcile-1.1 {create defending ROEs} -setup {
-        ted create NB1 NB2 BLUE ALQ
-    } -body {
-        defroe mutate reconcile
-
-        ted query {SELECT * FROM defroe_ng}
-    } -cleanup {
-        cleanup
-    } -result {
-n   g    roe                  
---- ---- -------------------- 
-NB1 BLUE FIRE_BACK_IF_PRESSED 
-NB2 BLUE FIRE_BACK_IF_PRESSED 
-    }
-
-
-    test reconcile-1.3 {Created curves are undone} -setup {
-        ted create NB1 NB2 BLUE
-        set undo [defroe mutate reconcile]
-    } -body {
-        eval $undo
-        rdb query {SELECT * FROM defroe_ng}
-    } -cleanup {
-        cleanup
-    } -result {}
-    
-
-    test reconcile-2.1 {Delete ROEs with nbhood} -setup {
-        ted create NB1 NB2 BLUE
-        defroe mutate reconcile
-    } -body {
-        nbhood mutate delete NB2
-        defroe mutate reconcile
-
-        ted query {SELECT * FROM defroe_ng}
-    } -cleanup {
-        cleanup
-    } -result {
-n   g    roe                  
---- ---- -------------------- 
-NB1 BLUE FIRE_BACK_IF_PRESSED 
-    }
-
-
-    test reconcile-2.2 {Delete ROEs with group} -setup {
-        ted create NB1 NB2 BLUE
-        defroe mutate reconcile
-    } -body {
-        frcgroup mutate delete BLUE
-        defroe mutate reconcile
-
-        # Should be none.
-        rdb query {SELECT * FROM defroe_ng}
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test reconcile-2.4 {On undo: ROEs are restored} -setup {
-        # FIRST, create the groups and ROEs
-        ted create NB1 NB2 BLUE
-        defroe mutate reconcile
-
-        # NEXT, delete the group and ROEs and get the 
-        # undo script.
-        frcgroup mutate delete BLUE
-
-        set undo [defroe mutate reconcile]
-    } -body {
-        eval $undo
-        ted query {SELECT * FROM defroe_ng}
-    } -cleanup {
-        cleanup
-    } -result {
-n   g    roe                  
---- ---- -------------------- 
-NB1 BLUE FIRE_BACK_IF_PRESSED 
-NB2 BLUE FIRE_BACK_IF_PRESSED 
-    }
-
 
     #-------------------------------------------------------------------
     # mutate update
@@ -123,7 +41,6 @@ NB2 BLUE FIRE_BACK_IF_PRESSED
 
     test update-1.1 {defroe is updated} -setup {
         ted create NB1 NB2 BLUE
-        defroe mutate reconcile
     } -body {
         defroe mutate update {
             id      {NB1 BLUE}
@@ -143,7 +60,6 @@ NB2 BLUE FIRE_BACK_IF_PRESSED
 
     test update-1.2 {identical values are OK} -setup {
         ted create NB1 NB2 BLUE
-        defroe mutate reconcile
         set parmdict {
             id      {NB1 BLUE}
             defroe  HOLD_FIRE
@@ -165,7 +81,6 @@ NB2 BLUE FIRE_BACK_IF_PRESSED
 
     test update-1.3 {empty values are OK} -setup {
         ted create NB1 NB2 BLUE
-        defroe mutate reconcile
     } -body {
         set a [ted query {SELECT * FROM defroe_ng}]
 
@@ -184,7 +99,6 @@ NB2 BLUE FIRE_BACK_IF_PRESSED
 
     test update-2.1 {undo undoes the change} -setup {
         ted create NB1 NB2 BLUE
-        defroe mutate reconcile
     } -body {
 
         set a [ted query {SELECT * FROM defroe_ng ORDER BY n,g}]
@@ -230,7 +144,6 @@ NB2 BLUE FIRE_BACK_IF_PRESSED
 
     test validate-2.1 {Valid ROE} -setup {
         ted create NB1 BLUE
-        defroe mutate reconcile
     } -body {
         defroe validate {NB1 BLUE}
     } -cleanup {

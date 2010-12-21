@@ -44,7 +44,6 @@ namespace eval ::athena_test::tests:: {
 
     test reconcile-1.1 {All entities are reconciled} -body {
         ted notifier bind ::rdb      <rel_fg>
-        ted notifier bind ::rdb      <defroe_fg>
         ted notifier bind ::scenario <Reconcile>
 
         rdb monitor transaction {
@@ -91,7 +90,6 @@ namespace eval ::athena_test::tests:: {
         set undo [scenario mutate reconcile]
 
         ted notifier bind ::rdb      <rel_fg>
-        ted notifier bind ::rdb      <defroe_fg>
         ted notifier bind ::scenario <Reconcile>
 
         rdb monitor transaction {
