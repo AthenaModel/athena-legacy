@@ -133,6 +133,31 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
         cleanup
     } -result {}
 
+    test delete-1.4 {attroe_nfg records are deleted} -setup {
+        ted create NB1 BLUE ALQ
+        attroe mutate create {
+            id        {NB1 BLUE ALQ}
+            uniformed 1
+            roe       ATTACK
+            cooplimit 30
+            rate      ""
+        }
+
+        attroe mutate create {
+            id        {NB1 ALQ BLUE}
+            uniformed 0
+            roe       ATTACK
+            cooplimit 30
+            rate      ""
+        }
+    } -body {
+        frcgroup mutate delete BLUE
+
+        rdb eval {SELECT n,f,g FROM attroe_nfg ORDER BY n,f,g}
+    } -cleanup {
+        cleanup
+    } -result {}
+
     test delete-2.1 {Undo restores group} -setup {
         ted create BLUE
         set undo [frcgroup mutate delete BLUE]
@@ -166,6 +191,32 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
     } -cleanup {
         cleanup
     } -result {NB1 BLUE}
+
+    test delete-2.4 {undo restores attroe_nfg records} -setup {
+        ted create NB1 BLUE ALQ
+        attroe mutate create {
+            id        {NB1 BLUE ALQ}
+            uniformed 1
+            roe       ATTACK
+            cooplimit 30
+            rate      ""
+        }
+
+        attroe mutate create {
+            id        {NB1 ALQ BLUE}
+            uniformed 0
+            roe       ATTACK
+            cooplimit 30
+            rate      ""
+        }
+
+        set undo [frcgroup mutate delete BLUE]
+    } -body {
+        namespace eval :: $undo
+        rdb eval {SELECT n,f,g FROM attroe_nfg ORDER BY n,f,g}
+    } -cleanup {
+        cleanup
+    } -result {NB1 ALQ BLUE NB1 BLUE ALQ}
 
     #-------------------------------------------------------------------
     # mutate update

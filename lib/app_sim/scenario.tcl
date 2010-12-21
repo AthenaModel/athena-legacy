@@ -549,7 +549,7 @@ snit::type scenario {
 
         # Requires creation in nbhood and frcgroup modules; cascading
         # deletes on n, f, and g; and testing in the two modules.
-        lappend undo [attroe mutate reconcile]
+        # lappend undo [attroe mutate reconcile]
 
         # Requires creation in nbhood and frcgroup modules; cascading
         # deletes on n and g; and testing in the two modules.

@@ -88,6 +88,7 @@ NB1 ALQ BRIT 0         HIT_AND_RUN 40.0      0.5
 
 
     test create-2.1 {undo deletes the attroe} -setup {
+        setup
         attroe mutate create $uf
         set undo [attroe mutate create $nf]
     } -body {
@@ -214,59 +215,6 @@ NB1 ALQ BRIT 0         STAND_AND_FIGHT 50.0      1.0
     } -cleanup {
         cleanup
     } -result {1}
-
-    #-------------------------------------------------------------------
-    # mutate reconcile
-
-    test reconcile-1.1 {valid ROEs remain} -setup {
-        setup
-        attroe mutate create $uf
-        attroe mutate create $nf
-    } -body {
-        attroe mutate reconcile
-        rdb eval {SELECT n,f,g FROM attroe_nfg}
-    } -cleanup {
-        cleanup
-    } -result {NB1 BLUE ALQ NB1 ALQ BRIT}
-
-
-    test reconcile-1.2 {ROE deleted when nbhood is gone} -setup {
-        setup
-        attroe mutate create $uf
-        attroe mutate create $nf
-        nbhood mutate delete NB1
-    } -body {
-        attroe mutate reconcile
-        rdb eval {SELECT n,f,g FROM attroe_nfg}
-    } -cleanup {
-        cleanup
-    } -result {}
-
-
-    test reconcile-1.3 {ROE deleted when group is gone} -setup {
-        setup
-        attroe mutate create $uf
-        attroe mutate create $nf
-        frcgroup mutate delete ALQ
-    } -body {
-        attroe mutate reconcile
-        rdb eval {SELECT n,f,g FROM attroe_nfg}
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test reconcile-2.1 {groups restored on undo} -setup {
-        setup
-        attroe mutate create $uf
-        attroe mutate create $nf
-        frcgroup mutate delete ALQ
-    } -body {
-        set undo [attroe mutate reconcile]
-        eval $undo
-        rdb eval {SELECT n,f,g FROM attroe_nfg}
-    } -cleanup {
-        cleanup
-    } -result {NB1 ALQ BRIT NB1 BLUE ALQ}
 
 
     #-------------------------------------------------------------------

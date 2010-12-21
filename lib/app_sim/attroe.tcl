@@ -160,48 +160,6 @@ snit::type ::attroe {
     # a script of one or more commands that will undo the change.  When
     # change cannot be undone, the mutator returns the empty string.
 
-    # mutate reconcile
-    #
-    # Deletes attacking ROEs for groups or neighborhoods that no 
-    # longer exist, returning an undo script.
-
-    typemethod {mutate reconcile} {} {
-        # FIRST, prepare to return an undo script
-        set undo [list]
-
-        # NEXT, delete entries for which no nbhood exists.
-        rdb eval {
-            SELECT n,f,g
-            FROM attroe_nfg LEFT OUTER JOIN nbhoods USING (n)
-            WHERE longname IS NULL
-        } {
-            lappend undo [$type mutate delete [list $n $f $g]]
-        }
-
-        # NEXT, delete entries for which group f does not exist.
-        rdb eval {
-            SELECT n, f, attroe_nfg.g AS g
-            FROM attroe_nfg 
-            LEFT OUTER JOIN frcgroups ON (attroe_nfg.f = frcgroups.g)
-            WHERE frcgroups.uniformed IS NULL
-        } {
-            lappend undo [$type mutate delete [list $n $f $g]]
-        }
-
-        # NEXT, delete entries for which group g does not exist.
-        rdb eval {
-            SELECT n, f, attroe_nfg.g AS g
-            FROM attroe_nfg 
-            LEFT OUTER JOIN frcgroups ON (attroe_nfg.g = frcgroups.g)
-            WHERE frcgroups.uniformed IS NULL
-        } {
-            lappend undo [$type mutate delete [list $n $f $g]]
-        }
-
-        # NEXT, return the undo script
-        return [join $undo \n]
-    }
-
 
     # mutate create parmdict
     #

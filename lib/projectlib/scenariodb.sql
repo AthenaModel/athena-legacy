@@ -273,13 +273,19 @@ CREATE TABLE personnel_ng (
 
 CREATE TABLE attroe_nfg (
     -- Neighborhood in which to attack
-    n          TEXT,
+    n          TEXT REFERENCES nbhoods(n)
+               ON DELETE CASCADE
+               DEFERRABLE INITIALLY DEFERRED,
 
     -- Attacking force group
-    f          TEXT,
+    f          TEXT REFERENCES frcgroups(g)
+               ON DELETE CASCADE
+               DEFERRABLE INITIALLY DEFERRED,
 
     -- Attacked force group
-    g          TEXT,
+    g          TEXT REFERENCES frcgroups(g)
+               ON DELETE CASCADE
+               DEFERRABLE INITIALLY DEFERRED,
 
     -- 1 if f is uniformed, and 0 otherwise.
     uniformed  INTEGER,
