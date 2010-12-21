@@ -253,8 +253,26 @@ snit::type frcgroup {
 
     typemethod {mutate update} {parmdict} {
         dict with parmdict {
-            # FIRST, get the undo information
+            # FIRST, grab the group data that might change.
             set data [rdb grab groups {g=$g} frcgroups {g=$g}]
+
+            # NEXT, determine whether the uniformed flag has
+            # changed.
+            set oldUniformed [rdb onecolumn {
+                SELECT uniformed FROM frcgroups WHERE g=$g
+            }]
+            
+            let uniformedChanged {
+                $uniformed ne "" && $uniformed != $oldUniformed
+            }
+
+            # NEXT, if the uniformed flag changed, any existing
+            # ROE records for this group are wrong.
+            if {$uniformedChanged} {
+                lappend data \
+                    {*}[rdb delete -grab \
+                            defroe_ng {g=$g} attroe_nfg {f=$g OR g=$g}]
+            }
             
             # NEXT, get the new unit symbol, if need be.
             if {$forcetype ne ""} {
@@ -279,6 +297,15 @@ snit::type frcgroup {
                     local     = nonempty($local,     local)
                 WHERE g=$g
             } {}
+
+            # NEXT, if the group has become uniformed, add the
+            # defroe_ng records.
+            if {$uniformedChanged && $uniformed} {
+                rdb eval {
+                    INSERT INTO defroe_ng(n,g)
+                    SELECT n, $g FROM nbhoods;
+                }
+            }
 
             # NEXT, Return the undo command
             return [list rdb ungrab $data]

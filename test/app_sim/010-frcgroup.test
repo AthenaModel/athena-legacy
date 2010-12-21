@@ -34,6 +34,24 @@ namespace eval ::athena_test::tests:: {
         ted cleanup
     }
 
+    proc mkRoes {} {
+        attroe mutate create {
+            id        {NB1 BLUE ALQ}
+            uniformed 1
+            roe       ATTACK
+            cooplimit 30
+            rate      ""
+        }
+
+        attroe mutate create {
+            id        {NB1 ALQ BLUE}
+            uniformed 0
+            roe       ATTACK
+            cooplimit 30
+            rate      ""
+        }
+    }
+
     #-------------------------------------------------------------------
     # mutate create
 
@@ -188,21 +206,7 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
 
     test delete-4.1 {attroe_nfg records are deleted} -setup {
         ted create NB1 BLUE ALQ
-        attroe mutate create {
-            id        {NB1 BLUE ALQ}
-            uniformed 1
-            roe       ATTACK
-            cooplimit 30
-            rate      ""
-        }
-
-        attroe mutate create {
-            id        {NB1 ALQ BLUE}
-            uniformed 0
-            roe       ATTACK
-            cooplimit 30
-            rate      ""
-        }
+        mkRoes
     } -body {
         frcgroup mutate delete BLUE
 
@@ -213,21 +217,7 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
 
     test delete-4.2 {undo restores attroe_nfg records} -setup {
         ted create NB1 BLUE ALQ
-        attroe mutate create {
-            id        {NB1 BLUE ALQ}
-            uniformed 1
-            roe       ATTACK
-            cooplimit 30
-            rate      ""
-        }
-
-        attroe mutate create {
-            id        {NB1 ALQ BLUE}
-            uniformed 0
-            roe       ATTACK
-            cooplimit 30
-            rate      ""
-        }
+        mkRoes
 
         set undo [frcgroup mutate delete BLUE]
     } -body {
@@ -343,6 +333,149 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
         {*}$undo
 
         set b [ted query {SELECT * FROM frcgroups_view}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    
+    test update-3.1 {changing uniformed deletes defroe_ng records} -setup {
+        ted create NB1 BLUE
+    } -body {
+        set a [rdb eval {SELECT n,g FROM defroe_ng}]
+
+        frcgroup mutate update  {
+            g            BLUE
+            longname     ""
+            color        ""
+            forcetype    ""
+            demeanor     ""
+            uniformed    0
+            local        ""
+        }
+
+        set b [rdb eval {SELECT n,g FROM defroe_ng}]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {{NB1 BLUE} {}}
+
+    test update-3.2 {undo restores defroe_ng records} -setup {
+        ted create NB1 BLUE
+    } -body {
+        set a [rdb eval {SELECT n,g FROM defroe_ng}]
+
+        set undo [frcgroup mutate update  {
+            g            BLUE
+            longname     ""
+            color        ""
+            forcetype    ""
+            demeanor     ""
+            uniformed    0
+            local        ""
+        }]
+
+        namespace eval :: $undo
+
+        set b [rdb eval {SELECT n,g FROM defroe_ng}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test update-3.3 {changing uniformed creates defroe_ng records} -setup {
+        ted create NB1 ALQ
+    } -body {
+        set a [rdb eval {SELECT n,g FROM defroe_ng}]
+
+        frcgroup mutate update  {
+            g            ALQ
+            longname     ""
+            color        ""
+            forcetype    ""
+            demeanor     ""
+            uniformed    1
+            local        ""
+        }
+
+        set b [rdb eval {SELECT n,g FROM defroe_ng}]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {{} {NB1 ALQ}}
+
+
+    test update-3.4 {undoing change removes defroe_ng records} -setup {
+        ted create NB1 ALQ
+    } -body {
+        set a [rdb eval {SELECT n,g FROM defroe_ng}]
+
+        set undo [frcgroup mutate update  {
+            g            ALQ
+            longname     ""
+            color        ""
+            forcetype    ""
+            demeanor     ""
+            uniformed    1
+            local        ""
+        }]
+
+        namespace eval :: $undo
+
+        set b [rdb eval {SELECT n,g FROM defroe_ng}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-3.5 {changing uniformed deletes attroe_nfg records} -setup {
+        ted create NB1 BLUE ALQ
+        mkRoes
+    } -body {
+        set a [rdb eval {SELECT n,f,g FROM attroe_nfg ORDER BY n,f,g}]
+
+        frcgroup mutate update  {
+            g            BLUE
+            longname     ""
+            color        ""
+            forcetype    ""
+            demeanor     ""
+            uniformed    0
+            local        ""
+        }
+
+        set b [rdb eval {SELECT n,f,g FROM attroe_nfg ORDER BY n,f,g}]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {{NB1 ALQ BLUE NB1 BLUE ALQ} {}}
+
+    test update-3.6 {undoing change restores attroe_nfg records} -setup {
+        ted create NB1 BLUE ALQ
+        mkRoes
+    } -body {
+        set a [rdb eval {SELECT n,f,g FROM attroe_nfg ORDER BY n,f,g}]
+
+        set undo [frcgroup mutate update  {
+            g            BLUE
+            longname     ""
+            color        ""
+            forcetype    ""
+            demeanor     ""
+            uniformed    0
+            local        ""
+        }]
+        
+        namespace eval :: $undo
+
+        set b [rdb eval {SELECT n,f,g FROM attroe_nfg ORDER BY n,f,g}]
 
         expr {$a eq $b}
     } -cleanup {
