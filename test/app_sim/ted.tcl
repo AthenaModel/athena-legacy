@@ -47,6 +47,7 @@ snit::type ted {
         situations
         ensits_t
         actsits_t
+        demsits_t
         demog_local
         demog_g
         mads

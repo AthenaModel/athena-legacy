@@ -341,26 +341,15 @@ of the names of the tables to export.  If <code>-exclude</code> is
 given with <i>tables</i>, then <i>tables</i> is a list of tables that
 should <i>not</i> be exported.<p>
 
-<<defitem tclimport {<i>obj</i> tclimport <i>text</i> ?<i>logcmd</i>?}>>
+<<defitem tclimport {<i>obj</i> tclimport <i>data</i> ?<i>options...</i>?}>>
 
-Imports <i>text</i> saved by <<iref tclexport>> into the database.
-
-Tables and columns that
-exist in the <i>text</i> but not in the current schema are
-skipped.  The command can be called with the following options:<p>
+Imports <i>data</i> saved by <<iref tclexport>> into the database.
 
 <<deflist options>>
 
 <<defopt {-clear}>>
 
 Clears the RDB, defining the current schema, prior to importing.<p.
-
-<<defopt {-logcmd <b>cmd</b>}>>
-
-Defines a command prefix expecting
-one additional argument, a message string.  <<iref tclimport>> will
-call it with a human-readable message for each table and column
-that's imported or skipped.<p>
 
 <</deflist options>>
 

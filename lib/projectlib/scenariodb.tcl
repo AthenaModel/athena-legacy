@@ -590,61 +590,31 @@ snit::type ::projectlib::scenariodb {
         }
         
         foreach name $tables {
-            lappend output $name [$self ExportTableAsTcl $name]
+            lassign [$db grab $name {}] grabbedName content
+            
+            # grab returns the empty list if there was nothing to
+            # grab; we want to have the table name present with
+            # an empty content string, indicated that the table
+            # should be empty.
+            lappend output $name $content
         }
         
         # NEXT, return the document
         return $output
     }
 
-    # ExportTableAsTcl table
+
+    # tclimport data ?options...?
     #
-    # table    The name of a table in the DB
+    # data         - tclexport data set
     #
-    # Returns a list of row dictionaries for the table.
-
-    method ExportTableAsTcl {table} {
-        # FIRST, get the name of BLOB columns.
-        set blobs [list]
-
-        $db eval "PRAGMA table_info('$table')" tinfo {
-            if {$tinfo(type) eq "BLOB"} {
-                lappend blobs $tinfo(name)
-            }
-        }
-
-        # NEXT, get each row.
-        set output [list]
-
-        $db eval "SELECT * FROM $table" row {
-            unset -nocomplain row(*)
-
-            # Translate blobs
-            foreach col $blobs {
-                binary scan $row($col) H* hex
-                set row($col) $hex
-            }
-
-            lappend output [array get row]
-        }
-
-        return $output
-    }
-
-
-    # importtcl text ?options...?
-    #
-    # text   TCL-formatted text
-    #
-    # -clear         Clears the RDB, defining the current schema, prior
+    # -clear       - Clears the RDB, defining the current schema, prior
     #                to importing.
-    # -logcmd cmd    A command prefix taking a message string as its 
-    #                single argument.
     #
-    # Imports the text into the database.  Imported tables replace
+    # Imports the data into the database.  Imported tables replace
     # existing content; other tables are left alone.
     
-    method tclimport {text args} {
+    method tclimport {data args} {
         # FIRST, get the options
         array set opts {
             -clear  0
@@ -656,7 +626,6 @@ snit::type ::projectlib::scenariodb {
 
             switch -exact -- $opt {
                 -clear  { set opts(-clear) 1               }
-                -logcmd { set opts(-logcmd) [lshift args]  }
                 default { error "Unknown option: \"$opt\"" }
             }
         }
@@ -670,7 +639,7 @@ snit::type ::projectlib::scenariodb {
             if {$opts(-clear)} {
                 $db clear
             } else {
-                foreach {table content} $text {
+                foreach {table content} $data {
                     if {[$db exists "PRAGMA table_info('$table')"]} {
                         $db eval "DELETE FROM $table;"                
                     }
@@ -678,71 +647,7 @@ snit::type ::projectlib::scenariodb {
             }
 
             # NEXT, import the tables
-            foreach {table content} $text {
-                $self ImportTableFromTcl $table $content $opts(-logcmd)
-            }
-        }
-    }
-
-    method ImportTableFromTcl {table content logcmd} {
-        # FIRST, verify that the table exists.
-        if {![$db exists "PRAGMA table_info('$table')"]} {
-            callwith $logcmd "Skipping $table"
-            return
-        }
-
-        callwith $logcmd "Importing $table"
-
-        # NEXT, if the contents is empty we're done.
-        if {[llength $content] == 0} {
-            return
-        }
-
-        # NEXT, get the table's BLOB columns and all column names
-        set blobs [list]
-        set ocols [list]
-
-        $db eval "PRAGMA table_info('$table')" tinfo {
-            lappend ocols $tinfo(name)
-
-            if {$tinfo(type) eq "BLOB"} {
-                lappend blobs $tinfo(name)
-            }
-        }
-
-        # NEXT, all rows will have the same columns.  Get the actual list
-        # of columns from the first row.
-        set cnames [dict keys [lindex $content 0]]
-
-        # NEXT, use the names to create the query we'll use to insert
-        # data into the database.
-
-        foreach name $cnames {
-            if {$name in $ocols} {
-                lappend ccols $name
-                lappend cvars "\$row($name)"
-            } else {
-                callwith $logcmd "    Skipping undefined column $name"
-            }
-        }
-
-        set query [tsubst {
-            |<--
-            INSERT OR REPLACE INTO ${table}([join $ccols ,])
-            VALUES([join $cvars ,])
-        }]
-
-        # NEXT, insert each row into the database.
-        foreach rowdict $content {
-            array set row $rowdict
-
-            # Update blobs
-            foreach name $blobs {
-                set row($name) [binary format H* $row($name)]
-            }
-
-            # Insert the row
-            $db eval $query
+            $db ungrab $data
         }
     }
 

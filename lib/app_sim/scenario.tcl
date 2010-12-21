@@ -461,7 +461,7 @@ snit::type scenario {
 
         # NEXT, import it.
         log normal scenario "Loading snapshot for tick $tick"
-        rdb tclimport $snapshot -logcmd [list log detail scenario]
+        rdb tclimport $snapshot
 
         # NEXT, restore the saveables
         $type RestoreSaveables
