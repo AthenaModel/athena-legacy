@@ -82,6 +82,9 @@ snit::type ted {
 
     typevariable entities -array { }
 
+    # List of entities created for this test; cleared by "ted cleanup"
+    typevariable createdEntities {}
+
     # List of notifier events received since last "ted notifier forget".
     # Each event is "object event args..."
 
@@ -185,7 +188,7 @@ snit::type ted {
             basepop  1000
             sap      10
             demeanor AVERAGE
-        }
+        } NB1
 
         defentity SUNN ::civgroup {
             g        SUNN
@@ -196,7 +199,7 @@ snit::type ted {
             basepop  1000
             sap      0
             demeanor AGGRESSIVE
-        }
+        } NB1
 
         defentity KURD ::civgroup {
             g        KURD
@@ -207,231 +210,92 @@ snit::type ted {
             basepop  1000
             sap      0
             demeanor AGGRESSIVE
-        }
+        } NB2
 
         # Force Groups
 
         defentity BLUE ::frcgroup {
             g         BLUE
             longname  "US Army"
+            a         JOE
             color     "#f00001"
             shape     FRIEND
             forcetype REGULAR
             demeanor  AVERAGE
             uniformed 1
             local     0
-        }
+        } JOE
 
         defentity BRIT ::frcgroup {
             g         BRIT
             longname  "British Forces"
+            a         JOE
             color     "#f00002"
             shape     FRIEND
             forcetype REGULAR
             demeanor  AVERAGE
             uniformed 1
             local     0
-        }
+        } JOE
         
         defentity ALQ ::frcgroup {
             g         ALQ
             longname  "Al Qaeda"
+            a         BOB
             color     "#f00003"
             shape     ENEMY
             forcetype IRREGULAR
             demeanor  AGGRESSIVE
             uniformed 0
             local     0
-        }
+        } BOB
         
         defentity TAL ::frcgroup {
             g         TAL
             longname  "Taliban"
+            a         BOB
             color     "#f00004"
             shape     ENEMY
             forcetype IRREGULAR
             demeanor  AGGRESSIVE
             uniformed 0
             local     1
-        }
+        } BOB
         
         # Organization Groups
 
         defentity USAID ::orggroup {
             g              USAID
             longname       "US Aid"
+            a              JOE
             color          "#000001"
             shape          NEUTRAL
             orgtype        NGO
             demeanor       AVERAGE
-        }
+        } JOE
 
         defentity HAL ::orggroup {
             g              HAL
             longname       "Haliburton"
+            a              JOE
             color          "#000002"
             shape          NEUTRAL
             orgtype        CTR
             demeanor       AVERAGE
-        }
-
-        # Units
-
-        defentity BLUE1 ::unit {
-            g         BLUE
-            origin    NONE
-            u         BLUE1
-            personnel 15
-            location  {0 0}
-            a         NONE
-        }
-
-        defentity BLUE2 ::unit {
-            g         BLUE
-            origin    NONE
-            u         BLUE2
-            personnel 15
-            location  {0 0}
-            a         NONE
-        }
-
-        defentity BRIT1 ::unit {
-            g         BRIT
-            origin    NONE
-            u         BRIT1
-            personnel 15
-            location  {0 0}
-            a         NONE
-        }
-
-        defentity BRIT2 ::unit {
-            g         BRIT
-            origin    NONE
-            u         BRIT2
-            personnel 15
-            location  {0 0}
-            a         NONE
-        }
-
-        defentity USAID1 ::unit {
-            g         USAID
-            origin    NONE
-            u         USAID1
-            personnel 15
-            location  {0 0}
-            a         NONE
-        }
-
-        defentity USAID2 ::unit {
-            g         USAID
-            origin    NONE
-            u         USAID2
-            personnel 15
-            location  {0 0}
-            a         NONE
-        } 
-
-        defentity HAL1 ::unit {
-            g         HAL
-            origin    NONE
-            u         HAL1
-            personnel 15
-            location  {0 0}
-            a         NONE
-        }
-
-        defentity HAL2 ::unit {
-            g         HAL
-            origin    NONE
-            u         HAL2
-            personnel 15
-            location  {0 0}
-            a         NONE
-        }
-
-        defentity NB1SHIA1 ::unit {
-            g         SHIA
-            origin    NB1
-            u         NB1SHIA1
-            personnel 15
-            location  {0 0}
-            a         NONE
-        }
-
-        defentity NB1SHIA2 ::unit {
-            g         SHIA
-            origin    NB1
-            u         NB1SHIA2
-            personnel 15
-            location  {0 0}
-            a         NONE
-        }
-
-        defentity NB1SUNN1 ::unit {
-            g         SUNN
-            origin    NB1
-            u         NB1SUNN1
-            personnel 15
-            location  {0 0}
-            a         NONE
-        }
-
-        defentity NB1SUNN2 ::unit {
-            g         SUNN
-            origin    NB1
-            u         NB1SUNN2
-            personnel 15
-            location  {0 0}
-            a         NONE
-        }
-
-        defentity NB2SHIA1 ::unit {
-            g         SHIA
-            origin    NB2
-            u         NB2SHIA1
-            personnel 15
-            location  {0 0}
-            a         NONE
-        }
-
-        defentity NB2SHIA2 ::unit {
-            g         SHIA
-            origin    NB2
-            u         NB2SHIA2
-            personnel 15
-            location  {0 0}
-            a         NONE
-        }
-
-        defentity NB2SUNN1 ::unit {
-            g         SUNN
-            origin    NB2
-            u         NB2SUNN1
-            personnel 15
-            location  {0 0}
-            a         NONE
-        }
-
-        defentity NB2SUNN2 ::unit {
-            g         SUNN
-            origin    NB2
-            u         NB2SUNN2
-            personnel 15
-            location  {0 0}
-            a         NONE
-        }
+        } JOE
     }
 
-    # defentity name module parmdict
+    # defentity name module parmdict ?entity...?
     #
     # name      The entity name
     # module    The module that creates it
     # parmdict  The creation dictionary
+    # entity    An entity on which the group depends.
     #
     # Adds the entity to the entities array
 
-    proc defentity {name module parmdict} {
-        set entities($name) [list $module $parmdict]
+    proc defentity {name module parmdict args} {
+        set entities($name) [list $module $parmdict $args]
     }
 
     #-------------------------------------------------------------------
@@ -468,13 +332,19 @@ snit::type ted {
     # name     The name of an entity
     #
     # Calls "$module mutate create" for each named entity.
-    # NOTE: This is really unclean.  I should be using orders, instead.
 
     typemethod create {args} {
         foreach name $args {
-            lassign $entities($name) module parmdict
+            if {$name ni $createdEntities} {
+                lassign $entities($name) module parmdict parents
 
-            {*}$module mutate create $parmdict
+                # Create any entities on which this entity depends
+                $type create {*}$parents
+
+                {*}$module mutate create $parmdict
+
+                lappend createdEntities $name
+            }
         }
     }
 
@@ -501,6 +371,8 @@ snit::type ted {
     # * Restarts the eventq(n) queue
     
     typemethod cleanup {} {
+        set createdEntities {}
+
         ted notifier forget
 
         if {[sim state] eq "RUNNING"} {

@@ -59,7 +59,7 @@ JOE Joe the Actor 1000000.0
         actor mutate create [ted entity JOE]
         set undo [actor mutate create [ted entity BOB]]
     } -body {
-        {*}$undo
+        namespace eval :: $undo
         rdb eval {SELECT a FROM actors}
     } -cleanup {
         cleanup
@@ -69,7 +69,7 @@ JOE Joe the Actor 1000000.0
         actor mutate create [ted entity JOE]
         set undo [actor mutate create [ted entity BOB]]
     } -body {
-        {*}$undo
+        namespace eval :: $undo
         bsystem entity names
     } -cleanup {
         cleanup
@@ -89,7 +89,21 @@ JOE Joe the Actor 1000000.0
         cleanup
     } -result {BOB}
 
-    test delete-1.2 {Bsystem entity deleted} -setup {
+    test delete-2.1 {Undo restores actor} -setup {
+        ted create JOE
+        set undo [actor mutate delete JOE]
+    } -body {
+        namespace eval :: $undo
+        ted query {SELECT * FROM actors}
+    } -cleanup {
+        cleanup
+    } -result {
+a   longname      budget    
+--- ------------- --------- 
+JOE Joe the Actor 1000000.0 
+    }
+
+    test delete-3.1 {Bsystem entity deleted} -setup {
         ted create JOE BOB
     } -body {
         actor mutate delete JOE
@@ -100,29 +114,65 @@ JOE Joe the Actor 1000000.0
         cleanup
     } -result {BOB}
 
-    test delete-2.1 {Undo restores actor} -setup {
-        ted create JOE
-        set undo [actor mutate delete JOE]
-    } -body {
-        {*}$undo
-        ted query {SELECT * FROM actors}
-    } -cleanup {
-        cleanup
-    } -result {
-a   longname      budget    
---- ------------- --------- 
-JOE Joe the Actor 1000000.0 
-    }
-
-    test delete-2.2 {Undo restores bsystem entity} -setup {
+    test delete-3.2 {Undo restores bsystem entity} -setup {
         ted create JOE BOB
         set undo [actor mutate delete JOE]
     } -body {
-        {*}$undo
+        namespace eval :: $undo
         bsystem entity names
     } -cleanup {
         cleanup
     } -result {BOB JOE}
+
+    test delete-4.1 {frcgroups.a set to NULL} -setup {
+        ted create JOE BLUE
+    } -body {
+        actor mutate delete JOE
+
+        rdb eval {SELECT g,a FROM frcgroups}
+    } -cleanup {
+        cleanup
+    } -result {BLUE {}}
+
+    test delete-4.2 {Undo restores frcgroups.a} -setup {
+        ted create JOE BLUE
+    } -body {
+        set a [rdb eval {SELECT g,a FROM frcgroups}]
+
+        set undo [actor mutate delete JOE]
+        namespace eval :: $undo
+
+        set b [rdb eval {SELECT g,a FROM frcgroups}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test delete-5.1 {orggroups.a set to NULL} -setup {
+        ted create JOE USAID
+    } -body {
+        actor mutate delete JOE
+
+        rdb eval {SELECT g,a FROM orggroups}
+    } -cleanup {
+        cleanup
+    } -result {USAID {}}
+
+    test delete-5.2 {Undo restores orggroups.a} -setup {
+        ted create JOE USAID
+    } -body {
+        set a [rdb eval {SELECT g,a FROM orggroups}]
+
+        set undo [actor mutate delete JOE]
+        namespace eval :: $undo
+
+        set b [rdb eval {SELECT g,a FROM orggroups}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
 
     #-------------------------------------------------------------------
     # mutate update
@@ -178,7 +228,7 @@ JOE Joe the Actress 0.0
             budget       0
         }]
 
-        {*}$undo
+        namespace eval :: $undo
 
         set b [ted query {SELECT * FROM actors}]
 

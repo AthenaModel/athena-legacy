@@ -1023,6 +1023,14 @@ macro GROUP.sap {} {
     regional economy.  An integer number from 0 to 100.
 }
 
+macro GROUP.a {} {
+    |<--
+    The group's owning actor.  This parameter may remain unset during
+    [cref using.prep], but must be specified before time can be
+    advanced.
+}
+
+
 
 #=======================================================================
 # Civilian Group Orders
@@ -1269,6 +1277,10 @@ order FRCGROUP:CREATE "Create Force Group" {
     <b>Optional.</b> <<parm.longname group "US Army">>
     <</parm>>
 
+    <<parm a "Owning Actor">>
+    <b>Optional.</b> <<GROUP.a>>
+    <</parm>>
+
     <<parm color "Color">>
     <b>Required.</b> <<GROUP.color>>
     <</parm>>
@@ -1327,6 +1339,10 @@ order FRCGROUP:UPDATE "Update Force Group" {
     <b>Optional.</b> <<parm.longname group "U.S. Army">>
     <</parm>>
 
+    <<parm a "Owning Actor">>
+    <b>Optional.</b> <<GROUP.a>>
+    <</parm>>
+
     <<parm color "Color">>
     <b>Optional.</b> <<GROUP.color>>
     <</parm>>
@@ -1364,6 +1380,10 @@ order FRCGROUP:UPDATE+MULTI "Update Multiple Force Groups" {
     <<parmlist>>
     <<parm ids "Groups">>
     <b>Required.</b>  <<parm.ids "force group">>
+    <</parm>>
+
+    <<parm a "Owning Actor">>
+    <b>Optional.</b> <<GROUP.a>>
     <</parm>>
 
     <<parm color "Color">>
@@ -1435,6 +1455,10 @@ order ORGGROUP:CREATE "Create Organization Group" {
     <b>Optional.</b> <<parm.longname group "Red Cross">>
     <</parm>>
 
+    <<parm a "Owning Actor">>
+    <b>Optional.</b> <<GROUP.a>>
+    <</parm>>
+
     <<parm color "Color">>
     <b>Required.</b> <<GROUP.color>>
     <</parm>>
@@ -1485,6 +1509,10 @@ order ORGGROUP:UPDATE "Update Organization Group" {
     <b>Optional.</b> <<parm.longname group "Red Cross">>
     <</parm>>
 
+    <<parm a "Owning Actor">>
+    <b>Optional.</b> <<GROUP.a>>
+    <</parm>>
+
     <<parm color "Color">>
     <b>Optional.</b> <<GROUP.color>>
     <</parm>>
@@ -1513,6 +1541,10 @@ order ORGGROUP:UPDATE+MULTI "Update Multiple Organization Groups" {
     <<parmlist>>
     <<parm ids "Groups">>
     <b>Required.</b>  <<parm.ids "organization group">>
+    <</parm>>
+
+    <<parm a "Owning Actor">>
+    <b>Optional.</b> <<GROUP.a>>
     <</parm>>
 
     <<parm color "Color">>

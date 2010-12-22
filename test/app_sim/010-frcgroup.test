@@ -55,27 +55,35 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # mutate create
 
-    test create-1.1 {frcgroup is created} -body {
+    test create-1.1 {frcgroup is created} -setup {
+        ted create JOE
+    } -body {
         frcgroup mutate create [ted entity BLUE]
         ted query {SELECT * FROM frcgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor gtype forcetype uniformed local 
----- -------- ------- ------ -------- -------- ----- --------- --------- ----- 
-BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0     
+g    longname color   shape  symbol   demeanor gtype a   forcetype uniformed local 
+---- -------- ------- ------ -------- -------- ----- --- --------- --------- ----- 
+BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   JOE REGULAR   1         0     
     }
 
-    test create-1.2 {coop curves are created} -setup {
-        ted create SHIA
+    test create-1.2 {a can be empty, yields NULL} -setup {
+        ted create JOE
     } -body {
-        frcgroup mutate create [ted entity BLUE]
-        rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
+        frcgroup mutate create [dict merge [ted entity BLUE] {a ""}]
+        ted query {SELECT * FROM frcgroups_view}
     } -cleanup {
         cleanup
-    } -result {SHIA BLUE}
+    } -result {
+g    longname color   shape  symbol   demeanor gtype a forcetype uniformed local 
+---- -------- ------- ------ -------- -------- ----- - --------- --------- ----- 
+BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC     REGULAR   1         0     
+    }
+
 
     test create-2.1 {undo deletes the frcgroup} -setup {
+        ted create JOE
         frcgroup mutate create [ted entity BLUE]
         set undo [frcgroup mutate create [ted entity BRIT]]
     } -body {
@@ -85,8 +93,18 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
         cleanup
     } -result {BLUE}
 
-    test create-2.2 {undo deletes the coop curves} -setup {
-        ted create SHIA
+
+    test create-3.1 {coop curves are created} -setup {
+        ted create JOE SHIA
+    } -body {
+        frcgroup mutate create [ted entity BLUE]
+        rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {SHIA BLUE}
+
+    test create-3.2 {undo deletes the coop curves} -setup {
+        ted create JOE SHIA
     } -body {
         set undo [frcgroup mutate create [ted entity BLUE]]
 
@@ -96,8 +114,8 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
         cleanup
     } -result {}
 
-    test create-3.1 {personnel_ng curves are created} -setup {
-        ted create NB1
+    test create-4.1 {personnel_ng curves are created} -setup {
+        ted create JOE NB1
     } -body {
         frcgroup mutate create [ted entity BLUE]
         rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
@@ -105,8 +123,8 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
         cleanup
     } -result {NB1 BLUE}
 
-    test create-3.2 {undo deletes the personnel_ng records} -setup {
-        ted create NB1
+    test create-4.2 {undo deletes the personnel_ng records} -setup {
+        ted create JOE NB1
     } -body {
         set undo [frcgroup mutate create [ted entity BLUE]]
 
@@ -116,8 +134,8 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
         cleanup
     } -result {}
 
-    test create-4.1 {defroe_ng curves are created for uniformed} -setup {
-        ted create NB1 ALQ
+    test create-5.1 {defroe_ng curves are created for uniformed} -setup {
+        ted create JOE NB1 ALQ
     } -body {
         frcgroup mutate create [ted entity BLUE]
         rdb eval {SELECT n,g FROM defroe_ng ORDER BY n,g}
@@ -125,8 +143,8 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
         cleanup
     } -result {NB1 BLUE}
 
-    test create-3.2 {undo deletes the personnel_ng records} -setup {
-        ted create NB1 ALQ
+    test create-5.2 {undo deletes the defroe_ng records} -setup {
+        ted create JOE NB1 ALQ
     } -body {
         set undo [frcgroup mutate create [ted entity BLUE]]
 
@@ -169,9 +187,9 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor gtype forcetype uniformed local 
----- -------- ------- ------ -------- -------- ----- --------- --------- ----- 
-BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0     
+g    longname color   shape  symbol   demeanor gtype a   forcetype uniformed local 
+---- -------- ------- ------ -------- -------- ----- --- --------- --------- ----- 
+BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   JOE REGULAR   1         0     
     }
 
     test delete-2.2 {Undo restores coop curves} -setup {
@@ -299,10 +317,11 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
 
 
     test update-1.1 {frcgroup is updated} -setup {
-        ted create BLUE
+        ted create BOB BLUE
     } -body {
         frcgroup mutate update {
             g            BLUE
+            a            BOB
             longname     "Blue Angels"
             color        "#ff0000"
             shape        NEUTRAL
@@ -316,9 +335,9 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   REGULAR   1         0
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol demeanor   gtype forcetype uniformed local 
----- ----------- ------- ------- ------ ---------- ----- --------- --------- ----- 
-BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1     
+g    longname    color   shape   symbol demeanor   gtype a   forcetype uniformed local 
+---- ----------- ------- ------- ------ ---------- ----- --- --------- --------- ----- 
+BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   BOB POLICE    0         1     
     }
 
 
@@ -345,6 +364,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
         frcgroup mutate update  {
             g            BLUE
             longname     ""
+            a            ""
             color        ""
             forcetype    ""
             demeanor     ""
@@ -369,6 +389,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
         set undo [frcgroup mutate update {
             g            BLUE
             longname     "Blue Angels"
+            a            ""
             color        ""
             forcetype    ""
             demeanor     ""
@@ -394,6 +415,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
         frcgroup mutate update  {
             g            BLUE
             longname     ""
+            a            ""
             color        ""
             forcetype    ""
             demeanor     ""
@@ -416,6 +438,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
         set undo [frcgroup mutate update  {
             g            BLUE
             longname     ""
+            a            ""
             color        ""
             forcetype    ""
             demeanor     ""
@@ -440,6 +463,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
         frcgroup mutate update  {
             g            ALQ
             longname     ""
+            a            ""
             color        ""
             forcetype    ""
             demeanor     ""
@@ -463,6 +487,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
         set undo [frcgroup mutate update  {
             g            ALQ
             longname     ""
+            a            ""
             color        ""
             forcetype    ""
             demeanor     ""
@@ -489,6 +514,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
         frcgroup mutate update  {
             g            BLUE
             longname     ""
+            a            ""
             color        ""
             forcetype    ""
             demeanor     ""
@@ -512,6 +538,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
         set undo [frcgroup mutate update  {
             g            BLUE
             longname     ""
+            a            ""
             color        ""
             forcetype    ""
             demeanor     ""

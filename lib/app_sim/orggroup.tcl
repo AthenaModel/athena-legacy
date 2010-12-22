@@ -73,6 +73,7 @@ snit::type orggroup {
     #
     #    g                The group's ID
     #    longname         The group's long name
+    #    a                The group's owning actor
     #    color            The group's color
     #    shape            The group's unit shape (eunitshape(n))
     #    orgtype          The group's eorgtype
@@ -98,8 +99,9 @@ snit::type orggroup {
                        $demeanor,
                        'ORG');
 
-                INSERT INTO orggroups(g,orgtype)
+                INSERT INTO orggroups(g,a,orgtype)
                 VALUES($g,
+                       CASE WHEN $a != '' THEN $a ELSE NULL END,
                        $orgtype);
 
                 INSERT INTO personnel_ng(n,g)
@@ -132,6 +134,7 @@ snit::type orggroup {
     #
     #    g                A group short name
     #    longname         A new long name, or ""
+    #    a                A new owning actor, or ""
     #    color            A new color, or ""
     #    shape            A new shape, or ""
     #    orgtype          A new orgtype, or ""
@@ -155,7 +158,9 @@ snit::type orggroup {
                 WHERE g=$g;
 
                 UPDATE orggroups
-                SET orgtype   = nonempty($orgtype,   orgtype)
+                SET a         = coalesce(CASE WHEN $a != '' 
+                                         THEN $a ELSE NULL END, a),
+                    orgtype   = nonempty($orgtype,   orgtype)
                 WHERE g=$g
             } {}
 
@@ -178,6 +183,7 @@ order define ORGGROUP:CREATE {
 
     parm g              text  "Group"
     parm longname       text  "Long Name"
+    parm a              enum  "Owning Actor"      -type actor
     parm color          color "Color"             -defval \#10DDD7
     parm shape          enum  "Unit Shape"        -type   eunitshape \
                                                   -defval NEUTRAL
@@ -189,6 +195,7 @@ order define ORGGROUP:CREATE {
     # FIRST, prepare and validate the parameters
     prepare g              -toupper   -required -unused -type ident
     prepare longname       -normalize
+    prepare a              -toupper             -type actor
     prepare color          -tolower   -required -type hexcolor
     prepare shape          -toupper   -required -type eunitshape
     prepare orgtype        -toupper   -required -type eorgtype
@@ -263,6 +270,7 @@ order define ORGGROUP:UPDATE {
     parm g              key   "Group" \
         -table gui_orggroups -key g -tags group 
     parm longname       text  "Long Name"
+    parm a              enum  "Owning Actor"       -type actor
     parm color          color "Color"
     parm shape          enum  "Unit Shape"         -type eunitshape
     parm orgtype        enum  "Organization Type"  -type eorgtype
@@ -270,6 +278,7 @@ order define ORGGROUP:UPDATE {
 } {
     # FIRST, prepare the parameters
     prepare g              -toupper   -required -type orggroup
+    prepare a              -toupper   -type actor
     prepare longname       -normalize 
     prepare color          -tolower   -type hexcolor
     prepare shape          -toupper   -type eunitshape
@@ -294,6 +303,7 @@ order define ORGGROUP:UPDATE:MULTI {
         -refreshcmd {orderdialog refreshForMulti ids *}
 
     parm ids            multi "Groups" -table gui_orggroups -key g
+    parm a              enum  "Owning Actor"       -type actor
     parm color          color "Color"
     parm shape          enum  "Unit Shape"         -type eunitshape
     parm orgtype        enum  "Organization Type"  -type eorgtype
@@ -301,6 +311,7 @@ order define ORGGROUP:UPDATE:MULTI {
 } {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof orggroup
+    prepare a              -toupper            -type   actor
     prepare color          -tolower            -type   hexcolor
     prepare shape          -toupper            -type   eunitshape
     prepare orgtype        -toupper            -type   eorgtype

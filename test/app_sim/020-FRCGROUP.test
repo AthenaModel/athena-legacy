@@ -31,6 +31,7 @@ namespace eval ::athena_test::tests:: {
     set blue {
         g         BLUE
         longname  "US Army"
+        a         JOE
         color     #0000ff
         shape     FRIEND
         forcetype REGULAR
@@ -42,6 +43,7 @@ namespace eval ::athena_test::tests:: {
     set brit {
         g         BRIT
         longname  "British Forces"
+        a         JOE
         color     #00ffff
         shape     FRIEND
         forcetype REGULAR
@@ -75,6 +77,7 @@ namespace eval ::athena_test::tests:: {
     
 
     test CREATE-1.2 {Duplicate g} -setup {
+        ted create JOE
         ted order FRCGROUP:CREATE $blue
     } -body {
         ted order -reject FRCGROUP:CREATE $blue
@@ -85,7 +88,9 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.4 {g is not an ident} -body {
+    test CREATE-1.3 {g is not an ident} -setup {
+        ted create JOE
+    } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
             g "BL&E"
         }]
@@ -95,8 +100,17 @@ namespace eval ::athena_test::tests:: {
         g {Identifiers begin with a letter and contain only letters and digits.}
     }
 
+    test CREATE-1.4 {invalid actor} -body {
+        ted order -reject FRCGROUP:CREATE $blue
+    } -cleanup {
+        cleanup
+    } -result {
+        a {Invalid actor, none are defined}
+    }
 
-    test CREATE-1.5 {invalid color} -body {
+    test CREATE-1.5 {invalid color} -setup {
+        ted create JOE
+    } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
             color NONESUCH
         }]
@@ -107,7 +121,9 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.6 {invalid shape} -body {
+    test CREATE-1.6 {invalid shape} -setup {
+        ted create JOE
+    } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
             shape NONESUCH
         }]
@@ -118,51 +134,71 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.7 {invalid forcetype} -body {
+    test CREATE-1.7 {invalid forcetype} -setup {
+        ted create JOE
+    } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
             forcetype NONESUCH
         }]
+    } -cleanup {
+        cleanup
     } -result {
         forcetype {invalid value "NONESUCH", should be one of: REGULAR, PARAMILITARY, POLICE, IRREGULAR, CRIMINAL}
     }
 
-    test CREATE-1.8 {invalid demeanor} -body {
+    test CREATE-1.8 {invalid demeanor} -setup {
+        ted create JOE
+    } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
             demeanor NONESUCH
         }]
+    } -cleanup {
+        cleanup
     } -result {
         demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
-    test CREATE-1.9 {invalid uniformed} -body {
+    test CREATE-1.9 {invalid uniformed} -setup {
+        ted create JOE
+    } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
             uniformed NONESUCH
         }]
+    } -cleanup {
+        cleanup
     } -result {
         uniformed {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test CREATE-1.10 {invalid local} -body {
+    test CREATE-1.10 {invalid local} -setup {
+        ted create JOE
+    } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
             local NONESUCH
         }]
+    } -cleanup {
+        cleanup
     } -result {
         local {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test CREATE-2.1 {frcgroup is created} -body {
+    test CREATE-2.1 {frcgroup is created} -setup {
+        ted create JOE
+    } -body {
         ted order FRCGROUP:CREATE $blue
 
         ted query {SELECT * FROM frcgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor gtype forcetype uniformed local 
----- -------- ------- ------ -------- -------- ----- --------- --------- ----- 
-BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0     
+g    longname color   shape  symbol   demeanor gtype a   forcetype uniformed local 
+---- -------- ------- ------ -------- -------- ----- --- --------- --------- ----- 
+BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   JOE REGULAR   1         0     
     }
 
-    test CREATE-2.2 {longname defaults to ID} -body {
+    test CREATE-2.2 {longname defaults to ID} -setup {
+        ted create JOE
+    } -body {
         ted order FRCGROUP:CREATE [dict merge $blue {longname ""}]
 
         rdb onecolumn {SELECT longname FROM frcgroups_view}
@@ -170,7 +206,9 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0
         cleanup
     } -result {BLUE}
 
-    test CREATE-2.3 {Effects} -body {
+    test CREATE-2.3 {Effects} -setup {
+        ted create JOE
+    } -body {
         ted notifier bind ::rdb <frcgroups>
         ted notifier bind ::scenario <Reconcile>
         ted order FRCGROUP:CREATE $blue
@@ -184,6 +222,7 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0
 
 
     test CREATE-3.1 {undo effects} -setup {
+        ted create JOE
         ted order FRCGROUP:CREATE $blue
     } -body {
         ted notifier bind ::rdb <frcgroups>
@@ -214,7 +253,7 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0
 
 
     test DELETE-2.1 {Effects} -setup {
-        ted order FRCGROUP:CREATE $blue
+        ted create BLUE
     } -body {
         ted notifier bind ::rdb <frcgroups>
         ted notifier bind ::scenario <Reconcile>
@@ -229,7 +268,7 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0
 
 
     test DELETE-3.1 {Undo effects} -setup {
-        ted order FRCGROUP:CREATE $blue
+        ted create BLUE
         ted order FRCGROUP:DELETE g BLUE
     } -body {
         ted notifier bind ::rdb <frcgroups>
@@ -250,10 +289,19 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0
     } -result {
         g {required value}
     }
-    
 
-    test UPDATE-1.4 {invalid color} -setup {
-        ted order FRCGROUP:CREATE $blue
+    test UPDATE-1.2 {invalid actor} -setup {
+        ted create BLUE
+    } -body {
+        ted order -reject FRCGROUP:UPDATE g BLUE a NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        a {Invalid actor, should be one of: JOE}
+    }
+
+    test UPDATE-1.3 {invalid color} -setup {
+        ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE color NONESUCH
     } -cleanup {
@@ -262,9 +310,8 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0
         color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
     }
 
-
     test UPDATE-1.5 {invalid shape} -setup {
-        ted order FRCGROUP:CREATE $blue
+        ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE shape NONESUCH
     } -cleanup {
@@ -275,7 +322,7 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0
 
 
     test UPDATE-1.6 {invalid forcetype} -setup {
-        ted order FRCGROUP:CREATE $blue
+        ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE forcetype NONESUCH
     } -cleanup {
@@ -286,7 +333,7 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0
 
 
     test UPDATE-1.7 {invalid demeanor} -setup {
-        ted order FRCGROUP:CREATE $blue
+        ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE demeanor NONESUCH
     } -cleanup {
@@ -297,7 +344,7 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0
 
 
     test UPDATE-1.8 {invalid uniformed} -setup {
-        ted order FRCGROUP:CREATE $blue
+        ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE uniformed NONESUCH
     } -cleanup {
@@ -308,7 +355,7 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0
 
 
     test UPDATE-1.9 {invalid local} -setup {
-        ted order FRCGROUP:CREATE $blue
+        ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE local NONESUCH
     } -cleanup {
@@ -319,11 +366,12 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0
 
 
     test UPDATE-2.1 {frcgroup is updated} -setup {
-        ted order FRCGROUP:CREATE $blue
+        ted create BOB BLUE
     } -body {
         ted order FRCGROUP:UPDATE {
             g            BLUE
             longname     "Blue Angels"
+            a            BOB
             color        "#ff0000"
             shape        NEUTRAL
             forcetype    POLICE
@@ -336,14 +384,14 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   REGULAR   1         0
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol demeanor   gtype forcetype uniformed local 
----- ----------- ------- ------- ------ ---------- ----- --------- --------- ----- 
-BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1     
+g    longname    color   shape   symbol demeanor   gtype a   forcetype uniformed local 
+---- ----------- ------- ------- ------ ---------- ----- --- --------- --------- ----- 
+BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   BOB POLICE    0         1     
     }
 
 
     test UPDATE-2.2 {table monitor event} -setup {
-        ted order FRCGROUP:CREATE $blue
+        ted create BLUE
     } -body {
         ted notifier bind ::rdb <frcgroups>
         ted order FRCGROUP:UPDATE g BLUE longname "Blue Angels"
@@ -356,10 +404,11 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
 
 
     test UPDATE-3.1 {undo undoes the change} -setup {
-        ted order FRCGROUP:CREATE $blue
+        ted create BOB BLUE
         ted order FRCGROUP:UPDATE {
             g            BLUE
             longname     "Blue Angels"
+            a            BOB
             color        "#ff0000"
             forcetype    POLICE
             demeanor     AGGRESSIVE
@@ -394,7 +443,7 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
 
 
     test UPDATE:MULTI-1.3 {invalid ids, groups} -setup {
-        ted order FRCGROUP:CREATE $blue
+        ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids NONESUCH
     } -cleanup {
@@ -404,8 +453,18 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
     }
 
 
-    test UPDATE:MULTI-1.4 {invalid color} -setup {
-        ted order FRCGROUP:CREATE $blue
+    test UPDATE:MULTI-1.4 {invalid actor} -setup {
+        ted create BLUE
+    } -body {
+        ted order -reject FRCGROUP:UPDATE g BLUE a NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        a {Invalid actor, should be one of: JOE}
+    }
+
+    test UPDATE:MULTI-1.5 {invalid color} -setup {
+        ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE color NONESUCH
     } -cleanup {
@@ -415,8 +474,8 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
     }
 
 
-    test UPDATE:MULTI-1.5 {invalid shape} -setup {
-        ted order FRCGROUP:CREATE $blue
+    test UPDATE:MULTI-1.6 {invalid shape} -setup {
+        ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE shape NONESUCH
     } -cleanup {
@@ -426,8 +485,8 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
     }
 
 
-    test UPDATE:MULTI-1.6 {invalid forcetype} -setup {
-        ted order FRCGROUP:CREATE $blue
+    test UPDATE:MULTI-1.7 {invalid forcetype} -setup {
+        ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE forcetype NONESUCH
     } -cleanup {
@@ -437,8 +496,8 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
     }
 
 
-    test UPDATE:MULTI-1.7 {invalid demeanor} -setup {
-        ted order FRCGROUP:CREATE $blue
+    test UPDATE:MULTI-1.8 {invalid demeanor} -setup {
+        ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE demeanor NONESUCH
     } -cleanup {
@@ -448,8 +507,8 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
     }
 
 
-    test UPDATE:MULTI-1.8 {invalid uniformed} -setup {
-        ted order FRCGROUP:CREATE $blue
+    test UPDATE:MULTI-1.9 {invalid uniformed} -setup {
+        ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE uniformed NONESUCH
     } -cleanup {
@@ -459,8 +518,8 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
     }
 
 
-    test UPDATE:MULTI-1.9 {invalid local} -setup {
-        ted order FRCGROUP:CREATE $blue
+    test UPDATE:MULTI-1.10 {invalid local} -setup {
+        ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE local NONESUCH
     } -cleanup {
@@ -471,13 +530,13 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
 
 
     test UPDATE:MULTI-2.1 {one group of several is updated} -setup {
-        ted order FRCGROUP:CREATE $blue
-        ted order FRCGROUP:CREATE $brit
+        ted create BOB BLUE BRIT
     } -body {
         ted notifier bind ::rdb <frcgroups>
 
         ted order FRCGROUP:UPDATE:MULTI {
             ids       BLUE 
+            a         BOB
             color     "#ff0000"
             shape     NEUTRAL
             forcetype POLICE
@@ -495,13 +554,13 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
 
 
     test UPDATE:MULTI-2.2 {several groups are updated} -setup {
-        ted order FRCGROUP:CREATE $blue
-        ted order FRCGROUP:CREATE $brit
+        ted create BOB BLUE BRIT
     } -body {
         ted notifier bind ::rdb <frcgroups>
 
         ted order FRCGROUP:UPDATE:MULTI {
             ids       {BLUE BRIT}
+            a         BOB
             color     "#ff0000"
             shape     NEUTRAL
             forcetype POLICE
@@ -521,8 +580,7 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   POLICE    0         1
 
 
     test UPDATE:MULTI-3.1 {undo effects} -setup {
-        ted order FRCGROUP:CREATE $blue
-        ted order FRCGROUP:CREATE $brit
+        ted create BLUE BRIT
         ted order FRCGROUP:UPDATE:MULTI {
             ids       {BLUE BRIT}
             color     "#ff0000"

@@ -31,6 +31,7 @@ namespace eval ::athena_test::tests:: {
     set usaid {
         g              USAID
         longname       "US Aid"
+        a              JOE
         color          #00ff00
         shape          NEUTRAL
         orgtype        NGO
@@ -40,6 +41,7 @@ namespace eval ::athena_test::tests:: {
     set hal {
         g              HAL
         longname       "Haliburton"
+        a              JOE
         color          #ffff00
         shape          NEUTRAL
         orgtype        CTR
@@ -69,6 +71,7 @@ namespace eval ::athena_test::tests:: {
 
     
     test CREATE-1.2 {Duplicate g} -setup {
+        ted create JOE
         ted order ORGGROUP:CREATE $usaid
     } -body {
         ted order -reject ORGGROUP:CREATE $usaid
@@ -79,7 +82,9 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.4 {g is not an ident} -body {
+    test CREATE-1.3 {g is not an ident} -setup {
+        ted create JOE
+    } -body {
         ted order -reject ORGGROUP:CREATE [dict merge $usaid {
             g "NONE&SUCH"
         }]
@@ -90,7 +95,17 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.5 {invalid color} -body {
+    test CREATE-1.4 {Unknown actor} -body {
+        ted order -reject ORGGROUP:CREATE $usaid
+    } -cleanup {
+        cleanup
+    } -result {
+        a {Invalid actor, none are defined}
+    }
+
+    test CREATE-1.5 {invalid color} -setup {
+        ted create JOE
+    } -body {
         ted order -reject ORGGROUP:CREATE [dict merge $usaid {
             color NONESUCH
         }]
@@ -101,7 +116,9 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.6 {invalid shape} -body {
+    test CREATE-1.6 {invalid shape} -setup {
+        ted create JOE
+    } -body {
         ted order -reject ORGGROUP:CREATE [dict merge $usaid {
             shape NONESUCH
         }]
@@ -112,38 +129,50 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.7 {invalid orgtype} -body {
+    test CREATE-1.7 {invalid orgtype} -setup {
+        ted create JOE
+    } -body {
         ted order -reject ORGGROUP:CREATE [dict merge $usaid {
             orgtype NONESUCH
         }]
+    } -cleanup {
+        cleanup
     } -result {
         orgtype {invalid value "NONESUCH", should be one of: NGO, IGO, CTR}
     }
 
 
-    test CREATE-1.8 {invalid demeanor} -body {
+    test CREATE-1.8 {invalid demeanor} -setup {
+        ted create JOE
+    } -body {
         ted order -reject ORGGROUP:CREATE [dict merge $usaid {
             demeanor NONESUCH
         }]
+    } -cleanup {
+        cleanup
     } -result {
         demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
 
-    test CREATE-2.1 {orggroup is created} -body {
+    test CREATE-2.1 {orggroup is created} -setup {
+        ted create JOE
+    } -body {
         ted order ORGGROUP:CREATE $usaid
         ted order ORGGROUP:CREATE $hal
         ted query {SELECT * FROM orggroups_view}
     } -cleanup {
         cleanup
     } -result {
-g     longname   color   shape   symbol       demeanor gtype orgtype 
------ ---------- ------- ------- ------------ -------- ----- ------- 
-USAID US Aid     #00FF00 NEUTRAL organization AVERAGE  ORG   NGO     
-HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR     
+g     longname   color   shape   symbol       demeanor gtype a   orgtype 
+----- ---------- ------- ------- ------------ -------- ----- --- ------- 
+USAID US Aid     #00FF00 NEUTRAL organization AVERAGE  ORG   JOE NGO     
+HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   JOE CTR     
     }
 
-    test CREATE-2.2 {longname defaults to ID} -body {
+    test CREATE-2.2 {longname defaults to ID} -setup {
+        ted create JOE
+    } -body {
         ted order ORGGROUP:CREATE [dict merge $usaid {longname ""}]
 
         rdb onecolumn {SELECT longname FROM orggroups_view}
@@ -151,7 +180,9 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR
         cleanup
     } -result {USAID}
 
-    test CREATE-2.3 {Effects} -body {
+    test CREATE-2.3 {Effects} -setup {
+        ted create JOE
+    } -body {
         ted notifier bind ::rdb <orggroups>
         ted notifier bind ::scenario <Reconcile>
         ted order ORGGROUP:CREATE $usaid
@@ -165,6 +196,7 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR
 
 
     test CREATE-3.1 {Undo effects} -setup {
+        ted create JOE
         ted order ORGGROUP:CREATE $usaid
     } -body {
         ted notifier bind ::rdb <orggroups>
@@ -195,7 +227,7 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR
 
 
     test DELETE-2.1 {Effects} -setup {
-        ted order ORGGROUP:CREATE $usaid
+        ted create USAID
     } -body {
         ted notifier bind ::rdb <orggroups>
         ted notifier bind ::scenario <Reconcile>
@@ -210,7 +242,7 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR
 
 
     test DELETE-3.1 {Undo effects} -setup {
-        ted order ORGGROUP:CREATE $usaid
+        ted create USAID
         ted order ORGGROUP:DELETE g USAID
     } -body {
         ted notifier bind ::rdb <orggroups>
@@ -231,9 +263,20 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR
     } -result {
         g {required value}
     }
+
+    test UPDATE-1.2 {invalid actor} -setup {
+        ted create USAID
+    } -body {
+        ted order -reject ORGGROUP:UPDATE g USAID a NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        a {Invalid actor, should be one of: JOE}
+    }
+
     
-    test UPDATE-1.4 {invalid color} -setup {
-        ted order ORGGROUP:CREATE $usaid
+    test UPDATE-1.3 {invalid color} -setup {
+        ted create USAID
     } -body {
         ted order -reject ORGGROUP:UPDATE g USAID color NONESUCH
     } -cleanup {
@@ -243,8 +286,8 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR
     }
 
 
-    test UPDATE-1.5 {invalid shape} -setup {
-        ted order ORGGROUP:CREATE $usaid
+    test UPDATE-1.4 {invalid shape} -setup {
+        ted create USAID
     } -body {
         ted order -reject ORGGROUP:UPDATE g USAID shape NONESUCH
     } -cleanup {
@@ -254,8 +297,8 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR
     }
 
 
-    test UPDATE-1.6 {invalid orgtype} -setup {
-        ted order ORGGROUP:CREATE $usaid
+    test UPDATE-1.5 {invalid orgtype} -setup {
+        ted create USAID
     } -body {
         ted order -reject ORGGROUP:UPDATE g USAID orgtype NONESUCH
     } -cleanup {
@@ -265,8 +308,8 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR
     }
 
 
-    test UPDATE-1.7 {invalid orgtype} -setup {
-        ted order ORGGROUP:CREATE $usaid
+    test UPDATE-1.6 {invalid orgtype} -setup {
+        ted create USAID
     } -body {
         ted order -reject ORGGROUP:UPDATE g USAID demeanor NONESUCH
     } -cleanup {
@@ -277,7 +320,7 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR
 
 
     test UPDATE-2.1 {orggroup is updated} -setup {
-        ted order ORGGROUP:CREATE $usaid
+        ted create USAID
     } -body {
         ted order ORGGROUP:UPDATE {
             g              USAID
@@ -292,14 +335,14 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   CTR
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   shape symbol       demeanor   gtype orgtype 
------ --------- ------- ----- ------------ ---------- ----- ------- 
-USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO     
+g     longname  color   shape symbol       demeanor   gtype a   orgtype 
+----- --------- ------- ----- ------------ ---------- ----- --- ------- 
+USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   JOE IGO     
     }
 
 
     test UPDATE-2.2 {table monitor event} -setup {
-        ted order ORGGROUP:CREATE $usaid
+        ted create USAID
     } -body {
         ted notifier bind ::rdb <orggroups>
         ted order ORGGROUP:UPDATE g USAID longname "Red Cross"
@@ -312,7 +355,7 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
 
 
     test UPDATE-3.1 {undo effects} -setup {
-        ted order ORGGROUP:CREATE $usaid
+        ted create USAID
         ted order ORGGROUP:UPDATE {
             g              USAID
             longname       "Red Cross"
@@ -329,7 +372,7 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
     }
 
     #-------------------------------------------------------------------
-    # FRCGROUP:UPDATE:MULTI
+    # ORGGROUP:UPDATE:MULTI
 
     test UPDATE:MULTI-1.1 {required parms} -body {
         ted order -reject ORGGROUP:UPDATE:MULTI {}
@@ -344,7 +387,7 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
     }
 
     test UPDATE:MULTI-1.3 {invalid ids, groups} -setup {
-        ted order ORGGROUP:CREATE $usaid
+        ted create USAID
     } -body {
         ted order -reject ORGGROUP:UPDATE:MULTI ids NONESUCH
     } -cleanup {
@@ -353,8 +396,18 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
         ids {Invalid organization group, should be one of: USAID}
     }
 
-    test UPDATE:MULTI-1.4 {invalid color} -setup {
-        ted order ORGGROUP:CREATE $usaid
+    test UPDATE:MULTI-1.4 {invalid actor} -setup {
+        ted create USAID
+    } -body {
+        ted order -reject ORGGROUP:UPDATE:MULTI ids USAID a NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        a {Invalid actor, should be one of: JOE}
+    }
+
+    test UPDATE:MULTI-1.5 {invalid color} -setup {
+        ted create USAID
     } -body {
         ted order -reject ORGGROUP:UPDATE:MULTI ids USAID color NONESUCH
     } -cleanup {
@@ -364,8 +417,8 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
     }
 
 
-    test UPDATE:MULTI-1.5 {invalid shape} -setup {
-        ted order ORGGROUP:CREATE $usaid
+    test UPDATE:MULTI-1.6 {invalid shape} -setup {
+        ted create USAID
     } -body {
         ted order -reject ORGGROUP:UPDATE:MULTI ids USAID shape NONESUCH
     } -cleanup {
@@ -375,8 +428,8 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
     }
 
 
-    test UPDATE:MULTI-1.6 {invalid orgtype} -setup {
-        ted order ORGGROUP:CREATE $usaid
+    test UPDATE:MULTI-1.7 {invalid orgtype} -setup {
+        ted create USAID
     } -body {
         ted order -reject ORGGROUP:UPDATE:MULTI \
             ids USAID orgtype NONESUCH
@@ -387,8 +440,8 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
     }
 
 
-    test UPDATE:MULTI-1.7 {invalid demeanor} -setup {
-        ted order ORGGROUP:CREATE $usaid
+    test UPDATE:MULTI-1.8 {invalid demeanor} -setup {
+        ted create USAID
     } -body {
         ted order -reject ORGGROUP:UPDATE:MULTI \
             ids USAID demeanor NONESUCH
@@ -400,8 +453,7 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
 
 
     test UPDATE:MULTI-2.1 {one orggroup of several is updated} -setup {
-        ted order ORGGROUP:CREATE $usaid
-        ted order ORGGROUP:CREATE $hal
+        ted create USAID HAL
     } -body {
         ted notifier bind ::rdb <orggroups>
 
@@ -419,8 +471,7 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
     }
 
     test UPDATE:MULTI-2.2 {several orggroups are updated} -setup {
-        ted order ORGGROUP:CREATE $usaid
-        ted order ORGGROUP:CREATE $hal
+        ted create USAID HAL
     } -body {
         ted notifier bind ::rdb <orggroups>
 
@@ -440,8 +491,7 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   IGO
 
 
     test UPDATE:MULTI-3.2 {undo effects} -setup {
-        ted order ORGGROUP:CREATE $usaid
-        ted order ORGGROUP:CREATE $hal
+        ted create USAID HAL
         ted order ORGGROUP:UPDATE:MULTI \
             ids {USAID HAL} color "#ff0000"
     } -body {

@@ -165,6 +165,7 @@ snit::type frcgroup {
     #
     #    g              The group's ID
     #    longname       The group's long name
+    #    a              The group's owning actor
     #    color          The group's color
     #    shape          The group's unit shape (eunitshape(n))
     #    forcetype      The group's eforcetype
@@ -195,8 +196,9 @@ snit::type frcgroup {
                        $demeanor,
                        'FRC');
 
-                INSERT INTO frcgroups(g,forcetype,uniformed,local)
+                INSERT INTO frcgroups(g,a,forcetype,uniformed,local)
                 VALUES($g,
+                       CASE WHEN $a != '' THEN $a ELSE NULL END,
                        $forcetype,
                        $uniformed,
                        $local);
@@ -241,6 +243,7 @@ snit::type frcgroup {
     #
     #    g              A group short name
     #    longname       A new long name, or ""
+    #    a              A new owning actor, or ""
     #    color          A new color, or ""
     #    shape          A new shape, or ""
     #    forcetype      A new eforcetype, or ""
@@ -292,7 +295,9 @@ snit::type frcgroup {
                 WHERE g=$g;
 
                 UPDATE frcgroups
-                SET forcetype = nonempty($forcetype, forcetype),
+                SET a         = coalesce(CASE WHEN $a != '' 
+                                         THEN $a ELSE NULL END, a),
+                    forcetype = nonempty($forcetype, forcetype),
                     uniformed = nonempty($uniformed, uniformed),
                     local     = nonempty($local,     local)
                 WHERE g=$g
@@ -327,6 +332,7 @@ order define FRCGROUP:CREATE {
 
     parm g          text  "Group"
     parm longname   text  "Long Name"
+    parm a          enum  "Owning Actor"      -type actor
     parm color      color "Color"             -defval \#3B61FF
     parm shape      enum  "Unit Shape"        -type eunitshape -defval NEUTRAL
     parm forcetype  enum  "Force Type"        -type eforcetype -defval REGULAR
@@ -337,6 +343,7 @@ order define FRCGROUP:CREATE {
     # FIRST, prepare and validate the parameters
     prepare g          -toupper   -required -unused -type ident
     prepare longname   -normalize
+    prepare a          -toupper             -type actor
     prepare color      -tolower   -required -type hexcolor
     prepare shape      -toupper   -required -type eunitshape
     prepare forcetype  -toupper   -required -type eforcetype
@@ -413,6 +420,7 @@ order define FRCGROUP:UPDATE {
     parm g          key   "Group"                \
         -table gui_frcgroups -key g -tags group 
     parm longname   text  "Long Name"
+    parm a          enum  "Owning Actor"       -type actor
     parm color      color "Color"
     parm shape      enum  "Unit Shape"         -type eunitshape
     parm forcetype  enum  "Force Type"         -type eforcetype
@@ -422,6 +430,7 @@ order define FRCGROUP:UPDATE {
 } {
     # FIRST, prepare the parameters
     prepare g         -toupper   -required -type frcgroup
+    prepare a         -toupper   -type actor
     prepare longname  -normalize
     prepare color     -tolower   -type hexcolor
     prepare shape     -toupper   -type eunitshape
@@ -435,10 +444,6 @@ order define FRCGROUP:UPDATE {
     # NEXT, modify the group.
     set undo [list]
     lappend undo [frcgroup mutate update [array get parms]]
-
-    # NEXT, If the uniformed flag is changed, the
-    # defending ROEs could be different.
-    lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
 }
@@ -454,6 +459,7 @@ order define FRCGROUP:UPDATE:MULTI {
         -refreshcmd {orderdialog refreshForMulti ids *}
 
     parm ids        multi "Groups" -table gui_frcgroups -key g
+    parm a          enum  "Owning Actor"       -type actor
     parm color      color "Color"
     parm shape      enum  "Unit Shape"         -type eunitshape
     parm forcetype  enum  "Force Type"         -type eforcetype
@@ -463,6 +469,7 @@ order define FRCGROUP:UPDATE:MULTI {
 } {
     # FIRST, prepare the parameters
     prepare ids       -toupper  -required -listof frcgroup
+    prepare a         -toupper            -type   actor
     prepare color     -tolower            -type   hexcolor
     prepare shape     -toupper            -type   eunitshape
     prepare forcetype -toupper            -type   eforcetype
@@ -481,10 +488,6 @@ order define FRCGROUP:UPDATE:MULTI {
     foreach parms(g) $parms(ids) {
         lappend undo [frcgroup mutate update [array get parms]]
     }
-
-    # NEXT, If the uniformed flag is changed, the
-    # defending ROEs could be different.
-    lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
 }

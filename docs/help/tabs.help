@@ -1242,6 +1242,9 @@ tab "Groups/FrcGroups" {
     <<topic ID>>The group's ID.<</topic>>
 
     <<topic "Long Name">>The human-readable name for the group.<</topic>>
+
+    <<topic "Owner">>The group's owning actor.  This column will be
+    empty if the owner has not yet been assigned.<</topic>>
     
     <<topic Color>>The color used for the group's units in the map
     display, represented as a 48-bit hexadecimal color value,
@@ -1316,6 +1319,9 @@ tab "Groups/OrgGroups" {
     <<topic ID>>The group's ID.<</topic>>
 
     <<topic "Long Name">>The human-readable name for the group.<</topic>>
+    
+    <<topic "Owner">>The group's owning actor.  This column will be
+    empty if the owner has not yet been assigned.<</topic>>
     
     <<topic Color>>The color used for the group's units in the map
     display, represented as a 48-bit hexadecimal color value,

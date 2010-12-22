@@ -129,7 +129,9 @@ It cleans up in the following ways:<p>
 <<defitem "ted create" {ted create <i>name</i> ?<i>name...</i>?}>>
 
 Creates one or more named entities using "<code>mutate
-create</code>".<p>
+create</code>".  If an entity depends on the existence of
+other entities (e.g., as the civilian group SHIA depends on
+the neighborhood NB1), the "parent" entities are created automatically.<p>
 
 <<defitem "ted dictdiff" {ted dictdiff <i>a b...</i>}>>
 

@@ -37,27 +37,34 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # mutate create
 
-    test create-1.1 {orggroup is created} -body {
+    test create-1.1 {orggroup is created} -setup {
+        ted create JOE
+    } -body {
         orggroup mutate create [ted entity USAID]
         ted query {SELECT * FROM orggroups_view}
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   symbol       demeanor gtype orgtype 
------ -------- ------- ------- ------------ -------- ----- ------- 
-USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO     
+g     longname color   shape   symbol       demeanor gtype a   orgtype 
+----- -------- ------- ------- ------------ -------- ----- --- ------- 
+USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   JOE NGO     
     }
 
-    test create-1.2 {personnel_ng records are created} -setup {
-        ted create NB1
+    test create-1.2 {a can be empty, yields NULL} -setup {
+        ted create JOE
     } -body {
-        orggroup mutate create [ted entity USAID]
-        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
+        orggroup mutate create [dict merge [ted entity USAID] {a ""}]
+        ted query {SELECT * FROM orggroups_view}
     } -cleanup {
         cleanup
-    } -result {NB1 USAID}
+    } -result {
+g     longname color   shape   symbol       demeanor gtype a orgtype 
+----- -------- ------- ------- ------------ -------- ----- - ------- 
+USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG     NGO     
+    }
 
     test create-2.1 {undo deletes the orggroup} -setup {
+        ted create JOE
         orggroup mutate create [ted entity USAID]
         set undo [orggroup mutate create [ted entity HAL]]
     } -body {
@@ -67,8 +74,17 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO
         cleanup
     } -result {USAID}
 
-    test create-2.2 {undo deletes personnel_ng records} -setup {
-        ted create NB1
+    test create-3.1 {personnel_ng records are created} -setup {
+        ted create JOE NB1
+    } -body {
+        orggroup mutate create [ted entity USAID]
+        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
+    } -cleanup {
+        cleanup
+    } -result {NB1 USAID}
+
+    test create-3.2 {undo deletes personnel_ng records} -setup {
+        ted create JOE NB1
         orggroup mutate create [ted entity USAID]
         set undo [orggroup mutate create [ted entity HAL]]
     } -body {
@@ -93,7 +109,21 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO
     } -result {HAL}
 
 
-    test delete-1.2 {personnel_ng record is deleted} -setup {
+    test delete-2.1 {Undo restores group} -setup {
+        ted create USAID
+        set undo [orggroup mutate delete USAID]
+    } -body {
+        {*}$undo
+        ted query {SELECT * FROM orggroups_view}
+    } -cleanup {
+        cleanup
+    } -result {
+g     longname color   shape   symbol       demeanor gtype a   orgtype 
+----- -------- ------- ------- ------------ -------- ----- --- ------- 
+USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   JOE NGO     
+    }
+
+    test delete-3.1 {personnel_ng record is deleted} -setup {
         ted create NB1 USAID HAL
     } -body {
         orggroup mutate delete USAID
@@ -105,21 +135,7 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO
     } -result {NB1 HAL}
 
 
-    test delete-2.1 {Undo restores group} -setup {
-        ted create USAID
-        set undo [orggroup mutate delete USAID]
-    } -body {
-        {*}$undo
-        ted query {SELECT * FROM orggroups_view}
-    } -cleanup {
-        cleanup
-    } -result {
-g     longname color   shape   symbol       demeanor gtype orgtype 
------ -------- ------- ------- ------------ -------- ----- ------- 
-USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO     
-    }
-
-    test delete-2.2 {Undo restores group} -setup {
+    test delete-3.2 {Undo restores group} -setup {
         ted create NB1 USAID
         set undo [orggroup mutate delete USAID]
     } -body {
@@ -129,7 +145,7 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO
         cleanup
     } -result {NB1 USAID}
 
-    test delete-3.1 {calendar items with g are deleted} -setup {
+    test delete-4.1 {calendar items with g are deleted} -setup {
         ted create NB1 USAID
 
         activity mutate create {
@@ -150,7 +166,7 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO
         cleanup
     } -result {}
 
-    test delete-3.2 {undoing restores items with g} -setup {
+    test delete-4.2 {undoing restores items with g} -setup {
         ted create NB1 USAID
 
         activity mutate create {
@@ -179,11 +195,12 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO
 
 
     test update-1.1 {orggroup is updated} -setup {
-        ted create USAID
+        ted create BOB USAID
     } -body {
         orggroup mutate update {
             g              USAID
             longname       "Red Cross"
+            a              BOB
             color          "#ff0000"
             shape          FRIEND
             orgtype        IGO
@@ -194,9 +211,9 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  ORG   NGO
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   shape  symbol       demeanor  gtype orgtype 
------ --------- ------- ------ ------------ --------- ----- ------- 
-USAID Red Cross #ff0000 FRIEND organization APATHETIC ORG   IGO     
+g     longname  color   shape  symbol       demeanor  gtype a   orgtype 
+----- --------- ------- ------ ------------ --------- ----- --- ------- 
+USAID Red Cross #ff0000 FRIEND organization APATHETIC ORG   BOB IGO     
     }
 
 
@@ -223,6 +240,7 @@ USAID Red Cross #ff0000 FRIEND organization APATHETIC ORG   IGO
         orggroup mutate update  {
             g              USAID
             longname       ""
+            a              ""
             color          ""
             shape          ""
             orgtype        ""
@@ -246,6 +264,7 @@ USAID Red Cross #ff0000 FRIEND organization APATHETIC ORG   IGO
         set undo [orggroup mutate update {
             g              USAID
             longname       "Red Cross"
+            a              ""
             color          "#ff0000"
             shape          FRIEND
             orgtype        IGO

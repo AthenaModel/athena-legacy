@@ -145,13 +145,16 @@ snit::type actor {
 
     typemethod {mutate delete} {a} {
         # FIRST, get the undo information
-        set data [rdb delete -grab actors {a=$a}]
+        set gdata [rdb grab frcgroups {a=$a} orggroups {a=$a}]
+        
+        set adata [rdb delete -grab actors {a=$a}]
+
         
         # NEXT, delete the bsystem entity
         bsystem entity delete $a
 
         # NEXT, Return the undo script
-        return [mytypemethod UndoDelete $data]
+        return [mytypemethod UndoDelete [concat $adata $gdata]]
     }
 
     # UndoDelete data

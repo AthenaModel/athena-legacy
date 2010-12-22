@@ -540,6 +540,18 @@ snit::type sim {
                 "groups on the Groups/FrcGroups tab."
         }
 
+        # NEXT, Require that each force group has an actor
+        set names [rdb eval {SELECT g FROM frcgroups WHERE a IS NULL}]
+
+        if {[llength $names] > 0} {
+            set sane 0
+
+            $type CheckTopic "Some force groups have no owner."      \
+                "The following force groups have no owning actor:"   \
+                "[join $names {, }].  Assign owning actors to force" \
+                "groups on the Groups/FrcGroups tab."
+        }
+
         # NEXT, Require at least one civ group
         if {[llength [civgroup names]] == 0} {
             set sane 0
@@ -547,6 +559,18 @@ snit::type sim {
             $type CheckTopic "No civilian groups are defined."              \
                 "At least one civilian group is required.  Create civilian" \
                 "groups on the Groups/CivGroups tab."
+        }
+
+        # NEXT, Require that each ORG group has an actor
+        set names [rdb eval {SELECT g FROM orggroups WHERE a IS NULL}]
+
+        if {[llength $names] > 0} {
+            set sane 0
+
+            $type CheckTopic "Some organization groups have no owner."      \
+                "The following organization groups have no owning actor:"   \
+                "[join $names {, }].  Assign owning actors to" \
+                "organization groups on the Groups/OrgGroups tab."
         }
 
         # NEXT, collect data on groups and neighborhoods

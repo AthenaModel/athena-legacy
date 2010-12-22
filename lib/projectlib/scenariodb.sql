@@ -215,6 +215,11 @@ CREATE TABLE frcgroups (
     -- Symbolic group name
     g           TEXT PRIMARY KEY,
 
+    -- Owning Actor
+    a           TEXT REFERENCES actors(a)
+                ON DELETE SET NULL
+                DEFERRABLE INITIALLY DEFERRED, 
+
     -- Force Type
     forcetype   TEXT,
 
@@ -233,10 +238,15 @@ SELECT * FROM groups JOIN frcgroups USING (g);
 -- Org Groups
 CREATE TABLE orggroups (
     -- Symbolic group name
-    g              TEXT PRIMARY KEY,
+    g           TEXT PRIMARY KEY,
+
+    -- Owning Actor
+    a           TEXT REFERENCES actors(a)
+                ON DELETE SET NULL
+                DEFERRABLE INITIALLY DEFERRED, 
 
     -- Organization type: eorgtype
-    orgtype        TEXT DEFAULT 'NGO'
+    orgtype     TEXT DEFAULT 'NGO'
 );
 
 -- Org Group View: joins groups with orggroups.

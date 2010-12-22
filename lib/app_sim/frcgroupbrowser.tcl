@@ -33,6 +33,7 @@ snit::widgetadaptor frcgroupbrowser {
     typevariable layout {
         { g         "ID"         }
         { longname  "Long Name"  }
+        { a         "Owner"      }
         { color     "Color"      }
         { shape     "Unit Shape" }
         { forcetype "Force Type" }
@@ -128,7 +129,7 @@ snit::widgetadaptor frcgroupbrowser {
     # Colors the "color" cell.
 
     method DisplayData {rindex values} {
-        $hull cellconfigure $rindex,2 -background [lindex $values 2]
+        $hull cellconfigure $rindex,3 -background [lindex $values 3]
     }
 
 

@@ -33,6 +33,7 @@ snit::widgetadaptor orggroupbrowser {
     typevariable layout {
         { g              "ID"                           }
         { longname       "Long Name"                    }
+        { a              "Owner"                        }
         { color          "Color"                        }
         { shape          "Unit Shape"                   }
         { orgtype        "Org Type"                     }
@@ -122,7 +123,7 @@ snit::widgetadaptor orggroupbrowser {
     # Colors the "color" cell.
 
     method DisplayData {rindex values} {
-        $hull cellconfigure $rindex,2 -background [lindex $values 2]
+        $hull cellconfigure $rindex,3 -background [lindex $values 3]
     }
 
     # SelectionChanged
