@@ -547,12 +547,7 @@ snit::type scenario {
         # rel_fg just goes away.  I *like* that.
         lappend undo [rel mutate reconcile]
 
-        # Can't remove yet; sets the g and resolver fields to 
-        # "NONE" if the named groups no longer exist.  Cascading
-        # delete can't do this.  It should be handled using 
-        # ON DELETE SET NULL; but we need to revise the snapshot
-        # handling to make that work, as well as allowing NULL in
-        # those fields.
+        # See ensit.tcl for comments on this one.
         lappend undo [ensit mutate reconcile]
 
         notifier send $type <Reconcile>

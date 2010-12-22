@@ -283,11 +283,33 @@ snit::type ensit {
     #
     # Updates ensits as neighborhoods and groups change:
     #
-    # 1. If the "g" or "resolver" group no longer exists, that
+    # *  If the "g" or "resolver" group no longer exists, that
     #    field is set to "NONE".
     #
-    # 2. Updates every ensit's "n" attribute to reflect the
+    # *  Updates every ensit's "n" attribute to reflect the
     #    current state of the neighborhood.
+    #
+    # TBD: In the long run, I want to get rid of this routine.
+    # Doing so at the moment would be a big job, for the following
+    # reasons:
+    #
+    # 1. I would need to use ON DELETE SET NULL to clear the "g" and 
+    #    "resolver" columns when a group was deleted.  BUT,
+    #
+    #    a. The "active object" code is not set up to handle NULLs.
+    #
+    #    b. Setting "g" or "resolver" in this way would invalidate the 
+    #       situation cache without flushing it, which is a bug.
+    #
+    # 2. Ensits can be created in PREP, and an ensit's neighborhood
+    #    depends on its location.  As neighborhoods come and go,
+    #    an ensit's neighborhood really can change; and this needs
+    #    to be updated at that time.  This routine handles this.
+    #
+    # In short, getting rid of this routine means re-architecting
+    # the situation code (including that for actsits and demsits)
+    # and changing how ensits are defined during PREP.  These are
+    # large topics that I don't want to get into at the moment.
 
     typemethod {mutate reconcile} {} {
         set undo [list]
