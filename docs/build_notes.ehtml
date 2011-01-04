@@ -11,6 +11,31 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.6, 4 January 2011</h3>
+
+This build begins the integration of the Mars Affinity Model into
+Athena: mam(n) is initialized, and mam(n) entities are created for
+each civilian group and actor.  In addition, this build makes use of
+SQLite3's support for foreign keys and cascading deletes to greatly
+simplify the scenario-editing code.  Finally, FRC and ORG groups now
+have owning actors.  The full set of changes is as follows:<p>
+
+<ul>
+  <li> Bug 2734: athena_sim(1): mam(n) Integration, actor and CIV group editing
+  <li> Bug 2735: athena_sim(1); Sat curves created and deleted with CIV groups
+  <li> Bug 2736: athena_sim(1): bgerror on SIM:UNLOCK
+  <li> Bug 2737: athena_sim(1): Delete "::nbrel reconcile"
+  <li> Bug 2739: athena_sim(1): Delete "::civgroup mutate reconcile"
+  <li> Bug 2740: athena_sim(1): Delete "::coop mutate reconcile"
+  <li> Bug 2741: athena_sim(1): Delete "::personnel mutate reconcile"
+  <li> Bug 2742: athena_sim(1): Delete "::attroe mutate reconcile"
+  <li> Bug 2743: athena_sim(1): Delete "::defroe mutate reconcile"
+  <li> Bug 2744: athena_sim(1): Snapshots cannot contain NULLs
+  <li> Bug 2745: athena_sim(1): Delete "::activity mutate reconcile"
+  <li> Bug 2746: athena_sim(1): Notes on removing "ensit mutate reconcile"
+  <li> Bug 2748: athena_sim(1): FRC and ORG groups have owning actors 
+</ul><p>
+
 <h3>Build 3.0.5, 20 December 2010</h3>
 
 The bulk of the changes in this build involve streamlining some of the
