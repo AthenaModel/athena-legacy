@@ -187,6 +187,11 @@ CREATE TABLE groups (
     -- Group demeanor: edemeanor
     demeanor    TEXT DEFAULT 'AVERAGE',
 
+    -- Relationship Entity
+    rel_entity  TEXT REFERENCES mam_entity(eid)
+                ON DELETE SET NULL 
+                DEFERRABLE INITIALLY DEFERRED,
+
     -- Group type, CIV, FRC, ORG
     gtype       TEXT 
 );
@@ -424,16 +429,43 @@ CREATE TABLE sat_gc (
 
 CREATE TABLE rel_fg (
     -- Symbolic group name: group f
-    f           TEXT,
+    f    TEXT REFERENCES groups(g)
+         ON DELETE CASCADE
+         DEFERRABLE INITIALLY DEFERRED,
 
     -- Symbolic group name: group g
-    g           TEXT,
+    g    TEXT REFERENCES groups(g)
+         ON DELETE CASCADE
+         DEFERRABLE INITIALLY DEFERRED,
 
     -- Group relationship, from f's point of view.
-    rel         DOUBLE DEFAULT 0.0,
+    rel  DOUBLE DEFAULT 0.0,
 
     PRIMARY KEY (f, g)
 );
+
+------------------------------------------------------------------------
+-- Relationship View
+
+-- This view computes the horizontal relationship for each pair of 
+-- groups.  The relationship defaults to the affinity between the
+-- groups' relationship entities, and can be explicitly overridden
+-- in the rel_fg table.  Note that the relationship of a group with
+-- itself is set to 1.0
+
+CREATE VIEW rel_view AS
+SELECT F.g                                       AS f,
+       G.g                                       AS g,
+       CASE WHEN F.g = G.g 
+            THEN 1.0
+            ELSE coalesce(R.rel, A.affinity) END AS rel,
+       CASE WHEN R.rel IS NOT NULL 
+            THEN 1
+            ELSE 0 END                           AS override
+FROM groups AS F
+JOIN groups AS G
+JOIN mam_affinity AS A ON (A.f = F.rel_entity AND A.g = G.rel_entity)
+LEFT OUTER JOIN rel_fg AS R ON (R.f = F.g AND R.g = G.g);
 
 
 ------------------------------------------------------------------------

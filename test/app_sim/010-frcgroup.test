@@ -63,9 +63,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor gtype a   forcetype uniformed local 
----- -------- ------- ------ -------- -------- ----- --- --------- --------- ----- 
-BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   JOE REGULAR   1         0     
+g    longname color   shape  symbol   demeanor rel_entity gtype a   forcetype uniformed local 
+---- -------- ------- ------ -------- -------- ---------- ----- --- --------- --------- ----- 
+BLUE US Army  #f00001 FRIEND infantry AVERAGE  JOE        FRC   JOE REGULAR   1         0     
     }
 
     test create-1.2 {a can be empty, yields NULL} -setup {
@@ -76,9 +76,9 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   JOE REGULAR   1         0
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor gtype a forcetype uniformed local 
----- -------- ------- ------ -------- -------- ----- - --------- --------- ----- 
-BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC     REGULAR   1         0     
+g    longname color   shape  symbol   demeanor rel_entity gtype a forcetype uniformed local 
+---- -------- ------- ------ -------- -------- ---------- ----- - --------- --------- ----- 
+BLUE US Army  #f00001 FRIEND infantry AVERAGE             FRC     REGULAR   1         0     
     }
 
 
@@ -168,17 +168,7 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC     REGULAR   1         0
         cleanup
     } -result {BRIT}
 
-    test delete-1.2 {coop curves are deleted} -setup {
-        ted create BLUE SHIA
-    } -body {
-        frcgroup mutate delete BLUE
-
-        rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test delete-2.1 {Undo restores group} -setup {
+    test delete-1.2 {Undo restores group} -setup {
         ted create BLUE
         set undo [frcgroup mutate delete BLUE]
     } -body {
@@ -187,10 +177,20 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC     REGULAR   1         0
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor gtype a   forcetype uniformed local 
----- -------- ------- ------ -------- -------- ----- --- --------- --------- ----- 
-BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   JOE REGULAR   1         0     
+g    longname color   shape  symbol   demeanor rel_entity gtype a   forcetype uniformed local 
+---- -------- ------- ------ -------- -------- ---------- ----- --- --------- --------- ----- 
+BLUE US Army  #f00001 FRIEND infantry AVERAGE  JOE        FRC   JOE REGULAR   1         0     
     }
+
+    test delete-2.1 {coop curves are deleted} -setup {
+        ted create BLUE SHIA
+    } -body {
+        frcgroup mutate delete BLUE
+
+        rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {}
 
     test delete-2.2 {Undo restores coop curves} -setup {
         ted create BLUE SHIA
@@ -311,6 +311,31 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   JOE REGULAR   1         0
         cleanup
     } -result {NB1 BLUE CURFEW NB1}
 
+    test delete-7.1 {deletes rel_fg overrides} -setup {
+        ted create BLUE BRIT
+        rel mutate create {id {BLUE BRIT} rel 0.5}
+        rel mutate create {id {BRIT BLUE} rel 0.5}
+    } -body {
+        frcgroup mutate delete BLUE
+
+        rdb eval {SELECT f,g FROM rel_fg ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-7.2 {undo restores rel_fg overrides} -setup {
+        ted create BLUE BRIT
+        rel mutate create {id {BLUE BRIT} rel 0.5}
+        rel mutate create {id {BRIT BLUE} rel 0.5}
+
+        set undo [frcgroup mutate delete BLUE]
+    } -body {
+        namespace eval :: $undo
+
+        rdb eval {SELECT f,g FROM rel_fg ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {BLUE BRIT BRIT BLUE}
 
     #-------------------------------------------------------------------
     # mutate update
@@ -335,9 +360,9 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  FRC   JOE REGULAR   1         0
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol demeanor   gtype a   forcetype uniformed local 
----- ----------- ------- ------- ------ ---------- ----- --- --------- --------- ----- 
-BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE FRC   BOB POLICE    0         1     
+g    longname    color   shape   symbol demeanor   rel_entity gtype a   forcetype uniformed local 
+---- ----------- ------- ------- ------ ---------- ---------- ----- --- --------- --------- ----- 
+BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE BOB        FRC   BOB POLICE    0         1     
     }
 
 

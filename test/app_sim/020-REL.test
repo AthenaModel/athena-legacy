@@ -27,8 +27,7 @@ namespace eval ::athena_test::tests:: {
     namespace import ::tcltest::*
 
     proc setup {} {
-        ted create BLUE NB1 SHIA SUNN
-        rel mutate reconcile
+        ted create BLUE SHIA SUNN
     }
 
 
@@ -38,6 +37,184 @@ namespace eval ::athena_test::tests:: {
         ted cleanup
     }
 
+    #-------------------------------------------------------------------
+    # REL:CREATE
+
+    test CREATE-1.1 {required parms} -body {
+        ted order -reject REL:CREATE {}
+    } -result {
+        id {required value}
+    }
+
+    test CREATE-1.2 {Invalid f in id} -setup {
+        setup
+    } -body {
+        ted order -reject REL:CREATE {id {NONESUCH SHIA} rel 0.5}
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Invalid group, should be one of: BLUE, SHIA, SUNN}
+    }
+
+    test CREATE-1.3 {Invalid g in id} -setup {
+        setup
+    } -body {
+        ted order -reject REL:CREATE {id {SHIA NONESUCH} rel 0.5}
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Invalid group, should be one of: BLUE, SHIA, SUNN}
+    }
+
+    test CREATE-1.4 {Override exists} -setup {
+        setup
+        rel mutate create {id {SHIA SUNN} rel 0.5}
+    } -body {
+        ted order -reject REL:CREATE {id {SHIA SUNN} rel 0.5}
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Override already exists on relationship between groups SHIA and SUNN}
+    }
+
+    test CREATE-1.5 {f eq g} -setup {
+        setup
+    } -body {
+        ted order -reject REL:CREATE {id {SHIA SHIA} rel 0.5}
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Cannot override a group's relationship with itself.}
+    }
+
+    test CREATE-1.6 {Invalid rel} -setup {
+        setup
+    } -body {
+        ted order -reject REL:CREATE {id {SHIA SUNN} rel NONESUCH}
+    } -cleanup {
+        cleanup
+    } -result {
+        rel {invalid value "NONESUCH", should be a real number in range -1.0, 1.0, or one of: FRIEND, NEUTRAL, ENEMY}
+    }
+
+    test CREATE-2.1 {Override is created} -setup {
+        setup
+    } -body {
+        ted order REL:CREATE {id {SHIA SUNN} rel 0.5}
+        ted query {SELECT * FROM rel_fg}
+    } -cleanup {
+        cleanup
+    } -result {
+f    g    rel 
+---- ---- --- 
+SHIA SUNN 0.5 
+    }
+
+    test CREATE-2.2 {Rel defaults to 0.0} -setup {
+        setup
+    } -body {
+        ted order REL:CREATE {id {SHIA SUNN}}
+        ted query {SELECT * FROM rel_fg}
+    } -cleanup {
+        cleanup
+    } -result {
+f    g    rel 
+---- ---- --- 
+SHIA SUNN 0.0 
+    }
+
+    test CREATE-2.3 {Effects} -setup {
+        setup
+    } -body {
+        ted notifier bind ::rdb <rel_fg>
+        ted order REL:CREATE {id {SHIA SUNN}}
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <rel_fg> update {SHIA SUNN}}
+    }
+
+    test CREATE-3.1 {effects are undone} -setup {
+        setup
+        ted order REL:CREATE {id {SHIA SUNN}}
+    } -body {
+        ted notifier bind ::rdb <rel_fg>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <rel_fg> delete {SHIA SUNN}}
+    }
+
+    #-------------------------------------------------------------------
+    # REL:DELETE
+
+    test DELETE-1.1 {required parms} -body {
+        ted order -reject REL:DELETE {}
+    } -result {
+        id {required value}
+    }
+    
+
+    test DELETE-1.2 {unknown f in id} -setup {
+        setup
+    } -body {
+        ted order -reject REL:DELETE id {NONESUCH SUNN}
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Invalid group, should be one of: BLUE, SHIA, SUNN}
+    }
+
+    test DELETE-1.3 {unknown g in id} -setup {
+        setup
+    } -body {
+        ted order -reject REL:DELETE id {SHIA NONESUCH}
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Invalid group, should be one of: BLUE, SHIA, SUNN}
+    }
+
+    test DELETE-1.4 {no such override} -setup {
+        setup
+    } -body {
+        ted order -reject REL:DELETE id {SHIA SUNN}
+    } -cleanup {
+        cleanup
+    } -result {
+        id {There is no manual override on the relationship between groups SHIA and SUNN.}
+    }
+
+    test DELETE-2.1 {Effects} -setup {
+        setup
+        ted order REL:CREATE {id {SHIA SUNN}}
+    } -body {
+        ted notifier bind ::rdb <rel_fg>
+        ted order REL:DELETE id {SHIA SUNN}
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <rel_fg> delete {SHIA SUNN}}
+    }
+
+
+    test DELETE-3.1 {Effects on undo} -setup {
+        setup
+        ted order REL:CREATE {id {SHIA SUNN}}
+        ted order REL:DELETE {id {SHIA SUNN}}
+    } -body {
+        ted notifier bind ::rdb <rel_fg>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <rel_fg> update {SHIA SUNN}}
+    }
 
     #-------------------------------------------------------------------
     # REL:UPDATE
@@ -60,10 +237,22 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test UPDATE-1.3 {invalid rel: out of range} -setup {
+    test UPDATE-1.3 {no such override} -setup {
         setup
     } -body {
-        ted order -reject REL:UPDATE id {SHIA BLUE} rel 1.1
+        ted order -reject REL:UPDATE id {SHIA BLUE} rel 1.0
+    } -cleanup {
+        cleanup
+    } -result {
+        id {There is no manual override on the relationship between groups SHIA and BLUE.}
+    }
+
+
+    test UPDATE-1.4 {invalid rel: out of range} -setup {
+        setup
+        ted order REL:CREATE {id {SHIA SUNN}}
+    } -body {
+        ted order -reject REL:UPDATE id {SHIA SUNN} rel 1.1
     } -cleanup {
         cleanup
     } -result {
@@ -71,45 +260,28 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test UPDATE-1.4 {f=g but rel != 1.0} -setup {
-        setup
-    } -body {
-        ted order -reject REL:UPDATE id {SHIA SHIA} rel 0.5
-    } -cleanup {
-        cleanup
-    } -result {
-        rel {invalid value "0.5", a group's relationship with itself must be 1.0}
-    }
-
-
     test UPDATE-2.1 {rel is updated} -setup {
         setup
+        ted order REL:CREATE {id {SHIA BLUE}}
     } -body {
         ted order REL:UPDATE {
             id    {SHIA BLUE}
             rel   0.5
         }
 
-        ted query {SELECT * FROM rel_fg}
+        ted query {SELECT * FROM rel_fg ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {
 f    g    rel 
 ---- ---- --- 
-BLUE BLUE 1.0 
-BLUE SHIA 0.0 
-BLUE SUNN 0.0 
 SHIA BLUE 0.5 
-SHIA SHIA 1.0 
-SHIA SUNN 0.0 
-SUNN BLUE 0.0 
-SUNN SHIA 0.0 
-SUNN SUNN 1.0 
     }
 
 
     test UPDATE-2.2 {table monitor event} -setup {
         setup
+        ted order REL:CREATE {id {SHIA BLUE}}
     } -body {
         ted notifier bind ::rdb <rel_fg>
         ted order REL:UPDATE id {SHIA BLUE} rel 0.5
@@ -124,6 +296,7 @@ SUNN SUNN 1.0
     test UPDATE-3.1 {undo undoes the change} -setup {
         setup
 
+        ted order REL:CREATE {id {SHIA BLUE}}
         ted order REL:UPDATE {
             id    {SHIA BLUE}
             rel   0.5
@@ -176,8 +349,21 @@ SUNN SUNN 1.0
     }
 
 
+    test UPDATE:MULTI-1.4 {no such override in ids} -setup {
+        setup
+    } -body {
+        ted order -reject REL:UPDATE:MULTI \
+            ids {{SHIA SUNN}}
+    } -cleanup {
+        cleanup
+    } -result {
+        ids {There is no manual override on the relationship between groups SHIA and SUNN.}
+    }
+
+
     test UPDATE:MULTI-1.5 {invalid rel: out of range} -setup {
         setup
+        ted order REL:CREATE {id {SHIA BLUE}}
     } -body {
         ted order -reject REL:UPDATE:MULTI \
             ids {{SHIA BLUE}} rel 1.1
@@ -188,20 +374,10 @@ SUNN SUNN 1.0
     }
 
 
-    test UPDATE:MULTI-1.6 {f=g but rel != 1.0} -setup {
-        setup
-    } -body {
-        ted order -reject REL:UPDATE:MULTI \
-            ids {{SHIA SHIA} {SHIA BLUE}} rel 0.5
-    } -cleanup {
-        cleanup
-    } -result {
-        rel {invalid value "0.5", a group's relationship with itself must be 1.0}
-    }
-
-
     test UPDATE:MULTI-2.1 {one relationship of several is updated} -setup {
         setup
+        ted order REL:CREATE {id {SHIA SUNN}}
+        ted order REL:CREATE {id {SHIA BLUE}}
     } -body {
         ted notifier bind ::rdb <rel_fg>
 
@@ -220,10 +396,12 @@ SUNN SUNN 1.0
 
     test UPDATE:MULTI-2.2 {several relationships are updated} -setup {
         setup
+        ted order REL:CREATE {id {SHIA SUNN}}
+        ted order REL:CREATE {id {SHIA BLUE}}
     } -body {
         ted notifier bind ::rdb <rel_fg>
         ted order REL:UPDATE:MULTI {
-            ids   {{SHIA BLUE} {BLUE SHIA}} 
+            ids   {{SHIA BLUE} {SHIA SUNN}} 
             rel   0.5
         }
         ted notifier received
@@ -231,15 +409,17 @@ SUNN SUNN 1.0
         cleanup
     } -result {
         {::rdb <rel_fg> update {SHIA BLUE}}
-        {::rdb <rel_fg> update {BLUE SHIA}}
+        {::rdb <rel_fg> update {SHIA SUNN}}
     }
 
 
     test UPDATE:MULTI-3.1 {undo undoes the change} -setup {
         setup
+        ted order REL:CREATE {id {SHIA SUNN}}
+        ted order REL:CREATE {id {SHIA BLUE}}
 
         ted order REL:UPDATE:MULTI {
-            ids        {{SHIA BLUE} {BLUE SHIA}}
+            ids        {{SHIA BLUE} {SHIA SUNN}}
             rel        0.5
         }
     } -body {
@@ -250,7 +430,7 @@ SUNN SUNN 1.0
         cleanup
     } -result {
         {::rdb <rel_fg> update {SHIA BLUE}}
-        {::rdb <rel_fg> update {BLUE SHIA}}
+        {::rdb <rel_fg> update {SHIA SUNN}}
     }
 
 

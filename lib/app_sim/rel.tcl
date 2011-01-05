@@ -8,13 +8,14 @@
 # DESCRIPTION:
 #    athena_sim(1): Relationship Manager
 #
-#    This module is responsible for managing relationships between
-#    groups as groups come and go, and for allowing the analyst
-#    to update particular relationships.
+#    By default, group relationships are computed from belief systems
+#    by the bsystem module, an instance of mam(n).  However, the analyst
+#    is allowed to override any of the belief system-based relationships.
+#    This module is responsible for managing the creation, update,
+#    and deletion of these relationship overrides in the rel_fg table.
 #
-#    Every group has a bidirectional relationship with every other
-#    group.
-#   
+#    Note that overridden relationships are deleted via cascading
+#    delete if the relevant groups are deleted.
 #
 #-----------------------------------------------------------------------
 
@@ -29,7 +30,7 @@ snit::type rel {
     #
     # id     An fg relationship ID, [list $f $g]
     #
-    # Throws INVALID if there's no relationship for the 
+    # Throws INVALID if there's no overridden relationship for the 
     # specified combination.
 
     typemethod validate {id} {
@@ -38,21 +39,50 @@ snit::type rel {
         set f [group validate $f]
         set g [group validate $g]
 
+        if {![$type exists $id]} {
+            return -code error -errorcode INVALID \
+  "There is no manual override on the relationship between groups $f and $g."
+        }
+
         return [list $f $g]
     }
 
-    # exists f g
+    # exists id
     #
-    # f       A group ID
-    # g       A group ID
+    # id     An fg relationship ID, [list $f $g]
     #
-    # Returns 1 if relationship is tracked between f and g
+    # Returns 1 if there's an overridden relationship 
+    # between f and g, and 0 otherwise.
 
-    typemethod exists {f g} {
+    typemethod exists {id} {
+        lassign $id f g
+
         rdb exists {
             SELECT * FROM rel_fg WHERE f=$f AND g=$g
         }
     }
+
+    # unused validate id
+    #
+    # id     A rel_fg ID, [list $f $g]
+    #
+    # Throws INVALID if the id can't be a valid rel_fg ID, or
+    # if it's already in use.
+
+    typemethod {unused validate} {id} {
+        lassign $id f g
+
+        set f [group validate $f]
+        set g [group validate $g]
+
+        if {[$type exists $id]} {
+            return -code error -errorcode INVALID \
+          "Override already exists on relationship between groups $f and $g"
+        }
+
+        return [list $f $g]
+    }
+
 
     #-------------------------------------------------------------------
     # Mutators
@@ -62,105 +92,53 @@ snit::type rel {
     # a script of one or more commands that will undo the change.  When
     # change cannot be undone, the mutator returns the empty string.
 
-    # mutate reconcile
+
+    # mutate create parmdict
     #
-    # Determines which relationships should exist, and 
-    # adds or deletes them, returning an undo script.
+    # parmdict     A dictionary of rel parms
     #
-    # TBD: Since every pair of groups now has a relationships, it
-    # might be possible to simplify this code.
+    #    id               list {f g}
+    #    rel              The relationship of f with g
+    #
+    # Creates a relationship record given the parms, which are presumed to be
+    # valid.
 
-    typemethod {mutate reconcile} {} {
-        # FIRST, List required relationships
-        set valid [dict create]
-
-        rdb eval {
-            SELECT F.g       AS f, 
-                   G.g       AS g
-            FROM groups AS F
-            JOIN groups AS G
-        } {
-            dict set valid [list $f $g] 0
-        }
-
-        # NEXT, Begin the undo script.
-        set undo [list]
-
-        # NEXT, delete the ones that are no longer valid,
-        # accumulating undo entries for them.  Also, note which ones
-        # *do* exist.
-
-        rdb eval {
-            SELECT * FROM rel_fg
-        } row {
-            unset -nocomplain row(*)
-
-            set id [list $row(f) $row(g)]
-
-            if {[dict exists $valid $id]} {
-                dict incr valid $id
-            } else {
-                lappend undo [mytypemethod Restore [array get row]]
-
-                rdb eval {
-                    DELETE FROM rel_fg
-                    WHERE f=$row(f) AND g=$row(g)
-                }
-            }
-        }
-
-        # NEXT, create any that don't exist and should.
-        foreach id [dict keys $valid] {
-            if {[dict get $valid $id] == 1} {
-                continue
-            }
-
+    typemethod {mutate create} {parmdict} {
+        dict with parmdict {
             lassign $id f g
 
-            if {$f eq $g} {
-                # Every group has a relationship of 1.0 with itself.
-                rdb eval {
-                    INSERT INTO rel_fg(f,g,rel)
-                    VALUES($f,$g,1.0)
-                }
-
-            } else {
-                # Otherwise, we get the default relationship.
-                rdb eval {
-                    INSERT INTO rel_fg(f,g)
-                    VALUES($f,$g)
-                }
+            # FIRST, default rel to 0.0
+            if {$rel eq ""} {
+                set rel 0.0
             }
 
-            lappend undo [mytypemethod Delete $f $g]
-        }
+            # NEXT, Put the group in the database
+            rdb eval {
+                INSERT INTO 
+                rel_fg(f,g,rel)
+                VALUES($f, $g, $rel);
+            }
 
-        # NEXT, return the undo script
-        return [join $undo \n]
+            # NEXT, Return the undo command
+            return [list rdb delete rel_fg "f='$f' AND g='$g'"]
+        }
     }
 
 
-    # Restore parmdict
+    # mutate delete id
     #
-    # parmdict     row dict for deleted entity
+    # id        list {f g}
     #
-    # Restores the entity in the database
+    # Deletes the relationship override.
 
-    typemethod Restore {parmdict} {
-        rdb insert rel_fg $parmdict
-    }
+    typemethod {mutate delete} {id} {
+        lassign $id f g
 
+        # FIRST, delete the records, grabbing the undo information
+        set data [rdb delete -grab rel_fg {f=$f AND g=$g}]
 
-    # Delete f g
-    #
-    # f,g    The indices of the entity
-    #
-    # Deletes the entity.  Used only in undo scripts.
-    
-    typemethod Delete {f g} {
-        rdb eval {
-            DELETE FROM rel_fg WHERE f=$f AND g=$g
-        }
+        # NEXT, Return the undo script
+        return [list rdb ungrab $data]
     }
 
 
@@ -180,13 +158,7 @@ snit::type rel {
             lassign $id f g
 
             # FIRST, get the undo information
-            rdb eval {
-                SELECT * FROM rel_fg
-                WHERE f=$f AND g=$g
-            } undoData {
-                unset undoData(*)
-                set undoData(id) $id
-            }
+            set data [rdb grab rel_fg {f=$f AND g=$g}]
 
             # NEXT, Update the group
             rdb eval {
@@ -196,60 +168,7 @@ snit::type rel {
             } {}
 
             # NEXT, Return the undo command
-            return [mytypemethod mutate update [array get undoData]]
-        }
-    }
-
-    #---------------------------------------------------------------
-    # Order Helpers
-
-    # Refresh_RU dlg fields fdict
-    #
-    # dlg        The order dialog
-    # fields     Names of the fields that changed
-    # fdict      Current field values.
-    #
-    # Disables "rel" if f=g
-
-    typemethod Refresh_RU {dlg fields fdict} {
-        if {"id" in $fields} {
-            dict with fdict {
-                lassign $id f g
-
-                $dlg loadForKey id
-
-                if {$f ne $g} {
-                    $dlg disabled {}
-                } else {
-                    $dlg disabled rel
-                }
-            }
-        }
-    }
-
-    # Refresh_RUM dlg fields fdict
-    #
-    # dlg        The order dialog
-    # fields     Names of the fields that changed
-    # fdict      Current field values.
-    #
-    # Disables "rel" if f=g
-
-    typemethod Refresh_RUM {dlg fields fdict} {
-        if {"ids" in $fields} {
-            $dlg loadForMulti ids
-
-            dict with fdict {
-                foreach id $ids {
-                    lassign $id f g
-                    if {$f eq $g} {
-                        $dlg disabled rel
-                        return
-                    }
-                }
-            }
-
-            $dlg disabled {}
+            return [list rdb ungrab $data]
         }
     }
 }
@@ -258,15 +177,73 @@ snit::type rel {
 #-------------------------------------------------------------------
 # Orders: REL:*
 
+# REL:CREATE
+#
+# Creates new relationship overrides
+
+order define REL:CREATE {
+    title "Create Group Relationship Override"
+
+    options -sendstates PREP
+
+    parm id   newkey "Groups"        -universe rel_view      \
+                                     -table    rel_fg        \
+                                     -key      {f g}         \
+                                     -labels   {"Of" "With"}
+    parm rel  rel    "Relationship"
+} {
+    # FIRST, prepare and validate the parameters
+    prepare id  -toupper  -required -type {rel unused}
+    prepare rel -toupper            -type qrel
+
+    returnOnError
+
+    # NEXT, cross checks
+    lassign $parms(id) f g
+
+    if {$f eq $g} {
+        reject id "Cannot override a group's relationship with itself."
+    }
+
+    returnOnError -final
+
+    # NEXT, create the group and dependent entities
+    lappend undo [rel mutate create [array get parms]]
+
+    setundo [join $undo \n]
+}
+
+# REL:DELETE
+#
+# Deletes existing relationship override
+
+order define REL:DELETE {
+    title "Delete Group Relationship Override"
+    options \
+        -sendstates PREP
+
+    parm id   key   "Groups"         -table  gui_rel_fg \
+                                     -key    {f g}      \
+                                     -labels {Of With}
+} {
+    # FIRST, prepare the parameters
+    prepare id       -toupper  -required -type rel
+
+    returnOnError -final
+
+    # NEXT, delete the record
+    setundo [rel mutate delete $parms(id)]
+}
+
 # REL:UPDATE
 #
-# Updates existing relationships
+# Updates existing override
 
 order define REL:UPDATE {
-    title "Update Group Relationship"
+    title "Update Group Relationship Override"
     options \
         -sendstates PREP \
-        -refreshcmd {::rel Refresh_RU}
+        -refreshcmd {orderdialog refreshForKey id *}
 
     parm id   key   "Groups"         -table  gui_rel_fg \
                                      -key    {f g}      \
@@ -277,19 +254,6 @@ order define REL:UPDATE {
     prepare id       -toupper  -required -type rel
     prepare rel      -toupper            -type qrel
 
-    returnOnError
-
-    # NEXT, do cross-validation
-    lassign $parms(id) f g
-
-    validate rel {
-        if {$f eq $g && $parms(rel) != 1.0
-        } {
-            reject rel \
-              "invalid value \"$parms(rel)\", a group's relationship with itself must be 1.0"
-        }
-    }
-
     returnOnError -final
 
     # NEXT, modify the curve
@@ -299,13 +263,13 @@ order define REL:UPDATE {
 
 # REL:UPDATE:MULTI
 #
-# Updates multiple existing relationships
+# Updates multiple existing relationship overrides
 
 order define REL:UPDATE:MULTI {
-    title "Update Multiple Relationships"
+    title "Update Multiple Relationship Overrides"
     options \
         -sendstates PREP \
-        -refreshcmd {::rel Refresh_RUM}
+        -refreshcmd {orderdialog refreshForMulti ids *}
 
     parm ids  multi  "IDs"           -table gui_rel_fg \
                                      -key   id
@@ -313,27 +277,12 @@ order define REL:UPDATE:MULTI {
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof rel
-
     prepare rel      -toupper            -type qrel
-
-    returnOnError
-
-    # Cross-validate
-    validate rel {
-        foreach id $parms(ids) {
-            lassign $id f g
- 
-            if {$f eq $g && $parms(rel) != 1.0} {
-                reject rel \
-                "invalid value \"$parms(rel)\", a group's relationship with itself must be 1.0"
-            }
-        }
-    }
 
     returnOnError -final
 
 
-    # NEXT, modify the curves
+    # NEXT, modify the records
     set undo [list]
 
     foreach parms(id) $parms(ids) {

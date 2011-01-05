@@ -187,18 +187,20 @@ snit::type frcgroup {
             # NEXT, Put the group in the database
             rdb eval {
                 INSERT INTO 
-                groups(g,longname,color,shape,symbol,demeanor,gtype)
+                groups(g, longname, color, shape, symbol, demeanor,
+                       rel_entity, gtype)
                 VALUES($g,
                        $longname,
                        $color,
                        $shape,
                        $symbol,
                        $demeanor,
+                       nullif($a,''),
                        'FRC');
 
                 INSERT INTO frcgroups(g,a,forcetype,uniformed,local)
                 VALUES($g,
-                       CASE WHEN $a != '' THEN $a ELSE NULL END,
+                       nullif($a,''),
                        $forcetype,
                        $uniformed,
                        $local);
@@ -287,16 +289,16 @@ snit::type frcgroup {
             # NEXT, Update the group
             rdb eval {
                 UPDATE groups
-                SET longname  = nonempty($longname,  longname),
-                    color     = nonempty($color,     color),
-                    shape     = nonempty($shape,     shape),
-                    symbol    = nonempty($symbol,    symbol),
-                    demeanor  = nonempty($demeanor,  demeanor)
+                SET longname   = nonempty($longname,     longname),
+                    color      = nonempty($color,        color),
+                    shape      = nonempty($shape,        shape),
+                    symbol     = nonempty($symbol,       symbol),
+                    demeanor   = nonempty($demeanor,     demeanor),
+                    rel_entity = coalesce(nullif($a,''), rel_entity)
                 WHERE g=$g;
 
                 UPDATE frcgroups
-                SET a         = coalesce(CASE WHEN $a != '' 
-                                         THEN $a ELSE NULL END, a),
+                SET a         = coalesce(nullif($a,''), a),
                     forcetype = nonempty($forcetype, forcetype),
                     uniformed = nonempty($uniformed, uniformed),
                     local     = nonempty($local,     local)

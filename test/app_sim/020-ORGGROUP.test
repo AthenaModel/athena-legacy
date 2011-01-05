@@ -164,10 +164,10 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g     longname   color   shape   symbol       demeanor gtype a   orgtype 
------ ---------- ------- ------- ------------ -------- ----- --- ------- 
-USAID US Aid     #00FF00 NEUTRAL organization AVERAGE  ORG   JOE NGO     
-HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   JOE CTR     
+g     longname   color   shape   symbol       demeanor rel_entity gtype a   orgtype 
+----- ---------- ------- ------- ------------ -------- ---------- ----- --- ------- 
+USAID US Aid     #00FF00 NEUTRAL organization AVERAGE  JOE        ORG   JOE NGO     
+HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  JOE        ORG   JOE CTR     
     }
 
     test CREATE-2.2 {longname defaults to ID} -setup {
@@ -335,9 +335,9 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  ORG   JOE CTR
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   shape symbol       demeanor   gtype a   orgtype 
------ --------- ------- ----- ------------ ---------- ----- --- ------- 
-USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE ORG   JOE IGO     
+g     longname  color   shape symbol       demeanor   rel_entity gtype a   orgtype 
+----- --------- ------- ----- ------------ ---------- ---------- ----- --- ------- 
+USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE JOE        ORG   JOE IGO     
     }
 
 

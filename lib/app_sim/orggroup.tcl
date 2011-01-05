@@ -90,18 +90,20 @@ snit::type orggroup {
             # FIRST, Put the group in the database
             rdb eval {
                 INSERT INTO 
-                groups(g,longname,color,shape,symbol,demeanor,gtype)
+                groups(g, longname, color, shape, symbol, demeanor,
+                       rel_entity, gtype)
                 VALUES($g,
                        $longname,
                        $color,
                        $shape,
                        'organization',
                        $demeanor,
+                       nullif($a,''),
                        'ORG');
 
                 INSERT INTO orggroups(g,a,orgtype)
                 VALUES($g,
-                       CASE WHEN $a != '' THEN $a ELSE NULL END,
+                       nullif($a,''),
                        $orgtype);
 
                 INSERT INTO personnel_ng(n,g)
@@ -151,16 +153,16 @@ snit::type orggroup {
             # NEXT, Update the group
             rdb eval {
                 UPDATE groups
-                SET longname  = nonempty($longname,  longname),
-                    color     = nonempty($color,     color),
-                    demeanor  = nonempty($demeanor,  demeanor),
-                    shape     = nonempty($shape,     shape)
+                SET longname   = nonempty($longname,     longname),
+                    color      = nonempty($color,        color),
+                    demeanor   = nonempty($demeanor,     demeanor),
+                    shape      = nonempty($shape,        shape),
+                    rel_entity = coalesce(nullif($a,''), rel_entity)
                 WHERE g=$g;
 
                 UPDATE orggroups
-                SET a         = coalesce(CASE WHEN $a != '' 
-                                         THEN $a ELSE NULL END, a),
-                    orgtype   = nonempty($orgtype,   orgtype)
+                SET a         = coalesce(nullif($a,''), a),
+                    orgtype   = nonempty($orgtype,      orgtype)
                 WHERE g=$g
             } {}
 

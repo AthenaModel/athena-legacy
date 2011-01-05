@@ -1829,7 +1829,7 @@ snit::type actsit_rules {
 
     proc rel {f g} {
         set rel [rdb eval {
-            SELECT rel FROM rel_fg
+            SELECT rel FROM rel_view
             WHERE f=$f AND g=$g
         }]
 

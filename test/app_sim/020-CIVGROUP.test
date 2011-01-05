@@ -200,9 +200,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol   demeanor gtype n   basepop sap 
----- ----------- ------- ------- -------- -------- ----- --- ------- --- 
-SHIA Shia Locals #FFFF00 NEUTRAL civilian AVERAGE  CIV   NB1 10000   0   
+g    longname    color   shape   symbol   demeanor rel_entity gtype n   basepop sap 
+---- ----------- ------- ------- -------- -------- ---------- ----- --- ------- --- 
+SHIA Shia Locals #FFFF00 NEUTRAL civilian AVERAGE  SHIA       CIV   NB1 10000   0   
     }
 
 
@@ -214,9 +214,9 @@ SHIA Shia Locals #FFFF00 NEUTRAL civilian AVERAGE  CIV   NB1 10000   0
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape   symbol   demeanor gtype n   basepop sap 
----- -------- ------- ------- -------- -------- ----- --- ------- --- 
-SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  CIV   NB1 10000   0   
+g    longname color   shape   symbol   demeanor rel_entity gtype n   basepop sap 
+---- -------- ------- ------- -------- -------- ---------- ----- --- ------- --- 
+SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  SHIA       CIV   NB1 10000   0   
     }
 
     test CREATE-2.3 {effects} -body {
@@ -408,9 +408,9 @@ SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  CIV   NB1 10000   0
     } -cleanup {
         cleanup
     } -result {
-g    longname  color   shape symbol   demeanor  gtype n   basepop sap 
----- --------- ------- ----- -------- --------- ----- --- ------- --- 
-SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC CIV   NB2 5000    50  
+g    longname  color   shape symbol   demeanor  rel_entity gtype n   basepop sap 
+---- --------- ------- ----- -------- --------- ---------- ----- --- ------- --- 
+SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC SHIA       CIV   NB2 5000    50  
     }
 
 
@@ -484,9 +484,9 @@ SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC CIV   NB2 5000    50
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape   symbol   demeanor gtype n   basepop sap 
----- -------- ------- ------- -------- -------- ----- --- ------- --- 
-SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    5   
+g    longname color   shape   symbol   demeanor rel_entity gtype n   basepop sap 
+---- -------- ------- ------- -------- -------- ---------- ----- --- ------- --- 
+SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  SHIA       CIV   NB1 1000    5   
     }
 
     test UPDATE:POSTPREP-2.2 {table monitor event} -setup {

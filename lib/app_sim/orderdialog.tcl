@@ -60,7 +60,7 @@ snit::widget orderdialog {
             $type InitOrderData $order
         }
 
-        # NEXT, create the color field type.
+        # NEXT, create field types.
         form register coop ::formlib::rangefield \
             -type        ::qcooperation          \
             -showsymbols yes

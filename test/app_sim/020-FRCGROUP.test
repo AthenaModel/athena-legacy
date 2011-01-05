@@ -191,9 +191,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor gtype a   forcetype uniformed local 
----- -------- ------- ------ -------- -------- ----- --- --------- --------- ----- 
-BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   JOE REGULAR   1         0     
+g    longname color   shape  symbol   demeanor rel_entity gtype a   forcetype uniformed local 
+---- -------- ------- ------ -------- -------- ---------- ----- --- --------- --------- ----- 
+BLUE US Army  #0000FF FRIEND infantry AVERAGE  JOE        FRC   JOE REGULAR   1         0     
     }
 
     test CREATE-2.2 {longname defaults to ID} -setup {
@@ -384,9 +384,9 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  FRC   JOE REGULAR   1         0
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol demeanor   gtype a   forcetype uniformed local 
----- ----------- ------- ------- ------ ---------- ----- --- --------- --------- ----- 
-BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE FRC   BOB POLICE    0         1     
+g    longname    color   shape   symbol demeanor   rel_entity gtype a   forcetype uniformed local 
+---- ----------- ------- ------- ------ ---------- ---------- ----- --- --------- --------- ----- 
+BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE BOB        FRC   BOB POLICE    0         1     
     }
 
 

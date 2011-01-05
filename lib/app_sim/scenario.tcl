@@ -534,19 +534,6 @@ snit::type scenario {
     typemethod {mutate reconcile} {} {
         set undo [list]
 
-        # Requires creation in the three group modules, cascading 
-        # deletes on f and g, and testing in the three group modules.
-        # BUT, it should probably be left alone until we know for sure
-        # how affinity will affect things.  Do we populate rel_fg from
-        # mam_affinity?  Is rel_fg a view on mam_affinity?  If so, how
-        # do we handle the indirection?  Could add an "affinity entity"
-        # to the groups table; this would be the actor for FRC and ORG
-        # groups, and the group itself for the CIV groups.  rel_fg
-        # would then just be a join on mam_affinity using groups to
-        # translate from group names to entity names.  In that case,
-        # rel_fg just goes away.  I *like* that.
-        lappend undo [rel mutate reconcile]
-
         # See ensit.tcl for comments on this one.
         lappend undo [ensit mutate reconcile]
 

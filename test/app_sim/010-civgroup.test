@@ -43,9 +43,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape   symbol   demeanor gtype n   basepop sap 
----- -------- ------- ------- -------- -------- ----- --- ------- --- 
-SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10  
+g    longname color   shape   symbol   demeanor rel_entity gtype n   basepop sap 
+---- -------- ------- ------- -------- -------- ---------- ----- --- ------- --- 
+SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  SHIA       CIV   NB1 1000    10  
     }
 
     test create-1.2 {bsystem entity is created} -body {
@@ -126,7 +126,21 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
     } -result {SUNN}
 
 
-    test delete-1.2 {Bsystem entity is deleted} -setup {
+    test delete-2.1 {Undo restores group} -setup {
+        ted create SHIA
+        set undo [civgroup mutate delete SHIA]
+    } -body {
+        namespace eval :: $undo
+        ted query {SELECT * FROM civgroups_view}
+    } -cleanup {
+        cleanup
+    } -result {
+g    longname color   shape   symbol   demeanor rel_entity gtype n   basepop sap 
+---- -------- ------- ------- -------- -------- ---------- ----- --- ------- --- 
+SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  SHIA       CIV   NB1 1000    10  
+    }
+
+    test delete-3.1 {Bsystem entity is deleted} -setup {
         ted create SHIA SUNN
     } -body {
         civgroup mutate delete SHIA
@@ -138,42 +152,7 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
     } -result {SUNN}
 
 
-    test delete-1.3 {sat curves are deleted} -setup {
-        ted create SHIA
-    } -body {
-        civgroup mutate delete SHIA
-
-        rdb eval {SELECT c FROM sat_gc WHERE g='SHIA' ORDER BY c}
-    } -cleanup {
-        cleanup
-    } -result {}
-
-
-    test delete-1.4 {coop curves are deleted} -setup {
-        ted create BLUE SHIA
-    } -body {
-        civgroup mutate delete SHIA
-
-        rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test delete-2.1 {Undo restores group} -setup {
-        ted create SHIA
-        set undo [civgroup mutate delete SHIA]
-    } -body {
-        namespace eval :: $undo
-        ted query {SELECT * FROM civgroups_view}
-    } -cleanup {
-        cleanup
-    } -result {
-g    longname color   shape   symbol   demeanor gtype n   basepop sap 
----- -------- ------- ------- -------- -------- ----- --- ------- --- 
-SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10  
-    }
-
-    test delete-2.2 {Undo restores bsystem entity} -setup {
+    test delete-3.2 {Undo restores bsystem entity} -setup {
         ted create SHIA SUNN
         set undo [civgroup mutate delete SHIA]
     } -body {
@@ -183,7 +162,18 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
         cleanup
     } -result {SHIA SUNN}
 
-    test delete-2.3 {Undo restores sat curves} -setup {
+    test delete-4.1 {sat curves are deleted} -setup {
+        ted create SHIA
+    } -body {
+        civgroup mutate delete SHIA
+
+        rdb eval {SELECT c FROM sat_gc WHERE g='SHIA' ORDER BY c}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test delete-4.2 {Undo restores sat curves} -setup {
         ted create SHIA
         set undo [civgroup mutate delete SHIA]
     } -body {
@@ -193,7 +183,17 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
         cleanup
     } -result {AUT CUL QOL SFT}
 
-    test delete-2.4 {Undo restores coop curves} -setup {
+    test delete-5.1 {coop curves are deleted} -setup {
+        ted create BLUE SHIA
+    } -body {
+        civgroup mutate delete SHIA
+
+        rdb eval {SELECT f,g FROM coop_fg ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-5.2 {Undo restores coop curves} -setup {
         ted create BLUE SHIA
         set undo [civgroup mutate delete SHIA]
     } -body {
@@ -203,7 +203,7 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
         cleanup
     } -result {SHIA BLUE}
 
-    test delete-3.1 {calendar items with g are deleted} -setup {
+    test delete-6.1 {calendar items with g are deleted} -setup {
         ted create NB1 SHIA
 
         activity mutate create {
@@ -224,7 +224,7 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
         cleanup
     } -result {}
 
-    test delete-3.2 {undoing restores items with g} -setup {
+    test delete-6.2 {undoing restores items with g} -setup {
         ted create NB1 SHIA
 
         activity mutate create {
@@ -248,6 +248,31 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
         cleanup
     } -result {NB1 SHIA DISPLACED NB1}
 
+    test delete-7.1 {deletes rel_fg overrides} -setup {
+        ted create SHIA SUNN
+        rel mutate create {id {SHIA SUNN} rel 0.5}
+        rel mutate create {id {SUNN SHIA} rel 0.5}
+    } -body {
+        civgroup mutate delete SHIA
+
+        rdb eval {SELECT f,g FROM rel_fg ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-7.2 {undo restores rel_fg overrides} -setup {
+        ted create SHIA SUNN
+        rel mutate create {id {SHIA SUNN} rel 0.5}
+        rel mutate create {id {SUNN SHIA} rel 0.5}
+
+        set undo [civgroup mutate delete SHIA]
+    } -body {
+        namespace eval :: $undo
+
+        rdb eval {SELECT f,g FROM rel_fg ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {SHIA SUNN SUNN SHIA}
 
     #-------------------------------------------------------------------
     # mutate update
@@ -267,9 +292,9 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  CIV   NB1 1000    10
     } -cleanup {
         cleanup
     } -result {
-g    longname  color   shape  symbol   demeanor gtype n   basepop sap 
----- --------- ------- ------ -------- -------- ----- --- ------- --- 
-SHIA Shia Folk #ff0000 FRIEND civilian AVERAGE  CIV   NB1 1000    10  
+g    longname  color   shape  symbol   demeanor rel_entity gtype n   basepop sap 
+---- --------- ------- ------ -------- -------- ---------- ----- --- ------- --- 
+SHIA Shia Folk #ff0000 FRIEND civilian AVERAGE  SHIA       CIV   NB1 1000    10  
     }
 
 
@@ -415,7 +440,7 @@ SHIA Shia Folk #ff0000 FRIEND civilian AVERAGE  CIV   NB1 1000    10
         civgroup getg SHIA
     } -cleanup {
         cleanup
-    } -result "sap 10 gtype CIV shape NEUTRAL longname Shia basepop 1000 n NB1 symbol civilian demeanor AVERAGE color #c00001 g SHIA"
+    } -result "shape NEUTRAL basepop 1000 demeanor AVERAGE g SHIA rel_entity SHIA longname Shia gtype CIV sap 10 symbol civilian n NB1 color #c00001"
 
     test getg-1.2 {get group attribute} -setup {
         ted create NB1 SHIA

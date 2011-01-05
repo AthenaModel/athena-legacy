@@ -169,7 +169,7 @@ snit::type sim {
             SELECT R.f,
                    R.g,
                    R.rel
-            FROM rel_fg AS R
+            FROM rel_view AS R
             JOIN civgroups AS F ON (F.g = R.f)
             JOIN civgroups as G on (G.g = R.g)
             ORDER BY R.f, R.g
@@ -195,7 +195,7 @@ snit::type sim {
             SELECT R.f,
                    R.g,
                    R.rel
-            FROM rel_fg AS R
+            FROM rel_view AS R
             JOIN frcgroups AS F ON (F.g = R.f)
             JOIN frcgroups as G on (G.g = R.g)
             ORDER BY R.f, R.g

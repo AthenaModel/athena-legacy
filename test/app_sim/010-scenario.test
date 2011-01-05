@@ -43,7 +43,6 @@ namespace eval ::athena_test::tests:: {
    
 
     test reconcile-1.1 {All entities are reconciled} -body {
-        ted notifier bind ::rdb      <rel_fg>
         ted notifier bind ::scenario <Reconcile>
 
         rdb monitor transaction {
@@ -62,20 +61,6 @@ namespace eval ::athena_test::tests:: {
     } -result {
         {::scenario <Reconcile>}
         {::scenario <Reconcile>}
-        {::rdb <rel_fg> update {BLUE BLUE}}
-        {::rdb <rel_fg> update {BLUE USAID}}
-        {::rdb <rel_fg> update {BLUE SHIA}}
-        {::rdb <rel_fg> update {USAID BLUE}}
-        {::rdb <rel_fg> update {USAID USAID}}
-        {::rdb <rel_fg> update {USAID SHIA}}
-        {::rdb <rel_fg> update {SHIA BLUE}}
-        {::rdb <rel_fg> update {SHIA USAID}}
-        {::rdb <rel_fg> update {SHIA SHIA}}
-        {::rdb <rel_fg> delete {BLUE SHIA}}
-        {::rdb <rel_fg> delete {USAID SHIA}}
-        {::rdb <rel_fg> delete {SHIA BLUE}}
-        {::rdb <rel_fg> delete {SHIA USAID}}
-        {::rdb <rel_fg> delete {SHIA SHIA}}
     }
 
 
@@ -89,7 +74,6 @@ namespace eval ::athena_test::tests:: {
 
         set undo [scenario mutate reconcile]
 
-        ted notifier bind ::rdb      <rel_fg>
         ted notifier bind ::scenario <Reconcile>
 
         rdb monitor transaction {
@@ -99,16 +83,7 @@ namespace eval ::athena_test::tests:: {
         ted notifier received
     } -cleanup {
         cleanup
-    } -result {
-        {::rdb <rel_fg> update {BLUE BLUE}}
-        {::rdb <rel_fg> update {BLUE USAID}}
-        {::rdb <rel_fg> update {BLUE SHIA}}
-        {::rdb <rel_fg> update {USAID BLUE}}
-        {::rdb <rel_fg> update {USAID SHIA}}
-        {::rdb <rel_fg> update {SHIA BLUE}}
-        {::rdb <rel_fg> update {SHIA USAID}}
-        {::rdb <rel_fg> update {SHIA SHIA}}
-    }
+    } -result {}
 
     #-------------------------------------------------------------------
     # Cleanup

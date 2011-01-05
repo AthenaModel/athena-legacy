@@ -140,16 +140,21 @@ snit::type civgroup {
 
     typemethod {mutate create} {parmdict} {
         dict with parmdict {
-            # FIRST, Put the group in the database
+            # FIRST, create a bsystem entity
+            bsystem entity add $g
+
+            # NEXT, Put the group in the database
             rdb eval {
                 INSERT INTO 
-                groups(g,longname,color,shape,symbol,demeanor,gtype)
+                groups(g, longname, color, shape, symbol, demeanor,
+                       rel_entity, gtype)
                 VALUES($g,
                        $longname,
                        $color,
                        $shape,
                        'civilian',
                        $demeanor,
+                       $g,
                        'CIV');
 
                 INSERT INTO
@@ -169,9 +174,6 @@ snit::type civgroup {
                 SELECT $g, g FROM frcgroups;
             }
 
-            # NEXT, create a bsystem entity
-            bsystem entity add $g
-
             # NEXT, Return undo command.
             return [mytypemethod UndoCreate $g]
         }
@@ -184,9 +186,8 @@ snit::type civgroup {
     # Undoes creation of the group.
 
     typemethod UndoCreate {g} {
-        bsystem edit undo
         rdb delete groups {g=$g} civgroups {g=$g} demog_g {g=$g}
-
+        bsystem edit undo
     }
 
     # mutate delete g

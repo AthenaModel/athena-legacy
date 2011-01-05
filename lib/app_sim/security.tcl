@@ -209,7 +209,7 @@ snit::type security {
                    FG.rel       AS rel
             FROM force_ng AS NF
             JOIN groups AS G
-            JOIN rel_fg AS FG ON (FG.f = NF.g AND FG.g = G.g)
+            JOIN rel_view AS FG ON (FG.f = NF.g AND FG.g = G.g)
             WHERE rel != 0.0
             
         } {
