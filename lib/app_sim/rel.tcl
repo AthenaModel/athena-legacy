@@ -9,10 +9,18 @@
 #    athena_sim(1): Relationship Manager
 #
 #    By default, group relationships are computed from belief systems
-#    by the bsystem module, an instance of mam(n).  However, the analyst
-#    is allowed to override any of the belief system-based relationships.
-#    This module is responsible for managing the creation, update,
-#    and deletion of these relationship overrides in the rel_fg table.
+#    by the bsystem module, an instance of mam(n), with the exception
+#    that rel.gg is always 1.0.  The analyst is allowed to override
+#    any relationship for which f != g.  These overrides are stored in
+#    the rel_fg table and viewed in relbrowser(sim).  The rel_view
+#    view pulls all of the data together.
+#
+#    Because rel_fg stores overrides values computed elsewhere, this
+#    module follows a rather different pattern than other scenario
+#    editing modules.  The relationships come into being automatically
+#    with the groups.  Thus, there is no REL:CREATE order.  Instead,
+#    REL:OVERRIDE and REL:OVERRIDE:MULTI will create new records as 
+#    needed.  REL:RESTORE will delete overrides.
 #
 #    Note that overridden relationships are deleted via cascading
 #    delete if the relevant groups are deleted.
@@ -30,8 +38,7 @@ snit::type rel {
     #
     # id     An fg relationship ID, [list $f $g]
     #
-    # Throws INVALID if there's no overridden relationship for the 
-    # specified combination.
+    # Throws INVALID if id doesn't name an overrideable relationship.
 
     typemethod validate {id} {
         lassign $id f g
@@ -39,9 +46,9 @@ snit::type rel {
         set f [group validate $f]
         set g [group validate $g]
 
-        if {![$type exists $id]} {
+        if {$f eq $g} {
             return -code error -errorcode INVALID \
-  "There is no manual override on the relationship between groups $f and $g."
+                "A group's relationship with itself cannot be overridden."
         }
 
         return [list $f $g]
@@ -61,28 +68,6 @@ snit::type rel {
             SELECT * FROM rel_fg WHERE f=$f AND g=$g
         }
     }
-
-    # unused validate id
-    #
-    # id     A rel_fg ID, [list $f $g]
-    #
-    # Throws INVALID if the id can't be a valid rel_fg ID, or
-    # if it's already in use.
-
-    typemethod {unused validate} {id} {
-        lassign $id f g
-
-        set f [group validate $f]
-        set g [group validate $g]
-
-        if {[$type exists $id]} {
-            return -code error -errorcode INVALID \
-          "Override already exists on relationship between groups $f and $g"
-        }
-
-        return [list $f $g]
-    }
-
 
     #-------------------------------------------------------------------
     # Mutators
@@ -177,52 +162,16 @@ snit::type rel {
 #-------------------------------------------------------------------
 # Orders: REL:*
 
-# REL:CREATE
-#
-# Creates new relationship overrides
-
-order define REL:CREATE {
-    title "Create Group Relationship Override"
-
-    options -sendstates PREP
-
-    parm id   newkey "Groups"        -universe rel_view      \
-                                     -table    rel_fg        \
-                                     -key      {f g}         \
-                                     -labels   {"Of" "With"}
-    parm rel  rel    "Relationship"
-} {
-    # FIRST, prepare and validate the parameters
-    prepare id  -toupper  -required -type {rel unused}
-    prepare rel -toupper            -type qrel
-
-    returnOnError
-
-    # NEXT, cross checks
-    lassign $parms(id) f g
-
-    if {$f eq $g} {
-        reject id "Cannot override a group's relationship with itself."
-    }
-
-    returnOnError -final
-
-    # NEXT, create the group and dependent entities
-    lappend undo [rel mutate create [array get parms]]
-
-    setundo [join $undo \n]
-}
-
-# REL:DELETE
+# REL:RESTORE
 #
 # Deletes existing relationship override
 
-order define REL:DELETE {
-    title "Delete Group Relationship Override"
+order define REL:RESTORE {
+    title "Restore Computed Relationship"
     options \
         -sendstates PREP
 
-    parm id   key   "Groups"         -table  gui_rel_fg \
+    parm id   key   "Groups"         -table  gui_rel_view \
                                      -key    {f g}      \
                                      -labels {Of With}
 } {
@@ -235,17 +184,17 @@ order define REL:DELETE {
     setundo [rel mutate delete $parms(id)]
 }
 
-# REL:UPDATE
+# REL:OVERRIDE
 #
 # Updates existing override
 
-order define REL:UPDATE {
-    title "Update Group Relationship Override"
+order define REL:OVERRIDE {
+    title "Override Computed Relationship"
     options \
         -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey id *}
 
-    parm id   key   "Groups"         -table  gui_rel_fg \
+    parm id   key   "Groups"         -table  gui_rel_view \
                                      -key    {f g}      \
                                      -labels {Of With}
     parm rel  rel   "Relationship"
@@ -257,21 +206,25 @@ order define REL:UPDATE {
     returnOnError -final
 
     # NEXT, modify the curve
-    setundo [rel mutate update [array get parms]]
+    if {[rel exists $parms(id)]} {
+        setundo [rel mutate update [array get parms]]
+    } else {
+        setundo [rel mutate create [array get parms]]
+    }
 }
 
 
-# REL:UPDATE:MULTI
+# REL:OVERRIDE:MULTI
 #
 # Updates multiple existing relationship overrides
 
-order define REL:UPDATE:MULTI {
-    title "Update Multiple Relationship Overrides"
+order define REL:OVERRIDE:MULTI {
+    title "Override Multiple Relationships"
     options \
         -sendstates PREP \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids  multi  "IDs"           -table gui_rel_fg \
+    parm ids  multi  "IDs"           -table gui_rel_view \
                                      -key   id
     parm rel  rel    "Relationship"
 } {
@@ -286,7 +239,11 @@ order define REL:UPDATE:MULTI {
     set undo [list]
 
     foreach parms(id) $parms(ids) {
-        lappend undo [rel mutate update [array get parms]]
+        if {[rel exists $parms(id)]} {
+            lappend undo [rel mutate update [array get parms]]
+        } else {
+            lappend undo [rel mutate create [array get parms]]
+        }
     }
 
     setundo [join $undo \n]

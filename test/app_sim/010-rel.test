@@ -225,61 +225,20 @@ BLUE BRIT 0.7
     } -result {Invalid group, should be one of: BLUE, BRIT}
 
 
-    test validate-1.3 {No override} -setup {
+    test validate-1.3 {f eq g} -setup {
+        ted create BLUE BRIT
+    } -body {
+        rel validate {BLUE BLUE}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {A group's relationship with itself cannot be overridden.}
+
+    test validate-2.1 {Valid relationship} -setup {
         ted create BLUE BRIT
     } -body {
         rel validate {BLUE BRIT}
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {There is no manual override on the relationship between groups BLUE and BRIT.}
-
-    test validate-2.1 {Valid override} -setup {
-        ted create BLUE BRIT
-        rel mutate create {id {BLUE BRIT} rel 0.5}
-    } -body {
-        rel validate {BLUE BRIT}
-    } -cleanup {
-        cleanup
-    } -result {BLUE BRIT}
-
-    #-------------------------------------------------------------------
-    # unused validate
-
-    test unused_validate-1.1 {invalid group f} -body {
-        rel unused validate {NONESUCH NONESUCH}
-    } -returnCodes {
-        error
-    } -result {Invalid group, none are defined}
-
-
-    test unused_validate-1.2 {Invalid group g} -setup {
-        ted create BLUE BRIT
-    } -body {
-        rel unused validate {BLUE NONESUCH}
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {Invalid group, should be one of: BLUE, BRIT}
-
-
-    test unused_validate-1.3 {Override already exists} -setup {
-        ted create BLUE BRIT
-        rel mutate create {id {BLUE BRIT} rel 0.5}
-    } -body {
-        rel unused validate {BLUE BRIT}
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {Override already exists on relationship between groups BLUE and BRIT}
-
-    test unused_validate-2.1 {Unused Override} -setup {
-        ted create BLUE BRIT
-    } -body {
-        rel unused validate {BLUE BRIT}
     } -cleanup {
         cleanup
     } -result {BLUE BRIT}

@@ -1378,36 +1378,39 @@ tab "Groups/OrgGroups" {
 
 tab "Groups/Relationships" {
     This tab shows the relationship between the various pairs of
-    groups in the playbox.  The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
+    groups in the playbox.  Each row shows the relationship of 
+    group F with group G from group F's point of view.<p>
+
+    By default, relationships are computed automatically from the 
+    belief systems model; civilian groups have their own 
+    belief systems, and force and organization groups inherit the
+    belief systems of their owning actors.  Computed relationships
+    are shown in green text.<p>
+
+    Additionally, the analyst can override any computed relationship
+    with a specific value; these manually-entered relationships are
+    shown in red text.
+
+    The browser controls are described <<seebelow controls>>; the data
+    fields are as follows:<p>
 
     <<topiclist Column Description>>
 
-    <<topic "Nbhood">>The neighborhood in which the groups are
-    located, or <b>PLAYBOX</b>.  All relationships with civilian
-    groups are tracked at the neighborhood level.  Relationships
-    between force and organization groups are tracked at the playbox
-    level.
-    <</topic>>
-
-    <<topic "Of Group F">>A group ID; this is the relationship of this
-    group with another group, from this group's point of view.<</topic>>
+    <<topic "Of Group F">>A group ID.<</topic>>
+    
+    <<topic "With Group G">>Another group ID.<</topic>>
     
     <<topic "F Type">>The group type of group F:<p>
 
     <<enumdoc ::simlib::egrouptype>>
     <</topic>>
 
-    <<topic "With Group G">>Another group ID.<</topic>>
-    
-    <<topic "G Type">>The group type of group G:<p>
+    <<topic "G Type">>The group type of group G, as above.<p>
 
-    <<enumdoc ::simlib::egrouptype>>
     <</topic>>
 
     <<topic "Relationship">> The relationship between group F and
-    group G from F's point of view.  The relationship of a group with
-    itself is always 1.0; otherwise, it is a number drawn from the
+    group G from F's point of view, a number drawn from the
     following scale:<p>
 
     <<::simlib::qrel html>>
@@ -1426,6 +1429,23 @@ tab "Groups/Relationships" {
     <<cref REL:UPDATE>> or 
     <<cref REL:UPDATE:MULTI>> dialog for
     the selected row(s).
+    <</topic>>
+
+    <<topic {<img src="button_x">}>>
+    If an overridden relationship is selected, deletes the
+    override and restores the computed relationship.
+    <</topic>>
+
+    <<topic {<img src="viewbox">}>>
+    The view box determines which set of entities is to be displayed.
+    The following sets may be selected from the pulldown:<p>
+
+    <ul>
+    <li> <b>All</b>: All relationships, whether computed or overridden.
+    <li> <b>Overridden</b>: Manually overridden relationships only.
+    </ul>
+    <</topic>>
+
     <</topic>>
 
     <<control.filterbox>>

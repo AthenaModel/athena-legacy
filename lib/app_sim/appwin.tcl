@@ -760,7 +760,8 @@ snit::widget appwin {
         $ordersmenu add cascade -label "Relationship" \
             -underline 0 -menu $submenu
         
-        $self AddOrder $submenu REL:UPDATE
+        $self AddOrder $submenu REL:OVERRIDE
+        $self AddOrder $submenu REL:RESTORE
 
         # Orders/Cooperation Menu
         set submenu [menu $ordersmenu.coop]

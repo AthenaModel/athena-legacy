@@ -193,16 +193,23 @@ LEFT OUTER JOIN gram_sat AS gram ON (main.g = gram.g AND main.c = gram.c);
 
 
 -- A rel_fg view for use by the GUI
-CREATE TEMPORARY VIEW gui_rel_fg AS
+CREATE TEMPORARY VIEW gui_rel_view AS
 SELECT R.f || ' ' || R.g                             AS id,
        R.f                                           AS f,
        F.gtype                                       AS ftype,
        R.g                                           AS g,
        G.gtype                                       AS gtype,
-       format('%+4.1f', R.rel)                       AS rel
-FROM rel_fg AS R
+       format('%+4.1f', R.rel)                       AS rel,
+       CASE WHEN override THEN 'Y' ELSE 'N' END      AS override
+FROM rel_view AS R
 JOIN groups AS F ON (F.g = R.f)
-JOIN groups as G on (G.g = R.g);
+JOIN groups as G on (G.g = R.g)
+WHERE F.g != G.g;
+
+-- A gui_rel_view subview, for overridden relationships only.
+CREATE TEMPORARY VIEW gui_rel_override_view AS
+SELECT * FROM gui_rel_view
+WHERE override = 'Y';
 
 -- A coop_fg view for use by the GUI:
 -- NOTE: presumes there is a single gram(n)!

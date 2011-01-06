@@ -2469,20 +2469,41 @@ page REL: "Group Relationship Orders" orders {
     Relationships are established during <<cref using.prep>> and
     are constant thereafter.<p>
 
-    Relationships with civilian groups exist at the neighborhood level; 
-    relationships between force and organization groups exist at the playbox 
-    level.  Athena creates the appropriate set of relationships as 
-    neighborhoods and groups are created.<p>
-
-    These orders are used to edit group relationships during
-    <<cref using.prep>>.
+    Inter-group relationships are computed from the groups' belief
+    systems (force and organization groups inherit their belief
+    systems from their owning actors).  In addition, these orders can
+    be used to manually override the computed relationships.<p>
 
     <<childlinks>>
 }
 
 #-----------------------------------------------------------------------
 
-order REL:UPDATE "Update Group Relationship" {
+order REL:OVERRIDE "Override Computed Relationship" {
+    <<parmlist>>
+    <<parm id "Groups">>
+    <b>Required.</b>  A group relationship ID, specified as a 
+    list {<i>f g</i>} where <i>f</i> and <i>g</i> are two groups.  The
+    associated relationship is <i>f</i>'s relationship with <i>g</i>.
+    Note that a group's relationship with itself is always 1.0 and
+    cannot be overridden.
+    <</parm>>
+
+    <<parm rel "Relationship">>
+    <b>Optional.</b>  The relationship between the two groups,
+    a decimal number between -1.0 and 1.0.  Typical relationship
+    values range from -0.5 to +0.8.
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order overrides the
+    computed relationship of one group with another.
+}
+
+#-----------------------------------------------------------------------
+
+order REL:RESTORE "Restore Computed Relationship" {
     <<parmlist>>
     <<parm id "Groups">>
     <b>Required.</b>  A group relationship ID, specified as a 
@@ -2490,45 +2511,34 @@ order REL:UPDATE "Update Group Relationship" {
     associated relationship is <i>f</i>'s relationship with <i>g</i>.
     <</parm>>
 
-    <<parm rel "Relationship">>
-    <b>Optional.</b>  The relationship between the two groups,
-    a decimal number between -1.0 and 1.0.  The relationship
-    of a group with itself defaults to 1.0 and should generally not be
-    changed.  Typical relationship values range from -0.5 to +0.8.  
-    A group always has a relationship of 1.0 with itself.
-    <</parm>>
-
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order updates the relationship
-    of one group with another.
+    <b><<cref using.prep>> Only.</b>  This order restores the computed
+    relationship, deleting any manual override.
 }
-
 
 #-----------------------------------------------------------------------
 
-order REL:UPDATE+MULTI "Update Multiple Relationships" {
+order REL:OVERRIDE+MULTI "Override Multiple Relationships" {
     <<parmlist>>
     <<parm ids "IDs">>
     <b>Required.</b>  <<parm.ids relationship>><p>
 
     Programmatically, each ID is a list {<i>f g</i>} where
     <i>f</i> and <i>g</i> are defined as for the 
-    <<cref REL:UPDATE>> order.
+    <<cref REL:OVERRIDE>> order.
     <</parm>>
 
     <<parm rel "Relationship">>
     <b>Optional.</b>  The relationship between two groups,
-    a decimal number between -1.0 and 1.0.  The relationship
-    of a group with itself defaults to 1.0 and should generally not be
-    changed.  Typical relationship values range from -0.5 to +0.8.  
-    A group always has a relationship of 1.0 with itself.
+    a decimal number between -1.0 and 1.0.  Typical relationship
+    values range from -0.5 to +0.8.   
     <</parm>>
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order updates two or more
-    relationships, as selected in the GUI.
+    <b><<cref using.prep>> Only.</b>  This order overrides two or more
+    computed relationships, as selected in the GUI.
 }
 
 

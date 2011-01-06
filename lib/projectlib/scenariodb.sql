@@ -450,14 +450,29 @@ CREATE TABLE rel_fg (
 -- This view computes the horizontal relationship for each pair of 
 -- groups.  The relationship defaults to the affinity between the
 -- groups' relationship entities, and can be explicitly overridden
--- in the rel_fg table.  Note that the relationship of a group with
--- itself is set to 1.0
+-- in the rel_fg table.  There are a couple of special cases:
+--
+-- * The relationship of a group with itself is forced to 1.0; and
+--   this cannot be overridden.  A group has a self-identity that
+--   it does not share with other groups and that the affinity model
+--   does not take into account.
+--
+-- * IN THE FUTURE, the relationship of two CIV groups with the same 
+--   rel_entity should also be 1.0.  This case would arise only because
+--   of the split of a CIV group (something we do not yet do in
+--   Athena); thus, the two groups are the same group, at least in the
+--   short run.  (Once we have truly dynamic inter-group relationships,
+--   all bets are off.)
+--
+-- * Two FRC/ORG groups with the same rel_entity do NOT have a 
+--   relationship of 1.0, as they lack that self-identity.  
+--   Consider the rivalry between the Army and the Navy.
 
 CREATE VIEW rel_view AS
 SELECT F.g                                       AS f,
        G.g                                       AS g,
-       CASE WHEN F.g = G.g 
-            THEN 1.0
+       CASE WHEN F.g = G.g  -- TBD: Use rel_entity for CIVs, once
+            THEN 1.0        -- groups can be split.
             ELSE coalesce(R.rel, A.affinity) END AS rel,
        CASE WHEN R.rel IS NOT NULL 
             THEN 1
