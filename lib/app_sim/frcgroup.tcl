@@ -312,10 +312,30 @@ snit::type frcgroup {
                     INSERT INTO defroe_ng(n,g)
                     SELECT n, $g FROM nbhoods;
                 }
+
+                set undoGroup $g
+            } else {
+                set undoGroup ""
             }
 
             # NEXT, Return the undo command
-            return [list rdb ungrab $data]
+            return [mytypemethod UndoUpdate $data $undoGroup]
+        }
+    }
+
+    # UndoUpdate data g
+    #
+    # data - The grab data to restore
+    # g    - The force group name, if there are defroe records to delete.
+    #
+    # Restores the changed data, and deletes any defroe records that
+    # were created by the update.
+
+    typemethod UndoUpdate {data g} {
+        rdb ungrab $data
+        
+        if {$g ne ""} {
+            rdb delete defroe_ng {g=$g}
         }
     }
 }
