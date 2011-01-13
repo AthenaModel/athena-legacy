@@ -595,8 +595,9 @@ snit::type ::projectlib::scenariodb {
             # grab returns the empty list if there was nothing to
             # grab; we want to have the table name present with
             # an empty content string, indicated that the table
-            # should be empty.
-            lappend output $name $content
+            # should be empty.  Adds the INSERT tag, so that
+            # ungrab will do the right thing.
+            lappend output [list $name INSERT] $content
         }
         
         # NEXT, return the document
@@ -639,7 +640,8 @@ snit::type ::projectlib::scenariodb {
             if {$opts(-clear)} {
                 $db clear
             } else {
-                foreach {table content} $data {
+                foreach {tableSpec content} $data {
+                    lassign $tableSpec table tag
                     if {[$db exists "PRAGMA table_info('$table')"]} {
                         $db eval "DELETE FROM $table;"                
                     }
