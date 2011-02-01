@@ -11,6 +11,22 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.7, 1 February 2011</h3>
+
+This build contains several small changes, and one huge one: the first
+implementation of actor tactics and conditions.  There are only two
+tactic types and one condition type, and one of the tactic types isn't
+fully functional; however, the GUI for create, browsing, and editing
+tactics and conditions is well advanced, and the architecture looks
+solid.  The full set of changes is as follows:<p>
+
+<ul>
+  <li> Bug 2740: athena_sim(1): Delete "::coop mutate reconcile"
+  <li> Bug 2756: scenariodb(n): Update tclimport/tclexport WRT Bug 2755
+  <li> Bug 2757: athena_sim(1): frcgroup mutate update leaves spurious defroe_ng records
+  <li> Bug 2790: athena_sim(1): Tactics and Conditions, Part I 
+</ul><p>
+
 <h3>Build 3.0.6, 4 January 2011</h3>
 
 This build begins the integration of the Mars Affinity Model into
