@@ -294,7 +294,7 @@ order ACTIVITY:PRIORITY "Prioritize Scheduled Activity" {
     <</parm>>
 
     <<parm priority "Priority">>
-    <b>Required only.</b>  The item's new priority with respect to
+    <b>Required.</b>  The item's new priority with respect to
     other activities having the same group and neighborhood of origin.
     Possible values are <b>top</b>, <b>bottom</b>, <b>raise</b>, and
     <b>lower</b>.  The values <b>top</b> and <b>bottom</b> give the
@@ -526,6 +526,146 @@ order ATTRIT:UNIT "Magic Attrit Unit" {
 
     <<ATTRIT.general>>
 }
+
+#=======================================================================
+# Condition Orders
+
+page CONDITION: "Condition Orders" orders {
+    <<title>>
+
+    A <<term condition>> is a Boolean predicate that can be
+    attached to a <<term tactic>> or <<term goal>>.
+    There are many different types of condition, each of
+    which has its own "CREATE" and "UPDATE" orders; other orders are
+    shared by all condition types.<p>
+
+    The general condition orders and condition types are as follows:<p>
+
+    <<childlinks>>
+} 
+
+macro CONDITION.ctactic {} {
+    |<--
+    [parm tactic_id "Tactic ID"]
+    <b>Required.</b>  The ID of the tactic to which this condition
+    is attached.
+    [/parm]
+}
+
+macro CONDITION.utactic {} {
+    |<--
+    [parm tactic_id "Tactic ID"]
+    <b>Display Only.</b>  The ID of the tactic to which this condition
+    belongs. This parameter is displayed in the order dialog as an aid 
+    to the user.
+    [/parm]
+}
+
+macro CONDITION.id {} {
+    |<--
+    [parm condition_id "Condition ID"]
+    <b>Required.</b> The ID of the condition to be updated.
+    [/parm]
+}
+
+order CONDITION:DELETE "Delete Condition" {
+    <<parmlist>>
+
+    <<parm condition_id "Condition ID">>
+    <b>Required.</b>  The ID of an existing condition.
+    <</parm>>
+
+    <<parm condition_type "Condition Type">>
+    <b>Display Only.</b>  The condition's type.  
+    This parameter is displayed in the order dialog as an aid to the
+    user.
+    <</parm>>
+
+    <<CONDITION.utactic>>
+    
+    <</parmlist>>
+
+    Deletes the condition.
+}
+
+order CONDITION:STATE "Set Condition State" {
+    <<parmlist>>
+
+    <<parm condition_id "Condition ID">>
+    <b>Required.</b>  The ID of an existing condition.
+    <</parm>>
+
+    <<parm state "State">>
+    <b>Required.</b>  The condition's new state, one of: <b>normal</b>,
+    <b>disabled</b>, or <b>invalid</b>.
+    <</parm>>
+
+    <</parmlist>>
+
+    Sets the condition's state.  Note that this order is for internal use
+    by the application; there is no associated order dialog.
+}
+
+
+#-----------------------------------------------------------------------
+# Condition: CASH
+
+page CONDITION:CASH: "Condition: Cash on hand" CONDITION: {
+    <<title>>
+
+    This condition compares the actor's cash-on-hand with a 
+    user-specified amount.  The actor's cash-on-hand is the
+    amount of money the actor has available to fund
+    tactics.<p>
+
+    The condition orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:CASH:CREATE "Create Condition: Cash on hand" {
+    <<parmlist>>
+    <<CONDITION.ctactic>>
+
+    <<parm text1 "Comparison">>
+    <b>Required.</b>  The kind of comparision being done: a value from
+    the following table:<p>
+
+    <<enumdoc ::projectlib::ecomparator>>
+    <</parm>>
+
+    <<parm x1 "Amount">>
+    <b>Required.</b>  The amount of cash to which the actor's
+    cash on hand will be compared.
+    <</parm>>
+    <</parmlist>>
+
+    Creates the condition.
+}
+
+order CONDITION:CASH:UPDATE "Update Condition: Cash on hand" {
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.utactic>>
+
+    <<parm text1 "Comparison">>
+    <b>Optional.</b>  The kind of comparision being done: a value from
+    the following table:<p>
+
+    <<enumdoc ::projectlib::ecomparator>>
+    <</parm>>
+
+    <<parm x1 "Amount">>
+    <b>Optional.</b>  The amount of cash to which the actor's
+    cash on hand will be compared.
+    <</parm>>
+    <</parmlist>>
+
+    <</parmlist>>
+
+    Allows the user to edit the condition.
+}
+
 
 #=======================================================================
 # Cooperation Orders
@@ -3174,6 +3314,274 @@ order SIM:PAUSE "Pause Simulation" {
     at the end of the current tick if it's in the middle of a tick.<p>
 
     This order is usually triggered by the "pause" button in the GUI.
+}
+
+
+#=======================================================================
+# Tactic Orders
+
+page TACTIC: "Tactic Orders" orders {
+    <<title>>
+
+    A <<term tactic>> is an action an <<term actor>> can choose to 
+    carry out.  There are many different types of tactic, each of
+    which has its own "CREATE" and "UPDATE" orders; other orders are
+    shared by all tactic types.<p>
+
+    The general tactic orders and tactic types are as follows:<p>
+
+    <<childlinks>>
+} 
+
+macro TACTIC.cowner {} {
+    |<--
+    [parm owner "Owner"]
+    <b>Required.</b>  The ID of the actor to which this tactic
+    belongs.
+    [/parm]
+}
+
+macro TACTIC.uowner {} {
+    |<--
+    [parm owner "Owner"]
+    <b>Display Only.</b>  The ID of the actor to which this tactic
+    belongs. This parameter is displayed in the order dialog as an aid 
+    to the  user.
+    [/parm]
+}
+
+macro TACTIC.id {} {
+    |<--
+    [parm tactic_id "Tactic ID"]
+    <b>Required.</b> The ID of the tactic to be updated.
+    [/parm]
+}
+
+macro TACTIC.priority {} {
+    |<--
+    [parm priority "Priority"]
+    <b>Optional.</b>  Indicates the initial priority of this tactic.
+    If <b>top</b>, the tactic will have priority over all other
+    tactics for this actor;; if <b>bottom</b>, it will have the lowest
+    priority.  The priority can then be changed using the
+    <<cref TACTIC:PRIORITY>> order.
+    [/parm]
+}
+
+order TACTIC:DELETE "Delete Tactic" {
+    <<parmlist>>
+
+    <<parm tactic_id "Tactic ID">>
+    <b>Required.</b>  The ID of an existing tactic.
+    <</parm>>
+
+    <<parm owner "Owner">>
+    <b>Display Only.</b>  The ID of the actor that owns this tactic.
+    This parameter is displayed in the order dialog as an aid to the
+    user.
+    <</parm>>
+
+    <<parm tactic_type "Tactic Type">>
+    <b>Display Only.</b>  The tactic's type.  
+    This parameter is displayed in the order dialog as an aid to the
+    user.
+    <</parm>>
+    
+    <</parmlist>>
+
+    Deletes the tactic.
+}
+
+order TACTIC:PRIORITY "Set Tactic Priority" {
+    <<parmlist>>
+
+    <<parm tactic_id "Tactic ID">>
+    <b>Required.</b>  The ID of an existing tactic.
+    <</parm>>
+
+    <<parm owner "Owner">>
+    <b>Display Only.</b>  The ID of the actor that owns this tactic.
+    This parameter is displayed in the order dialog as an aid to the
+    user.
+    <</parm>>
+
+    <<parm tactic_type "Tactic Type">>
+    <b>Display Only.</b>  The tactic's type.  
+    This parameter is displayed in the order dialog as an aid to the
+    user.
+    <</parm>>
+
+    <<parm priority "Priority">>
+    <b>Required.</b>  The tactic's new priority with respect to
+    other tactics belonging to the same <<term actor>>.
+    Possible values are <b>top</b>, <b>bottom</b>, <b>raise</b>, and
+    <b>lower</b>.  The values <b>top</b> and <b>bottom</b> give the
+    tactic the highest or lowest priority among the actor's
+    tactics; the values <b>raise</b> and <b>lower</b> move the tactic
+    up or down one step.
+    <</parm>>
+
+    <</parmlist>>
+
+    Sets the tactic's priority.  Note that this order is usually sent
+    implicitly via buttons on the <<tabref Strategy>>.
+}
+
+
+order TACTIC:STATE "Set Tactic State" {
+    <<parmlist>>
+
+    <<parm tactic_id "Tactic ID">>
+    <b>Required.</b>  The ID of an existing tactic.
+    <</parm>>
+
+    <<parm state "State">>
+    <b>Required.</b>  The tactic's new state, one of: <b>normal</b>,
+    <b>disabled</b>, or <b>invalid</b>.
+    <</parm>>
+
+    <</parmlist>>
+
+    Sets the tactic's state.  Note that this order is for internal use
+    by the application; there is no associated order dialog.
+}
+
+
+#-----------------------------------------------------------------------
+# Tactic: DEFEND
+
+page TACTIC:DEFEND: "Tactic: Set Defensive ROE" TACTIC: {
+    <<title>>
+
+    This tactic sets the defensive <<term roe>> for uniformed force groups
+    belonging to an <<term actor>>.<p>
+
+    Defending ROEs determine how a uniformed force group responds to
+    attack by a non-uniformed force group: do they shoot back, and if
+    so under what conditions.  As such, it has no direct costs, either
+    in dollars or personnel.<p>
+
+    Every uniformed force group has an automatically-created Defending
+    ROE in every neighborhood; the ROE defaults to
+    <b>FIRE_BACK_IF_PRESSED</b>.  This tactic adjusts the ROE
+    according to the actor's <<term condition>>s.<p>
+
+    The tactic orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+macro DEFEND.roe {} {
+    |<--
+    The ROE proper, one of the following values:<p>
+
+    [enumdoc ::projectlib::edefroeuf]
+
+    If the ROE is <b>HOLD_FIRE</b>, then the group will never fire
+    back at attackers.  If the ROE is <b>FIRE_BACK_IF_PRESSED</b>,
+    then the group will fire back only if the attacker continues to
+    press the attack after the initial engagement.  That is, the group
+    will <i>not</i> fire back if the attacker does a hit-and-run.  If
+    the ROE is <b>FIRE_BACK_IMMEDIATELY</b>, the group will always
+    fire back at its attackers.<p>
+
+    Note that the number of civilian casualties depends on whether or
+    not the group fires back at its attackers.
+}
+
+order TACTIC:DEFEND:CREATE "Create Tactic: Set Defensive ROE" {
+    <<parmlist>>
+    <<TACTIC.cowner>>
+
+    <<parm g "Defending Group">>
+    <b>Required.</b>  The ID of a uniformed force group belonging to
+    the <i>owner</i>.
+    <</parm>>
+
+    <<parm n "In Neighborhood">>
+    <b>Required.</b>  The neighborhood for which the ROE will be
+    set.
+    <</parm>>
+
+    <<parm text1 "ROE">>
+    <b>Required.</b>  <<DEFEND.roe>>
+    <</parm>>
+
+    <<TACTIC.priority>>
+    <</parmlist>>
+
+    Creates the tactic.
+}
+
+order TACTIC:DEFEND:UPDATE "Update Tactic: Set Defensive ROE" {
+    <<parmlist>>
+    <<TACTIC.id>>
+    <<TACTIC.uowner>>
+
+    <<parm g "Defending Group">>
+    <b>Display Only.</b>  The ID of a uniformed force group belonging to
+    the <i>owner</i>.
+    This parameter is displayed in the order dialog as an aid to the
+    user.
+    <</parm>>
+
+    <<parm n "In Neighborhood">>
+    <b>Display only.</b>  The neighborhood for which the ROE will be
+    set.
+    This parameter is displayed in the order dialog as an aid to the
+    user.
+    <</parm>>
+
+    <<parm text1 "ROE">>
+    <b>Required.</b>  <<DEFEND.roe>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Allows the user to edit the tactic.
+}
+
+#-----------------------------------------------------------------------
+# Tactic: SAVEMONEY
+
+page TACTIC:SAVEMONEY: "Tactic: Save Money" TACTIC: {
+    <<title>>
+
+    This tactic allows the actor to reserve a percentage of his weekly
+    income for later use.
+
+    <<childlinks>>
+}
+
+order TACTIC:SAVEMONEY:CREATE "Create Tactic: Save Money" {
+    <<parmlist>>
+    <<TACTIC.cowner>>
+
+    <<parm int1 "Percent of Income">>
+    <b>Required.</b> The percentage of the actor's income to save, as
+    an integer from 0 to 100.
+    <</parm>>
+
+    <<TACTIC.priority>>
+    <</parmlist>>
+
+    Creates the tactic.
+}
+
+
+order TACTIC:SAVEMONEY:UPDATE "Update Tactic: Save Money" {
+    <<parmlist>>
+    <<TACTIC.id>>
+    <<TACTIC.uowner>>
+
+    <<parm int1 "Percent of Income">>
+    <b>Required.</b> The percentage of the actor's income to save, as
+    an integer from 0 to 100.
+    <</parm>>
+
+    <</parmlist>>
+
+    Allows the user to edit the tactic.
 }
 
 #=======================================================================

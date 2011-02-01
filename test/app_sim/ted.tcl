@@ -30,30 +30,32 @@ snit::type ted {
     # a test.
 
     typevariable cleanupTables {
+        activity_nga
         actors
-        nbhoods
-        nbrel_mn
-        groups
-        civgroups
-        frcgroups
-        orggroups
-        rel_fg
-        coop_fg
-        attroe_nfg
-        defroe_ng
+        actsits_t
         attrit_nf
         attrit_nfg
-        units
-        situations
-        ensits_t
-        actsits_t
-        demsits_t
-        demog_local
-        demog_g
-        mads
+        attroe_nfg
         calendar
-        activity_nga
+        civgroups
+        conditions
+        coop_fg
+        defroe_ng
+        demog_g
+        demog_local
+        demsits_t
+        ensits_t
+        frcgroups
+        groups
+        mads
+        nbhoods
+        nbrel_mn
+        orggroups
         personnel_ng
+        rel_fg
+        situations
+        tactics
+        units
     }
 
     # cleanupModules -- list of modules that need to be resync'd
@@ -168,13 +170,15 @@ snit::type ted {
         defentity JOE ::actor {
             a        JOE
             longname "Joe the Actor"
-            budget   1000000
+            income   10000
+            cash     200000
         }
 
         defentity BOB ::actor {
             a        BOB
             longname "Bob the Actor"
-            budget   100000
+            income   5000
+            cash     150000
         }
 
         # Civ Groups
@@ -581,7 +585,7 @@ snit::type ted {
     # whitespace.
 
     typemethod query {sql} {
-        return "\n[rdb query $sql]    "
+        return "\n[rdb query $sql -maxcolwidth 80]    "
     }
 
     #-------------------------------------------------------------------
@@ -791,6 +795,25 @@ snit::type ted {
         return $out
     }
 
+    # pdict dict
+    #
+    # dict - A dictionary
+    # 
+    # Pretty-prints a dictionary for use in -result
+
+    typemethod pdict {dict} {
+        set results "\n"
+
+        set wid [lmaxlen [dict keys $dict]]
+
+        foreach {key value} $dict {
+            append results \
+                "        [format {%-*s %s} $wid $key [list $value]]\n" 
+        }
+        append results "    "
+                    
+        return $results
+    }
 
 }
 

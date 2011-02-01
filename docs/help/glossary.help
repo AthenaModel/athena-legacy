@@ -57,6 +57,17 @@ term activity "activity" {
     is delivered with the software.
 }
 
+#-----------------------------------------------------------------------
+
+term actor "actor" {
+    An <i>actor</i> is a significant decision-maker in the 
+    region of interest.  An actor uses <<term tactic>>s to
+    achieve <<term goal>>s subject to certain 
+    <<term condition>>s.  Collectively, this is called the
+    actor's <<term strategy>>; it is browsed and edited on 
+    the <<tabref Strategy>>.
+}
+
 
 #-----------------------------------------------------------------------
 
@@ -252,6 +263,19 @@ term concern "concern" {
     <</topic>>
 
     <</topiclist>><p>
+}
+
+#-----------------------------------------------------------------------
+
+term condition "condition" {
+    A <i>condition</i> is a Boolean predicate that can be evaluated
+    to return a true or false value.  The value of a condition
+    depends on the condition's input parameters and on the state
+    of the simulation as a whole.<p>
+
+    Conditions can be attached to an <<term actor>>'s
+    <<term goal>>s and <<term tactic>>s on the
+    <<tabref Strategy>>.
 }
 
 #-----------------------------------------------------------------------
@@ -463,6 +487,15 @@ term frcgroup "force group" {
     personnel must be assigned to neighborhoods on the 
     <<tabref Plan/Force Levels>> and assigned to
     <<term activity "activities">> on the <<tabref Plan/Schedule>>.
+}
+
+#-----------------------------------------------------------------------
+
+term goal "goal" {
+    A <i>goal</i> is a state of affairs that an <<term actor>> wishes to 
+    bring about or maintain.  A goal is defined by a set of 
+    <<term condition>>s.  Goals are browsed and edited on
+    the <<tabref Strategy>>.
 }
 
 #-----------------------------------------------------------------------
@@ -876,12 +909,33 @@ term state "state" {
 
 #-----------------------------------------------------------------------
 
+term strategy "strategy" {
+    An <<term actor>>'s <i>strategy</i> is the collection of 
+    <<term tactic>>s he will use to achieve his 
+    <<term goal>>s, along with the set of <<term condition>>s
+    under which he will use them.  The actor's strategy is
+    browsed and edited on the <<tabref Strategy>>.
+}
+
+
+#-----------------------------------------------------------------------
+
 term sapop "subsistence agriculture population" {
     That part of the population that lives by subsistence agriculture,
     whether farming or herding, and hence does not participate in the
     cash economy.  Athena assumes that there is a hard line between
     the subsistence farmers and the <<term consumer>>s, although there
     is certainly some overlap in reality.
+}
+
+#-----------------------------------------------------------------------
+
+term tactic "tactic" {
+    A <i>tactic</i> is an action an <<term actor>> can take
+    in order to meet his <<term goal>>s.  An actor will
+    execute a tactic when sufficient assets are available and
+    all attached <<term condition>>s are met.  Tactics are browsed and 
+    edited on the <<tabref Strategy>>.
 }
 
 #-----------------------------------------------------------------------

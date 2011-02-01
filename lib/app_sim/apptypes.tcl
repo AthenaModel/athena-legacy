@@ -13,6 +13,19 @@
 #
 #-----------------------------------------------------------------------
 
+# Priority tokens
+
+enum ePrioSched {
+    top    "Top Priority"
+    bottom "Bottom Priority"
+}
+
+enum ePrioUpdate {
+    top    "To Top"
+    raise  "Raise"
+    lower  "Lower"
+    bottom "To Bottom"
+}
 
 # esimstate: The current simulation state
 

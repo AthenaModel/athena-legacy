@@ -35,10 +35,10 @@ snit::widget appwin {
         "3 days"         3
         "4 days"         4
         "5 days"         5
-        "10 days"       10
-        "15 days"       15
-        "20 days"       20
-        "25 days"       25
+        "7 days"         7
+        "14 days"       14
+        "21 days"       21
+        "28 days"       28
         "30 days"       30
         "45 days"       45
         "60 days"       60
@@ -93,6 +93,12 @@ snit::widget appwin {
             label "Map"
             parent ""
             script { mapviewer %W -width 600 -height 400 }
+        }
+
+        strategy {
+            label "Strategy"
+            parent ""
+            script { strategybrowser %W }
         }
 
         plant {
@@ -936,7 +942,7 @@ snit::widget appwin {
             -takefocus 0                      \
             -values    [dict keys $durations]
 
-        $win.toolbar.duration set [lindex [dict keys $durations] 1]
+        $win.toolbar.duration set [lindex [dict keys $durations] 6]
 
         DynamicHelp::add $win.toolbar.duration -text "Duration of run"
 

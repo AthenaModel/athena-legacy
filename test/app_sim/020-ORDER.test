@@ -116,9 +116,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-id tick zulu         name          narrative                      parmdict                   
--- ---- ------------ ------------- ------------------------------ -------------------------- 
-1  1    110000ZJAN10 PERSONNEL:SET Assign 10 BLUE personnel, t... id {NB1 BLUE} personnel 10 
+id tick zulu         name          narrative                                      parmdict                   
+-- ---- ------------ ------------- ---------------------------------------------- -------------------------- 
+1  1    110000ZJAN10 PERSONNEL:SET Assign 10 BLUE personnel, total, to nbhood NB1 id {NB1 BLUE} personnel 10 
     }
 
 
@@ -179,9 +179,9 @@ id tick zulu         name          narrative                      parmdict
     } -cleanup {
         cleanup
     } -result {
-id tick zulu         name          narrative                      parmdict                   
--- ---- ------------ ------------- ------------------------------ -------------------------- 
-1  0    100000ZJAN10 PERSONNEL:SET Assign 10 BLUE personnel, t... id {NB1 BLUE} personnel 10 
+id tick zulu         name          narrative                                      parmdict                   
+-- ---- ------------ ------------- ---------------------------------------------- -------------------------- 
+1  0    100000ZJAN10 PERSONNEL:SET Assign 10 BLUE personnel, total, to nbhood NB1 id {NB1 BLUE} personnel 10 
     }
 
 
@@ -315,9 +315,9 @@ BLUE-NB1/0000 10
     } -cleanup {
         cleanup
     } -result {
-id tick zulu         name          narrative                      parmdict                   
--- ---- ------------ ------------- ------------------------------ -------------------------- 
-1  1    110000ZJAN10 PERSONNEL:SET Assign 10 BLUE personnel, t... id {NB1 BLUE} personnel 10 
+id tick zulu         name          narrative                                      parmdict                   
+-- ---- ------------ ------------- ---------------------------------------------- -------------------------- 
+1  1    110000ZJAN10 PERSONNEL:SET Assign 10 BLUE personnel, total, to nbhood NB1 id {NB1 BLUE} personnel 10 
     }
 
     test CANCEL-2.4 {::order <Queue> on undo} -setup {

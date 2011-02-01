@@ -100,7 +100,8 @@ snit::type actor {
     #
     #    a              The actor's ID
     #    longname       The actor's long name
-    #    budget         The actor's yearly budget
+    #    income         The actor's income per tactics tock
+    #    cash           The actor's cash-on-hand (starting balance)
     #
     # Creates an actor given the parms, which are presumed to be
     # valid.
@@ -110,8 +111,8 @@ snit::type actor {
             # FIRST, Put the actor in the database
             rdb eval {
                 INSERT INTO 
-                actors(a,  longname,  budget)
-                VALUES($a, $longname, $budget)
+                actors(a,  longname,  income,  cash)
+                VALUES($a, $longname, $income, $cash)
             }
 
             # NEXT, create a matching bsystem entity
@@ -175,7 +176,8 @@ snit::type actor {
     #
     #    a              An actor short name
     #    longname       A new long name, or ""
-    #    budget         A new budget, or ""
+    #    income         A new income, or ""
+    #    cash           A new cash balance, or ""
     #
     # Updates a actor given the parms, which are presumed to be
     # valid.
@@ -189,7 +191,8 @@ snit::type actor {
             rdb eval {
                 UPDATE actors
                 SET longname  = nonempty($longname,  longname),
-                    budget    = nonempty($budget,    budget)
+                    income    = nonempty($income,    income),
+                    cash      = nonempty($cash,      cash)
                 WHERE a=$a;
             } {}
 
@@ -213,12 +216,14 @@ order define ACTOR:CREATE {
 
     parm a         text   "Actor"
     parm longname  text   "Long Name"
-    parm budget    text   "Budget $/Yr"          -defval 0
+    parm income    text   "Income $/week"         -defval 0
+    parm cash      text   "Cash-on-hand $"        -defval 0
 } {
     # FIRST, prepare and validate the parameters
     prepare a        -toupper   -required -unused -type ident
     prepare longname -normalize
-    prepare budget   -toupper                     -type money
+    prepare income   -toupper                     -type money
+    prepare cash     -toupper                     -type money
 
     returnOnError -final
 
@@ -286,12 +291,14 @@ order define ACTOR:UPDATE {
     parm a         key    "Actor"         \
         -table gui_actors -key a -tags actor
     parm longname  text   "Long Name"
-    parm budget    text   "Budget $/Yr"
+    parm income    text   "Income $/week"
+    parm cash      text   "Cash-on-hand $"
 } {
     # FIRST, prepare the parameters
     prepare a         -toupper   -required -type actor
     prepare longname  -normalize
-    prepare budget    -toupper             -type money
+    prepare income    -toupper             -type money
+    prepare cash      -toupper             -type money
 
     returnOnError -final
 

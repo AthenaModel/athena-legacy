@@ -43,9 +43,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-a   longname      budget    
---- ------------- --------- 
-JOE Joe the Actor 1000000.0 
+a   longname      income  cash     
+--- ------------- ------- -------- 
+JOE Joe the Actor 10000.0 200000.0 
     }
 
     test create-1.2 {bsystem entity is created} -body {
@@ -98,9 +98,9 @@ JOE Joe the Actor 1000000.0
     } -cleanup {
         cleanup
     } -result {
-a   longname      budget    
---- ------------- --------- 
-JOE Joe the Actor 1000000.0 
+a   longname      income  cash     
+--- ------------- ------- -------- 
+JOE Joe the Actor 10000.0 200000.0 
     }
 
     test delete-3.1 {Bsystem entity deleted} -setup {
@@ -184,16 +184,17 @@ JOE Joe the Actor 1000000.0
         actor mutate update {
             a            JOE
             longname     "Joe the Actress"
-            budget       0.0
+            income       5
+            cash         0
         }
 
         ted query {SELECT * FROM actors}
     } -cleanup {
         cleanup
     } -result {
-a   longname        budget 
---- --------------- ------ 
-JOE Joe the Actress 0.0    
+a   longname        income cash 
+--- --------------- ------ ---- 
+JOE Joe the Actress 5.0    0.0  
     }
 
 
@@ -292,18 +293,23 @@ JOE Joe the Actress 0.0
     test get-1.1 {get actor dict} -setup {
         ted create JOE
     } -body {
-        actor get JOE
+        ted pdict [actor get JOE]
     } -cleanup {
         cleanup
-    } -result {longname {Joe the Actor} a JOE budget 1000000.0}
+    } -result {
+        longname {Joe the Actor}
+        a        JOE
+        cash     200000.0
+        income   10000.0
+    }
 
     test get-1.2 {get actor attribute} -setup {
         ted create JOE
     } -body {
-        actor get JOE budget
+        actor get JOE income
     } -cleanup {
         cleanup
-    } -result {1000000.0}
+    } -result {10000.0}
 
 
     #-------------------------------------------------------------------

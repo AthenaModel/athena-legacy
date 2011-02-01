@@ -1,0 +1,338 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-condition.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    condition(sim) tests.
+#
+#    This test suite tests the condition(sim) mutators and queries
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create JOE BOB NB1 NB2 BLUE BRIT
+        ted order TACTIC:SAVEMONEY:CREATE owner JOE int1 10
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        rdb nullvalue ""
+        array unset parms
+        ted cleanup
+    }
+
+    proc mkupdate {condition_id parms} {
+        set dict {
+            text1 ""
+            x1    ""
+        }
+
+        dict set dict condition_id $condition_id
+        return [dict merge $dict $parms]
+    }
+
+    # Standard Conditions
+    
+    set S1 {
+        tactic_id      1
+        condition_type CASH
+        text1          GT
+        x1             10000
+    }
+
+    set S2 {
+        tactic_id      1
+        condition_type CASH
+        text1          LT
+        x1             20000
+    }
+
+    #-------------------------------------------------------------------
+    # mutate create
+
+    test create-1.1 {condition is created} -setup {
+        setup
+    } -body {
+        condition mutate create $S1
+        ted query {SELECT * FROM conditions}
+    } -cleanup {
+        cleanup
+    } -result {
+condition_id condition_type tactic_id narrative                                    state  text1 x1      
+------------ -------------- --------- -------------------------------------------- ------ ----- ------- 
+1            CASH           1         Actor's cash-on-hand is greater than $10,000 normal GT    10000.0 
+    }
+
+    test create-2.1 {undo deletes the condition} -setup {
+        setup
+        set undo [condition mutate create $S1]
+    } -body {
+        namespace eval :: $undo
+        rdb eval {SELECT * FROM conditions}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    #-------------------------------------------------------------------
+    # mutate delete
+
+    test delete-1.1 {Condition is deleted} -setup {
+        setup
+        condition mutate create $S1
+        condition mutate create $S2
+    } -body {
+        condition mutate delete 1
+
+        rdb eval {SELECT condition_id FROM conditions}
+    } -cleanup {
+        cleanup
+    } -result {2}
+
+    test delete-2.1 {Undo restores condition} -setup {
+        setup
+        condition mutate create $S1
+        condition mutate create $S2
+        set undo [condition mutate delete 2]
+    } -body {
+        namespace eval :: $undo
+        ted query {SELECT * FROM conditions}
+    } -cleanup {
+        cleanup
+    } -result {
+condition_id condition_type tactic_id narrative                                    state  text1 x1      
+------------ -------------- --------- -------------------------------------------- ------ ----- ------- 
+1            CASH           1         Actor's cash-on-hand is greater than $10,000 normal GT    10000.0 
+2            CASH           1         Actor's cash-on-hand is less than $20,000    normal LT    20000.0 
+    }
+
+    #-------------------------------------------------------------------
+    # mutate update
+
+    test update-1.1 {condition is updated} -setup {
+        setup
+        condition mutate create $S2
+    } -body {
+        condition mutate update [mkupdate 1 {
+            x1  5000
+        }]
+
+        # This verifies both that requested changes are made, and
+        # that NULL columns remain NULL.
+        ted query {SELECT * FROM conditions}
+    } -cleanup {
+        cleanup
+    } -result {
+condition_id condition_type tactic_id narrative                                   state  text1 x1     
+------------ -------------- --------- ------------------------------------------- ------ ----- ------ 
+1            CASH           1         Actor's cash-on-hand is less than $5,000.00 normal LT    5000.0 
+    }
+
+    test update-1.2 {empty values are OK} -setup {
+        setup
+        condition mutate create $S2
+    } -body {
+        set a [ted query {SELECT * FROM conditions}]
+
+        condition mutate update [mkupdate 1 {}]
+
+        set b [ted query {SELECT * FROM conditions}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-2.1 {undo undoes the change} -setup {
+        setup
+        condition mutate create $S2
+    } -body {
+
+        set a [ted query {SELECT * FROM conditions}]
+
+        set undo [condition mutate update [mkupdate 1 {
+            text1        EQ
+            x1           1000
+        }]]
+
+        namespace eval :: $undo
+
+        set b [ted query {SELECT * FROM conditions}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # mutate state
+
+    test state-1.1 {condition state is changed} -setup {
+        setup
+        condition mutate create $S2
+    } -body {
+        condition mutate state 1 disabled
+
+        # This verifies both that requested changes are made, and
+        # that NULL columns remain NULL.
+        ted query {SELECT condition_id,state FROM conditions}
+    } -cleanup {
+        cleanup
+    } -result {
+condition_id state    
+------------ -------- 
+1            disabled 
+    }
+
+
+    test state-2.1 {undo undoes the change} -setup {
+        setup
+        condition mutate create $S2
+    } -body {
+
+        set a [ted query {SELECT * FROM conditions}]
+
+        set undo [condition mutate state 1 disabled]
+
+        namespace eval :: $undo
+
+        set b [ted query {SELECT * FROM conditions}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # names
+
+    test names-1.1 {Returns names: none defined} -body {
+        condition names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test names-1.2 {Returns names} -setup {
+        setup
+        condition mutate create $S1
+        condition mutate create $S2
+    } -body {
+        condition names
+    } -cleanup {
+        cleanup
+    } -result {1 2}
+
+
+    #-------------------------------------------------------------------
+    # validate
+
+    test validate-1.1 {Invalid ID: none defined} -body {
+        condition validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid condition ID: "NONESUCH"}
+
+    test validate-2.1 {Valid name} -setup {
+        setup
+        condition mutate create $S1
+    } -body {
+        condition validate 1
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # get
+
+    proc setup_get {} {
+        variable S2
+        setup
+        condition mutate create $S2
+    }
+
+    test get-1.1 {get condition dict} -setup {
+        setup_get
+    } -body {
+        ted pdict [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {
+        narrative      {Actor's cash-on-hand is less than $20,000}
+        tactic_id      1
+        condition_type CASH
+        x1             20000.0
+        state          normal
+        text1          LT
+        condition_id   1
+    }
+
+    test get-1.2 {get parameter} -setup {
+        setup_get
+    } -body {
+        condition get 1 text1
+    } -cleanup {
+        cleanup
+    } -result {LT}
+
+
+    #-------------------------------------------------------------------
+    # CASH Ensemble
+
+    test CASH-1.1 {narrative} -setup {
+        setup
+        condition mutate create $S2
+    } -body {
+        condition::CASH narrative [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {Actor's cash-on-hand is less than $20,000}
+
+    test CASH-2.1 {eval} -setup {
+        setup
+        condition mutate create $S2
+    } -body {
+        condition::CASH eval [condition get 1] JOE
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

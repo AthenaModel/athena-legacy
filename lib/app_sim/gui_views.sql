@@ -46,8 +46,24 @@ CREATE TEMPORARY VIEW gui_actors AS
 SELECT a                  AS id,
        a                  AS a,
        longname           AS longname,
-       moneyfmt(budget)   AS budget
+       moneyfmt(income)   AS income,
+       moneyfmt(cash)     AS cash
 FROM actors;
+
+-- GUI Conditions Views
+
+CREATE TEMPORARY VIEW gui_conditions_CASH AS
+SELECT condition_id      AS id,
+       condition_id      AS condition_id,
+       condition_type    AS condition_type,
+       tactic_id         AS tactic_id,
+       narrative         AS narrative,
+       state             AS state,
+       text1             AS text1,
+       moneyfmt(x1)      AS x1
+FROM conditions
+WHERE condition_type = 'CASH';
+
 
 
 -- A CIV Groups view for use by the GUI

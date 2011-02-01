@@ -62,12 +62,40 @@ attitude change.<p>
 <<::projectlib::ecause html>>
 
 
+<<defitem ecomparator {ecomparator <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing a variety of comparisons
+used by Athena conditions.  The data fields used by the comparison
+vary according to the comparator and the condition type.<p>
+
+<<::projectlib::ecomparator html>>
+
+
 <<defitem econcern {econcern <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing the concerns
 of groups for which satisfaction is tracked.<p>
 
 <<::projectlib::econcern html>>
+
+
+<<defitem econdition_state {econdition_state <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the current state of a
+condition.  A "normal" condition can be evaluated.  A "disabled" condition has
+been disabled by the user.  An "invalid" condition has failed its sanity
+check, and currently cannot be evaluated.<p>
+
+<<::projectlib::econdition_state html>>
+
+
+<<defitem econdition_type {econdition_type <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the list of
+condition types supported by Athena.  See the Athena Analyst's Guide
+for a catalog of condition types, with descriptions.<p>
+
+<<::projectlib::econdition_type html>>
 
 
 <<defitem edamrule {edamrule <i>subcommand</i> ?<i>args</i>?}>>
@@ -120,6 +148,25 @@ An <<xref mars:enum(n)>> type, representing the current state of a
 situation.<p>
 
 <<::projectlib::esitstate html>>
+
+
+<<defitem etactic_state {etactic_state <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the current state of a
+tactic.  A "normal" tactic can be executed.  A "disabled" tactic has
+been disabled by the user.  An "invalid" tactic has failed its sanity
+check, and is currently unusable.<p>
+
+<<::projectlib::etactic_state html>>
+
+
+<<defitem etactic_type {etactic_type <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the list of
+tactic types supported by Athena.  See the Athena Analyst's Guide
+for a catalog of tactic types, with descriptions.<p>
+
+<<::projectlib::etactic_type html>>
 
 
 <<defitem eurbanization {eurbanization <i>subcommand</i> ?<i>args</i>?}>>

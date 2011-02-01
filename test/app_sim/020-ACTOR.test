@@ -31,16 +31,16 @@ namespace eval ::athena_test::tests:: {
     set joe {
         a        JOE
         longname "Joe the Actor"
-        budget   1000000
+        income   10000
+        cash     200000
     }
 
     set bob {
         a        BOB
         longname "Bob the Actor"
-        budget   100000
+        income   5000
+        cash     150000
     }
-
-
 
     # Clean up after a test
 
@@ -78,16 +78,25 @@ namespace eval ::athena_test::tests:: {
         a {Identifiers begin with a letter and contain only letters and digits.}
     }
 
-    test CREATE-1.4 {invalid budget} -body {
+    test CREATE-1.4 {invalid income} -body {
         ted order -reject ACTOR:CREATE [dict merge $joe {
-            budget NONESUCH
+            income NONESUCH
         }]
     } -cleanup {
         cleanup
     } -result {
-        budget {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+        income {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
     
+    test CREATE-1.5 {invalid cash} -body {
+        ted order -reject ACTOR:CREATE [dict merge $joe {
+            cash NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        cash {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
 
 
     test CREATE-2.1 {actor is created} -body {
@@ -97,9 +106,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-a   longname      budget    
---- ------------- --------- 
-JOE Joe the Actor 1000000.0 
+a   longname      income  cash     
+--- ------------- ------- -------- 
+JOE Joe the Actor 10000.0 200000.0 
     }
 
 
@@ -110,9 +119,9 @@ JOE Joe the Actor 1000000.0
     } -cleanup {
         cleanup
     } -result {
-a   longname budget    
---- -------- --------- 
-JOE JOE      1000000.0 
+a   longname income  cash     
+--- -------- ------- -------- 
+JOE JOE      10000.0 200000.0 
     }
 
     test CREATE-2.3 {effects} -body {
@@ -191,14 +200,24 @@ JOE JOE      1000000.0
     }
 
     
-    test UPDATE-1.2 {invalid budget} -setup {
+    test UPDATE-1.2 {invalid income} -setup {
         ted create JOE
     } -body {
-        ted order -reject ACTOR:UPDATE a JOE budget NONESUCH
+        ted order -reject ACTOR:UPDATE a JOE income NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        budget {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+        income {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test UPDATE-1.2 {invalid cash} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:UPDATE a JOE cash NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        cash {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
     test UPDATE-2.1 {actor is updated} -setup {
@@ -207,16 +226,17 @@ JOE JOE      1000000.0
         ted order ACTOR:UPDATE {
             a            JOE
             longname     "Joe the Actress"
-            budget       0
+            income       0
+            cash         10
         }
 
         ted query {SELECT * FROM actors}
     } -cleanup {
         cleanup
     } -result {
-a   longname        budget 
---- --------------- ------ 
-JOE Joe the Actress 0.0    
+a   longname        income cash 
+--- --------------- ------ ---- 
+JOE Joe the Actress 0.0    10.0 
     }
 
 

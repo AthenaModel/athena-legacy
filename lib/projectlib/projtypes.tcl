@@ -14,48 +14,53 @@
 # Export public commands
 
 namespace eval ::projectlib:: {
-    namespace export  \
-        boolean       \
-        eattroe       \
-        eattroenf     \
-        eattroeuf     \
-        ecause        \
-        ecivconcern   \
-        econcern      \
-        edamrule      \
-        edamruleset   \
-        edefroeuf     \
-        edemeanor     \
-        eensit        \
-        eforcetype    \
-        efrcactivity  \
-        eorgactivity  \
-        eorgconcern   \
-        eorgtype      \
-        esitstate     \
-        eurbanization \
-        eunitshape    \
-        eunitsymbol   \
-        eyesno        \
-        idays         \
-        ident         \
-        ingpopulation \
-        ioptdays      \
-        ipercent      \
-        ipositive     \
-        iquantity     \
-        leensit       \
-        polygon       \
-        qsecurity     \
-        ratrend       \
-        rdtrend       \
-        rdays         \
-        rgain         \
-        rnomcoverage  \
-        rnonneg       \
-        rrate         \
-        typewrapper   \
-        unitname      \
+    namespace export     \
+        boolean          \
+        eattroe          \
+        eattroenf        \
+        eattroeuf        \
+        ecause           \
+        ecivconcern      \
+        ecomparator      \
+        econcern         \
+        econdition_type  \
+        econdition_state \
+        edamrule         \
+        edamruleset      \
+        edefroeuf        \
+        edemeanor        \
+        eensit           \
+        eforcetype       \
+        efrcactivity     \
+        eorgactivity     \
+        eorgconcern      \
+        eorgtype         \
+        esitstate        \
+        etactic_type     \
+        etactic_state    \
+        eurbanization    \
+        eunitshape       \
+        eunitsymbol      \
+        eyesno           \
+        idays            \
+        ident            \
+        ingpopulation    \
+        ioptdays         \
+        ipercent         \
+        ipositive        \
+        iquantity        \
+        leensit          \
+        polygon          \
+        qsecurity        \
+        ratrend          \
+        rdtrend          \
+        rdays            \
+        rgain            \
+        rnomcoverage     \
+        rnonneg          \
+        rrate            \
+        typewrapper      \
+        unitname         \
         weight
 }
 
@@ -525,6 +530,45 @@ snit::type ::projectlib::typewrapper {
     ENDED    Ended
 }
 
+# Tactic Type
+
+::marsutil::enum ::projectlib::etactic_type {
+    DEFEND    "Defend"
+    SAVEMONEY "Save Money"
+}
+
+# Tactic State
+
+::marsutil::enum ::projectlib::etactic_state {
+    normal   "normal"
+    disabled "disabled"
+    invalid  "invalid"
+}
+
+
+# Condition Type.  Conditions are attached to
+# tactics (and possibly other things).
+
+::marsutil::enum ::projectlib::econdition_type {
+    CASH      "Cash-on-hand"
+}
+
+# Condition State.
+
+::marsutil::enum ::projectlib::econdition_state {
+    normal   "normal"
+    disabled "disabled"
+    invalid  "invalid"
+}
+
+
+# Comparator Type.  Used in conditions
+
+::marsutil::enum ::projectlib::ecomparator {
+    EQ "equal to"
+    GT "greater than"
+    LT "less than"
+}
 
 # Urbanization Level
 ::marsutil::enum ::projectlib::eurbanization {

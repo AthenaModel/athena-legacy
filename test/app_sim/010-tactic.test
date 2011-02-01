@@ -1,0 +1,535 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-tactic.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    tactic(sim) tests.
+#
+#    This test suite tests the tactic(sim) mutators and queries
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create JOE BOB NB1 NB2 BLUE BRIT
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        rdb nullvalue ""
+        array unset parms
+        ted cleanup
+    }
+
+    # Dump priorities
+    proc dumpPriority {} {
+        return [ted query {
+            SELECT tactic_id,tactic_type,owner,priority
+            FROM tactics ORDER BY priority
+        }]
+    }
+
+    proc mkupdate {tactic_id parms} {
+        set dict {
+            m     ""
+            n     ""
+            f     ""
+            g     ""
+            text1 ""
+            int1  ""
+        }
+
+        dict set dict tactic_id $tactic_id
+        return [dict merge $dict $parms]
+    }
+
+    # Standard Tactics
+    
+    set T1 {
+        tactic_type SAVEMONEY
+        owner       JOE
+        priority    top
+        m           ""
+        n           ""
+        f           ""
+        g           ""
+        text1       ""
+        int1        10
+    }
+
+    set T2 {
+        tactic_type DEFEND
+        owner       JOE
+        priority    top
+        m           ""
+        n           NB1
+        f           ""
+        g           BLUE
+        text1       HOLD_FIRE
+        int1        ""
+    }
+
+    set T3 {
+        tactic_type DEFEND
+        owner       JOE
+        priority    top
+        m           ""
+        n           NB2
+        f           ""
+        g           BRIT
+        text1       HOLD_FIRE
+        int1        ""
+    }
+
+    #-------------------------------------------------------------------
+    # mutate create
+
+    test create-1.1 {tactic is created} -setup {
+        setup
+    } -body {
+        tactic mutate create $T1
+        ted query {SELECT * FROM tactics}
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id tactic_type owner narrative                        priority state  exec_ts exec_flag m n f g text1 int1 
+--------- ----------- ----- -------------------------------- -------- ------ ------- --------- - - - - ----- ---- 
+1         SAVEMONEY   JOE   Save 10% of income for later use 1        normal @       0         @ @ @ @ @     10   
+    }
+
+    test create-1.2 {priority is set} -setup {
+        setup
+    } -body {
+        tactic mutate create $T1
+        tactic mutate create $T2
+
+        # T2 should appear before T1
+        dumpPriority
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id tactic_type owner priority 
+--------- ----------- ----- -------- 
+2         DEFEND      JOE   1        
+1         SAVEMONEY   JOE   2        
+    }
+
+    test create-1.3 {priority defaults to bottom if unset} -setup {
+        setup
+    } -body {
+        tactic mutate create [dict merge $T1 {priority ""}]
+        tactic mutate create [dict merge $T2 {priority ""}]
+
+        dumpPriority
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id tactic_type owner priority 
+--------- ----------- ----- -------- 
+1         SAVEMONEY   JOE   1        
+2         DEFEND      JOE   2        
+    }
+
+
+
+    test create-2.1 {undo deletes the tactic} -setup {
+        setup
+        set undo [tactic mutate create $T1]
+    } -body {
+        namespace eval :: $undo
+        rdb eval {SELECT * FROM tactics}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test create-2.2 {undo resets priorities} -setup {
+        setup
+        tactic mutate create $T1
+        set undo [tactic mutate create $T2]
+    } -body {
+        namespace eval :: $undo
+        dumpPriority
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id tactic_type owner priority 
+--------- ----------- ----- -------- 
+1         SAVEMONEY   JOE   1        
+    }
+
+    #-------------------------------------------------------------------
+    # mutate delete
+
+    test delete-1.1 {Tactic is deleted} -setup {
+        setup
+        tactic mutate create $T1
+        tactic mutate create $T2
+    } -body {
+        tactic mutate delete 1
+
+        rdb eval {SELECT tactic_id FROM tactics}
+    } -cleanup {
+        cleanup
+    } -result {2}
+
+    test delete-2.1 {Undo restores tactic} -setup {
+        setup
+        tactic mutate create $T1
+        tactic mutate create $T2
+        set undo [tactic mutate delete 2]
+    } -body {
+        namespace eval :: $undo
+        ted query {SELECT * FROM tactics ORDER BY priority}
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id tactic_type owner narrative                                    priority state  exec_ts exec_flag m n   f g    text1     int1 
+--------- ----------- ----- -------------------------------------------- -------- ------ ------- --------- - --- - ---- --------- ---- 
+2         DEFEND      JOE   Group BLUE defends in NB1 with ROE HOLD_FIRE 1        normal @       0         @ NB1 @ BLUE HOLD_FIRE @    
+1         SAVEMONEY   JOE   Save 10% of income for later use             2        normal @       0         @ @   @ @    @         10   
+    }
+
+    test delete-3.1 {Condition is deleted} -setup {
+        setup
+        tactic mutate create $T1
+        ted order CONDITION:CASH:CREATE \
+            tactic_id 1 text1 LT x1 500
+    } -body {
+        tactic mutate delete 1
+
+        rdb eval {SELECT condition_id FROM conditions}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-3.2 {Condition is restored on undo} -setup {
+        setup
+        tactic mutate create $T1
+        ted order CONDITION:CASH:CREATE \
+            tactic_id 1 text1 LT x1 500
+
+        set undo [tactic mutate delete 1]
+    } -body {
+        namespace eval :: $undo
+        rdb eval {SELECT condition_id FROM conditions}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # mutate update
+
+    test update-1.1 {tactic is updated} -setup {
+        setup
+        tactic mutate create $T2
+    } -body {
+        tactic mutate update [mkupdate 1 {
+            text1      FIRE_BACK_IMMEDIATELY
+        }]
+
+        # This verifies both that requested changes are made, and
+        # that NULL columns remain NULL.
+        ted query {SELECT * FROM tactics}
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id tactic_type owner narrative                                                priority state  exec_ts exec_flag m n   f g    text1                 int1 
+--------- ----------- ----- -------------------------------------------------------- -------- ------ ------- --------- - --- - ---- --------------------- ---- 
+1         DEFEND      JOE   Group BLUE defends in NB1 with ROE FIRE_BACK_IMMEDIATELY 1        normal @       0         @ NB1 @ BLUE FIRE_BACK_IMMEDIATELY @    
+    }
+
+    test update-1.2 {empty values are OK} -setup {
+        setup
+        tactic mutate create $T2
+    } -body {
+        set a [ted query {SELECT * FROM tactics}]
+
+        tactic mutate update [mkupdate 1 {}]
+
+        set b [ted query {SELECT * FROM tactics}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-2.1 {undo undoes the change} -setup {
+        setup
+        tactic mutate create $T2
+    } -body {
+
+        set a [ted query {SELECT * FROM tactics}]
+
+        set undo [tactic mutate update [mkupdate 1 {
+            roe          FIRE_BACK_IMMEDIATELY
+            n            NB2
+            g            BRIT
+        }]]
+
+        namespace eval :: $undo
+
+        set b [ted query {SELECT * FROM tactics}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # mutate state
+
+    test state-1.1 {tactic state is changed} -setup {
+        setup
+        tactic mutate create $T2
+    } -body {
+        tactic mutate state 1 disabled
+
+        # This verifies both that requested changes are made, and
+        # that NULL columns remain NULL.
+        ted query {SELECT tactic_id,state FROM tactics}
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id state    
+--------- -------- 
+1         disabled 
+    }
+
+
+    test state-2.1 {undo undoes the change} -setup {
+        setup
+        tactic mutate create $T2
+    } -body {
+
+        set a [ted query {SELECT * FROM tactics}]
+
+        set undo [tactic mutate state 1 disabled]
+
+        namespace eval :: $undo
+
+        set b [ted query {SELECT * FROM tactics}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # mutate priority
+
+    proc setup_priority {} {
+        variable T1
+        variable T2
+        variable T3
+        setup
+
+        # Create tactics with IDs 1, 2, and 3 such that the
+        # priority ordering is 1, 2, 3, to make changes easier
+        # to interpret.
+        tactic mutate create [dict merge $T1 {priority bottom}]
+        tactic mutate create [dict merge $T2 {priority bottom}]
+        tactic mutate create [dict merge $T3 {priority bottom}]
+    }
+
+    test priority-1.1 {item gets first priority} -setup {
+        setup_priority
+    } -body {
+        tactic mutate priority 3 top
+        
+        rdb eval {SELECT tactic_id FROM tactics ORDER BY priority}
+    } -cleanup {
+        cleanup
+    } -result {3 1 2}
+
+
+    test priority-1.2 {item priority is raised} -setup {
+        setup_priority
+    } -body {
+        tactic mutate priority 3 raise
+        
+        rdb eval {SELECT tactic_id FROM tactics ORDER BY priority}
+    } -cleanup {
+        cleanup
+    } -result {1 3 2}
+
+    test priority-1.3 {item priority is lowered} -setup {
+        setup_priority
+    } -body {
+        tactic mutate priority 1 lower
+        
+        rdb eval {SELECT tactic_id FROM tactics ORDER BY priority}
+    } -cleanup {
+        cleanup
+    } -result {2 1 3}
+
+    test priority-1.4 {item gets last priority} -setup {
+        setup_priority
+    } -body {
+        tactic mutate priority 1 bottom
+        
+        rdb eval {SELECT tactic_id FROM tactics ORDER BY priority}
+    } -cleanup {
+        cleanup
+    } -result {2 3 1}
+
+    test priority-2.1 {undo undoes the change.} -setup {
+        setup_priority
+    } -body {
+        set a [rdb eval {SELECT tactic_id FROM tactics ORDER BY priority}]
+
+        set undo [tactic mutate priority 1 bottom]
+
+        namespace eval :: $undo
+
+        set b [rdb eval {SELECT tactic_id FROM tactics ORDER BY priority}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # names
+
+    test names-1.1 {Returns names: none defined} -body {
+        tactic names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test names-1.2 {Returns names} -setup {
+        setup
+        tactic mutate create $T1
+        tactic mutate create $T2
+        tactic mutate create $T3
+    } -body {
+        tactic names
+    } -cleanup {
+        cleanup
+    } -result {1 2 3}
+
+
+    #-------------------------------------------------------------------
+    # validate
+
+    test validate-1.1 {Invalid ID: none defined} -body {
+        tactic validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid tactic ID: "NONESUCH"}
+
+    test validate-2.1 {Valid name} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic validate 1
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # get
+
+    proc setup_get {} {
+        variable T2
+        setup
+        tactic mutate create $T2
+    }
+
+    test get-1.1 {get tactic dict} -setup {
+        setup_get
+    } -body {
+        ted pdict [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {
+        state       normal
+        exec_ts     @
+        int1        @
+        narrative   {Group BLUE defends in NB1 with ROE HOLD_FIRE}
+        f           @
+        g           BLUE
+        tactic_type DEFEND
+        priority    1
+        owner       JOE
+        tactic_id   1
+        m           @
+        text1       HOLD_FIRE
+        exec_flag   0
+        n           NB1
+    }
+
+    test get-1.2 {get parameter} -setup {
+        setup_get
+    } -body {
+        tactic get 1 owner
+    } -cleanup {
+        cleanup
+    } -result {JOE}
+
+
+    #-------------------------------------------------------------------
+    # DEFEND Ensemble
+
+    test DEFEND-1.1 {narrative} -setup {
+        setup
+        tactic mutate create $T2
+    } -body {
+        tactic::DEFEND narrative [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Group BLUE defends in NB1 with ROE HOLD_FIRE}
+
+    #-------------------------------------------------------------------
+    # SAVEMONEY Ensemble
+
+    test SAVEMONEY-1.1 {narrative} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::SAVEMONEY narrative [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Save 10% of income for later use}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

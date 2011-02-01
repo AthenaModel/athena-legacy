@@ -211,6 +211,132 @@ tab "Map" {
 }
 
 #=======================================================================
+# Strategy Tab
+
+tab "Strategy" {
+    The Strategy tab is where the analyst browses and edits each
+    <<term actor>>'s <<term strategy>>: the actor's <<term goal>>s
+    and the collection of <<term tactic>>s the actor will use to 
+    achieve them.<p>
+
+    The Strategy tab shows the strategy for one actor at a time.  It
+    consists of several panes, each with its own controls:<p>
+
+    <ul>
+    <li> <b>The Actor List</b>: A list of all of the actors in the
+    simulation.  Selecting an actor in the list displays the actor's
+    strategy in the other panes.</li>
+
+    <li> <b>The <<cref tactics_tree>></b>:  This pane shows the actor's
+    tactics in priority order, along with all attached conditions.
+    The analyst creates, edits, and browses tactics in this pane.</li>
+
+    <li> <b>The <<cref goals_tree>></b>: TBD</li>
+    </ul>
+}
+
+page tactics_tree "Tactics Tree" tabs/Strategy {
+    <<title>>
+
+    The Tactics Tree shows the <<term tactic>>s currently defined for
+    the <<term actor>> shown in the Actor List, along with all
+    attached <<term condition>>s.  It 
+    consists of a tool bar containing controls used in creating,
+    editing, and manipulating tactics and conditions, and an outline
+    view of the actor's tactics in priority order with the conditions
+    attached to each tactic indented underneath.  The user can expand
+    or collapse each tactic to show or hide the attached
+    conditions.<p>
+
+    TBD: link to description of tactic selection algorithm.<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Tactic/Condition">>
+    A narrative description of each tactic and condition, preceded by
+    a status icon.  For tactics, the icon is a green checkmark if the
+    tactic was selected for execution at the last tactics tock.  For
+    conditions, the icon indicates whether or not the condition is 
+    currently met.<p>
+
+    A button at the left margin allows tactics to be expand to reveal
+    their attached conditions.
+    <</topic>>
+
+    <<topic "Last Exec">>
+    <b>Tactics only.</b> The <<term zulu>> at which the tactic last
+    executed.
+    <</topic>>
+
+    <<topic "$">> 
+    <b>Tactics only.</b> The estimated cost, in dollars, of executing the
+    tactic.  Note that the actual cost may differ.<p>
+    <</topic>>
+
+    <<topic "Pers.">> 
+    <b>Tactics only.</b> The estimated number of personnel required to 
+    execute the tactic.<p>
+    <</topic>>
+
+    <<topic "Id">> The tactic or condition ID, a number that uniquely
+    identifies the tactic or condition.<p>
+    <</topic>>
+
+    <<topic "Type">> The tactic or condition type.<p>
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Tree Controls:</a></b>  The tree's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic "TBD: Plus/T icon">>
+    Create a new tactic.
+    <</topic>>
+
+    <<topic "TBD: Plus/C icon">>
+    Create a new condition for the currently selected tactic.
+    <</topic>>
+
+    <<topic {<img src="button_pencil">}>>
+    Pops up the update dialog for the selected tactic or condition.
+    <</topic>>
+
+    <<topic {<img src="button_totop">}>>
+    Gives the selected tactic item top priority over all other tactics
+    for the selected actor.
+    <</topic>>
+
+    <<topic {<img src="button_raise">}>>
+    Raises the priority of the selected tactic by one notch, 
+    putting it just above its immediate predecessor.
+    <</topic>>
+
+    <<topic {<img src="button_lower">}>>
+    Lowers the priority of the selected tactic by one notch, 
+    putting it just below its immediate successor.
+    <</topic>>
+
+    <<topic {<img src="button_tobottom">}>>
+    Gives the selected tactic bottom priority below all other tactics
+    scheduled for the same actor.
+    <</topic>>
+
+    <<topic "TBD: On/Off icon">>
+    Toggles the selected tactic on and off.  Disabled tactics are
+    crossed out with an overstrike.
+    <</topic>>
+
+    <<topic {<img src="button_x">}>>
+    Deletes the selected tactic or condition.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+#=======================================================================
 # Plan Tab
 
 tab "Plan" {

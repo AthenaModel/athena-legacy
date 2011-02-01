@@ -1365,6 +1365,18 @@ snit::type ::projectlib::parmdb {
         # NEXT, define rmf parameters
         $ps slave add [list ::simlib::rmf parm]
 
+        # Tactics Model parameters
+
+        $ps subset tactics {
+            Parameters which affect the Athena Tactics Model.
+        }
+
+        $ps define tactics.ticksPerTock ::projectlib::ipositive 7 {
+            Defines the size of the tactics model "tock", in ticks.  
+            At each tock, Athena selects the tactics to be executed
+            during the next interval.
+        }
+
         # NEXT, destroy tempdb
         $tempdb destroy
     }

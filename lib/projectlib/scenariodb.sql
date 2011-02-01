@@ -160,8 +160,13 @@ CREATE TABLE actors (
     -- Full actor name
     longname    TEXT,
 
-    -- Yearly budget, in $
-    budget      DOUBLE DEFAULT 0
+    -- Income/tactics tock, in $.
+    -- TBD: A present this is an input; later it will be computed.
+    income      DOUBLE DEFAULT 0,
+
+    -- Cash-on-hand, in $.
+    -- Unspent cash accumulates from tock to tock.
+    cash        DOUBLE DEFAULT 0
 );
 
 ------------------------------------------------------------------------
@@ -257,6 +262,90 @@ CREATE TABLE orggroups (
 -- Org Group View: joins groups with orggroups.
 CREATE VIEW orggroups_view AS
 SELECT * FROM groups JOIN orggroups USING (g);
+
+------------------------------------------------------------------------
+-- Tactics Table
+--
+-- The tactics table stores the tactics in use by the various actors.
+
+CREATE TABLE tactics (
+    tactic_id    INTEGER PRIMARY KEY,
+    tactic_type  TEXT, -- TBD: Could reference a tactics_type table
+    
+    -- Owning Actor
+    owner        TEXT REFERENCES actors(a)
+                 ON DELETE CASCADE
+                 DEFERRABLE INITIALLY DEFERRED, 
+
+    -- Narrative: different tactics use different sets of parameters, 
+    -- so a conventional browser of all of the columns is 
+    -- user-unfriendly.  Instead, we compute a narrative string.
+    narrative    TEXT,
+
+    -- Priority: This is used to place each actor's tactics in 
+    -- order of execution.
+    priority     INTEGER,
+
+    -- State: normal, disabled, invalid (etactic_state)
+    state        TEXT DEFAULT 'normal',
+
+    -- time of last execution, in ticks
+    exec_ts      INTEGER,
+
+    -- Flag: 1 if tactic was selected for execution at the last tactics 
+    -- tock, and 0 otherwise.
+    exec_flag    INTEGER DEFAULT 0,
+
+    -- Type-specific Parameters: These columns are used in different
+    -- ways by different tactics; all are NULL if unused.
+
+    -- Neighborhoods; use n first.
+    m            TEXT REFERENCES nbhoods(n)
+                 ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, 
+
+    n            TEXT REFERENCES nbhoods(n)
+                 ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, 
+
+    -- Groups; use g first.
+    f            TEXT REFERENCES groups(g)
+                 ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+
+    g            TEXT REFERENCES groups(g)
+                 ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+
+    -- Data items
+    text1        TEXT,
+    int1         INTEGER
+);
+
+------------------------------------------------------------------------
+-- Conditions Table
+--
+-- The conditions table stores the conditions in use by the various actors.
+
+CREATE TABLE conditions (
+    condition_id   INTEGER PRIMARY KEY,
+    condition_type TEXT, -- econdition_type(n)
+    
+    -- Owning tactic
+    tactic_id      INTEGER REFERENCES tactics(tactic_id)
+                   ON DELETE CASCADE
+                   DEFERRABLE INITIALLY DEFERRED, 
+
+    -- Narrative: different conditions use different sets of parameters, 
+    -- so a conventional browser of all of the columns is 
+    -- user-unfriendly.  Instead, we compute a narrative string.
+    narrative     TEXT,
+
+    -- State: normal, disabled, invalid (econdition_state)
+    state         TEXT DEFAULT 'normal',
+
+    -- Type-specific Parameters: These columns are used in different
+    -- ways by different conditions; all are NULL if unused.
+
+    text1         TEXT,
+    x1            REAL
+);
 
 ------------------------------------------------------------------------
 -- Personnel Table

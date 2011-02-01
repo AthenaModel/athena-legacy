@@ -1236,7 +1236,13 @@ snit::type sim {
         # NEXT, execute eventq events
         eventq advance [simclock now]
 
+        # NEXT, execute tactics tock, if any.
+        if {[simclock now] % [parmdb get tactics.ticksPerTock] == 0} {
+            profile tactic tock
+        }
+
         # NEXT, do staffing.
+        # TBD: It's not clear how staffing relates to tactics.
         activity analyze staffing
 
         # NEXT, pause if it's the pause time, or checks failed.
@@ -1402,22 +1408,45 @@ order define SIM:LOCK {
     title "Lock Scenario Preparation"
     options -sendstates {PREP}
 } {
-    # FIRST, do the sanity check.
+    # FIRST, do the scenario sanity check.
     if {![sim check onlock -log]} {
         reject * {
             Scenario sanity check failed; time cannot advance.
             Fix the error, and try again.
-            Please see the log for details.
-        }
-
-        if {[interface] eq "gui"} {
-            [app topwin] tab view slog
+            Please see the Reports tab for details.
         }
 
         returnOnError
     }
 
     returnOnError -final
+
+    # NEXT, do the tactics sanity check.
+    if {![tactic check]} {
+        set answer \
+            [messagebox popup \
+                 -title         "Tactic Sanity Check Failed"     \
+                 -icon          warning                          \
+                 -buttons       {ok "Continue" cancel "Cancel"}  \
+                 -default       cancel                           \
+                 -ignoretag     tactic_check_failed              \
+                 -ignoredefault ok                               \
+                 -parent        [app topwin]                     \
+                 -message       [normalize {
+                     One or more of your actor's tactics are invalid.
+                     These tactics have been disabled; details are
+                     to be found on the Reports tab and in the
+                     Strategy browser.  Press
+                     "Continue" to go ahead and lock the scenario;
+                     or press "Cancel" if you wish to fix the
+                     problems first.
+                 }]]
+
+        if {$answer eq "cancel"} {
+            # Don't do anything.
+            return
+        }
+    }
 
     # NEXT, lock scenario prep.
     lappend undo [sim mutate lock]

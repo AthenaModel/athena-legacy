@@ -237,6 +237,12 @@ returns a pretty-printed REJECT dictionary; otherwise, the rejection
 doesn't follow the protocol.  On any other kind of error,
 <<iref ted order>> propagates the error.<p>
 
+<<defitem "ted pdict" {ted pdict <i>dict</i>}>>
+
+Pretty-prints a dictionary, with keys and values in left-justified
+parallel columns, indented to look nice in the <b>-result</b> of a
+test.<p>
+
 <<defitem "ted schedule" {ted schedule ?-reject? <i>timespec name parmdict</i>}>>
 
 Schedules the order with the specified <i>name</i> and <i>parmdict</i>

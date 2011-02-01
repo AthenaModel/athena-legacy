@@ -76,6 +76,7 @@ snit::type scenario {
         rdb monitor add attroe_nfg   {n f g}
         rdb monitor add calendar     {cid}
         rdb monitor add civgroups    {g}
+        rdb monitor add conditions   {condition_id}
         rdb monitor add coop_fg      {f g}
         rdb monitor add defroe_ng    {n g}
         rdb monitor add econ_n       {n}
@@ -91,6 +92,7 @@ snit::type scenario {
         rdb monitor add rel_fg       {f g}
         rdb monitor add sat_gc       {g c}
         rdb monitor add situations   {s}
+        rdb monitor add tactics      {tactic_id}
         rdb monitor add units        {u}
 
         InitializeRuntimeData
@@ -609,6 +611,17 @@ snit::type scenario {
 
         # NEXT, define the GUI Views
         rdb eval [readfile [file join $::app_sim::library gui_views.sql]]
+
+        # NEXT, define tactic type views
+        set sql ""
+        foreach ttype [etactic_type names] {
+            append sql "
+                CREATE VIEW tactics_$ttype AS
+                SELECT * FROM tactics WHERE tactic_type='$ttype';
+            "
+        }
+
+        rdb eval $sql
     }
 
 

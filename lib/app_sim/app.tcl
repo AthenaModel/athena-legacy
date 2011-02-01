@@ -192,6 +192,23 @@ snit::type app {
             [::sim state] ne "RUNNING"
         }
 
+        # Simulation state is PREP or PAUSED
+
+        statecontroller ::cond::simPrepPaused -events {
+            ::sim <State>
+        } -condition {
+            [::sim state] in {PREP PAUSED}
+        }
+
+        # Simulation state is PREP or PAUSED, plus browser predicate
+
+        statecontroller ::cond::simPP_predicate -events {
+            ::sim <State>
+        } -condition {
+            [::sim state] in {PREP PAUSED} &&
+            [$browser {*}$predicate]
+        }
+
         # Order is valid.
         #
         # Objdict:   order   THE:ORDER:NAME
