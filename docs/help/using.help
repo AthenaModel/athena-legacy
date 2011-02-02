@@ -193,8 +193,10 @@ page using.simcontrols "Simulation Controls" using {
     <</topic>>
 
     <<topic {<img src="control_speed">}>>
-    Athena is a time-step simulation; it executes tick-by-tick.
-    During each tick, the simulation runs as fast as possible; between
+    Athena is a time-step simulation; it executes day-by-day.  The
+    processing done each as it runs each day is called the 
+    <<term tick>>.  During each tick, the simulation runs as fast as
+    possible; between
     ticks it delays for a moment to allow the user to interact with
     the GUI.  The speed slider controls the length of this delay: the
     faster the speed, the shorter the delay.<p>
@@ -221,22 +223,21 @@ page using.simcontrols "Simulation Controls" using {
     Athena displays the current <<term state>> on the simulation
     control toolbar.  When the state is <b>Running</b>, the stop time
     is also shown; when the state is <b>Snapshot</b>, the simulation
-    time (in ticks) of the current snapshot is also shown.
+    time (in days) of the current snapshot is also shown.
     <</topic>>
 
     <<topic {<img src="control_simtime">}>>
     The current simulation time is shown as a <<term zulu>>.
     <</topic>>
 
+    <<topic {TBD: need image}>>
+    The current simulation time is shown in days.
+    <</topic>>
+
     <<topic {<img src="control_weekday">}>>
     The current week day (in simulation time): Su, M, T, W, Th, F, Sa.
     <</topic>>
     
-    <<topic {<img src="control_simtick">}>>
-    The current simulation time is shown in ticks.
-    <</topic>>
-
-
     <</topiclist>>
 
 }

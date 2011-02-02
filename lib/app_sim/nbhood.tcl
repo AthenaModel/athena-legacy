@@ -612,7 +612,7 @@ order define NBHOOD:UPDATE {
         -sendstates PREP                              \
         -refreshcmd {::orderdialog refreshForKey n *}
 
-    parm n            key  "Neighborhood"         -table gui_nbhoods \
+    parm n            key   "Select Neighborhood" -table gui_nbhoods \
                                                   -key   n           \
                                                   -tags  nbhood
     parm longname     text  "Long Name"

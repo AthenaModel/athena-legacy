@@ -288,7 +288,7 @@ order define ACTOR:UPDATE {
         -sendstates PREP                             \
         -refreshcmd {orderdialog refreshForKey a *}
 
-    parm a         key    "Actor"         \
+    parm a         key    "Select Actor"         \
         -table gui_actors -key a -tags actor
     parm longname  text   "Long Name"
     parm income    text   "Income $/week"

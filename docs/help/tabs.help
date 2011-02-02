@@ -372,7 +372,8 @@ tab "Plan/Force Levels" {
     <<topic "Zulu">>The <<term zulu>> at which the order will execute.
     <</topic>>
 
-    <<topic "Tick">>The time <<term tick>> at which the order will execute.
+    <<topic "Day">>The simulation <<term day>> on which the order will
+    execute.
     <</topic>>
 
     <<topic "Narrative">>A human-readable description of the order,
@@ -2486,7 +2487,8 @@ tab "Orders/Scheduled" {
 
     <<topic "ID">>The ID of the scheduled order.<</topic>>
 
-    <<topic "Tick">>The time <<term tick>> at which the order will execute.
+    <<topic "Day">>The simulation <<term day>> on which the order will
+    execute.
     <</topic>>
 
     <<topic "Zulu">>The <<term zulu>> at which the order will execute.
@@ -2534,7 +2536,7 @@ tab "Orders/Sent" {
 
     <<topic "ID">>The ID of the sent order.<</topic>>
 
-    <<topic "Tick">>The time <<term tick>> at which the order was sent.
+    <<topic "Day">>The simulation <<term day>> on which the order was sent.
     <</topic>>
 
     <<topic "Zulu">>The <<term zulu>> at which the order was sent.

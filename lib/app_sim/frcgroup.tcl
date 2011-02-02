@@ -439,7 +439,7 @@ order define FRCGROUP:UPDATE {
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey g *}
 
-    parm g          key   "Group"                \
+    parm g          key   "Select Group"        \
         -table gui_frcgroups -key g -tags group 
     parm longname   text  "Long Name"
     parm a          enum  "Owning Actor"       -type actor

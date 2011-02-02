@@ -364,7 +364,7 @@ order define CIVGROUP:UPDATE {
         -sendstates PREP                             \
         -refreshcmd {orderdialog refreshForKey g *}
 
-    parm g         key    "Group"         \
+    parm g         key    "Select Group"         \
         -table civgroups_view -key g -tags group
     parm longname  text   "Long Name"
     parm n         enum   "Nbhood"     -type nbhood
@@ -441,7 +441,7 @@ order define CIVGROUP:UPDATE:POSTPREP {
         -sendstates {PREP PAUSED}                   \
         -refreshcmd {orderdialog refreshForKey g *}
 
-    parm g         key    "Group"         \
+    parm g         key    "Select Group"         \
         -table civgroups_view -key g -tags group
     parm sap       pct    "Subs. Agri. %"  
 } {

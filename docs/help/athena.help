@@ -60,7 +60,6 @@ image control_logsrch    "Control: Log Up/Down"        control_logsrch.png
 image control_logcnt     "Control: Log Count"          control_logcnt.png
 image control_logvcr     "Control: Log VCR"            control_logvcr.png
 image control_mapref     "Control: Map Ref"            control_mapref.png
-image control_simtick    "Control: Sim Tick"           control_simtick.png
 image control_simtime    "Control: Sim Time"           control_simtime.png
 image control_simvcr     "Control: Sim VCR"            control_simvcr.png
 image control_speed      "Control: Speed"              control_speed.png

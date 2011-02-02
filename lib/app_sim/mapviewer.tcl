@@ -636,9 +636,10 @@ snit::widget mapviewer {
                 set data [list point $ref]
             }
             
-            # NEXT, plot a point; mark existing points as old.
-            $canvas itemconfigure {transient&&point} -fill blue
+            # NEXT, Delete previous point
+            $canvas delete {transient&&point}
 
+            # NEXT, plot the new point
             lassign [$canvas ref2c $ref] cx cy
                 
             $canvas create oval [boxaround 3.0 $cx $cy] \

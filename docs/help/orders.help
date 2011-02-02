@@ -376,7 +376,7 @@ order ACTOR:DELETE "Delete Actor" {
 
 order ACTOR:UPDATE "Update Actor" {
     <<parmlist>>
-    <<parm a "Actor">>
+    <<parm a "Select Actor">>
     <b>Required.</b>  <<ACTOR.a>>
     <</parm>>
 
@@ -941,7 +941,7 @@ macro ENSIT.g {} {
 
 macro ENSIT.rduration {} {
     |<--
-    A duration, in integer ticks.  If positive, the
+    A duration, in integer days.  If positive, the
     situation will automatically be resolved at the end of the
     specified time. If 0, no auto-resolution will take place.<p>
 
@@ -1247,7 +1247,7 @@ order CIVGROUP:DELETE "Delete Civilian Group" {
 
 order CIVGROUP:UPDATE "Update Civilian Group" {
     <<parmlist>>
-    <<parm g "Group">>
+    <<parm g "Select Group">>
     <b>Required.</b>  <<GROUP.g civilian>>
     <</parm>>
 
@@ -1328,7 +1328,7 @@ order CIVGROUP:UPDATE+MULTI "Update Multiple Civilian Groups" {
 
 order CIVGROUP:UPDATE+POSTPREP "Update Civilian Group (Post-PREP)" {
     <<parmlist>>
-    <<parm g "Group">>
+    <<parm g "Select Group">>
     <b>Required.</b> <<GROUP.g civilian>>
     <</parm>>
 
@@ -1471,7 +1471,7 @@ order FRCGROUP:DELETE "Delete Force Group" {
 
 order FRCGROUP:UPDATE "Update Force Group" {
     <<parmlist>>
-    <<parm g "Group">>
+    <<parm g "Select Group">>
     <b>Required.</b>  <<GROUP.g force>>
     <</parm>>
 
@@ -1641,7 +1641,7 @@ order ORGGROUP:DELETE "Delete Organization Group" {
 
 order ORGGROUP:UPDATE "Update Organization Group" {
     <<parmlist>>
-    <<parm g "Group">>
+    <<parm g "Select Group">>
     <b>Required.</b>  <<GROUP.g organization>>
     <</parm>>
 
@@ -2433,7 +2433,7 @@ order NBHOOD:RAISE "Raise Neighborhood" {
 order NBHOOD:UPDATE "Update Neighborhood" {
     <<parmlist>>
 
-    <<parm n "Neighborhood">>
+    <<parm n "Select Neighborhood">>
     <b>Required.</b>  <<NBHOOD.n>>
     <</parm>>
 
@@ -3275,7 +3275,7 @@ order SIM:STARTDATE "Set Start Date" {
     <</parmlist>>
 
     <b><<cref using.prep>> Only.</b>  Athena generally reports
-    simulation time as a number of integer ticks and as a zulu-time.
+    simulation time as a number of integer days and as a zulu-time.
     This order determines how simulation time is translated to zulu-time.
 }
 
@@ -3310,8 +3310,9 @@ order SIM:RUN "Run Simulation" {
 
 order SIM:PAUSE "Pause Simulation" {
     Pauses the simulation at the next possible moment: immediately if
-    the simulation is waiting in the Tcl event loop between ticks, and
-    at the end of the current tick if it's in the middle of a tick.<p>
+    the simulation is waiting in the Tcl event loop between 
+    <<term tick>>s, and at the end of the current tick if it's in the 
+    middle of a tick.<p>
 
     This order is usually triggered by the "pause" button in the GUI.
 }

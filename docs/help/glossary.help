@@ -329,6 +329,28 @@ term damrules "DAM Rules" {
     defined in the Athena Rules document, delivered with the software.
 }
 
+term day "day" {
+    Athena measures simulation time in integer days; each day
+    represents one day of simulated calendar time.<p>
+
+    Athena does not track any time interval shorter than one day;
+    however, it is often convenient to speak of the sequence of
+    events during a simulated day in terms of <<term morning>>,
+    <<term noon>>, and <<term evening>>:<p>
+
+    Time can be thought to advance at midnight.  After the time
+    advance, in the "morning", Athena executes all scheduled orders,
+    and staffs <<term activity "activities">> from the available
+    personnel.  At "noon", if Athena enters the <b>PAUSED</b> state,
+    the user has the opportunity to send <<cref orders>>.  In the
+    "evening", the current state of affairs is assessed: 
+    <<term security>> and <<term coverage>> are computed, 
+    <<model dam>> rules fire, and so forth.  Then, at midnight,
+    time advances, and the cycle continues.<p>
+
+    See also <<term tick>>.
+}
+
 #-----------------------------------------------------------------------
 
 term demsit "demographic situation" {
@@ -401,8 +423,8 @@ term ensit "environmental situation" {
 #-----------------------------------------------------------------------
 
 term evening "evening" {
-    The end of a simulated day, when the current state of affairs is
-    assessed.  See <<term tick>>.
+    The end of a simulated <<term day>>, when the current state of affairs 
+    is assessed.
 }
 
 #-----------------------------------------------------------------------
@@ -606,9 +628,8 @@ term mood "mood" {
 #-------------------------------------------------------------------
 
 term morning "morning" {
-    The beginning of a simulated day, when scheduled orders are
+    The beginning of a simulated <<term day>>, when scheduled orders are
     executed and <<term activity "activities">> are staffed.  
-    See <<term tick>>.
 }
 
 
@@ -629,9 +650,9 @@ term nbhood "neighborhood" {
 #-------------------------------------------------------------------
 
 term noon "noon" {
-    The middle of a simulated day, when (if the simulation enters
+    The middle of a simulated <<term day>>, when (if the simulation enters
     the <b>PAUSED</b> state) the user has the opportunity to enter
-    <<cref orders>>.  See <<term tick>>.
+    <<cref orders>>.
 }
 
 #-----------------------------------------------------------------------
@@ -941,24 +962,14 @@ term tactic "tactic" {
 #-----------------------------------------------------------------------
 
 term tick "tick" {
-    Athena measures simulation time in integer ticks; each tick
-    represents one day of calendar time.<p>
+    Athena advances time <<term day>> by day; the processing done
+    for each day as the simulation runs is referred to as happening at or 
+    on the "tick".<p>
 
-    Athena does not track any time interval shorter than one day;
-    however, it is often convenient to speak of the sequence of
-    events during a simulated day in terms of <<term morning>>,
-    <<term noon>>, and <<term evening>>:<p>
-
-    Time can be thought to advance at midnight.  After the time
-    advance, in the "morning", Athena executes all scheduled orders,
-    and staffs <<term activity "activities">> from the available
-    personnel.  At "noon", if Athena enters the <b>PAUSED</b> state,
-    the user has the opportunity to send <<cref orders>>.  In the
-    "evening", the current state of affairs is assessed: 
-    <<term security>> and <<term coverage>> are computed, 
-    <<model dam>> rules fire, and so forth.  Then, at midnight,
-    time advances, and the cycle continues.<p>
-    
+    Some processing, such as computing attrition, happens every so
+    many times (typically seven days, or one week); this weekly
+    interval is sometimes referred to as the "tock", e.g., "attrition
+    is assessed every attrition tock".<p>
 }
 
 #-----------------------------------------------------------------------
@@ -966,18 +977,16 @@ term tick "tick" {
 term timespec "time specification string" {
     A time specification string identifies a particular simulation
     time.  It has the form "<i>baseTime</i> +/- <i>offset</i>", where
-    the offset is some number of ticks and the base time has one of
+    the offset is some number of days and the base time has one of
     the following forms:<p>
 
     <ul>
     <li> <b>T0</b>: Time zero, the beginning of the simulation.
     <li> <b>NOW</b>: The current simulation time.
-    <li> <b><i>ticks</i></b>: The time as some number of ticks since
+    <li> <b><i>days</i></b>: The time as some number of days since
          <b>T0</b>.
     <li> <b><i>zulu</i></b>: A <<term zulu>>.
     </ul><p>
-
-    <b>Note:</b> One tick is one day.<p>
 
     Either the base time or the offset may be omitted.  If the base
     time is omitted, it defaults to <b>NOW</b>; if the offset is
@@ -985,12 +994,19 @@ term timespec "time specification string" {
 
     <ul>
     <li> <b>NOW</b>: The current simulation time.
-    <li> <b>NOW+30</b>: 30 ticks (days) from now.
-    <li> <b>200000ZFEB10+7</b>: 7 ticks after 20 February 2010.
-    <li> <b>-5</b>: Five ticks ago
-    <li> <b>+5</b>: Five ticks from now 
+    <li> <b>NOW+30</b>: 30 days from now.
+    <li> <b>200000ZFEB10+7</b>: 7 days after 20 February 2010.
+    <li> <b>-5</b>: Five days ago
+    <li> <b>+5</b>: Five days from now 
     <li> <b>5</b>: Day five.
     </ul>
+}
+
+
+#-----------------------------------------------------------------------
+
+term tock "tock" {
+    See <<term tick>>.
 }
 
 #-----------------------------------------------------------------------
