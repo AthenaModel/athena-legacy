@@ -215,8 +215,7 @@ tactic_id tactic_type owner narrative                                    priorit
     test delete-3.1 {Condition is deleted} -setup {
         setup
         tactic mutate create $T1
-        ted order CONDITION:CASH:CREATE \
-            tactic_id 1 text1 LT x1 500
+        ted order CONDITION:CASH:CREATE co_id 1 a JOE text1 LT x1 500
     } -body {
         tactic mutate delete 1
 
@@ -228,8 +227,7 @@ tactic_id tactic_type owner narrative                                    priorit
     test delete-3.2 {Condition is restored on undo} -setup {
         setup
         tactic mutate create $T1
-        ted order CONDITION:CASH:CREATE \
-            tactic_id 1 text1 LT x1 500
+        ted order CONDITION:CASH:CREATE co_id 1 a JOE text1 LT x1 500
 
         set undo [tactic mutate delete 1]
     } -body {
@@ -508,6 +506,104 @@ tactic_id state
         cleanup
     } -result {Group BLUE defends in NB1 with ROE HOLD_FIRE}
 
+    test DEFEND-2.1 {check: n no longer exists} -setup {
+        setup
+        tactic mutate create $T2
+        rdb eval {DELETE FROM nbhoods WHERE n='NB1'}
+    } -body {
+        tactic::DEFEND check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Neighborhood NB1 no longer exists.}
+
+    test DEFEND-2.2 {check: g no longer exists} -setup {
+        setup
+        tactic mutate create $T2
+        rdb eval {DELETE FROM frcgroups WHERE g='BLUE'}
+    } -body {
+        tactic::DEFEND check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Force group BLUE no longer exists.}
+
+    test DEFEND-2.3 {check: g no longer owned by owner} -setup {
+        setup
+        tactic mutate create $T2
+        rdb eval {UPDATE frcgroups SET a=NULL}
+    } -body {
+        tactic::DEFEND check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Force group BLUE is no longer owned by actor JOE.}
+
+    test DEFEND-2.4 {check: g no longer uniformed} -setup {
+        setup
+        tactic mutate create $T2
+        rdb eval {UPDATE frcgroups SET uniformed=0}
+    } -body {
+        tactic::DEFEND check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Force group BLUE is no longer a uniformed force group.}
+
+    test DEFEND-2.5 {check: multiple failures} -setup {
+        setup
+        tactic mutate create $T2
+        rdb eval {UPDATE frcgroups SET a=NULL, uniformed=0}
+        rdb eval {DELETE FROM nbhoods WHERE n='NB1'}
+    } -body {
+        tactic::DEFEND check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Neighborhood NB1 no longer exists.  Force group BLUE is no longer owned by actor JOE.  Force group BLUE is no longer a uniformed force group.}
+
+    test DEFEND-3.1 {estdollars} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::DEFEND estdollars [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test DEFEND-4.1 {dollars} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::DEFEND dollars [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {0.0 0.0}
+
+    test DEFEND-5.1 {estpersonnel} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::DEFEND estpersonnel [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test DEFEND-6.1 {personnel_by_group} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::DEFEND personnel_by_group [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test DEFEND-7.1 {execute} -constraints tbd -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        # TBD: Execute doesn't do anything yet.
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+
     #-------------------------------------------------------------------
     # SAVEMONEY Ensemble
 
@@ -519,6 +615,66 @@ tactic_id state
     } -cleanup {
         cleanup
     } -result {Save 10% of income for later use}
+
+    test SAVEMONEY-2.1 {check: success} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::SAVEMONEY check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    # NOTE: check can't fail for this tactic
+
+    test SAVEMONEY-3.1 {estdollars} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::SAVEMONEY estdollars [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {1000.0}
+
+    test SAVEMONEY-4.1 {dollars} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::SAVEMONEY dollars [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {0.0 1000.0}
+
+    test SAVEMONEY-5.1 {estpersonnel} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::SAVEMONEY estpersonnel [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test SAVEMONEY-6.1 {personnel_by_group} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::SAVEMONEY personnel_by_group [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test SAVEMONEY-7.1 {execute} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        set a [actor get JOE cash]
+        tactic::SAVEMONEY execute [tactic get 1] 1000
+        set b [actor get JOE cash]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {200000.0 201000.0}
 
 
     #-------------------------------------------------------------------

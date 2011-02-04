@@ -8,6 +8,10 @@
 # DESCRIPTION:
 #    strategybrowser(sim) package: Actor/Goal/Tactic browser/editor
 #
+# TBD:
+# 
+#    * Perhaps Tree striping should be done lazily.
+#
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
@@ -19,6 +23,31 @@ snit::widget strategybrowser {
 
     typeconstructor {
         # Create icons
+        mkicon ::icon::addgoal {
+            ......................
+            ......................
+            ......................
+            .........XXXX.........
+            .........XXXX.........
+            .........XXXX.........
+            .........XXXX.........
+            .........XXXX.........
+            .........XXXX.........
+            ...XXXXXXXXXXXXXXXX...
+            ...XXXXXXXXXXXXXXXX...
+            ...XXXXXXXXXXXXXXXX...
+            ...XXXXXXXXXXXXXXXX...
+            .........XXXX.........
+            .........XXXX...XXXX..
+            .........XXXX..X......
+            .........XXXX..X..XX..
+            .........XXXX..X...X..
+            .........XXXX...XXXX..
+            ......................
+            ......................
+            ......................
+        } { . trans  X black } d { X gray }
+
         mkicon ::icon::addtactic {
             ......................
             ......................
@@ -128,21 +157,32 @@ snit::widget strategybrowser {
     #-------------------------------------------------------------------
     # Components
 
-    component reloader ;# timeout(n) that reloads content
+    component reloader       ;# timeout(n) that reloads content
 
-    component alist       ;# Actor sqlbrowser(n)
-    component tbar        ;# Tactics/Conditions toolbar
-    component taddbtn     ;# Add Tactic button
-    component caddbtn     ;# Add Condition button
-    component editbtn     ;# The "Edit" button
-    component topbtn      ;# The "Top Priority" button
-    component raisebtn    ;# The "Raise Priority" button
-    component lowerbtn    ;# The "Lower Priority" button
-    component bottombtn   ;# The "Bottom Priority" button
-    component togglebtn   ;# The tactic state toggle button
-    component deletebtn   ;# The Delete button
-    
-    component ttree    ;# Tactics/Conditions treectrl.
+    # AList: Actor List
+    component alist          ;# Actor sqlbrowser(n)
+
+    # GTree: Goal/Condition Tree
+    component gtree          ;# Goal treectrl
+    component gt_bar         ;# GTree toolbar
+    component gt_gaddbtn     ;# Add Goal button
+    component gt_caddbtn     ;# Add Condition button
+    component gt_editbtn     ;# The "Edit" button
+    component gt_togglebtn   ;# The Goal state toggle button
+    component gt_deletebtn   ;# The Delete button
+
+    # TTree: Tactic/Condition Tree
+    component ttree          ;# Tactics/Conditions treectrl.
+    component tt_bar         ;# Tactics/Conditions toolbar
+    component tt_taddbtn     ;# Add Tactic button
+    component tt_caddbtn     ;# Add Condition button
+    component tt_editbtn     ;# The "Edit" button
+    component tt_topbtn      ;# The "Top Priority" button
+    component tt_raisebtn    ;# The "Raise Priority" button
+    component tt_lowerbtn    ;# The "Lower Priority" button
+    component tt_bottombtn   ;# The "Bottom Priority" button
+    component tt_togglebtn   ;# The tactic state toggle button
+    component tt_deletebtn   ;# The Delete button
 
     #-------------------------------------------------------------------
     # Instance Variables
@@ -157,12 +197,17 @@ snit::widget strategybrowser {
         reloadRequests 0
     }
 
-    # tactic2item: array of $ttree tactic item IDs by tactic_id
-    variable tactic2item -array {}
+    # gt_g2i: array of GTree goal item IDs by goal_id
+    variable gt_g2item -array {}
 
-    # condition2item: array $ttree condition item IDs by condition_id
-    variable condition2item -array {}
-    
+    # gt_c2item: array of GTree condition item IDs by condition_id
+    variable gt_c2item -array {}
+
+    # tt_t2item: array of TTree tactic item IDs by tactic_id
+    variable tt_t2item -array {}
+
+    # tt_c2item: array TTree condition item IDs by condition_id
+    variable tt_c2item -array {}
 
     #--------------------------------------------------------------------
     # Constructor
@@ -175,31 +220,44 @@ snit::widget strategybrowser {
             -repetition no
 
         # NEXT, create the GUI components
-        ttk::panedwindow $win.atpaner \
+        ttk::panedwindow $win.hpaner \
             -orient horizontal
 
-        pack $win.atpaner -fill both -expand yes
+        pack $win.hpaner -fill both -expand yes
 
-        $self CreateActorList   $win.atpaner.alist
-        $self CreateTacticsPane $win.atpaner.tactics
+        ttk::panedwindow $win.hpaner.vpaner \
+            -orient vertical
 
-        $win.atpaner add $win.atpaner.alist 
-        $win.atpaner add $win.atpaner.tactics -weight 1
+        pack $win.hpaner.vpaner -fill both -expand yes
+
+        $self AListCreate $win.hpaner.alist
+        $self GTreeCreate $win.hpaner.vpaner.goals
+        $self TTreeCreate $win.hpaner.vpaner.tactics
+
+        $win.hpaner        add $win.hpaner.alist 
+        $win.hpaner        add $win.hpaner.vpaner         -weight 1
+        $win.hpaner.vpaner add $win.hpaner.vpaner.goals   -weight 1
+        $win.hpaner.vpaner add $win.hpaner.vpaner.tactics -weight 2
 
         # NEXT, configure the command-line options
         $self configurelist $args
 
         # NEXT, Behavior
 
-        # Reload the content on various notifier events.
-        notifier bind ::sim <DbSyncB> $self [mymethod ReloadOnEvent]
-        notifier bind ::sim <Tick>    $self [mymethod ReloadOnEvent]
-        notifier bind ::rdb <actors>  $self [mymethod ActorUpdate]
-
-
         # Reload the content when the window is mapped.
         bind $win <Map> [mymethod MapWindow]
 
+        # Reload the content on various notifier events.
+        notifier bind ::sim <DbSyncB>    $self [mymethod ReloadOnEvent]
+        notifier bind ::sim <Tick>       $self [mymethod ReloadOnEvent]
+
+        # Reload individual entities when they
+        # are updated or deleted.
+
+        notifier bind ::rdb <actors>     $self [mymethod MonActor]
+        notifier bind ::rdb <goals>      $self [mymethod MonGoals]
+        notifier bind ::rdb <tactics>    $self [mymethod MonTactics]
+        notifier bind ::rdb <conditions> $self [mymethod MonConditions]
 
         # NEXT, schedule the first reload
         $self reload
@@ -234,14 +292,34 @@ snit::widget strategybrowser {
         $self reload
     }
     
-    # ActorUpdate update|delete a
+    # ReloadContent
+    #
+    # Reloads the current -view.  Has no effect if the window is
+    # not mapped.
+    
+    method ReloadContent {} {
+        # FIRST, we don't do anything until we're mapped.
+        if {![winfo ismapped $win]} {
+            return
+        }
+        
+        # NEXT, clear the reload request counter.
+        set info(reloadRequests) 0
+
+        # NEXT, Reload each of the components
+        $alist reload
+        $self GTreeReload
+        $self TTreeReload
+    }
+
+    # MonActor update|delete a
     #
     # a - The actor ID
     #
     # An actor has been updated or deleted.  Refresh the browser
     # accordingly.
 
-    method ActorUpdate {op a} {
+    method MonActor {op a} {
         # FIRST, Update the AList.
         $alist uid $op $a
 
@@ -253,33 +331,161 @@ snit::widget strategybrowser {
         }
     }
 
+    # MonGoals update goal_id
+    #
+    # goal_id   - A goal ID
+    #
+    # Displays/adds the goal to the goals tree.
+
+    method {MonGoals update} {goal_id} {
+        # FIRST, we need to get the data about this goal.
+        # If it isn't for the currently displayed actor, we
+        # can ignore it.
+        array set gdata [goal get $goal_id]
+
+        if {$gdata(owner) ne $info(actor)} {
+            return
+        }
+
+        # NEXT, Display the goal item
+        $self GTreeGoalDraw gdata
+        $self TreeStripe $gtree
+    }
+
+    # MonGoals delete goal_id
+    #
+    # goal_id   - A goal ID
+    #
+    # Deletes the goal from the goals tree.
+
+    method {MonGoals delete} {goal_id} {
+        # FIRST, is this goal displayed?
+        if {![info exists gt_g2item($goal_id)]} {
+            return
+        }
+
+        # NEXT, delete the item from the tree.
+        $gtree item delete $gt_g2item($goal_id)
+        unset gt_g2item($goal_id)
+        $self TreeStripe $gtree
+    }
+
+    # MonTactics update tactic_id
+    #
+    # tactic_id   - A tactic ID
+    #
+    # Displays/adds the tactic to the tactics tree.
+
+    method {MonTactics update} {tactic_id} {
+        # FIRST, we need to get the data about this tactic.
+        # If it isn't for the currently displayed actor, we
+        # can ignore it.
+        array set tdata [tactic get $tactic_id]
+
+        if {$tdata(owner) ne $info(actor)} {
+            return
+        }
+
+        # NEXT, Display the tactic item
+        $self TTreeTacticDraw tdata
+        $self TreeStripe $ttree
+    }
+
+    # MonTactics delete tactic_id
+    #
+    # tactic_id   - A tactic ID
+    #
+    # Deletes the tactic from the tactics tree.
+
+    method {MonTactics delete} {tactic_id} {
+        # FIRST, is this tactic displayed?
+        if {![info exists tt_t2item($tactic_id)]} {
+            return
+        }
+
+        # NEXT, delete the item from the tree.
+        $ttree item delete $tt_t2item($tactic_id)
+        unset tt_t2item($tactic_id)
+        $self TreeStripe $ttree
+    }
+
+    # MonConditions update condition_id
+    #
+    # condition_id   - A condition ID
+    #
+    # Displays/adds the condition to the goals or conditions tree.
+
+    method {MonConditions update} {condition_id} {
+        # FIRST, we need to get the data about this condition.
+        # If it isn't currently displayed, we can ignore it.
+        array set cdata [condition get $condition_id]
+
+        if {[info exists gt_g2item($cdata(co_id))]} {
+            $self GTreeConditionDraw cdata
+            $self TreeStripe $gtree
+        } elseif {[info exists tt_t2item($cdata(co_id))]} {
+            $self TTreeConditionDraw cdata
+            $self TreeStripe $ttree
+        }
+    }
+
+    # MonConditions delete condition_id
+    #
+    # condition_id   - A condition ID
+    #
+    # Deletes the condition from the goals or tactics tree, if it
+    # is currently displayed.  NOTE: Conditions are deleted with their
+    # goal or tactic; in that case, the item might already be gone
+    # from the tree.  So check.
+
+    method {MonConditions delete} {condition_id} {
+        # FIRST, is this condition displayed?
+        if {[info exists gt_c2item($condition_id)]} {
+            # FIRST, delete the item from the tree.
+            if {[$gtree item id $gt_c2item($condition_id)] ne ""} {
+                $gtree item delete $gt_c2item($condition_id)
+            }
+
+            unset gt_c2item($condition_id)
+            $self TreeStripe $gtree
+        } elseif {[info exists tt_c2item($condition_id)]} {
+            # FIRST, delete the item from the tree.
+            if {[$ttree item id $tt_c2item($condition_id)] ne ""} {
+                $ttree item delete $tt_c2item($condition_id)
+            }
+
+            unset tt_c2item($condition_id)
+            $self TreeStripe $ttree
+        }
+    }
+
+
+
 
     #-------------------------------------------------------------------
     # Actor List Pane
 
-    # CreateActorList pane
+    # AListCreate pane
     #
     # pane - The name of the actor list's pane widget
     #
     # Creates the "alist" component, which lists all of the
     # available actors.
 
-    method CreateActorList {pane} {
+    method AListCreate {pane} {
         # FIRST, create the list widget
-        # TBD: Should set -stripeheight 0
-
-        install alist using sqlbrowser $pane     \
-            -height       10                     \
-            -width        10                     \
-            -relief       flat                   \
-            -borderwidth  1                      \
-            -stripeheight 0                      \
-            -db           ::rdb                  \
-            -view         actors                 \
-            -uid          a                      \
-            -filterbox    off                    \
-            -selectmode   browse                 \
-            -selectioncmd [mymethod ActorSelect] \
+        install alist using sqlbrowser $pane          \
+            -height       10                          \
+            -width        10                          \
+            -relief       flat                        \
+            -borderwidth  1                           \
+            -stripeheight 0                           \
+            -db           ::rdb                       \
+            -view         actors                      \
+            -uid          a                           \
+            -filterbox    off                         \
+            -selectmode   browse                      \
+            -selectioncmd [mymethod AListActorSelect] \
             -layout {
                 {a "Actor" -stretchable yes} 
             } 
@@ -288,12 +494,12 @@ snit::widget strategybrowser {
         notifier bind ::rdb <actors> $self [list $alist uid]
     }
 
-    # ActorSelect
+    # AListActorSelect
     #
     # Called when an actor is selected in the alist.  Updates the
     # rest of the browser to display that actor's data.
 
-    method ActorSelect {} {
+    method AListActorSelect {} {
 
         # FIRST, update the rest of the browser
         set actor [lindex [$alist uid curselection] 0]
@@ -306,221 +512,570 @@ snit::widget strategybrowser {
 
         # NEXT, update state controllers
         ::cond::simPP_predicate update \
-            [list $taddbtn]
+            [list $tt_taddbtn $gt_gaddbtn]
     }
 
-    #-------------------------------------------------------------------
-    # Tactics Pane
 
-    # CreateTacticsPane pane
+    #-------------------------------------------------------------------
+    # GTree: Goals/Conditions Tree Pane
+
+    # GTreeCreate pane
+    # 
+    # pane - The name of the pane widget
+    #
+    # Creates the GTree pane, where goals and conditions are
+    # edited.
+
+    method GTreeCreate {pane} {
+        # FIRST, create the pane
+        ttk::frame $pane
+
+        # NEXT, create the toolbar
+        install gt_bar using ttk::frame $pane.gt_bar
+
+        ttk::label $gt_bar.title \
+            -text "Goals:"
+
+        install gt_gaddbtn using mktoolbutton $gt_bar.gt_gaddbtn    \
+            ::icon::addgoal                                         \
+            "Add Goal"                                              \
+            -state   normal                                         \
+            -command [mymethod GTreeGoalAdd]
+
+        cond::simPP_predicate control $gt_gaddbtn                   \
+            browser   $win                                          \
+            predicate {alist single}
+
+        install gt_caddbtn using mktoolbutton $gt_bar.gt_caddbtn    \
+            ::icon::addcondition                                    \
+            "Add Condition"                                         \
+            -state   normal                                         \
+            -command [mymethod GTreeConditionAdd]
+
+        cond::simPP_predicate control $gt_caddbtn                   \
+            browser   $win                                          \
+            predicate {gtree single}
+
+        install gt_editbtn using mkeditbutton $gt_bar.edit          \
+            "Edit Goal or Condition"                                \
+            -state   disabled                                       \
+            -command [mymethod GTreeEdit]
+
+        cond::simPP_predicate control $gt_editbtn                   \
+            browser $win                                            \
+            predicate {gtree single}
+
+        install gt_togglebtn using mktoolbutton $gt_bar.toggle      \
+            ::icon::onoff                                           \
+            "Toggle Goal State"                                     \
+            -state   disabled                                       \
+            -command [mymethod GTreeGoalState]
+
+        cond::simPP_predicate control $gt_togglebtn                 \
+            browser $win                                            \
+            predicate {gtree validgoal}
+
+        install gt_deletebtn using mkdeletebutton $gt_bar.delete    \
+            "Delete Goal or Condition"                              \
+            -state   disabled                                       \
+            -command [mymethod GTreeDelete]
+
+        cond::simPP_predicate control $gt_deletebtn                 \
+            browser $win                                            \
+            predicate {gtree single}
+            
+
+        pack $gt_bar.title  -side left
+        pack $gt_gaddbtn    -side left
+        pack $gt_caddbtn    -side left
+        pack $gt_editbtn    -side left
+        pack $gt_togglebtn  -side left
+
+        pack $gt_deletebtn  -side right
+
+        ttk::separator $pane.sep1 \
+            -orient horizontal
+
+        # NEXT, create the goals tree widget
+        install gtree using $self TreeCreate $pane.gtree \
+            -height         100                          \
+            -yscrollcommand [list $pane.yscroll set]
+
+        ttk::scrollbar $pane.yscroll                 \
+            -orient         vertical                 \
+            -command        [list $gtree yview]
+
+        # Standard tree column options:
+        set colopts [list \
+                         -background     $::marsgui::defaultBackground \
+                         -borderwidth    1                             \
+                         -button         off                           \
+                         -font           TkDefaultFont                 \
+                         -resize         no]
+
+        # Tree column 0: narrative
+        $gtree column create {*}$colopts               \
+            -text        "Goal/Condition"            \
+            -itemstyle   wrapStyle                     \
+            -expand      yes                           \
+            -squeeze     yes                           \
+            -weight      1
+
+        $gtree configure -treecolumn first
+
+        # Tree column 1: goal_id/condition_id
+        $gtree column create {*}$colopts  \
+            -text        "Id"             \
+            -itemstyle   numStyle         \
+            -tags        id
+
+        # Tree column 2: condition_type
+        $gtree column create {*}$colopts  \
+            -text        "Type"           \
+            -itemstyle   textStyle        \
+            -tags        type
+
+        # NEXT, grid them all in place
+        grid $gt_bar       -row 0 -column 0 -sticky ew -columnspan 2
+        grid $pane.sep1    -row 1 -column 0 -sticky ew -columnspan 2
+        grid $gtree        -row 2 -column 0 -sticky nsew
+        grid $pane.yscroll -row 2 -column 1 -sticky ns
+
+        grid rowconfigure    $pane 2 -weight 1
+        grid columnconfigure $pane 0 -weight 1
+ 
+        # NEXT, prepare to handle selection changes.
+        $gtree notify bind $gtree <Selection> [mymethod GTreeSelection]
+    }
+
+    # GTreeReload
+    #
+    # Loads data from the goals and conditions tables into gtree.
+
+    method GTreeReload {} {
+        # FIRST, save the selection (at most one thing should be selected).
+        set id [lindex [$gtree select get] 0]
+
+        if {$id eq ""} {
+            set selKind ""
+            set selId   ""
+        } else {
+            set selId [$gtree item text $id {tag id}]
+
+            if {"goal" in [$gtree item tag names $id]} {
+                set selKind goal
+            } else {
+                set selKind condition
+            }
+        }
+
+        # NEXT, get a list of the collapsed goals
+        set collapsed [list]
+
+        foreach id [$gtree item children root] {
+            if {![$gtree item state get $id open]} {
+                lappend collapsed [$gtree item text $id {tag id}]
+            }
+        }
+
+
+        # NEXT, empty the gtree
+        $gtree item delete all
+        array unset gt_g2item
+        array unset gt_c2item
+
+        # NEXT, if no actor we're done.
+        if {$info(actor) eq ""} {
+            return
+        }
+
+        # NEXT, insert the goals
+        rdb eval {
+            SELECT *
+            FROM goals
+            WHERE owner=$info(actor)
+            ORDER BY goal_id
+        } row {
+            unset -nocomplain row(*)
+            $self GTreeGoalDraw row
+        }
+
+        # NEXT, insert the conditions
+        rdb eval {
+            SELECT C.*,
+                   G.owner
+            FROM conditions AS C
+            JOIN goals AS G ON (co_id = goal_id)
+            WHERE owner=$info(actor)
+            ORDER BY condition_id;
+        } row {
+            unset -nocomplain row(*)
+            $self GTreeConditionDraw row
+        }
+
+        # NEXT, set striping
+        $self TreeStripe $gtree
+
+        # NEXT, open the same goals as before
+        foreach goal_id $collapsed {
+            if {[info exists gt_g2item($goal_id)]} {
+                $gtree item collapse $gt_g2item($goal_id)
+            }
+        }
+
+        # NEXT, if there was a selection before, select it again
+        if {$selKind eq "goal"} {
+            if {[info exists gt_g2item($selId)]} {
+                $gtree selection add $gt_g2item($selId)
+            }
+        } elseif {$selKind eq "condition"} {
+            if {[info exists gt_c2item($selId)]} {
+                $gtree selection add $gt_c2item($selId)
+            }
+        }
+    }
+
+    # GTreeSelection
+    #
+    # Called when the gtree's selection has changed.
+
+    method GTreeSelection {} {
+        ::cond::simPP_predicate update \
+            [list $gt_caddbtn $gt_editbtn $gt_deletebtn $gt_togglebtn]
+    }
+
+    # GTreeEdit
+    #
+    # Called when the GTree's edit button is pressed.
+    # Edits the selected entity.
+
+    method GTreeEdit {} {
+        # FIRST, there should be only one selected.
+        set id [lindex [$gtree selection get] 0]
+
+        # NEXT, it has an ID; if it's a condition it has a type
+        set oid   [$gtree item text $id {tag id}]
+        set otype [$gtree item text $id {tag type}]
+
+        # NEXT, it's a goal or a condition.
+        if {"goal" in [$gtree item tag names $id]} {
+            order enter GOAL:UPDATE goal_id $oid
+        } else {
+            order enter CONDITION:$otype:UPDATE condition_id $oid
+        }
+    }
+
+    # GTreeGoalAdd
+    #
+    # Allows the user to create a new goal.
+    
+    method GTreeGoalAdd {} {
+        order enter GOAL:CREATE owner $info(actor)
+    }
+
+    # GTreeGoalState
+    #
+    # Toggles the goal's state from normal to disabled and back
+    # again.
+
+    method GTreeGoalState {} {
+        # FIRST, there should be only one selected.
+        set id [lindex [$gtree selection get] 0]
+
+        # NEXT, get its goal ID
+        set goal_id [$gtree item text $id {tag id}]
+
+        # NEXT, Get its state
+        set state [goal get $goal_id state]
+
+        if {$state eq "normal"} {
+            order send gui GOAL:STATE goal_id $goal_id state disabled
+        } elseif {$state eq "disabled"} {
+            order send gui GOAL:STATE goal_id $goal_id state normal
+        } else {
+            # Do nothing (this should never happen anyway)
+        }
+    }
+
+
+    # GTreeDelete
+    #
+    # Called when the GTree's delete button is pressed.
+    # Deletes the selected entity.
+
+    method GTreeDelete {} {
+        # FIRST, there should be only one selected.
+        set id [lindex [$gtree selection get] 0]
+
+        # NEXT, it's a goal or a condition.
+        if {"goal" in [$gtree item tag names $id]} {
+            order send gui GOAL:DELETE \
+                goal_id [$gtree item text $id {tag id}]
+        } else {
+            order send gui CONDITION:DELETE \
+                condition_id [$gtree item text $id {tag id}]
+        }
+    }
+
+    # GTreeGoalDraw gdataVar
+    #
+    # gdataVar - Name of an array containing goal attributes
+    #
+    # Adds/updates a goal item in the gtree.
+
+    method GTreeGoalDraw {gdataVar} {
+        upvar $gdataVar gdata
+
+        # FIRST, get the goal item ID; if there is none,
+        # create one.
+        if {![info exists gt_g2item($gdata(goal_id))]} {
+            set id [$gtree item create \
+                        -parent root   \
+                        -button auto   \
+                        -tags   goal]
+
+            $gtree item expand $id
+
+            set gt_g2item($gdata(goal_id)) $id
+        } else {
+            set id $gt_g2item($gdata(goal_id))
+        }
+
+        # NEXT, set the text.
+        $gtree item text $id               \
+            0           $gdata(narrative)  \
+            {tag id}    $gdata(goal_id)    \
+            {tag type}  ""
+
+        # NEXT, set the state flags
+        $self TreeItemState $gtree $id $gdata(state)
+        $self TreeItemFlag  $gtree $id $gdata(flag)
+
+        # NEXT, sort goals by goal ID.
+        $gtree item sort root -column {tag id} -integer
+    }
+
+    # GTreeConditionAdd
+    #
+    # Allows the user to pick a condition from a pulldown, and
+    # then pops up the related CONDITION:*:CREATE dialog.
+    
+    method GTreeConditionAdd {} {
+        # FIRST, get a list of order names and titles
+        set odict [dict create]
+
+        foreach order [order names] {
+            if {![string match "CONDITION:*:CREATE" $order]} {
+                continue
+            }
+
+            # Get title, and remove the "Create Condition: " prefix
+            set title [order title $order]
+            set ndx [string first ":" $title]
+            set title [string range $title $ndx+2 end]
+            dict set odict $title $order
+        }
+
+        set list [lsort [dict keys $odict]]
+
+        # NEXT, get the goal_id
+        set id    [lindex [$gtree selection get] 0]
+        set oid   [$gtree item text $id {tag id}]
+
+        if {"goal" in [$gtree item tag names $id]} {
+            set co_id $oid
+            $gtree item expand $id
+        } else {
+            set co_id [condition get $oid co_id]
+        }
+
+        # NEXT, let them pick one
+        set title [messagebox pick \
+                       -parent    [app topwin]         \
+                       -initvalue [lindex $list 0]     \
+                       -title     "Select a condition" \
+                       -values    $list                \
+                       -message   [normalize "
+                           Select a condition to create for
+                           actor $info(actor)'s goal $co_id.
+                       "]]
+
+        if {$title ne ""} {
+            order enter [dict get $odict $title ] co_id $co_id
+        }
+    }
+
+    # GTreeConditionDraw cdataVar
+    #
+    # cdataVar - Name of an array containing condition attributes
+    #
+    # Adds/updates a condition item in the gtree.
+
+    method GTreeConditionDraw {cdataVar} {
+        upvar $cdataVar cdata
+
+        # FIRST, get the parent item ID
+        set parent $gt_g2item($cdata(co_id))
+
+        # NEXT, get the condition item ID; if there is none,
+        # create one.
+        if {![info exists gt_c2item($cdata(condition_id))]} {
+            set id [$gtree item create     \
+                        -parent $parent    \
+                        -tags   condition]
+
+            set gt_c2item($cdata(condition_id)) $id
+        } else {
+            set id $gt_c2item($cdata(condition_id))
+        }
+
+        # NEXT, set the text
+        $gtree item text $id                       \
+            0               $cdata(narrative)      \
+            {tag id}        $cdata(condition_id)   \
+            {tag type}      $cdata(condition_type)
+
+        # NEXT, set the state flags
+        $self TreeItemState $gtree $id $cdata(state)
+        $self TreeItemFlag  $gtree $id $cdata(flag)
+
+        # NEXT, sort conditions by condition.
+        $gtree item sort $parent -column {tag id} -integer
+    }
+
+
+    #-------------------------------------------------------------------
+    # TTree: Tactics/Conditions Tree Pane
+
+    # TTreeCreate pane
     # 
     # pane - The name of the pane widget
     #
     # Creates the tactics pane, where tactics and conditions are
     # edited.
 
-    method CreateTacticsPane {pane} {
+    method TTreeCreate {pane} {
         # FIRST, create the pane
         ttk::frame $pane
 
         # NEXT, create the toolbar
-        install tbar using ttk::frame $pane.tbar
+        install tt_bar using ttk::frame $pane.tt_bar
 
         # Temporary add button, just for looks
-        ttk::label $tbar.title \
+        ttk::label $tt_bar.title \
             -text "Tactics:"
 
-        install taddbtn using mktoolbutton $tbar.taddbtn    \
-            ::icon::addtactic                               \
-            "Add Tactic"                                    \
-            -state   normal                                 \
-            -command [mymethod TacticAdd]
+        install tt_taddbtn using mktoolbutton $tt_bar.tt_taddbtn \
+            ::icon::addtactic                                    \
+            "Add Tactic"                                         \
+            -state   normal                                      \
+            -command [mymethod TTreeTacticAdd]
 
-        cond::simPP_predicate control $taddbtn              \
-            browser   $win                                  \
+        cond::simPP_predicate control $tt_taddbtn                \
+            browser   $win                                       \
             predicate {alist single}
 
-        install caddbtn using mktoolbutton $tbar.caddbtn    \
-            ::icon::addcondition                            \
-            "Add Condition"                                 \
-            -state   normal                                 \
-            -command [mymethod ConditionAdd]
+        install tt_caddbtn using mktoolbutton $tt_bar.tt_caddbtn \
+            ::icon::addcondition                                 \
+            "Add Condition"                                      \
+            -state   normal                                      \
+            -command [mymethod TTreeConditionAdd]
 
-        cond::simPP_predicate control $caddbtn              \
-            browser   $win                                  \
+        cond::simPP_predicate control $tt_caddbtn                \
+            browser   $win                                       \
             predicate {ttree single}
 
-        install editbtn using mkeditbutton $tbar.edit       \
-            "Edit Tactic or Condition"                      \
-            -state   disabled                               \
+        install tt_editbtn using mkeditbutton $tt_bar.edit       \
+            "Edit Tactic or Condition"                           \
+            -state   disabled                                    \
             -command [mymethod TTreeEdit]
 
-        cond::simPP_predicate control $editbtn              \
-            browser $win                                    \
+        cond::simPP_predicate control $tt_editbtn                \
+            browser $win                                         \
             predicate {ttree single}
 
-        install topbtn using mktoolbutton $tbar.top         \
-            ::projectgui::icon::totop                       \
-            "Top Priority"                                  \
-            -state   disabled                               \
-            -command [mymethod TacticPriority top]
+        install tt_topbtn using mktoolbutton $tt_bar.top         \
+            ::projectgui::icon::totop                            \
+            "Top Priority"                                       \
+            -state   disabled                                    \
+            -command [mymethod TTreeTacticPriority top]
 
-        cond::simPP_predicate control $topbtn               \
-            browser $win                                    \
+        cond::simPP_predicate control $tt_topbtn                 \
+            browser $win                                         \
             predicate {ttree tactic}
 
-        install raisebtn using mktoolbutton $tbar.raise     \
-            ::projectgui::icon::raise                       \
-            "Raise Priority"                                \
-            -state   disabled                               \
-            -command [mymethod TacticPriority raise]
+        install tt_raisebtn using mktoolbutton $tt_bar.raise     \
+            ::projectgui::icon::raise                            \
+            "Raise Priority"                                     \
+            -state   disabled                                    \
+            -command [mymethod TTreeTacticPriority raise]
 
-        cond::simPP_predicate control $raisebtn             \
-            browser $win                                    \
+        cond::simPP_predicate control $tt_raisebtn               \
+            browser $win                                         \
             predicate {ttree tactic}
 
-        install lowerbtn using mktoolbutton $tbar.lower     \
-            ::projectgui::icon::lower                       \
-            "Lower Priority"                                \
-            -state   disabled                               \
-            -command [mymethod TacticPriority lower]
+        install tt_lowerbtn using mktoolbutton $tt_bar.lower     \
+            ::projectgui::icon::lower                            \
+            "Lower Priority"                                     \
+            -state   disabled                                    \
+            -command [mymethod TTreeTacticPriority lower]
 
-        cond::simPP_predicate control $lowerbtn             \
-            browser $win                                    \
+        cond::simPP_predicate control $tt_lowerbtn               \
+            browser $win                                         \
             predicate {ttree tactic}
 
-        install bottombtn using mktoolbutton $tbar.bottom   \
-            ::projectgui::icon::tobottom                    \
-            "Bottom Priority"                               \
-            -state   disabled                               \
-            -command [mymethod TacticPriority bottom]
+        install tt_bottombtn using mktoolbutton $tt_bar.bottom   \
+            ::projectgui::icon::tobottom                         \
+            "Bottom Priority"                                    \
+            -state   disabled                                    \
+            -command [mymethod TTreeTacticPriority bottom]
 
-        cond::simPP_predicate control $bottombtn            \
-            browser $win                                    \
+        cond::simPP_predicate control $tt_bottombtn              \
+            browser $win                                         \
             predicate {ttree tactic}
 
-        install togglebtn using mktoolbutton $tbar.toggle   \
-            ::icon::onoff                                   \
-            "Toggle Tactic State"                           \
-            -state   disabled                               \
-            -command [mymethod TacticState]
+        install tt_togglebtn using mktoolbutton $tt_bar.toggle   \
+            ::icon::onoff                                        \
+            "Toggle Tactic State"                                \
+            -state   disabled                                    \
+            -command [mymethod TTreeTacticState]
 
-        cond::simPP_predicate control $togglebtn            \
-            browser $win                                    \
+        cond::simPP_predicate control $tt_togglebtn              \
+            browser $win                                         \
             predicate {ttree validtactic}
 
-        install deletebtn using mkdeletebutton $tbar.delete \
-            "Delete Tactic or Condition"                    \
-            -state   disabled                               \
+        install tt_deletebtn using mkdeletebutton $tt_bar.delete \
+            "Delete Tactic or Condition"                         \
+            -state   disabled                                    \
             -command [mymethod TTreeDelete]
 
-        cond::simPP_predicate control $deletebtn            \
-            browser $win                                    \
+        cond::simPP_predicate control $tt_deletebtn              \
+            browser $win                                         \
             predicate {ttree single}
             
+        pack $tt_bar.title -side left
+        pack $tt_taddbtn    -side left
+        pack $tt_caddbtn    -side left
+        pack $tt_editbtn    -side left
+        pack $tt_topbtn     -side left
+        pack $tt_raisebtn   -side left
+        pack $tt_lowerbtn   -side left
+        pack $tt_bottombtn  -side left
+        pack $tt_togglebtn  -side left
 
-        pack $tbar.title -side left
-        pack $taddbtn    -side left
-        pack $caddbtn    -side left
-        pack $editbtn    -side left
-        pack $topbtn     -side left
-        pack $raisebtn   -side left
-        pack $lowerbtn   -side left
-        pack $bottombtn  -side left
-        pack $togglebtn  -side left
-
-        pack $deletebtn  -side right
+        pack $tt_deletebtn  -side right
 
         ttk::separator $pane.sep1 \
             -orient horizontal
 
         # NEXT, create the tactics tree widget
-        install ttree using treectrl $pane.ttree     \
-            -width          400                      \
-            -height         200                      \
-            -borderwidth    0                        \
-            -relief         flat                     \
-            -background     white                    \
-            -linestyle      dot                      \
-            -usetheme       1                        \
-            -showheader     1                        \
-            -showroot       0                        \
-            -showrootlines  0                        \
-            -indent         14                       \
-            -yscrollcommand [list $pane.tscroll set]
+        install ttree using $self TreeCreate $pane.ttree \
+            -height         200                          \
+            -yscrollcommand [list $pane.yscroll set]
 
-        ttk::scrollbar $pane.tscroll                 \
+        ttk::scrollbar $pane.yscroll                 \
             -orient         vertical                 \
             -command        [list $ttree yview]
-
-        # NEXT, configure the tactics tree widget
-
-        # Fonts
-        set overstrike [dict merge [font actual codefont] {-overstrike 1}]
-
-        # Define Item states
-        $ttree state define stripe     ;# Item is striped
-        $ttree state define overstrike ;# Item text has overstrike.
-        $ttree state define error      ;# Item is invalid.
-        $ttree state define check      ;# Tactic was executed next time
-        $ttree state define true       ;# Condition is known to be true
-        $ttree state define false      ;# Condition is known to be false
-
-        # Elements
-        $ttree element create itemText text               \
-            -font [list $overstrike overstrike codefont {}] \
-            -fill [list red error black {}] 
-
-        $ttree element create wrapText text               \
-            -font [list $overstrike overstrike codefont {}] \
-            -fill [list red error black {}]             \
-            -wrap word
-
-        $ttree element create numText text                     \
-            -font    [list $overstrike overstrike codefont {}] \
-            -fill    [list red error black {}]                 \
-            -justify right
-
-        $ttree element create thumbIcon image \
-            -image {
-                ::marsgui::icon::check22        check
-                ::marsgui::icon::smthumbupgreen true
-                ::marsgui::icon::smthumbdownred false
-                ::icon::dash                    {}
-            }
-
-        $ttree element create elemRect rect               \
-            -fill {gray {selected} "#CCFFBB" {stripe}}
-
-        # wrapStyle: wrapped text over a fill rectangle.
-
-        $ttree style create wrapStyle
-        $ttree style elements wrapStyle {elemRect thumbIcon wrapText}
-        $ttree style layout wrapStyle thumbIcon
-        $ttree style layout wrapStyle wrapText \
-            -squeeze x                         \
-            -iexpand nse                        \
-            -ipadx   4
-        $ttree style layout wrapStyle elemRect \
-            -union   {thumbIcon wrapText}
-
-        # textStyle: text over a fill rectangle.
-        $ttree style create textStyle
-        $ttree style elements textStyle {elemRect itemText}
-        $ttree style layout textStyle itemText \
-            -iexpand nse                        \
-            -ipadx   4
-        $ttree style layout textStyle elemRect \
-            -union   {itemText}
-
-        # numStyle: numeric text over a fill rectangle.
-        $ttree style create numStyle
-        $ttree style elements numStyle {elemRect numText}
-        $ttree style layout numStyle numText \
-            -iexpand nsw                        \
-            -ipadx   4
-        $ttree style layout numStyle elemRect \
-            -union {numText}
 
         # Standard tree column options:
         set colopts [list \
@@ -558,13 +1113,13 @@ snit::widget strategybrowser {
             -itemstyle   numStyle         \
             -tags        personnel
 
-        # Tree column 4: tactic_id
+        # Tree column 4: tactic_id/condition_id
         $ttree column create {*}$colopts  \
             -text        "Id"             \
             -itemstyle   numStyle         \
             -tags        id
 
-        # Tree column 5: tactic_type
+        # Tree column 5: tactic_type/condition_type
         $ttree column create {*}$colopts  \
             -text        "Type"           \
             -itemstyle   textStyle        \
@@ -578,18 +1133,14 @@ snit::widget strategybrowser {
             -visible     no
 
         # NEXT, grid them all in place
-        grid $tbar         -row 0 -column 0 -sticky ew -columnspan 2
+        grid $tt_bar         -row 0 -column 0 -sticky ew -columnspan 2
         grid $pane.sep1    -row 1 -column 0 -sticky ew -columnspan 2
         grid $ttree        -row 2 -column 0 -sticky nsew
-        grid $pane.tscroll -row 2 -column 1 -sticky ns
+        grid $pane.yscroll -row 2 -column 1 -sticky ns
 
         grid rowconfigure    $pane 2 -weight 1
         grid columnconfigure $pane 0 -weight 1
  
-        # NEXT, update individual tactics and conditions when they change.
-        notifier bind ::rdb <tactics>    $self [mymethod MonTactics]
-        notifier bind ::rdb <conditions> $self [mymethod MonConditions]
-
         # NEXT, prepare to handle selection changes.
         $ttree notify bind $ttree <Selection> [mymethod TTreeSelection]
     }
@@ -616,19 +1167,19 @@ snit::widget strategybrowser {
         }
 
         # NEXT, get a list of the expanded tactics
-        set expanded [list]
+        set collapsed [list]
 
         foreach id [$ttree item children root] {
-            if {[$ttree item state get $id open]} {
-                lappend expanded [$ttree item text $id {tag id}]
+            if {![$ttree item state get $id open]} {
+                lappend collapsed [$ttree item text $id {tag id}]
             }
         }
 
 
         # NEXT, empty the ttree
         $ttree item delete all
-        array unset tactic2item
-        array unset condition2item
+        array unset tt_t2item
+        array unset tt_c2item
 
         # NEXT, if no actor we're done.
         if {$info(actor) eq ""} {
@@ -643,7 +1194,7 @@ snit::widget strategybrowser {
             ORDER BY priority
         } row {
             unset -nocomplain row(*)
-            $self TacticDraw row
+            $self TTreeTacticDraw row
         }
 
         # NEXT, insert the conditions
@@ -651,57 +1202,33 @@ snit::widget strategybrowser {
             SELECT C.*,
                    T.owner
             FROM conditions AS C
-            JOIN tactics AS T USING (tactic_id)
+            JOIN tactics AS T ON (co_id = tactic_id)
             WHERE owner=$info(actor)
             ORDER BY condition_id;
         } row {
             unset -nocomplain row(*)
-            $self ConditionDraw row
+            $self TTreeConditionDraw row
         }
 
         # NEXT, set striping
-        $self TTreeStripe
+        $self TreeStripe $ttree
 
         # NEXT, open the same tactics as before
-        foreach tactic_id $expanded {
-            if {[info exists tactic2item($tactic_id)]} {
-                $ttree item expand $tactic2item($tactic_id)
+        foreach tactic_id $collapsed {
+            if {[info exists tt_t2item($tactic_id)]} {
+                $ttree item collapse $tt_t2item($tactic_id)
             }
         }
 
         # NEXT, if there was a selection before, select it again
         if {$selKind eq "tactic"} {
-            if {[info exists tactic2item($selId)]} {
-                $ttree selection add $tactic2item($selId)
+            if {[info exists tt_t2item($selId)]} {
+                $ttree selection add $tt_t2item($selId)
             }
         } elseif {$selKind eq "condition"} {
-            if {[info exists condition2item($selId)]} {
-                $ttree selection add $condition2item($selId)
+            if {[info exists tt_c2item($selId)]} {
+                $ttree selection add $tt_c2item($selId)
             }
-        }
-    }
-
-    # TTreeStripe
-    #
-    # Makes the odd tactics and their conditions use the stripe background.
-
-    method TTreeStripe {} {
-        set count 0
-        
-        foreach id [$ttree item children root] {
-            set last  [$ttree item lastchild $id]
-
-            if {$last eq ""} {
-                set last $id
-            }
-
-            if {$count % 2 == 1} {
-                $ttree item state set $id $last stripe
-            } else {
-                $ttree item state set $id $last !stripe
-            }
-
-            incr count
         }
     }
 
@@ -711,8 +1238,8 @@ snit::widget strategybrowser {
 
     method TTreeSelection {} {
         ::cond::simPP_predicate update \
-            [list $caddbtn $editbtn $deletebtn $togglebtn \
-                 $topbtn $raisebtn $lowerbtn $bottombtn]
+            [list $tt_caddbtn $tt_editbtn $tt_deletebtn $tt_togglebtn \
+                 $tt_topbtn $tt_raisebtn $tt_lowerbtn $tt_bottombtn]
     }
 
     # TTreeEdit
@@ -738,12 +1265,12 @@ snit::widget strategybrowser {
         }
     }
 
-    # TacticAdd
+    # TTreeTacticAdd
     #
     # Allows the user to pick a tactic from a pulldown, and
     # then pops up the related TACTIC:*:CREATE dialog.
     
-    method TacticAdd {} {
+    method TTreeTacticAdd {} {
         # FIRST, get a list of order names and titles
         set odict [dict create]
 
@@ -778,13 +1305,13 @@ snit::widget strategybrowser {
     }
 
 
-    # TacticPriority prio
+    # TTreeTacticPriority prio
     #
     # prio    A token indicating the new priority.
     #
     # Sets the selected tactic's priority.
 
-    method TacticPriority {prio} {
+    method TTreeTacticPriority {prio} {
         # FIRST, there should be only one selected.
         set id [lindex [$ttree selection get] 0]
 
@@ -796,12 +1323,12 @@ snit::widget strategybrowser {
     }
 
 
-    # TacticState
+    # TTreeTacticState
     #
     # Toggles the tactic's state from normal to disabled and back
     # again.
 
-    method TacticState {} {
+    method TTreeTacticState {} {
         # FIRST, there should be only one selected.
         set id [lindex [$ttree selection get] 0]
 
@@ -840,28 +1367,28 @@ snit::widget strategybrowser {
         }
     }
 
-    # TacticDraw tdataVar
+    # TTreeTacticDraw tdataVar
     #
     # tdataVar - Name of an array containing tactic attributes
     #
     # Adds/updates a tactic item in the ttree.
 
-    method TacticDraw {tdataVar} {
+    method TTreeTacticDraw {tdataVar} {
         upvar $tdataVar tdata
 
         # FIRST, get the tactic item ID; if there is none,
         # create one.
-        if {![info exists tactic2item($tdata(tactic_id))]} {
+        if {![info exists tt_t2item($tdata(tactic_id))]} {
             set id [$ttree item create \
                         -parent root   \
                         -button auto   \
                         -tags   tactic]
 
-            $ttree item collapse $id
+            $ttree item expand $id
 
-            set tactic2item($tdata(tactic_id)) $id
+            set tt_t2item($tdata(tactic_id)) $id
         } else {
-            set id $tactic2item($tdata(tactic_id))
+            set id $tt_t2item($tdata(tactic_id))
         }
 
         # NEXT, get the execution timestamp
@@ -884,17 +1411,7 @@ snit::widget strategybrowser {
             {tag priority}  $tdata(priority)
 
         # NEXT, set the state flags
-        if {$tdata(state) eq "normal"} {
-            $ttree item state set $id !overstrike
-            $ttree item state set $id !error
-        } elseif {$tdata(state) eq "disabled"} {
-            $ttree item state set $id overstrike
-            $ttree item state set $id !error
-        } else {
-            # invalid
-            $ttree item state set $id overstrike
-            $ttree item state set $id error
-        }
+        $self TreeItemState $ttree $id $tdata(state)
 
         if {$tdata(exec_flag)} {
             $ttree item state set $id check
@@ -906,51 +1423,12 @@ snit::widget strategybrowser {
         $ttree item sort root -column {tag priority} -integer
     }
 
-    # MonTactics update tactic_id
-    #
-    # tactic_id   - A tactic ID
-    #
-    # Displays/adds the tactic to the tactics tree.
-
-    method {MonTactics update} {tactic_id} {
-        # FIRST, we need to get the data about this tactic.
-        # If it isn't for the currently displayed actor, we
-        # can ignore it.
-        array set tdata [tactic get $tactic_id]
-
-        if {$tdata(owner) ne $info(actor)} {
-            return
-        }
-
-        # NEXT, Display the tactic item
-        $self TacticDraw tdata
-        $self TTreeStripe
-    }
-
-    # MonTactics delete tactic_id
-    #
-    # tactic_id   - A tactic ID
-    #
-    # Deletes the tactic from the tactics tree.
-
-    method {MonTactics delete} {tactic_id} {
-        # FIRST, is this tactic displayed?
-        if {![info exists tactic2item($tactic_id)]} {
-            return
-        }
-
-        # NEXT, delete the item from the tree.
-        $ttree item delete $tactic2item($tactic_id)
-        unset tactic2item($tactic_id)
-        $self TTreeStripe
-    }
-
-    # ConditionAdd
+    # TTreeConditionAdd
     #
     # Allows the user to pick a condition from a pulldown, and
     # then pops up the related CONDITION:*:CREATE dialog.
     
-    method ConditionAdd {} {
+    method TTreeConditionAdd {} {
         # FIRST, get a list of order names and titles
         set odict [dict create]
 
@@ -968,15 +1446,16 @@ snit::widget strategybrowser {
 
         set list [lsort [dict keys $odict]]
 
-        # NEXT, get the tactic_id
+        # NEXT, get the tactic_id.  Make sure it's expanded.
         set id    [lindex [$ttree selection get] 0]
         set otype [$ttree item text $id {tag type}]
         set oid   [$ttree item text $id {tag id}]
 
         if {"tactic" in [$ttree item tag names $id]} {
-            set tactic_id $oid
+            set co_id $oid
+            $ttree item expand $id
         } else {
-            set tactic_id [condition get $oid tactic_id]
+            set co_id [condition get $oid co_id]
         }
 
         # NEXT, let them pick one
@@ -987,43 +1466,39 @@ snit::widget strategybrowser {
                        -values    $list             \
                        -message   [normalize "
                            Select a condition to create for
-                           actor $info(actor)'s tactic $tactic_id.
+                           actor $info(actor)'s tactic $co_id.
                        "]]
 
         if {$title ne ""} {
-            order enter [dict get $odict $title ] tactic_id $tactic_id
+            order enter [dict get $odict $title ] co_id $co_id
         }
     }
 
-    # ConditionDraw cdataVar
+    # TTreeConditionDraw cdataVar
     #
     # cdataVar - Name of an array containing condition attributes
     #
     # Adds/updates a condition item in the ttree.
 
-    method ConditionDraw {cdataVar} {
+    method TTreeConditionDraw {cdataVar} {
         upvar $cdataVar cdata
 
         # FIRST, get the parent item ID
-        set parent $tactic2item($cdata(tactic_id))
+        set parent $tt_t2item($cdata(co_id))
 
         # NEXT, get the condition item ID; if there is none,
         # create one.
-        if {![info exists condition2item($cdata(condition_id))]} {
+        if {![info exists tt_c2item($cdata(condition_id))]} {
             set id [$ttree item create     \
                         -parent $parent    \
                         -tags   condition]
 
-            set condition2item($cdata(condition_id)) $id
+            set tt_c2item($cdata(condition_id)) $id
         } else {
-            set id $condition2item($cdata(condition_id))
+            set id $tt_c2item($cdata(condition_id))
         }
 
         # NEXT, set the text
-        set cdict  [array get cdata]
-
-        set flag [condition call eval $cdict $info(actor)]
-
         $ttree item text $id                       \
             0               $cdata(narrative)      \
             {tag dollars}   ""                     \
@@ -1032,99 +1507,197 @@ snit::widget strategybrowser {
             {tag type}      $cdata(condition_type)
 
         # NEXT, set the state flags
-        if {$cdata(state) eq "normal"} {
-            $ttree item state set $id !overstrike
-            $ttree item state set $id !error
-        } elseif {$cdata(state) eq "disabled"} {
-            $ttree item state set $id overstrike
-            $ttree item state set $id !error
-        } else {
-            # invalid
-            $ttree item state set $id overstrike
-            $ttree item state set $id error
-        }
-
-        # NEXT, condition is true, false, or unknown
-        if {$flag == 1} {
-            $ttree item state set $id true
-            $ttree item state set $id !false
-        } elseif {$flag == 0} {
-            $ttree item state set $id false
-            $ttree item state set $id !true
-        } else {
-            $ttree item state set $id !false
-            $ttree item state set $id !true
-        }
+        $self TreeItemState $ttree $id $cdata(state)
+        $self TreeItemFlag  $ttree $id $cdata(flag)
 
         # NEXT, sort conditions by condition.
         $ttree item sort $parent -column {tag id} -integer
     }
 
-    # MonConditions update condition_id
-    #
-    # condition_id   - A condition ID
-    #
-    # Displays/adds the condition to the conditions tree.
-
-    method {MonConditions update} {condition_id} {
-        # FIRST, we need to get the data about this condition.
-        # If it isn't for a currently displayed tactic, we
-        # can ignore it.
-        array set cdata [condition get $condition_id]
-
-        if {![info exists tactic2item($cdata(tactic_id))]} {
-            return
-        }
-
-        # NEXT, Display the condition item
-        $self ConditionDraw cdata
-        $self TTreeStripe
-    }
-
-    # MonConditions delete condition_id
-    #
-    # condition_id   - A condition ID
-    #
-    # Deletes the condition from the conditions tree.
-
-    method {MonConditions delete} {condition_id} {
-        # FIRST, is this condition displayed?
-        if {![info exists condition2item($condition_id)]} {
-            return
-        }
-
-        # NEXT, delete the item from the tree.  NOTE: If 
-        # a tactic is deleted, all of its conditions are deleted
-        # as well; we might get this call *after* "MonTactics delete"
-        # has already deleted the item.  So check.
-        if {[$ttree item id $condition2item($condition_id)] ne ""} {
-            $ttree item delete $condition2item($condition_id)
-        }
-        unset condition2item($condition_id)
-        $self TTreeStripe
-    }
-
     #-------------------------------------------------------------------
-    # Reloading the Browser
-
-    # ReloadContent
+    # Tree Routines
     #
-    # Reloads the current -view.  Has no effect if the window is
-    # not mapped.
-    
-    method ReloadContent {} {
-        # FIRST, we don't do anything until we're mapped.
-        if {![winfo ismapped $win]} {
-            return
-        }
-        
-        # NEXT, clear the reload request counter.
-        set info(reloadRequests) 0
+    # This section contains code shared by the Goals and Tactics Trees.
 
-        # NEXT, Reload each of the components
-        $alist reload
-        $self TTreeReload
+    # TreeCreate tree ?options...?
+    #
+    # tree    - The name of the treectrl to create
+    # options - treectrl options and their values
+    #
+    # Creates and returns a new treectrl with standard options, states,
+    # elements, and styles.
+
+    method TreeCreate {tree args} {
+        # NEXT, create the tree widget
+        treectrl $tree                 \
+            -width          400        \
+            -height         100        \
+            -borderwidth    0          \
+            -relief         flat       \
+            -background     white      \
+            -linestyle      dot        \
+            -usetheme       1          \
+            -showheader     1          \
+            -showroot       0          \
+            -showrootlines  0          \
+            -indent         14         \
+            {*}$args
+
+        # NEXT, create the states, elements, and styles.
+
+        # Define Item states
+        $tree state define stripe     ;# Item is striped
+        $tree state define disabled   ;# Item is disabled by user
+        $tree state define invalid    ;# Item is invalid.
+        $tree state define check      ;# Item gets a checkmark
+        $tree state define true       ;# Item is known to be true
+        $tree state define false      ;# Item is known to be false
+
+        # Fonts
+        set overstrike [dict merge [font actual codefont] {-overstrike 1}]
+
+        set fontList [list \
+                          $overstrike disabled \
+                          codefont    {}]
+
+        # Text fill
+        set fillList [list \
+                          "#999999" disabled \
+                          red        invalid  \
+                          black      {}]
+
+        # Elements
+        $tree element create itemText text  \
+            -font    $fontList              \
+            -fill    $fillList
+
+        $tree element create wrapText text  \
+            -font    $fontList              \
+            -fill    $fillList              \
+            -wrap    word
+
+        $tree element create numText text   \
+            -font    $fontList              \
+            -fill    $fillList              \
+            -justify right
+
+        $tree element create thumbIcon image \
+            -image {
+                ::marsgui::icon::check22        check
+                ::marsgui::icon::smthumbupgreen true
+                ::marsgui::icon::smthumbdownred false
+                ::icon::dash                    {}
+            }
+
+        $tree element create elemRect rect               \
+            -fill {gray {selected} "#CCFFBB" {stripe}}
+
+        # wrapStyle: wrapped text over a fill rectangle.
+
+        $tree style create wrapStyle
+        $tree style elements wrapStyle {elemRect thumbIcon wrapText}
+        $tree style layout wrapStyle thumbIcon
+        $tree style layout wrapStyle wrapText  \
+            -squeeze x                         \
+            -iexpand nse                       \
+            -ipadx   4
+        $tree style layout wrapStyle elemRect \
+            -union   {thumbIcon wrapText}
+
+        # textStyle: text over a fill rectangle.
+        $tree style create textStyle
+        $tree style elements textStyle {elemRect itemText}
+        $tree style layout textStyle itemText \
+            -iexpand nse                      \
+            -ipadx   4
+        $tree style layout textStyle elemRect \
+            -union   {itemText}
+
+        # numStyle: numeric text over a fill rectangle.
+        $tree style create numStyle
+        $tree style elements numStyle {elemRect numText}
+        $tree style layout numStyle numText \
+            -iexpand nsw                    \
+            -ipadx   4
+        $tree style layout numStyle elemRect \
+            -union {numText}
+
+        # NEXT, return the new widget
+        return $tree
     }
+
+    # TreeItemState tree id state
+    #
+    # tree     - The goal or tactics tree
+    # id       - The item ID
+    # state    - normal|disabled|invalid
+    #
+    # Sets the tree state flags for a tree item to match the 
+    # state of the application entity.
+
+    method TreeItemState {tree id state} {
+        if {$state eq "normal"} {
+            $tree item state set $id !disabled
+            $tree item state set $id !invalid
+        } elseif {$state eq "disabled"} {
+            $tree item state set $id disabled
+            $tree item state set $id !invalid
+        } else {
+            # invalid
+            $tree item state set $id !disabled
+            $tree item state set $id invalid
+        }
+    }
+
+    # TreeItemFlag tree id flag
+    #
+    # tree     - The goal or tactics tree
+    # id       - The item ID
+    # flag     - 1 or 0 or ""
+    #
+    # Sets the tree state flags for a tree item to match the 
+    # the application entity true/false/unknown flag
+
+    method TreeItemFlag {tree id flag} {
+        if {$flag == 1} {
+            $tree item state set $id true
+            $tree item state set $id !false
+        } elseif {$flag == 0} {
+            $tree item state set $id false
+            $tree item state set $id !true
+        } else {
+            $tree item state set $id !false
+            $tree item state set $id !true
+        }
+    }
+
+
+    # TreeStripe tree
+    #
+    # Stripes the even-numbered top-level items, and colors their
+    # children the same way.
+
+    method TreeStripe {tree} {
+        set count 0
+        
+        foreach id [$tree item children root] {
+            set last  [$tree item lastchild $id]
+
+            if {$last eq ""} {
+                set last $id
+            }
+
+            if {$count % 2 == 1} {
+                $tree item state set $id $last stripe
+            } else {
+                $tree item state set $id $last !stripe
+            }
+
+            incr count
+        }
+    }
+
+
 
 
     #-------------------------------------------------------------------
@@ -1142,6 +1715,35 @@ snit::widget strategybrowser {
         expr {[llength [$alist curselection]] == 1}
     }
     
+    # gtree single
+    #
+    # Returns 1 if a single item is selected in the GTree, and 0 
+    # otherwise.
+    
+    method {gtree single} {} {
+        expr {[llength [$gtree selection get]] == 1}
+    }
+
+    # gtree validgoal
+    #
+    # Returns 1 if a valid (not invalid) goal is selected in the
+    # GTree, and 0 otherwise.
+    
+    method {gtree validgoal} {} {
+        if {[llength [$gtree selection get]] != 1} {
+            return 0
+        }
+
+        set id [lindex [$gtree selection get] 0]
+        
+        if {"goal" in [$gtree item tag names $id] &&
+            ![$gtree item state get $id invalid]
+        } {
+            return 1
+        } else {
+            return 0
+        }
+    }
 
     # ttree single
     #
@@ -1169,7 +1771,7 @@ snit::widget strategybrowser {
 
     # ttree validtactic
     #
-    # Returns 1 if a valid (non-error) tactic is selected in the
+    # Returns 1 if a valid (not invalid) tactic is selected in the
     # TTree, and 0 otherwise.
     
     method {ttree validtactic} {} {
@@ -1180,7 +1782,7 @@ snit::widget strategybrowser {
         set id [lindex [$ttree selection get] 0]
         
         if {"tactic" in [$ttree item tag names $id] &&
-            ![$ttree item state get $id error]
+            ![$ttree item state get $id invalid]
         } {
             return 1
         } else {

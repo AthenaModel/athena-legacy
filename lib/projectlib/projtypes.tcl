@@ -32,6 +32,7 @@ namespace eval ::projectlib:: {
         eensit           \
         eforcetype       \
         efrcactivity     \
+        egoal_state      \
         eorgactivity     \
         eorgconcern      \
         eorgtype         \
@@ -529,6 +530,15 @@ snit::type ::projectlib::typewrapper {
     INACTIVE Inactive
     ENDED    Ended
 }
+
+# Goal State.
+
+::marsutil::enum ::projectlib::egoal_state {
+    normal   "normal"
+    disabled "disabled"
+    invalid  "invalid"
+}
+
 
 # Tactic Type
 

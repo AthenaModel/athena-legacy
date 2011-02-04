@@ -1,0 +1,319 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-goal.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    goal(sim) tests.
+#
+#    This test suite tests the goal(sim) mutators and queries
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create JOE BOB NB1 NB2 BLUE BRIT
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        rdb nullvalue ""
+        array unset parms
+        ted cleanup
+    }
+
+
+    # Standard Goals
+    
+    set J1 {
+        owner       JOE
+        narrative   "Joe's First Goal"
+    }
+
+    set B1 {
+        owner       BOB
+        narrative   "Bob's First Goal"
+    }
+
+    #-------------------------------------------------------------------
+    # mutate create
+
+    test create-1.1 {goal is created} -setup {
+        setup
+    } -body {
+        goal mutate create $J1
+        ted query {SELECT * FROM goals}
+    } -cleanup {
+        cleanup
+    } -result {
+goal_id owner narrative        state  flag 
+------- ----- ---------------- ------ ---- 
+1       JOE   Joe's First Goal normal @    
+    }
+
+
+    test create-2.1 {undo deletes the goal} -setup {
+        setup
+        set undo [goal mutate create $J1]
+    } -body {
+        namespace eval :: $undo
+        rdb eval {SELECT * FROM goals}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    #-------------------------------------------------------------------
+    # mutate delete
+
+    test delete-1.1 {Goal is deleted} -setup {
+        setup
+        goal mutate create $J1
+        goal mutate create $B1
+    } -body {
+        goal mutate delete 1
+
+        rdb eval {SELECT goal_id FROM goals}
+    } -cleanup {
+        cleanup
+    } -result {2}
+
+    test delete-2.1 {Undo restores goal} -setup {
+        setup
+        goal mutate create $J1
+        goal mutate create $B1
+        set undo [goal mutate delete 2]
+    } -body {
+        namespace eval :: $undo
+        ted query {SELECT * FROM goals ORDER BY goal_id}
+    } -cleanup {
+        cleanup
+    } -result {
+goal_id owner narrative        state  flag 
+------- ----- ---------------- ------ ---- 
+1       JOE   Joe's First Goal normal @    
+2       BOB   Bob's First Goal normal @    
+    }
+
+    test delete-3.1 {Condition is deleted} -setup {
+        setup
+        goal mutate create $J1
+        ted order CONDITION:CASH:CREATE co_id 1 a JOE text1 LT x1 500
+    } -body {
+        goal mutate delete 1
+
+        rdb eval {SELECT condition_id FROM conditions}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-3.2 {Condition is restored on undo} -setup {
+        setup
+        goal mutate create $J1
+        ted order CONDITION:CASH:CREATE co_id 1 a JOE text1 LT x1 500
+
+        set undo [goal mutate delete 1]
+    } -body {
+        namespace eval :: $undo
+        rdb eval {SELECT condition_id FROM conditions}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # mutate update
+
+    test update-1.1 {goal is updated} -setup {
+        setup
+        goal mutate create $B1
+    } -body {
+        goal mutate update {goal_id 1 narrative "New Narrative"}
+
+        ted query {SELECT * FROM goals}
+    } -cleanup {
+        cleanup
+    } -result {
+goal_id owner narrative     state  flag 
+------- ----- ------------- ------ ---- 
+1       BOB   New Narrative normal @    
+    }
+
+    test update-1.2 {empty values are OK} -setup {
+        setup
+        goal mutate create $B1
+    } -body {
+        set a [ted query {SELECT * FROM goals}]
+
+        goal mutate update {goal_id 1 narrative ""}
+
+        set b [ted query {SELECT * FROM goals}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-2.1 {undo undoes the change} -setup {
+        setup
+        goal mutate create $B1
+    } -body {
+
+        set a [ted query {SELECT * FROM goals}]
+
+        set undo [goal mutate update {goal_id 1 narrative "New Narrative"}]
+
+        namespace eval :: $undo
+
+        set b [ted query {SELECT * FROM goals}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # mutate state
+
+    test state-1.1 {goal state is changed} -setup {
+        setup
+        goal mutate create $B1
+    } -body {
+        goal mutate state 1 disabled
+
+        # This verifies both that requested changes are made, and
+        # that NULL columns remain NULL.
+        ted query {SELECT goal_id,state FROM goals}
+    } -cleanup {
+        cleanup
+    } -result {
+goal_id state    
+------- -------- 
+1       disabled 
+    }
+
+
+    test state-2.1 {undo undoes the change} -setup {
+        setup
+        goal mutate create $B1
+    } -body {
+
+        set a [ted query {SELECT * FROM goals}]
+
+        set undo [goal mutate state 1 disabled]
+
+        namespace eval :: $undo
+
+        set b [ted query {SELECT * FROM goals}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # names
+
+    test names-1.1 {Returns names: none defined} -body {
+        goal names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test names-1.2 {Returns names} -setup {
+        setup
+        goal mutate create $J1
+        goal mutate create $B1
+    } -body {
+        goal names
+    } -cleanup {
+        cleanup
+    } -result {1 2}
+
+
+    #-------------------------------------------------------------------
+    # validate
+
+    test validate-1.1 {Invalid ID: none defined} -body {
+        goal validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid goal ID: "NONESUCH"}
+
+    test validate-2.1 {Valid name} -setup {
+        setup
+        goal mutate create $J1
+    } -body {
+        goal validate 1
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # get
+
+    proc setup_get {} {
+        variable B1
+        setup
+        goal mutate create $B1
+    }
+
+    test get-1.1 {get goal dict} -setup {
+        setup_get
+    } -body {
+        ted pdict [goal get 1]
+    } -cleanup {
+        cleanup
+    } -result {
+        narrative {Bob's First Goal}
+        state     normal
+        flag      @
+        owner     BOB
+        goal_id   1
+    }
+
+    test get-1.2 {get parameter} -setup {
+        setup_get
+    } -body {
+        goal get 1 owner
+    } -cleanup {
+        cleanup
+    } -result {BOB}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

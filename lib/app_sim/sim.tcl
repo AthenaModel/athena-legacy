@@ -1237,6 +1237,7 @@ snit::type sim {
         eventq advance [simclock now]
 
         # NEXT, execute tactics tock, if any.
+        # TBD: will be strategy tock.
         if {[simclock now] % [parmdb get tactics.ticksPerTock] == 0} {
             profile tactic tock
         }
@@ -1421,23 +1422,26 @@ order define SIM:LOCK {
 
     returnOnError -final
 
-    # NEXT, do the tactics sanity check.
+    # NEXT, do the strategy sanity check.
     if {![tactic check]} {
         set answer \
             [messagebox popup \
-                 -title         "Tactic Sanity Check Failed"     \
+                 -title         "Strategy Sanity Check Failed"   \
                  -icon          warning                          \
                  -buttons       {ok "Continue" cancel "Cancel"}  \
                  -default       cancel                           \
-                 -ignoretag     tactic_check_failed              \
+                 -ignoretag     strategy_check_failed            \
                  -ignoredefault ok                               \
                  -parent        [app topwin]                     \
                  -message       [normalize {
-                     One or more of your actor's tactics are invalid.
-                     These tactics have been disabled; details are
-                     to be found on the Reports tab and in the
-                     Strategy browser.  Press
-                     "Continue" to go ahead and lock the scenario;
+                     One or more actors have invalid tactics or
+                     conditions in their strategies.  These
+                     tactics and conditions have been marked
+                     invalid; details are to be found in the
+                     Strategy Sanity Check report on the Reports
+                     tab.  Invalid tactics and conditions are
+                     so marked in the Strategy browser.
+                     Press "Continue" to go ahead and lock the scenario;
                      or press "Cancel" if you wish to fix the
                      problems first.
                  }]]

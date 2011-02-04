@@ -47,6 +47,7 @@ namespace eval ::athena_test::tests:: {
 
     proc mkupdate {condition_id parms} {
         set dict {
+            a     ""
             text1 ""
             x1    ""
         }
@@ -58,15 +59,17 @@ namespace eval ::athena_test::tests:: {
     # Standard Conditions
     
     set S1 {
-        tactic_id      1
+        co_id          1
         condition_type CASH
+        a              JOE
         text1          GT
         x1             10000
     }
 
     set S2 {
-        tactic_id      1
+        co_id          1
         condition_type CASH
+        a              BOB
         text1          LT
         x1             20000
     }
@@ -82,9 +85,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-condition_id condition_type tactic_id narrative                                    state  text1 x1      
------------- -------------- --------- -------------------------------------------- ------ ----- ------- 
-1            CASH           1         Actor's cash-on-hand is greater than $10,000 normal GT    10000.0 
+condition_id condition_type co_id narrative                                        state  flag a   text1 x1      
+------------ -------------- ----- ------------------------------------------------ ------ ---- --- ----- ------- 
+1            CASH           1     Actor JOE's cash-on-hand is greater than $10,000 normal @    JOE GT    10000.0 
     }
 
     test create-2.1 {undo deletes the condition} -setup {
@@ -123,10 +126,10 @@ condition_id condition_type tactic_id narrative                                 
     } -cleanup {
         cleanup
     } -result {
-condition_id condition_type tactic_id narrative                                    state  text1 x1      
------------- -------------- --------- -------------------------------------------- ------ ----- ------- 
-1            CASH           1         Actor's cash-on-hand is greater than $10,000 normal GT    10000.0 
-2            CASH           1         Actor's cash-on-hand is less than $20,000    normal LT    20000.0 
+condition_id condition_type co_id narrative                                        state  flag a   text1 x1      
+------------ -------------- ----- ------------------------------------------------ ------ ---- --- ----- ------- 
+1            CASH           1     Actor JOE's cash-on-hand is greater than $10,000 normal @    JOE GT    10000.0 
+2            CASH           1     Actor BOB's cash-on-hand is less than $20,000    normal @    BOB LT    20000.0 
     }
 
     #-------------------------------------------------------------------
@@ -146,9 +149,9 @@ condition_id condition_type tactic_id narrative                                 
     } -cleanup {
         cleanup
     } -result {
-condition_id condition_type tactic_id narrative                                   state  text1 x1     
------------- -------------- --------- ------------------------------------------- ------ ----- ------ 
-1            CASH           1         Actor's cash-on-hand is less than $5,000.00 normal LT    5000.0 
+condition_id condition_type co_id narrative                                       state  flag a   text1 x1     
+------------ -------------- ----- ----------------------------------------------- ------ ---- --- ----- ------ 
+1            CASH           1     Actor BOB's cash-on-hand is less than $5,000.00 normal @    BOB LT    5000.0 
     }
 
     test update-1.2 {empty values are OK} -setup {
@@ -284,12 +287,14 @@ condition_id state
     } -cleanup {
         cleanup
     } -result {
-        narrative      {Actor's cash-on-hand is less than $20,000}
-        tactic_id      1
+        narrative      {Actor BOB's cash-on-hand is less than $20,000}
         condition_type CASH
         x1             20000.0
+        a              BOB
         state          normal
         text1          LT
+        flag           @
+        co_id          1
         condition_id   1
     }
 
@@ -312,16 +317,50 @@ condition_id state
         condition::CASH narrative [condition get 1]
     } -cleanup {
         cleanup
-    } -result {Actor's cash-on-hand is less than $20,000}
+    } -result {Actor BOB's cash-on-hand is less than $20,000}
 
-    test CASH-2.1 {eval} -setup {
+    test CASH-2.1 {check: successful} -setup {
         setup
         condition mutate create $S2
     } -body {
-        condition::CASH eval [condition get 1] JOE
+        condition::CASH check [condition get 1]
     } -cleanup {
         cleanup
-    } -result {0}
+    } -result {}
+
+    test CASH-2.2 {check: actor deleted} -setup {
+        setup
+        condition mutate create $S2
+        rdb eval {DELETE FROM actors WHERE a='BOB'}
+    } -body {
+        condition::CASH check [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {Actor BOB no longer exists.}
+
+    # Sets up for a cash comparison.  Presumes that BOB is the
+    # actor and that there is a CASH condition with condition_id 1.
+    proc CashEval {cash comp amount} {
+        rdb eval {UPDATE actors SET cash=$cash WHERE a='BOB'}
+        condition mutate update [mkupdate 1 [list text1 $comp x1 $amount]]
+        return [condition::CASH eval [condition get 1]]
+    }
+
+    test CASH-3.1 {eval} -setup {
+        setup
+        condition mutate create $S2
+    } -body {
+        set a [CashEval 100 LT 200]
+        set b [CashEval 200 LT 100]
+        set c [CashEval 200 EQ 200]
+        set d [CashEval 100 EQ 200]
+        set e [CashEval 200 GT 100]
+        set f [CashEval 100 GT 200]
+
+        list $a $b $c $d $e $f
+    } -cleanup {
+        cleanup
+    } -result {1 0 1 0 1 0}
 
 
     #-------------------------------------------------------------------

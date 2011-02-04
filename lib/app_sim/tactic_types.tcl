@@ -64,20 +64,35 @@ snit::type ::tactic::DEFEND {
     }
     
     typemethod check {tdict} {
+        set errors [list]
+
         # Force group g's owning actor and uniformed flag can both
         # change after the tactic is created.
         dict with tdict {
+            # n
+            if {$n ni [nbhood names]} {
+                lappend errors "Neighborhood $n no longer exists."
+            }
 
-            rdb eval {SELECT uniformed,a FROM frcgroups WHERE g=$g} {}
+            # g
+            if {$g ni [frcgroup names]} {
+                lappend errors "Force group $g no longer exists."
+            } else {
+                rdb eval {SELECT uniformed,a FROM frcgroups WHERE g=$g} {}
 
-            if {$a ne $owner} {
-                return "Group $g is not owned by actor $owner."
-            } elseif {!$uniformed} {
-                return "Group $g is not a uniformed force group."
+                if {$a ne $owner} {
+                    lappend errors \
+                        "Force group $g is no longer owned by actor $owner."
+                }
+
+                if {!$uniformed} {
+                    lappend errors \
+                        "Force group $g is no longer a uniformed force group."
+                }
             }
         }
 
-        return
+        return [join $errors "  "]
     }
 
     typemethod dollars {tdict} {
@@ -181,7 +196,7 @@ order define TACTIC:DEFEND:UPDATE {
     title "Update Tactic: Set Defensive ROE"
     options \
         -sendstates {PREP PAUSED}                           \
-        -refreshcmd {orderdialog refreshForKey tactic_id *}
+        -refreshcmd {tactic RefreshUPDATE}
 
     parm tactic_id key  "Tactic ID"  -table tactics_DEFEND -key tactic_id
     parm owner     disp "Owner"
@@ -293,8 +308,7 @@ order define TACTIC:SAVEMONEY:UPDATE {
     title "Update Tactic: Save Money"
     options \
         -sendstates {PREP PAUSED}                           \
-        -refreshcmd {orderdialog refreshForKey tactic_id *}
-
+        -refreshcmd {tactic RefreshUPDATE}
 
     parm tactic_id key  "Tactic ID"  -table tactics_SAVEMONEY -key tactic_id
     parm owner     disp "Owner"

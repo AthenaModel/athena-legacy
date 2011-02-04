@@ -82,6 +82,7 @@ snit::type scenario {
         rdb monitor add econ_n       {n}
         rdb monitor add ensits_t     {s}
         rdb monitor add frcgroups    {g}
+        rdb monitor add goals        {goal_id}
         rdb monitor add gram_driver  {driver}
         rdb monitor add groups       {g}
         rdb monitor add mads         {id}

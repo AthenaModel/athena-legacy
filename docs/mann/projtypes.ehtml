@@ -135,6 +135,15 @@ An <<xref mars:enum(n)>> type, representing force group types.<p>
 <<::projectlib::eforcetype html>>
 
 
+<<defitem egoal_state {egoal_state <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the current state of a
+goal.  A "normal" goal can be evaluated.  A "disabled" goal is ignored.
+An "invalid" goal is ignored, and should be fixed.<p>
+
+<<::projectlib::egoal_state html>>
+
+
 <<defitem eorgtype {eorgtype <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing organization group types.<p>

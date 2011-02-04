@@ -16,16 +16,30 @@
 #    narrative cdict
 #        Creates a narrative description of the condition.
 #
-#    eval cdict a
-#        Evaluates the condition, returning 1 if true, 0 if false,
-#        and "" if we don't know, given actor a.
+#    check cdict
+#        Sanity checks the condition.  Note that this routine only 
+#        needs to look for things that can change after the condition 
+#        was created, e.g., an actor that no longer exists.  
+#        Returns a message describing the error if the condition is 
+#        invalid, and the empty string otherwise.
+#
+#    eval cdict
+#        Evaluates the condition, returning 1 if true and 0 if false.
+#        The "eval" subcommand will be called only after the simulation
+#        is locked, and should always be able to compute a value for
+#        a condition with "normal" state.
+#
+# ORDERS:
+#
+# * The UPDATE orders are expected to use RefreshUPDATE so that the
+#   user cannot switch to a different condition.
 #
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# Condition: CASH
+# Condition: CASH(a,comp,amount)
 #
-# How does the actor's cash-on-hand compare with some amount?
+# How does actor a's cash-on-hand compare with some amount?
 
 snit::type ::condition::CASH {
     pragma -hasinstances no
@@ -34,13 +48,23 @@ snit::type ::condition::CASH {
         dict with cdict {
             set comp   [ecomparator longname $text1]
             set amount [moneyfmt $x1]
-            return "Actor's cash-on-hand is $comp \$$amount"
+            return "Actor $a's cash-on-hand is $comp \$$amount"
         }
     }
 
-    typemethod eval {cdict a} {
+    typemethod check {cdict} {
         dict with cdict {
-            # Get the owner's cash reserves
+            if {$a ni [actor names]} {
+                return "Actor $a no longer exists."
+            }
+        }
+
+        return
+    }
+
+    typemethod eval {cdict} {
+        dict with cdict {
+            # Get the actor's cash reserves
             set cash [actor get $a cash]
 
             # TBD: EQ should be an epsilon check
@@ -63,12 +87,14 @@ order define CONDITION:CASH:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm tactic_id key  "Tactic ID"    -table tactics -key tactic_id
-    parm text1     enum "Comparison"   -type ecomparator -displaylong
+    parm co_id     key  "Tactic/Goal ID" -table cond_owners -key co_id
+    parm a         key  "Actor"          -table actors -key a
+    parm text1     enum "Comparison"     -type ecomparator -displaylong
     parm x1        text "Amount"
 } {
     # FIRST, prepare and validate the parameters
-    prepare tactic_id            -required -type tactic
+    prepare co_id                -required -type cond_owner
+    prepare a          -toupper  -required -type actor
     prepare text1      -toupper  -required -type ecomparator
     prepare x1         -toupper  -required -type money
 
@@ -89,17 +115,18 @@ order define CONDITION:CASH:UPDATE {
     title "Update Condition: Cash on hand"
     options \
         -sendstates {PREP PAUSED}                           \
-        -refreshcmd {orderdialog refreshForKey condition_id *}
+        -refreshcmd {condition RefreshUPDATE}
 
-    parm condition_id key  "Condition ID"  -table gui_conditions_CASH  \
+    parm condition_id key  "Condition ID"  -table conditions  \
                                            -key   condition_id
-    parm tactic_id    disp "Tactic ID"
+    parm a            key  "Actor"         -table actors -key a
     parm text1        enum "Comparison"    -type ecomparator -displaylong
     parm x1           text "Amount"
                 
 } {
     # FIRST, prepare the parameters
     prepare condition_id  -required           -type condition
+    prepare a                       -toupper  -type actor
     prepare text1                   -toupper  -type ecomparator
     prepare x1                      -toupper  -type money     
 

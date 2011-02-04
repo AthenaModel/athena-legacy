@@ -35,10 +35,202 @@ snit::type tactic {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
+    # Strategy Sanity Check
+    #
+    # TBD: This code will be moved to the strategy(sim) module
+
+    # check
+    #
+    # Tactics and conditions can become invalid after they are created.
+    # For example, a group referenced by a tactic might be deleted,
+    # or assigned to a different owner.  The sanity check looks for
+    # such problems, and highlights them.  Invalid tactics and
+    # conditions are so marked, and the user is notified.
+    #
+    # Returns 1 if the check is successful, and 0 otherwise.
+
+    typemethod check {} {
+        # FIRST, find invalid conditions
+        set badConditions [list]
+
+        rdb eval {
+            SELECT *
+            FROM conditions
+            JOIN cond_owners USING (co_id)
+            WHERE state != 'disabled'
+        } row {
+            # FIRST, Check and skip valid conditions
+            set result [condition call check [array get row]]
+
+            if {$result ne ""} {
+                lappend badConditions $row(condition_id)
+                set cerror($row(condition_id)) $result
+            }
+        }
+
+        # NEXT, mark the bad conditions invalid.  Use CONDITION:STATE, 
+        # because it guarantees that the RDB <conditions> updates 
+        # are sent.
+        foreach condition_id $badConditions {
+            order send sim CONDITION:STATE \
+                condition_id $condition_id \
+                state        invalid
+        }
+
+        # FIRST, NEXT invalid tactics.
+        set badTactics [list]
+
+        rdb eval {
+            SELECT * FROM tactics
+        } row {
+            set result [tactic call check [array get row]]
+
+            if {$result ne ""} {
+                lappend badTactics $row(tactic_id)
+                set terror($row(tactic_id)) $result
+            }
+        }
+
+        # NEXT, mark them invalid.  Use TACTIC:STATE, because
+        # it guarantees that the RDB <tactics> updates are sent.
+        foreach tactic_id $badTactics {
+            order send sim TACTIC:STATE \
+                tactic_id $tactic_id \
+                state     invalid
+        }
+
+        # NEXT, if there's nothing wrong, we're done.
+        if {[llength $badConditions] == 0 &&
+            [llength $badTactics] == 0
+        } {
+            return 1
+        }
+
+        # NEXT, Build a report
+        set report [list]
+        lappend report \
+            "Certain tactics or conditions have failed their sanity"     \
+            "checks and have been marked invalid.  Please fix or delete" \
+            "them on the Strategy tab."                                  \
+            ""
+
+        # Goals with condition errors
+        set entries {}
+        set lastOwner {}
+        set lastGoal {}
+
+        rdb eval {
+            SELECT goals.goal_id   AS goal_id, 
+                   goals.narrative AS goal_narrative,
+                   goals.owner     AS owner,
+                   conditions.*
+            FROM goals
+            JOIN conditions ON (co_id = goal_id)
+            WHERE conditions.state = 'invalid'
+            ORDER BY owner, goal_id, condition_id
+        } row {
+            if {$row(owner) ne $lastOwner} {
+                set lastOwner $row(owner)
+                set lastGoal {}
+                
+                lappend entries "Actor: $row(owner)"
+            }
+
+            if {$row(goal_id) ne $lastGoal} {
+                set lastGoal $row(goal_id)
+
+                lappend entries \
+                    "    Goal ID=$row(goal_id), $row(goal_narrative)"
+            }
+
+            lappend entries \
+                "        Condition ID=$row(condition_id), $row(narrative) ($row(condition_type))" \
+                "            ==> $cerror($row(condition_id))"              \
+                ""
+        }
+
+        if {[llength $entries] != 0} {
+            lappend report \
+                "The following goals have invalid conditions attached" \
+                ""
+
+            lappend report {*}$entries
+        }
+
+        # Bad Tactics/Tactics with bad conditions
+        set entries {}
+        set lastOwner {}
+        set lastTactic {}
+
+        rdb eval {
+            SELECT T.tactic_id   AS tactic_id,
+                   T.narrative   AS tactic_narrative,
+                   T.tactic_type AS tactic_type,
+                   T.state       AS tactic_state,
+                   C.*
+            FROM tactics AS T 
+            JOIN conditions AS C ON (co_id = tactic_id)
+            WHERE T.state = 'invalid' OR C.state = 'invalid'
+        } row {
+            if {$row(owner) ne $lastOwner} {
+                set lastOwner $row(owner)
+                set lastGoal {}
+                
+                lappend entries "Actor: $row(owner)"
+            }
+
+            if {$row(tactic_id) ne $lastTactic} {
+                set lastTactic $row(tactic_id)
+
+                lappend entries \
+                    "    Tactic ID=$row(tactic_id), $row(tactic_narrative) ($row(tactic_type))"
+
+                if {$row(tactic_state) eq "invalid"} {
+                    lappend entries \
+                        "        ==> $terror($row(tactic_id))" \
+                        ""
+                }
+            }
+
+            if {$row(state) eq "invalid"} {
+                lappend entries \
+                    "        Condition ID=$row(condition_id), $row(narrative) ($row(condition_type))" \
+                    "            ==> $cerror($row(condition_id))"  \
+                    ""
+
+            }
+        }
+
+        if {[llength $entries] != 0} {
+            lappend report \
+                "The following tactics are invalid or have invalid conditions attached" \
+                "to them." \
+                ""
+
+            lappend report {*}$entries
+        }
+
+
+        # NEXT, send the report.
+        report save \
+            -rtype   SCENARIO                \
+            -subtype SANITY                  \
+            -meta1   STRATEGY                \
+            -title   "Strategy Sanity Check" \
+            -text    [join $report \n]
+        
+        return 0
+    }
+
+
+    #-------------------------------------------------------------------
     # Tactics Tock
     #
     # These routines are called during the tactics tock to select and
     # execute tactics.
+    #
+    # TBD: This code will eventually be moved to the strategy(sim)
+    # module.
 
     # tock
     #
@@ -53,11 +245,44 @@ snit::type tactic {
         # FIRST, update each actor's income.
         rdb eval { UPDATE actors SET cash = cash + income; }
 
-        # NEXT, sanity check all tactics
+        # NEXT, sanity check all tactics and conditions
         # TBD: Not needed until relevant details can change at
         # runtime.
 
-        # NEXT, mark all tactics unexecuted.
+        # NEXT, evaluate all goals and conditions
+        #
+        # NOTE: If there any invalid conditions by this point,
+        # it's because the user elected to ignore them.  Treat
+        # any non-normal conditions as true, consequently.
+        #
+        # TBD: for now, just conditions, since we have no
+        # GoalIsMet/GoalIsUnmet conditions.
+
+        rdb eval {
+            UPDATE conditions
+            SET flag = 1
+            WHERE state != 'normal'
+        }
+        
+        set flags [dict create]
+
+        rdb eval {
+            SELECT * FROM conditions
+            WHERE state = 'normal'
+        } row {
+            dict set flags $row(condition_id) \
+                [condition call eval [array get row]]
+        }
+
+        dict for {condition_id flag} $flags {
+            rdb eval {
+                UPDATE conditions
+                SET flag = $flag
+                WHERE condition_id = $condition_id
+            }
+        }
+
+        # NEXT, Mark all tactics unexecuted.
         rdb eval { UPDATE tactics SET exec_flag = 0; }
 
         # NEXT, select and execute tactics for each actor
@@ -102,6 +327,11 @@ snit::type tactic {
 
         # NEXT, get the eligible tactics.  A tactic is eligible if
         # all of its conditions are met.
+        #
+        # TBD: This could be better done; I think one query could
+        # find all tactics belonging to the actor with no unmet
+        # conditions.
+
         set eligible [rdb eval {
             SELECT tactic_id
             FROM tactics
@@ -112,12 +342,12 @@ snit::type tactic {
         rdb eval {
             SELECT conditions.* 
             FROM conditions
-            JOIN tactics USING (tactic_id)
+            JOIN tactics ON (co_id = tactic_id)
             WHERE tactics.owner = $a
             AND   tactics.state = 'normal'
         } row {
-            if {![condition call eval [array get row] $a]} {
-                ldelete eligible $row(tactic_id)
+            if {!$row(flag)} {
+                ldelete eligible $row(co_id)
             }
         }
 
@@ -252,77 +482,6 @@ snit::type tactic {
     }
 
     #-------------------------------------------------------------------
-    # Tactic Sanity Check
-
-    # check
-    #
-    # Some tactics can become invalid after they are created, due to
-    # changes in other areas.  For example, the force group in a 
-    # DEFEND tactic can be assigned to a different owner.  The 
-    # sanity check looks for such problems, and highlights them.
-    # Invalid tactics are so marked, and the user is notified.
-    #
-    # Returns 1 if the check is successful, and 0 otherwise.
-
-    typemethod check {} {
-        # FIRST, find invalid tactics.
-        set badlist [list]
-        set entries [list]
-
-        rdb eval {
-            SELECT * FROM tactics
-            ORDER BY owner, priority
-        } row {
-            set tdict [array get row]
-            set result [tactic call check $tdict]
-
-            if {$result ne ""} {
-                lappend badlist $row(tactic_id)
-
-                lappend entries [tsubst {
-                    |<--
-                    Actor $row(owner), Tactic ID=$row(tactic_id) ($row(tactic_type))
-                    $row(narrative):
-                    ==> $result}]
-            }
-        }
-
-        # NEXT, mark them invalid.  Use TACTIC:STATE, because
-        # it guarantees that the RDB <tactics> updates are sent.
-        foreach tactic_id $badlist {
-            order send sim TACTIC:STATE \
-                tactic_id $tactic_id \
-                state     invalid
-        }
-
-        # NEXT, notify the user.
-        if {[llength $badlist] > 0} {
-            set report [tsubst {
-                |<--
-                The following tactics have been marked invalid.  Please
-                fix or delete them on the Strategy tab.
-            }]
-
-            append report \n[join $entries \n\n]
-
-            report save \
-                -rtype   SCENARIO               \
-                -subtype SANITY                 \
-                -meta1   TACTICS                \
-                -title   "Tactics Sanity Check" \
-                -text    $report
-
-            return 0
-        }
-
-        # NEXT, check succeeded
-        return 1
-    }
-
-
-
-
-    #-------------------------------------------------------------------
     # Mutators
     #
     # Mutators are used to implement orders that change the scenario in
@@ -353,15 +512,19 @@ snit::type tactic {
         dict with parmdict {
             # FIRST, Put the tactic in the database
             rdb eval {
+                INSERT INTO cond_owners(co_type) VALUES('tactic');
+
                 INSERT INTO 
-                tactics(tactic_type, owner, narrative, priority, 
+                tactics(tactic_id, 
+                        tactic_type, owner, narrative, priority, 
                         m,
                         n, 
                         f,
                         g,
                         text1,
                         int1)
-                VALUES($tactic_type, $owner, $narrative, 0, 
+                VALUES(last_insert_rowid(),
+                       $tactic_type, $owner, $narrative, 0, 
                        nullif($m,     ''),
                        nullif($n,     ''),
                        nullif($f,     ''),
@@ -565,6 +728,23 @@ snit::type tactic {
             return -code error -errorcode INVALID \
                 "Tactic $id is not a $tactic_type tactic"
         }
+    }
+
+    # RefreshUPDATE dlg fields fdict
+    #
+    # dlg       The order dialog
+    # fields    The fields that changed.
+    # fdict     The current values of the various fields.
+    #
+    # Refreshes the TACTIC:*:UPDATE dialog fields when field values
+    # change, and disables the tactic_id field; they can't pick
+    # new ones.
+
+    typemethod RefreshUPDATE {dlg fields fdict} {
+        orderdialog refreshForKey tactic_id * $dlg $fields $fdict
+
+        # make tactic_id invalid
+        $dlg disabled tactic_id
     }
 }
 

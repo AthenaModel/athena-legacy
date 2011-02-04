@@ -613,7 +613,7 @@ order CONDITION:STATE "Set Condition State" {
 page CONDITION:CASH: "Condition: Cash on hand" CONDITION: {
     <<title>>
 
-    This condition compares the actor's cash-on-hand with a 
+    This condition compares an actor's cash-on-hand with a 
     user-specified amount.  The actor's cash-on-hand is the
     amount of money the actor has available to fund
     tactics.<p>
@@ -626,6 +626,10 @@ page CONDITION:CASH: "Condition: Cash on hand" CONDITION: {
 order CONDITION:CASH:CREATE "Create Condition: Cash on hand" {
     <<parmlist>>
     <<CONDITION.ctactic>>
+
+    <<parm a "Actor">>
+    The name of the actor whose cash-on-hand is being compared.
+    <</parm>>
 
     <<parm text1 "Comparison">>
     <b>Required.</b>  The kind of comparision being done: a value from
@@ -647,6 +651,10 @@ order CONDITION:CASH:UPDATE "Update Condition: Cash on hand" {
     <<parmlist>>
     <<CONDITION.id>>
     <<CONDITION.utactic>>
+
+    <<parm a "Actor">>
+    The name of the actor whose cash-on-hand is being compared.
+    <</parm>>
 
     <<parm text1 "Comparison">>
     <b>Optional.</b>  The kind of comparision being done: a value from
@@ -1097,6 +1105,93 @@ order ENSIT:RESOLVE "Resolve Environmental Situation" {
     Resolves an unresolved environmental situation.  Any on-going
     effects will be terminated, and the neighborhood population will
     usually respond favorably.
+}
+
+#=======================================================================
+# Goal Orders
+
+page GOAL: "Goal Orders" orders {
+    <<title>>
+
+    A <<term goal>> represents a state of affairs that an actor
+    wishes to bring about.  The precise state of affairs is defined
+    by one or more <<term condition>>s attached to the goal.
+
+    The goal orders are as follows:<p>
+
+    <<childlinks>>
+} 
+
+macro GOAL.id {} {
+    |<--
+    [parm goal_id "Goal ID"]
+    <b>Required.</b> The ID of the goal to be updated.
+    [/parm]
+}
+
+order GOAL:CREATE "Create Goal" {
+    <<parmlist>>
+
+    <<parm owner "Owner">>
+    The name of the actor whose goal this is.
+    <</parm>>
+
+    <<parm narrative "Narrative">>
+    <b>Required.</b>  A narrative description of the goal.  This will
+    usually be a summary of the conditions attached to the goal.
+    <</parm>>
+
+    <</parmlist>>
+
+    Creates the goal.
+}
+
+order GOAL:DELETE "Delete Goal" {
+    <<parmlist>>
+
+    <<parm goal_id "Goal ID">>
+    <b>Required.</b>  The ID of an existing goal.
+    <</parm>>
+    
+    <</parmlist>>
+
+    Deletes the goal.
+}
+
+order GOAL:UPDATE "Update Goal" {
+    <<parmlist>>
+    <<GOAL.id>>
+
+    <<parm owner "Owner">>
+    <b>Display Only.</b> The name of the actor whose goal this is.
+    <</parm>>
+
+    <<parm narrative "Narrative">>
+    <b>Required.</b>   A narrative description of the goal.  This will
+    usually be a summary of the conditions attached to the goal.
+    <</parm>>
+
+    <</parmlist>>
+
+    Allows the user to edit the goal.
+}
+
+order GOAL:STATE "Set Goal State" {
+    <<parmlist>>
+
+    <<parm goal_id "Goal ID">>
+    <b>Required.</b>  The ID of an existing goal.
+    <</parm>>
+
+    <<parm state "State">>
+    <b>Required.</b>  The goal's new state, one of: <b>normal</b>,
+    <b>disabled</b>, or <b>invalid</b>.
+    <</parm>>
+
+    <</parmlist>>
+
+    Sets the goal's state.  Note that this order is for internal use
+    by the application; there is no associated order dialog.
 }
 
 

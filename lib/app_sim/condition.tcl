@@ -107,7 +107,8 @@ snit::type condition {
     # parmdict     A dictionary of condition parms
     #
     #    condition_type - The condition type (econditiontype)
-    #    tactic_id      - The owning tactic
+    #    co_id          - The owning tactic or goal
+    #    a              - Actor, or ""
     #    text1          - Text string, or ""
     #    x1             - Real number, or ""
     #
@@ -126,10 +127,12 @@ snit::type condition {
             # FIRST, Put the condition in the database
             rdb eval {
                 INSERT INTO 
-                conditions(condition_type, tactic_id, narrative,
+                conditions(condition_type, co_id, narrative,
+                           a,
                            text1,
                            x1)
-                VALUES($condition_type, $tactic_id, $narrative, 
+                VALUES($condition_type, $co_id, $narrative, 
+                       nullif($a,      ''),
                        nullif($text1,  ''),
                        nullif($x1,     ''));
             }
@@ -162,11 +165,12 @@ snit::type condition {
     # parmdict     A dictionary of condition parms
     #
     #    condition_id   The condition's ID
+    #    a              Actor ID, or ""
     #    text1          Text string, or ""
     #    x1             Real number, or ""
     #
     # Updates a condition given the parms, which are presumed to be
-    # valid.  Note that you can't change the condition's tactic_id or
+    # valid.  Note that you can't change the condition's co_id or
     # type.
 
     typemethod {mutate update} {parmdict} {
@@ -182,6 +186,7 @@ snit::type condition {
             rdb eval {
                 UPDATE conditions
                 SET text1 = nullif(nonempty($text1, text1),  ''),
+                    a     = nullif(nonempty($a,     a),      ''),
                     x1    = nullif(nonempty($x1,    x1),     '')
                 WHERE condition_id=$condition_id;
             } {}
@@ -259,6 +264,23 @@ snit::type condition {
                 "Condition $id is not a $condition_type condition"
         }
     }
+
+    # RefreshUPDATE dlg fields fdict
+    #
+    # dlg       The order dialog
+    # fields    The fields that changed.
+    # fdict     The current values of the various fields.
+    #
+    # Refreshes the CONDITION:*:UPDATE dialog fields when field values
+    # change, and disables the condition_id field; they can't pick
+    # new ones.
+
+    typemethod RefreshUPDATE {dlg fields fdict} {
+        orderdialog refreshForKey condition_id * $dlg $fields $fdict
+
+        # make condition_id invalid
+        $dlg disabled condition_id
+    }
 }
 
 
@@ -278,7 +300,6 @@ order define CONDITION:DELETE {
     parm condition_id   key  "Condition ID"   -table conditions   \
                                               -key   condition_id
     parm condition_type disp "Condition Type"
-    parm tactic_id      disp "Tactic ID"
 } {
     # FIRST, prepare the parameters
     prepare condition_id -toupper -required -type condition

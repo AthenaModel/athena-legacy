@@ -46,6 +46,7 @@ snit::type ted {
         demsits_t
         ensits_t
         frcgroups
+        goals
         groups
         mads
         nbhoods

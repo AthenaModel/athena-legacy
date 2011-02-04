@@ -109,9 +109,9 @@ snit::type ::report {
             AND meta1='ONTICK'
         }
 
-        reporter bin define scenario_sanity_tactic "Tactics" scenario_sanity {
+        reporter bin define scenario_sanity_strategy "Strategy" scenario_sanity {
             SELECT * FROM reports WHERE rtype='SCENARIO' AND subtype='SANITY'
-            AND meta1='TACTICS'
+            AND meta1='STRATEGY'
         }
 
         reporter bin define scenario_parmdb "Model Parameters" scenario {

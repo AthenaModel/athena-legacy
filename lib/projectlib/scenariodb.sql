@@ -263,14 +263,66 @@ CREATE TABLE orggroups (
 CREATE VIEW orggroups_view AS
 SELECT * FROM groups JOIN orggroups USING (g);
 
+
+------------------------------------------------------------------------
+-- Condition Owners Table
+--
+-- Tactics and Goals are both "condition owners"; they can have
+-- attached conditions.
+
+CREATE TABLE cond_owners (
+    co_id   INTEGER PRIMARY KEY,
+    co_type TEXT NOT NULL        -- tactic|goal
+);
+
+------------------------------------------------------------------------
+-- Goals Table
+--
+-- The goals table stores the goals pursued by the various actors.
+
+CREATE TABLE goals (
+    -- The goal_id is, in fact, a cond_owners.co_id.  We do not
+    -- reference it explicitly because the cond_owners record is
+    -- deleted when a tactics or goals row is deleted, not the
+    -- other way around.
+    goal_id      INTEGER PRIMARY KEY, 
+    
+    -- Owning Actor
+    owner        TEXT REFERENCES actors(a)
+                 ON DELETE CASCADE
+                 DEFERRABLE INITIALLY DEFERRED, 
+
+    -- Narrative: For goals, this is a user-edited string.
+    narrative    TEXT NOT NULL,
+
+    -- State: normal, disabled, invalid (egoal_state)
+    state        TEXT DEFAULT 'normal',
+
+    -- Flag: 1 (met), 0 (unmet), or NULL (unknown)
+    flag         INTEGER
+);
+
+-- A goal is a condition owner; thus, we need a trigger to delete
+-- the cond_owners row when a goal is deleted.
+
+CREATE TRIGGER goal_delete
+AFTER DELETE ON goals BEGIN
+    DELETE FROM cond_owners WHERE co_id = old.goal_id;
+END;
+
+
 ------------------------------------------------------------------------
 -- Tactics Table
 --
 -- The tactics table stores the tactics in use by the various actors.
 
 CREATE TABLE tactics (
-    tactic_id    INTEGER PRIMARY KEY,
-    tactic_type  TEXT, -- TBD: Could reference a tactics_type table
+    -- The tactic_id is, in fact, a cond_owners.co_id.  We do not
+    -- reference it explicitly because the cond_owners record is
+    -- deleted when a tactics or goals row is deleted, not the
+    -- other way around.
+    tactic_id    INTEGER PRIMARY KEY, 
+    tactic_type  TEXT,
     
     -- Owning Actor
     owner        TEXT REFERENCES actors(a)
@@ -297,38 +349,44 @@ CREATE TABLE tactics (
     exec_flag    INTEGER DEFAULT 0,
 
     -- Type-specific Parameters: These columns are used in different
-    -- ways by different tactics; all are NULL if unused.
+    -- ways by different tactics; all are NULL if unused.  No
+    -- foreign key constraints; errors are checked by tactic-type
+    -- sanity checker, to give the user more flexibility.
 
     -- Neighborhoods; use n first.
-    m            TEXT REFERENCES nbhoods(n)
-                 ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, 
-
-    n            TEXT REFERENCES nbhoods(n)
-                 ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, 
+    m            TEXT,
+    n            TEXT,
 
     -- Groups; use g first.
-    f            TEXT REFERENCES groups(g)
-                 ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-
-    g            TEXT REFERENCES groups(g)
-                 ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+    f            TEXT,
+    g            TEXT,
 
     -- Data items
     text1        TEXT,
     int1         INTEGER
 );
 
+-- A tactic is a condition owner; thus, we need a trigger to delete
+-- the cond_owners row when a tactic is deleted.
+
+CREATE TRIGGER tactics_delete
+AFTER DELETE ON tactics BEGIN
+    DELETE FROM cond_owners WHERE co_id = old.tactic_id;
+END;
+
+
 ------------------------------------------------------------------------
 -- Conditions Table
 --
--- The conditions table stores the conditions in use by the various actors.
+-- The conditions table stores the conditions in use by the various
+-- goals and tactics.
 
 CREATE TABLE conditions (
     condition_id   INTEGER PRIMARY KEY,
     condition_type TEXT, -- econdition_type(n)
     
-    -- Owning tactic
-    tactic_id      INTEGER REFERENCES tactics(tactic_id)
+    -- Condition owner (a goal or tactic)
+    co_id          INTEGER REFERENCES cond_owners(co_id)
                    ON DELETE CASCADE
                    DEFERRABLE INITIALLY DEFERRED, 
 
@@ -340,9 +398,13 @@ CREATE TABLE conditions (
     -- State: normal, disabled, invalid (econdition_state)
     state         TEXT DEFAULT 'normal',
 
+    -- Flag: 1 (met), 0 (unmet), or NULL (unknown)
+    flag         INTEGER,
+
     -- Type-specific Parameters: These columns are used in different
     -- ways by different conditions; all are NULL if unused.
 
+    a             TEXT, -- An actor
     text1         TEXT,
     x1            REAL
 );
