@@ -1028,9 +1028,8 @@ snit::type sim {
         econ     start
         demog    analyze econ
         demsit   assess                ;# TBD
-
-        # TBD: demog should probably do something here.
-        mad getdrivers
+        mad      getdrivers
+        strategy tock
 
         # NEXT, execute events scheduled at time 0.
         eventq advance 0
