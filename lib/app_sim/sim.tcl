@@ -1236,14 +1236,13 @@ snit::type sim {
         # NEXT, execute eventq events
         eventq advance [simclock now]
 
-        # NEXT, execute tactics tock, if any.
-        # TBD: will be strategy tock.
-        if {[simclock now] % [parmdb get tactics.ticksPerTock] == 0} {
-            profile tactic tock
+        # NEXT, execute actor strategies.
+        if {[simclock now] % [parmdb get strategy.ticksPerTock] == 0} {
+            profile strategy tock
         }
 
         # NEXT, do staffing.
-        # TBD: It's not clear how staffing relates to tactics.
+        # TBD: It's not yet clear how staffing relates to tactics.
         activity analyze staffing
 
         # NEXT, pause if it's the pause time, or checks failed.
@@ -1423,7 +1422,7 @@ order define SIM:LOCK {
     returnOnError -final
 
     # NEXT, do the strategy sanity check.
-    if {![tactic check]} {
+    if {![strategy check]} {
         set answer \
             [messagebox popup \
                  -title         "Strategy Sanity Check Failed"   \
