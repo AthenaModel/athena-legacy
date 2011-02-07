@@ -112,7 +112,10 @@ snit::type ::tactic::DEFEND {
     }
 
     typemethod execute {tdict dollars} {
-        log normal tactic "DEFEND($tdict): TBD"
+        dict with tdict {
+            defroe mutate create $n $g $text1
+                
+        }
     }
 
     #-------------------------------------------------------------------

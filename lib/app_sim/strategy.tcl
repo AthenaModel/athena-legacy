@@ -52,7 +52,8 @@ snit::type strategy {
         # NEXT, determine which Tactics are eligible for each actor.
         set etactics [$type ComputeEligibleTactics]
 
-        # NEXT, Mark all tactics unexecuted.
+        # NEXT, clean up the effects of the previous tock.
+        defroe mutate clear
         rdb eval { UPDATE tactics SET exec_flag = 0; }
 
         # NEXT, execute the eligible tactics in priority order given
@@ -145,6 +146,8 @@ snit::type strategy {
         log normal strat "ComputeEligibleTactics"
 
         # FIRST, load the tactics and tactic conditions.
+        set tids [list]
+
         rdb eval {
             SELECT tactics.tactic_id AS tactic_id,
                    tactics.owner     AS owner,

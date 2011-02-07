@@ -8,7 +8,11 @@
 # DESCRIPTION:
 #    athena_sim(1): Athena Attrition Model: Defending Rules of Engagement
 #
-#    This module implements the Defending ROE entity
+#    This module implements the Defending ROE entity.  Every uniformed
+#    force group has a defending ROE of FIRE_BACK_IF_PRESSED by
+#    default.  The default is overridden by the DEFEND tactic, which
+#    inserts an entry into the defroe_ng table.  The override lasts
+#    until the next strategy execution tock.
 #
 #-----------------------------------------------------------------------
 
@@ -20,33 +24,6 @@ snit::type ::defroe {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Initialization
-
-    # TBD: nothing to do
-
-    #-------------------------------------------------------------------
-    # Queries
-
-    # validate id
-    #
-    # id     An ng defroe ID, [list $n $g]
-    #
-    # Throws INVALID if there's no ROE for the 
-    # specified combination.
-
-    typemethod validate {id} {
-        lassign $id n g
-
-        set n [nbhood validate $n]
-        set g [frcgroup uniformed validate $g]
-
-        # Note: no need to test the combination; entries exist
-        # for all n's and valid g's.
-
-        return [list $n $g]
-    }
-
-    #-------------------------------------------------------------------
     # Mutators
     #
     # Mutators are used to implement orders that change the simulation in
@@ -54,98 +31,36 @@ snit::type ::defroe {
     # a script of one or more commands that will undo the change.  When
     # the change cannot be undone, the mutator returns the empty string.
 
-    # mutate update parmdict
+    # mutate create n g roe
     #
-    # parmdict     A dictionary of group parms
+    # n    - Neighborhood ID
+    # g    - Group ID
+    # roe  - The edefroeuf(n) value
     #
-    #    n                Neighborhood ID
-    #    g                Group ID
-    #    roe              The edefroeuf(n) value
+    # Creates a ROE given the parms, which are presumed to be
+    # valid.  Any exist ROE is deleted.
     #
-    # Updates an ROE given the parms, which are presumed to be
-    # valid.
+    # NOT UNDOABLE.
 
-    typemethod {mutate update} {parmdict} {
-        # FIRST, use the dict
-        dict with parmdict {
-            lassign $id n g
+    typemethod {mutate create} {n g roe} {
+        rdb eval {
+            DELETE FROM defroe_ng WHERE n=$n AND g=$g;
 
-            # FIRST, get the undo information
-            set data [rdb grab defroe_ng {n=$n AND g=$g}]
-
-            # NEXT, Update the group
-            rdb eval {
-                UPDATE defroe_ng
-                SET roe = nonempty($roe, roe)
-                WHERE n=$n AND g=$g
-            } {}
-
-            # NEXT, Return the undo command
-            return [list rdb ungrab $data]
+            INSERT INTO defroe_ng(n, g, roe)
+            VALUES($n, $g, $roe);
         }
-    }
-}
 
-#-------------------------------------------------------------------
-# Orders: DEFROE:*
-
-# DEFROE:UPDATE
-#
-# Updates existing relationships
-
-order define DEFROE:UPDATE {
-    title "Update Defending ROE"
-    options \
-        -schedulestates {PREP PAUSED}                     \
-        -sendstates     {PREP PAUSED}                     \
-        -refreshcmd     {orderdialog refreshForKey id *}
-
-    parm id   key   "Defender"       -table  gui_defroe_ng \
-                                     -key    {n g}         \
-                                     -labels {"In" "Grp"}
-    parm roe  enum  "ROE"            -type edefroeuf   
-} {
-    # FIRST, prepare the parameters
-    prepare id       -toupper  -required -type defroe
-    prepare roe      -toupper            -type edefroeuf
-
-    returnOnError -final
-
-    # NEXT, modify the entity
-    setundo [defroe mutate update [array get parms]]
-}
-
-
-# DEFROE:UPDATE:MULTI
-#
-# Updates multiple existing relationships
-
-order define DEFROE:UPDATE:MULTI {
-    title "Update Multiple Defending ROEs"
-    options \
-        -schedulestates {PREP PAUSED} \
-        -sendstates     {PREP PAUSED} \
-        -refreshcmd     {orderdialog refreshForMulti ids *}
-
-    parm ids  multi  "IDs" -table gui_defroe_ng \
-                           -key id
-    parm roe  enum   "ROE" -type edefroeuf   
-} {
-    # FIRST, prepare the parameters
-    prepare ids  -toupper  -required -listof defroe
-    prepare roe  -toupper            -type edefroeuf
-
-    returnOnError -final
-
-
-    # NEXT, modify the curves
-    set undo [list]
-
-    foreach parms(id) $parms(ids) {
-        lappend undo [defroe mutate update [array get parms]]
+        return 
     }
 
-    setundo [join $undo \n]
-}
+    # mutate clear
+    #
+    # Deletes all entries from defroe_ng.
+    #
+    # NOT UNDOABLE
 
+    typemethod {mutate clear} {} {
+        rdb eval { DELETE FROM defroe_ng }
+    }
+}
 

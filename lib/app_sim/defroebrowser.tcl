@@ -8,7 +8,7 @@
 # DESCRIPTION:
 #    defroebrowser(sim) package: Defending ROE browser.
 #
-#    This widget displays a formatted list of defroe_ng records.
+#    This widget displays a formatted list of gui_defroe_view records.
 #    It is a wrapper around sqlbrowser(n).
 #
 #-----------------------------------------------------------------------
@@ -31,15 +31,16 @@ snit::widgetadaptor defroebrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        {n   "Nbhood" }
-        {g   "Group"  }
-        {roe "ROE"    }
+        {n        "Nbhood"     }
+        {g        "Group"      }
+        {roe      "ROE"        }
+        {override "OV" -hide 1 }
     }
 
     #-------------------------------------------------------------------
     # Components
 
-    component editbtn     ;# The "Edit" button
+    # None
 
     #--------------------------------------------------------------------
     # Constructor
@@ -48,30 +49,19 @@ snit::widgetadaptor defroebrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_defroe_ng               \
+            -view         gui_defroe_view             \
             -uid          id                          \
             -titlecolumns 2                           \
-            -selectioncmd [mymethod SelectionChanged] \
+            -displaycmd   [mymethod DisplayData]      \
             -reloadon {
+                ::rdb <nbhoods>
+                ::rdb <frcgroups>
                 ::sim <DbSyncB>
+                ::sim <Tick>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
         $self configurelist $args
-
-        # NEXT, create the toolbar buttons
-        set bar [$hull toolbar]
-
-        install editbtn using mkeditbutton $bar.edit \
-            "Edit Selected ROE"                      \
-            -state   disabled                        \
-            -command [mymethod EditSelected]
-
-        cond::orderIsValidMulti control $editbtn \
-            order   DEFROE:UPDATE          \
-            browser $win
-       
-        pack $editbtn   -side left
 
         # NEXT, update individual entities when they change.
         notifier bind ::rdb <defroe_ng> $self [mymethod uid]
@@ -82,42 +72,27 @@ snit::widgetadaptor defroebrowser {
 
     delegate method * to hull
 
+    # When defroe_ng records are deleted, treat it like an update.
+    delegate method {uid *}      to hull using {%c uid %m}
+    delegate method {uid delete} to hull using {%c uid update}
 
     #-------------------------------------------------------------------
     # Private Methods
 
-    # SelectionChanged
+    # DisplayData rindex values
+    # 
+    # rindex    The row index
+    # values    The values in the row's cells
     #
-    # Enables/disables toolbar controls based on the current selection,
-    # and notifies the app of the selection change.
+    # Sets the cell foreground color for the color cells.
 
-    method SelectionChanged {} {
-        # FIRST, update buttons
-        cond::orderIsValidMulti update $editbtn
+    method DisplayData {rindex values} {
+        set override [lindex $values 3]
 
-        # NEXT, if there's exactly one item selected, notify the
-        # the app.
-        if {[llength [$hull uid curselection]] == 1} {
-            set id [lindex [$hull uid curselection] 0]
-            lassign $id n g
-
-            notifier send ::app <ObjectSelect> \
-                [list ng $id  nbhood $n group $g]
-        }
-    }
-
-
-    # EditSelected
-    #
-    # Called when the user wants to edit the selected entities.
-
-    method EditSelected {} {
-        set ids [$hull uid curselection]
-
-        if {[llength $ids] == 1} {
-            order enter DEFROE:UPDATE id [lindex $ids 0]
+        if {$override} {
+            $hull rowconfigure $rindex -foreground "#BB0000"
         } else {
-            order enter DEFROE:UPDATE:MULTI ids $ids
+            $hull rowconfigure $rindex -foreground $::app::derivedfg
         }
     }
 }

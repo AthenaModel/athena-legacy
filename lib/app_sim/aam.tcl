@@ -304,7 +304,7 @@ snit::type aam {
             JOIN gram_frc_ng    AS NC ON (NC.n = A.n AND NC.g = A.f)
             JOIN force_ng       AS UP ON (UP.n = A.n AND UP.g = A.g)
             JOIN gram_frc_ng    AS UC ON (UC.n = A.n AND UC.g = A.g)
-            JOIN defroe_ng      AS UD ON (UD.n = A.n AND UD.g = A.g)
+            JOIN defroe_view    AS UD ON (UD.n = A.n AND UD.g = A.g)
             WHERE A.uniformed =  0
             AND   A.roe       != 'DO_NOT_ATTACK'
         } {

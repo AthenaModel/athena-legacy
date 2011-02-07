@@ -1878,8 +1878,12 @@ tab "ROE/Attack (Non-Uniformed)" {
 
 tab "ROE/Defend" {
     A uniformed force group's response to being attacked is determined
-    by its Defending ROE.  The choice of ROE affects the number of
-    casualties to both the attacking group and civilian bystanders.<p>
+    by its <<cref TACTIC:DEFEND: "Defending ROE">>.  
+    The choice of ROE affects the number of casualties to both the 
+    attacking group and civilian bystanders.<p>
+
+    The ROE is displayed in green if it has the default value, and
+    in red if it has been overridden by the <<cref TACTIC:DEFEND:>>.
 
     The browser controls are described <<seebelow controls>>; the data
     fields are as follows:<p>
@@ -1915,14 +1919,6 @@ tab "ROE/Defend" {
     toolbar contains the following controls:<p>
 
     <<topiclist Control Description>>
-
-    <<topic {<img src="button_pencil">}>>
-    If one or more rows are selected, pops up the 
-    <<cref DEFROE:UPDATE>> or 
-    <<cref DEFROE:UPDATE:MULTI>> dialog for
-    the selected row(s).
-    <</topic>>
-
     <<control.filterbox>>
     <<control.headers>>
     <</topiclist>>

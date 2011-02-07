@@ -2902,7 +2902,7 @@ page ATTROE:NF: "Attacking ROE (Non-Uniformed) Orders" ATTROE: {
     will attempt to find and destroy uniformed force personnel in 
     a particular neighborhood.  (The response of the uniformed force
     to being attacked is determined by the uniformed force's
-    <<cref DEFROE: "Defending ROE">>.)<p>
+    <<cref TACTIC:DEFEND: "Defending ROE">>.)<p>
 
     The orders are as follows:<p>
 
@@ -3106,81 +3106,6 @@ order ATTROE:UF:UPDATE+MULTI "Update Multiple Attacking ROEs (Uniformed)" {
     <</parmlist>>
 
     Updates each of the selected ROEs.
-}
-
-#=======================================================================
-# Defending ROEs
-
-page DEFROE: "Defending ROE Orders" roe {
-    <<title>>
-
-    Defending ROEs determine how a uniformed force group responds to
-    attack by a non-uniformed force group: do they shoot back, and if
-    so under what conditions.<p>
-
-    Every uniformed force group has an automatically-created Defending
-    ROE in every neighborhood; the ROE defaults to
-    <b>FIRE_BACK_IF_PRESSED</b>.  The orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-macro DEFROE.roe {} {
-    |<--
-    The ROE proper, one of the following values:<p>
-
-    [enumdoc ::projectlib::edefroeuf]
-
-    If the ROE is <b>HOLD_FIRE</b>, then the group will never fire
-    back at attackers.  If the ROE is <b>FIRE_BACK_IF_PRESSED</b>,
-    then the group will fire back only if the attacker continues to
-    press the attack after the initial engagement.  That is, the group
-    will <i>not</i> fire back if the attacker does a hit-and-run.  If
-    the ROE is <b>FIRE_BACK_IMMEDIATELY</b>, the group will always
-    fire back at its attackers.<p>
-
-    Note that the number of civilian casualties depends on whether or
-    not the group fires back at its attackers.
-}
-
-#-----------------------------------------------------------------------
-
-order DEFROE:UPDATE "Updating Defending ROE" {
-    <<parmlist>>
-    <<parm id "Defender">>
-    <b>Required.</b>  The defending group, specified as a 
-    list {<i>n g</i>}, where <i>g</i> is the name of a uniformed
-    force group and <i>n</i> is the neighborhood in which it is defending.
-    <</parm>>
-
-    <<parm roe "ROE">>
-    <b>Optional.</b>  <<DEFROE.roe>>
-    <</parm>>
-    <</parmlist>>
-
-    Updates the uniformed force group's ROE in the neighborhood.
-
-}
-
-
-#-----------------------------------------------------------------------
-
-order DEFROE:UPDATE+MULTI "Updating Multiple Defending ROEs" {
-    <<parmlist>>
-    <<parm ids "IDs">>
-    <b>Required.</b>  <<parm.ids "Defending ROE">><p>
-
-    Programmatically, each ID is a list {<i>n g</i>} where <i>n</i>
-    and <i>g</i> are defined as for the <<cref DEFROE:UPDATE>> order.
-    <</parm>>
-
-    <<parm roe "ROE">>
-    <b>Optional.</b>  <<DEFROE.roe>>
-    <</parm>>
-    <</parmlist>>
-
-    Updates the ROE for each of the specified uniformed force groups
-    and neighborhoods.
 }
 
 

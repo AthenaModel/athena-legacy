@@ -593,14 +593,19 @@ tactic_id state
         cleanup
     } -result {}
 
-    test DEFEND-7.1 {execute} -constraints tbd -setup {
+    test DEFEND-7.1 {execute} -setup {
         setup
-        tactic mutate create $T1
+        tactic mutate create $T2
     } -body {
-        # TBD: Execute doesn't do anything yet.
+        tactic::DEFEND execute [tactic get 1] 0
+        ted query {SELECT * FROM defroe_ng}
     } -cleanup {
         cleanup
-    } -result {}
+    } -result {
+n   g    roe       
+--- ---- --------- 
+NB1 BLUE HOLD_FIRE 
+    }
 
 
 

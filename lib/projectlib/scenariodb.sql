@@ -472,7 +472,8 @@ CREATE TABLE attroe_nfg (
 );
 
 
--- Defending ROE table: Uniformed Forces only.
+-- Defending ROE table: overrides defending ROE for
+-- Uniformed Forces only.
 
 CREATE TABLE defroe_ng (
     -- Neighborhood in which to defend
@@ -486,10 +487,31 @@ CREATE TABLE defroe_ng (
                DEFERRABLE INITIALLY DEFERRED,
 
     -- ROE: edefroeuf.
-    roe        TEXT DEFAULT 'FIRE_BACK_IF_PRESSED',
+    roe        TEXT,
 
     PRIMARY KEY (n,g)
 );
+
+-- Defending ROE view
+--
+-- This view computes the current defending ROE for every 
+-- uniformed force group.
+--
+-- * The ROE defaults to FIRE_BACK_IF_PRESSED...
+-- * ...unless there's an overriding entry in defroe_ng.
+
+CREATE VIEW defroe_view AS
+SELECT nbhoods.n                             AS n,
+       frcgroups.g                           AS g,
+       COALESCE(roe, 'FIRE_BACK_IF_PRESSED') AS roe,
+       CASE WHEN defroe_ng.roe IS NOT NULL 
+            THEN 1
+            ELSE 0 END                       AS override
+       
+FROM nbhoods
+JOIN frcgroups
+LEFT OUTER JOIN defroe_ng USING (n,g);
+
 
 -- An instance of attrition to a group in a neighborhood.  These records
 -- are accumulated between attrition tocks and are used to assess 

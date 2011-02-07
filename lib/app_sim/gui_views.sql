@@ -165,13 +165,14 @@ WHERE F.uniformed = 0
 AND   G.uniformed = 1;
 
 
--- A defroe_ng view for use by the GUI
-CREATE TEMPORARY VIEW gui_defroe_ng AS
+-- A defroe view for use by the GUI
+CREATE TEMPORARY VIEW gui_defroe_view AS
 SELECT n || ' ' || g                                  AS id,
        n                                              AS n,
        g                                              AS g,
-       roe                                            AS roe
-FROM defroe_ng;
+       roe                                            AS roe,
+       override                                       AS override
+FROM defroe_view;
 
 -- A sat_gc view for use by the GUI: 
 -- NOTE: presumes there is a single gram(n)!

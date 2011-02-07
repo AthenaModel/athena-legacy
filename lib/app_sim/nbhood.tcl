@@ -236,9 +236,6 @@ snit::type nbhood {
 
                 INSERT INTO personnel_ng(n,g)
                 SELECT $n, g FROM groups WHERE gtype IN ('FRC', 'ORG');
-
-                INSERT INTO defroe_ng(n,g)
-                SELECT $n, g FROM frcgroups WHERE uniformed;
             } {}
 
             # NEXT, set the stacking order

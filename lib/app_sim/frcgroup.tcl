@@ -212,14 +212,6 @@ snit::type frcgroup {
                 SELECT n, $g FROM nbhoods;
             }
 
-            if {$uniformed} {
-                rdb eval {
-                    INSERT INTO defroe_ng(n,g)
-                    SELECT n, $g FROM nbhoods;
-
-                }
-            }
-
             # NEXT, Return the undo command
             return [mytypemethod mutate delete $g]
         }
@@ -272,11 +264,11 @@ snit::type frcgroup {
             }
 
             # NEXT, if the uniformed flag changed, any existing
-            # ROE records for this group are wrong.
+            # Attacking ROE records for this group are wrong.
             if {$uniformedChanged} {
                 lappend data \
                     {*}[rdb delete -grab \
-                            defroe_ng {g=$g} attroe_nfg {f=$g OR g=$g}]
+                            attroe_nfg {f=$g OR g=$g}]
             }
             
             # NEXT, get the new unit symbol, if need be.
@@ -305,37 +297,8 @@ snit::type frcgroup {
                 WHERE g=$g
             } {}
 
-            # NEXT, if the group has become uniformed, add the
-            # defroe_ng records.
-            if {$uniformedChanged && $uniformed} {
-                rdb eval {
-                    INSERT INTO defroe_ng(n,g)
-                    SELECT n, $g FROM nbhoods;
-                }
-
-                set undoGroup $g
-            } else {
-                set undoGroup ""
-            }
-
             # NEXT, Return the undo command
-            return [mytypemethod UndoUpdate $data $undoGroup]
-        }
-    }
-
-    # UndoUpdate data g
-    #
-    # data - The grab data to restore
-    # g    - The force group name, if there are defroe records to delete.
-    #
-    # Restores the changed data, and deletes any defroe records that
-    # were created by the update.
-
-    typemethod UndoUpdate {data g} {
-        rdb ungrab $data
-        
-        if {$g ne ""} {
-            rdb delete defroe_ng {g=$g}
+            return [list rdb ungrab $data]
         }
     }
 }

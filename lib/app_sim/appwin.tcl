@@ -676,7 +676,6 @@ snit::widget appwin {
         $ordersmenu add cascade -label "ROE" \
             -underline 0 -menu $submenu
         
-        $self AddOrder $submenu DEFROE:UPDATE
         $self AddOrder $submenu ATTROE:UF:CREATE
         $self AddOrder $submenu ATTROE:NF:CREATE
         $self AddOrder $submenu ATTROE:UF:UPDATE
