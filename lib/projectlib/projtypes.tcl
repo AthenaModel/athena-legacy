@@ -37,7 +37,6 @@ namespace eval ::projectlib:: {
         eorgconcern      \
         eorgtype         \
         esitstate        \
-        etactic_type     \
         etactic_state    \
         eurbanization    \
         eunitshape       \
@@ -539,13 +538,6 @@ snit::type ::projectlib::typewrapper {
     invalid  "invalid"
 }
 
-
-# Tactic Type
-
-::marsutil::enum ::projectlib::etactic_type {
-    DEFEND    "Defend"
-    SAVEMONEY "Save Money"
-}
 
 # Tactic State
 

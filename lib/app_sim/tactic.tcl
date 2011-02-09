@@ -34,6 +34,53 @@ snit::type tactic {
     # Make it a singleton
     pragma -hasinstances no
 
+    #===================================================================
+    # Tactic Types: Definition and Query interface.
+
+    #-------------------------------------------------------------------
+    # Uncheckpointed Type variables
+
+    # tinfo array: Type Info
+    #
+    # names - List of the names of the tactic types.
+
+    typevariable tinfo -array {
+        names {}
+    }
+
+    # type names
+    #
+    # Returns the tactic type names.
+    
+    typemethod {type names} {} {
+        return [lsort $tinfo(names)]
+    }
+
+    # type define name defscript
+    #
+    # name       - The tactic name
+    # defscript  - The definition script (a snit::type script)
+    #
+    # Defines tactic::$name as a type ensemble given the typemethods
+    # defined in the defscript.  See tactic(i) for documentation of the
+    # expected typemethods.
+
+    typemethod {type define} {name defscript} {
+        # FIRST, define the type.
+        set header {
+            # Make it a singleton
+            pragma -hasinstances no
+        }
+
+        snit::type ${type}::${name} "$header\n$defscript"
+
+        # NEXT, save the type name.
+        ladd tinfo(names) $name
+    }
+
+    #===================================================================
+    # Tactic Instance: Modification and Query Interace
+
     #-------------------------------------------------------------------
     # Queries
     #
@@ -103,7 +150,7 @@ snit::type tactic {
     #
     # parmdict     A dictionary of tactic parms
     #
-    #    tactic_type    The tactic type (etactic_type)
+    #    tactic_type    The tactic type
     #    owner          The tactic's owning actor
     #    priority       "top" or "bottom" or ""; defaults to "bottom".
     #    m,n            Neighborhoods, or ""

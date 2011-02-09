@@ -11,6 +11,8 @@
 # Every Tactic Type defines an ensemble, ::tactic::<type>, with the
 # following subcommands, each of which operates on a dictionary of 
 # the tactic's parameters (and possibly other arguments):
+# 
+# TBD: Move this list to tactic(i)
 #
 #     narrative tdict
 #         Creates a narrative description of the tactic
@@ -54,9 +56,7 @@
 #-------------------------------------------------------------------
 # Tactic: DEFEND
 
-snit::type ::tactic::DEFEND {
-    pragma -hasinstances no
-
+tactic type define DEFEND {
     typemethod narrative {tdict} {
         dict with tdict {
             return "Group $g defends in $n with ROE $text1"
@@ -226,9 +226,7 @@ order define TACTIC:DEFEND:UPDATE {
 #-------------------------------------------------------------------
 # Tactic: SAVEMONEY
 
-snit::type ::tactic::SAVEMONEY {
-    pragma -hasinstances no
-
+tactic type define SAVEMONEY {
     typemethod narrative {tdict} {
         dict with tdict {
             return "Save $int1% of income for later use"
