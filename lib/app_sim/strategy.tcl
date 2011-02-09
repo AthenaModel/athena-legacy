@@ -26,8 +26,6 @@ snit::type strategy {
 
     # TBD
 
-
-
     #-------------------------------------------------------------------
     # Strategy Execution Tock
     #
@@ -53,7 +51,7 @@ snit::type strategy {
         set etactics [$type ComputeEligibleTactics]
 
         # NEXT, clean up the effects of the previous tock.
-        defroe mutate clear
+        tactic::DEFROE clear
         rdb eval { UPDATE tactics SET exec_flag = 0; }
 
         # NEXT, execute the eligible tactics in priority order given
@@ -192,7 +190,7 @@ snit::type strategy {
                     set flag ""
                 }
 
-                log normal strat: "==> Condition $cid is met: <$flag>"
+                log normal strat "==> Condition $cid is met: <$flag>"
 
                 # NEXT, save the condition's flag; make it NULL
                 # if the value is unknown
@@ -205,7 +203,7 @@ snit::type strategy {
 
             # NEXT, If the tactic is eligible, save its ID for the
             # given owner.
-            log normal strat: "!!! Tactic $tid is eligible: <$tflag>"
+            log normal strat "!!! Tactic $tid is eligible: <$tflag>"
 
 
             if {$tflag} {
@@ -213,7 +211,7 @@ snit::type strategy {
             }
         }
 
-        log normal strat: "Eligible tactics: [array get etactics]"
+        log normal strat "Eligible tactics: [array get etactics]"
 
         return [array get etactics]
     }
@@ -311,6 +309,10 @@ snit::type strategy {
         log normal strat "actor $a executes <$plan>"
 
         foreach tid $plan {
+            set ttype [dict get $tdicts($tid) tactic_type]
+            log normal strat \
+                "Execute $ttype $tid, \$$dollars($tid): $tdicts($tid)"
+
             tactic call execute $tdicts($tid) $dollars($tid)
 
             rdb eval {

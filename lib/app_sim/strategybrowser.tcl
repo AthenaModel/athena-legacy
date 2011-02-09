@@ -1274,6 +1274,7 @@ snit::widget strategybrowser {
         # FIRST, get a list of order names and titles
         set odict [dict create]
 
+        # TBD: Use "tactic type names" to get the order names
         foreach order [order names] {
             if {![string match "TACTIC:*:CREATE" $order]} {
                 continue

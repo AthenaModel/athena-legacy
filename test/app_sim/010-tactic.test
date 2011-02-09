@@ -81,7 +81,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     set T2 {
-        tactic_type DEFEND
+        tactic_type DEFROE
         owner       JOE
         priority    top
         m           ""
@@ -93,7 +93,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     set T3 {
-        tactic_type DEFEND
+        tactic_type DEFROE
         owner       JOE
         priority    top
         m           ""
@@ -133,7 +133,7 @@ tactic_id tactic_type owner narrative                        priority state  exe
     } -result {
 tactic_id tactic_type owner priority 
 --------- ----------- ----- -------- 
-2         DEFEND      JOE   1        
+2         DEFROE      JOE   1        
 1         SAVEMONEY   JOE   2        
     }
 
@@ -150,7 +150,7 @@ tactic_id tactic_type owner priority
 tactic_id tactic_type owner priority 
 --------- ----------- ----- -------- 
 1         SAVEMONEY   JOE   1        
-2         DEFEND      JOE   2        
+2         DEFROE      JOE   2        
     }
 
 
@@ -208,7 +208,7 @@ tactic_id tactic_type owner priority
     } -result {
 tactic_id tactic_type owner narrative                                    priority state  exec_ts exec_flag m n   f g    text1     int1 
 --------- ----------- ----- -------------------------------------------- -------- ------ ------- --------- - --- - ---- --------- ---- 
-2         DEFEND      JOE   Group BLUE defends in NB1 with ROE HOLD_FIRE 1        normal @       0         @ NB1 @ BLUE HOLD_FIRE @    
+2         DEFROE      JOE   Group BLUE defends in NB1 with ROE HOLD_FIRE 1        normal @       0         @ NB1 @ BLUE HOLD_FIRE @    
 1         SAVEMONEY   JOE   Save 10% of income for later use             2        normal @       0         @ @   @ @    @         10   
     }
 
@@ -257,7 +257,7 @@ tactic_id tactic_type owner narrative                                    priorit
     } -result {
 tactic_id tactic_type owner narrative                                                priority state  exec_ts exec_flag m n   f g    text1                 int1 
 --------- ----------- ----- -------------------------------------------------------- -------- ------ ------- --------- - --- - ---- --------------------- ---- 
-1         DEFEND      JOE   Group BLUE defends in NB1 with ROE FIRE_BACK_IMMEDIATELY 1        normal @       0         @ NB1 @ BLUE FIRE_BACK_IMMEDIATELY @    
+1         DEFROE      JOE   Group BLUE defends in NB1 with ROE FIRE_BACK_IMMEDIATELY 1        normal @       0         @ NB1 @ BLUE FIRE_BACK_IMMEDIATELY @    
     }
 
     test update-1.2 {empty values are OK} -setup {
@@ -475,7 +475,7 @@ tactic_id state
         narrative   {Group BLUE defends in NB1 with ROE HOLD_FIRE}
         f           @
         g           BLUE
-        tactic_type DEFEND
+        tactic_type DEFROE
         priority    1
         owner       JOE
         tactic_id   1
@@ -494,118 +494,6 @@ tactic_id state
     } -result {JOE}
 
 
-    #-------------------------------------------------------------------
-    # DEFEND Ensemble
-
-    test DEFEND-1.1 {narrative} -setup {
-        setup
-        tactic mutate create $T2
-    } -body {
-        tactic::DEFEND narrative [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {Group BLUE defends in NB1 with ROE HOLD_FIRE}
-
-    test DEFEND-2.1 {check: n no longer exists} -setup {
-        setup
-        tactic mutate create $T2
-        rdb eval {DELETE FROM nbhoods WHERE n='NB1'}
-    } -body {
-        tactic::DEFEND check [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {Neighborhood NB1 no longer exists.}
-
-    test DEFEND-2.2 {check: g no longer exists} -setup {
-        setup
-        tactic mutate create $T2
-        rdb eval {DELETE FROM frcgroups WHERE g='BLUE'}
-    } -body {
-        tactic::DEFEND check [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {Force group BLUE no longer exists.}
-
-    test DEFEND-2.3 {check: g no longer owned by owner} -setup {
-        setup
-        tactic mutate create $T2
-        rdb eval {UPDATE frcgroups SET a=NULL}
-    } -body {
-        tactic::DEFEND check [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {Force group BLUE is no longer owned by actor JOE.}
-
-    test DEFEND-2.4 {check: g no longer uniformed} -setup {
-        setup
-        tactic mutate create $T2
-        rdb eval {UPDATE frcgroups SET uniformed=0}
-    } -body {
-        tactic::DEFEND check [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {Force group BLUE is no longer a uniformed force group.}
-
-    test DEFEND-2.5 {check: multiple failures} -setup {
-        setup
-        tactic mutate create $T2
-        rdb eval {UPDATE frcgroups SET a=NULL, uniformed=0}
-        rdb eval {DELETE FROM nbhoods WHERE n='NB1'}
-    } -body {
-        tactic::DEFEND check [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {Neighborhood NB1 no longer exists.  Force group BLUE is no longer owned by actor JOE.  Force group BLUE is no longer a uniformed force group.}
-
-    test DEFEND-3.1 {estdollars} -setup {
-        setup
-        tactic mutate create $T1
-    } -body {
-        tactic::DEFEND estdollars [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {0.0}
-
-    test DEFEND-4.1 {dollars} -setup {
-        setup
-        tactic mutate create $T1
-    } -body {
-        tactic::DEFEND dollars [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {0.0 0.0}
-
-    test DEFEND-5.1 {estpersonnel} -setup {
-        setup
-        tactic mutate create $T1
-    } -body {
-        tactic::DEFEND estpersonnel [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-    test DEFEND-6.1 {personnel_by_group} -setup {
-        setup
-        tactic mutate create $T1
-    } -body {
-        tactic::DEFEND personnel_by_group [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test DEFEND-7.1 {execute} -setup {
-        setup
-        tactic mutate create $T2
-    } -body {
-        tactic::DEFEND execute [tactic get 1] 0
-        ted query {SELECT * FROM defroe_ng}
-    } -cleanup {
-        cleanup
-    } -result {
-n   g    roe       
---- ---- --------- 
-NB1 BLUE HOLD_FIRE 
-    }
 
 
 
