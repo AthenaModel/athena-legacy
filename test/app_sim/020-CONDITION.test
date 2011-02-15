@@ -149,6 +149,8 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # CONDITION:CASH:CREATE
 
+    # TBD: Move CASH tests to 020-condition_cash.test
+
     test CASH:CREATE-1.1 {required parms} -body {
         ted order -reject CONDITION:CASH:CREATE {}
     } -result {
@@ -213,9 +215,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-condition_id condition_type co_id narrative                                        state  flag a   text1 x1      
------------- -------------- ----- ------------------------------------------------ ------ ---- --- ----- ------- 
-1            CASH           1     Actor JOE's cash-on-hand is greater than $10,000 normal      JOE GT    10000.0 
+condition_id condition_type co_id narrative                                        state  flag a   text1 list1 x1      
+------------ -------------- ----- ------------------------------------------------ ------ ---- --- ----- ----- ------- 
+1            CASH           1     Actor JOE's cash-on-hand is greater than $10,000 normal      JOE GT          10000.0 
     }
 
 
@@ -322,9 +324,9 @@ condition_id condition_type co_id narrative                                     
     } -cleanup {
         cleanup
     } -result {
-condition_id condition_type co_id narrative                                   state  flag a   text1 x1   
------------- -------------- ----- ------------------------------------------- ------ ---- --- ----- ---- 
-1            CASH           1     Actor BOB's cash-on-hand is equal to $20.00 normal      BOB EQ    20.0 
+condition_id condition_type co_id narrative                                   state  flag a   text1 list1 x1   
+------------ -------------- ----- ------------------------------------------- ------ ---- --- ----- ----- ---- 
+1            CASH           1     Actor BOB's cash-on-hand is equal to $20.00 normal      BOB EQ          20.0 
     }
 
 

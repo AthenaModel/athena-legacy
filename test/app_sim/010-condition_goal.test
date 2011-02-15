@@ -1,0 +1,200 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-condition_goal.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    condition_goal(sim) tests.
+#
+#    This test suite tests the GOAL condition ensemble.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create JOE BOB NB1 NB2 BLUE BRIT
+
+        # goal_ids: 1, 2, 3
+        ted order GOAL:CREATE owner JOE narrative "Test Goal 1"
+        ted order GOAL:CREATE owner JOE narrative "Test Goal 2"
+        ted order GOAL:CREATE owner JOE narrative "Test Goal 3"
+
+        rdb eval {
+            UPDATE goals
+            SET flag=1 WHERE goal_id=1;
+
+            UPDATE goals
+            SET flag=1 WHERE goal_id=2;
+
+            UPDATE goals
+            SET flag=0 WHERE goal_id=3;
+
+        }
+
+        # tactic_id: 4
+        ted order TACTIC:SAVEMONEY:CREATE owner JOE int1 10
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        array unset parms
+        ted cleanup
+    }
+
+    # Standard Conditions
+    
+    set GU1 {
+        co_id          4
+        condition_type GOAL
+        list1          {1}
+        text1          MET
+    }
+
+    set GU2 {
+        co_id          4
+        condition_type GOAL
+        list1          {1 2}
+        text1          MET
+    }
+
+    #-------------------------------------------------------------------
+    # GOAL Ensemble
+
+    test narrative-1.1 {narrative, one goal, met} -setup {
+        setup
+        condition mutate create $GU1
+    } -body {
+        condition::GOAL narrative [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {Goal is met: 1}
+
+    test narrative-1.2 {narrative, one goal, unmet} -setup {
+        setup
+        condition mutate create [dict merge $GU1 {text1 UNMET}]
+    } -body {
+        condition::GOAL narrative [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {Goal is unmet: 1}
+
+    test narrative-1.3 {narrative, multiple goals, met} -setup {
+        setup
+        condition mutate create $GU2
+    } -body {
+        condition::GOAL narrative [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {All of these goals are met: 1, 2}
+
+
+    test narrative-1.4 {narrative, multiple goals, unmet} -setup {
+        setup
+        condition mutate create [dict merge $GU2 {text1 UNMET}]
+    } -body {
+        condition::GOAL narrative [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {Any of these goals are unmet: 1, 2}
+
+    #-------------------------------------------------------------------
+    # check
+
+    test check-1.1 {check: successful} -setup {
+        setup
+        condition mutate create $GU2
+    } -body {
+        condition::GOAL check [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test check-1.2 {check: goal deleted} -setup {
+        setup
+        condition mutate create $GU2
+        rdb eval {DELETE FROM goals}
+    } -body {
+        condition::GOAL check [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {Goal 1 no longer exists. Goal 2 no longer exists.}
+
+    #-------------------------------------------------------------------
+    # eval
+
+    # callEval flagdict pred
+    #
+    # flagdict   - A dictionary of goal IDs and flags
+    # pred       - MET or UNMET
+    #
+    # Sets the goal flags in the goals table to match the
+    # the flagdict.  Updates condition 1 to the same goals with
+    # the specified predicate.  Evaluates the condition, and returns
+    # the result.
+
+    proc callEval {flagdict pred} {
+        dict for {gid flag} $flagdict {
+            rdb eval {UPDATE goals SET flag=$flag WHERE goal_id=$gid}
+        }
+
+        condition mutate update \
+            [list condition_id 1 text1 $pred list1 [dict keys $flagdict]]
+
+        return [condition::GOAL eval [condition get 1]]
+    }
+
+    test eval-1.1 {eval cases} -setup {
+        setup
+        condition mutate create $GU1
+    } -body {
+        set results [list]
+
+        # FIRST, normal cases
+        lappend results [callEval {1 1}         MET]
+        lappend results [callEval {1 1}         UNMET]
+        lappend results [callEval {1 1 2 1 3 1} MET]
+        lappend results [callEval {1 1 2 1 3 1} UNMET]
+        lappend results [callEval {1 1 2 0 3 1} MET]
+        lappend results [callEval {1 1 2 0 3 1} UNMET]
+
+        # NEXT, empty flags
+        lappend results [callEval {1 ""} MET]
+        lappend results [callEval {1 ""} UNMET]
+
+        set results
+    } -cleanup {
+        cleanup
+    } -result {1 0 1 0 0 1 1 0}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

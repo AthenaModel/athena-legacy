@@ -1,0 +1,275 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-CONDITION:GOALS.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) CONDITION:GOAL:* order tests.
+#
+#    This test suite tests the CONDITION:GOAL:* orders.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+    proc setup {} {
+        ted create JOE BOB NB1 NB2 BLUE BRIT ALQ
+
+        # goal_ids: 1, 2, 3
+        ted order GOAL:CREATE owner JOE narrative "Joe's Goal 1"
+        ted order GOAL:CREATE owner JOE narrative "Joe's Goal 2"
+        ted order GOAL:CREATE owner BOB narrative "Bob's Goal 3"
+
+        # tactic_id: 4, 5
+        ted order TACTIC:SAVEMONEY:CREATE owner JOE int1 10
+        ted order TACTIC:SAVEMONEY:CREATE owner BOB int1 10
+
+    }
+
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    # Standard items
+
+    set GU1 {
+        co_id  4
+        text1  MET
+        list1  {1}
+    }
+
+    set GU2 {
+        co_id  4
+        text1  UNMET
+        list1  {1 2}
+    }
+
+    #-------------------------------------------------------------------
+    # CONDITION:GOAL:CREATE
+
+    test GOAL:CREATE-1.1 {required parms} -body {
+        ted order -reject CONDITION:GOAL:CREATE {}
+    } -result {
+        co_id {required value}
+        list1 {required value}
+        text1 {required value}
+    }
+
+    
+    test GOAL:CREATE-1.2 {tactic is unknown} -setup {
+        setup
+    } -body {
+        ted order -reject CONDITION:GOAL:CREATE \
+            [dict merge $GU1 [list co_id NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        co_id {Invalid tactic ID: "NONESUCH"}
+    }
+
+    test GOAL:CREATE-1.3 {list1 contains non-goal} -setup {
+        setup
+    } -body {
+        ted order -reject CONDITION:GOAL:CREATE \
+            [dict merge $GU1 [list list1 NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        list1 {Invalid goal ID: "NONESUCH"}
+    }
+
+    test GOAL:CREATE-1.4 {goal belongs to different actor} -setup {
+        setup
+    } -body {
+        ted order -reject CONDITION:GOAL:CREATE \
+            [dict merge $GU1 [list list1 3]]
+    } -cleanup {
+        cleanup
+    } -result {
+        list1 {Goal 3 does not belong to the condition's owning actor}
+    }
+
+    test GOAL:CREATE-1.5 {predicate is unknown} -setup {
+        setup
+    } -body {
+        ted order -reject CONDITION:GOAL:CREATE \
+            [dict merge $GU1 [list text1 NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        text1 {invalid value "NONESUCH", should be one of: MET, UNMET}
+    }
+
+    test GOAL:CREATE-2.1 {condition is created} -setup {
+        setup
+    } -body {
+        ted order CONDITION:GOAL:CREATE $GU1
+
+        ted query {SELECT * FROM conditions}
+    } -cleanup {
+        cleanup
+    } -result {
+condition_id condition_type co_id narrative      state  flag a text1 list1 x1 
+------------ -------------- ----- -------------- ------ ---- - ----- ----- -- 
+1            GOAL           4     Goal is met: 1 normal        MET   1        
+    }
+
+
+    test GOAL:CREATE-2.2 {Effects} -setup {
+        setup
+    } -body {
+        ted notifier bind ::rdb <conditions>
+        ted order CONDITION:GOAL:CREATE $GU1
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <conditions> update 1}
+    }
+
+
+    test GOAL:CREATE-3.1 {undo effects} -setup {
+        setup
+        ted order CONDITION:GOAL:CREATE $GU1
+    } -body {
+        ted notifier bind ::rdb <conditions>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <conditions> delete 1}
+    }
+
+
+    #-------------------------------------------------------------------
+    # CONDITION:GOAL:UPDATE
+
+    test GOAL:UPDATE-1.1 {required parms} -body {
+        ted order -reject CONDITION:GOAL:UPDATE {}
+    } -result {
+        condition_id {required value}
+    }
+
+    
+    test GOAL:UPDATE-1.2 {condition_id is unknown} -setup {
+        setup
+        ted order CONDITION:GOAL:CREATE $GU1
+    } -body {
+        ted order -reject CONDITION:GOAL:UPDATE condition_id NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        condition_id {Invalid condition ID: "NONESUCH"}
+    }
+
+    test GOAL:UPDATE-1.3 {list1 is invalid} -setup {
+        setup
+        ted order CONDITION:GOAL:CREATE $GU1
+    } -body {
+        ted order -reject CONDITION:GOAL:UPDATE condition_id 1 list1 NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        list1 {Invalid goal ID: "NONESUCH"}
+    }
+
+    test GOAL:UPDATE-1.4 {has goals owned by another actor} -setup {
+        setup
+        ted order CONDITION:GOAL:CREATE $GU1
+    } -body {
+        ted order -reject CONDITION:GOAL:UPDATE condition_id 1 list1 3
+    } -cleanup {
+        cleanup
+    } -result {
+        list1 {Goal 3 does not belong to the condition's owning actor}
+    }
+
+    test GOAL:UPDATE-1.5 {predicate is invalid} -setup {
+        setup
+        ted order CONDITION:GOAL:CREATE $GU1
+    } -body {
+        ted order -reject CONDITION:GOAL:UPDATE condition_id 1 text1 NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        text1 {invalid value "NONESUCH", should be one of: MET, UNMET}
+    }
+
+    test GOAL:UPDATE-2.1 {conditions are updated} -setup {
+        setup
+        ted order CONDITION:GOAL:CREATE $GU1
+    } -body {
+        ted order CONDITION:GOAL:UPDATE condition_id 1 list1 {1 2} text1 UNMET
+
+        ted query {SELECT * FROM conditions}
+    } -cleanup {
+        cleanup
+    } -result {
+condition_id condition_type co_id narrative                          state  flag a text1 list1 x1 
+------------ -------------- ----- ---------------------------------- ------ ---- - ----- ----- -- 
+1            GOAL           4     Any of these goals are unmet: 1, 2 normal        UNMET 1 2      
+    }
+
+
+    test GOAL:UPDATE-2.2 {Effects} -setup {
+        setup
+        ted order CONDITION:GOAL:CREATE $GU1
+    } -body {
+        ted notifier bind ::rdb <conditions>
+        ted order CONDITION:GOAL:UPDATE condition_id 1 list1 {1 2}
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <conditions> update 1}
+        {::rdb <conditions> update 1}
+    }
+
+
+    test GOAL:UPDATE-3.1 {undo effects} -setup {
+        setup
+        ted order CONDITION:GOAL:CREATE $GU1
+        ted order CONDITION:GOAL:UPDATE condition_id 1 list1 {1 2}
+    } -body {
+        ted notifier bind ::rdb <conditions>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <conditions> update 1}
+    }
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

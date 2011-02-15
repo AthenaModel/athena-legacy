@@ -864,10 +864,8 @@ snit::widget strategybrowser {
         # FIRST, get a list of order names and titles
         set odict [dict create]
 
-        foreach order [order names] {
-            if {![string match "CONDITION:*:CREATE" $order]} {
-                continue
-            }
+        foreach name [condition type names -goal] {
+            set order "CONDITION:$name:CREATE"
 
             # Get title, and remove the "Create Condition: " prefix
             set title [order title $order]
@@ -1433,7 +1431,9 @@ snit::widget strategybrowser {
         # FIRST, get a list of order names and titles
         set odict [dict create]
 
-        foreach order [order names] {
+        foreach name [condition type names -tactic] {
+            set order "CONDITION:$name:CREATE"
+
             if {![string match "CONDITION:*:CREATE" $order]} {
                 continue
             }

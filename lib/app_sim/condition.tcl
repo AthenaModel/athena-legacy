@@ -36,6 +36,110 @@ snit::type condition {
     # Make it a singleton
     pragma -hasinstances no
 
+    #===================================================================
+    # Condition Types: Definition and Query interface.
+
+    #-------------------------------------------------------------------
+    # Uncheckpointed Type variables
+
+    # tinfo array: Type Info
+    #
+    # all     - List of the names of all condition types.
+    # goal    - List of the names of goal conditions
+    # tactic  - List of the names of tactic conditions
+
+    typevariable tinfo -array {
+        all    {}
+        goal   {}
+        tactic {}
+    }
+
+    # type names ?-all|-goal|-tactic?
+    #
+    # Returns the tactic type names.
+    
+    typemethod {type names} {{opt -all}} {
+        switch -exact -- $opt {
+            -all    { return [lsort $tinfo(all)]       }
+            -goal   { return [lsort $tinfo(goal)]      }
+            -tactic { return [lsort $tinfo(tactic)]    }
+            default { error "Unknown option: \"$opt\"" }
+        }
+    }
+
+    # type define name ?options...? defscript
+    #
+    # name       - The condition name
+    # options... - Options; see below.
+    # defscript  - The definition script (a snit::type script)
+    #
+    # Options:
+    #
+    #   -attachto  - goal|tactic|both.  Defaults to "both".  Determines
+    #                the kind of things that instances of this type can
+    #                be attached to.
+    #
+    # Defines condition::$name as a type ensemble given the typemethods
+    # defined in the defscript.  See condition(i) for documentation of 
+    # the expected typemethods.
+
+    typemethod {type define} {name args} {
+        # FIRST, get the defscript.
+        if {[llength $args] == 0} {
+            error "wrong \# args, should be: $type type define ?options...? defscript"
+        }
+
+        set defscript [lindex $args end]
+        set args [lrange $args 0 end-1]
+
+        # NEXT, get the options
+        array set opts {
+            -attachto both
+        }
+
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+            
+            switch -exact -- $opt {
+                -attachto {
+                    set val [lshift args]
+
+                    if {$val ni {goal tactic both}} {
+                        error "Invalid $opt value: \"$val\""
+                    }
+
+                    set opts(-attachto) $val
+                }
+
+                default {
+                    error "Invalid option: \"$opt\""
+                }
+            }
+        }
+
+        # NEXT, define the type.
+        set header {
+            # Make it a singleton
+            pragma -hasinstances no
+        }
+
+        snit::type ${type}::${name} "$header\n$defscript"
+
+        # NEXT, save the type name.
+        ladd tinfo(all) $name
+
+        if {$opts(-attachto) in {goal both}} {
+            ladd tinfo(goal) $name
+        }
+
+        if {$opts(-attachto) in {tactic both}} {
+            ladd tinfo(tactic) $name
+        }
+    }
+
+    #===================================================================
+    # Condition Instance Interface.
+
     #-------------------------------------------------------------------
     # Queries
     #
@@ -110,6 +214,7 @@ snit::type condition {
     #    co_id          - The owning tactic or goal
     #    a              - Actor, or ""
     #    text1          - Text string, or ""
+    #    list1          - List of items, or ""
     #    x1             - Real number, or ""
     #
     # Creates a condition given the parms, which are presumed to be
@@ -130,10 +235,12 @@ snit::type condition {
                 conditions(condition_type, co_id, narrative,
                            a,
                            text1,
+                           list1,
                            x1)
                 VALUES($condition_type, $co_id, $narrative, 
                        nullif($a,      ''),
                        nullif($text1,  ''),
+                       nullif($list1,  ''),
                        nullif($x1,     ''));
             }
 
@@ -167,6 +274,7 @@ snit::type condition {
     #    condition_id   The condition's ID
     #    a              Actor ID, or ""
     #    text1          Text string, or ""
+    #    list1          List of items, or ""
     #    x1             Real number, or ""
     #
     # Updates a condition given the parms, which are presumed to be
@@ -186,6 +294,7 @@ snit::type condition {
             rdb eval {
                 UPDATE conditions
                 SET text1 = nullif(nonempty($text1, text1),  ''),
+                    list1 = nullif(nonempty($list1, list1),  ''),
                     a     = nullif(nonempty($a,     a),      ''),
                     x1    = nullif(nonempty($x1,    x1),     '')
                 WHERE condition_id=$condition_id;

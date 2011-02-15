@@ -33,6 +33,7 @@ namespace eval ::projectlib:: {
         eforcetype       \
         efrcactivity     \
         egoal_state      \
+        egoal_predicate  \
         eorgactivity     \
         eorgconcern      \
         eorgtype         \
@@ -553,6 +554,14 @@ snit::type ::projectlib::typewrapper {
 
 ::marsutil::enum ::projectlib::econdition_type {
     CASH      "Cash-on-hand"
+    GOAL      "Goal State"
+}
+
+# TBD: Add egoal_predicate: MET, UNMET
+
+::marsutil::enum ::projectlib::egoal_predicate {
+    MET   "Met"
+    UNMET "Unmet"
 }
 
 # Condition State.

@@ -405,8 +405,9 @@ CREATE TABLE conditions (
     -- ways by different conditions; all are NULL if unused.
 
     a             TEXT, -- An actor
-    text1         TEXT,
-    x1            REAL
+    text1         TEXT, -- A text string
+    list1         TEXT, -- A list
+    x1            REAL  -- A number
 );
 
 ------------------------------------------------------------------------

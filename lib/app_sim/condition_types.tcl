@@ -8,6 +8,8 @@
 # DESCRIPTION:
 #    athena_sim(1): Condition Type Definitions
 #
+# TBD: Move this info into condition(i).
+#
 # Every Condition Type defines an ensemble, ::condition::<type>>,
 # with the following subcommands, each of which operations on a 
 # dictionary of the condition's parameters (and possibly other 
@@ -41,9 +43,7 @@
 #
 # How does actor a's cash-on-hand compare with some amount?
 
-snit::type ::condition::CASH {
-    pragma -hasinstances no
-
+condition type define CASH {
     typemethod narrative {cdict} {
         dict with cdict {
             set comp   [ecomparator longname $text1]
@@ -142,6 +142,4 @@ order define CONDITION:CASH:UPDATE {
     # NEXT, modify the condition
     setundo [condition mutate update [array get parms]]
 }
-
-
 

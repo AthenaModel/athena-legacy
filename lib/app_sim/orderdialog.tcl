@@ -68,6 +68,10 @@ snit::widget orderdialog {
         form register frac ::formlib::rangefield \
             -type        ::rfraction
 
+        form register goals ::formlib::listfield \
+            -height 8  \
+            -width  30
+
         form register pct  ::formlib::rangefield \
             -type        ::ipercent
 

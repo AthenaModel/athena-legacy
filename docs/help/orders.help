@@ -544,9 +544,26 @@ page CONDITION: "Condition Orders" orders {
     <<childlinks>>
 } 
 
+macro CONDITION.cco {} {
+    |<--
+    [parm co_id "Goal/Tactic ID"]
+    <b>Required.</b>  The ID of the goal or tactic to which this condition
+    is attached.
+    [/parm]
+}
+
+macro CONDITION.uco {} {
+    |<--
+    [parm co_id "Goal/Tactic ID"]
+    <b>Display Only.</b>  The ID of the goal or tactic to which this 
+    condition belongs. This parameter is displayed in the order dialog as 
+    an aid to the user.
+    [/parm]
+}
+
 macro CONDITION.ctactic {} {
     |<--
-    [parm tactic_id "Tactic ID"]
+    [parm co_id "Tactic ID"]
     <b>Required.</b>  The ID of the tactic to which this condition
     is attached.
     [/parm]
@@ -554,7 +571,7 @@ macro CONDITION.ctactic {} {
 
 macro CONDITION.utactic {} {
     |<--
-    [parm tactic_id "Tactic ID"]
+    [parm co_id "Tactic ID"]
     <b>Display Only.</b>  The ID of the tactic to which this condition
     belongs. This parameter is displayed in the order dialog as an aid 
     to the user.
@@ -625,7 +642,7 @@ page CONDITION:CASH: "Condition: Cash on hand" CONDITION: {
 
 order CONDITION:CASH:CREATE "Create Condition: Cash on hand" {
     <<parmlist>>
-    <<CONDITION.ctactic>>
+    <<CONDITION.cco>>
 
     <<parm a "Actor">>
     The name of the actor whose cash-on-hand is being compared.
@@ -650,7 +667,7 @@ order CONDITION:CASH:CREATE "Create Condition: Cash on hand" {
 order CONDITION:CASH:UPDATE "Update Condition: Cash on hand" {
     <<parmlist>>
     <<CONDITION.id>>
-    <<CONDITION.utactic>>
+    <<CONDITION.uco>>
 
     <<parm a "Actor">>
     The name of the actor whose cash-on-hand is being compared.
@@ -668,6 +685,72 @@ order CONDITION:CASH:UPDATE "Update Condition: Cash on hand" {
     cash on hand will be compared.
     <</parm>>
     <</parmlist>>
+
+    <</parmlist>>
+
+    Allows the user to edit the condition.
+}
+
+
+#-----------------------------------------------------------------------
+# Condition: GOAL
+
+page CONDITION:GOAL: "Condition: Goal Flag" CONDITION: {
+    <<title>>
+
+    This condition queries on the state of one or more goals
+    belonging to the same actor.  It can only be attached
+    to tactics.  Depending on its arguments, it is met
+    when all of the listed goals are met, or when any of the
+    listed goals is unmet.
+
+    The condition orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:GOAL:CREATE "Create Condition: Goal Flag" {
+    <<parmlist>>
+    <<CONDITION.ctactic>>
+
+    <<parm list1 "Goals">>
+    <b>Required.</b>  A list of the IDs of one or more goals belonging
+    to the same actor as the tactic to which this condition is attached.
+    <</parm>>
+
+    <<parm text1 "Are">>
+    <b>Required.</b>  Ought the listed goals to be "Met" or "Unmet"?
+    If "Met", the condition is met if <b>all</b> of the listed goals are 
+    <b>met</b>; 
+    if "Unmet", the condition is met if <b>any</b> of the listed goals are 
+    <b>unmet</b>.  A value from the following table:<p>
+
+    <<enumdoc ::projectlib::egoal_predicate>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Creates the condition.
+}
+
+order CONDITION:GOAL:UPDATE "Update Condition: Goal Flag" {
+    <<parmlist>>
+    <<CONDITION.id>>
+
+    <<parm list1 "Goals">>
+    <b>Optional.</b>  A list of the IDs of one or more goals belonging
+    to the same actor as the tactic to which this condition is attached.
+    <</parm>>
+
+    <<parm text1 "Are">>
+    <b>Optional.</b>  Ought the listed goals to be "Met" or "Unmet"?
+    If "Met", the condition is met if <b>all</b> of the listed goals are 
+    <b>met</b>; 
+    if "Unmet", the condition is met if <b>any</b> of the listed goals are 
+    <b>unmet</b>.  A value from the following table:<p>
+
+    <<enumdoc ::projectlib::egoal_predicate>>
+    <</parm>>
 
     <</parmlist>>
 

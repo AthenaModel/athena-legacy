@@ -169,15 +169,6 @@ check, and is currently unusable.<p>
 <<::projectlib::etactic_state html>>
 
 
-<<defitem etactic_type {etactic_type <i>subcommand</i> ?<i>args</i>?}>>
-
-An <<xref mars:enum(n)>> type, representing the list of
-tactic types supported by Athena.  See the Athena Analyst's Guide
-for a catalog of tactic types, with descriptions.<p>
-
-<<::projectlib::etactic_type html>>
-
-
 <<defitem eurbanization {eurbanization <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing neighborhood urbanization
