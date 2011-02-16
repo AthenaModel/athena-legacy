@@ -119,4 +119,5 @@ snit::widgetadaptor ::projectgui::multifield {
 #-------------------------------------------------------------------
 # Register the field.
 
-::formlib::form register multi ::projectgui::multifield
+::marsgui::form register multi ::projectgui::multifield
+

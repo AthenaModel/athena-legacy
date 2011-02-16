@@ -42,7 +42,6 @@ package require textutil::adjust 0.7
 # From Mars
 package require marsutil
 package require marsgui
-package require formlib
 package require simlib 2.0
 
 # From Athena
@@ -51,7 +50,6 @@ package require projectgui
         
 namespace import ::marsutil::* 
 namespace import ::marsgui::*
-namespace import ::formlib::*
 namespace import ::simlib::*
 namespace import ::projectlib::*
 namespace import ::projectgui::*
@@ -163,6 +161,7 @@ source [file join $::app_sim::library relbrowser.tcl         ]
 source [file join $::app_sim::library satbrowser.tcl         ]
 source [file join $::app_sim::library securitybrowser.tcl    ]
 source [file join $::app_sim::library unitbrowser.tcl        ]
+
 
 
 

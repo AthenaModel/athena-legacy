@@ -61,25 +61,25 @@ snit::widget orderdialog {
         }
 
         # NEXT, create field types.
-        form register coop ::formlib::rangefield \
+        form register coop ::marsgui::rangefield \
             -type        ::qcooperation          \
             -showsymbols yes
 
-        form register frac ::formlib::rangefield \
+        form register frac ::marsgui::rangefield \
             -type        ::rfraction
 
-        form register goals ::formlib::listfield \
+        form register goals ::marsgui::listfield \
             -height 8  \
             -width  30
 
-        form register pct  ::formlib::rangefield \
+        form register pct  ::marsgui::rangefield \
             -type        ::ipercent
 
-        form register rel ::formlib::rangefield \
+        form register rel ::marsgui::rangefield \
             -type        ::qrel                 \
             -resolution  0.1
 
-        form register sat ::formlib::rangefield \
+        form register sat ::marsgui::rangefield \
             -type        ::qsat                 \
             -showsymbols yes
 
@@ -1050,3 +1050,4 @@ snit::widget orderdialog {
     }
 
 }
+
