@@ -11,6 +11,27 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.8, 17 February 2011</h3>
+
+This build includes the addition of goals to Athena, including the new
+"GOAL" condition which tests whether particular goals are met or
+unmet.  In addition, the DEFEND tactic is now fully implemented, under
+the new name "DEFROE".<p>
+
+<ul>
+<li> Bug 2798: athena_sim(1): Eliminate trailing points when selecting ref point
+<li> Bug 2799: athena_sim(1): Replace "ticks" with "days" in the UI
+<li> Bug 2800: athena_sim(1): Use "Select" in key field labels for certain UPDATE orders
+<li> Bug 2802: athena_sim(1): Goal Editing
+<li> Bug 2803: athena_sim(1): Goal Evaluation
+<li> Bug 2804: athena_test(1): Execute strategies on lock
+<li> Bug 2805: athena_sim(1): DEFEND tactic execution, Part I
+<li> Bug 2808: athena_sim(1): "tactic type" commands
+<li> Bug 2809: athena_sim(1): DEFEND tactic becomes DEFROE
+<li> Bug 2812: athena_sim(1): GOAL condition
+<li> Bug 2815: Remove formlib(n) dependency 
+</ul><p>
+
 <h3>Build 3.0.7, 1 February 2011</h3>
 
 This build contains several small changes, and one huge one: the first
