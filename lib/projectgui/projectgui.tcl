@@ -18,7 +18,6 @@ package require sqlite3
 package require Img
 package require tablelist
 package require treectrl  2.2.6
-package require Tkhtml 2.0
 
 
 #-----------------------------------------------------------------------
@@ -48,13 +47,9 @@ namespace eval ::projectgui:: {
 # Load projectgui(n) submodules
 
 source [file join $::projectgui::library icons.tcl           ]
-source [file join $::projectgui::library mapcanvas.tcl       ]
 source [file join $::projectgui::library multifield.tcl      ]
 source [file join $::projectgui::library zulufield.tcl       ]
 source [file join $::projectgui::library calpatternfield.tcl ]
-source [file join $::projectgui::library htmlviewer.tcl      ]
-source [file join $::projectgui::library helptree.tcl        ]
-source [file join $::projectgui::library helpbrowser.tcl     ]
 
 
 

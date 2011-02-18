@@ -261,10 +261,10 @@ snit::widget orderdialog {
             -padding       4
 
         # NEXT, create the help button
-        ttk::button $win.tbar.help              \
-            -style   Toolbutton                 \
-            -image   ::projectgui::icon::help22 \
-            -state   normal                     \
+        ttk::button $win.tbar.help                \
+            -style   Toolbutton                   \
+            -image   ::marsgui::icon::question22  \
+            -state   normal                       \
             -command [mymethod Help]
 
         DynamicHelp::add $win.tbar.help -text "Get help!"

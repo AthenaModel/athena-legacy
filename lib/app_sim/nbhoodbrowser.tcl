@@ -92,7 +92,7 @@ snit::widgetadaptor nbhoodbrowser {
 
 
         install raisebtn using mktoolbutton $bar.raise \
-            ::projectgui::icon::totop                  \
+            ::marsgui::icon::totop                  \
             "Bring Neighborhood to Front"              \
             -state   disabled                          \
             -command [mymethod RaiseSelected]
@@ -103,7 +103,7 @@ snit::widgetadaptor nbhoodbrowser {
 
 
         install lowerbtn using mktoolbutton $bar.lower \
-            ::projectgui::icon::tobottom               \
+            ::marsgui::icon::tobottom               \
             "Send Neighborhood to Back"                \
             -state   disabled                          \
             -command [mymethod LowerSelected]

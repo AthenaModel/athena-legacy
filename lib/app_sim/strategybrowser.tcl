@@ -993,7 +993,7 @@ snit::widget strategybrowser {
             predicate {ttree single}
 
         install tt_topbtn using mktoolbutton $tt_bar.top         \
-            ::projectgui::icon::totop                            \
+            ::marsgui::icon::totop                            \
             "Top Priority"                                       \
             -state   disabled                                    \
             -command [mymethod TTreeTacticPriority top]
@@ -1003,7 +1003,7 @@ snit::widget strategybrowser {
             predicate {ttree tactic}
 
         install tt_raisebtn using mktoolbutton $tt_bar.raise     \
-            ::projectgui::icon::raise                            \
+            ::marsgui::icon::raise                            \
             "Raise Priority"                                     \
             -state   disabled                                    \
             -command [mymethod TTreeTacticPriority raise]
@@ -1013,7 +1013,7 @@ snit::widget strategybrowser {
             predicate {ttree tactic}
 
         install tt_lowerbtn using mktoolbutton $tt_bar.lower     \
-            ::projectgui::icon::lower                            \
+            ::marsgui::icon::lower                            \
             "Lower Priority"                                     \
             -state   disabled                                    \
             -command [mymethod TTreeTacticPriority lower]
@@ -1023,7 +1023,7 @@ snit::widget strategybrowser {
             predicate {ttree tactic}
 
         install tt_bottombtn using mktoolbutton $tt_bar.bottom   \
-            ::projectgui::icon::tobottom                         \
+            ::marsgui::icon::tobottom                         \
             "Bottom Priority"                                    \
             -state   disabled                                    \
             -command [mymethod TTreeTacticPriority bottom]

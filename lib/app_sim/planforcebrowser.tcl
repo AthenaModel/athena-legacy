@@ -87,13 +87,13 @@ snit::widget planforcebrowser {
 
         # Set Button
         install setbtn using mktoolbutton $bar.set \
-            ::projectgui::icon::pluss22            \
+            ::marsgui::icon::pluss22            \
             "Set Personnel"                        \
             -command [mymethod ActOnSelected PERSONNEL:SET]
 
         # Adjust Button
         install adjbtn using mktoolbutton $bar.adj \
-            ::projectgui::icon::plusa22            \
+            ::marsgui::icon::plusa22            \
             "Adjust Personnel by a Delta"          \
             -command [mymethod ActOnSelected PERSONNEL:ADJUST]
 

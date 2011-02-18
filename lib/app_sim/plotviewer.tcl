@@ -144,7 +144,7 @@ snit::widget plotviewer {
         # Help
         install bhelp using ttk::button $bar.help \
             -style   Toolbutton                     \
-            -image   ::projectgui::icon::help22     \
+            -image   ::marsgui::icon::question22     \
             -command [list helpbrowserwin showhelp vars]
 
         DynamicHelp::add $bhelp -text "Help on Display Variables"

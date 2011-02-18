@@ -59,12 +59,10 @@ source [file join $::projectlib::library projtypes.tcl      ]
 source [file join $::projectlib::library calpattern.tcl     ]
 source [file join $::projectlib::library prefs.tcl          ]
 source [file join $::projectlib::library parmdb.tcl         ]
-source [file join $::projectlib::library mapref.tcl         ]
 source [file join $::projectlib::library scenariodb.tcl     ]
 source [file join $::projectlib::library appdir.tcl         ]
 source [file join $::projectlib::library workdir.tcl        ]
 source [file join $::projectlib::library verman.tcl         ]
-source [file join $::projectlib::library helpdb.tcl         ]
 
 
 

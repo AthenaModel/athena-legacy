@@ -97,7 +97,7 @@ snit::widgetadaptor ensitbrowser {
             browser $win
 
         install resolvebtn using mktoolbutton $bar.resolve \
-            ::projectgui::icon::check22                    \
+            ::marsgui::icon::check22                    \
             "Resolve Selected Situation"                   \
             -state   disabled                              \
             -command [mymethod ResolveSelected]

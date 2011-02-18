@@ -40,7 +40,7 @@ proc mktoolbutton {w icon tooltip args} {
 # Creates an "add" Toolbutton showing a "plus sign" icon.
 
 proc mkaddbutton {w tooltip args} {
-    mktoolbutton $w ::projectgui::icon::plus22 $tooltip {*}$args
+    mktoolbutton $w ::marsgui::icon::plus22 $tooltip {*}$args
 }
 
 # mkdeletebutton w tooltip ?options...?
@@ -52,7 +52,7 @@ proc mkaddbutton {w tooltip args} {
 # Creates a "delete" Toolbutton showing a red "X" icon.
 
 proc mkdeletebutton {w tooltip args} {
-    mktoolbutton $w ::projectgui::icon::x22 $tooltip {*}$args
+    mktoolbutton $w ::marsgui::icon::x22 $tooltip {*}$args
 }
 
 # mkeditbutton w tooltip ?options...?
@@ -64,5 +64,5 @@ proc mkdeletebutton {w tooltip args} {
 # Creates an "edit" Toolbutton showing a "pencil" icon.
 
 proc mkeditbutton {w tooltip args} {
-    mktoolbutton $w ::projectgui::icon::pencil22 $tooltip {*}$args
+    mktoolbutton $w ::marsgui::icon::pencil22 $tooltip {*}$args
 }

@@ -101,7 +101,7 @@ snit::widgetadaptor schedulebrowser {
 
 
         install topbtn using mktoolbutton $bar.top \
-            ::projectgui::icon::totop              \
+            ::marsgui::icon::totop              \
             "Top Priority"                         \
             -state   disabled                      \
             -command [mymethod SetPriority top]
@@ -112,7 +112,7 @@ snit::widgetadaptor schedulebrowser {
 
 
         install raisebtn using mktoolbutton $bar.raise \
-            ::projectgui::icon::raise                  \
+            ::marsgui::icon::raise                  \
             "Raise Priority"                           \
             -state   disabled                          \
             -command [mymethod SetPriority raise]
@@ -123,7 +123,7 @@ snit::widgetadaptor schedulebrowser {
 
 
         install lowerbtn using mktoolbutton $bar.lower \
-            ::projectgui::icon::lower                  \
+            ::marsgui::icon::lower                  \
             "Lower Priority"                           \
             -state   disabled                          \
             -command [mymethod SetPriority lower]
@@ -134,7 +134,7 @@ snit::widgetadaptor schedulebrowser {
 
 
         install bottombtn using mktoolbutton $bar.bottom \
-            ::projectgui::icon::tobottom                 \
+            ::marsgui::icon::tobottom                 \
             "Bottom Priority"                            \
             -state   disabled                            \
             -command [mymethod SetPriority bottom]

@@ -930,7 +930,7 @@ snit::widget appwin {
         # RunPause
         ttk::button $win.toolbar.runpause       \
             -style   Toolbutton                 \
-            -image   ::projectgui::icon::play22 \
+            -image   ::marsgui::icon::play22 \
             -command [mymethod RunPause]
 
         # Duration
@@ -1126,14 +1126,15 @@ snit::widget appwin {
     # AddToolbarButton name icon tooltip command
     #
     # Creates a toolbar button with standard style
+    # TBD: Does the toolbutton module cover this?
 
     method AddToolbarButton {name icon tooltip command} {
         ttk::button $win.toolbar.$name \
             -style   Toolbutton        \
             -state   normal            \
             -command $command          \
-            -image   [list ::projectgui::icon::$icon \
-                          disabled ::projectgui::icon::${icon}d]
+            -image   [list ::marsgui::icon::$icon \
+                          disabled ::marsgui::icon::${icon}d]
 
         DynamicHelp::add $win.toolbar.$name -text $tooltip
     }
@@ -1949,21 +1950,21 @@ snit::widget appwin {
         # NEXT, Update Run/Pause button and the Duration
         if {[sim state] eq "RUNNING"} {
             $win.toolbar.runpause configure \
-                -image ::projectgui::icon::pause22 \
+                -image ::marsgui::icon::pause22 \
                 -state normal
             DynamicHelp::add $win.toolbar.runpause -text "Pause Simulation"
 
             $win.toolbar.duration configure -state disabled
         } elseif {[sim state] eq "SNAPSHOT"} {
             $win.toolbar.runpause configure \
-                -image ::projectgui::icon::rewind22 \
+                -image ::marsgui::icon::rewind22 \
                 -state normal
             DynamicHelp::add $win.toolbar.runpause -text "Leave Snapshot Mode"
 
             $win.toolbar.duration configure -state disabled
         } elseif {[sim state] eq "PAUSED"} {
             $win.toolbar.runpause configure \
-                -image ::projectgui::icon::play22 \
+                -image ::marsgui::icon::play22 \
                 -state normal
             DynamicHelp::add $win.toolbar.runpause -text "Run Simulation"
 
@@ -1971,7 +1972,7 @@ snit::widget appwin {
         } else {
             # PREP
             $win.toolbar.runpause configure \
-                -image ::projectgui::icon::play22d \
+                -image ::marsgui::icon::play22d \
                 -state disabled
             DynamicHelp::add $win.toolbar.runpause -text "Run Simulation"
 
