@@ -352,50 +352,6 @@ snit::type ::projectlib::scenariodb {
     # Delegated methods
     delegate method * to db
 
-    # safeeval args...
-    #
-    # Like "eval", but authorized only to query, not to change
-
-    method safeeval {args} {
-        # Allow SELECTs only.
-        $db authorizer [myproc RdbAuthorizer]
-
-        set command [list $db eval {*}$args]
-
-        set code [catch {
-            uplevel 1 $command
-        } result]
-        
-        # Open it up again.
-        $db authorizer ""
-
-        if {$code} {
-            error "query error: $result"
-        } else {
-            return $result
-        }
-    }
-
-
-    # safequery sql
-    #
-    # Like "query", but authorized only to query, not to change
-
-    method safequery {sql} {
-        # Allow SELECTs only.
-        $db authorizer [myproc RdbAuthorizer]
-
-        set code [catch {$db query $sql} result]
-        
-        # Open it up again.
-        $db authorizer ""
-
-        if {$code} {
-            error "query error: $result"
-        } else {
-            return $result
-        }
-    }
 
     # unsaved
     #
@@ -1074,28 +1030,6 @@ snit::type ::projectlib::scenariodb {
 
     proc RowMonitorFunc {table operation keyval} {
         lappend updates $table $operation $keyval
-    }
-
-
-    #-------------------------------------------------------------------
-    # Procs
-
-    # RdbAuthorizer op args
-    #
-    # op        The SQLite operation
-    # args      Related arguments; ignored.
-    #
-    # Allows SELECTs and READs, which are needed to query the database;
-    # all other operations are denied.
-
-    proc RdbAuthorizer {op args} {
-        if {$op eq "SQLITE_SELECT" || $op eq "SQLITE_READ"} {
-            return SQLITE_OK
-        } elseif {$op eq "SQLITE_FUNCTION"} {
-            return SQLITE_OK
-        } else {
-            return SQLITE_DENY
-        }
     }
 }
 
