@@ -279,9 +279,6 @@ snit::type ::projectlib::scenariodb {
             qmag      ::simlib::qmag
             qsat      ::simlib::qsat
             qsecurity ::projectlib::qsecurity
-
-            scenariodb_monitor ::projectlib::scenariodb::RowMonitorFunc
-
         }
     }
 
@@ -307,25 +304,6 @@ snit::type ::projectlib::scenariodb {
         savedChanges    0
     }
 
-    # monitors array: monitored tables
-    #
-    # List of keynames by table name.
-
-    variable monitors -array { }
-
-
-    # updates list
-    #
-    # This is a flat list {<table> <operation> <keyval>...} 
-    # produced during a monitor_transaction.
-    #
-    # NOTE: This variable is used transiently during the 
-    # monitor_transaction call..  It's a typevariable
-    # so that it can be accessed by the RowMonitorFunc proc.
-
-    typevariable updates {}
-
-
     #-------------------------------------------------------------------
     # Constructor
     
@@ -333,9 +311,10 @@ snit::type ::projectlib::scenariodb {
         # FIRST, create the sqldocument, naming it so that it
         # will be automatically destroyed.  We don't want
         # automatic transaction batching.
-        set db [sqldocument ${selfns}::db          \
+        set db [sqldocument ${selfns}::db         \
+                    -subject   $self              \
                     -clock     [from args -clock] \
-                    -autotrans off                 \
+                    -autotrans off                \
                     -rollback  on]
 
         # NEXT, register the schema sections
@@ -884,152 +863,6 @@ snit::type ::projectlib::scenariodb {
         }
 
         return $rdict
-    }
-
-    #-------------------------------------------------------------------
-    # Table Monitoring
-
-    # monitor add table keynames
-    #
-    # table    - A table name
-    # keynames - A list of the column names used to uniquely identify
-    #            the row.
-    #
-    # Enables monitoring of the specified table.  Updates, inserts or 
-    # deletes performed on the table during a monitor_transaction
-    # will result in a notifier event:
-    #
-    #    notifer send $self <$table> $operation $keyval
-    #
-    # $operation will be either "update" or "delete".
-
-    method {monitor add} {table keynames} {
-        # FIRST, note that monitoring is desired.
-        set monitors($table) $keynames
-    }
-
-    # monitor remove table
-    #
-    # table   - A table name
-    #
-    # Disables monitoring of the specified table.
-
-    method {monitor remove} {table} {
-        # FIRST, note that monitoring is no longer desired.
-        unset -nocomplain monitors($table)
-    }
-
-    # monitor transaction body
-    #
-    # body    - A Tcl script to be implemented as a transaction
-    #
-    # Enables monitoring, evaluates the body, and sends 
-    # relevant notifications.
-
-    method {monitor transaction} {body} {
-        $self monitor prepare
-
-        uplevel 1 [list $db transaction $body]
-
-        $self monitor notify
-    }
-
-
-    # monitor prepare
-    #
-    # Enables monitoring; updates to monitored tables
-    # will be accumulated.
-
-    method {monitor prepare} {} {
-        # FIRST, install the monitor traces,.
-        # TBD: This needs to be done on clear and open, and as
-        # new monitors are added, for efficiency.  But we'll make
-        # it work first.
-        foreach table [array names monitors] {
-            $self AddMonitorTrigger $table INSERT
-            $self AddMonitorTrigger $table UPDATE
-            $self AddMonitorTrigger $table DELETE
-        }
-
-        # NEXT, make sure the updates array is empty
-        set updates [list]
-    }
-
-    # monitor notify
-    #
-    # Sends notifications for the accumulated updates, and
-    # disables monitoring.
-
-    method {monitor notify} {} {
-        # FIRST, send the notifications
-        foreach {table operation keyval} $updates {
-            notifier send $self <$table> $operation $keyval
-        }
-
-        # NEXT, clear the updates array
-        set updates [list]
-
-        # NEXT, remove the monitor traces
-        # TBD: Instead, we'll set a flag.
-        $self DeleteMonitorTriggers
-
-    }
-
-
-    # AddMonitorTrigger table operation
-    #
-    # table       - The table name
-    # operation   - INSERT, UPDATE, or DELETE
-    #
-    #
-    # Adds a monitor trigger to the specified table for the 
-    # specified operation, and returns a DELETE statement for
-    # the trigger.
-
-    method AddMonitorTrigger {table operation} {
-        if {$operation eq "DELETE"} {
-            set optype delete
-            set keyExpr old.[join $monitors($table) " || ' ' || old."]
-        } else {
-            set optype update
-            set keyExpr new.[join $monitors($table) " || ' ' || new."]
-        }
-
-        set trigger scenariodb_monitor_${table}_$operation
-
-        $db eval "
-            DROP TRIGGER IF EXISTS $trigger;
-            CREATE TEMP TRIGGER $trigger
-            AFTER $operation ON $table BEGIN 
-                SELECT scenariodb_monitor('$table','$optype',$keyExpr);
-            END;
-        "
-    }
-
-    # DeleteMonitorTriggers
-    #
-    # Deletes all monitor triggers.
-
-    method DeleteMonitorTriggers {} {
-        foreach table [array names monitors] {
-            $db eval "
-                DROP TRIGGER IF EXISTS scenariodb_monitor_${table}_INSERT;
-                DROP TRIGGER IF EXISTS scenariodb_monitor_${table}_UPDATE;
-                DROP TRIGGER IF EXISTS scenariodb_monitor_${table}_DELETE;
-            "
-        }
-    }
-
-    # RowMonitorFunc table operation keyval
-    #
-    # table     - A table name.
-    # operation - create|update|delete
-    # keyval    - Key value or values that identifies the modified row.
-    #
-    # Notes that the row has been updated.
-
-    proc RowMonitorFunc {table operation keyval} {
-        lappend updates $table $operation $keyval
     }
 }
 

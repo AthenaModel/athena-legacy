@@ -780,22 +780,21 @@ snit::type order {
             
             # NEXT, call the handler, monitoring database updates
             # and notifying the application on change.
-            if {[order cget $name -monitor]} {
-                rdb monitor prepare
-            }
-
             if {$interface ne "test"} {
-                rdb transaction {
-                    $handler($name)
-                }
+                set montype "transaction"
             } else {
                 # On "test", don't rollback automatically, to make
                 # debugging easier.
-                $handler($name)
+                set montype "script"
             }
 
             if {[order cget $name -monitor]} {
-                rdb monitor notify
+                rdb monitor $montype {
+                    $handler($name)
+                }
+            } else {
+                # No monitoring
+                $handler($name)
             }
         } result opts]} {
             # FIRST, get the error info
