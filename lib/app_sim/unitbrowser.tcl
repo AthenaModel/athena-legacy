@@ -192,7 +192,7 @@ snit::widgetadaptor unitbrowser {
             -state   disabled                      \
             -command [mymethod AttritSelected]
 
-        cond::orderIsValidSingle control $attbtn    \
+        cond::availableSingle control $attbtn    \
             order   ATTRIT:UNIT                     \
             browser $win
 
@@ -203,7 +203,7 @@ snit::widgetadaptor unitbrowser {
             -state   disabled                        \
             -command [mymethod MoveSelected]
 
-        cond::orderIsValidSingle control $movebtn    \
+        cond::availableSingle control $movebtn    \
             order   UNIT:MOVE                        \
             browser $win
 
@@ -229,14 +229,14 @@ snit::widgetadaptor unitbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidSingle update \
+        cond::availableSingle update \
             [list $attbtn $movebtn]
 
         # NEXT, notify the app of the selection.
         if {[llength [$hull uid curselection]] == 1} {
             set u [lindex [$hull uid curselection] 0]
 
-            notifier send ::app <ObjectSelect> [list unit $u]
+            notifier send ::app <Puck> [list unit $u]
         }
     }
 
@@ -261,5 +261,7 @@ snit::widgetadaptor unitbrowser {
     }
 
 }
+
+
 
 

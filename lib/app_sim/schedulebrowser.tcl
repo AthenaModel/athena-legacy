@@ -86,7 +86,7 @@ snit::widgetadaptor schedulebrowser {
             -state   normal                       \
             -command [mymethod AddItem]
 
-        cond::orderIsValid control $addbtn        \
+        cond::available control $addbtn        \
             order ACTIVITY:SCHEDULE
 
 
@@ -95,7 +95,7 @@ snit::widgetadaptor schedulebrowser {
             -state   disabled                        \
             -command [mymethod EditSelected]
 
-        cond::orderIsValidSingle control $editbtn    \
+        cond::availableSingle control $editbtn    \
             order   ACTIVITY:UPDATE                  \
             browser $win
 
@@ -106,7 +106,7 @@ snit::widgetadaptor schedulebrowser {
             -state   disabled                      \
             -command [mymethod SetPriority top]
 
-        cond::orderIsValidSingle control $topbtn   \
+        cond::availableSingle control $topbtn   \
             order   ACTIVITY:PRIORITY              \
             browser $win
 
@@ -117,7 +117,7 @@ snit::widgetadaptor schedulebrowser {
             -state   disabled                          \
             -command [mymethod SetPriority raise]
 
-        cond::orderIsValidSingle control $raisebtn     \
+        cond::availableSingle control $raisebtn     \
             order   ACTIVITY:PRIORITY                  \
             browser $win
 
@@ -128,7 +128,7 @@ snit::widgetadaptor schedulebrowser {
             -state   disabled                          \
             -command [mymethod SetPriority lower]
 
-        cond::orderIsValidSingle control $lowerbtn     \
+        cond::availableSingle control $lowerbtn     \
             order   ACTIVITY:PRIORITY                  \
             browser $win
 
@@ -139,7 +139,7 @@ snit::widgetadaptor schedulebrowser {
             -state   disabled                            \
             -command [mymethod SetPriority bottom]
 
-        cond::orderIsValidSingle control $bottombtn      \
+        cond::availableSingle control $bottombtn      \
             order   ACTIVITY:PRIORITY                    \
             browser $win
 
@@ -149,7 +149,7 @@ snit::widgetadaptor schedulebrowser {
             -state   disabled                              \
             -command [mymethod CancelSelected]
 
-        cond::orderIsValidSingle control $cancelbtn \
+        cond::availableSingle control $cancelbtn \
             order   ACTIVITY:CANCEL                 \
             browser $win
         
@@ -295,14 +295,14 @@ snit::widgetadaptor schedulebrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidSingle update \
+        cond::availableSingle update \
             [list $editbtn $topbtn $raisebtn $lowerbtn $bottombtn $cancelbtn]
 
         # NEXT, notify the app of the selection.
         if {[llength [$hull uid curselection]] == 1} {
             set cid [lindex [$hull uid curselection] 0]
 
-            notifier send ::app <ObjectSelect> \
+            notifier send ::app <Puck> \
                 [list cid $cid]
         }
     }
@@ -370,5 +370,7 @@ snit::widgetadaptor schedulebrowser {
         order send gui ACTIVITY:CANCEL cid $cid
     }
 }
+
+
 
 

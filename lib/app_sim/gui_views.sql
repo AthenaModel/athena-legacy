@@ -419,7 +419,7 @@ SELECT id        AS id,
        name      AS name,
        narrative AS narrative,
        parmdict  AS parmdict
-FROM eventq_queue_orderExecute;
+FROM eventq_queue_order_execute;
 
 --View of scheduled force level orders
 CREATE TEMPORARY VIEW gui_plan_force_level_orders AS
@@ -429,7 +429,7 @@ SELECT id        AS id,
        name      AS name,
        narrative AS narrative,
        parmdict  AS parmdict
-FROM eventq_queue_orderExecute
+FROM eventq_queue_order_execute
 WHERE name GLOB 'PERSONNEL:*';
 
 -- View of the CIF

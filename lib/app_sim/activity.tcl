@@ -957,15 +957,16 @@ order define ACTIVITY:SCHEDULE {
         -sendstates {PREP PAUSED}           \
         -refreshcmd {::activity Refresh_AS}
 
-    parm g         key  "Group"            -table groups -key g
+    parm g         key  "Group"            -table groups -keys g
     parm n         enum "From Nbhood"  
     parm a         enum "Activity"
-    parm tn        key  "In Nbhood"        -table nbhoods -key n
+    parm tn        key  "In Nbhood"        -table nbhoods -keys n
     parm personnel text "Personnel"
     parm start     text "Start"
     parm finish    text "Finish"           -defval Never
     parm pattern   cpat "Schedule"         -defval daily
-    parm priority  enum "Priority"         -type ePrioSched -displaylong \
+    parm priority  enum "Priority"         -enumtype ePrioSched \
+                                           -displaylong yes     \
                                            -defval bottom
 } {
     # FIRST, prepare and validate the parameters
@@ -1055,7 +1056,7 @@ order define ACTIVITY:UPDATE {
         -sendstates {PREP PAUSED}           \
         -refreshcmd {::activity Refresh_AU}
 
-    parm cid       key  "Item ID" -table gui_calendar -key cid
+    parm cid       key  "Item ID"      -table gui_calendar -keys cid
     parm g         disp "Group"
     parm n         disp "From Nbhood"
     parm a         disp "Activity"
@@ -1133,7 +1134,7 @@ order define ACTIVITY:CANCEL {
         -sendstates {PREP PAUSED} \
         -refreshcmd {orderdialog refreshForKey cid *}
 
-    parm cid       key  "Item ID" -table gui_calendar -key cid
+    parm cid       key  "Item ID"     -table gui_calendar -keys cid
     parm g         disp "Group"
     parm n         disp "From Nbhood"
     parm a         disp "Activity"
@@ -1161,8 +1162,8 @@ order define ACTIVITY:PRIORITY {
         -sendstates {PREP PAUSED} \
         -refreshcmd {orderdialog refreshForKey cid *}
 
-    parm cid       key  "Item ID"  -table gui_calendar -key cid
-    parm priority  enum "Priority" -type ePrioUpdate
+    parm cid       key  "Item ID"  -table gui_calendar -keys cid
+    parm priority  enum "Priority" -enumtype ePrioUpdate
 } {
     # FIRST, prepare and validate the parameters
     prepare cid      -required          -type {activity cal}

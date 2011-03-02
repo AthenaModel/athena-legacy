@@ -935,13 +935,13 @@ order define ATTRIT:NBHOOD {
         -sendstates     {PAUSED}      \
         -refreshcmd     [list ::aam Refresh_AN]
 
-    parm n          key  "Neighborhood"      -table nbhoods   \
-                                             -key n           \
-                                             -tags nbhood
+    parm n          key  "Neighborhood"      -table  nbhoods   \
+                                             -keys   n         \
+                                             -tags   nbhood
     parm casualties text "Casualties"        -defval 1
-    parm g1         key  "Responsible Group" -table frcgroups -key g \
-        -tags group
-    parm g2         enum "Responsible Group" -tags group
+    parm g1         key  "Responsible Group" -table  frcgroups -keys g \
+                                             -tags   group
+    parm g2         enum "Responsible Group" -tags   group
 } {
     # FIRST, prepare the parameters
     prepare n          -toupper -required -type nbhood
@@ -974,13 +974,13 @@ order define ATTRIT:GROUP {
         -sendstates     {PAUSED}      \
         -refreshcmd     [list ::aam Refresh_AG]
 
-    parm n          key   "Neighborhood"      -table nbhoods -key n \
-                                              -tags nbhood
-    parm f          enum  "To Group"          -tags group 
+    parm n          key   "Neighborhood"      -table  nbhoods -keys n \
+                                              -tags   nbhood
+    parm f          enum  "To Group"          -tags   group 
     parm casualties text  "Casualties"        -defval 1
-    parm g1         key   "Responsible Group" -table frcgroups -key g \
-                                              -tags group
-    parm g2         enum  "Responsible Group" -tags group
+    parm g1         key   "Responsible Group" -table  frcgroups -keys g \
+                                              -tags   group
+    parm g2         enum  "Responsible Group" -tags   group
 } {
     # FIRST, prepare the parameters
     prepare n          -toupper -required -type nbhood
@@ -1032,12 +1032,12 @@ order define ATTRIT:UNIT {
         -sendstates     {PAUSED}                \
         -refreshcmd     [list ::aam Refresh_AU]
 
-    parm u          key   "Unit"              -table units     -key u \
-                                              -tags unit
+    parm u          key   "Unit"              -table  units     -keys u \
+                                              -tags   unit
     parm casualties text  "Casualties"        -defval 1
-    parm g1         key   "Responsible Group" -table frcgroups -key g \
-                                              -tags  group
-    parm g2         enum  "Responsible Group" -tags  group
+    parm g1         key   "Responsible Group" -table  frcgroups -keys g \
+                                              -tags   group
+    parm g2         enum  "Responsible Group" -tags   group
 } {
     # FIRST, prepare the parameters
     prepare u          -toupper -required -type unit

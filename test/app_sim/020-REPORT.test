@@ -49,7 +49,7 @@ namespace eval ::athena_test::tests:: {
     test COOPERATION-1.1 {not in prep} -body {
         ted order -reject REPORT:COOP {}
     } -result {
-        * {Simulation state is PREP, but order is valid only in these states: PAUSED}
+        * {Order state is PREP, but order is valid only in these states: PAUSED}
     }
 
 
@@ -121,7 +121,7 @@ namespace eval ::athena_test::tests:: {
     test DRIVER-1.1 {not in prep} -body {
         ted order -reject REPORT:DRIVER {}
     } -result {
-        * {Simulation state is PREP, but order is valid only in these states: PAUSED}
+        * {Order state is PREP, but order is valid only in these states: PAUSED}
     }
 
 
@@ -204,7 +204,7 @@ namespace eval ::athena_test::tests:: {
     test SATISFACTION:CURRENT-1.1 {not in prep} -body {
         ted order -reject REPORT:SAT:CURRENT {}
     } -result {
-        * {Simulation state is PREP, but order is valid only in these states: PAUSED}
+        * {Order state is PREP, but order is valid only in these states: PAUSED}
     }
 
 
@@ -284,7 +284,7 @@ namespace eval ::athena_test::tests:: {
     test SATISFACTION:CONTRIB-1.1 {not in prep} -body {
         ted order -reject REPORT:SAT:CONTRIB {}
     } -result {
-        * {Simulation state is PREP, but order is valid only in these states: PAUSED}
+        * {Order state is PREP, but order is valid only in these states: PAUSED}
     }
 
 

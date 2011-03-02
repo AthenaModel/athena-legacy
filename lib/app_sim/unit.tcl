@@ -344,7 +344,7 @@ order define UNIT:MOVE {
         -refreshcmd {::orderdialog refreshForKey u *}
 
     parm u          key   "Unit"       -table gui_units \
-                                       -key   u
+                                       -keys  u
     parm location   text  "Location"   -tags point
 } {
     # FIRST, prepare the parameters

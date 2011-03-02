@@ -276,7 +276,7 @@ snit::type cif {
             log normal cif "redo: $name $parmdict"
 
             bgcatch {
-                order send sim $name $parmdict
+                order send app $name $parmdict
             }
 
             incr info(nextid)

@@ -407,7 +407,7 @@ order define CONDITION:DELETE {
         -refreshcmd {orderdialog refreshForKey condition_id *}
 
     parm condition_id   key  "Condition ID"   -table conditions   \
-                                              -key   condition_id
+                                              -keys  condition_id
     parm condition_type disp "Condition Type"
 } {
     # FIRST, prepare the parameters
@@ -432,7 +432,7 @@ order define CONDITION:STATE {
         -refreshcmd {orderdialog refreshForKey condition_id *}
 
     parm condition_id   key  "Condition ID"  -table conditions   \
-                                             -key   condition_id
+                                             -keys  condition_id
     parm state          text "State"
 } {
     # FIRST, prepare and validate the parameters

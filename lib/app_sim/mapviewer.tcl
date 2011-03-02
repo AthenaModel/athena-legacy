@@ -460,7 +460,7 @@ snit::widget mapviewer {
         # Separator
         ttk::separator $win.vbar.sep
 
-        cond::orderIsValid control \
+        cond::available control \
             [ttk::button $win.vbar.nbhood                       \
                  -style   Toolbutton                            \
                  -image   [list ${type}::icon::nbpoly           \
@@ -471,7 +471,7 @@ snit::widget mapviewer {
         DynamicHelp::add $win.vbar.nbhood \
             -text [order title NBHOOD:CREATE]
 
-        cond::orderIsValid control \
+        cond::available control \
             [ttk::button $win.vbar.newensit                                  \
                  -style   Toolbutton                                         \
                  -image   [list ${type}::icon::envpoly                       \
@@ -648,7 +648,7 @@ snit::widget mapviewer {
                 -tags    [list transient point]
 
             # NEXT, notify the app that a point has been selected.
-            notifier send ::app <ObjectSelect> $data
+            notifier send ::app <Puck> $data
         } else {
             event generate $win <<Point-1>> -data $ref
         }
@@ -675,7 +675,7 @@ snit::widget mapviewer {
                 -tags    [list transient polygon]
 
             # NEXT, notify the app that a polygon has been selected.
-            notifier send ::app <ObjectSelect> [list polygon $poly]
+            notifier send ::app <Puck> [list polygon $poly]
         } else {
             event generate $win <<PolyComplete>> -data $poly
         }
@@ -954,24 +954,24 @@ snit::widget mapviewer {
     method CreateNbhoodContextMenu {} {
         set mnu [menu $canvas.nbhoodmenu]
 
-        cond::orderIsValid control \
+        cond::available control \
             [menuitem $mnu command "Create Environmental Situation" \
                  -command [mymethod NbhoodCreateEnsitHere]]         \
             order ENSIT:CREATE
 
         $mnu add separator
 
-        cond::orderIsValid control \
+        cond::available control \
             [menuitem $mnu command "Attrit Civilians in Neighborhood" \
                  -command [mymethod NbhoodAttrit]]                    \
             order ATTRIT:NBHOOD
 
-        cond::orderIsValid control \
+        cond::available control \
             [menuitem $mnu command "Bring Neighborhood to Front" \
                  -command [mymethod NbhoodBringToFront]]         \
             order NBHOOD:RAISE
 
-        cond::orderIsValid control \
+        cond::available control \
             [menuitem $mnu command "Send Neighborhood to Back" \
                  -command [mymethod NbhoodSendToBack]]         \
             order NBHOOD:LOWER
@@ -1025,7 +1025,7 @@ snit::widget mapviewer {
     # neighborhood ID and forward for use by the containing appwin(sim).
 
     method Nbhood-1 {id} {
-        notifier send ::app <ObjectSelect> [list nbhood $nbhoods(n-$id)]
+        notifier send ::app <Puck> [list nbhood $nbhoods(n-$id)]
 
         event generate $win <<Nbhood-1>> -data $nbhoods(n-$id)
     }
@@ -1238,7 +1238,7 @@ snit::widget mapviewer {
     # and forward as the appropriate kind of entity.
 
     method Icon-1 {cid} {
-        notifier send ::app <ObjectSelect> \
+        notifier send ::app <Puck> \
             [list $icons(itype-$cid) $icons(sid-$cid)]
 
         set sid $icons(sid-$cid)
@@ -1263,7 +1263,7 @@ snit::widget mapviewer {
         set icons(context) $icons(sid-$cid)
 
         # NEXT, Update any menu items that depend on this condition
-        cond::orderIsValidCanUpdate update
+        cond::availableCanUpdate update
 
         # NEXT, popup the menu
         switch -exact $icons(itype-$cid) {
@@ -1390,7 +1390,7 @@ snit::widget mapviewer {
     method CreateUnitContextMenu {} {
         set mnu [menu $canvas.unitmenu]
 
-        cond::orderIsValid control \
+        cond::available control \
             [menuitem $mnu command "Magic Attrit Unit" \
                  -command [mymethod AttritUnit]] \
             order ATTRIT:UNIT
@@ -1522,7 +1522,7 @@ snit::widget mapviewer {
     method CreateEnsitContextMenu {} {
         set mnu [menu $canvas.ensitmenu]
 
-        cond::orderIsValidCanUpdate control \
+        cond::availableCanUpdate control \
             [menuitem $mnu command "Update Situation" \
                  -command [mymethod UpdateEnsit]] \
             order ENSIT:UPDATE browser $win
@@ -1608,4 +1608,6 @@ snit::widget mapviewer {
         $self NbhoodFill
     }
 }
+
+
 

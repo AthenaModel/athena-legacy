@@ -266,9 +266,10 @@ order define ATTROE:UF:CREATE {
 
     parm id         newkey "Combatants"   -universe gui_attroeuf_univ    \
                                           -table gui_attroeuf_nfg        \
-                                          -key   {n f g}                 \
+                                          -keys  {n f g}                 \
                                           -labels {"In" "Frc" "Attacks"}
-    parm roe        enum   "ROE"          -type eattroeuf -defval "ATTACK"
+    parm roe        enum   "ROE"          -enumtype eattroeuf \
+                                          -defval "ATTACK"
     parm cooplimit  coop   "Coop. Limit"  -defval 50.0
 } {
     # FIRST, prepare and validate the parameters
@@ -299,14 +300,14 @@ order define ATTROE:NF:CREATE {
     options \
         -sendstates {PREP PAUSED}
 
-    parm id         newkey "Combatants"  -universe gui_attroenf_univ    \
-                                         -table gui_attroenf_nfg        \
-                                         -key   {n f g}                 \
-                                         -labels {"In" "Frc" "Attacks"}
-    parm roe        enum   "ROE"         -type eattroenf \
-                                         -defval "HIT_AND_RUN"
-    parm cooplimit  coop   "Coop. Limit" -defval 50.0
-    parm rate       text   "Attacks/Day" -defval 0.5
+    parm id         newkey "Combatants"  -universe gui_attroenf_univ      \
+                                         -table    gui_attroenf_nfg       \
+                                         -keys     {n f g}                \
+                                         -labels   {"In" "Frc" "Attacks"}
+    parm roe        enum   "ROE"         -enumtype eattroenf \
+                                         -defval   "HIT_AND_RUN"
+    parm cooplimit  coop   "Coop. Limit" -defval   50.0
+    parm rate       text   "Attacks/Day" -defval   0.5
 } {
     # FIRST, prepare and validate the parameters
     prepare id             -toupper -required -type {attroe nf_unused}
@@ -334,8 +335,8 @@ order define ATTROE:DELETE {
     options \
         -sendstates {PREP PAUSED}
 
-    parm id key  "Combatants"    -table gui_attroe_nfg          \
-                                 -key   {n f g}                 \
+    parm id key  "Combatants"    -table  gui_attroe_nfg         \
+                                 -keys   {n f g}                \
                                  -labels {"In" "Frc" "Attacks"} 
 } {
     # FIRST, prepare the parameters
@@ -345,7 +346,7 @@ order define ATTROE:DELETE {
 
     # NEXT, Delete the ROE, unless the user says no.
 
-    if {[interface] eq "gui"} {
+    if {[sender] eq "gui"} {
         set answer [messagebox popup \
                         -title         "Are you sure?"                  \
                         -icon          warning                          \
@@ -384,10 +385,10 @@ order define ATTROE:UF:UPDATE {
         -sendstates     {PREP PAUSED}                    \
         -refreshcmd     {orderdialog refreshForKey id *}
 
-    parm id         key  "Combatants"  -table  gui_attroeuf_nfg       \
-                                       -key    {n f g}                \
-                                       -labels {"In" "Frc" "Attacks"}
-    parm roe        enum "ROE"         -type   eattroeuf
+    parm id         key  "Combatants"  -table    gui_attroeuf_nfg       \
+                                       -keys     {n f g}                \
+                                       -labels   {"In" "Frc" "Attacks"}
+    parm roe        enum "ROE"         -enumtype eattroeuf
     parm cooplimit  coop "Coop. Limit"
 } {
     # FIRST, prepare the parameters
@@ -418,10 +419,10 @@ order define ATTROE:NF:UPDATE {
         -sendstates     {PREP PAUSED}                    \
         -refreshcmd     {orderdialog refreshForKey id *}
 
-    parm id         key  "Combatants"  -table  gui_attroenf_nfg       \
-                                       -key    {n f g}                \
-                                       -labels {"In" "Frc" "Attacks"}
-    parm roe        enum "ROE"         -type eattroenf
+    parm id         key  "Combatants"  -table    gui_attroenf_nfg       \
+                                       -keys     {n f g}                \
+                                       -labels   {"In" "Frc" "Attacks"}
+    parm roe        enum "ROE"         -enumtype eattroenf
     parm cooplimit  coop "Coop. Limit"
     parm rate       text "Attacks/Day"
 
@@ -453,9 +454,9 @@ order define ATTROE:UF:UPDATE:MULTI {
         -schedulestates {PREP PAUSED}    \
         -sendstates     {PREP PAUSED}
 
-    parm ids        multi "Combatants"   -table gui_attroeuf_nfg \
-                                         -key id
-    parm roe        enum  "ROE"          -type  eattroeuf
+    parm ids        multi "Combatants"   -table    gui_attroeuf_nfg \
+                                         -key      id
+    parm roe        enum  "ROE"          -enumtype eattroeuf
     parm cooplimit  coop  "Coop. Limit"
 } {
     # FIRST, prepare the parameters
@@ -490,9 +491,9 @@ order define ATTROE:NF:UPDATE:MULTI {
         -schedulestates {PREP PAUSED}    \
         -sendstates     {PREP PAUSED}
 
-    parm ids        multi "Combatants"  -table gui_attroenf_nfg \
-                                        -key id
-    parm roe        enum  "ROE"         -type eattroenf
+    parm ids        multi "Combatants"  -table    gui_attroenf_nfg \
+                                        -key      id
+    parm roe        enum  "ROE"         -enumtype eattroenf
     parm cooplimit  coop  "Coop. Limit"
     parm rate       text  "Attacks/Day"
 } {

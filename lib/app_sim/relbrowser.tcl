@@ -76,7 +76,7 @@ snit::widgetadaptor relbrowser {
             -state   disabled                        \
             -command [mymethod EditSelected]
 
-        cond::orderIsValidCanUpdate control $editbtn \
+        cond::availableCanUpdate control $editbtn \
             order   REL:OVERRIDE                     \
             browser $win
 
@@ -85,7 +85,7 @@ snit::widgetadaptor relbrowser {
             -state   disabled                              \
             -command [mymethod DeleteSelected]
 
-        cond::orderIsValidCanDelete control $deletebtn \
+        cond::availableCanDelete control $deletebtn \
             order   REL:RESTORE                        \
             browser $win
 
@@ -178,8 +178,8 @@ snit::widgetadaptor relbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidCanUpdate update $editbtn
-        cond::orderIsValidCanDelete update $deletebtn
+        cond::availableCanUpdate update $editbtn
+        cond::availableCanDelete update $deletebtn
     }
 
     # EditSelected
@@ -208,4 +208,5 @@ snit::widgetadaptor relbrowser {
         order send gui REL:RESTORE id $id
     }
 }
+
 

@@ -886,12 +886,12 @@ order define ENSIT:CREATE {
         -refreshcmd     {::ensit Refresh_SEC}
 
     parm location   text  "Location"      -tags nbpoint
-    parm stype      enum  "Type"          -schedwheninvalid
+    parm stype      enum  "Type"          -schedwheninvalid yes
     parm coverage   frac  "Coverage"      -defval 1.0
-    parm inception  enum  "Inception?"    -type eyesno -defval "YES"
-    parm g          enum  "Caused By"     -type {ptype g+none} \
+    parm inception  enum  "Inception?"    -enumtype eyesno -defval "YES"
+    parm g          enum  "Caused By"     -enumtype {ptype g+none} \
         -defval NONE
-    parm resolver   enum  "Resolved By"   -type {ptype g+none} \
+    parm resolver   enum  "Resolved By"   -enumtype {ptype g+none} \
         -defval NONE
     parm rduration  text  "Duration"      -defval 5
 } {
@@ -950,7 +950,7 @@ order define ENSIT:DELETE {
         -sendstates {PREP PAUSED}
 
     parm s  key  "Situation"  -table    gui_ensits_initial \
-                              -key      s                  \
+                              -keys     s                  \
                               -dispcols longid             \
                               -tags     situation
 } {
@@ -961,7 +961,7 @@ order define ENSIT:DELETE {
 
     # NEXT, make sure the user knows what he is getting into.
 
-    if {[interface] eq "gui"} {
+    if {[sender] eq "gui"} {
         set answer [messagebox popup \
                         -title         "Are you sure?"                  \
                         -icon          warning                          \
@@ -999,15 +999,15 @@ order define ENSIT:UPDATE {
         -refreshcmd {ensit Refresh_SEU}
 
     parm s          key  "Situation"    -table    gui_ensits_initial \
-                                        -key      s                  \
+                                        -keys     s                  \
                                         -dispcols longid             \
                                         -tags     situation
     parm location   text  "Location"    -tags     nbpoint
     parm stype      enum  "Type"
     parm coverage   frac  "Coverage"
-    parm inception  enum  "Inception?"  -type     eyesno
-    parm g          enum  "Caused By"   -type     {ptype g+none}
-    parm resolver   enum  "Resolved By" -type     {ptype g+none}
+    parm inception  enum  "Inception?"  -enumtype eyesno
+    parm g          enum  "Caused By"   -enumtype {ptype g+none}
+    parm resolver   enum  "Resolved By" -enumtype {ptype g+none}
     parm rduration  text  "Duration"    
 
 } {
@@ -1074,7 +1074,7 @@ order define ENSIT:MOVE {
         -sendstates {PREP PAUSED}
 
     parm s          key   "Situation"   -table    gui_ensits \
-                                        -key      s          \
+                                        -keys     s          \
                                         -dispcols longid     \
                                         -tags     situation
     parm location   text  "Location"    -tags     nbpoint
@@ -1149,10 +1149,10 @@ order define ENSIT:RESOLVE {
         -refreshcmd     {orderdialog refreshForKey s *}
 
     parm s          key  "Situation"    -table    gui_ensits \
-                                        -key      s          \
+                                        -keys     s          \
                                         -dispcols longid     \
                                         -tags     situation
-    parm resolver  enum  "Resolved By"  -type     {ptype g+none}
+    parm resolver  enum  "Resolved By"  -enumtype {ptype g+none}
 } {
     # FIRST, prepare the parameters
     prepare s         -required -type {ensit live}

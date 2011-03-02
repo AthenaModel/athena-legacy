@@ -150,7 +150,7 @@ order define SAT:UPDATE {
         -refreshcmd {orderdialog refreshForKey id *}
 
     parm id        key   "Curve"            -table  gui_sat_gc    \
-                                            -key    {g c}         \
+                                            -keys   {g c}         \
                                             -labels {"Grp" "Con"}
     parm sat0      sat   "Sat at T0"
     parm saliency  frac  "Saliency"

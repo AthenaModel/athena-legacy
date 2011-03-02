@@ -516,7 +516,7 @@ snit::widget appwin {
 
         $mnu add separator
 
-        cond::orderIsValid control                  \
+        cond::available control                  \
             [menuitem $mnu command "Import Map..."    \
                  -underline 4                         \
                  -command   [mymethod FileImportMap]] \
@@ -528,7 +528,7 @@ snit::widget appwin {
         $mnu add cascade -label "Parameters" \
             -underline 0 -menu $submenu
 
-        cond::orderIsValid control                           \
+        cond::available control                           \
             [menuitem $submenu command "Import..."           \
                  -underline 0                                \
                  -command   [mymethod FileParametersImport]] \
@@ -888,7 +888,7 @@ snit::widget appwin {
     # Adds a menu item for the order
 
     method AddOrder {mnu order} {
-        cond::orderIsValid control \
+        cond::available control \
             [menuitem $mnu command [order title $order]... \
                  -command [list order enter $order]]    \
             order $order
@@ -2134,6 +2134,7 @@ snit::widget appwin {
         $cli clear
     }
 }
+
 
 
 

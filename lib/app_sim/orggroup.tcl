@@ -185,14 +185,14 @@ order define ORGGROUP:CREATE {
 
     parm g              text  "Group"
     parm longname       text  "Long Name"
-    parm a              enum  "Owning Actor"      -type actor
-    parm color          color "Color"             -defval \#10DDD7
-    parm shape          enum  "Unit Shape"        -type   eunitshape \
-                                                  -defval NEUTRAL
-    parm orgtype        enum  "Organization Type" -type   eorgtype   \
-                                                  -defval NGO
-    parm demeanor       enum  "Demeanor"          -type   edemeanor  \
-                                                  -defval AVERAGE
+    parm a              enum  "Owning Actor"      -enumtype actor
+    parm color          color "Color"             -defval   \#10DDD7
+    parm shape          enum  "Unit Shape"        -enumtype eunitshape \
+                                                  -defval   NEUTRAL
+    parm orgtype        enum  "Organization Type" -enumtype eorgtype   \
+                                                  -defval   NGO
+    parm demeanor       enum  "Demeanor"          -enumtype edemeanor  \
+                                                  -defval   AVERAGE
 } {
     # FIRST, prepare and validate the parameters
     prepare g              -toupper   -required -unused -type ident
@@ -223,7 +223,7 @@ order define ORGGROUP:DELETE {
     title "Delete Organization Group"
     options -sendstates PREP
 
-    parm g  key "Group" -tags group -table gui_orggroups -key g
+    parm g  key "Group" -tags group -table gui_orggroups -keys g
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type orggroup
@@ -232,7 +232,7 @@ order define ORGGROUP:DELETE {
 
     # NEXT, make sure the user knows what he is getting into.
 
-    if {[interface] eq "gui"} {
+    if {[sender] eq "gui"} {
         set answer [messagebox popup \
                         -title         "Are you sure?"                  \
                         -icon          warning                          \
@@ -269,14 +269,15 @@ order define ORGGROUP:UPDATE {
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey g *}
 
-    parm g              key   "Select Group" \
-        -table gui_orggroups -key g -tags group 
+    parm g              key   "Select Group"       -table gui_orggroups \
+                                                   -keys  g             \
+                                                   -tags group 
     parm longname       text  "Long Name"
-    parm a              enum  "Owning Actor"       -type actor
+    parm a              enum  "Owning Actor"       -enumtype actor
     parm color          color "Color"
-    parm shape          enum  "Unit Shape"         -type eunitshape
-    parm orgtype        enum  "Organization Type"  -type eorgtype
-    parm demeanor       enum  "Demeanor"           -type edemeanor
+    parm shape          enum  "Unit Shape"         -enumtype eunitshape
+    parm orgtype        enum  "Organization Type"  -enumtype eorgtype
+    parm demeanor       enum  "Demeanor"           -enumtype edemeanor
 } {
     # FIRST, prepare the parameters
     prepare g              -toupper   -required -type orggroup
@@ -304,12 +305,12 @@ order define ORGGROUP:UPDATE:MULTI {
         -sendstates PREP                                  \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids            multi "Groups" -table gui_orggroups -key g
-    parm a              enum  "Owning Actor"       -type actor
+    parm ids            multi "Groups"             -table gui_orggroups -key g
+    parm a              enum  "Owning Actor"       -enumtype actor
     parm color          color "Color"
-    parm shape          enum  "Unit Shape"         -type eunitshape
-    parm orgtype        enum  "Organization Type"  -type eorgtype
-    parm demeanor       enum  "Demeanor"           -type edemeanor
+    parm shape          enum  "Unit Shape"         -enumtype eunitshape
+    parm orgtype        enum  "Organization Type"  -enumtype eorgtype
+    parm demeanor       enum  "Demeanor"           -enumtype edemeanor
 } {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof orggroup

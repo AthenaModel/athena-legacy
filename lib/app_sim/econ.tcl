@@ -498,7 +498,7 @@ order define ECON:UPDATE {
         -refreshcmd {orderdialog refreshForKey n *}
 
     parm n    key  "Neighborhood"            -table gui_econ_n \
-                                             -key   n          \
+                                             -keys  n          \
                                              -tags  nbhood
     parm pcf  text "Prod. Capacity Factor"
 } {

@@ -73,10 +73,10 @@ order define TACTIC:SAVEMONEY:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm owner    key  "Owner"             -table actors -key a
+    parm owner    key  "Owner"             -table actors -keys a
     parm int1     text "Percent of Income" -defval 10
-    parm priority enum "Priority"          -type ePrioSched \
-                                           -displaylong     \
+    parm priority enum "Priority"          -enumtype ePrioSched \
+                                           -displaylong yes     \
                                            -defval bottom
 } {
     # FIRST, prepare and validate the parameters
@@ -103,7 +103,7 @@ order define TACTIC:SAVEMONEY:UPDATE {
         -sendstates {PREP PAUSED}                           \
         -refreshcmd {tactic RefreshUPDATE}
 
-    parm tactic_id key  "Tactic ID"  -table tactics_SAVEMONEY -key tactic_id
+    parm tactic_id key  "Tactic ID"  -table tactics_SAVEMONEY -keys tactic_id
     parm owner     disp "Owner"
     parm int1      text "Percent"
 } {

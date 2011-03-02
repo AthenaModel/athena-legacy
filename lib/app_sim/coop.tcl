@@ -153,7 +153,7 @@ order define COOP:UPDATE {
         -refreshcmd {orderdialog refreshForKey id *}
 
     parm id      key   "Curve"           -table  gui_coop_fg    \
-                                         -key    {f g}          \
+                                         -keys   {f g}          \
                                          -labels {"Of" "With"}
     parm coop0   coop  "Cooperation"
     parm atrend  text  "Ascending Trend"

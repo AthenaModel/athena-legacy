@@ -77,7 +77,7 @@ snit::widgetadaptor coopbrowser {
             -state   disabled                        \
             -command [mymethod EditSelected]
 
-        cond::orderIsValidMulti control $editbtn \
+        cond::availableMulti control $editbtn \
             order   COOP:UPDATE           \
             browser $win
 
@@ -88,7 +88,7 @@ snit::widgetadaptor coopbrowser {
             -state   disabled                      \
             -command [mymethod SetSelected]
 
-        cond::orderIsValidSingle control $setbtn \
+        cond::availableSingle control $setbtn \
             order   MAD:COOP:SET                 \
             browser $win
        
@@ -99,7 +99,7 @@ snit::widgetadaptor coopbrowser {
             -state   disabled                      \
             -command [mymethod AdjustSelected]
 
-        cond::orderIsValidSingle control $adjbtn \
+        cond::availableSingle control $adjbtn \
             order   MAD:COOP:ADJUST              \
             browser $win
 
@@ -128,8 +128,8 @@ snit::widgetadaptor coopbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidMulti  update $editbtn
-        cond::orderIsValidSingle update [list $setbtn $adjbtn]
+        cond::availableMulti  update $editbtn
+        cond::availableSingle update [list $setbtn $adjbtn]
     }
 
 
@@ -167,6 +167,7 @@ snit::widgetadaptor coopbrowser {
         order enter MAD:COOP:ADJUST id [lindex $ids 0]
     }
 }
+
 
 
 

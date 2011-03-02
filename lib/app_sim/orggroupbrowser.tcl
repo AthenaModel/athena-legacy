@@ -74,7 +74,7 @@ snit::widgetadaptor orggroupbrowser {
             -state   normal                       \
             -command [mymethod AddEntity]
 
-        cond::orderIsValid control $addbtn \
+        cond::available control $addbtn \
             order ORGGROUP:CREATE
 
 
@@ -83,7 +83,7 @@ snit::widgetadaptor orggroupbrowser {
             -state   disabled                        \
             -command [mymethod EditSelected]
 
-        cond::orderIsValidMulti control $editbtn \
+        cond::availableMulti control $editbtn \
             order   ORGGROUP:UPDATE    \
             browser $win
 
@@ -93,7 +93,7 @@ snit::widgetadaptor orggroupbrowser {
             -state   disabled                              \
             -command [mymethod DeleteSelected]
         
-        cond::orderIsValidSingle control $deletebtn \
+        cond::availableSingle control $deletebtn \
             order   ORGGROUP:DELETE       \
             browser $win
 
@@ -133,8 +133,8 @@ snit::widgetadaptor orggroupbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidSingle update $deletebtn
-        cond::orderIsValidMulti  update $editbtn
+        cond::availableSingle update $deletebtn
+        cond::availableMulti  update $editbtn
     }
 
 
@@ -177,6 +177,7 @@ snit::widgetadaptor orggroupbrowser {
         order send gui ORGGROUP:DELETE g $id
     }
 }
+
 
 
 

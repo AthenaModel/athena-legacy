@@ -444,13 +444,13 @@ order define NBHOOD:CREATE {
 
     parm n            text "Neighborhood"
     parm longname     text "Long Name"
-    parm local        enum "Local Neighborhood?" -type eyesno \
-                                                 -defval yes
-    parm urbanization enum "Urbanization"        -type eurbanization \
-                                                 -defval URBAN
-    parm vtygain      text "Volatility Gain"     -defval 1.0
-    parm refpoint     text "Reference Point"     -tags point
-    parm polygon      text "Polygon"             -tags polygon
+    parm local        enum "Local Neighborhood?" -enumtype eyesno \
+                                                 -defval   yes
+    parm urbanization enum "Urbanization"        -enumtype eurbanization \
+                                                 -defval   URBAN
+    parm vtygain      text "Volatility Gain"     -defval   1.0
+    parm refpoint     text "Reference Point"     -tags     point
+    parm polygon      text "Polygon"             -tags     polygon
 } {
     # FIRST, prepare the parameters
     prepare n             -toupper            -required -unused -type ident
@@ -517,7 +517,7 @@ order define NBHOOD:DELETE {
     options -sendstates PREP
 
     parm n  key  "Neighborhood"   -table nbhoods \
-                                  -key   n       \
+                                  -keys  n       \
                                   -tags  nbhood
 } {
     # FIRST, prepare the parameters
@@ -527,7 +527,7 @@ order define NBHOOD:DELETE {
 
     # NEXT, make sure the user knows what he is getting into.
 
-    if {[interface] eq "gui"} {
+    if {[sender] eq "gui"} {
         set answer [messagebox popup \
                         -title         "Are you sure?"                  \
                         -icon          warning                          \
@@ -562,7 +562,7 @@ order define NBHOOD:LOWER {
     options -sendstates PREP
 
     parm n  key  "Neighborhood"   -table nbhoods \
-                                  -key   n       \
+                                  -keys  n       \
                                   -tags  nbhood
 } {
     # FIRST, prepare the parameters
@@ -584,7 +584,7 @@ order define NBHOOD:RAISE {
     options -sendstates PREP
 
     parm n  key  "Neighborhood"   -table nbhoods \
-                                  -key   n       \
+                                  -keys  n       \
                                   -tags  nbhood
 } {
     # FIRST, prepare the parameters
@@ -609,15 +609,15 @@ order define NBHOOD:UPDATE {
         -sendstates PREP                              \
         -refreshcmd {::orderdialog refreshForKey n *}
 
-    parm n            key   "Select Neighborhood" -table gui_nbhoods \
-                                                  -key   n           \
-                                                  -tags  nbhood
+    parm n            key   "Select Neighborhood" -table    gui_nbhoods \
+                                                  -keys     n           \
+                                                  -tags     nbhood
     parm longname     text  "Long Name"
-    parm local        enum  "Local Neighborhood?" -type  eyesno
-    parm urbanization enum  "Urbanization"        -type  eurbanization
+    parm local        enum  "Local Neighborhood?" -enumtype eyesno
+    parm urbanization enum  "Urbanization"        -enumtype eurbanization
     parm vtygain      text  "Volatility Gain"
-    parm refpoint     text  "Reference Point"     -tags  point
-    parm polygon      text  "Polygon"             -tags  polygon
+    parm refpoint     text  "Reference Point"     -tags     point
+    parm polygon      text  "Polygon"             -tags     polygon
 } {
     # FIRST, prepare the parameters
     prepare n            -toupper   -required -type nbhood
@@ -700,10 +700,10 @@ order define NBHOOD:UPDATE:MULTI {
         -sendstates PREP                              \
         -refreshcmd {::orderdialog refreshForMulti ids *}
 
-    parm ids          multi "Neighborhoods"       -table gui_nbhoods \
-                                                  -key id
-    parm local        enum  "Local Neighborhood?" -type eyesno
-    parm urbanization enum  "Urbanization"        -type eurbanization
+    parm ids          multi "Neighborhoods"       -table    gui_nbhoods \
+                                                  -key      id
+    parm local        enum  "Local Neighborhood?" -enumtype eyesno
+    parm urbanization enum  "Urbanization"        -enumtype eurbanization
     parm vtygain      text  "Volatility Gain"
 } {
     # FIRST, prepare the parameters

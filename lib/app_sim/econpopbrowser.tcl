@@ -77,7 +77,7 @@ snit::widgetadaptor econpopbrowser {
 
         # Assumes that *:UPDATE and *:UPDATE:MULTI always have the
         # the same validity.
-        cond::orderIsValidMulti control $editbtn \
+        cond::availableMulti control $editbtn \
             order   ECON:UPDATE                  \
             browser $win
 
@@ -103,13 +103,13 @@ snit::widgetadaptor econpopbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidMulti  update $editbtn
+        cond::availableMulti  update $editbtn
 
         # NEXT, notify the app of the selection.
         if {[llength [$hull uid curselection]] == 1} {
             set n [lindex [$hull uid curselection] 0]
 
-            notifier send ::app <ObjectSelect> \
+            notifier send ::app <Puck> \
                 [list nbhood $n]
         }
     }
@@ -131,5 +131,7 @@ snit::widgetadaptor econpopbrowser {
         }
     }
 }
+
+
 
 

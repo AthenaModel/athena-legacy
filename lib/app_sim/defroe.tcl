@@ -146,13 +146,13 @@ order define TACTIC:DEFROE:CREATE {
         -sendstates {PREP PAUSED}       \
         -refreshcmd {tactic::DEFROE RefreshCREATE}
 
-    parm owner    key  "Owner"             -table actors -key a
+    parm owner    key  "Owner"             -table actors -keys a
     parm g        enum "Defending Group"   
-    parm n        enum "In Neighborhood"   -type nbhood
-    parm text1    enum "ROE"               -type edefroeuf \
+    parm n        enum "In Neighborhood"   -enumtype nbhood
+    parm text1    enum "ROE"               -enumtype edefroeuf \
                                            -defval FIRE_BACK_IMMEDIATELY
-    parm priority enum "Priority"          -type ePrioSched  \
-                                           -displaylong      \
+    parm priority enum "Priority"          -enumtype ePrioSched  \
+                                           -displaylong yes      \
                                            -defval bottom
 } {
     # FIRST, prepare and validate the parameters
@@ -192,11 +192,12 @@ order define TACTIC:DEFROE:UPDATE {
         -sendstates {PREP PAUSED}                           \
         -refreshcmd {tactic RefreshUPDATE}
 
-    parm tactic_id key  "Tactic ID"  -table tactics_DEFROE -key tactic_id
+    parm tactic_id key  "Tactic ID"       -table tactics_DEFROE \
+                                          -keys  tactic_id
     parm owner     disp "Owner"
     parm g         disp "Defending Group"
     parm n         disp "In Neighborhood"
-    parm text1     enum "ROE"             -type edefroeuf
+    parm text1     enum "ROE"             -enumtype edefroeuf
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required           -type tactic

@@ -69,7 +69,7 @@ snit::widgetadaptor actorbrowser {
         install addbtn using mkaddbutton $bar.add "Add Actor" \
             -command [mymethod AddEntity]
 
-        cond::orderIsValid control $addbtn \
+        cond::available control $addbtn \
             order ACTOR:CREATE
 
 
@@ -77,7 +77,7 @@ snit::widgetadaptor actorbrowser {
             -state   disabled                                     \
             -command [mymethod EditSelected]
 
-        cond::orderIsValidSingle control $editbtn   \
+        cond::availableSingle control $editbtn   \
             order   ACTOR:UPDATE                    \
             browser $win
 
@@ -87,7 +87,7 @@ snit::widgetadaptor actorbrowser {
             -state   disabled                              \
             -command [mymethod DeleteSelected]
 
-        cond::orderIsValidSingle control $deletebtn \
+        cond::availableSingle control $deletebtn \
             order   ACTOR:DELETE           \
             browser $win
 
@@ -118,7 +118,7 @@ snit::widgetadaptor actorbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidSingle update [list $editbtn $deletebtn]
+        cond::availableSingle update [list $editbtn $deletebtn]
     }
 
 
@@ -156,6 +156,7 @@ snit::widgetadaptor actorbrowser {
         order send gui ACTOR:DELETE a $id
     }
 }
+
 
 
 

@@ -14,10 +14,7 @@
 # External Package Dependencies
 
 package require snit
-package require sqlite3
 package require Img
-package require tablelist
-package require treectrl  2.2.6
 
 
 #-----------------------------------------------------------------------
@@ -47,7 +44,6 @@ namespace eval ::projectgui:: {
 # Load projectgui(n) submodules
 
 source [file join $::projectgui::library icons.tcl           ]
-source [file join $::projectgui::library multifield.tcl      ]
 source [file join $::projectgui::library zulufield.tcl       ]
 source [file join $::projectgui::library calpatternfield.tcl ]
 

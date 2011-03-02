@@ -172,7 +172,7 @@ order define REL:RESTORE {
         -sendstates PREP
 
     parm id   key   "Groups"         -table  gui_rel_view \
-                                     -key    {f g}      \
+                                     -keys   {f g}      \
                                      -labels {Of With}
 } {
     # FIRST, prepare the parameters
@@ -195,7 +195,7 @@ order define REL:OVERRIDE {
         -refreshcmd {orderdialog refreshForKey id *}
 
     parm id   key   "Groups"         -table  gui_rel_view \
-                                     -key    {f g}      \
+                                     -keys   {f g}      \
                                      -labels {Of With}
     parm rel  rel   "Relationship"
 } {

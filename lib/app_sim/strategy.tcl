@@ -363,7 +363,7 @@ snit::type strategy {
         # because it guarantees that the RDB <conditions> updates 
         # are sent.
         foreach condition_id $badConditions {
-            order send sim CONDITION:STATE \
+            order send app CONDITION:STATE \
                 condition_id $condition_id \
                 state        invalid
         }
@@ -385,7 +385,7 @@ snit::type strategy {
         # NEXT, mark them invalid.  Use TACTIC:STATE, because
         # it guarantees that the RDB <tactics> updates are sent.
         foreach tactic_id $badTactics {
-            order send sim TACTIC:STATE \
+            order send app TACTIC:STATE \
                 tactic_id $tactic_id \
                 state     invalid
         }

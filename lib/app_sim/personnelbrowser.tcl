@@ -69,7 +69,7 @@ snit::widgetadaptor personnelbrowser {
             -state   disabled                      \
             -command [mymethod SetSelected]
 
-        cond::orderIsValidSingle control $setbtn \
+        cond::availableSingle control $setbtn \
             order   PERSONNEL:SET                \
             browser $win
        
@@ -80,7 +80,7 @@ snit::widgetadaptor personnelbrowser {
             -state   disabled                      \
             -command [mymethod AdjustSelected]
 
-        cond::orderIsValidSingle control $adjbtn \
+        cond::availableSingle control $adjbtn \
             order   PERSONNEL:ADJUST             \
             browser $win
 
@@ -106,14 +106,14 @@ snit::widgetadaptor personnelbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidSingle  update [list $setbtn $adjbtn]
+        cond::availableSingle  update [list $setbtn $adjbtn]
 
         # NEXT, notify the app of the selection.
         if {[llength [$hull uid curselection]] == 1} {
             set id [lindex [$hull uid curselection] 0]
             lassign $id n g
 
-            notifier send ::app <ObjectSelect> \
+            notifier send ::app <Puck> \
                 [list ng $id nbhood $n group $g]
         }
     }
@@ -139,5 +139,7 @@ snit::widgetadaptor personnelbrowser {
         order enter PERSONNEL:ADJUST id [lindex $ids 0]
     }
 }
+
+
 
 

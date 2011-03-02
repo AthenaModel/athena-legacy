@@ -163,17 +163,221 @@ snit::type app {
         parm      init
         map       init
         view      init
-        scenario  init -ignoredefaultparms $opts(-ignoreuser)
         cif       init
-        order     init
+        order     init \
+            -cancelstates {PREP PAUSED}          \
+            -subject      ::order                \
+            -rdb          ::rdb                  \
+            -clock        ::simclock             \
+            -usedtable    entities               \
+            -logcmd       ::log                  \
+            -ordercmd     [myproc AddOrderToCIF]
+        scenario  init \
+            -ignoredefaultparms $opts(-ignoreuser)
         report    init
         nbhood    init
         sim       init
 
+        # NEXT, define order interfaces
+
+        # app: For internal orders
+        order interface configure app \
+            -errorcmd  [myproc UnexpectedOrderError]
+
+        # gui: For user orders from the GUI
+        order interface configure gui \
+            -checkstate  yes                           \
+            -trace       yes                           \
+            -errorcmd    [myproc UnexpectedOrderError]
+
+        # cli: For user orders from the CLI
+        order interface add cli \
+            -checkstate  yes                            \
+            -trace       yes                            \
+            -rejectcmd   [myproc FormatRejectionForCLI] \
+            -errorcmd    [myproc UnexpectedOrderError]
+
+        # raw: Like CLI, but with no special rejection formatting.
+        # Used by "send" executive command.
+        order interface add raw \
+            -checkstate  yes                            \
+            -trace       yes                            \
+            -errorcmd    [myproc UnexpectedOrderError]
+
+        # test: For orders from the test suite.  No special handling
+        # for unexpected errors, and no transactions, so that errors
+        # remain in place.
+        order interface add test \
+            -checkstate  yes     \
+            -trace       yes     \
+            -transaction no
+
+        # NEXT, initialize the order dialog manager
+        orderdialog init \
+            -parent    .main              \
+            -appname   "Athena [version]" \
+            -helpcmd   [list app help]    \
+            -refreshon {
+                ::cif <Update>
+                ::sim <Tick>
+                ::sim <DbSyncB>
+            }
+
         # NEXT, bind components together
         notifier bind ::sim <State> ::order {::order state [::sim state]}
+        notifier bind ::app <Puck>  ::order {::order puck}
 
-        # NEXT, define global conditions
+        # NEXT, define custom field types for use in order dialogs.
+        $type RegisterCustomFieldTypes
+
+        # NEXT, create state controllers, to enable and disable
+        # GUI components as application state changes.
+        $type CreateStateControllers
+        
+        # NEXT, Withdraw the default toplevel window, and create 
+        # the main GUI components.
+        wm withdraw .
+        appwin .main -main yes
+
+        # NEXT, set the icon for this and subsequent windows.
+        # TBD: Should this be done in appwin?
+        set icon [image create photo \
+                      -file [file join $::app_sim::library icon.png]]
+        wm iconphoto .main -default $icon
+
+        # NEXT, log that we're up.
+        log normal app "Athena [version]"
+
+        # NEXT, if a scenario file is specified on the command line,
+        # open it.
+        if {[llength $argv] == 1} {
+            scenario open [file normalize [lindex $argv 0]]
+        } else {
+            # This makes sure that the notifier events are sent that
+            # initialize the user interface.
+            sim dbsync
+        }
+    }
+
+    # AddOrderToCIF interface name parmdict undoScript
+    #
+    # interface  - The interface by which the order was sent
+    # name       - The order name
+    # parmdict   - The order parameters
+    # undoScript - The order's undo script, or "" if not undoable.
+    #
+    # Adds accepted orders to the CIF.
+
+    proc AddOrderToCIF {interface name parmdict undoScript} {
+        cif add $name $parmdict $undoScript
+    }
+
+
+    # UnexpectedOrderError name errmsg
+    #
+    # name    - The order name
+    # errmsg  - The error message
+    # einfo   - Error info (the stack trace)
+    #
+    # Handles unexpected order errors.
+
+    proc UnexpectedOrderError {name errmsg einfo} {
+        log error app "Unexpected error in $name:\n$errmsg"
+        log error app "Stack Trace:\n$einfo"
+
+        [app topwin] tab view slog
+
+        app error {
+            |<--
+            $name
+
+            There was an unexpected error during the 
+            handling of this order.  The scenario has 
+            been rolled back to its previous state, so 
+            the application data  should not be 
+            corrupted.  However:
+
+            * You should probably save the scenario under
+              a new name, just in case.
+
+            * The error has been logged in detail.  Please
+              contact JPL to get the problem fixed.
+        }
+
+        if {[sim state] eq "RUNNING"} {
+            sim mutate pause
+        }
+
+        sim dbsync
+
+        return "Unexpected error while handling order."
+    }
+
+    # FormatRejectionForCLI errdict
+    #
+    # errdict     A REJECT error dictionary
+    #
+    # Formats the rejection error dictionary for display at the console.
+    
+    proc FormatRejectionForCLI {errdict} {
+        if {[dict exists $errdict *]} {
+            lappend out [dict get $errdict *]
+        }
+
+        dict for {parm msg} $errdict {
+            if {$parm ne "*"} {
+                lappend out "$parm: $msg"
+            }
+        }
+
+        return [join $out \n]
+    }
+
+    # RegisterCustomFieldTypes
+    #
+    # Registers custom field types with form(n)/orderdialog(n),
+    # for use in order dialogs.
+
+    typemethod RegisterCustomFieldTypes {} {
+        # coop -- Cooperation Values
+        form register coop ::marsgui::rangefield \
+            -type        ::qcooperation          \
+            -showsymbols yes                     \
+            -resetvalue  50
+
+        # frac -- Fractions, 0.0 to 1.0
+        form register frac ::marsgui::rangefield \
+            -type        ::rfraction
+
+        # goals -- listfield of appropriate size for goal selection
+        form register goals ::marsgui::listfield \
+            -height      8                       \
+            -width       30
+
+        # pct -- Percentages, 0 to 100
+        form register pct ::marsgui::rangefield \
+            -type        ::ipercent             
+
+        orderdialog fieldopts pct \
+            -resetvalue %?-defval
+
+        # rel -- Relationships, -1.0 to 1.0
+        form register rel ::marsgui::rangefield \
+            -type        ::qrel                 \
+            -resolution  0.1
+
+        # sat -- Satisfaction values
+        form register sat ::marsgui::rangefield \
+            -type        ::qsat                 \
+            -showsymbols yes
+    }
+
+    # CreateStateControllers
+    #
+    # Creates a family of statecontroller(n) objects to manage
+    # the state of GUI components as the application state changes.
+
+    typemethod CreateStateControllers {} {
         namespace eval ::cond { }
 
         # Simulation state is PREP.
@@ -209,106 +413,79 @@ snit::type app {
             [$browser {*}$predicate]
         }
 
-        # Order is valid.
+        # Order is available in the current state.
         #
         # Objdict:   order   THE:ORDER:NAME
 
-        statecontroller ::cond::orderIsValid -events {
+        statecontroller ::cond::available -events {
             ::order <State>
         } -condition {
-            [::order isvalid $order]
+            [::order available $order]
         }
 
-        # Order is valid, one browser entry is selected.  The
+        # Order is available, one browser entry is selected.  The
         # browser should call update for its widgets.
         #
         # Objdict:   order     THE:ORDER:NAME
         #            browser   The browser window
 
-        statecontroller ::cond::orderIsValidSingle -events {
+        statecontroller ::cond::availableSingle -events {
             ::order <State>
         } -condition {
-            [::order isvalid $order]                &&
+            [::order available $order]                &&
             [llength [$browser curselection]] == 1
         }
 
-        # Order is valid, one or more browser entries are selected.  The
+        # Order is available, one or more browser entries are selected.  The
         # browser should call update for its widgets.
         #
         # Objdict:   order     THE:ORDER:NAME
         #            browser   The browser window
 
-        statecontroller ::cond::orderIsValidMulti -events {
+        statecontroller ::cond::availableMulti -events {
             ::order <State>
         } -condition {
-            [::order isvalid $order]              &&
+            [::order available $order]              &&
             [llength [$browser curselection]] > 0
         }
 
-        # Order is valid, and the selection is deletable.
+        # Order is available, and the selection is deletable.
         # The browser should call update for its widgets.
         #
         # Objdict:   order     THE:ORDER:NAME
         #            browser   The browser window
 
-        statecontroller ::cond::orderIsValidCanDelete -events {
+        statecontroller ::cond::availableCanDelete -events {
             ::order <State>
         } -condition {
-            [::order isvalid $order] &&
+            [::order available $order] &&
             [$browser candelete]
         }
 
-        # Order is valid, and the selection is updateable.
+        # Order is available, and the selection is updateable.
         # The browser should call update for its widgets.
         #
         # Objdict:   order     THE:ORDER:NAME
         #            browser   The browser window
 
-        statecontroller ::cond::orderIsValidCanUpdate -events {
+        statecontroller ::cond::availableCanUpdate -events {
             ::order <State>
         } -condition {
-            [::order isvalid $order] &&
+            [::order available $order] &&
             [$browser canupdate]
         }
 
-        # Order is valid, and the selection can be resolved.
+        # Order is available, and the selection can be resolved.
         # The browser should call update for its widgets.
         #
         # Objdict:   order     THE:ORDER:NAME
         #            browser   The browser window
 
-        statecontroller ::cond::orderIsValidCanResolve -events {
+        statecontroller ::cond::availableCanResolve -events {
             ::order <State>
         } -condition {
-            [::order isvalid $order] &&
+            [::order available $order] &&
             [$browser canresolve]
-        }
-
-        # NEXT, Withdraw the default toplevel window, and create 
-        # the main GUI components.
-        wm withdraw .
-        appwin .main -main yes
-
-        # NEXT, set the icon for this and subsequent windows.
-        # TBD: Should this be done in appwin?
-        set icon [image create photo \
-                      -file [file join $::app_sim::library icon.png]]
-        wm iconphoto .main -default $icon
-
-        # NEXT, initialize the order GUI
-        orderdialog init
-        
-        # NEXT, log that we're up.
-        log normal app "Athena [version]"
-
-        # NEXT, if a scenario file is specified on the command line,
-        # open it.
-        if {[llength $argv] == 1} {
-            scenario open [file normalize [lindex $argv 0]]
-        } else {
-            # This makes sure that the notifier events are sent that
-            # initialize the user interface.
-            sim dbsync
         }
     }
 
@@ -537,6 +714,7 @@ proc bgerror {msg} {
         puts "Stack Trace:\n$bgErrorInfo"
     }
 }
+
 
 
 

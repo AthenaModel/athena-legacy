@@ -278,14 +278,14 @@ order define CIVGROUP:CREATE {
 
     parm g         text   "Group"
     parm longname  text   "Long Name"
-    parm n         enum   "Nbhood"          -type nbhood
-    parm color     color  "Color"           -defval \#45DD11
-    parm shape     enum   "Unit Shape"      -type eunitshape \
-                                            -defval NEUTRAL
-    parm demeanor  enum   "Demeanor"        -type edemeanor \
-                                            -defval AVERAGE
-    parm basepop   text   "Base Pop."       -defval 10000
-    parm sap       pct    "Subs. Agri. %"   -defval 0
+    parm n         enum   "Nbhood"          -enumtype nbhood
+    parm color     color  "Color"           -defval   \#45DD11
+    parm shape     enum   "Unit Shape"      -enumtype eunitshape \
+                                            -defval   NEUTRAL
+    parm demeanor  enum   "Demeanor"        -enumtype edemeanor \
+                                            -defval   AVERAGE
+    parm basepop   text   "Base Pop."       -defval   10000
+    parm sap       pct    "Subs. Agri. %"   -defval   0
 } {
     # FIRST, prepare and validate the parameters
     prepare g        -toupper   -required -unused -type ident
@@ -317,7 +317,7 @@ order define CIVGROUP:DELETE {
     title "Delete Civilian Group"
     options -sendstates PREP
 
-    parm g  key  "Group"  -tags group -table civgroups_view -key g
+    parm g  key  "Group"  -tags group -table civgroups_view -keys g
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type civgroup
@@ -326,7 +326,7 @@ order define CIVGROUP:DELETE {
 
     # NEXT, make sure the user knows what he is getting into.
 
-    if {[interface] eq "gui"} {
+    if {[sender] eq "gui"} {
         set answer [messagebox popup \
                         -title         "Are you sure?"                  \
                         -icon          warning                          \
@@ -364,13 +364,14 @@ order define CIVGROUP:UPDATE {
         -sendstates PREP                             \
         -refreshcmd {orderdialog refreshForKey g *}
 
-    parm g         key    "Select Group"         \
-        -table civgroups_view -key g -tags group
+    parm g         key    "Select Group"     -table    civgroups_view \
+                                             -keys     g              \
+                                             -tags     group
     parm longname  text   "Long Name"
-    parm n         enum   "Nbhood"     -type nbhood
+    parm n         enum   "Nbhood"           -enumtype nbhood
     parm color     color  "Color"
-    parm shape     enum   "Unit Shape"       -type eunitshape
-    parm demeanor  enum   "Demeanor"         -type edemeanor
+    parm shape     enum   "Unit Shape"       -enumtype eunitshape
+    parm demeanor  enum   "Demeanor"         -enumtype edemeanor
     parm basepop   text   "Base Population"
     parm sap       pct    "Subs. Agri. %"  
 } {
@@ -399,11 +400,11 @@ order define CIVGROUP:UPDATE:MULTI {
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids      multi  "Groups"  -table gui_civgroups -key g
-    parm n        enum   "Nbhood"     -type nbhood
+    parm ids      multi  "Groups"          -table    gui_civgroups -key g
+    parm n        enum   "Nbhood"          -enumtype nbhood
     parm color    color  "Color"
-    parm shape    enum   "Unit Shape" -type eunitshape
-    parm demeanor enum   "Demeanor"   -type edemeanor
+    parm shape    enum   "Unit Shape"      -enumtype eunitshape
+    parm demeanor enum   "Demeanor"        -enumtype edemeanor
     parm basepop  text   "Base Population"
     parm sap      pct    "Subs. Agri. %"  
 } {
@@ -441,9 +442,9 @@ order define CIVGROUP:UPDATE:POSTPREP {
         -sendstates {PREP PAUSED}                   \
         -refreshcmd {orderdialog refreshForKey g *}
 
-    parm g         key    "Select Group"         \
-        -table civgroups_view -key g -tags group
-    parm sap       pct    "Subs. Agri. %"  
+    parm g   key "Select Group"    -table civgroups_view -keys g \
+                                   -tags  group
+    parm sap pct "Subs. Agri. %"  
 } {
     # FIRST, prepare the parameters
     prepare g         -toupper  -required -type civgroup
@@ -464,8 +465,8 @@ order define CIVGROUP:UPDATE:MULTI:POSTPREP {
     options -sendstates {PREP PAUSED} \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids      multi  "Groups"  -table gui_civgroups -key g
-    parm sap      pct    "Subs. Agri. %"  
+    parm ids multi  "Groups"         -table gui_civgroups -key g
+    parm sap pct    "Subs. Agri. %"  
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper -required -listof civgroup

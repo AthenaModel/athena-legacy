@@ -1485,7 +1485,7 @@ order define SIM:RUN {
     options -sendstates {PAUSED}
 
     parm days  text "Days to Run"
-    parm block enum "Block?"         -type eyesno -defval NO
+    parm block enum "Block?"         -enumtype eyesno -defval NO
 
     # TBD Need to indicate valid states
 } {

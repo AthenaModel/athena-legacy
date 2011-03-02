@@ -219,7 +219,7 @@ order define GOAL:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm owner     key  "Owner"      -table actors -key a
+    parm owner     key  "Owner"      -table actors -keys a
     parm narrative text "Narrative"
 } {
     # FIRST, prepare and validate the parameters
@@ -242,7 +242,7 @@ order define GOAL:DELETE {
         -sendstates {PREP PAUSED}                           \
         -refreshcmd {orderdialog refreshForKey goal_id *}
 
-    parm goal_id   key  "Goal ID" -table goals -key goal_id
+    parm goal_id   key  "Goal ID" -table goals -keys goal_id
     parm owner     disp "Owner"
 } {
     # FIRST, prepare the parameters
@@ -264,7 +264,7 @@ order define GOAL:UPDATE {
         -sendstates {PREP PAUSED}                           \
         -refreshcmd {goal RefreshUPDATE}
 
-    parm goal_id   key  "Goal ID"  -table goals -key goal_id
+    parm goal_id   key  "Goal ID"  -table goals -keys goal_id
     parm owner     disp "Owner"
     parm narrative text "Narrative"
 } {
@@ -290,7 +290,7 @@ order define GOAL:STATE {
         -sendstates {PREP PAUSED} \
         -refreshcmd {orderdialog refreshForKey goal_id *}
 
-    parm goal_id   key  "Goal ID"  -table goals -key goal_id
+    parm goal_id   key  "Goal ID"  -table goals -keys goal_id
     parm state     text "State"
 } {
     # FIRST, prepare and validate the parameters

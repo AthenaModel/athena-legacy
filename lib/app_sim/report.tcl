@@ -884,12 +884,12 @@ order define REPORT:COOP {
         -schedulestates {PREP PAUSED} \
         -sendstates     PAUSED
 
-    parm n enum  "Neighborhood"  -type {::ptype n+all}    \
-        -defval ALL
-    parm f enum  "Of Group"      -type {::ptype civg+all} \
-        -defval ALL
-    parm g enum  "With Group"    -type {::ptype frcg+all} \
-        -defval ALL
+    parm n enum  "Neighborhood"  -enumtype {::ptype n+all}    \
+                                 -defval   ALL
+    parm f enum  "Of Group"      -enumtype {::ptype civg+all} \
+                                 -defval   ALL
+    parm g enum  "With Group"    -enumtype {::ptype frcg+all} \
+                                 -defval   ALL
 } {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type {::ptype n+all}
@@ -916,8 +916,8 @@ order define REPORT:DRIVER {
         -schedulestates {PREP PAUSED} \
         -sendstates     PAUSED
 
-    parm state enum  "Driver State"  -type {::report::edriverstate} \
-        -defval active
+    parm state enum  "Driver State"  -enumtype {::report::edriverstate} \
+                                    -defval    active
 } {
     # FIRST, prepare the parameters
     prepare state      -toupper -required -type {::report::edriverstate}
@@ -942,7 +942,8 @@ order define REPORT:PARMDB {
         -schedulestates {PREP PAUSED} \
         -sendstates     {PREP PAUSED}
 
-    parm state    enum "Parameter State" -type ::report::eparmstate -defval ALL
+    parm state    enum "Parameter State" -enumtype ::report::eparmstate \
+                                         -defval   ALL
     parm wildcard text "Wild Card"
 } {
     # FIRST, prepare the parameters
@@ -968,8 +969,8 @@ order define REPORT:SAT:CURRENT {
         -schedulestates {PREP PAUSED} \
         -sendstates     PAUSED
 
-    parm n enum  "Nbhood"        -type {::ptype n+all}     -defval ALL
-    parm g enum  "Group"         -type {::ptype civg+all}  -defval ALL
+    parm n enum  "Nbhood"  -enumtype {::ptype n+all}    -defval ALL
+    parm g enum  "Group"   -enumtype {::ptype civg+all} -defval ALL
 } {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type {::ptype n+all}
@@ -997,9 +998,9 @@ order define REPORT:SAT:CONTRIB {
         -refreshcmd     ::report::Refresh_RSC
 
 
-    parm n      enum  "Nbhood"        -type {ptype n}
+    parm n      enum  "Nbhood"        -enumtype {ptype n}
     parm g      enum  "Group"
-    parm c      enum  "Concern"       -type {ptype c+mood} -defval "MOOD"
+    parm c      enum  "Concern"       -enumtype {ptype c+mood} -defval "MOOD"
     parm top    text  "Number"        -defval 20
     parm start  text  "Start Time"    -defval "T0"
     parm end    text  "End Time"      -defval "NOW"

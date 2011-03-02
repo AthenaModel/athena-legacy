@@ -83,7 +83,7 @@ snit::widgetadaptor ensitbrowser {
             -state   normal                       \
             -command [mymethod AddEntity]
 
-        cond::orderIsValid control $addbtn \
+        cond::available control $addbtn \
             order ENSIT:CREATE
 
 
@@ -92,7 +92,7 @@ snit::widgetadaptor ensitbrowser {
             -state   disabled                        \
             -command [mymethod EditSelected]
 
-        cond::orderIsValidCanUpdate control $editbtn \
+        cond::availableCanUpdate control $editbtn \
             order   ENSIT:UPDATE   \
             browser $win
 
@@ -102,7 +102,7 @@ snit::widgetadaptor ensitbrowser {
             -state   disabled                              \
             -command [mymethod ResolveSelected]
 
-        cond::orderIsValidCanResolve control $resolvebtn  \
+        cond::availableCanResolve control $resolvebtn  \
             order   ENSIT:RESOLVE   \
             browser $win
 
@@ -111,7 +111,7 @@ snit::widgetadaptor ensitbrowser {
             -state   disabled                              \
             -command [mymethod DeleteSelected]
 
-        cond::orderIsValidCanDelete control $deletebtn \
+        cond::availableCanDelete control $deletebtn \
             order   ENSIT:DELETE  \
             browser $win
 
@@ -195,15 +195,15 @@ snit::widgetadaptor ensitbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidCanUpdate  update $editbtn
-        cond::orderIsValidCanResolve update $resolvebtn
-        cond::orderIsValidCanDelete  update $deletebtn
+        cond::availableCanUpdate  update $editbtn
+        cond::availableCanResolve update $resolvebtn
+        cond::availableCanDelete  update $deletebtn
 
         # NEXT, notify the app of the selection.
         if {[llength [$hull uid curselection]] == 1} {
             set s [lindex [$hull uid curselection] 0]
 
-            notifier send ::app <ObjectSelect> [list situation $s]
+            notifier send ::app <Puck> [list situation $s]
         }
     }
 
@@ -256,6 +256,8 @@ snit::widgetadaptor ensitbrowser {
     }
 
 }
+
+
 
 
 

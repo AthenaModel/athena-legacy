@@ -143,7 +143,7 @@ order define PERSONNEL:SET {
 
 
     parm id             key  "Nbhood/Group"  -table gui_personnel_ng \
-                                             -key {n g}
+                                             -keys {n g}
     parm personnel      text "Personnel"
 } {
     # FIRST, prepare the parameters
@@ -181,7 +181,7 @@ order define PERSONNEL:ADJUST {
 
 
     parm id             key  "Nbhood/Group"    -table gui_personnel_ng \
-                                               -key {n g}
+                                               -keys  {n g}
     parm delta          text "Delta Personnel"
 } {
     # FIRST, prepare the parameters

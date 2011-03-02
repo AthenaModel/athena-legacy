@@ -73,7 +73,7 @@ snit::widgetadaptor orderbrowser {
             -state   disabled                              \
             -command [mymethod CancelSelected]
 
-        cond::orderIsValidSingle control $cancelbtn \
+        cond::availableSingle control $cancelbtn \
             order   ORDER:CANCEL                     \
             browser $win
 
@@ -95,7 +95,7 @@ snit::widgetadaptor orderbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidSingle update \
+        cond::availableSingle update \
             [list $cancelbtn]
     }
 
@@ -112,5 +112,6 @@ snit::widgetadaptor orderbrowser {
         order send gui ORDER:CANCEL id $id
     }
 }
+
 
 

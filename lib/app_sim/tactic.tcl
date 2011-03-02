@@ -419,7 +419,7 @@ order define TACTIC:DELETE {
         -sendstates {PREP PAUSED}                           \
         -refreshcmd {orderdialog refreshForKey tactic_id *}
 
-    parm tactic_id   key  "Tactic ID" -table tactics -key tactic_id
+    parm tactic_id   key  "Tactic ID" -table tactics -keys tactic_id
     parm owner       disp "Owner"
     parm tactic_type disp "Tactic Type"
 } {
@@ -444,7 +444,7 @@ order define TACTIC:STATE {
         -sendstates {PREP PAUSED} \
         -refreshcmd {orderdialog refreshForKey tactic_id *}
 
-    parm tactic_id   key  "Tactic ID"  -table tactics -key tactic_id
+    parm tactic_id   key  "Tactic ID"  -table tactics -keys tactic_id
     parm state       text "State"
 } {
     # FIRST, prepare and validate the parameters
@@ -467,7 +467,7 @@ order define TACTIC:PRIORITY {
         -sendstates {PREP PAUSED} \
         -refreshcmd {orderdialog refreshForKey tactic_id *}
 
-    parm tactic_id   key  "Tactic ID"  -table tactics -key tactic_id
+    parm tactic_id   key  "Tactic ID"  -table tactics -keys tactic_id
     parm owner       disp "Owner"
     parm tactic_type disp "Tactic Type"
     parm priority    enum "Priority" -type ePrioUpdate

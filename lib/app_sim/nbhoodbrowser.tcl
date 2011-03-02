@@ -86,7 +86,7 @@ snit::widgetadaptor nbhoodbrowser {
 
         # Assumes that *:UPDATE and *:UPDATE:MULTI always have the
         # the same validity.
-        cond::orderIsValidMulti control $editbtn \
+        cond::availableMulti control $editbtn \
             order   NBHOOD:UPDATE                \
             browser $win
 
@@ -97,7 +97,7 @@ snit::widgetadaptor nbhoodbrowser {
             -state   disabled                          \
             -command [mymethod RaiseSelected]
 
-        cond::orderIsValidSingle control $raisebtn \
+        cond::availableSingle control $raisebtn \
             order   NBHOOD:RAISE                   \
             browser $win
 
@@ -108,7 +108,7 @@ snit::widgetadaptor nbhoodbrowser {
             -state   disabled                          \
             -command [mymethod LowerSelected]
 
-        cond::orderIsValidSingle control $lowerbtn \
+        cond::availableSingle control $lowerbtn \
             order   NBHOOD:LOWER                   \
             browser $win
 
@@ -118,7 +118,7 @@ snit::widgetadaptor nbhoodbrowser {
             -state   disabled                              \
             -command [mymethod DeleteSelected]
 
-        cond::orderIsValidSingle control $deletebtn \
+        cond::availableSingle control $deletebtn \
             order   NBHOOD:DELETE                   \
             browser $win
 
@@ -146,14 +146,14 @@ snit::widgetadaptor nbhoodbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidSingle update [list $deletebtn $lowerbtn $raisebtn]
-        cond::orderIsValidMulti  update $editbtn
+        cond::availableSingle update [list $deletebtn $lowerbtn $raisebtn]
+        cond::availableMulti  update $editbtn
 
         # NEXT, notify the app of the selection.
         if {[llength [$hull uid curselection]] == 1} {
             set n [lindex [$hull uid curselection] 0]
 
-            notifier send ::app <ObjectSelect> \
+            notifier send ::app <Puck> \
                 [list nbhood $n]
         }
     }
@@ -214,5 +214,7 @@ snit::widgetadaptor nbhoodbrowser {
         order send gui NBHOOD:DELETE n $id
     }
 }
+
+
 
 

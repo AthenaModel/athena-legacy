@@ -200,10 +200,10 @@ order define NBREL:UPDATE {
         -sendstates PREP                               \
         -refreshcmd {::orderdialog refreshForKey id *}
 
-    parm id            key  "Neighborhood"       -table  gui_nbrel_mn  \
-                                                 -key    {m n}         \
-                                                 -labels {"Of" "With"}
-    parm proximity     enum "Proximity"          -type   {ptype prox-HERE}
+    parm id            key  "Neighborhood"         -table    gui_nbrel_mn  \
+                                                   -keys     {m n}         \
+                                                   -labels   {"Of" "With"}
+    parm proximity     enum "Proximity"            -enumtype {ptype prox-HERE}
     parm effects_delay text "Effects Delay (Days)"
 } {
     # FIRST, prepare the parameters
@@ -237,10 +237,10 @@ order define NBREL:UPDATE:MULTI {
         -sendstates PREP                                  \
         -refreshcmd {::orderdialog refreshForMulti ids *}
 
-    parm ids           multi  "IDs"                  -table gui_nbrel_mn \
-                                                     -key   id
+    parm ids           multi  "IDs"                 -table gui_nbrel_mn \
+                                                    -key   id
 
-    parm proximity     enum   "Proximity"            -type  {ptype prox-HERE}
+    parm proximity     enum   "Proximity"           -enumtype {ptype prox-HERE}
     parm effects_delay text   "Effects Delay (Days)"
 } {
     # FIRST, prepare the parameters

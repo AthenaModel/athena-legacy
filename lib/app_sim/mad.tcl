@@ -870,11 +870,11 @@ order define MAD:CREATE {
     options -sendstates {PREP PAUSED}
 
     parm oneliner  text  "Description" 
-    parm cause     enum  "Cause"         -type   {ptype ecause+unique} \
-                                         -defval UNIQUE
-    parm s         frac  "Here Factor"   -defval 1.0
-    parm p         frac  "Near Factor"   -defval 0.0
-    parm q         frac  "Far Factor"    -defval 0.0
+    parm cause     enum  "Cause"         -enumtype {ptype ecause+unique} \
+                                         -defval   UNIQUE
+    parm s         frac  "Here Factor"   -defval   1.0
+    parm p         frac  "Near Factor"   -defval   0.0
+    parm q         frac  "Far Factor"    -defval   0.0
 
 } {
     # FIRST, prepare and validate the parameters
@@ -904,7 +904,7 @@ order define MAD:DELETE {
 
 
     parm id key "MAD ID" -table    gui_mads_initial \
-                         -key      id               \
+                         -keys     id               \
                          -dispcols longid
 } {
     # FIRST, prepare the parameters
@@ -914,7 +914,7 @@ order define MAD:DELETE {
 
     # NEXT, make sure the user knows what he is getting into.
 
-    if {[interface] eq "gui"} {
+    if {[sender] eq "gui"} {
         set answer [messagebox popup \
                         -title         "Are you sure?"                  \
                         -icon          warning                          \
@@ -952,10 +952,10 @@ order define MAD:UPDATE {
         -refreshcmd  {::mad Refresh_MU}
 
     parm id       key   "MAD ID"        -table    gui_mads \
-                                        -key      id       \
+                                        -keys     id       \
                                         -dispcols longid
     parm oneliner text  "Description"
-    parm cause    enum  "Cause"         -type     {ptype ecause+unique}
+    parm cause    enum  "Cause"         -enumtype {ptype ecause+unique}
     parm s        frac  "Here Factor"
     parm p        frac  "Near Factor"
     parm q        frac  "Far Factor" 
@@ -1021,7 +1021,7 @@ order define MAD:TERMINATE {
         -schedulestates {PREP PAUSED}
 
     parm id       key   "MAD ID"        -table    gui_mads  \
-                                        -key      id        \
+                                        -keys     id        \
                                         -dispcols longid
 } {
     # FIRST, prepare the parameters
@@ -1046,10 +1046,10 @@ order define MAD:SAT:ADJUST {
         -schedulestates {PREP PAUSED}
 
     parm id        key   "Curve"     -table    gui_sat_gc      \
-                                     -key      {g c}           \
+                                     -keys     {g c}           \
                                      -labels   {"" "Grp" "Con"}
     parm mad       key   "MAD ID"    -table    gui_mads    \
-                                     -key      id          \
+                                     -keys     id          \
                                      -dispcols longid
     parm delta     text  "Delta"
 } {
@@ -1076,10 +1076,10 @@ order define MAD:SAT:SET {
         -schedulestates {PREP PAUSED}
 
     parm id        key   "Curve"     -table    gui_sat_gc      \
-                                     -key      {g c}           \
+                                     -keys     {g c}           \
                                      -labels   {"" "Grp" "Con"}
     parm mad       key   "MAD ID"    -table    gui_mads     \
-                                     -key      id           \
+                                     -keys     id           \
                                      -dispcols longid
     parm sat       text  "New Value"
 } {
@@ -1105,15 +1105,15 @@ order define MAD:SAT:LEVEL {
         -sendstates     {}             \
         -schedulestates {PREP PAUSED}
 
-    parm g         enum  "Group"               -type     civgroup
-    parm c         enum  "Concern"             -type     {ptype c}
+    parm g         enum  "Group"               -enumtype civgroup
+    parm c         enum  "Concern"             -enumtype {ptype c}
     parm mad       key   "MAD ID"              -table    gui_mads     \
-                                               -key      id           \
+                                               -keys     id           \
                                                -dispcols longid
     parm limit     text  "Limit"
-    parm days      text  "Realization Time"    -defval 2.0
-    parm athresh   sat   "Ascending Theshold"  -defval 100.0
-    parm dthresh   sat   "Descending Theshold" -defval -100.0
+    parm days      text  "Realization Time"    -defval   2.0
+    parm athresh   sat   "Ascending Theshold"  -defval   100.0
+    parm dthresh   sat   "Descending Theshold" -defval   -100.0
 } {
     # FIRST, prepare the parameters
     prepare g       -toupper -required -type civgroup
@@ -1143,14 +1143,14 @@ order define MAD:SAT:SLOPE {
         -sendstates     {}             \
         -schedulestates {PREP PAUSED}
 
-    parm g         enum  "Group"               -type     civgroup
-    parm c         enum  "Concern"             -type     {ptype c}
+    parm g         enum  "Group"               -enumtype civgroup
+    parm c         enum  "Concern"             -enumtype {ptype c}
     parm mad       key   "MAD ID"              -table    gui_mads     \
-                                               -key      id           \
+                                               -keys     id           \
                                                -dispcols longid
     parm slope     text  "Slope"
-    parm athresh   sat   "Ascending Theshold"  -defval 100.0
-    parm dthresh   sat   "Descending Theshold" -defval -100.0
+    parm athresh   sat   "Ascending Theshold"  -defval   100.0
+    parm dthresh   sat   "Descending Theshold" -defval   -100.0
 } {
     # FIRST, prepare the parameters
     prepare g       -toupper -required -type civgroup
@@ -1180,10 +1180,10 @@ order define MAD:COOP:ADJUST {
         -schedulestates {PREP PAUSED}
 
     parm id        key   "Curve"     -table    gui_coop_fg     \
-                                     -key      {f g}           \
+                                     -keys     {f g}           \
                                      -labels   {"" "Of" "With"}
     parm mad       key   "MAD ID"    -table    gui_mads  \
-                                     -key      id        \
+                                     -keys     id        \
                                      -dispcols longid
     parm delta     text  "Delta"
 } {
@@ -1210,10 +1210,10 @@ order define MAD:COOP:SET {
         -schedulestates {PREP PAUSED}
 
     parm id        key   "Curve"     -table    gui_coop_fg      \
-                                     -key      {f g}            \
+                                     -keys     {f g}            \
                                      -labels   {"" "Of" "With"}
     parm mad       key   "MAD ID"    -table    gui_mads  \
-                                     -key      id        \
+                                     -keys     id        \
                                      -dispcols longid
     parm coop      text  "New Value"
 } {
@@ -1240,15 +1240,15 @@ order define MAD:COOP:LEVEL {
         -sendstates     {}             \
         -schedulestates {PREP PAUSED}
 
-    parm f         enum  "Of Group"            -type     civgroup
-    parm g         enum  "With Group"          -type     frcgroup
+    parm f         enum  "Of Group"            -enumtype civgroup
+    parm g         enum  "With Group"          -enumtype frcgroup
     parm mad       key   "MAD ID"              -table    gui_mads \
-                                               -key      id       \
+                                               -keys     id       \
                                                -dispcols longid
     parm limit     text  "Limit"
-    parm days      text  "Days"                -defval 2.0
-    parm athresh   coop  "Ascending Theshold"  -defval 100.0
-    parm dthresh   coop  "Descending Theshold" -defval 0.0
+    parm days      text  "Days"                -defval   2.0
+    parm athresh   coop  "Ascending Theshold"  -defval   100.0
+    parm dthresh   coop  "Descending Theshold" -defval   0.0
 } {
     # FIRST, prepare the parameters
     prepare f       -toupper -required -type civgroup
@@ -1279,14 +1279,14 @@ order define MAD:COOP:SLOPE {
         -sendstates     {}             \
         -schedulestates {PREP PAUSED}
 
-    parm f         enum  "Of Group"            -type     civgroup
-    parm g         enum  "With Group"          -type     frcgroup
+    parm f         enum  "Of Group"            -enumtype civgroup
+    parm g         enum  "With Group"          -enumtype frcgroup
     parm mad       key   "MAD ID"              -table    gui_mads \
-                                               -key      id       \
+                                               -keys     id       \
                                                -dispcols longid
     parm slope     text  "Slope"
-    parm athresh   coop  "Ascending Theshold"  -defval 100.0
-    parm dthresh   coop  "Descending Theshold" -defval 0.0
+    parm athresh   coop  "Ascending Theshold"  -defval   100.0
+    parm dthresh   coop  "Descending Theshold" -defval   0.0
 } {
     # FIRST, prepare the parameters
     prepare f       -toupper -required -type civgroup

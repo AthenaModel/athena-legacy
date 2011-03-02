@@ -212,7 +212,8 @@ snit::type actor {
 order define ACTOR:CREATE {
     title "Create Actor"
 
-    options -sendstates PREP
+    options \
+        -sendstates PREP
 
     parm a         text   "Actor"
     parm longname  text   "Long Name"
@@ -242,7 +243,7 @@ order define ACTOR:DELETE {
     title "Delete Actor"
     options -sendstates PREP
 
-    parm a  key  "Actor"  -tags actor -table actors -key a
+    parm a  key  "Actor"  -tags actor -table actors -keys a
 } {
     # FIRST, prepare the parameters
     prepare a -toupper -required -type actor
@@ -251,7 +252,7 @@ order define ACTOR:DELETE {
 
     # NEXT, make sure the user knows what he is getting into.
 
-    if {[interface] eq "gui"} {
+    if {[sender] eq "gui"} {
         set answer [messagebox popup \
                         -title         "Are you sure?"                  \
                         -icon          warning                          \
@@ -288,8 +289,8 @@ order define ACTOR:UPDATE {
         -sendstates PREP                             \
         -refreshcmd {orderdialog refreshForKey a *}
 
-    parm a         key    "Select Actor"         \
-        -table gui_actors -key a -tags actor
+    parm a         key    "Select Actor"    -table gui_actors -keys a \
+                                            -tags actor
     parm longname  text   "Long Name"
     parm income    text   "Income $/week"
     parm cash      text   "Cash-on-hand $"

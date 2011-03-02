@@ -77,7 +77,7 @@ snit::widgetadaptor satbrowser {
             -state   disabled                        \
             -command [mymethod EditSelected]
 
-        cond::orderIsValidMulti control $editbtn \
+        cond::availableMulti control $editbtn \
             order   SAT:UPDATE          \
             browser $win
 
@@ -88,7 +88,7 @@ snit::widgetadaptor satbrowser {
             -state   disabled                      \
             -command [mymethod SetSelected]
 
-        cond::orderIsValidSingle control $setbtn \
+        cond::availableSingle control $setbtn \
             order   MAD:SAT:SET                  \
             browser $win
        
@@ -99,7 +99,7 @@ snit::widgetadaptor satbrowser {
             -state   disabled                      \
             -command [mymethod AdjustSelected]
 
-        cond::orderIsValidSingle control $adjbtn \
+        cond::availableSingle control $adjbtn \
             order   MAD:SAT:ADJUST               \
             browser $win
        
@@ -128,8 +128,8 @@ snit::widgetadaptor satbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidMulti update $editbtn
-        cond::orderIsValidSingle update [list $setbtn $adjbtn]
+        cond::availableMulti update $editbtn
+        cond::availableSingle update [list $setbtn $adjbtn]
     }
 
 
@@ -170,6 +170,7 @@ snit::widgetadaptor satbrowser {
         order enter MAD:SAT:ADJUST id [lindex $ids 0]
     }
 }
+
 
 
 

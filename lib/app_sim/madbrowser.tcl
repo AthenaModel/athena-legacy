@@ -75,7 +75,7 @@ snit::widgetadaptor madbrowser {
             -state   normal                       \
             -command [mymethod AddEntity]
 
-        cond::orderIsValid control $addbtn \
+        cond::available control $addbtn \
             order MAD:CREATE
 
 
@@ -84,7 +84,7 @@ snit::widgetadaptor madbrowser {
             -state   disabled                        \
             -command [mymethod EditSelected]
 
-        cond::orderIsValidSingle control $editbtn   \
+        cond::availableSingle control $editbtn   \
             order   MAD:UPDATE \
             browser $win
 
@@ -94,7 +94,7 @@ snit::widgetadaptor madbrowser {
             -state   disabled                              \
             -command [mymethod DeleteSelected]
 
-        cond::orderIsValidCanDelete control $deletebtn \
+        cond::availableCanDelete control $deletebtn \
             order   MAD:DELETE  \
             browser $win
 
@@ -161,14 +161,14 @@ snit::widgetadaptor madbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidSingle     update $editbtn
-        cond::orderIsValidCanDelete  update $deletebtn
+        cond::availableSingle     update $editbtn
+        cond::availableCanDelete  update $deletebtn
 
         # NEXT, notify the app of the selection.
         if {[llength [$hull uid curselection]] == 1} {
             set s [lindex [$hull uid curselection] 0]
 
-            notifier send ::app <ObjectSelect> [list mad $s]
+            notifier send ::app <Puck> [list mad $s]
         }
     }
 
@@ -207,6 +207,8 @@ snit::widgetadaptor madbrowser {
     }
 
 }
+
+
 
 
 

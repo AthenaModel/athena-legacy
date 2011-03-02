@@ -103,7 +103,7 @@ snit::widget planforcebrowser {
             -state   disabled                              \
             -command [mymethod CancelSelected]
             
-        cond::orderIsValidSingle control $cancelbtn \
+        cond::availableSingle control $cancelbtn \
             order   ORDER:CANCEL                     \
             browser $plan
 
@@ -249,7 +249,7 @@ snit::widget planforcebrowser {
 
     method PlanSelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidSingle update \
+        cond::availableSingle update \
             [list $cancelbtn]
     }
 
@@ -302,10 +302,12 @@ snit::widget planforcebrowser {
             set id [lindex [$status uid curselection] 0]
             lassign $id n g
 
-            notifier send ::app <ObjectSelect> \
+            notifier send ::app <Puck> \
                 [list ng $id nbhood $n group $g]
         }
     }
 }
+
+
 
 

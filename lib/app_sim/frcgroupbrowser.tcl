@@ -76,7 +76,7 @@ snit::widgetadaptor frcgroupbrowser {
             -state   normal                       \
             -command [mymethod AddEntity]
 
-        cond::orderIsValid control $addbtn \
+        cond::available control $addbtn \
             order FRCGROUP:CREATE
 
 
@@ -85,7 +85,7 @@ snit::widgetadaptor frcgroupbrowser {
             -state   disabled                        \
             -command [mymethod EditSelected]
 
-        cond::orderIsValidMulti control $editbtn \
+        cond::availableMulti control $editbtn \
             order   FRCGROUP:UPDATE           \
             browser $win
 
@@ -95,7 +95,7 @@ snit::widgetadaptor frcgroupbrowser {
             -state   disabled                              \
             -command [mymethod DeleteSelected]
 
-        cond::orderIsValidSingle control $deletebtn \
+        cond::availableSingle control $deletebtn \
             order   FRCGROUP:DELETE              \
             browser $win
 
@@ -140,8 +140,8 @@ snit::widgetadaptor frcgroupbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidSingle update $deletebtn
-        cond::orderIsValidMulti  update $editbtn
+        cond::availableSingle update $deletebtn
+        cond::availableMulti  update $editbtn
     }
 
 
@@ -184,6 +184,7 @@ snit::widgetadaptor frcgroupbrowser {
         order send gui FRCGROUP:DELETE g $id
     }
 }
+
 
 
 

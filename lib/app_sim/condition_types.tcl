@@ -87,9 +87,10 @@ order define CONDITION:CASH:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm co_id     key  "Tactic/Goal ID" -table cond_owners -key co_id
-    parm a         key  "Actor"          -table actors -key a
-    parm text1     enum "Comparison"     -type ecomparator -displaylong
+    parm co_id     key  "Tactic/Goal ID" -table cond_owners -keys co_id
+    parm a         key  "Actor"          -table actors -keys a
+    parm text1     enum "Comparison"     -enumtype ecomparator \
+                                         -displaylong yes
     parm x1        text "Amount"
 } {
     # FIRST, prepare and validate the parameters
@@ -118,9 +119,10 @@ order define CONDITION:CASH:UPDATE {
         -refreshcmd {condition RefreshUPDATE}
 
     parm condition_id key  "Condition ID"  -table conditions  \
-                                           -key   condition_id
-    parm a            key  "Actor"         -table actors -key a
-    parm text1        enum "Comparison"    -type ecomparator -displaylong
+                                           -keys  condition_id
+    parm a            key  "Actor"         -table actors -keys a
+    parm text1        enum "Comparison"    -enumtype ecomparator \
+                                           -displaylong yes
     parm x1           text "Amount"
                 
 } {

@@ -209,9 +209,11 @@ order define CONDITION:GOAL:CREATE {
         -sendstates {PREP PAUSED} \
         -refreshcmd {condition::GOAL RefreshCREATE}
 
-    parm co_id  key   "Tactic ID"  -table cond_owners -key co_id
+    parm co_id  key   "Tactic ID"  -table       cond_owners \
+                                   -keys        co_id
     parm list1  goals "Goals"     
-    parm text1  enum  "Are"        -type egoal_predicate -displaylong
+    parm text1  enum  "Are"        -enumtype    egoal_predicate \
+                                   -displaylong yes
 } {
     # FIRST, prepare and validate the parameters
     prepare co_id     -required -type   tactic
@@ -246,10 +248,11 @@ order define CONDITION:GOAL:UPDATE {
         -sendstates {PREP PAUSED}                               \
         -refreshcmd {condition::GOAL RefreshUPDATE}
 
-    parm condition_id key  "Condition ID"  -table  conditions   \
-                                           -key    condition_id
+    parm condition_id key  "Condition ID"  -table    conditions   \
+                                           -keys     condition_id
     parm list1        goals "Goals"
-    parm text1        enum  "Are"          -type egoal_predicate -displaylong
+    parm text1        enum  "Are"          -enumtype egoal_predicate \
+                                           -displaylong yes
 } {
     # FIRST, prepare the parameters
     prepare condition_id  -required  -type   condition

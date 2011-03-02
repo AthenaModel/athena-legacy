@@ -70,7 +70,7 @@ snit::widgetadaptor attroeufbrowser {
         install addbtn using mkaddbutton $bar.add "Add ROE" \
             -command [mymethod AddEntity]
 
-        cond::orderIsValid control $addbtn \
+        cond::available control $addbtn \
             order ATTROE:UF:CREATE
 
         pack $addbtn   -side left
@@ -80,7 +80,7 @@ snit::widgetadaptor attroeufbrowser {
             -state   disabled                                            \
             -command [mymethod EditSelected]
 
-        cond::orderIsValidMulti control $editbtn \
+        cond::availableMulti control $editbtn \
             order   ATTROE:UF:UPDATE  \
             browser $win
        
@@ -92,7 +92,7 @@ snit::widgetadaptor attroeufbrowser {
             -state   disabled                              \
             -command [mymethod DeleteSelected]
 
-        cond::orderIsValidSingle control $deletebtn \
+        cond::availableSingle control $deletebtn \
             order   ATTROE:DELETE               \
             browser $win
 
@@ -122,8 +122,8 @@ snit::widgetadaptor attroeufbrowser {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::orderIsValidMulti  update $editbtn
-        cond::orderIsValidSingle update $deletebtn
+        cond::availableMulti  update $editbtn
+        cond::availableSingle update $deletebtn
 
 
         # NEXT, if there's exactly one item selected, notify the
@@ -132,7 +132,7 @@ snit::widgetadaptor attroeufbrowser {
             set id [lindex [$hull uid curselection] 0]
             lassign $id n f g
 
-            notifier send ::app <ObjectSelect> \
+            notifier send ::app <Puck> \
                 [list nfg $id  nbhood $n group $f]
         }
     }
@@ -172,6 +172,8 @@ snit::widgetadaptor attroeufbrowser {
             id [lindex [$hull uid curselection] 0]
     }
 }
+
+
 
 
 

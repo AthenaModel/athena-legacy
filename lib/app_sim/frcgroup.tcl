@@ -317,13 +317,18 @@ order define FRCGROUP:CREATE {
 
     parm g          text  "Group"
     parm longname   text  "Long Name"
-    parm a          enum  "Owning Actor"      -type actor
-    parm color      color "Color"             -defval \#3B61FF
-    parm shape      enum  "Unit Shape"        -type eunitshape -defval NEUTRAL
-    parm forcetype  enum  "Force Type"        -type eforcetype -defval REGULAR
-    parm demeanor   enum  "Demeanor"          -type edemeanor  -defval AVERAGE
-    parm uniformed  enum  "Uniformed?"        -type eyesno     -defval yes
-    parm local      enum  "Local Group?"      -type eyesno     -defval no
+    parm a          enum  "Owning Actor"      -enumtype actor
+    parm color      color "Color"             -defval   \#3B61FF
+    parm shape      enum  "Unit Shape"        -enumtype eunitshape \
+                                              -defval   NEUTRAL
+    parm forcetype  enum  "Force Type"        -enumtype eforcetype \
+                                               -defval  REGULAR
+    parm demeanor   enum  "Demeanor"          -enumtype edemeanor  \
+                                              -defval   AVERAGE
+    parm uniformed  enum  "Uniformed?"        -enumtype eyesno     \
+                                              -defval   yes
+    parm local      enum  "Local Group?"      -enumtype eyesno     \
+                                              -defval   no
 } {
     # FIRST, prepare and validate the parameters
     prepare g          -toupper   -required -unused -type ident
@@ -356,7 +361,7 @@ order define FRCGROUP:DELETE {
     title "Delete Force Group"
     options -sendstates PREP
 
-    parm g  key "Group" -tags group -table gui_frcgroups -key g
+    parm g  key "Group" -tags group -table gui_frcgroups -keys g
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type frcgroup
@@ -365,7 +370,7 @@ order define FRCGROUP:DELETE {
 
     # NEXT, make sure the user knows what he is getting into.
 
-    if {[interface] eq "gui"} {
+    if {[sender] eq "gui"} {
         set answer [messagebox popup \
                         -title         "Are you sure?"                  \
                         -icon          warning                          \
@@ -402,16 +407,16 @@ order define FRCGROUP:UPDATE {
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey g *}
 
-    parm g          key   "Select Group"        \
-        -table gui_frcgroups -key g -tags group 
+    parm g          key   "Select Group"       -table gui_frcgroups -keys g \
+                                               -tags group 
     parm longname   text  "Long Name"
-    parm a          enum  "Owning Actor"       -type actor
+    parm a          enum  "Owning Actor"       -enumtype actor
     parm color      color "Color"
-    parm shape      enum  "Unit Shape"         -type eunitshape
-    parm forcetype  enum  "Force Type"         -type eforcetype
-    parm demeanor   enum  "Demeanor"           -type edemeanor
-    parm uniformed  enum  "Uniformed?"         -type eyesno
-    parm local      enum  "Local Group?"       -type eyesno
+    parm shape      enum  "Unit Shape"         -enumtype eunitshape
+    parm forcetype  enum  "Force Type"         -enumtype eforcetype
+    parm demeanor   enum  "Demeanor"           -enumtype edemeanor
+    parm uniformed  enum  "Uniformed?"         -enumtype eyesno
+    parm local      enum  "Local Group?"       -enumtype eyesno
 } {
     # FIRST, prepare the parameters
     prepare g         -toupper   -required -type frcgroup
@@ -443,14 +448,14 @@ order define FRCGROUP:UPDATE:MULTI {
         -sendstates PREP                                  \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids        multi "Groups" -table gui_frcgroups -key g
-    parm a          enum  "Owning Actor"       -type actor
+    parm ids        multi "Groups"         -table gui_frcgroups -key g
+    parm a          enum  "Owning Actor"   -enumtype actor
     parm color      color "Color"
-    parm shape      enum  "Unit Shape"         -type eunitshape
-    parm forcetype  enum  "Force Type"         -type eforcetype
-    parm demeanor   enum  "Demeanor"           -type edemeanor
-    parm uniformed  enum  "Uniformed?"         -type eyesno
-    parm local      enum  "Local Group?"       -type eyesno
+    parm shape      enum  "Unit Shape"     -enumtype eunitshape
+    parm forcetype  enum  "Force Type"     -enumtype eforcetype
+    parm demeanor   enum  "Demeanor"       -enumtype edemeanor
+    parm uniformed  enum  "Uniformed?"     -enumtype eyesno
+    parm local      enum  "Local Group?"   -enumtype eyesno
 } {
     # FIRST, prepare the parameters
     prepare ids       -toupper  -required -listof frcgroup
