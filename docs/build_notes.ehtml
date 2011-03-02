@@ -11,6 +11,20 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.9, 2 March 2011</h3>
+
+This build completes the process of exporting Athena infrastructure to
+Mars.  This includes the Athena modules for viewing maps, the help
+system, the order processing system, and a number of sqldocument(n)
+features.  The full set of changes is as follows:<p>
+
+<ul>
+  <li> Bug 2827: Respond to Mars changes
+  <li> Bug 2829: scenariodb(n): Use safequery, safeeval from sqldocument(n)
+  <li> Bug 2831: scenariodb(n): Use monitor API from sqldocument(n).
+  <li> Bug 2847: athena_sim(1): Integrate order(n), orderdialog(n) from Mars  
+</ul><p>
+
 <h3>Build 3.0.8, 17 February 2011</h3>
 
 This build includes the addition of goals to Athena, including the new
