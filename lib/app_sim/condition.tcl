@@ -373,23 +373,6 @@ snit::type condition {
                 "Condition $id is not a $condition_type condition"
         }
     }
-
-    # RefreshUPDATE dlg fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the CONDITION:*:UPDATE dialog fields when field values
-    # change, and disables the condition_id field; they can't pick
-    # new ones.
-
-    typemethod RefreshUPDATE {dlg fields fdict} {
-        orderdialog refreshForKey condition_id * $dlg $fields $fdict
-
-        # make condition_id invalid
-        $dlg disabled condition_id
-    }
 }
 
 
@@ -406,8 +389,9 @@ order define CONDITION:DELETE {
         -sendstates {PREP PAUSED}                           \
         -refreshcmd {orderdialog refreshForKey condition_id *}
 
-    parm condition_id   key  "Condition ID"   -table conditions   \
-                                              -keys  condition_id
+    parm condition_id   key  "Condition ID"   -context yes          \
+                                              -table   conditions   \
+                                              -keys    condition_id
     parm condition_type disp "Condition Type"
 } {
     # FIRST, prepare the parameters
@@ -431,8 +415,9 @@ order define CONDITION:STATE {
         -sendstates {PREP PAUSED} \
         -refreshcmd {orderdialog refreshForKey condition_id *}
 
-    parm condition_id   key  "Condition ID"  -table conditions   \
-                                             -keys  condition_id
+    parm condition_id   key  "Condition ID"  -context yes          \
+                                             -table   conditions   \
+                                             -keys    condition_id
     parm state          text "State"
 } {
     # FIRST, prepare and validate the parameters

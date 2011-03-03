@@ -386,23 +386,6 @@ snit::type tactic {
                 "Tactic $id is not a $tactic_type tactic"
         }
     }
-
-    # RefreshUPDATE dlg fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the TACTIC:*:UPDATE dialog fields when field values
-    # change, and disables the tactic_id field; they can't pick
-    # new ones.
-
-    typemethod RefreshUPDATE {dlg fields fdict} {
-        orderdialog refreshForKey tactic_id * $dlg $fields $fdict
-
-        # make tactic_id invalid
-        $dlg disabled tactic_id
-    }
 }
 
 
@@ -414,12 +397,16 @@ snit::type tactic {
 # Deletes an existing tactic, of whatever type.
 
 order define TACTIC:DELETE {
+    # This order dialog isn't usually used.
+
     title "Delete Tactic"
     options \
         -sendstates {PREP PAUSED}                           \
         -refreshcmd {orderdialog refreshForKey tactic_id *}
 
-    parm tactic_id   key  "Tactic ID" -table tactics -keys tactic_id
+    parm tactic_id   key  "Tactic ID"    -context yes     \
+                                         -table   tactics \
+                                         -keys    tactic_id
     parm owner       disp "Owner"
     parm tactic_type disp "Tactic Type"
 } {
@@ -444,7 +431,9 @@ order define TACTIC:STATE {
         -sendstates {PREP PAUSED} \
         -refreshcmd {orderdialog refreshForKey tactic_id *}
 
-    parm tactic_id   key  "Tactic ID"  -table tactics -keys tactic_id
+    parm tactic_id   key  "Tactic ID"  -context yes       \
+                                       -table   tactics   \
+                                       -keys    tactic_id
     parm state       text "State"
 } {
     # FIRST, prepare and validate the parameters
@@ -461,16 +450,19 @@ order define TACTIC:STATE {
 # Re-prioritizes a tactic item.
 
 order define TACTIC:PRIORITY {
+    # This order dialog isn't usually used.
     title "Prioritize Tactic Activity"
 
     options \
         -sendstates {PREP PAUSED} \
         -refreshcmd {orderdialog refreshForKey tactic_id *}
 
-    parm tactic_id   key  "Tactic ID"  -table tactics -keys tactic_id
+    parm tactic_id   key  "Tactic ID"   -context yes       \
+                                        -table   tactics   \
+                                        -keys    tactic_id
     parm owner       disp "Owner"
     parm tactic_type disp "Tactic Type"
-    parm priority    enum "Priority" -type ePrioUpdate
+    parm priority    enum "Priority"    -type ePrioUpdate
 } {
     # FIRST, prepare and validate the parameters
     prepare tactic_id -required          -type tactic

@@ -184,26 +184,6 @@ snit::type goal {
         # NEXT, Return the undo command
         return [list rdb ungrab $data]
     }
-
-    #-------------------------------------------------------------------
-    # Order Helpers
-
-    # RefreshUPDATE dlg fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the GOAL:UPDATE dialog fields when field values
-    # change, and disables the goal_id field; they can't pick
-    # new ones.
-
-    typemethod RefreshUPDATE {dlg fields fdict} {
-        orderdialog refreshForKey goal_id * $dlg $fields $fdict
-
-        # make goal_id invalid
-        $dlg disabled goal_id
-    }
 }
 
 
@@ -219,8 +199,8 @@ order define GOAL:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm owner     key  "Owner"      -table actors -keys a
-    parm narrative text "Narrative"
+    parm owner     actor  "Owner"      -context yes
+    parm narrative text   "Narrative"
 } {
     # FIRST, prepare and validate the parameters
     prepare owner     -toupper   -required -type actor
@@ -237,13 +217,15 @@ order define GOAL:CREATE {
 # Deletes an existing goal, of whatever type.
 
 order define GOAL:DELETE {
+    # TBD: This order dialog is not usually used.
+
     title "Delete Goal"
     options \
         -sendstates {PREP PAUSED}                           \
         -refreshcmd {orderdialog refreshForKey goal_id *}
 
-    parm goal_id   key  "Goal ID" -table goals -keys goal_id
-    parm owner     disp "Owner"
+    parm goal_id goal "Goal ID"
+    parm owner   disp "Owner"
 } {
     # FIRST, prepare the parameters
     prepare goal_id -toupper -required -type goal
@@ -262,9 +244,9 @@ order define GOAL:UPDATE {
     title "Update Goal"
     options \
         -sendstates {PREP PAUSED}                           \
-        -refreshcmd {goal RefreshUPDATE}
+        -refreshcmd {orderdialog refreshForKey goal_id *}
 
-    parm goal_id   key  "Goal ID"  -table goals -keys goal_id
+    parm goal_id   goal "Goal ID"    -context yes
     parm owner     disp "Owner"
     parm narrative text "Narrative"
 } {
@@ -280,18 +262,19 @@ order define GOAL:UPDATE {
 
 # GOAL:STATE
 #
-# Sets a goal's state.  Note that this order isn't intended
-# for use with a dialog.
+# Sets a goal's state.
 
 order define GOAL:STATE {
+    # This order dialog isn't usually used.
+
     title "Set Goal State"
 
     options \
         -sendstates {PREP PAUSED} \
         -refreshcmd {orderdialog refreshForKey goal_id *}
 
-    parm goal_id   key  "Goal ID"  -table goals -keys goal_id
-    parm state     text "State"
+    parm goal_id goal "Goal ID" -context yes
+    parm state   text "State"
 } {
     # FIRST, prepare and validate the parameters
     prepare goal_id  -required          -type goal

@@ -87,11 +87,13 @@ order define CONDITION:CASH:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm co_id     key  "Tactic/Goal ID" -table cond_owners -keys co_id
-    parm a         key  "Actor"          -table actors -keys a
-    parm text1     enum "Comparison"     -enumtype ecomparator \
-                                         -displaylong yes
-    parm x1        text "Amount"
+    parm co_id     key   "Tactic/Goal ID" -context yes         \
+                                          -table   cond_owners \
+                                          -keys    co_id
+    parm a         actor "Actor"
+    parm text1     enum  "Comparison"     -enumtype ecomparator \
+                                          -displaylong yes
+    parm x1        text  "Amount"
 } {
     # FIRST, prepare and validate the parameters
     prepare co_id                -required -type cond_owner
@@ -115,15 +117,16 @@ order define CONDITION:CASH:CREATE {
 order define CONDITION:CASH:UPDATE {
     title "Update Condition: Cash on hand"
     options \
-        -sendstates {PREP PAUSED}                           \
-        -refreshcmd {condition RefreshUPDATE}
+        -sendstates {PREP PAUSED}                              \
+        -refreshcmd {orderdialog refreshForKey condition_id *}
 
-    parm condition_id key  "Condition ID"  -table conditions  \
-                                           -keys  condition_id
-    parm a            key  "Actor"         -table actors -keys a
-    parm text1        enum "Comparison"    -enumtype ecomparator \
-                                           -displaylong yes
-    parm x1           text "Amount"
+    parm condition_id key   "Condition ID"  -context yes          \
+                                            -table   conditions   \
+                                            -keys    condition_id
+    parm a            actor "Actor"         -table actors -keys a
+    parm text1        enum  "Comparison"    -enumtype ecomparator \
+                                            -displaylong yes
+    parm x1           text  "Amount"
                 
 } {
     # FIRST, prepare the parameters

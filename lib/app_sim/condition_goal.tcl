@@ -106,11 +106,6 @@ condition type define GOAL -attachto tactic {
         if {"co_id" in $fields} {
             set co_id [dict get $fdict co_id]
             $type SetItemDict $dlg $co_id
-
-            # NEXT, make condition_id invalid
-            # TBD: This is tacky; we need a better mechanism to make
-            # the co_id field read-only.
-            $dlg disabled co_id
         }
     }
 
@@ -134,11 +129,6 @@ condition type define GOAL -attachto tactic {
         
         # NEXT, refresh the fields from the RDB
         orderdialog refreshForKey condition_id * $dlg $fields $fdict
-
-        # NEXT, make condition_id invalid
-        # TBD: This is tacky; we need a better mechanism to make
-        # the condition_id field read-only.
-        $dlg disabled condition_id
     }
 
     # SetItemDict dlg co_id
@@ -209,8 +199,9 @@ order define CONDITION:GOAL:CREATE {
         -sendstates {PREP PAUSED} \
         -refreshcmd {condition::GOAL RefreshCREATE}
 
-    parm co_id  key   "Tactic ID"  -table       cond_owners \
-                                   -keys        co_id
+    parm co_id  key   "Tactic ID"  -context yes         \
+                                   -table   cond_owners \
+                                   -keys    co_id
     parm list1  goals "Goals"     
     parm text1  enum  "Are"        -enumtype    egoal_predicate \
                                    -displaylong yes
@@ -245,11 +236,12 @@ order define CONDITION:GOAL:CREATE {
 order define CONDITION:GOAL:UPDATE {
     title "Update Condition: Goals Unmet"
     options \
-        -sendstates {PREP PAUSED}                               \
+        -sendstates {PREP PAUSED}                   \
         -refreshcmd {condition::GOAL RefreshUPDATE}
 
-    parm condition_id key  "Condition ID"  -table    conditions   \
-                                           -keys     condition_id
+    parm condition_id key  "Condition ID"  -context yes          \
+                                           -table   conditions   \
+                                           -keys    condition_id
     parm list1        goals "Goals"
     parm text1        enum  "Are"          -enumtype egoal_predicate \
                                            -displaylong yes

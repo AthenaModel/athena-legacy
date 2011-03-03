@@ -339,6 +339,14 @@ snit::type app {
     # for use in order dialogs.
 
     typemethod RegisterCustomFieldTypes {} {
+        # actor -- Actor IDs
+        form register actor ::marsgui::keyfield \
+            -table actors                       \
+            -keys  a
+
+        orderdialog fieldopts actor \
+            -db ::rdb
+
         # coop -- Cooperation Values
         form register coop ::marsgui::rangefield \
             -type        ::qcooperation          \
@@ -348,6 +356,14 @@ snit::type app {
         # frac -- Fractions, 0.0 to 1.0
         form register frac ::marsgui::rangefield \
             -type        ::rfraction
+
+        # goal -- Goal IDs
+        form register goal ::marsgui::keyfield \
+            -table goals                       \
+            -keys  goal_id
+
+        orderdialog fieldopts goal \
+            -db ::rdb
 
         # goals -- listfield of appropriate size for goal selection
         form register goals ::marsgui::listfield \
