@@ -111,7 +111,13 @@ snit::type scenario {
     typemethod new {} {
         assert {[sim state] ne "RUNNING"}
 
-        # FIRST, Create a blank scenario
+        # FIRST, unlock the scenario if it is locked; this
+        # will reinitialize modules like GRAM.
+        if {[sim state] ne "PREP"} {
+            sim mutate unlock
+        }
+
+        # NEXT, Create a blank scenario
         $type MakeBlankScenario
 
         # NEXT, log it.
