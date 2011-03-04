@@ -445,7 +445,7 @@ order define NBHOOD:CREATE {
     parm n            text "Neighborhood"
     parm longname     text "Long Name"
     parm local        enum "Local Neighborhood?" -enumtype eyesno \
-                                                 -defval   yes
+                                                 -defval   YES
     parm urbanization enum "Urbanization"        -enumtype eurbanization \
                                                  -defval   URBAN
     parm vtygain      text "Volatility Gain"     -defval   1.0

@@ -326,9 +326,9 @@ order define FRCGROUP:CREATE {
     parm demeanor   enum  "Demeanor"          -enumtype edemeanor  \
                                               -defval   AVERAGE
     parm uniformed  enum  "Uniformed?"        -enumtype eyesno     \
-                                              -defval   yes
+                                              -defval   YES
     parm local      enum  "Local Group?"      -enumtype eyesno     \
-                                              -defval   no
+                                              -defval   NO
 } {
     # FIRST, prepare and validate the parameters
     prepare g          -toupper   -required -unused -type ident
