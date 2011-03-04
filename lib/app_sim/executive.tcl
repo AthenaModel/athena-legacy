@@ -427,10 +427,12 @@ snit::type executive {
         set lastRun(index) ""
         set lastRun(time)  ""
 
+        set mark [cif mark]
+
         rdb eval {
             SELECT time,name,parmdict
             FROM cif
-            WHERE name != 'SIM:UNLOCK'
+            WHERE id <= $mark AND name != 'SIM:UNLOCK'
             ORDER BY id
         } {
             # SIM:RUN requires special handling.
