@@ -113,17 +113,6 @@ menu "File" {
     <<childlinks>>
 }
 
-menuitem "File/New Browser" {
-    Pops up a new browser window on the same scenario, allowing the
-    user to watch multiple browser tabs at the same time.  Each
-    browser window is identical to the main window except that it
-    lacks the Athena command line interface (CLI) at the bottom.<p>
-
-    Note that all windows will show the same scenario; to view
-    multiple scenarios at the same, it is necessary to invoke multiple
-    instances of Athena.<p>
-}
-
 menuitem "File/New Scenario..." {
     Closes the current scenario and creates a new, blank scenario,
     loading the user's default <<cref parmdb "model parameter">>
@@ -213,14 +202,13 @@ menuitem "File/Exit" {
     Exits the application, first prompting the user to save any
     unsaved changes.<p>
 
-    This menu item appears only in the main application window.
+    This menu item appears only in the Scenario window.
 }
 
 menuitem "File/Close" {
     Closes the current browser window.<p>
 
-    This menu item appears only in browser windows created using the
-    <<menuref "File/New Browser">> menu item.
+    This menu item appears only in the Simulation window.
 }
 
 #=======================================================================

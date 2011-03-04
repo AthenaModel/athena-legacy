@@ -471,23 +471,21 @@ snit::widget appwin {
         set mnu [menu $menubar.file]
         $menubar add cascade -label "File" -underline 0 -menu $mnu
 
-        $mnu add command                  \
-            -label       "New Browser"         \
-            -underline   4                     \
-            -accelerator "Ctrl+N"              \
-            -command     [list appwin new]
-        bind $win <Control-n> [list appwin new]
-        bind $win <Control-N> [list appwin new]
-        
         cond::simNotRunning control \
             [menuitem $mnu command "New Scenario..."  \
                  -underline 0                         \
+                 -accelerator "Ctrl+N"                \
                  -command   [mymethod FileNew]]
+        bind $win <Control-n> [mymethod FileNew]
+        bind $win <Control-N> [mymethod FileNew]
 
         cond::simNotRunning control \
             [menuitem $mnu command "Open Scenario..." \
                  -underline 0                         \
+                 -accelerator "Ctrl+O"                \
                  -command   [mymethod FileOpen]]
+        bind $win <Control-o> [mymethod FileOpen]
+        bind $win <Control-O> [mymethod FileOpen]
 
         $mnu add command                  \
             -label       "Save Scenario"       \
