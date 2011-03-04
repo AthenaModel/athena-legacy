@@ -383,7 +383,7 @@ snit::widget appwin {
     #
     # simspeed    Current simulation speed
     # simstate    Current simulation state
-    # tick        Current sim time as a four-digit tick
+    # tick        Current sim time as a four-digit tick (a day)
     # zulutime    Current sim time as a zulu time string
     # dayofweek   Day of week (edayname value)      
 
@@ -998,19 +998,19 @@ snit::widget appwin {
             -width              12                     \
             -textvariable       [myvar info(zulutime)]
 
-        ttk::label $win.toolbar.dayofweek              \
-            -font               codefont               \
-            -width              4                      \
-            -textvariable       [myvar info(dayofweek)]
-
         # Tick
         ttk::label $win.toolbar.ticklab                \
-            -text "Tick:"
+            -text "Day:"
 
         ttk::label $win.toolbar.tick                   \
             -font               codefont               \
             -width              4                      \
             -textvariable       [myvar info(tick)]
+
+        ttk::label $win.toolbar.dayofweek              \
+            -font               codefont               \
+            -width              4                      \
+            -textvariable       [myvar info(dayofweek)]
 
         pack $win.toolbar.preplock  -side left
         pack $win.toolbar.runpause  -side left    
@@ -1022,9 +1022,9 @@ snit::widget appwin {
         pack $win.toolbar.prev      -side left
         pack $win.toolbar.next      -side left
         pack $win.toolbar.last      -side left
+        pack $win.toolbar.dayofweek -side right -padx 2 
         pack $win.toolbar.tick      -side right -padx 2 
         pack $win.toolbar.ticklab   -side right
-        pack $win.toolbar.dayofweek -side right -padx 2 
         pack $win.toolbar.zulutime  -side right -padx 2 
         pack $win.toolbar.time      -side right
         pack $win.toolbar.simstate  -side right -padx 2 

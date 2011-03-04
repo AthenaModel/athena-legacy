@@ -32,7 +32,7 @@ snit::widget planforcebrowser {
 
     typevariable planLayout {
         { zulu      "Zulu"                                          }
-        { tick      "Tick"       -sortmode integer                  }
+        { tick      "Day"        -sortmode integer                  }
         { narrative "Narrative"  -width 60 -wrap 1                  }
     }
 
