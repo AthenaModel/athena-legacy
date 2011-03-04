@@ -183,7 +183,7 @@ namespace eval ::athena_test::tests:: {
         set results
     } -cleanup {
         cleanup
-    } -result {1 0 1 0 0 1 1 0}
+    } -result {1 0 1 0 0 1 0 0}
 
 
     #-------------------------------------------------------------------

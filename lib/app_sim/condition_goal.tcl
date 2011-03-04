@@ -68,6 +68,9 @@ condition type define GOAL -attachto tactic {
     # if there are any goals in the list that are unmet, i.e., have
     # flag of 0.
     #
+    # If none of the goals listed have known values, the condition
+    # is unmet.
+    #
     # TBD: Optimization: Write one query, using "IN", instead of
     # using [goal get]
 
@@ -82,15 +85,27 @@ condition type define GOAL -attachto tactic {
                 set B 0
             }
 
+            set count 0
             foreach gid $list1 {
                 set gflag [goal get $gid flag]
+
+                if {$gflag eq ""} {
+                    continue
+                }
+
+                incr count
                 
-                if {$gflag ne "" && !$gflag} {
+                if {!$gflag} {
                     return $A
                 }
             }
 
-            return $B
+            if {$count > 0} {
+                return $B
+            } else {
+                # No goals with known values
+                return 0
+            }
         }
     }
 

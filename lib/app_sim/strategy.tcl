@@ -71,12 +71,22 @@ snit::type strategy {
 
     typemethod ComputeGoalFlags {} {
         log normal strat ComputeGoalFlags
-        # FIRST, load the goals and goal conditions.
+
+        # FIRST, empty all goal and condition flags.  This will
+        # clear tactic condition flags as well, but that's OK.
+        rdb eval {
+            UPDATE goals      SET flag='';
+            UPDATE conditions SET flag='';
+        }
+
+        # NEXT, load the goals and goal conditions.
+        # Ignore goals whose state is not normal.
         rdb eval {
             SELECT goals.goal_id AS goal_id,
                    conditions.*
             FROM goals
             LEFT OUTER JOIN conditions ON (co_id = goal_id)
+            WHERE goals.state = 'normal'
         } row {
             if {![info exists gconds($row(goal_id))]} {
                 set gconds($row(goal_id)) [list]
@@ -123,8 +133,6 @@ snit::type strategy {
             }
 
             # NEXT, save the goal's flag.
-            # TBD: Once we have GoalIsMet/GoalIsUnmet conditions,
-            # we'll need to save it in memory as well.
             log normal strat "!!! Goal $gid is met: <$gflag>"
             
             rdb eval {
@@ -152,6 +160,7 @@ snit::type strategy {
                    conditions.*
             FROM tactics
             LEFT OUTER JOIN conditions ON (co_id = tactic_id)
+            WHERE tactics.state = 'normal'
             ORDER BY tactics.priority
         } row {
             if {![info exists tconds($row(tactic_id))]} {

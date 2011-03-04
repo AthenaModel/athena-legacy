@@ -1763,12 +1763,13 @@ snit::widget appwin {
         # NEXT, we're not in PREP; we want to return to it.  But
         # give the user the option.
         set answer [messagebox popup \
-                        -parent    $win                  \
-                        -icon      warning               \
-                        -title     "Are you sure?"       \
-                        -ignoretag "sim_unlock"          \
-                        -default   cancel                \
-                        -buttons   {
+                        -parent        $win                  \
+                        -icon          warning               \
+                        -title         "Are you sure?"       \
+                        -default       cancel                \
+                        -ignoretag     "sim_unlock"          \
+                        -ignoredefault ok                    \
+                        -buttons       {
                             ok      "Return to Prep"
                             cancel  "Cancel"
                         } -message [normalize {
