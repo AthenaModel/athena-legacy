@@ -29,26 +29,15 @@ snit::type sim {
     # Non-checkpointed Type Variables
 
     # constants -- scalar array
+    #
+    # ticksize  - The simclock tick size
+    # startdata - The initial date of time 0
+    # tickDelay - The delay between ticks
     
     typevariable constants -array {
         ticksize  {1 day}
         startdate 100000ZJAN10
-    }
-
-    # speeds -- array of inter-tick delays in milliseconds, by
-    #           simulation speed.
-
-    typevariable speeds -array {
-        1  10000
-        2   5000
-        3   3000
-        4   2000
-        5   1000
-        6    600
-        7    400
-        8    200
-        9    100
-        10    50
+        tickDelay 50
     }
 
     # info -- scalar info array
@@ -58,9 +47,6 @@ snit::type sim {
     # state          - The current simulation state, a simstate value
     # stoptime       - The time tick at which the simulation should 
     #                  pause, or 0 if there's no limit.
-    # speed          - The speed at which the simulation should run.
-    #                  (This should probably be saved with the GUI 
-    #                  settings.)
     # econOK         - 1 if the econ CGE is converging, and 0 if it is
     #                  diverging.
 
@@ -68,7 +54,6 @@ snit::type sim {
         changed        0
         state          PREP
         stoptime       0
-        speed          10
         econOK         1
     }
 
@@ -110,9 +95,9 @@ snit::type sim {
             -t0   $constants(startdate)
 
         # NEXT, create the ticker
-        set ticker [timeout ${type}::ticker              \
-                        -interval   $speeds($info(speed)) \
-                        -repetition yes                  \
+        set ticker [timeout ${type}::ticker                \
+                        -interval   $constants(tickDelay) \
+                        -repetition yes                    \
                         -command    {profile sim Tick}]
 
         # NEXT, initialize the event queue
@@ -410,45 +395,7 @@ snit::type sim {
         # NEXT, Sync the GUI
         notifier send $type <DbSyncB>
         notifier send $type <Time>
-        notifier send $type <Speed>
         notifier send $type <State>
-    }
-
-
-    #-------------------------------------------------------------------
-    # Speed Control
-    #
-    # The inter-tick delay controls how fast the sim appears to run.
-    # There's no order for this, as it has no effect on the simulation 
-    # proper.  It can be set and reset at any time, including when the
-    # simulation is running.
-
-    # speed ?speed?
-    #
-    # speed     The simulation speed, 1 through 10
-    #
-    # Sets/queries the simulation speed.
-
-    typemethod speed {{speed ""}} {
-        if {$speed ne "" && $speed != $info(speed)} {
-            require {$speed in [array names speeds]} \
-                "Invalid speed: \"$speed\""
-
-            set info(speed) $speed
-
-            set wasScheduled [$ticker isScheduled]
-            
-            $ticker cancel
-            $ticker configure -interval $speeds($info(speed))
-            
-            if {$wasScheduled} {
-                $ticker schedule
-            }
-
-            notifier send $type <Speed>
-        }
-
-        return $info(speed)
     }
 
     #-------------------------------------------------------------------

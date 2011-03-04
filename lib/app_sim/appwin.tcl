@@ -381,14 +381,12 @@ snit::widget appwin {
 
     # Status info
     #
-    # simspeed    Current simulation speed
     # simstate    Current simulation state
     # tick        Current sim time as a four-digit tick (a day)
     # zulutime    Current sim time as a zulu time string
     # dayofweek   Day of week (edayname value)      
 
     variable info -array {
-        simspeed  10
         simstate  ""
         tick      "0000"
         zulutime  ""
@@ -431,7 +429,6 @@ snit::widget appwin {
         notifier bind ::scenario <ScenarioSaved> $self [mymethod DbSync]
         notifier bind ::sim      <State>         $self [mymethod SimState]
         notifier bind ::sim      <Time>          $self [mymethod SimTime]
-        notifier bind ::sim      <Speed>         $self [mymethod SimSpeed]
 
         if {$options(-main)} {
             notifier bind ::app <Prefs> $self [mymethod AppPrefs]
@@ -943,24 +940,6 @@ snit::widget appwin {
 
         DynamicHelp::add $win.toolbar.duration -text "Duration of run"
 
-        # Simulation Speed
-        ttk::label $win.toolbar.slower \
-            -text "Slower"
-
-        ttk::scale $win.toolbar.speed        \
-            -from     1                      \
-            -to       10                     \
-            -length   60                     \
-            -orient   horizontal             \
-            -value    5                      \
-            -variable [myvar info(simspeed)] \
-            -command  [mymethod SetSpeed]
-
-        DynamicHelp::add $win.toolbar.speed -text "Simulation Speed"
-
-        ttk::label $win.toolbar.faster \
-            -text "Faster"
-
         # First Snapshot
         $self AddToolbarButton first first16 "Time 0 Snapshot" \
             [list ::sim snapshot first]
@@ -1013,9 +992,6 @@ snit::widget appwin {
         pack $win.toolbar.preplock  -side left
         pack $win.toolbar.runpause  -side left    
         pack $win.toolbar.duration  -side left -padx {0 15}
-        pack $win.toolbar.slower    -side left
-        pack $win.toolbar.speed     -side left -padx 2
-        pack $win.toolbar.faster    -side left -padx {0 15}
         pack $win.toolbar.first     -side left
         pack $win.toolbar.prev      -side left
         pack $win.toolbar.next      -side left
@@ -1782,17 +1758,6 @@ snit::widget appwin {
     }
 
 
-    # SetSpeed speed
-    #
-    # Sets the simulation speed
-
-    method SetSpeed {speed} {
-        set speed [expr {round($speed)}]
-        sim speed $speed
-
-        app puts "Simulation Speed: $speed"
-    }
-
     #-------------------------------------------------------------------
     # Mapviewer Event Handlers
 
@@ -1886,10 +1851,8 @@ snit::widget appwin {
         wm title $win "$dbfile, $tab - Athena [version] $wintype"
 
         # NEXT, set the status variables
-        $win.toolbar.speed configure -value [sim speed]
         $self SimState
         $self SimTime
-        $self SimSpeed
 
         # NEXT, refresh the report browser
         [$self tab win report] refresh
@@ -2028,17 +1991,6 @@ snit::widget appwin {
         set cs [zulu tosec $info(zulutime)]
         set dayIndex [clock format $cs -format %w -timezone :UTC]
         set info(dayofweek) "([lindex [edayname names] $dayIndex])"
-    }
-
-    # SimSpeed
-    #
-    # This routine is called when the simulation speed has changed.
-
-    method SimSpeed {} {
-        # Display current speed.
-        if {round($info(simspeed)) != [sim speed]} {
-            set info(simspeed) [sim speed]
-        }
     }
 
     # AppPrefs parm

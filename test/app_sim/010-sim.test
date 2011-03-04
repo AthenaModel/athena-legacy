@@ -37,8 +37,6 @@ namespace eval ::athena_test::tests:: {
         # Clean up the test environment
         eventq restart
         simclock configure -t0 $t0
-        sim speed 5
-
 
         if {[sim state] eq "RUNNING"} {
             sim mutate pause
@@ -63,41 +61,10 @@ namespace eval ::athena_test::tests:: {
         list \
             [sim now]         \
             [sim state]       \
-            [sim speed]       \
             [sim stoptime]    \
             [simclock asZulu]
         
-    } -result {0 PREP 10 0 100000ZJAN10}
-
-    #-------------------------------------------------------------------
-    # speed
-
-    test speed-1.1 {Invalid speed} -body {
-        sim speed foo
-    } -returnCodes {
-        error
-    } -result {Invalid speed: "foo"}
-
-    test speed-2.1 {Speed is returned} -body {
-        sim speed 4
-    } -cleanup {
-        sim speed 5
-    } -result {4}
-
-    test speed-2.2 {Valid speeds} -body {
-        sim speed 1
-        sim speed 2
-        sim speed 3
-        sim speed 4
-        sim speed 5
-        sim speed 6
-        sim speed 7
-        sim speed 8
-        sim speed 9
-        sim speed 10
-    } -cleanup {
-        cleanup
-    } -result {10}
+    } -result {0 PREP 0 100000ZJAN10}
 
     #-------------------------------------------------------------------
     # mutate startdate
