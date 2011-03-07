@@ -1,0 +1,352 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-BSYSTEM.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) BSYSTEM:* order tests.
+#
+#    This test suite tests the belief-system-related orders.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Standard Topics
+    set T1 {
+        tid       T1
+        title     "Topic #1"
+        relevance yes
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # BSYSTEM:TOPIC:CREATE
+
+    test TOPIC:CREATE-1.1 {required parms} -body {
+        ted order -reject BSYSTEM:TOPIC:CREATE {}
+    } -result {
+        tid {required value}
+        title {required value}
+        relevance {required value}
+    }
+    
+    test TOPIC:CREATE-1.2 {Duplicate tid} -setup {
+        ted order BSYSTEM:TOPIC:CREATE $T1
+    } -body {
+        ted order -reject BSYSTEM:TOPIC:CREATE $T1
+    } -cleanup {
+        cleanup
+    } -result {
+        tid {An entity with this ID already exists}
+    }
+
+    test TOPIC:CREATE-1.3 {tid is not an ident} -body {
+        ted order -reject BSYSTEM:TOPIC:CREATE \
+            [dict merge $T1 {tid "MY TOPIC"}]
+    } -cleanup {
+        cleanup
+    } -result {
+        tid {Identifiers begin with a letter and contain only letters and digits.}
+    }
+
+    test TOPIC:CREATE-1.4 {invalid relevance} -body {
+        ted order -reject BSYSTEM:TOPIC:CREATE \
+            [dict merge $T1 {relevance NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        relevance {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+    
+
+    test TOPIC:CREATE-2.1 {topic is created} -body {
+        ted order BSYSTEM:TOPIC:CREATE $T1
+        
+        ted query {SELECT * FROM mam_topic}
+    } -cleanup {
+        cleanup
+    } -result {
+tid title    relevance 
+--- -------- --------- 
+T1  Topic #1 1         
+    }
+
+
+    test TOPIC:CREATE-2.3 {effects} -body {
+        ted notifier bind ::rdb <mam_topic>
+        ted order BSYSTEM:TOPIC:CREATE $T1
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <mam_topic> update T1}
+        {::rdb <mam_topic> update T1}
+        {::rdb <mam_topic> update T1}
+    }
+
+
+    test TOPIC:CREATE-3.1 {effects are undone} -setup {
+        ted order BSYSTEM:TOPIC:CREATE $T1
+    } -body {
+        ted notifier bind ::rdb <mam_topic>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <mam_topic> delete T1}
+    }
+
+    #-------------------------------------------------------------------
+    # BSYSTEM:TOPIC:DELETE
+
+    test TOPIC:DELETE-1.1 {required parms} -body {
+        ted order -reject BSYSTEM:TOPIC:DELETE {}
+    } -result {
+        tid {required value}
+    }
+    
+
+    test TOPIC:DELETE-1.2 {unknown topic} -body {
+        ted order -reject BSYSTEM:TOPIC:DELETE tid NONESUCH
+    } -result {
+        tid {Invalid topic, none are defined}
+    }
+
+
+    test TOPIC:DELETE-2.1 {Effects} -setup {
+        ted order BSYSTEM:TOPIC:CREATE $T1
+    } -body {
+        ted notifier bind ::rdb <mam_topic>
+        ted order BSYSTEM:TOPIC:DELETE tid T1
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <mam_topic> delete T1}
+    }
+
+
+    test TOPIC:DELETE-3.1 {Effects on undo} -setup {
+        ted order BSYSTEM:TOPIC:CREATE $T1
+        ted order BSYSTEM:TOPIC:DELETE tid T1
+    } -body {
+        ted notifier bind ::rdb <mam_topic>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <mam_topic> update T1}
+    }
+
+    #-------------------------------------------------------------------
+    # BSYSTEM:TOPIC:UPDATE
+
+    test TOPIC:UPDATE-1.1 {required parms} -body {
+        ted order -reject BSYSTEM:TOPIC:UPDATE {}
+    } -result {
+        tid {required value}
+    }
+
+    
+    test TOPIC:UPDATE-1.2 {invalid topic} -setup {
+        ted order BSYSTEM:TOPIC:CREATE $T1
+    } -body {
+        ted order -reject BSYSTEM:TOPIC:UPDATE tid NONESUCH title "New Title"
+    } -cleanup {
+        cleanup
+    } -result {
+        tid {Invalid topic, should be one of: T1}
+    }
+
+    test TOPIC:UPDATE-1.3 {invalid relevance} -setup {
+        ted order BSYSTEM:TOPIC:CREATE $T1
+    } -body {
+        ted order -reject BSYSTEM:TOPIC:UPDATE tid T1 relevance NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        relevance {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+
+    test TOPIC:UPDATE-2.1 {topic is updated} -setup {
+        ted order BSYSTEM:TOPIC:CREATE $T1
+    } -body {
+        ted order BSYSTEM:TOPIC:UPDATE \
+            tid T1 title "New Title" relevance no
+
+        ted query {SELECT * FROM mam_topic}
+    } -cleanup {
+        cleanup
+    } -result {
+tid title     relevance 
+--- --------- --------- 
+T1  New Title 0         
+    }
+
+    test TOPIC:UPDATE-2.2 {topic is updated} -setup {
+        ted order BSYSTEM:TOPIC:CREATE $T1
+    } -body {
+        ted notifier bind ::rdb <mam_topic>
+        ted order BSYSTEM:TOPIC:UPDATE \
+            tid T1 title "New Title" relevance no
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <mam_topic> update T1}
+        {::rdb <mam_topic> update T1}
+    }
+
+
+    test TOPIC:UPDATE-3.1 {undo effects} -setup {
+        ted order BSYSTEM:TOPIC:CREATE $T1
+        ted order BSYSTEM:TOPIC:UPDATE \
+            tid T1 title "New Title" relevance no
+    } -body {
+        ted notifier bind ::rdb <mam_topic>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <mam_topic> update T1}
+    }
+
+    #-------------------------------------------------------------------
+    # BSYSTEM:BELIEF:UPDATE
+
+    test BELIEF:UPDATE-1.1 {required parms} -body {
+        ted order -reject BSYSTEM:BELIEF:UPDATE {}
+    } -result {
+        id {required value}
+    }
+
+    test BELIEF:UPDATE-1.2 {invalid belief: entity} -body {
+        ted order -reject BSYSTEM:BELIEF:UPDATE \
+            id {NONESUCH NONESUCH} position 0.5 tolerance 0.7
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Invalid entity, none are defined}
+    }
+
+    test BELIEF:UPDATE-1.3 {invalid belief: topic} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject BSYSTEM:BELIEF:UPDATE \
+            id {JOE NONESUCH} position 0.5 tolerance 0.7
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Invalid topic, none are defined}
+    }
+
+    test BELIEF:UPDATE-1.4 {invalid position} -setup {
+        ted create JOE
+        ted order BSYSTEM:TOPIC:CREATE $T1
+    } -body {
+        ted order -reject BSYSTEM:BELIEF:UPDATE \
+            id {JOE T1} position NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        position {invalid value "NONESUCH", should be a real number in range -1.0, 1.0, or one of: P+, S+, W+, A, W-, S-, P-}
+    }
+
+    test BELIEF:UPDATE-1.5 {invalid tolerance} -setup {
+        ted create JOE
+        ted order BSYSTEM:TOPIC:CREATE $T1
+    } -body {
+        ted order -reject BSYSTEM:BELIEF:UPDATE \
+            id {JOE T1} tolerance NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        tolerance {invalid value "NONESUCH", should be a real number in range 0.0, 1.0, or one of: VT, T, B, I, VI}
+    }
+
+    test BELIEF:UPDATE-2.1 {belief is updated} -setup {
+        ted create JOE
+        ted order BSYSTEM:TOPIC:CREATE $T1
+    } -body {
+        ted order BSYSTEM:BELIEF:UPDATE \
+            id {JOE T1} position 0.1 tolerance 0.2
+
+        ted query {SELECT * FROM mam_belief}
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position tolerance 
+--- --- -------- --------- 
+JOE T1  0.1      0.2       
+    }
+
+    test BELIEF:UPDATE-2.2 {belief is monitored} -setup {
+        ted create JOE
+        ted order BSYSTEM:TOPIC:CREATE $T1
+    } -body {
+        ted notifier bind ::rdb <mam_belief>
+        ted order BSYSTEM:BELIEF:UPDATE \
+            id {JOE T1} position 0.1 tolerance 0.2
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <mam_belief> update {JOE T1}}
+        {::rdb <mam_belief> update {JOE T1}}
+    }
+
+
+    test BELIEF:UPDATE-3.1 {undo effects} -setup {
+        ted create JOE
+        ted order BSYSTEM:TOPIC:CREATE $T1
+        ted order BSYSTEM:BELIEF:UPDATE \
+            id {JOE T1} position 0.1 tolerance 0.2
+    } -body {
+        ted notifier bind ::rdb <mam_belief>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <mam_belief> update {JOE T1}}
+    }
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+

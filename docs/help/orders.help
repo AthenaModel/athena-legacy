@@ -528,6 +528,161 @@ order ATTRIT:UNIT "Magic Attrit Unit" {
 }
 
 #=======================================================================
+# Belief System Orders
+
+macro TOPIC.tid {} {
+    |<--
+    The ID of an existing topic.
+}
+
+macro TOPIC.title {} {
+    |<--
+    A human readable title that defines the topic.
+}
+
+macro TOPIC.relevance {} {
+    |<--
+    A boolean flag that indicates whether the topic is relevant or
+    not.  Irrelevant topics are omitted from the affinity
+    computations.<p>
+}
+
+page BSYSTEM: "Belief System Orders" orders {
+    <<title>>
+
+    Every <<term civgroup>> and every <<term actor>> has a 
+    <<term bsystem>>: a set of <<term position>>s on 
+    various <<term topic>>s. Athena computes the <<term affinity>>
+    between between pairs and groups and between groups and actors,
+    based on their agreements and disagreements with respect to their
+    belief systems. These orders are used to create and update belief
+    systems.<p>
+
+    <<childlinks>>
+}
+
+
+#-----------------------------------------------------------------------
+
+page BSYSTEM:TOPIC: "Topic Orders" BSYSTEM: {
+    <<title>>
+
+    Each <<term bsystem>> consists of a 
+    <<term group>> or <<term actor>>'s set of 
+    <<term position>>s on each of a set of <<term topic>>s.  These
+    orders are used to create, update, and delete topics.<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order BSYSTEM:TOPIC:CREATE "Create Belief System Topic" {
+    <<parmlist>>
+    <<parm tid "Topic ID">>
+    <b>Required.</b>  <<parm.identifier topic T1>>
+    <</parm>>
+
+    <<parm title "Title">>
+    <b>Required.</b> <<TOPIC.title>>
+    <</parm>>
+
+    <<parm relevance "Relevant?">>
+    <b>Required.</b> <<TOPIC.relevance>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order creates a
+    new <<term topic>>.
+}
+
+
+#-----------------------------------------------------------------------
+
+order BSYSTEM:TOPIC:DELETE "Delete Belief System Topic" {
+    <<parmlist>>
+
+    <<parm tid "Topic ID">>
+    <b>Required.</b>  <<TOPIC.tid>>
+    <</parm>>
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    belief system <<term topic>>, along with all beliefs
+    that depend upon it.<p>
+}
+
+#-----------------------------------------------------------------------
+
+order BSYSTEM:TOPIC:UPDATE "Update Belief System Topic" {
+    <<parmlist>>
+    <<parm tid "Select Topic">>
+    <b>Required.</b>  <<TOPIC.tid>>
+    <</parm>>
+
+    <<parm title "Title">>
+    <b>Optional.</b> <<TOPIC.title>>
+    <</parm>>
+
+    <<parm relevance "Relevant?">>
+    <b>Optional.</b> <<TOPIC.relevance>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    definition of an existing <<term topic>>.<p>
+}
+
+#-----------------------------------------------------------------------
+
+page BSYSTEM:BELIEF: "Belief Orders" BSYSTEM: {
+    <<title>>
+
+    Each <<term bsystem>> consists of a 
+    set of beliefs, each consisting of a 
+    <<term position>> and a <<term tolerance>> for disagreement.
+    Every <<term civgroup>> and <<term actor>> automatically has
+    a belief about every defined <<term topic>>.  The following
+    order is used to edit beliefs.<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order BSYSTEM:BELIEF:UPDATE "Update Belief" {
+    <<parmlist>>
+    <<parm id "Select Belief">>
+    <b>Required.</b>  A belief ID, which is an {<i>eid tid</i>} pair.
+    The <i>eid</i> is an entity ID: a <<term civgroup>> or 
+    <<term actor>> name.  The <i>tid</i> is a <<term topic>> ID.
+    <</parm>>
+
+    <<parm position "Position">>
+    <b>Optional.</b> The entity's <<term position>> on the topic, a
+    number from -1.0 to 1.0.  The symbolic constants defined in the
+    following table may also be used:<p>
+
+    <<::simlib::qposition html>>
+    <</parm>>
+
+    <<parm tolerance "Tolerance">>
+    <b>Optional.</b> The entity's <<term tolerance>> for disagreement
+    on the topic, a number from 0.0 to 1.0.  The symbolic constants 
+    defined in the following table may also be used:<p>
+
+    <<::simlib::qtolerance html>>
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<cref using.prep>> Only.</b>  This order modifies the
+    an existing belief in a <<term bsystem>>.<p>
+}
+
+#=======================================================================
 # Condition Orders
 
 page CONDITION: "Condition Orders" orders {

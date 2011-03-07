@@ -96,6 +96,7 @@ source [file join $::app_sim::library attroe.tcl             ]
 source [file join $::app_sim::library defroe.tcl             ]
 source [file join $::app_sim::library unit.tcl               ]
 source [file join $::app_sim::library mad.tcl                ]
+source [file join $::app_sim::library bsystem.tcl            ]
 
 # Non-GUI: Simulation
 source [file join $::app_sim::library sim.tcl                ]

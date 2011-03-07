@@ -1,0 +1,138 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-bsystem.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    bsystem(sim) tests.
+#
+#    This test suite tests the bsystem(sim) queries
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        array unset parms
+        ted cleanup
+    }
+
+
+    #-------------------------------------------------------------------
+    # topic validate
+
+    test topic_validate-1.1 {Invalid topic: none defined} -body {
+        bsystem topic validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid topic, none are defined}
+
+    test topic_validate-1.2 {Invalid topic: some defined} -setup {
+        bsystem topic add T1
+        bsystem topic add T2
+    } -body {
+        bsystem topic validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid topic, should be one of: T1, T2}
+
+    test topic_validate-2.1 {Valid topic} -setup {
+        bsystem topic add T1
+        bsystem topic add T2
+    } -body {
+        bsystem topic validate T1
+    } -cleanup {
+        cleanup
+    } -result {T1}
+
+    #-------------------------------------------------------------------
+    # belief validate
+
+    test belief_validate-1.1 {Invalid belief: no entities} -body {
+        bsystem belief validate {NONESUCH NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid entity, none are defined}
+
+    test belief_validate-1.2 {Invalid belief: invalid entity} -setup {
+        bsystem entity add JOE
+        bsystem entity add BOB
+    } -body {
+        bsystem belief validate {NONESUCH NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid entity, should be one of: BOB, JOE}
+
+
+    test belief_validate-1.3 {Invalid belief: no topic defined} -setup {
+        bsystem entity add JOE
+        bsystem entity add BOB
+    } -body {
+        bsystem belief validate {JOE NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid topic, none are defined}
+
+    test belief_validate-1.4 {Invalid belief, invalid topic} -setup {
+        bsystem entity add JOE
+        bsystem entity add BOB
+        bsystem topic add T1
+        bsystem topic add T2
+    } -body {
+        bsystem belief validate {JOE NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid topic, should be one of: T1, T2}
+
+    test belief_validate-2.1 {Valid belief} -setup {
+        bsystem entity add JOE
+        bsystem entity add BOB
+        bsystem topic add T1
+        bsystem topic add T2
+    } -body {
+        bsystem belief validate {JOE T1}
+    } -cleanup {
+        cleanup
+    } -result {JOE T1}
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

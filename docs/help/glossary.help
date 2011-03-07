@@ -68,6 +68,16 @@ term actor "actor" {
     the <<tabref Strategy>>.
 }
 
+#-----------------------------------------------------------------------
+
+term affinity "affinity" {
+    The affinity of one group or actor for another is a measure of the 
+    depth of feeling or support of the one for the other.  Affinity
+    is a number from +1.0 to -1.0; it is computed by comparing the
+    <<term bsystem>>s of the two entities, and is the basis for
+    group and group/actor relationships.<p>
+}
+
 
 #-----------------------------------------------------------------------
 
@@ -113,6 +123,20 @@ term bgerror "bgerror" {
     It is often wise to contact the development team with the bare
     fact of the error prior to gathering all of the information, in
     case it is a known problem.<p>
+}
+
+#-----------------------------------------------------------------------
+
+term bsystem "belief system" {
+    Every <<term civgroup>> and <<term actor>> has a belief system, which
+    is a set of beliefs with regard to a number of <<term topic>>s.  Each
+    belief consists of a <<term position>> for or against the topic,
+    along with a <<term tolerance>> for disagreement with that
+    position.<p>
+
+    Belief systems are used to compute <<term affinity affinities>>,
+    which in turn are the basis for group and group/actor 
+    relationships.<p>
 }
 
 #-----------------------------------------------------------------------
@@ -701,6 +725,28 @@ term playbox "playbox" {
 
 #-----------------------------------------------------------------------
 
+term position "position" {
+    A <<term civgroup>> or <<term actor>>'s belief about a 
+    <<term topic>> is represented as a position and a 
+    <<term tolerance>>.  The position is a number from 1.0 to
+    -1.0 that represents not only whether the entity is for or against
+    the topic, but also the strength of that position: the greater the
+    absolute magnitude of the number, the more likely the entity is to
+    take political action in support of its belief.  Note that
+    political action does not necessarily imply violent action.<p>
+
+  <b>Note:</b> the 
+    extreme values of -1.0 and 1.0 represent extreme pathological cases
+    and generally should not be used.<p>
+
+    Positions can be defined using the following symbolic
+    constants:<p>
+
+    <<::simlib::qposition html>>
+}
+
+#-----------------------------------------------------------------------
+
 term proximity "proximity" {
     The <i>proximity</i> of one <<term nbhood>> with another is
     expressed as one of the following four values, <b>HERE</b>, 
@@ -1007,6 +1053,51 @@ term timespec "time specification string" {
 
 term tock "tock" {
     See <<term tick>>.
+}
+
+#-----------------------------------------------------------------------
+
+term tolerance "tolerance" {
+    A <<term civgroup>> or <<term actor>>'s belief about a 
+    <<term topic>> is represented as a <<term position>> and a 
+    tolerance for disagreement.  The tolerance is a number from 0.0 to
+    1.0 that indicates the entity's tolerance for those who disagree
+    with the entity's position on the topic.  Lower tolerances
+    lead to lower <<term affinity affinities>>.<p>
+
+    <b>Note:</b> the 
+    extreme values of 0.0 and 1.0 represent extreme pathological cases
+    and generally should not be used.<p>
+
+    Note that a low tolerance for disagreement does not necessarily
+    imply political action, violent or otherwise, against those one
+    disagrees with, though it will certainly work against political
+    alliance.<p>
+
+    Tolerances can be defined using the following symbolic
+    constants:<p>
+
+    <<::simlib::qtolerance html>>
+}
+
+#-----------------------------------------------------------------------
+
+term topic "topic" {
+    A <<term civgroup>> or <<term actor>>'s <<term bsystem>> consists
+    of beliefs about a number of topics.  At its a base, a topic is
+    something which can drive people in the playbox to political
+    action: e.g., Shia Islam or the presence of the US forces in the
+    playbox.<p>
+
+    There are an unlimited number of topics in any given region of the
+    world.  Topics are of interest from Athena's point of view if 
+    feelings for or against the topic are strong enough to motivate 
+    political action, and if there is strong disagreement about the
+    topic among the groups and actors in the playbox.<p>
+
+    Topics must be stated globally, so that they mean the same thing
+    to all actors and groups.  For example, "I control the country" is
+    not a topic.  "Actor A controls the country", on the other hand, is.<p>
 }
 
 #-----------------------------------------------------------------------

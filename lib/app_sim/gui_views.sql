@@ -104,6 +104,15 @@ SELECT g                                             AS id,
 FROM groups JOIN orggroups USING (g);
 
 
+-- A belief system beliefs view for use by the GUI
+CREATE TEMPORARY VIEW gui_mam_belief AS
+SELECT eid || ' ' || tid    AS id,
+       eid                  AS eid,
+       tid                  AS tid,
+       position             AS position,
+       tolerance            AS tolerance
+FROM mam_belief;
+
 -- A personnel_ng view for use by the GUI.
 CREATE TEMPORARY VIEW gui_personnel_ng AS
 SELECT n || ' ' || g                                 AS id,
@@ -509,17 +518,17 @@ WHERE nbhoods.local;
 -- into it for each entity?
 
 CREATE TEMPORARY VIEW entities AS
-SELECT 'PLAYBOX' AS id, 'reserved' AS etype               UNION
-SELECT 'CIV'     AS id, 'reserved' AS etype               UNION
-SELECT 'FRC'     AS id, 'reserved' AS etype               UNION
-SELECT 'ORG'     AS id, 'reserved' AS etype               UNION
-SELECT 'ALL'     AS id, 'reserved' AS etype               UNION
-SELECT 'NONE'    AS id, 'reserved' AS etype               UNION
-SELECT n         AS id, 'nbhood'   AS etype FROM nbhoods  UNION
-SELECT a         AS id, 'actor'    AS etype FROM actors   UNION
-SELECT g         AS id, 'group'    AS etype FROM groups   UNION
-SELECT c         AS id, 'concern'  AS etype FROM concerns UNION
-SELECT a         AS id, 'activity' AS etype FROM activity UNION
-SELECT u         AS id, 'unit'     AS etype FROM units;
-
+SELECT 'PLAYBOX' AS id, 'reserved' AS etype                  UNION
+SELECT 'CIV'     AS id, 'reserved' AS etype                  UNION
+SELECT 'FRC'     AS id, 'reserved' AS etype                  UNION
+SELECT 'ORG'     AS id, 'reserved' AS etype                  UNION
+SELECT 'ALL'     AS id, 'reserved' AS etype                  UNION
+SELECT 'NONE'    AS id, 'reserved' AS etype                  UNION
+SELECT n         AS id, 'nbhood'   AS etype FROM nbhoods     UNION
+SELECT a         AS id, 'actor'    AS etype FROM actors      UNION
+SELECT g         AS id, 'group'    AS etype FROM groups      UNION
+SELECT c         AS id, 'concern'  AS etype FROM concerns    UNION
+SELECT a         AS id, 'activity' AS etype FROM activity    UNION
+SELECT u         AS id, 'unit'     AS etype FROM units       UNION
+SELECT tid       AS id, 'topic'    AS etype FROM mam_topic;
 

@@ -86,6 +86,9 @@ snit::type scenario {
         rdb monitor add gram_driver  {driver}
         rdb monitor add groups       {g}
         rdb monitor add mads         {id}
+        rdb monitor add mam_belief   {eid tid}
+        rdb monitor add mam_entity   {eid}
+        rdb monitor add mam_topic    {tid}
         rdb monitor add nbhoods      {n}
         rdb monitor add nbrel_mn     {m n}
         rdb monitor add orggroups    {g}
