@@ -11,6 +11,24 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.10, 8 March 2011</h3>
+
+This build contains a number of bug fixes and small GUI changes.<p>
+
+<ul>
+  <li> Bug 2637: athena_sim(1): Default values and range fields
+  <li> Bug 2696: GRAM bgerror on SIM:UNLOCK
+  <li> Bug 2818: athena_sim(1): export includes invalid orders after undo
+  <li> Bug 2839: Toggle Goal/Tactic State Does Not Work
+  <li> Bug 2840: Deleted Nbhood with a Tactic Bgerror
+  <li> Bug 2841: Replace "Ticks" With "Days"
+  <li> Bug 2842: Sim Unlock Bgerror
+  <li> Bug 2853: athena_sim(1): Use -context parameters in Strategy Browser orders
+  <li> Bug 2854: athena_sim(1): Remove multiple browser windows
+  <li> Bug 2855: athena_sim(1): Remove speed control
+  <li> Bug 2858: athean_sim(1): Belief System orders
+</ul>
+
 <h3>Build 3.0.9, 2 March 2011</h3>
 
 This build completes the process of exporting Athena infrastructure to
