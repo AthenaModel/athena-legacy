@@ -1,0 +1,120 @@
+<<manpage {projectgui(n) entitytree(n)} "Entity Tree Widget">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require projectgui 1.0
+namespace import ::projectgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+The entitytree(n) widget displays a tree of entities of different
+types (e.g., actors and groups).  Each entity is represented by its
+name, plus an icon that reflects its type.<p>
+
+Entity names are read from tables in an <<xref sqldocument(n)>>.
+The set of entities to be displayed in a single instance of
+entitytree(n) must have unique names.<p>
+
+<<section COMMANDS>>
+
+This module defines the following commands.<p>
+
+<<deflist commands>>
+
+<<defitem entitytree {entitytree <i>pathName</i> ?<i>options...</i>?}>>
+
+Creates a new <<iref entitytree>> widget named <i>pathName</i>, and
+returns <i>pathName</i>.  The widget supports the following
+options, in addition to those provided by the underlying frame widget:<p>
+
+<<deflist options>>
+
+<<defopt {-changecmd <i>command</i>}>>
+
+Specifies a <i>command</i> to be called
+whenever the selected entity changes, for any reason whatsoever
+(including explicit calls to <<iref set>>.  The newly selected
+entity's name is appended to the <i>command</i> as an argument.<p>
+
+<<defopt {-rdb <i>rdb</i>}>>
+
+<b>Read-only after creation.</b> Specifies the name of an
+<<xref sqldocument(n)>> that contains the tables that define the
+entities to display.<p>
+
+<</deflist options>>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+entitytree(n) widgets have the following subcommands:<p>
+
+<<deflist instance>>
+
+<<defitem add {<i>pathName</i> add <i>table key label icon</i>}>>
+
+Adds another entity type to the tree.  The entity type is defined
+by column <i>key</i> in <code>-rdb</code> table <i>table</i>.  The
+entity type folder will display the specified <i>label</i> text, and
+each entity of this type will be marked with the given <i>icon</i>,
+which must be the name of a Tk image.<p>
+
+<<defitem cget {<i>pathName</i> cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem configure {<i>pathName</i> configure <i>option value...</i>}>>
+
+Sets the value of one or more of the object's
+options.<p>
+
+<<defitem get {<i>pathName</i> get}>>
+
+Returns the name of the currently selected entity, or "" if none.<p>
+
+<<defitem refresh {<i>pathName</i> refresh}>>
+
+Causes the widget to reload the displayed entities from the
+<code>-rdb</code>.  Call this when the set of entities to display has
+changed.  Note that this call will not change the open/close state of
+the entity type folders, nor will it change the selected entity,
+unless the selected entity no longer exists.<p>
+
+<<defitem set {<i>pathName</i> set <i>name</i>}>>
+
+Selects the entity with the given <i>name</i>.  If <i>name</i> is
+unrecognized, or is the empty string, the selection is cleared.<p>
+
+Note that a sequence of calls to <<iref set>> with the same
+<i>name</i> will result in at most one call of the
+<code>-changecmd</code>.<p>
+
+<</deflist instance>>
+
+<<section ENVIRONMENT>>
+
+projectgui(n) requires Tcl 8.5 or later.
+
+To use projectgui(n) in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

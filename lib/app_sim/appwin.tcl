@@ -203,6 +203,12 @@ snit::widget appwin {
             script  { orggroupbrowser %W }
         }
 
+        bsystem {
+            label  "Beliefs"
+            parent groupst
+            script { bsystembrowser %W }
+        }
+
         rel {
             label   "Relationships"
             parent  groupst

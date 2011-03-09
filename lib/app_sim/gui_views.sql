@@ -103,15 +103,32 @@ SELECT g                                             AS id,
        demeanor                                      AS demeanor
 FROM groups JOIN orggroups USING (g);
 
+-- A belief system topics for use by the GUI
+CREATE TEMPORARY VIEW gui_mam_topic AS
+SELECT tid                                            AS id,
+       tid                                            AS tid,
+       title                                          AS title,
+       CASE relevance WHEN 1 THEN 'YES' ELSE 'NO' END AS relevance
+FROM mam_topic;
 
 -- A belief system beliefs view for use by the GUI
 CREATE TEMPORARY VIEW gui_mam_belief AS
-SELECT eid || ' ' || tid    AS id,
-       eid                  AS eid,
-       tid                  AS tid,
-       position             AS position,
-       tolerance            AS tolerance
+SELECT eid || ' ' || tid                AS id,
+       eid                              AS eid,
+       tid                              AS tid,
+       qposition('name',position)       AS position,
+       qtolerance('name',tolerance)     AS tolerance
 FROM mam_belief;
+
+-- An affinity comparison view
+CREATE TEMPORARY VIEW gui_mam_acompare AS
+SELECT id,
+       f,
+       g,
+       format("%4.1f", afg) AS afg,
+       format("%4.1f", agf) AS agf
+FROM mam_acompare_view;
+
 
 -- A personnel_ng view for use by the GUI.
 CREATE TEMPORARY VIEW gui_personnel_ng AS

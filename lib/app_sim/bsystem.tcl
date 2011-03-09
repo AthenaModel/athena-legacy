@@ -120,7 +120,9 @@ snit::type bsystem {
         upvar 1 parms parms
 
         foreach parm $names {
-            lappend result -$parm $parms($parm)
+            if {$parms($parm) ne ""} {
+                lappend result -$parm $parms($parm)
+            }
         }
 
         return $result
@@ -214,10 +216,9 @@ order define BSYSTEM:TOPIC:UPDATE {
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey tid *}
 
-    parm tid       key   "Select Topic" -table mam_topic -keys tid
+    parm tid       key   "Select Topic" -table gui_mam_topic -keys tid
     parm title     text  "Title"
-    parm relevance enum  "Relevant?"    -enumtype eyesno \
-                                        -defval   YES
+    parm relevance enum  "Relevant?"    -enumtype eyesno
 } {
     # FIRST, prepare the parameters
     prepare tid       -toupper    -required -type {bsystem topic}
@@ -250,8 +251,8 @@ order define BSYSTEM:BELIEF:UPDATE {
 } {
     # FIRST, prepare the parameters
     prepare id        -toupper -required -type {bsystem belief}
-    prepare position                     -type qposition
-    prepare tolerance                    -type qtolerance
+    prepare position  -type qposition  -xform {qposition value}
+    prepare tolerance -type qtolerance -xform {qtolerance value}
 
     returnOnError -final
 

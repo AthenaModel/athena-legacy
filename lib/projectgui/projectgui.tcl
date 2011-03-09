@@ -46,6 +46,7 @@ namespace eval ::projectgui:: {
 source [file join $::projectgui::library icons.tcl           ]
 source [file join $::projectgui::library zulufield.tcl       ]
 source [file join $::projectgui::library calpatternfield.tcl ]
+source [file join $::projectgui::library entitytree.tcl      ]
 
 
 

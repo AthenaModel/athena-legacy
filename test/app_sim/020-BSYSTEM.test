@@ -207,7 +207,22 @@ tid title     relevance
 T1  New Title 0         
     }
 
-    test TOPIC:UPDATE-2.2 {topic is updated} -setup {
+    test TOPIC:UPDATE-2.2 {Can update one parm} -setup {
+        ted order BSYSTEM:TOPIC:CREATE $T1
+    } -body {
+        ted order BSYSTEM:TOPIC:UPDATE \
+            tid T1 title "New Title"
+
+        ted query {SELECT * FROM mam_topic}
+    } -cleanup {
+        cleanup
+    } -result {
+tid title     relevance 
+--- --------- --------- 
+T1  New Title 1         
+    }
+
+    test TOPIC:UPDATE-2.3 {topic is updated} -setup {
         ted order BSYSTEM:TOPIC:CREATE $T1
     } -body {
         ted notifier bind ::rdb <mam_topic>
@@ -305,7 +320,23 @@ eid tid position tolerance
 JOE T1  0.1      0.2       
     }
 
-    test BELIEF:UPDATE-2.2 {belief is monitored} -setup {
+    test BELIEF:UPDATE-2.2 {symbols are OK} -setup {
+        ted create JOE
+        ted order BSYSTEM:TOPIC:CREATE $T1
+    } -body {
+        ted order BSYSTEM:BELIEF:UPDATE \
+            id {JOE T1} position P- tolerance VT
+
+        ted query {SELECT * FROM mam_belief}
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position tolerance 
+--- --- -------- --------- 
+JOE T1  -0.9     0.9       
+    }
+
+    test BELIEF:UPDATE-2.3 {belief is monitored} -setup {
         ted create JOE
         ted order BSYSTEM:TOPIC:CREATE $T1
     } -body {

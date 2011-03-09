@@ -152,7 +152,7 @@ snit::widgetadaptor actorbrowser {
         # FIRST, there should be only one selected.
         set id [lindex [$hull uid curselection] 0]
 
-        # NEXT, Pop up the dialog, and select this entity
+        # NEXT, Delete the entity
         order send gui ACTOR:DELETE a $id
     }
 }
