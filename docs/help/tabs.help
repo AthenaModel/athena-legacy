@@ -404,93 +404,9 @@ page tactics_tree "Tactics Tree" tabs/Strategy {
 }
 
 #=======================================================================
-# Plan Tab
+# Schedule Tab
 
-tab "Plan" {
-    The Plan tab is where the analyst plans out courses of action for
-    the next 1 to 3 month game turn.  Force and organization group force 
-    levels are entered on the <<tabref Plan/Force Levels>> tab, and 
-    activities are scheduled on the <<tabref Plan/Schedule>> tab.<p>
-
-    <<childlinks>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Plan/Force Levels" {
-    The Force Levels tab contains two panes, the Planned Force Level
-    Changes browser and the Current Force Level browser, and is where
-    the analyst views and edits current 
-    and future force levels for the force and organization groups.<p>
-
-    The Current Force Levels browser is simply a duplicate of the
-    information provided on the <<tabref Groups/Personnel>> tab, and
-    is provided here as a convenience.<p>
-
-    The Planned Force Level Changes browser lists any scheduled 
-    <<cref PERSONNEL:SET>> and <<cref PERSONNEL:ADJUST>> orders,
-    providing the analyst with a convenient way to browse the projected
-    force levels for a given neighborhood and group.  The browser's
-    controls are described  <<seebelow controls>>; the data fields are
-    as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Zulu">>The <<term zulu>> at which the order will execute.
-    <</topic>>
-
-    <<topic "Day">>The simulation <<term day>> on which the order will
-    execute.
-    <</topic>>
-
-    <<topic "Narrative">>A human-readable description of the order,
-    e.g., "Add 500 BLUE personnel to nbhood NB1".
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic {<img src="button_pencils">}>>
-    If a single row is selected, pops up the 
-    <<cref PERSONNEL:SET>> dialog for the selected neighborhood and
-    group.  Use the <b>Send</b> or <b>Send &amp; Close</b> button to
-    set the current force level; use the <b>Schedule</b> button to
-    schedule the order for some future date.
-    <</topic>>
-
-    <<topic {<img src="button_pencila">}>>
-    If a single row is selected, pops up the 
-    <<cref PERSONNEL:ADJUST>> dialog for the selected neighborhood and
-    group.  Use the <b>Send</b> or <b>Send &amp; Close</b> button to
-    adjust the current force level; use the <b>Schedule</b> button to
-    schedule the order for some future date.
-    <</topic>>
-
-    <<topic {<img src="button_x">}>>
-    If a single row is selected, cancels the scheduled order.
-    <</topic>>
-
-    <<topic {<img src="control_gfilter">}>>
-    Allows the analyst to filter the displayed orders by group.
-    <</topic>>
-
-    <<topic {<img src="control_infilter">}>>
-    Allows the analyst to filter the displayed orders by the neighborhood
-    in which the personnel will be stationed.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Plan/Schedule" {
+tab "Schedule" {
     The Schedule tab contains the Activity Schedule browser.  This is
     where the analyst schedules group activities and browses the
     current schedule.  The browser's
@@ -609,75 +525,6 @@ tab "Plan/Schedule" {
     <<control.headers>>
     <</topiclist>>
 }
-
-
-
-#=======================================================================
-# Units Tab
-
-tab "Units" {
-    The Units tab contains the Units Browser, which lists all Athena
-    <<term unit units>>.  The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic ID>>The unit's ID<</topic>>
-
-    <<topic CID>>The unit's Calendar ID: the ID of the schedule item
-    (shown on the <<tabref Plan/Schedule>> tab) for which this unit
-    was created.  Units representing unassigned personnel have a
-    CID of 0.<</topic>>
-
-    <<topic Group>>The name of the group to which the unit belongs.
-    <</topic>>
-
-    <<topic Origin>>The name of the unit's
-    neighborhood of origin, i.e., the neighborhood from which the unit's
-    personnel came.<</topic>>
-    
-    <<topic Nbhood>>The neighborhood in which the unit is 
-    located.  For unassigned personnel, this is always the neighborhood
-    of origin; for other units, it's the neighborhood of assignment.<</topic>>
-
-    <<topic Activity>>The activity to which the unit is currently
-    assigned.  See the Athena Rules Document for more on the effects
-    of assigning activities to units.<</topic>>
-
-    <<topic Personnel>>The number of personnel in the unit.<</topic>>
-
-    <<topic GType>>The unit's group type: <b>CIV</b>, <b>FRC</b>, or
-    <b>ORG</b><</topic>>
-    
-    <<topic Location>>The unit's current location on the map,
-    expressed as a <<term mapref>>.  Note that
-    the location is used for only one purpose: to allow
-    the units to be spread out on the map, so as to be easier to see.
-    <</topic>>
-
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic {<img src="button_axe">}>>
-    If a single unit is selected, pops up the
-    <<cref ATTRIT:UNIT>> dialog for the selected unit.
-    <</topic>>
-
-    <<topic {<img src="button_location">}>>
-    If a single unit is selected, pops up the
-    <<cref UNIT:MOVE>> dialog for the selected unit.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
 
 #=======================================================================
 # Neighborhoods Tab
@@ -800,6 +647,8 @@ tab "Neighborhoods/Neighborhoods" {
 #-----------------------------------------------------------------------
 
 tab "Neighborhoods/Relationships" {
+    <b>Scenario Mode Only.</b><p>
+
     This tab shows the relationship between pairs of
     <<cref NBREL: neighborhoods>>, as entered
     during <<cref using.prep>>.  The browser controls are described 
@@ -858,6 +707,8 @@ tab "Neighborhoods/Relationships" {
 #-----------------------------------------------------------------------
 
 tab "Neighborhoods/Security" {
+    <b>Simulation Mode Only.</b><p>
+
     This tab shows the <<term security>> of each group in each neighborhood.
     This browser is populated only after Athena leaves
     <<cref using.prep>>.  The browser controls are described 
@@ -931,6 +782,8 @@ tab "Neighborhoods/Security" {
 #-----------------------------------------------------------------------
 
 tab "Neighborhoods/Activity" {
+    <b>Simulation Mode Only.</b><p>
+
     This tab shows the coverage of the various activities assigned to
     units in the neighborhoods of the playbox.  All force units
     contribute to the <b>PRESENCE</b> activity of their group; in addition,
@@ -999,6 +852,8 @@ tab "Neighborhoods/Activity" {
 #-----------------------------------------------------------------------
 
 tab "Neighborhoods/ActSits" {
+    <b>Simulation Mode Only.</b><p>
+
     This tab shows the activity situations created in response to the
     activities listed in the <<tabref Neighborhoods/Activity>>.
     This browser is populated only
@@ -1082,6 +937,8 @@ tab "Neighborhoods/ActSits" {
 #-----------------------------------------------------------------------
 
 tab "Neighborhoods/DemSits" {
+    <b>Simulation Mode Only.</b><p>
+
     This tab shows the demographic situations created in response to 
     population effects. This browser is populated only
     after Athena leaves <<cref using.prep>>.  The browser controls are
@@ -1151,120 +1008,6 @@ tab "Neighborhoods/DemSits" {
     <b>Ended</b>.
     <li> <b>Current</b>: Situations which are currently <b>ACTIVE</b>
     or have <b>ENDED</b> during the last major
-    time step.
-    <li> <b>Ended</b>: Situations which have <b>ENDED</b>.
-    </ul>
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Neighborhoods/EnSits" {
-    This tab shows the environmental situations present in the
-    playbox.  The browser controls are
-    described <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "ID">>The ID of the situation.<</topic>>
-
-    <<topic "Change">>This field indicates the situations that changed
-    during the last major time step, and how they changed, i.e., were
-    they new, were they resolved, and so forth.
-    <</topic>>
-
-    <<topic "State">>The state of the situation, one of
-    <b>INITIAL</b>, <b>ACTIVE</b>, or <b>ENDED</b>.<p>
-
-    An <b>INITIAL</b> situation
-    has just been created; its attitude implications have not yet been
-    assessed.  <b>INITIAL</b> situations may be modified as desired,
-    and move from one neighborhood to another.<p>
-
-    An <b>ACTIVE</b> situation is currently affecting attitudes in the
-    neighborhood.<p>
-
-    An <b>ENDED</b> situation has been resolved.
-    <</topic>>
-
-    <<topic "Type">>The situation type.<</topic>>
-
-    <<topic "Nbhood">>The ID of the neighborhood in which the activity
-    is taking place.<</topic>>
-
-    <<topic "Location">>The location at which the situation is
-    displayed on the map.
-    <</topic>>
-
-    <<topic Coverage>>The coverage of the situation, as a number
-    between 0.0 and 1.0: the fraction of the neighborhood population
-    affected by the activity.
-    <</topic>>
-
-    <<topic "Began At">>The simulation time at which the situation
-    began to affect attitudes.
-    <</topic>>
-
-    <<topic "Changed At">>The simulation time at which the situation
-    last changed.
-    <</topic>>
-
-    <<topic "Caused By">>The group, if any, that caused the situation,
-    or <b>NONE</b>.
-    <</topic>>
-
-    <<topic "Resolved By">>The group, if any, that will automatically
-    resolve the situation at the scheduled resolution time, or <b>NONE</b>.
-    <</topic>>
-
-    <<topic "Resolve At">>The time at which the situation should be
-    automatically resolved.  Note that the analyst may resolve the 
-    situation manually prior to that time.
-    <</topic>>
-
-    <<topic "Driver">>The GRAM driver ID associated with the situation.
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic {<img src="button_plus">}>>
-    Pops up the <<cref ENSIT:CREATE>> dialog.
-    <</topic>>
-
-    <<topic {<img src="button_pencil">}>>
-    If a single <b>INITIAL</b> situation is selected, pops up the 
-    <<cref ENSIT:UPDATE>> dialog for
-    the selected situation.
-    <</topic>>
-
-    <<topic {<img src="button_check">}>>
-    If a single unresolved situation is selected, resolves it
-    using the <<cref ENSIT:RESOLVE>> order.
-    <</topic>>
-
-    <<topic {<img src="button_x">}>>
-    If a single <b>INITIAL</b> situation is selected, deletes it
-    using the <<cref ENSIT:DELETE>> order.
-    <</topic>>
-
-    <<topic {<img src="viewbox">}>>
-    The view box determines which set of entities is to be displayed.
-    The following sets may be selected from the pulldown:<p>
-
-    <ul>
-    <li> <b>All</b>: All situations, whether <b>Current</b> or
-    <b>Ended</b>.
-    <li> <b>Current</b>: Situations which are currently <b>INITIAL</b>
-    or <b>ACTIVE</b>, or have <b>ENDED</b> during the last major
     time step.
     <li> <b>Ended</b>: Situations which have <b>ENDED</b>.
     </ul>
@@ -1571,6 +1314,8 @@ tab "Groups/OrgGroups" {
 #-----------------------------------------------------------------------
 
 tab "Groups/Beliefs" {
+    <b>Scenario Mode Only.</b><p>
+
     This tab allows the user to edit the belief systems of the 
     actors and civilian groups.  The documentation is TBD.
 }
@@ -1578,6 +1323,8 @@ tab "Groups/Beliefs" {
 #-----------------------------------------------------------------------
 
 tab "Groups/Relationships" {
+    <b>Scenario Mode Only.</b><p>
+
     This tab shows the relationship between the various pairs of
     groups in the playbox.  Each row shows the relationship of 
     group F with group G from group F's point of view.<p>
@@ -1659,9 +1406,7 @@ tab "Groups/Relationships" {
 
 tab "Groups/Personnel" {
     This tab displays the personnel stationed in each neighborhood for
-    each force and organization group.  Although these values can be
-    edited from this tab, it is more usual to set force levels from
-    the <<tabref Plan/Force Levels>> tab.<p>
+    each force and organization group.<p>
     
     The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
@@ -1699,286 +1444,51 @@ tab "Groups/Personnel" {
     <</topiclist>>
 }
 
-#=======================================================================
-# ROE Tab
-
-tab "ROE" {
-    <<cref FRCGROUP: "Force groups">> will go into combat with each
-    other in a neighborhood based on the conditions in the
-    neighborhood and on their Rules of Engagement (ROEs).  (See the
-    <i>Athena Analyst's Guide</i> for full details on Athena's combat
-    and attrition model.)<p>
-
-    In Athena, a force group may be uniformed or non-uniformed; and
-    on this depends the kind of tactics that might be used by the
-    group.  In this version of Athena it is assumed that uniformed
-    force groups are primarily in conflict with non-uniformed force
-    groups, and <i>vice versa</i>.<p>
-
-    The subtabs of this tab list the ROEs of the various groups:<p>
-
-    <<childlinks>>
-}
-
 #-----------------------------------------------------------------------
+# Units Tab
 
-tab "ROE/Attack (Uniformed)" {
-    A uniformed force group will attack a non-uniformed force group in
-    a particular neighborhood only if it has been given an ROE that
-    allows it do so. (Note: the group might be allowed to attack but
-    still be unable to do so for other reasons.)  By default, no group
-    will attack any other group.<p>
+tab "Groups/Units" {
+    <b>Simulation Mode Only.</b><p>
 
-    To enable a uniformed force group to attack a particular
-    non-uniformed force group in a neighborhood, create an Attacking
-    ROE with the ROE value set to <b>ATTACK</b>.  To prevent it from
-    attacking, set the ROE value to <b>DO_NOT_ATTACK</b>, or delete
-    the ROE altogether.<p>
-
-    The browser controls are described <<seebelow controls>>; the data
-    fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Nbhood">>The neighborhood in which the uniformed group
-    will try to attack.
-    <</topic>>
-
-    <<topic "Attacker">>The name of the attacking group.<</topic>>
-    
-    <<topic "Attacked">>The name of the non-uniformed force group
-    being attacked.
-    <</topic>>
-
-    <<topic "ROE">>The ROE proper.<p>
-
-    If the ROE is <b>ATTACK</b> then
-    the attacker will attempt to hunt down and kill non-uniformed
-    cells belonging to the attacked group.<p>
-
-    If the ROE is <b>DO_NOT_ATTACK</b>, the attacker will never
-    attack.
-    <</topic>>
-    
-    <<topic "Coop. Limit">>Cooperation limit:  The cooperation of the
-    neighborhood with the attacking group must be at least this value,
-    or the attacker will not attempt to attack.  The value is a
-    symbol or real number from the following range:<p>
-
-    <<::simlib::qcooperation html>>
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic {<img src="button_plus">}>>
-    Pops up the <<cref ATTROE:UF:CREATE>> dialog.
-    <</topic>>
-
-    <<topic {<img src="button_pencil">}>>
-    If one or more rows are selected, pops up the 
-    <<cref ATTROE:UF:UPDATE>> or 
-    <<cref ATTROE:UF:UPDATE:MULTI>> dialog for
-    the selected row(s).
-    <</topic>>
-
-    <<topic {<img src="button_x">}>>
-    If a single row is selected, deletes it using the
-    <<cref ATTROE:DELETE>> order.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "ROE/Attack (Non-Uniformed)" {
-    A non-uniformed force group will attack a uniformed force group in
-    a particular neighborhood only if it has been given an ROE that
-    allows it do so. (Note: the group might be allowed to attack but
-    still be unable to do so for other reasons.)  By default, no group
-    will attack any other group.<p>
-
-    To enable a non-uniformed force group to attack a particular
-    uniformed force group in a neighborhood, create an Attacking
-    ROE with the ROE value set to <b>HIT_AND_RUN</b> or
-    <b>STAND_AND_FIGHT</b>.  To prevent it from 
-    attacking, set the ROE value to <b>DO_NOT_ATTACK</b>, or delete
-    the ROE altogether.<p>
-
-    The browser controls are described <<seebelow controls>>; the data
-    fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Nbhood">>The neighborhood in which the non-uniformed group
-    will try to attack.
-    <</topic>>
-
-    <<topic "Attacker">>The name of the attacking group.<</topic>>
-    
-    <<topic "Attacked">>The name of the uniformed force group
-    being attacked.
-    <</topic>>
-
-    <<topic "ROE">>The ROE proper.<p>
-
-    If the ROE is <b>HIT_AND_RUN</b> then
-    the attacker will attempt to nibble away at the uniformed group's
-    personnel while taking minimal casualties to itself.<p>
-
-    If the ROE is <b>STAND_AND_FIGHT</b> then
-    the attacker will expend its personnel in an attempt to kill as
-    many of the uniformed group's personnel as possible.<p>
-
-    If the ROE is <b>DO_NOT_ATTACK</b>, the attacker will never
-    attack.
-    <</topic>>
-    
-    <<topic "Coop. Limit">>Cooperation limit:  The cooperation of the
-    neighborhood with the attacking group must be at least this value,
-    or the attacker will not attempt to attack.  The value is a
-    symbol or real number from the following range:<p>
-
-    <<::simlib::qcooperation html>>
-    <</topic>>
-
-    <<topic "Attacks/Day">>The rate at which the non-uniformed group
-    would prefer to carry out attacks, in attacks per day.  Note the
-    actual rate depends on a number of additional factors.
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic {<img src="button_plus">}>>
-    Pops up the <<cref ATTROE:NF:CREATE>> dialog.
-    <</topic>>
-
-    <<topic {<img src="button_pencil">}>>
-    If one or more rows are selected, pops up the 
-    <<cref ATTROE:NF:UPDATE>> or 
-    <<cref ATTROE:NF:UPDATE:MULTI>> dialog for
-    the selected row(s).
-    <</topic>>
-
-    <<topic {<img src="button_x">}>>
-    If a single row is selected, deletes it using the
-    <<cref ATTROE:DELETE>> order.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "ROE/Defend" {
-    A uniformed force group's response to being attacked is determined
-    by its <<cref TACTIC:DEFEND: "Defending ROE">>.  
-    The choice of ROE affects the number of casualties to both the 
-    attacking group and civilian bystanders.<p>
-
-    The ROE is displayed in green if it has the default value, and
-    in red if it has been overridden by the <<cref TACTIC:DEFEND:>>.
-
-    The browser controls are described <<seebelow controls>>; the data
-    fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Nbhood">>The neighborhood in which the uniformed group
-    will be defending.
-    <</topic>>
-
-    <<topic "Group">>The name of the defending uniformed group.<</topic>>
-    
-    <<topic "ROE">>The ROE proper.<p>
-
-    If the ROE is <b>HOLD_FIRE</b> then
-    the group will never fire back at an attacker; no casualties will
-    be inflicted upon the attack, and there will be no civilian
-    collateral damage.<p>
-
-    If the ROE is <b>FIRE_BACK_IF_PRESSED</b>, the group will fire
-    back only if the attacker stands and fights.  In that case the
-    attacker will take casualties, and there will be civilian
-    collateral damage.<p>
-
-    If the ROE is <b>FIRE_BACK_IMMEDIATELY</b>, the group will always fire
-    back at the attacker.  The attacker will take casualties, and
-    there will be civilian collateral damage.
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-
-#=======================================================================
-# Demog
-
-tab "Demog" {
-    This tab displays the current demographics of the playbox.  It
-    has the following subtabs.<p>
-
-    <<childlinks>>
-}
-
-
-tab "Demog/Groups" {
-    This tab displays the current demographics of each neighborhood group.
-    The browser controls are described 
+    The Units tab contains the Units Browser, which lists all Athena
+    <<term unit units>>.  The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
     <<topiclist Column Description>>
 
-    <<topic Nbhood>>A neighborhood name.<</topic>>
+    <<topic ID>>The unit's ID<</topic>>
 
-    <<topic CivGroup>>The name of a civilian group that's resident in
-    the neighborhood.<</topic>>
+    <<topic CID>>The unit's Calendar ID: the ID of the schedule item
+    (shown on the <<tabref Schedule>> tab) for which this unit
+    was created.  Units representing unassigned personnel have a
+    CID of 0.<</topic>>
+
+    <<topic Group>>The name of the group to which the unit belongs.
+    <</topic>>
+
+    <<topic Origin>>The name of the unit's
+    neighborhood of origin, i.e., the neighborhood from which the unit's
+    personnel came.<</topic>>
     
-    <<topic "Local Name">>The local name of the group within the
-    neighborhood.
-    <</topic>>
+    <<topic Nbhood>>The neighborhood in which the unit is 
+    located.  For unassigned personnel, this is always the neighborhood
+    of origin; for other units, it's the neighborhood of assignment.<</topic>>
 
-    <<topic BasePop>>The base population of the group in the
-    neighborhood, i.e., the number of group members resident in the
-    neighborhood at time 0, as set by the 
-    <<cref CIVGROUP:CREATE>> order.<</topic>>
+    <<topic Activity>>The activity to which the unit is currently
+    assigned.  See the Athena Rules Document for more on the effects
+    of assigning activities to units.<</topic>>
+
+    <<topic Personnel>>The number of personnel in the unit.<</topic>>
+
+    <<topic GType>>The unit's group type: <b>CIV</b>, <b>FRC</b>, or
+    <b>ORG</b><</topic>>
     
-    <<topic CurrPop>>The current population of the group in the
-    neighborhood: the base population less displaced population and
-    attrition.
+    <<topic Location>>The unit's current location on the map,
+    expressed as a <<term mapref>>.  Note that
+    the location is used for only one purpose: to allow
+    the units to be spread out on the map, so as to be easier to see.
     <</topic>>
 
-    <<topic Displaced>>The displaced population of the group in the
-    neighborhood: those members of the base population who are
-    currently assigned to activities (e.g., <b>DISPLACED</b>) in other
-    neighborhoods.  Displaced personnel do not count toward the 
-    current population of this group in this neighborhood.
-    <</topic>>
-
-    <<topic Attrition>>The number of personnel lost to this 
-    civilian group through attrition since time 0.
-    <</topic>>
 
     <</topiclist>>
 
@@ -1987,243 +1497,20 @@ tab "Demog/Groups" {
 
     <<topiclist Control Description>>
 
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Demog/Nbhoods" {
-    This tab displays the current demographics of each neighborhood.
-    The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic Nbhood>>A neighborhood name.<</topic>>
-
-    <<topic "Local">>Whether the neighborhood is part of the local
-    region or not.  Neighborhoods outside the region do not
-    participate in the regional economy.
+    <<topic {<img src="button_axe">}>>
+    If a single unit is selected, pops up the
+    <<cref ATTRIT:UNIT>> dialog for the selected unit.
     <</topic>>
 
-    <<topic Population>>The current population of the neighborhood, 
-    including both resident civilian groups and displaced personnel.
-    <</topic>>
-    
-    <<topic Subsistence>>The number of people in the neighborhood that
-    support themselves by subsistence agriculture, and hence do not
-    participate in its regional economy.
-    <</topic>>
-
-    <<topic Consumers>>The number of people in the neighborhood that
-    consume goods and services, and hence <i>do</i>
-    participate in its regional economy,  including
-    both civilian groups and displaced personnel.
-    <</topic>>
-
-    <<topic LaborForce>>The number of people in the neighborhood that
-    seek paid employment (though they might not find it) including
-    both civilian groups and displaced personnel.
-    <</topic>>
-
-    <<topic Displaced>>The total personnel in units that are displaced
-    into this neighborhood from their neighborhood of origin.
-    <</topic>>
-
-    <<topic DispLF>>The number of people in displaced units in this
-    neighborhood that seek paid employment.
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#=======================================================================
-# Econ
-
-tab "Econ" {
-    The subtabs of the Econ tab display various data related to the 
-    Economics model.  The full set of subtabs is as follows:<p>
-
-    <<childlinks>>
-}
-
-tab "Econ/Overview" {
-    An overview of the economy.  Description TBD.
-}
-
-tab "Econ/Capacity" {
-    This tab displays the production capacity statistics for
-    each local neighborhood.  The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic ID>>A neighborhood ID.<</topic>>
-
-    <<topic "Neighborhood">>The neighborhood's long name.
-    <</topic>>
-
-    <<topic Urbanization>>The <<term urbanization>> of the neighborhood.
-    <</topic>>
-    
-    <<topic "Prod. Cap.">>The neighborhood's production capacity
-    factor, or PCF.
-    The production capacity of the neighborhood can be increased or
-    decreased by changing this number, which is nominally 1.0.
-    <</topic>>
-
-    <<topic "Cap. Cal.">>The calibration capacity factor, or CCF.
-    This figure represents the capacity of the neighborhood at time 0,
-    in goods baskets, given the PCF at time 0.
-    <</topic>>
-
-    <<topic "Cap at T0">>The production capacity at time 0, in 
-    goods baskets.
-    <</topic>>
-
-    <<topic "Cap Now">>The current production capacity, in goods baskets.
-    <</topic>>
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic {<img src="button_pencil">}>>
-    Pops up the <<cref ECON:UPDATE>> or <<cref ECON:UPDATE:MULTI>> dialog for
-    the selected neighborhood(s).
+    <<topic {<img src="button_location">}>>
+    If a single unit is selected, pops up the
+    <<cref UNIT:MOVE>> dialog for the selected unit.
     <</topic>>
 
     <<control.filterbox>>
     <<control.headers>>
     <</topiclist>>
 }
-
-
-tab "Econ/Population" {
-    This tab displays the economic statistics for the population
-    of each local neighborhood.  The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic ID>>A neighborhood ID.<</topic>>
-
-    <<topic "Neighborhood">>The neighborhood's long name.
-    <</topic>>
-
-    <<topic Population>>The current population of the neighborhood, 
-    including both resident civilian groups and displaced personnel.
-    <</topic>>
-    
-    <<topic Subsistence>>The number of people in the neighborhood that
-    support themselves by subsistence agriculture, and hence do not
-    participate in its regional economy.
-    <</topic>>
-
-    <<topic Consumers>>The number of people in the neighborhood that
-    consume goods and services, and hence <i>do</i>
-    participate in its regional economy,  including
-    both civilian groups and displaced personnel.
-    <</topic>>
-
-    <<topic LaborForce>>The number of people in the neighborhood that
-    seek paid employment (though they might not find it) including
-    both civilian groups and displaced personnel.
-    <</topic>>
-
-    <<topic Unemployed>>The total number of unemployed workers in the
-    neighborhood.
-    <</topic>>
-
-    <<topic UnempPerCap%>>The number of unemployed workers in the 
-    neighborhood, per capita (UPC), expressed as a percentage.
-    <</topic>>
-
-    <<topic UAFactor>>The neighborhood's unemployment attitude factor (UAF), 
-    a multiplier used in the UNEMP rule set.  It is computed from the UPC.
-    <</topic>>
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-tab "Econ/Groups" {
-    This tab displays the effect of the current economy on the
-    civiliand groups.  The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic CivGroup>>The name of a civilian group that's resident in
-    the neighborhood.<</topic>>
-    
-    <<topic "Long Name">>The local name of the group within the
-    neighborhood.
-    <</topic>>
-
-    <<topic Nbhood>>A neighborhood name.<</topic>>
-
-    <<topic Population>>The current population of the group in the
-    neighborhood.
-    <</topic>>
-
-    <<topic Subsist.>>The number of people in the group that support
-    themselves by subsistence agriculture, and hence do not
-    participate in the regional economy.
-    <</topic>>
-
-    <<topic Consumers>>The number of people in the group that consume
-    goods and services and hence 
-    <i>do</i> participate in the regional economy.
-    <</topic>>
-
-    <<topic LaborForce>>The number of people in the group that
-    seek paid employment (though they might not find it).
-    <</topic>>
-
-    <<topic Unemployed>>The number of unemployed workers in the group.
-    <</topic>>
-
-    <<topic UnempPerCap%>>The number of unemployed workers in the group, 
-    per capita (UPC), expressed as a percentage.
-    <</topic>>
-
-    <<topic UAFactor>>The group's unemployment attitude factor, a 
-    multiplier used in the UNEMP rule set.  It is computed from the UPC.
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
 
 
 #=======================================================================
@@ -2426,6 +1713,8 @@ tab "Attitudes/Cooperation" {
 #-----------------------------------------------------------------------
 
 tab "Attitudes/NbhoodCoop" {
+    <b>Simulation Mode Only.</b><p>
+
     This tab displays the cooperation of the residents of each
     neighborhood with each force group.  This data is not available 
     during <<cref using.prep>>, and so the tab is not populated with
@@ -2461,52 +1750,76 @@ tab "Attitudes/NbhoodCoop" {
     <</topiclist>>
 }
 
+
+#=======================================================================
+# ROE Tab
+
+tab "ROE" {
+    <<cref FRCGROUP: "Force groups">> will go into combat with each
+    other in a neighborhood based on the conditions in the
+    neighborhood and on their Rules of Engagement (ROEs).  (See the
+    <i>Athena Analyst's Guide</i> for full details on Athena's combat
+    and attrition model.)<p>
+
+    In Athena, a force group may be uniformed or non-uniformed; and
+    on this depends the kind of tactics that might be used by the
+    group.  In this version of Athena it is assumed that uniformed
+    force groups are primarily in conflict with non-uniformed force
+    groups, and <i>vice versa</i>.<p>
+
+    The subtabs of this tab list the ROEs of the various groups:<p>
+
+    <<childlinks>>
+}
+
 #-----------------------------------------------------------------------
 
-tab "Attitudes/Magic Attitude Drivers" {
-    Athena defines a number of drivers of attitude change, including
-    activity situations, environmental situations, and civilian
-    casualties.  It also allows the analyst to define their own
-    attitude drivers, with any desired affects.  Such drivers are
-    called <<cref MAD: "Magic Attitude Drivers">>, or "MADs".  This
-    tab lists the existing MADs.  The browser controls are
-    described <<seebelow controls>>; the data fields are as follows:<p>
+tab "ROE/Attack (Uniformed)" {
+    A uniformed force group will attack a non-uniformed force group in
+    a particular neighborhood only if it has been given an ROE that
+    allows it do so. (Note: the group might be allowed to attack but
+    still be unable to do so for other reasons.)  By default, no group
+    will attack any other group.<p>
+
+    To enable a uniformed force group to attack a particular
+    non-uniformed force group in a neighborhood, create an Attacking
+    ROE with the ROE value set to <b>ATTACK</b>.  To prevent it from
+    attacking, set the ROE value to <b>DO_NOT_ATTACK</b>, or delete
+    the ROE altogether.<p>
+
+    The browser controls are described <<seebelow controls>>; the data
+    fields are as follows:<p>
 
     <<topiclist Column Description>>
 
-    <<topic "ID">>The ID of the Magic Attitude Driver<</topic>>
-
-    <<topic "Description">>A short one-line description of the driver,
-    e.g., as a memory-jogger for the analyst.
+    <<topic "Nbhood">>The neighborhood in which the uniformed group
+    will try to attack.
     <</topic>>
 
-    <<topic "Cause">>The <<term cause>> associated with the driver.  Every
-    input to GRAM is associated with a cause; inputs with different
-    causes are independent of one another.  The cause may be any of
-    the causes supported by Athena's Driver Assessment Model rule
-    sets, or <b>UNIQUE</b>, indicating that this driver's effects are
-    independent of all other drivers.
+    <<topic "Attacker">>The name of the attacking group.<</topic>>
+    
+    <<topic "Attacked">>The name of the non-uniformed force group
+    being attacked.
     <</topic>>
 
-    <<topic "Near Factor (p)">>A GRAM input can have indirect effects
-    in <b>NEAR</b> neighborhoods.  The near factor is a real number
-    between 0.0 and 1.0 and determines the strength of these indirect
-    effects.  If 0.0, there will be no <b>NEAR</b> effects.
+    <<topic "ROE">>The ROE proper.<p>
+
+    If the ROE is <b>ATTACK</b> then
+    the attacker will attempt to hunt down and kill non-uniformed
+    cells belonging to the attacked group.<p>
+
+    If the ROE is <b>DO_NOT_ATTACK</b>, the attacker will never
+    attack.
+    <</topic>>
+    
+    <<topic "Coop. Limit">>Cooperation limit:  The cooperation of the
+    neighborhood with the attacking group must be at least this value,
+    or the attacker will not attempt to attack.  The value is a
+    symbol or real number from the following range:<p>
+
+    <<::simlib::qcooperation html>>
     <</topic>>
 
-    <<topic "Far Factor (q)">>A GRAM input can have indirect effects
-    in <b>FAR</b> neighborhoods.  The far factor is a real number
-    between 0.0 and 1.0 and determines the strength of these indirect
-    effects.  If 0.0, there will be no <b>FAR</b> effects.
-    <</topic>>
-
-    <<topic "Driver">>The GRAM Driver ID associated with this MAD, or
-    -1 during <<cref using.prep>>.  This is the number that appears in
-    the <<cref REPORT:DRIVER>>. <</topic>>
-
-    <<topic "Inputs">>The number of satisfaction and cooperation
-    inputs and adjustments associated with this MAD.
-    <</topic>>
     <</topiclist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's
@@ -2515,21 +1828,158 @@ tab "Attitudes/Magic Attitude Drivers" {
     <<topiclist Control Description>>
 
     <<topic {<img src="button_plus">}>>
-    Pops up the <<cref MAD:CREATE>> dialog.
+    Pops up the <<cref ATTROE:UF:CREATE>> dialog.
     <</topic>>
 
     <<topic {<img src="button_pencil">}>>
-    If a single row is selected, pops up the 
-    <<cref MAD:UPDATE>> dialog for
-    the selected row.
+    If one or more rows are selected, pops up the 
+    <<cref ATTROE:UF:UPDATE>> or 
+    <<cref ATTROE:UF:UPDATE:MULTI>> dialog for
+    the selected row(s).
     <</topic>>
 
     <<topic {<img src="button_x">}>>
-    If a single row is selected, deletes it
-    using the <<cref MAD:DELETE>> order.  Note that drivers with
-    associated inputs or adjustments cannot be deleted.
+    If a single row is selected, deletes it using the
+    <<cref ATTROE:DELETE>> order.
     <</topic>>
 
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "ROE/Attack (Non-Uniformed)" {
+    A non-uniformed force group will attack a uniformed force group in
+    a particular neighborhood only if it has been given an ROE that
+    allows it do so. (Note: the group might be allowed to attack but
+    still be unable to do so for other reasons.)  By default, no group
+    will attack any other group.<p>
+
+    To enable a non-uniformed force group to attack a particular
+    uniformed force group in a neighborhood, create an Attacking
+    ROE with the ROE value set to <b>HIT_AND_RUN</b> or
+    <b>STAND_AND_FIGHT</b>.  To prevent it from 
+    attacking, set the ROE value to <b>DO_NOT_ATTACK</b>, or delete
+    the ROE altogether.<p>
+
+    The browser controls are described <<seebelow controls>>; the data
+    fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Nbhood">>The neighborhood in which the non-uniformed group
+    will try to attack.
+    <</topic>>
+
+    <<topic "Attacker">>The name of the attacking group.<</topic>>
+    
+    <<topic "Attacked">>The name of the uniformed force group
+    being attacked.
+    <</topic>>
+
+    <<topic "ROE">>The ROE proper.<p>
+
+    If the ROE is <b>HIT_AND_RUN</b> then
+    the attacker will attempt to nibble away at the uniformed group's
+    personnel while taking minimal casualties to itself.<p>
+
+    If the ROE is <b>STAND_AND_FIGHT</b> then
+    the attacker will expend its personnel in an attempt to kill as
+    many of the uniformed group's personnel as possible.<p>
+
+    If the ROE is <b>DO_NOT_ATTACK</b>, the attacker will never
+    attack.
+    <</topic>>
+    
+    <<topic "Coop. Limit">>Cooperation limit:  The cooperation of the
+    neighborhood with the attacking group must be at least this value,
+    or the attacker will not attempt to attack.  The value is a
+    symbol or real number from the following range:<p>
+
+    <<::simlib::qcooperation html>>
+    <</topic>>
+
+    <<topic "Attacks/Day">>The rate at which the non-uniformed group
+    would prefer to carry out attacks, in attacks per day.  Note the
+    actual rate depends on a number of additional factors.
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_plus">}>>
+    Pops up the <<cref ATTROE:NF:CREATE>> dialog.
+    <</topic>>
+
+    <<topic {<img src="button_pencil">}>>
+    If one or more rows are selected, pops up the 
+    <<cref ATTROE:NF:UPDATE>> or 
+    <<cref ATTROE:NF:UPDATE:MULTI>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic {<img src="button_x">}>>
+    If a single row is selected, deletes it using the
+    <<cref ATTROE:DELETE>> order.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "ROE/Defend" {
+    <b>Simulation Mode only.</b><p>
+
+    A uniformed force group's response to being attacked is determined
+    by its <<cref TACTIC:DEFEND: "Defending ROE">>.  
+    The choice of ROE affects the number of casualties to both the 
+    attacking group and civilian bystanders.<p>
+
+    The ROE is displayed in green if it has the default value, and
+    in red if it has been overridden by the <<cref TACTIC:DEFEND:>>.
+
+    The browser controls are described <<seebelow controls>>; the data
+    fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Nbhood">>The neighborhood in which the uniformed group
+    will be defending.
+    <</topic>>
+
+    <<topic "Group">>The name of the defending uniformed group.<</topic>>
+    
+    <<topic "ROE">>The ROE proper.<p>
+
+    If the ROE is <b>HOLD_FIRE</b> then
+    the group will never fire back at an attacker; no casualties will
+    be inflicted upon the attack, and there will be no civilian
+    collateral damage.<p>
+
+    If the ROE is <b>FIRE_BACK_IF_PRESSED</b>, the group will fire
+    back only if the attacker stands and fights.  In that case the
+    attacker will take casualties, and there will be civilian
+    collateral damage.<p>
+
+    If the ROE is <b>FIRE_BACK_IMMEDIATELY</b>, the group will always fire
+    back at the attacker.  The attacker will take casualties, and
+    there will be civilian collateral damage.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
     <<control.filterbox>>
     <<control.headers>>
     <</topiclist>>
@@ -2537,58 +1987,63 @@ tab "Attitudes/Magic Attitude Drivers" {
 
 
 #=======================================================================
-# Orders
+# Demog
 
-tab "Orders" {
-    The subtabs of this tab are related to the <<term order>>s sent or 
-    scheduled by the user.  The full set of subtabs are as follows:
+tab "Demog" {
+    <b>Simulation Mode only.</b><p>
+
+    This tab displays the current demographics of the playbox.  It
+    has the following subtabs.<p>
 
     <<childlinks>>
 }
 
-#-----------------------------------------------------------------------
 
-tab "Orders/Scheduled" {
-    This tab shows the <<term order>>s that have been scheduled 
-    and are waiting to be executed.  The browser controls are
-    described <<seebelow controls>>; the data fields are as follows:<p>
+tab "Demog/Groups" {
+    <b>Simulation Mode only.</b><p>
+
+    This tab displays the current demographics of each neighborhood group.
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
 
     <<topiclist Column Description>>
 
-    <<topic "ID">>The ID of the scheduled order.<</topic>>
+    <<topic Nbhood>>A neighborhood name.<</topic>>
 
-    <<topic "Day">>The simulation <<term day>> on which the order will
-    execute.
+    <<topic CivGroup>>The name of a civilian group that's resident in
+    the neighborhood.<</topic>>
+    
+    <<topic "Local Name">>The local name of the group within the
+    neighborhood.
     <</topic>>
 
-    <<topic "Zulu">>The <<term zulu>> at which the order will execute.
+    <<topic BasePop>>The base population of the group in the
+    neighborhood, i.e., the number of group members resident in the
+    neighborhood at time 0, as set by the 
+    <<cref CIVGROUP:CREATE>> order.<</topic>>
+    
+    <<topic CurrPop>>The current population of the group in the
+    neighborhood: the base population less displaced population and
+    attrition.
     <</topic>>
 
-    <<topic "Narrative">>A human-readable description of the order.
-    Often this is just the order's title-string; in some cases, it
-    will describe the order's action in terms of its significant
-    parameters.
+    <<topic Displaced>>The displaced population of the group in the
+    neighborhood: those members of the base population who are
+    currently assigned to activities (e.g., <b>DISPLACED</b>) in other
+    neighborhoods.  Displaced personnel do not count toward the 
+    current population of this group in this neighborhood.
     <</topic>>
 
-    <<topic "Order">>The symbolic name of the order.  Symbolic names
-    are shown on each <<cref orders "order's help page">>.
+    <<topic Attrition>>The number of personnel lost to this 
+    civilian group through attrition since time 0.
     <</topic>>
 
-    <<topic "Parameters">>A list of the parameter names and values
-    entered by the user when the order was scheduled.  Symbolic
-    parameter names are shown on each <<cref orders "order's help page">>.
-    <</topic>>
     <</topiclist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's
     toolbar contains the following controls:<p>
 
     <<topiclist Control Description>>
-
-    <<topic {<img src="button_x">}>>
-    If a single order is selected, cancels it
-    using the <<cref ORDER:CANCEL>> order.
-    <</topic>>
 
     <<control.filterbox>>
     <<control.headers>>
@@ -2597,38 +2052,113 @@ tab "Orders/Scheduled" {
 
 #-----------------------------------------------------------------------
 
-tab "Orders/Sent" {
-    This tab shows the <<term order>>s that have been sent
-    interactively by the user.  The browser controls are
-    described <<seebelow controls>>; the data fields are as follows:<p>
+tab "Demog/Nbhoods" {
+    <b>Simulation Mode only.</b><p>
+
+    This tab displays the current demographics of each neighborhood.
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
 
     <<topiclist Column Description>>
 
-    <<topic "ID">>The ID of the sent order.<</topic>>
+    <<topic Nbhood>>A neighborhood name.<</topic>>
 
-    <<topic "Day">>The simulation <<term day>> on which the order was sent.
+    <<topic "Local">>Whether the neighborhood is part of the local
+    region or not.  Neighborhoods outside the region do not
+    participate in the regional economy.
     <</topic>>
 
-    <<topic "Zulu">>The <<term zulu>> at which the order was sent.
+    <<topic Population>>The current population of the neighborhood, 
+    including both resident civilian groups and displaced personnel.
+    <</topic>>
+    
+    <<topic Subsistence>>The number of people in the neighborhood that
+    support themselves by subsistence agriculture, and hence do not
+    participate in its regional economy.
     <</topic>>
 
-    <<topic "Undo">><b>Yes</b> if the order can be 
-    <<menuref Edit/Undo undone>>, and <b>No</b> otherwise.
+    <<topic Consumers>>The number of people in the neighborhood that
+    consume goods and services, and hence <i>do</i>
+    participate in its regional economy,  including
+    both civilian groups and displaced personnel.
     <</topic>>
 
-    <<topic "Narrative">>A human-readable description of the order.
-    Often this is just the order's title-string; in some cases, it
-    will describe the order's action in terms of its significant
-    parameters.
+    <<topic LaborForce>>The number of people in the neighborhood that
+    seek paid employment (though they might not find it) including
+    both civilian groups and displaced personnel.
     <</topic>>
 
-    <<topic "Order">>The symbolic name of the order.  Symbolic names
-    are shown on each <<cref orders "order's help page">>.
+    <<topic Displaced>>The total personnel in units that are displaced
+    into this neighborhood from their neighborhood of origin.
     <</topic>>
 
-    <<topic "Parameters">>A list of the parameter names and values
-    entered by the user when the order was sent.  Symbolic
-    parameter names are shown on each <<cref orders "order's help page">>.
+    <<topic DispLF>>The number of people in displaced units in this
+    neighborhood that seek paid employment.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#=======================================================================
+# Econ
+
+tab "Econ" {
+    <b>Simulation Mode only.</b><p>
+
+    The subtabs of the Econ tab display various data related to the 
+    Economics model.  The full set of subtabs is as follows:<p>
+
+    <<childlinks>>
+}
+
+tab "Econ/Overview" {
+    <b>Simulation Mode only.</b><p>
+
+    An overview of the economy.  Description TBD.
+}
+
+tab "Econ/Capacity" {
+    <b>Simulation Mode only.</b><p>
+
+    This tab displays the production capacity statistics for
+    each local neighborhood.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic ID>>A neighborhood ID.<</topic>>
+
+    <<topic "Neighborhood">>The neighborhood's long name.
+    <</topic>>
+
+    <<topic Urbanization>>The <<term urbanization>> of the neighborhood.
+    <</topic>>
+    
+    <<topic "Prod. Cap.">>The neighborhood's production capacity
+    factor, or PCF.
+    The production capacity of the neighborhood can be increased or
+    decreased by changing this number, which is nominally 1.0.
+    <</topic>>
+
+    <<topic "Cap. Cal.">>The calibration capacity factor, or CCF.
+    This figure represents the capacity of the neighborhood at time 0,
+    in goods baskets, given the PCF at time 0.
+    <</topic>>
+
+    <<topic "Cap at T0">>The production capacity at time 0, in 
+    goods baskets.
+    <</topic>>
+
+    <<topic "Cap Now">>The current production capacity, in goods baskets.
     <</topic>>
     <</topiclist>>
 
@@ -2636,6 +2166,129 @@ tab "Orders/Sent" {
     toolbar contains the following controls:<p>
 
     <<topiclist Control Description>>
+
+    <<topic {<img src="button_pencil">}>>
+    Pops up the <<cref ECON:UPDATE>> or <<cref ECON:UPDATE:MULTI>> dialog for
+    the selected neighborhood(s).
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+
+tab "Econ/Population" {
+    <b>Simulation Mode only.</b><p>
+
+    This tab displays the economic statistics for the population
+    of each local neighborhood.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic ID>>A neighborhood ID.<</topic>>
+
+    <<topic "Neighborhood">>The neighborhood's long name.
+    <</topic>>
+
+    <<topic Population>>The current population of the neighborhood, 
+    including both resident civilian groups and displaced personnel.
+    <</topic>>
+    
+    <<topic Subsistence>>The number of people in the neighborhood that
+    support themselves by subsistence agriculture, and hence do not
+    participate in its regional economy.
+    <</topic>>
+
+    <<topic Consumers>>The number of people in the neighborhood that
+    consume goods and services, and hence <i>do</i>
+    participate in its regional economy,  including
+    both civilian groups and displaced personnel.
+    <</topic>>
+
+    <<topic LaborForce>>The number of people in the neighborhood that
+    seek paid employment (though they might not find it) including
+    both civilian groups and displaced personnel.
+    <</topic>>
+
+    <<topic Unemployed>>The total number of unemployed workers in the
+    neighborhood.
+    <</topic>>
+
+    <<topic UnempPerCap%>>The number of unemployed workers in the 
+    neighborhood, per capita (UPC), expressed as a percentage.
+    <</topic>>
+
+    <<topic UAFactor>>The neighborhood's unemployment attitude factor (UAF), 
+    a multiplier used in the UNEMP rule set.  It is computed from the UPC.
+    <</topic>>
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+tab "Econ/Groups" {
+    <b>Simulation Mode only.</b><p>
+
+    This tab displays the effect of the current economy on the
+    civiliand groups.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic CivGroup>>The name of a civilian group that's resident in
+    the neighborhood.<</topic>>
+    
+    <<topic "Long Name">>The local name of the group within the
+    neighborhood.
+    <</topic>>
+
+    <<topic Nbhood>>A neighborhood name.<</topic>>
+
+    <<topic Population>>The current population of the group in the
+    neighborhood.
+    <</topic>>
+
+    <<topic Subsist.>>The number of people in the group that support
+    themselves by subsistence agriculture, and hence do not
+    participate in the regional economy.
+    <</topic>>
+
+    <<topic Consumers>>The number of people in the group that consume
+    goods and services and hence 
+    <i>do</i> participate in the regional economy.
+    <</topic>>
+
+    <<topic LaborForce>>The number of people in the group that
+    seek paid employment (though they might not find it).
+    <</topic>>
+
+    <<topic Unemployed>>The number of unemployed workers in the group.
+    <</topic>>
+
+    <<topic UnempPerCap%>>The number of unemployed workers in the group, 
+    per capita (UPC), expressed as a percentage.
+    <</topic>>
+
+    <<topic UAFactor>>The group's unemployment attitude factor, a 
+    multiplier used in the UNEMP rule set.  It is computed from the UPC.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
     <<control.filterbox>>
     <<control.headers>>
     <</topiclist>>
@@ -2645,6 +2298,8 @@ tab "Orders/Sent" {
 # Plots
 
 tab "Plots" {
+    <b>Simulation Mode only.</b><p>
+
     The Plots tab displays a vertical list of 
     <<cref plots.nbhood>>s and <<cref plots.time>>s, which are used to 
     plot <<cref var.n>> and <<cref var.t>> respectively.  Individual plots 
@@ -2847,9 +2502,128 @@ tab "Reports" {
 
 
 #=======================================================================
+# Orders
+
+tab "Orders" {
+    <b>This tab and its subtabs can be made visible by selecting the
+    <<menuref "View/Order History">> menu item.</b><p>
+
+    The subtabs of this tab are related to the <<term order>>s sent or 
+    scheduled by the user.  The full set of subtabs are as follows:
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Orders/Scheduled" {
+    <b>This tab can be made visible by selecting the
+    <<menuref "View/Order History">> menu item.</b><p>
+
+
+    This tab shows the <<term order>>s that have been scheduled 
+    and are waiting to be executed.  The browser controls are
+    described <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "ID">>The ID of the scheduled order.<</topic>>
+
+    <<topic "Day">>The simulation <<term day>> on which the order will
+    execute.
+    <</topic>>
+
+    <<topic "Zulu">>The <<term zulu>> at which the order will execute.
+    <</topic>>
+
+    <<topic "Narrative">>A human-readable description of the order.
+    Often this is just the order's title-string; in some cases, it
+    will describe the order's action in terms of its significant
+    parameters.
+    <</topic>>
+
+    <<topic "Order">>The symbolic name of the order.  Symbolic names
+    are shown on each <<cref orders "order's help page">>.
+    <</topic>>
+
+    <<topic "Parameters">>A list of the parameter names and values
+    entered by the user when the order was scheduled.  Symbolic
+    parameter names are shown on each <<cref orders "order's help page">>.
+    <</topic>>
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_x">}>>
+    If a single order is selected, cancels it
+    using the <<cref ORDER:CANCEL>> order.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Orders/Sent" {
+    <b>This tab can be made visible by selecting the
+    <<menuref "View/Order History">> menu item.</b><p>
+
+    This tab shows the <<term order>>s that have been sent
+    interactively by the user.  The browser controls are
+    described <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "ID">>The ID of the sent order.<</topic>>
+
+    <<topic "Day">>The simulation <<term day>> on which the order was sent.
+    <</topic>>
+
+    <<topic "Zulu">>The <<term zulu>> at which the order was sent.
+    <</topic>>
+
+    <<topic "Undo">><b>Yes</b> if the order can be 
+    <<menuref Edit/Undo undone>>, and <b>No</b> otherwise.
+    <</topic>>
+
+    <<topic "Narrative">>A human-readable description of the order.
+    Often this is just the order's title-string; in some cases, it
+    will describe the order's action in terms of its significant
+    parameters.
+    <</topic>>
+
+    <<topic "Order">>The symbolic name of the order.  Symbolic names
+    are shown on each <<cref orders "order's help page">>.
+    <</topic>>
+
+    <<topic "Parameters">>A list of the parameter names and values
+    entered by the user when the order was sent.  Symbolic
+    parameter names are shown on each <<cref orders "order's help page">>.
+    <</topic>>
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+
+#=======================================================================
 # Log
 
 tab "Log" {
+    <b>This tab and its subtabs can be made visible by selecting the
+    <<menuref "View/Scrolling Log">> menu item.</b><p>
+
     As Athena runs, it produces a detailed log of its operation.  This
     log is primarily intended for aid in debugging, but it can
     sometimes be useful to the user as well.  The Log tab gives access

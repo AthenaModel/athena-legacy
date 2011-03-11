@@ -55,11 +55,15 @@ snit::type app {
     #
     # Application command-line options.
     #
-    # -ignoreuser -  Boolean. If yes, ignore user preferences, etc.
+    # -dev        -  If 1, run in development mode (e.g., include 
+    #                debugging log in appwin)
+    #
+    # -ignoreuser -  If 1, ignore user preferences, etc.
     #                Used for testing.
 
     typevariable opts -array {
-        -ignoreuser no
+        -ignoreuser 0
+        -dev        0
     }
 
     #-------------------------------------------------------------------
@@ -96,8 +100,9 @@ snit::type app {
             set opt [lshift argv]
 
             switch -exact -- $opt {
+                -dev        -
                 -ignoreuser {
-                    set opts(-ignoreuser) yes
+                    set opts($opt) 1
                 }
                 
                 default {
@@ -234,16 +239,14 @@ snit::type app {
         # GUI components as application state changes.
         $type CreateStateControllers
         
-        # NEXT, Withdraw the default toplevel window, and create 
-        # the main GUI components.
+        # NEXT, Create the main window, and register it as a saveable.
+        # It does not, in fact, contain any scenario data; but this allows
+        # us to capture the user's "session" as part of the scenario file.
         wm withdraw .
-        appwin .main -main yes
+        appwin .main -dev $opts(-dev)
+        scenario register .main
 
-        # NEXT, set the icon for this and subsequent windows.
-        # TBD: Should this be done in appwin?
-        set icon [image create photo \
-                      -file [file join $::app_sim::library icon.png]]
-        wm iconphoto .main -default $icon
+
 
         # NEXT, log that we're up.
         log normal app "Athena [version]"
@@ -510,7 +513,7 @@ snit::type app {
     # Displays the application's command-line syntax.
     
     typemethod usage {} {
-        puts "Usage: athena sim ?-ignoreuser? ?scenario.adb?"
+        puts "Usage: athena sim ?-dev? ?-ignoreuser? ?scenario.adb?"
         puts ""
         puts "See athena_sim(1) for more information."
     }

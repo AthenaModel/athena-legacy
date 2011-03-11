@@ -97,10 +97,10 @@ model force "Force Analysis" ground {
 model activity "Group Activities" ground {
     The user can station force and organization <<term group>> personnel in
     <<term nbhood>>s by setting their force levels on the
-    <<tabref Plan/Force Levels>>.  Then, he can schedule
+    <<tabref Groups/Personnel>>.  Then, he can schedule
     and prioritize activities for these personnel 
     (and for resident civilians) on the
-    <<tabref Plan/Schedule>>.<p>
+    <<tabref Schedule>>.<p>
 
     Each <<term morning>>, the activities scheduled for the day are staffed
     in priority order from the available pool of personnel.  Athena
@@ -160,7 +160,7 @@ model aam "Athena Attrition Model" ground {
 
     The decrease in personnel resulting from attrition
     can be seen in the <<tabref Map>>, the 
-    <<tabref Plan/Force Levels>>, the <<tabref Units>>, and the
+    <<tabref Groups/Personnel>>, the <<tabref Groups/Units>>, and the
     <<tabref Demog>>.<p>
 
     The Athena Attrition Model

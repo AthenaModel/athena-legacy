@@ -47,7 +47,7 @@ macro term.header {} {
 term activity "activity" {
     An <i>activity</i> is an action that a <<term group>> can
     perform in a <<term nbhood>>.  Activities are scheduled on the
-    <<tabref Plan/Schedule>> and are staffed from available personnel
+    <<tabref Schedule>> and are staffed from available personnel
     each <<term morning>>.  Personnel assigned to an activity
     appear as a <<term unit>> on the <<tabref Map>>; the unit is said to 
     perform the activity. There are different sets of activities for the
@@ -438,10 +438,7 @@ term ensit "environmental situation" {
     is meaningless.<p>
 
     Environmental situations can be created and positioned using the 
-    controls on the <<tabref Map>>; the full set of situations
-    can browsed and edited on the 
-    <<tabref Neighborhoods/EnSits>>, using the 
-    <<cref ENSIT:>>.  
+    controls on the <<tabref Map>>.  
 }
 
 #-----------------------------------------------------------------------
@@ -531,8 +528,8 @@ term frcgroup "force group" {
     <<tabref Groups/FrcGroups>>, and manipulated using the
     <<cref FRCGROUP:>>.  In order to apply force, force group
     personnel must be assigned to neighborhoods on the 
-    <<tabref Plan/Force Levels>> and assigned to
-    <<term activity "activities">> on the <<tabref Plan/Schedule>>.
+    <<tabref Groups/Personnel>> and assigned to
+    <<term activity "activities">> on the <<tabref Schedule>>.
 }
 
 #-----------------------------------------------------------------------
@@ -600,9 +597,6 @@ term mad "magic attitude driver" {
     <<term driver>> (event or situation) defined by the user; it
     affects attitudes in any way the user determines, via the 
     <<cref MAD:>>.<p>
-
-    Browse, create, and edit MADs on the 
-    <<tabref Attitudes/Magic Attitude Drivers>>.
 }
 
 
@@ -1138,7 +1132,7 @@ term unit "unit" {
 
     Units can be positioned using the controls on the
     <<tabref Map>>.  The full set of units can browsed
-    and edited on the <<tabref Units>>, using the <<cref UNIT:>>.<p>
+    and edited on the <<tabref Groups/Units>>, using the <<cref UNIT:>>.<p>
 }
 
 #-----------------------------------------------------------------------

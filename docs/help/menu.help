@@ -257,10 +257,42 @@ menuitem "Edit/Select All" {
 # View Menu
 
 menu "View" {
-    There is a menu item on this menu and its sub-menus for each of
-    Athena's browser <<cref tabs tabs>>.  Selecting a menu item makes
-    the associated tab visible.
+    This menu is used to control the content visible in the main 
+    application window.  In additional to the menu items listed 
+    below, there are menu items for each of the tabs currently available
+    in the window; selecting a tab's menu item makes
+    the associated tab visible.<p>
+
+    <<childlinks>>
 }
+
+menuitem "View/Scenario" {
+    Selecting this item puts the main window in "Scenario" mode; the 
+    window contains the tabs needed to create and edit Athena scenarios.
+    By default, the window is in "Scenario" mode whenever the scenario
+    is unlocked.
+}
+
+menuitem "View/Simulation" {
+    Selecting this item puts the main window in "Simulation" mode; the 
+    window contains the tabs needed when running the simulation and examining
+    the results.  By default, the window is in "Simulation" mode whenever 
+    the scenario is locked.
+}
+
+menuitem "View/Order History" {
+    Selecting this item shows or hides the <<tabref Orders>>.
+}
+
+menuitem "View/Scrolling Log" {
+    Selecting this item shows or hides the <<tabref Log>>.
+}
+
+menuitem "View/Command Line" {
+    Selecting this item shows or hides the <<cref using.cli>>.
+}
+
+
 
 #=======================================================================
 # Orders Menu

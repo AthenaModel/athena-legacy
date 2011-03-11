@@ -49,7 +49,11 @@ snit::widget appwin {
     #-------------------------------------------------------------------
     # Components
 
+    component reloader              ;# timeout(n) that reloads content
     component editmenu              ;# The Edit menu
+    component viewmenu              ;# The View menu
+    component toolbar               ;# The main toolbar
+    component simtools              ;# The simulation controls
     component cli                   ;# The cli(n) pane
     component msgline               ;# The messageline(n)
     component content               ;# The content notebook
@@ -61,14 +65,12 @@ snit::widget appwin {
 
     delegate option * to hull
 
-    # -main flag
+    # -dev flag
     #
-    # If "yes", this is the main application window.  Otherwise,
-    # this is just a browser window. This may affect the components, 
-    # the menus, and so forth.
-    
-    option -main      \
-        -default  no  \
+    # If true, display the development tabs.  Otherwise not.
+
+    option -dev \
+        -default  0   \
         -readonly yes
 
     #-------------------------------------------------------------------
@@ -76,296 +78,311 @@ snit::widget appwin {
 
     # Dictionary of tabs to be created.
     #
-    #    label     The tab text
-    #
-    #    parent    The tag of the parent tab, or "" if this is a top-level
-    #              tab.
-    #
-    #    script    Widget command (and options) to create the tab.
-    #              "%W" is replaced with the name of the widget contained
-    #              in the new tab.  For tabs containing notebooks, the
-    #              script is "".
-    #
-    #    tabwin    Once the tab is created, its window.
+    # label   - The tab text
+    # vistype - The tab's visibility type.  See "visibility", below.
+    # parent  - The tag of the parent tab, or "" if this is a top-level
+    #           tab.
+    # script  - Widget command (and options) to create the tab.
+    #           "%W" is replaced with the name of the widget contained
+    #           in the new tab.  For tabs containing notebooks, the
+    #           script is "".
+    # tabwin  - Once the tab is created, its window.
 
     variable tabs {
         viewer {
-            label "Map"
-            parent ""
-            script { mapviewer %W -width 600 -height 400 }
+            label   "Map"
+            vistype *
+            parent  ""
+            script  { mapviewer %W -width 600 -height 400 }
         }
 
         strategy {
-            label "Strategy"
-            parent ""
-            script { strategybrowser %W }
-        }
-
-        plant {
-            label "Plan"
-            parent ""
-            script ""
-        }
-
-        planforce {
-            label "Force Levels"
-            parent plant
-            script { planforcebrowser %W }
+            label   "Strategy"
+            vistype *
+            parent  ""
+            script  { strategybrowser %W }
         }
 
         schedule {
-            label "Schedule"
-            parent plant
-            script { schedulebrowser %W }
-        }
-
-        units {
-            label   "Units"
+            label   "Schedule"
+            vistype *
             parent  ""
-            script  { unitbrowser %W }
+            script  { schedulebrowser %W }
         }
 
         nbhoodst {
             label   "Neighborhoods"
+            vistype *
             parent  ""
             script  ""
         }
 
         nbhoods {
             label   "Neighborhoods"
+            vistype *
             parent  nbhoodst
             script  { nbhoodbrowser %W }
         }
 
         nbrel {
             label   "Relationships"
+            vistype scenario
             parent  nbhoodst
             script  { nbrelbrowser %W }
         }
 
         security {
             label   "Security"
+            vistype simulation
             parent  nbhoodst
             script  { securitybrowser %W }
         }
 
         activity {
             label   "Activity"
+            vistype simulation
             parent  nbhoodst
             script  { activitybrowser %W }
         }
 
         actsit {
             label   "ActSits"
+            vistype simulation
             parent  nbhoodst
             script  { actsitbrowser %W }
         }
 
         demsit {
             label   "DemSits"
+            vistype simulation
             parent  nbhoodst
             script  { demsitbrowser %W }
         }
 
-        ensit {
-            label   "EnSits"
-            parent  nbhoodst
-            script  { ensitbrowser %W }
-        }
-
         groupst {
             label   "Groups"
+            vistype *
             parent  ""
             script  ""
         }
 
         actors {
             label   "Actors"
+            vistype *
             parent  groupst
             script  { actorbrowser %W }
         }
 
         civgroups {
             label   "CivGroups"
+            vistype *
             parent  groupst
             script  { civgroupbrowser %W }
         }
 
         frcgroups {
             label   "FrcGroups"
+            vistype *
             parent  groupst
             script  { frcgroupbrowser %W }
         }
 
         orggroups {
             label   "OrgGroups"
+            vistype *
             parent  groupst
             script  { orggroupbrowser %W }
         }
 
         bsystem {
-            label  "Beliefs"
-            parent groupst
-            script { bsystembrowser %W }
+            label   "Beliefs"
+            vistype scenario
+            parent  groupst
+            script  { bsystembrowser %W }
         }
 
         rel {
             label   "Relationships"
+            vistype scenario
             parent  groupst
             script  { relbrowser %W }
         }
 
         personnel {
             label   "Personnel"
+            vistype *
             parent  groupst
             script  { personnelbrowser %W }
         }
 
-        roet {
-            label  "ROE"
-            parent ""
-            script ""
-        }
-
-        attroeuf {
-            label  "Attack (Uniformed)"
-            parent roet
-            script { attroeufbrowser %W }
-        }
-
-        attroenf {
-            label  "Attack (Non-Uniformed)"
-            parent roet
-            script { attroenfbrowser %W }
-        }
-
-        defroe {
-            label  "Defend"
-            parent roet
-            script { defroebrowser %W }
-        }
-
-        demogt {
-            label "Demog"
-            parent ""
-            script ""
-        }
-
-        demogg {
-            label  "Groups"
-            parent "demogt"
-            script { demogbrowser %W }
-        }
-
-        demogn {
-            label  "Nbhoods"
-            parent "demogt"
-            script { demognbrowser %W }
-        }
-
-        econt {
-            label  "Econ"
-            parent ""
-            script ""
-        }
-
-        econov {
-            label  "Overview"
-            parent "econt"
-            script { econsheet %W }
-        }
-
-        econcap {
-            label  "Capacity"
-            parent "econt"
-            script { econcapbrowser %W }
-        }
-
-        econpop {
-            label  "Population"
-            parent "econt"
-            script { econpopbrowser %W }
-        }
-
-        econg {
-            label  "Groups"
-            parent "econt"
-            script { econngbrowser %W }
+        units {
+            label   "Units"
+            vistype simulation
+            parent  groupst
+            script  { unitbrowser %W }
         }
 
         gramt {
-            label  "Attitudes"
-            parent ""
-            script ""
+            label   "Attitudes"
+            vistype *
+            parent  ""
+            script  ""
         }
 
         sat {
-            label "Satisfaction"
-            parent gramt
-            script { satbrowser %W }
+            label   "Satisfaction"
+            vistype *
+            parent  gramt
+            script  { satbrowser %W }
         }
 
         coop {
-            label "Cooperation"
-            parent gramt
-            script { coopbrowser %W }
+            label   "Cooperation"
+            vistype *
+            parent  gramt
+            script  { coopbrowser %W }
         }
 
         nbcoop {
-            label "NbhoodCoop"
-            parent gramt
-            script { nbcoopbrowser %W }
+            label   "NbhoodCoop"
+            vistype simulation
+            parent  gramt
+            script  { nbcoopbrowser %W }
         }
 
-        mads {
-            label "Magic Attitude Drivers"
-            parent gramt
-            script {madbrowser %W}
+        roet {
+            label   "ROE"
+            vistype *
+            parent  ""
+            script  ""
         }
 
-        orderst {
-            label "Orders"
-            parent ""
-            script ""
+        attroeuf {
+            label   "Attack (Uniformed)"
+            vistype *
+            parent  roet
+            script  { attroeufbrowser %W }
         }
 
-        ordsched {
-            label  "Scheduled"
-            parent orderst
-            script { 
-                orderbrowser %W
-            }
+        attroenf {
+            label   "Attack (Non-Uniformed)"
+            vistype *
+            parent  roet
+            script  { attroenfbrowser %W }
         }
 
-        ordhist {
-            label  "Sent"
-            parent orderst
-            script { 
-                ordersentbrowser %W
-            }
+        defroe {
+            label   "Defend"
+            vistype simulation
+            parent  roet
+            script  { defroebrowser %W }
+        }
+
+        demogt {
+            label   "Demog"
+            vistype simulation
+            parent  ""
+            script  ""
+        }
+
+        demogg {
+            label   "Groups"
+            vistype simulation
+            parent  "demogt"
+            script  { demogbrowser %W }
+        }
+
+        demogn {
+            label   "Nbhoods"
+            vistype simulation
+            parent  "demogt"
+            script  { demognbrowser %W }
+        }
+
+        econt {
+            label   "Econ"
+            vistype simulation
+            parent  ""
+            script  ""
+        }
+
+        econov {
+            vistype simulation
+            label   "Overview"
+            parent  "econt"
+            script  { econsheet %W }
+        }
+
+        econcap {
+            label   "Capacity"
+            vistype simulation
+            parent  "econt"
+            script  { econcapbrowser %W }
+        }
+
+        econpop {
+            label   "Population"
+            vistype simulation
+            parent  "econt"
+            script  { econpopbrowser %W }
+        }
+
+        econg {
+            label   "Groups"
+            vistype simulation
+            parent  "econt"
+            script  { econngbrowser %W }
         }
 
         plot {
-            label  "Plots"
-            parent ""
-            script { 
+            label   "Plots"
+            vistype simulation
+            parent  ""
+            script  { 
                 plotviewer %W
             }
         }
 
         report {
-            label  "Reports"
-            parent ""
-            script { 
+            label   "Reports"
+            vistype *
+            parent  ""
+            script  { 
                 reportbrowser %W -db ::rdb
                 %W refresh
             }
         }
 
+        orderst {
+            label   "Orders"
+            vistype orders
+            parent  ""
+            script  ""
+        }
+
+        ordsched {
+            label   "Scheduled"
+            vistype orders
+            parent  orderst
+            script  { 
+                orderbrowser %W
+            }
+        }
+
+        ordhist {
+            label   "Sent"
+            vistype orders
+            parent  orderst
+            script  { 
+                ordersentbrowser %W
+            }
+        }
+
         slog {
-            label  "Log"
-            parent ""
-            script {
+            label   "Log"
+            vistype slog
+            parent  ""
+            script  {
                 scrollinglog %W \
                     -relief        flat                \
                     -height        20                  \
@@ -387,16 +404,46 @@ snit::widget appwin {
 
     # Status info
     #
+    # mode        Window mode, scenario or simulation
+    # tab-$mode   Tab last displayed in the specified mode.
+    # tabs        Dict, tab names by tab window
     # simstate    Current simulation state
     # tick        Current sim time as a four-digit tick (a day)
     # zulutime    Current sim time as a zulu time string
     # dayofweek   Day of week (edayname value)      
 
     variable info -array {
-        simstate  ""
-        tick      "0000"
-        zulutime  ""
-        dayofweek "??"
+        mode           scenario
+        tab-scenario   viewer
+        tab-simulation viewer
+        tabs           {}
+        simstate       ""
+        tick           "0000"
+        zulutime       ""
+        dayofweek      "??"
+    }
+
+    # Visibility Array: this array determines whether or not various 
+    # components are visible in the window.  The key is a "visibility
+    # type", or "vistype"; components with the same vistype are visible
+    # or hidden together.
+    #
+    # *          - Used to tag tabs that are always visible.
+    # scenario   - Visible in scenario mode
+    # simulation - Visible in simulation mode
+    # orders     - Order tabs; visible in -dev mode or on request.
+    # slog       - Scrolling log; visible in -dev mode, on request, or
+    #              on error.
+    # cli        - Command-line Interface; visible in -dev mode or on
+    #              request.
+
+    variable visibility -array {
+        *           1
+        scenario    1
+        simulation  0
+        orders      0
+        slog        0
+        cli         0
     }
 
     #-------------------------------------------------------------------
@@ -406,17 +453,27 @@ snit::widget appwin {
         # FIRST, get the options
         $self configurelist $args
 
-        # NEXT, set the default window title
-        wm title $win "Untitled - Athena [version]"
+        # FIRST, create the timeout controlling reload requests.
+        install reloader using timeout ${selfns}::reloader \
+            -command    [mymethod ReloadContent]           \
+            -interval   1                                  \
+            -repetition no
 
-        # NEXT, Exit the app when this window is closed, if it's a 
-        # main window.
-        if {$options(-main)} {
-            wm protocol $win WM_DELETE_WINDOW [mymethod FileExit]
-        }
+        # NEXT, enable the development tabs
+        set visibility(orders) $options(-dev)
+        set visibility(slog)   $options(-dev)
+        set visibility(cli)    $options(-dev)
+
+        # NEXT, Exit the app when this window is closed.
+        wm protocol $win WM_DELETE_WINDOW [mymethod FileExit]
+
+        # NEXT, set the icon for this and subsequent windows.
+        set icon [image create photo \
+                      -file [file join $::app_sim::library icon.png]]
+        wm iconphoto $win -default $icon
 
         # NEXT, Allow the developer to pop up the debugger.
-        bind $win <Control-F12> [list debugger new]
+        bind all <Control-F12> [list debugger new]
 
         # NEXT, Create the major window components
         $self CreateMenuBar
@@ -431,30 +488,21 @@ snit::widget appwin {
         grid propagate $win off
 
         # NEXT, Prepare to receive notifier events.
-        notifier bind ::sim      <DbSyncB>       $self [mymethod DbSync]
-        notifier bind ::scenario <ScenarioSaved> $self [mymethod DbSync]
+        notifier bind ::sim      <DbSyncB>       $self [mymethod reload]
+        notifier bind ::scenario <ScenarioSaved> $self [mymethod reload]
         notifier bind ::sim      <State>         $self [mymethod SimState]
         notifier bind ::sim      <Time>          $self [mymethod SimTime]
-
-        if {$options(-main)} {
-            notifier bind ::app <Prefs> $self [mymethod AppPrefs]
-        }
+        notifier bind ::app      <Prefs>         $self [mymethod AppPrefs]
 
         # NEXT, Prepare to receive window events
-        bind $content <<NotebookTabChanged>> [mymethod DbSync]
-
         bind $viewer <<Unit-1>>       [mymethod Unit-1   %d]
         bind $viewer <<Ensit-1>>      [mymethod Ensit-1  %d]
         bind $viewer <<Nbhood-1>>     [mymethod Nbhood-1 %d]
 
-        # NEXT, prepare to append pucked points, etc., to the CLI
-        if {$options(-main)} {
-            bind $viewer <<Point-1>>      [mymethod Point-1      %d]
-            bind $viewer <<PolyComplete>> [mymethod PolyComplete %d]
-        }
+        # NEXT, Reload content
+        $self reload
 
-        # NEXT, Sync with RDB on creation
-        $self DbSync
+
     }
 
     destructor {
@@ -508,12 +556,10 @@ snit::widget appwin {
                  -underline 0                                \
                  -command   [mymethod FileExportAsXml]]
 
-        if {$options(-main)} {
-            $mnu add command                               \
-                -label     "Save CLI Scrollback Buffer..." \
-                -underline 5                               \
-                -command   [mymethod FileSaveCLI]
-        }
+        $mnu add command                               \
+            -label     "Save CLI Scrollback Buffer..." \
+            -underline 5                               \
+            -command   [mymethod FileSaveCLI]
 
         $mnu add separator
 
@@ -552,23 +598,13 @@ snit::widget appwin {
 
         $mnu add separator
 
-        if {$options(-main)} {
-            $mnu add command                  \
-                -label       "Exit"                \
-                -underline   1                     \
-                -accelerator "Ctrl+Q"              \
-                -command     [mymethod FileExit]
-            bind $win <Control-q> [mymethod FileExit]
-            bind $win <Control-Q> [mymethod FileExit]
-        } else {
-            $mnu add command                  \
-                -label       "Close Window"        \
-                -underline   6                     \
-                -accelerator "Ctrl+W"              \
-                -command     [list destroy $win]
-            bind $win <Control-w> [list destroy $win]
-            bind $win <Control-W> [list destroy $win]
-        }
+        $mnu add command                          \
+            -label       "Exit"                   \
+            -underline   1                        \
+            -accelerator "Ctrl+Q"                 \
+            -command     [mymethod FileExit]
+        bind $win <Control-q> [mymethod FileExit]
+        bind $win <Control-Q> [mymethod FileExit]
 
         # Edit menu
         set editmenu [menu $menubar.edit \
@@ -625,7 +661,19 @@ snit::widget appwin {
         set viewmenu [menu $menubar.view]
         $menubar add cascade -label "View" -underline 0 -menu $viewmenu
 
-        $self AddTabMenuItems $viewmenu
+        $viewmenu add radiobutton                   \
+            -label    "Scenario"                    \
+            -variable [myvar info(mode)]            \
+            -value    scenario                      \
+            -command  [mymethod SetMode scenario]
+
+        $viewmenu add radiobutton                   \
+            -label    "Simulation"                  \
+            -variable [myvar info(mode)]            \
+            -value    simulation                    \
+            -command  [mymethod SetMode simulation]
+
+        $viewmenu add separator
 
         # Orders menu
         set ordersmenu [menu $menubar.orders]
@@ -919,120 +967,113 @@ snit::widget appwin {
         # window.
         ttk::separator $win.sep0
 
-        # ROW 1, add a simulation toolbar
-        ttk::frame $win.toolbar
+        # ROW 1, add a toolbar
+        install toolbar using ttk::frame $win.toolbar
 
         # Prep Lock/Unlock
-        ttk::button $win.toolbar.preplock            \
+        ttk::button $toolbar.preplock            \
             -style    Toolbutton                     \
             -image    ::projectgui::icon::unlocked22 \
             -command  [mymethod PrepLock]
 
+        # SIM TOOLS
+        install simtools using ttk::frame $toolbar.sim
+
         # RunPause
-        ttk::button $win.toolbar.runpause       \
+        ttk::button $simtools.runpause       \
             -style   Toolbutton                 \
             -image   ::marsgui::icon::play22 \
             -command [mymethod RunPause]
 
         # Duration
 
-        menubox $win.toolbar.duration         \
+        menubox $simtools.duration         \
             -justify   left                   \
             -width     10                     \
             -takefocus 0                      \
             -values    [dict keys $durations]
 
-        $win.toolbar.duration set [lindex [dict keys $durations] 6]
+        $simtools.duration set [lindex [dict keys $durations] 6]
 
-        DynamicHelp::add $win.toolbar.duration -text "Duration of run"
+        DynamicHelp::add $simtools.duration -text "Duration of run"
 
         # First Snapshot
-        $self AddToolbarButton first first16 "Time 0 Snapshot" \
+        $self AddSimTool first first16 "Time 0 Snapshot" \
             [list ::sim snapshot first]
 
         # Previous Snapshot
-        $self AddToolbarButton prev prev16 "Previous Snapshot" \
+        $self AddSimTool prev prev16 "Previous Snapshot" \
             [list ::sim snapshot prev]
 
         # Next Snapshot
-        $self AddToolbarButton next next16 "Next Snapshot" \
+        $self AddSimTool next next16 "Next Snapshot" \
             [list ::sim snapshot next]
 
         # Latest Snapshot
-        $self AddToolbarButton last last16 "Latest Snapshot" \
+        $self AddSimTool last last16 "Latest Snapshot" \
             [list ::sim snapshot last]
 
         # Sim State
-        ttk::label $win.toolbar.state                  \
+        ttk::label $toolbar.state                  \
             -text "State:"
 
-        ttk::label $win.toolbar.simstate               \
+        ttk::label $toolbar.simstate               \
             -font               codefont               \
             -width              26                     \
             -anchor             w                      \
             -textvariable       [myvar info(simstate)]
 
         # Zulu time
-        ttk::label $win.toolbar.time                   \
+        ttk::label $toolbar.time                   \
             -text "Time:"
 
-        ttk::label $win.toolbar.zulutime               \
+        ttk::label $toolbar.zulutime               \
             -font               codefont               \
             -width              12                     \
             -textvariable       [myvar info(zulutime)]
 
         # Tick
-        ttk::label $win.toolbar.ticklab                \
+        ttk::label $toolbar.ticklab                \
             -text "Day:"
 
-        ttk::label $win.toolbar.tick                   \
+        ttk::label $toolbar.tick                   \
             -font               codefont               \
             -width              4                      \
             -textvariable       [myvar info(tick)]
 
-        ttk::label $win.toolbar.dayofweek              \
+        ttk::label $toolbar.dayofweek              \
             -font               codefont               \
             -width              4                      \
             -textvariable       [myvar info(dayofweek)]
 
-        pack $win.toolbar.preplock  -side left
-        pack $win.toolbar.runpause  -side left    
-        pack $win.toolbar.duration  -side left -padx {0 15}
-        pack $win.toolbar.first     -side left
-        pack $win.toolbar.prev      -side left
-        pack $win.toolbar.next      -side left
-        pack $win.toolbar.last      -side left
-        pack $win.toolbar.dayofweek -side right -padx 2 
-        pack $win.toolbar.tick      -side right -padx 2 
-        pack $win.toolbar.ticklab   -side right
-        pack $win.toolbar.zulutime  -side right -padx 2 
-        pack $win.toolbar.time      -side right
-        pack $win.toolbar.simstate  -side right -padx 2 
-        pack $win.toolbar.state     -side right -padx {15 0}
+        pack $simtools.runpause  -side left    
+        pack $simtools.duration  -side left -padx {0 15}
+        pack $simtools.first     -side left
+        pack $simtools.prev      -side left
+        pack $simtools.next      -side left
+        pack $simtools.last      -side left
+
+        pack $toolbar.preplock  -side left
+        pack $toolbar.dayofweek -side right -padx 2 
+        pack $toolbar.tick      -side right -padx 2 
+        pack $toolbar.ticklab   -side right
+        pack $toolbar.zulutime  -side right -padx 2 
+        pack $toolbar.time      -side right
+        pack $toolbar.simstate  -side right -padx 2 
+        pack $toolbar.state     -side right -padx {15 0}
 
         # ROW 2, add a separator between the tool bar and the content
         # window.
         ttk::separator $win.sep2
 
-        # ROW 3, create the content widgets.  If this is a main window,
-        # then we have a paner containing the content notebook with 
-        # a CLI underneath.  Otherwise, we get just the content
-        # notebook.
-        if {$options(-main)} {
-            ttk::panedwindow $win.paner -orient vertical
+        # ROW 3, create the content widgets.
+        ttk::panedwindow $win.paner -orient vertical
 
-            install content using ttk::notebook $win.paner.content \
-                -padding 2 
+        install content using ttk::notebook $win.paner.content \
+            -padding 2 
 
-            $win.paner add $content \
-                -weight 1
-            set row3 $win.paner
-        } else {
-            install content using ttk::notebook $win.content \
-                -padding 2 
-
-            set row3 $win.content
-        }
+        $win.paner add $content \
+            -weight 1
 
         # ROW 4, add a separator
         ttk::separator $win.sep4
@@ -1049,7 +1090,7 @@ snit::widget appwin {
 
         # NEXT, add the content tabs, and save relevant tabs
         # as components.  Also, finish configuring the tabs.
-        $self AddTabs
+        $self CreateTabs
 
         # Viewer
         set viewer [$self tab win viewer]
@@ -1063,32 +1104,46 @@ snit::widget appwin {
         $slog load [log cget -logfile]
         notifier bind ::app <AppLogNew> $self [list $slog load]
 
-        # NEXT, add the CLI to the paner, if needed.
-        if {$options(-main)} {
-            install cli using cli $win.paner.cli    \
-                -height    5                        \
-                -relief    flat                     \
-                -maxlines  [prefs get cli.maxlines] \
-                -promptcmd [mymethod CliPrompt]     \
-                -evalcmd   [list ::executive eval]
-            
-            $win.paner add $win.paner.cli
+        # NEXT, add the CLI to the paner
+        install cli using cli $win.paner.cli    \
+            -height    5                        \
+            -relief    flat                     \
+            -maxlines  [prefs get cli.maxlines] \
+            -promptcmd [mymethod CliPrompt]     \
+            -evalcmd   [list ::executive eval]
 
-            # Load the CLI command history
-            $self LoadCliHistory
-
-            # Register the CLI, so that history is saved in the 
-            # scenario file.
-            # scenario register [list $cli saveable]
+        if {$visibility(cli)} {
+            $win.paner add $cli
         }
+        
+        # Load the CLI command history
+        $self LoadCliHistory
 
         # NEXT, manage all of the components.
         grid $win.sep0     -sticky ew
-        grid $win.toolbar  -sticky ew
+        grid $toolbar      -sticky ew
         grid $win.sep2     -sticky ew
-        grid $row3         -sticky nsew
+        grid $win.paner    -sticky nsew
         grid $win.sep4     -sticky ew
         grid $win.status   -sticky ew
+    }
+
+    # ToggleCLI
+    #
+    # Toggles visibility of the CLI.  Or, actually, it doesn't;
+    # the checkbox on the View menu does that.  This just shows
+    # it or hides it.
+
+    method ToggleCLI {} {
+        if {$visibility(cli)} {
+            if {![winfo ismapped $cli]} {
+                $win.paner add $cli
+            }
+        } else {
+            if {[winfo ismapped $cli]} {
+                $win.paner forget $cli
+            }
+        }
     }
 
     # CliPrompt
@@ -1103,33 +1158,103 @@ snit::widget appwin {
         }
     }
 
-    # AddToolbarButton name icon tooltip command
+    # AddSimTool name icon tooltip command
     #
-    # Creates a toolbar button with standard style
+    # Creates a simtools button with standard style
     # TBD: Does the toolbutton module cover this?
 
-    method AddToolbarButton {name icon tooltip command} {
-        ttk::button $win.toolbar.$name \
+    method AddSimTool {name icon tooltip command} {
+        ttk::button $simtools.$name \
             -style   Toolbutton        \
             -state   normal            \
             -command $command          \
             -image   [list ::marsgui::icon::$icon \
                           disabled ::marsgui::icon::${icon}d]
 
-        DynamicHelp::add $win.toolbar.$name -text $tooltip
+        DynamicHelp::add $simtools.$name -text $tooltip
     }
+
+    #-------------------------------------------------------------------
+    # Window Mode
+
+    # SetMode mode
+    #
+    # mode - scenario | simulation
+    #
+    # Sets the overall window mode.
+
+    method SetMode {mode} {
+        # FIRST, save the new mode
+        set info(mode) $mode
+
+        # NEXT, make changes
+        if {$info(mode) eq "simulation"} {
+            # Display the Sim Tools
+            pack $simtools -after $toolbar.preplock -side left
+
+            # Simulation tabs are visible
+            set visibility(scenario)   0
+            set visibility(simulation) 1
+        } else {
+            # Hide the Sim Tools
+            pack forget $simtools
+
+            # Scenario tabs are visible
+            set visibility(scenario)   1
+            set visibility(simulation) 0
+        }
+
+        # NEXT, Update the tabs
+        $self MakeTabsVisible
+
+        # NEXT, view the tab last seen for this mode.
+        $self tab view $info(tab-$info(mode))
+
+        # NEXT, update the display
+        $self SetWindowTitle
+    }
+
+    # SetWindowTitle
+    #
+    # Sets the window title given the mode, the current scenario, etc.
+
+    method SetWindowTitle {} {
+        # FIRST, get the file name.
+        set dbfile [file tail [scenario dbfile]]
+
+        if {$dbfile eq ""} {
+            set dbfile "Untitled"
+        }
+
+        # NEXT, get the Mode String
+        if {$info(mode) eq "scenario"} {
+            set modeText "Scenario"
+        } else {
+            set modeText "Simulation"
+        }
+
+        wm title $win "Athena [version]: $modeText, $dbfile"
+    }
+
+
 
     #-------------------------------------------------------------------
     # Tab Management
 
-    # AddTabs
+    # CreateTabs
     #
-    # Adds all of the content tabs and subtabs to the window.
+    # Creates all of the content tabs and subtabs; hides the ones that
+    # aren't currently visible.  Bind to track the currently selected tab.
 
-    method AddTabs {} {
-        # FIRST, add each tab
+    method CreateTabs {} {
+        # FIRST, bind to the main content notebook.
+
+        # NEXT, bind to track the current tab by mode.
+        bind $content <<NotebookTabChanged>> [mymethod RememberCurrentTab]
+
+        # NEXT, add each tab
         foreach tab [dict keys $tabs] {
-            # Add a "tabwin" key to the 
+            # Add a "tabwin" key to the tab dictionary
             dict set tabs $tab tabwin ""
 
             # Create the tab
@@ -1147,7 +1272,10 @@ snit::widget appwin {
                 # NEXT, create the new tab widget
                 if {$script eq ""} {
                     ttk::notebook $tabwin -padding 2
+                    bind $tabwin <<NotebookTabChanged>> \
+                        [mymethod RememberCurrentTab]
                 } else {
+                    dict set info(tabs) $tabwin $tab
                     eval [string map [list %W $tabwin] $script]
                 }
 
@@ -1160,20 +1288,92 @@ snit::widget appwin {
         }
     }
 
-    # AddTabMenuItems mnu
+    # RememberCurrentTab
     #
-    # mnu     The View menu
+    # Tracks the current tab by window mode, so that we can back to it.
+
+    method RememberCurrentTab {} {
+        # FIRST, get the toplevel tab.
+        set tabwin [$content select]
+
+        # NEXT, if there's no tab name recorded in info(tabs), this is
+        # yet another notebook.  Recurse down.
+        if {![dict exists $info(tabs) $tabwin]} {
+            set nb $tabwin
+            set tabwin [$nb select]
+
+            if {$tabwin eq ""} {
+                set tabwin [lindex [$nb tabs] 0]
+            }
+        }
+
+        # NEXT, get the tab name.
+        set tab [dict get $info(tabs) $tabwin]
+
+        # NEXT, remember the tab
+        set info(tab-$info(mode)) $tab
+    }
+
+    # MakeTabsVisible
     #
-    # Adds tabs to pop up the tabs to the View menu
+    # Given the current visibility() flags, makes tabs visible or not.
 
-    method AddTabMenuItems {mnu} {
-        # FIRST, save the parent menu for toplevel tabs
-        set pmenu() $mnu
-
-        # FIRST, add each tab
+    method MakeTabsVisible {} {
+        # FIRST, make each visible tab visible
         foreach tab [dict keys $tabs] {
             dict with tabs $tab {
-                # FIRST, if this is a leaf tab just add its item.
+                # FIRST, get the parent
+                if {$parent eq ""} {
+                    set p $content
+                } else {
+                    set p [dict get $tabs $parent tabwin]
+                }
+
+                # NEXT, if this is a subtab and it has the same 
+                # visibility class as its parent, there's no need
+                # to touch it.
+                if {$parent ne ""} {
+                    set pvistype [dict get $tabs $parent vistype]
+                    if {$pvistype eq $vistype} {
+                        continue
+                    }
+                }
+
+                # NEXT, if it isn't visible, hide it.
+                if {$visibility($vistype)} {
+                    $p add $tabwin
+                } else {
+                    $p hide $tabwin
+                }
+            }
+        }
+
+        # NEXT, add the View menu items for the visible tabs.
+        $self AddTabMenuItems
+    }
+
+
+    # AddTabMenuItems
+    #
+    # Adds items to pop up the visible tabs to the View menu
+
+    method AddTabMenuItems {} {
+        # FIRST, delete old tab entries.  That's everything
+        # from item 3 on down.
+        $viewmenu delete 3 end
+
+        # NEXT, save the parent menu for toplevel tabs
+        set pmenu() $viewmenu
+        
+        # NEXT, add each tab
+        foreach tab [dict keys $tabs] {
+            dict with tabs $tab {
+                # FIRST, if this tab isn't visible, ignore it.
+                if {!$visibility($vistype)} {
+                    continue
+                }
+
+                # NEXT, if this is a leaf tab just add its item.
                 if {$script ne ""} {
                     $pmenu($parent) add command \
                         -label $label           \
@@ -1182,13 +1382,37 @@ snit::widget appwin {
                 }
 
                 # NEXT, this tab has subtabs.  Create a new menu
-                set pmenu($tab) [menu $pmenu($parent).$tab]
+                set newMenu $pmenu($parent).$tab
+
+                if {[winfo exists $newMenu]} {
+                    destroy $newMenu
+                }
+
+                set pmenu($tab) [menu $newMenu]
 
                 $pmenu($parent) add cascade \
                     -label $label \
                     -menu  $pmenu($tab)
             }
         }
+
+        # NEXT, replace the check boxes at the bottom
+        $viewmenu add separator
+
+        $viewmenu add checkbutton                   \
+            -label    "Order History"               \
+            -variable [myvar visibility(orders)]    \
+            -command  [mymethod MakeTabsVisible]
+
+        $viewmenu add checkbutton                   \
+            -label    "Scrolling Log"               \
+            -variable [myvar visibility(slog)]      \
+            -command  [mymethod MakeTabsVisible]
+
+        $viewmenu add checkbutton                   \
+            -label    "Command Line"                \
+            -variable [myvar visibility(cli)]       \
+            -command  [mymethod ToggleCLI]
     }
 
     # tab win tab
@@ -1201,10 +1425,26 @@ snit::widget appwin {
 
     # tab view tab
     #
-    # Makes the window display the specified tab
+    # Makes the window display the specified tab.
 
     method {tab view} {tab} {
         dict with tabs $tab {
+            # FIRST, you can only view simulation and scenario tabs
+            # in the proper info(mode).  If they aren't visible,
+            # they shouldn't be.
+            if {$vistype in {simulation scenario} &&
+                !$visibility($vistype)
+            } {
+                return
+            }
+
+            # NEXT, if it's one of the optional tabs, set its visibility
+            # flags.
+            if {$vistype in {orders log}} {
+                set visibility($vistype) 1
+                $self MakeTabsVisible
+            }
+
             if {$parent eq ""} {
                 $content select $tabwin
             } else {
@@ -1708,7 +1948,7 @@ snit::widget appwin {
             }
         } else {
             order send gui SIM:RUN \
-                days [dict get $durations [$win.toolbar.duration get]]
+                days [dict get $durations [$simtools.duration get]]
         }
     }
 
@@ -1806,55 +2046,20 @@ snit::widget appwin {
         $self puts "Neighborhood $n: $longname"
     }
 
-    # Point-1 ref
-    #
-    # ref     A map reference string
-    #
-    # The user has pucked a point in point mode. Append it to the
-    # CLI.
-
-    method Point-1 {ref} {
-        $cli append " $ref"
-    }
-
-    # PolyComplete poly
-    #
-    # poly     A list of map references defining a polygon
-    #
-    # The user has drawn a polygon on the map.  Append it to the
-    # CLI.
-
-    method PolyComplete {poly} {
-        $cli append " $poly"
-    }
-
-
-
-
     #-------------------------------------------------------------------
     # Notifier Event Handlers
 
-    # DbSync
+    # ReloadContent
     #
-    # Syncs with the RDB.
+    # Reloads all of *this* window's content.  (Tab windows are on
+    # their own).
 
-    method DbSync {} {
+    method ReloadContent {} {
         # FIRST, set the window title
+        $self SetWindowTitle
 
-        set dbfile [file tail [scenario dbfile]]
-        if {$dbfile eq ""} {
-            set dbfile "Untitled"
-        }
-
-        set tab [$content tab current -text]
-
-        if {$options(-main)} {
-            set wintype "Main"
-        } else {
-            set wintype "Browser"
-        }
-
-        wm title $win "$dbfile, $tab - Athena [version] $wintype"
+        # NEXT, make the CLI visible/invisible
+        $self ToggleCLI
 
         # NEXT, set the status variables
         $self SimState
@@ -1892,87 +2097,94 @@ snit::widget appwin {
         } else {
             set info(simstate) [esimstate longname [sim state]]
         }
+
+        # NEXT, update the window mode
+        if {[sim state] eq "PREP"} {
+            $self SetMode scenario
+        } else {
+            $self SetMode simulation
+        }
         
         # NEXT, update the Prep Lock button
         if {[sim state] eq "PREP"} {
-            $win.toolbar.preplock configure \
+            $toolbar.preplock configure \
                 -image ::projectgui::icon::unlocked22
-            DynamicHelp::add $win.toolbar.preplock \
+            DynamicHelp::add $toolbar.preplock \
                 -text "Lock Scenario Preparation"
         } else {
-            $win.toolbar.preplock configure -image {
+            $toolbar.preplock configure -image {
                 ::projectgui::icon::locked22
                 disabled ::projectgui::icon::locked22d
             }
 
             if {[sim state] eq "RUNNING"} {
-                $win.toolbar.preplock configure -state disabled
+                $toolbar.preplock configure -state disabled
             } else {
-                $win.toolbar.preplock configure -state normal
+                $toolbar.preplock configure -state normal
             }
                     
-            DynamicHelp::add $win.toolbar.preplock \
+            DynamicHelp::add $toolbar.preplock \
                 -text "Unlock Scenario Preparation"
         }
 
         # NEXT, Update Run/Pause button and the Duration
         if {[sim state] eq "RUNNING"} {
-            $win.toolbar.runpause configure \
+            $simtools.runpause configure \
                 -image ::marsgui::icon::pause22 \
                 -state normal
-            DynamicHelp::add $win.toolbar.runpause -text "Pause Simulation"
+            DynamicHelp::add $simtools.runpause -text "Pause Simulation"
 
-            $win.toolbar.duration configure -state disabled
+            $simtools.duration configure -state disabled
         } elseif {[sim state] eq "SNAPSHOT"} {
-            $win.toolbar.runpause configure \
+            $simtools.runpause configure \
                 -image ::marsgui::icon::rewind22 \
                 -state normal
-            DynamicHelp::add $win.toolbar.runpause -text "Leave Snapshot Mode"
+            DynamicHelp::add $simtools.runpause -text "Leave Snapshot Mode"
 
-            $win.toolbar.duration configure -state disabled
+            $simtools.duration configure -state disabled
         } elseif {[sim state] eq "PAUSED"} {
-            $win.toolbar.runpause configure \
+            $simtools.runpause configure \
                 -image ::marsgui::icon::play22 \
                 -state normal
-            DynamicHelp::add $win.toolbar.runpause -text "Run Simulation"
+            DynamicHelp::add $simtools.runpause -text "Run Simulation"
 
-            $win.toolbar.duration configure -state readonly
+            $simtools.duration configure -state readonly
         } else {
             # PREP
-            $win.toolbar.runpause configure \
+            $simtools.runpause configure \
                 -image ::marsgui::icon::play22d \
                 -state disabled
-            DynamicHelp::add $win.toolbar.runpause -text "Run Simulation"
+            DynamicHelp::add $simtools.runpause -text "Run Simulation"
 
-            $win.toolbar.duration configure -state disabled
+            $simtools.duration configure -state disabled
 
         }
 
         # NEXT, Update the snapshot buttons.
         if {[sim state] in {"PREP" "RUNNING"}} {
-            $win.toolbar.first  configure -state disabled
-            $win.toolbar.prev   configure -state disabled
-            $win.toolbar.next   configure -state disabled
-            $win.toolbar.last   configure -state disabled
+            $simtools.first  configure -state disabled
+            $simtools.prev   configure -state disabled
+            $simtools.next   configure -state disabled
+            $simtools.last   configure -state disabled
         } else {
             if {$now > 0} {
                 # Not at time 0, first is always valid; and prev is
                 # valid if first is.
-                $win.toolbar.first configure -state normal
-                $win.toolbar.prev  configure -state normal
+                $simtools.first configure -state normal
+                $simtools.prev  configure -state normal
             } else {
-                $win.toolbar.first  configure -state disabled
-                $win.toolbar.prev   configure -state disabled
+                $simtools.first  configure -state disabled
+                $simtools.prev   configure -state disabled
             }
 
             # If we're at a time earlier than the latest snapshot,
             # then last is valid; and next is valid if last is.
             if {$now < $latest} {
-                $win.toolbar.next configure -state normal
-                $win.toolbar.last configure -state normal
+                $simtools.next configure -state normal
+                $simtools.last configure -state normal
             } else {
-                $win.toolbar.next configure -state disabled
-                $win.toolbar.last configure -state disabled
+                $simtools.next configure -state disabled
+                $simtools.last configure -state disabled
             }
         }
 
@@ -2048,12 +2260,12 @@ snit::widget appwin {
 
     delegate method nbfill to viewer
 
-    # new ?option value...?
+    # reload 
     #
-    # Creates a new app window.
+    # Triggers a reload of this window's content
 
-    typemethod new {args} {
-        $type create .%AUTO% {*}$args
+    method reload {} {
+        $reloader schedule -nocomplain
     }
     
     # error text
@@ -2090,18 +2302,47 @@ snit::widget appwin {
 
         $cli clear
     }
+
+    #-------------------------------------------------------------------
+    # saveable(i) interface
+
+    # checkpoint ?-saved?
+    #
+    # Returns a checkpoint of the window state
+
+    method checkpoint {{option ""}} {
+        set checkpoint [dict create]
+        
+        dict set checkpoint mode           $info(mode)
+        dict set checkpoint tab-scenario   $info(tab-scenario)
+        dict set checkpoint tab-simulation $info(tab-simulation)
+        dict set checkpoint visibility     [array get visibility]
+        dict set checkpoint cli            [$cli saveable checkpoint]
+
+        return $checkpoint
+    }
+
+    # restore checkpoint ?-saved?
+    #
+    # checkpoint     A string returned by the checkpoint typemethod
+    
+    method restore {checkpoint {option ""}} {
+        # FIRST, restore the checkpoint data
+        set info(mode)           [dict get $checkpoint mode]
+        set info(tab-scenario)   [dict get $checkpoint tab-scenario]
+        set info(tab-simulation) [dict get $checkpoint tab-simulation]
+        array set visibility     [dict get $checkpoint visibility]
+        $cli saveable restore    [dict get $checkpoint cli]
+    }
+
+    # changed
+    #
+    # Returns 1 if saveable(i) data has changed, and 0 otherwise.
+    #
+    # Always returns 0, as this is just window state.
+
+    method changed {} {
+        return 0
+    }
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
