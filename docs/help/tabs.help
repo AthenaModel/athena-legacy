@@ -1018,6 +1018,120 @@ tab "Neighborhoods/DemSits" {
     <</topiclist>>
 }
 
+#-----------------------------------------------------------------------
+
+tab "Neighborhoods/EnSits" {
+    This tab shows the environmental situations present in the
+    playbox.  The browser controls are
+    described <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "ID">>The ID of the situation.<</topic>>
+
+    <<topic "Change">>This field indicates the situations that changed
+    during the last major time step, and how they changed, i.e., were
+    they new, were they resolved, and so forth.
+    <</topic>>
+
+    <<topic "State">>The state of the situation, one of
+    <b>INITIAL</b>, <b>ACTIVE</b>, or <b>ENDED</b>.<p>
+
+    An <b>INITIAL</b> situation
+    has just been created; its attitude implications have not yet been
+    assessed.  <b>INITIAL</b> situations may be modified as desired,
+    and move from one neighborhood to another.<p>
+
+    An <b>ACTIVE</b> situation is currently affecting attitudes in the
+    neighborhood.<p>
+
+    An <b>ENDED</b> situation has been resolved.
+    <</topic>>
+
+    <<topic "Type">>The situation type.<</topic>>
+
+    <<topic "Nbhood">>The ID of the neighborhood in which the activity
+    is taking place.<</topic>>
+
+    <<topic "Location">>The location at which the situation is
+    displayed on the map.
+    <</topic>>
+
+    <<topic Coverage>>The coverage of the situation, as a number
+    between 0.0 and 1.0: the fraction of the neighborhood population
+    affected by the activity.
+    <</topic>>
+
+    <<topic "Began At">>The simulation time at which the situation
+    began to affect attitudes.
+    <</topic>>
+
+    <<topic "Changed At">>The simulation time at which the situation
+    last changed.
+    <</topic>>
+
+    <<topic "Caused By">>The group, if any, that caused the situation,
+    or <b>NONE</b>.
+    <</topic>>
+
+    <<topic "Resolved By">>The group, if any, that will automatically
+    resolve the situation at the scheduled resolution time, or <b>NONE</b>.
+    <</topic>>
+
+    <<topic "Resolve At">>The time at which the situation should be
+    automatically resolved.  Note that the analyst may resolve the 
+    situation manually prior to that time.
+    <</topic>>
+
+    <<topic "Driver">>The GRAM driver ID associated with the situation.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_plus">}>>
+    Pops up the <<cref ENSIT:CREATE>> dialog.
+    <</topic>>
+
+    <<topic {<img src="button_pencil">}>>
+    If a single <b>INITIAL</b> situation is selected, pops up the 
+    <<cref ENSIT:UPDATE>> dialog for
+    the selected situation.
+    <</topic>>
+
+    <<topic {<img src="button_check">}>>
+    If a single unresolved situation is selected, resolves it
+    using the <<cref ENSIT:RESOLVE>> order.
+    <</topic>>
+
+    <<topic {<img src="button_x">}>>
+    If a single <b>INITIAL</b> situation is selected, deletes it
+    using the <<cref ENSIT:DELETE>> order.
+    <</topic>>
+
+    <<topic {<img src="viewbox">}>>
+    The view box determines which set of entities is to be displayed.
+    The following sets may be selected from the pulldown:<p>
+
+    <ul>
+    <li> <b>All</b>: All situations, whether <b>Current</b> or
+    <b>Ended</b>.
+    <li> <b>Current</b>: Situations which are currently <b>INITIAL</b>
+    or <b>ACTIVE</b>, or have <b>ENDED</b> during the last major
+    time step.
+    <li> <b>Ended</b>: Situations which have <b>ENDED</b>.
+    </ul>
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
 
 #=======================================================================
 # Groups Tab
@@ -1749,6 +1863,81 @@ tab "Attitudes/NbhoodCoop" {
     <<control.headers>>
     <</topiclist>>
 }
+
+#-----------------------------------------------------------------------
+
+tab "Attitudes/Magic Attitude Drivers" {
+    Athena defines a number of drivers of attitude change, including
+    activity situations, environmental situations, and civilian
+    casualties.  It also allows the analyst to define their own
+    attitude drivers, with any desired affects.  Such drivers are
+    called <<cref MAD: "Magic Attitude Drivers">>, or "MADs".  This
+    tab lists the existing MADs.  The browser controls are
+    described <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "ID">>The ID of the Magic Attitude Driver<</topic>>
+
+    <<topic "Description">>A short one-line description of the driver,
+    e.g., as a memory-jogger for the analyst.
+    <</topic>>
+
+    <<topic "Cause">>The <<term cause>> associated with the driver.  Every
+    input to GRAM is associated with a cause; inputs with different
+    causes are independent of one another.  The cause may be any of
+    the causes supported by Athena's Driver Assessment Model rule
+    sets, or <b>UNIQUE</b>, indicating that this driver's effects are
+    independent of all other drivers.
+    <</topic>>
+
+    <<topic "Near Factor (p)">>A GRAM input can have indirect effects
+    in <b>NEAR</b> neighborhoods.  The near factor is a real number
+    between 0.0 and 1.0 and determines the strength of these indirect
+    effects.  If 0.0, there will be no <b>NEAR</b> effects.
+    <</topic>>
+
+    <<topic "Far Factor (q)">>A GRAM input can have indirect effects
+    in <b>FAR</b> neighborhoods.  The far factor is a real number
+    between 0.0 and 1.0 and determines the strength of these indirect
+    effects.  If 0.0, there will be no <b>FAR</b> effects.
+    <</topic>>
+
+    <<topic "Driver">>The GRAM Driver ID associated with this MAD, or
+    -1 during <<cref using.prep>>.  This is the number that appears in
+    the <<cref REPORT:DRIVER>>. <</topic>>
+
+    <<topic "Inputs">>The number of satisfaction and cooperation
+    inputs and adjustments associated with this MAD.
+    <</topic>>
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic {<img src="button_plus">}>>
+    Pops up the <<cref MAD:CREATE>> dialog.
+    <</topic>>
+
+    <<topic {<img src="button_pencil">}>>
+    If a single row is selected, pops up the 
+    <<cref MAD:UPDATE>> dialog for
+    the selected row.
+    <</topic>>
+
+    <<topic {<img src="button_x">}>>
+    If a single row is selected, deletes it
+    using the <<cref MAD:DELETE>> order.  Note that drivers with
+    associated inputs or adjustments cannot be deleted.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
 
 
 #=======================================================================

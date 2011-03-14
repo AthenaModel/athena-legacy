@@ -159,6 +159,13 @@ snit::widget appwin {
             script  { demsitbrowser %W }
         }
 
+        ensit {
+            label   "EnSits"
+            vistype *
+            parent  nbhoodst
+            script  { ensitbrowser %W }
+        }
+
         groupst {
             label   "Groups"
             vistype *
@@ -248,6 +255,13 @@ snit::widget appwin {
             vistype simulation
             parent  gramt
             script  { nbcoopbrowser %W }
+        }
+
+        mads {
+            label   "Magic Attitude Drivers"
+            vistype *
+            parent  gramt
+            script  {madbrowser %W}
         }
 
         roet {
