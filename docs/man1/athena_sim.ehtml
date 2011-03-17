@@ -8,7 +8,7 @@
 
 <<deflist program>>
 
-<<defitem {athena sim} {athena sim ?-dev? ?<i>filename</i>.adb?}>>
+<<defitem {athena sim} {athena sim ?options...? ?<i>filename</i>.adb?}>>
 
 <</deflist program>>
 
@@ -22,10 +22,29 @@ files, which conventionally have a "<code>.adb</code>" extension.
 If a scenario file name is given on the command line, it will be
 opened automatically.<p>
 
-If the <code>-dev</code> option is given, the application runs in
-"developer mode"; GUI components of interest to the developers are
-made available.<p>
+The following options may be used:<p>
 
+<<deflist options>>
+
+<<defopt {-script <i>filename</i>.tcl}>>
+
+Names an Athena executive script to be executed at start-up,
+immediately after loading scenario file (if any).  This option is
+usually used to execute exported order scripts.<p>
+
+<<defopt {-dev}>>
+
+Tells the application to ensure that all GUI elements of interest to
+the developer are made visible at start-up.  This includes the command
+line interface (CLI), the scrolling log, and the order history tab.<p>
+
+<<defopt {-ignoreuser}>>
+
+This option is intended for use during testing; it tells the
+application to ignore user preference settings, so that the tests
+always begin with the application in a known state.<p>
+
+<</deflist options>>
 
 The application has extensive on-line help; invoke the application
 and see the <b>Help</b> menu.<p>

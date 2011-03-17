@@ -55,15 +55,19 @@ snit::type app {
     #
     # Application command-line options.
     #
-    # -dev        -  If 1, run in development mode (e.g., include 
-    #                debugging log in appwin)
+    # -dev             - If 1, run in development mode (e.g., include 
+    #                    debugging log in appwin)
     #
-    # -ignoreuser -  If 1, ignore user preferences, etc.
-    #                Used for testing.
+    # -ignoreuser      - If 1, ignore user preferences, etc.
+    #                    Used for testing.
+    #
+    # -script filename - The name of a script to execute at start-up,
+    #                    after loading the scenario file (if any).
 
     typevariable opts -array {
         -ignoreuser 0
         -dev        0
+        -script     {}
     }
 
     #-------------------------------------------------------------------
@@ -104,9 +108,14 @@ snit::type app {
                 -ignoreuser {
                     set opts($opt) 1
                 }
+
+                -script {
+                    set opts($opt) [lshift argv]
+                }
                 
                 default {
                     puts "Unknown option: \"$opt\""
+                    app usage
                     exit 1
                 }
             }
@@ -259,6 +268,11 @@ snit::type app {
             # This makes sure that the notifier events are sent that
             # initialize the user interface.
             sim dbsync
+        }
+
+        # NEXT, if there's a script, execute it.
+        if {$opts(-script) ne ""} {
+            executive eval [list call $opts(-script)]
         }
     }
 
@@ -513,7 +527,13 @@ snit::type app {
     # Displays the application's command-line syntax.
     
     typemethod usage {} {
-        puts "Usage: athena sim ?-dev? ?-ignoreuser? ?scenario.adb?"
+        puts "Usage: athena sim ?options...? ?scenario.adb?"
+        puts ""
+        puts "-script filename    A script to execute after loading"
+        puts "                    the scenario file (if any)."
+        puts "-dev                Turns on all developer tools (e.g.,"
+        puts "                    the CLI and scrolling log)"
+        puts "-ignoreuser         Ignore preference settings."
         puts ""
         puts "See athena_sim(1) for more information."
     }
