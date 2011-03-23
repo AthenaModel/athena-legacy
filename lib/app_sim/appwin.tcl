@@ -96,6 +96,13 @@ snit::widget appwin {
             script  { mapviewer %W -width 600 -height 400 }
         }
 
+        detail {
+            label   "Detail"
+            vistype "*"
+            parent  ""
+            script  { detailbrowser %W }
+        }
+
         strategy {
             label   "Strategy"
             vistype *

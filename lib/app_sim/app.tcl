@@ -192,6 +192,9 @@ snit::type app {
         nbhood    init
         sim       init
 
+        # NEXT, register my:// servers with myagent.
+        myagent register app ::appserver
+
         # NEXT, define order interfaces
 
         # app: For internal orders

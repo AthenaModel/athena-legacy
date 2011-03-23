@@ -103,6 +103,12 @@ SELECT g                                             AS id,
        demeanor                                      AS demeanor
 FROM groups JOIN orggroups USING (g);
 
+-- All groups that can be owned by actors
+CREATE TEMP VIEW gui_agroups AS
+SELECT g, a, forcetype AS subtype FROM frcgroups
+UNION
+SELECT g, a, orgtype AS subtype FROM orggroups;
+
 -- A belief system topics for use by the GUI
 CREATE TEMPORARY VIEW gui_mam_topic AS
 SELECT tid                                            AS id,

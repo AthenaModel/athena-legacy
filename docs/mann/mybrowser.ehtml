@@ -1,0 +1,126 @@
+<<manpage {projectgui(n) mybrowser(n)} "myserver(i) Browser Widget">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require projectgui 1.0
+namespace import ::projectgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+The mybrowser(n) widget is a web-browser-like widget for browsing
+the contents of <<xref myserver(i)>> servers.<p>
+
+<<section COMMANDS>>
+
+This module defines the following commands.<p>
+
+<<deflist commands>>
+
+<<defitem mybrowser {mybrowser <i>pathName</i> ?<i>options...</i>?}>>
+
+Creates a new <<iref mybrowser>> widget named <i>pathName</i>, and
+returns <i>pathName</i>.  The widget supports the following
+options, in addition to those provided by the underlying frame widget:<p>
+
+<<deflist options>>
+
+<<defopt {-defaultserver <i>name</i>}>>
+
+The browser will access the named server when given a URL with a
+missing server name is missing.<p>
+
+<<defopt {-home <i>url</i>}>>
+
+Specifies the URL of the browser's "home" page.  It will display
+this page initially, and will return to it when the browser's
+"Home" button is pressed.<p>
+
+<<defopt {-messagecmd <i>command</i>}>>
+
+Specifies a <i>command</i> to be called
+whenever the browser has a message to be displayed on the application
+window's message line.  This is usually used for displaying the linked
+URL when the mouse moves over a link.<p>
+
+<<defopt {-reload <i>command</i>}>>
+
+Specifies a <i>command</i> to be called when the browser's
+"reload" button is pressed.  Note that the browser reloads its own
+content; this callback is defined so that the <b>sidebar</b>
+components, if any, can also reload their content.<p>
+
+<</deflist options>>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+mybrowser(n) widgets have the following subcommands:<p>
+
+<<deflist instance>>
+
+<<defitem back {<i>pathName</i> back}>>
+
+This command is equivalent to pressing the browser's "back" button.<p>
+
+<<defitem cget {<i>pathName</i> cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem configure {<i>pathName</i> configure <i>option value...</i>}>>
+
+Sets the value of one or more of the object's
+options.<p>
+
+<<defitem forward {<i>pathName</i> forward}>>
+
+This command is equivalent to pressing the browser's "forward" button.<p>
+
+<<defitem home {<i>pathName</i> home}>>
+
+Shows the browser's <code>-home</code> page.<p>
+
+<<defitem reload {<i>pathName</i> reload}>>
+
+Causes the widget to reload its currently displayed URL, and
+call its <code>-reloadcmd</code>.<p>
+
+<<defitem show {<i>pathName</i> show <i>url</i>}>>
+
+Asks the browser to display the given <i>url</i>.<p>
+
+<<defitem sidebar {<i>pathName</i> sidebar}>>
+
+Returns a <b>ttk::frame</b> widget into which the application can add
+its own components.  The sidebar appears on the left hand side of the
+browser, separated from the main browser pane by a user-adjustable sash.<p>
+
+
+<</deflist instance>>
+
+<<section ENVIRONMENT>>
+
+projectgui(n) requires Tcl 8.5 or later.
+
+To use projectgui(n) in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

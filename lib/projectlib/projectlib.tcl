@@ -20,6 +20,7 @@ package require snit
 
 package require sqlite3
 package require tdom
+package require uri
 package require marsutil
 package require simlib
 
@@ -63,6 +64,7 @@ source [file join $::projectlib::library scenariodb.tcl     ]
 source [file join $::projectlib::library appdir.tcl         ]
 source [file join $::projectlib::library workdir.tcl        ]
 source [file join $::projectlib::library verman.tcl         ]
+source [file join $::projectlib::library myagent.tcl        ]
 
 
 

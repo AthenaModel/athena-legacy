@@ -380,14 +380,11 @@ snit::widget bsystembrowser {
         ttk::label $pane.title \
             -text "Entities"
 
-        install etree using entitytree $pane.tree \
-            -rdb       ::rdb                      \
-            -width     1.25i                      \
-            -height    200                        \
+        install etree using linktree $pane.tree     \
+            -url       my://app/entitytype/bsystem  \
+            -width     1.5i                         \
+            -height    200                          \
             -changecmd [mymethod ETreeSelect]
-
-        $etree add actors    a "Actors"    ::projectgui::icon::actor12
-        $etree add civgroups g "CivGroups" ::projectgui::icon::civgroup12
 
         grid $pane.title -row 0 -column 0 -sticky w    -pady {3 2}
         grid $pane.tree  -row 1 -column 0 -sticky nsew
@@ -396,11 +393,19 @@ snit::widget bsystembrowser {
         grid columnconfigure $pane 0 -weight 1
     }
 
-    # ETreeSelect eid 
+    # ETreeSelect url
+    #
+    # url - The URL of the selected entity or entity type
     #
     # Called when an entity is selected in the elist.
 
-    method ETreeSelect {eid} {
+    method ETreeSelect {url} {
+        # TBD: Technically, this is tacky; we shouldn't be extracting
+        # the entity ID from the URL string in this way, but instead 
+        # should use the URL to request what we really want.  But,
+        # this is at the border between "my://" and rdb-land.
+
+        set eid [file tail $url]
         $blist configure -where "eid='$eid'"
         $alist configure -where "f='$eid' AND g != '$eid'"
     }
@@ -607,5 +612,6 @@ snit::widget bsystembrowser {
         $reloader schedule -nocomplain
     }
 }
+
 
 

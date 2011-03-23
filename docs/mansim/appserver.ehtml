@@ -1,0 +1,130 @@
+<<manpage appserver(sim) "Application myserver(i)">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_sim 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+appserver(sim) is a <<xref myserver(i)>> responsible for serving a
+variety of application data to the Detail browser (among other
+widgets).  To see the range of data served, go to the Detail browser
+and type <code>/urlhelp</code> in its address bar.<p>
+
+This server is registered with <<xref myagent(n)>> with the server
+name <b>app</b>; thus, the full URL for the URL schema is
+<code>my://app/urlhelp</code>.<p>
+
+<<section "CONTENT TYPES">>
+
+appserver(sim) can serve up the following content types:<p>
+
+<<deflist ctypes>>
+
+<<defitem text/html {text/html}>>
+
+HTML text.<p>
+
+<<defitem text/plain {text/plain}>>
+
+Plain text.<p>
+
+<<defitem tcl/linkdict {tcl/linkdict}>>
+
+A nested dictionary of links, with attached metadata.  The toplevel
+keys are (possibly relative) URLs; the value for each key is a
+dictionary with the following fields:<p>
+
+<<deflist linkdict>>
+
+<<defitem label {label}>>
+
+A human-readable label for the linked resource.<p>
+
+<<defitem listicon {listicon}>>
+
+The name of a Tk image object, for use as an icon next to the label
+when displaying the linked resource in a list or tree.<p>
+
+<</deflist>>
+
+The client should generally use <<xref myagent(n)>>'s
+<<xref myagent(n) resolve>> command to convert the links in the
+dictionary to fully-qualified URLs.<p>
+
+<</deflist>>
+
+<<section "COMMANDS">>
+
+appserver(sim) provides the following commands for use by the application.<p>
+
+<<deflist commands>>
+
+<<defitem get {get <i>url</i> ?<i>contentTypes</i>?}>>
+
+<b>From <<xref myserver(i)>>:</b> Retrieves the <i>url</i> from the server.  If the <i>url</i> cannot be
+retrieved for any reason, the server throws an error with error
+code <b>NOTFOUND</b>; the error message is a human-readable
+message explaining why the resource cannot be found.<p>
+
+The <i>contentTypes</i> argument, if given, is a list of content types
+accepted by the client.  Browse the server's <code>/urlhelp</code> resource
+to see what URLs are accepted, and what content types they can
+provide; the list will usually include
+<b>text/html</b>.  See <<xref "CONTENT TYPES">> for a description
+of the available content types.<p>
+
+If <i>contentTypes</i> is empty, the server will return the first
+available content type for the requested <i>url</i>.  Otherwise, it
+will return the first content type listed in <i>contentTypes</i> which
+is available for the requested <i>url</i>.<p>
+
+Note that the content types listed in <i>contentTypes</i> can include
+wild cards, e.g., <b>text/*</b> and <b>*/*</b>.<p>
+
+On success, the <<iref get>> command returns a dictionary with the
+following keys:<p>
+
+<<deflist getdict>>
+
+<<defitem url {url}>>
+
+The complete URL given to the server.  This is of interest because the
+<<xref myagent(n)>> might have performed address resolution; hence,
+the URL given to the server might not be the same as the URL given to
+the agent.<p>
+
+<<defitem contentType {contentType}>>
+
+The content type of the returned content.<p>
+
+<<defitem content {content}>>
+
+The returned content itself.
+
+<</deflist>>
+
+<</deflist commands>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
