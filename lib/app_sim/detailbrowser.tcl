@@ -63,8 +63,8 @@ snit::widgetadaptor detailbrowser {
         $self configurelist $args
 
         # NEXT, bind to events that are likely to cause reloads.
-        notifier bind ::scenario <DbSyncB> $win [mymethod reload]
-        notifier bind ::sim      <Tick>    $win [mymethod reload]
+        notifier bind ::sim <DbSyncB> $win [mymethod reload]
+        notifier bind ::sim <Tick>    $win [mymethod reload]
 
         # NEXT, schedule the first reload
         $self reload

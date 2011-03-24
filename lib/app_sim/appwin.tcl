@@ -89,18 +89,18 @@ snit::widget appwin {
     # tabwin  - Once the tab is created, its window.
 
     variable tabs {
-        viewer {
-            label   "Map"
-            vistype *
-            parent  ""
-            script  { mapviewer %W -width 600 -height 400 }
-        }
-
         detail {
             label   "Detail"
             vistype "*"
             parent  ""
             script  { detailbrowser %W }
+        }
+
+        viewer {
+            label   "Map"
+            vistype *
+            parent  ""
+            script  { mapviewer %W -width 600 -height 400 }
         }
 
         strategy {
@@ -435,8 +435,8 @@ snit::widget appwin {
 
     variable info -array {
         mode           scenario
-        tab-scenario   viewer
-        tab-simulation viewer
+        tab-scenario   detail
+        tab-simulation detail
         tabs           {}
         simstate       ""
         tick           "0000"
@@ -471,7 +471,10 @@ snit::widget appwin {
     # Constructor
 
     constructor {args} {
-        # FIRST, get the options
+        # FIRST, withdraw the hull widget, until it's populated.
+        wm withdraw $win
+
+        # NEXT, get the options
         $self configurelist $args
 
         # FIRST, create the timeout controlling reload requests.
@@ -520,10 +523,12 @@ snit::widget appwin {
         bind $viewer <<Ensit-1>>      [mymethod Ensit-1  %d]
         bind $viewer <<Nbhood-1>>     [mymethod Nbhood-1 %d]
 
+        # NEXT, restore the window
+        wm deiconify $win
+        raise $win
+
         # NEXT, Reload content
         $self reload
-
-
     }
 
     destructor {

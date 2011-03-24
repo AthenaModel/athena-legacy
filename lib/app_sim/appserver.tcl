@@ -57,8 +57,8 @@ snit::type appserver {
             doc     {Links to the currently defined actors.}
             pattern {^actor/?$}
             ctypes  {
-                tcl/linkdict {DictLinks actors a ::projectgui::icon::actor12}
-                text/html  {HtmlLinks "Actors" actors a}
+                tcl/linkdict {linkdict_EntityLinks /actor}
+                text/html  {html_EntityLinks /actor}
             }
         }
 
@@ -66,7 +66,7 @@ snit::type appserver {
             doc     {Detail page for actor {a}.}
             pattern {^actor/(\w+)/?$}
             ctypes  {
-                text/html {HtmlActor}
+                text/html {html_Actor}
             }
         }
 
@@ -74,8 +74,8 @@ snit::type appserver {
             doc     {Links to the currently defined civilian groups.}
             pattern {^civgroup/?$}
             ctypes  {
-                tcl/linkdict {DictLinks civgroups g ::projectgui::icon::civgroup12}
-                text/html  {HtmlLinks "Civ. Groups" civgroups g}
+                tcl/linkdict {linkdict_EntityLinks /civgroup}
+                text/html  {html_EntityLinks /civgroup}
             }
         }
 
@@ -83,7 +83,7 @@ snit::type appserver {
             doc     {Detail page for civilian group {g}.}
             pattern {^civgroup/(\w+)/?$}
             ctypes  {
-                text/html {HtmlEntity "Civ. Group" civgroups g}
+                text/html {html_GenericEntity "Civ. Group" civgroups g}
             }
         }
 
@@ -91,7 +91,15 @@ snit::type appserver {
             doc     {An HTML file in the Athena docs/ tree.}
             pattern {^(docs/[^.]+\.html)$}
             ctypes  {
-                text/html {HtmlFile ""}
+                text/html {text_File ""}
+            }
+        }
+
+        /docs/{path}.txt {
+            doc     {A .txt file in the Athena docs/ tree.}
+            pattern {^(docs/[^.]+\.txt)$}
+            ctypes  {
+                text/plain {text_File ""}
             }
         }
 
@@ -101,7 +109,7 @@ snit::type appserver {
             }
             pattern {^(docs/.+\.(gif|jpg|png))$}
             ctypes  {
-                tk/image {ImageFile ""}
+                tk/image {image_File ""}
             }
         }
 
@@ -109,8 +117,8 @@ snit::type appserver {
             doc     {Links to the main Athena entity types.}
             pattern {^entitytype/?$}
             ctypes  {
-                tcl/linkdict {DictEntityTypes}
-                text/html  {HtmlEntityTypes "Entity Types"}
+                tcl/linkdict {linkdict_EntityType}
+                text/html  {html_EntityType "Entity Types"}
             }
         }
 
@@ -121,8 +129,8 @@ snit::type appserver {
             }
             pattern {^entitytype/(bsystem)/?$}
             ctypes  {
-                tcl/linkdict {DictEntityTypes}
-                text/html  {HtmlEntityTypes "Belief System Entity Types"}
+                tcl/linkdict {linkdict_EntityType}
+                text/html  {html_EntityType "Belief System Entity Types"}
             }
         }
 
@@ -130,8 +138,8 @@ snit::type appserver {
             doc     {Links to the currently defined force groups.}
             pattern {^frcgroup/?$}
             ctypes  {
-                tcl/linkdict {DictLinks frcgroups g ::projectgui::icon::frcgroup12}
-                text/html  {HtmlLinks "Force Groups" frcgroups g}
+                tcl/linkdict {linkdict_EntityLinks /frcgroup}
+                text/html  {html_EntityLinks /frcgroup}
             }
         }
 
@@ -139,7 +147,7 @@ snit::type appserver {
             doc     {Detail page for force group {g}.}
             pattern {^frcgroup/(\w+)/?$}
             ctypes  {
-                text/html {HtmlEntity "Force Group" frcgroups g}
+                text/html {html_GenericEntity "Force Group" frcgroups g}
             }
         }
 
@@ -147,8 +155,8 @@ snit::type appserver {
             doc     {Links to the currently defined groups of all types.}
             pattern {^group/?$}
             ctypes  {
-                tcl/linkdict {DictLinks groups g ::projectgui::icon::group12}
-                text/html  {HtmlLinks "Groups" groups g}
+                tcl/linkdict {linkdict_EntityLinks /group}
+                text/html  {html_EntityLinks /group}
             }
         }
 
@@ -156,7 +164,7 @@ snit::type appserver {
             doc     {Detail page for group {g}.}
             pattern {^group/(\w+)/?$}
             ctypes  {
-                text/html {HtmlEntity "Group" groups g}
+                text/html {html_GenericEntity "Group" groups g}
             }
         }
 
@@ -164,7 +172,7 @@ snit::type appserver {
             doc     {Any Tk image, by its {name}.}
             pattern {^image/(.+)$}
             ctypes  {
-                tk/image {TkImage}
+                tk/image {image_TkImage}
             }
         }
 
@@ -172,7 +180,7 @@ snit::type appserver {
             doc     {An HTML file in the Athena library.}
             pattern {^lib/([^./]+\.html)$}
             ctypes  {
-                text/html {HtmlFile lib/app_sim}
+                text/html {text_File lib/app_sim}
             }
         }
 
@@ -182,16 +190,24 @@ snit::type appserver {
             }
             pattern {^lib/(.+\.(gif|jpg|png))$}
             ctypes  {
-                tk/image {ImageFile lib/app_sim}
+                tk/image {image_File lib/app_sim}
             }
         }
 
 
-        /mars/docs/path.html {
+        /mars/docs/{path}.html {
             doc     {An HTML file in the Athena mars/docs/ tree.}
             pattern {^(mars/docs/.+\.html)$}
             ctypes  {
-                text/html {HtmlFile ""}
+                text/html {text_File ""}
+            }
+        }
+
+        /mars/docs/{path}.txt {
+            doc     {A .txt file in the Athena mars/docs/ tree.}
+            pattern {^(mars/docs/.+\.txt)$}
+            ctypes  {
+                text/plain {text_File ""}
             }
         }
 
@@ -201,7 +217,7 @@ snit::type appserver {
             }
             pattern {^(mars/docs/.+\.(gif|jpg|png))$}
             ctypes  {
-                tk/image {ImageFile ""}
+                tk/image {image_File ""}
             }
         }
 
@@ -209,8 +225,8 @@ snit::type appserver {
             doc     {Links to the currently defined neighborhoods.}
             pattern {^nbhood/?$}
             ctypes  {
-                tcl/linkdict {DictLinks nbhoods n ::projectgui::icon::nbhood12}
-                text/html  {HtmlLinks "Neighborhoods" nbhoods n}
+                tcl/linkdict {linkdict_EntityLinks /nbhood}
+                text/html  {html_EntityLinks /nbhood}
             }
         }
 
@@ -218,7 +234,7 @@ snit::type appserver {
             doc     {Detail page for neighborhood {n}.}
             pattern {^nbhood/(\w+)/?$}
             ctypes  {
-                text/html {HtmlEntity "Neighborhood" nbhoods n}
+                text/html {html_GenericEntity "Neighborhood" nbhoods n}
             }
         }
 
@@ -226,8 +242,8 @@ snit::type appserver {
             doc     {Links to the currently defined organization groups.}
             pattern {^orggroup/?$}
             ctypes  {
-                tcl/linkdict {DictLinks orggroups g ::projectgui::icon::orggroup12}
-                text/html  {HtmlLinks "Org. Groups" orggroups g}
+                tcl/linkdict {linkdict_EntityLinks /orggroup}
+                text/html  {html_EntityLinks /orggroup}
             }
         }
 
@@ -235,7 +251,7 @@ snit::type appserver {
             doc     {Detail page for organization group {g}.}
             pattern {^orggroup/(\w+)/?$}
             ctypes  {
-                text/html {HtmlEntity "Org. Group" orggroups g}
+                text/html {html_GenericEntity "Org. Group" orggroups g}
             }
         }
 
@@ -243,7 +259,7 @@ snit::type appserver {
             doc     {Complete URL schema for this server.}
             pattern {^urlhelp/?$}
             ctypes  {
-                text/html {HtmlUrlHelp}
+                text/html {html_UrlHelp}
             }
         }
 
@@ -251,8 +267,67 @@ snit::type appserver {
             doc     {Help for URL {url}.}
             pattern {^urlhelp/(.+)$}
             ctypes  {
-                text/html {HtmlUrlHelp}
+                text/html {html_UrlHelp}
             }
+        }
+    }
+
+    #-------------------------------------------------------------------
+    # Entity Types
+    #
+    # This data is used to handle the entity type URLs.
+
+    # entityTypes: Nested dictionary of entity type data.
+    #
+    # key: entity type collection resource
+    #
+    # value: Dictionary of data about each entity
+    #
+    #   label     - A human readable label for this kind of entity.
+    #   listIcon  - A Tk icon to use in lists and trees next to the
+    #               label
+
+    typevariable entityTypes {
+        /actor {
+            label    "Actors"
+            listIcon ::projectgui::icon::actor12
+            table    actors
+            key      a
+        }
+
+        /nbhood {
+            label    "Neighborhoods"
+            listIcon ::projectgui::icon::nbhood12
+            table    nbhoods
+            key      n
+        }
+
+        /civgroup {
+            label    "Civ. Groups"
+            listIcon ::projectgui::icon::civgroup12
+            table    civgroups
+            key      g
+        }
+
+        /frcgroup {
+            label    "Force Groups"
+            listIcon ::projectgui::icon::frcgroup12
+            table    frcgroups
+            key      g
+        }
+
+        /group {
+            label    "Groups"
+            listIcon ::projectgui::icon::group12
+            table    groups
+            key      g
+        }
+
+        /orggroup {
+            label    "Org. Groups"
+            listIcon ::projectgui::icon::orggroup12
+            table    orggroups
+            key      g
         }
     }
 
@@ -379,167 +454,62 @@ snit::type appserver {
     }
 
 
-    
-    #-------------------------------------------------------------------
+    #===================================================================
     # Content Routines
-
-    # DictEntityTypes url matchArray
     #
-    # url        - The URL of the entitytype resource
+    # The following code relates to particular resources or kinds
+    # of content.
+
+    #-------------------------------------------------------------------
+    # Server Introspection
+
+    # html_UrlHelp url matchArray
+    #
+    # url        - The /urlhelp URL
     # matchArray - Array of pattern matches
-    #
-    # Returns an entitytype[/*] resource as a tcl/linkdict 
-    # where $(1) is the entity type subset.
+    # 
+    # Produces an HTML page detailing one or all of the URLs
+    # understood by this server.  Match parm (1) is either empty
+    # or a URL for which help is requested.
 
-    proc DictEntityTypes {url matchArray} {
+    proc html_UrlHelp {url matchArray} {
         upvar 1 $matchArray ""
 
-        set result {
-            /actor {
-                label    "Actors"
-                listIcon ::projectgui::icon::folder12
-            }
-
-            /nbhood {
-                label    "Neighborhoods"
-                listIcon ::projectgui::icon::folder12
-            }
-
-            /civgroup {
-                label    "Civ. Groups"
-                listIcon ::projectgui::icon::folder12
-            }
-
-            /frcgroup {
-                label    "Force Groups"
-                listIcon ::projectgui::icon::folder12
-            }
-
-            /orggroup {
-                label    "Org. Groups"
-                listIcon ::projectgui::icon::folder12
-            }
+        # FIRST, get the list of rtypes to document.
+        if {$(1) eq ""} {
+            set rtypes [dict keys $rinfo]
+            set title "URL Schema Help"
+        } else {
+            set rtypes [list [GetResourceType $(1) dummy]]
+            set title "URL Schema Help: /$(1)"
         }
 
-        if {$(1) eq "bsystem"} {
-            dict set bsystem /actor    [dict get $result /actor]
-            dict set bsystem /civgroup [dict get $result /civgroup]
+        # NEXT, format the output.
+        set trans [list \{ <i> \} </i>]
 
-            return $bsystem
+        ht::page $title
+        ht::h1 $title
+        ht::put <dl>
+
+        foreach rtype $rtypes {
+            set doc [string map $trans [dict get $rinfo $rtype doc]]
+            set ctypes [dict keys [dict get $rinfo $rtype ctypes]]
+            set rtype [string map $trans $rtype]
+
+            ht::put <dt><b>$rtype</b>
+            ht::put <dd>$doc ([join $ctypes {, }])<p>
         }
 
-        return $result
-    }
-    
-    # HtmlEntityTypes url matchArray
-    #
-    # title      - The page title
-    # url        - The URL of the entitytype resource
-    # matchArray - Array of pattern matches
-    #
-    # Returns an entitytype/* resource as a tcl/linkdict 
-    # where $(1) is the entity type subset.
+        ht::put </dl>
+        ht::/page
 
-    proc HtmlEntityTypes {title url matchArray} {
-        upvar 1 $matchArray ""
-
-        set types [DictEntityTypes $url ""]
-
-        return [Page $title [tsubst {
-            |<--
-            <h1>$title</h1>
-
-            <ul>
-            [tforeach link [dict keys $types] {
-                |<--
-                <li> <a href="$link">[dict get $types $link label]</a> </li>
-            }]
-            </ul>
-        }]]
+        return [ht::get]
     }
 
+    #-------------------------------------------------------------------
+    # Pre-loaded Tk Images
 
-    # DictLinks table key url matchArray
-    #
-    # table      - The RDB table
-    # key        - The key column in the RDB table
-    # listIcon   - The list icon
-    # url        - The URL of the collection resource
-    # matchArray - Array of pattern matches; ignored.
-    #
-    # Returns tcl/linkdict for a collection resource, based on an RDB 
-    # table.
-
-    proc DictLinks {table key listIcon url matchArray} {
-        set result [dict create]
-
-        rdb eval "SELECT $key AS id FROM $table ORDER BY $key" {
-            dict set result "$url/$id" \
-                [dict create label $id listIcon $listIcon]
-        }
-
-        return $result
-    }
-
-
-    # HtmlLinks title table key url matchArray
-    #
-    # title      - A title string for the list of links
-    # table      - The RDB table
-    # key        - The key column in the RDB table
-    # url        - The URL of the collection resource
-    # matchArray - Array of pattern matches; ignored.
-    #
-    # Returns a text/html of links for a collection resource, based on 
-    # an RDB table.
-
-    proc HtmlLinks {title table key url matchArray} {
-        set ids [rdb eval "SELECT $key AS id FROM $table ORDER BY $key"]
-
-        return [Page $title [tsubst {
-            |<--
-            <h1>$title</h1>
-
-            <ul>
-            [tforeach id $ids {
-                |<--
-                <li> <a href="$url/$id">$id</a> </li>
-            }]
-            </ul>
-        }]]
-    }
-
-    # HtmlEntity title url matchArray
-    #
-    # title      - A title string for the kind of entity
-    # table      - The RDB table
-    # key        - The key column in the RDB table
-    # url        - The URL of the entity
-    # matchArray - Array of pattern matches
-    #
-    # Returns a stub text/html page for an entity.  Used as a stopgap
-    # when no detailed content exists.
-
-    proc HtmlEntity {title table key url matchArray} {
-        upvar $matchArray ""
-
-        set id $(1)
-
-        if {![rdb exists "SELECT * FROM $table WHERE $key = \$id"]} {
-            return -code error -errorcode NOTFOUND \
-                "Unknown entity: $url."
-        }
-
-
-        return [Page "$title: $(1)" [tsubst {
-            |<--
-            <h1>$title: $(1)</h1>
-
-            No additional information has been provided for this entity.<p>
-        }]]
-    }
-
-    # TkImage url matchArray
+    # image_TkImage url matchArray
     #
     # url        - The URL that was requested
     # matchArray - Array of matches from the URL
@@ -547,7 +517,7 @@ snit::type appserver {
     # Validates $(1) as a Tk image, and returns it as the tk/image
     # content.
 
-    proc TkImage {url matchArray} {
+    proc image_TkImage {url matchArray} {
         upvar $matchArray ""
 
         if {[catch {image type $(1)} result]} {
@@ -558,83 +528,22 @@ snit::type appserver {
         return $(1)
     }
 
-
     #-------------------------------------------------------------------
-    # Actor-specific handlers
-
-    # HtmlActor url matchArray
+    # App Files
     #
-    # url        - The URL that was requested
-    # matchArray - Array of matches from the URL
+    # These routines serve files in the appdir tree.
 
-    proc HtmlActor {url matchArray} {
-        upvar $matchArray ""
-
-        # Accumulate data
-        set a $(1)
-
-        if {![rdb exists {SELECT * FROM actors WHERE a=$a}]} {
-            return -code error -errorcode NOTFOUND \
-                "Unknown entity: $url."
-        }
-
-        # Build the page
-        set out "<h1>Actor: $a</h1>\n\n"
-
-        append out "<h2>Personnel Assets</h2>\n\n"
-
-        set body ""
-        rdb eval {
-            SELECT P.n         AS n, 
-                   P.g         AS g,
-                   P.personnel AS personnel, 
-                   G.gtype     AS gtype, 
-                   G.longname  AS longname, 
-                   AG.subtype  AS subtype
-            FROM personnel_ng AS P
-            JOIN groups       AS G  USING (g)
-            JOIN gui_agroups  AS AG USING (g)
-            WHERE AG.a=$a
-            AND   personnel > 0
-        } {
-            append body [tsubst {
-                |<--
-                <tr valign=top>
-                <td>[Link /nbhood/$n $n]</td>
-                <td align=right>$personnel</td>
-                <td>[Link /group/$g "$g: $longname"]</td>
-                <td>$gtype/$subtype</td>
-                </tr>
-            }]
-        }
-
-        if {$body eq ""} {
-            append out "None.\n\n"
-        } else {
-            append out [tsubst {
-                |<--
-                [Table {Nbhood Personnel Group Type}]
-
-                $body
-
-                </table>
-            }]
-        }
-
-        return [Page "Actor: $a" $out]
-    }
-
-    # HtmlFile base url matchArray
+    # text_File base url matchArray
     #
     # base       - A directory within the appdir tree, or ""
     # url        - The URL of the entity
     # matchArray - Array of pattern matches
     #
-    #     (1) - *.html
+    #     (1) - *.html or *.txt
     #
     # Retrieves the file.
 
-    proc HtmlFile {base url matchArray} {
+    proc text_File {base url matchArray} {
         upvar 1 $matchArray ""
 
         set fullname [appdir join $base $(1)]
@@ -643,13 +552,13 @@ snit::type appserver {
             set content [readfile $fullname]
         } result]} {
             return -code error -errorcode NOTFOUND \
-                "Documentation page could not be found: $(1)"
+                "Page could not be found: $(1)"
         }
 
         return $content
     }
 
-    # ImageFile base url matchArray
+    # image_File base url matchArray
     #
     # base       - A directory within the appdir tree, or ""
     # url        - The URL of the entity
@@ -659,7 +568,7 @@ snit::type appserver {
     #
     # Retrieves and caches the file, returning a tk/image.
 
-    proc ImageFile {base url matchArray} {
+    proc image_File {base url matchArray} {
         upvar 1 $matchArray ""
 
         set fullname [appdir join $base $(1)]
@@ -682,8 +591,8 @@ snit::type appserver {
 
 
         if {[catch {
-            set mtime [file mtime $(1)]
-            set img   [image create photo -file $(1)]
+            set mtime [file mtime $fullname]
+            set img   [image create photo -file $fullname]
         } result]} {
             return -code error -errorcode NOTFOUND \
                 "Image file could not be found: $(1)"
@@ -694,94 +603,224 @@ snit::type appserver {
         return $img
     }
 
-    # HtmlUrlHelp url matchArray
-    #
-    # url        - The /urlhelp URL
-    # matchArray - Array of pattern matches
-    # 
-    # Produces an HTML page detailing one or all of the URLs
-    # understood by this server.  Match parm (1) is either empty
-    # or a URL for which help is requested.
+    #-------------------------------------------------------------------
+    # Generic Entity Type Code
 
-    proc HtmlUrlHelp {url matchArray} {
+    # linkdict_EntityType url matchArray
+    #
+    # url        - The URL of the entitytype resource
+    # matchArray - Array of pattern matches
+    #
+    # Returns an entitytype[/*] resource as a tcl/linkdict 
+    # where $(1) is the entity type subset.
+
+    proc linkdict_EntityType {url matchArray} {
         upvar 1 $matchArray ""
 
-        # FIRST, get the list of rtypes to document.
-        if {$(1) eq ""} {
-            set rtypes [dict keys $rinfo]
-            set title "URL Schema Help"
-        } else {
-            set rtypes [list [GetResourceType $(1) dummy]]
-            set title "URL Schema Help: /$(1)"
+        # FIRST, handle subsets
+        switch -exact -- $(1) {
+            "" { 
+                set subset {/actor /nbhood /civgroup /frcgroup /orggroup}
+            }
+
+            bsystem { 
+                set subset {/actor /civgroup}    
+            }
+
+            default { error "Unexpected URL: \"$url\"" }
         }
 
-        # NEXT, format the output.
-        set trans [list \{ <i> \} </i>]
+        foreach etype $subset {
+            dict set result $etype [dict get $entityTypes $etype]
+        }
 
-        set body [tsubst {
-            |<--
-            <h1>$title</h1>
+        return $result
+    }
+    
+    # html_EntityType url matchArray
+    #
+    # title      - The page title
+    # url        - The URL of the entitytype resource
+    # matchArray - Array of pattern matches
+    #
+    # Returns an entitytype/* resource as a tcl/linkdict 
+    # where $(1) is the entity type subset.
 
-            <dl>
-            [tforeach rtype $rtypes {
-                set doc [string map $trans [dict get $rinfo $rtype doc]]
-                set ctypes [dict keys [dict get $rinfo $rtype ctypes]]
-                set rtype [string map $trans $rtype]
-            } {
-                |<--
-                <dt><b>$rtype</b></td> 
-                <dd>$doc ([join $ctypes ", "])<p></dd>
-            }]
-            </dl>
-        }]
+    proc html_EntityType {title url matchArray} {
+        upvar 1 $matchArray ""
 
-        return [Page $title $body]
-        
+        set types [linkdict_EntityType $url ""]
+
+        ht::page $title
+        ht::h1 $title
+        ht::ul {
+            foreach link [dict keys $types] {
+                ht::li { ht::link $link [dict get $types $link label] }
+            }
+        }
+        ht::/page
+
+        return [ht::get]
+    }
+
+
+    # linkdict_EntityLinks table key url matchArray
+    #
+    # etype      - entityTypes key
+    # url        - The URL of the collection resource
+    # matchArray - Array of pattern matches; ignored.
+    #
+    # Returns tcl/linkdict for a collection resource, based on an RDB 
+    # table.
+
+    proc linkdict_EntityLinks {etype url matchArray} {
+        set result [dict create]
+
+        dict with entityTypes $etype {
+            rdb eval "SELECT $key AS id FROM $table ORDER BY $key" {
+                dict set result "$url/$id" \
+                    [dict create label $id listIcon $listIcon]
+            }
+        }
+
+        return $result
+    }
+
+
+    # html_EntityLinks etype url matchArray
+    #
+    # etype      - entityTypes key
+    # url        - The URL of the collection resource
+    # matchArray - Array of pattern matches; ignored.
+    #
+    # Returns a text/html of links for a collection resource, based on 
+    # an RDB table.
+
+    proc html_EntityLinks {etype url matchArray} {
+        dict with entityTypes $etype {
+            set ids [rdb eval "SELECT $key AS id FROM $table ORDER BY $key"]
+
+            ht::page $label
+            ht::h1 $label
+
+            if {[llength $ids] == 0} {
+                ht::put "No entities of this type have been defined."
+                ht::para
+            } else {
+                ht::ul {
+                    foreach id $ids {
+                        ht::li { ht::link $url/$id $id }
+                    }
+                }
+            }
+
+            ht::/page
+            
+            return [ht::get]
+        }
+    }
+
+    # html_GenericEntity title url matchArray
+    #
+    # title      - A title string for the kind of entity
+    # table      - The RDB table
+    # key        - The key column in the RDB table
+    # url        - The URL of the entity
+    # matchArray - Array of pattern matches
+    #
+    # Returns a stub text/html page for an entity.  Used as a stopgap
+    # when no detailed content exists.
+
+    proc html_GenericEntity {title table key url matchArray} {
+        upvar $matchArray ""
+
+        set id $(1)
+
+        if {![rdb exists "SELECT * FROM $table WHERE $key = \$id"]} {
+            return -code error -errorcode NOTFOUND \
+                "Unknown entity: $url."
+        }
+
+        ht::page "$title: $(1)" {
+            ht::h1 "$title: $(1)"
+            ht::put \
+              "No additional information has been provided for this entity."
+            ht::para
+        }
+
+        return [ht::get]
+    }
+
+    #-------------------------------------------------------------------
+    # Actor-specific handlers
+    #
+    # TBD: Eventually, this should go elsewhere.
+
+    # html_Actor url matchArray
+    #
+    # url        - The URL that was requested
+    # matchArray - Array of matches from the URL
+
+    proc html_Actor {url matchArray} {
+        upvar $matchArray ""
+
+        # Accumulate data
+        set a $(1)
+
+        if {![rdb exists {SELECT * FROM actors WHERE a=$a}]} {
+            return -code error -errorcode NOTFOUND \
+                "Unknown entity: $url."
+        }
+
+        # Begin the page
+        ht::page "Actor: $a"
+        ht::h1 "Actor: $a"
+
+        # Personnel Assets
+        ht::h2 "Personnel Assets"
+
+        ht::push
+        rdb eval {
+            SELECT P.n         AS n, 
+                   P.g         AS g,
+                   P.personnel AS personnel, 
+                   G.gtype     AS gtype, 
+                   G.longname  AS longname, 
+                   AG.subtype  AS subtype
+            FROM personnel_ng AS P
+            JOIN groups       AS G  USING (g)
+            JOIN gui_agroups  AS AG USING (g)
+            WHERE AG.a=$a
+            AND   personnel > 0
+        } {
+            ht::tr {
+                ht::td       { ht::link /nbhood/$n $n             }
+                ht::td-right { ht::put $personnel                 }
+                ht::td       { ht::link /group/$g "$g: $longname" }
+                ht::td       { ht::put $gtype/$subtype            }
+            }
+        }
+
+        set rows [ht::pop]
+
+        if {$rows eq ""} {
+            ht::put "None."
+            ht::para
+        } else {
+            ht::table {Nbhood Personnel Group Type} {
+                ht::put $rows
+            }
+            ht::para
+        }
+
+        ht::/page
+
+        return [ht::get]
     }
 
 
     #-------------------------------------------------------------------
-    # HTML Convenience routines
+    # HTML Boilerplate routines
 
-    # Page title body
-    #
-    # title - Title of HTML page
-    # body  - Body text
-    #
-    # Wraps the body text with the relevant HTML boilerplate.
-
-    proc Page {title body} {
-        return \
-        "<html><head><title>$title</title></head>\n<body>$body</body></html>"
-    }
-
-    # Link url label
-    #
-    # url    - A resource URL
-    # label  - A text label
-    #
-    # Formats and returns an HTML link.
-
-    proc Link {url label} {
-        return "<a href=\"$url\">$label</a>"
-    }
-
-    # Table headers
-    #
-    # headers - A list of column headers
-    #
-    # Begins a standard table with the specified column headers
-
-    proc Table {headers} {
-        set out "<table border=1 cellpadding=2 cellspacing=0>\n"
-        append out "<tr align=left>\n"
-
-        foreach header $headers {
-            append out "<td>$header</td>\n"
-        }
-        append out "</tr>\n"
-
-        return $out
-    }
 }
 

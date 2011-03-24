@@ -235,7 +235,7 @@ snit::widget ::projectgui::linktree {
         dict with etdict {
             $tree item text $id 0 $label
             $tree item element configure $id 0 elemIcon \
-                -image $listIcon
+                -image ::projectgui::icon::folder12
         }
 
         # Resolve the etype, so that we have a complete URL
