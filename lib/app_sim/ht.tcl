@@ -66,7 +66,7 @@ snit::type ht {
     # Get the text in the main buffer.
 
     proc get {} {
-        return $stack(0)
+        return $stack($sp)
     }
 
     # clear
@@ -91,6 +91,9 @@ snit::type ht {
     # pop
     #
     # Pops a buffer off of the stack, and returns its contents.
+    # If "else" is given, the buffer is automatically put into
+    # the level below, unless it's empty; if it's empty, the
+    # body is executed.
 
     proc pop {} {
         if {$sp <= 0} {
@@ -177,6 +180,26 @@ snit::type ht {
 
     proc h3 {title} {
         put <h3>$title</h2>
+    }
+
+    # tinyb text
+    #
+    # text - A text string
+    #
+    # Sets the text in tiny bold.
+
+    proc tinyb {text} {
+        put "<font size=2><b>$text</b></font>"
+    }
+
+    # tinyi text
+    #
+    # text - A text string
+    #
+    # Sets the text in tiny italics.
+
+    proc tinyi {text} {
+        put "<font size=2><i>$text</i></font>"
     }
 
     # ul ?body?
@@ -333,6 +356,16 @@ snit::type ht {
 
     proc /table {} {
         put </table>
+    }
+
+    # image name
+    #
+    # name - A Tk image name
+    #
+    # Adds an in-line <img>.
+
+    proc image {name} {
+        put "<img src=\"/image/$name\">"
     }
 }
 

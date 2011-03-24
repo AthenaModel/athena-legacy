@@ -773,11 +773,72 @@ snit::type appserver {
         }
 
         # Begin the page
-        ht::page "Actor: $a"
-        ht::h1 "Actor: $a"
+        array set data [actor get $a]
 
-        # Personnel Assets
-        ht::h2 "Personnel Assets"
+        ht::page "Actor: $a"
+        ht::h1 "Actor: $data(longname) ($a)"
+
+        # Asset Summary
+        ht::put "Fiscal assets: about $[moneyfmt $data(cash)],"
+        ht::put "plus about $[moneyfmt $data(income)] per week."
+        ht::put "Groups owned:"
+        ht::push
+
+        rdb eval {
+            SELECT g FROM gui_agroups 
+            WHERE a=$a
+            ORDER BY g
+        } {
+            # TBD: we want to be able to add punctuation.
+            # How?
+            ht::link /group/$g $g
+        }
+
+        set text [ht::pop]
+
+        if {$text ne ""} {
+            ht::put $text
+        } else {
+            ht::put "None."
+        }
+        
+        ht::para
+
+        # Goals
+        ht::h2 "Goals"
+
+        ht::push
+        rdb eval {
+            SELECT narrative, flag, goal_id FROM goals
+            WHERE owner=$a AND state = 'normal'
+        } {
+            ht::ul {
+                ht::li {
+                    if {$flag ne ""} {
+                        if {$flag} {
+                            ht::image ::marsgui::smthumbupgreen
+                        } else {
+                            ht::image ::marsgui::smthumbdownred
+                        }
+                    }
+                    ht::put $narrative
+                    ht::tinyi "(goal=$goal_id)"
+                }
+            }
+            ht::para
+        }
+
+        set text [ht::pop]
+
+        if {$text ne ""} {
+            ht::put $text
+        } else {
+            ht::put "None."
+            ht::para
+        }
+
+        # Deployment
+        ht::h2 "Force Deployment"
 
         ht::push
         rdb eval {
@@ -812,6 +873,51 @@ snit::type appserver {
             }
             ht::para
         }
+
+        # Civilian Support
+        ht::h2 "Topics Not Yet Covered"
+
+        ht::put {We might add information about the following topics.}
+
+        ht::ul {
+            ht::li {
+                ht::put {
+                    <b>Sphere of Influence</b>: the neighborhoods
+                    the actor controls, wishes to control, and has
+                    influence in.   The text should show the 
+                    neighborhoods in which he has the most influence
+                    first.
+                }
+            }
+
+            ht::li {
+                ht::put {
+                    <b>Civilian Support</b>: a breakdown of which
+                    groups support or oppose the actor, by 
+                    neighborhood.
+                }
+            }
+
+            ht::li {
+                ht::put {
+                    <b>Recent Tactics</b>: The tactics recently used
+                    by the actor.
+                }
+            }
+
+            ht::li {
+                ht::put {
+                    <b>Significant events</b:  Things the actor has
+                    recently accomplished, or that have recently
+                    happened to him, e.g., gained or lost control of a
+                    neighborhood.
+                }
+            }
+
+        }
+
+        ht::para
+
 
         ht::/page
 
