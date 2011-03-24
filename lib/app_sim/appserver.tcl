@@ -89,9 +89,19 @@ snit::type appserver {
 
         /docs/{path}.html {
             doc     {An HTML file in the Athena docs/ tree.}
-            pattern {^(docs/[^.]*\.html)$}
+            pattern {^(docs/[^.]+\.html)$}
             ctypes  {
-                text/html {DocsPage}
+                text/html {HtmlFile ""}
+            }
+        }
+
+        /docs/{imageFile} {
+            doc     {
+                A .gif, .jpg, or .png file in the Athena /docs/ tree.
+            }
+            pattern {^(docs/.+\.(gif|jpg|png))$}
+            ctypes  {
+                tk/image {ImageFile ""}
             }
         }
 
@@ -150,11 +160,48 @@ snit::type appserver {
             }
         }
 
+        /image/{name} {
+            doc     {Any Tk image, by its {name}.}
+            pattern {^image/(.+)$}
+            ctypes  {
+                tk/image {TkImage}
+            }
+        }
+
+        /lib/{file}.html {
+            doc     {An HTML file in the Athena library.}
+            pattern {^lib/([^./]+\.html)$}
+            ctypes  {
+                text/html {HtmlFile lib/app_sim}
+            }
+        }
+
+        /lib/{imageFile} {
+            doc     {
+                A .gif, .jpg, or .png file in the Athena library.
+            }
+            pattern {^lib/(.+\.(gif|jpg|png))$}
+            ctypes  {
+                tk/image {ImageFile lib/app_sim}
+            }
+        }
+
+
         /mars/docs/path.html {
             doc     {An HTML file in the Athena mars/docs/ tree.}
-            pattern {^(mars/docs/.*\.html)$}
+            pattern {^(mars/docs/.+\.html)$}
             ctypes  {
-                text/html {DocsPage}
+                text/html {HtmlFile ""}
+            }
+        }
+
+        /mars/docs/{imageFile} {
+            doc     {
+                A .gif, .jpg, or .png file in the Athena mars/docs/ tree.
+            }
+            pattern {^(mars/docs/.+\.(gif|jpg|png))$}
+            ctypes  {
+                tk/image {ImageFile ""}
             }
         }
 
@@ -202,22 +249,16 @@ snit::type appserver {
 
         /urlhelp/{url} {
             doc     {Help for URL {url}.}
-            pattern {^urlhelp/(.*)$}
+            pattern {^urlhelp/(.+)$}
             ctypes  {
                 text/html {HtmlUrlHelp}
-            }
-        }
-
-        /welcome {
-            doc     {Application home page.}
-            pattern {^welcome$}
-            ctypes  {
-                text/html {HtmlFile welcome.html}
             }
         }
     }
 
     #-------------------------------------------------------------------
+    # Type Variables
+
     # Resource Type Cache
     #
     # Looking up a URL requires matching it against a variety of 
@@ -231,6 +272,14 @@ snit::type appserver {
     # The key is a URL; the value is a pair, resourceType/matchDict
 
     typevariable rtypeCache -array {}
+
+    # Image Cache
+    # 
+    # Image files loaded from disk are cached as Tk images in the 
+    # imageCache array.  The keys are image file URLs; the 
+    # values are pairs, Tk image name and [file mtime].
+
+    typevariable imageCache -array {}
 
     #-------------------------------------------------------------------
     # get
@@ -271,6 +320,7 @@ snit::type appserver {
         dict with rinfo $rtype {
             if {[llength $contentTypes] == 0} {
                 set contentType [lindex [dict keys $ctypes] 0]
+                set handler [dict get $ctypes $contentType]
             } else {
                 foreach cpat $contentTypes {
                     dict for {ctype handler} $ctypes {
@@ -489,6 +539,25 @@ snit::type appserver {
         }]]
     }
 
+    # TkImage url matchArray
+    #
+    # url        - The URL that was requested
+    # matchArray - Array of matches from the URL
+    #
+    # Validates $(1) as a Tk image, and returns it as the tk/image
+    # content.
+
+    proc TkImage {url matchArray} {
+        upvar $matchArray ""
+
+        if {[catch {image type $(1)} result]} {
+            return -code error -errorcode NOTFOUND \
+                "Image not found: $url"
+        }
+
+        return $(1)
+    }
+
 
     #-------------------------------------------------------------------
     # Actor-specific handlers
@@ -555,27 +624,9 @@ snit::type appserver {
         return [Page "Actor: $a" $out]
     }
 
-    # HtmlFile filename url matchArray
+    # HtmlFile base url matchArray
     #
-    # filename   - The path to the file in the app_sim::library directory
-    # url        - The URL of the entity
-    # matchArray - Array of pattern matches
-    #
-    # Retrieves the file.
-
-    proc HtmlFile {filename url matchArray} {
-        set fullname [file join $::app_sim::library $filename]
-
-        if {![file exists $fullname]} {
-            return -code error -errorcode NOTFOUND \
-                "HTML file could not be found: $filename"
-        }
-
-        return [readfile $fullname]
-    }
-
-    # DocsPage url matchArray
-    #
+    # base       - A directory within the appdir tree, or ""
     # url        - The URL of the entity
     # matchArray - Array of pattern matches
     #
@@ -583,17 +634,64 @@ snit::type appserver {
     #
     # Retrieves the file.
 
-    proc DocsPage {url matchArray} {
+    proc HtmlFile {base url matchArray} {
         upvar 1 $matchArray ""
 
-        set fullname [appdir join $(1)]
+        set fullname [appdir join $base $(1)]
 
-        if {![file exists $fullname]} {
+        if {[catch {
+            set content [readfile $fullname]
+        } result]} {
             return -code error -errorcode NOTFOUND \
                 "Documentation page could not be found: $(1)"
         }
 
-        return [readfile $fullname]
+        return $content
+    }
+
+    # ImageFile base url matchArray
+    #
+    # base       - A directory within the appdir tree, or ""
+    # url        - The URL of the entity
+    # matchArray - Array of pattern matches
+    #
+    #     (1) - image file name, relative to appdir.
+    #
+    # Retrieves and caches the file, returning a tk/image.
+
+    proc ImageFile {base url matchArray} {
+        upvar 1 $matchArray ""
+
+        set fullname [appdir join $base $(1)]
+
+        # FIRST, see if we have it cached.
+        if {[info exists imageCache($url)]} {
+            lassign $imageCache($url) img mtime
+
+            # FIRST, If the file exists and is unchanged, 
+            # return the cached value.
+            if {![catch {file mtime $fullname} newMtime] &&
+                $newMtime == $mtime
+            } {
+                return $img
+            }
+            
+            # NEXT, Otherwise, clear the cache.
+            unset imageCache($url)
+        }
+
+
+        if {[catch {
+            set mtime [file mtime $(1)]
+            set img   [image create photo -file $(1)]
+        } result]} {
+            return -code error -errorcode NOTFOUND \
+                "Image file could not be found: $(1)"
+        }
+
+        set imageCache($url) [list $img $mtime]
+
+        return $img
     }
 
     # HtmlUrlHelp url matchArray

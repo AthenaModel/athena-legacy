@@ -217,7 +217,7 @@ snit::widget ::projectgui::mybrowser {
 
         # NEXT, create the agent.
         install agent using myagent ${selfns}::agent \
-            -contenttypes {text/html text/plain}
+            -contenttypes {text/html text/plain tk/image}
 
         # NEXT, get the options
         $self configurelist $args
@@ -289,7 +289,13 @@ snit::widget ::projectgui::mybrowser {
     # Returns the Tk image relating to the src.
 
     method ImageCmd {src width height dict dummy} {
-        error "Images are not yet supported."
+        if {[catch {$agent get $src} cdict]              ||
+            [dict get $cdict contentType] ne "tk/image"
+        } {
+            return ::marsgui::icon::question22
+        }
+
+        return [dict get $cdict content]
     }
 
    
@@ -415,9 +421,15 @@ snit::widget ::projectgui::mybrowser {
 
         dict with result {
             # FIRST, handle special content.
-            if {$contentType eq "text/plain"} {
-                set content \
-                    "<pre>[string map {& &amp; < &lt; > &gt;} $content]</pre>"
+            switch -exact -- $contentType {
+                text/plain {
+                    set content \
+                  "<pre>[string map {& &amp; < &lt; > &gt;} $content]</pre>"
+                }
+
+                tk/image {
+                    set content "<img src=\"$url\">"
+                }
             }
 
             # NEXT, show the page.

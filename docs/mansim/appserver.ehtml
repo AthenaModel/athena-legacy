@@ -56,6 +56,10 @@ The client should generally use <<xref myagent(n)>>'s
 <<xref myagent(n) resolve>> command to convert the links in the
 dictionary to fully-qualified URLs.<p>
 
+<<defitem tk/image {tk/image}>>
+
+The content is the name of a Tk image.<p>
+
 <</deflist>>
 
 <<section "COMMANDS">>
