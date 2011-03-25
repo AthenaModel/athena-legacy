@@ -40,23 +40,23 @@ snit::type ht {
     #
     # text - One or more text strings
     #
-    # Adds the text strings to the buffer, separated by spaces, 
-    # plus a newline on the end.
+    # Adds the text strings to the buffer, separated by spaces.
 
     proc put {args} {
-        append stack($sp) [join $args " "] \n
+        append stack($sp) [join $args " "]
 
         return
     }
 
-    # add text...
+    # putln text...
     #
     # text - One or more text strings
     #
-    # Adds the text strings to the buffer, separated by spaces.
+    # Adds the text strings to the buffer, separated by spaces,
+    # and *preceded* by a newline.
 
-    proc add {args} {
-        append stack($sp) [join $args " "]
+    proc putln {args} {
+        append stack($sp) \n [join $args " "]
 
         return
     }
@@ -122,8 +122,8 @@ snit::type ht {
         clear
 
         put <html><head>
-        put <title>$title</title>
-        put </head>
+        putln <title>$title</title>
+        putln </head>
 
         if {$body ne ""} {
             uplevel 1 $body
@@ -136,20 +136,20 @@ snit::type ht {
     # Adds the standard footer boilerplate
 
     proc /page {} {
-        put <hr>
-        add "<font size=2><i>"
+        putln <hr>
+        putln "<font size=2><i>"
 
         if {[sim state] eq "PREP"} {
-            add "Scenario is unlocked."
+            put "Scenario is unlocked."
         } else {
-            add [format "Simulation time: Day %04d, %s." \
+            put [format "Simulation time: Day %04d, %s." \
                       [simclock now] [simclock asZulu]]
         }
 
-        add [format " -- Wall Clock: %s" [clock format [clock seconds]]]
+        put [format " -- Wall Clock: %s" [clock format [clock seconds]]]
 
         put "</i></font>"
-        put "</body></html>"
+        putln "</body></html>"
     }
 
     # h1 title
@@ -159,7 +159,7 @@ snit::type ht {
     # Returns an HTML H1 title.
 
     proc h1 {title} {
-        put <h1>$title</h1>
+        putln <h1>$title</h1>
     }
 
     # h2 title
@@ -169,7 +169,7 @@ snit::type ht {
     # Returns an HTML H2 title.
 
     proc h2 {title} {
-        put <h2>$title</h2>
+        putln <h2>$title</h2>
     }
 
     # h3 title
@@ -179,7 +179,7 @@ snit::type ht {
     # Returns an HTML H3 title.
 
     proc h3 {title} {
-        put <h3>$title</h2>
+        putln <h3>$title</h2>
     }
 
     # tinyb text
@@ -210,11 +210,11 @@ snit::type ht {
     # the </ul> is added automatically.
    
     proc ul {{body ""}} {
-        put <ul>
+        putln <ul>
 
         if {$body ne ""} {
-            put [uplevel 1 $body]
-            put </ul>
+            uplevel 1 $body
+            /ul
         }
     }
 
@@ -226,10 +226,10 @@ snit::type ht {
     # the </li> is added automatically.
     
     proc li {{body ""}} {
-        put <li>
+        putln <li>
 
         if {$body ne ""} {
-            put [uplevel 1 $body]
+            uplevel 1 $body
             put </li>
         }
 
@@ -240,7 +240,7 @@ snit::type ht {
     # Ends an unordered list
     
     proc /ul {} {
-        put </ul>
+        putln </ul>
     }
 
     # para
@@ -262,6 +262,57 @@ snit::type ht {
         put "<a href=\"$url\">$label</a>"
     }
 
+    # linklist ?options...? links
+    #
+    # links  - A list of links and labels
+    #
+    # Options:
+    #   -delim   - Delimiter; defaults to ", "
+    #   -default - String to put if list is empty; defaults to ""
+    #
+    # Formats and returns a list of HTML links.
+
+    proc linklist {args} {
+        # FIRST, get the options
+        set links [lindex $args end]
+        set args  [lrange $args 0 end-1]
+
+        array set opts {
+            -delim   ", "
+            -default ""
+        }
+
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+
+            switch -exact -- $opt {
+                -delim   -
+                -default {
+                    set opts($opt) [lshift args]
+                }
+
+                default {
+                    error "Unknown option: \"$opt\""
+                }
+            }
+        }
+
+        # NEXT, build the list of links.
+        set list [list]
+        foreach {url label} $links {
+            lappend list "<a href=\"$url\">$label</a>"
+        }
+
+        set result [join $list $opts(-delim)]
+
+        if {$result ne ""} {
+            put $result
+        } else {
+            put $opts(-default)
+        }
+    }
+
+
     # table headers ?body?
     #
     # headers - A list of column headers
@@ -272,8 +323,8 @@ snit::type ht {
     # added automatically.
 
     proc table {headers {body ""}} {
-        put "<table border=1 cellpadding=2 cellspacing=0>"
-        put "<tr align=left>"
+        putln "<table border=1 cellpadding=2 cellspacing=0>"
+        putln "<tr align=left>"
 
         foreach header $headers {
             put "<th align=left>$header</th>"
@@ -281,8 +332,8 @@ snit::type ht {
         put </tr>
 
         if {$body ne ""} {
-            put [uplevel 1 $body]
-            put </table>
+            uplevel 1 $body
+            /table
         }
     }
 
@@ -294,12 +345,12 @@ snit::type ht {
     # it is executed, and the </tr> is included automatically.
     
     proc tr {{body ""}} {
-        put "<tr valign=top>"
+        putln "<tr valign=top>"
 
         if {$body ne ""} {
             if {$body ne ""} {
-                put [uplevel 1 $body]
-                put </tr>
+                uplevel 1 $body
+                /tr
             }
         }
     }
@@ -312,9 +363,9 @@ snit::type ht {
     # it is executed, and the </td> is included automatically.
     
     proc td {{body ""}} {
-        put <td>
+        putln <td>
         if {$body ne ""} {
-            put [uplevel 1 $body]
+            uplevel 1 $body
             put </td>
         }
     }
@@ -327,9 +378,9 @@ snit::type ht {
     # it is executed, and the </td> is included automatically.
     
     proc td-right {{body ""}} {
-        put <td align=right>
+        putln <td align=right>
         if {$body ne ""} {
-            put [uplevel 1 $body]
+            uplevel 1 $body
             put </td>
         }
     }

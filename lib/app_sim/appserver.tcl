@@ -489,18 +489,18 @@ snit::type appserver {
 
         ht::page $title
         ht::h1 $title
-        ht::put <dl>
+        ht::putln <dl>
 
         foreach rtype $rtypes {
             set doc [string map $trans [dict get $rinfo $rtype doc]]
             set ctypes [dict keys [dict get $rinfo $rtype ctypes]]
             set rtype [string map $trans $rtype]
 
-            ht::put <dt><b>$rtype</b>
-            ht::put <dd>$doc ([join $ctypes {, }])<p>
+            ht::putln <dt><b>$rtype</b></dt>
+            ht::putln <dd>$doc ([join $ctypes {, }])<p>
         }
 
-        ht::put </dl>
+        ht::putln </dl>
         ht::/page
 
         return [ht::get]
@@ -704,7 +704,7 @@ snit::type appserver {
             ht::h1 $label
 
             if {[llength $ids] == 0} {
-                ht::put "No entities of this type have been defined."
+                ht::putln "No entities of this type have been defined."
                 ht::para
             } else {
                 ht::ul {
@@ -743,7 +743,7 @@ snit::type appserver {
 
         ht::page "$title: $(1)" {
             ht::h1 "$title: $(1)"
-            ht::put \
+            ht::putln \
               "No additional information has been provided for this entity."
             ht::para
         }
@@ -779,29 +779,16 @@ snit::type appserver {
         ht::h1 "Actor: $data(longname) ($a)"
 
         # Asset Summary
-        ht::put "Fiscal assets: about $[moneyfmt $data(cash)],"
+        ht::putln "Fiscal assets: about $[moneyfmt $data(cash)],"
         ht::put "plus about $[moneyfmt $data(income)] per week."
-        ht::put "Groups owned:"
-        ht::push
+        ht::putln "Groups owned: "
 
-        rdb eval {
-            SELECT g FROM gui_agroups 
+        ht::linklist -default "None." [rdb eval {
+            SELECT '/group/' || g, g FROM gui_agroups 
             WHERE a=$a
             ORDER BY g
-        } {
-            # TBD: we want to be able to add punctuation.
-            # How?
-            ht::link /group/$g $g
-        }
+        }]
 
-        set text [ht::pop]
-
-        if {$text ne ""} {
-            ht::put $text
-        } else {
-            ht::put "None."
-        }
-        
         ht::para
 
         # Goals
@@ -816,13 +803,13 @@ snit::type appserver {
                 ht::li {
                     if {$flag ne ""} {
                         if {$flag} {
-                            ht::image ::marsgui::smthumbupgreen
+                            ht::image ::marsgui::icon::smthumbupgreen
                         } else {
-                            ht::image ::marsgui::smthumbdownred
+                            ht::image ::marsgui::icon::smthumbdownred
                         }
                     }
                     ht::put $narrative
-                    ht::tinyi "(goal=$goal_id)"
+                    ht::tinyi " (goal=$goal_id)"
                 }
             }
             ht::para
@@ -877,7 +864,8 @@ snit::type appserver {
         # Civilian Support
         ht::h2 "Topics Not Yet Covered"
 
-        ht::put {We might add information about the following topics.}
+        ht::putln {We might add information about the following topics.}
+        ht::para
 
         ht::ul {
             ht::li {
