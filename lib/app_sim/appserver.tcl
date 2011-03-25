@@ -176,25 +176,6 @@ snit::type appserver {
             }
         }
 
-        /lib/{file}.html {
-            doc     {An HTML file in the Athena library.}
-            pattern {^lib/([^./]+\.html)$}
-            ctypes  {
-                text/html {text_File lib/app_sim}
-            }
-        }
-
-        /lib/{imageFile} {
-            doc     {
-                A .gif, .jpg, or .png file in the Athena library.
-            }
-            pattern {^lib/(.+\.(gif|jpg|png))$}
-            ctypes  {
-                tk/image {image_File lib/app_sim}
-            }
-        }
-
-
         /mars/docs/{path}.html {
             doc     {An HTML file in the Athena mars/docs/ tree.}
             pattern {^(mars/docs/.+\.html)$}
@@ -298,6 +279,14 @@ snit::type appserver {
                 text/html {html_UrlHelp}
             }
         }
+
+        / {
+            doc     {Athena Welcome Page}
+            pattern {^/?$}
+            ctypes  {
+                text/html {html_Welcome}
+            }
+        }
     }
 
     #-------------------------------------------------------------------
@@ -385,7 +374,25 @@ snit::type appserver {
     typevariable imageCache -array {}
 
     #-------------------------------------------------------------------
-    # get
+    # Public methods
+
+    # resources
+    #
+    # Returns a list of the resource types accepted by the server.
+
+    method resources {} {
+        return [dict keys $rinfo]
+    }
+
+    # ctypes rtype
+    #
+    # rtype   - A resource type
+    #
+    # Returns a list of the content types for each resource type.
+
+    method ctypes {rtype} {
+        return [dict keys [dict get $rinfo $rtype ctype]]
+    }
 
     # get url ?contentTypes?
     #
@@ -438,7 +445,7 @@ snit::type appserver {
 
         if {$contentType eq ""} {
             return -code error -errorcode NOTFOUND \
-                "No acceptable content-type available: $contentTypes"
+                "Content-type unavailable: $contentTypes"
         }
 
         return [dict create \
@@ -739,6 +746,28 @@ snit::type appserver {
         return -code error -errorcode NOTFOUND \
             "The requested schema entry was not found."
     }
+
+    #-------------------------------------------------------------------
+    # Welcome Page
+
+    # html_Welcome url matchArray
+    #
+    # url        - The URL of the resource
+    # matchArray - Array of pattern matches
+    #
+    # Formats and displays the welcome page from welcome.ehtml.
+
+    proc html_Welcome {url matchArray} {
+        if {[catch {
+            set text [readfile [appdir join lib app_sim welcome.ehtml]]
+        } result]} {
+            return -code error -errorcode NOTFOUND \
+                "The Welcome page could not be loaded from disk: $result"
+        }
+
+        return [tsubst $text]
+    }
+
 
     #-------------------------------------------------------------------
     # Generic Entity Type Code
@@ -1233,9 +1262,5 @@ snit::type appserver {
         ht::/page
         return [ht::get]
     }
-
-    #-------------------------------------------------------------------
-    # HTML Boilerplate routines
-
 }
 

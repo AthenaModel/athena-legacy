@@ -35,8 +35,8 @@ snit::widgetadaptor detailbrowser {
 
     constructor {args} {
         # FIRST, Install the hull
-        installhull using mybrowser                 \
-            -home         my://app/lib/welcome.html \
+        installhull using mybrowser \
+            -home         my://app/ \
             -messagecmd   {app puts}
 
         # NEXT, create the sidebar.

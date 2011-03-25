@@ -740,6 +740,14 @@ command "send" {
     error message is pretty-printed.
 }
 
+#=======================================================================
+# show command
+
+command "show" {
+    <<syntax <i>url</i> >>
+
+    Displays the requested URL in the <<tabref Detail>>.
+}
 
 #=======================================================================
 # set command

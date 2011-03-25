@@ -1,0 +1,43 @@
+<html> <head>
+<title>Welcome to Athena V[version]</title>
+</head>
+
+<body>
+<img src="/docs/Athena_logo_small.png" align="right">
+<h1>Welcome to Athena V[version]</h1>
+
+Use this browser to examine Athena
+<a href="/actor">actors</a>,
+<a href="/nbhood">neighborhoods</a>, and
+<a href="/group">groups</a> in detail.
+Navigate as you would in a web browser.<p>
+
+<h3>About Athena</h2>
+
+Athena V[version] Stability and Recovery Operations Simulation<p>
+
+(C) 2008-[clock format [clock seconds] -format %Y], 
+California Institute of
+Technology. ALL RIGHTS RESERVED. U.S. Government sponsorship
+acknowledged. Any commercial use must be negotiated with the
+Office of Technology Transfer at the California Institute of
+Technology.<p>
+
+This software is subject to U. S. export control laws and
+regulations (22 C.F.R. 120-130 and 15 C.F.R. 730-774). To the
+extent that the software is subject to U.S. export control laws
+and regulations, the recipient has the responsibility to obtain
+export licenses or other export authority as may be required
+before exporting such information to foreign countries or
+providing access to foreign nationals.<p>
+
+
+<h3>TBD</h3>
+
+<ul>
+  <li> Ought to have links to on-line help, and especially the release
+       notes.  (Requires making the on-line help available as my://help.)
+       
+</ul>
+
+</body> </html>
