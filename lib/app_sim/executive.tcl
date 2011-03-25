@@ -237,6 +237,10 @@ snit::type executive {
         $interp smartalias send 1 - {order ?option value...?} \
             [myproc send]
 
+        # show
+        $interp smartalias show 1 1 {url} \
+            [myproc show]
+
         # super
         $interp smartalias super 1 - {arg ?arg...?} \
             [myproc super]
@@ -584,6 +588,15 @@ snit::type executive {
         }
 
         return ""
+    }
+
+    # show url
+    #
+    # Shows a URL in the detail browser.
+
+    proc show {url} {
+        [.main tab win detail] show $url
+        .main tab view detail
     }
 
     # super args

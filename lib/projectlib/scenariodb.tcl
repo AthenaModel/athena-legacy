@@ -281,6 +281,8 @@ snit::type ::projectlib::scenariodb {
             qsat       ::simlib::qsat
             qsecurity  ::projectlib::qsecurity
             qtolerance ::simlib::qtolerance
+            link       ::projectlib::scenariodb::Link
+            pair       ::projectlib::scenariodb::Pair
         }
     }
 
@@ -866,6 +868,32 @@ snit::type ::projectlib::scenariodb {
 
         return $rdict
     }
+
+    #-------------------------------------------------------------------
+    # SQL Functions
+
+    # Link(url,label)
+    #
+    # url   - The URL
+    # label - The link text
+    #
+    # Returns an HTML link.
+
+    proc Link {url label} {
+        return "<a href=\"$url\">$label</a>"
+    }
+
+    # Pair(a,b)
+    #
+    # url   - The URL
+    # label - The link text
+    #
+    # Returns the concatenation of a and b, with b in parens.
+
+    proc Pair {a b} {
+        return "$a ($b)"
+    }
+
 }
 
 

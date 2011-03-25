@@ -106,6 +106,92 @@ snit::type ht {
         return $result
     }
 
+    # putif expr then ?else?
+    #
+    # expr   - An expression
+    # then   - A string
+    # else   - A string, defaults to ""
+    #
+    # If expr, puts then, otherwise puts else.
+
+    proc putif {expr then {else ""}} {
+        if {[uplevel 1 [list expr $expr]]} {
+            put $then
+        } else {
+            put $else
+        }
+    }
+
+    # query sql ?options...?
+    #
+    # sql           An SQL query.
+    # options       Formatting options
+    #
+    #   -labels list         List of column labels.
+    #   -default text        Text to return if there's no data found.
+    #                        Defaults to "No data found.<p>"
+    #
+    # Executes the query and accumulates the results as HTML.
+    # Long values are truncated to -maxcolwidth.
+    #
+    # If -labels is specified, it is a list of column labels which 
+    # are displayed instead of the column names used in the query.
+
+    proc query {sql args} {
+        # FIRST, get options.
+        array set opts {
+            -labels       {}
+            -default      "No data found."
+        }
+        array set opts $args
+
+        # FIRST, begin the table
+        push
+
+        if {[llength $opts(-labels)] > 0} {
+            table $opts(-labels)
+            set headerNeeded 0
+        } else {
+            set headerNeeded 1
+        }
+
+        # NEXT, get the data.
+        set names {}
+
+        rdb eval $sql row {
+            # FIRST, get the column names.
+            if {[llength $names] == 0} {
+                set names $row(*)
+                unset row(*)
+
+                if {$headerNeeded} {
+                    table $names
+                }
+            }
+
+            tr {
+                foreach name $names {
+                    td {
+                        put $row($name)
+                    }
+                }
+            }
+        }
+
+        /table
+
+        set table [pop]
+
+        if {[llength $names] == 0} {
+            putln $opts(-default)
+        } else {
+            putln $table
+        }
+    }
+
+
+    
+
     #-------------------------------------------------------------------
     # HTML Commands
 
@@ -136,6 +222,7 @@ snit::type ht {
     # Adds the standard footer boilerplate
 
     proc /page {} {
+        putln <p>
         putln <hr>
         putln "<font size=2><i>"
 
@@ -151,6 +238,38 @@ snit::type ht {
         put "</i></font>"
         putln "</body></html>"
     }
+
+    # title title ?over? ?under?
+    #
+    # title  The title text proper
+    # over   Tiny text to appear over the title, or ""
+    # under  Normal text to appear under the title, or ""
+    #
+    # Formats the title in the standard way.
+
+    proc title {title {over ""} {under ""}} {
+        if {$over eq "" && $under eq ""} {
+            h1 $title
+            return
+        }
+
+        putln ""
+
+        if {$over ne ""} {
+            tiny $over
+            br
+        }
+
+        putln "<font size=7><b>$title</b></font>"
+
+        if {$under ne ""} {
+            br
+            putln $under
+        }
+
+        para
+    }
+
 
     # h1 title
     #
@@ -182,6 +301,16 @@ snit::type ht {
         putln <h3>$title</h2>
     }
 
+    # tiny text
+    #
+    # text - A text string
+    #
+    # Sets the text in tiny font.
+
+    proc tiny {text} {
+        put "<font size=2>$text</font>"
+    }
+
     # tinyb text
     #
     # text - A text string
@@ -196,7 +325,7 @@ snit::type ht {
     #
     # text - A text string
     #
-    # Sets the text in tiny italics.
+    # Puts the text in tiny italics.
 
     proc tinyi {text} {
         put "<font size=2><i>$text</i></font>"
@@ -232,7 +361,16 @@ snit::type ht {
             uplevel 1 $body
             put </li>
         }
+    }
 
+    # li-text text
+    #
+    # text    - A text string
+    #
+    # Puts the text as a list item.    
+
+    proc li-text {text} {
+        putln <li>$text</li>
     }
 
     # /ul
@@ -243,12 +381,44 @@ snit::type ht {
         putln </ul>
     }
 
+    # pre ?text?
+    #
+    # text    - A text string
+    #
+    # Begins a <pre> block.  If the text is given, it is
+    # escaped for HTML and the </pre> is added automatically.
+   
+    proc pre {{text ""}} {
+        putln <pre>
+        if {$text ne ""} {
+            putln [string map {& &amp; < &lt; > &gt;} $text]
+            /pre
+        }
+    }
+
+    # /pre
+    #
+    # Ends a <pre> block
+    
+    proc /pre {} {
+        putln </pre>
+    }
+
+
     # para
     #
     # Adds a paragraph mark.
     
     proc para {} {
         put <p>
+    }
+
+    # br
+    #
+    # Adds a line break
+    
+    proc br {} {
+        put <br>
     }
 
     # link url label
@@ -268,7 +438,7 @@ snit::type ht {
     #
     # Options:
     #   -delim   - Delimiter; defaults to ", "
-    #   -default - String to put if list is empty; defaults to ""
+    #   -default - String to put if list is empty; defaults to "None."
     #
     # Formats and returns a list of HTML links.
 
@@ -409,14 +579,15 @@ snit::type ht {
         put </table>
     }
 
-    # image name
+    # image name ?align?
     #
-    # name - A Tk image name
+    # name  - A Tk image name
+    # align - Alignment
     #
     # Adds an in-line <img>.
 
-    proc image {name} {
-        put "<img src=\"/image/$name\">"
+    proc image {name {align ""}} {
+        put "<img src=\"/image/$name\" align=\"$align\">"
     }
 }
 

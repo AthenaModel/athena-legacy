@@ -81,7 +81,6 @@ snit::widget ::projectgui::mybrowser {
 
     option -reloadcmd
 
-
     #-------------------------------------------------------------------
     # Instance Variables
 
@@ -408,17 +407,18 @@ snit::widget ::projectgui::mybrowser {
             set result [$agent get $page]
         } result opts]} {
             set ecode [dict get $opts -errorcode]
+            set einfo [dict get $opts -errorinfo]
+            set etext $result
 
-            if {$ecode ne "NOTFOUND"} {
-                return {*}$opts $result
+            set result [dict create url $page contentType text/html]
+
+            if {$ecode eq "NOTFOUND"} {
+                dict set result content [$self PageNotFound $page $etext]
+            } else {
+                dict set result content [$self PageError $page $einfo]
             }
-
-            set result [dict create \
-                            url         $page                              \
-                            content     [$self PageNotFound $page $result] \
-                            contentType text/html]
         }
-
+        
         dict with result {
             # FIRST, handle special content.
             switch -exact -- $contentType {
@@ -460,6 +460,28 @@ snit::widget ::projectgui::mybrowser {
             $result
         }]
     }
+
+    # PageError uri einfo
+    #
+    # uri     - The name of an resource
+    # einfo   - The error stack trace
+    #
+    # Creates an "Unexpected Error" pseudo-page body.
+
+    method PageError {uri einfo} {
+        return [tsubst {
+            |<--
+            <h1>Unexpected Error</h1>
+            
+            The page at <tt>$uri</tt> returned an unexpected error.
+            Please report this to the development team.<p>
+            
+            <pre>
+            $einfo
+            </pre>
+        }]
+    }
+
 
     # reload
     #

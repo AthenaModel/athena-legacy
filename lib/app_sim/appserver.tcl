@@ -234,7 +234,7 @@ snit::type appserver {
             doc     {Detail page for neighborhood {n}.}
             pattern {^nbhood/(\w+)/?$}
             ctypes  {
-                text/html {html_GenericEntity "Neighborhood" nbhoods n}
+                text/html {html_Nbhood}
             }
         }
 
@@ -252,6 +252,34 @@ snit::type appserver {
             pattern {^orggroup/(\w+)/?$}
             ctypes  {
                 text/html {html_GenericEntity "Org. Group" orggroups g}
+            }
+        }
+
+        /schema {
+            doc     {RDB Schema Links.}
+            pattern {^schema/?$}
+            ctypes  {
+                text/html {html_RdbSchemaLinks}
+            }
+        }
+
+        /schema/item/{name} {
+            doc     {Schema for an RDB table, view, or trigger.}
+            pattern {^schema/item/(\w+)$}
+            ctypes  {
+                text/html {html_RdbSchemaItem}
+            }
+        }
+
+        /schema/{subset} {
+            doc     {
+                Links for a {subset} of the RDB Schema Links.
+                Valid subsets are "main", "temp"; anything else
+                is assumed to be a wildcard pattern.
+            }
+            pattern {^schema/([A-Za-z0-9_*]+)$}
+            ctypes  {
+                text/html {html_RdbSchemaLinks}
             }
         }
 
@@ -604,6 +632,115 @@ snit::type appserver {
     }
 
     #-------------------------------------------------------------------
+    # RDB Introspection
+
+    # html_RdbSchemaLinks url matchArray
+    #
+    # url        - The /urlhelp URL
+    # matchArray - Array of pattern matches
+    # 
+    # Produces an HTML page with a table of the RDB tables, views,
+    # etc., for which schema text is available.
+    #
+    # Match parm $(1) is the subset of the schema to display:
+    #
+    #   ""         - All items are displayed
+    #   main       - Items from sqlite_master
+    #   temp       - Items from sqlite_temp_master
+    #   <pattern>  - A wildcard pattern
+
+    proc html_RdbSchemaLinks {url matchArray} {
+        upvar 1 $matchArray ""
+
+        set main {
+            SELECT type, link('/schema/item/' || name, name) AS name, 
+                   "Persistent"
+            FROM sqlite_master
+            WHERE name NOT GLOB 'sqlite_*'
+            AND   type != 'index'
+            AND   sql IS NOT NULL
+        }
+
+        set temp {
+            SELECT type, link('/schema/item/' || name, name) AS name, 
+                   "Temporary"
+            FROM sqlite_temp_master
+            WHERE name NOT GLOB 'sqlite_*'
+            AND   type != 'index'
+            AND   sql IS NOT NULL
+        }
+
+        switch -exact -- $(1) {
+            "" { 
+                set sql "$main UNION $temp ORDER BY name"
+                set text ""
+            }
+
+            main { 
+                set sql "$main ORDER BY name"
+                set text "Persistent items only.<p>"
+            }
+
+            temp { 
+                set sql "$temp ORDER BY name"
+                set text "Temporary items only.<p>"
+            }
+
+            default { 
+                set sql "
+                    $main AND name GLOB '$(1)' UNION
+                    $temp AND name GLOB '$(1)' ORDER BY name
+                "
+
+                set text "Items matching \"$(1)\".<p>"
+            }
+        }
+
+        ht::page "RDB Schema"
+        ht::h1 "RDB Schema"
+
+        ht::putln $text
+
+        ht::query $sql -labels {Type Name Persistence} -maxcolwidth 0
+
+        ht::/page
+
+        return [ht::get]
+    }
+
+    # html_RdbSchemaItem url matchArray
+    #
+    # url        - The /urlhelp URL
+    # matchArray - Array of pattern matches
+    # 
+    # Produces an HTML page with the schema of a particular 
+    # table or view for which schema text is available.
+
+    proc html_RdbSchemaItem {url matchArray} {
+        upvar 1 $matchArray ""
+
+        set name $(1)
+
+        rdb eval {
+            SELECT sql FROM sqlite_master
+            WHERE name=$name
+            UNION
+            SELECT sql FROM sqlite_temp_master
+            WHERE name=$name
+        } {
+            ht::page "RDB Schema: $name" {
+                ht::h1 "RDB Schema: $name"
+                ht::pre $sql
+            }
+
+            return [ht::get]
+        }
+
+        return -code error -errorcode NOTFOUND \
+            "The requested schema entry was not found."
+    }
+
+    #-------------------------------------------------------------------
     # Generic Entity Type Code
 
     # linkdict_EntityType url matchArray
@@ -776,14 +913,14 @@ snit::type appserver {
         array set data [actor get $a]
 
         ht::page "Actor: $a"
-        ht::h1 "Actor: $data(longname) ($a)"
+        ht::title "$data(longname) ($a)" "Actor" 
 
         # Asset Summary
         ht::putln "Fiscal assets: about $[moneyfmt $data(cash)],"
         ht::put "plus about $[moneyfmt $data(income)] per week."
         ht::putln "Groups owned: "
 
-        ht::linklist -default "None." [rdb eval {
+        ht::linklist [rdb eval {
             SELECT '/group/' || g, g FROM gui_agroups 
             WHERE a=$a
             ORDER BY g
@@ -803,9 +940,9 @@ snit::type appserver {
                 ht::li {
                     if {$flag ne ""} {
                         if {$flag} {
-                            ht::image ::marsgui::icon::smthumbupgreen
+                            ht::image ::marsgui::icon::smthumbupgreen middle
                         } else {
-                            ht::image ::marsgui::icon::smthumbdownred
+                            ht::image ::marsgui::icon::smthumbdownred middle
                         }
                     }
                     ht::put $narrative
@@ -828,6 +965,7 @@ snit::type appserver {
         ht::h2 "Force Deployment"
 
         ht::push
+        # TBD: recast to use ht::query.
         rdb eval {
             SELECT P.n         AS n, 
                    P.g         AS g,
@@ -842,17 +980,17 @@ snit::type appserver {
             AND   personnel > 0
         } {
             ht::tr {
-                ht::td       { ht::link /nbhood/$n $n             }
-                ht::td-right { ht::put $personnel                 }
-                ht::td       { ht::link /group/$g "$g: $longname" }
-                ht::td       { ht::put $gtype/$subtype            }
+                ht::td       { ht::link /nbhood/$n $n              }
+                ht::td-right { ht::put $personnel                  }
+                ht::td       { ht::link /group/$g "$longname ($g)" }
+                ht::td       { ht::put $gtype/$subtype             }
             }
         }
 
         set rows [ht::pop]
 
         if {$rows eq ""} {
-            ht::put "None."
+            ht::put "No forces deployed."
             ht::para
         } else {
             ht::table {Nbhood Personnel Group Type} {
@@ -912,6 +1050,189 @@ snit::type appserver {
         return [ht::get]
     }
 
+    #-------------------------------------------------------------------
+    # Neighborhood-specific handlers
+
+    # html_Nbhood url matchArray
+    #
+    # url        - The URL that was requested
+    # matchArray - Array of matches from the URL
+    #
+    # Formats the summary page for /nbhood/{n}.
+
+    proc html_Nbhood {url matchArray} {
+        upvar $matchArray ""
+
+        # Get the neighborhood
+        set n $(1)
+
+        if {![rdb exists {SELECT * FROM nbhoods WHERE n=$n}]} {
+            return -code error -errorcode NOTFOUND \
+                "Unknown entity: $url."
+        }
+
+        rdb eval {SELECT * FROM gui_nbhoods WHERE n=$n} data {}
+        rdb eval {SELECT * FROM demog_n     WHERE n=$n} dem  {}
+        rdb eval {SELECT * FROM econ_n      WHERE n=$n} econ {}
+
+        let locked {[sim state] ne "PREP"}
+
+        # Begin the page
+        ht::page "Neighborhood: $n"
+        ht::title "$data(longname) ($n)" "Neighborhood" 
+
+        if {!$locked} {
+            ht::putln ""
+            ht::tinyi {
+                More information will be available once the scenario has
+                has been locked.
+            }
+            ht::para
+        }
+
+        # Non-local?
+        if {!$data(local)} {
+            ht::putln "$n is located outside of the main playbox."
+        }
+
+        # When not locked.
+        if {!$locked} {
+            ht::putln "Resident groups: "
+
+            ht::linklist -default "None" [rdb eval {
+                SELECT '/civgroup/' || g, g FROM civgroups WHERE n=$n
+            }]
+
+            ht::put ". "
+
+            ht::/page
+            return [ht::get]
+        }
+
+        # Population, groups.
+        set urb    [eurbanization longname $data(urbanization)]
+        let labPct {double($dem(labor_force))/$dem(population)}
+        let sagPct {double($dem(subsistence))/$dem(population)}
+        set mood   [qsat name $data(mood)]
+
+        ht::putln "$n is "
+        ht::putif {$urb eq "urban"} "an " "a "
+        ht::put "$urb neighborhood with a population of $dem(population), "
+        ht::put "[percent $labPct] of which are in the labor force and "
+        ht::put "[percent $sagPct] of which are engaged in subsistence "
+        ht::put "agriculture."
+
+        ht::putln "The population belongs to the following groups: "
+
+        ht::linklist -default "None" [rdb eval {
+            SELECT '/civgroup/' || g, g FROM civgroups WHERE n=$n
+        }]
+        
+        ht::put "."
+
+        ht::putln "Their overall mood is [qsat format $data(mood)] "
+        ht::put "([qsat longname $data(mood)])."
+        ht::putln "The level of basic services is TBD, which is "
+        ht::put "(more than)/(less than) expected. "
+
+        if {$data(local)} {
+            if {$dem(labor_force) > 0} {
+                let rate {double($dem(unemployed))/$dem(labor_force)}
+                ht::putln "The unemployment rate is [percent $rate]."
+            }
+            ht::putln "$n's production capacity is [percent $econ(pcf)]."
+        }
+        ht::para
+
+        # Actors
+        ht::putln \
+            "Actor TBD is in control of $n."          \
+            "Actors TBD would like to be in control." \
+            "Actors TBD are also active."             \
+            "Actors TBD have influence in $n."
+        ht::para
+
+        # Groups
+        ht::putln \
+            "The following force and organization groups are" \
+            "active in $n: "
+
+        ht::linklist -default "None" [rdb eval {
+            SELECT '/frcgroup/' || g, g 
+            FROM force_ng 
+            JOIN gui_agroups USING (g)
+            WHERE n=$n AND personnel > 0
+        }]
+
+        ht::put "."
+        ht::para
+
+        # Civilian groups
+        ht::h2 "Civilian Groups"
+        
+        ht::putln "The following civilian groups live in $n."
+        ht::para
+
+        ht::query "
+            SELECT link('/civgroup/' || G.g, pair(G.longname, G.g)),
+                   D.population,
+                   pair(qsat('format',M.sat), qsat('longname',M.sat)),
+                   pair(qsecurity('format',S.security), 
+                        qsecurity('longname',S.security))
+            FROM groups    AS G
+            JOIN civgroups AS C USING (g)
+            JOIN demog_g   AS D USING (g)
+            JOIN gram_g    AS M USING (g)
+            JOIN force_ng  AS S USING (g)
+            WHERE C.n='$n' AND S.n='$n'
+            ORDER BY G.g
+        " -labels {Name Population Mood Security}
+
+        # Force/Org groups
+
+        ht::h2 "Forces Present"
+
+        ht::query "
+            SELECT link('/group/' || G.g, pair(G.longname, G.g)),
+                   P.personnel AS personnel, 
+                   G.gtype || '/' || AG.subtype,
+                   CASE WHEN G.gtype='FRC'
+                   THEN pair(C.coop, qcoop('longname',C.coop))
+                   ELSE 'n/a' END
+            FROM force_ng     AS P
+            JOIN groups       AS G  USING (g)
+            JOIN gui_agroups  AS AG USING (g)
+            LEFT OUTER JOIN gui_coop_ng  AS C ON (C.n=P.n AND C.g=P.g)
+            WHERE P.n = '$n'
+            AND   personnel > 0
+            ORDER BY G.g
+        " -default "None." -labels {
+            Group Personnel Type "Coop. of Nbhood"
+        }
+
+        # Topics Yet to be Covered
+        ht::h2 "Topics Yet To Be Covered"
+
+        ht::putln "The following topics might be covered in the future:"
+
+        ht::ul {
+            ht::li-text {
+                <b>Power Struggles:</b> Analysis of who is in control and
+                why.
+            }
+            ht::li-text { 
+                <b>Conflicts:</b> Pairs of force groups with 
+                significant ROEs.
+            }
+            ht::li-text {
+                <b>Significant Events:</b> Recent events in the
+                neighborhood, e.g., the last turn-over of control.
+            }
+        }
+
+        ht::/page
+        return [ht::get]
+    }
 
     #-------------------------------------------------------------------
     # HTML Boilerplate routines
