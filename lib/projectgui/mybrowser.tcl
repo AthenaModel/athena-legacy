@@ -184,6 +184,7 @@ snit::widget ::projectgui::mybrowser {
         
         install hv using htmlviewer $win.paner.frm.hv              \
             -takefocus           1                                 \
+            -mouseovercommand    [mymethod MouseOverCmd]           \
             -hyperlinkcommand    [mymethod HyperlinkCmd]           \
             -isvisitedcommand    [mymethod IsVisitedCmd]           \
             -imagecommand        [mymethod ImageCmd]               \
@@ -211,9 +212,6 @@ snit::widget ::projectgui::mybrowser {
         grid rowconfigure    $win 2 -weight 1
         grid columnconfigure $win 0 -weight 1
 
-        # NEXT, browser events
-        bind HtmlClip <Motion> [mymethod MouseOver %x %y]
-
         # NEXT, create the agent.
         install agent using myagent ${selfns}::agent \
             -contenttypes {text/html text/plain tk/image}
@@ -226,24 +224,15 @@ snit::widget ::projectgui::mybrowser {
         $self home
     }
 
-    # MouseOver x y
+    # MouseOverCmd otype text
     #
-    # x,y - %x,%y coordinates of <Motion> event
+    # otype   - Object type, currently always "href"
+    # text    - Text describing thing we're over.
     #
     # Called as the mouse moves; calls -messagecmd with the URI.
 
-    method MouseOver {x y} {
-        set url [lindex [$hv href $x $y] 0]
-
-        if {$url eq $info(mouseover)} {
-            return
-        }
-
-        set info(mouseover) $url
-
-        if {$url ne ""} {
-            callwith $options(-messagecmd) "Link: $url"
-        }
+    method MouseOverCmd {otype text} {
+        callwith $options(-messagecmd) "Link: $text"
     }
 
     #
