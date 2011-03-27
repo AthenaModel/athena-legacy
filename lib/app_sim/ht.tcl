@@ -33,6 +33,11 @@ snit::type ht {
         0  {}
     }
 
+    # Transient values used by ht::query
+    typevariable qnames      ;# List of column names
+    typevariable qrow        ;# Row of queried data.
+    typevariable qcol        ;# Column name
+
     #-------------------------------------------------------------------
     # Commands for building up HTML in the buffer
 
@@ -127,62 +132,57 @@ snit::type ht {
     # sql           An SQL query.
     # options       Formatting options
     #
-    #   -labels list         List of column labels.
-    #   -default text        Text to return if there's no data found.
-    #                        Defaults to "No data found.<p>"
+    # -labels list    - List of column labels
+    # -default text   - Text to return if there's no data found.
+    #                   Defaults to "No data found.<p>"
     #
     # Executes the query and accumulates the results as HTML.
-    # Long values are truncated to -maxcolwidth.
-    #
-    # If -labels is specified, it is a list of column labels which 
-    # are displayed instead of the column names used in the query.
 
     proc query {sql args} {
         # FIRST, get options.
         array set opts {
-            -labels       {}
-            -default      "No data found."
+            -labels   {}
+            -default  "No data found.<p>"
         }
         array set opts $args
 
         # FIRST, begin the table
         push
 
+        # NEXT, if we have labels, use them.
         if {[llength $opts(-labels)] > 0} {
             table $opts(-labels)
-            set headerNeeded 0
-        } else {
-            set headerNeeded 1
         }
 
-        # NEXT, get the data.
-        set names {}
+        # NEXT, get the data.  Execute the query as an uplevel,
+        # so that we can use variables.
+        set ::ht::qnames {}
 
-        rdb eval $sql row {
+        uplevel 1 [list rdb eval $sql ::ht::qrow {
             # FIRST, get the column names.
-            if {[llength $names] == 0} {
-                set names $row(*)
-                unset row(*)
+            if {[llength $::ht::qnames] == 0} {
+                set ::ht::qnames $::ht::qrow(*)
+                unset ::ht::qrow(*)
 
-                if {$headerNeeded} {
-                    table $names
+                if {[ht::get] eq ""} {
+                    ::ht::table $::ht::qnames
                 }
             }
 
-            tr {
-                foreach name $names {
-                    td {
-                        put $row($name)
+            ::ht::tr {
+                foreach ::ht::qname $::ht::qnames {
+                    ::ht::td {
+                        ::ht::put $::ht::qrow($::ht::qname)
                     }
                 }
             }
-        }
+        }]
 
         /table
 
         set table [pop]
 
-        if {[llength $names] == 0} {
+        if {[llength $::ht::qnames] == 0} {
             putln $opts(-default)
         } else {
             putln $table

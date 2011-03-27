@@ -643,7 +643,7 @@ snit::type appserver {
 
     # html_RdbSchemaLinks url matchArray
     #
-    # url        - The /urlhelp URL
+    # url        - The /schema URL
     # matchArray - Array of pattern matches
     # 
     # Produces an HTML page with a table of the RDB tables, views,
@@ -659,6 +659,8 @@ snit::type appserver {
     proc html_RdbSchemaLinks {url matchArray} {
         upvar 1 $matchArray ""
 
+        set pattern $(1)
+        
         set main {
             SELECT type, link('/schema/item/' || name, name) AS name, 
                    "Persistent"
@@ -676,8 +678,8 @@ snit::type appserver {
             AND   type != 'index'
             AND   sql IS NOT NULL
         }
-
-        switch -exact -- $(1) {
+        
+        switch -exact -- $pattern {
             "" { 
                 set sql "$main UNION $temp ORDER BY name"
                 set text ""
@@ -695,11 +697,11 @@ snit::type appserver {
 
             default { 
                 set sql "
-                    $main AND name GLOB '$(1)' UNION
-                    $temp AND name GLOB '$(1)' ORDER BY name
+                    $main AND name GLOB \$pattern UNION
+                    $temp AND name GLOB \$pattern ORDER BY name
                 "
 
-                set text "Items matching \"$(1)\".<p>"
+                set text "Items matching \"$pattern\".<p>"
             }
         }
 
@@ -1199,45 +1201,51 @@ snit::type appserver {
         # Civilian groups
         ht::h2 "Civilian Groups"
         
-        ht::putln "The following civilian groups live in $n."
+        ht::putln "The following civilian groups live in $n:"
         ht::para
 
-        ht::query "
-            SELECT link('/civgroup/' || G.g, pair(G.longname, G.g)),
-                   D.population,
-                   pair(qsat('format',M.sat), qsat('longname',M.sat)),
+        ht::query {
+            SELECT link('/civgroup/' || G.g, pair(G.longname, G.g))
+                       AS 'Name',
+                   D.population 
+                       AS 'Population',
+                   pair(qsat('format',M.sat), qsat('longname',M.sat))
+                       AS 'Mood',
                    pair(qsecurity('format',S.security), 
                         qsecurity('longname',S.security))
+                       AS 'Security'
             FROM groups    AS G
             JOIN civgroups AS C USING (g)
             JOIN demog_g   AS D USING (g)
             JOIN gram_g    AS M USING (g)
             JOIN force_ng  AS S USING (g)
-            WHERE C.n='$n' AND S.n='$n'
+            WHERE C.n=$n AND S.n=$n
             ORDER BY G.g
-        " -labels {Name Population Mood Security}
+        }
 
         # Force/Org groups
 
         ht::h2 "Forces Present"
 
-        ht::query "
-            SELECT link('/group/' || G.g, pair(G.longname, G.g)),
-                   P.personnel AS personnel, 
-                   G.gtype || '/' || AG.subtype,
+        ht::query {
+            SELECT link('/group/' || G.g, pair(G.longname, G.g))
+                       AS 'Group',
+                   P.personnel 
+                       AS 'Personnel', 
+                   G.gtype || '/' || AG.subtype
+                       AS 'Type',
                    CASE WHEN G.gtype='FRC'
                    THEN pair(C.coop, qcoop('longname',C.coop))
                    ELSE 'n/a' END
+                       AS 'Coop. of Nbhood'
             FROM force_ng     AS P
             JOIN groups       AS G  USING (g)
             JOIN gui_agroups  AS AG USING (g)
             LEFT OUTER JOIN gui_coop_ng  AS C ON (C.n=P.n AND C.g=P.g)
-            WHERE P.n = '$n'
+            WHERE P.n=$n
             AND   personnel > 0
             ORDER BY G.g
-        " -default "None." -labels {
-            Group Personnel Type "Coop. of Nbhood"
-        }
+        } -default "None."
 
         # Topics Yet to be Covered
         ht::h2 "Topics Yet To Be Covered"
