@@ -53,12 +53,12 @@ snit::type appserver {
     #           HTML.
 
     typevariable rinfo {
-        /actor {
+        /actors {
             doc     {Links to the currently defined actors.}
-            pattern {^actor/?$}
+            pattern {^actors/?$}
             ctypes  {
-                tcl/linkdict {linkdict_EntityLinks /actor}
-                text/html  {html_EntityLinks /actor}
+                tcl/linkdict {linkdict_EntityLinks /actors /actor}
+                text/html  {html_EntityLinks /actors /actor}
             }
         }
 
@@ -67,23 +67,6 @@ snit::type appserver {
             pattern {^actor/(\w+)/?$}
             ctypes  {
                 text/html {html_Actor}
-            }
-        }
-
-        /civgroup {
-            doc     {Links to the currently defined civilian groups.}
-            pattern {^civgroup/?$}
-            ctypes  {
-                tcl/linkdict {linkdict_EntityLinks /civgroup}
-                text/html  {html_EntityLinks /civgroup}
-            }
-        }
-
-        /civgroup/{g} {
-            doc     {Detail page for civilian group {g}.}
-            pattern {^civgroup/(\w+)/?$}
-            ctypes  {
-                text/html {html_GenericEntity "Civ. Group" civgroups g}
             }
         }
 
@@ -134,31 +117,27 @@ snit::type appserver {
             }
         }
 
-        /frcgroup {
-            doc     {Links to the currently defined force groups.}
-            pattern {^frcgroup/?$}
-            ctypes  {
-                tcl/linkdict {linkdict_EntityLinks /frcgroup}
-                text/html  {html_EntityLinks /frcgroup}
-            }
-        }
-
-        /frcgroup/{g} {
-            doc     {Detail page for force group {g}.}
-            pattern {^frcgroup/(\w+)/?$}
-            ctypes  {
-                text/html {html_GenericEntity "Force Group" frcgroups g}
-            }
-        }
-
-        /group {
+        /groups {
             doc     {Links to the currently defined groups of all types.}
-            pattern {^group/?$}
+            pattern {^groups/?$}
             ctypes  {
-                tcl/linkdict {linkdict_EntityLinks /group}
-                text/html  {html_EntityLinks /group}
+                tcl/linkdict {linkdict_GroupLinks}
+                text/html  {html_GroupLinks}
             }
         }
+
+        /groups/{gtype} {
+            doc     {
+                Links to the currently defined groups of type {gtype}
+                (civ, frc, or org).
+            }
+            pattern {^groups/(civ|frc|org)/?$}
+            ctypes  {
+                tcl/linkdict {linkdict_GroupLinks}
+                text/html  {html_GroupLinks}
+            }
+        }
+
 
         /group/{g} {
             doc     {Detail page for group {g}.}
@@ -202,12 +181,12 @@ snit::type appserver {
             }
         }
 
-        /nbhood {
+        /nbhoods {
             doc     {Links to the currently defined neighborhoods.}
-            pattern {^nbhood/?$}
+            pattern {^nbhoods/?$}
             ctypes  {
-                tcl/linkdict {linkdict_EntityLinks /nbhood}
-                text/html  {html_EntityLinks /nbhood}
+                tcl/linkdict {linkdict_EntityLinks /nbhoods /nbhood}
+                text/html  {html_EntityLinks /nbhoods /nbhood}
             }
         }
 
@@ -216,23 +195,6 @@ snit::type appserver {
             pattern {^nbhood/(\w+)/?$}
             ctypes  {
                 text/html {html_Nbhood}
-            }
-        }
-
-        /orggroup {
-            doc     {Links to the currently defined organization groups.}
-            pattern {^orggroup/?$}
-            ctypes  {
-                tcl/linkdict {linkdict_EntityLinks /orggroup}
-                text/html  {html_EntityLinks /orggroup}
-            }
-        }
-
-        /orggroup/{g} {
-            doc     {Detail page for organization group {g}.}
-            pattern {^orggroup/(\w+)/?$}
-            ctypes  {
-                text/html {html_GenericEntity "Org. Group" orggroups g}
             }
         }
 
@@ -305,45 +267,45 @@ snit::type appserver {
     #               label
 
     typevariable entityTypes {
-        /actor {
+        /actors {
             label    "Actors"
             listIcon ::projectgui::icon::actor12
             table    actors
             key      a
         }
 
-        /nbhood {
+        /nbhoods {
             label    "Neighborhoods"
             listIcon ::projectgui::icon::nbhood12
             table    nbhoods
             key      n
         }
 
-        /civgroup {
+        /groups/civ {
             label    "Civ. Groups"
             listIcon ::projectgui::icon::civgroup12
-            table    civgroups
+            table    civgroups_view
             key      g
         }
 
-        /frcgroup {
+        /groups/frc {
             label    "Force Groups"
             listIcon ::projectgui::icon::frcgroup12
-            table    frcgroups
+            table    frcgroups_view
             key      g
         }
 
-        /group {
+        /groups {
             label    "Groups"
             listIcon ::projectgui::icon::group12
             table    groups
             key      g
         }
 
-        /orggroup {
+        /groups/org {
             label    "Org. Groups"
             listIcon ::projectgui::icon::orggroup12
-            table    orggroups
+            table    orggroups_view
             key      g
         }
     }
@@ -463,7 +425,7 @@ snit::type appserver {
     # Returns the resource type key from $rinfo, or throws NOTFOUND.
 
     proc GetResourceType {url matchArray} {
-        upvar $matchArray match
+        upvar 1 $matchArray match
 
         # FIRST, is it cached?
         if {[info exists rtypeCache($url)]} {
@@ -553,7 +515,7 @@ snit::type appserver {
     # content.
 
     proc image_TkImage {url matchArray} {
-        upvar $matchArray ""
+        upvar 1 $matchArray ""
 
         if {[catch {image type $(1)} result]} {
             return -code error -errorcode NOTFOUND \
@@ -788,11 +750,17 @@ snit::type appserver {
         # FIRST, handle subsets
         switch -exact -- $(1) {
             "" { 
-                set subset {/actor /nbhood /civgroup /frcgroup /orggroup}
+                set subset {
+                    /actors 
+                    /nbhoods 
+                    /groups/civ 
+                    /groups/frc 
+                    /groups/org
+                }
             }
 
             bsystem { 
-                set subset {/actor /civgroup}    
+                set subset {/actors /groups/civ}    
             }
 
             default { error "Unexpected URL: \"$url\"" }
@@ -832,22 +800,29 @@ snit::type appserver {
     }
 
 
-    # linkdict_EntityLinks table key url matchArray
+    # linkdict_EntityLinks etype eroot url matchArray
     #
     # etype      - entityTypes key
+    # eroot      - root URL for the entity type
     # url        - The URL of the collection resource
     # matchArray - Array of pattern matches; ignored.
     #
     # Returns tcl/linkdict for a collection resource, based on an RDB 
     # table.
 
-    proc linkdict_EntityLinks {etype url matchArray} {
+    proc linkdict_EntityLinks {etype eroot url matchArray} {
         set result [dict create]
 
+        
+
         dict with entityTypes $etype {
-            rdb eval "SELECT $key AS id FROM $table ORDER BY $key" {
-                dict set result "$url/$id" \
-                    [dict create label $id listIcon $listIcon]
+            rdb eval "
+                SELECT $key AS id, longname 
+                FROM $table 
+                ORDER BY longname, $key
+            " {
+                dict set result "$eroot/$id" \
+                    [dict create label "$longname ($id)" listIcon $listIcon]
             }
         }
 
@@ -855,31 +830,36 @@ snit::type appserver {
     }
 
 
-    # html_EntityLinks etype url matchArray
+    # html_EntityLinks etype eroot url matchArray
     #
     # etype      - entityTypes key
+    # eroot      - root URL for the entity type
     # url        - The URL of the collection resource
     # matchArray - Array of pattern matches; ignored.
     #
     # Returns a text/html of links for a collection resource, based on 
     # an RDB table.
 
-    proc html_EntityLinks {etype url matchArray} {
+    proc html_EntityLinks {etype eroot url matchArray} {
         dict with entityTypes $etype {
-            set ids [rdb eval "SELECT $key AS id FROM $table ORDER BY $key"]
-
             ht::page $label
             ht::h1 $label
 
-            if {[llength $ids] == 0} {
+            ht::push
+
+            rdb eval "
+                SELECT $key AS id, longname FROM $table ORDER BY longname
+            " {
+                ht::li { ht::link $eroot/$id "$longname ($id)" }
+            }
+
+            set links [ht::pop]
+
+            if {$links eq ""} {
                 ht::putln "No entities of this type have been defined."
                 ht::para
             } else {
-                ht::ul {
-                    foreach id $ids {
-                        ht::li { ht::link $url/$id $id }
-                    }
-                }
+                ht::ul { ht::put $links }
             }
 
             ht::/page
@@ -888,7 +868,7 @@ snit::type appserver {
         }
     }
 
-    # html_GenericEntity title url matchArray
+    # html_GenericEntity title table key url matchArray
     #
     # title      - A title string for the kind of entity
     # table      - The RDB table
@@ -900,9 +880,9 @@ snit::type appserver {
     # when no detailed content exists.
 
     proc html_GenericEntity {title table key url matchArray} {
-        upvar $matchArray ""
+        upvar 1 $matchArray ""
 
-        set id $(1)
+        set id [string toupper $(1)]
 
         if {![rdb exists "SELECT * FROM $table WHERE $key = \$id"]} {
             return -code error -errorcode NOTFOUND \
@@ -930,10 +910,10 @@ snit::type appserver {
     # matchArray - Array of matches from the URL
 
     proc html_Actor {url matchArray} {
-        upvar $matchArray ""
+        upvar 1 $matchArray ""
 
         # Accumulate data
-        set a $(1)
+        set a [string toupper $(1)]
 
         if {![rdb exists {SELECT * FROM actors WHERE a=$a}]} {
             return -code error -errorcode NOTFOUND \
@@ -1082,6 +1062,98 @@ snit::type appserver {
     }
 
     #-------------------------------------------------------------------
+    # Group-specific handlers
+
+
+
+    # linkdict_GroupLinks url matchArray
+    #
+    # url        - The URL of the collection resource
+    # matchArray - Array of pattern matches
+    #
+    # Matches:
+    #   $(1) - The egrouptype. 
+    #
+    # Returns tcl/linkdict for a group collection, based on an RDB 
+    # table.
+
+    proc linkdict_GroupLinks {url matchArray} {
+        upvar 1 $matchArray ""
+
+        # FIRST, get the etype.
+        if {$(1) eq ""} {
+            set etype /groups
+        } else {
+            set etype /groups/$(1)
+        }
+
+        # NEXT, get the results
+        set result [dict create]
+
+        dict with entityTypes $etype {
+            rdb eval "
+                SELECT $key AS id, longname 
+                FROM $table 
+                ORDER BY longname
+            " {
+                dict set result "/group/$id" \
+                    [dict create label "$longname ($id)" listIcon $listIcon]
+            }
+        }
+
+        return $result
+    }
+
+
+    # html_GroupLinks url matchArray
+    #
+    # url        - The URL of the collection resource
+    # matchArray - Array of pattern matches; ignored.
+    #
+    # Returns a text/html of links for a collection resource, based on 
+    # an RDB table.
+
+    proc html_GroupLinks {url matchArray} {
+        upvar 1 $matchArray ""
+
+        # FIRST, get the etype.
+        if {$(1) eq ""} {
+            set etype /groups
+        } else {
+            set etype /groups/$(1)
+        }
+
+        # NEXT, get the results.
+        dict with entityTypes $etype {
+            ht::page $label
+            ht::h1 $label
+
+            ht::push
+            rdb eval "
+                SELECT $key AS id, longname 
+                FROM $table 
+                ORDER BY longname
+            " {
+                ht::li { ht::link /group/$id "$longname ($id)" }
+            }
+
+            set links [ht::pop]
+
+            if {$links eq ""} {
+                ht::putln "No entities of this type have been defined."
+                ht::para
+            } else {
+                ht::ul { ht::put $links }
+            }
+
+            ht::/page
+            
+            return [ht::get]
+        }
+    }
+
+
+    #-------------------------------------------------------------------
     # Neighborhood-specific handlers
 
     # html_Nbhood url matchArray
@@ -1092,10 +1164,10 @@ snit::type appserver {
     # Formats the summary page for /nbhood/{n}.
 
     proc html_Nbhood {url matchArray} {
-        upvar $matchArray ""
+        upvar 1 $matchArray ""
 
         # Get the neighborhood
-        set n $(1)
+        set n [string toupper $(1)]
 
         if {![rdb exists {SELECT * FROM nbhoods WHERE n=$n}]} {
             return -code error -errorcode NOTFOUND \
@@ -1131,7 +1203,7 @@ snit::type appserver {
             ht::putln "Resident groups: "
 
             ht::linklist -default "None" [rdb eval {
-                SELECT '/civgroup/' || g, g FROM civgroups WHERE n=$n
+                SELECT '/group/' || g, g FROM civgroups WHERE n=$n
             }]
 
             ht::put ". "
@@ -1156,7 +1228,7 @@ snit::type appserver {
         ht::putln "The population belongs to the following groups: "
 
         ht::linklist -default "None" [rdb eval {
-            SELECT '/civgroup/' || g, g FROM civgroups WHERE n=$n
+            SELECT '/group/' || g, g FROM civgroups WHERE n=$n
         }]
         
         ht::put "."
@@ -1189,7 +1261,7 @@ snit::type appserver {
             "active in $n: "
 
         ht::linklist -default "None" [rdb eval {
-            SELECT '/frcgroup/' || g, g 
+            SELECT '/group/' || g, g 
             FROM force_ng 
             JOIN gui_agroups USING (g)
             WHERE n=$n AND personnel > 0
@@ -1205,7 +1277,7 @@ snit::type appserver {
         ht::para
 
         ht::query {
-            SELECT link('/civgroup/' || G.g, pair(G.longname, G.g))
+            SELECT link('/group/' || G.g, pair(G.longname, G.g))
                        AS 'Name',
                    D.population 
                        AS 'Population',

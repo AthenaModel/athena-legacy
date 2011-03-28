@@ -7,9 +7,9 @@
 <h1>Welcome to Athena V[version]</h1>
 
 Use this browser to examine Athena
-<a href="/actor">actors</a>,
-<a href="/nbhood">neighborhoods</a>, and
-<a href="/group">groups</a> in detail.
+<a href="/actors">actors</a>,
+<a href="/nbhoods">neighborhoods</a>, and
+<a href="/groups">groups</a> in detail.
 Navigate as you would in a web browser.<p>
 
 <h3>About Athena</h2>
