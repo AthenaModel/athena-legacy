@@ -143,7 +143,7 @@ snit::type appserver {
             doc     {Detail page for group {g}.}
             pattern {^group/(\w+)/?$}
             ctypes  {
-                text/html {html_GenericEntity "Group" groups g}
+                text/html {html_Group}
             }
         }
 
@@ -868,37 +868,6 @@ snit::type appserver {
         }
     }
 
-    # html_GenericEntity title table key url matchArray
-    #
-    # title      - A title string for the kind of entity
-    # table      - The RDB table
-    # key        - The key column in the RDB table
-    # url        - The URL of the entity
-    # matchArray - Array of pattern matches
-    #
-    # Returns a stub text/html page for an entity.  Used as a stopgap
-    # when no detailed content exists.
-
-    proc html_GenericEntity {title table key url matchArray} {
-        upvar 1 $matchArray ""
-
-        set id [string toupper $(1)]
-
-        if {![rdb exists "SELECT * FROM $table WHERE $key = \$id"]} {
-            return -code error -errorcode NOTFOUND \
-                "Unknown entity: $url."
-        }
-
-        ht::page "$title: $(1)" {
-            ht::h1 "$title: $(1)"
-            ht::putln \
-              "No additional information has been provided for this entity."
-            ht::para
-        }
-
-        return [ht::get]
-    }
-
     #-------------------------------------------------------------------
     # Actor-specific handlers
     #
@@ -1218,8 +1187,8 @@ snit::type appserver {
         let sagPct {double($dem(subsistence))/$dem(population)}
         set mood   [qsat name $data(mood)]
 
-        ht::putln "$n is "
-        ht::putif {$urb eq "urban"} "an " "a "
+        ht::putln "$data(longname) ($n) is "
+        ht::putif {$urb eq "Urban"} "an " "a "
         ht::put "$urb neighborhood with a population of $dem(population), "
         ht::put "[percent $labPct] of which are in the labor force and "
         ht::put "[percent $sagPct] of which are engaged in subsistence "
@@ -1340,6 +1309,100 @@ snit::type appserver {
         }
 
         ht::/page
+        return [ht::get]
+    }
+
+    #-------------------------------------------------------------------
+    # Group-specific handlers
+
+    # html_Group url matchArray
+    #
+    # url        - The URL that was requested
+    # matchArray - Array of matches from the URL
+    #
+    # Formats the summary page for /group/{g}.
+
+    proc html_Group {url matchArray} {
+        upvar 1 $matchArray ""
+
+        # Get the group
+        set g [string toupper $(1)]
+
+        if {![rdb exists {SELECT * FROM groups WHERE g=$g}]} {
+            return -code error -errorcode NOTFOUND \
+                "Unknown entity: $url."
+        }
+
+        # Next, what kind of group is it?
+        set gtype [group gtype $g]
+
+        switch $gtype {
+            CIV     { return [html_GroupCiv $url $g] }
+            FRC     { return [html_GroupFrc $url $g] }
+            ORG     { return [html_GroupOrg $url $g] }
+            default { error "Unknown group type."    }
+        }
+
+    }
+
+    # html_GroupCiv url g
+    #
+    # url        - The URL that was requested
+    # g          - The group
+    #
+    # Formats the summary page for civilian /group/{g}.
+
+    proc html_GroupCiv {url g} {
+        rdb eval {SELECT * FROM civgroups_view WHERE g=$g} data {}
+
+        ht::page "Civilian Group: $g"
+        ht::title "$data(longname) ($g)" "Civilian Group" 
+
+        ht::putln "No data yet available."
+
+        ht::/page
+
+        return [ht::get]
+    }
+
+
+    # html_GroupFrc url g
+    #
+    # url        - The URL that was requested
+    # g          - The group
+    #
+    # Formats the summary page for force /group/{g}.
+
+    proc html_GroupFrc {url g} {
+        rdb eval {SELECT * FROM frcgroups_view WHERE g=$g} data {}
+
+        ht::page "Force Group: $g"
+        ht::title "$data(longname) ($g)" "Force Group" 
+
+        ht::putln "No data yet available."
+
+        ht::/page
+
+        return [ht::get]
+    }
+
+    # html_GroupOrg url g
+    #
+    # url        - The URL that was requested
+    # g          - The group
+    #
+    # Formats the summary page for org /group/{g}.
+
+    proc html_GroupOrg {url g} {
+        rdb eval {SELECT * FROM orggroups_view WHERE g=$g} data {}
+
+        ht::page "Organization Group: $g"
+        ht::title "$data(longname) ($g)" "Organization Group" 
+
+        ht::putln "No data yet available."
+
+        ht::/page
+
         return [ht::get]
     }
 }
