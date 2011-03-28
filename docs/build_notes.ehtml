@@ -11,6 +11,23 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.12, 28 March 2011</h3>
+
+This build includes two significant GUI changes.  First, the main
+window can now be in one of two modes, Scenario or Simulation; the
+data displayed in each mode is only that which is important in that
+mode.  See Bug 2869.  Second, this build adds the "Detail" browser,
+and the "application data server" that drives it.  Only limited
+content is currently available in the Detail browser.<p>
+
+<ul>
+  <li> Bug 2869: athena_sim(1): Scenario vs. Simulation Mode
+  <li> Bug 2870: athena_sim(1): Restore Ensits Browser, MAD Browser
+  <li> Bug 2881: myserver(i): Application data server
+  <li> Bug 2883: mybrowser(n)/appserver(sim): Image Support
+  <li> Bug 2884: athena_sim(1): Improved appserver content 
+</ul><p>
+  
 <h3>Build 3.0.11, 10 March 2011</h3>
 
 This build contains the new Belief System browser (on the
