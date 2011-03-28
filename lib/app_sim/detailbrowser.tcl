@@ -70,6 +70,10 @@ snit::widgetadaptor detailbrowser {
         $self reload
     }
 
+    destructor {
+        notifier forget $win
+    }
+
     # RefreshLinks
     #
     # Called on browser reload; refreshes the links tree

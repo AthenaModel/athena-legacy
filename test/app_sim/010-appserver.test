@@ -63,19 +63,19 @@ namespace eval ::athena_test::tests:: {
     } -result {1}
 
     test get-1.2 {Returns URL} -body {
-        dict get [appserver get my://app/actor] url
-    } -result {my://app/actor}
+        dict get [appserver get my://app/actors] url
+    } -result {my://app/actors}
 
     test get-1.3 {Retrieves preferred ctype if no ctype given} -body {
-        dict get [appserver get /actor] contentType
+        dict get [appserver get /actors] contentType
     } -result {tcl/linkdict}
 
     test get-1.4 {Retrieves desired ctype if ctype given} -body {
-        dict get [appserver get /actor text/html] contentType
+        dict get [appserver get /actors text/html] contentType
     } -result {text/html}
 
     test get-1.5 {Desired ctype can contain wild cards} -body {
-        dict get [appserver get /actor text/*] contentType
+        dict get [appserver get /actors text/*] contentType
     } -result {text/html}
 
     test get-1.6 {NOTFOUND if resource is unknown} -body {
@@ -83,7 +83,7 @@ namespace eval ::athena_test::tests:: {
     } -result {NOTFOUND Resource not found or not compatible with this application.}
 
     test get-1.7 {NOTFOUND if required content type is unavailable} -body {
-        errcatch appserver get /actor text/nonesuch
+        errcatch appserver get /actors text/nonesuch
     } -result {NOTFOUND Content-type unavailable: text/nonesuch}
 }
 
