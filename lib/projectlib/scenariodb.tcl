@@ -275,10 +275,12 @@ snit::type ::projectlib::scenariodb {
 
     typemethod {sqlsection functions} {} {
         return {
+            qaffinity  ::simlib::qaffinity
             qcoop      ::simlib::qcooperation
             qmag       ::simlib::qmag
             qposition  ::simlib::qposition
             qsat       ::simlib::qsat
+            qsaliency  ::simlib::qsaliency
             qsecurity  ::projectlib::qsecurity
             qtolerance ::simlib::qtolerance
             link       ::projectlib::scenariodb::Link

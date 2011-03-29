@@ -896,7 +896,7 @@ snit::type appserver {
         ht::title "$data(longname) ($a)" "Actor" 
 
         # Asset Summary
-        ht::putln "Fiscal assets: about $[moneyfmt $data(cash)],"
+        ht::putln "Fiscal assets: about $[moneyfmt $data(cash)], "
         ht::put "plus about $[moneyfmt $data(income)] per week."
         ht::putln "Groups owned: "
 
@@ -960,10 +960,10 @@ snit::type appserver {
             AND   personnel > 0
         } {
             ht::tr {
-                ht::td       { ht::link /nbhood/$n $n              }
-                ht::td-right { ht::put $personnel                  }
-                ht::td       { ht::link /group/$g "$longname ($g)" }
-                ht::td       { ht::put $gtype/$subtype             }
+                ht::td left  { ht::link /nbhood/$n $n              }
+                ht::td right { ht::put $personnel                  }
+                ht::td left  { ht::link /group/$g "$longname ($g)" }
+                ht::td left  { ht::put $gtype/$subtype             }
             }
         }
 
@@ -1031,98 +1031,6 @@ snit::type appserver {
     }
 
     #-------------------------------------------------------------------
-    # Group-specific handlers
-
-
-
-    # linkdict_GroupLinks url matchArray
-    #
-    # url        - The URL of the collection resource
-    # matchArray - Array of pattern matches
-    #
-    # Matches:
-    #   $(1) - The egrouptype. 
-    #
-    # Returns tcl/linkdict for a group collection, based on an RDB 
-    # table.
-
-    proc linkdict_GroupLinks {url matchArray} {
-        upvar 1 $matchArray ""
-
-        # FIRST, get the etype.
-        if {$(1) eq ""} {
-            set etype /groups
-        } else {
-            set etype /groups/$(1)
-        }
-
-        # NEXT, get the results
-        set result [dict create]
-
-        dict with entityTypes $etype {
-            rdb eval "
-                SELECT $key AS id, longname 
-                FROM $table 
-                ORDER BY longname
-            " {
-                dict set result "/group/$id" \
-                    [dict create label "$longname ($id)" listIcon $listIcon]
-            }
-        }
-
-        return $result
-    }
-
-
-    # html_GroupLinks url matchArray
-    #
-    # url        - The URL of the collection resource
-    # matchArray - Array of pattern matches; ignored.
-    #
-    # Returns a text/html of links for a collection resource, based on 
-    # an RDB table.
-
-    proc html_GroupLinks {url matchArray} {
-        upvar 1 $matchArray ""
-
-        # FIRST, get the etype.
-        if {$(1) eq ""} {
-            set etype /groups
-        } else {
-            set etype /groups/$(1)
-        }
-
-        # NEXT, get the results.
-        dict with entityTypes $etype {
-            ht::page $label
-            ht::h1 $label
-
-            ht::push
-            rdb eval "
-                SELECT $key AS id, longname 
-                FROM $table 
-                ORDER BY longname
-            " {
-                ht::li { ht::link /group/$id "$longname ($id)" }
-            }
-
-            set links [ht::pop]
-
-            if {$links eq ""} {
-                ht::putln "No entities of this type have been defined."
-                ht::para
-            } else {
-                ht::ul { ht::put $links }
-            }
-
-            ht::/page
-            
-            return [ht::get]
-        }
-    }
-
-
-    #-------------------------------------------------------------------
     # Neighborhood-specific handlers
 
     # html_Nbhood url matchArray
@@ -1157,7 +1065,7 @@ snit::type appserver {
             ht::putln ""
             ht::tinyi {
                 More information will be available once the scenario has
-                has been locked.
+                been locked.
             }
             ht::para
         }
@@ -1189,8 +1097,9 @@ snit::type appserver {
 
         ht::putln "$data(longname) ($n) is "
         ht::putif {$urb eq "Urban"} "an " "a "
-        ht::put "$urb neighborhood with a population of $dem(population), "
-        ht::put "[percent $labPct] of which are in the labor force and "
+        ht::put "$urb neighborhood with a population of "
+        ht::put [commafmt $dem(population)]
+        ht::put ", [percent $labPct] of which are in the labor force and "
         ht::put "[percent $sagPct] of which are engaged in subsistence "
         ht::put "agriculture."
 
@@ -1315,6 +1224,92 @@ snit::type appserver {
     #-------------------------------------------------------------------
     # Group-specific handlers
 
+    # linkdict_GroupLinks url matchArray
+    #
+    # url        - The URL of the collection resource
+    # matchArray - Array of pattern matches
+    #
+    # Matches:
+    #   $(1) - The egrouptype. 
+    #
+    # Returns tcl/linkdict for a group collection, based on an RDB 
+    # table.
+
+    proc linkdict_GroupLinks {url matchArray} {
+        upvar 1 $matchArray ""
+
+        # FIRST, get the etype.
+        if {$(1) eq ""} {
+            set etype /groups
+        } else {
+            set etype /groups/$(1)
+        }
+
+        # NEXT, get the results
+        set result [dict create]
+
+        dict with entityTypes $etype {
+            rdb eval "
+                SELECT $key AS id, longname 
+                FROM $table 
+                ORDER BY longname
+            " {
+                dict set result "/group/$id" \
+                    [dict create label "$longname ($id)" listIcon $listIcon]
+            }
+        }
+
+        return $result
+    }
+
+
+    # html_GroupLinks url matchArray
+    #
+    # url        - The URL of the collection resource
+    # matchArray - Array of pattern matches; ignored.
+    #
+    # Returns a text/html of links for a collection resource, based on 
+    # an RDB table.
+
+    proc html_GroupLinks {url matchArray} {
+        upvar 1 $matchArray ""
+
+        # FIRST, get the etype.
+        if {$(1) eq ""} {
+            set etype /groups
+        } else {
+            set etype /groups/$(1)
+        }
+
+        # NEXT, get the results.
+        dict with entityTypes $etype {
+            ht::page $label
+            ht::h1 $label
+
+            ht::push
+            rdb eval "
+                SELECT $key AS id, longname 
+                FROM $table 
+                ORDER BY longname
+            " {
+                ht::li { ht::link /group/$id "$longname ($id)" }
+            }
+
+            set links [ht::pop]
+
+            if {$links eq ""} {
+                ht::putln "No entities of this type have been defined."
+                ht::para
+            } else {
+                ht::ul { ht::put $links }
+            }
+
+            ht::/page
+            
+            return [ht::get]
+        }
+    }
+
     # html_Group url matchArray
     #
     # url        - The URL that was requested
@@ -1353,12 +1348,193 @@ snit::type appserver {
     # Formats the summary page for civilian /group/{g}.
 
     proc html_GroupCiv {url g} {
-        rdb eval {SELECT * FROM civgroups_view WHERE g=$g} data {}
+        # FIRST, get the data about this group
+        rdb eval {SELECT * FROM gui_civgroups WHERE g=$g}       data {}
+        rdb eval {SELECT * FROM gui_nbhoods   WHERE n=$data(n)} nb   {}
 
+        # NEXT, begin the page.
         ht::page "Civilian Group: $g"
         ht::title "$data(longname) ($g)" "Civilian Group" 
 
-        ht::putln "No data yet available."
+        ht::linkbar {
+            actors  "Relationships with Actors"
+            rel     "Friends and Enemies"
+            sat     "Satisfaction Levels"
+            drivers "Drivers"
+        }
+
+        # NEXT, what we do depends on whether the simulation is locked
+        # or not.
+        let locked {[sim state] ne "PREP"}
+
+        if {!$locked} {
+            ht::putln ""
+            ht::tinyi {
+                More information will be available once the scenario has
+                been locked.
+            }
+
+            ht::para
+        }
+
+
+        ht::putln "$data(longname) ($g) resides in neighborhood "
+        ht::link  /nbhood/$data(n) "$nb(longname) ($data(n))"
+        ht::put   " and has a population of "
+
+        # TBD: Once demog_g is populated only when the simulation is locked,
+        # we can update gui_civgroups to coalesce basepop into population,
+        # and just use the one column.
+        if {$locked} {
+            ht::put [commafmt $data(population)]
+        } else {
+            ht::put [commafmt $data(basepop)]
+        }
+
+        ht::put "."
+
+        ht::putln "The group's demeanor is "
+        ht::put   [edemeanor longname $data(demeanor)].
+
+        if {!$locked} {
+            ht::/page
+            return [ht::get]
+        }
+
+        # NEXT, the rest of the summary
+        let lf {double($data(labor_force))/$data(population)}
+        let sa {double($data(subsistence))/$data(population)}
+        let ur {double($data(unemployed))/$data(labor_force)}
+        
+        ht::putln "[percent $lf] of the group is in the labor force, "
+        ht::put   "and [percent $sa] of the group is engaged in "
+        ht::put   "subsistence agriculture."
+        
+        ht::putln "The unemployment rate is [percent $ur]."
+            
+        ht::putln "$g's overall mood is [qsat format $data(mood)] "
+        ht::put   "([qsat longname $data(mood)])."
+        ht::para
+
+        # Actors
+        set controller [rdb onecolumn {
+            SELECT controller FROM control_n WHERE n=$data(n)
+        }]
+
+        if {$controller eq ""} {
+            ht::putln "No actor is in control of $data(n)."
+        } else {
+            set vrel_c [rdb onecolumn {
+                SELECT vrel FROM vrel_ga
+                WHERE g=$g AND a=$controller
+            }]
+
+            # TBD: Need Vmin parameter here!
+            ht::putln "$g "
+            ht::putif {$vrel_c > 0.2} "supports" "does not support"
+            ht::put   " actor "
+            ht::link /actor/$controller $controller
+            ht::put   ", who is in control of neighborhood $data(n)."
+        }
+
+        rdb eval {
+            SELECT a,vrel FROM vrel_ga
+            WHERE g=$g
+            ORDER BY vrel DESC
+            LIMIT 1
+        } fave {}
+
+        if {$fave(vrel) > $vrel_c} {
+            if {$fave(vrel) > 0.2} {
+                ht::putln "$g would prefer to see actor "
+                ht::put "$fave(a) in control of $data(n)."
+            } else {
+                ht::putln ""
+                ht::putif {$controller ne ""} "In fact, "
+                ht::put "$g does not support "
+                ht::put   "any of the actors."
+            }
+        } else {
+            ht::putln ""
+            ht::putif {$vrel_c <= 0.2} "However, "
+            ht::putln "$g prefers $controller to the other candidates."
+        }
+    
+        ht::para
+        
+        # NEXT, Detail Block: Relationships with actors
+        
+        ht::h2 "Relationships with Actors" actors
+
+        ht::query {
+            SELECT link('/actor/' || a, pair(longname, a)) AS 'Actor',
+                   qaffinity('format',vrel)                AS 'Vert. Rel.',
+                   g || ' ' || qaffinity('longname',vrel) 
+                     || ' ' || a                           AS 'Narrative'
+            FROM vrel_ga JOIN actors USING (a)
+            WHERE g=$g
+            ORDER BY vrel DESC
+        } -align {left right left}
+        
+        ht::h2 "Friend and Enemies" rel
+
+        ht::query {
+            SELECT link('/group/' || g, pair(longname, g)) AS 'Friend/Enemy',
+                   gtype                                   AS 'Type',
+                   qaffinity('format',rel)                 AS 'Relationship',
+                   $g || ' ' || qaffinity('longname',rel) 
+                      || ' ' || g                          AS 'Narrative'
+            FROM rel_view JOIN groups USING (g)
+            WHERE f=$g AND g != $g AND qaffinity('name',rel) != 'IND'
+            ORDER BY rel DESC
+        } -align {left left right left}
+
+        ht::h2 "Satisfaction Levels" sat
+
+        ht::putln "$g's overall mood is [qsat format $data(mood)] "
+        ht::put   "([qsat longname $data(mood)]).  $g's satisfactions "
+        ht::put   "with the various concerns are as follows."
+        ht::para
+
+        ht::query {
+            SELECT pair(C.longname, C.c)            AS 'Concern',
+                   qsat('format',sat)               AS 'Satisfaction',
+                   qsat('longname',sat)             AS 'Narrative',
+                   qsaliency('longname',saliency)   AS 'Saliency'
+            FROM gram_sat JOIN concerns AS C USING (c)
+            WHERE g=$g
+            ORDER BY C.c
+        } -align {left right left left}
+
+        ht::h2 "Satisfaction Drivers" drivers
+
+        ht::putln "The most important satisfaction drivers for this group "
+        ht::put   "at the present time are as follows:"
+        ht::para
+
+        aram sat drivers               \
+            -group   $g                \
+            -concern mood              \
+            -start   [simclock now -7]
+
+        rdb eval {
+            DROP TABLE IF EXISTS temp_satcontribs;
+    
+            CREATE TEMP TABLE temp_satcontribs AS
+            SELECT driver,
+                   acontrib
+            FROM gram_sat_drivers
+            WHERE g=$g AND c='mood' AND abs(acontrib) >= 0.001
+        }
+
+        ht::query {
+            SELECT format('%8.3f', acontrib) AS 'Delta',
+                   driver                    AS 'ID',
+                   oneliner                  AS 'Description'
+            FROM temp_satcontribs
+            JOIN gram_driver USING (driver)
+            ORDER BY abs(acontrib) DESC
+        } -default "No significant drivers." -align {right right left}
 
         ht::/page
 

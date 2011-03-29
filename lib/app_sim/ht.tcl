@@ -34,6 +34,7 @@ snit::type ht {
     }
 
     # Transient values used by ht::query
+    typevariable qopts       ;# Query options
     typevariable qnames      ;# List of column names
     typevariable qrow        ;# Row of queried data.
     typevariable qcol        ;# Column name
@@ -132,6 +133,7 @@ snit::type ht {
     # sql           An SQL query.
     # options       Formatting options
     #
+    # -align  codes   - List of column alignments, left, right, center
     # -labels list    - List of column labels
     # -default text   - Text to return if there's no data found.
     #                   Defaults to "No data found.<p>"
@@ -140,18 +142,19 @@ snit::type ht {
 
     proc query {sql args} {
         # FIRST, get options.
-        array set opts {
+        array set qopts {
             -labels   {}
             -default  "No data found.<p>"
+            -align    {}
         }
-        array set opts $args
+        array set qopts $args
 
         # FIRST, begin the table
         push
 
         # NEXT, if we have labels, use them.
-        if {[llength $opts(-labels)] > 0} {
-            table $opts(-labels)
+        if {[llength $qopts(-labels)] > 0} {
+            table $qopts(-labels)
         }
 
         # NEXT, get the data.  Execute the query as an uplevel,
@@ -170,8 +173,8 @@ snit::type ht {
             }
 
             ::ht::tr {
-                foreach ::ht::qname $::ht::qnames {
-                    ::ht::td {
+                foreach ::ht::qname $::ht::qnames align $::ht::qopts(-align) {
+                    ::ht::td $align {
                         ::ht::put $::ht::qrow($::ht::qname)
                     }
                 }
@@ -183,7 +186,7 @@ snit::type ht {
         set table [pop]
 
         if {[llength $::ht::qnames] == 0} {
-            putln $opts(-default)
+            putln $qopts(-default)
         } else {
             putln $table
         }
@@ -281,14 +284,19 @@ snit::type ht {
         putln <h1>$title</h1>
     }
 
-    # h2 title
+    # h2 title ?anchor?
     #
     # title  - A title string
+    # anchor - An anchor for internal hyperlinks
     #
     # Returns an HTML H2 title.
 
-    proc h2 {title} {
-        putln <h2>$title</h2>
+    proc h2 {title {anchor ""}} {
+        if {$anchor eq ""} {
+            putln <h2>$title</h2>
+        } else {
+            putln "<h2><a name=\"$anchor\">$title</a></h2>"
+        }
     }
 
     # h3 title
@@ -299,6 +307,30 @@ snit::type ht {
 
     proc h3 {title} {
         putln <h3>$title</h2>
+    }
+
+    # linkbar linkdict
+    # 
+    # linkdict   - A dictionary of URLs and labels
+    #
+    # Displays the links in a horizontal bar.
+
+    proc linkbar {linkdict} {
+        putln <hr>
+        set count 0
+
+        foreach {link label} $linkdict {
+            if {$count > 0} {
+                put " | "
+            }
+
+            link \#$link $label
+
+            incr count
+        }
+
+        putln <hr>
+        para
     }
 
     # tiny text
@@ -525,30 +557,16 @@ snit::type ht {
         }
     }
 
-    # td ?body?
+    # td ?align? ?body?
     #
+    # align   - left | center | right; defaults to "left".
     # body    - A body script
     #
     # Formats a standard table item; if the body is included,
     # it is executed, and the </td> is included automatically.
     
-    proc td {{body ""}} {
-        putln <td>
-        if {$body ne ""} {
-            uplevel 1 $body
-            put </td>
-        }
-    }
-
-    # td-right ?body?
-    #
-    # body    - A body script
-    #
-    # Formats a right-justified table item; if the body is included,
-    # it is executed, and the </td> is included automatically.
-    
-    proc td-right {{body ""}} {
-        putln <td align=right>
+    proc td {{align left} {body ""}} {
+        putln "<td align=\"$align\">"
         if {$body ne ""} {
             uplevel 1 $body
             put </td>

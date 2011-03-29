@@ -184,6 +184,7 @@ snit::widget ::projectgui::mybrowser {
         
         install hv using htmlviewer $win.paner.frm.hv              \
             -takefocus           1                                 \
+            -underlinehyperlinks no                                \
             -mouseovercommand    [mymethod MouseOverCmd]           \
             -hyperlinkcommand    [mymethod HyperlinkCmd]           \
             -isvisitedcommand    [mymethod IsVisitedCmd]           \
