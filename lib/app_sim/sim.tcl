@@ -961,7 +961,8 @@ snit::type sim {
         # NEXT, do initial analyses, and initialize modules that
         # begin to work at this time.
         aram     init -reload
-        activity analyze staffing
+        activity analyze staffing      ;# TBD: should be controlled by 
+                                        # strategy.
         demog    analyze pop
         sat      start                 ;# TBD: check results (need trends)
         coop     start                 ;# TBD: check results (need trends)
@@ -970,6 +971,7 @@ snit::type sim {
         demog    analyze econ
         demsit   assess                ;# TBD
         mad      getdrivers
+        control  start
         strategy tock
 
         # NEXT, execute events scheduled at time 0.
@@ -1176,8 +1178,9 @@ snit::type sim {
         # NEXT, execute eventq events
         eventq advance [simclock now]
 
-        # NEXT, execute actor strategies.
+        # NEXT, assess actor influence and execute actor strategies.
         if {[simclock now] % [parmdb get strategy.ticksPerTock] == 0} {
+            control tock
             profile strategy tock
         }
 

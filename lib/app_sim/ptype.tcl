@@ -26,6 +26,18 @@
 snit::type ptype {
     pragma -hasinstances no
 
+    # a+none
+    #
+    # Actor names + NONE
+
+    typemethod {a+none names} {} {
+        linsert [actor names] 0 NONE
+    }
+
+    typemethod {a+none validate} {value} {
+        EnumVal "actor" [$type a+none names] $value
+    }
+
     # n
     #
     # Neighborhood names

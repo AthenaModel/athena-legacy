@@ -128,6 +128,14 @@ snit::type bsystem {
         return $result
     }
 
+    # MamUndo
+    #
+    # Undoes the last operation, and re-computed.
+    
+    proc MamUndo {} {
+        $mam edit undo
+        $mam compute
+    }
  
 }
 
@@ -160,8 +168,9 @@ order define BSYSTEM:TOPIC:CREATE {
     bsystem topic add $parms(tid)    \
         -title     $parms(title)     \
         -relevance $parms(relevance)
+    bsystem compute
 
-    setundo [list ::bsystem edit undo]
+    setundo [list ::bsystem::MamUndo]
 }
 
 # BSYSTEM:TOPIC:DELETE
@@ -204,7 +213,9 @@ order define BSYSTEM:TOPIC:DELETE {
 
     # NEXT, Delete the topic.
     bsystem topic delete $parms(tid)
-    setundo [list ::bsystem edit undo]
+    bsystem compute
+
+    setundo [list ::bsystem::MamUndo]
 }
 
 # BSYSTEM:TOPIC:UPDATE
@@ -231,7 +242,9 @@ order define BSYSTEM:TOPIC:UPDATE {
     set opts [bsystem::ParmsToOptions {title relevance}]
 
     bsystem topic configure $parms(tid) {*}$opts
-    setundo [list ::bsystem edit undo]
+    bsystem compute
+
+    setundo [list ::bsystem::MamUndo]
 }
 
 
@@ -260,7 +273,9 @@ order define BSYSTEM:BELIEF:UPDATE {
     set opts [bsystem::ParmsToOptions {position tolerance}]
 
     bsystem belief configure {*}$parms(id) {*}$opts
-    setundo [list ::bsystem edit undo]
+    bsystem compute
+
+    setundo [list ::bsystem::MamUndo]
 }
 
 

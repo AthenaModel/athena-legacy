@@ -108,6 +108,11 @@ CREATE TABLE nbhoods (
     -- Urbanization: eurbanization
     urbanization   TEXT,
 
+    -- Actor controlling the neighborhood at time 0.
+    controller     TEXT REFERENCES actors(a)
+                   ON DELETE SET NULL
+                   DEFERRABLE INITIALLY DEFERRED, 
+
     -- Volatility gain: rgain
     vtygain        REAL DEFAULT 1.0,
 
@@ -263,6 +268,75 @@ CREATE TABLE orggroups (
 CREATE VIEW orggroups_view AS
 SELECT * FROM groups JOIN orggroups USING (g);
 
+
+------------------------------------------------------------------------
+-- Support/Control tables
+
+-- vrel_ga table: Vertical relationships between groups and actors.
+--
+-- Note: We don't cascade deletions, as this table is populated only 
+-- during simulation, when actors and groups aren't being deleted.
+
+CREATE TABLE vrel_ga (
+    -- Symbolic group name
+    g       TEXT REFERENCES groups(g)
+            DEFERRABLE INITIALLY DEFERRED,
+
+    -- Symbolic actor name
+    a       TEXT REFERENCES actors(a)
+            DEFERRABLE INITIALLY DEFERRED,
+
+    -- Vertical Relationship of g with a
+    vrel    REAL DEFAULT 0.0,
+
+    -- Base Vertical Relationship of g with a
+    bvrel   REAL DEFAULT 0.0,
+
+    PRIMARY KEY (g, a)
+);
+
+
+-- influence_na table: Actor's influence in neighborhood.
+--
+-- Note: We don't cascade deletions, as this table is populated only 
+-- during simulation, when the referenced entities aren't being deleted.
+
+CREATE TABLE influence_na (
+    -- Symbolic group name
+    n         TEXT REFERENCES nbhoods(n)
+              DEFERRABLE INITIALLY DEFERRED,
+
+    -- Symbolic actor name
+    a         TEXT REFERENCES actors(a)
+              DEFERRABLE INITIALLY DEFERRED,
+
+    -- Support for a in n
+    support   REAL DEFAULT 0.0,
+
+    -- Influence of a in n
+    influence REAL DEFAULT 0.0,
+
+    PRIMARY KEY (n, a)
+);
+
+-- control_n table: Control of neighborhood n
+--
+-- Note: We don't cascade deletions, as this table is populated only 
+-- during simulation, when the reference entities aren't being deleted.
+
+CREATE TABLE control_n (
+    -- Symbolic group name
+    n          TEXT PRIMARY KEY 
+               REFERENCES nbhoods(n)
+               DEFERRABLE INITIALLY DEFERRED,
+
+    -- Support for a in n
+    controller TEXT REFERENCES actors(a)
+               DEFERRABLE INITIALLY DEFERRED,
+
+    -- Time at which controller took control
+    since      INTEGER DEFAULT 0
+);
 
 ------------------------------------------------------------------------
 -- Condition Owners Table

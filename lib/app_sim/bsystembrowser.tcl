@@ -324,7 +324,6 @@ snit::widget bsystembrowser {
         # this component.
 
         order send gui BSYSTEM:TOPIC:UPDATE tid $tid relevance $newValue
-        bsystem compute
 
         $alist reload
     }
@@ -524,7 +523,6 @@ snit::widget bsystembrowser {
 
         # NEXT, save the new value
         order send gui BSYSTEM:BELIEF:UPDATE id $id $cname $newValue
-        bsystem compute
         
         $alist reload
     }

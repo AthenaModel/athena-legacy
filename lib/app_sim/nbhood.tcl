@@ -200,6 +200,7 @@ snit::type nbhood {
     #    longname       The neighborhood's long name
     #    local          The nbhood's local flag
     #    urbanization   eurbanization level
+    #    controller     Initial controller, or NONE
     #    vtygain        Volatility gain (rgain)
     #    refpoint       Reference point, map coordinates
     #    polygon        Boundary polygon, in map coordinates.
@@ -212,12 +213,13 @@ snit::type nbhood {
         dict with parmdict {
             # FIRST, Put the neighborhood in the database
             rdb eval {
-                INSERT INTO nbhoods(n,longname,local,urbanization,vtygain,
-                                    refpoint,polygon)
+                INSERT INTO nbhoods(n,longname,local,urbanization,
+                                    controller,vtygain,refpoint,polygon)
                 VALUES($n,
                        $longname,
                        $local,
                        $urbanization,
+                       nullif($controller,'NONE'),
                        $vtygain,
                        $refpoint,
                        $polygon);
@@ -389,6 +391,7 @@ snit::type nbhood {
     #    longname       A new long name, or ""
     #    local          A new local flag, or ""
     #    urbanization   A new eurbanization level, or ""
+    #    controller     A new controller, or ""
     #    vtygain        A new volatility gain, or ""
     #    refpoint       A new reference point, or ""
     #    polygon        A new polygon, or ""
@@ -406,6 +409,9 @@ snit::type nbhood {
                 WHERE n=$n
             } row {
                 unset row(*)
+                if {$row(controller) eq ""} {
+                    set row(controller) "NONE"
+                }
             }
 
             # NEXT, Put the neighborhood in the database
@@ -414,6 +420,9 @@ snit::type nbhood {
                 SET longname     = nonempty($longname,     longname),
                     local        = nonempty($local,        local),
                     urbanization = nonempty($urbanization, urbanization),
+                    controller   = CASE WHEN $controller = '' THEN controller
+                                        WHEN $controller = 'NONE' THEN null
+                                        ELSE $controller END,
                     vtygain      = nonempty($vtygain,      vtygain),
                     refpoint     = nonempty($refpoint,     refpoint),
                     polygon      = nonempty($polygon,      polygon)
@@ -448,6 +457,8 @@ order define NBHOOD:CREATE {
                                                  -defval   YES
     parm urbanization enum "Urbanization"        -enumtype eurbanization \
                                                  -defval   URBAN
+    parm controller   enum "Controller"          -enumtype {ptype a+none} \
+                                                 -defval   NONE
     parm vtygain      text "Volatility Gain"     -defval   1.0
     parm refpoint     text "Reference Point"     -tags     point
     parm polygon      text "Polygon"             -tags     polygon
@@ -457,6 +468,7 @@ order define NBHOOD:CREATE {
     prepare longname      -normalize
     prepare local         -toupper            -required -type boolean
     prepare urbanization  -toupper            -required -type eurbanization
+    prepare controller    -toupper            -required -type {ptype a+none}
     prepare vtygain                           -required -type rgain
     prepare refpoint      -toupper            -required -type refpoint
     prepare polygon       -normalize -toupper -required -type refpoly
@@ -555,7 +567,6 @@ order define NBHOOD:DELETE {
 }
 
 # NBHOOD:LOWER
-# NBHOOD:UPDATE
 
 order define NBHOOD:LOWER {
     title "Lower Neighborhood"
@@ -615,6 +626,7 @@ order define NBHOOD:UPDATE {
     parm longname     text  "Long Name"
     parm local        enum  "Local Neighborhood?" -enumtype eyesno
     parm urbanization enum  "Urbanization"        -enumtype eurbanization
+    parm controller   enum  "Controller"          -enumtype {ptype a+none}
     parm vtygain      text  "Volatility Gain"
     parm refpoint     text  "Reference Point"     -tags     point
     parm polygon      text  "Polygon"             -tags     polygon
@@ -624,6 +636,7 @@ order define NBHOOD:UPDATE {
     prepare longname     -normalize
     prepare local        -toupper             -type boolean
     prepare urbanization -toupper             -type eurbanization
+    prepare controller   -toupper             -type {ptype a+none}
     prepare vtygain                           -type rgain
     prepare refpoint     -toupper             -type refpoint
     prepare polygon      -normalize -toupper  -type refpoly
@@ -704,12 +717,14 @@ order define NBHOOD:UPDATE:MULTI {
                                                   -key      id
     parm local        enum  "Local Neighborhood?" -enumtype eyesno
     parm urbanization enum  "Urbanization"        -enumtype eurbanization
+    parm controller   enum  "Controller"          -enumtype {ptype a+none}
     parm vtygain      text  "Volatility Gain"
 } {
     # FIRST, prepare the parameters
     prepare ids          -toupper -required -listof nbhood
     prepare local        -toupper           -type   boolean
     prepare urbanization -toupper           -type   eurbanization
+    prepare controller   -toupper           -type   {ptype a+none}
     prepare vtygain                         -type   rgain
 
     returnOnError -final
