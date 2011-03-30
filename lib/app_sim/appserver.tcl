@@ -723,7 +723,7 @@ snit::type appserver {
 
     proc html_Welcome {url matchArray} {
         if {[catch {
-            set text [readfile [appdir join lib app_sim welcome.ehtml]]
+            set text [readfile [file join $::app_sim::library welcome.ehtml]]
         } result]} {
             return -code error -errorcode NOTFOUND \
                 "The Welcome page could not be loaded from disk: $result"
