@@ -17,30 +17,33 @@
 
 -- A nbhoods view for use by the GUI
 CREATE TEMPORARY VIEW gui_nbhoods AS
-SELECT nbhoods.n                                  AS id,
-       nbhoods.n                                  AS n,
-       longname                                   AS longname,
-       CASE local WHEN 1 THEN 'YES' ELSE 'NO' END AS local,
-       urbanization                               AS urbanization,
-       COALESCE(nbhoods.controller, 'NONE')       AS controller,
-       format('%4.1f',vtygain)                    AS vtygain,                
-       stacking_order                             AS stacking_order,
-       obscured_by                                AS obscured_by,
-       m2ref(refpoint)                            AS refpoint,
-       m2ref(polygon)                             AS polygon,
-       COALESCE(volatility,0)                     AS volatility,
-       COALESCE(demog_n.displaced,0)              AS displaced,
-       COALESCE(demog_n.displaced_labor_force,0)  AS dlf,
-       COALESCE(demog_n.population,0)             AS population,
-       COALESCE(demog_n.subsistence,0)            AS subsistence,
-       COALESCE(demog_n.consumers,0)              AS consumers,
-       COALESCE(demog_n.labor_force,0)            AS labor_force,
-       format('%.3f',COALESCE(gram_n.sat0, 0.0))  AS mood0,
-       format('%.3f',COALESCE(gram_n.sat, 0.0))   AS mood
-FROM nbhoods 
-JOIN demog_n ON (demog_n.n = nbhoods.n)
-LEFT OUTER JOIN force_n ON (force_n.n = nbhoods.n)
-LEFT OUTER JOIN gram_n  ON (gram_n.n  = nbhoods.n);
+SELECT N.n                                                AS id,
+       N.n                                                AS n,
+       N.longname                                         AS longname,
+       CASE N.local WHEN 1 THEN 'YES' ELSE 'NO' END       AS local,
+       N.urbanization                                     AS urbanization,
+       COALESCE(C.controller,N.controller, 'NONE')        AS controller,
+       COALESCE(C.since, 0)                               AS since_ticks,
+       tozulu(COALESCE(C.since, 0))                       AS since,
+       format('%4.1f',N.vtygain)                          AS vtygain,
+       N.stacking_order                                   AS stacking_order,
+       N.obscured_by                                      AS obscured_by,
+       m2ref(N.refpoint)                                  AS refpoint,
+       m2ref(N.polygon)                                   AS polygon,
+       COALESCE(F.volatility,0)                           AS volatility,
+       COALESCE(D.displaced,0)                            AS displaced,
+       COALESCE(D.displaced_labor_force,0)                AS dlf,
+       COALESCE(D.population,0)                           AS population,
+       COALESCE(D.subsistence,0)                          AS subsistence,
+       COALESCE(D.consumers,0)                            AS consumers,
+       COALESCE(D.labor_force,0)                          AS labor_force,
+       format('%.3f',COALESCE(GR.sat0, 0.0))              AS mood0,
+       format('%.3f',COALESCE(GR.sat, 0.0))               AS mood
+FROM nbhoods              AS N
+JOIN demog_n              AS D  USING (n)
+LEFT OUTER JOIN force_n   AS F  USING (n)
+LEFT OUTER JOIN gram_n    AS GR USING (n)
+LEFT OUTER JOIN control_n AS C  USING (n);
 
 -- An Actors view for use by the GUI
 CREATE TEMPORARY VIEW gui_actors AS

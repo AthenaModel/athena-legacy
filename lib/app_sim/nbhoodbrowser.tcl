@@ -37,7 +37,8 @@ snit::widgetadaptor nbhoodbrowser {
         { longname       "Neighborhood"                                  }
         { local          "Local?"                                        }
         { urbanization   "Urbanization"                                  }
-        { controller     "Controller"                                    }
+        { controller     "Controller"                     -foreground %D }
+        { since          "Since"                          -foreground %D }
         { population     "Population"   -sortmode integer -foreground %D }
         { mood0          "Mood at T0"   -sortmode real                   }
         { mood           "Mood Now"     -sortmode real    -foreground %D }

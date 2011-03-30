@@ -1429,9 +1429,9 @@ snit::type appserver {
                 WHERE g=$g AND a=$controller
             }]
 
-            # TBD: Need Vmin parameter here!
+            set vrelMin [parm get control.support.vrelMin]
             ht::putln "$g "
-            ht::putif {$vrel_c > 0.2} "supports" "does not support"
+            ht::putif {$vrel_c > $vrelMin} "supports" "does not support"
             ht::put   " actor "
             ht::link /actor/$controller $controller
             ht::put   ", who is in control of neighborhood $data(n)."
@@ -1485,7 +1485,7 @@ snit::type appserver {
                    $g || ' ' || qaffinity('longname',rel) 
                       || ' ' || g                          AS 'Narrative'
             FROM rel_view JOIN groups USING (g)
-            WHERE f=$g AND g != $g AND qaffinity('name',rel) != 'IND'
+            WHERE f=$g AND g != $g AND qaffinity('name',rel) != 'INDIFF'
             ORDER BY rel DESC
         } -align {left left right left}
 

@@ -1138,10 +1138,6 @@ snit::widget appwin {
             -promptcmd [mymethod CliPrompt]     \
             -evalcmd   [list ::executive eval]
 
-        if {$visibility(cli)} {
-            $win.paner add $cli
-        }
-        
         # Load the CLI command history
         $self LoadCliHistory
 

@@ -47,6 +47,10 @@ namespace eval ::projectlib:: {
 ::marsutil::range ::projectlib::parmdb_posCD \
     -min 0.05 -max 1.0 -format "%.2f"
 
+# Non-negative security
+::marsutil::range ::projectlib::parmdb_nnsec \
+    -min 0.0 -max 100.0 -format "%.1f"
+
 
 #-------------------------------------------------------------------
 # parm
@@ -582,6 +586,52 @@ snit::type ::projectlib::parmdb {
         $ps setdefault activity.ORG.CMO_OTHER.minSecurity.NGO          H
         $ps setdefault activity.ORG.CMO_OTHER.minSecurity.CTR          M
         $ps setdefault activity.ORG.CMO_OTHER.coverage                 {20 1000}
+
+        # control.* parameters
+        $ps subset control {
+            Parameters related to the determination of group/actor
+            relationships, actor influence and support, and neighborhood
+            control.
+        }
+
+        $ps subset control.dvmood {
+            Parameters related to the computation of the
+            deltaV.mood term of the V.ga vertical relationship.
+        }
+
+        $ps define control.dvmood.better ::simlib::qsat 30.0 {
+            The "better" threshold for deltaV.mood; a group's mood has
+            significantly improved since the last time control of the
+            neighborhood shifted if it has grown by more than this
+            amount.
+        }
+
+        $ps define control.dvmood.worse ::simlib::qsat -30.0 {
+            The "worse" threshold for deltaV.mood; a group's mood has
+            gotten significantly worse since the last time control of the
+            neighborhood shifted if it has dropped by more than this
+            amount.
+        }
+
+        $ps subset control.support {
+            Parameters related to the computation of the support of a 
+            neighborhood for a particular actor.
+        }
+
+        $ps define control.support.vrelMin ::simlib::rfraction 0.2 {
+            The minimum V.ga that group g can have for actor a and
+            still be deemed to be a supporter of a.
+        }
+
+        $ps define control.support.secMin ::projectlib::parmdb_nnsec 0.0 {
+            The minimum security.ng that group g can have and still be
+            able to support actor a in neighborhood n.
+        }
+
+        $ps define control.threshold ::simlib::rfraction 0.5 {
+            The minimum influence.na an actor must have to become
+            "in control" of a neighborhood.
+        }
 
         # dam.* parameters
         $ps subset dam {

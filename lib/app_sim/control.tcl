@@ -48,8 +48,6 @@ snit::type control {
          1,0 M-
     }
 
-
-
     #-------------------------------------------------------------------
     # Simulation Start
 
@@ -62,7 +60,6 @@ snit::type control {
         # FIRST, initialize the control tables
         $type PopulateVerticalRelationships
         $type PopulateActorInfluence
-        $type ComputeActorInfluence
         $type PopulateNbhoodControl
     }
 
@@ -110,8 +107,8 @@ snit::type control {
 
     # PopulateActorInfluence
     #
-    # Computes the support for and influence of each actor in
-    # each neighborhood.
+    # Populates the influence_na table, and computes the
+    # initial influence of each actor.
     
     typemethod PopulateActorInfluence {} {
         # FIRST, populate the influence_na table
@@ -119,6 +116,9 @@ snit::type control {
             INSERT INTO influence_na(n, a)
             SELECT n, a FROM nbhoods JOIN actors
         }
+
+        # NEXT, compute the actor's initial influence.
+        $type ComputeActorInfluence
     }
 
     # PopulateNbhoodControl
@@ -184,7 +184,7 @@ snit::type control {
     # * g's mood now
     # * g's mood at the time control of n last shifted
     #
-    # TBD: Log intermediate results
+    # TBD: Refactor for analysis! /vrel/{g}/{a}?
     
     typemethod ComputeVerticalRelationships {} {
         foreach {g n a bvrel inControl moodNow moodThen} [rdb eval {
@@ -204,34 +204,22 @@ snit::type control {
             JOIN hist_mood AS HM ON (HM.g = G.g AND HM.t = C.since)
         }] {
             # FIRST, compute deltaV.mood
-            # TBD: These bounds should be model parameters.
-            set upper  30.0
-            set lower -30.0
+            set better [parm get control.dvmood.better]
+            set worse  [parm get control.dvmood.worse]
 
             let moodDiff {$moodNow - $moodThen}
 
             # Look up the magnitude in the table
-            if {$moodDiff > $upper} {
+            if {$moodDiff > $better} {
                 set deltaVmood [qmag value $moodTable(1,$inControl)]
-            } elseif {$moodDiff < $lower} {
+            } elseif {$moodDiff < $worse} {
                 set deltaVmood [qmag value $moodTable(-1,$inControl)]
             } else {
                 set deltaVmood [qmag value $moodTable(0,$inControl)]
             }
 
             # NEXT, accumulate, scale,and apply the deltaV's.
-            # TBD: When we have multiple deltaV's, we'll need to
-            # scale and apply the positive and negative effects 
-            # separately.  (Ugh!)
-            let deltaV {$deltaVmood/100.0}
-
-            if {$deltaV >= 0.0} {
-                let scaledDeltaV {abs(2.0*$deltaV*(1.0 - $bvrel)/2.0)}
-            } else {
-                let scaledDeltaV {abs(2.0*$deltaV*(1.0 + $bvrel)/2.0)}
-            }
-
-            let vrel {$bvrel + $scaledDeltaV}
+            let vrel [scale $bvrel $deltaVmood]
 
             rdb eval {
                 UPDATE vrel_ga
@@ -240,8 +228,8 @@ snit::type control {
             }
 
             log detail control \
-                [format "vrel(%s,%s) = %.3f = %.3f + %.3f, dVmood=%.1f" \
-                     $g $a $vrel $bvrel $scaledDeltaV $deltaVmood]
+                [format "vrel(%s,%s) = %.3f; bv = %.3f, dVmood=%.1f" \
+                     $g $a $vrel $bvrel $deltaVmood]
         }
     }
 
@@ -260,10 +248,8 @@ snit::type control {
 
         # NEXT, add the support of each group in each neighborhood
         # to each actor.
-        #
-        # TBD: min parameters should come from parmdb
-        set vrelMin 0.2
-        set secMin 0
+        set vrelMin [parm get control.support.vrelMin]
+        set secMin  [parm get control.support.secMin]
 
         rdb eval {
             SELECT NG.n         AS n,
@@ -280,7 +266,7 @@ snit::type control {
             AND   NG.security >= $secMin
         } {
             # TBD: Save contrib in a table, so we can query it for
-            # reports. Possibly, a temporary table.
+            # reports? Possibly, a temporary table.
             set contrib [expr {$vrel * $personnel * $security}]
 
             rdb eval {
@@ -317,4 +303,49 @@ snit::type control {
             }
         }
     }
+
+    #-------------------------------------------------------------------
+    # Helper Procs
+
+    # scale base delta...
+    #
+    # base   - A base value
+    # delta  - One or more numeric qmag(n) magnitude values
+    #
+    # Given a base value and one or more deltas expressed as numeric
+    # qmag(n) magnitudes (e.g., percentage changes from base to 
+    # extreme), scales the deltas, applies them to the base, and returns
+    # the new value.
+    #
+    # More specifically, the deltas are divided into positive and negative
+    # deltas.  Each set is totalled, scaled, and applied separately.
+
+    proc scale {base args} {
+        # FIRST, total up the deltas by sign.
+        set plus  0.0
+        set minus 0.0
+
+        foreach delta $args {
+            if {$delta >= 0} {
+                set plus [expr {min($plus + $delta, 100.0)}]
+            } else {
+                set minus [expr {max($minus + $delta, -100.0)}]
+            }
+        }
+
+        # NEXT, add the plusses and minuses
+        set result $base
+
+        if {$plus > 0.0} {
+            set result [expr {$result + abs($plus*(1.0 - $base)/100.0)}]
+        }
+
+        if {$minus < 0.0} {
+            set result [expr {$result - abs($minus*(1.0 + $base)/100.0)}]
+        }
+
+        return $result
+    }
+
+
 }
