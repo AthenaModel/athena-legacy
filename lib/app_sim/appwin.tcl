@@ -426,7 +426,6 @@ snit::widget appwin {
     # Status info
     #
     # mode        Window mode, scenario or simulation
-    # tab-$mode   Tab last displayed in the specified mode.
     # tabs        Dict, tab names by tab window
     # simstate    Current simulation state
     # tick        Current sim time as a four-digit tick (a day)
@@ -435,8 +434,6 @@ snit::widget appwin {
 
     variable info -array {
         mode           scenario
-        tab-scenario   detail
-        tab-simulation detail
         tabs           {}
         simstate       ""
         tick           "0000"
@@ -1229,9 +1226,6 @@ snit::widget appwin {
         # NEXT, Update the tabs
         $self MakeTabsVisible
 
-        # NEXT, view the tab last seen for this mode.
-        $self tab view $info(tab-$info(mode))
-
         # NEXT, update the display
         $self SetWindowTitle
     }
@@ -1271,9 +1265,6 @@ snit::widget appwin {
     method CreateTabs {} {
         # FIRST, bind to the main content notebook.
 
-        # NEXT, bind to track the current tab by mode.
-        bind $content <<NotebookTabChanged>> [mymethod RememberCurrentTab]
-
         # NEXT, add each tab
         foreach tab [dict keys $tabs] {
             # Add a "tabwin" key to the tab dictionary
@@ -1294,8 +1285,6 @@ snit::widget appwin {
                 # NEXT, create the new tab widget
                 if {$script eq ""} {
                     ttk::notebook $tabwin -padding 2
-                    bind $tabwin <<NotebookTabChanged>> \
-                        [mymethod RememberCurrentTab]
                 } else {
                     dict set info(tabs) $tabwin $tab
                     eval [string map [list %W $tabwin] $script]
@@ -1310,31 +1299,6 @@ snit::widget appwin {
         }
     }
 
-    # RememberCurrentTab
-    #
-    # Tracks the current tab by window mode, so that we can back to it.
-
-    method RememberCurrentTab {} {
-        # FIRST, get the toplevel tab.
-        set tabwin [$content select]
-
-        # NEXT, if there's no tab name recorded in info(tabs), this is
-        # yet another notebook.  Recurse down.
-        if {![dict exists $info(tabs) $tabwin]} {
-            set nb $tabwin
-            set tabwin [$nb select]
-
-            if {$tabwin eq ""} {
-                set tabwin [lindex [$nb tabs] 0]
-            }
-        }
-
-        # NEXT, get the tab name.
-        set tab [dict get $info(tabs) $tabwin]
-
-        # NEXT, remember the tab
-        set info(tab-$info(mode)) $tab
-    }
 
     # MakeTabsVisible
     #
@@ -2336,8 +2300,6 @@ snit::widget appwin {
         set checkpoint [dict create]
         
         dict set checkpoint mode           $info(mode)
-        dict set checkpoint tab-scenario   $info(tab-scenario)
-        dict set checkpoint tab-simulation $info(tab-simulation)
         dict set checkpoint visibility     [array get visibility]
         dict set checkpoint cli            [$cli saveable checkpoint]
 
@@ -2351,8 +2313,6 @@ snit::widget appwin {
     method restore {checkpoint {option ""}} {
         # FIRST, restore the checkpoint data
         set info(mode)           [dict get $checkpoint mode]
-        set info(tab-scenario)   [dict get $checkpoint tab-scenario]
-        set info(tab-simulation) [dict get $checkpoint tab-simulation]
         array set visibility     [dict get $checkpoint visibility]
         $cli saveable restore    [dict get $checkpoint cli]
     }
