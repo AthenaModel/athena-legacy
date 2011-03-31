@@ -275,6 +275,8 @@ snit::type ::projectlib::scenariodb {
 
     typemethod {sqlsection functions} {} {
         return {
+            commafmt   ::marsutil::commafmt
+            qfancyfmt  ::projectlib::scenariodb::QFancyFmt
             qaffinity  ::simlib::qaffinity
             qcoop      ::simlib::qcooperation
             qmag       ::simlib::qmag
@@ -285,6 +287,7 @@ snit::type ::projectlib::scenariodb {
             qtolerance ::simlib::qtolerance
             link       ::projectlib::scenariodb::Link
             pair       ::projectlib::scenariodb::Pair
+            qfancyfmt  ::projectlib::scenariodb::QFancyFmt
         }
     }
 
@@ -896,6 +899,18 @@ snit::type ::projectlib::scenariodb {
         return "$a ($b)"
     }
 
+    # QFancyFmt(quality,value)
+    #
+    # quality     - A quality type
+    # value       - A quality value
+    #
+    # Returns "value (longname)", formatting the value using the format
+    # subcommand.
+
+    proc QFancyFmt {quality value} {
+        return "[$quality format $value] ([$quality longname $value])"
+    }
+    
 }
 
 

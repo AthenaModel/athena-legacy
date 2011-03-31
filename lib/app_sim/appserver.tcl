@@ -270,42 +270,42 @@ snit::type appserver {
         /actors {
             label    "Actors"
             listIcon ::projectgui::icon::actor12
-            table    actors
+            table    gui_actors
             key      a
         }
 
         /nbhoods {
             label    "Neighborhoods"
             listIcon ::projectgui::icon::nbhood12
-            table    nbhoods
+            table    gui_nbhoods
             key      n
         }
 
         /groups/civ {
             label    "Civ. Groups"
             listIcon ::projectgui::icon::civgroup12
-            table    civgroups_view
+            table    gui_civgroups
             key      g
         }
 
         /groups/frc {
             label    "Force Groups"
             listIcon ::projectgui::icon::frcgroup12
-            table    frcgroups_view
+            table    gui_frcgroups
             key      g
         }
 
         /groups {
             label    "Groups"
             listIcon ::projectgui::icon::group12
-            table    groups
+            table    gui_groups
             key      g
         }
 
         /groups/org {
             label    "Org. Groups"
             listIcon ::projectgui::icon::orggroup12
-            table    orggroups_view
+            table    gui_orggroups
             key      g
         }
     }
@@ -817,12 +817,12 @@ snit::type appserver {
 
         dict with entityTypes $etype {
             rdb eval "
-                SELECT $key AS id, longname 
+                SELECT url, fancy
                 FROM $table 
-                ORDER BY longname, $key
+                ORDER BY fancy
             " {
-                dict set result "$eroot/$id" \
-                    [dict create label "$longname ($id)" listIcon $listIcon]
+                dict set result $url \
+                    [dict create label $fancy listIcon $listIcon]
             }
         }
 
@@ -848,9 +848,9 @@ snit::type appserver {
             ht::push
 
             rdb eval "
-                SELECT $key AS id, longname FROM $table ORDER BY longname
+                SELECT longlink FROM $table ORDER BY fancy
             " {
-                ht::li { ht::link $eroot/$id "$longname ($id)" }
+                ht::li { ht::put $longlink }
             }
 
             set links [ht::pop]
@@ -890,26 +890,36 @@ snit::type appserver {
         }
 
         # Begin the page
-        array set data [actor get $a]
+        rdb eval {SELECT * FROM gui_actors WHERE a=$a} data {}
 
         ht::page "Actor: $a"
-        ht::title "$data(longname) ($a)" "Actor" 
+        ht::title $data(fancy) "Actor" 
 
+        ht::linkbar {
+            goals   "Goals"
+            sphere  "Sphere of Influence"
+            base    "Power Base"
+            forces  "Force Deployment"
+            future  "Future Topics"
+        }
+        
         # Asset Summary
-        ht::putln "Fiscal assets: about $[moneyfmt $data(cash)], "
-        ht::put "plus about $[moneyfmt $data(income)] per week."
+        ht::putln "Fiscal assets: about \$$data(cash), "
+        ht::put "plus about \$$data(income) per week."
         ht::putln "Groups owned: "
 
         ht::linklist [rdb eval {
-            SELECT '/group/' || g, g FROM gui_agroups 
+            SELECT url, g FROM gui_agroups 
             WHERE a=$a
             ORDER BY g
         }]
 
+        ht::put "."
+
         ht::para
 
         # Goals
-        ht::h2 "Goals"
+        ht::h2 "Goals" goals
 
         ht::push
         rdb eval {
@@ -941,69 +951,83 @@ snit::type appserver {
             ht::para
         }
 
+        # Sphere of Influence
+        ht::h2 "Sphere of Influence" sphere
+
+        if {[Locked -disclaimer]} {
+            ht::putln "Actor $a has influence in the following neighborhoods:"
+            ht::para
+
+            ht::query {
+                SELECT N.longlink                 AS 'Neighborhood',
+                       format('%.2f',I.influence) AS 'Influence'
+                FROM influence_na AS I
+                JOIN gui_nbhoods  AS N USING (n)
+                WHERE I.influence > 0.0
+                ORDER BY I.influence, N.fancy
+            } -default "None."
+
+            ht::para
+        }
+
+        # Power Base
+        ht::h2 "Power Base" base
+
+        if {[Locked -disclaimer]} {
+            set vmin [parm get control.support.vrelMin]
+
+            ht::putln "Actor $a has the following supporters "
+            ht::putln "(and would-be supporters).  "
+            ht::putln "Note that a group only supports an actor if"
+            ht::putln "its vertical relationship with the actor is at"
+            ht::putln "least $vmin, and"
+            ht::putln "its support makes a difference only if its"
+            ht::putln "security is at least"
+            ht::putln "[parm get control.support.secMin]."
+            ht::para
+
+            ht::query {
+                SELECT N.link                            AS 'In Nbhood',
+                       G.link                            AS 'Group',
+                       G.gtype                           AS 'Type',
+                       format('%.2f',S.influence)        AS 'Influence',
+                       qaffinity('format',S.vrel)        AS 'Vert. Rel.',
+                       G.g || ' ' || 
+                       qaffinity('longname',S.vrel) ||
+                       ' ' || S.a                        AS 'Narrative',
+                       commafmt(S.personnel)             AS 'Personnel',
+                       qfancyfmt('qsecurity',S.security) AS 'Security'
+                FROM support_nga AS S
+                JOIN gui_groups  AS G ON (G.g = S.g)
+                JOIN gui_nbhoods AS N ON (N.n = S.n)
+                WHERE S.a=$a AND S.personnel > 0 AND S.vrel >= $vmin
+                ORDER BY S.influence DESC, S.vrel DESC, N.n
+            } -default "None." -align {left left right right left right left}
+
+            ht::para
+        }
+
         # Deployment
-        ht::h2 "Force Deployment"
+        ht::h2 "Force Deployment" forces
 
-        ht::push
-        # TBD: recast to use ht::query.
-        rdb eval {
-            SELECT P.n         AS n, 
-                   P.g         AS g,
-                   P.personnel AS personnel, 
-                   G.gtype     AS gtype, 
-                   G.longname  AS longname, 
-                   AG.subtype  AS subtype
+        ht::query {
+            SELECT N.longlink              AS 'Neighborhood',
+                   P.personnel             AS 'Personnel',
+                   G.longlink              AS 'Group',
+                   G.fulltype              AS 'Type'
             FROM personnel_ng AS P
-            JOIN groups       AS G  USING (g)
-            JOIN gui_agroups  AS AG USING (g)
-            WHERE AG.a=$a
-            AND   personnel > 0
-        } {
-            ht::tr {
-                ht::td left  { ht::link /nbhood/$n $n              }
-                ht::td right { ht::put $personnel                  }
-                ht::td left  { ht::link /group/$g "$longname ($g)" }
-                ht::td left  { ht::put $gtype/$subtype             }
-            }
-        }
+            JOIN gui_agroups  AS G ON (G.g=P.g)
+            JOIN gui_nbhoods  AS N ON (N.n=P.n)
+            WHERE G.a=$a AND personnel > 0
+        } -default "No forces are deployed."
 
-        set rows [ht::pop]
-
-        if {$rows eq ""} {
-            ht::put "No forces deployed."
-            ht::para
-        } else {
-            ht::table {Nbhood Personnel Group Type} {
-                ht::put $rows
-            }
-            ht::para
-        }
-
-        # Civilian Support
-        ht::h2 "Topics Not Yet Covered"
+        # Future Topics
+        ht::h2 "Future Topics" future
 
         ht::putln {We might add information about the following topics.}
         ht::para
 
         ht::ul {
-            ht::li {
-                ht::put {
-                    <b>Sphere of Influence</b>: the neighborhoods
-                    the actor controls, wishes to control, and has
-                    influence in.   The text should show the 
-                    neighborhoods in which he has the most influence
-                    first.
-                }
-            }
-
-            ht::li {
-                ht::put {
-                    <b>Civilian Support</b>: a breakdown of which
-                    groups support or oppose the actor, by 
-                    neighborhood.
-                }
-            }
-
             ht::li {
                 ht::put {
                     <b>Recent Tactics</b>: The tactics recently used
@@ -1052,16 +1076,27 @@ snit::type appserver {
         }
 
         rdb eval {SELECT * FROM gui_nbhoods WHERE n=$n} data {}
-        rdb eval {SELECT * FROM demog_n     WHERE n=$n} dem  {}
         rdb eval {SELECT * FROM econ_n      WHERE n=$n} econ {}
+        rdb eval {
+            SELECT * FROM gui_actors  
+            WHERE a=$data(controller)
+        } cdata {}
 
         let locked {[sim state] ne "PREP"}
 
         # Begin the page
         ht::page "Neighborhood: $n"
-        ht::title "$data(longname) ($n)" "Neighborhood" 
+        ht::title $data(fancy) "Neighborhood" 
 
-        if {!$locked} {
+        if {$locked} {
+            ht::linkbar {
+                civs    "Civilian Groups"
+                forces  "Forces Present"
+                control "Support and Control"
+                future  "Future Topics"
+            }
+
+        } {
             ht::putln ""
             ht::tinyi {
                 More information will be available once the scenario has
@@ -1080,10 +1115,19 @@ snit::type appserver {
             ht::putln "Resident groups: "
 
             ht::linklist -default "None" [rdb eval {
-                SELECT '/group/' || g, g FROM civgroups WHERE n=$n
+                SELECT url,g FROM gui_civgroups WHERE n=$n
             }]
 
             ht::put ". "
+
+            if {$data(controller) eq "NONE"} {
+                ht::putln "No actor is initially in control."
+            } else {
+                ht::putln "Actor "
+                ht::put "$cdata(link) is initially in control."
+            }
+
+            ht::para
 
             ht::/page
             return [ht::get]
@@ -1091,14 +1135,14 @@ snit::type appserver {
 
         # Population, groups.
         set urb    [eurbanization longname $data(urbanization)]
-        let labPct {double($dem(labor_force))/$dem(population)}
-        let sagPct {double($dem(subsistence))/$dem(population)}
+        let labPct {double($data(labor_force))/$data(population)}
+        let sagPct {double($data(subsistence))/$data(population)}
         set mood   [qsat name $data(mood)]
 
-        ht::putln "$data(longname) ($n) is "
+        ht::putln "$data(fancy) is "
         ht::putif {$urb eq "Urban"} "an " "a "
         ht::put "$urb neighborhood with a population of "
-        ht::put [commafmt $dem(population)]
+        ht::put [commafmt $data(population)]
         ht::put ", [percent $labPct] of which are in the labor force and "
         ht::put "[percent $sagPct] of which are engaged in subsistence "
         ht::put "agriculture."
@@ -1106,7 +1150,7 @@ snit::type appserver {
         ht::putln "The population belongs to the following groups: "
 
         ht::linklist -default "None" [rdb eval {
-            SELECT '/group/' || g, g FROM civgroups WHERE n=$n
+            SELECT url,g FROM gui_civgroups WHERE n=$n
         }]
         
         ht::put "."
@@ -1117,8 +1161,8 @@ snit::type appserver {
         ht::put "(more than)/(less than) expected. "
 
         if {$data(local)} {
-            if {$dem(labor_force) > 0} {
-                let rate {double($dem(unemployed))/$dem(labor_force)}
+            if {$data(labor_force) > 0} {
+                let rate {double($data(unemployed))/$data(labor_force)}
                 ht::putln "The unemployment rate is [percent $rate]."
             }
             ht::putln "$n's production capacity is [percent $econ(pcf)]."
@@ -1126,11 +1170,37 @@ snit::type appserver {
         ht::para
 
         # Actors
-        ht::putln \
-            "Actor TBD is in control of $n."          \
-            "Actors TBD would like to be in control." \
-            "Actors TBD are also active."             \
-            "Actors TBD have influence in $n."
+        if {$data(controller) eq "NONE"} {
+            ht::putln "$n is currently in a state of chaos: "
+            ht::put   "no actor is in control."
+        } else {
+            ht::putln "Actor $cdata(link) is currently in control of $n."
+        }
+
+        ht::putln "Actors with forces in $n: "
+
+        ht::linklist -default "None" [rdb eval {
+            SELECT DISTINCT '/actor/' || a, a
+            FROM gui_agroups
+            JOIN force_ng USING (g)
+            WHERE n=$n AND personnel > 0
+            ORDER BY personnel DESC
+        }]
+
+        ht::put "."
+
+        ht::putln "Actors with influence in $n: "
+
+        ht::linklist -default "None" [rdb eval {
+            SELECT DISTINCT A.url, A.a
+            FROM influence_na AS I
+            JOIN gui_actors AS A USING (a)
+            WHERE I.n=$n AND I.influence > 0
+            ORDER BY I.influence DESC
+        }]
+
+        ht::put "."
+
         ht::para
 
         # Groups
@@ -1139,74 +1209,118 @@ snit::type appserver {
             "active in $n: "
 
         ht::linklist -default "None" [rdb eval {
-            SELECT '/group/' || g, g 
-            FROM force_ng 
-            JOIN gui_agroups USING (g)
-            WHERE n=$n AND personnel > 0
+            SELECT G.url, G.g
+            FROM gui_agroups AS G
+            JOIN force_ng    AS F USING (g)
+            WHERE F.n=$n AND F.personnel > 0
         }]
 
         ht::put "."
         ht::para
 
         # Civilian groups
-        ht::h2 "Civilian Groups"
+        ht::h2 "Civilian Groups" civs
         
         ht::putln "The following civilian groups live in $n:"
         ht::para
 
         ht::query {
-            SELECT link('/group/' || G.g, pair(G.longname, G.g))
+            SELECT G.longlink  
                        AS 'Name',
-                   D.population 
+                   G.population 
                        AS 'Population',
-                   pair(qsat('format',M.sat), qsat('longname',M.sat))
+                   pair(qsat('format',G.mood), qsat('longname',G.mood))
                        AS 'Mood',
                    pair(qsecurity('format',S.security), 
                         qsecurity('longname',S.security))
                        AS 'Security'
-            FROM groups    AS G
-            JOIN civgroups AS C USING (g)
-            JOIN demog_g   AS D USING (g)
-            JOIN gram_g    AS M USING (g)
-            JOIN force_ng  AS S USING (g)
-            WHERE C.n=$n AND S.n=$n
+            FROM gui_civgroups AS G
+            JOIN force_ng      AS S USING (g)
+            WHERE G.n=$n AND S.n=$n
             ORDER BY G.g
         }
 
         # Force/Org groups
 
-        ht::h2 "Forces Present"
+        ht::h2 "Forces Present" forces
 
         ht::query {
-            SELECT link('/group/' || G.g, pair(G.longname, G.g))
+            SELECT G.longlink
                        AS 'Group',
                    P.personnel 
                        AS 'Personnel', 
-                   G.gtype || '/' || AG.subtype
+                   G.fulltype
                        AS 'Type',
                    CASE WHEN G.gtype='FRC'
                    THEN pair(C.coop, qcoop('longname',C.coop))
                    ELSE 'n/a' END
                        AS 'Coop. of Nbhood'
             FROM force_ng     AS P
-            JOIN groups       AS G  USING (g)
-            JOIN gui_agroups  AS AG USING (g)
+            JOIN gui_agroups  AS G USING (g)
             LEFT OUTER JOIN gui_coop_ng  AS C ON (C.n=P.n AND C.g=P.g)
             WHERE P.n=$n
             AND   personnel > 0
             ORDER BY G.g
         } -default "None."
 
+        # Support and Control
+        ht::h2 "Support and Control" control
+
+        if {$data(controller) eq "NONE"} {
+            ht::putln "$n is currently in a state of chaos: "
+            ht::put   "no actor is in control."
+        } else {
+            ht::putln "Actor $cdata(link) is currently in control of $n."
+        }
+
+        ht::putln "The actors with influence in this neighborhood are "
+        ht::put   "as follows:"
+        ht::para
+
+        ht::query {
+            SELECT A.longlink                   AS 'Actor',
+                   format('%.2f',I.influence)   AS 'Influence'
+            FROM influence_na AS I
+            JOIN gui_actors   AS A USING (a)
+            WHERE I.n = $n AND I.influence > 0.0
+            ORDER BY I.influence DESC
+        } -default "None." -align {left right}
+
+        ht::para
+        ht::putln "Actor support comes from the following groups."
+        ht::putln "Note that a group only supports an actor if"
+        ht::putln "its vertical relationship with the actor is at"
+        ht::putln "least [parm get control.support.vrelMin], and"
+        ht::putln "its support makes a difference only if its"
+        ht::putln "security is at least"
+        ht::putln "[parm get control.support.secMin]."
+        ht::para
+
+        ht::query {
+            SELECT A.link                            AS 'Actor',
+                   G.link                            AS 'Group',
+                   format('%.2f',S.influence)        AS 'Influence',
+                   qaffinity('format',S.vrel)        AS 'Vert. Rel.',
+                   G.g || ' ' || 
+                     qaffinity('longname',S.vrel) ||
+                     ' ' || A.a                      AS 'Narrative',
+                   commafmt(S.personnel)             AS 'Personnel',
+                   qfancyfmt('qsecurity',S.security) AS 'Security'
+            FROM support_nga AS S
+            JOIN gui_groups  AS G ON (G.g = S.g)
+            JOIN gui_actors  AS A ON (A.a = S.a)
+            WHERE S.n=$n AND S.personnel > 0
+            ORDER BY S.influence DESC, S.vrel DESC, A.a
+        } -default "None." -align {left left right right left right left}
+
+        ht::para
+
         # Topics Yet to be Covered
-        ht::h2 "Topics Yet To Be Covered"
+        ht::h2 "Future Topics" future
 
         ht::putln "The following topics might be covered in the future:"
 
         ht::ul {
-            ht::li-text {
-                <b>Power Struggles:</b> Analysis of who is in control and
-                why.
-            }
             ht::li-text { 
                 <b>Conflicts:</b> Pairs of force groups with 
                 significant ROEs.
@@ -1580,6 +1694,33 @@ snit::type appserver {
         ht::/page
 
         return [ht::get]
+    }
+
+    #-------------------------------------------------------------------
+    # Boilerplate
+
+    # Locked ?-disclaimer?
+    #
+    # -disclaimer  - Put a disclaimer, if option is given
+    #
+    # Returns whether or not the simulation is locked; optionally,
+    # adds a disclaimer to the output.
+
+    proc Locked {{option ""}} {
+        if {[sim state] ne "PREP"} {
+            return 1
+        } else {
+            if {$option ne ""} {
+                ht::putln ""
+                ht::tinyi {
+                    More information will be available once the scenario has
+                    been locked.
+                }
+                ht::para
+            }
+
+            return 0
+        }
     }
 }
 

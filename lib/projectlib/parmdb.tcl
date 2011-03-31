@@ -48,8 +48,8 @@ namespace eval ::projectlib:: {
     -min 0.05 -max 1.0 -format "%.2f"
 
 # Non-negative security
-::marsutil::range ::projectlib::parmdb_nnsec \
-    -min 0.0 -max 100.0 -format "%.1f"
+snit::integer ::projectlib::parmdb_nnsec \
+    -min 1 -max 100
 
 
 #-------------------------------------------------------------------
@@ -623,7 +623,7 @@ snit::type ::projectlib::parmdb {
             still be deemed to be a supporter of a.
         }
 
-        $ps define control.support.secMin ::projectlib::parmdb_nnsec 0.0 {
+        $ps define control.support.secMin ::projectlib::parmdb_nnsec 1 {
             The minimum security.ng that group g can have and still be
             able to support actor a in neighborhood n.
         }

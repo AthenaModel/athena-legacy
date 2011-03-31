@@ -15,10 +15,27 @@
 --
 ------------------------------------------------------------------------
 
+-- An Actors view for use by the GUI
+CREATE TEMPORARY VIEW gui_actors AS
+SELECT a                                         AS id,
+       a                                         AS a,
+       '/actor/' || a                            AS url,
+       pair(longname, a)                         AS fancy,
+       link('/actor/' || a, a)                   AS link,
+       link('/actor/' || a, pair(longname, a))   AS longlink,
+       longname                                  AS longname,
+       moneyfmt(income)                          AS income,
+       moneyfmt(cash)                            AS cash
+FROM actors;
+
 -- A nbhoods view for use by the GUI
 CREATE TEMPORARY VIEW gui_nbhoods AS
 SELECT N.n                                                AS id,
        N.n                                                AS n,
+       '/nbhood/' || N.n                                  AS url,
+       pair(N.longname, N.n)                              AS fancy,
+       link('/nbhood/' || N.n, N.n)                       AS link,
+       link('/nbhood/' || N.n, pair(N.longname, N.n))     AS longlink,
        N.longname                                         AS longname,
        CASE N.local WHEN 1 THEN 'YES' ELSE 'NO' END       AS local,
        N.urbanization                                     AS urbanization,
@@ -37,6 +54,7 @@ SELECT N.n                                                AS id,
        COALESCE(D.subsistence,0)                          AS subsistence,
        COALESCE(D.consumers,0)                            AS consumers,
        COALESCE(D.labor_force,0)                          AS labor_force,
+       COALESCE(D.unemployed,0)                           AS unemployed,
        format('%.3f',COALESCE(GR.sat0, 0.0))              AS mood0,
        format('%.3f',COALESCE(GR.sat, 0.0))               AS mood
 FROM nbhoods              AS N
@@ -45,73 +63,103 @@ LEFT OUTER JOIN force_n   AS F  USING (n)
 LEFT OUTER JOIN gram_n    AS GR USING (n)
 LEFT OUTER JOIN control_n AS C  USING (n);
 
--- An Actors view for use by the GUI
-CREATE TEMPORARY VIEW gui_actors AS
-SELECT a                  AS id,
-       a                  AS a,
-       longname           AS longname,
-       moneyfmt(income)   AS income,
-       moneyfmt(cash)     AS cash
-FROM actors;
+-- A Groups view for use by the GUI
+CREATE TEMPORARY VIEW gui_groups AS
+SELECT g                                         AS id,
+       g                                         AS g,
+       '/group/' || g                            AS url,
+       pair(longname, g)                         AS fancy,
+       link('/group/' || g, g)                   AS link,
+       link('/group/' || g, pair(longname, g))   AS longlink,
+       gtype                                     AS gtype,
+       longname                                  AS longname,
+       color                                     AS color,
+       shape                                     AS shape,
+       demeanor                                  AS demeanor
+FROM groups;
+
 
 -- A CIV Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_civgroups AS
-SELECT CG.g                                          AS id,
-       CG.g                                          AS g,
-       CG.n                                          AS n,
-       G.longname                                    AS longname,
-       G.color                                       AS color,
-       G.shape                                       AS shape,
-       G.demeanor                                    AS demeanor,
-       CG.basepop                                    AS basepop,
-       CG.sap                                        AS sap,
-       DG.population                                 AS population,
-       DG.displaced                                  AS displaced,
-       DG.attrition                                  AS attrition,
-       DG.subsistence                                AS subsistence,
-       DG.consumers                                  AS consumers,
-       DG.labor_force                                AS labor_force,
-       DG.unemployed                                 AS unemployed,
-       format('%.1f', DG.upc)                        AS upc,
-       format('%.2f', DG.uaf)                        AS uaf,
-       format('%.3f', coalesce(gram_g.sat0, 0.0))    AS mood0,
-       format('%.3f', coalesce(gram_g.sat,  0.0))    AS mood
-FROM groups    AS G
-JOIN civgroups AS CG USING (g)
-JOIN demog_g   AS DG USING (g)
+SELECT G.id                                         AS id,
+       G.g                                          AS g,
+       G.url                                        AS url,
+       G.fancy                                      AS fancy,
+       G.link                                       AS link,
+       G.longlink                                   AS longlink,
+       G.gtype                                      AS gtype,
+       G.longname                                   AS longname,
+       G.color                                      AS color,
+       G.shape                                      AS shape,
+       G.demeanor                                   AS demeanor,
+       CG.n                                         AS n,
+       CG.basepop                                   AS basepop,
+       CG.sap                                       AS sap,
+       DG.population                                AS population,
+       DG.displaced                                 AS displaced,
+       DG.attrition                                 AS attrition,
+       DG.subsistence                               AS subsistence,
+       DG.consumers                                 AS consumers,
+       DG.labor_force                               AS labor_force,
+       DG.unemployed                                AS unemployed,
+       format('%.1f', DG.upc)                       AS upc,
+       format('%.2f', DG.uaf)                       AS uaf,
+       format('%.3f', coalesce(gram_g.sat0, 0.0))   AS mood0,
+       format('%.3f', coalesce(gram_g.sat,  0.0))   AS mood
+FROM gui_groups AS G
+JOIN civgroups  AS CG USING (g)
+JOIN demog_g    AS DG USING (g)
 LEFT OUTER JOIN gram_g USING (g);
 
 -- A Force Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_frcgroups AS
-SELECT g                                              AS id,
-       g                                              AS g,
-       longname                                       AS longname,
-       a                                              AS a,
-       color                                          AS color,
-       shape                                          AS shape,
-       forcetype                                      AS forcetype,
-       demeanor                                       AS demeanor,
-       CASE uniformed WHEN 1 THEN 'YES' ELSE 'NO' END AS uniformed,
-       CASE local     WHEN 1 THEN 'YES' ELSE 'NO' END AS local
-FROM groups JOIN frcgroups USING (g);
+SELECT G.id                                             AS id,
+       G.g                                              AS g,
+       G.url                                            AS url,
+       G.fancy                                          AS fancy,
+       G.link                                           AS link,
+       G.longlink                                       AS longlink,
+       G.gtype                                          AS gtype,
+       G.longname                                       AS longname,
+       G.color                                          AS color,
+       G.shape                                          AS shape,
+       G.demeanor                                       AS demeanor,
+       F.a                                              AS a,
+       F.forcetype                                      AS forcetype,
+       CASE F.uniformed WHEN 1 THEN 'YES' ELSE 'NO' END AS uniformed,
+       CASE F.local     WHEN 1 THEN 'YES' ELSE 'NO' END AS local
+FROM gui_groups AS G
+JOIN frcgroups  AS F USING (g);
 
 -- An Org Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_orggroups AS
-SELECT g                                             AS id,
-       g                                             AS g,
-       longname                                      AS longname,
-       a                                             AS a,
-       color                                         AS color,
-       shape                                         AS shape,
-       orgtype                                       AS orgtype,
-       demeanor                                      AS demeanor
-FROM groups JOIN orggroups USING (g);
+SELECT G.id                                             AS id,
+       G.g                                              AS g,
+       G.url                                            AS url,
+       G.fancy                                          AS fancy,
+       G.link                                           AS link,
+       G.longlink                                       AS longlink,
+       G.gtype                                          AS gtype,
+       G.longname                                       AS longname,
+       G.color                                          AS color,
+       G.shape                                          AS shape,
+       G.demeanor                                       AS demeanor,
+       O.a                                              AS a,
+       O.orgtype                                        AS orgtype
+FROM gui_groups AS G
+JOIN orggroups  AS O USING (g);
 
 -- All groups that can be owned by actors
 CREATE TEMP VIEW gui_agroups AS
-SELECT g, a, forcetype AS subtype FROM frcgroups
+SELECT g, url, fancy, link, longlink, gtype, longname, a, 
+       forcetype           AS subtype,
+       'FRC/' || forcetype AS fulltype
+FROM gui_frcgroups
 UNION
-SELECT g, a, orgtype AS subtype FROM orggroups;
+SELECT g, url, fancy, link, longlink, gtype, longname, a, 
+       orgtype           AS subtype,
+       'ORG/' || orgtype AS fulltype
+FROM gui_orggroups;
 
 -- A belief system topics for use by the GUI
 CREATE TEMPORARY VIEW gui_mam_topic AS

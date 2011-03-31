@@ -127,14 +127,21 @@ snit::type control {
             }
 
             # NEXT, if this is a civilian group we must add the
-            # services term.
+            # services term, and we must save the base relationship
+            # so that we can compute vrel_ga(t) later on.
             if {$gtype eq "CIV"} {
                 # TBD: We don't have civilian services yet.
+
+                rdb eval {
+                    INSERT INTO bvrel_tga(t, g, a, bvrel)
+                    VALUES(0, $g, $a, $vrel);
+                }
             }
 
+            # NEXT, save the vertical relationship.
             rdb eval {
-                INSERT INTO vrel_ga(g, a, vrel, bvrel)
-                VALUES($g, $a, $vrel, $vrel)
+                INSERT INTO vrel_ga(g, a, vrel)
+                VALUES($g, $a, $vrel);
             }
         }
     }
@@ -219,15 +226,16 @@ snit::type control {
             SELECT G.g                               AS g,
                    G.n                               AS n,
                    A.a                               AS a,
-                   V.bvrel                           AS bvrel,
+                   B.bvrel                           AS bvrel,
                    CASE WHEN (C.controller = A.a)
                         THEN 1 ELSE 0 END            AS inControl,
                    GG.sat                            AS moodNow,
                    HM.sat                            AS moodThen
             FROM civgroups AS G
             JOIN actors    AS A
-            JOIN vrel_ga   AS V ON (V.g = G.g AND V.a = A.a)
-            JOIN control_n AS C ON (C.n = G.n)
+            JOIN vrel_ga   AS V  ON (V.g = G.g AND V.a = A.a)
+            JOIN control_n AS C  ON (C.n = G.n)
+            JOIN bvrel_tga AS B  ON (B.t = C.since AND B.g = V.g AND B.a = V.a)
             JOIN gram_g    AS GG ON (G.g = GG.g)
             JOIN hist_mood AS HM ON (HM.g = G.g AND HM.t = C.since)
         }] {
@@ -271,36 +279,42 @@ snit::type control {
         rdb eval {
             UPDATE influence_na
             SET support   = 0,
-                influence = 0
-        }
+                influence = 0;
+   
+            DELETE FROM support_nga;
+     }
 
         # NEXT, add the support of each group in each neighborhood
         # to each actor.
         set vrelMin [parm get control.support.vrelMin]
         set secMin  [parm get control.support.secMin]
 
-        rdb eval {
-            SELECT NG.n         AS n,
-                   NG.g         AS g,
-                   NG.personnel AS personnel,
-                   NG.security  AS security, 
-                   A.a          AS a,
-                   V.vrel       AS vrel
+        foreach {n g personnel security a vrel} [rdb eval {
+            SELECT NG.n,
+                   NG.g,
+                   NG.personnel,
+                   NG.security,
+                   A.a,
+                   V.vrel
             FROM force_ng AS NG
             JOIN actors   AS A
             JOIN vrel_ga  AS V ON (V.g=NG.g AND V.a=A.a)
             WHERE NG.personnel > 0
-            AND   V.vrel >= $vrelMin
-            AND   NG.security >= $secMin
-        } {
-            # TBD: Save contrib in a table, so we can query it for
-            # reports? Possibly, a temporary table.
-            set contrib [expr {$vrel * $personnel * $security}]
+        }] {
+            if {$vrel >= $vrelMin && $security > $secMin} {
+                set contrib [expr {$vrel * $personnel * $security}]
+            } else {
+                set contrib 0.0
+            }
 
             rdb eval {
                 UPDATE influence_na
                 SET support = support + $contrib
-                WHERE n=$n AND a=$a
+                WHERE n=$n AND a=$a;
+
+                INSERT INTO 
+                support_nga(n,g,a,vrel,personnel,security,support)
+                VALUES($n,$g,$a,$vrel,$personnel,$security,$contrib);
             }
         }
 
@@ -312,7 +326,20 @@ snit::type control {
         } {
             set nsupport($n) $denom
         }
-        
+
+        # NEXT, compute the contribution to influence of each group
+        foreach n [array names nsupport] {
+            set denom $nsupport($n)
+
+            if {$denom > 0} {
+                rdb eval {
+                    UPDATE support_nga
+                    SET influence = support/$denom
+                    WHERE n=$n
+                }
+            }
+        }
+
         # NEXT, compute the influence of each actor in the 
         # neighborhood.
         rdb eval {
@@ -349,8 +376,8 @@ snit::type control {
             SELECT C.n                        AS n,
                    C.controller               AS controller,
                    COALESCE(I.influence, 0.0) AS influence
-            FROM control_n    AS C
-            JOIN influence_na AS I
+            FROM control_n               AS C
+            LEFT OUTER JOIN influence_na AS I
             ON (I.n=C.n AND I.a=C.controller)
         }] {
             $type DetectControlShift $n $controller $influence
@@ -455,9 +482,8 @@ snit::type control {
             log detail control "bvrel.$g,$a = $bvrel ($vrel + $mag)"
 
             rdb eval {
-                UPDATE vrel_ga
-                SET bvrel = $bvrel
-                WHERE g=$g AND a=$a;
+                INSERT INTO bvrel_tga(t, g, a, bvrel)
+                VALUES(now(), $g, $a, $bvrel)
             }
         }
         

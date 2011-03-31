@@ -279,6 +279,26 @@ SELECT * FROM groups JOIN orggroups USING (g);
 
 CREATE TABLE vrel_ga (
     -- Symbolic group name
+    g         TEXT REFERENCES groups(g)
+              DEFERRABLE INITIALLY DEFERRED,
+
+    -- Symbolic actor name
+    a         TEXT REFERENCES actors(a)
+              DEFERRABLE INITIALLY DEFERRED,
+
+    -- Vertical Relationship of g with a
+    vrel      REAL DEFAULT 0.0,
+
+    PRIMARY KEY (g, a)
+);
+
+-- bvrel_tga table: Base vertical relationships at transition points.
+
+CREATE TABLE bvrel_tga (
+    -- Time of shift of control in g's neighborhood
+    t       INTEGER,
+
+    -- Symbolic group name
     g       TEXT REFERENCES groups(g)
             DEFERRABLE INITIALLY DEFERRED,
 
@@ -286,13 +306,44 @@ CREATE TABLE vrel_ga (
     a       TEXT REFERENCES actors(a)
             DEFERRABLE INITIALLY DEFERRED,
 
-    -- Vertical Relationship of g with a
-    vrel    REAL DEFAULT 0.0,
-
     -- Base Vertical Relationship of g with a
     bvrel   REAL DEFAULT 0.0,
 
-    PRIMARY KEY (g, a)
+    PRIMARY KEY (t, g, a)
+);
+
+-- support_nga table: Support for actor a by group g in nbhood n
+
+CREATE TABLE support_nga (
+    -- Symbolic group name
+    n         TEXT REFERENCES nbhoods(n)
+              DEFERRABLE INITIALLY DEFERRED,
+
+    -- Symbolic group name
+    g       TEXT REFERENCES groups(g)
+            DEFERRABLE INITIALLY DEFERRED,
+
+    -- Symbolic actor name
+    a         TEXT REFERENCES actors(a)
+              DEFERRABLE INITIALLY DEFERRED,
+
+    -- Vertical Relationship of g with a
+    vrel      REAL DEFAULT 0.0,
+
+    -- g's personnel in n
+    personnel INTEGER DEFAULT 0,
+
+    -- g's security in n
+    security  INTEGER DEFAULT 0,
+
+    -- Contribution of g to a's support in n
+    support   REAL DEFAULT 0.0,
+
+    -- Contribution of g to a's influence in n.
+    -- (support divided total support in n)
+    influence REAL DEFAULT 0.0,
+
+    PRIMARY KEY (n, g, a)
 );
 
 
