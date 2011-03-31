@@ -32,12 +32,14 @@ snit::type control {
 
     # moodTable - deltaV to do change in mood since last shift in control.
     #
-    # Array (sign,inControl) => qmag(n) symbolc
+    # Array (sign,inControl) => qmag(n) symbol
     #
     # sign      - 1 if change is very positive, -1 if change is very 
     #             negative, and 0 otherwise.
     # inControl - 1 if actor is in control of the neighborhood, and 0 
     #             otherwise.
+    #
+    # TBD: Eventually, this should probably be a set of model parameters.
 
     typevariable moodTable -array {
         -1,1 XL-
@@ -46,6 +48,38 @@ snit::type control {
          0,0 0
          1,1 XL+
          1,0 M-
+    }
+
+    # controlTable - deltaV to bvrel due to change in control
+    #
+    # Array (vrel,change) => qmag(n) symbol
+    #
+    # vrel     - vrel.ga, expressed as a qaffinity symbol.
+    # change   - 1 if a has just gained control, -1 if a has just lost
+    #            control, and 0 otherwise.
+    #
+    # TBD: Eventually, this should probably be a set of model parameters.
+
+    typevariable controlTable -array {
+        SUPPORT,1   L+
+        SUPPORT,0   M-
+        SUPPORT,-1  L-
+
+        LIKE,1      M+
+        LIKE,0      S-
+        LIKE,-1     M-
+
+        INDIFF,1    0
+        INDIFF,0    0
+        INDIFF,-1   0
+
+        DISLIKE,1   M-
+        DISLIKE,0   0
+        DISLIKE,-1  XS-
+
+        OPPOSE,1    L-
+        OPPOSE,0    0
+        OPPOSE,-1   S-
     }
 
     #-------------------------------------------------------------------
@@ -153,14 +187,8 @@ snit::type control {
         # NEXT, Compute each actor's influence in each neighborhood.
         $type ComputeActorInfluence
 
-        # NEXT, See if control has shifted
-        if 0 {
-            foreach {n a} {[rdb eval {
-                # TBD
-            }]} {
-                $type ShiftControl $n $a
-            }
-        }
+        # NEXT, see if control has shifted in any neighborhood.
+        $type ComputeControl
     }
 
     # ComputeVerticalRelationships
@@ -303,6 +331,142 @@ snit::type control {
             }
         }
     }
+
+    # ComputeControl
+    #
+    # Looks for shifts of control in all neighborhoods, and takes the
+    # action that follows from that.
+    
+    typemethod ComputeControl {} {
+        # FIRST, get the actor in control of each neighborhood,
+        # and their influence, and then see if control has shifted
+        # for that neighborhood.
+        #
+        # Note that a neighborhood can be in a state of chaos; the
+        # controller will be "" and his influence 0.0.
+
+        foreach {n controller influence} [rdb eval {
+            SELECT C.n                        AS n,
+                   C.controller               AS controller,
+                   COALESCE(I.influence, 0.0) AS influence
+            FROM control_n    AS C
+            JOIN influence_na AS I
+            ON (I.n=C.n AND I.a=C.controller)
+        }] {
+            $type DetectControlShift $n $controller $influence
+        }
+    }
+
+    # DetectControlShift n controller cInfluence
+    #
+    # n           - A neighborhood
+    # controller  - The actor currently in control, or ""
+    # cInfluence  - The current controller's influence in n, or 0 if none.
+    # 
+    # Determines whether there is a shift in control in the neighborhood.
+
+    typemethod DetectControlShift {n controller cInfluence} {
+        # FIRST, get the actor with the most influence in the neighborhood,
+        # and see how much it is.
+        rdb eval {
+            SELECT a         AS maxA,
+                   influence AS maxInf
+            FROM influence_na
+            WHERE n=$n
+            ORDER BY influence DESC
+            LIMIT 1
+        } {}
+
+        # NEXT, if the current controller has the most influence in the
+        # neighborhood, then he is still in control.  Control has not
+        # shifted; we're done.
+
+        if {$cInfluence >= $maxInf} {
+            return
+        }
+
+        # NEXT, maxA is NOT the current controller.  If he has more than
+        # the control threshold, he's the new controller; control has
+        # shifted.
+
+        if {$maxInf > [parm get control.threshold]} {
+            $type ShiftControl $n $maxA $controller
+            return
+        }
+
+        # NEXT, actor maxA has more influence than the current controller,
+        # but not enough to actually be "in control".  We now have a
+        # state of chaos.  Unless we were already in a state of chaos,
+        # control has shifted.
+
+        if {$controller ne ""} {
+            $type ShiftControl $n "" $controller
+            return
+        }
+
+        # NEXT, we were already in a state of chaos; control has not
+        # shifted.
+        return
+    }
+
+    # ShiftControl n cNew cOld
+    #
+    # n      - A neighborhood
+    # cNew   - The new controller, or ""
+    # cOld   - The old controller, or ""
+    #
+    # Handles the shift in control from cOld to cNew in n.
+    
+    typemethod ShiftControl {n cNew cOld} {
+        log normal control "shift in $n to <$cNew> from <$cOld>"
+
+        # FIRST, update control_n.
+        rdb eval {
+            UPDATE control_n 
+            SET controller = $cNew,
+                since      = now()
+            WHERE n=$n;
+        }
+
+        # NEXT, recompute bvrel.ga for all CIV groups that reside
+        # in n.
+        foreach {g a vrel} [rdb eval {
+            SELECT V.g,
+                   V.a,
+                   V.vrel
+            FROM vrel_ga AS V
+            JOIN civgroups AS C USING (g)
+            WHERE C.n=$n
+        }] {
+            set vsym [qaffinity name $vrel]
+            
+            if {$a eq $cNew} {
+                set change 1
+            } elseif {$a eq $cOld} {
+                set change -1
+            } else {
+                set change 0
+            }
+
+            set mag   $controlTable($vsym,$change)
+            set delta [qmag value $mag]
+
+            set bvrel [scale $vrel $delta]
+            log detail control "bvrel.$g,$a = $bvrel ($vrel + $mag)"
+
+            rdb eval {
+                UPDATE vrel_ga
+                SET bvrel = $bvrel
+                WHERE g=$g AND a=$a;
+            }
+        }
+        
+        # NEXT, invoke the CONTROL rule set for this transition.
+        
+        # TBD
+    }
+
+
 
     #-------------------------------------------------------------------
     # Helper Procs
