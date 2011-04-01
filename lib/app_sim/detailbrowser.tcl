@@ -16,17 +16,18 @@
 #-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widgetadaptor detailbrowser {
+snit::widget detailbrowser {
     #-------------------------------------------------------------------
     # Options
 
     # Options delegated to the hull
-    delegate option * to hull
+    delegate option * to browser
 
 
     #-------------------------------------------------------------------
     # Components
 
+    component browser ;# The mybrowser(n)
     component tree    ;# The linktree(n)
     component lazy    ;# The lazyupdater(n)
 
@@ -35,12 +36,13 @@ snit::widgetadaptor detailbrowser {
 
     constructor {args} {
         # FIRST, Install the hull
-        installhull using mybrowser \
-            -home         my://app/ \
+        install browser using mybrowser $win.browser \
+            -home         my://app/                  \
+            -hyperlinkcmd [mymethod WinLinkCmd]      \
             -messagecmd   {app puts}
 
         # NEXT, create the sidebar.
-        set sidebar [$hull sidebar]
+        set sidebar [$browser sidebar]
 
         # Entity Tree
         install tree using linktree $sidebar.tree \
@@ -51,13 +53,15 @@ snit::widgetadaptor detailbrowser {
 
         pack $tree -fill both -expand yes
 
-        $hull configure \
+        $browser configure \
             -reloadcmd [mymethod RefreshLinks]
 
         # NEXT, create the lazy updater
         install lazy using lazyupdater ${selfns}::lazy \
             -window   $win \
-            -command  [list $hull reload]
+            -command  [list $browser reload]
+
+        pack $browser -fill both -expand yes
 
         # NEXT, get the options.
         $self configurelist $args
@@ -75,6 +79,29 @@ snit::widgetadaptor detailbrowser {
         notifier forget $win
     }
 
+    # WinLinkCmd url
+    #
+    # url - A URL with a scheme other than "my:".
+    #
+    # Checks the URL scheme; if it's known, passes it to 
+    # "app show".  Otherwise, lets mybrowser handle it.
+
+    method WinLinkCmd {url} {
+        # FIRST, get its scheme
+        if {[catch {
+            array set parts [uri::split $url]
+        } result]} {
+            return 0
+        }
+
+        if {$parts(scheme) ne "win"} {
+            return 0
+        }
+
+        app show $url
+        return 1
+    }
+
     # RefreshLinks
     #
     # Called on browser reload; refreshes the links tree
@@ -90,14 +117,14 @@ snit::widgetadaptor detailbrowser {
 
     method ShowLink {url} {
         if {$url ne ""} {
-            $hull show $url
+            $browser show $url
         }
     }
 
     #-------------------------------------------------------------------
     # Public Methods
 
-    delegate method * to hull
+    delegate method * to browser
 
     # reload
     #

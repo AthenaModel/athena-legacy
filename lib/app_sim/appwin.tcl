@@ -426,7 +426,6 @@ snit::widget appwin {
     # Status info
     #
     # mode        Window mode, scenario or simulation
-    # tabs        Dict, tab names by tab window
     # simstate    Current simulation state
     # tick        Current sim time as a four-digit tick (a day)
     # zulutime    Current sim time as a zulu time string
@@ -434,7 +433,6 @@ snit::widget appwin {
 
     variable info -array {
         mode           scenario
-        tabs           {}
         simstate       ""
         tick           "0000"
         zulutime       ""
@@ -1286,7 +1284,6 @@ snit::widget appwin {
                 if {$script eq ""} {
                     ttk::notebook $tabwin -padding 2
                 } else {
-                    dict set info(tabs) $tabwin $tab
                     eval [string map [list %W $tabwin] $script]
                 }
 
@@ -1407,6 +1404,16 @@ snit::widget appwin {
     
     method {tab win} {tab} {
         dict get $tabs $tab tabwin
+    }
+
+    # tab exists tab
+    #
+    # tab   - A tab name
+    #
+    # Returns 1 if the tab exists, and 0 otherwise
+
+    method {tab exists} {tab} {
+        expr {$tab in [dict keys $tabs]}
     }
 
     # tab view tab

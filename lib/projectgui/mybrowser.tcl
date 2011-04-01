@@ -81,6 +81,12 @@ snit::widget ::projectgui::mybrowser {
 
     option -reloadcmd
 
+    # -hyperlinkcmd
+    #
+    # A command to call when a hyperlink uses a scheme other than my:.
+
+    option -hyperlinkcmd
+
     #-------------------------------------------------------------------
     # Instance Variables
 
@@ -243,7 +249,23 @@ snit::widget ::projectgui::mybrowser {
     # <resource> or the <anchor> can be empty, but not both.
 
     method HyperlinkCmd {uri} {
-        $self show [lindex $uri 0]
+        # FIRST, get the URI
+        set uri [lindex $uri 0]
+
+        # NEXT, get its scheme
+        if {[catch {
+            array set parts [uri::split $uri]
+        } result]} {
+            # Punt to normal error handling
+            $self show $uri
+        }
+
+        if {$parts(scheme) eq "my"
+            || $options(-hyperlinkcmd) eq ""
+            || ![callwith $options(-hyperlinkcmd) $uri]
+        } {
+            $self show $uri
+        }
     }
 
     # IsVisitedCmd uri

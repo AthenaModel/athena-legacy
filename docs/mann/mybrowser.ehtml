@@ -39,6 +39,14 @@ Specifies the URL of the browser's "home" page.  It will display
 this page initially, and will return to it when the browser's
 "Home" button is pressed.<p>
 
+<<defopt {-hyperlinkcmd <i>command</i>}>>
+
+Specifies a <i>command</i> to be called if a hyperlink uses a URI
+scheme other than "my:".  The command is passed the URI, and can do
+what it likes with it.  The command should return 1 if it handles the
+URI, and 0 otherwise, in which case mybrowser(n)'s usually error
+handling will apply.<p>
+
 <<defopt {-messagecmd <i>command</i>}>>
 
 Specifies a <i>command</i> to be called
@@ -46,7 +54,7 @@ whenever the browser has a message to be displayed on the application
 window's message line.  This is usually used for displaying the linked
 URL when the mouse moves over a link.<p>
 
-<<defopt {-reload <i>command</i>}>>
+<<defopt {-reloadcmd <i>command</i>}>>
 
 Specifies a <i>command</i> to be called when the browser's
 "reload" button is pressed.  Note that the browser reloads its own

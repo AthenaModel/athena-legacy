@@ -58,6 +58,25 @@ snit::type ::projectlib::myagent {
                 ::uri::SplitHttp $url
             }
         }
+
+        # NEXT, register the win: scheme with uri(n).
+        # TBD: This doesn't really belong here, but I'm not sure
+        # where else to put it.
+        uri::register win {
+            # FIRST, copy the http regex variables
+            foreach var [info vars ::uri::http::*] {
+                set [namespace tail $var] [set $var]
+            }
+
+            # NEXT, define the join and split routines.
+            proc ::uri::JoinWin {args} {
+                ::uri::JoinHttpInner win {} {*}$args
+            }
+
+            proc ::uri::SplitWin {url} {
+                ::uri::SplitHttp $url
+            }
+        }
     }
 
     #-------------------------------------------------------------------

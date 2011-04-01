@@ -693,6 +693,96 @@ snit::type app {
 
         return [$topwin {*}$args]
     }
+
+    # show uri
+    #
+    # uri - A URI for some application resource
+    #
+    # Shows the URI in some way.  If it's a "win:" URI, tries to
+    # display it as a tab or order dialog.  Otherwise, it passes it
+    # to the Detail browser.
+
+    typemethod show {uri} {
+        # FIRST, get the scheme.  If it's not a win:, punt to 
+        # the Detail browser.
+
+        if {[catch {
+            array set parts [uri::split $uri]
+        }]} {
+            # Punt to normal error handling
+            $type ShowInDetailBrowser $uri
+        }
+
+        # NEXT, if the scheme isn't "win", show in detail browser.
+        if {$parts(scheme) ne "win"} {
+            $type ShowInDetailBrowser $uri
+        }
+
+        # NEXT, what kind of "win" url is it?
+
+        if {[regexp {^tab/(\w+)$} $parts(path) dummy tab]} {
+            if {[.main tab exists $tab]} {
+                .main tab view $tab
+            } else {
+                # Punt
+                $type WinUrlError $uri "No such application tab"
+            }
+            return
+        }
+
+        if {[regexp {^order/([A-Za-z0-9:]+)$} $parts(path) dummy order]} {
+            set order [string toupper $order]
+
+            if {[order exists $order]} {
+                set parms [split $parts(query) "=+"]
+
+                if {[catch {
+                    order enter $order {*}$parms
+                } result]} {
+                    $type WinUrlError $uri $result
+                }
+            } else {
+                # Punt
+                $type WinUrlError $uri "No such order"
+            }
+            return
+        }
+
+        # NEXT, unknown kind of win; punt to normal error handling.
+        $type WinUrlError $uri "No such window"
+    }
+
+    # ShowInDetailBrowser uri
+    #
+    # uri - A URI for some application resource
+    #
+    # Shows the URI in the Detail browser.
+
+    typemethod ShowInDetailBrowser {uri} {
+        [.main tab win detail] show $uri
+        .main tab view detail
+    }
+
+    # WinUrlError uri message
+    #
+    # uri     - A URI for a window we don't have.
+    # message - A specific error message
+    #
+    # Shows an error.
+
+    typemethod WinUrlError {uri message} {
+        app error {
+            |<--
+            Error in URI:
+            
+            $uri
+
+            The requested window URL cannot be displayed by the application:
+
+            $message
+        }
+    }
+    
 }
 
 
