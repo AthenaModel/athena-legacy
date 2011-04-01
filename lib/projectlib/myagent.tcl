@@ -180,7 +180,12 @@ snit::type ::projectlib::myagent {
 
     method get {url} {
         # FIRST, parse the URL
-        array set fields [uri::split $url my]
+        if {[catch {
+            array set fields [uri::split $url my]
+        } result]} {
+            return -code error -errorcode NOTFOUND \
+                "Error in URL: $result"
+        }
 
         unset -nocomplain fields(port)
         unset -nocomplain fields(user)
@@ -189,7 +194,7 @@ snit::type ::projectlib::myagent {
 
         if {$fields(scheme) ne "my"} {
             return -code error -errorcode NOTFOUND \
-                "Access scheme '$fields(scheme)' is not supported."
+                "Error in URL: unsupported scheme '$fields(scheme)' in '$url'"
         }
 
         # NEXT, get the server
