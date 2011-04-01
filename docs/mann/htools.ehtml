@@ -1,0 +1,385 @@
+<<manpage {projectlib(n) htools(n)} "HTML Generation Tools">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require projectlib 1.0
+namespace import ::projectlib::htools
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+htools(n) provides tools for generation of HTML content.  In
+particular, an instance of htools(n) provides a buffer for HTML
+generation that makes writing generation code simple and easy.
+The application creates an instance and then calls methods of the
+instance to add HTML markup and other text to the buffer.<p>
+
+For example, given an htools(n) buffer called <code>::ht</code>,
+you can format a simple page as follows:<p>
+
+<pre>
+    ht page "My Page {
+        ht h1 "My Page"
+        ht putln "Some text for my page."
+        ht para
+    }
+</pre>
+
+This will produce a page that looks like this:<p>
+
+<pre>
+    &lt;html&gt;&lt;head&gt;
+    &lt;title&gt;My Page&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+    &lt;h1&gt;My Page&lt;/h1&gt;
+    Some text for my page.&lt;p&gt;
+    &lt;/body&gt;&lt;/html&gt;
+</pre>
+
+The application will either <<iref clear>> the buffer or begin an
+explicit <<iref page>>, then write content using <<iref put>>,
+<<iref putln>>, and the various markup subcommands, then end the page
+with <<iref /page>> if need be.  Once the content is complete, the
+<<iref get>> command retrieves the generated HTML text.<p>
+
+<<subsection "The Buffer Stack">>
+
+Content for a list of items is often quite different if the list is
+empty; for example, if you have at least one item you generate an HTML
+table or list, but if you have no items you generate a statement that
+there are no items.  And in such cases, it is usually the case that
+the efficient way to find out that there are no items is by trying to
+generate the body of the table or list, e.g., by querying an SQLite
+database.<p>
+
+This is an annoying case:<p>
+
+<ul>
+  <li> You'd like to generate HTML for the rows in the table as the
+       query executes.
+  <li> There's boilerplate (e.g., the "<code>&lt;table&gt;</code>"
+       tag) that has to precede the rows.
+  <li> But if you find that there are no rows, you don't want the
+       boilerplate.<p>
+</ul>
+
+htools(n) supports this case by providing a "buffer stack".  Before
+executing the query, <<iref push>> a new buffer on the stack.  Once
+the query is complete, use <<iref pop>> to return the buffered HTML
+and pop the buffer off of the stack.  Then, if query had any content,
+you can add the boilerplate, using <<iref put>> to insert the queried
+content; and if not you can insert whatever alternative text you prefer.<p>
+
+<<section "COMMANDS">>
+
+htools(n) provides the following commands for use by the application.<p>
+
+<<deflist commands>>
+
+<<defitem htools {htools <i>object</i> ?<i>options...</i>?}>>
+
+Creates a new <<iref htools>> instance named <i>object</i>, and
+returns the fully qualified object name.  The object supports the following
+options:<p>
+
+<<deflist options>>
+
+<<defopt {-footercmd <i>command</i>}>>
+
+Defines a command that is called when a page footer is needed.  The
+command may add any desired content to the buffer using the various
+instance commands.  The command's return value is ignored.<p>
+
+<<defopt {-headercmd <i>command</i>}>>
+
+Defines a command that is called when a page header is needed.  The
+command will be called with one additional argument, the page's title.
+The command may add any desired content to the buffer using the
+various instance commands.  The command's return value is ignored.<p>
+
+<<defopt {-rdb <i>rdb</i>}>>
+
+Specifies the name of an SQLite database handle; if given, the
+<<iref query>> command can be used to do arbitrary database queries
+and return the result as an HTML table.<p>
+
+<</deflist options>>
+
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMANDS">>
+
+<<deflist instance>>
+
+<<defitem br {<i>object</i> br}>>
+
+Adds a <code>&lt;br&gt;</code> tag to the buffer.<p>
+
+<<defitem cget {<i>object</i> cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem clear {<i>object</i> clear}>>
+
+Clears the object's contents, popping any extra buffers from the
+stack. Note that this is done automatically by the <<iref page>> command.<p>
+
+<<defitem configure {<i>object</i> configure <i>option value...</i>}>>
+
+Sets the value of one or more of the object's
+options.<p>
+
+<<defitem get {<i>object</i> get}>>
+
+Returns the content from the buffer at the top of the stack.<p>
+
+<<defitem h1 {<i>object</i> h1 <i>title</i> ?<i>anchor</i>?}>>
+<<defitem h2 {<i>object</i> h1 <i>title</i> ?<i>anchor</i>?}>>
+<<defitem h3 {<i>object</i> h1 <i>title</i> ?<i>anchor</i>?}>>
+
+Generates an HTML <code>&lt;h1&gt;</code>, <code>&lt;h2&gt;</code>, or
+<code>&lt;h3&gt;</code> tag with the given <i>title</i>.  If
+<i>anchor</i> is given, it can be used as an anchor to that spot in
+the page in URLs from elsewhere in the page (or from other pages
+entirely).<p>
+
+<<defitem image {<i>object</i> image <i>name</i> ?<i>align</i>?}>>
+
+Generates an <code>&lt;img&gt;</code> tag with "src" equal to
+<code>/image/<i>name</i></code> and the specified alignment,
+<b>left</b>, <b>right</b>, or <b>center</b>.<p>
+
+This command is for use with <<xref myserver(i)>> instances that
+support querying Tk images.<p>
+
+<<defitem li {<i>object</i> li ?<i>body</i>?}>>
+
+Adds a <code>&lt;li&gt;</code> tag to the buffer.<p>
+
+If <i>body</i> is given, it will be executed as a Tcl script; then,
+<<iref /li>> will be called automatically.<p>
+
+<<defitem li-text {<i>object</i> li <i>text</i>}>>
+
+Adds <code>&lt;li&gt;<i>text</i>&lt;/li&gt;</code> to the buffer.<p>
+
+<<defitem /li {<i>object</i> /li}>>
+
+Adds a <code>&lt;/li&gt;</code> tag to the buffer.<p>
+
+<<defitem link  {<i>object</i> link <i>url label</i>}>>
+
+Adds an <code>&lt;a&gt;</code> link to the buffer with the given
+"href" <i>url</i> and text <i>label</i>.<p>
+
+<<defitem linkbar  {<i>object</i> linkbar <i>linkdict</i>}>>
+
+Given a dictionary of URLs and label strings, formats a "link bar": a
+horizontal bar of links.  Link bars are usually used near the top of a
+page to link to content further down.<p>
+
+<<defitem linklist  {<i>object</i> linklist ?<i>options...</i>? <i>linkdict</i>}>>
+
+Given a dictionary of URLs and label strings, generates a list
+of links, concatenated together with ", ".  If the <i>linkdict</i> is
+empty, generates nothing.<p>
+
+The options are as follows:<p>
+
+<<deflist options>>
+
+<<defopt {-delim <i>delim</i>}>>
+
+Delimiter text to go between the list entries; defaults to ", ".<p>
+
+<<defopt {-default <i>text</i>}>>
+
+Specifies the text to generate if the link dict is empty; defaults to
+"".<p>
+
+<</deflist options>>
+
+
+<<defitem page {<i>object</i> page <i>title</i> ?<i>body</i>?}>>
+
+Clears the buffer and adds the standard HTML header boilerplate,
+including the <code>&lt;title&gt;</code> tag.  If the
+<code>-headercmd</code> is defined, it will be called; the content it
+generates will appears immediately after the <code>&lt;body&gt;</code>
+tag.<p>
+
+If <i>body</i> is given, it will be executed as a Tcl script; then,
+<<iref /page>> will be called automatically.<p>
+
+<<defitem /page {<i>object</i> /page}>>
+
+Adds the standard HTML footer boilerplate.  If the
+<code>-footercmd</code> is defined, it will be called; the content it
+generates will appear immediately before the
+<code>&lt;/body&gt;</code> tag.<p>
+
+<<defitem para {<i>object</i> para}>>
+
+Adds a <code>&lt;p&gt;</code> tag to the buffer.<p>
+
+<<defitem pop {<i>object</i> pop}>>
+
+Pops the buffer from the top of the stack, returning its content, or
+the empty string if none.  It's an error to call <<iref pop>> if no
+buffers have been <<iref push>>ed.<p>
+
+<<defitem pre {<i>object</i> pre ?<i>text</i>?}>>
+
+Adds a <code>&lt;pre&gt;</code> tag to the buffer.  If the <i>text</i>
+is given, it is sanitized for inclusion in an HTML page, and
+<<iref /pre>> is called automatically.<p>
+
+<<defitem /pre {<i>object</i> /pre ?<i>text</i>?}>>
+
+Adds a <code>&lt;/pre&gt;</code> tag to the buffer.<p>
+
+<<defitem push {<i>object</i> push}>>
+
+Pushes a buffer onto the stack.  Content will go into this buffer
+until the next <<iref pop>>, <<iref clear>>, or <<iref page>> command.<p>
+
+<<defitem put {<i>object</i> put <i>text</i> ?<i>text...</i>?}>>
+
+Adds the text strings to the buffer, separated by space characters.<p>
+
+<<defitem putif {<i>object</i> putif <i>expr then</i> ?<i>else</i>?}>>
+
+Evaluates the expression, <i>expr</i>; if it is true, <<iref put>>s
+the <i>then</i> text, otherwise, puts the <i>else</i> text (if any).<p>
+
+<<defitem putln {<i>object</i> putln <i>text</i> ?<i>text...</i>?}>>
+
+Adds a newline to the buffer, followed by the text strings separated
+by space characters.<p>
+
+<<defitem query {<i>object</i> query <i>sql</i> ?<i>options...</i>?}>>
+
+Queries the <code>-rdb</code>, and generates an HTML
+table with the results.  If the <i>sql</i> query returns no data,
+generates the text
+
+<pre>
+    No data found.&lt;p&gt;
+</pre>
+
+The following options may be used:<p>
+
+<<deflist options>>
+
+<<defopt {-align <i>list</i>}>>
+
+Specifies a list of column alignments, <b>left</b>, <b>center</b>, or
+<b>right</b>.  By default, columns have alignment <b>left</b>.<p>
+
+<<defopt {-default <i>string</i>}>>
+
+Defines the text to generate if the result set is empty.  Defaults to
+"<code>No data found.&lt;p&gt;</code>".<p>
+
+<<defopt {-labels <i>list</i>}>>
+
+Defines a list of strings to use as the column header labels.
+Alternatively, <<iref query>> will use the column names in the result
+set.<p>
+
+<</deflist options>>
+
+<<defitem table {<i>object</i> table <i>headers</i> ?<i>body</i>?}>>
+
+Begins an HTML table with the given column <i>headers</i>.<p>
+
+If <i>body</i> is given, it will be executed as a Tcl script; then,
+<<iref /table>> will be called automatically.<p>
+
+
+<<defitem /table {<i>object</i> /table}>>
+
+Completes an HTML table.<p>
+
+<<defitem td {<i>object</i> td ?<i>align</i>? ?<i>body</i>?}>>
+
+Adds a <code>&lt;td&gt;</code> tag for a new table cell.  The
+default alignment is <b>left</b></i>, but <i>align</i> may be
+<b>left</b>, <b>right</b>, or <b>center</b>.<p>
+
+If <i>body</i> is given, it will be executed as a Tcl script; then,
+<<iref /td>> will be called automatically.<p>
+
+
+<<defitem /td {<i>object</i> /td}>>
+
+Completes an HTML table cell with a <code>&lt;/td&gt;</code> tag.<p>
+
+<<defitem tr {<i>object</i> tr ?<i>body</i>?}>>
+
+Adds a <code>&lt;tr&gt;</code> tag for a new table row.<p>
+
+If <i>body</i> is given, it will be executed as a Tcl script; then,
+<<iref /tr>> will be called automatically.<p>
+
+
+<<defitem /tr {<i>object</i> /tr}>>
+
+Completes an HTML table row with a <code>&lt;/tr&gt;</code> tag.<p>
+
+
+<<defitem tiny {<i>object</i> tiny <i>text</i>}>>
+
+Adds the <i>text</i> to the buffer in a tiny font.<p>
+
+<<defitem tinyb {<i>object</i> tinyb <i>text</i>}>>
+
+Adds the <i>text</i> to the buffer in a tiny bold font.<p>
+
+<<defitem tinyi {<i>object</i> tinyi <i>text</i>}>>
+
+Adds the <i>text</i> to the buffer in a tiny italic font.<p>
+
+<<defitem title {<i>object</i> title <i>title</i> ?<i>over</i>? ?<i>under</i>?}>>
+
+Formats a visible page <i>title</i> (as distinguished from the
+<code>&lt;title&gt;</code> tag in the page header, which is not
+normally visible).  If the <i>over</i> text is given, it will appear
+in small type immediately over the main <i>title</i>; if the
+<i>under</i> text is given, it will in normal type immediately under
+the main <i>title</i>.<p>
+
+<<defitem ul {<i>object</i> ul ?<i>body</i>?}>>
+
+Inserts a <code>&lt;ul&gt;</code> tag into the buffer.<p>
+
+If <i>body</i> is given, it will be executed as a Tcl script; then,
+<<iref /ul>> will be called automatically.<p>
+
+<<defitem /ul {<i>object</i> /ul}>>
+
+Inserts a <code>&lt;/ul&gt;</code> tag into the buffer.<p>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

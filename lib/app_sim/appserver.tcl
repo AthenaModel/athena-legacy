@@ -34,6 +34,14 @@ snit::type appserver {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
+    # Type Components
+
+    typecomponent server   ;# The myserver(n) instance.
+    typecomponent ht       ;# The htools(n) instance.
+
+
+
+    #-------------------------------------------------------------------
     # URL Schema
     #
     # For each resource type, we save the following data:
@@ -46,210 +54,13 @@ snit::type appserver {
     #           type is requested.  The handler is a command that takes
     #           two additional arguments, the URL given to the server,
     #           and an array to received pattern matches from the
-    #           regexp into values "1", "2", and "3".
+    #           regexp into values "0" through "9"
     # doc     - A documentation string for the resource type.  Note
     #           that "{" and "}" in resource types and doc strings
     #           are converted to "<i>" and "</i>" when displayed as
     #           HTML.
 
-    typevariable rinfo {
-        /actors {
-            doc     {Links to the currently defined actors.}
-            pattern {^actors/?$}
-            ctypes  {
-                tcl/linkdict {linkdict_EntityLinks /actors /actor}
-                text/html  {html_EntityLinks /actors /actor}
-            }
-        }
-
-        /actor/{a} {
-            doc     {Detail page for actor {a}.}
-            pattern {^actor/(\w+)/?$}
-            ctypes  {
-                text/html {html_Actor}
-            }
-        }
-
-        /docs/{path}.html {
-            doc     {An HTML file in the Athena docs/ tree.}
-            pattern {^(docs/[^.]+\.html)$}
-            ctypes  {
-                text/html {text_File ""}
-            }
-        }
-
-        /docs/{path}.txt {
-            doc     {A .txt file in the Athena docs/ tree.}
-            pattern {^(docs/[^.]+\.txt)$}
-            ctypes  {
-                text/plain {text_File ""}
-            }
-        }
-
-        /docs/{imageFile} {
-            doc     {
-                A .gif, .jpg, or .png file in the Athena /docs/ tree.
-            }
-            pattern {^(docs/.+\.(gif|jpg|png))$}
-            ctypes  {
-                tk/image {image_File ""}
-            }
-        }
-
-        /entitytype {
-            doc     {Links to the main Athena entity types.}
-            pattern {^entitytype/?$}
-            ctypes  {
-                tcl/linkdict {linkdict_EntityType}
-                text/html  {html_EntityType "Entity Types"}
-            }
-        }
-
-        /entitytype/bsystem {
-            doc     {
-                Links to the Athena entity types for which belief
-                systems are defined.
-            }
-            pattern {^entitytype/(bsystem)/?$}
-            ctypes  {
-                tcl/linkdict {linkdict_EntityType}
-                text/html  {html_EntityType "Belief System Entity Types"}
-            }
-        }
-
-        /groups {
-            doc     {Links to the currently defined groups of all types.}
-            pattern {^groups/?$}
-            ctypes  {
-                tcl/linkdict {linkdict_GroupLinks}
-                text/html  {html_GroupLinks}
-            }
-        }
-
-        /groups/{gtype} {
-            doc     {
-                Links to the currently defined groups of type {gtype}
-                (civ, frc, or org).
-            }
-            pattern {^groups/(civ|frc|org)/?$}
-            ctypes  {
-                tcl/linkdict {linkdict_GroupLinks}
-                text/html  {html_GroupLinks}
-            }
-        }
-
-
-        /group/{g} {
-            doc     {Detail page for group {g}.}
-            pattern {^group/(\w+)/?$}
-            ctypes  {
-                text/html {html_Group}
-            }
-        }
-
-        /image/{name} {
-            doc     {Any Tk image, by its {name}.}
-            pattern {^image/(.+)$}
-            ctypes  {
-                tk/image {image_TkImage}
-            }
-        }
-
-        /mars/docs/{path}.html {
-            doc     {An HTML file in the Athena mars/docs/ tree.}
-            pattern {^(mars/docs/.+\.html)$}
-            ctypes  {
-                text/html {text_File ""}
-            }
-        }
-
-        /mars/docs/{path}.txt {
-            doc     {A .txt file in the Athena mars/docs/ tree.}
-            pattern {^(mars/docs/.+\.txt)$}
-            ctypes  {
-                text/plain {text_File ""}
-            }
-        }
-
-        /mars/docs/{imageFile} {
-            doc     {
-                A .gif, .jpg, or .png file in the Athena mars/docs/ tree.
-            }
-            pattern {^(mars/docs/.+\.(gif|jpg|png))$}
-            ctypes  {
-                tk/image {image_File ""}
-            }
-        }
-
-        /nbhoods {
-            doc     {Links to the currently defined neighborhoods.}
-            pattern {^nbhoods/?$}
-            ctypes  {
-                tcl/linkdict {linkdict_EntityLinks /nbhoods /nbhood}
-                text/html  {html_EntityLinks /nbhoods /nbhood}
-            }
-        }
-
-        /nbhood/{n} {
-            doc     {Detail page for neighborhood {n}.}
-            pattern {^nbhood/(\w+)/?$}
-            ctypes  {
-                text/html {html_Nbhood}
-            }
-        }
-
-        /schema {
-            doc     {RDB Schema Links.}
-            pattern {^schema/?$}
-            ctypes  {
-                text/html {html_RdbSchemaLinks}
-            }
-        }
-
-        /schema/item/{name} {
-            doc     {Schema for an RDB table, view, or trigger.}
-            pattern {^schema/item/(\w+)$}
-            ctypes  {
-                text/html {html_RdbSchemaItem}
-            }
-        }
-
-        /schema/{subset} {
-            doc     {
-                Links for a {subset} of the RDB Schema Links.
-                Valid subsets are "main", "temp"; anything else
-                is assumed to be a wildcard pattern.
-            }
-            pattern {^schema/([A-Za-z0-9_*]+)$}
-            ctypes  {
-                text/html {html_RdbSchemaLinks}
-            }
-        }
-
-        /urlhelp {
-            doc     {Complete URL schema for this server.}
-            pattern {^urlhelp/?$}
-            ctypes  {
-                text/html {html_UrlHelp}
-            }
-        }
-
-        /urlhelp/{url} {
-            doc     {Help for URL {url}.}
-            pattern {^urlhelp/(.+)$}
-            ctypes  {
-                text/html {html_UrlHelp}
-            }
-        }
-
-        / {
-            doc     {Athena Welcome Page}
-            pattern {^/?$}
-            ctypes  {
-                text/html {html_Welcome}
-            }
-        }
-    }
+    typevariable rinfo {}
 
     #-------------------------------------------------------------------
     # Entity Types
@@ -313,20 +124,6 @@ snit::type appserver {
     #-------------------------------------------------------------------
     # Type Variables
 
-    # Resource Type Cache
-    #
-    # Looking up a URL requires matching it against a variety of 
-    # resource types.  In general, the resource type matched by 
-    # a URL will never change; and many we'll look up over and over
-    # again.  So cache the results of the lookup in an array.
-    #
-    # This might be an unnecessary optimization (I dunno) but it will
-    # make me feel better.
-    #
-    # The key is a URL; the value is a pair, resourceType/matchDict
-
-    typevariable rtypeCache -array {}
-
     # Image Cache
     # 
     # Image files loaded from disk are cached as Tk images in the 
@@ -338,117 +135,119 @@ snit::type appserver {
     #-------------------------------------------------------------------
     # Public methods
 
-    # resources
+    delegate typemethod * to server
+
+    # init
     #
-    # Returns a list of the resource types accepted by the server.
+    # Creates the myserver, and registers all of the resource types.
 
-    method resources {} {
-        return [dict keys $rinfo]
-    }
+    typemethod init {} {
+        # FIRST, create the server
+        set server [myserver ${type}::server]
 
-    # ctypes rtype
-    #
-    # rtype   - A resource type
-    #
-    # Returns a list of the content types for each resource type.
+        # NEXT, create the buffer for generating HTML.
+        htools ${type}::ht \
+            -rdb       ::rdb              \
+            -footercmd [myproc FooterCmd]
 
-    method ctypes {rtype} {
-        return [dict keys [dict get $rinfo $rtype ctype]]
-    }
+        # NEXT, register the resource types
+        $server register /actors {actors/?} \
+            tcl/linkdict [myproc linkdict_EntityLinks /actors /actor] \
+            text/html    [myproc html_EntityLinks /actors /actor]     \
+            "Links to the currently defined actors."
 
-    # get url ?contentTypes?
-    #
-    # url         - The URL of the resource to get.
-    # contentType - The list of accepted content types.  Wildcards are
-    #               allowed, e.g., text/*, */*
-    #
-    # Retrieves the given resource, or throws an error.  If the 
-    # contentTypes list is omitted, returns the resource's 
-    # preferred content type (usually text/html); otherwise it returns
-    # the first content type in contentTypes that matches an available
-    # content type.  If there is none, throws NOTFOUND.
-    #
-    # Returns a dictionary:
-    #
-    #    url          - The URL
-    #    contentType  - The returned content type
-    #    content      - The returned content
-    #
-    # If the requested resource is not found, throws NOTFOUND.
+        $server register /actor/{a} {actor/(\w+)/?} \
+            text/html [myproc html_Actor]           \
+            "Detail page for actor {a}."
 
-    typemethod get {url {contentTypes ""}} {
-        # FIRST, parse the URL.  We will ignore the scheme and host.
-        array set u [uri::split $url]
+        $server register /docs/{path}.html {(docs/[.]+\.html)} \
+            text/html [myproc text_File ""]                    \
+            "An HTML file in the Athena docs/ tree."
 
-        # NEXT, determine the resource type
-        set rtype [GetResourceType $u(path) match]
+        $server register /docs/{path}.txt {(docs/[.]+\.txt)} \
+            text/plain [myproc text_File ""]                 \
+            "A .txt file in the Athena docs/ tree."
 
-        # NEXT, strip any trailing "/" from the URL
-        set url [string trimright $url "/"]
+        $server register /docs/{imageFile} {(docs/.+\.(gif|jpg|png))} \
+            tk/image [myproc image_File ""]                           \
+            "A .gif, .jpg, or .png file in the Athena /docs/ tree."
 
-        # NEXT, get the content
-        set contentType ""
+        $server register /entitytype {entitytype/?}              \
+            tcl/linkdict [myproc linkdict_EntityType]            \
+            text/html    [myproc html_EntityType "Entity Types"] \
+            "Links to the main Athena entity types."
 
-        dict with rinfo $rtype {
-            if {[llength $contentTypes] == 0} {
-                set contentType [lindex [dict keys $ctypes] 0]
-                set handler [dict get $ctypes $contentType]
-            } else {
-                foreach cpat $contentTypes {
-                    dict for {ctype handler} $ctypes {
-                        if {[string match $cpat $ctype]} {
-                            set contentType $ctype
-                            break
-                        }
-                    }
-                }
+        $server register /entitytype/bsystem {entitytype/(bsystem)/?}   \
+            tcl/linkdict [myproc linkdict_EntityType]                   \
+            text/html    [myproc html_EntityType "Belief Entity Types"] {
+                Links to the Athena entity types for which belief 
+                systems are defined.
             }
-        }
 
-        if {$contentType eq ""} {
-            return -code error -errorcode NOTFOUND \
-                "Content-type unavailable: $contentTypes"
-        }
+        $server register /groups {groups/?} \
+            tcl/linkdict [myproc linkdict_GroupLinks]              \
+            text/html    [myproc html_GroupLinks]                  \
+            "Links to the currently defined groups of all types."
 
-        return [dict create \
-                    url         $url                     \
-                    content     [{*}$handler $url match] \
-                    contentType $contentType]
-    }
-
-    # GetResourceType url matchArray
-    #
-    # url         - A resource URL
-    # matchArray  - An array of matches from the pattern.  Up to 3
-    #               substrings can be matched.
-    #
-    # Returns the resource type key from $rinfo, or throws NOTFOUND.
-
-    proc GetResourceType {url matchArray} {
-        upvar 1 $matchArray match
-
-        # FIRST, is it cached?
-        if {[info exists rtypeCache($url)]} {
-            lassign $rtypeCache($url) rtype matchDict
-            array set match $matchDict
-            return $rtype
-        }
-
-        # NEXT, look it up and cache it.
-        dict for {rtype rdict} $rinfo {
-            # FIRST, does it match?
-            set pattern [dict get $rdict pattern]
-
-            if {[regexp $pattern $url dummy match(1) match(2) match(3)]} {
-                set rtypeCache($url) [list $rtype [array get match]]
-
-                return $rtype
+        $server register /groups/{gtype} {groups/(civ|frc|org)/?}     \
+            tcl/linkdict [myproc linkdict_GroupLinks]                 \
+            text/html    [myproc html_GroupLinks]                     {
+                Links to the currently defined groups of type {gtype}
+                (civ, frc, or org).
             }
-        }
 
-        return -code error -errorcode NOTFOUND \
-            "Resource not found or not compatible with this application."
+
+        $server register /group/{g} {group/(\w+)/?} \
+            text/html [myproc html_Group]           \
+            "Detail page for group {g}."
+
+        $server register /image/{name} {image/(.+)} \
+            tk/image [myproc image_TkImage]         \
+            "Any Tk image, by its {name}."
+
+        $server register /mars/docs/{path}.html {(mars/docs/.+\.html)} \
+            text/html [myproc text_File ""]                            \
+            "An HTML file in the Athena mars/docs/ tree."
+
+        $server register /mars/docs/{path}.txt {(mars/docs/.+\.txt)} \
+            text/plain [myproc text_File ""]                         \
+            "A .txt file in the Athena mars/docs/ tree."
+
+        $server register /mars/docs/{imageFile} \
+            {(mars/docs/.+\.(gif|jpg|png))}     \
+            tk/image [myproc image_File ""]     {
+                A .gif, .jpg, or .png file in the Athena mars/docs/ tree.
+            }   
+
+        $server register /nbhoods {nbhoods/?} \
+            tcl/linkdict [myproc linkdict_EntityLinks /nbhoods /nbhood] \
+            text/html    [myproc html_EntityLinks /nbhoods /nbhood]     \
+            "Links to the currently defined neighborhoods."
+
+        $server register /nbhood/{n} {nbhood/(\w+)/?} \
+            text/html [myproc html_Nbhood]            \
+            "Detail page for neighborhood {n}."
+
+        $server register /schema {schema/?} \
+            text/html [myproc html_RdbSchemaLinks] \
+            "RDB Schema Links."
+
+        $server register /schema/item/{name} {schema/item/(\w+)} \
+            text/html [myproc html_RdbSchemaItem]                \
+            "Schema for an RDB table, view, or trigger."
+
+        $server register /schema/{subset} {schema/([A-Za-z0-9_*]+)} \
+            text/html [myproc html_RdbSchemaLinks]                  {
+                Links for a {subset} of the RDB Schema Links.
+                Valid subsets are "main", "temp"; anything else
+                is assumed to be a wildcard pattern.
+            }
+
+        $server register / {/?} \
+            text/html [myproc html_Welcome] \
+            "Athena Welcome Page"
     }
+
 
 
     #===================================================================
@@ -457,51 +256,27 @@ snit::type appserver {
     # The following code relates to particular resources or kinds
     # of content.
 
-    #-------------------------------------------------------------------
-    # Server Introspection
-
-    # html_UrlHelp url matchArray
+    # FooterCmd
     #
-    # url        - The /urlhelp URL
-    # matchArray - Array of pattern matches
-    # 
-    # Produces an HTML page detailing one or all of the URLs
-    # understood by this server.  Match parm (1) is either empty
-    # or a URL for which help is requested.
+    # Standard Page Footer
 
-    proc html_UrlHelp {url matchArray} {
-        upvar 1 $matchArray ""
+    proc FooterCmd {} {
+        ht putln <p>
+        ht putln <hr>
+        ht putln "<font size=2><i>"
 
-        # FIRST, get the list of rtypes to document.
-        if {$(1) eq ""} {
-            set rtypes [dict keys $rinfo]
-            set title "URL Schema Help"
+        if {[sim state] eq "PREP"} {
+            ht put "Scenario is unlocked."
         } else {
-            set rtypes [list [GetResourceType $(1) dummy]]
-            set title "URL Schema Help: /$(1)"
+            ht put [format "Simulation time: Day %04d, %s." \
+                      [simclock now] [simclock asZulu]]
         }
 
-        # NEXT, format the output.
-        set trans [list \{ <i> \} </i>]
+        ht put [format " -- Wall Clock: %s" [clock format [clock seconds]]]
 
-        ht::page $title
-        ht::h1 $title
-        ht::putln <dl>
-
-        foreach rtype $rtypes {
-            set doc [string map $trans [dict get $rinfo $rtype doc]]
-            set ctypes [dict keys [dict get $rinfo $rtype ctypes]]
-            set rtype [string map $trans $rtype]
-
-            ht::putln <dt><b>$rtype</b></dt>
-            ht::putln <dd>$doc ([join $ctypes {, }])<p>
-        }
-
-        ht::putln </dl>
-        ht::/page
-
-        return [ht::get]
+        ht put "</i></font>"
     }
+
 
     #-------------------------------------------------------------------
     # Pre-loaded Tk Images
@@ -667,16 +442,16 @@ snit::type appserver {
             }
         }
 
-        ht::page "RDB Schema"
-        ht::h1 "RDB Schema"
+        ht page "RDB Schema"
+        ht h1 "RDB Schema"
 
-        ht::putln $text
+        ht putln $text
 
-        ht::query $sql -labels {Type Name Persistence} -maxcolwidth 0
+        ht query $sql -labels {Type Name Persistence} -maxcolwidth 0
 
-        ht::/page
+        ht /page
 
-        return [ht::get]
+        return [ht get]
     }
 
     # html_RdbSchemaItem url matchArray
@@ -699,12 +474,12 @@ snit::type appserver {
             SELECT sql FROM sqlite_temp_master
             WHERE name=$name
         } {
-            ht::page "RDB Schema: $name" {
-                ht::h1 "RDB Schema: $name"
-                ht::pre $sql
+            ht page "RDB Schema: $name" {
+                ht h1 "RDB Schema: $name"
+                ht pre $sql
             }
 
-            return [ht::get]
+            return [ht get]
         }
 
         return -code error -errorcode NOTFOUND \
@@ -787,16 +562,16 @@ snit::type appserver {
 
         set types [linkdict_EntityType $url ""]
 
-        ht::page $title
-        ht::h1 $title
-        ht::ul {
+        ht page $title
+        ht h1 $title
+        ht ul {
             foreach link [dict keys $types] {
-                ht::li { ht::link $link [dict get $types $link label] }
+                ht li { ht link $link [dict get $types $link label] }
             }
         }
-        ht::/page
+        ht /page
 
-        return [ht::get]
+        return [ht get]
     }
 
 
@@ -842,29 +617,29 @@ snit::type appserver {
 
     proc html_EntityLinks {etype eroot url matchArray} {
         dict with entityTypes $etype {
-            ht::page $label
-            ht::h1 $label
+            ht page $label
+            ht h1 $label
 
-            ht::push
+            ht push
 
             rdb eval "
                 SELECT longlink FROM $table ORDER BY fancy
             " {
-                ht::li { ht::put $longlink }
+                ht li { ht put $longlink }
             }
 
-            set links [ht::pop]
+            set links [ht pop]
 
             if {$links eq ""} {
-                ht::putln "No entities of this type have been defined."
-                ht::para
+                ht putln "No entities of this type have been defined."
+                ht para
             } else {
-                ht::ul { ht::put $links }
+                ht ul { ht put $links }
             }
 
-            ht::/page
+            ht /page
             
-            return [ht::get]
+            return [ht get]
         }
     }
 
@@ -892,10 +667,10 @@ snit::type appserver {
         # Begin the page
         rdb eval {SELECT * FROM gui_actors WHERE a=$a} data {}
 
-        ht::page "Actor: $a"
-        ht::title $data(fancy) "Actor" 
+        ht page "Actor: $a"
+        ht title $data(fancy) "Actor" 
 
-        ht::linkbar {
+        ht linkbar {
             goals   "Goals"
             sphere  "Sphere of Influence"
             base    "Power Base"
@@ -904,89 +679,89 @@ snit::type appserver {
         }
         
         # Asset Summary
-        ht::putln "Fiscal assets: about \$$data(cash), "
-        ht::put "plus about \$$data(income) per week."
-        ht::putln "Groups owned: "
+        ht putln "Fiscal assets: about \$$data(cash), "
+        ht put "plus about \$$data(income) per week."
+        ht putln "Groups owned: "
 
-        ht::linklist [rdb eval {
+        ht linklist [rdb eval {
             SELECT url, g FROM gui_agroups 
             WHERE a=$a
             ORDER BY g
         }]
 
-        ht::put "."
+        ht put "."
 
-        ht::para
+        ht para
 
         # Goals
-        ht::h2 "Goals" goals
+        ht h2 "Goals" goals
 
-        ht::push
+        ht push
         rdb eval {
             SELECT narrative, flag, goal_id FROM goals
             WHERE owner=$a AND state = 'normal'
         } {
-            ht::ul {
-                ht::li {
+            ht ul {
+                ht li {
                     if {$flag ne ""} {
                         if {$flag} {
-                            ht::image ::marsgui::icon::smthumbupgreen middle
+                            ht image ::marsgui::icon::smthumbupgreen middle
                         } else {
-                            ht::image ::marsgui::icon::smthumbdownred middle
+                            ht image ::marsgui::icon::smthumbdownred middle
                         }
                     }
-                    ht::put $narrative
-                    ht::tinyi " (goal=$goal_id)"
+                    ht put $narrative
+                    ht tinyi " (goal=$goal_id)"
                 }
             }
-            ht::para
+            ht para
         }
 
-        set text [ht::pop]
+        set text [ht pop]
 
         if {$text ne ""} {
-            ht::put $text
+            ht put $text
         } else {
-            ht::put "None."
-            ht::para
+            ht put "None."
+            ht para
         }
 
         # Sphere of Influence
-        ht::h2 "Sphere of Influence" sphere
+        ht h2 "Sphere of Influence" sphere
 
         if {[Locked -disclaimer]} {
-            ht::putln "Actor $a has influence in the following neighborhoods:"
-            ht::para
+            ht putln "Actor $a has influence in the following neighborhoods:"
+            ht para
 
-            ht::query {
+            ht query {
                 SELECT N.longlink                 AS 'Neighborhood',
                        format('%.2f',I.influence) AS 'Influence'
                 FROM influence_na AS I
                 JOIN gui_nbhoods  AS N USING (n)
-                WHERE I.influence > 0.0
-                ORDER BY I.influence, N.fancy
+                WHERE I.a=$a AND I.influence > 0.0 
+                ORDER BY I.influence DESC, N.fancy
             } -default "None."
 
-            ht::para
+            ht para
         }
 
         # Power Base
-        ht::h2 "Power Base" base
+        ht h2 "Power Base" base
 
         if {[Locked -disclaimer]} {
             set vmin [parm get control.support.vrelMin]
 
-            ht::putln "Actor $a has the following supporters "
-            ht::putln "(and would-be supporters).  "
-            ht::putln "Note that a group only supports an actor if"
-            ht::putln "its vertical relationship with the actor is at"
-            ht::putln "least $vmin, and"
-            ht::putln "its support makes a difference only if its"
-            ht::putln "security is at least"
-            ht::putln "[parm get control.support.secMin]."
-            ht::para
+            ht putln "Actor $a has the following supporters "
+            ht putln "(and would-be supporters).  "
+            ht putln "Note that a group only supports an actor if"
+            ht putln "its vertical relationship with the actor is at"
+            ht putln "least $vmin, and"
+            ht putln "its support makes a difference only if its"
+            ht putln "security is at least"
+            ht putln "[parm get control.support.secMin]."
+            ht para
 
-            ht::query {
+            ht query {
                 SELECT N.link                            AS 'In Nbhood',
                        G.link                            AS 'Group',
                        G.gtype                           AS 'Type',
@@ -1004,13 +779,13 @@ snit::type appserver {
                 ORDER BY S.influence DESC, S.vrel DESC, N.n
             } -default "None." -align {left left right right left right left}
 
-            ht::para
+            ht para
         }
 
         # Deployment
-        ht::h2 "Force Deployment" forces
+        ht h2 "Force Deployment" forces
 
-        ht::query {
+        ht query {
             SELECT N.longlink              AS 'Neighborhood',
                    P.personnel             AS 'Personnel',
                    G.longlink              AS 'Group',
@@ -1022,21 +797,21 @@ snit::type appserver {
         } -default "No forces are deployed."
 
         # Future Topics
-        ht::h2 "Future Topics" future
+        ht h2 "Future Topics" future
 
-        ht::putln {We might add information about the following topics.}
-        ht::para
+        ht putln {We might add information about the following topics.}
+        ht para
 
-        ht::ul {
-            ht::li {
-                ht::put {
+        ht ul {
+            ht li {
+                ht put {
                     <b>Recent Tactics</b>: The tactics recently used
                     by the actor.
                 }
             }
 
-            ht::li {
-                ht::put {
+            ht li {
+                ht put {
                     <b>Significant events</b:  Things the actor has
                     recently accomplished, or that have recently
                     happened to him, e.g., gained or lost control of a
@@ -1046,12 +821,12 @@ snit::type appserver {
 
         }
 
-        ht::para
+        ht para
 
 
-        ht::/page
+        ht /page
 
-        return [ht::get]
+        return [ht get]
     }
 
     #-------------------------------------------------------------------
@@ -1085,11 +860,11 @@ snit::type appserver {
         let locked {[sim state] ne "PREP"}
 
         # Begin the page
-        ht::page "Neighborhood: $n"
-        ht::title $data(fancy) "Neighborhood" 
+        ht page "Neighborhood: $n"
+        ht title $data(fancy) "Neighborhood" 
 
         if {$locked} {
-            ht::linkbar {
+            ht linkbar {
                 civs    "Civilian Groups"
                 forces  "Forces Present"
                 control "Support and Control"
@@ -1097,40 +872,40 @@ snit::type appserver {
             }
 
         } {
-            ht::putln ""
-            ht::tinyi {
+            ht putln ""
+            ht tinyi {
                 More information will be available once the scenario has
                 been locked.
             }
-            ht::para
+            ht para
         }
 
         # Non-local?
         if {!$data(local)} {
-            ht::putln "$n is located outside of the main playbox."
+            ht putln "$n is located outside of the main playbox."
         }
 
         # When not locked.
         if {!$locked} {
-            ht::putln "Resident groups: "
+            ht putln "Resident groups: "
 
-            ht::linklist -default "None" [rdb eval {
+            ht linklist -default "None" [rdb eval {
                 SELECT url,g FROM gui_civgroups WHERE n=$n
             }]
 
-            ht::put ". "
+            ht put ". "
 
             if {$data(controller) eq "NONE"} {
-                ht::putln "No actor is initially in control."
+                ht putln "No actor is initially in control."
             } else {
-                ht::putln "Actor "
-                ht::put "$cdata(link) is initially in control."
+                ht putln "Actor "
+                ht put "$cdata(link) is initially in control."
             }
 
-            ht::para
+            ht para
 
-            ht::/page
-            return [ht::get]
+            ht /page
+            return [ht get]
         }
 
         # Population, groups.
@@ -1139,47 +914,47 @@ snit::type appserver {
         let sagPct {double($data(subsistence))/$data(population)}
         set mood   [qsat name $data(mood)]
 
-        ht::putln "$data(fancy) is "
-        ht::putif {$urb eq "Urban"} "an " "a "
-        ht::put "$urb neighborhood with a population of "
-        ht::put [commafmt $data(population)]
-        ht::put ", [percent $labPct] of which are in the labor force and "
-        ht::put "[percent $sagPct] of which are engaged in subsistence "
-        ht::put "agriculture."
+        ht putln "$data(fancy) is "
+        ht putif {$urb eq "Urban"} "an " "a "
+        ht put "$urb neighborhood with a population of "
+        ht put [commafmt $data(population)]
+        ht put ", [percent $labPct] of which are in the labor force and "
+        ht put "[percent $sagPct] of which are engaged in subsistence "
+        ht put "agriculture."
 
-        ht::putln "The population belongs to the following groups: "
+        ht putln "The population belongs to the following groups: "
 
-        ht::linklist -default "None" [rdb eval {
+        ht linklist -default "None" [rdb eval {
             SELECT url,g FROM gui_civgroups WHERE n=$n
         }]
         
-        ht::put "."
+        ht put "."
 
-        ht::putln "Their overall mood is [qsat format $data(mood)] "
-        ht::put "([qsat longname $data(mood)])."
-        ht::putln "The level of basic services is TBD, which is "
-        ht::put "(more than)/(less than) expected. "
+        ht putln "Their overall mood is [qsat format $data(mood)] "
+        ht put "([qsat longname $data(mood)])."
+        ht putln "The level of basic services is TBD, which is "
+        ht put "(more than)/(less than) expected. "
 
         if {$data(local)} {
             if {$data(labor_force) > 0} {
                 let rate {double($data(unemployed))/$data(labor_force)}
-                ht::putln "The unemployment rate is [percent $rate]."
+                ht putln "The unemployment rate is [percent $rate]."
             }
-            ht::putln "$n's production capacity is [percent $econ(pcf)]."
+            ht putln "$n's production capacity is [percent $econ(pcf)]."
         }
-        ht::para
+        ht para
 
         # Actors
         if {$data(controller) eq "NONE"} {
-            ht::putln "$n is currently in a state of chaos: "
-            ht::put   "no actor is in control."
+            ht putln "$n is currently in a state of chaos: "
+            ht put   "no actor is in control."
         } else {
-            ht::putln "Actor $cdata(link) is currently in control of $n."
+            ht putln "Actor $cdata(link) is currently in control of $n."
         }
 
-        ht::putln "Actors with forces in $n: "
+        ht putln "Actors with forces in $n: "
 
-        ht::linklist -default "None" [rdb eval {
+        ht linklist -default "None" [rdb eval {
             SELECT DISTINCT '/actor/' || a, a
             FROM gui_agroups
             JOIN force_ng USING (g)
@@ -1187,11 +962,11 @@ snit::type appserver {
             ORDER BY personnel DESC
         }]
 
-        ht::put "."
+        ht put "."
 
-        ht::putln "Actors with influence in $n: "
+        ht putln "Actors with influence in $n: "
 
-        ht::linklist -default "None" [rdb eval {
+        ht linklist -default "None" [rdb eval {
             SELECT DISTINCT A.url, A.a
             FROM influence_na AS I
             JOIN gui_actors AS A USING (a)
@@ -1199,32 +974,32 @@ snit::type appserver {
             ORDER BY I.influence DESC
         }]
 
-        ht::put "."
+        ht put "."
 
-        ht::para
+        ht para
 
         # Groups
-        ht::putln \
+        ht putln \
             "The following force and organization groups are" \
             "active in $n: "
 
-        ht::linklist -default "None" [rdb eval {
+        ht linklist -default "None" [rdb eval {
             SELECT G.url, G.g
             FROM gui_agroups AS G
             JOIN force_ng    AS F USING (g)
             WHERE F.n=$n AND F.personnel > 0
         }]
 
-        ht::put "."
-        ht::para
+        ht put "."
+        ht para
 
         # Civilian groups
-        ht::h2 "Civilian Groups" civs
+        ht h2 "Civilian Groups" civs
         
-        ht::putln "The following civilian groups live in $n:"
-        ht::para
+        ht putln "The following civilian groups live in $n:"
+        ht para
 
-        ht::query {
+        ht query {
             SELECT G.longlink  
                        AS 'Name',
                    G.population 
@@ -1242,9 +1017,9 @@ snit::type appserver {
 
         # Force/Org groups
 
-        ht::h2 "Forces Present" forces
+        ht h2 "Forces Present" forces
 
-        ht::query {
+        ht query {
             SELECT G.longlink
                        AS 'Group',
                    P.personnel 
@@ -1264,20 +1039,20 @@ snit::type appserver {
         } -default "None."
 
         # Support and Control
-        ht::h2 "Support and Control" control
+        ht h2 "Support and Control" control
 
         if {$data(controller) eq "NONE"} {
-            ht::putln "$n is currently in a state of chaos: "
-            ht::put   "no actor is in control."
+            ht putln "$n is currently in a state of chaos: "
+            ht put   "no actor is in control."
         } else {
-            ht::putln "Actor $cdata(link) is currently in control of $n."
+            ht putln "Actor $cdata(link) is currently in control of $n."
         }
 
-        ht::putln "The actors with influence in this neighborhood are "
-        ht::put   "as follows:"
-        ht::para
+        ht putln "The actors with influence in this neighborhood are "
+        ht put   "as follows:"
+        ht para
 
-        ht::query {
+        ht query {
             SELECT A.longlink                   AS 'Actor',
                    format('%.2f',I.influence)   AS 'Influence'
             FROM influence_na AS I
@@ -1286,17 +1061,17 @@ snit::type appserver {
             ORDER BY I.influence DESC
         } -default "None." -align {left right}
 
-        ht::para
-        ht::putln "Actor support comes from the following groups."
-        ht::putln "Note that a group only supports an actor if"
-        ht::putln "its vertical relationship with the actor is at"
-        ht::putln "least [parm get control.support.vrelMin], and"
-        ht::putln "its support makes a difference only if its"
-        ht::putln "security is at least"
-        ht::putln "[parm get control.support.secMin]."
-        ht::para
+        ht para
+        ht putln "Actor support comes from the following groups."
+        ht putln "Note that a group only supports an actor if"
+        ht putln "its vertical relationship with the actor is at"
+        ht putln "least [parm get control.support.vrelMin], and"
+        ht putln "its support makes a difference only if its"
+        ht putln "security is at least"
+        ht putln "[parm get control.support.secMin]."
+        ht para
 
-        ht::query {
+        ht query {
             SELECT A.link                            AS 'Actor',
                    G.link                            AS 'Group',
                    format('%.2f',S.influence)        AS 'Influence',
@@ -1313,26 +1088,26 @@ snit::type appserver {
             ORDER BY S.influence DESC, S.vrel DESC, A.a
         } -default "None." -align {left left right right left right left}
 
-        ht::para
+        ht para
 
         # Topics Yet to be Covered
-        ht::h2 "Future Topics" future
+        ht h2 "Future Topics" future
 
-        ht::putln "The following topics might be covered in the future:"
+        ht putln "The following topics might be covered in the future:"
 
-        ht::ul {
-            ht::li-text { 
+        ht ul {
+            ht li-text { 
                 <b>Conflicts:</b> Pairs of force groups with 
                 significant ROEs.
             }
-            ht::li-text {
+            ht li-text {
                 <b>Significant Events:</b> Recent events in the
                 neighborhood, e.g., the last turn-over of control.
             }
         }
 
-        ht::/page
-        return [ht::get]
+        ht /page
+        return [ht get]
     }
 
     #-------------------------------------------------------------------
@@ -1397,30 +1172,30 @@ snit::type appserver {
 
         # NEXT, get the results.
         dict with entityTypes $etype {
-            ht::page $label
-            ht::h1 $label
+            ht page $label
+            ht h1 $label
 
-            ht::push
+            ht push
             rdb eval "
                 SELECT $key AS id, longname 
                 FROM $table 
                 ORDER BY longname
             " {
-                ht::li { ht::link /group/$id "$longname ($id)" }
+                ht li { ht link /group/$id "$longname ($id)" }
             }
 
-            set links [ht::pop]
+            set links [ht pop]
 
             if {$links eq ""} {
-                ht::putln "No entities of this type have been defined."
-                ht::para
+                ht putln "No entities of this type have been defined."
+                ht para
             } else {
-                ht::ul { ht::put $links }
+                ht ul { ht put $links }
             }
 
-            ht::/page
+            ht /page
             
-            return [ht::get]
+            return [ht get]
         }
     }
 
@@ -1467,10 +1242,10 @@ snit::type appserver {
         rdb eval {SELECT * FROM gui_nbhoods   WHERE n=$data(n)} nb   {}
 
         # NEXT, begin the page.
-        ht::page "Civilian Group: $g"
-        ht::title "$data(longname) ($g)" "Civilian Group" 
+        ht page "Civilian Group: $g"
+        ht title "$data(longname) ($g)" "Civilian Group" 
 
-        ht::linkbar {
+        ht linkbar {
             actors  "Relationships with Actors"
             rel     "Friends and Enemies"
             sat     "Satisfaction Levels"
@@ -1482,37 +1257,37 @@ snit::type appserver {
         let locked {[sim state] ne "PREP"}
 
         if {!$locked} {
-            ht::putln ""
-            ht::tinyi {
+            ht putln ""
+            ht tinyi {
                 More information will be available once the scenario has
                 been locked.
             }
 
-            ht::para
+            ht para
         }
 
 
-        ht::putln "$data(longname) ($g) resides in neighborhood "
-        ht::link  /nbhood/$data(n) "$nb(longname) ($data(n))"
-        ht::put   " and has a population of "
+        ht putln "$data(longname) ($g) resides in neighborhood "
+        ht link  /nbhood/$data(n) "$nb(longname) ($data(n))"
+        ht put   " and has a population of "
 
         # TBD: Once demog_g is populated only when the simulation is locked,
         # we can update gui_civgroups to coalesce basepop into population,
         # and just use the one column.
         if {$locked} {
-            ht::put [commafmt $data(population)]
+            ht put [commafmt $data(population)]
         } else {
-            ht::put [commafmt $data(basepop)]
+            ht put [commafmt $data(basepop)]
         }
 
-        ht::put "."
+        ht put "."
 
-        ht::putln "The group's demeanor is "
-        ht::put   [edemeanor longname $data(demeanor)].
+        ht putln "The group's demeanor is "
+        ht put   [edemeanor longname $data(demeanor)].
 
         if {!$locked} {
-            ht::/page
-            return [ht::get]
+            ht /page
+            return [ht get]
         }
 
         # NEXT, the rest of the summary
@@ -1520,15 +1295,15 @@ snit::type appserver {
         let sa {double($data(subsistence))/$data(population)}
         let ur {double($data(unemployed))/$data(labor_force)}
         
-        ht::putln "[percent $lf] of the group is in the labor force, "
-        ht::put   "and [percent $sa] of the group is engaged in "
-        ht::put   "subsistence agriculture."
+        ht putln "[percent $lf] of the group is in the labor force, "
+        ht put   "and [percent $sa] of the group is engaged in "
+        ht put   "subsistence agriculture."
         
-        ht::putln "The unemployment rate is [percent $ur]."
+        ht putln "The unemployment rate is [percent $ur]."
             
-        ht::putln "$g's overall mood is [qsat format $data(mood)] "
-        ht::put   "([qsat longname $data(mood)])."
-        ht::para
+        ht putln "$g's overall mood is [qsat format $data(mood)] "
+        ht put   "([qsat longname $data(mood)])."
+        ht para
 
         # Actors
         set controller [rdb onecolumn {
@@ -1536,7 +1311,8 @@ snit::type appserver {
         }]
 
         if {$controller eq ""} {
-            ht::putln "No actor is in control of $data(n)."
+            ht putln "No actor is in control of $data(n)."
+            set vrel_c -1.0
         } else {
             set vrel_c [rdb onecolumn {
                 SELECT vrel FROM vrel_ga
@@ -1544,11 +1320,11 @@ snit::type appserver {
             }]
 
             set vrelMin [parm get control.support.vrelMin]
-            ht::putln "$g "
-            ht::putif {$vrel_c > $vrelMin} "supports" "does not support"
-            ht::put   " actor "
-            ht::link /actor/$controller $controller
-            ht::put   ", who is in control of neighborhood $data(n)."
+            ht putln "$g "
+            ht putif {$vrel_c > $vrelMin} "supports" "does not support"
+            ht put   " actor "
+            ht link /actor/$controller $controller
+            ht put   ", who is in control of neighborhood $data(n)."
         }
 
         rdb eval {
@@ -1560,27 +1336,27 @@ snit::type appserver {
 
         if {$fave(vrel) > $vrel_c} {
             if {$fave(vrel) > 0.2} {
-                ht::putln "$g would prefer to see actor "
-                ht::put "$fave(a) in control of $data(n)."
+                ht putln "$g would prefer to see actor "
+                ht put "$fave(a) in control of $data(n)."
             } else {
-                ht::putln ""
-                ht::putif {$controller ne ""} "In fact, "
-                ht::put "$g does not support "
-                ht::put   "any of the actors."
+                ht putln ""
+                ht putif {$controller ne ""} "In fact, "
+                ht put "$g does not support "
+                ht put   "any of the actors."
             }
         } else {
-            ht::putln ""
-            ht::putif {$vrel_c <= 0.2} "However, "
-            ht::putln "$g prefers $controller to the other candidates."
+            ht putln ""
+            ht putif {$vrel_c <= 0.2} "However, "
+            ht putln "$g prefers $controller to the other candidates."
         }
     
-        ht::para
+        ht para
         
         # NEXT, Detail Block: Relationships with actors
         
-        ht::h2 "Relationships with Actors" actors
+        ht h2 "Relationships with Actors" actors
 
-        ht::query {
+        ht query {
             SELECT link('/actor/' || a, pair(longname, a)) AS 'Actor',
                    qaffinity('format',vrel)                AS 'Vert. Rel.',
                    g || ' ' || qaffinity('longname',vrel) 
@@ -1590,9 +1366,9 @@ snit::type appserver {
             ORDER BY vrel DESC
         } -align {left right left}
         
-        ht::h2 "Friend and Enemies" rel
+        ht h2 "Friend and Enemies" rel
 
-        ht::query {
+        ht query {
             SELECT link('/group/' || g, pair(longname, g)) AS 'Friend/Enemy',
                    gtype                                   AS 'Type',
                    qaffinity('format',rel)                 AS 'Relationship',
@@ -1603,14 +1379,14 @@ snit::type appserver {
             ORDER BY rel DESC
         } -align {left left right left}
 
-        ht::h2 "Satisfaction Levels" sat
+        ht h2 "Satisfaction Levels" sat
 
-        ht::putln "$g's overall mood is [qsat format $data(mood)] "
-        ht::put   "([qsat longname $data(mood)]).  $g's satisfactions "
-        ht::put   "with the various concerns are as follows."
-        ht::para
+        ht putln "$g's overall mood is [qsat format $data(mood)] "
+        ht put   "([qsat longname $data(mood)]).  $g's satisfactions "
+        ht put   "with the various concerns are as follows."
+        ht para
 
-        ht::query {
+        ht query {
             SELECT pair(C.longname, C.c)            AS 'Concern',
                    qsat('format',sat)               AS 'Satisfaction',
                    qsat('longname',sat)             AS 'Narrative',
@@ -1620,11 +1396,11 @@ snit::type appserver {
             ORDER BY C.c
         } -align {left right left left}
 
-        ht::h2 "Satisfaction Drivers" drivers
+        ht h2 "Satisfaction Drivers" drivers
 
-        ht::putln "The most important satisfaction drivers for this group "
-        ht::put   "at the present time are as follows:"
-        ht::para
+        ht putln "The most important satisfaction drivers for this group "
+        ht put   "at the present time are as follows:"
+        ht para
 
         aram sat drivers               \
             -group   $g                \
@@ -1641,7 +1417,7 @@ snit::type appserver {
             WHERE g=$g AND c='mood' AND abs(acontrib) >= 0.001
         }
 
-        ht::query {
+        ht query {
             SELECT format('%8.3f', acontrib) AS 'Delta',
                    driver                    AS 'ID',
                    oneliner                  AS 'Description'
@@ -1650,9 +1426,9 @@ snit::type appserver {
             ORDER BY abs(acontrib) DESC
         } -default "No significant drivers." -align {right right left}
 
-        ht::/page
+        ht /page
 
-        return [ht::get]
+        return [ht get]
     }
 
 
@@ -1666,14 +1442,14 @@ snit::type appserver {
     proc html_GroupFrc {url g} {
         rdb eval {SELECT * FROM frcgroups_view WHERE g=$g} data {}
 
-        ht::page "Force Group: $g"
-        ht::title "$data(longname) ($g)" "Force Group" 
+        ht page "Force Group: $g"
+        ht title "$data(longname) ($g)" "Force Group" 
 
-        ht::putln "No data yet available."
+        ht putln "No data yet available."
 
-        ht::/page
+        ht /page
 
-        return [ht::get]
+        return [ht get]
     }
 
     # html_GroupOrg url g
@@ -1686,14 +1462,14 @@ snit::type appserver {
     proc html_GroupOrg {url g} {
         rdb eval {SELECT * FROM orggroups_view WHERE g=$g} data {}
 
-        ht::page "Organization Group: $g"
-        ht::title "$data(longname) ($g)" "Organization Group" 
+        ht page "Organization Group: $g"
+        ht title "$data(longname) ($g)" "Organization Group" 
 
-        ht::putln "No data yet available."
+        ht putln "No data yet available."
 
-        ht::/page
+        ht /page
 
-        return [ht::get]
+        return [ht get]
     }
 
     #-------------------------------------------------------------------
@@ -1711,12 +1487,12 @@ snit::type appserver {
             return 1
         } else {
             if {$option ne ""} {
-                ht::putln ""
-                ht::tinyi {
+                ht putln ""
+                ht tinyi {
                     More information will be available once the scenario has
                     been locked.
                 }
-                ht::para
+                ht para
             }
 
             return 0

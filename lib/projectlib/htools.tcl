@@ -1,43 +1,84 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    ht.tcl
+#    htools.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    app_sim(n): HTML tools.
+#    projectlib(n): HTML generation tools
 #
-#    The commands in this module aid in the generation of HTML text
-#    by the appserver.
+#    The htools type provides a number of HTML-related utility commands.
+#    In addition, instances of the htools type are buffers for the 
+#    generation of HTML.
 #
 #-----------------------------------------------------------------------
 
+namespace eval ::projectlib:: {
+    namespace export htools
+}
+
 #-----------------------------------------------------------------------
-# ht singleton
+# htools type
 
-snit::type ht {
-    pragma -hasinstances no
-
+snit::type ::projectlib::htools {
     #-------------------------------------------------------------------
     # Type Variables
 
+    # Transient values used by query
+    typevariable qopts       ;# Query options
+    typevariable qnames      ;# List of column names
+    typevariable qrow        ;# Row of queried data.
+
+
+    #-------------------------------------------------------------------
+    # Type Methods
+
+    # TBD
+
+    #-------------------------------------------------------------------
+    # Options
+
+    # -headercmd
+    #
+    # A command that returns content for the page header.
+
+    option -headercmd
+
+    # -footercmd
+    #
+    # A command that returns content for the page footer.
+
+    option -footercmd
+
+    # -rdb
+    #
+    # An SQLite database handle; used by "query".
+
+    option -rdb
+
+    #-------------------------------------------------------------------
+    # Instance Variables
+
     # Stack pointer
-    typevariable sp 0
+    variable sp 0
 
     # stack: buffer stack
     #
     # $num - Buffer 
     
-    typevariable stack -array {
+    variable stack -array {
         0  {}
     }
 
-    # Transient values used by ht::query
-    typevariable qopts       ;# Query options
-    typevariable qnames      ;# List of column names
-    typevariable qrow        ;# Row of queried data.
-    typevariable qcol        ;# Column name
+
+    #-------------------------------------------------------------------
+    # Constructor 
+
+    constructor {args} {
+        $self configurelist $args
+    }
+
 
     #-------------------------------------------------------------------
     # Commands for building up HTML in the buffer
@@ -48,7 +89,7 @@ snit::type ht {
     #
     # Adds the text strings to the buffer, separated by spaces.
 
-    proc put {args} {
+    method put {args} {
         append stack($sp) [join $args " "]
 
         return
@@ -61,7 +102,7 @@ snit::type ht {
     # Adds the text strings to the buffer, separated by spaces,
     # and *preceded* by a newline.
 
-    proc putln {args} {
+    method putln {args} {
         append stack($sp) \n [join $args " "]
 
         return
@@ -71,7 +112,7 @@ snit::type ht {
     #
     # Get the text in the main buffer.
 
-    proc get {} {
+    method get {} {
         return $stack($sp)
     }
 
@@ -79,7 +120,7 @@ snit::type ht {
     #
     # Clears the buffer for new stuff.
 
-    proc clear {} {
+    method clear {} {
         array unset stack
         set sp 0
         set stack($sp) ""
@@ -89,7 +130,7 @@ snit::type ht {
     #
     # Pushes a new buffer on the stack.
 
-    proc push {} {
+    method push {} {
         incr sp
         set stack($sp) ""
     }
@@ -101,7 +142,7 @@ snit::type ht {
     # the level below, unless it's empty; if it's empty, the
     # body is executed.
 
-    proc pop {} {
+    method pop {} {
         if {$sp <= 0} {
             error "stack underflow"
         }
@@ -120,11 +161,11 @@ snit::type ht {
     #
     # If expr, puts then, otherwise puts else.
 
-    proc putif {expr then {else ""}} {
+    method putif {expr then {else ""}} {
         if {[uplevel 1 [list expr $expr]]} {
-            put $then
+            $self put $then
         } else {
-            put $else
+            $self put $else
         }
     }
 
@@ -140,7 +181,9 @@ snit::type ht {
     #
     # Executes the query and accumulates the results as HTML.
 
-    proc query {sql args} {
+    method query {sql args} {
+        require {$options(-rdb) ne ""} "No -rdb has been specified."
+
         # FIRST, get options.
         array set qopts {
             -labels   {}
@@ -150,49 +193,53 @@ snit::type ht {
         array set qopts $args
 
         # FIRST, begin the table
-        push
+        $self push
 
         # NEXT, if we have labels, use them.
         if {[llength $qopts(-labels)] > 0} {
-            table $qopts(-labels)
+            $self table $qopts(-labels)
         }
 
         # NEXT, get the data.  Execute the query as an uplevel,
         # so that we can use variables.
-        set ::ht::qnames {}
+        set qnames {}
 
-        uplevel 1 [list rdb eval $sql ::ht::qrow {
-            # FIRST, get the column names.
-            if {[llength $::ht::qnames] == 0} {
-                set ::ht::qnames $::ht::qrow(*)
-                unset ::ht::qrow(*)
+        uplevel 1 [list $options(-rdb) eval $sql ::projectlib::htools::qrow \
+                       [list $self QueryRow]]
 
-                if {[ht::get] eq ""} {
-                    ::ht::table $::ht::qnames
-                }
-            }
+        $self /table
 
-            ::ht::tr {
-                foreach ::ht::qname $::ht::qnames align $::ht::qopts(-align) {
-                    ::ht::td $align {
-                        ::ht::put $::ht::qrow($::ht::qname)
-                    }
-                }
-            }
-        }]
+        set table [$self pop]
 
-        /table
-
-        set table [pop]
-
-        if {[llength $::ht::qnames] == 0} {
-            putln $qopts(-default)
+        if {[llength $qnames] == 0} {
+            $self putln $qopts(-default)
         } else {
-            putln $table
+            $self putln $table
         }
     }
 
+    # QueryRow 
+    #
+    # Builds up the table results
 
+    method QueryRow {} {
+        if {[llength $qnames] == 0} {
+            set qnames $qrow(*)
+            unset qrow(*)
+
+            if {[$self get] eq ""} {
+                $self table $qnames
+            }
+        }
+
+        $self tr {
+            foreach name $qnames align $qopts(-align) {
+                $self td $align {
+                    $self put $qrow($name)
+                }
+            }
+        }
+    }
     
 
     #-------------------------------------------------------------------
@@ -207,16 +254,18 @@ snit::type ht {
     # stack.  If the body is given, it is executed and the /page
     # footer is added automatically.
 
-    proc page {title {body ""}} {
-        clear
+    method page {title {body ""}} {
+        $self clear
 
-        put <html><head>
-        putln <title>$title</title>
-        putln </head>
+        $self put <html><head>
+        $self putln <title>$title</title>
+        $self putln </head>
+
+        callwith $options(-headercmd) $title
 
         if {$body ne ""} {
             uplevel 1 $body
-            /page
+            $self /page
         }
     }
 
@@ -224,22 +273,10 @@ snit::type ht {
     #
     # Adds the standard footer boilerplate
 
-    proc /page {} {
-        putln <p>
-        putln <hr>
-        putln "<font size=2><i>"
+    method /page {} {
+        callwith $options(-footercmd)
 
-        if {[sim state] eq "PREP"} {
-            put "Scenario is unlocked."
-        } else {
-            put [format "Simulation time: Day %04d, %s." \
-                      [simclock now] [simclock asZulu]]
-        }
-
-        put [format " -- Wall Clock: %s" [clock format [clock seconds]]]
-
-        put "</i></font>"
-        putln "</body></html>"
+        $self putln "</body></html>"
     }
 
     # title title ?over? ?under?
@@ -250,38 +287,39 @@ snit::type ht {
     #
     # Formats the title in the standard way.
 
-    proc title {title {over ""} {under ""}} {
+    method title {title {over ""} {under ""}} {
         if {$over eq "" && $under eq ""} {
-            h1 $title
+            $self h1 $title
             return
         }
 
-        putln ""
+        $self putln ""
 
         if {$over ne ""} {
-            tiny $over
-            br
+            $self tiny $over
+            $self br
         }
 
-        putln "<font size=7><b>$title</b></font>"
+        $self putln "<font size=7><b>$title</b></font>"
 
         if {$under ne ""} {
-            br
-            putln $under
+            $self br
+            $self putln $under
         }
 
-        para
+        $self para
     }
 
 
-    # h1 title
+    # h1 title ?anchor?
     #
     # title  - A title string
+    # anchor - An anchor for internal hyperlinks
     #
     # Returns an HTML H1 title.
 
-    proc h1 {title} {
-        putln <h1>$title</h1>
+    method h1 {title {anchor ""}} {
+        $self HTitle 1 $title $anchor
     }
 
     # h2 title ?anchor?
@@ -291,22 +329,33 @@ snit::type ht {
     #
     # Returns an HTML H2 title.
 
-    proc h2 {title {anchor ""}} {
-        if {$anchor eq ""} {
-            putln <h2>$title</h2>
-        } else {
-            putln "<h2><a name=\"$anchor\">$title</a></h2>"
-        }
+    method h2 {title {anchor ""}} {
+        $self HTitle 2 $title $anchor
     }
 
-    # h3 title
+    # h3 title ?anchor?
     #
     # title  - A title string
+    # anchor - An anchor for internal hyperlinks
     #
     # Returns an HTML H3 title.
 
-    proc h3 {title} {
-        putln <h3>$title</h2>
+    method h3 {title {anchor ""}} {
+        $self HTitle 3 $title $anchor
+    }
+
+    # HTitle num title anchor
+    #
+    # num    - The header level
+    # title  - The title text
+    # anchor - Anchor, for internal hyperlinks
+
+    method HTitle {num title anchor} {
+        if {$anchor eq ""} {
+            $self putln <h$num>$title</h$num>
+        } else {
+            $self putln "<h$num><a name=\"$anchor\">$title</a></h$num>"
+        }
     }
 
     # linkbar linkdict
@@ -315,22 +364,22 @@ snit::type ht {
     #
     # Displays the links in a horizontal bar.
 
-    proc linkbar {linkdict} {
-        putln <hr>
+    method linkbar {linkdict} {
+        $self putln <hr>
         set count 0
 
         foreach {link label} $linkdict {
             if {$count > 0} {
-                put " | "
+               $self put " | "
             }
 
-            link \#$link $label
+            $self link \#$link $label
 
             incr count
         }
 
-        putln <hr>
-        para
+        $self putln <hr>
+        $self para
     }
 
     # tiny text
@@ -339,8 +388,8 @@ snit::type ht {
     #
     # Sets the text in tiny font.
 
-    proc tiny {text} {
-        put "<font size=2>$text</font>"
+    method tiny {text} {
+        $self put "<font size=2>$text</font>"
     }
 
     # tinyb text
@@ -349,8 +398,8 @@ snit::type ht {
     #
     # Sets the text in tiny bold.
 
-    proc tinyb {text} {
-        put "<font size=2><b>$text</b></font>"
+    method tinyb {text} {
+        $self put "<font size=2><b>$text</b></font>"
     }
 
     # tinyi text
@@ -359,8 +408,8 @@ snit::type ht {
     #
     # Puts the text in tiny italics.
 
-    proc tinyi {text} {
-        put "<font size=2><i>$text</i></font>"
+    method tinyi {text} {
+        $self put "<font size=2><i>$text</i></font>"
     }
 
     # ul ?body?
@@ -370,12 +419,12 @@ snit::type ht {
     # Begins an unordered list. If the body is given, it is executed and 
     # the </ul> is added automatically.
    
-    proc ul {{body ""}} {
-        putln <ul>
+    method ul {{body ""}} {
+        $self putln <ul>
 
         if {$body ne ""} {
             uplevel 1 $body
-            /ul
+            $self /ul
         }
     }
 
@@ -386,12 +435,12 @@ snit::type ht {
     # Begins a list item.  If the body is given, it is executed and 
     # the </li> is added automatically.
     
-    proc li {{body ""}} {
-        putln <li>
+    method li {{body ""}} {
+        $self putln <li>
 
         if {$body ne ""} {
             uplevel 1 $body
-            put </li>
+            $self put </li>
         }
     }
 
@@ -401,16 +450,16 @@ snit::type ht {
     #
     # Puts the text as a list item.    
 
-    proc li-text {text} {
-        putln <li>$text</li>
+    method li-text {text} {
+        $self putln <li>$text</li>
     }
 
     # /ul
     #
     # Ends an unordered list
     
-    proc /ul {} {
-        putln </ul>
+    method /ul {} {
+        $self putln </ul>
     }
 
     # pre ?text?
@@ -420,11 +469,11 @@ snit::type ht {
     # Begins a <pre> block.  If the text is given, it is
     # escaped for HTML and the </pre> is added automatically.
    
-    proc pre {{text ""}} {
-        putln <pre>
+    method pre {{text ""}} {
+        $self putln <pre>
         if {$text ne ""} {
-            putln [string map {& &amp; < &lt; > &gt;} $text]
-            /pre
+            $self putln [string map {& &amp; < &lt; > &gt;} $text]
+            $self /pre
         }
     }
 
@@ -432,8 +481,8 @@ snit::type ht {
     #
     # Ends a <pre> block
     
-    proc /pre {} {
-        putln </pre>
+    method /pre {} {
+        $self putln </pre>
     }
 
 
@@ -441,16 +490,16 @@ snit::type ht {
     #
     # Adds a paragraph mark.
     
-    proc para {} {
-        put <p>
+    method para {} {
+        $self put <p>
     }
 
     # br
     #
     # Adds a line break
     
-    proc br {} {
-        put <br>
+    method br {} {
+        $self put <br>
     }
 
     # link url label
@@ -460,8 +509,8 @@ snit::type ht {
     #
     # Formats and returns an HTML link.
 
-    proc link {url label} {
-        put "<a href=\"$url\">$label</a>"
+    method link {url label} {
+        $self put "<a href=\"$url\">$label</a>"
     }
 
     # linklist ?options...? links
@@ -470,11 +519,11 @@ snit::type ht {
     #
     # Options:
     #   -delim   - Delimiter; defaults to ", "
-    #   -default - String to put if list is empty; defaults to "None."
+    #   -default - String to put if list is empty; defaults to ""
     #
     # Formats and returns a list of HTML links.
 
-    proc linklist {args} {
+    method linklist {args} {
         # FIRST, get the options
         set links [lindex $args end]
         set args  [lrange $args 0 end-1]
@@ -508,9 +557,9 @@ snit::type ht {
         set result [join $list $opts(-delim)]
 
         if {$result ne ""} {
-            put $result
+            $self put $result
         } else {
-            put $opts(-default)
+            $self put $opts(-default)
         }
     }
 
@@ -524,18 +573,18 @@ snit::type ht {
     # If the body is given, it is executed and the </table> is
     # added automatically.
 
-    proc table {headers {body ""}} {
-        putln "<table border=1 cellpadding=2 cellspacing=0>"
-        putln "<tr align=left>"
+    method table {headers {body ""}} {
+        $self putln "<table border=1 cellpadding=2 cellspacing=0>"
+        $self putln "<tr align=left>"
 
         foreach header $headers {
-            put "<th align=left>$header</th>"
+            $self put "<th align=left>$header</th>"
         }
-        put </tr>
+        $self put </tr>
 
         if {$body ne ""} {
             uplevel 1 $body
-            /table
+            $self /table
         }
     }
 
@@ -546,13 +595,13 @@ snit::type ht {
     # Begins a standard table row.  If the body is included,
     # it is executed, and the </tr> is included automatically.
     
-    proc tr {{body ""}} {
-        putln "<tr valign=top>"
+    method tr {{body ""}} {
+        $self putln "<tr valign=top>"
 
         if {$body ne ""} {
             if {$body ne ""} {
                 uplevel 1 $body
-                /tr
+                $self /tr
             }
         }
     }
@@ -565,11 +614,11 @@ snit::type ht {
     # Formats a standard table item; if the body is included,
     # it is executed, and the </td> is included automatically.
     
-    proc td {{align left} {body ""}} {
-        putln "<td align=\"$align\">"
+    method td {{align left} {body ""}} {
+        $self putln "<td align=\"$align\">"
         if {$body ne ""} {
             uplevel 1 $body
-            put </td>
+            $self put </td>
         }
     }
 
@@ -577,24 +626,24 @@ snit::type ht {
     #
     # ends a standard table item
     
-    proc /td {} {
-        put </td>
+    method /td {} {
+        $self put </td>
     }
 
     # /tr
     #
     # ends a standard table row
     
-    proc /tr {} {
-        put </tr>
+    method /tr {} {
+        $self put </tr>
     }
 
     # /table
     #
     # Ends a standard table with the specified column headers
 
-    proc /table {} {
-        put </table>
+    method /table {} {
+        $self put </table>
     }
 
     # image name ?align?
@@ -604,8 +653,9 @@ snit::type ht {
     #
     # Adds an in-line <img>.
 
-    proc image {name {align ""}} {
-        put "<img src=\"/image/$name\" align=\"$align\">"
+    method image {name {align ""}} {
+        $self put "<img src=\"/image/$name\" align=\"$align\">"
     }
 }
+
 

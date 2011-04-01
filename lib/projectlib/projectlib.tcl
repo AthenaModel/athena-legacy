@@ -64,7 +64,9 @@ source [file join $::projectlib::library scenariodb.tcl     ]
 source [file join $::projectlib::library appdir.tcl         ]
 source [file join $::projectlib::library workdir.tcl        ]
 source [file join $::projectlib::library verman.tcl         ]
+source [file join $::projectlib::library htools.tcl         ]
 source [file join $::projectlib::library myagent.tcl        ]
+source [file join $::projectlib::library myserver.tcl       ]
 
 
 

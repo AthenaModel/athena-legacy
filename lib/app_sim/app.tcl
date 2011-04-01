@@ -193,6 +193,7 @@ snit::type app {
         sim       init
 
         # NEXT, register my:// servers with myagent.
+        appserver init
         myagent register app ::appserver
 
         # NEXT, define order interfaces
