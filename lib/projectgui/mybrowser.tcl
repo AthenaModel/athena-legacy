@@ -97,6 +97,7 @@ snit::widget ::projectgui::mybrowser {
     # uri         - The URI of the current page, including any anchor
     # page        - The page name from the current URI
     # anchor      - The anchor from the current URI
+    # data        - The data dict for the current page, or "".
     # history     - The history stack: a list of page refs
     # future      - The future stack: a list of page refs
     # mouseover   - Last mouse-over string
@@ -106,6 +107,7 @@ snit::widget ::projectgui::mybrowser {
         uri       ""
         page      ""
         anchor    ""
+        data      "" 
         history   {}
         future    {}
         mouseover ""
@@ -219,6 +221,10 @@ snit::widget ::projectgui::mybrowser {
         grid rowconfigure    $win 2 -weight 1
         grid columnconfigure $win 0 -weight 1
 
+        # NEXT, update the htmlviewer's clipping window's bindtags,
+        # so that users can bind mouse events to $win.
+        bindtags $hv.x [list $win {*}[bindtags $hv.x]]
+
         # NEXT, create the agent.
         install agent using myagent ${selfns}::agent \
             -contenttypes {text/html text/plain tk/image}
@@ -320,6 +326,14 @@ snit::widget ::projectgui::mybrowser {
     
     #-------------------------------------------------------------------
     # Public Methods
+
+    # data 
+    #
+    # Returns the data for the currently displayed page.
+
+    method data {} {
+        return $info(data)
+    }
 
     # sidebar
     #
@@ -448,6 +462,9 @@ snit::widget ::projectgui::mybrowser {
             $hv configure -base $url
             $hv set $content
         }
+
+        # NEXT, save the content, so that it can be queried.
+        set info(data) $result
 
         # NEXT, update idle tasks; otherwise scrolling to anchors,
         # etc., won't work.

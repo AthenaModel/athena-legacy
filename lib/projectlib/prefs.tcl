@@ -73,6 +73,15 @@ snit::type ::projectlib::prefs {
             an integer number no less than 100.
         }
 
+        $ps subset helper {
+            Names of helper applications.
+        }
+
+        $ps define helper.browser snit::stringtype "firefox" {
+            Name of web browser application, for opening pages
+            from the Detail browser.
+        }
+
         $ps subset session {
             Parameters which affect session management.
         }

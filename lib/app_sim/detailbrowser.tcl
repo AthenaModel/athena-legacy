@@ -30,12 +30,13 @@ snit::widget detailbrowser {
     component browser ;# The mybrowser(n)
     component tree    ;# The linktree(n)
     component lazy    ;# The lazyupdater(n)
+    component context ;# The context menu
 
     #--------------------------------------------------------------------
     # Constructor
 
     constructor {args} {
-        # FIRST, Install the hull
+        # FIRST, Install the browser
         install browser using mybrowser $win.browser \
             -home         my://app/                  \
             -hyperlinkcmd [mymethod WinLinkCmd]      \
@@ -71,12 +72,176 @@ snit::widget detailbrowser {
         notifier bind ::sim <Tick>    $win [mymethod reload]
         notifier bind ::rdb <Monitor> $win [mymethod reload]
 
+        # NEXT, create the browser context menu
+        bind $win.browser <3>         [mymethod MainContextMenu %X %Y]
+        bind $win.browser <Control-1> [mymethod MainContextMenu %X %Y]
+
+        set context [menu $win.context]
+
         # NEXT, schedule the first reload
         $self reload
     }
 
     destructor {
         notifier forget $win
+    }
+
+    # MainContextMenu rx ry
+    #
+    # rx,ry   - Root window coordinates.
+    #
+    # Populates and pops up the context menu.
+    
+    method MainContextMenu {rx ry} {
+        # FIRST, get the current content data
+        set data [$browser data]
+
+        # NEXT, delete any existing menu items.
+        $context delete 0 end
+
+        # NEXT, we can only deal with text/*
+        dict with data {
+            if {[string match "text/*" $contentType]} {
+                set state normal
+            } else {
+                set state disabled
+            }
+        }
+
+        # NEXT, add the relevant menu items.
+        $context add command \
+            -label "Save to Disk..."       \
+            -state $state                  \
+            -command [mymethod SaveToDisk]
+        
+        $context add command \
+            -label "View in [prefs get helper.browser]..." \
+            -state $state                                  \
+            -command [mymethod ToExternalBrowser]
+
+        $context add command \
+            -label    "View Source..."            \
+            -state    $state                      \
+            -command  [mymethod ViewSource]
+
+        # NEXT, pop it up.
+        tk_popup $win.context $rx $ry 
+    }
+
+    # ViewSource
+    #
+    # Loads the current page's HTML source into a viewer window.
+
+    method ViewSource {} {
+        # FIRST, get the data
+        set data [$browser data]
+
+        dict with data {
+            textwin .tw_%AUTO%        \
+                -title "Source: $url" \
+                -text  $content
+        }
+    }
+
+    # SaveToDisk
+    #
+    # Saves the current page to disk.
+
+    method SaveToDisk {} {
+        # FIRST, get the data.
+        set data [$browser data]
+
+        dict with data {
+            # FIRST, get the file type.
+            if {$contentType eq "text/html"} {
+                set initfile  save.html
+                set filetypes { {{HTML File} {.html}} }
+            } else {
+                set initfile  save.txt
+                set filetypes { {{Text File} {.txt}} }
+            }
+
+            # NEXT, ask for the file name.
+            set filename [tk_getSaveFile                  \
+                              -parent      [app topwin]   \
+                              -title       "Save Page As" \
+                              -initialfile $initfile      \
+                              -filetypes   $filetypes]
+
+            # NEXT, if none they cancelled.
+            if {$filename eq ""} {
+                return 0
+            }
+
+            # NEXT, Save the file
+            if {[catch {
+                $self WriteFile $filename $content
+            } result]} {
+                messagebox popup \
+                    -title    "Could Not Save Page" \
+                    -icon     error                 \
+                    -buttons  {cancel "Cancel"}     \
+                    -parent   [app topwin]          \
+                    -message  [normalize "
+                        Athena was unable to save the page to the
+                        requested file:  $result
+                    "]
+            } else {
+                app puts "Page saved to $filename"
+            }
+        }
+    }
+
+    # WriteFile filename text
+    #
+    # filename  - The filename
+    # text      - The text file
+    #
+    # Writes the text to the file.
+
+    method WriteFile {filename text} {
+        set f [open $filename w]
+
+        try {
+            puts $f $text
+        } finally {
+            close $f
+        }
+    }
+
+    # ToExternalBrowser
+    #
+    # Saves the current page to a temporary file, and hands it off to 
+    # an external browser (e.g., Firefox).
+
+    method ToExternalBrowser {} {
+        # FIRST, get the data
+        set data [$browser data]
+
+        dict with data {
+            # FIRST, get a temporary file name, and the browser name.
+            set filename [fileutil::tempfile]
+            set browser  [prefs get helper.browser]
+
+            # NEXT, Save and browse the file
+
+            if {[catch {
+                $self WriteFile $filename $content
+                exec $browser $filename &
+            } result]} {
+                messagebox popup \
+                    -title    "Could Not View Page" \
+                    -icon     error                 \
+                    -buttons  {cancel "Cancel"}     \
+                    -parent   [app topwin]          \
+                    -message  [normalize "
+                        Athena was unable to view the page in
+                        '$browser': $result
+                    "]
+                return
+            }
+
+        }
     }
 
     # WinLinkCmd url

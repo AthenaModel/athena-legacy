@@ -122,7 +122,8 @@ bin: check_env src
 		-pkgref "textutil::adjust"                  \
 		-pkgref "Plotchart"                         \
 		-pkgref "Tkhtml    -require 2.0"            \
-		-pkgref "uri"
+		-pkgref "uri"                               \
+		-pkgref "fileutil"
 
 #---------------------------------------------------------------------
 # Target: docs

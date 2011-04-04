@@ -47,8 +47,9 @@ source [file join $::projectgui::library icons.tcl           ]
 source [file join $::projectgui::library zulufield.tcl       ]
 source [file join $::projectgui::library calpatternfield.tcl ]
 source [file join $::projectgui::library entitytree.tcl      ]
-source [file join $::projectgui::library linktree.tcl         ]
-source [file join $::projectgui::library mybrowser.tcl      ]
+source [file join $::projectgui::library linktree.tcl        ]
+source [file join $::projectgui::library mybrowser.tcl       ]
+source [file join $::projectgui::library textwin.tcl         ]
 
 
 
