@@ -160,11 +160,11 @@ snit::type appserver {
             text/html [myproc html_Actor]           \
             "Detail page for actor {a}."
 
-        $server register /docs/{path}.html {(docs/[.]+\.html)} \
+        $server register /docs/{path}.html {(docs/.+\.html)} \
             text/html [myproc text_File ""]                    \
             "An HTML file in the Athena docs/ tree."
 
-        $server register /docs/{path}.txt {(docs/[.]+\.txt)} \
+        $server register /docs/{path}.txt {(docs/.+\.txt)} \
             text/plain [myproc text_File ""]                 \
             "A .txt file in the Athena docs/ tree."
 
@@ -318,7 +318,7 @@ snit::type appserver {
     proc text_File {base url matchArray} {
         upvar 1 $matchArray ""
 
-        set fullname [appdir join $base $(1)]
+        set fullname [GetAppDirFile $base $(1)]
 
         if {[catch {
             set content [readfile $fullname]
@@ -343,7 +343,7 @@ snit::type appserver {
     proc image_File {base url matchArray} {
         upvar 1 $matchArray ""
 
-        set fullname [appdir join $base $(1)]
+        set fullname [GetAppDirFile $base $(1)]
 
         # FIRST, see if we have it cached.
         if {[info exists imageCache($url)]} {
@@ -373,6 +373,25 @@ snit::type appserver {
         set imageCache($url) [list $img $mtime]
 
         return $img
+    }
+
+    # GetAppDirFile base file
+    #
+    # base    - A base directory within the appdir
+    # file    - A file at a relative path within the base directory.
+    #
+    # Gets the full, normalized file name, and verifies that it's
+    # within the appdir.
+
+    proc GetAppDirFile {base file} {
+        set fullname [file normalize [appdir join $base $file]]
+
+        if {[string first [appdir join] $fullname] != 0} {
+            return -code error -errorcode NOTFOUND \
+                "Page could not be found: $file"
+        }
+
+        return $fullname
     }
 
     #-------------------------------------------------------------------

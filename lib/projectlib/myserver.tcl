@@ -214,7 +214,7 @@ snit::type ::projectlib::myserver {
 
     method get {url {contentTypes ""}} {
         # FIRST, parse the URL.  We will ignore the scheme and host.
-        array set u [uri::split [string tolower $url]]
+        array set u [uri::split $url]
 
         # NEXT, determine the resource type
         set rtype [$self GetResourceType $u(path) match]
@@ -275,7 +275,7 @@ snit::type ::projectlib::myserver {
             # FIRST, does it match?
             set pattern [dict get $rdict pattern]
 
-            set matched [regexp ^$pattern$ $url \
+            set matched [regexp ^$pattern\$ $url \
                              match(0) match(1) match(2) match(3) match(4)  \
                              match(5) match(6) match(7) match(8) match(9)]
 
