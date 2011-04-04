@@ -11,6 +11,28 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.13, 4 April 2011</h3>
+
+This package contains a number of bug fixes, additional work on the
+new appserver infrastructure, and the first implementation of the
+Actor Support and Neighborhood Control portions of the Politics model.<p>
+
+<ul>
+  <li> Bug 2872: athena_sim(1): Support and Control, Part I
+  <li> Bug 2874: athena_sim(1): -script command-line option
+  <li> Bug 2887: athena_sim(1): appserver content, part II
+  <li> Bug 2889: athena_sim(1): Update Detail browser on database change
+  <li> Bug 2891: athena_sim(1): Support and Control, Part II
+  <li> Bug 2892: BforA Affinities Don't Sort
+  <li> Bug 2894: athena sim -dev bgerror
+  <li> Bug 2895: Changing Tabs
+  <li> Bug 2896: Detail Browser Home Page Error
+  <li> Bug 2899: athena_sim(1): Support and Control, Part III
+  <li> Bug 2900: athena_sim(1): Support and Control, Part IV
+  <li> Bug 2902: athena_sim(1): Support links to win:/ URIs
+  <li> Bug 2904: myserver(n), htools(n): Server Tools 
+</ul><p>
+
 <h3>Build 3.0.12, 28 March 2011</h3>
 
 This build includes two significant GUI changes.  First, the main
