@@ -146,7 +146,8 @@ snit::type actor {
 
     typemethod {mutate delete} {a} {
         # FIRST, get the undo information
-        set gdata [rdb grab frcgroups {a=$a} orggroups {a=$a}]
+        set gdata [rdb grab groups \
+                       {rel_entity=$a} frcgroups {a=$a} orggroups {a=$a}]
         
         set adata [rdb delete -grab actors {a=$a}]
 
