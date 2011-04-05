@@ -477,13 +477,6 @@ snit::widget bsystembrowser {
             # NEXT, configure the window command for the cell.
             $blist cellconfigure $rc \
                 -window [mymethod BListCreateEditor]
-
-            # NEXT, set the window's state
-            set cwin [$blist windowpath $rc]
-
-            if {[sim state] ne "PREP"} {
-                $cwin configure -state disabled
-            }
         }
     }
 
