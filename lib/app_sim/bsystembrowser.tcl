@@ -279,13 +279,13 @@ snit::widget bsystembrowser {
         $tlist cellconfigure $rc \
             -window [mymethod TListCreateEditor]
 
+        set rc $r,[$tlist cname2cindex title]
+
+        $tlist cellconfigure $rc \
+            -editable [expr {[sim state] eq "PREP"}]
+
+
         set cwin [$tlist windowpath $rc]
-
-        if {[sim state] ne "PREP"} {
-            $cwin configure -state disabled
-        }
-
-        $cwin set [$tlist cellcget $rc -text] -silent
     }
 
     # TListCreateEditor tbl r c w
@@ -299,12 +299,21 @@ snit::widget bsystembrowser {
 
     method TListCreateEditor {tbl r c w} {
         # Create the field widget, and give it its initial value.
+        if {[sim state] eq "PREP"} {
+            set state normal
+        } else {
+            set state disabled
+        }
+
         ::marsgui::enumfield $w \
+            -state       $state                          \
             -enumtype    ::bsystembrowser::erelevance    \
             -displaylong yes                             \
             -width       5                               \
             -font        [$tbl cget -font]               \
             -changecmd   [mymethod TListTopicChanged $r]
+
+        $w set [$tlist cellcget $r,$c -text] -silent
     }
 
 
@@ -469,14 +478,12 @@ snit::widget bsystembrowser {
             $blist cellconfigure $rc \
                 -window [mymethod BListCreateEditor]
 
-            # NEXT, set the window's state and value
+            # NEXT, set the window's state
             set cwin [$blist windowpath $rc]
 
             if {[sim state] ne "PREP"} {
                 $cwin configure -state disabled
             }
-
-            $cwin set [$blist cellcget $rc -text] -silent
         }
     }
 
@@ -500,12 +507,22 @@ snit::widget bsystembrowser {
             set width 15
         }
 
+        if {[sim state] eq "PREP"} {
+            set state normal
+        } else {
+            set state disabled
+        }
+
         ::marsgui::enumfield $w   \
+            -state       $state                               \
             -enumtype    $wintype                             \
             -displaylong yes                                  \
             -width       $width                               \
             -font        [$tbl cget -font]                    \
             -changecmd   [mymethod BListChanged $r $cname]
+
+
+        $w set [$blist cellcget $r,$c -text] -silent
     }
 
 
