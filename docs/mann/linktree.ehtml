@@ -38,6 +38,12 @@ whenever the selected entity changes, for any reason whatsoever
 (including explicit calls to <<iref set>>.  The newly selected
 entity's name is appended to the <i>command</i> as an argument.<p>
 
+<<defopt {-errorcmd <i>command</i>}>>
+
+Specifies a <i>command</i> to be called with one argument, an
+error message, if the widget catches an error while retrieving the
+<code>-url</code> or one of its subsidiary links.<p>
+
 <<defopt {-url <i>url</i>}>>
 
 Specifies the URL at which the widget can retrieve a

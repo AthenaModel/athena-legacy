@@ -50,7 +50,8 @@ snit::widget detailbrowser {
             -url       my://app/entitytype        \
             -width     150                        \
             -height    400                        \
-            -changecmd [mymethod ShowLink]
+            -changecmd [mymethod ShowLink]        \
+            -errorcmd  [list log warning detailb]
 
         pack $tree -fill both -expand yes
 

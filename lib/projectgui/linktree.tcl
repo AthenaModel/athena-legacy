@@ -46,6 +46,13 @@ snit::widget ::projectgui::linktree {
 
     option -changecmd
 
+    # -errorcmd
+    #
+    # Called if there's an error with the -url.  Takes one argument,
+    # a string.
+
+    option -errorcmd
+
 
     #-------------------------------------------------------------------
     # Components
@@ -190,13 +197,27 @@ snit::widget ::projectgui::linktree {
             array unset id2uri
 
             # NEXT, get the entity types
-            set result [$agent get $options(-url)]
+            if {[catch {
+                $agent get $options(-url)
+            } result]} {
+                callwith $options(-errorcmd) \
+                    "Error getting \"$options(-url)\": $result"
+                return
+            }
+
             set info(etypes) [dict get $result content]
 
             # NEXT, add entities
             dict for {t tdict} $info(etypes) {
                 set pid    [$self DrawEntityType $t $tdict]
-                set result [$agent get $t] 
+
+                if {[catch {
+                    $agent get $t
+                } result]} {
+                    callwith $options(-errorcmd) \
+                        "Error getting \"$options(-url)\": $result"
+                    continue
+                }
 
                 dict with result {
                     dict for {uri edict} $content {
