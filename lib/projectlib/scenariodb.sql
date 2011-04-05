@@ -279,15 +279,26 @@ SELECT * FROM groups JOIN orggroups USING (g);
 
 CREATE TABLE vrel_ga (
     -- Symbolic group name
-    g         TEXT REFERENCES groups(g)
-              DEFERRABLE INITIALLY DEFERRED,
+    g           TEXT REFERENCES groups(g)
+                DEFERRABLE INITIALLY DEFERRED,
 
     -- Symbolic actor name
-    a         TEXT REFERENCES actors(a)
-              DEFERRABLE INITIALLY DEFERRED,
+    a           TEXT REFERENCES actors(a)
+                DEFERRABLE INITIALLY DEFERRED,
+
+    -- Tick of bvrel_tga entry used to compute vrel
+    bvt         INTEGER DEFAULT 0,
 
     -- Vertical Relationship of g with a
-    vrel      REAL DEFAULT 0.0,
+    vrel        REAL DEFAULT 0.0,
+
+    -- Deltas to vrel: qmag(n) symbols, or 0.  This is for
+    -- visualization purposes.
+
+    dv_beliefs  TEXT DEFAULT '0', -- deltaV due to changed beliefs
+    dv_mood     TEXT DEFAULT '0', -- deltaV due to group mood
+    dv_services TEXT DEFAULT '0', -- deltaV due to basic services
+    dv_tactics  TEXT DEFAULT '0', -- deltaV due actor's choice of tactics
 
     PRIMARY KEY (g, a)
 );
@@ -296,18 +307,21 @@ CREATE TABLE vrel_ga (
 
 CREATE TABLE bvrel_tga (
     -- Time of shift of control in g's neighborhood
-    t       INTEGER,
+    t                 INTEGER,
 
     -- Symbolic group name
-    g       TEXT REFERENCES groups(g)
-            DEFERRABLE INITIALLY DEFERRED,
+    g           TEXT REFERENCES groups(g)
+                DEFERRABLE INITIALLY DEFERRED,
 
     -- Symbolic actor name
-    a       TEXT REFERENCES actors(a)
-            DEFERRABLE INITIALLY DEFERRED,
+    a           TEXT REFERENCES actors(a)
+                DEFERRABLE INITIALLY DEFERRED,
 
     -- Base Vertical Relationship of g with a
-    bvrel   REAL DEFAULT 0.0,
+    bvrel       REAL DEFAULT 0.0,
+
+    -- Delta due to change of control: qmag(n) symbol, or 0
+    dv_control  TEXT DEFAULT '0',
 
     PRIMARY KEY (t, g, a)
 );

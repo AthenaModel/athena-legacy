@@ -206,7 +206,7 @@ snit::type control {
     #
     # vrel.ga = bvrel.ga 
     #         + deltaV.beliefs           <== Not yet pertinent
-    #         + deltaV.mood 
+    #         + deltaV.mood              <== Implemented
     #         + deltaV.services          <== Modeling in progress
     #         + deltaV.tactics           <== Not yet modeled
     #
@@ -222,11 +222,12 @@ snit::type control {
     # TBD: Refactor for analysis! /vrel/{g}/{a}?
     
     typemethod ComputeVerticalRelationships {} {
-        foreach {g n a bvrel inControl moodNow moodThen} [rdb eval {
+        foreach {g n a bvrel bvt inControl moodNow moodThen} [rdb eval {
             SELECT G.g                               AS g,
                    G.n                               AS n,
                    A.a                               AS a,
                    B.bvrel                           AS bvrel,
+                   B.t                               AS bvt,
                    CASE WHEN (C.controller = A.a)
                         THEN 1 ELSE 0 END            AS inControl,
                    GG.sat                            AS moodNow,
@@ -247,25 +248,27 @@ snit::type control {
 
             # Look up the magnitude in the table
             if {$moodDiff > $better} {
-                set deltaVmood [qmag value $moodTable(1,$inControl)]
+                set dvMood $moodTable(1,$inControl)
             } elseif {$moodDiff < $worse} {
-                set deltaVmood [qmag value $moodTable(-1,$inControl)]
+                set dvMood $moodTable(-1,$inControl)
             } else {
-                set deltaVmood [qmag value $moodTable(0,$inControl)]
+                set dvMood $moodTable(0,$inControl)
             }
 
             # NEXT, accumulate, scale,and apply the deltaV's.
-            let vrel [scale $bvrel $deltaVmood]
+            let vrel [scale $bvrel [qmag value $dvMood]]
 
             rdb eval {
                 UPDATE vrel_ga
-                SET vrel = $vrel
+                SET vrel    = $vrel,
+                    bvt     = $bvt,
+                    dv_mood = $dvMood
                 WHERE g=$g AND a=$a
             }
 
             log detail control \
-                [format "vrel(%s,%s) = %.3f; bv = %.3f, dVmood=%.1f" \
-                     $g $a $vrel $bvrel $deltaVmood]
+                [format "vrel(%s,%s) = %.3f; bv = %.3f, dvMood=%s" \
+                     $g $a $vrel $bvrel $dvMood]
         }
     }
 
@@ -482,8 +485,8 @@ snit::type control {
             log detail control "bvrel.$g,$a = $bvrel ($vrel + $mag)"
 
             rdb eval {
-                INSERT INTO bvrel_tga(t, g, a, bvrel)
-                VALUES(now(), $g, $a, $bvrel)
+                INSERT INTO bvrel_tga(t, g, a, bvrel,dv_control)
+                VALUES(now(), $g, $a, $bvrel, $mag)
             }
         }
         

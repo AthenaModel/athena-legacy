@@ -196,10 +196,13 @@ snit::type appserver {
                 (civ, frc, or org).
             }
 
-
         $server register /group/{g} {group/(\w+)/?} \
             text/html [myproc html_Group]           \
             "Detail page for group {g}."
+
+        $server register /group/{g}/vrel {group/(\w+)/vrel} \
+            text/html [myproc html_GroupVrel]       \
+            "Analysis of Vertical Relationships for group {g}."
 
         $server register /image/{name} {image/(.+)} \
             tk/image [myproc image_TkImage]         \
@@ -1245,7 +1248,6 @@ snit::type appserver {
             ORG     { return [html_GroupOrg $url $g] }
             default { error "Unknown group type."    }
         }
-
     }
 
     # html_GroupCiv url g
@@ -1262,7 +1264,7 @@ snit::type appserver {
 
         # NEXT, begin the page.
         ht page "Civilian Group: $g"
-        ht title "$data(longname) ($g)" "Civilian Group" 
+        ht title "$data(longname) ($g)" "Civilian Group" "Summary"
 
         ht linkbar {
             actors  "Relationships with Actors"
@@ -1299,7 +1301,7 @@ snit::type appserver {
             ht put [commafmt $data(basepop)]
         }
 
-        ht put "."
+        ht put "."        
 
         ht putln "The group's demeanor is "
         ht put   [edemeanor longname $data(demeanor)].
@@ -1375,14 +1377,22 @@ snit::type appserver {
         
         ht h2 "Relationships with Actors" actors
 
+        ht putln ""
+        ht link /group/$g/vrel "Analysis"
+        ht br
+
         ht query {
-            SELECT link('/actor/' || a, pair(longname, a)) AS 'Actor',
-                   qaffinity('format',vrel)                AS 'Vert. Rel.',
+            SELECT link('/actor/' || a, pair(longname, a)),
+                   qaffinity('format',vrel),
                    g || ' ' || qaffinity('longname',vrel) 
-                     || ' ' || a                           AS 'Narrative'
+                     || ' ' || a
             FROM vrel_ga JOIN actors USING (a)
             WHERE g=$g
             ORDER BY vrel DESC
+        } -labels {
+            "Actor"
+            "Vertical<br>Rel."
+            "Narrative"
         } -align {left right left}
         
         ht h2 "Friend and Enemies" rel
@@ -1490,6 +1500,200 @@ snit::type appserver {
 
         return [ht get]
     }
+
+    # html_GroupVrel url matchArray
+    #
+    # url        - The URL that was requested
+    # matchArray - Array of matches from the URL
+    #
+    # Formats the analysis page for /group/{g}/vrel.
+
+    proc html_GroupVrel {url matchArray} {
+        upvar 1 $matchArray ""
+
+        # Get the group
+        set g [string toupper $(1)]
+
+        if {![rdb exists {SELECT * FROM groups WHERE g=$g}]} {
+            return -code error -errorcode NOTFOUND \
+                "Unknown entity: $url."
+        }
+
+        # Next, what kind of group is it?
+        set gtype [group gtype $g]
+
+        switch $gtype {
+            CIV     { return [html_GroupCivVrel   $url $g] }
+            FRC     { return [html_GroupOtherVrel $url $g] }
+            ORG     { return [html_GroupOtherVrel $url $g] }
+            default { error "Unknown group type."          }
+        }
+    }
+
+    # html_GroupCivVrel url g
+    #
+    # url        - The URL that was requested
+    # g          - The group
+    #
+    # Formats the vrel analysis page for civilian /group/{g}.
+
+    proc html_GroupCivVrel {url g} {
+        # FIRST,  get the data about this group
+        rdb eval {SELECT * FROM gui_civgroups WHERE g=$g} data {}
+
+        # NEXT, begin the page.
+        ht page "Vertical Relationships: $g"
+        ht title $data(longlink) "Civilian Group" \
+            "Analysis: Vertical Relationships"
+
+        # NEXT, what we do depends on whether the simulation is locked
+        # or not.
+        if {![Locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, Analysis of vertical relationships
+
+        ht putln "
+            The vertical relationship <i>V.ga</i> between
+            civilian group $g and actor <i>a</i> varies over
+            time according to a number of factors: mood, level of basic
+            services, etc.  These factors are described following the
+            table.
+        "
+
+        ht para
+
+        ht query {
+            SELECT A.link,
+                   qaffinity('format',V.vrel),
+                   qaffinity('format',B.bvrel),
+                   V.dv_mood,
+                   V.dv_services
+            FROM vrel_ga AS V
+            JOIN gui_actors AS A USING (a)
+            JOIN bvrel_tga AS B ON (B.t=V.bvt AND B.g=V.g AND B.a=V.a)
+            WHERE V.g=$g
+            ORDER BY vrel DESC
+        } -labels {
+            "Actor a"
+            "V.ga"
+            "= BV.ga(t.control)"
+            "+ Delta V,<br>Mood"
+            "+ Delta V,<br>Services"
+        } -align {left right right right right}
+
+        ht h2 "Description"
+
+        ht putln "
+            The vertical relationship <i>V.ga</i> is recomputed
+            every [parm get strategy.ticksPerTock] days.  Initially
+            it depends on group <i>g</i>'s affinity for actor <i>a</i>,
+            as determined by their belief systems.  It is affected over
+            time by a number of factors.
+        "
+        ht para
+
+        ht putln {
+            At any given time, <i>V.ga</i> is computed as a base
+            vertical relationship plus a number of deltas.
+            The base value, <i>BV.ga</i>, is set when control of
+            <i>g</i>'s neighborhood shifts; it depends on whether
+            actor <i>a</i> was in control before or after the 
+            transition.
+        }
+
+        ht para
+
+        ht putln {
+            The remaining terms depend on group <i>g</i>'s environment
+            at the time of assessment.  The deltas as expressed as
+            magnitude symbols (TBD: Need link to on-line help.)
+        }
+
+        ht putln <dl>
+        ht putln "<dt><b>Delta V, Mood</b>"
+        ht putln <dd>
+        ht put {
+            Non-zero if <i>g's</i> mood has changed signficantly since
+            the last shift in control.
+        }
+        ht para
+        ht putln "<dt><b>Delta V, Services</b>"
+        ht putln <dd>
+        ht put {
+            Non-zero if the level of basic services in the neighborhood
+            is bettor or worse than expected.
+        }
+        ht putln </dl>
+        
+        ht /page
+
+        return [ht get]
+    }
+
+    # html_GroupOtherVrel url g
+    #
+    # url        - The URL that was requested
+    # g          - The group
+    #
+    # Formats the vrel analysis page for non-civilian /group/{g}.
+
+    proc html_GroupOtherVrel {url g} {
+        # FIRST,  get the data about this group
+        rdb eval {SELECT * FROM gui_groups WHERE g=$g} data {}
+
+        # NEXT, begin the page.
+        ht page "Vertical Relationships: $g"
+
+        if {$data(gtype) eq "FRC"} {
+            set over "Force Group"
+        } else {
+            set over "Organization Group"
+        }
+
+        ht title $data(longlink) $over \
+            "Analysis: Vertical Relationships"
+
+        # NEXT, what we do depends on whether the simulation is locked
+        # or not.
+        if {![Locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, Analysis of vertical relationships
+
+        ht putln "
+            Force and organization groups inherit their relationships
+            from the actors that own them.  Consequently, the vertical
+            relationship <i>V.ga</i> between group $g and its owning actor 
+            is 1.0; and its vertical relationship with every other actor
+            is simply the affinity of its owning actor for the other
+            actor based on their belief systems.
+        "
+
+        ht para
+
+        ht query {
+            SELECT A.link,
+                   qaffinity('format',V.vrel)
+            FROM vrel_ga AS V
+            JOIN gui_actors AS A USING (a)
+            WHERE V.g=$g
+            ORDER BY V.vrel DESC
+        } -labels {
+            "Actor a"
+            "V.ga"
+        } -align {left right}
+
+        
+        ht /page
+
+        return [ht get]
+    }
+
 
     #-------------------------------------------------------------------
     # Boilerplate
