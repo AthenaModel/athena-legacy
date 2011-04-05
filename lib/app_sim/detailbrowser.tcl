@@ -39,7 +39,7 @@ snit::widget detailbrowser {
         # FIRST, Install the browser
         install browser using mybrowser $win.browser \
             -home         my://app/                  \
-            -hyperlinkcmd [mymethod WinLinkCmd]      \
+            -hyperlinkcmd [mymethod GuiLinkCmd]      \
             -messagecmd   {app puts}
 
         # NEXT, create the sidebar.
@@ -245,14 +245,14 @@ snit::widget detailbrowser {
         }
     }
 
-    # WinLinkCmd url
+    # GuiLinkCmd url
     #
     # url - A URL with a scheme other than "my:".
     #
     # Checks the URL scheme; if it's known, passes it to 
     # "app show".  Otherwise, lets mybrowser handle it.
 
-    method WinLinkCmd {url} {
+    method GuiLinkCmd {url} {
         # FIRST, get its scheme
         if {[catch {
             array set parts [uri::split $url]
@@ -260,7 +260,7 @@ snit::widget detailbrowser {
             return 0
         }
 
-        if {$parts(scheme) ne "win"} {
+        if {$parts(scheme) ne "gui"} {
             return 0
         }
 

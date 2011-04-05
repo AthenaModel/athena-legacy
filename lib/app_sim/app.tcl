@@ -699,12 +699,12 @@ snit::type app {
     #
     # uri - A URI for some application resource
     #
-    # Shows the URI in some way.  If it's a "win:" URI, tries to
+    # Shows the URI in some way.  If it's a "gui:" URI, tries to
     # display it as a tab or order dialog.  Otherwise, it passes it
     # to the Detail browser.
 
     typemethod show {uri} {
-        # FIRST, get the scheme.  If it's not a win:, punt to 
+        # FIRST, get the scheme.  If it's not a gui:, punt to 
         # the Detail browser.
 
         if {[catch {
@@ -714,19 +714,19 @@ snit::type app {
             $type ShowInDetailBrowser $uri
         }
 
-        # NEXT, if the scheme isn't "win", show in detail browser.
-        if {$parts(scheme) ne "win"} {
+        # NEXT, if the scheme isn't "gui", show in detail browser.
+        if {$parts(scheme) ne "gui"} {
             $type ShowInDetailBrowser $uri
         }
 
-        # NEXT, what kind of "win" url is it?
+        # NEXT, what kind of "gui" url is it?
 
         if {[regexp {^tab/(\w+)$} $parts(path) dummy tab]} {
             if {[.main tab exists $tab]} {
                 .main tab view $tab
             } else {
                 # Punt
-                $type WinUrlError $uri "No such application tab"
+                $type GuiUrlError $uri "No such application tab"
             }
             return
         }
@@ -740,17 +740,17 @@ snit::type app {
                 if {[catch {
                     order enter $order {*}$parms
                 } result]} {
-                    $type WinUrlError $uri $result
+                    $type GuiUrlError $uri $result
                 }
             } else {
                 # Punt
-                $type WinUrlError $uri "No such order"
+                $type GuiUrlError $uri "No such order"
             }
             return
         }
 
         # NEXT, unknown kind of win; punt to normal error handling.
-        $type WinUrlError $uri "No such window"
+        $type GuiUrlError $uri "No such window"
     }
 
     # ShowInDetailBrowser uri
@@ -764,21 +764,21 @@ snit::type app {
         .main tab view detail
     }
 
-    # WinUrlError uri message
+    # GuiUrlError uri message
     #
     # uri     - A URI for a window we don't have.
     # message - A specific error message
     #
     # Shows an error.
 
-    typemethod WinUrlError {uri message} {
+    typemethod GuiUrlError {uri message} {
         app error {
             |<--
             Error in URI:
             
             $uri
 
-            The requested window URL cannot be displayed by the application:
+            The requested gui:// URL cannot be displayed by the application:
 
             $message
         }
