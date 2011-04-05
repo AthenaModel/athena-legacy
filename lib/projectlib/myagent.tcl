@@ -210,7 +210,7 @@ snit::type ::projectlib::myagent {
         # NEXT, do the query
         set finalURL [uri::canonicalize [uri::join {*}[array get fields]]]
 
-        return [$servers($fields(host)) get \
+        return [{*}$servers($fields(host)) get \
                     $finalURL $options(-contenttypes)]
 
         return $result
