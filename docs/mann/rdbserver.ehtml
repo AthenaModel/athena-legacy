@@ -58,10 +58,10 @@ Displays the content of the table or view called <i>name</i> in
 tabular form.  This resource accepts a query string of the form<p>
 
 <pre>
-    <i>name=value</i>?+<i>name=value</i>...?
+    <i>column=value</i>?+<i>column=value</i>...?
 </pre>
 
-where <i>name</i> is a column name in the table or view.  The query
+where <i>column</i> is a column name in the table or view.  The query
 will return all rows for which the columns have the specified values.
 Note that the values may be wildcard patterns.  Query values are
 case-sensitive.<p>

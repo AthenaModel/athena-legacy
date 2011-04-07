@@ -116,7 +116,7 @@ snit::type ::projectlib::rdbserver {
                 is the name of a column within the table or view, and
                 the {value} is a wildcard-pattern to be matched.  E.g.,
                 "/content/mytable?c1=*FOO*+c2=*BAR*" will display all rows
-                where column "c1"'s value contains "FOO" and column "c2"'s 
+                where column c1's value contains "FOO" and column c2's 
                 value contains "BAR".  Queries are case-sensitive.
             }
 
