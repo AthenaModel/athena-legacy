@@ -53,9 +53,9 @@ snit::type ::projectlib::myserver {
     # ctypes  - A dictionary of content types and handlers.  The
     #           first content type is the preferred type used when no
     #           type is requested.  The handler is a command that takes
-    #           two additional arguments, the URL given to the server,
-    #           and an array to received pattern matches from the
-    #           regexp into values "1", "2", and "3".
+    #           two additional arguments, the components of the URL 
+    #           given to the server, and an array to received pattern 
+    #           matches from the regexp into values "0" through "9"
     # doc     - A documentation string for the resource type.  Note
     #           that "{" and "}" in resource types and doc strings
     #           are converted to "<i>" and "</i>" when displayed as
@@ -93,9 +93,9 @@ snit::type ::projectlib::myserver {
             text/html [mymethod html_UrlHelp] \
             "Complete URL schema for this server."
 
-        $self register /urlhelp/{url} {urlhelp/(.+)} \
+        $self register /urlhelp/{path} {urlhelp/(.+)} \
             text/html [mymethod html_UrlHelp]        \
-            "Help for URL {url}."
+            "Help for resource {path}."
     }
 
     # FooterCmd
@@ -189,7 +189,7 @@ snit::type ::projectlib::myserver {
     # Returns a list of the content types for each resource type.
 
     method ctypes {rtype} {
-        return [dict keys [dict get $rinfo $rtype ctype]]
+        return [dict keys [dict get $rinfo $rtype ctypes]]
     }
 
     # get url ?contentTypes?
@@ -214,10 +214,13 @@ snit::type ::projectlib::myserver {
 
     method get {url {contentTypes ""}} {
         # FIRST, parse the URL.  We will ignore the scheme and host.
-        array set u [uri::split $url]
+        set u [uri::split $url]
+
+        # NEXT, save the entire URL back in.
+        dict set u url $url
 
         # NEXT, determine the resource type
-        set rtype [$self GetResourceType $u(path) match]
+        set rtype [$self GetResourceType [dict get $u path] match]
 
         # NEXT, strip any trailing "/" from the URL
         set url [string trimright $url "/"]
@@ -248,7 +251,7 @@ snit::type ::projectlib::myserver {
 
         return [dict create \
                     url         $url                     \
-                    content     [{*}$handler $url match] \
+                    content     [{*}$handler $u match] \
                     contentType $contentType]
     }
 
@@ -300,16 +303,16 @@ snit::type ::projectlib::myserver {
     #-------------------------------------------------------------------
     # Server Introspection
 
-    # html_UrlHelp url matchArray
+    # html_UrlHelp udict matchArray
     #
-    # url        - The /urlhelp URL
+    # udict      - The /urlhelp URL dictionary
     # matchArray - Array of pattern matches
     # 
     # Produces an HTML page detailing one or all of the URLs
     # understood by this server.  Match parm (1) is either empty
     # or a URL for which help is requested.
 
-    method html_UrlHelp {url matchArray} {
+    method html_UrlHelp {udict matchArray} {
         upvar 1 $matchArray ""
 
         # FIRST, get the list of rtypes to document.

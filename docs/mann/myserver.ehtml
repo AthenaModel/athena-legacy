@@ -144,7 +144,10 @@ types containing Tcl-formatted data, use content type names like
 application should document all custom content types.<p>
 
 The <i>handler</i> should be a command prefix taking two additional
-arguments, the URL used to query the resource and the name of an
+arguments, the <i>udict</i> and the <i>matchArray</i>.  The
+<i>udict</i> is a dictionary of URL components for the URL used to query
+the resource, as returned by <code>uri::split</code>, with the entire
+<b>url</b> added.  The <i>matchArray</i> is the name of an 
 array of pattern matches with indices 0 through 9.  Match 0 is the
 entire path component of the URL; matchs 1 through 9 are submatches,
 as determined by parentheses in the <i>pattern</i>.<p>

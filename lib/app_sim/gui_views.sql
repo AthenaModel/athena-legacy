@@ -17,46 +17,46 @@
 
 -- An Actors view for use by the GUI
 CREATE TEMPORARY VIEW gui_actors AS
-SELECT a                                         AS id,
-       a                                         AS a,
-       '/actor/' || a                            AS url,
-       pair(longname, a)                         AS fancy,
-       link('/actor/' || a, a)                   AS link,
-       link('/actor/' || a, pair(longname, a))   AS longlink,
-       longname                                  AS longname,
-       moneyfmt(income)                          AS income,
-       moneyfmt(cash)                            AS cash
+SELECT a                                               AS id,
+       a                                               AS a,
+       'my://app/actor/' || a                          AS url,
+       pair(longname, a)                               AS fancy,
+       link('my://app/actor/' || a, a)                 AS link,
+       link('my://app/actor/' || a, pair(longname, a)) AS longlink,
+       longname                                        AS longname,
+       moneyfmt(income)                                AS income,
+       moneyfmt(cash)                                  AS cash
 FROM actors;
 
 -- A nbhoods view for use by the GUI
 CREATE TEMPORARY VIEW gui_nbhoods AS
-SELECT N.n                                                AS id,
-       N.n                                                AS n,
-       '/nbhood/' || N.n                                  AS url,
-       pair(N.longname, N.n)                              AS fancy,
-       link('/nbhood/' || N.n, N.n)                       AS link,
-       link('/nbhood/' || N.n, pair(N.longname, N.n))     AS longlink,
-       N.longname                                         AS longname,
-       CASE N.local WHEN 1 THEN 'YES' ELSE 'NO' END       AS local,
-       N.urbanization                                     AS urbanization,
-       COALESCE(C.controller,N.controller, 'NONE')        AS controller,
-       COALESCE(C.since, 0)                               AS since_ticks,
-       tozulu(COALESCE(C.since, 0))                       AS since,
-       format('%4.1f',N.vtygain)                          AS vtygain,
-       N.stacking_order                                   AS stacking_order,
-       N.obscured_by                                      AS obscured_by,
-       m2ref(N.refpoint)                                  AS refpoint,
-       m2ref(N.polygon)                                   AS polygon,
-       COALESCE(F.volatility,0)                           AS volatility,
-       COALESCE(D.displaced,0)                            AS displaced,
-       COALESCE(D.displaced_labor_force,0)                AS dlf,
-       COALESCE(D.population,0)                           AS population,
-       COALESCE(D.subsistence,0)                          AS subsistence,
-       COALESCE(D.consumers,0)                            AS consumers,
-       COALESCE(D.labor_force,0)                          AS labor_force,
-       COALESCE(D.unemployed,0)                           AS unemployed,
-       format('%.3f',COALESCE(GR.sat0, 0.0))              AS mood0,
-       format('%.3f',COALESCE(GR.sat, 0.0))               AS mood
+SELECT N.n                                                    AS id,
+       N.n                                                    AS n,
+       'my://app/nbhood/' || N.n                              AS url,
+       pair(N.longname, N.n)                                  AS fancy,
+       link('my://app/nbhood/' || N.n, N.n)                   AS link,
+       link('my://app/nbhood/' || N.n, pair(N.longname, N.n)) AS longlink,
+       N.longname                                             AS longname,
+       CASE N.local WHEN 1 THEN 'YES' ELSE 'NO' END           AS local,
+       N.urbanization                                         AS urbanization,
+       COALESCE(C.controller,N.controller, 'NONE')            AS controller,
+       COALESCE(C.since, 0)                                   AS since_ticks,
+       tozulu(COALESCE(C.since, 0))                           AS since,
+       format('%4.1f',N.vtygain)                              AS vtygain,
+       N.stacking_order                                      AS stacking_order,
+       N.obscured_by                                          AS obscured_by,
+       m2ref(N.refpoint)                                      AS refpoint,
+       m2ref(N.polygon)                                       AS polygon,
+       COALESCE(F.volatility,0)                               AS volatility,
+       COALESCE(D.displaced,0)                                AS displaced,
+       COALESCE(D.displaced_labor_force,0)                    AS dlf,
+       COALESCE(D.population,0)                               AS population,
+       COALESCE(D.subsistence,0)                              AS subsistence,
+       COALESCE(D.consumers,0)                                AS consumers,
+       COALESCE(D.labor_force,0)                              AS labor_force,
+       COALESCE(D.unemployed,0)                               AS unemployed,
+       format('%.3f',COALESCE(GR.sat0, 0.0))                  AS mood0,
+       format('%.3f',COALESCE(GR.sat, 0.0))                   AS mood
 FROM nbhoods              AS N
 JOIN demog_n              AS D  USING (n)
 LEFT OUTER JOIN force_n   AS F  USING (n)
@@ -65,17 +65,17 @@ LEFT OUTER JOIN control_n AS C  USING (n);
 
 -- A Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_groups AS
-SELECT g                                         AS id,
-       g                                         AS g,
-       '/group/' || g                            AS url,
-       pair(longname, g)                         AS fancy,
-       link('/group/' || g, g)                   AS link,
-       link('/group/' || g, pair(longname, g))   AS longlink,
-       gtype                                     AS gtype,
-       longname                                  AS longname,
-       color                                     AS color,
-       shape                                     AS shape,
-       demeanor                                  AS demeanor
+SELECT g                                               AS id,
+       g                                               AS g,
+       'my://app/group/' || g                          AS url,
+       pair(longname, g)                               AS fancy,
+       link('my://app/group/' || g, g)                 AS link,
+       link('my://app/group/' || g, pair(longname, g)) AS longlink,
+       gtype                                           AS gtype,
+       longname                                        AS longname,
+       color                                           AS color,
+       shape                                           AS shape,
+       demeanor                                        AS demeanor
 FROM groups;
 
 

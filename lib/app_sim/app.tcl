@@ -195,6 +195,7 @@ snit::type app {
         # NEXT, register my:// servers with myagent.
         appserver init
         myagent register app ::appserver
+        myagent register rdb [rdbserver %AUTO% -rdb ::rdb]
 
         # NEXT, define order interfaces
 

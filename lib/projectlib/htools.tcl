@@ -34,7 +34,16 @@ snit::type ::projectlib::htools {
     #-------------------------------------------------------------------
     # Type Methods
 
-    # TBD
+    # escape text
+    #
+    # text - Plain text to be included in an HTML page
+    #
+    # Escapes the &, <, and > characters so that the included text
+    # doesn't screw up the formatting.
+
+    typemethod escape {text} {
+        return [string map {& &amp; < &lt; > &gt;} $text]
+    }
 
     #-------------------------------------------------------------------
     # Options
@@ -178,6 +187,8 @@ snit::type ::projectlib::htools {
     # -labels list    - List of column labels
     # -default text   - Text to return if there's no data found.
     #                   Defaults to "No data found.<p>"
+    # -escape flag    - If yes, all data returned by the RDB is escaped.
+    #                   Defaults to no.
     #
     # Executes the query and accumulates the results as HTML.
 
@@ -189,6 +200,7 @@ snit::type ::projectlib::htools {
             -labels   {}
             -default  "No data found.<p>"
             -align    {}
+            -escape   no
         }
         array set qopts $args
 
@@ -227,6 +239,10 @@ snit::type ::projectlib::htools {
             set qnames $qrow(*)
             unset qrow(*)
 
+            if {$qopts(-escape)} {
+                set qnames [$type escape $qnames]
+            }
+
             if {[$self get] eq ""} {
                 $self table $qnames
             }
@@ -234,6 +250,10 @@ snit::type ::projectlib::htools {
 
         $self tr {
             foreach name $qnames align $qopts(-align) {
+                if {$qopts(-escape)} {
+                    set qrow($name) [$type escape $qrow($name)]
+                }
+
                 $self td $align {
                     $self put $qrow($name)
                 }
@@ -373,7 +393,7 @@ snit::type ::projectlib::htools {
                $self put " | "
             }
 
-            $self link \#$link $label
+            $self link $link $label
 
             incr count
         }

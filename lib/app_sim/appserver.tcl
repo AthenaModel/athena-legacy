@@ -231,21 +231,6 @@ snit::type appserver {
             text/html [myproc html_Nbhood]            \
             "Detail page for neighborhood {n}."
 
-        $server register /schema {schema/?} \
-            text/html [myproc html_RdbSchemaLinks] \
-            "RDB Schema Links."
-
-        $server register /schema/item/{name} {schema/item/(\w+)} \
-            text/html [myproc html_RdbSchemaItem]                \
-            "Schema for an RDB table, view, or trigger."
-
-        $server register /schema/{subset} {schema/([A-Za-z0-9_*]+)} \
-            text/html [myproc html_RdbSchemaLinks]                  {
-                Links for a {subset} of the RDB Schema Links.
-                Valid subsets are "main", "temp"; anything else
-                is assumed to be a wildcard pattern.
-            }
-
         $server register / {/?} \
             text/html [myproc html_Welcome] \
             "Athena Welcome Page"
@@ -284,20 +269,20 @@ snit::type appserver {
     #-------------------------------------------------------------------
     # Pre-loaded Tk Images
 
-    # image_TkImage url matchArray
+    # image_TkImage udict matchArray
     #
-    # url        - The URL that was requested
+    # udict      - A dictionary containing the URL components
     # matchArray - Array of matches from the URL
     #
     # Validates $(1) as a Tk image, and returns it as the tk/image
     # content.
 
-    proc image_TkImage {url matchArray} {
+    proc image_TkImage {udict matchArray} {
         upvar 1 $matchArray ""
 
         if {[catch {image type $(1)} result]} {
             return -code error -errorcode NOTFOUND \
-                "Image not found: $url"
+                "Image not found: [dict get $udict url]"
         }
 
         return $(1)
@@ -308,17 +293,17 @@ snit::type appserver {
     #
     # These routines serve files in the appdir tree.
 
-    # text_File base url matchArray
+    # text_File base udict matchArray
     #
     # base       - A directory within the appdir tree, or ""
-    # url        - The URL of the entity
+    # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches
     #
     #     (1) - *.html or *.txt
     #
     # Retrieves the file.
 
-    proc text_File {base url matchArray} {
+    proc text_File {base udict matchArray} {
         upvar 1 $matchArray ""
 
         set fullname [GetAppDirFile $base $(1)]
@@ -333,24 +318,26 @@ snit::type appserver {
         return $content
     }
 
-    # image_File base url matchArray
+    # image_File base udict matchArray
     #
     # base       - A directory within the appdir tree, or ""
-    # url        - The URL of the entity
+    # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches
     #
     #     (1) - image file name, relative to appdir.
     #
     # Retrieves and caches the file, returning a tk/image.
 
-    proc image_File {base url matchArray} {
+    proc image_File {base udict matchArray} {
         upvar 1 $matchArray ""
+
+        set path [dict get $udict path]
 
         set fullname [GetAppDirFile $base $(1)]
 
         # FIRST, see if we have it cached.
-        if {[info exists imageCache($url)]} {
-            lassign $imageCache($url) img mtime
+        if {[info exists imageCache($path)]} {
+            lassign $imageCache($path) img mtime
 
             # FIRST, If the file exists and is unchanged, 
             # return the cached value.
@@ -361,7 +348,7 @@ snit::type appserver {
             }
             
             # NEXT, Otherwise, clear the cache.
-            unset imageCache($url)
+            unset imageCache($path)
         }
 
 
@@ -373,7 +360,7 @@ snit::type appserver {
                 "Image file could not be found: $(1)"
         }
 
-        set imageCache($url) [list $img $mtime]
+        set imageCache($path) [list $img $mtime]
 
         return $img
     }
@@ -398,127 +385,16 @@ snit::type appserver {
     }
 
     #-------------------------------------------------------------------
-    # RDB Introspection
-
-    # html_RdbSchemaLinks url matchArray
-    #
-    # url        - The /schema URL
-    # matchArray - Array of pattern matches
-    # 
-    # Produces an HTML page with a table of the RDB tables, views,
-    # etc., for which schema text is available.
-    #
-    # Match parm $(1) is the subset of the schema to display:
-    #
-    #   ""         - All items are displayed
-    #   main       - Items from sqlite_master
-    #   temp       - Items from sqlite_temp_master
-    #   <pattern>  - A wildcard pattern
-
-    proc html_RdbSchemaLinks {url matchArray} {
-        upvar 1 $matchArray ""
-
-        set pattern $(1)
-        
-        set main {
-            SELECT type, link('/schema/item/' || name, name) AS name, 
-                   "Persistent"
-            FROM sqlite_master
-            WHERE name NOT GLOB 'sqlite_*'
-            AND   type != 'index'
-            AND   sql IS NOT NULL
-        }
-
-        set temp {
-            SELECT type, link('/schema/item/' || name, name) AS name, 
-                   "Temporary"
-            FROM sqlite_temp_master
-            WHERE name NOT GLOB 'sqlite_*'
-            AND   type != 'index'
-            AND   sql IS NOT NULL
-        }
-        
-        switch -exact -- $pattern {
-            "" { 
-                set sql "$main UNION $temp ORDER BY name"
-                set text ""
-            }
-
-            main { 
-                set sql "$main ORDER BY name"
-                set text "Persistent items only.<p>"
-            }
-
-            temp { 
-                set sql "$temp ORDER BY name"
-                set text "Temporary items only.<p>"
-            }
-
-            default { 
-                set sql "
-                    $main AND name GLOB \$pattern UNION
-                    $temp AND name GLOB \$pattern ORDER BY name
-                "
-
-                set text "Items matching \"$pattern\".<p>"
-            }
-        }
-
-        ht page "RDB Schema"
-        ht h1 "RDB Schema"
-
-        ht putln $text
-
-        ht query $sql -labels {Type Name Persistence} -maxcolwidth 0
-
-        ht /page
-
-        return [ht get]
-    }
-
-    # html_RdbSchemaItem url matchArray
-    #
-    # url        - The /urlhelp URL
-    # matchArray - Array of pattern matches
-    # 
-    # Produces an HTML page with the schema of a particular 
-    # table or view for which schema text is available.
-
-    proc html_RdbSchemaItem {url matchArray} {
-        upvar 1 $matchArray ""
-
-        set name $(1)
-
-        rdb eval {
-            SELECT sql FROM sqlite_master
-            WHERE name=$name
-            UNION
-            SELECT sql FROM sqlite_temp_master
-            WHERE name=$name
-        } {
-            ht page "RDB Schema: $name" {
-                ht h1 "RDB Schema: $name"
-                ht pre $sql
-            }
-
-            return [ht get]
-        }
-
-        return -code error -errorcode NOTFOUND \
-            "The requested schema entry was not found."
-    }
-
-    #-------------------------------------------------------------------
     # Welcome Page
 
-    # html_Welcome url matchArray
+    # html_Welcome udict matchArray
     #
-    # url        - The URL of the resource
+    # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches
     #
     # Formats and displays the welcome page from welcome.ehtml.
 
-    proc html_Welcome {url matchArray} {
+    proc html_Welcome {udict matchArray} {
         if {[catch {
             set text [readfile [file join $::app_sim::library welcome.ehtml]]
         } result]} {
@@ -533,15 +409,15 @@ snit::type appserver {
     #-------------------------------------------------------------------
     # Generic Entity Type Code
 
-    # linkdict_EntityType url matchArray
+    # linkdict_EntityType udict matchArray
     #
-    # url        - The URL of the entitytype resource
+    # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches
     #
     # Returns an entitytype[/*] resource as a tcl/linkdict 
     # where $(1) is the entity type subset.
 
-    proc linkdict_EntityType {url matchArray} {
+    proc linkdict_EntityType {udict matchArray} {
         upvar 1 $matchArray ""
 
         # FIRST, handle subsets
@@ -560,7 +436,12 @@ snit::type appserver {
                 set subset {/actors /groups/civ}    
             }
 
-            default { error "Unexpected URL: \"$url\"" }
+            default { 
+                # At present, the resource patterns should prevent
+                # this case from occurring; otherwise we'd need to
+                # throw NOTFOUND
+                error "Unknown resource: \"$udict\"" 
+            }
         }
 
         foreach etype $subset {
@@ -570,17 +451,19 @@ snit::type appserver {
         return $result
     }
     
-    # html_EntityType url matchArray
+    # html_EntityType udict matchArray
     #
     # title      - The page title
-    # url        - The URL of the entitytype resource
+    # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches
     #
     # Returns an entitytype/* resource as a tcl/linkdict 
     # where $(1) is the entity type subset.
 
-    proc html_EntityType {title url matchArray} {
+    proc html_EntityType {title udict matchArray} {
         upvar 1 $matchArray ""
+
+        set url [dict get $udict url]
 
         set types [linkdict_EntityType $url ""]
 
@@ -597,20 +480,18 @@ snit::type appserver {
     }
 
 
-    # linkdict_EntityLinks etype eroot url matchArray
+    # linkdict_EntityLinks etype eroot udict matchArray
     #
     # etype      - entityTypes key
     # eroot      - root URL for the entity type
-    # url        - The URL of the collection resource
+    # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches; ignored.
     #
     # Returns tcl/linkdict for a collection resource, based on an RDB 
     # table.
 
-    proc linkdict_EntityLinks {etype eroot url matchArray} {
+    proc linkdict_EntityLinks {etype eroot udict matchArray} {
         set result [dict create]
-
-        
 
         dict with entityTypes $etype {
             rdb eval "
@@ -627,17 +508,17 @@ snit::type appserver {
     }
 
 
-    # html_EntityLinks etype eroot url matchArray
+    # html_EntityLinks etype eroot udict matchArray
     #
     # etype      - entityTypes key
     # eroot      - root URL for the entity type
-    # url        - The URL of the collection resource
+    # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches; ignored.
     #
     # Returns a text/html of links for a collection resource, based on 
     # an RDB table.
 
-    proc html_EntityLinks {etype eroot url matchArray} {
+    proc html_EntityLinks {etype eroot udict matchArray} {
         dict with entityTypes $etype {
             ht page $label
             ht h1 $label
@@ -670,12 +551,12 @@ snit::type appserver {
     #
     # TBD: Eventually, this should go elsewhere.
 
-    # html_Actor url matchArray
+    # html_Actor udict matchArray
     #
-    # url        - The URL that was requested
+    # udict      - A dictionary containing the URL components
     # matchArray - Array of matches from the URL
 
-    proc html_Actor {url matchArray} {
+    proc html_Actor {udict matchArray} {
         upvar 1 $matchArray ""
 
         # Accumulate data
@@ -683,7 +564,7 @@ snit::type appserver {
 
         if {![rdb exists {SELECT * FROM actors WHERE a=$a}]} {
             return -code error -errorcode NOTFOUND \
-                "Unknown entity: $url."
+                "Unknown entity: [dict get $udict url]."
         }
 
         # Begin the page
@@ -693,11 +574,11 @@ snit::type appserver {
         ht title $data(fancy) "Actor" 
 
         ht linkbar {
-            goals   "Goals"
-            sphere  "Sphere of Influence"
-            base    "Power Base"
-            forces  "Force Deployment"
-            future  "Future Topics"
+            "#goals"   "Goals"
+            "#sphere"  "Sphere of Influence"
+            "#base"    "Power Base"
+            "#forces"  "Force Deployment"
+            "#future"  "Future Topics"
         }
         
         # Asset Summary
@@ -854,14 +735,14 @@ snit::type appserver {
     #-------------------------------------------------------------------
     # Neighborhood-specific handlers
 
-    # html_Nbhood url matchArray
+    # html_Nbhood udict matchArray
     #
-    # url        - The URL that was requested
+    # udict      - A dictionary containing the URL components
     # matchArray - Array of matches from the URL
     #
     # Formats the summary page for /nbhood/{n}.
 
-    proc html_Nbhood {url matchArray} {
+    proc html_Nbhood {udict matchArray} {
         upvar 1 $matchArray ""
 
         # Get the neighborhood
@@ -869,7 +750,7 @@ snit::type appserver {
 
         if {![rdb exists {SELECT * FROM nbhoods WHERE n=$n}]} {
             return -code error -errorcode NOTFOUND \
-                "Unknown entity: $url."
+                "Unknown entity: [dict get $udict url]."
         }
 
         rdb eval {SELECT * FROM gui_nbhoods WHERE n=$n} data {}
@@ -887,10 +768,10 @@ snit::type appserver {
 
         if {$locked} {
             ht linkbar {
-                civs    "Civilian Groups"
-                forces  "Forces Present"
-                control "Support and Control"
-                future  "Future Topics"
+                "#civs"    "Civilian Groups"
+                "#forces"  "Forces Present"
+                "#control" "Support and Control"
+                "#future"  "Future Topics"
             }
 
         } {
@@ -1135,9 +1016,9 @@ snit::type appserver {
     #-------------------------------------------------------------------
     # Group-specific handlers
 
-    # linkdict_GroupLinks url matchArray
+    # linkdict_GroupLinks udict matchArray
     #
-    # url        - The URL of the collection resource
+    # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches
     #
     # Matches:
@@ -1146,7 +1027,7 @@ snit::type appserver {
     # Returns tcl/linkdict for a group collection, based on an RDB 
     # table.
 
-    proc linkdict_GroupLinks {url matchArray} {
+    proc linkdict_GroupLinks {udict matchArray} {
         upvar 1 $matchArray ""
 
         # FIRST, get the etype.
@@ -1174,15 +1055,15 @@ snit::type appserver {
     }
 
 
-    # html_GroupLinks url matchArray
+    # html_GroupLinks udict matchArray
     #
-    # url        - The URL of the collection resource
+    # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches; ignored.
     #
     # Returns a text/html of links for a collection resource, based on 
     # an RDB table.
 
-    proc html_GroupLinks {url matchArray} {
+    proc html_GroupLinks {udict matchArray} {
         upvar 1 $matchArray ""
 
         # FIRST, get the etype.
@@ -1221,14 +1102,14 @@ snit::type appserver {
         }
     }
 
-    # html_Group url matchArray
+    # html_Group udict matchArray
     #
-    # url        - The URL that was requested
+    # udict      - A dictionary containing the URL components
     # matchArray - Array of matches from the URL
     #
     # Formats the summary page for /group/{g}.
 
-    proc html_Group {url matchArray} {
+    proc html_Group {udict matchArray} {
         upvar 1 $matchArray ""
 
         # Get the group
@@ -1236,28 +1117,26 @@ snit::type appserver {
 
         if {![rdb exists {SELECT * FROM groups WHERE g=$g}]} {
             return -code error -errorcode NOTFOUND \
-                "Unknown entity: $url."
+                "Unknown entity: [dict get $udict url]."
         }
 
         # Next, what kind of group is it?
         set gtype [group gtype $g]
 
         switch $gtype {
-            CIV     { return [html_GroupCiv $url $g] }
-            FRC     { return [html_GroupFrc $url $g] }
-            ORG     { return [html_GroupOrg $url $g] }
+            CIV     { return [html_GroupCiv $g] }
+            FRC     { return [html_GroupFrc $g] }
+            ORG     { return [html_GroupOrg $g] }
             default { error "Unknown group type."    }
         }
     }
 
-    # html_GroupCiv url g
+    # html_GroupCiv g
     #
-    # url        - The URL that was requested
-    # g          - The group
     #
     # Formats the summary page for civilian /group/{g}.
 
-    proc html_GroupCiv {url g} {
+    proc html_GroupCiv {g} {
         # FIRST, get the data about this group
         rdb eval {SELECT * FROM gui_civgroups WHERE g=$g}       data {}
         rdb eval {SELECT * FROM gui_nbhoods   WHERE n=$data(n)} nb   {}
@@ -1267,10 +1146,10 @@ snit::type appserver {
         ht title "$data(longname) ($g)" "Civilian Group" "Summary"
 
         ht linkbar {
-            actors  "Relationships with Actors"
-            rel     "Friends and Enemies"
-            sat     "Satisfaction Levels"
-            drivers "Drivers"
+            "#actors"  "Relationships with Actors"
+            "#rel"     "Friends and Enemies"
+            "#sat"     "Satisfaction Levels"
+            "#drivers" "Drivers"
         }
 
         # NEXT, what we do depends on whether the simulation is locked
@@ -1461,14 +1340,13 @@ snit::type appserver {
     }
 
 
-    # html_GroupFrc url g
+    # html_GroupFrc g
     #
-    # url        - The URL that was requested
     # g          - The group
     #
     # Formats the summary page for force /group/{g}.
 
-    proc html_GroupFrc {url g} {
+    proc html_GroupFrc {g} {
         rdb eval {SELECT * FROM frcgroups_view WHERE g=$g} data {}
 
         ht page "Force Group: $g"
@@ -1481,14 +1359,13 @@ snit::type appserver {
         return [ht get]
     }
 
-    # html_GroupOrg url g
+    # html_GroupOrg g
     #
-    # url        - The URL that was requested
     # g          - The group
     #
     # Formats the summary page for org /group/{g}.
 
-    proc html_GroupOrg {url g} {
+    proc html_GroupOrg {g} {
         rdb eval {SELECT * FROM orggroups_view WHERE g=$g} data {}
 
         ht page "Organization Group: $g"
@@ -1501,14 +1378,14 @@ snit::type appserver {
         return [ht get]
     }
 
-    # html_GroupVrel url matchArray
+    # html_GroupVrel udict matchArray
     #
-    # url        - The URL that was requested
+    # udict      - A dictionary containing the URL components
     # matchArray - Array of matches from the URL
     #
     # Formats the analysis page for /group/{g}/vrel.
 
-    proc html_GroupVrel {url matchArray} {
+    proc html_GroupVrel {udict matchArray} {
         upvar 1 $matchArray ""
 
         # Get the group
@@ -1516,28 +1393,27 @@ snit::type appserver {
 
         if {![rdb exists {SELECT * FROM groups WHERE g=$g}]} {
             return -code error -errorcode NOTFOUND \
-                "Unknown entity: $url."
+                "Unknown entity: [dict get $udict url]."
         }
 
         # Next, what kind of group is it?
         set gtype [group gtype $g]
 
         switch $gtype {
-            CIV     { return [html_GroupCivVrel   $url $g] }
-            FRC     { return [html_GroupOtherVrel $url $g] }
-            ORG     { return [html_GroupOtherVrel $url $g] }
+            CIV     { return [html_GroupCivVrel   $g] }
+            FRC     { return [html_GroupOtherVrel $g] }
+            ORG     { return [html_GroupOtherVrel $g] }
             default { error "Unknown group type."          }
         }
     }
 
-    # html_GroupCivVrel url g
+    # html_GroupCivVrel g
     #
-    # url        - The URL that was requested
     # g          - The group
     #
     # Formats the vrel analysis page for civilian /group/{g}.
 
-    proc html_GroupCivVrel {url g} {
+    proc html_GroupCivVrel {g} {
         # FIRST,  get the data about this group
         rdb eval {SELECT * FROM gui_civgroups WHERE g=$g} data {}
 
@@ -1633,14 +1509,13 @@ snit::type appserver {
         return [ht get]
     }
 
-    # html_GroupOtherVrel url g
+    # html_GroupOtherVrel g
     #
-    # url        - The URL that was requested
     # g          - The group
     #
     # Formats the vrel analysis page for non-civilian /group/{g}.
 
-    proc html_GroupOtherVrel {url g} {
+    proc html_GroupOtherVrel {g} {
         # FIRST,  get the data about this group
         rdb eval {SELECT * FROM gui_groups WHERE g=$g} data {}
 

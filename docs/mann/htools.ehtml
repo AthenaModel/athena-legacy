@@ -109,6 +109,11 @@ and return the result as an HTML table.<p>
 
 <</deflist options>>
 
+<<defitem "htools escape" {htools escape <i>text</i>}>>
+
+Translates the "&amp;", "&lt;" and "&gt;" characters in <i>text</i> into the
+corresponding HTML character entities so that the result can be
+included in an HTML page without causing mis-formatting.<p>
 
 <</deflist commands>>
 
@@ -285,6 +290,14 @@ Specifies a list of column alignments, <b>left</b>, <b>center</b>, or
 
 Defines the text to generate if the result set is empty.  Defaults to
 "<code>No data found.&lt;p&gt;</code>".<p>
+
+<<defopt {-escape <i>flag</i>}>>
+
+If the <i>flag</i> is <b>yes</b>, all output from the
+<code>-rdb</code> will be sanitized using <<iref htools escape>>;
+otherwise not.  The option defaults to <b>no</b>.  Use this when
+querying arbitrary data so that special characters in the result will
+not confuse the HTML formatting.<p>
 
 <<defopt {-labels <i>list</i>}>>
 
