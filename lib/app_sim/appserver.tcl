@@ -597,7 +597,7 @@ snit::type appserver {
         ht para
 
         # Goals
-        ht h2 "Goals" goals
+        ht subtitle "Goals" goals
 
         ht push
         rdb eval {
@@ -630,7 +630,7 @@ snit::type appserver {
         }
 
         # Sphere of Influence
-        ht h2 "Sphere of Influence" sphere
+        ht subtitle "Sphere of Influence" sphere
 
         if {[Locked -disclaimer]} {
             ht putln "Actor $a has influence in the following neighborhoods:"
@@ -649,7 +649,7 @@ snit::type appserver {
         }
 
         # Power Base
-        ht h2 "Power Base" base
+        ht subtitle "Power Base" base
 
         if {[Locked -disclaimer]} {
             set vmin [parm get control.support.vrelMin]
@@ -686,7 +686,7 @@ snit::type appserver {
         }
 
         # Deployment
-        ht h2 "Force Deployment" forces
+        ht subtitle "Force Deployment" forces
 
         ht query {
             SELECT N.longlink              AS 'Neighborhood',
@@ -700,7 +700,7 @@ snit::type appserver {
         } -default "No forces are deployed."
 
         # Future Topics
-        ht h2 "Future Topics" future
+        ht subtitle "Future Topics" future
 
         ht putln {We might add information about the following topics.}
         ht para
@@ -897,7 +897,7 @@ snit::type appserver {
         ht para
 
         # Civilian groups
-        ht h2 "Civilian Groups" civs
+        ht subtitle "Civilian Groups" civs
         
         ht putln "The following civilian groups live in $n:"
         ht para
@@ -920,7 +920,7 @@ snit::type appserver {
 
         # Force/Org groups
 
-        ht h2 "Forces Present" forces
+        ht subtitle "Forces Present" forces
 
         ht query {
             SELECT G.longlink
@@ -942,7 +942,7 @@ snit::type appserver {
         } -default "None."
 
         # Support and Control
-        ht h2 "Support and Control" control
+        ht subtitle "Support and Control" control
 
         if {$data(controller) eq "NONE"} {
             ht putln "$n is currently in a state of chaos: "
@@ -994,7 +994,7 @@ snit::type appserver {
         ht para
 
         # Topics Yet to be Covered
-        ht h2 "Future Topics" future
+        ht subtitle "Future Topics" future
 
         ht putln "The following topics might be covered in the future:"
 
@@ -1253,12 +1253,9 @@ snit::type appserver {
         ht para
         
         # NEXT, Detail Block: Relationships with actors
-        
-        ht h2 "Relationships with Actors" actors
 
-        ht putln ""
-        ht link /group/$g/vrel "Analysis"
-        ht br
+        ht subtitle "Relationships with Actors" actors \
+            /group/$g/vrel "View Analysis"
 
         ht query {
             SELECT link('/actor/' || a, pair(longname, a)),
@@ -1274,7 +1271,7 @@ snit::type appserver {
             "Narrative"
         } -align {left right left}
         
-        ht h2 "Friend and Enemies" rel
+        ht subtitle "Friend and Enemies" rel
 
         ht query {
             SELECT link('/group/' || g, pair(longname, g)) AS 'Friend/Enemy',
@@ -1287,7 +1284,7 @@ snit::type appserver {
             ORDER BY rel DESC
         } -align {left left right left}
 
-        ht h2 "Satisfaction Levels" sat
+        ht subtitle "Satisfaction Levels" sat
 
         ht putln "$g's overall mood is [qsat format $data(mood)] "
         ht put   "([qsat longname $data(mood)]).  $g's satisfactions "
@@ -1304,7 +1301,7 @@ snit::type appserver {
             ORDER BY C.c
         } -align {left right left left}
 
-        ht h2 "Satisfaction Drivers" drivers
+        ht subtitle "Satisfaction Drivers" drivers
 
         ht putln "The most important satisfaction drivers for this group "
         ht put   "at the present time are as follows:"
@@ -1456,11 +1453,11 @@ snit::type appserver {
             "Actor a"
             "V.ga"
             "= BV.ga(t.control)"
-            "+ Delta V,<br>Mood"
-            "+ Delta V,<br>Services"
+            "+ &Delta;V.mood"
+            "+ &Delta;V.services"
         } -align {left right right right right}
 
-        ht h2 "Description"
+        ht subtitle "Description"
 
         ht putln "
             The vertical relationship <i>V.ga</i> is recomputed
@@ -1489,18 +1486,22 @@ snit::type appserver {
         }
 
         ht putln <dl>
-        ht putln "<dt><b>Delta V, Mood</b>"
+        ht putln "<dt><b>&Delta;V.mood</b>"
         ht putln <dd>
         ht put {
-            Non-zero if <i>g's</i> mood has changed signficantly since
+            Change in <i>V</i> due to changes in mood.  This term is
+            non-zero if <i>g's</i> mood has changed signficantly since
             the last shift in control.
         }
         ht para
-        ht putln "<dt><b>Delta V, Services</b>"
+
+        ht putln "<dt><b>&Delta;V.services</b>"
         ht putln <dd>
         ht put {
-            Non-zero if the level of basic services in the neighborhood
-            is bettor or worse than expected.
+            Change in <i>V</i> due to the current level of basic services
+            in the neighborhood.  This term is non-zero if the level of 
+            basic services in the neighborhood is bettor or worse 
+            than expected.
         }
         ht putln </dl>
         

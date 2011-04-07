@@ -330,6 +330,51 @@ snit::type ::projectlib::htools {
         $self para
     }
 
+    # subtitle title ?anchor? ?links...?
+    #
+    # title   - A title string
+    # anchor  - An anchor for internal hyperlinks
+    # links   - A list of URLs and labels for a linkbar under the title.
+    #
+    # Formats a subtitle, possibly with its own mini-linkbar.
+
+    method subtitle {title {anchor ""} args} {
+        $self para
+
+        if {$args ne ""} {
+            $self putln "<table border=0 cellpadding=2 cellspacing=0>"
+            $self putln "<tr><td>"
+        }
+
+        $self putln "<font size=4><b>"
+
+        if {$anchor eq ""} {
+            $self put $title
+        } else {
+            $self put "<a name=\"$anchor\">$title</a>"
+        }
+
+        $self put "</b></font>"
+
+        if {$args ne ""} {
+            $self putln "</td></tr>"
+            $self putln "<tr><td>"
+
+            set links [list]
+            foreach {url label} $args {
+                lappend links "<a href=\"$url\">$label</a>"
+            }
+
+            $self putln "<hr><font size=2>"
+            $self putln [join $links " | "]
+            $self putln "</font><hr>"
+            $self putln "</td></tr>"
+            $self putln "</table>"
+        } 
+
+        $self para
+    }
+
 
     # h1 title ?anchor?
     #

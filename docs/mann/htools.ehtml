@@ -144,8 +144,8 @@ options.<p>
 Returns the content from the buffer at the top of the stack.<p>
 
 <<defitem h1 {<i>object</i> h1 <i>title</i> ?<i>anchor</i>?}>>
-<<defitem h2 {<i>object</i> h1 <i>title</i> ?<i>anchor</i>?}>>
-<<defitem h3 {<i>object</i> h1 <i>title</i> ?<i>anchor</i>?}>>
+<<defitem h2 {<i>object</i> h2 <i>title</i> ?<i>anchor</i>?}>>
+<<defitem h3 {<i>object</i> h2 <i>title</i> ?<i>anchor</i>?}>>
 
 Generates an HTML <code>&lt;h1&gt;</code>, <code>&lt;h2&gt;</code>, or
 <code>&lt;h3&gt;</code> tag with the given <i>title</i>.  If
@@ -306,6 +306,22 @@ Alternatively, <<iref query>> will use the column names in the result
 set.<p>
 
 <</deflist options>>
+
+<<defitem subtitle {<i>object</i> subtitle <i>title</i>
+?<i>anchor</i>? ?<i>link label</i> ?<i>link label...</i>??}>>
+
+Defines a subtitle with in a page.  The subtitle is equivalent to
+an <<iref h2>> tag; however, it can include a linkbar directly below
+the title.  If
+<i>anchor</i> is given, it can be used as an anchor to this subtitle
+from elsewhere in the page (or from other pages entirely).  If one or
+more <i>link</i>/<i>label</i> pairs are included, the linkbar will be
+created; the linkbar will use <<iref tiny>> text, and will be no wider
+than the title (unless there are numerous links).
+
+The subtitle's linkbar is usually used for links to pages that contain
+more detail about the information following the subtitle.<p>
+
 
 <<defitem table {<i>object</i> table <i>headers</i> ?<i>body</i>?}>>
 
