@@ -41,6 +41,135 @@ namespace eval ::athena_test::tests:: {
     }
 
     #-------------------------------------------------------------------
+    # BSYSTEM:PLAYBOX:UPDATE
+
+    test PLAYBOX:UPDATE-1.1 {required parms} -body {
+        ted order -reject BSYSTEM:PLAYBOX:UPDATE {}
+    } -result {
+        gamma {required value}
+    }
+
+    
+    test PLAYBOX:UPDATE-1.2 {invalid gamma} -body {
+        ted order -reject BSYSTEM:PLAYBOX:UPDATE gamma NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        gamma {invalid value "NONESUCH", should be a real number no less than 0.0}
+    }
+
+
+    test PLAYBOX:UPDATE-2.1 {gamma is updated} -body {
+        ted order BSYSTEM:PLAYBOX:UPDATE gamma 0.25
+
+        ted query {SELECT * FROM mam_playbox}
+    } -cleanup {
+        cleanup
+    } -result {
+pid gamma 
+--- ----- 
+1   0.25  
+    }
+
+    test PLAYBOX:UPDATE-2.2 {playbox is updated} -body {
+        ted notifier bind ::rdb <mam_playbox>
+        ted order BSYSTEM:PLAYBOX:UPDATE gamma 0.25
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <mam_playbox> update 1}
+    }
+
+
+    test PLAYBOX:UPDATE-3.1 {undo effects} -setup {
+        ted order BSYSTEM:PLAYBOX:UPDATE gamma 0.25
+    } -body {
+        ted notifier bind ::rdb <mam_playbox>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <mam_playbox> update 1}
+    }
+
+    #-------------------------------------------------------------------
+    # BSYSTEM:ENTITY:UPDATE
+
+    test ENTITY:UPDATE-1.1 {required parms} -body {
+        ted order -reject BSYSTEM:ENTITY:UPDATE {}
+    } -result {
+        eid {required value}
+        commonality {required value}
+    }
+
+    
+    test ENTITY:UPDATE-1.2 {invalid entity} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject BSYSTEM:ENTITY:UPDATE eid NONESUCH commonality 0.5
+    } -cleanup {
+        cleanup
+    } -result {
+        eid {Invalid entity, should be one of: JOE}
+    }
+
+    test ENTITY:UPDATE-1.3 {invalid commonality} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject BSYSTEM:ENTITY:UPDATE eid JOE commonality NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        commonality {invalid value "NONESUCH", should be a real number in range 0.0, 1.0}
+    }
+
+
+    test ENTITY:UPDATE-2.1 {entity is updated} -setup {
+        ted create JOE
+    } -body {
+        ted order BSYSTEM:ENTITY:UPDATE \
+            eid JOE commonality 0.5
+
+        ted query {SELECT * FROM mam_entity}
+    } -cleanup {
+        cleanup
+    } -result {
+eid commonality 
+--- ----------- 
+JOE 0.5         
+    }
+
+    test ENTITY:UPDATE-2.2 {entity is updated} -setup {
+        ted create JOE
+    } -body {
+        ted notifier bind ::rdb <mam_entity>
+        ted order BSYSTEM:ENTITY:UPDATE \
+            eid JOE commonality 0.5
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <mam_entity> update JOE}
+    }
+
+
+    test ENTITY:UPDATE-3.1 {undo effects} -setup {
+        ted create JOE
+        ted order BSYSTEM:ENTITY:UPDATE \
+            eid JOE commonality 0.5
+    } -body {
+        ted notifier bind ::rdb <mam_entity>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <mam_entity> update JOE}
+    }
+
+    #-------------------------------------------------------------------
     # BSYSTEM:TOPIC:CREATE
 
     test TOPIC:CREATE-1.1 {required parms} -body {

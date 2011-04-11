@@ -36,6 +36,37 @@ namespace eval ::athena_test::tests:: {
 
 
     #-------------------------------------------------------------------
+    # entity validate
+
+    test entity_validate-1.1 {Invalid entity: none defined} -body {
+        bsystem entity validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid entity, none are defined}
+
+    test entity_validate-1.2 {Invalid entity: some defined} -setup {
+        bsystem entity add E1
+        bsystem entity add E2
+    } -body {
+        bsystem entity validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid entity, should be one of: E1, E2}
+
+    test entity_validate-2.1 {Valid entity} -setup {
+        bsystem entity add E1
+        bsystem entity add E2
+    } -body {
+        bsystem entity validate E1
+    } -cleanup {
+        cleanup
+    } -result {E1}
+
+    #-------------------------------------------------------------------
     # topic validate
 
     test topic_validate-1.1 {Invalid topic: none defined} -body {

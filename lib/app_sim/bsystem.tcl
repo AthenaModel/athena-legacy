@@ -53,9 +53,32 @@ snit::type bsystem {
     #-------------------------------------------------------------------
     # Public Typemethods
 
-    delegate typemethod *          to mam
+    delegate typemethod {entity *} to mam using {%c entity %m}
     delegate typemethod {topic *}  to mam using {%c topic %m}
     delegate typemethod {belief *} to mam using {%c belief %m}
+    delegate typemethod *          to mam
+
+    # entity validate eid
+    #
+    # eid - An entity ID
+    #
+    # Validates the entity ID.
+
+    typemethod {entity validate} {eid} {
+        set ids [$mam entity names]
+
+        if {$eid ni $ids} {
+            if {[llength $ids] == 0} {
+                return -code error -errorcode INVALID \
+                    "Invalid entity, none are defined"
+            } else {
+                return -code error -errorcode INVALID \
+                    "Invalid entity, should be one of: [join $ids {, }]"
+            }
+        }
+
+        return $eid
+    }
 
     # topic validate tid
     #
@@ -136,11 +159,70 @@ snit::type bsystem {
         $mam edit undo
         $mam compute
     }
- 
 }
 
 #-----------------------------------------------------------------------
 # BSystem Orders
+
+# BSYSTEM:PLAYBOX:UPDATE
+#
+# Updates playbox-wide parameters
+#
+# TBD: It would be nice to populate the gamma parameter from the RDB,
+# but there's no good way to do it using a -refreshcmd.  We can't 
+# distinguish between the -refreshcmd being called on entry to the 
+# dialog, and being called as the value is edited.  We only want to 
+# populate it on entry.
+
+order define BSYSTEM:PLAYBOX:UPDATE {
+    title "Update Playbox-wide Belief System Parameters"
+
+    options \
+        -sendstates PREP
+
+    parm gamma text   "Playbox Commonality"
+} {
+    # FIRST, prepare and validate the parameters
+    prepare gamma  -required -type ::simlib::rmagnitude
+
+    returnOnError -final
+
+    # NEXT, save the parameter value.
+    bsystem playbox configure \
+        -gamma $parms(gamma)
+    bsystem compute
+
+    setundo [list ::bsystem::MamUndo]
+}
+
+# BSYSTEM:ENTITY:UPDATE
+#
+# Updates entity parameters
+
+order define BSYSTEM:ENTITY:UPDATE {
+    title "Update Belief System Entity"
+
+    options \
+        -sendstates PREP                              \
+        -refreshcmd {orderdialog refreshForKey eid *}
+
+    parm eid         key    "Entity" -table mam_entity -keys eid
+    parm commonality text   "Commonality Fraction"
+} {
+    # FIRST, prepare and validate the parameters
+    prepare eid          -toupper -required -type {bsystem entity}
+    prepare commonality           -required -type ::simlib::rfraction
+
+    returnOnError -final
+
+    # NEXT, save the parameter value.
+    bsystem entity configure $parms(eid) \
+        -commonality $parms(commonality)
+    bsystem compute
+
+    setundo [list ::bsystem::MamUndo]
+}
+
 
 # BSYSTEM:TOPIC:CREATE
 #
