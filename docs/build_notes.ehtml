@@ -11,6 +11,26 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.14, 12 April 2011</h3>
+
+This package includes a number of bug fixes, additional content for
+the Detail Browser, and some changes to the Belief System model and
+interface.  The full list of changes is as follows:<p>
+
+<ul>
+  <li> Bug 2873: Blank Relevant Flags
+  <li> Bug 2906: athena_sim(1): Detail browser context menu
+  <li> Bug 2908: Delete Actor Bgerror
+  <li> Bug 2909: athena_sim(1): /group/{g}/vrel
+  <li> Bug 2910: linktree(n): URL errors cause bgerrors
+  <li> Bug 2911: myagent(n): server commands can't be multi-token
+  <li> Bug 2912: athena_sim(1): Replace "win://" URLs with "gui://" URLs
+  <li> Bug 2913: rdbserver(n): Database introspection server
+  <li> Bug 2915: htools(n): subtitle with mini-linkbar
+  <li> Bug 2918: athena_sim(1): Belief System Extensions 
+</ul><p>
+
+
 <h3>Build 3.0.13, 4 April 2011</h3>
 
 This package contains a number of bug fixes, additional work on the
