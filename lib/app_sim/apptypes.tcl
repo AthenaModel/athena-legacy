@@ -67,6 +67,10 @@ snit::type money {
     }
 }
 
+# rgamma: The range for the belief system playbox gamma
+
+::marsutil::range rgamma -min 0.0 -max 2.0
+
 # rcoverage: The range for the coverage fractions
 
 ::marsutil::range rcov -min 0.0 -max 1.0

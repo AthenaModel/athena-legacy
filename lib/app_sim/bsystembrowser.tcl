@@ -40,9 +40,13 @@ snit::widget bsystembrowser {
     component taddbtn        ;# Add Topic button
     component teditbtn       ;# Edit Topic button
     component tdeletebtn     ;# Delete Topic button
+    component tgamma         ;# Playbox Gamma slider
 
     component etree          ;# Entity list
+
     component blist          ;# Belief list
+    component bcommon        ;# Entity -commonality
+
     component alist          ;# Affinity list
 
     #-------------------------------------------------------------------
@@ -91,8 +95,7 @@ snit::widget bsystembrowser {
         # NEXT, bind to notifier events
         notifier bind ::sim <DbSyncB>   $win [mymethod ReloadOnEvent]
         notifier bind ::sim <State>     $win [mymethod ReloadOnEvent]
-        notifier bind ::rdb <actors>    $win [mymethod ReloadOnEvent]
-        notifier bind ::rdb <civgroups> $win [mymethod ReloadOnEvent]
+        notifier bind ::rdb <Monitor>   $win [mymethod ReloadOnEvent]
 
         # Reload the content from the current view when the window
         # is mapped.
@@ -146,9 +149,9 @@ snit::widget bsystembrowser {
         set info(reloadRequests) 0
 
         # NEXT, Reload each of the components
-        $tlist reload
+        $self TListReload
         $etree refresh
-        $blist reload
+        $self BListReload
         $alist reload
     }
 
@@ -213,13 +216,48 @@ snit::widget bsystembrowser {
             order   BSYSTEM:TOPIC:DELETE          \
             browser $tlist
 
-        pack $bar.title  -side left
-        pack $taddbtn    -side left
-        pack $teditbtn   -side left
-        pack $tdeletebtn -side right
+        ttk::label $bar.gammalab \
+            -text "Playbox Commonality"
+
+        install tgamma using rangefield $bar.gamma    \
+            -state       disabled                     \
+            -scalelength 100                          \
+            -changemode  onrelease                    \
+            -resolution  0.1                          \
+            -type        ::rgamma                     \
+            -changecmd   [mymethod TListGammaChanged]
+
+        cond::available control $tgamma \
+            order BSYSTEM:PLAYBOX:UPDATE
+
+        pack $bar.title    -side left
+        pack $taddbtn      -side left
+        pack $teditbtn     -side left
+        pack $bar.gammalab -side left -padx {5 0}
+        pack $tgamma       -side left
+        pack $tdeletebtn   -side right
 
         # NEXT, update individual entities when they change.
         notifier bind ::rdb <mam_topic> $self [list $tlist uid]
+    }
+
+    # TListReload
+    #
+    # Reloads the topic list and related controls
+
+    method TListReload {} {
+        $tlist reload
+        $tgamma set [bsystem playbox cget -gamma]
+    }
+
+    # TListGammaChanged newGamma
+    #
+    # Sends the BSYSTEM:PLAYBOX:UPDATE order.
+
+    method TListGammaChanged {newGamma} {
+        if {$newGamma != [bsystem playbox cget -gamma]} {
+            order send gui BSYSTEM:PLAYBOX:UPDATE gamma $newGamma
+        }
     }
 
     # TListSelectionChanged
@@ -247,7 +285,7 @@ snit::widget bsystembrowser {
         # FIRST, there should be only one selected.
         set id [lindex [$tlist uid curselection] 0]
 
-        # NEXT, Delete the entity
+        # NEXT, Edit the entity
         order enter BSYSTEM:TOPIC:UPDATE tid $id
     }
 
@@ -414,8 +452,19 @@ snit::widget bsystembrowser {
         # this is at the border between "my://" and rdb-land.
 
         set eid [file tail $url]
+
+        if {$eid ni [bsystem entity names]} {
+            set eid ""
+        }
+
         $blist configure -where "eid='$eid'"
         $alist configure -where "f='$eid' AND g != '$eid'"
+
+        set info(entity) $eid
+
+        # The bcommon control is really entity by entity.
+        cond::availableCanUpdate update [list $bcommon]
+        $self BListCommonLoad
     }
 
 
@@ -454,11 +503,62 @@ snit::widget bsystembrowser {
         ttk::label $bar.title \
             -text "Beliefs"
 
-        pack $bar.title -side left
 
+        ttk::label $bar.commlab \
+            -text "Entity Commonality"
+
+        install bcommon using rangefield $bar.common  \
+            -state       disabled                     \
+            -scalelength 100                          \
+            -changemode  onrelease                    \
+            -resolution  0.05                         \
+            -type        ::rfraction                  \
+            -changecmd   [mymethod BListCommonChanged]
+
+        cond::availableCanUpdate control $bcommon \
+            order   BSYSTEM:ENTITY:UPDATE         \
+            browser $win
+
+
+        pack $bar.title   -side left
+        pack $bcommon     -side right
+        pack $bar.commlab -side right
 
         # NEXT, update individual entities when they change.
         notifier bind ::rdb <mam_belief> $self [list $blist uid]
+    }
+
+    # BListReload
+    #
+    # Reloads the belief list and related controls
+
+    method BListReload {} {
+        $blist reload
+        $self BListCommonLoad
+    }
+
+    # BListCommonLoad
+    #
+    # Gets the current entity's commonality into the bcommon slider.
+    
+    method BListCommonLoad {} {
+        if {$info(entity) ne ""} {
+            $bcommon set [bsystem entity cget $info(entity) -commonality]
+        }
+    }
+
+    # BListCommonChanged newCommon
+    #
+    # Sends the BSYSTEM:ENTITY:UPDATE order.
+
+    method BListCommonChanged {newCommon} {
+        if {$info(entity) ne ""} {
+            set oldCommon [bsystem entity cget $info(entity) -commonality]
+            if {$newCommon != $oldCommon} {
+                order send gui BSYSTEM:ENTITY:UPDATE \
+                    eid $info(entity) commonality $newCommon
+            }
+        }
     }
 
     # BlistWindows r data
@@ -609,6 +709,15 @@ snit::widget bsystembrowser {
     # Public Methods
 
     delegate method * to hull
+
+    # canupdate
+    #
+    # This is used to control the -state of the bcommon control.  We
+    # say that we can update if there's an entity.
+
+    method canupdate {} {
+        expr {$info(entity) ne ""}
+    }
 
     # reload
     #
