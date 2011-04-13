@@ -355,10 +355,10 @@ snit::type executive {
             } else {
                 uplevel \#0 $script
             }
-        } result]} {
+        } result eopts]} {
             set info(stackTrace) $::errorInfo
             log warning exec "Command error: $result"
-            return -code error $result
+            return {*}$eopts $result
         }
 
         return $result
@@ -555,7 +555,12 @@ snit::type executive {
         # NEXT, send the order, and handle errors.
         if {[catch {
             order send raw $order $pdict
-        } result]} {
+        } result eopts]} {
+            if {[dict get $eopts -errorcode] ne "REJECT"} {
+                # Rethrow
+                return {*}$eopts $result
+            }
+
             set wid [lmaxlen [dict keys $pdict]]
 
             set text "$order rejected:\n"
@@ -584,7 +589,7 @@ snit::type executive {
                 }
             }
 
-            error $text
+            return -code error -errorcode REJECT $text
         }
 
         return ""

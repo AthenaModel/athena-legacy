@@ -224,9 +224,8 @@ snit::type app {
         # raw: Like CLI, but with no special rejection formatting.
         # Used by "send" executive command.
         order interface add raw \
-            -checkstate  yes                            \
-            -trace       yes                            \
-            -errorcmd    [myproc UnexpectedOrderError]
+            -checkstate  yes    \
+            -trace       yes
 
         # test: For orders from the test suite.  No special handling
         # for unexpected errors, and no transactions, so that errors
@@ -282,7 +281,30 @@ snit::type app {
 
         # NEXT, if there's a script, execute it.
         if {$opts(-script) ne ""} {
-            executive eval [list call $opts(-script)]
+            if {[catch {
+                executive eval [list call $opts(-script)]
+            } result eopts]} {
+                if {[dict get $eopts -errorcode] eq "REJECT"} {
+                    app error {
+                        |<--
+                        Order rejected in -script:
+
+                        $result
+                    }
+                } else {
+                    log error app "Unexpected error in -script:\n$result"
+                    log error app "Stack Trace:\n[dict get $eopts -errorinfo]"
+                    
+                    after idle {[app topwin] tab view slog}
+                    
+                    app error {
+                        |<--
+                        Unexpected error during the execution of
+                        -script $opts(-script).  See the 
+                        Log for details.
+                    }
+                }
+            }
         }
     }
 
