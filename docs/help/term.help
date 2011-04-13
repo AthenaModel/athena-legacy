@@ -1,7 +1,7 @@
 # -*-tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    glossary.help
+#    term.help
 #
 # AUTHOR:
 #    Will Duquette
@@ -15,7 +15,7 @@
 #
 #-----------------------------------------------------------------------
 
-page glossary "Glossary" {} {
+page / term "Glossary" {
     <<title>>
     This page describes terms and concepts used by the
     Athena models and software.<p>
@@ -23,17 +23,17 @@ page glossary "Glossary" {} {
     <<childlinks>>
 }
 
-# term tag term text
+# term slug term text
 #
-# tag      The term's tag, e.g., "mapref", used in references.
+# slug     The term's slug, e.g., "mapref", used in references.
 # term     The full term, e.g., "map reference string".
 # text     The documentation of the term.
 #
 # Defines a help page for the term.
 
-proc term {tag term text} {
+proc term {slug term text} {
     set text "<<term.header>>\n\n$text"
-    page term.$tag $term "glossary" $text
+    page /term $slug $term $text
 }
 
 # Formats the title for a glossary term
@@ -47,9 +47,9 @@ macro term.header {} {
 term activity "activity" {
     An <i>activity</i> is an action that a <<term group>> can
     perform in a <<term nbhood>>.  Activities are scheduled on the
-    <<tabref Schedule>> and are staffed from available personnel
+    <<tab Schedule>> and are staffed from available personnel
     each <<term morning>>.  Personnel assigned to an activity
-    appear as a <<term unit>> on the <<tabref Map>>; the unit is said to 
+    appear as a <<term unit>> on the <<tab Map>>; the unit is said to 
     perform the activity. There are different sets of activities for the
     different group types: <<term frcgroup>>s, <<term orggroup>>s, and 
     <<term civgroup>>s.  For the full list of activities, and the
@@ -65,7 +65,7 @@ term actor "actor" {
     achieve <<term goal>>s subject to certain 
     <<term condition>>s.  Collectively, this is called the
     actor's <<term strategy>>; it is browsed and edited on 
-    the <<tabref Strategy>>.
+    the <<tab Strategy>>.
 }
 
 #-----------------------------------------------------------------------
@@ -83,7 +83,8 @@ term affinity "affinity" {
 
 term attitude "attitude" {
     An <i>attitude</i> of a particular <<term group>> toward
-    something, as tracked by <<model gram>>.  Attitudes include
+    something, as tracked by <<cref /model/attitude/gram>>.  Attitudes 
+    include 
     group <<term satisfaction>> and the <<term cooperation>> of
     <<term civgroup>>s with <<term frcgroup>>s.  At present
     group <<term relationship>>s are static, but it is likely that
@@ -96,7 +97,7 @@ term attitude "attitude" {
 term bgerror "bgerror" {
     When Athena encounters an unexpected run-time error, it does not
     usually halt execution.  Instead, the error and a complete stack
-    trace are written to the <<tabref Log>>, and the user is
+    trace are written to the <<tab Log>>, and the user is
     notified.  This is called a <i>background error</i>, or 
     <i>bgerror</i> for short.<p>
 
@@ -143,8 +144,8 @@ term bsystem "belief system" {
 
 term calibration "calibration" {
     Athena's models can be calibrated for a particular setting by 
-    tweaking Athena's <<cref parmdb>>.  This is particularly important
-    for the <<model econ>> model; see the <i>Athena Analyst's
+    tweaking Athena's <<cref /parmdb>>.  This is particularly important
+    for the <<cref /model/econ>> model; see the <i>Athena Analyst's
     Guide</i> for the steps to calibrate the economy.
 }
 
@@ -190,7 +191,7 @@ term calpattern "calendar pattern" {
 #-----------------------------------------------------------------------
 
 term capacity "capacity" {
-    Each <<term sector>> in the <<model econ>> model has a maximum
+    Each <<term sector>> in the <<cref /model/econ>> model has a maximum
     size, or <i>capacity</i>.  The size of the <b>pop</b> sector is 
     limited by the size of the labor force, for example.<p>
 
@@ -199,13 +200,13 @@ term capacity "capacity" {
     to produce goods and services.  This capacity is set when the
     scenario is locked and can then be increased or decreased 
     <<term nbhood>> by neighborhood by setting the Production 
-    Capacity Factor (PCF) on the <<tabref Econ/Capacity>>.
+    Capacity Factor (PCF) on the <<tab Econ/Capacity>>.
 }
 
 #-----------------------------------------------------------------------
 
 term cause "cause" {
-    Every <<model gram>> <<term driver>> has an associated
+    Every <<cref /model/attitude/gram>> <<term driver>> has an associated
     <i>cause</i>.  All inputs to GRAM for the driver will be tagged
     with this cause; for example, the <b>DISEASE</b> and
     <b>EPIDEMIC</b> <<term ensit>>s both have the cause
@@ -243,8 +244,8 @@ term civgroup "civilian group" {
     affiliation, and so forth.<p>
 
     Civilian groups are created on the 
-    <<tabref Groups/CivGroups>>, and manipulated using the
-    <<cref CIVGROUP:>>.
+    <<tab Groups/CivGroups>>, and manipulated using the
+    <<cref /order/civgroup>>.
 }
 
 #-----------------------------------------------------------------------
@@ -299,7 +300,7 @@ term condition "condition" {
 
     Conditions can be attached to an <<term actor>>'s
     <<term goal>>s and <<term tactic>>s on the
-    <<tabref Strategy>>.
+    <<tab Strategy>>.
 }
 
 #-----------------------------------------------------------------------
@@ -326,8 +327,8 @@ term cooperation "cooperation" {
 
     Athena creates the required cooperation curves automatically as 
     groups are created.  The cooperation between groups
-    is viewed and modified on the <<tabref Attitudes/Cooperation>>
-    using the <<cref COOP:>> and <<cref MAD:COOP:>>.  Cooperation can
+    is viewed and modified on the <<tab Attitudes/Cooperation>>
+    using the <<cref /order/coop>> and <<cref /order/mad/coop>>.  Cooperation can
     also be changed by <<term driver>>s that trigger Athena's
     <<term damrules>>.
 }
@@ -348,7 +349,8 @@ term coverage "coverage" {
 term damrules "DAM Rules" {
     Athena assesses the affect of simulation <<term driver>>s using a
     collection of rule sets that belong to Athena's 
-    <<model dam>> (DAM); the rule sets are collectively known as the
+    <<cref /model/attitude/dam>> (DAM); the rule sets are collectively
+    known as the 
     <i>DAM Rules</i>.  The full set of rules and their effects are
     defined in the Athena Rules document, delivered with the software.
 }
@@ -366,10 +368,10 @@ term day "day" {
     advance, in the "morning", Athena executes all scheduled orders,
     and staffs <<term activity "activities">> from the available
     personnel.  At "noon", if Athena enters the <b>PAUSED</b> state,
-    the user has the opportunity to send <<cref orders>>.  In the
+    the user has the opportunity to send <<cref /order>>.  In the
     "evening", the current state of affairs is assessed: 
     <<term security>> and <<term coverage>> are computed, 
-    <<model dam>> rules fire, and so forth.  Then, at midnight,
+    <<cref /model/attitude/dam>> rules fire, and so forth.  Then, at midnight,
     time advances, and the cycle continues.<p>
 
     See also <<term tick>>.
@@ -380,13 +382,13 @@ term day "day" {
 term demsit "demographic situation" {
     A <i>demographic situation</i> is an on-going situation involving
     the residents of a neighborhood as detected by the 
-    <<model demog>> model.  It is an attitude <<term driver>>.
+    <<cref /model/demog>> model.  It is an attitude <<term driver>>.
     At present, there is only one type of demographic situation, the
     Unemployment (UNEMP) situation; see the <i>Athena Rules</i>
     document for details.<p>
 
     Existing demographic situations can be seen on the 
-    <<tabref Neighborhoods/DemSits>>.
+    <<tab Neighborhoods/DemSits>>.
 }
 
 #-----------------------------------------------------------------------
@@ -403,7 +405,7 @@ term driver "driver" {
 
     <b>2.</b> A <<term mad>>.<p>
 
-    <b>3.</b> A <<model gram>> driver ID.
+    <b>3.</b> A <<cref /model/attitude/gram>> driver ID.
 }
 
 #-----------------------------------------------------------------------
@@ -418,8 +420,8 @@ term effects_delay "effects delay" {
     longer delays.  Note that the delay need not be symmetric.<p>
 
     The effects delay between two neighborhoods is edited on the
-    <<tabref Neighborhoods/Relationships>>, using the
-    <<cref NBREL:>>.
+    <<tab Neighborhoods/Relationships>>, using the
+    <<cref /order/nbrel>>.
 }
 
 #-----------------------------------------------------------------------
@@ -438,7 +440,7 @@ term ensit "environmental situation" {
     is meaningless.<p>
 
     Environmental situations can be created and positioned using the 
-    controls on the <<tabref Map>>.  
+    controls on the <<tab Map>>.  
 }
 
 #-----------------------------------------------------------------------
@@ -525,11 +527,11 @@ term frcgroup "force group" {
     organized crime.<p>
 
     Force groups are created on the 
-    <<tabref Groups/FrcGroups>>, and manipulated using the
-    <<cref FRCGROUP:>>.  In order to apply force, force group
+    <<tab Groups/FrcGroups>>, and manipulated using the
+    <<cref /order/frcgroup>>.  In order to apply force, force group
     personnel must be assigned to neighborhoods on the 
-    <<tabref Groups/Personnel>> and assigned to
-    <<term activity "activities">> on the <<tabref Schedule>>.
+    <<tab Groups/Personnel>> and assigned to
+    <<term activity "activities">> on the <<tab Schedule>>.
 }
 
 #-----------------------------------------------------------------------
@@ -538,7 +540,7 @@ term goal "goal" {
     A <i>goal</i> is a state of affairs that an <<term actor>> wishes to 
     bring about or maintain.  A goal is defined by a set of 
     <<term condition>>s.  Goals are browsed and edited on
-    the <<tabref Strategy>>.
+    the <<tab Strategy>>.
 }
 
 #-----------------------------------------------------------------------
@@ -559,7 +561,7 @@ term group "group" {
 #-----------------------------------------------------------------------
 
 term local_economy "local economy" {
-    Athena's <<model econ>> model concerns the economy of a region: a
+    Athena's <<cref /model/econ>> model concerns the economy of a region: a
     single country, part of that country, or perhaps several small
     countries taken together.  Athena's <<term nbhood>>s can be 
     "local", i.e., part of the economic region of interest, or
@@ -586,7 +588,7 @@ term loglevel "log level" {
     </ul><p>
 
     Note that <b>debug</b> messages are only written to the log when
-    enabled by the developer.  By default, the <<tabref Log>> shows
+    enabled by the developer.  By default, the <<tab Log>> shows
     <b>normal</b> messages of severity <b>normal</b> and above.
 }
 
@@ -596,7 +598,7 @@ term mad "magic attitude driver" {
     A <i>magic attitude driver</i> (MAD) is a "magic" 
     <<term driver>> (event or situation) defined by the user; it
     affects attitudes in any way the user determines, via the 
-    <<cref MAD:>>.<p>
+    <<cref /order/mad>>.<p>
 }
 
 
@@ -656,13 +658,13 @@ term morning "morning" {
 term nbhood "neighborhood" {
     The Athena <<term playbox>>, or region of interest, is divided up
     into <i>neighborhoods</i>.  A neighborhood is a polygonal area on
-    the <<cref using.maps map>> containing <<term civgroup>>s, 
+    the <<cref /using/maps map>> containing <<term civgroup>>s, 
     <<term unit>>s of various kinds, <<term ensit>>s, and so forth.<p>
 
     Neighborhoods can be created on the 
-    <<tabref Map>> during <<cref using.prep>>, and manipulated
-    on the <<tabref Neighborhoods/Neighborhoods>> and using the
-    <<cref NBHOOD:>>.
+    <<tab Map>> during <<cref /using/prep>>, and manipulated
+    on the <<tab Neighborhoods/Neighborhoods>> and using the
+    <<cref /order/nbhood>>.
 }
 
 #-------------------------------------------------------------------
@@ -670,25 +672,25 @@ term nbhood "neighborhood" {
 term noon "noon" {
     The middle of a simulated <<term day>>, when (if the simulation enters
     the <b>PAUSED</b> state) the user has the opportunity to enter
-    <<cref orders>>.
+    <<cref /order>>.
 }
 
 #-----------------------------------------------------------------------
 
 term order "order" {
     Inputs to the Athena scenario and models are presented to Athena
-    as <<cref orders>>.<p>
+    as <<cref /order>>.<p>
 
     Orders may be sent interactively by a variety
     of methods; such orders can usually be 
-    <<menuref Edit/Undo undone>>.  The complete history of orders
+    <<menu Edit/Undo undone>>.  The complete history of orders
     sent interactively to Athena is shown on the 
-    <<tabref Orders/Sent>>.<p>
+    <<tab Orders/Sent>>.<p>
 
     In addition, orders can be scheduled in advance.  Scheduled orders are
     execute as time advances, and consequently cannot be undone.  The
     full set of orders that are waiting for execution is shown on the 
-    <<tabref Orders/Scheduled>>.
+    <<tab Orders/Scheduled>>.
 }
 
 
@@ -703,8 +705,8 @@ term orggroup "organization group" {
     Haliburton.<p>
 
     Organization groups are created on the 
-    <<tabref Groups/OrgGroups>>, and manipulated using the
-    <<cref ORGGROUP:>>.  In order to work, organization
+    <<tab Groups/OrgGroups>>, and manipulated using the
+    <<cref /order/orggroup>>.  In order to work, organization
     group personnel must exist in the <<term playbox>> as <<term unit>>s.
 }
 
@@ -764,8 +766,8 @@ term proximity "proximity" {
     regards A as <b>FAR</b>, or even as <b>REMOTE</b>.<p>
 
     The proximity between two neighborhoods is edited on the
-    <<tabref Neighborhoods/Relationships>>, using the
-    <<cref NBREL:>>.<p>
+    <<tab Neighborhoods/Relationships>>, using the
+    <<cref /order/nbrel>>.<p>
 
 
     See also <<term effects_delay>>.
@@ -785,8 +787,8 @@ term relationship "relationship" {
     relationships between groups range from +0.6 to -0.3 or -0.4.<p>
 
     Group relationships are edited on the 
-    <<tabref Groups/Relationships>>, using the 
-    <<cref REL:>> orders.<p>
+    <<tab Groups/Relationships>>, using the 
+    <<cref /order/rel>> orders.<p>
 
     <b>2.</b> The relationship between two <<term nbhood>>s, expressed
     as a <<term proximity>> and an <<term effects_delay>>.
@@ -804,8 +806,7 @@ term roe "ROE" {
     the appropriate ROEs.<p>
 
     There are several kinds of ROE; they are created, browsed, and
-    edited on the subtabs of the <<tabref ROE>>.  See the description
-    of the <<cref roe>> for more details.
+    edited on the subtabs of the <<tab ROE>>.
 }
 
 
@@ -825,8 +826,8 @@ term saliency "saliency" {
     <<::simlib::qsaliency html>>
 
     A group's saliency for each concern is set on the
-    <<tabref Attitudes/Satisfaction>> using the
-    <<cref SAT:>>.
+    <<tab Attitudes/Satisfaction>> using the
+    <<cref /order/sat>>.
 }
 
 
@@ -843,8 +844,8 @@ term satisfaction "satisfaction" {
 
     Athena creates the required satisfaction curves automatically as 
     groups and <<term nbhood>>s are created.  A group's satisfaction
-    is viewed and modified on the <<tabref Attitudes/Satisfaction>>
-    using the <<cref SAT:>> and <<cref MAD:SAT:>>.  Satisfaction can
+    is viewed and modified on the <<tab Attitudes/Satisfaction>>
+    using the <<cref /order/sat>> and <<cref /order/mad/sat>>.  Satisfaction can
     also be changed by <<term driver>>s that trigger Athena's
     <<term damrules>>.
 }
@@ -855,13 +856,13 @@ term scenariofile "scenario file" {
     Athena is a document-centric application, rather like a word
     processor or spreadsheet application.  An Athena "document" is
     called an <i>Athena scenario file</i>.  The scenario file contains
-    the scenario data, the <<cref using.maps map>> (if any),
-    <<cref reports>>, <<term snapshot>>s, and in general everything
+    the scenario data, the <<cref /using/maps map>> (if any),
+    reports, <<term snapshot>>s, and in general everything
     to do with the scenario.<p>
 
     Most Athena scenario files are in ".adb" format; however, it is
     possible to 
-    <<menuref "File/Export as XML..." export>> a scenario as an XML
+    <<menu "File/Export as XML..." export>> a scenario as an XML
     file (provided) the simulation is in the <b>Prep</b> <<term state>>.
 }
 
@@ -897,8 +898,8 @@ term sector "sector" {
 
 term security "security" {
     A <<term group>>'s <i>security</i> is computed by the 
-    <<model force>> model.  It is a number that indicates how safe
-    members of the group are in a <<term nbhood>>, as opposed to
+    <<cref /model/ground/force>> model.  It is a number that indicates
+    how safe members of the group are in a <<term nbhood>>, as opposed to
     how satisfied they are with their safety.  <p>
 
     Security is represented
@@ -914,16 +915,16 @@ term security "security" {
 
 term snapshot "snapshot" {
     Each time the user presses the 
-    <<cref using.simcontrols "Run Simulation">> button, the
+    <<cref /using/simcontrols "Run Simulation">> button, the
     simulation saves a snapshot of its current <<term state>>.  When the 
     simulation is paused, the user can use the VCR buttons on the
     main toolbar to return to any previous snapshot.  This is called
     being in "snapshot mode".  While in snapshot mode, the user can
-    browse the various <<cref tabs>> freely.<p>
+    browse the various <<cref /tab>> freely.<p>
 
     The most important snapshot is that taken at time 0; by 
     returning to this snapshot and "re-entering the time stream", the
-    simulation returns to the <<cref using.prep>> state.<p>
+    simulation returns to the <<cref /using/prep>> state.<p>
 }
 
 #-----------------------------------------------------------------------
@@ -945,24 +946,24 @@ term state "state" {
     </ul>
 
     When a scenario is first created, it is in the <b>Prep</b>, or
-    <<cref using.prep>> state.  This is where the most basic entities 
+    <<cref /using/prep>> state.  This is where the most basic entities 
     in the simulation are created: <<term nbhood>>s, <<term group>>s,
     and so forth.<p>
 
     The simulation remains in the <b>Prep</b> state until the user
-    first presses the <<cref using.simcontrols "Run Simulation">>
+    first presses the <<cref /using/simcontrols "Run Simulation">>
     button, at
     which time it enters the <b>Running</b> state.  The simulation
     will continue to advance time until it reaches the stop time
     selected by the user, or the user presses the 
-    <<cref using.simcontrols "Pause">> button.<p>
+    <<cref /using/simcontrols "Pause">> button.<p>
 
     Once the simulation is <b>Paused</b>, the user can once again
     enter <<term order>>s interactively.</p>
 
     Each time the user presses the Run button, the simulation makes
     a <<term snapshot>>; the user can return to these snapshots using
-    the <<cref using.simcontrols>>.  While looking at a snapshot, the
+    the <<cref /using/simcontrols>>.  While looking at a snapshot, the
     simulation is in the <b>Snapshot</b> state; orders cannot be
     entered until the user returns to the <b>Prep</b> or <b>Paused</b>
     state.
@@ -975,7 +976,7 @@ term strategy "strategy" {
     <<term tactic>>s he will use to achieve his 
     <<term goal>>s, along with the set of <<term condition>>s
     under which he will use them.  The actor's strategy is
-    browsed and edited on the <<tabref Strategy>>.
+    browsed and edited on the <<tab Strategy>>.
 }
 
 
@@ -996,7 +997,7 @@ term tactic "tactic" {
     in order to meet his <<term goal>>s.  An actor will
     execute a tactic when sufficient assets are available and
     all attached <<term condition>>s are met.  Tactics are browsed and 
-    edited on the <<tabref Strategy>>.
+    edited on the <<tab Strategy>>.
 }
 
 #-----------------------------------------------------------------------
@@ -1099,13 +1100,13 @@ term topic "topic" {
 term unit "unit" {
     A <i>unit</i> is a collection of personnel belonging to some
     <<term group>> that can be positioned in the <<term playbox>>
-    and displayed on the <<tabref Map>>.<p>
+    and displayed on the <<tab Map>>.<p>
 
     Units come into existence automatically to represent the
     neighborhood population; to represent force and organization group
-    personnel stationed in neighborhoods by the <<cref PERSONNEL:>>; 
+    personnel stationed in neighborhoods by the <<cref /order/personnel>>; 
     and also to represent personnel assigned to particular activities
-    by the <<cref ACTIVITY:>>.  Thus, every unit belongs to some group
+    by the <<cref /order/activity>>.  Thus, every unit belongs to some group
     and represents personnel drawn from some particular neighborhood.
 
     Each unit is tied to a particular neighborhood and can be moved
@@ -1120,7 +1121,7 @@ term unit "unit" {
     neighborhood in which the unit is located).  The number
     <i>nnnn</i> is "0000" for personnel not allocated to any
     particular activity, and the ID of the relevant
-    <<cref ACTIVITY: "calendar entry">> for units doing an activity.<p>
+    <<cref /order/activity "calendar entry">> for units doing an activity.<p>
 
     In conventional war games, units correspond to a Table of
     Organization and Equipment (TOE); thus, a unit might be Company A
@@ -1131,8 +1132,8 @@ term unit "unit" {
     <<term activity>> of law enforcement.<p>
 
     Units can be positioned using the controls on the
-    <<tabref Map>>.  The full set of units can browsed
-    and edited on the <<tabref Groups/Units>>, using the <<cref UNIT:>>.<p>
+    <<tab Map>>.  The full set of units can browsed
+    and edited on the <<tab Groups/Units>>, using the <<cref /order/unit>>.<p>
 }
 
 #-----------------------------------------------------------------------
@@ -1149,7 +1150,8 @@ term volatility "volatility" {
     The <i>volatility</i> of each <<term nbhood>> is a number from 0
     to 100 that indicates how likely it is that a random person in the
     neighborhood will get caught up in violence unrelated to his
-    presence.  It is computed by the <<model force>> model.<p>
+    presence.  It is computed by the 
+    <<cref /model/ground/force>> model.<p>
 
     Volatility is a major component of a <<term group>>'s 
     <<term security>>.
@@ -1159,7 +1161,7 @@ term volatility "volatility" {
 
 term worker "worker" {
     A member of the labor force, as determined by the
-    <<model demog>> model.  All workers are 
+    <<cref /model/demog>> model.  All workers are 
     <<term consumer>>s.
 }
 
@@ -1198,6 +1200,24 @@ term zulu "zulu-time" {
 
     <</topiclist>>
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

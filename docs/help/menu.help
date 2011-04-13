@@ -15,15 +15,15 @@
 #    
 #       File/Save Scenario As...
 #    
-#    The page names are created automatically by prepending
-#    "menu/" and converting blanks to underscores.
+#    The page paths are created automatically by prepending
+#    "/menu/", downcasing, and converting blanks to underscores.
 #    
-#    The menuref macro (defined in athena.help) creates a link to a 
-#    menu/menu item page given its label.
+#    The menu macro (defined in athena.help) creates a link to a 
+#    menu or menu item page given its label.
 #
 #-----------------------------------------------------------------------
 
-page menu "Application Menus" {} {
+page / menu "Application Menus" {
     <<title>>
     The Athena main menu bar provides access to most of Athena's
     functionality.  The full set of menus is as follows:<p>
@@ -38,69 +38,22 @@ page menu "Application Menus" {} {
 # Defines a menu page, defining the parent/child links properly.
 
 proc menu {name text} {
-    set replist [list " " "_"]
-    
-    set tag "menu/[string map $replist $name]"
-
-    set tokens [split $tag /]
-
-    set parent [lrange $tokens 0 end-1]
-
-    set ptag [join $parent /]
+    lassign [name2path /menu / $name] parent slug
 
     set title "$name Menu"
+    set tlinks "[name2pathlinks /menu / $name] Menu"
 
-    page $tag $title $ptag "<<menu.header [list $name]>>\n\n$text"
-}
-
-macro menu.header {name} {
-    set nTokens [lrange [split [pageinfo name] /] 1 end]
-    set tTokens [split $name /]
-
-    set taglist "menu"
-    set nameWithLinks ""
-    foreach ntok [lrange $nTokens 0 end-1] ttok [lrange $tTokens 0 end-1] {
-        lappend taglist "$ntok"
-
-        append nameWithLinks "[cref [join $taglist /] $ttok]/"
-    }
-
-    append nameWithLinks [lindex $tTokens end]
-} {
-    |<--
-    [title $nameWithLinks Menu]
+    page $parent $slug $title \
+        "<<title [list $tlinks]>>\n\n$text"
 }
 
 proc menuitem {name text} {
-    set replist [list " " "_"]
-    
-    set tag "menu/[string map $replist $name]"
+    lassign [name2path /menu / $name] parent slug
 
-    set tokens [split $tag /]
+    set tlinks [name2pathlinks /menu / $name]
 
-    set parent [lrange $tokens 0 end-1]
-
-    set ptag [join $parent /]
-
-    page $tag $name $ptag "<<menuitem.header [list $name]>>\n\n$text"
-}
-
-macro menuitem.header {name} {
-    set nTokens [lrange [split [pageinfo name] /] 1 end]
-    set tTokens [split $name /]
-
-    set taglist "menu"
-    set nameWithLinks ""
-    foreach ntok [lrange $nTokens 0 end-1] ttok [lrange $tTokens 0 end-1] {
-        lappend taglist "$ntok"
-
-        append nameWithLinks "[cref [join $taglist /] $ttok]/"
-    }
-
-    append nameWithLinks [lindex $tTokens end]
-} {
-    |<--
-    [mktitle small "Menu Item" $nameWithLinks ""]
+    page $parent $slug $name \
+        "<<mktitle small {Menu Item} [list $tlinks] {}>>\n\n$text"
 }
 
 #=======================================================================
@@ -115,7 +68,7 @@ menu "File" {
 
 menuitem "File/New Scenario..." {
     Closes the current scenario and creates a new, blank scenario,
-    loading the user's default <<cref parmdb "model parameter">>
+    loading the user's default <<cref /parmdb "model parameter">>
     settings.
 }
 
@@ -141,7 +94,7 @@ menuitem "File/Save Scenario As..." {
 menuitem "File/Export as XML..." {
     Saves the current scenario to disk in XML format.  Note that this
     can only be done while the simulation is in the
-    <<cref using.prep>> state.
+    <<cref /using/prep>> state.
 }
 
 menuitem "File/Save CLI Scrollback Buffer..." {
@@ -154,47 +107,47 @@ menuitem "File/Save CLI Scrollback Buffer..." {
 menuitem "File/Import Map..." {
     Imports an image file in JPEG, GIF, or PNG format to be used as
     a map background for the scenario.  Any image file can be used.
-    See <<cref using.maps>> for more information.
+    See <<cref /using/maps>> for more information.
 }
 
 menu "File/Parameters" {
     The items on this menu relate to the Athena 
-    <<cref parmdb>>.<p>
+    <<cref /parmdb>>.<p>
 
     <<childlinks>>
 }
 
 menuitem "File/Parameters/Import..." {
-    Imports <<cref parmdb "model parameter">> settings into the 
+    Imports <<cref /parmdb "model parameter">> settings into the 
     scenario from a ".parmdb" file on the disk.<p>
     
-    This menu item is equivalent to the <<cmdref parm import>> command.
+    This menu item is equivalent to the <<command parm import>> command.
 }
 
 menuitem "File/Parameters/Export..." {
-    Exports the scenario's current <<cref parmdb "model parameter">>
+    Exports the scenario's current <<cref /parmdb "model parameter">>
     settings to 
     a ".parmdb" file.  Note that only parameters whose values differ
     from the installation defaults are included.<p>
 
-    This menu item is equivalent to the <<cmdref parm export>> command.
+    This menu item is equivalent to the <<command parm export>> command.
 }
 
 menuitem "File/Parameters/Save as Default..." {
-    Saves the scenario's current <<cref parmdb "model parameter">>
+    Saves the scenario's current <<cref /parmdb "model parameter">>
     settings as the user's default settings for new scenarios.<p>
 
-    This menu item is equivalent to the <<cmdref parm defaults save>>
+    This menu item is equivalent to the <<command parm defaults save>>
     command.
 }
 
 menuitem "File/Parameters/Clear Defaults..." {
-    Clears the user's default <<cref parmdb "model parameter">>
+    Clears the user's default <<cref /parmdb "model parameter">>
     settings; new scenarios will be created using the installation
     defaults instead.  <b>Note:</b> Using this menu item will have no
     effect on the current scenario.<p>
 
-    This menu item is equivalent to the <<cmdref parm defaults clear>>
+    This menu item is equivalent to the <<command parm defaults clear>>
     command.
 }
 
@@ -223,7 +176,7 @@ menu "Edit" {
 
 menuitem "Edit/Undo" {
     Undoes the most recent order, if possible.  The 
-    <<tabref Orders/Sent>> shows the orders that can be
+    <<tab Orders/Sent>> shows the orders that can be
     undone (among other things).<p>
 
     The undo stack is cleared when the scenario is saved, and when 
@@ -281,15 +234,15 @@ menuitem "View/Simulation" {
 }
 
 menuitem "View/Order History" {
-    Selecting this item shows or hides the <<tabref Orders>>.
+    Selecting this item shows or hides the <<tab Orders>>.
 }
 
 menuitem "View/Scrolling Log" {
-    Selecting this item shows or hides the <<tabref Log>>.
+    Selecting this item shows or hides the <<tab Log>>.
 }
 
 menuitem "View/Command Line" {
-    Selecting this item shows or hides the <<cref using.cli>>.
+    Selecting this item shows or hides the <<cref /using/cli>>.
 }
 
 
@@ -300,7 +253,7 @@ menuitem "View/Command Line" {
 menu "Orders" {
     This menu provides one means of access to Athena's simulation
     orders, which are used to build the scenario and control its
-    execution.  See the <<cref orders>> documentation for complete
+    execution.  See the <<cref /order>> documentation for complete
     information on Athena's orders.<p>
 }
 
@@ -310,8 +263,8 @@ menu "Orders" {
 
 menu "Reports" {
     This menu provides access to Athena's user-requested reports, as
-    well as other report-oriented operations.  See the 
-    <<cref reports>> documentation for a full list of Athena's reports.
+    well as other report-oriented operations.  <b>TBD: most or all
+    Athena reports are going to go away.</b><p>
 
     The remaining menu items are as follows:<p>
 
@@ -357,52 +310,52 @@ menu "Help" {
 
 menuitem "Help/Help Contents" {
     This menu item pops up the on-line help's 
-    <<cref home "table of contents">>.
+    <<cref / "table of contents">>.
 }
 
 menuitem "Help/Application Menus" {
-    This menu item pops up the on-line help for the <<cref menu>>, 
+    This menu item pops up the on-line help for the <<cref /menu>>, 
     which you are currently reading.
 }
 
 menuitem "Help/Application Tabs" {
-    This menu item pops up the on-line help for the various <<cref tabs>>
+    This menu item pops up the on-line help for the various <<cref /tab>>
     used to browse the current state of the simulation.
 }
 
 menuitem "Help/Orders" {
     This menu item pops up the reference material for each of
-    Athena's simulation <<cref orders>>.
-}
-
-menuitem "Help/Reports" {
-    This menu item pops up the reference material for each of
-    Athena's <<cref reports>>.
+    Athena's simulation <<cref /order>>.
 }
 
 menuitem "Help/Display Variables" {
     This menu item pops up the refernece material for each of the
-    neighborhood and time-related <<cref vars>> that can be plotted
-    on the <<tabref Plots>> and used to color neighborhoods on
-    the <<tabref Map>>.
+    neighborhood and time-related <<cref /var>> that can be plotted
+    on the <<tab Plots>> and used to color neighborhoods on
+    the <<tab Map>>.
 }
 
 menuitem "Help/Executive Commands" {
     This menu item pops up the reference material for each of 
-    Athena's <<cref cmd>>.
+    Athena's <<cref /command>>.
 }
 
 menuitem "Help/Model Parameters" {
     This menu item pops up the reference material for each of 
-    the <<cref parmdb>> used to calibrate Athena's models.
+    the <<cref /parmdb>> used to calibrate Athena's models.
 }
 
 menuitem "Help/Release Notes" {
-    This menu item displays the <<cref release>> for this release
+    This menu item displays the <<cref /release>> for this release
     of Athena.
 }
 
 menuitem "Help/About Athena" {
-    This menu item displays basic information <<cref about>>,
+    This menu item displays basic information <<cref /about>>,
     including the copyright.
 }
+
+
+
+
+

@@ -195,7 +195,12 @@ snit::type app {
         # NEXT, register my:// servers with myagent.
         appserver init
         myagent register app ::appserver
-        myagent register rdb [rdbserver %AUTO% -rdb ::rdb]
+        myagent register help \
+            [helpserver %AUTO% \
+                 -helpdb    [appdir join docs help athena.helpdb] \
+                 -headercmd [mytypemethod HelpHeader]]
+        myagent register rdb \
+            [rdbserver %AUTO% -rdb ::rdb]
 
         # NEXT, define order interfaces
 
@@ -555,6 +560,16 @@ snit::type app {
         log detail notify "send $subject $event [list $eargs] to $objects"
     }
 
+    # HelpHeader udict
+    #
+    # Formats a custom header for help pages.
+
+    typemethod HelpHeader {udict} {
+        set out "<b><font size=2>Athena [version] Help</b>"
+        append out "<hr><p>\n"
+        
+        return $out
+    }
 
     #-------------------------------------------------------------------
     # Group: Utility Type Methods
@@ -562,47 +577,15 @@ snit::type app {
     # This routines are application-specific utilities provided to the
     # rest of the application.
 
-    # Type Method: help
+    # help title
     #
-    # Pops up the helpbrowserwin on the specified page.
+    # title  - A help page title
     #
-    # Syntax: 
-    #   help _?page?_
-    #
-    #   page - A helpdb(n) page ID
+    # Shows a page with the desired title, if any, in the Detail Browser.
 
-    typemethod help {{page home}} {
-        helpbrowserwin showhelp $page
+    typemethod help {{title ""}} {
+        app show "my://help/?[string trim $title]"
     }
-
-    # Type Method: cmdhelp
-    #
-    # Pops up the helpbrowserwin on the specified command,
-    # or the Executive Commands page if no command was specified.
-    #
-    # Syntax:
-    #   cmdhelp _?command?_
-    #
-    #   command - An executive command name
-
-    typemethod cmdhelp {{command {}}} {
-        # FIRST, just pop up the command help if no particular
-        # command was requested.
-        if {$command eq ""} {
-            helpbrowserwin showhelp cmd
-            return
-        }
-
-        # NEXT, do we have such a command?
-        set page cmd.[join $command .]
-
-        if {![helpbrowserwin exists $page]} {
-            error "No help found: $command"
-        }
-
-        helpbrowserwin showhelp $page
-    }
-
 
     # Type Method: puts
     #
@@ -713,11 +696,13 @@ snit::type app {
         }]} {
             # Punt to normal error handling
             $type ShowInDetailBrowser $uri
+            return
         }
 
         # NEXT, if the scheme isn't "gui", show in detail browser.
         if {$parts(scheme) ne "gui"} {
             $type ShowInDetailBrowser $uri
+            return
         }
 
         # NEXT, what kind of "gui" url is it?

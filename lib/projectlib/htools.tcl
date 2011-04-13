@@ -251,7 +251,7 @@ snit::type ::projectlib::htools {
         $self tr {
             foreach name $qnames align $qopts(-align) {
                 if {$qopts(-escape)} {
-                    set qrow($name) [$type escape $qrow($name)]
+                    set qrow($name) <pre>[$type escape $qrow($name)]</pre>
                 }
 
                 $self td $align {

@@ -42,7 +42,7 @@ DOC_TOOL = $(TOP_DIR)/mars/bin/mars doc -manroots "$(MAN_ROOTS)" -version $(ATHE
 
 MAN_TOOL = $(TOP_DIR)/mars/bin/mars man -manroots "$(MAN_ROOTS)" -version $(ATHENA_VERSION) -project $(PROJECT) -longproject $(LONGPROJECT)
 
-HELP_TOOL    = $(TOP_DIR)/mars/bin/mars helptool -version $(ATHENA_VERSION) -libdir $(TOP_DIR)/lib -lib simlib -lib projectlib
+HELP_TOOL    = $(TOP_DIR)/tools/bin/helptool -version $(ATHENA_VERSION) -libdir $(TOP_DIR)/lib -lib simlib -lib projectlib
 HELP_BROWSER = $(TOP_DIR)/mars/bin/mars helpbrowser
 
 TEST_TOOL = $(TCLSH) $(TOP_DIR)/bin/athena_test

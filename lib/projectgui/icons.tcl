@@ -347,6 +347,36 @@ namespace eval ::projectgui::icon:: {
         X,,,,,,,,,,X
         XXXXXXXXXXXX
     } { . trans X black , "#0AAEBD" }
+
+    mkicon ::projectgui::icon::page12 {
+        ....XXXXXXXX
+        ...XX,,,,,,X
+        ..X,X,,,,,,X
+        .X,,X,,,,,,X
+        XXXXX,,,,,,X
+        X,,,,,,,,,,X
+        X,,,,,,,,,,X
+        X,,,,,,,,,,X
+        X,,,,,,,,,,X
+        X,,,,,,,,,,X
+        X,,,,,,,,,,X
+        XXXXXXXXXXXX
+    } { . trans X black , white }
+
+    mkicon ::projectgui::icon::help12 {
+        ...XXXXXX...
+        ..XX....XX..
+        ..XX.....XX.
+        ........XX..
+        .......XX...
+        ......XX....
+        .....XX.....
+        .....XX.....
+        ............
+        .....XX.....
+        ....XXXX....
+        .....XX.....
+    } { . trans X black , white }
 }
 
 

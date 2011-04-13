@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    orders.help
+#    order.help
 #
 # AUTHOR:
 #    Will Duquette
@@ -11,18 +11,34 @@
 #
 #    This file is included into athena.help.
 #
+#    Orders have help pages with names like
+#
+#        /order/<token1>/<token2>?/...?
+#
+#    E.g, the CIVGROUP:CREATE order has the page
+#
+#       /order/civgroup/create
+#
+#    In some cases, the implied hierarchy in the order names is misleading;
+#    for example, CIVGROUP:UPDATE:MULTI has the page
+#
+#       /order/civgroup/update:multi
+#
+#    It would better if the "UPDATE:MULTI" orders were renamed, but for
+#    now, that's how it is.
+#
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
 
-page orders "Orders" {} {
+page / order "Orders" {
     <<title>>
     The analyst communicates with Athena by means of <i>orders</i>.
     Most orders are sent by means of an order dialog; some are sent
     implicitly.  For example, dragging a unit from one place to
-    another on the map implicitly sends the <<cref UNIT:MOVE>> 
+    another on the map implicitly sends the <<cref /order/unit/move>> 
     order.  Order dialogs can be invoked in a number of ways, e.g., by
-    selecting an order from the <<cref menu/Orders>>.<p>
+    selecting an order from the <<cref /menu/orders>>.<p>
 
     Orders are grouped in the following categories:<p>
 
@@ -43,18 +59,18 @@ page orders "Orders" {} {
 # In this case, enter the latter as "FOO:UPDATE+MULTI".
 
 proc order {name title text} {
-    set tokens [split $name :]
-    set parent [join [lrange $tokens 0 end-1] :]:
+    lassign [name2path /order : $name] parent slug
+    set slug [string map {+ :} $slug]
     set name [string map {+ :} $name]
-    
-    set text "<<order.header>>\n\n$text"
-    page $name $title $parent $text
+
+    set text "<<order.header [list $title]>>\n\n$text"
+    page $parent $slug $name $text
 }
 
 # Formats the title for an order page
-macro order.header {} {
+macro order.header {otitle} {
     |<--
-    [mktitle normal "" [pageinfo title] "(<tt>[pageinfo name]</tt>)"]
+    [mktitle normal "" $otitle "(<tt>[pageinfo title]</tt>)"]
 }
 
 macro parm.identifier {entity example} {
@@ -80,7 +96,7 @@ macro parm.ids {entity} {
 
 #-----------------------------------------------------------------------
 
-page ACTIVITY: "Activity Scheduling Orders" orders {
+page /order activity "Activity Scheduling Orders" {
     <<title>>
 
     The analyst assigns activities to personnel according to a schedule;
@@ -112,7 +128,7 @@ macro ACTIVITY.start {tag} {
     |<--
     [parm start "Start"]
     <b>$tag.</b> The first day on which the activity is scheduled,
-    as a [term timespec].  While in [cref using.prep], the
+    as a [term timespec].  While in [cref /using/prep], the
     activity may be scheduled at time 0 ("<b>NOW</b>" or "<b>T0</b>");
     while in the <b>Paused</b> state, the earliest the activity can be
     scheduled is day following the current day ("<b>NOW+1</b>").
@@ -154,7 +170,7 @@ order ACTIVITY:SCHEDULE "Schedule Activity" {
     personnel will be drawn.  For civilian groups, this must be the 
     group's neighborhood of residence; for force and organization groups, it
     is the neighborhood in which the personnel are stationed (see
-    the <<cref PERSONNEL:>>).
+    the <<cref /order/personnel>>).
     <</parm>>
 
     <<parm a "Activity">>
@@ -178,7 +194,7 @@ order ACTIVITY:SCHEDULE "Schedule Activity" {
     activities scheduled for group <i>g</i> from neighborhood
     <i>n</i> on a given day; if <b>bottom</b>, it will the lowest
     priority.  The priority can be changed using the
-    <<cref ACTIVITY:PRIORITY>> order.
+    <<cref /order/activity/priority>> order.
     <</parm>>
 
     <</parmlist>>
@@ -214,7 +230,7 @@ order ACTIVITY:UPDATE "Update Scheduled Activity" {
     personnel are drawn.  For civilian groups, this is the 
     group's neighborhood of residence; for force and organization groups, it
     is the neighborhood in which the personnel are stationed (see
-    the <<cref PERSONNEL:>>).
+    the <<cref /order/personnel>>).
     <</parm>>
 
     <<parm a "Activity">>
@@ -236,7 +252,7 @@ order ACTIVITY:UPDATE "Update Scheduled Activity" {
     Allows the analyst to modify a scheduled activity.  The group,
     activity, and neighborhoods are shown as a convenience, but once
     an activity is scheduled they are fixed and cannot be changed; if
-    they are incorrect, use <<cref ACTIVITY:CANCEL>> to cancel the
+    they are incorrect, use <<cref /order/activity/cancel>> to cancel the
     activity and schedule a new one.<p>
 
     Note that when editing an activity that started at some point in
@@ -261,7 +277,7 @@ order ACTIVITY:CANCEL "Cancel Scheduled Activity" {
     personnel are drawn.  For civilian groups, this is the 
     group's neighborhood of residence; for force and organization groups, it
     is the neighborhood in which the personnel are stationed (see
-    the <<cref PERSONNEL:>>).
+    the <<cref /order/personnel>>).
     <</parm>>
 
     <<parm a "Activity">>
@@ -325,7 +341,7 @@ macro ACTOR.budget {} {
     model is providing the budgets to each actor. 
 }
 
-page ACTOR: "Actor Orders" orders {
+page /order actor "Actor Orders" {
     <<title>>
 
     Athena uses actors to model political actors of various kinds:
@@ -352,7 +368,7 @@ order ACTOR:CREATE "Create Actor" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order creates a
+    <b><<cref /using/prep>> Only.</b>  This order creates a
     new actor.
 }
 
@@ -367,7 +383,7 @@ order ACTOR:DELETE "Delete Actor" {
     <</parm>>
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    <b><<cref /using/prep>> Only.</b>  Deletes an existing
     actor, along with all entities (e.g., beliefs)
     that depend upon it.<p>
 }
@@ -390,13 +406,13 @@ order ACTOR:UPDATE "Update Actor" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order modifies the
+    <b><<cref /using/prep>> Only.</b>  This order modifies the
     definition of an existing actor.<p>
 }
 
 #-----------------------------------------------------------------------
 
-page ATTRIT: "Attrition Orders" orders {
+page /order attrit "Attrition Orders" {
     <<title>>
 
     Athena assesses attrition due to conflict between groups
@@ -547,7 +563,7 @@ macro TOPIC.relevance {} {
     computations.<p>
 }
 
-page BSYSTEM: "Belief System Orders" orders {
+page /order bsystem "Belief System Orders" {
     <<title>>
 
     Every <<term civgroup>> and every <<term actor>> has a 
@@ -564,7 +580,7 @@ page BSYSTEM: "Belief System Orders" orders {
 
 #-----------------------------------------------------------------------
 
-page BSYSTEM:TOPIC: "Topic Orders" BSYSTEM: {
+page /order/bsystem topic "Topic Orders" {
     <<title>>
 
     Each <<term bsystem>> consists of a 
@@ -593,7 +609,7 @@ order BSYSTEM:TOPIC:CREATE "Create Belief System Topic" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order creates a
+    <b><<cref /using/prep>> Only.</b>  This order creates a
     new <<term topic>>.
 }
 
@@ -608,7 +624,7 @@ order BSYSTEM:TOPIC:DELETE "Delete Belief System Topic" {
     <</parm>>
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    <b><<cref /using/prep>> Only.</b>  Deletes an existing
     belief system <<term topic>>, along with all beliefs
     that depend upon it.<p>
 }
@@ -631,13 +647,13 @@ order BSYSTEM:TOPIC:UPDATE "Update Belief System Topic" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order modifies the
+    <b><<cref /using/prep>> Only.</b>  This order modifies the
     definition of an existing <<term topic>>.<p>
 }
 
 #-----------------------------------------------------------------------
 
-page BSYSTEM:BELIEF: "Belief Orders" BSYSTEM: {
+page /order/bsystem belief "Belief Orders" {
     <<title>>
 
     Each <<term bsystem>> consists of a 
@@ -678,14 +694,14 @@ order BSYSTEM:BELIEF:UPDATE "Update Belief" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order modifies the
+    <b><<cref /using/prep>> Only.</b>  This order modifies the
     an existing belief in a <<term bsystem>>.<p>
 }
 
 #=======================================================================
 # Condition Orders
 
-page CONDITION: "Condition Orders" orders {
+page /order condition "Condition Orders" {
     <<title>>
 
     A <<term condition>> is a Boolean predicate that can be
@@ -782,7 +798,7 @@ order CONDITION:STATE "Set Condition State" {
 #-----------------------------------------------------------------------
 # Condition: CASH
 
-page CONDITION:CASH: "Condition: Cash on hand" CONDITION: {
+page /order/condition cash "Condition: Cash on hand" {
     <<title>>
 
     This condition compares an actor's cash-on-hand with a 
@@ -850,7 +866,7 @@ order CONDITION:CASH:UPDATE "Update Condition: Cash on hand" {
 #-----------------------------------------------------------------------
 # Condition: GOAL
 
-page CONDITION:GOAL: "Condition: Goal Flag" CONDITION: {
+page /order/condition goal "Condition: Goal Flag" {
     <<title>>
 
     This condition queries on the state of one or more goals
@@ -916,7 +932,7 @@ order CONDITION:GOAL:UPDATE "Update Condition: Goal Flag" {
 #=======================================================================
 # Cooperation Orders
 
-page COOP: "Cooperation Orders" orders {
+page /order coop "Cooperation Orders" {
     <<title>>
 
     Athena models the cooperation of neighborhood
@@ -925,7 +941,7 @@ page COOP: "Cooperation Orders" orders {
     the civilian group will give intelligence to a member of the force
     group.  This family of orders are used to manipulate the
     initial cooperation levels between various groups.  (Use the
-    <<cref MAD:COOP:>> to adjust or otherwise influence the 
+    <<cref /order/mad/coop>> to adjust or otherwise influence the 
     current levels.)<p>
 
     The full set of orders is as follows:<p>
@@ -986,11 +1002,11 @@ order COOP:UPDATE "Update Initial Cooperation" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order updates the initial
+    <b><<cref /using/prep>> Only.</b>  This order updates the initial
     cooperation level of one group with another; this can only be done
     during the Scenario Preparation phase.<p>
 
-    (Use the <<cref MAD:>> to adjust or otherwise influence the 
+    (Use the <<cref /order/mad>> to adjust or otherwise influence the 
     current levels.)
 }
 
@@ -1003,7 +1019,7 @@ order COOP:UPDATE+MULTI "Update Initial Cooperation (Multi)" {
 
     Programmatically, each ID is a list {<i>f g</i>} where
     <i>f</i> and <i>g</i> are defined as for the 
-    <<cref COOP:UPDATE>> order.
+    <<cref /order/coop/update>> order.
     <</parm>>
 
     <<parm coop0 "Cooperation">>
@@ -1048,18 +1064,18 @@ order COOP:UPDATE+MULTI "Update Initial Cooperation (Multi)" {
     <</parm>>
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order updates the initial
+    <b><<cref /using/prep>> Only.</b>  This order updates the initial
     cooperation level for two or more cooperation curves, as selected 
     in the GUI.<p>
 
-    (Use the <<cref MAD:>> to adjust or otherwise influence the 
+    (Use the <<cref /order/mad>> to adjust or otherwise influence the 
     current levels.)
 }
 
 #=======================================================================
 # Econ Model Orders
 
-page ECON: "Economic Model Orders" orders {
+page /order econ "Economic Model Orders" {
     <<title>>
 
     This section describes the orders used to configure Athena's
@@ -1123,7 +1139,7 @@ order ECON:UPDATE+MULTI "Update Economic Inputs for Multiple Neighborhoods" {
 #=======================================================================
 # Environmental Situation Orders
 
-page ENSIT: "Environmental Situation Orders" orders {
+page /order ensit "Environmental Situation Orders" {
     <<title>>
 
     Athena models a variety of on-going conditions within
@@ -1192,7 +1208,7 @@ macro ENSIT.rduration {} {
     specified time. If 0, no auto-resolution will take place.<p>
 
     If this value is omitted, it will default to the value of the
-    <b>ensit.<i>stype</i>.duration</b> [cref parmdb parameter].
+    <b>ensit.<i>stype</i>.duration</b> [cref /parmdb parameter].
 }
 
 #-----------------------------------------------------------------------
@@ -1234,7 +1250,7 @@ order ENSIT:CREATE "Create Environmental Situation" {
     <</parmlist>>
 
     This order creates a new environmental situation.  Note that the
-    <<cref ENSIT:UPDATE>> order can be used to
+    <<cref /order/ensit/update>> order can be used to
     edit any of these values so long as the situation has not yet
     become active, i.e., up until the next time advance.<p>
 }
@@ -1335,7 +1351,7 @@ order ENSIT:RESOLVE "Resolve Environmental Situation" {
     population will consider responsible for resolving this situation,
     or <b>NONE</b> if none.  If specified, overrides the group name
     given when the situation was 
-    <<cref ENSIT:CREATE created>>.
+    <<cref /order/ensit/create created>>.
     <</parm>>
 
     <</parmlist>>
@@ -1348,7 +1364,7 @@ order ENSIT:RESOLVE "Resolve Environmental Situation" {
 #=======================================================================
 # Goal Orders
 
-page GOAL: "Goal Orders" orders {
+page /order goal "Goal Orders" {
     <<title>>
 
     A <<term goal>> represents a state of affairs that an actor
@@ -1499,7 +1515,7 @@ macro GROUP.sap {} {
 macro GROUP.a {} {
     |<--
     The group's owning actor.  This parameter may remain unset during
-    [cref using.prep], but must be specified before time can be
+    [cref /using/prep], but must be specified before time can be
     advanced.
 }
 
@@ -1508,7 +1524,7 @@ macro GROUP.a {} {
 #=======================================================================
 # Civilian Group Orders
 
-page CIVGROUP: "Civilian Group Orders" orders {
+page /order civgroup "Civilian Group Orders" {
     <<title>>
 
     Athena uses civilian groups to model identifiable collections of
@@ -1556,7 +1572,7 @@ order CIVGROUP:CREATE "Create Civilian Group" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order creates a
+    <b><<cref /using/prep>> Only.</b>  This order creates a
     new civilian group.
 }
 
@@ -1571,7 +1587,7 @@ order CIVGROUP:DELETE "Delete Civilian Group" {
     <</parm>>
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    <b><<cref /using/prep>> Only.</b>  Deletes an existing
     civilian group, along with all entities (e.g., attitudes)
     that depend upon it.<p>
 }
@@ -1614,7 +1630,7 @@ order CIVGROUP:UPDATE "Update Civilian Group" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order modifies the
+    <b><<cref /using/prep>> Only.</b>  This order modifies the
     definition of an existing civilian group.<p>
 }
 
@@ -1653,7 +1669,7 @@ order CIVGROUP:UPDATE+MULTI "Update Multiple Civilian Groups" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order modifies the
+    <b><<cref /using/prep>> Only.</b>  This order modifies the
     definition of two or more civilian groups, as selected in the GUI.<p>
 }
 
@@ -1671,7 +1687,7 @@ order CIVGROUP:UPDATE+POSTPREP "Update Civilian Group (Post-PREP)" {
     <</parmlist>>
 
     This order modifies the definition of an existing civilian
-    group after leaving <<cref using.prep>>.  Only a subset of the
+    group after leaving <<cref /using/prep>>.  Only a subset of the
     group attributes can be edited.<p>
 }
 
@@ -1692,7 +1708,7 @@ order CIVGROUP:UPDATE+POSTPREP+MULTI "Update Multiple Civilian Groups (Post-PREP
 
     This order modifies the
     definition of two or more civilian groups, as selected in the
-    GUI, after leaving <<cref using.prep>>.  Only a subset of the 
+    GUI, after leaving <<cref /using/prep>>.  Only a subset of the 
     group attributes can be edited.<p>
 }
 
@@ -1700,7 +1716,7 @@ order CIVGROUP:UPDATE+POSTPREP+MULTI "Update Multiple Civilian Groups (Post-PREP
 #=======================================================================
 # Force Group Orders
 
-page FRCGROUP: "Force Group Orders" orders {
+page /order frcgroup "Force Group Orders" {
     <<title>>
 
     Athena uses force groups to model groups and organizations that 
@@ -1709,8 +1725,8 @@ page FRCGROUP: "Force Group Orders" orders {
 
     <<childlinks>>
 
-    Then, the <<cref PERSONNEL:>> can be used to establish force
-    levels in various neighborhoods, and the <<cref ACTIVITY:>> can be 
+    Then, the <<cref /order/personnel>> can be used to establish force
+    levels in various neighborhoods, and the <<cref /order/activity>> can be 
     used to schedule various activities by the group's personnel.
 }
 
@@ -1780,7 +1796,7 @@ order FRCGROUP:CREATE "Create Force Group" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order creates a
+    <b><<cref /using/prep>> Only.</b>  This order creates a
     new force group.
 }
 
@@ -1795,7 +1811,7 @@ order FRCGROUP:DELETE "Delete Force Group" {
     <</parm>>
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    <b><<cref /using/prep>> Only.</b>  Deletes an existing
     force group, along with all entities (e.g., units)
     that depend upon it.<p>
 }
@@ -1842,7 +1858,7 @@ order FRCGROUP:UPDATE "Update Force Group" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order modifies the
+    <b><<cref /using/prep>> Only.</b>  This order modifies the
     definition of an existing force group.<p>
 }
 
@@ -1885,7 +1901,7 @@ order FRCGROUP:UPDATE+MULTI "Update Multiple Force Groups" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order modifies the
+    <b><<cref /using/prep>> Only.</b>  This order modifies the
     definition of two or more force groups, as selected in the GUI.<p>
 }
 
@@ -1893,7 +1909,7 @@ order FRCGROUP:UPDATE+MULTI "Update Multiple Force Groups" {
 #=======================================================================
 # Organization Group Orders
 
-page ORGGROUP: "Organization Group Orders" orders {
+page /order orggroup "Organization Group Orders" {
     <<title>>
     Athena uses organization groups to model organizations that are
     active in the playbox and have a significant affect on civilian
@@ -1903,8 +1919,8 @@ page ORGGROUP: "Organization Group Orders" orders {
 
     <<childlinks>>
 
-    Then, the <<cref PERSONNEL:>> can be used to establish force
-    levels in various neighborhoods, and the <<cref ACTIVITY:>> can be 
+    Then, the <<cref /order/personnel>> can be used to establish force
+    levels in various neighborhoods, and the <<cref /order/activity>> can be 
     used to schedule various activities by the group's personnel.
 }
 
@@ -1950,7 +1966,7 @@ order ORGGROUP:CREATE "Create Organization Group" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order creates a
+    <b><<cref /using/prep>> Only.</b>  This order creates a
     new organization group.
 }
 
@@ -1965,7 +1981,7 @@ order ORGGROUP:DELETE "Delete Organization Group" {
     <</parm>>
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    <b><<cref /using/prep>> Only.</b>  Deletes an existing
     organization group, along with all entities (e.g., units)
     that depend upon it.<p>
 }
@@ -2004,7 +2020,7 @@ order ORGGROUP:UPDATE "Update Organization Group" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order modifies the
+    <b><<cref /using/prep>> Only.</b>  This order modifies the
     definition of an existing organization group.<p>
 }
 
@@ -2038,14 +2054,14 @@ order ORGGROUP:UPDATE+MULTI "Update Multiple Organization Groups" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order modifies the
+    <b><<cref /using/prep>> Only.</b>  This order modifies the
     definition of two or more organization groups, as selected in the GUI.<p>
 }
 
 #=======================================================================
 # Magic Attitude Driver Orders
 
-page MAD: "Magic Attitude Driver Orders" orders {
+page /order mad "Magic Attitude Driver Orders" {
     <<title>>
 
     Athena models a number of events and situations that drive
@@ -2054,8 +2070,7 @@ page MAD: "Magic Attitude Driver Orders" orders {
     Athena allows the analyst to create <i>Magic Attitude Drivers</i>
     (MADs).  Once a MAD is created, the analyst may associate with it a
     variety of attitude adjustments and inputs; and the effects of
-    these inputs will be associated with the MAD in the 
-    <<cref REPORT:SAT:CONTRIB>>.<p>
+    these inputs will be associated with the MAD when viewing the history.<p>
 
     The following orders are used to create and manipulate MADs:<p>
 
@@ -2239,15 +2254,15 @@ order MAD:TERMINATE "Terminate Magic Slope Inputs" {
 
     <b>This order must be scheduled in advance.</b>
     This order terminates all currently on-going slope inputs created
-    for this MAD using <<cref MAD:SAT:SLOPE>> or 
-    <<cref MAD:COOP:SLOPE>>.  (Delayed indirect effects
+    for this MAD using <<cref /order/mad/sat/slope>> or 
+    <<cref /order/mad/coop/slope>>.  (Delayed indirect effects
     are terminated after a suitable delay.)
 }
 
 #=======================================================================
 # Magic Satisfaction Orders
 
-page MAD:SAT: "Magic Satisfaction Orders" MAD: {
+page /order/mad sat "Magic Satisfaction Orders" {
     <<title>>
 
     These orders are used to set, adjust, and otherwise influence 
@@ -2400,14 +2415,14 @@ order MAD:SAT:SLOPE "Magic Satisfaction Slope Input" {
 
     The input can be terminated in two ways.  First, the specific
     input can be terminated by sending an identical order with a slope
-    of 0.0.  Second, the <<cref MAD:TERMINATE>> order will terminate
+    of 0.0.  Second, the <<cref /order/mad/terminate>> order will terminate
     all ongoing slope effects for a particular MAD.
 }
 
 #=======================================================================
 # Magic Cooperation Orders
 
-page MAD:COOP: "Magic Cooperation Orders" MAD: {
+page /order/mad coop "Magic Cooperation Orders" {
     <<title>>
 
     These orders are used to set, adjust, and otherwise influence 
@@ -2560,7 +2575,7 @@ order MAD:COOP:SLOPE "Magic Cooperation Slope Input" {
 
     The input can be terminated in two ways.  First, the specific
     input can be terminated by sending an identical order with a slope
-    of 0.0.  Second, the <<cref MAD:TERMINATE>> order will terminate
+    of 0.0.  Second, the <<cref /order/mad/terminate>> order will terminate
     all ongoing slope effects for a particular MAD.
 }
 
@@ -2568,12 +2583,12 @@ order MAD:COOP:SLOPE "Magic Cooperation Slope Input" {
 #=======================================================================
 # Map Orders
 
-page MAP: "Map Orders" orders {
+page /order map "Map Orders" {
     <<title>>
 
     Athena allows the user to specify a map background to aid in both
     the construction of the scenario and the analysis and
-    visualization of the results.  (See <<cref using.maps>> for more
+    visualization of the results.  (See <<cref /using/maps>> for more
     information.)  The following orders manipulate
     the image used as the map background:<p>
 
@@ -2597,7 +2612,7 @@ order MAP:IMPORT "Import Map" {
     the saved .adb file.<p>
 
     This order is usually sent indirectly, using the
-    <<menuref "File/Import Map...">> menu item.  However, Athena should
+    <<menu "File/Import Map...">> menu item.  However, Athena should
     eventually support order script, and it it is documented here for
     that purpose.
 }
@@ -2608,7 +2623,7 @@ order MAP:IMPORT "Import Map" {
 #=======================================================================
 # Neighborhood Orders
 
-page NBHOOD: "Neighborhood Orders" orders {
+page /order nbhood "Neighborhood Orders" {
     <<title>>
 
     The Athena playbox, or region of interest, is divided into 
@@ -2623,7 +2638,7 @@ page NBHOOD: "Neighborhood Orders" orders {
     cannot cover another neighborhood's reference point.<p>
 
     Neighborhoods can only be created, updated, and deleted during 
-    <<cref using.prep>>.<p>
+    <<cref /using/prep>>.<p>
 
     <<childlinks>>
 }
@@ -2703,7 +2718,7 @@ order NBHOOD:CREATE "Create Neighborhood" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order creates a
+    <b><<cref /using/prep>> Only.</b>  This order creates a
     new neighborhood.
 }
 
@@ -2717,7 +2732,7 @@ order NBHOOD:DELETE "Delete Neighborhood" {
     <</parm>>
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  Deletes an existing
+    <b><<cref /using/prep>> Only.</b>  Deletes an existing
     neighborhood, along with all entities (e.g., civilian groups)
     that depend upon it.<p>
 }
@@ -2733,7 +2748,7 @@ order NBHOOD:LOWER "Lower Neighborhood" {
     <</parm>>
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  Lowers a neighborhood
+    <b><<cref /using/prep>> Only.</b>  Lowers a neighborhood
     to the bottom of the stacking order, so that all overlapping
     neighborhoods are stacked upon this one, and then determines
     whether this neighborhood is obscured by any of those above it.
@@ -2752,7 +2767,7 @@ order NBHOOD:RAISE "Raise Neighborhood" {
     <</parm>>
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  Raises a neighborhood
+    <b><<cref /using/prep>> Only.</b>  Raises a neighborhood
     to the top of the stacking order, so that all overlapping
     neighborhoods are underneath it, and then determines
     whether this neighborhood obscures any of those below it.
@@ -2796,7 +2811,7 @@ order NBHOOD:UPDATE "Update Neighborhood" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order modifies
+    <b><<cref /using/prep>> Only.</b>  This order modifies
     the definition of an existing neighborhood.
 }
 
@@ -2823,7 +2838,7 @@ order NBHOOD:UPDATE+MULTI "Update Multiple Neighborhoods" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order modifies
+    <b><<cref /using/prep>> Only.</b>  This order modifies
     the definition of two or more neighborhoods, as selected in the GUI.
 }
 
@@ -2831,11 +2846,11 @@ order NBHOOD:UPDATE+MULTI "Update Multiple Neighborhoods" {
 #=======================================================================
 # Neighborhood Orders
 
-page NBREL: "Neighborhood Relationship Orders" orders {
+page /order nbrel "Neighborhood Relationship Orders" {
     <<title>>
 
     The Athena playbox, or region of interest, is divided into 
-    <<cref NBHOOD: neighborhoods>>.  Neighborhoods are related
+    <<cref /order/nbhood neighborhoods>>.  Neighborhoods are related
     to each other in two ways: by proximity, and by the time it takes
     attitude effects to spread.  The neighborhood relationship orders
     are used to edit these relationships.<p>
@@ -2885,7 +2900,7 @@ order NBREL:UPDATE "Update Neighborhood Relationship" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order modifies existing
+    <b><<cref /using/prep>> Only.</b>  This order modifies existing
     neighborhood relationships.<p>
 }
 
@@ -2898,7 +2913,7 @@ order NBREL:UPDATE+MULTI "Update Multiple Neighborhood Relationships" {
 
      Programmatically, each ID is a list {<i>m n</i>} where <i>m</i>
     and <i>n</i> are defined as for the 
-    <<cref NBREL:UPDATE>> order.
+    <<cref /order/nbrel/update>> order.
     <</parm>>
 
     <<parm proximity "Proximity">>  
@@ -2927,19 +2942,19 @@ order NBREL:UPDATE+MULTI "Update Multiple Neighborhood Relationships" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order modifies two or more
+    <b><<cref /using/prep>> Only.</b>  This order modifies two or more
     neighborhood relationships, as selected in the GUI.<p>
 }
 
 #=======================================================================
 # Group Relationship Orders
 
-page REL: "Group Relationship Orders" orders {
+page /order rel "Group Relationship Orders" {
     <<title>>
 
     Groups can be friends, enemies, or neutrals, as determined by
     their <i>relationship</i>, a number between -1.0 and 1.0.  
-    Relationships are established during <<cref using.prep>> and
+    Relationships are established during <<cref /using/prep>> and
     are constant thereafter.<p>
 
     Inter-group relationships are computed from the groups' belief
@@ -2970,7 +2985,7 @@ order REL:OVERRIDE "Override Computed Relationship" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order overrides the
+    <b><<cref /using/prep>> Only.</b>  This order overrides the
     computed relationship of one group with another.
 }
 
@@ -2986,7 +3001,7 @@ order REL:RESTORE "Restore Computed Relationship" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order restores the computed
+    <b><<cref /using/prep>> Only.</b>  This order restores the computed
     relationship, deleting any manual override.
 }
 
@@ -2999,7 +3014,7 @@ order REL:OVERRIDE+MULTI "Override Multiple Relationships" {
 
     Programmatically, each ID is a list {<i>f g</i>} where
     <i>f</i> and <i>g</i> are defined as for the 
-    <<cref REL:OVERRIDE>> order.
+    <<cref /order/rel/override>> order.
     <</parm>>
 
     <<parm rel "Relationship">>
@@ -3010,33 +3025,15 @@ order REL:OVERRIDE+MULTI "Override Multiple Relationships" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order overrides two or more
+    <b><<cref /using/prep>> Only.</b>  This order overrides two or more
     computed relationships, as selected in the GUI.
 }
 
 
 #=======================================================================
-# ROE Orders
-
-page roe "Rules of Engagement Orders" orders {
-    <<title>>
-
-    A force group can be assigned Rules of Engagement (ROEs); these determine
-    how and when and whether it will attack other groups and respond
-    to attacks from other groups.  Force groups can be designated
-    uniformed or non-uniformed; uniformed force groups use
-    conventional tactics while non-uniformed force groups primarily
-    use unconventional tactics.  The ROEs applicable to a group depend
-    on whether it is a uniformed force (UF) or a non-uniformed force
-    (NF):<p>
-
-    <<childlinks>>
-}
-
-#=======================================================================
 # Attacking ROEs
 
-page ATTROE: "Attacking ROE Orders" roe {
+page /order attroe "Attacking ROE Orders" {
     <<title>>
 
     An attacking ROE determines how and when a force group will try to
@@ -3123,15 +3120,15 @@ order ATTROE:DELETE "Delete Attacking ROE" {
 
     Note that this is equivalent to setting the Attacking ROE to
     <b>DO_NOT_ATTACK</b>; see 
-    <<cref ATTROE:NF:UPDATE>> and 
-    <<cref ATTROE:UF:UPDATE>>.
+    <<cref /order/attroe/nf/update>> and 
+    <<cref /order/attroe/uf/update>>.
 }
 
 
 #=======================================================================
 # Attacking ROEs: Non-uniformed
 
-page ATTROE:NF: "Attacking ROE (Non-Uniformed) Orders" ATTROE: {
+page /order/attroe nf "Attacking ROE (Non-Uniformed) Orders" {
     <<title>>
 
     Non-uniformed forces are those that hide among the local
@@ -3140,7 +3137,7 @@ page ATTROE:NF: "Attacking ROE (Non-Uniformed) Orders" ATTROE: {
     will attempt to find and destroy uniformed force personnel in 
     a particular neighborhood.  (The response of the uniformed force
     to being attacked is determined by the uniformed force's
-    <<cref TACTIC:DEFEND: "Defending ROE">>.)<p>
+    <<cref /order/tactic/defend "Defending ROE">>.)<p>
 
     The orders are as follows:<p>
 
@@ -3181,8 +3178,8 @@ order ATTROE:NF:CREATE "Create Attacking ROE (Non-Uniformed)" {
 
     Attacks can be terminated by setting the ROE to
     <b>DO_NOT_ATTACK</b> using 
-    <<cref ATTROE:NF:UPDATE>> or by deleting the ROE
-    altogether using <<cref ATTROE:DELETE>>.
+    <<cref /order/attroe/nf/update>> or by deleting the ROE
+    altogether using <<cref /order/attroe/delete>>.
 }
 
 
@@ -3225,7 +3222,7 @@ order ATTROE:NF:UPDATE+MULTI "Update Multiple Attacking ROEs (Non-Uniformed)" {
 
     Programmatically, each ID is a list {<i>n f g</i>} where <i>n</i>,
     <i>f</i>, and <i>g</i> are defined as for the 
-    <<cref ATTROE:NF:UPDATE>> order. 
+    <<cref /order/attroe/nf/update>> order. 
     <</parm>>
 
     <<parm roe "ROE">>
@@ -3249,7 +3246,7 @@ order ATTROE:NF:UPDATE+MULTI "Update Multiple Attacking ROEs (Non-Uniformed)" {
 #=======================================================================
 # Attacking ROEs: Uniformed
 
-page ATTROE:UF: "Attacking ROE (Uniformed) Orders" ATTROE: {
+page /order/attroe uf "Attacking ROE (Uniformed) Orders" {
     <<title>>
 
     Uniformed forces are those (like the U.S. military) that wear
@@ -3291,8 +3288,8 @@ order ATTROE:UF:CREATE "Create Attacking ROE (Uniformed)" {
 
     Attacks can be terminated by setting the ROE to
     <b>DO_NOT_ATTACK</b> using 
-    <<cref ATTROE:UF:UPDATE>> or by deleting the ROE
-    altogether using <<cref ATTROE:DELETE>>.
+    <<cref /order/attroe/uf/update>> or by deleting the ROE
+    altogether using <<cref /order/attroe/delete>>.
 }
 
 
@@ -3330,7 +3327,7 @@ order ATTROE:UF:UPDATE+MULTI "Update Multiple Attacking ROEs (Uniformed)" {
 
     Programmatically, each ID is a list {<i>n f g</i>} where <i>n</i>,
     <i>f</i>, and <i>g</i> are defined as for the 
-    <<cref ATTROE:UF:UPDATE>> order. 
+    <<cref /order/attroe/uf/update>> order. 
     <</parm>>
 
     <<parm roe "ROE">>
@@ -3350,14 +3347,14 @@ order ATTROE:UF:UPDATE+MULTI "Update Multiple Attacking ROEs (Uniformed)" {
 #=======================================================================
 # Satisfaction Orders
 
-page SAT: "Satisfaction Orders" orders {
+page /order sat "Satisfaction Orders" {
     <<title>>
 
     Athena models the satisfaction of civilian groups with respect
     to a variety of
     concerns.  This family of orders are used to manipulate the
     initial satisfaction levels and related parameters.  (Use the
-    <<cref MAD:SAT:>> to adjust or otherwise influence the 
+    <<cref /order/mad/sat>> to adjust or otherwise influence the 
     current levels.)<p>
 
     The full set of orders is as follows:<p>
@@ -3425,11 +3422,11 @@ order SAT:UPDATE "Update Initial Satisfaction" {
     <</parm>>
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order updates the initial
+    <b><<cref /using/prep>> Only.</b>  This order updates the initial
     satisfaction level of one group with a concern; this can only be done
     during the Scenario Preparation phase.<p>
 
-    (Use the <<cref MAD:>> to adjust or otherwise influence the 
+    (Use the <<cref /order/mad>> to adjust or otherwise influence the 
     current levels.)
 
 }
@@ -3444,7 +3441,7 @@ order SAT:UPDATE+MULTI "Update Initial Satisfaction (Multi)" {
 
     Programmatically, each ID is a list {<i>g c</i>} where
     <i>g</i> and <i>c</i> are defined as for the 
-    <<cref SAT:UPDATE>> order.
+    <<cref /order/sat/update>> order.
     <</parm>>
 
     <<parm sat0 "Sat at T0">>
@@ -3497,18 +3494,18 @@ order SAT:UPDATE+MULTI "Update Initial Satisfaction (Multi)" {
     <</parm>>
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  This order updates two or more initial
+    <b><<cref /using/prep>> Only.</b>  This order updates two or more initial
     satisfaction levels, as selected in the GUI; this can only be done
     during the Scenario Preparation phase.<p>
 
-    (Use the <<cref MAD:>> to adjust or otherwise influence the 
+    (Use the <<cref /order/mad>> to adjust or otherwise influence the 
     current levels.)
 }
 
 #=======================================================================
 # Simulation Control Orders
 
-page SIM: "Simulation Control Orders" orders {
+page /order sim "Simulation Control Orders" {
     <<title>>
 
     The orders in this set are used to control the simulation in
@@ -3532,7 +3529,7 @@ order SIM:STARTDATE "Set Start Date" {
 
     <</parmlist>>
 
-    <b><<cref using.prep>> Only.</b>  Athena generally reports
+    <b><<cref /using/prep>> Only.</b>  Athena generally reports
     simulation time as a number of integer days and as a zulu-time.
     This order determines how simulation time is translated to zulu-time.
 }
@@ -3560,7 +3557,7 @@ order SIM:RUN "Run Simulation" {
     Advances simulation time.  This order is usually triggered by the
     "play" button in the GUI.<p>
 
-    If the simulation is in the <<cref using.prep>> state, the order
+    If the simulation is in the <<cref /using/prep>> state, the order
     does a sanity check on the scenario; time will not be allowed to
     advance if the scenario is incomplete.
 }
@@ -3579,7 +3576,7 @@ order SIM:PAUSE "Pause Simulation" {
 #=======================================================================
 # Tactic Orders
 
-page TACTIC: "Tactic Orders" orders {
+page /order tactic "Tactic Orders" {
     <<title>>
 
     A <<term tactic>> is an action an <<term actor>> can choose to 
@@ -3683,7 +3680,7 @@ order TACTIC:PRIORITY "Set Tactic Priority" {
     <</parmlist>>
 
     Sets the tactic's priority.  Note that this order is usually sent
-    implicitly via buttons on the <<tabref Strategy>>.
+    implicitly via buttons on the <<tab Strategy>>.
 }
 
 
@@ -3709,7 +3706,7 @@ order TACTIC:STATE "Set Tactic State" {
 #-----------------------------------------------------------------------
 # Tactic: DEFEND
 
-page TACTIC:DEFEND: "Tactic: Set Defensive ROE" TACTIC: {
+page /order/tactic defend "Tactic: Set Defensive ROE" {
     <<title>>
 
     This tactic sets the defensive <<term roe>> for uniformed force groups
@@ -3803,7 +3800,7 @@ order TACTIC:DEFEND:UPDATE "Update Tactic: Set Defensive ROE" {
 #-----------------------------------------------------------------------
 # Tactic: SAVEMONEY
 
-page TACTIC:SAVEMONEY: "Tactic: Save Money" TACTIC: {
+page /order/tactic savemoney "Tactic: Save Money" {
     <<title>>
 
     This tactic allows the actor to reserve a percentage of his weekly
@@ -3846,7 +3843,7 @@ order TACTIC:SAVEMONEY:UPDATE "Update Tactic: Save Money" {
 #=======================================================================
 # Unit Orders
 
-page UNIT: "Unit Orders" orders {
+page /order unit "Unit Orders" {
     <<title>>
 
     A <<term unit>> is an object that represents some number of people in 
@@ -3879,7 +3876,7 @@ order UNIT:MOVE "Move Unit" {
 #=======================================================================
 # Order Orders
 
-page ORDER: "Order Scheduling Orders" orders {
+page /order order "Order Scheduling Orders" {
     <<title>>
 
     Athena allows certain orders to be scheduled to execute at some
@@ -3949,14 +3946,14 @@ order ORDER:SCHEDULE "Schedule Order" {
 #=======================================================================
 # Parm Orders
 
-page PARM: "Model Parameter Orders" orders {
+page /order parm "Model Parameter Orders" {
     <<title>>
 
     These orders are used to set the values of the 
-    Athena <<cref parmdb>>.<p>
+    Athena <<cref /parmdb>>.<p>
 
     The user will usually use these orders indirectly, via the
-    <<cmdref parm>> <<cref cmd "executive command">> and its
+    <<command parm>> <<cref /command "executive command">> and its
     subcommands; Athena <<version>> provides no other way for the user
     to access them.  They are documented here for completeness'
     sake.<p>
@@ -3981,23 +3978,21 @@ order PARM:IMPORT "Import Parameter File" {
 
     <</parmlist>>
 
-    This order imports <<cref parmdb "model parameter">> settings from
-    a disk file.  See <<cmdref parm import>> for details.
+    This order imports <<cref /parmdb "model parameter">> settings from
+    a disk file.  See <<command parm import>> for details.
 }
 
 
 #-------------------------------------------------------------------
 
 order PARM:RESET "Reset Parameters to Defaults" {
-    This order resets all <<cref parmdb "model parameters">> to
-    their default values.  See <<cmdref parm reset>> for details.
+    This order resets all <<cref /parmdb "model parameters">> to
+    their default values.  See <<command parm reset>> for details.
 }
 
 #-------------------------------------------------------------------
 
 order PARM:SET "Set Parameter Value" {
-    <<order.header>>
-
     <<parmlist>>
 
     <<parm parm "Parameter">> 
@@ -4011,18 +4006,18 @@ order PARM:SET "Set Parameter Value" {
     <</parmlist>>
 
     This order sets the value of the named parameter.  See 
-    <<cmdref parm set>> for details. 
+    <<command parm set>> for details. 
 }
 
 #=======================================================================
 # Personnel Orders
 
-page PERSONNEL: "Personnel Orders" orders {
+page /order personnel "Personnel Orders" {
     <<title>>
 
     In Athena, force and organization personnel must be stationed in 
     a neighborhood before they can be assigned
-    <<cref ACTIVITY: "activities">>.  These orders are used to 
+    <<cref /order/activity "activities">>.  These orders are used to 
     manage these "force levels".<p>
 
     <<childlinks>>
@@ -4068,6 +4063,32 @@ order PERSONNEL:ADJUST "Adjust Group Personnel" {
     Increases or decreases the number of group <i>g</i>'s personnel 
     stationed in neighborhood <i>n</i> by the specified amount.<p>
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

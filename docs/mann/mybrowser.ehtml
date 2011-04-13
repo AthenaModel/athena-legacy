@@ -31,7 +31,7 @@ options, in addition to those provided by the underlying frame widget:<p>
 <<defopt {-defaultserver <i>name</i>}>>
 
 The browser will access the named server when given a URL with a
-missing server name is missing.<p>
+missing server name.  Defaults to "app".<p>
 
 <<defopt {-home <i>url</i>}>>
 
@@ -47,6 +47,12 @@ what it likes with it.  The command should return 1 if it handles the
 URI, and 0 otherwise, in which case mybrowser(n)'s usually error
 handling will apply.<p>
 
+<<defopt {-loadedcmd <i>command</i>}>>
+
+Specifies a <i>command</i> to be called whenever the browser has
+loaded a page.  It will be called with one additional argument, the
+URL of the loaded page.<p>
+
 <<defopt {-messagecmd <i>command</i>}>>
 
 Specifies a <i>command</i> to be called
@@ -60,6 +66,17 @@ Specifies a <i>command</i> to be called when the browser's
 "reload" button is pressed.  Note that the browser reloads its own
 content; this callback is defined so that the <b>sidebar</b>
 components, if any, can also reload their content.<p>
+
+<<defopt {-searchcmd <i>command</i>}>>
+
+Specifies a <i>command</i> to be called whenever the user has
+entered a search string into the browser's search box.
+It will be called with one additional argument, the search string;
+the command must return a URL that can be queried to get the search
+results for the string.<p>
+
+This option is read-only after widget creation; and note that the
+search box is displayed only if this option has a non-empty value.<p>
 
 <</deflist options>>
 

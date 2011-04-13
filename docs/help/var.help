@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    vars.help
+#    var.help
 #
 # AUTHOR:
 #    Will Duquette
@@ -11,20 +11,20 @@
 #
 #    This file is included into athena.help.
 #
-#    Individual variables have page names like
+#    Individual variable types have page names like
 #
-#       var.<domain>.<variable>
+#       /var/<domain>/<vartype>
 #
 #-----------------------------------------------------------------------
 
-page vars "Display Variables" {} {
+page / var "Display Variables" {
     <<title>>
     Athena provides the ability to plot or otherwise visualize a 
     wide variety of <i>display variables</i>.  There are two kinds:<p>
 
     <ul>
-    <li> <<cref var.n>>
-    <li> <<cref var.t>>
+    <li> <<cref /var/n>>
+    <li> <<cref /var/t>>
     </ul>
 
     Every display variable name consists of a variable type, possibly 
@@ -39,15 +39,16 @@ page vars "Display Variables" {} {
 
     <b>sat.<i>g.c</i></b><p>
 
-    is the <<term satisfaction>> of group <i>g</i> with concern <i>c</i> across
+    is the <<term satisfaction>> of group <i>g</i> with concern <i>c</i> 
+    across
     neighborhoods.
 }
 
 proc var {domain varname text} {
-    set tag "var.$domain.$varname"
-    set ptag "var.$domain"
+    set parent /var/$domain
+    set slug $varname
 
-    page $tag $varname $ptag $text
+    page $parent $slug $varname $text
 }
 
 # vartitle ?index...?
@@ -58,13 +59,13 @@ proc var {domain varname text} {
 # page.
 
 macro vartitle {args} {
-    set namelist [split [pageinfo name] .]
-    lassign $namelist dummy domain vartype
+    set namelist [split [pageinfo path] "/"]
+    lassign $namelist dummy1 dummy2 domain vartype
 
     if {$domain eq "n"} {
-        set dtext [cref var.$domain "Neighborhood Variable"]
+        set dtext [cref /var/$domain "Neighborhood Variable"]
     } elseif {$domain eq "t"} {
-        set dtext [cref var.$domain "Time Series Variable"]
+        set dtext [cref /var/$domain "Time Series Variable"]
     } else {
         error "Unexpected variable domain: \"$domain\""
     }
@@ -84,10 +85,10 @@ macro vartitle {args} {
 #=======================================================================
 # Neighborhood Variables
 
-page var.n "Neighborhood Variables" vars {
+page /var n "Neighborhood Variables" {
     <<title>>
     A <i>neighborhood variable</i> is a
-    <<cref vars "display variable">> whose value varies across
+    <<cref /var "display variable">> whose value varies across
     neighborhoods. For example, the
     neighborhood variable <b>sat.SHIA.SFT</b> is the <<term satisfaction>> of 
     of the SHIA group with respect to its SFT concern across
@@ -185,10 +186,10 @@ var n sec {
 #=======================================================================
 # Time Series Variables
 
-page var.t "Time Series Variables" vars {
+page /var t "Time Series Variables" {
     <<title>>
     A <i>time series variable</i> is a
-    <<cref vars "display variable">> whose value varies with time.
+    <<cref /var "display variable">> whose value varies with time.
     For example, the
     time series variable <b>sat.N1.SHIA.SFT</b> is the <<term satisfaction>>
     of the SHIA group in neighborhood N1 with respect to its SFT

@@ -6,11 +6,10 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    projectgui(n) package: URL-driven Entity Tree
+#    projectgui(n) package: URL-driven Link Tree
 #
-#    This is a scrolled tree control that displays the IDs of
-#    different kinds of entity, by entity type; it gets the entities from
-#    a "my://" server given an URL.
+#    This is a scrolled tree control that displays a tree of links
+#    gotten from a my:// server given a URL.
 #
 #-----------------------------------------------------------------------
 
@@ -32,13 +31,22 @@ snit::widget ::projectgui::linktree {
 
     delegate option -height        to tree
     delegate option -width         to tree
-    delegate option -defaultserver to agent
 
     # -url    
     #
     # The URL to read entity types from
 
     option -url -readonly yes
+
+    # -lazy
+    #
+    # If true, retrieves lower branches of the tree in a lazy fashion.
+    # Otherwise, the entire tree if retrieved all at once.  Defaults
+    # to false.
+
+    option -lazy \
+        -type    snit::boolean \
+        -default false
 
     # -changecmd
     #
@@ -67,12 +75,10 @@ snit::widget ::projectgui::linktree {
     #
     # inRefresh        - 1 if we're doing a refresh, and 0 otherwise.
     # lastItem         - URI of last selected item, or ""
-    # etypes           - List of entity type URIs
 
     variable info -array {
         inRefresh 0
         lastItem  {}
-        etypes    {}
     }
 
     # uri2id Array: Tree item ID by entity uri.
@@ -124,6 +130,9 @@ snit::widget ::projectgui::linktree {
             -borderwidth 0         \
             -squeeze     yes
 
+        # NEXT, prepare to add items when folders are opened.
+        $tree notify bind $tree <Expand-before> [mymethod ExpandBefore %I]
+
         # NEXT, create the scrollbar
         ttk::scrollbar $win.yscroll     \
             -orient  vertical           \
@@ -140,12 +149,20 @@ snit::widget ::projectgui::linktree {
         $tree notify bind $tree <Selection> \
             [mymethod ItemSelected]
 
+        # NEXT, save the options
+        $self configurelist $args
+
         # NEXT, create the agent
         install agent using myagent ${selfns}::agent \
             -contenttypes tcl/linkdict
 
-        # NEXT, save the options
-        $self configurelist $args
+        # NEXT, parse the -url to get the default server
+        array set parts [uri::split $options(-url)]
+
+        if {$parts(host) ne ""} {
+            $agent configure \
+                -defaultserver $parts(host)
+        }
     }
 
     # ItemSelected
@@ -181,13 +198,15 @@ snit::widget ::projectgui::linktree {
         set info(inRefresh) 1
 
         try {
-            # FIRST, get the selected entity, if any, and the 
-            # open/close status for each entity type.
+            # FIRST, get the selected entity, if any.
             set currentSelection [$self get]
-            
-            foreach etype [dict keys $info(etypes)] {
-                if {[info exists uri2id($etype)]} {
-                    set open($etype) [$tree item isopen $uri2id($etype)]
+
+            # NEXT, get the list of open items
+            set openURLs [list]
+
+            foreach url [array names uri2id] {
+                if {[$tree item isopen $uri2id($url)]} {
+                    lappend openURLs $url
                 }
             }
 
@@ -196,44 +215,17 @@ snit::widget ::projectgui::linktree {
             array unset uri2id
             array unset id2uri
 
-            # NEXT, get the entity types
-            if {[catch {
-                $agent get $options(-url)
-            } result]} {
-                callwith $options(-errorcmd) \
-                    "Error getting \"$options(-url)\": $result"
-                return
-            }
+            # NEXT, refresh the content
+            $self RefreshLinks root $options(-url)
 
-            set info(etypes) [dict get $result content]
-
-            # NEXT, add entities
-            dict for {t tdict} $info(etypes) {
-                set pid    [$self DrawEntityType $t $tdict]
-
-                if {[catch {
-                    $agent get $t
-                } result]} {
-                    callwith $options(-errorcmd) \
-                        "Error getting \"$options(-url)\": $result"
-                    continue
-                }
-
-                dict with result {
-                    dict for {uri edict} $content {
-                        $self DrawEntity $pid $uri $edict
-                    }
+            # NEXT, re-open the open URLs
+            foreach url $openURLs {
+                if {[info exists uri2id($url)]} {
+                    $tree item expand $uri2id($url)
                 }
             }
 
-            # NEXT, close folders that should be closed
-            foreach etype [array names open] {
-                if {!$open($etype)} {
-                    $tree collapse $uri2id($etype)
-                }
-            }
-
-            # NEXT, set the item
+            # NEXT, set the current selection, if there is one.
             if {$currentSelection ne ""} {
                 $self set $currentSelection
             }
@@ -243,51 +235,81 @@ snit::widget ::projectgui::linktree {
 
     }
 
-    # DrawEntityType etype etdict
+    # RefreshLinks parent url
     #
-    # etype  - An entity type URI
-    # etdict - Entity type dictionary
+    # parent - Parent item ID
+    # url    - A URL that returns a tcl/linkdict.
+    #
+    # Adds the URL's links to the tree.  Returns the number of 
+    # links found.
 
-    method DrawEntityType {etype etdict} {
-        set id [$tree item create \
-                    -parent root \
-                    -button auto]
-
-        dict with etdict {
-            $tree item text $id 0 $label
-            $tree item element configure $id 0 elemIcon \
-                -image ::projectgui::icon::folder12
+    method RefreshLinks {parent url} {
+        # FIRST, get the linkdict
+        if {[catch {
+            $agent get $url
+        } result]} {
+            callwith $options(-errorcmd) \
+                "Error getting \"$url\": $result"
+            return 0
         }
 
-        # Resolve the etype, so that we have a complete URL
-        set etype [$agent resolve $options(-url) $etype]
+        set linkdict [dict get $result content]
 
-        set uri2id($etype) $id
-        set id2uri($id)    $etype
+        dict for {child cdict} $linkdict {
+            # FIRST, add the child
+            set id [$tree item create   \
+                        -parent $parent \
+                        -open   false   \
+                        -button false]
+            
+            dict with cdict {
+                $tree item text $id 0 $label
+                $tree item element configure $id 0 elemIcon \
+                    -image $listIcon
+            }
 
-        return $id
+            # Resolve the child URL, so that we have a complete URL
+            set child [$agent resolve $url $child]
+            
+            set uri2id($child) $id
+            set id2uri($id)    $child
+
+            # NEXT, are we recursing immediately, or lazily?
+            if {$options(-lazy)} {
+                # FIRST, if the child has children, make it a button.
+                if {[catch {
+                    $agent get $child
+                } result]} {
+                    callwith $options(-errorcmd) \
+                        "Error getting \"$url\": $result"
+                    continue
+                }
+
+                set numKids [dict size [dict get $result content]]
+            } else {
+                set numKids [$self RefreshLinks $id $child]
+            }
+
+            
+            if {$numKids > 0} {
+                $tree item configure $id \
+                    -button yes
+            }
+        }
+
+        return [dict size $linkdict]
     }
 
-    # DrawEntity parent uri edict
+    # ExpandBefore id
     #
-    # parent - The tree item ID of the parent
-    # uri    - The URI of the entity itself
-    # edict  - Dictionary of entity data
+    # id     - A folder item ID
+    #
+    # Retrieves the children of the given item.
 
-    method DrawEntity {parent uri edict} {
-        set id [$tree item create -parent $parent]
-
-        dict with edict {
-            $tree item text $id 0 $label
-            $tree item element configure $id 0 elemIcon \
-                -image $listIcon
+    method ExpandBefore {id} {
+        if {[llength [$tree item children $id]] == 0} {
+            $self RefreshLinks $id $id2uri($id)
         }
-
-        # Resolve the entity URL, so that we have a complete URL
-        set uri [$agent resolve $options(-url) $uri]
-
-        set uri2id($uri) $id
-        set id2uri($id)  $uri
     }
 
     # set

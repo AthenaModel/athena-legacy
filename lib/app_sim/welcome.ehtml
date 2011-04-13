@@ -9,7 +9,12 @@
 Use this browser to examine Athena
 <a href="/actors">actors</a>,
 <a href="/nbhoods">neighborhoods</a>, and
-<a href="/groups">groups</a> in detail.
+<a href="/groups">groups</a> in detail.  Select actors, etc., in the
+entity tree to the left.  You may also browse the
+<a href="my://help">help pages</a> via the
+<a href="my://help/menu/help">Help Menu</a> or via the help tree to
+the left (click on the "?" tab).<p>
+
 Navigate as you would in a web browser.<p>
 
 <h3>About Athena</h2>
@@ -30,14 +35,5 @@ and regulations, the recipient has the responsibility to obtain
 export licenses or other export authority as may be required
 before exporting such information to foreign countries or
 providing access to foreign nationals.<p>
-
-
-<h3>TBD</h3>
-
-<ul>
-  <li> Ought to have links to on-line help, and especially the release
-       notes.  (Requires making the on-line help available as my://help.)
-       
-</ul>
 
 </body> </html>

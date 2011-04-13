@@ -225,24 +225,8 @@ snit::type ::projectlib::myserver {
         # NEXT, strip any trailing "/" from the URL
         set url [string trimright $url "/"]
 
-        # NEXT, get the content
-        set contentType ""
-
-        dict with rinfo $rtype {
-            if {[llength $contentTypes] == 0} {
-                set contentType [lindex [dict keys $ctypes] 0]
-                set handler [dict get $ctypes $contentType]
-            } else {
-                foreach cpat $contentTypes {
-                    dict for {ctype handler} $ctypes {
-                        if {[string match $cpat $ctype]} {
-                            set contentType $ctype
-                            break
-                        }
-                    }
-                }
-            }
-        }
+        # NEXT, get the content handler
+        lassign [$self GetHandler $rtype $contentTypes] contentType handler
 
         if {$contentType eq ""} {
             return -code error -errorcode NOTFOUND \
@@ -291,6 +275,33 @@ snit::type ::projectlib::myserver {
 
         return -code error -errorcode NOTFOUND \
             "Resource not found or not compatible with this application."
+    }
+
+    # GetHandler rtype contentTypes
+    #
+    # rtype        - The resource type
+    # contentTypes - The accepted content types
+    #
+    # Returns a pair, the content type and the handler; or the empty
+    # string if no matching handler is found.
+
+    method GetHandler {rtype contentTypes} {
+        dict with rinfo $rtype {
+            if {[llength $contentTypes] == 0} {
+                set contentType [lindex [dict keys $ctypes] 0]
+                set handler [dict get $ctypes $contentType]
+
+                return [list $contentType $handler]
+            } else {
+                foreach cpat $contentTypes {
+                    dict for {ctype handler} $ctypes {
+                        if {[string match $cpat $ctype]} {
+                            return [list $ctype $handler]
+                        }
+                    }
+                }
+            }
+        }
     }
 
 

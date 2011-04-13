@@ -370,7 +370,7 @@ snit::type executive {
 
     typemethod help {args} {
         if {[llength $args] == 0} {
-            app cmdhelp
+            app show my://help/command
         }
 
         if {[lindex $args 0] eq "-info"} {
@@ -382,7 +382,7 @@ snit::type executive {
 
             return $out
         } else {
-            app cmdhelp $args
+            app help $args
         }
     }
 

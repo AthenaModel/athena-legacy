@@ -11,11 +11,16 @@ namespace import ::projectgui::*
 
 <<section DESCRIPTION>>
 
-The linktree(n) widget displays a tree of entities of different
-types (e.g., actors and groups).  Each entity is represented by its
-name, plus an icon that reflects its type.  The set of entity types
-and the entities belonging to each type are read from the
-application <<xref myserver(i)>> given a URL.<p>
+The linktree(n) widget displays a tree of links, each with an icon
+and label.  The top-level set of links is read from a <<xref myserver(i)>>
+URL returning a <b>tcl/linkdict</b> given the <code>-url</code>.  The
+widget will follow these links recursively until the entire tree is
+built.<p>
+
+If <code>-lazy</code> is true, the tree is built lazily; linktree(n)
+doesn't add child links until a parent link is expanded by the user.
+For large trees, this can be much faster.
+<p>
 
 <<section COMMANDS>>
 
@@ -44,12 +49,19 @@ Specifies a <i>command</i> to be called with one argument, an
 error message, if the widget catches an error while retrieving the
 <code>-url</code> or one of its subsidiary links.<p>
 
+<<defopt {-lazy <i>flag</i>}>>
+
+If true, the widget will retrieve child links in a lazy fashion, e.g.,
+subtrees will not be populated until the parent item is expanded by
+the user.  Otherwise, the entire tree is populated immediately on
+<<iref refresh>>.  Defaults to false.<p>
+
 <<defopt {-url <i>url</i>}>>
 
 Specifies the URL at which the widget can retrieve a
-<b>tcl/linkdict</b> of the entity types.  It is assumed that the
-widget can recursively retrieve a <b>tcl/linkdict</b> for each entity
-type.<p>
+<b>tcl/linkdict</b>.  The widget will attempt to
+recursively retrieve a <b>tcl/linkdict</b> for each link in
+the returned dictionary.<p>
 
 <</deflist options>>
 

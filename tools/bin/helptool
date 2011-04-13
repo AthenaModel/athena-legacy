@@ -5,521 +5,65 @@ exec tclsh8.5 "$0" "$@"
 
 #-----------------------------------------------------------------------
 # TITLE:
-#    helptool
-#
-# AUTHOR:
-#    Will Duquette
-#
-# DESCRIPTION:
-#    helptool(1): compiler for help(5) files.
-#
-#    This tool compiles help(5) input into .helpdb files which can be
-#    browsed using helpbrowser(n) and queried using helpdb(n).
-#
-# TBD:
-#    * Determine the needed macros, and define them.
-#
+#    helptool: prototype help compiler
+#     
 #-----------------------------------------------------------------------
 
-package require snit
-package require marsutil
-package require projectlib
-package require pixane
-namespace import marsutil::* projectlib::*
+#-----------------------------------------------------------------------
+# Set up the auto_path, so that we can find the correct libraries.  
+# In development, there might be directories loaded from TCLLIBPATH;
+# strip them out.
 
+# First, remove all TCLLIBPATH directories from the auto_path.
 
-#-------------------------------------------------------------------
-# Variables
+if {[info exists env(TCLLIBPATH)]} {
+    set old_path $auto_path
+    set auto_path [list]
 
-variable compiler  ;# The slave interpreter used to parse the input.
-
-#-------------------------------------------------------------------
-# Compiler
-
-# CompilerInit
-#
-# Initializes the compiler.
-
-proc CompilerInit {} {
-    variable compiler
-
-    # FIRST, create the slave interpreter used to parse the input
-    # files.
-    set compiler [interp create -safe]
-
-    $compiler alias page    Compiler_page
-    $compiler alias include Compiler_include
-    $compiler alias image   Compiler_image
-    $compiler alias macro   Compiler_macro
-    $compiler alias super   Compiler_super
-
-    # NEXT, initialize the ehtml(5) processor used to transform
-    # the page bodies.
-    ehtml init
-    ehtml import ::macro::*
-}
-
-
-# CompileInputFile infile
-#
-# infile     The main input file.
-#
-# Compiles the input file into the help db.
-
-proc CompileInputFile {infile} {
-    variable compiler
-    upvar 0 ::macro::pageInfo pageInfo
-
-    # FIRST, compile the input
-    $compiler invokehidden -global source $infile
-
-    # NEXT, translate the pages from ehtml(5) to html.
-    hdb eval {
-        SELECT * FROM helpdb_pages
-    } pageInfo {
-        # FIRST, get the expanded text
-        set newText [ehtml expand $pageInfo(text)]
-
-        # NEXT, strip out the HTML, for searching
-        regsub -all -- {<[^>]+>} $newText "" searchText
-
-        # NEXT, save it in the database.
-        hdb eval {
-            UPDATE helpdb_pages
-            SET text = $newText
-            WHERE name=$pageInfo(name);
-
-            INSERT INTO helpdb_search(name,title,text)
-            VALUES($pageInfo(name),$pageInfo(title),$searchText);
+    foreach dir $old_path {
+        if {$dir ni $env(TCLLIBPATH)} {
+            lappend auto_path $dir
         }
     }
 }
 
+# Next, get the Athena-specific directories.
 
-# Compiler_page name title parent text
-#
-# name        The page's name
-# title       The page title
-# parent      Name of parent page, or ""
-# text        The raw text of the page.
-#
-# Defines a help page.
+set appdir  [file normalize [file dirname [info script]]]
+set libdir  [file normalize [file join $appdir .. .. lib]]
+set marsdir [file normalize [file join $appdir .. .. mars lib]]
 
-proc Compiler_page {name title parent text} {
-    # FIRST, validate the input
-    require {$name ne ""} "Page name is empty"
-    require {$title ne ""} "Page \"$name\" has no title"
-    require {$text ne ""} "Page \"$name\" has no text"
-
-    if {[hdb entity exists $name]} {
-        error "Duplicate entity name: \"$name\""
-    }
-
-    if {$parent ne "" && ![hdb page exists $parent]} {
-        error "Page \"$name\"'s parent does not exist: \"$parent\""
-    }
-
-
-    # NEXT, save the page.
-    hdb eval {
-        INSERT INTO 
-        helpdb_pages(name,title,parent,text)
-        VALUES($name,$title,$parent,$text);
-    }
-}
-
-# Compiler_image name title filename
-#
-# name       The name used in links
-# title      A short title
-# filename   The image file on disk
-#
-# Loads an image into the helpdb so that it can be referenced
-# in help pages.
-
-proc Compiler_image {name title filename} {
-    # FIRST, is the name unused?
-    if {[hdb entity exists $name]} {
-        error "Duplicate entity name: \"$name\""
-    }
-
-    # NEXT, is it a real image.
-    set img [pixane create]
-
-    if {[catch {
-        pixane load $img -file $filename
-    } result]} {
-        pixane delete $img
-
-        error "Could not open the specified file as an image: $filename"
-    }
-        
-    # NEXT, get the image data, and save it in the helpdb
-    set data [pixane save $img -format png]
-    set width [pixane width $img]
-    set height [pixane height $img]
-
-    hdb eval {
-        INSERT OR REPLACE
-        INTO helpdb_images(name,title,data)
-        VALUES($name,$title,$data)
-    }
-
-    pixane delete $img
-} 
-
-# Compiler_include filename
-#
-# filename   Another .help file
-#
-# Includes the filename into the current file name
-
-proc Compiler_include {filename} {
-    variable compiler
-    $compiler invokehidden -global source $filename
-}
-
-# Compiler_macro name arglist ?initbody? template
-#
-# name      A name for this fragment
-# arglist   Macro arguments
-# initbody  Initialization body
-# template  tsubst(n) template.
-#
-# Defines a macro that can be used in page bodies.
-
-proc Compiler_macro {name args} {
-    ehtml macro $name {*}$args
-}
-
-# Compiler_super args
-#
-# args    A command to execute in the main interpreter
-#
-# This command allows the help input to access information from
-# project libraries by accessing the main interpreter in a controlled
-# way.
-
-proc Compiler_super {args} {
-    namespace eval :: $args
-}
+# Add Athena libs to the new lib path.
+lappend auto_path $marsdir $libdir
 
 #-------------------------------------------------------------------
-# ehtml(5) extensions
+# Next, require Tcl
 
-namespace eval ::macro:: {
-    namespace eval ::macro::user {}
+package require Tcl 8.5
 
-    variable docInfo   ;# Array of information about the document as a
-                        # whole.
-    variable pageInfo  ;# Array of information about the current page.
-
-    namespace export \
-        childlinks   \
-        cref         \
-        enumdoc      \
-        pageinfo     \
-        parmlist     \
-        parm         \
-        /parm        \
-        /parmlist    \
-        title        \
-        topiclist    \
-        topic        \
-        /topic       \
-        /topiclist   \
-        version
-}
-
-# childlinks ?name?
-#
-# Returns a <ul>...</ul> list of links to the children of the
-# named page.  Defaults to the current page.
-
-proc macro::childlinks {{parent ""}} {
-    variable pageInfo
-
-    # FIRST, get the parent name.
-    if {$parent eq ""} {
-        set parent $pageInfo(name)
-    }
-
-    # NEXT, get the children
-    set out "<ul>\n"
-
-    hdb eval {SELECT name,title FROM helpdb_pages WHERE parent=$parent} {
-        append out "<li> <a href=\"$name\">$title</a>\n"
-    }
-
-    append out "</ul>\n"
-
-    return $out
-}
-
-# cref uri ?text?
-#
-# uri     A page URI, name?#anchor?
-# text    The link text.  Defaults to the page title.
-#
-# Cross-reference link to the named page.
-
-proc macro::cref {uri {text ""}} {
-    lassign [split $uri "#"] name anchor
-
-    require {$name ne ""} "uri has no page name: \"$uri\""
-
-    if {[hdb page exists $name]} {
-        if {$text eq ""} {
-            set text [hdb page title $name]
-        }
-    } else {
-        if {$text eq ""} {
-            set text $name
-        }
-
-        set text "TBD: $text"
-
-        puts "On \"[pageinfo name]\", broken link to: \"$name\""
-    }
-
-    return "<a href=\"$uri\">$text</a>"
-}
-
-# enumdoc enum
-#
-# enum    An enum(n) type.
-#
-# The built-in enum(n) "html" method produces bad results for this use.
-# This is an alternate that looks nicer.
-
-template macro::enumdoc {enum} {
-    set names [{*}$enum names]
-} {
-    |<--
-    <table cellspacing=0>
-    <tr><th align="left">Symbol&nbsp;</th><th align="left">Meaning</th></tr>
-    [tforeach name $names {
-        |<--
-        <tr>
-        <td><tt>$name</tt>&nbsp;</td>
-        <td>[{*}$enum longname $name]</td>
-        </tr>
-    }]
-    </table>
-}
-
-# pageinfo field
-#
-# field    name, title, parent
-#
-# Returns information about the page currently being expanded.
-
-proc macro::pageinfo {field} {
-    variable pageInfo
-
-    return $pageInfo($field)
-}
-
-# parmlist
-#
-# Begins a list of order parameters
-
-template macro::parmlist {} {
-    |<--
-    <table border width="100%" cellspacing="0" cellpadding="4"> 
-    <tr>
-    <th align="left">Field</th> 
-    <th align="left">Description</th>
-    </tr>
-}
-
-# parm parm field
-#
-# parm     The order parameter name
-# field    The field label
-#
-# Begins a parameter description.
-
-template macro::parm {parm field} {
-    |<--
-    <tr valign="baseline">
-    <td><b>$field</b><br>(<tt>$parm</tt>)</td>
-    <td>
-}
-
-# /parm
-#
-# Ends a parameter description
-template macro::/parm {} {
-    </td>
-    </tr>
-}
-
-# /parmlist
-#
-# Ends a list of order parameters
-template macro::/parmlist {} {
-    |<--
-    </table>
-}
-
-# topiclist ?h1 ?h2?>
-#
-# Begins a table of topics and descriptions
-
-template macro::topiclist {{h1 Topic} {h2 Description}} {
-    |<--
-    <table border width="100%" cellspacing="0" cellpadding="4"> 
-    <tr>
-    <th align="left">$h1</th> 
-    <th align="left">$h2</th>
-    </tr>
-}
-
-# topic topic
-#
-# topic    The topic label
-#
-# Begins a topic description.
-
-template macro::topic {topic} {
-    |<--
-    <tr valign="baseline">
-    <td><b>$topic</b></td>
-    <td>
-}
-
-# /topic
-#
-# Ends a topic description
-template macro::/topic {} {
-    </td>
-    </tr>
-}
-
-# /topiclist
-#
-# Ends a list of topics
-template macro::/topiclist {} {
-    |<--
-    </table>
-}
-
-
-# version
-#
-# Returns the -version.
-
-proc macro::version {} {
-    variable docInfo
-    
-    return $docInfo(version)
-}
-
-#-------------------------------------------------------------------
-# Main-line code
+#-----------------------------------------------------------------------
+# Main Program 
 
 # main argv
 #
-# argv      The list of command-line arguments
+# argv       Command line arguments
 #
-# Evaluates the command line, and compiles the input.
+# This is the main program; it is invoked at the bottom of the file.
+# It determines the application to invoke, and does so.
 
 proc main {argv} {
-    # FIRST, get command-line options
-    array set ::macro::docInfo {
-        version  x.y.z
-    }
+    # NEXT, we have the desired application.  Load its package.
+    package require app_help
 
-    while {[string match "-*" [lindex $argv 0]]} {
-        set opt [lshift argv]
-
-        switch -exact -- $opt {
-            -- {
-                break
-            }
-
-            -version {
-                set ::macro::docInfo(version) [lshift argv]
-            }
-
-            default {
-                puts "Error, unrecognized option: $opt\n"
-                ShowUsage
-                exit 1
-            }
-        }
-    }
-
-    # NEXT, validate the remaining arguments.
-    set infile ""
-    set outfile ""
-
-    set argc [llength $argv]
-
-    if {$argc == 1} {
-        set infile [lindex $argv 0]
-
-        set outfile [file rootname $infile].helpdb
-    } elseif {$argc == 2} {
-        set infile  [lindex $argv 0]
-        set outfile [lindex $argv 1]
-    } else {
-        ShowUsage
-        exit 1
-    }
-
-    # NEXT, if the outfile exists, delete it.
-    file delete $outfile
-
-    if {[file exists $outfile]} {
-        puts "Error, output file already exists and cannot be deleted."
-        exit 1
-    }
-
-    # NEXT, initialize the compiler
-    CompilerInit
-
-    # NEXT, create the helpdb.
-    helpdb hdb
-    hdb open $outfile
-    hdb clear
-
-    # NEXT, process the input file.
-    set code [catch {CompileInputFile $infile} result]
-
-    if {$code} {
-        puts $::errorInfo
-    }
-
-    # NEXT, close the database.
-    hdb close
-
-    # NEXT, if there was a problem, notify the user and
-    # delete the outfile.
-    if {$code} {
-        puts "Could not compile input file $infile:\n$result"
-        file delete $outfile
-    }
+    # NEXT, Invoke the app.
+    app init $argv
 }
 
-# ShowUsage
-#
-# Shows the command-line syntax
+#-----------------------------------------------------------------------
+# Run the program
 
-proc ShowUsage {} {
-    puts [outdent {
-        Usage: helptool \[options...\] file.help \[file.helpdb\]
-
-        -version ver         Application version number
-    }]
-}
-
-#-------------------------------------------------------------------
-# Main Line Code
-
+# FIRST, run the main routine, to set everything up.
 main $argv
-
 
 
 

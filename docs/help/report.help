@@ -1,6 +1,7 @@
+# -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    reports.help
+#    report.help
 #
 # AUTHOR:
 #    Will Duquette
@@ -15,7 +16,7 @@
 #
 #-----------------------------------------------------------------------
 
-page reports "Reports" {} {
+page /report "Reports" {
     <<title>>
     As it runs, Athena produces a variety of text reports; in addition,
     the user may request a variety of reports.  This section describes
@@ -27,13 +28,13 @@ page reports "Reports" {} {
 macro reports.noprep {} {
     |<--
     Note that this order cannot be sent while Athena is in the
-    [cref using.prep] state, as GRAM has not yet been
+    [cref /using/prep] state, as GRAM has not yet been
     initialized and so no data is available.<p>
 }
 
 #-----------------------------------------------------------------------
 
-page REPORT:DRIVER "Attitude Driver Report" reports {
+page /report REPORT:DRIVER "Attitude Driver Report" {
     <<order.header>>
     <<parmlist>>
 
@@ -67,7 +68,7 @@ page REPORT:DRIVER "Attitude Driver Report" reports {
     ignored.<p>
 
     Note that this order cannot be sent while Athena is in the
-    <<cref using.prep>> state, as GRAM has not yet been
+    <<cref /using/prep>> state, as GRAM has not yet been
     initialized and so no data is available.<p>
 
     The following information is listed for each driver:<p>
@@ -353,6 +354,7 @@ page REPORT:PARMDB "Model Parameter Report" reports {
     Second, the report will include only parameters whose names match
     the specified wildcard.  (Wildcard-matching is case-insensitive.)
 }
+
 
 
 

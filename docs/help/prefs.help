@@ -15,16 +15,17 @@
 
 #-----------------------------------------------------------------------
 
-page prefs "User Preferences" "" {
+page / prefs "User Preferences" {
     <<title>>
     User preferences are user-specific settings that customize
     the behavior of the application.  As such, preference parameters
     affect the user experience, but not the simulation outputs.
     Preference values can be queried and set using the
-    <<cmdref prefs>> executive command.<p>
+    <<command prefs>> executive command.<p>
 
     <<childlinks>>
 }
+
 
 # prefpage parm itemtype
 #
@@ -34,18 +35,26 @@ page prefs "User Preferences" "" {
 # Defines a parameter help page, defining the parent/child links properly.
 
 proc prefpage {parm itemtype} {
-    set tokens [split $parm "."]
-    set tag "pref.$parm"
+    # FIRST, get the parent and slug of this page.
+    lassign [name2path /prefs . $parm] parent slug
 
-    set parent [join [lrange $tokens 0 end-1] .]
-
-    if {[llength $parent] == 0} {
-        set ptag "prefs"
+    if {$itemtype eq "subset"} {
+        set title "$parm.*"
+        set tlinks [name2pathlinks /prefs . $parm].*
     } else {
-        set ptag "pref.$parent"
+        set title $parm
+        set tlinks [name2pathlinks /prefs . $parm]
     }
 
-    set text "<<prefs.header $parm $itemtype>>"
+    set toplink "<a href=\"/prefs\">User Preference</a>"
+
+    set text "<<mktitle small {$toplink} {$tlinks} {}>>\n\n"
+
+    if {$itemtype ne "subset"} {
+        append text \
+       "Default value: [super ::projectlib::prefs getdefault $parm]<p>\n\n"
+    }
+
     append text [super ::projectlib::prefs docstring $parm]
     append text "<p>"
 
@@ -53,40 +62,10 @@ proc prefpage {parm itemtype} {
         append text "\n<<childlinks>>"
     }
 
-    if {$itemtype eq "subset"} {
-        page $tag $parm.* $ptag $text
-    } else {
-        page $tag $parm $ptag $text
-    }
+    page $parent $slug $title $text
 }
 
-macro prefs.header {parm itemtype} {
-    set tokens [split $parm .]
 
-    set namelinks ""
-    
-    set cref "pref"
-
-    foreach token [lrange $tokens 0 end-1] {
-        append cref ".$token" 
-        append namelinks "[cref $cref $token]."
-    }
-
-    append namelinks [lindex $tokens end]
-
-    if {$itemtype eq "subset"} {
-        append namelinks ".*"
-        set defaultValue ""
-    } else {
-        set defaultValue \
-            "Default value: [::projectlib::prefs getdefault $parm]<p>"
-    }
-} {
-    |<--
-    [mktitle small "User Preference" $namelinks ""]
-
-    $defaultValue
-}
 
 # prefpages
 #
@@ -104,4 +83,5 @@ proc prefpages {} {
 #-----------------------------------------------------------------------
 
 prefpages
+
 

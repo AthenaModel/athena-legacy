@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    cmd.help
+#    command.help
 #
 # AUTHOR:
 #    Will Duquette
@@ -11,21 +11,18 @@
 #
 #    This file is included into athena.help.
 #
-#    Individual commands have page names like
-#
-#       cmd.<command>
-#
-#    If the command's name has multiple tokens, they are connected
-#    by ".", as in "cmd.parm.set".
+#    Command pages have paths like /command/{name}.  If the command's 
+#    name has multiple tokens, they are connected by "/", as in 
+#    "/command/parm/set".
 #
 #-----------------------------------------------------------------------
 
-page cmd "Executive Commands" {} {
+page / command "Executive Commands" {
     <<title>>
     Athena provides a command-line interface (CLI) at the bottom on
     the main window.  The CLI is primarily used during testing and
     development, as most user tasks are done via 
-    <<cref orders "order dialogs">> and other GUI interactions.  However,
+    <<cref /order "order dialogs">> and other GUI interactions.  However,
     there are a small number of tasks that the user can do by typing
     <i>executive commands</i> at the CLI.  Most of these are low-level
     tasks, such as calibrating the Athena models by setting model
@@ -43,17 +40,10 @@ page cmd "Executive Commands" {} {
 # Defines a command page, defining the parent/child links properly.
 
 proc command {name text} {
-    set tag "cmd.[join $name .]"
+    set parent [join [linsert [lrange $name 0 end-1] 0 /command] /]
+    set slug   [lindex $name end]
 
-    set parent [lrange $name 0 end-1]
-
-    if {[llength $parent] == 0} {
-        set ptag "cmd"
-    } else {
-        set ptag "cmd.[join $parent .]"
-    }
-
-    page $tag $name $ptag $text
+    page $parent $slug $name $text
 }
 
 
@@ -69,18 +59,19 @@ macro syntax {args} {
     set prefix [lrange $fullname 0 end-1]
     set name   [lindex $fullname end]
 
-    set ancestor "cmd"
+    set ancestor "/command"
     set nametext ""
 
     foreach token $prefix {
-        append ancestor .$token
+        append ancestor /$token
         append nametext "[cref $ancestor $token] "
     }
+
     append nametext $name
-    
+    set toplink "<a href=\"/command\">Executive Command</a>"
 } {
     |<--
-    [mktitle small "Executive Command" "$nametext [join $args { }]" ""]
+    [mktitle small $toplink "$nametext [join $args { }]" ""]
 }
 
 # cli text
@@ -90,6 +81,8 @@ macro syntax {args} {
 # Formats a CLI dialog properly.
 
 macro cli {text} {
+    set text [string map {& &amp; < &lt; > &gt;} $text]
+} {
     |<--
     <pre>[outdent $text]</pre><p>
 }
@@ -112,18 +105,18 @@ command "=" {
     Computes the value of an arithmetic expression:<p>
 
     <<cli {
-        &gt; = 1 + 1
+        > = 1 + 1
         2
-        &gt;
+        >
     }>>
 
-    Variables can be defined with <<cmdref set>> and retrieved using
+    Variables can be defined with <<command set>> and retrieved using
     "$" notation:<p>
 
     <<cli {
-        &gt; set num 5
+        > set num 5
         5
-        &gt; = $num * 2
+        > = $num * 2
         10
         >
     }>>
@@ -139,7 +132,7 @@ command "call" {
     working directory unless an absolute path is specified. The ".tcl"
     extension may be omitted; <b>call</b> will add it automatically.<p>
 
-    An executive script is a Tcl script containing <<cref cmd>>.  A
+    An executive script is a Tcl script containing <<cref /command>>.  A
     number of standard Tcl commands may also be used.
 }
 
@@ -341,10 +334,10 @@ command "errtrace" {
 
 command "export" {
     <<syntax <i>scriptFile</i>>>
-    Exports the orders shown on <<tabref Orders/Sent>> to a script file
+    Exports the orders shown on <<tab orders/sent>> to a script file
     that can be executed to reproduce the current scenario at the
     current simulation time.  Execute the script in a new, empty 
-    scenario using the <<cmdref call>> command.<p>
+    scenario using the <<command call>> command.<p>
 
     The script file will be saved in the current working directory.<p>
 }
@@ -356,21 +349,21 @@ command "help" {
     <<syntax ?-info? ?<i>command...</i>? >>
 
     This command accesses the on-line help for Athena's
-    <<cref cmd>>.  To display a list of all commands, enter this
+    <<cref /command>>.  To display a list of all commands, enter this
     command with no arguments:<p>
 
     <<cli {
-        &gt; help
-        &gt;
+        > help
+        >
     }>>
 
     To request help for a particular command, enter it on the command
     line.  For example, to see the help page for the 
-    <<cmdref parm set>> command, enter the following:<p>
+    <<command parm set>> command, enter the following:<p>
 
     <<cli {
-        &gt; help parm set
-        &gt;
+        > help parm set
+        >
     }>>
 
     The <b>-info</b> option is for use in debugging the Athena
@@ -384,9 +377,9 @@ command "help" {
 command "nbfill" {
     <<syntax <i>varname</i> >>
 
-    This command directs the <<tabref Map>> tab to fill neighborhood
+    This command directs the <<tab map>> tab to fill neighborhood
     polygons with a color based on the value of a particular 
-    <<cref var.n "Neighborhood Variable">>.  See the link for a list
+    <<cref /var/n "Neighborhood Variable">>.  See the link for a list
     of the available variables.
 }
 
@@ -397,7 +390,7 @@ command "parm" {
     <<syntax <i>subcommand</i> ?<i>args...</i>?>>
 
     This command is used to set and query Athena's 
-    <<cref parmdb "model parameters">>.  It has the following subcommands:<p>
+    <<cref /parmdb "model parameters">>.  It has the following subcommands:<p>
 
     <<childlinks>>
 }
@@ -408,10 +401,10 @@ command "parm defaults" {
     <<syntax <i>subcommand</i> ?<i>args...</i>?>>
     
     This command allows the user to manage his own customized set of
-    default <<cref parmdb "model parameters">>, and share them among 
+    default <<cref /parmdb "model parameters">>, and share them among 
     different Athena scenarios.  Saved defaults are used for all new
     scenarios; also, a scenario's parameter settings can be reset to
-    the user's default using the <<cmdref parm reset>> command.
+    the user's default using the <<command parm reset>> command.
     It has the following subcommands:<p>
 
     <<childlinks>>
@@ -423,7 +416,7 @@ command "parm defaults clear" {
     <<syntax>>
     
     This command deletes the user's own default settings for the 
-    Athena <<cref parmdb "model parameters">>.  New scenarios will
+    Athena <<cref /parmdb "model parameters">>.  New scenarios will
     then use the installation defaults rather than the user's.<p>
 }
 
@@ -432,7 +425,7 @@ command "parm defaults clear" {
 command "parm defaults save" {
     <<syntax>>
     
-    This command saves the current <<cref parmdb "model parameter">> 
+    This command saves the current <<cref /parmdb "model parameter">> 
     settings as the user's defaults for new scenarios.
 }
 
@@ -441,7 +434,7 @@ command "parm defaults save" {
 command "parm export" {
     <<syntax <i>filename</i> >>
     
-    Exports the current <<cref parmdb "model parameter">> settings
+    Exports the current <<cref /parmdb "model parameter">> settings
     to a disk file; if the named file already exists, it is copied
     to "<i>filename</i>.bak".
 }
@@ -451,7 +444,7 @@ command "parm export" {
 command "parm get" {
     <<syntax <i>parm</i> >>
     
-    Retrieves the value of the named <<cref parmdb "model parameter">>.
+    Retrieves the value of the named <<cref /parmdb "model parameter">>.
 }
 
 #-----------------------------------------------------------------------
@@ -459,12 +452,12 @@ command "parm get" {
 command "parm import" {
     <<syntax <i>filename</i> >>
     
-    Imports new <<cref parmdb "model parameter">> values from
+    Imports new <<cref /parmdb "model parameter">> values from
     the named file.  Note that some parameters are 
-    <<cref parmdb.locked "locked">> once time advances, and cannot be
+    <<cref /parmdb/locked "locked">> once time advances, and cannot be
     changed.<p>
 
-    This command works by sending the <<cref PARM:IMPORT>> order.
+    This command works by sending the <<cref /order/parm/import>> order.
 }
 
 #-----------------------------------------------------------------------
@@ -479,13 +472,13 @@ command "parm list" {
     rule set:<p>
 
     <<cli {
-        &gt; parm list dam.FUELSHRT.*
+        > parm list dam.FUELSHRT.*
         dam.FUELSHRT.active     yes
         dam.FUELSHRT.cause      FUELSHRT
         dam.FUELSHRT.nearFactor 0.0
         dam.FUELSHRT.farFactor  0.0
 
-        &gt;}>>
+        >}>>
 </pre>
 }
 
@@ -501,9 +494,9 @@ command "parm names" {
     the FUELSHRT rule set:<p>
 
     <<cli {
-        &gt; parm names dam.FUELSHRT.*
+        > parm names dam.FUELSHRT.*
         dam.FUELSHRT.active dam.FUELSHRT.cause dam.FUELSHRT.nearFactor dam.FUELSHRT.farFactor
-        &gt;}>>
+        >}>>
 </pre>
 }
 
@@ -513,17 +506,17 @@ command "parm names" {
 command "parm reset" {
     <<syntax>>
     
-    Resets all <<cref parmdb "model parameters">> to their default
+    Resets all <<cref /parmdb "model parameters">> to their default
     values.  If the user has saved their own default settings using
-    the <<cmdref parm defaults>> command, these will be used;
+    the <<command parm defaults>> command, these will be used;
     otherwise the installation defaults will be used.<p>
 
     Note that some parameters are 
-    <<cref parmdb.locked "locked">> once time advances past the
-    <<cref using.prep>> state, and cannot be changed.  Unlocked
+    <<cref /parmdb/locked "locked">> once time advances past the
+    <<cref /using/prep>> state, and cannot be changed.  Unlocked
     parameters will be reset; locked parameters will not.<p>
 
-    This command works by sending the <<cref PARM:RESET>> order.
+    This command works by sending the <<cref /order/parm/reset>> order.
 }
 
 
@@ -532,17 +525,17 @@ command "parm reset" {
 command "parm set" {
     <<syntax <i>parm value</i> >>
     
-    Sets the named <<cref parmdb "model parameter">> to the specified
+    Sets the named <<cref /parmdb "model parameter">> to the specified
     <i>value</i>.  Updated
     parameter values are saved automatically with the scenario; there
-    is no need to <<cref cmd.parm.export export>> the parameter
+    is no need to <<cref /command/parm/export export>> the parameter
     settings in order to save them.<p>
 
     Note that some parameters are 
-    <<cref parmdb.locked "locked">> once time advances past the
-    <<cref using.prep>> state, and cannot be changed.<p>
+    <<cref /parmdb/locked "locked">> once time advances past the
+    <<cref /using/prep>> state, and cannot be changed.<p>
 
-    This command works by sending the <<cref PARM:SET>> order.
+    This command works by sending the <<cref /order/parm/set>> order.
 }
 
 #=======================================================================
@@ -551,9 +544,9 @@ command "parm set" {
 command "prefs" {
     <<syntax <i>subcommand</i> ?<i>args...</i>?>>
 
-    The <b>prefs</b> command sets and queries <<cref prefs>>.
-    Preference parameters are distinct from the <<cref parmdb>> edited
-    using the <<cmdref parm>> command in that they apply to the application
+    The <b>prefs</b> command sets and queries <<cref /prefs>>.
+    Preference parameters are distinct from the <<cref /parmdb>> edited
+    using the <<command parm>> command in that they apply to the application
     rather than to individual scenarios. Therefore,<p>
 
     <ul>
@@ -631,7 +624,7 @@ command "rdb" {
     Athena stores almost all of its working data in its run-time
     database, or RDB.  This command allows the user to query 
     the RDB directly; however, it cannot be used to modify the
-    contents of the RDB.  Note that the <<cmdref select>> command
+    contents of the RDB.  Note that the <<command select>> command
     is often more convenient.<p>
 
     RDB queries are done using the SQL language, as implemented by
@@ -652,7 +645,7 @@ command "rdb eval" {
     Executes the <i>sql</i> query (usually a SELECT statement)
     and returns the result as an unformatted list
     of values.  This command can be useful in scripts; for interactive
-    use, the <<cmdref rdb query>> or <<cmdref select>> command
+    use, the <<command rdb query>> or <<command select>> command
     is almost always more appropriate.
 }
 
@@ -664,13 +657,13 @@ command "rdb query" {
     Executes the <i>sql</i> query (usually a SELECT statement)
     and returns the result as a formatted table.  This command
     is appropriate for long, complex queries that are spread over
-    multiple lines; for short queries, use <<cmdref select>>
+    multiple lines; for short queries, use <<command select>>
     instead.<p>
 
     For example,<p>
 
     <<cli {
-        &gt; rdb query {select g,forcetype from frcgroups}
+        > rdb query {select g,forcetype from frcgroups}
         g       forcetype 
         ------- --------- 
         TALIBAN IRREGULAR 
@@ -678,7 +671,7 @@ command "rdb query" {
         AQ      IRREGULAR 
         POLI    POLICE    
         TRIBMIL IRREGULAR 
-        &gt;}>>
+        >}>>
 }
 
 #-----------------------------------------------------------------------
@@ -707,12 +700,12 @@ command "select" {
     <<syntax <i>sql...</i> >>
 
     The <b>select</b> command is a simplified version of 
-    <<cmdref rdb query>>, intended for interactive use with short,
+    <<command rdb query>>, intended for interactive use with short,
     simple SQL queries.  The command has the form of a single SQL
     "SELECT" statement.  For example,<p>
 
     <<cli {
-        &gt; select g,forcetype from frcgroups
+        > select g,forcetype from frcgroups
         g       forcetype 
         ------- --------- 
         TALIBAN IRREGULAR 
@@ -720,10 +713,10 @@ command "select" {
         AQ      IRREGULAR 
         POLI    POLICE    
         TRIBMIL IRREGULAR 
-        &gt;}>>
+        >}>>
 
     If the query is longer than one line, consider using
-    <<cmdref rdb query>> instead.<p.
+    <<command rdb query>> instead.<p.
  
 }
 
@@ -735,7 +728,7 @@ command "send" {
 
     Sends the named <i>order</i> to the simulation given the set of
     options and values.  The option names are simply the parameter
-    names as documented on the relevant <<cref orders>> page,
+    names as documented on the relevant <<cref /order>> page,
     <b>prefixed with a hyphen (-)</b>.  If the order is rejected, the 
     error message is pretty-printed.
 }
@@ -746,7 +739,7 @@ command "send" {
 command "show" {
     <<syntax <i>url</i> >>
 
-    Displays the requested URL in the <<tabref Detail>>.
+    Displays the requested URL in the <<tab detail>>.
 }
 
 #=======================================================================
@@ -756,7 +749,7 @@ command "set" {
     <<syntax <i>variable value</i> >>
     Assigns a value to a named variable.  By itself, this will have no
     effect on the execution of the simulation; however, variables can
-    be used with other commands, such as the <<cmdref =>> command.
+    be used with other commands, such as the <<command =>> command.
 }
 
  
@@ -788,7 +781,7 @@ command "usermode" {
     including damage to the user's scenario. <p>
 
     The <b>super</b> mode is intended primarily for use by the Athena
-    developers; other users should consider using the <<cmdref super>>
+    developers; other users should consider using the <<command super>>
     command in the rare case that evading the normal protections is
     required.<p>
 
@@ -801,3 +794,11 @@ command "usermode" {
         >
     }>>
 }
+
+
+
+
+
+
+
+

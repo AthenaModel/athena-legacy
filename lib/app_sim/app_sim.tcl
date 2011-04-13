@@ -120,7 +120,6 @@ source [file join $::app_sim::library ensit_rules.tcl        ]
 
 # GUI: Infrastructure
 source [file join $::app_sim::library toolbutton.tcl         ]
-source [file join $::app_sim::library helpbrowserwin.tcl     ]
 source [file join $::app_sim::library appwin.tcl             ]
 source [file join $::app_sim::library mapviewer.tcl          ]
 source [file join $::app_sim::library mapicons.tcl           ]

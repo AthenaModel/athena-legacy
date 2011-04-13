@@ -42,13 +42,17 @@ snit::widget ::projectgui::mybrowser {
     component fwdbtn    ;# Forward one page button
     component homebtn   ;# Home button
     component reloadbtn ;# Reload button
-    component address   ;# Address bar
+    component address   ;# Address box
+    component searchbox ;# Search box
 
     #-------------------------------------------------------------------
     # Options
 
     # Delegate all options to the hull frame
     delegate option * to hull
+
+    delegate option -width to hv
+    delegate option -height to hv
 
     delegate option -defaultserver to agent
 
@@ -87,6 +91,23 @@ snit::widget ::projectgui::mybrowser {
 
     option -hyperlinkcmd
 
+    # -loadedcmd
+    #
+    # A command to call when a page has been shown.  It is called
+    # with one additional argument, the URL just loaded.
+
+    option -loadedcmd
+
+    # -searchcmd
+    #
+    # A command that returns a search URL given one additional
+    # argument, search string.  If this option is not "", the
+    # widget will be created with a search box in the toolbar.
+
+    option -searchcmd \
+        -readonly yes
+    
+
     #-------------------------------------------------------------------
     # Instance Variables
 
@@ -121,7 +142,12 @@ snit::widget ::projectgui::mybrowser {
     # Constructor
 
     constructor {args} {
-        # FIRST, create the widgets
+        # FIRST, set the default hull size
+        $hull configure \
+            -width  8i  \
+            -height 6i
+
+        # NEXT, create the widgets
 
         # Toolbar
         install bar using ttk::frame $win.bar
@@ -170,6 +196,13 @@ snit::widget ::projectgui::mybrowser {
 
         bind $address <Return> [mymethod ShowAddress]
 
+        ttk::label $bar.searchlab \
+            -text "Search:"
+
+        install searchbox using commandentry $bar.searchbox \
+            -relief    sunken                               \
+            -clearbtn  yes                                  \
+            -returncmd [mymethod DoSearch]
 
         pack $backbtn   -side left                      -padx 1 -pady 1
         pack $fwdbtn    -side left                      -padx 1 -pady 1
@@ -221,6 +254,8 @@ snit::widget ::projectgui::mybrowser {
         grid rowconfigure    $win 2 -weight 1
         grid columnconfigure $win 0 -weight 1
 
+        grid propagate $win no
+
         # NEXT, update the htmlviewer's clipping window's bindtags,
         # so that users can bind mouse events to $win.
         bindtags $hv.x [list $win {*}[bindtags $hv.x]]
@@ -231,6 +266,12 @@ snit::widget ::projectgui::mybrowser {
 
         # NEXT, get the options
         $self configurelist $args
+
+        # NEXT, display the searchbox if we have a search command
+        if {$options(-searchcmd) ne ""} {
+            pack $searchbox     -side right -padx 1 -pady {1 3}
+            pack $bar.searchlab -side right -padx 1 -pady 1
+        }
 
         # NEXT, reload the browser and show the home page
         $self reload
@@ -322,6 +363,22 @@ snit::widget ::projectgui::mybrowser {
 
     method ShowAddress {} {
         $self show $info(address)
+    }
+
+    # DoSearch text
+    #
+    # text    - The text from the searchbox
+    #
+    # Calls the -searchcmd to get the search URL, and then shows it.
+
+    method DoSearch {text} {
+        if {$text ne ""} {
+            set url [callwith $options(-searchcmd) $text]
+
+            if {$url ne ""} {
+                $self show $url
+            }
+        }
     }
     
     #-------------------------------------------------------------------
@@ -461,6 +518,7 @@ snit::widget ::projectgui::mybrowser {
             # NEXT, show the page.
             $hv configure -base $url
             $hv set $content
+            callwith $options(-loadedcmd) $url
         }
 
         # NEXT, save the content, so that it can be queried.

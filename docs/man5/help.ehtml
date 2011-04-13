@@ -1,0 +1,221 @@
+<<manpage help(5) "Help Document Format">>
+
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+This man page defines the help(5) format for writing on-line help
+documents.  A help(5) file defines the pages, images, and other
+entities to be used in the on-line help.  The text for each help page
+is defined in "Extended HTML" format, i.e., HTML text extended
+with embedded macros. The basic syntax and capabilities of
+Extended HTML are defined in the <<xref ehtml(5)>> man page.  This man
+page describes a number of extensions to the basic format.<p>
+
+<<xref helptool(1)>> translates help(5) files into
+"<code>.helpdb</code>" help database files.  These can be queried
+directly using the <<xref helpserver(n)>> API, or browsed using
+<<xref mybrowser(n)>>.<p>
+
+<<xref helptool(1)>> takes a single help(5) file as input; however,
+it's possible to break the input into multiple files by use of the
+<<iref include>> command.<p>
+
+<<section ENTITIES>>
+
+A help(5) file can define two kinds of entities: pages and images.<p>
+
+<<subsection "Pages">>
+
+Every page has a <i>path</i> and a short human-readable <i>title</i>.
+The path is the basis for the page's URL, as retrieved using
+<<xref helpserver(n)>>.  Pages exist in a hierarchy; the path of the
+topmost page is "/", with child pages extending the path in the usual
+way.  All page paths must be unique, and <<xref helptool(1)>> 
+might reserve some for its own use.<p>
+
+<<subsection "Images">>
+
+Every image has a unique "slug", a short string that uniquely
+identifies it.  The slug is the basis for the image's path, which is
+used in URLs.  All image pages look this this:<p>
+
+<pre>
+    /image/<i>slug</i>
+</pre>
+
+<<section "COMMANDS">>
+
+A help(5) file is a Tcl-formatted file.  It can contain Tcl comments,
+along with the following commands.<p>
+
+<<deflist commands>>
+
+<<defitem image {image <i>slug title filename</i>}>>
+
+Loads the image stored in <i>filename</i> into the help database
+with the given <i>slug</i> and <i>title</i>.  The image's path is
+then "<code>/image/<i>slug</i></code>".  Help pages may include the
+image using the normal HTML syntax:<p>
+
+<pre>    &lt;img src="/image/<i>slug</i>"&gt;</pre>
+
+Alternatively, the <<iref image>> macro creates the
+"<code>&lt;img&gt;</code>" take given the <i>slug</i>.<p>
+
+<<defitem include {include <i>filename</i>}>>
+
+Includes another help(5) file into this one.<p>
+
+<<defitem macro {macro <i>name arglist</i> ?<i>initbody</i>? <i>template</i>}>>
+
+Defines a document-specific macro that can be used in the body of
+subsequent pages.  The <<iref macro>> is essentially a
+<<xref template(n)>> <<xref template(n) template>>; see that man page
+for details.<p>
+
+The difference between macros and <<iref proc>>s is that macros can
+appear in page bodies, whereas <<iref proc>>s cannot.<p>
+
+<<defitem page {page <i>parent slug title text</i>}>>
+
+Defines a new help page with the specified <i>title</i> and <i>text</i>.<p>
+
+Every help page is identified by its <i>parent</i> path and a
+<i>slug</i>; these are joined with a "/" character to make the page's
+path.  The root page of the help tree has its <i>parent</i> and
+<i>slug</i> both "", giving it the path "/".  Subsequent pages will
+have a <i>parent</i> of "/" (or some lower-level page) and a non-empty
+<i>slug</i>.
+
+The <i>text</i> is the raw text of the page.  Once all pages have been
+read, the help compiler will expand all of the <<xref ehtml(5)>>
+macros in each page, producing the finished HTML for display.<p>
+
+<<defitem proc {proc <i>name arglist body</i>}>>
+
+This command defines a procedure in the context of the help file,
+e.g.., a new command that can be used to define pages of specific
+types.<p>
+
+Procs should not be confused with <<iref macro>>s.  A macro is a
+special kind of command that can be embedded in a page body and
+expanded in place.  A proc is a command executed in the context of the
+help(5) file that can call other help(5) commands.<p>
+
+<<defitem super {super <i>command...</i>}>>
+
+This is a special command that allows procedures defined using
+<<iref proc>> to access project libraries and other commands
+defined in the main Tcl interpreter.  It should be used with
+caution.<p>
+
+<</deflist commands>>
+
+
+<<section MACROS>>
+
+help(5) man pages may use the following macros, as well as all
+macros defined in the <<xref ehtml(5)>> man page.  You can also define
+document-specific macros using the <<iref macro>> command.<p>
+
+<<deflist macros>>
+
+<<defitem childlinks {&lt;&lt;childlinks ?<i>parent</i>?&gt;&gt;}>>
+
+Creates a bulleted list of links to the children of the named
+<i>parent</i> page.  If <i>parent</i> is omitted, the children of the
+current page are listed.<p>
+
+<<defitem cref {&lt;&lt;cref <i>url</i> ?<i>text</i>?&gt;&gt;}>>
+
+Creates a cross-reference link to another page, identified by
+<i>url</i>.  The <i>url</i> has this syntax:<p>
+
+<pre>    <i>path</i>#<i>anchor</i></pre>
+
+where <i>path</i> is a page path and <i>anchor</i> is an anchor name
+within the page, as defined using
+
+<pre>    &lt;a name="<i>anchor</i>"&gt;...&lt;/a&gt;</pre>
+
+The <i>url</i> can contain either or both of the components.<p>
+
+If <i>text</i> is given, it is used as the link text; otherwise, the
+title of the linked page is used.<p>
+
+If the linked page is unknown (as will often be the case when writing a new
+help file) then the link text is prefixed with "TBD:".<p>
+
+<<defitem enumdoc {&lt;&lt;enumdoc <i>enum</i>&gt;&gt;}>>
+
+The <<xref enum(n)>> data type is capable of producing its own
+HTML documentation string; however, the produced HTML is ugly when
+rendered by <<xref htmlviewer(n)>>.  
+appropriate for Athena use.  This macro provides an alternative
+documentation string, given an <<xref enum(n)>> object called
+<i>enum</i>.<p>
+
+<<defitem image {&lt;&lt;image <i>slug</i> ?<i>align</i>?&gt;&gt;}>>
+
+Inserts an "<code>&lt;img&gt;</code>" tag for the image with the given
+<i>slug</i>.  If <i>align</i> is included, then it must be one of
+<b>right</b>, <b>left</b>, or <b>center</b>; the image's horizontal
+alignment will be as indicated.<p>
+
+<<defitem pageinfo {&lt;&lt;pageinfo <i>field</i>&gt;&gt;}>>
+
+This command returns information about the current page.  The
+<i>field</i> is one of <b>path</b>, <b>title</b>, <b>parent</b>, or
+<b>text</b>.<p>
+
+<<defitem parmlist {&lt;&lt;parmlist&gt;&gt;}>>
+<<defitem parm {&lt;&lt;parm <i>parm field</i>&gt;&gt;}>>
+<<defitem /parm {&lt;&lt;/parm&gt;&gt;}>>
+<<defitem /parmlist {&lt;&lt;/parmlist&gt;&gt;}>>
+
+These macros are used together to produce a table of order parameter
+definitions.  Each parameter has a name as used in the code,
+<i>parm</i>, plus a label used in dialog boxes, <i>field</i>, plus a
+description, which is <<xref ehtml(5)>> input contained between
+<code>&lt;&lt;parm&gt;&gt;</code> and
+<code>&lt;&lt;/parm&gt;&gt;</code>.<p>
+
+<<defitem topiclist {&lt;&lt;topiclist ?<i>h1</i>? ?<i>h2</i>?&gt;&gt;}>>
+<<defitem topic {&lt;&lt;topic <i>topic</i>&gt;&gt;}>>
+<<defitem /topic {&lt;&lt;/topic&gt;&gt;}>>
+<<defitem /topiclist {&lt;&lt;/topiclist&gt;&gt;}>>
+
+These macros are used together to produce a two-column table of topic
+names and descriptions.  The column headers defaults to "Topic" and
+"Description", but can be changed using the optional <i>h1</i> and
+<i>h2</i> parameters to &lt;&lt;topiclist&gt;&gt;.<p>
+
+Rows are added using the
+&lt;&lt;topic&gt;&gt;...&lt;&lt;/topic&gt;&gt; tags; the value of the
+<i>topic</i> argument to &lt;&lt;topic&gt;&gt; appears in the first
+column, and the text between the tags appears in the second.<p>
+
+<<defitem version {&lt;&lt;version&gt;&gt;}>>
+
+Returns the version number for the current project, as passed to
+the <<xref helptool(1)>> help compiler.<p>
+
+
+<</deflist>>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+New package.<p>
+
+<</manpage>>
+
+
+
+
