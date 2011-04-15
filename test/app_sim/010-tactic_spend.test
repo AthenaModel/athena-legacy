@@ -1,0 +1,147 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-tactic_spend.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    tactic_spend(sim) tests.
+#
+#    This test suite tests the tactic_spend(sim) tactic ensemble.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create JOE 
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        rdb nullvalue ""
+        array unset parms
+        ted cleanup
+    }
+
+
+    # Standard Tactics
+    
+    set T1 {
+        tactic_type SPEND
+        owner       JOE
+        priority    top
+        m           ""
+        n           ""
+        f           ""
+        g           ""
+        text1       ""
+        int1        10
+    }
+
+    #-------------------------------------------------------------------
+    # SPEND Ensemble
+
+    test SPEND-1.1 {narrative} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::SPEND narrative [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Spend 10% of cash reserve}
+
+    test SPEND-2.1 {check: success} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::SPEND check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    # NOTE: check can't fail for this tactic
+
+    test SPEND-3.1 {estdollars} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::SPEND estdollars [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {-20000.0}
+
+    test SPEND-4.1 {dollars} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::SPEND dollars [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {0.0 -20000.0}
+
+    test SPEND-5.1 {estpersonnel} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::SPEND estpersonnel [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test SPEND-6.1 {personnel_by_group} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::SPEND personnel_by_group [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test SPEND-7.1 {execute} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        set a [actor get JOE cash_reserve]
+        tactic::SPEND execute [tactic get 1] -1000
+        set b [actor get JOE cash_reserve]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {200000.0 199000.0}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+

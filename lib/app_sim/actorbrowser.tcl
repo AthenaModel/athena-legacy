@@ -31,10 +31,11 @@ snit::widgetadaptor actorbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { a          "ID"                                             }
-        { longname   "Long Name"                                      }
-        { income     "Income, $/Week"                                 }
-        { cash       "Cash on Hand, $"                                }
+        { a            "ID"                                             }
+        { longname     "Long Name"                                      }
+        { cash_reserve "Cash Reserve, $"                                }
+        { income       "Income, $/Week"                                 }
+        { cash_on_hand "Cash on Hand, $"                                }
     }
 
     #-------------------------------------------------------------------

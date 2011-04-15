@@ -1133,8 +1133,19 @@ tab "Groups/Actors" {
 
     <<topic "Long Name">>The human-readable name for the actor.<</topic>>
     
-    <<topic "Budget $/yr">>The actor's operating budget in dollars per 
-    year.<</topic>>
+    <<topic "Cash Reserve, $">>
+    The actor's cash reserve, held for future needs, in dollars.  The
+    actor moves cash into and out of the reserve using the 
+    <<cref /order/tactic/save SAVE>> and 
+    <<cref /order/tactic/spend SPEND>> tactics.
+    <</topic>>
+
+    <<topic "Income, $/Week">>The actor's income in dollars per week.<</topic>>
+
+    <<topic "Cash on Hand, $">>
+    The actor's cash-on-hand.  This is the cash available to spend on
+    tactics.  Unspent cash is carried over to the next week.
+    <</topic>>
 
     <</topiclist>>
 

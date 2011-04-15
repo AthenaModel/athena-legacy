@@ -1,29 +1,30 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    tactic_types.tcl
+#    tactic_spend.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): Tactic Type Definitions
+#    athena_sim(1): SPEND Tactic Definition
 #
-# This module contains miscellaneous tactic type definitions which
-# have no other obvious home.  See tactic(i) for the interface that
+# This module defines the SPEND tactic.  See tactic(i) for the interface that
 # each tactic type must provide.
 #
 #-----------------------------------------------------------------------
 
 
+#-----------------------------------------------------------------------
+# Tactic: SPEND
+#
+# int1 - Integer percentage of cash_reserve to move from the actor's
+#        cash_reserve to the actor's cash_on_hand.
 
 
-#-------------------------------------------------------------------
-# Tactic: SAVEMONEY
-
-tactic type define SAVEMONEY {
+tactic type define SPEND {
     typemethod narrative {tdict} {
         dict with tdict {
-            return "Save $int1% of income for later use"
+            return "Spend $int1% of cash reserve"
         }
     }
 
@@ -38,8 +39,8 @@ tactic type define SAVEMONEY {
 
     typemethod dollars {tdict} {
         dict with tdict {
-            set income [actor get $owner income]
-            return [list 0.0 [expr {$income*$int1/100.0}]]
+            set reserve [actor get $owner cash_reserve]
+            return [list 0.0 [expr {-$reserve*$int1/100.0}]]
         }
 
         return 0
@@ -54,30 +55,32 @@ tactic type define SAVEMONEY {
     }
 
     typemethod execute {tdict dollars} {
+        require {$dollars < 0} "dollars must be less than or equal to \$0"
+
         dict with tdict {
             rdb eval {
                 UPDATE actors 
-                SET cash = cash + $dollars
+                SET cash_reserve = cash_reserve + $dollars
                 WHERE a=$owner;
             }
         }
     }
 }
 
-# TACTIC:SAVEMONEY:CREATE
+# TACTIC:SPEND:CREATE
 #
-# Creates a new SAVEMONEY tactic.
+# Creates a new SPEND tactic.
 
-order define TACTIC:SAVEMONEY:CREATE {
-    title "Create Tactic: Save Money"
+order define TACTIC:SPEND:CREATE {
+    title "Create Tactic: Spend Money"
 
     options -sendstates {PREP PAUSED}
 
-    parm owner    actor "Owner"             -context yes
-    parm int1     text  "Percent of Income" -defval 10
-    parm priority enum  "Priority"          -enumtype ePrioSched \
-                                            -displaylong yes     \
-                                            -defval bottom
+    parm owner    actor "Owner"                 -context yes
+    parm int1     text  "Percentage of Reserve" -defval 10
+    parm priority enum  "Priority"              -enumtype ePrioSched \
+                                                -displaylong yes     \
+                                                -defval bottom
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type actor
@@ -87,27 +90,27 @@ order define TACTIC:SAVEMONEY:CREATE {
     returnOnError -final
 
     # NEXT, put tactic_type in the parm dict
-    set parms(tactic_type) SAVEMONEY
+    set parms(tactic_type) SPEND
 
     # NEXT, create the tactic
     setundo [tactic mutate create [array get parms]]
 }
 
-# TACTIC:SAVEMONEY:UPDATE
+# TACTIC:SPEND:UPDATE
 #
-# Updates existing SAVEMONEY tactic.
+# Updates existing SPEND tactic.
 
-order define TACTIC:SAVEMONEY:UPDATE {
-    title "Update Tactic: Save Money"
+order define TACTIC:SPEND:UPDATE {
+    title "Update Tactic: Spend Money"
     options \
         -sendstates {PREP PAUSED}                           \
         -refreshcmd {orderdialog refreshForKey tactic_id *}
 
-    parm tactic_id key  "Tactic ID"  -context yes               \
-                                     -table   tactics_SAVEMONEY \
-                                     -keys    tactic_id
+    parm tactic_id key  "Tactic ID"             -context yes           \
+                                                -table   tactics_SPEND \
+                                                -keys    tactic_id
     parm owner     disp "Owner"
-    parm int1      text "Percent"
+    parm int1      text "Percentage of Reserve"
 } {
     # FIRST, prepare the parameters
     prepare tactic_id   -required -type tactic
@@ -116,7 +119,7 @@ order define TACTIC:SAVEMONEY:UPDATE {
     returnOnError
 
     # NEXT, make sure this is the right kind of tactic
-    validate tactic_id { tactic RequireType SAVEMONEY $parms(tactic_id)  }
+    validate tactic_id { tactic RequireType SPEND $parms(tactic_id)  }
 
     returnOnError -final
 

@@ -175,17 +175,17 @@ snit::type ted {
         # Actors
         
         defentity JOE ::actor {
-            a        JOE
-            longname "Joe the Actor"
-            income   10000
-            cash     200000
+            a            JOE
+            longname     "Joe the Actor"
+            cash_reserve 200000
+            income       10000
         }
 
         defentity BOB ::actor {
-            a        BOB
-            longname "Bob the Actor"
-            income   5000
-            cash     150000
+            a            BOB
+            longname     "Bob the Actor"
+            cash_reserve 150000
+            income       5000
         }
 
         # Civ Groups

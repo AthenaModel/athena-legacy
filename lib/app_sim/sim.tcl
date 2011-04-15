@@ -1128,24 +1128,24 @@ snit::type sim {
 
     typemethod Tick {} {
         # FIRST, advance models
-        demog analyze pop
-        ensit assess
-        nbstat analyze
-        actsit assess
+        profile demog analyze pop
+        profile ensit assess
+        profile nbstat analyze
+        profile actsit assess
         
         if {[simclock now] % [parmdb get aam.ticksPerTock] == 0} {
-            aam assess
+            profile aam assess
         }
 
         if {[simclock now] % [parmdb get econ.ticksPerTock] == 0} {
-            set info(econOK) [econ tock]
+            set info(econOK) [profile econ tock]
 
             if {$info(econOK)} {
-                demog analyze econ
+                profile demog analyze econ
             }
         }
 
-        demsit assess
+        profile demsit assess
 
         # NEXT, advance GRAM (if t > 0); but first give it the latest
         # population data.
@@ -1158,7 +1158,7 @@ snit::type sim {
                 JOIN civgroups USING (g)
             }]
 
-            aram advance
+            profile aram advance
         }
 
         # NEXT, save the history for this tick.
@@ -1176,17 +1176,17 @@ snit::type sim {
         set info(changed) 1
         
         # NEXT, execute eventq events
-        eventq advance [simclock now]
+        profile eventq advance [simclock now]
 
         # NEXT, assess actor influence and execute actor strategies.
         if {[simclock now] % [parmdb get strategy.ticksPerTock] == 0} {
-            control tock
+            profile control tock
             profile strategy tock
         }
 
         # NEXT, do staffing.
         # TBD: It's not yet clear how staffing relates to tactics.
-        activity analyze staffing
+        profile activity analyze staffing
 
         # NEXT, pause if it's the pause time, or checks failed.
         set stopping 0
@@ -1220,8 +1220,8 @@ snit::type sim {
 
             # Update demographics and nbstats, in case the user
             # wants to look at them.
-            demog    analyze pop
-            nbstat   analyze
+            profile demog    analyze pop
+            profile nbstat   analyze
         }
 
         # NEXT, notify the application that the tick has occurred.

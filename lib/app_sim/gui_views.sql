@@ -24,8 +24,9 @@ SELECT a                                               AS id,
        link('my://app/actor/' || a, a)                 AS link,
        link('my://app/actor/' || a, pair(longname, a)) AS longlink,
        longname                                        AS longname,
+       moneyfmt(cash_reserve)                          AS cash_reserve,
        moneyfmt(income)                                AS income,
-       moneyfmt(cash)                                  AS cash
+       moneyfmt(cash_on_hand)                          AS cash_on_hand
 FROM actors;
 
 -- A nbhoods view for use by the GUI

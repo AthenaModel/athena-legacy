@@ -1,54 +1,28 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    condition_types.tcl
+#    condition_cash.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): Condition Type Definitions
+#    athena_sim(1): CASH Condition Type Definition
 #
-# TBD: Move this info into condition(i).
-#
-# Every Condition Type defines an ensemble, ::condition::<type>>,
-# with the following subcommands, each of which operations on a 
-# dictionary of the condition's parameters (and possibly other 
-# arguments):
-#
-#    narrative cdict
-#        Creates a narrative description of the condition.
-#
-#    check cdict
-#        Sanity checks the condition.  Note that this routine only 
-#        needs to look for things that can change after the condition 
-#        was created, e.g., an actor that no longer exists.  
-#        Returns a message describing the error if the condition is 
-#        invalid, and the empty string otherwise.
-#
-#    eval cdict
-#        Evaluates the condition, returning 1 if true and 0 if false.
-#        The "eval" subcommand will be called only after the simulation
-#        is locked, and should always be able to compute a value for
-#        a condition with "normal" state.
-#
-# ORDERS:
-#
-# * The UPDATE orders are expected to use RefreshUPDATE so that the
-#   user cannot switch to a different condition.
+#    See condition(i) for the condition interface requirements.
 #
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
 # Condition: CASH(a,comp,amount)
 #
-# How does actor a's cash-on-hand compare with some amount?
+# How does actor a's cash reserve compare with some amount?
 
 condition type define CASH {
     typemethod narrative {cdict} {
         dict with cdict {
             set comp   [ecomparator longname $text1]
             set amount [moneyfmt $x1]
-            return "Actor $a's cash-on-hand is $comp \$$amount"
+            return "Actor $a's cash reserve is $comp \$$amount"
         }
     }
 
@@ -65,9 +39,10 @@ condition type define CASH {
     typemethod eval {cdict} {
         dict with cdict {
             # Get the actor's cash reserves
-            set cash [actor get $a cash]
+            set cash [actor get $a cash_reserve]
 
             # TBD: EQ should be an epsilon check
+            # TBD: Should have a proc to call for this
             switch $text1 {
                 LT      { return [expr {$cash <  $x1}] }
                 EQ      { return [expr {$cash == $x1}] }
@@ -83,7 +58,7 @@ condition type define CASH {
 # Creates a new CASH condition.
 
 order define CONDITION:CASH:CREATE {
-    title "Create Condition: Cash on hand"
+    title "Create Condition: Cash Reserve"
 
     options -sendstates {PREP PAUSED}
 
@@ -115,7 +90,7 @@ order define CONDITION:CASH:CREATE {
 # Updates existing CASH condition.
 
 order define CONDITION:CASH:UPDATE {
-    title "Update Condition: Cash on hand"
+    title "Update Condition: Cash Reserve"
     options \
         -sendstates {PREP PAUSED}                              \
         -refreshcmd {orderdialog refreshForKey condition_id *}

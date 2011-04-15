@@ -165,13 +165,16 @@ CREATE TABLE actors (
     -- Full actor name
     longname    TEXT,
 
+    -- Money saved for later, in $.
+    cash_reserve DOUBLE DEFAULT 0,
+
     -- Income/tactics tock, in $.
     -- TBD: A present this is an input; later it will be computed.
     income      DOUBLE DEFAULT 0,
 
-    -- Cash-on-hand, in $.
+    -- Money available to be spent, in $.
     -- Unspent cash accumulates from tock to tock.
-    cash        DOUBLE DEFAULT 0
+    cash_on_hand DOUBLE DEFAULT 0
 );
 
 ------------------------------------------------------------------------

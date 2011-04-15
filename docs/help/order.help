@@ -798,29 +798,31 @@ order CONDITION:STATE "Set Condition State" {
 #-----------------------------------------------------------------------
 # Condition: CASH
 
-page /order/condition cash "Condition: Cash on hand" {
+page /order/condition cash "Condition: Cash Reserve" {
     <<title>>
 
-    This condition compares an actor's cash-on-hand with a 
-    user-specified amount.  The actor's cash-on-hand is the
-    amount of money the actor has available to fund
-    tactics.<p>
+    This condition compares an actor's cash reserve with a 
+    user-specified amount.  The actor manages his cash reserve
+    using the <<cref /order/tactic/save SAVE>> and
+    <<cref /order/tactic/spend SPEND>> tactics.  Using this
+    condition, the actor can undertake tactics when enough
+    money has been saved, or when the reserve is low.
 
     The condition orders are as follows:<p>
 
     <<childlinks>>
 }
 
-order CONDITION:CASH:CREATE "Create Condition: Cash on hand" {
+order CONDITION:CASH:CREATE "Create Condition: Cash Reserve" {
     <<parmlist>>
     <<CONDITION.cco>>
 
     <<parm a "Actor">>
-    The name of the actor whose cash-on-hand is being compared.
+    The name of the actor whose cash reserve is being compared.
     <</parm>>
 
     <<parm text1 "Comparison">>
-    <b>Required.</b>  The kind of comparision being done: a value from
+    <b>Required.</b>  The kind of comparison being done: a value from
     the following table:<p>
 
     <<enumdoc ::projectlib::ecomparator>>
@@ -828,24 +830,24 @@ order CONDITION:CASH:CREATE "Create Condition: Cash on hand" {
 
     <<parm x1 "Amount">>
     <b>Required.</b>  The amount of cash to which the actor's
-    cash on hand will be compared.
+    cash reserve will be compared.
     <</parm>>
     <</parmlist>>
 
     Creates the condition.
 }
 
-order CONDITION:CASH:UPDATE "Update Condition: Cash on hand" {
+order CONDITION:CASH:UPDATE "Update Condition: Cash Reserve" {
     <<parmlist>>
     <<CONDITION.id>>
     <<CONDITION.uco>>
 
     <<parm a "Actor">>
-    The name of the actor whose cash-on-hand is being compared.
+    The name of the actor whose cash reserve is being compared.
     <</parm>>
 
     <<parm text1 "Comparison">>
-    <b>Optional.</b>  The kind of comparision being done: a value from
+    <b>Optional.</b>  The kind of comparison being done: a value from
     the following table:<p>
 
     <<enumdoc ::projectlib::ecomparator>>
@@ -853,7 +855,7 @@ order CONDITION:CASH:UPDATE "Update Condition: Cash on hand" {
 
     <<parm x1 "Amount">>
     <b>Optional.</b>  The amount of cash to which the actor's
-    cash on hand will be compared.
+    cash reserve will be compared.
     <</parm>>
     <</parmlist>>
 
@@ -3798,22 +3800,24 @@ order TACTIC:DEFEND:UPDATE "Update Tactic: Set Defensive ROE" {
 }
 
 #-----------------------------------------------------------------------
-# Tactic: SAVEMONEY
+# Tactic: SAVE
 
-page /order/tactic savemoney "Tactic: Save Money" {
+page /order/tactic save "Tactic: Save Money" {
     <<title>>
 
-    This tactic allows the actor to reserve a percentage of his weekly
-    income for later use.
+    This tactic allows the actor to save a percentage of his weekly
+    income to his cash reserve for later use.  The funds can then be
+    released for spending using the
+    <<cref /order/tactic/spend SPEND>> tactic.
 
     <<childlinks>>
 }
 
-order TACTIC:SAVEMONEY:CREATE "Create Tactic: Save Money" {
+order TACTIC:SAVE:CREATE "Create Tactic: Save Money" {
     <<parmlist>>
     <<TACTIC.cowner>>
 
-    <<parm int1 "Percent of Income">>
+    <<parm int1 "Percentage of Income">>
     <b>Required.</b> The percentage of the actor's income to save, as
     an integer from 0 to 100.
     <</parm>>
@@ -3825,14 +3829,59 @@ order TACTIC:SAVEMONEY:CREATE "Create Tactic: Save Money" {
 }
 
 
-order TACTIC:SAVEMONEY:UPDATE "Update Tactic: Save Money" {
+order TACTIC:SAVE:UPDATE "Update Tactic: Save Money" {
     <<parmlist>>
     <<TACTIC.id>>
     <<TACTIC.uowner>>
 
-    <<parm int1 "Percent of Income">>
+    <<parm int1 "Percentage of Income">>
     <b>Required.</b> The percentage of the actor's income to save, as
     an integer from 0 to 100.
+    <</parm>>
+
+    <</parmlist>>
+
+    Allows the user to edit the tactic.
+}
+
+#-----------------------------------------------------------------------
+# Tactic: SPEND
+
+page /order/tactic spend "Tactic: Spend Money" {
+    <<title>>
+
+    This tactic allows the actor to release a percentage of his cash
+    reserve so that it can be spent.  Funds are saved into the
+    cash reserve using the 
+    <<cref /order/tactic/save SAVE>> tactic.
+
+    <<childlinks>>
+}
+
+order TACTIC:SPEND:CREATE "Create Tactic: Spend Money" {
+    <<parmlist>>
+    <<TACTIC.cowner>>
+
+    <<parm int1 "Percentage of Reserve">>
+    <b>Required.</b> The percentage of the actor's reserve to release for
+    spending, as an integer from 0 to 100.
+    <</parm>>
+
+    <<TACTIC.priority>>
+    <</parmlist>>
+
+    Creates the tactic.
+}
+
+
+order TACTIC:SPEND:UPDATE "Update Tactic: Spend Money" {
+    <<parmlist>>
+    <<TACTIC.id>>
+    <<TACTIC.uowner>>
+
+    <<parm int1 "Percentage of Reserve">>
+    <b>Required.</b> The percentage of the actor's reserve to release for
+    spending, as an integer from 0 to 100.
     <</parm>>
 
     <</parmlist>>

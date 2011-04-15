@@ -41,7 +41,7 @@ namespace eval ::athena_test::tests:: {
 
     # Standard items
 
-    set SM1 {
+    set SAVE1 {
         owner       JOE
         priority    bottom
         int1        10
@@ -79,7 +79,7 @@ namespace eval ::athena_test::tests:: {
 
     test DELETE-2.1 {Effects} -setup {
         setup
-        ted order TACTIC:SAVEMONEY:CREATE $SM1
+        ted order TACTIC:SAVE:CREATE $SAVE1
     } -body {
         ted notifier bind ::rdb <tactics>
         ted order TACTIC:DELETE tactic_id 1
@@ -93,7 +93,7 @@ namespace eval ::athena_test::tests:: {
 
     test DELETE-3.1 {Undo effects} -setup {
         setup
-        ted order TACTIC:SAVEMONEY:CREATE $SM1
+        ted order TACTIC:SAVE:CREATE $SAVE1
         ted order TACTIC:DELETE tactic_id 1
     } -body {
         ted notifier bind ::rdb <tactics>
@@ -126,7 +126,7 @@ namespace eval ::athena_test::tests:: {
 
     test STATE-2.1 {Effects} -setup {
         setup
-        ted order TACTIC:SAVEMONEY:CREATE $SM1
+        ted order TACTIC:SAVE:CREATE $SAVE1
     } -body {
         ted notifier bind ::rdb <tactics>
         ted order TACTIC:STATE tactic_id 1 state disabled
@@ -140,7 +140,7 @@ namespace eval ::athena_test::tests:: {
 
     test STATE-3.1 {Undo effects} -setup {
         setup
-        ted order TACTIC:SAVEMONEY:CREATE $SM1
+        ted order TACTIC:SAVE:CREATE $SAVE1
         ted order TACTIC:STATE tactic_id 1 state disabled
     } -body {
         ted notifier bind ::rdb <tactics>
@@ -156,11 +156,11 @@ namespace eval ::athena_test::tests:: {
     # TACTIC:PRIORITY
 
     proc priority_setup {} {
-        variable SM1
+        variable SAVE1
         setup
-        ted order TACTIC:SAVEMONEY:CREATE $SM1
-        ted order TACTIC:SAVEMONEY:CREATE $SM1
-        ted order TACTIC:SAVEMONEY:CREATE $SM1
+        ted order TACTIC:SAVE:CREATE $SAVE1
+        ted order TACTIC:SAVE:CREATE $SAVE1
+        ted order TACTIC:SAVE:CREATE $SAVE1
     }
 
     test PRIORITY-1.1 {required parms} -body {
@@ -226,188 +226,6 @@ namespace eval ::athena_test::tests:: {
         {::rdb <tactics> update 3}
     }
 
-
-
-    #-------------------------------------------------------------------
-    # TACTIC:SAVEMONEY:CREATE
-
-    test SAVEMONEY:CREATE-1.1 {required parms} -body {
-        ted order -reject TACTIC:SAVEMONEY:CREATE {}
-    } -result {
-        owner {required value}
-        int1 {required value}
-    }
-
-    
-    test SAVEMONEY:CREATE-1.2 {a is unknown} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:SAVEMONEY:CREATE \
-            [dict merge $SM1 [list owner NONESUCH]]
-    } -cleanup {
-        cleanup
-    } -result {
-        owner {Invalid actor, should be one of: JOE, BOB}
-    }
-
-    test SAVEMONEY:CREATE-1.3 {int1 is invalid} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:SAVEMONEY:CREATE \
-            [dict merge $SM1 [list int1 NONESUCH]]
-    } -cleanup {
-        cleanup
-    } -result {
-        int1 {invalid value "NONESUCH", expected integer}
-    }
-
-    test SAVEMONEY:CREATE-1.4 {priority is invalid} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:SAVEMONEY:CREATE [dict merge $SM1 {
-            priority NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        priority {invalid value "nonesuch", should be one of: top, bottom}
-    }
-
-    test SAVEMONEY:CREATE-2.1 {tactic is created} -setup {
-        setup
-    } -body {
-        ted order TACTIC:SAVEMONEY:CREATE $SM1
-
-        ted query {SELECT * FROM tactics}
-    } -cleanup {
-        cleanup
-    } -result {
-tactic_id tactic_type owner narrative                        priority state  exec_ts exec_flag m n f g text1 int1 
---------- ----------- ----- -------------------------------- -------- ------ ------- --------- - - - - ----- ---- 
-1         SAVEMONEY   JOE   Save 10% of income for later use 1        normal         0                       10   
-    }
-
-
-    test SAVEMONEY:CREATE-2.2 {Effects} -setup {
-        setup
-    } -body {
-        ted notifier bind ::rdb <tactics>
-        ted order TACTIC:SAVEMONEY:CREATE $SM1
-        ted notifier received
-
-        # NOTE: Two updates, because of priority setting.
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <tactics> update 1}
-        {::rdb <tactics> update 1}
-    }
-
-
-    test SAVEMONEY:CREATE-3.1 {undo effects} -setup {
-        setup
-        ted order TACTIC:SAVEMONEY:CREATE $SM1
-    } -body {
-        ted notifier bind ::rdb <tactics>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <tactics> delete 1}
-    }
-
-
-    #-------------------------------------------------------------------
-    # TACTIC:SAVEMONEY:UPDATE
-
-    proc setup_update_savemoney {} {
-        variable SM1
-        setup
-        ted order TACTIC:SAVEMONEY:CREATE $SM1
-    }
-
-    test SAVEMONEY:UPDATE-1.1 {required parms} -body {
-        ted order -reject TACTIC:SAVEMONEY:UPDATE {}
-    } -result {
-        tactic_id {required value}
-        int1 {required value}
-    }
-
-    
-    test SAVEMONEY:UPDATE-1.2 {tactic_id is unknown} -setup {
-        setup_update_savemoney
-    } -body {
-        ted order -reject TACTIC:SAVEMONEY:UPDATE tactic_id NONESUCH int1 10
-    } -cleanup {
-        cleanup
-    } -result {
-        tactic_id {Invalid tactic ID: "NONESUCH"}
-    }
-
-    test SAVEMONEY:UPDATE-1.3 {int1 is invalid} -setup {
-        setup_update_savemoney
-    } -body {
-        ted order -reject TACTIC:SAVEMONEY:UPDATE tactic_id 1 int1 NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        int1 {invalid value "NONESUCH", expected integer}
-    }
-
-    test SAVEMONEY:UPDATE-1.4 {wrong flavor of tactic} -setup {
-        setup_update_savemoney
-        rdb eval {UPDATE tactics SET tactic_type='BOGUS'}
-    } -body {
-        ted order -reject TACTIC:SAVEMONEY:UPDATE tactic_id 1 int1 5
-    } -cleanup {
-        cleanup
-    } -result {
-        tactic_id {Tactic 1 is not a SAVEMONEY tactic}
-    }
-
-    test SAVEMONEY:UPDATE-2.1 {activities are updated} -setup {
-        setup_update_savemoney
-    } -body {
-        ted order TACTIC:SAVEMONEY:UPDATE tactic_id 1 int1 20
-
-        ted query {SELECT * FROM tactics}
-    } -cleanup {
-        cleanup
-    } -result {
-tactic_id tactic_type owner narrative                        priority state  exec_ts exec_flag m n f g text1 int1 
---------- ----------- ----- -------------------------------- -------- ------ ------- --------- - - - - ----- ---- 
-1         SAVEMONEY   JOE   Save 20% of income for later use 1        normal         0                       20   
-    }
-
-
-    test SAVEMONEY:UPDATE-2.2 {Effects} -setup {
-        setup_update_savemoney
-    } -body {
-        ted notifier bind ::rdb <tactics>
-        ted order TACTIC:SAVEMONEY:UPDATE tactic_id 1 int1 20
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <tactics> update 1}
-        {::rdb <tactics> update 1}
-    }
-
-
-    test SAVEMONEY:UPDATE-3.1 {undo effects} -setup {
-        setup_update_savemoney
-        ted order TACTIC:SAVEMONEY:UPDATE tactic_id 1 int1 20
-    } -body {
-        ted notifier bind ::rdb <tactics>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <tactics> update 1}
-    }
-
     #-------------------------------------------------------------------
     # Cleanup
 
@@ -415,6 +233,7 @@ tactic_id tactic_type owner narrative                        priority state  exe
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

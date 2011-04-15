@@ -582,8 +582,10 @@ snit::type appserver {
         }
         
         # Asset Summary
-        ht putln "Fiscal assets: about \$$data(cash), "
-        ht put "plus about \$$data(income) per week."
+        ht putln "Fiscal assets: \$$data(income) per week, with "
+        ht put "\$$data(cash_on_hand) cash on hand and "
+        ht put "\$$data(cash_reserve) in reserve."
+
         ht putln "Groups owned: "
 
         ht linklist [rdb eval {
