@@ -91,12 +91,13 @@ snit::widget ::projectgui::textwin {
 
         # NEXT, layout the widgets
         grid columnconfigure $win 0 -weight 1
-        grid rowconfigure    $win 1 -weight 1
+        grid rowconfigure    $win 0 -weight 1
 
         grid $rotext      -row 0 -column 0 -sticky nsew
         grid $win.yscroll -row 0 -column 1 -sticky ns
         grid $win.xscroll -row 1 -column 0 -sticky ew
         grid $msgline     -row 2 -column 0 -sticky ew -columnspan 2
+
 
         # NEXT, Save the options.
         $self configurelist $args

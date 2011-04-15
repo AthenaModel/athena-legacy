@@ -1366,6 +1366,8 @@ order define SIM:LOCK {
 
     # NEXT, do the strategy sanity check.
     if {![strategy check]} {
+        app show my://app/sanity/strategy
+
         set answer \
             [messagebox popup \
                  -title         "Strategy Sanity Check Failed"   \
@@ -1380,7 +1382,7 @@ order define SIM:LOCK {
                      conditions in their strategies.  These
                      tactics and conditions have been marked
                      invalid; details are to be found in the
-                     Strategy Sanity Check report on the Reports
+                     Strategy Sanity Check page on the Details
                      tab.  Invalid tactics and conditions are
                      so marked in the Strategy browser.
                      Press "Continue" to go ahead and lock the scenario;

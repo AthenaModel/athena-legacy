@@ -435,7 +435,9 @@ snit::type strategy {
     #-------------------------------------------------------------------
     # Strategy Sanity Check
 
-    # check
+    # check ?ht?
+    #
+    # ht   - An htools buffer to receive a report.
     #
     # Tactics and conditions can become invalid after they are created.
     # For example, a group referenced by a tactic might be deleted,
@@ -444,9 +446,29 @@ snit::type strategy {
     # conditions are so marked, and the user is notified.
     #
     # Returns 1 if the check is successful, and 0 otherwise.
+    # If the ht value is given, then a report is written to the
+    # named htools buffer.  It's presumed that the caller will handle
+    # the page header and footer.
+    #
+    # Note that the database is not modified when writing a report.
 
-    typemethod check {} {
-        # FIRST, find invalid conditions
+    typemethod check {{ht ""}} {
+        # FIRST, clear the invalid states, since we're going to 
+        # recompute them, unless we're just writing a report.
+
+        if {$ht eq ""} {
+            rdb eval {
+                UPDATE conditions 
+                SET state = 'normal'
+                WHERE state = 'invalid';
+
+                UPDATE tactics
+                SET state = 'normal'
+                WHERE state = 'invalid';
+            }
+        }
+
+        # NEXT, find invalid conditions
         set badConditions [list]
 
         rdb eval {
@@ -459,18 +481,9 @@ snit::type strategy {
             set result [condition call check [array get row]]
 
             if {$result ne ""} {
-                lappend badConditions $row(condition_id)
                 set cerror($row(condition_id)) $result
+                lappend badConditions $row(condition_id)
             }
-        }
-
-        # NEXT, mark the bad conditions invalid.  Use CONDITION:STATE, 
-        # because it guarantees that the RDB <conditions> updates 
-        # are sent.
-        foreach condition_id $badConditions {
-            order send app CONDITION:STATE \
-                condition_id $condition_id \
-                state        invalid
         }
 
         # FIRST, NEXT invalid tactics.
@@ -482,39 +495,61 @@ snit::type strategy {
             set result [tactic call check [array get row]]
 
             if {$result ne ""} {
-                lappend badTactics $row(tactic_id)
                 set terror($row(tactic_id)) $result
+                lappend badTactics $row(tactic_id)
             }
         }
 
-        # NEXT, mark them invalid.  Use TACTIC:STATE, because
-        # it guarantees that the RDB <tactics> updates are sent.
-        foreach tactic_id $badTactics {
-            order send app TACTIC:STATE \
-                tactic_id $tactic_id \
-                state     invalid
+        # NEXT, mark the bad conditions and tactics invalid.
+        # Use CONDITION:STATE and TACTIC:STATE, because this
+        # guarantees that RDB notifier events are sent.
+        #
+        # BUT: Don't do this if we've been given an ht buffer;
+        # then we just want to generate a report.
+        if {$ht eq ""} {
+            foreach condition_id $badConditions {
+                order send app CONDITION:STATE \
+                    condition_id $condition_id \
+                    state        invalid
+            }
+
+            foreach tactic_id $badTactics {
+                order send app TACTIC:STATE \
+                    tactic_id $tactic_id \
+                    state     invalid
+            }
         }
 
         # NEXT, if there's nothing wrong, we're done.
-        if {[llength $badConditions] == 0 &&
-            [llength $badTactics] == 0
+        if {[array size cerror] == 0 &&
+            [array size terror] == 0
         } {
+            if {$ht ne ""} {
+                $ht putln "No sanity check failures were found."
+            }
+
             return 1
         }
 
-        # NEXT, Build a report
-        # TBD: This should be done as a URL in the appserver.
-        # On failure, show the URL in the detail browser; on success,
-        # don't bother.
-        set report [list]
-        lappend report \
-            "Certain tactics or conditions have failed their sanity"     \
-            "checks and have been marked invalid.  Please fix or delete" \
-            "them on the Strategy tab."                                  \
-            ""
+        # NEXT, If they don't want a report, just return the flag.
+        if {$ht eq ""} {
+            return 0
+        }
+
+        # NEXT, Build the report
+        $ht putln {
+            Certain tactics or conditions have failed their sanity
+            checks and have been marked invalid in the Strategy
+            Browser.  Please fix them or delete them.
+        }
 
         # Goals with condition errors
-        set entries {}
+        $ht push
+        $ht h2 "Goals with Condition Errors"
+
+        $ht putln "The following goals have invalid conditions attached."
+        $ht para
+             
         set lastOwner {}
         set lastGoal {}
 
@@ -529,35 +564,61 @@ snit::type strategy {
             ORDER BY owner, goal_id, condition_id
         } row {
             if {$row(owner) ne $lastOwner} {
+                if {$lastOwner ne ""} {
+                    $ht /ul
+                    $ht /ul
+                }
+
                 set lastOwner $row(owner)
                 set lastGoal {}
-                
-                lappend entries "Actor: $row(owner)"
+               
+                $ht para
+                $ht putln "<b>Actor: $row(owner)</b>"
+                $ht ul
             }
 
             if {$row(goal_id) ne $lastGoal} {
+                if {$lastGoal ne ""} {
+                    $ht /ul
+                }
                 set lastGoal $row(goal_id)
 
-                lappend entries \
-                    "    Goal ID=$row(goal_id), $row(goal_narrative)"
+
+                $ht li
+                $ht put "$row(goal_narrative)"
+                $ht tiny " (goal_id=$row(goal_id)) "
+                $ht ul
             }
 
-            lappend entries \
-                "        Condition ID=$row(condition_id), $row(narrative) ($row(condition_type))" \
-                "            ==> $cerror($row(condition_id))"              \
-                ""
+            $ht li {
+                $ht put $row(narrative)
+                $ht tiny " (type=$row(condition_type), id=$row(condition_id))"
+                $ht br
+                $ht put "==> $cerror($row(condition_id))"
+            }
         }
 
-        if {[llength $entries] != 0} {
-            lappend report \
-                "The following goals have invalid conditions attached" \
-                ""
+        $ht /ul
+        $ht /ul
+        $ht para
 
-            lappend report {*}$entries
+        set result [$ht pop]
+
+        if {$lastOwner ne ""} {
+            $ht put $result
         }
 
         # Bad Tactics/Tactics with bad conditions
-        set entries {}
+        $ht push
+        $ht h2 "Tactics Errors"
+
+        $ht putln {
+            The following tactics are invalid or have invalid 
+            conditions attached to them.
+        }
+
+        $ht para
+
         set lastOwner {}
         set lastTactic {}
 
@@ -572,52 +633,64 @@ snit::type strategy {
             WHERE T.state = 'invalid' OR C.state = 'invalid'
         } row {
             if {$row(owner) ne $lastOwner} {
+                if {$lastOwner ne ""} {
+                    $ht /ul
+                    $ht /ul
+                }
+
                 set lastOwner $row(owner)
-                set lastGoal {}
-                
-                lappend entries "Actor: $row(owner)"
+                set lastTactic {}
+
+                $ht para
+                $ht putln "<b>Actor: $row(owner)</b>"
+                $ht ul
             }
 
             if {$row(tactic_id) ne $lastTactic} {
+                if {$lastTactic ne ""} {
+                    $ht /ul
+                }
+
                 set lastTactic $row(tactic_id)
 
-                lappend entries \
-                    "    Tactic ID=$row(tactic_id), $row(tactic_narrative) ($row(tactic_type))"
+                $ht li 
+                $ht put $row(tactic_narrative)
+                $ht tiny " (type=$row(tactic_type), id=$row(tactic_id))"
 
                 if {$row(tactic_state) eq "invalid"} {
-                    lappend entries \
-                        "        ==> $terror($row(tactic_id))" \
-                        ""
+                    $ht br
+                    $ht put "==> $terror($row(tactic_id))"
+                }
+                
+                # If there are conditions, begin the list of conditions.
+                if {$row(state) eq "invalid"} {
+                    $ht ul
                 }
             }
 
             if {$row(state) eq "invalid"} {
-                lappend entries \
-                    "        Condition ID=$row(condition_id), $row(narrative) ($row(condition_type))" \
-                    "            ==> $cerror($row(condition_id))"  \
-                    ""
-
+                $ht li {
+                    $ht put $row(narrative)
+                    $ht tiny " (type=$row(condition_type), id=$row(condition_id))"
+                    $ht br
+                    $ht put "==> $cerror($row(condition_id))"
+                }
             }
         }
 
-        if {[llength $entries] != 0} {
-            lappend report \
-                "The following tactics are invalid or have invalid conditions attached" \
-                "to them." \
-                ""
+        if {$row(state) eq "invalid"} {
+            $ht /ul
+        }
+        $ht /ul
+        $ht para
 
-            lappend report {*}$entries
+        set result [$ht pop]
+
+        if {$lastOwner ne ""} {
+            $ht put $result
         }
 
-
-        # NEXT, send the report.
-        report save \
-            -rtype   SCENARIO                \
-            -subtype SANITY                  \
-            -meta1   STRATEGY                \
-            -title   "Strategy Sanity Check" \
-            -text    [join $report \n]
-        
+        # FINALLY, return the flag.
         return 0
     }
 }

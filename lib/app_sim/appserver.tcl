@@ -37,9 +37,6 @@ snit::type appserver {
     # Type Components
 
     typecomponent server   ;# The myserver(n) instance.
-    typecomponent ht       ;# The htools(n) instance.
-
-
 
     #-------------------------------------------------------------------
     # URL Schema
@@ -230,6 +227,10 @@ snit::type appserver {
         $server register /nbhood/{n} {nbhood/(\w+)/?} \
             text/html [myproc html_Nbhood]            \
             "Detail page for neighborhood {n}."
+
+        $server register /sanity/strategy {sanity/strategy/?} \
+            text/html [myproc html_SanityStrategy]            \
+            "Sanity check report for actor stragies."
 
         $server register / {/?} \
             text/html [myproc html_Welcome] \
@@ -1568,6 +1569,32 @@ snit::type appserver {
 
         
         ht /page
+
+        return [ht get]
+    }
+
+    #-------------------------------------------------------------------
+    # Sanity Checks: Strategy
+
+    # html_SanityStrategy udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of matches from the URL
+    #
+    # Formats the strategy sanity check report for
+    # /sanity/strategy.  Note that sanity is checked by the
+    # "strategy check" command; this command simply reports on the
+    # results.
+
+    proc html_SanityStrategy {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # NEXT, begin the page.
+        ht page "Sanity Check: Actor's Strategies" {
+            ht title "Actor's Strategies" "Sanity Check"
+            
+            strategy check ::appserver::ht
+        }
 
         return [ht get]
     }
