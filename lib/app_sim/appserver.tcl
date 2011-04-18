@@ -1593,7 +1593,7 @@ snit::type appserver {
         ht page "Sanity Check: Actor's Strategies" {
             ht title "Actor's Strategies" "Sanity Check"
             
-            strategy check ::appserver::ht
+            strategy sanity report ::appserver::ht
         }
 
         return [ht get]

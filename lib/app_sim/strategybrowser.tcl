@@ -169,6 +169,7 @@ snit::widget strategybrowser {
     component gt_caddbtn     ;# Add Condition button
     component gt_editbtn     ;# The "Edit" button
     component gt_togglebtn   ;# The Goal state toggle button
+    component gt_checkbtn    ;# The Sanity Check button
     component gt_deletebtn   ;# The Delete button
 
     # TTree: Tactic/Condition Tree
@@ -248,8 +249,9 @@ snit::widget strategybrowser {
         bind $win <Map> [mymethod MapWindow]
 
         # Reload the content on various notifier events.
-        notifier bind ::sim <DbSyncB>    $self [mymethod ReloadOnEvent]
-        notifier bind ::sim <Tick>       $self [mymethod ReloadOnEvent]
+        notifier bind ::sim      <DbSyncB> $self [mymethod ReloadOnEvent]
+        notifier bind ::sim      <Tick>    $self [mymethod ReloadOnEvent]
+        notifier bind ::strategy <Check>   $self [mymethod ReloadOnEvent]
 
         # Reload individual entities when they
         # are updated or deleted.
@@ -575,6 +577,11 @@ snit::widget strategybrowser {
             browser $win                                            \
             predicate {gtree validgoal}
 
+        install gt_checkbtn using ttk::button $gt_bar.check         \
+            -style   Toolbutton                                     \
+            -text    "Check"                                        \
+            -command [mymethod GTreeSanityCheck]
+
         install gt_deletebtn using mkdeletebutton $gt_bar.delete    \
             "Delete Goal or Condition"                              \
             -state   disabled                                       \
@@ -590,6 +597,7 @@ snit::widget strategybrowser {
         pack $gt_caddbtn    -side left
         pack $gt_editbtn    -side left
         pack $gt_togglebtn  -side left
+        pack $gt_checkbtn   -side left
 
         pack $gt_deletebtn  -side right
 
@@ -797,6 +805,15 @@ snit::widget strategybrowser {
         }
     }
 
+    # GTreeSanityCheck
+    #
+    # Allows the user to create a new goal.
+    
+    method GTreeSanityCheck {} {
+        if {![strategy sanity check]} {
+            app show my://app/sanity/strategy
+        }
+    }
 
     # GTreeDelete
     #

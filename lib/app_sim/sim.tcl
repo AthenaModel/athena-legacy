@@ -1365,7 +1365,7 @@ order define SIM:LOCK {
     returnOnError -final
 
     # NEXT, do the strategy sanity check.
-    if {![strategy check]} {
+    if {![strategy sanity check]} {
         app show my://app/sanity/strategy
 
         set answer \
@@ -1378,16 +1378,15 @@ order define SIM:LOCK {
                  -ignoredefault ok                               \
                  -parent        [app topwin]                     \
                  -message       [normalize {
-                     One or more actors have invalid tactics or
-                     conditions in their strategies.  These
-                     tactics and conditions have been marked
-                     invalid; details are to be found in the
-                     Strategy Sanity Check page on the Details
-                     tab.  Invalid tactics and conditions are
-                     so marked in the Strategy browser.
-                     Press "Continue" to go ahead and lock the scenario;
-                     or press "Cancel" if you wish to fix the
-                     problems first.
+        One or more actors have invalid tactics or conditions in their 
+        strategies.  These tactics and conditions have been marked
+        invalid; details are to be found in the Strategy Sanity Check 
+        page on the Details tab.  Invalid tactics and conditions are
+        so marked in the Strategy browser.
+
+        Press "Continue" to go ahead and lock the scenario, in which 
+        case the invalid tactics and conditions will be ignored; or 
+        press "Cancel" if you wish to fix the problems first.
                  }]]
 
         if {$answer eq "cancel"} {

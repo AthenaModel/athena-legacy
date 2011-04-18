@@ -435,9 +435,7 @@ snit::type strategy {
     #-------------------------------------------------------------------
     # Strategy Sanity Check
 
-    # check ?ht?
-    #
-    # ht   - An htools buffer to receive a report.
+    # sanity check
     #
     # Tactics and conditions can become invalid after they are created.
     # For example, a group referenced by a tactic might be deleted,
@@ -446,26 +444,57 @@ snit::type strategy {
     # conditions are so marked, and the user is notified.
     #
     # Returns 1 if the check is successful, and 0 otherwise.
-    # If the ht value is given, then a report is written to the
-    # named htools buffer.  It's presumed that the caller will handle
-    # the page header and footer.
+
+    typemethod {sanity check} {} {
+        set flag [$type DoSanityCheck cerror terror]
+
+        notifier send ::strategy <Check>
+
+        return $flag
+    }
+
+    # sanity report ht
     #
-    # Note that the database is not modified when writing a report.
+    # ht    - An htools buffer
+    #
+    # Computes the sanity check, and formats the results into the ht
+    # buffer for inclusion in an HTML page.  This command can presume
+    # that the buffer is already initialized and ready to receive the
+    # data.
 
-    typemethod check {{ht ""}} {
+    typemethod {sanity report} {ht} {
+        $type DoSanityCheck cerror terror
+        
+        return [$type DoSanityReport $ht cerror terror]
+    }
+
+
+    # DoSanityCheck cerrorVar terrorVar
+    #
+    # cerrorVar - An array to receive condition error strings by condition ID
+    # terrorVar - An array to receive tactic error strings by tactic ID
+    #
+    # This routine does the actual sanity check, marking the condition
+    # and tactic records in the RDB and putting error messages in the
+    # cerrorVar and terrorVar variables, which are presumed to be empty.
+    #
+    # Returns 1 if the check succeeds, and 0 if errors are found.
+
+    typemethod DoSanityCheck {cerrorVar terrorVar} {
+        upvar 1 $cerrorVar cerror
+        upvar 1 $terrorVar terror
+
         # FIRST, clear the invalid states, since we're going to 
-        # recompute them, unless we're just writing a report.
+        # recompute them.
 
-        if {$ht eq ""} {
-            rdb eval {
-                UPDATE conditions 
-                SET state = 'normal'
-                WHERE state = 'invalid';
+        rdb eval {
+            UPDATE conditions 
+            SET state = 'normal'
+            WHERE state = 'invalid';
 
-                UPDATE tactics
-                SET state = 'normal'
-                WHERE state = 'invalid';
-            }
+            UPDATE tactics
+            SET state = 'normal'
+            WHERE state = 'invalid';
         }
 
         # NEXT, find invalid conditions
@@ -501,26 +530,47 @@ snit::type strategy {
         }
 
         # NEXT, mark the bad conditions and tactics invalid.
-        # Use CONDITION:STATE and TACTIC:STATE, because this
-        # guarantees that RDB notifier events are sent.
-        #
-        # BUT: Don't do this if we've been given an ht buffer;
-        # then we just want to generate a report.
-        if {$ht eq ""} {
-            foreach condition_id $badConditions {
-                order send app CONDITION:STATE \
-                    condition_id $condition_id \
-                    state        invalid
+        foreach condition_id $badConditions {
+            rdb eval {
+                UPDATE conditions
+                SET state = 'invalid'
+                WHERE condition_id = $condition_id;
             }
+        }
 
-            foreach tactic_id $badTactics {
-                order send app TACTIC:STATE \
-                    tactic_id $tactic_id \
-                    state     invalid
+        foreach tactic_id $badTactics {
+            rdb eval {
+                UPDATE tactics
+                SET state = 'invalid'
+                WHERE tactic_id = $tactic_id;
             }
         }
 
         # NEXT, if there's nothing wrong, we're done.
+        if {[llength $badConditions] == 0 &&
+            [llength $badTactics] == 0
+        } {
+            return 1
+        }
+
+        return 0
+    }
+
+
+    # DoSanityReport ht cerrorVar terrorVar
+    #
+    # ht        - An htools buffer to receive a report.
+    # cerrorVar - An array of condition error strings by condition ID
+    # terrorVar - An array of tactic error strings by tactic ID
+    #
+    # Writes HTML text of the results of the sanity check to the ht
+    # buffer.
+
+    typemethod DoSanityReport {ht cerrorVar terrorVar} {
+        upvar 1 $cerrorVar cerror
+        upvar 1 $terrorVar terror
+
+        # FIRST, if there's nothing wrong, the report is simple.
         if {[array size cerror] == 0 &&
             [array size terror] == 0
         } {
@@ -528,20 +578,20 @@ snit::type strategy {
                 $ht putln "No sanity check failures were found."
             }
 
-            return 1
-        }
-
-        # NEXT, If they don't want a report, just return the flag.
-        if {$ht eq ""} {
-            return 0
+            return
         }
 
         # NEXT, Build the report
         $ht putln {
             Certain tactics or conditions have failed their sanity
-            checks and have been marked invalid in the Strategy
-            Browser.  Please fix them or delete them.
+            checks and have been marked invalid in the
         }
+        
+        $ht link gui:/tab/strategy "Strategy Browser"
+
+        $ht put " Please fix them or delete them."
+        $ht para
+
 
         # Goals with condition errors
         $ht push
@@ -690,7 +740,6 @@ snit::type strategy {
             $ht put $result
         }
 
-        # FINALLY, return the flag.
-        return 0
+        return
     }
 }
