@@ -98,10 +98,25 @@ snit::type ::projectlib::parmdb {
         scenariodb $tempdb
         $tempdb open :memory:
 
+        # NEXT, Simulation Control parameters
+        $ps subset sim {
+            Parameters that affect the simulation at a basic level.
+        }
+
+        $ps define sim.tickTransaction ::snit::boolean yes {
+            If yes, the time advance (or tick) activities are wrapped
+            in an SQL transaction, which makes them considerably
+            faster, but means that RDB changes made during the tick 
+            are lost if tick code throws an unexpected error.  If no,
+            no enclosing transaction is used; the tick activities will
+            be much slower, but the data required for debugging will
+            remain.
+        }
+
         # NEXT, Athena Attrition Model parameters
 
         $ps subset aam {
-            Parameters which affect the Athena Attrition Model.
+            Parameters that affect the Athena Attrition Model.
         }
 
         $ps define aam.ticksPerTock ::projectlib::ipositive 7 {

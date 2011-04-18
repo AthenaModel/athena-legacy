@@ -798,25 +798,28 @@ snit::type app {
 #-----------------------------------------------------------------------
 # Section: Miscellaneous Application Utility Procs
 
-# Proc: profile
+# profile ?depth? command ?args...?
 #
 # Calls the command once using [time], in the caller's context,
 # and logs the outcome, returning the command's return value.
 # In other words, you can stick "profile" before any command name
 # and profile that call without changing code or adding new routines.
-# TBD: Possibly, this should go in a "misc" module.
 #
-# Syntax:
-#   profile _command ?args...?_
-#
-#   command - A command
-#   args    - Arguments to the command
+# If the depth is given, it must be an integer; that many "*" characters
+# are added to the beginning of the log message.
 
 proc profile {args} {
+    if {[string is integer -strict [lindex $args 0]]} {
+        set prefix "[string repeat * [lshift args]] "
+    } else {
+        set prefix ""
+    }
+
     set msec [lindex [time {
         set result [uplevel 1 $args]
     } 1] 0]
-    log detail app "profile [list $args] $msec"
+
+    log detail app "${prefix}profile [list $args] $msec"
 
     return $result
 }

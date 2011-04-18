@@ -1124,9 +1124,24 @@ snit::type sim {
 
     # Tick
     #
-    # This command is executed at each time tick.
+    # This command invokes TickWork to do the tick work, wrapped in an
+    # RDB transaction.
 
     typemethod Tick {} {
+        if {[parm get sim.tickTransaction]} {
+            rdb transaction {
+                $type TickWork
+            }
+        } else {
+            $type TickWork
+        }
+    }
+
+    # TickWork
+    #
+    # This command is executed at each time tick.
+
+    typemethod TickWork {} {
         # FIRST, advance models
         profile demog analyze pop
         profile ensit assess

@@ -69,17 +69,17 @@ snit::type security {
     typemethod analyze {} {
         # FIRST, compute the "force" values for each group in each 
         # neighborhood.
-        $type ComputeOwnForce
-        $type ComputeLocalFriendsAndEnemies
-        $type ComputeAllFriendsAndEnemies
-        $type ComputeTotalForce
-        $type ComputePercentForce
+        profile 2 $type ComputeOwnForce
+        profile 2 $type ComputeLocalFriendsAndEnemies
+        profile 2 $type ComputeAllFriendsAndEnemies
+        profile 2 $type ComputeTotalForce
+        profile 2 $type ComputePercentForce
 
         # NEXT, compute the volatility for each neighborhood.
-        security ComputeVolatility
+        profile 2 $type ComputeVolatility
 
         # NEXT, compute the security for each group in each nbhood.
-        security ComputeSecurity
+        profile 2 $type ComputeSecurity
     }
 
 
@@ -210,7 +210,7 @@ snit::type security {
             FROM force_ng AS NF
             JOIN groups AS G
             JOIN rel_view AS FG ON (FG.f = NF.g AND FG.g = G.g)
-            WHERE rel != 0.0
+            WHERE rel != 0.0 AND NF.own_force > 0
             
         } {
             if {$rel > 0} {
