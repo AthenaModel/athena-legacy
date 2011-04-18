@@ -75,16 +75,8 @@ snit::type ::report {
             SELECT * FROM reports WHERE rtype='GRAM'
         }
 
-        reporter bin define gram_coop "Cooperation" gram {
-            SELECT * FROM reports WHERE rtype='GRAM' AND subtype='COOP'
-        }
-
         reporter bin define gram_driver "Drivers" gram {
             SELECT * FROM reports WHERE rtype='GRAM' AND subtype='DRIVER'
-        }
-
-        reporter bin define gram_sat "Satisfaction" gram {
-            SELECT * FROM reports WHERE rtype='GRAM' AND subtype='SAT'
         }
 
         reporter bin define gram_satcontrib "Sat. Contrib." gram {
@@ -284,119 +276,6 @@ snit::type ::report {
     # Each of these methods is a mutator, in that it adds a report to
     # the RDB, and returns an undo script.
 
-
-    # imp coop n f g
-    #
-    # n    Neighborhood, or "ALL"
-    # f    Civilian Group, or "ALL"
-    # g    Force Group, or "ALL"
-    #
-    # Generates a detailed report of group cooperation, including
-    # composite cooperation and deltas from time 0.
-
-    typemethod {imp coop} {n f g} {
-        # FIRST, Set the base title
-        set title "Cooperation"
-
-        # NEXT, Determine the effects of the arguments.
-        set modifiers [list]
-        
-        set where1 [list]
-        set where2 [list]
-
-        if {$f ne "ALL"} {
-            lappend where2 "f='$f'"
-
-            lappend modifiers "of $f"
-        }
-
-        if {$g ne "ALL"} {
-            lappend where1 "g='$g'"
-            lappend where2 "g='$g'"
-
-            lappend modifiers "with $g"
-        }
-
-        if {$n ne "ALL"} {
-            lappend where1 "n='$n'"
-            lappend where2 "n='$n'"
-
-            lappend modifiers "in $n"
-        }
-        
-        # NEXT, add the modifiers (if any) to the title
-        if {[llength $modifiers] > 0} {
-            set title "$title ([join $modifiers { }])"
-        }
-
-        # NEXT, we need to accumulate the desired data.  Create a 
-        # temporary table to contain it.
-        rdb eval {
-            DROP TABLE IF EXISTS temp_coop_report_table;
-            CREATE TEMP TABLE temp_coop_report_table (
-                 n, f, g, coop, delta, coop0
-            );
-        }
-
-
-        # NEXT, include the neighborhood data
-        if {$f eq "ALL"} {
-            rdb eval "
-                -- Nbhood cooperation with force groups
-                INSERT INTO temp_coop_report_table(n,f,g,coop,delta,coop0)
-                SELECT n,
-                       '*', 
-                       g, 
-                       gram_frc_ng.coop,
-                       gram_frc_ng.coop - gram_frc_ng.coop0, 
-                       gram_frc_ng.coop0
-                FROM gram_frc_ng
-                [tif {$where1 ne ""} {WHERE [join $where1 { AND }]}];
-            "
-        }
-
-        rdb eval "
-             -- Cooperation levels
-            INSERT INTO temp_coop_report_table(n,f,g,coop,delta,coop0)
-            SELECT n, 
-                   f,
-                   g, 
-                   coop,
-                   coop - coop0, 
-                   coop0
-            FROM gram_coop
-            [tif {$where2 ne ""} {WHERE [join $where2 { AND }]}];
-        "
-
-        # NEXT, format the report for all groups or group-specific
-        set text [rdb query {
-            SELECT n,
-                   CASE WHEN f='*' THEN 'Nbhood' ELSE f END,
-                   g,
-                   format('%7.2f = %-2s', coop,  qcoop('name',coop)),
-                   format('%7.2f', delta),
-                   format('%7.2f = %-2s', coop0, qcoop('name',coop0))
-            FROM temp_coop_report_table
-            ORDER BY n, f, g
-        } -headercols 3 -labels {
-            "Nbhood" "Of" "With" "Cooperation" "  Delta" 
-            " Initial Coop"
-        }]
-
-        if {$text eq ""} {
-            set text "No data found."
-        }
-
-        # NEXT, save the report
-        set id [reporter save \
-                    -title     $title                       \
-                    -text      $text                        \
-                    -requested 1                            \
-                    -rtype     GRAM                         \
-                    -subtype   COOP]
-
-        return [list reporter delete $id]
-    }
 
 
     # imp driver state
@@ -604,108 +483,6 @@ snit::type ::report {
         return [join $lines $leader]
     }
 
-    # imp sat n g
-    #
-    # n       Neighborhood, or "ALL"
-    # g       Group, or "ALL"
-    #
-    # Generates a detailed report of group satisfaction, including mood
-    # and deltas from time 0.  If n is not ALL, includes only groups
-    # in neighborhood n.
-
-    typemethod {imp sat} {n g} {
-        # FIRST, Determine the effects of the arguments.
-        set modifiers [list]
-
-        if {$g ne "ALL"} {
-            set andGroup "AND g='$g'"
-
-            lappend modifiers "of $g"
-        } else {
-            set andGroup ""
-        }
-
-        if {$n ne "ALL"} {
-            set andNbhood "AND n='$n'"
-
-            lappend modifiers "in $n"
-        } else {
-            set andNbhood ""
-        }
-
-        set title "Current Satisfaction"
-
-        if {[llength $modifiers] > 0} {
-            append title " ([join $modifiers { }])"
-        }
-
-        # NEXT, we need to accumulate the desired data.  Create a 
-        # temporary table to contain it.
-        rdb eval {
-            DROP TABLE IF EXISTS temp_sat_report_table;
-            CREATE TEMP TABLE temp_sat_report_table (
-                 n, g, c, sat, delta, sat0
-            );
-        }
-
-        rdb eval "
-            -- Moods
-            INSERT INTO temp_sat_report_table(n,g,c,sat,delta,sat0)
-            SELECT n, 
-                   g, 
-                   '*', 
-                   sat,
-                   sat-sat0, 
-                   sat0
-            FROM gram_g
-            WHERE 1=1
-            $andNbhood
-            $andGroup;
-              
-
-            -- Satisfaction levels
-            INSERT INTO temp_sat_report_table(n,g,c,sat,delta,sat0)
-            SELECT n, 
-                   g, 
-                   c, 
-                   sat,
-                   sat-sat0, 
-                   sat0
-                FROM gram_sat
-                WHERE 1=1
-                $andNbhood
-                $andGroup;
-        "
-
-        # NEXT, format the report for all groups or group-specific
-        set text [rdb query {
-            SELECT n,
-                   g,
-                   CASE WHEN c='*' THEN 'Mood' ELSE c END,
-                   format('%7.2f = %-2s', sat,  qsat('name',sat)),
-                   format('%7.2f', delta),
-                   format('%7.2f = %-2s', sat0, qsat('name',sat0))
-            FROM temp_sat_report_table
-            ORDER BY n, g, c
-        } -headercols 3 -labels {
-            "Nbhood" "Group" "Con" "Satisfaction" "  Delta" 
-            " Initial Sat"
-        }]
-
-        if {$text eq ""} {
-            set text "No data found."
-        }
-
-        # NEXT, save the report
-        set id [reporter save \
-                    -title     $title                       \
-                    -text      $text                        \
-                    -requested 1                            \
-                    -rtype     GRAM                         \
-                    -subtype   SAT]
-
-        return [list reporter delete $id]
-    }
 
     # imp satcontrib parmdict
     #
@@ -874,36 +651,6 @@ snit::type ::report {
 #-----------------------------------------------------------------------
 # Orders
 
-# REPORT:COOP
-#
-# Produces a Cooperation Report
-
-order define REPORT:COOP {
-    title "Cooperation Report"
-    options \
-        -schedulestates {PREP PAUSED} \
-        -sendstates     PAUSED
-
-    parm n enum  "Neighborhood"  -enumtype {::ptype n+all}    \
-                                 -defval   ALL
-    parm f enum  "Of Group"      -enumtype {::ptype civg+all} \
-                                 -defval   ALL
-    parm g enum  "With Group"    -enumtype {::ptype frcg+all} \
-                                 -defval   ALL
-} {
-    # FIRST, prepare the parameters
-    prepare n  -toupper -required -type {::ptype n+all}
-    prepare f  -toupper -required -type {::ptype civg+all}
-    prepare g  -toupper -required -type {::ptype frcg+all}
-
-    returnOnError -final
-
-    # NEXT, produce the report
-    set undo [list]
-    lappend undo [report imp coop $parms(n) $parms(f) $parms(g)]
-
-    setundo [join $undo \n]
-}
 
 
 # REPORT:DRIVER
@@ -959,31 +706,6 @@ order define REPORT:PARMDB {
     setundo [join $undo \n]
 }
 
-# REPORT:SAT:CURRENT
-#
-# Produces a Current Satisfaction Report
-
-order define REPORT:SAT:CURRENT {
-    title "Current Satisfaction Report"
-    options \
-        -schedulestates {PREP PAUSED} \
-        -sendstates     PAUSED
-
-    parm n enum  "Nbhood"  -enumtype {::ptype n+all}    -defval ALL
-    parm g enum  "Group"   -enumtype {::ptype civg+all} -defval ALL
-} {
-    # FIRST, prepare the parameters
-    prepare n  -toupper -required -type {::ptype n+all}
-    prepare g  -toupper -required -type {::ptype civg+all}
-
-    returnOnError -final
-
-    # NEXT, produce the report
-    set undo [list]
-    lappend undo [report imp sat $parms(n) $parms(g)]
-
-    setundo [join $undo \n]
-}
 
 
 # REPORT:SAT:CONTRIB

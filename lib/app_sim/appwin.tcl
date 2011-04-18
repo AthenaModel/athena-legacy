@@ -872,9 +872,7 @@ snit::widget appwin {
         $menubar add cascade -label "Reports" -underline 0 -menu $reportsmenu
 
         $self AddOrder $reportsmenu REPORT:DRIVER
-        $self AddOrder $reportsmenu REPORT:SAT:CURRENT
         $self AddOrder $reportsmenu REPORT:SAT:CONTRIB
-        $self AddOrder $reportsmenu REPORT:COOP
         $self AddOrder $reportsmenu REPORT:PARMDB
 
         $reportsmenu add separator

@@ -157,8 +157,8 @@ namespace eval ::athena_test::tests:: {
         scenario mutate reconcile
         ted order ORDER:SCHEDULE {
             timespec +0
-            name     REPORT:SAT:CURRENT
-            parmdict {n ALL g ALL}
+            name     REPORT:PARMDB
+            parmdict {state ALL wildcard "sim.*"}
         }
     } -body {
         sim mutate lock
@@ -167,9 +167,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-time rtype subtype 
----- ----- ------- 
-0    GRAM  SAT     
+time rtype    subtype 
+---- -------- ------- 
+0    SCENARIO PARMDB  
     }
 
     #-------------------------------------------------------------------
@@ -339,7 +339,7 @@ time rtype subtype
         ted create NB1 BLUE SHIA
         scenario mutate reconcile
         sim mutate lock
-        ted order REPORT:SAT:CURRENT n ALL g ALL
+        ted order REPORT:PARMDB state ALL wildcard "sim.*"
     } -body {
         sim mutate unlock
         rdb eval {SELECT count(*) FROM reports}
