@@ -247,9 +247,19 @@ snit::widget ::projectgui::linktree {
         # FIRST, get the linkdict
         if {[catch {
             $agent get $url
-        } result]} {
-            callwith $options(-errorcmd) \
-                "Error getting \"$url\": $result"
+        } result eopts]} {
+            # NOTFOUND is an error only if this is the -url;
+            # otherwise, it just means there's no children.
+            # Unexpected errors should be rethrown.
+            if {[dict get $eopts -errorcode] ne "NOTFOUND"} {
+                return {*}$eopts $result
+            }
+
+            if {$url eq $options(-url)} {
+                callwith $options(-errorcmd) \
+                    "Error getting \"$url\": $result"
+            }
+
             return 0
         }
 
@@ -279,9 +289,13 @@ snit::widget ::projectgui::linktree {
                 # FIRST, if the child has children, make it a button.
                 if {[catch {
                     $agent get $child
-                } result]} {
-                    callwith $options(-errorcmd) \
-                        "Error getting \"$url\": $result"
+                } result eopts]} {
+                    # NOTFOUND just means there's no children;
+                    # other errors are rethrown.
+                    if {[dict get $eopts -errorcode] ne "NOTFOUND"} {
+                        return {*}$eopts $result
+                    }
+
                     continue
                 }
 
