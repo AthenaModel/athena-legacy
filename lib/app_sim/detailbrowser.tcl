@@ -58,8 +58,7 @@ snit::widget detailbrowser {
             -url       my://app/entitytype               \
             -width     150                               \
             -height    400                               \
-            -changecmd [mymethod ShowLink]               \
-            -errorcmd  [list log warning detailb]
+            -changecmd [mymethod ShowLink]
 
         $sidebar.tabs add $sidebar.tabs.etree    \
             -sticky  nsew                        \

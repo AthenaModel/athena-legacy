@@ -600,8 +600,10 @@ snit::type strategy {
         $ht putln "The following goals have invalid conditions attached."
         $ht para
              
-        set lastOwner {}
-        set lastGoal {}
+        # Get the errant conditions by actor and goal.
+        
+        # Dictionary: actor->goal->condition
+        set adict [dict create]
 
         rdb eval {
             SELECT goals.goal_id   AS goal_id, 
@@ -613,50 +615,45 @@ snit::type strategy {
             WHERE conditions.state = 'invalid'
             ORDER BY owner, goal_id, condition_id
         } row {
-            if {$row(owner) ne $lastOwner} {
-                if {$lastOwner ne ""} {
-                    $ht /ul
-                    $ht /ul
-                }
-
-                set lastOwner $row(owner)
-                set lastGoal {}
-               
-                $ht para
-                $ht putln "<b>Actor: $row(owner)</b>"
-                $ht ul
-            }
-
-            if {$row(goal_id) ne $lastGoal} {
-                if {$lastGoal ne ""} {
-                    $ht /ul
-                }
-                set lastGoal $row(goal_id)
-
-
-                $ht li
-                $ht put "$row(goal_narrative)"
-                $ht tiny " (goal_id=$row(goal_id)) "
-                $ht ul
-            }
-
-            $ht li {
-                $ht put $row(narrative)
-                $ht tiny " (type=$row(condition_type), id=$row(condition_id))"
-                $ht br
-                $ht put "==> $cerror($row(condition_id))"
-            }
+            dict set adict $row(owner) $row(goal_id) $row(condition_id) 1
+            set gdata($row(goal_id)) $row(goal_narrative)
+            set cdata($row(condition_id)) [array get row]
         }
 
-        $ht /ul
-        $ht /ul
+        dict for {a gdict} $adict {
+            $ht putln "<b>Actor: $a</b>"
+            $ht ul
+
+            dict for {gid cdict} $gdict {
+                $ht li
+                $ht put "$gdata($gid)"
+                $ht tiny " (goal id=$gid) "
+                $ht ul
+
+                dict for {cid dummy} $cdict {
+                    dict with cdata($cid) {
+                        $ht li
+                        $ht put $narrative
+                        $ht tiny " (condition type=$condition_type, id=$cid)"
+                        $ht br
+                        $ht putln "==> <font color=red>$cerror($cid)</font>"
+                    }
+                }
+                
+                $ht /ul
+            }
+            
+            $ht /ul
+        }
+
         $ht para
 
         set result [$ht pop]
 
-        if {$lastOwner ne ""} {
+        if {[dict size $adict] > 0} {
             $ht put $result
         }
+
 
         # Bad Tactics/Tactics with bad conditions
         $ht push
@@ -669,74 +666,81 @@ snit::type strategy {
 
         $ht para
 
-        set lastOwner {}
-        set lastTactic {}
+        # Dictionary: actor->tactic->condition
+        set adict [dict create]
 
         rdb eval {
-            SELECT T.tactic_id   AS tactic_id,
-                   T.narrative   AS tactic_narrative,
-                   T.tactic_type AS tactic_type,
-                   T.state       AS tactic_state,
-                   C.*
+            SELECT T.tactic_id      AS tactic_id,
+                   T.owner          AS owner,
+                   T.narrative      AS tactic_narrative,
+                   T.tactic_type    AS tactic_type,
+                   T.state          AS tactic_state,
+                   C.condition_id   AS condition_id,
+                   C.condition_type AS condition_type,
+                   C.state          AS state,
+                   C.narrative      AS narrative
             FROM tactics AS T 
-            JOIN conditions AS C ON (co_id = tactic_id)
+            LEFT OUTER JOIN conditions AS C ON (co_id = tactic_id)
             WHERE T.state = 'invalid' OR C.state = 'invalid'
         } row {
-            if {$row(owner) ne $lastOwner} {
-                if {$lastOwner ne ""} {
-                    $ht /ul
-                    $ht /ul
-                }
-
-                set lastOwner $row(owner)
-                set lastTactic {}
-
-                $ht para
-                $ht putln "<b>Actor: $row(owner)</b>"
-                $ht ul
-            }
-
-            if {$row(tactic_id) ne $lastTactic} {
-                if {$lastTactic ne ""} {
-                    $ht /ul
-                }
-
-                set lastTactic $row(tactic_id)
-
-                $ht li 
-                $ht put $row(tactic_narrative)
-                $ht tiny " (type=$row(tactic_type), id=$row(tactic_id))"
-
-                if {$row(tactic_state) eq "invalid"} {
-                    $ht br
-                    $ht put "==> $terror($row(tactic_id))"
-                }
-                
-                # If there are conditions, begin the list of conditions.
-                if {$row(state) eq "invalid"} {
-                    $ht ul
-                }
-            }
-
-            if {$row(state) eq "invalid"} {
-                $ht li {
-                    $ht put $row(narrative)
-                    $ht tiny " (type=$row(condition_type), id=$row(condition_id))"
-                    $ht br
-                    $ht put "==> $cerror($row(condition_id))"
-                }
-            }
+            dict set adict $row(owner) $row(tactic_id) $row(condition_id) 1
+            set tdata($row(tactic_id))    [array get row]
+            set cdata($row(condition_id)) [array get row]
         }
 
-        if {$row(state) eq "invalid"} {
+        dict for {a tdict} $adict {
+            $ht putln "<b>Actor: $a</b>"
+            $ht ul
+
+            dict for {tid cdict} $tdict {
+                $ht li
+
+                dict with tdata($tid) {
+                    $ht put $tactic_narrative
+                    $ht tiny " (tactic type=$tactic_type, id=$tactic_id)"
+
+                    if {$tactic_state eq "invalid"} {
+                        $ht br
+                        $ht putln "==> <font color=red>$terror($tid)</font>"
+                    }
+                }
+
+                # If the tactic is invalid, we get all of its conditions; 
+                # thus, we need to be careful here.
+
+                $ht push
+
+                dict for {cid dummy} $cdict {
+                    if {[dict get $cdata($cid) state] != "invalid"} {
+                        continue
+                    }
+
+                    dict with cdata($cid) {
+                        $ht li
+                        $ht put $narrative
+                        $ht tiny " (condition type=$condition_type, id=$cid)"
+                        $ht br
+                        $ht putln "==> <font color=red>$cerror($cid)</font>"
+                    }
+                }
+
+                set clist [$ht pop]
+
+                if {$clist ne ""} {
+                    $ht ul
+                    $ht putln $clist
+                    $ht /ul
+                }
+            }
+
             $ht /ul
         }
-        $ht /ul
+
         $ht para
 
         set result [$ht pop]
 
-        if {$lastOwner ne ""} {
+        if {[dict size $adict] > 0} {
             $ht put $result
         }
 
