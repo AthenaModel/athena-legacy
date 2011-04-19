@@ -249,13 +249,13 @@ snit::widget detailbrowser {
         dict with data {
             # FIRST, get a temporary file name, and the browser name.
             set filename [fileutil::tempfile]
-            set browser  [prefs get helper.browser]
+            set helper  [prefs get helper.browser]
 
             # NEXT, Save and browse the file
 
             if {[catch {
                 $self WriteFile $filename $content
-                exec $browser $filename &
+                exec $helper $filename &
             } result]} {
                 messagebox popup \
                     -title    "Could Not View Page" \
@@ -264,7 +264,7 @@ snit::widget detailbrowser {
                     -parent   [app topwin]          \
                     -message  [normalize "
                         Athena was unable to view the page in
-                        '$browser': $result
+                        '$helper': $result
                     "]
                 return
             }
