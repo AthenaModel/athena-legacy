@@ -494,7 +494,6 @@ snit::widget bsystembrowser {
                 { position "Position" 
                     -formatcommand {format ""} }
                 { tolerance "Tolerance" 
-                    -stretchable yes 
                     -formatcommand {format ""} }
             }
 
@@ -659,10 +658,10 @@ snit::widget bsystembrowser {
             -displaycmd  [mymethod AListDisplay] \
             -where       0                       \
             -layout      {
-                {f   "Entity A"                                 }
-                {g   "Entity B"                                 }
-                {afg "A for B"  -sortmode real                  }
-                {agf "B for A"  -sortmode real -stretchable yes }
+                {f   "Entity A"                 }
+                {g   "Entity B"                 }
+                {afg "A for B"  -sortmode real  }
+                {agf "B for A"  -sortmode real  }
             }
 
         set bar [$alist toolbar]
