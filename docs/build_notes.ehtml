@@ -11,9 +11,30 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.15, 19 April 2011</h3>
+
+This build contains a number of significant changes.  Time advances
+much more quickly; the SAVEMONEY tactic has been replaced with the
+new SAVE and SPEND tactics; the Strategy sanity check report is now a
+Detail Browser page rather than a Report Browser report; and the
+program help is now integrated into the Detail Browser.  In addition,
+there are some small bug fixes.<p>
+
+<ul>
+  <li> Bug 2920: athena_sim(1): Error handling in order scripts
+  <li> Bug 2923: Integrated Help System
+  <li> Bug 2925: Integrate with ATEE 2011Q1
+  <li> Bug 2926: athena_sim(1): SAVE/SPEND tactics
+  <li> Bug 2927: athena_sim(1): Strategy Sanity Check Report
+  <li> Bug 2928: Firefox Bgerror
+  <li> Bug 2930: athena_sim(1): Performance Optimization
+  <li> Bug 2931: linktree(n): Spurious warnings in the debugging log
+  <li> Bug 2932: athena_sim(1): Remove REPORT:SAT:CURRENT and REPORT:COOP  
+</ul>
+
 <h3>Build 3.0.14, 12 April 2011</h3>
 
-This package includes a number of bug fixes, additional content for
+This build includes a number of bug fixes, additional content for
 the Detail Browser, and some changes to the Belief System model and
 interface.  The full list of changes is as follows:<p>
 
