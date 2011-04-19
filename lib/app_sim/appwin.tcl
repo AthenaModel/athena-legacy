@@ -551,6 +551,11 @@ snit::widget appwin {
         bind $win <Control-n> [mymethod FileNew]
         bind $win <Control-N> [mymethod FileNew]
 
+        $mnu add command \
+            -label     "New Detail Browser..."     \
+            -underline 4                           \
+            -command   [list detailbrowser new]
+
         cond::simNotRunning control \
             [menuitem $mnu command "Open Scenario..." \
                  -underline 0                         \

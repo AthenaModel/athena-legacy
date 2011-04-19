@@ -18,11 +18,48 @@
 
 snit::widget detailbrowser {
     #-------------------------------------------------------------------
+    # Type Methods
+
+    # new
+    #
+    # Creates a new detailbrowser in its own window.
+
+    typemethod new {} {
+        # FIRST, get a new toplevel
+        set count 1
+        while {[winfo exists .detail$count]} {
+            incr count
+        }
+
+        set w .detail$count
+
+        toplevel $w
+
+        wm title $w "Athena [version]: Detail Browser #$count"
+
+        # NEXT, create the widgets
+        detailbrowser $w.browser \
+            -messagecmd [list $w.status.msgline puts]
+
+        ttk::separator $w.sep
+
+        ttk::frame $w.status \
+            -borderwidth 2 
+        messageline $w.status.msgline
+
+        pack $w.status.msgline -fill both -expand yes
+
+        pack $w.status  -side bottom -fill x -expand yes
+        pack $w.sep     -side bottom -fill x
+        pack $w.browser -fill both -expand yes
+    }
+
+
+    #-------------------------------------------------------------------
     # Options
 
     # Options delegated to the hull
     delegate option * to browser
-
 
     #-------------------------------------------------------------------
     # Components

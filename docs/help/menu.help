@@ -72,6 +72,11 @@ menuitem "File/New Scenario..." {
     settings.
 }
 
+menuitem "File/New Detail Browser..." {
+    Pops up a new Detail Browser window.  This allows the user to
+    view multiple Detail Browser pages at one time.
+}
+
 menuitem "File/Open Scenario..." {
     Closes the current scenario, and loads an existing scenario from 
     disk.<p>
