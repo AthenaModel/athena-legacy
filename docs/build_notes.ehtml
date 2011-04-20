@@ -11,6 +11,20 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.16, 20 April 2011</h3>
+
+This build is primarily a bug-fix build; bugs 2936 and 2937 affect the
+Belief Systems model, which is an active area of work for Brian Kahovec and
+Ed Upchurch.<p>
+
+<ul>
+  <li> Bug 2933: athena_sim(1): Multiple Detail Browsers
+  <li> Bug 2934: B for A Column Shifts Right
+  <li> Bug 2935: athena_sim(1): Base personnel for FRC and ORG groups
+  <li> Bug 2936: bgerror: Unknown mam_playbox key: "1"
+  <li> Bug 2937: Irrelevant Topics Are Relevant 
+</ul>
+
 <h3>Build 3.0.15, 19 April 2011</h3>
 
 This build contains a number of significant changes.  Time advances
