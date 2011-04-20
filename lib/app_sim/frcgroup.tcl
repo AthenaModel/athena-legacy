@@ -170,6 +170,7 @@ snit::type frcgroup {
     #    shape          The group's unit shape (eunitshape(n))
     #    forcetype      The group's eforcetype
     #    demeanor       The group's demeanor (edemeanor(n))
+    #    basepop        The group's initial # of personnel in the playbox
     #    uniformed      The group's uniformed flag
     #    local          The group's local flag
     #
@@ -187,7 +188,7 @@ snit::type frcgroup {
             # NEXT, Put the group in the database
             rdb eval {
                 INSERT INTO 
-                groups(g, longname, color, shape, symbol, demeanor,
+                groups(g, longname, color, shape, symbol, demeanor, basepop,
                        rel_entity, gtype)
                 VALUES($g,
                        $longname,
@@ -195,6 +196,7 @@ snit::type frcgroup {
                        $shape,
                        $symbol,
                        $demeanor,
+                       $basepop,
                        nullif($a,''),
                        'FRC');
 
@@ -242,6 +244,7 @@ snit::type frcgroup {
     #    shape          A new shape, or ""
     #    forcetype      A new eforcetype, or ""
     #    demeanor       A new demeanor, or ""
+    #    basepop        A new basepop, or ""
     #    uniformed      A new uniformed flag, or ""
     #    local          A new local flag, or ""
     #
@@ -286,6 +289,7 @@ snit::type frcgroup {
                     shape      = nonempty($shape,        shape),
                     symbol     = nonempty($symbol,       symbol),
                     demeanor   = nonempty($demeanor,     demeanor),
+                    basepop    = nonempty($basepop,      basepop),
                     rel_entity = coalesce(nullif($a,''), rel_entity)
                 WHERE g=$g;
 
@@ -325,6 +329,7 @@ order define FRCGROUP:CREATE {
                                                -defval  REGULAR
     parm demeanor   enum  "Demeanor"          -enumtype edemeanor  \
                                               -defval   AVERAGE
+    parm basepop    text  "Personnel"         -defval   10000
     parm uniformed  enum  "Uniformed?"        -enumtype eyesno     \
                                               -defval   YES
     parm local      enum  "Local Group?"      -enumtype eyesno     \
@@ -338,6 +343,7 @@ order define FRCGROUP:CREATE {
     prepare shape      -toupper   -required -type eunitshape
     prepare forcetype  -toupper   -required -type eforcetype
     prepare demeanor   -toupper   -required -type edemeanor
+    prepare basepop               -required -type count
     prepare uniformed  -toupper   -required -type boolean
     prepare local      -toupper   -required -type boolean
 
@@ -415,6 +421,7 @@ order define FRCGROUP:UPDATE {
     parm shape      enum  "Unit Shape"         -enumtype eunitshape
     parm forcetype  enum  "Force Type"         -enumtype eforcetype
     parm demeanor   enum  "Demeanor"           -enumtype edemeanor
+    parm basepop    text  "Personnel"
     parm uniformed  enum  "Uniformed?"         -enumtype eyesno
     parm local      enum  "Local Group?"       -enumtype eyesno
 } {
@@ -426,6 +433,7 @@ order define FRCGROUP:UPDATE {
     prepare shape     -toupper   -type eunitshape
     prepare forcetype -toupper   -type eforcetype
     prepare demeanor  -toupper   -type edemeanor
+    prepare basepop              -type count
     prepare uniformed -toupper   -type boolean
     prepare local     -toupper   -type boolean
 
@@ -454,6 +462,7 @@ order define FRCGROUP:UPDATE:MULTI {
     parm shape      enum  "Unit Shape"     -enumtype eunitshape
     parm forcetype  enum  "Force Type"     -enumtype eforcetype
     parm demeanor   enum  "Demeanor"       -enumtype edemeanor
+    parm basepop    text  "Personnel"
     parm uniformed  enum  "Uniformed?"     -enumtype eyesno
     parm local      enum  "Local Group?"   -enumtype eyesno
 } {
@@ -464,6 +473,7 @@ order define FRCGROUP:UPDATE:MULTI {
     prepare shape     -toupper            -type   eunitshape
     prepare forcetype -toupper            -type   eforcetype
     prepare demeanor  -toupper            -type   edemeanor
+    prepare basepop                       -type   count
     prepare uniformed -toupper            -type   boolean
     prepare local     -toupper            -type   boolean
 

@@ -233,6 +233,7 @@ snit::type ted {
             shape     FRIEND
             forcetype REGULAR
             demeanor  AVERAGE
+            basepop   5000
             uniformed 1
             local     0
         } JOE
@@ -245,6 +246,7 @@ snit::type ted {
             shape     FRIEND
             forcetype REGULAR
             demeanor  AVERAGE
+            basepop   5000
             uniformed 1
             local     0
         } JOE
@@ -257,6 +259,7 @@ snit::type ted {
             shape     ENEMY
             forcetype IRREGULAR
             demeanor  AGGRESSIVE
+            basepop   2000
             uniformed 0
             local     0
         } BOB
@@ -269,6 +272,7 @@ snit::type ted {
             shape     ENEMY
             forcetype IRREGULAR
             demeanor  AGGRESSIVE
+            basepop   2000
             uniformed 0
             local     1
         } BOB
@@ -283,6 +287,7 @@ snit::type ted {
             shape          NEUTRAL
             orgtype        NGO
             demeanor       AVERAGE
+            basepop        1000
         } JOE
 
         defentity HAL ::orggroup {
@@ -293,6 +298,7 @@ snit::type ted {
             shape          NEUTRAL
             orgtype        CTR
             demeanor       AVERAGE
+            basepop        2000
         } JOE
     }
 

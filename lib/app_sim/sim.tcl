@@ -140,7 +140,7 @@ snit::type sim {
         }]
 
         $gram load civg {*}[rdb eval {
-            SELECT g,n,basepop FROM civgroups
+            SELECT g,n,basepop FROM civgroups_view
             ORDER BY g
         }]
 

@@ -147,7 +147,7 @@ snit::type civgroup {
             rdb eval {
                 INSERT INTO 
                 groups(g, longname, color, shape, symbol, demeanor,
-                       rel_entity, gtype)
+                       rel_entity, gtype, basepop)
                 VALUES($g,
                        $longname,
                        $color,
@@ -155,13 +155,13 @@ snit::type civgroup {
                        'civilian',
                        $demeanor,
                        $g,
-                       'CIV');
+                       'CIV',
+                       $basepop);
 
                 INSERT INTO
-                civgroups(g,n,basepop,sap)
+                civgroups(g,n,sap)
                 VALUES($g,
                        $n,
-                       $basepop,
                        $sap);
 
                 INSERT INTO demog_g(g)
@@ -244,15 +244,15 @@ snit::type civgroup {
             # NEXT, Update the group
             rdb eval {
                 UPDATE groups
-                SET longname  = nonempty($longname,  longname),
-                    color     = nonempty($color,     color),
-                    shape     = nonempty($shape,     shape),
-                    demeanor  = nonempty($demeanor,  demeanor)
+                SET longname  = nonempty($longname, longname),
+                    color     = nonempty($color,    color),
+                    shape     = nonempty($shape,    shape),
+                    demeanor  = nonempty($demeanor, demeanor),
+                    basepop   = nonempty($basepop,  basepop)
                 WHERE g=$g;
 
                 UPDATE civgroups
                 SET n       = nonempty($n, n),
-                    basepop = nonempty($basepop, basepop),
                     sap     = nonempty($sap, sap)
                 WHERE g=$g
 

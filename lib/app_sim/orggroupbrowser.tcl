@@ -38,6 +38,7 @@ snit::widgetadaptor orggroupbrowser {
         { shape          "Unit Shape"                   }
         { orgtype        "Org Type"                     }
         { demeanor       "Demeanor"                     }
+        { basepop        "Personnel"  -sortmode integer }
     }
 
     #-------------------------------------------------------------------

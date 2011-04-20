@@ -31,15 +31,16 @@ snit::widgetadaptor frcgroupbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { g         "ID"         }
-        { longname  "Long Name"  }
-        { a         "Owner"      }
-        { color     "Color"      }
-        { shape     "Unit Shape" }
-        { forcetype "Force Type" }
-        { demeanor  "Demeanor"   }
-        { uniformed "Uniformed?" }
-        { local     "Local?"     }
+        { g         "ID"                           }
+        { longname  "Long Name"                    }
+        { a         "Owner"                        }
+        { color     "Color"                        }
+        { shape     "Unit Shape"                   }
+        { forcetype "Force Type"                   }
+        { demeanor  "Demeanor"                     }
+        { basepop   "Personnel"  -sortmode integer }
+        { uniformed "Uniformed?"                   }
+        { local     "Local?"                       }
     }
 
     #-------------------------------------------------------------------

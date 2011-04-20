@@ -43,9 +43,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape   symbol   demeanor rel_entity gtype n   basepop sap 
----- -------- ------- ------- -------- -------- ---------- ----- --- ------- --- 
-SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  SHIA       CIV   NB1 1000    10  
+g    longname color   shape   symbol   demeanor basepop rel_entity gtype n   sap 
+---- -------- ------- ------- -------- -------- ------- ---------- ----- --- --- 
+SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 10  
     }
 
     test create-1.2 {bsystem entity is created} -body {
@@ -135,9 +135,9 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  SHIA       CIV   NB1 1000    10
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape   symbol   demeanor rel_entity gtype n   basepop sap 
----- -------- ------- ------- -------- -------- ---------- ----- --- ------- --- 
-SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  SHIA       CIV   NB1 1000    10  
+g    longname color   shape   symbol   demeanor basepop rel_entity gtype n   sap 
+---- -------- ------- ------- -------- -------- ------- ---------- ----- --- --- 
+SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 10  
     }
 
     test delete-3.1 {Bsystem entity is deleted} -setup {
@@ -292,9 +292,9 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  SHIA       CIV   NB1 1000    10
     } -cleanup {
         cleanup
     } -result {
-g    longname  color   shape  symbol   demeanor rel_entity gtype n   basepop sap 
----- --------- ------- ------ -------- -------- ---------- ----- --- ------- --- 
-SHIA Shia Folk #ff0000 FRIEND civilian AVERAGE  SHIA       CIV   NB1 1000    10  
+g    longname  color   shape  symbol   demeanor basepop rel_entity gtype n   sap 
+---- --------- ------- ------ -------- -------- ------- ---------- ----- --- --- 
+SHIA Shia Folk #ff0000 FRIEND civilian AVERAGE  1000    SHIA       CIV   NB1 10  
     }
 
 

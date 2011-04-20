@@ -36,6 +36,7 @@ namespace eval ::athena_test::tests:: {
         shape     FRIEND
         forcetype REGULAR
         demeanor  AVERAGE
+        basepop   5000
         uniformed yes
         local     no
     }
@@ -48,6 +49,7 @@ namespace eval ::athena_test::tests:: {
         shape     FRIEND
         forcetype REGULAR
         demeanor  AVERAGE
+        basepop   4000
         uniformed yes
         local     no
     }
@@ -71,6 +73,7 @@ namespace eval ::athena_test::tests:: {
         shape {required value}
         forcetype {required value}
         demeanor {required value}
+        basepop {required value}
         uniformed {required value}
         local {required value}
     }
@@ -158,7 +161,19 @@ namespace eval ::athena_test::tests:: {
         demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
-    test CREATE-1.9 {invalid uniformed} -setup {
+    test CREATE-1.9 {invalid basepop} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject FRCGROUP:CREATE [dict merge $blue {
+            basepop NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        basepop {invalid value "NONESUCH", expected integer}
+    }
+
+    test CREATE-1.10 {invalid uniformed} -setup {
         ted create JOE
     } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
@@ -170,7 +185,7 @@ namespace eval ::athena_test::tests:: {
         uniformed {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test CREATE-1.10 {invalid local} -setup {
+    test CREATE-1.11 {invalid local} -setup {
         ted create JOE
     } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
@@ -191,9 +206,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor rel_entity gtype a   forcetype uniformed local 
----- -------- ------- ------ -------- -------- ---------- ----- --- --------- --------- ----- 
-BLUE US Army  #0000FF FRIEND infantry AVERAGE  JOE        FRC   JOE REGULAR   1         0     
+g    longname color   shape  symbol   demeanor basepop rel_entity gtype a   forcetype uniformed local 
+---- -------- ------- ------ -------- -------- ------- ---------- ----- --- --------- --------- ----- 
+BLUE US Army  #0000FF FRIEND infantry AVERAGE  5000    JOE        FRC   JOE REGULAR   1         0     
     }
 
     test CREATE-2.2 {longname defaults to ID} -setup {
@@ -343,7 +358,18 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  JOE        FRC   JOE REGULAR   1 
     }
 
 
-    test UPDATE-1.8 {invalid uniformed} -setup {
+    test UPDATE-1.8 {invalid basepop} -setup {
+        ted create BLUE
+    } -body {
+        ted order -reject FRCGROUP:UPDATE g BLUE basepop NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        basepop {invalid value "NONESUCH", expected integer}
+    }
+
+
+    test UPDATE-1.9 {invalid uniformed} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE uniformed NONESUCH
@@ -354,7 +380,7 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  JOE        FRC   JOE REGULAR   1 
     }
 
 
-    test UPDATE-1.9 {invalid local} -setup {
+    test UPDATE-1.10 {invalid local} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE local NONESUCH
@@ -376,6 +402,7 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  JOE        FRC   JOE REGULAR   1 
             shape        NEUTRAL
             forcetype    POLICE
             demeanor     AGGRESSIVE
+            basepop      1500
             uniformed    no
             local        yes
         }
@@ -384,9 +411,9 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  JOE        FRC   JOE REGULAR   1 
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol demeanor   rel_entity gtype a   forcetype uniformed local 
----- ----------- ------- ------- ------ ---------- ---------- ----- --- --------- --------- ----- 
-BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE BOB        FRC   BOB POLICE    0         1     
+g    longname    color   shape   symbol demeanor   basepop rel_entity gtype a   forcetype uniformed local 
+---- ----------- ------- ------- ------ ---------- ------- ---------- ----- --- --------- --------- ----- 
+BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE 1500    BOB        FRC   BOB POLICE    0         1     
     }
 
 
@@ -412,6 +439,7 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE BOB        FRC   BOB POLICE  
             color        "#ff0000"
             forcetype    POLICE
             demeanor     AGGRESSIVE
+            basepop      1500
             local        yes
             uniformed    no
         }
@@ -507,7 +535,18 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE BOB        FRC   BOB POLICE  
     }
 
 
-    test UPDATE:MULTI-1.9 {invalid uniformed} -setup {
+    test UPDATE:MULTI-1.9 {invalid basepop} -setup {
+        ted create BLUE
+    } -body {
+        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE basepop NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        basepop {invalid value "NONESUCH", expected integer}
+    }
+
+
+    test UPDATE:MULTI-1.10 {invalid uniformed} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE uniformed NONESUCH
@@ -518,7 +557,7 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE BOB        FRC   BOB POLICE  
     }
 
 
-    test UPDATE:MULTI-1.10 {invalid local} -setup {
+    test UPDATE:MULTI-1.11 {invalid local} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE local NONESUCH
@@ -541,6 +580,7 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE BOB        FRC   BOB POLICE  
             shape     NEUTRAL
             forcetype POLICE
             demeanor  AGGRESSIVE
+            basepop   1500
             uniformed no
             local     yes
         }
@@ -565,6 +605,7 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE BOB        FRC   BOB POLICE  
             shape     NEUTRAL
             forcetype POLICE
             demeanor  AGGRESSIVE
+            basepop   1500
             uniformed no
             local     yes
         }

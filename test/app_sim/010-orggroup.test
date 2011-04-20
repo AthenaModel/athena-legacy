@@ -45,9 +45,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   symbol       demeanor rel_entity gtype a   orgtype 
------ -------- ------- ------- ------------ -------- ---------- ----- --- ------- 
-USAID US Aid   #000001 NEUTRAL organization AVERAGE  JOE        ORG   JOE NGO     
+g     longname color   shape   symbol       demeanor basepop rel_entity gtype a   orgtype 
+----- -------- ------- ------- ------------ -------- ------- ---------- ----- --- ------- 
+USAID US Aid   #000001 NEUTRAL organization AVERAGE  1000    JOE        ORG   JOE NGO     
     }
 
     test create-1.2 {a can be empty, yields NULL} -setup {
@@ -58,9 +58,9 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  JOE        ORG   JOE NGO
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   symbol       demeanor rel_entity gtype a orgtype 
------ -------- ------- ------- ------------ -------- ---------- ----- - ------- 
-USAID US Aid   #000001 NEUTRAL organization AVERAGE             ORG     NGO     
+g     longname color   shape   symbol       demeanor basepop rel_entity gtype a orgtype 
+----- -------- ------- ------- ------------ -------- ------- ---------- ----- - ------- 
+USAID US Aid   #000001 NEUTRAL organization AVERAGE  1000               ORG     NGO     
     }
 
     test create-2.1 {undo deletes the orggroup} -setup {
@@ -118,9 +118,9 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE             ORG     NGO
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   symbol       demeanor rel_entity gtype a   orgtype 
------ -------- ------- ------- ------------ -------- ---------- ----- --- ------- 
-USAID US Aid   #000001 NEUTRAL organization AVERAGE  JOE        ORG   JOE NGO     
+g     longname color   shape   symbol       demeanor basepop rel_entity gtype a   orgtype 
+----- -------- ------- ------- ------------ -------- ------- ---------- ----- --- ------- 
+USAID US Aid   #000001 NEUTRAL organization AVERAGE  1000    JOE        ORG   JOE NGO     
     }
 
     test delete-3.1 {personnel_ng record is deleted} -setup {
@@ -231,15 +231,16 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  JOE        ORG   JOE NGO
             shape          FRIEND
             orgtype        IGO
             demeanor       APATHETIC
+            basepop        2000
         }
 
         ted query {SELECT * FROM orggroups_view}
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   shape  symbol       demeanor  rel_entity gtype a   orgtype 
------ --------- ------- ------ ------------ --------- ---------- ----- --- ------- 
-USAID Red Cross #ff0000 FRIEND organization APATHETIC BOB        ORG   BOB IGO     
+g     longname  color   shape  symbol       demeanor  basepop rel_entity gtype a   orgtype 
+----- --------- ------- ------ ------------ --------- ------- ---------- ----- --- ------- 
+USAID Red Cross #ff0000 FRIEND organization APATHETIC 2000    BOB        ORG   BOB IGO     
     }
 
 
@@ -271,6 +272,7 @@ USAID Red Cross #ff0000 FRIEND organization APATHETIC BOB        ORG   BOB IGO
             shape          ""
             orgtype        ""
             demeanor       ""
+            basepop        ""
         }
 
         set b [ted query {SELECT * FROM orggroups_view}]
@@ -295,6 +297,7 @@ USAID Red Cross #ff0000 FRIEND organization APATHETIC BOB        ORG   BOB IGO
             shape          FRIEND
             orgtype        IGO
             demeanor       AGGRESSIVE
+            basepop        2000
         }]
 
         {*}$undo

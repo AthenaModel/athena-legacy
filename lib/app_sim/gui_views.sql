@@ -76,7 +76,8 @@ SELECT g                                               AS id,
        longname                                        AS longname,
        color                                           AS color,
        shape                                           AS shape,
-       demeanor                                        AS demeanor
+       demeanor                                        AS demeanor,
+       basepop                                         AS basepop
 FROM groups;
 
 
@@ -93,8 +94,8 @@ SELECT G.id                                         AS id,
        G.color                                      AS color,
        G.shape                                      AS shape,
        G.demeanor                                   AS demeanor,
+       G.basepop                                    AS basepop,
        CG.n                                         AS n,
-       CG.basepop                                   AS basepop,
        CG.sap                                       AS sap,
        DG.population                                AS population,
        DG.displaced                                 AS displaced,
@@ -125,6 +126,7 @@ SELECT G.id                                             AS id,
        G.color                                          AS color,
        G.shape                                          AS shape,
        G.demeanor                                       AS demeanor,
+       G.basepop                                        AS basepop,
        F.a                                              AS a,
        F.forcetype                                      AS forcetype,
        CASE F.uniformed WHEN 1 THEN 'YES' ELSE 'NO' END AS uniformed,
@@ -145,6 +147,7 @@ SELECT G.id                                             AS id,
        G.color                                          AS color,
        G.shape                                          AS shape,
        G.demeanor                                       AS demeanor,
+       G.basepop                                        AS basepop,
        O.a                                              AS a,
        O.orgtype                                        AS orgtype
 FROM gui_groups AS G

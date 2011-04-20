@@ -63,9 +63,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor rel_entity gtype a   forcetype uniformed local 
----- -------- ------- ------ -------- -------- ---------- ----- --- --------- --------- ----- 
-BLUE US Army  #f00001 FRIEND infantry AVERAGE  JOE        FRC   JOE REGULAR   1         0     
+g    longname color   shape  symbol   demeanor basepop rel_entity gtype a   forcetype uniformed local 
+---- -------- ------- ------ -------- -------- ------- ---------- ----- --- --------- --------- ----- 
+BLUE US Army  #f00001 FRIEND infantry AVERAGE  5000    JOE        FRC   JOE REGULAR   1         0     
     }
 
     test create-1.2 {a can be empty, yields NULL} -setup {
@@ -76,9 +76,9 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  JOE        FRC   JOE REGULAR   1 
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor rel_entity gtype a forcetype uniformed local 
----- -------- ------- ------ -------- -------- ---------- ----- - --------- --------- ----- 
-BLUE US Army  #f00001 FRIEND infantry AVERAGE             FRC     REGULAR   1         0     
+g    longname color   shape  symbol   demeanor basepop rel_entity gtype a forcetype uniformed local 
+---- -------- ------- ------ -------- -------- ------- ---------- ----- - --------- --------- ----- 
+BLUE US Army  #f00001 FRIEND infantry AVERAGE  5000               FRC     REGULAR   1         0     
     }
 
 
@@ -157,9 +157,9 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE             FRC     REGULAR   1   
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor rel_entity gtype a   forcetype uniformed local 
----- -------- ------- ------ -------- -------- ---------- ----- --- --------- --------- ----- 
-BLUE US Army  #f00001 FRIEND infantry AVERAGE  JOE        FRC   JOE REGULAR   1         0     
+g    longname color   shape  symbol   demeanor basepop rel_entity gtype a   forcetype uniformed local 
+---- -------- ------- ------ -------- -------- ------- ---------- ----- --- --------- --------- ----- 
+BLUE US Army  #f00001 FRIEND infantry AVERAGE  5000    JOE        FRC   JOE REGULAR   1         0     
     }
 
     test delete-2.1 {coop curves are deleted} -setup {
@@ -312,6 +312,7 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  JOE        FRC   JOE REGULAR   1 
             shape        NEUTRAL
             forcetype    POLICE
             demeanor     AGGRESSIVE
+            basepop      1500
             uniformed    0
             local        1  
         }
@@ -320,9 +321,9 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  JOE        FRC   JOE REGULAR   1 
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol demeanor   rel_entity gtype a   forcetype uniformed local 
----- ----------- ------- ------- ------ ---------- ---------- ----- --- --------- --------- ----- 
-BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE BOB        FRC   BOB POLICE    0         1     
+g    longname    color   shape   symbol demeanor   basepop rel_entity gtype a   forcetype uniformed local 
+---- ----------- ------- ------- ------ ---------- ------- ---------- ----- --- --------- --------- ----- 
+BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE 1500    BOB        FRC   BOB POLICE    0         1     
     }
 
 
@@ -353,6 +354,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE BOB        FRC   BOB POLICE  
             color        ""
             forcetype    ""
             demeanor     ""
+            basepop      ""
             uniformed    ""
             local        ""
         }
@@ -378,6 +380,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE BOB        FRC   BOB POLICE  
             color        ""
             forcetype    ""
             demeanor     ""
+            basepop      ""
             uniformed    ""
             local        ""
         }]
@@ -405,6 +408,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE BOB        FRC   BOB POLICE  
             color        ""
             forcetype    ""
             demeanor     ""
+            basepop      ""
             uniformed    0
             local        ""
         }
@@ -429,6 +433,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE BOB        FRC   BOB POLICE  
             color        ""
             forcetype    ""
             demeanor     ""
+            basepop      ""
             uniformed    0
             local        ""
         }]

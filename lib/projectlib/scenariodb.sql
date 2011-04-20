@@ -200,13 +200,16 @@ CREATE TABLE groups (
     -- Group demeanor: edemeanor
     demeanor    TEXT DEFAULT 'AVERAGE',
 
+    -- Base Population/Personnel for this group
+    basepop        INTEGER DEFAULT 0,
+
     -- Relationship Entity
     rel_entity  TEXT REFERENCES mam_entity(eid)
                 ON DELETE SET NULL 
                 DEFERRABLE INITIALLY DEFERRED,
 
     -- Group type, CIV, FRC, ORG
-    gtype       TEXT 
+    gtype       TEXT
 );
 
 -- Civ Groups
@@ -216,9 +219,6 @@ CREATE TABLE civgroups (
 
     -- Symbolic neighborhood name for neighborhood of residence.
     n              TEXT,
-
-    -- Base Population in n.
-    basepop        INTEGER DEFAULT 1,
 
     -- Subsistence Agriculture Percentage in n.
     sap            INTEGER DEFAULT 0
