@@ -1741,6 +1741,12 @@ macro FRCGROUP.forcetype {} {
     [enumdoc ::projectlib::eforcetype]
 }
 
+macro FRCGROUP.basepop {} {
+    |<--
+    The number of personnel belonging to this group
+    who are present in the playbox at time 0.
+}
+
 macro FRCGROUP.uniformed {} {
     |<--
     Boolean flag (e.g., "Yes" or "No").  Indicates whether or not the
@@ -1786,6 +1792,10 @@ order FRCGROUP:CREATE "Create Force Group" {
 
     <<parm demeanor "Demeanor">>
     <b>Required.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm basepop "Personnel">>
+    <b>Required.</b> <<FRCGROUP.basepop>>
     <</parm>>
 
     <<parm uniformed "Uniformed?">>
@@ -1850,6 +1860,10 @@ order FRCGROUP:UPDATE "Update Force Group" {
     <b>Optional.</b> <<GROUP.demeanor>>
     <</parm>>
 
+    <<parm basepop "Personnel">>
+    <b>Optional.</b> <<FRCGROUP.basepop>>
+    <</parm>>
+
     <<parm uniformed "Uniformed?">>
     <b>Optional.</b>  <<FRCGROUP.uniformed>>
     <</parm>>
@@ -1893,6 +1907,10 @@ order FRCGROUP:UPDATE+MULTI "Update Multiple Force Groups" {
     <b>Optional.</b> <<GROUP.demeanor>>
     <</parm>>
 
+    <<parm basepop "Personnel">>
+    <b>Optional.</b> <<FRCGROUP.basepop>>
+    <</parm>>
+
     <<parm uniformed "Uniformed?">>
     <b>Optional.</b>  <<FRCGROUP.uniformed>>
     <</parm>>
@@ -1933,6 +1951,11 @@ macro ORGGROUP.orgtype {} {
     [enumdoc ::projectlib::eorgtype]
 }
 
+macro ORGGROUP.basepop {} {
+    |<--
+    The number of personnel belonging to this group
+    who are present in the playbox at time 0.
+}
 
 #-----------------------------------------------------------------------
 
@@ -1964,6 +1987,10 @@ order ORGGROUP:CREATE "Create Organization Group" {
 
     <<parm demeanor "Demeanor">>
     <b>Required.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm basepop "Personnel">>
+    <b>Required.</b> <<ORGGROUP.basepop>>
     <</parm>>
 
     <</parmlist>>
@@ -2020,6 +2047,10 @@ order ORGGROUP:UPDATE "Update Organization Group" {
     <b>Optional.</b> <<GROUP.demeanor>>
     <</parm>>
 
+    <<parm basepop "Personnel">>
+    <b>Optional.</b> <<ORGGROUP.basepop>>
+    <</parm>>
+
     <</parmlist>>
 
     <b><<cref /using/prep>> Only.</b>  This order modifies the
@@ -2052,6 +2083,10 @@ order ORGGROUP:UPDATE+MULTI "Update Multiple Organization Groups" {
 
     <<parm demeanor "Demeanor">>
     <b>Optional.</b> <<GROUP.demeanor>>
+    <</parm>>
+
+    <<parm basepop "Personnel">>
+    <b>Optional.</b> <<ORGGROUP.basepop>>
     <</parm>>
 
     <</parmlist>>

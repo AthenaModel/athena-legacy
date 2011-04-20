@@ -1306,6 +1306,10 @@ tab "Groups/FrcGroups" {
     <<enumdoc ::projectlib::edemeanor>>
     <</topic>>
     
+    <<topic "Personnel">>The number of personnel belonging to this group
+    who are present in the playbox at time 0.<p>
+    <</topic>>
+
     <<topic "Uniformed?">> <b>YES</b> if members of the group wear
     uniforms, and <b>NO</b> if they do not, i.e., if they hide among
     the general population.
@@ -1383,6 +1387,10 @@ tab "Groups/OrgGroups" {
     <<enumdoc ::projectlib::edemeanor>>
     <</topic>>
     
+    <<topic "Personnel">>The number of personnel belonging to this group
+    who are present in the playbox at time 0.<p>
+    <</topic>>
+
     <</topiclist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's
