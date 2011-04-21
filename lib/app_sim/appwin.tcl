@@ -1951,7 +1951,9 @@ snit::widget appwin {
     method PrepLock {} {
         # FIRST, if we're in PREP then it's time to leave it.
         if {[sim state] eq "PREP"} {
-            if {![sim check onlock -report]} {
+            if {![sanity onlock check]} {
+                app show my://app/sanity/onlock
+
                 messagebox popup \
                     -parent  $win               \
                     -icon    error              \
@@ -1961,8 +1963,6 @@ snit::widget appwin {
             Fix the error, and try again.
             Please see the On-Lock Sanity Check report for details.
                     }]
-
-                [app topwin] tab view report
 
                 return
             }

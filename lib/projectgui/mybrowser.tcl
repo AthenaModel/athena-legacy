@@ -458,10 +458,8 @@ snit::widget ::projectgui::mybrowser {
         # NEXT, clear the future stack
         set info(future) [list]
 
-        # NEXT, display the current page, if it's changed.
-        if {$gotNewPage} {
-            $self ShowPageRef $page
-        }
+        # NEXT, display the current page.
+        $self ShowPageRef $page
 
         # NEXT, scroll to the anchor, if any.
         if {$anchor ne ""} {

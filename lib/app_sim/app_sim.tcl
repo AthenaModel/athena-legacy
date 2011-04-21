@@ -100,6 +100,7 @@ source [file join $::app_sim::library unit.tcl               ]
 source [file join $::app_sim::library mad.tcl                ]
 source [file join $::app_sim::library bsystem.tcl            ]
 source [file join $::app_sim::library appserver.tcl          ]
+source [file join $::app_sim::library sanity.tcl             ]
 
 # Non-GUI: Simulation
 source [file join $::app_sim::library sim.tcl                ]

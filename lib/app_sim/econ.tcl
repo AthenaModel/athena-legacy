@@ -48,9 +48,11 @@ snit::type econ {
     # Miscellaneous non-checkpointed scalar values.
     #
     # changed - 1 if there is unsaved data, and 0 otherwise.
+    # econOK  - 1 if the CGE converges, and 0 otherwise.
 
     typevariable info -array {
         changed 0
+        econOK  1
     }
 
     #-------------------------------------------------------------------
@@ -132,6 +134,14 @@ snit::type econ {
     #-------------------------------------------------------------------
     # Group: Assessment Routines
 
+    # ok
+    #
+    # Returns 1 if the economy is "OK" and 0 if there's a problem.
+
+    typemethod ok {} {
+        return $info(econOK)
+    }
+
     # Type Method: start
     #
     # Calibrates the CGE.  This is done when the simulation leaves
@@ -141,7 +151,7 @@ snit::type econ {
         log normal econ "start"
 
         if {![parmdb get econ.disable]} {
-            $type analyze -calibrate
+            set info(econOK) [$type analyze -calibrate]
         
             set startdict [$cge get]
             log normal econ "start complete"
@@ -151,8 +161,6 @@ snit::type econ {
             # Lock the parameter; if the economic model is disabled
             # at start, it can't be re-enabled.
             parmdb lock econ.disable
-
-
         }
 
     }
@@ -166,15 +174,15 @@ snit::type econ {
         log normal econ "tock"
 
         if {![parmdb get econ.disable]} {
-            set result [$type analyze]
+            set info(econOK) [$type analyze]
 
             log normal econ "tock complete"
         } else {
             log warning econ "disabled"
-            set result 1
+            set info(econOK) 1
         }
 
-        return $result
+        return $info(econOK)
     }
 
     #-------------------------------------------------------------------

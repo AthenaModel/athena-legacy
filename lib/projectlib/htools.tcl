@@ -711,6 +711,46 @@ snit::type ::projectlib::htools {
         $self put </table>
     }
 
+
+    # dl ?body?
+    #
+    # body    - A body script
+    #
+    # Begins a standard <dl> list.  If the body is included,
+    # it is executed, and the </dl> is included automatically.
+    
+    method dl {{body ""}} {
+        $self putln "<dl>"
+
+        if {$body ne ""} {
+            if {$body ne ""} {
+                uplevel 1 $body
+                $self /dl
+            }
+        }
+    }
+
+    # dlitem
+    # 
+    # dt    - The content of the <dt> tag
+    # dd    - The content of the <dd> tag
+    #
+    # Adds one complete item to the <dl> list, terminated by a <p>.
+
+    method dlitem {dt dd} {
+        $self putln "<dt>$dt"
+        $self putln "<dd>$dd"
+        $self para
+    }
+
+    # /dl
+    #
+    # Ends a <dl> list
+
+    method /dl {} {
+        $self putln "</dl>"
+    }
+
     # image name ?align?
     #
     # name  - A Tk image name

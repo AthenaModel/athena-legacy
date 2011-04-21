@@ -228,9 +228,17 @@ snit::type appserver {
             text/html [myproc html_Nbhood]            \
             "Detail page for neighborhood {n}."
 
+        $server register /sanity/onlock {sanity/onlock/?} \
+            text/html [myproc html_SanityOnLock]          \
+            "Scenario On-Lock sanity check report."
+
+        $server register /sanity/ontick {sanity/ontick/?} \
+            text/html [myproc html_SanityOnTick]          \
+            "Simulation On-Tick sanity check report."
+
         $server register /sanity/strategy {sanity/strategy/?} \
             text/html [myproc html_SanityStrategy]            \
-            "Sanity check report for actor stragies."
+            "Sanity check report for actor strategies."
 
         $server register / {/?} \
             text/html [myproc html_Welcome] \
@@ -1572,6 +1580,84 @@ snit::type appserver {
 
         return [ht get]
     }
+
+    #-------------------------------------------------------------------
+    # Sanity Checks: On-Lock
+
+    # html_SanityOnLock udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of matches from the URL
+    #
+    # Formats the on-lock sanity check report for
+    # /sanity/onlock.  Note that sanity is checked by the
+    # "sanity onlock report" command; this command simply reports on the
+    # results.
+
+    proc html_SanityOnLock {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # NEXT, begin the page.
+        ht page "Sanity Check: On-Lock" {
+            ht title "On-Lock" "Sanity Check"
+
+            ht putln {
+                Athena checks the scenario's sanity before
+                allowing the user to lock the scenario and begin
+                simulation.
+            }
+
+            ht para
+            
+            sanity onlock report ::appserver::ht
+        }
+
+        return [ht get]
+    }
+
+    #-------------------------------------------------------------------
+    # Sanity Checks: On-Tick
+
+    # html_SanityOnTick udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of matches from the URL
+    #
+    # Formats the on-tick sanity check report for
+    # /sanity/ontick.  Note that sanity is checked by the
+    # "sanity ontick report" command; this command simply reports on the
+    # results.
+
+    proc html_SanityOnTick {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # NEXT, begin the page.
+        ht page "Sanity Check: On-Tick" {
+            ht title "On-Tick" "Sanity Check"
+
+            ht putln {
+                Athena checks the scenario's sanity before
+                advancing time at each time tick.
+            }
+
+
+            ht para
+
+            if {[sim state] ne "PREP"} {
+                sanity ontick report ::appserver::ht
+            } else {
+                ht putln {
+                    This check cannot be performed until after the scenario
+                    is locked.
+                }
+
+                ht para
+            }
+        }
+
+        return [ht get]
+    }
+
 
     #-------------------------------------------------------------------
     # Sanity Checks: Strategy

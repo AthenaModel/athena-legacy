@@ -47,14 +47,11 @@ snit::type sim {
     # state          - The current simulation state, a simstate value
     # stoptime       - The time tick at which the simulation should 
     #                  pause, or 0 if there's no limit.
-    # econOK         - 1 if the econ CGE is converging, and 0 if it is
-    #                  diverging.
 
     typevariable info -array {
         changed        0
         state          PREP
         stoptime       0
-        econOK         1
     }
 
     # trans -- transient data array
@@ -413,510 +410,6 @@ snit::type sim {
         return $info(stoptime)
     }
 
-    #-------------------------------------------------------------------
-    # Model Sanity Check
-
-    # check onlock ?-report? ?-log?
-    #
-    # Does a sanity check of the model: can we lock the scenario (leave 
-    # PREP for PAUSED?)
-    # 
-    # Returns 1 if sane and 0 otherwise.  If -report is specified, then 
-    # a SCENARIO SANITY ONLOCK report is written.
-
-    typemethod "check onlock" {args} {
-        # FIRST, get options.
-        array set opts {
-            -log    0
-            -report 0
-        }
-
-        foreach opt $args {
-            switch -exact -- $opt {
-                -log    -
-                -report {
-                    set opts($opt) 1
-                }
-
-                default {
-                    error "Unknown option: \"$opt\""
-                }
-            }
-        }
-
-        # NEXT, presume that the model is sane.
-        set sane 1
-
-        # NEXT, initialize the buffer
-        set trans(buffer) {}
-
-        # NEXT, Require at least one neighborhood:
-        if {[llength [nbhood names]] == 0} {
-            set sane 0
-
-            $type CheckTopic "No neighborhoods are defined." \
-                "At least one neighborhood is required."     \
-                "Create neighborhoods on the Map tab."
-        }
-
-        # NEXT, verify that neighborhoods are properly stacked
-        rdb eval {
-            SELECT n, obscured_by FROM nbhoods
-            WHERE obscured_by != ''
-        } {
-            set sane 0
-
-            $type CheckTopic "Neighborhood Stacking Error." \
-                "Neighborhood $n is obscured by neighborhood $obscured_by." \
-                "Fix the stacking order on the Neighborhoods/Neighborhoods" \
-                "tab."
-        }
-
-        # NEXT, Require at least one force group
-        if {[llength [frcgroup names]] == 0} {
-            set sane 0
-
-            $type CheckTopic "No force groups are defined."           \
-                "At least one force group is required.  Create force" \
-                "groups on the Groups/FrcGroups tab."
-        }
-
-        # NEXT, Require that each force group has an actor
-        set names [rdb eval {SELECT g FROM frcgroups WHERE a IS NULL}]
-
-        if {[llength $names] > 0} {
-            set sane 0
-
-            $type CheckTopic "Some force groups have no owner."      \
-                "The following force groups have no owning actor:"   \
-                "[join $names {, }].  Assign owning actors to force" \
-                "groups on the Groups/FrcGroups tab."
-        }
-
-        # NEXT, Require at least one civ group
-        if {[llength [civgroup names]] == 0} {
-            set sane 0
-
-            $type CheckTopic "No civilian groups are defined."              \
-                "At least one civilian group is required.  Create civilian" \
-                "groups on the Groups/CivGroups tab."
-        }
-
-        # NEXT, Require that each ORG group has an actor
-        set names [rdb eval {SELECT g FROM orggroups WHERE a IS NULL}]
-
-        if {[llength $names] > 0} {
-            set sane 0
-
-            $type CheckTopic "Some organization groups have no owner."      \
-                "The following organization groups have no owning actor:"   \
-                "[join $names {, }].  Assign owning actors to" \
-                "organization groups on the Groups/OrgGroups tab."
-        }
-
-        # NEXT, collect data on groups and neighborhoods
-        rdb eval {
-            SELECT g,n FROM civgroups
-        } {
-            lappend gInN($n)  $g
-        }
-
-        # NEXT, Every neighborhood must have at least one group
-        # TBD: Is this really required?  Can we insist, instead,
-        # that at least one neighborhood must have a group?
-        foreach n [nbhood names] {
-            if {![info exists gInN($n)]} {
-                set sane 0
-
-                $type CheckTopic "Neighborhood has no residents"   \
-                    "Neighborhood $n contains no civilian groups;" \
-                    "at least one is required.  Create civilian"   \
-                    "groups and assign them to neighborhoods"      \
-                    "on the Groups/CivGroups tab."
-            }
-        }
-
-        # NEXT, every ensit must reside in a neighborhood
-        set ids [rdb eval {
-            SELECT s FROM ensits
-            WHERE n = ''
-        }]
-
-        if {[llength $ids] > 0} {
-            set sane 0
-
-            set ids [join $ids ", "]
-
-            $type CheckTopic "Homeless Environmental Situations"           \
-                "The following ensits are outside any neighborhood: $ids." \
-                "Either add neighborhoods around them on the Map tab,"     \
-                "or delete them on the Neighborhoods/EnSits tab."
-        }
-
-        # NEXT, you can't have more than one ensit of a type in a 
-        # neighborhood.
-        rdb eval {
-            SELECT count(s) AS count, n, stype
-            FROM ensits
-            GROUP BY n, stype
-            HAVING count > 1
-        } {
-            set sane 0
-
-            $type CheckTopic "Duplicate Environmental Situations"     \
-                "There are duplicate ensits of type $stype in"        \
-                "neighborhood $n.  Delete all but one of them on the" \
-                "Neighborhoods/EnSits tab."
-        }
-
-        # NEXT, there must be at least 1 local consumer; and hence, there
-        # must be at least one local civ group with a sap less than 100.
-
-        if {![rdb exists {
-            SELECT sap 
-            FROM civgroups JOIN nbhoods USING (n)
-            WHERE local AND sap < 100
-        }]} {
-            set sane 0
-
-            $type CheckTopic "No consumers in local economy"             \
-                "There are no consumers in the local economy.  At least" \
-                "one civilian group in a \"local\" neighborhood"     \
-                "needs to have non-subsistence"                          \
-                "population.  Add or edit civilian groups on the"    \
-                "Groups/CivGroups tab."
-        }
-
-        # NEXT, The econ(sim) CGE Cobb-Douglas parameters must sum to 
-        # 1.0.  Therefore, econ.f.*.goods and econ.f.*.pop must sum to
-        # <= 1.0, since f.else.goods and f.else.pop can be 0.0, and
-        # f.*.else must sum to no more than 0.95, so that f.else.else
-        # isn't 0.0.
-
-        let sum {
-            [parmdb get econ.f.goods.goods] + 
-            [parmdb get econ.f.pop.goods]
-        }
-
-        if {$sum > 1.0} {
-            set sane 0
-
-            $type CheckTopic "Invalid Cobb-Douglas Parameters"           \
-                "econ.f.goods.goods + econ.f.pop.goods > 1.0.  However," \
-                "Cobb-Douglas parameters must sum to 1.0.  Therefore,"   \
-                "the following must be the case:"                        \
-                "econ.f.goods.goods + econ.f.pop.goods <= 1.0.  Use the" \
-                "\"parm set\" command to edit the parameter values."
-        }
-
-        let sum {
-            [parmdb get econ.f.goods.pop] + 
-            [parmdb get econ.f.pop.pop]
-        }
-
-        if {$sum > 1.0} {
-            set sane 0
-            $type CheckTopic "Invalid Cobb-Douglas Parameters"         \
-                "econ.f.goods.pop + econ.f.pop.pop > 1.0.  However,"   \
-                "Cobb-Douglas parameters must sum to 1.0.  Therefore," \
-                "the following must be the case:"                      \
-                "econ.f.goods.pop + econ.f.pop.pop <= 1.0  Use the"    \
-                "\"parm set\" command to edit the parameter values."
-        }
-
-
-        let sum {
-            [parmdb get econ.f.goods.else] + 
-            [parmdb get econ.f.pop.else]
-        }
-
-        if {$sum > 0.95} {
-            set sane 0
-            $type CheckTopic "Invalid Cobb-Douglas Parameters"         \
-                "econ.f.goods.pop + econ.f.pop.pop > 1.0.  However,"   \
-                "Cobb-Douglas parameters must sum to 1.0.  Also, the " \
-                "value of f.else.else cannot be 0.0.  Therefore,"      \
-                "the following must be the case:"                      \
-                "econ.f.goods.else + econ.f.pop.else <= 0.95  Use the" \
-                "\"parm set\" command to edit the parameter values."
-        }
-
-        # NEXT, log sanity
-        if {$opts(-log)} {
-            if {$sane} {
-                log normal sim "On-Lock Sanity Check: OK"
-            } else {
-                log warning sim \
-                    "Scenario Sanity Check: FAILED\n$trans(buffer)"
-            }
-        }
-
-        # NEXT, report on sanity
-        if {$opts(-report)} {
-            if {$sane} {
-                report save                             \
-                    -rtype   SCENARIO                   \
-                    -subtype SANITY                     \
-                    -meta1   ONLOCK                     \
-                    -title   "On-Lock Sanity Check: OK" \
-                    -text    "The scenario is sane."
-            } else {
-                report save                                 \
-                    -rtype   SCENARIO                       \
-                    -subtype SANITY                         \
-                    -meta1   ONLOCK                         \
-                    -title   "On-Lock Sanity Check: FAILED" \
-                    -text    $trans(buffer)
-
-            }
-        }
-
-        # NEXT, clear the buffer
-        set trans(buffer) ""
-
-        # NEXT, return the result
-        return $sane
-    }
-
-    # check ontick ?-report?
-    #
-    # Does an on-tick sanity check of the model: can we advance time?
-    # 
-    # Returns 1 if sane and 0 otherwise.  If -report is specified, and
-    # the check fails, a SCENARIO SANITY ONTICK report is written.
-
-    typemethod "check ontick" {args} {
-        # FIRST, get options.
-        array set opts {
-            -report 0
-        }
-
-        foreach opt $args {
-            switch -exact -- $opt {
-                -report {
-                    set opts($opt) 1
-                }
-
-                default {
-                    error "Unknown option: \"$opt\""
-                }
-            }
-        }
-
-        # NEXT, presume that the model is sane.
-        set sane 1
-
-        # NEXT, has the econ model been disabled?
-        let gotEcon {![parmdb get econ.disable]}
-
-        # NEXT, initialize the buffer
-        set trans(buffer) {}
-
-        # NEXT, Some help for the reader
-        $type CheckTopic "Sanity Check(s) Failed" {
-            One or more of Athena's on-tick sanity checks has failed; the
-            entries below give complete details.  Most checks depend on 
-            the economic model; hence, setting the "econ.disable" parameter
-            to "yes" will disable them and allow the simulation to proceed,
-            at the cost of ignoring the economy.  (See "Model Parameters"
-            in the on-line help for information on how to browse and
-            set model parameters.)
-        }
-
-        # NEXT, Check econ CGE convergence.
-        if {$gotEcon && !$info(econOK)} {
-            set sane 0
-
-            $type CheckTopic "Economy: Diverged" {
-                The economic model uses a system of equations called
-                a CGE.  The system of equations could not be solved.
-                This might be an error in the CGE; alternatively, the
-                economy might really be in chaos.
-            }
-        }
-
-        # NEXT, check a variety of econ result constraints.
-        array set cells [econ get]
-        array set start [econ getstart]
-
-        if {$gotEcon && $cells(Out::SUM.QS) == 0.0} {
-            set sane 0
-
-            $type CheckTopic "Economy: Zero Production" {
-                The economy has converged to the zero point, i.e., there
-                is no consumption or production, and hence no economy.
-                Enter "dump econ In" at the CLI to see the current 
-                inputs to the economy; it's likely that there are no
-                consumers.
-            }
-        }
-
-        if {$gotEcon && !$cells(Out::FLAG.QS.NONNEG)} {
-            set sane 0
-
-            $type CheckTopic "Economy: Negative Quantity Supplied" {
-                One of the QS.i cells has a negative value; this implies
-                an error in the CGE.  Enter "dump econ" at the CLI to
-                see the full list of CGE outputs.  Consider setting
-                the "econ.disable" parameter to "yes", since the
-                economic model is clearly malfunctioning.
-            }
-        }
-
-        if {$gotEcon && !$cells(Out::FLAG.P.POS)} {
-            set sane 0
-
-            $type CheckTopic "Economy: Non-Positive Prices" {
-                One of the P.i price cells is negative or zero; this implies
-                an error in the CGE.  Enter "dump econ" at the CLI to
-                see the full list of CGE outputs.  Consider setting
-                the "econ.disable" parameter to "yes", since the
-                economic model is clearly malfunctioning.
-            }
-        }
-
-        if {$gotEcon && !$cells(Out::FLAG.DELTAQ.ZERO)} {
-            set sane 0
-
-            $type CheckTopic "Economy: Delta-Q non-zero" {
-                One of the deltaQ.i cells is negative or zero; this implies
-                an error in the CGE.  Enter "dump econ" at the CLI to
-                see the full list of CGE outputs.  Consider setting
-                the "econ.disable" parameter to "yes", since the
-                economic model is clearly malfunctioning.
-            }
-        }
-
-        set limit [parmdb get econ.check.MinConsumerFrac]
-        if {$gotEcon && 
-            $cells(In::Consumers) < $limit * $start(In::Consumers)
-        } {
-            set sane 0
-
-            $type CheckTopic "Number of consumers has declined alarmingly" {
-                The current number of consumers in the local economy,
-            } $cells(In::Consumers), {
-                is less than 
-            } $limit {
-                of the starting number.  To change the limit, set the
-                value of the "econ.check.MinConsumerFrac" model parameter.
-            }
-        }
-
-        set limit [parmdb get econ.check.MinLaborFrac]
-        if {$gotEcon && 
-            $cells(In::WF) < $limit * $start(In::WF)
-        } {
-            set sane 0
-
-            $type CheckTopic "Number of workers has declined alarmingly" {
-                The current number of workers in the local labor force,
-            } $cells(In::WF), { 
-                is less than
-            } $limit {
-                of the starting number.  To change the limit, set the 
-                value of the "econ.check.MinLaborFrac" model parameter.
-            }
-        }
-
-        set limit [parmdb get econ.check.MaxUR]
-        if {$gotEcon && $cells(Out::UR) > $limit} {
-            set sane 0
-
-            $type CheckTopic "Unemployment skyrockets" {
-                The unemployment rate, 
-            } [format "%.1f%%," $cells(Out::UR)] {
-                exceeds the limit of 
-            } [format "%.1f%%." $limit] {
-                To change the limit, set the value of the 
-                "econ.check.MaxUR" model parameter.
-            }
-        }
-
-        set limit [parmdb get econ.check.MinDgdpFrac]
-        if {$gotEcon && 
-            $cells(Out::DGDP) < $limit * $start(Out::DGDP)
-        } {
-            set sane 0
-
-            $type CheckTopic "DGDP Plummets" {
-                The Deflated Gross Domestic Product (DGDP),
-            } \$[moneyfmt $cells(Out::DGDP)], {
-                is less than 
-            } $limit {
-                of its starting value.  To change the limit, set the
-                value of the "econ.check.MinDgdpFrac" model parameter.
-            }
-        }
-
-        set min [parmdb get econ.check.MinCPI]
-        set max [parmdb get econ.check.MaxCPI]
-        if {$gotEcon && $cells(Out::CPI) < $min || 
-            $cells(Out::CPI) > $max
-        } {
-            set sane 0
-
-            $type CheckTopic "CPI beyond limits" {
-                The Consumer Price Index (CPI), 
-            } [format "%4.2f," $cells(Out::CPI)] {
-                is outside the expected range of
-            } [format "(%4.2f, %4.2f)." $min $max] {
-                To change the bounds, set the values of the 
-                "econ.check.MinCPI" and "econ.check.MaxCPI" model
-                parameters.
-            }
-        }
-
-        
-
-        # NEXT, report on sanity
-        if {$opts(-report) && !$sane} {
-            report save                                 \
-                -rtype   SCENARIO                       \
-                -subtype SANITY                         \
-                -meta1   ONTICK                         \
-                -title   "On-Tick Sanity Check: FAILED" \
-                -text    $trans(buffer)
-        }
-
-        # NEXT, clear the buffer
-        set trans(buffer) ""
-
-        # NEXT, return the result
-        return $sane
-    }
-
-    # CheckTopic header lines...
-    #
-    # header     A header string for a sanity check failure
-    # lines      Zero or more lines of body text
-    #
-    # Formats the topic as a left-justified header with an
-    # indented body.  Adds the topic to the buffer.  Blank lines
-    # separate topics.
-
-    typemethod CheckTopic {header args} {
-        # FIRST, add a blank line, if needed.
-        if {[string length $trans(buffer)] > 0} {
-            append trans(buffer) "\n\n"
-        }
-
-        # NEXT, append the header.
-        append trans(buffer) [normalize $header]
-
-        # NEXT, format and append the body, if any.
-        if {[llength $args] > 0} {
-            set body [normalize [join $args \n]]
-            
-            append trans(buffer) \n
-            append trans(buffer) \
-                [textutil::adjust::indent \
-                     [textutil::adjust::adjust $body -length 70] \
-                     "    "]
-        }
-
-        return
-    }
 
     #-------------------------------------------------------------------
     # Mutators
@@ -979,8 +472,6 @@ snit::type sim {
 
         # NEXT, set the state to PAUSED
         $type SetState PAUSED
-
-        set info(econOK) 1
 
         # NEXT, resync the GUI, since much has changed.
         notifier send $type <DbSyncB>
@@ -1153,9 +644,9 @@ snit::type sim {
         }
 
         if {[simclock now] % [parmdb get econ.ticksPerTock] == 0} {
-            set info(econOK) [profile econ tock]
+            set econOK [profile econ tock]
 
-            if {$info(econOK)} {
+            if {$econOK} {
                 profile demog analyze econ
             }
         }
@@ -1206,7 +697,9 @@ snit::type sim {
         # NEXT, pause if it's the pause time, or checks failed.
         set stopping 0
 
-        if {![sim check ontick -report]} {
+        if {![sanity ontick check]} {
+            app show my://app/sanity/ontick
+
             if {[winfo exists .main]} {
                 messagebox popup \
                     -parent  [app topwin]         \
@@ -1216,8 +709,6 @@ snit::type sim {
             On-tick sanity check failed; simulation stopped.
             Please see the On-Tick Sanity Check report for details.
                     }]
-
-                [app topwin] tab view report
             }
 
             set stopping 1
@@ -1367,11 +858,13 @@ order define SIM:LOCK {
     options -sendstates {PREP}
 } {
     # FIRST, do the scenario sanity check.
-    if {![sim check onlock -log]} {
+    if {![sanity onlock check]} {
+        app show my://app/sanity/onlock
+
         reject * {
             Scenario sanity check failed; time cannot advance.
             Fix the error, and try again.
-            Please see the Reports tab for details.
+            Please see the Detail Browser for details.
         }
 
         returnOnError
@@ -1393,15 +886,13 @@ order define SIM:LOCK {
                  -ignoredefault ok                               \
                  -parent        [app topwin]                     \
                  -message       [normalize {
-        One or more actors have invalid tactics or conditions in their 
-        strategies.  These tactics and conditions have been marked
-        invalid; details are to be found in the Strategy Sanity Check 
-        page on the Details tab.  Invalid tactics and conditions are
-        so marked in the Strategy browser.
-
-        Press "Continue" to go ahead and lock the scenario, in which 
-        case the invalid tactics and conditions will be ignored; or 
-        press "Cancel" if you wish to fix the problems first.
+                     The Strategy sanity check has failed; one or
+                     more tactics or conditions are invalid.  See the 
+                     Detail Browser for details.  Press "Cancel" and
+                     fix the problems, or press "Continue" to 
+                     go ahead and lock the scenario, in which 
+                     case the invalid tactics and conditions will be 
+                     ignored as the simulation runs.
                  }]]
 
         if {$answer eq "cancel"} {
