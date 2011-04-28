@@ -281,10 +281,14 @@ The following options may be used:<p>
 
 <<deflist options>>
 
-<<defopt {-align <i>list</i>}>>
+<<defopt {-align <i>string</i>}>>
 
-Specifies a list of column alignments, <b>left</b>, <b>center</b>, or
-<b>right</b>.  By default, columns have alignment <b>left</b>.<p>
+Specifies a string of column alignments, <b>L</b>, <b>C</b>, or
+<b>R</b> for "left", "center", and "right".  By default, columns have
+alignment <b>L</b>.<p>
+
+For example, an <code>-align</code> of <b>LRLR</b> indicates that the
+second and fourth column are right-aligned.<p>
 
 <<defopt {-default <i>string</i>}>>
 

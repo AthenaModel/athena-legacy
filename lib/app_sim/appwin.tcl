@@ -126,7 +126,7 @@ snit::widget appwin {
 
         nbhoods {
             label   "Neighborhoods"
-            vistype *
+            vistype scenario
             parent  nbhoodst
             script  { nbhoodbrowser %W }
         }
@@ -182,28 +182,28 @@ snit::widget appwin {
 
         actors {
             label   "Actors"
-            vistype *
+            vistype scenario
             parent  groupst
             script  { actorbrowser %W }
         }
 
         civgroups {
             label   "CivGroups"
-            vistype *
+            vistype scenario
             parent  groupst
             script  { civgroupbrowser %W }
         }
 
         frcgroups {
             label   "FrcGroups"
-            vistype *
+            vistype scenario
             parent  groupst
             script  { frcgroupbrowser %W }
         }
 
         orggroups {
             label   "OrgGroups"
-            vistype *
+            vistype scenario
             parent  groupst
             script  { orggroupbrowser %W }
         }
@@ -227,13 +227,6 @@ snit::widget appwin {
             vistype *
             parent  groupst
             script  { personnelbrowser %W }
-        }
-
-        units {
-            label   "Units"
-            vistype simulation
-            parent  groupst
-            script  { unitbrowser %W }
         }
 
         gramt {

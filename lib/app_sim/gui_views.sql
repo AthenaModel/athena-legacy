@@ -66,18 +66,19 @@ LEFT OUTER JOIN control_n AS C  USING (n);
 
 -- A Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_groups AS
-SELECT g                                               AS id,
-       g                                               AS g,
-       'my://app/group/' || g                          AS url,
-       pair(longname, g)                               AS fancy,
-       link('my://app/group/' || g, g)                 AS link,
-       link('my://app/group/' || g, pair(longname, g)) AS longlink,
-       gtype                                           AS gtype,
-       longname                                        AS longname,
-       color                                           AS color,
-       shape                                           AS shape,
-       demeanor                                        AS demeanor,
-       basepop                                         AS basepop
+SELECT g                                                 AS id,
+       g                                                 AS g,
+       'my://app/group/' || g                            AS url,
+       pair(longname, g)                                 AS fancy,
+       link('my://app/group/' || g, g)                   AS link,
+       link('my://app/group/' || g, pair(longname, g))   AS longlink,
+       gtype                                             AS gtype,
+       link('my://app/groups/' || lower(gtype), gtype)   AS gtypelink,
+       longname                                          AS longname,
+       color                                             AS color,
+       shape                                             AS shape,
+       demeanor                                          AS demeanor,
+       basepop                                           AS basepop
 FROM groups;
 
 
@@ -327,13 +328,17 @@ FROM gram_frc_ng;
 
 -- An nbrel_mn view for use by the GUI
 CREATE TEMPORARY VIEW gui_nbrel_mn AS
-SELECT m || ' ' || n                                 AS id,
-       m                                             AS m,
-       n                                             AS n,
-       proximity                                     AS proximity,
-       format('%5.1f', effects_delay)                AS effects_delay
-FROM nbrel_mn
-WHERE m != n;
+SELECT MN.m || ' ' || MN.n                           AS id,
+       MN.m                                          AS m,
+       M.longlink                                    AS m_longlink,
+       MN.n                                          AS n,
+       N.longlink                                    AS n_longlink,
+       MN.proximity                                  AS proximity,
+       format('%5.1f', MN.effects_delay)             AS effects_delay
+FROM nbrel_mn AS MN
+JOIN gui_nbhoods AS M ON (MN.m = M.n)
+JOIN gui_nbhoods AS N ON (MN.n = N.n)
+WHERE MN.m != MN.n;
 
 -- A units view for use by the GUI
 CREATE TEMPORARY VIEW gui_units AS

@@ -38,12 +38,7 @@ snit::widgetadaptor nbhoodbrowser {
         { local          "Local?"                                        }
         { urbanization   "Urbanization"                                  }
         { controller     "Controller"                     -foreground %D }
-        { since          "Since"                          -foreground %D }
-        { population     "Population"   -sortmode integer -foreground %D }
-        { mood0          "Mood at T0"   -sortmode real                   }
-        { mood           "Mood Now"     -sortmode real    -foreground %D }
         { vtygain        "VtyGain"      -sortmode real                   }
-        { volatility     "Vty"          -sortmode integer -foreground %D }
         { stacking_order "StkOrd"       -sortmode integer -foreground %D } 
         { obscured_by    "ObscuredBy"   -foreground %D                   }
         { refpoint       "RefPoint"                                      }

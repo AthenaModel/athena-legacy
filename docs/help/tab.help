@@ -536,30 +536,9 @@ tab "Neighborhoods/Neighborhoods" {
     neighborhood.
     <</topic>>
     
-    <<topic Population>>The total civilian population of the
-    neighborhood, as computed by the Demographics model.
-    <</topic>>
-
-    <<topic "Mood at T0">>The composite satisfaction, or <i>mood</i>, of
-    all civilian groups in the neighborhood, <b>as of time 0</b>.
-    This is computed when Athena leaves <<cref /using/prep>>, and will
-    be 0.0 until then.
-    <</topic>>
-    
-    <<topic "Mood Now">>The composite satisfaction, or <i>mood</i>, of
-    all civilian groups in the neighborhood, <b>as of the current time</b>.
-    This is computed when Athena leaves <<cref /using/prep>>, and will
-    be 0.0 until then.
-    <</topic>>
-
     <<topic VtyGain>>The volatility gain of this neighborhood, a
     multiplier that increases or decreases the 
     <<term volatility>> of the neighborhood.<</topic>>
-
-    <<topic Volatility>>The current <<term volatility>> of this neighborhood.
-    This is computed when Athena laves <<cref /using/prep>>, and will
-    be 0.0 until then.
-    <</topic>>
 
     <<topic StkOrd>>The neighborhood's Stacking Order.  When
     neighborhoods overlap, the neighborhood with the higher stacking
@@ -1214,28 +1193,10 @@ tab "Groups/CivGroups" {
     <<cref /using/prep>>.
     <</topic>>
 
-    <<topic "CurrPop">> Current Population: the population of the group
-    at the current time, taking into account attrition and
-    displacement of population to other neighborhoods.  See also
-    the <<tab Demog>>.
-    <</topic>>
-
     <<topic "SA%">> Subsistence Agriculture Percentage: the percentage
     of the group's population that makes its living by subsistence
     agriculture, and hence does not participate in the regional
     economy.<p>
-    <</topic>>
-
-    <<topic "Mood at T0">>The composite satisfaction, or <i>mood</i>, of
-    the group, <b>as of time 0</b>.
-    This is computed when Athena leaves <<cref /using/prep>>, and will
-    be 0.0 until then.
-    <</topic>>
-    
-    <<topic "Mood Now">>The composite satisfaction, or <i>mood</i>, of
-    the group, <b>as of the current time</b>.
-    This is computed when Athena leaves <<cref /using/prep>>, and will
-    be 0.0 until then.
     <</topic>>
 
     <</topiclist>>

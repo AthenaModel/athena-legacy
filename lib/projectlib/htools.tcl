@@ -23,6 +23,18 @@ namespace eval ::projectlib:: {
 
 snit::type ::projectlib::htools {
     #-------------------------------------------------------------------
+    # Lookup Tables
+
+    # Alignments for ht query.
+    typevariable alignments -array {
+        "" left
+        L  left
+        C  center
+        R  right
+    }
+
+
+    #-------------------------------------------------------------------
     # Type Variables
 
     # Transient values used by query
@@ -183,7 +195,7 @@ snit::type ::projectlib::htools {
     # sql           An SQL query.
     # options       Formatting options
     #
-    # -align  codes   - List of column alignments, left, right, center
+    # -align  codes   - String of column alignments, L,R,C
     # -labels list    - List of column labels
     # -default text   - Text to return if there's no data found.
     #                   Defaults to "No data found.<p>"
@@ -249,12 +261,12 @@ snit::type ::projectlib::htools {
         }
 
         $self tr {
-            foreach name $qnames align $qopts(-align) {
+            foreach name $qnames align [split $qopts(-align) ""] {
                 if {$qopts(-escape)} {
                     set qrow($name) <pre>[$type escape $qrow($name)]</pre>
                 }
 
-                $self td $align {
+                $self td $alignments($align) {
                     $self put $qrow($name)
                 }
             }

@@ -150,8 +150,10 @@ snit::type appserver {
         # NEXT, register the resource types
         $server register /actors {actors/?} \
             tcl/linkdict [myproc linkdict_EntityLinks /actors /actor] \
-            text/html    [myproc html_EntityLinks /actors /actor]     \
-            "Links to the currently defined actors."
+            text/html    [myproc html_Actors] {
+                Links to all of the currently defined actors.  HTML
+                content includes actor attributes.
+            }
 
         $server register /actor/{a} {actor/(\w+)/?} \
             text/html [myproc html_Actor]           \
@@ -183,14 +185,17 @@ snit::type appserver {
 
         $server register /groups {groups/?} \
             tcl/linkdict [myproc linkdict_GroupLinks]              \
-            text/html    [myproc html_GroupLinks]                  \
-            "Links to the currently defined groups of all types."
+            text/html    [myproc html_Groups] {
+                Links to the currently defined groups.  The HTML content
+                includes group attributes.
+            }
 
         $server register /groups/{gtype} {groups/(civ|frc|org)/?}     \
             tcl/linkdict [myproc linkdict_GroupLinks]                 \
-            text/html    [myproc html_GroupLinks]                     {
+            text/html    [myproc html_Groups]                         {
                 Links to the currently defined groups of type {gtype}
-                (civ, frc, or org).
+                (civ, frc, or org).  The HTML content includes group
+                attributes.
             }
 
         $server register /group/{g} {group/(\w+)/?} \
@@ -221,8 +226,16 @@ snit::type appserver {
 
         $server register /nbhoods {nbhoods/?} \
             tcl/linkdict [myproc linkdict_EntityLinks /nbhoods /nbhood] \
-            text/html    [myproc html_EntityLinks /nbhoods /nbhood]     \
-            "Links to the currently defined neighborhoods."
+            text/html    [myproc html_Nbhoods]                          {
+                Links to the currently defined neighborhoods.  The
+                HTML content includes neighborhood attributes.
+            }
+
+        $server register /nbhoods/rel {nbhoods/rel/?} \
+            text/html    [myproc html_Nbrel] {
+                A tabular listing of neighborhood-to-neighborhood
+                relationships: proximities and effects delays.
+            }
 
         $server register /nbhood/{n} {nbhood/(\w+)/?} \
             text/html [myproc html_Nbhood]            \
@@ -239,6 +252,10 @@ snit::type appserver {
         $server register /sanity/strategy {sanity/strategy/?} \
             text/html [myproc html_SanityStrategy]            \
             "Sanity check report for actor strategies."
+
+        $server register /outline {outline/?} \
+            text/html [myproc html_Outline]   \
+            "Outline of Pages"
 
         $server register / {/?} \
             text/html [myproc html_Welcome] \
@@ -414,6 +431,23 @@ snit::type appserver {
         return [tsubst $text]
     }
 
+    # html_Outline udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of pattern matches
+    #
+    # Formats and displays the welcome page from welcome.ehtml.
+
+    proc html_Outline {udict matchArray} {
+        if {[catch {
+            set text [readfile [file join $::app_sim::library outline.ehtml]]
+        } result]} {
+            return -code error -errorcode NOTFOUND \
+                "The Outline page could not be loaded from disk: $result"
+        }
+
+        return [tsubst $text]
+    }
 
     #-------------------------------------------------------------------
     # Generic Entity Type Code
@@ -517,48 +551,40 @@ snit::type appserver {
     }
 
 
-    # html_EntityLinks etype eroot udict matchArray
-    #
-    # etype      - entityTypes key
-    # eroot      - root URL for the entity type
-    # udict      - A dictionary containing the URL components
-    # matchArray - Array of pattern matches; ignored.
-    #
-    # Returns a text/html of links for a collection resource, based on 
-    # an RDB table.
-
-    proc html_EntityLinks {etype eroot udict matchArray} {
-        dict with entityTypes $etype {
-            ht page $label
-            ht h1 $label
-
-            ht push
-
-            rdb eval "
-                SELECT longlink FROM $table ORDER BY fancy
-            " {
-                ht li { ht put $longlink }
-            }
-
-            set links [ht pop]
-
-            if {$links eq ""} {
-                ht putln "No entities of this type have been defined."
-                ht para
-            } else {
-                ht ul { ht put $links }
-            }
-
-            ht /page
-            
-            return [ht get]
-        }
-    }
-
     #-------------------------------------------------------------------
     # Actor-specific handlers
+
+    # html_Actors udict matchArray
     #
-    # TBD: Eventually, this should go elsewhere.
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of matches from the URL
+    #
+    # Tabular display of actor data; content depends on 
+    # simulation state.
+
+    proc html_Actors {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # Begin the page
+        ht page "Actors"
+        ht title "Actors"
+
+        ht putln "The scenario currently includes the following actors:"
+        ht para
+
+        ht query {
+            SELECT longlink      AS "Actor",
+                   cash_reserve  AS "Reserve, $",
+                   income        AS "Income, $/week",
+                   cash_on_hand  AS "On Hand, $"
+            FROM gui_actors
+        } -default "None." -align LRRR
+
+        ht /page
+
+        return [ht get]
+    }
+
 
     # html_Actor udict matchArray
     #
@@ -691,7 +717,7 @@ snit::type appserver {
                 JOIN gui_nbhoods AS N ON (N.n = S.n)
                 WHERE S.a=$a AND S.personnel > 0 AND S.vrel >= $vmin
                 ORDER BY S.influence DESC, S.vrel DESC, N.n
-            } -default "None." -align {left left right right left right left}
+            } -default "None." -align LLRRLRL
 
             ht para
         }
@@ -745,6 +771,91 @@ snit::type appserver {
 
     #-------------------------------------------------------------------
     # Neighborhood-specific handlers
+
+    # html_Nbhoods udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of matches from the URL
+    #
+    # Tabular display of neighborhood data; content depends on 
+    # simulation state.
+
+    proc html_Nbhoods {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # Begin the page
+        ht page "Neighborhoods"
+        ht title "Neighborhoods"
+
+        ht putln "The scenario currently includes the following neighborhoods:"
+        ht para
+
+        if {[sim state] eq "PREP"} {
+            ht query {
+                SELECT longlink      AS "Neighborhood",
+                       local         AS "Local?",
+                       urbanization  AS "Urbanization",
+                       controller    AS "Controller",
+                       vtygain       AS "VtyGain"
+                FROM gui_nbhoods 
+                ORDER BY longlink
+            } -default "None." -align LLLLR
+        } else {
+            ht query {
+                SELECT longlink      AS "Neighborhood",
+                       local         AS "Local?",
+                       urbanization  AS "Urbanization",
+                       controller    AS "Controller",
+                       since         AS "Since",
+                       population    AS "Population",
+                       mood0         AS "Mood at T0",
+                       mood          AS "Mood Now",
+                       vtygain       AS "VtyGain",
+                       volatility    AS "Vty"
+                FROM gui_nbhoods
+                ORDER BY longlink
+            } -default "None." -align LLLLR
+        }
+
+        ht /page
+
+        return [ht get]
+    }
+
+    # html_Nbrel udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of matches from the URL
+    #
+    # Tabular display of neighborhood relationship data.
+
+    proc html_Nbrel {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # Begin the page
+        ht page "Neighborhood Relationships"
+        ht title "Neighborhood Relationships"
+
+        ht putln {
+            The neighborhoods in the scenario have the following 
+            proximities and effects delays.
+        }
+
+        ht para
+
+        ht query {
+            SELECT m_longlink      AS "Of Nbhood",
+                   n_longlink      AS "With Nbhood",
+                   proximity       AS "Proximity",
+                   effects_delay   AS "Effects Delay"
+            FROM gui_nbrel_mn 
+            ORDER BY m_longlink, n_longlink
+        } -default "No neighborhood relationships exist." -align LLLR
+
+        ht /page
+
+        return [ht get]
+    }
 
     # html_Nbhood udict matchArray
     #
@@ -973,7 +1084,7 @@ snit::type appserver {
             JOIN gui_actors   AS A USING (a)
             WHERE I.n = $n AND I.influence > 0.0
             ORDER BY I.influence DESC
-        } -default "None." -align {left right}
+        } -default "None." -align LR
 
         ht para
         ht putln "Actor support comes from the following groups."
@@ -1000,7 +1111,7 @@ snit::type appserver {
             JOIN gui_actors  AS A ON (A.a = S.a)
             WHERE S.n=$n AND S.personnel > 0
             ORDER BY S.influence DESC, S.vrel DESC, A.a
-        } -default "None." -align {left left right right left right left}
+        } -default "None." -align LLRRLRL
 
         ht para
 
@@ -1066,7 +1177,7 @@ snit::type appserver {
     }
 
 
-    # html_GroupLinks udict matchArray
+    # html_Groups udict matchArray
     #
     # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches; ignored.
@@ -1074,43 +1185,100 @@ snit::type appserver {
     # Returns a text/html of links for a collection resource, based on 
     # an RDB table.
 
-    proc html_GroupLinks {udict matchArray} {
+    proc html_Groups {udict matchArray} {
         upvar 1 $matchArray ""
 
-        # FIRST, get the etype.
-        if {$(1) eq ""} {
-            set etype /groups
-        } else {
-            set etype /groups/$(1)
-        }
+        set gtype [string toupper $(1)]
 
-        # NEXT, get the results.
-        dict with entityTypes $etype {
-            ht page $label
-            ht h1 $label
+        # Begin the page
+        if {$gtype eq ""} {
+            ht page "Groups"
+            ht title "Groups"
 
-            ht push
-            rdb eval "
-                SELECT $key AS id, longname 
-                FROM $table 
-                ORDER BY longname
-            " {
-                ht li { ht link /group/$id "$longname ($id)" }
-            }
+            ht putln "The scenario contains the following groups:"
+            ht para
 
-            set links [ht pop]
+            ht query {
+                SELECT longlink     AS "Group",
+                       gtypelink    AS "Type",
+                       demeanor     AS "Demeanor"
+                FROM gui_groups 
+                ORDER BY longlink
+            } -default "None."
 
-            if {$links eq ""} {
-                ht putln "No entities of this type have been defined."
-                ht para
+        } elseif {$gtype eq "CIV"} {
+            ht page "Groups: Civilian"
+            ht title "Groups: Civilian"
+
+            ht putln "The scenario contains the following civilian groups:"
+            ht para
+
+            if {[sim state] eq "PREP"} {
+                ht query {
+                    SELECT longlink     AS "Group",
+                           n            AS "Nbhood",
+                           demeanor     AS "Demeanor",
+                           basepop      AS "Population",
+                           sap          AS "SA%"
+                    FROM gui_civgroups 
+                    ORDER BY longlink
+                } -default "None." -align LLLRR
             } else {
-                ht ul { ht put $links }
+                ht query {
+                    SELECT longlink     AS "Group",
+                           n            AS "Nbhood",
+                           demeanor     AS "Demeanor",
+                           population   AS "Population",
+                           sap          AS "SA%",
+                           mood0        AS "Mood at T0",
+                           mood         AS "Mood Now"
+                    FROM gui_civgroups 
+                    ORDER BY longlink
+                } -default "None." -align LLLRRRR
             }
+        } elseif {$gtype eq "FRC"} {
+            ht page "Groups: Force"
+            ht title "Groups: Force"
 
-            ht /page
-            
-            return [ht get]
+            ht putln "The scenario contains the following force groups:"
+            ht para
+
+            ht query {
+                SELECT longlink     AS "Group",
+                       a            AS "Owner",
+                       forcetype    AS "Force Type",
+                       demeanor     AS "Demeanor",
+                       uniformed    AS "Uniformed?",
+                       local        AS "Local?"
+                FROM gui_frcgroups 
+                ORDER BY longlink
+            } -default "None."
+
+        } elseif {$gtype eq "ORG"} {
+            ht page "Groups: Organization"
+            ht title "Groups: Organization"
+
+            ht putln "The scenario contains the following organization groups:"
+            ht para
+
+            ht query {
+                SELECT longlink     AS "Group",
+                       a            AS "Owner",
+                       orgtype      AS "Org. Type",
+                       demeanor     AS "Demeanor"
+                FROM gui_orggroups 
+                ORDER BY longlink
+            } -default "None."
+
+        } else {
+            # No special error needed; the gtype is validated by
+            # the URL regexp.
+            error "Unknown group type"
         }
+
+        ht /page
+        
+        return [ht get]
     }
 
     # html_Group udict matchArray
@@ -1280,7 +1448,7 @@ snit::type appserver {
             "Actor"
             "Vertical<br>Rel."
             "Narrative"
-        } -align {left right left}
+        } -align LRL
         
         ht subtitle "Friend and Enemies" rel
 
@@ -1293,7 +1461,7 @@ snit::type appserver {
             FROM rel_view JOIN groups USING (g)
             WHERE f=$g AND g != $g AND qaffinity('name',rel) != 'INDIFF'
             ORDER BY rel DESC
-        } -align {left left right left}
+        } -align LLRL
 
         ht subtitle "Satisfaction Levels" sat
 
@@ -1310,7 +1478,7 @@ snit::type appserver {
             FROM gram_sat JOIN concerns AS C USING (c)
             WHERE g=$g
             ORDER BY C.c
-        } -align {left right left left}
+        } -align LRLL
 
         ht subtitle "Satisfaction Drivers" drivers
 
@@ -1340,7 +1508,7 @@ snit::type appserver {
             FROM temp_satcontribs
             JOIN gram_driver USING (driver)
             ORDER BY abs(acontrib) DESC
-        } -default "No significant drivers." -align {right right left}
+        } -default "No significant drivers." -align RRL
 
         ht /page
 
@@ -1466,7 +1634,7 @@ snit::type appserver {
             "= BV.ga(t.control)"
             "+ &Delta;V.mood"
             "+ &Delta;V.services"
-        } -align {left right right right right}
+        } -align LRRRR
 
         ht subtitle "Description"
 
@@ -1573,7 +1741,7 @@ snit::type appserver {
         } -labels {
             "Actor a"
             "V.ga"
-        } -align {left right}
+        } -align LR
 
         
         ht /page
