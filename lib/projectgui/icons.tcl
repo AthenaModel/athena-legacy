@@ -243,6 +243,35 @@ namespace eval ::projectgui::icon:: {
         X  #000000
     } d { X gray }
 
+    mkicon ::projectgui::icon::trash22 {
+        ....................
+        ....................
+        .......XXXX........
+        ......X....X.......
+        ..XXXXXXXXXXXXXX..
+        .XeeeeeeeeeeeeeeX.
+        .XXXXXXXXXXXXXXXX.
+        ..XeXeeXeeXeeXeX..
+        ..XeXeeXeeXeeXeX..
+        ..XeXeeXeeXeeXeX..
+        ..XeXeeXeeXeeXeX..
+        ..XeXeeXeeXeeXeX..
+        ..XeXeeXeeXeeXeX..
+        ..XeXeeXeeXeeXeX..
+        ..XeXeeXeeXeeXeX..
+        ..XeXeeXeeXeeXeX..
+        ..XeXeeXeeXeeXeX..
+        ..XeXeeXeeXeeXeX..
+        ..XeXeeXeeXeeXeX..
+        ..XeXeeXeeXeeXeX..
+        ..XXXXXXXXXXXXXX..
+        ....................
+    } {
+        .  trans
+        X  black
+        e  gray
+    } d { X gray }
+
     mkicon ::projectgui::icon::actor12 {
         ..XX..
         .XXXX.
