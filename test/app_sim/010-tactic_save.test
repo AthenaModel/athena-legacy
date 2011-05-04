@@ -40,7 +40,8 @@ namespace eval ::athena_test::tests:: {
     proc cleanup {} {
         # Clean up the test environment
         rdb nullvalue ""
-        array unset parms
+        array unset a
+        array unset b
         ted cleanup
     }
 
@@ -51,18 +52,13 @@ namespace eval ::athena_test::tests:: {
         tactic_type SAVE
         owner       JOE
         priority    top
-        m           ""
-        n           ""
-        f           ""
-        g           ""
-        text1       ""
         int1        10
     }
 
     #-------------------------------------------------------------------
-    # SAVE Ensemble
+    # narrative
 
-    test SAVE-1.1 {narrative} -setup {
+    test narrative-1.1 {narrative} -setup {
         setup
         tactic mutate create $T1
     } -body {
@@ -71,7 +67,10 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {Save 10% of income for later use}
 
-    test SAVE-2.1 {check: success} -setup {
+    #-------------------------------------------------------------------
+    # check
+
+    test check-1.1 {check: success} -setup {
         setup
         tactic mutate create $T1
     } -body {
@@ -82,55 +81,71 @@ namespace eval ::athena_test::tests:: {
 
     # NOTE: check can't fail for this tactic
 
-    test SAVE-3.1 {estdollars} -setup {
-        setup
-        tactic mutate create $T1
-    } -body {
-        tactic::SAVE estdollars [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {1000.0}
+    #-------------------------------------------------------------------
+    # dollars
 
-    test SAVE-4.1 {dollars} -setup {
+    test dollars-1.1 {dollars} -setup {
         setup
         tactic mutate create $T1
     } -body {
         tactic::SAVE dollars [tactic get 1]
     } -cleanup {
         cleanup
-    } -result {0.0 1000.0}
+    } -result {1,000.00}
 
-    test SAVE-5.1 {estpersonnel} -setup {
+    #-------------------------------------------------------------------
+    # execute
+
+    test execute-1.1 {execute: no cash on hand} -setup {
         setup
         tactic mutate create $T1
     } -body {
-        tactic::SAVE estpersonnel [tactic get 1]
+        array set a [actor get JOE]
+        set flag [tactic::SAVE execute [tactic get 1]]
+        array set b [actor get JOE]
+
+        list $flag \
+            $a(cash_on_hand) $a(cash_reserve) \
+            $b(cash_on_hand) $b(cash_reserve)
     } -cleanup {
         cleanup
-    } -result {0}
+    } -result {0 0.0 200000.0 0.0 200000.0}
 
-    test SAVE-6.1 {personnel_by_group} -setup {
+    test execute-1.2 {execute: ample cash on hand} -setup {
         setup
         tactic mutate create $T1
+        rdb eval {
+            UPDATE actors SET cash_on_hand = 10000.0
+        }
     } -body {
-        tactic::SAVE personnel_by_group [tactic get 1]
+        array set a [actor get JOE]
+        set flag [tactic::SAVE execute [tactic get 1]]
+        array set b [actor get JOE]
+
+        list $flag \
+            $a(cash_on_hand) $a(cash_reserve) \
+            $b(cash_on_hand) $b(cash_reserve)
     } -cleanup {
         cleanup
-    } -result {}
+    } -result {1 10000.0 200000.0 9000.0 201000.0}
 
-    test SAVE-7.1 {execute} -setup {
+    test execute-1.3 {execute: limited cash on hand} -setup {
         setup
         tactic mutate create $T1
+        rdb eval {
+            UPDATE actors SET cash_on_hand = 500.0
+        }
     } -body {
-        set a [actor get JOE cash_reserve]
-        tactic::SAVE execute [tactic get 1] 1000
-        set b [actor get JOE cash_reserve]
+        array set a [actor get JOE]
+        set flag [tactic::SAVE execute [tactic get 1]]
+        array set b [actor get JOE]
 
-        list $a $b
+        list $flag \
+            $a(cash_on_hand) $a(cash_reserve) \
+            $b(cash_on_hand) $b(cash_reserve)
     } -cleanup {
         cleanup
-    } -result {200000.0 201000.0}
-
+    } -result {1 500.0 200000.0 0.0 200500.0}
 
     #-------------------------------------------------------------------
     # Cleanup

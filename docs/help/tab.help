@@ -310,14 +310,9 @@ page /tab/strategy tactics_tree "Tactics Tree" {
     executed.
     <</topic>>
 
-    <<topic "$">> 
+    <<topic "Est. $">> 
     <b>Tactics only.</b> The estimated cost, in dollars, of executing the
     tactic.  Note that the actual cost may differ.<p>
-    <</topic>>
-
-    <<topic "Pers.">> 
-    <b>Tactics only.</b> The estimated number of personnel required to 
-    execute the tactic.<p>
     <</topic>>
 
     <<topic "Id">> The tactic or condition ID, a number that uniquely
@@ -1497,17 +1492,6 @@ tab "Groups/Personnel" {
 
     <<topiclist Control Description>>
 
-    <<topic [image button_pencils]>>
-    If a single row is selected, pops up the 
-    <<cref /order/personnel/set>> dialog for the selected neighborhood and group.
-    <</topic>>
-
-    <<topic [image button_pencila]>>
-    If a single row is selected, pops up the 
-    <<cref /order/personnel/adjust>> dialog for the selected neighborhood and
-    group.
-    <</topic>>
-
     <<control.filterbox>>
     <<control.headers>>
     <</topiclist>>
@@ -2082,12 +2066,12 @@ tab "ROE/Defend" {
     <b>Simulation Mode only.</b><p>
 
     A uniformed force group's response to being attacked is determined
-    by its <<cref /order/tactic/defend "Defending ROE">>.  
+    by its <<cref /order/tactic/defroe "Defending ROE">>.  
     The choice of ROE affects the number of casualties to both the 
     attacking group and civilian bystanders.<p>
 
     The ROE is displayed in green if it has the default value, and
-    in red if it has been overridden by the <<cref /order/tactic/defend>>.
+    in red if it has been overridden by the <<cref /order/tactic/defroe>>.
 
     The browser controls are described <<seebelow controls>>; the data
     fields are as follows:<p>

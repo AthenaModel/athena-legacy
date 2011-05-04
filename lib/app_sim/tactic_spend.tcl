@@ -28,41 +28,24 @@ tactic type define SPEND {
         }
     }
 
-    typemethod check {tdict} {
-        # Nothing to check
-        return
-    }
-
-    typemethod estdollars {tdict} {
-        return [lindex [$type dollars $tdict] 1]
-    }
-
-    typemethod dollars {tdict} {
+    typemethod execute {tdict} {
         dict with tdict {
-            set reserve [actor get $owner cash_reserve]
-            return [list 0.0 [expr {-$reserve*$int1/100.0}]]
-        }
+            array set ainfo [actor get $owner]
 
-        return 0
-    }
+            let amount {$ainfo(cash_reserve)*$int1/100.0}
 
-    typemethod estpersonnel {tdict} {
-        return 0
-    }
+            if {$amount == 0.0} {
+                return 0
+            }
 
-    typemethod personnel_by_group {tdict} {
-        return {}
-    }
-
-    typemethod execute {tdict dollars} {
-        require {$dollars < 0} "dollars must be less than or equal to \$0"
-
-        dict with tdict {
             rdb eval {
                 UPDATE actors 
-                SET cash_reserve = cash_reserve + $dollars
+                SET cash_reserve = cash_reserve - $amount,
+                    cash_on_hand = cash_on_hand + $amount
                 WHERE a=$owner;
             }
+
+            return 1
         }
     }
 }

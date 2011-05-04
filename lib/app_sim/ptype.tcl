@@ -64,6 +64,18 @@ snit::type ptype {
     }
 
 
+    # fog
+    #
+    # Force/ORG group names
+
+    typemethod {fog names} {} {
+        lsort [concat [frcgroup names] [orggroup names]]
+    }
+
+    typemethod {fog validate} {value} {
+        EnumVal "force/org group" [$type fog names] $value
+    }
+
     # g+none
     #
     # Group names + NONE

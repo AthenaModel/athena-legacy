@@ -209,9 +209,6 @@ snit::type frcgroup {
 
                 INSERT INTO coop_fg(f,g)
                 SELECT g, $g FROM civgroups;
-
-                INSERT INTO personnel_ng(n,g)
-                SELECT n, $g FROM nbhoods;
             }
 
             # NEXT, Return the undo command
@@ -491,4 +488,5 @@ order define FRCGROUP:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 

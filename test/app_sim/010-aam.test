@@ -28,11 +28,6 @@ namespace eval ::athena_test::tests:: {
 
     # Clean up after a test
 
-    proc cleanup {} {
-        # Clean up the test environment
-        ted cleanup
-    }
-
     proc pprint_demog_g {} {
         ted query {
             SELECT g, attrition, displaced, population
@@ -102,22 +97,27 @@ namespace eval ::athena_test::tests:: {
     proc mkunits {args} {
         variable units
 
+        personnel start
+        personnel reset
+
         foreach unit $args {
             unit create $units($unit)
 
             dict with units($unit) {
-                if {![rdb exists {
-                    SELECT * FROM personnel_ng
-                    WHERE n=$n AND g=$g
-                }]} {
-                    personnel mutate set [list id [list $n $g] personnel $personnel]
-                } else {
-                    personnel mutate adjust [list id [list $n $g] delta $personnel]
-                }
+                personnel deploy $n $g $personnel
             }
         }
     }
 
+    proc deploy {n g personnel} {
+        ted order TACTIC:DEPLOY:CREATE \
+            owner JOE g $g int1 $personnel nlist $n
+    }
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
 
 
     #-------------------------------------------------------------------
@@ -150,7 +150,7 @@ BRIT-NB1/0000 15
 
 
     test attritnf-1.2 {f is FRC, overkill leaves 0} -setup {
-        ted create NB1 BLUE
+        ted create NB1 BLUE BRIT
         mkunits BLUE-NB1/0000 BLUE-NB1/0001 BRIT-NB1/0000
     } -body {
         aam mutate attritnf [list n NB1 f BLUE casualties 40 g1 "" g2 ""]
@@ -392,8 +392,6 @@ SUNN-NB1/0000 1000
     # mutate attritn
 
 
-
-
     # 1.* -- All civilians in nbhood.
 
     test attritn-1.1 {All civilians in nbhood} -setup {
@@ -512,10 +510,9 @@ id n   f    g    casualties
 
 
     test attritn-1.6 {nbhood, force, org units not attrited} -setup {
-        ted create NB1 BLUE USAID SHIA SUNN
-
-        ted order PERSONNEL:SET id {NB1 BLUE}  personnel 15
-        ted order PERSONNEL:SET id {NB1 USAID} personnel 15
+        ted create JOE NB1 BLUE USAID SHIA SUNN
+        deploy NB1 BLUE 15
+        deploy NB1 USAID 15
         ted lock
     } -body {
         aam mutate attritn [list n NB1 casualties 10000 g1 BLUE g2 BRIT]
@@ -569,7 +566,7 @@ SUNN-NB1/0000 1000
     # mutate attritunit
     #
     # For CIV units, the unit's neighborhood group is attrited as well
-    # as the unit.  For FRC and ORG units, the unit's personnel_ng 
+    # as the unit.  For FRC and ORG units, the unit's deploy_ng 
     # record is attrited as well as the unit.  Otherwise, attrition is 
     # handled identically for all three kinds of unit.
 
@@ -591,7 +588,7 @@ BLUE-NB1/0000 15
 BLUE-NB1/0001 10        
     }
 
-    # TBD: Show personnel_ng getting attrited and restored on undo.
+    # TBD: Show deploy_ng getting attrited and restored on undo.
     
 
     test attritunit-1.1 {ORG unit is attrited} -setup {
@@ -683,6 +680,7 @@ SHIA 0         0         1000
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

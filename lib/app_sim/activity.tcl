@@ -68,7 +68,7 @@ snit::type activity {
                    P.g         AS g, 
                    P.personnel AS bp,
                    U.personnel AS up
-            FROM personnel_ng AS P
+            FROM deploy_ng AS P
             LEFT OUTER JOIN units AS U
             ON (U.n = P.n AND U.g = P.g AND U.cid = 0)
             WHERE bp > 0 OR up > 0
@@ -1173,6 +1173,7 @@ order define ACTIVITY:PRIORITY {
 
     setundo [activity mutate priority $parms(cid) $parms(priority)]
 }
+
 
 
 

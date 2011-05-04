@@ -12,7 +12,7 @@
 #    groups in neighborhoods.
 #
 # CREATION/DELETION:
-#    personnel_ng records are created explicitly by the 
+#    deploy_ng records are created explicitly by the 
 #    nbhood(sim), frcgroup(sim), and orggroup(sim) modules, and
 #    deleted by cascading delete.
 #
@@ -23,27 +23,74 @@ snit::type personnel {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Queries
+    # Simulation 
 
-    # validate id
+    # start
     #
-    # id      A group ID, [list $n $g]
-    #
-    # Validates an n,g pair.
+    # This routine is called when the scenario is locked and the 
+    # simulation starts.  It populates the population_g and deploy_ng
+    # tables.
 
-    typemethod validate {id} {
-        lassign $id n g
+    typemethod start {} {
+        rdb eval {
+            -- Populate personnel_g table.
+            INSERT INTO personnel_g(g,personnel)
+            SELECT g, basepop
+            FROM groups
+            WHERE gtype IN ('FRC', 'ORG');
 
-        set n [nbhood validate $n]
-        set g [group  validate $g]
-
-        if {[group gtype $g] ni {FRC ORG}} { 
-            return -code error -errorcode INVALID \
-                "Group $g is neither a FRC nor an ORG group."
+            -- Populate deploy_ng table.  
+            -- TBD: For now, insert everything; later, maybe we can
+            -- let it be sparse.
+            INSERT INTO deploy_ng(n,g,personnel)
+            SELECT N.n, G.g, 0
+            FROM nbhoods AS N
+            JOIN groups AS G
+            WHERE G.gtype IN ('FRC', 'ORG');
         }
-
-        return [list $n $g]
     }
+
+    # reset
+    #
+    # This routine is called at each strategy tock.  It clears all
+    # deployments, and resets each group's available count back to 
+    # its total personnel.
+
+    typemethod reset {} {
+        rdb eval {
+            UPDATE personnel_g SET available = personnel;
+
+            UPDATE deploy_ng   
+            SET personnel  = 0,
+                unassigned = 0;
+        }
+    }
+
+    # deploy n g personnel
+    #
+    # This routine is called by the DEPLOY tactic.  It deploys the
+    # requested number of available personnel.
+
+    typemethod deploy {n g personnel} {
+        set available [rdb onecolumn {
+            SELECT available FROM personnel_g WHERE g=$g
+        }]
+
+        require {$personnel <= $available} \
+            "Insufficient personnel available: $personnel > $available"
+
+        rdb eval {
+            UPDATE personnel_g
+            SET available = available - $personnel
+            WHERE g=$g;
+
+            UPDATE deploy_ng
+            SET personnel  = personnel  + $personnel,
+                unassigned = unassigned + $personnel
+            WHERE n=$n AND g=$g;
+        }
+    }
+
 
     #-------------------------------------------------------------------
     # Mutators
@@ -53,150 +100,48 @@ snit::type personnel {
     # a script of one or more commands that will undo the change.  When
     # change cannot be undone, the mutator returns the empty string.
 
-    # mutate set parmdict
+    # mutate attrit n g casualties
     #
-    # parmdict     A dictionary of group parms
+    # n            - A neighborhood
+    # g            - A FRC/ORG group
+    # casualties   - The number of casualties
     #
-    #    id               list {n g}
-    #    personnel        A new personnel, or ""
-    #
-    # Updates a personnel record given the parms, which are presumed to be
-    # valid.
+    # Updates deploy_ng and personnel_g given the casualties.  If
+    # casualties is negative, personnel are returned.
 
-    typemethod {mutate set} {parmdict} {
-        # FIRST, use the dict
-        dict with parmdict {
-            lassign $id n g
+    typemethod {mutate attrit} {n g casualties} {
+        # FIRST, get the undo information
+        set deployed [rdb onecolumn {
+            SELECT personnel FROM deploy_ng
+            WHERE n=$n AND g=$g
+        }]
 
-            # FIRST, get the undo information
-            set data [rdb grab personnel_ng {n=$n AND g=$g}]
-
-            # NEXT, Update the group
-            rdb eval {
-                UPDATE personnel_ng
-                SET personnel = nonempty($personnel, personnel)
-                WHERE n=$n AND g=$g
-            } {}
-
-            # NEXT, Return the undo command
-            return [list rdb ungrab $data]
+        if {$casualties > 0} {
+            # Can't kill more than are there.
+            let casualties {min($casualties,$deployed)}
+        } else {
+            # We're putting people back.
+            # Nothing to do.
         }
+        
+        # We undo by putting the same number of people back.
+        let undoCasualties {-$casualties}
+        
+        # NEXT, Update the group
+        rdb eval {
+            UPDATE deploy_ng
+            SET personnel = personnel - $casualties
+            WHERE n=$n AND g=$g;
+
+            UPDATE personnel_g
+            SET personnel = personnel - $casualties
+            WHERE g=$g
+        } {}
+        
+        # NEXT, Return the undo command
+        return [mytypemethod mutate attrit $n $g $undoCasualties]
     }
-
-    # mutate adjust parmdict
-    #
-    # parmdict     A dictionary of group parms
-    #
-    #    id               list {n g}
-    #    delta            A delta to personnel
-    #
-    # Updates a personnel record given the parms, which are presumed to be
-    # valid.
-
-    typemethod {mutate adjust} {parmdict} {
-        # FIRST, use the dict
-        dict with parmdict {
-            lassign $id n g
-
-            # FIRST, get the undo information
-            rdb eval {
-                SELECT personnel FROM personnel_ng
-                WHERE n=$n AND g=$g
-            } {}
-
-            let newPersonnel {max(0, $personnel + $delta)}
-            let undoDelta    {$personnel - $newPersonnel}
-
-            # NEXT, Update the group
-            rdb eval {
-                UPDATE personnel_ng
-                SET personnel = $newPersonnel
-                WHERE n=$n AND g=$g
-            } {}
-
-            # NEXT, Return the undo command
-            return [mytypemethod mutate adjust \
-                        [list id $id delta $undoDelta]]
-        }
-    }
-
 }
-
-#-------------------------------------------------------------------
-# Orders: PERSONNEL:*
-
-# PERSONNEL:SET
-#
-# Sets the total personnel for a group in a neighborhood.
-
-order define PERSONNEL:SET {
-    title "Set Group Personnel"
-    options \
-        -sendstates     {PREP PAUSED}     \
-        -schedulestates {PREP PAUSED}     \
-        -narrativecmd   {apply {{name pdict} {
-            dict with pdict {
-                lassign $id n g
-                return "Assign $personnel $g personnel, total, to nbhood $n"
-            }
-        }}}
-
-
-    parm id             key  "Nbhood/Group"  -table gui_personnel_ng \
-                                             -keys {n g}
-    parm personnel      text "Personnel"
-} {
-    # FIRST, prepare the parameters
-    prepare id             -toupper  -required -type personnel
-    prepare personnel                -required -type iquantity
-
-    returnOnError -final
-
-    # NEXT, modify the group
-    lappend undo [personnel mutate set [array get parms]]
-
-    setundo [join $undo \n]
-    return
-}
-
-# PERSONNEL:ADJUST
-#
-# Sets the total personnel for a group in a neighborhood.
-
-order define PERSONNEL:ADJUST {
-    title "Adjust Group Personnel"
-    options \
-        -sendstates     {PREP PAUSED}     \
-        -schedulestates {PREP PAUSED}     \
-        -narrativecmd   {apply {{name pdict} {
-            dict with pdict {
-                lassign $id n g
-                if {$delta >= 0} {
-                    return "Add $delta $g personnel to nbhood $n"
-                } else {
-                    return "Remove [expr {-$delta}] $g personnel from nbhood $n"
-                }
-            }
-        }}}
-
-
-    parm id             key  "Nbhood/Group"    -table gui_personnel_ng \
-                                               -keys  {n g}
-    parm delta          text "Delta Personnel"
-} {
-    # FIRST, prepare the parameters
-    prepare id             -toupper  -required -type personnel
-    prepare delta                    -required -type snit::integer
-
-    returnOnError -final
-
-    # NEXT, modify the group
-    lappend undo [personnel mutate adjust [array get parms]]
-
-    setundo [join $undo \n]
-    return
-}
-
 
 
 

@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    defroe.tcl
+#    tactic_defroe.tcl
 #
 # AUTHOR:
 #    Will Duquette
@@ -28,7 +28,7 @@ tactic type define DEFROE {
     #
     # Deletes all entries from defroe_ng.
 
-    typemethod clear {} {
+    typemethod reset {} {
         rdb eval { DELETE FROM defroe_ng }
     }
 
@@ -77,33 +77,15 @@ tactic type define DEFROE {
         return [join $errors "  "]
     }
 
-    typemethod dollars {tdict} {
-        return [list 0.0 0.0]
-    }
-
-    typemethod estdollars {tdict} {
-        return 0.0
-    }
-
-    typemethod estpersonnel {tdict} {
-        return 0
-    }
-
-    typemethod personnel_by_group {tdict} {
-        return {}
-    }
-
     # execute
     #
     # Places an entry in the defroe_ng table to override the
     # default Defending ROE.
 
-    typemethod execute {tdict dollars} {
+    typemethod execute {tdict} {
         dict with tdict {
             rdb eval {
-                DELETE FROM defroe_ng WHERE n=$n AND g=$g;
-                
-                INSERT INTO defroe_ng(n, g, roe)
+                INSERT OR REPLACE INTO defroe_ng(n, g, roe)
                 VALUES($n, $g, $text1);
             }
         }

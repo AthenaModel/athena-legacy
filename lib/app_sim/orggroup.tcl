@@ -107,9 +107,6 @@ snit::type orggroup {
                 VALUES($g,
                        nullif($a,''),
                        $orgtype);
-
-                INSERT INTO personnel_ng(n,g)
-                SELECT n, $g FROM nbhoods;
             }
 
             # NEXT, Return the undo command
@@ -344,6 +341,7 @@ order define ORGGROUP:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 
 
 

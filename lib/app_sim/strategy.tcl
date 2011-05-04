@@ -37,23 +37,29 @@ snit::type strategy {
     #   * Executes the selected tactics.
 
     typemethod tock {} {
-        # FIRST, determine whether the goals are met or unmet.
+        # FIRST, prepare for this tock.
+        personnel reset
+        tactic reset
+        tactic::DEFROE reset
+
+        # NEXT, give actors their income.
+        rdb eval {
+            UPDATE actors
+            SET cash_on_hand = cash_on_hand + income
+        }
+
+        # NEXT, determine whether the goals are met or unmet.
         $type ComputeGoalFlags
 
         # NEXT, determine which Tactics are eligible for each actor,
         # e.g., the list of tactics for which all conditions are met.
         set etactics [$type ComputeEligibleTactics]
 
-        # NEXT, clean up the effects of the previous tock.
-        # TBD: This is ugly; each tactic type should have a "clear"
-        # method, and they should be called automatically.
-        tactic::DEFROE clear
-        rdb eval { UPDATE tactics SET exec_flag = 0; }
 
         # NEXT, execute the eligible tactics in priority order given
         # available resources.
         dict for {a elist} $etactics {
-            $type SelectTactics $a $elist
+            $type ExecuteTactics $a $elist
         }
     }
 
@@ -218,218 +224,29 @@ snit::type strategy {
         return [array get etactics]
     }
 
-    
-    # OldSelectTactics a elist
+
+    # ExecuteTactics a elist
     #
     # a     - An actor
     # elist - The eligible tactics for this actor
     #
-    # Selects and executes tactics for actor a from the list
-    # of eligible tactics, as constrained by available resources.
-    #
-    # TBD: Remove this before committing.
-
-    typemethod OldSelectTactics {a elist} {
-        log normal strat "SelectTactics $a: start"
-
-        # FIRST, the plan is empty.
-        set plan [list]
-
-        # NEXT, get the actor's available assets
-        set cash [actor get $a cash_on_hand]
-
-        # FRC groups
-        array set troops [rdb eval {
-            SELECT g, total(personnel) 
-            FROM personnel_ng
-            JOIN frcgroups USING (g)
-            WHERE a=$a
-            GROUP BY g
-        }]
-
-        # ORG groups
-        array set troops [rdb eval {
-            SELECT g, total(personnel) 
-            FROM personnel_ng
-            JOIN orggroups USING (g)
-            WHERE a=$a
-            GROUP BY g
-        }]
-
-
-        # NEXT, step through the eligible tactics in priority order,
-        # reducing assets or skipping tactics as we go.
-        foreach tid $elist {
-            # FIRST, get the tactic data
-            set tdicts($tid) [tactic get $tid]
-
-            # NEXT, skip if we haven't enough dollars
-            lassign [tactic call dollars $tdicts($tid)] \
-                minDollars desiredDollars
-
-            if {$minDollars > $cash} {
-                # Can't afford it
-                continue
-            }
-
-            # NEXT, compute the actual cost: desiredDollars if there's
-            # enough, and whatever is left otherwise.
-            if {$cash >= $desiredDollars} {
-                set dollars($tid) $desiredDollars
-            } else {
-                set dollars($tid) $cash
-            }
-
-            # NEXT, skip if we haven't enough personnel
-            # TBD: Some tactics should soak up whatever is left.
-            set pdict [tactic call personnel_by_group $tdicts($tid)] 
-
-            dict for {g personnel} $pdict {
-                if {$personnel > $troops($g)} {
-                    # Can't afford it
-                    continue
-                }
-            }
-
-            # NEXT, we can afford it; consume the assets and add it to
-            # the plan.
-
-            let cash {$cash - $dollars($tid)}
-
-            dict for {g personnel} $pdict {
-                let troops($g) {max($troops(g) - $personnel, 0)}
-            }
-
-            log normal strat \
-                "Tactic $tid costs \$$dollars($tid), <$pdict>"
-
-            lappend plan $tid
-        }
-
-        # NEXT, save the new cash balance
-        rdb eval { UPDATE actors SET cash=$cash WHERE a=$a; }
-
-        # NEXT, execute the plan
-        log normal strat "actor $a executes <$plan>"
-
-        foreach tid $plan {
-            set ttype [dict get $tdicts($tid) tactic_type]
-            log normal strat \
-                "Execute $ttype $tid, \$$dollars($tid): $tdicts($tid)"
-
-            tactic call execute $tdicts($tid) $dollars($tid)
-
-            rdb eval {
-                UPDATE tactics
-                SET exec_flag = 1,
-                    exec_ts   = now()
-                WHERE tactic_id = $tid
-            }
-        }
-
-        log normal strat "SelectTactics $a: finish"
-    }
-
-
-    # SelectTactics a elist
-    #
-    # a     - An actor
-    # elist - The eligible tactics for this actor
-    #
-    # Selects and executes tactics for actor a from the list
+    # Executes  tactics for actor a from the list
     # of eligible tactics, as constrained by available resources.  The
     # tactics are simply executed in order; tactics for which resources
-    # are available are skipped.
+    # are unavailable do nothing.
 
-    typemethod SelectTactics {a elist} {
-        log normal strat "SelectTactics $a: start"
+    typemethod ExecuteTactics {a elist} {
+        log normal strat "ExecuteTactics $a: start"
 
-        # FIRST, the plan is empty.
-        set plan [list]
-
-        # NEXT, get the actor's available assets
-        set adict [actor get $a]
-
-        dict with adict {
-            let cash {$income + $cash_on_hand}
-        }
-
-        # Personnel by FRC/ORG group
-        array set troops [rdb eval {
-            SELECT g, total(personnel) 
-            FROM personnel_ng
-            JOIN gui_agroups USING (g)
-            WHERE a=$a
-            GROUP BY g
-        }]
-
-        # NEXT, step through the eligible tactics in priority order,
-        # reducing assets or skipping tactics as we go.
         foreach tid $elist {
-            # FIRST, get the tactic data
-            set tdicts($tid) [tactic get $tid]
+            set tdict [tactic get $tid]
 
-            # NEXT, skip if we haven't enough dollars.
-            lassign [tactic call dollars $tdicts($tid)] \
-                minDollars desiredDollars
-
-            if {$minDollars > $cash} {
-                # Can't afford it
-                continue
-            }
-
-            # NEXT, compute the actual cost: desiredDollars if there's
-            # enough, and whatever is left otherwise.  Note that
-            # desiredDollars can be negative for tactics that produce
-            # cash on hand (e.g., SPEND).
-            if {$cash >= $desiredDollars} {
-                set toSpend $desiredDollars
-            } else {
-                set toSpend $cash
-            }
-
-            # NEXT, skip if we haven't enough personnel
-            # TBD: Some tactics should soak up whatever is left.  We
-            # should get the personnel data in that form, and provide
-            # the actual troops to the tactic on execution.
-            set pdict [tactic call personnel_by_group $tdicts($tid)] 
-
-            dict for {g personnel} $pdict {
-                if {$personnel > $troops($g)} {
-                    # Can't afford it
-                    continue
-                }
-            }
-
-            # NEXT, we can afford it; consume the assets and add it to
-            # the plan.
-
-            let cash {$cash - $toSpend}
-
-            dict for {g personnel} $pdict {
-                let troops($g) {max($troops(g) - $personnel, 0)}
-            }
-
-            log normal strat \
-                "Actor $a executes Tactic $tid: \$$toSpend, <$pdict>"
-
-            # NEXT, execute the tactic.
-            bgcatch {
-                tactic call execute $tdicts($tid) $toSpend
-            }
-
-            rdb eval {
-                UPDATE tactics
-                SET exec_flag = 1,
-                    exec_ts   = now()
-                WHERE tactic_id = $tid
+            if {[tactic execute $tdict]} {
+                log normal strat "Actor $a executed <$tdict>"
             }
         }
 
-        # NEXT, save the new cash balance
-        rdb eval { UPDATE actors SET cash_on_hand=$cash WHERE a=$a; }
-
-        log normal strat "SelectTactics $a: finish"
+        log normal strat "ExecuteTactics $a: finish"
     }
 
     #-------------------------------------------------------------------
@@ -747,3 +564,4 @@ snit::type strategy {
         return
     }
 }
+

@@ -118,7 +118,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        * {Scenario sanity check failed; time cannot advance. Fix the error, and try again. Please see the Reports tab for details.}
+        * {Scenario sanity check failed; time cannot advance. Fix the error, and try again. Please see the Detail Browser for details.}
     }
 
     test LOCK-2.1 {locks the scenario} -setup {

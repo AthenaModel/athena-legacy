@@ -730,7 +730,7 @@ snit::type appserver {
                    P.personnel             AS 'Personnel',
                    G.longlink              AS 'Group',
                    G.fulltype              AS 'Type'
-            FROM personnel_ng AS P
+            FROM deploy_ng AS P
             JOIN gui_agroups  AS G ON (G.g=P.g)
             JOIN gui_nbhoods  AS N ON (N.n=P.n)
             WHERE G.a=$a AND personnel > 0
@@ -1881,4 +1881,5 @@ snit::type appserver {
         }
     }
 }
+
 

@@ -45,6 +45,7 @@ snit::type ted {
         demog_g
         demog_local
         demsits_t
+        deploy_ng
         ensits_t
         frcgroups
         goals
@@ -53,7 +54,7 @@ snit::type ted {
         nbhoods
         nbrel_mn
         orggroups
-        personnel_ng
+        personnel_g
         rel_fg
         situations
         tactics
@@ -601,6 +602,26 @@ snit::type ted {
         return "\n[rdb query $sql -maxcolwidth 80]    "
     }
 
+    # deploy n g personnel
+    #
+    # n         - A neighborhood
+    # g         - A FRC or ORG group
+    # personnel - Some number of personnel
+    #
+    # Adds the given number of personnel to deploy_ng, creating the
+    # record if need be.
+
+    typemethod deploy {n g personnel} {
+        rdb eval {
+            INSERT OR IGNORE
+            INTO deploy_ng(n,g,personnel) VALUES ($n,$g,0);
+            
+            UPDATE deploy_ng
+            SET personnel = personnel + $personnel
+            WHERE n=$n AND g=$g;
+        }
+    }
+
     #-------------------------------------------------------------------
     # Notifier events
 
@@ -829,6 +850,7 @@ snit::type ted {
     }
 
 }
+
 
 
 

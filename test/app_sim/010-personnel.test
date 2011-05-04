@@ -34,119 +34,296 @@ namespace eval ::athena_test::tests:: {
     }
 
     proc setup {} {
-        ted create NB1 NB2 BLUE BRIT
+        ted create NB1 NB2 BLUE BRIT HAL
     }
 
     #-------------------------------------------------------------------
-    # mutate set
+    # start
 
-    test set-1.1 {set updates the personnel count} -setup {
+    test start-1.2 {start populates personnel_g} -setup {
         setup
     } -body {
-        personnel mutate set {id {NB1 BLUE} personnel 30}
-        ted query {SELECT * FROM personnel_ng ORDER BY n,g}
+        personnel start
+        ted query {SELECT * FROM personnel_g}
     } -cleanup {
         cleanup
     } -result {
-n   g    personnel 
---- ---- --------- 
-NB1 BLUE 30        
-NB1 BRIT 0         
-NB2 BLUE 0         
-NB2 BRIT 0         
+g    personnel available 
+---- --------- --------- 
+BLUE 5000      0         
+BRIT 5000      0         
+HAL  2000      0         
     }
 
-    test set-2.1 {undo undoes the change} -setup {
+    test start-1.2 {start populates deploy_ng} -setup {
         setup
     } -body {
-        set a [ted query {SELECT * FROM personnel_ng ORDER BY n,g}]
-        set undo [personnel mutate set {id {NB1 BLUE} personnel 30}]
-        namespace eval :: $undo
-        set b [ted query {SELECT * FROM personnel_ng ORDER BY n,g}]
-        
-        expr {$a eq $b}
+        personnel start
+        ted query {SELECT * FROM deploy_ng}
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {
+n   g    personnel unassigned 
+--- ---- --------- ---------- 
+NB1 BLUE 0         0          
+NB2 BLUE 0         0          
+NB1 BRIT 0         0          
+NB2 BRIT 0         0          
+NB1 HAL  0         0          
+NB2 HAL  0         0          
+    }
+
+    #-------------------------------------------------------------------
+    # reset
+
+    test reset-1.1 {resets personnel_g} -setup {
+        setup
+        personnel start
+    } -body {
+        personnel reset
+        ted query {SELECT * FROM personnel_g}
+    } -cleanup {
+        cleanup
+    } -result {
+g    personnel available 
+---- --------- --------- 
+BLUE 5000      5000      
+BRIT 5000      5000      
+HAL  2000      2000      
+    }
+
+    test reset-1.2 {resets deploy_ng} -setup {
+        setup
+        personnel start
+        ted deploy NB1 BLUE 100
+        ted deploy NB1 BRIT 100
+    } -body {
+        personnel reset
+        ted query {SELECT * FROM deploy_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel unassigned 
+--- ---- --------- ---------- 
+NB1 BLUE 0         0          
+NB2 BLUE 0         0          
+NB1 BRIT 0         0          
+NB2 BRIT 0         0          
+NB1 HAL  0         0          
+NB2 HAL  0         0          
+    }
 
 
     #-------------------------------------------------------------------
-    # mutate adjust
+    # deploy
 
-    test adjust-1.1 {adjust updates the personnel count} -setup {
+    test deploy-1.1 {fails if troops are unavailable} -setup {
         setup
+        personnel start
+        personnel reset
     } -body {
-        personnel mutate adjust {id {NB1 BLUE} delta 30}
-        ted query {SELECT * FROM personnel_ng ORDER BY n,g}
+        personnel deploy NB1 BLUE 6000
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Insufficient personnel available: 6000 > 5000}
+
+    test deploy-2.1 {Decrements available} -setup {
+        setup
+        personnel start
+        personnel reset
+    } -body {
+        personnel deploy NB1 BLUE 1000
+        ted query {SELECT * FROM personnel_g}
     } -cleanup {
         cleanup
     } -result {
-n   g    personnel 
---- ---- --------- 
-NB1 BLUE 30        
-NB1 BRIT 0         
-NB2 BLUE 0         
-NB2 BRIT 0         
+g    personnel available 
+---- --------- --------- 
+BLUE 5000      4000      
+BRIT 5000      5000      
+HAL  2000      2000      
     }
 
-    test adjust-1.2 {negative adjusts down to zero} -setup {
+    test deploy-2.2 {Increments personnel} -setup {
         setup
-        personnel mutate adjust {id {NB1 BLUE} delta 30}
+        personnel start
+        personnel reset
     } -body {
-        personnel mutate adjust {id {NB1 BLUE} delta -40}
-        ted query {SELECT * FROM personnel_ng ORDER BY n,g}
+        personnel deploy NB1 BLUE 1000
+        ted query {SELECT * FROM deploy_ng}
     } -cleanup {
         cleanup
     } -result {
-n   g    personnel 
---- ---- --------- 
-NB1 BLUE 0         
-NB1 BRIT 0         
-NB2 BLUE 0         
-NB2 BRIT 0         
+n   g    personnel unassigned 
+--- ---- --------- ---------- 
+NB1 BLUE 1000      1000       
+NB2 BLUE 0         0          
+NB1 BRIT 0         0          
+NB2 BRIT 0         0          
+NB1 HAL  0         0          
+NB2 HAL  0         0          
     }
 
-    test adjust-2.1 {undo undoes the change} -setup {
+    test deploy-2.3 {Multiple deployments to same n,g} -setup {
         setup
+        personnel start
+        personnel reset
     } -body {
-        set a [ted query {SELECT * FROM personnel_ng}]
-        set undo [personnel mutate adjust {id {NB1 BLUE} delta 30}]
+        personnel deploy NB1 BLUE 1000
+        personnel deploy NB1 BLUE 500
+        ted query {SELECT * FROM deploy_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel unassigned 
+--- ---- --------- ---------- 
+NB1 BLUE 1500      1500       
+NB2 BLUE 0         0          
+NB1 BRIT 0         0          
+NB2 BRIT 0         0          
+NB1 HAL  0         0          
+NB2 HAL  0         0          
+    }
+
+    #-------------------------------------------------------------------
+    # mutate attrit
+
+    test attrit-1.1 {attrit updates the personnel_g count} -setup {
+        setup
+        personnel start
+        personnel reset
+        personnel deploy NB1 BLUE 100
+    } -body {
+        personnel mutate attrit NB1 BLUE 15
+        ted query {SELECT * FROM personnel_g ORDER BY g}
+    } -cleanup {
+        cleanup
+    } -result {
+g    personnel available 
+---- --------- --------- 
+BLUE 4985      4900      
+BRIT 5000      5000      
+HAL  2000      2000      
+    }
+
+    test attrit-1.2 {attrit updates the deploy_ng count} -setup {
+        setup
+        personnel start
+        personnel reset
+        personnel deploy NB1 BLUE 100
+        personnel deploy NB1 BRIT 100
+    } -body {
+        personnel mutate attrit NB1 BLUE 15
+        ted query {SELECT * FROM deploy_ng ORDER BY g}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel unassigned 
+--- ---- --------- ---------- 
+NB1 BLUE 85        100        
+NB2 BLUE 0         0          
+NB1 BRIT 100       100        
+NB2 BRIT 0         0          
+NB1 HAL  0         0          
+NB2 HAL  0         0          
+    }
+
+    test attrit-1.3 {attrits down to zero} -setup {
+        setup
+        personnel start
+        personnel reset
+        personnel deploy NB1 BLUE 100
+        personnel deploy NB1 BRIT 100
+    } -body {
+        personnel mutate attrit NB1 BLUE 150
+
+        set personnel [rdb onecolumn {
+            SELECT personnel FROM personnel_g WHERE g='BLUE'
+        }]
+
+        set deployed [rdb onecolumn {
+            SELECT personnel FROM deploy_ng
+            WHERE n='NB1' AND g='BLUE'
+        }]
+
+        list $personnel $deployed
+    } -cleanup {
+        cleanup
+    } -result {4900 0}
+
+
+    test attrit-2.1 {undo undoes the personnel_g change} -setup {
+        setup
+        personnel start
+        personnel reset
+        personnel deploy NB1 BLUE 100
+        personnel deploy NB1 BRIT 100
+    } -body {
+        set a [ted query {SELECT * FROM personnel_g}]
+        set undo [personnel mutate attrit NB1 BLUE 30]
         namespace eval :: $undo
-        set b [ted query {SELECT * FROM personnel_ng}]
+        set b [ted query {SELECT * FROM personnel_g}]
         
         expr {$a eq $b}
     } -cleanup {
         cleanup
     } -result {1}
 
-    test adjust-2.2 {undo restores truncated value} -setup {
+    test attrit-2.2 {undo undoes the deploy_ng change} -setup {
         setup
-        personnel mutate adjust {id {NB1 BLUE} delta 30}
+        personnel start
+        personnel reset
+        personnel deploy NB1 BLUE 100
+        personnel deploy NB1 BRIT 100
     } -body {
-        set a [ted query {SELECT * FROM personnel_ng}]
-        set undo [personnel mutate adjust {id {NB1 BLUE} delta -40}]
+        set a [ted query {SELECT * FROM deploy_ng}]
+        set undo [personnel mutate attrit NB1 BLUE 30]
         namespace eval :: $undo
-        set b [ted query {SELECT * FROM personnel_ng}]
+        set b [ted query {SELECT * FROM deploy_ng}]
         
         expr {$a eq $b}
     } -cleanup {
         cleanup
     } -result {1}
 
-    test adjust-2.3 {joined undo's yield the right answer} -setup {
+    test attrit-2.3 {undo restores truncated value} -setup {
         setup
+        personnel start
+        personnel reset
+        personnel deploy NB1 BLUE 100
+        personnel deploy NB1 BRIT 100
     } -body {
-        set a [ted query {SELECT * FROM personnel_ng}]
+        set a [ted query {SELECT * FROM deploy_ng}]
+        set undo [personnel mutate attrit NB1 BLUE 150]
+        namespace eval :: $undo
+        set b [ted query {SELECT * FROM deploy_ng}]
+        
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test attrit-2.4 {joined undo's yield the right answer} -setup {
+        setup
+        personnel start
+        personnel reset
+        personnel deploy NB1 BLUE 100
+        personnel deploy NB1 BRIT 100
+    } -body {
+        set a [ted query {SELECT * FROM deploy_ng}]
         set undo [list]
-        lappend undo [personnel mutate adjust {id {NB1 BLUE} delta 30}]
-        lappend undo [personnel mutate adjust {id {NB1 BLUE} delta 15}]
+        lappend undo [personnel mutate attrit NB1 BLUE 30]
+        lappend undo [personnel mutate attrit NB1 BLUE 15]
         namespace eval :: [join $undo \n]
-        set b [ted query {SELECT * FROM personnel_ng}]
+        set b [ted query {SELECT * FROM deploy_ng}]
         
         expr {$a eq $b}
     } -cleanup {
         cleanup
     } -result {1}
+
 
     #-------------------------------------------------------------------
     # Cleanup
@@ -155,6 +332,7 @@ NB2 BRIT 0
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

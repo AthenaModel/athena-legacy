@@ -93,7 +93,7 @@ snit::type scenario {
         rdb monitor add nbhoods      {n}
         rdb monitor add nbrel_mn     {m n}
         rdb monitor add orggroups    {g}
-        rdb monitor add personnel_ng {n g}
+        rdb monitor add deploy_ng {n g}
         rdb monitor add rel_fg       {f g}
         rdb monitor add sat_gc       {g c}
         rdb monitor add situations   {s}
@@ -713,6 +713,7 @@ snit::type scenario {
         }
     }
 }
+
 
 
 

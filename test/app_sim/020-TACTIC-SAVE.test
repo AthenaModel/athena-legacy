@@ -101,9 +101,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                        priority state  exec_ts exec_flag m n f g text1 int1 
---------- ----------- ----- -------------------------------- -------- ------ ------- --------- - - - - ----- ---- 
-1         SAVE        JOE   Save 10% of income for later use 1        normal         0                       10   
+tactic_id tactic_type owner narrative                        priority state  exec_ts exec_flag m n nlist f g text1 int1 
+--------- ----------- ----- -------------------------------- -------- ------ ------- --------- - - ----- - - ----- ---- 
+1         SAVE        JOE   Save 10% of income for later use 1        normal         0                             10   
     }
 
 
@@ -194,9 +194,9 @@ tactic_id tactic_type owner narrative                        priority state  exe
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                        priority state  exec_ts exec_flag m n f g text1 int1 
---------- ----------- ----- -------------------------------- -------- ------ ------- --------- - - - - ----- ---- 
-1         SAVE        JOE   Save 20% of income for later use 1        normal         0                       20   
+tactic_id tactic_type owner narrative                        priority state  exec_ts exec_flag m n nlist f g text1 int1 
+--------- ----------- ----- -------------------------------- -------- ------ ------- --------- - - ----- - - ----- ---- 
+1         SAVE        JOE   Save 20% of income for later use 1        normal         0                             20   
     }
 
 

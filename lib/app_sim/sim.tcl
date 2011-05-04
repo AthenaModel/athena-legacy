@@ -453,19 +453,20 @@ snit::type sim {
 
         # NEXT, do initial analyses, and initialize modules that
         # begin to work at this time.
-        aram     init -reload
-        activity analyze staffing      ;# TBD: should be controlled by 
+        aram      init -reload
+        sat       start                ;# TBD: check results (need trends)
+        coop      start                ;# TBD: check results (need trends)
+        personnel start
+        control   start
+        strategy  tock
+        activity  analyze staffing     ;# TBD: should be controlled by 
                                         # strategy.
-        demog    analyze pop
-        sat      start                 ;# TBD: check results (need trends)
-        coop     start                 ;# TBD: check results (need trends)
-        nbstat   start
-        econ     start
-        demog    analyze econ
-        demsit   assess                ;# TBD
-        mad      getdrivers
-        control  start
-        strategy tock
+        demog     analyze pop
+        nbstat    start
+        econ      start
+        demog     analyze econ
+        demsit    assess               ;# TBD
+        mad       getdrivers
 
         # NEXT, execute events scheduled at time 0.
         eventq advance 0

@@ -114,26 +114,6 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  5000               FRC     REGULA
         cleanup
     } -result {}
 
-    test create-4.1 {personnel_ng curves are created} -setup {
-        ted create JOE NB1
-    } -body {
-        frcgroup mutate create [ted entity BLUE]
-        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
-    } -cleanup {
-        cleanup
-    } -result {NB1 BLUE}
-
-    test create-4.2 {undo deletes the personnel_ng records} -setup {
-        ted create JOE NB1
-    } -body {
-        set undo [frcgroup mutate create [ted entity BLUE]]
-
-        namespace eval :: $undo
-        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
-    } -cleanup {
-        cleanup
-    } -result {}
-
     #-------------------------------------------------------------------
     # mutate delete
 
@@ -181,26 +161,6 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  5000    JOE        FRC   JOE REGU
     } -cleanup {
         cleanup
     } -result {SHIA BLUE}
-
-    test delete-3.1 {personnel_ng records are deleted} -setup {
-        ted create BLUE NB1
-    } -body {
-        frcgroup mutate delete BLUE
-
-        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test delete-3.2 {Undo restores personnel_ng} -setup {
-        ted create NB1 BLUE
-        set undo [frcgroup mutate delete BLUE]
-    } -body {
-        namespace eval :: $undo
-        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
-    } -cleanup {
-        cleanup
-    } -result {NB1 BLUE}
 
     test delete-4.1 {attroe_nfg records are deleted} -setup {
         ted create NB1 BLUE ALQ
@@ -597,6 +557,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE 1500    BOB        FRC   BOB 
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

@@ -24,8 +24,44 @@ namespace eval ::athena_test::tests:: {
     # Import tcltest(n)
     namespace import ::tcltest::*
 
-    # Clean up after a test
+    # Set up for a test
+    proc setup {} {
+        ted create JOE NB1 BLUE SHIA
+    }
 
+    # Deploy troops into a neighborhood.
+    proc deploy {n g personnel} {
+        ted order TACTIC:DEPLOY:CREATE \
+            owner JOE g $g int1 $personnel nlist $n
+    }
+
+    proc redeploy {n g personnel} {
+        rdb eval {
+            SELECT tactic_id
+            FROM tactics
+            WHERE tactic_type = 'DEPLOY'
+            AND   nlist=$n
+            AND   g=$g
+        } {}
+
+        ted order TACTIC:DEPLOY:UPDATE \
+            tactic_id $tactic_id int1 $personnel
+    }
+
+    proc undeploy {n g} {
+        rdb eval {
+            SELECT tactic_id
+            FROM tactics
+            WHERE tactic_type = 'DEPLOY'
+            AND   nlist=$n
+            AND   g=$g
+        } {}
+
+        ted order TACTIC:DELETE \
+            tactic_id $tactic_id
+    }
+
+    # Clean up after a test
     proc cleanup {} {
         ted cleanup
     }
@@ -43,9 +79,8 @@ namespace eval ::athena_test::tests:: {
     # analyze
 
     test analyze-1.1 {Create a situation} -setup {
-        ted create NB1 BLUE SHIA
-        scenario mutate reconcile
-        ted order PERSONNEL:SET id {NB1 BLUE} personnel 15
+        setup
+        deploy NB1 BLUE 15
     } -body {
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
@@ -61,9 +96,8 @@ s kind     stype    driver n   coverage           state  ts tc change flist g   
 
 
     test analyze-1.2 {Change marks are erased on next run} -setup {
-        ted create NB1 BLUE SHIA
-        scenario mutate reconcile
-        ted order PERSONNEL:SET id {NB1 BLUE} personnel 15
+        setup
+        deploy NB1 BLUE 15
     } -body {
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
@@ -79,15 +113,17 @@ s change
     }
 
     test analyze-1.3 {Change in coverage updates} -setup {
-        ted create NB1 BLUE SHIA
-        scenario mutate reconcile
-        ted order PERSONNEL:SET id {NB1 BLUE} personnel 15
+        setup
+        deploy NB1 BLUE 15
     } -body {
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
-        ted order PERSONNEL:SET id {NB1 BLUE} personnel 30
-        # Run for two days; staffing change doesn't take effect until "morning"
-        ted order SIM:RUN days 2 block yes
+
+        # Deploy 15 more
+        redeploy NB1 BLUE 30
+
+        # Run for 7 days; deployment changes don't take effect until next tock.
+        ted order SIM:RUN days 7 block yes
 
         ted query {SELECT * FROM actsits}
     } -cleanup {
@@ -95,19 +131,18 @@ s change
     } -result {
 s kind     stype    driver n   coverage           state  ts tc change  flist g    signature         a        
 - -------- -------- ------ --- ------------------ ------ -- -- ------- ----- ---- ----------------- -------- 
-1 ::actsit PRESENCE 1      NB1 0.7324194794132565 ACTIVE 0  2  UPDATED ALL   BLUE PRESENCE-1-1 0.73 PRESENCE 
+1 ::actsit PRESENCE 1      NB1 0.7324194794132565 ACTIVE 0  7  UPDATED ALL   BLUE PRESENCE-1-1 0.73 PRESENCE 
     }
 
 
     test analyze-1.4 {Nominal personnel = 0 terminates} -setup {
-        ted create NB1 BLUE SHIA
-        scenario mutate reconcile
-        ted order PERSONNEL:SET id {NB1 BLUE} personnel 15
+        setup
+        deploy NB1 BLUE 15
     } -body {
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
-        ted order PERSONNEL:SET id {NB1 BLUE} personnel 0
-        ted order SIM:RUN days 2 block yes
+        undeploy NB1 BLUE
+        ted order SIM:RUN days 7 block yes
 
         ted query {SELECT * FROM actsits}
     } -cleanup {
@@ -115,14 +150,13 @@ s kind     stype    driver n   coverage           state  ts tc change  flist g  
     } -result {
 s kind     stype    driver n   coverage state ts tc change flist g    signature         a        
 - -------- -------- ------ --- -------- ----- -- -- ------ ----- ---- ----------------- -------- 
-1 ::actsit PRESENCE 1      NB1 0.0      ENDED 0  2  ENDED  ALL   BLUE PRESENCE-2-1 none PRESENCE 
+1 ::actsit PRESENCE 1      NB1 0.0      ENDED 0  7  ENDED  ALL   BLUE PRESENCE-2-1 none PRESENCE 
     }
 
 
     test analyze-1.5 {Can have multiple} -setup {
-        ted create NB1 BLUE SHIA
-        scenario mutate reconcile
-        ted order PERSONNEL:SET id {NB1 BLUE} personnel 30
+        setup
+        deploy NB1 BLUE 30
         ted order ACTIVITY:SCHEDULE n NB1 g BLUE a PATROL personnel 15 start +0 pattern daily
         ted order ACTIVITY:SCHEDULE n NB1 g BLUE a GUARD  personnel 15 start +0 pattern daily
     } -body {
@@ -133,8 +167,8 @@ s kind     stype    driver n   coverage state ts tc change flist g    signature 
         ted order SIM:RUN days 1 block yes
         append out [ted query {SELECT * FROM actsits}]
 
-        ted order PERSONNEL:SET id {NB1 BLUE} personnel 0
-        ted order SIM:RUN days 2 block yes
+        undeploy NB1 BLUE
+        ted order SIM:RUN days 7 block yes
         append out [ted query {SELECT * FROM actsits}]
 
         set out
@@ -155,18 +189,17 @@ s kind     stype    driver n   coverage           state  ts tc change flist g   
     
 s kind     stype    driver n   coverage state ts tc change flist g    signature         a        
 - -------- -------- ------ --- -------- ----- -- -- ------ ----- ---- ----------------- -------- 
-1 ::actsit GUARD    1      NB1 0.0      ENDED 0  3  ENDED  ALL   BLUE GUARD-2-1 none    GUARD    
-2 ::actsit PATROL   2      NB1 0.0      ENDED 0  3  ENDED  ALL   BLUE PATROL-2-1 none   PATROL   
-3 ::actsit PRESENCE 3      NB1 0.0      ENDED 0  3  ENDED  ALL   BLUE PRESENCE-2-1 none PRESENCE 
+1 ::actsit GUARD    1      NB1 0.0      ENDED 0  7  ENDED  ALL   BLUE GUARD-2-1 none    GUARD    
+2 ::actsit PATROL   2      NB1 0.0      ENDED 0  7  ENDED  ALL   BLUE PATROL-2-1 none   PATROL   
+3 ::actsit PRESENCE 3      NB1 0.0      ENDED 0  7  ENDED  ALL   BLUE PRESENCE-2-1 none PRESENCE 
     }
 
     #-------------------------------------------------------------------
     # get
 
     test get-1.1 {get -all} -setup {
-        ted create NB1 BLUE SHIA
-        scenario mutate reconcile
-        ted order PERSONNEL:SET id {NB1 BLUE} personnel 30
+        setup
+        deploy NB1 BLUE 30
     } -body {
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
@@ -179,13 +212,12 @@ s kind     stype    driver n   coverage state ts tc change flist g    signature 
 
 
     test get-1.2 {get -live} -setup {
-        ted create NB1 BLUE SHIA
-        scenario mutate reconcile
-        ted order PERSONNEL:SET id {NB1 BLUE} personnel 30
+        setup
+        deploy NB1 BLUE 30
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
-        ted order PERSONNEL:SET id {NB1 BLUE} personnel 0
-        ted order SIM:RUN days 2 block yes
+        undeploy NB1 BLUE
+        ted order SIM:RUN days 7 block yes
     } -body {
         set sit [actsit get 1 -live]
     } -returnCodes {

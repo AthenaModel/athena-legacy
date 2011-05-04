@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-defroe.test
+#    010-tactic_defroe.test
 #
 # AUTHOR:
 #    Will Duquette
@@ -40,7 +40,6 @@ namespace eval ::athena_test::tests:: {
     proc cleanup {} {
         # Clean up the test environment
         rdb nullvalue ""
-        array unset parms
         ted cleanup
     }
 
@@ -48,12 +47,9 @@ namespace eval ::athena_test::tests:: {
         tactic_type DEFROE
         owner       JOE
         priority    top
-        m           ""
         n           NB1
-        f           ""
         g           BLUE
         text1       HOLD_FIRE
-        int1        ""
     }
 
     #-------------------------------------------------------------------
@@ -123,18 +119,6 @@ namespace eval ::athena_test::tests:: {
     } -result {Neighborhood NB1 no longer exists.  Force group BLUE is no longer owned by actor JOE.  Force group BLUE is no longer a uniformed force group.}
 
     #-------------------------------------------------------------------
-    # estdollars
-
-    test estdollars-1.1 {estdollars} -setup {
-        setup
-        tactic mutate create $T1
-    } -body {
-        tactic::DEFROE estdollars [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {0.0}
-
-    #-------------------------------------------------------------------
     # dollars
 
     test dollars-1.1 {dollars} -setup {
@@ -144,33 +128,7 @@ namespace eval ::athena_test::tests:: {
         tactic::DEFROE dollars [tactic get 1]
     } -cleanup {
         cleanup
-    } -result {0.0 0.0}
-
-    #-------------------------------------------------------------------
-    # estpersonnel
-
-    test estpersonnel-1.1 {estpersonnel} -setup {
-        setup
-        tactic mutate create $T1
-    } -body {
-        tactic::DEFROE estpersonnel [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-
-    #-------------------------------------------------------------------
-    # personnel_by_group
-
-    test personnel_by_group-1.1 {personnel_by_group} -setup {
-        setup
-        tactic mutate create $T1
-    } -body {
-        tactic::DEFROE personnel_by_group [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {}
-
+    } -result {n/a}
 
     #-------------------------------------------------------------------
     # execute
@@ -179,7 +137,7 @@ namespace eval ::athena_test::tests:: {
         setup
         tactic mutate create $T1
     } -body {
-        tactic::DEFROE execute [tactic get 1] 0
+        tactic::DEFROE execute [tactic get 1]
         ted query {SELECT * FROM defroe_ng}
     } -cleanup {
         cleanup
@@ -191,9 +149,9 @@ NB1 BLUE HOLD_FIRE
 
 
     #-------------------------------------------------------------------
-    # clear
+    # reset
 
-    test clear-1.1 {All defroes are deleted} -setup {
+    test reset-1.1 {All defroes are deleted} -setup {
         ted create NB1 NB2 BLUE
 
         rdb eval {
@@ -201,7 +159,7 @@ NB1 BLUE HOLD_FIRE
             VALUES('NB1','BLUE','HOLD_FIRE');
         }
     } -body {
-        tactic::DEFROE clear
+        tactic::DEFROE reset
         ted query {SELECT * FROM defroe_view}
     } -cleanup {
         cleanup

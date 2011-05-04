@@ -193,13 +193,13 @@ SELECT id,
 FROM mam_acompare_view;
 
 
--- A personnel_ng view for use by the GUI.
-CREATE TEMPORARY VIEW gui_personnel_ng AS
+-- A deploy_ng view for use by the GUI.
+CREATE TEMPORARY VIEW gui_deploy_ng AS
 SELECT n || ' ' || g                                 AS id,
        n                                             AS n,
        g                                             AS g,
        personnel                                     AS personnel
-FROM personnel_ng;
+FROM deploy_ng;
        
 
 -- An attroe_nfg view for use by the GUI
@@ -615,4 +615,5 @@ SELECT c         AS id, 'concern'  AS etype FROM concerns    UNION
 SELECT a         AS id, 'activity' AS etype FROM activity    UNION
 SELECT u         AS id, 'unit'     AS etype FROM units       UNION
 SELECT tid       AS id, 'topic'    AS etype FROM mam_topic;
+
 

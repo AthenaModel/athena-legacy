@@ -705,14 +705,6 @@ snit::widget appwin {
         
         $self AddOrder $submenu SIM:STARTDATE
 
-        # Orders/Personnel
-        set submenu [menu $ordersmenu.personnel]
-        $ordersmenu add cascade -label "Personnel" \
-            -underline 0 -menu $submenu
-        
-        $self AddOrder $submenu PERSONNEL:SET
-        $self AddOrder $submenu PERSONNEL:ADJUST
-
         # Orders/Activity
         set submenu [menu $ordersmenu.activity]
         $ordersmenu add cascade -label "Activity" \

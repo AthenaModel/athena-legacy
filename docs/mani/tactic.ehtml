@@ -63,31 +63,20 @@ We make any problems known to the user, and allow them to fix them.<p>
 
 <<defitem dollars {dollars <i>tdict</i>}>>
 
-Returns a list of costs {minDollars desiredDollars} for
-the tactic.  The tactic can execute if there's at least
-minDollars available, and will consume up to desiredDollars
-or whatever's left on execution.<p>
-
-<<defitem estdollars {estdollars <i>tdict</i>}>>
-
 Returns the estimated cost in dollars of executing the tactic
-once, for display in the GUI.<p>
+once, for display in the GUI.  The
+<<xref marsutil:marsmisc(n) moneyfmt>> command should be used to
+format numeric output.  If an estimated cost in dollars doesn't
+make sense for this tactic, return "n/a".<p>
     
-<<defitem estpersonnel {estpersonnel <i>tdict</i>}>>
+   
+<<defitem execute {execute <i>tdict</i>}>>
 
-Returns the estimated number of personnel required to execute the
-tactic once, for display in the GUI.<p>
-    
-<<defitem personnel {personnel_by_group <i>tdict</i>}>>
+Determines whether or not the tactic is affordable, given current
+its parameters and the available assets.  If it is not, the command
+returns 0.  If it is, the assets are expended, the tactic is executed,
+and the command returns 1.<p>
 
-Returns a dictionary of the number of personnel required to 
-execute the tactic once, by owned FRC/ORG group.<p>
-    
-<<defitem execute {execute <i>tdict dollars</i>}>>
-
-Executes the tactic, given its parameters, and the allocated
-cash in <i>dollars</i>, a value between the minimum and desired values
-returned by <<iref dollars>>.<p>
 
 <</deflist subcommands>>
 

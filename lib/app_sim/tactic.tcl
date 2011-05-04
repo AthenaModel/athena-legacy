@@ -35,6 +35,26 @@ snit::type tactic {
     pragma -hasinstances no
 
     #===================================================================
+    # Lookup tables
+
+    # optParms: This variable is a dictionary of all optional parameters
+    # with empty values.  The create and update mutators can merge the
+    # input parmdict with this to get a parmdict with the full set of
+    # parameters.
+
+    typevariable optParms {
+        m        ""
+        n        ""
+        nlist    ""
+        f        ""
+        g        ""
+        text1    ""
+        int1     ""
+    }
+
+
+
+    #===================================================================
     # Tactic Types: Definition and Query interface.
 
     #-------------------------------------------------------------------
@@ -70,12 +90,28 @@ snit::type tactic {
         set header {
             # Make it a singleton
             pragma -hasinstances no
+
+            typemethod check   {tdict} { return       }
+            typemethod dollars {tdict} { return "n/a" }
         }
 
         snit::type ${type}::${name} "$header\n$defscript"
 
         # NEXT, save the type name.
         ladd tinfo(names) $name
+    }
+
+    #===================================================================
+    # Simulation
+
+    # reset
+    #
+    # Resets all tactics execution flags back to 0.
+
+    typemethod reset {} {
+        rdb eval {
+            UPDATE tactics SET exec_flag = 0
+        }
     }
 
     #===================================================================
@@ -154,6 +190,7 @@ snit::type tactic {
     #    owner          The tactic's owning actor
     #    priority       "top" or "bottom" or ""; defaults to "bottom".
     #    m,n            Neighborhoods, or ""
+    #    nlist          Neighborhood list, or ""
     #    f,g            Groups, or ""
     #    text1          Text string, or ""
     #    int1           Integer, or ""
@@ -162,7 +199,10 @@ snit::type tactic {
     # valid.
 
     typemethod {mutate create} {parmdict} {
-        # FIRST, compute the narrative string.
+        # FIRST, make sure the parm dict is complete
+        set parmdict [dict merge $optParms $parmdict]
+
+        # NEXT, compute the narrative string.
         set narrative [$type call narrative $parmdict]
 
         # NEXT, put the tactic in the database.
@@ -175,7 +215,8 @@ snit::type tactic {
                 tactics(tactic_id, 
                         tactic_type, owner, narrative, priority, 
                         m,
-                        n, 
+                        n,
+                        nlist,
                         f,
                         g,
                         text1,
@@ -184,6 +225,7 @@ snit::type tactic {
                        $tactic_type, $owner, $narrative, 0, 
                        nullif($m,     ''),
                        nullif($n,     ''),
+                       nullif($nlist, ''),
                        nullif($f,     ''),
                        nullif($g,     ''),
                        nullif($text1, ''),
@@ -228,6 +270,7 @@ snit::type tactic {
     #
     #    tactic_id      The tactic's ID
     #    m,n            Neighborhoods, or ""
+    #    nlist          Neighborhood list, or ""
     #    f,g            Groups, or ""
     #    text1          Text string, or ""
     #    int1           Integer, or ""
@@ -237,7 +280,10 @@ snit::type tactic {
     # type, and the priority is set by a different mutator.
 
     typemethod {mutate update} {parmdict} {
-        # FIRST, save the changed data.
+        # FIRST, make sure the parm dict is complete
+        set parmdict [dict merge $optParms $parmdict]
+
+        # NEXT, save the changed data.
         dict with parmdict {
             # FIRST, get the undo information
             set data [rdb grab tactics {tactic_id=$tactic_id}]
@@ -250,6 +296,7 @@ snit::type tactic {
                 UPDATE tactics
                 SET m     = nullif(nonempty($m,     m),     ''),
                     n     = nullif(nonempty($n,     n),     ''),
+                    nlist = nullif(nonempty($nlist, nlist), ''),
                     f     = nullif(nonempty($f,     f),     ''),
                     g     = nullif(nonempty($g,     g),     ''),
                     text1 = nullif(nonempty($text1, text1), ''),
@@ -264,7 +311,8 @@ snit::type tactic {
 
             rdb eval {
                 UPDATE tactics
-                SET   narrative=$narrative
+                SET   narrative = $narrative,
+                      exec_flag = 0
                 WHERE tactic_id=$tactic_id
             }
 
@@ -355,7 +403,7 @@ snit::type tactic {
     #-------------------------------------------------------------------
     # Tactic Ensemble Interface
 
-    # tactic call op tdict ?args...?
+    # call op tdict ?args...?
     #
     # op    - One of the above tactic type subcommands
     # tdict - A tactic parameter dictionary
@@ -365,6 +413,35 @@ snit::type tactic {
 
     typemethod call {op tdict args} {
         [dict get $tdict tactic_type] $op $tdict {*}$args
+    }
+
+    # execute tdict
+    #
+    # tdict - A tactic parameter dictionary
+    #
+    # Attempts to execute the tactic, returning 1 on success and 0
+    # on failure.  On success, the tactic's exec_flag and exec_ts are
+    # set.  Errors are logged.
+
+    typemethod execute {tdict} {
+        set flag 0
+
+        bgcatch {
+            set flag [tactic call execute $tdict]
+        }
+
+        if {$flag} {
+            set tid [dict get $tdict tactic_id]
+
+            rdb eval {
+                UPDATE tactics
+                SET exec_flag = 1,
+                    exec_ts   = now()
+                WHERE tactic_id = $tid
+            }
+        }
+
+        return $flag
     }
 
 

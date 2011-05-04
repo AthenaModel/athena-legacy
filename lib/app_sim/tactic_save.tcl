@@ -27,39 +27,32 @@ tactic type define SAVE {
         }
     }
 
-    typemethod check {tdict} {
-        # Nothing to check
-        return
-    }
-
-    typemethod estdollars {tdict} {
-        return [lindex [$type dollars $tdict] 1]
-    }
-
     typemethod dollars {tdict} {
         dict with tdict {
             set income [actor get $owner income]
-            return [list 0.0 [expr {$income*$int1/100.0}]]
+            return [moneyfmt [expr {$income*$int1/100.0}]]
         }
-
-        return 0
     }
 
-    typemethod estpersonnel {tdict} {
-        return 0
-    }
-
-    typemethod personnel_by_group {tdict} {
-        return {}
-    }
-
-    typemethod execute {tdict dollars} {
+    typemethod execute {tdict} {
+        # FIRST, if there's no cash_on_hand, return 0.
         dict with tdict {
+            array set ainfo [actor get $owner]
+
+            let amount {min($ainfo(cash_on_hand), $ainfo(income)*$int1/100.0)}
+
+            if {$amount == 0.0} {
+                return 0
+            }
+
             rdb eval {
                 UPDATE actors 
-                SET cash_reserve = cash_reserve + $dollars
+                SET cash_reserve = cash_reserve + $amount,
+                    cash_on_hand = cash_on_hand - $amount
                 WHERE a=$owner;
             }
+
+            return 1
         }
     }
 }

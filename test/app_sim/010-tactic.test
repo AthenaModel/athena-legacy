@@ -53,17 +53,8 @@ namespace eval ::athena_test::tests:: {
     }
 
     proc mkupdate {tactic_id parms} {
-        set dict {
-            m     ""
-            n     ""
-            f     ""
-            g     ""
-            text1 ""
-            int1  ""
-        }
-
-        dict set dict tactic_id $tactic_id
-        return [dict merge $dict $parms]
+        dict set parms tactic_id $tactic_id
+        return $parms
     }
 
     # Standard Tactics
@@ -72,11 +63,6 @@ namespace eval ::athena_test::tests:: {
         tactic_type SAVE
         owner       JOE
         priority    top
-        m           ""
-        n           ""
-        f           ""
-        g           ""
-        text1       ""
         int1        10
     }
 
@@ -84,24 +70,18 @@ namespace eval ::athena_test::tests:: {
         tactic_type DEFROE
         owner       JOE
         priority    top
-        m           ""
         n           NB1
-        f           ""
         g           BLUE
         text1       HOLD_FIRE
-        int1        ""
     }
 
     set T3 {
         tactic_type DEFROE
         owner       JOE
         priority    top
-        m           ""
         n           NB2
-        f           ""
         g           BRIT
         text1       HOLD_FIRE
-        int1        ""
     }
 
     #-------------------------------------------------------------------
@@ -115,9 +95,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                        priority state  exec_ts exec_flag m n f g text1 int1 
---------- ----------- ----- -------------------------------- -------- ------ ------- --------- - - - - ----- ---- 
-1         SAVE        JOE   Save 10% of income for later use 1        normal @       0         @ @ @ @ @     10   
+tactic_id tactic_type owner narrative                        priority state  exec_ts exec_flag m n nlist f g text1 int1 
+--------- ----------- ----- -------------------------------- -------- ------ ------- --------- - - ----- - - ----- ---- 
+1         SAVE        JOE   Save 10% of income for later use 1        normal @       0         @ @ @     @ @ @     10   
     }
 
     test create-1.2 {priority is set} -setup {
@@ -206,10 +186,10 @@ tactic_id tactic_type owner priority
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                                    priority state  exec_ts exec_flag m n   f g    text1     int1 
---------- ----------- ----- -------------------------------------------- -------- ------ ------- --------- - --- - ---- --------- ---- 
-2         DEFROE      JOE   Group BLUE defends in NB1 with ROE HOLD_FIRE 1        normal @       0         @ NB1 @ BLUE HOLD_FIRE @    
-1         SAVE        JOE   Save 10% of income for later use             2        normal @       0         @ @   @ @    @         10   
+tactic_id tactic_type owner narrative                                    priority state  exec_ts exec_flag m n   nlist f g    text1     int1 
+--------- ----------- ----- -------------------------------------------- -------- ------ ------- --------- - --- ----- - ---- --------- ---- 
+2         DEFROE      JOE   Group BLUE defends in NB1 with ROE HOLD_FIRE 1        normal @       0         @ NB1 @     @ BLUE HOLD_FIRE @    
+1         SAVE        JOE   Save 10% of income for later use             2        normal @       0         @ @   @     @ @    @         10   
     }
 
     test delete-3.1 {Condition is deleted} -setup {
@@ -255,9 +235,9 @@ tactic_id tactic_type owner narrative                                    priorit
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                                                priority state  exec_ts exec_flag m n   f g    text1                 int1 
---------- ----------- ----- -------------------------------------------------------- -------- ------ ------- --------- - --- - ---- --------------------- ---- 
-1         DEFROE      JOE   Group BLUE defends in NB1 with ROE FIRE_BACK_IMMEDIATELY 1        normal @       0         @ NB1 @ BLUE FIRE_BACK_IMMEDIATELY @    
+tactic_id tactic_type owner narrative                                                priority state  exec_ts exec_flag m n   nlist f g    text1                 int1 
+--------- ----------- ----- -------------------------------------------------------- -------- ------ ------- --------- - --- ----- - ---- --------------------- ---- 
+1         DEFROE      JOE   Group BLUE defends in NB1 with ROE FIRE_BACK_IMMEDIATELY 1        normal @       0         @ NB1 @     @ BLUE FIRE_BACK_IMMEDIATELY @    
     }
 
     test update-1.2 {empty values are OK} -setup {
@@ -470,6 +450,7 @@ tactic_id state
         cleanup
     } -result {
         state       normal
+        nlist       @
         exec_ts     @
         int1        @
         narrative   {Group BLUE defends in NB1 with ROE HOLD_FIRE}

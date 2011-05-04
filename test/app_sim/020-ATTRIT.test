@@ -39,6 +39,12 @@ namespace eval ::athena_test::tests:: {
         ted lock
     }
 
+    # Deploy troops into a neighborhood.
+    proc deploy {n g personnel} {
+        ted order TACTIC:DEPLOY:CREATE \
+            owner JOE g $g int1 $personnel nlist $n
+    }
+
     # Clean up after a test
 
     proc cleanup {} {
@@ -75,7 +81,7 @@ namespace eval ::athena_test::tests:: {
 
     test UNIT-1.3 {invalid casualties} -setup {
         setup {
-            ted order PERSONNEL:SET id {NB1 BLUE} personnel 100
+            deploy NB1 BLUE 100
         }
     } -body {
         ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties NONESUCH
@@ -88,7 +94,7 @@ namespace eval ::athena_test::tests:: {
 
     test UNIT-1.4 {negative casualties} -setup {
         setup {
-            ted order PERSONNEL:SET id {NB1 BLUE} personnel 100
+            deploy NB1 BLUE 100
         }
     } -body {
         ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties -1
@@ -101,7 +107,7 @@ namespace eval ::athena_test::tests:: {
 
     test UNIT-1.5 {invalid g1: unknown} -setup {
         setup {
-            ted order PERSONNEL:SET id {NB1 BLUE} personnel 100
+            deploy NB1 BLUE 100
         }
     } -body {
         ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties 10 g1 NONESUCH
@@ -114,7 +120,7 @@ namespace eval ::athena_test::tests:: {
 
     test UNIT-1.6 {invalid g1: u not CIV} -setup {
         setup {
-            ted order PERSONNEL:SET id {NB1 BLUE} personnel 100
+            deploy NB1 BLUE 100
         }
     } -body {
         ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties 10 g1 BLUE
@@ -127,7 +133,7 @@ namespace eval ::athena_test::tests:: {
 
     test UNIT-1.7 {invalid g2: unknown} -setup {
         setup {
-            ted order PERSONNEL:SET id {NB1 BLUE} personnel 100
+            deploy NB1 BLUE 100
         }
     } -body {
         ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties 10 g2 NONESUCH
@@ -140,7 +146,7 @@ namespace eval ::athena_test::tests:: {
 
     test UNIT-1.8 {invalid g2: u not CIV} -setup {
         setup {
-            ted order PERSONNEL:SET id {NB1 BLUE} personnel 100
+            deploy NB1 BLUE 100
         }
     } -body {
         ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties 10 g2 BLUE
@@ -398,11 +404,11 @@ namespace eval ::athena_test::tests:: {
 
     test GROUP-2.1 {FRC units are attrited} -setup {
         setup {
-            ted order PERSONNEL:SET id {NB1 BLUE} personnel 100
+            deploy NB1 BLUE 100
         }
     } -body {
         ted notifier bind ::rdb <units>
-        ted notifier bind ::rdb <personnel_ng>
+        ted notifier bind ::rdb <deploy_ng>
         ted order ATTRIT:GROUP n NB1 f BLUE casualties 100
         ted notifier received
     } -cleanup {
@@ -414,17 +420,17 @@ namespace eval ::athena_test::tests:: {
         {::rdb <units> update KURD-NB2/0000}
         {::rdb <units> update BLUE-NB1/0000}
         {::rdb <units> update BLUE-NB1/0000}
-        {::rdb <personnel_ng> update {NB1 BLUE}}
+        {::rdb <deploy_ng> update {NB1 BLUE}}
     }
 
 
     test GROUP-2.2 {ORG units are attrited} -setup {
         setup {
-            ted order PERSONNEL:SET id {NB1 USAID} personnel 100
+            deploy NB1 USAID 100
         }
     } -body {
         ted notifier bind ::rdb <units>
-        ted notifier bind ::rdb <personnel_ng>
+        ted notifier bind ::rdb <deploy_ng>
         ted order ATTRIT:GROUP n NB1 f USAID casualties 100
         ted notifier received
     } -cleanup {
@@ -436,7 +442,7 @@ namespace eval ::athena_test::tests:: {
         {::rdb <units> update KURD-NB2/0000}
         {::rdb <units> update USAID-NB1/0000}
         {::rdb <units> update USAID-NB1/0000}
-        {::rdb <personnel_ng> update {NB1 USAID}}
+        {::rdb <deploy_ng> update {NB1 USAID}}
     }
 
 
@@ -480,6 +486,7 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

@@ -1118,29 +1118,23 @@ snit::widget strategybrowser {
 
         # Tree column 2: $
         $ttree column create {*}$colopts  \
-            -text        "$"              \
+            -text        "Est. $"         \
             -itemstyle   numStyle         \
             -tags        dollars
 
-        # Tree column 3: Personnel
-        $ttree column create {*}$colopts  \
-            -text        "Pers."          \
-            -itemstyle   numStyle         \
-            -tags        personnel
-
-        # Tree column 4: tactic_id/condition_id
+        # Tree column 3: tactic_id/condition_id
         $ttree column create {*}$colopts  \
             -text        "Id"             \
             -itemstyle   numStyle         \
             -tags        id
 
-        # Tree column 5: tactic_type/condition_type
+        # Tree column 4: tactic_type/condition_type
         $ttree column create {*}$colopts  \
             -text        "Type"           \
             -itemstyle   textStyle        \
             -tags        type
 
-        # Tree column 6: priority
+        # Tree column 5: priority
         $ttree column create {*}$colopts  \
             -text        "Priority"       \
             -itemstyle   textStyle        \
@@ -1289,27 +1283,20 @@ snit::widget strategybrowser {
         # FIRST, get a list of order names and titles
         set odict [dict create]
 
-        # TBD: Use "tactic type names" to get the order names
-        foreach order [order names] {
-            if {![string match "TACTIC:*:CREATE" $order]} {
-                continue
-            }
-
-            # Get title, and remove the "Create Tactic: " prefix
-            set title [order title $order]
-            set ndx [string first ":" $title]
-            set title [string range $title $ndx+2 end]
-            dict set odict $title $order
+        foreach ttype [lsort [tactic type names]] {
+            set order "TACTIC:$ttype:CREATE"
+            set title [string map {"Create Tactic: " ""} [order title $order]]
+            dict set odict "$ttype: $title" $order
         }
 
-        set list [lsort [dict keys $odict]]
+        set titles [dict keys $odict]
 
         # NEXT, let them pick one
         set title [messagebox pick \
-                       -parent    [app topwin]      \
-                       -initvalue [lindex $list 0]  \
-                       -title     "Select a tactic" \
-                       -values    $list             \
+                       -parent    [app topwin]        \
+                       -initvalue [lindex $titles 0]  \
+                       -title     "Select a tactic"   \
+                       -values    $titles             \
                        -message   [normalize "
                            Select a tactic to create for 
                            actor $info(actor).
@@ -1417,13 +1404,12 @@ snit::widget strategybrowser {
         # NEXT, set the text.
         set tdict [array get tdata]
 
-        $ttree item text $id                                  \
-            0               $tdata(narrative)                 \
-            {tag exec_ts}   $timestamp                        \
-            {tag dollars}   [tactic call estdollars   $tdict] \
-            {tag personnel} [tactic call estpersonnel $tdict] \
-            {tag id}        $tdata(tactic_id)                 \
-            {tag type}      $tdata(tactic_type)               \
+        $ttree item text $id                             \
+            0               $tdata(narrative)            \
+            {tag exec_ts}   $timestamp                   \
+            {tag dollars}   [tactic call dollars $tdict] \
+            {tag id}        $tdata(tactic_id)            \
+            {tag type}      $tdata(tactic_type)          \
             {tag priority}  $tdata(priority)
 
         # NEXT, set the state flags
@@ -1520,7 +1506,6 @@ snit::widget strategybrowser {
         $ttree item text $id                       \
             0               $cdata(narrative)      \
             {tag dollars}   ""                     \
-            {tag personnel} ""                     \
             {tag id}        $cdata(condition_id)   \
             {tag type}      $cdata(condition_type)
 

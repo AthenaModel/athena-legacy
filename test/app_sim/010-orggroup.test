@@ -74,26 +74,6 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  1000               ORG     
         cleanup
     } -result {USAID}
 
-    test create-3.1 {personnel_ng records are created} -setup {
-        ted create JOE NB1
-    } -body {
-        orggroup mutate create [ted entity USAID]
-        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
-    } -cleanup {
-        cleanup
-    } -result {NB1 USAID}
-
-    test create-3.2 {undo deletes personnel_ng records} -setup {
-        ted create JOE NB1
-        orggroup mutate create [ted entity USAID]
-        set undo [orggroup mutate create [ted entity HAL]]
-    } -body {
-        {*}$undo
-        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
-    } -cleanup {
-        cleanup
-    } -result {NB1 USAID}
-
     #-------------------------------------------------------------------
     # mutate delete
 
@@ -122,28 +102,6 @@ g     longname color   shape   symbol       demeanor basepop rel_entity gtype a 
 ----- -------- ------- ------- ------------ -------- ------- ---------- ----- --- ------- 
 USAID US Aid   #000001 NEUTRAL organization AVERAGE  1000    JOE        ORG   JOE NGO     
     }
-
-    test delete-3.1 {personnel_ng record is deleted} -setup {
-        ted create NB1 USAID HAL
-    } -body {
-        orggroup mutate delete USAID
-
-        # Is USAID gone?
-        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
-    } -cleanup {
-        cleanup
-    } -result {NB1 HAL}
-
-
-    test delete-3.2 {Undo restores group} -setup {
-        ted create NB1 USAID
-        set undo [orggroup mutate delete USAID]
-    } -body {
-        {*}$undo
-        rdb eval {SELECT n,g FROM personnel_ng ORDER BY n,g}
-    } -cleanup {
-        cleanup
-    } -result {NB1 USAID}
 
     test delete-4.1 {calendar items with g are deleted} -setup {
         ted create NB1 USAID
@@ -364,3 +322,4 @@ USAID Red Cross #ff0000 FRIEND organization APATHETIC 2000    BOB        ORG   B
 }
 
 namespace delete ::athena_test::tests::
+

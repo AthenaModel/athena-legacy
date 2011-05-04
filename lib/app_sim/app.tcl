@@ -419,6 +419,11 @@ snit::type app {
             -height      8                       \
             -width       30
 
+        # nlist -- listfield of appropriate size for nbhood selection
+        form register nlist ::marsgui::listfield \
+            -height      8                       \
+            -width       30
+
         # pct -- Percentages, 0 to 100
         form register pct ::marsgui::rangefield \
             -type        ::ipercent             
@@ -710,7 +715,14 @@ snit::type app {
     # to the Detail browser.
 
     typemethod show {uri} {
-        # FIRST, get the scheme.  If it's not a gui:, punt to 
+        # FIRST, if there's no main window, just return.
+        # (This happens when athena_test(1) runs the test suite.)
+
+        if {![winfo exists .main]} {
+            return
+        }
+
+        # NEXT, get the scheme.  If it's not a gui:, punt to 
         # the Detail browser.
 
         if {[catch {

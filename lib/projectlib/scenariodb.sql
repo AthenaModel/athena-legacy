@@ -271,6 +271,14 @@ CREATE TABLE orggroups (
 CREATE VIEW orggroups_view AS
 SELECT * FROM groups JOIN orggroups USING (g);
 
+-- AGroups View: Groups that can be owned by actors
+CREATE VIEW agroups AS
+SELECT g, gtype, longname, a, forcetype AS subtype
+FROM frcgroups JOIN groups USING (g)
+UNION
+SELECT g,gtype, longname, a, orgtype AS subtype
+FROM orggroups JOIN groups USING (g);
+
 
 ------------------------------------------------------------------------
 -- Support/Control tables
@@ -496,8 +504,9 @@ CREATE TABLE tactics (
     -- sanity checker, to give the user more flexibility.
 
     -- Neighborhoods; use n first.
-    m            TEXT,
-    n            TEXT,
+    m            TEXT,   -- One neighborhood
+    n            TEXT,   -- One neighborhood
+    nlist        TEXT,   -- List of neighborhoods
 
     -- Groups; use g first.
     f            TEXT,
@@ -553,11 +562,29 @@ CREATE TABLE conditions (
 );
 
 ------------------------------------------------------------------------
--- Personnel Table
+-- Personnel Tables
 --
--- FRC and ORG personnel reside in this table, instead of in units.
+-- These tables do not cascade deletions, as they are used only in
+-- simulation, not during scenario editing.
 
-CREATE TABLE personnel_ng (
+-- FRC and ORG personnel in playbox and available for deployment.
+CREATE TABLE personnel_g (
+    -- Symbolic group name
+    g          TEXT PRIMARY KEY
+               REFERENCES groups(g)
+               ON DELETE CASCADE
+               DEFERRABLE INITIALLY DEFERRED,
+
+    -- Personnel in playbox
+    personnel  INTEGER DEFAULT 0,
+
+    -- Personnel available for deployment
+    -- TBD: This column may be handled in memory.
+    available  INTEGER DEFAULT 0
+);
+
+-- Deployment Table: FRC and ORG personnel deployed into neighborhoods.
+CREATE TABLE deploy_ng (
     -- Symbolic neighborhood name
     n          TEXT REFERENCES nbhoods(n)
                ON DELETE CASCADE
@@ -565,11 +592,13 @@ CREATE TABLE personnel_ng (
 
     -- Symbolic group name
     g          TEXT REFERENCES groups(g)
-               ON DELETE CASCADE
                DEFERRABLE INITIALLY DEFERRED,
 
     -- Personnel
     personnel  INTEGER DEFAULT 0,
+
+    -- Unassigned personnel.
+    unassigned INTEGER DEFAULT 0,
     
     PRIMARY KEY (n,g)
 );
@@ -1433,4 +1462,5 @@ CREATE TABLE hist_econ_ij (
 
     PRIMARY KEY (t,i,j)        
 );
+
 

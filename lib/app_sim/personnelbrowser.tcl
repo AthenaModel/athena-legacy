@@ -6,9 +6,9 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    personnelbrowser(sim) package: personnel_ng browser.
+#    personnelbrowser(sim) package: deploy_ng browser.
 #
-#    This widget displays a formatted list of personnel_ng records.
+#    This widget displays a formatted list of deploy_ng records.
 #    It is a wrapper around sqlbrowser(n).
 #
 #-----------------------------------------------------------------------
@@ -49,10 +49,9 @@ snit::widgetadaptor personnelbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_personnel_ng            \
+            -view         gui_deploy_ng               \
             -uid          id                          \
             -titlecolumns 2                           \
-            -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
                 ::sim <DbSyncB>
             } -layout [string map [list %D $::app::derivedfg] $layout]
@@ -60,35 +59,8 @@ snit::widgetadaptor personnelbrowser {
         # NEXT, get the options.
         $self configurelist $args
 
-        # NEXT, create the toolbar buttons
-        set bar [$hull toolbar]
-
-        install setbtn using mktoolbutton $bar.set \
-            ::projectgui::icon::pencils22          \
-            "Set Group Personnel"                  \
-            -state   disabled                      \
-            -command [mymethod SetSelected]
-
-        cond::availableSingle control $setbtn \
-            order   PERSONNEL:SET                \
-            browser $win
-       
-
-        install adjbtn using mktoolbutton $bar.adj \
-            ::projectgui::icon::pencila22          \
-            "Adjust Group Personnel by a Delta"    \
-            -state   disabled                      \
-            -command [mymethod AdjustSelected]
-
-        cond::availableSingle control $adjbtn \
-            order   PERSONNEL:ADJUST             \
-            browser $win
-
-        pack $setbtn   -side left
-        pack $adjbtn   -side left
-
         # NEXT, Respond to simulation updates
-        notifier bind ::rdb <personnel_ng> $self [mymethod uid]
+        notifier bind ::rdb <deploy_ng> $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------
@@ -96,49 +68,8 @@ snit::widgetadaptor personnelbrowser {
 
     delegate method * to hull
 
-    #-------------------------------------------------------------------
-    # Private Methods
-
-    # SelectionChanged
-    #
-    # Enables/disables toolbar controls based on the current selection,
-    # and notifies the app of the selection change.
-
-    method SelectionChanged {} {
-        # FIRST, update buttons
-        cond::availableSingle  update [list $setbtn $adjbtn]
-
-        # NEXT, notify the app of the selection.
-        if {[llength [$hull uid curselection]] == 1} {
-            set id [lindex [$hull uid curselection] 0]
-            lassign $id n g
-
-            notifier send ::app <Puck> \
-                [list ng $id nbhood $n group $g]
-        }
-    }
-
-
-    # SetSelected
-    #
-    # Called when the user wants to set the personnel
-
-    method SetSelected {} {
-        set ids [$hull uid curselection]
-
-        order enter PERSONNEL:SET id [lindex $ids 0]
-    }
-
-    # AdjustSelected
-    #
-    # Called when the user wants to adjust the personnel
-
-    method AdjustSelected {} {
-        set ids [$hull uid curselection]
-
-        order enter PERSONNEL:ADJUST id [lindex $ids 0]
-    }
 }
+
 
 
 

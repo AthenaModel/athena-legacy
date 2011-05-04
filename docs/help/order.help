@@ -3174,7 +3174,7 @@ page /order/attroe nf "Attacking ROE (Non-Uniformed) Orders" {
     will attempt to find and destroy uniformed force personnel in 
     a particular neighborhood.  (The response of the uniformed force
     to being attacked is determined by the uniformed force's
-    <<cref /order/tactic/defend "Defending ROE">>.)<p>
+    <<cref /order/tactic/defroe "Defending ROE">>.)<p>
 
     The orders are as follows:<p>
 
@@ -3655,9 +3655,9 @@ macro TACTIC.priority {} {
     [parm priority "Priority"]
     <b>Optional.</b>  Indicates the initial priority of this tactic.
     If <b>top</b>, the tactic will have priority over all other
-    tactics for this actor;; if <b>bottom</b>, it will have the lowest
+    tactics for this actor; if <b>bottom</b>, it will have the lowest
     priority.  The priority can then be changed using the
-    <<cref TACTIC:PRIORITY>> order.
+    [cref /order/tactic/priority] order.
     [/parm]
 }
 
@@ -3741,9 +3741,9 @@ order TACTIC:STATE "Set Tactic State" {
 
 
 #-----------------------------------------------------------------------
-# Tactic: DEFEND
+# Tactic: DEFROE
 
-page /order/tactic defend "Tactic: Set Defensive ROE" {
+page /order/tactic defroe "Tactic: Set Defensive ROE" {
     <<title>>
 
     This tactic sets the defensive <<term roe>> for uniformed force groups
@@ -3764,7 +3764,7 @@ page /order/tactic defend "Tactic: Set Defensive ROE" {
     <<childlinks>>
 }
 
-macro DEFEND.roe {} {
+macro DEFROE.roe {} {
     |<--
     The ROE proper, one of the following values:<p>
 
@@ -3782,7 +3782,7 @@ macro DEFEND.roe {} {
     not the group fires back at its attackers.
 }
 
-order TACTIC:DEFEND:CREATE "Create Tactic: Set Defensive ROE" {
+order TACTIC:DEFROE:CREATE "Create Tactic: Set Defensive ROE" {
     <<parmlist>>
     <<TACTIC.cowner>>
 
@@ -3797,7 +3797,7 @@ order TACTIC:DEFEND:CREATE "Create Tactic: Set Defensive ROE" {
     <</parm>>
 
     <<parm text1 "ROE">>
-    <b>Required.</b>  <<DEFEND.roe>>
+    <b>Required.</b>  <<DEFROE.roe>>
     <</parm>>
 
     <<TACTIC.priority>>
@@ -3806,7 +3806,7 @@ order TACTIC:DEFEND:CREATE "Create Tactic: Set Defensive ROE" {
     Creates the tactic.
 }
 
-order TACTIC:DEFEND:UPDATE "Update Tactic: Set Defensive ROE" {
+order TACTIC:DEFROE:UPDATE "Update Tactic: Set Defensive ROE" {
     <<parmlist>>
     <<TACTIC.id>>
     <<TACTIC.uowner>>
@@ -3826,7 +3826,93 @@ order TACTIC:DEFEND:UPDATE "Update Tactic: Set Defensive ROE" {
     <</parm>>
 
     <<parm text1 "ROE">>
-    <b>Required.</b>  <<DEFEND.roe>>
+    <b>Required.</b>  <<DEFROE.roe>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Allows the user to edit the tactic.
+}
+
+#-----------------------------------------------------------------------
+# Tactic: DEPLOY
+
+page /order/tactic deploy "Tactic: Deploy Forces" {
+    <<title>>
+
+    This tactic deploys force or organization group personnel
+    present in the playbox and belonging to an actor
+    into particular neighborhoods.<p>
+
+    The actor maintains (pays for) force and organization group
+    personnel at the playbox level, and then deploys them to
+    particular neighborhoods using this tactic.  Once deployed, the
+    personnel may then be assigned to particular tasks.<p>
+
+    Multiple DEPLOY tactics are cumulative.  The deployment lasts
+    until the next strategy tock.<p>
+
+    The tactic orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+macro DEPLOY.g {} {
+    |<--
+    The ID of a force or organization group belonging to the
+    <i>owner</i>.<p>
+}
+
+macro DEPLOY.int1 {} {
+    |<--
+    The number of personnel to be deployed, if available.  If
+    there are insufficient personnel, the tactic will not
+    execute.
+}
+
+macro DEPLOY.nlist {} {
+    |<--
+    A list of neighborhood IDs.  The personnel will be distributed
+    evenly across the neighborhoods.
+}
+
+order TACTIC:DEPLOY:CREATE "Create Tactic: Deploy Forces" {
+    <<parmlist>>
+    <<TACTIC.cowner>>
+
+    <<parm g "Group">>
+    <b>Required.</b> <<DEPLOY.g>>
+    <</parm>>
+
+    <<parm int1 "Personnel">>
+    <b>Required.</b>  <<DEPLOY.int1>>
+    <</parm>>
+
+    <<parm nlist "In Neighborhoods">>
+    <b>Required.</b>  <<DEPLOY.nlist>>
+    <</parm>>
+
+    <<TACTIC.priority>>
+    <</parmlist>>
+
+    Creates the tactic.
+}
+
+order TACTIC:DEPLOY:UPDATE "Update Tactic: Deploy Forces" {
+    <<parmlist>>
+    <<TACTIC.id>>
+    <<TACTIC.uowner>>
+
+    <<parm g "Group">>
+    <b>Optional.</b> <<DEPLOY.g>>
+    <</parm>>
+
+    <<parm int1 "Personnel">>
+    <b>Optional.</b>  <<DEPLOY.int1>>
+    <</parm>>
+
+    <<parm nlist "In Neighborhoods">>
+    <b>Optional.</b>  <<DEPLOY.nlist>>
     <</parm>>
 
     <</parmlist>>
