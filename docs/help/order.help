@@ -1521,6 +1521,17 @@ macro GROUP.a {} {
     advanced.
 }
 
+macro GROUP.cost {} {
+    |<--
+    The cost to the owning actor of 
+    maintaining one member of the group in the playbox for one week,
+    in dollars.
+    Costs incurred outside the playbox should be excluded, e.g., 
+    wages for U.S. troops.  The cost is expressed as a decimal number
+    with an optional "K", "M", or "B" suffix, "1K" is 1,000 dollars.
+}
+
+
 
 
 #=======================================================================
@@ -1798,6 +1809,10 @@ order FRCGROUP:CREATE "Create Force Group" {
     <b>Required.</b> <<FRCGROUP.basepop>>
     <</parm>>
 
+    <<parm cost "Cost $/person/week">>
+    <b>Required.</b> <<GROUP.cost>>
+    <</parm>>
+
     <<parm uniformed "Uniformed?">>
     <b>Required.</b>  <<FRCGROUP.uniformed>>
     <</parm>>
@@ -1864,6 +1879,10 @@ order FRCGROUP:UPDATE "Update Force Group" {
     <b>Optional.</b> <<FRCGROUP.basepop>>
     <</parm>>
 
+    <<parm cost "Cost $/person/week">>
+    <b>Required.</b> <<GROUP.cost>>
+    <</parm>>
+
     <<parm uniformed "Uniformed?">>
     <b>Optional.</b>  <<FRCGROUP.uniformed>>
     <</parm>>
@@ -1909,6 +1928,10 @@ order FRCGROUP:UPDATE+MULTI "Update Multiple Force Groups" {
 
     <<parm basepop "Personnel">>
     <b>Optional.</b> <<FRCGROUP.basepop>>
+    <</parm>>
+
+    <<parm cost "Cost $/person/week">>
+    <b>Required.</b> <<GROUP.cost>>
     <</parm>>
 
     <<parm uniformed "Uniformed?">>
@@ -1993,6 +2016,9 @@ order ORGGROUP:CREATE "Create Organization Group" {
     <b>Required.</b> <<ORGGROUP.basepop>>
     <</parm>>
 
+    <<parm cost "Cost $/person/week">>
+    <b>Required.</b> <<GROUP.cost>>
+    <</parm>>
     <</parmlist>>
 
     <b><<cref /using/prep>> Only.</b>  This order creates a
@@ -2051,6 +2077,9 @@ order ORGGROUP:UPDATE "Update Organization Group" {
     <b>Optional.</b> <<ORGGROUP.basepop>>
     <</parm>>
 
+    <<parm cost "Cost $/person/week">>
+    <b>Required.</b> <<GROUP.cost>>
+    <</parm>>
     <</parmlist>>
 
     <b><<cref /using/prep>> Only.</b>  This order modifies the
@@ -2089,6 +2118,9 @@ order ORGGROUP:UPDATE+MULTI "Update Multiple Organization Groups" {
     <b>Optional.</b> <<ORGGROUP.basepop>>
     <</parm>>
 
+    <<parm cost "Cost $/person/week">>
+    <b>Required.</b> <<GROUP.cost>>
+    <</parm>>
     <</parmlist>>
 
     <b><<cref /using/prep>> Only.</b>  This order modifies the
@@ -3842,11 +3874,8 @@ page /order/tactic deploy "Tactic: Deploy Forces" {
 
     This tactic deploys force or organization group personnel
     present in the playbox and belonging to an actor
-    into particular neighborhoods.<p>
-
-    The actor maintains (pays for) force and organization group
-    personnel at the playbox level, and then deploys them to
-    particular neighborhoods using this tactic.  Once deployed, the
+    into particular neighborhoods.  The group's maintenance
+    cost is paid for each person deployed.  Once deployed, the
     personnel may then be assigned to particular tasks.<p>
 
     Multiple DEPLOY tactics are cumulative.  The deployment lasts

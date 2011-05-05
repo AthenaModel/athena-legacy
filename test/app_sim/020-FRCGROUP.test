@@ -37,6 +37,7 @@ namespace eval ::athena_test::tests:: {
         forcetype REGULAR
         demeanor  AVERAGE
         basepop   5000
+        cost      0.0
         uniformed yes
         local     no
     }
@@ -50,6 +51,7 @@ namespace eval ::athena_test::tests:: {
         forcetype REGULAR
         demeanor  AVERAGE
         basepop   4000
+        cost      0.0
         uniformed yes
         local     no
     }
@@ -74,6 +76,7 @@ namespace eval ::athena_test::tests:: {
         forcetype {required value}
         demeanor {required value}
         basepop {required value}
+        cost {required value}
         uniformed {required value}
         local {required value}
     }
@@ -173,7 +176,19 @@ namespace eval ::athena_test::tests:: {
         basepop {invalid value "NONESUCH", expected integer}
     }
 
-    test CREATE-1.10 {invalid uniformed} -setup {
+    test CREATE-1.10 {invalid cost} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject FRCGROUP:CREATE [dict merge $blue {
+            cost NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        cost {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test CREATE-1.11 {invalid uniformed} -setup {
         ted create JOE
     } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
@@ -185,7 +200,7 @@ namespace eval ::athena_test::tests:: {
         uniformed {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test CREATE-1.11 {invalid local} -setup {
+    test CREATE-1.12 {invalid local} -setup {
         ted create JOE
     } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
@@ -206,9 +221,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor basepop rel_entity gtype a   forcetype uniformed local 
----- -------- ------- ------ -------- -------- ------- ---------- ----- --- --------- --------- ----- 
-BLUE US Army  #0000FF FRIEND infantry AVERAGE  5000    JOE        FRC   JOE REGULAR   1         0     
+g    longname color   shape  symbol   demeanor basepop cost rel_entity gtype a   forcetype uniformed local 
+---- -------- ------- ------ -------- -------- ------- ---- ---------- ----- --- --------- --------- ----- 
+BLUE US Army  #0000FF FRIEND infantry AVERAGE  5000    0.0  JOE        FRC   JOE REGULAR   1         0     
     }
 
     test CREATE-2.2 {longname defaults to ID} -setup {
@@ -325,7 +340,7 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  5000    JOE        FRC   JOE REGU
         color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
     }
 
-    test UPDATE-1.5 {invalid shape} -setup {
+    test UPDATE-1.4 {invalid shape} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE shape NONESUCH
@@ -336,7 +351,7 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  5000    JOE        FRC   JOE REGU
     }
 
 
-    test UPDATE-1.6 {invalid forcetype} -setup {
+    test UPDATE-1.5 {invalid forcetype} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE forcetype NONESUCH
@@ -347,7 +362,7 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  5000    JOE        FRC   JOE REGU
     }
 
 
-    test UPDATE-1.7 {invalid demeanor} -setup {
+    test UPDATE-1.6 {invalid demeanor} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE demeanor NONESUCH
@@ -358,7 +373,7 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  5000    JOE        FRC   JOE REGU
     }
 
 
-    test UPDATE-1.8 {invalid basepop} -setup {
+    test UPDATE-1.7 {invalid basepop} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE basepop NONESUCH
@@ -366,6 +381,17 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  5000    JOE        FRC   JOE REGU
         cleanup
     } -result {
         basepop {invalid value "NONESUCH", expected integer}
+    }
+
+
+    test UPDATE-1.8 {invalid cost} -setup {
+        ted create BLUE
+    } -body {
+        ted order -reject FRCGROUP:UPDATE g BLUE cost NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        cost {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
 
@@ -411,9 +437,9 @@ BLUE US Army  #0000FF FRIEND infantry AVERAGE  5000    JOE        FRC   JOE REGU
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol demeanor   basepop rel_entity gtype a   forcetype uniformed local 
----- ----------- ------- ------- ------ ---------- ------- ---------- ----- --- --------- --------- ----- 
-BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE 1500    BOB        FRC   BOB POLICE    0         1     
+g    longname    color   shape   symbol demeanor   basepop cost rel_entity gtype a   forcetype uniformed local 
+---- ----------- ------- ------- ------ ---------- ------- ---- ---------- ----- --- --------- --------- ----- 
+BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE 1500    0.0  BOB        FRC   BOB POLICE    0         1     
     }
 
 
@@ -440,6 +466,7 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE 1500    BOB        FRC   BOB 
             forcetype    POLICE
             demeanor     AGGRESSIVE
             basepop      1500
+            cost         10.0
             local        yes
             uniformed    no
         }
@@ -546,7 +573,18 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE 1500    BOB        FRC   BOB 
     }
 
 
-    test UPDATE:MULTI-1.10 {invalid uniformed} -setup {
+    test UPDATE:MULTI-1.10 {invalid cost} -setup {
+        ted create BLUE
+    } -body {
+        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE cost NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        cost {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+
+    test UPDATE:MULTI-1.11 {invalid uniformed} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE uniformed NONESUCH
@@ -557,7 +595,7 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE 1500    BOB        FRC   BOB 
     }
 
 
-    test UPDATE:MULTI-1.11 {invalid local} -setup {
+    test UPDATE:MULTI-1.12 {invalid local} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE local NONESUCH
@@ -581,6 +619,7 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE 1500    BOB        FRC   BOB 
             forcetype POLICE
             demeanor  AGGRESSIVE
             basepop   1500
+            cost      10.0
             uniformed no
             local     yes
         }
@@ -606,6 +645,7 @@ BLUE Blue Angels #FF0000 NEUTRAL police AGGRESSIVE 1500    BOB        FRC   BOB 
             forcetype POLICE
             demeanor  AGGRESSIVE
             basepop   1500
+            cost      10.0
             uniformed no
             local     yes
         }

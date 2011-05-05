@@ -171,6 +171,7 @@ snit::type frcgroup {
     #    forcetype      The group's eforcetype
     #    demeanor       The group's demeanor (edemeanor(n))
     #    basepop        The group's initial # of personnel in the playbox
+    #    cost           The group's maintenance cost, $/person/week
     #    uniformed      The group's uniformed flag
     #    local          The group's local flag
     #
@@ -189,7 +190,7 @@ snit::type frcgroup {
             rdb eval {
                 INSERT INTO 
                 groups(g, longname, color, shape, symbol, demeanor, basepop,
-                       rel_entity, gtype)
+                       cost, rel_entity, gtype)
                 VALUES($g,
                        $longname,
                        $color,
@@ -197,6 +198,7 @@ snit::type frcgroup {
                        $symbol,
                        $demeanor,
                        $basepop,
+                       $cost,
                        nullif($a,''),
                        'FRC');
 
@@ -242,6 +244,7 @@ snit::type frcgroup {
     #    forcetype      A new eforcetype, or ""
     #    demeanor       A new demeanor, or ""
     #    basepop        A new basepop, or ""
+    #    cost           A new cost, or ""
     #    uniformed      A new uniformed flag, or ""
     #    local          A new local flag, or ""
     #
@@ -287,6 +290,7 @@ snit::type frcgroup {
                     symbol     = nonempty($symbol,       symbol),
                     demeanor   = nonempty($demeanor,     demeanor),
                     basepop    = nonempty($basepop,      basepop),
+                    cost       = nonempty($cost,         cost),
                     rel_entity = coalesce(nullif($a,''), rel_entity)
                 WHERE g=$g;
 
@@ -318,19 +322,20 @@ order define FRCGROUP:CREATE {
 
     parm g          text  "Group"
     parm longname   text  "Long Name"
-    parm a          enum  "Owning Actor"      -enumtype actor
-    parm color      color "Color"             -defval   \#3B61FF
-    parm shape      enum  "Unit Shape"        -enumtype eunitshape \
-                                              -defval   NEUTRAL
-    parm forcetype  enum  "Force Type"        -enumtype eforcetype \
-                                               -defval  REGULAR
-    parm demeanor   enum  "Demeanor"          -enumtype edemeanor  \
-                                              -defval   AVERAGE
-    parm basepop    text  "Personnel"         -defval   10000
-    parm uniformed  enum  "Uniformed?"        -enumtype eyesno     \
-                                              -defval   YES
-    parm local      enum  "Local Group?"      -enumtype eyesno     \
-                                              -defval   NO
+    parm a          enum  "Owning Actor"        -enumtype actor
+    parm color      color "Color"               -defval   "#3B61FF"
+    parm shape      enum  "Unit Shape"          -enumtype eunitshape \
+                                                -defval   NEUTRAL
+    parm forcetype  enum  "Force Type"          -enumtype eforcetype \
+                                                -defval  REGULAR
+    parm demeanor   enum  "Demeanor"            -enumtype edemeanor  \
+                                                -defval   AVERAGE
+    parm basepop    text  "Personnel"           -defval   10000
+    parm cost       text  "Cost, $/person/week" -defval   0
+    parm uniformed  enum  "Uniformed?"          -enumtype eyesno     \
+                                                -defval   YES
+    parm local      enum  "Local Group?"        -enumtype eyesno     \
+                                                -defval   NO
 } {
     # FIRST, prepare and validate the parameters
     prepare g          -toupper   -required -unused -type ident
@@ -341,6 +346,7 @@ order define FRCGROUP:CREATE {
     prepare forcetype  -toupper   -required -type eforcetype
     prepare demeanor   -toupper   -required -type edemeanor
     prepare basepop               -required -type count
+    prepare cost       -toupper   -required -type money
     prepare uniformed  -toupper   -required -type boolean
     prepare local      -toupper   -required -type boolean
 
@@ -410,17 +416,18 @@ order define FRCGROUP:UPDATE {
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey g *}
 
-    parm g          key   "Select Group"       -table gui_frcgroups -keys g \
-                                               -tags group 
+    parm g          key   "Select Group"        -table gui_frcgroups -keys g \
+                                                -tags group 
     parm longname   text  "Long Name"
-    parm a          enum  "Owning Actor"       -enumtype actor
+    parm a          enum  "Owning Actor"        -enumtype actor
     parm color      color "Color"
-    parm shape      enum  "Unit Shape"         -enumtype eunitshape
-    parm forcetype  enum  "Force Type"         -enumtype eforcetype
-    parm demeanor   enum  "Demeanor"           -enumtype edemeanor
+    parm shape      enum  "Unit Shape"          -enumtype eunitshape
+    parm forcetype  enum  "Force Type"          -enumtype eforcetype
+    parm demeanor   enum  "Demeanor"            -enumtype edemeanor
     parm basepop    text  "Personnel"
-    parm uniformed  enum  "Uniformed?"         -enumtype eyesno
-    parm local      enum  "Local Group?"       -enumtype eyesno
+    parm cost       text  "Cost, $/person/week"
+    parm uniformed  enum  "Uniformed?"          -enumtype eyesno
+    parm local      enum  "Local Group?"        -enumtype eyesno
 } {
     # FIRST, prepare the parameters
     prepare g         -toupper   -required -type frcgroup
@@ -431,6 +438,7 @@ order define FRCGROUP:UPDATE {
     prepare forcetype -toupper   -type eforcetype
     prepare demeanor  -toupper   -type edemeanor
     prepare basepop              -type count
+    prepare cost      -toupper   -type money
     prepare uniformed -toupper   -type boolean
     prepare local     -toupper   -type boolean
 
@@ -453,15 +461,16 @@ order define FRCGROUP:UPDATE:MULTI {
         -sendstates PREP                                  \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids        multi "Groups"         -table gui_frcgroups -key g
-    parm a          enum  "Owning Actor"   -enumtype actor
+    parm ids        multi "Groups"               -table gui_frcgroups -key g
+    parm a          enum  "Owning Actor"         -enumtype actor
     parm color      color "Color"
-    parm shape      enum  "Unit Shape"     -enumtype eunitshape
-    parm forcetype  enum  "Force Type"     -enumtype eforcetype
-    parm demeanor   enum  "Demeanor"       -enumtype edemeanor
+    parm shape      enum  "Unit Shape"           -enumtype eunitshape
+    parm forcetype  enum  "Force Type"           -enumtype eforcetype
+    parm demeanor   enum  "Demeanor"             -enumtype edemeanor
     parm basepop    text  "Personnel"
-    parm uniformed  enum  "Uniformed?"     -enumtype eyesno
-    parm local      enum  "Local Group?"   -enumtype eyesno
+    parm cost       text  "Cost, $/person/week"
+    parm uniformed  enum  "Uniformed?"           -enumtype eyesno
+    parm local      enum  "Local Group?"         -enumtype eyesno
 } {
     # FIRST, prepare the parameters
     prepare ids       -toupper  -required -listof frcgroup
@@ -471,6 +480,7 @@ order define FRCGROUP:UPDATE:MULTI {
     prepare forcetype -toupper            -type   eforcetype
     prepare demeanor  -toupper            -type   edemeanor
     prepare basepop                       -type   count
+    prepare cost      -toupper            -type   money
     prepare uniformed -toupper            -type   boolean
     prepare local     -toupper            -type   boolean
 

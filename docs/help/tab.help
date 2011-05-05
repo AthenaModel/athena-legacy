@@ -1266,6 +1266,12 @@ tab "Groups/FrcGroups" {
     who are present in the playbox at time 0.<p>
     <</topic>>
 
+    <<topic "Cost, $/person/week">>The cost to the owning actor of 
+    maintaining one member of the group in the playbox for one week.  
+    Costs incurred outside the playbox should be excluded, e.g., 
+    wages for U.S. troops.
+    <</topic>>
+
     <<topic "Uniformed?">> <b>YES</b> if members of the group wear
     uniforms, and <b>NO</b> if they do not, i.e., if they hide among
     the general population.
@@ -1345,6 +1351,12 @@ tab "Groups/OrgGroups" {
     
     <<topic "Personnel">>The number of personnel belonging to this group
     who are present in the playbox at time 0.<p>
+    <</topic>>
+
+    <<topic "Cost, $/person/week">>The cost to the owning actor of 
+    maintaining one member of the group in the playbox for one week.  
+    Costs incurred outside the playbox should be excluded, e.g., 
+    wages for U.S. troops.
     <</topic>>
 
     <</topiclist>>

@@ -201,7 +201,10 @@ CREATE TABLE groups (
     demeanor    TEXT DEFAULT 'AVERAGE',
 
     -- Base Population/Personnel for this group
-    basepop        INTEGER DEFAULT 0,
+    basepop     INTEGER DEFAULT 0,
+
+    -- Maintenance Cost, in $/person/week (FRC/ORG groups only)
+    cost        DOUBLE DEFAULT 0,
 
     -- Relationship Entity
     rel_entity  TEXT REFERENCES mam_entity(eid)
@@ -226,7 +229,18 @@ CREATE TABLE civgroups (
 
 -- Civ Groups View: joins groups with civgroups.
 CREATE VIEW civgroups_view AS
-SELECT * FROM groups JOIN civgroups USING (g);
+SELECT g, 
+       longname,
+       color,
+       shape,
+       symbol,
+       demeanor,
+       basepop,
+       rel_entity,
+       gtype,
+       n,
+       sap 
+FROM groups JOIN civgroups USING (g);
 
 -- Force Groups
 CREATE TABLE frcgroups (
@@ -273,10 +287,10 @@ SELECT * FROM groups JOIN orggroups USING (g);
 
 -- AGroups View: Groups that can be owned by actors
 CREATE VIEW agroups AS
-SELECT g, gtype, longname, a, forcetype AS subtype
+SELECT g, gtype, longname, a, cost, forcetype AS subtype
 FROM frcgroups JOIN groups USING (g)
 UNION
-SELECT g,gtype, longname, a, orgtype AS subtype
+SELECT g, gtype, longname, a, cost, orgtype   AS subtype
 FROM orggroups JOIN groups USING (g);
 
 

@@ -53,6 +53,18 @@ tactic type define DEPLOY {
         }
     }
 
+    typemethod dollars {tdict} {
+        dict with tdict {
+            rdb eval {
+                SELECT cost FROM agroups WHERE g=$g
+            } {
+                return [moneyfmt [expr {$cost * $int1}]]
+            }
+
+            return "?"
+        }
+    }
+
     typemethod check {tdict} {
         set errors [list]
 
@@ -92,7 +104,18 @@ tactic type define DEPLOY {
                 return 0
             }
 
-            # FIRST, compute the number of troops to put in each
+            # NEXT, Pay the maintenance cost.
+            set costPerPerson [rdb onecolumn {
+                SELECT cost FROM agroups WHERE g=$g
+            }]
+            
+            let cost {$costPerPerson * $int1}
+
+            if {![actor spend $owner $cost]} {
+                return 0
+            }
+
+            # NEXT, compute the number of troops to put in each
             # neighborhood: np($n -> $personnel).
 
             set num       [llength $nlist]

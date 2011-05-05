@@ -39,6 +39,7 @@ snit::widgetadaptor frcgroupbrowser {
         { forcetype "Force Type"                   }
         { demeanor  "Demeanor"                     }
         { basepop   "Personnel"  -sortmode integer }
+        { cost      "Cost, $/person/week"          }
         { uniformed "Uniformed?"                   }
         { local     "Local?"                       }
     }

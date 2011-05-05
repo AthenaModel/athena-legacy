@@ -1248,6 +1248,8 @@ snit::type appserver {
                        a            AS "Owner",
                        forcetype    AS "Force Type",
                        demeanor     AS "Demeanor",
+                       personnel    AS "Personnel",
+                       cost         AS "Cost, $/person/week",
                        uniformed    AS "Uniformed?",
                        local        AS "Local?"
                 FROM gui_frcgroups 
@@ -1265,7 +1267,9 @@ snit::type appserver {
                 SELECT longlink     AS "Group",
                        a            AS "Owner",
                        orgtype      AS "Org. Type",
-                       demeanor     AS "Demeanor"
+                       demeanor     AS "Demeanor",
+                       personnel    AS "Personnel",
+                       cost         AS "Cost, $/person/week"
                 FROM gui_orggroups 
                 ORDER BY longlink
             } -default "None."

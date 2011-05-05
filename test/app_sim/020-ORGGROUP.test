@@ -37,6 +37,7 @@ namespace eval ::athena_test::tests:: {
         orgtype        NGO
         demeanor       AVERAGE
         basepop        1000
+        cost           0.0
     }
 
     set hal {
@@ -48,6 +49,7 @@ namespace eval ::athena_test::tests:: {
         orgtype        CTR
         demeanor       AVERAGE
         basepop        2000
+        cost           0.0
     }
 
 
@@ -70,6 +72,7 @@ namespace eval ::athena_test::tests:: {
         orgtype {required value}
         demeanor {required value}
         basepop {required value}
+        cost {required value}
     }
 
     
@@ -169,6 +172,18 @@ namespace eval ::athena_test::tests:: {
         basepop {invalid value "NONESUCH", expected integer}
     }
 
+    test CREATE-1.10 {invalid cost} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ORGGROUP:CREATE [dict merge $usaid {
+            cost NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        cost {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
     test CREATE-2.1 {orggroup is created} -setup {
         ted create JOE
     } -body {
@@ -178,10 +193,10 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g     longname   color   shape   symbol       demeanor basepop rel_entity gtype a   orgtype 
------ ---------- ------- ------- ------------ -------- ------- ---------- ----- --- ------- 
-USAID US Aid     #00FF00 NEUTRAL organization AVERAGE  1000    JOE        ORG   JOE NGO     
-HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  2000    JOE        ORG   JOE CTR     
+g     longname   color   shape   symbol       demeanor basepop cost rel_entity gtype a   orgtype 
+----- ---------- ------- ------- ------------ -------- ------- ---- ---------- ----- --- ------- 
+USAID US Aid     #00FF00 NEUTRAL organization AVERAGE  1000    0.0  JOE        ORG   JOE NGO     
+HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  2000    0.0  JOE        ORG   JOE CTR     
     }
 
     test CREATE-2.2 {longname defaults to ID} -setup {
@@ -343,6 +358,15 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  2000    JOE        ORG   
         basepop {invalid value "NONESUCH", expected integer}
     }
 
+    test UPDATE-1.8 {invalid cost} -setup {
+        ted create USAID
+    } -body {
+        ted order -reject ORGGROUP:UPDATE g USAID cost NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        cost {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
 
     test UPDATE-2.1 {orggroup is updated} -setup {
         ted create USAID
@@ -355,15 +379,16 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  2000    JOE        ORG   
             orgtype        IGO
             demeanor       AGGRESSIVE
             basepop        3000
+            cost           10.0
         }
 
         ted query {SELECT * FROM orggroups_view}
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   shape symbol       demeanor   basepop rel_entity gtype a   orgtype 
------ --------- ------- ----- ------------ ---------- ------- ---------- ----- --- ------- 
-USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE 3000    JOE        ORG   JOE IGO     
+g     longname  color   shape symbol       demeanor   basepop cost rel_entity gtype a   orgtype 
+----- --------- ------- ----- ------------ ---------- ------- ---- ---------- ----- --- ------- 
+USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE 3000    10.0 JOE        ORG   JOE IGO     
     }
 
 
@@ -487,6 +512,18 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE 3000    JOE        ORG   J
         cleanup
     } -result {
         basepop {invalid value "NONESUCH", expected integer}
+    }
+
+
+    test UPDATE:MULTI-1.10 {invalid cost} -setup {
+        ted create USAID
+    } -body {
+        ted order -reject ORGGROUP:UPDATE:MULTI \
+            ids USAID cost NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        cost {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
 

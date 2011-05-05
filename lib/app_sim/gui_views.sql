@@ -78,7 +78,8 @@ SELECT g                                                 AS id,
        color                                             AS color,
        shape                                             AS shape,
        demeanor                                          AS demeanor,
-       basepop                                           AS basepop
+       basepop                                           AS basepop,
+       moneyfmt(cost)                                    AS cost
 FROM groups;
 
 
@@ -128,12 +129,15 @@ SELECT G.id                                             AS id,
        G.shape                                          AS shape,
        G.demeanor                                       AS demeanor,
        G.basepop                                        AS basepop,
+       coalesce(P.personnel, G.basepop)                 AS personnel,
+       G.cost                                           AS cost,
        F.a                                              AS a,
        F.forcetype                                      AS forcetype,
        CASE F.uniformed WHEN 1 THEN 'YES' ELSE 'NO' END AS uniformed,
        CASE F.local     WHEN 1 THEN 'YES' ELSE 'NO' END AS local
-FROM gui_groups AS G
-JOIN frcgroups  AS F USING (g);
+FROM gui_groups  AS G
+JOIN frcgroups   AS F USING (g)
+LEFT OUTER JOIN personnel_g AS P USING (g);
 
 -- An Org Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_orggroups AS
@@ -149,19 +153,22 @@ SELECT G.id                                             AS id,
        G.shape                                          AS shape,
        G.demeanor                                       AS demeanor,
        G.basepop                                        AS basepop,
+       coalesce(P.personnel, G.basepop)                 AS personnel,
+       G.cost                                           AS cost,
        O.a                                              AS a,
        O.orgtype                                        AS orgtype
-FROM gui_groups AS G
-JOIN orggroups  AS O USING (g);
+FROM gui_groups  AS G
+JOIN orggroups   AS O USING (g)
+LEFT OUTER JOIN personnel_g AS P USING (g);
 
 -- All groups that can be owned by actors
 CREATE TEMP VIEW gui_agroups AS
-SELECT g, url, fancy, link, longlink, gtype, longname, a, 
+SELECT g, url, fancy, link, longlink, gtype, longname, a, cost,
        forcetype           AS subtype,
        'FRC/' || forcetype AS fulltype
 FROM gui_frcgroups
 UNION
-SELECT g, url, fancy, link, longlink, gtype, longname, a, 
+SELECT g, url, fancy, link, longlink, gtype, longname, a, cost,
        orgtype           AS subtype,
        'ORG/' || orgtype AS fulltype
 FROM gui_orggroups;

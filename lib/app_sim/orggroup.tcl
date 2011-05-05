@@ -79,6 +79,7 @@ snit::type orggroup {
     #    orgtype          The group's eorgtype
     #    demeanor         The group's demeanor (edemeanor(n))
     #    basepop          The group's initial # of personnel in the playbox.
+    #    cost             The group's maintenance cost, $/person/week
     #
     # Creates a organization group given the parms, which are presumed to be
     # valid.
@@ -92,7 +93,7 @@ snit::type orggroup {
             rdb eval {
                 INSERT INTO 
                 groups(g, longname, color, shape, symbol, demeanor, basepop,
-                       rel_entity, gtype)
+                       cost, rel_entity, gtype)
                 VALUES($g,
                        $longname,
                        $color,
@@ -100,6 +101,7 @@ snit::type orggroup {
                        'organization',
                        $demeanor,
                        $basepop,
+                       $cost,
                        nullif($a,''),
                        'ORG');
 
@@ -141,6 +143,7 @@ snit::type orggroup {
     #    orgtype          A new orgtype, or ""
     #    demeanor         A new demeanor, or ""
     #    basepop          A new basepop, or ""
+    #    cost             A new cost, or ""
     #
     # Updates a orggroup given the parms, which are presumed to be
     # valid.
@@ -157,6 +160,7 @@ snit::type orggroup {
                     color      = nonempty($color,        color),
                     demeanor   = nonempty($demeanor,     demeanor),
                     basepop    = nonempty($basepop,      basepop),
+                    cost       = nonempty($cost,         cost),
                     shape      = nonempty($shape,        shape),
                     rel_entity = coalesce(nullif($a,''), rel_entity)
                 WHERE g=$g;
@@ -184,17 +188,18 @@ order define ORGGROUP:CREATE {
     title "Create Organization Group"
     options -sendstates PREP
 
-    parm g              text  "Group"
-    parm longname       text  "Long Name"
-    parm a              enum  "Owning Actor"      -enumtype actor
-    parm color          color "Color"             -defval   \#10DDD7
-    parm shape          enum  "Unit Shape"        -enumtype eunitshape \
-                                                  -defval   NEUTRAL
-    parm orgtype        enum  "Organization Type" -enumtype eorgtype   \
-                                                  -defval   NGO
-    parm demeanor       enum  "Demeanor"          -enumtype edemeanor  \
-                                                  -defval   AVERAGE
-    parm basepop        text  "Personnel"         -defval   1000
+    parm g           text  "Group"
+    parm longname    text  "Long Name"
+    parm a           enum  "Owning Actor"        -enumtype actor
+    parm color       color "Color"               -defval   \#10DDD7
+    parm shape       enum  "Unit Shape"          -enumtype eunitshape \
+                                                 -defval   NEUTRAL
+    parm orgtype     enum  "Organization Type"   -enumtype eorgtype   \
+                                                 -defval   NGO
+    parm demeanor    enum  "Demeanor"            -enumtype edemeanor  \
+                                                 -defval   AVERAGE
+    parm basepop     text  "Personnel"           -defval   1000
+    parm cost        text  "Cost, $/person/week" -defval   0
 } {
     # FIRST, prepare and validate the parameters
     prepare g              -toupper   -required -unused -type ident
@@ -205,6 +210,7 @@ order define ORGGROUP:CREATE {
     prepare orgtype        -toupper   -required -type eorgtype
     prepare demeanor       -toupper   -required -type edemeanor
     prepare basepop                   -required -type count
+    prepare cost           -toupper   -required -type money
 
     returnOnError -final
 
@@ -272,16 +278,17 @@ order define ORGGROUP:UPDATE {
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey g *}
 
-    parm g              key   "Select Group"       -table gui_orggroups \
-                                                   -keys  g             \
-                                                   -tags group 
+    parm g              key   "Select Group"        -table gui_orggroups \
+                                                    -keys  g             \
+                                                    -tags group 
     parm longname       text  "Long Name"
-    parm a              enum  "Owning Actor"       -enumtype actor
-    parm color          color "Color"
-    parm shape          enum  "Unit Shape"         -enumtype eunitshape
-    parm orgtype        enum  "Organization Type"  -enumtype eorgtype
-    parm demeanor       enum  "Demeanor"           -enumtype edemeanor
+    parm a              enum  "Owning Actor"        -enumtype actor
+    parm color          color "Color" 
+    parm shape          enum  "Unit Shape"          -enumtype eunitshape
+    parm orgtype        enum  "Organization Type"   -enumtype eorgtype
+    parm demeanor       enum  "Demeanor"            -enumtype edemeanor
     parm basepop        text  "Personnel"
+    parm cost           text  "Cost, $/person/week"
 } {
     # FIRST, prepare the parameters
     prepare g              -toupper   -required -type orggroup
@@ -292,6 +299,7 @@ order define ORGGROUP:UPDATE {
     prepare orgtype        -toupper   -type eorgtype
     prepare demeanor       -toupper   -type edemeanor
     prepare basepop                   -type count
+    prepare cost           -toupper   -type money
 
     returnOnError -final
 
@@ -310,22 +318,24 @@ order define ORGGROUP:UPDATE:MULTI {
         -sendstates PREP                                  \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids            multi "Groups"             -table gui_orggroups -key g
-    parm a              enum  "Owning Actor"       -enumtype actor
-    parm color          color "Color"
-    parm shape          enum  "Unit Shape"         -enumtype eunitshape
-    parm orgtype        enum  "Organization Type"  -enumtype eorgtype
-    parm demeanor       enum  "Demeanor"           -enumtype edemeanor
-    parm basepop        text  "Personnel"
+    parm ids        multi "Groups"              -table gui_orggroups -key g
+    parm a          enum  "Owning Actor"        -enumtype actor
+    parm color      color "Color"
+    parm shape      enum  "Unit Shape"          -enumtype eunitshape
+    parm orgtype    enum  "Organization Type"   -enumtype eorgtype
+    parm demeanor   enum  "Demeanor"            -enumtype edemeanor
+    parm basepop    text  "Personnel"
+    parm cost       text  "Cost, $/person/week"
 } {
     # FIRST, prepare the parameters
-    prepare ids            -toupper  -required -listof orggroup
-    prepare a              -toupper            -type   actor
-    prepare color          -tolower            -type   hexcolor
-    prepare shape          -toupper            -type   eunitshape
-    prepare orgtype        -toupper            -type   eorgtype
-    prepare demeanor       -toupper            -type   edemeanor
-    prepare basepop                            -type   count
+    prepare ids        -toupper  -required -listof orggroup
+    prepare a          -toupper            -type   actor
+    prepare color      -tolower            -type   hexcolor
+    prepare shape      -toupper            -type   eunitshape
+    prepare orgtype    -toupper            -type   eorgtype
+    prepare demeanor   -toupper            -type   edemeanor
+    prepare basepop                        -type   count
+    prepare cost       -toupper            -type   money
 
     returnOnError -final
 

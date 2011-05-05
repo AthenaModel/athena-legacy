@@ -39,6 +39,7 @@ snit::widgetadaptor orggroupbrowser {
         { orgtype        "Org Type"                     }
         { demeanor       "Demeanor"                     }
         { basepop        "Personnel"  -sortmode integer }
+        { cost           "Cost, $/person/week"          }
     }
 
     #-------------------------------------------------------------------

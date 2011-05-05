@@ -137,14 +137,26 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # dollars
 
-    test dollars-1.1 {dollars} -setup {
+    test dollars-1.1 {dollars, cost=0} -setup {
         setup
         tactic mutate create $T1
     } -body {
         tactic::DEPLOY dollars [tactic get 1]
     } -cleanup {
         cleanup
-    } -result {n/a}
+    } -result {0.00}
+
+    test dollars-1.2 {dollars, cost=1} -setup {
+        setup
+        tactic mutate create $T1
+        rdb eval {
+            UPDATE groups SET cost=1.0;
+        }
+    } -body {
+        tactic::DEPLOY dollars [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {100.00}
 
     #-------------------------------------------------------------------
     # execute
@@ -177,7 +189,17 @@ NB1 BRIT 0         0
 NB2 BRIT 0         0          
     }
 
-    test execute-1.3 {execute: 1 on success} -setup {
+    test execute-1.3 {execute: insufficent funds} -setup {
+        execute_setup
+        rdb eval {UPDATE groups SET cost=1000000.0}
+        tactic mutate create $T1
+    } -body {
+        tactic::DEPLOY execute [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test execute-1.4 {execute: 1 on success} -setup {
         execute_setup
         tactic mutate create $T1
     } -body {
@@ -186,7 +208,7 @@ NB2 BRIT 0         0
         cleanup
     } -result {1}
 
-    test execute-1.4 {execute: 1 nbhood} -setup {
+    test execute-1.5 {execute: 1 nbhood} -setup {
         execute_setup
         tactic mutate create $T1
     } -body {
@@ -203,7 +225,7 @@ NB1 BRIT 0         0
 NB2 BRIT 0         0          
     }
 
-    test execute-1.5 {execute: 2 nbhoods} -setup {
+    test execute-1.6 {execute: 2 nbhoods} -setup {
         execute_setup
         tactic mutate create $T2
     } -body {
@@ -219,6 +241,22 @@ NB2 BLUE 50        50
 NB1 BRIT 0         0          
 NB2 BRIT 0         0          
     }
+
+    test execute-1.7 {execute: deduct cost from cash_on_hand} -setup {
+        execute_setup
+        tactic mutate create $T1
+        rdb eval {
+            UPDATE groups SET cost=1.0;
+            UPDATE actors SET cash_on_hand=1000.0;
+        }
+
+    } -body {
+        tactic::DEPLOY execute [tactic get 1]
+        actor get JOE cash_on_hand
+    } -cleanup {
+        cleanup
+    } -result {900.0}
+
 
     #-------------------------------------------------------------------
     # Cleanup

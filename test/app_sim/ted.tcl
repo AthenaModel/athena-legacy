@@ -235,6 +235,7 @@ snit::type ted {
             forcetype REGULAR
             demeanor  AVERAGE
             basepop   5000
+            cost      0.0
             uniformed 1
             local     0
         } JOE
@@ -248,6 +249,7 @@ snit::type ted {
             forcetype REGULAR
             demeanor  AVERAGE
             basepop   5000
+            cost      0.0
             uniformed 1
             local     0
         } JOE
@@ -261,6 +263,7 @@ snit::type ted {
             forcetype IRREGULAR
             demeanor  AGGRESSIVE
             basepop   2000
+            cost      0.0
             uniformed 0
             local     0
         } BOB
@@ -274,6 +277,7 @@ snit::type ted {
             forcetype IRREGULAR
             demeanor  AGGRESSIVE
             basepop   2000
+            cost      0.0
             uniformed 0
             local     1
         } BOB
@@ -289,6 +293,7 @@ snit::type ted {
             orgtype        NGO
             demeanor       AVERAGE
             basepop        1000
+            cost           0.0
         } JOE
 
         defentity HAL ::orggroup {
@@ -300,6 +305,7 @@ snit::type ted {
             orgtype        CTR
             demeanor       AVERAGE
             basepop        2000
+            cost           0.0
         } JOE
     }
 
