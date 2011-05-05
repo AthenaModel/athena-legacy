@@ -253,9 +253,13 @@ snit::type appserver {
             text/html [myproc html_SanityStrategy]            \
             "Sanity check report for actor strategies."
 
-        $server register /outline {outline/?} \
-            text/html [myproc html_Outline]   \
-            "Outline of Pages"
+        $server register /overview {overview/?} \
+            text/html [myproc html_Overview]    \
+            "Overview"
+
+        $server register /overview/deployment {overview/deployment?} \
+            text/html [myproc html_Deployment]    \
+            "Personnel Deployment"
 
         $server register / {/?} \
             text/html [myproc html_Welcome] \
@@ -431,19 +435,19 @@ snit::type appserver {
         return [tsubst $text]
     }
 
-    # html_Outline udict matchArray
+    # html_Overview udict matchArray
     #
     # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches
     #
-    # Formats and displays the welcome page from welcome.ehtml.
+    # Formats and displays the overview.ehtml page.
 
-    proc html_Outline {udict matchArray} {
+    proc html_Overview {udict matchArray} {
         if {[catch {
-            set text [readfile [file join $::app_sim::library outline.ehtml]]
+            set text [readfile [file join $::app_sim::library overview.ehtml]]
         } result]} {
             return -code error -errorcode NOTFOUND \
-                "The Outline page could not be loaded from disk: $result"
+                "The Overview page could not be loaded from disk: $result"
         }
 
         return [tsubst $text]
@@ -1279,6 +1283,48 @@ snit::type appserver {
             # the URL regexp.
             error "Unknown group type"
         }
+
+        ht /page
+        
+        return [ht get]
+    }
+
+    # html_Deployment udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of pattern matches; ignored.
+    #
+    # Returns a text/html of FRC/ORG group deployment.
+
+    proc html_Deployment {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # Begin the page
+        ht page "Personnel Deployment"
+        ht title "Personnel Deployment"
+
+        ht putln {
+            Force and organization group personnel
+            are deployed to neighborhoods as follows:
+        }
+        ht para
+
+        if {![Locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        ht query {
+            SELECT G.longlink     AS "Group",
+                   G.gtype        AS "Type",
+                   N.longlink     AS "Neighborhood",
+                   D.personnel    AS "Personnel"
+            FROM deploy_ng AS D
+            JOIN gui_agroups AS G USING (g)
+            JOIN gui_nbhoods AS N ON (D.n = N.n)
+            WHERE D.personnel > 0
+            ORDER BY G.longlink, N.longlink
+        } -default "No personnel are deployed." -align LLLR
 
         ht /page
         

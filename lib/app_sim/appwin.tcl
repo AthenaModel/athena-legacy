@@ -222,13 +222,6 @@ snit::widget appwin {
             script  { relbrowser %W }
         }
 
-        personnel {
-            label   "Personnel"
-            vistype *
-            parent  groupst
-            script  { personnelbrowser %W }
-        }
-
         gramt {
             label   "Attitudes"
             vistype *
