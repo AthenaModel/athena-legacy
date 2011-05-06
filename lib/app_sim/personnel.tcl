@@ -91,6 +91,29 @@ snit::type personnel {
         }
     }
 
+    # demob g personnel
+    #
+    # g         - A force or ORG group
+    # personnel - The number of personnel to demobilize, or "all"
+    #
+    # Demobilizes the specified number of undeployed personnel.
+
+    typemethod demob {g personnel} {
+        set available [rdb onecolumn {
+            SELECT available FROM personnel_g WHERE g=$g
+        }]
+
+        require {$personnel <= $available} \
+            "Insufficient personnel available: $personnel > $available"
+
+        rdb eval {
+            UPDATE personnel_g
+            SET available = available - $personnel,
+                personnel = personnel - $personnel
+            WHERE g=$g;
+        }
+    }
+
 
     #-------------------------------------------------------------------
     # Mutators

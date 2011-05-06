@@ -188,6 +188,38 @@ NB2 HAL  0         0
     }
 
     #-------------------------------------------------------------------
+    # demob
+
+    test demob-1.1 {fails if troops are unavailable} -setup {
+        setup
+        personnel start
+        personnel reset
+    } -body {
+        personnel demob BLUE 6000
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Insufficient personnel available: 6000 > 5000}
+
+    test demob-2.1 {Decrements personnel and available} -setup {
+        setup
+        personnel start
+        personnel reset
+    } -body {
+        personnel demob BLUE 1000
+        ted query {SELECT * FROM personnel_g}
+    } -cleanup {
+        cleanup
+    } -result {
+g    personnel available 
+---- --------- --------- 
+BLUE 4000      4000      
+BRIT 5000      5000      
+HAL  2000      2000      
+    }
+
+    #-------------------------------------------------------------------
     # mutate attrit
 
     test attrit-1.1 {attrit updates the personnel_g count} -setup {

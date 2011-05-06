@@ -27,6 +27,10 @@ namespace eval ::athena_test::tests:: {
     # Set up for a test
     proc setup {} {
         ted create JOE NB1 BLUE SHIA
+        
+        # Turn off auto-demobilization, as it makes setting up 
+        # tests difficult.
+        parm set strategy.autoDemob no
     }
 
     # Deploy troops into a neighborhood.

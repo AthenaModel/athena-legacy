@@ -1443,6 +1443,12 @@ snit::type ::projectlib::parmdb {
             during the next interval.
         }
 
+        $ps define strategy.autoDemob snit::boolean yes {
+            If yes, Athena will automatically demobilize all force
+            and organization group personnel that remain undeployed
+            at the end of the strategy tock.
+        }
+
         # NEXT, destroy tempdb
         $tempdb destroy
     }

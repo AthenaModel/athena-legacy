@@ -61,6 +61,17 @@ snit::type strategy {
         dict for {a elist} $etactics {
             $type ExecuteTactics $a $elist
         }
+
+        # NEXT, demobilize undeployed troops.
+        if {[parm get strategy.autoDemob]} {
+            foreach {g available} [rdb eval {
+                SELECT g, available FROM personnel_g WHERE available > 0
+            }] {
+                log warning strat \
+                    "Demobilizing $available undeployed $g personnel"
+                personnel demob $g $available
+            }
+        }
     }
 
     # ComputeGoalFlags
