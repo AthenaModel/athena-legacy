@@ -29,6 +29,7 @@ namespace eval ::projectlib:: {
         edamruleset      \
         edefroeuf        \
         edemeanor        \
+        edeploymode      \
         eensit           \
         eforcetype       \
         efrcactivity     \
@@ -505,6 +506,11 @@ snit::type ::projectlib::typewrapper {
     AGGRESSIVE "Aggressive"
 }
 
+# DEPLOY mode
+::marsutil::enum ::projectlib::edeploymode {
+    SOME "Deploy some of the group's personnel"
+    ALL  "Deploy all of the group's remaining personnel"
+}
 
 # Force Group Type
 ::marsutil::enum ::projectlib::eforcetype {

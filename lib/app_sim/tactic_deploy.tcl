@@ -23,6 +23,7 @@
 # PARAMETER MAPPING:
 #
 #    g     <= g
+#    text1 <= ALL|SOME
 #    int1  <= personnel
 #    nlist <= nlist
 #
@@ -49,7 +50,12 @@ tactic type define DEPLOY {
                 set ntext "neighborhoods [join $nlist {, }]"
             }
 
-            return "Deploy $int1 of group $g's available personnel into $ntext."
+            if {$text1 eq "ALL"} {
+                return \
+                 "Deploy all of group $g's remaining personnel into $ntext."
+            } else {
+                return "Deploy $int1 of group $g's personnel into $ntext."
+            }
         }
     }
 
@@ -58,8 +64,17 @@ tactic type define DEPLOY {
             rdb eval {
                 SELECT cost FROM agroups WHERE g=$g
             } {
-                return [moneyfmt [expr {$cost * $int1}]]
+                if {$text1 eq "SOME"} {
+                    return [moneyfmt [expr {$cost * $int1}]]
+                } elseif {$cost == 0.0} {
+                    return [moneyfmt 0.0]
+                }
             }
+        
+            # If the mode is "ALL" and the $cost is not zero, we
+            # don't know what the total cost will be; and if 
+            # g no longer exists, we don't know what the cost per
+            # person is anyway.  So mark it unknown.
 
             return "?"
         }
@@ -94,21 +109,42 @@ tactic type define DEPLOY {
 
     typemethod execute {tdict} {
         dict with tdict {
-            # FIRST, if there are insufficient troops available,
-            # return 0.
+            # FIRST, retrieve relevant data.
             set available [rdb onecolumn {
                 SELECT available FROM personnel_g WHERE g=$g
             }]
 
-            if {$int1 > $available} {
-                return 0
-            }
-
-            # NEXT, Pay the maintenance cost.
             set costPerPerson [rdb onecolumn {
                 SELECT cost FROM agroups WHERE g=$g
             }]
-            
+
+            set cash_on_hand [actor get $owner cash_on_hand]
+
+            # NEXT, if they want ALL personnel, we'll take as many as
+            # we can afford.  If they want SOME, we'll take the 
+            # requested amount, *if* we can afford it.
+            if {$text1 eq "ALL"} {
+                # FIRST, if there are no troops left, we're done.
+                if {$available == 0} {
+                    return 0
+                }
+
+                # NEXT, how many troops can we afford?
+                if {$costPerPerson == 0.0} {
+                    set int1 $available
+                } else {
+                    let maxTroops {int(double($cash_on_hand)/$costPerPerson)}
+                    let int1      {min($available,$maxTroops)}
+                }
+            } else {
+                # FIRST, if there are insufficient troops available,
+                # we're done.
+                if {$int1 > $available} {
+                    return 0
+                }
+            }
+
+            # NEXT, Pay the maintenance cost, if we can.
             let cost {$costPerPerson * $int1}
 
             if {![actor spend $owner $cost]} {
@@ -168,6 +204,14 @@ tactic type define DEPLOY {
                 
                 $dlg field configure nlist -itemdict $ndict
             }
+
+            if {"text1" in $fields} {
+                if {$text1 eq "ALL"} {
+                    $dlg disabled int1
+                } else {
+                    $dlg disabled {}
+                }
+            }
         }
     }
 
@@ -203,6 +247,16 @@ tactic type define DEPLOY {
 
             $dlg loadForKey tactic_id *
         }
+
+        dict with fdict {
+            if {"text1" in $fields} {
+                if {$text1 eq "ALL"} {
+                    $dlg disabled int1
+                } else {
+                    $dlg disabled {}
+                }
+            }
+        }
     }
 }
 
@@ -217,8 +271,11 @@ order define TACTIC:DEPLOY:CREATE {
         -sendstates {PREP PAUSED}       \
         -refreshcmd {tactic::DEPLOY RefreshCREATE}
 
-    parm owner     actor "Owner"            -context yes
+    parm owner     actor "Owner"           -context yes
     parm g         enum  "Group"   
+    parm text1     enum  "Mode"            -enumtype edeploymode \
+                                           -defval SOME          \
+                                           -displaylong yes
     parm int1      text  "Personnel"
     parm nlist     nlist "In Neighborhoods"
     parm priority  enum  "Priority"          -enumtype ePrioSched  \
@@ -228,13 +285,21 @@ order define TACTIC:DEPLOY:CREATE {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
     prepare g        -toupper   -required -type   {ptype fog}
-    prepare int1                -required -type   ingpopulation
+    prepare text1    -toupper   -required -type   edeploymode
+    prepare int1                          -type   ingpopulation
     prepare nlist    -toupper   -required -listof nbhood
     prepare priority -tolower             -type   ePrioSched
 
     returnOnError
 
     # NEXT, cross-checks
+
+    # text1 vs int1
+    if {$parms(text1) eq "SOME" && $parms(int1) eq ""} {
+        reject int1 "Required value when mode is SOME."
+    }
+
+    # g vs owner
     set a [rdb onecolumn {SELECT a FROM agroups WHERE g=$parms(g)}]
 
     if {$a ne $parms(owner)} {
@@ -265,12 +330,15 @@ order define TACTIC:DEPLOY:UPDATE {
                                           -keys    tactic_id
     parm owner     disp  "Owner"
     parm g         enum  "Group"
+    parm text1     enum  "Mode"           -enumtype edeploymode \
+                                          -displaylong yes
     parm int1      text  "Personnel"
     parm nlist     nlist "In Neighborhoods"
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type   tactic
     prepare g          -toupper  -type   {ptype fog}
+    prepare text1      -toupper  -type   edeploymode
     prepare int1                 -type   ingpopulation
     prepare nlist      -toupper  -listof nbhood
 
@@ -291,6 +359,18 @@ order define TACTIC:DEPLOY:UPDATE {
 
         if {$a ne $owner} {
             reject g "Group $parms(g) is not owned by actor $owner."
+        }
+    }
+
+    # If text1 is now SOME, then int1 must be defined, either by
+    # this order or in the RDB.
+    set oldInt1 [rdb onecolumn {
+        SELECT int1 FROM tactics WHERE tactic_id = $parms(tactic_id)
+    }]
+
+    if {$parms(text1) eq "SOME"} {
+        if {$parms(int1) eq "" && $oldInt1 eq ""} {
+            reject int1 "Required value when mode is SOME."
         }
     }
 

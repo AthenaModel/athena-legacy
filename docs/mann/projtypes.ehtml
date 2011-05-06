@@ -126,7 +126,17 @@ engagement (ROEs) for uniformed (UF).<p>
 An <<xref mars:enum(n)>> type, representing neighborhood group
 demeanor.<p>
 
-<<::projectlib::eforcetype html>>
+<<::projectlib::edemeanor html>>
+
+
+<<defitem edeploymode {edeploymode <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing deployment modes for the
+DEPLOY tactic.<p>
+
+<<::projectlib::edeploymode html>>
+
+
 
 <<defitem eforcetype {eforcetype <i>subcommand</i> ?<i>args</i>?}>>
 

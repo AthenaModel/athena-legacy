@@ -3878,6 +3878,14 @@ page /order/tactic deploy "Tactic: Deploy Forces" {
     cost is paid for each person deployed.  Once deployed, the
     personnel may then be assigned to particular tasks.<p>
 
+    There are two deployment modes, "SOME" and "ALL".  The first
+    deploys a specific number of troops to one or more neighborhoods.
+    The second is for use as a catch-all.  Placed at the end of the
+    actor's strategy, it can ensure that all otherwise undeployed
+    personnel are positioned somewhere in the playbox, presumably in 
+    their bases.  Note that all personnel must be deployed somewhere;
+    undeployed personnel are automatically demobilized.<p>
+
     Multiple DEPLOY tactics are cumulative.  The deployment lasts
     until the next strategy tock.<p>
 
@@ -3892,11 +3900,30 @@ macro DEPLOY.g {} {
     <i>owner</i>.<p>
 }
 
+macro DEPLOY.text1 {} {
+    |<--
+    The deployment mode, as indicated by the following enumeration:<p>
+
+    [enumdoc ::projectlib::edeploymode]
+
+    If "SOME", the tactic deploys a specific number of personnel, as
+    given by the <i>int1</i> parameter.  If there are insufficient
+    personnel, or insufficient funds to maintain them, the tactic will
+    not execute.<p>
+
+    If "ALL", the tactic deploys all remaining personnel belonging to
+    group <i>g</i>.  If there are insufficient funds available to
+    deploy all of them, then the tactic deploys as many as possible.<p>
+}
+
 macro DEPLOY.int1 {} {
     |<--
-    The number of personnel to be deployed, if available.  If
-    there are insufficient personnel, the tactic will not
-    execute.
+    The number of personnel to be deployed when the mode
+    (<i>text1</i>) is "SOME".  If
+    there are insufficient personnel available, the tactic will not
+    execute.<p>
+
+    If the mode is "ALL", the parameter is ignored.
 }
 
 macro DEPLOY.nlist {} {
@@ -3911,6 +3938,10 @@ order TACTIC:DEPLOY:CREATE "Create Tactic: Deploy Forces" {
 
     <<parm g "Group">>
     <b>Required.</b> <<DEPLOY.g>>
+    <</parm>>
+
+    <<parm text1 "Mode">>
+    <b>Required.</b>  <<DEPLOY.text1>>
     <</parm>>
 
     <<parm int1 "Personnel">>
@@ -3934,6 +3965,10 @@ order TACTIC:DEPLOY:UPDATE "Update Tactic: Deploy Forces" {
 
     <<parm g "Group">>
     <b>Optional.</b> <<DEPLOY.g>>
+    <</parm>>
+
+    <<parm text1 "Mode">>
+    <b>Required.</b>  <<DEPLOY.text1>>
     <</parm>>
 
     <<parm int1 "Personnel">>

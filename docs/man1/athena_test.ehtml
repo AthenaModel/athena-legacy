@@ -253,7 +253,15 @@ to be executed at the <i>timespec</i>.  In short, this wraps
 <<defitem "ted query" {ted query <i>sql</i>}>>
 
 Does a query on the RDB given the <i>sql</i>, and pretty-prints the
-result so that it looks nice in a test <b>-result</b>.<p>
+result so that it looks nice in a test <b>-result</b>.  The result is
+in standard tabular format.<p>
+
+<<defitem "ted querylist" {ted querylist <i>sql</i>}>>
+
+Does a query on the RDB given the <i>sql</i>, and pretty-prints the
+result so that it looks nice in a test <b>-result</b>.  The result is
+in "list" format, with each row in the result written as a block
+of column name/value pairs.<p>
 
 <<defitem "ted sendex" {ted sendex ?-error? <i>command...</i>}>>
 

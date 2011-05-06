@@ -111,7 +111,7 @@ namespace eval ::athena_test::tests:: {
 
     proc deploy {n g personnel} {
         ted order TACTIC:DEPLOY:CREATE \
-            owner JOE g $g int1 $personnel nlist $n
+            owner JOE g $g text1 SOME int1 $personnel nlist $n
     }
 
     proc cleanup {} {

@@ -599,13 +599,24 @@ snit::type ted {
 
     # query sql
     #
-    # sql     An SQL query
+    # sql     - An SQL query
     #
     # Does an RDB query using the SQL text, and pretty-prints the 
     # whitespace.
 
     typemethod query {sql} {
         return "\n[rdb query $sql -maxcolwidth 80]    "
+    }
+
+    # querylist sql
+    #
+    # sql     - An SQL query
+    #
+    # Does an RDB query using the SQL text, and pretty-prints the 
+    # whitespace, returning -list output
+
+    typemethod querylist {sql args} {
+        return "\n[rdb query $sql -mode list]    "
     }
 
     # deploy n g personnel
