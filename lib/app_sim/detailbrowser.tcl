@@ -47,9 +47,9 @@ snit::widget detailbrowser {
             -borderwidth 2 
         messageline $w.status.msgline
 
-        pack $w.status.msgline -fill both -expand yes
+        pack $w.status.msgline -fill x
 
-        pack $w.status  -side bottom -fill x -expand yes
+        pack $w.status  -side bottom -fill x
         pack $w.sep     -side bottom -fill x
         pack $w.browser -fill both -expand yes
     }

@@ -52,6 +52,10 @@ tactic type define SAVE {
                 WHERE a=$owner;
             }
 
+            sigevent log 2 tactic "
+                SAVE: $owner saves \$[moneyfmt $amount] to reserve.
+            " $owner
+
             return 1
         }
     }

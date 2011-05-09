@@ -450,6 +450,23 @@ snit::type control {
     typemethod ShiftControl {n cNew cOld} {
         log normal control "shift in $n to <$cNew> from <$cOld>"
 
+        if {$cNew eq ""} {
+            sigevent log 1 control "
+                Actor {actor:$cOld} has lost control of {nbhood:$n}; 
+                no actor has control.
+            " $n $cOld
+        } elseif {$cOld eq ""} {
+            sigevent log 1 control "
+                Actor {actor:$cNew} has won control of {nbhood:$n}; 
+                no actor had been in control previously.
+            " $n $cNew 
+        } else {
+            sigevent log 1 control "
+                Actor {actor:$cNew} has won control of {nbhood:$n}
+                from {actor:$cOld}.
+            " $n $cNew $cOld
+        }
+
         # FIRST, update control_n.
         rdb eval {
             UPDATE control_n 

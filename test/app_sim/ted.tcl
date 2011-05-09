@@ -56,6 +56,9 @@ snit::type ted {
         orggroups
         personnel_g
         rel_fg
+        sigevents
+        sigevent_tags
+        sigevent_marks
         situations
         tactics
         units

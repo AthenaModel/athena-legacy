@@ -346,6 +346,7 @@ snit::type sim {
         # NEXT, purge future snapshots
         set now [simclock now]
         scenario snapshot purge $now
+        sigevent purge $now
 
         # NEXT, set state
         $type SetState PAUSED
@@ -453,6 +454,7 @@ snit::type sim {
 
         # NEXT, do initial analyses, and initialize modules that
         # begin to work at this time.
+        sigevent log 1 lock "Scenario locked; simulation begins"
         aram      init -reload
         sat       start                ;# TBD: check results (need trends)
         coop      start                ;# TBD: check results (need trends)
@@ -494,6 +496,7 @@ snit::type sim {
 
         # NEXT, purge future snapshots
         scenario snapshot purge 0
+        sigevent purge 0
 
         # NEXT, set state
         $type SetState PREP
@@ -569,6 +572,9 @@ snit::type sim {
         # NEXT, set the state to running.  This will initialize the
         # models, if need be.
         $type SetState RUNNING
+
+        # NEXT, mark the start of the run.
+        sigevent mark run "Beginning to advance time."
 
         # NEXT, Either execute the first tick and schedule the next,
         # or run in blocking mode until the stop time.
@@ -692,7 +698,6 @@ snit::type sim {
         }
 
         # NEXT, do staffing.
-        # TBD: It's not yet clear how staffing relates to tactics.
         profile activity analyze staffing
 
         # NEXT, pause if it's the pause time, or checks failed.

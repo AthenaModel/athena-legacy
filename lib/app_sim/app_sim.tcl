@@ -69,6 +69,7 @@ source [file join $::app_sim::library dam.tcl                ]
 source [file join $::app_sim::library view.tcl               ]
 source [file join $::app_sim::library hist.tcl               ]
 source [file join $::app_sim::library helpers.tcl            ]
+source [file join $::app_sim::library sigevent.tcl           ]
 
 # Non-GUI: Scenario
 source [file join $::app_sim::library scenario.tcl           ]

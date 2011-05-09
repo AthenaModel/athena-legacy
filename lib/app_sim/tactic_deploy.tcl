@@ -168,6 +168,11 @@ tactic type define DEPLOY {
                 }
 
                 personnel deploy $n $g $troops
+                
+                sigevent log 2 tactic "
+                    DEPLOY: Actor {actor:$owner} deploys $troops {group:$g} 
+                    personnel to {nbhood:$n}
+                " $owner $n $g
             }
         }
 

@@ -258,8 +258,23 @@ snit::type appserver {
             "Overview"
 
         $server register /overview/deployment {overview/deployment?} \
-            text/html [myproc html_Deployment]    \
-            "Personnel Deployment"
+            text/html [myproc html_Deployment] {
+                Deployment of force and organization group personnel
+                to neighborhoods.
+            }
+
+        $server register /sigevents {sigevents/?} \
+            text/html [myproc html_SigEvents] {
+                Significant simulation events occuring during the
+                past game turn (i.e., since the Run Simulation button
+                was last pressed.)
+            }
+
+        $server register /sigevents/all {sigevents/(all)/?} \
+            text/html [myproc html_SigEvents] {
+                Significant simulation events occuring since the
+                scenario was locked.
+            }
 
         $server register / {/?} \
             text/html [myproc html_Welcome] \
@@ -613,11 +628,11 @@ snit::type appserver {
         ht title $data(fancy) "Actor" 
 
         ht linkbar {
-            "#goals"   "Goals"
-            "#sphere"  "Sphere of Influence"
-            "#base"    "Power Base"
-            "#forces"  "Force Deployment"
-            "#future"  "Future Topics"
+            "#goals"     "Goals"
+            "#sphere"    "Sphere of Influence"
+            "#base"      "Power Base"
+            "#forces"    "Force Deployment"
+            "#sigevents" "Significant Events"
         }
         
         # Asset Summary
@@ -740,33 +755,16 @@ snit::type appserver {
             WHERE G.a=$a AND personnel > 0
         } -default "No forces are deployed."
 
-        # Future Topics
-        ht subtitle "Future Topics" future
+        ht subtitle "Significant Events" sigevents
 
-        ht putln {We might add information about the following topics.}
-        ht para
-
-        ht ul {
-            ht li {
-                ht put {
-                    <b>Recent Tactics</b>: The tactics recently used
-                    by the actor.
-                }
-            }
-
-            ht li {
-                ht put {
-                    <b>Significant events</b:  Things the actor has
-                    recently accomplished, or that have recently
-                    happened to him, e.g., gained or lost control of a
-                    neighborhood.
-                }
-            }
-
+        ht putln {
+            The following are the most recent significant events 
+            involving this actor, oldest first.
         }
 
         ht para
 
+        SigEvents -tags $a -mark run
 
         ht /page
 
@@ -894,12 +892,12 @@ snit::type appserver {
 
         if {$locked} {
             ht linkbar {
-                "#civs"    "Civilian Groups"
-                "#forces"  "Forces Present"
-                "#control" "Support and Control"
-                "#future"  "Future Topics"
+                "#civs"      "Civilian Groups"
+                "#forces"    "Forces Present"
+                "#control"   "Support and Control"
+                "#sigevents" "Significant Events"
+                "#future"    "Future Topics"
             }
-
         } {
             ht putln ""
             ht tinyi {
@@ -1119,6 +1117,18 @@ snit::type appserver {
 
         ht para
 
+        ht subtitle "Significant Events" sigevents
+
+        ht putln {
+            The following are the most recent significant events 
+            involving this neighborhood, oldest first.
+        }
+
+        ht para
+
+        SigEvents -tags $n -mark run
+
+
         # Topics Yet to be Covered
         ht subtitle "Future Topics" future
 
@@ -1128,10 +1138,6 @@ snit::type appserver {
             ht li-text { 
                 <b>Conflicts:</b> Pairs of force groups with 
                 significant ROEs.
-            }
-            ht li-text {
-                <b>Significant Events:</b> Recent events in the
-                neighborhood, e.g., the last turn-over of control.
             }
         }
 
@@ -1374,18 +1380,19 @@ snit::type appserver {
         ht page "Civilian Group: $g"
         ht title "$data(longname) ($g)" "Civilian Group" "Summary"
 
-        ht linkbar {
-            "#actors"  "Relationships with Actors"
-            "#rel"     "Friends and Enemies"
-            "#sat"     "Satisfaction Levels"
-            "#drivers" "Drivers"
-        }
-
         # NEXT, what we do depends on whether the simulation is locked
         # or not.
         let locked {[sim state] ne "PREP"}
 
-        if {!$locked} {
+        if {$locked} {
+            ht linkbar {
+                "#actors"     "Relationships with Actors"
+                "#rel"        "Friends and Enemies"
+                "#sat"        "Satisfaction Levels"
+                "#drivers"    "Drivers"
+                "#sigevents"  "Significant Events"
+            }
+        } else {
             ht putln ""
             ht tinyi {
                 More information will be available once the scenario has
@@ -1560,6 +1567,17 @@ snit::type appserver {
             ORDER BY abs(acontrib) DESC
         } -default "No significant drivers." -align RRL
 
+        ht subtitle "Significant Events" sigevents
+
+        ht putln {
+            The following are the most recent significant events 
+            involving this group, oldest first.
+        }
+
+        ht para
+
+        SigEvents -tags [list $g $data(n)] -mark run
+
         ht /page
 
         return [ht get]
@@ -1578,7 +1596,38 @@ snit::type appserver {
         ht page "Force Group: $g"
         ht title "$data(longname) ($g)" "Force Group" 
 
-        ht putln "No data yet available."
+        if {![Locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        ht linkbar {
+            "#deployment" "Deployment"
+            "#sigevents"  "Significant Events"
+        }
+
+        ht subtitle "Deployment" deployment
+
+        ht query {
+            SELECT N.longlink     AS "Neighborhood",
+                   D.personnel    AS "Personnel"
+            FROM deploy_ng AS D
+            JOIN gui_nbhoods AS N ON (D.n = N.n)
+            WHERE D.g = $g AND D.personnel > 0
+            ORDER BY N.longlink
+        } -default "No personnel are deployed." -align LR
+
+
+        ht subtitle "Significant Events" sigevents
+
+        ht putln {
+            The following are the most recent significant events 
+            involving this group, oldest first.
+        }
+
+        ht para
+
+        SigEvents -tags $g -mark run
 
         ht /page
 
@@ -1597,7 +1646,38 @@ snit::type appserver {
         ht page "Organization Group: $g"
         ht title "$data(longname) ($g)" "Organization Group" 
 
-        ht putln "No data yet available."
+        if {![Locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        ht linkbar {
+            "#deployment" "Deployment"
+            "#sigevents"  "Significant Events"
+        }
+
+        ht subtitle "Deployment" deployment
+
+        ht query {
+            SELECT N.longlink     AS "Neighborhood",
+                   D.personnel    AS "Personnel"
+            FROM deploy_ng AS D
+            JOIN gui_nbhoods AS N ON (D.n = N.n)
+            WHERE D.g = $g AND D.personnel > 0
+            ORDER BY N.longlink
+        } -default "No personnel are deployed." -align LR
+
+
+        ht subtitle "Significant Events" sigevents
+
+        ht putln {
+            The following are the most recent significant events 
+            involving this group, oldest first.
+        }
+
+        ht para
+
+        SigEvents -tags $g -mark run
 
         ht /page
 
@@ -1876,6 +1956,168 @@ snit::type appserver {
         return [ht get]
     }
 
+    #-------------------------------------------------------------------
+    # Significant Events
+
+    # html_SigEvents udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of pattern matches.  $(1) is "" or "all".
+    #
+    # Returns a text/html of significant events.
+
+    proc html_SigEvents {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # Begin the page
+        if {$(1) eq "all"} {
+            ht page "Significant Events: All"
+            ht title "Significant Events: All"
+
+            ht linkbar {
+                /sigevents "Events Since Last Advance"
+            }
+
+            ht putln {
+                The following signficant simulation events have
+                occurred since the scenario was locked.
+            }
+
+            set opts {}
+        } else {
+            ht page "Significant Events: Last Advance"
+            ht title "Significant Events: Last Advance"
+
+            ht linkbar {
+                /sigevents/all "All Significan Events"
+            }
+
+            ht putln {
+                The following signficant events occurred during the previous
+                time advance.
+            }
+
+            set opts [list -mark run]
+        }
+
+        ht para
+
+        SigEvents {*}$opts
+
+        ht /page
+        
+        return [ht get]
+    }
+
+    # SigEvents ?options...?
+    #
+    # Options:
+    #
+    # -tags     - A list of sigevents tags
+    # -mark     - A sigevent mark type
+    #
+    # Formats the sigevents as HTML, in order of occurrence.  If
+    # If -tags is given, then only events with those tags are included.
+    # If -mark is given, then only events since the most recent mark of
+    # the given type are included.
+
+    proc SigEvents {args} {
+        # FIRST, process the options.
+        array set opts {
+            -tags ""
+            -mark "lock"
+        }
+
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+
+            switch -exact -- $opt {
+                -tags -
+                -mark {
+                    set opts($opt) [lshift args]
+                }
+
+                default {
+                    error "Unknown SigEvents option: \"$opt\""
+                }
+            }
+        }
+
+        # NEXT, get the earliest event ID to consider
+        set mark [sigevent lastmark $opts(-mark)]
+        
+
+        ht push
+
+        if {$opts(-tags) eq ""} {
+            set query {
+                SELECT level, t, zulu, component, narrative
+                FROM gui_sigevents
+                WHERE event_id >= $mark
+            }
+        } elseif {[llength $opts(-tags)] == 0} {
+            set tag [lindex $opts(-tags) 0]
+
+            set query {
+                SELECT level, t, zulu, component, narrative
+                FROM gui_sigevents_wtag
+                WHERE event_id >= $mark
+                AND tag = $tag
+            }
+        } else {
+            set tags "('[join $opts(-tags) ',']')"
+
+            set query "
+                SELECT DISTINCT level, t, zulu, component, narrative
+                FROM gui_sigevents_wtag
+                WHERE event_id >= \$mark
+                AND tag IN $tags
+            "
+        }
+
+        rdb eval $query {
+            ht tr {
+                ht td right {
+                    ht put $t
+                }
+
+                ht td left {
+                    ht put $zulu
+                }
+
+                ht td left {
+                    ht put $component
+                }
+
+                if {$level == -1} {
+                    ht putln "<td bgcolor=orange>"
+                } elseif {$level == 0} {
+                    ht putln "<td bgcolor=yellow>"
+                } elseif {$level == 1} {
+                    ht putln "<td>"
+                } else {
+                    ht putln "<td bgcolor=lightgray>"
+                }
+
+                ht put $narrative
+
+                ht put "</td>"
+            }
+        }
+        
+
+        set text [ht pop]
+
+        if {$text ne ""} {
+            ht table {"Day" "Zulu Time" "Model" "Narrative"} {
+                ht putln $text
+            }
+
+            ht para
+        } else {
+            ht putln "No significant events occurred."
+        }
+    }
 
     #-------------------------------------------------------------------
     # Sanity Checks: Strategy
@@ -1905,7 +2147,8 @@ snit::type appserver {
 
 
     #-------------------------------------------------------------------
-    # Boilerplate
+    # Boilerplate and Utilities
+
 
     # Locked ?-disclaimer?
     #

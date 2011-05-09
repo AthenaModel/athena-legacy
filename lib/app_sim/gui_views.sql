@@ -15,6 +15,30 @@
 --
 ------------------------------------------------------------------------
 
+-- A sigvents view for use by the GUI.
+
+CREATE TEMPORARY VIEW gui_sigevents AS
+SELECT event_id                                        AS event_id,
+       level                                           AS level,
+       t                                               AS t,
+       tozulu(t)                                       AS zulu,
+       component                                       AS component,
+       mklinks(narrative)                              AS narrative
+FROM sigevents
+ORDER BY event_id ASC;
+
+CREATE TEMPORARY VIEW gui_sigevents_wtag AS
+SELECT event_id                                        AS event_id,
+       level                                           AS level,
+       t                                               AS t,
+       tozulu(t)                                       AS zulu,
+       component                                       AS component,
+       mklinks(narrative)                              AS narrative,
+       tag                                             AS tag
+FROM sigevents_view
+ORDER BY event_id ASC;
+     
+
 -- An Actors view for use by the GUI
 CREATE TEMPORARY VIEW gui_actors AS
 SELECT a                                               AS id,

@@ -88,6 +88,11 @@ tactic type define DEFROE {
                 INSERT OR REPLACE INTO defroe_ng(n, g, roe)
                 VALUES($n, $g, $text1);
             }
+
+            sigevent log 2 tactic "
+                DEFROE: Group {group:$g} defends in {nbhood:$n} 
+                with ROE $text1.
+            " $owner $n $g
         }
     }
 

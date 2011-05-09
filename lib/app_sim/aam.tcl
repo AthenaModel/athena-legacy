@@ -263,6 +263,12 @@ snit::type aam {
                     Na:           $Na
             }]
 
+            sigevent log 1 attrit "
+                Uniformed force {group:$uf} attacks non-uniformed force
+                {group:$nf} in {nbhood:$n}, killing $Nkilled personnel,
+                with $Ncivcas civilian casualties.
+            " $uf $nf $n
+
         }
     }
 
@@ -438,6 +444,14 @@ snit::type aam {
                     ufCas:        $ufCas
                     nfCas:        $nfCas
             }]
+
+            sigevent log 1 attrit "
+                Non-uniformed force {group:$nf} attacks uniformed force
+                {group:$uf} in {nbhood:$n}, 
+                killing $totalUFcas {group:$uf} personnel
+                at a cost of $totalNFcas {group:$nf} personnel
+                with $Ncivcas civilian casualties.
+            " $nf $uf $n
         }
     }
 

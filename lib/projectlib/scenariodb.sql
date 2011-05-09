@@ -68,6 +68,53 @@ CREATE TABLE cif (
 
 CREATE INDEX cif_index ON cif(time,id);
 
+-- Significant Simulation Events Log
+--
+-- These two tables store significant simulation events, and allow
+-- events to be tagged with zero or more entities.
+
+CREATE TABLE sigevents (
+    -- Used for sorting
+    event_id   INTEGER PRIMARY KEY,
+    t          INTEGER,               -- Time stamp, in ticks
+    level      INTEGER DEFAULT 1,     -- level of importance, -1 to N
+    component  TEXT,                  -- component/model logging the event
+    narrative  TEXT                   -- Event narrative.
+);
+
+-- Tags table.  Individual events can be tagged with 0 or more tags;
+-- this information can later be used to display tailored logs, e.g.,
+-- events involving a particular neighborhood or actor.
+
+CREATE TABLE sigevent_tags (
+    event_id INTEGER REFERENCES sigevents(event_id)
+                     ON DELETE CASCADE
+                     DEFERRABLE INITIALLY DEFERRED,
+
+    tag      TEXT,
+
+    PRIMARY KEY (event_id, tag)
+);
+
+-- Marks table.  An event can be marked to indicate the beginning of
+-- a new sequence of events, e.g., events related to a particular 
+-- game turn.  This allows a portion of the log to be displayed,
+-- relative to a particular kind of mark.
+
+CREATE TABLE sigevent_marks (
+    event_id INTEGER REFERENCES sigevents(event_id)
+                     ON DELETE CASCADE
+                     DEFERRABLE INITIALLY DEFERRED,
+
+    mark     TEXT,
+
+    PRIMARY KEY (event_id, mark)
+);
+
+CREATE VIEW sigevents_view AS
+SELECT *
+FROM sigevents JOIN sigevent_tags USING (event_id);
+
 
 -- Maps Table: Stores data for map images.
 --

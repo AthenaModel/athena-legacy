@@ -45,6 +45,11 @@ tactic type define SPEND {
                 WHERE a=$owner;
             }
 
+            sigevent log 2 tactic "
+                SPEND: $owner transfers \$[moneyfmt $amount] 
+                from reserve to cash-on-hand.
+            " $owner
+
             return 1
         }
     }

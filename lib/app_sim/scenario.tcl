@@ -428,6 +428,8 @@ snit::type scenario {
             hist_nbcoop
             hist_nbmood
             hist_sat
+            sigevents
+            sigevent_tags
         }]
 
         log detail scenario "Snapshot size=[string length $snapshot]"
@@ -619,6 +621,7 @@ snit::type scenario {
         rdb function qsecurity            ::projectlib::qsecurity
         rdb function moneyfmt             ::marsutil::moneyfmt
         rdb function calpattern_narrative [list ::calpattern narrative]
+        rdb function mklinks              [list ::sigevent mklinks]
 
         # NEXT, define the GUI Views
         rdb eval [readfile [file join $::app_sim::library gui_views.sql]]
