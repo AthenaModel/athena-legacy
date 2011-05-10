@@ -93,6 +93,8 @@ tactic type define DEFROE {
                 DEFROE: Group {group:$g} defends in {nbhood:$n} 
                 with ROE $text1.
             " $owner $n $g
+
+            return 1
         }
     }
 

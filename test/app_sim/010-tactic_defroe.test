@@ -133,7 +133,16 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # execute
 
-    test execute-1.1 {execute} -setup {
+    test execute-1.1 {execute: flag} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::DEFROE execute [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test execute-1.2 {execute: effect} -setup {
         setup
         tactic mutate create $T1
     } -body {
