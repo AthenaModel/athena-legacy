@@ -26,8 +26,6 @@
 #    * scenariodb(sim) defines a view for each tactic type,
 #      tactics_<type>.
 #
-#    * The tactic type-specific code is in tactic_types.tcl.
-#
 #-----------------------------------------------------------------------
 
 snit::type tactic {
@@ -43,6 +41,7 @@ snit::type tactic {
     # parameters.
 
     typevariable optParms {
+        once     0
         m        ""
         n        ""
         nlist    ""
@@ -52,8 +51,6 @@ snit::type tactic {
         int1     ""
     }
 
-
-
     #===================================================================
     # Tactic Types: Definition and Query interface.
 
@@ -62,7 +59,8 @@ snit::type tactic {
 
     # tinfo array: Type Info
     #
-    # names - List of the names of the tactic types.
+    # names        - List of the names of the tactic types.
+    # parms-$ttype - List of the optional parms used by the tactic type.
 
     typevariable tinfo -array {
         names {}
@@ -76,16 +74,27 @@ snit::type tactic {
         return [lsort $tinfo(names)]
     }
 
-    # type define name defscript
+    # type parms ttype
+    #
+    # Returns a list of the names of the optional parameters used by
+    # the tactic.
+    
+    typemethod {type parms} {ttype} {
+        return $tinfo(parms-$ttype)
+    }
+
+
+    # type define name optparms defscript
     #
     # name       - The tactic name
+    # optparms   - List of optional parameters used by this tactic type.
     # defscript  - The definition script (a snit::type script)
     #
     # Defines tactic::$name as a type ensemble given the typemethods
     # defined in the defscript.  See tactic(i) for documentation of the
     # expected typemethods.
 
-    typemethod {type define} {name defscript} {
+    typemethod {type define} {name optparms defscript} {
         # FIRST, define the type.
         set header {
             # Make it a singleton
@@ -97,8 +106,9 @@ snit::type tactic {
 
         snit::type ${type}::${name} "$header\n$defscript"
 
-        # NEXT, save the type name.
+        # NEXT, save the type metadata
         ladd tinfo(names) $name
+        set tinfo(parms-$name) $optparms
     }
 
     #===================================================================
@@ -189,6 +199,7 @@ snit::type tactic {
     #    tactic_type    The tactic type
     #    owner          The tactic's owning actor
     #    priority       "top" or "bottom" or ""; defaults to "bottom".
+    #    once           1 or 0 or ""; defaults to 0.
     #    m,n            Neighborhoods, or ""
     #    nlist          Neighborhood list, or ""
     #    f,g            Groups, or ""
@@ -213,7 +224,7 @@ snit::type tactic {
 
                 INSERT INTO 
                 tactics(tactic_id, 
-                        tactic_type, owner, narrative, priority, 
+                        tactic_type, owner, narrative, priority, once,
                         m,
                         n,
                         nlist,
@@ -222,7 +233,7 @@ snit::type tactic {
                         text1,
                         int1)
                 VALUES(last_insert_rowid(),
-                       $tactic_type, $owner, $narrative, 0, 
+                       $tactic_type, $owner, $narrative, 0, $once,
                        nullif($m,     ''),
                        nullif($n,     ''),
                        nullif($nlist, ''),
@@ -269,6 +280,7 @@ snit::type tactic {
     # parmdict     A dictionary of tactic parms
     #
     #    tactic_id      The tactic's ID
+    #    once           Once flag, 1 or 0, or ""
     #    m,n            Neighborhoods, or ""
     #    nlist          Neighborhood list, or ""
     #    f,g            Groups, or ""
@@ -294,7 +306,8 @@ snit::type tactic {
             # NULL rather than "".
             rdb eval {
                 UPDATE tactics
-                SET m     = nullif(nonempty($m,     m),     ''),
+                SET once  = nonempty($once,  once),
+                    m     = nullif(nonempty($m,     m),     ''),
                     n     = nullif(nonempty($n,     n),     ''),
                     nlist = nullif(nonempty($nlist, nlist), ''),
                     f     = nullif(nonempty($f,     f),     ''),
@@ -431,13 +444,22 @@ snit::type tactic {
         }
 
         if {$flag} {
-            set tid [dict get $tdict tactic_id]
+            set tid  [dict get $tdict tactic_id]
+            set once [dict get $tdict once]
 
             rdb eval {
                 UPDATE tactics
                 SET exec_flag = 1,
                     exec_ts   = now()
                 WHERE tactic_id = $tid
+            }
+
+            if {$once} {
+                rdb eval {
+                    UPDATE tactics
+                    SET state = 'disabled'
+                    WHERE tactic_id = $tid
+                }
             }
         }
 

@@ -1,36 +1,29 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    tactic_deploy.tcl
+#    tactic_demob.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): DEPLOY(g,mode,personnel,nlist) tactic
+#    athena_sim(1): DEMOB(g,mode,personnel,nlist,once) tactic
 #
-#    This module implements the DEPLOY tactic, which deploys a 
-#    force or ORG group's personnel into one or more neighborhoods.
-#    The troops remain as deployed until the next strategy tock, when
-#    troops may be redeployed.
-#
-# TBD:
-#
-#    * Can we arrange for redeployments to be ignored if nothing's
-#      changed, like the "once only" activity?
+#    This module implements the DEMOB tactic, which demobilizes
+#    force or ORG group personnel, i.e., moves them out of the playbox.
 #
 # PARAMETER MAPPING:
 #
 #    g     <= g
 #    text1 <= mode: ALL|SOME
 #    int1  <= personnel
-#    nlist <= nlist
+#    once  <= once
 #
 #-----------------------------------------------------------------------
 
 #-------------------------------------------------------------------
-# Tactic: DEPLOY
+# Tactic: DEMOB
 
-tactic type define DEPLOY {g text1 int1 nlist} {
+tactic type define DEMOB {g text1 int1 once} {
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -42,53 +35,22 @@ tactic type define DEPLOY {g text1 int1 nlist} {
 
     typemethod narrative {tdict} {
         dict with tdict {
-            if {[llength $nlist] == 1} {
-                set ntext "neighborhood [lindex $nlist 0]"
-            } else {
-                set ntext "neighborhoods [join $nlist {, }]"
-            }
-
             if {$text1 eq "ALL"} {
-                return \
-                 "Deploy all of group $g's remaining personnel into $ntext."
+                return "Demobilize all of group $g's available personnel."
             } else {
-                return "Deploy $int1 of group $g's personnel into $ntext."
+                return "Demobilize $int1 of group $g's available personnel."
             }
         }
     }
 
     typemethod dollars {tdict} {
-        dict with tdict {
-            rdb eval {
-                SELECT cost FROM agroups WHERE g=$g
-            } {
-                if {$text1 eq "SOME"} {
-                    return [moneyfmt [expr {$cost * $int1}]]
-                } elseif {$cost == 0.0} {
-                    return [moneyfmt 0.0]
-                }
-            }
-        
-            # If the mode is "ALL" and the $cost is not zero, we
-            # don't know what the total cost will be; and if 
-            # g no longer exists, we don't know what the cost per
-            # person is anyway.  So mark it unknown.
-
-            return "?"
-        }
+        return [moneyfmt 0.0]
     }
 
     typemethod check {tdict} {
         set errors [list]
 
         dict with tdict {
-            # nlist
-            foreach n $nlist {
-                if {$n ni [nbhood names]} {
-                    lappend errors "Neighborhood $n no longer exists."
-                }
-            }
-
             # g
             if {$g ni [ptype fog names]} {
                 lappend errors "Force/organization group $g no longer exists."
@@ -112,66 +74,23 @@ tactic type define DEPLOY {g text1 int1 nlist} {
                 SELECT available FROM personnel_g WHERE g=$g
             }]
 
-            set costPerPerson [rdb onecolumn {
-                SELECT cost FROM agroups WHERE g=$g
-            }]
-
-            set cash_on_hand [actor get $owner cash_on_hand]
-
-            # NEXT, if they want ALL personnel, we'll take as many as
-            # we can afford.  If they want SOME, we'll take the 
-            # requested amount, *if* we can afford it.
-            if {$text1 eq "ALL"} {
-                # FIRST, if there are no troops left, we're done.
-                if {$available == 0} {
-                    return 0
-                }
-
-                # NEXT, how many troops can we afford?
-                if {$costPerPerson == 0.0} {
-                    set int1 $available
-                } else {
-                    let maxTroops {int(double($cash_on_hand)/$costPerPerson)}
-                    let int1      {min($available,$maxTroops)}
-                }
-            } else {
-                # FIRST, if there are insufficient troops available,
-                # we're done.
-                if {$int1 > $available} {
-                    return 0
-                }
+            # NEXT, if they want ALL personnel, we'll take all available.
+            # If they want SOME, we'll take the requested amount, *if* 
+            # they are available.
+            if {$text1 eq "ALL" || $int1 > $available} {
+                set int1 $available
             }
 
-            # NEXT, Pay the maintenance cost, if we can.
-            let cost {$costPerPerson * $int1}
-
-            if {![actor spend $owner $cost]} {
+            if {$int1 == 0} {
                 return 0
             }
 
-            # NEXT, compute the number of troops to put in each
-            # neighborhood: np($n -> $personnel).
-
-            set num       [llength $nlist]
-            let each      {$int1 / $num}
-            let remainder {$int1 % $num}
-
-            # NEXT, deploy the troops to those neighborhoods.
-            set count 0
-            foreach n $nlist {
-                set troops $each
-
-                if {[incr count] <= $remainder} {
-                    incr troops
-                }
-
-                personnel deploy $n $g $troops
+            personnel demob $g $int1
                 
-                sigevent log 2 tactic "
-                    DEPLOY: Actor {actor:$owner} deploys $troops {group:$g} 
-                    personnel to {nbhood:$n}
-                " $owner $n $g
-            }
+            sigevent log 1 tactic "
+                DEMOB: Actor {actor:$owner} demobilizes $int1 {group:$g} 
+                personnel.
+            " $owner $g
         }
 
         return 1
@@ -187,7 +106,7 @@ tactic type define DEPLOY {g text1 int1 nlist} {
     # fields    The fields that changed.
     # fdict     The current values of the various fields.
     #
-    # Refreshes the TACTIC:DEPLOY:CREATE dialog fields when field values
+    # Refreshes the TACTIC:DEMOB:CREATE dialog fields when field values
     # change.
 
     typemethod RefreshCREATE {dlg fields fdict} {
@@ -199,13 +118,6 @@ tactic type define DEPLOY {g text1 int1 nlist} {
                 }]
                 
                 $dlg field configure g -values $groups
-
-                set ndict [rdb eval {
-                    SELECT n,n FROM nbhoods
-                    ORDER BY n
-                }]
-                
-                $dlg field configure nlist -itemdict $ndict
             }
 
             if {"text1" in $fields} {
@@ -224,7 +136,7 @@ tactic type define DEPLOY {g text1 int1 nlist} {
     # fields    The fields that changed.
     # fdict     The current values of the various fields.
     #
-    # Refreshes the TACTIC:DEPLOY:UPDATE dialog fields when field values
+    # Refreshes the TACTIC:DEMOB:UPDATE dialog fields when field values
     # change.
 
     typemethod RefreshUPDATE {dlg fields fdict} {
@@ -239,13 +151,6 @@ tactic type define DEPLOY {g text1 int1 nlist} {
                 }]
                 
                 $dlg field configure g -values $groups
-
-                set ndict [rdb eval {
-                    SELECT n,n FROM nbhoods
-                    ORDER BY n
-                }]
-                
-                $dlg field configure nlist -itemdict $ndict
             }
 
             $dlg loadForKey tactic_id *
@@ -263,34 +168,35 @@ tactic type define DEPLOY {g text1 int1 nlist} {
     }
 }
 
-# TACTIC:DEPLOY:CREATE
+# TACTIC:DEMOB:CREATE
 #
-# Creates a new DEPLOY tactic.
+# Creates a new DEMOB tactic.
 
-order define TACTIC:DEPLOY:CREATE {
-    title "Create Tactic: Deploy Forces"
+order define TACTIC:DEMOB:CREATE {
+    title "Create Tactic: Demobilize Forces"
 
     options \
         -sendstates {PREP PAUSED}       \
-        -refreshcmd {tactic::DEPLOY RefreshCREATE}
+        -refreshcmd {tactic::DEMOB RefreshCREATE}
 
     parm owner     actor "Owner"           -context yes
     parm g         enum  "Group"   
-    parm text1     enum  "Mode"            -enumtype edeploymode \
+    parm text1     enum  "Mode"            -enumtype edemobmode  \
                                            -defval SOME          \
                                            -displaylong yes
     parm int1      text  "Personnel"
-    parm nlist     nlist "In Neighborhoods"
-    parm priority  enum  "Priority"          -enumtype ePrioSched  \
-                                             -displaylong yes      \
-                                             -defval bottom
+    parm once      enum  "Once Only?"      -enumtype eyesno      \
+                                           -defval   YES
+    parm priority  enum  "Priority"        -enumtype ePrioSched  \
+                                           -displaylong yes      \
+                                           -defval bottom
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
     prepare g        -toupper   -required -type   {ptype fog}
-    prepare text1    -toupper   -required -type   edeploymode
+    prepare text1    -toupper   -required -type   edemobmode
     prepare int1                          -type   ingpopulation
-    prepare nlist    -toupper   -required -listof nbhood
+    prepare once     -toupper   -required -type   boolean
     prepare priority -tolower             -type   ePrioSched
 
     returnOnError
@@ -312,43 +218,43 @@ order define TACTIC:DEPLOY:CREATE {
     returnOnError -final
 
     # NEXT, put tactic_type in the parmdict
-    set parms(tactic_type) DEPLOY
+    set parms(tactic_type) DEMOB
 
     # NEXT, create the tactic
     setundo [tactic mutate create [array get parms]]
 }
 
-# TACTIC:DEPLOY:UPDATE
+# TACTIC:DEMOB:UPDATE
 #
-# Updates existing DEPLOY tactic.
+# Updates existing DEMOB tactic.
 
-order define TACTIC:DEPLOY:UPDATE {
-    title "Update Tactic: Deploy Forces"
+order define TACTIC:DEMOB:UPDATE {
+    title "Update Tactic: Demob Forces"
     options \
         -sendstates {PREP PAUSED}                  \
-        -refreshcmd {tactic::DEPLOY RefreshUPDATE}
+        -refreshcmd {tactic::DEMOB RefreshUPDATE}
 
-    parm tactic_id key  "Tactic ID"       -context yes            \
-                                          -table   tactics_DEPLOY \
+    parm tactic_id key  "Tactic ID"       -context yes           \
+                                          -table   tactics_DEMOB \
                                           -keys    tactic_id
     parm owner     disp  "Owner"
     parm g         enum  "Group"
-    parm text1     enum  "Mode"           -enumtype edeploymode   \
+    parm text1     enum  "Mode"           -enumtype edemobmode   \
                                           -displaylong yes
     parm int1      text  "Personnel"
-    parm nlist     nlist "In Neighborhoods"
+    parm once      enum  "Once Only?"     -enumtype eyesno       \
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required -type   tactic
-    prepare g          -toupper  -type   {ptype fog}
-    prepare text1      -toupper  -type   edeploymode
-    prepare int1                 -type   ingpopulation
-    prepare nlist      -toupper  -listof nbhood
+    prepare tactic_id  -required -type tactic
+    prepare g          -toupper  -type {ptype fog}
+    prepare text1      -toupper  -type edemobmode
+    prepare int1                 -type ingpopulation
+    prepare once       -toupper  -type boolean
 
     returnOnError
 
     # NEXT, make sure this is the right kind of tactic
-    validate tactic_id { tactic RequireType DEPLOY $parms(tactic_id) }
+    validate tactic_id { tactic RequireType DEMOB $parms(tactic_id) }
 
     returnOnError
 

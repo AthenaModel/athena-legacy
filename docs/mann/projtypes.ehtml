@@ -129,6 +129,15 @@ demeanor.<p>
 <<::projectlib::edemeanor html>>
 
 
+<<defitem edemobmode {edemobmode <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing demobilization modes for the
+DEMOB tactic.<p>
+
+<<::projectlib::edemobmode html>>
+
+
+
 <<defitem edeploymode {edeploymode <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing deployment modes for the

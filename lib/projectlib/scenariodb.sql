@@ -549,6 +549,10 @@ CREATE TABLE tactics (
     -- order of execution.
     priority     INTEGER,
 
+    -- Once flag, 1 or 0.  If 1, the tactic will be automatically disabled
+    -- on successful execution.
+    once         INTEGER DEFAULT 0,
+
     -- State: normal, disabled, invalid (etactic_state)
     state        TEXT DEFAULT 'normal',
 

@@ -629,9 +629,13 @@ snit::type scenario {
         # NEXT, define tactic type views
         set sql ""
         foreach ttype [tactic type names] {
+            set parms [join [tactic type parms $ttype] ", "]
+
             append sql "
                 CREATE VIEW tactics_$ttype AS
-                SELECT * FROM tactics WHERE tactic_type='$ttype';
+                SELECT tactic_id, tactic_type, owner, narrative, priority,
+                       state, exec_ts, exec_flag, $parms
+                FROM tactics WHERE tactic_type='$ttype';
             "
         }
 

@@ -97,13 +97,13 @@ namespace eval ::athena_test::tests:: {
     } -body {
         ted order TACTIC:SPEND:CREATE $SPEND1
 
-        ted query {SELECT * FROM tactics}
+        ted query {SELECT * FROM tactics_SPEND}
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                 priority state  exec_ts exec_flag m n nlist f g text1 int1 
---------- ----------- ----- ------------------------- -------- ------ ------- --------- - - ----- - - ----- ---- 
-1         SPEND       JOE   Spend 10% of cash reserve 1        normal         0                             10   
+tactic_id tactic_type owner narrative                 priority state  exec_ts exec_flag int1 
+--------- ----------- ----- ------------------------- -------- ------ ------- --------- ---- 
+1         SPEND       JOE   Spend 10% of cash reserve 1        normal         0         10   
     }
 
 
@@ -190,13 +190,13 @@ tactic_id tactic_type owner narrative                 priority state  exec_ts ex
     } -body {
         ted order TACTIC:SPEND:UPDATE tactic_id 1 int1 20
 
-        ted query {SELECT * FROM tactics}
+        ted query {SELECT * FROM tactics_SPEND}
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                 priority state  exec_ts exec_flag m n nlist f g text1 int1 
---------- ----------- ----- ------------------------- -------- ------ ------- --------- - - ----- - - ----- ---- 
-1         SPEND       JOE   Spend 20% of cash reserve 1        normal         0                             20   
+tactic_id tactic_type owner narrative                 priority state  exec_ts exec_flag int1 
+--------- ----------- ----- ------------------------- -------- ------ ------- --------- ---- 
+1         SPEND       JOE   Spend 20% of cash reserve 1        normal         0         20   
     }
 
 

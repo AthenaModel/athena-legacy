@@ -1989,7 +1989,7 @@ snit::type appserver {
             ht title "Significant Events: Last Advance"
 
             ht linkbar {
-                /sigevents/all "All Significan Events"
+                /sigevents/all "All Significant Events"
             }
 
             ht putln {

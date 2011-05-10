@@ -310,6 +310,14 @@ page /tab/strategy tactics_tree "Tactics Tree" {
     executed.
     <</topic>>
 
+    <<topic "Once?">>
+    <b>Tactics only.</b> Some tactics can be set to execute only once, 
+    e.g., <<cref /order/tactic/demob>>.  On execution, the tactic is
+    automatically disabled; the user must manually re-enable it before
+    it can execute again.  This column shows whether the tactic
+    is set to execute only once or not.
+    <</topic>>
+
     <<topic "Est. $">> 
     <b>Tactics only.</b> The estimated cost, in dollars, of executing the
     tactic.  Note that the actual cost may differ.<p>

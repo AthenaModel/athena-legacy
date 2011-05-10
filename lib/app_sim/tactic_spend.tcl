@@ -21,7 +21,7 @@
 #        cash_reserve to the actor's cash_on_hand.
 
 
-tactic type define SPEND {
+tactic type define SPEND {int1} {
     typemethod narrative {tdict} {
         dict with tdict {
             return "Spend $int1% of cash reserve"

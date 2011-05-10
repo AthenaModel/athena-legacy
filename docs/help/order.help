@@ -3682,6 +3682,14 @@ macro TACTIC.id {} {
     [/parm]
 }
 
+macro TACTIC.once {} {
+    |<--
+    A boolean value, "YES" or "NO".  If "YES", this tactic will be
+    disabled automatically after it executes, and hence will execute
+    only once.  If "NO", the tactic will remain enabled, and hence may
+    execute multiple times.
+}
+
 macro TACTIC.priority {} {
     |<--
     [parm priority "Priority"]
@@ -3859,6 +3867,108 @@ order TACTIC:DEFROE:UPDATE "Update Tactic: Set Defensive ROE" {
 
     <<parm text1 "ROE">>
     <b>Required.</b>  <<DEFROE.roe>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Allows the user to edit the tactic.
+}
+
+#-----------------------------------------------------------------------
+# Tactic: DEMOB
+
+page /order/tactic demob "Tactic: Demobilize Forces" {
+    <<title>>
+
+    This tactic demobilizes force or organization group personnel,
+    i.e., it removes them from the playbox.  Only personnel available
+    for deployment can be demobilized.<p>
+
+    There are two demobilization modes, "SOME" and "ALL".  The first
+    demobilizes a specific number of troops; the second demobilizes
+    all available troops.<p>
+
+    Multiple DEMOB tactics are cumulative.<p>
+
+    The tactic orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+macro DEMOB.g {} {
+    |<--
+    The ID of a force or organization group belonging to the
+    <i>owner</i>.<p>
+}
+
+macro DEMOB.text1 {} {
+    |<--
+    The demobilization mode, as indicated by the following enumeration:<p>
+
+    [enumdoc ::projectlib::edemobmode]
+
+    If "SOME", the tactic demobilizes a specific number of personnel, as
+    given by the <i>int1</i> parameter.  If there are insufficient
+    personnel, all available personnel will be demobilized.<p>
+
+    If "ALL", the tactic demobilizes all available personnel belonging to
+    group <i>g</i>.<p>
+}
+
+macro DEMOB.int1 {} {
+    |<--
+    The maximum number of personnel to be demobilized when the mode
+    (<i>text1</i>) is "SOME".  If there are insufficient personnel 
+    available, all available personnel will be demobilized.<p>
+
+    If the mode is "ALL", this parameter is ignored.
+}
+
+order TACTIC:DEMOB:CREATE "Create Tactic: Demobilize Forces" {
+    <<parmlist>>
+    <<TACTIC.cowner>>
+
+    <<parm g "Group">>
+    <b>Required.</b> <<DEMOB.g>>
+    <</parm>>
+
+    <<parm text1 "Mode">>
+    <b>Required.</b>  <<DEMOB.text1>>
+    <</parm>>
+
+    <<parm int1 "Personnel">>
+    <b>Required.</b>  <<DEMOB.int1>>
+    <</parm>>
+
+    <<parm once "Once?">>
+    <b>Required.</b>  <<TACTIC.once>>
+    <</parm>>
+
+    <<TACTIC.priority>>
+    <</parmlist>>
+
+    Creates the tactic.
+}
+
+order TACTIC:DEMOB:UPDATE "Update Tactic: Demobilize Forces" {
+    <<parmlist>>
+    <<TACTIC.id>>
+    <<TACTIC.uowner>>
+
+    <<parm g "Group">>
+    <b>Optional.</b> <<DEMOB.g>>
+    <</parm>>
+
+    <<parm text1 "Mode">>
+    <b>Required.</b>  <<DEMOB.text1>>
+    <</parm>>
+
+    <<parm int1 "Personnel">>
+    <b>Optional.</b>  <<DEMOB.int1>>
+    <</parm>>
+
+    <<parm once "Once?">>
+    <b>Optional.</b>  <<TACTIC.once>>
     <</parm>>
 
     <</parmlist>>

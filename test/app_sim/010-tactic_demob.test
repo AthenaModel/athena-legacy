@@ -1,0 +1,219 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-tactic_demob.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    tactic_demob(sim) tests.
+#
+#    This test suite tests the tactic::DEMOB ensemble.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create JOE BOB NB1 NB2 BLUE BRIT
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+    }
+
+    proc execute_setup {} {
+        setup
+        personnel start
+        personnel reset
+    }
+
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        rdb nullvalue ""
+        array unset parms
+        ted cleanup
+    }
+
+    set T1 {
+        tactic_type DEMOB
+        owner       JOE
+        priority    top
+        g           BLUE
+        text1       SOME
+        int1        100
+        once        1
+    }
+
+    set T2 {
+        tactic_type DEMOB
+        owner       JOE
+        priority    top
+        g           BLUE
+        text1       SOME
+        int1        101
+        once        1
+    }
+
+    set T3 {
+        tactic_type DEMOB
+        owner       JOE
+        priority    top
+        g           BLUE
+        text1       ALL
+        int1        ""
+        once        0
+    }
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {narrative, SOME, once} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::DEMOB narrative [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Demobilize 100 of group BLUE's available personnel.}
+
+    test narrative-1.2 {narrative: ALL, !once} -setup {
+        setup
+        tactic mutate create $T3
+    } -body {
+        tactic::DEMOB narrative [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Demobilize all of group BLUE's available personnel.}
+
+    #-------------------------------------------------------------------
+    # check
+
+    test check-1.1 {check: g no longer exists} -setup {
+        setup
+        tactic mutate create $T1
+        rdb eval {DELETE FROM frcgroups WHERE g='BLUE'}
+    } -body {
+        tactic::DEMOB check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Force/organization group BLUE no longer exists.}
+
+    test check-1.2 {check: g no longer owned by owner} -setup {
+        setup
+        tactic mutate create $T1
+        rdb eval {UPDATE frcgroups SET a=NULL}
+    } -body {
+        tactic::DEMOB check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Force/organization group BLUE is no longer owned by actor JOE.}
+
+    #-------------------------------------------------------------------
+    # dollars
+
+    test dollars-1.1 {dollars} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::DEMOB dollars [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    #-------------------------------------------------------------------
+    # execute
+
+    test execute-1.1 {execute: insufficient troops, no exec} -setup {
+        execute_setup
+        rdb eval {UPDATE personnel_g SET available=0}
+        tactic mutate create $T1
+    } -body {
+        tactic::DEMOB execute [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test execute-1.2 {execute: ALL, all available} -setup {
+        execute_setup
+        tactic mutate create $T3
+    } -body {
+        tactic::DEMOB execute [tactic get 1]
+        ted query {SELECT * FROM personnel_g}
+    } -cleanup {
+        cleanup
+    } -result {
+g    personnel available 
+---- --------- --------- 
+BLUE 0         0         
+BRIT 5000      5000      
+    }
+
+    test execute-1.3 {execute: SOME, sufficient available} -setup {
+        execute_setup
+        tactic mutate create $T1
+    } -body {
+        tactic::DEMOB execute [tactic get 1]
+        ted query {SELECT * FROM personnel_g}
+    } -cleanup {
+        cleanup
+    } -result {
+g    personnel available 
+---- --------- --------- 
+BLUE 4900      4900      
+BRIT 5000      5000      
+    }
+
+    test execute-1.4 {execute: SOME, insufficient available} -setup {
+        execute_setup
+        tactic mutate create $T1
+        rdb eval {UPDATE personnel_g SET available=50}
+    } -body {
+        tactic::DEMOB execute [tactic get 1]
+        ted query {SELECT * FROM personnel_g}
+    } -cleanup {
+        cleanup
+    } -result {
+g    personnel available 
+---- --------- --------- 
+BLUE 4950      0         
+BRIT 5000      50        
+    }
+
+    test execute-1.5 {execute: 1 on success} -setup {
+        execute_setup
+        tactic mutate create $T1
+    } -body {
+        tactic::DEMOB execute [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

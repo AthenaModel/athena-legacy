@@ -145,13 +145,13 @@ namespace eval ::athena_test::tests:: {
     } -body {
         ted order TACTIC:DEFROE:CREATE $D1
 
-        ted query {SELECT * FROM tactics}
+        ted query {SELECT * FROM tactics_DEFROE}
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                                    priority state  exec_ts exec_flag m n   nlist f g    text1     int1 
---------- ----------- ----- -------------------------------------------- -------- ------ ------- --------- - --- ----- - ---- --------- ---- 
-1         DEFROE      JOE   Group BLUE defends in NB1 with ROE HOLD_FIRE 1        normal         0           NB1         BLUE HOLD_FIRE      
+tactic_id tactic_type owner narrative                                    priority state  exec_ts exec_flag n   g    text1     
+--------- ----------- ----- -------------------------------------------- -------- ------ ------- --------- --- ---- --------- 
+1         DEFROE      JOE   Group BLUE defends in NB1 with ROE HOLD_FIRE 1        normal         0         NB1 BLUE HOLD_FIRE 
     }
 
 
@@ -239,13 +239,13 @@ tactic_id tactic_type owner narrative                                    priorit
         ted order TACTIC:DEFROE:UPDATE \
             tactic_id 1 text1 FIRE_BACK_IMMEDIATELY
 
-        ted query {SELECT * FROM tactics}
+        ted query {SELECT * FROM tactics_DEFROE}
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                                                priority state  exec_ts exec_flag m n   nlist f g    text1                 int1 
---------- ----------- ----- -------------------------------------------------------- -------- ------ ------- --------- - --- ----- - ---- --------------------- ---- 
-1         DEFROE      JOE   Group BLUE defends in NB1 with ROE FIRE_BACK_IMMEDIATELY 1        normal         0           NB1         BLUE FIRE_BACK_IMMEDIATELY      
+tactic_id tactic_type owner narrative                                                priority state  exec_ts exec_flag n   g    text1                 
+--------- ----------- ----- -------------------------------------------------------- -------- ------ ------- --------- --- ---- --------------------- 
+1         DEFROE      JOE   Group BLUE defends in NB1 with ROE FIRE_BACK_IMMEDIATELY 1        normal         0         NB1 BLUE FIRE_BACK_IMMEDIATELY 
     }
 
 

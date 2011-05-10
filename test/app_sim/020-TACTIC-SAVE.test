@@ -97,13 +97,13 @@ namespace eval ::athena_test::tests:: {
     } -body {
         ted order TACTIC:SAVE:CREATE $SAVE1
 
-        ted query {SELECT * FROM tactics}
+        ted query {SELECT * FROM tactics_SAVE}
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                        priority state  exec_ts exec_flag m n nlist f g text1 int1 
---------- ----------- ----- -------------------------------- -------- ------ ------- --------- - - ----- - - ----- ---- 
-1         SAVE        JOE   Save 10% of income for later use 1        normal         0                             10   
+tactic_id tactic_type owner narrative                        priority state  exec_ts exec_flag int1 
+--------- ----------- ----- -------------------------------- -------- ------ ------- --------- ---- 
+1         SAVE        JOE   Save 10% of income for later use 1        normal         0         10   
     }
 
 
@@ -190,13 +190,13 @@ tactic_id tactic_type owner narrative                        priority state  exe
     } -body {
         ted order TACTIC:SAVE:UPDATE tactic_id 1 int1 20
 
-        ted query {SELECT * FROM tactics}
+        ted query {SELECT * FROM tactics_SAVE}
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                        priority state  exec_ts exec_flag m n nlist f g text1 int1 
---------- ----------- ----- -------------------------------- -------- ------ ------- --------- - - ----- - - ----- ---- 
-1         SAVE        JOE   Save 20% of income for later use 1        normal         0                             20   
+tactic_id tactic_type owner narrative                        priority state  exec_ts exec_flag int1 
+--------- ----------- ----- -------------------------------- -------- ------ ------- --------- ---- 
+1         SAVE        JOE   Save 20% of income for later use 1        normal         0         20   
     }
 
 

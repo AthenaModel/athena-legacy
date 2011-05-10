@@ -1116,25 +1116,31 @@ snit::widget strategybrowser {
             -itemstyle   textStyle        \
             -tags        exec_ts
 
-        # Tree column 2: $
+        # Tree column 2: Once?
+        $ttree column create {*}$colopts  \
+            -text        "Once?"          \
+            -itemstyle   textStyle        \
+            -tags        once
+
+        # Tree column 3: $
         $ttree column create {*}$colopts  \
             -text        "Est. $"         \
             -itemstyle   numStyle         \
             -tags        dollars
 
-        # Tree column 3: tactic_id/condition_id
+        # Tree column 4: tactic_id/condition_id
         $ttree column create {*}$colopts  \
             -text        "Id"             \
             -itemstyle   numStyle         \
             -tags        id
 
-        # Tree column 4: tactic_type/condition_type
+        # Tree column 5: tactic_type/condition_type
         $ttree column create {*}$colopts  \
             -text        "Type"           \
             -itemstyle   textStyle        \
             -tags        type
 
-        # Tree column 5: priority
+        # Tree column 6: priority
         $ttree column create {*}$colopts  \
             -text        "Priority"       \
             -itemstyle   textStyle        \
@@ -1404,9 +1410,16 @@ snit::widget strategybrowser {
         # NEXT, set the text.
         set tdict [array get tdata]
 
+        if {$tdata(once)} {
+            set once YES
+        } else {
+            set once NO
+        }
+
         $ttree item text $id                             \
             0               $tdata(narrative)            \
             {tag exec_ts}   $timestamp                   \
+            {tag once}      $once                        \
             {tag dollars}   [tactic call dollars $tdict] \
             {tag id}        $tdata(tactic_id)            \
             {tag type}      $tdata(tactic_type)          \
@@ -1505,6 +1518,7 @@ snit::widget strategybrowser {
         # NEXT, set the text
         $ttree item text $id                       \
             0               $cdata(narrative)      \
+            {tag once}      ""                     \
             {tag dollars}   ""                     \
             {tag id}        $cdata(condition_id)   \
             {tag type}      $cdata(condition_type)
