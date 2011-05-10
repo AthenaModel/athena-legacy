@@ -11,6 +11,31 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.17, 10 May 2011</h3>
+
+This package removes the old force level management code (the
+PERSONNEL:* orders and Groups/Personnel browser) in favor of the
+new DEPLOY tactic; five of the packages in this build all relate to
+deployment.  In addition, there is a new "significant simulation
+events" log; log entries related to each entity can be seen on the
+entity pages, and the entire log can be seen at my://app/sigevents.
+Finally, there is continued GUI re-organization.  The full set of
+packages are as follows:<p>
+
+<ul>
+  <li> Bug 2941: athena_sim(1): Scenario sanity checks display in Detail Browser
+  <li> Bug 2943: No Weekly Income
+  <li> Bug 2945: athena_sim(1): Tab Replacement Pages
+  <li> Bug 2946: athena_sim(1): Replace "X" icon with trashcan
+  <li> Bug 2948: athena_sim(1): DEPLOY tactic
+  <li> Bug 2949: athena_sim(1): Troop Maintenance
+  <li> Bug 2950: athena_sim(1): Remove Groups/Personnel tab
+  <li> Bug 2951: athena_sim(1): DEPLOY tactic has modes SOME or ALL
+  <li> Bug 2952: athena_sim(1): Undeployed troops are automatically demobilized
+  <li> Bug 2953: athena_sim(1): Significant Event Log 
+</ul><p>
+
+
 <h3>Build 3.0.16, 20 April 2011</h3>
 
 This build is primarily a bug-fix build; bugs 2936 and 2937 affect the
