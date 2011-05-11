@@ -86,35 +86,6 @@ snit::type actor {
     }
 
     #-------------------------------------------------------------------
-    # Simulation
-    #
-    # Non-order mutators.
-
-    # spend a dollars
-    #
-    # a         - An actor
-    # dollars   - Some number of dollars
-    #
-    # Deducts dollars from cash_on_hand if there are sufficient funds;
-    # returns 1 on success and 0 on failure.
-
-    typemethod spend {a dollars} {
-        set cash_on_hand [actor get $a cash_on_hand]
-
-        if {$dollars > $cash_on_hand} {
-            return 0
-        }
-
-        rdb eval {
-            UPDATE actors 
-            SET cash_on_hand = cash_on_hand - $dollars
-            WHERE a=$a
-        }
-
-        return 1
-    }
-
-    #-------------------------------------------------------------------
     # Mutators
     #
     # Mutators are used to implement orders that change the scenario in

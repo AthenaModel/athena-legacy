@@ -30,6 +30,7 @@ namespace eval ::athena_test::tests:: {
 
     proc setup {} {
         ted create JOE 
+        cash load
 
         # Verify that unused columns contain NULL
         rdb nullvalue "@"
@@ -102,26 +103,28 @@ namespace eval ::athena_test::tests:: {
         setup
         tactic mutate create $T1
         
-        rdb eval { UPDATE actors SET cash_reserve=0.0 }
+        rdb eval { UPDATE working_cash SET cash_reserve=0.0 }
     } -body {
-        array set a [actor get JOE]
+        array set a [cash get JOE]
         set flag [tactic::SPEND execute [tactic get 1]]
-        array set b [actor get JOE]
+        array set b [cash get JOE]
 
         list $flag \
             $a(cash_on_hand) $a(cash_reserve) \
             $b(cash_on_hand) $b(cash_reserve)
     } -cleanup {
         cleanup
-    } -result {0 0.0 0.0 0.0 0.0}
+    } -result {0 10000.0 0.0 10000.0 0.0}
 
     test execute-1.2 {execute: ample reserve} -setup {
         setup
         tactic mutate create $T1
+
+        rdb eval { UPDATE working_cash SET cash_on_hand=0.0 }
     } -body {
-        array set a [actor get JOE]
+        array set a [cash get JOE]
         set flag [tactic::SPEND execute [tactic get 1]]
-        array set b [actor get JOE]
+        array set b [cash get JOE]
 
         list $flag \
             $a(cash_on_hand) $a(cash_reserve) \

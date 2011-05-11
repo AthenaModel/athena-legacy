@@ -98,7 +98,7 @@ namespace eval ::athena_test::tests:: {
         variable units
 
         personnel start
-        personnel reset
+        personnel load
 
         foreach unit $args {
             unit create $units($unit)
@@ -107,6 +107,8 @@ namespace eval ::athena_test::tests:: {
                 personnel deploy $n $g $personnel
             }
         }
+
+        personnel save
     }
 
     proc deploy {n g personnel} {
@@ -587,9 +589,6 @@ u             personnel
 BLUE-NB1/0000 15        
 BLUE-NB1/0001 10        
     }
-
-    # TBD: Show deploy_ng getting attrited and restored on undo.
-    
 
     test attritunit-1.1 {ORG unit is attrited} -setup {
         ted create NB1 USAID

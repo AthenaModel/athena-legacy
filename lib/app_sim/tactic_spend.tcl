@@ -30,20 +30,15 @@ tactic type define SPEND {int1} {
 
     typemethod execute {tdict} {
         dict with tdict {
-            array set ainfo [actor get $owner]
+            array set cinfo [cash get $owner]
 
-            let amount {$ainfo(cash_reserve)*$int1/100.0}
+            let amount {$cinfo(cash_reserve)*$int1/100.0}
 
             if {$amount == 0.0} {
                 return 0
             }
 
-            rdb eval {
-                UPDATE actors 
-                SET cash_reserve = cash_reserve - $amount,
-                    cash_on_hand = cash_on_hand + $amount
-                WHERE a=$owner;
-            }
+            cash withdraw $owner $amount
 
             sigevent log 2 tactic "
                 SPEND: $owner transfers \$[moneyfmt $amount] 

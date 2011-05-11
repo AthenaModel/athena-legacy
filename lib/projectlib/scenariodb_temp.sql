@@ -66,6 +66,55 @@ CREATE TEMPORARY TABLE activity_gtype (
 );
 
 --------------------------------------------------------------------
+-- Strategy Tock Working Tables
+
+-- Actor's Working Cash
+CREATE TEMPORARY TABLE working_cash (
+    -- Symbolic actor name
+    a           TEXT PRIMARY KEY,
+
+    -- Money saved for later, in $.
+    cash_reserve DOUBLE,
+
+    -- Income/strategy tock, in $.
+    income      DOUBLE,
+
+    -- Money available to be spent, in $.
+    -- Unspent cash accumulates from tock to tock.
+    cash_on_hand DOUBLE
+);
+
+-- FRC and ORG personnel in playbox and available for deployment.
+CREATE TEMPORARY TABLE working_personnel (
+    -- Symbolic group name
+    g          TEXT PRIMARY KEY,
+
+    -- Personnel in playbox
+    personnel  INTEGER,
+
+    -- Personnel available for deployment
+    available  INTEGER
+);
+
+-- Deployment Table: FRC and ORG personnel deployed into neighborhoods.
+CREATE TEMPORARY TABLE working_deployment (
+    -- Symbolic neighborhood name
+    n          TEXT,
+
+    -- Symbolic group name
+    g          TEXT,
+
+    -- Personnel
+    personnel  INTEGER DEFAULT 0,
+
+    -- Unassigned personnel.
+    unassigned INTEGER DEFAULT 0,
+    
+    PRIMARY KEY (n,g)
+);
+
+
+--------------------------------------------------------------------
 -- Temporary Attrition Tables
 
 
@@ -107,6 +156,5 @@ CREATE TEMPORARY TABLE aam_pending_n (
     -- Total collateral damage
     casualties INTEGER
 );
-
 
 

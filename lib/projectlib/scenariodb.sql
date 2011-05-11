@@ -628,11 +628,8 @@ CREATE TABLE conditions (
 
 ------------------------------------------------------------------------
 -- Personnel Tables
---
--- These tables do not cascade deletions, as they are used only in
--- simulation, not during scenario editing.
 
--- FRC and ORG personnel in playbox and available for deployment.
+-- FRC and ORG personnel in playbox.
 CREATE TABLE personnel_g (
     -- Symbolic group name
     g          TEXT PRIMARY KEY
@@ -641,11 +638,7 @@ CREATE TABLE personnel_g (
                DEFERRABLE INITIALLY DEFERRED,
 
     -- Personnel in playbox
-    personnel  INTEGER DEFAULT 0,
-
-    -- Personnel available for deployment
-    -- TBD: This column may be handled in memory.
-    available  INTEGER DEFAULT 0
+    personnel  INTEGER DEFAULT 0
 );
 
 -- Deployment Table: FRC and ORG personnel deployed into neighborhoods.

@@ -38,7 +38,7 @@ namespace eval ::athena_test::tests:: {
     proc execute_setup {} {
         setup
         personnel start
-        personnel reset
+        personnel load
     }
 
 
@@ -142,7 +142,7 @@ namespace eval ::athena_test::tests:: {
 
     test execute-1.1 {execute: insufficient troops, no exec} -setup {
         execute_setup
-        rdb eval {UPDATE personnel_g SET available=0}
+        rdb eval {UPDATE working_personnel SET available=0}
         tactic mutate create $T1
     } -body {
         tactic::DEMOB execute [tactic get 1]
@@ -155,7 +155,7 @@ namespace eval ::athena_test::tests:: {
         tactic mutate create $T3
     } -body {
         tactic::DEMOB execute [tactic get 1]
-        ted query {SELECT * FROM personnel_g}
+        ted query {SELECT * FROM working_personnel}
     } -cleanup {
         cleanup
     } -result {
@@ -170,7 +170,7 @@ BRIT 5000      5000
         tactic mutate create $T1
     } -body {
         tactic::DEMOB execute [tactic get 1]
-        ted query {SELECT * FROM personnel_g}
+        ted query {SELECT * FROM working_personnel}
     } -cleanup {
         cleanup
     } -result {
@@ -183,10 +183,10 @@ BRIT 5000      5000
     test execute-1.4 {execute: SOME, insufficient available} -setup {
         execute_setup
         tactic mutate create $T1
-        rdb eval {UPDATE personnel_g SET available=50}
+        rdb eval {UPDATE working_personnel SET available=50}
     } -body {
         tactic::DEMOB execute [tactic get 1]
-        ted query {SELECT * FROM personnel_g}
+        ted query {SELECT * FROM working_personnel}
     } -cleanup {
         cleanup
     } -result {

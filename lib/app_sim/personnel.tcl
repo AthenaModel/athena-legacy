@@ -50,19 +50,19 @@ snit::type personnel {
         }
     }
 
-    # reset
+    # load
     #
-    # This routine is called at each strategy tock.  It clears all
-    # deployments, and resets each group's available count back to 
-    # its total personnel.
+    # Populates the working tables for strategy execution.
 
-    typemethod reset {} {
+    typemethod load {} {
         rdb eval {
-            UPDATE personnel_g SET available = personnel;
-
-            UPDATE deploy_ng   
-            SET personnel  = 0,
-                unassigned = 0;
+            DELETE FROM working_personnel;
+            INSERT INTO working_personnel(g,personnel,available)
+            SELECT g, personnel, personnel FROM personnel_g;
+            
+            DELETE FROM working_deployment;
+            INSERT INTO working_deployment(n,g)
+            SELECT n,g FROM deploy_ng;
         }
     }
 
@@ -73,23 +73,34 @@ snit::type personnel {
 
     typemethod deploy {n g personnel} {
         set available [rdb onecolumn {
-            SELECT available FROM personnel_g WHERE g=$g
+            SELECT available FROM working_personnel WHERE g=$g
         }]
 
         require {$personnel <= $available} \
             "Insufficient personnel available: $personnel > $available"
 
         rdb eval {
-            UPDATE personnel_g
+            UPDATE working_personnel
             SET available = available - $personnel
             WHERE g=$g;
 
-            UPDATE deploy_ng
+            UPDATE working_deployment
             SET personnel  = personnel  + $personnel,
                 unassigned = unassigned + $personnel
             WHERE n=$n AND g=$g;
         }
     }
+
+    # available g
+    #
+    # g  - A force or ORG group
+    #
+    # Retrieves the number of personnel available for deployment.
+
+    typemethod available {g} {
+        rdb onecolumn {SELECT available FROM working_personnel WHERE g=$g}
+    }
+
 
     # demob g personnel
     #
@@ -100,20 +111,102 @@ snit::type personnel {
 
     typemethod demob {g personnel} {
         set available [rdb onecolumn {
-            SELECT available FROM personnel_g WHERE g=$g
+            SELECT available FROM working_personnel WHERE g=$g
         }]
 
         require {$personnel <= $available} \
             "Insufficient personnel available: $personnel > $available"
 
         rdb eval {
-            UPDATE personnel_g
+            UPDATE working_personnel
             SET available = available - $personnel,
                 personnel = personnel - $personnel
             WHERE g=$g;
         }
     }
 
+
+    # save
+    #
+    # Saves the working data back to the persistent tables.  In particular,
+    # 
+    # * Deployment changes are logged.
+    # * Undeployed troops are demobilized (if strategy.autoDemob is set)
+    # * Force levels and deployments are saved.
+
+    typemethod save {} {
+        # FIRST, log all changed deployments.
+        $type LogDeploymentChanges
+
+        # NEXT, Demobilize undeployed troops
+        if {[parm get strategy.autoDemob]} {
+            foreach {g available a} [rdb eval {
+                SELECT g, available, a 
+                FROM working_personnel
+                JOIN agroups USING (g) 
+                WHERE available > 0
+            }] {
+                sigevent log warning strategy "
+                    Demobilizing $available undeployed {group:$g} personnel.
+                " $g $a
+                personnel demob $g $available
+            }
+        }
+
+        # NEXT, save data back to the persistent tables
+        rdb eval {
+            DELETE FROM personnel_g;
+            INSERT INTO personnel_g(g,personnel)
+            SELECT g,personnel FROM working_personnel;
+            
+            DELETE FROM deploy_ng;
+            INSERT INTO deploy_ng(n,g,personnel,unassigned)
+            SELECT n,g,personnel,unassigned FROM working_deployment;
+        }
+    }
+
+    # LogDeploymentChanges
+    #
+    # Logs all deployment changes.
+
+    typemethod LogDeploymentChanges {} {
+        rdb eval {
+            SELECT OLD.n                         AS n,
+                   OLD.g                         AS g,
+                   OLD.personnel                 AS old,
+                   NEW.personnel                 AS new,
+                   NEW.personnel - OLD.personnel AS delta,
+                   A.a                           AS a
+            FROM deploy_ng AS OLD
+            JOIN working_deployment AS NEW USING (n,g)
+            JOIN agroups AS A USING (g)
+            WHERE delta != 0
+            ORDER BY g, delta ASC
+        } {
+            if {$new == 0 && $old > 0} {
+                sigevent log 1 strategy "
+                    Actor {actor:$a} withdrew all $old {group:$g} 
+                    personnel from {nbhood:$n}.
+                " $a $g $n
+
+                continue
+            }
+
+            if {$delta > 0} {
+                sigevent log 1 strategy "
+                    Actor {actor:$a} added $delta {group:$g} personnel 
+                    to {nbhood:$n}, for a total of $new personnel.
+                " $a $g $n
+            } elseif {$delta < 0} {
+                let delta {-$delta}
+
+                sigevent log 1 strategy "
+                    Actor {actor:$a} withdrew $delta {group:$g} personnel 
+                    from {nbhood:$n} for a total of $new personnel.
+                " $a $g $n
+            }
+        }
+    }
 
     #-------------------------------------------------------------------
     # Mutators

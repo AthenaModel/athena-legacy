@@ -37,20 +37,15 @@ tactic type define SAVE {int1} {
     typemethod execute {tdict} {
         # FIRST, if there's no cash_on_hand, return 0.
         dict with tdict {
-            array set ainfo [actor get $owner]
+            array set cinfo [cash get $owner]
 
-            let amount {min($ainfo(cash_on_hand), $ainfo(income)*$int1/100.0)}
+            let amount {min($cinfo(cash_on_hand), $cinfo(income)*$int1/100.0)}
 
             if {$amount == 0.0} {
                 return 0
             }
 
-            rdb eval {
-                UPDATE actors 
-                SET cash_reserve = cash_reserve + $amount,
-                    cash_on_hand = cash_on_hand - $amount
-                WHERE a=$owner;
-            }
+            cash deposit $owner $amount
 
             sigevent log 2 tactic "
                 SAVE: $owner saves \$[moneyfmt $amount] to reserve.

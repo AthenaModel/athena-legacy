@@ -108,15 +108,13 @@ tactic type define DEPLOY {g text1 int1 nlist} {
     typemethod execute {tdict} {
         dict with tdict {
             # FIRST, retrieve relevant data.
-            set available [rdb onecolumn {
-                SELECT available FROM personnel_g WHERE g=$g
-            }]
+            set available    [personnel available $g]
+            set cash_on_hand [cash get $owner cash_on_hand]
 
             set costPerPerson [rdb onecolumn {
                 SELECT cost FROM agroups WHERE g=$g
             }]
 
-            set cash_on_hand [actor get $owner cash_on_hand]
 
             # NEXT, if they want ALL personnel, we'll take as many as
             # we can afford.  If they want SOME, we'll take the 
@@ -145,7 +143,7 @@ tactic type define DEPLOY {g text1 int1 nlist} {
             # NEXT, Pay the maintenance cost, if we can.
             let cost {$costPerPerson * $int1}
 
-            if {![actor spend $owner $cost]} {
+            if {![cash spend $owner $cost]} {
                 return 0
             }
 

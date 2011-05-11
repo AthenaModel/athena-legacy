@@ -62,6 +62,9 @@ snit::type ted {
         situations
         tactics
         units
+        working_cash
+        working_personnel
+        working_deployment
     }
 
     # cleanupModules -- list of modules that need to be resync'd
@@ -620,26 +623,6 @@ snit::type ted {
 
     typemethod querylist {sql args} {
         return "\n[rdb query $sql -mode list]    "
-    }
-
-    # deploy n g personnel
-    #
-    # n         - A neighborhood
-    # g         - A FRC or ORG group
-    # personnel - Some number of personnel
-    #
-    # Adds the given number of personnel to deploy_ng, creating the
-    # record if need be.
-
-    typemethod deploy {n g personnel} {
-        rdb eval {
-            INSERT OR IGNORE
-            INTO deploy_ng(n,g,personnel) VALUES ($n,$g,0);
-            
-            UPDATE deploy_ng
-            SET personnel = personnel + $personnel
-            WHERE n=$n AND g=$g;
-        }
     }
 
     #-------------------------------------------------------------------

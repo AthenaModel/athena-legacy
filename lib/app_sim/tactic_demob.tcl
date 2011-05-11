@@ -70,9 +70,7 @@ tactic type define DEMOB {g text1 int1 once} {
     typemethod execute {tdict} {
         dict with tdict {
             # FIRST, retrieve relevant data.
-            set available [rdb onecolumn {
-                SELECT available FROM personnel_g WHERE g=$g
-            }]
+            set available [personnel available $g]
 
             # NEXT, if they want ALL personnel, we'll take all available.
             # If they want SOME, we'll take the requested amount, *if* 

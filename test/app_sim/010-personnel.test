@@ -40,7 +40,7 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # start
 
-    test start-1.2 {start populates personnel_g} -setup {
+    test start-1.1 {start populates personnel_g} -setup {
         setup
     } -body {
         personnel start
@@ -48,11 +48,11 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    personnel available 
----- --------- --------- 
-BLUE 5000      0         
-BRIT 5000      0         
-HAL  2000      0         
+g    personnel 
+---- --------- 
+BLUE 5000      
+BRIT 5000      
+HAL  2000      
     }
 
     test start-1.2 {start populates deploy_ng} -setup {
@@ -74,14 +74,14 @@ NB2 HAL  0         0
     }
 
     #-------------------------------------------------------------------
-    # reset
+    # load
 
-    test reset-1.1 {resets personnel_g} -setup {
+    test load-1.1 {loads working_personnel} -setup {
         setup
         personnel start
     } -body {
-        personnel reset
-        ted query {SELECT * FROM personnel_g}
+        personnel load
+        ted query {SELECT * FROM working_personnel}
     } -cleanup {
         cleanup
     } -result {
@@ -92,14 +92,12 @@ BRIT 5000      5000
 HAL  2000      2000      
     }
 
-    test reset-1.2 {resets deploy_ng} -setup {
+    test load-1.2 {loads working_deployment} -setup {
         setup
         personnel start
-        ted deploy NB1 BLUE 100
-        ted deploy NB1 BRIT 100
     } -body {
-        personnel reset
-        ted query {SELECT * FROM deploy_ng}
+        personnel load
+        ted query {SELECT * FROM working_deployment}
     } -cleanup {
         cleanup
     } -result {
@@ -120,7 +118,7 @@ NB2 HAL  0         0
     test deploy-1.1 {fails if troops are unavailable} -setup {
         setup
         personnel start
-        personnel reset
+        personnel load
     } -body {
         personnel deploy NB1 BLUE 6000
     } -returnCodes {
@@ -132,10 +130,10 @@ NB2 HAL  0         0
     test deploy-2.1 {Decrements available} -setup {
         setup
         personnel start
-        personnel reset
+        personnel load
     } -body {
         personnel deploy NB1 BLUE 1000
-        ted query {SELECT * FROM personnel_g}
+        ted query {SELECT * FROM working_personnel}
     } -cleanup {
         cleanup
     } -result {
@@ -149,10 +147,10 @@ HAL  2000      2000
     test deploy-2.2 {Increments personnel} -setup {
         setup
         personnel start
-        personnel reset
+        personnel load
     } -body {
         personnel deploy NB1 BLUE 1000
-        ted query {SELECT * FROM deploy_ng}
+        ted query {SELECT * FROM working_deployment}
     } -cleanup {
         cleanup
     } -result {
@@ -169,11 +167,11 @@ NB2 HAL  0         0
     test deploy-2.3 {Multiple deployments to same n,g} -setup {
         setup
         personnel start
-        personnel reset
+        personnel load
     } -body {
         personnel deploy NB1 BLUE 1000
         personnel deploy NB1 BLUE 500
-        ted query {SELECT * FROM deploy_ng}
+        ted query {SELECT * FROM working_deployment}
     } -cleanup {
         cleanup
     } -result {
@@ -193,7 +191,7 @@ NB2 HAL  0         0
     test demob-1.1 {fails if troops are unavailable} -setup {
         setup
         personnel start
-        personnel reset
+        personnel load
     } -body {
         personnel demob BLUE 6000
     } -returnCodes {
@@ -205,10 +203,10 @@ NB2 HAL  0         0
     test demob-2.1 {Decrements personnel and available} -setup {
         setup
         personnel start
-        personnel reset
+        personnel load
     } -body {
         personnel demob BLUE 1000
-        ted query {SELECT * FROM personnel_g}
+        ted query {SELECT * FROM working_personnel}
     } -cleanup {
         cleanup
     } -result {
@@ -220,32 +218,115 @@ HAL  2000      2000
     }
 
     #-------------------------------------------------------------------
+    # save
+
+    test save-1.1 {Logs changed deployments} -setup {
+        setup
+        personnel start
+        personnel load
+        personnel demob BLUE 3000
+        personnel deploy NB1 BLUE 2000
+        personnel deploy NB1 BRIT 5000
+        personnel deploy NB1 HAL 2000
+    } -body {
+        personnel save
+
+        rdb eval {SELECT count(event_id) FROM sigevents}
+    } -cleanup {
+        cleanup
+    } -result {3}
+
+    test save-1.2 {Saves personnel back to personnel_g} -setup {
+        setup
+        personnel start
+        personnel load
+        personnel demob BLUE 3000
+        personnel deploy NB1 BLUE 2000
+        personnel deploy NB1 BRIT 5000
+        personnel deploy NB1 HAL 2000
+    } -body {
+        personnel save
+
+        ted query {SELECT * FROM personnel_g}
+    } -cleanup {
+        cleanup
+    } -result {
+g    personnel 
+---- --------- 
+BLUE 2000      
+BRIT 5000      
+HAL  2000      
+    }
+
+    test save-1.3 {Automatically demobilizes undeployed personnel} -setup {
+        setup
+        personnel start
+        personnel load
+        personnel deploy NB1 BLUE 2000
+    } -body {
+        personnel save
+
+        ted query {SELECT * FROM personnel_g}
+    } -cleanup {
+        cleanup
+    } -result {
+g    personnel 
+---- --------- 
+BLUE 2000      
+BRIT 0         
+HAL  0         
+    }
+
+    #-------------------------------------------------------------------
+    # available
+
+    test available-1.1 {Returns available} -setup {
+        setup
+        personnel start
+        personnel load
+    } -body {
+        set a [personnel available BLUE]
+        personnel deploy NB1 BLUE 1000
+        set b [personnel available BLUE]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {5000 4000}
+
+
+
+
+
+    #-------------------------------------------------------------------
     # mutate attrit
 
     test attrit-1.1 {attrit updates the personnel_g count} -setup {
         setup
         personnel start
-        personnel reset
+        personnel load
         personnel deploy NB1 BLUE 100
+        personnel save
     } -body {
         personnel mutate attrit NB1 BLUE 15
         ted query {SELECT * FROM personnel_g ORDER BY g}
     } -cleanup {
         cleanup
     } -result {
-g    personnel available 
----- --------- --------- 
-BLUE 4985      4900      
-BRIT 5000      5000      
-HAL  2000      2000      
+g    personnel 
+---- --------- 
+BLUE 85        
+BRIT 0         
+HAL  0         
     }
 
     test attrit-1.2 {attrit updates the deploy_ng count} -setup {
         setup
         personnel start
-        personnel reset
+        personnel load
         personnel deploy NB1 BLUE 100
         personnel deploy NB1 BRIT 100
+        personnel save
     } -body {
         personnel mutate attrit NB1 BLUE 15
         ted query {SELECT * FROM deploy_ng ORDER BY g}
@@ -265,9 +346,11 @@ NB2 HAL  0         0
     test attrit-1.3 {attrits down to zero} -setup {
         setup
         personnel start
-        personnel reset
+        personnel load
         personnel deploy NB1 BLUE 100
+        personnel deploy NB2 BLUE 100
         personnel deploy NB1 BRIT 100
+        personnel save
     } -body {
         personnel mutate attrit NB1 BLUE 150
 
@@ -283,15 +366,16 @@ NB2 HAL  0         0
         list $personnel $deployed
     } -cleanup {
         cleanup
-    } -result {4900 0}
+    } -result {100 0}
 
 
     test attrit-2.1 {undo undoes the personnel_g change} -setup {
         setup
         personnel start
-        personnel reset
+        personnel load
         personnel deploy NB1 BLUE 100
         personnel deploy NB1 BRIT 100
+        personnel save
     } -body {
         set a [ted query {SELECT * FROM personnel_g}]
         set undo [personnel mutate attrit NB1 BLUE 30]
@@ -306,9 +390,10 @@ NB2 HAL  0         0
     test attrit-2.2 {undo undoes the deploy_ng change} -setup {
         setup
         personnel start
-        personnel reset
+        personnel load
         personnel deploy NB1 BLUE 100
         personnel deploy NB1 BRIT 100
+        personnel save
     } -body {
         set a [ted query {SELECT * FROM deploy_ng}]
         set undo [personnel mutate attrit NB1 BLUE 30]
@@ -323,9 +408,10 @@ NB2 HAL  0         0
     test attrit-2.3 {undo restores truncated value} -setup {
         setup
         personnel start
-        personnel reset
+        personnel load
         personnel deploy NB1 BLUE 100
         personnel deploy NB1 BRIT 100
+        personnel save
     } -body {
         set a [ted query {SELECT * FROM deploy_ng}]
         set undo [personnel mutate attrit NB1 BLUE 150]
@@ -340,9 +426,10 @@ NB2 HAL  0         0
     test attrit-2.4 {joined undo's yield the right answer} -setup {
         setup
         personnel start
-        personnel reset
+        personnel load
         personnel deploy NB1 BLUE 100
         personnel deploy NB1 BRIT 100
+        personnel save
     } -body {
         set a [ted query {SELECT * FROM deploy_ng}]
         set undo [list]

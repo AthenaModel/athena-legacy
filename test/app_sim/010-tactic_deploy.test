@@ -38,7 +38,8 @@ namespace eval ::athena_test::tests:: {
     proc execute_setup {} {
         setup
         personnel start
-        personnel reset
+        personnel load
+        cash load
     }
 
 
@@ -205,7 +206,7 @@ namespace eval ::athena_test::tests:: {
 
     test execute-1.1 {execute: SOME, insufficient troops, no exec} -setup {
         execute_setup
-        rdb eval {UPDATE personnel_g SET available=0}
+        rdb eval {UPDATE working_personnel SET available=0}
         tactic mutate create $T1
     } -body {
         tactic::DEPLOY execute [tactic get 1]
@@ -215,11 +216,11 @@ namespace eval ::athena_test::tests:: {
 
     test execute-1.2 {execute: SOME, insufficent troops, no change} -setup {
         execute_setup
-        rdb eval {UPDATE personnel_g SET available=0}
+        rdb eval {UPDATE working_personnel SET available=0}
         tactic mutate create $T1
     } -body {
         tactic::DEPLOY execute [tactic get 1]
-        ted query {SELECT * FROM deploy_ng}
+        ted query {SELECT * FROM working_deployment}
     } -cleanup {
         cleanup
     } -result {
@@ -255,7 +256,7 @@ NB2 BRIT 0         0
         tactic mutate create $T1
     } -body {
         tactic::DEPLOY execute [tactic get 1]
-        ted query {SELECT * FROM deploy_ng}
+        ted query {SELECT * FROM working_deployment}
     } -cleanup {
         cleanup
     } -result {
@@ -272,7 +273,7 @@ NB2 BRIT 0         0
         tactic mutate create $T2
     } -body {
         tactic::DEPLOY execute [tactic get 1]
-        ted query {SELECT * FROM deploy_ng}
+        ted query {SELECT * FROM working_deployment}
     } -cleanup {
         cleanup
     } -result {
@@ -289,12 +290,12 @@ NB2 BRIT 0         0
         tactic mutate create $T1
         rdb eval {
             UPDATE groups SET cost=1.0;
-            UPDATE actors SET cash_on_hand=1000.0;
+            UPDATE working_cash SET cash_on_hand=1000.0;
         }
 
     } -body {
         tactic::DEPLOY execute [tactic get 1]
-        actor get JOE cash_on_hand
+        cash get JOE cash_on_hand
     } -cleanup {
         cleanup
     } -result {900.0}
@@ -302,7 +303,7 @@ NB2 BRIT 0         0
     test execute-1.8 {execute: ALL, available = 0} -setup {
         execute_setup
         tactic mutate create $T3
-        rdb eval { UPDATE personnel_g SET available=0 }
+        rdb eval { UPDATE working_personnel SET available=0 }
     } -body {
         tactic::DEPLOY execute [tactic get 1]
     } -cleanup {
@@ -314,7 +315,7 @@ NB2 BRIT 0         0
         tactic mutate create $T3
     } -body {
         tactic::DEPLOY execute [tactic get 1]
-        ted query {SELECT * FROM deploy_ng}
+        ted query {SELECT * FROM working_deployment}
     } -cleanup {
         cleanup
     } -result {
@@ -331,11 +332,11 @@ NB2 BRIT 0         0
         tactic mutate create $T3
         rdb eval {
             UPDATE groups SET cost=1.0;
-            UPDATE actors SET cash_on_hand=6000.0;
+            UPDATE working_cash SET cash_on_hand=6000.0;
         }
     } -body {
         tactic::DEPLOY execute [tactic get 1]
-        ted query {SELECT * FROM deploy_ng}
+        ted query {SELECT * FROM working_deployment}
     } -cleanup {
         cleanup
     } -result {
@@ -352,11 +353,11 @@ NB2 BRIT 0         0
         tactic mutate create $T3
         rdb eval {
             UPDATE groups SET cost=1.0;
-            UPDATE actors SET cash_on_hand=2500.0;
+            UPDATE working_cash SET cash_on_hand=2500.0;
         }
     } -body {
         tactic::DEPLOY execute [tactic get 1]
-        ted query {SELECT * FROM deploy_ng}
+        ted query {SELECT * FROM working_deployment}
     } -cleanup {
         cleanup
     } -result {

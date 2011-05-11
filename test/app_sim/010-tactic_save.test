@@ -30,6 +30,7 @@ namespace eval ::athena_test::tests:: {
 
     proc setup {} {
         ted create JOE 
+        cash load
 
         # Verify that unused columns contain NULL
         rdb nullvalue "@"
@@ -99,10 +100,13 @@ namespace eval ::athena_test::tests:: {
     test execute-1.1 {execute: no cash on hand} -setup {
         setup
         tactic mutate create $T1
+        rdb eval {
+            UPDATE working_cash SET cash_on_hand = 0.0
+        }
     } -body {
-        array set a [actor get JOE]
+        array set a [cash get JOE]
         set flag [tactic::SAVE execute [tactic get 1]]
-        array set b [actor get JOE]
+        array set b [cash get JOE]
 
         list $flag \
             $a(cash_on_hand) $a(cash_reserve) \
@@ -115,12 +119,12 @@ namespace eval ::athena_test::tests:: {
         setup
         tactic mutate create $T1
         rdb eval {
-            UPDATE actors SET cash_on_hand = 10000.0
+            UPDATE working_cash SET cash_on_hand = 10000.0
         }
     } -body {
-        array set a [actor get JOE]
+        array set a [cash get JOE]
         set flag [tactic::SAVE execute [tactic get 1]]
-        array set b [actor get JOE]
+        array set b [cash get JOE]
 
         list $flag \
             $a(cash_on_hand) $a(cash_reserve) \
@@ -133,12 +137,12 @@ namespace eval ::athena_test::tests:: {
         setup
         tactic mutate create $T1
         rdb eval {
-            UPDATE actors SET cash_on_hand = 500.0
+            UPDATE working_cash SET cash_on_hand = 500.0
         }
     } -body {
-        array set a [actor get JOE]
+        array set a [cash get JOE]
         set flag [tactic::SAVE execute [tactic get 1]]
-        array set b [actor get JOE]
+        array set b [cash get JOE]
 
         list $flag \
             $a(cash_on_hand) $a(cash_reserve) \

@@ -37,18 +37,12 @@ snit::type strategy {
     #   * Executes the selected tactics.
 
     typemethod tock {} {
-        # FIRST, prepare for this tock.
-        set deployments [$type SaveOldDeployments]
-
-        personnel reset
+        # FIRST, Set up working tables.  This includes giving
+        # the actors their incomes.
         tactic reset
         tactic::DEFROE reset
-
-        # NEXT, give actors their income.
-        rdb eval {
-            UPDATE actors
-            SET cash_on_hand = cash_on_hand + income
-        }
+        cash load
+        personnel load
 
         # NEXT, determine whether the goals are met or unmet.
         $type ComputeGoalFlags
@@ -63,23 +57,10 @@ snit::type strategy {
             $type ExecuteTactics $a $elist
         }
 
-        # NEXT, log deployment changes
-        $type LogDeploymentChanges $deployments
+        # NEXT, save working data
+        cash save
+        personnel save
 
-        # NEXT, demobilize undeployed troops.
-        if {[parm get strategy.autoDemob]} {
-            foreach {g available a} [rdb eval {
-                SELECT g, available, a 
-                FROM personnel_g
-                JOIN agroups USING (g) 
-                WHERE available > 0
-            }] {
-                sigevent log warning strategy "
-                    Demobilizing $available undeployed {group:$g} personnel.
-                " $g $a
-                personnel demob $g $available
-            }
-        }
     }
 
     # ComputeGoalFlags
@@ -266,73 +247,6 @@ snit::type strategy {
         }
 
         log normal strat "ExecuteTactics $a: finish"
-    }
-
-    # SaveOldDeployments
-    #
-    # Returns a dictionary n->g->personnel of all non-zero deployments.
-
-    typemethod SaveOldDeployments {} {
-        set result [dict create]
-
-        rdb eval {
-            SELECT n,g,personnel 
-            FROM deploy_ng
-            WHERE personnel != 0
-        } {
-            dict set result $n $g $personnel
-        }
-
-        return $result
-    }
-
-    # LogDeploymentChanges old
-    #
-    # old    - Dictionary n->g->personnel of old deployments
-    #
-    # Logs all deployment changes.
-
-    typemethod LogDeploymentChanges {old} {
-        rdb eval {
-            SELECT n,g,personnel,a
-            FROM deploy_ng
-            JOIN agroups USING (g)
-        } {
-            if {$personnel == 0 &&
-                [dict exists $old $n $g]
-            } {
-                set oldPersonnel [dict get $old $n $g]
-
-                sigevent log 1 strategy "
-                    Actor {actor:$a} withdrew all $oldPersonnel {group:$g} 
-                    personnel from {nbhood:$n}.
-                " $a $g $n
-
-                continue
-            }
-
-            if {[dict exists $old $n $g]} {
-                set oldPersonnel [dict get $old $n $g]
-            } else {
-                set oldPersonnel 0
-            }
-
-            let delta {$personnel - $oldPersonnel}
-
-            if {$delta > 0} {
-                sigevent log 1 strategy "
-                    Actor {actor:$a} added $delta {group:$g} personnel 
-                    to {nbhood:$n}, for a total of $personnel personnel.
-                " $a $g $n
-            } elseif {$delta < 0} {
-                let delta {-$delta}
-
-                sigevent log 1 strategy "
-                    Actor {actor:$a} withdrew $delta {group:$g} personnel 
-                    from {nbhood:$n} for a total of $personnel personnel.
-                " $a $g $n
-            }
-        }
     }
 
     #-------------------------------------------------------------------
