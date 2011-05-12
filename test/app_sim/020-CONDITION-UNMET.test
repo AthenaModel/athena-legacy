@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    020-CONDITION-GOAL.test
+#    020-CONDITION-UNMET.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    app_sim(1) CONDITION:GOAL:* order tests.
+#    app_sim(1) CONDITION:UNMET:* order tests.
 #
-#    This test suite tests the CONDITION:GOAL:* orders.
+#    This test suite tests the CONDITION:UNMET:* orders.
 #
 #-----------------------------------------------------------------------
 
@@ -51,99 +51,85 @@ namespace eval ::athena_test::tests:: {
 
     # Standard items
 
-    set GU1 {
+    set C1 {
         cc_id  4
-        text1  MET
         list1  {1}
     }
 
-    set GU2 {
+    set C2 {
         cc_id  4
-        text1  UNMET
         list1  {1 2}
     }
 
     #-------------------------------------------------------------------
-    # CONDITION:GOAL:CREATE
+    # CONDITION:UNMET:CREATE
 
-    test GOAL:CREATE-1.1 {required parms} -body {
-        ted order -reject CONDITION:GOAL:CREATE {}
+    test UNMET:CREATE-1.1 {required parms} -body {
+        ted order -reject CONDITION:UNMET:CREATE {}
     } -result {
         cc_id {required value}
         list1 {required value}
-        text1 {required value}
     }
 
     
-    test GOAL:CREATE-1.2 {tactic is unknown} -setup {
+    test UNMET:CREATE-1.2 {tactic is unknown} -setup {
         setup
     } -body {
-        ted order -reject CONDITION:GOAL:CREATE \
-            [dict merge $GU1 [list cc_id NONESUCH]]
+        ted order -reject CONDITION:UNMET:CREATE \
+            [dict merge $C1 [list cc_id NONESUCH]]
     } -cleanup {
         cleanup
     } -result {
         cc_id {Invalid tactic ID: "NONESUCH"}
     }
 
-    test GOAL:CREATE-1.3 {list1 contains non-goal} -setup {
+    test UNMET:CREATE-1.3 {list1 contains non-goal} -setup {
         setup
     } -body {
-        ted order -reject CONDITION:GOAL:CREATE \
-            [dict merge $GU1 [list list1 NONESUCH]]
+        ted order -reject CONDITION:UNMET:CREATE \
+            [dict merge $C1 [list list1 NONESUCH]]
     } -cleanup {
         cleanup
     } -result {
         list1 {Invalid goal ID: "NONESUCH"}
     }
 
-    test GOAL:CREATE-1.4 {goal belongs to different actor} -setup {
+    test UNMET:CREATE-1.4 {goal belongs to different actor} -setup {
         setup
     } -body {
-        ted order -reject CONDITION:GOAL:CREATE \
-            [dict merge $GU1 [list list1 3]]
+        ted order -reject CONDITION:UNMET:CREATE \
+            [dict merge $C1 [list list1 3]]
     } -cleanup {
         cleanup
     } -result {
         list1 {Goal 3 does not belong to the condition's owning actor}
     }
 
-    test GOAL:CREATE-1.5 {predicate is unknown} -setup {
+    test UNMET:CREATE-2.1 {condition is created} -setup {
         setup
     } -body {
-        ted order -reject CONDITION:GOAL:CREATE \
-            [dict merge $GU1 [list text1 NONESUCH]]
-    } -cleanup {
-        cleanup
-    } -result {
-        text1 {invalid value "NONESUCH", should be one of: MET, UNMET}
-    }
+        ted order CONDITION:UNMET:CREATE $C1
 
-    test GOAL:CREATE-2.1 {condition is created} -setup {
-        setup
-    } -body {
-        ted order CONDITION:GOAL:CREATE $GU1
-
-        ted querylist {SELECT * FROM conditions_GOAL}
+        ted querylist {SELECT * FROM conditions_UNMET}
     } -cleanup {
         cleanup
     } -result {
 condition_id    1
-condition_type  GOAL
+condition_type  UNMET
 cc_id           4
-narrative       Goal is met: 1
+narrative       Goal is unmet:
+                    (1) Joe's Goal 1
 state           normal
 flag            
 list1           1
-text1           MET
     }
 
 
-    test GOAL:CREATE-2.2 {Effects} -setup {
+    test UNMET:CREATE-2.2 {Effects} -setup {
         setup
     } -body {
         ted notifier bind ::rdb <conditions>
-        ted order CONDITION:GOAL:CREATE $GU1
+        ted order CONDITION:UNMET:CREATE $C1
         ted notifier received
     } -cleanup {
         cleanup
@@ -152,9 +138,9 @@ text1           MET
     }
 
 
-    test GOAL:CREATE-3.1 {undo effects} -setup {
+    test UNMET:CREATE-3.1 {undo effects} -setup {
         setup
-        ted order CONDITION:GOAL:CREATE $GU1
+        ted order CONDITION:UNMET:CREATE $C1
     } -body {
         ted notifier bind ::rdb <conditions>
         cif undo -test
@@ -167,86 +153,76 @@ text1           MET
 
 
     #-------------------------------------------------------------------
-    # CONDITION:GOAL:UPDATE
+    # CONDITION:UNMET:UPDATE
 
-    test GOAL:UPDATE-1.1 {required parms} -body {
-        ted order -reject CONDITION:GOAL:UPDATE {}
+    test UNMET:UPDATE-1.1 {required parms} -body {
+        ted order -reject CONDITION:UNMET:UPDATE {}
     } -result {
         condition_id {required value}
     }
 
     
-    test GOAL:UPDATE-1.2 {condition_id is unknown} -setup {
+    test UNMET:UPDATE-1.2 {condition_id is unknown} -setup {
         setup
-        ted order CONDITION:GOAL:CREATE $GU1
+        ted order CONDITION:UNMET:CREATE $C1
     } -body {
-        ted order -reject CONDITION:GOAL:UPDATE condition_id NONESUCH
+        ted order -reject CONDITION:UNMET:UPDATE condition_id NONESUCH
     } -cleanup {
         cleanup
     } -result {
         condition_id {Invalid condition ID: "NONESUCH"}
     }
 
-    test GOAL:UPDATE-1.3 {list1 is invalid} -setup {
+    test UNMET:UPDATE-1.3 {list1 is invalid} -setup {
         setup
-        ted order CONDITION:GOAL:CREATE $GU1
+        ted order CONDITION:UNMET:CREATE $C1
     } -body {
-        ted order -reject CONDITION:GOAL:UPDATE condition_id 1 list1 NONESUCH
+        ted order -reject CONDITION:UNMET:UPDATE condition_id 1 list1 NONESUCH
     } -cleanup {
         cleanup
     } -result {
         list1 {Invalid goal ID: "NONESUCH"}
     }
 
-    test GOAL:UPDATE-1.4 {has goals owned by another actor} -setup {
+    test UNMET:UPDATE-1.4 {has goals owned by another actor} -setup {
         setup
-        ted order CONDITION:GOAL:CREATE $GU1
+        ted order CONDITION:UNMET:CREATE $C1
     } -body {
-        ted order -reject CONDITION:GOAL:UPDATE condition_id 1 list1 3
+        ted order -reject CONDITION:UNMET:UPDATE condition_id 1 list1 3
     } -cleanup {
         cleanup
     } -result {
         list1 {Goal 3 does not belong to the condition's owning actor}
     }
 
-    test GOAL:UPDATE-1.5 {predicate is invalid} -setup {
+    test UNMET:UPDATE-2.1 {conditions are updated} -setup {
         setup
-        ted order CONDITION:GOAL:CREATE $GU1
+        ted order CONDITION:UNMET:CREATE $C1
     } -body {
-        ted order -reject CONDITION:GOAL:UPDATE condition_id 1 text1 NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        text1 {invalid value "NONESUCH", should be one of: MET, UNMET}
-    }
+        ted order CONDITION:UNMET:UPDATE condition_id 1 list1 {1 2}
 
-    test GOAL:UPDATE-2.1 {conditions are updated} -setup {
-        setup
-        ted order CONDITION:GOAL:CREATE $GU1
-    } -body {
-        ted order CONDITION:GOAL:UPDATE condition_id 1 list1 {1 2} text1 UNMET
-
-        ted querylist {SELECT * FROM conditions_GOAL}
+        ted querylist {SELECT * FROM conditions_UNMET}
     } -cleanup {
         cleanup
     } -result {
 condition_id    1
-condition_type  GOAL
+condition_type  UNMET
 cc_id           4
-narrative       Any of these goals are unmet: 1, 2
+narrative       Any of these goals are unmet:
+                    (1) Joe's Goal 1
+                    (2) Joe's Goal 2
 state           normal
 flag            
 list1           1 2
-text1           UNMET
     }
 
 
-    test GOAL:UPDATE-2.2 {Effects} -setup {
+    test UNMET:UPDATE-2.2 {Effects} -setup {
         setup
-        ted order CONDITION:GOAL:CREATE $GU1
+        ted order CONDITION:UNMET:CREATE $C1
     } -body {
         ted notifier bind ::rdb <conditions>
-        ted order CONDITION:GOAL:UPDATE condition_id 1 list1 {1 2}
+        ted order CONDITION:UNMET:UPDATE condition_id 1 list1 {1 2}
         ted notifier received
     } -cleanup {
         cleanup
@@ -256,10 +232,10 @@ text1           UNMET
     }
 
 
-    test GOAL:UPDATE-3.1 {undo effects} -setup {
+    test UNMET:UPDATE-3.1 {undo effects} -setup {
         setup
-        ted order CONDITION:GOAL:CREATE $GU1
-        ted order CONDITION:GOAL:UPDATE condition_id 1 list1 {1 2}
+        ted order CONDITION:UNMET:CREATE $C1
+        ted order CONDITION:UNMET:UPDATE condition_id 1 list1 {1 2}
     } -body {
         ted notifier bind ::rdb <conditions>
         cif undo -test

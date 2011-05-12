@@ -714,7 +714,7 @@ snit::widget strategybrowser {
                    G.owner
             FROM conditions AS C
             JOIN goals AS G ON (cc_id = goal_id)
-            WHERE owner=$info(actor)
+            WHERE G.owner=$info(actor)
             ORDER BY condition_id;
         } row {
             unset -nocomplain row(*)
@@ -1218,7 +1218,7 @@ snit::widget strategybrowser {
                    T.owner
             FROM conditions AS C
             JOIN tactics AS T ON (cc_id = tactic_id)
-            WHERE owner=$info(actor)
+            WHERE T.owner=$info(actor)
             ORDER BY condition_id;
         } row {
             unset -nocomplain row(*)

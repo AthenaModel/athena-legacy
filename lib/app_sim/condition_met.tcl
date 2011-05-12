@@ -1,45 +1,52 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    condition_goals.tcl
+#    condition_met.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): Condition Type Definitions relating to Goals.
+#    athena_sim(1): MET(goals) condition.
 #
-# This module defines the GOAL condition ensemble and orders.  
-# See condition(i) for a description of the standard 
-# subcommands.
+# This module defines the MET condition ensemble and orders.  
+# See condition(i) for a description of the standard subcommands.
+#
+# list <= goals -- List of goals
 #
 #-----------------------------------------------------------------------
 
 
 #-----------------------------------------------------------------------
-# Condition: GOAL(list1,text1)
+# Condition: MET(list1)
 #
 # list1   - A list of IDs of one or more goals belonging to the condition's
-#           owning actor.
-# text1   - egoal_predicate(n): MET or UNMET.
+#           owner.
 #
-# If MET, the condition is met if all goals in the list are met.
-# If UNMET, the condition is met if any goal in the list is unmet.
+# The condition is met if all goals in the list are met.
 
-condition type define GOAL {list1 text1} -attachto tactic {
+condition type define MET {list1} -attachto tactic {
   
     # narrative
     #
     # Return a human-readable description of the condition.
 
     typemethod narrative {cdict} {
-        # TBD: Display goal narratives as well as goal IDs?
         dict with cdict {
+            set gtext [list]
+
+            rdb eval "
+                SELECT goal_id, narrative
+                FROM goals
+                WHERE goal_id IN ([join $list1 ,])
+                ORDER BY goal_id
+            " {
+                lappend gtext "    ($goal_id) $narrative"
+            }
+
             if {[llength $list1] == 1} {
-                return "Goal is [string tolower $text1]: $list1"
-            } elseif {$text1 eq "MET"} {
-                return "All of these goals are met: [join $list1 {, }]"
+                return "Goal is met:\n[lindex $gtext 0]"
             } else {
-                return "Any of these goals are unmet: [join $list1 {, }]"
+                return "All of these goals are met:\n[join $gtext \n]"
             }
         }
     }
@@ -64,48 +71,32 @@ condition type define GOAL {list1 text1} -attachto tactic {
 
     # eval
     #
-    # Evaluate the condition.  In this case, the condition is true
-    # if there are any goals in the list that are unmet, i.e., have
-    # flag of 0.
-    #
-    # If none of the goals listed have known values, the condition
-    # is unmet.
-    #
-    # TBD: Optimization: Write one query, using "IN", instead of
-    # using [goal get]
-
+    # Evaluate the condition.  The condition is true if all of the
+    # goals in the list with known values have a flag of one.
 
     typemethod eval {cdict} {
+        set count 0
+
         dict with cdict {
-            if {$text1 eq "MET"} {
-                set A 0
-                set B 1
-            } else {
-                set A 1
-                set B 0
-            }
-
-            set count 0
-            foreach gid $list1 {
-                set gflag [goal get $gid flag]
-
-                if {$gflag eq ""} {
-                    continue
-                }
-
+            rdb eval "
+                SELECT flag FROM goals
+                WHERE goal_id IN ([join $list1 ,])
+                AND   flag != ''
+            " {
                 incr count
-                
-                if {!$gflag} {
-                    return $A
+
+                if {!$flag} {
+                    return 0
                 }
             }
+        }
 
-            if {$count > 0} {
-                return $B
-            } else {
-                # No goals with known values
-                return 0
-            }
+        # The goal can only be presumed to be met if there's at least
+        # one condition with a known value.
+        if {$count > 0} {
+            return 1
+        } else {
+            return 0
         }
     }
 
@@ -146,7 +137,7 @@ condition type define GOAL {list1 text1} -attachto tactic {
         orderdialog refreshForKey condition_id * $dlg $fields $fdict
     }
 
-    # SetItemDict dlg cc_id
+    # SetItemDict dlg cid
     #
     # dlg    - The order dialog
     # cc_id  - The tactic ID
@@ -203,28 +194,25 @@ condition type define GOAL {list1 text1} -attachto tactic {
     }
 }
 
-# CONDITION:GOAL:CREATE
+# CONDITION:MET:CREATE
 #
-# Creates a new GOAL condition.
+# Creates a new MET condition.
 
-order define CONDITION:GOAL:CREATE {
-    title "Create Condition: Goal Flag"
+order define CONDITION:MET:CREATE {
+    title "Create Condition: Goal is Met"
 
     options \
         -sendstates {PREP PAUSED} \
-        -refreshcmd {condition::GOAL RefreshCREATE}
+        -refreshcmd {condition::MET RefreshCREATE}
 
     parm cc_id  key   "Tactic ID"  -context yes         \
                                    -table   cond_collections \
                                    -keys    cc_id
     parm list1  goals "Goals"     
-    parm text1  enum  "Are"        -enumtype    egoal_predicate \
-                                   -displaylong yes
 } {
     # FIRST, prepare and validate the parameters
     prepare cc_id     -required -type   tactic
     prepare list1     -required -listof goal
-    prepare text1     -required -type   egoal_predicate
 
     returnOnError
 
@@ -232,45 +220,42 @@ order define CONDITION:GOAL:CREATE {
     set owner [tactic get $parms(cc_id) owner]
     
     validate list1 {
-        condition::GOAL ValidateGoals $owner $parms(list1)
+        condition::MET ValidateGoals $owner $parms(list1)
     }
 
     returnOnError -final
 
     # NEXT, put condition_type in the parmdict
-    set parms(condition_type) GOAL
+    set parms(condition_type) MET
 
     # NEXT, create the condition
     setundo [condition mutate create [array get parms]]
 }
 
-# CONDITION:GOAL:UPDATE
+# CONDITION:MET:UPDATE
 #
-# Updates existing GOAL condition.
+# Updates existing MET condition.
 
-order define CONDITION:GOAL:UPDATE {
-    title "Update Condition: Goals Unmet"
+order define CONDITION:MET:UPDATE {
+    title "Update Condition: Goal is Met"
     options \
         -sendstates {PREP PAUSED}                   \
-        -refreshcmd {condition::GOAL RefreshUPDATE}
+        -refreshcmd {condition::MET RefreshUPDATE}
 
     parm condition_id key  "Condition ID"  -context yes          \
                                            -table   conditions   \
                                            -keys    condition_id
     parm list1        goals "Goals"
-    parm text1        enum  "Are"          -enumtype egoal_predicate \
-                                           -displaylong yes
 } {
     # FIRST, prepare the parameters
     prepare condition_id  -required  -type   condition
     prepare list1                    -listof goal
-    prepare text1                    -type   egoal_predicate
 
     returnOnError
 
     # NEXT, make sure this is the right kind of condition
     validate condition_id { 
-        condition RequireType GOAL $parms(condition_id)  
+        condition RequireType MET $parms(condition_id)  
     }
 
     returnOnError
@@ -280,7 +265,7 @@ order define CONDITION:GOAL:UPDATE {
     set owner [tactic get $cc_id owner]
     
     validate list1 {
-        condition::GOAL ValidateGoals $owner $parms(list1)
+        condition::MET ValidateGoals $owner $parms(list1)
     }
 
     returnOnError -final

@@ -886,23 +886,24 @@ order CONDITION:CASH:UPDATE "Update Condition: Cash Reserve" {
 
 
 #-----------------------------------------------------------------------
-# Condition: GOAL
+# Condition: MET
 
-page /order/condition goal "Condition: Goal Flag" {
+page /order/condition met "Condition: Goal is Met" {
     <<title>>
 
-    This condition queries on the state of one or more goals
-    belonging to the same actor.  It can only be attached
-    to tactics.  Depending on its arguments, it is met
-    when all of the listed goals are met, or when any of the
-    listed goals is unmet.
+    This condition is met when one or more goals are all met.
+    All of the queried goals must belong to the same actor
+    as the condition does.<p>
+
+    This condition can only be attached to tactics, not to
+    goals.<p>
 
     The condition orders are as follows:<p>
 
     <<childlinks>>
 }
 
-order CONDITION:GOAL:CREATE "Create Condition: Goal Flag" {
+order CONDITION:MET:CREATE "Create Condition: Goal is Met" {
     <<parmlist>>
     <<CONDITION.ctactic>>
 
@@ -911,22 +912,12 @@ order CONDITION:GOAL:CREATE "Create Condition: Goal Flag" {
     to the same actor as the tactic to which this condition is attached.
     <</parm>>
 
-    <<parm text1 "Are">>
-    <b>Required.</b>  Ought the listed goals to be "Met" or "Unmet"?
-    If "Met", the condition is met if <b>all</b> of the listed goals are 
-    <b>met</b>; 
-    if "Unmet", the condition is met if <b>any</b> of the listed goals are 
-    <b>unmet</b>.  A value from the following table:<p>
-
-    <<enumdoc ::projectlib::egoal_predicate>>
-    <</parm>>
-
     <</parmlist>>
 
     Creates the condition.
 }
 
-order CONDITION:GOAL:UPDATE "Update Condition: Goal Flag" {
+order CONDITION:MET:UPDATE "Update Condition: Goal is Met" {
     <<parmlist>>
     <<CONDITION.id>>
 
@@ -935,20 +926,57 @@ order CONDITION:GOAL:UPDATE "Update Condition: Goal Flag" {
     to the same actor as the tactic to which this condition is attached.
     <</parm>>
 
-    <<parm text1 "Are">>
-    <b>Optional.</b>  Ought the listed goals to be "Met" or "Unmet"?
-    If "Met", the condition is met if <b>all</b> of the listed goals are 
-    <b>met</b>; 
-    if "Unmet", the condition is met if <b>any</b> of the listed goals are 
-    <b>unmet</b>.  A value from the following table:<p>
+    <</parmlist>>
 
-    <<enumdoc ::projectlib::egoal_predicate>>
+    Allows the user to edit the condition.
+}
+
+#-----------------------------------------------------------------------
+# Condition: UNMET
+
+page /order/condition unmet "Condition: Goal is Unmet" {
+    <<title>>
+
+    This condition is met when any of one or more goals are unmet.
+    All of the queried goals must belong to the same actor
+    as the condition does.<p>
+
+    This condition can only be attached to tactics, not to
+    goals.<p>
+
+    The condition orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:UNMET:CREATE "Create Condition: Goal is Unmet" {
+    <<parmlist>>
+    <<CONDITION.ctactic>>
+
+    <<parm list1 "Goals">>
+    <b>Required.</b>  A list of the IDs of one or more goals belonging
+    to the same actor as the tactic to which this condition is attached.
+    <</parm>>
+
+    <</parmlist>>
+
+    Creates the condition.
+}
+
+order CONDITION:UNMET:UPDATE "Update Condition: Goal is Unmet" {
+    <<parmlist>>
+    <<CONDITION.id>>
+
+    <<parm list1 "Goals">>
+    <b>Optional.</b>  A list of the IDs of one or more goals belonging
+    to the same actor as the tactic to which this condition is attached.
     <</parm>>
 
     <</parmlist>>
 
     Allows the user to edit the condition.
 }
+
 
 
 #=======================================================================
