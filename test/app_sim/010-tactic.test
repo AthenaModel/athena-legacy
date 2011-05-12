@@ -236,7 +236,7 @@ tactic_id tactic_type owner narrative                                    priorit
     test delete-3.1 {Condition is deleted} -setup {
         setup
         tactic mutate create $T1
-        ted order CONDITION:CASH:CREATE co_id 1 a JOE text1 LT x1 500
+        ted order CONDITION:CASH:CREATE co_id 1 a JOE op1 LT x1 500
     } -body {
         tactic mutate delete 1
 
@@ -248,7 +248,7 @@ tactic_id tactic_type owner narrative                                    priorit
     test delete-3.2 {Condition is restored on undo} -setup {
         setup
         tactic mutate create $T1
-        ted order CONDITION:CASH:CREATE co_id 1 a JOE text1 LT x1 500
+        ted order CONDITION:CASH:CREATE co_id 1 a JOE op1 LT x1 500
 
         set undo [tactic mutate delete 1]
     } -body {

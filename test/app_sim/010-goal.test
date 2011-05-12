@@ -119,7 +119,7 @@ goal_id owner narrative        state  flag
     test delete-3.1 {Condition is deleted} -setup {
         setup
         goal mutate create $J1
-        ted order CONDITION:CASH:CREATE co_id 1 a JOE text1 LT x1 500
+        ted order CONDITION:CASH:CREATE co_id 1 a JOE op1 LT x1 500
     } -body {
         goal mutate delete 1
 
@@ -131,7 +131,7 @@ goal_id owner narrative        state  flag
     test delete-3.2 {Condition is restored on undo} -setup {
         setup
         goal mutate create $J1
-        ted order CONDITION:CASH:CREATE co_id 1 a JOE text1 LT x1 500
+        ted order CONDITION:CASH:CREATE co_id 1 a JOE op1 LT x1 500
 
         set undo [goal mutate delete 1]
     } -body {

@@ -29,8 +29,15 @@ namespace eval ::athena_test::tests:: {
     # Set up for tests
 
     proc setup {} {
+        variable gid
+        variable tid
+
         ted create JOE BOB NB1 NB2 BLUE BRIT
+        ted order GOAL:CREATE owner BOB narrative "Sample Goal"
         ted order TACTIC:SAVE:CREATE owner JOE int1 10
+
+        set gid [lindex [goal names]   0]
+        set tid [lindex [tactic names] 0]
 
         # Verify that unused columns contain NULL
         rdb nullvalue "@"
@@ -64,18 +71,20 @@ namespace eval ::athena_test::tests:: {
         co_id          1
         condition_type CASH
         a              JOE
-        text1          GT
+        op1            GT
         x1             10000
         list1          {A B C}
+        text1          FOO
     }
 
     set S2 {
         co_id          1
         condition_type CASH
         a              BOB
-        text1          LT
+        op1            LT
         x1             20000
         list1          {D E F}
+        text1          BAR
     }
 
     #-------------------------------------------------------------------
@@ -85,13 +94,21 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         condition mutate create $S1
-        ted query {SELECT * FROM conditions}
+        ted querylist {SELECT * FROM conditions}
     } -cleanup {
         cleanup
     } -result {
-condition_id condition_type co_id narrative                                        state  flag a   text1 list1 x1      
------------- -------------- ----- ------------------------------------------------ ------ ---- --- ----- ----- ------- 
-1            CASH           1     Actor JOE's cash reserve is greater than $10,000 normal @    JOE GT    A B C 10000.0 
+condition_id    1
+condition_type  CASH
+co_id           1
+narrative       Actor JOE's cash reserve is greater than $10,000
+state           normal
+flag            @
+a               JOE
+op1             GT
+text1           FOO
+list1           A B C
+x1              10000.0
     }
 
     test create-2.1 {undo deletes the condition} -setup {
@@ -126,14 +143,33 @@ condition_id condition_type co_id narrative                                     
         set undo [condition mutate delete 2]
     } -body {
         namespace eval :: $undo
-        ted query {SELECT * FROM conditions}
+        ted querylist {SELECT * FROM conditions}
     } -cleanup {
         cleanup
     } -result {
-condition_id condition_type co_id narrative                                        state  flag a   text1 list1 x1      
------------- -------------- ----- ------------------------------------------------ ------ ---- --- ----- ----- ------- 
-1            CASH           1     Actor JOE's cash reserve is greater than $10,000 normal @    JOE GT    A B C 10000.0 
-2            CASH           1     Actor BOB's cash reserve is less than $20,000    normal @    BOB LT    D E F 20000.0 
+condition_id    1
+condition_type  CASH
+co_id           1
+narrative       Actor JOE's cash reserve is greater than $10,000
+state           normal
+flag            @
+a               JOE
+op1             GT
+text1           FOO
+list1           A B C
+x1              10000.0
+
+condition_id    2
+condition_type  CASH
+co_id           1
+narrative       Actor BOB's cash reserve is less than $20,000
+state           normal
+flag            @
+a               BOB
+op1             LT
+text1           BAR
+list1           D E F
+x1              20000.0
     }
 
     #-------------------------------------------------------------------
@@ -149,13 +185,21 @@ condition_id condition_type co_id narrative                                     
 
         # This verifies both that requested changes are made, and
         # that NULL columns remain NULL.
-        ted query {SELECT * FROM conditions}
+        ted querylist {SELECT * FROM conditions}
     } -cleanup {
         cleanup
     } -result {
-condition_id condition_type co_id narrative                                       state  flag a   text1 list1 x1     
------------- -------------- ----- ----------------------------------------------- ------ ---- --- ----- ----- ------ 
-1            CASH           1     Actor BOB's cash reserve is less than $5,000.00 normal @    BOB LT    D E F 5000.0 
+condition_id    1
+condition_type  CASH
+co_id           1
+narrative       Actor BOB's cash reserve is less than $5,000.00
+state           normal
+flag            @
+a               BOB
+op1             LT
+text1           BAR
+list1           D E F
+x1              5000.0
     }
 
     test update-1.2 {empty values are OK} -setup {
@@ -291,25 +335,46 @@ condition_id state
     } -cleanup {
         cleanup
     } -result {
-        narrative      {Actor BOB's cash reserve is less than $20,000}
         condition_type CASH
-        x1             20000.0
-        list1          {D E F}
-        a              BOB
+        op1            LT
         state          normal
-        text1          LT
+        a              BOB
         flag           @
-        co_id          1
         condition_id   1
+        narrative      {Actor BOB's cash reserve is less than $20,000}
+        list1          {D E F}
+        x1             20000.0
+        co_id          1
+        text1          BAR
     }
 
     test get-1.2 {get parameter} -setup {
         setup_get
     } -body {
-        condition get 1 text1
+        condition get 1 op1
     } -cleanup {
         cleanup
     } -result {LT}
+
+    #-------------------------------------------------------------------
+    # owner
+
+    test owner-1.1 {get goal owner} -setup {
+        setup
+    } -body {
+        condition owner $gid
+    } -cleanup {
+        cleanup
+    } -result {BOB}
+
+    test owner-1.2 {get tactic owner} -setup {
+        setup
+    } -body {
+        condition owner $tid
+    } -cleanup {
+        cleanup
+    } -result {JOE}
+
 
     #-------------------------------------------------------------------
     # Cleanup

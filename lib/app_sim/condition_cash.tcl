@@ -17,10 +17,10 @@
 #
 # How does actor a's cash reserve compare with some amount?
 
-condition type define CASH {
+condition type define CASH {a op1 x1} {
     typemethod narrative {cdict} {
         dict with cdict {
-            set comp   [ecomparator longname $text1]
+            set comp   [ecomparator longname $op1]
             set amount [moneyfmt $x1]
             return "Actor $a's cash reserve is $comp \$$amount"
         }
@@ -38,12 +38,18 @@ condition type define CASH {
 
     typemethod eval {cdict} {
         dict with cdict {
-            # Get the actor's cash reserves
-            set cash [actor get $a cash_reserve]
+            # Get the actor's cash reserve, transient or otherwise
+            set owner [condition owner $co_id]
+
+            if {$a eq $owner} {
+                set cash [cash get $owner cash_reserve]
+            } else {
+                set cash [actor get $a cash_reserve]
+            }
 
             # TBD: EQ should be an epsilon check
             # TBD: Should have a proc to call for this
-            switch $text1 {
+            switch $op1 {
                 LT      { return [expr {$cash <  $x1}] }
                 EQ      { return [expr {$cash == $x1}] }
                 GT      { return [expr {$cash >  $x1}] }
@@ -66,14 +72,14 @@ order define CONDITION:CASH:CREATE {
                                           -table   cond_owners \
                                           -keys    co_id
     parm a         actor "Actor"
-    parm text1     enum  "Comparison"     -enumtype ecomparator \
+    parm op1       enum  "Comparison"     -enumtype ecomparator \
                                           -displaylong yes
     parm x1        text  "Amount"
 } {
     # FIRST, prepare and validate the parameters
     prepare co_id                -required -type cond_owner
     prepare a          -toupper  -required -type actor
-    prepare text1      -toupper  -required -type ecomparator
+    prepare op1        -toupper  -required -type ecomparator
     prepare x1         -toupper  -required -type money
 
     returnOnError -final
@@ -99,7 +105,7 @@ order define CONDITION:CASH:UPDATE {
                                             -table   conditions   \
                                             -keys    condition_id
     parm a            actor "Actor"         -table actors -keys a
-    parm text1        enum  "Comparison"    -enumtype ecomparator \
+    parm op1          enum  "Comparison"    -enumtype ecomparator \
                                             -displaylong yes
     parm x1           text  "Amount"
                 
@@ -107,7 +113,7 @@ order define CONDITION:CASH:UPDATE {
     # FIRST, prepare the parameters
     prepare condition_id  -required           -type condition
     prepare a                       -toupper  -type actor
-    prepare text1                   -toupper  -type ecomparator
+    prepare op1                     -toupper  -type ecomparator
     prepare x1                      -toupper  -type money     
 
     returnOnError

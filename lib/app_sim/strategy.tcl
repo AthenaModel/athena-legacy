@@ -47,14 +47,20 @@ snit::type strategy {
         # NEXT, determine whether the goals are met or unmet.
         $type ComputeGoalFlags
 
-        # NEXT, determine which Tactics are eligible for each actor,
-        # e.g., the list of tactics for which all conditions are met.
-        set etactics [$type ComputeEligibleTactics]
-
-        # NEXT, execute the eligible tactics in priority order given
-        # available resources.
-        dict for {a elist} $etactics {
-            $type ExecuteTactics $a $elist
+        # NEXT, examine each actor's tactic in priority order.  If the
+        # tactic is eligible, attempt to execute it.
+        foreach tid [rdb eval {
+            SELECT tactic_id
+            FROM tactics
+            WHERE state = 'normal'
+            ORDER BY owner, priority
+        }] {
+            if {[$type IsEligible $tid]} {
+                log normal strategy "Tactic $tid IS eligible"
+                $type ExecuteTactic $tid
+            } else {
+                log normal strategy "Tactic $tid IS NOT eligible"
+            }
         }
 
         # NEXT, save working data
@@ -141,112 +147,66 @@ snit::type strategy {
         }
     }
 
-    # ComputeEligibleTactics
+    # IsEligible tid
     #
-    # Computes for each tactic whether it is eligible or not, i.e.,
-    # whether all of its conditions are met or not.
-    # Returns a dictionary of actors -> list of eligible tactics
+    # tid - A tactic_id
+    #
+    # Computes whether or not the tactic is eligible, i.e.,
+    # whether or not all of its conditions are met.
+    # Returns 1 if so and 0 otherwise; it also sets the
+    # condition flags for the tactic's conditions.
 
-    typemethod ComputeEligibleTactics {} {
-        log normal strat "ComputeEligibleTactics"
-
-        # FIRST, load the tactics and tactic conditions.
-        set tids [list]
+    typemethod IsEligible {tid} {
+        # FIRST, evaluate the conditions belonging to this
+        # tactic.
+        set tflag 1
+        set cflags [list]
 
         rdb eval {
-            SELECT tactics.tactic_id AS tactic_id,
-                   tactics.owner     AS owner,
-                   conditions.*
-            FROM tactics
-            LEFT OUTER JOIN conditions ON (co_id = tactic_id)
-            WHERE tactics.state = 'normal'
-            ORDER BY tactics.priority
+            SELECT *
+            FROM conditions
+            WHERE co_id = $tid
+            AND   state = 'normal'
         } row {
-            if {![info exists tconds($row(tactic_id))]} {
-                lappend tids $row(tactic_id)
-                set tconds($row(tactic_id)) [list]
-            }
+            unset -nocomplain row(*)
 
-            set owner($row(tactic_id)) $row(owner)
+            set flag [condition call eval [array get row]]
 
-            if {$row(condition_id) ne ""} {
-                lappend tconds($row(tactic_id)) $row(condition_id)
-                set cdicts($row(condition_id)) [array get row]
+            lappend cflags $row(condition_id) $flag
+
+            if {!$flag} {
+                set tflag 0
             }
         }
 
-        # NEXT, compute eligibility for all tactics; and the
-        # condition flags along the way.  Note that $tids has
-        # the tactics in priority order.
-        foreach tid $tids {
-            log normal strat "Tactic $tid:"
-
-            # FIRST, compute the condition flags, accumulating the 
-            # eligiblity flag
-            set tflag 1
-
-            foreach cid $tconds($tid) {
-                set cstate [dict get $cdicts($cid) state]
-
-                # FIRST, compute the flag if the condition's
-                # state is normal; otherwise, ignore the condition
-                # (which means pretending that it's true).
-                if {$cstate eq "normal"} {
-                    set flag [condition call eval $cdicts($cid)]
-                    set tflag [expr {$tflag && $flag}]
-                } else {
-                    set flag ""
-                }
-
-                log normal strat "==> Condition $cid is met: <$flag>"
-
-                # NEXT, save the condition's flag; make it NULL
-                # if the value is unknown
-                rdb eval {
-                    UPDATE conditions
-                    SET flag = nullif($flag,"")
-                    WHERE condition_id = $cid
-                }
-            }
-
-            # NEXT, If the tactic is eligible, save its ID for the
-            # given owner.
-            log normal strat "!!! Tactic $tid is eligible: <$tflag>"
-
-
-            if {$tflag} {
-                lappend etactics($owner($tid)) $tid
+        # NEXT, save the condition flags.
+        foreach {cid cflag} $cflags {
+            rdb eval {
+                UPDATE conditions
+                SET flag=$cflag
+                WHERE condition_id = $cid
             }
         }
 
-        log normal strat "Eligible tactics: [array get etactics]"
-
-        return [array get etactics]
+        # NEXT, return the tactic's eligibility flag.
+        return $tflag
     }
 
-
-    # ExecuteTactics a elist
+    # ExecuteTactic tid
     #
-    # a     - An actor
-    # elist - The eligible tactics for this actor
+    # tid   - A tactic ID
     #
-    # Executes  tactics for actor a from the list
-    # of eligible tactics, as constrained by available resources.  The
-    # tactics are simply executed in order; tactics for which resources
+    # Attempts to execute an eligible tactic, as constrained by 
+    # available resources.  Tactics for which resources
     # are unavailable do nothing.
 
-    typemethod ExecuteTactics {a elist} {
-        log normal strat "ExecuteTactics $a: start"
+    typemethod ExecuteTactic {tid} {
+        set tdict [tactic get $tid]
 
-        foreach tid $elist {
-            set tdict [tactic get $tid]
-
-            if {[tactic execute $tdict]} {
-                log normal strat "Actor $a executed <$tdict>"
-            }
+        if {[tactic execute $tdict]} {
+            log normal strat \
+                "Actor [dict get $tdict owner] executed <$tdict>"
         }
-
-        log normal strat "ExecuteTactics $a: finish"
     }
 
     #-------------------------------------------------------------------

@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    020-CONDITION:GOALS.test
+#    020-CONDITION-GOAL.test
 #
 # AUTHOR:
 #    Will Duquette
@@ -124,13 +124,18 @@ namespace eval ::athena_test::tests:: {
     } -body {
         ted order CONDITION:GOAL:CREATE $GU1
 
-        ted query {SELECT * FROM conditions}
+        ted querylist {SELECT * FROM conditions_GOAL}
     } -cleanup {
         cleanup
     } -result {
-condition_id condition_type co_id narrative      state  flag a text1 list1 x1 
------------- -------------- ----- -------------- ------ ---- - ----- ----- -- 
-1            GOAL           4     Goal is met: 1 normal        MET   1        
+condition_id    1
+condition_type  GOAL
+co_id           4
+narrative       Goal is met: 1
+state           normal
+flag            
+list1           1
+text1           MET
     }
 
 
@@ -221,13 +226,18 @@ condition_id condition_type co_id narrative      state  flag a text1 list1 x1
     } -body {
         ted order CONDITION:GOAL:UPDATE condition_id 1 list1 {1 2} text1 UNMET
 
-        ted query {SELECT * FROM conditions}
+        ted querylist {SELECT * FROM conditions_GOAL}
     } -cleanup {
         cleanup
     } -result {
-condition_id condition_type co_id narrative                          state  flag a text1 list1 x1 
------------- -------------- ----- ---------------------------------- ------ ---- - ----- ----- -- 
-1            GOAL           4     Any of these goals are unmet: 1, 2 normal        UNMET 1 2      
+condition_id    1
+condition_type  GOAL
+co_id           4
+narrative       Any of these goals are unmet: 1, 2
+state           normal
+flag            
+list1           1 2
+text1           UNMET
     }
 
 

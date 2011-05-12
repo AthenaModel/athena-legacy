@@ -25,7 +25,7 @@
 # If MET, the condition is met if all goals in the list are met.
 # If UNMET, the condition is met if any goal in the list is unmet.
 
-condition type define GOAL -attachto tactic {
+condition type define GOAL {list1 text1} -attachto tactic {
   
     # narrative
     #

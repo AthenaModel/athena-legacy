@@ -626,7 +626,7 @@ snit::type scenario {
         # NEXT, define the GUI Views
         rdb eval [readfile [file join $::app_sim::library gui_views.sql]]
 
-        # NEXT, define tactic type views
+        # NEXT, define tactic and condition type views
         set sql ""
         foreach ttype [tactic type names] {
             set parms [join [tactic type parms $ttype] ", "]
@@ -638,6 +638,18 @@ snit::type scenario {
                 FROM tactics WHERE tactic_type='$ttype';
             "
         }
+
+        foreach ctype [condition type names] {
+            set parms [join [condition type parms $ctype] ", "]
+
+            append sql "
+                CREATE VIEW conditions_$ctype AS
+                SELECT condition_id, condition_type, co_id, narrative,
+                       state, flag, $parms
+                FROM conditions WHERE condition_type='$ctype';
+            "
+        }
+        
 
         rdb eval $sql
     }

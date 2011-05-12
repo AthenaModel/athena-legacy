@@ -25,16 +25,31 @@
 #    * Each condition type has its own CREATE and UPDATE orders; the 
 #      DELETE order is common to all.
 #
-#    * gui_views.sql defines a view for each condition type,
+#    * scenario.tcl defines a view for each condition type,
 #      conditions_<type>.
-#
-#    The actual condition types are defined in condition_types.tcl.
 #
 #-----------------------------------------------------------------------
 
 snit::type condition {
     # Make it a singleton
     pragma -hasinstances no
+
+    #===================================================================
+    # Lookup tables
+
+    # optParms: This variable is a dictionary of all optional parameters
+    # with empty values.  The create and update mutators can merge the
+    # input parmdict with this to get a parmdict with the full set of
+    # parameters.
+
+    typevariable optParms {
+        a     ""
+        op1   ""
+        text1 ""
+        list1 ""
+        x1    ""
+    }
+
 
     #===================================================================
     # Condition Types: Definition and Query interface.
@@ -44,9 +59,11 @@ snit::type condition {
 
     # tinfo array: Type Info
     #
-    # all     - List of the names of all condition types.
-    # goal    - List of the names of goal conditions
-    # tactic  - List of the names of tactic conditions
+    # all           - List of the names of all condition types.
+    # goal          - List of the names of goal conditions
+    # tactic        - List of the names of tactic conditions
+    # parms-$ctype  - List of the optional parms used by the condition
+    #                 type
 
     typevariable tinfo -array {
         all    {}
@@ -67,9 +84,19 @@ snit::type condition {
         }
     }
 
-    # type define name ?options...? defscript
+    # type parms ctype
+    #
+    # Returns a list of the names of the optional parameters used by
+    # the condition.
+    
+    typemethod {type parms} {ctype} {
+        return $tinfo(parms-$ctype)
+    }
+
+    # type define name optparms ?options...? defscript
     #
     # name       - The condition name
+    # optparms   - The optional condition parms used by this condition
     # options... - Options; see below.
     # defscript  - The definition script (a snit::type script)
     #
@@ -83,7 +110,7 @@ snit::type condition {
     # defined in the defscript.  See condition(i) for documentation of 
     # the expected typemethods.
 
-    typemethod {type define} {name args} {
+    typemethod {type define} {name optparms args} {
         # FIRST, get the defscript.
         if {[llength $args] == 0} {
             error "wrong \# args, should be: $type type define ?options...? defscript"
@@ -135,6 +162,8 @@ snit::type condition {
         if {$opts(-attachto) in {tactic both}} {
             ladd tinfo(tactic) $name
         }
+
+        set tinfo(parms-$name) $optparms
     }
 
     #===================================================================
@@ -197,6 +226,24 @@ snit::type condition {
         return ""
     }
 
+    # owner co_id
+    #
+    # co_id   A condition owner ID, e.g., a tactic or goal
+    #
+    # Given a co_id, return the actor that owns the tactic or goal.
+
+    typemethod owner {co_id} {
+        rdb eval {
+            SELECT owner FROM goals WHERE goal_id=$co_id
+            UNION
+            SELECT owner FROM tactics WHERE tactic_id=$co_id
+        } {
+            return $owner
+        }
+
+        return ""
+    }
+
 
     #-------------------------------------------------------------------
     # Mutators
@@ -213,15 +260,21 @@ snit::type condition {
     #    condition_type - The condition type (econditiontype)
     #    co_id          - The owning tactic or goal
     #    a              - Actor, or ""
+    #    op1            - Operation, or ""
     #    text1          - Text string, or ""
     #    list1          - List of items, or ""
     #    x1             - Real number, or ""
     #
     # Creates a condition given the parms, which are presumed to be
     # valid.
+    #
+    # Missing values are filled in with blanks.
 
     typemethod {mutate create} {parmdict} {
-        # FIRST, build the ddict
+        # FIRST, make sure the parm dict is complete
+        set parmdict [dict merge $optParms $parmdict]
+
+        # NEXT, build the ddict
         set condition_type [dict get $parmdict condition_type]
 
         # NEXT, compute the narrative string.
@@ -234,11 +287,13 @@ snit::type condition {
                 INSERT INTO 
                 conditions(condition_type, co_id, narrative,
                            a,
+                           op1,
                            text1,
                            list1,
                            x1)
                 VALUES($condition_type, $co_id, $narrative, 
                        nullif($a,      ''),
+                       nullif($op1,    ''),
                        nullif($text1,  ''),
                        nullif($list1,  ''),
                        nullif($x1,     ''));
@@ -273,6 +328,7 @@ snit::type condition {
     #
     #    condition_id   The condition's ID
     #    a              Actor ID, or ""
+    #    op1            Operation, or ""
     #    text1          Text string, or ""
     #    list1          List of items, or ""
     #    x1             Real number, or ""
@@ -280,9 +336,14 @@ snit::type condition {
     # Updates a condition given the parms, which are presumed to be
     # valid.  Note that you can't change the condition's co_id or
     # type.
+    #
+    # Missing values are filled in with blanks.
 
     typemethod {mutate update} {parmdict} {
-        # FIRST, save the changed data.
+        # FIRST, make sure the parm dict is complete
+        set parmdict [dict merge $optParms $parmdict]
+
+        # NEXT, save the changed data.
         dict with parmdict {
             # FIRST, get the undo information
             set data [rdb grab conditions {condition_id=$condition_id}]
@@ -293,9 +354,10 @@ snit::type condition {
             # NULL rather than "".
             rdb eval {
                 UPDATE conditions
-                SET text1 = nullif(nonempty($text1, text1),  ''),
+                SET a     = nullif(nonempty($a,     a),      ''),
+                    op1   = nullif(nonempty($op1,   op1),    ''),
+                    text1 = nullif(nonempty($text1, text1),  ''),
                     list1 = nullif(nonempty($list1, list1),  ''),
-                    a     = nullif(nonempty($a,     a),      ''),
                     x1    = nullif(nonempty($x1,    x1),     '')
                 WHERE condition_id=$condition_id;
             } {}
@@ -342,16 +404,16 @@ snit::type condition {
     #-------------------------------------------------------------------
     # Condition Ensemble Interface
 
-    # condition call op cdict ?args...?
+    # condition call sub cdict ?args...?
     #
-    # op    - One of the above condition type subcommands
+    # sub   - One of the above condition type subcommands
     # cdict - A condition parameter dictionary
     #
     # This is a convenience command that calls the relevant subcommand
     # for the condition.
 
-    typemethod call {op cdict args} {
-        [dict get $cdict condition_type] $op $cdict {*}$args
+    typemethod call {sub cdict args} {
+        [dict get $cdict condition_type] $sub $cdict {*}$args
     }
 
 

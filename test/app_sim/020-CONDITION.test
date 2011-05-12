@@ -45,7 +45,7 @@ namespace eval ::athena_test::tests:: {
     set S1 {
         co_id          1
         a              JOE
-        text1          GT
+        op1            GT
         x1             10000
     }
 
