@@ -39,7 +39,7 @@ snit::type ted {
         calendar
         civgroups
         conditions
-        cond_owners
+        cond_collections
         coop_fg
         defroe_ng
         demog_g
@@ -853,6 +853,7 @@ snit::type ted {
     }
 
 }
+
 
 
 

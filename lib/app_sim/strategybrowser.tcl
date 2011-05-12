@@ -422,10 +422,10 @@ snit::widget strategybrowser {
         # If it isn't currently displayed, we can ignore it.
         array set cdata [condition get $condition_id]
 
-        if {[info exists gt_g2item($cdata(co_id))]} {
+        if {[info exists gt_g2item($cdata(cc_id))]} {
             $self GTreeConditionDraw cdata
             $self TreeStripe $gtree
-        } elseif {[info exists tt_t2item($cdata(co_id))]} {
+        } elseif {[info exists tt_t2item($cdata(cc_id))]} {
             $self TTreeConditionDraw cdata
             $self TreeStripe $ttree
         }
@@ -713,7 +713,7 @@ snit::widget strategybrowser {
             SELECT C.*,
                    G.owner
             FROM conditions AS C
-            JOIN goals AS G ON (co_id = goal_id)
+            JOIN goals AS G ON (cc_id = goal_id)
             WHERE owner=$info(actor)
             ORDER BY condition_id;
         } row {
@@ -898,10 +898,10 @@ snit::widget strategybrowser {
         set oid   [$gtree item text $id {tag id}]
 
         if {"goal" in [$gtree item tag names $id]} {
-            set co_id $oid
+            set cc_id $oid
             $gtree item expand $id
         } else {
-            set co_id [condition get $oid co_id]
+            set cc_id [condition get $oid cc_id]
         }
 
         # NEXT, let them pick one
@@ -912,11 +912,11 @@ snit::widget strategybrowser {
                        -values    $list                \
                        -message   [normalize "
                            Select a condition to create for
-                           actor $info(actor)'s goal $co_id.
+                           actor $info(actor)'s goal $cc_id.
                        "]]
 
         if {$title ne ""} {
-            order enter [dict get $odict $title ] co_id $co_id
+            order enter [dict get $odict $title ] cc_id $cc_id
         }
     }
 
@@ -930,7 +930,7 @@ snit::widget strategybrowser {
         upvar $cdataVar cdata
 
         # FIRST, get the parent item ID
-        set parent $gt_g2item($cdata(co_id))
+        set parent $gt_g2item($cdata(cc_id))
 
         # NEXT, get the condition item ID; if there is none,
         # create one.
@@ -1217,7 +1217,7 @@ snit::widget strategybrowser {
             SELECT C.*,
                    T.owner
             FROM conditions AS C
-            JOIN tactics AS T ON (co_id = tactic_id)
+            JOIN tactics AS T ON (cc_id = tactic_id)
             WHERE owner=$info(actor)
             ORDER BY condition_id;
         } row {
@@ -1469,10 +1469,10 @@ snit::widget strategybrowser {
         set oid   [$ttree item text $id {tag id}]
 
         if {"tactic" in [$ttree item tag names $id]} {
-            set co_id $oid
+            set cc_id $oid
             $ttree item expand $id
         } else {
-            set co_id [condition get $oid co_id]
+            set cc_id [condition get $oid cc_id]
         }
 
         # NEXT, let them pick one
@@ -1483,11 +1483,11 @@ snit::widget strategybrowser {
                        -values    $list             \
                        -message   [normalize "
                            Select a condition to create for
-                           actor $info(actor)'s tactic $co_id.
+                           actor $info(actor)'s tactic $cc_id.
                        "]]
 
         if {$title ne ""} {
-            order enter [dict get $odict $title ] co_id $co_id
+            order enter [dict get $odict $title ] cc_id $cc_id
         }
     }
 
@@ -1501,7 +1501,7 @@ snit::widget strategybrowser {
         upvar $cdataVar cdata
 
         # FIRST, get the parent item ID
-        set parent $tt_t2item($cdata(co_id))
+        set parent $tt_t2item($cdata(cc_id))
 
         # NEXT, get the condition item ID; if there is none,
         # create one.
@@ -1822,5 +1822,6 @@ snit::widget strategybrowser {
         $reloader schedule -nocomplain
     }
 }
+
 
 

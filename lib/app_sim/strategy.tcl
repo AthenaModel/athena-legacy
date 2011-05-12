@@ -89,7 +89,7 @@ snit::type strategy {
             SELECT goals.goal_id AS goal_id,
                    conditions.*
             FROM goals
-            LEFT OUTER JOIN conditions ON (co_id = goal_id)
+            LEFT OUTER JOIN conditions ON (cc_id = goal_id)
             WHERE goals.state = 'normal'
         } row {
             if {![info exists gconds($row(goal_id))]} {
@@ -165,7 +165,7 @@ snit::type strategy {
         rdb eval {
             SELECT *
             FROM conditions
-            WHERE co_id = $tid
+            WHERE cc_id = $tid
             AND   state = 'normal'
         } row {
             unset -nocomplain row(*)
@@ -280,7 +280,7 @@ snit::type strategy {
         rdb eval {
             SELECT *
             FROM conditions
-            JOIN cond_owners USING (co_id)
+            JOIN cond_collections USING (cc_id)
             WHERE state != 'disabled'
         } row {
             # FIRST, Check and skip valid conditions
@@ -388,7 +388,7 @@ snit::type strategy {
                    goals.owner     AS owner,
                    conditions.*
             FROM goals
-            JOIN conditions ON (co_id = goal_id)
+            JOIN conditions ON (cc_id = goal_id)
             WHERE conditions.state = 'invalid'
             ORDER BY owner, goal_id, condition_id
         } row {
@@ -457,7 +457,7 @@ snit::type strategy {
                    C.state          AS state,
                    C.narrative      AS narrative
             FROM tactics AS T 
-            LEFT OUTER JOIN conditions AS C ON (co_id = tactic_id)
+            LEFT OUTER JOIN conditions AS C ON (cc_id = tactic_id)
             WHERE T.state = 'invalid' OR C.state = 'invalid'
         } row {
             dict set adict $row(owner) $row(tactic_id) $row(condition_id) 1
@@ -524,4 +524,6 @@ snit::type strategy {
         return
     }
 }
+
+
 

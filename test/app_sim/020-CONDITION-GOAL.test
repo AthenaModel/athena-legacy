@@ -52,13 +52,13 @@ namespace eval ::athena_test::tests:: {
     # Standard items
 
     set GU1 {
-        co_id  4
+        cc_id  4
         text1  MET
         list1  {1}
     }
 
     set GU2 {
-        co_id  4
+        cc_id  4
         text1  UNMET
         list1  {1 2}
     }
@@ -69,7 +69,7 @@ namespace eval ::athena_test::tests:: {
     test GOAL:CREATE-1.1 {required parms} -body {
         ted order -reject CONDITION:GOAL:CREATE {}
     } -result {
-        co_id {required value}
+        cc_id {required value}
         list1 {required value}
         text1 {required value}
     }
@@ -79,11 +79,11 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         ted order -reject CONDITION:GOAL:CREATE \
-            [dict merge $GU1 [list co_id NONESUCH]]
+            [dict merge $GU1 [list cc_id NONESUCH]]
     } -cleanup {
         cleanup
     } -result {
-        co_id {Invalid tactic ID: "NONESUCH"}
+        cc_id {Invalid tactic ID: "NONESUCH"}
     }
 
     test GOAL:CREATE-1.3 {list1 contains non-goal} -setup {
@@ -130,7 +130,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
 condition_id    1
 condition_type  GOAL
-co_id           4
+cc_id           4
 narrative       Goal is met: 1
 state           normal
 flag            
@@ -232,7 +232,7 @@ text1           MET
     } -result {
 condition_id    1
 condition_type  GOAL
-co_id           4
+cc_id           4
 narrative       Any of these goals are unmet: 1, 2
 state           normal
 flag            
@@ -278,6 +278,7 @@ text1           UNMET
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

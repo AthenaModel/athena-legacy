@@ -9,7 +9,7 @@
 #    athena_sim(1): Condition Owner Manager
 #
 #    A cond_owner is an entity (a goal or tactic) that can own
-#    conditions.  This module exists only to validate cond_owners in
+#    conditions.  This module exists only to validate cond_collections in
 #    the condition orders.
 #-----------------------------------------------------------------------
 
@@ -30,7 +30,7 @@ snit::type cond_owner {
 
     typemethod names {} {
         set names [rdb eval {
-            SELECT co_id FROM cond_owners ORDER BY co_id
+            SELECT cc_id FROM cond_collections ORDER BY cc_id
         }]
     }
 
@@ -52,4 +52,6 @@ snit::type cond_owner {
         return $id
     }
 }
+
+
 

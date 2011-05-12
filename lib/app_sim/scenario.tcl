@@ -644,7 +644,7 @@ snit::type scenario {
 
             append sql "
                 CREATE VIEW conditions_$ctype AS
-                SELECT condition_id, condition_type, co_id, narrative,
+                SELECT condition_id, condition_type, cc_id, narrative,
                        state, flag, $parms
                 FROM conditions WHERE condition_type='$ctype';
             "
@@ -732,6 +732,7 @@ snit::type scenario {
         }
     }
 }
+
 
 
 

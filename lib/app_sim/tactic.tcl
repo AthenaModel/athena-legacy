@@ -220,7 +220,7 @@ snit::type tactic {
         dict with parmdict {
             # FIRST, Put the tactic in the database
             rdb eval {
-                INSERT INTO cond_owners(co_type) VALUES('tactic');
+                INSERT INTO cond_collections(cc_type) VALUES('tactic');
 
                 INSERT INTO 
                 tactics(tactic_id, 
@@ -571,3 +571,5 @@ order define TACTIC:PRIORITY {
 
     setundo [tactic mutate priority $parms(tactic_id) $parms(priority)]
 }
+
+

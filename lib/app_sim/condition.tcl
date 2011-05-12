@@ -226,25 +226,6 @@ snit::type condition {
         return ""
     }
 
-    # owner co_id
-    #
-    # co_id   A condition owner ID, e.g., a tactic or goal
-    #
-    # Given a co_id, return the actor that owns the tactic or goal.
-
-    typemethod owner {co_id} {
-        rdb eval {
-            SELECT owner FROM goals WHERE goal_id=$co_id
-            UNION
-            SELECT owner FROM tactics WHERE tactic_id=$co_id
-        } {
-            return $owner
-        }
-
-        return ""
-    }
-
-
     #-------------------------------------------------------------------
     # Mutators
     #
@@ -258,7 +239,7 @@ snit::type condition {
     # parmdict     A dictionary of condition parms
     #
     #    condition_type - The condition type (econditiontype)
-    #    co_id          - The owning tactic or goal
+    #    cc_id          - The owning tactic or goal
     #    a              - Actor, or ""
     #    op1            - Operation, or ""
     #    text1          - Text string, or ""
@@ -274,8 +255,8 @@ snit::type condition {
         # FIRST, make sure the parm dict is complete
         set parmdict [dict merge $optParms $parmdict]
 
-        # NEXT, build the ddict
-        set condition_type [dict get $parmdict condition_type]
+        # NEXT, get the owning actor
+        dict set parmdict owner [$type GetOwner [dict get $parmdict cc_id]]
 
         # NEXT, compute the narrative string.
         set narrative [condition call narrative $parmdict]
@@ -285,13 +266,13 @@ snit::type condition {
             # FIRST, Put the condition in the database
             rdb eval {
                 INSERT INTO 
-                conditions(condition_type, co_id, narrative,
+                conditions(condition_type, cc_id, owner, narrative,
                            a,
                            op1,
                            text1,
                            list1,
                            x1)
-                VALUES($condition_type, $co_id, $narrative, 
+                VALUES($condition_type, $cc_id, $owner, $narrative, 
                        nullif($a,      ''),
                        nullif($op1,    ''),
                        nullif($text1,  ''),
@@ -306,6 +287,24 @@ snit::type condition {
             # NEXT, Return undo command.
             return [join $undo \n]
         }
+    }
+
+    # GetOwner cc_id
+    #
+    # cc_id   A condition collection ID, e.g., a tactic or goal
+    #
+    # Given a cc_id, return the actor that owns the tactic or goal.
+
+    typemethod GetOwner {cc_id} {
+        rdb eval {
+            SELECT owner FROM goals WHERE goal_id=$cc_id
+            UNION
+            SELECT owner FROM tactics WHERE tactic_id=$cc_id
+        } {
+            return $owner
+        }
+
+        return ""
     }
 
     # mutate delete id
@@ -334,7 +333,7 @@ snit::type condition {
     #    x1             Real number, or ""
     #
     # Updates a condition given the parms, which are presumed to be
-    # valid.  Note that you can't change the condition's co_id or
+    # valid.  Note that you can't change the condition's cc_id or
     # type.
     #
     # Missing values are filled in with blanks.
@@ -490,4 +489,5 @@ order define CONDITION:STATE {
 
     setundo [condition mutate state $parms(condition_id) $parms(state)]
 }
+
 

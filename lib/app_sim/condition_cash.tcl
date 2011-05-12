@@ -39,8 +39,6 @@ condition type define CASH {a op1 x1} {
     typemethod eval {cdict} {
         dict with cdict {
             # Get the actor's cash reserve, transient or otherwise
-            set owner [condition owner $co_id]
-
             if {$a eq $owner} {
                 set cash [cash get $owner cash_reserve]
             } else {
@@ -68,16 +66,16 @@ order define CONDITION:CASH:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm co_id     key   "Tactic/Goal ID" -context yes         \
-                                          -table   cond_owners \
-                                          -keys    co_id
+    parm cc_id     key   "Tactic/Goal ID" -context yes         \
+                                          -table   cond_collections \
+                                          -keys    cc_id
     parm a         actor "Actor"
     parm op1       enum  "Comparison"     -enumtype ecomparator \
                                           -displaylong yes
     parm x1        text  "Amount"
 } {
     # FIRST, prepare and validate the parameters
-    prepare co_id                -required -type cond_owner
+    prepare cc_id                -required -type cond_owner
     prepare a          -toupper  -required -type actor
     prepare op1        -toupper  -required -type ecomparator
     prepare x1         -toupper  -required -type money
@@ -128,4 +126,6 @@ order define CONDITION:CASH:UPDATE {
     # NEXT, modify the condition
     setundo [condition mutate update [array get parms]]
 }
+
+
 

@@ -118,9 +118,9 @@ condition type define GOAL {list1 text1} -attachto tactic {
 
     typemethod RefreshCREATE {dlg fields fdict} {
         # FIRST, load the goals.
-        if {"co_id" in $fields} {
-            set co_id [dict get $fdict co_id]
-            $type SetItemDict $dlg $co_id
+        if {"cc_id" in $fields} {
+            set cc_id [dict get $fdict cc_id]
+            $type SetItemDict $dlg $cc_id
         }
     }
 
@@ -138,27 +138,27 @@ condition type define GOAL {list1 text1} -attachto tactic {
         # FIRST, load the list1 field's -itemdict
         if {"condition_id" in $fields} {
             set condition_id [dict get $fdict condition_id]
-            set co_id [condition get $condition_id co_id]
-            $type SetItemDict $dlg $co_id
+            set cc_id [condition get $condition_id cc_id]
+            $type SetItemDict $dlg $cc_id
         }
         
         # NEXT, refresh the fields from the RDB
         orderdialog refreshForKey condition_id * $dlg $fields $fdict
     }
 
-    # SetItemDict dlg co_id
+    # SetItemDict dlg cc_id
     #
     # dlg    - The order dialog
-    # co_id  - The tactic ID
+    # cc_id  - The tactic ID
     #
     # Retrieves the owning actor for the tactic, and then the
     # dictionary of goal IDs and narratives for the owning actor.
     # These are loaded into the list1 field's -itemdict, so that
     # the user can choose from the required goals.
 
-    typemethod SetItemDict {dlg co_id} {
+    typemethod SetItemDict {dlg cc_id} {
         
-        set owner [tactic get $co_id owner]
+        set owner [tactic get $cc_id owner]
             
         set itemdict [rdb eval {
             SELECT goal_id, narrative
@@ -214,22 +214,22 @@ order define CONDITION:GOAL:CREATE {
         -sendstates {PREP PAUSED} \
         -refreshcmd {condition::GOAL RefreshCREATE}
 
-    parm co_id  key   "Tactic ID"  -context yes         \
-                                   -table   cond_owners \
-                                   -keys    co_id
+    parm cc_id  key   "Tactic ID"  -context yes         \
+                                   -table   cond_collections \
+                                   -keys    cc_id
     parm list1  goals "Goals"     
     parm text1  enum  "Are"        -enumtype    egoal_predicate \
                                    -displaylong yes
 } {
     # FIRST, prepare and validate the parameters
-    prepare co_id     -required -type   tactic
+    prepare cc_id     -required -type   tactic
     prepare list1     -required -listof goal
     prepare text1     -required -type   egoal_predicate
 
     returnOnError
 
     # NEXT, make sure that the goals belong to the tactic's owner
-    set owner [tactic get $parms(co_id) owner]
+    set owner [tactic get $parms(cc_id) owner]
     
     validate list1 {
         condition::GOAL ValidateGoals $owner $parms(list1)
@@ -276,8 +276,8 @@ order define CONDITION:GOAL:UPDATE {
     returnOnError
 
     # NEXT, make sure that the goals belong to the tactic's owner
-    set co_id [condition get $parms(condition_id) co_id]
-    set owner [tactic get $co_id owner]
+    set cc_id [condition get $parms(condition_id) cc_id]
+    set owner [tactic get $cc_id owner]
     
     validate list1 {
         condition::GOAL ValidateGoals $owner $parms(list1)
@@ -288,6 +288,8 @@ order define CONDITION:GOAL:UPDATE {
     # NEXT, modify the condition
     setundo [condition mutate update [array get parms]]
 }
+
+
 
 
 

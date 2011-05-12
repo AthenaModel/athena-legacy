@@ -63,14 +63,14 @@ namespace eval ::athena_test::tests:: {
     # Standard Conditions
     
     set GU1 {
-        co_id          4
+        cc_id          4
         condition_type GOAL
         list1          {1}
         text1          MET
     }
 
     set GU2 {
-        co_id          4
+        cc_id          4
         condition_type GOAL
         list1          {1 2}
         text1          MET
@@ -193,6 +193,7 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

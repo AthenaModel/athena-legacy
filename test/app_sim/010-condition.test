@@ -68,7 +68,7 @@ namespace eval ::athena_test::tests:: {
     # the mutators.
     
     set S1 {
-        co_id          1
+        cc_id          1
         condition_type CASH
         a              JOE
         op1            GT
@@ -78,7 +78,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     set S2 {
-        co_id          1
+        cc_id          1
         condition_type CASH
         a              BOB
         op1            LT
@@ -100,7 +100,8 @@ namespace eval ::athena_test::tests:: {
     } -result {
 condition_id    1
 condition_type  CASH
-co_id           1
+cc_id           1
+owner           BOB
 narrative       Actor JOE's cash reserve is greater than $10,000
 state           normal
 flag            @
@@ -149,7 +150,8 @@ x1              10000.0
     } -result {
 condition_id    1
 condition_type  CASH
-co_id           1
+cc_id           1
+owner           BOB
 narrative       Actor JOE's cash reserve is greater than $10,000
 state           normal
 flag            @
@@ -161,7 +163,8 @@ x1              10000.0
 
 condition_id    2
 condition_type  CASH
-co_id           1
+cc_id           1
+owner           BOB
 narrative       Actor BOB's cash reserve is less than $20,000
 state           normal
 flag            @
@@ -191,7 +194,8 @@ x1              20000.0
     } -result {
 condition_id    1
 condition_type  CASH
-co_id           1
+cc_id           1
+owner           BOB
 narrative       Actor BOB's cash reserve is less than $5,000.00
 state           normal
 flag            @
@@ -339,12 +343,13 @@ condition_id state
         op1            LT
         state          normal
         a              BOB
+        cc_id          1
         flag           @
         condition_id   1
         narrative      {Actor BOB's cash reserve is less than $20,000}
         list1          {D E F}
         x1             20000.0
-        co_id          1
+        owner          BOB
         text1          BAR
     }
 
@@ -357,32 +362,13 @@ condition_id state
     } -result {LT}
 
     #-------------------------------------------------------------------
-    # owner
-
-    test owner-1.1 {get goal owner} -setup {
-        setup
-    } -body {
-        condition owner $gid
-    } -cleanup {
-        cleanup
-    } -result {BOB}
-
-    test owner-1.2 {get tactic owner} -setup {
-        setup
-    } -body {
-        condition owner $tid
-    } -cleanup {
-        cleanup
-    } -result {JOE}
-
-
-    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

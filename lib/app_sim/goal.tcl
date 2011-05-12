@@ -101,7 +101,7 @@ snit::type goal {
         dict with parmdict {
             # FIRST, Put the goal in the database
             rdb eval {
-                INSERT INTO cond_owners(co_type) VALUES('goal');
+                INSERT INTO cond_collections(cc_type) VALUES('goal');
 
                 INSERT INTO 
                 goals(goal_id, 
@@ -284,5 +284,7 @@ order define GOAL:STATE {
 
     setundo [goal mutate state $parms(goal_id) $parms(state)]
 }
+
+
 
 

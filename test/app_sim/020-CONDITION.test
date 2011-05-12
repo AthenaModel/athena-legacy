@@ -43,7 +43,7 @@ namespace eval ::athena_test::tests:: {
     # Standard items
 
     set S1 {
-        co_id          1
+        cc_id          1
         a              JOE
         op1            GT
         x1             10000
@@ -153,6 +153,7 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

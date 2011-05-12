@@ -476,14 +476,14 @@ CREATE TABLE control_n (
 );
 
 ------------------------------------------------------------------------
--- Condition Owners Table
+-- Condition Collection Table
 --
--- Tactics and Goals are both "condition owners"; they can have
+-- Tactics and Goals are both "condition collections"; they can have
 -- attached conditions.
 
-CREATE TABLE cond_owners (
-    co_id   INTEGER PRIMARY KEY,
-    co_type TEXT NOT NULL        -- tactic|goal
+CREATE TABLE cond_collections (
+    cc_id   INTEGER PRIMARY KEY,
+    cc_type TEXT NOT NULL        -- tactic|goal
 );
 
 ------------------------------------------------------------------------
@@ -492,8 +492,8 @@ CREATE TABLE cond_owners (
 -- The goals table stores the goals pursued by the various actors.
 
 CREATE TABLE goals (
-    -- The goal_id is, in fact, a cond_owners.co_id.  We do not
-    -- reference it explicitly because the cond_owners record is
+    -- The goal_id is, in fact, a cond_collections.cc_id.  We do not
+    -- reference it explicitly because the cond_collections record is
     -- deleted when a tactics or goals row is deleted, not the
     -- other way around.
     goal_id      INTEGER PRIMARY KEY, 
@@ -514,11 +514,11 @@ CREATE TABLE goals (
 );
 
 -- A goal is a condition owner; thus, we need a trigger to delete
--- the cond_owners row when a goal is deleted.
+-- the cond_collections row when a goal is deleted.
 
 CREATE TRIGGER goal_delete
 AFTER DELETE ON goals BEGIN
-    DELETE FROM cond_owners WHERE co_id = old.goal_id;
+    DELETE FROM cond_collections WHERE cc_id = old.goal_id;
 END;
 
 
@@ -528,8 +528,8 @@ END;
 -- The tactics table stores the tactics in use by the various actors.
 
 CREATE TABLE tactics (
-    -- The tactic_id is, in fact, a cond_owners.co_id.  We do not
-    -- reference it explicitly because the cond_owners record is
+    -- The tactic_id is, in fact, a cond_collections.cc_id.  We do not
+    -- reference it explicitly because the cond_collections record is
     -- deleted when a tactics or goals row is deleted, not the
     -- other way around.
     tactic_id    INTEGER PRIMARY KEY, 
@@ -583,11 +583,11 @@ CREATE TABLE tactics (
 );
 
 -- A tactic is a condition owner; thus, we need a trigger to delete
--- the cond_owners row when a tactic is deleted.
+-- the cond_collections row when a tactic is deleted.
 
 CREATE TRIGGER tactics_delete
 AFTER DELETE ON tactics BEGIN
-    DELETE FROM cond_owners WHERE co_id = old.tactic_id;
+    DELETE FROM cond_collections WHERE cc_id = old.tactic_id;
 END;
 
 
@@ -601,8 +601,13 @@ CREATE TABLE conditions (
     condition_id   INTEGER PRIMARY KEY,
     condition_type TEXT, -- econdition_type(n)
     
-    -- Condition owner (a goal or tactic)
-    co_id          INTEGER REFERENCES cond_owners(co_id)
+    -- Condition collection (a goal or tactic)
+    cc_id          INTEGER REFERENCES cond_collections(cc_id)
+                   ON DELETE CASCADE
+                   DEFERRABLE INITIALLY DEFERRED, 
+
+    -- Owning Actor: The actor that owns the condition collection
+    owner          TEXT REFERENCES actors(a)
                    ON DELETE CASCADE
                    DEFERRABLE INITIALLY DEFERRED, 
 
