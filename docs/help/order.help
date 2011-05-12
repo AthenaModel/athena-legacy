@@ -806,7 +806,27 @@ page /order/condition cash "Condition: Cash Reserve" {
     using the <<cref /order/tactic/save SAVE>> and
     <<cref /order/tactic/spend SPEND>> tactics.  Using this
     condition, the actor can undertake tactics when enough
-    money has been saved, or when the reserve is low.
+    money has been saved, or when the reserve is low.<p>
+
+    The behavior of the condition changes depending on whether or not
+    the referenced actor is the same as the actor who owns the condition.
+    If they are the same, the condition queries the actor's cash reserve
+    <b>at that point in strategy execution</b>; otherwise it queries
+    the actor's cash reserve before strategy execution begins.<p>
+
+    For example, actor A wants to execute a tactic when actor B's 
+    cash reserve is low, and uses a CASH condition to determine this.
+    The condition will be met or unmet based on actor B's cash reserve
+    before he executes any new tactics.<p>
+
+    On the other hand, suppose actor A wants to execute a tactic
+    when his own cash reserve is high, and uses a CASH condition to 
+    determine this.  A may execute a series of tactics during strategy 
+    execution, and some of these may change the level of 
+    his cash reserve.  Naturally, he wants to take his previous decisions 
+    into account when deciding whether to execute the <i>next</i> tactic.
+    In this case, then, the CASH condition will query his cash reserve
+    at that point in the process.<p>
 
     The condition orders are as follows:<p>
 
