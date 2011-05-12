@@ -1,0 +1,204 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-condition_cash.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    condition_cash(sim) tests.
+#
+#    This test suite tests the condition_cash(sim) ensemble.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        variable gid
+        variable tid
+
+        ted create JOE BOB NB1 NB2 BLUE BRIT
+
+        # Tactic $tid belongs to JOE, as does group BLUE
+        ted order TACTIC:SAVE:CREATE owner JOE int1 10
+        set tid [lindex [tactic names] 0]
+
+        # Goal $gid belongs to BOB, unlike group BLUE
+        ted order GOAL:CREATE owner BOB narrative "Sample Goal"
+        set gid [lindex [goal names]   0]
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        rdb nullvalue ""
+        array unset parms
+        ted cleanup
+    }
+
+    # Standard Conditions.
+    
+    set C1 {
+        cc_id          1
+        condition_type TROOPS
+        g              BLUE
+        op1            LT
+        x1             20000
+    }
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {narrative} -setup {
+        setup
+        condition mutate create $C1
+    } -body {
+        condition::TROOPS narrative [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {Group BLUE's total number of personnel in the playbox is less than 20,000.}
+
+    #-------------------------------------------------------------------
+    # check
+
+
+    test check-1.1 {check: successful} -setup {
+        setup
+        condition mutate create $C1
+    } -body {
+        condition::TROOPS check [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test check-1.2 {check: actor deleted} -setup {
+        setup
+        condition mutate create $C1
+        frcgroup mutate delete BLUE
+    } -body {
+        condition::TROOPS check [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {Force/organization group BLUE no longer exists.}
+
+    #-------------------------------------------------------------------
+    # eval
+
+
+    # Sets up for a troops comparison.  Presumes that BOB is the
+    # actor and that there is a TROOPS condition with condition_id 1.
+    proc TroopsEval {table troops comp amount} {
+        rdb eval "UPDATE $table SET personnel=\$troops WHERE g='BLUE'"
+        condition mutate update [list condition_id 1 op1 $comp x1 $amount]
+        return [condition::TROOPS eval [condition get 1]]
+    }
+
+    test eval-1.1 {eval transient, change transient} -setup {
+        setup
+        personnel start
+        personnel load
+
+        condition mutate create $C1
+        # JOE is the owner of this condition and of BLUE.
+        # So we look at the transient value for BLUE's personnel 
+        # as it changes.
+    } -body {
+        set a [TroopsEval working_personnel 100 LT 200]
+        set b [TroopsEval working_personnel 200 LT 100]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {1 0}
+
+    test eval-1.2 {eval transient, change static} -setup {
+        setup
+        personnel start
+        personnel load
+
+        condition mutate create $C1
+
+        # JOE is the owner of this condition and of BLUE.
+        # So we don't look at the static value for BLUE's personnel 
+        # as it changes.  The transient value will be 5000
+    } -body {
+        set a [TroopsEval personnel_g 100 LT 200]
+        set b [TroopsEval personnel_g 200 LT 100]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {0 0}
+
+    test eval-1.3 {eval static, change transient} -setup {
+        setup
+        personnel start
+        personnel load
+
+        condition mutate create [dict merge $C1 [list cc_id $gid]]
+
+        # BOB is the owner of this condition, but JOE is the
+        # owner of BLUE.  So we look at the static value for
+        # BLUE's personnel; the transient value has no effect.
+        # The static value should be 5000.
+    } -body {
+        set a [TroopsEval working_personnel 100 LT 200]
+        set b [TroopsEval working_personnel 200 LT 100]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {0 0}
+
+    test eval-1.4 {eval static, change static} -setup {
+        setup
+        personnel start
+        personnel load
+
+        condition mutate create [dict merge $C1 [list cc_id $gid]]
+
+        # BOB is the owner of this condition, but JOE is the
+        # owner of BLUE.  So we look at the static value for
+        # BLUE's personnel as the static value changes.
+    } -body {
+        set a [TroopsEval personnel_g 100 LT 200]
+        set b [TroopsEval personnel_g 200 LT 100]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {1 0}
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+

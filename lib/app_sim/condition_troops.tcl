@@ -1,35 +1,38 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    condition_cash.tcl
+#    condition_troops.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): CASH Condition Type Definition
+#    athena_sim(1): TROOPS Condition Type Definition
 #
 #    See condition(i) for the condition interface requirements.
 #
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# Condition: CASH(a,comp,amount)
+# Condition: TROOPS(g,comp,amount)
 #
-# How does actor a's cash reserve compare with some amount?
+# How does group g's number of troops in the playbox compare with some 
+# amount?
 
-condition type define CASH {a op1 x1} {
+condition type define TROOPS {g op1 x1} {
     typemethod narrative {cdict} {
         dict with cdict {
             set comp   [ecomparator longname $op1]
-            set amount [moneyfmt $x1]
-            return "Actor $a's cash reserve is $comp \$$amount"
+            return [normalize "
+                Group $g's total number of personnel in the playbox is 
+                $comp [commafmt [expr int($x1)]].
+            "]
         }
     }
 
     typemethod check {cdict} {
         dict with cdict {
-            if {$a ni [actor names]} {
-                return "Actor $a no longer exists."
+            if {$g ni [ptype fog names]} {
+                return "Force/organization group $g no longer exists."
             }
         }
 
@@ -38,56 +41,61 @@ condition type define CASH {a op1 x1} {
 
     typemethod eval {cdict} {
         dict with cdict {
-            # Get the actor's cash reserve, transient or otherwise
+            # If the group is owned by the condition's owner, use the
+            # transient number of troops; otherwise, the static value.
+            set a [rdb onecolumn {SELECT a FROM agroups WHERE g=$g}]
+
             if {$a eq $owner} {
-                set cash [cash get $owner cash_reserve]
+                set troops [personnel inplaybox $g]
             } else {
-                set cash [actor get $a cash_reserve]
+                set troops [rdb onecolumn {
+                    SELECT personnel FROM personnel_g WHERE g=$g
+                }]
             }
 
-            return [condition compare $cash $op1 $x1]
+            return [condition compare $troops $op1 $x1]
         }
     }
 }
 
-# CONDITION:CASH:CREATE
+# CONDITION:TROOPS:CREATE
 #
-# Creates a new CASH condition.
+# Creates a new TROOPS condition.
 
-order define CONDITION:CASH:CREATE {
-    title "Create Condition: Cash Reserve"
+order define CONDITION:TROOPS:CREATE {
+    title "Create Condition: Troops"
 
     options -sendstates {PREP PAUSED}
 
     parm cc_id     key   "Tactic/Goal ID" -context yes         \
                                           -table   cond_collections \
                                           -keys    cc_id
-    parm a         actor "Actor"
+    parm g         enum  "Group"          -enumtype {ptype fog}
     parm op1       enum  "Comparison"     -enumtype ecomparator \
                                           -displaylong yes
     parm x1        text  "Amount"
 } {
     # FIRST, prepare and validate the parameters
     prepare cc_id                -required -type cond_owner
-    prepare a          -toupper  -required -type actor
+    prepare g          -toupper  -required -type {ptype fog}
     prepare op1        -toupper  -required -type ecomparator
-    prepare x1         -toupper  -required -type money
+    prepare x1         -toupper  -required -type count
 
     returnOnError -final
 
     # NEXT, put condition_type in the parmdict
-    set parms(condition_type) CASH
+    set parms(condition_type) TROOPS
 
     # NEXT, create the condition
     setundo [condition mutate create [array get parms]]
 }
 
-# CONDITION:CASH:UPDATE
+# CONDITION:TROOPS:UPDATE
 #
-# Updates existing CASH condition.
+# Updates existing TROOPS condition.
 
-order define CONDITION:CASH:UPDATE {
-    title "Update Condition: Cash Reserve"
+order define CONDITION:TROOPS:UPDATE {
+    title "Update Condition: Troops Reserve"
     options \
         -sendstates {PREP PAUSED}                              \
         -refreshcmd {orderdialog refreshForKey condition_id *}
@@ -95,7 +103,7 @@ order define CONDITION:CASH:UPDATE {
     parm condition_id key   "Condition ID"  -context yes          \
                                             -table   conditions   \
                                             -keys    condition_id
-    parm a            actor "Actor"         -table actors -keys a
+    parm g            enum  "Group"         -enumtype {ptype fog}
     parm op1          enum  "Comparison"    -enumtype ecomparator \
                                             -displaylong yes
     parm x1           text  "Amount"
@@ -103,15 +111,15 @@ order define CONDITION:CASH:UPDATE {
 } {
     # FIRST, prepare the parameters
     prepare condition_id  -required           -type condition
-    prepare a                       -toupper  -type actor
+    prepare g                       -toupper  -type {ptype fog}
     prepare op1                     -toupper  -type ecomparator
-    prepare x1                      -toupper  -type money     
+    prepare x1                      -toupper  -type count
 
     returnOnError
 
     # NEXT, make sure this is the right kind of condition
     validate condition_id { 
-        condition RequireType CASH $parms(condition_id)  
+        condition RequireType TROOPS $parms(condition_id)  
     }
 
     returnOnError -final

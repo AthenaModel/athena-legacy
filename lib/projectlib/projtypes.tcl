@@ -590,7 +590,9 @@ snit::type ::projectlib::typewrapper {
 
 ::marsutil::enum ::projectlib::ecomparator {
     EQ "equal to"
+    GE "greater than or equal to"
     GT "greater than"
+    LE "less than or equal to"
     LT "less than"
 }
 

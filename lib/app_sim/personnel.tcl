@@ -101,6 +101,17 @@ snit::type personnel {
         rdb onecolumn {SELECT available FROM working_personnel WHERE g=$g}
     }
 
+    # inplaybox g
+    #
+    # g  - A force or ORG group
+    #
+    # Retrieves the number of personnel in the playbox.
+
+    typemethod inplaybox {g} {
+        rdb onecolumn {SELECT personnel FROM working_personnel WHERE g=$g}
+    }
+
+
 
     # demob g personnel
     #

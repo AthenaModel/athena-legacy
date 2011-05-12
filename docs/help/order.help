@@ -717,7 +717,7 @@ page /order condition "Condition Orders" {
 
 macro CONDITION.cco {} {
     |<--
-    [parm co_id "Goal/Tactic ID"]
+    [parm cc_id "Goal/Tactic ID"]
     <b>Required.</b>  The ID of the goal or tactic to which this condition
     is attached.
     [/parm]
@@ -725,7 +725,7 @@ macro CONDITION.cco {} {
 
 macro CONDITION.uco {} {
     |<--
-    [parm co_id "Goal/Tactic ID"]
+    [parm cc_id "Goal/Tactic ID"]
     <b>Display Only.</b>  The ID of the goal or tactic to which this 
     condition belongs. This parameter is displayed in the order dialog as 
     an aid to the user.
@@ -734,7 +734,7 @@ macro CONDITION.uco {} {
 
 macro CONDITION.ctactic {} {
     |<--
-    [parm co_id "Tactic ID"]
+    [parm cc_id "Tactic ID"]
     <b>Required.</b>  The ID of the tactic to which this condition
     is attached.
     [/parm]
@@ -742,7 +742,7 @@ macro CONDITION.ctactic {} {
 
 macro CONDITION.utactic {} {
     |<--
-    [parm co_id "Tactic ID"]
+    [parm cc_id "Tactic ID"]
     <b>Display Only.</b>  The ID of the tactic to which this condition
     belongs. This parameter is displayed in the order dialog as an aid 
     to the user.
@@ -930,6 +930,82 @@ order CONDITION:MET:UPDATE "Update Condition: Goal is Met" {
 
     Allows the user to edit the condition.
 }
+
+#-----------------------------------------------------------------------
+# Condition: TROOPS
+
+page /order/condition troops "Condition: Troops" {
+    <<title>>
+
+    This condition compares a force or organization group's total
+    number of personnel in the playbox with some 
+    user-specified amount.<p>
+
+    The behavior of the condition changes depending on whether or not
+    the referenced group is owned by the same actor who owns the condition.
+    If they are the same, the condition queries the group's total
+    number of personnel <b>at that point in strategy execution</b>;
+    otherwise it queries the number of personnel in the playbox
+    before strategy execution began.<p>
+
+    The condition orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:TROOPS:CREATE "Create Condition: Troops" {
+    <<parmlist>>
+    <<CONDITION.cco>>
+
+    <<parm g "Group">>
+    <b>Required.</b> The name of the force or organization group whose
+    troop numbers are being compared.
+    <</parm>>
+
+    <<parm text1 "Comparison">>
+    <b>Required.</b>  The kind of comparison being done: a value from
+    the following table:<p>
+
+    <<enumdoc ::projectlib::ecomparator>>
+    <</parm>>
+
+    <<parm x1 "Amount">>
+    <b>Required.</b>  The number to which the group's number of 
+    personnel will be compared.
+    <</parm>>
+    <</parmlist>>
+
+    Creates the condition.
+}
+
+order CONDITION:TROOPS:UPDATE "Update Condition: Troops" {
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+
+    <<parm g "Group">>
+    <b>Optional.</b> The name of the force or organization group whose
+    troop numbers are being compared.
+    <</parm>>
+
+    <<parm text1 "Comparison">>
+    <b>Optional.</b>  The kind of comparison being done: a value from
+    the following table:<p>
+
+    <<enumdoc ::projectlib::ecomparator>>
+    <</parm>>
+
+    <<parm x1 "Amount">>
+    <b>Optional.</b>  The number to which the group's number of 
+    personnel will be compared.
+    <</parm>>
+    <</parmlist>>
+
+    <</parmlist>>
+
+    Allows the user to edit the condition.
+}
+
 
 #-----------------------------------------------------------------------
 # Condition: UNMET

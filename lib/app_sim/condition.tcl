@@ -44,6 +44,7 @@ snit::type condition {
 
     typevariable optParms {
         a     ""
+        g     ""
         op1   ""
         text1 ""
         list1 ""
@@ -227,6 +228,47 @@ snit::type condition {
     }
 
     #-------------------------------------------------------------------
+    # Condition Ensemble Interface
+
+    # condition call sub cdict ?args...?
+    #
+    # sub   - One of the above condition type subcommands
+    # cdict - A condition parameter dictionary
+    #
+    # This is a convenience command that calls the relevant subcommand
+    # for the condition.
+
+    typemethod call {sub cdict args} {
+        [dict get $cdict condition_type] $sub $cdict {*}$args
+    }
+
+    #-------------------------------------------------------------------
+    # Condition Tools
+    #
+    # These commands are for use implementing conditions.
+
+    # compare x comp y
+    #
+    # x          - A numeric value
+    # comp       - An ecomparator
+    # y          - A numeric value
+    #
+    # Compares x and y using the comparator, and returns 1 if the 
+    # comparison is true and 0 otherwise.
+
+    typemethod compare {x comp y} {
+        switch -exact -- $comp {
+            EQ      { return [expr {$x == $y}] }
+            GE      { return [expr {$x >= $y}] }
+            GT      { return [expr {$x >  $y}] }
+            LE      { return [expr {$x <= $y}] }
+            LT      { return [expr {$x <  $y}] }
+            default { error "Invalid comparator: \"$comp\"" }
+        }
+    }
+
+
+    #-------------------------------------------------------------------
     # Mutators
     #
     # Mutators are used to implement orders that change the scenario in
@@ -241,6 +283,7 @@ snit::type condition {
     #    condition_type - The condition type (econditiontype)
     #    cc_id          - The owning tactic or goal
     #    a              - Actor, or ""
+    #    g              - Group, or ""
     #    op1            - Operation, or ""
     #    text1          - Text string, or ""
     #    list1          - List of items, or ""
@@ -268,12 +311,14 @@ snit::type condition {
                 INSERT INTO 
                 conditions(condition_type, cc_id, owner, narrative,
                            a,
+                           g,
                            op1,
                            text1,
                            list1,
                            x1)
                 VALUES($condition_type, $cc_id, $owner, $narrative, 
                        nullif($a,      ''),
+                       nullif($g,      ''),
                        nullif($op1,    ''),
                        nullif($text1,  ''),
                        nullif($list1,  ''),
@@ -327,6 +372,7 @@ snit::type condition {
     #
     #    condition_id   The condition's ID
     #    a              Actor ID, or ""
+    #    g              Group ID, or ""
     #    op1            Operation, or ""
     #    text1          Text string, or ""
     #    list1          List of items, or ""
@@ -354,6 +400,7 @@ snit::type condition {
             rdb eval {
                 UPDATE conditions
                 SET a     = nullif(nonempty($a,     a),      ''),
+                    g     = nullif(nonempty($g,     g),      ''),
                     op1   = nullif(nonempty($op1,   op1),    ''),
                     text1 = nullif(nonempty($text1, text1),  ''),
                     list1 = nullif(nonempty($list1, list1),  ''),
@@ -399,22 +446,6 @@ snit::type condition {
         # NEXT, Return the undo command
         return [list rdb ungrab $data]
     }
-
-    #-------------------------------------------------------------------
-    # Condition Ensemble Interface
-
-    # condition call sub cdict ?args...?
-    #
-    # sub   - One of the above condition type subcommands
-    # cdict - A condition parameter dictionary
-    #
-    # This is a convenience command that calls the relevant subcommand
-    # for the condition.
-
-    typemethod call {sub cdict args} {
-        [dict get $cdict condition_type] $sub $cdict {*}$args
-    }
-
 
     #-------------------------------------------------------------------
     # Order Helpers

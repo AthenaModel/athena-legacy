@@ -626,6 +626,7 @@ CREATE TABLE conditions (
     -- ways by different conditions; all are NULL if unused.
 
     a             TEXT, -- An actor
+    g             TEXT, -- An group
     op1           TEXT, -- An operation
     text1         TEXT, -- A text string
     list1         TEXT, -- A list
