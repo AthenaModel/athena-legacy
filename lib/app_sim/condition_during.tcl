@@ -55,7 +55,7 @@ order define CONDITION:DURING:CREATE {
     parm t2        text  "End Day"
 } {
     # FIRST, prepare and validate the parameters
-    prepare cc_id                -required -type cond_owner
+    prepare cc_id                -required -type cond_collection
     prepare t1         -toupper  -required -type {simclock timespec}
     prepare t2         -toupper  -required -type {simclock timespec}
 
@@ -130,6 +130,7 @@ order define CONDITION:DURING:UPDATE {
     # NEXT, modify the condition
     setundo [condition mutate update [array get parms]]
 }
+
 
 
 

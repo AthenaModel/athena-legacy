@@ -53,7 +53,7 @@ order define CONDITION:BEFORE:CREATE {
     parm t1        text  "Day"          
 } {
     # FIRST, prepare and validate the parameters
-    prepare cc_id                -required -type cond_owner
+    prepare cc_id                -required -type cond_collection
     prepare t1         -toupper  -required -type {simclock timespec}
 
     returnOnError -final
@@ -96,6 +96,7 @@ order define CONDITION:BEFORE:UPDATE {
     # NEXT, modify the condition
     setundo [condition mutate update [array get parms]]
 }
+
 
 
 

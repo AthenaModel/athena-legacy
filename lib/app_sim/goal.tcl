@@ -13,7 +13,7 @@
 #
 #    A goal is an object owned by an actor that can be met or unmet.
 #    Whether it is met or unmet is determined by the conditions
-#    attached to it.  As such, it is a "cond_owner".
+#    attached to it.  As such, it is a "cond_collection".
 #
 #-----------------------------------------------------------------------
 
@@ -284,6 +284,7 @@ order define GOAL:STATE {
 
     setundo [goal mutate state $parms(goal_id) $parms(state)]
 }
+
 
 
 

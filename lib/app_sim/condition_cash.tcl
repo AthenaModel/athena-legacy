@@ -68,7 +68,7 @@ order define CONDITION:CASH:CREATE {
     parm x1        text  "Amount"
 } {
     # FIRST, prepare and validate the parameters
-    prepare cc_id                -required -type cond_owner
+    prepare cc_id                -required -type cond_collection
     prepare a          -toupper  -required -type actor
     prepare op1        -toupper  -required -type ecomparator
     prepare x1         -toupper  -required -type money
@@ -119,6 +119,7 @@ order define CONDITION:CASH:UPDATE {
     # NEXT, modify the condition
     setundo [condition mutate update [array get parms]]
 }
+
 
 
 

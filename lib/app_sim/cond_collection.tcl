@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    cond_owner.tcl
+#    cond_collection.tcl
 #
 # AUTHOR:
 #    Will Duquette
@@ -8,12 +8,12 @@
 # DESCRIPTION:
 #    athena_sim(1): Condition Owner Manager
 #
-#    A cond_owner is an entity (a goal or tactic) that can own
+#    A cond_collection is an entity (a goal or tactic) that can own
 #    conditions.  This module exists only to validate cond_collections in
 #    the condition orders.
 #-----------------------------------------------------------------------
 
-snit::type cond_owner {
+snit::type cond_collection {
     # Make it a singleton
     pragma -hasinstances no
 
@@ -26,7 +26,7 @@ snit::type cond_owner {
 
     # names
     #
-    # Returns the list of cond_owner ids
+    # Returns the list of cond_collection ids
 
     typemethod names {} {
         set names [rdb eval {
@@ -37,9 +37,9 @@ snit::type cond_owner {
 
     # validate id
     #
-    # id - Possibly, a cond_owner ID
+    # id - Possibly, a cond_collection ID
     #
-    # Validates a cond_owner ID
+    # Validates a cond_collection ID
 
     typemethod validate {id} {
         set ids [$type names]
@@ -52,6 +52,7 @@ snit::type cond_owner {
         return $id
     }
 }
+
 
 
 

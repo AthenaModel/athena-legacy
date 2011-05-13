@@ -76,7 +76,7 @@ order define CONDITION:TROOPS:CREATE {
     parm x1        text  "Amount"
 } {
     # FIRST, prepare and validate the parameters
-    prepare cc_id                -required -type cond_owner
+    prepare cc_id                -required -type cond_collection
     prepare g          -toupper  -required -type {ptype fog}
     prepare op1        -toupper  -required -type ecomparator
     prepare x1         -toupper  -required -type count
@@ -127,6 +127,7 @@ order define CONDITION:TROOPS:UPDATE {
     # NEXT, modify the condition
     setundo [condition mutate update [array get parms]]
 }
+
 
 
 

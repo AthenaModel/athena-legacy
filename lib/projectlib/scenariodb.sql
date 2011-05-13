@@ -403,14 +403,17 @@ CREATE TABLE bvrel_tga (
 CREATE TABLE support_nga (
     -- Symbolic group name
     n         TEXT REFERENCES nbhoods(n)
+              ON DELETE CASCADE
               DEFERRABLE INITIALLY DEFERRED,
 
     -- Symbolic group name
-    g       TEXT REFERENCES groups(g)
-            DEFERRABLE INITIALLY DEFERRED,
+    g         TEXT REFERENCES groups(g)
+              ON DELETE CASCADE
+              DEFERRABLE INITIALLY DEFERRED,
 
     -- Symbolic actor name
     a         TEXT REFERENCES actors(a)
+              ON DELETE CASCADE
               DEFERRABLE INITIALLY DEFERRED,
 
     -- Vertical Relationship of g with a
@@ -441,10 +444,12 @@ CREATE TABLE support_nga (
 CREATE TABLE influence_na (
     -- Symbolic group name
     n         TEXT REFERENCES nbhoods(n)
+              ON DELETE CASCADE
               DEFERRABLE INITIALLY DEFERRED,
 
     -- Symbolic actor name
     a         TEXT REFERENCES actors(a)
+              ON DELETE CASCADE
               DEFERRABLE INITIALLY DEFERRED,
 
     -- Support for a in n
@@ -457,18 +462,17 @@ CREATE TABLE influence_na (
 );
 
 -- control_n table: Control of neighborhood n
---
--- Note: We don't cascade deletions, as this table is populated only 
--- during simulation, when the reference entities aren't being deleted.
 
 CREATE TABLE control_n (
     -- Symbolic group name
     n          TEXT PRIMARY KEY 
                REFERENCES nbhoods(n)
+               ON DELETE CASCADE
                DEFERRABLE INITIALLY DEFERRED,
 
     -- Support for a in n
     controller TEXT REFERENCES actors(a)
+               ON DELETE CASCADE
                DEFERRABLE INITIALLY DEFERRED,
 
     -- Time at which controller took control

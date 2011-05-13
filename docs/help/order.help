@@ -1005,11 +1005,57 @@ order CONDITION:CASH:UPDATE "Update Condition: Cash Reserve" {
     <</parm>>
     <</parmlist>>
 
+    Allows the user to edit the condition.
+}
+
+#-----------------------------------------------------------------------
+# Condition: CONTROL
+
+page /order/condition control "Condition: Control" {
+    <<title>>
+
+    This condition is met when the referenced actor controls a
+    specified set of one or more neighborhoods.<p>
+
+    The condition orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:CONTROL:CREATE "Create Condition: Control" {
+    <<parmlist>>
+    <<CONDITION.cco>>
+
+    <<parm a "Actor">>
+    <b>Required.</b> The name of the actor whose control is being queried.
+    <</parm>>
+
+    <<parm list1 "Neighborhoods">>
+    <b>Required.</b>  A list of one or more neighborhoods that the
+    actor might or might not control.
+    <</parm>>
+    <</parmlist>>
+
+    Creates the condition.
+}
+
+order CONDITION:CONTROL:UPDATE "Update Condition: Control" {
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+
+    <<parm a "Actor">>
+    <b>Optional.</b> The name of the actor whose control is being queried.
+    <</parm>>
+
+    <<parm list1 "Neighborhoods">>
+    <b>Optional.</b>  A list of one or more neighborhoods that the
+    actor might or might not control.
+    <</parm>>
     <</parmlist>>
 
     Allows the user to edit the condition.
 }
-
 
 #-----------------------------------------------------------------------
 # Condition: DURING
@@ -1177,8 +1223,6 @@ order CONDITION:TROOPS:UPDATE "Update Condition: Troops" {
     <b>Optional.</b>  The number to which the group's number of 
     personnel will be compared.
     <</parm>>
-    <</parmlist>>
-
     <</parmlist>>
 
     Allows the user to edit the condition.

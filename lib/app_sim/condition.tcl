@@ -411,7 +411,8 @@ snit::type condition {
             # NULL rather than "".
             rdb eval {
                 UPDATE conditions
-                SET a     = nullif(nonempty($a,     a),      ''),
+                SET flag  = '',
+                    a     = nullif(nonempty($a,     a),      ''),
                     g     = nullif(nonempty($g,     g),      ''),
                     op1   = nullif(nonempty($op1,   op1),    ''),
                     t1    = nullif(nonempty($t1,    t1),     ''),
