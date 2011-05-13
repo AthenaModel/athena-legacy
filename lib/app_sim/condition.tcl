@@ -45,6 +45,7 @@ snit::type condition {
     typevariable optParms {
         a     ""
         g     ""
+        n     ""
         op1   ""
         t1    ""
         t2    ""
@@ -288,6 +289,7 @@ snit::type condition {
     #    cc_id          - The owning tactic or goal
     #    a              - Actor, or ""
     #    g              - Group, or ""
+    #    n              - Nbhood, or ""
     #    op1            - Operation, or ""
     #    t1             - A time in ticks, or ""
     #    t2             - A time in ticks, or ""
@@ -318,6 +320,7 @@ snit::type condition {
                 conditions(condition_type, cc_id, owner, narrative,
                            a,
                            g,
+                           n,
                            op1,
                            t1,
                            t2,
@@ -327,6 +330,7 @@ snit::type condition {
                 VALUES($condition_type, $cc_id, $owner, $narrative, 
                        nullif($a,      ''),
                        nullif($g,      ''),
+                       nullif($n,      ''),
                        nullif($op1,    ''),
                        nullif($t1,     ''),
                        nullif($t2,     ''),
@@ -383,6 +387,7 @@ snit::type condition {
     #    condition_id   The condition's ID
     #    a              Actor ID, or ""
     #    g              Group ID, or ""
+    #    n              Nbhood ID, or ""
     #    op1            Operation, or ""
     #    t1             Time in ticks, or ""
     #    t2             Time in ticks, or ""
@@ -411,9 +416,10 @@ snit::type condition {
             # NULL rather than "".
             rdb eval {
                 UPDATE conditions
-                SET flag  = '',
+                SET flag  = NULL,
                     a     = nullif(nonempty($a,     a),      ''),
                     g     = nullif(nonempty($g,     g),      ''),
+                    n     = nullif(nonempty($n,     n),      ''),
                     op1   = nullif(nonempty($op1,   op1),    ''),
                     t1    = nullif(nonempty($t1,    t1),     ''),
                     t2    = nullif(nonempty($t2,    t2),     ''),

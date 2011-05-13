@@ -1110,6 +1110,79 @@ order CONDITION:DURING:UPDATE "Update Condition: During" {
 }
 
 #-----------------------------------------------------------------------
+# Condition: INFLUENCE
+
+page /order/condition influence "Condition: Influence" {
+    <<title>>
+
+    This condition compares an actor's influence in a neighborhood
+    with a user-specified amount.<p>
+
+    The condition orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:INFLUENCE:CREATE "Create Condition: Influence" {
+    <<parmlist>>
+    <<CONDITION.cco>>
+
+    <<parm a "Actor">>
+    <b>Required.</b> The name of the actor whose influence is being compared. 
+    <</parm>>
+
+    <<parm n "Neighborhood">>
+    <b>Required.</b> The name of the neighborhood in which the
+    actor's influence is being compared. 
+    <</parm>>
+
+    <<parm text1 "Comparison">>
+    <b>Required.</b>  The kind of comparison being done: a value from
+    the following table:<p>
+
+    <<enumdoc ::projectlib::ecomparator>>
+    <</parm>>
+
+    <<parm x1 "Amount">>
+    <b>Required.</b>  The amount of influence to which the actor's
+    influence will be compared.
+    <</parm>>
+    <</parmlist>>
+
+    Creates the condition.
+}
+
+order CONDITION:INFLUENCE:UPDATE "Update Condition: Influence" {
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+
+    <<parm a "Actor">>
+    <b>Optional.</b> The name of the actor whose influence is being compared. 
+    <</parm>>
+
+    <<parm n "Neighborhood">>
+    <b>Optional.</b> The name of the neighborhood in which the
+    actor's influence is being compared. 
+    <</parm>>
+
+    <<parm text1 "Comparison">>
+    <b>Optional.</b>  The kind of comparison being done: a value from
+    the following table:<p>
+
+    <<enumdoc ::projectlib::ecomparator>>
+    <</parm>>
+
+    <<parm x1 "Amount">>
+    <b>Optional.</b>  The amount of influence to which the actor's
+    influence will be compared.
+    <</parm>>
+    <</parmlist>>
+
+    Allows the user to edit the condition.
+}
+
+#-----------------------------------------------------------------------
 # Condition: MET
 
 page /order/condition met "Condition: Goal is Met" {

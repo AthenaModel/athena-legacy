@@ -631,6 +631,7 @@ CREATE TABLE conditions (
 
     a             TEXT,    -- An actor
     g             TEXT,    -- An group
+    n             TEXT,    -- A neighborhood
     op1           TEXT,    -- An operation
     t1            INTEGER, -- A time in ticks
     t2            INTEGER, -- A time in ticks

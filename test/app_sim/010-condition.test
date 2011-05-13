@@ -107,6 +107,7 @@ state           normal
 flag            @
 a               JOE
 g               @
+n               @
 op1             GT
 t1              @
 t2              @
@@ -160,6 +161,7 @@ state           normal
 flag            @
 a               JOE
 g               @
+n               @
 op1             GT
 t1              @
 t2              @
@@ -176,6 +178,7 @@ state           normal
 flag            @
 a               BOB
 g               @
+n               @
 op1             LT
 t1              @
 t2              @
@@ -210,6 +213,7 @@ state           normal
 flag            @
 a               BOB
 g               @
+n               @
 op1             LT
 t1              @
 t2              @
@@ -366,6 +370,7 @@ condition_id state
         x1             20000.0
         owner          BOB
         text1          BAR
+        n              @
     }
 
     test get-1.2 {get parameter} -setup {
