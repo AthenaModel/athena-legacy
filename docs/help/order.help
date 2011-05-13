@@ -836,6 +836,51 @@ order CONDITION:AFTER:UPDATE "Update Condition: After" {
 }
 
 #-----------------------------------------------------------------------
+# Condition: AT
+
+page /order/condition at "Condition: At" {
+    <<title>>
+
+    This condition is met when the current simulation time is exactly
+    a particular date.  <b>Warning:</b> conditions are evaluated only
+    at the strategy tock, which is nominally every seven days; 
+    consequently, AT conditions for days not divisible by seven
+    will never be met.  (The size of the strategy tock is set by
+    the <<parmdb strategy.ticksPerTock>> model parameter).<p>
+
+    The condition orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:AT:CREATE "Create Condition: At" {
+    <<parmlist>>
+    <<CONDITION.cco>>
+
+    <<parm t1 "Day">>
+    <b>Required.</b> The day on which the condition is met,
+    specified as a <<term timespec>>.
+    <</parm>>
+    <</parmlist>>
+
+    Creates the condition.
+}
+
+order CONDITION:AT:UPDATE "Update Condition: At" {
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+
+    <<parm t1 "Day">>
+    <b>Required.</b> The day on which the condition is met,
+    specified as a <<term timespec>>.
+    <</parm>>
+    <</parmlist>>
+
+    Allows the user to edit the condition.
+}
+
+#-----------------------------------------------------------------------
 # Condition: BEFORE
 
 page /order/condition before "Condition: Before" {

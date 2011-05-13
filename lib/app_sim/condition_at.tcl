@@ -1,30 +1,30 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    condition_after.tcl
+#    condition_at.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): AFTER Condition Type Definition
+#    athena_sim(1): AT Condition Type Definition
 #
 #    See condition(i) for the condition interface requirements.
 #
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# Condition: AFTER(t1)
+# Condition: AT(t1)
 #
-# Is now() > t1?
+# Is now() == t1?
 
-condition type define AFTER {t1} {
+condition type define AT {t1} {
     typemethod narrative {cdict} {
         dict with cdict {
             set z1 [simclock toZulu $t1]
 
             return [normalize "
-                The current simulation time is later than day $t1,
-                i.e., after $z1.
+                The current simulation time is day $t1,
+                i.e., $z1.
             "]
         }
     }
@@ -33,17 +33,17 @@ condition type define AFTER {t1} {
         dict with cdict {
             set t [simclock now]
 
-            return [expr {$t > $t1}]
+            return [expr {$t == $t1}]
         }
     }
 }
 
-# CONDITION:AFTER:CREATE
+# CONDITION:AT:CREATE
 #
-# Creates a new AFTER condition.
+# Creates a new AT condition.
 
-order define CONDITION:AFTER:CREATE {
-    title "Create Condition: After"
+order define CONDITION:AT:CREATE {
+    title "Create Condition: At"
 
     options -sendstates {PREP PAUSED}
 
@@ -59,18 +59,18 @@ order define CONDITION:AFTER:CREATE {
     returnOnError -final
 
     # NEXT, put condition_type in the parmdict
-    set parms(condition_type) AFTER
+    set parms(condition_type) AT
 
     # NEXT, create the condition
     setundo [condition mutate create [array get parms]]
 }
 
-# CONDITION:AFTER:UPDATE
+# CONDITION:AT:UPDATE
 #
-# Updates existing AFTER condition.
+# Updates existing AT condition.
 
-order define CONDITION:AFTER:UPDATE {
-    title "Update Condition: After"
+order define CONDITION:AT:UPDATE {
+    title "Update Condition: At"
     options \
         -sendstates {PREP PAUSED}                              \
         -refreshcmd {orderdialog refreshForKey condition_id *}
@@ -88,7 +88,7 @@ order define CONDITION:AFTER:UPDATE {
 
     # NEXT, make sure this is the right kind of condition
     validate condition_id { 
-        condition RequireType AFTER $parms(condition_id)  
+        condition RequireType AT $parms(condition_id)  
     }
 
     returnOnError -final
