@@ -1,0 +1,122 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-condition_after.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    condition_after(sim) tests.
+#
+#    This test suite tests the condition_after(sim) ensemble.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create JOE BOB NB1 NB2 BLUE BRIT
+        ted order TACTIC:SAVE:CREATE owner JOE int1 10
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        rdb nullvalue ""
+        array unset parms
+        ted cleanup
+    }
+
+    # Standard Conditions.
+    
+    set C1 {
+        cc_id          1
+        condition_type AFTER
+        t1             10
+    }
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {narrative} -setup {
+        setup
+        condition mutate create $C1
+    } -body {
+        condition::AFTER narrative [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {The current simulation time is later than day 10, i.e., after 200000ZJAN10.}
+
+    #-------------------------------------------------------------------
+    # check
+
+
+    test check-1.1 {check: successful} -setup {
+        setup
+        condition mutate create $C1
+    } -body {
+        # NOTE: There's no way for the check to fail.
+        condition::AFTER check [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    #-------------------------------------------------------------------
+    # eval
+
+
+    proc AfterEval {now} {
+        simclock reset
+        if {$now > 0} {
+            simclock step $now
+        }
+
+        return [condition::AFTER eval [condition get 1]]
+    }
+
+    test eval-1.1 {eval after} -setup {
+        setup
+        condition mutate create $C1
+    } -body {
+        # t1 = 10
+        set a [AfterEval 9]
+        set b [AfterEval 10]
+        set c [AfterEval 11]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {0 0 1}
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+

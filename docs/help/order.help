@@ -794,6 +794,46 @@ order CONDITION:STATE "Set Condition State" {
     by the application; there is no associated order dialog.
 }
 
+#-----------------------------------------------------------------------
+# Condition: AFTER
+
+page /order/condition after "Condition: After" {
+    <<title>>
+
+    This condition is met when the current simulation time is later
+    than a particular date.<p>
+
+    The condition orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:AFTER:CREATE "Create Condition: After" {
+    <<parmlist>>
+    <<CONDITION.cco>>
+
+    <<parm t1 "Day">>
+    <b>Required.</b> The day after which the condition is met,
+    specified as a <<term timespec>>.
+    <</parm>>
+    <</parmlist>>
+
+    Creates the condition.
+}
+
+order CONDITION:AFTER:UPDATE "Update Condition: After" {
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+
+    <<parm t1 "Day">>
+    <b>Required.</b> The day after which the condition is met,
+    specified as a <<term timespec>>.
+    <</parm>>
+    <</parmlist>>
+
+    Allows the user to edit the condition.
+}
 
 #-----------------------------------------------------------------------
 # Condition: BEFORE

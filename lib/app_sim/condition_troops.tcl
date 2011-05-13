@@ -95,7 +95,7 @@ order define CONDITION:TROOPS:CREATE {
 # Updates existing TROOPS condition.
 
 order define CONDITION:TROOPS:UPDATE {
-    title "Update Condition: Troops Reserve"
+    title "Update Condition: Troops"
     options \
         -sendstates {PREP PAUSED}                              \
         -refreshcmd {orderdialog refreshForKey condition_id *}

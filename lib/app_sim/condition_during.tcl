@@ -81,7 +81,7 @@ order define CONDITION:DURING:CREATE {
 # Updates existing DURING condition.
 
 order define CONDITION:DURING:UPDATE {
-    title "Update Condition: During Reserve"
+    title "Update Condition: During"
     options \
         -sendstates {PREP PAUSED}                              \
         -refreshcmd {orderdialog refreshForKey condition_id *}

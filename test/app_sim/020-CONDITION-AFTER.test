@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    020-CONDITION-BEFORE.test
+#    020-CONDITION-AFTER.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    app_sim(1) CONDITION:BEFORE:* order tests.
+#    app_sim(1) CONDITION:AFTER:* order tests.
 #
-#    This test suite tests the CONDITION:BEFORE:* orders.
+#    This test suite tests the CONDITION:AFTER:* orders.
 #
 #-----------------------------------------------------------------------
 
@@ -48,20 +48,20 @@ namespace eval ::athena_test::tests:: {
     }
 
     #-------------------------------------------------------------------
-    # CONDITION:BEFORE:CREATE
+    # CONDITION:AFTER:CREATE
 
-    test BEFORE:CREATE-1.1 {required parms} -body {
-        ted order -reject CONDITION:BEFORE:CREATE {}
+    test AFTER:CREATE-1.1 {required parms} -body {
+        ted order -reject CONDITION:AFTER:CREATE {}
     } -result {
         cc_id {required value}
         t1 {required value}
     }
 
     
-    test BEFORE:CREATE-1.2 {tactic is unknown} -setup {
+    test AFTER:CREATE-1.2 {tactic is unknown} -setup {
         setup
     } -body {
-        ted order -reject CONDITION:BEFORE:CREATE \
+        ted order -reject CONDITION:AFTER:CREATE \
             [dict merge $C1 [list cc_id NONESUCH]]
     } -cleanup {
         cleanup
@@ -69,10 +69,10 @@ namespace eval ::athena_test::tests:: {
         cc_id {Invalid goal or tactic ID: "NONESUCH"}
     }
 
-    test BEFORE:CREATE-1.3 {t1 is not timespec} -setup {
+    test AFTER:CREATE-1.3 {t1 is not timespec} -setup {
         setup
     } -body {
-        ted order -reject CONDITION:BEFORE:CREATE \
+        ted order -reject CONDITION:AFTER:CREATE \
             [dict merge $C1 [list t1 NONESUCH]]
     } -cleanup {
         cleanup
@@ -80,30 +80,30 @@ namespace eval ::athena_test::tests:: {
         t1 {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
     }
 
-    test BEFORE:CREATE-2.1 {condition is created} -setup {
+    test AFTER:CREATE-2.1 {condition is created} -setup {
         setup
     } -body {
-        ted order CONDITION:BEFORE:CREATE $C1
+        ted order CONDITION:AFTER:CREATE $C1
 
-        ted querylist {SELECT * FROM conditions_BEFORE}
+        ted querylist {SELECT * FROM conditions_AFTER}
     } -cleanup {
         cleanup
     } -result {
 condition_id    1
-condition_type  BEFORE
+condition_type  AFTER
 cc_id           1
-narrative       The current simulation time is earlier than day 10, i.e., before 200000ZJAN10.
+narrative       The current simulation time is later than day 10, i.e., after 200000ZJAN10.
 state           normal
 flag            
 t1              10
     }
 
 
-    test BEFORE:CREATE-2.2 {Effects} -setup {
+    test AFTER:CREATE-2.2 {Effects} -setup {
         setup
     } -body {
         ted notifier bind ::rdb <conditions>
-        ted order CONDITION:BEFORE:CREATE $C1
+        ted order CONDITION:AFTER:CREATE $C1
         ted notifier received
     } -cleanup {
         cleanup
@@ -112,9 +112,9 @@ t1              10
     }
 
 
-    test BEFORE:CREATE-3.1 {undo effects} -setup {
+    test AFTER:CREATE-3.1 {undo effects} -setup {
         setup
-        ted order CONDITION:BEFORE:CREATE $C1
+        ted order CONDITION:AFTER:CREATE $C1
     } -body {
         ted notifier bind ::rdb <conditions>
         cif undo -test
@@ -127,77 +127,77 @@ t1              10
 
 
     #-------------------------------------------------------------------
-    # CONDITION:BEFORE:UPDATE
+    # CONDITION:AFTER:UPDATE
 
     proc setup_update {} {
         variable C1
         setup
-        ted order CONDITION:BEFORE:CREATE $C1
+        ted order CONDITION:AFTER:CREATE $C1
     }
 
-    test BEFORE:UPDATE-1.1 {required parms} -body {
-        ted order -reject CONDITION:BEFORE:UPDATE {}
+    test AFTER:UPDATE-1.1 {required parms} -body {
+        ted order -reject CONDITION:AFTER:UPDATE {}
     } -result {
         condition_id {required value}
         t1 {required value}
     }
 
     
-    test BEFORE:UPDATE-1.2 {condition_id is unknown} -setup {
+    test AFTER:UPDATE-1.2 {condition_id is unknown} -setup {
         setup_update
     } -body {
-        ted order -reject CONDITION:BEFORE:UPDATE condition_id NONESUCH t1 2
+        ted order -reject CONDITION:AFTER:UPDATE condition_id NONESUCH t1 2
     } -cleanup {
         cleanup
     } -result {
         condition_id {Invalid condition ID: "NONESUCH"}
     }
 
-    test BEFORE:UPDATE-1.3 {t1 is not timespec} -setup {
+    test AFTER:UPDATE-1.3 {t1 is not timespec} -setup {
         setup_update
     } -body {
-        ted order -reject CONDITION:BEFORE:UPDATE condition_id 1 t1 NONESUCH
+        ted order -reject CONDITION:AFTER:UPDATE condition_id 1 t1 NONESUCH
     } -cleanup {
         cleanup
     } -result {
         t1 {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
     }
 
-    test BEFORE:UPDATE-1.4 {wrong flavor of condition} -setup {
+    test AFTER:UPDATE-1.4 {wrong flavor of condition} -setup {
         setup_update
         rdb eval {UPDATE conditions SET condition_type='BOGUS'}
     } -body {
-        ted order -reject CONDITION:BEFORE:UPDATE condition_id 1 t1 5
+        ted order -reject CONDITION:AFTER:UPDATE condition_id 1 t1 5
     } -cleanup {
         cleanup
     } -result {
-        condition_id {Condition 1 is not a BEFORE condition}
+        condition_id {Condition 1 is not a AFTER condition}
     }
 
-    test BEFORE:UPDATE-2.1 {activities are updated} -setup {
+    test AFTER:UPDATE-2.1 {activities are updated} -setup {
         setup_update
     } -body {
-        ted order CONDITION:BEFORE:UPDATE condition_id 1 t1 2 
+        ted order CONDITION:AFTER:UPDATE condition_id 1 t1 2 
 
-        ted querylist {SELECT * FROM conditions_BEFORE}
+        ted querylist {SELECT * FROM conditions_AFTER}
     } -cleanup {
         cleanup
     } -result {
 condition_id    1
-condition_type  BEFORE
+condition_type  AFTER
 cc_id           1
-narrative       The current simulation time is earlier than day 2, i.e., before 120000ZJAN10.
+narrative       The current simulation time is later than day 2, i.e., after 120000ZJAN10.
 state           normal
 flag            
 t1              2
     }
 
 
-    test BEFORE:UPDATE-2.2 {Effects} -setup {
+    test AFTER:UPDATE-2.2 {Effects} -setup {
         setup_update
     } -body {
         ted notifier bind ::rdb <conditions>
-        ted order CONDITION:BEFORE:UPDATE condition_id 1 t1 2
+        ted order CONDITION:AFTER:UPDATE condition_id 1 t1 2
         ted notifier received
     } -cleanup {
         cleanup
@@ -207,9 +207,9 @@ t1              2
     }
 
 
-    test BEFORE:UPDATE-3.1 {undo effects} -setup {
+    test AFTER:UPDATE-3.1 {undo effects} -setup {
         setup_update
-        ted order CONDITION:BEFORE:UPDATE condition_id 1 t1 2
+        ted order CONDITION:AFTER:UPDATE condition_id 1 t1 2
     } -body {
         ted notifier bind ::rdb <conditions>
         cif undo -test

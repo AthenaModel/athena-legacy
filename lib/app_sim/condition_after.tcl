@@ -1,30 +1,30 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    condition_before.tcl
+#    condition_after.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): BEFORE Condition Type Definition
+#    athena_sim(1): AFTER Condition Type Definition
 #
 #    See condition(i) for the condition interface requirements.
 #
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# Condition: BEFORE(t1)
+# Condition: AFTER(t1)
 #
 # Is now() < t1?
 
-condition type define BEFORE {t1} {
+condition type define AFTER {t1} {
     typemethod narrative {cdict} {
         dict with cdict {
             set z1 [simclock toZulu $t1]
 
             return [normalize "
-                The current simulation time is earlier than day $t1,
-                i.e., before $z1.
+                The current simulation time is later than day $t1,
+                i.e., after $z1.
             "]
         }
     }
@@ -33,17 +33,17 @@ condition type define BEFORE {t1} {
         dict with cdict {
             set t [simclock now]
 
-            return [expr {$t < $t1}]
+            return [expr {$t > $t1}]
         }
     }
 }
 
-# CONDITION:BEFORE:CREATE
+# CONDITION:AFTER:CREATE
 #
-# Creates a new BEFORE condition.
+# Creates a new AFTER condition.
 
-order define CONDITION:BEFORE:CREATE {
-    title "Create Condition: Before"
+order define CONDITION:AFTER:CREATE {
+    title "Create Condition: After"
 
     options -sendstates {PREP PAUSED}
 
@@ -59,18 +59,18 @@ order define CONDITION:BEFORE:CREATE {
     returnOnError -final
 
     # NEXT, put condition_type in the parmdict
-    set parms(condition_type) BEFORE
+    set parms(condition_type) AFTER
 
     # NEXT, create the condition
     setundo [condition mutate create [array get parms]]
 }
 
-# CONDITION:BEFORE:UPDATE
+# CONDITION:AFTER:UPDATE
 #
-# Updates existing BEFORE condition.
+# Updates existing AFTER condition.
 
-order define CONDITION:BEFORE:UPDATE {
-    title "Update Condition: Before"
+order define CONDITION:AFTER:UPDATE {
+    title "Update Condition: After"
     options \
         -sendstates {PREP PAUSED}                              \
         -refreshcmd {orderdialog refreshForKey condition_id *}
@@ -88,7 +88,7 @@ order define CONDITION:BEFORE:UPDATE {
 
     # NEXT, make sure this is the right kind of condition
     validate condition_id { 
-        condition RequireType BEFORE $parms(condition_id)  
+        condition RequireType AFTER $parms(condition_id)  
     }
 
     returnOnError -final
