@@ -1,0 +1,125 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-condition_during.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    condition_during(sim) tests.
+#
+#    This test suite tests the condition_during(sim) ensemble.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create JOE BOB NB1 NB2 BLUE BRIT
+        ted order TACTIC:SAVE:CREATE owner JOE int1 10
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        rdb nullvalue ""
+        array unset parms
+        ted cleanup
+    }
+
+    # Standard Conditions.
+    
+    set C1 {
+        cc_id          1
+        condition_type DURING
+        t1             1
+        t2             10
+    }
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {narrative} -setup {
+        setup
+        condition mutate create $C1
+    } -body {
+        condition::DURING narrative [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {The current simulation time is between day 1 and day 10, inclusive, i.e., from 110000ZJAN10 to 200000ZJAN10.}
+
+    #-------------------------------------------------------------------
+    # check
+
+
+    test check-1.1 {check: successful} -setup {
+        setup
+        condition mutate create $C1
+    } -body {
+        # NOTE: There's no way for the check to fail.
+        condition::DURING check [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    #-------------------------------------------------------------------
+    # eval
+
+
+    proc DuringEval {now} {
+        simclock reset
+        if {$now > 0} {
+            simclock step $now
+        }
+
+        return [condition::DURING eval [condition get 1]]
+    }
+
+    test eval-1.1 {eval during} -setup {
+        setup
+        condition mutate create $C1
+    } -body {
+        # t1 = 1, t2 = 10
+        set a [DuringEval 0]
+        set b [DuringEval 1]
+        set c [DuringEval 5]
+        set d [DuringEval 10]
+        set e [DuringEval 11]
+
+        list $a $b $c $d $e
+    } -cleanup {
+        cleanup
+    } -result {0 1 1 1 0}
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+

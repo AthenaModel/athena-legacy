@@ -108,6 +108,8 @@ flag            @
 a               JOE
 g               @
 op1             GT
+t1              @
+t2              @
 text1           FOO
 list1           A B C
 x1              10000.0
@@ -159,6 +161,8 @@ flag            @
 a               JOE
 g               @
 op1             GT
+t1              @
+t2              @
 text1           FOO
 list1           A B C
 x1              10000.0
@@ -173,6 +177,8 @@ flag            @
 a               BOB
 g               @
 op1             LT
+t1              @
+t2              @
 text1           BAR
 list1           D E F
 x1              20000.0
@@ -205,6 +211,8 @@ flag            @
 a               BOB
 g               @
 op1             LT
+t1              @
+t2              @
 text1           BAR
 list1           D E F
 x1              5000.0
@@ -352,6 +360,8 @@ condition_id state
         condition_id   1
         narrative      {Actor BOB's cash reserve is less than $20,000}
         list1          {D E F}
+        t1             @
+        t2             @
         g              @
         x1             20000.0
         owner          BOB

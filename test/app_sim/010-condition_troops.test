@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-condition_cash.test
+#    010-condition_troops.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    condition_cash(sim) tests.
+#    condition_troops(sim) tests.
 #
-#    This test suite tests the condition_cash(sim) ensemble.
+#    This test suite tests the condition_troops(sim) ensemble.
 #
 #-----------------------------------------------------------------------
 

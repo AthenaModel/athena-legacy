@@ -886,6 +886,58 @@ order CONDITION:CASH:UPDATE "Update Condition: Cash Reserve" {
 
 
 #-----------------------------------------------------------------------
+# Condition: DURING
+
+page /order/condition during "Condition: During" {
+    <<title>>
+
+    This condition is met when the current simulation time is within
+    a particular interval.  The start and end times are included within
+    the interval.<p>
+
+    The condition orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:DURING:CREATE "Create Condition: During" {
+    <<parmlist>>
+    <<CONDITION.cco>>
+
+    <<parm t1 "Start Day">>
+    <b>Required.</b> The day which begins the interval, specified
+    as a <<term timespec>>.
+    <</parm>>
+
+    <<parm t2 "End Day">>
+    <b>Required.</b> The day which ends the interval, specified
+    as a <<term timespec>>.
+    <</parm>>
+    <</parmlist>>
+
+    Creates the condition.
+}
+
+order CONDITION:DURING:UPDATE "Update Condition: During" {
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+
+    <<parm t1 "Start Day">>
+    <b>Optional.</b> The day which begins the interval, specified
+    as a <<term timespec>>.
+    <</parm>>
+
+    <<parm t2 "End Day">>
+    <b>Optional.</b> The day which ends the interval, specified
+    as a <<term timespec>>.
+    <</parm>>
+    <</parmlist>>
+
+    Allows the user to edit the condition.
+}
+
+#-----------------------------------------------------------------------
 # Condition: MET
 
 page /order/condition met "Condition: Goal is Met" {

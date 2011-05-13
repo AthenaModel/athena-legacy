@@ -625,12 +625,14 @@ CREATE TABLE conditions (
     -- Type-specific Parameters: These columns are used in different
     -- ways by different conditions; all are NULL if unused.
 
-    a             TEXT, -- An actor
-    g             TEXT, -- An group
-    op1           TEXT, -- An operation
-    text1         TEXT, -- A text string
-    list1         TEXT, -- A list
-    x1            REAL  -- A number
+    a             TEXT,    -- An actor
+    g             TEXT,    -- An group
+    op1           TEXT,    -- An operation
+    t1            INTEGER, -- A time in ticks
+    t2            INTEGER, -- A time in ticks
+    text1         TEXT,    -- A text string
+    list1         TEXT,    -- A list
+    x1            REAL     -- A number
 );
 
 ------------------------------------------------------------------------

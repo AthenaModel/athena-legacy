@@ -46,6 +46,8 @@ snit::type condition {
         a     ""
         g     ""
         op1   ""
+        t1    ""
+        t2    ""
         text1 ""
         list1 ""
         x1    ""
@@ -149,6 +151,8 @@ snit::type condition {
         set header {
             # Make it a singleton
             pragma -hasinstances no
+
+            typemethod check {cdict} { return }
         }
 
         snit::type ${type}::${name} "$header\n$defscript"
@@ -285,6 +289,8 @@ snit::type condition {
     #    a              - Actor, or ""
     #    g              - Group, or ""
     #    op1            - Operation, or ""
+    #    t1             - A time in ticks, or ""
+    #    t2             - A time in ticks, or ""
     #    text1          - Text string, or ""
     #    list1          - List of items, or ""
     #    x1             - Real number, or ""
@@ -313,6 +319,8 @@ snit::type condition {
                            a,
                            g,
                            op1,
+                           t1,
+                           t2,
                            text1,
                            list1,
                            x1)
@@ -320,6 +328,8 @@ snit::type condition {
                        nullif($a,      ''),
                        nullif($g,      ''),
                        nullif($op1,    ''),
+                       nullif($t1,     ''),
+                       nullif($t2,     ''),
                        nullif($text1,  ''),
                        nullif($list1,  ''),
                        nullif($x1,     ''));
@@ -374,6 +384,8 @@ snit::type condition {
     #    a              Actor ID, or ""
     #    g              Group ID, or ""
     #    op1            Operation, or ""
+    #    t1             Time in ticks, or ""
+    #    t2             Time in ticks, or ""
     #    text1          Text string, or ""
     #    list1          List of items, or ""
     #    x1             Real number, or ""
@@ -402,6 +414,8 @@ snit::type condition {
                 SET a     = nullif(nonempty($a,     a),      ''),
                     g     = nullif(nonempty($g,     g),      ''),
                     op1   = nullif(nonempty($op1,   op1),    ''),
+                    t1    = nullif(nonempty($t1,    t1),     ''),
+                    t2    = nullif(nonempty($t2,    t2),     ''),
                     text1 = nullif(nonempty($text1, text1),  ''),
                     list1 = nullif(nonempty($list1, list1),  ''),
                     x1    = nullif(nonempty($x1,    x1),     '')
