@@ -796,6 +796,47 @@ order CONDITION:STATE "Set Condition State" {
 
 
 #-----------------------------------------------------------------------
+# Condition: BEFORE
+
+page /order/condition before "Condition: Before" {
+    <<title>>
+
+    This condition is met when the current simulation time is earlier
+    than a particular date.<p>
+
+    The condition orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:BEFORE:CREATE "Create Condition: Before" {
+    <<parmlist>>
+    <<CONDITION.cco>>
+
+    <<parm t1 "Day">>
+    <b>Required.</b> The day on which the condition is no longer met,
+    specified as a <<term timespec>>.
+    <</parm>>
+    <</parmlist>>
+
+    Creates the condition.
+}
+
+order CONDITION:BEFORE:UPDATE "Update Condition: Before" {
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+
+    <<parm t1 "Day">>
+    <b>Required.</b> The day on which the condition is no longer met,
+    specified as a <<term timespec>>.
+    <</parm>>
+    <</parmlist>>
+
+    Allows the user to edit the condition.
+}
+
+#-----------------------------------------------------------------------
 # Condition: CASH
 
 page /order/condition cash "Condition: Cash Reserve" {
