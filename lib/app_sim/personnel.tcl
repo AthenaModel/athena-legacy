@@ -136,6 +136,22 @@ snit::type personnel {
         }
     }
 
+    # mobiblize g personnel
+    #
+    # g         - A force or ORG group
+    # personnel - The number of personnel to mobilize, or "all"
+    #
+    # Mobilizes the specified number of new personnel.
+
+    typemethod mobilize {g personnel} {
+        rdb eval {
+            UPDATE working_personnel
+            SET available = available + $personnel,
+                personnel = personnel + $personnel
+            WHERE g=$g;
+        }
+    }
+
 
     # save
     #

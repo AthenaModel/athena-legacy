@@ -1,29 +1,28 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    tactic_demob.tcl
+#    tactic_mobilize.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): DEMOB(g,mode,personnel,once) tactic
+#    athena_sim(1): MOBILIZE(g,personnel,once) tactic
 #
-#    This module implements the DEMOB tactic, which demobilizes
-#    force or ORG group personnel, i.e., moves them out of the playbox.
+#    This module implements the MOBILIZE tactic, which mobilizes
+#    force or ORG group personnel, i.e., moves them into of the playbox.
 #
 # PARAMETER MAPPING:
 #
 #    g     <= g
-#    text1 <= mode: ALL|SOME
 #    int1  <= personnel
 #    once  <= once
 #
 #-----------------------------------------------------------------------
 
 #-------------------------------------------------------------------
-# Tactic: DEMOB
+# Tactic: MOBILIZE
 
-tactic type define DEMOB {g text1 int1 once} {
+tactic type define MOBILIZE {g int1 once} {
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -35,11 +34,7 @@ tactic type define DEMOB {g text1 int1 once} {
 
     typemethod narrative {tdict} {
         dict with tdict {
-            if {$text1 eq "ALL"} {
-                return "Demobilize all of group $g's available personnel."
-            } else {
-                return "Demobilize $int1 of group $g's available personnel."
-            }
+            return "Mobilize $int1 new $g personnel."
         }
     }
 
@@ -69,24 +64,10 @@ tactic type define DEMOB {g text1 int1 once} {
 
     typemethod execute {tdict} {
         dict with tdict {
-            # FIRST, retrieve relevant data.
-            set available [personnel available $g]
-
-            # NEXT, if they want ALL personnel, we'll take all available.
-            # If they want SOME, we'll take the requested amount, *if* 
-            # they are available.
-            if {$text1 eq "ALL" || $int1 > $available} {
-                set int1 $available
-            }
-
-            if {$int1 == 0} {
-                return 0
-            }
-
-            personnel demob $g $int1
+            personnel mobilize $g $int1
                 
             sigevent log 1 tactic "
-                DEMOB: Actor {actor:$owner} demobilizes $int1 {group:$g} 
+                MOBILIZE: Actor {actor:$owner} mobilizes $int1 new {group:$g} 
                 personnel.
             " $owner $g
         }
@@ -104,7 +85,7 @@ tactic type define DEMOB {g text1 int1 once} {
     # fields    The fields that changed.
     # fdict     The current values of the various fields.
     #
-    # Refreshes the TACTIC:DEMOB:CREATE dialog fields when field values
+    # Refreshes the TACTIC:MOBILIZE:CREATE dialog fields when field values
     # change.
 
     typemethod RefreshCREATE {dlg fields fdict} {
@@ -117,14 +98,6 @@ tactic type define DEMOB {g text1 int1 once} {
                 
                 $dlg field configure g -values $groups
             }
-
-            if {"text1" in $fields} {
-                if {$text1 eq "ALL"} {
-                    $dlg disabled int1
-                } else {
-                    $dlg disabled {}
-                }
-            }
         }
     }
 
@@ -134,7 +107,7 @@ tactic type define DEMOB {g text1 int1 once} {
     # fields    The fields that changed.
     # fdict     The current values of the various fields.
     #
-    # Refreshes the TACTIC:DEMOB:UPDATE dialog fields when field values
+    # Refreshes the TACTIC:MOBILIZE:UPDATE dialog fields when field values
     # change.
 
     typemethod RefreshUPDATE {dlg fields fdict} {
@@ -153,35 +126,22 @@ tactic type define DEMOB {g text1 int1 once} {
 
             $dlg loadForKey tactic_id *
         }
-
-        dict with fdict {
-            if {"text1" in $fields} {
-                if {$text1 eq "ALL"} {
-                    $dlg disabled int1
-                } else {
-                    $dlg disabled {}
-                }
-            }
-        }
     }
 }
 
-# TACTIC:DEMOB:CREATE
+# TACTIC:MOBILIZE:CREATE
 #
-# Creates a new DEMOB tactic.
+# Creates a new MOBILIZE tactic.
 
-order define TACTIC:DEMOB:CREATE {
-    title "Create Tactic: Demobilize Forces"
+order define TACTIC:MOBILIZE:CREATE {
+    title "Create Tactic: Mobilize Forces"
 
     options \
         -sendstates {PREP PAUSED}       \
-        -refreshcmd {tactic::DEMOB RefreshCREATE}
+        -refreshcmd {tactic::MOBILIZE RefreshCREATE}
 
     parm owner     actor "Owner"           -context yes
     parm g         enum  "Group"   
-    parm text1     enum  "Mode"            -enumtype edemobmode  \
-                                           -defval SOME          \
-                                           -displaylong yes
     parm int1      text  "Personnel"
     parm once      enum  "Once Only?"      -enumtype eyesno      \
                                            -defval   YES
@@ -192,7 +152,6 @@ order define TACTIC:DEMOB:CREATE {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
     prepare g        -toupper   -required -type   {ptype fog}
-    prepare text1    -toupper   -required -type   edemobmode
     prepare int1                          -type   ingpopulation
     prepare once     -toupper   -required -type   boolean
     prepare priority -tolower             -type   ePrioSched
@@ -200,11 +159,6 @@ order define TACTIC:DEMOB:CREATE {
     returnOnError
 
     # NEXT, cross-checks
-
-    # text1 vs int1
-    if {$parms(text1) eq "SOME" && $parms(int1) eq ""} {
-        reject int1 "Required value when mode is SOME."
-    }
 
     # g vs owner
     set a [rdb onecolumn {SELECT a FROM agroups WHERE g=$parms(g)}]
@@ -216,43 +170,40 @@ order define TACTIC:DEMOB:CREATE {
     returnOnError -final
 
     # NEXT, put tactic_type in the parmdict
-    set parms(tactic_type) DEMOB
+    set parms(tactic_type) MOBILIZE
 
     # NEXT, create the tactic
     setundo [tactic mutate create [array get parms]]
 }
 
-# TACTIC:DEMOB:UPDATE
+# TACTIC:MOBILIZE:UPDATE
 #
-# Updates existing DEMOB tactic.
+# Updates existing MOBILIZE tactic.
 
-order define TACTIC:DEMOB:UPDATE {
-    title "Update Tactic: Demob Forces"
+order define TACTIC:MOBILIZE:UPDATE {
+    title "Update Tactic: Mobilize Forces"
     options \
         -sendstates {PREP PAUSED}                  \
-        -refreshcmd {tactic::DEMOB RefreshUPDATE}
+        -refreshcmd {tactic::MOBILIZE RefreshUPDATE}
 
     parm tactic_id key  "Tactic ID"       -context yes           \
-                                          -table   tactics_DEMOB \
+                                          -table   tactics_MOBILIZE \
                                           -keys    tactic_id
     parm owner     disp  "Owner"
     parm g         enum  "Group"
-    parm text1     enum  "Mode"           -enumtype edemobmode   \
-                                          -displaylong yes
     parm int1      text  "Personnel"
     parm once      enum  "Once Only?"     -enumtype eyesno       \
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
     prepare g          -toupper  -type {ptype fog}
-    prepare text1      -toupper  -type edemobmode
     prepare int1                 -type ingpopulation
     prepare once       -toupper  -type boolean
 
     returnOnError
 
     # NEXT, make sure this is the right kind of tactic
-    validate tactic_id { tactic RequireType DEMOB $parms(tactic_id) }
+    validate tactic_id { tactic RequireType MOBILIZE $parms(tactic_id) }
 
     returnOnError
 
@@ -266,18 +217,6 @@ order define TACTIC:DEMOB:UPDATE {
 
         if {$a ne $owner} {
             reject g "Group $parms(g) is not owned by actor $owner."
-        }
-    }
-
-    # If text1 is now SOME, then int1 must be defined, either by
-    # this order or in the RDB.
-    set oldInt1 [rdb onecolumn {
-        SELECT int1 FROM tactics WHERE tactic_id = $parms(tactic_id)
-    }]
-
-    if {$parms(text1) eq "SOME"} {
-        if {$parms(int1) eq "" && $oldInt1 eq ""} {
-            reject int1 "Required value when mode is SOME."
         }
     }
 

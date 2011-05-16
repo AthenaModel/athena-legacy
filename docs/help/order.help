@@ -4514,6 +4514,77 @@ order TACTIC:DEPLOY:UPDATE "Update Tactic: Deploy Forces" {
 }
 
 #-----------------------------------------------------------------------
+# Tactic: MOBILIZE
+
+page /order/tactic mobilize "Tactic: Mobilize Forces" {
+    <<title>>
+
+    This tactic mobilizes force or organization group personnel,
+    i.e., it brings new personnel into the playbox.<p>
+
+    Multiple MOBILIZE tactics are cumulative.<p>
+
+    The tactic orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+macro MOBILIZE.g {} {
+    |<--
+    The ID of a force or organization group belonging to the
+    <i>owner</i>.<p>
+}
+
+macro MOBILIZE.int1 {} {
+    |<--
+    The number of personnel to mobilize.<p>
+}
+
+order TACTIC:MOBILIZE:CREATE "Create Tactic: Mobilize Forces" {
+    <<parmlist>>
+    <<TACTIC.cowner>>
+
+    <<parm g "Group">>
+    <b>Required.</b> <<MOBILIZE.g>>
+    <</parm>>
+
+    <<parm int1 "Personnel">>
+    <b>Required.</b>  <<MOBILIZE.int1>>
+    <</parm>>
+
+    <<parm once "Once?">>
+    <b>Required.</b>  <<TACTIC.once>>
+    <</parm>>
+
+    <<TACTIC.priority>>
+    <</parmlist>>
+
+    Creates the tactic.
+}
+
+order TACTIC:MOBILIZE:UPDATE "Update Tactic: Mobilize Forces" {
+    <<parmlist>>
+    <<TACTIC.id>>
+    <<TACTIC.uowner>>
+
+    <<parm g "Group">>
+    <b>Optional.</b> <<MOBILIZE.g>>
+    <</parm>>
+
+    <<parm int1 "Personnel">>
+    <b>Optional.</b>  <<MOBILIZE.int1>>
+    <</parm>>
+
+    <<parm once "Once?">>
+    <b>Optional.</b>  <<TACTIC.once>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Allows the user to edit the tactic.
+}
+
+#-----------------------------------------------------------------------
 # Tactic: SAVE
 
 page /order/tactic save "Tactic: Save Money" {
