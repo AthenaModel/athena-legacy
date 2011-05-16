@@ -11,6 +11,34 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.18, 16 May 2011</h3>
+
+This build contains significant improvement in the "condition"
+infrastructure, with re-implementations of the existing conditions and
+new implementations of many more.  In particular, the GOAL condition
+has been replaced by the MET and UNMET conditions, and the CASH condition
+can track changes in an actor's cash reserve as his tactics execute.
+New conditions include TROOPS, DURING, BEFORE, AFTER, AT, CONTROL, and
+INFLUENCE.  Finally, we've added a DEMOB (demobilization) tactic that
+allows troops to be explicitly moved out of the playbox.<p>
+
+<ul>
+  <li> Bug 2944: Cash Reserve Condition Flagged as Unmet
+  <li> Bug 2957: DEFROE Bgerror
+  <li> Bug 2958: athena_sim(1): DEMOB tactic
+  <li> Bug 2964: athena_sim(1): Tactic Working Tables
+  <li> Bug 2966: athena_sim(1): Transient Conditions
+  <li> Bug 2967: athena_sim(1): Condition Owner vs. Condition Collection
+  <li> Bug 2971: athena_sim(1): MET/UNMET conditions replace GOAL condition
+  <li> Bug 2972: athena_sim(1): TROOPS condition
+  <li> Bug 2973: athena_sim(1): Condition DURING
+  <li> Bug 2974: athena_sim(1): condition BEFORE
+  <li> Bug 2975: athena_sim(1): condition AFTER
+  <li> Bug 2976: athena_sim(1): AT condition
+  <li> Bug 2977: athena_sim(1): CONTROL condition
+  <li> Bug 2978: athena_sim(1): INFLUENCE condition 
+</ul><p>
+
 <h3>Build 3.0.17, 10 May 2011</h3>
 
 This package removes the old force level management code (the
