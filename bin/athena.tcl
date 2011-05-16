@@ -14,43 +14,24 @@ exec tclsh8.5 "$0" "$@"
 #    Athena: Simulation Launcher
 #
 #    This script serves as the main entry point for the Athena
-#    simulation and related tools. Athena apps are invoked using 
+#    simulation.  The simulation is invoked using 
 #    the following syntax:
 #
-#        $ athena appname ?args....?
+#        $ athena ?args....?
 #
 #    E.g., 
 #
-#        $ athena sim ...
+#        $ athena myscenario.adb
 #
-#    Every tool is defined by a Tcl package called "app_<appname>", 
-#    e.g., "app_sim"; the package is assumed to define an application 
-#    ensemble, "app", which has at least an "init" subcommand.  Thus, 
-#    an application is invoked as follows:
+#    The simulation is defined by a Tcl package called "app_sim",
+#    which defines an application ensemble, "app".  The application
+#    is invoked as follows:
 #
-#        package require $applib
+#        package require app_sim
 #        app init $argv
 #
-#    Some applications may require additional inputs.
-#
-# APPLICATION METADATA
-#
-#    This script defines an array called metadinfo existsata(), which contains
-#    metadata about each application which this script can launch.
-#    The key is the appname, e.g., "sim", etc.
-#
-#    applib      The application library name, e.g., app_sim
-#
-#    mode        gui, server, cmdline:
-#                cmdline:  A non-GUI tool app which returns immediately.
-#                gui:      A Tk GUI.
-#                server:   A non-GUI server app using the Tcl event loop.
-#                
-#    If the mode is "gui" or "server", Tk will be loaded immediately;
-#    in the latter case, the main window will be withdrawn, so that
-#    no GUI is presented to the user; nevertheless the app will still
-#    enter the event loop.  If the mode is cmdline,
-#    Tk will not be loaded, and the event loop will not be entered.
+# TBD:
+#    * The mod code can be merged into app_sim.
 #     
 #-----------------------------------------------------------------------
 
@@ -82,20 +63,9 @@ set marsdir [file normalize [file join $appdir .. mars lib]]
 lappend auto_path $marsdir $libdir
 
 #-------------------------------------------------------------------
-# Next, require Tcl
+# Next, require Tcl/Tk
 
 package require Tcl 8.5
-
-#-----------------------------------------------------------------------
-# Application Metadata
-
-set metadata {
-    sim {
-        text     "Simulation"
-        applib   app_sim
-        mode     gui
-    }
-}
 
 #-----------------------------------------------------------------------
 # Main Program 
@@ -108,86 +78,30 @@ set metadata {
 # It determines the application to invoke, and does so.
 
 proc main {argv} {
-    global metadata
-    global appname
-
-    #-------------------------------------------------------------------
-    # Get the Metadata
-
-    array set meta $metadata
-
     #-------------------------------------------------------------------
     # Application Mode.
 
-    # FIRST, assume the mode is "cmdline": Tk is not needed, nor is the
-    # Tcl event loop.
-
-    set appname ""
-    set mode cmdline
-
-    # NEXT, Extract the appname, if any, from the command line arguments
-    if {[llength $argv] >= 1} {
-        set appname [lindex $argv 0]
-        set argv [lrange $argv 1 end]
-
-        # If we know it, then we know the mode; otherwise, cmdline is right.
-        if {[info exists meta($appname)]} {
-            set mode [dict get $meta($appname) mode]
-        }
-    }
-
     #-------------------------------------------------------------------
-    # Require Packages
-
-    # FIRST, Require Tk if this is a GUI.
-    #
-    # NOTE: There's a bug in the current basekit such that if sqlite3
-    # is loaded before Tk things get horribly confused.  In particular,
-    # when loading Tk we get an error:
+    # Require Tk.
     #
     #    version conflict for package "Tcl": have 8.5.3, need exactly 8.5
     #
-    # This logic works around the bug. We're not currently building
-    # a starpack based on this script, but it's best to be prepared.
+    # This logic works around the bug.
 
-    if {$mode eq "gui" || $mode eq "server"} {
-        # FIRST, get all Non-TK arguments from argv, leaving the Tk-specific
-        # stuff in place for processing by Tk.
-        set argv [nonTkArgs $argv]
+    # FIRST, get all Non-TK arguments from argv, leaving the Tk-specific
+    # stuff in place for processing by Tk.
+    set argv [nonTkArgs $argv]
 
-        # NEXT, load Tk.
-        package require Tk 8.5
-
-        if {$mode eq "server"} {
-            # Withdraw the main window, so it can't be closed accidentally.
-            wm withdraw .
-        }
-    }
+    # NEXT, load Tk.
+    package require Tk 8.5
 
     # NEXT, go ahead and load marsutil(n).  Don't import it;
     # leave that for the applications.
 
     package require marsutil
 
-    # NEXT, if no app was requested, show usage.
-    if {$appname eq ""} {
-        ShowUsage
-        exit
-    }
-
-    # NEXT, if the appname is unknown, show error and usage
-    if {![info exists meta($appname)]} {
-        puts "Error, no such application: \"athena $appname\"\n"
-
-        ShowUsage
-        exit 1
-    }
-
-    # NEXT, make sure the current state meets the requirements for
-    # this application.
-
-    # NEXT, we have the desired application.  Load its package.
-    package require [dict get $meta($appname) applib]
+    # NEXT, load the application package.
+    package require app_sim
 
     # NEXT, get the application directory in the host
     # file system.
@@ -201,10 +115,6 @@ proc main {argv} {
 
     # NEXT, Invoke the app.
     app init $argv
-
-    # NEXT, return the mode, so that server apps can enter
-    # the event loop.
-    return $mode
 }
 
 # from argvar option ?defvalue?
@@ -255,36 +165,6 @@ proc nonTkArgs {arglist} {
     return $arglist
 }
 
-# ShowUsage
-#
-# Displays the command-line syntax.
-
-proc ShowUsage {} {
-    global metadata
-
-    # Get the list of apps in the order defined in the metadata
-    set apps [dict keys $metadata]
-
-    # TBD: It would be nice to associate a version with this
-    puts "=== athena(1) ===\n"
-
-    puts {Usage: athena appname [args...]}
-    puts ""
-
-    puts ""
-    puts "The following applications are available:"
-    puts ""
-
-    puts "Application        Man Page            Description"
-    puts "-----------------  ------------------  ------------------------------------"
-
-    foreach app [dict keys $metadata] {
-        puts [format "athena %-10s  %-18s  %s" \
-                  $app                          \
-                  athena_${app}(1)             \
-                  [dict get $metadata $app text]]
-    }
-}
 
 #-------------------------------------------------------------------
 # Mod code
