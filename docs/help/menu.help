@@ -80,10 +80,6 @@ menuitem "File/New Detail Browser..." {
 menuitem "File/Open Scenario..." {
     Closes the current scenario, and loads an existing scenario from 
     disk.<p>
-
-    By default, the Open Scenario dialog shows only Athena scenario
-    (".adb") files; use the file type pulldown at the bottom of the
-    dialog to show Athena Scenario XML files as well.
 }
 
 menuitem "File/Save Scenario" {
@@ -94,12 +90,6 @@ menuitem "File/Save Scenario" {
 menuitem "File/Save Scenario As..." {
     Saves the current scenario to disk,
     prompting for a new file name.
-}
-
-menuitem "File/Export as XML..." {
-    Saves the current scenario to disk in XML format.  Note that this
-    can only be done while the simulation is in the
-    <<cref /using/prep>> state.
 }
 
 menuitem "File/Save CLI Scrollback Buffer..." {

@@ -19,7 +19,6 @@ package require snit
 # Internal Package Dependencies
 
 package require sqlite3
-package require tdom
 package require uri
 package require marsutil
 package require simlib

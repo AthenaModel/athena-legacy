@@ -860,10 +860,7 @@ term scenariofile "scenario file" {
     reports, <<term snapshot>>s, and in general everything
     to do with the scenario.<p>
 
-    Most Athena scenario files are in ".adb" format; however, it is
-    possible to 
-    <<menu "File/Export as XML..." export>> a scenario as an XML
-    file (provided) the simulation is in the <b>Prep</b> <<term state>>.
+    Athena scenario files have a ".adb" file type.<p>
 }
 
 

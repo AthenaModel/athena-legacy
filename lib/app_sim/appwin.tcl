@@ -563,11 +563,6 @@ snit::widget appwin {
             -underline 14                      \
             -command   [mymethod FileSaveAs]
 
-        cond::simIsPrep control \
-            [menuitem $mnu command "Export As XML..."        \
-                 -underline 0                                \
-                 -command   [mymethod FileExportAsXml]]
-
         $mnu add command                               \
             -label     "Save CLI Scrollback Buffer..." \
             -underline 5                               \
@@ -1488,7 +1483,6 @@ snit::widget appwin {
                           -title "Open Scenario"          \
                           -filetypes {
                               {{Athena Scenario}     {.adb} }
-                              {{Athena Scenario XML} {.xml} }
                           }]
 
         # NEXT, If none, they cancelled
@@ -1523,31 +1517,6 @@ snit::widget appwin {
 
         # NEXT, Save the scenario using this name
         return [scenario save $filename]
-    }
-
-    # FileExportAsXml
-    #
-    # Prompts the user to save the scenario as an XML file.
-
-    method FileExportAsXml {} {
-        # FIRST, query for the XML file name.  If the file already
-        # exists, the dialog will automatically query whether to 
-        # overwrite it or not. Returns 1 on success and 0 on failure.
-
-        set filename [tk_getSaveFile                         \
-                          -parent $win                       \
-                          -title "Export Scenario As"        \
-                          -filetypes {
-                              {{Athena Scenario XML} {.xml} }
-                          }]
-
-        # NEXT, If none, they cancelled.
-        if {$filename eq ""} {
-            return 0
-        }
-
-        # NEXT, Export the scenario using this name
-        return [scenario export $filename]
     }
 
     # FileSave

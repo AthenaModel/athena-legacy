@@ -103,37 +103,6 @@ run-time database (RDB), and to save and load scenario data to and
 from external files.  By convention, these "scenario files" have a
 "<code>.adb</code>" (Athena Scenario) extension.<p>
 
-<<subsection "XML Schema">>
-
-There is no official XML DTD for this format; however, the schema
-is straightforward:<p>
-
-<pre>
-    &lt;database dbschema="<i>version</i>"&gt;
-        &lt;table name="<i>thetable</i>"&gt;
-            &lt;row&gt;
-                &lt;column name="<i>thecolumn</i>"&gt;
-                value
-                &lt;/column&gt;
-            &lt;/row&gt;
-        &lt;/table&gt;
-    &lt;/database&gt;
-</pre>
-
-The exported text is comprised of a single
-<code>&lt;database&gt;</code> element containing one
-<code>&lt;table&gt;</code> element per exported table.  Each
-<code>&lt;table&gt;</code> element contains one
-<code>&lt;row&gt;</code> per row, and each
-<code>&lt;row&gt;</code> element contains one
-<code>&lt;column&gt;</code> element per column.  This element,
-naturally, contains the column's value.<p>
-
-The <i>version</i> is the SQLite3 database's "PRAGMA user_version";
-this serves to indicate the version of the SQL schema.<p>
-
-BLOB data is written out as a hexadecimal string.<p>
-        
 <<section "SCHEMA">>
 
 scenariodb(n) adds the following definitions to the database
@@ -194,38 +163,6 @@ database handle.  In addition, it has the following subcommands:<p>
 
 Clears the contents of the database, establishing a fresh, empty scenario.
 Also, clears the <<iref unsaved>> flag.<p>
-
-<<defitem export {<i>obj</i> export ?-exclude? ?<i>tables</i>?}>>
-
-Exports the contents of the permanent database tables as an XML text
-string.  The XML text can be imported into a scenariodb(n) using
-<<iref import>>.  If <i>tables</i> is specified, it should be a list
-of the names of the tables to export.  If <code>-exclude</code> is
-given with <i>tables</i>, then <i>tables</i> is a list of tables that
-should <i>not</i> be exported.<p>
-
-See above for the <<xref "XML Schema">>.<p>
-
-<<defitem import {<i>obj</i> import <i>xmltext</i> ?<i>options...</i>?}>>
-
-Imports the <i>xmltext</i> into the database. Tables and columns that
-exist in the <i>xmltext</i> but not in the current schema are
-skipped.  The command can be called with the following options:<p>
-
-<<deflist options>>
-
-<<defopt {-clear}>>
-
-Clears the RDB, defining the current schema, prior to importing.<p.
-
-<<defopt {-logcmd <b>cmd</b>}>>
-
-Defines a command prefix expecting
-one additional argument, a message string.  <<iref import>> will
-call it with a human-readable message for each table and column
-that's imported or skipped.<p>
-
-<</deflist options>>
 
 
 <<defitem load {<i>obj</i> load <i>filename</i>}>>

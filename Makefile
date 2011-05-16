@@ -117,7 +117,6 @@ bin: check_env src
 		-pkgref "treectrl"                          \
 		-pkgref "sqlite3   -require 3.6.23"         \
 		-pkgref "tablelist -require 5.1"            \
-		-pkgref "tdom"                              \
 		-pkgref "textutil::expander"                \
 		-pkgref "textutil::adjust"                  \
 		-pkgref "Plotchart"                         \

@@ -150,7 +150,7 @@ snit::type scenario {
 
     # open filename
     #
-    # filename       An .adb or .xml scenario file
+    # filename       An .adb scenario file
     #
     # Opens the specified file name, replacing the existing file.
 
@@ -162,13 +162,7 @@ snit::type scenario {
 
         # FIRST, load the file.
         if {[catch {
-            if {$ftype eq ".xml"} {
-                rdb import [readfile $filename]          \
-                    -clear                               \
-                    -logcmd [list log normal scenario]
-            } else {
-                rdb load $filename
-            }
+            rdb load $filename
         } result]} {
             app error {
                 |<--
@@ -212,11 +206,7 @@ snit::type scenario {
         }
 
         # NEXT, save the name.
-        if {[file extension $filename] ne ".xml"} {
-            set info(dbfile) $filename
-        } else {
-            set info(dbfile) ""
-        }
+        set info(dbfile) $filename
 
         # NEXT, log it.
         log newlog open
@@ -293,46 +283,6 @@ snit::type scenario {
         return 1
     }
 
-    # export filename
-    #
-    # filename       Name for the new XML file
-    #
-    # Exports the file, notifying the application on success.  Returns 1 if
-    # the save is successful and 0 otherwise.
-
-    typemethod export {filename} {
-        # FIRST, save the saveables--but don't mark them saved, as this
-        # is an export.
-        $type SaveSaveables
-
-        # NEXT, Export, and check for errors.
-        if {[catch {
-            try {
-                set f [open $filename w]
-                puts $f [rdb export]
-            } finally {
-                close $f
-            }
-        } result opts]} {
-            log warning scenario "Could not export: $result"
-            log error scenario [dict get $opts -errorinfo]
-            app error {
-                |<--
-                Could not export the scenario as
-                
-                    $filename
-
-                $result
-            }
-            return 0
-        }
-
-        log normal scenario "Exported Scenario: $filename"
-
-        app puts "Exported Scenario As [file tail $filename]"
-
-        return 1
-    }
 
     # dbfile
     #
@@ -361,45 +311,13 @@ snit::type scenario {
     }
 
     
-    # migrate filename
-    #
-    # filename    A scenario file (.adb)
-    #
-    # Opens an external scenario file, converts it to XML, and then 
-    # imports the XML text into the current RDB in place of whatever
-    # was there.  This command is intended to be used by developers
-    # to migrate scenario files to new versions of the schema during
-    # development.
-
-    typemethod migrate {filename} {
-        # FIRST, open it as a database file and get the XML text
-        try {
-            scenariodb temp
-            temp open $filename
-            set xmltext [temp export]
-        } finally {
-            temp close
-            temp destroy
-        }
-
-        # NEXT, import the XML data
-        rdb import $xmltext                    \
-            -clear                             \
-            -logcmd [list log normal scenario]
-
-        # NEXT, finish the job
-        $type FinishOpeningScenario $filename
-    }
-
-
-
     #-------------------------------------------------------------------
     # Snapshot Management
 
     # snapshot save ?-prep?
     #
     # Saves a snapshot as of the current sim time.  The snapshot is
-    # an XML string of everything but the "maps" and "snapshots" tables.
+    # a Tcl string of everything but the "maps" and "snapshots" tables.
     # The "maps" are excluded because of the size, and the "snapshots"
     # are excluded for obvious reasons.
     #
