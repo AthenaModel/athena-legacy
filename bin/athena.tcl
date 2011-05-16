@@ -95,12 +95,6 @@ set metadata {
         applib   app_sim
         mode     gui
     }
-
-    version {
-        text     "Version Switcher"
-        applib   app_version
-        mode     cmdline
-    }
 }
 
 #-----------------------------------------------------------------------

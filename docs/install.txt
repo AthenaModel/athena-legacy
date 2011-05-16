@@ -8,27 +8,24 @@ Athena 2.1 Installation Instructions
 
 2. Athena can be installed in any directory you choose.  It is
    most typically installed in your home directory as '~/athena'.
-   If you expect to have several Athena versions installed at
-   once, see "Installing Multiple Versions," below.  Otherwise,
-   you can follow the simple instructions given here.
 
-3. In what follows, "2.1.x" refers to the Athena version number;
-   replace it with the actual version number, e.g., "2.1.0".
+3. In what follows, "3.1.x" refers to the Athena version number;
+   replace it with the actual version number, e.g., "3.1.0".
 
 4. Copy the installation tarball to your home directory (or any 
    other location of your choosing).
 
 5. Untar the installation tarball from a Terminal window by typing 
 
-      tar zxf athena_2.1.x.tgz
+      tar zxf athena_3.1.x.tgz
 
-   (Again, "2.1.x" is the version number in the installation file
-   name, e.g., "2.1.0".)
+   (Again, "3.1.x" is the version number in the installation file
+   name, e.g., "3.1.0".)
 
-6. Create an "athena_2.1.x" directory link in your home directory 
+6. Create an "athena_3.1.x" directory link in your home directory 
    and link ~/athena to it:
 
-      ln -s ~/athena_2.1.x athena
+      ln -s ~/athena_3.1.x athena
 
 7. Add '~/athena/bin' to your $PATH environment variable by editing 
    the file ".bash_profile" and adding the line 
@@ -50,28 +47,4 @@ Athena 2.1 Installation Instructions
     your account that you choose.  Typically, users will create a 
     subdirectory for each scenario, but that's up to you.
 
-
-Installing Multiple Versions
-----------------------------
-
-1. If you expect to install multiple versions of Athena, and switch
-   between them, follow these instructions.
-
-2. Create an '~/athena_pkgs' directory in your home directory by 
-   entering the following in a Terminal window:
-
-      mkdir ~/athena_pkgs
-
-3. Copy the installation tar ball to this directory, and unpack it:
-
-      cp athena_2.1.x.tgz ~/athena_pkgs
-      cd ~/athena_pkgs
-      tar zxf athena_2.1.x.tgz
-
-4. Link '~/athena' to point to this version:
-
-      cd ~/athena_pkgs/athena_2.1.x/bin
-      ./athena version 2.1.x
-
-5. Follow steps 7 through 10, above.
 
