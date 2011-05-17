@@ -175,7 +175,7 @@ snit::widget appwin {
 
         groupst {
             label   "Groups"
-            vistype *
+            vistype scenario
             parent  ""
             script  ""
         }
