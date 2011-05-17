@@ -115,7 +115,6 @@ tactic type define DEPLOY {g text1 int1 nlist} {
                 SELECT cost FROM agroups WHERE g=$g
             }]
 
-
             # NEXT, if they want ALL personnel, we'll take as many as
             # we can afford.  If they want SOME, we'll take the 
             # requested amount, *if* we can afford it.
@@ -129,8 +128,13 @@ tactic type define DEPLOY {g text1 int1 nlist} {
                 if {$costPerPerson == 0.0} {
                     set int1 $available
                 } else {
-                    let maxTroops {int(double($cash_on_hand)/$costPerPerson)}
-                    let int1      {min($available,$maxTroops)}
+                    let maxTroops {double($cash_on_hand)/$costPerPerson}
+
+                    # int1 needs to be an integer.  int() truncates to
+                    # machine integer, not a bignum.  round() rounds to
+                    # a bignum; but we want to truncate.  Hence, 
+                    # round(floor(x)).
+                    let int1 {round(floor(min($available,$maxTroops)))}
                 }
             } else {
                 # FIRST, if there are insufficient troops available,
@@ -162,6 +166,8 @@ tactic type define DEPLOY {g text1 int1 nlist} {
                 if {[incr count] <= $remainder} {
                     incr troops
                 }
+
+                set avail [personnel available $g]
 
                 personnel deploy $n $g $troops
                 

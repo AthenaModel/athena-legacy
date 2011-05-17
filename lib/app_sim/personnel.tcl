@@ -76,6 +76,9 @@ snit::type personnel {
             SELECT available FROM working_personnel WHERE g=$g
         }]
 
+        require {$personnel > 0} \
+            "Attempt to deploy negative personnel: $personnel"
+
         require {$personnel <= $available} \
             "Insufficient personnel available: $personnel > $available"
 
