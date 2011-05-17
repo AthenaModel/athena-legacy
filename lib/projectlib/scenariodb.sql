@@ -637,6 +637,7 @@ CREATE TABLE conditions (
     t2            INTEGER, -- A time in ticks
     text1         TEXT,    -- A text string
     list1         TEXT,    -- A list
+    int1          INTEGER, -- An integer
     x1            REAL     -- A number
 );
 

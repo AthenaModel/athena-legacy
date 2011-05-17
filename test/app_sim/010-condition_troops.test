@@ -62,7 +62,7 @@ namespace eval ::athena_test::tests:: {
         condition_type TROOPS
         g              BLUE
         op1            LT
-        x1             20000
+        int1           20000
     }
 
     #-------------------------------------------------------------------
@@ -108,7 +108,7 @@ namespace eval ::athena_test::tests:: {
     # actor and that there is a TROOPS condition with condition_id 1.
     proc TroopsEval {table troops comp amount} {
         rdb eval "UPDATE $table SET personnel=\$troops WHERE g='BLUE'"
-        condition mutate update [list condition_id 1 op1 $comp x1 $amount]
+        condition mutate update [list condition_id 1 op1 $comp int1 $amount]
         return [condition::TROOPS eval [condition get 1]]
     }
 

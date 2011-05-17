@@ -51,6 +51,7 @@ snit::type condition {
         t2    ""
         text1 ""
         list1 ""
+        int1  ""
         x1    ""
     }
 
@@ -295,6 +296,7 @@ snit::type condition {
     #    t2             - A time in ticks, or ""
     #    text1          - Text string, or ""
     #    list1          - List of items, or ""
+    #    int1           - Integer, or ""
     #    x1             - Real number, or ""
     #
     # Creates a condition given the parms, which are presumed to be
@@ -326,6 +328,7 @@ snit::type condition {
                            t2,
                            text1,
                            list1,
+                           int1,
                            x1)
                 VALUES($condition_type, $cc_id, $owner, $narrative, 
                        nullif($a,      ''),
@@ -336,6 +339,7 @@ snit::type condition {
                        nullif($t2,     ''),
                        nullif($text1,  ''),
                        nullif($list1,  ''),
+                       nullif($int1,   ''),
                        nullif($x1,     ''));
             }
 
@@ -393,6 +397,7 @@ snit::type condition {
     #    t2             Time in ticks, or ""
     #    text1          Text string, or ""
     #    list1          List of items, or ""
+    #    int1           Integer, or ""
     #    x1             Real number, or ""
     #
     # Updates a condition given the parms, which are presumed to be
@@ -425,6 +430,7 @@ snit::type condition {
                     t2    = nullif(nonempty($t2,    t2),     ''),
                     text1 = nullif(nonempty($text1, text1),  ''),
                     list1 = nullif(nonempty($list1, list1),  ''),
+                    int1  = nullif(nonempty($int1,  int1),   ''),
                     x1    = nullif(nonempty($x1,    x1),     '')
                 WHERE condition_id=$condition_id;
             } {}

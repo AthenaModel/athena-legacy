@@ -46,7 +46,7 @@ namespace eval ::athena_test::tests:: {
         cc_id          1
         g              BLUE
         op1            GT
-        x1             10000
+        int1           10000
     }
 
     #-------------------------------------------------------------------
@@ -58,7 +58,7 @@ namespace eval ::athena_test::tests:: {
         cc_id {required value}
         g {required value}
         op1 {required value}
-        x1 {required value}
+        int1 {required value}
     }
 
     
@@ -95,16 +95,16 @@ namespace eval ::athena_test::tests:: {
         op1 {invalid value "NONESUCH", should be one of: EQ, GE, GT, LE, LT}
     }
 
-    test TROOPS:CREATE-1.5 {x1 is invalid} -setup {
+    test TROOPS:CREATE-1.5 {int1 is invalid} -setup {
         setup
     } -body {
         ted order -reject CONDITION:TROOPS:CREATE [dict merge $C1 {
-            x1 NONESUCH
+            int1 NONESUCH
         }]
     } -cleanup {
         cleanup
     } -result {
-        x1 {invalid value "NONESUCH", expected integer}
+        int1 {invalid value "NONESUCH", expected integer}
     }
 
     test TROOPS:CREATE-2.1 {condition is created} -setup {
@@ -124,7 +124,7 @@ state           normal
 flag            
 g               BLUE
 op1             GT
-x1              10000.0
+int1            10000
     }
 
 
@@ -174,7 +174,7 @@ x1              10000.0
     test TROOPS:UPDATE-1.2 {condition_id is unknown} -setup {
         setup_update_savings
     } -body {
-        ted order -reject CONDITION:TROOPS:UPDATE condition_id NONESUCH x1 10
+        ted order -reject CONDITION:TROOPS:UPDATE condition_id NONESUCH int1 10
     } -cleanup {
         cleanup
     } -result {
@@ -201,21 +201,21 @@ x1              10000.0
         op1 {invalid value "NONESUCH", should be one of: EQ, GE, GT, LE, LT}
     }
 
-    test TROOPS:UPDATE-1.5 {x1 is invalid} -setup {
+    test TROOPS:UPDATE-1.5 {int1 is invalid} -setup {
         setup_update_savings
     } -body {
-        ted order -reject CONDITION:TROOPS:UPDATE condition_id 1 x1 NONESUCH
+        ted order -reject CONDITION:TROOPS:UPDATE condition_id 1 int1 NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        x1 {invalid value "NONESUCH", expected integer}
+        int1 {invalid value "NONESUCH", expected integer}
     }
 
     test TROOPS:UPDATE-1.6 {wrong flavor of condition} -setup {
         setup_update_savings
         rdb eval {UPDATE conditions SET condition_type='BOGUS'}
     } -body {
-        ted order -reject CONDITION:TROOPS:UPDATE condition_id 1 x1 5
+        ted order -reject CONDITION:TROOPS:UPDATE condition_id 1 int1 5
     } -cleanup {
         cleanup
     } -result {
@@ -225,7 +225,7 @@ x1              10000.0
     test TROOPS:UPDATE-2.1 {activities are updated} -setup {
         setup_update_savings
     } -body {
-        ted order CONDITION:TROOPS:UPDATE condition_id 1 g BRIT op1 EQ x1 20
+        ted order CONDITION:TROOPS:UPDATE condition_id 1 g BRIT op1 EQ int1 20
 
         ted querylist {SELECT * FROM conditions_TROOPS}
     } -cleanup {
@@ -239,7 +239,7 @@ state           normal
 flag            
 g               BRIT
 op1             EQ
-x1              20.0
+int1            20
     }
 
 
@@ -247,7 +247,7 @@ x1              20.0
         setup_update_savings
     } -body {
         ted notifier bind ::rdb <conditions>
-        ted order CONDITION:TROOPS:UPDATE condition_id 1 x1 20
+        ted order CONDITION:TROOPS:UPDATE condition_id 1 int1 20
         ted notifier received
     } -cleanup {
         cleanup
@@ -259,7 +259,7 @@ x1              20.0
 
     test TROOPS:UPDATE-3.1 {undo effects} -setup {
         setup_update_savings
-        ted order CONDITION:TROOPS:UPDATE condition_id 1 x1 20
+        ted order CONDITION:TROOPS:UPDATE condition_id 1 int1 20
     } -body {
         ted notifier bind ::rdb <conditions>
         cif undo -test

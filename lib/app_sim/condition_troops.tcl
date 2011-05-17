@@ -18,13 +18,13 @@
 # How does group g's number of troops in the playbox compare with some 
 # amount?
 
-condition type define TROOPS {g op1 x1} {
+condition type define TROOPS {g op1 int1} {
     typemethod narrative {cdict} {
         dict with cdict {
             set comp   [ecomparator longname $op1]
             return [normalize "
                 Group $g's total number of personnel in the playbox is 
-                $comp [commafmt [expr int($x1)]].
+                $comp [commafmt $int1].
             "]
         }
     }
@@ -53,7 +53,7 @@ condition type define TROOPS {g op1 x1} {
                 }]
             }
 
-            return [condition compare $troops $op1 $x1]
+            return [condition compare $troops $op1 $int1]
         }
     }
 }
@@ -73,13 +73,13 @@ order define CONDITION:TROOPS:CREATE {
     parm g         enum  "Group"          -enumtype {ptype fog}
     parm op1       enum  "Comparison"     -enumtype ecomparator \
                                           -displaylong yes
-    parm x1        text  "Amount"
+    parm int1      text  "Amount"
 } {
     # FIRST, prepare and validate the parameters
     prepare cc_id                -required -type cond_collection
     prepare g          -toupper  -required -type {ptype fog}
     prepare op1        -toupper  -required -type ecomparator
-    prepare x1         -toupper  -required -type count
+    prepare int1       -toupper  -required -type count
 
     returnOnError -final
 
@@ -106,14 +106,14 @@ order define CONDITION:TROOPS:UPDATE {
     parm g            enum  "Group"         -enumtype {ptype fog}
     parm op1          enum  "Comparison"    -enumtype ecomparator \
                                             -displaylong yes
-    parm x1           text  "Amount"
+    parm int1         text  "Amount"
                 
 } {
     # FIRST, prepare the parameters
     prepare condition_id  -required           -type condition
     prepare g                       -toupper  -type {ptype fog}
     prepare op1                     -toupper  -type ecomparator
-    prepare x1                      -toupper  -type count
+    prepare int1                    -toupper  -type count
 
     returnOnError
 
