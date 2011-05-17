@@ -56,7 +56,7 @@ condition type define CONTROL {a list1} {
                 SELECT count(n)
                 FROM control_n
                 WHERE n IN ('[join $list1 ',']')
-                AND controller != \$a
+                AND (controller IS NULL OR controller != \$a)
             "]
 
             return [expr {$count == 0}]
