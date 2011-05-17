@@ -1266,7 +1266,7 @@ order CONDITION:TROOPS:CREATE "Create Condition: Troops" {
     <<enumdoc ::projectlib::ecomparator>>
     <</parm>>
 
-    <<parm x1 "Amount">>
+    <<parm int1 "Amount">>
     <b>Required.</b>  The number to which the group's number of 
     personnel will be compared.
     <</parm>>
@@ -1292,7 +1292,7 @@ order CONDITION:TROOPS:UPDATE "Update Condition: Troops" {
     <<enumdoc ::projectlib::ecomparator>>
     <</parm>>
 
-    <<parm x1 "Amount">>
+    <<parm int1 "Amount">>
     <b>Optional.</b>  The number to which the group's number of 
     personnel will be compared.
     <</parm>>
