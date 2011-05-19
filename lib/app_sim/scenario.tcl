@@ -164,6 +164,8 @@ snit::type scenario {
         if {[catch {
             rdb load $filename
         } result]} {
+            $type MakeBlankScenario
+
             app error {
                 |<--
                 Could not open scenario
@@ -173,7 +175,6 @@ snit::type scenario {
                 $result
             }
 
-            $type MakeBlankScenario
             return
         }
 
