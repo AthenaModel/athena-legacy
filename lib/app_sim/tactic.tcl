@@ -49,6 +49,7 @@ snit::type tactic {
         g        ""
         text1    ""
         int1     ""
+        x1       ""
     }
 
     #===================================================================
@@ -184,6 +185,31 @@ snit::type tactic {
         return ""
     }
 
+    # delta varname
+    #
+    # varname  - An array of tactic order parameters
+    #
+    # Fills in empty parameters from the RDB.  This routine is
+    # intended to be used in :UPDATE orders to retrieve the entire
+    # set of data for cross-checks.
+
+    typemethod delta {varname} {
+        upvar 1 $varname parms
+
+        rdb eval {
+            SELECT * FROM tactics WHERE tactic_id=$parms(tactic_id)
+        } tdata {}
+
+        foreach parm [array names parms] {
+            if {$parms($parm) eq ""} {
+                set parms($parm) $tdata($parm)
+            }
+        }
+
+        # Retrieve the owner
+        set parms(owner) $tdata(owner)
+    }
+
     #-------------------------------------------------------------------
     # Mutators
     #
@@ -205,6 +231,7 @@ snit::type tactic {
     #    f,g            Groups, or ""
     #    text1          Text string, or ""
     #    int1           Integer, or ""
+    #    x1             Real, or ""
     #
     # Creates a tactic given the parms, which are presumed to be
     # valid.
@@ -231,7 +258,8 @@ snit::type tactic {
                         f,
                         g,
                         text1,
-                        int1)
+                        int1,
+                        x1)
                 VALUES(last_insert_rowid(),
                        $tactic_type, $owner, $narrative, 0, $once,
                        nullif($m,     ''),
@@ -240,7 +268,8 @@ snit::type tactic {
                        nullif($f,     ''),
                        nullif($g,     ''),
                        nullif($text1, ''),
-                       nullif($int1,  ''));
+                       nullif($int1,  ''),
+                       nullif($x1,    ''));
             }
 
             set id [rdb last_insert_rowid]
@@ -286,6 +315,7 @@ snit::type tactic {
     #    f,g            Groups, or ""
     #    text1          Text string, or ""
     #    int1           Integer, or ""
+    #    x1             Real, or ""
     #
     # Updates a tactic given the parms, which are presumed to be
     # valid.  Note that you can't change the tactic's actor or
@@ -313,7 +343,8 @@ snit::type tactic {
                     f     = nullif(nonempty($f,     f),     ''),
                     g     = nullif(nonempty($g,     g),     ''),
                     text1 = nullif(nonempty($text1, text1), ''),
-                    int1  = nullif(nonempty($int1,  int1),  '')
+                    int1  = nullif(nonempty($int1,  int1),  ''),
+                    x1    = nullif(nonempty($x1,    x1),    '')
                 WHERE tactic_id=$tactic_id;
             } {}
 

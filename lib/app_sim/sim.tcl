@@ -646,7 +646,7 @@ snit::type sim {
         profile nbstat analyze
         profile actsit assess
         
-        if {[simclock now] % [parmdb get aam.ticksPerTock] == 0} {
+        if {[simclock now] % [parmdb get strategy.ticksPerTock] == 0} {
             profile aam assess
         }
 

@@ -157,6 +157,7 @@ SELECT G.id                                             AS id,
        G.cost                                           AS cost,
        F.a                                              AS a,
        F.forcetype                                      AS forcetype,
+       moneyfmt(F.attack_cost)                          AS attack_cost,
        CASE F.uniformed WHEN 1 THEN 'YES' ELSE 'NO' END AS uniformed,
        CASE F.local     WHEN 1 THEN 'YES' ELSE 'NO' END AS local
 FROM gui_groups  AS G
@@ -232,67 +233,6 @@ SELECT n || ' ' || g                                 AS id,
        personnel                                     AS personnel
 FROM deploy_ng;
        
-
--- An attroe_nfg view for use by the GUI
-CREATE TEMPORARY VIEW gui_attroe_nfg AS
-SELECT n || ' ' || f || ' ' || g                      AS id,
-       n                                              AS n,
-       f                                              AS f,
-       g                                              AS g,
-       uniformed                                      AS uniformed,
-       roe                                            AS roe,
-       cooplimit                                      AS cooplimit,
-       rate                                           AS rate
-FROM attroe_nfg;
-
--- An attroe_nfg view for use by the GUI; f is uniformed
-CREATE TEMPORARY VIEW gui_attroeuf_nfg AS
-SELECT *
-FROM gui_attroe_nfg WHERE uniformed;
-
--- A universe attroeuf view, for use when creating new ROEs with
--- f uniformed.
-
-CREATE TEMPORARY VIEW gui_attroeuf_univ AS
-SELECT nbhoods.n || ' ' || F.g || ' ' || G.g          AS id,
-       nbhoods.n                                      AS n,
-       F.g                                            AS f,
-       G.g                                            AS g
-FROM nbhoods 
-JOIN frcgroups AS F
-JOIN frcgroups AS G
-WHERE F.uniformed = 1
-AND   G.uniformed = 0;
-
-
--- An attroe_nfg view for use by the GUI; f is non-uniformed
-CREATE TEMPORARY VIEW gui_attroenf_nfg AS
-SELECT *
-FROM gui_attroe_nfg WHERE NOT uniformed;
-
--- A universe attroenf view, for use when creating new ROEs with
--- f non-uniformed.
-
-CREATE TEMPORARY VIEW gui_attroenf_univ AS
-SELECT nbhoods.n || ' ' || F.g || ' ' || G.g          AS id,
-       nbhoods.n                                      AS n,
-       F.g                                            AS f,
-       G.g                                            AS g
-FROM nbhoods 
-JOIN frcgroups AS F
-JOIN frcgroups AS G
-WHERE F.uniformed = 0
-AND   G.uniformed = 1;
-
-
--- A defroe view for use by the GUI
-CREATE TEMPORARY VIEW gui_defroe_view AS
-SELECT n || ' ' || g                                  AS id,
-       n                                              AS n,
-       g                                              AS g,
-       roe                                            AS roe,
-       override                                       AS override
-FROM defroe_view;
 
 -- A sat_gc view for use by the GUI: 
 -- NOTE: presumes there is a single gram(n)!

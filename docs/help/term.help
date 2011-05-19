@@ -805,8 +805,9 @@ term roe "ROE" {
     no attrition or civilian casualties, unless the user creates
     the appropriate ROEs.<p>
 
-    There are several kinds of ROE; they are created, browsed, and
-    edited on the subtabs of the <<tab ROE>>.
+    There are several kinds of ROE; they are created using the
+    <<cref /order/tactic/defroe>> and <<cref /order/tactic/attroe>>
+    tactics.
 }
 
 

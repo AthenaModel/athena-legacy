@@ -332,42 +332,6 @@ NB1 NB1 HERE      0.0
     } -result {SHIA}
 
 
-    test delete-8.1 {attroe_nfg records are deleted} -setup {
-        ted create NB1 BLUE ALQ
-        attroe mutate create {
-            id        {NB1 BLUE ALQ}
-            uniformed 1
-            roe       ATTACK
-            cooplimit 30
-            rate      ""
-        }
-    } -body {
-        nbhood mutate delete NB1
-        rdb eval {SELECT n,f,g FROM attroe_nfg ORDER BY n,f,g}
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test delete-8.2 {Undo restores attroe_nfg} -setup {
-        ted create NB1 BLUE ALQ
-
-        attroe mutate create {
-            id        {NB1 BLUE ALQ}
-            uniformed 1
-            roe       ATTACK
-            cooplimit 30
-            rate      ""
-        }
-
-        set undo [nbhood mutate delete NB1]
-    } -body {
-        namespace eval :: $undo
-        rdb eval {SELECT n,f,g FROM attroe_nfg ORDER BY n,f,g}
-    } -cleanup {
-        cleanup
-    } -result {NB1 BLUE ALQ}
-
-
     test delete-9.1 {calendar items with n as source are deleted} -setup {
         ted create NB1 NB2 BLUE
 

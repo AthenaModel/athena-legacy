@@ -25,7 +25,7 @@ snit::type aam {
 
     # assess
     #
-    # This routine is to be called every aam.ticksPerTock to do the 
+    # This routine is to be called every strategy.ticksPerTock to do the 
     # attrition assessment.
 
     typemethod assess {} {
@@ -152,7 +152,7 @@ snit::type aam {
 
     typemethod UFvsNF {} {
         # FIRST, get the relevant parameter values
-        set deltaT    [simclock toDays [parmdb get aam.ticksPerTock]]
+        set deltaT    [simclock toDays [parmdb get strategy.ticksPerTock]]
         set ufCovFunc [parmdb get aam.UFvsNF.UF.coverageFunction]
         set ufCovNom  [parmdb get aam.UFvsNF.UF.nominalCoverage]
         set ufCoopNom [parmdb get aam.UFvsNF.UF.nominalCooperation]
@@ -166,7 +166,7 @@ snit::type aam {
             SELECT A.n                       AS n,
                    A.f                       AS uf, 
                    A.g                       AS nf,
-                   A.cooplimit               AS coopLimit,
+                   A.max_attacks             AS max,
                    N.urbanization            AS urbanization,
                    DN.population             AS pop,
                    UP.personnel              AS ufPersonnel,
@@ -192,9 +192,6 @@ snit::type aam {
             } elseif {$nfPersonnel == 0} {
                 log detail aam "$prefix No $nf personnel in $n"
                 continue
-            } elseif {$ufCoop < $coopLimit} {
-                log detail aam "$prefix $n coop with $uf < $coopLimit"
-                continue
             }
 
             # NEXT, the attack occurs.  Get the coverage fractions.
@@ -205,6 +202,11 @@ snit::type aam {
             let Np { 
                 round( ($ufCoop           * $ufCov    * $nfCov    * $deltaT)/
                        (max($nfCoop,10.0) * $ufCovNom * $nfCovNom * $tf ) )
+            }
+
+            # But no more than max_attacks
+            if {$Np > $max} {
+                set Np $max
             }
 
             if {$Np == 0} {
@@ -220,6 +222,9 @@ snit::type aam {
 
             # Each attack kills an entire cell
             let Na { entier(min($Np, $Ncells)) }
+
+            # Save the actual number of attacks
+            set actual([list $n $uf $nf]) $Na
 
             # Number of NF troops killed
             let Nkilled { min($Na * $cellSize, $nfPersonnel) }
@@ -249,7 +254,6 @@ snit::type aam {
             log detail aam [tsubst {
                 |<--
                 UF $uf attacks NF $nf in $n:
-                    coopLimit:    $coopLimit
                     urbanization: $urbanization
                     pop:          $pop
                     ufPersonnel:  $ufPersonnel
@@ -263,12 +267,29 @@ snit::type aam {
                     Na:           $Na
             }]
 
+            rdb eval {SELECT a AS ufOwner FROM frcgroups WHERE g=$uf} {}
+            rdb eval {SELECT a AS nfOwner FROM frcgroups WHERE g=$nf} {}
+
             sigevent log 1 attrit "
                 Uniformed force {group:$uf} attacks non-uniformed force
-                {group:$nf} in {nbhood:$n}, killing $Nkilled personnel,
+                {group:$nf} in {nbhood:$n} $Na times, 
+                killing $Nkilled personnel,
                 with $Ncivcas civilian casualties.
-            " $uf $nf $n
+            " $uf $nf $n $ufOwner $nfOwner
+        }
 
+        # NEXT, save the actual number of attacks in the attroe_nfg 
+        # table, so that unused funds can be returned.
+        foreach id [array names actual] {
+            lassign $id n f g
+
+            set value $actual($id)
+
+            rdb eval {
+                UPDATE attroe_nfg
+                SET    attacks = $value
+                WHERE n=$n AND f=$f AND g=$g;
+            }            
         }
     }
 
@@ -282,7 +303,6 @@ snit::type aam {
 
     typemethod NFvsUF {} {
         # FIRST, get the relevant constant parameter values
-        set deltaT    [simclock toDays [parmdb get aam.ticksPerTock]]
         set ufCovFunc [parmdb get aam.NFvsUF.UF.coverageFunction]
         set ufCovNom  [parmdb get aam.NFvsUF.UF.nominalCoverage]
 
@@ -293,8 +313,7 @@ snit::type aam {
                    A.f                             AS nf,
                    A.g                             AS uf,
                    A.roe                           AS nfRoe,
-                   A.cooplimit                     AS coopLimit,
-                   A.rate                          AS rate,
+                   A.max_attacks                   AS max,
                    N.urbanization                  AS urbanization,
                    DN.population                   AS pop,
                    NP.personnel                    AS nfPersonnel,
@@ -323,9 +342,6 @@ snit::type aam {
             } elseif {$ufPersonnel == 0} {
                 log detail aam "$prefix No $uf personnel in $n"
                 continue
-            } elseif {$nfCoop < $coopLimit} {
-                log detail aam "$prefix $n coop with $nf < $coopLimit"
-                continue
             }
 
             # NEXT, get the UF coverage
@@ -336,11 +352,18 @@ snit::type aam {
             set ELER      [parmdb get aam.NFvsUF.$nfRoe.ELER]
             set MAXLER    [parmdb get aam.NFvsUF.$nfRoe.MAXLER]
 
-            # NEXT, compute the potential number of attacks:
+            # NEXT, compute the potential number of attacks.  max_attacks
+            # is the rate of attacks per strategy tock, so it can serve
+            # as the base rate.
             let Np { 
                 round( 
-                 ($rate * (100 - $ufSecurity) * $nfCoop    * $ufCov * $deltaT)
-                 / (             100          * $nfCoopNom * $ufCovNom))
+                 ($max * (100 - $ufSecurity) * $nfCoop    * $ufCov)
+                 / (            100          * $nfCoopNom * $ufCovNom))
+            }
+
+            # But no more than max_attacks
+            if {$Np > $max} {
+                set Np $max
             }
 
             if {$Np == 0} {
@@ -389,6 +412,9 @@ snit::type aam {
                 set Na 1
             }
 
+            # Save the actual number of attacks
+            set actual([list $n $nf $uf]) $Na
+
             # NEXT, compute the total number of UF casualties
             let totalUFcas {
                 round(min($Na * $ufCas, $ufPersonnel))
@@ -427,8 +453,7 @@ snit::type aam {
                 |<--
                 NF $nf attacks UF $uf in $n:
                     nfRoe:        $nfRoe
-                    coopLimit:    $coopLimit
-                    rate:         $rate
+                    max_attacks:  $max
                     urbanization: $urbanization
                     pop:          $pop
                     nfPersonnel:  $nfPersonnel
@@ -445,13 +470,30 @@ snit::type aam {
                     nfCas:        $nfCas
             }]
 
+            rdb eval {SELECT a AS ufOwner FROM frcgroups WHERE g=$uf} {}
+            rdb eval {SELECT a AS nfOwner FROM frcgroups WHERE g=$nf} {}
+
             sigevent log 1 attrit "
                 Non-uniformed force {group:$nf} attacks uniformed force
-                {group:$uf} in {nbhood:$n}, 
+                {group:$uf} in {nbhood:$n} $Na times, 
                 killing $totalUFcas {group:$uf} personnel
                 at a cost of $totalNFcas {group:$nf} personnel
                 with $Ncivcas civilian casualties.
-            " $nf $uf $n
+            " $nf $uf $n $nfOwner $ufOwner
+        }
+
+        # NEXT, save the actual number of attacks in the attroe_nfg 
+        # table, so that unused funds can be returned.
+        foreach id [array names actual] {
+            lassign $id n f g
+
+            set value $actual($id)
+
+            rdb eval {
+                UPDATE attroe_nfg
+                SET    attacks = $value
+                WHERE n=$n AND f=$f AND g=$g;
+            }            
         }
     }
 

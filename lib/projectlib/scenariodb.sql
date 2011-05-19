@@ -302,6 +302,9 @@ CREATE TABLE frcgroups (
     -- Force Type
     forcetype   TEXT,
 
+    -- Cost/Attack, in $
+    attack_cost DOUBLE DEFAULT 0,
+
     -- Uniformed or Non-uniformed: 1 or 0
     uniformed   INTEGER DEFAULT 1,
 
@@ -583,7 +586,8 @@ CREATE TABLE tactics (
 
     -- Data items
     text1        TEXT,
-    int1         INTEGER
+    int1         INTEGER,
+    x1           REAL
 );
 
 -- A tactic is a condition owner; thus, we need a trigger to delete
@@ -684,35 +688,34 @@ CREATE TABLE deploy_ng (
 
 CREATE TABLE attroe_nfg (
     -- Neighborhood in which to attack
-    n          TEXT REFERENCES nbhoods(n)
-               ON DELETE CASCADE
-               DEFERRABLE INITIALLY DEFERRED,
+    n           TEXT REFERENCES nbhoods(n)
+                ON DELETE CASCADE
+                DEFERRABLE INITIALLY DEFERRED,
 
     -- Attacking force group
-    f          TEXT REFERENCES frcgroups(g)
-               ON DELETE CASCADE
-               DEFERRABLE INITIALLY DEFERRED,
+    f           TEXT REFERENCES frcgroups(g)
+                ON DELETE CASCADE
+                DEFERRABLE INITIALLY DEFERRED,
 
     -- Attacked force group
-    g          TEXT REFERENCES frcgroups(g)
-               ON DELETE CASCADE
-               DEFERRABLE INITIALLY DEFERRED,
+    g           TEXT REFERENCES frcgroups(g)
+                ON DELETE CASCADE
+                DEFERRABLE INITIALLY DEFERRED,
 
     -- 1 if f is uniformed, and 0 otherwise.
-    uniformed  INTEGER,
+    uniformed   INTEGER,
 
     -- ROE: eattroenf for non-uniformed forces, eattroeuf for uniformed
     -- forces.  Note: a missing record for n,f,g is equivalent to an
     -- ROE of DO_NOT_ATTACK.
-    roe        TEXT DEFAULT 'DO_NOT_ATTACK',
+    roe         TEXT DEFAULT 'DO_NOT_ATTACK',
 
-    -- Cooperation limit: f will not attack unless n's cooperation with
-    -- f meets or exceeds cooplimit.
-    cooplimit  DOUBLE DEFAULT 50.0,
+    -- Maximum number of attacks per week.
+    max_attacks INTEGER DEFAULT 0,
 
-    -- Nominal attacks/day.  (Non-uniformed forces only.)
-    rate       DOUBLE DEFAULT 0.0,
-    
+    -- Actual number of attacks
+    attacks     INTEGER DEFAULT 0,
+
     PRIMARY KEY (n,f,g)
 );
 

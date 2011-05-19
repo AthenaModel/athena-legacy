@@ -1260,6 +1260,7 @@ snit::type appserver {
                        demeanor     AS "Demeanor",
                        personnel    AS "Personnel",
                        cost         AS "Cost, $/person/week",
+                       attack_cost  AS "Cost, $/attack",
                        uniformed    AS "Uniformed?",
                        local        AS "Local?"
                 FROM gui_frcgroups 

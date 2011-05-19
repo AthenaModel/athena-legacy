@@ -233,59 +233,63 @@ snit::type ted {
         # Force Groups
 
         defentity BLUE ::frcgroup {
-            g         BLUE
-            longname  "US Army"
-            a         JOE
-            color     "#f00001"
-            shape     FRIEND
-            forcetype REGULAR
-            demeanor  AVERAGE
-            basepop   5000
-            cost      0.0
-            uniformed 1
-            local     0
+            g           BLUE
+            longname    "US Army"
+            a           JOE
+            color       "#f00001"
+            shape       FRIEND
+            forcetype   REGULAR
+            demeanor    AVERAGE
+            basepop     5000
+            cost        0.0
+            attack_cost 0.0
+            uniformed   1
+            local       0
         } JOE
 
         defentity BRIT ::frcgroup {
-            g         BRIT
-            longname  "British Forces"
-            a         JOE
-            color     "#f00002"
-            shape     FRIEND
-            forcetype REGULAR
-            demeanor  AVERAGE
-            basepop   5000
-            cost      0.0
-            uniformed 1
-            local     0
+            g           BRIT
+            longname    "British Forces"
+            a           JOE
+            color       "#f00002"
+            shape       FRIEND
+            forcetype   REGULAR
+            demeanor    AVERAGE
+            basepop     5000
+            cost        0.0
+            attack_cost 0.0
+            uniformed   1
+            local       0
         } JOE
         
         defentity ALQ ::frcgroup {
-            g         ALQ
-            longname  "Al Qaeda"
-            a         BOB
-            color     "#f00003"
-            shape     ENEMY
-            forcetype IRREGULAR
-            demeanor  AGGRESSIVE
-            basepop   2000
-            cost      0.0
-            uniformed 0
-            local     0
+            g           ALQ
+            longname    "Al Qaeda"
+            a           BOB
+            color       "#f00003"
+            shape       ENEMY
+            forcetype   IRREGULAR
+            demeanor    AGGRESSIVE
+            basepop     2000
+            cost        0.0
+            attack_cost 0.0
+            uniformed   0
+            local       0
         } BOB
         
         defentity TAL ::frcgroup {
-            g         TAL
-            longname  "Taliban"
-            a         BOB
-            color     "#f00004"
-            shape     ENEMY
-            forcetype IRREGULAR
-            demeanor  AGGRESSIVE
-            basepop   2000
-            cost      0.0
-            uniformed 0
-            local     1
+            g           TAL
+            longname    "Taliban"
+            a           BOB
+            color       "#f00004"
+            shape       ENEMY
+            forcetype   IRREGULAR
+            demeanor    AGGRESSIVE
+            basepop     2000
+            cost        0.0
+            attack_cost 0.0
+            uniformed   0
+            local       1
         } BOB
         
         # Organization Groups

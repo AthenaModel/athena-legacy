@@ -113,6 +113,7 @@ f            @
 g            @
 text1        @
 int1         10
+x1           @
     }
 
     test create-1.2 {tactic is created: once=1} -setup {
@@ -139,6 +140,7 @@ f            @
 g            BRIT
 text1        HOLD_FIRE
 int1         @
+x1           @
     }
 
     test create-1.3 {priority is set} -setup {
@@ -223,14 +225,45 @@ tactic_id tactic_type owner priority
         set undo [tactic mutate delete 2]
     } -body {
         namespace eval :: $undo
-        ted query {SELECT * FROM tactics ORDER BY priority}
+        ted querylist {SELECT * FROM tactics ORDER BY priority}
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                                    priority once state  exec_ts exec_flag m n   nlist f g    text1     int1 
---------- ----------- ----- -------------------------------------------- -------- ---- ------ ------- --------- - --- ----- - ---- --------- ---- 
-2         DEFROE      JOE   Group BLUE defends in NB1 with ROE HOLD_FIRE 1        0    normal @       0         @ NB1 @     @ BLUE HOLD_FIRE @    
-1         SAVE        JOE   Save 10% of income for later use             2        0    normal @       0         @ @   @     @ @    @         10   
+tactic_id    2
+tactic_type  DEFROE
+owner        JOE
+narrative    Group BLUE defends in NB1 with ROE HOLD_FIRE
+priority     1
+once         0
+state        normal
+exec_ts      @
+exec_flag    0
+m            @
+n            NB1
+nlist        @
+f            @
+g            BLUE
+text1        HOLD_FIRE
+int1         @
+x1           @
+
+tactic_id    1
+tactic_type  SAVE
+owner        JOE
+narrative    Save 10% of income for later use
+priority     2
+once         0
+state        normal
+exec_ts      @
+exec_flag    0
+m            @
+n            @
+nlist        @
+f            @
+g            @
+text1        @
+int1         10
+x1           @
     }
 
     test delete-3.1 {Condition is deleted} -setup {
@@ -293,6 +326,7 @@ f            @
 g            BLUE
 text1        FIRE_BACK_IMMEDIATELY
 int1         @
+x1           @
     }
 
     test update-1.2 {empty values are OK} -setup {
@@ -513,6 +547,7 @@ tactic_id state
         once        0
         f           @
         g           BLUE
+        x1          @
         tactic_type DEFROE
         priority    1
         owner       JOE

@@ -204,6 +204,25 @@ JOE 200000.0     10000.0 9000.0
 BOB 150000.0     5000.0  5000.0       
     }
 
+    #-------------------------------------------------------------------
+    # give
+
+    test give-1.1 {Gives cash to actor's cash-on-hand.} -setup {
+        setup
+        cash load
+    } -body {
+        cash give JOE 2000.0
+        cash give BOB 5000.0
+        ted query {SELECT a, cash_reserve, cash_on_hand FROM working_cash}
+    } -cleanup {
+        cleanup
+    } -result {
+a   cash_reserve cash_on_hand 
+--- ------------ ------------ 
+JOE 200000.0     12000.0      
+BOB 150000.0     10000.0      
+    }
+
 
     #-------------------------------------------------------------------
     # save
@@ -235,6 +254,8 @@ BOB 150000.0     5000.0
         cleanup
     } -result {
     }
+
+
 
     #-------------------------------------------------------------------
     # Cleanup

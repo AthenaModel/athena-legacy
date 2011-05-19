@@ -34,24 +34,6 @@ namespace eval ::athena_test::tests:: {
         ted cleanup
     }
 
-    proc mkRoes {} {
-        attroe mutate create {
-            id        {NB1 BLUE ALQ}
-            uniformed 1
-            roe       ATTACK
-            cooplimit 30
-            rate      ""
-        }
-
-        attroe mutate create {
-            id        {NB1 ALQ BLUE}
-            uniformed 0
-            roe       ATTACK
-            cooplimit 30
-            rate      ""
-        }
-    }
-
     #-------------------------------------------------------------------
     # mutate create
 
@@ -59,26 +41,50 @@ namespace eval ::athena_test::tests:: {
         ted create JOE
     } -body {
         frcgroup mutate create [ted entity BLUE]
-        ted query {SELECT * FROM frcgroups_view}
+        ted querylist {SELECT * FROM frcgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor basepop cost rel_entity gtype a   forcetype uniformed local 
----- -------- ------- ------ -------- -------- ------- ---- ---------- ----- --- --------- --------- ----- 
-BLUE US Army  #f00001 FRIEND infantry AVERAGE  5000    0.0  JOE        FRC   JOE REGULAR   1         0     
+g            BLUE
+longname     US Army
+color        #f00001
+shape        FRIEND
+symbol       infantry
+demeanor     AVERAGE
+basepop      5000
+cost         0.0
+rel_entity   JOE
+gtype        FRC
+a            JOE
+forcetype    REGULAR
+attack_cost  0.0
+uniformed    1
+local        0
     }
 
     test create-1.2 {a can be empty, yields NULL} -setup {
         ted create JOE
     } -body {
         frcgroup mutate create [dict merge [ted entity BLUE] {a ""}]
-        ted query {SELECT * FROM frcgroups_view}
+        ted querylist {SELECT * FROM frcgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor basepop cost rel_entity gtype a forcetype uniformed local 
----- -------- ------- ------ -------- -------- ------- ---- ---------- ----- - --------- --------- ----- 
-BLUE US Army  #f00001 FRIEND infantry AVERAGE  5000    0.0             FRC     REGULAR   1         0     
+g            BLUE
+longname     US Army
+color        #f00001
+shape        FRIEND
+symbol       infantry
+demeanor     AVERAGE
+basepop      5000
+cost         0.0
+rel_entity   
+gtype        FRC
+a            
+forcetype    REGULAR
+attack_cost  0.0
+uniformed    1
+local        0
     }
 
 
@@ -133,13 +139,25 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  5000    0.0             FRC     R
         set undo [frcgroup mutate delete BLUE]
     } -body {
         {*}$undo
-        ted query {SELECT * FROM frcgroups_view}
+        ted querylist {SELECT * FROM frcgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape  symbol   demeanor basepop cost rel_entity gtype a   forcetype uniformed local 
----- -------- ------- ------ -------- -------- ------- ---- ---------- ----- --- --------- --------- ----- 
-BLUE US Army  #f00001 FRIEND infantry AVERAGE  5000    0.0  JOE        FRC   JOE REGULAR   1         0     
+g            BLUE
+longname     US Army
+color        #f00001
+shape        FRIEND
+symbol       infantry
+demeanor     AVERAGE
+basepop      5000
+cost         0.0
+rel_entity   JOE
+gtype        FRC
+a            JOE
+forcetype    REGULAR
+attack_cost  0.0
+uniformed    1
+local        0
     }
 
     test delete-2.1 {coop curves are deleted} -setup {
@@ -161,30 +179,6 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  5000    0.0  JOE        FRC   JOE
     } -cleanup {
         cleanup
     } -result {SHIA BLUE}
-
-    test delete-4.1 {attroe_nfg records are deleted} -setup {
-        ted create NB1 BLUE ALQ
-        mkRoes
-    } -body {
-        frcgroup mutate delete BLUE
-
-        rdb eval {SELECT n,f,g FROM attroe_nfg ORDER BY n,f,g}
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test delete-4.2 {undo restores attroe_nfg records} -setup {
-        ted create NB1 BLUE ALQ
-        mkRoes
-
-        set undo [frcgroup mutate delete BLUE]
-    } -body {
-        namespace eval :: $undo
-        rdb eval {SELECT n,f,g FROM attroe_nfg ORDER BY n,f,g}
-    } -cleanup {
-        cleanup
-    } -result {NB1 ALQ BLUE NB1 BLUE ALQ}
-
 
     test delete-5.1 {calendar items with g are deleted} -setup {
         ted create NB1 BLUE
@@ -274,17 +268,30 @@ BLUE US Army  #f00001 FRIEND infantry AVERAGE  5000    0.0  JOE        FRC   JOE
             demeanor     AGGRESSIVE
             basepop      1500
             cost         10.0
+            attack_cost  20.0
             uniformed    0
             local        1  
         }
 
-        ted query {SELECT * FROM frcgroups_view}
+        ted querylist {SELECT * FROM frcgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol demeanor   basepop cost rel_entity gtype a   forcetype uniformed local 
----- ----------- ------- ------- ------ ---------- ------- ---- ---------- ----- --- --------- --------- ----- 
-BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE 1500    10.0 BOB        FRC   BOB POLICE    0         1     
+g            BLUE
+longname     Blue Angels
+color        #ff0000
+shape        NEUTRAL
+symbol       police
+demeanor     AGGRESSIVE
+basepop      1500
+cost         10.0
+rel_entity   BOB
+gtype        FRC
+a            BOB
+forcetype    POLICE
+attack_cost  20.0
+uniformed    0
+local        1
     }
 
 
@@ -317,6 +324,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE 1500    10.0 BOB        FRC  
             demeanor     ""
             basepop      ""
             cost         ""
+            attack_cost  ""
             uniformed    ""
             local        ""
         }
@@ -344,6 +352,7 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE 1500    10.0 BOB        FRC  
             demeanor     ""
             basepop      ""
             cost         ""
+            attack_cost  ""
             uniformed    ""
             local        ""
         }]
@@ -357,60 +366,6 @@ BLUE Blue Angels #ff0000 NEUTRAL police AGGRESSIVE 1500    10.0 BOB        FRC  
         cleanup
     } -result {1}
 
-
-    test update-3.1 {changing uniformed deletes attroe_nfg records} -setup {
-        ted create NB1 BLUE ALQ
-        mkRoes
-    } -body {
-        set a [rdb eval {SELECT n,f,g FROM attroe_nfg ORDER BY n,f,g}]
-
-        frcgroup mutate update  {
-            g            BLUE
-            longname     ""
-            a            ""
-            color        ""
-            forcetype    ""
-            demeanor     ""
-            basepop      ""
-            cost         ""
-            uniformed    0
-            local        ""
-        }
-
-        set b [rdb eval {SELECT n,f,g FROM attroe_nfg ORDER BY n,f,g}]
-
-        list $a $b
-    } -cleanup {
-        cleanup
-    } -result {{NB1 ALQ BLUE NB1 BLUE ALQ} {}}
-
-    test update-3.2 {undoing change restores attroe_nfg records} -setup {
-        ted create NB1 BLUE ALQ
-        mkRoes
-    } -body {
-        set a [rdb eval {SELECT n,f,g FROM attroe_nfg ORDER BY n,f,g}]
-
-        set undo [frcgroup mutate update  {
-            g            BLUE
-            longname     ""
-            a            ""
-            color        ""
-            forcetype    ""
-            demeanor     ""
-            basepop      ""
-            cost         ""
-            uniformed    0
-            local        ""
-        }]
-        
-        namespace eval :: $undo
-
-        set b [rdb eval {SELECT n,f,g FROM attroe_nfg ORDER BY n,f,g}]
-
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
 
     #-------------------------------------------------------------------
     # names

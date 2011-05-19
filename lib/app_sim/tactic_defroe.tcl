@@ -129,7 +129,7 @@ tactic type define DEFROE {n g text1} {
 # Creates a new DEFROE tactic.
 
 order define TACTIC:DEFROE:CREATE {
-    title "Create Tactic: Set Defensive ROE"
+    title "Create Tactic: Defensive ROE"
 
     options \
         -sendstates {PREP PAUSED}       \
@@ -176,7 +176,7 @@ order define TACTIC:DEFROE:CREATE {
 # Updates existing DEFROE tactic.
 
 order define TACTIC:DEFROE:UPDATE {
-    title "Update Tactic: Set Defensive ROE"
+    title "Update Tactic: Defensive ROE"
     options \
         -sendstates {PREP PAUSED}                           \
         -refreshcmd {orderdialog refreshForKey tactic_id *}

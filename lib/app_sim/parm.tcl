@@ -67,7 +67,7 @@ snit::type parm {
         if {[sim state] eq "PREP"} {
             parmdb unlock *
         } else {
-            parmdb lock aam.ticksPerTock
+            parmdb lock strategy.ticksPerTock
             parmdb lock econ.ticksPerTock
             parmdb lock econ.BaseWage
             parmdb lock econ.GBasketPerCapita

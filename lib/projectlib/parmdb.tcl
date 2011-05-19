@@ -119,15 +119,6 @@ snit::type ::projectlib::parmdb {
             Parameters that affect the Athena Attrition Model.
         }
 
-        $ps define aam.ticksPerTock ::projectlib::ipositive 7 {
-            Defines the frequency of attrition assessments, in ticks.  During
-            each attrition assessment, Athena computes all normal 
-            attrition, applies it, and then determines the attitude
-            implications.  Note that Athena assesses the attitude
-            implications of magic attrition occuring between tocks at
-            the same time.
-        }
-
         # UFvsNF
         $ps subset aam.UFvsNF {
             Parameters for Uniformed Force vs. Non-uniformed Force
@@ -1440,7 +1431,8 @@ snit::type ::projectlib::parmdb {
             Defines the size of the strategy model "tock", in ticks.  
             At each tock, Athena evaluates goals and conditions,
             and selects the tactics to be executed
-            during the next interval.
+            during the next interval.  Athena also assess attrition and
+            the resulting attitude effects at the same time.
         }
 
         $ps define strategy.autoDemob snit::boolean yes {

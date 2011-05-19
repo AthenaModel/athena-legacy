@@ -2177,6 +2177,17 @@ macro FRCGROUP.basepop {} {
     who are present in the playbox at time 0.
 }
 
+macro FRCGROUP.attack_cost {} {
+    |<--
+    The cost of one attack on another force group, in dollars.<p>
+
+    Force groups can be authorized to attack other force groups in
+    specific neighborhoods via the 
+    [cref /order/tactic/attroe] tactic.  The ROE specifies some
+    maximum number of attacks in a given week; this parameter gives
+    the cost of one such attack.
+}
+
 macro FRCGROUP.uniformed {} {
     |<--
     Boolean flag (e.g., "Yes" or "No").  Indicates whether or not the
@@ -2230,6 +2241,10 @@ order FRCGROUP:CREATE "Create Force Group" {
 
     <<parm cost "Cost $/person/week">>
     <b>Required.</b> <<GROUP.cost>>
+    <</parm>>
+
+    <<parm attack_cost "Cost $/attack">>
+    <b>Required.</b> <<FRCGROUP.attack_cost>>
     <</parm>>
 
     <<parm uniformed "Uniformed?">>
@@ -2299,7 +2314,11 @@ order FRCGROUP:UPDATE "Update Force Group" {
     <</parm>>
 
     <<parm cost "Cost $/person/week">>
-    <b>Required.</b> <<GROUP.cost>>
+    <b>Optional.</b> <<GROUP.cost>>
+    <</parm>>
+
+    <<parm attack_cost "Cost $/attack">>
+    <b>Optional.</b> <<FRCGROUP.attack_cost>>
     <</parm>>
 
     <<parm uniformed "Uniformed?">>
@@ -3517,321 +3536,6 @@ order REL:OVERRIDE+MULTI "Override Multiple Relationships" {
     computed relationships, as selected in the GUI.
 }
 
-
-#=======================================================================
-# Attacking ROEs
-
-page /order attroe "Attacking ROE Orders" {
-    <<title>>
-
-    An attacking ROE determines how and when a force group will try to
-    attack another force group in a particular neighborhood.  By
-    default, no force group will attack any other group; the analyst
-    must explicitly create the relevant Attacking ROEs.<p>
-
-    <<childlinks>>
-}
-
-macro ATTROE:U.roe {} {
-    |<--
-    The ROE proper, one of the following values:<p>
-
-    [enumdoc ::projectlib::eattroeuf]
-
-    If the ROE is <b>ATTACK</b>, then group <i>f</i> will attempt to
-    hunt down and destroy units of group <i>g</i> in neighborhood
-    <i>n</i>; and if not, not.  Note that there is no difference
-    between having an Attacking ROE of <b>DO_NOT_ATTACK</b> and not
-    having an Attacking ROE at all.
-}
-
-macro ATTROE:N.roe {} {
-    |<--
-    The ROE proper, one of the following values:<p>
-
-    [enumdoc ::projectlib::eattroenf]
-
-    If the ROE is <b>HIT_AND_RUN</b>, then group <i>f</i> will use
-    hit-and-run tactics against group <i>g</i>, trying on each attack
-    to nibble away at the uniformed force while taking minimal
-    losses.<p>
-
-    If the ROE is <b>STAND_AND_FIGHT</b>, then group <i>f</i> will
-    expend a pre-determined number of troops in order to kill as many
-    personnel of group <i>g</i> as possible.<p>
-
-    Otherwise, group <i>f</i> will not attempt to attack.  Note that
-    there is no difference between having an Attacking ROE of
-    <b>DO_NOT_ATTACK</b> and not having an Attacking ROE at all.
-}
-
-macro ATTROE.cooplimit {} {
-    |<--
-    Group <i>f</i> will not attack group <i>g</i>
-    unless it has sufficient cooperation from the residents of
-    neighborhood <i>n</i>.  This parameter determines the required
-    level of cooperation.  It is expressed as a real number between
-    0.0 and 100.0, or as one of the symbols from the following table:<p>
-
-    [::simlib::qcooperation html]
-}
-
-macro ATTROE:N.rate {} {
-    |<--
-    Given an ROE other than <b>DO_NOT_ATTACK</b>, group <i>f</i> will 
-    attempt to attack group <i>g</i> at a rate determined by this
-    parameter.<p>
-
-    <b>Note:</b> The actual rate should also be conditioned by the resources
-    available to the the attacking group; this, however, depends on
-    Athena's Economic and Political models, which have not yet been
-    implemented.
-}
-
-
-#-----------------------------------------------------------------------
-
-order ATTROE:DELETE "Delete Attacking ROE" {
-    <<parmlist>>
-    <<parm id "Combatants">>
-    <b>Required.</b>  A list {<i>n f g</i>} where <i>n</i> is the name 
-    of a neighborhood, <i>f</i> is the name of a force
-    group, and <i>g</i> is the name of the force group
-    to be attacked.
-    <</parm>>
-
-    <</parmlist>>
-
-    Deletes the Attacking ROE currently in place for attacks by group
-    <i>f</i> on group <i>g</i> in neighborhood <i>n</i>.  (It is an
-    error if no such ROE exists.)<p>
-
-    Note that this is equivalent to setting the Attacking ROE to
-    <b>DO_NOT_ATTACK</b>; see 
-    <<cref /order/attroe/nf/update>> and 
-    <<cref /order/attroe/uf/update>>.
-}
-
-
-#=======================================================================
-# Attacking ROEs: Non-uniformed
-
-page /order/attroe nf "Attacking ROE (Non-Uniformed) Orders" {
-    <<title>>
-
-    Non-uniformed forces are those that hide among the local
-    population and use terrorist and other unconventional tactics.
-    This family of orders determines how and when non-uniformed forces
-    will attempt to find and destroy uniformed force personnel in 
-    a particular neighborhood.  (The response of the uniformed force
-    to being attacked is determined by the uniformed force's
-    <<cref /order/tactic/defroe "Defending ROE">>.)<p>
-
-    The orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-#-----------------------------------------------------------------------
-
-order ATTROE:NF:CREATE "Create Attacking ROE (Non-Uniformed)" {
-    <<parmlist>>
-    <<parm id "Combatants">>
-    <b>Required.</b>  A list {<i>n f g</i>} where <i>n</i> is the name 
-    of a neighborhood, <i>f</i> is the name of a non-uniformed force
-    group, and <i>g</i> is the name of the uniformed force group
-    to be attacked.
-    <</parm>>
-
-    <<parm roe "ROE">>
-    <b>Required.</b>  <<ATTROE:N.roe>>
-    <</parm>>
-
-    <<parm cooplimit "Cooperation Limit">>
-    <b>Required.</b>  <<ATTROE.cooplimit>>
-    <</parm>>
-
-    <<parm rate "Attacks/Day">>
-    <b>Required.</b>  <<ATTROE:N.rate>>
-    <</parm>>
-
-    <</parmlist>>
-
-    Creates a new Attacking ROE for a non-uniformed force group vs. a
-    uniformed force group.  Note that simply setting the ROE to
-    <b>ATTACK</b> doesn't guarantee that attacks will occur.  The
-    cooperation limit must be met, there must be units of the
-    uniformed force to attack, the attacker must be able to find
-    them, and so forth.<p>
-
-    Attacks can be terminated by setting the ROE to
-    <b>DO_NOT_ATTACK</b> using 
-    <<cref /order/attroe/nf/update>> or by deleting the ROE
-    altogether using <<cref /order/attroe/delete>>.
-}
-
-
-#-----------------------------------------------------------------------
-
-order ATTROE:NF:UPDATE "Update Attacking ROE (Non-Uniformed)" {
-    <<parmlist>>
-    <<parm id "Combatants">>
-    <b>Required.</b>  A list {<i>n f g</i>} where <i>n</i> is the name 
-    of a neighborhood, <i>f</i> is the name of a non-uniformed force
-    group, and <i>g</i> is the name of the uniformed force group
-    to be attacked.
-    <</parm>>
-
-    <<parm roe "ROE">>
-    <b>Optional.</b>  <<ATTROE:N.roe>>
-    <</parm>>
-
-    <<parm cooplimit "Cooperation Limit">>
-    <b>Optional.</b>  <<ATTROE.cooplimit>>
-    <</parm>>
-
-    <<parm rate "Attacks/Day">>
-    <b>Optional.</b>  <<ATTROE:N.rate>>
-    <</parm>>
-
-    <</parmlist>>
-
-    Updates an existing Attacking ROE for a non-uniformed force group vs. a
-    uniformed force group.
-}
-
-
-#-----------------------------------------------------------------------
-
-order ATTROE:NF:UPDATE+MULTI "Update Multiple Attacking ROEs (Non-Uniformed)" {
-    <<parmlist>>
-    <<parm ids "IDs">>
-    <b>Required.</b>  <<parm.ids "Attacking ROE">><p>
-
-    Programmatically, each ID is a list {<i>n f g</i>} where <i>n</i>,
-    <i>f</i>, and <i>g</i> are defined as for the 
-    <<cref /order/attroe/nf/update>> order. 
-    <</parm>>
-
-    <<parm roe "ROE">>
-    <b>Optional.</b>  <<ATTROE:N.roe>>
-    <</parm>>
-
-    <<parm cooplimit "Cooperation Limit">>
-    <b>Optional.</b>  <<ATTROE.cooplimit>>
-    <</parm>>
-
-    <<parm rate "Attacks/Day">>
-    <b>Optional.</b>  <<ATTROE:N.rate>>
-    <</parm>>
-
-    <</parmlist>>
-
-    Updates each of the selected ROEs.
-}
-
-
-#=======================================================================
-# Attacking ROEs: Uniformed
-
-page /order/attroe uf "Attacking ROE (Uniformed) Orders" {
-    <<title>>
-
-    Uniformed forces are those (like the U.S. military) that wear
-    uniforms and use conventional tactics.  This family of orders
-    determines how and when uniformed forces will attempt to find and
-    destroy non-uniformed force personnel in a particular
-    neighborhood.  The orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-#-----------------------------------------------------------------------
-
-order ATTROE:UF:CREATE "Create Attacking ROE (Uniformed)" {
-    <<parmlist>>
-    <<parm id "Combatants">>
-    <b>Required.</b>  A list {<i>n f g</i>} where <i>n</i> is the name 
-    of a neighborhood, <i>f</i> is the name of a uniformed force
-    group, and <i>g</i> is the name of the non-uniformed force group
-    to be attacked.
-    <</parm>>
-
-    <<parm roe "ROE">>
-    <b>Required.</b>  <<ATTROE:U.roe>>
-    <</parm>>
-
-    <<parm cooplimit "Cooperation Limit">>
-    <b>Required.</b>  <<ATTROE.cooplimit>>
-    <</parm>>
-
-    <</parmlist>>
-
-    Creates a new Attacking ROE for a uniformed force group vs. a
-    non-uniformed force group.  Note that simply setting the ROE to
-    <b>ATTACK</b> doesn't guarantee that attacks will occur.  The
-    cooperation limit must be met, there must be units of the
-    non-uniformed force to attack, the attacker must be able to find
-    them, and so forth.<p>
-
-    Attacks can be terminated by setting the ROE to
-    <b>DO_NOT_ATTACK</b> using 
-    <<cref /order/attroe/uf/update>> or by deleting the ROE
-    altogether using <<cref /order/attroe/delete>>.
-}
-
-
-#-----------------------------------------------------------------------
-
-order ATTROE:UF:UPDATE "Update Attacking ROE (Uniformed)" {
-    <<parmlist>>
-    <<parm id "Combatants">>
-    <b>Required.</b>  A list {<i>n f g</i>} where <i>n</i> is the name 
-    of a neighborhood, <i>f</i> is the name of a uniformed force
-    group, and <i>g</i> is the name of the non-uniformed force group
-    to be attacked.
-    <</parm>>
-
-    <<parm roe "ROE">>
-    <b>Optional.</b>  <<ATTROE:U.roe>>
-    <</parm>>
-
-    <<parm cooplimit "Cooperation Limit">>
-    <b>Optional.</b>  <<ATTROE.cooplimit>>
-    <</parm>>
-
-    <</parmlist>>
-
-    Updates an existing Attacking ROE for a uniformed force group vs. a
-    non-uniformed force group.
-}
-
-#-----------------------------------------------------------------------
-
-order ATTROE:UF:UPDATE+MULTI "Update Multiple Attacking ROEs (Uniformed)" {
-    <<parmlist>>
-    <<parm ids "IDs">>
-    <b>Required.</b>  <<parm.ids "Attacking ROE">><p>
-
-    Programmatically, each ID is a list {<i>n f g</i>} where <i>n</i>,
-    <i>f</i>, and <i>g</i> are defined as for the 
-    <<cref /order/attroe/uf/update>> order. 
-    <</parm>>
-
-    <<parm roe "ROE">>
-    <b>Optional.</b>  <<ATTROE:U.roe>>
-    <</parm>>
-
-    <<parm cooplimit "Cooperation Limit">>
-    <b>Optional.</b>  <<ATTROE.cooplimit>>
-    <</parm>>
-
-    <</parmlist>>
-
-    Updates each of the selected ROEs.
-}
-
-
 #=======================================================================
 # Satisfaction Orders
 
@@ -4200,9 +3904,166 @@ order TACTIC:STATE "Set Tactic State" {
 
 
 #-----------------------------------------------------------------------
+# Tactic: ATTROE
+
+page /order/tactic attroe "Tactic: Attacking ROE" {
+    <<title>>
+
+    This tactic sets the attacking <<term roe>> for force groups
+    belonging to an <<term actor>>.<p>
+
+    Attacking ROEs determine whether a force group will seek out and
+    attack other force groups.  In Athena, force groups are either
+    uniformed or non-uniformed.  (Non-uniformed forces are those that
+    hide among the local population and use terrorist and other
+    unconventional tactics.)<p>
+
+    Athena's attrition model currently
+    only supports attacks by uniformed force groups on non-uniformed
+    force groups, and <i>vice versa</i>.  ROEs are set neighborhood by
+    neighborhood; thus, group A can be directed to attack group B in
+    neighborhood N1 but not in neighborhood N2.<p>
+
+    No force group will attack any other force group unless it is
+    explicitly given an ROE to do so.<p>
+
+    The tactic orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+macro ATTROE.f {} {
+    |<--
+    The attacking force group.  This group must belong to the 
+    <i>owner</i>, and may be uniformed or non-uniformed.
+}
+
+macro ATTROE.g {} {
+    |<--
+    The defending force group.  If the attacker is uniformed, this
+    group must be non-uniformed, and <i>vice versa</i>.
+}
+
+macro ATTROE.n {} {
+    |<--
+    The neighborhood in which the attack(s) may take place.  Note that
+    both groups must be present in this neighborhood, or the ROE will
+    have no effect.
+}
+
+macro ATTROE.text1 {} {
+    |<--
+    The ROE proper.  The set of valid ROEs depends on whether the
+    attacking group is uniformed or non-uniformed.<p>
+
+    <b>Uniformed:</b>  The ROE must be one of the following values:<p>
+
+    [enumdoc ::projectlib::eattroeuf]
+
+    If the ROE is <b>ATTACK</b>, then group <i>f</i> will attempt to
+    hunt down and destroy units of group <i>g</i> in neighborhood
+    <i>n</i>; and if not, not.  Note that there is no difference
+    between having an ROE of <b>DO_NOT_ATTACK</b> and not
+    having an ROE at all.<p>
+
+    <b>Non-Uniformed:</b>  The ROE must be one of the following
+    values:<p>
+
+    [enumdoc ::projectlib::eattroenf]
+
+    If the ROE is <b>HIT_AND_RUN</b>, then group <i>f</i> will use
+    hit-and-run tactics against group <i>g</i>, trying on each attack
+    to nibble away at the uniformed force while taking minimal
+    losses.<p>
+
+    If the ROE is <b>STAND_AND_FIGHT</b>, then group <i>f</i> will
+    expend a pre-determined number of troops in order to kill as many
+    personnel of group <i>g</i> as possible.<p>
+
+    Otherwise, group <i>f</i> will not attempt to attack.  Again, 
+    there is no difference between having an ROE of
+    <b>DO_NOT_ATTACK</b> and not having an ROE at all.
+}
+
+macro ATTROE.int1 {} {
+    |<--
+    The maximum number of attacks the attacker will conduct over the
+    following week.  Note that the actual number of attacks is
+    constrained by the presence of both attacker and defender, the
+    cooperation of the neighborhood with both groups, and other
+    factors.<p>
+
+    During strategy execution, this tactic will consume cash-on-hand
+    according to the maximum number of attacks provided for; if fewer
+    attacks are actually conducted (which is extremely likely), the
+    unused cash will be returned to the actor at the beginning of the
+    next strategy tock.<p>
+}
+
+order TACTIC:ATTROE:CREATE "Create Tactic: Attacking ROE" {
+    <<parmlist>>
+    <<TACTIC.cowner>>
+
+    <<parm f "Attacking Group">>
+    <b>Required.</b> <<ATTROE.f>>
+    <</parm>>
+
+    <<parm g "Defending Group">>
+    <b>Required.</b> <<ATTROE.g>>
+    <</parm>>
+
+    <<parm n "In Neighborhood">>
+    <b>Required.</b>  <<ATTROE.n>>
+    <</parm>>
+
+    <<parm text1 "ROE">>
+    <b>Required.</b>  <<ATTROE.text1>>
+    <</parm>>
+
+    <<parm text1 "Max Attacks">>
+    <b>Required.</b>  <<ATTROE.int1>>
+    <</parm>>
+
+    <<TACTIC.priority>>
+    <</parmlist>>
+
+    Creates the tactic.
+}
+
+order TACTIC:ATTROE:UPDATE "Update Tactic: Attacking ROE" {
+    <<parmlist>>
+    <<TACTIC.id>>
+    <<TACTIC.uowner>>
+
+    <<parm f "Attacking Group">>
+    <b>Optional.</b> <<ATTROE.f>>
+    <</parm>>
+
+    <<parm g "Defending Group">>
+    <b>Optional.</b> <<ATTROE.g>>
+    <</parm>>
+
+    <<parm n "In Neighborhood">>
+    <b>Optional.</b>  <<ATTROE.n>>
+    <</parm>>
+
+    <<parm text1 "ROE">>
+    <b>Optional.</b>  <<ATTROE.text1>>
+    <</parm>>
+
+    <<parm text1 "Max Attacks">>
+    <b>Optional.</b>  <<ATTROE.int1>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Allows the user to edit the tactic.
+}
+
+#-----------------------------------------------------------------------
 # Tactic: DEFROE
 
-page /order/tactic defroe "Tactic: Set Defensive ROE" {
+page /order/tactic defroe "Tactic: Defensive ROE" {
     <<title>>
 
     This tactic sets the defensive <<term roe>> for uniformed force groups
@@ -4241,7 +4102,7 @@ macro DEFROE.roe {} {
     not the group fires back at its attackers.
 }
 
-order TACTIC:DEFROE:CREATE "Create Tactic: Set Defensive ROE" {
+order TACTIC:DEFROE:CREATE "Create Tactic: Defensive ROE" {
     <<parmlist>>
     <<TACTIC.cowner>>
 
@@ -4265,7 +4126,7 @@ order TACTIC:DEFROE:CREATE "Create Tactic: Set Defensive ROE" {
     Creates the tactic.
 }
 
-order TACTIC:DEFROE:UPDATE "Update Tactic: Set Defensive ROE" {
+order TACTIC:DEFROE:UPDATE "Update Tactic: Defensive ROE" {
     <<parmlist>>
     <<TACTIC.id>>
     <<TACTIC.uowner>>

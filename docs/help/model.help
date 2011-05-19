@@ -138,7 +138,7 @@ model /model/ground aam "Athena Attrition Model" {
 
     AAM periodically assesses attrition to the force group
     <<term unit>>s, as determined by the 
-    <<parmdb aam.ticksPerTock>> parameter (nominally, every 7 
+    <<parmdb strategy.ticksPerTock>> parameter (nominally, every 7 
     <<term day>>s).  Combat results in attrition to the attacking and
     defending force units, and might also result in civilian
     collateral damage.  Attrition can also occur magically, via the

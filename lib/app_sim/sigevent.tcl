@@ -114,8 +114,9 @@ snit::type sigevent {
         set id [rdb last_insert_rowid]
 
         foreach tag $args {
+            # Use "OR IGNORE" in case the same tag is given twice.
             rdb eval {
-                INSERT INTO sigevent_tags(event_id, tag)
+                INSERT OR IGNORE INTO sigevent_tags(event_id, tag)
                 VALUES($id,$tag)
             }
         }

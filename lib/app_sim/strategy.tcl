@@ -39,10 +39,11 @@ snit::type strategy {
     typemethod tock {} {
         # FIRST, Set up working tables.  This includes giving
         # the actors their incomes.
-        tactic reset
-        tactic::DEFROE reset
         cash load
         personnel load
+        tactic reset
+        tactic::ATTROE reset
+        tactic::DEFROE reset
 
         # NEXT, determine whether the goals are met or unmet.
         $type ComputeGoalFlags
@@ -74,7 +75,7 @@ snit::type strategy {
     # Computes for each goal whether the goal is met or unmet.
 
     typemethod ComputeGoalFlags {} {
-        log normal strat ComputeGoalFlags
+        log normal strategy ComputeGoalFlags
 
         # FIRST, empty all goal and condition flags.  This will
         # clear tactic condition flags as well, but that's OK.
@@ -106,7 +107,7 @@ snit::type strategy {
         # NEXT, compute the goal flags for all goals; and the
         # condition flags along the way.
         foreach gid [array names gconds] {
-            log normal strat "Goal $gid:"
+            log normal strategy "Goal $gid:"
 
             # FIRST, compute the condition flags, accumulating the 
             # goal flag
@@ -125,7 +126,7 @@ snit::type strategy {
                     set flag ""
                 }
 
-                log normal strat "==> Condition $cid is met: <$flag>"
+                log normal strategy "==> Condition $cid is met: <$flag>"
 
                 # NEXT, save the condition's flag; make it NULL
                 # if the value is unknown
@@ -137,7 +138,7 @@ snit::type strategy {
             }
 
             # NEXT, save the goal's flag.
-            log normal strat "!!! Goal $gid is met: <$gflag>"
+            log normal strategy "!!! Goal $gid is met: <$gflag>"
             
             rdb eval {
                 UPDATE goals
@@ -204,7 +205,7 @@ snit::type strategy {
         set tdict [tactic get $tid]
 
         if {[tactic execute $tdict]} {
-            log normal strat \
+            log normal strategy \
                 "Actor [dict get $tdict owner] executed <$tdict>"
         }
     }

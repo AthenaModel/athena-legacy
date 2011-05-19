@@ -257,34 +257,6 @@ snit::widget appwin {
             script  {madbrowser %W}
         }
 
-        roet {
-            label   "ROE"
-            vistype *
-            parent  ""
-            script  ""
-        }
-
-        attroeuf {
-            label   "Attack (Uniformed)"
-            vistype *
-            parent  roet
-            script  { attroeufbrowser %W }
-        }
-
-        attroenf {
-            label   "Attack (Non-Uniformed)"
-            vistype *
-            parent  roet
-            script  { attroenfbrowser %W }
-        }
-
-        defroe {
-            label   "Defend"
-            vistype simulation
-            parent  roet
-            script  { defroebrowser %W }
-        }
-
         demogt {
             label   "Demog"
             vistype simulation
@@ -718,17 +690,6 @@ snit::widget appwin {
         $self AddOrder $submenu ATTRIT:NBHOOD
         $self AddOrder $submenu ATTRIT:GROUP
         $self AddOrder $submenu ATTRIT:UNIT
-
-        # Orders/ROE
-        set submenu [menu $ordersmenu.roe]
-        $ordersmenu add cascade -label "ROE" \
-            -underline 0 -menu $submenu
-        
-        $self AddOrder $submenu ATTROE:UF:CREATE
-        $self AddOrder $submenu ATTROE:NF:CREATE
-        $self AddOrder $submenu ATTROE:UF:UPDATE
-        $self AddOrder $submenu ATTROE:NF:UPDATE
-        $self AddOrder $submenu ATTROE:DELETE
 
         # Orders/Situation
         set submenu [menu $ordersmenu.sit]

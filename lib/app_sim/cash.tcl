@@ -151,5 +151,20 @@ snit::type cash {
 
         return 1
     }
+
+    # give a dollars
+    #
+    # a         - An actor
+    # dollars   - Some number of dollars
+    #
+    # Adds dollars to the actor's cash on hand.
+
+    typemethod give {a dollars} {
+        rdb eval {
+            UPDATE working_cash 
+            SET cash_on_hand = cash_on_hand + $dollars
+            WHERE a=$a
+        }
+    }
 }
 
