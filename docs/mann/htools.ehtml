@@ -353,9 +353,12 @@ If <i>body</i> is given, it will be executed as a Tcl script; then,
 
 Completes an HTML table cell with a <code>&lt;/td&gt;</code> tag.<p>
 
-<<defitem tr {<i>object</i> tr ?<i>body</i>?}>>
+<<defitem tr {<i>object</i> tr ?<i>attr value...</i>? ?<i>body</i>?}>>
 
 Adds a <code>&lt;tr&gt;</code> tag for a new table row.<p>
+
+If any attributes and values are given, they will be included in the
+generated tag.<p>
 
 If <i>body</i> is given, it will be executed as a Tcl script; then,
 <<iref /tr>> will be called automatically.<p>

@@ -17,6 +17,10 @@ This page gives an outline of the pages available through this browser:<p>
        <ul>
          <li> <a href="my://app/groups/civ">Groups: Civilian</a>
          <li> <a href="my://app/groups/frc">Groups: Force</a>
+              <ul>
+                <li> <a href="my://app/overview/attroe">Attacking ROEs</a>
+                <li> <a href="my://app/overview/defroe">Defending ROEs</a>
+              </ul>
          <li> <a href="my://app/groups/org">Groups: Organization</a>
          <li> <a href="my://app/overview/deployment">Personnel Deployment</a>
        </ul>

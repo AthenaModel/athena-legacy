@@ -257,6 +257,18 @@ snit::type appserver {
             text/html [myproc html_Overview]    \
             "Overview"
 
+        $server register /overview/attroe {overview/attroe?} \
+            text/html [myproc html_Attroe] {
+                All attacking ROEs for all force groups in all 
+                neighborhoods.
+            }
+
+        $server register /overview/defroe {overview/defroe?} \
+            text/html [myproc html_Defroe] {
+                All defending ROEs for all uniformed force groups in all 
+                neighborhoods.
+            }
+
         $server register /overview/deployment {overview/deployment?} \
             text/html [myproc html_Deployment] {
                 Deployment of force and organization group personnel
@@ -632,6 +644,8 @@ snit::type appserver {
             "#sphere"    "Sphere of Influence"
             "#base"      "Power Base"
             "#forces"    "Force Deployment"
+            "#attack"    "Attack Status"
+            "#defense"   "Defense Status"
             "#sigevents" "Significant Events"
         }
         
@@ -755,6 +769,113 @@ snit::type appserver {
             WHERE G.a=$a AND personnel > 0
         } -default "No forces are deployed."
 
+
+        ht subtitle "Attack Status" attack
+
+        # There might not be any.
+        ht push
+
+        rdb eval {
+            SELECT nlink,
+                   flink,
+                   froe,
+                   fpersonnel,
+                   glink,
+                   fattacks,
+                   gpersonnel,
+                   groe
+            FROM gui_conflicts
+            WHERE factor = $a;
+        } {
+            if {$fpersonnel && $gpersonnel > 0} {
+                set bgcolor white
+            } else {
+                set bgcolor lightgray
+            }
+
+            ht tr bgcolor $bgcolor {
+                ht td left {
+                    ht put $nlink
+                }
+
+                ht td left {
+                    ht put $flink
+                }
+
+                ht td left {
+                    ht put $froe
+                }
+
+                ht td right {
+                    ht put $fpersonnel
+                }
+
+                ht td right {
+                    ht put $fattacks
+                }
+
+                ht td left {
+                    ht put $glink
+                }
+
+                ht td right {
+                    ht put $gpersonnel
+                }
+
+                ht td left {
+                    ht put $groe
+                }
+            }
+        }
+
+        set text [ht pop]
+
+        if {$text ne ""} {
+            ht putln "Actor $a's force groups have the following "
+            ht put   "attacking ROEs."
+            ht putln {
+                The background will be gray for potential conflicts,
+                i.e., those in which one or the other group (or both)
+                has no personnel in the neighborhood in question.
+            }
+            ht para
+
+            ht table {
+                "Nbhood" "Attacker" "Att. ROE" "Att. Personnel"
+                "Max Attacks" "Defender" "Def. Personnel" "Def. ROE"
+            } {
+                ht putln $text
+            }
+        } else {
+            ht putln "No group owned by actor $a is attacking any other "
+            ht put   "groups."
+        }
+
+        ht para
+
+
+        ht subtitle "Defense Status" defense
+
+        ht putln "Actor $a's force groups are defending against "
+        ht put   "the following attacks:"
+        ht para
+
+        ht query {
+            SELECT nlink                AS "Neighborhood",
+                   glink                AS "Defender",
+                   groe                 AS "Def. ROE",
+                   gpersonnel           AS "Def. Personnel",
+                   flink                AS "Attacker",
+                   froe                 AS "Att. ROE",
+                   fpersonnel           AS "Att. Personnel"
+            FROM gui_conflicts
+            WHERE gactor = $a
+            AND   fpersonnel > 0
+            AND   gpersonnel > 0
+        } -default "None."
+
+        ht para
+
         ht subtitle "Significant Events" sigevents
 
         ht putln {
@@ -763,6 +884,8 @@ snit::type appserver {
         }
 
         ht para
+
+
 
         SigEvents -tags $a -mark run
 
@@ -895,8 +1018,8 @@ snit::type appserver {
                 "#civs"      "Civilian Groups"
                 "#forces"    "Forces Present"
                 "#control"   "Support and Control"
+                "#conflicts" "Force Conflicts" 
                 "#sigevents" "Significant Events"
-                "#future"    "Future Topics"
             }
         } {
             ht putln ""
@@ -1117,6 +1240,27 @@ snit::type appserver {
 
         ht para
 
+        ht subtitle "Force Conflicts" conflicts
+
+        ht putln "The following force groups are actively in conflict "
+        ht put   "in neighborhood $n:"
+        ht para
+
+        ht query {
+            SELECT flink                AS "Attacker",
+                   froe                 AS "Att. ROE",
+                   fpersonnel           AS "Att. Personnel",
+                   glink                AS "Defender",
+                   groe                 AS "Def. ROE",
+                   gpersonnel           AS "Def. Personnel"
+            FROM gui_conflicts
+            WHERE n=$n
+            AND   fpersonnel > 0
+            AND   gpersonnel > 0
+        } -default "None."
+
+        ht para
+
         ht subtitle "Significant Events" sigevents
 
         ht putln {
@@ -1127,19 +1271,6 @@ snit::type appserver {
         ht para
 
         SigEvents -tags $n -mark run
-
-
-        # Topics Yet to be Covered
-        ht subtitle "Future Topics" future
-
-        ht putln "The following topics might be covered in the future:"
-
-        ht ul {
-            ht li-text { 
-                <b>Conflicts:</b> Pairs of force groups with 
-                significant ROEs.
-            }
-        }
 
         ht /page
         return [ht get]
@@ -1295,49 +1426,6 @@ snit::type appserver {
         
         return [ht get]
     }
-
-    # html_Deployment udict matchArray
-    #
-    # udict      - A dictionary containing the URL components
-    # matchArray - Array of pattern matches; ignored.
-    #
-    # Returns a text/html of FRC/ORG group deployment.
-
-    proc html_Deployment {udict matchArray} {
-        upvar 1 $matchArray ""
-
-        # Begin the page
-        ht page "Personnel Deployment"
-        ht title "Personnel Deployment"
-
-        ht putln {
-            Force and organization group personnel
-            are deployed to neighborhoods as follows:
-        }
-        ht para
-
-        if {![Locked -disclaimer]} {
-            ht /page
-            return [ht get]
-        }
-
-        ht query {
-            SELECT G.longlink     AS "Group",
-                   G.gtype        AS "Type",
-                   N.longlink     AS "Neighborhood",
-                   D.personnel    AS "Personnel"
-            FROM deploy_ng AS D
-            JOIN gui_agroups AS G USING (g)
-            JOIN gui_nbhoods AS N ON (D.n = N.n)
-            WHERE D.personnel > 0
-            ORDER BY G.longlink, N.longlink
-        } -default "No personnel are deployed." -align LLLR
-
-        ht /page
-        
-        return [ht get]
-    }
-
     # html_Group udict matchArray
     #
     # udict      - A dictionary containing the URL components
@@ -1604,6 +1692,8 @@ snit::type appserver {
 
         ht linkbar {
             "#deployment" "Deployment"
+            "#attack"     "Attack Status"
+            "#defense"    "Defense Status"
             "#sigevents"  "Significant Events"
         }
 
@@ -1618,6 +1708,98 @@ snit::type appserver {
             ORDER BY N.longlink
         } -default "No personnel are deployed." -align LR
 
+        
+        ht subtitle "Attack Status" attack
+
+        # There might not be any.
+        ht push
+
+        rdb eval {
+            SELECT nlink,
+                   froe,
+                   fpersonnel,
+                   glink,
+                   fattacks,
+                   gpersonnel,
+                   groe
+            FROM gui_conflicts
+            WHERE f = $g;
+        } {
+            if {$fpersonnel && $gpersonnel > 0} {
+                set bgcolor white
+            } else {
+                set bgcolor lightgray
+            }
+
+            ht tr bgcolor $bgcolor {
+                ht td left {
+                    ht put $nlink
+                }
+
+                ht td left {
+                    ht put $froe
+                }
+
+                ht td right {
+                    ht put $fattacks
+                }
+
+                ht td left {
+                    ht put $glink
+                }
+
+                ht td right {
+                    ht put $gpersonnel
+                }
+
+                ht td left {
+                    ht put $groe
+                }
+            }
+        }
+
+        set text [ht pop]
+
+        if {$text ne ""} {
+            ht putln "Group $g has the following attacking ROEs."
+            ht putln {
+                The background will be gray for potential conflicts, 
+                i.e., those in which one or the other group (or both)
+                has no personnel in the neighborhood in question.
+            }
+            ht para
+
+            ht table {
+                "Nbhood" "Att. ROE" "Max Attacks" "Defender" "Personnel" "Def. ROE"
+            } {
+                ht putln $text
+            }
+        } else {
+            ht putln "Group $g is not attacking any other groups."
+        }
+
+        ht para
+
+
+        ht subtitle "Defense Status" defense
+
+        ht putln "Group $g is defending against attack from the following "
+        ht put   "groups:"
+        ht para
+
+        ht query {
+            SELECT nlink                AS "Neighborhood",
+                   groe                 AS "Def. ROE",
+                   flink                AS "Attacker",
+                   froe                 AS "Att. ROE",
+                   fpersonnel           AS "Att. Personnel"
+            FROM gui_conflicts
+            WHERE g=$g
+            AND   fpersonnel > 0
+            AND   gpersonnel > 0
+        } -default "None."
+
+        ht para
 
         ht subtitle "Significant Events" sigevents
 
@@ -1879,6 +2061,209 @@ snit::type appserver {
 
         return [ht get]
     }
+
+    #-------------------------------------------------------------------
+    # Overview Handlers
+
+
+    # html_Attroe udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of pattern matches; ignored.
+    #
+    # All Attacking ROEs.
+
+    proc html_Attroe {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # Begin the page
+        ht page "Attacking ROEs"
+        ht title "Attacking ROEs"
+
+        if {![Locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        # There might not be any.
+        ht push
+
+        rdb eval {
+            SELECT nlink,
+                   flink,
+                   froe,
+                   fpersonnel,
+                   glink,
+                   fattacks,
+                   gpersonnel,
+                   groe
+            FROM gui_conflicts
+        } {
+            if {$fpersonnel && $gpersonnel > 0} {
+                set bgcolor white
+            } else {
+                set bgcolor lightgray
+            }
+
+            ht tr bgcolor $bgcolor {
+                ht td left {
+                    ht put $nlink
+                }
+
+                ht td left {
+                    ht put $flink
+                }
+
+                ht td left {
+                    ht put $froe
+                }
+
+                ht td right {
+                    ht put $fpersonnel
+                }
+
+                ht td right {
+                    ht put $fattacks
+                }
+
+                ht td left {
+                    ht put $glink
+                }
+
+                ht td right {
+                    ht put $gpersonnel
+                }
+
+                ht td left {
+                    ht put $groe
+                }
+            }
+        }
+
+        set text [ht pop]
+
+        if {$text ne ""} {
+            ht putln {
+                The following attacking ROEs are in force across the
+                playbox.  The background will be gray for potential conflicts,
+                i.e., those in which one or the other group (or both)
+                has no personnel in the neighborhood in question.
+            }
+            ht para
+
+            ht table {
+                "Nbhood" "Attacker" "Att. ROE" "Att. Personnel"
+                "Max Attacks" "Defender" "Def. Personnel" "Def. ROE"
+            } {
+                ht putln $text
+            }
+        } else {
+            ht putln "No attacking ROEs are in force."
+        }
+
+        ht para
+
+        ht /page
+        
+        return [ht get]
+    }
+
+
+    # html_Defroe udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of pattern matches; ignored.
+    #
+    # All Defending ROEs.
+
+    proc html_Defroe {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # Begin the page
+        ht page "Defending ROEs"
+        ht title "Defending ROEs"
+
+        if {![Locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+
+        ht putln {
+            Uniformed force groups are defending themselves given the
+            following ROEs across the playbox:
+        }
+
+        ht para
+
+        ht query {
+            SELECT ownerlink           AS "Owning Actor",
+                   glink               AS "Defender",
+                   nlink               AS "Neighborhood",
+                   roe                 AS "Def. ROE",
+                   personnel           AS "Def. Personnel"
+            FROM gui_defroe
+            WHERE personnel > 0
+            ORDER BY owner, g, n
+        } -default "None."
+
+        ht para
+
+        ht /page
+        
+        return [ht get]
+    }
+
+    # html_Deployment udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of pattern matches; ignored.
+    #
+    # Returns a text/html of FRC/ORG group deployment.
+
+    proc html_Deployment {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # Begin the page
+        ht page "Personnel Deployment"
+        ht title "Personnel Deployment"
+
+        if {![Locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        ht putln {
+            Force and organization group personnel
+            are deployed to neighborhoods as follows:
+        }
+        ht para
+
+        if {![Locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        ht query {
+            SELECT G.longlink     AS "Group",
+                   G.gtype        AS "Type",
+                   N.longlink     AS "Neighborhood",
+                   D.personnel    AS "Personnel"
+            FROM deploy_ng AS D
+            JOIN gui_agroups AS G USING (g)
+            JOIN gui_nbhoods AS N ON (D.n = N.n)
+            WHERE D.personnel > 0
+            ORDER BY G.longlink, N.longlink
+        } -default "No personnel are deployed." -align LLLR
+
+        ht /page
+        
+        return [ht get]
+    }
+
+
+
+
 
     #-------------------------------------------------------------------
     # Sanity Checks: On-Lock

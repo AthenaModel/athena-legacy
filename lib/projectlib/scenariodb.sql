@@ -758,7 +758,8 @@ SELECT nbhoods.n                             AS n,
        
 FROM nbhoods
 JOIN frcgroups
-LEFT OUTER JOIN defroe_ng USING (n,g);
+LEFT OUTER JOIN defroe_ng USING (n,g)
+WHERE frcgroups.uniformed;
 
 
 -- An instance of attrition to a group in a neighborhood.  These records

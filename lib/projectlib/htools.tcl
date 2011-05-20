@@ -665,21 +665,32 @@ snit::type ::projectlib::htools {
         }
     }
 
-    # tr ?body?
+    # tr ?attr value...? ?body?
     #
+    # attr    - A <tr> attribute
+    # value   - An attribute value
     # body    - A body script
     #
     # Begins a standard table row.  If the body is included,
     # it is executed, and the </tr> is included automatically.
     
-    method tr {{body ""}} {
-        $self putln "<tr valign=top>"
+    method tr {args} {
+        # FIRST, get the attributes and the body.
+        if {[llength $args] % 2 == 1} {
+            set body [lindex $args end]
+            set args [lrange $args 0 end-1]
+        }
+
+        set attrs ""
+        foreach {attr value} $args {
+            append attrs " $attr=\"$value\""
+        }
+
+        $self putln "<tr valign=top$attrs>"
 
         if {$body ne ""} {
-            if {$body ne ""} {
-                uplevel 1 $body
-                $self /tr
-            }
+            uplevel 1 $body
+            $self /tr
         }
     }
 
