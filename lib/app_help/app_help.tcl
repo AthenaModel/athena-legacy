@@ -54,7 +54,7 @@ namespace import ::projectlib::*
 
 source [file join $::app_help::library app.tcl   ]
 source [file join $::app_help::library macro.tcl ]
-
+source [file join $::app_help::library object.tcl]
 
 
 

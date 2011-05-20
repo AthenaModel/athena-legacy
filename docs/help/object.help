@@ -1,0 +1,103 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    object.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: Simulation Objects
+#
+#    This file is included into athena.help.
+#
+#    Simulation Object types have help pages with names like
+#
+#        /object/?.../?<type>/
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+
+page / object "Simulation Objects" {
+    <<title>>
+    This section of the help documents the significant object types
+    in the Athena simulation, e.g., 
+    <<term actor actors>>, <<term group groups>>, 
+    <<term nbhood neighborhoods>>, and so forth.  The full set of 
+    object types is as follows:<p>
+
+    <<childlinks>>
+}
+
+
+
+
+#-----------------------------------------------------------------------
+# Actors
+
+object _actor {
+    noun actor
+
+    overview {
+        An <i>actor</i> is a significant decision-maker in the 
+        region of interest.  An actor uses <<term tactic>>s to
+        achieve <<term goal>>s subject to certain 
+        <<term condition>>s.  Collectively, this is called the
+        actor's <<term strategy>>; it is browsed and edited on 
+        the <<tab Strategy>>.<p>
+
+        Actors own <<term frcgroup>>s and <<term orggroup>>s,
+        and also have cash resources.<p>
+
+    }
+
+    attribute a "Actor ID" {
+        The actor ID.  It may contain letters and digits, and
+        must begin with a letter.  It should usually be short,
+        between 2 and 8 characters in length, e.g., <b>USA</b>.<p>
+        
+        An actor ID cannot be the same as the ID of any group, 
+        neighborhood, etc.
+    } -tags {create}
+
+    attribute longname "Long Name" {
+        The actor's long name, a human-readable equivalent to the
+        actor's ID, e.g., "United States".
+    } -tags {create update}
+
+    attribute cash_reserve "Cash Reserve, $" {
+        Every actor has some amount of cash in reserve that can be
+        released for use via the <<cref /object/tactic/spend>>.  The
+        actor is given an initial reserve as part of the scenario; once
+        the simulation begins, the level of the reserve can fluctuate.
+    } -tags {create update}
+
+    attribute income "Income, $/week" {
+        Every actor has a regular weekly income, in dollars.  The
+        actor's income flows into his cash-on-hand, where it may be
+        used to fund tactics.
+    } -tags {create update}
+
+    attribute cash_on_hand "Cash-On-Hand, $" {
+        An actor's cash-on-hand is the amount of the money the actor
+        has available to fund tactics.  The actor receives income
+        into his cash-on-hand every week, and may also move money
+        between his cash-on-hand and cash reserve using the
+        <<cref /object/tactic/save>> and 
+        <<cref /object/tactic/spend>>.  Cash-on-hand that is unspent
+        during a given week automatically rolls over to the next week.
+    } -tags {derived}
+}
+
+page /object actor "Actor" {
+    <<title>>
+
+    <<_actor overview>><p>
+
+    Actors have the following attributes:<p>
+
+    <<_actor parmlist>>
+}
+
+

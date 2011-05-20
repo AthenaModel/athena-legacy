@@ -32,6 +32,7 @@ page "" "" "Athena Help" {
     <li> <<cref /release>>
     <li> <<cref /using>>
          <<childlinks /using>>
+    <li> <<cref /object>>
     <li> <<cref /model>>
          <<childlinks /model>>
     <li> Athena Software Reference
@@ -105,6 +106,7 @@ page / release "Release Notes" {
 #======================================================================
 # The following sections are in separate files
 
+include object.help
 include using.help
 include model.help
 include menu.help

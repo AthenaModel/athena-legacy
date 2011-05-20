@@ -327,25 +327,11 @@ order ACTIVITY:PRIORITY "Prioritize Scheduled Activity" {
 #=======================================================================
 # Actor Orders
 
-macro ACTOR.a {} {
-    |<--
-    The ID of an existing actor.
-}
-
-macro ACTOR.budget {} {
-    |<--
-    The actor's budget, in dollars per year.  This limits the
-    actor's tactics.<p>
-
-    This parameter is temporary, and will go away once the economic 
-    model is providing the budgets to each actor. 
-}
-
 page /order actor "Actor Orders" {
     <<title>>
 
-    Athena uses actors to model political actors of various kinds:
-    political leaders, important parties, foreign countries, and so forth.
+    These orders are used create, update, and delete 
+    <<cref /object/actor>>s.
 
     <<childlinks>>
 }
@@ -353,61 +339,48 @@ page /order actor "Actor Orders" {
 #-----------------------------------------------------------------------
 
 order ACTOR:CREATE "Create Actor" {
-    <<parmlist>>
-    <<parm a "Actor">>
-    <b>Required.</b>  <<parm.identifier actor USA>>
-    <</parm>>
+    <b><<cref /using/prep>> Only.</b>  This order creates a new 
+    <<cref /object/actor>>.
+    The order parameters are as follows:<p>
 
-    <<parm longname "Long Name">>
-    <b>Optional.</b> <<parm.longname actor "United States">>
-    <</parm>>
-
-    <<parm budget "Budget $/Yr">>
-    <b>Optional.</b> <<ACTOR.budget>>
-    <</parm>>
+    <<_actor parmlist -required -tags create>>
 
     <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  This order creates a
-    new actor.
 }
 
 
 #-----------------------------------------------------------------------
 
 order ACTOR:DELETE "Delete Actor" {
-    <<parmlist>>
+    <b><<cref /using/prep>> Only.</b>  Deletes an existing
+    <<cref /object/actor>>, along with all entities (e.g., beliefs)
+    that depend upon it, given its ID.    
+    The order parameters are as follows:<p>
 
+    <<parmlist>>
     <<parm a "Actor">>
-    <b>Required.</b>  <<ACTOR.a>>
+    <b>Required.</b>  ID of an existing actor.
     <</parm>>
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  Deletes an existing
-    actor, along with all entities (e.g., beliefs)
-    that depend upon it.<p>
 }
 
 #-----------------------------------------------------------------------
 
 order ACTOR:UPDATE "Update Actor" {
+    <b><<cref /using/prep>> Only.</b>  This order modifies the
+    definition of an existing <<cref /object/actor>>.  The order
+    parameters are as follows:
+    <p>
+
     <<parmlist>>
     <<parm a "Select Actor">>
-    <b>Required.</b>  <<ACTOR.a>>
+    <b>Required.</b> ID of an existing actor.
     <</parm>>
 
-    <<parm longname "Long Name">>
-    <b>Optional.</b> <<parm.longname actor "United States">>
-    <</parm>>
-
-    <<parm budget "Budget $/Yr">>
-    <b>Optional.</b> <<ACTOR.budget>>
-    <</parm>>
+    <<_actor parms -optional -tags update>>
 
     <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
-    definition of an existing actor.<p>
 }
 
 #-----------------------------------------------------------------------

@@ -79,6 +79,14 @@ for details.<p>
 The difference between macros and <<iref proc>>s is that macros can
 appear in page bodies, whereas <<iref proc>>s cannot.<p>
 
+<<defitem object {object <i>name script</i>}>>
+
+Defines an object called <i>name</i> given an
+<<xref "Object Definition">> script.  The <i>name</i> can be used as a
+command in <<iref proc>>s and as a macro in <<iref page>> bodies; it
+should be chosen so as not to conflict with other commands and macros. See
+<<xref "Object Commands">> for the subcommands.<p>
+
 <<defitem page {page <i>parent slug title text</i>}>>
 
 Defines a new help page with the specified <i>title</i> and <i>text</i>.<p>
@@ -205,6 +213,129 @@ the <<xref helptool(1)>> help compiler.<p>
 
 
 <</deflist>>
+
+<<section OBJECTS>>
+
+A help(5) "object" is used to document some kind of software
+object: an entity with attributes that require documentation, e.g., a
+record structure, an order, etc.  The <<iref object>> command creates
+new objects; these objects can be used as macros within <<iref page>> bodies,
+and as normal commands with <<iref proc>>s.  Each object has
+subcommands for querying object data and including it in help
+pages.<p>
+
+Note that just defining an object doesn't produce any help page
+output; the object must explicitly be used in the definition of
+pages.<p>
+
+<<subsection "Object Definition">>
+
+Objects are defined by a script containing the following commands:<p>
+
+<<deflist odef>>
+
+<<defitem noun {noun <i>noun</i>}>>
+
+The <<iref object>>'s name is a Tcl command, not an English word.
+This command is used to define the English word used in the help text
+for this kind of object.<p>
+
+<<defitem overview {overview <i>text</i>}>>
+
+This command provides a general overall description of the object.
+The <i>text</i> is <<xref ehtml(5)>>, and may contain
+<<xref MACROS>>.<p>
+
+<<defitem attribute {attribute <i>name label text</i> ?<i>options...</i>?}>>
+
+This command defines one of the object's attributes.  Each attribute
+has a <i>name</i>; this is usually the attribute's name in the program
+code, e.g., the name of a column in an SQL table.  The <i>label</i> is
+the human-readable version of the name.  The <i>text</i> is
+<<xref ehtml(5)>> text that documents the attribute; it may contain
+<<xref MACROS>>.  The options are as follows:<p>
+
+<<deflist options>>
+
+<<defopt {-tags <i>tags</i>}>>
+
+Specifies a list of one-word tags to attach to this attribute.  Tags
+are used to filter the output produced by some of the
+<<xref "Object Commands">>.<p>
+
+<</deflist options>>
+
+<</deflist odef>>
+
+<<subsection "Object Commands">>
+
+Each object defined using the <<iref object>> command has the
+following subcommands.  These may be used in <<iref proc>>s
+or in <<iref page>> or <<iref macro>> bodies.<p>
+
+<<deflist osub>>
+
+<<defitem noun {<i>object</i> noun}>>
+
+Returns the object's noun.<p>
+
+<<defitem overview {<i>object</i> overview}>>
+
+Returns the object's overview text, first expanding any macros.<p>
+
+<<defitem {attr names} {<i>object</i> attr names}>>
+
+Returns a list of the object's attribute names, in order of
+definition.<p>
+
+<<defitem {attr label} {<i>object</i> attr label <i>name</i>}>>
+
+Returns the label text for the named attributed.<p>
+
+<<defitem {attr text} {<i>object</i> attr text <i>name</i>}>>
+
+Returns the named attribute's documentation text, first expanding
+any macros.<p>
+
+<<defitem parms {<i>object</i> parms <i>options...</i>}>>
+
+Returns a segment of an <<iref parmlist>>.  By default, the result
+includes an <<iref parm>> macro for each of the object's attributes.
+The options filter and tailor the results.<p>
+
+<<deflist options>>
+
+<<defopt {-attrs <i>names</i>}>>
+
+Lists the names of the attribute or attributes to include in the output.<p>
+
+<<defopt {-tags <i>tags</i>}>>
+
+Only attributes with at least one of the listed <i>tags</i> will be
+included in the output.  This option is ignored if the
+<code>-attrs</code> option has a non-empty value.<p>
+
+<<defopt {-required}>>
+
+All attributes in the output will be marked as being
+<b>Required.</b><p>
+
+<<defopt {-optional}>>
+
+All attributes in the output will be marked as being
+<b>Optional.</b><p>
+
+<</deflist options>>
+
+<<defitem parmlist {<i>object</i> parmlist <i>options...</i>}>>
+
+Returns a complete <<iref parmlist>>.  By default, the result
+includes an <<iref parm>> macro for each of the object's attributes.
+The options, which are the same as for <<iref parms>>, filter and
+tailor the results.<p>
+
+<</deflist osub>>
+
 
 <<section AUTHOR>>
 

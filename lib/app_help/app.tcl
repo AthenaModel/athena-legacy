@@ -173,6 +173,7 @@ snit::type app {
         $compiler alias image   $type Compiler_image
         $compiler alias macro   $type Compiler_macro
         $compiler alias super   $type Compiler_super
+        $compiler alias object  $type Compiler_object
 
         # NEXT, initialize the ehtml(5) processor used to transform
         # the page bodies.
@@ -355,6 +356,31 @@ snit::type app {
     typemethod Compiler_super {args} {
         namespace eval :: $args
     }
+
+    # Compiler_object name script
+    #
+    # name       The object's command name.
+    # script     The object definition script.
+    #
+    # Creates an object type that can later be queried.
+
+    typemethod Compiler_object {name script} {
+        namespace eval ::objects:: { }
+
+        if {[catch {
+            set obj [object ::objects::$name $script]
+        } result opts]} {
+            error "Error in object definition \"$name\",\n$result"
+        }
+
+        # Make the object available for use as a macro
+        namespace eval ::objects:: [list namespace export $name]
+        ehtml import ::objects::$name
+
+        # Make the object available for use in procs
+        $compiler alias $name ::objects::$name
+    } 
+
 
     #-------------------------------------------------------------------
     # Utility Typemethods for use in macros and so forth.
