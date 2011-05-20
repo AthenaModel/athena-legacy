@@ -179,7 +179,7 @@ This command returns information about the current page.  The
 <i>field</i> is one of <b>path</b>, <b>title</b>, <b>parent</b>, or
 <b>text</b>.<p>
 
-<<defitem parmlist {&lt;&lt;parmlist&gt;&gt;}>>
+<<defitem parmlist {&lt;&lt;parmlist ?<i>h1</i>? ?<i>h2</i>?&gt;&gt;}>>
 <<defitem parm {&lt;&lt;parm <i>parm field</i>&gt;&gt;}>>
 <<defitem /parm {&lt;&lt;/parm&gt;&gt;}>>
 <<defitem /parmlist {&lt;&lt;/parmlist&gt;&gt;}>>
@@ -191,13 +191,17 @@ description, which is <<xref ehtml(5)>> input contained between
 <code>&lt;&lt;parm&gt;&gt;</code> and
 <code>&lt;&lt;/parm&gt;&gt;</code>.<p>
 
+The column headers default to "Field" and
+"Description", but can be changed using the optional <i>h1</i> and
+<i>h2</i> parameters
+
 <<defitem topiclist {&lt;&lt;topiclist ?<i>h1</i>? ?<i>h2</i>?&gt;&gt;}>>
 <<defitem topic {&lt;&lt;topic <i>topic</i>&gt;&gt;}>>
 <<defitem /topic {&lt;&lt;/topic&gt;&gt;}>>
 <<defitem /topiclist {&lt;&lt;/topiclist&gt;&gt;}>>
 
 These macros are used together to produce a two-column table of topic
-names and descriptions.  The column headers defaults to "Topic" and
+names and descriptions.  The column headers default to "Topic" and
 "Description", but can be changed using the optional <i>h1</i> and
 <i>h2</i> parameters to &lt;&lt;topiclist&gt;&gt;.<p>
 

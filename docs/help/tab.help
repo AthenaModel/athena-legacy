@@ -1104,32 +1104,18 @@ tab "Groups" {
 
 tab "Groups/Actors" {
     This tab shows basic data about each 
-    <<cref /order/actor "actor">>, as entered
+    <<cref /object/actor "actor">>, as entered
     during <<cref /using/prep>>.
     The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
-    <<topiclist Column Description>>
+    <<parmlist Column Description>>
 
-    <<topic ID>>The actor's ID.<</topic>>
+    <<parm a ID>>The actor's ID.<</topic>>
 
-    <<topic "Long Name">>The human-readable name for the actor.<</topic>>
-    
-    <<topic "Cash Reserve, $">>
-    The actor's cash reserve, held for future needs, in dollars.  The
-    actor moves cash into and out of the reserve using the 
-    <<cref /order/tactic/save SAVE>> and 
-    <<cref /order/tactic/spend SPEND>> tactics.
-    <</topic>>
+    <<_actor parms -tags browser>>
 
-    <<topic "Income, $/Week">>The actor's income in dollars per week.<</topic>>
-
-    <<topic "Cash on Hand, $">>
-    The actor's cash-on-hand.  This is the cash available to spend on
-    tactics.  Unspent cash is carried over to the next week.
-    <</topic>>
-
-    <</topiclist>>
+    <</parmlist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's
     toolbar contains the following controls:<p>

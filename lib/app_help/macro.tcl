@@ -160,16 +160,19 @@ template macro::enumdoc {enum} {
 }
 
 
-# parmlist
+# parmlist  ?h1 ?h2?
+#
+# h1    - Header for column 1; defaults to Field
+# h2    - Header for column 2; defaults to Description
 #
 # Begins a list of order parameters
 
-template macro::parmlist {} {
+template macro::parmlist {{h1 Field} {h2 Description}} {
     |<--
     <table border width="100%" cellspacing="0" cellpadding="4"> 
     <tr>
-    <th align="left">Field</th> 
-    <th align="left">Description</th>
+    <th align="left">$h1</th> 
+    <th align="left">$h2</th>
     </tr>
 }
 

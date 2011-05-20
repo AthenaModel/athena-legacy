@@ -104,6 +104,7 @@ snit::type object {
         ladd info(attrs) $name
         set info(label-$name) $label
         set info(text-$name) $text
+        set info(tags-$name) [list]
 
         while {[llength $args] > 0} {
             set opt [lshift args]
@@ -237,7 +238,7 @@ snit::type object {
     # Returns a <<parmlist>> of all of the object's attributes.
 
     method parmlist {args} {
-        set text [ehtml expand "<<parmlist>>\n"]
+        set text [ehtml expand "<<parmlist Attribute Description>>\n"]
 
         append text [$self parms {*}$args]
 
