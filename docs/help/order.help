@@ -344,7 +344,7 @@ order ACTOR:CREATE "Create Actor" {
     The order parameters are as follows:<p>
 
     <<parmlist>>
-    <<_actor parms -required -tags create>>
+    <<actor_ parms -required -tags create>>
     <</parmlist>>
 }
 
@@ -378,7 +378,7 @@ order ACTOR:UPDATE "Update Actor" {
     <b>Required.</b> ID of an existing actor.
     <</parm>>
 
-    <<_actor parms -optional -tags update>>
+    <<actor_ parms -optional -tags update>>
 
     <</parmlist>>
 }
@@ -1882,12 +1882,6 @@ macro GROUP.g {flavor} {
     The ID of an existing $flavor group.
 }
 
-macro GROUP.n {} {
-    |<--
-    The ID of an existing neighborhood, the group's neighborhood
-    of residence.
-}
-
 macro GROUP.color {} {
     |<--
     The group's color, used when displaying the group's units
@@ -1923,20 +1917,6 @@ macro GROUP.demeanor {} {
     [enumdoc ::projectlib::edemeanor]
 }
 
-macro GROUP.basepop {} {
-    |<--
-    The initial population of the group.  This population
-    can be reduced by displacement to other neighborhoods, and by
-    attrition.  An integer number no less than 1.
-}
-
-macro GROUP.sap {} {
-    |<--
-    The percentage of the group's population that supports itself by 
-    subsistence agriculture, and hence does not participate in the
-    regional economy.  An integer number from 0 to 100.
-}
-
 macro GROUP.a {} {
     |<--
     The group's owning actor.  This parameter may remain unset during
@@ -1963,9 +1943,8 @@ macro GROUP.cost {} {
 page /order civgroup "Civilian Group Orders" {
     <<title>>
 
-    Athena uses civilian groups to model identifiable collections of
-    people, e.g., Pashtuns and Punjabis.  Each group resides in a 
-    single neighborhood.<p>
+    These orders are used create, update, and delete 
+    <<cref /object/group/civ>>s.
 
     <<childlinks>>
 }
@@ -1973,179 +1952,95 @@ page /order civgroup "Civilian Group Orders" {
 #-----------------------------------------------------------------------
 
 order CIVGROUP:CREATE "Create Civilian Group" {
-    <<parmlist>>
-    <<parm g "Group">>
-    <b>Required.</b>  <<parm.identifier group PASH>>
-    <</parm>>
-
-    <<parm longname "Long Name">>
-    <b>Optional.</b> <<parm.longname group "Urban Pashtuns">>
-    <</parm>>
-
-    <<parm n "Neighborhood">>
-    <b>Required.</b> <<GROUP.n>>
-    <</parm>>
-
-    <<parm color "Color">>
-    <b>Required.</b> <<GROUP.color>>
-    <</parm>>
-
-    <<parm shape "Unit Shape">>
-    <b>Required.</b> <<GROUP.shape>>
-    <</parm>>
-
-    <<parm demeanor "Demeanor">>
-    <b>Required.</b> <<GROUP.demeanor>>
-    <</parm>>
-
-    <<parm basepop "Base Population">>
-    <b>Required.</b> <<GROUP.basepop>>
-    <</parm>>
-
-    <<parm sap "Subsistence Agriculture Percentage">>
-    <b>Required.</b> <<GROUP.sap>>
-    <</parm>>
-
-    <</parmlist>>
-
     <b><<cref /using/prep>> Only.</b>  This order creates a
-    new civilian group.
+    new <<cref /object/group/civ>>.  The order parameters
+    are as follows:<p>
+    
+    <<parmlist>>
+    <<group_civ parms -required -tags create>>
+    <</parmlist>>
 }
 
 
 #-----------------------------------------------------------------------
 
 order CIVGROUP:DELETE "Delete Civilian Group" {
-    <<parmlist>>
+    <b><<cref /using/prep>> Only.</b>  Deletes an existing
+    civilian group, along with all entities (e.g., attitudes)
+    that depend upon it.<p>
 
+    <<parmlist>>
     <<parm g "Group">>
     <b>Required.</b>  <<GROUP.g civilian>>
     <</parm>>
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  Deletes an existing
-    civilian group, along with all entities (e.g., attitudes)
-    that depend upon it.<p>
 }
 
 #-----------------------------------------------------------------------
 
 order CIVGROUP:UPDATE "Update Civilian Group" {
+    <b><<cref /using/prep>> Only.</b>  This order updates an
+    existing <<cref /object/group/civ>>.  The order parameters
+    are as follows:<p>
+
     <<parmlist>>
     <<parm g "Select Group">>
     <b>Required.</b>  <<GROUP.g civilian>>
     <</parm>>
 
-    <<parm longname "Long Name">>
-    <b>Optional.</b> <<parm.longname group "Urban Pashtuns">>
-    <</parm>>
-
-    <<parm n "Neighborhood">>
-    <b>Optional.</b> <<GROUP.n>>
-    <</parm>>
-
-    <<parm color "Color">>
-    <b>Optional.</b> <<GROUP.color>>
-    <</parm>>
-
-    <<parm shape "Unit Shape">>
-    <b>Optional.</b> <<GROUP.shape>>
-    <</parm>>
-
-    <<parm demeanor "Demeanor">>
-    <b>Optional.</b> <<GROUP.demeanor>>
-    <</parm>>
-
-    <<parm basepop "Base Population">>
-    <b>Optional.</b> <<GROUP.basepop>>
-    <</parm>>
-
-    <<parm sap "Subsistence Agriculture Percentage">>
-    <b>Optional.</b> <<GROUP.sap>>
-    <</parm>>
-
+    <<group_civ parms -optional -tags update>>
     <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
-    definition of an existing civilian group.<p>
 }
 
 
 #-----------------------------------------------------------------------
 
 order CIVGROUP:UPDATE+MULTI "Update Multiple Civilian Groups" {
+    <b><<cref /using/prep>> Only.</b>  This order modifies two or 
+    more <<cref /object/group/civ>>s, as selected in the GUI.<p>
+
     <<parmlist>>
     <<parm ids "Groups">>
     <b>Required.</b>  <<parm.ids "civilian group">>
     <</parm>>
 
-    <<parm n "Neighborhood">>
-    <b>Optional.</b> <<GROUP.n>>
-    <</parm>>
-
-    <<parm color "Color">>
-    <b>Optional.</b> <<GROUP.color>>
-    <</parm>>
-
-    <<parm shape "Unit Shape">>
-    <b>Optional.</b> <<GROUP.shape>>
-    <</parm>>
-
-    <<parm demeanor "Demeanor">>
-    <b>Optional.</b> <<GROUP.demeanor>>
-    <</parm>>
-
-    <<parm basepop "Base Population">>
-    <b>Optional.</b> <<GROUP.basepop>>
-    <</parm>>
-
-    <<parm sap "Subsistence Agriculture Percentage">>
-    <b>Optional.</b> <<GROUP.sap>>
-    <</parm>>
-
+    <<group_civ parms -optional -tags multi>>
     <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
-    definition of two or more civilian groups, as selected in the GUI.<p>
 }
 
 #-----------------------------------------------------------------------
 
 order CIVGROUP:UPDATE+POSTPREP "Update Civilian Group (Post-PREP)" {
+    This order updates an existing <<cref /object/group/civ>>
+    after leaving <<cref /using/prep>>.  Only a subset of the
+    group attributes can be edited.<p>
+
     <<parmlist>>
     <<parm g "Select Group">>
     <b>Required.</b> <<GROUP.g civilian>>
     <</parm>>
 
-    <<parm sap "Subsistence Agriculture Percentage">>
-    <b>Required.</b> <<GROUP.sap>>
-    <</parm>>
+    <<group_civ parms -required -tags postprep>>
     <</parmlist>>
-
-    This order modifies the definition of an existing civilian
-    group after leaving <<cref /using/prep>>.  Only a subset of the
-    group attributes can be edited.<p>
 }
 
 #-----------------------------------------------------------------------
 
 order CIVGROUP:UPDATE+POSTPREP+MULTI "Update Multiple Civilian Groups (Post-PREP)" {
+    This order updates two or more existing <<cref /object/group/civ>>s,
+    as selected in the GUI, 
+    after leaving <<cref /using/prep>>.  Only a subset of the
+    group attributes can be edited.<p>
+
     <<parmlist>>
 
     <<parm ids "Groups">>
     <b>Required.</b>  <<parm.ids "civilian group">>
     <</parm>>
 
-    <<parm sap "Subsistence Agriculture Percentage">>
-    <b>Required.</b> <<GROUP.sap>>
-    <</parm>>
-
+    <<group_civ parms -required -tags postprep>>
     <</parmlist>>
-
-    This order modifies the
-    definition of two or more civilian groups, as selected in the
-    GUI, after leaving <<cref /using/prep>>.  Only a subset of the 
-    group attributes can be edited.<p>
 }
 
 
@@ -4567,6 +4462,7 @@ order PERSONNEL:ADJUST "Adjust Group Personnel" {
     Increases or decreases the number of group <i>g</i>'s personnel 
     stationed in neighborhood <i>n</i> by the specified amount.<p>
 }
+
 
 
 

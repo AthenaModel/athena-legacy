@@ -259,6 +259,11 @@ the including object can tag them however is desired.<p>
 
 <<deflist options>>
 
+<<defopt {-attrs <i>names</i>}>>
+
+If given, <i>names</i> is a list of the attribute names to include.
+By default, all attributes are included.<p>.
+
 <<defopt {-tags <i>tags</i>}>>
 
 Specifies a list of one-word tags to attach to this attribute.  Tags

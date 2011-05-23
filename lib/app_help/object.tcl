@@ -94,14 +94,30 @@ snit::type object {
     # object  - An object name
     # options - One or more options/values
     #
+    #    -attrs names - Attribute names to include.
     #    -tags tags   - Tags to apply to the object's attributes.
     #
     # Includes the attributes of the named object into this object.
 
     method Compiler_include {object args} {
-        foreach attr [::objects::$object attr names] {
+        set opts(-attrs) [::objects::$object attr names]
+        set opts(-tags)  [list]
+
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+
+            switch -exact -- $opt {
+                -attrs -
+                -tags  { 
+                    set opts($opt) [lshift args]
+                }
+                default "Unknown option: \"$opt\""
+            }
+        }
+
+        foreach attr $opts(-attrs) {
             lassign [::objects::$object attr data $attr] label text
-            $self Compiler_attribute $attr $label $text {*}$args
+            $self Compiler_attribute $attr $label $text -tags $opts(-tags)
         }
     }
 

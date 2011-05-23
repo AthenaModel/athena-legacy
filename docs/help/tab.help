@@ -1113,7 +1113,7 @@ tab "Groups/Actors" {
 
     <<parm a ID>>The actor's ID.<</topic>>
 
-    <<_actor parms -tags browser>>
+    <<actor_ parms -tags browser>>
 
     <</parmlist>>
 
@@ -2646,6 +2646,7 @@ tab "Log" {
     <</topiclist>>
 
 }
+
 
 
 
