@@ -30,6 +30,11 @@ page / object "Sim Objects" {
     <<childlinks>>
 }
 
+macro sotitle {} {
+    |<--
+    [mktitle normal [cref /object "Simulation Object"] [pageinfo title] ""]
+}
+
 
 #-----------------------------------------------------------------------
 # Actors
@@ -90,7 +95,7 @@ object _actor {
 }
 
 page /object actor "Actor" {
-    <<title>>
+    <<sotitle>>
 
     <<_actor overview>><p>
 
@@ -103,7 +108,7 @@ page /object actor "Actor" {
 # Tactic Objects
 
 page /object tactic "Tactic" {
-    <<title>>
+    <<sotitle>>
 
     Tactics are the <<cref /object>> by which an
     <<cref /object/actor>> implements his <<term strategy>>.  For
@@ -221,7 +226,7 @@ object _attroe {
 }
 
 page /object/tactic attroe "ATTROE tactic" {
-    <<title>>
+    <<sotitle>>
 
     <<_attroe overview>><p>
 
@@ -295,7 +300,7 @@ object _demob {
 }
 
 page /object/tactic demob "DEMOB tactic" {
-    <<title>>
+    <<sotitle>>
 
     <<_demob overview>><p>
 
@@ -306,3 +311,77 @@ page /object/tactic demob "DEMOB tactic" {
 
 
 
+#-----------------------------------------------------------------------
+# Condition Objects
+
+page /object condition "Condition" {
+    <<sotitle>>
+
+    A <i>condition</i> a Boolean predicate that can be
+    attached to a <<cref /object/tactic>> or <<cref /object/goal>>.
+    Tactic conditions  determine whether the tactic should be used or
+    not; goal conditions determine whether the goal is met or not.<p>
+
+    There are many different types of condition, each with its own 
+    specific inputs, as follows:<p>
+
+    <<childlinks>>
+}
+
+object condition_nbcoop {
+    noun "NBCOOP condition"
+    overview {
+        This condition compares a neighborhood's cooperation with a
+        particular force group to a particular value.  The condition
+        is met when the comparison is true, e.g., when neighborhood
+        N1's cooperation with BLUE is greater than 55.0.<p>
+    }
+
+    attribute condition_id "Condition ID" {
+        Every condition has a condition ID, an integer number that uniquely
+        identifies the condition.
+    } 
+
+    attribute cc_id "Tactic/Goal ID" {
+        Every condition has a collection ID, an integer number that uniquely
+        identifies the <<cref /object/tactic>> or 
+        <<cref /object/goal>> that owns the condition.
+    }
+
+    attribute owner "Owner" {
+        The ID of the <<cref /object/actor>> to whose strategy this
+        condition belongs.
+    }
+
+    attribute n "Neighborhood" {
+        The ID of the <<cref /object/nbhood>> whose cooperation is
+        being compared.
+    } -tags {create update}
+
+    attribute g "Group" {
+        The ID of the <<cref /object/frcgroup>> whose cooperation
+        is being compared.
+    } -tags {create update}
+
+    attribute text1 "Comparison" {
+        The kind of comparison being done: a value from
+        the following table:<p>
+
+        <<enumdoc ::projectlib::ecomparator>>
+    } -tags {create update}
+
+    attribute x1 "Amount" {
+        The number to which the neighborhood's cooperation with the
+        group will be compared.
+    } -tags {create update}
+}
+
+page /object/condition nbcoop "NBCOOP condition" {
+    <<sotitle>>
+
+    <<condition_nbcoop overview>><p>
+
+    Neighborhood Cooperation conditions have the following attributes:<p>
+
+    <<condition_nbcoop parmlist>>
+}

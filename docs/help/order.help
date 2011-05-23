@@ -1202,6 +1202,37 @@ order CONDITION:MET:UPDATE "Update Condition: Goal is Met" {
 }
 
 #-----------------------------------------------------------------------
+# Condition: NBCOOP
+
+page /order/condition nbcoop "Condition: Neighborhood Cooperation" {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/condition/nbcoop>>s.<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:NBCOOP:CREATE "Create Condition: Neighborhood Cooperation" {
+    Creates an <<cref /object/condition/nbcoop>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.cco>>
+    <<condition_nbcoop parms -required -tags create>>
+    <</parmlist>>
+}
+
+order CONDITION:NBCOOP:UPDATE "Update Condition: Neighborhood Cooperation" {
+    Updates an existing <<cref /object/condition/nbcoop>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+    <<condition_nbcoop parms -optional -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # Condition: TROOPS
 
 page /order/condition troops "Condition: Troops" {
