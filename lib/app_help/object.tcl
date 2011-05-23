@@ -53,6 +53,7 @@ snit::type object {
         
         $compiler alias noun      $self Compiler_noun
         $compiler alias overview  $self Compiler_overview
+        $compiler alias include   $self Compiler_include
         $compiler alias attribute $self Compiler_attribute
 
         $compiler eval $script
@@ -86,6 +87,22 @@ snit::type object {
 
     method Compiler_overview {text} {
         set info(overview) $text
+    }
+
+    # include object ?options...?
+    #
+    # object  - An object name
+    # options - One or more options/values
+    #
+    #    -tags tags   - Tags to apply to the object's attributes.
+    #
+    # Includes the attributes of the named object into this object.
+
+    method Compiler_include {object args} {
+        foreach attr [::objects::$object attr names] {
+            lassign [::objects::$object attr data $attr] label text
+            $self Compiler_attribute $attr $label $text {*}$args
+        }
     }
 
     # attribute name label text ?options...?
@@ -147,6 +164,18 @@ snit::type object {
     method {attr names} {} {
         return $info(attrs)
     }
+
+    # attr data name
+    #
+    # name - An attribute name
+    #
+    # Returns the raw attribute data for the named attributes as a
+    # list: label text
+
+    method {attr data} {name} {
+        return [list $info(label-$name) $info(text-$name)]
+    }
+
 
     # attr label name
     #

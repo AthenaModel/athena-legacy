@@ -107,23 +107,40 @@ page /object actor "Actor" {
 #-----------------------------------------------------------------------
 # Tactic Objects
 
+object tactic_ {
+    noun "tactic"
+    overview {
+        Tactics are the <<cref /object>> by which an
+        <<cref /object/actor>> implements his <<term strategy>>.  For
+        example, an actor may use the <<cref /object/tactic/deploy>>
+        to position troops in a neighborhood, and then use the
+        <<cref /object/tactic/attroe>> to call for attacks on another
+        group.  Tactics may have <<cref /object/condition>>s attached
+        to them.<p>
+    }
+
+    attribute tactic_id "Tactic ID" {
+        Every tactic has a tactic ID, an integer number that uniquely
+        identifies the tactic.
+    } 
+
+    attribute owner "Owner" {
+        The ID of the <<cref /object/actor>> to whose strategy this
+        tactic belongs.
+    }
+}
+
 page /object tactic "Tactic" {
     <<sotitle>>
 
-    Tactics are the <<cref /object>> by which an
-    <<cref /object/actor>> implements his <<term strategy>>.  For
-    example, an actor may use the <<cref /object/tactic/deploy>>
-    to position troops in a neighborhood, and then use the
-    <<cref /object/tactic/attroe>> to call for attacks on another
-    group.  Tactics may have <<cref /object/condition>>s attached
-    to them.<p>
+    <<tactic_ overview>><p>
 
     There are many different kinds of tactic, as listed below.<p>
 
     <<childlinks>>
 }
 
-object _attroe {
+object tactic_attroe {
     noun "ATTROE tactic"
     overview {
         This tactic sets the attacking <<term roe>> for force groups
@@ -147,15 +164,7 @@ object _attroe {
         explicitly given an ROE to do so.<p>
     }
 
-    attribute tactic_id "Tactic ID" {
-        Every tactic has a tactic ID, an integer number that uniquely
-        identifies the tactic.
-    } 
-
-    attribute owner "Owner" {
-        The ID of the <<cref /object/actor>> to whose strategy this
-        tactic belongs.
-    }
+    include tactic_
 
     attribute f "Attacking Group" {
         The attacking <<cref /object/group/force>>.  This group must
@@ -228,15 +237,15 @@ object _attroe {
 page /object/tactic attroe "ATTROE tactic" {
     <<sotitle>>
 
-    <<_attroe overview>><p>
+    <<tactic_attroe overview>><p>
 
     Attacking ROE tactics have the following attributes:<p>
 
-    <<_attroe parmlist>>
+    <<tactic_attroe parmlist>>
 }
 
 
-object _demob {
+object tactic_demob {
     noun "DEMOB tactic"
     overview {
         This tactic demobilizes 
@@ -253,15 +262,7 @@ object _demob {
         strategy tock are cumulative.<p>
     }
 
-    attribute tactic_id "Tactic ID" {
-        Every tactic has a tactic ID, an integer number that uniquely
-        identifies the tactic.
-    } 
-
-    attribute owner "Owner" {
-        The ID of the <<cref /object/actor>> to whose strategy this
-        tactic belongs.
-    }
+    include tactic_
 
     attribute g "Group" {
         The ID of a <<cref /object/group/force>> or 
@@ -302,11 +303,11 @@ object _demob {
 page /object/tactic demob "DEMOB tactic" {
     <<sotitle>>
 
-    <<_demob overview>><p>
+    <<tactic_demob overview>><p>
 
     Demobilization tactics have the following attributes:<p>
 
-    <<_demob parmlist>>
+    <<tactic_demob parmlist>>
 }
 
 

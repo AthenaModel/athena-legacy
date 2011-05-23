@@ -238,19 +238,37 @@ Objects are defined by a script containing the following commands:<p>
 
 <<deflist odef>>
 
-<<defitem noun {noun <i>noun</i>}>>
+<<defitem odef_noun {noun <i>noun</i>}>>
 
 The <<iref object>>'s name is a Tcl command, not an English word.
 This command is used to define the English word used in the help text
 for this kind of object.<p>
 
-<<defitem overview {overview <i>text</i>}>>
+<<defitem odef_overview {overview <i>text</i>}>>
 
 This command provides a general overall description of the object.
 The <i>text</i> is <<xref ehtml(5)>>, and may contain
 <<xref MACROS>>.<p>
 
-<<defitem attribute {attribute <i>name label text</i> ?<i>options...</i>?}>>
+<<defitem odef_include {include <i>object</i> ?<i>options</i>?}>>
+
+This command includes attribute definitions from another object.
+Included attributes have the same labels and documentation text as they do
+in the object from which they are taken, but lose their tags so that
+the including object can tag them however is desired.<p>
+
+<<deflist options>>
+
+<<defopt {-tags <i>tags</i>}>>
+
+Specifies a list of one-word tags to attach to this attribute.  Tags
+are used to filter the output produced by some of the
+<<xref "Object Commands">>.<p>
+
+<</deflist options>>
+
+
+<<defitem odef_attribute {attribute <i>name label text</i> ?<i>options...</i>?}>>
 
 This command defines one of the object's attributes.  Each attribute
 has a <i>name</i>; this is usually the attribute's name in the program
@@ -279,24 +297,29 @@ or in <<iref page>> or <<iref macro>> bodies.<p>
 
 <<deflist osub>>
 
-<<defitem noun {<i>object</i> noun}>>
+<<defitem osub_noun {<i>object</i> noun}>>
 
 Returns the object's noun.<p>
 
-<<defitem overview {<i>object</i> overview}>>
+<<defitem osub_overview {<i>object</i> overview}>>
 
 Returns the object's overview text, first expanding any macros.<p>
 
-<<defitem {attr names} {<i>object</i> attr names}>>
+<<defitem {osub_attr names} {<i>object</i> attr names}>>
 
 Returns a list of the object's attribute names, in order of
 definition.<p>
 
-<<defitem {attr label} {<i>object</i> attr label <i>name</i>}>>
+<<defitem {osub_attr data} {<i>object</i> attr data <i>name</i>}>>
+
+Returns a two-item list of the named attribute's label and
+documentation text strings.  No macros are expanded.<p>
+
+<<defitem {osub_attr label} {<i>object</i> attr label <i>name</i>}>>
 
 Returns the label text for the named attributed.<p>
 
-<<defitem {attr text} {<i>object</i> attr text <i>name</i>}>>
+<<defitem {oub_attr text} {<i>object</i> attr text <i>name</i>}>>
 
 Returns the named attribute's documentation text, first expanding
 any macros.<p>
@@ -335,7 +358,7 @@ All attributes in the output will be marked as being
 
 Returns a complete <<iref parmlist>>.  By default, the result
 includes an <<iref parm>> macro for each of the object's attributes.
-The options, which are the same as for <<iref parms>>, filter and
+The options, which are the same as for the <<iref parms>> subcommand, filter and
 tailor the results.<p>
 
 <</deflist osub>>

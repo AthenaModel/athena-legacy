@@ -3924,7 +3924,7 @@ order TACTIC:ATTROE:CREATE "Create Tactic: Attacking ROE" {
 
     <<parmlist>>
     <<TACTIC.cowner>>
-    <<_attroe parms -required -tags create>>
+    <<tactic_attroe parms -required -tags create>>
     <<TACTIC.priority>>
     <</parmlist>>
 }
@@ -3935,7 +3935,7 @@ order TACTIC:ATTROE:UPDATE "Update Tactic: Attacking ROE" {
     <<parmlist>>
     <<TACTIC.id>>
     <<TACTIC.uowner>>
-    <<_attroe parms -optional -tags update>>
+    <<tactic_attroe parms -optional -tags update>>
     <</parmlist>>
 }
 
@@ -4050,7 +4050,7 @@ order TACTIC:DEMOB:CREATE "Create Tactic: Demobilize Forces" {
 
     <<parmlist>>
     <<TACTIC.cowner>>
-    <<_demob parms -required -tags create>>
+    <<tactic_demob parms -required -tags create>>
     <<TACTIC.priority>>
     <</parmlist>>
 }
@@ -4061,7 +4061,7 @@ order TACTIC:DEMOB:UPDATE "Update Tactic: Demobilize Forces" {
     <<parmlist>>
     <<TACTIC.id>>
     <<TACTIC.uowner>>
-    <<_demob parms -optional -tags create>>
+    <<tactic_demob parms -optional -tags create>>
     <</parmlist>>
 }
 
