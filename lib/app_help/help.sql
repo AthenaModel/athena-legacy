@@ -33,7 +33,10 @@ CREATE TABLE helpdb_pages (
     -- Page title
     title  TEXT,
 
-    -- The HTML text of the page.
+    -- Page Alias: the URL of the page this is an alias to.
+    alias  TEXT,
+
+    -- The HTML text of the page, unless this is an alias.
     text   TEXT
 );
 

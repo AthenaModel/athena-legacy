@@ -53,6 +53,16 @@ along with the following commands.<p>
 
 <<deflist commands>>
 
+<<defitem alias {alias <i>parent slug title alias</i>}>>
+
+Defines a new help page as an alias to the page whose path is
+<i>alias</i>.  The new page will have the given <i>parent</i>,
+<i>slug</i>, and <i>title</i>, just as for the <<iref page>>
+command.<p>
+
+The <i>alias</i> page must already exist, and must not itself be an
+alias to another page.<p>
+
 <<defitem image {image <i>slug title filename</i>}>>
 
 Loads the image stored in <i>filename</i> into the help database
@@ -96,7 +106,7 @@ Every help page is identified by its <i>parent</i> path and a
 path.  The root page of the help tree has its <i>parent</i> and
 <i>slug</i> both "", giving it the path "/".  Subsequent pages will
 have a <i>parent</i> of "/" (or some lower-level page) and a non-empty
-<i>slug</i>.
+<i>slug</i>.<p>
 
 The <i>text</i> is the raw text of the page.  Once all pages have been
 read, the help compiler will expand all of the <<xref ehtml(5)>>

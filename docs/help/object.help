@@ -23,8 +23,8 @@ page / object "Sim Objects" {
     <<title>>
     This section of the help documents the significant object types
     in the Athena simulation, e.g., 
-    <<term actor actors>>, <<term group groups>>, 
-    <<term nbhood neighborhoods>>, and so forth.  The full set of 
+    <<term actor>>s, <<term group>>s, 
+    <<term nbhood>>s, and so forth.  The full set of 
     object types is as follows:<p>
 
     <<childlinks>>
@@ -44,9 +44,9 @@ object actor_ {
 
     overview {
         An <i>actor</i> is a significant decision-maker in the 
-        region of interest.  An actor uses <<cref /object/tactic>>s to
-        achieve <<cref /object/goal>>s subject to certain 
-        <<cref /object/condition>>s.  Collectively, this is called the
+        region of interest.  An actor uses <<term tactic>>s to
+        achieve <<term goal>>s subject to certain 
+        <<term condition>>s.  Collectively, this is called the
         actor's <<term strategy>>; it is browsed and edited on 
         the <<tab Strategy>>.<p>
 
@@ -182,14 +182,14 @@ object group_civ {
         A <i>civilian group</i> is an identifiable collection of
         civilians who live in the playbox and share similar beliefs.
         Each civilian group resides in a single
-        <<cref /object/nbhood>>.
+        <<term nbhood>>.
     }
 
     include group_ -attrs g        -tags create
     include group_ -attrs longname -tags {create update}
 
     attribute n "Neighborhood" {
-        The ID of an existing <<cref /object/nbhood>>, the group's
+        The ID of an existing <<term nbhood>>, the group's
         neighborhood of residence.
     } -tags {create update multi}
 
@@ -229,12 +229,13 @@ object tactic_ {
     noun "tactic"
     overview {
         Tactics are the <<cref /object>> by which an
-        <<cref /object/actor>> implements his <<term strategy>>.  For
+        <<term actor>> implements his <<term strategy>>.  For
         example, an actor may use the <<cref /object/tactic/deploy>>
         to position troops in a neighborhood, and then use the
         <<cref /object/tactic/attroe>> to call for attacks on another
-        group.  Tactics may have <<cref /object/condition>>s attached
-        to them.<p>
+        group.  Tactics may have <<term condition>>s attached
+        to them.  Tactics are browsed and 
+        edited on the <<tab Strategy>>.
     }
 
     attribute tactic_id "Tactic ID" {
@@ -243,7 +244,7 @@ object tactic_ {
     } 
 
     attribute owner "Owner" {
-        The ID of the <<cref /object/actor>> to whose strategy this
+        The ID of the <<term actor>> to whose strategy this
         tactic belongs.
     }
 }
@@ -262,10 +263,10 @@ object tactic_attroe {
     noun "ATTROE tactic"
     overview {
         This tactic sets the attacking <<term roe>> for force groups
-        belonging to an <<cref /object/actor>>.<p>
+        belonging to an <<term actor>>.<p>
 
         Attacking ROEs determine whether a
-        <<cref /object/group/force>> will seek out and
+        <<term frcgroup>> will seek out and
         attack other force groups.  In Athena, force groups are either
         uniformed or non-uniformed.  (Non-uniformed forces are those that
         hide among the local population and use terrorist and other
@@ -274,7 +275,7 @@ object tactic_attroe {
         Athena's attrition model currently
         only supports attacks by uniformed force groups on non-uniformed
         force groups, and <i>vice versa</i>.  ROEs are set 
-        <<cref /object/nbhood>> by neighborhood; thus, group A can be 
+        <<term nbhood>> by neighborhood; thus, group A can be 
         directed to attack group B in neighborhood N1 but not in 
         neighborhood N2.<p>
 
@@ -285,18 +286,18 @@ object tactic_attroe {
     include tactic_
 
     attribute f "Attacking Group" {
-        The attacking <<cref /object/group/force>>.  This group must
+        The attacking <<term frcgroup>>.  This group must
         belong to the <i>owner</i>, and may be uniformed or non-uniformed.
     } -tags {create update}
 
     attribute g "Defending Group" {
-        The defending <<cref /object/group/force>>.  If the attacker
+        The defending <<term frcgroup>>.  If the attacker
         is uniformed, this group must be non-uniformed, and 
         <i>vice versa</i>.
     } -tags {create update}
 
     attribute n "In Neighborhood" {
-        The <<cref /object/nbhood>> in which the attack(s) may take
+        The <<term nbhood>> in which the attack(s) may take
         place.  Note that
         both groups must have personnel present in this neighborhood, 
         or the ROE will have no effect.
@@ -367,8 +368,8 @@ object tactic_demob {
     noun "DEMOB tactic"
     overview {
         This tactic demobilizes 
-        <<cref /object/group/force>> or 
-        <<cref /object/group/org>> personnel,
+        <<term frcgroup>> or 
+        <<term orggroup>> personnel,
         i.e., it removes them from the playbox.  Only personnel available
         for deployment can be demobilized.<p>
 
@@ -383,8 +384,8 @@ object tactic_demob {
     include tactic_
 
     attribute g "Group" {
-        The ID of a <<cref /object/group/force>> or 
-        <<cref /object/group/org>> belonging to the 
+        The ID of a <<term frcgroup>> or 
+        <<term orggroup>> belonging to the 
         <i>owner</i>.
     } -tags {create update}
 
@@ -437,7 +438,7 @@ page /object condition "Condition" {
     <<sotitle>>
 
     A <i>condition</i> a Boolean predicate that can be
-    attached to a <<cref /object/tactic>> or <<cref /object/goal>>.
+    attached to a <<term tactic>> or <<term goal>>.
     Tactic conditions  determine whether the tactic should be used or
     not; goal conditions determine whether the goal is met or not.<p>
 
@@ -463,22 +464,22 @@ object condition_nbcoop {
 
     attribute cc_id "Tactic/Goal ID" {
         Every condition has a collection ID, an integer number that uniquely
-        identifies the <<cref /object/tactic>> or 
-        <<cref /object/goal>> that owns the condition.
+        identifies the <<term tactic>> or 
+        <<term goal>> that owns the condition.
     }
 
     attribute owner "Owner" {
-        The ID of the <<cref /object/actor>> to whose strategy this
+        The ID of the <<term actor>> to whose strategy this
         condition belongs.
     }
 
     attribute n "Neighborhood" {
-        The ID of the <<cref /object/nbhood>> whose cooperation is
+        The ID of the <<term nbhood>> whose cooperation is
         being compared.
     } -tags {create update}
 
     attribute g "Group" {
-        The ID of the <<cref /object/frcgroup>> whose cooperation
+        The ID of the <<term frcgroup>> whose cooperation
         is being compared.
     } -tags {create update}
 

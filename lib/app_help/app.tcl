@@ -169,6 +169,7 @@ snit::type app {
         set compiler [interp create -safe]
 
         $compiler alias page    $type Compiler_page
+        $compiler alias alias   $type Compiler_alias
         $compiler alias include $type Compiler_include
         $compiler alias image   $type Compiler_image
         $compiler alias macro   $type Compiler_macro
@@ -228,13 +229,51 @@ snit::type app {
 
     typemethod Compiler_page {parent slug title text} {
         # FIRST, get the path.
-        if {$parent eq "" && $slug eq ""} {
-            set path "/"
-        } elseif {$parent eq "/"} {
-            set path "/$slug"
-        } else {
-            set path "$parent/$slug"
-        }
+        set path [$type MakePath $parent $slug]
+
+        # NEXT, validate the input
+        require {$text  ne ""} "Page \"$path\" has no text"
+
+        # NEXT, make the page
+        $type MakePage $parent $slug $title "" $text
+    }
+
+    # Compiler_alias parent slug title alias
+    #
+    # parent      Path of parent page, or "" for root
+    # slug        The page's name, or "" for the root
+    # title       The page title
+    # alias       Path of page to which this is an alias.
+    #
+    # Defines a help page.
+
+    typemethod Compiler_alias {parent slug title alias} {
+        # FIRST, get the path.
+        set path [$type MakePath $parent $slug]
+
+        # NEXT, validate the input
+        require {$alias ne ""} "Aliased page \"$path\" has no alias"
+
+        # NEXT, make the page
+        $type MakePage $parent $slug $title $alias ""
+    }
+
+
+    # MakePage parent slug title alias text
+    #
+    # parent      Path of parent page, or "" for root
+    # slug        The page's name, or "" for the root
+    # title       The page title
+    # alias       Path of page to which this is an alias.
+    # text        The raw text of the page.
+    #
+    # Creates a help page for the "page" and "alias" commands.
+
+    typemethod MakePage {parent slug title alias text} {
+        assert {$alias ne "" || $text ne ""}
+
+        # FIRST, get the path.
+        set path [$type MakePath $parent $slug]
 
         # NEXT, validate the input
         require {
@@ -246,7 +285,7 @@ snit::type app {
             error "Misformed slug for page \"$path\""
         }
         require {$title ne ""} "Page \"$path\" has no title"
-        require {$text  ne ""} "Page \"$path\" has no text"
+
 
         if {[hdb exists {
             SELECT path FROM helpdb_reserved WHERE path=$path}]
@@ -268,18 +307,53 @@ snit::type app {
             }
         }
 
+        if {$alias ne ""} {
+            if {![hdb exists {
+                SELECT path FROM helpdb_pages WHERE path=$alias
+            }]} {
+                error "Page \"$path\"'s alias page does not exist: \"$alias\""
+            }
+
+            hdb eval {
+                SELECT alias FROM helpdb_pages WHERE path=$alias
+            } row {
+                require {$row(alias) eq ""} \
+                    "Page \"$path\"'s alias page is itself aliased: \"$alias\""
+            }
+        }
+
         # NEXT, add the page footer.
-        append text "<p>\n\n<hr>\n"
-        append text "<i><font size=2>Help compiled "
-        append text "<<clock format [clock seconds]>></font></i>\n"
+        if {$text ne ""} {
+            append text "<p>\n\n<hr>\n"
+            append text "<i><font size=2>Help compiled "
+            append text "<<clock format [clock seconds]>></font></i>\n"
+        }
 
         # NEXT, save the page.
         hdb eval {
             INSERT INTO 
-            helpdb_pages(path,parent,slug,title,text)
-            VALUES($path,$parent,$slug,$title,$text);
+            helpdb_pages(path,parent,slug,title,alias,text)
+            VALUES($path,$parent,$slug,$title,$alias,$text);
         }
     }
+
+    # MakePath parent slug
+    #
+    # parent      Path of parent page, or "" for root
+    # slug        The page's name, or "" for the root
+    #
+    # Returns the page's path given its parent and slug.
+
+    typemethod MakePath {parent slug} {
+        if {$parent eq "" && $slug eq ""} {
+            return "/"
+        } elseif {$parent eq "/"} {
+            return "/$slug"
+        } else {
+            return "$parent/$slug"
+        }
+    }
+
 
     # Compiler_image slug title filename
     #

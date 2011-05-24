@@ -59,14 +59,7 @@ term activity "activity" {
 
 #-----------------------------------------------------------------------
 
-term actor "actor" {
-    An <i>actor</i> is a significant decision-maker in the 
-    region of interest.  An actor uses <<term tactic>>s to
-    achieve <<term goal>>s subject to certain 
-    <<term condition>>s.  Collectively, this is called the
-    actor's <<term strategy>>; it is browsed and edited on 
-    the <<tab Strategy>>.
-}
+alias /term actor "actor" /object/actor
 
 #-----------------------------------------------------------------------
 
@@ -236,17 +229,7 @@ term cause "cause" {
 
 #-----------------------------------------------------------------------
 
-term civgroup "civilian group" {
-    A <i>civilian <<term group>></i> is an identifiable collection of people
-    who reside in a <<term nbhood>>.  The members of a civilian
-    group will share one or more characteristics that make them of
-    interest to the analyst: ethnicity, religious or political
-    affiliation, and so forth.<p>
-
-    Civilian groups are created on the 
-    <<tab Groups/CivGroups>>, and manipulated using the
-    <<cref /order/civgroup>>.
-}
+alias /term civgroup "civilian group" /object/group/civ
 
 #-----------------------------------------------------------------------
 
@@ -292,16 +275,7 @@ term concern "concern" {
 
 #-----------------------------------------------------------------------
 
-term condition "condition" {
-    A <i>condition</i> is a Boolean predicate that can be evaluated
-    to return a true or false value.  The value of a condition
-    depends on the condition's input parameters and on the state
-    of the simulation as a whole.<p>
-
-    Conditions can be attached to an <<term actor>>'s
-    <<term goal>>s and <<term tactic>>s on the
-    <<tab Strategy>>.
-}
+alias /term condition "condition" /object/condition
 
 #-----------------------------------------------------------------------
 
@@ -545,18 +519,7 @@ term goal "goal" {
 
 #-----------------------------------------------------------------------
 
-term group "group" {
-    In Athena, a <i>group</i> is a collection of people with some
-    shared mission, origin, organization or goals.  There are three
-    kinds of groups in Athena:<p>
-
-    <ul>
-    <li> <<term civgroup>>s, which reside in 
-         <<term nbhood>>s as <<term civgroup>>s.
-    <li> <<term frcgroup>>s
-    <li> <<term orggroup>>s
-    </ul>
-}
+alias /term group "group" /object/group
 
 #-----------------------------------------------------------------------
 
@@ -990,13 +953,7 @@ term sapop "subsistence agriculture population" {
 
 #-----------------------------------------------------------------------
 
-term tactic "tactic" {
-    A <i>tactic</i> is an action an <<term actor>> can take
-    in order to meet his <<term goal>>s.  An actor will
-    execute a tactic when sufficient assets are available and
-    all attached <<term condition>>s are met.  Tactics are browsed and 
-    edited on the <<tab Strategy>>.
-}
+alias /term tactic "tactic" /object/tactic
 
 #-----------------------------------------------------------------------
 

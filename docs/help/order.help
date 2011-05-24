@@ -331,7 +331,7 @@ page /order actor "Actor Orders" {
     <<title>>
 
     These orders are used create, update, and delete 
-    <<cref /object/actor>>s.
+    <<term actor>>s.
 
     <<childlinks>>
 }
@@ -340,7 +340,7 @@ page /order actor "Actor Orders" {
 
 order ACTOR:CREATE "Create Actor" {
     <b><<cref /using/prep>> Only.</b>  This order creates a new 
-    <<cref /object/actor>>.
+    <<term actor>>.
     The order parameters are as follows:<p>
 
     <<parmlist>>
@@ -353,7 +353,7 @@ order ACTOR:CREATE "Create Actor" {
 
 order ACTOR:DELETE "Delete Actor" {
     <b><<cref /using/prep>> Only.</b>  Deletes an existing
-    <<cref /object/actor>>, along with all entities (e.g., beliefs)
+    <<term actor>>, along with all entities (e.g., beliefs)
     that depend upon it, given its ID.    
     The order parameters are as follows:<p>
 
@@ -369,7 +369,7 @@ order ACTOR:DELETE "Delete Actor" {
 
 order ACTOR:UPDATE "Update Actor" {
     <b><<cref /using/prep>> Only.</b>  This order modifies the
-    definition of an existing <<cref /object/actor>>.  The order
+    definition of an existing <<term actor>>.  The order
     parameters are as follows:
     <p>
 
@@ -1944,7 +1944,7 @@ page /order civgroup "Civilian Group Orders" {
     <<title>>
 
     These orders are used create, update, and delete 
-    <<cref /object/group/civ>>s.
+    <<term civgroup>>s.
 
     <<childlinks>>
 }
@@ -1953,7 +1953,7 @@ page /order civgroup "Civilian Group Orders" {
 
 order CIVGROUP:CREATE "Create Civilian Group" {
     <b><<cref /using/prep>> Only.</b>  This order creates a
-    new <<cref /object/group/civ>>.  The order parameters
+    new <<term civgroup>>.  The order parameters
     are as follows:<p>
     
     <<parmlist>>
@@ -1981,7 +1981,7 @@ order CIVGROUP:DELETE "Delete Civilian Group" {
 
 order CIVGROUP:UPDATE "Update Civilian Group" {
     <b><<cref /using/prep>> Only.</b>  This order updates an
-    existing <<cref /object/group/civ>>.  The order parameters
+    existing <<term civgroup>>.  The order parameters
     are as follows:<p>
 
     <<parmlist>>
@@ -1998,7 +1998,7 @@ order CIVGROUP:UPDATE "Update Civilian Group" {
 
 order CIVGROUP:UPDATE+MULTI "Update Multiple Civilian Groups" {
     <b><<cref /using/prep>> Only.</b>  This order modifies two or 
-    more <<cref /object/group/civ>>s, as selected in the GUI.<p>
+    more <<term civgroup>>s, as selected in the GUI.<p>
 
     <<parmlist>>
     <<parm ids "Groups">>
@@ -2012,7 +2012,7 @@ order CIVGROUP:UPDATE+MULTI "Update Multiple Civilian Groups" {
 #-----------------------------------------------------------------------
 
 order CIVGROUP:UPDATE+POSTPREP "Update Civilian Group (Post-PREP)" {
-    This order updates an existing <<cref /object/group/civ>>
+    This order updates an existing <<term civgroup>>
     after leaving <<cref /using/prep>>.  Only a subset of the
     group attributes can be edited.<p>
 
@@ -2028,7 +2028,7 @@ order CIVGROUP:UPDATE+POSTPREP "Update Civilian Group (Post-PREP)" {
 #-----------------------------------------------------------------------
 
 order CIVGROUP:UPDATE+POSTPREP+MULTI "Update Multiple Civilian Groups (Post-PREP)" {
-    This order updates two or more existing <<cref /object/group/civ>>s,
+    This order updates two or more existing <<term civgroup>>s,
     as selected in the GUI, 
     after leaving <<cref /using/prep>>.  Only a subset of the
     group attributes can be edited.<p>

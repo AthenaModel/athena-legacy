@@ -160,8 +160,14 @@ snit::type ::projectlib::helpserver {
         set path /[dict get $udict path]
 
         $hdb eval {
-            SELECT title, text FROM helpdb_pages WHERE path=$path
+            SELECT title, alias, text FROM helpdb_pages WHERE path=$path
         } {
+            if {$alias ne ""} {
+                set text [$hdb onecolumn {
+                    SELECT text FROM helpdb_pages WHERE path=$alias
+                }]
+            }
+
             return [$self html_Wrap $udict $title $text]
         }
 
