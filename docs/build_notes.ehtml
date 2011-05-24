@@ -11,6 +11,34 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.19, 24 May 2011</h3>
+
+This build contains the MOBILIZE and ATTROE tactics and the NBCOOP
+condition.  In addition, there's been considerable work on the on-line
+help; that work is still on-going.  Finally, the "athena(1)" command
+now simply invokes the Athena simulation; the "sim" subcommand is no
+longer required.<p>
+
+<ul>
+  <li> Bug 2961: Empty Groups Tab
+  <li> Bug 2981: athena_sim(1): MOBILIZE tactic
+  <li> Bug 2982: Remove XML import/export
+  <li> Bug 2983: athena_version(1): development tool
+  <li> Bug 2984: athena_sim(1) becomes athena(1)
+  <li> Bug 2985: Insufficient Personnel Bgerror
+  <li> Bug 2987: Update troops condition has decimal values
+  <li> Bug 2989: athena(1): ATTROE tactic
+  <li> Bug 2990: CONTROL condition says every actor is in control
+  <li> Bug 2992: athena(1): bgerror at start-up
+  <li> Bug 2997: athena(1): Significant Conflicts
+  <li> Bug 2998: help(5): Help Objects
+  <li> Bug 2999: athena(1): Help Scrub, Part I
+  <li> Bug 3000: athena(1): NBCOOP condition
+  <li> Bug 3001: help(5): Help Objects can include attribute definitions from other objects.
+  <li> Bug 3004: athena(1): Civilian Group help
+  <li> Bug 3006: help(5): Alias pages
+</ul>
+
 <h3>Build 3.0.18, 16 May 2011</h3>
 
 This build contains significant improvement in the "condition"
