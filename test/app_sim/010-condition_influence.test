@@ -137,11 +137,14 @@ namespace eval ::athena_test::tests:: {
     } -body {
         set a [InfluenceEval 0.6 LT 0.5]
         set b [InfluenceEval 0.4 LT 0.5]
+        set c [InfluenceEval 0.123 EQ 0.124]
+        set d [InfluenceEval 0.124 LE 0.123]
+        set e [InfluenceEval 0.123 GE 0.124]
 
-        list $a $b
+        list $a $b $c $d $e
     } -cleanup {
         cleanup
-    } -result {0 1}
+    } -result {0 1 1 1 1}
 
     #-------------------------------------------------------------------
     # Cleanup

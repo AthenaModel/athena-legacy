@@ -192,6 +192,8 @@ object condition_cash {
         the following table:<p>
 
         <<enumdoc ::projectlib::ecomparator>>
+
+        Values are rounded to the penny before comparison.
     } -tags {create update}
 
     attribute x1 "Amount" {
@@ -298,6 +300,8 @@ object condition_influence {
         the following table:<p>
 
         <<enumdoc ::projectlib::ecomparator>>
+
+        Values are rounded to two decimals places before comparison.
     } -tags {create update}
 
     attribute x1 "Amount" {

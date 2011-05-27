@@ -124,11 +124,13 @@ namespace eval ::athena_test::tests:: {
         set d [CashEval actors 100 EQ 200]
         set e [CashEval actors 200 GT 100]
         set f [CashEval actors 100 GT 200]
+        set g [CashEval actors 12.123 LE 12.122]
+        set h [CashEval actors 12.122 GE 12.123]
 
-        list $a $b $c $d $e $f
+        list $a $b $c $d $e $f $g $h
     } -cleanup {
         cleanup
-    } -result {1 0 1 0 1 0}
+    } -result {1 0 1 0 1 0 1 1}
 
     test eval-1.2 {eval static, change transient} -setup {
         setup
@@ -170,7 +172,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {1 0 1 0 1 0}
 
-    test CASH-3.2 {eval transient, change static} -setup {
+    test eval-1.4 {eval transient, change static} -setup {
         setup
         condition mutate create [dict merge $C1 [list cc_id $gid]]
 

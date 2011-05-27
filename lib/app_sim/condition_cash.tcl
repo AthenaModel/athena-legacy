@@ -45,7 +45,10 @@ condition type define CASH {a op1 x1} {
                 set cash [actor get $a cash_reserve]
             }
 
-            return [condition compare $cash $op1 $x1]
+            return [condition compare \
+                        [format %.2f $cash] \
+                        $op1                \
+                        [format %.2f $x1]]
         }
     }
 }

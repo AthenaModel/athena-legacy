@@ -48,7 +48,10 @@ condition type define INFLUENCE {a n op1 x1} {
                 WHERE n=$n AND a=$a
             }]
 
-            return [condition compare $influence $op1 $x1]
+            return [condition compare \
+                        [format %.2f $influence] \
+                        $op1                     \
+                        [format %.2f $x1]]
         }
     }
 }
