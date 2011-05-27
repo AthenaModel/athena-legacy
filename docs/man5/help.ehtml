@@ -334,15 +334,48 @@ documentation text strings.  No macros are expanded.<p>
 
 Returns the label text for the named attributed.<p>
 
-<<defitem {oub_attr text} {<i>object</i> attr text <i>name</i>}>>
+<<defitem {osub_attr text} {<i>object</i> attr text <i>name</i>}>>
 
 Returns the named attribute's documentation text, first expanding
 any macros.<p>
 
+<<defitem osub_parm {<i>object</i> parm <i>attr</i> ?<i>options...</i>?}>>
+
+Returns an expanded &lt;&lt;parm&gt;&gt;...&lt;&lt;/parm&gt;&gt; entry
+for a single attribute, given the options.  This is usually done to
+change the label text for the attribute.<p>
+
+<<deflist options>>
+
+<<defopt {-label <i>label</i>}>>
+
+Provides an alternate label string.<p>
+
+<<defopt {-required}>>
+
+The attribute will be marked as being
+<b>Required.</b><p>
+
+<<defopt {-optional}>>
+
+The attribute will be marked as being
+<b>Optional.</b><p>
+
+<<defopt {-display}>>
+
+The attribute will be marked as being
+<b>Display Only.</b><p>
+
+
+<</deflist options>>
+
+
 <<defitem parms {<i>object</i> parms <i>options...</i>}>>
 
-Returns a segment of an <<iref parmlist>>.  By default, the result
-includes an <<iref parm>> macro for each of the object's attributes.
+Returns a sequence of one or more expanded
+&lt;&lt;parm&gt;&gt;...&lt;&lt;/parm&gt;&gt; entries for inclusion in
+a <<iref parmlist>>.  By default, the result
+includes an entry each of the object's attributes.
 The options filter and tailor the results.<p>
 
 <<deflist options>>
@@ -367,14 +400,19 @@ All attributes in the output will be marked as being
 All attributes in the output will be marked as being
 <b>Optional.</b><p>
 
+<<defopt {-display}>>
+
+All attributes in the output will be marked as being
+<b>Display Only.</b><p>
+
 <</deflist options>>
 
 <<defitem parmlist {<i>object</i> parmlist <i>options...</i>}>>
 
 Returns a complete <<iref parmlist>>.  By default, the result
 includes an <<iref parm>> macro for each of the object's attributes.
-The options, which are the same as for the <<iref parms>> subcommand, filter and
-tailor the results.<p>
+The options, which are the same as for the <<iref parms>> subcommand,
+filter and tailor the results.<p>
 
 <</deflist osub>>
 

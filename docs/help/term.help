@@ -39,7 +39,7 @@ proc term {slug term text} {
 # Formats the title for a glossary term
 macro term.header {} {
     |<--
-    [mktitle normal "Glossary" [pageinfo title] ""]
+    [mktitle normal [cref /term] [pageinfo title] ""]
 }
 
 #-----------------------------------------------------------------------
@@ -494,28 +494,11 @@ term filterbox "filter box" {
 
 #-----------------------------------------------------------------------
 
-term frcgroup "force group" {
-    A <i>force <<term group>></i> is a group or organization that
-    exists to implement policy through the application of force.
-    Examples include the regular army, the local police, and
-    organized crime.<p>
-
-    Force groups are created on the 
-    <<tab Groups/FrcGroups>>, and manipulated using the
-    <<cref /order/frcgroup>>.  In order to apply force, force group
-    personnel must be assigned to neighborhoods on the 
-    <<tab Groups/Personnel>> and assigned to
-    <<term activity "activities">> on the <<tab Schedule>>.
-}
+alias /term frcgroup "force group" /object/group/frc
 
 #-----------------------------------------------------------------------
 
-term goal "goal" {
-    A <i>goal</i> is a state of affairs that an <<term actor>> wishes to 
-    bring about or maintain.  A goal is defined by a set of 
-    <<term condition>>s.  Goals are browsed and edited on
-    the <<tab Strategy>>.
-}
+alias /term goal "goal" /object/goal
 
 #-----------------------------------------------------------------------
 
@@ -618,17 +601,7 @@ term morning "morning" {
 
 #-----------------------------------------------------------------------
 
-term nbhood "neighborhood" {
-    The Athena <<term playbox>>, or region of interest, is divided up
-    into <i>neighborhoods</i>.  A neighborhood is a polygonal area on
-    the <<cref /using/maps map>> containing <<term civgroup>>s, 
-    <<term unit>>s of various kinds, <<term ensit>>s, and so forth.<p>
-
-    Neighborhoods can be created on the 
-    <<tab Map>> during <<cref /using/prep>>, and manipulated
-    on the <<tab Neighborhoods/Neighborhoods>> and using the
-    <<cref /order/nbhood>>.
-}
+alias /term nbhood "neighborhood" /object/nbhood
 
 #-------------------------------------------------------------------
 
@@ -659,19 +632,7 @@ term order "order" {
 
 #-----------------------------------------------------------------------
 
-term orggroup "organization group" {
-    An <i>organization <<term group>></i> is an organization that
-    performs work (especially humanitarian relief) in the
-    <<term playbox>>.  Organization groups include Non-Governmental
-    Organizations (NGOs) such as the Red Cross, Inter-Governmental
-    Organizations (IGOs) such as UNESCO, and contractors such as
-    Haliburton.<p>
-
-    Organization groups are created on the 
-    <<tab Groups/OrgGroups>>, and manipulated using the
-    <<cref /order/orggroup>>.  In order to work, organization
-    group personnel must exist in the <<term playbox>> as <<term unit>>s.
-}
+alias /term orggroup "organization group" /object/group/org
 
 #-----------------------------------------------------------------------
 

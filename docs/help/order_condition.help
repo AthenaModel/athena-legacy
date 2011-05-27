@@ -1,0 +1,457 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    order_condition.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: CONDITION:* Orders
+#
+#    This file is included into order.help.
+#
+#-----------------------------------------------------------------------
+
+
+#=======================================================================
+# Condition Orders
+
+page /order condition "Condition Orders" {
+    <<title>>
+
+    A <<term condition>> is a Boolean predicate that can be
+    attached to a <<term tactic>> or <<term goal>>.
+    There are many different types of condition, each of
+    which has its own "CREATE" and "UPDATE" orders; other orders are
+    shared by all condition types.<p>
+
+    The general condition orders and condition types are as follows:<p>
+
+    <<childlinks>>
+} 
+
+macro CONDITION.cco {} {
+    |<--
+    [parm cc_id "Goal/Tactic ID"]
+    <b>Required.</b>  The ID of the goal or tactic to which this condition
+    is attached.
+    [/parm]
+}
+
+macro CONDITION.uco {} {
+    |<--
+    [parm cc_id "Goal/Tactic ID"]
+    <b>Display Only.</b>  The ID of the goal or tactic to which this 
+    condition belongs. This parameter is displayed in the order dialog as 
+    an aid to the user.
+    [/parm]
+}
+
+macro CONDITION.ctactic {} {
+    |<--
+    [parm cc_id "Tactic ID"]
+    <b>Required.</b>  The ID of the tactic to which this condition
+    is attached.
+    [/parm]
+}
+
+macro CONDITION.utactic {} {
+    |<--
+    [parm cc_id "Tactic ID"]
+    <b>Display Only.</b>  The ID of the tactic to which this condition
+    belongs. This parameter is displayed in the order dialog as an aid 
+    to the user.
+    [/parm]
+}
+
+macro CONDITION.id {} {
+    |<--
+    [parm condition_id "Condition ID"]
+    <b>Required.</b> The ID of the condition to be updated.
+    [/parm]
+}
+
+order CONDITION:DELETE "Delete Condition" {
+    <<parmlist>>
+
+    <<parm condition_id "Condition ID">>
+    <b>Required.</b>  The ID of an existing condition.
+    <</parm>>
+
+    <<parm condition_type "Condition Type">>
+    <b>Display Only.</b>  The condition's type.  
+    This parameter is displayed in the order dialog as an aid to the
+    user.
+    <</parm>>
+
+    <<CONDITION.utactic>>
+    
+    <</parmlist>>
+
+    Deletes the condition.
+}
+
+order CONDITION:STATE "Set Condition State" {
+    <<parmlist>>
+
+    <<parm condition_id "Condition ID">>
+    <b>Required.</b>  The ID of an existing condition.
+    <</parm>>
+
+    <<parm state "State">>
+    <b>Required.</b>  The condition's new state, one of: <b>normal</b>,
+    <b>disabled</b>, or <b>invalid</b>.
+    <</parm>>
+
+    <</parmlist>>
+
+    Sets the condition's state.  Note that this order is for internal use
+    by the application; there is no associated order dialog.
+}
+
+#-----------------------------------------------------------------------
+# Condition: AFTER
+
+page /order/condition after "Condition: After" {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/condition/after>>s.<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:AFTER:CREATE "Create Condition: After" {
+    Creates an <<cref /object/condition/after>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.cco>>
+    <<condition_after parms -required -tags create>>
+    <</parmlist>>
+}
+
+order CONDITION:AFTER:UPDATE "Update Condition: After" {
+    Updates an existing <<cref /object/condition/after>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+    <<condition_after parms -required -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Condition: AT
+
+page /order/condition at "Condition: At" {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/condition/at>>s.<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:AT:CREATE "Create Condition: At" {
+    Creates an <<cref /object/condition/at>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.cco>>
+    <<condition_at parms -required -tags create>>
+    <</parmlist>>
+}
+
+order CONDITION:AT:UPDATE "Update Condition: At" {
+    Updates an existing <<cref /object/condition/at>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+    <<condition_at parms -required -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Condition: BEFORE
+
+page /order/condition before "Condition: Before" {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/condition/before>>s.<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:BEFORE:CREATE "Create Condition: Before" {
+    Creates a <<cref /object/condition/before>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.cco>>
+    <<condition_before parms -required -tags create>>
+    <</parmlist>>
+}
+
+order CONDITION:BEFORE:UPDATE "Update Condition: Before" {
+    Updates an existing <<cref /object/condition/before>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+    <<condition_before parms -required -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Condition: CASH
+
+page /order/condition cash "Condition: Cash" {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/condition/cash>>s.<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:CASH:CREATE "Create Condition: Cash" {
+    Creates a <<cref /object/condition/cash>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.cco>>
+    <<condition_cash parms -required -tags create>>
+    <</parmlist>>
+}
+
+order CONDITION:CASH:UPDATE "Update Condition: Cash" {
+    Updates an existing <<cref /object/condition/cash>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+    <<condition_cash parms -optional -tags update>>
+    <</parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
+# Condition: CONTROL
+
+page /order/condition control "Condition: Control" {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/condition/control>>s.<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:CONTROL:CREATE "Create Condition: Control" {
+    Creates a <<cref /object/condition/control>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.cco>>
+    <<condition_control parms -required -tags create>>
+    <</parmlist>>
+}
+
+order CONDITION:CONTROL:UPDATE "Update Condition: Control" {
+    Updates an existing <<cref /object/condition/control>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+    <<condition_control parms -optional -tags update>>
+    <</parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
+# Condition: DURING
+
+page /order/condition during "Condition: During" {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/condition/during>>s.<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:DURING:CREATE "Create Condition: During" {
+    Creates a <<cref /object/condition/during>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.cco>>
+    <<condition_during parms -required -tags create>>
+    <</parmlist>>
+}
+
+order CONDITION:DURING:UPDATE "Update Condition: During" {
+    Updates an existing <<cref /object/condition/during>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+    <<condition_during parms -required -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Condition: INFLUENCE
+
+page /order/condition influence "Condition: Influence" {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/condition/influence>>s.<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:INFLUENCE:CREATE "Create Condition: Influence" {
+    Creates a <<cref /object/condition/influence>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.cco>>
+    <<condition_influence parms -required -tags create>>
+    <</parmlist>>
+}
+
+order CONDITION:INFLUENCE:UPDATE "Update Condition: Influence" {
+    Updates an existing <<cref /object/condition/influence>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+    <<condition_influence parms -optional -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Condition: MET
+
+page /order/condition met "Condition: Met" {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/condition/met>>s.<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:MET:CREATE "Create Condition: Met" {
+    Creates a <<cref /object/condition/met>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.ctactic>>
+    <<condition_met parms -required -tags create>>
+    <</parmlist>>
+}
+
+order CONDITION:MET:UPDATE "Update Condition: Met" {
+    Updates an existing <<cref /object/condition/met>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.utactic>>
+    <<condition_met parms -required -tags update>>
+    <</parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
+# Condition: NBCOOP
+
+page /order/condition nbcoop "Condition: Neighborhood Cooperation" {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/condition/nbcoop>>s.<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:NBCOOP:CREATE "Create Condition: Neighborhood Cooperation" {
+    Creates an <<cref /object/condition/nbcoop>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.cco>>
+    <<condition_nbcoop parms -required -tags create>>
+    <</parmlist>>
+}
+
+order CONDITION:NBCOOP:UPDATE "Update Condition: Neighborhood Cooperation" {
+    Updates an existing <<cref /object/condition/nbcoop>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+    <<condition_nbcoop parms -optional -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Condition: TROOPS
+
+page /order/condition troops "Condition: Troops" {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/condition/troops>>s.<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:TROOPS:CREATE "Create Condition: Troops" {
+    Creates a <<cref /object/condition/troops>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.cco>>
+    <<condition_troops parms -required -tags create>>
+    <</parmlist>>
+}
+
+order CONDITION:TROOPS:UPDATE "Update Condition: Troops" {
+    Updates an existing <<cref /object/condition/troops>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+    <<condition_troops parms -optional -tags update>>
+    <</parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
+# Condition: UNMET
+
+page /order/condition unmet "Condition: Unmet" {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/condition/unmet>>s.<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:UNMET:CREATE "Create Condition: Unmet" {
+    Creates an <<cref /object/condition/unmet>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.ctactic>>
+    <<condition_unmet parms -required -tags create>>
+    <</parmlist>>
+}
+
+order CONDITION:UNMET:UPDATE "Update Condition: Unmet" {
+    Updates an existing <<cref /object/condition/unmet>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.utactic>>
+    <<condition_unmet parms -required -tags update>>
+    <</parmlist>>
+}
+

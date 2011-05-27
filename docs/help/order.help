@@ -370,8 +370,7 @@ order ACTOR:DELETE "Delete Actor" {
 order ACTOR:UPDATE "Update Actor" {
     <b><<cref /using/prep>> Only.</b>  This order modifies the
     definition of an existing <<term actor>>.  The order
-    parameters are as follows:
-    <p>
+    parameters are as follows:<p>
 
     <<parmlist>>
     <<parm a "Select Actor">>
@@ -674,685 +673,7 @@ order BSYSTEM:BELIEF:UPDATE "Update Belief" {
 #=======================================================================
 # Condition Orders
 
-page /order condition "Condition Orders" {
-    <<title>>
-
-    A <<term condition>> is a Boolean predicate that can be
-    attached to a <<term tactic>> or <<term goal>>.
-    There are many different types of condition, each of
-    which has its own "CREATE" and "UPDATE" orders; other orders are
-    shared by all condition types.<p>
-
-    The general condition orders and condition types are as follows:<p>
-
-    <<childlinks>>
-} 
-
-macro CONDITION.cco {} {
-    |<--
-    [parm cc_id "Goal/Tactic ID"]
-    <b>Required.</b>  The ID of the goal or tactic to which this condition
-    is attached.
-    [/parm]
-}
-
-macro CONDITION.uco {} {
-    |<--
-    [parm cc_id "Goal/Tactic ID"]
-    <b>Display Only.</b>  The ID of the goal or tactic to which this 
-    condition belongs. This parameter is displayed in the order dialog as 
-    an aid to the user.
-    [/parm]
-}
-
-macro CONDITION.ctactic {} {
-    |<--
-    [parm cc_id "Tactic ID"]
-    <b>Required.</b>  The ID of the tactic to which this condition
-    is attached.
-    [/parm]
-}
-
-macro CONDITION.utactic {} {
-    |<--
-    [parm cc_id "Tactic ID"]
-    <b>Display Only.</b>  The ID of the tactic to which this condition
-    belongs. This parameter is displayed in the order dialog as an aid 
-    to the user.
-    [/parm]
-}
-
-macro CONDITION.id {} {
-    |<--
-    [parm condition_id "Condition ID"]
-    <b>Required.</b> The ID of the condition to be updated.
-    [/parm]
-}
-
-order CONDITION:DELETE "Delete Condition" {
-    <<parmlist>>
-
-    <<parm condition_id "Condition ID">>
-    <b>Required.</b>  The ID of an existing condition.
-    <</parm>>
-
-    <<parm condition_type "Condition Type">>
-    <b>Display Only.</b>  The condition's type.  
-    This parameter is displayed in the order dialog as an aid to the
-    user.
-    <</parm>>
-
-    <<CONDITION.utactic>>
-    
-    <</parmlist>>
-
-    Deletes the condition.
-}
-
-order CONDITION:STATE "Set Condition State" {
-    <<parmlist>>
-
-    <<parm condition_id "Condition ID">>
-    <b>Required.</b>  The ID of an existing condition.
-    <</parm>>
-
-    <<parm state "State">>
-    <b>Required.</b>  The condition's new state, one of: <b>normal</b>,
-    <b>disabled</b>, or <b>invalid</b>.
-    <</parm>>
-
-    <</parmlist>>
-
-    Sets the condition's state.  Note that this order is for internal use
-    by the application; there is no associated order dialog.
-}
-
-#-----------------------------------------------------------------------
-# Condition: AFTER
-
-page /order/condition after "Condition: After" {
-    <<title>>
-
-    This condition is met when the current simulation time is later
-    than a particular date.<p>
-
-    The condition orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-order CONDITION:AFTER:CREATE "Create Condition: After" {
-    <<parmlist>>
-    <<CONDITION.cco>>
-
-    <<parm t1 "Day">>
-    <b>Required.</b> The day after which the condition is met,
-    specified as a <<term timespec>>.
-    <</parm>>
-    <</parmlist>>
-
-    Creates the condition.
-}
-
-order CONDITION:AFTER:UPDATE "Update Condition: After" {
-    <<parmlist>>
-    <<CONDITION.id>>
-    <<CONDITION.uco>>
-
-    <<parm t1 "Day">>
-    <b>Required.</b> The day after which the condition is met,
-    specified as a <<term timespec>>.
-    <</parm>>
-    <</parmlist>>
-
-    Allows the user to edit the condition.
-}
-
-#-----------------------------------------------------------------------
-# Condition: AT
-
-page /order/condition at "Condition: At" {
-    <<title>>
-
-    This condition is met when the current simulation time is exactly
-    a particular date.  <b>Warning:</b> conditions are evaluated only
-    at the strategy tock, which is nominally every seven days; 
-    consequently, AT conditions for days not divisible by seven
-    will never be met.  (The size of the strategy tock is set by
-    the <<parmdb strategy.ticksPerTock>> model parameter).<p>
-
-    The condition orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-order CONDITION:AT:CREATE "Create Condition: At" {
-    <<parmlist>>
-    <<CONDITION.cco>>
-
-    <<parm t1 "Day">>
-    <b>Required.</b> The day on which the condition is met,
-    specified as a <<term timespec>>.
-    <</parm>>
-    <</parmlist>>
-
-    Creates the condition.
-}
-
-order CONDITION:AT:UPDATE "Update Condition: At" {
-    <<parmlist>>
-    <<CONDITION.id>>
-    <<CONDITION.uco>>
-
-    <<parm t1 "Day">>
-    <b>Required.</b> The day on which the condition is met,
-    specified as a <<term timespec>>.
-    <</parm>>
-    <</parmlist>>
-
-    Allows the user to edit the condition.
-}
-
-#-----------------------------------------------------------------------
-# Condition: BEFORE
-
-page /order/condition before "Condition: Before" {
-    <<title>>
-
-    This condition is met when the current simulation time is earlier
-    than a particular date.<p>
-
-    The condition orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-order CONDITION:BEFORE:CREATE "Create Condition: Before" {
-    <<parmlist>>
-    <<CONDITION.cco>>
-
-    <<parm t1 "Day">>
-    <b>Required.</b> The day on which the condition is no longer met,
-    specified as a <<term timespec>>.
-    <</parm>>
-    <</parmlist>>
-
-    Creates the condition.
-}
-
-order CONDITION:BEFORE:UPDATE "Update Condition: Before" {
-    <<parmlist>>
-    <<CONDITION.id>>
-    <<CONDITION.uco>>
-
-    <<parm t1 "Day">>
-    <b>Required.</b> The day on which the condition is no longer met,
-    specified as a <<term timespec>>.
-    <</parm>>
-    <</parmlist>>
-
-    Allows the user to edit the condition.
-}
-
-#-----------------------------------------------------------------------
-# Condition: CASH
-
-page /order/condition cash "Condition: Cash Reserve" {
-    <<title>>
-
-    This condition compares an actor's cash reserve with a 
-    user-specified amount.  The actor manages his cash reserve
-    using the <<cref /order/tactic/save SAVE>> and
-    <<cref /order/tactic/spend SPEND>> tactics.  Using this
-    condition, the actor can undertake tactics when enough
-    money has been saved, or when the reserve is low.<p>
-
-    The behavior of the condition changes depending on whether or not
-    the referenced actor is the same as the actor who owns the condition.
-    If they are the same, the condition queries the actor's cash reserve
-    <b>at that point in strategy execution</b>; otherwise it queries
-    the actor's cash reserve before strategy execution begins.<p>
-
-    For example, actor A wants to execute a tactic when actor B's 
-    cash reserve is low, and uses a CASH condition to determine this.
-    The condition will be met or unmet based on actor B's cash reserve
-    before he executes any new tactics.<p>
-
-    On the other hand, suppose actor A wants to execute a tactic
-    when his own cash reserve is high, and uses a CASH condition to 
-    determine this.  A may execute a series of tactics during strategy 
-    execution, and some of these may change the level of 
-    his cash reserve.  Naturally, he wants to take his previous decisions 
-    into account when deciding whether to execute the <i>next</i> tactic.
-    In this case, then, the CASH condition will query his cash reserve
-    at that point in the process.<p>
-
-    The condition orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-order CONDITION:CASH:CREATE "Create Condition: Cash Reserve" {
-    <<parmlist>>
-    <<CONDITION.cco>>
-
-    <<parm a "Actor">>
-    The name of the actor whose cash reserve is being compared.
-    <</parm>>
-
-    <<parm text1 "Comparison">>
-    <b>Required.</b>  The kind of comparison being done: a value from
-    the following table:<p>
-
-    <<enumdoc ::projectlib::ecomparator>>
-    <</parm>>
-
-    <<parm x1 "Amount">>
-    <b>Required.</b>  The amount of cash to which the actor's
-    cash reserve will be compared.
-    <</parm>>
-    <</parmlist>>
-
-    Creates the condition.
-}
-
-order CONDITION:CASH:UPDATE "Update Condition: Cash Reserve" {
-    <<parmlist>>
-    <<CONDITION.id>>
-    <<CONDITION.uco>>
-
-    <<parm a "Actor">>
-    The name of the actor whose cash reserve is being compared.
-    <</parm>>
-
-    <<parm text1 "Comparison">>
-    <b>Optional.</b>  The kind of comparison being done: a value from
-    the following table:<p>
-
-    <<enumdoc ::projectlib::ecomparator>>
-    <</parm>>
-
-    <<parm x1 "Amount">>
-    <b>Optional.</b>  The amount of cash to which the actor's
-    cash reserve will be compared.
-    <</parm>>
-    <</parmlist>>
-
-    Allows the user to edit the condition.
-}
-
-#-----------------------------------------------------------------------
-# Condition: CONTROL
-
-page /order/condition control "Condition: Control" {
-    <<title>>
-
-    This condition is met when the referenced actor controls a
-    specified set of one or more neighborhoods.<p>
-
-    The condition orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-order CONDITION:CONTROL:CREATE "Create Condition: Control" {
-    <<parmlist>>
-    <<CONDITION.cco>>
-
-    <<parm a "Actor">>
-    <b>Required.</b> The name of the actor whose control is being queried.
-    <</parm>>
-
-    <<parm list1 "Neighborhoods">>
-    <b>Required.</b>  A list of one or more neighborhoods that the
-    actor might or might not control.
-    <</parm>>
-    <</parmlist>>
-
-    Creates the condition.
-}
-
-order CONDITION:CONTROL:UPDATE "Update Condition: Control" {
-    <<parmlist>>
-    <<CONDITION.id>>
-    <<CONDITION.uco>>
-
-    <<parm a "Actor">>
-    <b>Optional.</b> The name of the actor whose control is being queried.
-    <</parm>>
-
-    <<parm list1 "Neighborhoods">>
-    <b>Optional.</b>  A list of one or more neighborhoods that the
-    actor might or might not control.
-    <</parm>>
-    <</parmlist>>
-
-    Allows the user to edit the condition.
-}
-
-#-----------------------------------------------------------------------
-# Condition: DURING
-
-page /order/condition during "Condition: During" {
-    <<title>>
-
-    This condition is met when the current simulation time is within
-    a particular interval.  The start and end times are included within
-    the interval.<p>
-
-    The condition orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-order CONDITION:DURING:CREATE "Create Condition: During" {
-    <<parmlist>>
-    <<CONDITION.cco>>
-
-    <<parm t1 "Start Day">>
-    <b>Required.</b> The day which begins the interval, specified
-    as a <<term timespec>>.
-    <</parm>>
-
-    <<parm t2 "End Day">>
-    <b>Required.</b> The day which ends the interval, specified
-    as a <<term timespec>>.
-    <</parm>>
-    <</parmlist>>
-
-    Creates the condition.
-}
-
-order CONDITION:DURING:UPDATE "Update Condition: During" {
-    <<parmlist>>
-    <<CONDITION.id>>
-    <<CONDITION.uco>>
-
-    <<parm t1 "Start Day">>
-    <b>Optional.</b> The day which begins the interval, specified
-    as a <<term timespec>>.
-    <</parm>>
-
-    <<parm t2 "End Day">>
-    <b>Optional.</b> The day which ends the interval, specified
-    as a <<term timespec>>.
-    <</parm>>
-    <</parmlist>>
-
-    Allows the user to edit the condition.
-}
-
-#-----------------------------------------------------------------------
-# Condition: INFLUENCE
-
-page /order/condition influence "Condition: Influence" {
-    <<title>>
-
-    This condition compares an actor's influence in a neighborhood
-    with a user-specified amount.<p>
-
-    The condition orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-order CONDITION:INFLUENCE:CREATE "Create Condition: Influence" {
-    <<parmlist>>
-    <<CONDITION.cco>>
-
-    <<parm a "Actor">>
-    <b>Required.</b> The name of the actor whose influence is being compared. 
-    <</parm>>
-
-    <<parm n "Neighborhood">>
-    <b>Required.</b> The name of the neighborhood in which the
-    actor's influence is being compared. 
-    <</parm>>
-
-    <<parm text1 "Comparison">>
-    <b>Required.</b>  The kind of comparison being done: a value from
-    the following table:<p>
-
-    <<enumdoc ::projectlib::ecomparator>>
-    <</parm>>
-
-    <<parm x1 "Amount">>
-    <b>Required.</b>  The amount of influence to which the actor's
-    influence will be compared.
-    <</parm>>
-    <</parmlist>>
-
-    Creates the condition.
-}
-
-order CONDITION:INFLUENCE:UPDATE "Update Condition: Influence" {
-    <<parmlist>>
-    <<CONDITION.id>>
-    <<CONDITION.uco>>
-
-    <<parm a "Actor">>
-    <b>Optional.</b> The name of the actor whose influence is being compared. 
-    <</parm>>
-
-    <<parm n "Neighborhood">>
-    <b>Optional.</b> The name of the neighborhood in which the
-    actor's influence is being compared. 
-    <</parm>>
-
-    <<parm text1 "Comparison">>
-    <b>Optional.</b>  The kind of comparison being done: a value from
-    the following table:<p>
-
-    <<enumdoc ::projectlib::ecomparator>>
-    <</parm>>
-
-    <<parm x1 "Amount">>
-    <b>Optional.</b>  The amount of influence to which the actor's
-    influence will be compared.
-    <</parm>>
-    <</parmlist>>
-
-    Allows the user to edit the condition.
-}
-
-#-----------------------------------------------------------------------
-# Condition: MET
-
-page /order/condition met "Condition: Goal is Met" {
-    <<title>>
-
-    This condition is met when one or more goals are all met.
-    All of the queried goals must belong to the same actor
-    as the condition does.<p>
-
-    This condition can only be attached to tactics, not to
-    goals.<p>
-
-    The condition orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-order CONDITION:MET:CREATE "Create Condition: Goal is Met" {
-    <<parmlist>>
-    <<CONDITION.ctactic>>
-
-    <<parm list1 "Goals">>
-    <b>Required.</b>  A list of the IDs of one or more goals belonging
-    to the same actor as the tactic to which this condition is attached.
-    <</parm>>
-
-    <</parmlist>>
-
-    Creates the condition.
-}
-
-order CONDITION:MET:UPDATE "Update Condition: Goal is Met" {
-    <<parmlist>>
-    <<CONDITION.id>>
-
-    <<parm list1 "Goals">>
-    <b>Optional.</b>  A list of the IDs of one or more goals belonging
-    to the same actor as the tactic to which this condition is attached.
-    <</parm>>
-
-    <</parmlist>>
-
-    Allows the user to edit the condition.
-}
-
-#-----------------------------------------------------------------------
-# Condition: NBCOOP
-
-page /order/condition nbcoop "Condition: Neighborhood Cooperation" {
-    <<title>>
-
-    The following orders are used to create and update
-    <<cref /object/condition/nbcoop>>s.<p>
-
-    <<childlinks>>
-}
-
-order CONDITION:NBCOOP:CREATE "Create Condition: Neighborhood Cooperation" {
-    Creates an <<cref /object/condition/nbcoop>>.<p>
-
-    <<parmlist>>
-    <<CONDITION.cco>>
-    <<condition_nbcoop parms -required -tags create>>
-    <</parmlist>>
-}
-
-order CONDITION:NBCOOP:UPDATE "Update Condition: Neighborhood Cooperation" {
-    Updates an existing <<cref /object/condition/nbcoop>>.<p>
-
-    <<parmlist>>
-    <<CONDITION.id>>
-    <<CONDITION.uco>>
-    <<condition_nbcoop parms -optional -tags update>>
-    <</parmlist>>
-}
-
-#-----------------------------------------------------------------------
-# Condition: TROOPS
-
-page /order/condition troops "Condition: Troops" {
-    <<title>>
-
-    This condition compares a force or organization group's total
-    number of personnel in the playbox with some 
-    user-specified amount.<p>
-
-    The behavior of the condition changes depending on whether or not
-    the referenced group is owned by the same actor who owns the condition.
-    If they are the same, the condition queries the group's total
-    number of personnel <b>at that point in strategy execution</b>;
-    otherwise it queries the number of personnel in the playbox
-    before strategy execution began.<p>
-
-    The condition orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-order CONDITION:TROOPS:CREATE "Create Condition: Troops" {
-    <<parmlist>>
-    <<CONDITION.cco>>
-
-    <<parm g "Group">>
-    <b>Required.</b> The name of the force or organization group whose
-    troop numbers are being compared.
-    <</parm>>
-
-    <<parm text1 "Comparison">>
-    <b>Required.</b>  The kind of comparison being done: a value from
-    the following table:<p>
-
-    <<enumdoc ::projectlib::ecomparator>>
-    <</parm>>
-
-    <<parm int1 "Amount">>
-    <b>Required.</b>  The number to which the group's number of 
-    personnel will be compared.
-    <</parm>>
-    <</parmlist>>
-
-    Creates the condition.
-}
-
-order CONDITION:TROOPS:UPDATE "Update Condition: Troops" {
-    <<parmlist>>
-    <<CONDITION.id>>
-    <<CONDITION.uco>>
-
-    <<parm g "Group">>
-    <b>Optional.</b> The name of the force or organization group whose
-    troop numbers are being compared.
-    <</parm>>
-
-    <<parm text1 "Comparison">>
-    <b>Optional.</b>  The kind of comparison being done: a value from
-    the following table:<p>
-
-    <<enumdoc ::projectlib::ecomparator>>
-    <</parm>>
-
-    <<parm int1 "Amount">>
-    <b>Optional.</b>  The number to which the group's number of 
-    personnel will be compared.
-    <</parm>>
-    <</parmlist>>
-
-    Allows the user to edit the condition.
-}
-
-
-#-----------------------------------------------------------------------
-# Condition: UNMET
-
-page /order/condition unmet "Condition: Goal is Unmet" {
-    <<title>>
-
-    This condition is met when any of one or more goals are unmet.
-    All of the queried goals must belong to the same actor
-    as the condition does.<p>
-
-    This condition can only be attached to tactics, not to
-    goals.<p>
-
-    The condition orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-order CONDITION:UNMET:CREATE "Create Condition: Goal is Unmet" {
-    <<parmlist>>
-    <<CONDITION.ctactic>>
-
-    <<parm list1 "Goals">>
-    <b>Required.</b>  A list of the IDs of one or more goals belonging
-    to the same actor as the tactic to which this condition is attached.
-    <</parm>>
-
-    <</parmlist>>
-
-    Creates the condition.
-}
-
-order CONDITION:UNMET:UPDATE "Update Condition: Goal is Unmet" {
-    <<parmlist>>
-    <<CONDITION.id>>
-
-    <<parm list1 "Goals">>
-    <b>Optional.</b>  A list of the IDs of one or more goals belonging
-    to the same actor as the tactic to which this condition is attached.
-    <</parm>>
-
-    <</parmlist>>
-
-    Allows the user to edit the condition.
-}
-
-
+include order_condition.help
 
 #=======================================================================
 # Cooperation Orders
@@ -1792,40 +1113,24 @@ order ENSIT:RESOLVE "Resolve Environmental Situation" {
 page /order goal "Goal Orders" {
     <<title>>
 
-    A <<term goal>> represents a state of affairs that an actor
-    wishes to bring about.  The precise state of affairs is defined
-    by one or more <<term condition>>s attached to the goal.
-
-    The goal orders are as follows:<p>
+    These orders are used create, update, and delete 
+    <<term goal>>s.
 
     <<childlinks>>
 } 
 
-macro GOAL.id {} {
-    |<--
-    [parm goal_id "Goal ID"]
-    <b>Required.</b> The ID of the goal to be updated.
-    [/parm]
-}
-
 order GOAL:CREATE "Create Goal" {
-    <<parmlist>>
+    This order creates a new <<term goal>>.
+    The order parameters are as follows:<p>
 
-    <<parm owner "Owner">>
-    The name of the actor whose goal this is.
-    <</parm>>
-
-    <<parm narrative "Narrative">>
-    <b>Required.</b>  A narrative description of the goal.  This will
-    usually be a summary of the conditions attached to the goal.
-    <</parm>>
-
-    <</parmlist>>
-
-    Creates the goal.
+    <<goal_ parmlist -required -tags create>>
 }
 
 order GOAL:DELETE "Delete Goal" {
+    Deletes an existing <<term goal>>, along with all entities 
+    (e.g., conditions) that depend upon it.    
+    The order parameters are as follows:<p>
+
     <<parmlist>>
 
     <<parm goal_id "Goal ID">>
@@ -1838,39 +1143,31 @@ order GOAL:DELETE "Delete Goal" {
 }
 
 order GOAL:UPDATE "Update Goal" {
+    This order modifies the
+    definition of an existing <<term goal>>.  
+    The order parameters are as follows:<p>
+
     <<parmlist>>
-    <<GOAL.id>>
+    <<goal_ parm goal_id -required>>
 
     <<parm owner "Owner">>
     <b>Display Only.</b> The name of the actor whose goal this is.
     <</parm>>
 
-    <<parm narrative "Narrative">>
-    <b>Required.</b>   A narrative description of the goal.  This will
-    usually be a summary of the conditions attached to the goal.
-    <</parm>>
+    <<goal_ parm narrative -required>>
 
     <</parmlist>>
-
-    Allows the user to edit the goal.
 }
 
 order GOAL:STATE "Set Goal State" {
+    Sets the <<term goal>>'s state.  Note that this order is for 
+    internal use by the application; there is no associated order 
+    dialog.  The order parameters are as follows:<p>
+
+
     <<parmlist>>
-
-    <<parm goal_id "Goal ID">>
-    <b>Required.</b>  The ID of an existing goal.
-    <</parm>>
-
-    <<parm state "State">>
-    <b>Required.</b>  The goal's new state, one of: <b>normal</b>,
-    <b>disabled</b>, or <b>invalid</b>.
-    <</parm>>
-
+    <<goal_ parms -required -tags state>>
     <</parmlist>>
-
-    Sets the goal's state.  Note that this order is for internal use
-    by the application; there is no associated order dialog.
 }
 
 
@@ -2050,239 +1347,71 @@ order CIVGROUP:UPDATE+POSTPREP+MULTI "Update Multiple Civilian Groups (Post-PREP
 page /order frcgroup "Force Group Orders" {
     <<title>>
 
-    Athena uses force groups to model groups and organizations that 
-    exist to apply force, from the regular army to organized crime.
-    The Force Group Orders are used to define these groups.
+    These orders are used create, update, and delete 
+    <<term frcgroup>>s.
 
     <<childlinks>>
-
-    Then, the <<cref /order/personnel>> can be used to establish force
-    levels in various neighborhoods, and the <<cref /order/activity>> can be 
-    used to schedule various activities by the group's personnel.
-}
-
-macro FRCGROUP.forcetype {} {
-    |<--
-    The force type: regular military, paramilitary (e.g., national
-    police), police, irregular military (e.g., militias), or
-    organized crime.
-
-    [enumdoc ::projectlib::eforcetype]
-}
-
-macro FRCGROUP.basepop {} {
-    |<--
-    The number of personnel belonging to this group
-    who are present in the playbox at time 0.
-}
-
-macro FRCGROUP.attack_cost {} {
-    |<--
-    The cost of one attack on another force group, in dollars.<p>
-
-    Force groups can be authorized to attack other force groups in
-    specific neighborhoods via the 
-    [cref /order/tactic/attroe] tactic.  The ROE specifies some
-    maximum number of attacks in a given week; this parameter gives
-    the cost of one such attack.
-}
-
-macro FRCGROUP.uniformed {} {
-    |<--
-    Boolean flag (e.g., "Yes" or "No").  Indicates whether or not the
-    group's personnel wear recognizeable uniforms.  This affects the
-    offensive and defensive tactics used by the group.
-}
-
-
-macro FRCGROUP.local {} {
-    |<--
-    Boolean flag (e.g., "Yes" or "No").  Indicates whether or not the
-    group is perceived as being local to the playbox.
 }
 
 
 #-----------------------------------------------------------------------
 
 order FRCGROUP:CREATE "Create Force Group" {
+    <b><<cref /using/prep>> Only.</b>  This order creates a new 
+    <<term frcgroup>>.
+    The order parameters are as follows:<p>
+
     <<parmlist>>
-    <<parm g "Group">>
-    <b>Required.</b>  <<parm.identifier group BLUE>>
-    <</parm>>
-
-    <<parm longname "Long Name">>
-    <b>Optional.</b> <<parm.longname group "US Army">>
-    <</parm>>
-
-    <<parm a "Owning Actor">>
-    <b>Optional.</b> <<GROUP.a>>
-    <</parm>>
-
-    <<parm color "Color">>
-    <b>Required.</b> <<GROUP.color>>
-    <</parm>>
-
-    <<parm shape "Unit Shape">>
-    <b>Required.</b> <<GROUP.shape>>
-    <</parm>>
-
-    <<parm forcetype "Force Type">>
-    <b>Required.</b> <<FRCGROUP.forcetype>>
-    <</parm>>
-
-    <<parm demeanor "Demeanor">>
-    <b>Required.</b> <<GROUP.demeanor>>
-    <</parm>>
-
-    <<parm basepop "Personnel">>
-    <b>Required.</b> <<FRCGROUP.basepop>>
-    <</parm>>
-
-    <<parm cost "Cost $/person/week">>
-    <b>Required.</b> <<GROUP.cost>>
-    <</parm>>
-
-    <<parm attack_cost "Cost $/attack">>
-    <b>Required.</b> <<FRCGROUP.attack_cost>>
-    <</parm>>
-
-    <<parm uniformed "Uniformed?">>
-    <b>Required.</b>  <<FRCGROUP.uniformed>>
-    <</parm>>
-
-    <<parm local "Local Group?">>
-    <b>Required.</b>  <<FRCGROUP.local>>
-    <</parm>>
-
+    <<group_frc parms -required -tags create>>
     <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  This order creates a
-    new force group.
 }
 
 
 #-----------------------------------------------------------------------
 
 order FRCGROUP:DELETE "Delete Force Group" {
-    <<parmlist>>
+    <b><<cref /using/prep>> Only.</b>  Deletes an existing
+    <<term frcgroup>>, along with all entities
+    that depend upon it.  The order parameters are as follows:<p>
 
+    <<parmlist>>
     <<parm g "Group">>
     <b>Required.</b>  <<GROUP.g force>>
     <</parm>>
     <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  Deletes an existing
-    force group, along with all entities (e.g., units)
-    that depend upon it.<p>
 }
 
 #-----------------------------------------------------------------------
 
 order FRCGROUP:UPDATE "Update Force Group" {
+    <b><<cref /using/prep>> Only.</b>  This order modifies the
+    definition of an existing <<term frcgroup>>.  The order
+    parameters are as follows:<p>
+
     <<parmlist>>
     <<parm g "Select Group">>
     <b>Required.</b>  <<GROUP.g force>>
     <</parm>>
 
-    <<parm longname "Long Name">>
-    <b>Optional.</b> <<parm.longname group "U.S. Army">>
-    <</parm>>
-
-    <<parm a "Owning Actor">>
-    <b>Optional.</b> <<GROUP.a>>
-    <</parm>>
-
-    <<parm color "Color">>
-    <b>Optional.</b> <<GROUP.color>>
-    <</parm>>
-
-    <<parm shape "Unit Shape">>
-    <b>Optional.</b> <<GROUP.shape>>
-    <</parm>>
-
-    <<parm forcetype "Force Type">>
-    <b>Optional.</b> <<FRCGROUP.forcetype>>
-    <</parm>>
-
-    <<parm demeanor "Demeanor">>
-    <b>Optional.</b> <<GROUP.demeanor>>
-    <</parm>>
-
-    <<parm basepop "Personnel">>
-    <b>Optional.</b> <<FRCGROUP.basepop>>
-    <</parm>>
-
-    <<parm cost "Cost $/person/week">>
-    <b>Optional.</b> <<GROUP.cost>>
-    <</parm>>
-
-    <<parm attack_cost "Cost $/attack">>
-    <b>Optional.</b> <<FRCGROUP.attack_cost>>
-    <</parm>>
-
-    <<parm uniformed "Uniformed?">>
-    <b>Optional.</b>  <<FRCGROUP.uniformed>>
-    <</parm>>
-
-    <<parm local "Local Group?">>
-    <b>Optional.</b>  <<FRCGROUP.local>>
-    <</parm>>
-
+    <<group_frc parms -optional -tags update>>
     <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
-    definition of an existing force group.<p>
 }
 
 
 #-----------------------------------------------------------------------
 
 order FRCGROUP:UPDATE+MULTI "Update Multiple Force Groups" {
+    <b><<cref /using/prep>> Only.</b>  This order modifies the
+    definition of two or more existing <<term frcgroup>>s, as
+    selected in the GUI.  The order parameters are as follows:<p>
+
     <<parmlist>>
     <<parm ids "Groups">>
     <b>Required.</b>  <<parm.ids "force group">>
     <</parm>>
 
-    <<parm a "Owning Actor">>
-    <b>Optional.</b> <<GROUP.a>>
-    <</parm>>
-
-    <<parm color "Color">>
-    <b>Optional.</b> <<GROUP.color>>
-    <</parm>>
-
-    <<parm shape "Unit Shape">>
-    <b>Optional.</b> <<GROUP.shape>>
-    <</parm>>
-
-    <<parm forcetype "Force Type">>
-    <b>Optional.</b> <<FRCGROUP.forcetype>>
-    <</parm>>
-
-    <<parm demeanor "Demeanor">>
-    <b>Optional.</b> <<GROUP.demeanor>>
-    <</parm>>
-
-    <<parm basepop "Personnel">>
-    <b>Optional.</b> <<FRCGROUP.basepop>>
-    <</parm>>
-
-    <<parm cost "Cost $/person/week">>
-    <b>Required.</b> <<GROUP.cost>>
-    <</parm>>
-
-    <<parm uniformed "Uniformed?">>
-    <b>Optional.</b>  <<FRCGROUP.uniformed>>
-    <</parm>>
-
-    <<parm local "Local Group?">>
-    <b>Optional.</b>  <<FRCGROUP.local>>
-    <</parm>>
-
+    <<group_frc parms -optional -tags multi>>
     <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
-    definition of two or more force groups, as selected in the GUI.<p>
 }
 
 
@@ -2291,177 +1420,70 @@ order FRCGROUP:UPDATE+MULTI "Update Multiple Force Groups" {
 
 page /order orggroup "Organization Group Orders" {
     <<title>>
-    Athena uses organization groups to model organizations that are
-    active in the playbox and have a significant affect on civilian
-    attitudes.  Such groups might include the Red Cross, Doctors Without
-    Borders, US AID, and Haliburton.  The Organization Group Orders
-    are used to define these groups.
+
+    These orders are used create, update, and delete 
+    <<term orggroup>>s.
 
     <<childlinks>>
-
-    Then, the <<cref /order/personnel>> can be used to establish force
-    levels in various neighborhoods, and the <<cref /order/activity>> can be 
-    used to schedule various activities by the group's personnel.
-}
-
-macro ORGGROUP.orgtype {} {
-    |<--
-    The organization type.<p>
-
-    [enumdoc ::projectlib::eorgtype]
-}
-
-macro ORGGROUP.basepop {} {
-    |<--
-    The number of personnel belonging to this group
-    who are present in the playbox at time 0.
 }
 
 #-----------------------------------------------------------------------
 
 order ORGGROUP:CREATE "Create Organization Group" {
+    <b><<cref /using/prep>> Only.</b>  This order creates a new 
+    <<term orggroup>>.
+    The order parameters are as follows:<p>
+
     <<parmlist>>
-    <<parm g "Group">>
-    <b>Required.</b>  <<parm.identifier group RC>>
-    <</parm>>
-
-    <<parm longname "Long Name">>
-    <b>Optional.</b> <<parm.longname group "Red Cross">>
-    <</parm>>
-
-    <<parm a "Owning Actor">>
-    <b>Optional.</b> <<GROUP.a>>
-    <</parm>>
-
-    <<parm color "Color">>
-    <b>Required.</b> <<GROUP.color>>
-    <</parm>>
-
-    <<parm shape "Unit Shape">>
-    <b>Required.</b> <<GROUP.shape>>
-    <</parm>>
-
-    <<parm orgtype "Organization Type">>
-    <b>Required.</b> <<ORGGROUP.orgtype>>
-    <</parm>>
-
-    <<parm demeanor "Demeanor">>
-    <b>Required.</b> <<GROUP.demeanor>>
-    <</parm>>
-
-    <<parm basepop "Personnel">>
-    <b>Required.</b> <<ORGGROUP.basepop>>
-    <</parm>>
-
-    <<parm cost "Cost $/person/week">>
-    <b>Required.</b> <<GROUP.cost>>
-    <</parm>>
+    <<group_org parms -required -tags create>>
     <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  This order creates a
-    new organization group.
 }
 
 
 #-----------------------------------------------------------------------
 
 order ORGGROUP:DELETE "Delete Organization Group" {
-    <<parmlist>>
+    <b><<cref /using/prep>> Only.</b>  Deletes an existing
+    <<term orggroup>>, along with all entities
+    that depend upon it.<p>
 
+    <<parmlist>>
     <<parm g "Group">>
     <b>Required.</b>  <<GROUP.g organization>>
     <</parm>>
     <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  Deletes an existing
-    organization group, along with all entities (e.g., units)
-    that depend upon it.<p>
 }
 
 #-----------------------------------------------------------------------
 
 order ORGGROUP:UPDATE "Update Organization Group" {
+    <b><<cref /using/prep>> Only.</b>  This order modifies the
+    definition of an existing <<term orggroup>>.  The order
+    parameters are as follows:<p>
+
     <<parmlist>>
     <<parm g "Select Group">>
     <b>Required.</b>  <<GROUP.g organization>>
     <</parm>>
 
-    <<parm longname "Long Name">>
-    <b>Optional.</b> <<parm.longname group "Red Cross">>
-    <</parm>>
-
-    <<parm a "Owning Actor">>
-    <b>Optional.</b> <<GROUP.a>>
-    <</parm>>
-
-    <<parm color "Color">>
-    <b>Optional.</b> <<GROUP.color>>
-    <</parm>>
-
-    <<parm shape "Unit Shape">>
-    <b>Optional.</b> <<GROUP.shape>>
-    <</parm>>
-
-    <<parm orgtype "Organization Type">>
-    <b>Optional.</b> <<ORGGROUP.orgtype>>
-    <</parm>>
-
-    <<parm demeanor "Demeanor">>
-    <b>Optional.</b> <<GROUP.demeanor>>
-    <</parm>>
-
-    <<parm basepop "Personnel">>
-    <b>Optional.</b> <<ORGGROUP.basepop>>
-    <</parm>>
-
-    <<parm cost "Cost $/person/week">>
-    <b>Required.</b> <<GROUP.cost>>
-    <</parm>>
+    <<group_org parms -optional -tags update>>
     <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
-    definition of an existing organization group.<p>
 }
 
 #-----------------------------------------------------------------------
 
 order ORGGROUP:UPDATE+MULTI "Update Multiple Organization Groups" {
+    <b><<cref /using/prep>> Only.</b>  This order modifies the
+    definition of two or more existing <<term orggroup>>s, as
+    selected in the GUI.  The order parameters are as follows:<p>
+
     <<parmlist>>
     <<parm ids "Groups">>
     <b>Required.</b>  <<parm.ids "organization group">>
     <</parm>>
 
-    <<parm a "Owning Actor">>
-    <b>Optional.</b> <<GROUP.a>>
-    <</parm>>
-
-    <<parm color "Color">>
-    <b>Optional.</b> <<GROUP.color>>
-    <</parm>>
-
-    <<parm shape "Unit Shape">>
-    <b>Optional.</b> <<GROUP.shape>>
-    <</parm>>
-
-    <<parm orgtype "Organization Type">>
-    <b>Optional.</b> <<ORGGROUP.orgtype>>
-    <</parm>>
-
-    <<parm demeanor "Demeanor">>
-    <b>Optional.</b> <<GROUP.demeanor>>
-    <</parm>>
-
-    <<parm basepop "Personnel">>
-    <b>Optional.</b> <<ORGGROUP.basepop>>
-    <</parm>>
-
-    <<parm cost "Cost $/person/week">>
-    <b>Required.</b> <<GROUP.cost>>
-    <</parm>>
+    <<group_org parms -optional -tags multi>>
     <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
-    definition of two or more organization groups, as selected in the GUI.<p>
 }
 
 #=======================================================================
@@ -3029,228 +2051,10 @@ order MAP:IMPORT "Import Map" {
 #=======================================================================
 # Neighborhood Orders
 
-page /order nbhood "Neighborhood Orders" {
-    <<title>>
-
-    The Athena playbox, or region of interest, is divided into 
-    neighborhoods.  A neighborhood is a polygonal area on the map
-    containing civilian groups, units of various kinds, environmental
-    situations, and so forth.<p>
-
-    Neighborhoods can be stacked one on another; the upper
-    neighborhood covers any lower neighborhoods.  Although Athena does
-    not require it, it's customary to stack neighborhoods so that they
-    nest.  The one restriction on nesting is that a neighborhood
-    cannot cover another neighborhood's reference point.<p>
-
-    Neighborhoods can only be created, updated, and deleted during 
-    <<cref /using/prep>>.<p>
-
-    <<childlinks>>
-}
-
-macro NBHOOD.n {} {
-    |<--
-    The ID of an existing neighborhood.
-}
-
-macro NBHOOD.local {} {
-    |<--
-    Whether or not the neighborhood's labor force and production 
-    capabilities contribute to the economy of the region of interest:<p>
-    [enumdoc ::projectlib::eyesno]
-}
-
-macro NBHOOD.urbanization {} {
-    |<--
-    The neighborhood's urbanization level:<p>
-    [enumdoc ::projectlib::eurbanization]
-}
-
-macro NBHOOD.vtygain {} {
-    |<--
-    The neighborhood's volatility gain, a real
-    number no less than zero; it is used to dial up and down the
-    effect of neighborhood [term volatility] 
-    on neighborhood [term security].
-}
-
-macro NBHOOD.refpoint {} {
-    |<--
-    The neighborhood's reference point, expressed as
-    a [term mapref].  The reference point is
-    a location within the neighborhood that is guaranteed not to be
-    obscured by an overlapping or nested neighborhood.
-}
-
-macro NBHOOD.polygon {} {
-    |<--
-    The neighborhood's boundary polygon, expressed as
-    a list of [term mapref].
-}
-
-#-----------------------------------------------------------------------
-
-order NBHOOD:CREATE "Create Neighborhood" {
-    <<parmlist>>
-
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  <<parm.identifier neighborhood N1>>
-    <</parm>>
-
-    <<parm longname "Long Name">>
-    <b>Optional.</b>  <<parm.longname neighborhood "Peshawar">>
-    <</parm>>
-
-    <<parm local "Local Neighborhood?">>
-    <b>Required.</b>  <<NBHOOD.local>>
-    <</parm>>
-
-    <<parm urbanization "Urbanization">>
-    <b>Required.</b>  <<NBHOOD.urbanization>>
-    <</parm>>
-
-    <<parm vtygain "Volatility Gain">>
-    <b>Required.</b>  <<NBHOOD.vtygain>>
-    <</parm>>
-
-    <<parm refpoint "Reference Point">>
-    <b>Required.</b>  <<NBHOOD.refpoint>>
-    <</parm>>
-
-    <<parm polygon "Polygon">>
-    <b>Required.</b> <<NBHOOD.polygon>>
-    <</parm>>
-
-    <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  This order creates a
-    new neighborhood.
-}
-
-#-----------------------------------------------------------------------
-
-order NBHOOD:DELETE "Delete Neighborhood" {
-    <<parmlist>>
-
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  <<NBHOOD.n>>
-    <</parm>>
-    <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  Deletes an existing
-    neighborhood, along with all entities (e.g., civilian groups)
-    that depend upon it.<p>
-}
-
-
-#-----------------------------------------------------------------------
-
-order NBHOOD:LOWER "Lower Neighborhood" {
-    <<parmlist>>
-
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  <<NBHOOD.n>>
-    <</parm>>
-    <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  Lowers a neighborhood
-    to the bottom of the stacking order, so that all overlapping
-    neighborhoods are stacked upon this one, and then determines
-    whether this neighborhood is obscured by any of those above it.
-    (One neighborhood obscures another if it covers the other
-    neighborhood's reference point.)
-}
-
-
-#-----------------------------------------------------------------------
-
-order NBHOOD:RAISE "Raise Neighborhood" {
-    <<parmlist>>
-
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  <<NBHOOD.n>>
-    <</parm>>
-    <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  Raises a neighborhood
-    to the top of the stacking order, so that all overlapping
-    neighborhoods are underneath it, and then determines
-    whether this neighborhood obscures any of those below it.
-    (One neighborhood obscures another if it covers the other
-    neighborhood's reference point.)
-}
-
-
-#-----------------------------------------------------------------------
-
-order NBHOOD:UPDATE "Update Neighborhood" {
-    <<parmlist>>
-
-    <<parm n "Select Neighborhood">>
-    <b>Required.</b>  <<NBHOOD.n>>
-    <</parm>>
-
-    <<parm longname "Long Name">>
-    <b>Optional.</b>  <<parm.longname neighborhood "Peshawar">>
-    <</parm>>
-
-    <<parm local "Local Neighborhood?">>
-    <b>Optional.</b>  <<NBHOOD.local>>
-    <</parm>>
-
-    <<parm urbanization "Urbanization">>
-    <b>Optional.</b>  <<NBHOOD.urbanization>>
-    <</parm>>
-
-    <<parm vtygain "Volatility Gain">>
-    <b>Optional.</b>  <<NBHOOD.vtygain>>
-    <</parm>>
-
-    <<parm refpoint "Reference Point">>
-    <b>Optional.</b>  <<NBHOOD.refpoint>>
-    <</parm>>
-
-    <<parm polygon "Polygon">>
-    <b>Optional.</b> <<NBHOOD.polygon>>
-    <</parm>>
-
-    <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  This order modifies
-    the definition of an existing neighborhood.
-}
-
-#-----------------------------------------------------------------------
-
-order NBHOOD:UPDATE+MULTI "Update Multiple Neighborhoods" {
-    <<parmlist>>
-
-    <<parm ids "Neighborhoods">>
-    <b>Required.</b>  <<parm.ids neighborhood>>
-    <</parm>>
-
-    <<parm local "Local Neighborhood?">>
-    <b>Optional.</b>  <<NBHOOD.local>>
-    <</parm>>
-
-    <<parm urbanization "Urbanization">>
-    <b>Optional.</b>  <<NBHOOD.urbanization>>
-    <</parm>>
-
-    <<parm vtygain "Volatility Gain">>
-    <b>Optional.</b>  <<NBHOOD.vtygain>>
-    <</parm>>
-
-    <</parmlist>>
-
-    <b><<cref /using/prep>> Only.</b>  This order modifies
-    the definition of two or more neighborhoods, as selected in the GUI.
-}
-
+include order_nbhood.help
 
 #=======================================================================
-# Neighborhood Orders
+# Neighborhood Relationship Orders
 
 page /order nbrel "Neighborhood Relationship Orders" {
     <<title>>
@@ -3667,577 +2471,7 @@ order SIM:PAUSE "Pause Simulation" {
 #=======================================================================
 # Tactic Orders
 
-page /order tactic "Tactic Orders" {
-    <<title>>
-
-    A <<term tactic>> is an action an <<term actor>> can choose to 
-    carry out.  There are many different types of tactic, each of
-    which has its own "CREATE" and "UPDATE" orders; other orders are
-    shared by all tactic types.<p>
-
-    The general tactic orders and tactic types are as follows:<p>
-
-    <<childlinks>>
-} 
-
-macro TACTIC.cowner {} {
-    |<--
-    [parm owner "Owner"]
-    <b>Required.</b>  The ID of the actor to which this tactic
-    belongs.
-    [/parm]
-}
-
-macro TACTIC.uowner {} {
-    |<--
-    [parm owner "Owner"]
-    <b>Display Only.</b>  The ID of the actor to which this tactic
-    belongs. This parameter is displayed in the order dialog as an aid 
-    to the  user.
-    [/parm]
-}
-
-macro TACTIC.id {} {
-    |<--
-    [parm tactic_id "Tactic ID"]
-    <b>Required.</b> The ID of the tactic to be updated.
-    [/parm]
-}
-
-macro TACTIC.once {} {
-    |<--
-    A boolean value, "YES" or "NO".  If "YES", this tactic will be
-    disabled automatically after it executes, and hence will execute
-    only once.  If "NO", the tactic will remain enabled, and hence may
-    execute multiple times.
-}
-
-macro TACTIC.priority {} {
-    |<--
-    [parm priority "Priority"]
-    <b>Optional.</b>  Indicates the initial priority of this tactic.
-    If <b>top</b>, the tactic will have priority over all other
-    tactics for this actor; if <b>bottom</b>, it will have the lowest
-    priority.  The priority can then be changed using the
-    [cref /order/tactic/priority] order.
-    [/parm]
-}
-
-order TACTIC:DELETE "Delete Tactic" {
-    <<parmlist>>
-
-    <<parm tactic_id "Tactic ID">>
-    <b>Required.</b>  The ID of an existing tactic.
-    <</parm>>
-
-    <<parm owner "Owner">>
-    <b>Display Only.</b>  The ID of the actor that owns this tactic.
-    This parameter is displayed in the order dialog as an aid to the
-    user.
-    <</parm>>
-
-    <<parm tactic_type "Tactic Type">>
-    <b>Display Only.</b>  The tactic's type.  
-    This parameter is displayed in the order dialog as an aid to the
-    user.
-    <</parm>>
-    
-    <</parmlist>>
-
-    Deletes the tactic.
-}
-
-order TACTIC:PRIORITY "Set Tactic Priority" {
-    <<parmlist>>
-
-    <<parm tactic_id "Tactic ID">>
-    <b>Required.</b>  The ID of an existing tactic.
-    <</parm>>
-
-    <<parm owner "Owner">>
-    <b>Display Only.</b>  The ID of the actor that owns this tactic.
-    This parameter is displayed in the order dialog as an aid to the
-    user.
-    <</parm>>
-
-    <<parm tactic_type "Tactic Type">>
-    <b>Display Only.</b>  The tactic's type.  
-    This parameter is displayed in the order dialog as an aid to the
-    user.
-    <</parm>>
-
-    <<parm priority "Priority">>
-    <b>Required.</b>  The tactic's new priority with respect to
-    other tactics belonging to the same <<term actor>>.
-    Possible values are <b>top</b>, <b>bottom</b>, <b>raise</b>, and
-    <b>lower</b>.  The values <b>top</b> and <b>bottom</b> give the
-    tactic the highest or lowest priority among the actor's
-    tactics; the values <b>raise</b> and <b>lower</b> move the tactic
-    up or down one step.
-    <</parm>>
-
-    <</parmlist>>
-
-    Sets the tactic's priority.  Note that this order is usually sent
-    implicitly via buttons on the <<tab Strategy>>.
-}
-
-
-order TACTIC:STATE "Set Tactic State" {
-    <<parmlist>>
-
-    <<parm tactic_id "Tactic ID">>
-    <b>Required.</b>  The ID of an existing tactic.
-    <</parm>>
-
-    <<parm state "State">>
-    <b>Required.</b>  The tactic's new state, one of: <b>normal</b>,
-    <b>disabled</b>, or <b>invalid</b>.
-    <</parm>>
-
-    <</parmlist>>
-
-    Sets the tactic's state.  Note that this order is for internal use
-    by the application; there is no associated order dialog.
-}
-
-
-#-----------------------------------------------------------------------
-# Tactic: ATTROE
-
-page /order/tactic attroe "Orders: Attacking ROE Tactic" {
-    <<title>>
-
-    The following orders are used to create and update
-    <<cref /object/tactic/attroe>>s.<p>
-
-    <<childlinks>>
-}
-
-order TACTIC:ATTROE:CREATE "Create Tactic: Attacking ROE" {
-    Creates an <<cref /object/tactic/attroe>>.<p>
-
-    <<parmlist>>
-    <<TACTIC.cowner>>
-    <<tactic_attroe parms -required -tags create>>
-    <<TACTIC.priority>>
-    <</parmlist>>
-}
-
-order TACTIC:ATTROE:UPDATE "Update Tactic: Attacking ROE" {
-    Updates an existing <<cref /object/tactic/attroe>>.<p>
-
-    <<parmlist>>
-    <<TACTIC.id>>
-    <<TACTIC.uowner>>
-    <<tactic_attroe parms -optional -tags update>>
-    <</parmlist>>
-}
-
-#-----------------------------------------------------------------------
-# Tactic: DEFROE
-
-page /order/tactic defroe "Tactic: Defensive ROE" {
-    <<title>>
-
-    This tactic sets the defensive <<term roe>> for uniformed force groups
-    belonging to an <<term actor>>.<p>
-
-    Defending ROEs determine how a uniformed force group responds to
-    attack by a non-uniformed force group: do they shoot back, and if
-    so under what conditions.  As such, it has no direct costs, either
-    in dollars or personnel.<p>
-
-    Every uniformed force group has an automatically-created Defending
-    ROE in every neighborhood; the ROE defaults to
-    <b>FIRE_BACK_IF_PRESSED</b>.  This tactic adjusts the ROE
-    according to the actor's <<term condition>>s.<p>
-
-    The tactic orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-macro DEFROE.roe {} {
-    |<--
-    The ROE proper, one of the following values:<p>
-
-    [enumdoc ::projectlib::edefroeuf]
-
-    If the ROE is <b>HOLD_FIRE</b>, then the group will never fire
-    back at attackers.  If the ROE is <b>FIRE_BACK_IF_PRESSED</b>,
-    then the group will fire back only if the attacker continues to
-    press the attack after the initial engagement.  That is, the group
-    will <i>not</i> fire back if the attacker does a hit-and-run.  If
-    the ROE is <b>FIRE_BACK_IMMEDIATELY</b>, the group will always
-    fire back at its attackers.<p>
-
-    Note that the number of civilian casualties depends on whether or
-    not the group fires back at its attackers.
-}
-
-order TACTIC:DEFROE:CREATE "Create Tactic: Defensive ROE" {
-    <<parmlist>>
-    <<TACTIC.cowner>>
-
-    <<parm g "Defending Group">>
-    <b>Required.</b>  The ID of a uniformed force group belonging to
-    the <i>owner</i>.
-    <</parm>>
-
-    <<parm n "In Neighborhood">>
-    <b>Required.</b>  The neighborhood for which the ROE will be
-    set.
-    <</parm>>
-
-    <<parm text1 "ROE">>
-    <b>Required.</b>  <<DEFROE.roe>>
-    <</parm>>
-
-    <<TACTIC.priority>>
-    <</parmlist>>
-
-    Creates the tactic.
-}
-
-order TACTIC:DEFROE:UPDATE "Update Tactic: Defensive ROE" {
-    <<parmlist>>
-    <<TACTIC.id>>
-    <<TACTIC.uowner>>
-
-    <<parm g "Defending Group">>
-    <b>Display Only.</b>  The ID of a uniformed force group belonging to
-    the <i>owner</i>.
-    This parameter is displayed in the order dialog as an aid to the
-    user.
-    <</parm>>
-
-    <<parm n "In Neighborhood">>
-    <b>Display only.</b>  The neighborhood for which the ROE will be
-    set.
-    This parameter is displayed in the order dialog as an aid to the
-    user.
-    <</parm>>
-
-    <<parm text1 "ROE">>
-    <b>Required.</b>  <<DEFROE.roe>>
-    <</parm>>
-
-    <</parmlist>>
-
-    Allows the user to edit the tactic.
-}
-
-#-----------------------------------------------------------------------
-# Tactic: DEMOB
-
-page /order/tactic demob "Orders: Demobilize Forces Tactic" {
-    <<title>>
-
-    The following orders are used to create and update
-    <<cref /object/tactic/demob>>s.<p>
-
-    <<childlinks>>
-}
-
-order TACTIC:DEMOB:CREATE "Create Tactic: Demobilize Forces" {
-    Creates a <<cref /object/tactic/demob>>.<p>
-
-    <<parmlist>>
-    <<TACTIC.cowner>>
-    <<tactic_demob parms -required -tags create>>
-    <<TACTIC.priority>>
-    <</parmlist>>
-}
-
-order TACTIC:DEMOB:UPDATE "Update Tactic: Demobilize Forces" {
-    Updates an existing <<cref /object/tactic/demob>>.<p>
-
-    <<parmlist>>
-    <<TACTIC.id>>
-    <<TACTIC.uowner>>
-    <<tactic_demob parms -optional -tags create>>
-    <</parmlist>>
-}
-
-#-----------------------------------------------------------------------
-# Tactic: DEPLOY
-
-page /order/tactic deploy "Tactic: Deploy Forces" {
-    <<title>>
-
-    This tactic deploys force or organization group personnel
-    present in the playbox and belonging to an actor
-    into particular neighborhoods.  The group's maintenance
-    cost is paid for each person deployed.  Once deployed, the
-    personnel may then be assigned to particular tasks.<p>
-
-    There are two deployment modes, "SOME" and "ALL".  The first
-    deploys a specific number of troops to one or more neighborhoods.
-    The second is for use as a catch-all.  Placed at the end of the
-    actor's strategy, it can ensure that all otherwise undeployed
-    personnel are positioned somewhere in the playbox, presumably in 
-    their bases.  Note that all personnel must be deployed somewhere;
-    undeployed personnel are automatically demobilized.<p>
-
-    Multiple DEPLOY tactics are cumulative.  The deployment lasts
-    until the next strategy tock.<p>
-
-    The tactic orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-macro DEPLOY.g {} {
-    |<--
-    The ID of a force or organization group belonging to the
-    <i>owner</i>.<p>
-}
-
-macro DEPLOY.text1 {} {
-    |<--
-    The deployment mode, as indicated by the following enumeration:<p>
-
-    [enumdoc ::projectlib::edeploymode]
-
-    If "SOME", the tactic deploys a specific number of personnel, as
-    given by the <i>int1</i> parameter.  If there are insufficient
-    personnel, or insufficient funds to maintain them, the tactic will
-    not execute.<p>
-
-    If "ALL", the tactic deploys all remaining personnel belonging to
-    group <i>g</i>.  If there are insufficient funds available to
-    deploy all of them, then the tactic deploys as many as possible.<p>
-}
-
-macro DEPLOY.int1 {} {
-    |<--
-    The number of personnel to be deployed when the mode
-    (<i>text1</i>) is "SOME".  If
-    there are insufficient personnel available, the tactic will not
-    execute.<p>
-
-    If the mode is "ALL", the parameter is ignored.
-}
-
-macro DEPLOY.nlist {} {
-    |<--
-    A list of neighborhood IDs.  The personnel will be distributed
-    evenly across the neighborhoods.
-}
-
-order TACTIC:DEPLOY:CREATE "Create Tactic: Deploy Forces" {
-    <<parmlist>>
-    <<TACTIC.cowner>>
-
-    <<parm g "Group">>
-    <b>Required.</b> <<DEPLOY.g>>
-    <</parm>>
-
-    <<parm text1 "Mode">>
-    <b>Required.</b>  <<DEPLOY.text1>>
-    <</parm>>
-
-    <<parm int1 "Personnel">>
-    <b>Required.</b>  <<DEPLOY.int1>>
-    <</parm>>
-
-    <<parm nlist "In Neighborhoods">>
-    <b>Required.</b>  <<DEPLOY.nlist>>
-    <</parm>>
-
-    <<TACTIC.priority>>
-    <</parmlist>>
-
-    Creates the tactic.
-}
-
-order TACTIC:DEPLOY:UPDATE "Update Tactic: Deploy Forces" {
-    <<parmlist>>
-    <<TACTIC.id>>
-    <<TACTIC.uowner>>
-
-    <<parm g "Group">>
-    <b>Optional.</b> <<DEPLOY.g>>
-    <</parm>>
-
-    <<parm text1 "Mode">>
-    <b>Required.</b>  <<DEPLOY.text1>>
-    <</parm>>
-
-    <<parm int1 "Personnel">>
-    <b>Optional.</b>  <<DEPLOY.int1>>
-    <</parm>>
-
-    <<parm nlist "In Neighborhoods">>
-    <b>Optional.</b>  <<DEPLOY.nlist>>
-    <</parm>>
-
-    <</parmlist>>
-
-    Allows the user to edit the tactic.
-}
-
-#-----------------------------------------------------------------------
-# Tactic: MOBILIZE
-
-page /order/tactic mobilize "Tactic: Mobilize Forces" {
-    <<title>>
-
-    This tactic mobilizes force or organization group personnel,
-    i.e., it brings new personnel into the playbox.<p>
-
-    Multiple MOBILIZE tactics are cumulative.<p>
-
-    The tactic orders are as follows:<p>
-
-    <<childlinks>>
-}
-
-macro MOBILIZE.g {} {
-    |<--
-    The ID of a force or organization group belonging to the
-    <i>owner</i>.<p>
-}
-
-macro MOBILIZE.int1 {} {
-    |<--
-    The number of personnel to mobilize.<p>
-}
-
-order TACTIC:MOBILIZE:CREATE "Create Tactic: Mobilize Forces" {
-    <<parmlist>>
-    <<TACTIC.cowner>>
-
-    <<parm g "Group">>
-    <b>Required.</b> <<MOBILIZE.g>>
-    <</parm>>
-
-    <<parm int1 "Personnel">>
-    <b>Required.</b>  <<MOBILIZE.int1>>
-    <</parm>>
-
-    <<parm once "Once?">>
-    <b>Required.</b>  <<TACTIC.once>>
-    <</parm>>
-
-    <<TACTIC.priority>>
-    <</parmlist>>
-
-    Creates the tactic.
-}
-
-order TACTIC:MOBILIZE:UPDATE "Update Tactic: Mobilize Forces" {
-    <<parmlist>>
-    <<TACTIC.id>>
-    <<TACTIC.uowner>>
-
-    <<parm g "Group">>
-    <b>Optional.</b> <<MOBILIZE.g>>
-    <</parm>>
-
-    <<parm int1 "Personnel">>
-    <b>Optional.</b>  <<MOBILIZE.int1>>
-    <</parm>>
-
-    <<parm once "Once?">>
-    <b>Optional.</b>  <<TACTIC.once>>
-    <</parm>>
-
-    <</parmlist>>
-
-    Allows the user to edit the tactic.
-}
-
-#-----------------------------------------------------------------------
-# Tactic: SAVE
-
-page /order/tactic save "Tactic: Save Money" {
-    <<title>>
-
-    This tactic allows the actor to save a percentage of his weekly
-    income to his cash reserve for later use.  The funds can then be
-    released for spending using the
-    <<cref /order/tactic/spend SPEND>> tactic.
-
-    <<childlinks>>
-}
-
-order TACTIC:SAVE:CREATE "Create Tactic: Save Money" {
-    <<parmlist>>
-    <<TACTIC.cowner>>
-
-    <<parm int1 "Percentage of Income">>
-    <b>Required.</b> The percentage of the actor's income to save, as
-    an integer from 0 to 100.
-    <</parm>>
-
-    <<TACTIC.priority>>
-    <</parmlist>>
-
-    Creates the tactic.
-}
-
-
-order TACTIC:SAVE:UPDATE "Update Tactic: Save Money" {
-    <<parmlist>>
-    <<TACTIC.id>>
-    <<TACTIC.uowner>>
-
-    <<parm int1 "Percentage of Income">>
-    <b>Required.</b> The percentage of the actor's income to save, as
-    an integer from 0 to 100.
-    <</parm>>
-
-    <</parmlist>>
-
-    Allows the user to edit the tactic.
-}
-
-#-----------------------------------------------------------------------
-# Tactic: SPEND
-
-page /order/tactic spend "Tactic: Spend Money" {
-    <<title>>
-
-    This tactic allows the actor to release a percentage of his cash
-    reserve so that it can be spent.  Funds are saved into the
-    cash reserve using the 
-    <<cref /order/tactic/save SAVE>> tactic.
-
-    <<childlinks>>
-}
-
-order TACTIC:SPEND:CREATE "Create Tactic: Spend Money" {
-    <<parmlist>>
-    <<TACTIC.cowner>>
-
-    <<parm int1 "Percentage of Reserve">>
-    <b>Required.</b> The percentage of the actor's reserve to release for
-    spending, as an integer from 0 to 100.
-    <</parm>>
-
-    <<TACTIC.priority>>
-    <</parmlist>>
-
-    Creates the tactic.
-}
-
-
-order TACTIC:SPEND:UPDATE "Update Tactic: Spend Money" {
-    <<parmlist>>
-    <<TACTIC.id>>
-    <<TACTIC.uowner>>
-
-    <<parm int1 "Percentage of Reserve">>
-    <b>Required.</b> The percentage of the actor's reserve to release for
-    spending, as an integer from 0 to 100.
-    <</parm>>
-
-    <</parmlist>>
-
-    Allows the user to edit the tactic.
-}
+include order_tactic.help
 
 #=======================================================================
 # Unit Orders
@@ -4462,46 +2696,3 @@ order PERSONNEL:ADJUST "Adjust Group Personnel" {
     Increases or decreases the number of group <i>g</i>'s personnel 
     stationed in neighborhood <i>n</i> by the specified amount.<p>
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

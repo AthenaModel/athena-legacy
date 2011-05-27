@@ -222,6 +222,7 @@ snit::type object {
     #    -attrs attrs - A list of the attrs to include; overrides -tags.
     #    -required    - The attributes are marked as Required.
     #    -optional    - The attributes are marked as Optional.
+    #    -display     - The attributes are marked as Display Only.
     #
     # Returns <<parm>>...<</parm>> text for the attributes selected
     # by the options, or all attributes by default.
@@ -240,8 +241,9 @@ snit::type object {
             switch -exact -- $opt {
                 -tags     { set data(tags)  [lshift args]    }
                 -attrs    { set data(attrs) [lshift args]    }
-                -required { set data(mode)  "Required"         }
-                -optional { set data(mode)  "Optional"         }
+                -required { set data(mode)  "Required"       }
+                -optional { set data(mode)  "Optional"       }
+                -display  { set data(mode)  "Display Only"   }
                 default   { error "Invalid option: \"$opt\"" }
             }
         }
@@ -270,11 +272,58 @@ snit::type object {
             }
 
             append text $info(text-$name)
+
+            if {$data(mode) eq "Display Only"} {
+                append text {
+                    This parameter is displayed to provide
+                    context to the user; it is not an input.
+                }
+            }
             append text "\n<</parm>>\n\n"
         }
 
         return [ehtml expand $text]
     }
+
+    # parm attr ?options?
+    #
+    # Options:
+    #    -label       - Alternative label text.
+    #    -required    - The attribute is marked as Required.
+    #    -optional    - The attribute is marked as Optional.
+    #    -display     - The attribute is marked as Display Only.
+    #
+    # Returns expanded <<parm>>...<</parm>> text for the attribute.
+
+    method parm {attr args} {
+        # FIRST, get the options
+        set data(label) $info(label-$attr)
+        set data(mode)  ""
+
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+
+            switch -exact -- $opt {
+                -label    { set data(label) [lshift args]    }
+                -required { set data(mode)  "Required"       }
+                -optional { set data(mode)  "Optional"       }
+                -display  { set data(mode)  "Display Only"   }
+                default   { error "Invalid option: \"$opt\"" }
+            }
+        }
+
+        set text "<<parm $attr [list $data(label)]>>\n"
+
+        if {$data(mode) ne ""} {
+                append text "<b>$data(mode).</b>"
+        }
+
+        append text $info(text-$attr)
+        append text "\n<</parm>>\n\n"
+
+        return [ehtml expand $text]
+    }
+
 
     # parmlist ?options...?
     #

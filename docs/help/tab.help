@@ -518,57 +518,24 @@ tab "Neighborhoods" {
 
 tab "Neighborhoods/Neighborhoods" {
     This tab shows basic data about each 
-    <<cref /order/nbhood neighborhood>>, as entered
+    <<term nbhood>>, as entered
     during <<cref /using/prep>>, along with some values computed as the
     simulation runs.  The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
-    <<topiclist Column Description>>
+    <<parmlist Column Description>>
 
-    <<topic ID>>The neighborhood's ID<</topic>>
+    <<parm id ID>>The neighborhood's ID<</parm>>
+    <<nbhood_ parm longname       -label "Neighborhood">>
+    <<nbhood_ parm local          -label "Local">>
+    <<nbhood_ parm urbanization   -label "Urbanization">>
+    <<nbhood_ parm vtygain        -label "VtyGain">>
+    <<nbhood_ parm stacking_order -label "StkOrder">>
+    <<nbhood_ parm obscured_by    -label "ObscuredBy">>
+    <<nbhood_ parm refpoint       -label "RefPoint">>
+    <<nbhood_ parm polygon        -label "Polygon">>
 
-    <<topic Neighborhood>>The neighborhood's human-readable
-    name.<</topic>>
-
-    <<topic Local>>Whether the neighborhood belongs to the local
-    region or not.  Local neighborhoods participate in the regional
-    economy; other neighborhoods do not.
-    <</topic>>
-
-    <<topic Urbanization>>The <<term urbanization>> of the
-    neighborhood.
-    <</topic>>
-    
-    <<topic VtyGain>>The volatility gain of this neighborhood, a
-    multiplier that increases or decreases the 
-    <<term volatility>> of the neighborhood.<</topic>>
-
-    <<topic StkOrd>>The neighborhood's Stacking Order.  When
-    neighborhoods overlap, the neighborhood with the higher stacking
-    order is on top of the neighborhood with the lower stacking
-    order.  Given a city neighborhood drawn on top of a province
-    neighborhood, for example, the city should have a higher stacking
-    order than the province.<p>
-
-    If neighborhoods do not overlap, the stacking order doesn't matter.
-    <</topic>>
-
-    <<topic ObscuredBy>>It's an error in the scenario if one
-    neighborhood overlaps another so as to cover up the second
-    neighborhoods reference point.  Athena flags this by showing the
-    obscuring neighborhood's ID here.
-    <</topic>>
-
-    <<topic RefPoint>>The neighborhood's reference point, which is
-    simply a point known to be somewhere in the neighborhood,
-    expressed as a <<term mapref>>.
-    <</topic>>
-
-    <<topic Polygon>>The neighborhood's boundary polygon, expressed as
-    a list of <<term mapref>>s.
-    <</topic>>
-
-    <</topiclist>>
+    <</parmlist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's
     toolbar contains the following controls:<p>
@@ -577,7 +544,8 @@ tab "Neighborhoods/Neighborhoods" {
 
     <<topic [image button_pencil]>>
     If one or more neighborhoods are selected, pops up the 
-    <<cref /order/nbhood/update>> or <<cref /order/nbhood/update:multi>> dialog for
+    <<cref /order/nbhood/update>> or 
+    <<cref /order/nbhood/update:multi>> dialog for
     the selected neighborhood(s).
     <</topic>>
 
@@ -1146,47 +1114,24 @@ tab "Groups/Actors" {
 
 tab "Groups/CivGroups" {
     This tab shows basic data about each 
-    <<cref /order/civgroup "civilian group">>, as entered
+    <<term civgroup>>, as entered
     during <<cref /using/prep>>.
     The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
-    <<topiclist Column Description>>
+    <<parmlist Column Description>>
 
-    <<topic ID>>The group's ID.<</topic>>
+    <<parm g "ID">>The group's ID.<</topic>>
 
-    <<topic "Long Name">>The human-readable name for the group.<</topic>>
-    
-    <<topic "Nbhood">>The neighborhood in which the group resides.<</topic>>
+    <<group_civ parm longname -label "Long Name">>
+    <<group_civ parm n        -label "Nbhood">>
+    <<group_civ parm color    -label "Color">>
+    <<group_civ parm shape    -label "Unit Shape">>
+    <<group_civ parm demeanor -label "Demeanor">>
+    <<group_civ parm basepop  -label "BasePop">>
+    <<group_civ parm sap      -label "SA%">>
 
-    <<topic Color>>The color used for the group's units in the map
-    display, represented as a 48-bit hexadecimal color value,
-    "#<i>rrrrggggbbbb</i>".  Fortunately, the actual color is also
-    displayed.
-    <</topic>>
-
-    <<topic "Unit Shape">> Units can have three shapes on the
-    <<tab Map>>: <b>FRIEND</b>
-    units are rectangles, <b>NEUTRAL</b> units are squares, and
-    <b>ENEMY</b> units are diamonds.
-    <</topic>>
-
-    <<topic "Demeanor">>The demeanor of the group, as represented by
-    the following enumeration:<p>
-
-    <<enumdoc ::projectlib::edemeanor>>
-    <</topic>>
-
-    <<topic "BasePop">> Base Population: the population of the group
-    in this neighborhood at time 0, as entered during
-    <<cref /using/prep>>.
-    <</topic>>
-
-    <<topic "SA%">> Subsistence Agriculture Percentage: the percentage
-    of the group's population that makes its living by subsistence
-    agriculture, and hence does not participate in the regional
-    economy.<p>
-    <</topic>>
+    <</parmlist>>
 
     <</topiclist>>
 
@@ -1220,74 +1165,25 @@ tab "Groups/CivGroups" {
 
 tab "Groups/FrcGroups" {
     This tab shows basic data about the 
-    <<cref /order/frcgroup "force groups">> that are active
+    <<term frcgroup>>s that are active
     in the playbox.  The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
-    <<topiclist Column Description>>
+    <<parmlist Column Description>>
 
-    <<topic ID>>The group's ID.<</topic>>
-
-    <<topic "Long Name">>The human-readable name for the group.<</topic>>
-
-    <<topic "Owner">>The group's owning actor.  This column will be
-    empty if the owner has not yet been assigned.<</topic>>
-    
-    <<topic Color>>The color used for the group's units in the map
-    display, represented as a 48-bit hexadecimal color value,
-    "#<i>rrrrggggbbbb</i>".  Fortunately, the actual color is also
-    displayed.
-    <</topic>>
-
-    <<topic "Unit Shape">> Units can have three shapes on the
-    <<tab Map>>: <b>FRIEND</b>
-    units are rectangles, <b>NEUTRAL</b> units are squares, and
-    <b>ENEMY</b> units are diamonds.
-    <</topic>>
-
-    <<topic "Force Type">> The force type of this group:<p>
-
-    <<enumdoc ::projectlib::eforcetype>>
-    <</topic>>
-
-    <<topic "Demeanor">>The demeanor of the group, as represented by
-    the following enumeration:<p>
-
-    <<enumdoc ::projectlib::edemeanor>>
-    <</topic>>
-    
-    <<topic "Personnel">>The number of personnel belonging to this group
-    who are present in the playbox at time 0.<p>
-    <</topic>>
-
-    <<topic "Cost, $/person/week">>The cost to the owning actor of 
-    maintaining one member of the group in the playbox for one week.  
-    Costs incurred outside the playbox should be excluded, e.g., 
-    wages for U.S. troops.
-    <</topic>>
-
-    <<topic "Cost, $/attack">>
-    The cost of one attack by this force group on another force group, 
-    in dollars.<p>
-
-    Force groups can be authorized to attack other force groups in
-    specific neighborhoods via the 
-    <<cref /order/tactic/attroe>> tactic.  The ROE specifies some
-    maximum number of attacks in a given week; this parameter gives
-    the cost of one such attack.
-    <</topic>>
-
-
-    <<topic "Uniformed?">> <b>YES</b> if members of the group wear
-    uniforms, and <b>NO</b> if they do not, i.e., if they hide among
-    the general population.
-    <</topic>>
-
-    <<topic "Local?">> <b>YES</b> if the group is local to the
-    playbox, and <b>NO</b> otherwise.
-    <</topic>>
-
-    <</topiclist>>
+    <<parm id ID>>The group's ID.<</parm>>
+    <<group_frc parm longname>>
+    <<group_frc parm a -label "Owner">>
+    <<group_frc parm color>>
+    <<group_frc parm shape>>
+    <<group_frc parm forcetype>>
+    <<group_frc parm demeanor>>
+    <<group_frc parm basepop>>
+    <<group_frc parm cost>>
+    <<group_frc parm attack_cost>>
+    <<group_frc parm uniformed>>
+    <<group_frc parm local -label "Local?">>
+    <</parmlist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's
     toolbar contains the following controls:<p>
@@ -1323,49 +1219,18 @@ tab "Groups/OrgGroups" {
     in the playbox.  The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
-    <<topiclist Column Description>>
+    <<parmlist Column Description>>
 
-    <<topic ID>>The group's ID.<</topic>>
-
-    <<topic "Long Name">>The human-readable name for the group.<</topic>>
-    
-    <<topic "Owner">>The group's owning actor.  This column will be
-    empty if the owner has not yet been assigned.<</topic>>
-    
-    <<topic Color>>The color used for the group's units in the map
-    display, represented as a 48-bit hexadecimal color value,
-    "#<i>rrrrggggbbbb</i>".  Fortunately, the actual color is also
-    displayed.
-    <</topic>>
-
-    <<topic "Unit Shape">> Units can have three shapes on the
-    <<tab Map>>: <b>FRIEND</b>
-    units are rectangles, <b>NEUTRAL</b> units are squares, and
-    <b>ENEMY</b> units are diamonds.
-    <</topic>>
-
-    <<topic "Org Type">> The type of organization:<p>
-
-    <<enumdoc ::projectlib::eorgtype>>
-    <</topic>>
-
-    <<topic "Demeanor">>The demeanor of the group, as represented by
-    the following enumeration:<p>
-
-    <<enumdoc ::projectlib::edemeanor>>
-    <</topic>>
-    
-    <<topic "Personnel">>The number of personnel belonging to this group
-    who are present in the playbox at time 0.<p>
-    <</topic>>
-
-    <<topic "Cost, $/person/week">>The cost to the owning actor of 
-    maintaining one member of the group in the playbox for one week.  
-    Costs incurred outside the playbox should be excluded, e.g., 
-    wages for U.S. troops.
-    <</topic>>
-
-    <</topiclist>>
+    <<parm id ID>>The group's ID.<</topic>>
+    <<group_org parm longname>>
+    <<group_org parm a -label "Owner">>
+    <<group_org parm color>>
+    <<group_org parm shape>>
+    <<group_org parm orgtype -label "Org Type">>
+    <<group_org parm demeanor>>
+    <<group_org parm basepop>>
+    <<group_org parm cost>>
+    <</parmlist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's
     toolbar contains the following controls:<p>

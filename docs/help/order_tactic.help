@@ -1,0 +1,336 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    order_tactic.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: TACTIC:* Orders
+#
+#    This file is included into order.help.
+#
+#-----------------------------------------------------------------------
+
+page /order tactic "Tactic Orders" {
+    <<title>>
+
+    These orders are used to create, update, and delete
+    <<term tactic>>s, of which there are many different type.
+    Each tactic type has its own "CREATE" and "UPDATE" orders; 
+    other TACTIC:* orders are shared by all tactic types.<p>
+
+    The TACTIC:* orders are as follows:
+
+    <<childlinks>>
+} 
+
+macro TACTIC.cowner {} {
+    |<--
+    [parm owner "Owner"]
+    <b>Required.</b>  The ID of the actor to which this tactic
+    belongs.
+    [/parm]
+}
+
+macro TACTIC.uowner {} {
+    |<--
+    [parm owner "Owner"]
+    <b>Display Only.</b>  The ID of the actor to which this tactic
+    belongs. This parameter is displayed in the order dialog as an aid 
+    to the  user.
+    [/parm]
+}
+
+macro TACTIC.id {} {
+    |<--
+    [parm tactic_id "Tactic ID"]
+    <b>Required.</b> The ID of the tactic to be updated.
+    [/parm]
+}
+
+macro TACTIC.once {} {
+    |<--
+    A boolean value, "YES" or "NO".  If "YES", this tactic will be
+    disabled automatically after it executes, and hence will execute
+    only once.  If "NO", the tactic will remain enabled, and hence may
+    execute multiple times.
+}
+
+macro TACTIC.priority {} {
+    |<--
+    [parm priority "Priority"]
+    <b>Optional.</b>  Indicates the initial priority of this tactic.
+    If <b>top</b>, the tactic will have priority over all other
+    tactics for this actor; if <b>bottom</b>, it will have the lowest
+    priority.  The priority can then be changed using the
+    [cref /order/tactic/priority] order.
+    [/parm]
+}
+
+order TACTIC:DELETE "Delete Tactic" {
+    Deletes the <<term tactic>> and all dependent objects,
+    i.e., any attached <<term condition>>s.  The order parameters
+    are as follows:<p>
+
+    <<parmlist>>
+    <<tactic_ parm tactic_id -required>>
+    <<tactic_ parms -display -attrs {owner tactic_type}>>
+    <</parmlist>>
+}
+
+order TACTIC:PRIORITY "Set Tactic Priority" {
+    Sets the <<term tactic>>'s priority relative to other 
+    tactics owned by the same <<term actor>>.
+    Note that this order is usually sent implicitly via buttons 
+    on the <<tab Strategy>>.  The order parameters are as follows:<p>
+
+    <<parmlist>>
+    <<tactic_ parm tactic_id -required>>
+    <<tactic_ parms -display -attrs {owner tactic_type}>>
+
+    <<parm priority "Priority">>
+    <b>Required.</b>  The tactic's new priority with respect to
+    other tactics belonging to the same <<term actor>>.
+    Possible values are <b>top</b>, <b>bottom</b>, <b>raise</b>, and
+    <b>lower</b>.  The values <b>top</b> and <b>bottom</b> give the
+    tactic the highest or lowest priority among the actor's
+    tactics; the values <b>raise</b> and <b>lower</b> move the tactic
+    up or down one step.
+    <</parm>>
+
+    <</parmlist>>
+}
+
+
+order TACTIC:STATE "Set Tactic State" {
+    Sets the <<term tactic>>'s state.  Note that this order is for 
+    internal use by the application; there is no associated order 
+    dialog.  The order parameters are as follows:<p>
+
+    <<parmlist>>
+    <<tactic_ parms -required -tags state>>
+    <</parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
+# Tactic: ATTROE
+
+page /order/tactic attroe TACTIC:ATTROE:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/attroe>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:ATTROE:CREATE "Create Tactic: Attacking ROE" {
+    Creates an <<cref /object/tactic/attroe>>.<p>
+
+    <<parmlist>>
+    <<tactic_attroe parms -required -tags create>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:ATTROE:UPDATE "Update Tactic: Attacking ROE" {
+    Updates an existing <<cref /object/tactic/attroe>>.<p>
+
+    <<parmlist>>
+    <<tactic_attroe parm tactic_id -required>>
+    <<tactic_attroe parm owner -display>>
+    <<tactic_attroe parms -optional -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Tactic: DEFROE
+
+page /order/tactic defroe TACTIC:DEFROE:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/defroe>>s.<p>
+
+    The tactic orders are as follows:<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:DEFROE:CREATE "Create Tactic: Defensive ROE" {
+    Creates an <<cref /object/tactic/defroe>>.<p>
+
+    <<parmlist>>
+    <<tactic_defroe parms -required -tags create>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:DEFROE:UPDATE "Update Tactic: Defensive ROE" {
+    Updates an existing <<cref /object/tactic/defroe>>.<p>
+
+    <<parmlist>>
+    <<tactic_defroe parm tactic_id -required>>
+    <<tactic_defroe parms -attrs {owner g n} -display>>
+    <<tactic_defroe parm text1 -required>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Tactic: DEMOB
+
+page /order/tactic demob TACTIC:DEMOB:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/demob>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:DEMOB:CREATE "Create Tactic: Demobilize Forces" {
+    Creates a <<cref /object/tactic/demob>>.<p>
+
+    <<parmlist>>
+    <<tactic_demob parms -required -tags create>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:DEMOB:UPDATE "Update Tactic: Demobilize Forces" {
+    Updates an existing <<cref /object/tactic/demob>>.<p>
+
+    <<parmlist>>
+    <<tactic_demob parm tactic_id -required>>
+    <<tactic_demob parm owner -display>>
+    <<tactic_demob parms -optional -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Tactic: DEPLOY
+
+page /order/tactic deploy TACTIC:DEPLOY:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/deploy>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:DEPLOY:CREATE "Create Tactic: Deploy Forces" {
+    Creates a <<cref /object/tactic/deploy>>.<p>
+
+    <<parmlist>>
+    <<tactic_deploy parms -required -tags create>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:DEPLOY:UPDATE "Update Tactic: Deploy Forces" {
+    Updates an existing <<cref /object/tactic/deploy>>.<p>
+
+    <<parmlist>>
+    <<tactic_deploy parm tactic_id -required>>
+    <<tactic_deploy parm owner -display>>
+    <<tactic_deploy parms -optional -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Tactic: MOBILIZE
+
+page /order/tactic mobilize TACTIC:MOBILIZE:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/mobilize>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:MOBILIZE:CREATE "Create Tactic: Mobilize Forces" {
+    Creates a <<cref /object/tactic/mobilize>>.<p>
+
+    <<parmlist>>
+    <<tactic_mobilize parms -required -tags create>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:MOBILIZE:UPDATE "Update Tactic: Mobilize Forces" {
+    Updates an existing <<cref /object/tactic/mobilize>>.<p>
+
+    <<parmlist>>
+    <<tactic_mobilize parm tactic_id -required>>
+    <<tactic_mobilize parm owner -display>>
+    <<tactic_mobilize parms -optional -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Tactic: SAVE
+
+page /order/tactic save TACTIC:SAVE:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/save>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:SAVE:CREATE "Create Tactic: Save Money" {
+    Creates a <<cref /object/tactic/save>>.<p>
+
+    <<parmlist>>
+    <<tactic_save parms -required -tags create>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:SAVE:UPDATE "Update Tactic: Save Forces" {
+    Updates an existing <<cref /object/tactic/save>>.<p>
+
+    <<parmlist>>
+    <<tactic_save parm tactic_id -required>>
+    <<tactic_save parm owner -display>>
+    <<tactic_save parms -optional -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Tactic: SPEND
+
+page /order/tactic spend TACTIC:SPEND:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/spend>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:SPEND:CREATE "Create Tactic: Spend Money" {
+    Creates a <<cref /object/tactic/spend>>.<p>
+
+    <<parmlist>>
+    <<tactic_spend parms -required -tags create>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:SPEND:UPDATE "Update Tactic: Spend Forces" {
+    Updates an existing <<cref /object/tactic/spend>>.<p>
+
+    <<parmlist>>
+    <<tactic_spend parm tactic_id -required>>
+    <<tactic_spend parm owner -display>>
+    <<tactic_spend parms -optional -tags update>>
+    <</parmlist>>
+}
+
